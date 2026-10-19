@@ -55,10 +55,6 @@ class MenuItem(Model):
     Only label is required. All other properties are optional.
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     checked = Nullable(Bool, default=None, help="""
     Whether an item is marked as checked/active.
 
@@ -123,19 +119,11 @@ class CheckableItem(MenuItem):
 class DividerItem(Model):
     """ A dividing line between two groups of menu items. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class Menu(UIElement):
     """ An implicitly positioned panel containing a collection of items.
 
     These items can include commands, checked items, dividers, etc.
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     items = List(Either(Instance(MenuItem), Instance(DividerItem), Null), default=[], help="""
     A collection of menu items representing the contents of this menu.

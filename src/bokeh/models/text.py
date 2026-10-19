@@ -19,9 +19,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
 # Bokeh imports
 from ..core.has_props import abstract
 from ..core.property.container import Dict, Tuple
@@ -68,19 +65,11 @@ class MathText(BaseText):
 
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class Ascii(MathText):
     """ Render mathematical content using `AsciiMath <http://asciimath.org/>`_
     notation.
 
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 class MathML(MathText):
     """ Render mathematical content using `MathML <https://www.w3.org/Math/>`_
@@ -89,10 +78,6 @@ class MathML(MathText):
     See :ref:`ug_styling_mathtext` in the |user guide| for more information.
 
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 class TeX(MathText):
     """ Render mathematical content using `LaTeX <https://www.latex-project.org/>`_
@@ -109,10 +94,6 @@ class TeX(MathText):
         here: https://docs.mathjax.org/en/latest/input/tex/differences.html
 
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     macros = Dict(String, Either(String, Tuple(String, Int)), help="""
     User defined TeX macros.
@@ -137,10 +118,6 @@ class PlainText(BaseText):
     """ Represents plain text in contexts where text parsing is allowed.
 
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 #-----------------------------------------------------------------------------
 # Dev API

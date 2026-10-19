@@ -20,7 +20,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, Literal
+# Public constructor types live in the stubs; declarations below cover local calls.
+from typing import TYPE_CHECKING, Any, Literal
 
 # Bokeh imports
 from ..core.has_props import abstract
@@ -66,10 +67,6 @@ class LayoutProvider(Model):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     def edge_point_coordinates(self, point: Literal["start", "end", "control0", "control1"]) -> EdgePointCoordinates:
         return EdgePointCoordinates(layout=self, point=point)
 
@@ -85,10 +82,6 @@ class StaticLayoutProvider(LayoutProvider):
     '''
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     graph_layout = Dict(Either(Int, String), Len(Seq(Float), 2), default={}, help="""
     The coordinates of the graph nodes in cartesian space. The keys of
@@ -112,10 +105,6 @@ class GraphCoordinates(CoordinateTransform):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     layout = Instance(LayoutProvider)
 
 class NodeCoordinates(GraphCoordinates):
@@ -124,9 +113,8 @@ class NodeCoordinates(GraphCoordinates):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
 
 class EdgeCoordinates(GraphCoordinates):
@@ -135,16 +123,15 @@ class EdgeCoordinates(GraphCoordinates):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
 
 class EdgePointCoordinates(GraphCoordinates):
     """ Scalar endpoint or cubic-control coordinates obtained from a graph layout. """
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     point = Required(Enum("start", "end", "control0", "control1"))
 
@@ -155,10 +142,6 @@ class GraphHitTestPolicy(Model):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 
 class EdgesOnly(GraphHitTestPolicy):
     '''
@@ -167,10 +150,6 @@ class EdgesOnly(GraphHitTestPolicy):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 
 class NodesOnly(GraphHitTestPolicy):
     '''
@@ -178,10 +157,6 @@ class NodesOnly(GraphHitTestPolicy):
     inspected. There is no selection or inspection of graph edges.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 
 class NodesAndLinkedEdges(GraphHitTestPolicy):
@@ -193,10 +168,6 @@ class NodesAndLinkedEdges(GraphHitTestPolicy):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 
 class EdgesAndLinkedNodes(GraphHitTestPolicy):
     '''
@@ -206,10 +177,6 @@ class EdgesAndLinkedNodes(GraphHitTestPolicy):
     nodes.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 
 class NodesAndAdjacentNodes(GraphHitTestPolicy):
@@ -221,10 +188,6 @@ class NodesAndAdjacentNodes(GraphHitTestPolicy):
     the tool-selected one from the policy-selected nodes.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 
 #-----------------------------------------------------------------------------

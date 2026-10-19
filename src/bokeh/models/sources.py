@@ -10,7 +10,7 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# pyright: reportArgumentType=false, reportAttributeAccessIssue=false, reportIndexIssue=false, reportOperatorIssue=false, reportCallIssue=false, reportAssignmentType=false
+# pyright: reportArgumentType=false, reportAttributeAccessIssue=false, reportIndexIssue=false, reportOperatorIssue=false, reportAssignmentType=false
 
 import logging # isort:skip
 log = logging.getLogger(__name__)
@@ -27,6 +27,7 @@ from typing import (
     Any,
     Mapping,
     Sequence,
+    cast,
 )
 
 # External imports
@@ -94,10 +95,6 @@ class DataSource(Model):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     selected = Readonly(Instance(Selection), default=InstanceDefault(Selection), help="""
     An instance of a ``Selection`` that indicates selected indices on this ``DataSource``.
     This is a read-only property. You may only change the attributes of this object
@@ -110,10 +107,6 @@ class ColumnarDataSource(DataSource):
     a columnar format.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     default_values = Dict(String, AnyRef, default={}, help="""
     Defines the default value for each column.
@@ -375,7 +368,8 @@ class ColumnDataSource(ColumnarDataSource):
             return df.index.name
         elif df.index.names:
             try:
-                return "_".join(df.index.names)
+                # Non-string index names fall back through TypeError below.
+                return "_".join(cast("Sequence[str]", df.index.names))
             except TypeError:
                 return "index"
         else:
@@ -566,7 +560,7 @@ class ColumnDataSource(ColumnarDataSource):
 
         if pd and isinstance(new_data, (pd.Series, pd.DataFrame)):
             if isinstance(new_data, pd.Series):
-                new_data = new_data.to_frame().T
+                new_data = cast("pd.Series", new_data).to_frame().T
 
             needs_length_check = False # DataFrame lengths equal by definition
             _df = new_data
@@ -577,6 +571,9 @@ class ColumnDataSource(ColumnarDataSource):
             new_data[index_name] = _df.index.values
         else:
             newkeys = set(new_data.keys())
+
+        # The pandas branch above converts DataFrames and Series into column dictionaries.
+        new_data = cast("DataDict", new_data)
 
         oldkeys = set(self.data.keys())
 
@@ -784,9 +781,6 @@ class CDSView(Model):
 
     '''
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     filter = Instance(Filter, default=InstanceDefault(AllIndices), help="""
     Defines the subset of indices to use from the data source this view applies to.
 
@@ -807,10 +801,6 @@ class GeoJSONDataSource(ColumnarDataSource):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     geojson = Required(JSON, help="""
     GeoJSON that contains features for plotting. Currently
     ``GeoJSONDataSource`` can only process a ``FeatureCollection`` or
@@ -826,10 +816,6 @@ class WebDataSource(ColumnDataSource):
         This base class is typically not useful to instantiate on its own.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     adapter = Nullable(Instance(CustomJS), help="""
     A JavaScript callback to adapt raw JSON responses to Bokeh ``ColumnDataSource``
@@ -863,10 +849,6 @@ class ServerSentDataSource(WebDataSource):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class AjaxDataSource(WebDataSource):
     ''' A data source that can populate columns by making Ajax calls to REST
     endpoints.
@@ -897,10 +879,6 @@ class AjaxDataSource(WebDataSource):
     A full example can be seen at :bokeh-tree:`examples/basic/data/ajax_source.py`
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     polling_interval = Nullable(Int, help="""
     A polling interval (in milliseconds) for updating data source.

@@ -1,0 +1,38 @@
+# Copyright (c) Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved. The full license is in the file LICENSE.txt.
+
+from typing import Sequence, assert_type
+
+from bokeh.models import Range1d
+from bokeh.models.layouts import Column, Row
+from bokeh.models.ui.ui_element import UIElement
+from bokeh.models.widgets.sliders import Slider
+from bokeh.plotting import figure
+
+# Original issue #14412 reproducer and its constructor overloads.
+p = figure(width=800, height=200, x_axis_label="x-axis", y_axis_label="y-axis", tools="")
+assert_type(p, figure)
+assert_type(Range1d(0, 10, bounds="auto"), Range1d)
+Range1d(start=0, end=10, bounds=(0, 20))
+Range1d(bounds="auto")
+Slider(start=0, end=10, value=3)
+
+# Glyph calls with vectorized and scalar properties.
+p.scatter([1, 2], [3, 4], size=10, fill_color="red")
+p.scatter(x="x", y="y", marker="circle", size="size", source={"x": [1], "y": [2], "size": [3]})
+
+# Input types can be covariant without weakening the mutable getter type.
+rows: list[Row] = [Row()]
+columns: list[Column] = [Column()]
+Row(Row(), Column(), width=100)
+Column(*rows, spacing=5)
+children: Sequence[UIElement] = tuple(rows)
+row = Row(children=columns)
+column = Column(children=rows)
+Row(children=children)
+Column(children=tuple(rows))
+row.children = columns
+column.children = rows
+column.children = children
+assert_type(row.children, list[UIElement])
+assert_type(column.children, list[UIElement])

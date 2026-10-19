@@ -18,9 +18,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
 # Bokeh imports
 from ...core.property.auto import Auto
 from ...core.property.either import Either
@@ -45,10 +42,6 @@ __all__ = (
 
 class Panel(Pane):
     """ A DOM-based UI element that allows for controlling its bounding box. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     position = Required(Instance(Coordinate), help="""
     A computed coordinate representing the position of this panel, either

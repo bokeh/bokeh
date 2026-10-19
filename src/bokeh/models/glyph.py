@@ -27,9 +27,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
 # Bokeh imports
 from ..core.has_props import HasProps, abstract
 from ..core.property.container import List
@@ -65,10 +62,6 @@ class Glyph(Model):
     def _supports_path_decorations(self, placement: str | float) -> bool:
         return False
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     decorations = List(Instance(Decoration), default=[], help="""
     A collection of glyph decorations, e.g. arrow heads.
 
@@ -84,20 +77,12 @@ class XYGlyph(Glyph):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 @abstract
 class RadialGlyph(XYGlyph):
     ''' Base class of glyphs with `x` and `y` coordinate attributes and
     a radius specification.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 @abstract
 class ConnectedXYGlyph(XYGlyph):
@@ -106,19 +91,11 @@ class ConnectedXYGlyph(XYGlyph):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 @abstract
 class LineGlyph(HasProps):
     ''' Glyphs with line properties
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 @abstract
 class FillGlyph(HasProps):
@@ -126,29 +103,17 @@ class FillGlyph(HasProps):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 @abstract
 class TextGlyph(HasProps):
     ''' Glyphs with text properties
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 @abstract
 class HatchGlyph(HasProps):
     ''' Glyphs with Hatch properties
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -22,9 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
 # Bokeh imports
 from ..core.has_props import abstract
 from ..core.property.any import AnyRef
@@ -61,10 +58,6 @@ class Comparison(Model):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 
 class CustomJSCompare(Comparison):
     ''' A client-side comparison performed by evaluating a user-supplied
@@ -77,10 +70,6 @@ class CustomJSCompare(Comparison):
         sanitize the user input prior to passing to Bokeh.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     args = Dict(String, AnyRef, help="""
     A mapping of names to Python objects. In particular those can be bokeh's models.
@@ -101,10 +90,6 @@ class NanCompare(Comparison):
     comparison can be useful for DataTable columns.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     ascending_first = Bool(default=False, help="""
     Whether NaN values should appear first or last in an ascending sort.

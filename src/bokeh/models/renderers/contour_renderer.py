@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 # Bokeh imports
 from ...core.property.container import Seq
@@ -53,10 +53,6 @@ class ContourRenderer(DataRenderer):
     Rather than create these manually it is usually better to use
     :func:`~bokeh.plotting.figure.contour` instead.
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     line_renderer = Instance(GlyphRenderer, help="""
     Glyph renderer used for contour lines.

@@ -19,9 +19,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
 # Bokeh imports
 from ..core.has_props import abstract
 from ..core.property.container import Dict, List, Seq
@@ -55,10 +52,6 @@ class Selection(Model):
     For most glyphs, the ``indices`` property is the relevant value to use.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     indices = Seq(Int, default=[], help="""
     The "scatter" level indices included in a selection. For example, for a
@@ -99,10 +92,6 @@ class SelectionPolicy(Model):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 
 class IntersectRenderers(SelectionPolicy):
     '''
@@ -112,10 +101,6 @@ class IntersectRenderers(SelectionPolicy):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 
 class UnionRenderers(SelectionPolicy):
     '''
@@ -124,10 +109,6 @@ class UnionRenderers(SelectionPolicy):
     selection is made from the union of hit test results from all renderers.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 
 #-----------------------------------------------------------------------------

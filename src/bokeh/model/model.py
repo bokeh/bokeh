@@ -23,7 +23,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from inspect import Parameter, Signature, isclass
+from inspect import (
+    Parameter,
+    Signature,
+    isclass,
+    signature,
+)
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -98,9 +103,62 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
 
+        initializer = cls.__init__
+        # Synthesized wrappers forward through this class's MRO. In a diamond,
+        # the first parent's recorded initializer may belong to another branch.
+        effective_initializer = next(
+            base.__dict__["__init__"] for base in cls.__mro__
+            if "__init__" in base.__dict__ and not hasattr(base.__dict__["__init__"], "__bokeh_initializer__")
+        )
+        original_signature = getattr(effective_initializer, "__bokeh_init_signature__", None)
+        if original_signature is None and effective_initializer is not Model.__init__:
+            try:
+                original_signature = signature(effective_initializer)
+            except (TypeError, ValueError):
+                # Constructor inspection may fail on unsupported callables or malformed
+                # signature/wrapper metadata. Do not let that prevent class creation.
+                pass
+
+        if "__init__" not in cls.__dict__:
+            # Each model needs its own function to avoid changing an inherited signature.
+            def __init__(self, *args: Any, **kwargs: Any) -> None:
+                # Resolve the next constructor using the instance's MRO, including mixins.
+                super(cls, self).__init__(*args, **kwargs)
+
+            try:
+                display_initializer = initializer if getattr(initializer, "__bokeh_initializer__", initializer) is effective_initializer else effective_initializer
+                __init__.__signature__ = signature(display_initializer)
+            except (TypeError, ValueError):
+                pass
+            __init__.__bokeh_initializer__ = effective_initializer
+            __init__.__qualname__ = f"{cls.__qualname__}.__init__"
+            __init__.__module__ = cls.__module__
+            cls.__init__ = __init__
+
         if cls.__module__.startswith("bokeh.models"):
-            assert "__init__" in cls.__dict__, str(cls)
-            parameters = [x[0] for x in cls.parameters()]
+            # Preserve explicit constructors' positional and keyword arguments.
+            # Model's own *args only rejects positional inputs, so omit it.
+            parameters = [Parameter("self", Parameter.POSITIONAL_ONLY)]
+            if effective_initializer is not Model.__init__ and original_signature is not None:
+                parameters.extend(param for param in list(original_signature.parameters.values())[1:]
+                                  if param.kind != Parameter.VAR_KEYWORD)
+            property_parameters = [entry[0] for entry in cls.parameters()]
+            property_names = {param.name for param in property_parameters}
+            names = property_names | {param.name for param in parameters}
+            # A variadic argument's local name is not a caller-facing keyword.
+            # Rename it in the displayed signature when a property uses that name.
+            for index, param in enumerate(parameters):
+                if param.kind == Parameter.VAR_POSITIONAL and param.name in property_names:
+                    name = "args"
+                    while name in names:
+                        name += "_"
+                    parameters[index] = param.replace(name=name)
+                    names.add(name)
+            names = {param.name for param in parameters}
+            parameters.extend(param if param.kind == Parameter.KEYWORD_ONLY else param.replace(kind=Parameter.KEYWORD_ONLY)
+                              for param in property_parameters
+                              if param.name not in names)
+            cls.__init__.__bokeh_init_signature__ = original_signature
             cls.__init__.__signature__ = Signature(parameters=parameters)
             process_example(cls)
 

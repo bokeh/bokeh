@@ -24,7 +24,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any
+# Public constructor types live in the stubs; declarations below cover local calls.
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ..core.enums import LatLon
@@ -80,10 +81,6 @@ class Ticker(Model):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class CustomJSTicker(Ticker):
     ''' Generate tick locations that are computed by a user-defined function.
 
@@ -98,10 +95,6 @@ class CustomJSTicker(Ticker):
         sanitize the user input prior to passing to Bokeh.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     args = Dict(String, AnyRef, help="""
     A mapping of names to Python objects. In particular those can be bokeh's models.
@@ -162,10 +155,6 @@ class ContinuousTicker(Ticker):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     num_minor_ticks = NonNegative(Int, default=5, help="""
     The number of minor tick positions to generate between
     adjacent major tick values.
@@ -189,10 +178,6 @@ class FixedTicker(ContinuousTicker):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     ticks = Seq(Float, default=[], help="""
     List of major tick locations.
     """)
@@ -212,9 +197,8 @@ class AdaptiveTicker(ContinuousTicker):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     base = Float(10.0, help="""
     The multiplier to use for scaling mantissas.
@@ -244,10 +228,6 @@ class CompositeTicker(ContinuousTicker):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     tickers = NonEmpty(Seq(Instance(Ticker)), help="""
     A list of ``Ticker`` objects to combine at different scales in order
     to generate tick values. The supplied tickers should be in order.
@@ -262,19 +242,11 @@ class CompositeTicker(ContinuousTicker):
 class BaseSingleIntervalTicker(ContinuousTicker):
     ''' Base class for single interval tickers. '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class SingleIntervalTicker(BaseSingleIntervalTicker):
     ''' Generate evenly spaced ticks at a fixed interval regardless of
     scale.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     interval = Required(Float, help="""
     The interval between adjacent ticks.
@@ -285,9 +257,8 @@ class DaysTicker(BaseSingleIntervalTicker):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     days = Seq(Int, default=[], help="""
     The intervals of days to use.
@@ -300,9 +271,8 @@ class MonthsTicker(BaseSingleIntervalTicker):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     months = Seq(Int, default=[], help="""
     The intervals of months to use.
@@ -313,10 +283,6 @@ class YearsTicker(BaseSingleIntervalTicker):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class BasicTicker(AdaptiveTicker):
     ''' Generate ticks on a linear scale.
 
@@ -324,10 +290,6 @@ class BasicTicker(AdaptiveTicker):
         This class may be renamed to ``LinearTicker`` in the future.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 class ScaledTicker(ContinuousTicker):
     r''' Generate ticks in a scaled coordinate system with a configurable origin.
@@ -346,10 +308,6 @@ class ScaledTicker(ContinuousTicker):
     instead of decimal approximations in the original coordinate system.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     scale = Positive(Float, default=1.0, help="""
     The size of one normalized coordinate unit in data coordinates.
@@ -371,10 +329,6 @@ class LogTicker(AdaptiveTicker):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     mantissas = Override(default=[1, 5])
 
 
@@ -382,10 +336,6 @@ class MercatorTicker(BasicTicker):
     ''' Generate nice lat/lon ticks form underlying WebMercator coordinates.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     dimension = Nullable(Enum(LatLon), help="""
     Specify whether to generate ticks for Latitude or Longitude.
@@ -414,10 +364,6 @@ class CategoricalTicker(Ticker):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 ONE_MILLI = 1.0
 ONE_SECOND = 1000.0
 ONE_MINUTE = 60.0 * ONE_SECOND
@@ -430,10 +376,6 @@ class DatetimeTicker(CompositeTicker):
     ''' Generate nice ticks across different date and time scales.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     num_minor_ticks = Override(default=0)
 
@@ -478,10 +420,6 @@ class TimedeltaTicker(CompositeTicker):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     num_minor_ticks = Override(default=0)
 
     # TODO: (bev) InstanceDefault for this, someday
@@ -520,10 +458,6 @@ class BinnedTicker(Ticker):
     """ Ticker that aligns ticks exactly at bin boundaries of a scanning color mapper.
 
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     mapper = Instance(ScanningColorMapper, help="""
     A scanning color mapper (e.g. ``EqHistColorMapper``) to use.
