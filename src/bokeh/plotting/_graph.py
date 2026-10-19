@@ -22,7 +22,8 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from typing import TYPE_CHECKING
 
-from ..core.property.vectorization import field
+# Bokeh imports
+from ..core.property.vectorization import Field, Value, field
 from ..models import (
     Circle,
     ColumnDataSource,
@@ -66,13 +67,19 @@ def get_graph_kwargs(node_source: GraphNodes, edge_source: GraphEdges, **kwargs)
 
     marker = kwargs.pop('node_marker', None)
     marker_type = Scatter
-    if (isinstance(marker, dict) and 'field' in marker) or (isinstance(node_source, ColumnDataSource) and marker in node_source.data):
+    if isinstance(marker, dict) and 'field' in marker:
+        marker = Field(**marker)
+    elif isinstance(marker, dict) and 'value' in marker:
+        marker = Value(**marker)
+
+    if isinstance(marker, Field):
+        kwargs['node_marker'] = marker
+    elif isinstance(marker, str) and isinstance(node_source, ColumnDataSource) and marker in node_source.data:
         kwargs['node_marker'] = field(marker)
     else:
-        if isinstance(marker, dict) and 'value' in marker:
-            marker = marker['value']
+        marker_value = marker.value if isinstance(marker, Value) else marker
 
-        if marker is None or marker == "circle":
+        if marker_value is None or marker_value == "circle":
             if "node_radius" in kwargs:
                 marker_type = Circle
             else:

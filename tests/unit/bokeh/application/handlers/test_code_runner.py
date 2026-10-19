@@ -207,7 +207,8 @@ class TestCodeRunner:
 
     @pytest.mark.skipif(sys.flags.optimize >= 2, reason="requires docstrings, which -OO removes")
     def test_doc(self) -> None:
-        cr = bahc.CodeRunner("'''some docstring\n\nfoo bar'''", "path", [])
+        source = """'''some docstring\n\nfoo bar'''\nfrom collections.abc import Sequence\nvalue: Sequence[int] = []"""
+        cr = bahc.CodeRunner(source, "path", [])
         assert cr.failed is False
         assert cr.doc == "some docstring\n\nfoo bar"
 

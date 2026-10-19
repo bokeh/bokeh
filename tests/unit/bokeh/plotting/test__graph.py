@@ -15,7 +15,8 @@ from __future__ import annotations
 #-----------------------------------------------------------------------------
 import pytest
 
-from bokeh.core.properties import field
+# Bokeh imports
+from bokeh.core.properties import field, value
 from bokeh.models import (
     BezierEdgePathProvider,
     ColumnDataSource,
@@ -129,6 +130,12 @@ class Test_get_graph_kwargs:
         node_glyph = kw['node_renderer'].glyph
         assert isinstance(node_glyph, Scatter) and node_glyph.marker == "x"
 
+    def test_handle_node_marker_value(self) -> None:
+        marker = value("diamond")
+        kw = bpg.get_graph_kwargs({}, {}, node_marker=marker)
+        node_glyph = kw['node_renderer'].glyph
+        assert isinstance(node_glyph, Scatter) and node_glyph.marker == marker
+
     def test_handle_node_marker_dataspec_correctly(self) -> None:
         node_source = {'marker': ['square', 'circle', 'x']}
 
@@ -137,6 +144,21 @@ class Test_get_graph_kwargs:
         node_glyph = kw['node_renderer'].glyph
         assert isinstance(node_glyph, Scatter)
         assert node_glyph.marker == field('marker')
+
+    def test_handle_node_marker_field(self) -> None:
+        marker = field("marker")
+        kw = bpg.get_graph_kwargs({}, {}, node_marker=marker)
+        node_glyph = kw['node_renderer'].glyph
+        assert isinstance(node_glyph, Scatter) and node_glyph.marker == marker
+
+    @pytest.mark.parametrize(("marker", "expected"), [
+        ({"field": "marker"}, field("marker")),
+        ({"value": "diamond"}, value("diamond")),
+    ])
+    def test_handle_node_marker_dict(self, marker, expected) -> None:
+        kw = bpg.get_graph_kwargs({}, {}, node_marker=marker)
+        node_glyph = kw['node_renderer'].glyph
+        assert isinstance(node_glyph, Scatter) and node_glyph.marker == expected
 
     def test_handle_edge_property_mixins(self) -> None:
         kwargs = dict(edge_line_color="purple", edge_selection_line_color="blue",
