@@ -2,6 +2,13 @@ import {expect} from "#framework/assertions"
 
 import {Selection} from "@bokehjs/models/selections/selection"
 import {Patch} from "@bokehjs/models/glyphs/patch"
+import {Document} from "@bokehjs/document"
+import {ModelChangedEvent} from "@bokehjs/document/events"
+import {Serializer} from "@bokehjs/core/serialization"
+import {Message} from "@bokehjs/protocol/message"
+import {BYTE_ORDER} from "@bokehjs/core/util/platform"
+import {Deserializer} from "@bokehjs/core/serialization/deserializer"
+import {default_resolver} from "@bokehjs/base"
 
 const some_1d_selection = Selection.create({indices: [4, 5]})
 const other_1d_selection = Selection.create({indices: [0, 1]})
@@ -10,6 +17,110 @@ const some_2d_selection = Selection.create({multiline_indices: new Map([[2, [2, 
 const other_2d_selection = Selection.create({multiline_indices: new Map([[2, [0, 1]]])})
 
 describe("Selection", () => {
+
+  describe("binary indices", () => {
+    function send(value: unknown): (string | ArrayBuffer)[] {
+      const sent: (string | ArrayBuffer)[] = []
+      Message.create("PATCH-DOC", new Serializer({binary: true}).encode(value)).send({
+        send(data: string | ArrayBuffer) { sent.push(data) },
+      })
+      return sent
+    }
+
+    it("should send three million selected indices below the default websocket limit", () => {
+      const indices = Array.from({length: 3_000_000}, (_, i) => i)
+      const selection = Selection.create({indices})
+      const doc = new Document()
+      doc.add_root(selection)
+      const event = new ModelChangedEvent(doc, selection, "indices", indices)
+      const sent = send(event)
+
+      expect(sent.length).to.be.equal(2)
+      expect((sent[0] as string).length < 1024).to.be.true
+      expect((sent[1] as ArrayBuffer).byteLength).to.be.equal(12_000_000)
+      const packed = new Int32Array(sent[1] as ArrayBuffer)
+      expect(packed[0]).to.be.equal(0)
+      expect(packed[packed.length - 1]).to.be.equal(2_999_999)
+      expect(selection.indices === indices).to.be.true
+    })
+
+    for (const attr of ["indices", "line_indices"] as const) {
+      it(`should pack ${attr} in full model serialization and patches`, () => {
+        const selection = Selection.create({[attr]: [1, 4, 9]})
+        const [envelope, buffer] = send(selection)
+        const rep = JSON.parse(envelope as string).content.attributes[attr]
+        expect(rep).to.be.equal({
+          type: "typed_array", dtype: "int32", order: BYTE_ORDER,
+          array: {type: "bytes", data: {id: "0"}},
+        })
+        expect(new Int32Array(buffer as ArrayBuffer)).to.be.equal(new Int32Array([1, 4, 9]))
+
+        const doc = new Document()
+        doc.add_root(selection)
+        const event = new ModelChangedEvent(doc, selection, attr, [2, 5])
+        selection[attr] = [7]
+        const [, patch_buffer] = send(event)
+        expect(new Int32Array(patch_buffer as ArrayBuffer)).to.be.equal(new Int32Array([2, 5]))
+      })
+    }
+
+    it("should pack multiline point indices without changing the map", () => {
+      const indices = new Map([[2, [0, 3]], [5, [1, 4]]])
+      const selection = Selection.create({multiline_indices: indices})
+      const sent = send(selection)
+      expect(sent.length).to.be.equal(3)
+      expect(new Int32Array(sent[1] as ArrayBuffer)).to.be.equal(new Int32Array([0, 3]))
+      expect(new Int32Array(sent[2] as ArrayBuffer)).to.be.equal(new Int32Array([1, 4]))
+      expect(selection.multiline_indices === indices).to.be.true
+
+      const doc = new Document()
+      doc.add_root(selection)
+      const event = new ModelChangedEvent(doc, selection, "multiline_indices", indices)
+      const patch = send(event)
+      expect(new Int32Array(patch[1] as ArrayBuffer)).to.be.equal(new Int32Array([0, 3]))
+      expect(new Int32Array(patch[2] as ArrayBuffer)).to.be.equal(new Int32Array([1, 4]))
+    })
+
+    it("should keep an empty selection in the envelope without a binary frame", () => {
+      const selection = Selection.create({indices: []})
+      const doc = new Document()
+      doc.add_root(selection)
+      const sent = send(new ModelChangedEvent(doc, selection, "indices", []))
+      expect(sent.length).to.be.equal(1)
+      expect(JSON.parse(sent[0] as string).content.new).to.be.equal([])
+    })
+
+    it("should serialize only the visible elements of a typed-array view", () => {
+      const indices = new Int32Array([99, 1, 2, 99]).subarray(1, 3)
+      const selection = Selection.create({indices})
+      const [, buffer] = send(selection)
+      expect(new Int32Array(buffer as ArrayBuffer)).to.be.equal(new Int32Array([1, 2]))
+    })
+
+    it("should preserve integers outside int32 without truncation", () => {
+      const indices = [-2147483649, 2147483648, Number.MAX_SAFE_INTEGER]
+      const selection = Selection.create({indices})
+      const sent = send(selection)
+      expect(sent.length).to.be.equal(1)
+      expect(JSON.parse(sent[0] as string).content.attributes.indices).to.be.equal(indices)
+    })
+
+    it("should not silently convert fractional indices to integers", () => {
+      const selection = Selection.create({indices: [1, 2.5]})
+      const sent = send(selection)
+      expect(sent.length).to.be.equal(1)
+      expect(JSON.parse(sent[0] as string).content.attributes.indices).to.be.equal([1, 2.5])
+    })
+
+    for (const compact of [false, true]) {
+      it(`should round trip inline serialization with compact=${compact}`, () => {
+        const selection = Selection.create({indices: [1, 2]})
+        const rep = new Serializer({compact}).encode(selection)
+        const decoded = new Deserializer(default_resolver).decode(JSON.parse(JSON.stringify(rep))) as Selection
+        expect(decoded.indices).to.be.equal([1, 2])
+      })
+    }
+  })
 
   it("should be updatable", () => {
     const s = Selection.create()
