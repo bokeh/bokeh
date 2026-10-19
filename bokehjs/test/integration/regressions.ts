@@ -16,7 +16,7 @@ import {
   LinearAxis, CategoricalAxis,
   GlyphRenderer, GraphRenderer, GridBox,
   Circle, Quad, MultiLine, Scatter, Text,
-  GraphSelectionPolicy, StaticLayoutProvider,
+  StaticLayoutProvider,
   LinearColorMapper, CategoricalColorMapper,
   Plot,
   TeX,
@@ -3944,15 +3944,13 @@ describe("Bug", () => {
         data_source: ColumnDataSource.create({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
       })
 
-      node_renderer.data_source.selected.indices = [0, 3]
-      edge_renderer.data_source.selected.indices = [0, 3]
-
       const graph = GraphRenderer.create({
         layout_provider,
         node_renderer,
         edge_renderer,
       })
-      graph.data_source.selection_policy = GraphSelectionPolicy.create({include_incident_edges: true})
+      graph.data_source.selected.nodes.indices = [0, 3]
+      graph.data_source.selected.edges.indices = [0, 3]
       p.add_renderers(graph)
 
       await display(p)

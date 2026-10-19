@@ -915,7 +915,8 @@ class MeshDataSource(IndexedDataSource):
         cells = ColumnDataSource({connectivity_field: []}) if raw_cells is None else _mesh_cell_source(raw_cells, connectivity_field)
         kwargs.setdefault("selected", cells.selected)
         kwargs.setdefault("selection_policy", cells.selection_policy)
-        super().__init__(vertices=vertices, cells=cells, **kwargs)
+        kwargs.update(vertices=vertices, cells=cells)
+        super().__init__(**kwargs)
 
     vertices = Readonly(Instance(IndexedDataSource), default=_default_mesh_vertices, help="""
     The indexed source containing vertex coordinates and attributes.
@@ -1172,7 +1173,8 @@ class GraphDataSource(DataSource):
             edges = _default_graph_edges() if raw_edges is None else _edge_source(raw_edges)
 
         _validate_graph_node_ids(nodes)
-        super().__init__(nodes=nodes, edges=edges, **kwargs)
+        kwargs.update(nodes=nodes, edges=edges)
+        super().__init__(**kwargs)
 
     nodes = Readonly(Instance(IndexedDataSource), default=_default_graph_nodes, help="""
     The indexed data source containing node records.
@@ -1352,7 +1354,8 @@ class GeometryDataSource(IndexedDataSource):
         if len(lengths) > 1 or (lengths and lengths != {len(geometries)}):
             raise ValueError("geometry attributes must have the same length as geometries")
 
-        super().__init__(geometries=geometries, data=data, **kwargs)
+        kwargs.update(geometries=geometries, data=data)
+        super().__init__(**kwargs)
 
     @classmethod
     def from_xy(cls, x: Sequence[Any], y: Sequence[Any], *, data: Mapping[str, Sequence[Any]] | None = None) -> GeometryDataSource:
@@ -1429,7 +1432,7 @@ class GeometryDataSource(IndexedDataSource):
         list.clear(self.geometries)
         list.extend(self.geometries, geometries)
         dict.clear(self.data)
-        dict.update(self.data, data)
+        dict.update(cast(dict[str, Any], self.data), data)
 
         def invoke() -> None:
             for attr, old, new in (
