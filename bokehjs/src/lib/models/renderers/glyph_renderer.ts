@@ -212,9 +212,8 @@ export class GlyphRendererView extends DataRendererView {
       this.update_data(structural ? undefined : indices))
     this.connect(this.model.data_source.selected.change, render)
     this.connect(this.model.data_source._select, render)
-    this.connect(this.model.data_source._inspect, render)
     if (this.hover_glyph != null) {
-      this.connect(this.model.data_source.inspect, () => {
+      this.connect(this.model.data_source._inspect, () => {
         // XXX: hoping for the best, assuming no in-place mutation
         const {inspected} = this.model.data_source
         const current_inspected = {
