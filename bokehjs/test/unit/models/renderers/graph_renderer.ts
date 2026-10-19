@@ -1,7 +1,11 @@
+import sinon from "sinon"
+
 import {expect} from "#framework/assertions"
 import {display} from "#framework/layouts"
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {DataView} from "@bokehjs/models/sources/data_view"
+import {IndexFilter} from "@bokehjs/models/filters/index_filter"
 import type {GraphRendererView} from "@bokehjs/models/renderers/graph_renderer"
 import {GraphDataSource} from "@bokehjs/models/sources/graph_data_source"
 import {GraphRenderer} from "@bokehjs/models/renderers/graph_renderer"
@@ -103,6 +107,41 @@ describe("GraphRenderer", () => {
 })
 
 describe("GraphRendererView", () => {
+  it("should apply and update node filters in graph layout coordinates (issue #9244)", async () => {
+    const graph = GraphRenderer.create()
+    graph.layout_provider = StaticLayoutProvider.create({
+      graph_layout: new Map(Array.from({length: 10}, (_, i) => [i, [i, i]])),
+    })
+
+    const node_source = graph.node_renderer.data_source
+    assert(node_source instanceof ColumnDataSource)
+    node_source.data = {
+      index: Array.from({length: 10}, (_, i) => i),
+      fill: [...Array(5).fill("red"), ...Array(5).fill("green")],
+    }
+    graph.node_renderer.glyph = Scatter.create({size: 15, fill_color: {field: "fill"}})
+    const node_view = DataView.create({filter: IndexFilter.create({indices: [7, 8, 9]})})
+    graph.node_renderer.view = node_view
+
+    const plot = Plot.create({renderers: [graph]})
+    const {view} = await display(plot)
+    const graph_view = view.owner.get_one(graph)
+    const glyph = graph_view.node_view.glyph
+    assert(glyph instanceof ScatterView)
+
+    expect(node_view.indices_array).to.be.equal(new Int32Array([7, 8, 9]))
+    expect([...glyph.x]).to.be.equal([7, 8, 9])
+    expect([...glyph.y]).to.be.equal([7, 8, 9])
+
+    const request_paint = sinon.spy(graph_view.node_view, "request_paint")
+    node_view.filter = IndexFilter.create({indices: [5, 6]})
+    await graph_view.node_view.ready
+    expect(node_view.indices_array).to.be.equal(new Int32Array([5, 6]))
+    expect([...glyph.x]).to.be.equal([5, 6])
+    expect([...glyph.y]).to.be.equal([5, 6])
+    expect(request_paint.called).to.be.true
+  })
+
   it("should keep the plot usable with an unsupported edge glyph", async () => {
     const {test_graph_view: view} = await create_graph_document(Scatter.create({x: 0, y: 0}))
     expect(view.node_view.glyph.data_size).to.be.equal(4)
