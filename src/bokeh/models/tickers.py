@@ -34,9 +34,9 @@ from ..core.property.auto import Auto
 from ..core.property.container import Dict, NonEmpty, Seq
 from ..core.property.either import Either
 from ..core.property.enum import Enum
-from ..core.property.instance import Instance
+from ..core.property.instance import Instance, InstanceDefault
 from ..core.property.nullable import Nullable
-from ..core.property.numeric import NonNegative
+from ..core.property.numeric import NonNegative, Positive
 from ..core.property.override import Override
 from ..core.property.primitive import Float, Int, String
 from ..core.property.required import Required
@@ -63,6 +63,7 @@ __all__ = (
     'LogTicker',
     'MercatorTicker',
     'MonthsTicker',
+    'ScaledTicker',
     'SingleIntervalTicker',
     'Ticker',
     'TimedeltaTicker',
@@ -327,6 +328,43 @@ class BasicTicker(AdaptiveTicker):
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
+
+class ScaledTicker(ContinuousTicker):
+    r''' Generate ticks in a scaled coordinate system with a configurable origin.
+
+    One displayed unit corresponds to ``scale`` data-coordinate units, with
+    zero displayed units located at ``origin``. The wrapped ``ticker``
+    operates on coordinates transformed by
+    ``(value - origin)/scale``. Its resulting major and minor tick locations
+    are transformed back by ``origin + scale*value`` before being returned.
+    This is useful for axes whose natural unit is a constant such as
+    :math:`\pi`, or whose symbolic origin differs from zero.
+
+    For example, a ``ScaledTicker(scale=pi)`` viewing the range from zero to
+    ``8*pi`` presents the range from zero to eight to its wrapped ticker. A
+    ``BasicTicker`` can therefore select integer multiples of :math:`\pi`
+    instead of decimal approximations in the original coordinate system.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    scale = Positive(Float, default=1.0, help="""
+    The size of one normalized coordinate unit in data coordinates.
+    """)
+
+    origin = Float(default=0.0, help="""
+    The data-coordinate value represented by zero in normalized coordinates.
+    """)
+
+    ticker = Instance(ContinuousTicker, default=InstanceDefault(BasicTicker), help="""
+    The ticker used to select tick locations in normalized coordinates.
+
+    The ``desired_num_ticks`` and ``num_minor_ticks`` values on this
+    ``ScaledTicker`` are used when invoking the wrapped ticker.
+    """)
 
 class LogTicker(AdaptiveTicker):
     ''' Generate ticks on a log scale.
