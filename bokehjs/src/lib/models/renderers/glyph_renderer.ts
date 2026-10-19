@@ -461,22 +461,22 @@ export class GlyphRendererView extends DataRendererView {
 
       const selected_subset_indices = new Int32Array(source.length)
       const nonselected_subset_indices = new Int32Array(source.length)
-      let n_sel = 0
-      let n_nonsel = 0
+      let n_selected = 0
+      let n_nonselected = 0
 
       for (let k = 0; k < source.length; k++) {
         const i = source[k]
         // Line/Step: i is in full data space; otherwise it's in subset space
         const full_index = is_line_or_step ? i : all_indices[i]
         if (selected_mask.get(full_index)) {
-          selected_subset_indices[n_sel++] = i
+          selected_subset_indices[n_selected++] = i
         } else {
-          nonselected_subset_indices[n_nonsel++] = i
+          nonselected_subset_indices[n_nonselected++] = i
         }
       }
 
-      nonselection_glyph.paint(ctx, nonselected_subset_indices.subarray(0, n_nonsel))
-      selection_glyph.paint(ctx, selected_subset_indices.subarray(0, n_sel))
+      selection_glyph.paint(ctx, selected_subset_indices.subarray(0, n_selected))
+      nonselection_glyph.paint(ctx, nonselected_subset_indices.subarray(0, n_nonselected))
       if (this.hover_glyph != null) {
         if (this.glyph instanceof LineView || this.glyph instanceof StepView) {
           this.hover_glyph.paint(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices))
