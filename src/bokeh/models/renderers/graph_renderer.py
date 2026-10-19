@@ -39,7 +39,12 @@ from ..glyphs import (
 )
 from ..graphs import EdgePathProvider, LayoutProvider, StraightEdgePathProvider
 from ..selections import GraphSelectionPolicy
-from ..sources import ColumnarDataSource, ColumnDataSource, GraphDataSource, IndexedDataSource
+from ..sources import (
+    ColumnarDataSource,
+    ColumnDataSource,
+    GraphDataSource,
+    IndexedDataSource,
+)
 from .glyph_renderer import GlyphRenderer
 from .renderer import DataRenderer
 

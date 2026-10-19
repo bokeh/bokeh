@@ -41,8 +41,8 @@ from ..filters import AllIndices
 from ..glyph import ConnectedXYGlyph, Glyph
 from ..graphics import Marking, PathDecoration, PathMarkings
 from ..sources import (
-    DataView,
     ColumnDataSource,
+    DataView,
     IndexedDataSource,
     WebDataSource,
 )

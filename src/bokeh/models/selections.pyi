@@ -6,7 +6,12 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Literal, Sequence, TypedDict, Unpack
+from typing import (
+    Literal,
+    Sequence,
+    TypedDict,
+    Unpack,
+)
 
 # Bokeh imports
 from ..model.model import Model, _ModelInit

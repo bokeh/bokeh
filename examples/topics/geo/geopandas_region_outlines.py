@@ -15,7 +15,6 @@ from bokeh.models import GeometryDataSource, HoverTool
 from bokeh.plotting import figure, show
 from bokeh.sampledata.us_counties import records as county_records
 
-
 region_names = ["Marin", "Contra Costa", "Alameda", "San Mateo", "Santa Clara", "Santa Cruz"]
 colors = ["#2563eb", "#7c3aed", "#db2777", "#ea580c", "#059669", "#0891b2"]
 counties = {county["name"]: county for county in county_records(state="CA")}

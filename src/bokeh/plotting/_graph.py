@@ -27,8 +27,8 @@ from ..core.property.vectorization import field
 from ..models import (
     Circle,
     ColumnDataSource,
-    GraphDataSource,
     GlyphRenderer,
+    GraphDataSource,
     MultiLine,
     Scatter,
 )

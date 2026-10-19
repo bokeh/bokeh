@@ -7,9 +7,8 @@
 
 '''
 from bokeh.layouts import column
-from bokeh.models import (CustomJS, Div, GraphRenderer, LabelSet,
-                          GraphSelectionPolicy, MultiLine, NormalHead,
-                          Scatter, Slider, StaticLayoutProvider)
+from bokeh.models import (CustomJS, Div, GraphRenderer, GraphSelectionPolicy, LabelSet,
+                          MultiLine, NormalHead, Scatter, Slider, StaticLayoutProvider)
 from bokeh.plotting import figure, show
 
 positions = {

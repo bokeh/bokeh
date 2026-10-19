@@ -6,8 +6,8 @@ import numpy as np
 # Bokeh imports
 from bokeh.models import (
     BooleanFilter,
-    DataView,
     ColumnDataSource,
+    DataView,
     GlyphRenderer,
     Plot,
     Scatter,

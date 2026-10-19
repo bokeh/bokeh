@@ -6,24 +6,11 @@
 '''
 
 # Standard library imports
-from math import (
-    atan2,
-    cos,
-    hypot,
-    pi,
-    sin,
-)
+from math import atan2, cos, hypot, pi, sin
 
 # Bokeh imports
 from bokeh.layouts import column
-from bokeh.models import (
-    ColorBar,
-    Div,
-    HoverTool,
-    MeshDataSource,
-    NormalHead,
-    TapTool,
-)
+from bokeh.models import ColorBar, Div, HoverTool, MeshDataSource, NormalHead, TapTool
 from bokeh.palettes import Turbo256
 from bokeh.plotting import figure, show
 from bokeh.transform import linear_cmap

@@ -7,9 +7,8 @@
 
 '''
 from bokeh.layouts import column, row
-from bokeh.models import (Bezier, Div, GraphRenderer, GraphSelectionPolicy,
-                          MultiLine, NormalHead, Scatter, Segment,
-                          StaticLayoutProvider)
+from bokeh.models import (Bezier, Div, GraphRenderer, GraphSelectionPolicy, MultiLine,
+                          NormalHead, Scatter, Segment, StaticLayoutProvider)
 from bokeh.plotting import figure, show
 
 positions = {0: (0, 0), 1: (2, 0), 2: (1, 1.5)}

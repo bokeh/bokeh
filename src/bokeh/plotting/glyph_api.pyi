@@ -6,7 +6,12 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, Literal, TypedDict, Unpack
+from typing import (
+    Any,
+    Literal,
+    TypedDict,
+    Unpack,
+)
 
 # Bokeh imports
 from .._specs import (
@@ -58,7 +63,7 @@ from ..models.coordinates import CoordinateMapping
 from ..models.graphics import Marking
 from ..models.plots import Plot
 from ..models.renderers import GlyphRenderer
-from ..models.sources import DataView, DataDictLike, IndexedDataSource
+from ..models.sources import DataDictLike, DataView, IndexedDataSource
 from ..models.textures import Texture
 
 class AuxVisuals(TypedDict, total=False):

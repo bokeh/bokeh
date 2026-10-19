@@ -18,7 +18,15 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh.core.properties import field
-from bokeh.models import BezierEdgePathProvider, ColumnDataSource, GraphSelectionPolicy, IndexedDataSource, MultiLine, Scatter, StaticLayoutProvider
+from bokeh.models import (
+    BezierEdgePathProvider,
+    ColumnDataSource,
+    GraphSelectionPolicy,
+    IndexedDataSource,
+    MultiLine,
+    Scatter,
+    StaticLayoutProvider,
+)
 from bokeh.plotting import figure
 
 # Module under test

@@ -15,20 +15,9 @@ from typing import Any, cast
 # Bokeh imports
 from bokeh.document import Document
 from bokeh.layouts import column
-from bokeh.models import (
-    ColumnDataSource,
-    Div,
-    GraphDataSource,
-    GraphRenderer,
-    GraphSelectionPolicy,
-    HoverTool,
-    LabelSet,
-    MultiLine,
-    Scatter,
-    Slider,
-    StaticLayoutProvider,
-    TapTool,
-)
+from bokeh.models import (ColumnDataSource, Div, GraphDataSource, GraphRenderer,
+                          GraphSelectionPolicy, HoverTool, LabelSet, MultiLine,
+                          Scatter, Slider, StaticLayoutProvider, TapTool)
 from bokeh.plotting import figure
 from bokeh.server.asgi import BokehASGI
 

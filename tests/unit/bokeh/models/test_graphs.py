@@ -27,6 +27,7 @@ from bokeh.models.graphs import ( # isort:skip
     StaticLayoutProvider,
     StraightEdgePathProvider,
 )
+# Bokeh imports
 from bokeh.models.sources import GraphDataSource
 
 #-----------------------------------------------------------------------------

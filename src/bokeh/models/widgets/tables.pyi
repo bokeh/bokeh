@@ -20,11 +20,7 @@ from ...core.enums import (
 from ...model.model import Model, _ModelInit
 from ..comparisons import Comparison
 from ..dom import HTML
-from ..sources import (
-    DataView,
-    ColumnDataSource,
-    DataDictLike,
-)
+from ..sources import ColumnDataSource, DataDictLike, DataView
 from .widget import Widget, _WidgetInit
 
 class _CellFormatterInit(_ModelInit, total=False):

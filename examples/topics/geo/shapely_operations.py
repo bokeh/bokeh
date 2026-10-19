@@ -12,7 +12,6 @@ from bokeh.layouts import row
 from bokeh.models import GeometryDataSource
 from bokeh.plotting import figure, show
 
-
 left = Point(-0.65, 0).buffer(1.2, quad_segs=64)
 right = Point(0.65, 0).buffer(1.2, quad_segs=64)
 inputs = GeometryDataSource([

@@ -19,6 +19,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ..core.property.container import Dict, List, Seq
 from ..core.property.enum import Enum

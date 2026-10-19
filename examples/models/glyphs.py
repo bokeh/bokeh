@@ -1,14 +1,13 @@
 import numpy as np
 
-from bokeh.layouts import column
 from bokeh.core.properties import value
 from bokeh.document import Document
 from bokeh.embed import embed
-from bokeh.models import (AnnularWedge, Annulus, Arc, Bezier, Circle,
-                          ColumnDataSource, CustomJS, Div, Ellipse, Grid,
-                          HoverTool, ImageURL, Line, LinearAxis, MultiLine,
-                          Patch, Patches, Plot, Quad, Quadratic, Range1d, Ray,
-                          Rect, Scatter, Segment, Select, Text, Wedge)
+from bokeh.layouts import column
+from bokeh.models import (AnnularWedge, Annulus, Arc, Bezier, Circle, ColumnDataSource,
+                          CustomJS, Div, Ellipse, Grid, HoverTool, ImageURL, Line,
+                          LinearAxis, MultiLine, Patch, Patches, Plot, Quad, Quadratic,
+                          Range1d, Ray, Rect, Scatter, Segment, Select, Text, Wedge)
 from bokeh.util.browser import view
 
 N = 9

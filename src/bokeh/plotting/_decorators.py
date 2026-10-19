@@ -22,7 +22,12 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from functools import wraps
 from inspect import Parameter, Signature, signature
-from typing import Any, Callable, Sequence, cast
+from typing import (
+    Any,
+    Callable,
+    Sequence,
+    cast,
+)
 
 # Bokeh imports
 from ._docstring import ParameterSpec, generate_docstring

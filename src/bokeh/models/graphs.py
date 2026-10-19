@@ -26,7 +26,12 @@ from typing import TYPE_CHECKING, Any, Literal
 # Bokeh imports
 from ..core.has_props import abstract
 from ..core.property.any import Any as AnyVal
-from ..core.property.container import Dict, Len, Seq, Tuple
+from ..core.property.container import (
+    Dict,
+    Len,
+    Seq,
+    Tuple,
+)
 from ..core.property.dataspec import FloatSpec
 from ..core.property.enum import Enum
 from ..core.property.instance import Instance

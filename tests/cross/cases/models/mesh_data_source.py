@@ -1,4 +1,12 @@
-from bokeh.models import ColumnDataSource, GlyphRenderer, MeshDataSource, MultiLine, Plot, Polygons
+# Bokeh imports
+from bokeh.models import (
+    ColumnDataSource,
+    GlyphRenderer,
+    MeshDataSource,
+    MultiLine,
+    Plot,
+    Polygons,
+)
 from bokeh.transform import gather
 
 vertices = ColumnDataSource(dict(
