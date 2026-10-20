@@ -9,6 +9,22 @@ class ModelDrivenLegendView extends LegendView {
   declare model: ModelDrivenLegend
 
   initial_glyph_size?: {width: number, height: number}
+  position_updates = 0
+  item_renders = 0
+
+  get entry_els(): HTMLElement[] {
+    return this.entries.map(({el}) => el)
+  }
+
+  override update_position(): void {
+    this.position_updates++
+    super.update_position()
+  }
+
+  protected override _render_items(): void {
+    this.item_renders++
+    super._render_items()
+  }
 
   override after_render(): void {
     super.after_render()
@@ -30,7 +46,92 @@ class ModelDrivenLegend extends Legend {
 }
 
 describe("LegendView", () => {
+  for (const field_label of [false, true]) {
+    it(`should preserve legend DOM and geometry on data updates with ${field_label ? "field" : "value"} labels`, async () => {
+      const p = fig([600, 200], {x_range: [0, 10], y_range: [0, 10]})
+      const renderer = p.scatter([1, 2, 3], [1, 2, 3])
+      const source = renderer.data_source
+      source.data = {x: [1, 2, 3], y: [1, 2, 3], label: ["Short", "Short", "Short"]}
+      const item = LegendItem.create({label: field_label ? {field: "label"} : "Short", renderers: [renderer]})
+      const legend = ModelDrivenLegend.create({items: [item]})
+      p.add_layout(legend, "left")
+      const {view} = await display(p)
+      await view.ready
+      const legend_view = view.owner.get_one(legend)
+      legend_view.disconnect_resize_observer()
+
+      const check_update = async (update: () => void) => {
+        legend_view.position_updates = 0
+        legend_view.item_renders = 0
+        update()
+        // The transitive handler must not synchronously measure the DOM.
+        // RendererView.paint() may still update positioning during painting.
+        expect(legend_view.position_updates).to.be.equal(0)
+        await view.ready
+        expect(legend_view.item_renders).to.be.equal(0)
+      }
+
+      await check_update(() => source.data = {x: [1, 2, 3], y: [3, 2, 1], label: ["Short", "Short", "Short"]})
+      await check_update(() => source.stream({x: [4], y: [4], label: ["Short"]}))
+      await check_update(() => source.patch({y: [[0, 5]]}))
+      await check_update(() => renderer.glyph.setv({fill_color: "red"}))
+      await check_update(() => source.selected.indices = [0])
+
+      if (field_label) {
+        const initial_width = legend_view.bbox.width
+        source.data = {x: [1], y: [1], label: ["A much longer legend label than before"]}
+        await view.ready
+        expect(legend_view.labels.map(({label}) => label)).to.be.equal(["A much longer legend label than before"])
+        expect(legend_view.bbox.width).to.be.above(initial_width)
+      }
+    })
+  }
+
   for (const output_backend of ["canvas", "svg"] as const) {
+    for (const {click_policy, property, active, inactive} of [
+      {click_policy: "hide", property: "visible", active: true, inactive: false},
+      {click_policy: "mute", property: "muted", active: false, inactive: true},
+    ] as const) {
+      it(`should sync legend inactive styling with renderer ${property} changes using ${output_backend}`, async () => {
+        const p = fig([600, 200], {output_backend, x_range: [0, 10], y_range: [0, 10]})
+        const r0 = p.scatter([1], [1])
+        const r1 = p.scatter([2], [2])
+        const r2 = p.scatter([3], [3])
+        const legend = ModelDrivenLegend.create({click_policy, items: [
+          LegendItem.create({label: "Shared", renderers: [r0, r1]}),
+          LegendItem.create({label: "Other", renderers: [r2]}),
+        ]})
+        p.add_layout(legend, "left")
+        const {view} = await display(p)
+        await view.ready
+        const legend_view = view.owner.get_one(legend)
+        legend_view.disconnect_resize_observer()
+        const [shared_el, other_el] = legend_view.entry_els
+        expect(shared_el.classList.contains("bk-inactive")).to.be.false
+        expect(other_el.classList.contains("bk-inactive")).to.be.false
+
+        const check_update = async (update: () => void, shared_inactive: boolean) => {
+          legend_view.position_updates = 0
+          legend_view.item_renders = 0
+          update()
+          expect(legend_view.position_updates).to.be.equal(0)
+          await view.ready
+          expect(legend_view.item_renders).to.be.equal(0)
+          expect(legend_view.entry_els[0]).to.be.identical(shared_el)
+          expect(legend_view.entry_els[1]).to.be.identical(other_el)
+          expect(shared_el.classList.contains("bk-inactive")).to.be.equal(shared_inactive)
+          expect(other_el.classList.contains("bk-inactive")).to.be.false
+        }
+
+        // Programmatic changes must sync the overlay, including when only one
+        // of several renderers in the same legend item becomes inactive.
+        await check_update(() => r0[property] = inactive, true)
+        await check_update(() => r1[property] = inactive, true)
+        await check_update(() => r0[property] = active, true)
+        await check_update(() => r1[property] = active, false)
+      })
+    }
+
     for (const margin of [0, 10]) {
       it(`should settle label growth and shrinkage before ready resolves with ${output_backend} and margin=${margin}`, async () => {
         const p = fig([600, 200], {output_backend})

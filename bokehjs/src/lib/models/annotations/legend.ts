@@ -86,9 +86,17 @@ export class LegendView extends AnnotationView {
 
     const {items} = this.model.properties
     this.on_transitive_change(items, () => {
-      this._render_items()
-      // Refresh the measured size before the queued paint checks side layout.
-      this.update_position()
+      if (this._should_rerender_items) {
+        this._render_items()
+        // Refresh geometry only when the entries change. Renderer data and
+        // visual changes still need a repaint, but usually don't affect size.
+        this.update_position()
+      } else {
+        // Visibility and muting still affect the overlay on reused entries.
+        for (const entry of this.entries) {
+          this._toggle_inactive(entry)
+        }
+      }
       this.request_paint()
     }, {recursive: true})
   }
