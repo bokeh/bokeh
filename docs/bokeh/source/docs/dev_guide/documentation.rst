@@ -296,6 +296,19 @@ use all available CPUs for a clean local build, add the option
 
     make clean html serve SPHINXOPTS="-j auto"
 
+HTML builds also distribute doctree resolution and search indexing to the
+workers by default. To use Sphinx's standard writer instead:
+
+.. code-block:: sh
+
+    make html SPHINXOPTS="-j auto -D bokeh_parallel_write=0"
+
+Parallel resolution uses Sphinx's standard HTML builder and fork-based workers
+when parallel writing is supported and more than one worker is requested.
+It rejects transforms that register new images during resolution. Custom
+extensions that accumulate state during resolution may need additional merge
+support.
+
 To learn more about options for the Sphinx build process, see
 :doc:`sphinx:man/sphinx-build` in the Sphinx documentation.
 

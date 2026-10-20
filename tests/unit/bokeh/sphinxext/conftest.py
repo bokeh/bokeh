@@ -11,9 +11,10 @@ if find_spec("sphinx") is None:
         "test_bokeh_autodoc.py",
         "test_bokeh_instrumentation.py",
         "test_bokeh_model.py",
+        "test_bokeh_parallel.py",
         "test_bokeh_plot.py",
+        "test_bokeh_plot_metadata.py",
+        "test_bokeh_sampledata_xref.py",
         "test_bokeh_sitemap.py",
+        "test_bokeh_toc.py",
     ])
-
-if find_spec("docutils") is None:
-    collect_ignore.append("test_bokeh_toc.py")

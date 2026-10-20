@@ -739,3 +739,21 @@ def test_requirements_detect_mathjax(model: Any) -> None:
 ])
 def test_requirements_skip_unrendered_mathjax(model: Any) -> None:
     assert "bokeh/mathjax" not in ber.requirements_for_objs([model]).components
+
+
+def test_resource_collection_handles_shared_and_cyclic_roots() -> None:
+    from bokeh.models import Row
+
+    shared = Div(text="$$x$$")
+    left = Row(children=[shared])
+    right = Row(children=[shared])
+    callback = CustomJS(args={"left": left, "right": right})
+    left.js_on_change("visible", callback)
+    document = Document()
+    document.add_root(left)
+    document.add_root(right)
+
+    assert ber.all_objs([document, shared, callback]) == {left, right, shared, callback}
+    assert "bokeh/mathjax" in ber.requirements_for_objs([document, shared, callback]).components
+    shared.text = "plain text"
+    assert "bokeh/mathjax" not in ber.requirements_for_objs([document, shared, callback]).components

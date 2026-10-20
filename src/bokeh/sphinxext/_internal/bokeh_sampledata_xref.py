@@ -122,7 +122,8 @@ def merge_xrefs(app: Any, env: Any, docnames: list[str], other: Any) -> None:
         env.all_sampledata_xrefs = []
 
     if hasattr(other, 'all_sampledata_xrefs'):
-        env.all_sampledata_xrefs.extend(other.all_sampledata_xrefs)
+        docnames_set = set(docnames)
+        env.all_sampledata_xrefs.extend(ref for ref in other.all_sampledata_xrefs if ref['docname'] in docnames_set)
 
 def process_sampledata_xrefs(app: Any, doctree: Any, fromdocname: str) -> None:
 
@@ -131,7 +132,7 @@ def process_sampledata_xrefs(app: Any, doctree: Any, fromdocname: str) -> None:
     if not hasattr(env, 'all_sampledata_xrefs'):
         env.all_sampledata_xrefs = []
 
-    for node in doctree.traverse(sampledata_list):
+    for node in doctree.findall(sampledata_list):
 
         refs: list[Ref] = []
         for s in env.all_sampledata_xrefs:
@@ -164,7 +165,8 @@ def merge_gallery_xrefs(app: Any, env: Any, docnames: list[str], other: Any) -> 
         env.all_gallery_overview = []
 
     if hasattr(other, 'all_gallery_overview'):
-        env.all_gallery_overview.extend(other.all_gallery_overview)
+        docnames_set = set(docnames)
+        env.all_gallery_overview.extend(ref for ref in other.all_gallery_overview if ref['docname'] in docnames_set)
 
 def process_gallery_overview(app: Any, doctree: Any, fromdocname: str) -> None:
 
@@ -173,17 +175,16 @@ def process_gallery_overview(app: Any, doctree: Any, fromdocname: str) -> None:
     if not hasattr(env, 'all_gallery_overview'):
         env.all_gallery_overview = []
 
-    for node in doctree.traverse(gallery_xrefs):
+    for node in doctree.findall(gallery_xrefs):
 
         ref_dict: dict[str, list[Ref]] = {}
         for s in env.all_gallery_overview:
             sp = s['docname'].split('/')
             if node.subfolder == 'all' or sp[-2] == node.subfolder:
                 letter = sp[-1][0].upper()
-                if letter in ref_dict and s not in ref_dict[letter]:
-                    ref_dict[letter].append(s)
-                else:
-                    ref_dict[letter] = [s]
+                refs = ref_dict.setdefault(letter, [])
+                if s not in refs:
+                    refs.append(s)
 
         content: list[Any] = []
         for letter, refs in sorted(ref_dict.items()):
