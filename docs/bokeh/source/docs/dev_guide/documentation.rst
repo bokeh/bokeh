@@ -309,6 +309,12 @@ It rejects transforms that register new images during resolution. Custom
 extensions that accumulate state during resolution may need additional merge
 support.
 
+.. note::
+    Parallel builds only work on Linux and macOS, not on native Windows. On
+    Windows, Sphinx falls back to a serial build, which takes considerably
+    longer. To speed up local builds on Windows, build the documentation in
+    `WSL <https://learn.microsoft.com/windows/wsl/>`_ or a Linux container.
+
 To learn more about options for the Sphinx build process, see
 :doc:`sphinx:man/sphinx-build` in the Sphinx documentation.
 
