@@ -137,6 +137,12 @@ def silenced(warning: Warning) -> Generator[None]:
     caller's suppression. Nested scopes restore the enclosing suppression, and
     process-wide settings configured by :func:`silence` are preserved.
 
+    ``loop.run_in_executor`` and user-managed ``ThreadPoolExecutor`` calls do not
+    copy the caller's context. ``threading.Thread`` follows Python's thread-context
+    configuration; do not assume inheritance. Use
+    ``contextvars.copy_context().run`` for explicit propagation, or :func:`silence`
+    for process-wide suppression.
+
     Args:
         warning (Warning) : Bokeh warning to silence
 

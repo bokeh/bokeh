@@ -25,6 +25,7 @@ import numpy as np
 
 # Bokeh imports
 from bokeh.core.has_props import HasProps
+from bokeh.core.property.validation import validate
 from tests.support.util.api import verify_all
 from tests.support.util.types import Capture
 
@@ -215,11 +216,8 @@ class TestProperty:
     def test_validation_on(self) -> None:
         assert bcpb.validation_on()
 
-        token = bcpb.Property._should_validate.set(False)
-        try:
+        with validate(False):
             assert not bcpb.validation_on()
-        finally:
-            bcpb.Property._should_validate.reset(token)
         assert bcpb.validation_on()
 
     def test__hinted_value_is_identity(self) -> None:

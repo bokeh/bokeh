@@ -19,8 +19,10 @@ import pytest ; pytest
 # Standard library imports
 import asyncio
 import re
+from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor
-from threading import Event
+from contextvars import Context
+from threading import Event, Thread
 
 # Bokeh imports
 from bokeh.core.has_props import HasProps
@@ -59,7 +61,7 @@ from bokeh.core.properties import (
     Tuple,
 )
 from bokeh.core.property.any import Any
-from bokeh.core.property.bases import validation_on
+from bokeh.core.property.bases import Property, validation_on
 from tests.support.util.api import verify_all
 
 # Module under test
@@ -70,6 +72,7 @@ import bokeh.core.property.validation as bcpv # isort:skip
 #-----------------------------------------------------------------------------
 
 ALL = (
+    'set_validation_default',
     'validate',
     'without_property_validation',
 )
@@ -187,9 +190,13 @@ class TestValidationControl:
             assert not validation_on()
         assert validation_on()
 
-        bcpv.validate(False)
-        assert not validation_on()
-        bcpv.validate(True)
+        def direct_calls():
+            bcpv.validate(False)
+            assert not validation_on()
+            bcpv.validate(True)
+            assert validation_on()
+
+        Context().run(direct_calls)
         assert validation_on()
 
     def test_without_property_validation(self) -> None:
@@ -199,6 +206,130 @@ class TestValidationControl:
 
         assert validation_on()
         f()
+        assert validation_on()
+
+
+class TestValidationDefault:
+    @pytest.fixture(autouse=True)
+    def _restore_default(self) -> Iterator[None]:
+        old = Context().run(validation_on)
+        try:
+            yield
+        finally:
+            bcpv.set_validation_default(old)
+
+    @pytest.mark.parametrize("enabled", [False, True])
+    def test_default_applies_to_fresh_contexts(self, enabled: bool) -> None:
+        Context().run(bcpv.set_validation_default, enabled)
+        assert validation_on() is enabled
+
+        observed = []
+        thread = Thread(target=lambda: observed.append(validation_on()))
+        thread.start()
+        thread.join(timeout=5)
+        assert not thread.is_alive()
+        assert observed == [enabled]
+
+        async def read_validation():
+            return validation_on()
+
+        async def run():
+            assert await asyncio.to_thread(validation_on) is enabled
+            task = asyncio.create_task(read_validation(), context=Context())
+            assert await task is enabled
+            assert await asyncio.get_running_loop().run_in_executor(None, validation_on) is enabled
+
+        asyncio.run(run())
+
+        if enabled:
+            with pytest.raises(ValueError):
+                Int().prepare_value(HasProps, "value", "invalid")
+        else:
+            assert Int().prepare_value(HasProps, "value", "invalid") == "invalid"
+
+    def test_default_changes_reach_existing_contexts(self) -> None:
+        context = Context()
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            assert executor.submit(validation_on).result(timeout=5)
+            bcpv.set_validation_default(False)
+            assert context.run(validation_on) is False
+            assert executor.submit(validation_on).result(timeout=5) is False
+            bcpv.set_validation_default(True)
+            assert executor.submit(validation_on).result(timeout=5) is True
+
+    def test_default_changes_reach_existing_task(self) -> None:
+        async def run():
+            entered, changed = asyncio.Event(), asyncio.Event()
+
+            async def read_after_change():
+                entered.set()
+                assert validation_on()
+                await changed.wait()
+                return validation_on()
+
+            task = asyncio.create_task(read_after_change(), context=Context())
+            try:
+                await entered.wait()
+                bcpv.set_validation_default(False)
+            finally:
+                changed.set()
+            assert await task is False
+
+        async def bounded_run():
+            await asyncio.wait_for(run(), timeout=5)
+
+        asyncio.run(bounded_run())
+
+    @pytest.mark.parametrize("default", [False, True])
+    @pytest.mark.parametrize("override", [False, True])
+    def test_override_wins_when_default_changes(self, default: bool, override: bool) -> None:
+        bcpv.set_validation_default(default)
+        with bcpv.validate(override):
+            assert validation_on() is override
+            bcpv.set_validation_default(not default)
+            assert validation_on() is override
+            with bcpv.validate(not override):
+                assert validation_on() is not override
+            assert validation_on() is override
+        assert validation_on() is not default
+
+    @pytest.mark.parametrize("default", [False, True])
+    def test_override_propagation(self, default: bool) -> None:
+        bcpv.set_validation_default(default)
+
+        async def read_validation():
+            return validation_on()
+
+        async def run():
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                assert executor.submit(validation_on).result(timeout=5) is default
+                with bcpv.validate(not default):
+                    assert await asyncio.to_thread(validation_on) is not default
+                    assert await asyncio.create_task(read_validation()) is not default
+                    assert await asyncio.get_running_loop().run_in_executor(executor, validation_on) is default
+                    assert executor.submit(validation_on).result(timeout=5) is default
+
+        asyncio.run(run())
+
+    def test_initialization_override_does_not_configure_callbacks(self) -> None:
+        async def initialize():
+            await asyncio.to_thread(bcpv.validate, False)
+            assert validation_on()
+            assert await asyncio.to_thread(validation_on)
+            assert await asyncio.get_running_loop().run_in_executor(None, validation_on)
+
+        asyncio.run(initialize())
+
+    @pytest.mark.parametrize("value", [None, 0, "False"])
+    def test_default_requires_bool(self, value) -> None:
+        with pytest.raises(TypeError, match="must be a bool"):
+            bcpv.set_validation_default(value)
+        assert validation_on()
+
+    def test_legacy_assignment_has_migration_error(self) -> None:
+        with pytest.raises(AttributeError, match=r"use bokeh.core.properties.set_validation_default\(\)"):
+            setattr(Property, "_should_validate", False)
+        assert not hasattr(Property, "_should_validate")
         assert validation_on()
 
 

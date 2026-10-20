@@ -150,6 +150,7 @@ ALL = (
     'UnsetValueError',
     'expr',
     'field',
+    'set_validation_default',
     'validate',
     'value',
     'without_property_validation',

@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-""" Control property validation in the current execution context. """
+""" Configure property validation defaults and context-local overrides. """
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -24,13 +24,14 @@ from types import TracebackType
 from typing import Callable
 
 # Bokeh imports
-from .bases import Property
+from . import bases
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'set_validation_default',
     'validate',
     'without_property_validation',
 )
@@ -39,12 +40,46 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
+def set_validation_default(value: bool) -> None:
+    """ Set the process-wide default for property validation.
+
+    This default applies to all threads and asyncio tasks without an explicit
+    :class:`validate` override, including contexts created before this call.
+    Active overrides take precedence. Changing the default during an override
+    does not affect that override; the new default applies once no enclosing
+    override remains.
+
+    Args:
+        value (bool) : Whether property validation is enabled by default.
+
+    Raises:
+        TypeError : If ``value`` is not a boolean.
+
+    """
+    if not isinstance(value, bool):
+        raise TypeError("validation default must be a bool")
+    bases._validation_default = value
+
 class validate:
     """ Control validation of bokeh properties
 
     This can be used as a context manager, or as a normal callable.
-    The setting is local to the current thread and asyncio task. Worker threads
-    started with ``asyncio.to_thread`` inherit the caller's setting.
+    The override takes precedence over :func:`set_validation_default` and is
+    local to the current execution context. New asyncio tasks and
+    ``asyncio.to_thread`` inherit it. ``loop.run_in_executor`` and user-managed
+    ``ThreadPoolExecutor`` calls do not copy the caller's context.
+    ``threading.Thread`` follows Python's thread-context configuration; do not
+    assume inheritance. Use ``contextvars.copy_context().run`` when explicit
+    propagation is required.
+
+    A bare ``validate(False)`` in a server application's initialization code
+    does not disable validation for later callbacks in separate contexts. Use
+    this context manager inside callbacks, decorate synchronous callbacks with
+    :func:`without_property_validation`, or use :func:`set_validation_default`
+    to configure all contexts without an override.
+
+    Create a fresh instance for each scope and exit it in the same context where
+    it was constructed. Instances are single-use and cannot be reentered.
 
     Args:
         value (bool) : Whether validation should occur or not
@@ -52,7 +87,7 @@ class validate:
     Example:
         .. code-block:: python
 
-            with validate(False):  # do no validate while within this block
+            with validate(False):  # do not validate within this block
                 pass
 
             validate(False)  # disable validation in this execution context
@@ -62,19 +97,21 @@ class validate:
 
         :func:`~bokeh.core.properties.without_property_validation`: function decorator
 
+        :func:`~bokeh.core.properties.set_validation_default`: process-wide default
+
     """
     def __init__(self, value: bool) -> None:
-        self._token = Property._should_validate.set(value)
+        self._token = bases._validation_override.set(value)
 
     def __enter__(self) -> None:
         pass
 
     def __exit__(self, typ: type[BaseException] | None, value: BaseException | None, traceback: TracebackType | None) -> None:
-        Property._should_validate.reset(self._token)
+        bases._validation_override.reset(self._token)
 
 
 def without_property_validation[**P, R](input_function: Callable[P, R]) -> Callable[P, R]:
-    """ Turn off property validation during update callbacks
+    """ Turn off property validation during synchronous update callbacks.
 
     Example:
         .. code-block:: python

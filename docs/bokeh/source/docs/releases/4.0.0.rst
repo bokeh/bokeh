@@ -66,3 +66,50 @@ API changes
   attaches a marking to a named path node, and ``PathMarkings`` places markings
   at fractional path positions. These concrete models define their own marking
   and placement properties.
+
+.. _release-4-0-0-validation:
+
+Property validation and warning suppression
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Property validation overrides now belong to the current execution context.
+Previously, overlapping ``validate(False)`` scopes could disable validation for
+other sessions or leave it disabled permanently. Temporary ``silenced()`` scopes
+are also context-local and preserve nested scopes and global ``silence()``
+configuration.
+
+A bare ``validate(False)`` in a server application's ``main.py`` no longer
+disables validation for later callbacks running in separate contexts. Move the
+override into the callback, using ``with validate(False):`` or
+``@without_property_validation`` for synchronous callbacks:
+
+.. code-block:: python
+
+    from bokeh.core.properties import without_property_validation
+
+    @without_property_validation
+    def update():
+        source.data = new_data()
+
+To configure property validation for the entire process, use the new
+:func:`~bokeh.core.properties.set_validation_default`:
+
+.. code-block:: python
+
+    from bokeh.core.properties import set_validation_default
+
+    set_validation_default(False)
+
+This default applies across threads and tasks, including contexts created
+earlier, unless an explicit ``validate(...)`` override is active. Changes to
+the default during an override take effect after the enclosing overrides exit.
+Libraries assigning the private ``Property._should_validate`` attribute must
+use ``set_validation_default()`` instead. Assigning that attribute now raises
+an error with migration guidance.
+
+Overrides propagate into new asyncio tasks and ``asyncio.to_thread``. They are
+not copied by ``loop.run_in_executor`` or a user-managed ``ThreadPoolExecutor``.
+``threading.Thread`` inheritance depends on Python's thread-context configuration;
+do not assume propagation. Use ``contextvars.copy_context().run`` for explicit
+propagation across these boundaries. These rules also apply to ``silenced()``;
+use ``silence()`` for process-wide warning suppression.

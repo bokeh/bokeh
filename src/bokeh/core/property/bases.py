@@ -66,6 +66,9 @@ __all__ = (
     'validation_on',
 )
 
+_validation_default: bool = True
+_validation_override: ContextVar[bool | None] = ContextVar("property_validation", default=None)
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -80,7 +83,13 @@ type Init[T] = T | UndefinedType | _NotGivenType
 
 type ModelInit[T] = T | _NotGivenType
 
-class Property[T]:
+class _PropertyMeta(type):
+    def __setattr__(cls, name: str, value: Any) -> None:
+        if name == "_should_validate":
+            raise AttributeError("Property._should_validate was removed; use bokeh.core.properties.set_validation_default()")
+        super().__setattr__(name, value)
+
+class Property[T](metaclass=_PropertyMeta):
     """ Base class for Bokeh property instances, which can be added to Bokeh
     Models.
 
@@ -92,9 +101,6 @@ class Property[T]:
             A documentation string for this property. (default: None)
 
     """
-
-    # This class attribute is controlled by external helper API for validation
-    _should_validate: ClassVar[ContextVar[bool]] = ContextVar("property_validation", default=True)
 
     _readonly: ClassVar[bool] = False
     _serialized: ClassVar[bool] = True
@@ -581,13 +587,14 @@ class ContainerProperty[T](ParameterizedProperty[T]):
         return self._default is not Undefined
 
 def validation_on() -> bool:
-    """ Check if property validation is currently active
+    """ Check the context-local override or the process-wide validation default.
 
     Returns:
         bool
 
     """
-    return Property._should_validate.get()
+    override = _validation_override.get()
+    return _validation_default if override is None else override
 
 #-----------------------------------------------------------------------------
 # Private API

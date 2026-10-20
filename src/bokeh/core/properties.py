@@ -182,8 +182,13 @@ In some cases it may be desirable to turn off validation in specific places,
 or even entirely, in order to boost performance. The following API is available
 to control when type validation occurs.
 
+Use ``validate`` or ``without_property_validation`` for a context-local override.
+Use ``set_validation_default`` to configure the process-wide default for contexts
+without an override.
+
 .. autoclass:: validate
 .. autofunction:: without_property_validation
+.. autofunction:: set_validation_default
 
 '''
 #-----------------------------------------------------------------------------
@@ -304,6 +309,7 @@ __all__ = (
     'UnsetValueError',
     'expr',
     'field',
+    'set_validation_default',
     'validate',
     'value',
     'without_property_validation',
@@ -440,6 +446,7 @@ from .property.visual import Image
 from .property.visual import MinMaxBounds
 from .property.visual import MarkerType
 
+from .property.validation import set_validation_default
 from .property.validation import validate
 from .property.validation import without_property_validation
 
