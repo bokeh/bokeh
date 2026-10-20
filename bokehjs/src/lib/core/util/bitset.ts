@@ -69,6 +69,15 @@ export class BitSet implements Equatable {
     return bits
   }
 
+  static from_indices_array(size: number, indices_array: Arrayable<number>): BitSet {
+    const bits = new BitSet(size)
+    const n = indices_array.length
+    for (let i = 0; i < n; i++) {
+      bits.set(indices_array[i])
+    }
+    return bits
+  }
+
   static from_booleans(size: number, booleans: Iterable<boolean>): BitSet {
     const bits = new BitSet(size)
     let i = 0

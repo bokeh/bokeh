@@ -28,6 +28,7 @@ import {FactorRange} from "../ranges/factor_range"
 import {Decoration} from "../graphics/decoration"
 import type {Marking} from "../graphics/marking"
 import type {OpaqueIndices, MultiIndices, ImageIndex} from "../selections/selection"
+import {BitSet} from "core/util/bitset"
 
 type Defaults = {
   fill: {fill_alpha?: number, fill_color?: Color}
@@ -434,31 +435,30 @@ export class GlyphRendererView extends DataRendererView {
     // Render with selection
     } else {
       // reset the selection mask
-      const selected_mask = new Set(selected_full_indices)
+      const selected_mask = BitSet.from_indices_array(this.model.view.indices.size, selected_full_indices)
+      const is_line_or_step = this.glyph instanceof LineView || this.glyph instanceof StepView
 
-      // intersect/different selection with render mask
-      const selected_subset_indices: number[] = new Array()
-      const nonselected_subset_indices: number[] = new Array()
+      const source = is_line_or_step ? all_indices : indices
 
-      // now, selected is changed to subset space, except for Line/Step glyph
-      if (this.glyph instanceof LineView || this.glyph instanceof StepView) {
-        for (const i of all_indices) {
-          if (selected_mask.has(i)) {
-            selected_subset_indices.push(i)
-          } else {
-            nonselected_subset_indices.push(i)
-          }
-        }
-      } else {
-        for (const i of indices) {
-          if (selected_mask.has(all_indices[i])) {
-            selected_subset_indices.push(i)
-          } else {
-            nonselected_subset_indices.push(i)
-          }
+      const selected_subset_indices = new Array<number>(source.length)
+      const nonselected_subset_indices = new Array<number>(source.length)
+      let n_selected = 0
+      let n_nonselected = 0
+
+      for (let k = 0; k < source.length; k++) {
+        const i = source[k]
+        // Line/Step: i is in full data space; otherwise it's in subset space
+        const full_index = is_line_or_step ? i : all_indices[i]
+        if (selected_mask.get(full_index)) {
+          selected_subset_indices[n_selected++] = i
+        } else {
+          nonselected_subset_indices[n_nonselected++] = i
         }
       }
+      selected_subset_indices.length = n_selected
+      nonselected_subset_indices.length = n_nonselected
 
+      // Paint selection last so selected glyphs remain on top.
       nonselection_glyph.paint(ctx, nonselected_subset_indices)
       selection_glyph.paint(ctx, selected_subset_indices)
       if (this.hover_glyph != null) {
