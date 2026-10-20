@@ -56,13 +56,13 @@ export abstract class CSSGridBoxView extends LayoutDOMView {
     const layoutable = new Container<LayoutDOMView>()
 
     for (const [child, row, col, row_span = 1, col_span = 1] of this._children) {
+      nrows = max(nrows, row + row_span)
+      ncols = max(ncols, col + col_span)
+
       const view = this._child_views.get(child)
       if (view == null) {
         continue
       }
-
-      nrows = max(nrows, row + row_span)
-      ncols = max(ncols, col + col_span)
 
       // CSS grid is 1-based, but layout is 0-based
       const styles: CSSStyles = {}

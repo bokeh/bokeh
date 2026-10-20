@@ -18,4 +18,22 @@ describe("GridBox", () => {
 
     expect(view.child_views.length).to.be.equal(3)
   })
+
+  it("should not throw with Map-based track sizing when layout is invalidated before child views are built", async () => {
+    const grid = GridBox.create({
+      children: [[Div.create({text: "initial"}), 0, 0]],
+      rows: new Map([[0, "100px"]]),
+      cols: new Map([[0, "100px"]]),
+      min_height: 100,
+    })
+    const {view} = await display(grid, [300, 300])
+
+    grid.children = [0, 1, 2].map((i) => [Div.create({text: `cell ${i}`}), 0, i])
+    expect(() => {
+      grid.min_height = 200
+    }).to.not.throw()
+    await view.ready
+
+    expect(view.child_views.length).to.be.equal(3)
+  })
 })
