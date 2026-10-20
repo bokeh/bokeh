@@ -7,6 +7,7 @@ from types import SimpleNamespace
 from typing import Any
 
 # External imports
+import pytest
 from sphinx.application import Sphinx
 from sphinx.testing.util import _clean_up_global_state
 
@@ -27,9 +28,10 @@ def test_plot_file_merge_uses_worker_document_ownership() -> None:
     assert env.bokeh_plot_files == {"parent": {"parent.json"}}
 
 
-def test_example_metadata_is_deduplicated_per_read() -> None:
+@pytest.mark.parametrize("filename", ["/source/docs/examples/apple.rst", r"C:\source\docs\examples\apple.rst"])
+def test_example_metadata_is_deduplicated_per_read(filename: str) -> None:
     env = SimpleNamespace(docname="docs/examples/apple", temp_data={})
-    directive = SimpleNamespace(env=env, get_source_info=lambda: ("/source/docs/examples/apple.rst", 1))
+    directive = SimpleNamespace(env=env, get_source_info=lambda: (filename, 1))
     source = "# bokeh.sampledata.iris"
     BokehPlotDirective.process_sampledata(directive, source)
     BokehPlotDirective.process_sampledata(directive, source)
