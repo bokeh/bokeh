@@ -54,6 +54,15 @@ Removals
 API changes
 -----------
 
+* ``DataTable`` now observes column configuration without recursively watching
+  models referenced through column ``CustomJS.args`` or ``CustomJSCompare.args``.
+  Changes to those referenced models no longer rebuild the grid. In-place
+  mutations of an ``args`` dictionary also send no change notification. To
+  request a rebuild, replace the column's callback mapping or sorter, or call
+  ``column.change.emit()`` in BokehJS. Assigning ``sorter.args`` or emitting
+  ``sorter.change`` also triggers a rebuild. Table updates are coalesced into
+  the next microtask; await ``view.ready`` before inspecting the updated grid.
+
 * Renamed ``GlyphRenderer.add_decoration()`` to
   ``GlyphRenderer.add_path_decoration()``. It takes a marking first and a
   keyword-only node: ``renderer.add_path_decoration(head, node="end")``. BokehJS uses

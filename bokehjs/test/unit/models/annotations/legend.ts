@@ -88,6 +88,40 @@ describe("LegendView", () => {
   }
 
   for (const output_backend of ["canvas", "svg"] as const) {
+    for (const field_label of [false, true]) {
+      it(`should resize the DOM legend when an item with a ${field_label ? "field" : "value"} label is hidden using ${output_backend}`, async () => {
+        const p = fig([600, 200], {output_backend, x_range: [0, 10], y_range: [0, 10]})
+        const renderer = p.scatter([1], [1])
+        const label = "A much longer legend label than the other item"
+        renderer.data_source.data = {x: [1], y: [1], label: [label]}
+        const item = LegendItem.create({label: field_label ? {field: "label"} : label, renderers: [renderer]})
+        const legend = ModelDrivenLegend.create({items: [item, LegendItem.create({label: "Short", renderers: [renderer]})]})
+        p.add_layout(legend, "left")
+        const {view} = await display(p)
+        await view.ready
+        const legend_view = view.owner.get_one(legend)
+        legend_view.disconnect_resize_observer()
+        const {width, height} = legend_view.bbox
+
+        item.visible = false
+        await view.ready
+        // LegendItem omits labels for invisible items, so their DOM entries
+        // are removed altogether, including when the label itself is unchanged.
+        expect(legend_view.entry_els.map((el) => el.textContent)).to.be.equal(["Short"])
+        expect(legend_view.shadow_el.querySelectorAll(".bk-item").length).to.be.equal(1)
+        expect(legend_view.bbox.width).to.be.below(width)
+        expect(legend_view.bbox.height).to.be.below(height)
+        expect(renderer.visible).to.be.true
+
+        item.visible = true
+        await view.ready
+        expect(legend_view.entry_els.map((el) => el.textContent)).to.be.equal([label, "Short"])
+        expect(legend_view.entry_els.every((el) => !el.classList.contains("bk-hidden"))).to.be.true
+        expect(legend_view.bbox.width).to.be.equal(width)
+        expect(legend_view.bbox.height).to.be.equal(height)
+      })
+    }
+
     for (const {click_policy, property, active, inactive} of [
       {click_policy: "hide", property: "visible", active: true, inactive: false},
       {click_policy: "mute", property: "muted", active: false, inactive: true},

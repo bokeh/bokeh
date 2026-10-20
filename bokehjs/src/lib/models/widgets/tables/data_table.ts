@@ -239,6 +239,7 @@ export class DataTableView extends WidgetView {
             continue
           }
           const value = prop.get_value() as Scalar<unknown> | Vector<unknown>
+          // These structural interfaces expose their owning HasProps via the signal.
           if (value.transform != null) {
             models.add(value.transform.change.sender)
           }
@@ -407,7 +408,7 @@ export class DataTableView extends WidgetView {
 
   newIndexColumn(): ColumnType {
     return {
-      id: unique_id(),
+      id: DTINDEX_NAME,
       name: this.model.index_header,
       field: DTINDEX_NAME,
       width: this.model.index_width,
@@ -444,9 +445,17 @@ export class DataTableView extends WidgetView {
   }
 
   protected _render_table(): void {
-    const columns: ColumnType[] = this.model.columns.filter((column) => column.visible).map((column) => {
+    const occurrences = new Map<TableColumn, number>()
+    const columns: ColumnType[] = this.model.columns.flatMap((column) => {
+      // Distinguish repeated models while retaining IDs across visibility and
+      // ordering changes to other columns.
+      const occurrence = occurrences.get(column) ?? 0
+      occurrences.set(column, occurrence + 1)
+      if (!column.visible) {
+        return []
+      }
       const column_view = this._column_views.get(column)!
-      return {...column_view.toColumn(), parent: this}
+      return [{...column_view.toColumn(), id: `${column.id}:${occurrence}`, parent: this}]
     })
 
     let checkbox_selector: SlickCheckboxSelectColumn<Item> | null = null

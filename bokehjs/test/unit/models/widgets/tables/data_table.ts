@@ -13,10 +13,12 @@ import {CustomJS} from "@bokehjs/models/callbacks/customjs"
 import {CustomJSCompare} from "@bokehjs/models/comparisons/customjs_compare"
 import {IndexFilter} from "@bokehjs/models/filters/index_filter"
 import {HTML} from "@bokehjs/models/dom/html"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {DTINDEX_NAME} from "@bokehjs/models/widgets/tables/definitions"
 import type {ColumnType} from "@bokehjs/models/widgets/tables/definitions"
 
 import {range} from "@bokehjs/core/util/array"
+import {dict} from "@bokehjs/core/util/object"
 
 import {build} from "../../sources/cds_view"
 
@@ -48,8 +50,8 @@ class UpdatingDataTableView extends DataTableView {
     super.updateSelection()
   }
 
-  sort_descending(): void {
-    const column = this.grid.getColumns()[0]
+  sort_descending(index = 0): void {
+    const column = this.grid.getColumns()[index]
     this.grid.setSortColumns([{columnId: column.id, sortAsc: false}])
     this.grid.onSort.notify({
       grid: this.grid, multiColumnSort: true,
@@ -67,6 +69,110 @@ class UpdatingDataTable extends DataTable {
 }
 
 describe("DataTableView updates", () => {
+  it("should give repeated column models distinct IDs and retain their sorting across rebuilds", async () => {
+    const source = ColumnDataSource.create({data: {x: [2, 1, 3], y: [4, 5, 6]}})
+    const other = TableColumn.create({field: "y"})
+    const column = TableColumn.create({field: "x"})
+    const table = UpdatingDataTable.create({source, columns: [other, column, column], index_position: null, width: 400, height: 200})
+    const {view} = await display(table)
+    const ids = view.slickgrid.getColumns().map(({id}) => id)
+    expect(new Set(ids).size).to.be.equal(3)
+    for (const [index, id] of ids.entries()) {
+      expect(view.slickgrid.getColumnIndex(id)).to.be.equal(index)
+    }
+    expect(view.shadow_el.querySelectorAll(".slick-header-column").length).to.be.equal(3)
+    view.sort_descending(2)
+    const sorting = view.slickgrid.getSortColumns()
+
+    column.formatter = StringFormatter.create({font_style: {value: "bold"}})
+    await view.ready
+    expect(view.slickgrid.getColumns().map(({id}) => id)).to.be.equal(ids)
+    expect(view.slickgrid.getSortColumns()).to.be.equal(sorting)
+    expect(view.records.map((row) => row.x)).to.be.equal([3, 2, 1])
+
+    other.visible = false
+    await view.ready
+    expect(view.slickgrid.getColumns().map(({id}) => id)).to.be.equal(ids.slice(1))
+    expect(view.slickgrid.getColumnIndex(ids[2])).to.be.equal(1)
+    expect(view.slickgrid.getSortColumns()).to.be.equal(sorting)
+
+    other.visible = true
+    table.columns = [column, column, other]
+    await view.ready
+    expect(view.slickgrid.getColumns().map(({id}) => id)).to.be.equal([ids[1], ids[2], ids[0]])
+    expect(view.slickgrid.getColumnIndex(ids[2])).to.be.equal(1)
+    expect(view.slickgrid.getSortColumns()).to.be.equal(sorting)
+
+    table.columns = [column, other]
+    await view.ready
+    expect(view.slickgrid.getSortColumns()).to.be.equal([])
+  })
+
+  for (const index_position of [0, -1]) {
+    it(`should retain index column sorting across rebuilds with index_position=${index_position}`, async () => {
+      const source = ColumnDataSource.create({data: {x: [2, 1, 3]}})
+      const column = TableColumn.create({field: "x"})
+      const table = UpdatingDataTable.create({source, columns: [column], selectable: "checkbox", index_position, width: 400, height: 200})
+      const {view} = await display(table)
+      view.sort_descending(view.slickgrid.getColumns().findIndex(({field}) => field === DTINDEX_NAME))
+      const sorting = view.slickgrid.getSortColumns()
+      const check = () => {
+        expect(view.slickgrid.getSortColumns()).to.be.equal(sorting)
+        expect(view.records.map((row) => row[DTINDEX_NAME])).to.be.equal([2, 1, 0])
+        expect(view.shadow_el.querySelectorAll(".slick-sort-indicator-desc").length).to.be.equal(1)
+      }
+      check()
+      column.formatter = StringFormatter.create({font_style: {value: "bold"}})
+      await view.ready
+      check()
+      table.index_position = index_position === 0 ? -1 : 0
+      await view.ready
+      check()
+      source.patch({x: [[0, 4]]})
+      await view.ready
+      check()
+    })
+  }
+
+  for (const reference of ["callback", "sorter"] as const) {
+    it(`should rebuild only on explicit column configuration changes with ${reference} args`, async () => {
+      const source = ColumnDataSource.create({data: {x: [2, 1, 3]}})
+      const range = Range1d.create({start: 0, end: 1})
+      const column = TableColumn.create({field: "x"})
+      const callback = CustomJS.create({args: {range}, code: "void range.start"})
+      const sorter = CustomJSCompare.create({args: {range}, code: "return x < y ? -1 : x > y ? 1 : 0"})
+      if (reference === "callback") {
+        column.js_property_callbacks = {"change:width": [callback]}
+      } else {
+        column.sorter = sorter
+      }
+      const table = UpdatingDataTable.create({source, columns: [column], index_position: null, width: 400, height: 200})
+      const {view} = await display(table)
+      view.sort_descending()
+      const sorting = view.slickgrid.getSortColumns()
+      const grid = view.slickgrid
+      view.renders = 0
+      range.start = -1
+      await view.ready
+      expect(view.renders).to.be.equal(0)
+      expect(view.slickgrid).to.be.identical(grid)
+
+      const config = reference === "callback" ? callback : sorter
+      dict(config.args).set("range", Range1d.create({start: -2, end: 2}))
+      await view.ready
+      expect(view.renders).to.be.equal(0)
+      if (reference === "callback") {
+        column.change.emit()
+      } else {
+        sorter.change.emit()
+      }
+      await view.ready
+      expect(view.renders).to.be.equal(1)
+      expect(view.slickgrid.getSortColumns()).to.be.equal(sorting)
+      expect(view.records.map((row) => row.x)).to.be.equal([3, 2, 1])
+    })
+  }
+
   for (const reference of ["none", "callback", "sorter"] as const) {
     it(`should update data and selection without rebuilding or losing sorting with ${reference} source references`, async () => {
       const source = ColumnDataSource.create({data: {x: [2, 1, 3]}})
@@ -146,6 +252,7 @@ describe("DataTableView updates", () => {
     const table = UpdatingDataTable.create({source, columns: [first], index_position: null, width: 400, height: 200})
     const {view} = await display(table)
     view.sort_descending()
+    const sorting = view.slickgrid.getSortColumns()
     const second = TableColumn.create({field: "x", title: "Second"})
     view.renders = 0
     table.columns = [first, second]
@@ -167,7 +274,7 @@ describe("DataTableView updates", () => {
     title.html = "<b>Updated again</b>"
     await view.ready
     expect(view.shadow_el.querySelector(".slick-header-columns")!.textContent).to.be.equal("xUpdated again")
-    expect(view.slickgrid.getSortColumns()).to.be.equal([{columnId: first.id, sortAsc: false}])
+    expect(view.slickgrid.getSortColumns()).to.be.equal(sorting)
     view.renders = 0
     table.columns = [second]
     await view.ready
@@ -211,6 +318,7 @@ describe("DataTableView updates", () => {
     const table = UpdatingDataTable.create({source, columns: [column], index_position: null, width: 400, height: 200})
     const {view} = await display(table)
     view.sort_descending()
+    const sorting = view.slickgrid.getSortColumns()
     editor.options = ["4", "5"]
     await view.ready
     expect((view.slickgrid.getColumns()[0] as ColumnType).model).to.be.identical(editor)
@@ -234,7 +342,7 @@ describe("DataTableView updates", () => {
     sorter.code = "return 0"
     await view.ready
     expect(view.renders).to.be.equal(0)
-    expect(view.slickgrid.getSortColumns()).to.be.equal([{columnId: column.id, sortAsc: false}])
+    expect(view.slickgrid.getSortColumns()).to.be.equal(sorting)
   })
 
   it("should update a filtered view while preserving sorting", async () => {

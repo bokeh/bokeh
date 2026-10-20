@@ -1671,6 +1671,7 @@ describe("Bug", () => {
       expect(table.source.selected.indices).to.be.equal([2])
 
       table.view.filter = IndexFilter.create({indices: [0, 1]})
+      await view.ready
 
       expect(view.get_selected_rows()).to.be.equal([])
       expect(table.source.selected.indices).to.be.equal([2])
@@ -1683,6 +1684,7 @@ describe("Bug", () => {
       expect(table.source.selected.indices).to.be.equal([0, 2])
 
       table.view.filter = IndexFilter.create({indices: [0, 1, 2]})
+      await view.ready
 
       expect(view.get_selected_rows().slice().sort()).to.be.equal([0, 2].sort())
       expect(table.source.selected.indices.slice().sort()).to.be.equal([0, 2].sort())
@@ -2148,6 +2150,7 @@ ${view.host_selector} {
       expect(table.source.selected.indices).to.be.equal([2])
 
       table.view.filter = IndexFilter.create({indices: [0, 1]})
+      await view.ready
 
       expect(view.get_selected_rows()).to.be.equal([])
       expect(table.source.selected.indices).to.be.equal([2])
@@ -2163,6 +2166,7 @@ ${view.host_selector} {
       await view.ready
 
       table.view.filter = IndexFilter.create({indices: [0, 1, 2]})
+      await view.ready
 
       expect(view.get_selected_rows().slice().sort()).to.be.equal([])
       expect(table.source.selected.indices.slice().sort()).to.be.equal([])
