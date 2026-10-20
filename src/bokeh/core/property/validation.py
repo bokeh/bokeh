@@ -4,12 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-""" Provide the Instance property.
-
-The Instance property is used to construct object graphs of Bokeh models,
-where one Bokeh model refers to another.
-
-"""
+""" Control property validation in the current execution context. """
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -47,7 +42,9 @@ __all__ = (
 class validate:
     """ Control validation of bokeh properties
 
-    This can be used as a context manager, or as a normal callable
+    This can be used as a context manager, or as a normal callable.
+    The setting is local to the current thread and asyncio task. Worker threads
+    started with ``asyncio.to_thread`` inherit the caller's setting.
 
     Args:
         value (bool) : Whether validation should occur or not
@@ -58,7 +55,7 @@ class validate:
             with validate(False):  # do no validate while within this block
                 pass
 
-            validate(False)  # don't validate ever
+            validate(False)  # disable validation in this execution context
 
     See Also:
         :func:`~bokeh.core.property.bases.validation_on`: check the state of validation
@@ -67,14 +64,13 @@ class validate:
 
     """
     def __init__(self, value: bool) -> None:
-        self.old = Property._should_validate
-        Property._should_validate = value
+        self._token = Property._should_validate.set(value)
 
     def __enter__(self) -> None:
         pass
 
     def __exit__(self, typ: type[BaseException] | None, value: BaseException | None, traceback: TracebackType | None) -> None:
-        Property._should_validate = self.old
+        Property._should_validate.reset(self._token)
 
 
 def without_property_validation[**P, R](input_function: Callable[P, R]) -> Callable[P, R]:

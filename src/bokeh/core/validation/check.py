@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import contextlib
+from contextvars import ContextVar
 from dataclasses import dataclass, field
 from typing import (
     Generator,
@@ -40,6 +41,8 @@ from .issue import Warning
 #-----------------------------------------------------------------------------
 
 __silencers__: set[Warning] = set()
+
+_SCOPED_SILENCERS: ContextVar[frozenset[Warning]] = ContextVar("scoped_silencers", default=frozenset())
 
 __all__ = (
     'check_integrity',
@@ -71,14 +74,16 @@ class Validator(Protocol):
     validator_type: ValidatorType
 
 def silence(warning: Warning, silence: bool = True) -> set[Warning]:
-    ''' Silence a particular warning on all Bokeh models.
+    ''' Configure process-wide suppression of a particular warning on all Bokeh models.
+
+    Use :func:`silenced` for temporary suppression in the current execution context.
 
     Args:
         warning (Warning) : Bokeh warning to silence
         silence (bool) : Whether or not to silence the warning
 
     Returns:
-        A set containing the all silenced warnings
+        A set containing all globally silenced warnings
 
     This function adds or removes warnings from a set of silencers which
     is referred to when running ``check_integrity``. If a warning
@@ -108,7 +113,7 @@ def silence(warning: Warning, silence: bool = True) -> set[Warning]:
     return __silencers__
 
 def is_silenced(warning: Warning) -> bool:
-    ''' Check if a warning has been silenced.
+    ''' Check if a warning has been silenced globally or in the current execution context.
 
     Args:
         warning (Warning) : Bokeh warning to check
@@ -117,15 +122,32 @@ def is_silenced(warning: Warning) -> bool:
         bool
 
     '''
-    return warning in __silencers__
+    if __silencers__ and warning in __silencers__:
+        return True
+    if scoped_silencers := _SCOPED_SILENCERS.get():
+        return warning in scoped_silencers
+    return False
 
 @contextlib.contextmanager
 def silenced(warning: Warning) -> Generator[None]:
-    silence(warning, True)
+    ''' Temporarily silence a warning in the current execution context.
+
+    The suppression is local to the current thread and asyncio task. New asyncio
+    tasks and worker threads started with ``asyncio.to_thread`` inherit the
+    caller's suppression. Nested scopes restore the enclosing suppression, and
+    process-wide settings configured by :func:`silence` are preserved.
+
+    Args:
+        warning (Warning) : Bokeh warning to silence
+
+    '''
+    if not isinstance(warning, Warning):
+        raise ValueError(f"Input to silenced should be a warning object - not of type {type(warning)}")
+    token = _SCOPED_SILENCERS.set(_SCOPED_SILENCERS.get() | {warning})
     try:
         yield
     finally:
-        silence(warning, False)
+        _SCOPED_SILENCERS.reset(token)
 
 def check_integrity(models: Iterable[Model]) -> ValidationIssues:
     ''' Collect all warnings associated with a collection of Bokeh models.

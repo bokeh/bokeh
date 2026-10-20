@@ -28,6 +28,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from collections.abc import Mapping
+from contextvars import ContextVar
 from copy import copy
 from typing import (
     TYPE_CHECKING,
@@ -93,7 +94,7 @@ class Property[T]:
     """
 
     # This class attribute is controlled by external helper API for validation
-    _should_validate: ClassVar[bool] = True
+    _should_validate: ClassVar[ContextVar[bool]] = ContextVar("property_validation", default=True)
 
     _readonly: ClassVar[bool] = False
     _serialized: ClassVar[bool] = True
@@ -586,7 +587,7 @@ def validation_on() -> bool:
         bool
 
     """
-    return Property._should_validate
+    return Property._should_validate.get()
 
 #-----------------------------------------------------------------------------
 # Private API

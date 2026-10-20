@@ -17,7 +17,10 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import asyncio
 import re
+from concurrent.futures import ThreadPoolExecutor
+from threading import Event
 
 # Bokeh imports
 from bokeh.core.has_props import HasProps
@@ -90,6 +93,87 @@ VALS = ((String, "Bar"), (Int, 20), (Float, 1.23), (List(Float), [1.23, 3.45]))
 
 
 class TestValidationControl:
+    @pytest.mark.parametrize("check_isolation", [False, True])
+    def test_interleaved_threads(self, check_isolation: bool) -> None:
+        a_in, b_in, a_out = Event(), Event(), Event()
+
+        def a():
+            try:
+                with bcpv.validate(False):
+                    a_in.set()
+                    assert b_in.wait(5)
+                    assert not validation_on()
+            finally:
+                a_out.set()
+            assert validation_on()
+
+        def b():
+            assert a_in.wait(5)
+            try:
+                if check_isolation:
+                    assert validation_on()
+                    with pytest.raises(ValueError):
+                        Int().prepare_value(HasProps, "value", "invalid")
+            except BaseException:
+                b_in.set()
+                raise
+            with bcpv.validate(False):
+                b_in.set()
+                assert a_out.wait(5)
+                assert not validation_on()
+            assert validation_on()
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            futures = [executor.submit(f) for f in (a, b)]
+            for future in futures:
+                future.result(timeout=15)
+        assert validation_on()
+
+    def test_async_task_isolation(self) -> None:
+        async def run():
+            entered, finish = asyncio.Event(), asyncio.Event()
+
+            async def disabled():
+                with bcpv.validate(False):
+                    entered.set()
+                    await finish.wait()
+                    assert not validation_on()
+                assert validation_on()
+
+            task = asyncio.create_task(disabled())
+            try:
+                await entered.wait()
+                assert validation_on()
+            finally:
+                finish.set()
+                await task
+
+        async def bounded_run():
+            await asyncio.wait_for(run(), timeout=5)
+
+        asyncio.run(bounded_run())
+
+    def test_to_thread_inherits_validation(self) -> None:
+        def worker():
+            assert not validation_on()
+            with bcpv.validate(True):
+                assert validation_on()
+            assert not validation_on()
+
+        async def run():
+            with bcpv.validate(False):
+                await asyncio.to_thread(worker)
+                assert not validation_on()
+            assert validation_on()
+
+        asyncio.run(run())
+
+    def test_exception_restores_validation(self) -> None:
+        with pytest.raises(RuntimeError):
+            with bcpv.validate(False):
+                raise RuntimeError()
+        assert validation_on()
+
     def test_validate(self) -> None:
         assert validation_on()
         with bcpv.validate(False):

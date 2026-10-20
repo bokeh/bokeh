@@ -213,13 +213,13 @@ class TestProperty:
         assert err == ""
 
     def test_validation_on(self) -> None:
-        assert bcpb.Property._should_validate is True
         assert bcpb.validation_on()
 
-        bcpb.Property._should_validate = False
-        assert not bcpb.validation_on()
-
-        bcpb.Property._should_validate = True
+        token = bcpb.Property._should_validate.set(False)
+        try:
+            assert not bcpb.validation_on()
+        finally:
+            bcpb.Property._should_validate.reset(token)
         assert bcpb.validation_on()
 
     def test__hinted_value_is_identity(self) -> None:
