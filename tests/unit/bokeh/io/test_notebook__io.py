@@ -910,6 +910,38 @@ def test_application_view_rejects_invalid_frontend_url_and_is_bounded() -> None:
     second.close()
 
 
+def test_retain_application_handle_evicts_handles_that_do_not_remove_themselves() -> None:
+    stale = MagicMock()
+    m._APPLICATION_VIEW_HANDLES["stale"] = stale
+    handle = m.ApplicationViewHandle(MagicMock(), "new", embed_server("http://127.0.0.1:4321/app"))
+    with patch("bokeh.io.notebook._MAX_RETAINED_VIEW_HANDLES", 1):
+        m._retain_application_handle(handle)
+    stale.close.assert_called_once_with()
+    assert list(m._APPLICATION_VIEW_HANDLES) == ["new"]
+
+
+def test_retain_document_handle_evicts_handles_that_fail_to_close() -> None:
+    stale = MagicMock(_view_id="stale-view", close=MagicMock(side_effect=RuntimeError("close failed")))
+    m._DOCUMENT_VIEW_HANDLES["stale"] = stale
+    m._DOCUMENT_VIEW_HANDLES_BY_VIEW["stale-view"] = stale
+    handle = m.DocumentViewHandle(Div(), live_id="live", view_id="view")
+    with (
+        patch("bokeh.io.notebook._MAX_RETAINED_VIEW_HANDLES", 1),
+        pytest.raises(RuntimeError, match="close failed"),
+    ):
+        m._retain_document_handle(handle)
+    assert "stale" not in m._DOCUMENT_VIEW_HANDLES
+    assert "stale-view" not in m._DOCUMENT_VIEW_HANDLES_BY_VIEW
+
+
+def test_reset_notebook_resources_clears_handles_that_do_not_remove_themselves() -> None:
+    m._DOCUMENT_VIEW_HANDLES["document"] = MagicMock()
+    m._APPLICATION_VIEW_HANDLES["application"] = MagicMock()
+    m._reset_notebook_resources()
+    assert m._DOCUMENT_VIEW_HANDLES == {}
+    assert m._APPLICATION_VIEW_HANDLES == {}
+
+
 def test_notebook_comm_reports_missing_live_and_application_views() -> None:
     pytest.importorskip("IPython")
     targets: dict[str, object] = {}

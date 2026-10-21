@@ -694,7 +694,8 @@ def _release_output_root(key: tuple[int, int]) -> None:
 
 def _retain_document_handle(handle: DocumentViewHandle) -> None:
     while len(_DOCUMENT_VIEW_HANDLES) >= _MAX_RETAINED_VIEW_HANDLES:
-        oldest = next(iter(_DOCUMENT_VIEW_HANDLES.values()))
+        oldest = _DOCUMENT_VIEW_HANDLES.pop(next(iter(_DOCUMENT_VIEW_HANDLES)))
+        _DOCUMENT_VIEW_HANDLES_BY_VIEW.pop(oldest._view_id, None)
         oldest.close()
     _DOCUMENT_VIEW_HANDLES[handle._live_id] = handle
     _DOCUMENT_VIEW_HANDLES_BY_VIEW[handle._view_id] = handle
@@ -702,8 +703,7 @@ def _retain_document_handle(handle: DocumentViewHandle) -> None:
 
 def _retain_application_handle(handle: ApplicationViewHandle) -> None:
     while len(_APPLICATION_VIEW_HANDLES) >= _MAX_RETAINED_VIEW_HANDLES:
-        oldest = next(iter(_APPLICATION_VIEW_HANDLES.values()))
-        oldest.close()
+        _APPLICATION_VIEW_HANDLES.pop(next(iter(_APPLICATION_VIEW_HANDLES))).close()
     _APPLICATION_VIEW_HANDLES[handle.view_id] = handle
 
 #-----------------------------------------------------------------------------
@@ -1269,6 +1269,8 @@ def _reset_notebook_resources() -> None:
         handle.close()
     for application_handle in tuple(_APPLICATION_VIEW_HANDLES.values()):
         application_handle.close()
+    _DOCUMENT_VIEW_HANDLES.clear()
+    _APPLICATION_VIEW_HANDLES.clear()
     RESOURCE_RECORDS.clear()
     _ARTIFACT_OWNERS.clear()
     _DOCUMENT_VIEW_HANDLES_BY_VIEW.clear()
