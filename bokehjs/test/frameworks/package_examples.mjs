@@ -2,6 +2,7 @@ import {spawn} from "node:child_process"
 import {cpSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync} from "node:fs"
 import {join, relative, resolve} from "node:path"
 import {fileURLToPath} from "node:url"
+import {resolve_executable} from "./spawn.mjs"
 
 const frameworks_dir = fileURLToPath(new URL(".", import.meta.url))
 const bokehjs_dir = resolve(frameworks_dir, "../..")
@@ -44,19 +45,16 @@ function application_dir({name, isolated = false}) {
 const npm_packages = JSON.parse(readFileSync(join(bokehjs_dir, "npm_packages.json"), "utf-8"))
 const package_dirs = new Map(npm_packages.map(({name, workspace}) => [name, join(bokehjs_dir, workspace)]))
 
-function command(name) {
-  return process.platform == "win32" ? `${name}.cmd` : name
-}
-
 async function run(executable, args, cwd) {
+  const [resolved_executable, resolved_args] = resolve_executable(executable, args)
   await new Promise((resolve, reject) => {
-    const child = spawn(command(executable), args, {cwd, stdio: "inherit"})
+    const child = spawn(resolved_executable, resolved_args, {cwd, stdio: "inherit"})
     child.on("error", reject)
     child.on("exit", (code, signal) => {
       if (code == 0) {
         resolve()
       } else {
-        reject(new Error(`${executable} ${args.join(" ")} failed with ${signal ?? `exit code ${code}`}`))
+        reject(new Error(`${resolved_executable} ${resolved_args.join(" ")} failed with ${signal ?? `exit code ${code}`}`))
       }
     })
   })
