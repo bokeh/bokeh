@@ -2,7 +2,7 @@ import {expect} from "#framework/assertions"
 
 import {Selection} from "@bokehjs/models/selections/selection"
 import {Patch} from "@bokehjs/models/glyphs/patch"
-import {Document} from "@bokehjs/document"
+import {Document, type Patch as DocumentPatch} from "@bokehjs/document"
 import {ModelChangedEvent} from "@bokehjs/document/events"
 import {Serializer} from "@bokehjs/core/serialization"
 import {Message} from "@bokehjs/protocol/message"
@@ -102,6 +102,60 @@ describe("Selection", () => {
         expect(Array.from(values)).to.be.equal([key, key + 1])
         expect((values as Int32Array).buffer === sent[1]).to.be.true
       }
+    })
+
+    it("should export received shared multiline views without repeating the full buffer", () => {
+      const count = 2000
+      const original = Selection.create({multiline_indices: new Map(Array.from({length: count}, (_, i) => [i, [i]]))})
+      const received = decode(send(original)) as Selection
+      const doc = new Document()
+      doc.add_root(received)
+      const json = doc.to_json_string(false)
+      expect(json.length < count*512).to.be.true
+      const restored = Document.from_json_string(json).roots()[0] as Selection
+      expect(restored.multiline_indices.size).to.be.equal(count)
+      for (const [key, values] of restored.multiline_indices) {
+        expect(Array.from(values)).to.be.equal([key])
+      }
+    })
+
+    it("should preserve sender arrays while exposing typed sequences to receiving clients", () => {
+      const indices = [1, 2]
+      const line_indices = [3, 4]
+      const points = [0, 1]
+      const sender = Selection.create({indices, line_indices, multiline_indices: new Map([[7, points]])})
+      const received = decode(send(sender)) as Selection
+      for (const [sent, value] of [
+        [indices, received.indices], [line_indices, received.line_indices],
+        [points, received.multiline_indices.get(7)!],
+      ]) {
+        expect(Array.isArray(sent)).to.be.true
+        expect(value).to.be.instanceof(Int32Array)
+        expect(Array.from(value)).to.be.equal(Array.from(sent))
+        expect(JSON.stringify(Array.from(value))).to.be.equal(JSON.stringify(sent))
+      }
+      expect(sender.indices === indices).to.be.true
+      expect(sender.line_indices === line_indices).to.be.true
+      expect(sender.multiline_indices.get(7) === points).to.be.true
+    })
+
+    it("should notify once when an equal-valued received patch changes the sequence type", () => {
+      const selection = Selection.create({indices: [1, 2]})
+      const doc = new Document()
+      doc.add_root(selection)
+      let changes = 0
+      selection.properties.indices.change.connect(() => changes++)
+      const event = new ModelChangedEvent(doc, selection, "indices", [1, 2])
+      const sent = send(event)
+      const {content, buffers} = Message.decode(sent[0] as string)
+      const data = new Map(buffers.map((id, i) => [id, sent[i + 1] as ArrayBuffer]))
+      const patch = {events: [content]} as DocumentPatch
+      doc.apply_json_patch(patch, data)
+      expect(selection.indices).to.be.instanceof(Int32Array)
+      expect(Array.from(selection.indices)).to.be.equal([1, 2])
+      expect(changes).to.be.equal(1)
+      doc.apply_json_patch(patch, data)
+      expect(changes).to.be.equal(1)
     })
 
     it("should preserve sparse keys, empty lines, slices, and unequal line lengths", () => {

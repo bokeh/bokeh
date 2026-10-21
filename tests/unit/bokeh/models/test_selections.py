@@ -114,3 +114,41 @@ def test_shared_multiline_patch_forwarding(hold: bool) -> None:
     serializer = Serializer()
     serializer.encode(selection)
     assert len(serializer.buffers) == 1
+
+
+def test_multiline_patch_serializes_captured_value() -> None:
+    selection = Selection()
+    doc = Document()
+    doc.add_root(selection)
+    captured = {7: array("i", [0, 2]), 9: array("i", [1])}
+    event = ModelChangedEvent(doc, selection, "multiline_indices", captured)
+    selection.multiline_indices = {42: [3]}
+    serializer = Serializer()
+    rep = serializer.encode(event)
+    assert len(serializer.buffers) == 1
+    assert Deserializer([selection]).deserialize(Serialized(rep, serializer.buffers))["new"] == captured
+    assert selection.multiline_indices == {42: [3]}
+
+
+@pytest.mark.parametrize("attr", ["indices", "line_indices", "multiline_indices"])
+def test_received_sequence_type_change_notifies_for_equal_indices(attr: str) -> None:
+    original = {7: [1, 2]} if attr == "multiline_indices" else [1, 2]
+    received = {7: array("i", [1, 2])} if attr == "multiline_indices" else array("i", [1, 2])
+    selection = Selection(**{attr: original})
+    doc = Document()
+    doc.add_root(selection)
+    changes = []
+    selection.on_change(attr, lambda attr, old, new: changes.append((old, new)))
+    event = ModelChangedEvent(doc, selection, attr, received)
+    serializer = Serializer()
+    payload = serializer.encode(event)
+    doc.apply_json_patch(Serialized(dict(events=[payload]), serializer.buffers))
+    assert len(changes) == 1
+    old, new = changes[0]
+    old_values = old[7] if attr == "multiline_indices" else old
+    new_values = new[7] if attr == "multiline_indices" else new
+    assert isinstance(old_values, list)
+    assert isinstance(new_values, array)
+    assert list(old_values) == list(new_values)
+    doc.apply_json_patch(Serialized(dict(events=[payload]), serializer.buffers))
+    assert len(changes) == 1
