@@ -124,8 +124,18 @@ Remove tools by passing a tool object to the ``remove_tools()`` method of a plot
 
 .. _ug_interaction_tools_customize_tools_icon:
 
-Customizing tools icon
-----------------------
+Customizing tools label, tooltip and icon
+-----------------------------------------
+
+You can change the name of a :ref:`bokeh.models.tools` by passing it to the
+``label`` keyword. The label is displayed in the user interface, e.g. in a
+plot's context menu, in place of the tool's default name (e.g. "Pan" for
+``PanTool``).
+
+.. code-block:: python
+
+    plot.add_tools(PanTool(label="Drag"), CustomAction(label="My action"))
+
 You can change the :ref:`bokeh.models.tools` tooltip by passing it to
 the ``description`` keyword using the ``add_tools()`` method of a plot or any
 of it's instances like |figure|.
@@ -133,6 +143,10 @@ of it's instances like |figure|.
 .. code-block:: python
 
     plot.add_tools(BoxSelectTool(description="My tool"))
+
+If ``description`` is not set, then the tooltip is generated from the tool's
+label, or from its default name if no label is set. For example, the tooltip
+of ``PanTool(label="Drag", dimensions="width")`` is "Drag (x-axis)".
 
 It's also possible to change a tool icon using the ``icon`` keyword.
 
