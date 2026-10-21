@@ -480,6 +480,10 @@ class HasProps(Serializable):
         else:
             return self.properties_with_values() == other.properties_with_values()
 
+    def _serialize_property(self, name: str, value: Any, serializer: Serializer) -> Any:
+        """ Encode a property's captured value for documents and patches. """
+        return serializer.encode(value)
+
     def to_serializable(self, serializer: Serializer) -> ObjectRep:
         include_defaults = settings.serialize_include_defaults()
         properties = self.properties_with_values(include_defaults=include_defaults)
@@ -512,7 +516,7 @@ class HasProps(Serializable):
                     key: properties.get(key, retained_defaults.get(key))
                     for key in self.properties() if key in properties or key in retained_defaults
                 }
-        attributes = {key: serializer.encode(val) for key, val in properties.items()}
+        attributes = {key: self._serialize_property(key, val, serializer) for key, val in properties.items()}
 
         if serializer.compact:
             return ObjectRep({"$type": self.__qualified_model__, **attributes})

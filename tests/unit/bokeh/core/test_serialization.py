@@ -52,6 +52,7 @@ from bokeh.core.serialization import (
     Ref,
     Serializable,
     SerializationError,
+    Serialized,
     Serializer,
     SetRep,
     SliceRep,
@@ -59,6 +60,7 @@ from bokeh.core.serialization import (
     collect_model_types,
 )
 from bokeh.document import Document
+from bokeh.document.events import ColumnDataChangedEvent, ColumnsStreamedEvent
 from bokeh.model import Model
 from bokeh.models import ColumnDataSource, CustomJS
 from bokeh.util.dataclasses import NotRequired, Unspecified
@@ -491,7 +493,8 @@ class TestSerializer:
     def test_typed_array_map_shares_buffer(self, typecode: str) -> None:
         values = {7: TypedArray(typecode, [1, 2]), 8: [], 42: TypedArray(typecode, [3])}
         encoder = Serializer()
-        serialized = encoder.serialize(values)
+        rep = encoder.encode_typed_array_map(values)
+        serialized = Serialized(rep, encoder.buffers)
         assert len(serialized.buffers) == 1
         entries = serialized.content["entries"]
         assert entries[0][1]["byte_offset"] == 0
@@ -504,7 +507,7 @@ class TestSerializer:
         assert list(decoded) == [7, 8, 42]
 
         inline = Serializer(deferred=False)
-        rep = inline.encode(values)
+        rep = inline.encode_typed_array_map(values)
         assert inline.buffers == []
         assert "byte_offset" not in rep["entries"][0][1]
         assert Deserializer().decode(rep) == values
@@ -513,8 +516,55 @@ class TestSerializer:
         values = {1: TypedArray("i", [2]), 3: TypedArray("i", [4])}
         with patch.dict(Serializer._encoders, {TypedArray: lambda obj, serializer: list(obj)}):
             serializer = Serializer()
-            assert serializer.encode(values) == MapRep(type="map", entries=[(1, [2]), (3, [4])])
+            assert serializer.encode_typed_array_map(values) == MapRep(type="map", entries=[(1, [2]), (3, [4])])
             assert serializer.buffers == []
+
+    def test_typed_array_map_honors_custom_dict_encoder(self) -> None:
+        values = {1: TypedArray("i", [2]), 3: TypedArray("i", [4])}
+        with patch.dict(Serializer._encoders, {dict: lambda obj, serializer: "custom"}):
+            serializer = Serializer()
+            assert serializer.encode_typed_array_map(values) == "custom"
+            assert serializer.buffers == []
+
+    @pytest.mark.parametrize("typecode", ["b", "B", "h", "H", "i", "I", "f", "d"])
+    def test_ordinary_typed_array_dict_keeps_independent_buffers(self, typecode: str) -> None:
+        values = {7: TypedArray(typecode, [1, 2]), 8: [], 42: TypedArray(typecode, [3])}
+        serializer = Serializer()
+        serialized = serializer.serialize(values)
+        assert len(serialized.buffers) == 2
+        entries = serialized.content["entries"]
+        for i in [0, 2]:
+            assert "byte_offset" not in entries[i][1]
+            assert "length" not in entries[i][1]
+        assert entries[0][1]["array"]["data"] is not entries[2][1]["array"]["data"]
+        assert Deserializer().deserialize(serialized) == values
+
+    def test_cds_typed_array_columns_keep_independent_buffers(self) -> None:
+        values = dict(x=TypedArray("d", [1, 2, 3]), y=TypedArray("d", [4, 5, 6]), c=TypedArray("I", [7, 8, 9]))
+        source = ColumnDataSource(data=values)
+        serializer = Serializer()
+        rep = serializer.encode(source)
+        columns = dict(rep["attributes"]["data"]["entries"])
+        assert len(serializer.buffers) == 3
+        for key, value in values.items():
+            assert "byte_offset" not in columns[key]
+            assert "length" not in columns[key]
+            assert columns[key]["array"]["data"].to_bytes() == value.tobytes()
+
+    @pytest.mark.parametrize("event_type", [ColumnDataChangedEvent, ColumnsStreamedEvent])
+    def test_cds_typed_array_patch_columns_keep_independent_buffers(self, event_type) -> None:
+        values = dict(x=TypedArray("d", [1, 2]), y=TypedArray("d", [3, 4]))
+        source = ColumnDataSource(data=values)
+        doc = Document()
+        doc.add_root(source)
+        event = event_type(doc, source, "data", values)
+        serializer = Serializer()
+        rep = serializer.encode(event)
+        columns = dict(rep["data"]["entries"])
+        assert len(serializer.buffers) == 2
+        assert all("byte_offset" not in column and "length" not in column for column in columns.values())
+        decoded = Deserializer([source]).deserialize(Serialized(rep, serializer.buffers))
+        assert decoded["data"] == values
 
     def test_ndarray(self) -> None:
         encoder = Serializer()
