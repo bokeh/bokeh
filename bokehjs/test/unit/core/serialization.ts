@@ -230,6 +230,18 @@ describe("core/serialization module", () => {
           expect(decoded.buffer === array.buffer).to.be.true
         }
       })
+
+      it(`should inline only the visible slice of ${ctor.name} views`, () => {
+        const array = new ctor([99, 10, 20, 99])
+        for (const view of [array.subarray(0, 2), array.subarray(1, 3), array.subarray(4)]) {
+          const rep = new Serializer().encode(view) as TypedArrayRep
+          expect(rep.byte_offset).to.be.undefined
+          expect(rep.length).to.be.undefined
+          const decoded = new Deserializer(default_resolver).decode(JSON.parse(JSON.stringify(rep))) as typeof view
+          expect(Array.from(decoded)).to.be.equal(Array.from(view))
+          expect(decoded.buffer.byteLength).to.be.equal(view.byteLength)
+        }
+      })
     }
 
     it("should decode overlapping opposite-endian views without modifying their shared buffer", () => {

@@ -313,6 +313,27 @@ below simply copies selected points on the first plot to the second. However,
 more sophisticated actions and computations are easily constructed in a
 similar way.
 
+Selection index sequences may be ordinary JavaScript arrays or typed arrays.
+For example, a selection received from another client or loaded from a server
+document can use ``Int32Array`` for ``indices``, ``line_indices``, and the values
+in the ``multiline_indices`` map. The selecting browser may retain ordinary
+arrays. Indexing, iteration, and ``length`` work with both representations.
+
+Use ``Array.from()`` when you need array-only methods such as ``push`` or
+``concat``, or JSON output in the form of a list:
+
+.. code:: javascript
+
+    const indices = Array.from(cb_obj.indices)
+    console.log(JSON.stringify(indices))
+
+Assign a new sequence back to the selection property when changing it. A
+sequence-type change can trigger a callback even if the numerical indices
+are unchanged. Python callbacks receiving binary selections can similarly
+receive ``array.array`` sequences; use ``list(selection.indices)`` when a
+Python list is required. These considerations also apply to ``line_indices``
+and the values of ``multiline_indices``.
+
 .. bokeh-plot:: __REPO__/examples/interaction/js_callbacks/customjs_for_selection.py
     :source-position: above
 

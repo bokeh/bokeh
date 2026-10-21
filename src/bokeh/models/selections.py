@@ -19,12 +19,18 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING, Any
+
 # Bokeh imports
 from ..core.has_props import abstract
 from ..core.property.container import Dict, List, Seq
 from ..core.property.primitive import Int
 from ..core.property.struct import Struct
 from ..model import Model
+
+if TYPE_CHECKING:
+    from ..core.serialization import Serializer
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -51,10 +57,20 @@ class Selection(Model):
 
     For most glyphs, the ``indices`` property is the relevant value to use.
 
-    Index sequences received from BokehJS may be compact integer arrays
+    In Python, index sequences received from BokehJS may be compact integer arrays
     (``array.array``) rather than lists. Use ``list(selection.indices)`` when
     a list is required. The same applies to ``line_indices`` and the values
     in ``multiline_indices``.
+
+    In JavaScript, these sequences may be ordinary arrays or typed arrays.
+    Selections received from another client or loaded from a server document
+    can use ``Int32Array``, even when the selecting browser retains ordinary
+    arrays. Use ``Array.from(selection.indices)`` before calling array-only
+    methods such as ``push`` or ``concat``, or when JSON output must be a list.
+
+    A change in sequence type can trigger a callback even when the indices
+    have the same numerical values. Normalize the sequences before comparing
+    their contents when the callback needs to ignore such changes.
 
     '''
 
@@ -90,6 +106,11 @@ class Selection(Model):
     image_indices = List(Struct(index=Int, i=Int, j=Int, flat_index=Int), help="""
 
     """)
+
+    def _serialize_property(self, name: str, value: Any, serializer: Serializer) -> Any:
+        if name == "multiline_indices":
+            return serializer.encode_typed_array_map(value)
+        return super()._serialize_property(name, value, serializer)
 
 @abstract
 class SelectionPolicy(Model):

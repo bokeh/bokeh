@@ -297,6 +297,33 @@ class Serializer:
     def encode_struct(self, **fields: Any) -> dict[str, AnyRep]:
         return {key: self.encode(val) for key, val in fields.items() if val is not Unspecified}
 
+    def encode_typed_array_map(self, obj: dict[Any, Any]) -> AnyRep:
+        """ Encode an opt-in map of typed-array values using shared buffers. """
+        if not self._deferred or type(obj) in self._encoders or TypedArray in self._encoders:
+            return self.encode(obj)
+        groups: dict[str, list[TypedArray[Any]]] = {}
+        for val in obj.values():
+            if type(val) is TypedArray:
+                groups.setdefault(val.typecode, []).append(val)
+        views: dict[int, TypedArrayRep] = {}
+        for arrays in groups.values():
+            if len(arrays) < 2:
+                continue
+            packed = TypedArray(arrays[0].typecode)
+            for val in arrays:
+                packed.extend(val)
+            rep = self._encode_typed_array(packed)
+            offset = 0
+            for val in arrays:
+                views[id(val)] = {**rep, "byte_offset": offset, "length": len(val)}
+                offset += len(val)*val.itemsize
+        if not views:
+            return self.encode(obj)
+        return MapRep(
+            type="map",
+            entries=[(self.encode(key), views[id(val)] if id(val) in views else self.encode(val)) for key, val in obj.items()],
+        )
+
     def _encode(self, obj: Any) -> AnyRep:
         if isinstance(obj, Serializable):
             return obj.to_serializable(self)
@@ -380,30 +407,12 @@ class Serializer:
             )
 
     def _encode_dict(self, obj: dict[Any, Any]) -> MapRep:
-        views: dict[int, TypedArrayRep] = {}
-        if self._deferred and TypedArray not in self._encoders:
-            groups: dict[str, list[TypedArray[Any]]] = {}
-            for val in obj.values():
-                if type(val) is TypedArray:
-                    groups.setdefault(val.typecode, []).append(val)
-            for arrays in groups.values():
-                if len(arrays) < 2:
-                    continue
-                # Repack decoded multiline values when forwarding to other clients.
-                packed = TypedArray(arrays[0].typecode)
-                for val in arrays:
-                    packed.extend(val)
-                rep = self._encode_typed_array(packed)
-                offset = 0
-                for val in arrays:
-                    views[id(val)] = {**rep, "byte_offset": offset, "length": len(val)}
-                    offset += len(val)*val.itemsize
         if len(obj) == 0:
             result = MapRep(type="map")
         else:
             result = MapRep(
                 type="map",
-                entries=[(self.encode(key), views[id(val)] if id(val) in views else self.encode(val)) for key, val in obj.items()],
+                entries=[(self.encode(key), self.encode(val)) for key, val in obj.items()],
             )
 
         return result
@@ -597,6 +606,9 @@ class _ModelTypeCollector(Serializer):
         self._visit_values(obj.keys())
         self._visit_values(obj.values())
         return MapRep(type="map")
+
+    def encode_typed_array_map(self, obj: dict[Any, Any]) -> AnyRep:
+        return self.encode(obj)
 
     def _encode_set(self, obj: set[Any]) -> SetRep:
         self._visit_values(obj)

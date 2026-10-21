@@ -407,7 +407,7 @@ class ModelChangedEvent(DocumentPatchedEvent, kind="ModelChanged"):
             kind  = self.kind,
             model = self.model.ref,
             attr  = self.attr,
-            new   = serializer.encode(self.new),
+            new   = self.model._serialize_property(self.attr, self.new, serializer),
         )
 
     @classmethod
