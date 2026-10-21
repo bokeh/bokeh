@@ -17,7 +17,7 @@ export const build_frameworks = task("frameworks:build", ["lib:build"], async ()
       continue
     }
     const config = `${workspace}/tsconfig.json`
-    const {status} = cp.spawnSync(executable, ["tsc", "-p", config], {stdio: "inherit", shell: is_windows})
+    const {status} = cp.spawnSync(executable, ["--loglevel=warn", "tsc", "-p", config], {stdio: "inherit", shell: is_windows})
     if (status != 0) {
       throw new BuildError("frameworks", `compilation failed for ${config}`)
     }
