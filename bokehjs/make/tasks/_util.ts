@@ -6,6 +6,7 @@ import type {ChildProcess} from "node:child_process"
 import {Socket} from "node:net"
 
 import {BuildError} from "../task.js"
+import {resolve_npx} from "#compiler/sys.js"
 
 export const platform = (() => {
   switch (os.type()) {
@@ -24,9 +25,11 @@ export const file_exists = (path: string) => exists(path) && is_file(path)
 export const dir_exists = (path: string) => exists(path) && is_dir(path)
 
 export function compile_typescript(tsconfig_path: string): void {
-  const is_windows = process.platform == "win32"
-  const npx = is_windows ? "npx.cmd" : "npx"
-  const {status} = cp.spawnSync(`${npx} --loglevel=warn tsgo --project "${tsconfig_path}"`, {stdio: "inherit", shell: true})
+  const [resolved_executable, resolved_args] = resolve_npx(["--loglevel=warn", "tsgo", "--project", tsconfig_path])
+  const {status, error} = cp.spawnSync(resolved_executable, resolved_args, {stdio: "inherit"})
+  if (error != null) {
+    throw new BuildError("typescript", `failed to start tsgo: ${error.message}`)
+  }
   if (status != 0) {
     throw new BuildError("typescript", "compilation failed with tsgo")
   }
