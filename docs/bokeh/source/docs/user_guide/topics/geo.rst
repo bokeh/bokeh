@@ -147,11 +147,8 @@ boundaries over keyless OpenStreetMap tiles:
     :source-position: above
 
 The optional ``bokeh_sampledata`` package includes Shapely geometry records
-for US states, US counties, and world countries. These records can be passed
-directly to ``polygons()`` while retaining their metadata for hover tooltips:
-
-.. bokeh-plot:: __REPO__/examples/topics/geo/world_countries.py
-    :source-position: above
+for US states and counties. These records can be passed directly to
+``polygons()`` while retaining their metadata for hover tooltips.
 
 Attribute names ``x``, ``y``, ``z``, ``xs``, ``ys``, ``zs``, and ``geometry``
 are reserved for these virtual geometry fields.
