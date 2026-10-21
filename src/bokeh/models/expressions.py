@@ -44,7 +44,8 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from math import inf
-from typing import Any
+# Public constructor types live in the stubs; declarations below cover local calls.
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ..core.enums import Direction
@@ -96,10 +97,6 @@ class Expression(Model):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 
 class CustomJSExpr(Expression):
     ''' Evaluate a JavaScript function/generator.
@@ -111,10 +108,6 @@ class CustomJSExpr(Expression):
         sanitize the user input prior to passing to Bokeh.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     args = Dict(String, AnyRef, help="""
     A mapping of names to Python objects. In particular those can be bokeh's models.
@@ -140,10 +133,6 @@ class CumSum(Expression):
     column from a ``ColumnDataSource``.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     field = Required(String, help="""
     The name of a ``ColumnDataSource`` column to cumulatively sum for new values.
@@ -177,10 +166,6 @@ class Stack(Expression):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     fields = Seq(String, default=[], help="""
     A sequence of fields from a ``ColumnDataSource`` to sum (elementwise). For
     example:
@@ -198,17 +183,9 @@ class Stack(Expression):
 class ScalarExpression(Model):
     """ Base class for scalar expressions. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 
 class Minimum(ScalarExpression):
     """ Computes minimum value of a data source's column. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     field = Required(String)
     initial = Nullable(Float, default=inf)
@@ -217,10 +194,6 @@ class Minimum(ScalarExpression):
 class Maximum(ScalarExpression):
     """ Computes maximum value of a data source's column. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     field = Required(String)
     initial = Nullable(Float, default=-inf)
 
@@ -228,10 +201,6 @@ class Maximum(ScalarExpression):
 @abstract
 class CoordinateTransform(Expression):
     """ Base class for coordinate transforms. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     @property
     def x(self):
@@ -244,10 +213,6 @@ class CoordinateTransform(Expression):
 
 class PolarTransform(CoordinateTransform):
     """ Transform from polar to cartesian coordinates. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     radius = NumberSpec(default=field("radius"), help="""
     The radial coordinate (i.e. the distance from the origin).
@@ -271,27 +236,21 @@ class PolarTransform(CoordinateTransform):
 class XYComponent(Expression):
     """ Base class for bi-variate expressions. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     transform = Instance(CoordinateTransform)
 
 
 class XComponent(XYComponent):
     """ X-component of a coordinate system transform to cartesian coordinates. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
 
 class YComponent(XYComponent):
     """ Y-component of a coordinate system transform to cartesian coordinates. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
 
 #-----------------------------------------------------------------------------

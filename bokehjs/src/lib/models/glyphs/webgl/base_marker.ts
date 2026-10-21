@@ -33,7 +33,7 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
   protected _border_radius_nonzero: boolean = false
 
   // indices properties
-  protected _show_indices: number[] | null = null
+  protected _show_indices: Int32Array | null = null
   protected _show_nmarkers: number = -1
 
   // visual properties
@@ -176,7 +176,7 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
     }
   }
 
-  protected _have_indices_changed(indices: number[]): boolean {
+  protected _have_indices_changed(indices: Int32Array): boolean {
     const existing = this._show_indices
     if (existing == null || existing.length !== indices.length) {
       return true

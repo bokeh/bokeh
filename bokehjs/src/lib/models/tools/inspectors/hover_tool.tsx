@@ -511,7 +511,7 @@ export class HoverToolView extends InspectToolView {
               unreachable()
             })()
 
-            const index = renderer.view.convert_indices_from_subset([i])[0]
+            const index = renderer.view.convert_indices_from_subset(Int32Array.of(i))[0]
 
             const vars = {
               index,
@@ -545,7 +545,7 @@ export class HoverToolView extends InspectToolView {
             return [sx, sy]
           })()
 
-          const index = renderer.view.convert_indices_from_subset([i])[0]
+          const index = renderer.view.convert_indices_from_subset(Int32Array.of(i))[0]
 
           const vars = {
             index,

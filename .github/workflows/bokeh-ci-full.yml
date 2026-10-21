@@ -188,7 +188,13 @@ jobs:
           cache-write: ${{ github.event_name == 'push' && (github.ref_name == 'main' || startsWith(github.ref_name, 'branch-')) }}
 
       - name: Install Bokeh from source
+        if: runner.os != 'Windows'
         run: pixi run --locked --environment test-py312 setup
+
+      - name: Smoke test Windows setup without Unix tools
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./tools/ci/windows_setup.ps1
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software

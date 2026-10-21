@@ -34,7 +34,7 @@ export class NgonView extends RadialGlyphView {
     return NgonGL
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Ngon.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<Ngon.Data>): void {
     const {sx, sy, sradius, angle, n} = {...this, ...data}
 
     for (const i of indices) {

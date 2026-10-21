@@ -29,6 +29,7 @@ import {FactorRange} from "../ranges/factor_range"
 import {PathDecoration, PathMarkings} from "../graphics/decoration"
 import type {Marking} from "../graphics/marking"
 import type {OpaqueIndices, MultiIndices, ImageIndex} from "../selections/selection"
+import {BitSet} from "core/util/bitset"
 
 type Defaults = {
   fill: {fill_alpha?: number, fill_color?: Color}
@@ -393,7 +394,7 @@ export class GlyphRendererView extends DataRendererView {
     // inspected is transformed to subset space
     const inspected_subset_indices = (() => {
       if (inspected_full_indices.size === 0) {
-        return []
+        return new Int32Array(0)
       }
       return filter(indices, (i) => inspected_full_indices.has(all_indices[i]))
     })()
@@ -405,7 +406,7 @@ export class GlyphRendererView extends DataRendererView {
     if ((this.model.document != null ? this.model.document.interactive_duration() > 0 : false)
         && !has_webgl && lod_threshold != null && all_indices.length > lod_threshold) {
       // Render decimated during interaction if too many elements and not using GL
-      indices = [...this.decimated]
+      indices = this.decimated.ones()
       glyph = this.decimated_glyph
       nonselection_glyph = this.decimated_glyph
       selection_glyph = this.selection_glyph
@@ -416,12 +417,8 @@ export class GlyphRendererView extends DataRendererView {
     }
 
     if (this.hover_glyph != null && inspected_subset_indices.length != 0) {
-      // TODO: keep working on Indices instead of converting back and forth
-      const set = new Set(indices)
-      for (const i of inspected_subset_indices) {
-        set.delete(i)
-      }
-      indices = [...set]
+      const inspected = new Set(inspected_subset_indices)
+      indices = indices.filter((i) => !inspected.has(i))
     }
 
     ctx.save()
@@ -457,33 +454,29 @@ export class GlyphRendererView extends DataRendererView {
     // Render with selection
     } else {
       // reset the selection mask
-      const selected_mask = new Set(selected_full_indices)
+      const selected_mask = BitSet.from_indices_array(this.model.view.indices.size, selected_full_indices)
+      const is_line_or_step = this.glyph instanceof LineView || this.glyph instanceof StepView
 
-      // intersect/different selection with render mask
-      const selected_subset_indices: number[] = new Array()
-      const nonselected_subset_indices: number[] = new Array()
+      const source = is_line_or_step ? all_indices : indices
 
-      // now, selected is changed to subset space, except for Line/Step glyph
-      if (this.glyph instanceof LineView || this.glyph instanceof StepView) {
-        for (const i of all_indices) {
-          if (selected_mask.has(i)) {
-            selected_subset_indices.push(i)
-          } else {
-            nonselected_subset_indices.push(i)
-          }
-        }
-      } else {
-        for (const i of indices) {
-          if (selected_mask.has(all_indices[i])) {
-            selected_subset_indices.push(i)
-          } else {
-            nonselected_subset_indices.push(i)
-          }
+      const selected_subset_indices = new Int32Array(source.length)
+      const nonselected_subset_indices = new Int32Array(source.length)
+      let n_selected = 0
+      let n_nonselected = 0
+
+      for (let k = 0; k < source.length; k++) {
+        const i = source[k]
+        // Line/Step: i is in full data space; otherwise it's in subset space
+        const full_index = is_line_or_step ? i : all_indices[i]
+        if (selected_mask.get(full_index)) {
+          selected_subset_indices[n_selected++] = i
+        } else {
+          nonselected_subset_indices[n_nonselected++] = i
         }
       }
-
-      nonselection_glyph.paint(ctx, nonselected_subset_indices)
-      selection_glyph.paint(ctx, selected_subset_indices)
+      // paint order matters, selection should be paint last/on top
+      nonselection_glyph.paint(ctx, nonselected_subset_indices.subarray(0, n_nonselected))
+      selection_glyph.paint(ctx, selected_subset_indices.subarray(0, n_selected))
       if (this.hover_glyph != null) {
         if (this.glyph instanceof LineView || this.glyph instanceof StepView) {
           this.hover_glyph.paint(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices))

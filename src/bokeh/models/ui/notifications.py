@@ -18,9 +18,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
 # Bokeh imports
 from ...models.ui import UIElement
 
@@ -38,10 +35,6 @@ __all__ = (
 
 class Notifications(UIElement):
     """ Allows to display global notifications (in browser's viewport). """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 #-----------------------------------------------------------------------------
 # Dev API

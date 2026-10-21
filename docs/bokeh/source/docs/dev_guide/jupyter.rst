@@ -46,6 +46,9 @@ with:
 tests and type checker, and builds both frontend adapters. Rebuild the assets
 after changing ``jupyter/src`` or ``protocol.json``.
 
+The build uses portable Pixi tasks for npm installation and compilation,
+followed by Python checks for the packaged assets.
+
 The ``notebook-test`` environment includes the supported optional notebook
 hosts and the browser dependencies used by the integration tests. The suite
 covers Python payload generation, frontend runtime behavior, JupyterLab,

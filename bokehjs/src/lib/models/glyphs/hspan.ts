@@ -52,7 +52,7 @@ export class HSpanView extends GlyphView {
     return [hcenter, this.sy[i]]
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<HSpan.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<HSpan.Data>): void {
     const {sy} = {...this, ...data}
     const {left, right} = this.renderer.plot_view.frame.bbox
 

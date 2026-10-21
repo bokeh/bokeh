@@ -44,7 +44,12 @@ from bokeh.model import Model
 
 # Bokeh imports
 from . import PARALLEL_SAFE, SphinxParallelSpec
-from .bokeh_toc import _shorten_reference_toc_titles
+from .bokeh_toc import (
+    _cache_titles_only_tocs,
+    _clear_titles_only_tocs,
+    _shorten_reference_toc_titles,
+)
+from .parallel import _enable_parallel_write, _restore_parallel_write
 from .timing import _setup_docs_profile
 
 # -----------------------------------------------------------------------------
@@ -129,9 +134,15 @@ def setup(app: Any) -> SphinxParallelSpec:
     app.add_autodocumenter(PropDocumenter)
     app.add_autodocumenter(ModelDocumenter)
     _setup_docs_profile(app)
+    app.add_config_value("bokeh_parallel_write", True, "html", types=frozenset({bool}))
     app.connect("env-updated", _shorten_reference_toc_titles)
     app.connect("env-updated", _prune_empty_viewcode_modules)
+    app.connect("html-page-context", _canonicalize_model_source_links)
     app.connect("write-started", _cache_python_domain_fuzzy_lookups, priority=999)
+    app.connect("write-started", _cache_titles_only_tocs)
+    app.connect("write-started", _enable_parallel_write, priority=1000)
+    app.connect("build-finished", _restore_parallel_write, priority=0)
+    app.connect("build-finished", _clear_titles_only_tocs, priority=0)
     app.connect("build-finished", _log_fuzzy_lookup_stats, priority=999)
 
     return PARALLEL_SAFE
@@ -175,6 +186,33 @@ def _prune_empty_viewcode_modules(app: Any, env: Any) -> None:
     for name, entry in list(modules.items()):
         if entry and not entry[2]:
             del modules[name]
+
+
+def _canonicalize_model_source_links(app: Any, pagename: str, template: str, context: Any, doctree: Any) -> None:
+    """Use each object's actual anchor for re-exported model source backlinks."""
+    if not pagename.startswith("_modules/bokeh/models/"):
+        return
+    env = app.builder.env
+    modname = pagename.removeprefix("_modules/").replace("/", ".")
+    entry = getattr(env, "_viewcode_modules", {}).get(modname)
+    domain = env.domains.get("py")
+    if not entry or domain is None:
+        return
+    _code, _tags, used, refname = entry
+    body = context["body"]
+    # Viewcode stores one namespace per source module. Parallel read merges can
+    # retain either a public re-export namespace or the native module namespace,
+    # but a module can contain objects documented under both.
+    for name, docname in used.items():
+        for prefix in ("bokeh.models", modname):
+            obj = domain.objects.get(f"{prefix}.{name}")
+            if obj is not None and obj.docname == docname:
+                page = app.builder.get_relative_uri(pagename, docname)
+                old = f'<a class="viewcode-back" href="{page}#{refname}.{name}">'
+                new = f'<a class="viewcode-back" href="{page}#{obj.node_id}">'
+                body = body.replace(old, new)
+                break
+    context["body"] = body
 
 
 def _cache_python_domain_fuzzy_lookups(app: Any, builder: Any) -> None:

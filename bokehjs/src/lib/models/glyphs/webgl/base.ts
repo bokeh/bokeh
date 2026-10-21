@@ -34,7 +34,7 @@ export abstract class BaseGLGlyph {
     this.visuals_changed = true
   }
 
-  render(_ctx: Context2d, indices: number[], mainglyph: GlyphView): void {
+  render(_ctx: Context2d, indices: Int32Array, mainglyph: GlyphView): void {
     if (indices.length == 0) {
       return
     }
@@ -48,7 +48,7 @@ export abstract class BaseGLGlyph {
     this.draw(indices, mainglyph, trans)
   }
 
-  abstract draw(indices: number[], mainglyph: GlyphView, trans: Transform): void
+  abstract draw(indices: Int32Array, mainglyph: GlyphView, trans: Transform): void
 }
 
 export type Transform = {

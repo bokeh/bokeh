@@ -25,7 +25,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import numbers
 from datetime import UTC, date, datetime
-from typing import Any
 
 # Bokeh imports
 from ...core.has_props import abstract
@@ -132,10 +131,6 @@ class AbstractSlider(Widget):
 class NumericalSlider(AbstractSlider):
     """ Base class for numerical sliders. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     format = Either(String, Instance(TickFormatter), help="""
     """)
 
@@ -145,10 +140,6 @@ class NumericalSlider(AbstractSlider):
 
 class CategoricalSlider(AbstractSlider):
     """ Discrete slider allowing selection from a collection of values. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     categories = Required(Seq(String), help="""
     A collection of categories to choose from.
@@ -164,10 +155,6 @@ class CategoricalSlider(AbstractSlider):
 
 class Slider(NumericalSlider):
     """ Slider-based number selection widget. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     start = Required(Float, help="""
     The minimum allowable value.
@@ -194,10 +181,6 @@ class Slider(NumericalSlider):
 class RangeSlider(NumericalSlider):
     """ Range-slider based number range selection widget. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     value = Required(Tuple(Float, Float), help="""
     Initial or selected range.
     """)
@@ -222,10 +205,6 @@ class RangeSlider(NumericalSlider):
 
 class DateSlider(NumericalSlider):
     """ Slider-based date selection widget. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     @property
     def value_as_datetime(self) -> datetime | None:
@@ -280,10 +259,6 @@ class DateSlider(NumericalSlider):
 
 class DateRangeSlider(NumericalSlider):
     """ Slider-based date range selection widget. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     @property
     def value_as_datetime(self) -> tuple[datetime, datetime] | None:
@@ -351,10 +326,6 @@ class DateRangeSlider(NumericalSlider):
 
 class DatetimeRangeSlider(NumericalSlider):
     """ Slider-based datetime range selection widget. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     @property
     def value_as_datetime(self) -> tuple[datetime, datetime] | None:

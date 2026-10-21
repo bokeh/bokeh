@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 # Bokeh imports
 from .. import enums
 from ..enums import AutoType as Auto
-from .bases import Property
+from .bases import Init, Property
 
 type DashPatternType = enums.DashPatternType | str | Sequence[int]
 class DashPattern(Property[DashPatternType]): ...
@@ -38,7 +38,8 @@ class HatchPatternType(Property[HatchPatternTypeType]): ...
 type Bounds[T] = tuple[T, T] | tuple[T | None, T] | tuple[T, T | None]
 
 type MinMaxBoundsType = Auto | Bounds[float] | Bounds[DateTime] | Bounds[TimeDelta]
-class MinMaxBounds(Property[MinMaxBoundsType]): ...
+class MinMaxBounds(Property[MinMaxBoundsType]):
+    def __init__(self, default: Init[MinMaxBoundsType] = "auto", *, accept_datetime: bool = False, help: str | None = None) -> None: ...
 
 type CSSLengthType = str
 class CSSLength(Property[CSSLengthType]): ...

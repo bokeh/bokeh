@@ -1,5 +1,5 @@
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import type {Rect} from "core/types"
+import type {Arrayable, Rect} from "core/types"
 import type {Anchor} from "core/enums"
 import type * as visuals from "core/visuals"
 import type {SpatialIndex} from "core/util/spatial"
@@ -12,7 +12,6 @@ import type * as p from "core/properties"
 import type {Corners} from "core/util/bbox"
 import type {XY} from "core/util/bbox"
 import {BBox} from "core/util/bbox"
-import {inplace_map} from "core/util/arrayable"
 import {BorderRadius} from "../common/kinds"
 import * as resolve from "../common/resolve"
 import {round_rect} from "../common/painting"
@@ -78,7 +77,7 @@ export abstract class LRTBView extends GlyphView {
     }
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<LRTB.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<LRTB.Data>): void {
     const {sleft, sright, stop, sbottom, border_radius} = {...this, ...data}
 
     for (const i of indices) {
@@ -104,20 +103,35 @@ export abstract class LRTBView extends GlyphView {
   // We need to clamp the endpoints inside the viewport, because various browser canvas
   // implementations have issues drawing rects with endpoints far outside the viewport
   protected _clamp_to_viewport(): void {
-    const {min, max} = Math
     const {h_range, v_range} = this.renderer.plot_view.frame.bbox
 
     if (!this.inherited_sleft) {
-      inplace_map(this.sleft, (left) => max(left, h_range.start))
+      this._enforce_lower_bound(this.sleft, h_range.start)
     }
     if (!this.inherited_sright) {
-      inplace_map(this.sright, (right) => min(right, h_range.end))
+      this._enforce_upper_bound(this.sright, h_range.end)
     }
     if (!this.inherited_stop) {
-      inplace_map(this.stop, (top) => max(top, v_range.start))
+      this._enforce_lower_bound(this.stop, v_range.start)
     }
     if (!this.inherited_sbottom) {
-      inplace_map(this.sbottom, (bottom) => min(bottom, v_range.end))
+      this._enforce_upper_bound(this.sbottom, v_range.end)
+    }
+  }
+
+  private _enforce_lower_bound(values: Arrayable<number>, lower: number): void {
+    for (let i = 0; i < values.length; i++) {
+      if (values[i] < lower) {
+        values[i] = lower
+      }
+    }
+  }
+
+  private _enforce_upper_bound(values: Arrayable<number>, upper: number): void {
+    for (let i = 0; i < values.length; i++) {
+      if (values[i] > upper) {
+        values[i] = upper
+      }
     }
   }
 

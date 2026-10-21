@@ -9,6 +9,10 @@ export abstract class BaseTextView extends View {
   declare readonly parent: RendererView
 
   abstract graphics(): GraphicsBox
+
+  clone_graphics(): GraphicsBox {
+    return this.graphics()
+  }
 }
 
 export namespace BaseText {

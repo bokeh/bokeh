@@ -112,7 +112,7 @@ export class MultiPolygonsView extends GlyphView {
     })
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<MultiPolygons.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<MultiPolygons.Data>): void {
     if (!this.visuals.fill.doit && !this.visuals.line.doit) {
       return
     }

@@ -25,7 +25,8 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import sys
-from typing import Any
+# Public constructor types live in the stubs; declarations below cover local calls.
+from typing import TYPE_CHECKING, Any, cast
 
 # Bokeh imports
 from ..core.enums import (
@@ -35,6 +36,7 @@ from ..core.enums import (
     NumeralLanguage,
     ResolutionType,
     RoundingFunction,
+    SIPrefix,
     TimedeltaResolutionType,
 )
 from ..core.has_props import abstract
@@ -43,14 +45,24 @@ from ..core.property.auto import Auto
 from ..core.property.container import Dict, Seq
 from ..core.property.either import Either
 from ..core.property.enum import Enum
-from ..core.property.instance import Instance
+from ..core.property.instance import Instance, InstanceDefault
 from ..core.property.nullable import Nullable
-from ..core.property.primitive import Bool, Int, String
+from ..core.property.numeric import Positive
+from ..core.property.primitive import (
+    Bool,
+    Float,
+    Int,
+    String,
+)
+from ..core.property.text_like import TextLike
 from ..core.validation import error
-from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
+from ..core.validation.errors import (
+    INCOMPATIBLE_NESTED_TICK_FORMATTERS,
+    MISSING_MERCATOR_DIMENSION,
+)
 from ..model import Model
 from ..util.strings import format_docstring
-from .tickers import Ticker
+from .tickers import ScaledTicker, Ticker
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -62,12 +74,14 @@ __all__ = (
     "CategoricalTickFormatter",
     "CustomJSTickFormatter",
     "DatetimeTickFormatter",
-    "TimedeltaTickFormatter",
     "LogTickFormatter",
     "MercatorTickFormatter",
     "NumeralTickFormatter",
     "PrintfTickFormatter",
+    "ScaledTickFormatter",
+    "SITickFormatter",
     "TickFormatter",
+    "TimedeltaTickFormatter",
 )
 
 #-----------------------------------------------------------------------------
@@ -98,19 +112,11 @@ class TickFormatter(Model):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class BasicTickFormatter(TickFormatter):
     ''' Display tick values from continuous ranges as "basic numbers",
     using scientific notation when appropriate by default.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     precision = Either(Auto, Int, help="""
     How many digits of precision to display in tick labels.
@@ -136,6 +142,198 @@ class BasicTickFormatter(TickFormatter):
 
     """)
 
+class ScaledTickFormatter(TickFormatter):
+    r''' Format ticks with optional unit conversion and repeated decoration.
+
+    When used with a ``ScaledTicker``, tick values are normalized with
+    ``(value - origin)/scale`` before being passed to ``formatter``. With any
+    other ticker, values are formatted without normalization. Optional text
+    can be added before or after each formatted value. This allows symbolic
+    units such as :math:`\pi` to be displayed without a
+    ``CustomJSTickFormatter``.
+
+    Math-text decorations are rendered by graphics-aware consumers such as
+    axes. String-only consumers of ``TickFormatter``, including ``compute``
+    and ``v_compute``, receive the decoration's source text instead. When a
+    TeX decoration is present, the inner formatter's string output is safely
+    embedded in one TeX expression; any richer graphics produced by the inner
+    formatter are not retained in that mode.
+
+    ``ScaledTickFormatter`` and ``SITickFormatter`` cannot be nested. They
+    apply different display-coordinate transformations and composing them
+    would produce ambiguous labels.
+
+    '''
+
+    ticker = Nullable(Instance(ScaledTicker), default=None, help="""
+    An optional fallback ``ScaledTicker`` used when formatting outside an axis.
+
+    An axis ``ScaledTicker`` takes precedence over this fallback. If neither is
+    present, values are formatted without normalization. This property is
+    therefore normally left unset for axis formatters.
+    """)
+
+    # The descriptor accepts subclasses at runtime, but its generic type expects the exact base class.
+    formatter = Instance(TickFormatter, default=cast(Any, InstanceDefault(BasicTickFormatter)), help="""
+    The formatter applied to normalized tick values.
+    """)
+
+    origin_label = TextLike(default="", help="""
+    An optional label representing the zero point of the normalized values.
+
+    Nonzero values are displayed as signed offsets from this label. For
+    example, ``origin_label=TeX(text=r"\\overline{x}")`` with
+    ``unit=TeX(text=r"\\sigma")`` can produce labels such as
+    :math:`\\overline{x}-2\\sigma`, :math:`\\overline{x}`, and
+    :math:`\\overline{x}+2\\sigma`. This affects label composition only;
+    normalization remains controlled by the ticker's scale and origin. Strings
+    containing recognized math-text delimiters and explicit text models are
+    supported.
+    """)
+
+    prefix = TextLike(default="", help="""
+    Text placed before each formatted value. Strings containing recognized
+    math-text delimiters and explicit text models are supported. If any
+    decoration is TeX and no decoration uses a different math-text backend,
+    the complete label is rendered as one TeX expression.
+    """)
+
+    unit = TextLike(default="", help="""
+    The unit or symbol displayed with each formatted value, for example
+    ``"π"``, ``"°"``, or ``TeX(text=r"\\sigma")``. It follows the value by
+    default; ``unit_style="symbolic"`` places it in fraction numerators and
+    omits coefficients equal to one. Strings containing recognized math-text
+    delimiters and explicit text models are supported. If any decoration is
+    TeX and no decoration uses a different math-text backend, the complete
+    label is rendered as one TeX expression.
+    """)
+
+    unit_style = Enum("always", "except_zero", "symbolic", default="always", help="""
+    How ``prefix`` and ``unit`` are combined with the normalized value.
+
+    ``"always"`` applies them to every value, including zero. In fraction
+    mode they surround the complete fraction, for example ``1/2°``.
+    ``"except_zero"`` behaves the same way but leaves zero undecorated.
+    ``"symbolic"`` additionally omits coefficients equal to one when a
+    unit is present and places that unit in the fraction numerator,
+    producing labels such as ``π`` and ``3π/4``. The minus sign used for
+    negative one is inherited from ``formatter``.
+    """)
+
+    use_fractions = Bool(default=False, help="""
+    Whether coefficients close to a fraction should be displayed as fractions.
+
+    The denominator is bounded by ``max_denominator``. Values that are not
+    sufficiently close to such a fraction retain the output of ``formatter``.
+    With ``unit_style="symbolic"``, a unit such as ``"π"`` is placed in
+    the numerator, producing labels such as ``π/2`` and ``3π/4``. Otherwise,
+    the prefix and unit surround the complete fraction.
+    """)
+
+    fraction_style = Enum("stacked", "inline", default="inline", help="""
+    How fractions are rendered when a decoration uses TeX.
+
+    ``"inline"`` (the default) keeps the complete label in math text but uses
+    a compact solidus form such as ``\\pi/2``. ``"stacked"`` uses a TeX
+    fraction such as ``\\frac{\\pi}{2}``. Plain-text labels always use the
+    inline form.
+    """)
+
+    max_denominator = Positive(Int, default=16, help="""
+    The largest denominator considered when ``use_fractions`` is true.
+    """)
+
+    @error(INCOMPATIBLE_NESTED_TICK_FORMATTERS)
+    def _check_incompatible_nested_formatter(self) -> str | None:
+        if isinstance(self.formatter, SITickFormatter):
+            return "ScaledTickFormatter and SITickFormatter cannot be nested"
+        return None
+
+class SITickFormatter(TickFormatter):
+    r''' Format numeric ticks using an SI unit and prefix.
+
+    With ``prefix="auto"``, one shared engineering prefix is selected from
+    the full set of ticks and the scaled values are passed to ``formatter``.
+    For example, ticks spanning millions with ``unit="Hz"`` are displayed in
+    MHz. A fixed prefix such as ``prefix="k"`` can be used when the scale
+    should remain constant while panning or zooming.
+
+    Set ``input_scale`` when the data is not in base units. For example,
+    ``unit="Hz", input_scale=1e6`` formats axis ticks for data stored in MHz
+    as if the data were supplied in Hz, without changing the data or tick
+    locations.
+
+    Plain-text SI units are separated from their numeric values by a space. TeX
+    labels use a thin mathematical space instead. Strings with recognized
+    math-text delimiters and explicit text models are supported for ``unit``
+    by graphics-aware consumers such as axes.
+
+    Automatic selection considers only the values passed in one formatting
+    call. Axis rendering and ``v_compute`` pass a complete vector, whereas
+    ``compute`` and scalar widget consumers select a prefix from one value.
+    Use a fixed prefix when separately formatted values must remain directly
+    comparable. String-only consumers receive the unit's source text; when a
+    unit is TeX, graphics-aware consumers render the complete label as one TeX
+    expression. In that mode, the inner formatter's string output is safely
+    embedded in the expression; any richer graphics produced by the inner
+    formatter are not retained.
+
+    ``SITickFormatter`` and ``ScaledTickFormatter`` cannot be nested. They
+    apply different display-coordinate transformations and composing them
+    would produce ambiguous labels.
+
+    '''
+
+    # The descriptor accepts subclasses at runtime, but its generic type expects the exact base class.
+    formatter = Instance(TickFormatter, default=cast(Any, InstanceDefault(BasicTickFormatter)), help="""
+    The formatter applied after scaling tick values by the selected prefix.
+    """)
+
+    input_scale = Positive(Float, default=1.0, help="""
+    A positive multiplier converting input values to the base unit before
+    prefix selection and formatting. For example, use ``1e6`` for data stored
+    in MHz with ``unit="Hz"``, or ``1e-3`` for milliseconds with ``unit="s"``.
+
+    A value is formatted as ``value*input_scale/prefix_factor``. This conversion
+    also applies with a fixed prefix or ``prefix=None``; only labels are
+    affected, not the underlying data, tick locations, or hover values.
+    """)
+
+    unit = TextLike(default="", help="""
+    The base SI unit appended to each formatted value, for example ``"Hz"``.
+    Strings containing recognized math-text delimiters and explicit text
+    models are supported.
+    """)
+
+    prefix = Nullable(Either(
+        Auto,
+        Enum(SIPrefix),
+    ), default="auto", help="""
+    The SI prefix used to scale and decorate tick values.
+
+    ``"auto"`` selects one shared engineering prefix from the full set of
+    ticks. A fixed prefix keeps the scale stable independently of the visible
+    tick values, while ``None`` disables prefix scaling. Input values are
+    always converted to the base unit using ``input_scale`` first.
+
+    Use the micro sign ``"µ"`` (U+00B5) for the micro prefix. The Greek letter
+    mu ``"μ"`` (U+03BC) and the ASCII approximation ``"u"`` are not accepted.
+    """)
+
+    unit_style = Enum("always", "except_zero", default="always", help="""
+    Controls whether the SI prefix and unit are appended to zero.
+
+    The default ``"always"`` decorates every label. ``"except_zero"`` leaves
+    an exact numeric zero undecorated while retaining the shared prefix chosen
+    from the complete tick vector.
+    """)
+
+    @error(INCOMPATIBLE_NESTED_TICK_FORMATTERS)
+    def _check_incompatible_nested_formatter(self) -> str | None:
+        if isinstance(self.formatter, ScaledTickFormatter):
+            return "SITickFormatter and ScaledTickFormatter cannot be nested"
+        return None
+
 class MercatorTickFormatter(BasicTickFormatter):
     ''' A ``TickFormatter`` for values in WebMercator units.
 
@@ -145,10 +343,6 @@ class MercatorTickFormatter(BasicTickFormatter):
     for display on axes.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     dimension = Nullable(Enum(LatLon), help="""
     Specify whether to format ticks for Latitude or Longitude.
@@ -174,10 +368,6 @@ class MercatorTickFormatter(BasicTickFormatter):
 
 class NumeralTickFormatter(TickFormatter):
     ''' Tick formatter based on a human-readable format string. '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     format = String("0,0", help="""
     The number format, as defined in the following tables:
@@ -266,10 +456,6 @@ class NumeralTickFormatter(TickFormatter):
 class PrintfTickFormatter(TickFormatter):
     ''' Tick formatter based on a printf-style format string. '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     format = String("%s", help="""
     The number format, as defined as follows: the placeholder in the format
     string is marked by % and is followed by one or more of these elements,
@@ -322,10 +508,6 @@ class LogTickFormatter(TickFormatter):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     ticker = Nullable(Instance(Ticker), help="""
     The corresponding ``LogTicker``, used to determine the correct
     base to use. If unset, the formatter will use base 10 as a default.
@@ -343,10 +525,6 @@ class CategoricalTickFormatter(TickFormatter):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class CustomJSTickFormatter(TickFormatter):
     ''' Display tick values that are formatted by a user-defined function.
 
@@ -357,10 +535,6 @@ class CustomJSTickFormatter(TickFormatter):
         sanitize the user input prior to passing to Bokeh.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     args = Dict(String, AnyRef, help="""
     A mapping of names to Python objects. In particular those can be bokeh's models.
@@ -557,9 +731,8 @@ class DatetimeTickFormatter(TickFormatter):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     microseconds = String(help=_DATETIME_TICK_FORMATTER_HELP("``microseconds``"),
                           default="%fus")
@@ -704,9 +877,8 @@ class TimedeltaTickFormatter(TickFormatter):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     nanoseconds = String(help=_TIMEDELTA_TICK_FORMATTER_HELP("``nanoseconds``"),
                           default="%NSns")

@@ -24,7 +24,8 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from math import inf
-from typing import Any
+# Public constructor types live in the stubs; declarations below cover local calls.
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ...core.enums import (
@@ -82,9 +83,8 @@ __all__ = (
 class AreaVisuals(Model):
     """ Allows to style line, fill and hatch visuals. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     line_props = Include(ScalarLineProps, help="""
     The {prop} values for the box.
@@ -115,9 +115,8 @@ class BoxInteractionHandles(Model):
 
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     all          = Required(Instance(AreaVisuals)) # move, resize
 
@@ -155,10 +154,6 @@ class BoxAnnotation(Annotation, AreaVisuals):
     See :ref:`ug_basic_annotations_box_annotations` for information on plotting box annotations.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     left = Coordinate(default=lambda: Node.frame.left, help="""
     The x-coordinates of the left edge of the box annotation.
@@ -344,10 +339,6 @@ class Band(DataAnnotation):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     lower = CoordinateSpec(default=field("lower"), help="""
     The coordinates of the lower portion of the filled area band.
     """)
@@ -399,10 +390,6 @@ class PolyAnnotation(Annotation):
     plotting polygon annotations.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     xs = Seq(CoordinateLike, default=[], help="""
     The x-coordinates of the region to draw.
@@ -472,10 +459,6 @@ class Slope(Annotation):
 
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     gradient = Nullable(Float, help="""
     The gradient of the line, in |data units|
     """)
@@ -517,10 +500,6 @@ class Span(Annotation):
 
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     location = Nullable(CoordinateLike, help="""
     The location of the span, along ``dimension``.
     """)
@@ -559,10 +538,6 @@ class Whisker(DataAnnotation):
     See :ref:`ug_basic_annotations_whiskers` for information on plotting whiskers.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     lower = CoordinateSpec(default=field("lower"), help="""
     The coordinates of the lower end of the whiskers.

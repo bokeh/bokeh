@@ -22,9 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
 # Bokeh imports
 from ...core.property.primitive import Bool
 from ...core.property.string import MathString
@@ -46,10 +43,6 @@ class Markdown(Widget):
     """ A component for displaying Markdown formatted contents.
 
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     text = MathString(default="", help="""
     The text with Markdown syntax to display.

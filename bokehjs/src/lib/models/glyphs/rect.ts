@@ -116,7 +116,7 @@ export class RectView extends CenterRotatableView {
     }
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Rect.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<Rect.Data>): void {
     const {sx, sy, sx0, sy1, swidth, sheight, angle, border_radius} = {...this, ...data}
 
     for (const i of indices) {

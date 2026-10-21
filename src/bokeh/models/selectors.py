@@ -50,10 +50,6 @@ __all__ = (
 class Selector(Model):
     """ Base class for selector queries. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class ByID(Selector):
     """ Represents a CSS ID selector query. """
 

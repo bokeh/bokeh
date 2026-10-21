@@ -44,7 +44,13 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import difflib
 from math import nan
-from typing import Any, Callable, ClassVar
+# Public constructor types live in the stubs; declarations below cover local calls.
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    ClassVar,
+)
 
 # Bokeh imports
 from ..core.enums import (
@@ -188,10 +194,6 @@ class Tool(Model):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     icon = Nullable(IconLike, help="""
     An icon to display in the toolbar.
 
@@ -243,10 +245,6 @@ class Tool(Model):
 
 class ToolProxy(Model):
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     tools = List(Instance(Tool))
     active = Bool(default=False)
     disabled = Bool(default=False)
@@ -257,19 +255,11 @@ class ActionTool(Tool):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 @abstract
 class PlotActionTool(ActionTool):
     ''' A base class action tools acting on plots.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 @abstract
 class GestureTool(Tool):
@@ -277,19 +267,11 @@ class GestureTool(Tool):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 @abstract
 class Drag(GestureTool):
     ''' A base class for tools that respond to drag events.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 @abstract
 class Scroll(GestureTool):
@@ -297,29 +279,17 @@ class Scroll(GestureTool):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 @abstract
 class Tap(GestureTool):
     ''' A base class for tools that respond to tap/click events.
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 @abstract
 class SelectTool(GestureTool):
     ''' A base class for tools that perform "selections", e.g. ``BoxSelectTool``.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     renderers = Either(Auto, List(Instance(DataRenderer)), default="auto", help="""
     A list of renderers to hit test against. If unset, defaults to
@@ -331,10 +301,6 @@ class RegionSelectTool(SelectTool):
     ''' Base class for region selection tools (e.g. box, polygon, lasso).
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     mode = Enum(RegionSelectionMode, default="replace", help="""
     Defines what should happen when a new selection is made. The default
@@ -373,20 +339,12 @@ class InspectTool(GestureTool):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     toggleable = DeprecatedAlias("visible", since=(3, 4, 0))
 
 class Toolbar(UIElement):
     ''' Collect tools to display for a single plot.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     tools = List(Either(Instance(Tool), Instance(ToolProxy)), help="""
     A list of tools to add to the plot.
@@ -441,10 +399,6 @@ class ToolMenu(Menu):
     """ Toolbar represented in a menu or context menu form.
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     toolbar = Required(Instance(Toolbar), help="""
     Reference to a toolbar.
     """)
@@ -465,9 +419,8 @@ class PanTool(Drag):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the pan tool is constrained to act in. By default
@@ -481,9 +434,8 @@ class ClickPanTool(PlotActionTool):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     direction = Required(Enum(PanDirection), help="""
     The direction in which to pan the plot.
@@ -537,10 +489,6 @@ class RangeTool(Drag):
 
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     x_range = Nullable(Instance(Range), help="""
     A range synchronized to the x-dimension of the overlay. If None, the overlay
@@ -612,9 +560,8 @@ class WheelPanTool(Scroll):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     dimension = Enum(Dimension, default="width", help="""
     Which dimension the wheel pan tool is constrained to act in. By default the
@@ -667,9 +614,8 @@ class WheelZoomTool(Scroll):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     # ZoomBaseTool common {
     dimensions = Enum(Dimensions, default="both", help="""
@@ -804,10 +750,6 @@ class CustomAction(ActionTool):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     active = Bool(default=False, help="""
     If ``True``, the tool is currently engaged for its activity.
     """)
@@ -857,10 +799,6 @@ class SaveTool(ActionTool):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     filename = Nullable(String, help="""
     Optional string specifying the filename of the saved image (extension not
     needed). If a filename is not provided or set to None, the user is prompted
@@ -880,10 +818,6 @@ class CopyTool(ActionTool):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class ResetTool(PlotActionTool):
     ''' *toolbar icon*: |reset_icon|
 
@@ -896,10 +830,6 @@ class ResetTool(PlotActionTool):
         :alt: Icon of two arrows on a circular arc forming a circle representing the reset tool in the toolbar.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 class TapTool(Tap, SelectTool):
     ''' *toolbar icon*: |tap_icon|
@@ -922,9 +852,8 @@ class TapTool(Tap, SelectTool):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     mode = Enum(SelectionMode, default="toggle", help="""
     Defines what should happen when a new selection is made.
@@ -1019,9 +948,8 @@ class CrosshairTool(InspectTool):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     overlay = Either(
         Auto,
@@ -1124,9 +1052,8 @@ class BoxZoomTool(Drag):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     dimensions = Either(Enum(Dimensions), Auto, default="auto", help="""
     Which dimensions the zoom box is to be free in. By default, users may
@@ -1159,10 +1086,6 @@ class BoxZoomTool(Drag):
 @abstract
 class ZoomBaseTool(PlotActionTool):
     """ Abstract base class for zoom action tools. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     renderers = Either(Auto, List(Instance(DataRenderer)), default="auto", help="""
     Restrict zoom to ranges used by the provided data renderers. If ``"auto"``
@@ -1199,9 +1122,8 @@ class ZoomInTool(ZoomBaseTool):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
 class ZoomOutTool(ZoomBaseTool):
     ''' *toolbar icon*: |zoom_out_icon|
@@ -1215,9 +1137,8 @@ class ZoomOutTool(ZoomBaseTool):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     maintain_focus = Bool(default=True, help="""
     If ``True``, then hitting a range bound in any one dimension will prevent
@@ -1243,9 +1164,8 @@ class BoxSelectTool(Drag, RegionSelectTool):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the box selection is to be free in. By default, users may
@@ -1303,10 +1223,6 @@ class LassoSelectTool(Drag, RegionSelectTool):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     overlay = Instance(PolyAnnotation, default=DEFAULT_POLY_OVERLAY, help="""
     A shaded annotation drawn to indicate the selection region.
     """)
@@ -1336,10 +1252,6 @@ class PolySelectTool(Tap, RegionSelectTool):
         :alt: Icon of a dashed trapezoid with an arrow pointing at the lower right representing the polygon-selection tool in the toolbar.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     overlay = Instance(PolyAnnotation, default=DEFAULT_POLY_OVERLAY, help="""
     A shaded annotation drawn to indicate the selection region.
@@ -1396,10 +1308,6 @@ class CustomJSHover(Model):
         sanitize the user input prior to passing to Bokeh.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     args = Dict(String, AnyRef, help="""
     A mapping of names to Bokeh plot objects. These objects are made available
@@ -1504,9 +1412,8 @@ class HoverTool(InspectTool):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     renderers = Either(Auto, List(Instance(DataRenderer)), default="auto", help="""
     A list of renderers to hit test against. If unset, defaults to
@@ -1722,10 +1629,6 @@ class HelpTool(ActionTool):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     description = Override(default=DEFAULT_HELP_TIP)
 
     redirect = String(default=DEFAULT_HELP_URL, help="""
@@ -1735,16 +1638,8 @@ class HelpTool(ActionTool):
 class ExamineTool(ActionTool):
     ''' A tool that allows to inspect and configure a model. '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class FullscreenTool(ActionTool):
     ''' A tool that allows to enlarge a UI element to fullscreen. '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 class UndoTool(PlotActionTool):
     ''' *toolbar icon*: |undo_icon|
@@ -1757,10 +1652,6 @@ class UndoTool(PlotActionTool):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class RedoTool(PlotActionTool):
     ''' *toolbar icon*: |redo_icon|
 
@@ -1772,19 +1663,11 @@ class RedoTool(PlotActionTool):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 @abstract
 class EditTool(GestureTool):
     ''' A base class for all interactive draw tool types.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     default_overrides = Dict(String, AnyRef, default={}, help="""
     Padding values overriding ``ColumnarDataSource.default_values``.
@@ -1814,10 +1697,6 @@ class EditTool(GestureTool):
 @abstract
 class PolyTool(EditTool):
     ''' A base class for polygon draw/edit tools. '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     vertex_renderer = Nullable(GlyphRendererOf(XYGlyph), help="""
     The renderer used to render the vertices of a selected line or polygon.
@@ -1862,10 +1741,6 @@ class BoxEditTool(EditTool, Drag, Tap):
         :height: 24px
         :alt: Icon of a solid line box with a plus sign in the lower right representing the box-edit tool in the toolbar.
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     renderers = List(GlyphRendererOf(LRTBGlyph, Rect, HStrip, VStrip), help="""
     A list of renderers corresponding to glyphs that may be edited.
@@ -1923,10 +1798,6 @@ class PointDrawTool(EditTool, Drag, Tap):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     renderers = List(GlyphRendererOf(XYGlyph), help="""
     A list of renderers corresponding to glyphs that may be edited.
     """)
@@ -1981,10 +1852,6 @@ class PolyDrawTool(PolyTool, Drag, Tap):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     renderers = List(GlyphRendererOf(MultiLine, Patches), help="""
     A list of renderers corresponding to glyphs that may be edited.
     """)
@@ -2023,10 +1890,6 @@ class FreehandDrawTool(EditTool, Drag, Tap):
         :alt: Icon of a pen drawing a wavy line representing the freehand-draw tool in the toolbar.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     renderers = List(GlyphRendererOf(MultiLine, Patches), help="""
     A list of renderers corresponding to glyphs that may be edited.
@@ -2072,10 +1935,6 @@ class PolyEditTool(PolyTool, Drag, Tap):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     renderers = List(GlyphRendererOf(MultiLine, Patches), help="""
     A list of renderers corresponding to glyphs that may be edited.
     """)
@@ -2105,10 +1964,6 @@ class LineEditTool(EditTool, Drag, Tap):
         :alt: Icon of a line with a point on it with an arrow pointing at it representing the line-edit tool in the toolbar.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     renderers = List(GlyphRendererOf(Line), help="""
     A list of renderers corresponding to glyphs that may be edited.

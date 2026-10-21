@@ -29,7 +29,7 @@ export class ArcView extends XYGlyphView {
     })
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Arc.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<Arc.Data>): void {
     const {sx, sy, sradius, start_angle, end_angle} = {...this, ...data}
     const anticlock = this.model.direction == "anticlock"
 

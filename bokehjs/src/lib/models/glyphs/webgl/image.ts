@@ -19,7 +19,7 @@ export class ImageGL extends BaseGLGlyph {
     super(regl_wrapper, glyph)
   }
 
-  override draw(indices: number[], main_glyph: ImageBaseView, transform: Transform): void {
+  override draw(indices: Int32Array, main_glyph: ImageBaseView, transform: Transform): void {
     const main_gl_glyph = main_glyph.glglyph! as ImageGL
     // The only visual property that can change is global_alpha and that is read on every render,
     // so ignore this.visuals_changed

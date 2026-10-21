@@ -4,6 +4,7 @@ import type * as p from "core/properties"
 import {assert} from "core/util/assert"
 import {entries} from "core/util/object"
 import {bisect_right, bisect_right_by, sort_by} from "core/util/arrayable"
+import {si_prefixes} from "core/util/si"
 
 const {min} = Math
 
@@ -143,41 +144,14 @@ export class Metric extends Dimensional {
     })
   }
 
-  static _metric_basis = [
-    ["Q", 1e30,  "Q",    "quetta"],
-    ["R", 1e27,  "R",    "ronna" ],
-    ["Y", 1e24,  "Y",    "yotta" ],
-    ["Z", 1e21,  "Z",    "zetta" ],
-    ["E", 1e18,  "E",    "exa"   ],
-    ["P", 1e15,  "P",    "peta"  ],
-    ["T", 1e12,  "T",    "tera"  ],
-    ["G", 1e9,   "G",    "giga"  ],
-    ["M", 1e6,   "M",    "mega"  ],
-    ["k", 1e3,   "k",    "kilo"  ],
-    ["h", 1e2,   "h",    "hecto" ],
-    ["",  1e0,   "",     ""      ],
-    ["d", 1e-1,  "d",    "deci"  ],
-    ["c", 1e-2,  "c",    "centi" ],
-    ["m", 1e-3,  "m",    "milli" ],
-    ["µ", 1e-6,  "\\mu", "micro" ],
-    ["n", 1e-9,  "n",    "nano"  ],
-    ["p", 1e-12, "p",    "pico"  ],
-    ["f", 1e-15, "f",    "femto" ],
-    ["a", 1e-18, "a",    "atto"  ],
-    ["z", 1e-21, "z",    "zepto" ],
-    ["y", 1e-24, "y",    "yocto" ],
-    ["r", 1e-27, "r",    "ronto" ],
-    ["q", 1e-30, "q",    "quecto"],
-  ] as const
-
   get_basis(): Dict<[number, string, string?]> {
     const {base_unit, full_unit} = this
     const basis: {[key: string]: [number, string, string?]} = {}
 
-    for (const [prefix, factor, tex_prefix, long_prefix] of Metric._metric_basis) {
-      const name = `${prefix}${base_unit}`
-      const tex_name = `${tex_prefix}${base_unit}`
-      const long_name = full_unit != null ? `${long_prefix}${full_unit}` : undefined
+    for (const {symbol, factor, tex_symbol, name: prefix_name} of si_prefixes) {
+      const name = `${symbol}${base_unit}`
+      const tex_name = `${tex_symbol}${base_unit}`
+      const long_name = full_unit != null ? `${prefix_name}${full_unit}` : undefined
       basis[name] = [factor, tex_name, long_name]
     }
 

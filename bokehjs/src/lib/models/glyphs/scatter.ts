@@ -52,7 +52,7 @@ export class ScatterView extends MarkerView {
     await this._update_defs()
   }
 
-  protected override _paint(ctx: Context2d, indices: number[], data?: Partial<Scatter.Data>): void {
+  protected override _paint(ctx: Context2d, indices: Int32Array, data?: Partial<Scatter.Data>): void {
     const {sx, sy, size, angle, marker} = {...this, ...data}
     const defs = dict(this.model.defs)
     const {visuals} = this
@@ -108,7 +108,7 @@ export class ScatterView extends MarkerView {
       marker: new p.UniformScalar(marker, n),
     }
 
-    this._paint(ctx, [index], args)
+    this._paint(ctx, Int32Array.of(index), args)
   }
 }
 

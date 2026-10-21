@@ -49,7 +49,7 @@ export abstract class BaseLineGL extends BaseGLGlyph {
     super(regl_wrapper, glyph)
   }
 
-  abstract override draw(_indices: number[], main_glyph: GlyphView, transform: Transform): void
+  abstract override draw(_indices: Int32Array, main_glyph: GlyphView, transform: Transform): void
 
   protected _draw_single(main_gl_glyph: BaseLineGL, transform: Transform, line_offset: number, point_offset: number,
                          nsegments: number, framebuffer: Framebuffer2D | null,

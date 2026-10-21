@@ -69,6 +69,15 @@ export class BitSet implements Equatable {
     return bits
   }
 
+  static from_indices_array(size: number, indices_array: Arrayable<number>): BitSet {
+    const bits = new BitSet(size)
+    const n = indices_array.length
+    for (let i = 0; i < n; i++) {
+      bits.set(indices_array[i])
+    }
+    return bits
+  }
+
   static from_booleans(size: number, booleans: Iterable<boolean>): BitSet {
     const bits = new BitSet(size)
     let i = 0
@@ -167,8 +176,8 @@ export class BitSet implements Equatable {
     return c
   }
 
-  ones(): number[] {
-    const indices = new Array(this.count)
+  ones(): Int32Array {
+    const indices = new Int32Array(this.count)
     let index = 0
     const {_array, _nwords, size} = this
     for (let k = 0, i = 0; i < _nwords; i++) {
@@ -186,8 +195,8 @@ export class BitSet implements Equatable {
     return indices
   }
 
-  zeros(): number[] {
-    const indices = new Array(this.size-this.count)
+  zeros(): Int32Array {
+    const indices = new Int32Array(this.size-this.count)
     let index = 0
     const {_array, _nwords, size} = this
     for (let k = 0, i = 0; i < _nwords; i++) {

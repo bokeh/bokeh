@@ -18,9 +18,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
 # Bokeh imports
 from ..core.has_props import abstract
 from ..core.property.container import List
@@ -52,10 +49,6 @@ class Marking(Model):
 
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     inherit_visuals = List(Enum(
         "line_color", "line_alpha", "line_width", "line_join", "line_cap",
         "line_dash", "line_dash_offset", "fill_color", "fill_alpha",
@@ -73,15 +66,9 @@ class Decoration(Model):
 
     """
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 
 class PathDecoration(Decoration):
     """A marking attached to a named path node."""
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     marking = Instance(Marking, help="""The graphical marking attached to the path node.""")
 
@@ -99,9 +86,6 @@ class PathDecoration(Decoration):
 
 class PathMarkings(Decoration):
     """Repeated fractional markings along each path."""
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     marking = Instance(Marking, help="""The graphical marking repeated along each path.""")
 

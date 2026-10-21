@@ -8,7 +8,9 @@ languages with a growing number of elements. Currently, you can use LaTeX
 and MathML notations with the following elements:
 
 * :ref:`Axis labels <ug_styling_plots_axes_labels>`
-* Tick labels using :func:`~bokeh.models.Axis.major_label_overrides`
+* Tick labels using :class:`~bokeh.models.ScaledTickFormatter`,
+  :class:`~bokeh.models.SITickFormatter`, or
+  :func:`~bokeh.models.Axis.major_label_overrides`
 * :ref:`ug_basic_annotations_titles`
 * :ref:`ug_basic_annotations_labels`
 * :ref:`ug_basic_annotations_color_bars`
@@ -44,17 +46,40 @@ LaTeX on axis labels, titles, and labels
         :source-position: above
 
 LaTeX and tick labels
-    To add LaTeX notations to your tick labels, use the
-    :func:`~bokeh.models.Axis.major_label_overrides` function with an axis.
-
-    This function is used to replace values for existing tick labels with custom
-    text. It accepts a dictionary with the tick label's original value as the
-    key and your custom value as the dict's value.
-
-    Use this function to replace any plain text tick labels with LaTeX notation:
+    To add a LaTeX unit or other repeated decoration to generated tick labels,
+    use a :class:`~bokeh.models.ScaledTickFormatter`. Add a
+    :class:`~bokeh.models.ScaledTicker` when tick selection also needs a scale
+    or a nonzero origin. The formatter accepts delimited LaTeX strings and
+    combines the value, unit, and any fraction into one math expression. Labels
+    therefore continue to update as the visible range changes:
 
     .. bokeh-plot:: __REPO__/examples/styling/mathtext/latex_tick_labels.py
         :source-position: above
+
+    For SI units, :class:`~bokeh.models.SITickFormatter` similarly combines
+    the value, engineering prefix, and a LaTeX unit into one expression. It
+    can select a prefix from the visible ticks or keep a fixed prefix while
+    panning and zooming.
+
+    The formatter's ``origin_label`` supports signed offsets from a symbolic
+    origin. For example, an origin of :math:`\overline{x}` and a unit of
+    :math:`\sigma` produce labels from :math:`\overline{x}-3\sigma` through
+    :math:`\overline{x}+3\sigma`. For labels that cannot be described by a
+    shared origin, scale, prefix, or unit, use
+    :func:`~bokeh.models.Axis.major_label_overrides`.
+
+    For example, a small set of unrelated special labels can still be supplied
+    directly:
+
+    .. code-block:: python
+
+        from math import pi
+
+        p.xaxis.major_label_overrides = {
+            0: r"$$0$$",
+            pi/2: r"$$\pi/2$$",
+            pi: r"$$\pi$$",
+        }
 
 LaTeX on RangeSlider and Slider widget titles
     To use LaTeX notation in the title of a :ref:`ug_interaction_widgets_range_slider`

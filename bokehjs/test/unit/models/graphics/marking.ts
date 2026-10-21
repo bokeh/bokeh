@@ -16,7 +16,7 @@ describe("Marking inherited visuals", () => {
     const view = await create_glyph_view(glyph, {x0: [0, 0], y0: [20, 40], x1: [100, 100], y1: [20, 40], color: ["red", "blue"]} as any)
     const marking = view.decorations.get(decoration)!.marking as NormalHeadView
     const ctx = view.canvas.create_layer().ctx
-    view.paint(ctx, [0, 1])
+    view.paint(ctx, new Int32Array([0, 1]))
     expect(marking.visuals.fill.fill_color.get(0)).to.be.equal(view.line_color.get(0) as number)
     expect(marking.visuals.fill.fill_color.get(1)).to.be.equal(view.line_color.get(1) as number)
     expect(marking.visuals.fill.fill_alpha.get(0)).to.be.equal(0.6)
@@ -25,7 +25,7 @@ describe("Marking inherited visuals", () => {
     glyph.line_color = "green"
     glyph.line_alpha = 0.3
     await view.renderer.ready
-    view.paint(ctx, [0, 1])
+    view.paint(ctx, new Int32Array([0, 1]))
     expect(marking.visuals.fill.fill_color.get(1)).to.be.equal(view.line_color.get(1) as number)
     expect(marking.visuals.fill.fill_alpha.get(1)).to.be.equal(0.3)
 
@@ -35,20 +35,20 @@ describe("Marking inherited visuals", () => {
     plot.model.renderers = [...plot.model.renderers, other_renderer]
     await plot.ready
     const other_view = plot.owner.get_one(other_renderer).glyph as SegmentView
-    other_view.paint(other_view.canvas.create_layer().ctx, [0])
+    other_view.paint(other_view.canvas.create_layer().ctx, new Int32Array([0]))
     const other_marking = other_view.decorations.get(decoration)!.marking as NormalHeadView
     expect(other_marking.visuals.fill.fill_color.get(0)).to.be.equal(other_view.line_color.get(0) as number)
     expect(marking.visuals.fill.fill_color.get(0)).to.be.equal(view.line_color.get(0) as number)
     expect(head.fill_color).to.be.equal({value: "black"})
 
     const nonselection = view.renderer.nonselection_glyph as SegmentView
-    nonselection.paint(ctx, [0])
+    nonselection.paint(ctx, new Int32Array([0]))
     const state_marking = [...nonselection.decorations.values()][0].marking as NormalHeadView
     expect(state_marking.visuals.fill.fill_alpha.get(0)).to.be.equal(nonselection.visuals.line.line_alpha.get(0))
 
     head.inherit_visuals = []
     await marking.ready
-    view.paint(ctx, [0])
+    view.paint(ctx, new Int32Array([0]))
     expect(marking.visuals.fill.fill_color.get(0)).to.not.be.equal(view.line_color.get(0) as number)
   })
 })

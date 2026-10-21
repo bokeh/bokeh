@@ -65,7 +65,7 @@ def test_conda_recipe_dependencies_match_project_dependencies() -> None:
     ("func", "command", "environment"),
     [
         (build.build_bokehjs, "node make build", {}),
-        (build.build_jupyter, "bash tools/ci/build_jupyter.sh", {}),
+        (build.build_jupyter, "pixi run --locked --environment release-build jupyter-build", {}),
         (build.build_npm_packages, "npm pack --workspace frameworks/web-component", {}),
         (
             build.build_conda_package,
@@ -75,8 +75,8 @@ def test_conda_recipe_dependencies_match_project_dependencies() -> None:
         ),
         (
             build.build_docs,
-            "make clean all SPHINXOPTS=-v",
-            {"BOKEH_DOCS_CDN": "4.0.0", "BOKEH_DOCS_VERSION": "4.0.0"},
+            'make clean all SPHINXOPTS="-v -j auto"',
+            {"BOKEH_DOCS_PIXI_ACTIVE": "1", "BOKEH_DOCS_CDN": "4.0.0", "BOKEH_DOCS_VERSION": "4.0.0"},
         ),
         (
             build.build_pip_packages,
@@ -134,14 +134,14 @@ def test_command_build_steps(
     ("func", "command"),
     [
         (build.build_bokehjs, "node make build"),
-        (build.build_jupyter, "bash tools/ci/build_jupyter.sh"),
+        (build.build_jupyter, "pixi run --locked --environment release-build jupyter-build"),
         (build.build_npm_packages, "npm pack --workspace frameworks/web-component"),
         (
             build.build_conda_package,
             "rattler-build build --recipe conda/recipe --channel conda-forge "
             "--output-dir dist/conda --package-format tar-bz2 --test skip",
         ),
-        (build.build_docs, "make clean all SPHINXOPTS=-v"),
+        (build.build_docs, 'make clean all SPHINXOPTS="-v -j auto"'),
         (build.build_pip_packages, "python -m build ."),
         (build.dev_install_bokehjs, "python -m pip install --no-deps -e ."),
         (build.install_bokehjs, "python -m pip install --no-deps ."),
@@ -185,7 +185,7 @@ def test_jupyter_build_reinstalls_generated_outputs(config: Config) -> None:
     result = build.build_jupyter(config, system)
 
     assert result.kind is ActionResult.PASS
-    assert system.commands == ["bash tools/ci/build_jupyter.sh"]
+    assert system.commands == ["pixi run --locked --environment release-build jupyter-build"]
     assert config.modified == set()
 
 

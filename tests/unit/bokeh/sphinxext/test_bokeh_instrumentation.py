@@ -79,15 +79,15 @@ def test_merge_plot_timings_only_includes_worker_docnames() -> None:
         docname="inherited",
         source="inherited.py",
     )
-    env = SimpleNamespace(bokeh_plot_files=set(), bokeh_plot_timings=[])
+    env = SimpleNamespace(bokeh_plot_files={}, bokeh_plot_timings=[])
     other = SimpleNamespace(
-        bokeh_plot_files={"plot.js"},
+        bokeh_plot_files={"included": {"plot.js"}},
         bokeh_plot_timings=[inherited, included],
     )
 
     merge_plot_timings(None, cast(Any, env), ["included"], cast(Any, other))
 
-    assert env.bokeh_plot_files == {"plot.js"}
+    assert env.bokeh_plot_files == {"included": {"plot.js"}}
     assert env.bokeh_plot_timings == [included]
 
 

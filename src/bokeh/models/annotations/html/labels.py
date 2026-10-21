@@ -22,9 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
 # Bokeh imports
 from ....core.enums import (
     AngleUnits,
@@ -76,10 +73,6 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class HTMLTextAnnotation(HTMLAnnotation):
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     padding = Padding(default=0, help="""
     Extra space between the text of a label and its bounding box (border).
@@ -133,10 +126,6 @@ class HTMLLabel(HTMLTextAnnotation):
     See :ref:`ug_basic_annotations_labels` for information on plotting labels.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     x = Required(CoordinateLike, help="""
     The x-coordinate in screen coordinates to locate the text anchors.
@@ -211,10 +200,6 @@ class HTMLLabelSet(HTMLAnnotation, DataAnnotation):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     x = NumberSpec(default=field("x"), help="""
     The x-coordinates to locate the text anchors.
     """)
@@ -279,10 +264,6 @@ class HTMLTitle(HTMLTextAnnotation):
     See :ref:`ug_basic_annotations_titles` for information on plotting titles.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     text = String(default="", help="""
     The text value to render.

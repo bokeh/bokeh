@@ -168,7 +168,7 @@ export class ImageURLView extends XYGlyphView {
     })
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<ImageURL.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<ImageURL.Data>): void {
     const {sx, sy, sw, sh, angle, global_alpha} = {...this, ...data}
     const {image, loaders, resolved} = this
 

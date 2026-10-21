@@ -17,7 +17,6 @@ import {ScreenArray, Indices} from "core/types"
 import {isArrayable, isString} from "core/util/types"
 import {RaggedArray} from "core/util/ragged_array"
 import {every} from "core/util/array"
-import {inplace_map} from "core/util/arrayable"
 import {inplace, project_xy} from "core/util/projections"
 import {is_equal, EqNotImplemented} from "core/util/eq"
 import {SpatialIndex} from "core/util/spatial"
@@ -172,7 +171,7 @@ export abstract class GlyphView extends DOMComponentView {
     return this.renderer.parent.canvas_view
   }
 
-  paint(ctx: Context2d, indices: number[], data?: Partial<Glyph.Data>): void {
+  paint(ctx: Context2d, indices: Int32Array, data?: Partial<Glyph.Data>): void {
     for (const decoration of this.decorations.values()) {
       decoration.marking.inherit_from(this)
     }
@@ -185,7 +184,7 @@ export abstract class GlyphView extends DOMComponentView {
     }
   }
 
-  protected abstract _paint(ctx: Context2d, indices: number[], data?: Glyph.Data): void
+  protected abstract _paint(ctx: Context2d, indices: Int32Array, data?: Glyph.Data): void
 
   override has_finished(): boolean {
     return true
@@ -277,7 +276,9 @@ export abstract class GlyphView extends DOMComponentView {
     }
 
     if (dilate) {
-      inplace_map(sdist, (sd) => ceil(sd))
+      for (let i = 0; i < n; i++) {
+        sdist[i] = ceil(sdist[i])
+      }
     }
 
     return sdist
