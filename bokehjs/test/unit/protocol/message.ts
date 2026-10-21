@@ -83,6 +83,26 @@ describe("protocol/message module", () => {
 
     describe("send method", () => {
 
+      it("should send a shared buffer only once for distinct wrappers", () => {
+        const buffer = new ArrayBuffer(8)
+        const distinct = new ArrayBuffer(8)
+        const message = Message.create("PATCH-DOC", {values: [new Buffer(buffer), new Buffer(buffer), new Buffer(distinct)]})
+        const socket = new MockSock()
+        message.send(socket)
+        expect(socket.sent.length).to.be.equal(3)
+        expect(JSON.parse(socket.sent[0] as string).buffers).to.be.equal(["0", "1"])
+        expect(JSON.parse(socket.sent[0] as string).content.values).to.be.equal([{id: "0"}, {id: "0"}, {id: "1"}])
+        expect(socket.sent[1] === buffer).to.be.true
+        expect(socket.sent[2] === distinct).to.be.true
+      })
+
+      it("should still reject more than ten thousand distinct buffers before sending", () => {
+        const values = Array.from({length: 10_001}, () => new Buffer(new ArrayBuffer(0)))
+        const socket = new MockSock()
+        expect(() => Message.create("PATCH-DOC", {values}).send(socket)).to.throw(Error, /more than 10000 buffers/)
+        expect(socket.sent).to.be.equal([])
+      })
+
       it("should send one JSON envelope without buffers", () => {
         const m = new Message({msgid: "10", msgtype: "PATCH-DOC"}, {baz: 3})
         const s = new MockSock()

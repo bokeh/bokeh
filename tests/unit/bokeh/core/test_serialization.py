@@ -492,6 +492,35 @@ class TestSerializer:
         assert rep["array"] == encoder._encode_bytes(memoryview(val))
         assert encoder.buffers == []
 
+    @pytest.mark.parametrize("typecode", ["b", "B", "h", "H", "i", "I", "f", "d"])
+    def test_typed_array_map_shares_buffer(self, typecode: str) -> None:
+        values = {7: TypedArray(typecode, [1, 2]), 8: [], 42: TypedArray(typecode, [3])}
+        encoder = Serializer()
+        serialized = encoder.serialize(values)
+        assert len(serialized.buffers) == 1
+        entries = serialized.content["entries"]
+        assert entries[0][1]["byte_offset"] == 0
+        assert entries[0][1]["length"] == 2
+        assert entries[2][1]["byte_offset"] == 2*values[7].itemsize
+        assert entries[2][1]["length"] == 1
+        assert entries[0][1]["array"]["data"] is entries[2][1]["array"]["data"]
+        decoded = Deserializer().deserialize(serialized)
+        assert decoded == values
+        assert list(decoded) == [7, 8, 42]
+
+        inline = Serializer(deferred=False)
+        rep = inline.encode(values)
+        assert inline.buffers == []
+        assert "byte_offset" not in rep["entries"][0][1]
+        assert Deserializer().decode(rep) == values
+
+    def test_typed_array_map_honors_custom_encoder(self) -> None:
+        values = {1: TypedArray("i", [2]), 3: TypedArray("i", [4])}
+        with patch.dict(Serializer._encoders, {TypedArray: lambda obj, serializer: list(obj)}):
+            serializer = Serializer()
+            assert serializer.encode(values) == MapRep(type="map", entries=[(1, [2]), (3, [4])])
+            assert serializer.buffers == []
+
     def test_ndarray(self) -> None:
         encoder = Serializer()
         val = np.array([0, 1, 2, 3, 4, 5], dtype="int32")
@@ -1249,6 +1278,33 @@ class TestSerializer:
         encoder.encode(p) # no SerializationError("circular reference") error raised here
 
 class TestDeserializer:
+
+    @pytest.mark.parametrize("fields", [
+        {"byte_offset": -4}, {"byte_offset": 1}, {"byte_offset": 20}, {"byte_offset": 1.5},
+        {"byte_offset": None}, {"byte_offset": "4"}, {"byte_offset": inf}, {"byte_offset": True},
+        {"length": -1}, {"length": 1.5}, {"length": 5}, {"length": None}, {"length": "2"},
+        {"length": inf}, {"length": True}, {"byte_offset": 12, "length": 2},
+    ])
+    def test_invalid_typed_array_view(self, fields) -> None:
+        rep = dict(type="typed_array", dtype="int32", order=sys.byteorder,
+                   array=BytesRep(type="bytes", data=Buffer("data", bytes(16))), **fields)
+        with pytest.raises(DeserializationError, match="invalid typed array"):
+            Deserializer().decode(rep)
+
+    @pytest.mark.parametrize("offset,length,expected", [(4, 2, [111, 222]), (16, 0, [])])
+    @pytest.mark.parametrize("opposite_endian", [False, True])
+    def test_shared_typed_array_views(self, offset, length, expected, opposite_endian) -> None:
+        packed = TypedArray("i", [99, 111, 222, 99])
+        order = sys.byteorder
+        if opposite_endian:
+            packed.byteswap()
+            order = "big" if order == "little" else "little"
+        data = packed.tobytes()
+        rep = dict(type="typed_array", dtype="int32", order=order,
+                   array=BytesRep(type="bytes", data=Buffer("data", data)), byte_offset=offset, length=length)
+        views = Deserializer().decode([rep, rep])
+        assert [list(view) for view in views] == [expected, expected]
+        assert packed.tobytes() == data
 
     def test_slice(self) -> None:
         decoder = Deserializer()

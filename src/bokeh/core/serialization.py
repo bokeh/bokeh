@@ -145,10 +145,14 @@ type DataType = Literal["uint8", "int8", "uint16", "int16", "uint32", "int32", "
 type NDDataType = Literal["bool"] | DataType | Literal["object"]
 
 class TypedArrayRep(TypedDict):
+    """ An array view, with an optional byte offset and element count. """
+
     type: Literal["typed_array"]
     array: BytesRep
     order: ByteOrder
     dtype: DataType
+    byte_offset: NotRequired[int]
+    length: NotRequired[int]
 
 class NDArrayRep(TypedDict):
     type: Literal["ndarray"]
@@ -376,12 +380,30 @@ class Serializer:
             )
 
     def _encode_dict(self, obj: dict[Any, Any]) -> MapRep:
+        views: dict[int, TypedArrayRep] = {}
+        if self._deferred and TypedArray not in self._encoders:
+            groups: dict[str, list[TypedArray[Any]]] = {}
+            for val in obj.values():
+                if type(val) is TypedArray:
+                    groups.setdefault(val.typecode, []).append(val)
+            for arrays in groups.values():
+                if len(arrays) < 2:
+                    continue
+                # Repack decoded multiline values when forwarding to other clients.
+                packed = TypedArray(arrays[0].typecode)
+                for val in arrays:
+                    packed.extend(val)
+                rep = self._encode_typed_array(packed)
+                offset = 0
+                for val in arrays:
+                    views[id(val)] = {**rep, "byte_offset": offset, "length": len(val)}
+                    offset += len(val)*val.itemsize
         if len(obj) == 0:
             result = MapRep(type="map")
         else:
             result = MapRep(
                 type="map",
-                entries=[(self.encode(key), self.encode(val)) for key, val in obj.items()],
+                entries=[(self.encode(key), views[id(val)] if id(val) in views else self.encode(val)) for key, val in obj.items()],
             )
 
         return result
@@ -821,7 +843,18 @@ class Deserializer:
         if typecode is None:
             self.error(f"unsupported dtype '{dtype}'")
 
-        typed_array: TypedArray[Any] = TypedArray(typecode, data)
+        raw = memoryview(data).cast("B")
+        typed_array: TypedArray[Any] = TypedArray(typecode)
+        size = typed_array.itemsize
+        offset = obj.get("byte_offset", 0)
+        if type(offset) is not int or offset < 0 or offset > len(raw) or offset % size != 0:
+            self.error("invalid typed array byte offset")
+        length = obj.get("length", (len(raw) - offset)//size)
+        if type(length) is not int or length < 0 or length*size > len(raw) - offset:
+            self.error("invalid typed array length")
+        if "length" not in obj and (len(raw) - offset) % size != 0:
+            self.error("invalid typed array length")
+        typed_array.frombytes(raw[offset:offset + length*size])
         if order != sys.byteorder:
             typed_array.byteswap()
 
