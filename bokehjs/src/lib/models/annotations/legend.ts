@@ -12,6 +12,7 @@ import {SideLayout, SidePanel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
 import {every, some, sum} from "core/util/array"
 import {dict} from "core/util/object"
+import {is_equal} from "core/util/eq"
 import {isString} from "core/util/types"
 import {zip} from "core/util/iterator"
 import type {Context2d, CanvasLayer} from "core/util/canvas"
@@ -85,9 +86,17 @@ export class LegendView extends AnnotationView {
 
     const {items} = this.model.properties
     this.on_transitive_change(items, () => {
-      this._render_items()
-      // Refresh the measured size before the queued paint checks side layout.
-      this.update_position()
+      if (this._should_rerender_items) {
+        this._render_items()
+        // Refresh geometry only when the entries change. Renderer data and
+        // visual changes still need a repaint, but usually don't affect size.
+        this.update_position()
+      } else {
+        // Visibility and muting still affect the overlay on reused entries.
+        for (const entry of this.entries) {
+          this._toggle_inactive(entry)
+        }
+      }
       this.request_paint()
     }, {recursive: true})
   }
@@ -153,7 +162,7 @@ export class LegendView extends AnnotationView {
       return true
     }
     for (const [entry, {item, label}] of zip(entries, labels)) {
-      if (entry.item != item || entry.label != label) {
+      if (entry.item != item || !is_equal(entry.label, label)) {
         return true
       }
     }
