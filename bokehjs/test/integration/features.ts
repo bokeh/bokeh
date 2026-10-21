@@ -235,9 +235,9 @@ describe("Feature", () => {
       expect_not_null(menu_view)
       expect(menu_view.is_open).to.be.true
 
-      const items = [...menu_view.shadow_el.querySelectorAll(".bk-item")]
-      const labels = items.map((item) => item.querySelector(".bk-label")?.textContent)
-      const titles = items.map((item) => item.getAttribute("title"))
+      const {item_entries} = menu_view
+      const labels = item_entries.map(({label_el}) => label_el.textContent)
+      const titles = item_entries.map(({el}) => el.title)
 
       expect(labels).to.be.equal([
         "Pan",
@@ -248,7 +248,7 @@ describe("Feature", () => {
         "Other Action",
       ])
       expect(titles).to.be.equal([
-        null,
+        "",
         "Drag the plot around",
         "Drag X (x-axis)",
         "Perform a Custom Action",
