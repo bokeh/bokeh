@@ -355,10 +355,6 @@
       "alt": "Thumbnail link to the examples/topics/geo/geopandas_region_outlines.py example shows GeoPandas county boundaries over OpenStreetMap tiles."
     },
     {
-      "name": "world_countries.py",
-      "alt": "Thumbnail link to the examples/topics/geo/world_countries.py example shows Shapely country boundaries colored by continent."
-    },
-    {
       "name": "gmap.py",
       "alt": "Thumbnail link to the examples/topics/geo/gmap.py example shows a grid of map plot centered at Austin, TX using Bokeh's Google maps integration."
     }
