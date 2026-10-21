@@ -25,10 +25,6 @@ import type {CDSView, CDSViewView} from "../../sources/cds_view"
 import type {ChildView, ViewStorage} from "core/build_views"
 import {build_view, build_views, remove_views} from "core/build_views"
 import type {PatchSet} from "core/patching"
-import type {HasProps} from "core/has_props"
-import {ScalarSpec, VectorSpec} from "core/properties"
-import type {Scalar, Vector} from "core/vectorization"
-import {isExpr} from "core/vectorization"
 
 import tables_css, * as tables from "styles/widgets/tables.css"
 import slickgrid_css from "styles/widgets/slickgrid.css"
@@ -202,100 +198,30 @@ export class DataTableView extends WidgetView {
 
   override connect_signals(): void {
     super.connect_signals()
-    let render_pending: Promise<void> | null = null
-    let render_requested = false
-    const is_current = () => !render_requested && !this.is_destroyed
-    const render = (): Promise<void> => {
-      render_requested = true
-      if (render_pending == null) {
-        render_pending = (async () => {
-          await Promise.resolve()
-          while (render_requested && !this.is_destroyed) {
-            render_requested = false
-            await build_views(this._column_views, this.model.columns, {parent: this})
-            // A changed HTML title must finish building before the grid uses it.
-            await Promise.all([...this._column_views.values()].map((view) => view.ready))
-            if (is_current()) {
-              this.rerender()
-            }
-          }
-        })().finally(() => render_pending = null)
+    this.connect(this.model.change, () => {
+      // If there are any columns that don't have a built view yet,
+      // skip the synchronous rerender. The async on_transitive_change
+      // handler below will build them and trigger the rerender safely.
+      if (this.model.columns.some((col) => !this._column_views.has(col))) {
+        return
       }
-      return render_pending
-    }
-    this.connect(this.model.change, render)
+      this.rerender()
+    })
 
-    let column_models = new Set<HasProps>()
-    const connect_column_models = () => {
-      const models = new Set<HasProps>()
-      for (const {formatter, editor, sorter} of this.model.columns) {
-        models.add(formatter)
-        models.add(editor)
-        if (sorter != null) {
-          models.add(sorter)
-        }
-        for (const prop of formatter) {
-          if (!(prop instanceof ScalarSpec || prop instanceof VectorSpec) || prop.is_unset) {
-            continue
-          }
-          const value = prop.get_value() as Scalar<unknown> | Vector<unknown>
-          // These structural interfaces expose their owning HasProps via the signal.
-          if (value.transform != null) {
-            models.add(value.transform.change.sender)
-          }
-          if (isExpr(value)) {
-            models.add(value.expr.change.sender)
-          }
-        }
-      }
-      for (const model of column_models) {
-        if (!models.has(model)) {
-          this.disconnect(model.change, columns_changed)
-        }
-      }
-      for (const model of models) {
-        if (!column_models.has(model)) {
-          this.connect(model.change, columns_changed)
-        }
-      }
-      column_models = models
-    }
-    const columns_changed = () => {
-      connect_column_models()
-      return render()
-    }
-    connect_column_models()
     const {columns} = this.model.properties
-    // Observe column configuration, without traversing callback/sorter args.
-    this.on_transitive_change(columns, columns_changed)
+    this.on_transitive_change(columns, async () => {
+      await build_views(this._column_views, this.model.columns, {parent: this})
+      this.rerender()
+    }, {recursive: true})
 
-    let update_pending: Promise<void> | null = null
-    let update_grid = false
-    const update = (grid: boolean): Promise<void> => {
-      update_grid ||= grid
-      update_pending ??= Promise.resolve().then(() => {
-        update_pending = null
-        if (!this.is_destroyed) {
-          if (update_grid) {
-            update_grid = false
-            this.updateGrid()
-          } else {
-            this.updateSelection()
-          }
-        }
-      })
-      return update_pending
-    }
-    // Data and view notifications can overlap within one source update.
-    const update_data = () => update(true)
-    const update_selection = () => update(false)
-    this.connect(this.model.view.change, update_data)
-    this.connect(this.model.source.change, update_data)
-    this.connect(this.model.source.streaming, update_data)
-    this.connect(this.model.source.patching, update_data)
-    this.connect(this.model.source.properties.data.change, update_data)
-    this.connect(this.model.source.selected.change, update_selection)
-    this.connect(this.model.source.selected.properties.indices.change, update_selection)
+    // TODO reevaluate the control flow when taking a general look at events
+    this.connect(this.model.view.change, () => this.updateGrid())
+    this.connect(this.model.source.change, () => this.updateGrid())
+    this.connect(this.model.source.streaming, () => this.updateGrid())
+    this.connect(this.model.source.patching, () => this.updateGrid())
+    this.connect(this.model.source.properties.data.change, () => this.updateGrid())
+    this.connect(this.model.source.selected.change, () => this.updateSelection())
+    this.connect(this.model.source.selected.properties.indices.change, () => this.updateSelection())
   }
 
   override stylesheets(): StyleSheetLike[] {
@@ -408,7 +334,7 @@ export class DataTableView extends WidgetView {
 
   newIndexColumn(): ColumnType {
     return {
-      id: DTINDEX_NAME,
+      id: unique_id(),
       name: this.model.index_header,
       field: DTINDEX_NAME,
       width: this.model.index_width,
@@ -435,9 +361,6 @@ export class DataTableView extends WidgetView {
   }
 
   override render(): void {
-    if (this._is_grid_initialized()) {
-      this.grid.destroy()
-    }
     super.render()
 
     this.wrapper_el = div({class: tables.data_table, style: "width: 100%; height: 100%;"})
@@ -445,17 +368,9 @@ export class DataTableView extends WidgetView {
   }
 
   protected _render_table(): void {
-    const occurrences = new Map<TableColumn, number>()
-    const columns: ColumnType[] = this.model.columns.flatMap((column) => {
-      // Distinguish repeated models while retaining IDs across visibility and
-      // ordering changes to other columns.
-      const occurrence = occurrences.get(column) ?? 0
-      occurrences.set(column, occurrence + 1)
-      if (!column.visible) {
-        return []
-      }
+    const columns: ColumnType[] = this.model.columns.filter((column) => column.visible).map((column) => {
       const column_view = this._column_views.get(column)!
-      return [{...column_view.toColumn(), id: `${column.id}:${occurrence}`, parent: this}]
+      return {...column_view.toColumn(), parent: this}
     })
 
     let checkbox_selector: SlickCheckboxSelectColumn<Item> | null = null
@@ -508,14 +423,6 @@ export class DataTableView extends WidgetView {
 
     this.data = new TableDataProvider(this.model.source, this.model.view)
     this.grid = new SlickGrid(this.wrapper_el, this.data, columns, options)
-
-    const sorters = this.model.sortable ? this.model.sort_columns.flatMap((sorter) => {
-      const column = columns.find((column) => column.id === sorter.columnId)
-      return column == null ? [] : [{...sorter, sortCol: column}]
-    }) : []
-    this.grid.setSortColumns(sorters.map(({columnId, sortAsc}) => ({columnId, sortAsc})))
-    this.data.sort_data(sorters)
-    this.model.update_sort_columns(sorters)
 
     if (this.autosize == AutosizeModes.fit_viewport) {
       this.grid.autosizeColumns()

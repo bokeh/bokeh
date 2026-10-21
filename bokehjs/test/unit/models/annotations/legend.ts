@@ -46,6 +46,48 @@ class ModelDrivenLegend extends Legend {
 }
 
 describe("LegendView", () => {
+  for (const {name, label} of [
+    {name: "NaN", label: () => NaN},
+    {name: "two-level tuple", label: () => ["A", "one"]},
+    {name: "three-level tuple", label: () => ["A", "one", "first"]},
+  ]) {
+    it(`should reuse legend entries when ${name} labels are equal`, async () => {
+      const p = fig([600, 200], {x_range: [0, 10], y_range: [0, 10]})
+      const renderer = p.scatter([1], [1])
+      const source = renderer.data_source
+      source.data = {x: [1], y: [1], label: [label()]}
+      const item = LegendItem.create({label: {field: "label"}, renderers: [renderer]})
+      const legend = ModelDrivenLegend.create({items: [item]})
+      p.add_layout(legend, "left")
+      const {view} = await display(p)
+      await view.ready
+      const legend_view = view.owner.get_one(legend)
+      legend_view.disconnect_resize_observer()
+      const [entry] = legend_view.entry_els
+      const {width, height} = legend_view.bbox
+
+      for (const y of [2, 3]) {
+        legend_view.position_updates = 0
+        legend_view.item_renders = 0
+        // Tuples have equal contents but a fresh identity on each update.
+        source.data = {x: [1], y: [y], label: [label()]}
+        expect(legend_view.position_updates).to.be.equal(0)
+        await view.ready
+        expect(legend_view.item_renders).to.be.equal(0)
+        expect(legend_view.entry_els[0]).to.be.identical(entry)
+        expect(entry.textContent).to.be.equal(`${label()}`)
+        expect(legend_view.bbox.width).to.be.equal(width)
+        expect(legend_view.bbox.height).to.be.equal(height)
+      }
+
+      source.data = {x: [1], y: [4], label: ["Changed label"]}
+      await view.ready
+      expect(legend_view.item_renders).to.be.above(0)
+      expect(legend_view.entry_els[0] === entry).to.be.false
+      expect(legend_view.entry_els[0].textContent).to.be.equal("Changed label")
+    })
+  }
+
   for (const field_label of [false, true]) {
     it(`should preserve legend DOM and geometry on data updates with ${field_label ? "field" : "value"} labels`, async () => {
       const p = fig([600, 200], {x_range: [0, 10], y_range: [0, 10]})

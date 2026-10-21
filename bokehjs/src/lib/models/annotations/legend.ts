@@ -12,6 +12,7 @@ import {SideLayout, SidePanel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
 import {every, some, sum} from "core/util/array"
 import {dict} from "core/util/object"
+import {is_equal} from "core/util/eq"
 import {isString} from "core/util/types"
 import {zip} from "core/util/iterator"
 import type {Context2d, CanvasLayer} from "core/util/canvas"
@@ -162,7 +163,7 @@ export class LegendView extends AnnotationView {
       return true
     }
     for (const [entry, {item, label}] of zip(entries, labels)) {
-      if (entry.item != item || entry.label != label) {
+      if (entry.item != item || !is_equal(entry.label, label)) {
         return true
       }
     }

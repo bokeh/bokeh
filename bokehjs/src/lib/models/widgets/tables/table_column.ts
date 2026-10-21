@@ -4,7 +4,7 @@ import type {ColumnType} from "./definitions"
 import type {EditorConstructor} from "slickgrid"
 
 import type * as p from "core/properties"
-import {escape} from "core/util/string"
+import {unique_id, escape} from "core/util/string"
 import {isString} from "core/util/types"
 import {Sort} from "core/enums"
 import {Comparison} from "../../../models/comparisons"
@@ -55,6 +55,7 @@ export class TableColumnView extends View {
     const {title} = this.model.properties
     this.on_change(title, async () => {
       await this._update_title_view()
+      this.parent.rerender()
     })
   }
 
@@ -86,7 +87,7 @@ export class TableColumnView extends View {
   toColumn(): ColumnType {
     const {model} = this
     return {
-      id: this.model.id,
+      id: unique_id(),
       field: model.field,
       name: this._title_name(),
       width: model.width,
