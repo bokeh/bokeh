@@ -1,7 +1,7 @@
 import * as ts from "typescript"
 
 import crypto from "node:crypto"
-import {parse, format, normalize} from "node:path"
+import {parse, format, normalize, basename, dirname, join} from "node:path"
 
 export type Path = string
 
@@ -65,4 +65,27 @@ export function read_json(path: Path): unknown | undefined {
       return undefined
     }
   }
+}
+
+function npm_bin_dir(): string {
+  // directory containing npm-cli.js and npx-cli.js
+  const execpath = process.env.npm_execpath
+  if (execpath != null && ["npm-cli.js", "npx-cli.js"].includes(basename(execpath))) {
+    return dirname(execpath)
+  }
+  return join(dirname(process.execPath), "node_modules", "npm", "bin")
+}
+
+export function resolve_npm(args: string[]): [string, string[]] {
+  if (process.platform == "win32") {
+    return [process.execPath, [join(npm_bin_dir(), "npm-cli.js"), ...args]]
+  }
+  return ["npm", args]
+}
+
+export function resolve_npx(args: string[]): [string, string[]] {
+  if (process.platform == "win32") {
+    return [process.execPath, [join(npm_bin_dir(), "npx-cli.js"), ...args]]
+  }
+  return ["npx", args]
 }

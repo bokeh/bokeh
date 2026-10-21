@@ -12,7 +12,7 @@ import {GlslMinify} from "webpack-glsl-minify/build/minify.js"
 import {task, passthrough, BuildError} from "../task.js"
 import {file_exists, compile_typescript} from "./_util.js"
 
-import {rename, read, write, scan} from "#compiler/sys.js"
+import {rename, read, write, scan, resolve_npx} from "#compiler/sys.js"
 import {wrap_css_modules} from "#compiler/styles.js"
 import type {AssemblyOptions} from "#compiler/linker.js"
 import {Linker} from "#compiler/linker.js"
@@ -40,13 +40,13 @@ task("scripts:styles", ["styles:compile"], async () => {
 task("scripts:grammar", async () => {
   function grammar(lib_dir: string) {
     function compile_grammar(ne_path: string, js_path: string) {
-      const is_windows = process.platform == "win32"
-      const npx = is_windows ? "npx.cmd" : "npx"
-      const {status, stdout, stderr} = cp.spawnSync(`${npx} --loglevel=warn nearleyc "${ne_path}" -o "${js_path}"`, {stdio: "pipe", encoding: "utf-8", shell: true})
-      if (status !== 0) {
+      const [resolved_executable, resolved_args] = resolve_npx(["--loglevel=warn", "nearleyc", ne_path, "-o", js_path])
+      const {status, error, stdout, stderr} = cp.spawnSync(resolved_executable, resolved_args, {stdio: "pipe", encoding: "utf-8"})
+      if (error != null || status !== 0) {
         console.error(stdout)
         console.error(stderr)
-        throw new BuildError("pack", `failed to run '${npx} nearleyc'`)
+        const reason = error != null ? `: ${error.message}` : ""
+        throw new BuildError("grammar", `failed to run '${resolved_executable} ${resolved_args.join(" ")}'${reason}`)
       }
     }
 
