@@ -61,7 +61,7 @@ from bokeh.core.properties import (
     Tuple,
 )
 from bokeh.core.property.any import Any
-from bokeh.core.property.bases import Property, validation_on
+from bokeh.core.property.bases import validation_on
 from tests.support.util.api import verify_all
 
 # Module under test
@@ -324,12 +324,6 @@ class TestValidationDefault:
     def test_default_requires_bool(self, value) -> None:
         with pytest.raises(TypeError, match="must be a bool"):
             bcpv.set_validation_default(value)
-        assert validation_on()
-
-    def test_legacy_assignment_has_migration_error(self) -> None:
-        with pytest.raises(AttributeError, match=r"use bokeh.core.properties.set_validation_default\(\)"):
-            setattr(Property, "_should_validate", False)
-        assert not hasattr(Property, "_should_validate")
         assert validation_on()
 
 

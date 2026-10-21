@@ -83,13 +83,7 @@ type Init[T] = T | UndefinedType | _NotGivenType
 
 type ModelInit[T] = T | _NotGivenType
 
-class _PropertyMeta(type):
-    def __setattr__(cls, name: str, value: Any) -> None:
-        if name == "_should_validate":
-            raise AttributeError("Property._should_validate was removed; use bokeh.core.properties.set_validation_default()")
-        super().__setattr__(name, value)
-
-class Property[T](metaclass=_PropertyMeta):
+class Property[T]:
     """ Base class for Bokeh property instances, which can be added to Bokeh
     Models.
 
