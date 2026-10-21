@@ -110,7 +110,14 @@ def build_docs(config: Config, system: System) -> ActionReturn:
             if not getenv(name):
                 raise RuntimeError(f"{name} is required for release documentation builds")
         system.cd("docs/bokeh")
-        system.run("make clean all SPHINXOPTS=-v", BOKEH_DOCS_CDN=config.version, BOKEH_DOCS_VERSION=config.version)
+        # Release CI uses a detached Pixi environment; keep Make in that active
+        # environment and let Sphinx distribute work across the runner's CPUs.
+        system.run(
+            'make clean all SPHINXOPTS="-v -j auto"',
+            BOKEH_DOCS_PIXI_ACTIVE="1",
+            BOKEH_DOCS_CDN=config.version,
+            BOKEH_DOCS_VERSION=config.version,
+        )
         system.cd("../..")
         return PASSED("Docs build succeeded")
     except RuntimeError as e:

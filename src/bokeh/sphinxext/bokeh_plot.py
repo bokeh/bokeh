@@ -198,7 +198,7 @@ class BokehPlotDirective(BokehDirective):
             (script_tag, js_path, source, docstring, height_hint) = self.process_source(source, path, js_filename)
         except Exception as e:
             raise SphinxError(f"Error generating {js_filename}: \n\n{e}")
-        env.bokeh_plot_files.add((js_path, dirname(env.docname)))
+        env.bokeh_plot_files.setdefault(env.docname, set()).add(js_path)
 
         # use the source file name to construct a friendly target_id
         target_id = f"{dashed_docname}.{basename(js_path)}"
@@ -308,14 +308,14 @@ class BokehPlotDirective(BokehDirective):
     def process_sampledata(self, source: str) -> None:
 
         env = cast(Any, self.env)
-        if not hasattr(env, 'solved_sampledata'):
-            env.solved_sampledata = []
+        # A reread must regenerate references that env-purge-doc removed.
+        solved_sampledata = env.temp_data.setdefault("bokeh_sampledata_files", set())
 
         file, _ = self.get_source_info()
         # collect links to all standalone examples
 
-        if file is not None and '/docs/examples/' in file and file not in env.solved_sampledata:
-            env.solved_sampledata.append(file)
+        if file is not None and '/docs/examples/' in file.replace("\\", "/") and file not in solved_sampledata:
+            solved_sampledata.add(file)
             if not hasattr(env, 'all_sampledata_xrefs'):
                 env.all_sampledata_xrefs = []
             if not hasattr(env, 'all_gallery_overview'):
@@ -346,7 +346,7 @@ def builder_inited(app: Any) -> None:
     ensuredir(app.env.bokeh_plot_auxdir)  # docs/bokeh/build/doctrees/bokeh_plot
 
     if not hasattr(app.env, "bokeh_plot_files"):
-        app.env.bokeh_plot_files = set()
+        app.env.bokeh_plot_files = {}
     app.env.bokeh_plot_timings = []
 
 
@@ -369,7 +369,11 @@ def add_page_resources(app: Any, doctree: nodes.document, docname: str) -> None:
 
 
 def build_finished(app: Any, exception: Exception | None) -> None:
-    files = sorted(app.env.bokeh_plot_files)
+    files = sorted(
+        (file, dirname(docname))
+        for docname, paths in app.env.bokeh_plot_files.items()
+        for file in paths
+    )
     files_iter = status_iterator(files, "copying bokeh-plot files... ", "brown", len(files), app.verbosity, stringify_func=lambda x: basename(x[0]))
 
     for (file, docpath) in files_iter:
@@ -397,8 +401,14 @@ def build_finished(app: Any, exception: Exception | None) -> None:
                 f"{timing.docname} ({timing.source})",
             )
 
+def env_purge_doc(app: Any, env: Any, docname: str) -> None:
+    env.bokeh_plot_files.pop(docname, None)
+
+
 def env_merge_info(app: Any, env: Any, docnames: list[str], other: Any) -> None:
-    env.bokeh_plot_files |= other.bokeh_plot_files
+    for docname in docnames:
+        if docname in other.bokeh_plot_files:
+            env.bokeh_plot_files[docname] = other.bokeh_plot_files[docname]
     docnames_set = set(docnames)
     env.bokeh_plot_timings.extend(item for item in other.bokeh_plot_timings if item.docname in docnames_set)
 
@@ -410,8 +420,9 @@ def setup(app: Any) -> _PlotSphinxSpec:
     app.connect("doctree-resolved", add_page_resources)
     app.connect("build-finished", build_finished)
     app.connect("env-merge-info", env_merge_info)
+    app.connect("env-purge-doc", env_purge_doc)
 
-    return _PlotSphinxSpec(**PARALLEL_SAFE, env_version=1)
+    return _PlotSphinxSpec(**PARALLEL_SAFE, env_version=2)
 
 # -----------------------------------------------------------------------------
 # Private API
