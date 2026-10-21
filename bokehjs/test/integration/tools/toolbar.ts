@@ -4,7 +4,7 @@ import {display, fig} from "#framework/layouts"
 import {PanTool, CustomAction} from "@bokehjs/models"
 
 describe("Toolbar", () => {
-  it("should use tools' labels and descriptions in buttons and context menu", async () => {
+  it("should use tools' labels and descriptions in buttons and context menu (issue #15553)", async () => {
     const tools = [
       PanTool.create(),
       PanTool.create({label: "Drag", description: "Drag the plot around"}),
