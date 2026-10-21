@@ -99,6 +99,9 @@ export type TypedArrayRep = {
   array: BytesRep
   order: ByteOrder
   dtype: DataType
+  /** Byte offset and element count within a shared buffer. */
+  byte_offset?: number
+  length?: number
 }
 
 export type Shape = number[]

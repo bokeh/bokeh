@@ -7,6 +7,7 @@ import type {Glyph, GlyphView} from "../glyphs/glyph"
 import {Arrayable, Int, Mapping, List, Struct} from "core/kinds"
 import {map} from "core/util/arrayable"
 import type {Serializer} from "core/serialization"
+import {RaggedArray} from "core/util/ragged_array"
 
 function pack_indices(indices: OpaqueIndices): OpaqueIndices {
   if (indices.length == 0) {
@@ -68,9 +69,21 @@ export class Selection extends Model {
       line_indices:      [ OpaqueIndices, [], {serialize: serialize_indices} ],
       multiline_indices: [ MultiIndices, new Map(), {
         serialize: (indices, serializer) => {
-          return serializer.encode(serializer.binary
-            ? new Map([...indices].map(([key, value]) => [key, pack_indices(value)]))
-            : indices)
+          if (!serializer.binary || indices.size == 0) {
+            return serializer.encode(indices)
+          }
+          for (const values of indices.values()) {
+            for (const value of values) {
+              if (!Number.isInteger(value) || value < -2147483648 || value > 2147483647) {
+                return serializer.encode(indices)
+              }
+            }
+          }
+          const packed = RaggedArray.from([...indices.values()], Int32Array)
+          return serializer.encode(new Map([...indices.keys()].map((key, i) => {
+            const values = packed.get(i)
+            return [key, values.length == 0 ? [] : values]
+          })))
         },
       } ],
       image_indices:     [ ImageIndices, [] ],
