@@ -29,6 +29,7 @@ import {FactorRange} from "../ranges/factor_range"
 import {PathDecoration, PathMarkings} from "../graphics/decoration"
 import type {Marking} from "../graphics/marking"
 import type {OpaqueIndices, MultiIndices, ImageIndex} from "../selections/selection"
+import {BitSet} from "core/util/bitset"
 
 type Defaults = {
   fill: {fill_alpha?: number, fill_color?: Color}
@@ -453,20 +454,29 @@ export class GlyphRendererView extends DataRendererView {
     // Render with selection
     } else {
       // reset the selection mask
-      const selected_mask = new Set(selected_full_indices)
+      const selected_mask = BitSet.from_indices_array(this.model.view.indices.size, selected_full_indices)
+      const is_line_or_step = this.glyph instanceof LineView || this.glyph instanceof StepView
 
-      // now, selected is changed to subset space, except for Line/Step glyph
-      const is_selected = (this.glyph instanceof LineView || this.glyph instanceof StepView)
-        ? (i: number) => selected_mask.has(i)                // i is in full data space
-        : (i: number) => selected_mask.has(all_indices[i])   // i is in subset space
+      const source = is_line_or_step ? all_indices : indices
 
-      const source = (this.glyph instanceof LineView || this.glyph instanceof StepView) ? all_indices : indices
+      const selected_subset_indices = new Int32Array(source.length)
+      const nonselected_subset_indices = new Int32Array(source.length)
+      let n_selected = 0
+      let n_nonselected = 0
 
-      const selected_subset_indices = filter(source, is_selected)
-      const nonselected_subset_indices = filter(source, (i) => !is_selected(i))
-
-      nonselection_glyph.paint(ctx, nonselected_subset_indices)
-      selection_glyph.paint(ctx, selected_subset_indices)
+      for (let k = 0; k < source.length; k++) {
+        const i = source[k]
+        // Line/Step: i is in full data space; otherwise it's in subset space
+        const full_index = is_line_or_step ? i : all_indices[i]
+        if (selected_mask.get(full_index)) {
+          selected_subset_indices[n_selected++] = i
+        } else {
+          nonselected_subset_indices[n_nonselected++] = i
+        }
+      }
+      // paint order matters, selection should be paint last/on top
+      nonselection_glyph.paint(ctx, nonselected_subset_indices.subarray(0, n_nonselected))
+      selection_glyph.paint(ctx, selected_subset_indices.subarray(0, n_selected))
       if (this.hover_glyph != null) {
         if (this.glyph instanceof LineView || this.glyph instanceof StepView) {
           this.hover_glyph.paint(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices))

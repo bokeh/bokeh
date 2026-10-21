@@ -602,6 +602,32 @@ Construct models with ``SomeModel.create(attributes)``. Custom extensions
 inherit ``create()`` and do not need to repeat a constructor or call a
 per-class initialization helper.
 
+Property change callbacks
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use ``on_change`` with a property name to run a callback when that property
+changes. The callback receives no old or new value arguments; read the current
+value from the model instead:
+
+.. code-block:: javascript
+
+    const start_changed = () => console.log(`New start: ${xdr.start}`);
+    xdr.on_change("start", start_changed);
+
+You can observe multiple properties with an array of names. The callback runs
+once for each property that changes:
+
+.. code-block:: javascript
+
+    const range_changed = () => console.log(`New range: ${xdr.start} to ${xdr.end}`);
+    xdr.on_change(["start", "end"], range_changed);
+
+Use ``remove_on_change`` with the same property name or names and callback to
+stop observing changes. An unknown property name raises an error when the
+callback is registered or removed. The existing ``Property`` object form, such
+as ``xdr.on_change(xdr.properties.start, callback)``, is also supported for
+compatibility and lower-level use.
+
 Below is an example that creates a plot with axes, grids, and a line glyph
 from scratch. Compare with samples in :bokeh-tree:`examples/models` and
 you'll see that the code in Python and JavaScript is nearly identical at

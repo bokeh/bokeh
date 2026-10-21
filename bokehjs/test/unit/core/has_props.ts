@@ -406,4 +406,113 @@ describe("core/has_props module", () => {
     const refs = new Set([obj, obj0, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9])
     expect(obj.references()).to.be.equal(refs)
   })
+
+  describe("on_change() and remove_on_change() property-name overloads", () => {
+    it("should support a single property name", () => {
+      const obj = SubclassWithProps.create()
+      let changes = 0
+      let value = obj.foo
+
+      obj.on_change("foo", () => {
+        changes += 1
+        value = obj.foo
+      })
+
+      obj.bar = false
+      expect(changes).to.be.equal(0)
+
+      obj.foo = 1
+      expect(changes).to.be.equal(1)
+      expect(value).to.be.equal(1)
+
+      obj.foo = 1
+      expect(changes).to.be.equal(1)
+    })
+
+    it("should support multiple property names", () => {
+      const obj = SubclassWithProps.create()
+      let changes = 0
+
+      obj.on_change(["foo", "bar"] as const, () => changes += 1)
+      obj.setv({foo: 1, bar: false})
+
+      expect(changes).to.be.equal(2)
+    })
+
+    it("should preserve Property object forms", () => {
+      const obj = SubclassWithProps.create()
+      let foo_changes = 0
+      let any_changes = 0
+
+      obj.on_change(obj.properties.foo, () => foo_changes += 1)
+      obj.on_change([obj.properties.foo, obj.properties.bar] as const, () => any_changes += 1)
+      obj.setv({foo: 1, bar: false})
+
+      expect(foo_changes).to.be.equal(1)
+      expect(any_changes).to.be.equal(2)
+    })
+
+    it("should preserve duplicate connection semantics", () => {
+      const obj = SubclassWithProps.create()
+      let changes = 0
+      const callback = () => changes += 1
+
+      obj.on_change("foo", callback)
+      obj.on_change(["foo", "foo"], callback)
+      obj.foo = 1
+
+      expect(changes).to.be.equal(1)
+    })
+
+    it("should remove callbacks by property name or Property object", () => {
+      const obj = SubclassWithProps.create()
+      let changes = 0
+      const callback = () => changes += 1
+
+      obj.on_change(["foo", "bar"], callback)
+      obj.remove_on_change("foo", callback)
+      obj.setv({foo: 1, bar: false})
+      expect(changes).to.be.equal(1)
+
+      obj.remove_on_change(obj.properties.bar, callback)
+      obj.setv({foo: 2, bar: true})
+      expect(changes).to.be.equal(1)
+
+      expect(() => obj.remove_on_change(["foo", "bar"], callback)).to.not.throw()
+    })
+
+    it("should reject an unknown property name", () => {
+      const obj = SubclassWithProps.create()
+      const callback = () => {}
+
+      expect(() => {
+        // @ts-expect-error "whatever" is not a property of SubclassWithProps
+        obj.on_change("whatever", callback)
+      }).to.throw(Error, "unknown property SubclassWithProps.whatever")
+
+      expect(() => {
+        // @ts-expect-error inherited Object names are not properties of SubclassWithProps
+        obj.on_change("toString", callback)
+      }).to.throw(Error, "unknown property SubclassWithProps.toString")
+
+      expect(() => {
+        // @ts-expect-error "whatever" is not a property of SubclassWithProps
+        obj.remove_on_change("whatever", callback)
+      }).to.throw(Error, "unknown property SubclassWithProps.whatever")
+    })
+
+    it("should validate all property names before connecting", () => {
+      const obj = SubclassWithProps.create()
+      let changes = 0
+      const callback = () => changes += 1
+
+      expect(() => {
+        // @ts-expect-error "whatever" is not a property of SubclassWithProps
+        obj.on_change(["foo", "whatever"], callback)
+      }).to.throw(Error, "unknown property SubclassWithProps.whatever")
+
+      obj.foo = 1
+      expect(changes).to.be.equal(0)
+    })
+  })
 })

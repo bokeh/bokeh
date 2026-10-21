@@ -55,9 +55,10 @@ reference-check:
 reference-clean:
 	python -m api_reference --clean
 
+# Keep icon dependency mtimes stable across unchanged builds.
 html: reference-check
 	@start=$$(date +%s) \
-	; cp -r ../../bokehjs/src/less/icons/* source/_images/icons/ \
+	; cp -pr ../../bokehjs/src/less/icons/* source/_images/icons/ \
 	&& sphinx-build -W -b html -d $(BUILDDIR)/doctrees $(SPHINXOPTS) source $(BUILDDIR)/html \
 	&& cp -r source/_images/examples $(BUILDDIR)/html/_images/ \
 	&& (cp -r ../../src/bokeh/server/static $(BUILDDIR)/html/ || true) \

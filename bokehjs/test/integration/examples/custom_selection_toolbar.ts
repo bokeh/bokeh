@@ -77,7 +77,7 @@ describe("Examples", () => {
       renderer.data_source.selected.indices = [] // TODO bug in ds update
     })
 
-    select.on_change(select.properties.value, () => {
+    select.on_change("value", () => {
       const {data, selected} = renderer.data_source
       const indices = new Set(selected.indices)
       const selected_color = select.value
