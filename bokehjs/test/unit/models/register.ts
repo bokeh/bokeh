@@ -5,6 +5,7 @@ import {ModelResolver} from "@bokehjs/core/resolvers"
 import {register_standard_models} from "@bokehjs/models/register"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Document} from "@bokehjs/document"
+import {DocumentConfig} from "@bokehjs/document/config"
 
 interface CustomRange extends Range1d.Attrs {}
 class CustomRange extends Range1d {}
@@ -15,6 +16,7 @@ describe("model registration", () => {
     register_standard_models(resolver)
 
     expect(resolver.get("Range1d")).to.be.equal(Range1d)
+    expect(resolver.get("DocumentConfig")).to.be.equal(DocumentConfig)
   })
 
   it("can deserialize standard and custom models with an isolated resolver", () => {
@@ -25,6 +27,7 @@ describe("model registration", () => {
     const original = new Document({roots: [Range1d.create({start: 3, end: 4}), CustomRange.create({start: 1, end: 2})]})
     const restored = Document.from_json(original.to_json(), {resolver})
     try {
+      expect(restored.config).to.be.instanceof(DocumentConfig)
       const [standard, range] = restored.roots()
       expect(standard).to.be.instanceof(Range1d)
       expect(range).to.be.instanceof(CustomRange)
