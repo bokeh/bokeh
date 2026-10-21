@@ -266,7 +266,7 @@ export class Document implements Equatable {
     this.config.on_change(this.config.properties.color_scheme, this._on_system_scheme_change)
     this.on_event("document_ready", this._on_system_scheme_change)
     this.on_change((event: DocumentChangedEvent) => {
-      if (event.kind === "RootAdded") {
+      if (event instanceof RootAddedEvent) {
         this._on_system_scheme_change()
       }
     })
@@ -923,7 +923,7 @@ export class Document implements Equatable {
   set_color_scheme(color_scheme: ColorScheme): void {
     const system_scheme = this._system_scheme.matches ? "dark" : "light"
     const scheme = color_scheme == "auto" ? system_scheme : color_scheme
-    if (typeof this.views_manager != "undefined") {
+    if (this.views_manager != null) {
       for (const view of this.views_manager) {
         if (view instanceof DOMComponentView && view.is_top_level) {
           view.el.style.setProperty("--bokeh-color-scheme", scheme)
