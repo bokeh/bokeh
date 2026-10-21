@@ -6,6 +6,10 @@
 # -----------------------------------------------------------------------------
 
 # Standard library imports
+import locale
+
+locale.setlocale(locale.LC_TIME, "C")
+
 import os
 import re
 import sys
