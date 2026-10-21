@@ -3,12 +3,38 @@ import cp from "node:child_process"
 import fs from "node:fs"
 import {join, dirname, basename} from "node:path"
 
+function npm_bin_dir() {
+  // directory containing npm-cli.js and npx-cli.js
+  const execpath = process.env.npm_execpath
+  if (execpath != null && ["npm-cli.js", "npx-cli.js"].includes(basename(execpath))) {
+    return dirname(execpath)
+  }
+  return join(dirname(process.execPath), "node_modules", "npm", "bin")
+}
+
+function resolve_npm(args) {
+  if (process.platform == "win32") {
+    return [process.execPath, [join(npm_bin_dir(), "npm-cli.js"), ...args]]
+  }
+  return ["npm", args]
+}
+
+function resolve_npx(args) {
+  if (process.platform == "win32") {
+    return [process.execPath, [join(npm_bin_dir(), "npx-cli.js"), ...args]]
+  }
+  return ["npx", args]
+}
+
 function npm_install() {
-  const is_windows = process.platform == "win32"
-  const npm = is_windows ? "npm.cmd" : "npm"
-  const {status} = cp.spawnSync(npm, ["install"], {stdio: "inherit", shell: is_windows})
+  const [resolved_executable, resolved_args] = resolve_npm(["install"])
+  const {status, error} = cp.spawnSync(resolved_executable, resolved_args, {stdio: "inherit"})
+  if (error != null) {
+    console.error(`${resolved_executable} ${resolved_args.join(" ")} failed to start: ${error.message}`)
+    process.exit(1)
+  }
   if (status !== 0) {
-    process.exit(status)
+    process.exit(status ?? 1)
   }
 }
 
@@ -52,9 +78,15 @@ process.on("uncaughtException", function(err) {
 })
 
 function compile() {
-  const is_windows = process.platform == "win32"
-  const npx = is_windows ? "npx.cmd" : "npx"
-  cp.spawnSync(npx, ["--loglevel=warn", "tsc", "--project", "./make/tsconfig.json"], {stdio: "inherit", shell: is_windows})
+  const [resolved_executable, resolved_args] = resolve_npx(["--loglevel=warn", "tsc", "--project", "./make/tsconfig.json"])
+  const {status, error} = cp.spawnSync(resolved_executable, resolved_args, {stdio: "inherit"})
+  if (error != null) {
+    console.error(`${resolved_executable} ${resolved_args.join(" ")} failed to start: ${error.message}`)
+    process.exit(1)
+  }
+  if (status !== 0) {
+    process.exit(status ?? 1)
+  }
 }
 
 compile()
