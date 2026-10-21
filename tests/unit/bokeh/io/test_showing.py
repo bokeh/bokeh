@@ -29,16 +29,35 @@ def no_notebook_mode(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(m, "notebook_environment", lambda: False)
 
 
+@pytest.mark.parametrize(("script", "writable", "expected"), [
+    ("plot.py", True, "plot.html"),
+    (None, True, "/tmp/bokeh.html"),
+    ("plot.py", False, "/tmp/bokeh.html"),
+])
 @patch("bokeh.io.showing._show_file")
-@patch("bokeh.io.showing.temp_filename", return_value="/tmp/bokeh.html")
-def test_show_uses_temporary_file_by_default(mock_temp_filename: MagicMock, mock_show_file: MagicMock) -> None:
+def test_show_derives_filename_with_temporary_fallback(mock_show_file: MagicMock,
+        monkeypatch: pytest.MonkeyPatch, tmp_path: Path, script: str | None, writable: bool, expected: str) -> None:
+    import bokeh.io.util as util
+
+    if script is not None:
+        script = str(tmp_path / script)
+    if expected == "plot.html":
+        expected = str(tmp_path / expected)
+    monkeypatch.setattr(util, "detect_current_filename", lambda: script)
+    monkeypatch.setattr(util, "_no_access", lambda path: not writable)
+    monkeypatch.setattr(util, "_shares_exec_prefix", lambda path: False)
+    mock_temp_filename = MagicMock(return_value="/tmp/bokeh.html")
+    monkeypatch.setattr(util, "temp_filename", mock_temp_filename)
     plot = Plot()
 
     assert m.show(plot) is None
 
-    mock_temp_filename.assert_called_once_with("html")
+    if expected == "/tmp/bokeh.html":
+        mock_temp_filename.assert_called_once_with("html")
+    else:
+        mock_temp_filename.assert_not_called()
     mock_show_file.assert_called_once_with(
-        plot, filename="/tmp/bokeh.html", resources=None, title=None, template=None,
+        plot, filename=expected, resources=None, title=None, template=None,
     )
 
 
