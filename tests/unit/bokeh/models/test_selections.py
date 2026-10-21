@@ -14,10 +14,16 @@ from array import array
 import pytest
 
 # Bokeh imports
-from bokeh.core.serialization import Buffer, Serialized, Serializer
+from bokeh.core.serialization import (
+    Buffer,
+    Deserializer,
+    Serialized,
+    Serializer,
+)
 from bokeh.document import Document
 from bokeh.document.events import ModelChangedEvent
 from bokeh.models import Selection
+from bokeh.protocol import patch_doc
 
 
 @pytest.mark.parametrize("attr", ["indices", "line_indices", "multiline_indices"])
@@ -62,3 +68,49 @@ def test_binary_selection_patch(attr: str, hold: bool) -> None:
     assert rep["type"] == "typed_array"
     assert len(serializer.buffers) == 1
     assert serializer.buffers[0].to_bytes() == indices.tobytes()
+
+
+@pytest.mark.parametrize("hold", [False, True])
+def test_shared_multiline_patch_forwarding(hold: bool) -> None:
+    count = 10_001
+    selection = Selection()
+    doc = Document()
+    doc.add_root(selection)
+    changes = []
+    events = []
+    selection.on_change("multiline_indices", lambda attr, old, new: changes.append(new))
+    doc.on_change(lambda event: events.append(event))
+    if hold:
+        doc.hold()
+    packed = array("i", (value for i in range(count) for value in (i, i + 1)))
+    shared = dict(type="bytes", data=dict(id="values"))
+    entries = [(3*i, dict(type="typed_array", dtype="int32", order=sys.byteorder,
+                         array=shared, byte_offset=8*i, length=2)) for i in range(count)]
+    entries.insert(1, (-1, []))
+    value = dict(type="map", entries=entries)
+    patch = Serialized(dict(events=[dict(kind="ModelChanged", model=selection.ref, attr="multiline_indices", new=value)]),
+                       buffers=[Buffer("values", packed.tobytes())])
+    setter = object()
+    doc.apply_json_patch(patch, setter=setter)
+    if hold:
+        assert changes == []
+        doc.unhold()
+    assert len(events) == 1
+    assert events[0].setter is setter
+    assert changes == [selection.multiline_indices]
+    assert selection.multiline_indices[-1] == []
+    assert list(selection.multiline_indices)[:3] == [0, -1, 3]
+    for i in range(count):
+        assert list(selection.multiline_indices[3*i]) == [i, i + 1]
+
+    message = patch_doc([events[0]])
+    assert len(message.buffers) == 1
+    assert len(message.fragments()) == 2
+    assert message.buffers[0].to_bytes() == packed.tobytes()
+    decoded = Deserializer([selection]).deserialize(message.payload)["events"][0]["new"]
+    assert decoded == selection.multiline_indices
+
+    # Full documents must use the same packing when another client connects.
+    serializer = Serializer()
+    serializer.encode(selection)
+    assert len(serializer.buffers) == 1

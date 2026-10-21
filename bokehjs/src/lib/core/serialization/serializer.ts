@@ -220,11 +220,16 @@ export class Serializer {
       }
     })()
 
-    return {
+    const rep: TypedArrayRep = {
       type: "typed_array",
       array,
       order: BYTE_ORDER,
       dtype,
     }
+    if (obj.byteOffset != 0 || obj.byteLength != obj.buffer.byteLength) {
+      rep.byte_offset = obj.byteOffset
+      rep.length = obj.length
+    }
+    return rep
   }
 }

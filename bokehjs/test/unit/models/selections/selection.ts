@@ -27,6 +27,12 @@ describe("Selection", () => {
       return sent
     }
 
+    function decode(sent: (string | ArrayBuffer)[]): unknown {
+      const {content, buffers} = Message.decode(sent[0] as string)
+      return new Deserializer(default_resolver).decode(content,
+        new Map(buffers.map((id, i) => [id, sent[i + 1] as ArrayBuffer])))
+    }
+
     it("should send three million selected indices below the default websocket limit", () => {
       const indices = Array.from({length: 3_000_000}, (_, i) => i)
       const selection = Selection.create({indices})
@@ -68,17 +74,71 @@ describe("Selection", () => {
       const indices = new Map([[2, [0, 3]], [5, [1, 4]]])
       const selection = Selection.create({multiline_indices: indices})
       const sent = send(selection)
-      expect(sent.length).to.be.equal(3)
-      expect(new Int32Array(sent[1] as ArrayBuffer)).to.be.equal(new Int32Array([0, 3]))
-      expect(new Int32Array(sent[2] as ArrayBuffer)).to.be.equal(new Int32Array([1, 4]))
+      expect(sent.length).to.be.equal(2)
+      expect(new Int32Array(sent[1] as ArrayBuffer)).to.be.equal(new Int32Array([0, 3, 1, 4]))
+      const decoded = decode(sent) as Selection
+      expect(Array.from(decoded.multiline_indices.get(2)!)).to.be.equal([0, 3])
+      expect(Array.from(decoded.multiline_indices.get(5)!)).to.be.equal([1, 4])
       expect(selection.multiline_indices === indices).to.be.true
 
       const doc = new Document()
       doc.add_root(selection)
       const event = new ModelChangedEvent(doc, selection, "multiline_indices", indices)
       const patch = send(event)
-      expect(new Int32Array(patch[1] as ArrayBuffer)).to.be.equal(new Int32Array([0, 3]))
-      expect(new Int32Array(patch[2] as ArrayBuffer)).to.be.equal(new Int32Array([1, 4]))
+      expect(patch.length).to.be.equal(2)
+      expect(new Int32Array(patch[1] as ArrayBuffer)).to.be.equal(new Int32Array([0, 3, 1, 4]))
+    })
+
+    it("should send more than ten thousand multiline selections in one shared buffer", () => {
+      const indices = new Map(Array.from({length: 10_001}, (_, i) => [i, [i, i + 1]]))
+      const selection = Selection.create({multiline_indices: indices})
+      const sent = send(selection)
+      expect(sent.length).to.be.equal(2)
+      expect((sent[1] as ArrayBuffer).byteLength).to.be.equal(10_001*2*4)
+      expect(selection.multiline_indices === indices).to.be.true
+      const decoded = decode(sent) as Selection
+      expect(decoded.multiline_indices.size).to.be.equal(indices.size)
+      for (const [key, values] of decoded.multiline_indices) {
+        expect(Array.from(values)).to.be.equal([key, key + 1])
+        expect((values as Int32Array).buffer === sent[1]).to.be.true
+      }
+    })
+
+    it("should preserve sparse keys, empty lines, slices, and unequal line lengths", () => {
+      const slice = new Int32Array([99, 7, 8, 99]).subarray(1, 3)
+      const indices = new Map<number, number[] | Int32Array>([[42, []], [7, slice], [100, [3]], [2, []]])
+      const selection = Selection.create({multiline_indices: indices})
+      const sent = send(selection)
+      expect(sent.length).to.be.equal(2)
+      expect(new Int32Array(sent[1] as ArrayBuffer)).to.be.equal(new Int32Array([7, 8, 3]))
+      const decoded = decode(sent) as Selection
+      expect([...decoded.multiline_indices.keys()]).to.be.equal([42, 7, 100, 2])
+      expect([...decoded.multiline_indices.values()].map((value) => Array.from(value))).to.be.equal([[], [7, 8], [3], []])
+      expect(selection.multiline_indices === indices).to.be.true
+      expect(slice).to.be.equal(new Int32Array([7, 8]))
+    })
+
+    it("should retain multiline event snapshots after the property is replaced", () => {
+      const selection = Selection.create()
+      const doc = new Document()
+      doc.add_root(selection)
+      const event = new ModelChangedEvent(doc, selection, "multiline_indices", new Map([[1, [3]], [8, [4, 5]]]))
+      selection.multiline_indices = new Map([[2, [9]]])
+      const sent = send(event)
+      const content = JSON.parse(sent[0] as string).content
+      const values = new Deserializer(default_resolver).decode(content.new, new Map([["0", sent[1] as ArrayBuffer]])) as Map<number, Int32Array>
+      expect([...values.keys()]).to.be.equal([1, 8])
+      expect([...values.values()].map((value) => Array.from(value))).to.be.equal([[3], [4, 5]])
+    })
+
+    it("should preserve multiline values that cannot be packed as int32", () => {
+      for (const value of [2147483648, -2147483649, 2.5]) {
+        const selection = Selection.create({multiline_indices: new Map([[1, [value]], [2, [3]]])})
+        const sent = send(selection)
+        expect(sent.length).to.be.equal(1)
+        const decoded = decode(sent) as Selection
+        expect(decoded.multiline_indices).to.be.equal(new Map([[1, [value]], [2, [3]]]))
+      }
     })
 
     it("should keep an empty selection in the envelope without a binary frame", () => {
