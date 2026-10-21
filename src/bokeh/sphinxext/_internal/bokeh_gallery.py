@@ -26,7 +26,6 @@ import json
 import os
 from importlib import import_module
 from os.path import (
-    abspath,
     dirname,
     exists,
     getmtime,
