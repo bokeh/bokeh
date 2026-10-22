@@ -15,13 +15,13 @@ describe("Bezier decorations", () => {
       })
       const sx = placement == "end" ? view.sx1[0] : view.sx0[0], sy = view.sy1[0]
       const sign = placement == "end" ? -1 : 1
-      expect(view.hit_test({type: "point", sx: sx + sign*2, sy})?.indices).to.be.equal([])
-      expect(view.hit_test({type: "point", sx: sx + sign*30, sy: sy + 4})?.indices).to.be.equal([0])
-      expect(view.hit_test({type: "point", sx: sx + sign*45, sy})?.indices).to.be.equal([0])
-      expect(view.hit_test({type: "span", direction: "h", sx: sx + sign*2, sy})?.indices).to.be.equal([])
-      expect(view.hit_test({type: "span", direction: "h", sx: sx + sign*45, sy})?.indices).to.be.equal([0])
-      expect(view.hit_test({type: "rect", sx0: sx + sign*3, sx1: sx + sign*1, sy0: sy - 2, sy1: sy + 2})?.indices).to.be.equal([])
-      expect(view.hit_test({type: "rect", sx0: sx + sign*32, sx1: sx + sign*28, sy0: sy + 3, sy1: sy + 5})?.indices).to.be.equal([0])
+      expect(view.hit_test({type: "point", sx: sx + sign*2, sy})?.indices).to.be.equal(new Int32Array([]))
+      expect(view.hit_test({type: "point", sx: sx + sign*30, sy: sy + 4})?.indices).to.be.equal(new Int32Array([0]))
+      expect(view.hit_test({type: "point", sx: sx + sign*45, sy})?.indices).to.be.equal(new Int32Array([0]))
+      expect(view.hit_test({type: "span", direction: "h", sx: sx + sign*2, sy})?.indices).to.be.equal(new Int32Array([]))
+      expect(view.hit_test({type: "span", direction: "h", sx: sx + sign*45, sy})?.indices).to.be.equal(new Int32Array([0]))
+      expect(view.hit_test({type: "rect", sx0: sx + sign*3, sx1: sx + sign*1, sy0: sy - 2, sy1: sy + 2})?.indices).to.be.equal(new Int32Array([]))
+      expect(view.hit_test({type: "rect", sx0: sx + sign*32, sx1: sx + sign*28, sy0: sy + 3, sy1: sy + 5})?.indices).to.be.equal(new Int32Array([0]))
     })
   }
 })

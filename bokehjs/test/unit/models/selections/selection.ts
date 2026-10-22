@@ -14,7 +14,7 @@ const some_1d_selection = Selection.create({indices: [4, 5]})
 const other_1d_selection = Selection.create({indices: [0, 1]})
 
 const some_2d_selection = Selection.create({multiline_indices: new Map([[2, [2, 3]]])})
-const other_2d_selection = Selection.create({multiline_indices: new Map([[2, [0, 1]]])})
+const other_2d_selection = Selection.create({multiline_indices: new Map([[2, new Int32Array([0, 1])]])})
 
 describe("Selection", () => {
 
@@ -47,7 +47,7 @@ describe("Selection", () => {
       const packed = new Int32Array(sent[1] as ArrayBuffer)
       expect(packed[0]).to.be.equal(0)
       expect(packed[packed.length - 1]).to.be.equal(2_999_999)
-      expect(selection.indices === indices).to.be.true
+      expect(selection.indices).to.be.instanceof(Int32Array)
     })
 
     for (const attr of ["indices", "line_indices"] as const) {
@@ -79,7 +79,7 @@ describe("Selection", () => {
       const decoded = decode(sent) as Selection
       expect(Array.from(decoded.multiline_indices.get(2)!)).to.be.equal([0, 3])
       expect(Array.from(decoded.multiline_indices.get(5)!)).to.be.equal([1, 4])
-      expect(selection.multiline_indices === indices).to.be.true
+      expect([...selection.multiline_indices.values()].every((value) => value instanceof Int32Array)).to.be.true
 
       const doc = new Document()
       doc.add_root(selection)
@@ -95,12 +95,12 @@ describe("Selection", () => {
       const sent = send(selection)
       expect(sent.length).to.be.equal(2)
       expect((sent[1] as ArrayBuffer).byteLength).to.be.equal(10_001*2*4)
-      expect(selection.multiline_indices === indices).to.be.true
+      expect([...selection.multiline_indices.values()].every((value) => value instanceof Int32Array)).to.be.true
       const decoded = decode(sent) as Selection
       expect(decoded.multiline_indices.size).to.be.equal(indices.size)
       for (const [key, values] of decoded.multiline_indices) {
         expect(Array.from(values)).to.be.equal([key, key + 1])
-        expect((values as Int32Array).buffer === sent[1]).to.be.true
+        expect(values.buffer === sent[1]).to.be.true
       }
     })
 
@@ -119,7 +119,7 @@ describe("Selection", () => {
       }
     })
 
-    it("should preserve sender arrays while exposing typed sequences to receiving clients", () => {
+    it("should normalize sender and receiver sequences to Int32Array", () => {
       const indices = [1, 2]
       const line_indices = [3, 4]
       const points = [0, 1]
@@ -134,12 +134,12 @@ describe("Selection", () => {
         expect(Array.from(value)).to.be.equal(Array.from(sent))
         expect(JSON.stringify(Array.from(value))).to.be.equal(JSON.stringify(sent))
       }
-      expect(sender.indices === indices).to.be.true
-      expect(sender.line_indices === line_indices).to.be.true
-      expect(sender.multiline_indices.get(7) === points).to.be.true
+      expect(sender.indices).to.be.instanceof(Int32Array)
+      expect(sender.line_indices).to.be.instanceof(Int32Array)
+      expect(sender.multiline_indices.get(7)).to.be.instanceof(Int32Array)
     })
 
-    it("should notify once when an equal-valued received patch changes the sequence type", () => {
+    it("should not notify for equal-valued received patches", () => {
       const selection = Selection.create({indices: [1, 2]})
       const doc = new Document()
       doc.add_root(selection)
@@ -153,9 +153,9 @@ describe("Selection", () => {
       doc.apply_json_patch(patch, data)
       expect(selection.indices).to.be.instanceof(Int32Array)
       expect(Array.from(selection.indices)).to.be.equal([1, 2])
-      expect(changes).to.be.equal(1)
+      expect(changes).to.be.equal(0)
       doc.apply_json_patch(patch, data)
-      expect(changes).to.be.equal(1)
+      expect(changes).to.be.equal(0)
     })
 
     it("should preserve sparse keys, empty lines, slices, and unequal line lengths", () => {
@@ -168,7 +168,7 @@ describe("Selection", () => {
       const decoded = decode(sent) as Selection
       expect([...decoded.multiline_indices.keys()]).to.be.equal([42, 7, 100, 2])
       expect([...decoded.multiline_indices.values()].map((value) => Array.from(value))).to.be.equal([[], [7, 8], [3], []])
-      expect(selection.multiline_indices === indices).to.be.true
+      expect([...selection.multiline_indices.values()].every((value) => value instanceof Int32Array)).to.be.true
       expect(slice).to.be.equal(new Int32Array([7, 8]))
     })
 
@@ -185,45 +185,46 @@ describe("Selection", () => {
       expect([...values.values()].map((value) => Array.from(value))).to.be.equal([[3], [4, 5]])
     })
 
-    it("should preserve multiline values that cannot be packed as int32", () => {
-      for (const value of [2147483648, -2147483649, 2.5]) {
-        const selection = Selection.create({multiline_indices: new Map([[1, [value]], [2, [3]]])})
-        const sent = send(selection)
-        expect(sent.length).to.be.equal(1)
-        const decoded = decode(sent) as Selection
-        expect(decoded.multiline_indices).to.be.equal(new Map([[1, [value]], [2, [3]]]))
+    it("should reject invalid indices before conversion", () => {
+      for (const value of [2147483648, -2147483649, 2.5, NaN, Infinity]) {
+        for (const attr of ["indices", "line_indices"] as const) {
+          expect(() => Selection.create({[attr]: [value]})).to.throw()
+        }
+        expect(() => Selection.create({multiline_indices: new Map([[1, [value]]])})).to.throw()
       }
     })
 
-    it("should keep an empty selection in the envelope without a binary frame", () => {
-      const selection = Selection.create({indices: []})
-      const doc = new Document()
-      doc.add_root(selection)
-      const sent = send(new ModelChangedEvent(doc, selection, "indices", []))
-      expect(sent.length).to.be.equal(1)
-      expect(JSON.parse(sent[0] as string).content.new).to.be.equal([])
+    it("should normalize defaults, assignments, and clear", () => {
+      const selection = Selection.create()
+      expect(selection.indices).to.be.instanceof(Int32Array)
+      expect(selection.line_indices).to.be.instanceof(Int32Array)
+      selection.indices = new Uint32Array([1, 2])
+      selection.line_indices = [3, 4]
+      expect(selection.indices).to.be.equal(new Int32Array([1, 2]))
+      expect(selection.line_indices).to.be.equal(new Int32Array([3, 4]))
+      let changes = 0
+      selection.properties.indices.change.connect(() => changes++)
+      selection.indices = [1, 2]
+      expect(changes).to.be.equal(0)
+      selection.indices = [2, 3]
+      expect(changes).to.be.equal(1)
+      selection.clear()
+      expect(selection.indices).to.be.equal(new Int32Array())
+      expect(selection.line_indices).to.be.equal(new Int32Array())
     })
 
-    it("should serialize only the visible elements of a typed-array view", () => {
+    it("should serialize empty selections as typed arrays", () => {
+      const selection = decode(send(Selection.create())) as Selection
+      expect(selection.indices).to.be.equal(new Int32Array())
+      expect(selection.line_indices).to.be.equal(new Int32Array())
+    })
+
+    it("should preserve typed-array slices without copying their backing buffer", () => {
       const indices = new Int32Array([99, 1, 2, 99]).subarray(1, 3)
       const selection = Selection.create({indices})
-      const [, buffer] = send(selection)
-      expect(new Int32Array(buffer as ArrayBuffer)).to.be.equal(new Int32Array([1, 2]))
-    })
-
-    it("should preserve integers outside int32 without truncation", () => {
-      const indices = [-2147483649, 2147483648, Number.MAX_SAFE_INTEGER]
-      const selection = Selection.create({indices})
-      const sent = send(selection)
-      expect(sent.length).to.be.equal(1)
-      expect(JSON.parse(sent[0] as string).content.attributes.indices).to.be.equal(indices)
-    })
-
-    it("should not silently convert fractional indices to integers", () => {
-      const selection = Selection.create({indices: [1, 2.5]})
-      const sent = send(selection)
-      expect(sent.length).to.be.equal(1)
-      expect(JSON.parse(sent[0] as string).content.attributes.indices).to.be.equal([1, 2.5])
+      expect(selection.indices === indices).to.be.true
+      const decoded = decode(send(selection)) as Selection
+      expect(decoded.indices).to.be.equal(new Int32Array([1, 2]))
     })
 
     for (const compact of [false, true]) {
@@ -231,7 +232,7 @@ describe("Selection", () => {
         const selection = Selection.create({indices: [1, 2]})
         const rep = new Serializer({compact}).encode(selection)
         const decoded = new Deserializer(default_resolver).decode(JSON.parse(JSON.stringify(rep))) as Selection
-        expect(decoded.indices).to.be.equal([1, 2])
+        expect(decoded.indices).to.be.equal(new Int32Array([1, 2]))
       })
     }
   })
@@ -239,49 +240,49 @@ describe("Selection", () => {
   it("should be updatable", () => {
     const s = Selection.create()
     s.update(some_1d_selection, true, "replace")
-    expect(s.indices).to.be.equal([4, 5])
+    expect(s.indices).to.be.equal(new Int32Array([4, 5]))
   })
 
   it("should be updatable with 'replace' mode", () => {
     const s = Selection.create()
     s.update(some_1d_selection, true, "replace")
     s.update(other_1d_selection, true, "replace")
-    expect(s.indices).to.be.equal([0, 1])
+    expect(s.indices).to.be.equal(new Int32Array([0, 1]))
   })
 
   it("should be updatable with 'append' mode", () => {
     const s = Selection.create()
     s.update(some_1d_selection, true, "append")
     s.update(other_1d_selection, true, "append")
-    expect(s.indices).to.be.equal([4, 5, 0, 1])
+    expect(s.indices).to.be.equal(new Int32Array([4, 5, 0, 1]))
   })
 
   it("should update 2d selections with 'replace' mode", () => {
     const s = Selection.create()
     s.update(some_2d_selection, true, "replace")
     s.update(other_2d_selection, true, "replace")
-    expect(s.multiline_indices).to.be.equal(new Map([[2, [0, 1]]]))
+    expect(s.multiline_indices).to.be.equal(new Map([[2, new Int32Array([0, 1])]]))
   })
 
   it("should merge 2d selections with 'append' mode", () => {
     const s = Selection.create()
     s.update(some_2d_selection, true, "append")
     s.update(other_2d_selection, true, "append")
-    expect(s.multiline_indices).to.be.equal(new Map([[2, [0, 1, 2, 3]]]))
+    expect(s.multiline_indices).to.be.equal(new Map([[2, new Int32Array([0, 1, 2, 3])]]))
   })
 
   it("should be clearable", () => {
     const s = Selection.create()
     s.update(some_1d_selection, true, "replace")
     s.clear()
-    expect(s.indices).to.be.equal([])
+    expect(s.indices).to.be.equal(new Int32Array([]))
   })
 
   it("should be invertible", () => {
     const s = Selection.create()
     s.update(some_1d_selection, true, "replace")
     s.invert(10)
-    expect(s.indices).to.be.equal([0, 1, 2, 3, 6, 7, 8, 9])
+    expect(s.indices).to.be.equal(new Int32Array([0, 1, 2, 3, 6, 7, 8, 9]))
   })
 
   describe("is_empty", () => {

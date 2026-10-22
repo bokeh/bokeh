@@ -37,7 +37,7 @@ describe("VStrip", () => {
 
       function x_indices(x: number) {
         const geometry = {type: "point", ...compute(x, 50)} satisfies PointGeometry
-        return glyph_view.hit_test(geometry)?.indices
+        return Array.from(glyph_view.hit_test(geometry)!.indices)
       }
 
       expect(x_indices(0)).to.be.equal([0])
