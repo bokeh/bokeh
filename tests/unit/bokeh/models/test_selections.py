@@ -11,6 +11,7 @@ import sys
 from array import array
 
 # External imports
+import numpy as np
 import pytest
 
 # Bokeh imports
@@ -65,7 +66,7 @@ def test_binary_selection_patch(attr: str, hold: bool) -> None:
     rep = forwarded["new"]
     if attr == "multiline_indices":
         rep = rep["entries"][0][1]
-    assert rep["type"] == "typed_array"
+    assert rep["type"] in ("typed_array", "ndarray")
     assert len(serializer.buffers) == 1
     assert serializer.buffers[0].to_bytes() == indices.tobytes()
 
@@ -98,7 +99,7 @@ def test_shared_multiline_patch_forwarding(hold: bool) -> None:
     assert len(events) == 1
     assert events[0].setter is setter
     assert changes == [selection.multiline_indices]
-    assert selection.multiline_indices[-1] == []
+    assert selection.multiline_indices[-1].size == 0
     assert list(selection.multiline_indices)[:3] == [0, -1, 3]
     for i in range(count):
         assert list(selection.multiline_indices[3*i]) == [i, i + 1]
@@ -108,7 +109,9 @@ def test_shared_multiline_patch_forwarding(hold: bool) -> None:
     assert len(message.fragments()) == 2
     assert message.buffers[0].to_bytes() == packed.tobytes()
     decoded = Deserializer([selection]).deserialize(message.payload)["events"][0]["new"]
-    assert decoded == selection.multiline_indices
+    assert decoded.keys() == selection.multiline_indices.keys()
+    for key in decoded:
+        np.testing.assert_array_equal(decoded[key], selection.multiline_indices[key])
 
     # Full documents must use the same packing when another client connects.
     serializer = Serializer()
@@ -127,28 +130,52 @@ def test_multiline_patch_serializes_captured_value() -> None:
     rep = serializer.encode(event)
     assert len(serializer.buffers) == 1
     assert Deserializer([selection]).deserialize(Serialized(rep, serializer.buffers))["new"] == captured
-    assert selection.multiline_indices == {42: [3]}
+    np.testing.assert_array_equal(selection.multiline_indices[42], [3])
 
 
 @pytest.mark.parametrize("attr", ["indices", "line_indices", "multiline_indices"])
-def test_received_sequence_type_change_notifies_for_equal_indices(attr: str) -> None:
+def test_equal_received_indices_do_not_notify(attr: str) -> None:
     original = {7: [1, 2]} if attr == "multiline_indices" else [1, 2]
     received = {7: array("i", [1, 2])} if attr == "multiline_indices" else array("i", [1, 2])
     selection = Selection(**{attr: original})
     doc = Document()
     doc.add_root(selection)
     changes = []
-    selection.on_change(attr, lambda attr, old, new: changes.append((old, new)))
-    event = ModelChangedEvent(doc, selection, attr, received)
+    selection.on_change(attr, lambda attr, old, new: changes.append(new))
     serializer = Serializer()
-    payload = serializer.encode(event)
+    payload = serializer.encode(ModelChangedEvent(doc, selection, attr, received))
     doc.apply_json_patch(Serialized(dict(events=[payload]), serializer.buffers))
-    assert len(changes) == 1
-    old, new = changes[0]
-    old_values = old[7] if attr == "multiline_indices" else old
-    new_values = new[7] if attr == "multiline_indices" else new
-    assert isinstance(old_values, list)
-    assert isinstance(new_values, array)
-    assert list(old_values) == list(new_values)
-    doc.apply_json_patch(Serialized(dict(events=[payload]), serializer.buffers))
-    assert len(changes) == 1
+    assert changes == []
+    value = getattr(selection, attr)
+    values = value[7] if attr == "multiline_indices" else value
+    assert values.dtype == np.int32
+    np.testing.assert_array_equal(values, [1, 2])
+
+
+@pytest.mark.parametrize("attr", ["indices", "line_indices", "multiline_indices"])
+@pytest.mark.parametrize("values", [[0, 2], (0, 2), array("i", [0, 2]), np.array([0, 2], dtype=np.int64)])
+def test_canonical_selection_ingestion(attr: str, values: object) -> None:
+    value = {7: values} if attr == "multiline_indices" else values
+    selection = Selection(**{attr: value})
+    for _ in range(2):
+        actual = getattr(selection, attr)
+        actual = actual[7] if attr == "multiline_indices" else actual
+        assert actual.dtype == np.int32
+        assert actual.ndim == 1
+        np.testing.assert_array_equal(actual, [0, 2])
+        setattr(selection, attr, value)
+
+
+@pytest.mark.parametrize("attr", ["indices", "line_indices", "multiline_indices"])
+@pytest.mark.parametrize("values", [[2**31], [-2**31-1], [1.5], [[1]], np.array([1.0]), [True]])
+def test_invalid_selection_indices(attr: str, values: object) -> None:
+    with pytest.raises(ValueError):
+        Selection(**{attr: {7: values} if attr == "multiline_indices" else values})
+
+
+def test_canonical_defaults_and_multiline_mutation() -> None:
+    first, second = Selection(), Selection()
+    assert first.indices.dtype == first.line_indices.dtype == np.int32
+    assert first.indices is not second.indices
+    first.multiline_indices[3] = [1, 2]
+    assert first.multiline_indices[3].dtype == np.int32

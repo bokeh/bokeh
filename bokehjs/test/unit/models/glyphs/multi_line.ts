@@ -107,12 +107,12 @@ describe("MultiLine", () => {
       const head = from_end(26)
       const shaft = from_end(45)
 
-      expect(glyph_view.hit_test({type: "point", ...hidden})?.indices).to.be.equal([])
-      expect(glyph_view.hit_test({type: "point", ...head})?.indices).to.be.equal([0])
-      expect(glyph_view.hit_test({type: "point", ...shaft})?.indices).to.be.equal([0])
+      expect(glyph_view.hit_test({type: "point", ...hidden})?.indices).to.be.equal(new Int32Array([]))
+      expect(glyph_view.hit_test({type: "point", ...head})?.indices).to.be.equal(new Int32Array([0]))
+      expect(glyph_view.hit_test({type: "point", ...shaft})?.indices).to.be.equal(new Int32Array([0]))
 
-      expect(glyph_view.hit_test({type: "span", direction: "h", ...hidden})?.indices).to.be.equal([])
-      expect(glyph_view.hit_test({type: "span", direction: "h", ...head})?.indices).to.be.equal([0])
+      expect(glyph_view.hit_test({type: "span", direction: "h", ...hidden})?.indices).to.be.equal(new Int32Array([]))
+      expect(glyph_view.hit_test({type: "span", direction: "h", ...head})?.indices).to.be.equal(new Int32Array([0]))
 
       expect(glyph_view.hit_test({
         type: "rect",
@@ -120,14 +120,14 @@ describe("MultiLine", () => {
         sx1: hidden.sx + 2,
         sy0: hidden.sy - 2,
         sy1: hidden.sy + 2,
-      })?.indices).to.be.equal([])
+      })?.indices).to.be.equal(new Int32Array([]))
       expect(glyph_view.hit_test({
         type: "rect",
         sx0: head.sx - 2,
         sx1: head.sx + 2,
         sy0: head.sy - 2,
         sy1: head.sy + 2,
-      })?.indices).to.be.equal([0])
+      })?.indices).to.be.equal(new Int32Array([0]))
     })
   }
 })
