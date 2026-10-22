@@ -71,7 +71,7 @@ describe("Glyph (using Wedge as a concrete Glyph)", () => {
 
       for (let i = 0; i < geometries.length; i++) {
         const result = glyph_view.hit_test(geometries[i])
-        expect(result?.indices).to.be.equal(expected_hits[i])
+        expect(result?.indices).to.be.equal(new Int32Array(expected_hits[i]))
       }
 
       // Re-run hit tests with double the Y scale, keeping its center the same.
@@ -81,7 +81,7 @@ describe("Glyph (using Wedge as a concrete Glyph)", () => {
       glyph_renderer.yscale.source_range.end += 100
       for (let i = 0; i < geometries.length; i++) {
         const result = glyph_view.hit_test(geometries[i])
-        expect(result?.indices).to.be.equal(expected_hits[i])
+        expect(result?.indices).to.be.equal(new Int32Array(expected_hits[i]))
       }
     })
 
@@ -127,7 +127,7 @@ describe("Glyph (using Wedge as a concrete Glyph)", () => {
 
       for (let i = 0; i < geometries.length; i++) {
         const result = glyph_view.hit_test(geometries[i])
-        expect(result?.indices).to.be.equal(expected_hits[i])
+        expect(result?.indices).to.be.equal(new Int32Array(expected_hits[i]))
       }
     })
   })

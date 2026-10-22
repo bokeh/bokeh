@@ -98,7 +98,7 @@ describe("BoxEditTool", () => {
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
 
-      expect(testcase.data_source.selected.indices).to.be.equal([1])
+      expect(testcase.data_source.selected.indices).to.be.equal(new Int32Array([1]))
     })
 
     it("should select multiple rect on shift-tap", async () => {
@@ -112,7 +112,7 @@ describe("BoxEditTool", () => {
       tap_event = make_tap_event(560, 560, true)
       testcase.draw_tool_view._tap(tap_event)
 
-      expect(testcase.data_source.selected.indices).to.be.equal([1, 2])
+      expect(testcase.data_source.selected.indices).to.be.equal(new Int32Array([1, 2]))
     })
 
     it("should delete selected on delete key", async () => {
@@ -129,7 +129,7 @@ describe("BoxEditTool", () => {
       testcase.draw_tool_view._keyup(keyup_event)
 
       const {selected, data} = testcase.data_source
-      expect(selected.indices).to.be.equal([])
+      expect(selected.indices).to.be.equal(new Int32Array([]))
       expect(data).to.be.equal({
         x: [0, 1],
         y: [0, 1],
@@ -155,7 +155,7 @@ describe("BoxEditTool", () => {
       testcase.draw_tool_view._move_enter(moveenter_event)
       testcase.draw_tool_view._keyup(keyup_event)
 
-      expect(testcase.data_source.selected.indices).to.be.equal([])
+      expect(testcase.data_source.selected.indices).to.be.equal(new Int32Array([]))
       expect(testcase.data_source.data).to.be.equal(testcase.data)
     })
 
@@ -206,7 +206,7 @@ describe("BoxEditTool", () => {
 
       expect(testcase.draw_tool_view._draw_basepoint).to.be.null
       const {selected, data} = testcase.data_source
-      expect(selected.indices).to.be.equal([])
+      expect(selected.indices).to.be.equal(new Int32Array([]))
       expect(data).to.be.equal({
         x: [0, 0.5, 1, -0.1327433628318584],
         y: [0, 0.5, 1, 0.1694915254237288],
@@ -235,7 +235,7 @@ describe("BoxEditTool", () => {
 
       expect(testcase.draw_tool_view._draw_basepoint).to.be.null
       const {selected, data} = testcase.data_source
-      expect(selected.indices).to.be.equal([])
+      expect(selected.indices).to.be.equal(new Int32Array([]))
       expect(data).to.be.equal({
         x: [0.5, 1, -0.1327433628318584],
         y: [0.5, 1, 0.1694915254237288],
@@ -264,7 +264,7 @@ describe("BoxEditTool", () => {
 
       expect(testcase.draw_tool_view._draw_basepoint).to.be.null
       const {selected, data} = testcase.data_source
-      expect(selected.indices).to.be.equal([])
+      expect(selected.indices).to.be.equal(new Int32Array([]))
       expect(data).to.be.equal({
         x: [0, 0.5, 1, -0.1327433628318584],
         y: [0, 0.5, 1, 0.1694915254237288],
