@@ -3,6 +3,7 @@ from __future__ import annotations
 # Standard library imports
 import gc
 import json
+import logging
 import re
 import sys
 import types
@@ -920,24 +921,46 @@ def test_retain_application_handle_evicts_handles_that_do_not_remove_themselves(
     assert list(m._APPLICATION_VIEW_HANDLES) == ["new"]
 
 
-def test_retain_document_handle_evicts_handles_that_fail_to_close() -> None:
+def test_retain_document_handle_evicts_handles_that_fail_to_close(caplog: pytest.LogCaptureFixture) -> None:
     stale = MagicMock(_view_id="stale-view", close=MagicMock(side_effect=RuntimeError("close failed")))
     m._DOCUMENT_VIEW_HANDLES["stale"] = stale
     m._DOCUMENT_VIEW_HANDLES_BY_VIEW["stale-view"] = stale
     handle = m.DocumentViewHandle(Div(), live_id="live", view_id="view")
-    with (
-        patch("bokeh.io.notebook._MAX_RETAINED_VIEW_HANDLES", 1),
-        pytest.raises(RuntimeError, match="close failed"),
-    ):
+    caplog.set_level(logging.DEBUG, logger="bokeh.io.notebook")
+    with patch("bokeh.io.notebook._MAX_RETAINED_VIEW_HANDLES", 1):
         m._retain_document_handle(handle)
-    assert "stale" not in m._DOCUMENT_VIEW_HANDLES
-    assert "stale-view" not in m._DOCUMENT_VIEW_HANDLES_BY_VIEW
+    stale.close.assert_called_once_with()
+    assert m._DOCUMENT_VIEW_HANDLES == {"live": handle}
+    assert m._DOCUMENT_VIEW_HANDLES_BY_VIEW == {"view": handle}
+    assert caplog.records[-1].exc_info is not None
+
+
+def test_retain_application_handle_evicts_handles_that_fail_to_close() -> None:
+    stale = MagicMock(close=MagicMock(side_effect=RuntimeError("close failed")))
+    m._APPLICATION_VIEW_HANDLES["stale"] = stale
+    handle = m.ApplicationViewHandle(MagicMock(), "new", embed_server("http://127.0.0.1:4321/app"))
+    with patch("bokeh.io.notebook._MAX_RETAINED_VIEW_HANDLES", 1):
+        m._retain_application_handle(handle)
+    stale.close.assert_called_once_with()
+    assert m._APPLICATION_VIEW_HANDLES == {"new": handle}
 
 
 def test_reset_notebook_resources_clears_handles_that_do_not_remove_themselves() -> None:
     m._DOCUMENT_VIEW_HANDLES["document"] = MagicMock()
     m._APPLICATION_VIEW_HANDLES["application"] = MagicMock()
     m._reset_notebook_resources()
+    assert m._DOCUMENT_VIEW_HANDLES == {}
+    assert m._APPLICATION_VIEW_HANDLES == {}
+
+
+def test_reset_notebook_resources_clears_handles_that_fail_to_close() -> None:
+    failing = MagicMock(close=MagicMock(side_effect=RuntimeError("close failed")))
+    remaining = MagicMock()
+    m._DOCUMENT_VIEW_HANDLES["failing"] = failing
+    m._DOCUMENT_VIEW_HANDLES["remaining"] = remaining
+    m._APPLICATION_VIEW_HANDLES["application"] = MagicMock(close=MagicMock(side_effect=RuntimeError("close failed")))
+    m._reset_notebook_resources()
+    remaining.close.assert_called_once_with()
     assert m._DOCUMENT_VIEW_HANDLES == {}
     assert m._APPLICATION_VIEW_HANDLES == {}
 
