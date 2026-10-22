@@ -12,6 +12,7 @@ import {defer} from "@bokehjs/core/util/defer"
 import {to_object} from "@bokehjs/core/util/object"
 import {ReleaseType, Version} from "@bokehjs/core/util/version"
 import {Document, documents} from "@bokehjs/document"
+import {DocumentConfig} from "@bokehjs/document/config"
 import type {EmbedPayload} from "@bokehjs/embed/payload"
 import {EmbedError, prepare_embed, validate_embed_payload} from "@bokehjs/embed/payload"
 import type {ResourceRequirements} from "@bokehjs/embed/resources"
@@ -1151,6 +1152,7 @@ describe("EmbedPayload runtime", () => {
       expect(fallback.childElementCount).to.be.equal(1)
       expect(fallback.bokehMount).to.be.equal(mounted)
       server_document.clear()
+      server_document.config = DocumentConfig.create()  // Needed since `clear` sets config to `undefined`
       const replacement = Div.create({text: "replacement"})
       server_document.add_root(replacement)
       await defer()
