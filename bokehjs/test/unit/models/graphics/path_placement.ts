@@ -91,8 +91,8 @@ describe("PathPlacement live PATCH-DOC updates", () => {
       expect(state.path_markings.size).to.be.equal(1)
     }
     const sx = view.sx1[0], sy = view.sy1[0]
-    expect(view.hit_test({type: "point", sx: sx - 2, sy})?.indices).to.be.equal([])
-    expect(view.hit_test({type: "point", sx: sx - 26, sy})?.indices).to.be.equal([0])
+    expect(view.hit_test({type: "point", sx: sx - 2, sy})?.indices).to.be.equal(new Int32Array([]))
+    expect(view.hit_test({type: "point", sx: sx - 26, sy})?.indices).to.be.equal(new Int32Array([0]))
 
     const old_marking = added_view.marking
     doc.apply_json_patch(doc.create_json_patch([
@@ -103,7 +103,7 @@ describe("PathPlacement live PATCH-DOC updates", () => {
     expect(added_view.marking.model).to.be.instanceof(OpenHead)
     expect(old_marking.is_destroyed).to.be.true
     expect(added_view.marking.size.get(0)).to.be.equal(30)
-    expect(view.hit_test({type: "point", sx: sx - 15, sy})?.indices).to.be.equal([0])
+    expect(view.hit_test({type: "point", sx: sx - 15, sy})?.indices).to.be.equal(new Int32Array([0]))
 
     doc.apply_json_patch(doc.create_json_patch([
       new ModelChangedEvent(doc, added.marking, "size", 40),
@@ -112,7 +112,7 @@ describe("PathPlacement live PATCH-DOC updates", () => {
     await plot.ready
     expect(added_view.marking.size.get(0)).to.be.equal(40)
     expect(added_view.inset.get(0)).to.be.equal(25)
-    expect(view.hit_test({type: "point", sx: sx - 2, sy})?.indices).to.be.equal([])
+    expect(view.hit_test({type: "point", sx: sx - 2, sy})?.indices).to.be.equal(new Int32Array([]))
 
     doc.apply_json_patch(doc.create_json_patch([new ModelChangedEvent(doc, glyph, "path_markings", [])]))
     await plot.ready
@@ -122,6 +122,6 @@ describe("PathPlacement live PATCH-DOC updates", () => {
     for (const state of [view.renderer.selection_glyph, view.renderer.nonselection_glyph, view.renderer.muted_glyph]) {
       expect(state.path_markings.size).to.be.equal(0)
     }
-    expect(view.hit_test({type: "point", sx: sx - 2, sy})?.indices).to.be.equal([0])
+    expect(view.hit_test({type: "point", sx: sx - 2, sy})?.indices).to.be.equal(new Int32Array([0]))
   })
 })

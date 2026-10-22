@@ -16,7 +16,7 @@ describe("Segment", () => {
         ]})
         const view = await create_glyph_view(glyph, {x0: [0], y0: [50], x1: [100], y1: [50]})
         const sx = placement == "end" ? view.sx1[0] - distance : view.sx0[0] + distance
-        expect(view.hit_test({type: "point", sx, sy: view.sy0[0]})?.indices).to.be.equal([0])
+        expect(view.hit_test({type: "point", sx, sy: view.sy0[0]})?.indices).to.be.equal(new Int32Array([0]))
       })
     }
   }
@@ -47,12 +47,12 @@ describe("Segment", () => {
         ? {sx: sx1 - distance*ux, sy: sy1 - distance*uy}
         : {sx: sx0 + distance*ux, sy: sy0 + distance*uy}
 
-      expect(glyph_view.hit_test({type: "point", ...from_end(2)})?.indices).to.be.equal([])
-      expect(glyph_view.hit_test({type: "point", ...from_end(26)})?.indices).to.be.equal([0])
+      expect(glyph_view.hit_test({type: "point", ...from_end(2)})?.indices).to.be.equal(new Int32Array([]))
+      expect(glyph_view.hit_test({type: "point", ...from_end(26)})?.indices).to.be.equal(new Int32Array([0]))
       // The arrowhead extends beyond the shaft's data-space bounding box.
       const wing = from_end(30)
-      expect(glyph_view.hit_test({type: "point", sx: wing.sx - 4*uy, sy: wing.sy + 4*ux})?.indices).to.be.equal([0])
-      expect(glyph_view.hit_test({type: "point", ...from_end(45)})?.indices).to.be.equal([0])
+      expect(glyph_view.hit_test({type: "point", sx: wing.sx - 4*uy, sy: wing.sy + 4*ux})?.indices).to.be.equal(new Int32Array([0]))
+      expect(glyph_view.hit_test({type: "point", ...from_end(45)})?.indices).to.be.equal(new Int32Array([0]))
     })
   }
 
@@ -73,7 +73,7 @@ describe("Segment", () => {
         ;(view as any)._paint(ctx, [0])
         sinon.assert.calledOnceWithExactly(translate, tip, sy)
         sinon.assert.calledOnce(paint)
-        expect(view.hit_test({type: "point", sx: tip + sign*6, sy})?.indices).to.be.equal([0])
+        expect(view.hit_test({type: "point", sx: tip + sign*6, sy})?.indices).to.be.equal(new Int32Array([0]))
       })
     }
   }

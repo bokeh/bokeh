@@ -82,7 +82,7 @@ describe("Glyph (using Annulus as a concrete Glyph)", () => {
 
       for (let i = 0; i < geometries.length; i++) {
         const result = glyph_view.hit_test(geometries[i])
-        expect(result?.indices).to.be.equal(expected_hits[i])
+        expect(result?.indices).to.be.equal(new Int32Array(expected_hits[i]))
       }
     })
   })
