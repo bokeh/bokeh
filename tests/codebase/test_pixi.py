@@ -9,10 +9,10 @@ from __future__ import annotations
 
 # Standard library imports
 import re
+import tomllib
 from typing import Any
 
 # External imports
-import tomllib
 from packaging.requirements import Requirement
 from packaging.utils import canonicalize_name
 

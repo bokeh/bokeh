@@ -171,8 +171,10 @@ def get_class(view_model_name: str) -> type[Model]:
     # In order to look up from the model catalog that Model maintains, it
     # has to be created first. These imports ensure that all built-in Bokeh
     # models are represented in the catalog.
-    from .. import models  # noqa: F401
-    from .. import plotting  # noqa: F401
+    from .. import (
+        models,  # noqa: F401
+        plotting,  # noqa: F401
+    )
     from .model import Model
 
     known_models = Model.model_class_reverse_map

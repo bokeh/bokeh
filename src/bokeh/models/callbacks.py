@@ -25,6 +25,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import pathlib
 import sys
+
 # Public constructor types live in the stubs; declarations below cover local calls.
 from typing import TYPE_CHECKING, Any
 
