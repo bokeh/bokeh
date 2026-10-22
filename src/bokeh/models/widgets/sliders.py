@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 
 import numbers
 from datetime import UTC, date, datetime
+from typing import Any
 
 from ...core.enums import Orientation
 from ...core.has_props import abstract
@@ -205,10 +206,6 @@ class RangeSlider(NumericalSlider):
 
 class MultiValuedSlider(NumericalSlider):
     """ Slider that allows selection of multiple values. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     # TODO value = Override(Required(Seq(Float)), ...)
     value = Required(Seq(Float), help="""
