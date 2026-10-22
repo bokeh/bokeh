@@ -1,0 +1,14 @@
+.. _release-3-10-2:
+
+3.10.2
+======
+
+Bokeh version ``3.10.2`` is a patch release that fixes bugs and regressions.
+
+Changes
+-------
+
+* Fix property validation and warning suppression leaking between concurrent
+  sessions (:bokeh-pull:`15548`). Temporary overrides are now context-local.
+  Use :func:`~bokeh.core.properties.set_validation_default` for process-wide
+  validation configuration instead of assigning ``Property._should_validate``.
