@@ -66,3 +66,8 @@ API changes
   attaches a marking to a named path node, and ``PathMarkings`` places markings
   at fractional path positions. These concrete models define their own marking
   and placement properties.
+
+Bug fixes
+---------
+
+* Fixed property validation and warning suppression leaking between concurrent sessions (:bokeh-pull:`15548`).
