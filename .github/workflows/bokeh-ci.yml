@@ -181,8 +181,6 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           ruff check tools tests/tools
-          isort --gitignore --diff -c tools
-          isort --gitignore --diff -c tests/tools
 
       - name: Check tools types
         if: runner.os == 'Linux'

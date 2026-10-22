@@ -200,7 +200,7 @@ Python linting
 Codebase tests
     The pre-push hook will run Bokeh's
     :ref:`codebase tests <contributor_guide_testing_local_codebase>`. This includes
-    testing with `ESLint`_, `Ruff`_, and `isort`_.
+    testing with `ESLint`_ and `Ruff`_.
 
 Protected branches
     The pre-push hook will make sure you don't accidentally push a commit to
@@ -855,7 +855,6 @@ Slack`_.
 .. _Git hooks: https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks
 .. _Ruff: https://github.com/astral-sh/ruff
 .. _ESLint: https://eslint.org/
-.. _isort: https://pycqa.github.io/isort/
 .. _Bokeh's protected branches: https://github.com/bokeh/bokeh/wiki/BEP-6:-Branching-Strategy
 .. _pip: https://pip.pypa.io/
 .. _merge conflicts: https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging#_basic_merge_conflicts
