@@ -663,6 +663,7 @@
       "DateRangeSlider",
       "DateSlider",
       "DatetimeRangeSlider",
+      "MultiValuedSlider",
       "RangeSlider",
       "Slider"
     ]
