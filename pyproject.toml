@@ -181,8 +181,8 @@ lint.exclude = [
     ".git",
     'node_modules',
 ]
-lint.per-file-ignores = {"__init__.py" = ["F403"]}
-lint.select = ["B", "COM", "E", "F", "NPY", "PLC0414", "PT012", "RUF", "TID", "UP", "W"]
+lint.per-file-ignores = {"__init__.py" = ["F403"], "*.ipynb" = ["I"], "src/bokeh/sampledata/**" = ["I"]}
+lint.select = ["B", "COM", "E", "F", "I", "NPY", "PLC0414", "PT012", "RUF", "TID", "UP", "W"]
 lint.ignore = [
     'B005', # Using .strip() with multi-character strings is misleading the reader
     'B006', # Do not use mutable data structures for argument defaults
@@ -210,7 +210,43 @@ lint.ignore = [
     'RUF022', # Ruff uses weird "isort-style" sort rather than straigh alphabetic sort
     'TID252', # Prefer absolute imports over relative imports from parent modules
 ]
-line-length = 165
+# Used by import sorting (I001); E501 uses lint.pycodestyle.max-line-length instead.
+line-length = 88
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 165
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+known-first-party = ["bokeh"]
+known-third-party = [
+    "boto",
+    "ipyleaflet",
+    "ipyvolume",
+    "ipywidgets",
+    "ipywidgets_bokeh",
+    "jupyter_bokeh",
+    "mock",
+    "panel",
+    "selenium",
+    "sphinx",
+]
+known-local-folder = [
+    # tests
+    "_util_document",
+    "_util_models",
+    "_util_property",
+    "_util_subcommands",
+    "server",
+    # examples
+    "fontawesome_icon",
+    "gear",
+    "latex_label",
+    "named_icon",
+    "parallel_reset",
+    "parallel_selection_tool",
+    "streamlit_particles",
+]
 
 [tool.ruff.per-file-target-version]
 "examples/interaction/widgets/slider_template_string.py" = "py314"
