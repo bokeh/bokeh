@@ -16,8 +16,18 @@ import numpy as np
 from bokeh.core.properties import value
 from bokeh.document import Document
 from bokeh.embed import embed
-from bokeh.models import (ColumnDataSource, DatetimeAxis, DatetimeTickFormatter,
-                          FixedTicker, Legend, LegendItem, Line, Patch, Plot, Text)
+from bokeh.models import (
+    ColumnDataSource,
+    DatetimeAxis,
+    DatetimeTickFormatter,
+    FixedTicker,
+    Legend,
+    LegendItem,
+    Line,
+    Patch,
+    Plot,
+    Text,
+)
 from bokeh.sampledata import daylight
 from bokeh.util.browser import view
 

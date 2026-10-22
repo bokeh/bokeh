@@ -2,9 +2,20 @@ import yaml
 
 from bokeh.core.properties import value
 from bokeh.document import Document
-from bokeh.models import (CDSView, ColumnDataSource, DataRange1d, Grid,
-                          HoverTool, IndexFilter, LinearAxis, Plot,
-                          Range1d, Scatter, SingleIntervalTicker, Text)
+from bokeh.models import (
+    CDSView,
+    ColumnDataSource,
+    DataRange1d,
+    Grid,
+    HoverTool,
+    IndexFilter,
+    LinearAxis,
+    Plot,
+    Range1d,
+    Scatter,
+    SingleIntervalTicker,
+    Text,
+)
 from bokeh.sampledata.sprint import sprint
 from bokeh.themes import Theme
 

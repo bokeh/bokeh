@@ -17,8 +17,16 @@ from calendar import Calendar, day_abbr as day_abbrs, month_name as month_names
 from bokeh.document import Document
 from bokeh.embed import embed
 from bokeh.layouts import gridplot
-from bokeh.models import (CategoricalAxis, CategoricalScale, ColumnDataSource,
-                          FactorRange, HoverTool, Plot, Rect, Text)
+from bokeh.models import (
+    CategoricalAxis,
+    CategoricalScale,
+    ColumnDataSource,
+    FactorRange,
+    HoverTool,
+    Plot,
+    Rect,
+    Text,
+)
 from bokeh.sampledata.us_holidays import us_holidays
 from bokeh.util.browser import view
 

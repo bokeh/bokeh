@@ -3,9 +3,20 @@ import numpy as np
 from bokeh.core.properties import field
 from bokeh.io import show
 from bokeh.layouts import column, row
-from bokeh.models import (ColumnDataSource, CustomJS, Div, FactorRange,
-                          GroupByModels, HoverTool, Range1d, Select,
-                          Switch, WheelZoomTool, ZoomInTool, ZoomOutTool)
+from bokeh.models import (
+    ColumnDataSource,
+    CustomJS,
+    Div,
+    FactorRange,
+    GroupByModels,
+    HoverTool,
+    Range1d,
+    Select,
+    Switch,
+    WheelZoomTool,
+    ZoomInTool,
+    ZoomOutTool,
+)
 from bokeh.palettes import Category10
 from bokeh.plotting import figure
 

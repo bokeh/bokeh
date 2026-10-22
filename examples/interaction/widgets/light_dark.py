@@ -1,9 +1,22 @@
 from bokeh.io import show
 from bokeh.layouts import column, row
-from bokeh.models import (AutocompleteInput, Button, CheckboxButtonGroup,
-                          CheckboxGroup, CustomJS, Dropdown, LightDark,
-                          MultiChoice, PasswordInput, RadioButtonGroup,
-                          RadioGroup, Select, Slider, TextInput, Toggle)
+from bokeh.models import (
+    AutocompleteInput,
+    Button,
+    CheckboxButtonGroup,
+    CheckboxGroup,
+    CustomJS,
+    Dropdown,
+    LightDark,
+    MultiChoice,
+    PasswordInput,
+    RadioButtonGroup,
+    RadioGroup,
+    Select,
+    Slider,
+    TextInput,
+    Toggle,
+)
 
 light_dark = LightDark()
 text_scheme = TextInput(
