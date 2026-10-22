@@ -43,7 +43,7 @@ __all__ = (
 def log_file(request: pytest.FixtureRequest) -> Iterator[IO[str]]:
     log_file = request.config.option.log_file
     if log_file is None:
-        dt = datetime.now().isoformat(timespec="seconds")
+        dt = datetime.now().strftime("%Y-%m-%d_%H%M%S")
         log_file = f"bokeh_{dt}.log"
     with open(log_file, "w") as f:
         # Clean-out any existing log-file
