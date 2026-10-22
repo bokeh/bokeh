@@ -354,7 +354,7 @@ jobs:
           source-tree: 'delete'
 
       - name: Install notebook browser
-        run: pixi run --locked --environment notebook-test notebook-browser-install
+        run: pixi run --locked --environment notebook-test install-browser
 
       - name: Run wheel-installed notebook host tests
         env:

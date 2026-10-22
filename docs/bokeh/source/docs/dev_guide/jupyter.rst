@@ -39,7 +39,7 @@ with:
 .. code-block:: sh
 
     pixi run --locked jupyter-build
-    pixi run --locked --environment notebook-test notebook-browser-install
+    pixi run --locked --environment notebook-test install-browser
     pixi run --locked --environment notebook-test test-notebook
 
 ``jupyter-build`` checks the shared protocol constants, runs the TypeScript
