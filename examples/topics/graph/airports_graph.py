@@ -9,8 +9,13 @@
 
 import numpy as np
 
-from bokeh.models import (ColumnDataSource, HoverTool, NodesAndLinkedEdges,
-                          StaticLayoutProvider, TapTool)
+from bokeh.models import (
+    ColumnDataSource,
+    HoverTool,
+    NodesAndLinkedEdges,
+    StaticLayoutProvider,
+    TapTool,
+)
 from bokeh.palettes import Set3_12
 from bokeh.plotting import figure, show
 from bokeh.sampledata.airport_routes import airports, routes

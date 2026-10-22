@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -24,6 +22,7 @@ import threading
 from threading import Event, get_ident
 
 # External imports
+import pytest
 from tornado.ioloop import IOLoop
 
 # Bokeh imports

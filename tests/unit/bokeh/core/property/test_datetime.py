@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -21,6 +19,7 @@ import datetime
 
 # External imports
 import numpy as np
+import pytest
 
 # Bokeh imports
 from bokeh.util.dependencies import is_installed

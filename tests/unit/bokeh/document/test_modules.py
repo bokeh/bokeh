@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -21,6 +19,9 @@ import gc
 import logging
 import sys
 import weakref
+
+# External imports
+import pytest
 
 # Bokeh imports
 from bokeh.document import Document

@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -19,6 +17,9 @@ import pytest ; pytest
 # Standard library imports
 import json
 from pathlib import Path
+
+# External imports
+import pytest
 
 # Bokeh imports
 from bokeh.core.serialization import Buffer

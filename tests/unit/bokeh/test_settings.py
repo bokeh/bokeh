@@ -10,14 +10,15 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # Standard library imports
 import logging
+
+# External imports
+import pytest
 
 # Bokeh imports
 from tests.support.util.api import verify_all

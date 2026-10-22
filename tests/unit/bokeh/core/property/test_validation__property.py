@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -23,6 +21,9 @@ from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor
 from contextvars import Context
 from threading import Event, Thread
+
+# External imports
+import pytest
 
 # Bokeh imports
 from bokeh.core.has_props import HasProps

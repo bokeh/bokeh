@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -31,6 +29,7 @@ from pathlib import Path
 from unittest import mock
 
 # External imports
+import pytest
 import tornado
 from _util_server import (
     http_get,

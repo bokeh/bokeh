@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -37,6 +35,7 @@ from urllib.parse import urlparse
 import _pytest.config
 import _pytest.mark
 import _pytest.python
+import pytest
 from playwright.sync_api import (  # type: ignore[attr-defined]
     TimeoutError as PlaywrightTimeoutError,
     sync_playwright,

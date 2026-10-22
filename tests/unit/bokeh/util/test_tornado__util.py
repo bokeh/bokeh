@@ -10,14 +10,15 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # Standard library imports
 import asyncio
+
+# External imports
+import pytest
 
 # Bokeh imports
 # Module under test

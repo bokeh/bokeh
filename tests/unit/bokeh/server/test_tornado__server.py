@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -25,6 +23,7 @@ import threading
 from unittest.mock import Mock, patch
 
 # External imports
+import pytest
 from _util_server import http_get, url
 
 # Bokeh imports

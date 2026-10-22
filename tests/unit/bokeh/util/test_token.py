@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -24,6 +22,9 @@ import json
 import random
 import zlib
 from unittest.mock import MagicMock, Mock, patch
+
+# External imports
+import pytest
 
 # Bokeh imports
 from bokeh.util.token import (

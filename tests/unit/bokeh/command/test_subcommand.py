@@ -10,14 +10,15 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # Standard library imports
 from unittest.mock import MagicMock
+
+# External imports
+import pytest
 
 # Module under test
 import bokeh.command.subcommand as sc # isort:skip

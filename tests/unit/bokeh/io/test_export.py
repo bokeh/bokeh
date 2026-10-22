@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -29,6 +27,7 @@ from typing import TYPE_CHECKING, Literal
 
 # External imports
 import PIL.Image
+import pytest
 
 ## External imports
 if TYPE_CHECKING:

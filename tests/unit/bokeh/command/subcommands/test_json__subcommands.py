@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -21,6 +19,9 @@ import argparse
 import os
 import shutil
 from unittest.mock import patch
+
+# External imports
+import pytest
 
 # Bokeh imports
 from bokeh.command.bootstrap import main

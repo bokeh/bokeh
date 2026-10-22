@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -32,6 +30,9 @@ from queue import Empty, Queue
 from threading import Thread
 from typing import IO
 from urllib.request import urlopen
+
+# External imports
+import pytest
 
 # Bokeh imports
 from bokeh.command.subcommand import Argument

@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -24,6 +22,7 @@ from typing import Generator
 from unittest import mock
 
 # External imports
+import pytest
 from tornado import locks
 from tornado.httpclient import HTTPClientError, HTTPRequest
 from tornado.httpserver import HTTPServer

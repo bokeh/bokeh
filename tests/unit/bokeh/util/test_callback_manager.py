@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -20,6 +18,9 @@ import pytest ; pytest
 import pickle
 from copy import copy, deepcopy
 from functools import partial
+
+# External imports
+import pytest
 
 # Bokeh imports
 from bokeh.core.property.singletons import OldValueUnavailable

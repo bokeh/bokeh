@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -23,6 +21,9 @@ from concurrent.futures import ThreadPoolExecutor
 from os.path import abspath, dirname
 from threading import Event
 from types import ModuleType
+
+# External imports
+import pytest
 
 # Module under test
 import bokeh.application.handlers.code_runner as bahc # isort:skip

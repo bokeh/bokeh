@@ -10,12 +10,13 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
+
+# External imports
+import pytest
 
 # Module under test
 import bokeh.application.handlers.handler as bahh # isort:skip

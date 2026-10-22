@@ -11,11 +11,12 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+
+# External imports
+import pytest
 
 # Module under test
 from bokeh.models.tools import Tool, Toolbar # isort:skip

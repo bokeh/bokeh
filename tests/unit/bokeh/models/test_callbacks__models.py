@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -22,6 +20,7 @@ from pathlib import Path
 from unittest.mock import mock_open, patch
 
 # External imports
+import pytest
 from pytest import raises
 
 # Bokeh imports

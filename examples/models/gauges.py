@@ -4,8 +4,16 @@ from typing import Any, Literal
 from bokeh.core.properties import expr, value
 from bokeh.document import Document
 from bokeh.embed import embed
-from bokeh.models import (Arc, Circle, ColumnDataSource, Plot,
-                          PolarTransform, Range1d, Ray, Text)
+from bokeh.models import (
+    Arc,
+    Circle,
+    ColumnDataSource,
+    Plot,
+    PolarTransform,
+    Range1d,
+    Ray,
+    Text,
+)
 from bokeh.util.browser import view
 
 xdr = Range1d(start=-1.25, end=1.25)

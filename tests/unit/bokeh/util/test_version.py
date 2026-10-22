@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -19,6 +17,9 @@ import pytest ; pytest
 # Standard library imports
 import re
 from unittest import mock
+
+# External imports
+import pytest
 
 # Module under test
 import bokeh.util.version as buv # isort:skip

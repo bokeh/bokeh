@@ -11,8 +11,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -20,6 +18,9 @@ import pytest ; pytest
 # Standard library imports
 from os import chdir
 from subprocess import run
+
+# External imports
+import pytest
 
 # Bokeh imports
 from tests.support.util.project import TOP_PATH

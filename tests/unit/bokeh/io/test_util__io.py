@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -25,6 +23,9 @@ import sys
 from pathlib import Path
 from types import ModuleType
 from unittest.mock import ANY, MagicMock, patch
+
+# External imports
+import pytest
 
 # Bokeh imports
 from bokeh import __version__

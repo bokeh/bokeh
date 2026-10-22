@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -20,6 +18,9 @@ import pytest ; pytest
 import gc
 import weakref
 from unittest.mock import MagicMock, patch
+
+# External imports
+import pytest
 
 # Bokeh imports
 from bokeh.core.has_props import Local

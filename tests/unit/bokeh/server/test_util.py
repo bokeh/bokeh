@@ -10,14 +10,15 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # Standard library imports
 import socket
+
+# External imports
+import pytest
 
 # Module under test
 import bokeh.server.util as util # isort:skip

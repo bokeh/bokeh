@@ -10,8 +10,14 @@ demonstrates the low-level |bokeh.models| API.
 from math import pi
 
 from bokeh.io import show
-from bokeh.models import (AnnularWedge, ColumnDataSource,
-                          Legend, LegendItem, Plot, Range1d)
+from bokeh.models import (
+    AnnularWedge,
+    ColumnDataSource,
+    Legend,
+    LegendItem,
+    Plot,
+    Range1d,
+)
 from bokeh.sampledata.browsers import browsers_nov_2013 as df
 
 xdr = Range1d(start=-2, end=2)

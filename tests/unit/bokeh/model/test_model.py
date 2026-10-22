@@ -10,14 +10,15 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # Standard library imports
 from inspect import Parameter, Signature, signature
+
+# External imports
+import pytest
 
 # Bokeh imports
 from bokeh.core.has_props import Local, is_abstract

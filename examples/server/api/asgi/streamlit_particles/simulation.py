@@ -11,8 +11,15 @@ from bokeh import palettes
 from bokeh.document import Document
 from bokeh.events import DocumentReady
 from bokeh.layouts import column
-from bokeh.models import (ColorBar, ColumnDataSource, CustomJS, Div,
-                          HoverTool, LinearColorMapper, PointDrawTool)
+from bokeh.models import (
+    ColorBar,
+    ColumnDataSource,
+    CustomJS,
+    Div,
+    HoverTool,
+    LinearColorMapper,
+    PointDrawTool,
+)
 from bokeh.plotting import figure
 from bokeh.transform import transform
 

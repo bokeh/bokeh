@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -23,6 +21,7 @@ from concurrent.futures import ThreadPoolExecutor
 from itertools import repeat
 
 # External imports
+import pytest
 from tornado.ioloop import IOLoop
 
 # Bokeh imports

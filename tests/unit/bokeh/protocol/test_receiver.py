@@ -7,10 +7,11 @@
 
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 # Standard library imports
 import json
+
+# External imports
+import pytest
 
 # Bokeh imports
 from bokeh.core.serialization import Buffer

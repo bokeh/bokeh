@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -19,6 +17,9 @@ import pytest ; pytest
 # Standard library imports
 from pathlib import Path
 from unittest.mock import MagicMock, patch
+
+# External imports
+import pytest
 
 # Module under test
 import bokeh.util.package as bup # isort:skip

@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -28,6 +26,7 @@ from urllib.parse import quote
 # External imports
 import numpy as np
 import PIL.Image
+import pytest
 
 # Bokeh imports
 from bokeh.core.enums import MarkerType, ToolIcon

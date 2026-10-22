@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -21,6 +19,7 @@ from typing import TYPE_CHECKING
 
 # External imports
 import jinja2
+import pytest
 
 # Bokeh imports
 from bokeh.core.templates import FILE

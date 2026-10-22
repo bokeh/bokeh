@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -22,6 +20,9 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+
+# External imports
+import pytest
 
 # Bokeh imports
 from tests import test_examples as examples

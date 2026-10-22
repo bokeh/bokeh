@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -21,6 +19,9 @@ import asyncio
 import logging
 from threading import Event, get_ident
 from unittest.mock import MagicMock, patch
+
+# External imports
+import pytest
 
 # Bokeh imports
 from bokeh.application.handlers import CodeHandler, FunctionHandler, Handler

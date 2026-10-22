@@ -10,11 +10,12 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+
+# External imports
+import pytest
 
 # Bokeh imports
 from bokeh.core.has_props import HasProps

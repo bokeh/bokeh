@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -23,6 +21,7 @@ from unittest import mock
 
 # External imports
 import numpy as np
+import pytest
 
 # Bokeh imports
 from bokeh.core.properties import Int

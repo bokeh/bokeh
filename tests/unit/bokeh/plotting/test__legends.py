@@ -12,8 +12,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -24,6 +22,7 @@ from typing import Any
 
 # External imports
 import numpy as np
+import pytest
 
 # Bokeh imports
 from bokeh.core.enums import PlaceType as Place

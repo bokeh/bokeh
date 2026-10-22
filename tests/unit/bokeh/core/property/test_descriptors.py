@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -24,6 +22,9 @@ from unittest.mock import (
     call,
     patch,
 )
+
+# External imports
+import pytest
 
 # Bokeh imports
 from bokeh.core.properties import (

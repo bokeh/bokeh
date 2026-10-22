@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -22,6 +20,7 @@ import logging
 from unittest.mock import MagicMock, patch
 
 # External imports
+import pytest
 from tornado.httpclient import HTTPError
 
 # Bokeh imports

@@ -10,14 +10,13 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # External imports
 import numpy as np
+import pytest
 
 # Module under test
 import bokeh.util.dependencies as dep # isort:skip

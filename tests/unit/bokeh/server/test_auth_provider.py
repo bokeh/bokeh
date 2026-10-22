@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -20,6 +18,7 @@ import pytest ; pytest
 from types import ModuleType
 
 # External imports
+import pytest
 from tornado.web import RequestHandler
 
 # Bokeh imports

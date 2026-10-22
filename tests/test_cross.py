@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -32,6 +30,7 @@ if TYPE_CHECKING:
 import _pytest.config
 import _pytest.mark
 import _pytest.python
+import pytest
 
 #-----------------------------------------------------------------------------
 # Globals and constants

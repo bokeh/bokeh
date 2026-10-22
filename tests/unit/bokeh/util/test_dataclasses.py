@@ -10,14 +10,15 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # Standard library imports
 from dataclasses import dataclass
+
+# External imports
+import pytest
 
 # Module under test
 import bokeh.util.dataclasses as dc # isort:skip

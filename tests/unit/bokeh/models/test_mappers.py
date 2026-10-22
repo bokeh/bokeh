@@ -10,14 +10,15 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # Standard library imports
 from unittest.mock import MagicMock, patch
+
+# External imports
+import pytest
 
 # Bokeh imports
 from bokeh.core.validation import check_integrity, process_validation_issues

@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -20,6 +18,9 @@ import pytest ; pytest
 import datetime as dt
 from math import isnan
 from unittest import mock
+
+# External imports
+import pytest
 
 # Bokeh imports
 from bokeh.core.validation import check_integrity, process_validation_issues
