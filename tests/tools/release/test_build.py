@@ -75,8 +75,8 @@ def test_conda_recipe_dependencies_match_project_dependencies() -> None:
         ),
         (
             build.build_docs,
-            "make clean all SPHINXOPTS=-v",
-            {"BOKEH_DOCS_CDN": "4.0.0", "BOKEH_DOCS_VERSION": "4.0.0"},
+            'make clean all SPHINXOPTS="-v -j auto"',
+            {"BOKEH_DOCS_PIXI_ACTIVE": "1", "BOKEH_DOCS_CDN": "4.0.0", "BOKEH_DOCS_VERSION": "4.0.0"},
         ),
         (
             build.build_pip_packages,
@@ -141,7 +141,7 @@ def test_command_build_steps(
             "rattler-build build --recipe conda/recipe --channel conda-forge "
             "--output-dir dist/conda --package-format tar-bz2 --test skip",
         ),
-        (build.build_docs, "make clean all SPHINXOPTS=-v"),
+        (build.build_docs, 'make clean all SPHINXOPTS="-v -j auto"'),
         (build.build_pip_packages, "python -m build ."),
         (build.dev_install_bokehjs, "python -m pip install --no-deps -e ."),
         (build.install_bokehjs, "python -m pip install --no-deps ."),

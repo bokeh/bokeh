@@ -4,7 +4,7 @@ import * as cp from "node:child_process"
 import {join, dirname, basename, relative} from "node:path"
 
 import type {Path} from "./sys.js"
-import {read, read_json, write, rename, file_exists, directory_exists, hash, hash_file} from "./sys.js"
+import {read, read_json, write, rename, file_exists, directory_exists, hash, hash_file, resolve_npm} from "./sys.js"
 import {compile_files, read_tsconfig, parse_tsconfig, is_failed, compiler_host, report_diagnostics} from "./compiler.js"
 import {Linker} from "./linker.js"
 import {collect_styles, compile_styles, wrap_css_modules} from "./styles.js"
@@ -65,9 +65,12 @@ function npm_version(base_dir: Path): string {
 }
 
 function npm_install(base_dir: Path): void {
-  const is_windows = process.platform == "win32"
-  const npm = is_windows ? "npm.cmd" : "npm"
-  const {status} = cp.spawnSync(npm, ["install"], {stdio: "inherit", cwd: base_dir, shell: is_windows})
+  const [resolved_executable, resolved_args] = resolve_npm(["install"])
+  const {status, error} = cp.spawnSync(resolved_executable, resolved_args, {stdio: "inherit", cwd: base_dir})
+  if (error != null) {
+    print(`${cyan("npm install")} failed to start: ${red(error.message)}`)
+    process.exit(1)
+  }
   if (status != null && status != 0) {
     print(`${cyan("npm install")} failed with exit code ${red(`${status}`)}.`)
     process.exit(status)

@@ -25,9 +25,11 @@ arguments directly to |show| or |save|. For example:
 * ``title``: the title for your document (to be used in the HTML's ``<title>``
   tag)
 
-When |show| is called outside a notebook without a filename, Bokeh generates a
-temporary HTML filename. When |save| is called without a filename, Bokeh derives
-the output name from the currently running Python script when possible.
+When |show| is called outside a notebook without a filename, Bokeh derives the
+output name from the currently running Python script, just as |save| does.
+For example, ``plot.py`` produces ``plot.html`` beside the script. If the script
+filename is unavailable or its directory is not writable, Bokeh uses a temporary
+HTML file.
 
 Bokeh creates the HTML file when you call the |show| function. This function
 also automatically opens a web browser to display the HTML file.

@@ -36,6 +36,7 @@ from ..core.property.container import Dict, Seq, Tuple
 from ..core.property.descriptors import UnsetValueError
 from ..core.property.string import MathString
 from ..document import Document
+from ..model import collect_models
 from ..resources import (
     _COMPONENT_NAMES,
     DEFAULT_SERVER_HTTP_URL,
@@ -461,14 +462,15 @@ def bundle_extensions(objs: Iterable[HasProps | type[HasProps]] | None, policy: 
 
 
 def all_objs(objs: Sequence[HasProps | Document]) -> set[HasProps]:
-    all_objs: set[HasProps] = set()
+    roots: list[HasProps] = []
     for obj in objs:
         if isinstance(obj, Document):
-            for root in obj.roots:
-                all_objs |= root.references()
+            roots.extend(obj.roots)
         else:
-            all_objs |= cast(Any, obj).references()
-    return all_objs
+            roots.append(obj)
+    # Inputs often already contain the complete document graph. Traverse them
+    # together so shared subgraphs are visited only once.
+    return set(collect_models(roots))
 
 
 def _query_extensions(all_objs: set[HasProps], query: Callable[[type[HasProps]], bool]) -> bool:
@@ -541,9 +543,12 @@ def _property_value_requires_mathjax(prop: Property[Any], value: Any) -> bool:
 
 
 def _model_requires_mathjax(model: HasProps) -> bool:
+    properties = _math_text_properties(cast(Any, type(model)))
+    if not properties:
+        return False
     if getattr(model, "disable_math", False) or getattr(model, "render_as_text", False):
         return False
-    for name, prop in _math_text_properties(cast(Any, type(model))):
+    for name, prop in properties:
         try:
             value = getattr(model, name)
         except UnsetValueError:

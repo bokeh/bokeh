@@ -320,11 +320,11 @@ test-py = "pytest tests/unit"
 test-defaults = "pytest tests/test_defaults.py"
 test-cross = "pytest tests/test_cross.py"
 test-codebase = "pytest tests/codebase"
-test-examples = "pytest tests/test_examples.py"
+test-examples = { cmd = "pytest tests/test_examples.py", depends-on = ["install-browser"] }
 test-tools = "pytest tests/tools"
 test = "pytest"
 build-docs = "bash tools/ci/build_docs.sh"
+install-browser = "python -m playwright install --only-shell chromium"
 
 [feature.notebook-test.tasks]
-notebook-browser-install = "python -m playwright install --only-shell chromium"
 test-notebook = "pytest --color=yes -rs @tests/notebook-tests.txt"

@@ -3,6 +3,7 @@ import {createReadStream, existsSync, statSync} from "node:fs"
 import {createServer as createHttpServer} from "node:http"
 import {extname, join, normalize, relative, resolve} from "node:path"
 import {fileURLToPath} from "node:url"
+import {resolve_executable} from "./spawn.mjs"
 
 import {chromium} from "playwright-core"
 import {build as viteBuild, createServer as createViteServer} from "vite"
@@ -21,19 +22,16 @@ if (devtools_arg == null) {
 }
 const devtools_port = Number(devtools_arg.split("=", 2)[1])
 
-function command(name) {
-  return process.platform == "win32" ? `${name}.cmd` : name
-}
-
 async function run(executable, args) {
+  const [resolved_executable, resolved_args] = resolve_executable(executable, args)
   await new Promise((resolve, reject) => {
-    const child = spawn(command(executable), args, {cwd: bokehjs_dir, stdio: "inherit"})
+    const child = spawn(resolved_executable, resolved_args, {cwd: bokehjs_dir, stdio: "inherit"})
     child.on("error", reject)
     child.on("exit", (code, signal) => {
       if (code == 0) {
         resolve()
       } else {
-        reject(new Error(`${executable} ${args.join(" ")} failed with ${signal ?? `exit code ${code}`}`))
+        reject(new Error(`${resolved_executable} ${resolved_args.join(" ")} failed with ${signal ?? `exit code ${code}`}`))
       }
     })
   })

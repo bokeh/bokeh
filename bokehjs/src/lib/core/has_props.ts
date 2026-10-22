@@ -311,7 +311,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   readonly properties: {[key: string]: Property} = {}
 
   property(name: string): Property {
-    if (name in this.properties) {
+    if (Object.hasOwn(this.properties, name)) {
       return this.properties[name]
     } else {
       throw new Error(`unknown property ${this.type}.${name}`)
@@ -817,10 +817,25 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
-  on_change(properties: Property<unknown> | Property<unknown>[], fn: () => void): void {
-    for (const property of isArray(properties) ? properties : [properties]) {
+  on_change<Name extends Extract<keyof this["properties"], string>>(properties: Name | readonly Name[], fn: () => void): void
+  on_change(properties: Property<unknown> | readonly Property<unknown>[], fn: () => void): void
+  on_change(properties: string | Property<unknown> | readonly (string | Property<unknown>)[], fn: () => void): void {
+    for (const property of this._resolve_properties(properties)) {
       this.connect(property.change, fn)
     }
+  }
+
+  remove_on_change<Name extends Extract<keyof this["properties"], string>>(properties: Name | readonly Name[], fn: () => void): void
+  remove_on_change(properties: Property<unknown> | readonly Property<unknown>[], fn: () => void): void
+  remove_on_change(properties: string | Property<unknown> | readonly (string | Property<unknown>)[], fn: () => void): void {
+    for (const property of this._resolve_properties(properties)) {
+      this.disconnect(property.change, fn)
+    }
+  }
+
+  private _resolve_properties(properties: string | Property<unknown> | readonly (string | Property<unknown>)[]): Property<unknown>[] {
+    const items = isArray(properties) ? properties as (string | Property<unknown>)[] : [properties as string | Property<unknown>]
+    return items.map((property) => typeof property == "string" ? this.property(property) : property)
   }
 
   stream_to(prop: Property<Data>, new_data: Data, rollover?: number, {sync}: {sync?: boolean} = {}): void {

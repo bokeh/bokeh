@@ -5,12 +5,15 @@ import * as esbuild from "esbuild"
 
 import {task, BuildError, passthrough} from "../task.js"
 import {src_dir, build_dir} from "../paths.js"
+import {resolve_npx} from "#compiler/sys.js"
 
 task("compiler:ts", async () => {
-  const is_windows = process.platform == "win32"
-  const npx = is_windows ? "npx.cmd" : "npx"
   const config = join(src_dir.compiler, "tsconfig.json")
-  const {status} = cp.spawnSync(`${npx} --loglevel=warn tsc --project "${config}"`, {stdio: "inherit", shell: true})
+  const [resolved_executable, resolved_args] = resolve_npx(["--loglevel=warn", "tsc", "--project", config])
+  const {status, error} = cp.spawnSync(resolved_executable, resolved_args, {stdio: "inherit"})
+  if (error != null) {
+    throw new BuildError("typescript", `failed to start tsc: ${error.message}`)
+  }
   if (status !== 0) {
     throw new BuildError("typescript", "compilation of *.ts and *.tsx files failed")
   }

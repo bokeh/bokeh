@@ -32,6 +32,7 @@ import {DocumentReady, LODStart, LODEnd} from "core/bokeh_events"
 import type {DocumentEvent, DocumentChangedEvent, Decoded, DocumentChanged} from "./events"
 import {DocumentEventBatch, RootRemovedEvent, TitleChangedEvent, MessageSentEvent, RootAddedEvent} from "./events"
 import type {ViewManager} from "core/view_manager"
+import {DOMComponentView} from "core/dom_view"
 
 Deserializer.register("model", decode_def)
 
@@ -261,9 +262,14 @@ export class Document implements Equatable {
     this._system_scheme = matchMedia("(prefers-color-scheme: dark)")
     this._on_system_scheme_change = () => this.set_color_scheme(this.config.color_scheme)
     this.config = DocumentConfig.create()
-    this.set_color_scheme(this.config.color_scheme)
     this._system_scheme.addEventListener("change", this._on_system_scheme_change)
-    this.config.on_change(this.config.properties.color_scheme, () => this.set_color_scheme(this.config.color_scheme))
+    this.config.on_change(this.config.properties.color_scheme, this._on_system_scheme_change)
+    this.on_event("document_ready", this._on_system_scheme_change)
+    this.on_change((event: DocumentChangedEvent) => {
+      if (event instanceof RootAddedEvent) {
+        this._on_system_scheme_change()
+      }
+    })
   }
 
   [equals](that: this, _cmp: Comparator): boolean {
@@ -399,12 +405,15 @@ export class Document implements Equatable {
     }
 
     dest_doc.config = config
+    config.disconnect(config.properties.color_scheme.change, this._on_system_scheme_change)
+    config.on_change(config.properties.color_scheme, dest_doc._on_system_scheme_change)
 
     for (const root of roots) {
       dest_doc.add_root(root)
     }
 
     dest_doc.set_title(this._title)
+    dest_doc.set_color_scheme(dest_doc.config.color_scheme)
   }
 
   private _hold_models_freeze: boolean = false
@@ -765,7 +774,7 @@ export class Document implements Equatable {
         if (config != null) {
           doc.config = config
           doc.set_color_scheme(config.color_scheme)
-          config.on_change(config.properties.color_scheme, () => doc.set_color_scheme(config.color_scheme))
+          config.on_change(config.properties.color_scheme, doc._on_system_scheme_change)
         }
 
         const roots = deserializer.decode(doc_json.roots, buffers) as Model[]
@@ -914,7 +923,14 @@ export class Document implements Equatable {
   set_color_scheme(color_scheme: ColorScheme): void {
     const system_scheme = this._system_scheme.matches ? "dark" : "light"
     const scheme = color_scheme == "auto" ? system_scheme : color_scheme
-    // TODO: Check reliable way to update --bokeh-color-scheme without setting it in documentElement
-    document.documentElement.style.setProperty("--bokeh-color-scheme", scheme)
+    if (this.views_manager != null) {
+      for (const view of this.views_manager) {
+        if (view instanceof DOMComponentView && view.is_top_level) {
+          view.el.style.setProperty("--bokeh-color-scheme", scheme)
+        }
+      }
+    } else {
+      document.documentElement.style.setProperty("--bokeh-color-scheme", scheme)
+    }
   }
 }
