@@ -44,17 +44,35 @@ export abstract class NumericalSlider extends BaseNumericalSlider {
   declare value: number
   declare value_throttled: number
 
-  _enforce_value_gte_start(start: number) {
-    const {value} = this
-    if (value < start) {
-      this.setv({value: start, value_throttled: start})
-    }
+  protected _clamp(value: number): number {
+    const [lo, hi] = this._bounds()
+    return Math.min(Math.max(value, lo), hi)
   }
 
-  _enforce_value_lte_end(end: number) {
-    const {value} = this
-    if (value > end) {
-      this.setv({value: end, value_throttled: end})
+  protected _enforce_bounds(): void {
+    const {value, value_throttled} = this.properties
+    const changes: Partial<{value: number, value_throttled: number}> = {}
+
+    if (!value.is_unset) {
+      const v = this.value
+      const clamped = this._clamp(v)
+      if (clamped != v) {
+        changes.value = clamped
+      }
+    }
+
+    if (!value_throttled.is_unset) {
+      const t = this.value_throttled
+      const clamped = this._clamp(t)
+      if (clamped != t) {
+        changes.value_throttled = clamped
+      }
+    } else if (changes.value != null) {
+      changes.value_throttled = changes.value
+    }
+
+    if (changes.value != null || changes.value_throttled != null) {
+      this.setv(changes)
     }
   }
 }

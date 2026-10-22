@@ -37,24 +37,34 @@ export abstract class BaseNumericalSlider extends AbstractSlider<number> {
   declare properties: BaseNumericalSlider.Props
   declare declare__view_type__: BaseNumericalSliderView
 
-  abstract _enforce_value_gte_start(start: number): void
-  abstract _enforce_value_lte_end(end: number): void
+  override initialize(): void {
+    super.initialize()
+    this._enforce_bounds()
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+
+    const {start, end} = this.properties
+    this.connect(start.change, () => this._enforce_bounds())
+    this.connect(end.change, () => this._enforce_bounds())
+  }
+
+  protected _bounds(): [number, number] {
+    const {start, end} = this.properties
+    return [
+      start.is_unset ? -Infinity : start.get_value(),
+      end.is_unset ? Infinity : end.get_value(),
+    ]
+  }
+
+  protected abstract _enforce_bounds(): void
 
   static {
     this.define<BaseNumericalSlider.Props>(({Float, Str, Or, Ref}) => {
-      const convert_start = (value: number, obj: BaseNumericalSlider): number => {
-        obj._enforce_value_gte_start(value)
-        return value
-      }
-
-      const convert_end = (value: number, obj: BaseNumericalSlider): number => {
-        obj._enforce_value_lte_end(value)
-        return value
-      }
-
       return {
-        start:  [ Float, p.unset, {convert: convert_start}],
-        end:    [ Float, p.unset, {convert: convert_end}],
+        start:  [ Float, p.unset ],
+        end:    [ Float, p.unset ],
         step:   [ Float, 1 ],
         format: [ Or(Str, Ref(TickFormatter)) ],
       }
