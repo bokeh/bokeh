@@ -28,6 +28,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from collections.abc import Sequence
+from contextvars import ContextVar
 from copy import copy
 from typing import (
     TYPE_CHECKING,
@@ -66,6 +67,9 @@ __all__ = (
     'validation_on',
 )
 
+_validation_default: bool = True
+_validation_override: ContextVar[bool | None] = ContextVar("property_validation", default=None)
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -90,9 +94,6 @@ class Property[T](PropertyDescriptorFactory[T]):
             A documentation string for this property. (default: None)
 
     """
-
-    # This class attribute is controlled by external helper API for validation
-    _should_validate: ClassVar[bool] = True
 
     _readonly: ClassVar[bool] = False
     _serialized: ClassVar[bool] = True
@@ -570,13 +571,14 @@ class ContainerProperty[T](ParameterizedProperty[T]):
         return self._default is not Undefined
 
 def validation_on() -> bool:
-    """ Check if property validation is currently active
+    """ Check the context-local override or the process-wide validation default.
 
     Returns:
         bool
 
     """
-    return Property._should_validate
+    override = _validation_override.get()
+    return _validation_default if override is None else override
 
 #-----------------------------------------------------------------------------
 # Private API

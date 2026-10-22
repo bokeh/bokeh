@@ -17,6 +17,9 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
+from threading import Event
 from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
@@ -24,6 +27,7 @@ from unittest.mock import MagicMock, patch
 from bokeh.core.properties import Int
 from bokeh.core.validation.check import ValidationIssue, ValidationIssues
 from bokeh.core.validation.issue import Error, Warning
+from bokeh.core.validation.warnings import EMPTY_LAYOUT, MISSING_RENDERERS
 from bokeh.model import Model
 
 # Module under test
@@ -217,6 +221,153 @@ def test_silence_remove_warning_that_is_not_in_silencers_is_ok(mock_warn: MagicM
     v.process_validation_issues(issues)
     assert not mock_error.called
     assert mock_warn.called
+
+class TestSilenced:
+    def test_no_scoped_suppression(self) -> None:
+        assert v.is_silenced(EMPTY_LAYOUT) is False
+        try:
+            v.silence(EMPTY_LAYOUT)
+            assert v.is_silenced(EMPTY_LAYOUT) is True
+            assert v.is_silenced(MISSING_RENDERERS) is False
+        finally:
+            v.silence(EMPTY_LAYOUT, False)
+        assert v.is_silenced(EMPTY_LAYOUT) is False
+
+    def test_nested_same_warning(self) -> None:
+        assert not v.is_silenced(EMPTY_LAYOUT)
+        with v.silenced(EMPTY_LAYOUT):
+            with v.silenced(EMPTY_LAYOUT):
+                assert v.is_silenced(EMPTY_LAYOUT)
+            assert v.is_silenced(EMPTY_LAYOUT)
+        assert not v.is_silenced(EMPTY_LAYOUT)
+
+    def test_nested_different_warnings(self) -> None:
+        with v.silenced(EMPTY_LAYOUT):
+            with v.silenced(MISSING_RENDERERS):
+                assert v.is_silenced(EMPTY_LAYOUT)
+                assert v.is_silenced(MISSING_RENDERERS)
+            assert v.is_silenced(EMPTY_LAYOUT)
+            assert not v.is_silenced(MISSING_RENDERERS)
+        assert not v.is_silenced(EMPTY_LAYOUT)
+
+    def test_preserves_global_silence(self) -> None:
+        try:
+            v.silence(EMPTY_LAYOUT)
+            with v.silenced(EMPTY_LAYOUT):
+                assert v.is_silenced(EMPTY_LAYOUT)
+            assert v.is_silenced(EMPTY_LAYOUT)
+        finally:
+            v.silence(EMPTY_LAYOUT, False)
+
+    @pytest.mark.parametrize("initially_silenced", [False, True])
+    def test_global_changes_survive_scope(self, initially_silenced: bool) -> None:
+        try:
+            v.silence(EMPTY_LAYOUT, initially_silenced)
+            with v.silenced(EMPTY_LAYOUT):
+                global_silencers = v.silence(EMPTY_LAYOUT, not initially_silenced)
+                assert (EMPTY_LAYOUT in global_silencers) == (not initially_silenced)
+                assert v.is_silenced(EMPTY_LAYOUT)
+            assert v.is_silenced(EMPTY_LAYOUT) == (not initially_silenced)
+        finally:
+            v.silence(EMPTY_LAYOUT, False)
+
+    def test_exception_restores_suppression(self) -> None:
+        with pytest.raises(RuntimeError):
+            with v.silenced(EMPTY_LAYOUT):
+                raise RuntimeError()
+        assert not v.is_silenced(EMPTY_LAYOUT)
+
+    def test_bad_input(self) -> None:
+        with pytest.raises(ValueError, match="should be a warning object"):
+            with v.silenced(cast(Any, "EMPTY_LAYOUT")):
+                pass
+        assert not v.is_silenced(EMPTY_LAYOUT)
+
+    @pytest.mark.parametrize("check_isolation", [False, True])
+    def test_interleaved_threads(self, check_isolation: bool) -> None:
+        a_in, b_in, a_out = Event(), Event(), Event()
+
+        def a():
+            try:
+                with v.silenced(EMPTY_LAYOUT):
+                    a_in.set()
+                    assert b_in.wait(5)
+                    assert v.is_silenced(EMPTY_LAYOUT)
+            finally:
+                a_out.set()
+            assert not v.is_silenced(EMPTY_LAYOUT)
+
+        def b():
+            assert a_in.wait(5)
+            try:
+                if check_isolation:
+                    assert not v.is_silenced(EMPTY_LAYOUT)
+            except BaseException:
+                b_in.set()
+                raise
+            with v.silenced(EMPTY_LAYOUT):
+                b_in.set()
+                assert a_out.wait(5)
+                assert v.is_silenced(EMPTY_LAYOUT)
+            assert not v.is_silenced(EMPTY_LAYOUT)
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            futures = [executor.submit(f) for f in (a, b)]
+            for future in futures:
+                future.result(timeout=15)
+        assert not v.is_silenced(EMPTY_LAYOUT)
+
+    def test_async_task_isolation(self) -> None:
+        async def run():
+            entered, finish = asyncio.Event(), asyncio.Event()
+
+            async def suppressed():
+                with v.silenced(EMPTY_LAYOUT):
+                    entered.set()
+                    await finish.wait()
+                    assert v.is_silenced(EMPTY_LAYOUT)
+                assert not v.is_silenced(EMPTY_LAYOUT)
+
+            task = asyncio.create_task(suppressed())
+            try:
+                await entered.wait()
+                assert not v.is_silenced(EMPTY_LAYOUT)
+            finally:
+                finish.set()
+                await task
+
+        async def bounded_run():
+            await asyncio.wait_for(run(), timeout=5)
+
+        asyncio.run(bounded_run())
+
+    def test_to_thread_inherits_suppression(self) -> None:
+        def worker():
+            assert v.is_silenced(EMPTY_LAYOUT)
+            with v.silenced(MISSING_RENDERERS):
+                assert v.is_silenced(EMPTY_LAYOUT)
+                assert v.is_silenced(MISSING_RENDERERS)
+            assert not v.is_silenced(MISSING_RENDERERS)
+
+        async def run():
+            with v.silenced(EMPTY_LAYOUT):
+                await asyncio.to_thread(worker)
+                assert v.is_silenced(EMPTY_LAYOUT)
+                assert not v.is_silenced(MISSING_RENDERERS)
+            assert not v.is_silenced(EMPTY_LAYOUT)
+
+        asyncio.run(run())
+
+    @patch('bokeh.core.validation.check.log.warning')
+    def test_suppresses_warning_processing(self, mock_warn: MagicMock) -> None:
+        issues = ValidationIssues(warning=[ValidationIssue(EMPTY_LAYOUT.code, EMPTY_LAYOUT.name, EMPTY_LAYOUT.description)])
+        with v.silenced(EMPTY_LAYOUT):
+            with v.silenced(EMPTY_LAYOUT):
+                v.process_validation_issues(issues)
+            v.process_validation_issues(issues)
+            mock_warn.assert_not_called()
+        v.process_validation_issues(issues)
+        mock_warn.assert_called_once()
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
