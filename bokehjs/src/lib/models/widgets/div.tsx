@@ -57,8 +57,8 @@ export class DivView extends MarkupView {
   declare readonly model: Div
   declare readonly signals: p.SignalsOf<Div.Props>
 
-  override initialize(): void {
-    super.initialize()
+  override connect_signals(): void {
+    super.connect_signals()
     // The text is rendered in a shadow root, so the browser can't find the targets
     // of fragment links (`<a href="#name">`) in it, nor in any other component.
     this.shadow_el.addEventListener("click", (event) => {
