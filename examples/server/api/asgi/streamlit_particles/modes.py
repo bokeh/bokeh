@@ -1,8 +1,7 @@
+import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
-
-import tomllib
 
 Reference = tuple[str, str]
 MODE_FILE = Path(__file__).with_name("modes.toml")

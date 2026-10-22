@@ -18,10 +18,8 @@ import pytest ; pytest # isort:skip
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from subprocess import run
-
-# External imports
 import tomllib
+from subprocess import run
 
 # Bokeh imports
 from tests.support.util.project import TOP_PATH

@@ -4,8 +4,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
-from streamlit_particles.modes import MODES
-from streamlit_particles.state import Snapshot, viewer_states
 
 from bokeh import palettes
 from bokeh.document import Document
@@ -22,6 +20,9 @@ from bokeh.models import (
 )
 from bokeh.plotting import figure
 from bokeh.transform import transform
+
+from streamlit_particles.modes import MODES
+from streamlit_particles.state import Snapshot, viewer_states
 
 if TYPE_CHECKING:
     from bokeh.models.sources import DataDict
