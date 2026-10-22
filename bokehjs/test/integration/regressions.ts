@@ -5884,7 +5884,7 @@ describe("Bug", () => {
 
   describe("in issue #14388", () => {
     it("values is outside range bounds when end is changed", async () => {
-      const slider = new RangeSlider({start: 0, end: 10, step: 1, value: [4, 8]})
+      const slider = RangeSlider.create({start: 0, end: 10, step: 1, value: [4, 8]})
 
       const {view} = await display(slider, [500, 100])
       slider.start = 5

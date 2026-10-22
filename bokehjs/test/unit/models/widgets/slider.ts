@@ -49,7 +49,7 @@ describe("RangeSlider", () => {
   })
 
   it("should keep value inside range bounds upon range adjustments", async () => {
-    const slider = new RangeSlider({start: 0, end: 10, step: 1, value: [4, 8]})
+    const slider = RangeSlider.create({start: 0, end: 10, step: 1, value: [4, 8]})
     slider.start = 5
     slider.end = 7
     expect(slider.value).to.be.equal([5, 7])
