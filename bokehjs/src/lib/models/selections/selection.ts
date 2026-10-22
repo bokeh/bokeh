@@ -6,27 +6,40 @@ import {merge} from "core/util/object"
 import type {Glyph, GlyphView} from "../glyphs/glyph"
 import {Arrayable, Int, Mapping, List, Struct} from "core/kinds"
 import {map} from "core/util/arrayable"
+import type {HasProps} from "core/has_props"
+import type {Attrs} from "core/types"
 import type {Serializer} from "core/serialization"
 import {RaggedArray} from "core/util/ragged_array"
 
-function pack_indices(indices: OpaqueIndices): OpaqueIndices {
-  if (indices.length == 0) {
-    return indices
+function normalize_indices(indices: OpaqueIndices): Int32Array {
+  if (indices.constructor == Int32Array) {
+    return indices as Int32Array
   }
-  // Keep the public sequence unchanged, and don't truncate integers outside int32.
-  const packed = new Int32Array(indices.length)
-  for (let i = 0; i < indices.length; i++) {
-    const index = indices[i]
+  for (const index of indices) {
     if (!Number.isInteger(index) || index < -2147483648 || index > 2147483647) {
-      return Array.from(indices)
+      throw new Error("selection indices must be int32 integers")
     }
-    packed[i] = index
   }
-  return packed
+  return new Int32Array(indices)
+}
+
+function normalize_multiline_indices(indices: MultiIndices): Map<number, Int32Array> {
+  if ([...indices.values()].every((values) => values.constructor == Int32Array)) {
+    return indices as Map<number, Int32Array>
+  }
+  return new Map([...indices].map(([key, values]) => [key, normalize_indices(values)]))
 }
 
 function serialize_indices(indices: OpaqueIndices, serializer: Serializer): unknown {
-  return serializer.encode(serializer.binary ? pack_indices(indices) : indices)
+  return serializer.encode(normalize_indices(indices))
+}
+
+function serialize_multiline_indices(indices: MultiIndices, serializer: Serializer): unknown {
+  if (!serializer.binary || indices.size == 0) {
+    return serializer.encode(normalize_multiline_indices(indices))
+  }
+  const packed = RaggedArray.from([...indices.values()].map(normalize_indices), Int32Array)
+  return serializer.encode(new Map([...indices.keys()].map((key, i) => [key, packed.get(i)])))
 }
 
 export const OpaqueIndices = Arrayable(Int)
@@ -54,10 +67,31 @@ export namespace Selection {
   }
 }
 
-export interface Selection extends Selection.Attrs {}
+export interface Selection extends Selection.Attrs {
+  get indices(): Int32Array
+  set indices(value: OpaqueIndices)
+  get line_indices(): Int32Array
+  set line_indices(value: OpaqueIndices)
+  get multiline_indices(): Map<number, Int32Array>
+  set multiline_indices(value: MultiIndices)
+}
 
 export class Selection extends Model {
   declare properties: Selection.Props
+
+  override setv<T extends Attrs>(changed_attrs: Partial<T>, options: HasProps.SetOptions = {}): void {
+    // Compare canonical values so list ingestion doesn't emit an equal-valued change.
+    const attrs: Attrs = {...changed_attrs}
+    for (const attr of ["indices", "line_indices"] as const) {
+      if (Object.hasOwn(attrs, attr)) {
+        attrs[attr] = normalize_indices(attrs[attr] as OpaqueIndices)
+      }
+    }
+    if (Object.hasOwn(attrs, "multiline_indices")) {
+      attrs.multiline_indices = normalize_multiline_indices(attrs.multiline_indices as MultiIndices)
+    }
+    super.setv(attrs, options)
+  }
 
   get_view(): GlyphView | null {
     return this.view
@@ -65,27 +99,9 @@ export class Selection extends Model {
 
   static {
     this.define<Selection.Props>({
-      indices:           [ OpaqueIndices, [], {serialize: serialize_indices} ],
-      line_indices:      [ OpaqueIndices, [], {serialize: serialize_indices} ],
-      multiline_indices: [ MultiIndices, new Map(), {
-        serialize: (indices, serializer) => {
-          if (!serializer.binary || indices.size == 0) {
-            return serializer.encode(indices)
-          }
-          for (const values of indices.values()) {
-            for (const value of values) {
-              if (!Number.isInteger(value) || value < -2147483648 || value > 2147483647) {
-                return serializer.encode(indices)
-              }
-            }
-          }
-          const packed = RaggedArray.from([...indices.values()], Int32Array)
-          return serializer.encode(new Map([...indices.keys()].map((key, i) => {
-            const values = packed.get(i)
-            return [key, values.length == 0 ? [] : values]
-          })))
-        },
-      } ],
+      indices:           [ OpaqueIndices, () => new Int32Array(), {convert: normalize_indices, serialize: serialize_indices} ],
+      line_indices:      [ OpaqueIndices, () => new Int32Array(), {convert: normalize_indices, serialize: serialize_indices} ],
+      multiline_indices: [ MultiIndices, new Map(), {convert: normalize_multiline_indices, serialize: serialize_multiline_indices} ],
       image_indices:     [ ImageIndices, [] ],
     })
 

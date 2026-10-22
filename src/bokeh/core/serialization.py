@@ -298,6 +298,17 @@ class Serializer:
         """ Encode an opt-in map of typed-array values using shared buffers. """
         if not self._deferred or type(obj) in self._encoders or TypedArray in self._encoders:
             return self.encode(obj)
+        if obj and all(isinstance(value, np.ndarray) and value.dtype == np.int32 and value.ndim == 1 for value in obj.values()):
+            if np.ndarray in self._encoders:
+                return self.encode(obj)
+            numpy_packed = np.concatenate(list(obj.values()))
+            numpy_rep = TypedArrayRep(type="typed_array", array=self._encode_bytes(memoryview(numpy_packed)), order=sys.byteorder, dtype="int32")
+            offset = 0
+            entries: list[tuple[AnyRep, AnyRep]] = []
+            for key, value in obj.items():
+                entries.append((self.encode(key), {**numpy_rep, "byte_offset": offset, "length": len(value)}))
+                offset += value.nbytes
+            return MapRep(type="map", entries=entries)
         groups: dict[str, list[TypedArray[Any]]] = {}
         for val in obj.values():
             if type(val) is TypedArray:

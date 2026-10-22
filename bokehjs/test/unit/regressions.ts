@@ -502,21 +502,21 @@ describe("Bug", () => {
       const r = p.block({x: [0, 1], y: [0, 1], width: 1, height: 1})
 
       const {view} = await display(p)
-      expect(r.data_source.selected.indices).to.be.equal([])
+      expect(r.data_source.selected.indices).to.be.equal(new Int32Array([]))
 
       const actions = new PlotActions(view, {units: "screen"})
 
       await actions.tap(xy(30, 70)) // click on 0
-      expect(r.data_source.selected.indices).to.be.equal([0])
+      expect(r.data_source.selected.indices).to.be.equal(new Int32Array([0]))
 
       await actions.tap(xy(30, 30)) // click on empty
-      expect(r.data_source.selected.indices).to.be.equal([])
+      expect(r.data_source.selected.indices).to.be.equal(new Int32Array([]))
 
       await actions.tap(xy(70, 30)) // click on 1
-      expect(r.data_source.selected.indices).to.be.equal([1])
+      expect(r.data_source.selected.indices).to.be.equal(new Int32Array([1]))
 
       await actions.tap(xy(5, 5))   // click off frame
-      expect(r.data_source.selected.indices).to.be.equal([1])
+      expect(r.data_source.selected.indices).to.be.equal(new Int32Array([1]))
     })
   })
 
@@ -569,16 +569,16 @@ describe("Bug", () => {
       const r = p.scatter([1, 2, 3], [1, 2, 3])
 
       const {view} = await display(p)
-      expect(r.data_source.selected.indices).to.be.equal([])
+      expect(r.data_source.selected.indices).to.be.equal(new Int32Array([]))
 
       const actions = new PlotActions(view, {units: "screen"})
 
       await actions.pan(xy(0, 0), xy(200, 200))
-      expect(r.data_source.selected.indices).to.be.equal([])
+      expect(r.data_source.selected.indices).to.be.equal(new Int32Array([]))
 
       const tbv = view.owner.get_one(p.toolbar)
       await actions.pan(xy(0, tbv.bbox.height + 1), xy(200, 200))
-      expect(r.data_source.selected.indices).to.be.equal([0, 1, 2])
+      expect(r.data_source.selected.indices).to.be.equal(new Int32Array([0, 1, 2]))
     })
   })
 
@@ -597,7 +597,7 @@ describe("Bug", () => {
         const sx = view.frame.x_scale.compute(x)
         const sy = view.frame.y_scale.compute(y)
         const result = glyph_view.hit_test({type: "point", sx, sy})
-        return is_equal(result?.indices, [0])
+        return is_equal(result?.indices, new Int32Array([0]))
       }
 
       expect(hit_test(0, 0)).to.be.true
@@ -651,7 +651,7 @@ describe("Bug", () => {
       function hit_test(x: number, y: number): Arrayable<number> | undefined {
         const sx = view.frame.x_scale.compute(x)
         const sy = view.frame.y_scale.compute(y)
-        return rect_view.hit_test({type: "point", sx, sy})?.indices
+        return Array.from(rect_view.hit_test({type: "point", sx, sy})!.indices)
       }
 
       expect(hit_test(0, 0)).to.be.equal([3])
@@ -802,34 +802,34 @@ describe("Bug", () => {
       }
 
       const result0 = rv.hit_test({type: "point", ...at(2, 2)})
-      expect(result0?.indices).to.be.equal([])
+      expect(result0?.indices).to.be.equal(new Int32Array([]))
 
       const result1 = rv.hit_test({type: "point", ...at(3, 3)})
-      expect(result1?.indices).to.be.equal([2])
+      expect(result1?.indices).to.be.equal(new Int32Array([2]))
 
       const result2 = rv.hit_test({type: "span", direction: "h", ...at(2, 2)})
-      expect(result2?.indices).to.be.equal([])
+      expect(result2?.indices).to.be.equal(new Int32Array([]))
 
       const result3 = rv.hit_test({type: "span", direction: "h", ...at(3, 3)})
-      expect(result3?.indices).to.be.equal([2])
+      expect(result3?.indices).to.be.equal(new Int32Array([2]))
 
       const result4 = rv.hit_test({type: "span", direction: "v", ...at(2, 2)})
-      expect(result4?.indices).to.be.equal([])
+      expect(result4?.indices).to.be.equal(new Int32Array([]))
 
       const result5 = rv.hit_test({type: "span", direction: "v", ...at(3, 3)})
-      expect(result5?.indices).to.be.equal([2])
+      expect(result5?.indices).to.be.equal(new Int32Array([2]))
 
       const result6 = rv.hit_test({type: "rect", ...rect(1.5, 1.5, 2.5, 2.5)})
-      expect(result6?.indices).to.be.equal([])
+      expect(result6?.indices).to.be.equal(new Int32Array([]))
 
       const result7 = rv.hit_test({type: "rect", ...rect(2.5, 2.5, 3.5, 3.5)})
-      expect(result7?.indices).to.be.equal([2])
+      expect(result7?.indices).to.be.equal(new Int32Array([2]))
 
       const result8 = rv.hit_test({type: "poly", ...poly(1.5, 1.5, 2.5, 2.5)})
-      expect(result8?.indices).to.be.equal([])
+      expect(result8?.indices).to.be.equal(new Int32Array([]))
 
       const result9 = rv.hit_test({type: "poly", ...poly(2.5, 2.5, 3.5, 3.5)})
-      expect(result9?.indices).to.be.equal([2])
+      expect(result9?.indices).to.be.equal(new Int32Array([2]))
     })
   })
 
@@ -1467,7 +1467,7 @@ describe("Bug", () => {
       const sy = gv.coordinates.y_scale.compute(y)
       const htr = gv.hit_test({type: "point", sx, sy})
       expect_not_null(htr)
-      return htr.line_indices
+      return Array.from(htr.line_indices)
     }
 
     describe("doesn't allow to correctly hit-test VAreaStep", () => {
@@ -1657,24 +1657,24 @@ describe("Bug", () => {
       expect_not_null(checkbox1_el)
       await mouse_click(checkbox1_el)
       expect(view.get_selected_rows()).to.be.equal([2])
-      expect(table.source.selected.indices).to.be.equal([2])
+      expect(table.source.selected.indices).to.be.equal(new Int32Array([2]))
 
       table.view.filter = IndexFilter.create({indices: [0, 1]})
 
       expect(view.get_selected_rows()).to.be.equal([])
-      expect(table.source.selected.indices).to.be.equal([2])
+      expect(table.source.selected.indices).to.be.equal(new Int32Array([2]))
 
       const checkbox2 = view.shadow_el.querySelectorAll(".slick-cell.l1.r1.bk-cell-select")[0]
       const checkbox2_el = checkbox2.querySelector('input[type="checkbox"]')
       expect_not_null(checkbox2_el)
       await mouse_click(checkbox2_el)
       expect(view.get_selected_rows()).to.be.equal([0])
-      expect(table.source.selected.indices).to.be.equal([0, 2])
+      expect(table.source.selected.indices).to.be.equal(new Int32Array([0, 2]))
 
       table.view.filter = IndexFilter.create({indices: [0, 1, 2]})
 
       expect(view.get_selected_rows().slice().sort()).to.be.equal([0, 2].sort())
-      expect(table.source.selected.indices.slice().sort()).to.be.equal([0, 2].sort())
+      expect(table.source.selected.indices.slice().sort()).to.be.equal(new Int32Array([0, 2]).sort())
     })
   })
 
@@ -1688,7 +1688,7 @@ describe("Bug", () => {
       const {view} = await display(p)
       const pv = actions(view)
 
-      expect(ds.selected.indices).to.be.equal([])
+      expect(ds.selected.indices).to.be.equal(new Int32Array([]))
 
       async function tap_at(x: number, y: number) {
         await pv.tap(xy(x, y))
@@ -1696,37 +1696,37 @@ describe("Bug", () => {
       }
 
       await tap_at(0, 0)     // select red
-      expect(ds.selected.indices).to.be.equal([0])
+      expect(ds.selected.indices).to.be.equal(new Int32Array([0]))
 
       await tap_at(0, 0)     // deselect red
-      expect(ds.selected.indices).to.be.equal([])
+      expect(ds.selected.indices).to.be.equal(new Int32Array([]))
 
       await tap_at(0, 0)     // select red
-      expect(ds.selected.indices).to.be.equal([0])
+      expect(ds.selected.indices).to.be.equal(new Int32Array([0]))
 
       await tap_at(1, 1)     // select green
-      expect(ds.selected.indices).to.be.equal([1])
+      expect(ds.selected.indices).to.be.equal(new Int32Array([1]))
 
       await tap_at(2, 2)     // select blue
-      expect(ds.selected.indices).to.be.equal([2])
+      expect(ds.selected.indices).to.be.equal(new Int32Array([2]))
 
       await tap_at(3, 3)     // select yellow
-      expect(ds.selected.indices).to.be.equal([3])
+      expect(ds.selected.indices).to.be.equal(new Int32Array([3]))
 
       await tap_at(4, 0)     // deselect
-      expect(ds.selected.indices).to.be.equal([])
+      expect(ds.selected.indices).to.be.equal(new Int32Array([]))
 
       await tap_at(2.5, 2.5) // select blue and yellow
-      expect(ds.selected.indices).to.be.equal([2, 3])
+      expect(ds.selected.indices).to.be.equal(new Int32Array([2, 3]))
 
       await tap_at(2.5, 2.5) // deselect blue and yellow
-      expect(ds.selected.indices).to.be.equal([])
+      expect(ds.selected.indices).to.be.equal(new Int32Array([]))
 
       await tap_at(2, 2)     // select blue
-      expect(ds.selected.indices).to.be.equal([2])
+      expect(ds.selected.indices).to.be.equal(new Int32Array([2]))
 
       await tap_at(2.5, 2.5) // deselect blue and select yellow
-      expect(ds.selected.indices).to.be.equal([3])
+      expect(ds.selected.indices).to.be.equal(new Int32Array([3]))
     })
   })
 
@@ -1803,11 +1803,11 @@ describe("Bug", () => {
         gr.data_source.selected.indices = [1]
         const {view} = await display(p)
         view.canvas_view.events_el.focus()
-        expect(gr.data_source.selected.indices).to.be.equal([1])
+        expect(gr.data_source.selected.indices).to.be.equal(new Int32Array([1]))
         const ev = new KeyboardEvent("keyup", {key: "Escape"})
         view.canvas_view.events_el.dispatchEvent(ev)
         await view.ready
-        expect(gr.data_source.selected.indices).to.be.equal([])
+        expect(gr.data_source.selected.indices).to.be.equal(new Int32Array([]))
       }
 
       await test(["box_select", "lasso_select"], "box_select")
@@ -2009,7 +2009,7 @@ ${view.host_selector} {
       source.data = {my_col: ["a", "b"]}
       await view.ready
 
-      expect(source.selected.indices).to.be.equal([1])
+      expect(source.selected.indices).to.be.equal(new Int32Array([1]))
       expect(view.get_selected_rows()).to.be.equal([1])
     })
   })
@@ -2155,19 +2155,19 @@ ${view.host_selector} {
       expect_not_null(checkbox1_el)
       await mouse_click(checkbox1_el)
       expect(view.get_selected_rows()).to.be.equal([2])
-      expect(table.source.selected.indices).to.be.equal([2])
+      expect(table.source.selected.indices).to.be.equal(new Int32Array([2]))
 
       table.view.filter = IndexFilter.create({indices: [0, 1]})
 
       expect(view.get_selected_rows()).to.be.equal([])
-      expect(table.source.selected.indices).to.be.equal([2])
+      expect(table.source.selected.indices).to.be.equal(new Int32Array([2]))
 
       const checkbox2 = view.shadow_el.querySelectorAll(".slick-cell.l1.r1.bk-cell-select")[0]
       const checkbox2_el = checkbox2.querySelector('input[type="checkbox"]')
       expect_not_null(checkbox2_el)
       await mouse_click(checkbox2_el)
       expect(view.get_selected_rows()).to.be.equal([0])
-      expect(table.source.selected.indices).to.be.equal([0, 2])
+      expect(table.source.selected.indices).to.be.equal(new Int32Array([0, 2]))
 
       table.source.selected.indices = []
       await view.ready
@@ -2175,7 +2175,7 @@ ${view.host_selector} {
       table.view.filter = IndexFilter.create({indices: [0, 1, 2]})
 
       expect(view.get_selected_rows().slice().sort()).to.be.equal([])
-      expect(table.source.selected.indices.slice().sort()).to.be.equal([])
+      expect(table.source.selected.indices.slice().sort()).to.be.equal(new Int32Array())
     })
   })
 
