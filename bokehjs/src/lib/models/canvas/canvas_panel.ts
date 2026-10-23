@@ -21,6 +21,18 @@ export class CanvasPanelView extends StyledElementView {
     return this._bbox
   }
 
+  private readonly _overflowing = new Set<object>()
+
+  set_overflowing(view: object, overflowing: boolean): void {
+    if (overflowing) {
+      this._overflowing.add(view)
+    } else {
+      this._overflowing.delete(view)
+    }
+
+    this.class_list.toggle(css.overflowing, this._overflowing.size != 0)
+  }
+
   readonly position = new InlineStyleSheet("", "position")
 
   override stylesheets(): StyleSheetLike[] {
