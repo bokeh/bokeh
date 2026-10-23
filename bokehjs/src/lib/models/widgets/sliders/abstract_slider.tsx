@@ -185,7 +185,9 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
   /**
    * With ordered handles, picks which of the handles overlapping handle `i`
    * can move in the given direction (e.g. when both handles of a range are
-   * at the end of the track, only the first one can move).
+   * at the end of the track, only the first one can move). This is needed
+   * when dragging, because only the topmost of overlapping handles can be
+   * picked with a pointer.
    */
   protected unstack(values: number[], i: number, direction: number): number {
     if (!this.kind.ordered || direction == 0) {
@@ -636,10 +638,11 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
       if (target.type == "span") {
         return range(values.length)
       } else {
+        // unlike when dragging, don't unstack overlapping handles, because
+        // the focused handle was chosen explicitly, so it should stop at its
+        // neighbors (any of overlapping handles can be focused with tab)
         const i = this.handles.indexOf(target.el)
-        const j = this.unstack(values, i, offset)
-        this.focus_handle(j)
-        return [j]
+        return [i]
       }
     })()
 
