@@ -78,6 +78,26 @@ export function multi_kind({ordered}: {ordered: boolean}): SliderKind {
   }
 }
 
+type TeXProps = {
+  text: string
+  /** Converts TeX in the text to HTML, or returns `null` if there's nothing to process. */
+  tex: (text: string) => string | null
+  id?: string
+}
+
+/**
+ * Renders text, possibly containing TeX. This is a top-level component, so
+ * that its identity is stable across renders, and thus it isn't remounted.
+ */
+function TeXComponent({text, tex, id}: TeXProps): VNode {
+  const html = tex(text)
+  if (html == null) {
+    return <span id={id}>{text}</span>
+  } else {
+    return <span id={id} dangerouslySetInnerHTML={{__html: html}}></span>
+  }
+}
+
 type HitType = "handle" | "track" | "span"
 type HitTarget = {type: HitType, el: HTMLElement}
 
@@ -377,6 +397,25 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     this._keyboard_focus.value = null
   }
 
+  private _title_html: {text: string, html: string | null} | null = null
+
+  /**
+   * Title with processed TeX, or `null` if it doesn't contain TeX. The result
+   * is cached, because processing TeX is expensive and the title is rendered
+   * on every change of the value.
+   */
+  @bind protected title_html(text: string): string | null {
+    if (this.provider.MathJax == null) {
+      // don't cache, so that TeX is processed once MathJax is available
+      return null
+    }
+    if (this._title_html?.text != text) {
+      const html = this.contains_tex_string(text) ? this.process_tex(text) : null
+      this._title_html = {text, html}
+    }
+    return this._title_html.html
+  }
+
   override component(): VNode {
     const {orientation, disabled, appearance, tooltips} = this.signals
     const {meta, kind} = this
@@ -390,19 +429,6 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     const handle_id = (i: number) => `handle-${i}`
     const span_id = "span"
 
-    const TeXComponent = ({text, id}: {text: string, id?: string}) => {
-      const set_content = (el: HTMLElement | null): void => {
-        if (el != null) {
-          if (this.contains_tex_string(text)) {
-            el.innerHTML = this.process_tex(text)
-          } else {
-            el.textContent = text
-          }
-        }
-      }
-      return <span id={id} ref={set_content}></span>
-    }
-
     const title_el = (() => {
       const title = this.signals.title.value
       const show_value = this.signals.show_value.value
@@ -411,7 +437,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
       if (!hide_header) {
         const title_el = (() => {
           if (title.length > 0) {
-            return <><TeXComponent text={title} id={title_id}></TeXComponent>: </>
+            return <><TeXComponent text={title} tex={this.title_html} id={title_id}></TeXComponent>: </>
           } else {
             return null
           }
