@@ -31,7 +31,6 @@ type SliderMeta<T> = SliderSpec<T> & {
   readonly max: number
   readonly span: number
   readonly reversed: boolean
-  readonly step_multiplier: number
   readonly precision: number | null
 }
 
@@ -140,14 +139,10 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     const [min, max] = minmax(start, end)
     const span = max - min
 
-    // number of steps between valid values, i.e. multiples of step (starting at min) and max
-    const n_steps = step != null ? Math.ceil(span/step) : null
-    // 20% of span (or 4*0.05*span without step), but at least one step; make configurable
-    const step_multiplier = n_steps != null ? max_of(round(0.2*n_steps), 1) : 4
     // number of decimal places of valid values, to remove floating point noise
     const precision = step != null ? min_of(max_of(decimals(step), decimals(min)), 100) : null
 
-    return {...spec, min, max, span, reversed, step_multiplier, precision}
+    return {...spec, min, max, span, reversed, precision}
   })
 
   override stylesheets(): StyleSheetLike[] {
@@ -317,7 +312,8 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
    */
   protected step_offset(factor: number): number {
     const {span, step} = this.meta
-    const computed_step = step == null ? 0.05*span : step
+    // sliders without step use a fraction of span
+    const computed_step = step == null ? this.values.default_step*span : step
     return factor*computed_step
   }
 
@@ -748,7 +744,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     this._pointer_interaction = false
     this._keyboard_focus.value = this.focus_target(target.el)
 
-    const {step_multiplier} = this.meta
+    const {step_multiplier} = this.values
     const key = event.key as Keys
     const offset = (() => {
       switch (key) {
@@ -843,6 +839,8 @@ export namespace AbstractSlider {
     value_throttled: p.Property<unknown>
     tooltips: p.Property<boolean>
     appearance: p.Property<"normal" | "stealth">
+    step_multiplier: p.Property<number>
+    default_step: p.Property<number>
   }
 }
 
@@ -853,13 +851,15 @@ export abstract class AbstractSlider<T> extends OrientedControl {
   declare __view_type__: AbstractSliderView<T>
 
   static {
-    this.define<AbstractSlider.Props>(({Unknown, Bool, Str, Enum, Nullable}) => ({
+    this.define<AbstractSlider.Props>(({Unknown, Bool, Int, Str, Enum, Nullable, Positive, Percent}) => ({
       title:           [ Nullable(Str), "" ],
       show_value:      [ Bool, true ],
       value:           [ Unknown ],
       value_throttled: [ Unknown, p.unset, {readonly: true} ],
       tooltips:        [ Bool, true ],
       appearance:      [ Enum("normal", "stealth"), "normal" ],
+      step_multiplier: [ Positive(Int), 5 ],
+      default_step:    [ Positive(Percent), 0.05 ],
     }))
   }
 }

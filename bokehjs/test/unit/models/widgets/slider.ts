@@ -561,7 +561,7 @@ describe("AbstractSliderView gestures", () => {
     // arrows along the axis move in their visual direction, arrows across the axis, page
     // up/down and home/end follow value semantics, and scrolling behaves like arrow up/down
     type Expected = {[key: string]: number}
-    const value_semantics = {ArrowUp: 6, ArrowDown: 4, ArrowRight: 6, ArrowLeft: 4, PageUp: 7, PageDown: 3, Home: 0, End: 10}
+    const value_semantics = {ArrowUp: 6, ArrowDown: 4, ArrowRight: 6, ArrowLeft: 4, PageUp: 10, PageDown: 0, Home: 0, End: 10}
     const cases: [orientation: "horizontal" | "vertical", reversed: boolean, expected: Expected][] = [
       ["horizontal", false, {...value_semantics, WheelUp: 6, WheelDown: 4}],
       ["horizontal", true,  {...value_semantics, ArrowRight: 4, ArrowLeft: 6, WheelUp: 6, WheelDown: 4}],
@@ -612,7 +612,7 @@ describe("AbstractSliderView gestures", () => {
     expect(slider.value).to.be.equal(7)
 
     // keyboard
-    for (const [key, value] of [["ArrowUp", 8], ["ArrowDown", 7], ["PageUp", 9], ["PageDown", 7], ["End", 10], ["Home", 0]] as const) {
+    for (const [key, value] of [["ArrowUp", 8], ["ArrowDown", 7], ["PageUp", 10], ["PageDown", 5], ["End", 10], ["Home", 0]] as const) {
       handle.dispatchEvent(new KeyboardEvent("keydown", {key}))
       await view.ready
       expect(slider.value).to.be.equal(value)
@@ -696,10 +696,10 @@ describe("AbstractSliderView gestures", () => {
     expect(slider.value).to.be.equal([0, 3])
 
     await press("PageUp")
-    expect(slider.value).to.be.equal([2, 5])
+    expect(slider.value).to.be.equal([5, 8])
 
     expect(await press("a")).to.be.false
-    expect(slider.value).to.be.equal([2, 5])
+    expect(slider.value).to.be.equal([5, 8])
   })
 
   it("should not allow handles of a range slider to cross", async () => {
@@ -886,14 +886,13 @@ describe("AbstractSliderView page up/down", () => {
     return [up, down]
   }
 
-  it("should move by 20% of steps, but at least by one step", async () => {
+  it("should move by step_multiplier steps (5 by default)", async () => {
     const cases = [
-      {start: 0, end: 1, step: 1, value: 0, up: 1},        // 1 step
-      {start: 0, end: 2, step: 1, value: 0, up: 1},        // 2 steps
-      {start: 0, end: 10, step: 1, value: 0, up: 2},       // 10 steps
-      {start: 0, end: 100, step: 1, value: 0, up: 20},     // 100 steps
-      {start: 0, end: 10, step: 3, value: 0, up: 3},       // 4 steps (0, 3, 6, 9, 10)
-      {start: 0, end: 10, step: null, value: 0, up: 2},    // continuous, 4*5% of span
+      {start: 0, end: 1, step: 1, value: 0, up: 1},        // limited by the range
+      {start: 0, end: 10, step: 1, value: 0, up: 5},
+      {start: 0, end: 100, step: 1, value: 0, up: 5},
+      {start: 0, end: 10, step: 3, value: 0, up: 10},      // 15, limited by the range
+      {start: 0, end: 10, step: null, value: 0, up: 2.5},  // continuous, 5*5% of span
     ]
     for (const {start, end, step, value, up} of cases) {
       const slider = Slider.create({start, end, step, value})
@@ -901,6 +900,76 @@ describe("AbstractSliderView page up/down", () => {
       const {handles: [handle]} = elements(view)
       expect({start, end, step, result: await page_up_down(view, handle)}).to.be.equal({start, end, step, result: [up, value]})
     }
+  })
+
+  it("should support configurable step_multiplier", async () => {
+    const cases = [
+      {end: 10, step: 1, step_multiplier: 1, up: 1},
+      {end: 10, step: 1, step_multiplier: 2, up: 2},
+      {end: 100, step: 1, step_multiplier: 10, up: 10},
+      {end: 100, step: 2, step_multiplier: 10, up: 20},
+      {end: 10, step: null, step_multiplier: 2, up: 1},      // continuous, 2*5% of span
+    ]
+    for (const {end, step, step_multiplier, up} of cases) {
+      const slider = Slider.create({start: 0, end, step, value: 0, step_multiplier})
+      const {view} = await display(slider, [300, 50])
+      const {handles: [handle]} = elements(view)
+      expect({end, step, step_multiplier, result: await page_up_down(view, handle)}).to.be.equal({end, step, step_multiplier, result: [up, 0]})
+    }
+  })
+
+  it("should support configurable default_step for sliders without step", async () => {
+    const cases = [
+      {default_step: 0.05, arrow: 0.5, page: 2.5},  // default
+      {default_step: 0.01, arrow: 0.1, page: 0.5},
+      {default_step: 0.1, arrow: 1, page: 5},
+      {default_step: 0.5, arrow: 5, page: 10},      // limited by the range
+    ]
+    for (const {default_step, arrow, page} of cases) {
+      const slider = Slider.create({start: 0, end: 10, step: null, value: 0, default_step})
+      const {view} = await display(slider, [300, 50])
+      const {handles: [handle]} = elements(view)
+
+      handle.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight"}))
+      await view.ready
+      const arrow_value = slider.value
+
+      slider.value = 0
+      await view.ready
+      handle.dispatchEvent(new KeyboardEvent("keydown", {key: "PageUp"}))
+      await view.ready
+      const page_value = slider.value
+
+      expect({default_step, arrow: arrow_value, page: page_value}).to.be.equal({default_step, arrow, page})
+    }
+  })
+
+  it("should require positive default_step", () => {
+    const slider = Slider.create({start: 0, end: 10, step: null, value: 0})
+    expect(() => slider.default_step = 0).to.throw()
+    expect(() => slider.default_step = 1.5).to.throw()
+    slider.default_step = 1
+    expect(slider.default_step).to.be.equal(1)
+  })
+
+  it("should ignore default_step for sliders with step", async () => {
+    const slider = Slider.create({start: 0, end: 10, step: 1, value: 0, default_step: 0.5})
+    const {view} = await display(slider, [300, 50])
+    const {handles: [handle]} = elements(view)
+    handle.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight"}))
+    await view.ready
+    expect(slider.value).to.be.equal(1)
+  })
+
+  it("should react to changes of step_multiplier", async () => {
+    const slider = Slider.create({start: 0, end: 10, step: 1, value: 0})
+    const {view} = await display(slider, [300, 50])
+    const {handles: [handle]} = elements(view)
+    expect(await page_up_down(view, handle)).to.be.equal([5, 0])
+
+    slider.step_multiplier = 3
+    await view.ready
+    expect(await page_up_down(view, handle)).to.be.equal([3, 0])
   })
 
   it("should support categorical sliders with two categories", async () => {
