@@ -194,3 +194,16 @@ export function eval_poly(poly: Poly, x: number): number {
   }
   return y
 }
+
+/**
+ * Number of decimal places in the shortest exact representation of a number,
+ * e.g. 2 for 0.25 and 7 for 1e-7. Returns 0 for non-finite numbers.
+ */
+export function decimals(x: number): number {
+  if (!isFinite(x)) {
+    return 0
+  }
+  const [mantissa, exponent] = x.toExponential().split("e") // e.g. 1.25e-3
+  const fraction = mantissa.split(".")[1] ?? ""
+  return Math.max(fraction.length - Number(exponent), 0)
+}

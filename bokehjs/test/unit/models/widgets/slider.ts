@@ -787,6 +787,26 @@ describe("AbstractSliderView snapping", () => {
     expect(slider.value).to.be.equal(99.9)
   })
 
+  it("should snap without floating point noise", async () => {
+    // repeated steps would otherwise produce e.g. 0.30000000000000004 instead of 0.3
+    const cases = [
+      {start: 0, end: 1, step: 0.1, value: 0, presses: 3, expected: 0.3},
+      {start: 0.05, end: 1, step: 0.1, value: 0.05, presses: 2, expected: 0.25},
+      {start: 0, end: 1e-5, step: 1e-7, value: 0, presses: 3, expected: 3e-7},
+      {start: 1, end: 2, step: 0.01, value: 1, presses: 7, expected: 1.07},
+    ]
+    for (const {start, end, step, value, presses, expected} of cases) {
+      const slider = Slider.create({start, end, step, value})
+      const {view} = await display(slider, [300, 50])
+      const {handles: [handle]} = elements(view)
+      for (let i = 0; i < presses; i++) {
+        handle.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight"}))
+      }
+      await view.ready
+      expect({step, value: slider.value}).to.be.equal({step, value: expected})
+    }
+  })
+
   it("should support a very large number of steps", async () => {
     // e.g. a year with a step of 1 ms, which used to exceed maximum array length
     const start = Date.UTC(2026, 0, 1)
