@@ -7732,6 +7732,8 @@
     show_value: true,
     tooltips: true,
     appearance: "normal",
+    step_multiplier: 5,
+    default_step: 0.05,
   },
   CategoricalSlider: {
     __extends__: "AbstractSlider",

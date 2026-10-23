@@ -35,7 +35,7 @@ from ...core.property.either import Either
 from ...core.property.enum import Enum
 from ...core.property.instance import Instance
 from ...core.property.nullable import Nullable
-from ...core.property.numeric import Positive
+from ...core.property.numeric import Percent, Positive
 from ...core.property.override import Override
 from ...core.property.primitive import (
     Bool,
@@ -118,6 +118,21 @@ class AbstractSlider(Widget):
 
     appearance = Enum("normal", "stealth", default="normal", help="""
     Stealth appearance doesn't include visible handles.
+    """)
+
+    step_multiplier = Positive(Int, default=5, help="""
+    The number of steps by which ``PageUp`` and ``PageDown`` keys move a handle.
+
+    For sliders without a ``step`` (i.e. continuous sliders), a step is given
+    by ``default_step``.
+    """)
+
+    default_step = Positive(Percent, default=0.05, help="""
+    The fraction of the slider's range by which arrow keys move a handle of
+    a slider without a ``step`` (i.e. a continuous slider).
+
+    This doesn't restrict values of such sliders, which remain continuous
+    when interacting with a pointer.
     """)
 
     @error(EQUAL_SLIDER_START_END)
