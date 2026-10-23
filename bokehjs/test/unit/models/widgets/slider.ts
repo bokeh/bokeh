@@ -1,7 +1,7 @@
 import {expect, expect_not_null} from "#framework/assertions"
 import {display} from "#framework/layouts"
 
-import {Slider, RangeSlider, DateSlider, DateRangeSlider, DatetimeRangeSlider} from "@bokehjs/models/widgets"
+import {Slider, RangeSlider, MultiValuedSlider, DateSlider, DateRangeSlider, DatetimeRangeSlider} from "@bokehjs/models/widgets"
 import {CustomJSTickFormatter} from "@bokehjs/models/formatters"
 import {isInteger} from "@bokehjs/core/util/types"
 import {pairwise} from "@bokehjs/core/util/array"
@@ -405,6 +405,115 @@ describe("RangeSlider", () => {
         expect(seen).to.be.equal([[4, 7]])
       })
     })
+  })
+})
+
+describe("MultiValuedSlider", () => {
+  it("should support string format", async () => {
+    const slider = MultiValuedSlider.create({format: "0a"})
+    const view = await build_view(slider, {parent: null})
+    expect(view.pretty(-104000)).to.be.equal("-104k")
+  })
+
+  it("should support TickFormatter format", async () => {
+    const format = CustomJSTickFormatter.create({code: "return (tick/1000).toFixed(0) + 'k'"})
+    const slider = MultiValuedSlider.create({format})
+    const view = await build_view(slider, {parent: null})
+    expect(view.pretty(-104000)).to.be.equal("-104k")
+  })
+
+  it("should render a handle per value and no span", async () => {
+    const slider = MultiValuedSlider.create({start: 0, end: 10, step: 1, value: [2, 5, 8]})
+    const {view} = await display(slider, [300, 50])
+    const {span, handles} = elements(view)
+    expect(span).to.be.null
+    expect(handles.length).to.be.equal(3)
+    expect(handles.map((el) => el.ariaValueText)).to.be.equal(["2", "5", "8"])
+  })
+
+  it("should support dragging any handle and update value_throttled at the end", async () => {
+    const slider = MultiValuedSlider.create({start: 0, end: 10, step: 1, value: [2, 5, 8]})
+    const {view} = await display(slider, [300, 50])
+    const {handles: [, handle1]} = elements(view)
+
+    await drag(view, handle1, center(handle1), 0.6)
+    expect(slider.value).to.be.equal([2, 6, 8])
+    expect(slider.value_throttled).to.be.equal([2, 6, 8])
+  })
+
+  it("should move the nearest handle when pressing the track", async () => {
+    const slider = MultiValuedSlider.create({start: 0, end: 10, step: 1, value: [2, 5, 8]})
+    const {view} = await display(slider, [300, 50])
+    const {track} = elements(view)
+
+    await drag(view, track, on_track(track, 0.9), 0.9)
+    expect(slider.value).to.be.equal([2, 5, 9])
+
+    await drag(view, track, on_track(track, 0.4), 0.4)
+    expect(slider.value).to.be.equal([2, 4, 9])
+  })
+
+  it("should not allow handles to cross", async () => {
+    const slider = MultiValuedSlider.create({start: 0, end: 10, step: 1, value: [2, 5, 8]})
+    const {view} = await display(slider, [300, 50])
+    const {handles: [handle0, handle1]} = elements(view)
+
+    await drag(view, handle1, center(handle1), 1.0)
+    expect(slider.value).to.be.equal([2, 8, 8])
+
+    await drag(view, handle0, center(handle0), 1.0)
+    expect(slider.value).to.be.equal([8, 8, 8])
+  })
+
+  it("should allow separating overlapping handles", async () => {
+    const slider = MultiValuedSlider.create({start: 0, end: 10, step: 1, value: [5, 5, 5]})
+    const {view} = await display(slider, [300, 50])
+    const {handles: [, handle1]} = elements(view)
+
+    await drag(view, handle1, center(handle1), 0.2)
+    expect(slider.value).to.be.equal([2, 5, 5])
+
+    const {handles: [, , handle2]} = elements(view)
+    await drag(view, handle2, center(handle2), 0.7)
+    expect(slider.value).to.be.equal([2, 5, 7])
+  })
+
+  it("should support keyboard and respect handle ordering", async () => {
+    const slider = MultiValuedSlider.create({start: 0, end: 10, step: 1, value: [2, 5, 8]})
+    const {view} = await display(slider, [300, 50])
+    const {handles: [, handle1]} = elements(view)
+
+    handle1.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight"}))
+    await view.ready
+    expect(slider.value).to.be.equal([2, 6, 8])
+
+    handle1.dispatchEvent(new KeyboardEvent("keydown", {key: "End"}))
+    await view.ready
+    expect(slider.value).to.be.equal([2, 8, 8])
+
+    handle1.dispatchEvent(new KeyboardEvent("keydown", {key: "Home"}))
+    await view.ready
+    expect(slider.value).to.be.equal([2, 2, 8])
+  })
+
+  it("should move only the nearest handle on wheel", async () => {
+    const slider = MultiValuedSlider.create({start: 0, end: 10, step: 1, value: [2, 5, 8]})
+    const {view} = await display(slider, [300, 50])
+    const {track} = elements(view)
+
+    track.dispatchEvent(new WheelEvent("wheel", {bubbles: true, composed: true, deltaY: -120, ...on_track(track, 0.75)}))
+    await view.ready
+    expect(slider.value).to.be.equal([2, 5, 9])
+  })
+
+  it("should support reversed sliders", async () => {
+    const slider = MultiValuedSlider.create({start: 10, end: 0, step: 1, value: [2, 5, 8]})
+    const {view} = await display(slider, [300, 50])
+    const {track} = elements(view)
+
+    // 0.1 of the track from the left is value 9 when reversed, nearest to the handle at 8
+    await drag(view, track, on_track(track, 0.1), 0.1)
+    expect(slider.value).to.be.equal([2, 5, 9])
   })
 })
 

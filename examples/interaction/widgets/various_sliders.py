@@ -26,6 +26,8 @@ def sliders(orientation: OrientationType) -> list[models.AbstractSlider]:
         models.CategoricalSlider(title="Categorical", value="B", categories=categories, orientation=orientation),
         models.DateSlider(title="Date", value=april, start=january, end=december, orientation=orientation),
         models.DateSlider(title="Date reversed", value=april, start=december, end=january, orientation=orientation),
+        models.MultiValuedSlider(start=10, end=100, value=[20, 40, 75], step=1, title="Integer multi-valued", orientation=orientation),
+        models.MultiValuedSlider(start=100, end=10, value=[20, 40, 75], step=1, title="Integer multi-valued reversed", orientation=orientation),
         models.RangeSlider(start=10, end=100, value=(25, 50), step=1, title="Integer range", orientation=orientation),
         models.RangeSlider(start=100, end=10, value=(25, 50), step=1, title="Integer range reversed", orientation=orientation),
         models.DateRangeSlider(title="Date", value=(april, july), start=january, end=december, orientation=orientation),
