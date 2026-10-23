@@ -475,6 +475,51 @@ describe("AbstractSliderView gestures", () => {
     expect(span.tabIndex).to.be.equal(-1)
   })
 
+  it("should order handles and the span of a reversed range slider in visual order", async () => {
+    for (const orientation of ["horizontal", "vertical"] as const) {
+      const slider = RangeSlider.create({start: 10, end: 0, step: 1, value: [2, 5], orientation})
+      const {view} = await display(slider, orientation == "horizontal" ? [300, 50] : [50, 300])
+      const {track, span, handles} = elements(view)
+      expect_not_null(span)
+
+      // handles are queried in DOM (i.e. tab) order
+      const [first, second] = handles
+      expect([...track.children]).to.be.equal([first, span, second])
+      expect(handles.map((el) => el.ariaValueText)).to.be.equal(["5", "2"])
+
+      const position = (el: HTMLElement) => orientation == "horizontal" ? center(el).clientX : center(el).clientY
+      expect(position(first) < position(span) && position(span) < position(second)).to.be.true
+
+      // handles are still associated with correct values
+      first.dispatchEvent(new KeyboardEvent("keydown", {key: "End"}))
+      await view.ready
+      expect(slider.value).to.be.equal([2, 10])
+      expect(first.ariaValueText).to.be.equal("10")
+    }
+  })
+
+  it("should order handles of a reversed multi-valued slider in visual order", async () => {
+    for (const orientation of ["horizontal", "vertical"] as const) {
+      const slider = MultiValuedSlider.create({start: 10, end: 0, step: 1, value: [2, 5, 8], orientation})
+      const {view} = await display(slider, orientation == "horizontal" ? [300, 50] : [50, 300])
+      const {handles} = elements(view)
+      expect(handles.map((el) => el.ariaValueText)).to.be.equal(["8", "5", "2"])
+
+      const positions = handles.map((el) => orientation == "horizontal" ? center(el).clientX : center(el).clientY)
+      expect(positions[0] < positions[1] && positions[1] < positions[2]).to.be.true
+    }
+  })
+
+  it("should order handles of a vertical multi-valued slider from top to bottom", async () => {
+    const slider = MultiValuedSlider.create({start: 0, end: 10, step: 1, value: [2, 5, 8], orientation: "vertical"})
+    const {view} = await display(slider, [50, 300])
+    const {handles} = elements(view)
+    expect(handles.map((el) => el.ariaValueText)).to.be.equal(["2", "5", "8"])
+
+    const positions = handles.map((el) => center(el).clientY)
+    expect(positions[0] < positions[1] && positions[1] < positions[2]).to.be.true
+  })
+
   it("should not make the span of a single value slider focusable", async () => {
     const slider = Slider.create({start: 0, end: 10, step: 1, value: 5})
     const {view} = await display(slider, [300, 50])
