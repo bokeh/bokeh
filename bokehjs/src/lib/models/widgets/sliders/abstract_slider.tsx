@@ -5,7 +5,7 @@ import type {Keys, ArrowKeys} from "core/dom"
 import type {VNode, TargetedEvent} from "core/vdom"
 import {UIComponent, cls} from "core/vdom"
 import type {StyleSheetLike} from "core/stylesheets"
-import {clamp, sign, minmax} from "core/util/math"
+import {clamp, sign, minmax, decimals} from "core/util/math"
 import {range} from "core/util/array"
 import type {XY} from "core/util/bbox"
 
@@ -33,6 +33,7 @@ type SliderMeta<T> = SliderSpec<T> & {
   readonly span: number
   readonly reversed: boolean
   readonly step_multiplier: number
+  readonly precision: number | null
   readonly N: number
 }
 
@@ -144,9 +145,11 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     // number of valid values, i.e. multiples of step (starting at min) and max
     const n_values = step != null ? Math.ceil(span/step) + 1 : null
     const step_multiplier = n_values != null ? Math.round(0.2*n_values) : 4 // 20% of span (4*0.05*span); make configurable
+    // number of decimal places of valid values, to remove floating point noise
+    const precision = step != null ? min_of(max_of(decimals(step), decimals(min)), 100) : null
     const N = spec.values.length
 
-    return {...spec, min, max, span, reversed, step_multiplier, N}
+    return {...spec, min, max, span, reversed, step_multiplier, precision, N}
   })
 
   override stylesheets(): StyleSheetLike[] {
@@ -232,13 +235,15 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
    * at minimum, and maximum (even if it isn't a multiple of step).
    */
   protected snap(value: number): number {
-    const {min, max, step} = this.meta
+    const {min, max, step, precision} = this.meta
     value = clamp(value, min, max)
-    if (step == null) {
+    if (step == null || precision == null) {
       return value
     } else {
-      // computed directly (not accumulated), to avoid accumulation of rounding errors
-      const snapped = min + round((value - min)/step)*step
+      // computed directly (not accumulated), to avoid accumulation of rounding errors,
+      // and rounded to precision of step and minimum, to remove floating point noise
+      const k = round((value - min)/step)
+      const snapped = Number((min + k*step).toFixed(precision))
       return snapped > max || abs(value - max) < abs(value - snapped) ? max : snapped
     }
   }
