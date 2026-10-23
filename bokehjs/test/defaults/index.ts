@@ -6,11 +6,14 @@ import {ExpectationError, expect_not_null} from "#framework/assertions"
 import {HasProps} from "@bokehjs/core/has_props"
 import * as has_props from "@bokehjs/core/has_props"
 import {unset} from "@bokehjs/core/properties"
-import {isString, isArray, isPlainObject} from "@bokehjs/core/util/types"
+import {isString, isArray, isPlainObject, isTypedArray} from "@bokehjs/core/util/types"
 import {values, entries, dict} from "@bokehjs/core/util/object"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {to_string} from "@bokehjs/core/util/pretty"
 import {Serializer} from "@bokehjs/core/serialization"
+import type {TypedArrayRep, NDArrayRep} from "@bokehjs/core/serialization"
+import {BYTE_ORDER} from "@bokehjs/core/util/platform"
+import {ndarray} from "@bokehjs/core/util/ndarray"
 import {unique_id} from "@bokehjs/core/util/string"
 
 import {default_resolver} from "@bokehjs/base"
@@ -112,6 +115,10 @@ class DefaultsSerializer extends Serializer {
 
       const {type: name} = obj
       return {type: "object", name, attributes}
+    } else if (isTypedArray(obj)) {
+      // Compare array defaults by dtype, shape, and values, not buffer framing.
+      const rep = super.encode(obj) as TypedArrayRep | NDArrayRep
+      return {...rep, type: "ndarray", array: Array.from(obj), shape: "shape" in rep ? rep.shape : [obj.length]}
     } else {
       return super.encode(obj)
     }
@@ -294,6 +301,21 @@ function diff<T>(a: Set<T>, b: Set<T>): Set<T> {
 }
 
 describe("Defaults", () => {
+  it("should compare typed and NumPy-style array defaults by dtype, shape, and values", () => {
+    const serializer = new DefaultsSerializer()
+    for (const values of [new Int32Array(), new Int32Array([1, 2])]) {
+      const expected = {type: "ndarray", array: Array.from(values), dtype: "int32", order: BYTE_ORDER, shape: [values.length]}
+      const actual = serializer.encode(values)
+      if (!is_equal(actual, expected) || !is_equal(serializer.encode(ndarray(values)), expected)) {
+        throw new ExpectationError("array defaults must preserve dtype, shape, and values")
+      }
+    }
+    const matrix = serializer.encode(ndarray(new Int32Array([1, 2]), {shape: [1, 2]})) as NDArrayRep
+    if (!is_equal(matrix.shape, [1, 2]) || !is_equal(matrix.array, [1, 2])) {
+      throw new ExpectationError("array defaults must preserve multidimensional shapes")
+    }
+  })
+
   const internal_models = new Set([
     "Canvas",
     "CanvasPanel",
