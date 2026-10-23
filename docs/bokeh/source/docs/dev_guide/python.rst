@@ -22,12 +22,18 @@ exceptions include:
 
 Bokeh uses a combination of code quality tests for each :ref:`Pull Request
 <contributor_guide_pull_requests>`. Relevant tests for Python code include
-`Ruff`_ and `isort`_. Use the following command to run those codebase tests
-locally:
+`Ruff`_, which also checks import sorting. Use the following command to run
+those codebase tests locally:
 
 .. code-block:: sh
 
     pytest tests/codebase
+
+Imports can be sorted automatically with ``ruff check --select I --fix``. In
+``src/bokeh``, ``tests`` and ``tools``, each section of imports also has to be
+preceded by a heading comment: ``# Standard library imports``, ``# External
+imports`` or ``# Bokeh imports``. Ruff doesn't manage those, so add them by
+hand. They are checked by ``tests/codebase/test_import_headings.py``.
 
 To learn more about running those tests on your system, see
 :ref:`contributor_guide_testing_local_codebase`.
@@ -207,7 +213,6 @@ To type check your code locally, run ``mypy bokeh``.
 .. _PEP8: https://www.python.org/dev/peps/pep-0008/
 .. _Google Python Style Guide: https://google.github.io/styleguide/pyguide.html#383-functions-and-methods
 .. _Ruff: https://github.com/astral-sh/ruff
-.. _isort: https://pycqa.github.io/isort/
 .. _mypy: https://mypy.readthedocs.io
 .. _stub files: https://www.python.org/dev/peps/pep-0484/#stub-files
 .. _PEP 604: https://www.python.org/dev/peps/pep-0604/

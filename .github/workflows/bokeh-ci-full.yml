@@ -208,8 +208,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           ruff check tools tests/tools
-          isort --gitignore --diff -c tools
-          isort --gitignore --diff -c tests/tools
+          pytest tests/codebase/test_import_headings.py
 
       - name: Check tools types
         if: runner.os == 'Linux'

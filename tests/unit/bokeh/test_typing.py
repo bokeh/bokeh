@@ -23,7 +23,7 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest ; pytest
+import pytest ; pytest # isort:skip
 
 #-----------------------------------------------------------------------------
 # Imports

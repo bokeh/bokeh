@@ -11,8 +11,14 @@ new browser tab for the Wikipedia entry of the sprinter.
 .. _New York Times interactive: http://www.nytimes.com/interactive/2012/08/05/sports/olympics/the-100-meter-dash-one-race-every-medalist-ever.html
 
 ''' # noqa: E501
-from bokeh.models import (ColumnDataSource, CustomJS, Label,
-                          NormalHead, SingleIntervalTicker, TapTool)
+from bokeh.models import (
+    ColumnDataSource,
+    CustomJS,
+    Label,
+    NormalHead,
+    SingleIntervalTicker,
+    TapTool,
+)
 from bokeh.plotting import figure, show
 from bokeh.sampledata.sprint import sprint
 

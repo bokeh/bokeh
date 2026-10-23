@@ -10,8 +10,15 @@ for the label values.
 from numpy import arange, linspace, pi, sin
 
 from bokeh.layouts import column
-from bokeh.models import (CustomJS, LinearAxis, Range1d, Select,
-                          WheelZoomTool, ZoomInTool, ZoomOutTool)
+from bokeh.models import (
+    CustomJS,
+    LinearAxis,
+    Range1d,
+    Select,
+    WheelZoomTool,
+    ZoomInTool,
+    ZoomOutTool,
+)
 from bokeh.palettes import Sunset6
 from bokeh.plotting import figure, show
 

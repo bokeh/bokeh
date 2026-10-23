@@ -4,8 +4,14 @@ from numpy import exp, linspace, pi, sin
 
 from bokeh.document import Document
 from bokeh.embed import embed
-from bokeh.models import (ColumnDataSource, DatetimeAxis,
-                          PanTool, Plot, Scatter, WheelZoomTool)
+from bokeh.models import (
+    ColumnDataSource,
+    DatetimeAxis,
+    PanTool,
+    Plot,
+    Scatter,
+    WheelZoomTool,
+)
 from bokeh.util.browser import view
 
 N = 200

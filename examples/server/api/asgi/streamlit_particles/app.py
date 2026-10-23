@@ -4,9 +4,10 @@ from typing import AsyncGenerator
 
 import streamlit as st
 from starlette.routing import Mount
-from streamlit_particles.simulation import modify_document
 
 from bokeh.server.asgi import BokehASGI
+
+from streamlit_particles.simulation import modify_document
 
 bokeh_application = BokehASGI(modify_document)
 
