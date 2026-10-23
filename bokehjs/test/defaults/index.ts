@@ -11,7 +11,7 @@ import {values, entries, dict} from "@bokehjs/core/util/object"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {to_string} from "@bokehjs/core/util/pretty"
 import {Serializer} from "@bokehjs/core/serialization"
-import type {TypedArrayRep, NDArrayRep} from "@bokehjs/core/serialization"
+import type {NDArrayRep} from "@bokehjs/core/serialization"
 import {BYTE_ORDER} from "@bokehjs/core/util/platform"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {unique_id} from "@bokehjs/core/util/string"
@@ -117,7 +117,10 @@ class DefaultsSerializer extends Serializer {
       return {type: "object", name, attributes}
     } else if (isTypedArray(obj)) {
       // Compare array defaults by dtype, shape, and values, not buffer framing.
-      const rep = super.encode(obj) as TypedArrayRep | NDArrayRep
+      const rep = super.encode(obj)
+      if (!isPlainObject(rep)) {
+        throw new ExpectationError("expected a serialized array representation")
+      }
       return {...rep, type: "ndarray", array: Array.from(obj), shape: "shape" in rep ? rep.shape : [obj.length]}
     } else {
       return super.encode(obj)
