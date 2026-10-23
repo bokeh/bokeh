@@ -72,7 +72,7 @@ describe("Bug", () => {
         await pv.ready
 
         const [gr] = pv.model.renderers.filter((r) => r instanceof GlyphRenderer)
-        expect(gr.data_source.selected.indices).to.be.equal([1])
+        expect(gr.data_source.selected.indices).to.be.equal(new Int32Array([1]))
       }
     })
   })

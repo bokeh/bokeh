@@ -77,8 +77,8 @@ describe("Selection", () => {
       expect(sent.length).to.be.equal(2)
       expect(new Int32Array(sent[1] as ArrayBuffer)).to.be.equal(new Int32Array([0, 3, 1, 4]))
       const decoded = decode(sent) as Selection
-      expect(Array.from(decoded.multiline_indices.get(2)!)).to.be.equal([0, 3])
-      expect(Array.from(decoded.multiline_indices.get(5)!)).to.be.equal([1, 4])
+      expect(decoded.multiline_indices.get(2)).to.be.equal(new Int32Array([0, 3]))
+      expect(decoded.multiline_indices.get(5)).to.be.equal(new Int32Array([1, 4]))
       expect([...selection.multiline_indices.values()].every((value) => value instanceof Int32Array)).to.be.true
 
       const doc = new Document()

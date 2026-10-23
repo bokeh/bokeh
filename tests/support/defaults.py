@@ -26,6 +26,7 @@ from typing import Any
 
 # External imports
 import json5
+import numpy as np
 
 # Bokeh imports
 from bokeh.core.has_props import HasProps
@@ -71,6 +72,11 @@ class DefaultsSerializer(Serializer):
                 name=obj.__qualified_model__,
                 attributes=attributes,
             )
+            return rep
+        elif isinstance(obj, np.ndarray):
+            # Compare array defaults by dtype, shape, and values, not buffer framing.
+            rep = self._encode_ndarray(obj)
+            rep["array"] = [self.encode(value) for value in obj.ravel().tolist()]
             return rep
         elif obj is Undefined:
             return SymbolRep(type="symbol", name="unset")
