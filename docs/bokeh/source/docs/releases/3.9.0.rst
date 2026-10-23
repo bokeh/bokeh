@@ -5,6 +5,7 @@
 
 Bokeh version ``3.9.0`` (March 2026) is a minor milestone of Bokeh project.
 
+* Added ``DatetimeSlider`` widget (:bokeh-pull:`14726`)
 * Added support for ARIA ``role`` attribute to ``Switch`` component (:bokeh-pull:`14341`)
 * Initial support for the new CSS variable based color system for theming (:bokeh-pull:`14467`, :bokeh-pull:`14695`)
 * Redesigned typing declaration of Bokeh's models and properties fixing various regressions (:bokeh-pull:`14798`)
