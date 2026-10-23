@@ -146,6 +146,15 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     return this.values.orientation == "horizontal"
   }
 
+  /**
+   * Whether values increase against screen coordinates, i.e. from right to
+   * left or from bottom to top. Vertical sliders have minimum at the bottom
+   * (like native sliders), unless reversed.
+   */
+  get flipped(): boolean {
+    return this.meta.reversed != !this.horizontal
+  }
+
   protected hit_target(event: Event): HitTarget | null {
     for (const el of event.composedPath()) {
       for (const handle_el of this.handles) {
@@ -281,7 +290,8 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
   }
 
   /**
-   * Synthetic offset corresponding to `factor` steps in screen direction.
+   * Synthetic offset corresponding to `factor` steps, in the direction of
+   * increasing values (or decreasing values for reversed sliders).
    */
   protected step_offset(factor: number): number {
     const {span, step, reversed} = this.meta
@@ -298,12 +308,12 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
    * Convert a position in client coordinates to a synthetic value.
    */
   protected to_synthetic(xy: XY): number {
-    const {min, span, reversed} = this.meta
+    const {min, span} = this.meta
     const {track_el, track_size} = this
     const {left, top} = track_el.getBoundingClientRect()
     const v = this.horizontal ? xy.x - left - track_el.clientLeft : xy.y - top - track_el.clientTop
     const sv = track_size == 0 ? 0 : clamp(v/track_size, 0, 1)
-    return (reversed ? 1 - sv : sv)*span + min
+    return (this.flipped ? 1 - sv : sv)*span + min
   }
 
   /**
@@ -406,7 +416,8 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
       }
     })()
 
-    const {reversed, values, N, min, max} = meta
+    const {values, N, min, max} = meta
+    const {flipped} = this
     const dragged = this._dragged.value
     const keyboard_focus = this._keyboard_focus.value
     const svs = values.map((value) => this._compute(value))
@@ -421,7 +432,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
 
     this.handles.length = N
     const handles = values.map((value, i) => {
-      const at = reversed ? 1 - svs[i] : svs[i]
+      const at = flipped ? 1 - svs[i] : svs[i]
       const label = kind.label(i, N)
       // the range the handle can actually move within (e.g. up to its neighbors)
       const [lo, hi] = this.bounds(synthetic, i, [i])
@@ -458,7 +469,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
         return null
       }
       const [sv0, sv1] = minmax(...span)
-      const [start, end] = !reversed ? [sv0, sv1] : [1 - sv1, 1 - sv0]
+      const [start, end] = !flipped ? [sv0, sv1] : [1 - sv1, 1 - sv0]
       if (!kind.draggable) {
         return (
           <div
@@ -496,9 +507,9 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
 
     // keep tab order consistent with visual order (left to right or top to
     // bottom), i.e. a draggable span between the first and the remaining
-    // handles, and reversed for reversed sliders
+    // handles, and reversed for flipped sliders
     const track_children = kind.draggable ? [handles[0], span_el, ...handles.slice(1)] : [span_el, ...handles]
-    if (reversed) {
+    if (flipped) {
       track_children.reverse()
     }
 
@@ -625,10 +636,10 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
   }
 
   protected _drag(xy: XY, state: DragState): void {
-    const {span, reversed} = this.meta
+    const {span} = this.meta
     const {track_size} = this
     const dpx = this.horizontal ? xy.x - state.xy.x : xy.y - state.xy.y
-    const offset = track_size == 0 ? 0 : (reversed ? -1 : 1)*dpx/track_size*span
+    const offset = track_size == 0 ? 0 : (this.flipped ? -1 : 1)*dpx/track_size*span
 
     if (state.unstack && offset != 0) {
       const [i] = state.group
@@ -697,9 +708,10 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
           return -Infinity
         case "End":
           return +Infinity
-        case this.horizontal ? "ArrowLeft" : "ArrowUp":
+        // arrows move handles in their visual direction (vertical sliders have minimum at the bottom)
+        case this.horizontal ? "ArrowLeft" : "ArrowDown":
           return this.step_offset(-1)
-        case this.horizontal ? "ArrowRight" : "ArrowDown":
+        case this.horizontal ? "ArrowRight" : "ArrowUp":
           return this.step_offset(+1)
         case "PageDown":
           return this.step_offset(-step_multiplier)

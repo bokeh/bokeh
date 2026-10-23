@@ -18,6 +18,8 @@ import {build_view} from "@bokehjs/core/build_views"
 import * as slider_css from "@bokehjs/styles/widgets/sliders.css"
 import type {AbstractSliderView} from "@bokehjs/models/widgets/sliders/abstract_slider"
 
+const {abs} = Math
+
 type Elements = {track: HTMLElement, span: HTMLElement | null, handles: HTMLElement[]}
 
 function elements(view: AbstractSliderView<unknown>): Elements {
@@ -35,6 +37,13 @@ function on_track(track: HTMLElement, at: number): {clientX: number, clientY: nu
   return {clientX: x, clientY: top + height/2}
 }
 
+/** Client coordinates of a fraction `at` of the track's vertical extent (from the top). */
+function on_vtrack(track: HTMLElement, at: number): {clientX: number, clientY: number} {
+  const {left, top, width} = track.getBoundingClientRect()
+  const y = top + track.clientTop + at*track.clientHeight
+  return {clientX: left + width/2, clientY: y}
+}
+
 function center(el: HTMLElement): {clientX: number, clientY: number} {
   const {left, top, width, height} = el.getBoundingClientRect()
   return {clientX: left + width/2, clientY: top + height/2}
@@ -42,11 +51,13 @@ function center(el: HTMLElement): {clientX: number, clientY: number} {
 
 const pointer = {bubbles: true, composed: true, isPrimary: true, pointerType: "mouse", pointerId: 1, button: 0}
 
-async function drag(view: AbstractSliderView<unknown>, el: HTMLElement, from: {clientX: number, clientY: number}, to_at: number): Promise<void> {
+type At = typeof on_track
+
+async function drag(view: AbstractSliderView<unknown>, el: HTMLElement, from: {clientX: number, clientY: number}, to_at: number, at: At = on_track): Promise<void> {
   const {track} = elements(view)
   el.dispatchEvent(new PointerEvent("pointerdown", {...pointer, ...from}))
-  el.dispatchEvent(new PointerEvent("pointermove", {...pointer, ...on_track(track, to_at)}))
-  el.dispatchEvent(new PointerEvent("pointerup", {...pointer, ...on_track(track, to_at)}))
+  el.dispatchEvent(new PointerEvent("pointermove", {...pointer, ...at(track, to_at)}))
+  el.dispatchEvent(new PointerEvent("pointerup", {...pointer, ...at(track, to_at)}))
   await view.ready
 }
 
@@ -830,7 +841,8 @@ describe("AbstractSliderView gestures", () => {
   })
 
   it("should order handles and the span of a reversed range slider in visual order", async () => {
-    for (const orientation of ["horizontal", "vertical"] as const) {
+    // reversed vertical sliders have minimum at the top
+    for (const [orientation, order] of [["horizontal", ["5", "2"]], ["vertical", ["2", "5"]]] as const) {
       const slider = RangeSlider.create({start: 10, end: 0, step: 1, value: [2, 5], orientation})
       const {view} = await display(slider, orientation == "horizontal" ? [300, 50] : [50, 300])
       const {track, span, handles} = elements(view)
@@ -839,39 +851,92 @@ describe("AbstractSliderView gestures", () => {
       // handles are queried in DOM (i.e. tab) order
       const [first, second] = handles
       expect([...track.children]).to.be.equal([first, span, second])
-      expect(handles.map((el) => el.ariaValueText)).to.be.equal(["5", "2"])
+      expect(handles.map((el) => el.ariaValueText)).to.be.equal([...order])
 
       const position = (el: HTMLElement) => orientation == "horizontal" ? center(el).clientX : center(el).clientY
       expect(position(first) < position(span) && position(span) < position(second)).to.be.true
 
       // handles are still associated with correct values
-      first.dispatchEvent(new KeyboardEvent("keydown", {key: "End"}))
+      const upper = handles.find((el) => el.ariaValueText == "5")!
+      upper.dispatchEvent(new KeyboardEvent("keydown", {key: "End"}))
       await view.ready
       expect(slider.value).to.be.equal([2, 10])
-      expect(first.ariaValueText).to.be.equal("10")
+      expect(upper.ariaValueText).to.be.equal("10")
     }
   })
 
-  it("should order handles of a reversed multi-valued slider in visual order", async () => {
-    for (const orientation of ["horizontal", "vertical"] as const) {
-      const slider = MultiValuedSlider.create({start: 10, end: 0, step: 1, value: [2, 5, 8], orientation})
+  it("should order handles of multi-valued sliders in visual order", async () => {
+    const cases = [
+      {start: 0, end: 10, orientation: "horizontal", order: ["2", "5", "8"]},
+      {start: 10, end: 0, orientation: "horizontal", order: ["8", "5", "2"]},
+      {start: 0, end: 10, orientation: "vertical", order: ["8", "5", "2"]},
+      {start: 10, end: 0, orientation: "vertical", order: ["2", "5", "8"]},
+    ] as const
+    for (const {start, end, orientation, order} of cases) {
+      const slider = MultiValuedSlider.create({start, end, step: 1, value: [2, 5, 8], orientation})
       const {view} = await display(slider, orientation == "horizontal" ? [300, 50] : [50, 300])
       const {handles} = elements(view)
-      expect(handles.map((el) => el.ariaValueText)).to.be.equal(["8", "5", "2"])
+      expect(handles.map((el) => el.ariaValueText)).to.be.equal([...order])
 
       const positions = handles.map((el) => orientation == "horizontal" ? center(el).clientX : center(el).clientY)
       expect(positions[0] < positions[1] && positions[1] < positions[2]).to.be.true
     }
   })
 
-  it("should order handles of a vertical multi-valued slider from top to bottom", async () => {
-    const slider = MultiValuedSlider.create({start: 0, end: 10, step: 1, value: [2, 5, 8], orientation: "vertical"})
+  it("should have minimum at the bottom of vertical sliders", async () => {
+    const slider = Slider.create({start: 0, end: 10, step: 1, value: 2, orientation: "vertical"})
     const {view} = await display(slider, [50, 300])
-    const {handles} = elements(view)
-    expect(handles.map((el) => el.ariaValueText)).to.be.equal(["2", "5", "8"])
+    const {track, span, handles: [handle]} = elements(view)
+    expect_not_null(span)
 
-    const positions = handles.map((el) => center(el).clientY)
-    expect(positions[0] < positions[1] && positions[1] < positions[2]).to.be.true
+    // the span fills from the bottom
+    const track_box = track.getBoundingClientRect()
+    const span_box = span.getBoundingClientRect()
+    expect(abs(span_box.bottom - (track_box.bottom - track.clientTop)) < 1).to.be.true
+    expect(abs(center(handle).clientY - on_vtrack(track, 0.8).clientY) < 1).to.be.true
+
+    // pressing the track
+    await drag(view, track, on_vtrack(track, 0.1), 0.1, on_vtrack)
+    expect(slider.value).to.be.equal(9)
+
+    // dragging up increases the value
+    await drag(view, handle, center(handle), 0.3, on_vtrack)
+    expect(slider.value).to.be.equal(7)
+
+    // keyboard
+    for (const [key, value] of [["ArrowUp", 8], ["ArrowDown", 7], ["PageUp", 9], ["PageDown", 7], ["End", 10], ["Home", 0]] as const) {
+      handle.dispatchEvent(new KeyboardEvent("keydown", {key}))
+      await view.ready
+      expect(slider.value).to.be.equal(value)
+    }
+
+    // scrolling up increases the value
+    track.dispatchEvent(new WheelEvent("wheel", {bubbles: true, composed: true, deltaY: -120, ...on_vtrack(track, 0.5)}))
+    await view.ready
+    expect(slider.value).to.be.equal(1)
+  })
+
+  it("should have minimum at the top of reversed vertical sliders", async () => {
+    const slider = Slider.create({start: 10, end: 0, step: 1, value: 2, orientation: "vertical"})
+    const {view} = await display(slider, [50, 300])
+    const {track, span, handles: [handle]} = elements(view)
+    expect_not_null(span)
+
+    const track_box = track.getBoundingClientRect()
+    const span_box = span.getBoundingClientRect()
+    expect(abs(span_box.top - (track_box.top + track.clientTop)) < 1).to.be.true
+    expect(abs(center(handle).clientY - on_vtrack(track, 0.2).clientY) < 1).to.be.true
+
+    await drag(view, track, on_vtrack(track, 0.1), 0.1, on_vtrack)
+    expect(slider.value).to.be.equal(1)
+
+    // arrows move the handle in their visual direction
+    handle.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowDown"}))
+    await view.ready
+    expect(slider.value).to.be.equal(2)
+    handle.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowUp"}))
+    await view.ready
+    expect(slider.value).to.be.equal(1)
   })
 
   it("should not make the span of a single value slider focusable", async () => {
