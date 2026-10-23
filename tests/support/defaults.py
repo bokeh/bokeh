@@ -75,9 +75,9 @@ class DefaultsSerializer(Serializer):
             return rep
         elif isinstance(obj, np.ndarray):
             # Compare array defaults by dtype, shape, and values, not buffer framing.
-            rep = self._encode_ndarray(obj)
-            rep["array"] = [self.encode(value) for value in obj.ravel().tolist()]
-            return rep
+            array_rep = self._encode_ndarray(obj)
+            array_rep["array"] = [self.encode(value) for value in obj.ravel().tolist()]
+            return array_rep
         elif obj is Undefined:
             return SymbolRep(type="symbol", name="unset")
         else:
