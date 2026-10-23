@@ -142,9 +142,10 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     const [min, max] = minmax(start, end)
     const span = max - min
 
-    // number of valid values, i.e. multiples of step (starting at min) and max
-    const n_values = step != null ? Math.ceil(span/step) + 1 : null
-    const step_multiplier = n_values != null ? Math.round(0.2*n_values) : 4 // 20% of span (4*0.05*span); make configurable
+    // number of steps between valid values, i.e. multiples of step (starting at min) and max
+    const n_steps = step != null ? Math.ceil(span/step) : null
+    // 20% of span (or 4*0.05*span without step), but at least one step; make configurable
+    const step_multiplier = n_steps != null ? max_of(round(0.2*n_steps), 1) : 4
     // number of decimal places of valid values, to remove floating point noise
     const precision = step != null ? min_of(max_of(decimals(step), decimals(min)), 100) : null
     const N = spec.values.length
