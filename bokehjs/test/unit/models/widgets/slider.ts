@@ -1,4 +1,5 @@
 import {expect, expect_not_null} from "#framework/assertions"
+import * as sinon from "sinon"
 import {display} from "#framework/layouts"
 
 import {Slider, RangeSlider, MultiValuedSlider, DateSlider, DateRangeSlider, DatetimeRangeSlider} from "@bokehjs/models/widgets"
@@ -429,6 +430,64 @@ describe("MultiValuedSlider", () => {
     expect(span).to.be.null
     expect(handles.length).to.be.equal(3)
     expect(handles.map((el) => el.ariaValueText)).to.be.equal(["2", "5", "8"])
+  })
+
+  describe("should capture the pointer", () => {
+    let capture: sinon.SinonSpy<[number], void>
+
+    before_each(() => {
+      capture = sinon.spy(HTMLElement.prototype, "setPointerCapture")
+    })
+
+    after_each(() => {
+      capture.restore()
+    })
+
+    it("on the handle when pressing the track", async () => {
+      const slider = MultiValuedSlider.create({start: 0, end: 10, step: 1, value: [2, 5, 8]})
+      const {view} = await display(slider, [300, 50])
+      const {track, handles: [, , handle2]} = elements(view)
+
+      track.dispatchEvent(new PointerEvent("pointerdown", {...pointer, ...on_track(track, 0.9)}))
+      track.dispatchEvent(new PointerEvent("pointerup", {...pointer, ...on_track(track, 0.9)}))
+      await view.ready
+      expect(capture.thisValues).to.be.equal([handle2])
+    })
+
+    it("on the span when dragging it", async () => {
+      const slider = RangeSlider.create({start: 0, end: 10, step: 1, value: [2, 5]})
+      const {view} = await display(slider, [300, 50])
+      const {track, span} = elements(view)
+      expect_not_null(span)
+
+      await drag(view, span, on_track(track, 0.35), 0.45)
+      expect(capture.thisValues).to.be.equal([span])
+    })
+
+    it("and transfer it when separating overlapping handles", async () => {
+      const slider = MultiValuedSlider.create({start: 0, end: 10, step: 1, value: [5, 5, 5]})
+      const {view} = await display(slider, [300, 50])
+      const {track, handles: [handle0, handle1]} = elements(view)
+
+      handle1.dispatchEvent(new PointerEvent("pointerdown", {...pointer, ...center(handle1)}))
+      handle1.dispatchEvent(new PointerEvent("pointermove", {...pointer, ...on_track(track, 0.3)}))
+      await view.ready
+      expect(capture.thisValues).to.be.equal([handle1, handle0])
+      expect(slider.value).to.be.equal([3, 5, 5])
+
+      // losing capture on the previous handle must not end the drag
+      handle1.dispatchEvent(new PointerEvent("lostpointercapture", {...pointer}))
+      handle0.dispatchEvent(new PointerEvent("pointermove", {...pointer, ...on_track(track, 0.2)}))
+      await view.ready
+      expect(slider.value).to.be.equal([2, 5, 5])
+
+      // but losing it on the current one does
+      handle0.dispatchEvent(new PointerEvent("lostpointercapture", {...pointer}))
+      handle0.dispatchEvent(new PointerEvent("pointermove", {...pointer, ...on_track(track, 0.1)}))
+      await view.ready
+      expect(slider.value).to.be.equal([2, 5, 5])
+      expect(slider.value_throttled).to.be.equal([2, 5, 5])
+    })
   })
 
   it("should support dragging any handle and update value_throttled at the end", async () => {
