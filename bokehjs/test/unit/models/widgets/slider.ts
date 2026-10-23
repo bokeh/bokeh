@@ -1087,6 +1087,63 @@ describe("AbstractSliderView gestures", () => {
   })
 })
 
+describe("AbstractSliderView title", () => {
+  function title_el(view: AbstractSliderView<unknown>): HTMLElement {
+    const el = view.shadow_el.querySelector<HTMLElement>(`.${slider_css.title} > span`)
+    expect_not_null(el)
+    return el
+  }
+
+  it("should not re-render the title when the value changes", async () => {
+    const slider = Slider.create({start: 0, end: 10, step: 1, value: 5, title: "Volume"})
+    const {view} = await display(slider, [300, 50])
+
+    const el = title_el(view)
+    expect(el.textContent).to.be.equal("Volume")
+    const observer = new MutationObserver(() => {})
+    observer.observe(el, {childList: true, characterData: true, subtree: true})
+
+    for (const value of [6, 7, 8]) {
+      slider.value = value
+      await view.ready
+    }
+
+    expect(title_el(view)).to.be.equal(el)
+    expect(observer.takeRecords()).to.be.equal([])
+    observer.disconnect()
+
+    slider.title = "Gain"
+    await view.ready
+    expect(title_el(view)).to.be.equal(el)
+    expect(el.textContent).to.be.equal("Gain")
+  })
+
+  it("should process TeX in the title only when the title changes", async () => {
+    const slider = Slider.create({start: 0, end: 10, step: 1, value: 5, title: "$$x$$"})
+    const {view} = await display(slider, [300, 50])
+    if (view.provider.MathJax == null) {
+      return // TeX isn't processed without MathJax
+    }
+    expect(title_el(view).querySelector("svg")).to.not.be.null
+
+    const process_tex = sinon.spy(view, "process_tex")
+    try {
+      for (const value of [6, 7, 8]) {
+        slider.value = value
+        await view.ready
+      }
+      expect(process_tex.callCount).to.be.equal(0)
+
+      slider.title = "$$y$$"
+      await view.ready
+      expect(process_tex.callCount).to.be.equal(1)
+      expect(title_el(view).querySelector("svg")).to.not.be.null
+    } finally {
+      process_tex.restore()
+    }
+  })
+})
+
 describe("AbstractSliderView accessibility", () => {
   type Aria = {name: string | null, now: string | null, min: string | null, max: string | null, text: string | null}
 
