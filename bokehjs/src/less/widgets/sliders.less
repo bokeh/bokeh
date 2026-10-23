@@ -161,9 +161,11 @@
   }
 }
 
+// hide visually only, so that handles remain focusable and accessible, and
+// show when focused with keyboard (but not when focus remains after dragging)
 :host(.bk-stealth:not(:hover)) {
-  .bk-handle {
-    display: none;
+  .bk-track:not(:has(.bk-focus-visible)) .bk-handle {
+    opacity: 0;
   }
 }
 
@@ -176,10 +178,11 @@
   border: 1px solid var(--border-color);
   background-color: var(--background-color);
 }
+// .bk-focus-visible is used instead of :focus-visible (see AbstractSliderView._keyboard_focus)
 .bk-handle:hover,
-.bk-handle:focus-visible,
 .bk-handle.bk-dragging,
-.bk-track:has(.bk-span:focus-visible) .bk-handle {
+.bk-handle.bk-focus-visible,
+.bk-track:has(.bk-span.bk-focus-visible) .bk-handle {
   .bk-tooltip {
     display: block;
   }
