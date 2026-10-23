@@ -18,7 +18,9 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from io import StringIO
 from pathlib import Path
+from textwrap import indent
 
 # External imports
 from isort.api import check_file
@@ -43,8 +45,8 @@ DIRECTORIES = (
 
 @pytest.mark.parametrize("directory", DIRECTORIES)
 def test_isort(directory: str) -> None:
-    files = isort(directory)
-    assert not files, f"isort issues in {directory}:\n" + "\n".join(files)
+    issues = isort(directory)
+    assert not issues, f"isort issues in {directory}:\n" + "\n".join(issues)
 
 #-----------------------------------------------------------------------------
 # Support
@@ -53,16 +55,28 @@ def test_isort(directory: str) -> None:
 def isort(directory: str) -> list[str]:
     ''' Assures that the Python codebase imports are correctly sorted.
 
+    Returns a report for each file with unsorted imports, including the diff
+    that isort would apply to fix it.
+
     '''
     config = Config(settings_path=str(TOP_PATH / directory))
     files = [file for file in ls_files(directory) if file.endswith((".py", ".pyi"))]
-    return [
-        file for file in files
-        if not _is_sorted(TOP_PATH / file, config)
-    ]
+    reports = []
+    for file in files:
+        report = _check(TOP_PATH / file, config)
+        if report is not None:
+            indented = indent(report, "    ")
+            reports.append(f"{file}:\n{indented}")
+    return reports
 
-def _is_sorted(path: Path, config: Config) -> bool:
+def _check(path: Path, config: Config) -> str | None:
+    ''' Returns the diff isort would apply to the file, or ``None`` if the
+    imports are already sorted.
+
+    '''
+    diff = StringIO()
     try:
-        return check_file(path, config=config, disregard_skip=False)
+        is_sorted = check_file(path, config=config, disregard_skip=False, show_diff=diff)
     except (FileSkipComment, FileSkipSetting):
-        return True
+        return None
+    return None if is_sorted else diff.getvalue()
