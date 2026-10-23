@@ -1,7 +1,7 @@
 import {OrientedControl, OrientedControlView} from "../oriented_control"
 import {bind} from "core/class"
 import * as p from "core/properties"
-import type {Keys} from "core/dom"
+import type {Keys, ArrowKeys} from "core/dom"
 import type {VNode, TargetedEvent} from "core/vdom"
 import {UIComponent, cls} from "core/vdom"
 import type {StyleSheetLike} from "core/stylesheets"
@@ -290,13 +290,28 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
   }
 
   /**
-   * Synthetic offset corresponding to `factor` steps, in the direction of
-   * increasing values (or decreasing values for reversed sliders).
+   * Synthetic offset corresponding to `factor` steps, in the direction of increasing values.
    */
   protected step_offset(factor: number): number {
-    const {span, step, reversed} = this.meta
+    const {span, step} = this.meta
     const computed_step = step == null ? 0.05*span : step
-    return (reversed ? -1 : 1)*factor*computed_step
+    return factor*computed_step
+  }
+
+  /**
+   * Direction (in value space) of an arrow key. Arrows along the slider's axis
+   * move handles in their visual direction (which matters for reversed sliders),
+   * and arrows across the axis follow value semantics (up and right increase).
+   */
+  protected arrow_direction(key: ArrowKeys): number {
+    const along = this.horizontal ? key == "ArrowLeft" || key == "ArrowRight" : key == "ArrowUp" || key == "ArrowDown"
+    if (along) {
+      // to the right or down in screen space
+      const forward = key == "ArrowRight" || key == "ArrowDown"
+      return forward != this.flipped ? +1 : -1
+    } else {
+      return key == "ArrowRight" || key == "ArrowUp" ? +1 : -1
+    }
   }
 
   protected get track_size(): number {
@@ -686,7 +701,9 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
         return [this.nearest_handle(values, value)]
       }
     })()
-    this._change(this.shift(values, group, this.step_offset(dy)))
+    // scrolling behaves like arrow up and down keys
+    const direction = this.arrow_direction(dy > 0 ? "ArrowUp" : "ArrowDown")
+    this._change(this.shift(values, group, this.step_offset(direction)))
   }
 
   @bind protected _on_keydown(event: KeyboardEvent): void {
@@ -702,17 +719,18 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     this._keyboard_focus.value = this.focus_target(target.el)
 
     const {step_multiplier} = this.meta
+    const key = event.key as Keys
     const offset = (() => {
-      switch (event.key as Keys) {
+      switch (key) {
         case "Home":
           return -Infinity
         case "End":
           return +Infinity
-        // arrows move handles in their visual direction (vertical sliders have minimum at the bottom)
-        case this.horizontal ? "ArrowLeft" : "ArrowDown":
-          return this.step_offset(-1)
-        case this.horizontal ? "ArrowRight" : "ArrowUp":
-          return this.step_offset(+1)
+        case "ArrowLeft":
+        case "ArrowRight":
+        case "ArrowUp":
+        case "ArrowDown":
+          return this.step_offset(this.arrow_direction(key))
         case "PageDown":
           return this.step_offset(-step_multiplier)
         case "PageUp":

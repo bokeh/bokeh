@@ -688,7 +688,8 @@ export function toggle_attribute(el: HTMLElement, attr: string, state?: boolean)
 
 type WhitespaceKeys = "Tab" | "Enter" | " "
 type UIKeys = "Escape"
-type NavigationKeys = "Home" | "End" | "PageUp" | "PageDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "ArrowDown"
+export type ArrowKeys = "ArrowLeft" | "ArrowRight" | "ArrowUp" | "ArrowDown"
+type NavigationKeys = "Home" | "End" | "PageUp" | "PageDown" | ArrowKeys
 type EditingKeys = "Backspace" | "Delete"
 
 export type Keys = WhitespaceKeys | UIKeys | NavigationKeys | EditingKeys

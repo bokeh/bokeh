@@ -558,6 +558,40 @@ describe("AbstractSliderView gestures", () => {
     }
   })
 
+  it("should support keyboard and wheel in all orientations", async () => {
+    // arrows along the axis move in their visual direction, arrows across the axis, page
+    // up/down and home/end follow value semantics, and scrolling behaves like arrow up/down
+    type Expected = {[key: string]: number}
+    const value_semantics = {ArrowUp: 6, ArrowDown: 4, ArrowRight: 6, ArrowLeft: 4, PageUp: 7, PageDown: 3, Home: 0, End: 10}
+    const cases: [orientation: "horizontal" | "vertical", reversed: boolean, expected: Expected][] = [
+      ["horizontal", false, {...value_semantics, WheelUp: 6, WheelDown: 4}],
+      ["horizontal", true,  {...value_semantics, ArrowRight: 4, ArrowLeft: 6, WheelUp: 6, WheelDown: 4}],
+      ["vertical",   false, {...value_semantics, WheelUp: 6, WheelDown: 4}],
+      ["vertical",   true,  {...value_semantics, ArrowUp: 4, ArrowDown: 6, WheelUp: 4, WheelDown: 6}],
+    ]
+    for (const [orientation, reversed, expected] of cases) {
+      const [start, end] = reversed ? [10, 0] : [0, 10]
+      const slider = Slider.create({start, end, step: 1, value: 5, orientation})
+      const {view} = await display(slider, orientation == "horizontal" ? [300, 50] : [50, 300])
+      const {track, handles: [handle]} = elements(view)
+
+      const results: Expected = {}
+      for (const key of Object.keys(expected)) {
+        slider.value = 5
+        await view.ready
+        if (key.startsWith("Wheel")) {
+          const deltaY = key == "WheelUp" ? -120 : 120
+          track.dispatchEvent(new WheelEvent("wheel", {bubbles: true, composed: true, deltaY, ...center(track)}))
+        } else {
+          handle.dispatchEvent(new KeyboardEvent("keydown", {key}))
+        }
+        await view.ready
+        results[key] = slider.value
+      }
+      expect({orientation, reversed, results}).to.be.equal({orientation, reversed, results: expected})
+    }
+  })
+
   it("should have minimum at the bottom of vertical sliders", async () => {
     const slider = Slider.create({start: 0, end: 10, step: 1, value: 2, orientation: "vertical"})
     const {view} = await display(slider, [50, 300])
