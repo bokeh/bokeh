@@ -31,6 +31,7 @@ from pathlib import Path
 from queue import Empty, Queue
 from threading import Thread
 from typing import IO
+from urllib.request import urlopen
 
 # Bokeh imports
 from bokeh.command.subcommand import Argument
@@ -421,27 +422,70 @@ def test_args() -> None:
         )),
     )
 
+def _terminate_process(process: subprocess.Popen, timeout: float = 5) -> None:
+    if process.poll() is None:
+        process.terminate()
+    try:
+        process.wait(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait(timeout=timeout)
+
+
 @contextlib.contextmanager
 def run_bokeh_serve(args: list[str]):
     cmd = [sys.executable, '-m', 'bokeh', 'serve', *args]
-    with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=False) as p:
-        nbsr = NBSR(p.stdout)
-        try:
-            yield p, nbsr
-        except Exception as e:
-            p.terminate()
-            p.wait()
-            print("An error occurred: %s", e)
-            try:
-                out = p.stdout.read().decode()
-                print("\n---- subprocess stdout follows ----\n")
-                print(out)
-            except Exception:
-                pass
-            raise
-        else:
-            p.terminate()
-            p.wait()
+    # Popen.__exit__ waits without a deadline, including when pytest's timeout
+    # raises a BaseException. Reap explicitly before closing the output pipe.
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=False)
+    nbsr = NBSR(p.stdout)
+    try:
+        yield p, nbsr
+    finally:
+        _terminate_process(p)
+        assert p.stdout is not None
+        nbsr._t.join(timeout=5)
+        if nbsr._t.is_alive():
+            raise RuntimeError("Bokeh server output reader did not stop after process shutdown")
+        p.stdout.close()
+
+
+def test_terminate_process_kills_unresponsive_child() -> None:
+    if sys.platform == "win32":
+        pytest.skip("requires a child that can ignore SIGTERM")
+    code = "import signal, time; signal.signal(signal.SIGTERM, signal.SIG_IGN); print('ready', flush=True); time.sleep(60)"
+    process = subprocess.Popen([sys.executable, "-c", code], stdout=subprocess.PIPE)
+    try:
+        assert process.stdout is not None
+        assert process.stdout.readline() == b"ready\n"
+        _terminate_process(process, timeout=0.1)
+        assert process.returncode == -signal.SIGKILL
+    finally:
+        if process.poll() is None:
+            process.kill()
+        process.wait(timeout=5)
+        assert process.stdout is not None
+        process.stdout.close()
+
+
+@pytest.mark.parametrize("error", [RuntimeError, pytest.fail.Exception, KeyboardInterrupt])
+def test_run_bokeh_serve_reaps_child_when_interrupted(error) -> None:
+    process = nbsr = None
+
+    def interrupted_test() -> None:
+        nonlocal process, nbsr
+        with run_bokeh_serve(["--port", "0"]) as (process, nbsr):
+            wait_until_serving(check_port(nbsr))
+            raise error("interrupted test")
+
+    with pytest.raises(error):
+        interrupted_test()
+    assert process is not None
+    assert process.poll() is not None
+    assert process.stdout.closed
+    assert nbsr is not None
+    assert not nbsr._t.is_alive()
+
 
 def find_pattern(nbsr: NBSR, pat: re.Pattern[str]) -> re.Match[str] | None:
     for _ in range(20):
@@ -464,6 +508,14 @@ def check_port(nbsr: NBSR):
     if m is None:
         pytest.fail("Did not find port in process output")
     return int(m.group(1))
+
+def wait_until_serving(port: int) -> None:
+    # Startup log messages can precede installation of Bokeh's SIGTERM handler.
+    # Wait for the event loop before terminating a coverage-instrumented child.
+    # The favicon is public even when the server uses an authentication module.
+    with urlopen(f"http://localhost:{port}/favicon.ico", timeout=10) as response:
+        assert response.status == 200
+
 
 def check_error(args: list[str]):
     cmd = [sys.executable, '-m', 'bokeh', 'serve', *args]
@@ -580,6 +632,7 @@ def test_websocket_max_message_size_printed_out() -> None:
     pat = re.compile(r'Torndado websocket_max_message_size set to 12345')
     with run_bokeh_serve(["--websocket-max-message-size", "12345"]) as (_, nbsr):
         assert_pattern(nbsr, pat)
+        wait_until_serving(check_port(nbsr))
 
 class TestXSRF:
 
@@ -587,17 +640,20 @@ class TestXSRF:
         pat = re.compile(r'XSRF cookie protection enabled')
         with run_bokeh_serve(["--enable-xsrf-cookies"]) as (_, nbsr):
             assert_pattern(nbsr, pat)
+            wait_until_serving(check_port(nbsr))
 
     def test_printed_envar(self) -> None:
         pat = re.compile(r'XSRF cookie protection enabled')
         with envset(BOKEH_XSRF_COOKIES="yes"):
             with run_bokeh_serve(["--enable-xsrf-cookies"]) as (_, nbsr):
                 assert_pattern(nbsr, pat)
+                wait_until_serving(check_port(nbsr))
 
 def test_auth_module_printed() -> None:
     pat = re.compile(r'User authentication hooks provided(?! \()')
     with run_bokeh_serve(["--auth-module", join(split(__file__)[0], "_dummy_auth.py")]) as (_, nbsr):
         assert_pattern(nbsr, pat)
+        wait_until_serving(check_port(nbsr))
 
 
 class TestIco:
@@ -653,13 +709,17 @@ def test_handling_SIGTERM() -> None:
     pat_pid = re.compile(r"Starting Bokeh server with process id: (\d+)")
     pat_term = re.compile(r"Received signal SIGTERM, shutting down")
 
-    with run_bokeh_serve([]) as (_, nbsr):
-        time.sleep(1) # otherwise won't work; can be replaced with breakpoint()
+    with run_bokeh_serve(["--port", "0"]) as (process, nbsr):
+        port = check_port(nbsr)
         match = find_pattern(nbsr, pat_pid)
         if match is None:
             pytest.fail("Did not find server PID in process output")
-        pid = int(match.group(1))
-        os.kill(pid, signal.SIGTERM)
+        assert int(match.group(1)) == process.pid
+
+        wait_until_serving(port)
+
+        process.send_signal(signal.SIGTERM)
+        process.wait(timeout=30)
         match = find_pattern(nbsr, pat_term)
         if match is None:
             pytest.fail("Did not find SIGTERM confirmation in process output")
