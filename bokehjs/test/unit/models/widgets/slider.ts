@@ -230,6 +230,27 @@ describe("MultiValuedSlider", () => {
     expect(slider.value).to.be.equal([2, 2, 8])
   })
 
+  it("should stop the focused handle at its neighbors when using keyboard", async () => {
+    const slider = MultiValuedSlider.create({start: 0, end: 10, step: 1, value: [2, 5, 8]})
+    const {view} = await display(slider, [300, 50])
+    const {handles: [, handle1]} = elements(view)
+
+    async function press(key: string, n: number): Promise<number[][]> {
+      const values = []
+      for (let i = 0; i < n; i++) {
+        handle1.dispatchEvent(new KeyboardEvent("keydown", {key}))
+        await view.ready
+        values.push(slider.value)
+      }
+      return values
+    }
+
+    expect(await press("ArrowRight", 4)).to.be.equal([[2, 6, 8], [2, 7, 8], [2, 8, 8], [2, 8, 8]])
+    expect(await press("PageUp", 1)).to.be.equal([[2, 8, 8]])
+    expect(await press("ArrowLeft", 7)).to.be.equal([[2, 7, 8], [2, 6, 8], [2, 5, 8], [2, 4, 8], [2, 3, 8], [2, 2, 8], [2, 2, 8]])
+    expect(await press("PageDown", 1)).to.be.equal([[2, 2, 8]])
+  })
+
   it("should move only the nearest handle on wheel", async () => {
     const slider = MultiValuedSlider.create({start: 0, end: 10, step: 1, value: [2, 5, 8]})
     const {view} = await display(slider, [300, 50])
@@ -596,7 +617,7 @@ describe("AbstractSliderView gestures", () => {
   it("should support keyboard and respect handle ordering", async () => {
     const slider = RangeSlider.create({start: 0, end: 10, step: 1, value: [2, 5]})
     const {view} = await display(slider, [300, 50])
-    const {handles: [, handle1]} = elements(view)
+    const {handles: [handle0, handle1]} = elements(view)
 
     const event = new KeyboardEvent("keydown", {key: "Home", cancelable: true})
     handle1.dispatchEvent(event)
@@ -604,9 +625,23 @@ describe("AbstractSliderView gestures", () => {
     expect(slider.value).to.be.equal([2, 2])
     expect(event.defaultPrevented).to.be.true
 
+    // the focused handle stops at its neighbor, instead of pushing it
     handle1.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowLeft"}))
     await view.ready
+    expect(slider.value).to.be.equal([2, 2])
+
+    handle0.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight"}))
+    await view.ready
+    expect(slider.value).to.be.equal([2, 2])
+
+    // but either of overlapping handles can move away from the other
+    handle0.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowLeft"}))
+    await view.ready
     expect(slider.value).to.be.equal([1, 2])
+
+    handle1.dispatchEvent(new KeyboardEvent("keydown", {key: "End"}))
+    await view.ready
+    expect(slider.value).to.be.equal([1, 10])
   })
 
   it("should not fail when start == end", async () => {
