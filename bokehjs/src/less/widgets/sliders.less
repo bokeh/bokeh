@@ -121,6 +121,10 @@
 :host(.bk-disabled) {
   .bk-span {
     background-color: var(--border-color); // TODO should be disabled-background-color or maybe active-disabled-background-color?
+
+    &.bk-draggable {
+      cursor: not-allowed;
+    }
   }
 }
 
