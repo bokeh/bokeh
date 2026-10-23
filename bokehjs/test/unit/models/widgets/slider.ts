@@ -459,6 +459,77 @@ describe("AbstractSliderView gestures", () => {
     expect(dragged()).to.be.equal([false, false])
   })
 
+  it("should make the span of a range slider focusable between handles", async () => {
+    const slider = RangeSlider.create({start: 0, end: 10, step: 1, value: [2, 5]})
+    const {view} = await display(slider, [300, 50])
+    const {track, span, handles: [handle0, handle1]} = elements(view)
+    expect_not_null(span)
+
+    expect(span.tabIndex).to.be.equal(0)
+    expect(span.role).to.be.equal("slider")
+    expect(span.ariaValueText).to.be.equal("2 .. 5")
+    expect([...track.children]).to.be.equal([handle0, span, handle1])
+
+    slider.disabled = true
+    await view.ready
+    expect(span.tabIndex).to.be.equal(-1)
+  })
+
+  it("should not make the span of a single value slider focusable", async () => {
+    const slider = Slider.create({start: 0, end: 10, step: 1, value: 5})
+    const {view} = await display(slider, [300, 50])
+    const {span} = elements(view)
+    expect_not_null(span)
+    expect(span.tabIndex).to.be.equal(-1)
+    expect(span.role).to.be.null
+  })
+
+  it("should focus the span of a range slider when dragging it", async () => {
+    const slider = RangeSlider.create({start: 0, end: 10, step: 1, value: [2, 5]})
+    const {view} = await display(slider, [300, 50])
+    const {track, span} = elements(view)
+    expect_not_null(span)
+
+    await drag(view, span, on_track(track, 0.35), 0.45)
+    expect(view.shadow_el.activeElement).to.be.equal(span)
+  })
+
+  it("should support keyboard on the span of a range slider and preserve its width", async () => {
+    const slider = RangeSlider.create({start: 0, end: 10, step: 1, value: [2, 5]})
+    const {view} = await display(slider, [300, 50])
+    const {span} = elements(view)
+    expect_not_null(span)
+
+    async function press(key: string): Promise<boolean> {
+      const event = new KeyboardEvent("keydown", {key, cancelable: true})
+      span!.dispatchEvent(event)
+      await view.ready
+      return event.defaultPrevented
+    }
+
+    expect(await press("ArrowRight")).to.be.true
+    expect(slider.value).to.be.equal([3, 6])
+    expect(slider.value_throttled).to.be.equal([3, 6])
+
+    await press("ArrowLeft")
+    expect(slider.value).to.be.equal([2, 5])
+
+    await press("End")
+    expect(slider.value).to.be.equal([7, 10])
+
+    await press("ArrowRight")
+    expect(slider.value).to.be.equal([7, 10])
+
+    await press("Home")
+    expect(slider.value).to.be.equal([0, 3])
+
+    await press("PageUp")
+    expect(slider.value).to.be.equal([2, 5])
+
+    expect(await press("a")).to.be.false
+    expect(slider.value).to.be.equal([2, 5])
+  })
+
   it("should not allow handles of a range slider to cross", async () => {
     const slider = RangeSlider.create({start: 0, end: 10, step: 1, value: [2, 5]})
     const {view} = await display(slider, [300, 50])

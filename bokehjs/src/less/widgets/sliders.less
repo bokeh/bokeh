@@ -134,6 +134,7 @@
   border-radius: 50%;
   background-color: var(--highlight-color);
   transform: translate(-50%, -50%);
+  z-index: 1; // keep handles above the span, regardless of DOM order
 }
 :host(.bk-horizontal) {
   .bk-handle {
@@ -171,7 +172,10 @@
   border: 1px solid var(--border-color);
   background-color: var(--background-color);
 }
-.bk-handle:hover, .bk-handle.bk-dragging {
+.bk-handle:hover,
+.bk-handle:focus-visible,
+.bk-handle.bk-dragging,
+.bk-track:has(.bk-span:focus-visible) .bk-handle {
   .bk-tooltip {
     display: block;
   }

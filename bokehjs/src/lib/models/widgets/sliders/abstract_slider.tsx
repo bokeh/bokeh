@@ -299,8 +299,8 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     return (reversed ? 1 - sv : sv)*span + min
   }
 
-  protected focus_handle(i: number): void {
-    this.handles[i].focus()
+  protected focus_handle(i: number, options?: FocusOptions): void {
+    this.handles[i].focus(options)
   }
 
   override component(): VNode {
@@ -385,15 +385,36 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
       }
       const [sv0, sv1] = minmax(...span)
       const [start, end] = !reversed ? [sv0, sv1] : [1 - sv1, 1 - sv0]
-      const draggable_cls = kind.draggable ? sliders_css.draggable : null
+      if (!kind.draggable) {
+        return (
+          <div
+            class={sliders_css.span}
+            style={{"--start": start, "--end": end}}
+            ref={(el) => { this.span_el = el }}
+          ></div>
+        )
+      }
+      // a draggable span moves all handles together, so it can be focused
+      // and controlled with keyboard as well
+      const label = values.map((v) => this.pretty(v)).join(" .. ")
       return (
         <div
-          class={cls(sliders_css.span, draggable_cls)}
+          role="slider"
+          class={cls(sliders_css.span, sliders_css.draggable)}
+          tabIndex={disabled.value ? -1 : 0}
           style={{"--start": start, "--end": end}}
+          aria-disabled={disabled}
+          aria-orientation={orientation}
+          aria-valuetext={label}
+          onKeyDown={this._on_keydown}
           ref={(el) => { this.span_el = el }}
         ></div>
       )
     })()
+
+    // keep tab order consistent with visual order, i.e. a draggable span
+    // between the first and the remaining handles
+    const track_children = kind.draggable ? [handles[0], span_el, ...handles.slice(1)] : [span_el, ...handles]
 
     return (
       <UIComponent
@@ -411,8 +432,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
           onWheel={this._on_wheel}
         >
           <div class={sliders_css.track} ref={(el) => { this.track_el = el! }}>
-            {span_el}
-            {...handles}
+            {...track_children}
           </div>
         </div>
       </UIComponent>
@@ -462,7 +482,15 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     // keeps its cursor and hover state (e.g. the tooltip) while dragging
     const capture_el = target.type == "span" ? target.el : this.handles[group[0]]
     capture_el.setPointerCapture(event.pointerId)
-    this.focus_handle(group[0])
+    // pointer interaction shouldn't show focus indicators (e.g. tooltips), but
+    // the browser can't tell, because the default action of pointerdown is
+    // prevented, so it would apply keyboard focus heuristics instead
+    const focus_options = {focusVisible: false}
+    if (target.type == "span") {
+      target.el.focus(focus_options)
+    } else {
+      this.focus_handle(group[0], focus_options)
+    }
     event.preventDefault()
 
     this._state = {
@@ -526,7 +554,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
         this._dragged.value = state.group
         state.capture_el = this.handles[j]
         state.capture_el.setPointerCapture(state.pointer)
-        this.focus_handle(j)
+        this.focus_handle(j, {focusVisible: false})
       }
       state.unstack = false
     }
@@ -571,49 +599,48 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
       return
     }
     const target = this.hit_target(event)
-    if (target == null || target.type != "handle") {
+    if (target == null || target.type == "track") {
       return
     }
 
-    const i = this.handles.indexOf(target.el)
-    const values = this.synthetic_values
-
-    const move_to = (value: number) => {
-      const j = this.unstack(values, i, value - values[i])
-      this.focus_handle(j)
-      return this.move(values, j, value)
-    }
-    const shift_by = (factor: number) => {
-      const offset = this.step_offset(factor)
-      const j = this.unstack(values, i, offset)
-      this.focus_handle(j)
-      return this.shift(values, [j], offset)
-    }
-
-    const {min, max, step_multiplier} = this.meta
-    const new_values = (() => {
+    const {step_multiplier} = this.meta
+    const offset = (() => {
       switch (event.key as Keys) {
         case "Home":
-          return move_to(min)
+          return -Infinity
         case "End":
-          return move_to(max)
+          return +Infinity
         case this.horizontal ? "ArrowLeft" : "ArrowUp":
-          return shift_by(-1)
+          return this.step_offset(-1)
         case this.horizontal ? "ArrowRight" : "ArrowDown":
-          return shift_by(+1)
+          return this.step_offset(+1)
         case "PageDown":
-          return shift_by(-step_multiplier)
+          return this.step_offset(-step_multiplier)
         case "PageUp":
-          return shift_by(+step_multiplier)
+          return this.step_offset(+step_multiplier)
         default:
           return null
       }
     })()
 
-    if (new_values != null) {
-      event.preventDefault()
-      this._change(new_values)
+    if (offset == null) {
+      return
     }
+
+    const values = this.synthetic_values
+    const group = (() => {
+      if (target.type == "span") {
+        return range(values.length)
+      } else {
+        const i = this.handles.indexOf(target.el)
+        const j = this.unstack(values, i, offset)
+        this.focus_handle(j)
+        return [j]
+      }
+    })()
+
+    event.preventDefault()
+    this._change(this.shift(values, group, offset))
   }
 
   /**
