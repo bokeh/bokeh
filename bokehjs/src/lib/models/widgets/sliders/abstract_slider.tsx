@@ -7,7 +7,6 @@ import {UIComponent, cls} from "core/vdom"
 import type {StyleSheetLike} from "core/stylesheets"
 import {clamp, sign, minmax} from "core/util/math"
 import {range} from "core/util/array"
-import {bisect_right} from "core/util/arrayable"
 import type {XY} from "core/util/bbox"
 
 import * as sliders_css from "styles/widgets/sliders.css"
@@ -33,7 +32,6 @@ type SliderMeta<T> = SliderSpec<T> & {
   readonly max: number
   readonly span: number
   readonly reversed: boolean
-  readonly ticks: number[] | null
   readonly step_multiplier: number
   readonly N: number
 }
@@ -143,19 +141,12 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     const [min, max] = minmax(start, end)
     const span = max - min
 
-    const ticks = (() => {
-      if (step != null) {
-        const ticks = range(min, max, step)
-        ticks.push(max)
-        return ticks
-      } else {
-        return null
-      }
-    })()
-    const step_multiplier = ticks != null ? Math.round(0.2*ticks.length) : 4 // 20% of span (4*0.05*span); make configurable
+    // number of valid values, i.e. multiples of step (starting at min) and max
+    const n_values = step != null ? Math.ceil(span/step) + 1 : null
+    const step_multiplier = n_values != null ? Math.round(0.2*n_values) : 4 // 20% of span (4*0.05*span); make configurable
     const N = spec.values.length
 
-    return {...spec, min, max, span, reversed, ticks, step_multiplier, N}
+    return {...spec, min, max, span, reversed, step_multiplier, N}
   })
 
   override stylesheets(): StyleSheetLike[] {
@@ -236,18 +227,19 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
   }
 
   /**
-   * Snap a synthetic value to the nearest tick (if any) and clamp it to the slider's range.
+   * Snap a synthetic value to the nearest valid value (if step is defined) and
+   * clamp it to the slider's range. Valid values are multiples of step starting
+   * at minimum, and maximum (even if it isn't a multiple of step).
    */
   protected snap(value: number): number {
-    const {min, max, ticks} = this.meta
+    const {min, max, step} = this.meta
     value = clamp(value, min, max)
-    if (ticks == null) {
+    if (step == null) {
       return value
     } else {
-      const i = max_of(bisect_right(ticks, value) - 1, 0)
-      const v0 = ticks[i]
-      const v1 = ticks[i + 1] ?? Infinity
-      return abs(value - v0) <= abs(value - v1) ? v0 : v1
+      // computed directly (not accumulated), to avoid accumulation of rounding errors
+      const snapped = min + round((value - min)/step)*step
+      return snapped > max || abs(value - max) < abs(value - snapped) ? max : snapped
     }
   }
 

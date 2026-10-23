@@ -13,7 +13,6 @@ import {
 } from "@bokehjs/models/widgets"
 import {CustomJSTickFormatter} from "@bokehjs/models/formatters"
 import {isInteger} from "@bokehjs/core/util/types"
-import {pairwise} from "@bokehjs/core/util/array"
 import {build_view} from "@bokehjs/core/build_views"
 import * as slider_css from "@bokehjs/styles/widgets/sliders.css"
 import type {AbstractSliderView} from "@bokehjs/models/widgets/sliders/abstract_slider"
@@ -298,12 +297,12 @@ describe("DateSliderView", () => {
     const value = 1451779200000 // 03 Jan 2016
     const slider = DateSlider.create({start, end, value, step: 1})
     const {view} = await display(slider, null)
+    expect(view.meta.step).to.be.equal(86_400_000)
 
-    const {ticks} = view.meta
-    expect_not_null(ticks)
-
-    const steps = pairwise(ticks, (t0, t1) => t1 - t0)
-    expect(steps).to.be.equal([86_400_000, 86_400_000, 86_400_000, 86_400_000])
+    const {handles: [handle]} = elements(view)
+    handle.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight"}))
+    await view.ready
+    expect(slider.value).to.be.equal(value + 86_400_000)
   })
 })
 
@@ -328,12 +327,12 @@ describe("DateRangeSliderView", () => {
     const end = 1451952000000 // 05 Jan 2016
     const slider = DateRangeSlider.create({start, end, value: [start, end], step: 1})
     const {view} = await display(slider, null)
+    expect(view.meta.step).to.be.equal(86_400_000)
 
-    const {ticks} = view.meta
-    expect_not_null(ticks)
-
-    const steps = pairwise(ticks, (t0, t1) => t1 - t0)
-    expect(steps).to.be.equal([86_400_000, 86_400_000, 86_400_000, 86_400_000])
+    const {handles: [handle0]} = elements(view)
+    handle0.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight"}))
+    await view.ready
+    expect(slider.value).to.be.equal([start + 86_400_000, end])
   })
 })
 
@@ -759,6 +758,52 @@ describe("AbstractSliderView gestures", () => {
     handle.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight"}))
     await view.ready
     expect(slider.value).to.be.equal(5)
+  })
+})
+
+describe("AbstractSliderView snapping", () => {
+  it("should snap to multiples of step and to maximum", async () => {
+    // valid values are 0, 3, 6, 9 and 10
+    const slider = Slider.create({start: 0, end: 10, step: 3, value: 0})
+    const {view} = await display(slider, [300, 50])
+    const {track} = elements(view)
+
+    const snapped = []
+    for (const at of [0.0, 0.1, 0.2, 0.4, 0.5, 0.85, 0.94, 0.96, 1.0]) {
+      await drag(view, track, on_track(track, at), at)
+      snapped.push(slider.value)
+    }
+    expect(snapped).to.be.equal([0, 0, 3, 3, 6, 9, 9, 10, 10])
+  })
+
+  it("should snap without accumulating rounding errors", async () => {
+    const slider = Slider.create({start: 0, end: 100, step: 0.1, value: 0})
+    const {view} = await display(slider, [300, 50])
+    const {handles: [handle]} = elements(view)
+
+    handle.dispatchEvent(new KeyboardEvent("keydown", {key: "End"}))
+    handle.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowLeft"}))
+    await view.ready
+    expect(slider.value).to.be.equal(99.9)
+  })
+
+  it("should support a very large number of steps", async () => {
+    // e.g. a year with a step of 1 ms, which used to exceed maximum array length
+    const start = Date.UTC(2026, 0, 1)
+    const end = Date.UTC(2027, 0, 1)
+    const slider = DatetimeRangeSlider.create({start, end, step: 1, value: [start, end]})
+    const {view} = await display(slider, [300, 50])
+    const {handles: [handle0]} = elements(view)
+
+    handle0.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight"}))
+    await view.ready
+    expect(slider.value).to.be.equal([start + 1, end])
+
+    handle0.dispatchEvent(new KeyboardEvent("keydown", {key: "PageUp"}))
+    await view.ready
+    const [v0] = slider.value
+    expect(v0 > start + 1).to.be.true
+    expect(Number.isInteger(v0)).to.be.true
   })
 })
 
