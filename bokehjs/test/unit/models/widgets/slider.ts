@@ -1152,6 +1152,42 @@ describe("AbstractSliderView snapping", () => {
   })
 })
 
+describe("AbstractSliderView page up/down", () => {
+  async function page_up_down(view: AbstractSliderView<unknown>, handle: HTMLElement): Promise<[unknown, unknown]> {
+    handle.dispatchEvent(new KeyboardEvent("keydown", {key: "PageUp"}))
+    await view.ready
+    const up = view.model.value
+    handle.dispatchEvent(new KeyboardEvent("keydown", {key: "PageDown"}))
+    await view.ready
+    const down = view.model.value
+    return [up, down]
+  }
+
+  it("should move by 20% of steps, but at least by one step", async () => {
+    const cases = [
+      {start: 0, end: 1, step: 1, value: 0, up: 1},        // 1 step
+      {start: 0, end: 2, step: 1, value: 0, up: 1},        // 2 steps
+      {start: 0, end: 10, step: 1, value: 0, up: 2},       // 10 steps
+      {start: 0, end: 100, step: 1, value: 0, up: 20},     // 100 steps
+      {start: 0, end: 10, step: 3, value: 0, up: 3},       // 4 steps (0, 3, 6, 9, 10)
+      {start: 0, end: 10, step: null, value: 0, up: 2},    // continuous, 4*5% of span
+    ]
+    for (const {start, end, step, value, up} of cases) {
+      const slider = Slider.create({start, end, step, value})
+      const {view} = await display(slider, [300, 50])
+      const {handles: [handle]} = elements(view)
+      expect({start, end, step, result: await page_up_down(view, handle)}).to.be.equal({start, end, step, result: [up, value]})
+    }
+  })
+
+  it("should support categorical sliders with two categories", async () => {
+    const slider = CategoricalSlider.create({categories: ["no", "yes"], value: "no"})
+    const {view} = await display(slider, [300, 50])
+    const {handles: [handle]} = elements(view)
+    expect(await page_up_down(view, handle)).to.be.equal(["yes", "no"])
+  })
+})
+
 describe("AbstractSliderView title", () => {
   function title_el(view: AbstractSliderView<unknown>): HTMLElement {
     const el = view.shadow_el.querySelector<HTMLElement>(`.${slider_css.title} > span`)
