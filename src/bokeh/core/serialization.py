@@ -145,10 +145,14 @@ type DataType = Literal["uint8", "int8", "uint16", "int16", "uint32", "int32", "
 type NDDataType = Literal["bool"] | DataType | Literal["object"]
 
 class TypedArrayRep(TypedDict):
+    """ An array view, with an optional byte offset and element count. """
+
     type: Literal["typed_array"]
     array: BytesRep
     order: ByteOrder
     dtype: DataType
+    byte_offset: NotRequired[int]
+    length: NotRequired[int]
 
 class NDArrayRep(TypedDict):
     type: Literal["ndarray"]
@@ -292,6 +296,44 @@ class Serializer:
 
     def encode_struct(self, **fields: Any) -> dict[str, AnyRep]:
         return {key: self.encode(val) for key, val in fields.items() if val is not Unspecified}
+
+    def encode_typed_array_map(self, obj: dict[Any, Any]) -> AnyRep:
+        """ Encode an opt-in map of typed-array values using shared buffers. """
+        if not self._deferred or type(obj) in self._encoders or TypedArray in self._encoders:
+            return self.encode(obj)
+        if obj and all(isinstance(value, np.ndarray) and value.dtype == np.int32 and value.ndim == 1 for value in obj.values()):
+            if np.ndarray in self._encoders:
+                return self.encode(obj)
+            numpy_packed = np.concatenate(list(obj.values()))
+            numpy_rep = TypedArrayRep(type="typed_array", array=self._encode_bytes(memoryview(numpy_packed)), order=sys.byteorder, dtype="int32")
+            offset = 0
+            entries: list[tuple[AnyRep, AnyRep]] = []
+            for key, value in obj.items():
+                entries.append((self.encode(key), {**numpy_rep, "byte_offset": offset, "length": len(value)}))
+                offset += value.nbytes
+            return MapRep(type="map", entries=entries)
+        groups: dict[str, list[TypedArray[Any]]] = {}
+        for val in obj.values():
+            if type(val) is TypedArray:
+                groups.setdefault(val.typecode, []).append(val)
+        views: dict[int, TypedArrayRep] = {}
+        for arrays in groups.values():
+            if len(arrays) < 2:
+                continue
+            packed = TypedArray(arrays[0].typecode)
+            for val in arrays:
+                packed.extend(val)
+            rep = self._encode_typed_array(packed)
+            offset = 0
+            for val in arrays:
+                views[id(val)] = {**rep, "byte_offset": offset, "length": len(val)}
+                offset += len(val)*val.itemsize
+        if not views:
+            return self.encode(obj)
+        return MapRep(
+            type="map",
+            entries=[(self.encode(key), views[id(val)] if id(val) in views else self.encode(val)) for key, val in obj.items()],
+        )
 
     def _encode(self, obj: Any) -> AnyRep:
         if isinstance(obj, Serializable):
@@ -576,6 +618,9 @@ class _ModelTypeCollector(Serializer):
         self._visit_values(obj.values())
         return MapRep(type="map")
 
+    def encode_typed_array_map(self, obj: dict[Any, Any]) -> AnyRep:
+        return self.encode(obj)
+
     def _encode_set(self, obj: set[Any]) -> SetRep:
         self._visit_values(obj)
         return SetRep(type="set")
@@ -821,7 +866,18 @@ class Deserializer:
         if typecode is None:
             self.error(f"unsupported dtype '{dtype}'")
 
-        typed_array: TypedArray[Any] = TypedArray(typecode, data)
+        raw = memoryview(data).cast("B")
+        typed_array: TypedArray[Any] = TypedArray(typecode)
+        size = typed_array.itemsize
+        offset = obj.get("byte_offset", 0)
+        if type(offset) is not int or offset < 0 or offset > len(raw) or offset % size != 0:
+            self.error("invalid typed array byte offset")
+        length = obj.get("length", (len(raw) - offset)//size)
+        if type(length) is not int or length < 0 or length*size > len(raw) - offset:
+            self.error("invalid typed array length")
+        if "length" not in obj and (len(raw) - offset) % size != 0:
+            self.error("invalid typed array length")
+        typed_array.frombytes(raw[offset:offset + length*size])
         if order != sys.byteorder:
             typed_array.byteswap()
 

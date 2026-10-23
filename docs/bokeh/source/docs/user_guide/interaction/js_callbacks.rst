@@ -313,6 +313,13 @@ below simply copies selected points on the first plot to the second. However,
 more sophisticated actions and computations are easily constructed in a
 similar way.
 
+Selection indices are ``Int32Array`` values in JavaScript and NumPy ``int32``
+arrays in Python. Assigning an ordinary array or list converts it automatically.
+This applies to ``indices``, ``line_indices``, and each value in
+``multiline_indices``. Assign a new sequence when changing the selection. Use
+``Array.from(selection.indices)`` or ``selection.indices.tolist()`` when an ordinary
+array or list is required.
+
 .. bokeh-plot:: __REPO__/examples/interaction/js_callbacks/customjs_for_selection.py
     :source-position: above
 

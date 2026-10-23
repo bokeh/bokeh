@@ -53,13 +53,13 @@ describe("Line decorations", () => {
       const sx = placement == "end" ? view.sx[2] : view.sx[0], sy = view.sy[2]
       const sign = placement == "end" ? -1 : 1
       const segment = placement == "end" ? 1 : 0
-      expect(view.hit_test({type: "point", sx: sx + sign*2, sy})?.line_indices).to.be.equal([])
-      expect(view.hit_test({type: "span", direction: "h", sx: sx + sign*2, sy})?.line_indices).to.be.equal([])
-      expect(view.hit_test({type: "span", direction: "h", sx: sx + sign*45, sy})?.line_indices).to.be.equal([segment])
+      expect(view.hit_test({type: "point", sx: sx + sign*2, sy})?.line_indices).to.be.equal(new Int32Array([]))
+      expect(view.hit_test({type: "span", direction: "h", sx: sx + sign*2, sy})?.line_indices).to.be.equal(new Int32Array([]))
+      expect(view.hit_test({type: "span", direction: "h", sx: sx + sign*45, sy})?.line_indices).to.be.equal(new Int32Array([segment]))
       const head = view.hit_test({type: "point", sx: sx + sign*26, sy})!
-      expect(head.line_indices).to.be.equal([segment])
+      expect(head.line_indices).to.be.equal(new Int32Array([segment]))
       expect(head.selected_glyphs.includes(glyph)).to.be.true
-      expect(view.hit_test({type: "point", sx: sx + sign*45, sy})?.line_indices).to.be.equal([segment])
+      expect(view.hit_test({type: "point", sx: sx + sign*45, sy})?.line_indices).to.be.equal(new Int32Array([segment]))
       expect((view as any)._compute_can_use_webgl()).to.be.false
     })
   }

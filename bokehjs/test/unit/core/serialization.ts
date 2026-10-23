@@ -3,7 +3,7 @@ import {expect} from "#framework/assertions"
 import type {AnyVal} from "@bokehjs/core/serialization"
 import {Serializer, SerializationError, Base64Buffer} from "@bokehjs/core/serialization"
 import {Deserializer, DeserializationError} from "@bokehjs/core/serialization/deserializer"
-import type {MapRep, NDArrayRep} from "@bokehjs/core/serialization/reps"
+import type {MapRep, NDArrayRep, TypedArrayRep} from "@bokehjs/core/serialization/reps"
 import {default_resolver} from "@bokehjs/base"
 import {ModelResolver} from "@bokehjs/core/resolvers"
 import {HasProps} from "@bokehjs/core/has_props"
@@ -217,6 +217,63 @@ describe("core/serialization module", () => {
         json: `{"type":"typed_array","array":{"type":"bytes","data":"H4sIAAAAAAAAA5s1EwQ+2p89AwIMDhCawyENDASgtAiUlnAAALssYAAwAAAA"},"order":"${BYTE_ORDER}","dtype":"float64"}`,
       })
     })
+
+    for (const ctor of [Uint8Array, Int8Array, Uint16Array, Int16Array, Uint32Array, Int32Array, Float32Array, Float64Array]) {
+      it(`should round trip ${ctor.name} views with offsets and empty tails`, () => {
+        const array = new ctor([99, 10, 20, 99])
+        for (const view of [array.subarray(1, 3), array.subarray(4)]) {
+          const rep = new Serializer({binary: true}).encode(view) as TypedArrayRep
+          expect(rep.byte_offset).to.be.equal(view.byteOffset)
+          expect(rep.length).to.be.equal(view.length)
+          const decoded = new Deserializer(default_resolver).decode(rep) as typeof view
+          expect(Array.from(decoded)).to.be.equal(Array.from(view))
+          expect(decoded.buffer === array.buffer).to.be.true
+        }
+      })
+
+      it(`should inline only the visible slice of ${ctor.name} views`, () => {
+        const array = new ctor([99, 10, 20, 99])
+        for (const view of [array.subarray(0, 2), array.subarray(1, 3), array.subarray(4)]) {
+          const rep = new Serializer().encode(view) as TypedArrayRep
+          expect(rep.byte_offset).to.be.undefined
+          expect(rep.length).to.be.undefined
+          const decoded = new Deserializer(default_resolver).decode(JSON.parse(JSON.stringify(rep))) as typeof view
+          expect(Array.from(decoded)).to.be.equal(Array.from(view))
+          expect(decoded.buffer.byteLength).to.be.equal(view.byteLength)
+        }
+      })
+    }
+
+    it("should decode overlapping opposite-endian views without modifying their shared buffer", () => {
+      const buffer = new ArrayBuffer(16)
+      const data = new DataView(buffer)
+      for (const [i, value] of [99, 111, 222, 99].entries()) {
+        data.setInt32(i*4, value, BYTE_ORDER != "little")
+      }
+      const original = buffer.slice(0)
+      const rep: TypedArrayRep = {
+        type: "typed_array", dtype: "int32", order: BYTE_ORDER == "little" ? "big" : "little",
+        array: {type: "bytes", data: new Base64Buffer(buffer)}, byte_offset: 4, length: 2,
+      }
+      const decoded = new Deserializer(default_resolver).decode([rep, {...rep, byte_offset: 8, length: 1}, rep]) as Int32Array[]
+      expect(decoded).to.be.equal([new Int32Array([111, 222]), new Int32Array([222]), new Int32Array([111, 222])])
+      expect(buffer).to.be.equal(original)
+    })
+
+    for (const fields of [
+      {byte_offset: -4}, {byte_offset: 1}, {byte_offset: 20}, {byte_offset: 1.5}, {byte_offset: null},
+      {byte_offset: "4"}, {byte_offset: Infinity}, {length: -1}, {length: 1.5}, {length: 5},
+      {length: null}, {length: "2"}, {length: Infinity}, {byte_offset: 12, length: 2},
+    ]) {
+      const label = Object.entries(fields).map(([key, value]) => `${key}=${value}`).join(" ")
+      it(`should reject invalid typed-array view metadata ${label}`, () => {
+        const rep = {
+          type: "typed_array", dtype: "int32", order: BYTE_ORDER,
+          array: {type: "bytes", data: new Base64Buffer(new ArrayBuffer(16))}, ...fields,
+        }
+        expect(() => new Deserializer(default_resolver).decode(rep)).to.throw(DeserializationError)
+      })
+    }
 
     it("should support ndarrays", () => {
       const nd0 = ndarray([1, 2, 3], {dtype: "int32", shape: [1, 3]})

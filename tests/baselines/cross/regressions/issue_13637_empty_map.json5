@@ -384,8 +384,30 @@
                         type: "set",
                       },
                       syncable: true,
-                      indices: [],
-                      line_indices: [],
+                      indices: {
+                        type: "ndarray",
+                        array: {
+                          type: "bytes",
+                          data: "H4sIAAEAAAAA/wMAAAAAAAAAAAA=",
+                        },
+                        shape: [
+                          0,
+                        ],
+                        dtype: "int32",
+                        order: "little",
+                      },
+                      line_indices: {
+                        type: "ndarray",
+                        array: {
+                          type: "bytes",
+                          data: "H4sIAAEAAAAA/wMAAAAAAAAAAAA=",
+                        },
+                        shape: [
+                          0,
+                        ],
+                        dtype: "int32",
+                        order: "little",
+                      },
                       multiline_indices: {
                         type: "map",
                       },
@@ -636,8 +658,30 @@
                         type: "set",
                       },
                       syncable: true,
-                      indices: [],
-                      line_indices: [],
+                      indices: {
+                        type: "ndarray",
+                        array: {
+                          type: "bytes",
+                          data: "H4sIAAEAAAAA/wMAAAAAAAAAAAA=",
+                        },
+                        shape: [
+                          0,
+                        ],
+                        dtype: "int32",
+                        order: "little",
+                      },
+                      line_indices: {
+                        type: "ndarray",
+                        array: {
+                          type: "bytes",
+                          data: "H4sIAAEAAAAA/wMAAAAAAAAAAAA=",
+                        },
+                        shape: [
+                          0,
+                        ],
+                        dtype: "int32",
+                        order: "little",
+                      },
                       multiline_indices: {
                         type: "map",
                       },
