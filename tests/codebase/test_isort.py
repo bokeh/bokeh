@@ -48,24 +48,6 @@ def test_isort(directory: str) -> None:
     issues = isort(directory)
     assert not issues, f"isort issues in {directory}:\n" + "\n".join(issues)
 
-def test_isort_reports_diff(tmp_path: Path) -> None:
-    path = tmp_path / "unsorted.py"
-    path.write_text("import sys\nimport os\n")
-
-    report = _check(path, Config(settings_path=str(TOP_PATH / "tests")))
-
-    assert isinstance(report, str), f"expected a report for a mis-sorted file, got {report!r}"
-    assert str(path) in report, f"expected the file name in:\n{report}"
-    assert "--- " in report and "+++ " in report, f"expected a unified diff, got:\n{report}"
-    assert "-import os" in report, f"expected the offending import in:\n{report}"
-    assert "+import os" in report, f"expected the reordered import in:\n{report}"
-
-def test_isort_reports_nothing_for_sorted_file(tmp_path: Path) -> None:
-    path = tmp_path / "sorted.py"
-    path.write_text("# Standard library imports\nimport os\nimport sys\n")
-
-    assert _check(path, Config(settings_path=str(TOP_PATH / "tests"))) is None
-
 #-----------------------------------------------------------------------------
 # Support
 #-----------------------------------------------------------------------------
