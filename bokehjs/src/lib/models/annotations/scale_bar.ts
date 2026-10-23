@@ -218,6 +218,19 @@ export class ScaleBarView extends AnnotationView {
 
     const {frame} = this.parent
     const frame_span = orientation == "horizontal" ? frame.bbox.width : frame.bbox.height
+    const length_span = (() => {
+      const {panel} = this
+      if (panel == null) {
+        return frame_span
+      }
+      const panel_affects_length = orientation == "horizontal" ? !panel.is_horizontal : panel.is_horizontal
+      if (panel_affects_length) {
+        const {bbox} = this.parent
+        return orientation == "horizontal" ? bbox.width : bbox.height
+      }
+      return frame_span
+    })()
+    // A cross-axis panel can change the frame span; use the plot view's stable span instead.
 
     const bar_length_percent = (() => {
       const {bar_length, bar_length_units} = this.model
@@ -226,7 +239,7 @@ export class ScaleBarView extends AnnotationView {
           if (0.0 <= bar_length && bar_length <= 1.0) {
             return bar_length
           } else {
-            return clamp(bar_length/frame_span, 0.0, 1.0)
+            return clamp(bar_length/length_span, 0.0, 1.0)
           }
         }
         case "data": {
@@ -234,7 +247,7 @@ export class ScaleBarView extends AnnotationView {
           assert(scale instanceof LinearScale || scale instanceof CategoricalScale)
           const [sv0, sv1] = scale.r_compute(0, bar_length)
           const sdist = Math.abs(sv1 - sv0)
-          return sdist/frame_span
+          return sdist/length_span
         }
         case "percent": {
           return clamp(bar_length, 0.0, 1.0)
@@ -248,7 +261,7 @@ export class ScaleBarView extends AnnotationView {
       return dimensional.compute(value, unit, length_sizing == "exact")
     })()
 
-    const init_bar_length_px = frame_span*bar_length_percent
+    const init_bar_length_px = length_span*bar_length_percent
     const bar_length_px = round(init_bar_length_px*scale_factor)
 
     const label_text = (() => {
@@ -497,6 +510,10 @@ export class ScaleBarView extends AnnotationView {
     const sy = y - anchor.y*height
 
     this._bbox = new BBox({left: sx, top: sy, width, height})
+
+    if (this.layout?.has_size_changed() == true) {
+      this.plot_view.request_layout(true)
+    }
   }
 
   protected _draw_box(ctx: Context2d): void {
