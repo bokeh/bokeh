@@ -22,7 +22,6 @@ export type SliderSpec<T> = {
   readonly start: number
   readonly end: number
   readonly step: number | null
-  readonly values: T[]
   compute(value: T): number
   invert(synthetic: number): T
 }
@@ -34,7 +33,6 @@ type SliderMeta<T> = SliderSpec<T> & {
   readonly reversed: boolean
   readonly step_multiplier: number
   readonly precision: number | null
-  readonly N: number
 }
 
 /**
@@ -148,9 +146,8 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     const step_multiplier = n_steps != null ? max_of(round(0.2*n_steps), 1) : 4
     // number of decimal places of valid values, to remove floating point noise
     const precision = step != null ? min_of(max_of(decimals(step), decimals(min)), 100) : null
-    const N = spec.values.length
 
-    return {...spec, min, max, span, reversed, step_multiplier, precision, N}
+    return {...spec, min, max, span, reversed, step_multiplier, precision}
   })
 
   override stylesheets(): StyleSheetLike[] {
@@ -188,11 +185,19 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
   }
 
   /**
+   * Values of all handles. These aren't a part of `meta`, so that it doesn't
+   * have to be recomputed on every change of the value.
+   */
+  get handle_values(): T[] {
+    return this._calc_values()
+  }
+
+  /**
    * Synthetic values of all handles.
    */
   protected get synthetic_values(): number[] {
-    const {values, compute} = this.meta
-    return values.map((value) => compute(value))
+    const {compute} = this.meta
+    return this.handle_values.map((value) => compute(value))
   }
 
   /**
@@ -442,8 +447,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
         })()
         const value_el = (() => {
           if (show_value) {
-            const {values} = meta
-            const pretty = values.map((v) => this.pretty(v)).join(" .. ")
+            const pretty = this.handle_values.map((v) => this.pretty(v)).join(" .. ")
             return <span class={sliders_css.value}>{pretty}</span>
           } else {
             return null
@@ -455,7 +459,9 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
       }
     })()
 
-    const {values, N, min, max} = meta
+    const {min, max} = meta
+    const values = this.handle_values
+    const N = values.length
     const {flipped} = this
     const dragged = this._dragged.value
     const keyboard_focus = this._keyboard_focus.value
@@ -798,8 +804,24 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     }
   }
 
+  /**
+   * Compute the slider's specification, i.e. its range and step in synthetic
+   * space (numbers), and conversions between values and synthetic values. This
+   * shouldn't depend on the value, so that `meta` isn't recomputed on every
+   * change of the value.
+   */
   protected abstract _calc_spec(): SliderSpec<T>
 
+  /**
+   * Compute values of handles from the model's value, e.g. `[value]` for
+   * single value sliders.
+   */
+  protected abstract _calc_values(): T[]
+
+  /**
+   * Compute the model's value from values of handles, i.e. the inverse of
+   * `_calc_values()`.
+   */
   protected abstract _calc_from(values: T[]): T | T[]
 
   /**

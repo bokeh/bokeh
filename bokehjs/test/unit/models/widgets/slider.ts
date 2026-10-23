@@ -761,6 +761,54 @@ describe("AbstractSliderView gestures", () => {
   })
 })
 
+describe("AbstractSliderView meta", () => {
+  it("should not be recomputed when the value changes", async () => {
+    const slider = RangeSlider.create({start: 0, end: 10, step: 1, value: [2, 5]})
+    const {view} = await display(slider, [300, 50])
+
+    const meta = view.meta
+    expect(view.handle_values).to.be.equal([2, 5])
+
+    const {handles: [handle0]} = elements(view)
+    handle0.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight"}))
+    await view.ready
+    slider.value = [4, 6]
+    await view.ready
+
+    expect(view.meta).to.be.identical(meta)
+    expect(view.handle_values).to.be.equal([4, 6])
+  })
+
+  it("should be recomputed when start, end or step change", async () => {
+    const slider = Slider.create({start: 0, end: 10, step: 1, value: 5})
+    const {view} = await display(slider, [300, 50])
+
+    const meta0 = view.meta
+    slider.end = 20
+    await view.ready
+    const meta1 = view.meta
+    expect(meta1).to.not.be.identical(meta0)
+    expect(meta1.max).to.be.equal(20)
+
+    slider.step = 2
+    await view.ready
+    const meta2 = view.meta
+    expect(meta2).to.not.be.identical(meta1)
+    expect(meta2.step).to.be.equal(2)
+  })
+
+  it("should be recomputed when categories change", async () => {
+    const slider = CategoricalSlider.create({categories: ["a", "b", "c"], value: "b"})
+    const {view} = await display(slider, [300, 50])
+    expect(view.meta.max).to.be.equal(2)
+
+    slider.categories = ["a", "b", "c", "d", "e"]
+    await view.ready
+    expect(view.meta.max).to.be.equal(4)
+    expect(view.meta.compute("e")).to.be.equal(4)
+  })
+})
+
 describe("AbstractSliderView snapping", () => {
   it("should snap to multiples of step and to maximum", async () => {
     // valid values are 0, 3, 6, 9 and 10

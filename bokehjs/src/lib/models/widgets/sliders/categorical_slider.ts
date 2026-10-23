@@ -12,12 +12,11 @@ export class CategoricalSliderView extends AbstractSliderView<string> {
   }
 
   protected _calc_spec(): SliderSpec<string> {
-    const {categories, value} = this.values
+    const {categories} = this.values
     return {
       start: 0,
       end: categories.length - 1,
       step: 1,
-      values: [value],
       compute(value: string): number {
         return categories.indexOf(value)
       },
@@ -25,6 +24,10 @@ export class CategoricalSliderView extends AbstractSliderView<string> {
         return categories[synthetic]
       },
     }
+  }
+
+  protected _calc_values(): string[] {
+    return [this.values.value]
   }
 
   protected _calc_from([value]: string[]): string {
