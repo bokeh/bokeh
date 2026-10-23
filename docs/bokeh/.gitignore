@@ -1,6 +1,6 @@
 /build
 /source/**/*.html
-!/source/_templates/layout.html
+!/source/_templates/**/*.html
 /source/docs/gallery/*
 /source/docs/examples/*
 /source/_images/icons/*.svg
