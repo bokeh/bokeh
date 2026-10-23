@@ -52,6 +52,7 @@ runs:
         if [[ -n "${{ inputs.python-gil }}" ]]; then
           export PYTHON_GIL="${{ inputs.python-gil }}"
         fi
+        export BOKEH_TEST_DIAGNOSTICS_DIR="${{ runner.temp }}/pytest-hangs"
         COLOR="--color=yes"
         COVERAGE=()
         if [[ "${{ inputs.collect-coverage }}" == "true" ]]; then
@@ -85,6 +86,25 @@ runs:
       env:
         PYTHONOPTIMIZE: ${{ inputs.python-optimize }}
       run: python tools/ci/import_all_modules.py
+
+    - name: Log current tests
+      if: always()
+      shell: bash --noprofile --norc -eo pipefail {0}
+      run: |
+        shopt -s nullglob
+        for logfile in "${{ runner.temp }}/pytest-hangs/"*.current.txt; do
+          echo "::group::$(basename "$logfile")"
+          cat "$logfile"
+          echo "::endgroup::"
+        done
+
+    - name: Upload test hang diagnostics
+      if: always()
+      uses: actions/upload-artifact@v6
+      with:
+        name: pytest-hangs-${{ runner.os }}-${{ inputs.coverage-flags }}-${{ github.job }}-${{ strategy.job-index }}
+        path: ${{ runner.temp }}/pytest-hangs
+        if-no-files-found: ignore
 
     - name: Upload code coverage
       uses: codecov/codecov-action@v7

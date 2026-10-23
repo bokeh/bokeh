@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 pytest_plugins = (
+    "tests.support.plugins.hang_diagnostics",
     "tests.support.plugins.examples_report",
     "tests.support.plugins.ipython",
     "tests.support.plugins.managed_server_loop",
