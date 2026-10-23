@@ -110,8 +110,9 @@
     top: var(--start-position);
     bottom: var(--end-position);
     width: 100%;
-    border-top-left-radius: var(--track-size);
-    border-top-right-radius: var(--track-size);
+    // minimum is at the bottom
+    border-bottom-left-radius: var(--track-size);
+    border-bottom-right-radius: var(--track-size);
 
     &.bk-draggable {
       cursor: ns-resize;
