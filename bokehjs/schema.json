@@ -1,0 +1,241 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$ref": "#/definitions/DocsJson",
+  "definitions": {
+    "DocsJson": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/DocJson"
+        }
+      }
+    },
+    "DocJson": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "defs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ModelDef"
+          }
+        },
+        "config": {
+          "$ref": "#/definitions/ModelRep"
+        },
+        "roots": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ModelRep"
+          }
+        },
+        "callbacks": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/ModelRep"
+            }
+          }
+        }
+      },
+      "required": ["roots"],
+      "additionalProperties": false
+    },
+    "ModelDef": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["model"]
+        },
+        "name": {
+          "type": "string"
+        },
+        "extends": {
+          "$ref": "#/definitions/Ref"
+        },
+        "properties": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PropertyDef"
+          }
+        },
+        "overrides": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OverrideDef"
+          }
+        }
+      },
+      "required": ["type", "name"],
+      "additionalProperties": false
+    },
+    "PropertyDef": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/definitions/KindRef"
+        },
+        "default": {}
+      },
+      "required": ["name", "kind"],
+      "additionalProperties": false
+    },
+    "OverrideDef": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "default": {}
+      },
+      "required": ["name", "default"],
+      "additionalProperties": false
+    },
+    "PrimitiveKindRef": {
+      "type": "string",
+      "enum": ["Any", "Unknown", "Bool", "Float", "Int", "Bytes", "Str", "Null"]
+    },
+    "KindRef": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/PrimitiveKindRef"
+        }, {
+          "type": "array",
+          "prefixItems": [
+            {"type": "string", "enum": "Regex"},
+            {"type": "string"},
+            {"type": "string"}
+          ],
+          "items": false,
+          "minItems": 2
+        }, {
+          "type": "array",
+          "prefixItems": [
+            {"type": "string", "enum": "Nullable"},
+            {"$ref": "#/definitions/KindRef"}
+          ],
+          "items": false
+        }, {
+          "type": "array",
+          "prefixItems": [
+            {"type": "string", "enum": "Or"},
+            {"$ref": "#/definitions/KindRef"}
+          ],
+          "items": {
+            "$ref": "#/definitions/KindRef"
+          },
+          "minItems": 2
+        }, {
+          "type": "array",
+          "prefixItems": [
+            {"type": "string", "enum": "Tuple"},
+            {"$ref": "#/definitions/KindRef"}
+          ],
+          "items": {
+            "$ref": "#/definitions/KindRef"
+          },
+          "minItems": 2
+        }, {
+          "type": "array",
+          "prefixItems": [
+            {"type": "string", "enum": "List"},
+            {"$ref": "#/definitions/KindRef"}
+          ],
+          "items": false
+        }, {
+          "type": "array",
+          "prefixItems": [
+            {"type": "string", "enum": "Struct"}
+          ],
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              {"type": "string"},
+              {"$ref": "#/definitions/KindRef"}
+            ],
+            "items": false
+          },
+          "minItems": 1
+        }, {
+          "type": "array",
+          "prefixItems": [
+            {"type": "string", "enum": "Dict"},
+            {"$ref": "#/definitions/KindRef"}
+          ],
+          "items": false
+        }, {
+          "type": "array",
+          "prefixItems": [
+            {"type": "string", "enum": "Mapping"},
+            {"$ref": "#/definitions/KindRef"},
+            {"$ref": "#/definitions/KindRef"}
+          ],
+          "items": false
+        }, {
+          "type": "array",
+          "prefixItems": [
+            {"type": "string", "enum": "Enum"}
+          ],
+          "items": {
+            "type": "string"
+          }
+        }, {
+          "type": "array",
+          "prefixItems": [
+            {"type": "string", "enum": "Ref"},
+            {"$ref": "#/definitions/Ref"}
+          ],
+          "items": false
+        }, {
+          "type": "array",
+          "prefixItems": [
+            {"type": "string", "enum": "AnyRef"}
+          ],
+          "items": false
+        }
+      ]
+    },
+    "ModelRep": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["object"]
+        },
+        "name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "required": ["type", "name", "id"],
+      "additionalProperties": false
+    }
+  },
+  "Ref": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string"
+      }
+    },
+    "required": ["id"],
+    "additionalProperties": false
+  }
+}
