@@ -12,7 +12,7 @@ import type {XY} from "core/util/bbox"
 
 import * as sliders_css from "styles/widgets/sliders.css"
 
-import {computed} from "@preact/signals"
+import {computed, signal} from "@preact/signals"
 
 type TargetedPointerEvent = TargetedEvent<HTMLElement, PointerEvent>
 type TargetedWheelEvent = TargetedEvent<HTMLElement, WheelEvent>
@@ -353,6 +353,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     })()
 
     const {reversed, values, N} = meta
+    const dragged = this._dragged.value
     const svs = values.map((value) => this._compute(value))
 
     this.handles.length = N
@@ -362,7 +363,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
       return (
         <div
           role="slider"
-          class={sliders_css.handle}
+          class={cls(sliders_css.handle, dragged.includes(i) ? sliders_css.dragging : null)}
           tabIndex={disabled.value ? -1 : 0}
           style={{"--at": `${at}`}}
           aria-disabled={disabled}
@@ -420,6 +421,9 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
 
   private _state: DragState | null = null
 
+  /** Indices of handles being dragged. */
+  protected readonly _dragged = signal<number[]>([])
+
   // TODO redesign this using UIGestures
   @bind protected _on_pointer_down(event: TargetedPointerEvent): void {
     if (this.values.disabled || this._state != null) {
@@ -469,6 +473,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
       unstack,
       capture_el,
     }
+    this._dragged.value = this._state.group
   }
 
   @bind protected _on_pointer_move(event: TargetedPointerEvent): void {
@@ -518,6 +523,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
       const j = this.unstack(state.values, i, offset)
       if (j != i) {
         state.group = [j]
+        this._dragged.value = state.group
         state.capture_el = this.handles[j]
         state.capture_el.setPointerCapture(state.pointer)
         this.focus_handle(j)
@@ -531,6 +537,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
 
   protected _end_drag(): void {
     this._state = null
+    this._dragged.value = []
     this.model.setv({value_throttled: this.model.value})
   }
 

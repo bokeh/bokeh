@@ -418,6 +418,47 @@ describe("AbstractSliderView gestures", () => {
     expect(slider.value).to.be.equal([7, 10])
   })
 
+  it("should mark both handles as dragged when dragging the span of a range slider", async () => {
+    const slider = RangeSlider.create({start: 0, end: 10, step: 1, value: [2, 5]})
+    const {view} = await display(slider, [300, 50])
+    const {track, span, handles} = elements(view)
+    expect_not_null(span)
+
+    const dragged = () => handles.map((el) => el.classList.contains(slider_css.dragging))
+    expect(dragged()).to.be.equal([false, false])
+
+    span.dispatchEvent(new PointerEvent("pointerdown", {...pointer, ...on_track(track, 0.35)}))
+    span.dispatchEvent(new PointerEvent("pointermove", {...pointer, ...on_track(track, 0.45)}))
+    await view.ready
+    expect(dragged()).to.be.equal([true, true])
+
+    span.dispatchEvent(new PointerEvent("pointerup", {...pointer, ...on_track(track, 0.45)}))
+    await view.ready
+    expect(dragged()).to.be.equal([false, false])
+  })
+
+  it("should mark only the dragged handle of a range slider", async () => {
+    const slider = RangeSlider.create({start: 0, end: 10, step: 1, value: [5, 5]})
+    const {view} = await display(slider, [300, 50])
+    const {track, handles} = elements(view)
+    const [, handle1] = handles
+
+    const dragged = () => handles.map((el) => el.classList.contains(slider_css.dragging))
+
+    handle1.dispatchEvent(new PointerEvent("pointerdown", {...pointer, ...center(handle1)}))
+    await view.ready
+    expect(dragged()).to.be.equal([false, true])
+
+    // separating overlapping handles transfers the drag to the first handle
+    handle1.dispatchEvent(new PointerEvent("pointermove", {...pointer, ...on_track(track, 0.3)}))
+    await view.ready
+    expect(dragged()).to.be.equal([true, false])
+
+    handle1.dispatchEvent(new PointerEvent("pointerup", {...pointer, ...on_track(track, 0.3)}))
+    await view.ready
+    expect(dragged()).to.be.equal([false, false])
+  })
+
   it("should not allow handles of a range slider to cross", async () => {
     const slider = RangeSlider.create({start: 0, end: 10, step: 1, value: [2, 5]})
     const {view} = await display(slider, [300, 50])
