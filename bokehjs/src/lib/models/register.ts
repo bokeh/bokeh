@@ -9,6 +9,6 @@ export function register_standard_models(resolver: ModelResolver = default_resol
   register_models(AllModels, force, resolver)
   register_models({DocumentConfig}, force, resolver)
 
-  const {GlobalInlineStyleSheet: _GlobalInlineStyleSheet, ...registered_dom_models} = DOMModels
+  const {GlobalInlineStyleSheet: _GlobalInlineStyleSheet, TranslatableText: _TranslatableText, ...registered_dom_models} = DOMModels
   register_models(registered_dom_models, force, resolver)
 }

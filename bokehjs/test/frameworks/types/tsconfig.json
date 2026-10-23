@@ -13,5 +13,5 @@
       "@bokeh/bokehjs": ["../../../build/js/lib/bokeh_package.d.ts"]
     }
   },
-  "include": ["index.ts"]
+  "include": ["index.ts", "../../../src/lib/es.d.ts"]
 }
