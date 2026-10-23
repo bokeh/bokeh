@@ -13,15 +13,18 @@ export abstract class NumericalSliderView extends BaseNumericalSliderView {
   }
 
   protected _calc_spec(): SliderSpec<number> {
-    const {start, end, value, step} = this.values
+    const {start, end, step} = this.values
     return {
       start,
       end,
-      values: [value],
       step,
       compute: (value: number) => value,
       invert: (synthetic: number) => synthetic,
     }
+  }
+
+  protected _calc_values(): number[] {
+    return [this.values.value]
   }
 
   protected _calc_from([value]: number[]): number {
