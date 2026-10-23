@@ -48,6 +48,8 @@ export type SliderKind = {
   readonly draggable: boolean
   /** Extent of the span in screen space [0, 1], or `null` if there's no span. */
   span(svs: number[]): [number, number] | null
+  /** Accessible label distinguishing handle `i` of `n` handles (combined with the title). */
+  label(i: number, n: number): string | null
 }
 
 /** One handle with a span filled from the start of the track. */
@@ -55,6 +57,7 @@ export const single_kind: SliderKind = {
   ordered: false,
   draggable: false,
   span: ([sv]) => [0, sv],
+  label: () => null,
 }
 
 /** Two ordered handles connected by a draggable span. */
@@ -62,6 +65,7 @@ export const range_kind: SliderKind = {
   ordered: true,
   draggable: true,
   span: ([sv0, sv1]) => [sv0, sv1],
+  label: (i) => i == 0 ? "minimum" : "maximum",
 }
 
 /** Any number of handles without a span, optionally kept in order. */
@@ -70,6 +74,7 @@ export function multi_kind({ordered}: {ordered: boolean}): SliderKind {
     ordered,
     draggable: false,
     span: () => null,
+    label: (i, n) => `${i + 1} of ${n}`,
   }
 }
 
@@ -313,7 +318,12 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     const disabled_cls = disabled.value ? sliders_css.disabled : null
     const stealth_cls = appearance.value == "stealth" ? sliders_css.stealth : null
 
-    const TeXComponent = ({text}: {text: string}) => {
+    // IDs are scoped to the shadow root, so they don't need to be globally unique
+    const title_id = "title"
+    const handle_id = (i: number) => `handle-${i}`
+    const span_id = "span"
+
+    const TeXComponent = ({text, id}: {text: string, id?: string}) => {
       const set_content = (el: HTMLElement | null): void => {
         if (el != null) {
           if (this.contains_tex_string(text)) {
@@ -323,7 +333,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
           }
         }
       }
-      return <span ref={set_content}></span>
+      return <span id={id} ref={set_content}></span>
     }
 
     const title_el = (() => {
@@ -334,7 +344,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
       if (!hide_header) {
         const title_el = (() => {
           if (title.length > 0) {
-            return <><TeXComponent text={title}></TeXComponent>: </>
+            return <><TeXComponent text={title} id={title_id}></TeXComponent>: </>
           } else {
             return null
           }
@@ -354,24 +364,39 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
       }
     })()
 
-    const {reversed, values, N} = meta
+    const {reversed, values, N, min, max} = meta
     const dragged = this._dragged.value
     const svs = values.map((value) => this._compute(value))
+    const synthetic = this.synthetic_values
+
+    // name a handle (or span) after the title combined with its own label (if any)
+    const has_title = (this.signals.title.value ?? "").length != 0
+    const labelled_by = (id: string, label: string | null): string | undefined => {
+      const ids = [has_title ? title_id : null, label != null ? id : null].filter((id) => id != null)
+      return ids.length != 0 ? ids.join(" ") : undefined
+    }
 
     this.handles.length = N
     const handles = values.map((value, i) => {
       const at = reversed ? 1 - svs[i] : svs[i]
-      const label = this.pretty(value)
+      const label = kind.label(i, N)
+      // the range the handle can actually move within (e.g. up to its neighbors)
+      const [lo, hi] = this.bounds(synthetic, i, [i])
       return (
         <div
           role="slider"
+          id={handle_id(i)}
           class={cls(sliders_css.handle, dragged.includes(i) ? sliders_css.dragging : null)}
           tabIndex={disabled.value ? -1 : 0}
           style={{"--at": `${at}`}}
           aria-disabled={disabled}
           aria-orientation={orientation}
-          aria-valuetext={label}
-          aria-label={label}
+          aria-valuenow={synthetic[i]}
+          aria-valuemin={lo}
+          aria-valuemax={hi}
+          aria-valuetext={this.pretty(value)}
+          aria-label={label ?? undefined}
+          aria-labelledby={labelled_by(handle_id(i), label)}
           onKeyDown={this._on_keydown}
           ref={(el) => { this.handles[i] = el! }}
         >
@@ -398,16 +423,24 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
       }
       // a draggable span moves all handles together, so it can be focused
       // and controlled with keyboard as well
-      const label = values.map((v) => this.pretty(v)).join(" .. ")
+      // the span's value is its position, i.e. where its lower end can move
+      const [lower, upper] = minmax(synthetic[0], synthetic[N - 1])
+      const label = "range"
       return (
         <div
           role="slider"
+          id={span_id}
           class={cls(sliders_css.span, sliders_css.draggable)}
           tabIndex={disabled.value ? -1 : 0}
           style={{"--start": start, "--end": end}}
           aria-disabled={disabled}
           aria-orientation={orientation}
-          aria-valuetext={label}
+          aria-valuenow={lower}
+          aria-valuemin={min}
+          aria-valuemax={max - (upper - lower)}
+          aria-valuetext={values.map((v) => this.pretty(v)).join(" to ")}
+          aria-label={label}
+          aria-labelledby={labelled_by(span_id, label)}
           onKeyDown={this._on_keydown}
           ref={(el) => { this.span_el = el }}
         ></div>

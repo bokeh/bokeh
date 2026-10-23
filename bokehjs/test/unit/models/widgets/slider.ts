@@ -2,7 +2,15 @@ import {expect, expect_not_null} from "#framework/assertions"
 import * as sinon from "sinon"
 import {display} from "#framework/layouts"
 
-import {Slider, RangeSlider, MultiValuedSlider, DateSlider, DateRangeSlider, DatetimeRangeSlider} from "@bokehjs/models/widgets"
+import {
+  CategoricalSlider,
+  DateRangeSlider,
+  DateSlider,
+  DatetimeRangeSlider,
+  MultiValuedSlider,
+  RangeSlider,
+  Slider,
+} from "@bokehjs/models/widgets"
 import {CustomJSTickFormatter} from "@bokehjs/models/formatters"
 import {isInteger} from "@bokehjs/core/util/types"
 import {pairwise} from "@bokehjs/core/util/array"
@@ -488,7 +496,7 @@ describe("AbstractSliderView gestures", () => {
 
     expect(span.tabIndex).to.be.equal(0)
     expect(span.role).to.be.equal("slider")
-    expect(span.ariaValueText).to.be.equal("2 .. 5")
+    expect(span.ariaValueText).to.be.equal("2 to 5")
     expect([...track.children]).to.be.equal([handle0, span, handle1])
 
     slider.disabled = true
@@ -652,5 +660,96 @@ describe("AbstractSliderView gestures", () => {
     handle.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight"}))
     await view.ready
     expect(slider.value).to.be.equal(5)
+  })
+})
+
+describe("AbstractSliderView accessibility", () => {
+  type Aria = {name: string | null, now: string | null, min: string | null, max: string | null, text: string | null}
+
+  // resolves aria-labelledby (within the shadow root) the same way as accessible name computation
+  function aria(view: AbstractSliderView<unknown>, el: HTMLElement): Aria {
+    const labelledby = el.getAttribute("aria-labelledby")
+    const name = labelledby == null ? el.ariaLabel : labelledby.split(" ").map((id) => {
+      const ref = view.shadow_el.getElementById(id)
+      expect_not_null(ref)
+      return ref == el ? el.ariaLabel : ref.textContent
+    }).join(" ")
+    return {name, now: el.ariaValueNow, min: el.ariaValueMin, max: el.ariaValueMax, text: el.ariaValueText}
+  }
+
+  it("should name a single value slider after its title and expose its value", async () => {
+    const slider = Slider.create({start: 0, end: 10, step: 1, value: 5, title: "Volume"})
+    const {view} = await display(slider, [300, 50])
+    const {handles: [handle]} = elements(view)
+    expect(aria(view, handle)).to.be.equal({name: "Volume", now: "5", min: "0", max: "10", text: "5"})
+
+    slider.value = 7
+    await view.ready
+    expect(aria(view, handle)).to.be.equal({name: "Volume", now: "7", min: "0", max: "10", text: "7"})
+  })
+
+  it("should not name a slider after its value when it has no title", async () => {
+    const slider = Slider.create({start: 0, end: 10, step: 1, value: 5, title: ""})
+    const {view} = await display(slider, [300, 50])
+    const {handles: [handle]} = elements(view)
+    expect(aria(view, handle)).to.be.equal({name: null, now: "5", min: "0", max: "10", text: "5"})
+  })
+
+  it("should expose numerically ordered bounds for reversed sliders", async () => {
+    const slider = Slider.create({start: 10, end: 0, step: 1, value: 8, title: "Volume"})
+    const {view} = await display(slider, [300, 50])
+    const {handles: [handle]} = elements(view)
+    expect(aria(view, handle)).to.be.equal({name: "Volume", now: "8", min: "0", max: "10", text: "8"})
+  })
+
+  it("should expose bounds constrained by neighbors and distinct names for range sliders", async () => {
+    const slider = RangeSlider.create({start: 0, end: 10, step: 1, value: [2, 5], title: "Price"})
+    const {view} = await display(slider, [300, 50])
+    const {span, handles: [handle0, handle1]} = elements(view)
+    expect_not_null(span)
+
+    expect(aria(view, handle0)).to.be.equal({name: "Price minimum", now: "2", min: "0", max: "5", text: "2"})
+    expect(aria(view, handle1)).to.be.equal({name: "Price maximum", now: "5", min: "2", max: "10", text: "5"})
+    expect(aria(view, span)).to.be.equal({name: "Price range", now: "2", min: "0", max: "7", text: "2 to 5"})
+
+    span.dispatchEvent(new KeyboardEvent("keydown", {key: "End"}))
+    await view.ready
+    expect(aria(view, handle0)).to.be.equal({name: "Price minimum", now: "7", min: "0", max: "10", text: "7"})
+    expect(aria(view, handle1)).to.be.equal({name: "Price maximum", now: "10", min: "7", max: "10", text: "10"})
+    expect(aria(view, span)).to.be.equal({name: "Price range", now: "7", min: "0", max: "7", text: "7 to 10"})
+  })
+
+  it("should name handles of a range slider without a title by their roles", async () => {
+    const slider = RangeSlider.create({start: 0, end: 10, step: 1, value: [2, 5], title: null})
+    const {view} = await display(slider, [300, 50])
+    const {span, handles: [handle0, handle1]} = elements(view)
+    expect_not_null(span)
+    expect([handle0, span, handle1].map((el) => aria(view, el).name)).to.be.equal(["minimum", "range", "maximum"])
+  })
+
+  it("should expose bounds constrained by neighbors and distinct names for multi-valued sliders", async () => {
+    const slider = MultiValuedSlider.create({start: 0, end: 10, step: 1, value: [2, 5, 8], title: "Levels"})
+    const {view} = await display(slider, [300, 50])
+    const {handles} = elements(view)
+    expect(handles.map((el) => aria(view, el))).to.be.equal([
+      {name: "Levels 1 of 3", now: "2", min: "0", max: "5", text: "2"},
+      {name: "Levels 2 of 3", now: "5", min: "2", max: "8", text: "5"},
+      {name: "Levels 3 of 3", now: "8", min: "5", max: "10", text: "8"},
+    ])
+  })
+
+  it("should expose numerical values and formatted text for date and categorical sliders", async () => {
+    const start = Date.UTC(2026, 0, 1)
+    const end = Date.UTC(2026, 11, 31)
+    const value = Date.UTC(2026, 3, 3)
+    const date_slider = DateSlider.create({start, end, value, title: "Date"})
+    const {view: date_view} = await display(date_slider, [300, 50])
+    const {handles: [date_handle]} = elements(date_view)
+    expect(aria(date_view, date_handle)).to.be.equal({name: "Date", now: `${value}`, min: `${start}`, max: `${end}`, text: "03 Apr 2026"})
+
+    const cat_slider = CategoricalSlider.create({categories: ["A", "B", "C"], value: "B", title: "Category"})
+    const {view: cat_view} = await display(cat_slider, [300, 50])
+    const {handles: [cat_handle]} = elements(cat_view)
+    expect(aria(cat_view, cat_handle)).to.be.equal({name: "Category", now: "1", min: "0", max: "2", text: "B"})
   })
 })
