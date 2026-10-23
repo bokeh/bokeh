@@ -86,6 +86,10 @@ export class ToolProxy<T extends Tool> extends Model {
     return this.tools[0].tool_name
   }
 
+  get computed_name(): string {
+    return this.tools[0].computed_name
+  }
+
   get computed_icon(): IconLike | undefined {
     return this.tools[0].computed_icon
   }
