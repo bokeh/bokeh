@@ -412,9 +412,13 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
       )
     })()
 
-    // keep tab order consistent with visual order, i.e. a draggable span
-    // between the first and the remaining handles
+    // keep tab order consistent with visual order (left to right or top to
+    // bottom), i.e. a draggable span between the first and the remaining
+    // handles, and reversed for reversed sliders
     const track_children = kind.draggable ? [handles[0], span_el, ...handles.slice(1)] : [span_el, ...handles]
+    if (reversed) {
+      track_children.reverse()
+    }
 
     return (
       <UIComponent
