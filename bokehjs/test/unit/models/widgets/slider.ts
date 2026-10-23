@@ -695,6 +695,85 @@ describe("AbstractSliderView accessibility", () => {
     expect(aria(view, handle)).to.be.equal({name: null, now: "5", min: "0", max: "10", text: "5"})
   })
 
+  it("should keep handles of stealth sliders focusable and show them when focused", async () => {
+    const slider = RangeSlider.create({start: 0, end: 10, step: 1, value: [2, 5], title: "Price", appearance: "stealth"})
+    const {view} = await display(slider, [300, 50])
+    const {span, handles: [handle0, handle1]} = elements(view)
+    expect_not_null(span)
+
+    const opacity = () => [handle0, handle1].map((el) => getComputedStyle(el).opacity)
+    const displayed = () => [handle0, handle1].every((el) => getComputedStyle(el).display != "none")
+
+    expect(displayed()).to.be.true
+    expect([handle0.tabIndex, span.tabIndex, handle1.tabIndex]).to.be.equal([0, 0, 0])
+    expect(opacity()).to.be.equal(["0", "0"])
+
+    // focus not originating from pointer interaction shows handles
+    for (const el of [handle0, span, handle1]) {
+      el.focus()
+      await view.ready
+      expect(el.classList.contains(slider_css.focus_visible)).to.be.true
+      expect(opacity()).to.be.equal(["1", "1"])
+    }
+
+    handle1.blur()
+    await view.ready
+    expect(handle1.classList.contains(slider_css.focus_visible)).to.be.false
+    expect(opacity()).to.be.equal(["0", "0"])
+  })
+
+  it("should not show focus indicators after dragging, but show them after using keyboard", async () => {
+    const slider = RangeSlider.create({start: 0, end: 10, step: 1, value: [2, 5], appearance: "stealth"})
+    const {view} = await display(slider, [300, 50])
+    const {track, span, handles: [handle0, handle1]} = elements(view)
+    expect_not_null(span)
+
+    const focus_visible = () => [handle0, span, handle1].map((el) => el.classList.contains(slider_css.focus_visible))
+    const opacity = () => [handle0, handle1].map((el) => getComputedStyle(el).opacity)
+    const tooltips = () => [handle0, handle1].map((el) => getComputedStyle(el.querySelector(`.${slider_css.tooltip}`)!).display != "none")
+
+    // keyboard focus, then dragging the focused handle
+    handle0.focus()
+    await view.ready
+    expect(focus_visible()).to.be.equal([true, false, false])
+
+    await drag(view, handle0, center(handle0), 0.3)
+    expect(slider.value).to.be.equal([3, 5])
+    expect(view.shadow_el.activeElement).to.be.equal(handle0)
+    expect(focus_visible()).to.be.equal([false, false, false])
+    expect(opacity()).to.be.equal(["0", "0"])
+    expect(tooltips()).to.be.equal([false, false])
+
+    // keyboard after pointer focus
+    handle0.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight", bubbles: true, composed: true}))
+    await view.ready
+    expect(slider.value).to.be.equal([4, 5])
+    expect(focus_visible()).to.be.equal([true, false, false])
+    expect(opacity()).to.be.equal(["1", "1"])
+    expect(tooltips()).to.be.equal([true, false])
+
+    // dragging the span
+    await drag(view, span, on_track(track, 0.45), 0.55)
+    expect(slider.value).to.be.equal([5, 6])
+    expect(view.shadow_el.activeElement).to.be.equal(span)
+    expect(focus_visible()).to.be.equal([false, false, false])
+    expect(tooltips()).to.be.equal([false, false])
+
+    // focus moving with keyboard within the slider after pointer focus
+    handle1.focus()
+    await view.ready
+    expect(focus_visible()).to.be.equal([false, false, false])
+    handle1.dispatchEvent(new KeyboardEvent("keydown", {key: "Tab", bubbles: true, composed: true}))
+    await view.ready
+    expect(focus_visible()).to.be.equal([false, false, true])
+
+    // focus leaving the slider resets pointer interaction
+    handle1.blur()
+    handle0.focus()
+    await view.ready
+    expect(focus_visible()).to.be.equal([true, false, false])
+  })
+
   it("should expose numerically ordered bounds for reversed sliders", async () => {
     const slider = Slider.create({start: 10, end: 0, step: 1, value: 8, title: "Volume"})
     const {view} = await display(slider, [300, 50])

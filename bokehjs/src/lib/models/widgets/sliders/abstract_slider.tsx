@@ -306,8 +306,50 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     return (reversed ? 1 - sv : sv)*span + min
   }
 
-  protected focus_handle(i: number, options?: FocusOptions): void {
-    this.handles[i].focus(options)
+  /**
+   * Handle (by index) or span that has keyboard focus, i.e. should show focus
+   * indicators (e.g. tooltips or stealth handles). This is tracked manually,
+   * instead of relying on `:focus-visible`, because the browser can't tell
+   * pointer interaction (the default action of pointerdown is prevented), so
+   * it would apply keyboard heuristics, and `focus({focusVisible: false})`
+   * isn't universally supported.
+   */
+  protected readonly _keyboard_focus = signal<number | "span" | null>(null)
+
+  /** Whether the last interaction with the slider was using a pointer. */
+  private _pointer_interaction: boolean = false
+
+  protected focus_target(el: EventTarget | null): number | "span" | null {
+    if (el != null && el == this.span_el) {
+      return "span"
+    }
+    const i = this.handles.indexOf(el as HTMLElement)
+    return i != -1 ? i : null
+  }
+
+  /**
+   * Focus an element as a result of pointer interaction, i.e. without focus indicators.
+   */
+  protected pointer_focus(el: HTMLElement): void {
+    this._pointer_interaction = true
+    this._keyboard_focus.value = null
+    // in browsers that support it, this also prevents native focus rings
+    el.focus({focusVisible: false})
+  }
+
+  @bind protected _on_focus_in(event: FocusEvent): void {
+    if (!this._pointer_interaction && !this.values.disabled) {
+      this._keyboard_focus.value = this.focus_target(event.target)
+    }
+  }
+
+  @bind protected _on_focus_out(event: FocusEvent): void {
+    const target = this.focus_target(event.relatedTarget)
+    if (target == null) {
+      // focus left the slider, so the next focus may come from keyboard
+      this._pointer_interaction = false
+    }
+    this._keyboard_focus.value = null
   }
 
   override component(): VNode {
@@ -366,6 +408,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
 
     const {reversed, values, N, min, max} = meta
     const dragged = this._dragged.value
+    const keyboard_focus = this._keyboard_focus.value
     const svs = values.map((value) => this._compute(value))
     const synthetic = this.synthetic_values
 
@@ -386,7 +429,11 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
         <div
           role="slider"
           id={handle_id(i)}
-          class={cls(sliders_css.handle, dragged.includes(i) ? sliders_css.dragging : null)}
+          class={cls(
+            sliders_css.handle,
+            dragged.includes(i) ? sliders_css.dragging : null,
+            keyboard_focus == i ? sliders_css.focus_visible : null,
+          )}
           tabIndex={disabled.value ? -1 : 0}
           style={{"--at": `${at}`}}
           aria-disabled={disabled}
@@ -430,7 +477,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
         <div
           role="slider"
           id={span_id}
-          class={cls(sliders_css.span, sliders_css.draggable)}
+          class={cls(sliders_css.span, sliders_css.draggable, keyboard_focus == "span" ? sliders_css.focus_visible : null)}
           tabIndex={disabled.value ? -1 : 0}
           style={{"--start": start, "--end": end}}
           aria-disabled={disabled}
@@ -470,7 +517,12 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
           onLostPointerCapture={this._on_lost_pointer_capture}
           onWheel={this._on_wheel}
         >
-          <div class={sliders_css.track} ref={(el) => { this.track_el = el! }}>
+          <div
+            class={sliders_css.track}
+            onFocusIn={this._on_focus_in}
+            onFocusOut={this._on_focus_out}
+            ref={(el) => { this.track_el = el! }}
+          >
             {...track_children}
           </div>
         </div>
@@ -485,6 +537,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
 
   // TODO redesign this using UIGestures
   @bind protected _on_pointer_down(event: TargetedPointerEvent): void {
+    this._pointer_interaction = true
     if (this.values.disabled || this._state != null) {
       return
     }
@@ -521,15 +574,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     // keeps its cursor and hover state (e.g. the tooltip) while dragging
     const capture_el = target.type == "span" ? target.el : this.handles[group[0]]
     capture_el.setPointerCapture(event.pointerId)
-    // pointer interaction shouldn't show focus indicators (e.g. tooltips), but
-    // the browser can't tell, because the default action of pointerdown is
-    // prevented, so it would apply keyboard focus heuristics instead
-    const focus_options = {focusVisible: false}
-    if (target.type == "span") {
-      target.el.focus(focus_options)
-    } else {
-      this.focus_handle(group[0], focus_options)
-    }
+    this.pointer_focus(target.type == "span" ? target.el : this.handles[group[0]])
     event.preventDefault()
 
     this._state = {
@@ -593,7 +638,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
         this._dragged.value = state.group
         state.capture_el = this.handles[j]
         state.capture_el.setPointerCapture(state.pointer)
-        this.focus_handle(j, {focusVisible: false})
+        this.pointer_focus(this.handles[j])
       }
       state.unstack = false
     }
@@ -641,6 +686,9 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     if (target == null || target.type == "track") {
       return
     }
+
+    this._pointer_interaction = false
+    this._keyboard_focus.value = this.focus_target(target.el)
 
     const {step_multiplier} = this.meta
     const offset = (() => {
