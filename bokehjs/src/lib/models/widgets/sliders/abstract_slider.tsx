@@ -87,6 +87,8 @@ type DragState = {
   group: number[]
   /** Whether the dragged handle may still be swapped for an overlapping one. */
   unstack: boolean
+  /** Element capturing the pointer, which also determines cursor and hover state. */
+  capture_el: HTMLElement
 }
 
 export abstract class AbstractSliderView<T> extends OrientedControlView {
@@ -404,7 +406,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
           onPointerMove={this._on_pointer_move}
           onPointerUp={this._on_pointer_up}
           onPointerCancel={this._on_pointer_cancel}
-          onLostPointerCapture={this._on_pointer_cancel}
+          onLostPointerCapture={this._on_lost_pointer_capture}
           onWheel={this._on_wheel}
         >
           <div class={sliders_css.track} ref={(el) => { this.track_el = el! }}>
@@ -452,7 +454,10 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
       }
     })()
 
-    event.currentTarget.setPointerCapture(event.pointerId)
+    // capture on the dragged element (not the whole slider), so that it
+    // keeps its cursor and hover state (e.g. the tooltip) while dragging
+    const capture_el = target.type == "span" ? target.el : this.handles[group[0]]
+    capture_el.setPointerCapture(event.pointerId)
     this.focus_handle(group[0])
     event.preventDefault()
 
@@ -462,6 +467,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
       values,
       group: [...group],
       unstack,
+      capture_el,
     }
   }
 
@@ -493,6 +499,14 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     }
   }
 
+  @bind protected _on_lost_pointer_capture(event: TargetedPointerEvent): void {
+    const {_state: state} = this
+    // ignore capture being transferred between handles
+    if (state != null && state.pointer == event.pointerId && event.target == state.capture_el) {
+      this._end_drag()
+    }
+  }
+
   protected _drag(xy: XY, state: DragState): void {
     const {span, reversed} = this.meta
     const {track_size} = this
@@ -504,6 +518,8 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
       const j = this.unstack(state.values, i, offset)
       if (j != i) {
         state.group = [j]
+        state.capture_el = this.handles[j]
+        state.capture_el.setPointerCapture(state.pointer)
         this.focus_handle(j)
       }
       state.unstack = false
