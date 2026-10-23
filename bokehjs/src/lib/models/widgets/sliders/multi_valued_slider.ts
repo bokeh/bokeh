@@ -1,11 +1,19 @@
-import type {SliderSpec} from "./abstract_slider"
+import type {SliderSpec, SliderKind} from "./abstract_slider"
+import {multi_kind} from "./abstract_slider"
 import {BaseNumericalSlider, BaseNumericalSliderView} from "./base_numerical_slider"
 import type * as p from "core/properties"
+
+// TODO make this configurable; unordered handles are supported with `multi_kind({ordered: false})`
+const ordered_kind = multi_kind({ordered: true})
 
 export abstract class MultiValuedSliderView extends BaseNumericalSliderView {
   declare readonly model: MultiValuedSlider
   declare readonly signals: p.SignalsOf<MultiValuedSlider.Props>
   declare readonly values: MultiValuedSlider.Attrs
+
+  protected get kind(): SliderKind {
+    return ordered_kind
+  }
 
   protected _calc_spec(): SliderSpec<number> {
     const {start, end, step, value} = this.values

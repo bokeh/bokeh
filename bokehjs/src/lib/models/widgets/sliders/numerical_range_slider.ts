@@ -1,4 +1,5 @@
-import type {SliderSpec} from "./abstract_slider"
+import type {SliderSpec, SliderKind} from "./abstract_slider"
+import {range_kind} from "./abstract_slider"
 import {BaseNumericalSlider, BaseNumericalSliderView} from "./base_numerical_slider"
 import type * as p from "core/properties"
 
@@ -6,6 +7,10 @@ export abstract class NumericalRangeSliderView extends BaseNumericalSliderView {
   declare readonly model: NumericalRangeSlider
   declare readonly signals: p.SignalsOf<NumericalRangeSlider.Props>
   declare readonly values: NumericalRangeSlider.Attrs
+
+  protected get kind(): SliderKind {
+    return range_kind
+  }
 
   protected _calc_spec(): SliderSpec<number> {
     const {start, end, step, value} = this.values

@@ -2,16 +2,13 @@ import {OrientedControl, OrientedControlView} from "../oriented_control"
 import {bind} from "core/class"
 import * as p from "core/properties"
 import type {Keys} from "core/dom"
-import {bounding_box, box_size} from "core/dom"
 import type {VNode, TargetedEvent} from "core/vdom"
 import {UIComponent, cls} from "core/vdom"
 import type {StyleSheetLike} from "core/stylesheets"
-import {assert} from "core/util/assert"
 import {clamp, sign, minmax} from "core/util/math"
-import {range, min_by, copy} from "core/util/array"
+import {range} from "core/util/array"
 import {bisect_right} from "core/util/arrayable"
-import type {BBox, XY} from "core/util/bbox"
-import {isNumber} from "core/util/types"
+import type {XY} from "core/util/bbox"
 
 import * as sliders_css from "styles/widgets/sliders.css"
 
@@ -20,7 +17,7 @@ import {computed} from "@preact/signals"
 type TargetedPointerEvent = TargetedEvent<HTMLElement, PointerEvent>
 type TargetedWheelEvent = TargetedEvent<HTMLElement, WheelEvent>
 
-const {abs, max: max_of} = Math
+const {abs, round, min: min_of, max: max_of} = Math
 
 export type SliderSpec<T> = {
   readonly start: number
@@ -41,18 +38,63 @@ type SliderMeta<T> = SliderSpec<T> & {
   readonly N: number
 }
 
+/**
+ * Describes how handles of a slider relate to each other and to the span.
+ */
+export type SliderKind = {
+  /** Whether handles are kept in order, i.e. can't pass each other. */
+  readonly ordered: boolean
+  /** Whether the span can be dragged, moving all handles together. */
+  readonly draggable: boolean
+  /** Extent of the span in screen space [0, 1], or `null` if there's no span. */
+  span(svs: number[]): [number, number] | null
+}
+
+/** One handle with a span filled from the start of the track. */
+export const single_kind: SliderKind = {
+  ordered: false,
+  draggable: false,
+  span: ([sv]) => [0, sv],
+}
+
+/** Two ordered handles connected by a draggable span. */
+export const range_kind: SliderKind = {
+  ordered: true,
+  draggable: true,
+  span: ([sv0, sv1]) => [sv0, sv1],
+}
+
+/** Any number of handles without a span, optionally kept in order. */
+export function multi_kind({ordered}: {ordered: boolean}): SliderKind {
+  return {
+    ordered,
+    draggable: false,
+    span: () => null,
+  }
+}
+
 type HitType = "handle" | "track" | "span"
 type HitTarget = {type: HitType, el: HTMLElement}
 
 type PointerId = number
-type DragState = {bbox: BBox, xy: XY, target: HitTarget, pointer: PointerId}
+type DragState = {
+  pointer: PointerId
+  /** Pointer position (in client coordinates) when the drag started. */
+  xy: XY
+  /** Synthetic values when the drag started. */
+  values: number[]
+  /** Indices of handles being dragged. */
+  group: number[]
+  /** Whether the dragged handle may still be swapped for an overlapping one. */
+  unstack: boolean
+}
 
 export abstract class AbstractSliderView<T> extends OrientedControlView {
   declare readonly model: AbstractSlider<T>
   declare readonly signals: p.SignalsOf<AbstractSlider.Props>
   declare readonly values: AbstractSlider.Attrs
 
-  protected span_el: HTMLElement
+  protected span_el: HTMLElement | null = null
   protected track_el: HTMLElement
   protected handles: HTMLElement[] = []
 
@@ -60,6 +102,8 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
   protected override readonly _auto_height = "auto"
 
   abstract pretty(value: T): string
+
+  protected abstract get kind(): SliderKind
 
   get meta(): SliderMeta<T> {
     return this._meta.value
@@ -96,14 +140,13 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
   }
 
   protected hit_target(event: Event): HitTarget | null {
-    const {N} = this.meta
     for (const el of event.composedPath()) {
       for (const handle_el of this.handles) {
         if (el == handle_el) {
           return {type: "handle", el: handle_el}
         }
       }
-      if (N == 2 && el == this.span_el) {
+      if (this.kind.draggable && el == this.span_el) {
         return {type: "span", el: this.span_el}
       }
       if (el == this.track_el) {
@@ -113,94 +156,154 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     return null
   }
 
-  protected nearest_handle(event: MouseEvent): HitTarget {
-    const ex = event.clientX
-    const ey = event.clientY
-
-    const dist2 = (center: XY) => (center.x - ex)**2 + (center.y - ey)**2
-
-    const handle_el = min_by(this.handles, (handle_el) => dist2(bounding_box(handle_el).center))
-    return {type: "handle", el: handle_el}
+  /**
+   * Synthetic values of all handles.
+   */
+  protected get synthetic_values(): number[] {
+    const {values, compute} = this.meta
+    return values.map((value) => compute(value))
   }
 
-  protected get_new_values(i_or_handle_el: number | HTMLElement, new_value: T): T[] {
-    const i = isNumber(i_or_handle_el) ? i_or_handle_el : this.handles.indexOf(i_or_handle_el)
-    const new_values = copy(this.meta.values)
-    new_values[i] = new_value
+  /**
+   * Index of the handle nearest to the given synthetic value. Ties
+   * between overlapping handles are resolved towards the value.
+   */
+  protected nearest_handle(values: number[], value: number): number {
+    let nearest = 0
+    for (let i = 1; i < values.length; i++) {
+      const d = abs(values[i] - value)
+      const d_nearest = abs(values[nearest] - value)
+      if (d < d_nearest || (d == d_nearest && value > values[i])) {
+        nearest = i
+      }
+    }
+    return nearest
+  }
+
+  /**
+   * With ordered handles, picks which of the handles overlapping handle `i`
+   * can move in the given direction (e.g. when both handles of a range are
+   * at the end of the track, only the first one can move).
+   */
+  protected unstack(values: number[], i: number, direction: number): number {
+    if (!this.kind.ordered || direction == 0) {
+      return i
+    }
+    const delta = direction < 0 ? -1 : 1
+    let j = i
+    while (values[j + delta] == values[i]) {
+      j += delta
+    }
+    return j
+  }
+
+  /**
+   * Snap a synthetic value to the nearest tick (if any) and clamp it to the slider's range.
+   */
+  protected snap(value: number): number {
+    const {min, max, ticks} = this.meta
+    value = clamp(value, min, max)
+    if (ticks == null) {
+      return value
+    } else {
+      const i = max_of(bisect_right(ticks, value) - 1, 0)
+      const v0 = ticks[i]
+      const v1 = ticks[i + 1] ?? Infinity
+      return abs(value - v0) <= abs(value - v1) ? v0 : v1
+    }
+  }
+
+  /**
+   * Range within which handle `i` can move, given positions of handles outside `group`.
+   */
+  protected bounds(values: number[], i: number, group: number[]): [number, number] {
+    let {min: lo, max: hi} = this.meta
+    if (this.kind.ordered) {
+      const prev = i - 1
+      const next = i + 1
+      if (prev >= 0 && !group.includes(prev)) {
+        lo = max_of(lo, values[prev])
+      }
+      if (next < values.length && !group.includes(next)) {
+        hi = min_of(hi, values[next])
+      }
+    }
+    return [lo, hi]
+  }
+
+  protected place(values: number[], i: number, group: number[], value: number): number {
+    const [lo, hi] = this.bounds(values, i, group)
+    return clamp(this.snap(value), lo, hi)
+  }
+
+  /**
+   * Move handle `i` to the given synthetic value.
+   */
+  protected move(values: number[], i: number, value: number): number[] {
+    const new_values = [...values]
+    new_values[i] = this.place(values, i, [i], value)
     return new_values
   }
 
-  protected drag_to(xy: XY, state: DragState, throttle: boolean = false): void {
-    const v = (() => {
-      if (this.horizontal) {
-        const dx = xy.x - state.xy.x
-        return state.bbox.x + dx
-      } else {
-        const dy = xy.y - state.xy.y
-        return state.bbox.y + dy
-      }
-    })()
-
-    /*
-    const {values} = this.meta
-    const new_values = copy(values)
-    switch (state.target.type) {
-      case "handle": {
-        values.map((v) => this._move_to(v))
-        break
-      }
-      case "span":
-      case "track":
+  /**
+   * Move a group of handles together by a synthetic offset. The offset
+   * is limited, so that the distances between handles are preserved.
+   */
+  protected shift(values: number[], group: number[], offset: number): number[] {
+    const {step} = this.meta
+    if (step != null) {
+      offset = round(offset/step)*step
     }
-    */
 
-    const handle_el = state.target.el
-    const new_value = this._move_to(v)
-
-    const new_values = this.get_new_values(handle_el, new_value)
-    this._change(new_values, throttle)
-  }
-
-  protected move_to(xy: XY, handle_el: HTMLElement): void {
-    const {x, y} = bounding_box(this.track_el).relativize(xy)
-    const new_value = this._move_to(this.horizontal ? x : y)
-    const new_values = this.get_new_values(handle_el, new_value)
-    this._change(new_values)
-  }
-
-  protected _move_to(pixel_v: number): T {
-    const {width, height} = box_size(this.track_el)
-    const size = this.horizontal ? width : height
-    let sv = clamp(pixel_v, 0, size)/size
-    if (this.meta.reversed) {
-      sv = 1 - sv
+    let lo = -Infinity
+    let hi = +Infinity
+    for (const i of group) {
+      const [lo_i, hi_i] = this.bounds(values, i, group)
+      lo = max_of(lo, lo_i - values[i])
+      hi = min_of(hi, hi_i - values[i])
     }
-    return this._invert(sv)
+    offset = clamp(offset, lo, hi)
+
+    const new_values = [...values]
+    for (const i of group) {
+      new_values[i] = this.place(values, i, group, values[i] + offset)
+    }
+    return new_values
   }
 
-  protected shift_by(handles: HTMLElement[], factor: number): void {
-    const {min, max, span, values, step, reversed, compute, invert} = this.meta
+  /**
+   * Synthetic offset corresponding to `factor` steps in screen direction.
+   */
+  protected step_offset(factor: number): number {
+    const {span, step, reversed} = this.meta
     const computed_step = step == null ? 0.05*span : step
+    return (reversed ? -1 : 1)*factor*computed_step
+  }
 
-    const sign = reversed ? -1 : 1
-    const offset = sign*factor*computed_step
+  protected get track_size(): number {
+    const {clientWidth, clientHeight} = this.track_el
+    return this.horizontal ? clientWidth : clientHeight
+  }
 
-    const new_values = copy(values)
+  /**
+   * Convert a position in client coordinates to a synthetic value.
+   */
+  protected to_synthetic(xy: XY): number {
+    const {min, span, reversed} = this.meta
+    const {track_el, track_size} = this
+    const {left, top} = track_el.getBoundingClientRect()
+    const v = this.horizontal ? xy.x - left - track_el.clientLeft : xy.y - top - track_el.clientTop
+    const sv = track_size == 0 ? 0 : clamp(v/track_size, 0, 1)
+    return (reversed ? 1 - sv : sv)*span + min
+  }
 
-    for (const handle_el of handles) {
-      const i = this.handles.indexOf(handle_el)
-      const value = values[i]
-      const new_synthetic = this._compute(invert(clamp(compute(value) + offset, min, max)))
-      const new_value = this._invert(new_synthetic)
-      new_values[i] = new_value
-    }
-
-    this._change(new_values)
+  protected focus_handle(i: number): void {
+    this.handles[i].focus()
   }
 
   override component(): VNode {
     const {orientation, disabled, appearance, tooltips} = this.signals
-    const {meta} = this
+    const {meta, kind} = this
 
     const orientation_cls = sliders_css[orientation.value]
     const disabled_cls = disabled.value ? sliders_css.disabled : null
@@ -248,16 +351,11 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     })()
 
     const {reversed, values, N} = meta
+    const svs = values.map((value) => this._compute(value))
 
+    this.handles.length = N
     const handles = values.map((value, i) => {
-      const at = (() => {
-        let sv = this._compute(value)
-        const {reversed} = meta
-        if (reversed) {
-          sv = 1 - sv
-        }
-        return sv
-      })()
+      const at = reversed ? 1 - svs[i] : svs[i]
       const label = this.pretty(value)
       return (
         <div
@@ -277,24 +375,22 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
       )
     })
 
-    const [start, end] = (() => {
-      const svs = values.map((v) => this._compute(v))
-      switch (N) {
-        case 1: {
-          const [sv0, sv1] = [0, ...svs]
-          return !reversed ? [sv0, sv1] : [1 - sv1, 1 - sv0]
-        }
-        case 2: {
-          const [sv0, sv1] = svs
-          return !reversed ? [sv0, sv1] : [1 - sv1, 1 - sv0]
-        }
-        default: {
-          return [0, 0]
-        }
+    const span_el = (() => {
+      const span = kind.span(svs)
+      if (span == null) {
+        return null
       }
+      const [sv0, sv1] = minmax(...span)
+      const [start, end] = !reversed ? [sv0, sv1] : [1 - sv1, 1 - sv0]
+      const draggable_cls = kind.draggable ? sliders_css.draggable : null
+      return (
+        <div
+          class={cls(sliders_css.span, draggable_cls)}
+          style={{"--start": start, "--end": end}}
+          ref={(el) => { this.span_el = el }}
+        ></div>
+      )
     })()
-
-    const draggable_cls = N == 2 ? sliders_css.draggable : null
 
     return (
       <UIComponent
@@ -306,12 +402,13 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
           class={sliders_css.slider}
           onPointerDown={this._on_pointer_down}
           onPointerMove={this._on_pointer_move}
-          onPointerCancel={this._on_pointer_cancel}
           onPointerUp={this._on_pointer_up}
+          onPointerCancel={this._on_pointer_cancel}
+          onLostPointerCapture={this._on_pointer_cancel}
           onWheel={this._on_wheel}
         >
           <div class={sliders_css.track} ref={(el) => { this.track_el = el! }}>
-            <div class={cls(sliders_css.span, draggable_cls)} style={{"--start": start, "--end": end}} ref={(el) => { this.span_el = el! }}></div>
+            {span_el}
             {...handles}
           </div>
         </div>
@@ -323,52 +420,102 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
 
   // TODO redesign this using UIGestures
   @bind protected _on_pointer_down(event: TargetedPointerEvent): void {
-    if (this.values.disabled) {
+    if (this.values.disabled || this._state != null) {
       return
     }
-    assert(this._state == null)
-    if (!event.isPrimary) {
+    if (!event.isPrimary || event.button != 0) {
       return
     }
     const target = this.hit_target(event)
     if (target == null) {
       return
     }
-    target.el.setPointerCapture(event.pointerId)
-    target.el.focus()
+
+    const [values, group, unstack] = (() => {
+      const values = this.synthetic_values
+      switch (target.type) {
+        case "handle": {
+          const i = this.handles.indexOf(target.el)
+          return [values, [i], true] as const
+        }
+        case "span": {
+          return [values, range(values.length), false] as const
+        }
+        case "track": {
+          // jump with the nearest handle to the pointer and continue dragging it
+          const value = this.to_synthetic(event)
+          const i = this.nearest_handle(values, value)
+          const new_values = this.move(values, i, value)
+          this._change(new_values, true)
+          return [new_values, [i], false] as const
+        }
+      }
+    })()
+
+    event.currentTarget.setPointerCapture(event.pointerId)
+    this.focus_handle(group[0])
     event.preventDefault()
-    const {x, y} = event
-    const bbox = bounding_box(target.el, this.track_el) // ???
+
     this._state = {
-      bbox: bbox.translate(bbox.width/2, bbox.height/2),
-      xy: {x, y},
-      target,
       pointer: event.pointerId,
+      xy: {x: event.clientX, y: event.clientY},
+      values,
+      group: [...group],
+      unstack,
     }
   }
 
   @bind protected _on_pointer_move(event: TargetedPointerEvent): void {
-    if (this._state != null && this._state.pointer == event.pointerId) {
-      this.drag_to(event, this._state, true)
-    }
-  }
-
-  @bind protected _on_pointer_cancel(event: TargetedPointerEvent): void {
-    if (this._state != null && this._state.pointer == event.pointerId) {
-      this._state = null
+    const {_state: state} = this
+    if (state != null && state.pointer == event.pointerId) {
+      if (this.values.disabled) {
+        this._end_drag()
+      } else {
+        this._drag(event, state)
+      }
     }
   }
 
   @bind protected _on_pointer_up(event: TargetedPointerEvent): void {
-    if (this._state != null && this._state.pointer == event.pointerId) {
-      if (this._state.target.type != "track") {
-        this.drag_to(event, this._state)
-      } else if (this.handles.length == 1) {
-        const [handle_el] = this.handles
-        this.move_to(event, handle_el)
+    const {_state: state} = this
+    if (state != null && state.pointer == event.pointerId) {
+      if (!this.values.disabled) {
+        this._drag(event, state)
       }
-      this._state = null
+      this._end_drag()
     }
+  }
+
+  @bind protected _on_pointer_cancel(event: TargetedPointerEvent): void {
+    const {_state: state} = this
+    if (state != null && state.pointer == event.pointerId) {
+      this._end_drag()
+    }
+  }
+
+  protected _drag(xy: XY, state: DragState): void {
+    const {span, reversed} = this.meta
+    const {track_size} = this
+    const dpx = this.horizontal ? xy.x - state.xy.x : xy.y - state.xy.y
+    const offset = track_size == 0 ? 0 : (reversed ? -1 : 1)*dpx/track_size*span
+
+    if (state.unstack && offset != 0) {
+      const [i] = state.group
+      const j = this.unstack(state.values, i, offset)
+      if (j != i) {
+        state.group = [j]
+        this.focus_handle(j)
+      }
+      state.unstack = false
+    }
+
+    const values = this.shift(state.values, state.group, offset)
+    this._change(values, true)
+  }
+
+  protected _end_drag(): void {
+    this._state = null
+    this.model.setv({value_throttled: this.model.value})
   }
 
   @bind protected _on_wheel(event: TargetedWheelEvent): void {
@@ -376,17 +523,24 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
       return
     }
 
+    const dy = sign(-event.deltaY)
+    if (dy == 0) {
+      return
+    }
+
     event.preventDefault()
     event.stopPropagation()
 
-    const {N} = this.meta
-    const dy = sign(-event.deltaY)
-    if (N == 2) {
-      this.shift_by(this.handles, dy)
-    } else {
-      const handle_el = this.nearest_handle(event).el
-      this.shift_by([handle_el], dy)
-    }
+    const values = this.synthetic_values
+    const group = (() => {
+      if (this.kind.draggable) {
+        return range(values.length)
+      } else {
+        const value = this.to_synthetic(event)
+        return [this.nearest_handle(values, value)]
+      }
+    })()
+    this._change(this.shift(values, group, this.step_offset(dy)))
   }
 
   @bind protected _on_keydown(event: KeyboardEvent): void {
@@ -397,44 +551,54 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     if (target == null || target.type != "handle") {
       return
     }
-    const handle_el = target.el
-    switch (event.key as Keys) {
-      case "Home": {
-        const new_value = this._invert(0.0)
-        const new_values = this.get_new_values(handle_el, new_value)
-        this._change(new_values)
-        break
+
+    const i = this.handles.indexOf(target.el)
+    const values = this.synthetic_values
+
+    const move_to = (value: number) => {
+      const j = this.unstack(values, i, value - values[i])
+      this.focus_handle(j)
+      return this.move(values, j, value)
+    }
+    const shift_by = (factor: number) => {
+      const offset = this.step_offset(factor)
+      const j = this.unstack(values, i, offset)
+      this.focus_handle(j)
+      return this.shift(values, [j], offset)
+    }
+
+    const {min, max, step_multiplier} = this.meta
+    const new_values = (() => {
+      switch (event.key as Keys) {
+        case "Home":
+          return move_to(min)
+        case "End":
+          return move_to(max)
+        case this.horizontal ? "ArrowLeft" : "ArrowUp":
+          return shift_by(-1)
+        case this.horizontal ? "ArrowRight" : "ArrowDown":
+          return shift_by(+1)
+        case "PageDown":
+          return shift_by(-step_multiplier)
+        case "PageUp":
+          return shift_by(+step_multiplier)
+        default:
+          return null
       }
-      case "End": {
-        const new_value = this._invert(1.0)
-        const new_values = this.get_new_values(handle_el, new_value)
-        this._change(new_values)
-        break
-      }
-      case this.horizontal ? "ArrowLeft" : "ArrowUp": {
-        this.shift_by([handle_el], -1)
-        break
-      }
-      case this.horizontal ? "ArrowRight" : "ArrowDown": {
-        this.shift_by([handle_el], +1)
-        break
-      }
-      case "PageDown": {
-        const {step_multiplier} = this.meta
-        this.shift_by([handle_el], -step_multiplier)
-        break
-      }
-      case "PageUp": {
-        const {step_multiplier} = this.meta
-        this.shift_by([handle_el], +step_multiplier)
-        break
-      }
-      default:
+    })()
+
+    if (new_values != null) {
+      event.preventDefault()
+      this._change(new_values)
     }
   }
 
-  protected _change(values: T[], throttle: boolean = false): void {
-    const value = this._calc_from(values)
+  /**
+   * Update the model from synthetic values.
+   */
+  protected _change(values: number[], throttle: boolean = false): void {
+    const {invert} = this.meta
+    const value = this._calc_from(values.map((v) => invert(v)))
     if (throttle) {
       this.model.value = value
     } else {
@@ -451,28 +615,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
    */
   protected _compute(value: T): number {
     const {min, span, compute} = this.meta
-    return (compute(value) - min)/span
-  }
-
-  /**
-   * Convert from screen space [0, 1] to value space.
-   */
-  protected _invert(synthetic: number): T {
-    const {min, span, ticks, invert} = this.meta
-    if (isNaN(synthetic)) {
-      synthetic = min
-    }
-    assert(0 <= synthetic && synthetic <= 1.0)
-    const value = synthetic*span + min
-    if (ticks == null) {
-      return invert(value)
-    } else {
-      const i = max_of(bisect_right(ticks, value) - 1, 0)
-      const v0 = ticks[i]
-      const v1 = ticks[i + 1] ?? Infinity
-      const v = abs(value - v0) <= abs(value - v1) ? v0 : v1
-      return invert(v)
-    }
+    return span == 0 ? 0 : (compute(value) - min)/span
   }
 }
 

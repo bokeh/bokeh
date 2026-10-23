@@ -1,11 +1,15 @@
-import type {SliderSpec} from "./abstract_slider"
-import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
+import type {SliderSpec, SliderKind} from "./abstract_slider"
+import {AbstractSlider, AbstractSliderView, single_kind} from "./abstract_slider"
 import type * as p from "core/properties"
 
 export class CategoricalSliderView extends AbstractSliderView<string> {
   declare readonly model: CategoricalSlider
   declare readonly signals: p.SignalsOf<CategoricalSlider.Props>
   declare readonly values: CategoricalSlider.Attrs
+
+  protected get kind(): SliderKind {
+    return single_kind
+  }
 
   protected _calc_spec(): SliderSpec<string> {
     const {categories, value} = this.values
