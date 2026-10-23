@@ -63,12 +63,12 @@ from typing import (
     ClassVar,
     Literal,
     Protocol,
-    cast,
     runtime_checkable,
 )
 
 # Bokeh imports
 from ..core.serialization import Serializable
+from ..util.dependencies import uses_pandas
 from .json import (
     ColumnDataChanged,
     ColumnsPatched,
@@ -82,13 +82,11 @@ from .json import (
 )
 
 if TYPE_CHECKING:
-    import pandas as pd
     from typing_extensions import TypeIs
 
     from ..core.has_props import Setter
     from ..core.serialization import Serializer
     from ..model import Model
-    from ..models.sources import DataDict, Patches
     from ..server.callbacks import SessionCallback
     from .document import Document
 
@@ -167,12 +165,16 @@ class SessionCallbackRemovedMixin(Protocol):
 
 @runtime_checkable
 class StreamableDataSource(Protocol):
-    def _stream(self, new_data: DataDict | pd.Series[Any] | pd.DataFrame,  # pyright: ignore[reportInvalidTypeArguments]
+    def _stream(self, new_data: Any,
             rollover: int | None = None, setter: Setter | None = None) -> None: ...
 
 @runtime_checkable
 class PatchableDataSource(Protocol):
-    def patch(self, patches: Patches, setter: Setter | None = None) -> None: ...
+    def patch(self, patches: Any, setter: Setter | None = None) -> None: ...
+
+@runtime_checkable
+class ReplaceableDataSource(Protocol):
+    def replace(self, data: Any, *, setter: Setter | None = None) -> None: ...
 
 class DocumentChangedEvent:
     ''' Base class for all internal events representing a change to a
@@ -430,7 +432,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent, kind="ColumnDataChanged"):
 
     kind: ClassVar[Literal["ColumnDataChanged"]] = "ColumnDataChanged"
 
-    def __init__(self, document: Document, model: Model, attr: str, data: DataDict | None = None,
+    def __init__(self, document: Document, model: Model, attr: str, data: Any = None,
             cols: list[str] | None = None, setter: Setter | None = None, callback_invoker: Invoker | None = None):
         '''
 
@@ -507,7 +509,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent, kind="ColumnDataChanged"):
 
     @classmethod
     def _handle_json(cls, doc: Document, setter: Setter | None, event_data: dict[str, Any]) -> None:
-        event = cls(document=doc, setter=setter, model=event_data["model"], attr=event_data["attr"], data=event_data["data"], cols=event_data["cols"])
+        event = cls(document=doc, setter=setter, model=event_data["model"], attr=event_data["attr"], data=event_data["data"], cols=event_data.get("cols"))
         cls._handle_event(doc, event)
 
     @staticmethod
@@ -515,7 +517,10 @@ class ColumnDataChangedEvent(DocumentPatchedEvent, kind="ColumnDataChanged"):
         model = event.model
         attr = event.attr
         data = event.data
-        model.set_from_json(attr, data, setter=event.setter)
+        if attr == "records" and isinstance(model, ReplaceableDataSource):
+            model.replace(data, setter=event.setter)
+        else:
+            model.set_from_json(attr, data, setter=event.setter)
 
 class ColumnsStreamedEvent(DocumentPatchedEvent, kind="ColumnsStreamed"):
     ''' A concrete event representing efficiently streaming new data
@@ -525,9 +530,9 @@ class ColumnsStreamedEvent(DocumentPatchedEvent, kind="ColumnsStreamed"):
 
     kind: ClassVar[Literal["ColumnsStreamed"]] = "ColumnsStreamed"
 
-    data: DataDict
+    data: Any
 
-    def __init__(self, document: Document, model: Model, attr: str, data: DataDict | pd.DataFrame,
+    def __init__(self, document: Document, model: Model, attr: str, data: Any,
             rollover: int | None = None, setter: Setter | None = None, callback_invoker: Invoker | None = None):
         '''
 
@@ -566,15 +571,12 @@ class ColumnsStreamedEvent(DocumentPatchedEvent, kind="ColumnsStreamed"):
         self.attr = attr
 
 
-        stream_data: DataDict
-        if isinstance(data, dict):
-            stream_data = data
-        else:
+        if uses_pandas(data):
             import pandas as pd
-            assert isinstance(data, pd.DataFrame)
-            stream_data = cast(Any, {c: data[c] for c in data.columns})
+            if isinstance(data, pd.DataFrame):
+                data = {c: data[c] for c in data.columns}
 
-        self.data = stream_data
+        self.data = data
         self.rollover = rollover
 
     def dispatch(self, receiver: Any) -> None:
@@ -614,14 +616,12 @@ class ColumnsStreamedEvent(DocumentPatchedEvent, kind="ColumnsStreamed"):
 
     @classmethod
     def _handle_json(cls, doc: Document, setter: Setter | None, event_data: dict[str, Any]) -> None:
-        event = cls(document=doc, setter=setter, model=event_data["model"], attr=event_data["attr"], data=event_data["data"], rollover=event_data["rollover"])
+        event = cls(document=doc, setter=setter, model=event_data["model"], attr=event_data["attr"], data=event_data["data"], rollover=event_data.get("rollover"))
         cls._handle_event(doc, event)
 
     @staticmethod
     def _handle_event(doc: Document, event: ColumnsStreamedEvent) -> None:
         model = event.model
-        attr = event.attr
-        assert attr == "data"
         data = event.data
         rollover = event.rollover
         if not isinstance(model, StreamableDataSource):
@@ -636,7 +636,7 @@ class ColumnsPatchedEvent(DocumentPatchedEvent, kind="ColumnsPatched"):
 
     kind: ClassVar[Literal["ColumnsPatched"]] = "ColumnsPatched"
 
-    def __init__(self, document: Document, model: Model, attr: str, patches: Patches,
+    def __init__(self, document: Document, model: Model, attr: str, patches: Any,
             setter: Setter | None = None, callback_invoker: Invoker | None = None):
         '''
 
@@ -708,8 +708,6 @@ class ColumnsPatchedEvent(DocumentPatchedEvent, kind="ColumnsPatched"):
     @staticmethod
     def _handle_event(doc: Document, event: ColumnsPatchedEvent) -> None:
         model = event.model
-        attr = event.attr
-        assert attr == "data"
         patches = event.patches
         if not isinstance(model, PatchableDataSource):
             raise RuntimeError(f"expected patchable data source, got {model!r}")

@@ -7,15 +7,16 @@ import {PlotActions, actions, xy, tap, press, mouse_enter, mouse_down, mouse_cli
 import {async_trap} from "#framework/util"
 
 import type {ArrowHead, Image, Line, UIElement} from "@bokehjs/models"
+import type {AnyGlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {
   NormalHead, OpenHead,
   BoxAnnotation, LabelSet, ColorBar, Slope, Span, Whisker,
   Range1d, DataRange1d, FactorRange,
-  ColumnDataSource, CDSView, BooleanFilter, IndexFilter, Selection,
+  ColumnDataSource, DataView, BooleanFilter, IndexFilter, Selection,
   LinearAxis, CategoricalAxis,
   GlyphRenderer, GraphRenderer, GridBox,
   Circle, Quad, MultiLine, Scatter, Text,
-  StaticLayoutProvider, NodesAndLinkedEdges,
+  StaticLayoutProvider,
   LinearColorMapper, CategoricalColorMapper,
   Plot,
   TeX,
@@ -55,7 +56,7 @@ import type {LineDash, Location, OutputBackend} from "@bokehjs/core/enums"
 import {Anchor, MarkerType} from "@bokehjs/core/enums"
 import {subsets, tail} from "@bokehjs/core/util/iterator"
 import {isArray, isPlainObject} from "@bokehjs/core/util/types"
-import {range, linspace, cumsum, reversed, subselect} from "@bokehjs/core/util/array"
+import {range, linspace, cumsum, reversed, subselect, zip} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
@@ -70,9 +71,12 @@ import {sprintf} from "@bokehjs/core/util/templating"
 import {assert} from "@bokehjs/core/util/assert"
 import type * as p from "@bokehjs/core/properties"
 import {load_image} from "@bokehjs/core/util/image"
+import {project_xy} from "@bokehjs/core/util/projections"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import {FigureView} from "@bokehjs/models/plots/figure"
+import {PatchesView} from "@bokehjs/models/glyphs/patches"
+import {GeometryDataSource} from "@bokehjs/models/sources/geometry_data_source"
 import type {LegendView} from "@bokehjs/models/annotations/legend"
 import {MenuView} from "@bokehjs/models/ui/menus/menu"
 
@@ -103,7 +107,7 @@ function scalar_image(N: number = 100) {
 function rgba_image() {
   const N = 20
   const d = new Uint32Array(N*N) // TODO: doesn't allow Uint8Array[N, N, 4]
-  const dv = new DataView(d.buffer)
+  const dv = new globalThis.DataView(d.buffer)
 
   const {trunc} = Math
   for (let i = 0; i < N; i++) {
@@ -287,7 +291,7 @@ describe("Bug", () => {
       const y = [0, 1, 2, 3]
       const c = ["black", "red", "green", "blue"]
       const source = ColumnDataSource.create({data: {x, y, c}, selected})
-      const view = CDSView.create({filter: BooleanFilter.create({booleans: [false, true, true, true]})})
+      const view = DataView.create({filter: BooleanFilter.create({booleans: [false, true, true, true]})})
       p.scatter({field: "x"}, {field: "y"}, {source, view, color: {field: "c"}, size: 20})
       return p
     }
@@ -943,7 +947,7 @@ describe("Bug", () => {
         ys: [[0, 1], [0, 1], [0, 1]],
       }})
       const filter = IndexFilter.create({indices: [0, 2]})
-      const view = CDSView.create({filter})
+      const view = DataView.create({filter})
 
       function make_plot(output_backend: OutputBackend) {
         const p = fig([200, 200], {output_backend, title: output_backend})
@@ -1078,7 +1082,7 @@ describe("Bug", () => {
         },
       })
 
-      const view = CDSView.create() // shared view between renderers
+      const view = DataView.create() // shared view between renderers
 
       const scatter_renderer = GlyphRenderer.create({
         data_source: source,
@@ -1281,7 +1285,7 @@ describe("Bug", () => {
           },
         })
         const color_mapper = LinearColorMapper.create({low: 0, high: 6, palette: Spectral11})
-        const cds_view = CDSView.create({filter: IndexFilter.create({indices})})
+        const data_view = DataView.create({filter: IndexFilter.create({indices})})
         const ir = p.image({
           image: {field: "image"},
           x: {field: "x"},
@@ -1290,7 +1294,7 @@ describe("Bug", () => {
           dh: 20,
           color_mapper,
           source,
-          view: cds_view,
+          view: data_view,
         })
         p.add_tools(HoverTool.create({
           renderers: [ir],
@@ -2105,6 +2109,105 @@ describe("Bug", () => {
         previous_width = bounds.width
       }
       await paint()
+    })
+  })
+
+  describe("in issue #8436", () => {
+    it("doesn't allow MultiPolygon alpha to accumulate while zooming", async () => {
+      // Reduced from the original GeoJSON reproducer while preserving its three-part geometry.
+      const source = GeometryDataSource.create({
+        type: "MultiPolygon",
+        coordinates: [
+          [[
+            [818595.60, 7052762.38], [820960.87, 7047691.91], [833396.06, 7051809.10],
+            [845697.37, 7044699.01], [876253.94, 7052829.57], [873873.73, 7037567.80],
+            [857395.94, 7024324.05], [859277.72, 7016156.29], [851346.64, 7016860.81],
+            [841974.73, 6989766.80], [833021.33, 6998964.19], [799592.92, 7005542.61],
+            [806574.91, 7042283.13], [818595.60, 7052762.38],
+          ]],
+          [[
+            [757010.02, 7096164.57], [747799.22, 7091671.40], [752259.38, 7088690.19],
+            [751115.49, 7086774.66], [741050.93, 7091695.31], [757010.02, 7096164.57],
+          ]],
+          [[
+            [763916.66, 7092853.78], [764268.61, 7093061.41], [764644.93, 7093241.43],
+            [763916.66, 7092853.78],
+          ]],
+        ],
+      })
+
+      const x_range = Range1d.create({start: 735000, end: 885000})
+      const y_range = Range1d.create({start: 6980000, end: 7110000})
+      const plot = fig([400, 350], {
+        x_range,
+        y_range,
+        background_fill_color: "white",
+        outline_line_color: null,
+      })
+      plot.xaxis.visible = false
+      plot.yaxis.visible = false
+      plot.xgrid.visible = false
+      plot.ygrid.visible = false
+      plot.polygons({source, fill_color: "#1f77b4", fill_alpha: 0.5, line_color: null})
+
+      const {view} = await display(plot)
+      const sample = [830354.29, 7020592.43] as const
+      const pixel = () => {
+        const {ctx, pixel_ratio} = view.canvas_view.primary
+        const sx = Math.floor(view.frame.x_scale.compute(sample[0])*pixel_ratio)
+        const sy = Math.floor(view.frame.y_scale.compute(sample[1])*pixel_ratio)
+        return Array.from(ctx.getImageData(sx, sy, 1, 1).data)
+      }
+      const expected = [143, 187, 218, 255]
+
+      for (const factor of [1, 2, 4]) {
+        const x_center = 810000
+        const y_center = 7045000
+        x_range.setv({start: x_center - 75000*factor, end: x_center + 75000*factor})
+        y_range.setv({start: y_center - 65000*factor, end: y_center + 65000*factor})
+        await view.ready
+        await paint()
+        const actual = pixel()
+        expect_condition(actual.every((value, i) => Math.abs(value - expected[i]) <= 3),
+          `expected ${expected} at zoom factor ${factor}, got ${actual}`)
+      }
+    })
+  })
+
+  describe("in issue #8831", () => {
+    it("doesn't allow MultiPolygon projection to fail on map plots", async () => {
+      class MapFigureView extends FigureView {
+        declare model: MapFigure
+      }
+      class MapFigure extends Figure {
+        declare __view_type__: MapFigureView
+        override use_map = true
+        static {
+          this.prototype.default_view = MapFigureView
+        }
+      }
+
+      const coordinates = [
+        [[[-78.760, 35.742], [-78.760, 35.740], [-78.758, 35.740], [-78.758, 35.742], [-78.760, 35.742]]],
+        [[[-78.756, 35.739], [-78.756, 35.737], [-78.754, 35.737], [-78.754, 35.739], [-78.756, 35.739]]],
+      ]
+      const source = GeometryDataSource.create({type: "MultiPolygon", coordinates})
+      const plot = MapFigure.create({width: 300, height: 300, x_axis_type: null, y_axis_type: null})
+      const renderer = plot.polygons({source, fill_color: "navy", fill_alpha: 0.5})
+
+      const {view} = await display(plot)
+      const glyph = view.owner.get_one(renderer).glyph
+      expect(glyph).to.be.instanceof(PatchesView)
+      if (!(glyph instanceof PatchesView)) {
+        return
+      }
+
+      const xs = source.get_field("xs")![0] as number[]
+      const ys = source.get_field("ys")![0] as number[]
+      const [projected_xs, projected_ys] = project_xy(xs, ys)
+      expect([...glyph.xs.get(0)]).to.be.equal([...projected_xs])
+      expect([...glyph.ys.get(0)]).to.be.equal([...projected_ys])
+      expect([...glyph.xs.get(0)].filter(isNaN).length).to.be.equal(1)
     })
   })
 
@@ -3001,7 +3104,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #11955", () => {
-    it("does not allow updating DataTable when its CDSView's filters change", async () => {
+    it("does not allow updating DataTable when its DataView's filters change", async () => {
       const source = ColumnDataSource.create({
         data: {
           col1: ["a", "b", "c", "d"],
@@ -3010,22 +3113,22 @@ describe("Bug", () => {
         },
       })
 
-      const cds_view = CDSView.create({filter: IndexFilter.create({indices: [1, 2, 3]})})
+      const data_view = DataView.create({filter: IndexFilter.create({indices: [1, 2, 3]})})
 
       const columns = [
         TableColumn.create({field: "col1", title: "col1"}),
         TableColumn.create({field: "col2", title: "col2"}),
         TableColumn.create({field: "col3", title: "col3"}),
       ]
-      const table = DataTable.create({source, columns, view: cds_view, width: 200})
+      const table = DataTable.create({source, columns, view: data_view, width: 200})
 
       const p = fig([200, 200])
-      p.scatter({x: {field: "col2"}, y: {field: "col3"}, size: 10, source, view: cds_view})
+      p.scatter({x: {field: "col2"}, y: {field: "col3"}, size: 10, source, view: data_view})
 
       const {view} = await display(row([table, p]))
       await paint()
 
-      cds_view.filter = IndexFilter.create({indices: [1, 2]})
+      data_view.filter = IndexFilter.create({indices: [1, 2]})
       await view.ready
     })
   })
@@ -3358,7 +3461,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #12718", () => {
-    it("doesn't render Legend correctly when LegendItem.index is filtered out by CDSView", async () => {
+    it("doesn't render Legend correctly when LegendItem.index is filtered out by DataView", async () => {
       const data = {
         values: [0, 1, 2],
         type: [0, 1, 2],
@@ -3366,7 +3469,7 @@ describe("Bug", () => {
       }
 
       const source = ColumnDataSource.create({data})
-      const cds_view = CDSView.create()
+      const data_view = DataView.create()
 
       const p = fig([200, 200])
       p.scatter({
@@ -3375,7 +3478,7 @@ describe("Bug", () => {
         fill_color: {field: "color"},
         size: 20,
         source,
-        view: cds_view,
+        view: data_view,
         legend_group: "type",
       })
 
@@ -3384,7 +3487,7 @@ describe("Bug", () => {
 
       const {view} = await display(p)
 
-      cds_view.filter = IndexFilter.create({indices: [1, 2]})
+      data_view.filter = IndexFilter.create({indices: [1, 2]})
       await view.ready
     })
   })
@@ -3893,16 +3996,13 @@ describe("Bug", () => {
         data_source: ColumnDataSource.create({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
       })
 
-      node_renderer.data_source.selected.indices = [0, 3]
-      edge_renderer.data_source.selected.indices = [0, 3]
-
       const graph = GraphRenderer.create({
         layout_provider,
         node_renderer,
         edge_renderer,
-        selection_policy: NodesAndLinkedEdges.create(),
-        inspection_policy: NodesAndLinkedEdges.create(),
       })
+      graph.data_source.selected.nodes.indices = [0, 3]
+      graph.data_source.selected.edges.indices = [0, 3]
       p.add_renderers(graph)
 
       await display(p)
@@ -4150,7 +4250,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #14013", () => {
-    async function test(fn: (p: Figure) => GlyphRenderer) {
+    async function test(fn: (p: Figure) => AnyGlyphRenderer) {
       const p = fig([300, 150])
 
       p.x_range = Range1d.create({start: 0, end: 1000})
@@ -4183,7 +4283,7 @@ describe("Bug", () => {
     })
 
     it("doesn't allow to respect secondary ranges when masking data in MultiPolygons glyph", async () => {
-      await test((p) => p.multi_polygons([[[xs]]], [[[ys]]]))
+      await test((p) => p.polygons({type: "MultiPolygon", coordinates: [[zip(xs, ys)]]}))
     })
   })
 
@@ -5113,13 +5213,13 @@ describe("Bug", () => {
   })
 
   describe("in issue #13244", () => {
-    it("doesn't render DataTable when a CDSView with BooleanFilter is shared with a plot that renders first", async () => {
+    it("doesn't render DataTable when a DataView with BooleanFilter is shared with a plot that renders first", async () => {
       const source = ColumnDataSource.create({data: {
         x: [1, 2, 3, 4, 5],
         y: [10, 11, 12, 13, 14],
       }})
 
-      const view = CDSView.create({filter: BooleanFilter.create({booleans: [true, true, false, true, false]})})
+      const view = DataView.create({filter: BooleanFilter.create({booleans: [true, true, false, true, false]})})
 
       const table = DataTable.create({
         source,
@@ -5464,7 +5564,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #8010", () => {
-    it("doesn't respect CDSView filters when creating the legend via legend_field", async () => {
+    it("doesn't respect DataView filters when creating the legend via legend_field", async () => {
       const source = ColumnDataSource.create({
         data: {
           x_values: [1, 2, 3, 4, 5],
@@ -5474,7 +5574,7 @@ describe("Bug", () => {
       })
 
       const filter = BooleanFilter.create({booleans: [true, false, true, false, true]})
-      const view = CDSView.create({filter})
+      const view = DataView.create({filter})
 
       view.compute_indices(source)
 

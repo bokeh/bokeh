@@ -6,7 +6,12 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Literal, TypedDict, Unpack
+from typing import (
+    Any,
+    Literal,
+    TypedDict,
+    Unpack,
+)
 
 # Bokeh imports
 from .._specs import (
@@ -27,7 +32,6 @@ from .._specs import (
     MarkerArg,
     NullDistanceArg,
     Number1dArg,
-    Number3dArg,
     NumberArg,
     OutlineShapeNameArg,
     SizeArg,
@@ -59,7 +63,7 @@ from ..models.coordinates import CoordinateMapping
 from ..models.graphics import Marking
 from ..models.plots import Plot
 from ..models.renderers import GlyphRenderer
-from ..models.sources import CDSView, ColumnarDataSource, DataDictLike
+from ..models.sources import DataDictLike, DataView, IndexedDataSource
 from ..models.textures import Texture
 
 class AuxVisuals(TypedDict, total=False):
@@ -180,8 +184,8 @@ class AuxGlyphArgs(TypedDict, total=False):
     visible: bool
 
     # GlyphRenderer
-    source: ColumnarDataSource | DataDictLike
-    view: CDSView
+    source: IndexedDataSource | DataDictLike
+    view: DataView
     muted: bool
 
     legend: Legend
@@ -361,11 +365,6 @@ class MultiLineArgs(GlyphArgs, LineVisuals, total=False):
     # ys: Number1dArg
     pass
 
-class MultiPolygonsArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
-    # xs: Number3dArg
-    # ys: Number3dArg
-    pass
-
 class NgonArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
     # x: NumberArg
     # y: NumberArg
@@ -384,6 +383,9 @@ class PatchArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
 class PatchesArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
     # xs: Number1dArg
     # ys: Number1dArg
+    pass
+
+class PolygonsArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
     pass
 
 class QuadArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
@@ -684,12 +686,6 @@ class GlyphAPI:
         **kwargs: Unpack[MultiLineArgs],
     ) -> GlyphRenderer[glyphs.MultiLine]: ...
 
-    def multi_polygons(self,
-        xs: Number3dArg = ...,
-        ys: Number3dArg = ...,
-        **kwargs: Unpack[MultiPolygonsArgs],
-    ) -> GlyphRenderer[glyphs.MultiPolygons]: ...
-
     def ngon(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -708,6 +704,14 @@ class GlyphAPI:
         ys: Number1dArg = ...,
         **kwargs: Unpack[PatchesArgs],
     ) -> GlyphRenderer[glyphs.Patches]: ...
+
+    def polygons(self,
+        geometry: Any = ...,
+        *,
+        x: Any = ...,
+        y: Any = ...,
+        **kwargs: Unpack[PolygonsArgs],
+    ) -> GlyphRenderer[glyphs.Polygons]: ...
 
     def quad(self,
         left: NumberArg = ...,

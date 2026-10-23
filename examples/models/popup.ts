@@ -1,5 +1,6 @@
 import {Model} from "model"
-import type {ColumnarDataSource} from "models/sources/columnar_data_source"
+import type {DataSource} from "models/sources/data_source"
+import {IndexedDataSource} from "models/sources/indexed_data_source"
 import type {TapToolCallback} from "models/tools/gestures/tap_tool"
 import {TapTool} from "models/tools/gestures/tap_tool"
 import type {ExecutableOf} from "core/util/callbacks"
@@ -30,7 +31,10 @@ export class Popup extends Model implements ExecutableOf<TapToolCallback> {
     }))
   }
 
-  execute(_: TapTool, {source}: {source: ColumnarDataSource}): void {
+  execute(_: TapTool, {source}: {source: DataSource}): void {
+    if (!(source instanceof IndexedDataSource))
+      return
+
     for (const i of source.selected.indices) {
       const message = replace_placeholders(this.message, source, i)
       popup(message.toString())

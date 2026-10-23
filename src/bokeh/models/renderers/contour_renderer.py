@@ -22,12 +22,13 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 # Bokeh imports
 from ...core.property.container import Seq
 from ...core.property.instance import Instance
 from ...core.property.numeric import Float
+from ..sources import ColumnarDataSource, GeometryDataSource
 from .glyph_renderer import GlyphRenderer
 from .renderer import DataRenderer
 
@@ -73,29 +74,47 @@ class ContourRenderer(DataRenderer):
         is returned from :func:`~bokeh.plotting.contour.contour_data`.
 
         '''
-        if data.fill_data:
-            # Convert dataclass to dict to add new fields and put into CDS.
+        fill_source = self.fill_renderer.data_source
+        if isinstance(fill_source, GeometryDataSource):
+            old_fill_data = fill_source.data
+            if data.fill_data:
+                geometries, fill_data = data.fill_data.as_geometry_data()
+            else:
+                geometries, fill_data = [], dict(lower_levels=[], upper_levels=[])
+
+            for name in old_fill_data.keys():
+                if name not in ("lower_levels", "upper_levels"):
+                    values = old_fill_data[name]
+                    if len(values) == len(geometries):
+                        fill_data[name] = values
+            fill_source.replace({"geometries": geometries, "data": fill_data})
+        elif data.fill_data:
+            # Compatibility for manually constructed legacy contour renderers.
             fill_data = data.fill_data.asdict()
-            # Copy fill and hatch properties from old to new data source
-            old_fill_data = self.fill_renderer.data_source.data
+            old_fill_data = cast(ColumnarDataSource, fill_source).data
             for name in old_fill_data.keys():
                 if name not in ("xs", "ys", "lower_levels", "upper_levels"):
-                    fill_data[name] = old_fill_data[name]
-            self.fill_renderer.data_source.data = fill_data
+                    values = old_fill_data[name]
+                    if len(values) == len(fill_data["xs"]):
+                        fill_data[name] = values
+            cast(ColumnarDataSource, fill_source).data = fill_data
         else:
-            self.fill_renderer.data_source.data = dict(xs=[], ys=[], lower_levels=[], upper_levels=[])
+            cast(ColumnarDataSource, fill_source).data = dict(xs=[], ys=[], lower_levels=[], upper_levels=[])
 
+        line_source = cast(ColumnarDataSource, self.line_renderer.data_source)
         if data.line_data:
             # Convert dataclass to dict to add new fields and put into CDS.
             line_data = data.line_data.asdict()
             # Copy line properties from old to new data source
-            old_line_data = self.line_renderer.data_source.data
+            old_line_data = line_source.data
             for name in old_line_data.keys():
                 if name not in ("xs", "ys", "levels"):
-                    line_data[name] = old_line_data[name]
-            self.line_renderer.data_source.data = line_data
+                    values = old_line_data[name]
+                    if len(values) == len(line_data["xs"]):
+                        line_data[name] = values
+            line_source.data = line_data
         else:
-            self.line_renderer.data_source.data = dict(xs=[], ys=[], levels=[])
+            line_source.data = dict(xs=[], ys=[], levels=[])
 
     def construct_color_bar(self, **kwargs) -> ContourColorBar:
         ''' Construct and return a new ``ContourColorBar`` for this ``ContourRenderer``.

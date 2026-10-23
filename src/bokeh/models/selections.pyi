@@ -6,8 +6,12 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from abc import abstractmethod
-from typing import Sequence, TypedDict, Unpack
+from typing import (
+    Literal,
+    Sequence,
+    TypedDict,
+    Unpack,
+)
 
 # Bokeh imports
 from ..model.model import Model, _ModelInit
@@ -32,21 +36,38 @@ class Selection(Model):
     multiline_indices: dict[int, Sequence[int]] = ...
     image_indices: list[ImageIndex] = ...
 
+class _GraphSelectionInit(_ModelInit, total=False):
+    nodes: Selection
+    edges: Selection
+
+class GraphSelection(Model):
+    def __init__(self, **kwargs: Unpack[_GraphSelectionInit]) -> None: ...
+
+    nodes: Selection = ...
+    edges: Selection = ...
+
 class _SelectionPolicyInit(_ModelInit, total=False):
-    ...
+    combine: Literal["union", "intersection"]
 
 class SelectionPolicy(Model):
-    @abstractmethod
     def __init__(self, **kwargs: Unpack[_SelectionPolicyInit]) -> None: ...
 
-class _IntersectRenderersInit(_SelectionPolicyInit, total=False):
-    ...
+    combine: Literal["union", "intersection"] = ...
 
-class IntersectRenderers(SelectionPolicy):
-    def __init__(self, **kwargs: Unpack[_IntersectRenderersInit]) -> None: ...
+class _GraphSelectionPolicyInit(_SelectionPolicyInit, total=False):
+    node_hops: int
+    node_hops_mode: Literal["exact", "up_to"]
+    node_direction: Literal["both", "out", "in"]
+    include_direct: bool
+    include_incident_edges: bool
+    include_end_nodes: bool
 
-class _UnionRenderersInit(_SelectionPolicyInit, total=False):
-    ...
+class GraphSelectionPolicy(SelectionPolicy):
+    def __init__(self, **kwargs: Unpack[_GraphSelectionPolicyInit]) -> None: ...
 
-class UnionRenderers(SelectionPolicy):
-    def __init__(self, **kwargs: Unpack[_UnionRenderersInit]) -> None: ...
+    node_hops: int = ...
+    node_hops_mode: Literal["exact", "up_to"] = ...
+    node_direction: Literal["both", "out", "in"] = ...
+    include_direct: bool = ...
+    include_incident_edges: bool = ...
+    include_end_nodes: bool = ...

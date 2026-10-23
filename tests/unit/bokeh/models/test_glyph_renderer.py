@@ -21,15 +21,17 @@ from bokeh.core.validation.check import ValidationIssue
 from bokeh.models import (
     ColorBar,
     ColumnDataSource,
-    GeoJSONDataSource,
+    GeometryDataSource,
     Image,
     ImageRGBA,
     ImageStack,
+    IndexedDataSource,
     IndexFilter,
     Line,
     MultiLine,
     NormalHead,
     Patch,
+    Plot,
     Scatter,
     Text,
     WebDataSource,
@@ -47,6 +49,21 @@ import bokeh.models.renderers as bmr # isort:skip
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+class RecordDataSource(IndexedDataSource):
+    pass
+
+def test_accepts_non_columnar_data_source() -> None:
+    source = RecordDataSource()
+    renderer = bmr.GlyphRenderer(data_source=source, glyph=Scatter(x="x", y="y"))
+
+    assert renderer.data_source is source
+
+def test_plot_add_glyph_accepts_non_columnar_data_source() -> None:
+    source = RecordDataSource()
+    renderer = Plot().add_glyph(source, Scatter(x="x", y="y"))
+
+    assert renderer.data_source is source
 
 
 def test_add_path_decoration_accepts_vectorized_inset_and_state_markings() -> None:
@@ -162,7 +179,7 @@ class TestGlyphRenderer_check_bad_column_name:
         assert renderer._check_bad_column_name() == []
 
     def test_non_cds_data_source(self) -> None:
-        renderer = bmr.GlyphRenderer(data_source=GeoJSONDataSource())
+        renderer = bmr.GlyphRenderer(data_source=GeometryDataSource())
 
         assert renderer._check_bad_column_name() == []
 
@@ -221,19 +238,19 @@ class TestGlyphRenderer_check_bad_column_name:
         )
 
 @pytest.mark.parametrize('glyph', (Line, Patch))
-def test_check_cdsview_filters_with_connected_error(glyph) -> None:
+def test_check_data_view_filters_with_connected_error(glyph) -> None:
     renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
     renderer.glyph = glyph()
 
-    assert renderer._check_cdsview_filters_with_connected() == []
+    assert renderer._check_data_view_filters_with_connected() == []
 
     renderer.view.filter = IndexFilter()
-    check = renderer._check_cdsview_filters_with_connected()
+    check = renderer._check_data_view_filters_with_connected()
     assert len(check) == 1
     assert check[0] == ValidationIssue(
         code=1024,
-        name='CDSVIEW_FILTERS_WITH_CONNECTED',
-        text='CDSView filters are not compatible with glyphs with connected topology such as Line or Patch',
+        name='DATAVIEW_FILTERS_WITH_CONNECTED',
+        text='DataView filters are not compatible with glyphs with connected topology such as Line or Patch',
         extra=str(renderer),
     )
 

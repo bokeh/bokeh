@@ -93,20 +93,65 @@ GeoJSON data
 ------------
 
 `GeoJSON`_ is a popular open standard for representing geographical features
-with JSON. It describes points, lines, and polygons (called Patches in Bokeh) as a
+with JSON. It describes Point, LineString, Polygon, and MultiPolygon geometries as a
 collection of features. Each feature can also have a set of properties.
 
-Bokeh's ``GeoJSONDataSource`` can be used almost seamlessly in place of Bokeh's
-``ColumnDataSource``. For example:
+Bokeh's :class:`~bokeh.models.sources.GeometryDataSource` accepts GeoJSON
+strings and mappings directly. It retains the geometry hierarchy and exposes
+feature properties as fields for vectorized styling, hover tooltips, and
+callbacks. Coordinate fields such as ``x``, ``y``, ``xs``, and ``ys`` are
+provided as virtual views, so existing point and line glyphs continue to work.
+Call :meth:`~bokeh.models.sources.GeometryDataSource.replace` to replace the
+source from another GeoJSON document. For example:
 
 .. bokeh-plot:: __REPO__/examples/topics/geo/geojson_source.py
     :source-position: above
 
-.. warning::
-    Bokeh converts the GeoJSON coordinates into columns called
-    ``x`` and ``y`` or ``xs`` and ``ys`` (depending on whether the features are Points,
-    Lines, MultiLines, Polygons, or MultiPolygons). *Properties with clashing names
-    will be overridden when the GeoJSON is converted and should be avoided*.
+The same source accepts Shapely objects, GeoPandas geometry, or records
+containing a ``geometry`` value. The
+:func:`~bokeh.plotting.figure.polygons` glyph renders both Polygon and
+MultiPolygon features, including interior rings, while keeping one selection
+index per feature:
+
+.. bokeh-plot:: __REPO__/examples/topics/geo/geometry_source.py
+    :source-position: above
+
+Shapely geometries
+~~~~~~~~~~~~~~~~~~
+
+Shapely objects can be passed directly as geometry values without converting
+them to GeoJSON dictionaries. Bokeh preserves Polygon holes and keeps every
+MultiPolygon together as one selectable feature:
+
+.. bokeh-plot:: __REPO__/examples/topics/geo/shapely_geometries.py
+    :source-position: above
+
+This also makes it possible to display the results of Shapely operations
+directly. The following example compares intersection, union, and symmetric
+difference results:
+
+.. bokeh-plot:: __REPO__/examples/topics/geo/shapely_operations.py
+    :source-position: above
+
+For tile maps, project the Shapely geometries to Web Mercator before placing
+them in a ``GeometryDataSource``:
+
+.. bokeh-plot:: __REPO__/examples/topics/geo/shapely_map.py
+    :source-position: above
+
+GeoPandas tables can likewise be passed directly to a
+``GeometryDataSource``. This example projects county geometries and draws their
+boundaries over keyless OpenStreetMap tiles:
+
+.. bokeh-plot:: __REPO__/examples/topics/geo/geopandas_region_outlines.py
+    :source-position: above
+
+The optional ``bokeh_sampledata`` package includes Shapely geometry records
+for US states and counties. These records can be passed directly to
+``polygons()`` while retaining their metadata for hover tooltips.
+
+Attribute names ``x``, ``y``, ``z``, ``xs``, ``ys``, ``zs``, and ``geometry``
+are reserved for these virtual geometry fields.
 
 .. _ug_topics_geo_projections:
 

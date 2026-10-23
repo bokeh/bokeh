@@ -3,11 +3,11 @@ import numpy as np
 from bokeh.core.properties import value
 from bokeh.document import Document
 from bokeh.embed import embed
-from bokeh.models import (AnnularWedge, Annulus, Arc, Bezier, Circle, Column,
-                          ColumnDataSource, Ellipse, Grid, HoverTool, ImageURL,
-                          Line, LinearAxis, MultiLine, MultiPolygons, Paragraph,
-                          Patch, Patches, Plot, Quad, Quadratic, Ray, Rect,
-                          Scatter, Segment, TabPanel, Tabs, Text, Wedge)
+from bokeh.layouts import column
+from bokeh.models import (AnnularWedge, Annulus, Arc, Bezier, Circle, ColumnDataSource,
+                          CustomJS, Div, Ellipse, Grid, HoverTool, ImageURL, Line,
+                          LinearAxis, MultiLine, Patch, Patches, Plot, Quad, Quadratic,
+                          Range1d, Ray, Rect, Scatter, Segment, Select, Text, Wedge)
 from bokeh.util.browser import view
 
 N = 9
@@ -30,16 +30,12 @@ source = ColumnDataSource(dict(
     radii = radii,
     xs = xs,
     ys = ys,
-    xsss = [[[x]] for x in xs],
-    ysss = [[[y]] for y in ys],
     xp02 = x + 0.2,
     xp01 = x + 0.1,
     xm01 = x - 0.1,
     yp01 = y + 0.1,
     ym01 = y - 0.1,
 ))
-
-print()
 
 def screen(val: float):
     return value(val, units="screen")
@@ -54,7 +50,6 @@ glyphs = [
     ("image_url",  ImageURL(x="x", y="y", w=0.4, h=0.4, url=value("https://static.bokeh.org/logos/logo.png"), anchor="center")),
     ("line", Line(x="x", y="y", line_color="#F46D43")),
     ("multi_line", MultiLine(xs="xs", ys="ys", line_color="#8073AC", line_width=2)),
-    ("multi_polygons", MultiPolygons(xs="xsss", ys="ysss", line_color="#8073AC", fill_color="#FB9A99", line_width=2)),
     ("patch", Patch(x="x", y="y", fill_color="#A6CEE3")),
     ("patches", Patches(xs="xs", ys="ys", fill_color="#FB9A99")),
     ("quad", Quad(left="x", right="xp01", top="y", bottom="ym01", fill_color="#B3DE69")),
@@ -84,30 +79,58 @@ markers = [
     ("dash", Scatter(x="x", y="y", size="sizes", angle=0.5, line_color="#386CB0", line_width=1, marker="dash")),
 ]
 
-def make_tab(title, glyph):
-    plot = Plot()
-    plot.title.text = title
+examples = [
+    *((f"Glyph: {name.replace('_', ' ').title()}", glyph) for name, glyph in glyphs),
+    *((f"Marker: {name.replace('_', ' ').title()}", marker) for name, marker in markers),
+]
 
-    plot.add_glyph(source, glyph)
+plot = Plot(
+    width=850, height=500,
+    x_range=Range1d(-2.6, 2.6), y_range=Range1d(-0.5, 4.5),
+    toolbar_location="above",
+    background_fill_color="#f8fafc", outline_line_color=None,
+)
+plot.title.text = examples[0][0]
 
-    xaxis = LinearAxis()
-    plot.add_layout(xaxis, 'below')
+xaxis = LinearAxis()
+plot.add_layout(xaxis, "below")
+yaxis = LinearAxis()
+plot.add_layout(yaxis, "left")
+plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker, grid_line_alpha=0.25))
+plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker, grid_line_alpha=0.25))
 
-    yaxis = LinearAxis()
-    plot.add_layout(yaxis, 'left')
+renderers = []
+for i, (_, glyph) in enumerate(examples):
+    renderer = plot.add_glyph(source, glyph)
+    renderer.visible = i == 0
+    renderers.append(renderer)
 
-    plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
-    plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
+plot.add_tools(HoverTool(
+    renderers=renderers,
+    tooltips=[("x", "@x{0.00}"), ("y", "@y{0.00}")],
+))
 
-    plot.add_tools(HoverTool())
+select = Select(
+    title="Displayed model",
+    value=examples[0][0],
+    options=[title for title, _ in examples],
+    width=360,
+)
+select.js_on_change("value", CustomJS(args=dict(plot=plot, renderers=renderers), code="""
+    const active = cb_obj.options.indexOf(cb_obj.value)
+    renderers.forEach((renderer, index) => renderer.visible = index == active)
+    plot.title.text = cb_obj.value
+"""))
 
-    tab = TabPanel(child=plot, title=title, closable=True)
-    return tab
+intro = Div(text="""
+<h2 style="margin: 0 0 0.25em; color: #1e293b">Glyph model catalog</h2>
+<p style="margin: 0; color: #64748b">
+Choose a glyph or marker model to render it against the same data and fixed coordinate range.
+Image and ImageRGBA are demonstrated separately.
+</p>
+""", width=850)
 
-def make_tabs(objs):
-    return Tabs(tabs=[ make_tab(title, obj) for title, obj in objs ], width=600)
-
-layout = Column(children=[Paragraph(text="Only Image and ImageRGBA glyphs are not demonstrated."), make_tabs(glyphs), make_tabs(markers)])
+layout = column(intro, select, plot, width=850, spacing=12)
 
 doc = Document()
 doc.add_root(layout)

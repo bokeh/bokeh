@@ -1,0 +1,284 @@
+import {expect} from "#framework/assertions"
+
+import {GeometryDataSource} from "@bokehjs/models/sources/geometry_data_source"
+
+function materialized_data(source: GeometryDataSource) {
+  return {
+    x: source.get("x"), y: source.get("y"), z: source.get("z"),
+    xs: source.get("xs"), ys: source.get("ys"), zs: source.get("zs"),
+    ...source.data,
+  }
+}
+
+describe("geometry GeoJSON ingestion", () => {
+
+  describe("geojson is not a GeometryCollection or FeatureCollection", () => {
+    const geojson = `{
+       "type": "Point",
+       "coordinates": [100.0, 0.0]
+    }`
+
+    it("should accept a single geometry", () => {
+      const source = GeometryDataSource.create(geojson)
+      expect(source.length).to.be.equal(1)
+    })
+  })
+
+  describe("geojson is an empty FeatureCollection", () => {
+    const geojson = `{
+       "type": "FeatureCollection",
+       "features": []
+    }`
+
+    it("should accept an empty collection", () => {
+      const source = GeometryDataSource.create(geojson)
+      expect(source.length).to.be.equal(0)
+    })
+  })
+
+  describe("geojson is an empty GeometryCollection", () => {
+    const geojson = `{
+       "type": "GeometryCollection",
+       "geometries": []
+    }`
+
+    it("should accept an empty collection", () => {
+      const source = GeometryDataSource.create(geojson)
+      expect(source.length).to.be.equal(0)
+    })
+  })
+
+  describe("single xy Point ", () => {
+    const geojson = `{
+      "type": "GeometryCollection",
+      "geometries": [{
+        "type": "Point",
+        "coordinates": [125.6, 10.1]
+        }
+      ]
+    }`
+    const geo = GeometryDataSource.create(geojson)
+
+    it("add x,y,NaN to data", () => {
+      const expected_data = {x: [125.6], y: [10.1], z: [NaN], xs: [[]], ys: [[]], zs: [[]]}
+      expect(materialized_data(geo)).to.be.equal(expected_data)
+    })
+
+    it("updates data when geojson updates", () => {
+      const new_geojson = `{
+        "type": "GeometryCollection",
+        "geometries": [{
+          "type": "Point",
+          "coordinates": [125.6, 22]
+          }
+        ]
+      }`
+      geo.replace(new_geojson)
+      const expected_data = {x: [125.6], y: [22], z: [NaN], xs: [[]], ys: [[]], zs: [[]]}
+      expect(materialized_data(geo)).to.be.equal(expected_data)
+    })
+  })
+
+  describe("single xyz Point", () => {
+    const geojson = `{
+      "type": "GeometryCollection",
+      "geometries": [{
+        "type": "Point",
+        "coordinates": [125.6, 10.1, 22]
+        }
+      ]
+    }`
+    const geo = GeometryDataSource.create(geojson)
+
+    it("should add x,y,z to data", () => {
+      const expected_data = {x: [125.6], y: [10.1], z: [22], xs: [[]], ys: [[]], zs: [[]]}
+      expect(materialized_data(geo)).to.be.equal(expected_data)
+    })
+  })
+
+  describe("xy LineString", () => {
+    const geojson = `{
+      "type": "GeometryCollection",
+      "geometries": [{
+        "type": "LineString",
+        "coordinates": [[125.6, 10.1], [100.1, 9.2]]
+        }
+      ]
+    }`
+    const geo = GeometryDataSource.create(geojson)
+
+    it("should add xs,ys to data", () => {
+      const expected_data = {x: [NaN], y: [NaN], z: [NaN], xs: [[125.6, 100.1]], ys: [[10.1, 9.2]], zs: [[NaN, NaN]]}
+      expect(materialized_data(geo)).to.be.equal(expected_data)
+    })
+  })
+
+  describe("xy Polygon without hole", () => {
+    const geojson = `{
+      "type": "GeometryCollection",
+      "geometries": [{
+        "type": "Polygon",
+        "coordinates": [
+          [ [125.6, 10.1], [100.1, 9.2] ]
+        ]
+        }
+      ]
+    }`
+    const geo = GeometryDataSource.create(geojson)
+
+    it("should add xs,ys to data", () => {
+      const expected_data = {x: [NaN], y: [NaN], z: [NaN], xs: [[125.6, 100.1]], ys: [[10.1, 9.2]], zs: [[NaN, NaN]]}
+      expect(materialized_data(geo)).to.be.equal(expected_data)
+    })
+  })
+
+  describe("xy Polygon with hole", () => {
+    const geojson = `{
+      "type": "GeometryCollection",
+      "geometries": [{
+        "type": "Polygon",
+        "coordinates": [
+          [ [125.6, 10.1], [100.1, 9.2] ],
+          [ [125.4, 10.2], [100.2, 9.1] ]
+        ]
+        }
+      ]
+    }`
+    const geo = GeometryDataSource.create(geojson)
+
+    it("should add xs,ys to data", () => {
+      const expected_data = {
+        x: [NaN], y: [NaN], z: [NaN],
+        xs: [[125.6, 100.1, NaN, 125.4, 100.2]],
+        ys: [[10.1, 9.2, NaN, 10.2, 9.1]],
+        zs: [[NaN, NaN, NaN, NaN, NaN]],
+      }
+      expect(materialized_data(geo)).to.be.equal(expected_data)
+    })
+  })
+
+  describe("xy MultiPoint ", () => {
+    const geojson = `{
+      "type": "GeometryCollection",
+      "geometries": [{
+        "type": "MultiPoint",
+        "coordinates": [[125.6, 10.1, 22], [100.0, 0.0]]
+        }
+      ]
+    }`
+    const geo = GeometryDataSource.create(geojson)
+
+    it("should not add anything to data", () => {
+      // MultiPoint is not supported. There should also be a console warning (not tested)
+      const expected_data = {x: [NaN], y: [NaN], z: [NaN], xs: [[]], ys: [[]], zs: [[]]}
+      expect(materialized_data(geo)).to.be.equal(expected_data)
+    })
+  })
+
+  describe("xy MultiLineString", () => {
+    const geojson = `{
+      "type": "GeometryCollection",
+      "geometries": [{
+        "type": "MultiLineString",
+        "coordinates": [
+          [ [125.6, 10.1], [100.1, 9.2] ],
+          [ [125.4, 10.2], [100.2, 9.1] ]
+          ]
+        }
+      ]
+    }`
+    const geo = GeometryDataSource.create(geojson)
+
+    it("should add xs,ys to datai with NaN in between", () => {
+      const expected_data = {x: [NaN], y: [NaN], z: [NaN], xs: [[125.6, 100.1, NaN, 125.4, 100.2]], ys: [[10.1, 9.2, NaN, 10.2, 9.1]], zs: [[NaN, NaN, NaN, NaN, NaN]]}
+      expect(materialized_data(geo)).to.be.equal(expected_data)
+    })
+  })
+
+  describe("xy MultiPolygon", () => {
+    // This has two polygons to join together with NaNs, and the second one has
+    // a hole that must remain a third path.
+    const geojson = `{
+      "type": "GeometryCollection",
+      "geometries": [{
+        "type": "MultiPolygon",
+        "coordinates": [
+          [[[102.0, 2.0], [103.0, 2.1] ]],
+          [[[100.0, 0.0], [101.0, 0.1] ],
+           [[100.2, 0.2], [100.8, 0.3] ]]
+        ]
+        }
+      ]
+    }`
+    const geo = GeometryDataSource.create(geojson)
+
+    it("should add xs,ys to datai with NaN in between", () => {
+      const expected_data = {
+        x: [NaN], y: [NaN], z: [NaN],
+        xs: [[102.0, 103.0, NaN, 100.0, 101.0, NaN, 100.2, 100.8]],
+        ys: [[2.0, 2.1, NaN, 0, 0.1, NaN, 0.2, 0.3]],
+        zs: [[NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN]],
+      }
+      expect(materialized_data(geo)).to.be.equal(expected_data)
+    })
+  })
+
+  describe("Feature with properties", () => {
+    const geojson = `{
+       "type": "FeatureCollection",
+       "features": [
+          { "type": "Feature",
+            "geometry": {"type": "Point", "coordinates": [102, 33]},
+            "properties": {"color": "pink", "value": 33}
+          }
+       ]
+    }`
+
+    it("should add the properties to the data", () => {
+      const geo = GeometryDataSource.create(geojson)
+      const expected_data = {x: [102], y: [33], z: [NaN], xs: [[]], ys: [[]], zs: [[]], color: ["pink"], value: [33]}
+      expect(materialized_data(geo)).to.be.equal(expected_data)
+    })
+
+    it("should retain null property values", () => {
+      const geojson = `{
+        "type": "FeatureCollection",
+        "features": [
+            { "type": "Feature",
+              "geometry": {"type": "Point", "coordinates": [102, 33]},
+              "properties": {"color": "pink", "value": null}
+            }
+        ]
+      }`
+      const geo = GeometryDataSource.create(geojson)
+      const expected_data = {x: [102], y: [33], z: [NaN], xs: [[]], ys: [[]], zs: [[]], color: ["pink"], value: [null]}
+      expect(materialized_data(geo)).to.be.equal(expected_data)
+    })
+  })
+
+  describe("Multiple Features with differing properties", () => {
+    const geojson = `{
+       "type": "FeatureCollection",
+       "features": [
+          { "type": "Feature",
+            "geometry": {"type": "Point", "coordinates": [102, 33]},
+            "properties": {"color": "pink", "value": 33}
+          },
+          { "type": "Feature",
+            "geometry": {"type": "Point", "coordinates": [103, 34]},
+            "properties": {"size": 54, "value": 36}
+          }
+       ]
+    }`
+    const geo = GeometryDataSource.create(geojson)
+
+    it("should add the properties to the data with NaN's when they're missing", () => {
+      const expected_data = {
+        x: [102, 103], y: [33, 34], z: [NaN, NaN],
+        xs: [[], []], ys: [[], []], zs: [[], []],
+        color: ["pink", null], value: [33, 36], size: [null, 54],
+      }
+      expect(materialized_data(geo)).to.be.equal(expected_data)
+    })
+  })
+})

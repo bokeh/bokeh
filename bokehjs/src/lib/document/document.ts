@@ -5,6 +5,7 @@ import type {Class} from "core/class"
 import type {ColorScheme} from "core/enums"
 import {HasProps} from "core/has_props"
 import type {Property} from "core/properties"
+import type {PatchSet} from "core/patching"
 import {ModelResolver} from "core/resolvers"
 import type {ModelRep} from "core/serialization"
 import {Serializer} from "core/serialization"
@@ -877,28 +878,43 @@ export class Document implements Equatable {
         }
         case "ColumnDataChanged": {
           const {model, attr, data, cols} = event
-          if (cols != null) {
-            const new_data = dict(data)
-            const current_data = dict(model.property(attr).get_value() as Data)
-            for (const [name, column] of current_data) {
-              if (!new_data.has(name)) {
-                new_data.set(name, column)
+          if (attr == "records" && "replace" in model) {
+            const source = model as HasProps & {replace(data: unknown, options?: {sync?: boolean}): void}
+            source.replace(data, {sync: false})
+          } else {
+            if (cols != null) {
+              const new_data = dict(data as Data)
+              const current_data = dict(model.property(attr).get_value() as Data)
+              for (const [name, column] of current_data) {
+                if (!new_data.has(name)) {
+                  new_data.set(name, column)
+                }
               }
             }
+            model.setv({data}, {sync: false, check_eq: false})
           }
-          model.setv({data}, {sync: false, check_eq: false})
           break
         }
         case "ColumnsStreamed": {
           const {model, attr, data, rollover} = event
-          const prop = model.property(attr) as Property<Data>
-          model.stream_to(prop, data, rollover, {sync: false})
+          if (attr == "records" && "stream" in model) {
+            const source = model as HasProps & {stream(data: unknown, rollover?: number, options?: {sync?: boolean}): void}
+            source.stream(data, rollover, {sync: false})
+          } else {
+            const prop = model.property(attr) as Property<Data>
+            model.stream_to(prop, data as Data, rollover, {sync: false})
+          }
           break
         }
         case "ColumnsPatched": {
           const {model, attr, patches} = event
-          const prop = model.property(attr) as Property<Data>
-          model.patch_to(prop, patches, {sync: false})
+          if (attr == "records" && "patch" in model) {
+            const source = model as HasProps & {patch(patches: unknown, options?: {sync?: boolean}): void}
+            source.patch(patches, {sync: false})
+          } else {
+            const prop = model.property(attr) as Property<Data>
+            model.patch_to(prop, patches as PatchSet<unknown>, {sync: false})
+          }
           break
         }
         case "RootAdded": {

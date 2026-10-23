@@ -21,7 +21,8 @@ export class PointDrawToolView extends EditToolView {
       return
     }
 
-    const {glyph, data_source} = renderer
+    const {glyph} = renderer
+    const data_source = this._data_source(renderer)
     const xkey = isField(glyph.x) ? glyph.x.field : null
     const ykey = isField(glyph.y) ? glyph.y.field : null
     const [x, y] = point
@@ -47,7 +48,7 @@ export class PointDrawToolView extends EditToolView {
       if (ev.key == "Backspace") {
         this._delete_selected(renderer)
       } else if (ev.key == "Escape") {
-        renderer.data_source.selection_manager.clear()
+        this._data_source(renderer).selection_manager.clear()
       }
     }
   }
@@ -73,7 +74,7 @@ export class PointDrawToolView extends EditToolView {
     }
     this._pan(ev)
     for (const renderer of this.model.renderers) {
-      this._emit_cds_changes(renderer.data_source, false, true, true)
+      this._emit_cds_changes(this._data_source(renderer), false, true, true)
     }
     this._basepoint = null
   }

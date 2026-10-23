@@ -339,6 +339,22 @@
       "alt": "Thumbnail link to the examples/topics/geo/tile_demo_map.py example shows a grid of map plots at identical locations using various different tile providers."
     },
     {
+      "name": "shapely_geometries.py",
+      "alt": "Thumbnail link to the examples/topics/geo/shapely_geometries.py example shows Shapely Polygon and MultiPolygon objects, including a polygon with a hole."
+    },
+    {
+      "name": "shapely_operations.py",
+      "alt": "Thumbnail link to the examples/topics/geo/shapely_operations.py example compares Shapely intersection, union, and symmetric difference operations."
+    },
+    {
+      "name": "shapely_map.py",
+      "alt": "Thumbnail link to the examples/topics/geo/shapely_map.py example overlays projected Shapely geometries on map tiles."
+    },
+    {
+      "name": "geopandas_region_outlines.py",
+      "alt": "Thumbnail link to the examples/topics/geo/geopandas_region_outlines.py example shows GeoPandas county boundaries over OpenStreetMap tiles."
+    },
+    {
       "name": "gmap.py",
       "alt": "Thumbnail link to the examples/topics/geo/gmap.py example shows a grid of map plot centered at Austin, TX using Bokeh's Google maps integration."
     }

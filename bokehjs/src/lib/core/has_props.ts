@@ -851,17 +851,19 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
-  patch_to(prop: Property<Data>, patches: PatchSet<unknown>, {sync}: {sync?: boolean} = {}): void {
+  patch_to(prop: Property<Data>, patches: PatchSet<unknown>, {sync}: {sync?: boolean} = {}): number[] {
     const data = prop.get_value()
     const patched = patch_to_columns(data, patches)
     this._clear_watchers()
     prop.set_value(data)
-    this.patching.emit([...patched])
+    const indices = [...patched]
+    this.patching.emit(indices)
     if (this.document != null) {
       const event = new ColumnsPatchedEvent(this.document, this, prop.attr, patches)
       event.sync = sync ?? true
       this.document._trigger_on_change(event)
     }
+    return indices
   }
 }
 

@@ -2,7 +2,7 @@ import {Placeholder, PlaceholderView, Formatter} from "./placeholder"
 import type {Formatters} from "./placeholder"
 import {CustomJS} from "../callbacks/customjs"
 import {CustomJSHover} from "../tools/inspectors/customjs_hover"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
 import type {Index} from "core/util/templating"
 import {_get_column_value, MISSING, DEFAULT_FORMATTERS, Skip} from "core/util/templating"
 import type {SyncExecutableLike} from "core/util/callbacks"
@@ -17,7 +17,7 @@ export type FilterArgs = {
   value: unknown
   field: string
   row: {[key: string]: unknown}
-  data_source: ColumnarDataSource
+  data_source: IndexedDataSource
   vars: PlainObject
 }
 
@@ -48,11 +48,11 @@ export class ValueRefView extends PlaceholderView {
     }
   }
 
-  update(data_source: ColumnarDataSource, index: Index | null, vars: PlainObject, _formatters?: Formatters): void {
+  update(data_source: IndexedDataSource, index: Index | null, vars: PlainObject, _formatters?: Formatters): void {
     const {field, format, formatter, filter} = this.model
 
     const value = _get_column_value(field, data_source, index)
-    const row = index != null ? data_source.get_row(index) : {}
+    const row = index != null ? data_source.get_record(index) : {}
 
     if (filter != null) {
       for (const fn of isArray(filter) ? filter : [filter]) {

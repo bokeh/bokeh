@@ -20,11 +20,13 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import json
 import sys
 from dataclasses import asdict, is_dataclass
 from typing import (
     TYPE_CHECKING,
     Any,
+    Iterable,
     Mapping,
     Sequence,
     cast,
@@ -41,7 +43,6 @@ from ..core.property.data_class import Dataclass
 from ..core.property.data_frame import EagerDataFrame, PandasGroupBy
 from ..core.property.enum import Enum
 from ..core.property.instance import Instance, InstanceDefault
-from ..core.property.json import JSON
 from ..core.property.nullable import Nullable
 from ..core.property.primitive import Bool, Int, String
 from ..core.property.readonly import Readonly
@@ -51,7 +52,12 @@ from ..util.dependencies import uses_pandas
 from ..util.serialization import convert_datetime_array
 from .callbacks import CustomJS
 from .filters import AllIndices, Filter
-from .selections import Selection, SelectionPolicy, UnionRenderers
+from .selections import (
+    GraphSelection,
+    GraphSelectionPolicy,
+    Selection,
+    SelectionPolicy,
+)
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -65,11 +71,14 @@ if TYPE_CHECKING:
 
 __all__ = (
     'AjaxDataSource',
-    'CDSView',
     'ColumnarDataSource',
     'ColumnDataSource',
     'DataSource',
-    'GeoJSONDataSource',
+    'DataView',
+    'GeometryDataSource',
+    'GraphDataSource',
+    'IndexedDataSource',
+    'MeshDataSource',
     'ServerSentDataSource',
     'WebDataSource',
 )
@@ -93,6 +102,18 @@ if TYPE_CHECKING:
 class DataSource(Model):
     ''' A base class for data source types.
 
+    This class only provides common model lifecycle and data-change signaling.
+    Data sources with a single field-addressable record axis should derive
+    from :class:`~bokeh.models.sources.IndexedDataSource`.
+
+    '''
+
+@abstract
+class IndexedDataSource(DataSource):
+    ''' A base class for sources exposing one selectable record axis.
+
+    The storage layout is defined by subclasses. It does not have to be a
+    mapping of column names to flat arrays.
     '''
 
     selected = Readonly(Instance(Selection), default=InstanceDefault(Selection), help="""
@@ -101,8 +122,12 @@ class DataSource(Model):
     to change the selection (e.g., ``selected.indices``).
     """)
 
+    selection_policy = Instance(SelectionPolicy, default=InstanceDefault(SelectionPolicy), help="""
+    An instance of a ``SelectionPolicy`` that determines how selections are set.
+    """)
+
 @abstract
-class ColumnarDataSource(DataSource):
+class ColumnarDataSource(IndexedDataSource):
     ''' A base class for data source types, which can be mapped onto
     a columnar format.
 
@@ -115,10 +140,6 @@ class ColumnarDataSource(DataSource):
     when a value for a given column is not explicitly provided. If a default
     value is missing, a tool will defer to its own configuration or will try
     to let the data source to infer a sensible default value.
-    """)
-
-    selection_policy = Instance(SelectionPolicy, default=InstanceDefault(UnionRenderers), help="""
-    An instance of a ``SelectionPolicy`` that determines how selections are set.
     """)
 
 def _cds_lengths_warning(_, __, data: dict[str, Any]) -> None:
@@ -776,13 +797,747 @@ class ColumnDataSource(ColumnarDataSource):
 
         self.data._patch(self.document, self, patches, setter)
 
-class CDSView(Model):
-    ''' A view into a ``ColumnDataSource`` that represents a row-wise subset.
+def _default_mesh_vertices() -> ColumnDataSource:
+    return ColumnDataSource(data=dict(x=[], y=[]))
+
+def _default_mesh_cells() -> ColumnDataSource:
+    return ColumnDataSource(data=dict(vertices=[]))
+
+def _mesh_vertex_source(vertices: Any) -> IndexedDataSource:
+    if isinstance(vertices, IndexedDataSource):
+        return vertices
+    if isinstance(vertices, Mapping):
+        return ColumnDataSource(vertices)
+    if isinstance(vertices, Sequence) and not isinstance(vertices, (str, bytes)) and len(vertices) == 0:
+        return _default_mesh_vertices()
+
+    array = np.asarray(vertices)
+    if array.ndim != 2 or array.shape[-1] not in (2, 3):
+        raise ValueError("mesh vertices must be an (n, 2) or (n, 3) array, a mapping, or an IndexedDataSource")
+
+    data = {"x": array[:, 0], "y": array[:, 1]}
+    if array.shape[-1] == 3:
+        data["z"] = array[:, 2]
+    return ColumnDataSource(data)
+
+def _mesh_cell_source(cells: Any, connectivity_field: str) -> IndexedDataSource:
+    if isinstance(cells, IndexedDataSource):
+        return cells
+    if isinstance(cells, Mapping):
+        return ColumnDataSource(cells)
+
+    if isinstance(cells, np.ndarray):
+        if cells.ndim != 2:
+            raise ValueError("dense mesh connectivity must be a two-dimensional integer array")
+        if not np.issubdtype(cells.dtype, np.integer):
+            raise ValueError("mesh connectivity indices must be integers")
+        connectivity = cells
+    else:
+        connectivity = list(cells)
+
+        def is_record(cell: Any) -> bool:
+            return (
+                isinstance(cell, Mapping) or
+                (
+                    isinstance(cell, Sequence) and
+                    not isinstance(cell, (str, bytes)) and
+                    len(cell) == 2 and
+                    isinstance(cell[1], Mapping)
+                )
+            )
+
+        if connectivity and any(is_record(cell) for cell in connectivity):
+            if not all(is_record(cell) for cell in connectivity):
+                raise ValueError("mesh cells cannot mix connectivity sequences and cell records")
+
+            records = []
+            for cell in connectivity:
+                if isinstance(cell, Mapping):
+                    record = dict(cell)
+                    if connectivity_field not in record:
+                        raise ValueError(f"mesh cell records must define the {connectivity_field!r} connectivity field")
+                else:
+                    indices, attrs = cell
+                    if connectivity_field in attrs:
+                        raise ValueError(f"mesh cell attributes cannot contain the reserved {connectivity_field!r} field")
+                    record = {connectivity_field: indices, **attrs}
+
+                indices = record[connectivity_field]
+                if isinstance(indices, np.ndarray):
+                    if indices.ndim != 1 or not np.issubdtype(indices.dtype, np.integer):
+                        raise ValueError("mesh connectivity indices must be integers")
+                elif not isinstance(indices, Sequence) or isinstance(indices, (str, bytes)):
+                    raise ValueError("mesh connectivity must contain sequences of integer vertex indices")
+                elif any(not isinstance(index, (int, np.integer)) for index in indices):
+                    raise ValueError("mesh connectivity indices must be integers")
+                record[connectivity_field] = list(indices)
+                records.append(record)
+
+            fields = list(dict.fromkeys(field for record in records for field in record))
+            return ColumnDataSource({field: [record.get(field) for record in records] for field in fields})
+
+        if connectivity and all(isinstance(index, (int, np.integer)) for index in connectivity):
+            connectivity = [connectivity]
+        if any(not isinstance(cell, Sequence) or isinstance(cell, (str, bytes)) for cell in connectivity):
+            raise ValueError("mesh connectivity must contain sequences of integer vertex indices")
+        if any(any(not isinstance(index, (int, np.integer)) for index in cell) for cell in connectivity):
+            raise ValueError("mesh connectivity indices must be integers")
+        connectivity = [list(cell) for cell in connectivity]
+
+    return ColumnDataSource({connectivity_field: connectivity})
+
+class MeshDataSource(IndexedDataSource):
+    ''' A cell-indexed source containing shared vertices and mesh connectivity.
+
+    ``vertices`` contains coordinate and optional vertex attribute fields.
+    ``cells`` contains a connectivity field whose rows index ``vertices``, plus
+    optional cell attributes. The primary selectable and filterable record axis
+    is the cell axis. By default the mesh and its ``cells`` source share the
+    same selection and selection policy.
+
+    In addition to connectivity arrays and column mappings, ``cells`` accepts
+    row mappings or ``(connectivity, attributes)`` pairs. This keeps values
+    computed per element next to their connectivity during mesh construction.
+
+    BokehJS exposes virtual ``xs``, ``ys``, and (when present) ``zs`` fields by
+    gathering vertex coordinates through cell connectivity. This keeps shared
+    coordinates compact in serialized documents while allowing existing
+    polygon and multiline glyph implementations to consume the mesh.
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        if args:
+            raise TypeError("MeshDataSource only accepts keyword arguments")
+
+        connectivity_field = kwargs.get("connectivity_field", "vertices")
+        raw_vertices = kwargs.pop("vertices", None)
+        raw_cells = kwargs.pop("cells", None)
+        vertices = _default_mesh_vertices() if raw_vertices is None else _mesh_vertex_source(raw_vertices)
+        cells = ColumnDataSource({connectivity_field: []}) if raw_cells is None else _mesh_cell_source(raw_cells, connectivity_field)
+        kwargs.setdefault("selected", cells.selected)
+        kwargs.setdefault("selection_policy", cells.selection_policy)
+        kwargs.update(vertices=vertices, cells=cells)
+        super().__init__(**kwargs)
+
+    vertices = Readonly(Instance(IndexedDataSource), default=_default_mesh_vertices, help="""
+    The indexed source containing vertex coordinates and attributes.
+    """)
+
+    cells = Readonly(Instance(IndexedDataSource), default=_default_mesh_cells, help="""
+    The indexed source containing connectivity and cell attributes.
+    """)
+
+    connectivity_field = String(default="vertices", help="""
+    Field on ``cells`` containing vertex indices for each cell.
+    """)
+
+    x_field = String(default="x", help="""
+    Field on ``vertices`` containing x-coordinates.
+    """)
+
+    y_field = String(default="y", help="""
+    Field on ``vertices`` containing y-coordinates.
+    """)
+
+    z_field = String(default="z", help="""
+    Field on ``vertices`` containing optional z-coordinates.
+    """)
+
+    @property
+    def length(self) -> int:
+        return getattr(self.cells, "length", 0)
+
+def _default_graph_nodes() -> ColumnDataSource:
+    return ColumnDataSource(data=dict(index=[]))
+
+def _default_graph_edges() -> ColumnDataSource:
+    return ColumnDataSource(data=dict(start=[], end=[]))
+
+def _column_source(data: Mapping[str, Sequence[Any]], aliases: Mapping[str, str]) -> ColumnDataSource:
+    columns = dict(data)
+    for alias, canonical in aliases.items():
+        if alias not in columns:
+            continue
+        if canonical in columns:
+            raise ValueError(f"graph data cannot contain both {alias!r} and {canonical!r} fields")
+        columns[canonical] = columns.pop(alias)
+    return ColumnDataSource(columns)
+
+def _rows_source(rows: Iterable[Mapping[str, Any]]) -> ColumnDataSource:
+    records = list(rows)
+    fields = list(dict.fromkeys(field for record in records for field in record))
+    columns = {}
+    for field in fields:
+        values = [record.get(field) for record in records]
+        if field in {"index", "start", "end"}:
+            columns[field] = [list(value) if isinstance(value, tuple) else value for value in values]
+            continue
+        if any(isinstance(value, (list, tuple)) for value in values):
+            if not all(isinstance(value, (list, tuple)) for value in values if value is not None):
+                raise ValueError("Can't mix scalar and non-scalar values for graph attributes")
+            values = [[] if value is None else list(value) for value in values]
+        columns[field] = values
+    return ColumnDataSource(columns)
+
+def _dataframe_source(frame: Any, aliases: Mapping[str, str]) -> ColumnDataSource:
+    import narwhals.stable.v1 as nw
+
+    native_columns = set(nw.from_native(frame, eager_only=True).columns)
+    columns = ColumnDataSource._data_from_df(frame)
+    topology_fields = set(aliases) | set(aliases.values())
+    if native_columns & topology_fields:
+        # A dataframe index is materialized as an extra column by CDS. When an
+        # explicit graph identifier/end-point column is present, it is the
+        # topology source of truth and the generated index must not compete
+        # with its canonical name.
+        for generated in set(columns) - native_columns:
+            columns.pop(generated)
+    return _column_source(columns, aliases)
+
+def _node_source(nodes: Any) -> IndexedDataSource:
+    if isinstance(nodes, IndexedDataSource):
+        return nodes
+
+    import narwhals.stable.v1 as nw
+    if uses_pandas(nodes) or nw.dependencies.is_into_dataframe(nodes):
+        return _dataframe_source(nodes, {"id": "index"})
+
+    if isinstance(nodes, Mapping):
+        if not nodes:
+            return _default_graph_nodes()
+        if "id" in nodes or "index" in nodes or not all(isinstance(attrs, Mapping) for attrs in nodes.values()):
+            return _column_source(nodes, {"id": "index"})
+        records = []
+        for node_id, attrs in nodes.items():
+            if not isinstance(attrs, Mapping):
+                raise ValueError("a node mapping must map node identifiers to attribute mappings")
+            if "index" in attrs:
+                raise ValueError("node attributes cannot contain the reserved 'index' field")
+            records.append({"index": node_id, **attrs})
+        return _rows_source(records)
+
+    records = []
+    for node in nodes:
+        if isinstance(node, Mapping):
+            record = dict(node)
+            if "id" in record:
+                if "index" in record:
+                    raise ValueError("a node record cannot contain both 'id' and 'index'")
+                record["index"] = record.pop("id")
+            if "index" not in record:
+                raise ValueError("a node record must contain an 'id' or 'index' field")
+        elif isinstance(node, tuple) and len(node) == 2 and isinstance(node[1], Mapping):
+            node_id, attrs = node
+            if "index" in attrs:
+                raise ValueError("node tuple attributes cannot contain the reserved 'index' field")
+            record = {"index": node_id, **attrs}
+        else:
+            record = {"index": node}
+        records.append(record)
+    return _rows_source(records) if records else _default_graph_nodes()
+
+def _edge_source(edges: Any) -> IndexedDataSource:
+    if isinstance(edges, IndexedDataSource):
+        return edges
+
+    import narwhals.stable.v1 as nw
+    if uses_pandas(edges) or nw.dependencies.is_into_dataframe(edges):
+        return _dataframe_source(edges, {"source": "start", "target": "end"})
+
+    if isinstance(edges, Mapping):
+        if not edges:
+            return _default_graph_edges()
+        if any(field in edges for field in ("source", "target", "start", "end")):
+            return _column_source(edges, {"source": "start", "target": "end"})
+        raise ValueError("edge data must contain 'source'/'target' or 'start'/'end' fields")
+
+    records = []
+    for edge in edges:
+        if isinstance(edge, Mapping):
+            record = dict(edge)
+            for alias, canonical in (("source", "start"), ("target", "end")):
+                if alias in record:
+                    if canonical in record:
+                        raise ValueError(f"an edge record cannot contain both {alias!r} and {canonical!r}")
+                    record[canonical] = record.pop(alias)
+            if "start" not in record or "end" not in record:
+                raise ValueError("an edge record must contain source/target or start/end fields")
+        elif isinstance(edge, (tuple, list)) and len(edge) in (2, 3):
+            start, end = edge[:2]
+            attrs = edge[2] if len(edge) == 3 else {}
+            if not isinstance(attrs, Mapping):
+                raise ValueError("the third item of an edge tuple must be an attribute mapping")
+            if any(field in attrs for field in ("start", "end")):
+                raise ValueError("edge tuple attributes cannot contain endpoint fields")
+            record = {"start": start, "end": end, **attrs}
+        else:
+            raise ValueError("an edge must be a mapping or a (source, target[, attributes]) tuple")
+        records.append(record)
+    return _rows_source(records) if records else _default_graph_edges()
+
+def _graph_sources(graph: Any) -> tuple[IndexedDataSource, IndexedDataSource]:
+    try:
+        graph_nodes = graph.nodes(data=True)
+        graph_edges = graph.edges(data=True)
+    except (AttributeError, TypeError) as error:
+        raise ValueError("expected a NetworkX-like graph with nodes(data=True) and edges(data=True)") from error
+
+    nodes = []
+    for node_id, attrs in graph_nodes:
+        attrs = dict(attrs)
+        for reserved in ("index",):
+            if reserved in attrs:
+                from ..util.warnings import warn
+
+                warn(f"Converting node attribute {reserved!r} is skipped because it is reserved by GraphDataSource")
+                attrs.pop(reserved)
+        nodes.append((node_id, attrs))
+
+    edges = []
+    for start, end, attrs in graph_edges:
+        attrs = dict(attrs)
+        for reserved in ("start", "end"):
+            if reserved in attrs:
+                from ..util.warnings import warn
+
+                warn(f"Converting edge attribute {reserved!r} is skipped because it is reserved by GraphDataSource")
+                attrs.pop(reserved)
+        edges.append((start, end, attrs))
+
+    return _node_source(nodes), _edge_source(edges)
+
+def _graph_id_key(value: Any) -> tuple[Any, ...]:
+    if isinstance(value, np.generic):
+        value = value.item()
+    if isinstance(value, (tuple, list)):
+        return ("array", *(_graph_id_key(item) for item in value))
+    if value is None:
+        return ("null",)
+    if isinstance(value, bool):
+        return ("boolean", value)
+    if isinstance(value, str):
+        return ("string", value)
+    if isinstance(value, (int, float)):
+        if isinstance(value, float) and np.isnan(value):
+            return ("number", "nan")
+        if value == 0 and np.signbit(value):
+            return ("number", "-0")
+        return ("number", value)
+    raise ValueError("graph node identifiers must be scalar values or nested sequences of scalar values")
+
+def _validate_graph_node_ids(source: IndexedDataSource) -> None:
+    if not isinstance(source, ColumnDataSource):
+        return
+    seen = set()
+    for index, value in enumerate(source.data.get("index", [])):
+        key = _graph_id_key(value)
+        if key in seen:
+            raise ValueError(f"duplicate graph node identifier at index {index}")
+        seen.add(key)
+
+class GraphDataSource(DataSource):
+    ''' A coupled pair of indexed data sources representing a graph.
+
+    ``nodes`` contains one logical record per node and exposes an ``index``
+    field. ``edges`` contains one logical record per edge and exposes ``start``
+    and ``end`` fields referring to node identifiers.
+
+    The child sources may use any storage layout supported by
+    ``IndexedDataSource``.
+    Keeping them together gives graph renderers and interaction policies a
+    single topology-aware data model without forcing nodes and edges onto one
+    shared record axis.
+
+    Graph-shaped Python data is accepted directly. Node records may use ``id``
+    and edge records may use ``source`` and ``target``; these familiar names
+    are normalized to Bokeh's internal ``index``, ``start``, and ``end``
+    fields. A NetworkX-like graph can be passed as the sole positional
+    argument.
 
     '''
 
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        if len(args) > 1:
+            raise TypeError("GraphDataSource accepts at most one positional graph argument")
+        graph = args[0] if args else kwargs.pop("graph", None)
+        if args and "graph" in kwargs:
+            raise TypeError("GraphDataSource graph was provided more than once")
+
+        raw_nodes = kwargs.pop("nodes", None)
+        raw_edges = kwargs.pop("edges", None)
+        if graph is not None:
+            if raw_nodes is not None or raw_edges is not None:
+                raise ValueError("provide either a graph or explicit nodes and edges, not both")
+            nodes, edges = _graph_sources(graph)
+        else:
+            nodes = _default_graph_nodes() if raw_nodes is None else _node_source(raw_nodes)
+            edges = _default_graph_edges() if raw_edges is None else _edge_source(raw_edges)
+
+        _validate_graph_node_ids(nodes)
+        kwargs.update(nodes=nodes, edges=edges)
+        super().__init__(**kwargs)
+
+    nodes = Readonly(Instance(IndexedDataSource), default=_default_graph_nodes, help="""
+    The indexed data source containing node records.
+    """)
+
+    edges = Readonly(Instance(IndexedDataSource), default=_default_graph_edges, help="""
+    The indexed data source containing edge records.
+    """)
+
+    selected = Readonly(Instance(GraphSelection), default=InstanceDefault(GraphSelection), help="""
+    The directly selected node and edge records, before selection-policy
+    expansion. Expanded selections are available from ``nodes.selected`` and
+    ``edges.selected``.
+    """)
+
+    selection_policy = Instance(GraphSelectionPolicy, default=InstanceDefault(GraphSelectionPolicy), help="""
+    Controls how direct node or edge selections propagate through graph topology.
+    """)
+
+def _geometry_json_value(value: Any) -> Any:
+    if isinstance(value, np.ndarray):
+        return [_geometry_json_value(item) for item in value.tolist()]
+    if isinstance(value, np.generic):
+        return value.item()
+    if isinstance(value, Mapping):
+        return {key: _geometry_json_value(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_geometry_json_value(item) for item in value]
+    return value
+
+def _geometry_mapping(value: Any) -> dict[str, Any] | None:
+    if value is None:
+        return None
+    if not isinstance(value, Mapping):
+        value = getattr(value, "__geo_interface__", None)
+    if not isinstance(value, Mapping):
+        raise ValueError("geometry values must be GeoJSON mappings or define __geo_interface__")
+    geometry = _geometry_json_value(value)
+    if geometry.get("type") == "Feature":
+        return _geometry_mapping(geometry.get("geometry"))
+    if "type" not in geometry:
+        raise ValueError("geometry mappings must define a 'type'")
+    return geometry
+
+def _geometry_from_xy(x: Sequence[Any], y: Sequence[Any]) -> dict[str, Any]:
+    xs = list(x)
+    ys = list(y)
+    if len(xs) != len(ys):
+        raise ValueError("polygon x and y coordinates must have the same length")
+
+    def is_separator(value: Any) -> bool:
+        try:
+            return bool(np.isscalar(value) and not np.isfinite(value))
+        except TypeError:
+            return False
+
+    rings: list[list[list[Any]]] = []
+    ring: list[list[Any]] = []
+    for x_value, y_value in zip([*xs, np.nan], [*ys, np.nan]):
+        if is_separator(x_value) or is_separator(y_value):
+            if ring:
+                rings.append(ring)
+                ring = []
+        else:
+            ring.append([x_value, y_value])
+
+    if len(rings) <= 1:
+        return {"type": "Polygon", "coordinates": rings}
+    return {"type": "MultiPolygon", "coordinates": [[ring] for ring in rings]}
+
+def _is_coordinate_sequence(value: Any) -> bool:
+    if not isinstance(value, (Sequence, np.ndarray)) or isinstance(value, (str, bytes)):
+        return False
+    return len(value) == 0 or not isinstance(value[0], str)
+
+def _geometry_records(value: Any) -> tuple[list[dict[str, Any] | None], dict[str, list[Any]]]:
+    if isinstance(value, str):
+        value = json.loads(value)
+    elif not isinstance(value, (Mapping, Sequence)):
+        geo_interface = getattr(value, "__geo_interface__", None)
+        if geo_interface is not None:
+            value = geo_interface
+
+    if isinstance(value, Mapping) and "geometry" not in value and "geometries" in value and "data" in value:
+        raw_geometries = value["geometries"]
+        raw_data = value["data"]
+        if not isinstance(raw_data, Mapping):
+            raise ValueError("geometry record data must be a mapping of aligned fields")
+        geometries = [_geometry_mapping(geometry) for geometry in raw_geometries]
+        data = {field: list(values) for field, values in raw_data.items()}
+        lengths = {len(values) for values in data.values()}
+        if len(lengths) > 1 or (lengths and lengths != {len(geometries)}):
+            raise ValueError("geometry attributes must have the same length as geometries")
+        return geometries, data
+
+    if isinstance(value, Mapping):
+        kind = value.get("type")
+        if kind == "FeatureCollection":
+            records = list(value.get("features", []))
+        elif kind == "GeometryCollection":
+            records = list(value.get("geometries", []))
+        else:
+            records = [value]
+    else:
+        records = list(value)
+
+    geometries: list[dict[str, Any] | None] = []
+    properties: list[dict[str, Any]] = []
+
+    def append(item: Any, attrs: dict[str, Any] | None = None) -> None:
+        if item is None:
+            geometries.append(None)
+            properties.append({} if attrs is None else attrs)
+            return
+        if not isinstance(item, Mapping):
+            append(_geometry_mapping(item), attrs)
+            return
+
+        record = dict(item)
+        if record.get("type") == "Feature":
+            append(record.get("geometry"), dict(record.get("properties") or {}))
+        elif record.get("type") == "GeometryCollection":
+            for geometry in record.get("geometries", []):
+                append(geometry, attrs)
+        elif "geometry" in record:
+            geometry = record.pop("geometry")
+            append(geometry, record)
+        else:
+            geometries.append(_geometry_mapping(record))
+            properties.append({} if attrs is None else attrs)
+
+    for item in records:
+        append(item)
+
+    fields = list(dict.fromkeys(field for record in properties for field in record))
+    data = {field: [record.get(field) for record in properties] for field in fields}
+    return geometries, data
+
+class GeometryDataSource(IndexedDataSource):
+    ''' A feature-indexed source containing geometry records and attributes.
+
+    Geometry values use GeoJSON geometry mappings. Python objects implementing
+    ``__geo_interface__`` (including GeoPandas and Shapely objects) and GeoJSON
+    FeatureCollections are accepted directly and normalized for transport.
+
+    Attribute columns remain available to data specs for vectorized styling,
+    while coordinates retain their natural Polygon/MultiPolygon hierarchy.
+    '''
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        if len(args) > 1:
+            raise TypeError("GeometryDataSource accepts at most one positional data argument")
+
+        if args and "crs" not in kwargs:
+            crs = getattr(args[0], "crs", None)
+            if crs is not None:
+                kwargs["crs"] = str(crs)
+
+        raw_geometries = kwargs.pop("geometries", None)
+        raw_data = kwargs.pop("data", None)
+        if args:
+            if raw_geometries is not None or raw_data is not None:
+                raise ValueError("provide either positional geometry data or geometries/data keywords")
+            geometries, data = _geometry_records(args[0])
+        elif raw_geometries is None and raw_data is not None and not isinstance(raw_data, Mapping):
+            geometries, data = _geometry_records(raw_data)
+        elif raw_geometries is None and isinstance(raw_data, Mapping) and "geometry" in raw_data:
+            columns = dict(raw_data)
+            raw_geometries = columns.pop("geometry")
+            geometries = [_geometry_mapping(value) for value in raw_geometries]
+            data = columns
+        else:
+            geometries = [] if raw_geometries is None else [_geometry_mapping(value) for value in raw_geometries]
+            data = {} if raw_data is None else dict(raw_data)
+
+        lengths = {len(column) for column in data.values()}
+        if len(lengths) > 1 or (lengths and lengths != {len(geometries)}):
+            raise ValueError("geometry attributes must have the same length as geometries")
+
+        kwargs.update(geometries=geometries, data=data)
+        super().__init__(**kwargs)
+
+    @classmethod
+    def from_xy(cls, x: Sequence[Any], y: Sequence[Any], *, data: Mapping[str, Sequence[Any]] | None = None) -> GeometryDataSource:
+        ''' Construct geometry records from familiar x/y coordinate arrays.
+
+        Flat arrays produce one polygon. Nested arrays produce one feature per
+        row. NaN separators within a row produce disjoint MultiPolygon parts.
+        '''
+        xs = list(x)
+        ys = list(y)
+        nested_x = bool(xs) and _is_coordinate_sequence(xs[0])
+        nested_y = bool(ys) and _is_coordinate_sequence(ys[0])
+        if nested_x != nested_y:
+            raise ValueError("polygon x and y coordinates must have matching nesting")
+
+        if nested_x and nested_y:
+            if len(xs) != len(ys):
+                raise ValueError("polygon x and y coordinates must have the same length")
+            geometries = [_geometry_from_xy(x_row, ys[i]) for i, x_row in enumerate(xs)]
+        else:
+            geometries = [_geometry_from_xy(xs, ys)]
+        return cls(geometries=geometries, data={} if data is None else data)
+
+    def replace(self, data: Any, *, setter: Setter | None = None) -> None:
+        ''' Replace all geometry records and aligned attributes.
+
+        ``data`` accepts the same GeoJSON, ``__geo_interface__``, and natural
+        geometry-record inputs as the constructor.
+        '''
+        geometries, attributes = _geometry_records(data)
+        records = {"geometries": geometries, "data": attributes}
+        hint = None
+        if self.document is not None:
+            from ..document.events import ColumnDataChangedEvent
+            hint = ColumnDataChangedEvent(self.document, self, "records", records, setter=setter)
+        self._set_records(geometries, attributes, hint=hint, setter=setter)
+
+    geometries = Seq(AnyVal, default=[], help="""
+    GeoJSON geometry mappings, one per selectable feature.
+    """)
+
+    data = ColumnData(String, Seq(AnyVal), help="""
+    Attribute columns aligned with ``geometries`` for styling and callbacks.
+    """)
+
+    crs = Nullable(String, help="""
+    Optional coordinate reference system identifier or description.
+    """)
+
+    @property
+    def column_names(self) -> list[str]:
+        return ["geometry", *self.data]  # pyright: ignore[reportGeneralTypeIssues]
+
+    @property
+    def length(self) -> int:
+        return len(self.geometries)
+
+    def add(self, data: Sequence[Any], name: str) -> str:
+        ''' Add an attribute field aligned with the geometry records. '''
+        if name in {"geometry", "x", "y", "z", "xs", "ys", "zs"}:
+            raise ValueError(f"geometry field {name!r} is reserved")
+        if len(data) != self.length:
+            raise ValueError(f"attribute {name!r} must have the same length as geometries")
+        self.data[name] = data
+        return name
+
+    def _set_records(self, geometries: Sequence[Any], data: Mapping[str, Sequence[Any]], *,
+            hint: Any = None, setter: Setter | None = None) -> None:
+        old_geometries = list(self.geometries)
+        old_data = {field: list(values) for field, values in self.data.items()}
+
+        # Keep both public properties consistent while one composite document
+        # event carries the change to a server or notebook client.
+        list.clear(self.geometries)
+        list.extend(self.geometries, geometries)
+        dict.clear(self.data)
+        dict.update(cast(dict[str, Any], self.data), data)
+
+        def invoke() -> None:
+            for attr, old, new in (
+                ("geometries", old_geometries, self.geometries),
+                ("data", old_data, self.data),
+            ):
+                for callback in self._callbacks.get(attr, []):
+                    callback(attr, old, new)
+
+        if self.document is None:
+            invoke()
+        else:
+            self.document.callbacks.notify_change(
+                self, "geometries", old_geometries, self.geometries,
+                hint=hint, setter=setter, callback_invoker=invoke,
+            )
+
+    def stream(self, new_data: Any, rollover: int | None = None, setter: Setter | None = None) -> None:
+        ''' Append geometry records and attributes, optionally retaining only
+        the newest ``rollover`` records.
+
+        This is the geometry-record analogue of
+        :meth:`~bokeh.models.sources.ColumnDataSource.stream` and synchronizes
+        through normal model property events in server applications.
+        '''
+        self._stream(new_data, rollover, setter)
+
+    def _stream(self, new_data: Any, rollover: int | None = None, setter: Setter | None = None) -> None:
+        geometries, data = _geometry_records(new_data)
+        existing_fields = set(self.data)
+        new_fields = set(data)
+        missing = sorted(existing_fields - new_fields)
+        if missing and geometries:
+            raise ValueError(f"Must stream updates to all existing attributes (missing: {', '.join(missing)})")
+
+        combined_geometries = [*self.geometries, *geometries]  # pyright: ignore[reportGeneralTypeIssues]
+        combined_data = {
+            field: [
+                *self.data.get(field, [None] * self.length),
+                *data.get(field, [None] * len(geometries)),
+            ]
+            for field in existing_fields | new_fields
+        }
+        if rollover is not None:
+            if rollover < 0:
+                raise ValueError("rollover must be non-negative")
+            combined_geometries = [] if rollover == 0 else combined_geometries[-rollover:]
+            combined_data = {
+                field: [] if rollover == 0 else values[-rollover:]
+                for field, values in combined_data.items()
+            }
+
+        records = [
+            {
+                "geometry": geometry,
+                **{field: values[index] for field, values in data.items()},
+            }
+            for index, geometry in enumerate(geometries)
+        ]
+        hint = None
+        if self.document is not None:
+            from ..document.events import ColumnsStreamedEvent
+            hint = ColumnsStreamedEvent(self.document, self, "records", records, rollover, setter)
+        self._set_records(combined_geometries, combined_data, hint=hint, setter=setter)
+
+    def patch(self, patches: Mapping[str, Sequence[tuple[int, Any]]], setter: Setter | None = None) -> None:
+        ''' Replace complete geometry or attribute values at feature indices. '''
+        valid_fields = {"geometry", *self.data}  # pyright: ignore[reportGeneralTypeIssues]
+        extra = set(patches) - valid_fields
+        if extra:
+            raise ValueError(f"Can only patch existing geometry fields (extra: {', '.join(sorted(extra))})")
+
+        geometries = list(self.geometries)
+        data = {field: list(values) for field, values in self.data.items()}
+        normalized_patches: dict[str, list[tuple[int, Any]]] = {}
+        for field, changes in patches.items():
+            values = geometries if field == "geometry" else data[field]
+            normalized = normalized_patches[field] = []
+            for index, value in changes:
+                if index < 0 or index >= self.length:
+                    raise ValueError(f"Out-of bounds index ({index}) in patch for field: {field}")
+                value = _geometry_mapping(value) if field == "geometry" else value
+                values[index] = value
+                normalized.append((index, value))
+
+        hint = None
+        if self.document is not None:
+            from ..document.events import ColumnsPatchedEvent
+            hint = ColumnsPatchedEvent(self.document, self, "records", normalized_patches, setter)
+        self._set_records(geometries, data, hint=hint, setter=setter)
+
+class DataView(Model):
+    ''' A filtered projection over the logical items of an indexed data source.
+
+    A ``DataView`` is independent of physical storage. Its indices refer to the
+    primary item axis exposed by an ``IndexedDataSource``: rows for a columnar
+    source, features for a geometry source, or nodes and edges for the indexed
+    child sources of a graph.
+    '''
+
     filter = Instance(Filter, default=InstanceDefault(AllIndices), help="""
-    Defines the subset of indices to use from the data source this view applies to.
+    Defines the subset of logical item indices to use from the data source this
+    view applies to.
 
     By default all indices are used (``AllIndices`` filter). This can be changed by
     using specialized filters like ``IndexFilter``, ``BooleanFilter``, etc. Filters
@@ -793,18 +1548,7 @@ class CDSView(Model):
     .. code-block:: python
 
         # filters everything but indexes 10 and 11
-        cds_view.filter &= ~IndexFilter(indices=[10, 11])
-    """)
-
-class GeoJSONDataSource(ColumnarDataSource):
-    '''
-
-    '''
-
-    geojson = Required(JSON, help="""
-    GeoJSON that contains features for plotting. Currently
-    ``GeoJSONDataSource`` can only process a ``FeatureCollection`` or
-    ``GeometryCollection``.
+        data_view.filter &= ~IndexFilter(indices=[10, 11])
     """)
 
 @abstract

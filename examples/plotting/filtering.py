@@ -1,19 +1,20 @@
 ''' A map representation of unemployment rate in US using the :ref:`US_States Dataset <sampledata_us_states>`.
 This example demonstrates using IndexFilter, ColorMapper and HoverTool with
-basic plot elements such as patches. When hovering over the points,
+polygon geometry. When hovering over the points,
 the state and its umemployment rate is shown.
 
 .. bokeh-example-metadata::
-    :sampledata: US_States
+    :sampledata: us_states
     :apis: bokeh.models.IndexFilter, bokeh.models.HoverTool, bokeh.models.LinearColorMapper
     :refs: :ref:`ug_basic_areas_patches`, :ref:`ug_basic_data_filtering_index`
     :keywords: hover tool, indexfilter, filtering, US
 '''
+
 from bokeh.core.properties import field
 from bokeh.models import ColorBar, HoverTool, IndexFilter, LinearColorMapper
 from bokeh.palettes import Viridis11
 from bokeh.plotting import figure, show
-from bokeh.sampledata.us_states import data as states
+from bokeh.sampledata.us_states import records as state_records
 
 january_2021 = dict(
     AL= 4.0, AK= 7.1, AZ= 6.1, AR= 4.9, CA= 8.8, CO= 6.2, CT= 7.3, DE= 5.7, DC= 6.9, FL= 6.0,
@@ -24,8 +25,10 @@ january_2021 = dict(
     WY= 5.1,
 )
 
-state_xs = [states[code]["lons"] for code in states]
-state_ys = [states[code]["lats"] for code in states]
+records = [
+    state | {"rate": january_2021[state["code"]]}
+    for state in state_records()
+]
 
 p = figure(
     title="US unemployment January 2021 (by state)",
@@ -36,17 +39,14 @@ p = figure(
 p.grid.grid_line_color = None
 
 color_mapper = LinearColorMapper(palette=Viridis11)
-r = p.patches(
-    state_xs, state_ys,
+r = p.polygons(
+    records,
     line_color="white", hover_line_color="black",
     fill_color=field("rate", color_mapper),
 )
 
-r.data_source.data["code"] = [ code for code in states ]
-r.data_source.data["rate"] = [ january_2021[code] for code in states ]
-
-HI_i = list(states.keys()).index("HI")
-AK_i = list(states.keys()).index("AK")
+HI_i = next(i for i, state in enumerate(records) if state["code"] == "HI")
+AK_i = next(i for i, state in enumerate(records) if state["code"] == "AK")
 
 filter = ~IndexFilter(indices=[HI_i, AK_i])
 r.view.filter &= filter

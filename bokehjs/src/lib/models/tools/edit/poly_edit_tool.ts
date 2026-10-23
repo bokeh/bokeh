@@ -4,6 +4,7 @@ import {assert} from "core/util/assert"
 import {isArray} from "core/util/types"
 import {dict} from "core/util/object"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
+import {GeometryDataSource} from "../../sources/geometry_data_source"
 import {PolyTool, PolyToolView} from "./poly_tool"
 import type {XsYsGlyph} from "./common"
 import type * as p from "core/properties"
@@ -28,7 +29,7 @@ export class PolyEditToolView extends PolyToolView {
 
     // Perform hit testing
     const vertex_selected = this._select_event(ev, "replace", [this.model.vertex_renderer])
-    const point_cds = this.model.vertex_renderer.data_source
+    const point_cds = this._data_source(this.model.vertex_renderer)
     // Type once dataspecs are typed
     const point_glyph = this.model.vertex_renderer.glyph
     const pxkey = isField(point_glyph.x) ? point_glyph.x.field : null
@@ -50,7 +51,7 @@ export class PolyEditToolView extends PolyToolView {
         this._drawing = true
       }
       point_cds.change.emit()
-      this._emit_cds_changes(this._selected_renderer.data_source)
+      this._emit_poly_changes(this._poly_data_source(this._selected_renderer))
     } else {
       this._show_vertices(ev)
     }
@@ -66,7 +67,7 @@ export class PolyEditToolView extends PolyToolView {
 
     const vsync_renderer = this.model.renderers[0]
     const vsync_updater = () => this._update_vertices(vsync_renderer)
-    const vsync_ds = vsync_renderer.data_source
+    const vsync_ds = this._poly_data_source(vsync_renderer)
 
     const renderers = this._select_event(ev, "replace", this.model.renderers)
     if (renderers.length == 0) {
@@ -74,13 +75,21 @@ export class PolyEditToolView extends PolyToolView {
       this._selected_renderer = null
       this._drawing = false
       this._cur_index = null
-      vsync_ds.disconnect(vsync_ds.properties.data.change, vsync_updater)
+      if (vsync_ds instanceof GeometryDataSource) {
+        vsync_ds.disconnect(vsync_ds.properties.geometries.change, vsync_updater)
+      } else {
+        vsync_ds.disconnect(vsync_ds.properties.data.change, vsync_updater)
+      }
       return
     }
 
-    vsync_ds.connect(vsync_ds.properties.data.change, vsync_updater)
+    if (vsync_ds instanceof GeometryDataSource) {
+      vsync_ds.connect(vsync_ds.properties.geometries.change, vsync_updater)
+    } else {
+      vsync_ds.connect(vsync_ds.properties.data.change, vsync_updater)
+    }
 
-    this._cur_index = renderers[0].data_source.selected.indices[0]
+    this._cur_index = this._poly_data_source(renderers[0]).selected.indices[0]
     this._update_vertices(renderers[0])
   }
 
@@ -88,7 +97,7 @@ export class PolyEditToolView extends PolyToolView {
     const {glyph} = renderer
     const xkey = isField(glyph.xs) ? glyph.xs.field : null
     const ykey = isField(glyph.ys) ? glyph.ys.field : null
-    const data = dict(renderer.data_source.data)
+    const source = this._poly_data_source(renderer)
     const index = this._cur_index
 
     if (this._drawing) {
@@ -101,8 +110,8 @@ export class PolyEditToolView extends PolyToolView {
     let xs: number[]
     let ys: number[]
     if (xkey != null && index != null) { // redundant xkey null check to satisfy build-time checks
-      const column = data.get(xkey) ?? []
-      xs = column[index] as number[]
+      const column = this._poly_array<number[]>(source, xkey)
+      xs = column[index]
       if (!isArray(xs)) {
         column[index] = xs = Array.from(xs)
       }
@@ -112,8 +121,8 @@ export class PolyEditToolView extends PolyToolView {
     }
 
     if (ykey != null && index != null) {
-      const column = data.get(ykey) ?? []
-      ys = column[index] as number[]
+      const column = this._poly_array<number[]>(source, ykey)
+      ys = column[index]
       if (!isArray(ys)) {
         column[index] = ys = Array.from(ys)
       }
@@ -131,7 +140,7 @@ export class PolyEditToolView extends PolyToolView {
       if (renderer == null) {
         return
       }
-      const cds = renderer.data_source
+      const cds = this._data_source(renderer)
       const data = dict(cds.data)
       const {glyph} = renderer
       const point = this._map_drag(ev.sx, ev.sy, renderer)
@@ -152,7 +161,7 @@ export class PolyEditToolView extends PolyToolView {
         data.get(ykey)![index] = y
       }
       cds.change.emit()
-      this._selected_renderer.data_source.change.emit()
+      this._poly_data_source(this._selected_renderer).change.emit()
     }
   }
 
@@ -166,7 +175,7 @@ export class PolyEditToolView extends PolyToolView {
       return
     } else if (this._drawing && this._selected_renderer != null) {
       let [x, y] = point
-      const cds = renderer.data_source
+      const cds = this._data_source(renderer)
       // Type once dataspecs are typed
       const {glyph} = renderer
       const xkey = isField(glyph.x) ? glyph.x.field : null
@@ -188,7 +197,7 @@ export class PolyEditToolView extends PolyToolView {
         ys.splice(index+1, 0, ny)
       }
       cds.change.emit()
-      this._emit_cds_changes(this._selected_renderer.data_source, true, false, true)
+      this._emit_poly_changes(this._poly_data_source(this._selected_renderer), true, false, true)
       return
     }
     const mode = this._select_mode(ev)
@@ -204,7 +213,8 @@ export class PolyEditToolView extends PolyToolView {
     if (renderer == null) {
       return
     }
-    const {glyph, data_source} = renderer
+    const {glyph} = renderer
+    const data_source = this._data_source(renderer)
     const index = data_source.selected.indices[0]
     const xkey = isField(glyph.x) ? glyph.x.field : null
     const ykey = isField(glyph.y) ? glyph.y.field : null
@@ -215,7 +225,7 @@ export class PolyEditToolView extends PolyToolView {
       data_source.get_array(ykey).splice(index, 1)
     }
     data_source.change.emit()
-    this._emit_cds_changes(this._selected_renderer.data_source)
+    this._emit_poly_changes(this._poly_data_source(this._selected_renderer))
   }
 
   override _pan_start(ev: PanEvent): void {
@@ -235,7 +245,7 @@ export class PolyEditToolView extends PolyToolView {
     }
     this._drag_points(ev, [this.model.vertex_renderer])
     if (this._selected_renderer != null) {
-      this._selected_renderer.data_source.change.emit()
+      this._poly_data_source(this._selected_renderer).change.emit()
     }
   }
 
@@ -247,9 +257,9 @@ export class PolyEditToolView extends PolyToolView {
       return
     }
     this._drag_points(ev, [this.model.vertex_renderer])
-    this._emit_cds_changes(this.model.vertex_renderer.data_source, false, true, true)
+    this._emit_cds_changes(this._data_source(this.model.vertex_renderer), false, true, true)
     if (this._selected_renderer != null) {
-      this._emit_cds_changes(this._selected_renderer.data_source)
+      this._emit_poly_changes(this._poly_data_source(this._selected_renderer))
     }
     this._basepoint = null
   }
@@ -267,9 +277,9 @@ export class PolyEditToolView extends PolyToolView {
     }
     for (const renderer of renderers) {
       if (ev.key == "Backspace") {
-        this._delete_selected(renderer)
+        this._delete_selected_poly(renderer)
         if (this._selected_renderer != null) {
-          this._emit_cds_changes(this._selected_renderer.data_source)
+          this._emit_poly_changes(this._poly_data_source(this._selected_renderer))
         }
       } else if (ev.key == "Escape") {
         if (this._drawing) {
@@ -278,7 +288,7 @@ export class PolyEditToolView extends PolyToolView {
         } else if (this._selected_renderer != null) {
           this._hide_vertices()
         }
-        renderer.data_source.selection_manager.clear()
+        this._poly_data_source(renderer).selection_manager.clear()
       }
     }
   }

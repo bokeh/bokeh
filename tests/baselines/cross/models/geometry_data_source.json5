@@ -1,0 +1,235 @@
+{
+  config: {
+    type: "object",
+    name: "DocumentConfig",
+    id: "p1010",
+    attributes: {
+      notifications: {
+        type: "object",
+        name: "Notifications",
+        id: "p1011",
+      },
+    },
+  },
+  roots: [
+    {
+      type: "object",
+      name: "Plot",
+      id: "p1009",
+      attributes: {
+        x_range: {
+          type: "object",
+          name: "DataRange1d",
+          id: "p1012",
+        },
+        y_range: {
+          type: "object",
+          name: "DataRange1d",
+          id: "p1013",
+        },
+        x_scale: {
+          type: "object",
+          name: "LinearScale",
+          id: "p1014",
+        },
+        y_scale: {
+          type: "object",
+          name: "LinearScale",
+          id: "p1015",
+        },
+        title: {
+          type: "object",
+          name: "Title",
+          id: "p1016",
+        },
+        renderers: [
+          {
+            type: "object",
+            name: "GlyphRenderer",
+            id: "p1008",
+            attributes: {
+              data_source: {
+                type: "object",
+                name: "GeometryDataSource",
+                id: "p1006",
+                attributes: {
+                  selected: {
+                    type: "object",
+                    name: "Selection",
+                    id: "p1019",
+                  },
+                  selection_policy: {
+                    type: "object",
+                    name: "SelectionPolicy",
+                    id: "p1020",
+                  },
+                  geometries: [
+                    {
+                      type: "map",
+                      entries: [
+                        [
+                          "type",
+                          "Polygon",
+                        ],
+                        [
+                          "coordinates",
+                          [
+                            [
+                              [
+                                0,
+                                0,
+                                3,
+                              ],
+                              [
+                                4,
+                                0,
+                                3,
+                              ],
+                              [
+                                4,
+                                4,
+                                3,
+                              ],
+                              [
+                                0,
+                                0,
+                                3,
+                              ],
+                            ],
+                            [
+                              [
+                                1,
+                                1,
+                                3,
+                              ],
+                              [
+                                2,
+                                1,
+                                3,
+                              ],
+                              [
+                                1,
+                                2,
+                                3,
+                              ],
+                              [
+                                1,
+                                1,
+                                3,
+                              ],
+                            ],
+                          ],
+                        ],
+                      ],
+                    },
+                    {
+                      type: "map",
+                      entries: [
+                        [
+                          "type",
+                          "MultiPolygon",
+                        ],
+                        [
+                          "coordinates",
+                          [
+                            [
+                              [
+                                [
+                                  6,
+                                  0,
+                                ],
+                                [
+                                  8,
+                                  0,
+                                ],
+                                [
+                                  8,
+                                  2,
+                                ],
+                                [
+                                  6,
+                                  0,
+                                ],
+                              ],
+                            ],
+                            [
+                              [
+                                [
+                                  6,
+                                  3,
+                                ],
+                                [
+                                  9,
+                                  3,
+                                ],
+                                [
+                                  9,
+                                  5,
+                                ],
+                                [
+                                  6,
+                                  3,
+                                ],
+                              ],
+                            ],
+                          ],
+                        ],
+                      ],
+                    },
+                  ],
+                  data: {
+                    type: "map",
+                    entries: [
+                      [
+                        "name",
+                        [
+                          "A",
+                          "B",
+                        ],
+                      ],
+                      [
+                        "color",
+                        [
+                          "navy",
+                          "firebrick",
+                        ],
+                      ],
+                    ],
+                  },
+                },
+              },
+              view: {
+                type: "object",
+                name: "DataView",
+                id: "p1018",
+                attributes: {
+                  filter: {
+                    type: "object",
+                    name: "AllIndices",
+                    id: "p1021",
+                  },
+                },
+              },
+              glyph: {
+                type: "object",
+                name: "Polygons",
+                id: "p1007",
+                attributes: {
+                  fill_color: {
+                    type: "field",
+                    field: "color",
+                  },
+                },
+              },
+            },
+          },
+        ],
+        toolbar: {
+          type: "object",
+          name: "Toolbar",
+          id: "p1017",
+        },
+      },
+    },
+  ],
+}

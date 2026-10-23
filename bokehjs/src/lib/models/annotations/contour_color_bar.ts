@@ -1,10 +1,13 @@
 import {BaseColorBar, BaseColorBarView} from "./base_color_bar"
-import type {MultiLineView} from "../glyphs/multi_line"
-import type {MultiPolygonsView} from "../glyphs/multi_polygons"
+import type {MultiLine, MultiLineView} from "../glyphs/multi_line"
+import type {PatchesView} from "../glyphs/patches"
+import type {Polygons} from "../glyphs/polygons"
 import type {Range} from "../ranges"
 import {Range1d} from "../ranges"
-import type {GlyphRendererView} from "../renderers/glyph_renderer"
+import type {GlyphRendererView, GlyphRendererWithSource} from "../renderers/glyph_renderer"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
+import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {GeometryDataSource} from "../sources/geometry_data_source"
 import type {ChildView} from "core/build_views"
 import {build_view} from "core/build_views"
 import type * as p from "core/properties"
@@ -51,8 +54,8 @@ export class ContourColorBarView extends BaseColorBarView {
     }
     const scaled_levels = scale.v_compute(levels)
 
-    const multi_polygons = this._fill_view.glyph as MultiPolygonsView
-    const nfill = multi_polygons.data_size
+    const polygons = this._fill_view.glyph as PatchesView
+    const nfill = polygons.data_size
     if (nfill > 0) {
       assert(levels.length == nfill+1, "Inconsistent number of filled contour levels")
       ctx.save()
@@ -63,8 +66,8 @@ export class ContourColorBarView extends BaseColorBarView {
         } else {
           ctx.rect(scaled_levels[i], bbox.top, scaled_levels[i+1] - scaled_levels[i], bbox.height)
         }
-        multi_polygons.visuals.fill.apply(ctx, i)
-        multi_polygons.visuals.hatch.apply(ctx, i)
+        polygons.visuals.fill.apply(ctx, i)
+        polygons.visuals.hatch.apply(ctx, i)
       }
       ctx.restore()
     }
@@ -94,9 +97,12 @@ export class ContourColorBarView extends BaseColorBarView {
 export namespace ContourColorBar {
   export type Attrs = p.AttrsOf<Props>
 
+  export type FillRenderer = GlyphRendererWithSource<Polygons, GeometryDataSource>
+  export type LineRenderer = GlyphRendererWithSource<MultiLine, ColumnarDataSource>
+
   export type Props = BaseColorBar.Props & {
-    fill_renderer: p.Property<GlyphRenderer>
-    line_renderer: p.Property<GlyphRenderer>
+    fill_renderer: p.Property<FillRenderer>
+    line_renderer: p.Property<LineRenderer>
     levels: p.Property<number[]>
   }
 }

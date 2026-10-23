@@ -31,7 +31,7 @@
             },
             selection_policy: {
               type: "object",
-              name: "UnionRenderers",
+              name: "SelectionPolicy",
               id: "p1017",
             },
             data: {
@@ -99,7 +99,7 @@
         },
         view: {
           type: "object",
-          name: "CDSView",
+          name: "DataView",
           id: "p1015",
           attributes: {
             filter: {

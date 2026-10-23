@@ -1,6 +1,6 @@
 import {Action, ActionView} from "./action"
 import {RendererGroup} from "../renderers/renderer_group"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {DataSource} from "../sources/data_source"
 import type {Index as DataIndex} from "core/util/templating"
 import {enumerate} from "core/util/iterator"
 import type * as p from "core/properties"
@@ -8,7 +8,7 @@ import type * as p from "core/properties"
 export class ToggleGroupView extends ActionView {
   declare model: ToggleGroup
 
-  update(_source: ColumnarDataSource, i: DataIndex | null, _vars: object/*, formatters?: Formatters*/): void {
+  update(_source: DataSource, i: DataIndex | null, _vars: object/*, formatters?: Formatters*/): void {
     for (const [group, j] of enumerate(this.model.groups)) {
       group.visible = i == j
     }

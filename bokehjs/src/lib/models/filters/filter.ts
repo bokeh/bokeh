@@ -1,5 +1,5 @@
 import {Model} from "../../model"
-import type {DataSource} from "../sources/data_source"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
 import type {Indices} from "core/types"
 import type * as p from "core/properties"
 
@@ -14,5 +14,5 @@ export interface Filter extends Filter.Attrs {}
 export abstract class Filter extends Model {
   declare properties: Filter.Props
 
-  abstract compute_indices(source: DataSource): Indices
+  abstract compute_indices(source: IndexedDataSource): Indices
 }

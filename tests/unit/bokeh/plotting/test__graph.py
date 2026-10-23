@@ -17,8 +17,17 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.core.properties import field
-from bokeh.models import ColumnDataSource, MultiLine, Scatter
+from bokeh.core.properties import field, value
+from bokeh.models import (
+    BezierEdgePathProvider,
+    ColumnDataSource,
+    GraphSelectionPolicy,
+    IndexedDataSource,
+    MultiLine,
+    Scatter,
+    StaticLayoutProvider,
+)
+from bokeh.plotting import figure
 
 # Module under test
 import bokeh.plotting._graph as bpg # isort:skip
@@ -44,9 +53,11 @@ class Test_get_graph_kwargs:
 
         kw = bpg.get_graph_kwargs(node_source, edge_source)
 
-        # 'index' column is added from pandas df
+        # The dataframe index supplies node ids when no explicit id column is
+        # present. Edge topology is already explicit, so its generated index
+        # is omitted.
         assert set(kw['node_renderer'].data_source.data.keys()) == {"index", "foo"}
-        assert set(kw['edge_renderer'].data_source.data.keys()) == {"index", "start", "end", "bar"}
+        assert set(kw['edge_renderer'].data_source.data.keys()) == {"start", "end", "bar"}
 
     def test_handle_sources(self) -> None:
         node_source = ColumnDataSource(data=dict(foo=[]))
@@ -56,6 +67,44 @@ class Test_get_graph_kwargs:
 
         assert set(kw['node_renderer'].data_source.data.keys()) == {"foo"}
         assert set(kw['edge_renderer'].data_source.data.keys()) == {"start", "end", "bar"}
+        assert kw['data_source'].nodes is node_source
+        assert kw['data_source'].edges is edge_source
+
+    def test_handle_storage_neutral_sources(self) -> None:
+        class RecordDataSource(IndexedDataSource):
+            pass
+
+        node_source = RecordDataSource()
+        edge_source = RecordDataSource()
+        kw = bpg.get_graph_kwargs(node_source, edge_source)
+
+        assert kw['node_renderer'].data_source is node_source
+        assert kw['edge_renderer'].data_source is edge_source
+        assert kw['data_source'].nodes is node_source
+        assert kw['data_source'].edges is edge_source
+
+    def test_routes_selection_configuration(self) -> None:
+        selection_policy = GraphSelectionPolicy(node_hops=2)
+        inspection_policy = GraphSelectionPolicy(include_end_nodes=True)
+        kw = bpg.get_graph_kwargs(
+            {}, {},
+            selection_policy=selection_policy,
+            inspection_policy=inspection_policy,
+            selection_target="nodes",
+            inspection_target="edges",
+        )
+
+        assert kw["data_source"].selection_policy is selection_policy
+        assert kw["inspection_policy"] is inspection_policy
+        assert kw["selection_target"] == "nodes"
+        assert kw["inspection_target"] == "edges"
+
+    def test_routes_edge_path_provider(self) -> None:
+        edge_path_provider = BezierEdgePathProvider(curvature=0.25)
+
+        kw = bpg.get_graph_kwargs({}, {}, edge_path_provider=edge_path_provider)
+
+        assert kw["edge_path_provider"] is edge_path_provider
 
     def test_handle_node_property_mixins(self) -> None:
         kwargs = dict(node_fill_color="purple", node_selection_fill_color="blue",
@@ -82,6 +131,12 @@ class Test_get_graph_kwargs:
         node_glyph = kw['node_renderer'].glyph
         assert isinstance(node_glyph, Scatter) and node_glyph.marker == "x"
 
+    def test_handle_node_marker_value(self) -> None:
+        marker = value("diamond")
+        kw = bpg.get_graph_kwargs({}, {}, node_marker=marker)
+        node_glyph = kw['node_renderer'].glyph
+        assert isinstance(node_glyph, Scatter) and node_glyph.marker == marker
+
     def test_handle_node_marker_dataspec_correctly(self) -> None:
         node_source = {'marker': ['square', 'circle', 'x']}
 
@@ -90,6 +145,21 @@ class Test_get_graph_kwargs:
         node_glyph = kw['node_renderer'].glyph
         assert isinstance(node_glyph, Scatter)
         assert node_glyph.marker == field('marker')
+
+    def test_handle_node_marker_field(self) -> None:
+        marker = field("marker")
+        kw = bpg.get_graph_kwargs({}, {}, node_marker=marker)
+        node_glyph = kw['node_renderer'].glyph
+        assert isinstance(node_glyph, Scatter) and node_glyph.marker == marker
+
+    @pytest.mark.parametrize(("marker", "expected"), [
+        ({"field": "marker"}, field("marker")),
+        ({"value": "diamond"}, value("diamond")),
+    ])
+    def test_handle_node_marker_dict(self, marker, expected) -> None:
+        kw = bpg.get_graph_kwargs({}, {}, node_marker=marker)
+        node_glyph = kw['node_renderer'].glyph
+        assert isinstance(node_glyph, Scatter) and node_glyph.marker == expected
 
     def test_handle_edge_property_mixins(self) -> None:
         kwargs = dict(edge_line_color="purple", edge_selection_line_color="blue",
@@ -129,14 +199,24 @@ class Test_get_graph_kwargs:
         assert r.muted_glyph.line_color == "blue"
 
     def test_bad_input(self) -> None:
-        msg = """\
-Failed to auto-convert <class 'int'> to ColumnDataSource.
- Original error: expected a dict, dataclass, or eager dataframe support by Narwhals, got 42"""
-        with pytest.raises(ValueError, match=msg):
+        with pytest.raises(TypeError):
             bpg.get_graph_kwargs(42, {})
 
-        with pytest.raises(ValueError, match=msg):
+        with pytest.raises(TypeError):
             bpg.get_graph_kwargs({}, 42)
+
+
+def test_figure_graph_routes_edge_path_provider() -> None:
+    edge_path_provider = BezierEdgePathProvider(curvature=0.25)
+
+    renderer = figure().graph(
+        {},
+        {},
+        StaticLayoutProvider(),
+        edge_path_provider=edge_path_provider,
+    )
+
+    assert renderer.edge_path_provider is edge_path_provider
 
 #-----------------------------------------------------------------------------
 # Private API

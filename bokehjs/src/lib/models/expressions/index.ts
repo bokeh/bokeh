@@ -2,6 +2,7 @@ export {Expression}   from "./expression"
 export {CustomJSExpr} from "./customjs_expr"
 export {Stack}        from "./stack"
 export {CumSum}       from "./cumsum"
+export {IndexedLookup} from "./indexed_lookup"
 
 export {ScalarExpression} from "./expression"
 export {Minimum} from "./minimum"

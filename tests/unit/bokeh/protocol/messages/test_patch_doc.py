@@ -33,11 +33,19 @@ from bokeh.document.events import (
 from bokeh.model import Model
 from bokeh.models import (
     Bezier,
+    BezierEdgePathProvider,
     ColumnDataSource,
+    DataView,
+    ForceDirectedLayoutProvider,
+    GeometryDataSource,
     GlyphRenderer,
+    GraphDataSource,
     GraphRenderer,
+    GroupFilter,
+    MeshDataSource,
     MultiLine,
     NormalHead,
+    Scatter,
     Segment,
     StaticLayoutProvider,
 )
@@ -131,6 +139,142 @@ class TestPatchDocument:
             foos.append(r.foo)
         foos.sort()
         assert foos == [ 2, 42 ]
+
+    def test_create_then_apply_geometry_record_events(self) -> None:
+        sample = document.Document()
+        source = GeometryDataSource([
+            {"geometry": {"type": "Point", "coordinates": [0, 0]}, "name": "A"},
+        ])
+        sample.add_root(source)
+        copy = document.Document.from_json(sample.to_json())
+        copy_source = copy.get_model_by_id(source.id)
+        assert isinstance(copy_source, GeometryDataSource)
+
+        events = []
+        sample.on_change(events.append)
+
+        source.replace([
+            {"geometry": {"type": "Point", "coordinates": [1, 1]}, "name": "B"},
+        ])
+        apply_patch(patch_doc(events), copy)
+        assert copy_source.geometries == source.geometries
+        assert copy_source.data == source.data
+
+        events.clear()
+        source.stream([
+            {"geometry": {"type": "Point", "coordinates": [2, 2]}, "name": "C", "kind": "city"},
+        ])
+        apply_patch(patch_doc(events), copy)
+        assert copy_source.geometries == source.geometries
+        assert copy_source.data == source.data
+
+        events.clear()
+        source.patch({"geometry": [(0, {"type": "Point", "coordinates": [3, 3]})], "name": [(1, "D")]})
+        apply_patch(patch_doc(events), copy)
+        assert copy_source.geometries == source.geometries
+        assert copy_source.data == source.data
+
+        events.clear()
+        source.replace({"geometries": [], "data": {"name": [], "kind": []}})
+        apply_patch(patch_doc(events), copy)
+        assert copy_source.geometries == []
+        assert copy_source.data == {"name": [], "kind": []}
+
+    def test_create_then_apply_data_view_events_with_geometry_source(self) -> None:
+        sample = document.Document()
+        source = GeometryDataSource([
+            {"geometry": {"type": "Point", "coordinates": [0, 0]}, "kind": "city"},
+            {"geometry": {"type": "Point", "coordinates": [1, 1]}, "kind": "park"},
+        ])
+        group_filter = GroupFilter(field_name="kind", group="city")
+        renderer = GlyphRenderer(
+            data_source=source,
+            view=DataView(filter=group_filter),
+            glyph=Scatter(x="x", y="y"),
+        )
+        sample.add_root(renderer)
+
+        copy = document.Document.from_json(sample.to_json())
+        copy_filter = copy.get_model_by_id(group_filter.id)
+        assert isinstance(copy_filter, GroupFilter)
+
+        events = []
+        sample.on_change(events.append)
+
+        group_filter.group = "park"
+        apply_patch(patch_doc(events), copy)
+        assert copy_filter.group == "park"
+
+    def test_create_then_apply_client_graph_layout_events(self) -> None:
+        sample = document.Document()
+        source = GraphDataSource(nodes=[0, 1], edges=[(0, 1)])
+        layout = ForceDirectedLayoutProvider(seed=7, iterations=20)
+        paths = BezierEdgePathProvider(curvature=0.2, steps=12)
+        renderer = GraphRenderer(data_source=source, layout_provider=layout, edge_path_provider=paths)
+        sample.add_root(renderer)
+
+        copy = document.Document.from_json(sample.to_json())
+        copy_source = copy.get_model_by_id(source.id)
+        copy_layout = copy.get_model_by_id(layout.id)
+        copy_paths = copy.get_model_by_id(paths.id)
+        assert isinstance(copy_source, GraphDataSource)
+        assert isinstance(copy_layout, ForceDirectedLayoutProvider)
+        assert isinstance(copy_paths, BezierEdgePathProvider)
+
+        events = []
+        sample.on_change(events.append)
+
+        layout.iterations = 40
+        apply_patch(patch_doc(events), copy)
+        assert copy_layout.iterations == 40
+
+        events.clear()
+        paths.curvature = -0.25
+        apply_patch(patch_doc(events), copy)
+        assert copy_paths.curvature.value == -0.25
+
+        events.clear()
+        assert isinstance(source.edges, ColumnDataSource)
+        source.edges.data = {"start": [0, 1], "end": [1, 0]}
+        apply_patch(patch_doc(events), copy)
+        assert isinstance(copy_source.edges, ColumnDataSource)
+        assert copy_source.edges.data == source.edges.data
+
+        events.clear()
+        source.selected.nodes.indices = [1]
+        apply_patch(patch_doc(events), copy)
+        assert copy_source.selected.nodes.indices == [1]
+
+    def test_create_then_apply_mesh_child_events(self) -> None:
+        sample = document.Document()
+        source = MeshDataSource(
+            vertices=[[0, 0], [1, 0], [0, 1]],
+            cells=[([0, 1, 2], {"value": 1})],
+        )
+        sample.add_root(source)
+
+        copy = document.Document.from_json(sample.to_json())
+        copy_source = copy.get_model_by_id(source.id)
+        assert isinstance(copy_source, MeshDataSource)
+
+        events = []
+        sample.on_change(events.append)
+
+        assert isinstance(source.vertices, ColumnDataSource)
+        source.vertices.patch({"x": [(1, 2)]})
+        apply_patch(patch_doc(events), copy)
+        assert isinstance(copy_source.vertices, ColumnDataSource)
+        assert all(
+            np.array_equal(copy_source.vertices.data[field], values)
+            for field, values in source.vertices.data.items()
+        )
+
+        events.clear()
+        assert isinstance(source.cells, ColumnDataSource)
+        source.cells.data = {"vertices": [[0, 1, 2], [2, 1, 0]], "value": [1, 2]}
+        apply_patch(patch_doc(events), copy)
+        assert isinstance(copy_source.cells, ColumnDataSource)
+        assert copy_source.cells.data == source.cells.data
 
     def test_patch_event_contains_setter(self) -> None:
         sample = self._sample_doc()
@@ -236,7 +380,7 @@ def test_patch_alternate_graph_edge_coordinates(glyph_type) -> None:
     graph.edge_renderer.glyph = glyph_type()
     source = graph.edge_renderer.data_source
     source.data = dict(start=[0], end=[1], cx0=[0.2], cy0=[0.3], cx1=[0.4], cy1=[0.5])
-    expression = graph.layout_provider.edge_point_coordinates("end")
+    expression = graph.edge_path_provider.edge_point_coordinates(graph.data_source, graph.layout_provider, "end")
     sample.add_root(graph)
     sample.add_root(expression)
     copy = document.Document.from_json(sample.to_json())

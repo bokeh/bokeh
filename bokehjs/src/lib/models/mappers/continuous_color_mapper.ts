@@ -77,7 +77,7 @@ export abstract class ContinuousColorMapper extends ColorMapper {
           continue
         }
 
-        const column = renderer.data_source.get_column(field)
+        const column = renderer.data_source.get_field(field)
         if (column == null) {
           continue
         }

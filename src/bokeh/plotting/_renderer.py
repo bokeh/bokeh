@@ -29,7 +29,7 @@ import numpy as np
 
 # Bokeh imports
 from ..core.property.dataspec import ColorSpec, DashPattern, DashPatternSpec
-from ..models import ColumnarDataSource, ColumnDataSource, GlyphRenderer
+from ..models import ColumnDataSource, GlyphRenderer, IndexedDataSource
 from ._legends import pop_legend_kwarg, update_legend
 
 if TYPE_CHECKING:
@@ -240,10 +240,11 @@ def pop_visuals(glyphclass: type[Glyph], props: Attrs, *, prefix: str = "", defa
 #-----------------------------------------------------------------------------
 
 def _convert_data_source(kwargs: Attrs) -> bool:
-    is_user_source = kwargs.get('source', None) is not None
+    is_internal_source = kwargs.pop('_source_is_internal', False)
+    is_user_source = kwargs.get('source', None) is not None and not is_internal_source
     if is_user_source:
         source = kwargs['source']
-        if not isinstance(source, ColumnarDataSource):
+        if not isinstance(source, IndexedDataSource):
             try:
                 # try converting the source to ColumnDataSource
                 source = ColumnDataSource(source)
@@ -283,7 +284,7 @@ def _validate_color_array(val: np.ndarray, var: str) -> None:
             f"({var} is {val.dtype}[{', '.join(map(str, val.shape))}])",
         )
 
-def _process_sequence_literals(glyphclass: type[Glyph], kwargs: Attrs, source: ColumnarDataSource, is_user_source: bool) -> list[str]:
+def _process_sequence_literals(glyphclass: type[Glyph], kwargs: Attrs, source: IndexedDataSource, is_user_source: bool) -> list[str]:
     incompatible_literal_spec_values: list[str] = []
     dataspecs = glyphclass.dataspecs()
     all_properties = glyphclass.properties()
@@ -323,8 +324,12 @@ def _process_sequence_literals(glyphclass: type[Glyph], kwargs: Attrs, source: C
         if is_user_source:
             incompatible_literal_spec_values.append(var)
         else:
-            source.add(val, name=var)
-            kwargs[var] = var
+            add = getattr(source, "add", None)
+            if add is None:
+                incompatible_literal_spec_values.append(var)
+            else:
+                add(val, name=var)
+                kwargs[var] = var
 
     return incompatible_literal_spec_values
 
@@ -343,7 +348,7 @@ _GLYPH_SOURCE_MSG = """
 Expected %s to reference fields in the supplied data source.
 
 When a 'source' argument is passed to a glyph method, values that are sequences
-(like lists or arrays) must come from references to data columns in the source.
+(like lists or arrays) must come from references to fields in the source.
 
 For instance, as an example:
 

@@ -291,7 +291,7 @@
                           },
                           selection_policy: {
                             type: "object",
-                            name: "UnionRenderers",
+                            name: "SelectionPolicy",
                             id: "p1097",
                           },
                           data: {
@@ -327,7 +327,7 @@
                       },
                       view: {
                         type: "object",
-                        name: "CDSView",
+                        name: "DataView",
                         id: "p1091",
                         attributes: {
                           filter: {
@@ -591,7 +591,7 @@
                           },
                           selection_policy: {
                             type: "object",
-                            name: "UnionRenderers",
+                            name: "SelectionPolicy",
                             id: "p1108",
                           },
                           data: {
@@ -627,7 +627,7 @@
                       },
                       view: {
                         type: "object",
-                        name: "CDSView",
+                        name: "DataView",
                         id: "p1102",
                         attributes: {
                           filter: {
@@ -891,7 +891,7 @@
                           },
                           selection_policy: {
                             type: "object",
-                            name: "UnionRenderers",
+                            name: "SelectionPolicy",
                             id: "p1119",
                           },
                           data: {
@@ -927,7 +927,7 @@
                       },
                       view: {
                         type: "object",
-                        name: "CDSView",
+                        name: "DataView",
                         id: "p1113",
                         attributes: {
                           filter: {

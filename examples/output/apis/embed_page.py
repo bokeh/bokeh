@@ -2,9 +2,9 @@ import yaml
 
 from bokeh.core.properties import value
 from bokeh.document import Document
-from bokeh.models import (CDSView, ColumnDataSource, DataRange1d, Grid,
-                          HoverTool, IndexFilter, LinearAxis, Plot,
-                          Range1d, Scatter, SingleIntervalTicker, Text)
+from bokeh.models import (ColumnDataSource, DataRange1d, DataView, Grid, HoverTool,
+                          IndexFilter, Label, LinearAxis, NormalHead, Plot,
+                          Range1d, Scatter, Segment, SingleIntervalTicker, Text)
 from bokeh.sampledata.sprint import sprint
 from bokeh.themes import Theme
 
@@ -51,7 +51,7 @@ sprint["SelectedName"] = sprint[["Name", "Medal", "Year"]].apply(tuple, axis=1).
 
 source = ColumnDataSource(sprint)
 
-xdr =Range1d(start=25, end=-0.5)
+xdr = Range1d(start=25, end=-0.5)
 ydr = DataRange1d(range_padding=2, range_padding_units="absolute")
 
 plot = Plot(width=1000, x_range=xdr, y_range=ydr, toolbar_location=None)
@@ -72,11 +72,30 @@ medal = Scatter(x="MetersBack", y="Year", size=10, fill_color="MedalFill", line_
 medal_renderer = plot.add_glyph(source, medal)
 
 #sprint[sprint.Medal=="gold" * sprint.Year in [1988, 1968, 1936, 1896]]
-view = CDSView(filter=IndexFilter(list(sprint.query('Medal == "gold" and Year in [1988, 1968, 1936, 1896]').index)))
+view = DataView(filter=IndexFilter(list(sprint.query('Medal == "gold" and Year in [1988, 1968, 1936, 1896]').index)))
 plot.add_glyph(source, Text(x="MetersBack", y="Year", x_offset=10, text="Name"), view=view)
 
 plot.add_glyph(source, Text(x=7.5, y=1942, text=value("No Olympics in 1940 or 1944"),
                             text_font_style="italic", text_color="silver"))
+
+x = sprint[sprint.Year == 1900].MetersBack.min() - 0.5
+arrow_source = ColumnDataSource(dict(x_start=[x], x_end=[5], y=[1900]))
+arrow = plot.add_glyph(arrow_source, Segment(
+    x0="x_start", y0="y", x1="x_end", y1="y",
+    line_color="black", line_width=1.5,
+))
+arrow.add_path_decoration(
+    NormalHead(size=6, fill_color="black", line_color="black"),
+    node="start",
+)
+
+meters_back = Label(
+    x=5, x_offset=10, y=1900,
+    text="Meters behind\n2012 Usain Bolt",
+    text_align="left", text_baseline="middle",
+    text_font_size="13px", text_font_style="bold",
+)
+plot.add_layout(meters_back)
 
 tooltips = """
 <div>

@@ -88,7 +88,7 @@ from .scales import (
     LogScale,
     Scale,
 )
-from .sources import ColumnarDataSource, ColumnDataSource, DataSource
+from .sources import ColumnDataSource, IndexedDataSource
 from .tiles import TileSource, WMTSTileSource
 from .tools import HoverTool, Tool, Toolbar
 from .ui import StyledElement
@@ -351,16 +351,16 @@ class Plot(LayoutDOM):
     @overload
     def add_glyph(self, glyph: Glyph, **kwargs: Any) -> GlyphRenderer: ...
     @overload
-    def add_glyph(self, source: ColumnarDataSource, glyph: Glyph, **kwargs: Any) -> GlyphRenderer: ...
+    def add_glyph(self, source: IndexedDataSource, glyph: Glyph, **kwargs: Any) -> GlyphRenderer: ...
 
-    def add_glyph(self, source_or_glyph: Glyph | ColumnarDataSource, glyph: Glyph | None = None, **kwargs: Any) -> GlyphRenderer:
+    def add_glyph(self, source_or_glyph: Glyph | IndexedDataSource, glyph: Glyph | None = None, **kwargs: Any) -> GlyphRenderer:
         ''' Adds a glyph to the plot with associated data sources and ranges.
 
         This function will take care of creating and configuring a Glyph object,
         and then add it to the plot's list of renderers.
 
         Args:
-            source (DataSource) : a data source for the glyphs to all use
+            source (IndexedDataSource) : a data source for the glyphs to all use
             glyph (Glyph) : the glyph to add to the Plot
 
 
@@ -372,13 +372,13 @@ class Plot(LayoutDOM):
             GlyphRenderer
 
         '''
-        if isinstance(source_or_glyph, ColumnarDataSource):
+        if isinstance(source_or_glyph, IndexedDataSource):
             source = source_or_glyph
         else:
             source, glyph = ColumnDataSource(), source_or_glyph
 
-        if not isinstance(source, DataSource):
-            raise ValueError("'source' argument to add_glyph() must be DataSource subclass")
+        if not isinstance(source, IndexedDataSource):
+            raise ValueError("'source' argument to add_glyph() must be an IndexedDataSource subclass")
 
         if not isinstance(glyph, Glyph):
             raise ValueError("'glyph' argument to add_glyph() must be Glyph subclass")

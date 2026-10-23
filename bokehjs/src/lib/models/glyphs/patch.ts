@@ -116,6 +116,7 @@ export namespace Patch {
 
 export interface Patch extends Patch.Attrs {}
 
+/** @deprecated Use Polygons with GeometryDataSource instead. */
 export class Patch extends XYGlyph {
   declare properties: Patch.Props
   declare __view_type__: PatchView

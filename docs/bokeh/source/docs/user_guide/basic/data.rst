@@ -6,7 +6,7 @@ Data sources
 The basis for any data visualization is the underlying data. This section
 describes the various ways to provide data to Bokeh, from passing data values
 directly to creating a |ColumnDataSource| (CDS) and filtering the data with a
-|CDSView|.
+|DataView|.
 
 .. _ug_basic_data_python_lists:
 
@@ -418,18 +418,24 @@ Filtering data
 --------------
 
 Bokeh uses a concept called "view" to select subsets of data. Views are
-represented by Bokeh's |CDSView| class. When you use a view, you can use one or
-more filters to select specific data points without changing the underlying
-data. You can also share those views between different plots.
+represented by Bokeh's |DataView| class. A view selects logical items without
+changing the underlying data. Those items can be rows in a
+|ColumnDataSource|, features in a geometry source, or nodes and edges in a graph
+source.
 
-To plot with a filtered subset of data, pass a |CDSView| to the ``view``
+|DataView| is storage-neutral. Any indexed data source exposes its length and
+logical fields through the same interface, so new source types reuse
+|DataView| and the standard filters instead of requiring source-specific view
+classes.
+
+To plot with a filtered subset of data, pass a |DataView| to the ``view``
 argument of any renderer method on a Bokeh plot.
 
-A |CDSView| has one property, ``filter``:
+A |DataView| has one property, ``filter``:
 
 * ``filter`` is an instance of |Filter| model, listed and described below.
 
-In this example, you create a |CDSView| called ``view``. ``view`` uses the
+In this example, you create a |DataView| called ``view``. ``view`` uses the
 ColumnDataSource ``source`` and an intersection of two filters, ``filter1``
 and ``filter2``. ``view`` is then passed to a :func:`~bokeh.plotting.figure.scatter`
 renderer function:
@@ -437,13 +443,13 @@ renderer function:
 .. code-block:: python
 
     from bokeh.plotting import figure
-    from bokeh.models import ColumnDataSource, CDSView
+    from bokeh.models import ColumnDataSource, DataView
 
     filter1 = ... # IndexFilter(), BooleanFilter(), etc.
     filter2 = ...
 
     source = ColumnDataSource(some_data)
-    view = CDSView(filter=filter1 & filter2)
+    view = DataView(filter=filter1 & filter2)
 
     p = figure()
     p.scatter(x="x", y="y", source=source, view=view)
@@ -464,8 +470,8 @@ in your plot.
 BooleanFilter
 ~~~~~~~~~~~~~
 
-A |BooleanFilter| selects rows from a data source using a list of ``True`` or
-``False`` values in its ``booleans`` property.
+A |BooleanFilter| selects logical items from a data source using a list of
+``True`` or ``False`` values in its ``booleans`` property.
 
 .. bokeh-plot:: __REPO__/examples/basic/data/filter_boolean.py
     :source-position: above
@@ -474,11 +480,11 @@ GroupFilter
 ~~~~~~~~~~~
 
 The |GroupFilter| is a filter for categorical data. With this filter, you can
-select rows from a dataset that are members of a specific category.
+select logical items whose field values are members of a specific category.
 
 The |GroupFilter| has two properties:
 
-* ``column_name``: the name of the column in the |ColumnDataSource| to apply the
+* ``field_name``: the name of the logical field in the data source to apply the
   filter to
 * ``group``: the name of the category to select for
 
@@ -499,19 +505,21 @@ filters. To include your custom filter code, use Bokeh's |CustomJSFilter| class.
 Pass your code as a string to the parameter ``code`` of the CustomJSFilter.
 
 Your JavaScript or TypeScript code needs to return either a list of indices or a
-list of booleans representing the filtered subset. You can access the
-|ColumnDataSource| you are using with |CDSView| from within your JavaScript or
-TypeScript code. Bokeh makes the ColumnDataSource available through the variable
-``source``:
+list of booleans representing the filtered subset. Bokeh makes the indexed data
+source available to your JavaScript or TypeScript code through the variable
+``source``. Use ``source.get_length()`` and ``source.get_field(name)`` to work
+independently of the source's storage representation:
 
 .. code-block:: python
 
     custom_filter = CustomJSFilter(code='''
     const indices = [];
 
-    // iterate through rows of data source and see if each satisfies some constraint
+    const values = source.get_field('some_field');
+
+    // iterate through logical items and see if each satisfies some constraint
     for (let i = 0; i < source.get_length(); i++){
-        if (source.data['some_column'][i] == 'some_value'){
+        if (values[i] == 'some_value'){
             indices.push(true);
         } else {
             indices.push(false);
@@ -603,7 +611,7 @@ on.
 The following example demonstrates this behavior:
 
 * The second plot is a subset of the data of the first plot. The second plot
-  uses a |CDSView| to include only y values that are either greater than 250 or
+  uses a |DataView| to include only y values that are either greater than 250 or
   less than 100.
 * If you make a selection with the ``BoxSelect`` tool in either plot, the
   selection is automatically reflected in the other plot as well.
@@ -620,7 +628,7 @@ You can also use Bokeh to render network graph data and geographical data. For
 more information about how to set up the data for these types of plots, see
 :ref:`ug_topics_graph` and :ref:`ug_topics_geo`.
 
-.. |CDSView| replace:: :class:`~bokeh.models.sources.CDSView`
+.. |DataView| replace:: :class:`~bokeh.models.sources.DataView`
 .. |Filter| replace:: :class:`~bokeh.models.filters.Filter`
 .. |IndexFilter| replace:: :class:`~bokeh.models.filters.IndexFilter`
 .. |BooleanFilter| replace:: :class:`~bokeh.models.filters.BooleanFilter`

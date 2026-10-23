@@ -3,7 +3,7 @@ import {size} from "./util/object"
 import type {Arrayable} from "./types"
 import type {HasProps} from "./has_props"
 import type {Signal0} from "./signaling"
-import type {ColumnarDataSource} from "../models/sources/columnar_data_source"
+import type {IndexedDataSource} from "../models/sources/indexed_data_source"
 
 export type Transform<In, Out> = {
   compute(x: In): Out
@@ -12,12 +12,12 @@ export type Transform<In, Out> = {
 }
 
 export type ScalarExpression<Out> = {
-  compute(source: ColumnarDataSource): Out
+  compute(source: IndexedDataSource): Out
   change: Signal0<HasProps>
 }
 
 export type VectorExpression<Out> = {
-  v_compute(source: ColumnarDataSource): Arrayable<Out>
+  v_compute(source: IndexedDataSource): Arrayable<Out>
   change: Signal0<HasProps>
 }
 

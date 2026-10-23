@@ -16,7 +16,7 @@ import {
   BoxAnnotation,
   BoxEditTool,
   BoxSelectTool,
-  CDSView,
+  DataView,
   Canvas,
   CategoricalColorMapper,
   ColorBar,
@@ -233,7 +233,7 @@ describe("Bug", () => {
     it("prevents to render a plot with a legend and an empty view", async () => {
       const plot = fig([200, 200])
       const filter = BooleanFilter.create({booleans: [false, false]})
-      const view = CDSView.create({filter})
+      const view = DataView.create({filter})
       plot.scatter([1, 2], [3, 4], {marker: "square", fill_color: ["red", "green"], view, legend_label: "square"})
       await display(plot)
     })
@@ -241,7 +241,7 @@ describe("Bug", () => {
     it("prevents to render a plot with a legend and a subset of indices", async () => {
       const plot = fig([200, 200])
       const filter = BooleanFilter.create({booleans: [true, true, false, false]})
-      const view = CDSView.create({filter})
+      const view = DataView.create({filter})
       const data_source = ColumnDataSource.create({data: {x: [1, 2, 3, 4], y: [5, 6, 7, 8], fld: ["a", "a", "b", "b"]}})
       const r = plot.scatter("x", "y", {marker: "square", fill_color: ["red", "red", "green", "green"], view, source: data_source})
       const legend = Legend.create({items: [LegendItem.create({label: {field: "fld"}, renderers: [r]})]})
@@ -723,7 +723,7 @@ describe("Bug", () => {
         },
       })
       const indices = BitSet.from_indices(6, [0, 1, 2, 3, 4, 5])
-      const view = CDSView.create({indices})
+      const view = DataView.create({indices})
       const provider = new TableDataProvider(source, view)
       const table_column = TableColumn.create({field: "words"})
       const table_column_view = await build_view(table_column, {parent: null})
@@ -1656,9 +1656,9 @@ describe("Bug", () => {
         TableColumn.create({field: "y", title: "y", width: 50}),
       ]
       const filter = AllIndices.create()
-      const cds_view = CDSView.create({filter})
+      const data_view = DataView.create({filter})
 
-      const table = DataTable.create({source, columns, selectable: "checkbox", view: cds_view, width: 300, height: 400})
+      const table = DataTable.create({source, columns, selectable: "checkbox", view: data_view, width: 300, height: 400})
       const {view} = await display(table, [350, 450])
 
       await view.ready
@@ -2133,9 +2133,9 @@ ${view.host_selector} {
         TableColumn.create({field: "y", title: "y", width: 50}),
       ]
       const filter = AllIndices.create()
-      const cds_view = CDSView.create({filter})
+      const data_view = DataView.create({filter})
 
-      const table = DataTable.create({source, columns, selectable: "checkbox", view: cds_view, width: 300, height: 400})
+      const table = DataTable.create({source, columns, selectable: "checkbox", view: data_view, width: 300, height: 400})
       const {view} = await display(table, [350, 450])
 
       await view.ready

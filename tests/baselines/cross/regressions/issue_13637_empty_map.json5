@@ -392,12 +392,9 @@
                       image_indices: [],
                     },
                   },
-                  default_values: {
-                    type: "map",
-                  },
                   selection_policy: {
                     type: "object",
-                    name: "UnionRenderers",
+                    name: "SelectionPolicy",
                     id: "p1026",
                     attributes: {
                       name: null,
@@ -412,7 +409,11 @@
                         type: "set",
                       },
                       syncable: true,
+                      combine: "union",
                     },
+                  },
+                  default_values: {
+                    type: "map",
                   },
                   data: {
                     type: "map",
@@ -421,7 +422,7 @@
               },
               view: {
                 type: "object",
-                name: "CDSView",
+                name: "DataView",
                 id: "p1023",
                 attributes: {
                   name: null,
@@ -644,12 +645,9 @@
                       image_indices: [],
                     },
                   },
-                  default_values: {
-                    type: "map",
-                  },
                   selection_policy: {
                     type: "object",
-                    name: "UnionRenderers",
+                    name: "SelectionPolicy",
                     id: "p1028",
                     attributes: {
                       name: null,
@@ -664,7 +662,11 @@
                         type: "set",
                       },
                       syncable: true,
+                      combine: "union",
                     },
+                  },
+                  default_values: {
+                    type: "map",
                   },
                   data: {
                     type: "map",
@@ -673,7 +675,7 @@
               },
               view: {
                 type: "object",
-                name: "CDSView",
+                name: "DataView",
                 id: "p1024",
                 attributes: {
                   name: null,

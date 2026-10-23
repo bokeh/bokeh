@@ -1,4 +1,4 @@
-"""Koch snowflake rendered with WebGL patch.
+"""Koch snowflake rendered with a WebGL polygon.
 
 Builds the classic Koch snowflake boundary by recursively replacing each
 edge segment with the Koch curve motif, then renders as a single filled
@@ -59,7 +59,7 @@ p = figure(
     match_aspect=True,
     tools="pan,wheel_zoom,reset",
 )
-p.patch(
+p.polygons(
     x=xs, y=ys,
     fill_color="steelblue", fill_alpha=0.7,
     line_color="navy", line_width=1,

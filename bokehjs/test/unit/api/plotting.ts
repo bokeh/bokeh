@@ -6,8 +6,8 @@ import {figure} from "@bokehjs/api/plotting"
 import {construct} from "@bokehjs/core/has_props"
 import type {HasProps, HasPropsClass, ModelAttrs} from "@bokehjs/core/has_props"
 import {
-  Circle, ColumnDataSource, LinearAxis,
-  NormalHead, OpenHead, Segment,
+  Circle, ColumnDataSource, GeometryDataSource, LinearAxis,
+  MeshDataSource, NormalHead, OpenHead, Polygons, Segment,
 } from "@bokehjs/models"
 
 describe("in api/plotting module", () => {
@@ -197,6 +197,78 @@ describe("in api/plotting module", () => {
         expect(renderer.glyph.decorations[1].marking).to.be.identical(end)
         expect(renderer.glyph.decorations[1].node).to.be.equal("end")
         expect(renderer.glyph.decorations[1].inset).to.be.equal({value: 4})
+      })
+
+      it("should accept natural geometry records for polygons", () => {
+        const renderer = figure().polygons([{
+          geometry: {
+            type: "Polygon",
+            coordinates: [[[0, 0], [2, 0], [0, 0]]],
+          },
+          name: "A",
+          type: "region",
+        }], {fill_color: ["red"]})
+
+        expect(renderer.glyph).to.be.instanceof(Polygons)
+        expect(renderer.data_source).to.be.instanceof(GeometryDataSource)
+        expect(renderer.data_source.data).to.be.equal({name: ["A"], type: ["region"], fill_color: ["red"]})
+        expect(renderer.glyph.fill_color).to.be.equal({field: "fill_color"})
+
+        const from_json = figure().polygons(JSON.stringify({
+          type: "Polygon",
+          coordinates: [[[0, 0], [1, 0], [0, 0]]],
+        }))
+        expect(from_json.data_source.geometries).to.be.equal([{
+          type: "Polygon",
+          coordinates: [[[0, 0], [1, 0], [0, 0]]],
+        }])
+
+        const source = GeometryDataSource.create({type: "Polygon", coordinates: []})
+        expect(() => figure().polygons({source, fill_color: ["red"]})).to.throw(
+          Error,
+          "sequence literals cannot be used with a non-columnar data source",
+        )
+      })
+
+      it("should accept meshes and reject unrelated models for polygons", () => {
+        const mesh = MeshDataSource.create({
+          vertices: [[0, 0], [1, 0], [0, 1]],
+          cells: [[0, 1, 2]],
+        })
+
+        expect(figure().polygons(mesh).data_source).to.be.equal(mesh)
+        expect(figure().polygons({source: mesh}).data_source).to.be.equal(mesh)
+
+        const columns = ColumnDataSource.create({data: {x: [[0, 1, 0]], y: [[0, 0, 1]]}})
+        expect(() => figure().polygons(columns as never)).to.throw(
+          Error,
+          "polygons() expects geometry data, a geometry source, or an options object",
+        )
+      })
+
+      it("should accept simple x and y coordinates for polygons", () => {
+        const p0 = figure().polygons({x: [0, 2, 0], y: [0, 1, 0], fill_color: "red"})
+        expect(p0.data_source.geometries).to.be.equal([{
+          type: "Polygon",
+          coordinates: [[[0, 0], [2, 1], [0, 0]]],
+        }])
+        expect(p0.glyph.fill_color).to.be.equal({value: "red"})
+
+        const p1 = figure().polygons([0, 2, 0], [0, 1, 0], {fill_color: "blue"})
+        expect(p1.data_source.geometries).to.be.equal([{
+          type: "Polygon",
+          coordinates: [[[0, 0], [2, 1], [0, 0]]],
+        }])
+        expect(p1.glyph.fill_color).to.be.equal({value: "blue"})
+
+        expect(() => figure().polygons({x: [0, 1]})).to.throw(
+          Error,
+          "polygon x and y coordinates must be provided together",
+        )
+        expect(() => figure().polygons([0, 1], [0])).to.throw(
+          Error,
+          "polygon x and y coordinates must have the same length",
+        )
       })
     })
 

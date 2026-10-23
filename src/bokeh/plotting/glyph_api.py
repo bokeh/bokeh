@@ -24,6 +24,7 @@ from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ..models import glyphs
+from ..models.sources import GeometryDataSource, MeshDataSource
 from ._decorators import glyph_method, marker_method
 
 if TYPE_CHECKING:
@@ -46,6 +47,13 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+def _geometry_source(geometry: Any = None, *, x: Any = None, y: Any = None) -> GeometryDataSource | MeshDataSource:
+    if geometry is not None:
+        return geometry if isinstance(geometry, (GeometryDataSource, MeshDataSource)) else GeometryDataSource(geometry)
+
+    return GeometryDataSource.from_xy(x, y)
+
 
 class GlyphAPI:
     """ Convenience API for bundling glyph renderers. """
@@ -634,27 +642,6 @@ Examples:
 
 """
 
-    @glyph_method(glyphs.MultiPolygons)
-    def multi_polygons(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-.. note::
-    For this glyph, the data is not simply an array of scalars, it is a
-    nested array.
-
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        p = figure(width=300, height=300)
-        p.multi_polygons(xs=[[[[1, 1, 2, 2]]], [[[1, 1, 3], [1.5, 1.5, 2]]]],
-                        ys=[[[[4, 3, 3, 4]]], [[[1, 3, 1], [1.5, 2, 1.5]]]],
-                        color=['red', 'green'])
-        show(p)
-
-"""
-
     @glyph_method(glyphs.Ngon)
     def ngon(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
@@ -671,9 +658,17 @@ Examples:
 
 """
 
-    @glyph_method(glyphs.Patch)
+    @glyph_method(
+        glyphs.Patch,
+        deprecated_since=(4, 0, 0),
+        replacement="polygons(geometry, ...) or polygons(source=GeometryDataSource(...), ...)",
+    )
     def patch(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
+.. deprecated:: 4.0
+    Use :meth:`polygons` with natural geometry records or a
+    :class:`~bokeh.models.sources.GeometryDataSource`.
+
 Examples:
 
     .. code-block:: python
@@ -687,9 +682,17 @@ Examples:
 
 """
 
-    @glyph_method(glyphs.Patches)
+    @glyph_method(
+        glyphs.Patches,
+        deprecated_since=(4, 0, 0),
+        replacement="polygons(geometry, ...) or polygons(source=GeometryDataSource(...), ...)",
+    )
     def patches(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
+.. deprecated:: 4.0
+    Use :meth:`polygons` with natural geometry records or a
+    :class:`~bokeh.models.sources.GeometryDataSource`.
+
 .. note::
     For this glyph, the data is not simply an array of scalars, it is an
     "array of arrays".
@@ -708,6 +711,32 @@ Examples:
 
 """
 
+    @glyph_method(
+        glyphs.Polygons,
+        source_arg="geometry",
+        source_fields=("x", "y"),
+        source_adapter=_geometry_source,
+        source_default=GeometryDataSource,
+        exclude=("xs", "ys"),
+    )
+    def polygons(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
+        """ Render geometry features from a
+        :class:`~bokeh.models.sources.GeometryDataSource` or a cell-indexed
+        :class:`~bokeh.models.sources.MeshDataSource`.
+
+        Polygon and MultiPolygon features, including holes and disjoint parts,
+        share one feature-indexed selection and vector styling axis.
+
+        Pass ``x`` and ``y`` coordinates for one simple polygon, pass geometry
+        records for richer geometry, or supply an existing geometry source:
+
+        .. code-block:: python
+
+            p.polygons(x=[1, 2, 3], y=[1, 3, 1], fill_color="navy")
+            p.polygons(records, fill_color="color")
+            p.polygons(source=geometry_source, fill_color="color")
+            p.polygons(mesh_source, fill_color="cell_value")
+        """
     @marker_method()
     def plus(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """

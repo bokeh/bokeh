@@ -1853,7 +1853,9 @@ class PolyDrawTool(PolyTool, Drag, Tap):
     '''
 
     renderers = List(GlyphRendererOf(MultiLine, Patches), help="""
-    A list of renderers corresponding to glyphs that may be edited.
+    A list of MultiLine renderers backed by a ``ColumnDataSource`` or Polygons
+    renderers backed by a ``GeometryDataSource``. Legacy Patches renderers
+    backed by a ``ColumnDataSource`` remain supported.
     """)
 
     drag = Bool(default=True, help="""
@@ -1867,16 +1869,18 @@ class PolyDrawTool(PolyTool, Drag, Tap):
     patch or multi-line.
     """)
 
-class FreehandDrawTool(EditTool, Drag, Tap):
+class FreehandDrawTool(PolyTool, Drag, Tap):
     ''' *toolbar icon*: |freehand_draw_icon|
 
-    Allows freehand drawing of ``Patches`` and ``MultiLine`` glyphs. The glyph
-    to draw may be defined via the ``renderers`` property.
+    Allows freehand drawing of ``Polygons``, legacy ``Patches``, and
+    ``MultiLine`` glyphs. The glyph to draw may be defined via the
+    ``renderers`` property.
 
-    The tool will modify the columns on the data source corresponding to the
-    ``xs`` and ``ys`` values of the glyph. Any additional columns in the data
-    source will be padded with the declared ``empty_value``, when adding a new
-    point.
+    The tool modifies ``xs`` and ``ys`` columns for columnar sources. For
+    ``Polygons`` backed by a
+    :class:`~bokeh.models.sources.GeometryDataSource`, edits are committed to
+    canonical Polygon geometry. Additional fields are padded with the declared
+    ``empty_value`` when adding a new shape.
 
     The supported actions include:
 
@@ -1892,7 +1896,9 @@ class FreehandDrawTool(EditTool, Drag, Tap):
     '''
 
     renderers = List(GlyphRendererOf(MultiLine, Patches), help="""
-    A list of renderers corresponding to glyphs that may be edited.
+    A list of MultiLine renderers backed by a ``ColumnDataSource`` or Polygons
+    renderers backed by a ``GeometryDataSource``. Legacy Patches renderers
+    backed by a ``ColumnDataSource`` remain supported.
     """)
 
     num_objects = Int(default=0, help="""

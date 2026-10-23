@@ -28,11 +28,18 @@ import narwhals.stable.v1 as nw
 import numpy as np
 
 # Bokeh imports
+from bokeh.document import Document
+from bokeh.document.events import (
+    ColumnDataChangedEvent,
+    ColumnsPatchedEvent,
+    ColumnsStreamedEvent,
+)
 from bokeh.models import (
     ColumnDataSource,
     DataTable,
     NumberFormatter,
     Selection,
+    SelectionPolicy,
 )
 from bokeh.util.callback_manager import OldValueUnavailable
 from bokeh.util.dependencies import is_installed
@@ -59,6 +66,508 @@ class DataclassData:
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+class RecordDataSource(bms.IndexedDataSource):
+    pass
+
+class TestDataSource:
+    def test_selection_state_belongs_to_indexed_sources(self) -> None:
+        ds = RecordDataSource()
+        assert isinstance(ds.selected, Selection)
+        assert isinstance(ds.selection_policy, SelectionPolicy)
+        assert ds.selection_policy.combine == "union"
+
+        ds.selection_policy = SelectionPolicy(combine="intersection")
+        assert ds.selection_policy.combine == "intersection"
+
+    def test_base_source_has_no_record_axis(self) -> None:
+        class CompositeDataSource(bms.DataSource):
+            pass
+
+        assert "selected" not in CompositeDataSource.properties()
+        assert "selection_policy" not in CompositeDataSource.properties()
+
+class TestMeshDataSource:
+    def test_default_sources_define_coordinate_and_connectivity_fields(self) -> None:
+        source = bms.MeshDataSource()
+
+        assert source.vertices.data == dict(x=[], y=[])
+        assert source.cells.data == dict(vertices=[])
+        assert source.selected is source.cells.selected
+        assert source.selection_policy is source.cells.selection_policy
+        assert source.length == 0
+
+    def test_accepts_explicit_empty_data_and_custom_connectivity_field(self) -> None:
+        source = bms.MeshDataSource(vertices=[], cells=[], connectivity_field="faces")
+
+        assert source.vertices.data == dict(x=[], y=[])
+        assert source.cells.data == dict(faces=[])
+
+        single = bms.MeshDataSource(vertices=[[0, 0], [1, 0], [0, 1]], cells=[0, 1, 2])
+        assert single.cells.data == dict(vertices=[[0, 1, 2]])
+
+    def test_accepts_dense_vertices_and_connectivity(self) -> None:
+        source = bms.MeshDataSource(
+            vertices=np.array([[0, 0, 1], [2, 0, 2], [1, 1, 3]], dtype=np.float32),
+            cells=np.array([[0, 1, 2]], dtype=np.int32),
+        )
+
+        assert np.array_equal(source.vertices.data["x"], [0, 2, 1])
+        assert np.array_equal(source.vertices.data["y"], [0, 0, 1])
+        assert np.array_equal(source.vertices.data["z"], [1, 2, 3])
+        assert np.array_equal(source.cells.data["vertices"], [[0, 1, 2]])
+        assert source.length == 1
+
+    def test_accepts_ragged_cells_and_cell_attributes(self) -> None:
+        source = bms.MeshDataSource(
+            vertices={"x": [0, 1, 1, 0], "y": [0, 0, 1, 1]},
+            cells={"vertices": [[0, 1, 2], [0, 2, 3]], "value": [10, 20]},
+        )
+
+        assert source.cells.data == {
+            "vertices": [[0, 1, 2], [0, 2, 3]],
+            "value": [10, 20],
+        }
+        assert source.length == 2
+
+    def test_accepts_cell_records(self) -> None:
+        source = bms.MeshDataSource(
+            vertices=[[0, 0], [1, 0], [1, 1], [0, 1]],
+            cells=[
+                ([0, 1, 2], {"material": "a", "value": 10}),
+                {"vertices": [0, 2, 3], "material": "b", "value": 20},
+            ],
+        )
+
+        assert source.cells.data == {
+            "vertices": [[0, 1, 2], [0, 2, 3]],
+            "material": ["a", "b"],
+            "value": [10, 20],
+        }
+
+    def test_rejects_reserved_connectivity_in_cell_attributes(self) -> None:
+        with pytest.raises(ValueError, match="reserved 'faces' field"):
+            bms.MeshDataSource(
+                vertices=[[0, 0], [1, 0], [0, 1]],
+                cells=[([0, 1, 2], {"faces": [2, 1, 0]})],
+                connectivity_field="faces",
+            )
+
+    def test_accepts_storage_neutral_child_sources(self) -> None:
+        vertices = RecordDataSource()
+        cells = RecordDataSource()
+        source = bms.MeshDataSource(vertices=vertices, cells=cells)
+
+        assert source.vertices is vertices
+        assert source.cells is cells
+
+    def test_rejects_invalid_connectivity(self) -> None:
+        with pytest.raises(ValueError, match="indices must be integers"):
+            bms.MeshDataSource(vertices=[[0, 0]], cells=[[0.5]])
+
+    def test_rejects_invalid_vertices(self) -> None:
+        with pytest.raises(ValueError, match=r"mesh vertices must be an \(n, 2\) or \(n, 3\) array"):
+            bms.MeshDataSource(vertices=[0, 1], cells=[])
+
+    @pytest.mark.parametrize(("cells", "message"), [
+        (np.array([0, 1, 2]), "two-dimensional integer array"),
+        (np.array([[0.5]]), "indices must be integers"),
+        ([([0, 1, 2], {"value": 1}), [0, 1, 2]], "cannot mix"),
+        ([{"value": 1}], "must define the 'vertices'"),
+        ([{"vertices": np.array([0.5])}], "indices must be integers"),
+        ([{"vertices": 0}], "must contain sequences"),
+        ([{"vertices": [0.5]}], "indices must be integers"),
+    ])
+    def test_rejects_invalid_cell_shapes(self, cells, message) -> None:
+        with pytest.raises(ValueError, match=message):
+            bms.MeshDataSource(vertices=[[0, 0]], cells=cells)
+
+class TestGraphDataSource:
+    def test_default_sources_define_topology_fields(self) -> None:
+        source = bms.GraphDataSource()
+
+        assert source.nodes.data == dict(index=[])
+        assert source.edges.data == dict(start=[], end=[])
+        assert source.selected.nodes.indices == []
+        assert source.selected.edges.indices == []
+
+    @pytest.mark.parametrize("empty", [[], {}])
+    def test_explicit_empty_data_defines_topology_fields(self, empty) -> None:
+        source = bms.GraphDataSource(nodes=empty, edges=empty)
+
+        assert source.nodes.data == dict(index=[])
+        assert source.edges.data == dict(start=[], end=[])
+
+    def test_accepts_node_identifier_mapping(self) -> None:
+        source = bms.GraphDataSource(nodes={"alice": {"color": "red"}, "bob": {"color": "blue"}})
+
+        assert source.nodes.data == dict(index=["alice", "bob"], color=["red", "blue"])
+
+    def test_accepts_storage_neutral_child_sources(self) -> None:
+        nodes = RecordDataSource()
+        edges = RecordDataSource()
+        source = bms.GraphDataSource(nodes=nodes, edges=edges)
+
+        assert source.nodes is nodes
+        assert source.edges is edges
+
+    def test_accepts_graph_shaped_records(self) -> None:
+        source = bms.GraphDataSource(
+            nodes=[{"id": "alice", "color": "red"}, {"id": "bob", "color": "blue"}],
+            edges=[{"source": "alice", "target": "bob", "weight": 2}],
+        )
+
+        assert source.nodes.data == dict(index=["alice", "bob"], color=["red", "blue"])
+        assert source.edges.data == dict(start=["alice"], end=["bob"], weight=[2])
+
+    def test_accepts_bare_nodes_and_tuple_edges(self) -> None:
+        source = bms.GraphDataSource(nodes=["alice", "bob"], edges=[("alice", "bob", {"weight": 2})])
+
+        assert source.nodes.data == dict(index=["alice", "bob"])
+        assert source.edges.data == dict(start=["alice"], end=["bob"], weight=[2])
+
+    def test_accepts_composite_node_ids_and_list_edges(self) -> None:
+        source = bms.GraphDataSource(
+            nodes=[((1, 2), {"label": "A"}), ((3, 4), {"label": "B"})],
+            edges=[[(1, 2), (3, 4), {"weight": 2}]],
+        )
+
+        assert source.nodes.data == dict(index=[[1, 2], [3, 4]], label=["A", "B"])
+        assert source.edges.data == dict(start=[[1, 2]], end=[[3, 4]], weight=[2])
+
+    def test_rejects_duplicate_node_ids(self) -> None:
+        with pytest.raises(ValueError, match="duplicate graph node identifier"):
+            bms.GraphDataSource(nodes=["alice", "alice"])
+
+    def test_accepts_networkx_like_graphs_directly(self) -> None:
+        class Graph:
+            def nodes(self, *, data):
+                assert data is True
+                return [("alice", {"color": "red"}), ("bob", {"color": "blue"})]
+
+            def edges(self, *, data):
+                assert data is True
+                return [("alice", "bob", {"weight": 2})]
+
+        source = bms.GraphDataSource(Graph())
+
+        assert source.nodes.data == dict(index=["alice", "bob"], color=["red", "blue"])
+        assert source.edges.data == dict(start=["alice"], end=["bob"], weight=[2])
+
+    def test_preserves_non_internal_networkx_attributes(self) -> None:
+        class Graph:
+            def nodes(self, *, data):
+                assert data is True
+                return [("alice", {"id": "external"})]
+
+            def edges(self, *, data):
+                assert data is True
+                return [("alice", "alice", {"source": "imported", "target": "value"})]
+
+        source = bms.GraphDataSource(Graph())
+
+        assert source.nodes.data == dict(index=["alice"], id=["external"])
+        assert source.edges.data == dict(
+            start=["alice"], end=["alice"], source=["imported"], target=["value"],
+        )
+
+    @pytest.mark.skipif(pd is None, reason="requires pandas")
+    def test_normalizes_dataframe_topology_aliases(self) -> None:
+        source = bms.GraphDataSource(
+            nodes=pd.DataFrame({"id": ["alice", "bob"], "color": ["red", "blue"]}),
+            edges=pd.DataFrame({"source": ["alice"], "target": ["bob"], "weight": [2]}),
+        )
+
+        assert list(source.nodes.data["index"]) == ["alice", "bob"]
+        assert list(source.nodes.data["color"]) == ["red", "blue"]
+        assert list(source.edges.data["start"]) == ["alice"]
+        assert list(source.edges.data["end"]) == ["bob"]
+        assert "level_0" not in source.nodes.data
+        assert "index" not in source.edges.data
+
+    def test_child_updates_use_normal_document_events(self) -> None:
+        source = bms.GraphDataSource(nodes=["alice", "bob"], edges=[("alice", "bob")])
+        document = Document()
+        document.add_root(source)
+        events = []
+        document.on_change(events.append)
+
+        assert isinstance(source.nodes, ColumnDataSource)
+        source.nodes.data = {"index": ["alice", "bob", "carol"]}
+
+        assert len(events) == 1
+        assert isinstance(events[0], ColumnDataChangedEvent)
+        assert events[0].model is source.nodes
+
+class TestGeometryDataSource:
+    def test_accepts_shapely_geometry_records(self) -> None:
+        shapely_geometry = pytest.importorskip("shapely.geometry")
+
+        polygon = shapely_geometry.Polygon(
+            [(0, 0), (4, 0), (4, 4), (0, 4)],
+            holes=[[(1, 1), (3, 1), (3, 3), (1, 3)]],
+        )
+        multipolygon = shapely_geometry.MultiPolygon([
+            shapely_geometry.Polygon([(5, 0), (7, 0), (6, 2)]),
+            shapely_geometry.Polygon([(8, 0), (10, 0), (9, 2)]),
+        ])
+
+        source = bms.GeometryDataSource([
+            {"geometry": polygon, "name": "with hole"},
+            {"geometry": multipolygon, "name": "two parts"},
+        ])
+
+        assert source.geometries == [
+            polygon.__geo_interface__,
+            multipolygon.__geo_interface__,
+        ]
+        assert source.data == {"name": ["with hole", "two parts"]}
+
+    def test_accepts_geopandas_geodataframe(self) -> None:
+        geopandas = pytest.importorskip("geopandas")
+        shapely_geometry = pytest.importorskip("shapely.geometry")
+
+        frame = geopandas.GeoDataFrame(
+            {"name": ["A", "B"], "value": [10, 20]},
+            geometry=[shapely_geometry.Point(1, 2), shapely_geometry.Point(3, 4)],
+            crs="EPSG:4326",
+        )
+
+        source = bms.GeometryDataSource(frame)
+
+        assert source.geometries == [
+            {"type": "Point", "coordinates": (1.0, 2.0)},
+            {"type": "Point", "coordinates": (3.0, 4.0)},
+        ]
+        assert source.data == {"name": ["A", "B"], "value": [10, 20]}
+        assert source.crs == "EPSG:4326"
+
+    def test_accepts_geopandas_geoseries(self) -> None:
+        geopandas = pytest.importorskip("geopandas")
+        shapely_geometry = pytest.importorskip("shapely.geometry")
+
+        series = geopandas.GeoSeries(
+            [shapely_geometry.LineString([(0, 0), (1, 1), (2, 0)])],
+            crs="EPSG:3857",
+        )
+
+        source = bms.GeometryDataSource(series)
+
+        assert source.geometries == [{
+            "type": "LineString",
+            "coordinates": ((0.0, 0.0), (1.0, 1.0), (2.0, 0.0)),
+        }]
+        assert source.data == {}
+        assert source.crs == "EPSG:3857"
+
+    def test_accepts_geo_interface_and_crs(self) -> None:
+        class GeoFrame:
+            crs = "EPSG:4326"
+            __geo_interface__ = {
+                "type": "FeatureCollection",
+                "features": [{
+                    "type": "Feature",
+                    "geometry": {"type": "Point", "coordinates": [1, 2]},
+                    "properties": {"name": "A"},
+                }],
+            }
+
+        source = bms.GeometryDataSource(GeoFrame())
+
+        assert source.geometries == [{"type": "Point", "coordinates": [1, 2]}]
+        assert source.data == {"name": ["A"]}
+        assert source.crs == "EPSG:4326"
+
+    def test_accepts_feature_collection_and_retains_geometry(self) -> None:
+        source = bms.GeometryDataSource({
+            "type": "FeatureCollection",
+            "features": [{
+                "type": "Feature",
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [[0, 0], [4, 0], [4, 4], [0, 0]],
+                        [[1, 1], [2, 1], [1, 2], [1, 1]],
+                    ],
+                },
+                "properties": {"name": "with a hole"},
+            }],
+        })
+
+        assert source.length == 1
+        assert source.geometries[0]["type"] == "Polygon"
+        assert len(source.geometries[0]["coordinates"]) == 2
+        assert source.data == {"name": ["with a hole"]}
+        assert source.column_names == ["geometry", "name"]
+
+    def test_accepts_geometry_records(self) -> None:
+        source = bms.GeometryDataSource([
+            {"geometry": {"type": "Point", "coordinates": [1, 2]}, "name": "A", "type": "city"},
+            {"geometry": {"type": "Point", "coordinates": [3, 4]}, "name": "B", "type": "town"},
+        ])
+
+        assert source.geometries == [
+            {"type": "Point", "coordinates": [1, 2]},
+            {"type": "Point", "coordinates": [3, 4]},
+        ]
+        assert source.data == {"name": ["A", "B"], "type": ["city", "town"]}
+
+    def test_normalizes_numpy_geometry_coordinates(self) -> None:
+        source = bms.GeometryDataSource({
+            "type": "Polygon",
+            "coordinates": [np.array([[0, 0], [2, 0], [0, 0]])],
+        })
+
+        assert source.geometries == [{
+            "type": "Polygon",
+            "coordinates": [[[0, 0], [2, 0], [0, 0]]],
+        }]
+
+    def test_from_xy_accepts_nested_and_nan_separated_coordinates(self) -> None:
+        source = bms.GeometryDataSource.from_xy(
+            [[0, 1, 0], [2, 3, np.nan, 4, 5]],
+            [[0, 0, 0], [2, 2, np.nan, 4, 4]],
+            data={"name": ["single", "parts"]},
+        )
+
+        assert [geometry["type"] for geometry in source.geometries] == ["Polygon", "MultiPolygon"]
+        assert source.data == {"name": ["single", "parts"]}
+
+    def test_flattens_nested_geometry_collections_to_selectable_features(self) -> None:
+        source = bms.GeometryDataSource({
+            "type": "Feature",
+            "properties": {"group": "A"},
+            "geometry": {
+                "type": "GeometryCollection",
+                "geometries": [
+                    {"type": "Point", "coordinates": [1, 2]},
+                    {"type": "LineString", "coordinates": [[0, 0], [1, 1]]},
+                ],
+            },
+        })
+
+        assert [geometry["type"] for geometry in source.geometries] == ["Point", "LineString"]
+        assert source.data == {"group": ["A", "A"]}
+
+    def test_rejects_misaligned_attribute_columns(self) -> None:
+        with pytest.raises(ValueError, match="same length as geometries"):
+            bms.GeometryDataSource(
+                geometries=[{"type": "Point", "coordinates": [1, 2]}],
+                data={"name": ["A", "B"]},
+            )
+
+    def test_streams_geometry_records_with_rollover(self) -> None:
+        source = bms.GeometryDataSource([
+            {"geometry": {"type": "Point", "coordinates": [1, 2]}, "name": "A"},
+        ])
+
+        source.stream([
+            {"geometry": {"type": "Point", "coordinates": [3, 4]}, "name": "B"},
+            {"geometry": {"type": "Point", "coordinates": [5, 6]}, "name": "C"},
+        ], rollover=2)
+
+        assert [geometry["coordinates"] for geometry in source.geometries] == [[3, 4], [5, 6]]
+        assert source.data == {"name": ["B", "C"]}
+
+    def test_stream_preserves_setter_for_server_synchronization(self) -> None:
+        source = bms.GeometryDataSource([
+            {"geometry": {"type": "Point", "coordinates": [1, 2]}, "name": "A"},
+        ])
+        document = Document()
+        document.add_root(source)
+        events = []
+        document.on_change(events.append)
+
+        source.stream([
+            {"geometry": {"type": "Point", "coordinates": [3, 4]}, "name": "B"},
+        ], setter="session")
+
+        assert len(events) == 1
+        assert isinstance(events[0], ColumnsStreamedEvent)
+        assert events[0].attr == "records"
+        assert events[0].setter == "session"
+
+    def test_stream_backfills_new_attributes(self) -> None:
+        source = bms.GeometryDataSource([
+            {"geometry": {"type": "Point", "coordinates": [1, 2]}, "name": "A"},
+        ])
+
+        source.stream([
+            {"geometry": {"type": "Point", "coordinates": [3, 4]}, "name": "B", "kind": "city"},
+        ])
+
+        assert source.data == {"name": ["A", "B"], "kind": [None, "city"]}
+
+    def test_patches_geometry_and_attributes(self) -> None:
+        source = bms.GeometryDataSource([
+            {"geometry": {"type": "Point", "coordinates": [1, 2]}, "name": "A"},
+        ])
+
+        source.patch({
+            "geometry": [(0, {"type": "Point", "coordinates": [3, 4]})],
+            "name": [(0, "B")],
+        })
+
+        assert source.geometries == [{"type": "Point", "coordinates": [3, 4]}]
+        assert source.data == {"name": ["B"]}
+
+    def test_patch_uses_one_composite_document_event(self) -> None:
+        source = bms.GeometryDataSource([
+            {"geometry": {"type": "Point", "coordinates": [1, 2]}, "name": "A"},
+        ])
+        document = Document()
+        document.add_root(source)
+        events = []
+        document.on_change(events.append)
+
+        source.patch({
+            "geometry": [(0, {"type": "Point", "coordinates": [3, 4]})],
+            "name": [(0, "B")],
+        })
+
+        assert len(events) == 1
+        assert isinstance(events[0], ColumnsPatchedEvent)
+        assert events[0].attr == "records"
+
+    def test_stream_requires_aligned_attributes(self) -> None:
+        source = bms.GeometryDataSource([
+            {"geometry": {"type": "Point", "coordinates": [1, 2]}, "name": "A"},
+        ])
+
+        with pytest.raises(ValueError, match="missing: name"):
+            source.stream([{"type": "Point", "coordinates": [3, 4]}])
+
+class TestGeometryDataSourceReplacement:
+    def test_replace_accepts_geojson_strings(self) -> None:
+        source = bms.GeometryDataSource('''{
+            "type": "FeatureCollection",
+            "features": [{
+                "type": "Feature",
+                "geometry": {"type": "Point", "coordinates": [1, 2]},
+                "properties": {"name": "A"}
+            }]
+        }''')
+
+        assert source.geometries == [{"type": "Point", "coordinates": [1, 2]}]
+        assert source.data == {"name": ["A"]}
+
+        source.replace('{"type": "Point", "coordinates": [3, 4]}')
+
+        assert source.geometries == [{"type": "Point", "coordinates": [3, 4]}]
+        assert source.data == {}
+
+    def test_replace_uses_one_composite_document_event(self) -> None:
+        source = bms.GeometryDataSource({"type": "Point", "coordinates": [1, 2]})
+        document = Document()
+        document.add_root(source)
+        events = []
+        document.on_change(events.append)
+
+        source.replace({"type": "Point", "coordinates": [3, 4]})
+
+        assert len(events) == 1
+        assert isinstance(events[0], ColumnDataChangedEvent)
+        assert events[0].attr == "records"
 
 class TestColumnDataSource:
     def test_basic(self) -> None:

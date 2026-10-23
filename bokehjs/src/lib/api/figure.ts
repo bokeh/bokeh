@@ -15,6 +15,7 @@ import {enumerate} from "core/util/iterator"
 import * as nd from "core/util/ndarray"
 
 import type {Glyph, Scale, Plot, Toolbar} from "./models"
+import type {AnyGlyphRenderer, GlyphRendererWithSource} from "../models/renderers/glyph_renderer"
 import {
   Axis,
   CategoricalAxis,
@@ -23,9 +24,11 @@ import {
   ColumnarDataSource,
   ContinuousTicker,
   CoordinateMapping,
+  IndexedDataSource,
   DataRange1d,
   DatetimeAxis,
   FactorRange,
+  GeometryDataSource,
   GlyphRenderer,
   Grid,
   LinearAxis,
@@ -152,9 +155,11 @@ export class SubFigure extends GlyphAPI {
     super()
   }
 
-  _glyph<G extends Glyph>(cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides?: object): GlyphRenderer<G> {
+  _glyph<G extends Glyph, S extends IndexedDataSource = ColumnDataSource>(
+    cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides?: object,
+  ): GlyphRendererWithSource<G, S> {
     const {coordinates} = this
-    return this.parent._glyph(cls, method, positional, args, {coordinates, ...overrides})
+    return this.parent._glyph<G, S>(cls, method, positional, args, {coordinates, ...overrides})
   }
 }
 
@@ -509,7 +514,7 @@ export class Figure extends BaseFigure {
     }
   }
 
-  _fixup_values(cls: HasPropsClass<HasProps>, data: Map<string, unknown>, attrs: Attrs): Set<string> {
+  _fixup_values(cls: HasPropsClass<HasProps>, data: Map<string, unknown> | null, attrs: Attrs): Set<string> {
     const unresolved_attrs = new Set<string>()
     const props = dict<HasProps["_props"][string]>(cls.prototype._props)
 
@@ -519,6 +524,9 @@ export class Figure extends BaseFigure {
         if (prop.type.prototype instanceof VectorSpec) {
           if (value != null) {
             if (isArray(value) || nd.is_NDArray(value)) {
+              if (data == null) {
+                throw new Error("sequence literals cannot be used with a non-columnar data source")
+              }
               let field
               if (data.has(name)) {
                 if (data.get(name) !== value) {
@@ -560,7 +568,9 @@ export class Figure extends BaseFigure {
     return `the method signature is ${method}(${positional.join(", ")}, args?)`
   }
 
-  _glyph<G extends Glyph>(cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides: object = {}): GlyphRenderer<G> {
+  _glyph<G extends Glyph, S extends IndexedDataSource = ColumnDataSource>(
+    cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides: object = {},
+  ): GlyphRendererWithSource<G, S> {
     let attrs: Attrs & Partial<AuxGlyph>
 
     const n_args = args.length
@@ -594,18 +604,22 @@ export class Figure extends BaseFigure {
     }
 
     attrs = {...attrs, ...overrides}
+    const source_is_internal = attrs._source_is_internal === true
+    delete attrs._source_is_internal
 
     const source = (() => {
       const {source} = attrs
       if (source == null) {
         return ColumnDataSource.create()
-      } else if (source instanceof ColumnarDataSource) {
+      } else if (source instanceof IndexedDataSource) {
         return source
       } else {
         return ColumnDataSource.create({data: source})
       }
     })()
-    const data = clone(source.data)
+    const data = source instanceof ColumnarDataSource || (source_is_internal && source instanceof GeometryDataSource)
+      ? clone(source.data)
+      : null
     delete attrs.source
 
     const {view} = attrs
@@ -648,7 +662,7 @@ export class Figure extends BaseFigure {
     const hglyph_ca = this._pop_visuals(cls, attrs, "hover_", glyph_ca)
     const mglyph_ca = this._pop_visuals(cls, attrs, "muted_", glyph_ca, {alpha: 0.2})
 
-    const data_dict = dict(data)
+    const data_dict = data != null ? dict(data) : null
     this._fixup_values(cls, data_dict,  glyph_ca)
     this._fixup_values(cls, data_dict, nglyph_ca)
     this._fixup_values(cls, data_dict, sglyph_ca)
@@ -657,7 +671,17 @@ export class Figure extends BaseFigure {
 
     this._fixup_values(cls, data_dict, attrs)
 
-    source.data = data
+    if ((source instanceof ColumnarDataSource || source instanceof GeometryDataSource) && data != null) {
+      if (source instanceof GeometryDataSource) {
+        const length = source.get_length()
+        for (const [field, values] of entries(data)) {
+          if (values.length != length) {
+            throw new Error(`expected '${field}' to have length ${length}, got ${values.length}`)
+          }
+        }
+      }
+      source.data = data
+    }
 
     const _make_glyph = (cls: HasPropsFactory<Glyph>, attrs: Attrs, extra_attrs: Attrs) => {
       return cls.create({...attrs, ...extra_attrs})
@@ -670,7 +694,7 @@ export class Figure extends BaseFigure {
     const mglyph = !is_empty(mglyph_ca) ? _make_glyph(cls, attrs, mglyph_ca) : "auto"
 
     const glyph_renderer = GlyphRenderer.create({
-      data_source:        source,
+      data_source:        source as S,
       view,
       glyph,
       nonselection_glyph: nglyph,
@@ -683,7 +707,7 @@ export class Figure extends BaseFigure {
       x_range_name,
       y_range_name,
       coordinates,
-    })
+    }) as GlyphRendererWithSource<G, S>
 
     if (legend_label != null) {
       this._handle_legend_label(legend_label, this.legend, glyph_renderer)
@@ -696,7 +720,7 @@ export class Figure extends BaseFigure {
     }
 
     this.add_renderers(glyph_renderer)
-    return glyph_renderer as GlyphRenderer<G>
+    return glyph_renderer
   }
 
   static _get_range(range?: Range | [number, number] | ArrayLike<string>): Range {
@@ -811,7 +835,7 @@ export class Figure extends BaseFigure {
     }
   }
 
-  _update_legend(legend_item_label: Vector<string>, glyph_renderer: GlyphRenderer): void {
+  _update_legend(legend_item_label: Vector<string>, glyph_renderer: AnyGlyphRenderer): void {
     const {legend} = this
     let added = false
     for (const item of legend.items) {
@@ -836,7 +860,7 @@ export class Figure extends BaseFigure {
     }
   }
 
-  protected _handle_legend_label(value: string, legend: Legend, glyph_renderer: GlyphRenderer): void {
+  protected _handle_legend_label(value: string, legend: Legend, glyph_renderer: AnyGlyphRenderer): void {
     const label = {value}
     const item = this._find_legend_item(label, legend)
     if (item != null) {
@@ -847,7 +871,7 @@ export class Figure extends BaseFigure {
     }
   }
 
-  protected _handle_legend_field(field: string, legend: Legend, glyph_renderer: GlyphRenderer): void {
+  protected _handle_legend_field(field: string, legend: Legend, glyph_renderer: AnyGlyphRenderer): void {
     const label = {field}
     const item = this._find_legend_item(label, legend)
     if (item != null) {
@@ -858,12 +882,11 @@ export class Figure extends BaseFigure {
     }
   }
 
-  protected _handle_legend_group(name: string, legend: Legend, glyph_renderer: GlyphRenderer): void {
-    const data = dict(glyph_renderer.data_source.data)
-    if (!data.has(name)) {
-      throw new Error(`column to be grouped does not exist in glyph data source: ${name}`)
+  protected _handle_legend_group(name: string, legend: Legend, glyph_renderer: AnyGlyphRenderer): void {
+    const column = glyph_renderer.data_source.get_field(name)
+    if (column == null) {
+      throw new Error(`field to be grouped does not exist in glyph data source: ${name}`)
     }
-    const column = data.get(name) ?? []
     const values = uniq(column).sort()
     for (const value of values) {
       const label = {value: `${value}`}

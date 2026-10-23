@@ -26,6 +26,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ..core.enums import (
     Direction,
@@ -123,10 +126,10 @@ __all__ = (
     'MathMLGlyph',
     'MathTextGlyph',
     'MultiLine',
-    'MultiPolygons',
     'Ngon',
     'Patch',
     'Patches',
+    'Polygons',
     'Quad',
     'Quadratic',
     'Ray',
@@ -1000,52 +1003,6 @@ class MultiLine(Glyph, LineGlyph):
     The {prop} values for the lines.
     """)
 
-class MultiPolygons(Glyph, LineGlyph, FillGlyph, HatchGlyph):
-    ''' Render several MultiPolygon.
-
-    Modeled on geoJSON - the data for the ``MultiPolygons`` glyph is
-    different in that the vector of values is not a vector of scalars.
-    Rather, it is a "list of lists of lists of lists".
-
-    During box selection only multi-polygons entirely contained in the
-    selection box will be included.
-
-    '''
-
-    __example__ = "examples/reference/models/MultiPolygons.py"
-
-    _args = ('xs', 'ys')
-
-    xs = NumberSpec(default=field("xs"), help="""
-    The x-coordinates for all the patches, given as a nested list.
-
-    .. note::
-        Each item in ``MultiPolygons`` represents one MultiPolygon and each
-        MultiPolygon is comprised of ``n`` Polygons. Each Polygon is made of
-        one exterior ring optionally followed by ``m`` interior rings (holes).
-    """)
-
-    ys = NumberSpec(default=field("ys"), help="""
-    The y-coordinates for all the patches, given as a "list of lists".
-
-    .. note::
-        Each item in ``MultiPolygons`` represents one MultiPolygon and each
-        MultiPolygon is comprised of ``n`` Polygons. Each Polygon is made of
-        one exterior ring optionally followed by ``m`` interior rings (holes).
-    """)
-
-    line_props = Include(LineProps, help="""
-    The {prop} values for the multipolygons.
-    """)
-
-    fill_props = Include(FillProps, help="""
-    The {prop} values for the multipolygons.
-    """)
-
-    hatch_props = Include(HatchProps, help="""
-    The {prop} values for the multipolygons.
-    """)
-
 class Ngon(RadialGlyph):
     ''' Render regular n-sided polygons.
 
@@ -1108,6 +1065,10 @@ class Ngon(RadialGlyph):
 class Patch(ConnectedXYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render a single patch.
 
+    .. deprecated:: 4.0
+        Use :class:`Polygons` with a
+        :class:`~bokeh.models.sources.GeometryDataSource` instead.
+
     The ``Patch`` glyph is different from most other glyphs in that the vector
     of values only produces one glyph on the Plot.
 
@@ -1150,6 +1111,10 @@ class Patch(ConnectedXYGlyph, LineGlyph, FillGlyph, HatchGlyph):
 class Patches(Glyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render several patches.
 
+    .. deprecated:: 4.0
+        Use :class:`Polygons` with a
+        :class:`~bokeh.models.sources.GeometryDataSource` instead.
+
     The data for the ``Patches`` glyph is different in that the vector of
     values is not a vector of scalars. Rather, it is a "list of lists".
 
@@ -1191,6 +1156,22 @@ class Patches(Glyph, LineGlyph, FillGlyph, HatchGlyph):
     hatch_props = Include(HatchProps, help="""
     The {prop} values for the patches.
     """)
+
+class Polygons(Patches):
+    ''' Render Polygon and MultiPolygon features from a geometry-aware source.
+
+    With :class:`~bokeh.models.sources.GeometryDataSource`, the inherited
+    ``xs`` and ``ys`` fields are virtual coordinate views. Geometry remains in
+    its natural GeoJSON hierarchy, including interior rings, while this glyph
+    reuses the mature polygon Canvas and WebGL renderers.
+    '''
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    __example__ = "examples/reference/models/Polygons.py"
+
+    _args = ()
 
 class Quad(LRTBGlyph):
     ''' Render axis-aligned quads.

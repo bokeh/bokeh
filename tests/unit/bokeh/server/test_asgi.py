@@ -39,7 +39,10 @@ from bokeh.models import (
     ColumnDataSource,
     CustomJS,
     Div,
+    GeometryDataSource,
+    GraphDataSource,
     HoverTool,
+    MeshDataSource,
     PointDrawTool,
     Select,
     Slider,
@@ -139,6 +142,66 @@ def test_example_application_initializes(monkeypatch: pytest.MonkeyPatch) -> Non
     assert isinstance(second_spectrum, ColumnDataSource)
     assert second_terms.value == 6
     assert len(second_spectrum.data["harmonic"]) == 6
+
+
+def _structured_update_application(monkeypatch: pytest.MonkeyPatch, name: str) -> BokehASGI:
+    root = Path(__file__).parents[4] / "examples/server/api/asgi"
+    monkeypatch.syspath_prepend(str(root))
+    namespace = runpy.run_path(str(root / f"{name}_updates.py"))
+    return cast(BokehASGI, namespace["application"])
+
+
+def test_geometry_update_example_streams_replaces_and_isolates_sessions(monkeypatch: pytest.MonkeyPatch) -> None:
+    asgi = _structured_update_application(monkeypatch, "geometry")
+    application = asgi.core.applications["/"].application
+    geometry = application.create_document()
+    second_geometry = application.create_document()
+    geometry_count = geometry.select_one({"name": "geometry-count"})
+    geometry_source = geometry.select_one({"name": "geometry-source"})
+    assert isinstance(geometry_count, Slider)
+    assert isinstance(geometry_source, GeometryDataSource)
+    geometry_count.value = 6
+    assert geometry_source.length == 6
+    assert geometry_source.data["label"][-1] == "Region 6"
+    geometry_count.value = 2
+    assert geometry_source.length == 2
+    second_geometry_source = second_geometry.select_one({"name": "geometry-source"})
+    assert isinstance(second_geometry_source, GeometryDataSource)
+    assert second_geometry_source.length == 3
+
+
+def test_graph_update_example_updates_topology(monkeypatch: pytest.MonkeyPatch) -> None:
+    asgi = _structured_update_application(monkeypatch, "graph")
+    graph = asgi.core.applications["/"].application.create_document()
+    graph_count = graph.select_one({"name": "graph-count"})
+    graph_source = graph.select_one({"name": "graph-source"})
+    assert isinstance(graph_count, Slider)
+    assert isinstance(graph_source, GraphDataSource)
+    assert isinstance(graph_source.nodes, ColumnDataSource)
+    assert isinstance(graph_source.edges, ColumnDataSource)
+    graph_count.value = 7
+    assert list(graph_source.nodes.data["index"]) == list("ABCDEFG")
+    assert list(graph_source.edges.data["start"]) == list("ABCDEF")
+    assert list(graph_source.edges.data["end"]) == list("BCDEFG")
+    graph_count.value = 3
+    assert list(graph_source.nodes.data["index"]) == list("ABC")
+    assert list(graph_source.edges.data["start"]) == list("AB")
+
+
+def test_mesh_update_example_patches_shared_vertex(monkeypatch: pytest.MonkeyPatch) -> None:
+    asgi = _structured_update_application(monkeypatch, "mesh")
+    mesh = asgi.core.applications["/"].application.create_document()
+    mesh_center = mesh.select_one({"name": "mesh-center"})
+    mesh_source = mesh.select_one({"name": "mesh-source"})
+    assert isinstance(mesh_center, Slider)
+    assert isinstance(mesh_source, MeshDataSource)
+    assert isinstance(mesh_source.vertices, ColumnDataSource)
+    assert isinstance(mesh_source.cells, ColumnDataSource)
+    mesh_center.value = 1.35
+    assert mesh_source.vertices.data["x"][4] == 1.35
+    assert list(mesh_source.cells.data["vertices"]) == [
+        [0, 1, 4], [1, 2, 4], [2, 3, 4], [3, 0, 4],
+    ]
 
 
 async def test_directory_application_path_supports_directory_features(tmp_path: Path) -> None:

@@ -1,8 +1,9 @@
 # Surface3d Extension Example
 
-Create an example that demonstrate the usage of Bokeh custom extensions, by
-wrapping a simple JavaScript library for 3d plotting, and connecting it to
-Python data sources.
+This example demonstrates Bokeh custom extensions by wrapping a small
+JavaScript library for 3D plotting and connecting it to a Bokeh `IndexedDataSource`.
+The renderer consumes logical `x`, `y`, and `z` fields, so it is not coupled to
+columnar storage.
 
 <img src="https://static.bokeh.org/surface3d.png" width="80%"></img>
 

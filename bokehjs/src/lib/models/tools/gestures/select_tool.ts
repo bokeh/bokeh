@@ -39,7 +39,7 @@ export abstract class SelectToolView extends GestureToolView {
       if (r instanceof GlyphRenderer) {
         source = r.data_source
       } else if (r instanceof GraphRenderer) {
-        source = r.node_renderer.data_source
+        source = r.data_source
       } else {
         continue
       }

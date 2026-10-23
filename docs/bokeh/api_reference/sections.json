@@ -107,6 +107,7 @@
       "CumSum",
       "CustomJSExpr",
       "Expression",
+      "IndexedLookup",
       "PolarTransform",
       "Stack"
     ]
@@ -174,10 +175,10 @@
       "MathMLGlyph",
       "MathTextGlyph",
       "MultiLine",
-      "MultiPolygons",
       "Ngon",
       "Patch",
       "Patches",
+      "Polygons",
       "Quad",
       "Quadratic",
       "Ray",
@@ -210,18 +211,20 @@
     "slug": "graphs",
     "title": "Graphs",
     "classes": [
+      "ArcEdgePathProvider",
+      "BezierEdgePathProvider",
+      "CircularLayoutProvider",
       "EdgeCoordinates",
       "EdgePointCoordinates",
-      "EdgesAndLinkedNodes",
-      "EdgesOnly",
+      "EdgePathProvider",
+      "ForceDirectedLayoutProvider",
       "GraphCoordinates",
-      "GraphHitTestPolicy",
+      "GridLayoutProvider",
       "LayoutProvider",
       "NodeCoordinates",
-      "NodesAndAdjacentNodes",
-      "NodesAndLinkedEdges",
-      "NodesOnly",
-      "StaticLayoutProvider"
+      "OrthogonalEdgePathProvider",
+      "StaticLayoutProvider",
+      "StraightEdgePathProvider"
     ]
   },
   {
@@ -353,10 +356,10 @@
     "slug": "selections",
     "title": "Selections",
     "classes": [
-      "IntersectRenderers",
+      "GraphSelection",
+      "GraphSelectionPolicy",
       "Selection",
-      "SelectionPolicy",
-      "UnionRenderers"
+      "SelectionPolicy"
     ]
   },
   {
@@ -374,11 +377,14 @@
     "title": "Sources",
     "classes": [
       "AjaxDataSource",
-      "CDSView",
+      "DataView",
       "ColumnarDataSource",
       "ColumnDataSource",
       "DataSource",
-      "GeoJSONDataSource",
+      "GeometryDataSource",
+      "GraphDataSource",
+      "IndexedDataSource",
+      "MeshDataSource",
       "ServerSentDataSource",
       "WebDataSource"
     ]

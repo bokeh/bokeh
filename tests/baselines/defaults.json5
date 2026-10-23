@@ -195,7 +195,7 @@
         },
         selection_policy: {
           type: "object",
-          name: "UnionRenderers",
+          name: "SelectionPolicy",
           attributes: {},
         },
         data: {
@@ -2783,6 +2783,18 @@
   Expression: {
     __extends__: "Model",
   },
+  IndexedLookup: {
+    __extends__: "Expression",
+    source: {
+      type: "symbol",
+      name: "unset",
+    },
+    field: {
+      type: "symbol",
+      name: "unset",
+    },
+    indices: "vertices",
+  },
   Maximum: {
     __extends__: "ScalarExpression",
     field: {
@@ -2866,7 +2878,7 @@
   },
   GroupFilter: {
     __extends__: "Filter",
-    column_name: {
+    field_name: {
       type: "symbol",
       name: "unset",
     },
@@ -4184,81 +4196,6 @@
       value: 0,
     },
   },
-  MultiPolygons: {
-    __extends__: [
-      "Glyph",
-      "LineGlyph",
-      "FillGlyph",
-      "HatchGlyph",
-    ],
-    xs: {
-      type: "field",
-      field: "xs",
-    },
-    ys: {
-      type: "field",
-      field: "ys",
-    },
-    line_color: {
-      type: "value",
-      value: "black",
-    },
-    line_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    line_width: {
-      type: "value",
-      value: 1,
-    },
-    line_join: {
-      type: "value",
-      value: "bevel",
-    },
-    line_cap: {
-      type: "value",
-      value: "butt",
-    },
-    line_dash: {
-      type: "value",
-      value: "solid",
-    },
-    line_dash_offset: {
-      type: "value",
-      value: 0,
-    },
-    fill_color: {
-      type: "value",
-      value: "gray",
-    },
-    fill_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    hatch_color: {
-      type: "value",
-      value: "black",
-    },
-    hatch_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    hatch_scale: {
-      type: "value",
-      value: 12.0,
-    },
-    hatch_pattern: {
-      type: "value",
-      value: null,
-    },
-    hatch_weight: {
-      type: "value",
-      value: 1.0,
-    },
-    hatch_extra: {
-      type: "map",
-    },
-  },
   Ngon: {
     __extends__: "RadialGlyph",
     x: {
@@ -4449,6 +4386,9 @@
     hatch_extra: {
       type: "map",
     },
+  },
+  Polygons: {
+    __extends__: "Patches",
   },
   Quad: {
     __extends__: "LRTBGlyph",
@@ -5358,21 +5298,68 @@
       ],
     },
   },
+  ArcEdgePathProvider: {
+    __extends__: "EdgePathProvider",
+    curvature: {
+      type: "value",
+      value: 0.2,
+    },
+    parallel_spacing: 0.15,
+  },
+  BezierEdgePathProvider: {
+    __extends__: "EdgePathProvider",
+    curvature: {
+      type: "value",
+      value: 0.2,
+    },
+    parallel_spacing: 0.15,
+  },
+  CircularLayoutProvider: {
+    __extends__: "LayoutProvider",
+    center: [
+      0,
+      0,
+    ],
+    radius: 1,
+    start_angle: 0,
+    clockwise: false,
+  },
   EdgeCoordinates: {
     __extends__: "GraphCoordinates",
+    path: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  EdgePathProvider: {
+    __extends__: "Model",
+    loop_radius: {
+      type: "value",
+      value: 0.15,
+    },
+    loop_spacing: 0.25,
+    steps: 24,
   },
   EdgePointCoordinates: {
     __extends__: "GraphCoordinates",
+    path: {
+      type: "symbol",
+      name: "unset",
+    },
     point: {
       type: "symbol",
       name: "unset",
     },
   },
-  EdgesAndLinkedNodes: {
-    __extends__: "GraphHitTestPolicy",
-  },
-  EdgesOnly: {
-    __extends__: "GraphHitTestPolicy",
+  ForceDirectedLayoutProvider: {
+    __extends__: "LayoutProvider",
+    center: [
+      0,
+      0,
+    ],
+    scale: 1,
+    seed: 1,
+    iterations: 100,
   },
   GraphCoordinates: {
     __extends__: "CoordinateTransform",
@@ -5380,9 +5367,19 @@
       type: "symbol",
       name: "unset",
     },
+    source: {
+      type: "symbol",
+      name: "unset",
+    },
   },
-  GraphHitTestPolicy: {
-    __extends__: "Model",
+  GridLayoutProvider: {
+    __extends__: "LayoutProvider",
+    center: [
+      0,
+      0,
+    ],
+    spacing: 1,
+    columns: null,
   },
   LayoutProvider: {
     __extends__: "Model",
@@ -5390,20 +5387,26 @@
   NodeCoordinates: {
     __extends__: "GraphCoordinates",
   },
-  NodesAndAdjacentNodes: {
-    __extends__: "GraphHitTestPolicy",
-  },
-  NodesAndLinkedEdges: {
-    __extends__: "GraphHitTestPolicy",
-  },
-  NodesOnly: {
-    __extends__: "GraphHitTestPolicy",
+  OrthogonalEdgePathProvider: {
+    __extends__: "EdgePathProvider",
+    orientation: "horizontal",
+    offset: {
+      type: "value",
+      value: 0,
+    },
+    corner_radius: {
+      type: "value",
+      value: 0,
+    },
   },
   StaticLayoutProvider: {
     __extends__: "LayoutProvider",
     graph_layout: {
       type: "map",
     },
+  },
+  StraightEdgePathProvider: {
+    __extends__: "EdgePathProvider",
   },
   Grid: {
     __extends__: "GuideRenderer",
@@ -5942,7 +5945,7 @@
     },
     view: {
       type: "object",
-      name: "CDSView",
+      name: "DataView",
       attributes: {
         filter: {
           type: "object",
@@ -5963,9 +5966,95 @@
   },
   GraphRenderer: {
     __extends__: "DataRenderer",
+    data_source: {
+      type: "object",
+      name: "GraphDataSource",
+      attributes: {
+        nodes: {
+          type: "object",
+          name: "ColumnDataSource",
+          attributes: {
+            selected: {
+              type: "object",
+              name: "Selection",
+              attributes: {},
+            },
+            selection_policy: {
+              type: "object",
+              name: "SelectionPolicy",
+              attributes: {},
+            },
+            data: {
+              type: "map",
+              entries: [
+                [
+                  "index",
+                  [],
+                ],
+              ],
+            },
+          },
+        },
+        edges: {
+          type: "object",
+          name: "ColumnDataSource",
+          attributes: {
+            selected: {
+              type: "object",
+              name: "Selection",
+              attributes: {},
+            },
+            selection_policy: {
+              type: "object",
+              name: "SelectionPolicy",
+              attributes: {},
+            },
+            data: {
+              type: "map",
+              entries: [
+                [
+                  "start",
+                  [],
+                ],
+                [
+                  "end",
+                  [],
+                ],
+              ],
+            },
+          },
+        },
+        selected: {
+          type: "object",
+          name: "GraphSelection",
+          attributes: {
+            nodes: {
+              type: "object",
+              name: "Selection",
+              attributes: {},
+            },
+            edges: {
+              type: "object",
+              name: "Selection",
+              attributes: {},
+            },
+          },
+        },
+        selection_policy: {
+          type: "object",
+          name: "GraphSelectionPolicy",
+          attributes: {},
+        },
+      },
+    },
     layout_provider: {
       type: "symbol",
       name: "unset",
+    },
+    edge_path_provider: {
+      type: "object",
+      name: "StraightEdgePathProvider",
+      attributes: {},
     },
     node_renderer: {
       type: "object",
@@ -5982,7 +6071,7 @@
             },
             selection_policy: {
               type: "object",
-              name: "UnionRenderers",
+              name: "SelectionPolicy",
               attributes: {},
             },
             data: {
@@ -5998,7 +6087,7 @@
         },
         view: {
           type: "object",
-          name: "CDSView",
+          name: "DataView",
           attributes: {
             filter: {
               type: "object",
@@ -6029,7 +6118,7 @@
             },
             selection_policy: {
               type: "object",
-              name: "UnionRenderers",
+              name: "SelectionPolicy",
               attributes: {},
             },
             data: {
@@ -6049,7 +6138,7 @@
         },
         view: {
           type: "object",
-          name: "CDSView",
+          name: "DataView",
           attributes: {
             filter: {
               type: "object",
@@ -6065,14 +6154,11 @@
         },
       },
     },
-    selection_policy: {
-      type: "object",
-      name: "NodesOnly",
-      attributes: {},
-    },
+    selection_target: "nodes",
+    inspection_target: "nodes",
     inspection_policy: {
       type: "object",
-      name: "NodesOnly",
+      name: "GraphSelectionPolicy",
       attributes: {},
     },
   },
@@ -6142,8 +6228,27 @@
   Scale: {
     __extends__: "Transform",
   },
-  IntersectRenderers: {
+  GraphSelection: {
+    __extends__: "Model",
+    nodes: {
+      type: "object",
+      name: "Selection",
+      attributes: {},
+    },
+    edges: {
+      type: "object",
+      name: "Selection",
+      attributes: {},
+    },
+  },
+  GraphSelectionPolicy: {
     __extends__: "SelectionPolicy",
+    node_hops: 0,
+    node_hops_mode: "up_to",
+    node_direction: "both",
+    include_direct: true,
+    include_incident_edges: false,
+    include_end_nodes: false,
   },
   Selection: {
     __extends__: "Model",
@@ -6156,9 +6261,7 @@
   },
   SelectionPolicy: {
     __extends__: "Model",
-  },
-  UnionRenderers: {
-    __extends__: "SelectionPolicy",
+    combine: "union",
   },
   ByCSS: {
     __extends__: "Selector",
@@ -6201,14 +6304,6 @@
       type: "map",
     },
   },
-  CDSView: {
-    __extends__: "Model",
-    filter: {
-      type: "object",
-      name: "AllIndices",
-      attributes: {},
-    },
-  },
   ColumnDataSource: {
     __extends__: "ColumnarDataSource",
     data: {
@@ -6216,30 +6311,181 @@
     },
   },
   ColumnarDataSource: {
-    __extends__: "DataSource",
+    __extends__: "IndexedDataSource",
     default_values: {
       type: "map",
-    },
-    selection_policy: {
-      type: "object",
-      name: "UnionRenderers",
-      attributes: {},
     },
   },
   DataSource: {
     __extends__: "Model",
+  },
+  DataView: {
+    __extends__: "Model",
+    filter: {
+      type: "object",
+      name: "AllIndices",
+      attributes: {},
+    },
+  },
+  GeometryDataSource: {
+    __extends__: "IndexedDataSource",
+    geometries: [],
+    data: {
+      type: "map",
+    },
+    crs: null,
+  },
+  GraphDataSource: {
+    __extends__: "DataSource",
+    nodes: {
+      type: "object",
+      name: "ColumnDataSource",
+      attributes: {
+        selected: {
+          type: "object",
+          name: "Selection",
+          attributes: {},
+        },
+        selection_policy: {
+          type: "object",
+          name: "SelectionPolicy",
+          attributes: {},
+        },
+        data: {
+          type: "map",
+          entries: [
+            [
+              "index",
+              [],
+            ],
+          ],
+        },
+      },
+    },
+    edges: {
+      type: "object",
+      name: "ColumnDataSource",
+      attributes: {
+        selected: {
+          type: "object",
+          name: "Selection",
+          attributes: {},
+        },
+        selection_policy: {
+          type: "object",
+          name: "SelectionPolicy",
+          attributes: {},
+        },
+        data: {
+          type: "map",
+          entries: [
+            [
+              "start",
+              [],
+            ],
+            [
+              "end",
+              [],
+            ],
+          ],
+        },
+      },
+    },
+    selected: {
+      type: "object",
+      name: "GraphSelection",
+      attributes: {
+        nodes: {
+          type: "object",
+          name: "Selection",
+          attributes: {},
+        },
+        edges: {
+          type: "object",
+          name: "Selection",
+          attributes: {},
+        },
+      },
+    },
+    selection_policy: {
+      type: "object",
+      name: "GraphSelectionPolicy",
+      attributes: {},
+    },
+  },
+  IndexedDataSource: {
+    __extends__: "DataSource",
     selected: {
       type: "object",
       name: "Selection",
       attributes: {},
     },
-  },
-  GeoJSONDataSource: {
-    __extends__: "ColumnarDataSource",
-    geojson: {
-      type: "symbol",
-      name: "unset",
+    selection_policy: {
+      type: "object",
+      name: "SelectionPolicy",
+      attributes: {},
     },
+  },
+  MeshDataSource: {
+    __extends__: "IndexedDataSource",
+    vertices: {
+      type: "object",
+      name: "ColumnDataSource",
+      attributes: {
+        selected: {
+          type: "object",
+          name: "Selection",
+          attributes: {},
+        },
+        selection_policy: {
+          type: "object",
+          name: "SelectionPolicy",
+          attributes: {},
+        },
+        data: {
+          type: "map",
+          entries: [
+            [
+              "x",
+              [],
+            ],
+            [
+              "y",
+              [],
+            ],
+          ],
+        },
+      },
+    },
+    cells: {
+      type: "object",
+      name: "ColumnDataSource",
+      attributes: {
+        selected: {
+          type: "object",
+          name: "Selection",
+          attributes: {},
+        },
+        selection_policy: {
+          type: "object",
+          name: "SelectionPolicy",
+          attributes: {},
+        },
+        data: {
+          type: "map",
+          entries: [
+            [
+              "vertices",
+              [],
+            ],
+          ],
+        },
+      },
+    },
+    connectivity_field: "vertices",
+    x_field: "x",
+    y_field: "y",
+    z_field: "z",
   },
   ServerSentDataSource: {
     __extends__: "WebDataSource",
@@ -6862,7 +7108,7 @@
   },
   FreehandDrawTool: {
     __extends__: [
-      "EditTool",
+      "PolyTool",
       "Drag",
       "Tap",
     ],
@@ -7998,7 +8244,7 @@
         },
         selection_policy: {
           type: "object",
-          name: "UnionRenderers",
+          name: "SelectionPolicy",
           attributes: {},
         },
         data: {
@@ -8008,7 +8254,7 @@
     },
     view: {
       type: "object",
-      name: "CDSView",
+      name: "DataView",
       attributes: {
         filter: {
           type: "object",

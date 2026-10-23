@@ -20,6 +20,9 @@ import pytest ; pytest
 import numpy as np
 from numpy.testing import assert_allclose
 
+# Bokeh imports
+from bokeh.models import BezierEdgePathProvider, ForceDirectedLayoutProvider
+
 # Module under test
 import bokeh.plotting.graph as bpg # isort:skip
 
@@ -40,6 +43,8 @@ def test_from_networkx_method(nx) -> None:
     assert renderer.node_renderer.data_source.data["index"] == [0,1,2,3]
     assert renderer.edge_renderer.data_source.data["start"] == [0,0,2]
     assert renderer.edge_renderer.data_source.data["end"] == [1,2,3]
+    assert renderer.data_source.nodes is renderer.node_renderer.data_source
+    assert renderer.data_source.edges is renderer.edge_renderer.data_source
 
     gl = renderer.layout_provider.graph_layout
     assert set(gl.keys()) == {0, 1, 2, 3}
@@ -56,6 +61,33 @@ def test_from_networkx_method_with_kwargs(nx) -> None:
     gl = renderer.layout_provider.graph_layout
     assert set(gl.keys()) == {0, 1, 2, 3}
     assert_allclose(gl[0], np.array([2.0, 0.0]), atol=1e-7)
+
+
+def test_from_networkx_with_client_side_layout(nx) -> None:
+    graph = nx.path_graph(4)
+    layout = ForceDirectedLayoutProvider(seed=7, iterations=25)
+
+    renderer = bpg.from_networkx(graph, layout)
+
+    assert renderer.layout_provider is layout
+    assert len(renderer.node_renderer.data_source.data["index"]) == 4
+    assert len(renderer.edge_renderer.data_source.data["start"]) == 3
+
+    with pytest.raises(ValueError, match="layout keyword arguments cannot be used"):
+        bpg.from_networkx(graph, layout, scale=2)
+
+
+def test_from_networkx_with_edge_path_provider(nx) -> None:
+    graph = nx.path_graph(4)
+    edge_path_provider = BezierEdgePathProvider(curvature=0.25)
+
+    renderer = bpg.from_networkx(
+        graph,
+        nx.circular_layout,
+        edge_path_provider=edge_path_provider,
+    )
+
+    assert renderer.edge_path_provider is edge_path_provider
 
 
 def test_from_networkx_with_scalar_attributes(nx) -> None:

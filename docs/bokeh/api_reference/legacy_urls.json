@@ -1,4 +1,5 @@
 {
+  "graphs/graph_hit_test_policy": "GraphSelectionPolicy",
   "glyphs/annular_wedge": "AnnularWedge",
   "glyphs/annulus": "Annulus",
   "glyphs/arc": "Arc",
@@ -21,7 +22,7 @@
   "glyphs/math_ml": "MathMLGlyph",
   "glyphs/math_text": "MathTextGlyph",
   "glyphs/multi_line": "MultiLine",
-  "glyphs/multi_polygons": "MultiPolygons",
+  "glyphs/multi_polygons": "Polygons",
   "glyphs/ngon": "Ngon",
   "glyphs/patch": "Patch",
   "glyphs/patches": "Patches",
@@ -40,5 +41,7 @@
   "glyphs/vspan": "VSpan",
   "glyphs/vstrip": "VStrip",
   "glyphs/wedge": "Wedge",
-  "glyphs/xy_glyph": "XYGlyph"
+  "glyphs/xy_glyph": "XYGlyph",
+  "sources/cds_view": "DataView",
+  "sources/geojson_data_source": "GeometryDataSource"
 }

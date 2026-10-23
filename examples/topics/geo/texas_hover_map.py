@@ -3,36 +3,27 @@ demonstrates using a ``LogColorMapper`` and hover tool.
 
 .. bokeh-example-metadata::
     :sampledata: unemployment, us_counties
-    :apis: bokeh.plotting.figure.patches, bokeh.models.mappers.LogColorMapper
+    :apis: bokeh.plotting.figure.polygons, bokeh.models.mappers.LogColorMapper
     :refs: :ref:`ug_interaction_tools_hover_tool`
     :keywords: colormap, map, patches
 
 '''
+
 from bokeh.models import LogColorMapper
 from bokeh.palettes import Viridis6 as palette
 from bokeh.plotting import figure, show
-from bokeh.sampledata.unemployment import data as unemployment
-from bokeh.sampledata.us_counties import data as counties
+from bokeh.sampledata.unemployment import by_fips
+from bokeh.sampledata.us_counties import records as county_records
 
 palette = tuple(reversed(palette))
 
-counties = {
-    code: county for code, county in counties.items() if county["state"] == "tx"
-}
-
-county_xs = [county["lons"] for county in counties.values()]
-county_ys = [county["lats"] for county in counties.values()]
-
-county_names = [county['name'] for county in counties.values()]
-county_rates = [unemployment[county_id] for county_id in counties]
 color_mapper = LogColorMapper(palette=palette)
 
-data=dict(
-    x=county_xs,
-    y=county_ys,
-    name=county_names,
-    rate=county_rates,
-)
+records = [
+    county | {"rate": by_fips[county["fips"]]}
+    for county in county_records(state="TX")
+    if county["fips"] in by_fips
+]
 
 TOOLS = "pan,wheel_zoom,reset,hover,save"
 
@@ -45,8 +36,7 @@ p = figure(
 p.grid.grid_line_color = None
 p.hover.point_policy = "follow_mouse"
 
-p.patches('x', 'y', source=data,
-          fill_color={'field': 'rate', 'transform': color_mapper},
-          fill_alpha=0.7, line_color="white", line_width=0.5)
+p.polygons(records, fill_color={'field': 'rate', 'transform': color_mapper},
+           fill_alpha=0.7, line_color="white", line_width=0.5)
 
 show(p)

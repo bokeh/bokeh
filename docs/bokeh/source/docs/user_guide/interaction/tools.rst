@@ -964,8 +964,10 @@ FreehandDrawTool
 * menu icon: |freehand_draw_icon|
 
 The ``FreehandDrawTool()`` allows freehand drawing of lines and polygons
-using the ``Patches`` and ``MultiLine`` glyphs, by editing the
-underlying ``ColumnDataSource`` data. Like other drawing tools,
+using the ``MultiLine`` and ``Polygons`` glyphs. It edits an underlying
+``ColumnDataSource`` for lines or commits canonical geometry to a
+``GeometryDataSource`` for polygons. Legacy ``Patches`` renderers remain
+supported for compatibility. Like other drawing tools,
 you must pass the renderers to be edited as a list:
 
 .. code-block:: python
@@ -1081,17 +1083,16 @@ PolyDrawTool
 * name: ``'poly_draw'``
 * menu icon: |poly_draw_icon|
 
-The ``PolyDrawTool()`` allows you to draw, select, and delete
-``Patches`` and ``MultiLine`` glyphs on one or more renderers by
-editing the underlying ``ColumnDataSource`` data. Like other drawing tools,
-you must pass the renderers to be edited as a list.
+The ``PolyDrawTool()`` allows you to draw, select, and delete ``Polygons`` and
+``MultiLine`` glyphs on one or more renderers. Polygon edits update the natural
+geometry in a ``GeometryDataSource``; MultiLine edits update ``xs`` and ``ys``
+columns in a ``ColumnDataSource``. Like other drawing tools, you must pass the
+renderers to be edited as a list.
 
-The tool automatically modifies the columns on the data source
-corresponding to the ``xs`` and ``ys`` values of the glyph. Any
-additional columns in the data source will be padded in accordance
-to :ref:`ug_interaction_tools_default_values` procedure when adding
-a new point. Any newly added patch or multi-line will be inserted in
-the ``ColumnDataSource`` of the first supplied renderer.
+New polygons are inserted as Polygon geometry records in the first supplied
+renderer. Additional geometry attributes use ``default_overrides`` or the
+tool's ``empty_value``. MultiLine columns continue to use the general
+:ref:`ug_interaction_tools_default_values` procedure.
 
 It is also often useful to limit the number of elements that can be
 drawn. For example, when specifying a specific number of regions of interest.
@@ -1101,7 +1102,7 @@ queue to make space for the new patch/multi-line being added.
 
 If a ``vertex_renderer`` with a point-like glyph is supplied, the
 PolyDrawTool will use it to display the vertices of the
-multi-lines/patches on all supplied renderers. This also enables the
+multi-lines/polygons on all supplied renderers. This also enables the
 ability to snap to existing vertices while drawing.
 
 .. raw:: html
@@ -1123,8 +1124,8 @@ Move patch/multi-line
   Tap and drag an existing patch/multi-line. The point will be dropped
   once you let go of the mouse button.
 
-Delete patch/multi-line
-  Tap a patch/multi-line to select it, then press the BACKSPACE key while
+Delete polygon/multi-line
+  Tap a polygon/multi-line to select it, then press the BACKSPACE key while
   the mouse is within the plot area.
 
 .. bokeh-plot:: __REPO__/examples/interaction/tools/poly_draw.py
@@ -1138,16 +1139,14 @@ PolyEditTool
 * menu icon: |poly_edit_icon|
 
 The PolyEditTool() allows you to edit the vertices of one or more
-``Patches`` or ``MultiLine`` glyphs. You can define the glyphs to be
+``Polygons`` or ``MultiLine`` glyphs. You can define the glyphs to be
 edited with the ``renderers`` property. You can define the renderer
 for the vertices with the ``vertex_renderer``. It must
 render a point-like Glyph (of ``XYGlyph`` type).
 
-The tool automatically modifies the columns on the data source
-corresponding to the ``xs`` and ``ys`` values of the glyph. Any
-additional columns in the data source will be padded in accordance
-to :ref:`ug_interaction_tools_default_values` procedure when adding
-a new point.
+For ``Polygons``, the tool presents editable ``xs`` and ``ys`` coordinate views
+but commits changes back to the source's Polygon or MultiPolygon geometry.
+Those property changes synchronize normally with Bokeh server applications.
 
 .. raw:: html
 

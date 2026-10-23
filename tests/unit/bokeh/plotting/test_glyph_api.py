@@ -19,12 +19,15 @@ import pytest ; pytest
 # Bokeh imports
 from bokeh.models import (
     ColumnDataSource,
+    GeometryDataSource,
     GlyphRenderer,
+    MeshDataSource,
     NormalHead,
     OpenHead,
     glyphs,
 )
 from bokeh.plotting import figure
+from bokeh.util.warnings import BokehDeprecationWarning
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -186,23 +189,122 @@ def test_multi_line() -> None:
     assert isinstance(gr, GlyphRenderer)
     assert isinstance(gr.glyph, glyphs.MultiLine)
 
-def test_multi_polygons() -> None:
-    p = figure()
-    gr = p.multi_polygons()
-    assert isinstance(gr, GlyphRenderer)
-    assert isinstance(gr.glyph, glyphs.MultiPolygons)
-
 def test_patch() -> None:
     p = figure()
-    gr = p.patch()
+    with pytest.warns(BokehDeprecationWarning, match=r"patch\(\) method.*deprecated"):
+        gr = p.patch()
     assert isinstance(gr, GlyphRenderer)
     assert isinstance(gr.glyph, glyphs.Patch)
 
 def test_patches() -> None:
     p = figure()
-    gr = p.patches()
+    with pytest.warns(BokehDeprecationWarning, match=r"patches\(\) method.*deprecated"):
+        gr = p.patches()
     assert isinstance(gr, GlyphRenderer)
     assert isinstance(gr.glyph, glyphs.Patches)
+
+def test_polygons() -> None:
+    p = figure()
+    gr = p.polygons()
+    assert isinstance(gr, GlyphRenderer)
+    assert isinstance(gr.glyph, glyphs.Polygons)
+    assert isinstance(gr.data_source, GeometryDataSource)
+
+def test_polygons_accepts_geometry_records() -> None:
+    p = figure()
+    gr = p.polygons([{
+        "geometry": {"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [0, 0]]]},
+        "name": "A",
+    }])
+    assert isinstance(gr.data_source, GeometryDataSource)
+    assert gr.data_source.data == {"name": ["A"]}
+
+
+def test_polygons_accepts_mesh_source() -> None:
+    p = figure()
+    source = MeshDataSource(
+        vertices=[[0, 0], [2, 0], [0, 1]],
+        cells={"vertices": [[0, 1, 2]], "color": ["red"]},
+    )
+
+    gr = p.polygons(source, fill_color="color")
+
+    assert gr.data_source is source
+    assert gr.glyph.xs.field == "xs"
+    assert gr.glyph.ys.field == "ys"
+    assert gr.glyph.fill_color == "color"
+
+
+def test_polygons_accepts_simple_xy_coordinates() -> None:
+    p = figure()
+    gr = p.polygons(x=[0, 2, 0], y=[0, 1, 0], fill_color="red")
+
+    assert isinstance(gr.data_source, GeometryDataSource)
+    assert gr.data_source.geometries == [{
+        "type": "Polygon",
+        "coordinates": [[[0, 0], [2, 1], [0, 0]]],
+    }]
+    assert gr.glyph.fill_color == "red"
+
+
+def test_polygons_accepts_nested_and_nan_separated_xy_coordinates() -> None:
+    p = figure()
+    gr = p.polygons(
+        x=[[0, 1, 0], [2, 3, float("nan"), 4, 5]],
+        y=[[0, 0, 0], [2, 2, float("nan"), 4, 4]],
+        fill_color=["red", "blue"],
+    )
+
+    assert isinstance(gr.data_source, GeometryDataSource)
+    assert [geometry["type"] for geometry in gr.data_source.geometries] == ["Polygon", "MultiPolygon"]
+    assert gr.data_source.data["fill_color"] == ["red", "blue"]
+
+
+def test_polygons_accepts_categorical_xy_coordinates() -> None:
+    p = figure(y_range=["A"])
+    gr = p.polygons(x=[0, 2, 0], y=[("A", 0), ("A", 1), ("A", 0)])
+
+    assert isinstance(gr.data_source, GeometryDataSource)
+    assert gr.data_source.geometries[0]["coordinates"] == [[
+        [0, ("A", 0)], [2, ("A", 1)], [0, ("A", 0)],
+    ]]
+
+
+def test_polygons_rejects_invalid_xy_coordinates() -> None:
+    p = figure()
+
+    with pytest.raises(ValueError, match="must be provided together"):
+        p.polygons(x=[0, 1])
+
+    with pytest.raises(ValueError, match="same length"):
+        p.polygons(x=[0, 1], y=[0])
+
+    with pytest.raises(ValueError, match="either geometry data or x, y"):
+        p.polygons({"type": "Polygon", "coordinates": []}, x=[], y=[])
+
+
+def test_polygons_accepts_vectorized_styles_with_geometry_records() -> None:
+    p = figure()
+    gr = p.polygons([
+        {"geometry": {"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [0, 0]]]}},
+        {"geometry": {"type": "Polygon", "coordinates": [[[2, 2], [3, 2], [2, 2]]]}},
+    ], fill_color=["red", "blue"])
+
+    assert isinstance(gr.data_source, GeometryDataSource)
+    assert gr.data_source.data["fill_color"] == ["red", "blue"]
+    assert gr.glyph.fill_color == "fill_color"
+
+def test_polygons_rejects_sequence_literals_with_explicit_source() -> None:
+    p = figure()
+    source = GeometryDataSource([
+        {"geometry": {"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [0, 0]]]}},
+    ])
+
+    with pytest.raises(RuntimeError, match="fill_color"):
+        p.polygons(source=source, fill_color=["red"])
+
+    with pytest.raises(RuntimeError, match="fill_color"):
+        p.polygons(source, fill_color=["red"])
 
 def test_quad() -> None:
     p = figure()
