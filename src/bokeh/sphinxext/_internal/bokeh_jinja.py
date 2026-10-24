@@ -39,7 +39,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import importlib
-import re
 import textwrap
 from os.path import basename
 from typing import Any
@@ -92,8 +91,7 @@ class BokehJinjaDirective(BokehDirective):
             raise SphinxError(f"Unable to find Bokeh template: {template_path}")
 
         template_text = open(template.filename).read()
-        m = _DOCPAT.match(template_text)
-        doc = m.group(1) if m else None
+        doc = _extract_leading_doc(template_text)
 
         filename = basename(template.filename)
         rst_text = JINJA_DETAIL.render(
@@ -103,7 +101,7 @@ class BokehJinjaDirective(BokehDirective):
             noindex=self.options.get("noindex", False),
             doc="" if doc is None else textwrap.dedent(doc),
             filename=filename,
-            template_text=_DOCPAT.sub("", template_text),
+            template_text=_strip_doc_comments(template_text),
         )
 
         return self.parse(rst_text, "<bokeh-jinja>")
@@ -119,7 +117,45 @@ def setup(app: Any) -> SphinxParallelSpec:
 # Private API
 # -----------------------------------------------------------------------------
 
-_DOCPAT = re.compile(r"\{\#(.+?)\#\}", flags=re.MULTILINE | re.DOTALL)
+def _extract_leading_doc(template_text: str) -> str | None:
+    """ Return the body of a leading ``{# ... #}`` comment, or ``None`` if absent.
+
+    Equivalent to the previous ``_DOCPAT.match(template_text).group(1)``: the
+    comment must start at position 0 and have a non-empty body.
+    """
+    if not template_text.startswith("{#"):
+        return None
+    end = template_text.find("#}", 3)
+    if end == -1:
+        return None
+    return template_text[2:end]
+
+
+def _strip_doc_comments(template_text: str) -> str:
+    """ Remove every ``{# ... #}`` comment, leaving unterminated ``{#`` intact.
+
+    Equivalent to the previous ``_DOCPAT.sub("", template_text)``: the body must be
+    non-empty, the shortest body wins, and matches are non-overlapping. The text is
+    scanned once from left to right, so the work stays linear even when the input
+    holds many ``{#`` and no ``#}`` (the old pattern retried at every one of them
+    and rescanned the rest of the string each time).
+    """
+    out: list[str] = []
+    pos = 0
+    while True:
+        start = template_text.find("{#", pos)
+        if start == -1:
+            out.append(template_text[pos:])
+            return "".join(out)
+        # The body needs at least one character, so an immediately following "#}"
+        # does not close the comment.
+        end = template_text.find("#}", start + 3)
+        if end == -1:
+            # Unterminated: nothing further in the text can match either.
+            out.append(template_text[pos:])
+            return "".join(out)
+        out.append(template_text[pos:start])
+        pos = end + 2
 
 # -----------------------------------------------------------------------------
 # Code
