@@ -360,10 +360,11 @@ async function auto_index(name: string): Promise<void> {
   const build_dir = join(paths.build_dir.test, name)
   const src_prefix = `test/${name}` // relative to bokehjs/, for reporting
 
-  // Discover test modules from sources, not from compiled outputs, because
-  // `tsc` doesn't remove outputs of deleted sources, which would be loaded
-  // as stale tests otherwise.
-  const files = await glob("**/*.{ts,tsx}", {cwd: src_dir, ignore: "**/*.d.ts", posix: true})
+  // Discover test modules from sources rather than from compiled outputs, because `tsc`
+  // doesn't remove outputs of deleted sources, which would otherwise be loaded as stale
+  // tests. Sort them, because `glob()` doesn't guarantee any order, which would make the
+  // order of imports (and thus the resulting bundles) non-deterministic.
+  const files = (await glob("**/*.{ts,tsx}", {cwd: src_dir, ignore: "**/*.d.ts", posix: true})).sort()
 
   // Test modules are loaded with `require()` (not hoisted `import`s), so that
   // the framework knows which module registers which tests (see `--file`).
