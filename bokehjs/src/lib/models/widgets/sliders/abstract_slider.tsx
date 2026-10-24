@@ -17,7 +17,15 @@ import {computed, signal} from "@preact/signals"
 type TargetedPointerEvent = TargetedEvent<HTMLElement, PointerEvent>
 type TargetedWheelEvent = TargetedEvent<HTMLElement, WheelEvent>
 
-const {abs, round, min: min_of, max: max_of} = Math
+const {abs, round, floor, min: min_of, max: max_of} = Math
+
+/**
+ * Acceleration of keyboard changes when holding a key: the multiplier
+ * doubles every `acceleration_repeats` auto-repeated key presses, up to
+ * `acceleration_max`.
+ */
+const acceleration_repeats = 10
+const acceleration_max = 8
 
 export type SliderSpec<T> = {
   readonly start: number
@@ -389,6 +397,8 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
   }
 
   @bind protected _on_focus_out(event: FocusEvent): void {
+    // e.g. when the window loses focus, so keyup won't be received
+    this._end_key_interaction()
     const target = this.focus_target(event.relatedTarget)
     if (target == null) {
       // focus left the slider, so the next focus may come from keyboard
@@ -498,6 +508,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
           aria-label={label ?? undefined}
           aria-labelledby={labelled_by(handle_id(i), label)}
           onKeyDown={this._on_keydown}
+          onKeyUp={this._on_keyup}
           ref={(el) => { this.handles[i] = el! }}
         >
           {tooltips.value ? <div class={sliders_css.tooltip}>{this.pretty(value)}</div> : null}
@@ -542,6 +553,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
           aria-label={label}
           aria-labelledby={labelled_by(span_id, label)}
           onKeyDown={this._on_keydown}
+          onKeyUp={this._on_keyup}
           ref={(el) => { this.span_el = el }}
         ></div>
       )
@@ -703,6 +715,14 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
   protected _end_drag(): void {
     this._state = null
     this._dragged.value = []
+    this._commit()
+  }
+
+  /**
+   * Update `value_throttled` at the end of an interaction (dragging or pressing
+   * keys), during which only `value` is updated.
+   */
+  protected _commit(): void {
     this.model.setv({value_throttled: this.model.value})
   }
 
@@ -771,6 +791,16 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
       return
     }
 
+    // accelerate changes when holding a key
+    const acceleration = (() => {
+      if (event.repeat && this._key_repeat?.key == key) {
+        this._key_repeat.count += 1
+      } else {
+        this._key_repeat = {key, count: 0}
+      }
+      return min_of(2**floor(this._key_repeat.count/acceleration_repeats), acceleration_max)
+    })()
+
     const values = this.synthetic_values
     const group = (() => {
       if (target.type == "span") {
@@ -785,7 +815,27 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     })()
 
     event.preventDefault()
-    this._change(this.shift(values, group, offset))
+    // like when dragging, update only value until the key is released
+    this._change(this.shift(values, group, acceleration*offset), true)
+    this._key_interaction = true
+  }
+
+  /** Auto-repeated presses of the same key, used to accelerate keyboard changes. */
+  private _key_repeat: {key: string, count: number} | null = null
+
+  /** Whether keyboard changed the value, which wasn't committed yet. */
+  private _key_interaction: boolean = false
+
+  @bind protected _on_keyup(): void {
+    this._end_key_interaction()
+  }
+
+  protected _end_key_interaction(): void {
+    this._key_repeat = null
+    if (this._key_interaction) {
+      this._key_interaction = false
+      this._commit()
+    }
   }
 
   /**

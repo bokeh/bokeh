@@ -17,7 +17,7 @@ import {build_view} from "@bokehjs/core/build_views"
 import * as slider_css from "@bokehjs/styles/widgets/sliders.css"
 import type {AbstractSliderView} from "@bokehjs/models/widgets/sliders/abstract_slider"
 
-const {abs} = Math
+const {abs, round} = Math
 
 type Elements = {track: HTMLElement, span: HTMLElement | null, handles: HTMLElement[]}
 
@@ -1000,6 +1000,7 @@ describe("AbstractSliderView gestures", () => {
     async function press(key: string): Promise<boolean> {
       const event = new KeyboardEvent("keydown", {key, cancelable: true})
       span!.dispatchEvent(event)
+      span!.dispatchEvent(new KeyboardEvent("keyup", {key}))
       await view.ready
       return event.defaultPrevented
     }
@@ -1302,6 +1303,135 @@ describe("AbstractSliderView page up/down", () => {
     const {view} = await display(slider, [300, 50])
     const {handles: [handle]} = elements(view)
     expect(await page_up_down(view, handle)).to.be.equal(["yes", "no"])
+  })
+})
+
+describe("AbstractSliderView keyboard acceleration", () => {
+  // returns value after each key press (an initial press followed by auto-repeated presses)
+  async function hold(view: AbstractSliderView<unknown>, el: HTMLElement, key: string, presses: number, release: boolean = true): Promise<unknown[]> {
+    const values = []
+    for (let i = 0; i < presses; i++) {
+      el.dispatchEvent(new KeyboardEvent("keydown", {key, repeat: i != 0}))
+      await view.ready
+      values.push(view.model.value)
+    }
+    if (release) {
+      el.dispatchEvent(new KeyboardEvent("keyup", {key}))
+    }
+    return values
+  }
+
+  function steps(values: unknown[], start: number): number[] {
+    return (values as number[]).map((v, i) => v - (i == 0 ? start : values[i - 1] as number))
+  }
+
+  it("should accelerate arrow keys when holding them", async () => {
+    const slider = Slider.create({start: 0, end: 1000, step: 1, value: 0})
+    const {view} = await display(slider, [300, 50])
+    const {handles: [handle]} = elements(view)
+
+    const values = await hold(view, handle, "ArrowRight", 45)
+    expect(steps(values, 0)).to.be.equal([
+      ...Array(10).fill(1),  // initial press and 9 repeats
+      ...Array(10).fill(2),
+      ...Array(10).fill(4),
+      ...Array(15).fill(8),  // maximum
+    ])
+    expect(slider.value).to.be.equal(10 + 20 + 40 + 120)
+  })
+
+  it("should reset acceleration when releasing a key or changing keys", async () => {
+    const slider = Slider.create({start: 0, end: 1000, step: 1, value: 500})
+    const {view} = await display(slider, [300, 50])
+    const {handles: [handle]} = elements(view)
+
+    await hold(view, handle, "ArrowRight", 25)
+    const value0 = slider.value
+    expect(steps(await hold(view, handle, "ArrowRight", 1), value0)).to.be.equal([1])
+
+    // changing keys while holding (repeated events of a different key) starts over
+    await hold(view, handle, "ArrowRight", 25, false)
+    const value1 = slider.value
+    expect(steps(await hold(view, handle, "ArrowLeft", 3), value1)).to.be.equal([-1, -1, -1])
+  })
+
+  it("should reset acceleration when losing focus", async () => {
+    const slider = RangeSlider.create({start: 0, end: 1000, step: 1, value: [200, 800]})
+    const {view} = await display(slider, [300, 50])
+    const {handles: [handle0, handle1]} = elements(view)
+
+    handle0.focus()
+    await hold(view, handle0, "ArrowRight", 25, false)
+    handle1.focus()
+    const [, v1] = slider.value
+    handle1.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight", repeat: true}))
+    await view.ready
+    expect(slider.value[1] - v1).to.be.equal(1)
+  })
+
+  it("should accelerate page up/down and support sliders without step", async () => {
+    const stepped = Slider.create({start: 0, end: 10000, step: 1, value: 0, step_multiplier: 5})
+    const {view: stepped_view} = await display(stepped, [300, 50])
+    const {handles: [stepped_handle]} = elements(stepped_view)
+    const stepped_values = await hold(stepped_view, stepped_handle, "PageUp", 12)
+    expect(steps(stepped_values, 0)).to.be.equal([...Array(10).fill(5), 10, 10])
+
+    const continuous = Slider.create({start: 0, end: 100, step: null, value: 0, default_step: 0.01})
+    const {view: continuous_view} = await display(continuous, [300, 50])
+    const {handles: [continuous_handle]} = elements(continuous_view)
+    const continuous_values = await hold(continuous_view, continuous_handle, "ArrowRight", 12)
+    expect(steps(continuous_values, 0).map((v) => round(v*100)/100)).to.be.equal([...Array(10).fill(1), 2, 2])
+  })
+
+  it("should update value_throttled only when releasing a key", async () => {
+    const slider = Slider.create({start: 0, end: 1000, step: 1, value: 0})
+    const {view} = await display(slider, [300, 50])
+    const {handles: [handle]} = elements(view)
+
+    const value_changes: unknown[] = []
+    const value_throttled_changes: unknown[] = []
+    slider.properties.value.change.connect(() => value_changes.push(slider.value))
+    slider.properties.value_throttled.change.connect(() => value_throttled_changes.push(slider.value_throttled))
+
+    await hold(view, handle, "ArrowRight", 12, false)
+    expect(value_changes.length).to.be.equal(12)
+    expect(value_throttled_changes).to.be.equal([])
+    expect(slider.properties.value_throttled.is_unset).to.be.true
+
+    handle.dispatchEvent(new KeyboardEvent("keyup", {key: "ArrowRight"}))
+    await view.ready
+    expect(value_throttled_changes).to.be.equal([14])
+
+    // a single key press commits once as well
+    await hold(view, handle, "ArrowLeft", 1)
+    expect(value_throttled_changes).to.be.equal([14, 13])
+
+    // releasing an unrelated key doesn't commit
+    handle.dispatchEvent(new KeyboardEvent("keyup", {key: "Shift"}))
+    await view.ready
+    expect(value_throttled_changes).to.be.equal([14, 13])
+  })
+
+  it("should update value_throttled when losing focus while holding a key", async () => {
+    const slider = Slider.create({start: 0, end: 1000, step: 1, value: 0})
+    const {view} = await display(slider, [300, 50])
+    const {handles: [handle]} = elements(view)
+
+    handle.focus()
+    await hold(view, handle, "ArrowRight", 3, false)
+    expect(slider.properties.value_throttled.is_unset).to.be.true
+
+    handle.blur()
+    await view.ready
+    expect(slider.value_throttled).to.be.equal(3)
+  })
+
+  it("should not affect home and end", async () => {
+    const slider = Slider.create({start: 0, end: 1000, step: 1, value: 500})
+    const {view} = await display(slider, [300, 50])
+    const {handles: [handle]} = elements(view)
+    expect(await hold(view, handle, "End", 15)).to.be.equal(Array(15).fill(1000))
+    expect(await hold(view, handle, "Home", 15)).to.be.equal(Array(15).fill(0))
   })
 })
 
