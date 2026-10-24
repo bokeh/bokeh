@@ -1,0 +1,9 @@
+{% extends "!layout.html" %}
+
+{% block htmltitle %}
+{% if pagename == "index" %}
+<title>Bokeh Documentation — Interactive Data Visualization</title>
+{% else %}
+{{ super() }}
+{% endif %}
+{% endblock %}

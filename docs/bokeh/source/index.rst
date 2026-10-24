@@ -1,4 +1,6 @@
 :notoc:
+:og:title: Bokeh Documentation — Interactive Data Visualization
+:og:description: Official Bokeh documentation for interactive plots and dashboards, including the Python library and BokehJS. Explore guides, examples, and API references.
 :html_theme.sidebar_secondary.remove:
 
 .. _about:
@@ -6,10 +8,14 @@
 Bokeh documentation
 ===================
 
-Bokeh is a Python library for creating interactive visualizations for modern
-web browsers. It helps you build beautiful graphics, ranging from simple plots
-to complex dashboards with streaming datasets. With Bokeh, you can create
-JavaScript-powered visualizations without writing any JavaScript yourself.
+.. meta::
+   :description: Official Bokeh documentation for interactive plots and dashboards, including the Python library and BokehJS. Explore guides, examples, and API references.
+
+Bokeh provides tools for creating interactive visualizations for modern web
+browsers, with a Python library and BokehJS for JavaScript. It helps you build
+interactive graphics, ranging from simple plots to complex dashboards with
+streaming datasets. With the Python library, you can create JavaScript-powered
+visualizations without writing any JavaScript yourself.
 
 .. raw:: html
 
