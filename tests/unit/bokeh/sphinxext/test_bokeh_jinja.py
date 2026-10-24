@@ -5,7 +5,10 @@ import re
 import time
 
 # Bokeh imports
-from bokeh.sphinxext._internal.bokeh_jinja import _extract_leading_doc, _strip_doc_comments
+from bokeh.sphinxext._internal.bokeh_jinja import (
+    _extract_leading_doc,
+    _strip_doc_comments,
+)
 
 # Reference implementation of the previous regex-based behaviour, kept inline so
 # the equivalence check below is self-contained and does not depend on the
