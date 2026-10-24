@@ -399,11 +399,13 @@ Run JavaScript tests
 ~~~~~~~~~~~~~~~~~~~~
 
 Most of the JavaScript-based tests for :term:`BokehJS` use a custom-made testing
-framework. This framework **requires Google Chrome or Chromium**. You need a
-recent version of one of these browsers available on your system to run those
-tests locally. Bokeh will try to find Google Chrome or Chromium in your
-``PATH``, but you can set the environment variable ``BOKEH_CHROME`` to point to
-the executable if desired.
+framework with Playwright-managed Chromium. ``pixi run setup`` installs the
+matching browser automatically after installing the JavaScript dependencies.
+Run setup again after changes to the locked Playwright version.
+
+Bokeh uses this browser by default. Set ``BOKEH_CHROME`` or pass
+``--executable`` to select another Chrome or Chromium executable explicitly.
+The visual baseline container retains its pinned browser.
 
 .. _contributor_guide_testing_local_javascript_all:
 
@@ -498,8 +500,8 @@ the ``bokehjs`` subdirectory:
     $ node make build:all
     $ BOKEH_CHROME=/path/to/chrome node make test:integration
 
-Omit ``BOKEH_CHROME`` when a supported Chrome or Chromium executable is already
-available in ``PATH``. The native run reads and writes
+Omit ``BOKEH_CHROME`` to use Playwright-managed Chromium. The native run reads
+and writes
 ``bokehjs/test/baselines/linux`` and accepts the same ``-k`` and ``--grep`` test
 filters as the containerized run. This is a convenient path for fast iteration
 on Linux, but it is not the canonical baseline environment: the host's browser,
