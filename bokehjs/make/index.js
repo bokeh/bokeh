@@ -2,6 +2,7 @@ import crypto from "node:crypto"
 import cp from "node:child_process"
 import fs from "node:fs"
 import {join, dirname, basename} from "node:path"
+import {fileURLToPath} from "node:url"
 
 function npm_bin_dir() {
   // directory containing npm-cli.js and npx-cli.js
@@ -17,13 +18,6 @@ function resolve_npm(args) {
     return [process.execPath, [join(npm_bin_dir(), "npm-cli.js"), ...args]]
   }
   return ["npm", args]
-}
-
-function resolve_npx(args) {
-  if (process.platform == "win32") {
-    return [process.execPath, [join(npm_bin_dir(), "npx-cli.js"), ...args]]
-  }
-  return ["npx", args]
 }
 
 function npm_install() {
@@ -118,7 +112,8 @@ function compile() {
     return
   }
 
-  const [resolved_executable, resolved_args] = resolve_npx(["--loglevel=warn", "tsc", "--project", "./make/tsconfig.json"])
+  const tsc = fileURLToPath(new URL("./bin/tsc", import.meta.resolve("typescript7/package.json")))
+  const [resolved_executable, resolved_args] = [process.execPath, [tsc, "--project", "./make/tsconfig.json"]]
   const {status, error} = cp.spawnSync(resolved_executable, resolved_args, {stdio: "inherit"})
   if (error != null) {
     console.error(`${resolved_executable} ${resolved_args.join(" ")} failed to start: ${error.message}`)
