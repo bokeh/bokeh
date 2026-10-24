@@ -18,6 +18,7 @@ New features
 * Added ``label`` property to :class:`~bokeh.models.Tool`, allowing to change
   the name of a tool displayed in the user interface, e.g. in a plot's context
   menu (:bokeh-issue:`15553`).
+* Redesigned slider widgets for better visual appeal and easier theming (:bokeh-pull:`13551`)
 
 Removals
 --------
