@@ -1,5 +1,4 @@
 import {resolve, relative, join, dirname, basename, extname, normalize, sep} from "node:path"
-import module from "node:module"
 import crypto from "node:crypto"
 
 import ts from "typescript"
@@ -100,7 +99,6 @@ export class Bundle {
   constructor(
     readonly entry: ModuleInfo,
     readonly artifacts: ModuleArtifact[],
-    readonly builtins: boolean,
     readonly bases: Bundle[] = []) {}
 
   assemble(options: AssemblyOptions): Artifact {
@@ -202,67 +200,41 @@ export class Artifact {
 export type LinkerOpts = {
   entries: Path[]
   bases?: Path[]
-  excludes?: Path[]    // paths: process, but don't include in a bundle
   externals?: (string | RegExp)[] // modules: delegate to an external require()
   excluded?: (dep: string) => boolean
-  builtins?: boolean
   import_map?: {[key: string]: string}
   cache?: Path
-  target?: "ES2024" | "ES2022"
-  es_modules?: boolean
-  minify?: boolean
   plugin?: boolean
   exports?: string[]
   shims?: string[]
   detect_cycles?: boolean
   overrides?: {[key: string]: string}
-  apply_transforms?: boolean
 }
 
 export class Linker {
   readonly entries: Path[]
   readonly bases: Path[]
-  readonly excludes: Set<Path>
   readonly external_modules: Set<string>
   readonly external_regex: RegExp[]
   readonly excluded: (dep: string) => boolean
-  readonly builtins: boolean
   readonly import_map: {[key: string]: string}
   readonly cache_path?: Path
   readonly cache: Map<Path, ModuleArtifact>
-  readonly target: "ES2024" | "ES2022"
-  readonly es_modules: boolean
   readonly plugin: boolean
   readonly exports: Set<string>
   readonly shims: Set<string>
   readonly detect_cycles: boolean
   readonly overrides: Map<string, string>
-  readonly apply_transforms: boolean
 
   constructor(opts: LinkerOpts) {
     this.entries = opts.entries.map((path) => resolve(path))
     this.bases = (opts.bases ?? []).map((path) => resolve(path))
-    this.excludes = new Set((opts.excludes ?? []).map((path) => resolve(path)))
     this.external_modules = new Set((opts.externals ?? []).filter((s) => typeof s === "string"))
     this.external_regex = (opts.externals ?? []).filter((s) => s instanceof RegExp)
 
     this.excluded = opts.excluded ?? (() => false)
-    this.builtins = opts.builtins ?? false
     this.import_map = opts.import_map ?? {}
     this.exports = new Set(opts.exports ?? [])
-
-    if (this.builtins) {
-      this.external_modules.add("module")
-      this.external_modules.add("node:module")
-
-      this.external_modules.add("constants")
-      this.external_modules.add("node:constants")
-
-      for (const lib of module.builtinModules) {
-        this.external_modules.add(lib)
-        this.external_modules.add(`node:${lib}`)
-      }
-    }
 
     for (const entry of this.entries) {
       if (!file_exists(entry)) {
@@ -279,15 +251,12 @@ export class Linker {
     this.cache_path = opts.cache
     this.cache = new Map()
 
-    this.target = opts.target ?? "ES2024"
-    this.es_modules = opts.es_modules ?? true
     this.plugin = opts.plugin ?? false
 
     this.shims = new Set(opts.shims ?? [])
     this.detect_cycles = opts.detect_cycles ?? true
 
     this.overrides = new Map(Object.entries(opts.overrides ?? {}))
-    this.apply_transforms = opts.apply_transforms ?? true
   }
 
   is_external(dep: string): boolean {
@@ -354,19 +323,17 @@ export class Linker {
     const transformers = (module: ModuleInfo): Transformers => {
       const transformers: Transformers = []
 
-      if (this.apply_transforms) {
-        const remove_use_strict = transforms.remove_use_strict()
-        transformers.push(remove_use_strict)
+      const remove_use_strict = transforms.remove_use_strict()
+      transformers.push(remove_use_strict)
 
-        const fix_esmodule = transforms.fix_esmodule()
-        transformers.push(fix_esmodule)
+      const fix_esmodule = transforms.fix_esmodule()
+      transformers.push(fix_esmodule)
 
-        const remove_void0 = transforms.remove_void0()
-        transformers.push(remove_void0)
+      const remove_void0 = transforms.remove_void0()
+      transformers.push(remove_void0)
 
-        const fix_esexports = transforms.fix_esexports()
-        transformers.push(fix_esexports)
-      }
+      const fix_esexports = transforms.fix_esexports()
+      transformers.push(fix_esexports)
 
       const rewrite_deps = transforms.rewrite_deps((dep) => {
         const module_dep = module.dependencies.get(dep)
@@ -419,11 +386,11 @@ export class Linker {
       return result
     }
 
-    const main_bundle = new Bundle(main, await artifacts(main_modules), this.builtins)
+    const main_bundle = new Bundle(main, await artifacts(main_modules))
 
     const plugin_bundles: Bundle[] = []
     for (let j = 0; j < plugins.length; j++) {
-      const plugin_bundle = new Bundle(plugins[j], await artifacts(plugin_modules[j]), this.builtins, [main_bundle])
+      const plugin_bundle = new Bundle(plugins[j], await artifacts(plugin_modules[j]), [main_bundle])
       plugin_bundles.push(plugin_bundle)
     }
 
@@ -452,11 +419,8 @@ export class Linker {
       exports: [...this.exports].sort(),
       shims: [...this.shims].sort(),
       import_map: this.import_map,
-      target: this.target,
-      es_modules: this.es_modules,
       plugin: this.plugin,
       overrides: [...this.overrides.entries()],
-      apply_transforms: this.apply_transforms,
     })
   }
 
@@ -754,12 +718,11 @@ export class Linker {
       }
     })()
 
-    const export_type = this.es_modules ? "default" : "="
     switch (type) {
       case "json": {
         source = `\
 const json = ${source};
-export ${export_type} json;
+export default json;
 `
         break
       }
@@ -768,14 +731,14 @@ export ${export_type} json;
 const json5 = \`
 ${source.replaceAll("\\", "\\\\")}
 \`;
-export ${export_type} json5;
+export default json5;
 `
         break
       }
       case "css": {
         source = `\
 const css = \`${source}\`;
-export ${export_type} css;
+export default css;
 `
         break
       }
@@ -784,7 +747,7 @@ export ${export_type} css;
 const yaml = \`
 ${source}
 \`;
-export ${export_type} yaml;
+export default yaml;
 `
         break
       }
@@ -856,13 +819,6 @@ export ${export_type} yaml;
     if (changed) {
       let collected: string[] | null = null
       if (resolution == "ESM" || type == "json") {
-        const {ES2024, ES2022} = ts.ScriptTarget
-        const target = (() => {
-          switch (this.target) {
-            case "ES2024": return ES2024
-            case "ES2022": return ES2022
-          }
-        })()
         const imports = new Set<string>()
         if (canonical != "tslib") {
           imports.add("tslib")
@@ -876,7 +832,7 @@ export ${export_type} yaml;
 
         // XXX: .json or .mjs extension will cause an internal error
         const adjusted_file = type == "json" ? `${file}.ts` : (file.endsWith(".mjs") ? file.replace(/\.mjs$/, ".js") : file)
-        const {output, error} = transpile(adjusted_file, source, target, transform)
+        const {output, error} = transpile(adjusted_file, source, transform)
         if (error != null) {
           throw new BuildError("linker", error)
         } else {
@@ -941,7 +897,7 @@ export ${export_type} yaml;
       if (file == null) {
         break
       }
-      if (visited.has(file) || this.excludes.has(file)) {
+      if (visited.has(file)) {
         continue
       }
 
@@ -970,7 +926,7 @@ export ${export_type} yaml;
       if (module == null) {
         break
       }
-      if (reached.has(module) || this.excludes.has(module.file) || is_excluded(module)) {
+      if (reached.has(module) || is_excluded(module)) {
         continue
       }
 
@@ -982,13 +938,13 @@ export ${export_type} yaml;
   }
 }
 
-export function transpile(file: Path, source: string, target: ts.ScriptTarget,
+export function transpile(file: Path, source: string,
     transformers?: {before: Transformers, after: Transformers}): {output: string, error?: string} {
   const {outputText: output, diagnostics} = ts.transpileModule(source, {
     fileName: file,
     reportDiagnostics: true,
     compilerOptions: {
-      target,
+      target: ts.ScriptTarget.ES2024,
       module: ts.ModuleKind.CommonJS,
       esModuleInterop: true,
       importHelpers: true,

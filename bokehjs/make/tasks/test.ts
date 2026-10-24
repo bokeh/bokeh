@@ -396,8 +396,6 @@ async function bundle(name: string): Promise<void> {
       "#framework/*": "framework/*",
       path: "#framework/path",
     },
-    target: "ES2024",
-    minify: false,
     // Share bokehjs' instances of preact and preact signals, which are exported by
     // name from bokeh's main bundle, otherwise tests would bundle separate copies.
     externals: [/^@bokehjs\//, /^preact(\/|$)/, /^@preact\//],
