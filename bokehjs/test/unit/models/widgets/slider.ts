@@ -1426,6 +1426,38 @@ describe("AbstractSliderView keyboard acceleration", () => {
     expect(slider.value_throttled).to.be.equal(3)
   })
 
+  it("should support configurable acceleration", async () => {
+    const slider = Slider.create({start: 0, end: 1000, step: 1, value: 0, acceleration_interval: 2, acceleration_max: 4})
+    const {view} = await display(slider, [300, 50])
+    const {handles: [handle]} = elements(view)
+    expect(steps(await hold(view, handle, "ArrowRight", 8), 0)).to.be.equal([1, 1, 2, 2, 4, 4, 4, 4])
+  })
+
+  it("should allow to disable acceleration", async () => {
+    const slider = Slider.create({start: 0, end: 1000, step: 1, value: 0, acceleration_max: 1})
+    const {view} = await display(slider, [300, 50])
+    const {handles: [handle]} = elements(view)
+    expect(steps(await hold(view, handle, "ArrowRight", 25), 0)).to.be.equal(Array(25).fill(1))
+  })
+
+  it("should react to changes of acceleration properties", async () => {
+    const slider = Slider.create({start: 0, end: 1000, step: 1, value: 0})
+    const {view} = await display(slider, [300, 50])
+    const {handles: [handle]} = elements(view)
+
+    slider.acceleration_interval = 1
+    slider.acceleration_max = 2
+    await view.ready
+    expect(steps(await hold(view, handle, "ArrowRight", 4), 0)).to.be.equal([1, 2, 2, 2])
+  })
+
+  it("should require positive integer acceleration properties", () => {
+    const slider = Slider.create({start: 0, end: 10, value: 0})
+    expect(() => slider.acceleration_interval = 0).to.throw()
+    expect(() => slider.acceleration_interval = 2.5).to.throw()
+    expect(() => slider.acceleration_max = 0).to.throw()
+  })
+
   it("should not affect home and end", async () => {
     const slider = Slider.create({start: 0, end: 1000, step: 1, value: 500})
     const {view} = await display(slider, [300, 50])
