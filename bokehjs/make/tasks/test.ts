@@ -1,11 +1,11 @@
 import type {ChildProcess} from "node:child_process"
 import {spawn} from "node:child_process"
-import {join, delimiter, basename, extname, dirname} from "node:path"
+import {join, basename, extname, dirname} from "node:path"
 import fs from "node:fs"
 import os from "node:os"
 
 import chalk from "chalk"
-import which from "which"
+import {chromium} from "playwright-core"
 import {glob} from "glob"
 
 import {argv} from "../args.js"
@@ -58,35 +58,6 @@ task("test:codebase", ["test:codebase:compile", "test:devtools"], async () => {
   await node(["./build/test/codebase/index.js"])
 })
 
-function sys_path(): string {
-  const path = [process.env.PATH]
-
-  switch (platform) {
-    case "linux": {
-      path.push("/opt/google/chrome/")
-      break
-    }
-    case "macos": {
-      path.push("/Applications/Google\ Chrome.app/Contents/MacOS/")
-      break
-    }
-    case "windows": {
-      path.push("c:\\Program Files\\Google\\Chrome\\Application\\")
-      path.push("c:\\Program Files (x86)\\Google\\Chrome\\Application\\")
-      break
-    }
-  }
-
-  return path.join(delimiter)
-}
-
-// Keep in sync with:
-//   https://github.com/actions/runner-images/blob/main/images/linux/Ubuntu2204-Readme.md#browsers-and-drivers
-//
-// Also update:
-// - bokehjs/test/devtools/devtools.ts
-// - bokehjs/test/run-baseline-tests.mjs
-const supported_chromium_revision = "r3265" // 141.0.7390.54
 const windows_test_timeout = 120
 
 function test_timeout(): number | undefined {
@@ -102,17 +73,7 @@ function chrome(): string {
       throw new BuildError("headless", `can't find BOKEH_CHROME=${bokeh_chrome}`)
     }
   }
-  const names = [`chromium_${supported_chromium_revision}`, "chromium", "chromium-browser", "chrome", "google-chrome", "Google Chrome for Testing", "Google Chrome"]
-  const path = sys_path()
-
-  for (const name of names) {
-    const executable = which.sync(name, {nothrow: true, path})
-    if (executable != null) {
-      return executable
-    }
-  }
-
-  throw new BuildError("headless", `can't find any of ${names.join(", ")} on PATH="${path}"`)
+  return chromium.executablePath()
 }
 
 function chromium_executable(): string {
