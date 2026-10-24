@@ -52,7 +52,7 @@ alpha_style = InlineStyleSheet(css="""
 """)
 
 hue = Slider(title="Hue", value=hue_value, start=0, end=360, step=1, stylesheets=[hue_style])
-alpha = Slider(title="Alpha", value=alpha_value, start=0, end=1, step=None, stylesheets=[alpha_style, ""])
+alpha = Slider(title="Alpha", value=alpha_value, start=0, end=1, step=None, stylesheets=[alpha_style])
 
 change_hue = CustomJS(args=dict(alpha=alpha, hue=hue), code="""
 export default ({alpha, hue}) => {
