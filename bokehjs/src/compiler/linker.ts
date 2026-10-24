@@ -31,7 +31,7 @@ class ResolutionError extends BuildError {}
 
 export type ResoType = "ESM" | "CJS"
 
-export type ModuleType = "js" | "json" | "json5" | "yaml" | "css"
+export type ModuleType = "js" | "json"
 
 export type ModuleInfo = {
   file: Path
@@ -691,9 +691,6 @@ export class Linker {
     const type: ModuleType = (() => {
       switch (extname(file)) {
         case ".json": return "json"
-        case ".json5": return "json5"
-        case ".yaml": return "yaml"
-        case ".css": return "css"
         case ".mjs": return "js"
         case ".cjs": return "js"
         case ".js": return "js"
@@ -707,31 +704,6 @@ export class Linker {
         source = `\
 const json = ${source};
 export default json;
-`
-        break
-      }
-      case "json5": {
-        source = `\
-const json5 = \`
-${source.replaceAll("\\", "\\\\")}
-\`;
-export default json5;
-`
-        break
-      }
-      case "css": {
-        source = `\
-const css = \`${source}\`;
-export default css;
-`
-        break
-      }
-      case "yaml": {
-        source = `\
-const yaml = \`
-${source}
-\`;
-export default yaml;
 `
         break
       }

@@ -478,8 +478,10 @@ async function copy_defaults() {
   const bokehjs_dir = process.cwd()
   const name = "defaults.json5"
   const src = join(bokehjs_dir, "..", "tests", "baselines", name)
-  const dst = join(bokehjs_dir, "build", "test", "defaults", name)
-  await fs.promises.copyFile(src, dst)
+  // Wrap the baseline in a JS module, so that `import "./defaults.json5"` resolves to it.
+  const dst = join(bokehjs_dir, "build", "test", "defaults", `${name}.js`)
+  const json5 = await fs.promises.readFile(src, {encoding: "utf-8"})
+  await fs.promises.writeFile(dst, `export default ${JSON.stringify(json5)};\n`)
 }
 
 task("test:defaults:compile", ["test:framework:compile"], async () => tsc("defaults"))
