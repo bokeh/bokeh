@@ -26,7 +26,7 @@ import numbers
 from datetime import UTC, date, datetime
 from typing import Any
 
-from ...core.enums import Orientation
+from ...core.enums import Orientation, SliderAppearance
 from ...core.has_props import abstract
 from ...core.property.container import Seq, Tuple
 from ...core.property.datetime import Datetime
@@ -116,7 +116,7 @@ class AbstractSlider(Widget):
     Display the slider's current value in a tooltip.
     """)
 
-    appearance = Enum("normal", "stealth", default="normal", help="""
+    appearance = Enum(SliderAppearance, default="normal", help="""
     Stealth appearance doesn't include visible handles.
     """)
 

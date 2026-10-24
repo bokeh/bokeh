@@ -2,6 +2,7 @@ import {OrientedControl, OrientedControlView} from "../oriented_control"
 import {bind} from "core/class"
 import * as p from "core/properties"
 import type {Keys, ArrowKeys} from "core/dom"
+import {SliderAppearance} from "core/enums"
 import type {VNode, TargetedEvent} from "core/vdom"
 import {UIComponent, cls} from "core/vdom"
 import type {StyleSheetLike} from "core/stylesheets"
@@ -838,7 +839,7 @@ export namespace AbstractSlider {
     value: p.Property<unknown>
     value_throttled: p.Property<unknown>
     tooltips: p.Property<boolean>
-    appearance: p.Property<"normal" | "stealth">
+    appearance: p.Property<SliderAppearance>
     step_multiplier: p.Property<number>
     default_step: p.Property<number>
   }
@@ -851,13 +852,13 @@ export abstract class AbstractSlider<T> extends OrientedControl {
   declare __view_type__: AbstractSliderView<T>
 
   static {
-    this.define<AbstractSlider.Props>(({Unknown, Bool, Int, Str, Enum, Nullable, Positive, Percent}) => ({
+    this.define<AbstractSlider.Props>(({Unknown, Bool, Int, Str, Nullable, Positive, Percent}) => ({
       title:           [ Nullable(Str), "" ],
       show_value:      [ Bool, true ],
       value:           [ Unknown ],
       value_throttled: [ Unknown, p.unset, {readonly: true} ],
       tooltips:        [ Bool, true ],
-      appearance:      [ Enum("normal", "stealth"), "normal" ],
+      appearance:      [ SliderAppearance, "normal" ],
       step_multiplier: [ Positive(Int), 5 ],
       default_step:    [ Positive(Percent), 0.05 ],
     }))
