@@ -399,12 +399,9 @@ Run JavaScript tests
 ~~~~~~~~~~~~~~~~~~~~
 
 Most of the JavaScript-based tests for :term:`BokehJS` use a custom-made testing
-framework with Playwright-managed Chromium. Install the matching browser from
-the ``bokehjs`` subdirectory:
-
-.. code-block:: sh
-
-    $ npx --no-install playwright-core install --with-deps --no-shell chromium
+framework with Playwright-managed Chromium. ``pixi run setup`` installs the
+matching browser automatically after installing the JavaScript dependencies.
+Run setup again after changes to the locked Playwright version.
 
 Bokeh uses this browser by default. Set ``BOKEH_CHROME`` or pass
 ``--executable`` to select another Chrome or Chromium executable explicitly.
