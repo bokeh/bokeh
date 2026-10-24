@@ -2,6 +2,8 @@
   --track-size: 0.5em;
   --handle-size: 1.0em;
   --default-size: 300px;
+  // outside of handles (unlike var(--outline-offset), which is meant for e.g. buttons)
+  --slider-outline-offset: 2px;
 }
 
 :host {
@@ -159,6 +161,17 @@
   .bk-handle {
     background-color: var(--disabled-color);
     cursor: not-allowed;
+  }
+}
+
+// Don't use browsers' default focus indicators, which depend on browsers' heuristics
+// of :focus-visible, and use .bk-focus-visible instead (see AbstractSliderView._keyboard_focus).
+.bk-handle, .bk-span {
+  outline: none;
+
+  &.bk-focus-visible {
+    outline: var(--outline-width) var(--outline-style) var(--highlight-color);
+    outline-offset: var(--slider-outline-offset);
   }
 }
 
