@@ -52,7 +52,7 @@ async function make_testcase(): Promise<PolyDrawTestCase> {
   const draw_tool = PolyDrawTool.create({
     active: true,
     default_overrides: {z: "Test"},
-    renderers: [glyph_renderer as any],
+    renderers: [glyph_renderer],
   })
   plot.add_tools(draw_tool)
   await plot_view.ready

@@ -21,7 +21,7 @@
     "importHelpers": false,
     "experimentalDecorators": true,
     "module": "ES2022",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "isolatedModules": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,

@@ -42,8 +42,7 @@ describe("CustomJS", () => {
       const cb = CustomJS.create({code: "return 10"})
       const {func, module} = await cb.state()
       expect(func).to.be.instanceof(Function)
-      const repr = func.toString().replaceAll(/\s*\n\s*/g, " ") // representation depends on bundling, etc.
-      expect(repr).to.be.equal("function (...args) { return func.call(this, ...values, ...args); }")
+      expect(await cb.execute(cb)).to.be.equal(10)
       expect(module).to.be.equal(false)
     })
 
@@ -101,7 +100,7 @@ describe("CustomJS", () => {
       try {
         const {func, module} = await cb.state()
         expect(func).to.be.instanceof(Function)
-        expect(func.toString()).to.be.equal("() => undefined")
+        expect(await cb.execute(cb)).to.be.undefined
         expect(module).to.be.equal(true)
         expect(logger_spy.calledOnceWith("custom ES module didn't export a default function"))
       } finally {

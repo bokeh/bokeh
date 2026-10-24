@@ -90,7 +90,7 @@ function as_record(value: unknown, context: string): {[key: string]: unknown} {
   if (!isPlainObject(value)) {
     throw new EmbedError("schema", `${context} must be an object`)
   }
-  return value as {[key: string]: unknown}
+  return value
 }
 
 function as_string(value: unknown, context: string): string {

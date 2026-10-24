@@ -1,6 +1,6 @@
 import type {ChildProcess} from "node:child_process"
 import {spawn} from "node:child_process"
-import {join, delimiter, basename, extname, dirname} from "node:path"
+import {join, delimiter, basename, extname, dirname, resolve} from "node:path"
 import fs from "node:fs"
 import os from "node:os"
 
@@ -16,8 +16,7 @@ import {compile_typescript} from "./_util.js"
 import {start_server as start_js_server} from "./server.js"
 import {build_frameworks} from "./frameworks.js"
 
-import {Linker} from "#compiler/linker.js"
-import * as preludes from "#compiler/prelude.js"
+import {bundle as bundle_modules} from "#compiler/bundle.js"
 
 function node(files: string[]): Promise<void> {
   const env = {
@@ -54,7 +53,12 @@ task("test:devtools", async () => {
   await node(["--test", "./test/devtools/_build/image.test.js"])
 })
 
-task("test:codebase", ["test:codebase:compile", "test:devtools"], async () => {
+task("test:node", ["lib:build", "compiler:build"], async () => {
+  const files = await glob("test/node/*.test.mjs")
+  await node(["--test", ...files])
+})
+
+task("test:codebase", ["test:codebase:compile", "test:devtools", "test:node"], async () => {
   await node(["./build/test/codebase/index.js"])
 })
 
@@ -404,41 +408,37 @@ async function auto_index(name: string): Promise<void> {
 }
 
 async function bundle(name: string): Promise<void> {
-  const linker = new Linker({
-    entries: [join(paths.build_dir.test, name, "index.js")],
-    bases: [paths.build_dir.test, "./node_modules"],
-    cache: join(paths.build_dir.test, `${name}.json`),
-    import_map: {
-      "#framework/*": "framework/*",
-      path: "#framework/path",
-    },
-    target: "ES2024",
+  const base = paths.build_dir.test
+  await bundle_modules({
+    components: [{main: join(base, name, "index.js"), output: join(base, `${name}.js`)}],
+    base,
+    global: "Tests",
     minify: false,
-    externals: [/^@bokehjs\//],
-    shims: ["fs", "module"],
+    external: (id) => id.startsWith("@bokehjs/"),
+    plugins: [{
+      name: "bokeh-test-framework",
+      resolveId(source, importer) {
+        if (source == "fs" || source == "module") {
+          return `\0bokeh-test-shim:${source}`
+        }
+        if (source == "path") {
+          return this.resolve("path-browserify", importer, {skipSelf: true})
+        }
+        if (source.startsWith("#framework/")) {
+          return resolve(base, "framework", `${source.slice("#framework/".length)}.js`)
+        }
+        return null
+      },
+      load(id) {
+        return id.startsWith("\0bokeh-test-shim:") ? "module.exports = {}" : null
+      },
+      transform() {
+        // Test registration is entirely side effects, including auto_index
+        // imports. Override package.json declarations for this test graph.
+        return {moduleSideEffects: true}
+      },
+    }],
   })
-
-  if (!argv.rebuild) {
-    linker.load_cache()
-  }
-  const {bundles: [bundle], status} = await linker.link()
-  linker.store_cache()
-
-  const prelude = {
-    main: preludes.default_prelude({global: "Tests"}),
-    plugin: preludes.plugin_prelude(),
-  }
-
-  const postlude = {
-    main: preludes.postlude(),
-    plugin: preludes.plugin_postlude(),
-  }
-
-  bundle.assemble({prelude, postlude}).write(join(paths.build_dir.test, `${name}.js`))
-
-  if (!status) {
-    throw new BuildError(`${name}:bundle`, "unable to bundle modules")
-  }
 }
 
 task("test:compile:unit", [passthrough("test:framework:compile")], async () => {

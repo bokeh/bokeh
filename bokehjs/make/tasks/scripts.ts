@@ -1,28 +1,26 @@
-import {join, normalize, relative, dirname} from "node:path"
+import {join, relative, dirname, basename} from "node:path"
 import cp from "node:child_process"
 import fs from "node:fs"
 
 import MagicString from "magic-string"
 import * as esbuild from "esbuild"
-import {SourceMapConsumer, SourceMapGenerator} from "source-map"
+import remapping from "@jridgewell/remapping"
+import type {EncodedSourceMap} from "@jridgewell/trace-mapping"
 import * as oxc from "oxc-parser"
 import {glob} from "glob"
 import {GlslMinify} from "webpack-glsl-minify/build/minify.js"
 
 import {task, passthrough, BuildError} from "../task.js"
+import {argv} from "../args.js"
 import {file_exists, compile_typescript} from "./_util.js"
 
-import {rename, read, write, scan, resolve_npx} from "#compiler/sys.js"
+import {rename, read, write, scan} from "#compiler/sys.js"
 import {wrap_css_modules} from "#compiler/styles.js"
-import type {AssemblyOptions} from "#compiler/linker.js"
-import {Linker} from "#compiler/linker.js"
-import * as preludes from "#compiler/prelude.js"
+import {bundle} from "#compiler/bundle.js"
+import {comment} from "#compiler/prelude.js"
 
-import {argv} from "../args.js"
 import * as paths from "../paths.js"
 
-// Don't use imports here, because TS will copy package.json to make/_build
-// and that will mess up node's module resolution.
 const pkg_file = fs.readFileSync("./make/package.json", {encoding: "utf-8"})
 const pkg = JSON.parse(pkg_file) as {version: string}
 
@@ -40,13 +38,13 @@ task("scripts:styles", ["styles:compile"], async () => {
 task("scripts:grammar", async () => {
   function grammar(lib_dir: string) {
     function compile_grammar(ne_path: string, js_path: string) {
-      const [resolved_executable, resolved_args] = resolve_npx(["--loglevel=warn", "nearleyc", ne_path, "-o", js_path])
-      const {status, error, stdout, stderr} = cp.spawnSync(resolved_executable, resolved_args, {stdio: "pipe", encoding: "utf-8"})
+      const compiler = "./node_modules/nearley/bin/nearleyc.js"
+      const {status, error, stdout, stderr} = cp.spawnSync(process.execPath, [compiler, ne_path, "-o", js_path], {stdio: "pipe", encoding: "utf-8"})
       if (error != null || status !== 0) {
         console.error(stdout)
         console.error(stderr)
         const reason = error != null ? `: ${error.message}` : ""
-        throw new BuildError("grammar", `failed to run '${resolved_executable} ${resolved_args.join(" ")}'${reason}`)
+        throw new BuildError("grammar", `failed to run nearleyc${reason}`)
       }
     }
 
@@ -113,89 +111,59 @@ task("scripts:imports", async () => {
   for (const file of files) {
     const file_map = `${file}.map`
 
-    if (!file_exists(file) || !file_exists(file_map)) {
-      continue
-    }
-
     const source = fs.readFileSync(file, {encoding: "utf-8"})
-    const source_map = fs.readFileSync(file_map, {encoding: "utf-8"})
-
-    const {module, program} = oxc.parseSync(file, source)
-    if (file.endsWith(".js")) {
-      fs.writeFileSync(`${file}.module`, JSON.stringify(module), {encoding: "utf-8"})
+    if (file_exists(file_map)) {
+      const map = JSON.parse(read(file_map)!) as EncodedSourceMap
+      if (map.sourcesContent == null) {
+        // Declaration maps need their original TypeScript when used from npm
+        // or an installed wheel, where the checkout is no longer available.
+        map.sourcesContent = map.sources.map((source) => source == null ? null : read(join(dirname(file), map.sourceRoot ?? "", source)) ?? null)
+        write(file_map, JSON.stringify(map))
+      }
     }
 
     function relativize(module_path: string): string | null {
-      if (!module_path.startsWith(".") && !module_path.startsWith("/") &&
-          !module_path.startsWith("#") && !module_path.startsWith("@")) {
-        const module_file = join(base_path, module_path)
-        if (file_exists(module_file) || file_exists(`${module_file}.js`) || file_exists(join(module_file, "index.js"))) {
-          const rel_path = normalize(relative(dirname(file), module_file)).replaceAll("\\", "/")
-          const new_path = rel_path.startsWith(".") ? rel_path : `./${rel_path}`
-          return new_path
-        }
-      }
-      return null
-    }
-
-    function explicit_esm_path(module_path: string): string {
-      if (!module_path.startsWith(".")) {
-        return module_path
+      if (module_path.startsWith("/") || module_path.startsWith("#") || module_path.startsWith("@") || /^\w+:/.test(module_path)) {
+        return null
       }
 
-      const module_file = join(dirname(file), module_path)
-      if (file_exists(`${module_file}.js`)) {
-        return `${module_path}.js`
-      } else if (file_exists(join(module_file, "index.js"))) {
-        return `${module_path}/index.js`
-      } else {
-        return module_path
+      const base = module_path.startsWith(".") ? dirname(file) : base_path
+      const module_file = join(base, module_path)
+      // Resolve to the emitted file, including wrapped CSS and GLSL modules.
+      // Package imports have no matching file in lib and remain unchanged.
+      const resolved = [module_file, `${module_file}.js`, join(module_file, "index.js")].find(file_exists)
+      if (resolved == null) {
+        return null
       }
-    }
 
-    function rewrite_import(module_path: string): string | null {
-      const relative_path = relativize(module_path) ?? module_path
-      const new_path = file.endsWith(".js") || file.endsWith(".d.ts")
-        ? explicit_esm_path(relative_path)
-        : relative_path
-      return new_path != module_path ? new_path : null
+      const rel_path = relative(dirname(file), resolved).replaceAll("\\", "/")
+      return rel_path.startsWith(".") ? rel_path : `./${rel_path}`
     }
 
     const rewrites: {new_path: string, start: number, end: number}[] = []
-    const rewritten = new Set<number>()
-
-    function add_rewrite(module_path: string, start: number, end: number): void {
-      if (rewritten.has(start)) {
-        return
-      }
-      const new_path = rewrite_import(module_path)
-      if (new_path != null) {
+    function rewrite({value, start, end}: oxc.StringLiteral): void {
+      const new_path = relativize(value)
+      if (new_path != null && new_path != value) {
         rewrites.push({new_path, start, end})
-        rewritten.add(start)
       }
     }
 
-    for (const imp of module.staticImports) {
-      const {value: module_path, start, end} = imp.moduleRequest
-      add_rewrite(module_path, start, end)
-    }
-
-    const from_re = /\bfrom\s+(?<quoted>"(?<module_path>[^"]+)")/g
-    for (const result of source.matchAll(from_re)) {
-      const {index} = result
-      const {quoted, module_path} = result.groups!
-      const start = index + result[0].lastIndexOf(quoted)
-      add_rewrite(module_path, start, start + quoted.length)
-    }
-
-    const dynamic_import_re = /import\("(?<module_path>[^"]+)"\)/g
-    for (const result of source.matchAll(dynamic_import_re)) {
-      const {index} = result
-      const {module_path} = result.groups!
-      const start = index + "import(".length
-      const end = index + result[0].length - 1
-      add_rewrite(module_path, start, end)
-    }
+    const {program} = oxc.parseSync(file, source)
+    new oxc.Visitor({
+      ImportDeclaration(node) { rewrite(node.source) },
+      ExportAllDeclaration(node) { rewrite(node.source) },
+      ExportNamedDeclaration(node) {
+        if (node.source != null) {
+          rewrite(node.source)
+        }
+      },
+      ImportExpression(node) {
+        if (node.source.type == "Literal" && typeof node.source.value == "string") {
+          rewrite(node.source)
+        }
+      },
+      TSImportType(node) { rewrite(node.source) },
+    }).visit(program)
 
     // JavaScript optimizers are free to mangle class identifiers. Model names are
     // also used for serialization and CSS classes, so preserve the source name in
@@ -224,26 +192,27 @@ task("scripts:imports", async () => {
       for (const {new_path, start, end} of rewrites) {
         str.update(start, end, `"${new_path}"`)
       }
+
       for (const {name, start} of stable_names) {
         str.appendLeft(start, `\n    static __name__ = ${JSON.stringify(name)};`)
       }
 
       const new_source = str.toString()
-      const new_source_map = str.generateMap({
-        hires: true,
-        source: file,
-        file: file_map,
-        includeContent: true,
-      }).toString()
+      if (file_exists(file_map)) {
+        const source_map = fs.readFileSync(file_map, {encoding: "utf-8"})
+        const new_source_map = str.generateMap({
+          hires: true,
+          source: basename(file),
+          file: basename(file),
+          includeContent: true,
+        }).toString()
 
-      const consumer = await new SourceMapConsumer(source_map)
-      const generator = SourceMapGenerator.fromSourceMap(consumer)
-
-      generator.applySourceMap(await new SourceMapConsumer(new_source_map))
-      const gen_source_map = generator.toString()
+        // Compose rewritten JS -> emitted JS -> original TypeScript, in that order.
+        const gen_source_map = remapping([new_source_map, source_map], () => null).toString()
+        fs.writeFileSync(file_map, gen_source_map, {encoding: "utf-8"})
+      }
 
       fs.writeFileSync(file, new_source, {encoding: "utf-8"})
-      fs.writeFileSync(file_map, gen_source_map, {encoding: "utf-8"})
     }
   }
 })
@@ -255,6 +224,9 @@ task("scripts:version", async () => {
     const version_map_path = join(lib_dir, `${version_js}.map`)
 
     const source = fs.readFileSync(version_js_path, {encoding: "utf-8"})
+    if (!source.includes("VERSION")) {
+      return
+    }
     const str = new MagicString(source, {filename: version_js})
     str.replace("VERSION", pkg.version)
 
@@ -265,94 +237,42 @@ task("scripts:version", async () => {
     })
 
     fs.writeFileSync(version_js_path, str.toString())
-    fs.writeFileSync(version_map_path, map.toString())
+    const original = fs.readFileSync(version_map_path, "utf8")
+    fs.writeFileSync(version_map_path, remapping([map.toString(), original], () => null).toString())
   }
   version(join(paths.build_dir.js, "lib"))
 })
 
 task("scripts:compile", [passthrough("scripts:typescript"), "scripts:imports", "scripts:version"])
 
-function min_js(js: string): string {
-  return rename(js, {ext: ".min.js"})
-}
-
 task("scripts:bundle", [passthrough("scripts:compile")], async () => {
   const {bokehjs, gl, api, widgets, tables, mathjax} = paths.bundles
-  const packages = [bokehjs, gl, api, widgets, tables, mathjax]
-
-  const linker = new Linker({
-    entries: packages.map((pkg) => pkg.main),
-    bases: [paths.build_dir.lib, "./node_modules"],
-    cache: argv.cache ? join(paths.build_dir.js, "bokeh.json") : undefined,
-    target: "ES2024",
-    exports: ["tslib"],
+  await bundle({
+    components: [bokehjs, gl, api, widgets, tables, mathjax],
+    base: paths.build_dir.lib,
     detect_cycles: argv.detectCycles,
-    overrides: {
-      // https://github.com/bokeh/bokeh/issues/12142
-      "mathjax-full/js/components/version.js": `\
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.VERSION = "0.0.0";
-`,
-    },
+    version: pkg.version,
+    esm: true,
+    plugins: [{
+      name: "bokeh-mathjax-version",
+      load(id) {
+        // https://github.com/bokeh/bokeh/issues/12142
+        return id.endsWith("mathjax-full/js/components/version.js") ? 'exports.VERSION = "0.0.0";' : null
+      },
+    }],
   })
-
-  if (!argv.rebuild) {
-    linker.load_cache()
-  }
-  const {bundles, status} = await linker.link()
-  linker.store_cache()
-
-  const outputs = packages.map((pkg) => pkg.output)
-
-  const prelude = {
-    main: preludes.prelude(),
-    plugin: preludes.plugin_prelude({version: pkg.version}),
-  }
-
-  const postlude = {
-    main: preludes.postlude(),
-    plugin: preludes.plugin_postlude(),
-  }
-
-  function bundle(options: AssemblyOptions, outputs: string[]) {
-    bundles
-      .map((bundle) => bundle.assemble(options))
-      .map((artifact, i) => artifact.write(outputs[i]))
-  }
-
-  bundle({prelude, postlude, minified: false}, outputs)
-  bundle({prelude, postlude, minified: true}, outputs.map(min_js))
-
-  const esm_settings = (minified: boolean) => {
-    return {
-      prelude: {
-        main: preludes.prelude_esm(minified),
-        plugin: preludes.plugin_prelude_esm(minified),
-      },
-      postlude: {
-        main: preludes.postlude_esm(),
-        plugin: preludes.plugin_postlude_esm(),
-      },
-    }
-  }
-
-  bundle({...esm_settings(false), minified: false}, outputs.map((name) => rename(name, {ext: ".esm.js"})))
-  bundle({...esm_settings(true), minified: true}, outputs.map((name) => rename(name, {ext: ".esm.min.js"})))
 
   const license = fs.readFileSync(join(paths.base_dir, "..", "LICENSE.txt"), {encoding: "utf-8"})
   for (const minify of [false, true]) {
     await esbuild.build({
       entryPoints: [paths.embed_bootstrap.main],
-      outfile: minify ? min_js(paths.embed_bootstrap.output) : paths.embed_bootstrap.output,
+      sourcemap: true,
+      outfile: minify ? rename(paths.embed_bootstrap.output, {ext: ".min.js"}) : paths.embed_bootstrap.output,
       bundle: true,
       format: "iife",
       target: "es2024",
       minify,
-      banner: {js: preludes.comment(license)},
+      banner: {js: comment(license)},
     })
-  }
-
-  if (!status) {
-    throw new BuildError("scripts:bundle", "unable to bundle modules")
   }
 })

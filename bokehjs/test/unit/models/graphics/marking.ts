@@ -17,8 +17,8 @@ describe("Marking inherited visuals", () => {
     const marking = view.decorations.get(decoration)!.marking as NormalHeadView
     const ctx = view.canvas.create_layer().ctx
     view.paint(ctx, new Int32Array([0, 1]))
-    expect(marking.visuals.fill.fill_color.get(0)).to.be.equal(view.line_color.get(0) as number)
-    expect(marking.visuals.fill.fill_color.get(1)).to.be.equal(view.line_color.get(1) as number)
+    expect(marking.visuals.fill.fill_color.get(0)).to.be.equal(view.visuals.line.line_color.get(0))
+    expect(marking.visuals.fill.fill_color.get(1)).to.be.equal(view.visuals.line.line_color.get(1))
     expect(marking.visuals.fill.fill_alpha.get(0)).to.be.equal(0.6)
     expect(marking.visuals.line.line_width.get(0)).to.be.equal(7)
 
@@ -26,7 +26,7 @@ describe("Marking inherited visuals", () => {
     glyph.line_alpha = 0.3
     await view.renderer.ready
     view.paint(ctx, new Int32Array([0, 1]))
-    expect(marking.visuals.fill.fill_color.get(1)).to.be.equal(view.line_color.get(1) as number)
+    expect(marking.visuals.fill.fill_color.get(1)).to.be.equal(view.visuals.line.line_color.get(1))
     expect(marking.visuals.fill.fill_alpha.get(1)).to.be.equal(0.3)
 
     const other = Segment.create({line_color: "purple", decorations: [decoration]})
@@ -37,8 +37,8 @@ describe("Marking inherited visuals", () => {
     const other_view = plot.owner.get_one(other_renderer).glyph as SegmentView
     other_view.paint(other_view.canvas.create_layer().ctx, new Int32Array([0]))
     const other_marking = other_view.decorations.get(decoration)!.marking as NormalHeadView
-    expect(other_marking.visuals.fill.fill_color.get(0)).to.be.equal(other_view.line_color.get(0) as number)
-    expect(marking.visuals.fill.fill_color.get(0)).to.be.equal(view.line_color.get(0) as number)
+    expect(other_marking.visuals.fill.fill_color.get(0)).to.be.equal(other_view.visuals.line.line_color.get(0))
+    expect(marking.visuals.fill.fill_color.get(0)).to.be.equal(view.visuals.line.line_color.get(0))
     expect(head.fill_color).to.be.equal({value: "black"})
 
     const nonselection = view.renderer.nonselection_glyph as SegmentView
@@ -49,6 +49,6 @@ describe("Marking inherited visuals", () => {
     head.inherit_visuals = []
     await marking.ready
     view.paint(ctx, new Int32Array([0]))
-    expect(marking.visuals.fill.fill_color.get(0)).to.not.be.equal(view.line_color.get(0) as number)
+    expect(marking.visuals.fill.fill_color.get(0)).to.not.be.equal(view.visuals.line.line_color.get(0))
   })
 })

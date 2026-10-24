@@ -1,0 +1,159 @@
+{
+  "plugins": [
+    "typescript"
+  ],
+  "jsPlugins": [
+    {"name": "@stylistic", "specifier": "@stylistic/eslint-plugin"}
+  ],
+  "categories": {
+    "correctness": "off"
+  },
+  "options": {
+    "typeAware": true,
+    "reportUnusedDisableDirectives": "warn"
+  },
+  "ignorePatterns": [
+    "build/**",
+    "**/_build/**",
+    "**/dist/**",
+    "**/node_modules/**",
+    "examples/frameworks/**/next-env.d.ts",
+    "test/unit/index.ts",
+    "test/integration/index.ts"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "make/**/*.ts",
+        "src/lib/**/*.ts",
+        "src/lib/**/*.tsx",
+        "src/compiler/**/*.ts",
+        "src/server/**/*.ts",
+        "test/framework/**/*.ts",
+        "test/defaults/**/*.ts",
+        "test/codebase/**/*.ts",
+        "test/integration/**/*.ts",
+        "test/integration/**/*.tsx",
+        "test/frameworks/**/*.ts",
+        "test/unit/**/*.ts",
+        "test/unit/**/*.tsx",
+        "test/devtools/**/*.ts",
+        "examples/**/*.ts",
+        "examples/frameworks/**/*.tsx",
+        "frameworks/*/src/**/*.ts"
+      ],
+      "rules": {
+        "@stylistic/block-spacing": ["error", "always"],
+        "@stylistic/brace-style": ["error", "1tbs", {"allowSingleLine": true}],
+        "@stylistic/comma-dangle": [
+          "error",
+          {
+            "arrays": "always-multiline",
+            "objects": "always-multiline",
+            "imports": "always-multiline",
+            "exports": "always-multiline",
+            "functions": "always-multiline",
+            "enums": "always-multiline",
+            "generics": "always-multiline",
+            "tuples": "always-multiline"
+          }
+        ],
+        "@stylistic/comma-spacing": ["error", {"before": false, "after": true}],
+        "@stylistic/eol-last": ["error", "always"],
+        "@stylistic/function-call-spacing": ["error", "never"],
+        "@stylistic/generator-star-spacing": [
+          "error",
+          {
+            "before": false,
+            "after": true,
+            "anonymous": {"before": false, "after": true},
+            "method": {"before": true, "after": false}
+          }
+        ],
+        "@stylistic/indent": [
+          "error",
+          2,
+          {
+            "SwitchCase": 1,
+            "outerIIFEBody": 1,
+            "ArrayExpression": "first",
+            "ObjectExpression": "first",
+            "ImportDeclaration": "first",
+            "VariableDeclarator": "first",
+            "CallExpression": {"arguments": 1},
+            "FunctionDeclaration": {"body": 1, "parameters": "off"},
+            "FunctionExpression": {"body": 1, "parameters": "off"},
+            "ignoredNodes": ["ConditionalExpression"],
+            "flatTernaryExpressions": true,
+            "offsetTernaryExpressions": true
+          }
+        ],
+        "@stylistic/key-spacing": ["error", {"beforeColon": false, "afterColon": true, "mode": "minimum"}],
+        "@stylistic/keyword-spacing": ["error", {"before": true, "after": true}],
+        "@stylistic/member-delimiter-style": [
+          "error",
+          {
+            "multiline": {"delimiter": "none", "requireLast": true},
+            "singleline": {"delimiter": "comma", "requireLast": false}
+          }
+        ],
+        "@stylistic/no-floating-decimal": ["error"],
+        "@stylistic/no-multiple-empty-lines": ["error", {"max": 1, "maxBOF": 0, "maxEOF": 0}],
+        "@stylistic/no-trailing-spaces": ["error"],
+        "@stylistic/no-whitespace-before-property": ["error"],
+        "@stylistic/object-curly-spacing": ["error", "never"],
+        "@stylistic/quote-props": ["error", "as-needed"],
+        "@stylistic/quotes": ["error", "double", {"avoidEscape": true, "allowTemplateLiterals": "avoidEscape"}],
+        "@stylistic/semi": ["error", "never"],
+        "@stylistic/space-before-blocks": ["error", "always"],
+        "@stylistic/space-before-function-paren": ["error", {"anonymous": "never", "named": "never", "asyncArrow": "always"}],
+        "@stylistic/space-in-parens": ["error", "never"],
+        "@stylistic/space-unary-ops": ["error", {"words": true, "nonwords": false, "overrides": {}}],
+        "@stylistic/type-annotation-spacing": ["error"],
+        "@stylistic/yield-star-spacing": ["error", {"before": false, "after": true}],
+        "typescript/consistent-type-assertions": "error",
+        "typescript/consistent-type-imports": ["error", {"prefer": "type-imports", "fixStyle": "separate-type-imports"}],
+        "typescript/no-empty-object-type": ["error", {"allowInterfaces": "with-single-extends", "allowWithName": "^.*$"}],
+        "typescript/no-floating-promises": ["error", {"ignoreVoid": true}],
+        "typescript/no-restricted-types": [
+          "error",
+          {
+            "types": {
+              "DeprecatedOldAPI": {"message": "Use either NewAPIOne or NewAPITwo instead", "suggest": ["NewAPIOne", "NewAPITwo"]}
+            }
+          }
+        ],
+        "typescript/no-unnecessary-condition": ["error", {"allowConstantLoopConditions": true}],
+        "typescript/no-unnecessary-type-assertion": ["error"],
+        "typescript/no-unnecessary-type-constraint": ["error"],
+        "typescript/no-wrapper-object-types": ["error"],
+        "typescript/strict-boolean-expressions": [
+          "error",
+          {
+            "allowAny": true,
+            "allowString": false,
+            "allowNumber": false,
+            "allowNullableObject": false,
+            "allowNullableBoolean": false,
+            "allowNullableString": false,
+            "allowNullableNumber": false
+          }
+        ],
+        "typescript/switch-exhaustiveness-check": ["error", {"allowDefaultCaseForExhaustiveSwitch": true, "considerDefaultExhaustiveForUnions": true}],
+        "curly": ["error", "all"],
+        "dot-notation": "error",
+        "guard-for-in": ["error"],
+        "no-debugger": "error",
+        "no-new-wrappers": "error",
+        "no-self-assign": ["error", {"props": false}],
+        "no-template-curly-in-string": "error",
+        "no-throw-literal": "error",
+        "no-var": "error",
+        "object-shorthand": "error",
+        "prefer-const": ["error", {"destructuring": "all"}],
+        "prefer-exponentiation-operator": "error",
+        "prefer-template": ["error"]
+      }
+    }
+  ]
+}

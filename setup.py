@@ -10,7 +10,7 @@ from __future__ import annotations
 import os, re, subprocess, sys, time
 from itertools import product
 from pathlib import Path
-from shutil import copy, copytree, rmtree, which
+from shutil import copytree, rmtree, which
 from textwrap import indent
 from typing import NoReturn
 
@@ -37,10 +37,8 @@ except ModuleNotFoundError:
 ROOT = Path(__file__).resolve().parent
 SRC_ROOT = ROOT / "src"
 BUILD_JS = ROOT / 'bokehjs' / 'build' / 'js'
-BUILD_TSLIB = ROOT / 'bokehjs' / 'node_modules' / 'typescript' / 'lib'
 PKG_STATIC = SRC_ROOT / 'bokeh' / 'server' / 'static'
 PKG_JS = PKG_STATIC / 'js'
-PKG_TSLIB = PKG_STATIC / 'lib'
 JUPYTER_ROOT = SRC_ROOT / 'bokeh' / 'jupyter'
 JUPYTER_FRONTEND = ROOT / 'jupyter'
 JUPYTER_ANYWIDGET = JUPYTER_ROOT / 'anywidget.js'
@@ -55,7 +53,18 @@ COMPONENTS = (
     "bokeh-embed-bootstrap",
 )
 JS_FILES = [f"{c}{m}.js" for c, m in product(COMPONENTS, ("", ".min"))]
+COMPILER_FILES = ["compiler.js", *(
+    f"compiler/{name}" for name in (
+        "compiler.mjs", "compiler.mjs.map", "package.json", "package-lock.json", "THIRD-PARTY-LICENSE.compiler",
+    )
+)]
 PACKAGED = (ROOT / 'PKG-INFO').exists()
+
+def verify_js_artifacts(js_dir: Path) -> None:
+    required = [*JS_FILES, *(f"{name}.map" for name in JS_FILES), *COMPILER_FILES, "lib/model.d.ts", "lib/model.d.ts.map"]
+    missing = [name for name in required if not (js_dir / name).is_file()]
+    if missing:
+        die(BOKEHJS_INSTALL_FAIL.format(missing=", ".join(missing)))
 
 def build_js() -> None:
     print("\nBuilding BokehJS... ", end="")
@@ -92,27 +101,25 @@ def build_js() -> None:
 def install_js(packages: list[str]) -> None:
     print("\nInstalling BokehJS... ", end="")
 
-    missing = [fn for fn in JS_FILES if not (BUILD_JS / fn).exists()]
-    if missing:
-        die(BOKEHJS_INSTALL_FAIL.format(missing=", ".join(missing)))
+    verify_js_artifacts(BUILD_JS)
 
     if not PKG_JS.is_symlink():
         if PKG_JS.exists():
             rmtree(PKG_JS)
         copytree(BUILD_JS, PKG_JS)
 
-    if not PKG_TSLIB.is_symlink():
-        if PKG_TSLIB.exists():
-            rmtree(PKG_TSLIB)
-        if BUILD_TSLIB.exists():
-            PKG_TSLIB.mkdir()
-            for lib_file in BUILD_TSLIB.glob("lib.*.d.ts"):
-                copy(lib_file, PKG_TSLIB)
+    # TypeScript's standard declarations now come from the cached npm package.
+    legacy_lib = PKG_STATIC / "lib"
+    if legacy_lib.is_symlink():
+        legacy_lib.unlink()
+    elif legacy_lib.exists():
+        rmtree(legacy_lib)
 
     new = set(
         ".".join([*Path(parent).relative_to(SRC_ROOT).parts, d])
         for parent, dirs, _ in os.walk(PKG_STATIC) for d in dirs
     )
+    packages[:] = [name for name in packages if not name.startswith("bokeh.server.static.")]
     existing = set(packages)
     packages.extend(tuple(new-existing))
 
@@ -122,6 +129,7 @@ def build_or_install_bokehjs(packages: list[str]) -> None:
     action = os.environ.get("BOKEHJS_ACTION", "build")
     if PACKAGED:
         kind, loc = "PACKAGED", "bokeh.server.static"
+        verify_js_artifacts(PKG_JS)
     elif action == "install":
         kind, loc = "PREVIOUSLY BUILT", "bokehjs/build"
         install_js(packages)
@@ -258,6 +266,10 @@ class Build(build):  # type: ignore
         built_jupyter = ROOT / "build" / "lib" / "bokeh" / "jupyter"
         if built_jupyter.exists():
             rmtree(built_jupyter)
+        # Removed compiler or declaration files must not survive in cached builds.
+        built_static = Path(self.build_lib) / "bokeh" / "server" / "static"
+        if built_static.exists():
+            rmtree(built_static)
         super().run()
 
 class EditableWheel(editable_wheel):  # type: ignore

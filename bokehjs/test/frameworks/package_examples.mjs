@@ -136,7 +136,7 @@ writeFileSync(join(workspace_dir, "package.json"), `${JSON.stringify({
 
 await run("npm", ["install", "--no-audit", "--no-fund"], workspace_dir)
 cpSync(join(frameworks_dir, "package_exports.mjs"), join(workspace_dir, "package_exports.mjs"))
-await run("node", ["package_exports.mjs"], workspace_dir)
+await run("node", ["package_exports.mjs", join(bokehjs_dir, "node_modules/typescript/bin/tsc")], workspace_dir)
 for (const application of applications) {
   const {name, package_name, isolated = false} = application
   const destination = application_dir(application)

@@ -24,15 +24,17 @@
     "url": "https://github.com/bokeh/bokeh.git"
   },
   "engines": {
-    "node": ">=22.0",
+    "node": ">=22.13.0",
     "npm": ">=10.0"
   },
   "files": [
-    "build/js/bokeh*.min.js",
-    "build/esm/bokeh*.js",
-    "build/esm/bokeh*.js.map",
+    "build/js/bokeh*.js",
+    "build/js/bokeh*.js.map",
+    "build/esm/*.js",
+    "build/esm/*.js.map",
     "build/js/lib/**/*.js",
-    "build/js/lib/**/*.d.ts"
+    "build/js/lib/**/*.d.ts",
+    "build/js/lib/**/*.map"
   ],
   "workspaces": [
     "./examples/frameworks/react-next",
@@ -56,7 +58,6 @@
     "./test"
   ],
   "scripts": {
-    "prepare": "node ./prepare.mjs",
     "build": "node make build",
     "dev-build": "node make dev-build",
     "test:frameworks": "node make test:frameworks"
@@ -119,7 +120,9 @@
     "@types/react-dom": "^19.2.4",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "rolldown": "1.2.15",
     "svelte": "^5.56.8",
+    "typescript": "7.0.2",
     "vite": "^8.2.0",
     "vue": "^3.5.40",
     "webpack": "^5.109.2",

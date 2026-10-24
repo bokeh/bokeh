@@ -8,7 +8,6 @@
     "strict": true,
     "target": "ES2022",
     "types": [],
-    "baseUrl": ".",
     "paths": {
       "@bokeh/bokehjs": ["../../../build/js/lib/bokeh_package.d.ts"]
     }

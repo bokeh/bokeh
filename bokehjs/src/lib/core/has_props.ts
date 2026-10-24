@@ -260,6 +260,8 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       }
     }
 
+    // The mapped generic parameter doesn't accept the dynamically assembled definitions.
+    // oxlint-disable-next-line typescript/no-unnecessary-type-assertion
     this.define(mixin_defs as any)
     this.prototype._mixins = [...this.prototype._mixins, ...mixins]
   }

@@ -8,7 +8,5 @@
   "dependencies": {
     "@bokeh/bokehjs": "../../../../bokehjs/build/dist/bokeh-bokehjs.tgz"
   },
-  "devDependencies": {
-    "typescript": "~5.4.3"
-  }
+  "devDependencies": {}
 }

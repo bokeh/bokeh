@@ -1,39 +1,32 @@
-import {join} from "node:path"
-
-import * as esbuild from "esbuild"
+import {rolldown} from "rolldown"
 
 import {task, passthrough} from "../task.js"
 import * as paths from "../paths.js"
+import {bundle_log, input_sourcemaps, output_options} from "#compiler/bundle.js"
+import {preserve_import_annotations} from "#compiler/import_annotations.js"
 
 task("scripts:bundle:esm", [passthrough("scripts:compile")], async () => {
-  const packages = [paths.bundles.all]
-
-  const entries = packages.map((pkg) => {
-    return {
-      in: pkg.main,
-      out: pkg.output.replace(/\.js$/, ""),
-    }
+  const build = await rolldown({
+    input: paths.bundles.all.main,
+    platform: "browser",
+    transform: {target: "es2024"},
+    plugins: [input_sourcemaps()],
+    onLog: bundle_log,
   })
-
-  async function build(minify: boolean) {
-    await esbuild.build({
-      entryPoints: entries,
-      outdir: join(paths.build_dir.esm),
-      outExtension: {".js": minify ? ".min.js" : ".js"},
-      platform: "browser",
-      format: "esm",
-      target: "ES2024",
-      bundle: true,
-      minify,
-      keepNames: true,
-      treeShaking: true,
-      sourcemap: true,
-      metafile: true,
-    })
+  try {
+    for (const minify of [false, true]) {
+      await build.write({
+        ...output_options,
+        file: paths.bundles.all.output.replace(/\.js$/, minify ? ".min.js" : ".js"),
+        format: "esm",
+        codeSplitting: false,
+        minify,
+        plugins: [preserve_import_annotations()],
+      })
+    }
+  } finally {
+    await build.close()
   }
-
-  await build(false)
-  await build(true)
 })
 
 task("lib:build", ["scripts:bundle", "scripts:bundle:esm"])

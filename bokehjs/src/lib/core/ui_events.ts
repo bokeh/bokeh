@@ -255,7 +255,7 @@ export class UIEventBus {
 
     const relativize_event = (_plot_view: PlotView): E => {
       const [rel_sx, rel_sy] = [sx, sy] // plot_view.layout.bbox.relativize(sx, sy)
-      return {...e, sx: rel_sx, sy: rel_sy} as E
+      return {...e, sx: rel_sx, sy: rel_sy}
     }
 
     if (e.type == "pan_start" || e.type == "pan" || e.type == "pan_end") {

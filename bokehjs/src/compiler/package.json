@@ -9,19 +9,18 @@
     "url": "https://github.com/bokeh/bokeh.git"
   },
   "devDependencies": {
-    "@types/combine-source-map": "^0.8.4",
-    "@types/convert-source-map": "^2.0.3",
+    "@jridgewell/remapping": "^2.3.5",
+    "@jridgewell/trace-mapping": "^0.3.31",
     "@types/css": "^0.0.37",
     "@types/less": "^3.0.6",
     "@types/node": "^22.7.4",
     "@types/yargs": "^17.0.32",
     "chalk": "^4.1.2",
-    "combine-source-map": "^0.8.0",
-    "convert-source-map": "^2.0.0",
     "css": "^3.0.0",
     "less": "^4.2.0",
-    "terser": "^5.46.0",
-    "typescript": "~5.9.2",
+    "magic-string": "^0.30.21",
+    "rolldown": "1.2.15",
+    "typescript": "7.0.2",
     "yargs": "^17.7.2"
   }
 }

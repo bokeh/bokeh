@@ -266,23 +266,23 @@ describe("Scatter", () => {
       const source = renderer_view.model.data_source
       const expect_dates = (values: number[]) => expect([...glyph_view.x]).to.be.equal(values)
 
-      source.data = {x: ["2024-01-01", "2024-01-02"], y: [0, 1]} as any
+      source.data = {x: ["2024-01-01", "2024-01-02"], y: [0, 1]}
       await defer()
       expect_dates([Date.UTC(2024, 0, 1), Date.UTC(2024, 0, 2)])
 
-      source.data = {x: [0], y: [0]} as any
+      source.data = {x: [0], y: [0]}
       await defer()
-      source.stream({x: ["2024-01-02"], y: [1]} as any)
+      source.stream({x: ["2024-01-02"], y: [1]})
       await defer()
       expect_dates([0, Date.UTC(2024, 0, 2)])
 
-      source.data = {x: [0, 1], y: [0, 1]} as any
+      source.data = {x: [0, 1], y: [0, 1]}
       await defer()
       source.patch({x: [[1, "2024-01-02"]]} as any)
       await defer()
       expect_dates([0, Date.UTC(2024, 0, 2)])
 
-      source.data = {x: [0, 1], y: [0, 1]} as any
+      source.data = {x: [0, 1], y: [0, 1]}
       await defer()
       source.get_array<any>("x")[0] = "2024-01-01"
       source.change.emit()

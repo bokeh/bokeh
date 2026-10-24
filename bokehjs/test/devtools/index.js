@@ -9,9 +9,14 @@ process.on("uncaughtException", function(err) {
 })
 
 function compile() {
-  const is_windows = process.platform == "win32"
-  const npx = is_windows ? "npx.cmd" : "npx"
-  cp.spawnSync(npx, ["--loglevel=warn", "tsc", "--project", "./test/devtools/tsconfig.json"], {stdio: "inherit", shell: is_windows})
+  const {status, error} = cp.spawnSync(process.execPath,
+    ["./node_modules/typescript/bin/tsc", "--project", "./test/devtools/tsconfig.json"], {stdio: "inherit"})
+  if (error != null) {
+    throw error
+  }
+  if (status != 0) {
+    process.exit(status ?? 1)
+  }
 }
 
 compile()

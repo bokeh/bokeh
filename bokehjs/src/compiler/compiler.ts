@@ -1,119 +1,97 @@
-import ts from "typescript"
+import {spawnSync} from "node:child_process"
+import {randomUUID} from "node:crypto"
+import {dirname, join, resolve} from "node:path"
+import {rmSync} from "node:fs"
+import {fileURLToPath} from "node:url"
 
-import {dirname} from "node:path"
+import {file_exists, write} from "./sys.js"
 
-import type {Path} from "./sys.js"
-
-export type CompileConfig = {
-  tslib_dir?: Path
-  inputs?(files: Path[]): Inputs
+export type CompilerOptions = {
+  [name: string]: unknown
+  outDir?: string
+  declarationDir?: string
+  noEmitOnError?: boolean
 }
 
-export type Inputs = Map<Path, string>
+export type Config = {
+  compilerOptions?: CompilerOptions
+  files?: string[]
+  [name: string]: unknown
+}
 
-export type Outputs = Map<Path, string>
-
-export type Diagnostics = readonly ts.Diagnostic[]
-
-export type Failed = {
-  diagnostics: Diagnostics
+export type Failed = {diagnostics: string}
+export type TSOutput = {diagnostics?: string}
+export type TSConfig = {
+  files: string[]
+  options: CompilerOptions
+  config: Config
+  base_dir: string
+  diagnostics?: undefined
 }
 
 export function is_failed<T>(obj: T | Partial<Failed>): obj is Failed {
   return typeof obj == "object" && obj != null && "diagnostics" in obj && obj.diagnostics != null
 }
 
-export type TSConfig = {
-  files: Path[]
-  options: ts.CompilerOptions
-  diagnostics?: undefined
-}
-
-export interface TSOutput {
-  diagnostics?: Diagnostics
-}
-
-const diagnostics_host: ts.FormatDiagnosticsHost = {
-  getCanonicalFileName: (path) => path,
-  getCurrentDirectory: ts.sys.getCurrentDirectory,
-  getNewLine: () => ts.sys.newLine,
-}
-
-export function report_diagnostics(diagnostics: Diagnostics): {count: number, text: string} {
-  const errors = ts.sortAndDeduplicateDiagnostics(diagnostics)
-  const text = ts.formatDiagnosticsWithColorAndContext(errors, diagnostics_host)
-  return {count: errors.length, text}
-}
-
-export function compiler_host(inputs: Inputs, options: ts.CompilerOptions, tslib_dir?: Path): ts.CompilerHost {
-  const default_host = ts.createIncrementalCompilerHost(options)
-
-  const host = {
-    ...default_host,
-    fileExists(name: Path): boolean {
-      return inputs.get(name) != null || default_host.fileExists(name)
-    },
-    readFile(name: Path): string | undefined {
-      return inputs.get(name) != null ? inputs.get(name) : default_host.readFile(name)
-    },
-    getSourceFile(name: Path, target: ts.ScriptTarget, _onError?: (message: string) => void): ts.SourceFile | undefined {
-      const source = inputs.get(name)
-      if (source != null) {
-        const sf = ts.createSourceFile(name, source, target)
-        const version = default_host.createHash!(source)
-        return {...sf, version} as any // version is internal to the compiler
-      } else {
-        return default_host.getSourceFile(name, target, _onError)
-      }
-    },
-  }
-
-  if (tslib_dir != null) {
-    host.getDefaultLibLocation = () => tslib_dir
-  }
-
-  return host
-}
-
-export function compile_files(inputs: Path[], options: ts.CompilerOptions, transformers?: ts.CustomTransformers, host?: ts.CompilerHost): TSOutput {
-  const program = ts.createIncrementalProgram({rootNames: inputs, options, host})
-  const emitted = program.emit(undefined, undefined, undefined, false, transformers)
-
-  const diagnostics = [
-    ...program.getConfigFileParsingDiagnostics(),
-    ...program.getSyntacticDiagnostics(),
-    ...program.getOptionsDiagnostics(),
-    ...program.getGlobalDiagnostics(),
-    ...program.getSemanticDiagnostics(),
-    ...emitted.diagnostics,
+// The installed adapter resolves its pinned native compiler from the same cache.
+// Development builds use the explicit workspace installation, never PATH.
+export function typescript_command(bokehjs_dir: string): string[] {
+  bokehjs_dir = resolve(bokehjs_dir)
+  const candidates = [
+    join(dirname(fileURLToPath(import.meta.url)), "node_modules/typescript/bin/tsc"),
+    join(dirname(bokehjs_dir), "node_modules/typescript/bin/tsc"),
   ]
-
-  return diagnostics.length != 0 ? {diagnostics} : {}
+  const compiler = candidates.find(file_exists)
+  if (compiler == null) {
+    throw new Error(`Cannot locate the TypeScript compiler. Checked: ${candidates.join(", ")}`)
+  }
+  return [process.execPath, compiler]
 }
 
-export type OutDir = Path | {js: Path, dts: Path}
-
-export function parse_tsconfig(tsconfig_json: object, base_dir: Path, preconfigure?: ts.CompilerOptions): TSConfig | Failed {
-  const host: ts.ParseConfigHost = {
-    useCaseSensitiveFileNames: ts.sys.useCaseSensitiveFileNames,
-    readDirectory: ts.sys.readDirectory,
-    fileExists: ts.sys.fileExists,
-    readFile: ts.sys.readFile,
+export function run_typescript(config: Config, base_dir: string, bokehjs_dir: string, args: string[] = []): {status: number, output: string} {
+  // A sibling config preserves the native compiler's interpretation of all
+  // relative paths, extends clauses, include patterns, and package resolution.
+  const path = join(base_dir, `.bokeh-tsconfig-${randomUUID()}.json`)
+  write(path, JSON.stringify(config))
+  try {
+    const [command, ...prefix] = typescript_command(bokehjs_dir)
+    const result = spawnSync(command, [...prefix, "--project", path, ...args], {
+      cwd: base_dir,
+      encoding: "utf8",
+      maxBuffer: 32*1024*1024,
+    })
+    if (result.error != null) {
+      throw result.error
+    }
+    const status = result.status ?? 1
+    return {status, output: status == 0 ? result.stdout : `${result.stdout}${result.stderr}`}
+  } finally {
+    rmSync(path)
   }
-
-  const tsconfig = ts.parseJsonConfigFileContent(tsconfig_json, host, base_dir, preconfigure)
-  if (tsconfig.errors.length != 0) {
-    return {diagnostics: tsconfig.errors}
-  }
-
-  return {files: tsconfig.fileNames, options: tsconfig.options}
 }
 
-export function read_tsconfig(tsconfig_path: Path, preconfigure?: ts.CompilerOptions): TSConfig | Failed {
-  const tsconfig_file = ts.readConfigFile(tsconfig_path, ts.sys.readFile)
-  if (tsconfig_file.error != null) {
-    return {diagnostics: [tsconfig_file.error]}
-  }
+export function compile_project(config: TSConfig, bokehjs_dir: string): TSOutput {
+  const {status, output} = run_typescript(config.config, config.base_dir, bokehjs_dir, ["--pretty", "true"])
+  return status == 0 ? {} : {diagnostics: output}
+}
 
-  return parse_tsconfig(tsconfig_file.config, dirname(tsconfig_path), preconfigure)
+export function parse_tsconfig(config: Config, base_dir: string, bokehjs_dir: string, preconfigure?: CompilerOptions): TSConfig | Failed {
+  const input = {...config, compilerOptions: {...config.compilerOptions, ...preconfigure}}
+  const {status, output} = run_typescript(input, base_dir, bokehjs_dir, ["--showConfig", "--pretty", "false"])
+  if (status != 0) {
+    return {diagnostics: output}
+  }
+  const parsed = JSON.parse(output) as Config
+  const options = {...parsed.compilerOptions}
+  if (options.outDir != null) {
+    options.outDir = resolve(base_dir, options.outDir)
+  }
+  if (options.declarationDir != null) {
+    options.declarationDir = resolve(base_dir, options.declarationDir)
+  }
+  return {files: (parsed.files ?? []).map((file) => resolve(base_dir, file)), options, config: input, base_dir}
+}
+
+export function read_tsconfig(path: string, bokehjs_dir: string, preconfigure?: CompilerOptions): TSConfig | Failed {
+  return parse_tsconfig({extends: path}, dirname(path), bokehjs_dir, preconfigure)
 }

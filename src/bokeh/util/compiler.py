@@ -30,16 +30,17 @@ from concurrent.futures import Future
 from os.path import (
     abspath,
     dirname,
-    exists,
     isabs,
     join,
 )
 from pathlib import Path
+from shutil import which
 from subprocess import PIPE, Popen
 from threading import Lock
 from typing import Any, Callable, Sequence
 
 # Bokeh imports
+from .. import __version__
 from ..core.has_props import HasProps
 from ..settings import settings
 from .strings import snakify
@@ -98,7 +99,7 @@ class CompilationError(RuntimeError):
         return "\n" + self.text.strip()
 
 bokehjs_dir = settings.bokehjs_path()
-nodejs_min_version = (18, 0, 0)
+nodejs_min_version = (22, 13, 0)
 
 def nodejs_version() -> str | None:
     return _version(_run_nodejs)
@@ -109,6 +110,7 @@ def npmjs_version() -> str | None:
 def nodejs_compile(code: str, lang: str = "javascript", file: str | None = None) -> AttrDict:
     compilejs_script = join(bokehjs_dir, "js", "compiler.js")
     output = _run_nodejs([compilejs_script], dict(code=code, lang=lang, file=file, bokehjs_dir=os.fspath(bokehjs_dir)))
+    output = _crlf_cr_2_lf(output)
     lines = output.split("\n")
     i = 0
     for i, line in enumerate(lines):
@@ -352,68 +354,12 @@ def bundle_all_models() -> str | None:
 # Private API
 #-----------------------------------------------------------------------------
 
-_plugin_umd = \
-"""\
-(function(root, factory) {
-    factory(root["Bokeh"]);
-})(this, function(Bokeh) {
-  let define;
-  return %(content)s;
-});
-"""
-
-# XXX: this is (almost) the same as bokehjs/src/js/plugin-prelude.js
-_plugin_prelude = \
-"""\
-(function outer(modules, entry) {
-  if (Bokeh != null) {
-    return Bokeh.register_plugin(modules, entry);
-  } else {
-    throw new Error("Cannot find Bokeh. You have to load it prior to loading plugins.");
-  }
-})
-"""
-
-_plugin_template = \
-"""\
-%(prelude)s\
-({
-  "%(entry)s": function(require, module, exports) {
-    const models = {
-      %(exports)s
-    };
-    require("base").register_models(models);
-    module.exports = models;
-  },
-  %(modules)s
-}, "%(entry)s");
-"""
-
-_style_template = \
-"""\
-(function() {
-  const head = document.getElementsByTagName('head')[0];
-  const style = document.createElement('style');
-  style.type = 'text/css';
-  const css = %(css)s;
-  if (style.styleSheet) {
-    style.styleSheet.cssText = css;
-  } else {
-    style.appendChild(document.createTextNode(css));
-  }
-  head.appendChild(style);
-}());
-"""
-
-_export_template = \
-""""%(name)s": require("%(module)s").%(name)s"""
-
-_module_template = \
-""""%(module)s": function(require, module, exports) {\n%(source)s\n}"""
-
 def _detect_nodejs() -> Path:
     nodejs_path = settings.nodejs_path()
-    nodejs_paths = [nodejs_path] if nodejs_path is not None else ["nodejs", "node"]
+    if nodejs_path is not None:
+        nodejs_paths = [which(nodejs_path) or nodejs_path]
+    else:
+        nodejs_paths = [path for name in ("nodejs", "node") if (path := which(name)) is not None]
 
     for nodejs_path in nodejs_paths:
         try:
@@ -431,12 +377,15 @@ def _detect_nodejs() -> Path:
             version = tuple(int(v) for v in match.groups())
 
             if version >= nodejs_min_version:
-                return Path(nodejs_path)
+                # Version managers can dispatch by the invoked filename (e.g.
+                # Volta's node symlink). Keep that name when launching Node.
+                return Path(nodejs_path).absolute()
 
     # if we've reached here, no valid version was found
     version_repr = ".".join(str(x) for x in nodejs_min_version)
-    raise RuntimeError(f'node.js v{version_repr} or higher is needed to allow compilation of custom models ' +
-                       '("conda install nodejs" or follow https://nodejs.org/en/download/)')
+    raise RuntimeError(f"node.js v{version_repr} or higher is needed for Bokeh source compilation. "
+                       "Install Node.js separately (https://nodejs.org/en/download/ or conda install nodejs), "
+                       "or set BOKEH_NODEJS_PATH to an existing compatible runtime.")
 
 _nodejs: Path | None = None
 _npmjs: Path | None = None
@@ -447,30 +396,73 @@ def _nodejs_path() -> Path:
         _nodejs = _detect_nodejs()
     return _nodejs
 
-def _npmjs_path() -> Path:
+def _find_npmjs() -> Path | None:
     global _npmjs
+    if (override := os.environ.get("BOKEH_NPMJS_PATH")) is not None:
+        return Path(override)
     if _npmjs is None:
-        executable = "npm.cmd" if sys.platform == "win32" else "npm"
-        _npmjs = _nodejs_path().parent / executable
+        node = _nodejs_path()
+        candidates = [node.parent / "node_modules/npm/bin/npm-cli.js",
+                      node.parent.parent / "lib/node_modules/npm/bin/npm-cli.js"]
+        if not any(path.is_file() for path in candidates):
+            # A version-manager shim may live separately from its selected
+            # runtime. Ask Node where it runs without changing its launch path.
+            try:
+                proc = Popen([node, "--print", "process.execPath"], stdout=PIPE, stderr=PIPE)
+                stdout, _ = proc.communicate()
+                if proc.returncode == 0:
+                    runtime = Path(stdout.decode("utf-8").strip())
+                    if runtime.is_absolute():
+                        candidates.extend([runtime.parent / "node_modules/npm/bin/npm-cli.js",
+                                           runtime.parent.parent / "lib/node_modules/npm/bin/npm-cli.js"])
+            except OSError:
+                pass
+        npm = which("npm.cmd" if sys.platform == "win32" else "npm")
+        if npm is not None:
+            path = Path(npm).resolve()
+            # POSIX npm is commonly a symlink to its CLI. Windows npm.cmd is
+            # a shell wrapper, so locate its adjacent JavaScript entry instead.
+            if path.suffix in (".js", ".cjs", ".mjs"):
+                candidates.append(path)
+            candidates.append(path.parent / "node_modules/npm/bin/npm-cli.js")
+        _npmjs = next((path for path in candidates if path.is_file()), None)
     return _npmjs
+
+def _npmjs_path() -> Path:
+    npm = _find_npmjs()
+    if npm is None:
+        raise RuntimeError("npm is needed for installing Bokeh compiler tools or extension dependencies. "
+                           "Install npm with Node.js and make it available on PATH.")
+    return npm
+
+def _nodejs_env(*, npm: bool = False) -> dict[str, str]:
+    env = os.environ.copy()
+    env["PATH"] = os.pathsep.join([os.fspath(_nodejs_path().parent), env.get("PATH", "")])
+    if npm and "BOKEH_NPMJS_PATH" not in env and (npm_path := _find_npmjs()) is not None:
+        env["BOKEH_NPMJS_PATH"] = os.fspath(npm_path)
+    return env
 
 def _crlf_cr_2_lf(s: str) -> str:
     return re.sub(r"\\r\\n|\\r|\\n", r"\\n", s)
 
 def _run(app: Path, argv: list[str], input: dict[str, Any] | None = None) -> str:
-    proc = Popen([app, *argv], stdout=PIPE, stderr=PIPE, stdin=PIPE)
+    proc = Popen([app, *argv], stdout=PIPE, stderr=PIPE, stdin=PIPE, env=_nodejs_env())
     (stdout, errout) = proc.communicate(input=None if input is None else json.dumps(input).encode())
 
     if proc.returncode != 0:
         raise RuntimeError(errout.decode('utf-8'))
     else:
-        return _crlf_cr_2_lf(stdout.decode('utf-8'))
+        if errout:
+            sys.stderr.write(errout.decode('utf-8'))
+        # JSON may contain escaped JavaScript string literals and regexes.
+        # Changing those escapes here would alter the bundled program.
+        return stdout.decode('utf-8')
 
 def _run_nodejs(argv: list[str], input: dict[str, Any] | None = None) -> str:
     return _run(_nodejs_path(), argv, input)
 
 def _run_npmjs(argv: list[str], input: dict[str, Any] | None = None) -> str:
-    return _run(_npmjs_path(), argv, input)
+    return _run(_nodejs_path(), [os.fspath(_npmjs_path()), *argv], input)
 
 def _version(run_app: Callable[[list[str], dict[str, Any] | None], str]) -> str | None:
     try:
@@ -499,127 +491,39 @@ def _get_custom_models(models: Sequence[type[HasProps]] | None) -> dict[str, Cus
 
     return custom_models if custom_models else None
 
-def _compile_models(custom_models: dict[str, CustomModel]) -> dict[str, AttrDict]:
-    """Returns the compiled implementation of supplied `models`. """
+def _bundle_models(custom_models: dict[str, CustomModel]) -> str:
+    """Compile and bundle the complete custom-model graph in one Node request."""
+    compiler_dir = bokehjs_dir
     ordered_models = sorted(custom_models.values(), key=lambda model: model.full_name)
-    custom_impls = {}
-
-    dependencies: list[tuple[str, str]] = []
-    for model in ordered_models:
-        dependencies.extend(list(model.dependencies.items()))
-
+    dependencies = sorted(
+        (name, version)
+        for model in ordered_models
+        for name, version in model.dependencies.items()
+    )
     if dependencies:
-        dependencies = sorted(dependencies, key=lambda name_version: name_version[0])
-        _run_npmjs(["install", "--no-progress"] + [ name + "@" + version for (name, version) in dependencies ])
+        _run_npmjs(["install", "--no-progress", *[f"{name}@{version}" for name, version in dependencies]])
 
+    models = []
     for model in ordered_models:
         impl = model.implementation
-        compiled = _CACHING_IMPLEMENTATION(model, impl)
-        if compiled is None:
-            compiled = nodejs_compile(impl.code, lang=impl.lang, file=impl.file)
-            if "error" in compiled:
-                raise CompilationError(compiled.error)
+        entry: dict[str, Any] = dict(name=model.name, module=model.module, full_name=model.full_name,
+                                    code=impl.code, lang=impl.lang, file=impl.file, path=os.fspath(model.path))
+        cached = _CACHING_IMPLEMENTATION(model, impl)
+        if cached is not None:
+            # Existing cache hooks return the public nodejs_compile CommonJS format.
+            # Rolldown consumes it directly alongside newly compiled ESM sources.
+            if "error" in cached:
+                raise CompilationError(cached.error)
+            entry["cached"] = dict(code=cached.code, deps=cached.deps)
+        models.append(entry)
 
-        custom_impls[model.full_name] = compiled
-
-    return custom_impls
-
-def _bundle_models(custom_models: dict[str, CustomModel]) -> str:
-    """ Create a JavaScript bundle with selected `models`. """
-    entry = f"custom/main/{calc_cache_key(custom_models)}"
-    exports = []
-    modules = []
-
-    lib_dir = Path(bokehjs_dir) / "js" / "lib"
-    known_modules: set[str] = set()
-
-    for path in lib_dir.rglob("*.d.ts"):
-        s = str(path.relative_to(lib_dir))
-        s = s.removesuffix(".d.ts")
-        s = s.replace(os.path.sep, "/")
-        known_modules.add(s)
-
-    custom_impls = _compile_models(custom_models)
-
-    extra_modules = {}
-
-    def resolve_modules(to_resolve: set[str], root: str) -> dict[str, str]:
-        resolved = {}
-        for module in to_resolve:
-            if module.startswith(("./", "../")):
-                def mkpath(module: str, ext: str = "") -> str:
-                    return abspath(join(root, *module.split("/")) + ext)
-
-                if module.endswith(exts):
-                    path = mkpath(module)
-                    if not exists(path):
-                        raise RuntimeError(f"no such module: {module}")
-                else:
-                    for ext in exts:
-                        path = mkpath(module, ext)
-                        if exists(path):
-                            break
-                    else:
-                        raise RuntimeError(f"no such module: {module}")
-
-                impl = FromFile(path)
-                compiled = nodejs_compile(impl.code, lang=impl.lang, file=impl.file)
-
-                if impl.lang == "less":
-                    code = _style_template % dict(css=json.dumps(compiled.code))
-                    deps = []
-                else:
-                    code = compiled.code
-                    deps = compiled.deps
-
-                sig = hashlib.sha256(code.encode('utf-8')).hexdigest()
-                resolved[module] = sig
-
-                deps_map = resolve_deps(deps, dirname(path))
-
-                if sig not in extra_modules:
-                    extra_modules[sig] = True
-                    modules.append((sig, code, deps_map))
-            else:
-                index = module + ("" if module.endswith("/") else "/") + "index"
-                if index not in known_modules:
-                    raise RuntimeError(f"no such module: {module}")
-
-        return resolved
-
-    def resolve_deps(deps: list[str], root: str) -> dict[str, str]:
-        custom_modules = {model.module for model in custom_models.values()}
-        normalized_deps = [dep.removeprefix("@bokehjs/") for dep in deps]
-        missing = set(normalized_deps) - known_modules - custom_modules
-        return resolve_modules(missing, root)
-
-    for model in custom_models.values():
-        compiled = custom_impls[model.full_name]
-        deps_map = resolve_deps(compiled.deps, model.path)
-
-        exports.append((model.name, model.module))
-        modules.append((model.module, compiled.code, deps_map))
-
-    # sort everything by module name
-    exports = sorted(exports, key=lambda spec: spec[1])
-    modules = sorted(modules, key=lambda spec: spec[0])
-
-    bare_modules = []
-    for module, code, deps in modules:
-        for name, ref in deps.items():
-            code = code.replace(f"""require("{name}")""", f"""require("{ref}")""")
-            code = code.replace(f"""require('{name}')""", f"""require('{ref}')""")
-        bare_modules.append((module, code))
-
-    sep = ",\n"
-
-    rendered_exports = sep.join(_export_template % dict(name=name, module=module) for (name, module) in exports)
-    rendered_modules = sep.join(_module_template % dict(module=module, source=code) for (module, code) in bare_modules)
-
-    content = _plugin_template % dict(
-        prelude=_plugin_prelude, entry=entry, exports=rendered_exports, modules=rendered_modules,
-    )
-    return _plugin_umd % dict(content=content)
+    compiler = os.fspath(compiler_dir / "js" / "compiler.js")
+    output = _run_nodejs([compiler, "bundle"], dict(models=models, entry=f"custom/main/{calc_cache_key(custom_models)}",
+                         bokehjs_dir=os.fspath(compiler_dir), bokeh_version=__version__))
+    result = json.loads(output)
+    if "error" in result:
+        raise CompilationError(result["error"])
+    return result["code"]
 
 #-----------------------------------------------------------------------------
 # Code

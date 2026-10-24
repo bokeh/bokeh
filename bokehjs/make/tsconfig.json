@@ -1,11 +1,14 @@
 {
   "compilerOptions": {
+    "moduleResolution": "bundler",
     "lib": ["es2022"],
     "types": ["node"],
     "paths": {
       "#compiler/*": ["../src/compiler/*"]
     },
-    "outDir": "./_build"
+    "noEmit": true,
+    "incremental": true,
+    "tsBuildInfoFile": "../build/js/make.tsbuildinfo"
   },
   "extends": "../tsconfig.base",
   "include": ["./**/*.ts"],

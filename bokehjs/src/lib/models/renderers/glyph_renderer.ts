@@ -164,7 +164,7 @@ export class GlyphRendererView extends DataRendererView {
   }
 
   async build_glyph_view<T extends Glyph>(glyph: T): Promise<GlyphView> {
-    return build_view(glyph, {parent: this}) as Promise<GlyphView>
+    return build_view(glyph, {parent: this})
   }
 
   private _previous_inspected?: {

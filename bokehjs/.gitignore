@@ -1,8 +1,10 @@
 /build
+!/src/compiler/runtime/package-lock.json
 /npm-debug.log
 /.eslintcache
 .package.json
 /test/devtools/_build
+/examples/frameworks/*/build
 /test/baselines/*/report.json
 /test/baselines/*/report.out
 !/test/baselines/*/*.png

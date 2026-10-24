@@ -5,9 +5,7 @@ export const argv = yargs(process.argv.slice(2)).help(false).options({
   "build-dir": {type: "string"},
   // lint
   fix: {type: "boolean", default: false},
-  // scripts, compiler
-  cache: {type: "boolean", default: true},
-  // scripts, compiler, test
+  // test
   rebuild: {type: "boolean", default: false},
   // scripts
   detectCycles: {type: "boolean", default: true},

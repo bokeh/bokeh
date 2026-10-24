@@ -161,6 +161,18 @@ example:
 
         __implementation__ = JavaScript(" <JS code here> ")
 
+The standard Bokeh installation includes the compiler. With
+:ref:`Node.js 22.13 or later installed <install_compiler_runtime>`, source
+implementations compile automatically when Python creates output, without a
+separate application build step. Plain JavaScript ``CustomJS`` callbacks and
+prebuilt extensions bypass compilation and do not need Node.js.
+
+For inline implementations, TypeScript 7 checks TypeScript sources and emits
+ES modules. Rolldown bundles the implementation and its dependencies, including
+relative files, npm packages, and imports such as ``import("./helper")``.
+CommonJS dependencies are supported. BokehJS imports use the page's existing
+model classes and plugin registry.
+
 .. _ug_advanced_extensions_specifying_default_values:
 
 Specifying default values
@@ -253,10 +265,59 @@ often have to study the source code of the base classes in
 .. _KaTeX: https://khan.github.io/KaTeX/
 .. _TypeScript: https://www.typescriptlang.org/
 
+.. _ug_advanced_extensions_compiler_cache:
+
+Preparing the compiler cache
+----------------------------
+
+Extension authors need Node.js 22.13 or later and npm. On the first compiler
+use, including ``bokeh init``, Bokeh automatically installs pinned native
+TypeScript 7 and Rolldown packages with npm. The supplied lockfile fixes the
+dependency versions and package integrity hashes. Installation requires network
+access and writes to a user cache, leaving the Python package and current
+working directory untouched. Bokeh does not install Node.js or npm.
+
+Later compilation reuses the completed cache without npm or network access.
+npm is still needed if an extension build or inline model installs its own
+dependencies. No separate application build step or Go installation is needed.
+Set ``BOKEH_COMPILER_CACHE`` to select a different writable cache directory.
+Compiler updates and different host platforms use separate cache entries.
+To reclaim the cache, stop compiler processes and remove that directory;
+the next compiler use reinstalls the pinned packages. This also removes temporary
+installation directories left by a forced termination, such as ``SIGKILL``.
+
+To install the tools before starting an application or disconnecting from the
+network, run this once with npm and network access available:
+
+.. code-block:: sh
+
+    python -c "from bokeh.util.compiler import nodejs_compile; raise SystemExit(nodejs_compile('', lang='javascript').get('error'))"
+
+This compiles empty JavaScript to populate the cache without creating a project
+or output file. The command exits unsuccessfully if setup or compilation fails.
+Set ``BOKEH_COMPILER_CACHE`` before running it if you need a persistent cache
+location, and use the same setting when running the application. The directory
+must be writable during installation and readable by the application's user.
+
+Use the exact Bokeh build and runtime environment intended for deployment.
+Warming the cache inside the deployment container or image, with the same Node.js
+installation, avoids mismatches. Copying a prepared cache between machines
+requires matching operating system, processor architecture, Node.js ABI, and
+Linux libc identity. Compiler updates can require a new cache entry. An
+extension's own npm dependencies must be installed separately.
+
 .. _ug_advanced_extensions_prebuilt:
 
 Pre-built extensions
 --------------------
+
+Prebuilding is an optional deployment optimization. Applications using finished
+extension JavaScript do not invoke the compiler.
+
+The low-level ``bokeh.util.compiler.nodejs_compile`` function continues to
+return CommonJS ``code`` and ``deps`` for JavaScript and TypeScript callers.
+The ``get_cache_hook`` and ``set_cache_hook`` APIs also retain that compiled
+format, so existing cache entries can be bundled without recompilation.
 
 So far, this chapter covered simple, typically inline extensions. These are
 great for ad hoc additions to Bokeh, but this approach is not particularly
@@ -279,6 +340,12 @@ To create and customize an extension step by step, run
 To build your extension, use the ``bokeh build`` command. This runs
 ``npm install``, if necessary, compiles TypeScript files, transpiles JavaScript
 files, resolves modules, and links them together in distributable bundles.
+
+The generated ordinary and minified bundles preserve model class names and
+property names, which are required for communication with Python. If you
+process an extension with another bundler or minifier, preserve these names
+and leave BokehJS imports external so the extension uses the page's existing
+model classes and registry.
 
 Bokeh caches compilation products to improve performance. If this causes
 issues, rebuild your extension from scratch with the ``bokeh build --rebuild``

@@ -126,9 +126,30 @@ Jupyter
     Bokeh wheel in the kernel environment and the Jupyter server environment
     so the server can discover the bundled assets. See :ref:`ug_output_jupyter`.
 
-NodeJS
-    Necessary for :ref:`ug_advanced_extensions` or for defining
-    ``CustomJS`` implementations in TypeScript.
+.. _install_compiler_runtime:
+
+Node.js
+    Necessary to compile :ref:`custom extension source <ug_advanced_extensions>`.
+    Install Node.js 22.13 or later with npm, make it available on ``PATH``,
+    or set ``BOKEH_NODEJS_PATH`` to its executable. Bokeh does not install Node.js
+    or npm. The first compiler use downloads pinned native TypeScript 7 and
+    Rolldown packages through npm into a user cache. This requires network
+    access. Subsequent uses reuse that cache without npm or network access,
+    unless the extension itself needs to install package dependencies.
+    Source compilation requires native packages for both tools on your
+    operating system and processor architecture.
+
+    With Node.js available, inline custom models compile when Python creates
+    output. No separate application build step is required. Ordinary plots,
+    JavaScript callbacks, and prebuilt extensions do not need Node.js.
+    Browser-hosted Python can use JavaScript callbacks and extensions prebuilt
+    on a native platform.
+
+    Set ``BOKEH_COMPILER_CACHE`` to choose a writable cache directory, for
+    example when the default user cache is unavailable. The cache is separate
+    from the installed Python package and from the current working directory.
+    You can :ref:`prepare the compiler cache before deployment or offline use
+    <ug_advanced_extensions_compiler_cache>`.
 
 NetworkX
     Necessary to use the :func:`~bokeh.plotting.graph.from_networkx` function

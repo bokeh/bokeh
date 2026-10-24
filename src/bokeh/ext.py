@@ -25,7 +25,7 @@ from typing import TYPE_CHECKING
 # Bokeh imports
 from . import __version__
 from .settings import settings
-from .util.compiler import _nodejs_path
+from .util.compiler import _nodejs_env, _nodejs_path
 
 if TYPE_CHECKING:
     from .core.types import PathLike
@@ -111,10 +111,7 @@ def build(base_dir: PathLike, *, rebuild: bool = False, verbose: bool = False, d
 def _run_command(command: str, base_dir: PathLike, args: list[str], debug: bool = False) -> Popen[bytes]:
     bokehjs_dir = settings.bokehjs_path()
 
-    if debug:
-        compiler_script = bokehjs_dir / "js" / "compiler" / "main.js"
-    else:
-        compiler_script = bokehjs_dir / "js" / "compiler.js"
+    compiler_script = bokehjs_dir / "js" / "compiler.js"
 
     cmd = [
         "--no-deprecation",
@@ -126,11 +123,11 @@ def _run_command(command: str, base_dir: PathLike, args: list[str], debug: bool 
     ]
 
     if debug:
-        cmd.insert(0, "--inspect-brk")
+        cmd[:0] = ["--inspect-brk"]
 
     cmd.extend(args)
 
-    proc = Popen([_nodejs_path(), *cmd])
+    proc = Popen([_nodejs_path(), *cmd], env=_nodejs_env(npm=True))
     proc.communicate()
     return proc
 

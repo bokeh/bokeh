@@ -269,7 +269,7 @@ different local version instead, set the ``BOKEHJS_ACTION`` environment variable
 
     * **JavaScript dependencies unchanged:** run ``pixi run reinstall``
       which rebuilds BokehJS and the Jupyter frontend, reinstalls the Python
-      package, and registers the Jupyter extensions.
+      package, including its compiler, and registers the Jupyter extensions.
     * **JavaScript dependencies changed:** run ``pixi run setup`` instead,
       which also removes the previous BokehJS build and reinstalls the
       JavaScript dependencies first.

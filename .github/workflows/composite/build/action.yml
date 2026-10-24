@@ -8,7 +8,7 @@ runs:
     - name: Set up Pixi
       uses: prefix-dev/setup-pixi@v0.10.0
       with:
-        environments: build
+        environments: build test-py314
         activate-environment: build
         locked: true
         cache: true
@@ -37,6 +37,27 @@ runs:
     - name: Verify pip install using wheel
       shell: bash --noprofile --norc -eo pipefail {0}
       run: bash tools/ci/verify_pip_install_using_wheel.sh
+
+    - name: Verify the installed extension compiler in Chromium
+      shell: bash --noprofile --norc -eo pipefail {0}
+      run: |
+        pixi run --locked --environment test-py314 python -m pip install --no-deps --target work/compiler-package dist/bokeh-*-py3-none-any.whl
+        pixi run --locked --environment test-py314 python -m playwright install --with-deps chromium
+        export BOKEH_NODEJS_PATH="$(pixi run --locked --environment build node --print process.execPath)"
+        dependency_root="$(pixi run --locked --environment test-py314 python -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])')"
+        pixi run --locked --environment test-py314 python -S bokehjs/test/validate_extensions.py --package-root work/compiler-package --work-dir work/compiler-validation --dependency-root "$dependency_root"
+
+    - name: Verify installed-wheel serialization across browser bundles
+      shell: bash --noprofile --norc -eo pipefail {0}
+      run: |
+        dependency_root="$(pixi run --locked --environment test-py314 python -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])')"
+        pixi run --locked --environment test-py314 python -S bokehjs/test/support/serialization_fixture.py --package-root work/compiler-package --dependency-root "$dependency_root" > work/serialization-fixture.json
+        browser="$(pixi run --locked --environment test-py314 python -c '
+        from playwright.sync_api import sync_playwright
+        with sync_playwright() as playwright:
+            print(playwright.chromium.executable_path)
+        ')"
+        pixi run --locked --environment build node bokehjs/test/validate_bundles.mjs --fixture=work/serialization-fixture.json --executable="$browser"
 
     - name: Upload wheel package
       uses: actions/upload-artifact@v6

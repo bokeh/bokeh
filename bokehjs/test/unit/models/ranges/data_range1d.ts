@@ -112,7 +112,7 @@ describe("DataRange1d", () => {
       expect(r.default_span).to.be.equal(8)
 
       r.range_padding = 0.2
-      r.range_padding_units = "percent" as PaddingUnits
+      r.range_padding_units = "percent"
 
       expect(r.range_padding).to.be.equal(0.2)
       expect(r.range_padding_units).to.be.equal("percent")
@@ -123,7 +123,7 @@ describe("DataRange1d", () => {
       r.reset()
 
       expect(r.range_padding).to.be.equal(0.3)
-      expect(r.range_padding_units).to.be.equal("absolute")
+      expect<PaddingUnits>(r.range_padding_units).to.be.equal("absolute")
       expect(r.follow).to.be.equal("end")
       expect(r.follow_interval).to.be.equal(10)
       expect(r.default_span).to.be.equal(8)

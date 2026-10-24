@@ -1,24 +1,39 @@
-import * as ts from "typescript"
-
 import crypto from "node:crypto"
-import {parse, format, normalize, basename, dirname, join} from "node:path"
+import fs from "node:fs"
+import {dirname, join, parse, format, basename} from "node:path"
 
 export type Path = string
 
-export function scan(path: string,
-                     extensions?: readonly string[], exclude?: readonly string[], include?: readonly string[], depth?: number): string[] {
-  return ts.sys.readDirectory(path, extensions, exclude, include, depth).map((p) => normalize(p))
+export function scan(path: string, extensions?: readonly string[]): string[] {
+  if (!directory_exists(path)) {
+    return []
+  }
+  return fs.readdirSync(path, {recursive: true, encoding: "utf8"})
+    .map((file) => join(path, file))
+    .filter((file) => file_exists(file) && (extensions == null || extensions.some((ext) => file.endsWith(ext))))
+    .sort()
 }
 
-export function glob(...patterns: string[]): string[] {
-  return scan(".", undefined, undefined, patterns)
+export function read(path: string): string | undefined {
+  try {
+    return fs.readFileSync(path, "utf8").replace(/^\uFEFF/, "")
+  } catch {
+    return undefined
+  }
 }
 
-export const read = ts.sys.readFile
-export const write = ts.sys.writeFile
+export function write(path: string, data: string): void {
+  fs.mkdirSync(dirname(path), {recursive: true})
+  fs.writeFileSync(path, data)
+}
 
-export const file_exists = ts.sys.fileExists
-export const directory_exists = ts.sys.directoryExists
+export function file_exists(path: string): boolean {
+  return fs.statSync(path, {throwIfNoEntry: false})?.isFile() ?? false
+}
+
+export function directory_exists(path: string): boolean {
+  return fs.statSync(path, {throwIfNoEntry: false})?.isDirectory() ?? false
+}
 
 export type RenameOptions = {
   base?: string
@@ -77,6 +92,11 @@ function npm_bin_dir(): string {
 }
 
 export function resolve_npm(args: string[]): [string, string[]] {
+  // Python's compiler subprocess restricts PATH and supplies the discovered CLI.
+  const cli = process.env.BOKEH_NPMJS_PATH
+  if (cli != null) {
+    return [process.execPath, [cli, ...args]]
+  }
   if (process.platform == "win32") {
     return [process.execPath, [join(npm_bin_dir(), "npm-cli.js"), ...args]]
   }

@@ -24,14 +24,21 @@ prune src/bokeh/server/static
 # include bundles
 include src/bokeh/server/static/js/bokeh*.js
 include src/bokeh/server/static/js/bokeh*.min.js
+include src/bokeh/server/static/js/bokeh*.js.map
 
 # don't include ESM bundles yet
 exclude src/bokeh/server/static/js/bokeh*.esm.js
 exclude src/bokeh/server/static/js/bokeh*.esm.min.js
+exclude src/bokeh/server/static/js/bokeh*.esm.js.map
+exclude src/bokeh/server/static/js/bokeh*.esm.min.js.map
 
-# include extensions' compiler
+# include the extension compiler adapter and pinned npm runtime manifest
 include src/bokeh/server/static/js/compiler.js
+include src/bokeh/server/static/js/compiler/compiler.mjs
+include src/bokeh/server/static/js/compiler/compiler.mjs.map
+include src/bokeh/server/static/js/compiler/package.json
+include src/bokeh/server/static/js/compiler/package-lock.json
+include src/bokeh/server/static/js/compiler/THIRD-PARTY-LICENSE.compiler
 
-# include bokeh's and typescript's type declarations
-recursive-include src/bokeh/server/static/js/lib *.d.ts
-recursive-include src/bokeh/server/static/lib *.d.ts
+# include BokehJS declarations
+recursive-include src/bokeh/server/static/js/lib *.d.ts *.d.ts.map

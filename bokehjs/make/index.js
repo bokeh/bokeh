@@ -1,137 +1,59 @@
-import crypto from "node:crypto"
-import cp from "node:child_process"
-import fs from "node:fs"
-import {join, dirname, basename} from "node:path"
-
-function npm_bin_dir() {
-  // directory containing npm-cli.js and npx-cli.js
-  const execpath = process.env.npm_execpath
-  if (execpath != null && ["npm-cli.js", "npx-cli.js"].includes(basename(execpath))) {
-    return dirname(execpath)
-  }
-  return join(dirname(process.execPath), "node_modules", "npm", "bin")
-}
-
-function resolve_npm(args) {
-  if (process.platform == "win32") {
-    return [process.execPath, [join(npm_bin_dir(), "npm-cli.js"), ...args]]
-  }
-  return ["npm", args]
-}
-
-function resolve_npx(args) {
-  if (process.platform == "win32") {
-    return [process.execPath, [join(npm_bin_dir(), "npx-cli.js"), ...args]]
-  }
-  return ["npx", args]
-}
-
-function npm_install() {
-  const [resolved_executable, resolved_args] = resolve_npm(["install"])
-  const {status, error} = cp.spawnSync(resolved_executable, resolved_args, {stdio: "inherit"})
-  if (error != null) {
-    console.error(`${resolved_executable} ${resolved_args.join(" ")} failed to start: ${error.message}`)
-    process.exit(1)
-  }
-  if (status !== 0) {
-    process.exit(status ?? 1)
-  }
-}
-
-if (!fs.existsSync("node_modules/")) {
-  console.log("New development environment. Running `npm install`.")
-  npm_install()
-}
-
+import {isAbsolute} from "node:path"
+import {mkdir} from "node:fs/promises"
+import {mkdtempSync, rmSync} from "node:fs"
+import {pathToFileURL} from "node:url"
 import pkg_json from "../package.json" with {type: "json"}
-const {workspaces} = pkg_json
 
-function is_up_to_date(file) {
-  const hash_file = join(dirname(file), `.${basename(file)}`)
-
-  if (!fs.existsSync(hash_file)) {
-    return false
-  }
-
-  const old_hash = fs.readFileSync(hash_file)
-
-  const new_hash = crypto
-    .createHash("sha256")
-    .update(fs.readFileSync(file))
-    .digest("hex")
-
-  return old_hash == new_hash
+// Locked setup cleans before installing npm dependencies in a fresh checkout.
+// Leave options and combined commands to the regular task runner below.
+if (process.argv.length == 3 && process.argv[2] == "clean:all") {
+  rmSync("build", {recursive: true, force: true})
+  process.exit(0)
 }
 
-for (const workspace of ["", ...workspaces]) {
-  const path = join(workspace, "package.json")
-  if (!is_up_to_date(path)) {
-    console.log(`${path} has changed. Running 'npm install'.`)
-    npm_install()
-    break
-  }
-}
-
-process.on("uncaughtException", function(err) {
-  console.error(err)
-  process.exit(1)
+// Use the same standard TypeScript loader as the library build. Dependencies
+// come from locked setup; running a command never modifies the npm installation.
+const {rolldown} = await import("rolldown")
+const build = await rolldown({
+  input: "make/main.ts",
+  platform: "node",
+  tsconfig: "make/tsconfig.json",
+  external: (id) => !isAbsolute(id) && !id.startsWith(".") && !id.startsWith("#compiler/"),
 })
-
-function compile() {
-  const hash_file = "make/_build/.compile-hash"
-  const outputs = ["make/_build/make/main.js", "make/_build/src/compiler/sys.js"]
-
-  function source_files(dir) {
-    const files = []
-    for (const entry of fs.readdirSync(dir, {withFileTypes: true})) {
-      const path = join(dir, entry.name)
-      if (entry.isDirectory()) {
-        if (entry.name != "_build" && entry.name != "node_modules") {
-          files.push(...source_files(path))
-        }
-      } else {
-        files.push(path)
-      }
-    }
-    return files
+// Concurrent make commands must never overwrite a module another is importing.
+// Keep it under make/ so Node still resolves the workspace's dependencies.
+await mkdir("make/_build", {recursive: true})
+const directory = mkdtempSync("make/_build/run-")
+// main() exits explicitly, so its successful path bypasses promise finalizers.
+const cleanup = () => rmSync(directory, {recursive: true, force: true})
+process.once("exit", cleanup)
+const on_signal = (signal) => {
+  cleanup()
+  // Tasks may forward the signal to children or finish asynchronously. Leave
+  // their handlers in control, but preserve default termination during bootstrap.
+  if (process.listenerCount(signal) == 1) {
+    process.off(signal, on_signal)
+    process.kill(process.pid, signal)
   }
-
-  const inputs = [...new Set([
-    "package.json",
-    "package-lock.json",
-    "tsconfig.base.json",
-    ...source_files("make"),
-    ...source_files("src/compiler"),
-  ])].sort()
-
-  const hash = crypto.createHash("sha256")
-  for (const input of inputs) {
-    hash.update(input)
-    hash.update("\0")
-    hash.update(fs.readFileSync(input))
-    hash.update("\0")
-  }
-  const digest = hash.digest("hex")
-
-  if (outputs.every((output) => fs.existsSync(output)) &&
-      fs.existsSync(hash_file) && fs.readFileSync(hash_file, "utf8") == digest) {
-    return
-  }
-
-  const [resolved_executable, resolved_args] = resolve_npx(["--loglevel=warn", "tsc", "--project", "./make/tsconfig.json"])
-  const {status, error} = cp.spawnSync(resolved_executable, resolved_args, {stdio: "inherit"})
-  if (error != null) {
-    console.error(`${resolved_executable} ${resolved_args.join(" ")} failed to start: ${error.message}`)
-    process.exit(1)
-  }
-  if (status !== 0) {
-    process.exit(status ?? 1)
-  }
-
-  fs.writeFileSync(hash_file, digest)
 }
-
-compile()
-
-const {main} = await import("./_build/make/main.js")
-void main(pkg_json)
+const signals = ["SIGINT", "SIGTERM"]
+for (const signal of signals) {
+  // Inspect the listener count before downstream once() handlers are removed.
+  process.prependListener(signal, on_signal)
+}
+try {
+  const file = `${directory}/main.mjs`
+  try {
+    await build.write({file, format: "esm", sourcemap: true})
+  } finally {
+    await build.close()
+  }
+  const {main} = await import(pathToFileURL(file).href)
+  await main(pkg_json)
+} finally {
+  cleanup()
+  process.removeListener("exit", cleanup)
+  for (const signal of signals) {
+    process.off(signal, on_signal)
+  }
+}

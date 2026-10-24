@@ -211,7 +211,7 @@ export class Parser {
     try {
       const nodes = this.gobbleExpressions(undefined)
       // If there's only one expression just try returning the expression
-      const node = nodes.length == 1 ? nodes[0] : {type: COMPOUND, body: nodes} as CompoundExpression
+      const node: Expression = nodes.length == 1 ? nodes[0] : {type: COMPOUND, body: nodes}
       return node
     } catch (error) {
       if (error instanceof ParseError) {

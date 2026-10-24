@@ -244,7 +244,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
   }
 
   override resolve_frame(): View | null {
-    return this.plot_view.frame as any // TODO CartesianFrameView (PR #13286)
+    return this.plot_view.frame // TODO CartesianFrameView (PR #13286)
   }
 
   override resolve_canvas(): View | null {

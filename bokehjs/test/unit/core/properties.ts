@@ -320,7 +320,7 @@ describe("properties module", () => {
 
       it("should apply a spec transform to a field", () => {
         const source = ColumnDataSource.create({data: {foo: [0, 1, 2, 3, 10]}})
-        const obj = Some.create({number_spec: {field: "foo", transform: TestTransform.create()}} as any) // XXX: transform
+        const obj = Some.create({number_spec: {field: "foo", transform: TestTransform.create()}}) // XXX: transform
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
         expect(arr).to.be.equal(new Float64Array([0, 2, 4, 6, 14]))
@@ -328,7 +328,7 @@ describe("properties module", () => {
 
       it("should apply a spec transform to a value array", () => {
         const source = ColumnDataSource.create({data: {foo: [0, 1, 2, 3, 10]}})
-        const obj = Some.create({number_spec: {value: 2, transform: TestTransform.create()}} as any) // XXX: transform
+        const obj = Some.create({number_spec: {value: 2, transform: TestTransform.create()}}) // XXX: transform
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
         expect(arr).to.be.equal(new Float64Array([2, 3, 4, 5, 6]))

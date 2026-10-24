@@ -59,7 +59,7 @@ async function make_testcase(): Promise<BoxEditTestCase> {
     active: true,
     default_overrides: {c: 400},
     empty_value: "Foo",
-    renderers: [glyph_renderer as any],
+    renderers: [glyph_renderer],
   })
   plot.add_tools(draw_tool)
   await plot_view.ready

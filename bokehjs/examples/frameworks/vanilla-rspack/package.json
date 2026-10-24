@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "rspack build"
+    "build": "tsc && rspack build"
   },
   "dependencies": {
     "@bokeh/bokehjs": "4.0.0-dev.8"
@@ -12,7 +12,6 @@
   "devDependencies": {
     "@rspack/cli": "^2.1.7",
     "@rspack/core": "^2.1.7",
-    "ts-loader": "^9.6.2",
-    "typescript": "5.9.2"
+    "typescript": "7.0.2"
   }
 }

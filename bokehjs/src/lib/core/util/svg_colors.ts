@@ -1,5 +1,3 @@
-import type {uint32} from "../types"
-
 const _named_colors = {
   aliceblue:            0xf0f8ffff,
   antiquewhite:         0xfaebd7ff,
@@ -151,7 +149,7 @@ const _named_colors = {
   yellowgreen:          0x9acd32ff,
 }
 
-export const named_colors = _named_colors as {[key in keyof typeof _named_colors]: uint32}
+export const named_colors = _named_colors
 
 export type NamedColor = keyof typeof named_colors
 

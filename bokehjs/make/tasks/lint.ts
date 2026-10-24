@@ -1,57 +1,28 @@
-import {join, normalize} from "node:path"
-
-import {clearCaches} from "@typescript-eslint/typescript-estree"
-import {ESLint} from "eslint"
-import chalk from "chalk"
+import {spawn} from "node:child_process"
+import {dirname, join} from "node:path"
+import {fileURLToPath} from "node:url"
 
 import {argv} from "../args.js"
-import {task, log, BuildError} from "../task.js"
+import {task, BuildError} from "../task.js"
 import * as paths from "../paths.js"
 
-import {glob} from "#compiler/sys.js"
-
-async function eslint(dirs: string[], tsconfig_file: string = "tsconfig.json"): Promise<void> {
-  const {fix} = argv
-  const eslint = new ESLint({cache: true, cacheStrategy: "content", fix})
-
-  const files = new Set<string>()
-  for (const dir of dirs) {
-    const tsconfig_url = `file://${join(dir, tsconfig_file)}`
-    const {default: tsconfig_json} = await import(tsconfig_url, {with: {type: "json"}})
-    const tsconfig = tsconfig_json as {include?: string[], exclude?: string[]}
-
-    const included_files = new Set(glob(...(tsconfig.include ?? []).map((pat) => normalize(join(dir, pat)))))
-    const excluded_files = new Set(glob(...(tsconfig.exclude ?? []).map((pat) => normalize(join(dir, pat)))))
-
-    for (const file of included_files) {
-      if (!excluded_files.has(file)) {
-        files.add(file)
+async function lint(dirs: string[]): Promise<void> {
+  const package_dir = dirname(fileURLToPath(import.meta.resolve("oxlint/package.json")))
+  const args = [join(package_dir, "bin/oxlint"), "--format", "stylish", ...dirs]
+  if (argv.fix) {
+    args.push("--fix")
+  }
+  const child = spawn(process.execPath, args, {stdio: "inherit"})
+  await new Promise<void>((resolve, reject) => {
+    child.on("error", reject)
+    child.on("exit", (code) => {
+      if (code === 0) {
+        resolve()
+      } else {
+        reject(new BuildError("lint", "lint failed with Oxlint"))
       }
-    }
-  }
-
-  const results = await eslint.lintFiles([...files]).finally(clearCaches)
-
-  const errors = results.some(result => result.errorCount != 0)
-  const warnings = results.some(result => result.warningCount != 0)
-
-  if (fix) {
-    await ESLint.outputFixes(results)
-  }
-
-  if (errors || warnings) {
-    const formatter = await eslint.loadFormatter("stylish")
-    const output = await formatter.format(results)
-
-    for (const line of output.trim().split("\n")) {
-      log(line)
-    }
-  }
-
-  if (errors) {
-    const total = results.reduce((total, result) => total + result.errorCount, 0)
-    throw new BuildError("eslint", `lint failed with ${chalk.red(total)} errors`)
-  }
+    })
+  })
 }
 
 const test_subdirs = [
@@ -64,34 +35,33 @@ const test_subdirs = [
   "frameworks",
 ]
 
+// Type-aware rules need the declarations referenced by test and workspace
+// tsconfigs, even when lint is the first command after npm ci.
+task("lint:prepare", ["frameworks:compile", "test:framework:compile"])
+
 for (const name of test_subdirs) {
-  task(`eslint:test:${name}`, async () => await eslint([join(paths.src_dir.test, name)]))
+  task(`eslint:test:${name}`, ["lint:prepare"], async () => await lint([join(paths.src_dir.test, name)]))
 }
 
-task("eslint:make", async () => await eslint([paths.make_dir]))
-task("eslint:lib", async () => await eslint([paths.src_dir.lib]))
-task("eslint:compiler", async () => await eslint([paths.src_dir.compiler]))
-task("eslint:server", async () => await eslint([paths.src_dir.server]))
-task("eslint:test", async () => await eslint(test_subdirs.map((name) => join(paths.src_dir.test, name))))
-task("eslint:examples", async () => await eslint([paths.src_dir.examples]))
-task("eslint:frameworks", async () => await eslint([join(paths.base_dir, "frameworks")], "tsconfig.lint.json"))
-task("eslint:examples:frameworks", async () => await eslint([join(paths.src_dir.examples, "frameworks")], "tsconfig.lint.json"))
+task("eslint:make", async () => await lint([paths.make_dir]))
+task("eslint:lib", ["scripts:compile"], async () => await lint([paths.src_dir.lib]))
+task("eslint:compiler", async () => await lint([paths.src_dir.compiler]))
+task("eslint:server", ["scripts:compile"], async () => await lint([paths.src_dir.server]))
+task("eslint:test", ["lint:prepare"], async () => await lint(test_subdirs.map((name) => join(paths.src_dir.test, name))))
+task("eslint:examples", ["frameworks:compile"], async () => await lint([paths.src_dir.examples]))
+task("eslint:frameworks", ["frameworks:compile"], async () => await lint([join(paths.base_dir, "frameworks")]))
+task("eslint:examples:frameworks", ["frameworks:compile"], async () => await lint([join(paths.src_dir.examples, "frameworks")]))
 
-task("eslint", async () => {
-  await eslint([
-    paths.make_dir,
-    paths.src_dir.lib,
-    paths.src_dir.compiler,
-    paths.src_dir.server,
-  ])
-  await eslint([
-    ...test_subdirs.map((name) => join(paths.src_dir.test, name)),
-    paths.src_dir.examples,
-  ])
-  await eslint([
-    join(paths.base_dir, "frameworks"),
-    join(paths.src_dir.examples, "frameworks"),
-  ], "tsconfig.lint.json")
-})
+task("oxlint", ["lint:prepare"], async () => await lint([
+  paths.make_dir,
+  paths.src_dir.lib,
+  paths.src_dir.compiler,
+  paths.src_dir.server,
+  ...test_subdirs.map((name) => join(paths.src_dir.test, name)),
+  paths.src_dir.examples,
+  join(paths.base_dir, "frameworks"),
+]))
 
-task("lint", ["eslint"])
+// Keep the existing task names usable by contributor scripts.
+task("eslint", ["oxlint"])
+task("lint", ["oxlint"])

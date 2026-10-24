@@ -560,7 +560,7 @@ export class BokehMount<T extends HasProps = HasProps> {
 
   /** Return the currently attached root view, or null while detached. */
   view(key: RootKey): ViewOf<T> | null {
-    return this._required_mount.view(key) as ViewOf<T> | null
+    return this._required_mount.view(key)
   }
 
   /** Return the caller-owned target currently associated with a root. */
@@ -771,7 +771,7 @@ export class BokehMount<T extends HasProps = HasProps> {
     }
 
     try {
-      return await this._required_mount.attach(key, resolved) as ViewOf<T> | null
+      return await this._required_mount.attach(key, resolved)
     } catch (error) {
       const mounted_error = mount_error("render", error, key)
       this._record_error(mounted_error)

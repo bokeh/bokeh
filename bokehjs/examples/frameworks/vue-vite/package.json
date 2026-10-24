@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "vue-tsc --noEmit && vite build"
+    "build": "node check-types.cjs --noEmit && vite build"
   },
   "dependencies": {
     "@bokeh/bokehjs": "4.0.0-dev.8",
@@ -13,8 +13,9 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.5",
-    "typescript": "5.9.2",
+    "typescript": "7.0.2",
+    "typescript-native-bridge": "6.0.3-bridge.19.tsgo.7.0.2",
     "vite": "^8.2.0",
-    "vue-tsc": "^3.2.6"
+    "vue-tsc": "^3.3.13"
   }
 }

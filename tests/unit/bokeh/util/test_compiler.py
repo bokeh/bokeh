@@ -20,8 +20,8 @@ import pytest ; pytest
 import json
 import os
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 from threading import Event, Lock
-from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 # Module under test
@@ -38,12 +38,14 @@ import bokeh.util.compiler as buc # isort:skip
 def test_nodejs_compile_javascript() -> None:
     assert buc.nodejs_compile("""function f(a, b) { return a + b; };""", "javascript", "some.js") == \
         dict(code="""\
+"use strict";
 function f(a, b) { return a + b; }
 ;
 """, deps=[])
 
     assert buc.nodejs_compile("""const some = require('some/module');""", "javascript", "some.js") == \
         dict(code="""\
+"use strict";
 const some = require('some/module');
 """, deps=["some/module"])
 
@@ -57,6 +59,7 @@ class MyModel extends Model {
 exports.MyModel = MyModel;
 """, "javascript", "some.js") == \
         dict(code="""\
+"use strict";
 const { Model } = require("lib/model");
 class MyModel extends Model {
     static __name__ = 'MyModel';
@@ -65,15 +68,22 @@ exports.MyModel = MyModel;
 """,
              deps=["lib/model"])
 
-    assert buc.nodejs_compile("""function f(a, b) { eturn a + b; };""", "javascript", "some.js") == \
-        dict(error=
-            '\x1b[96msome.js\x1b[0m:\x1b[93m1\x1b[0m:\x1b[93m20\x1b[0m - '
-            '\x1b[91merror\x1b[0m\x1b[90m TS1435: \x1b[0mUnknown keyword or '
-            "identifier. Did you mean 'return'?\n"
-            '\n'
-            '\x1b[7m1\x1b[0m function f(a, b) { eturn a + b; };\n'
-            '\x1b[7m \x1b[0m \x1b[91m                   ~~~~~\x1b[0m\n',
-        )
+    result = buc.nodejs_compile("""function f(a, b) { eturn a + b; };""", "javascript", "some.js")
+    assert "TS1435" in result.error
+    assert "Unknown keyword or identifier. Did you mean 'return'?" in result.error
+    assert "some.js" in result.error
+    assert "function f(a, b) { eturn a + b; };" in result.error
+    assert "bokeh-typescript-" not in result.error
+
+    imported = buc.nodejs_compile('import value from "some/module"; export {value}', "javascript", "some.js")
+    assert "error" not in imported, imported
+    assert "__importDefault" in imported.code
+    assert imported.deps == ["some/module"]
+
+    dynamic = buc.nodejs_compile('export const load = () => import("./helper")', "javascript", "some.js")
+    assert "error" not in dynamic, dynamic
+    assert 'require("./helper")' in dynamic.code
+    assert dynamic.deps == ["./helper"]
 
 def test_nodejs_compile_less() -> None:
     assert buc.nodejs_compile(""".bk-some-style { color: mix(#ff0000, #0000ff, 50%); }""", "less", "some.less") == \
@@ -81,6 +91,32 @@ def test_nodejs_compile_less() -> None:
 
     assert buc.nodejs_compile(""".bk-some-style color: green; }""", "less", "some.less") == \
         dict(error="ParseError: Unrecognised input in some.less on line 1, column 21:\n1 .bk-some-style color: green; }\n")
+
+def test_nodejs_compile_typescript_readonly_package(tmp_path: Path) -> None:
+    package = tmp_path / "node_modules" / "compiler-fixture"
+    package.mkdir(parents=True)
+    (package / "package.json").write_text(json.dumps({
+        "name": "compiler-fixture",
+        "exports": {"./value": {"types": "./types.d.ts", "default": "./value.js"}},
+    }), encoding="utf-8")
+    (package / "types.d.ts").write_text("export declare const value: string\n", encoding="utf-8")
+    source = tmp_path / "readonly" / "source"
+    source.mkdir(parents=True)
+    (source / "helper.ts").write_text('export const suffix: string = "relative"\n', encoding="utf-8")
+    (source / "compiler-fixture").mkdir()
+    (source / "compiler-fixture" / "value.ts").write_text("export const value: number = 42\n", encoding="utf-8")
+    source.chmod(0o555)
+    try:
+        result = buc.nodejs_compile('''
+import {value} from "compiler-fixture/value"
+import {suffix} from "./helper"
+export const combined: string = `${value} ${suffix}`
+''', "typescript", str(source / "virtual.ts"))
+        assert "error" not in result, result
+        assert result.deps == ["compiler-fixture/value", "./helper"]
+        assert sorted(path.name for path in source.iterdir()) == ["compiler-fixture", "helper.ts"]
+    finally:
+        source.chmod(0o755)
 
 def test_Implementation() -> None:
     obj = buc.Implementation()
@@ -190,42 +226,30 @@ def test_bundle_models_propagates_compilation_errors(monkeypatch: pytest.MonkeyP
 
 
 def test_custom_model_bundles_use_model_set_specific_entries(monkeypatch: pytest.MonkeyPatch) -> None:
-    def model(name: str) -> MagicMock:
-        return MagicMock(
-            full_name=f"example.{name}",
-            name=name,
-            module=f"custom/example_{name.lower()}",
-            path="",
-        )
+    class First:
+        __implementation__ = buc.JavaScript("export class First {}")
 
-    first = model("First")
-    second = model("Second")
+    class Second:
+        __implementation__ = buc.JavaScript("export class Second {}")
 
-    monkeypatch.setattr(buc, "_compile_models", lambda models: {
-        name: SimpleNamespace(code=f"module.exports = {name!r}", deps=[])
-        for name in models
-    })
+    first = buc.CustomModel(First)
+    second = buc.CustomModel(Second)
+    node = MagicMock(return_value=json.dumps({"code": "bundled models"}))
+    monkeypatch.setattr(buc, "_run_nodejs", node)
 
-    def bundle(*models: MagicMock) -> tuple[str, str]:
+    def request(*models: buc.CustomModel) -> dict:
         custom_models = {model.full_name: model for model in models}
-        entry = f"custom/main/{buc.calc_cache_key(custom_models)}"
-        return buc._bundle_models(custom_models), entry
+        assert buc._bundle_models(custom_models) == "bundled models"
+        result = node.call_args.args[1]
+        assert result["entry"] == f"custom/main/{buc.calc_cache_key(custom_models)}"
+        return result
 
-    first_bundle, first_entry = bundle(first)
-    second_bundle, second_entry = bundle(second)
-    combined_bundle, combined_entry = bundle(first, second)
+    first_request = request(first)
+    second_request = request(second)
+    combined_request = request(first, second)
 
-    assert len({first_entry, second_entry, combined_entry}) == 3
-    for output, entry in (
-        (first_bundle, first_entry),
-        (second_bundle, second_entry),
-        (combined_bundle, combined_entry),
-    ):
-        assert output.count(f'"{entry}"') == 2
-
-    reordered_bundle, reordered_entry = bundle(second, first)
-    assert reordered_entry == combined_entry
-    assert reordered_bundle == combined_bundle
+    assert len({first_request["entry"], second_request["entry"], combined_request["entry"]}) == 3
+    assert request(second, first) == combined_request
 
 def test_inline_extension() -> None:
     from bokeh.io import save
@@ -266,6 +290,67 @@ def test_inline_extension() -> None:
     p.xaxis.formatter = TestFormatter()
     save(p)
 
+def test_bundle_models_preserves_cache_hook(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    # Hooks may supply precompiled code even when the original TS is unavailable
+    # or invalid. Bundling must preserve that result and skip hooks on cache hits.
+    class CachedModel:
+        __implementation__ = buc.TypeScript("invalid original source", "virtual.ts")
+        __base_path__ = tmp_path
+        __dependencies__ = {"fixture": "1.2.3"}
+
+    model = buc.CustomModel(CachedModel)
+    cached = buc.AttrDict(code='exports.CachedModel = require("./helper").CachedModel;', deps=["./helper"])
+    hook = MagicMock(return_value=cached)
+    node = MagicMock(return_value=json.dumps({"code": "bundled model"}))
+    npm = MagicMock()
+    monkeypatch.setattr(buc, "_bundle_cache", {})
+    monkeypatch.setattr(buc, "_bundle_futures", {})
+    monkeypatch.setattr(buc, "_CACHING_IMPLEMENTATION", hook)
+    monkeypatch.setattr(buc, "_run_nodejs", node)
+    monkeypatch.setattr(buc, "_run_npmjs", npm)
+
+    assert buc.bundle_models([CachedModel]) == "bundled model"
+    assert buc.bundle_models([CachedModel]) == "bundled model"
+    hook.assert_called_once()
+    npm.assert_called_once_with(["install", "--no-progress", "fixture@1.2.3"])
+    node.assert_called_once()
+    argv, request = node.call_args.args
+    assert argv[-1] == "bundle"
+    assert request["models"][0]["cached"] == cached
+    assert request["models"][0]["module"] == model.module
+    assert request["models"][0]["path"] == str(tmp_path)
+
+def test_bundle_models_retries_after_compilation_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    class BrokenModel:
+        __implementation__ = buc.TypeScript("export class BrokenModel {}")
+
+    node = MagicMock(side_effect=[json.dumps({"error": "TS2307: missing dependency"}), json.dumps({"code": "fixed"})])
+    monkeypatch.setattr(buc, "_bundle_cache", {})
+    monkeypatch.setattr(buc, "_bundle_futures", {})
+    monkeypatch.setattr(buc, "_run_nodejs", node)
+
+    with pytest.raises(buc.CompilationError, match="TS2307: missing dependency"):
+        buc.bundle_models([BrokenModel])
+    assert not buc._bundle_cache
+    assert not buc._bundle_futures
+    assert buc.bundle_models([BrokenModel]) == "fixed"
+    assert node.call_count == 2
+
+def test_bundle_models_preserves_response_and_diagnostics(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+    class EscapedModel:
+        __implementation__ = buc.JavaScript("export class EscapedModel {}")
+
+    code = r'exports.value = "\r"; exports.pattern = /\r?\n/g;'
+    diagnostic = "Rolldown WASI trapped; retrying bundle in a fresh Node process (attempt 2/3).\n"
+    process = MagicMock(returncode=0)
+    process.communicate.return_value = (json.dumps({"code": code}).encode(), diagnostic.encode())
+    monkeypatch.setattr(buc, "_nodejs_path", lambda: Path("node"))
+    monkeypatch.setattr(buc, "Popen", MagicMock(return_value=process))
+    model = buc.CustomModel(EscapedModel)
+
+    assert buc._bundle_models({model.full_name: model}) == code
+    assert capsys.readouterr().err == diagnostic
+
 @patch("bokeh.util.compiler._run")
 def test_npmjs_version(mock_run: MagicMock) -> None:
     mock_run.side_effect = [FileNotFoundError, "11.6.3\n"]
@@ -283,6 +368,25 @@ def test_nodejs_version(mock_path: MagicMock, mock_run: MagicMock) -> None:
     assert buc.nodejs_version() is None
     # assume node is installed, a version is returned and stripped
     assert buc.nodejs_version() == "v20.19.5"
+
+@pytest.mark.parametrize("version, supported", [
+    ("v18.20.0", False),
+    ("v22.12.0", False),
+    ("v22.13.0", True),
+    ("v24.19.0", True),
+])
+@patch("bokeh.util.compiler.Popen")
+@patch("bokeh.util.compiler.settings")
+def test_detect_nodejs_minimum(mock_settings: MagicMock, mock_popen: MagicMock, version: str, supported: bool) -> None:
+    mock_settings.nodejs_path.return_value = "custom-node"
+    process = mock_popen.return_value
+    process.communicate.return_value = (version.encode(), b"")
+    process.returncode = 0
+    if supported:
+        assert buc._detect_nodejs() == Path("custom-node").absolute()
+    else:
+        with pytest.raises(RuntimeError, match=r"node.js v22\.13\.0 or higher"):
+            buc._detect_nodejs()
 
 #-----------------------------------------------------------------------------
 # Dev API

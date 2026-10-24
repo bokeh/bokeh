@@ -387,9 +387,9 @@ describe("in api/plotting module", () => {
       })
       controller.abort(new Error("caller cancelled"))
       const abort_error = await aborted.ready.then(() => null, (error: unknown) => error)
-      expect(abort_error).to.be.instanceof(MountError)
-      expect((abort_error as MountError).kind).to.be.equal("abort")
-      expect(aborted.error).to.be.equal(abort_error as MountError)
+      expect_instanceof(abort_error, MountError)
+      expect(abort_error.kind).to.be.equal("abort")
+      expect(aborted.error).to.be.equal(abort_error)
       expect(aborted.errors).to.be.equal([])
       expect(abort_callbacks).to.be.equal([])
       await aborted.when_disposed
@@ -401,9 +401,9 @@ describe("in api/plotting module", () => {
       const readiness = disposed.ready.then(() => null, (error: unknown) => error)
       await disposed.dispose()
       const dispose_error = await readiness
-      expect(dispose_error).to.be.instanceof(MountError)
-      expect((dispose_error as MountError).kind).to.be.equal("disposed")
-      expect(disposed.error).to.be.equal(dispose_error as MountError)
+      expect_instanceof(dispose_error, MountError)
+      expect(dispose_error.kind).to.be.equal("disposed")
+      expect(disposed.error).to.be.equal(dispose_error)
       expect(disposed.errors).to.be.equal([])
       expect(dispose_callbacks).to.be.equal([])
 

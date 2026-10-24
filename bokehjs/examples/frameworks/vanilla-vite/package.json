@@ -10,7 +10,7 @@
     "@bokeh/bokehjs": "4.0.0-dev.8"
   },
   "devDependencies": {
-    "typescript": "5.9.2",
+    "typescript": "7.0.2",
     "vite": "^8.2.0"
   }
 }

@@ -1,9 +1,8 @@
 import assert from "node:assert/strict"
-import {readFileSync, statSync} from "node:fs"
+import {spawnSync} from "node:child_process"
+import {mkdtempSync, readFileSync, rmSync, statSync, writeFileSync} from "node:fs"
 import {dirname, join, normalize} from "node:path"
 import {fileURLToPath} from "node:url"
-
-import ts from "typescript"
 
 // Run this copy from the installed workspace so every import uses packed files.
 const package_path = fileURLToPath(import.meta.resolve("@bokeh/bokehjs/package.json"))
@@ -18,10 +17,10 @@ const samples = new Map([
   ["./build/js/lib/*", "models/ranges/range1d"],
 ])
 const modes = [
-  ["Bundler", ts.ModuleKind.ESNext, ts.ModuleResolutionKind.Bundler],
-  ["NodeNext", ts.ModuleKind.NodeNext, ts.ModuleResolutionKind.NodeNext],
+  ["Bundler", "ESNext", "Bundler"],
+  ["NodeNext", "NodeNext", "NodeNext"],
 ]
-const containing_file = join(import.meta.dirname, "consumer.mts")
+const declarations = new Map()
 
 for (const [key, target] of Object.entries(exports)) {
   assert.equal(typeof target, "string", `expected a direct export target for ${key}`)
@@ -33,14 +32,33 @@ for (const [key, target] of Object.entries(exports)) {
   assert.ok(statSync(runtime_path).isFile(), `missing packed export ${specifier}`)
   assert.equal(fileURLToPath(import.meta.resolve(specifier)), runtime_path, `Node resolved ${specifier} incorrectly`)
 
-  const declaration_path = runtime_path.endsWith(".js") ? runtime_path.slice(0, -3) + ".d.ts" : runtime_path
+  declarations.set(specifier, runtime_path.endsWith(".js") ? runtime_path.slice(0, -3) + ".d.ts" : runtime_path)
+}
+
+const compiler = process.argv[2]
+assert.ok(compiler != null, "the native TypeScript CLI path is required")
+const temporary = mkdtempSync(join(import.meta.dirname, ".exports-check-"))
+try {
+  const source = [...declarations.keys()].map((specifier, i) => `export type Export${i} = typeof import(${JSON.stringify(specifier)})`)
+  writeFileSync(join(temporary, "consumer.mts"), `${source.join("\n")}\n`)
   for (const [mode, module, moduleResolution] of modes) {
-    const {resolvedModule} = ts.resolveModuleName(specifier, containing_file, {
-      module, moduleResolution, resolveJsonModule: true,
-    }, ts.sys, undefined, undefined, ts.ModuleKind.ESNext)
-    assert.equal(resolvedModule == null ? undefined : normalize(resolvedModule.resolvedFileName), declaration_path,
-      `${mode} didn't resolve the packed declarations for ${specifier}`)
+    const config = join(temporary, "tsconfig.json")
+    writeFileSync(config, JSON.stringify({
+      compilerOptions: {
+        module, moduleResolution, resolveJsonModule: true, noEmit: true,
+        noImplicitAny: true, skipLibCheck: true, types: [], target: "ES2022",
+      },
+      files: ["consumer.mts"],
+    }))
+    const result = spawnSync(process.execPath, [compiler, "--project", config, "--listFiles", "--pretty", "false"], {encoding: "utf8"})
+    assert.equal(result.status, 0, `${mode} failed to type-check packed exports:\n${result.stdout}\n${result.stderr}`)
+    const files = new Set(result.stdout.split(/\r?\n/).map((file) => normalize(file)))
+    for (const [specifier, declaration_path] of declarations) {
+      assert.ok(files.has(normalize(declaration_path)), `${mode} didn't load the packed declarations for ${specifier}`)
+    }
   }
+} finally {
+  rmSync(temporary, {recursive: true, force: true})
 }
 
 assert.equal(globalThis.window, undefined)

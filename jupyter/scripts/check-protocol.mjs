@@ -1,13 +1,11 @@
 import {readFile} from "node:fs/promises"
+import {stripTypeScriptTypes} from "node:module"
 import {resolve} from "node:path"
-import ts from "typescript"
 
 const root = resolve(import.meta.dirname, "..")
 const manifest = JSON.parse(await readFile(resolve(root, "../src/bokeh/jupyter/protocol.json"), "utf8"))
 const source = await readFile(resolve(root, "src/protocol.ts"), "utf8")
-const javascript = ts.transpileModule(source, {
-  compilerOptions: {module: ts.ModuleKind.ES2022, target: ts.ScriptTarget.ES2022},
-}).outputText
+const javascript = stripTypeScriptTypes(source, {mode: "transform"})
 const protocol = await import(`data:text/javascript;base64,${Buffer.from(javascript).toString("base64")}`)
 
 const expected = {

@@ -89,12 +89,13 @@ describe("Legend annotation", () => {
     figure_dimensions,
   }: {
     figure_dimensions?: [width: number, height: number]
-    glyphs?: {
+    glyphs?: ({
       x: number | number[]
       y: number | number[]
-      type: "circle" | "line"
-      options: Partial<CircleArgs | LineArgs>
-    }[]
+    } & (
+      {type: "circle", options: Partial<CircleArgs>} |
+      {type: "line", options: Partial<LineArgs>}
+    ))[]
     legend_items?: {label: string, renderers: number[], visible?: boolean}[]
     legends: Partial<Legend.Attrs>[]
   }) => Promise<void>
@@ -129,7 +130,7 @@ describe("Legend annotation", () => {
 
       const gls = glyphs.map(({x, y, type, options}) => {
         if (type == "line") {
-          return p.line(x, y, options as Partial<LineArgs>)
+          return p.line(x, y, options)
         } else {
           return p.scatter(x, y, options)
         }

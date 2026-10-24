@@ -214,7 +214,7 @@ export namespace Kinds {
         return false
       }
 
-      const struct_type_proxy = new PlainObjectProxy(this.struct_type as types.PlainObject<Kind<unknown>>)
+      const struct_type_proxy = new PlainObjectProxy<Kind<unknown>>(this.struct_type)
 
       for (const key of keys(value)) {
         if (!struct_type_proxy.has(key)) {
@@ -255,7 +255,7 @@ export namespace Kinds {
       }
 
       const value_proxy = new PlainObjectProxy(value)
-      const struct_type_proxy = new PlainObjectProxy(this.struct_type as types.PlainObject<Kind<unknown>>)
+      const struct_type_proxy = new PlainObjectProxy<Kind<unknown>>(this.struct_type)
 
       for (const key of value_proxy.keys()) {
         if (!struct_type_proxy.has(key)) {

@@ -1,0 +1,9 @@
+{
+  "name": "@bokeh/compiler-runtime",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "rolldown": "1.2.15",
+    "typescript": "7.0.2"
+  }
+}

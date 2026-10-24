@@ -14,9 +14,8 @@
     "target": "ES2022",
     "types": [],
     "verbatimModuleSyntax": true,
-    "baseUrl": "..",
     "paths": {
-      "@bokeh/bokehjs": ["build/js/lib/bokeh_package.d.ts"]
+      "@bokeh/bokehjs": ["../build/js/lib/bokeh_package.d.ts"]
     }
   }
 }

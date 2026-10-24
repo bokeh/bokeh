@@ -5,8 +5,9 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "moduleResolution": "Bundler",
     "noEmit": true,
+    "rootDir": ".",
+    "outDir": "../../build/test/frameworks/compiled",
     "types": ["node"],
-    "baseUrl": ".",
     "paths": {
       "@bokeh/bokehjs": ["../../build/js/lib/bokeh_package.d.ts"]
     }

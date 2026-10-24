@@ -363,8 +363,8 @@ export class RangeTool extends GestureTool {
 
   get event_type(): EventType | EventType[] {
     switch (this.start_gesture) {
-      case "pan":  return "pan" as "pan"
-      case "tap":  return ["tap" as "tap", "move" as "move"]
+      case "pan":  return "pan"
+      case "tap":  return ["tap", "move"]
       case "none": return []
     }
   }

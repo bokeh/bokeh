@@ -1,18 +1,20 @@
 import fs from "node:fs"
 import {join, normalize} from "node:path"
+import {gzipSync} from "node:zlib"
 
 import chalk from "chalk"
 
 const build_dir = normalize(`${import.meta.dirname}/../..`) // build/test/codebase -> build
 
 const LIMITS = new Map([
-  // ES2024
-  ["js/bokeh.min.js",                1500],
-  ["js/bokeh-widgets.min.js",         400],
-  ["js/bokeh-tables.min.js",          500],
-  ["js/bokeh-api.min.js",             150],
-  ["js/bokeh-gl.min.js",              270],
-  ["js/bokeh-mathjax.min.js",        1800],
+  // ES2024, with public namespaces and serialization class names preserved.
+  // Shared helpers and styles belong to their first consuming component.
+  ["js/bokeh.min.js",                1600],
+  ["js/bokeh-widgets.min.js",         390],
+  ["js/bokeh-tables.min.js",          310],
+  ["js/bokeh-api.min.js",             205],
+  ["js/bokeh-gl.min.js",              276],
+  ["js/bokeh-mathjax.min.js",        1860],
   ["js/bokeh-embed-bootstrap.min.js",   3],
 ])
 
@@ -26,9 +28,13 @@ function pad(value: unknown): string {
 }
 
 let failures = 0
+let compressed = 0
 for (const [filename, limit] of LIMITS) {
   const path = join(build_dir, filename)
   const stats = fs.existsSync(path) ? fs.statSync(path) : null
+  if (stats != null) {
+    compressed += gzipSync(fs.readFileSync(path)).length
+  }
 
   const ok = stats != null && stats.size <= limit*1024
   if (!ok) {
@@ -41,5 +47,11 @@ for (const [filename, limit] of LIMITS) {
 
   console.log(` ${prefix} ${chalk.gray(filename)}${padding}${chalk.magenta(pad(size))} kB ${op} ${pad(limit)} kB`)
 }
+
+const compressed_limit = 1320*1024
+if (compressed > compressed_limit) {
+  failures++
+}
+console.log(` Combined gzip payload: ${compressed} bytes (limit ${compressed_limit})`)
 
 process.exit(failures == 0 ? 0 : 1)

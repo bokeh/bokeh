@@ -566,7 +566,7 @@ export class HoverToolView extends InspectToolView {
       .filter(({vars}) => bbox.contains(vars.snap_sx, vars.snap_sy))
       .filter(({ds, vars}) => this._can_render_tooltip(ds, vars))
       .map(({ds, vars, i}) => ({html: this._render_tooltips_if_can(ds, vars), vars, i}))
-      .filter((entry) => entry.html != null)
+      .filter((entry): entry is Omit<TooltipEntry, "j"> => entry.html != null)
       .map((entry, j) => ({...entry, j}))
 
     const {sort_by} = this.model
@@ -635,7 +635,7 @@ export class HoverToolView extends InspectToolView {
       entries.splice(limit)
     }
 
-    return entries as TooltipEntry[] // because filter() can't narrow null
+    return entries
   }
 
   /**
@@ -903,7 +903,9 @@ export class HoverTool extends InspectTool {
         ["screen (x, y)", "($sx, $sy)"],
       ]],
       formatters:   [ Dict(Or(Ref(CustomJSHover), BuiltinFormatter)), {} ],
-      filters:      [ Dict(Or(FilterDef, List(FilterDef))) as any, {} ], // XXX `any` cast because of CustomJS/Func types
+      // FilterDef's runtime kind and executable type have different function signatures.
+      // oxlint-disable-next-line typescript/no-unnecessary-type-assertion
+      filters:      [ Dict(Or(FilterDef, List(FilterDef))) as any, {} ],
       sort_by:      [ SortBy, null ],
       limit:        [ Nullable(Positive(Int)), null ],
       renderers:    [ Or(List(Ref(DataRenderer)), Auto), "auto" ],

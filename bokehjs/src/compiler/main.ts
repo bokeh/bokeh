@@ -5,6 +5,7 @@ import yargs from "yargs"
 import {read} from "./sys.js"
 import {init, build} from "./build.js"
 import {compile_and_resolve_deps} from "./compile.js"
+import {bundle_models} from "./inline.js"
 
 const argv = yargs(process.argv.slice(2)).options({
   code: {type: "string"},
@@ -86,7 +87,11 @@ async function main() {
     }
   } else {
     try {
-      reply(await compile())
+      if (cmd == "bundle") {
+        reply(await bundle_models(JSON.parse(await read_stdin())))
+      } else {
+        reply(await compile())
+      }
     } catch (error) {
       const msg = error instanceof Error && error.stack != null ? error.stack : `${error}`
       reply({error: msg})

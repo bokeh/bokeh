@@ -95,7 +95,8 @@ const loader = `\
         cache[id] = cache[name] = mod;
 
         function __esModule() {
-          Object.defineProperty(mod.exports, "__esModule", {value: true});
+          if (!("__esModule" in mod.exports))
+            Object.defineProperty(mod.exports, "__esModule", {value: true});
         }
 
         function __esExport(name, value) {
@@ -104,7 +105,22 @@ const loader = `\
           });
         }
 
-        modules[id].call(mod.exports, require, mod, mod.exports, __esModule, __esExport);
+        // Standard bundlers emit relative CommonJS imports between chunks.
+        // Resolve them within this registry so every bundle shares one cache.
+        const local_require = function(name) {
+          if (typeof name === "string" && name[0] === "." && typeof id === "string") {
+            const parts = id.split("/");
+            parts.pop();
+            for (const part of name.split("/")) {
+              if (part === "..") parts.pop();
+              else if (part !== ".") parts.push(part);
+            }
+            name = parts.join("/");
+          }
+          return require(name);
+        };
+        local_require.resolve = require.resolve;
+        modules[id].call(mod.exports, local_require, mod, mod.exports, __esModule, __esExport);
       } else {
         cache[name] = mod;
       }
@@ -141,7 +157,10 @@ const loader = `\
     }
 
     for (let name in plugin_externals) {
-      externals[name] = plugin_externals[name];
+      // Bokeh imports address the host registry. Treating them as external
+      // would disable prefix normalization and bypass its module aliases.
+      if (!name.startsWith("@bokehjs/"))
+        externals[name] = plugin_externals[name];
     }
 
     const plugin = require(plugin_entry);
@@ -178,7 +197,7 @@ ${comment(license)}
 import main from "./bokeh.esm${minified ? ".min" : ""}.js";
 
 const plugin = (function(modules, entry, aliases, externals) {
-  main.register_plugin(modules, entry, aliases);
+  return main.register_plugin(modules, entry, aliases, externals);
 })\
 `
 }
@@ -225,7 +244,7 @@ ${comment(license)}
   return (function(modules, entry, aliases, externals) {
     const bokeh = typeof Bokeh !== "undefined" ? (version != null ? Bokeh[version] : Bokeh) : null;
     if (bokeh != null) {
-      return bokeh.register_plugin(modules, entry, aliases);
+      return bokeh.register_plugin(modules, entry, aliases, externals);
     } else {
       throw new Error("Cannot find Bokeh" + (version != null ? " " + version : "") + ". You have to load it prior to loading plugins.");
     }

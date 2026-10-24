@@ -4,15 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "webpack"
+    "build": "tsc && webpack"
   },
   "dependencies": {
     "@bokeh/bokehjs": "4.0.0-dev.8",
     "@bokeh/web-component": "4.0.0-dev.8"
   },
   "devDependencies": {
-    "ts-loader": "^9.6.2",
-    "typescript": "5.9.2",
+    "typescript": "7.0.2",
     "webpack": "^5.109.2",
     "webpack-cli": "^7.2.2"
   }

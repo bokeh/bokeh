@@ -78,8 +78,10 @@ describe("Icons", () => {
       }
     `
 
+    // Keep the gallery order independent of module export enumeration.
     const children = entries(icons)
       .filter(([name]) => name != "default")
+      .sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0)
       .map(([, icon]) => div({class: ["test-icon", icon]}))
 
     const container = FlexDiv.create({stylesheets: [css, icons_css], children})

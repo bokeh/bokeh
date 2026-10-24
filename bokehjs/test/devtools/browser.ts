@@ -320,7 +320,7 @@ export class BrowserManager {
 
   async get_metrics(): Promise<Array<{name: string, value: number}>> {
     const session = this.get_session()
-    const data = await command("Performance.getMetrics", session.send("Performance.getMetrics")) as PerformanceMetrics
+    const data: PerformanceMetrics = await command("Performance.getMetrics", session.send("Performance.getMetrics"))
     return data.metrics
   }
 }
