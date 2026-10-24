@@ -2,14 +2,15 @@ import {resolve, relative, join, dirname, basename, extname, normalize, sep} fro
 import crypto from "node:crypto"
 
 import ts from "typescript"
-import * as terser from "terser"
+import {minifySync} from "oxc-minify"
+import {parseSync} from "oxc-parser"
 import chalk from "chalk"
 
 import * as combine from "combine-source-map"
 import * as convert from "convert-source-map"
 
 import type {Path} from "./sys.js"
-import {read, write, file_exists, directory_exists, rename} from "./sys.js"
+import {read, write, file_exists, directory_exists} from "./sys.js"
 import {report_diagnostics} from "./compiler.js"
 import * as transforms from "./transforms.js"
 import {BuildError} from "./error.js"
@@ -374,8 +375,7 @@ export class Linker {
         let code: ModuleCode
         if (module.changed || (cached != null && deps_changed(module, cached.module))) {
           const source = print(module)
-          const ecma = 2020 // the highest version supported by terser
-          const minified = await minify(module, source, ecma)
+          const minified = minify(module, source)
           code = {source, ...minified}
         } else {
           code = cached!.code
@@ -961,32 +961,47 @@ export function transpile(file: Path, source: string,
   }
 }
 
-export async function minify(module: ModuleInfo, source: string, ecma: terser.ECMA): Promise<{min_source: string, min_map?: string}> {
-  const name = basename(module.file)
-  const min_js = rename(name, {ext: ".min.js"})
-  const min_js_map = rename(name, {ext: ".min.js.map"})
+// oxc-minify preserves only legal comments, i.e. `/*! ... */`, `//! ...`, or ones that
+// include `@license` or `@preserve`. Third-party code may include license notices
+// as ordinary comments, so mark comments that look like license notices as legal.
+const license_like = /copyright|license|\(c\)/i
+const legal = /^!|@license|@preserve/
 
-  const minify_opts: terser.MinifyOptions = {
-    ecma,
-    keep_classnames: true,
-    format: {
-      comments: /^!|copyright|license|\(c\)/i,
-      // https://github.com/terser/terser/issues/410
-      ascii_only: true,
-    },
-    sourceMap: {
-      filename: basename(min_js),
-      url: basename(min_js_map),
-    },
+function mark_license_comments(name: string, source: string): string {
+  const {comments} = parseSync(name, source, {sourceType: "script"})
+  let result = ""
+  let pos = 0
+  for (const {type, value, start, end} of comments) {
+    if (!license_like.test(value) || legal.test(value) || (type == "Line" && value.includes("*/"))) {
+      continue
+    }
+    result += `${source.slice(pos, start)}/*!${value}*/`
+    pos = end
+  }
+  return result + source.slice(pos)
+}
+
+export function minify(module: ModuleInfo, source: string): {min_source: string, min_map?: string} {
+  // oxc infers module type from the extension (e.g. `.mjs` or `.cjs`), which would allow
+  // it to remove the unused top-level module function, so always use `.js`.
+  const name = `${basename(module.file, extname(module.file))}.js`
+  const {code, map, errors} = minifySync(name, mark_license_comments(name, source), {
+    module: false,
+    compress: {target: "es2024", keepNames: {function: false, class: true}},
+    mangle: {toplevel: false, keepNames: {function: false, class: true}},
+    codegen: {asciiOnly: true, legalComments: "inline"},
+    sourcemap: true,
+  })
+
+  if (errors.length != 0) {
+    throw new BuildError("linker", `failed to minify ${module.file}: ${errors.map((error) => error.message).join("\n")}`)
+  }
+  if (code.trim().length == 0) {
+    throw new BuildError("linker", `minification of ${module.file} resulted in empty output`)
   }
 
-  try {
-    const {code, map} = await terser.minify(source, minify_opts)
-    return {
-      min_source: code ?? "",
-      min_map: typeof map === "string" ? map : undefined,
-    }
-  } catch (error) {
-    throw new BuildError("linker", `${error}`)
+  return {
+    min_source: code,
+    min_map: map != null ? JSON.stringify(map) : undefined,
   }
 }
