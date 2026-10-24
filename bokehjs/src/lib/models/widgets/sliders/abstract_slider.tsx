@@ -19,14 +19,6 @@ type TargetedWheelEvent = TargetedEvent<HTMLElement, WheelEvent>
 
 const {abs, round, floor, min: min_of, max: max_of} = Math
 
-/**
- * Acceleration of keyboard changes when holding a key: the multiplier
- * doubles every `acceleration_repeats` auto-repeated key presses, up to
- * `acceleration_max`.
- */
-const acceleration_repeats = 10
-const acceleration_max = 8
-
 export type SliderSpec<T> = {
   readonly start: number
   readonly end: number
@@ -791,14 +783,16 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
       return
     }
 
-    // accelerate changes when holding a key
+    // accelerate changes when holding a key: the multiplier doubles every
+    // acceleration_interval auto-repeated key presses, up to acceleration_max
     const acceleration = (() => {
       if (event.repeat && this._key_repeat?.key == key) {
         this._key_repeat.count += 1
       } else {
         this._key_repeat = {key, count: 0}
       }
-      return min_of(2**floor(this._key_repeat.count/acceleration_repeats), acceleration_max)
+      const {acceleration_interval, acceleration_max} = this.values
+      return min_of(2**floor(this._key_repeat.count/acceleration_interval), acceleration_max)
     })()
 
     const values = this.synthetic_values
@@ -892,6 +886,8 @@ export namespace AbstractSlider {
     appearance: p.Property<SliderAppearance>
     step_multiplier: p.Property<number>
     default_step: p.Property<number>
+    acceleration_interval: p.Property<number>
+    acceleration_max: p.Property<number>
   }
 }
 
@@ -903,14 +899,16 @@ export abstract class AbstractSlider<T> extends OrientedControl {
 
   static {
     this.define<AbstractSlider.Props>(({Unknown, Bool, Int, Str, Nullable, Positive, Percent}) => ({
-      title:           [ Nullable(Str), "" ],
-      show_value:      [ Bool, true ],
-      value:           [ Unknown ],
-      value_throttled: [ Unknown, p.unset, {readonly: true} ],
-      tooltips:        [ Bool, true ],
-      appearance:      [ SliderAppearance, "normal" ],
-      step_multiplier: [ Positive(Int), 5 ],
-      default_step:    [ Positive(Percent), 0.05 ],
+      title:                 [ Nullable(Str), "" ],
+      show_value:            [ Bool, true ],
+      value:                 [ Unknown ],
+      value_throttled:       [ Unknown, p.unset, {readonly: true} ],
+      tooltips:              [ Bool, true ],
+      appearance:            [ SliderAppearance, "normal" ],
+      step_multiplier:       [ Positive(Int), 5 ],
+      default_step:          [ Positive(Percent), 0.05 ],
+      acceleration_interval: [ Positive(Int), 10 ],
+      acceleration_max:      [ Positive(Int), 8 ],
     }))
   }
 }

@@ -7733,6 +7733,8 @@
     appearance: "normal",
     step_multiplier: 5,
     default_step: 0.05,
+    acceleration_interval: 10,
+    acceleration_max: 8,
   },
   CategoricalSlider: {
     __extends__: "AbstractSlider",

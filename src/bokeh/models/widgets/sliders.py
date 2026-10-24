@@ -137,6 +137,17 @@ class AbstractSlider(Widget):
     when interacting with a pointer.
     """)
 
+    acceleration_interval = Positive(Int, default=10, help="""
+    The number of auto-repeated key presses (when holding a key), after which
+    the step, by which arrow, ``PageUp`` and ``PageDown`` keys move a handle,
+    doubles (up to ``acceleration_max``).
+    """)
+
+    acceleration_max = Positive(Int, default=8, help="""
+    The maximum multiplier of the step when holding a key (see
+    ``acceleration_interval``). Use ``1`` to disable acceleration.
+    """)
+
     @error(EQUAL_SLIDER_START_END)
     def _check_missing_dimension(self):
         if hasattr(self, 'start') and hasattr(self, 'end'):

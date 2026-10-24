@@ -24,6 +24,8 @@ class _AbstractSliderInit(_WidgetInit, total=False):
     appearance: SliderAppearance
     step_multiplier: int
     default_step: Percent
+    acceleration_interval: int
+    acceleration_max: int
 
 class AbstractSlider(Widget):
     @abstractmethod
@@ -36,6 +38,8 @@ class AbstractSlider(Widget):
     appearance: SliderAppearance = ...
     step_multiplier: int = ...
     default_step: Percent = ...
+    acceleration_interval: int = ...
+    acceleration_max: int = ...
 
 class _NumericalSliderInit(_AbstractSliderInit, total=False):
     format: str | TickFormatter
