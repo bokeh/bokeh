@@ -93,6 +93,7 @@ ALL = (
     'SelectionMode',
     'SizingMode',
     'SizingPolicy',
+    'SliderAppearance',
     'SortDirection',
     'SpatialUnits',
     'StartEnd',
@@ -345,6 +346,9 @@ class Test_bce:
 
     def test_SizingMode(self) -> None:
         assert tuple(bce.SizingMode) == ("stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed", "inherit")
+
+    def test_SliderAppearance(self) -> None:
+        assert tuple(bce.SliderAppearance) == ("normal", "stealth")
 
     def test_SortDirection(self) -> None:
         assert tuple(bce.SortDirection) == ("ascending", "descending")

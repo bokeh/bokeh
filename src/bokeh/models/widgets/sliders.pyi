@@ -8,11 +8,11 @@
 # Standard library imports
 from abc import abstractmethod
 from datetime import date, datetime
-from typing import Literal, Sequence, Unpack
+from typing import Sequence, Unpack
 
 # Bokeh imports
 from ..._types import Datetime, Percent
-from ...core.enums import OrientationType as Orientation
+from ...core.enums import OrientationType as Orientation, SliderAppearanceType as SliderAppearance
 from ..formatters import TickFormatter
 from .widget import Widget, _WidgetInit
 
@@ -21,7 +21,7 @@ class _AbstractSliderInit(_WidgetInit, total=False):
     title: str | None
     show_value: bool
     tooltips: bool
-    appearance: Literal["normal", "stealth"]
+    appearance: SliderAppearance
     step_multiplier: int
     default_step: Percent
 
@@ -33,7 +33,7 @@ class AbstractSlider(Widget):
     title: str | None = ...
     show_value: bool = ...
     tooltips: bool = ...
-    appearance: Literal["normal", "stealth"] = ...
+    appearance: SliderAppearance = ...
     step_multiplier: int = ...
     default_step: Percent = ...
 
