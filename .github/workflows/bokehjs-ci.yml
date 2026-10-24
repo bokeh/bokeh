@@ -87,6 +87,8 @@ jobs:
           npm ci --no-progress
 
       - name: List installed software
+        env:
+          DEBUG: pw:browser
         working-directory: ./bokehjs
         shell: bash
         run: |

@@ -9,6 +9,10 @@ import {TimeoutError} from "./types.js"
 // own timeout. A few integration tests legitimately need more than ten seconds
 // under software-rendered CI, while this still puts a firm bound on a hung page.
 const DEFAULT_COMMAND_TIMEOUT = 30_000
+const BROWSER_LAUNCH_TIMEOUT = 30_000
+// Playwright allows another 30 seconds for browser cleanup after a launch timeout.
+// Leave headroom for its detailed launch error before our watchdog fires.
+const BROWSER_LAUNCH_WATCHDOG = BROWSER_LAUNCH_TIMEOUT + 30_000 + 15_000
 
 function error_message(error: unknown): string {
   return error instanceof Error ? error.stack ?? error.message : `${error}`
@@ -149,6 +153,7 @@ export class BrowserManager {
 
     const browser = await command("Browser.launch", chromium.launch({
       executablePath: this.executable,
+      timeout: BROWSER_LAUNCH_TIMEOUT,
       headless: true,
       // Ubuntu CI runners disable the unprivileged user namespaces Chromium's
       // sandbox requires. Preserve sandboxing for ordinary local runs.
@@ -157,7 +162,7 @@ export class BrowserManager {
       // hides them by default, unlike the former BokehJS Chrome launcher.
       ignoreDefaultArgs: ["--hide-scrollbars"],
       args,
-    }))
+    }), BROWSER_LAUNCH_WATCHDOG)
     browser.on("disconnected", () => {
       this.crashed = true
     })
