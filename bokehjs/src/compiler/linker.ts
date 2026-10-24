@@ -19,7 +19,7 @@ import {detect_cycles} from "./graph.js"
 
 const root_path = process.cwd()
 
-const cache_version = 5
+const cache_version = 6
 
 export type Transformers = ts.TransformerFactory<ts.SourceFile>[]
 
@@ -35,18 +35,14 @@ export type ModuleType = "js" | "json" | "json5" | "yaml" | "css"
 
 export type ModuleInfo = {
   file: Path
-  base: Path
   base_path: Path
   canonical?: string
-  resolution: ResoType
   id: number | string
   hash: string
   changed: boolean
-  type: ModuleType
   source: string
   ast?: ts.SourceFile
   dependency_paths: Map<string, Path>
-  dependency_map: Map<string, number>
   dependencies: Map<string, ModuleInfo>
   externals: Set<string>
   shims: Set<string>
@@ -54,9 +50,7 @@ export type ModuleInfo = {
 
 export type ModuleCode = {
   source: string
-  map?: string
   min_source: string
-  min_map?: string
 }
 
 export type ModuleArtifact = {
@@ -100,7 +94,7 @@ export class Bundle {
   constructor(
     readonly entry: ModuleInfo,
     readonly artifacts: ModuleArtifact[],
-    readonly bases: Bundle[] = []) {}
+    readonly plugin: boolean) {}
 
   assemble(options: AssemblyOptions): Artifact {
     let line = 0
@@ -119,10 +113,9 @@ export class Bundle {
       return typeof id == "number" ? id.toString() : JSON.stringify(id)
     }
 
-    const {entry, artifacts, bases} = this
+    const {entry, artifacts, plugin} = this
     const minified = options.minified ?? false
 
-    const plugin = bases.length != 0
     const {prefix, suffix, wrap} = !plugin ? dense_assembly : sparse_assembly
 
     const prelude = !plugin ? options.prelude.main : options.prelude.plugin
@@ -167,14 +160,13 @@ export class Bundle {
     sources += `${suffix}, ${safe_id(entry)}, ${aliases_json}, ${externals_json});${postlude}`
 
     const source_map = convert.fromBase64(sourcemap.base64()).toObject()
-    return new Artifact(sources, minified ? null : source_map, aliases)
+    return new Artifact(sources, minified ? null : source_map)
   }
 }
 
 export class Artifact {
   constructor(readonly source: string,
-              readonly sourcemap: object | null,
-              readonly exported: Map<string, number | string>) {}
+              readonly sourcemap: object | null) {}
 
   full_source(name: string): string {
     if (this.sourcemap != null) {
@@ -182,10 +174,6 @@ export class Artifact {
     } else {
       return `${this.source}\n`
     }
-  }
-
-  get module_names(): string[] {
-    return Array.from(this.exported.keys())
   }
 
   write(path: string): void {
@@ -271,7 +259,7 @@ export class Linker {
   async link(): Promise<{bundles: Bundle[], status: boolean}> {
     let status = true
 
-    const [entries] = this.resolve(this.entries)
+    const entries = this.resolve(this.entries)
     const [main, ...plugins] = entries
 
     const dirnames = plugins.map((plugin) => dirname(plugin.file))
@@ -355,7 +343,7 @@ export class Linker {
 
     const deps_changed = (module: ModuleInfo, cached: ModuleInfo): boolean => {
       if (module.dependencies.size != cached.dependencies.size) {
-        return false
+        return true
       }
 
       for (const [dep, module_dep] of module.dependencies) {
@@ -386,11 +374,11 @@ export class Linker {
       return result
     }
 
-    const main_bundle = new Bundle(main, await artifacts(main_modules))
+    const main_bundle = new Bundle(main, await artifacts(main_modules), this.plugin)
 
     const plugin_bundles: Bundle[] = []
     for (let j = 0; j < plugins.length; j++) {
-      const plugin_bundle = new Bundle(plugins[j], await artifacts(plugin_modules[j]), [main_bundle])
+      const plugin_bundle = new Bundle(plugins[j], await artifacts(plugin_modules[j]), true)
       plugin_bundles.push(plugin_bundle)
     }
 
@@ -450,7 +438,6 @@ export class Linker {
           ast: undefined,
           changed: false,
           dependencies: new Map(),
-          dependency_map: new Map(module.dependency_map),
           dependency_paths: new Map(module.dependency_paths),
           externals: new Set(module.externals),
           shims: new Set(module.shims),
@@ -488,7 +475,6 @@ export class Linker {
       artifacts.push({
         module: {
           ...module,
-          dependency_map: [...module.dependency_map.entries()],
           dependency_paths: [...module.dependency_paths.entries()],
           externals: [...module.externals.values()],
           shims: [...module.shims.values()],
@@ -500,8 +486,6 @@ export class Linker {
     const json = JSON.stringify({version: cache_version, config: this.cache_config, artifacts})
     write(this.cache_path, json)
   }
-
-  protected readonly ext = ".js"
 
   get_package(dir: string): {[key: string]: unknown} {
     const pkg_path = join(dir, "package.json")
@@ -869,25 +853,21 @@ export default yaml;
 
     return {
       file,
-      base,
       base_path,
       canonical,
-      resolution,
       id: NaN,
       hash,
       changed,
       source,
       ast,
-      type,
       dependency_paths,
-      dependency_map: new Map(),
       dependencies: new Map(),
       externals,
       shims,
     }
   }
 
-  resolve(files: Path[]): [ModuleInfo[], ModuleInfo[]] {
+  resolve(files: Path[]): ModuleInfo[] {
     const visited = new Map<Path, ModuleInfo>()
     const pending = [...files]
 
@@ -912,8 +892,7 @@ export default yaml;
       }
     }
 
-    const entries = files.map((file) => visited.get(file)!)
-    return [entries, [...visited.values()]]
+    return files.map((file) => visited.get(file)!)
   }
 
   reachable(entry: ModuleInfo, is_excluded: (module: ModuleInfo) => boolean): ModuleInfo[] {
@@ -938,7 +917,7 @@ export default yaml;
   }
 }
 
-export function transpile(file: Path, source: string,
+function transpile(file: Path, source: string,
     transformers?: {before: Transformers, after: Transformers}): {output: string, error?: string} {
   const {outputText: output, diagnostics} = ts.transpileModule(source, {
     fileName: file,
@@ -981,16 +960,15 @@ function mark_license_comments(name: string, source: string): string {
   return result + source.slice(pos)
 }
 
-export function minify(module: ModuleInfo, source: string): {min_source: string, min_map?: string} {
+function minify(module: ModuleInfo, source: string): {min_source: string} {
   // oxc infers module type from the extension (e.g. `.mjs` or `.cjs`), which would allow
   // it to remove the unused top-level module function, so always use `.js`.
   const name = `${basename(module.file, extname(module.file))}.js`
-  const {code, map, errors} = minifySync(name, mark_license_comments(name, source), {
+  const {code, errors} = minifySync(name, mark_license_comments(name, source), {
     module: false,
     compress: {target: "es2024", keepNames: {function: false, class: true}},
     mangle: {toplevel: false, keepNames: {function: false, class: true}},
     codegen: {asciiOnly: true, legalComments: "inline"},
-    sourcemap: true,
   })
 
   if (errors.length != 0) {
@@ -1000,8 +978,5 @@ export function minify(module: ModuleInfo, source: string): {min_source: string,
     throw new BuildError("linker", `minification of ${module.file} resulted in empty output`)
   }
 
-  return {
-    min_source: code,
-    min_map: map != null ? JSON.stringify(map) : undefined,
-  }
+  return {min_source: code}
 }

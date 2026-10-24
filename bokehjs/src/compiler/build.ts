@@ -435,12 +435,6 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   const postlude_base = preludes.plugin_postlude()
   const postlude = {main: postlude_base, plugin: postlude_base}
 
-  // HACK {{{
-  for (const bundle of bundles) {
-    bundle.bases.push({} as any)
-  }
-  // }}}
-
   function bundle(minified: boolean, outputs: string[]) {
     bundles
       .map((bundle) => bundle.assemble({prelude, postlude, minified}))
