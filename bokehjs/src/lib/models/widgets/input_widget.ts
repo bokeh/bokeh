@@ -41,7 +41,7 @@ export abstract class InputWidgetView extends ControlView {
   desc_el: HTMLElement | null = null
   protected group_el: HTMLElement
 
-  public *controls() {
+  override *controls() {
     yield this.input_el
   }
 

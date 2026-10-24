@@ -152,6 +152,7 @@ __all__ = (
     'SelectionMode',
     'SizingMode',
     'SizingPolicy',
+    'SliderAppearance',
     'SortDirection',
     'SpatialUnits',
     'StartEnd',
@@ -601,6 +602,10 @@ SizingMode = _string_enumeration(SizingModeType)
 type SizingPolicyType = Literal["fixed", "fit", "min", "max"]
 #: Individual sizing mode policies.
 SizingPolicy = _string_enumeration(SizingPolicyType)
+
+type SliderAppearanceType = Literal["normal", "stealth"]
+#: Specify appearance of sliders, where stealth sliders show handles only on hover or focus.
+SliderAppearance = _string_enumeration(SliderAppearanceType)
 
 type SortDirectionType = Literal["ascending", "descending"]
 #: Specify sorting directions.

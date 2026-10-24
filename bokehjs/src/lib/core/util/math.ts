@@ -3,7 +3,7 @@ import {isObject} from "./types"
 import {assert} from "./assert"
 
 const {PI, abs, sign, sqrt} = Math
-export {PI, abs, sqrt}
+export {PI, abs, sign, sqrt}
 
 export function angle_norm(angle: number): number {
   if (angle == 0) {
@@ -92,6 +92,8 @@ export function minmax(v0: number, v1: number): [number, number] {
 }
 
 export function clamp(val: number, min: number, max: number): number {
+  // TODO assert(min <= max)
+  [min, max] = minmax(min, max)
   return val < min ? min : (val > max ? max : val)
 }
 
@@ -191,4 +193,17 @@ export function eval_poly(poly: Poly, x: number): number {
     x_n *= x
   }
   return y
+}
+
+/**
+ * Number of decimal places in the shortest exact representation of a number,
+ * e.g. 2 for 0.25 and 7 for 1e-7. Returns 0 for non-finite numbers.
+ */
+export function decimals(x: number): number {
+  if (!isFinite(x)) {
+    return 0
+  }
+  const [mantissa, exponent] = x.toExponential().split("e") // e.g. 1.25e-3
+  const fraction = mantissa.split(".")[1] ?? ""
+  return Math.max(fraction.length - Number(exponent), 0)
 }

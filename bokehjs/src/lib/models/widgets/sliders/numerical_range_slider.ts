@@ -1,19 +1,30 @@
-import type {SliderSpec} from "./abstract_slider"
+import type {SliderSpec, SliderKind} from "./abstract_slider"
+import {range_kind} from "./abstract_slider"
 import {BaseNumericalSlider, BaseNumericalSliderView} from "./base_numerical_slider"
 import type * as p from "core/properties"
 
 export abstract class NumericalRangeSliderView extends BaseNumericalSliderView {
-  declare model: NumericalRangeSlider
+  declare readonly model: NumericalRangeSlider
+  declare readonly signals: p.SignalsOf<NumericalRangeSlider.Props>
+  declare readonly values: NumericalRangeSlider.Attrs
 
-  protected _calc_to(): SliderSpec<number> {
+  protected get kind(): SliderKind {
+    return range_kind
+  }
+
+  protected _calc_spec(): SliderSpec<number> {
+    const {start, end, step} = this.values
     return {
-      range: {
-        min: this.model.start,
-        max: this.model.end,
-      },
-      start: this.model.value,
-      step: this.model.step,
+      start,
+      end,
+      step,
+      compute: (value: number) => value,
+      invert: (synthetic: number) => synthetic,
     }
+  }
+
+  protected _calc_values(): number[] {
+    return this.values.value
   }
 
   protected _calc_from(values: number[]): number[] {
@@ -34,7 +45,7 @@ export interface NumericalRangeSlider extends NumericalRangeSlider.Attrs {}
 
 export abstract class NumericalRangeSlider extends BaseNumericalSlider {
   declare properties: NumericalRangeSlider.Props
-  declare declare__view_type__: NumericalRangeSliderView
+  declare __view_type__: NumericalRangeSliderView
 
   declare value: [number, number]
   declare value_throttled: [number, number]

@@ -22,7 +22,7 @@ export abstract class AbstractButtonView extends ControlView {
   button_el: HTMLButtonElement
   protected group_el: HTMLElement
 
-  public *controls() {
+  override *controls() {
     yield this.button_el
   }
 
