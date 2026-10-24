@@ -1,5 +1,5 @@
 import {display, fig} from "#framework/layouts"
-import {press} from "#framework/interactive"
+import {expect_not_null} from "#framework/assertions"
 
 import * as all from "@bokehjs/models/tools"
 import {Toolbar} from "@bokehjs/models"
@@ -46,7 +46,10 @@ describe("Tools", () => {
       p.scatter([1, 2, 3], [1, 2, 3])
       const {view} = await display(p)
       const tool_button_view = view.owner.get_one(tool_button)
-      await press(tool_button_view.el)
+      // Open the menu through the keyboard handler so visual coverage doesn't
+      // depend on scheduling a synthetic long press.
+      tool_button_view.el.dispatchEvent(new KeyboardEvent("keydown", {key: " "}))
+      expect_not_null(tool_button_view.parent.shadow_el.querySelector(".bk-horizontal"))
     })
   }
 })

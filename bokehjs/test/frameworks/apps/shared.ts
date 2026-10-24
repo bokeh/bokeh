@@ -2,6 +2,8 @@ import {ColumnDataSource, ModelResolver, MountError, Plotting, Range1d, index, r
 import type {BokehMount, MountOptions} from "@bokeh/bokehjs"
 import {DocumentMountController, MountController} from "@bokeh/framework"
 import type {BokehModel, BokehRootModel} from "@bokeh/framework"
+import {run_session_test} from "./session"
+import type {SessionRender} from "./session"
 
 declare global {
   interface Window {
@@ -13,6 +15,7 @@ export type FrameworkTestResult = {
   framework: string
   mounts: number
   streams: number
+  sessions: number
 }
 
 export type AdapterMount = {
@@ -420,10 +423,10 @@ export async function run_framework_test(framework: string, adapter: Adapter): P
   await validate_multi_root_mount(adapter)
   await validate_mount_options_update(framework, adapter, plot)
 
-  return {framework, mounts: 4, streams}
+  return {framework, mounts: 4, streams, sessions: 0}
 }
 
-export function install_framework_test(framework: string, render: FrameworkRender): void {
+export function install_framework_test(framework: string, render: FrameworkRender, renderSession: SessionRender): void {
   window.__bokeh_framework_test__ = run_framework_test(framework, {
     async mount(model, mountOptions) {
       let onMounted!: (mounted: BokehMount) => void
@@ -448,5 +451,8 @@ export function install_framework_test(framework: string, render: FrameworkRende
       }
       return {handle, target, updateMountOptions, unmount: rendered.unmount}
     },
+  }).then(async (result) => {
+    await run_session_test(renderSession)
+    return {...result, sessions: 1}
   })
 }
