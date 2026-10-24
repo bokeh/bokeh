@@ -284,7 +284,6 @@ task("scripts:bundle", [passthrough("scripts:compile")], async () => {
     entries: packages.map((pkg) => pkg.main),
     bases: [paths.build_dir.lib, "./node_modules"],
     cache: argv.cache ? join(paths.build_dir.js, "bokeh.json") : undefined,
-    target: "ES2024",
     // Packages that other bundles (e.g. tests) can `require()` by name. Bundles
     // that use preact must share bokehjs' instance of it, because preact keeps
     // global state (e.g. hooks' and signals' current component or computation).
