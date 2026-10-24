@@ -17,7 +17,7 @@
       name: "TextInput",
       id: "p1006",
       attributes: {
-        js_property_callbacks: {
+        _js_property_callbacks: {
           type: "map",
           entries: [
             [

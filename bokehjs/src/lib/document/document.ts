@@ -12,7 +12,7 @@ import {Deserializer} from "core/serialization/deserializer"
 import {Version} from "core/util/version"
 import type {Ref} from "core/util/refs"
 import type {ID, Data} from "core/types"
-import {Signal0} from "core/signaling"
+import {Signal, Signal0} from "core/signaling"
 import {isArray, isString} from "core/util/types"
 import type {Equatable, Comparator} from "core/util/eq"
 import {equals, is_equal} from "core/util/eq"
@@ -21,6 +21,7 @@ import {entries, dict} from "core/util/object"
 import * as sets from "core/util/set"
 import type {CallbackLike} from "core/util/callbacks"
 import {execute} from "core/util/callbacks"
+import type {SyncPolicyKind} from "core/util/sync_policy"
 import {assert} from "core/util/assert"
 import {Model} from "model"
 import {DocumentConfig} from "./config"
@@ -39,6 +40,12 @@ Deserializer.register("model", decode_def)
 export type Out<T> = T
 
 export type DocumentEventCallback<T extends BokehEvent = BokehEvent> = CallbackLike<Document, [T]>
+
+export type SyncFlush = {
+  model: Model
+  attr: string
+  policy?: SyncPolicyKind
+}
 
 // Dispatches events to the subscribed models
 export class EventManager {
@@ -205,6 +212,7 @@ export class Document implements Equatable {
 
   readonly event_manager: EventManager
   readonly idle: Signal0<this>
+  readonly sync_flush: Signal<SyncFlush, this>
   readonly resolver: ModelResolver
 
   protected readonly _init_timestamp: number
@@ -213,6 +221,7 @@ export class Document implements Equatable {
   protected _all_models: Map<ID, HasProps>
   protected _new_models: Set<HasProps>
   protected _all_models_freeze_count: number
+  protected readonly _sync_deferred = new WeakMap<Model, Set<string>>()
   protected _callbacks: Map<((event: DocumentEvent) => void) | ((event: DocumentChangedEvent) => void), boolean>
   protected _document_callbacks: Map<string, DocumentEventCallback[]>
   protected _message_callbacks: Map<string, Set<(data: unknown) => void>>
@@ -248,6 +257,7 @@ export class Document implements Equatable {
     this._message_callbacks = new Map()
     this.event_manager = new EventManager(this)
     this.idle = new Signal0(this, "idle")
+    this.sync_flush = new Signal(this, "sync_flush")
     this._idle_roots = new WeakSet()
     this._interactive_timestamp = null
     this._interactive_plot = null
@@ -278,6 +288,27 @@ export class Document implements Equatable {
 
   get all_models(): Set<HasProps> {
     return new Set(this._all_models.values())
+  }
+
+  begin_sync_deferral(model: Model, attr: string): void {
+    const attrs = this._sync_deferred.get(model) ?? (() => {
+      const attrs = new Set<string>()
+      this._sync_deferred.set(model, attrs)
+      return attrs
+    })()
+    attrs.add(attr)
+  }
+
+  request_sync_flush(model: Model, attr: string, policy?: SyncPolicyKind): void {
+    const attrs = this._sync_deferred.get(model)
+    const deferred = attrs?.delete(attr) ?? false
+    if (policy != "committed" || deferred) {
+      this.sync_flush.emit({model, attr, policy})
+    }
+  }
+
+  is_sync_deferred(model: Model, attr: string): boolean {
+    return this._sync_deferred.get(model)?.has(attr) ?? false
   }
 
   get is_idle(): boolean {

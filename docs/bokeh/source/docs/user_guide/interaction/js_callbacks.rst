@@ -224,6 +224,9 @@ custom formula:
 .. bokeh-plot:: __REPO__/examples/interaction/js_callbacks/js_on_change.py
     :source-position: above
 
+See :ref:`ug_interaction_callback_policies` to limit how often callbacks run
+during rapid browser interactions.
+
 .. _ug_interaction_js_callbacks_customjs_js_on_event:
 
 ``js_on_event`` callback triggers

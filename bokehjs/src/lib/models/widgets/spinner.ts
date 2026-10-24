@@ -1,6 +1,6 @@
 import {NumericInputView, NumericInput} from "./numeric_input"
 
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import type {Keys} from "core/dom"
 import {button, div, toggle_attribute} from "core/dom"
 
@@ -95,19 +95,29 @@ export class SpinnerView extends NumericInputView {
       this._input_key_down(evt)
     })
     this.input_el.addEventListener("keyup", () => {
-      this.model.value_throttled = this.model.value
+      this._commit_value()
+    })
+    this.input_el.addEventListener("focusout", () => {
+      this._commit_value()
     })
     this.input_el.addEventListener("wheel", (evt) => {
       this._input_mouse_wheel(evt)
     })
     this.input_el.addEventListener("wheel", debounce(() => {
-      this.model.value_throttled = this.model.value
+      this._commit_value()
     }, this.model.wheel_wait, false))
   }
 
   override remove(): void {
-    this._stop_incrementation()
+    this._stop_incrementation(false)
+    this.model.document?.request_sync_flush(this.model, "value", "committed")
     super.remove()
+  }
+
+  protected _begin_value_change(): void {
+    if (this.model.has_callback_policy("value", "committed")) {
+      this.model.document?.begin_sync_deferral(this.model, "value")
+    }
   }
 
   _start_incrementation(sign: 1|-1): void {
@@ -131,16 +141,19 @@ export class SpinnerView extends NumericInputView {
     this._handles.interval = setInterval(() => increment_with_increasing_rate(sign * step), this._interval)
   }
 
-  _stop_incrementation(): void {
+  _stop_incrementation(commit: boolean = true): void {
     clearTimeout(this._handles.timeout)
     this._handles.timeout = undefined
     clearInterval(this._handles.interval)
     this._handles.interval = undefined
-    this.model.value_throttled = this.model.value
+    if (commit) {
+      this._commit_value()
+    }
   }
 
   _btn_mouse_down(event: MouseEvent): void {
     event.preventDefault()
+    this._begin_value_change()
     const sign = event.currentTarget === this.btn_up_el ? 1 : -1
     this.increment(sign*this.model.step)
     this.input_el.focus()
@@ -159,6 +172,7 @@ export class SpinnerView extends NumericInputView {
   _input_mouse_wheel(event: WheelEvent): void {
     if (this.shadow_el.activeElement === this.input_el) {
       event.preventDefault()
+      this._begin_value_change()
       const sign = event.deltaY > 0 ? -1 : 1
       this.increment(sign*this.model.step)
     }
@@ -177,6 +191,7 @@ export class SpinnerView extends NumericInputView {
     })()
     if (step != null) {
       event.preventDefault()
+      this._begin_value_change()
       this.increment(step)
     }
   }
@@ -196,7 +211,11 @@ export class SpinnerView extends NumericInputView {
 
   override change_input(): void {
     super.change_input()
-    this.model.value_throttled = this.model.value
+    this._commit_value()
+  }
+
+  protected _commit_value(): void {
+    this.model.document?.request_sync_flush(this.model, "value", "committed")
   }
 
   override bound_value(value: number): number {
@@ -215,7 +234,6 @@ export namespace Spinner {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = NumericInput.Props & {
-    value_throttled: p.Property<number | null>
     step: p.Property<number>
     page_step_multiplier: p.Property<number>
     wheel_wait: p.Property<number>
@@ -231,8 +249,7 @@ export class Spinner extends NumericInput {
   static {
     this.prototype.default_view = SpinnerView
 
-    this.define<Spinner.Props>(({Float, Nullable}) => ({
-      value_throttled:      [ Nullable(Float), p.unset, {readonly: true} ],
+    this.define<Spinner.Props>(({Float}) => ({
       step:                 [ Float, 1 ],
       page_step_multiplier: [ Float, 10 ],
       wheel_wait:           [ Float, 100 ],

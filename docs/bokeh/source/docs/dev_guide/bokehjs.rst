@@ -407,6 +407,52 @@ work with ``schedule()``.
     which tracks an already started promise. Prefer ``schedule()``, which
     also handles synchronous failures and provides the abort signal.
 
+Supporting committed property callbacks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Callback :ref:`delivery policies <ug_interaction_callback_policies>` normally
+need no special support from a model or view. Throttled and debounced callbacks
+observe ordinary property changes and are scheduled automatically. A committed
+callback is different: the component defines when an active interaction begins
+and when its final value is committed.
+
+A view that supports committed callbacks must begin deferral before the first
+property change in an interaction, and request a flush when the interaction
+finishes. Continue updating the model property normally while it is deferred.
+Browser-side model state, rendering, and internal signal handlers remain
+immediate. Only callbacks registered with a committed policy and corresponding
+browser-to-server updates wait for the flush.
+
+.. code-block:: typescript
+
+    protected _begin_value_change(): void {
+      if (this.model.has_callback_policy("value", "committed")) {
+        this.model.document?.begin_sync_deferral(this.model, "value")
+      }
+    }
+
+    protected _commit_value(): void {
+      this.model.document?.request_sync_flush(this.model, "value", "committed")
+    }
+
+    override remove(): void {
+      this._commit_value()
+      super.remove()
+    }
+
+Call the begin method before the first model assignment, not after it. Every way
+an interaction can end must call the commit method. Depending on the component,
+this can include pointer release or cancellation, lost pointer capture, keyup,
+focus loss, a pause in wheel events, and view removal. Passing ``"committed"``
+to ``request_sync_flush()`` prevents a redundant flush when no committed
+interaction is active.
+
+Tests for a component with committed support should verify that its model value
+and rendering still update during the interaction, that committed callbacks do
+not run until the interaction ends, and that every completion path delivers the
+final value exactly once. Sliders and ``Spinner`` provide examples covering
+pointer, keyboard, wheel, focus, and removal paths.
+
 .. _gulp: https://gulpjs.com/
 .. _ESLint: https://eslint.org/
 .. _JSFiddle: http://jsfiddle.net/

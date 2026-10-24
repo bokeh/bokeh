@@ -16,6 +16,7 @@ import {isInteger} from "@bokehjs/core/util/types"
 import {build_view} from "@bokehjs/core/build_views"
 import * as slider_css from "@bokehjs/styles/widgets/sliders.css"
 import type {AbstractSliderView} from "@bokehjs/models/widgets/sliders/abstract_slider"
+import {ModelChangedEvent} from "@bokehjs/document"
 
 const {abs, round} = Math
 
@@ -70,6 +71,29 @@ describe("SliderView", () => {
     expect(r).to.be.equal(5)
     expect(isInteger(r)).to.be.true
   })
+
+  it("should defer a committed callback until the value change completes", async () => {
+    const _subscribed_changes = new Map([["value", [["committed", null] as ["committed", null]]]])
+    const updates: string[] = []
+    const slider = Slider.create({
+      start: 0, end: 10, step: 1, value: 0, _subscribed_changes,
+    })
+    const {view} = await display(slider, null)
+    const document = slider.document!
+
+    document.on_change((event) => {
+      if (event instanceof ModelChangedEvent) {
+        const state = document.is_sync_deferred(slider, event.attr) ? "deferred" : "immediate"
+        updates.push(`${state}:${event.attr}`)
+      }
+    })
+    document.sync_flush.connect(({attr, policy}) => updates.push(`flush:${attr}:${policy}`))
+
+    const {handles: [handle]} = elements(view)
+    await drag(view, handle, center(handle), 0.5)
+
+    expect(updates).to.be.equal(["deferred:value", "flush:value:committed"])
+  })
 })
 
 describe("Slider", () => {
@@ -87,15 +111,13 @@ describe("Slider", () => {
   })
 
   describe("bounds", () => {
-    // Python always sends `value_throttled` equal to `value`, so do the same here
     const make = (attrs: {start?: number, end?: number, value?: number}) => {
-      return Slider.create({step: 1, ...attrs, ...(attrs.value != null ? {value_throttled: attrs.value} : {})})
+      return Slider.create({step: 1, ...attrs})
     }
 
     function count_changes(slider: Slider): () => number {
       let n = 0
       slider.connect(slider.properties.value.change, () => n++)
-      slider.connect(slider.properties.value_throttled.change, () => n++)
       return () => n
     }
 
@@ -111,7 +133,6 @@ describe("Slider", () => {
         it(`should turn value=${value} into ${expected} for [${start}, ${end}]`, () => {
           const slider = make({start, end, value})
           expect(slider.value).to.be.equal(expected)
-          expect(slider.value_throttled).to.be.equal(expected)
         })
       }
 
@@ -128,39 +149,16 @@ describe("Slider", () => {
     })
 
     describe("when start or end change", () => {
-      it("should clamp value and value_throttled when start moves past them", () => {
+      it("should clamp value when start moves past it", () => {
         const slider = make({start: 0, end: 10, value: 4})
         slider.start = 5
         expect(slider.value).to.be.equal(5)
-        expect(slider.value_throttled).to.be.equal(5)
       })
 
-      it("should clamp value and value_throttled when end moves past them", () => {
+      it("should clamp value when end moves past it", () => {
         const slider = make({start: 0, end: 10, value: 8})
         slider.end = 7
         expect(slider.value).to.be.equal(7)
-        expect(slider.value_throttled).to.be.equal(7)
-      })
-
-      it("should clamp value_throttled when only it is out of bounds", () => {
-        const slider = make({start: 0, end: 10, value: 6})
-        slider.setv({value_throttled: 9})
-        slider.end = 7
-        expect(slider.value).to.be.equal(6)
-        expect(slider.value_throttled).to.be.equal(7)
-
-        slider.setv({value_throttled: 1})
-        slider.start = 3
-        expect(slider.value).to.be.equal(6)
-        expect(slider.value_throttled).to.be.equal(3)
-      })
-
-      it("should clamp value when only it is out of bounds, leaving value_throttled alone", () => {
-        const slider = make({start: 0, end: 10, value: 9})
-        slider.setv({value_throttled: 6})
-        slider.end = 7
-        expect(slider.value).to.be.equal(7)
-        expect(slider.value_throttled).to.be.equal(6)
       })
 
       it("should not touch value when the range is widened or still contains it", () => {
@@ -171,7 +169,6 @@ describe("Slider", () => {
         slider.start = 5 // value sits exactly on the new bound
         slider.end = 5
         expect(slider.value).to.be.equal(5)
-        expect(slider.value_throttled).to.be.equal(5)
         expect(changes()).to.be.equal(0)
       })
 
@@ -179,11 +176,9 @@ describe("Slider", () => {
         const slider = make({start: 0, end: 10, value: 2})
         slider.setv({start: 6, end: 8})
         expect(slider.value).to.be.equal(6)
-        expect(slider.value_throttled).to.be.equal(6)
 
         slider.setv({start: 0, end: 4})
         expect(slider.value).to.be.equal(4)
-        expect(slider.value_throttled).to.be.equal(4)
       })
 
       it("should enforce bounds once value is set after partial initialization", () => {
@@ -203,16 +198,6 @@ describe("Slider", () => {
         })
         slider.end = 7
         expect(seen).to.be.equal([{start: 0, end: 7, value: 7}])
-      })
-
-      it("should see the new bound when notified of a value_throttled change", () => {
-        const slider = make({start: 0, end: 10, value: 8})
-        const seen: {end: number, value_throttled: number}[] = []
-        slider.connect(slider.properties.value_throttled.change, () => {
-          seen.push({end: slider.end, value_throttled: slider.value_throttled})
-        })
-        slider.end = 7
-        expect(seen).to.be.equal([{end: 7, value_throttled: 7}])
       })
 
       it("should see an already clamped value when notified of a bound change", async () => {
@@ -262,16 +247,13 @@ describe("RangeSlider", () => {
   describe("bounds", () => {
     type Range = [number, number]
 
-    // Python always sends `value_throttled` equal to `value`, so do the same here
     const make = (attrs: {start?: number, end?: number, value?: Range}) => {
-      const {value} = attrs
-      return RangeSlider.create({step: 1, ...attrs, ...(value != null ? {value_throttled: [...value] as Range} : {})})
+      return RangeSlider.create({step: 1, ...attrs})
     }
 
     function count_changes(slider: RangeSlider): () => number {
       let n = 0
       slider.connect(slider.properties.value.change, () => n++)
-      slider.connect(slider.properties.value_throttled.change, () => n++)
       return () => n
     }
 
@@ -289,7 +271,6 @@ describe("RangeSlider", () => {
         it(`should turn value=[${value}] into [${expected}] for [${start}, ${end}]`, () => {
           const slider = make({start, end, value})
           expect(slider.value).to.be.equal(expected)
-          expect(slider.value_throttled).to.be.equal(expected)
         })
       }
 
@@ -311,13 +292,6 @@ describe("RangeSlider", () => {
         expect(slider.value).to.be.equal([5, 7])
       })
 
-      it("should keep value_throttled inside range bounds", () => {
-        const slider = make({start: 0, end: 10, value: [4, 8]})
-        slider.start = 5
-        slider.end = 7
-        expect(slider.value_throttled).to.be.equal([5, 7])
-      })
-
       it("should only move the handle that is out of bounds", () => {
         const slider = make({start: 0, end: 10, value: [4, 6]})
         slider.start = 5
@@ -337,26 +311,6 @@ describe("RangeSlider", () => {
         expect(slider.value).to.be.equal([6, 6])
       })
 
-      it("should clamp value_throttled when only it is out of bounds", () => {
-        const slider = make({start: 0, end: 10, value: [4, 6]})
-        slider.setv({value_throttled: [2, 8]})
-        slider.end = 7
-        expect(slider.value).to.be.equal([4, 6])
-        expect(slider.value_throttled).to.be.equal([2, 7])
-
-        slider.start = 3
-        expect(slider.value).to.be.equal([4, 6])
-        expect(slider.value_throttled).to.be.equal([3, 7])
-      })
-
-      it("should clamp value when only it is out of bounds, leaving value_throttled alone", () => {
-        const slider = make({start: 0, end: 10, value: [4, 9]})
-        slider.setv({value_throttled: [4, 6]})
-        slider.end = 7
-        expect(slider.value).to.be.equal([4, 7])
-        expect(slider.value_throttled).to.be.equal([4, 6])
-      })
-
       it("should not touch value when the range is widened or still contains it", () => {
         const slider = make({start: 2, end: 8, value: [4, 6]})
         const changes = count_changes(slider)
@@ -365,7 +319,6 @@ describe("RangeSlider", () => {
         slider.start = 4 // handles sit exactly on the new bounds
         slider.end = 6
         expect(slider.value).to.be.equal([4, 6])
-        expect(slider.value_throttled).to.be.equal([4, 6])
         expect(changes()).to.be.equal(0)
       })
 
@@ -373,16 +326,6 @@ describe("RangeSlider", () => {
         const slider = make({start: 0, end: 10, value: [1, 9]})
         slider.setv({start: 3, end: 7})
         expect(slider.value).to.be.equal([3, 7])
-        expect(slider.value_throttled).to.be.equal([3, 7])
-      })
-
-      it("should not alias value and value_throttled", () => {
-        // without `value_throttled`, as when created from JavaScript only
-        const slider = RangeSlider.create({start: 0, end: 10, step: 1, value: [4, 8]})
-        slider.end = 7
-        expect(slider.value).to.be.equal([4, 7])
-        expect(slider.value_throttled).to.be.equal([4, 7])
-        expect(slider.value).to.not.be.identical(slider.value_throttled)
       })
 
       it("should enforce bounds once value is set after partial initialization", () => {
@@ -402,16 +345,6 @@ describe("RangeSlider", () => {
         })
         slider.end = 7
         expect(seen).to.be.equal([{start: 0, end: 7, value: [4, 7]}])
-      })
-
-      it("should see the new bound when notified of a value_throttled change", () => {
-        const slider = make({start: 0, end: 10, value: [4, 8]})
-        const seen: {end: number, value_throttled: Range}[] = []
-        slider.connect(slider.properties.value_throttled.change, () => {
-          seen.push({end: slider.end, value_throttled: slider.value_throttled})
-        })
-        slider.end = 7
-        expect(seen).to.be.equal([{end: 7, value_throttled: [4, 7]}])
       })
 
       it("should see an already clamped value when notified of a bound change", async () => {
@@ -443,8 +376,6 @@ describe("MultiValuedSlider", () => {
     it("should clamp values at creation", () => {
       const slider = MultiValuedSlider.create({start: 0, end: 10, value: [-5, 5, 15]})
       expect(slider.value).to.be.equal([0, 5, 10])
-      expect(slider.value_throttled).to.be.equal([0, 5, 10])
-      expect(slider.value).to.not.be.identical(slider.value_throttled)
     })
 
     it("should clamp values when start or end change", () => {
@@ -462,13 +393,6 @@ describe("MultiValuedSlider", () => {
       expect(slider.value).to.be.identical(value)
     })
 
-    it("should clamp value_throttled independently of value", () => {
-      const slider = MultiValuedSlider.create({start: 0, end: 10, value: [2, 5, 8]})
-      slider.setv({value_throttled: [1, 9, 9]})
-      slider.end = 8
-      expect(slider.value).to.be.equal([2, 5, 8])
-      expect(slider.value_throttled).to.be.equal([1, 8, 8])
-    })
   })
 
   it("should support string format", async () => {
@@ -547,18 +471,16 @@ describe("MultiValuedSlider", () => {
       handle0.dispatchEvent(new PointerEvent("pointermove", {...pointer, ...on_track(track, 0.1)}))
       await view.ready
       expect(slider.value).to.be.equal([2, 5, 5])
-      expect(slider.value_throttled).to.be.equal([2, 5, 5])
     })
   })
 
-  it("should support dragging any handle and update value_throttled at the end", async () => {
+  it("should support dragging any handle", async () => {
     const slider = MultiValuedSlider.create({start: 0, end: 10, step: 1, value: [2, 5, 8]})
     const {view} = await display(slider, [300, 50])
     const {handles: [, handle1]} = elements(view)
 
     await drag(view, handle1, center(handle1), 0.6)
     expect(slider.value).to.be.equal([2, 6, 8])
-    expect(slider.value_throttled).to.be.equal([2, 6, 8])
   })
 
   it("should move the nearest handle when pressing the track", async () => {
@@ -741,7 +663,7 @@ describe("DatetimeRangeSlider", () => {
 })
 
 describe("AbstractSliderView gestures", () => {
-  it("should support dragging a handle and update value_throttled only at the end", async () => {
+  it("should support dragging a handle", async () => {
     const slider = Slider.create({start: 0, end: 10, step: 1, value: 0})
     const {view} = await display(slider, [300, 50])
     const {track, handles: [handle]} = elements(view)
@@ -750,25 +672,28 @@ describe("AbstractSliderView gestures", () => {
     handle.dispatchEvent(new PointerEvent("pointermove", {...pointer, ...on_track(track, 0.5)}))
     await view.ready
     expect(slider.value).to.be.equal(5)
-    expect(slider.properties.value_throttled.is_unset).to.be.true
 
     handle.dispatchEvent(new PointerEvent("pointerup", {...pointer, ...on_track(track, 0.7)}))
     await view.ready
     expect(slider.value).to.be.equal(7)
-    expect(slider.value_throttled).to.be.equal(7)
   })
 
-  it("should commit value_throttled when a drag is cancelled", async () => {
-    const slider = Slider.create({start: 0, end: 10, step: 1, value: 0})
+  it("should finish committed delivery when a drag is cancelled", async () => {
+    const _subscribed_changes = new Map([["value", [["committed", null] as ["committed", null]]]])
+    const slider = Slider.create({start: 0, end: 10, step: 1, value: 0, _subscribed_changes})
     const {view} = await display(slider, [300, 50])
     const {track, handles: [handle]} = elements(view)
+    const flushes: string[] = []
+    slider.document!.sync_flush.connect(({attr, policy}) => flushes.push(`${attr}:${policy}`))
 
     handle.dispatchEvent(new PointerEvent("pointerdown", {...pointer, ...center(handle)}))
     handle.dispatchEvent(new PointerEvent("pointermove", {...pointer, ...on_track(track, 0.3)}))
+    expect(slider.document!.is_sync_deferred(slider, "value")).to.be.true
     handle.dispatchEvent(new PointerEvent("pointercancel", {...pointer}))
     await view.ready
     expect(slider.value).to.be.equal(3)
-    expect(slider.value_throttled).to.be.equal(3)
+    expect(slider.document!.is_sync_deferred(slider, "value")).to.be.false
+    expect(flushes).to.be.equal(["value:committed"])
   })
 
   it("should jump to the pointer when pressing the track and continue dragging", async () => {
@@ -784,7 +709,6 @@ describe("AbstractSliderView gestures", () => {
     track.dispatchEvent(new PointerEvent("pointerup", {...pointer, ...on_track(track, 0.6)}))
     await view.ready
     expect(slider.value).to.be.equal(6)
-    expect(slider.value_throttled).to.be.equal(6)
   })
 
   it("should ignore non-primary pointers and buttons other than the main one", async () => {
@@ -1050,7 +974,6 @@ describe("AbstractSliderView gestures", () => {
 
     expect(await press("ArrowRight")).to.be.true
     expect(slider.value).to.be.equal([3, 6])
-    expect(slider.value_throttled).to.be.equal([3, 6])
 
     await press("ArrowLeft")
     expect(slider.value).to.be.equal([2, 5])
@@ -1426,47 +1349,54 @@ describe("AbstractSliderView keyboard acceleration", () => {
     expect(steps(continuous_values, 0).map((v) => round(v*100)/100)).to.be.equal([...Array(10).fill(1), 2, 2])
   })
 
-  it("should update value_throttled only when releasing a key", async () => {
-    const slider = Slider.create({start: 0, end: 1000, step: 1, value: 0})
+  it("should finish committed delivery only when releasing a key", async () => {
+    const _subscribed_changes = new Map([["value", [["committed", null] as ["committed", null]]]])
+    const slider = Slider.create({start: 0, end: 1000, step: 1, value: 0, _subscribed_changes})
     const {view} = await display(slider, [300, 50])
     const {handles: [handle]} = elements(view)
 
     const value_changes: unknown[] = []
-    const value_throttled_changes: unknown[] = []
+    const flushes: string[] = []
     slider.properties.value.change.connect(() => value_changes.push(slider.value))
-    slider.properties.value_throttled.change.connect(() => value_throttled_changes.push(slider.value_throttled))
+    slider.document!.sync_flush.connect(({attr, policy}) => flushes.push(`${attr}:${policy}`))
 
     await hold(view, handle, "ArrowRight", 12, false)
     expect(value_changes.length).to.be.equal(12)
-    expect(value_throttled_changes).to.be.equal([])
-    expect(slider.properties.value_throttled.is_unset).to.be.true
+    expect(slider.document!.is_sync_deferred(slider, "value")).to.be.true
+    expect(flushes).to.be.equal([])
 
     handle.dispatchEvent(new KeyboardEvent("keyup", {key: "ArrowRight"}))
     await view.ready
-    expect(value_throttled_changes).to.be.equal([14])
+    expect(slider.document!.is_sync_deferred(slider, "value")).to.be.false
+    expect(flushes).to.be.equal(["value:committed"])
 
     // a single key press commits once as well
     await hold(view, handle, "ArrowLeft", 1)
-    expect(value_throttled_changes).to.be.equal([14, 13])
+    expect(flushes).to.be.equal(["value:committed", "value:committed"])
 
     // releasing an unrelated key doesn't commit
     handle.dispatchEvent(new KeyboardEvent("keyup", {key: "Shift"}))
     await view.ready
-    expect(value_throttled_changes).to.be.equal([14, 13])
+    expect(flushes).to.be.equal(["value:committed", "value:committed"])
   })
 
-  it("should update value_throttled when losing focus while holding a key", async () => {
-    const slider = Slider.create({start: 0, end: 1000, step: 1, value: 0})
+  it("should finish committed delivery when losing focus while holding a key", async () => {
+    const _subscribed_changes = new Map([["value", [["committed", null] as ["committed", null]]]])
+    const slider = Slider.create({start: 0, end: 1000, step: 1, value: 0, _subscribed_changes})
     const {view} = await display(slider, [300, 50])
     const {handles: [handle]} = elements(view)
+    const flushes: string[] = []
+    slider.document!.sync_flush.connect(({attr, policy}) => flushes.push(`${attr}:${policy}`))
 
     handle.focus()
     await hold(view, handle, "ArrowRight", 3, false)
-    expect(slider.properties.value_throttled.is_unset).to.be.true
+    expect(slider.document!.is_sync_deferred(slider, "value")).to.be.true
+    expect(flushes).to.be.equal([])
 
     handle.blur()
     await view.ready
-    expect(slider.value_throttled).to.be.equal(3)
+    expect(slider.document!.is_sync_deferred(slider, "value")).to.be.false
+    expect(flushes).to.be.equal(["value:committed"])
   })
 
   it("should support configurable acceleration", async () => {

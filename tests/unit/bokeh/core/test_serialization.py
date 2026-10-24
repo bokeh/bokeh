@@ -1635,9 +1635,9 @@ def test_transform_series_force_list_default_with_buffers() -> None:
             "id": obj.id,
             "name": None,
             "tags": [],
-            'js_property_callbacks': dict(type="map", entries=[]),
-            "js_event_callbacks": dict(type="map", entries=[]),
-            "subscribed_events": dict(type="set", entries=[]),
+            '_js_property_callbacks': dict(type="map", entries=[]),
+            "_js_event_callbacks": dict(type="map", entries=[]),
+            "_subscribed_events": dict(type="set", entries=[]),
             "syncable": True,
             "foo": 42,
             "bar": "world",
@@ -1647,11 +1647,11 @@ def test_transform_series_force_list_default_with_buffers() -> None:
             '"child":{"id":"%s"},' +
             '"foo":42,' +
             '"id":"%s",' +
-            '"js_event_callbacks":{"entries":[],"type":"map"},' +
-            '"js_property_callbacks":{"entries":[],"type":"map"},' +
+            '"_js_event_callbacks":{"entries":[],"type":"map"},' +
+            '"_js_property_callbacks":{"entries":[],"type":"map"},' +
             '"name":null,' +
             '"null_child":null,' +
-            '"subscribed_events":{"entries":[],"type":"set"},' +
+            '"_subscribed_events":{"entries":[],"type":"set"},' +
             '"syncable":true,' +
             '"tags":[]}'
         ) % (child_obj.id, obj.id) == json_string

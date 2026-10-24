@@ -83,20 +83,17 @@ without a ``step``, one step is ``default_step`` of the slider's range.
 
 .. _ug_interaction_sliders_throttling:
 
-Value throttling
-----------------
+Callback delivery policies
+--------------------------
 
 A slider's ``value`` is updated continuously while dragging a handle or holding
-a key. Every update triggers ``value`` callbacks and, in Bokeh server
-applications, is synchronized with Python. This is useful for immediate
-feedback, but can be too expensive if the callback, for example, recomputes
-data.
-
-The read-only ``value_throttled`` property has the same value, but it's only
-updated at the end of an interaction, i.e. when the pointer or the key is
-released, or when the slider loses focus. Use it for expensive callbacks:
+a key. Immediate callbacks receive every update. For expensive callbacks, use
+the :class:`~bokeh.model.Committed` delivery policy to defer the callback until
+the pointer or key is released, or the slider loses focus:
 
 .. code-block:: python
+
+    from bokeh.model import Committed
 
     slider = Slider(start=0, end=100, value=50, step=1)
 
@@ -107,7 +104,10 @@ released, or when the slider loses focus. Use it for expensive callbacks:
     def update(attr, old, new):
         ...  # expensive computation
 
-    slider.on_change("value_throttled", update)
+    slider.on_change("value", update, policy=Committed())
+
+See :ref:`ug_interaction_callback_policies` for throttled and debounced
+delivery and for using policies with JavaScript callbacks.
 
 .. _ug_interaction_sliders_styling:
 

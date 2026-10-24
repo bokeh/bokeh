@@ -38,7 +38,6 @@ export namespace NumericalSlider {
 
   export type Props = BaseNumericalSlider.Props & {
     value: p.Property<number>
-    value_throttled: p.Property<number>
   }
 }
 
@@ -49,32 +48,16 @@ export abstract class NumericalSlider extends BaseNumericalSlider {
   declare __view_type__: NumericalSliderView
 
   declare value: number
-  declare value_throttled: number
 
   protected _enforce_bounds(): void {
-    const changes: {value?: number, value_throttled?: number} = {}
     const [lo, hi] = this._bounds()
 
     if (!this.properties.value.is_unset) {
       const {value} = this
       const clamped = clamp(value, lo, hi)
       if (clamped != value) {
-        changes.value = clamped
+        this.setv({value: clamped})
       }
-    }
-
-    if (!this.properties.value_throttled.is_unset) {
-      const {value_throttled} = this
-      const clamped = clamp(value_throttled, lo, hi)
-      if (clamped != value_throttled) {
-        changes.value_throttled = clamped
-      }
-    } else if (changes.value != null) {
-      changes.value_throttled = changes.value
-    }
-
-    if (changes.value != null || changes.value_throttled != null) {
-      this.setv(changes)
     }
   }
 }

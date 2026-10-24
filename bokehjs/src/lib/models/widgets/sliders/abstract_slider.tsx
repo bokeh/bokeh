@@ -605,6 +605,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     if (target == null) {
       return
     }
+    this._begin_change()
 
     const [values, group, unstack] = (() => {
       const values = this.synthetic_values
@@ -621,7 +622,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
           const value = this.to_synthetic(event)
           const i = this.nearest_handle(values, value)
           const new_values = this.move(values, i, value)
-          this._change(new_values, true)
+          this._change(new_values)
           return [new_values, [i], false] as const
         }
       }
@@ -701,7 +702,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     }
 
     const values = this.shift(state.values, state.group, offset)
-    this._change(values, true)
+    this._change(values)
   }
 
   protected _end_drag(): void {
@@ -710,12 +711,15 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     this._commit()
   }
 
-  /**
-   * Update `value_throttled` at the end of an interaction (dragging or pressing
-   * keys), during which only `value` is updated.
-   */
+  protected _begin_change(): void {
+    if (this.model.has_callback_policy("value", "committed")) {
+      this.model.document?.begin_sync_deferral(this.model, "value")
+    }
+  }
+
+  /** Finish an interaction during which committed callbacks were deferred. */
   protected _commit(): void {
-    this.model.setv({value_throttled: this.model.value})
+    this.model.document?.request_sync_flush(this.model, "value", "committed")
   }
 
   @bind protected _on_wheel(event: TargetedWheelEvent): void {
@@ -809,8 +813,10 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     })()
 
     event.preventDefault()
-    // like when dragging, update only value until the key is released
-    this._change(this.shift(values, group, acceleration*offset), true)
+    if (!this._key_interaction) {
+      this._begin_change()
+    }
+    this._change(this.shift(values, group, acceleration*offset))
     this._key_interaction = true
   }
 
@@ -835,14 +841,15 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
   /**
    * Update the model from synthetic values.
    */
-  protected _change(values: number[], throttle: boolean = false): void {
+  protected _change(values: number[]): void {
     const {invert} = this.meta
     const value = this._calc_from(values.map((v) => invert(v)))
-    if (throttle) {
-      this.model.value = value
-    } else {
-      this.model.setv({value, value_throttled: value})
-    }
+    this.model.value = value
+  }
+
+  override remove(): void {
+    this.model.document?.request_sync_flush(this.model, "value", "committed")
+    super.remove()
   }
 
   /**
@@ -881,7 +888,6 @@ export namespace AbstractSlider {
     title: p.Property<string | null>
     show_value: p.Property<boolean>
     value: p.Property<unknown>
-    value_throttled: p.Property<unknown>
     tooltips: p.Property<boolean>
     appearance: p.Property<SliderAppearance>
     step_multiplier: p.Property<number>
@@ -902,7 +908,6 @@ export abstract class AbstractSlider<T> extends OrientedControl {
       title:                 [ Nullable(Str), "" ],
       show_value:            [ Bool, true ],
       value:                 [ Unknown ],
-      value_throttled:       [ Unknown, p.unset, {readonly: true} ],
       tooltips:              [ Bool, true ],
       appearance:            [ SliderAppearance, "normal" ],
       step_multiplier:       [ Positive(Int), 5 ],

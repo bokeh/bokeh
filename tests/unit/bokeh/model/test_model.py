@@ -38,7 +38,7 @@ from bokeh.util.warnings import BokehDeprecationWarning
 from bokeh.document import document # isort:skip
 
 # Module under test
-from bokeh.model import Model # isort:skip
+from bokeh.model import Committed, Debounce, Model, Throttle # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -274,39 +274,349 @@ class Test_js_on_change:
         for name in m0.properties():
             m = SomeModel()
             m.js_on_change(name, cb)
-            assert m.js_property_callbacks == {f"change:{name}": [cb]}
+            assert m._js_property_callbacks == {f"change:{name}": [cb]}
 
     def test_with_non_propname(self) -> None:
         cb = CustomJS(code="")
         m1 = SomeModel()
         m1.js_on_change('foo', cb)
-        assert m1.js_property_callbacks == {"foo": [cb]}
+        assert m1._js_property_callbacks == {"foo": [cb]}
 
         m2 = SomeModel()
         m2.js_on_change('change:b', cb)
-        assert m2.js_property_callbacks == {"change:b": [cb]}
+        assert m2._js_property_callbacks == {"change:b": [cb]}
 
     def test_with_multple_callbacks(self) -> None:
         cb1 = CustomJS(code="")
         cb2 = CustomJS(code="")
         m = SomeModel()
         m.js_on_change('foo', cb1, cb2)
-        assert m.js_property_callbacks == {"foo": [cb1, cb2]}
+        assert m._js_property_callbacks == {"foo": [cb1, cb2]}
 
     def test_with_multple_callbacks_separately(self) -> None:
         cb1 = CustomJS(code="")
         cb2 = CustomJS(code="")
         m = SomeModel()
         m.js_on_change('foo', cb1)
-        assert m.js_property_callbacks == {"foo": [cb1]}
+        assert m._js_property_callbacks == {"foo": [cb1]}
         m.js_on_change('foo', cb2)
-        assert m.js_property_callbacks == {"foo": [cb1, cb2]}
+        assert m._js_property_callbacks == {"foo": [cb1, cb2]}
 
     def test_ignores_dupe_callbacks(self) -> None:
         cb = CustomJS(code="")
         m = SomeModel()
         m.js_on_change('foo', cb, cb)
-        assert m.js_property_callbacks == {"foo": [cb]}
+        assert m._js_property_callbacks == {"foo": [cb]}
+
+    def test_remove_callbacks_and_policies(self) -> None:
+        cb1 = CustomJS(code="")
+        cb2 = CustomJS(code="")
+        m = SomeModel()
+        m.js_on_change("a", cb1, policy=Throttle(100))
+        m.js_on_change("a", cb2)
+
+        m.js_remove_on_change("a", cb1)
+        assert m._js_property_callbacks == {"change:a": [cb2]}
+        assert m._js_property_callback_policies == {}
+
+        m.js_remove_on_change("change:a", cb2)
+        assert m._js_property_callbacks == {}
+
+    def test_remove_requires_registered_callback(self) -> None:
+        m = SomeModel()
+        with pytest.raises(ValueError):
+            m.js_remove_on_change("a", CustomJS(code=""))
+
+class Test_callback_policies:
+    @staticmethod
+    def callback(attr: str, old: object, new: object) -> None:
+        pass
+
+    def test_on_change_does_not_record_immediate_subscription(self) -> None:
+        m = SomeModel()
+        m.on_change("a", self.callback)
+        assert m._subscribed_changes == {}
+        assert "_subscribed_changes" not in m.properties_with_values(include_defaults=False)
+
+    def test_on_change_immediate_does_not_read_unset_property(self) -> None:
+        from bokeh.models import Slider
+        slider = Slider()
+        slider.on_change("value", self.callback)
+
+        assert slider._subscribed_changes == {}
+
+    def test_callback_policy_state_is_initialized_for_deserialized_models(self) -> None:
+        doc = document.Document()
+        doc.add_root(SomeModel(a=1))
+        [m] = document.Document.from_json(doc.to_json()).roots
+        calls: list[tuple[int, int]] = []
+
+        m.on_change("a", lambda attr, old, new: calls.append((old, new)), policy=Throttle(100))
+        m.a = 2
+
+        assert calls == [(1, 2)]
+        assert m._subscribed_changes == {"a": [("throttle", 100)]}
+
+    def test_on_change_records_distinct_policies(self) -> None:
+        def throttled(attr: str, old: object, new: object) -> None:
+            pass
+
+        def debounced(attr: str, old: object, new: object) -> None:
+            pass
+
+        m = SomeModel()
+        m.on_change("a", self.callback)
+        m.on_change("a", throttled, policy=Throttle(100))
+        m.on_change("a", debounced, policy=Debounce(250))
+        assert m._subscribed_changes == {
+            "a": [("immediate", None), ("throttle", 100), ("debounce", 250)],
+        }
+
+        from bokeh.document import Document
+        doc = Document()
+        doc.add_root(m)
+        [root] = doc.to_json(deferred=False)["roots"]
+        assert root["attributes"]["_subscribed_changes"] == {
+            "type": "map",
+            "entries": [("a", [["immediate", None], ["throttle", 100], ["debounce", 250]])],
+        }
+
+    def test_remove_on_change_updates_subscriptions(self) -> None:
+        def throttled(attr: str, old: object, new: object) -> None:
+            pass
+
+        m = SomeModel()
+        m.on_change("a", self.callback)
+        m.on_change("a", throttled, policy=Throttle(100))
+        m.remove_on_change("a", self.callback)
+        assert m._subscribed_changes == {"a": [("throttle", 100)]}
+        m.remove_on_change("a", throttled)
+        assert m._subscribed_changes == {}
+
+    def test_js_callbacks_can_have_distinct_policies(self) -> None:
+        immediate = CustomJS(code="")
+        committed = CustomJS(code="")
+        from bokeh.models import Slider
+        slider = Slider(start=0, end=10, value=0)
+        slider.js_on_change("value", immediate)
+        slider.js_on_change("value", committed, policy=Committed())
+        assert slider._js_property_callbacks == {"change:value": [immediate, committed]}
+        assert slider._js_property_callback_policies == {
+            "change:value": {committed.id: [("committed", None)]},
+        }
+
+    def test_same_js_callback_can_have_immediate_and_committed_policies(self) -> None:
+        callback = CustomJS(code="")
+        from bokeh.models import Slider
+        slider = Slider(start=0, end=10, value=0)
+        slider.js_on_change("value", callback)
+        slider.js_on_change("value", callback, policy=Committed())
+        assert slider._js_property_callbacks == {"change:value": [callback]}
+        assert slider._js_property_callback_policies == {
+            "change:value": {callback.id: [("immediate", None), ("committed", None)]},
+        }
+
+    def test_python_callbacks_can_have_immediate_and_committed_policies(self) -> None:
+        from bokeh.models import Slider
+        slider = Slider(start=0, end=10, value=0)
+        slider.on_change("value", self.callback)
+        slider.on_change("value", lambda attr, old, new: None, policy=Committed())
+        assert slider._subscribed_changes == {
+            "value": [("immediate", None), ("committed", None)],
+        }
+
+    def test_same_python_callback_can_have_immediate_and_committed_policies(self) -> None:
+        from bokeh.models import Slider
+        calls: list[tuple[int, int]] = []
+
+        def callback(attr: str, old: int, new: int) -> None:
+            calls.append((old, new))
+
+        slider = Slider(start=0, end=10, value=0)
+        slider.on_change("value", callback)
+        slider.on_change("value", callback, policy=Committed())
+        assert slider._subscribed_changes == {
+            "value": [("immediate", None), ("committed", None)],
+        }
+        slider._set_from_json_with_callback_policy("value", 1, ("immediate", None))
+        slider._set_from_json_with_callback_policy("value", 1, ("committed", None))
+        assert calls == [(0, 1), (0, 1)]
+
+        calls.clear()
+        slider.value = 2
+        assert calls == [(1, 2)]
+
+        slider.remove_on_change("value", callback)
+        assert slider._subscribed_changes == {}
+
+    def test_local_changes_invoke_all_callback_policies(self) -> None:
+        from bokeh.models import Slider
+        calls: list[tuple[str, int, int]] = []
+        slider = Slider(start=0, end=10, value=0)
+        slider.on_change("value", lambda attr, old, new: calls.append(("immediate", old, new)))
+        slider.on_change("value", lambda attr, old, new: calls.append(("committed", old, new)), policy=Committed())
+        slider.value = 5
+        assert calls == [("immediate", 0, 5), ("committed", 0, 5)]
+
+    def test_local_changes_advance_each_browser_stream_old_value(self) -> None:
+        from bokeh.models import Slider
+        calls: list[tuple[str, int, int]] = []
+        slider = Slider(start=0, end=10, value=0)
+        slider.on_change("value", lambda attr, old, new: calls.append(("immediate", old, new)))
+        slider.on_change("value", lambda attr, old, new: calls.append(("committed", old, new)), policy=Committed())
+
+        slider.value = 5
+        calls.clear()
+        slider._set_from_json_with_callback_policy("value", 6, ("immediate", None))
+        slider._set_from_json_with_callback_policy("value", 6, ("committed", None))
+
+        assert calls == [
+            ("immediate", 5, 6),
+            ("committed", 5, 6),
+        ]
+
+    def test_browser_streams_dispatch_only_matching_callbacks(self) -> None:
+        from bokeh.models import Slider
+        calls: list[tuple[str, int, int]] = []
+        slider = Slider(start=0, end=10, value=0)
+        slider.on_change("value", lambda attr, old, new: calls.append(("immediate", old, new)))
+        slider.on_change("value", lambda attr, old, new: calls.append(("committed", old, new)), policy=Committed())
+
+        slider._set_from_json_with_callback_policy("value", 1, ("immediate", None))
+        slider._set_from_json_with_callback_policy("value", 2, ("immediate", None))
+        slider._set_from_json_with_callback_policy("value", 2, ("committed", None))
+
+        assert calls == [
+            ("immediate", 0, 1),
+            ("immediate", 1, 2),
+            ("committed", 0, 2),
+        ]
+
+    def test_unchanged_policy_stream_does_not_dispatch_callback(self) -> None:
+        from bokeh.document import Document
+        from bokeh.models import Slider
+        events: list[object] = []
+        calls: list[tuple[str, int, int]] = []
+        slider = Slider(start=0, end=10, value=0)
+        slider.on_change("value", lambda attr, old, new: calls.append(("immediate", old, new)))
+        slider.on_change("value", lambda attr, old, new: calls.append(("committed", old, new)), policy=Committed())
+        doc = Document()
+        doc.add_root(slider)
+        doc.on_change(events.append)
+
+        slider._set_from_json_with_callback_policy("value", 1, ("immediate", None))
+        slider._set_from_json_with_callback_policy("value", 0, ("immediate", None))
+        events.clear()
+        slider._set_from_json_with_callback_policy("value", 0, ("committed", None))
+
+        assert events == []
+        assert calls == [
+            ("immediate", 0, 1),
+            ("immediate", 1, 0),
+        ]
+
+    def test_callback_policy_is_applied_from_document_patch(self) -> None:
+        from bokeh.document import Document
+        from bokeh.models import Slider
+        calls: list[tuple[str, int, int]] = []
+        slider = Slider(start=0, end=10, value=0)
+        slider.on_change("value", lambda attr, old, new: calls.append(("immediate", old, new)))
+        slider.on_change("value", lambda attr, old, new: calls.append(("committed", old, new)), policy=Committed())
+        doc = Document()
+        doc.add_root(slider)
+
+        def patch(value: int, policy: str) -> None:
+            doc.apply_json_patch({
+                "events": [{
+                    "kind": "ModelChanged",
+                    "model": {"id": slider.id},
+                    "attr": "value",
+                    "new": value,
+                    "callback_policy": [policy, None],
+                }],
+            })
+
+        patch(1, "immediate")
+        patch(2, "immediate")
+        patch(2, "committed")
+
+        assert calls == [
+            ("immediate", 0, 1),
+            ("immediate", 1, 2),
+            ("committed", 0, 2),
+        ]
+
+    def test_equal_valued_policy_streams_respect_document_hold(self) -> None:
+        from bokeh.document import Document
+        from bokeh.models import Slider
+        calls: list[tuple[str, int, int]] = []
+        slider = Slider(start=0, end=10, value=0)
+        slider.on_change("value", lambda attr, old, new: calls.append(("immediate", old, new)))
+        slider.on_change("value", lambda attr, old, new: calls.append(("committed", old, new)), policy=Committed())
+        doc = Document()
+        doc.add_root(slider)
+        doc.hold()
+
+        slider._set_from_json_with_callback_policy("value", 1, ("immediate", None))
+        slider._set_from_json_with_callback_policy("value", 1, ("committed", None))
+        assert calls == []
+
+        doc.unhold()
+        assert calls == [
+            ("immediate", 0, 1),
+            ("committed", 0, 1),
+        ]
+
+    def test_callback_changes_are_dispatched_to_every_policy(self) -> None:
+        from bokeh.models import Slider
+        calls: list[tuple[str, int, int]] = []
+        slider = Slider(start=0, end=10, value=0)
+
+        def immediate(attr: str, old: int, new: int) -> None:
+            calls.append(("immediate", old, new))
+            if new == 1:
+                slider.value = 2
+
+        slider.on_change("value", immediate)
+        slider.on_change("value", lambda attr, old, new: calls.append(("committed", old, new)), policy=Committed())
+        slider._set_from_json_with_callback_policy("value", 1, ("immediate", None))
+
+        assert calls == [
+            ("immediate", 0, 1),
+            ("immediate", 1, 2),
+            ("committed", 1, 2),
+        ]
+        assert slider._callback_policy_values == {
+            ("value", ("immediate", None)): 2,
+            ("value", ("committed", None)): 2,
+        }
+
+    def test_rejects_unsupported_committed(self) -> None:
+        m = SomeModel()
+        with pytest.raises(ValueError, match="committed callbacks are not supported"):
+            m.on_change("a", self.callback, policy=Committed())
+
+    @pytest.mark.parametrize("policy", ["committed", ("throttle", 100), ("debounce", 100)])
+    def test_rejects_raw_policy_values(self, policy: object) -> None:
+        m = SomeModel()
+        with pytest.raises(ValueError, match="Throttle, Debounce, or Committed"):
+            m.on_change("a", self.callback, policy=policy)  # type: ignore[arg-type]
+
+    @pytest.mark.parametrize("wait", [True, 0, -1, float("inf"), float("nan")])
+    def test_rejects_invalid_wait(self, wait: object) -> None:
+        for policy_type in (Throttle, Debounce):
+            with pytest.raises(ValueError):
+                policy_type(wait)  # type: ignore[arg-type]
+
+    def test_rejects_properties_with_model_references(self) -> None:
+        m = SomeModel()
+        with pytest.raises(ValueError, match="containing Bokeh models"):
+            m.on_change("_js_property_callbacks", self.callback, policy=Throttle(100))
+
+    def test_rejects_column_data_properties(self) -> None:
+        source = ColumnDataSource(data={"x": [1]})
+        with pytest.raises(ValueError, match="column data property 'data'"):
+            source.on_change("data", self.callback, policy=Debounce(100))
 
 class Test_js_on_event:
 
@@ -321,30 +631,47 @@ class Test_js_on_event:
         cb2 = CustomJS(code="bar")
         m = SomeModel()
         m.js_on_event("document_ready", cb1, cb2)
-        assert m.js_event_callbacks == {"document_ready": [cb1, cb2]}
+        assert m._js_event_callbacks == {"document_ready": [cb1, cb2]}
 
     def test_with_multple_callbacks_separately(self) -> None:
         cb1 = CustomJS(code="foo")
         cb2 = CustomJS(code="bar")
         m = SomeModel()
         m.js_on_event("document_ready", cb1)
-        assert m.js_event_callbacks == {"document_ready": [cb1]}
+        assert m._js_event_callbacks == {"document_ready": [cb1]}
         m.js_on_event("document_ready", cb2)
-        assert m.js_event_callbacks == {"document_ready": [cb1, cb2]}
+        assert m._js_event_callbacks == {"document_ready": [cb1, cb2]}
 
     def test_ignores_dupe_callbacks(self) -> None:
         cb = CustomJS(code="foo")
         m = SomeModel()
         m.js_on_event("document_ready", cb, cb)
-        assert m.js_event_callbacks == {"document_ready": [cb]}
+        assert m._js_event_callbacks == {"document_ready": [cb]}
 
     def test_ignores_dupe_callbacks_separately(self) -> None:
         cb = CustomJS(code="foo")
         m = SomeModel()
         m.js_on_event("document_ready", cb)
-        assert m.js_event_callbacks == {"document_ready": [cb]}
+        assert m._js_event_callbacks == {"document_ready": [cb]}
         m.js_on_event("document_ready", cb)
-        assert m.js_event_callbacks == {"document_ready": [cb]}
+        assert m._js_event_callbacks == {"document_ready": [cb]}
+
+    def test_remove_callbacks(self) -> None:
+        cb1 = CustomJS(code="foo")
+        cb2 = CustomJS(code="bar")
+        m = SomeModel()
+        m.js_on_event("document_ready", cb1, cb2)
+
+        m.js_remove_on_event("document_ready", cb1)
+        assert m._js_event_callbacks == {"document_ready": [cb2]}
+
+        m.js_remove_on_event("document_ready", cb2)
+        assert m._js_event_callbacks == {}
+
+    def test_remove_requires_registered_callback(self) -> None:
+        m = SomeModel()
+        with pytest.raises(ValueError):
+            m.js_remove_on_event("document_ready", CustomJS(code=""))
 
 class Test_js_link:
     def test_value_error_on_bad_attr(self) -> None:
@@ -370,11 +697,11 @@ class Test_js_link:
     def test_creates_customjs(self) -> None:
         m1 = SomeModel()
         m2 = SomeModel()
-        assert len(m1.js_property_callbacks) == 0
+        assert len(m1._js_property_callbacks) == 0
         m1.js_link('a', m2, 'b')
-        assert len(m1.js_property_callbacks) == 1
-        assert "change:a" in m1.js_property_callbacks
-        cbs = m1.js_property_callbacks["change:a"]
+        assert len(m1._js_property_callbacks) == 1
+        assert "change:a" in m1._js_property_callbacks
+        cbs = m1._js_property_callbacks["change:a"]
         assert len(cbs) == 1
         cb = cbs[0]
         assert isinstance(cb, CustomJS)
@@ -384,11 +711,11 @@ class Test_js_link:
     def test_attr_selector_creates_customjs_int(self) -> None:
         m1 = SomeModel()
         m2 = SomeModel()
-        assert len(m1.js_property_callbacks) == 0
+        assert len(m1._js_property_callbacks) == 0
         m1.js_link('a', m2, 'b', 1)
-        assert len(m1.js_property_callbacks) == 1
-        assert "change:a" in m1.js_property_callbacks
-        cbs = m1.js_property_callbacks["change:a"]
+        assert len(m1._js_property_callbacks) == 1
+        assert "change:a" in m1._js_property_callbacks
+        cbs = m1._js_property_callbacks["change:a"]
         assert len(cbs) == 1
         cb = cbs[0]
         assert isinstance(cb, CustomJS)
@@ -398,11 +725,11 @@ class Test_js_link:
     def test_attr_selector_creates_customjs_with_zero(self) -> None:
         m1 = SomeModel()
         m2 = SomeModel()
-        assert len(m1.js_property_callbacks) == 0
+        assert len(m1._js_property_callbacks) == 0
         m1.js_link('a', m2, 'b', 0)
-        assert len(m1.js_property_callbacks) == 1
-        assert "change:a" in m1.js_property_callbacks
-        cbs = m1.js_property_callbacks["change:a"]
+        assert len(m1._js_property_callbacks) == 1
+        assert "change:a" in m1._js_property_callbacks
+        cbs = m1._js_property_callbacks["change:a"]
         assert len(cbs) == 1
         cb = cbs[0]
         assert isinstance(cb, CustomJS)
@@ -412,11 +739,11 @@ class Test_js_link:
     def test_attr_selector_creates_customjs_str(self) -> None:
         m1 = SomeModel()
         m2 = SomeModel()
-        assert len(m1.js_property_callbacks) == 0
+        assert len(m1._js_property_callbacks) == 0
         m1.js_link('a', m2, 'b', "test")
-        assert len(m1.js_property_callbacks) == 1
-        assert "change:a" in m1.js_property_callbacks
-        cbs = m1.js_property_callbacks["change:a"]
+        assert len(m1._js_property_callbacks) == 1
+        assert "change:a" in m1._js_property_callbacks
+        cbs = m1._js_property_callbacks["change:a"]
         assert len(cbs) == 1
         cb = cbs[0]
         assert isinstance(cb, CustomJS)

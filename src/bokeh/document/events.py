@@ -327,7 +327,8 @@ class ModelChangedEvent(DocumentPatchedEvent, kind="ModelChanged"):
     kind: ClassVar[Literal["ModelChanged"]] = "ModelChanged"
 
     def __init__(self, document: Document, model: Model, attr: str, new: Any,
-            setter: Setter | None = None, callback_invoker: Invoker | None = None):
+            setter: Setter | None = None, callback_invoker: Invoker | None = None,
+            callback_policy: tuple[str, float | None] | None = None):
         '''
 
         Args:
@@ -361,6 +362,7 @@ class ModelChangedEvent(DocumentPatchedEvent, kind="ModelChanged"):
         self.model = model
         self.attr = attr
         self.new = new
+        self.callback_policy = callback_policy
 
     def combine(self, event: DocumentChangedEvent) -> bool:
         '''
@@ -376,7 +378,7 @@ class ModelChangedEvent(DocumentPatchedEvent, kind="ModelChanged"):
         if self.document != event.document:
             return False
 
-        if (self.model == event.model) and (self.attr == event.attr):
+        if (self.model == event.model) and (self.attr == event.attr) and (self.callback_policy == event.callback_policy):
             self.new = event.new
             self.callback_invoker = event.callback_invoker
             return True
@@ -401,16 +403,27 @@ class ModelChangedEvent(DocumentPatchedEvent, kind="ModelChanged"):
             serializer (Serializer):
 
         '''
-        return ModelChanged(
+        event = ModelChanged(
             kind  = self.kind,
             model = self.model.ref,
             attr  = self.attr,
             new   = serializer.encode(self.new),
         )
+        if self.callback_policy is not None:
+            event["callback_policy"] = list(self.callback_policy)
+        return event
 
     @classmethod
     def _handle_json(cls, doc: Document, setter: Setter | None, event_data: dict[str, Any]) -> None:
-        event = cls(document=doc, setter=setter, model=event_data["model"], attr=event_data["attr"], new=event_data["new"])
+        callback_policy = event_data.get("callback_policy")
+        event = cls(
+            document=doc,
+            setter=setter,
+            model=event_data["model"],
+            attr=event_data["attr"],
+            new=event_data["new"],
+            callback_policy=tuple(callback_policy) if callback_policy is not None else None,
+        )
         cls._handle_event(doc, event)
 
     @staticmethod
@@ -418,7 +431,10 @@ class ModelChangedEvent(DocumentPatchedEvent, kind="ModelChanged"):
         model = event.model
         attr = event.attr
         value = event.new
-        model.set_from_json(attr, value, setter=event.setter)
+        if event.callback_policy is None:
+            model.set_from_json(attr, value, setter=event.setter)
+        else:
+            model._set_from_json_with_callback_policy(attr, value, event.callback_policy, setter=event.setter)
 
 class ColumnDataChangedEvent(DocumentPatchedEvent, kind="ColumnDataChanged"):
     ''' A concrete event representing efficiently replacing *all*

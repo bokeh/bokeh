@@ -6,14 +6,20 @@
     attributes: {
       name: null,
       tags: [],
-      js_event_callbacks: {
+      _js_event_callbacks: {
         type: "map",
       },
-      js_property_callbacks: {
+      _js_property_callbacks: {
         type: "map",
       },
-      subscribed_events: {
+      _js_property_callback_policies: {
+        type: "map",
+      },
+      _subscribed_events: {
         type: "set",
+      },
+      _subscribed_changes: {
+        type: "map",
       },
       syncable: true,
       reconnect_session: true,
@@ -25,14 +31,20 @@
         attributes: {
           name: null,
           tags: [],
-          js_event_callbacks: {
+          _js_event_callbacks: {
             type: "map",
           },
-          js_property_callbacks: {
+          _js_property_callbacks: {
             type: "map",
           },
-          subscribed_events: {
+          _js_property_callback_policies: {
+            type: "map",
+          },
+          _subscribed_events: {
             type: "set",
+          },
+          _subscribed_changes: {
+            type: "map",
           },
           syncable: true,
           html_attributes: {
@@ -62,14 +74,20 @@
       attributes: {
         name: null,
         tags: [],
-        js_event_callbacks: {
+        _js_event_callbacks: {
           type: "map",
         },
-        js_property_callbacks: {
+        _js_property_callbacks: {
           type: "map",
         },
-        subscribed_events: {
+        _js_property_callback_policies: {
+          type: "map",
+        },
+        _subscribed_events: {
           type: "set",
+        },
+        _subscribed_changes: {
+          type: "map",
         },
         syncable: true,
         html_attributes: {
@@ -109,14 +127,20 @@
           attributes: {
             name: null,
             tags: [],
-            js_event_callbacks: {
+            _js_event_callbacks: {
               type: "map",
             },
-            js_property_callbacks: {
+            _js_property_callbacks: {
               type: "map",
             },
-            subscribed_events: {
+            _js_property_callback_policies: {
+              type: "map",
+            },
+            _subscribed_events: {
               type: "set",
+            },
+            _subscribed_changes: {
+              type: "map",
             },
             syncable: true,
             start: {
@@ -147,14 +171,20 @@
           attributes: {
             name: null,
             tags: [],
-            js_event_callbacks: {
+            _js_event_callbacks: {
               type: "map",
             },
-            js_property_callbacks: {
+            _js_property_callbacks: {
               type: "map",
             },
-            subscribed_events: {
+            _js_property_callback_policies: {
+              type: "map",
+            },
+            _subscribed_events: {
               type: "set",
+            },
+            _subscribed_changes: {
+              type: "map",
             },
             syncable: true,
             start: {
@@ -185,14 +215,20 @@
           attributes: {
             name: null,
             tags: [],
-            js_event_callbacks: {
+            _js_event_callbacks: {
               type: "map",
             },
-            js_property_callbacks: {
+            _js_property_callbacks: {
               type: "map",
             },
-            subscribed_events: {
+            _js_property_callback_policies: {
+              type: "map",
+            },
+            _subscribed_events: {
               type: "set",
+            },
+            _subscribed_changes: {
+              type: "map",
             },
             syncable: true,
           },
@@ -204,14 +240,20 @@
           attributes: {
             name: null,
             tags: [],
-            js_event_callbacks: {
+            _js_event_callbacks: {
               type: "map",
             },
-            js_property_callbacks: {
+            _js_property_callbacks: {
               type: "map",
             },
-            subscribed_events: {
+            _js_property_callback_policies: {
+              type: "map",
+            },
+            _subscribed_events: {
               type: "set",
+            },
+            _subscribed_changes: {
+              type: "map",
             },
             syncable: true,
           },
@@ -236,14 +278,20 @@
           attributes: {
             name: null,
             tags: [],
-            js_event_callbacks: {
+            _js_event_callbacks: {
               type: "map",
             },
-            js_property_callbacks: {
+            _js_property_callbacks: {
               type: "map",
             },
-            subscribed_events: {
+            _js_property_callback_policies: {
+              type: "map",
+            },
+            _subscribed_events: {
               type: "set",
+            },
+            _subscribed_changes: {
+              type: "map",
             },
             syncable: true,
             html_attributes: {
@@ -320,14 +368,20 @@
             attributes: {
               name: null,
               tags: [],
-              js_event_callbacks: {
+              _js_event_callbacks: {
                 type: "map",
               },
-              js_property_callbacks: {
+              _js_property_callbacks: {
                 type: "map",
               },
-              subscribed_events: {
+              _js_property_callback_policies: {
+                type: "map",
+              },
+              _subscribed_events: {
                 type: "set",
+              },
+              _subscribed_changes: {
+                type: "map",
               },
               syncable: true,
               html_attributes: {
@@ -357,14 +411,20 @@
                 attributes: {
                   name: null,
                   tags: [],
-                  js_event_callbacks: {
+                  _js_event_callbacks: {
                     type: "map",
                   },
-                  js_property_callbacks: {
+                  _js_property_callbacks: {
                     type: "map",
                   },
-                  subscribed_events: {
+                  _js_property_callback_policies: {
+                    type: "map",
+                  },
+                  _subscribed_events: {
                     type: "set",
+                  },
+                  _subscribed_changes: {
+                    type: "map",
                   },
                   syncable: true,
                   selected: {
@@ -374,14 +434,20 @@
                     attributes: {
                       name: null,
                       tags: [],
-                      js_event_callbacks: {
+                      _js_event_callbacks: {
                         type: "map",
                       },
-                      js_property_callbacks: {
+                      _js_property_callbacks: {
                         type: "map",
                       },
-                      subscribed_events: {
+                      _js_property_callback_policies: {
+                        type: "map",
+                      },
+                      _subscribed_events: {
                         type: "set",
+                      },
+                      _subscribed_changes: {
+                        type: "map",
                       },
                       syncable: true,
                       indices: [],
@@ -402,14 +468,20 @@
                     attributes: {
                       name: null,
                       tags: [],
-                      js_event_callbacks: {
+                      _js_event_callbacks: {
                         type: "map",
                       },
-                      js_property_callbacks: {
+                      _js_property_callbacks: {
                         type: "map",
                       },
-                      subscribed_events: {
+                      _js_property_callback_policies: {
+                        type: "map",
+                      },
+                      _subscribed_events: {
                         type: "set",
+                      },
+                      _subscribed_changes: {
+                        type: "map",
                       },
                       syncable: true,
                     },
@@ -426,14 +498,20 @@
                 attributes: {
                   name: null,
                   tags: [],
-                  js_event_callbacks: {
+                  _js_event_callbacks: {
                     type: "map",
                   },
-                  js_property_callbacks: {
+                  _js_property_callbacks: {
                     type: "map",
                   },
-                  subscribed_events: {
+                  _js_property_callback_policies: {
+                    type: "map",
+                  },
+                  _subscribed_events: {
                     type: "set",
+                  },
+                  _subscribed_changes: {
+                    type: "map",
                   },
                   syncable: true,
                   filter: {
@@ -443,14 +521,20 @@
                     attributes: {
                       name: null,
                       tags: [],
-                      js_event_callbacks: {
+                      _js_event_callbacks: {
                         type: "map",
                       },
-                      js_property_callbacks: {
+                      _js_property_callbacks: {
                         type: "map",
                       },
-                      subscribed_events: {
+                      _js_property_callback_policies: {
+                        type: "map",
+                      },
+                      _subscribed_events: {
                         type: "set",
+                      },
+                      _subscribed_changes: {
+                        type: "map",
                       },
                       syncable: true,
                     },
@@ -464,14 +548,20 @@
                 attributes: {
                   name: null,
                   tags: [],
-                  js_event_callbacks: {
+                  _js_event_callbacks: {
                     type: "map",
                   },
-                  js_property_callbacks: {
+                  _js_property_callbacks: {
                     type: "map",
                   },
-                  subscribed_events: {
+                  _js_property_callback_policies: {
+                    type: "map",
+                  },
+                  _subscribed_events: {
                     type: "set",
+                  },
+                  _subscribed_changes: {
+                    type: "map",
                   },
                   syncable: true,
                   decorations: [],
@@ -572,14 +662,20 @@
             attributes: {
               name: null,
               tags: [],
-              js_event_callbacks: {
+              _js_event_callbacks: {
                 type: "map",
               },
-              js_property_callbacks: {
+              _js_property_callbacks: {
                 type: "map",
               },
-              subscribed_events: {
+              _js_property_callback_policies: {
+                type: "map",
+              },
+              _subscribed_events: {
                 type: "set",
+              },
+              _subscribed_changes: {
+                type: "map",
               },
               syncable: true,
               html_attributes: {
@@ -609,14 +705,20 @@
                 attributes: {
                   name: null,
                   tags: [],
-                  js_event_callbacks: {
+                  _js_event_callbacks: {
                     type: "map",
                   },
-                  js_property_callbacks: {
+                  _js_property_callbacks: {
                     type: "map",
                   },
-                  subscribed_events: {
+                  _js_property_callback_policies: {
+                    type: "map",
+                  },
+                  _subscribed_events: {
                     type: "set",
+                  },
+                  _subscribed_changes: {
+                    type: "map",
                   },
                   syncable: true,
                   selected: {
@@ -626,14 +728,20 @@
                     attributes: {
                       name: null,
                       tags: [],
-                      js_event_callbacks: {
+                      _js_event_callbacks: {
                         type: "map",
                       },
-                      js_property_callbacks: {
+                      _js_property_callbacks: {
                         type: "map",
                       },
-                      subscribed_events: {
+                      _js_property_callback_policies: {
+                        type: "map",
+                      },
+                      _subscribed_events: {
                         type: "set",
+                      },
+                      _subscribed_changes: {
+                        type: "map",
                       },
                       syncable: true,
                       indices: [],
@@ -654,14 +762,20 @@
                     attributes: {
                       name: null,
                       tags: [],
-                      js_event_callbacks: {
+                      _js_event_callbacks: {
                         type: "map",
                       },
-                      js_property_callbacks: {
+                      _js_property_callbacks: {
                         type: "map",
                       },
-                      subscribed_events: {
+                      _js_property_callback_policies: {
+                        type: "map",
+                      },
+                      _subscribed_events: {
                         type: "set",
+                      },
+                      _subscribed_changes: {
+                        type: "map",
                       },
                       syncable: true,
                     },
@@ -678,14 +792,20 @@
                 attributes: {
                   name: null,
                   tags: [],
-                  js_event_callbacks: {
+                  _js_event_callbacks: {
                     type: "map",
                   },
-                  js_property_callbacks: {
+                  _js_property_callbacks: {
                     type: "map",
                   },
-                  subscribed_events: {
+                  _js_property_callback_policies: {
+                    type: "map",
+                  },
+                  _subscribed_events: {
                     type: "set",
+                  },
+                  _subscribed_changes: {
+                    type: "map",
                   },
                   syncable: true,
                   filter: {
@@ -695,14 +815,20 @@
                     attributes: {
                       name: null,
                       tags: [],
-                      js_event_callbacks: {
+                      _js_event_callbacks: {
                         type: "map",
                       },
-                      js_property_callbacks: {
+                      _js_property_callbacks: {
                         type: "map",
                       },
-                      subscribed_events: {
+                      _js_property_callback_policies: {
+                        type: "map",
+                      },
+                      _subscribed_events: {
                         type: "set",
+                      },
+                      _subscribed_changes: {
+                        type: "map",
                       },
                       syncable: true,
                     },
@@ -716,14 +842,20 @@
                 attributes: {
                   name: null,
                   tags: [],
-                  js_event_callbacks: {
+                  _js_event_callbacks: {
                     type: "map",
                   },
-                  js_property_callbacks: {
+                  _js_property_callbacks: {
                     type: "map",
                   },
-                  subscribed_events: {
+                  _js_property_callback_policies: {
+                    type: "map",
+                  },
+                  _subscribed_events: {
                     type: "set",
+                  },
+                  _subscribed_changes: {
+                    type: "map",
                   },
                   syncable: true,
                   decorations: [],
@@ -788,14 +920,20 @@
           attributes: {
             name: null,
             tags: [],
-            js_event_callbacks: {
+            _js_event_callbacks: {
               type: "map",
             },
-            js_property_callbacks: {
+            _js_property_callbacks: {
               type: "map",
             },
-            subscribed_events: {
+            _js_property_callback_policies: {
+              type: "map",
+            },
+            _subscribed_events: {
               type: "set",
+            },
+            _subscribed_changes: {
+              type: "map",
             },
             syncable: true,
             html_attributes: {

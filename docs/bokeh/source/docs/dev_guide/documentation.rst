@@ -458,10 +458,8 @@ when working in ``docs/bokeh``.
 
 The ``bokeh-model`` Sphinx extension discovers inherited Bokeh properties,
 Python properties, and methods for each class page. The
-``bokeh_model_excluded_members`` setting in ``conf.py`` controls names omitted
-from every model page. By default this hides ``js_event_callbacks``,
-``js_property_callbacks``, and ``subscribed_events`` while leaving the JSON
-prototype faithful to the serialized model.
+``bokeh_model_excluded_members`` setting in ``conf.py`` controls additional
+names omitted from every model page. Private members are omitted automatically.
 
 In the file :bokeh-tree:`docs/bokeh/source/rst_epilog.txt`, you can find many common
 substitutions used across the narrative documentation as well as docstrings and

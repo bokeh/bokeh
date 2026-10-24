@@ -3,7 +3,8 @@
 
 from typing import Sequence, assert_type
 
-from bokeh.models import Range1d
+from bokeh.model import CallbackPolicy, Committed, Debounce, Throttle
+from bokeh.models import CustomJS, Range1d
 from bokeh.models.layouts import Column, Row
 from bokeh.models.ui.ui_element import UIElement
 from bokeh.models.widgets.sliders import Slider
@@ -15,7 +16,15 @@ assert_type(p, figure)
 assert_type(Range1d(0, 10, bounds="auto"), Range1d)
 Range1d(start=0, end=10, bounds=(0, 20))
 Range1d(bounds="auto")
-Slider(start=0, end=10, value=3)
+slider = Slider(start=0, end=10, value=3)
+def update(attr: str, old: object, new: object) -> None: ...
+throttle: CallbackPolicy = Throttle(100)
+slider.on_change("value", update, policy=throttle)
+slider.on_change("value", update, policy=Debounce(250))
+slider.on_change("value", update, policy=Committed())
+slider.js_on_change("value", CustomJS(code=""), policy=Throttle(100))
+slider.js_on_change("value", CustomJS(code=""), policy=Debounce(250))
+slider.js_on_change("value", CustomJS(code=""), policy=Committed())
 
 # Glyph calls with vectorized and scalar properties.
 p.scatter([1, 2], [3, 4], size=10, fill_color="red")
