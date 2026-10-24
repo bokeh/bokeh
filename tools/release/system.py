@@ -31,7 +31,7 @@ class System:
         self.dry_run: bool = dry_run
         self._pushd_state: list[str] = []
 
-    def run(self, cmd: str, **kw: Any) -> str:
+    def run(self, cmd: str, *, capture_stdout_only: bool = False, **kw: Any) -> str:
         """"""
         envstr = " ".join(f"{k}={v}" for k, v in kw.items()) + min(len(kw), 1) * " "
         log.info("%s", shell(f"{envstr}{cmd}"))
@@ -42,10 +42,16 @@ class System:
         if self.dry_run:
             return ""
 
-        result = stdlib_run(cmd, shell=True, stdout=PIPE, stderr=STDOUT, text=True, env=env)
+        result = stdlib_run(cmd, shell=True, stdout=PIPE, stderr=PIPE if capture_stdout_only else STDOUT, text=True, env=env)
 
         if result.returncode != 0:
-            raise RuntimeError(*result.stdout.strip().split("\n"))
+            output = result.stdout
+            if capture_stdout_only and result.stderr:
+                output += "\n" + result.stderr
+            raise RuntimeError(*output.strip().split("\n"))
+
+        if capture_stdout_only and result.stderr:
+            log.warning("%s", result.stderr.rstrip())
 
         return result.stdout
 

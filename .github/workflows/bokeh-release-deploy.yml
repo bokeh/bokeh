@@ -139,6 +139,11 @@ jobs:
           retention-days: 1
 
   publish-docs:
+    # Serialize deployments to prevent races updating latest, the switcher, and the root sitemap.
+    concurrency:
+      group: bokeh-docs-publication
+      queue: max
+      cancel-in-progress: false
     needs: prepare
     runs-on: ubuntu-24.04
     environment:
