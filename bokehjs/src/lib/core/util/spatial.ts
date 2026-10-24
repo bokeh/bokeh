@@ -85,7 +85,7 @@ function compute_hilbert(x: number, y: number): number {
 }
 
 export class SpatialIndex {
-  /* Core algorithm is heavily inspired by the flatbush libary (https://github.com/mourner/flatbush)
+  /*! Core algorithm is heavily inspired by the flatbush libary (https://github.com/mourner/flatbush)
   Copyright (c) 2022, Vladimir Agafonkin
 
   Permission to use, copy, modify, and/or distribute this software for any purpose
