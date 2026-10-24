@@ -630,7 +630,7 @@ export class LegendView extends AnnotationView {
 
   get is_interactive(): boolean {
     // this doesn't cover server callbacks
-    return this.model.click_policy != "none" || dict(this.model.js_event_callbacks).has("legend_item_click")
+    return this.model.click_policy != "none" || dict(this.model._js_event_callbacks).has("legend_item_click")
   }
 
   get click_policy(): (r: GlyphRenderer) => void {

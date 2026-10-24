@@ -89,28 +89,22 @@ class TestAbstractSlider:
                 setattr(s, prop, 2.5)
 
 class TestSlider:
-    def test_value_and_value_throttled(self) -> None:
+    def test_value(self) -> None:
         s0 = mws.Slider(start=0, end=10)
         with pytest.raises(UnsetValueError):
             s0.value
-        with pytest.raises(UnsetValueError):
-            s0.value_throttled
 
         s1 = mws.Slider(start=0, end=10, value=5)
         assert s1.value == 5
-        assert s1.value_throttled == 5
 
 class TestRangeSlider:
-    def test_value_and_value_throttled(self) -> None:
+    def test_value(self) -> None:
         s0 = mws.RangeSlider(start=0, end=10)
         with pytest.raises(UnsetValueError):
             s0.value
-        with pytest.raises(UnsetValueError):
-            s0.value_throttled
 
         s1 = mws.RangeSlider(start=0, end=10, value=(4, 6))
         assert s1.value == (4, 6)
-        assert s1.value_throttled == (4, 6)
 
     def test_rangeslider_equal_start_end_validation(self, caplog: pytest.LogCaptureFixture) -> None:
         start = 0
@@ -125,7 +119,7 @@ class TestRangeSlider:
             assert len(caplog.records) == 1
 
 class TestDateSlider:
-    def test_value_and_value_throttled(self) -> None:
+    def test_value(self) -> None:
         start = datetime(2021, 1, 1)
         end = datetime(2021, 12, 31)
         value = convert_date_to_datetime(datetime(2021, 2, 1))
@@ -133,12 +127,9 @@ class TestDateSlider:
         s0 = mws.DateSlider(start=start, end=end)
         with pytest.raises(UnsetValueError):
             s0.value
-        with pytest.raises(UnsetValueError):
-            s0.value_throttled
 
         s1 = mws.DateSlider(start=start, end=end, value=value)
         assert s1.value == value
-        assert s1.value_throttled == value
 
     def test_value_as_datetime_when_set_as_datetime(self) -> None:
         start = datetime(2017, 8, 9, 0, 0, tzinfo=UTC)
@@ -171,7 +162,7 @@ class TestDateSlider:
         assert s.value_as_date == end
 
 class TestDateRangeSlider:
-    def test_value_and_value_throttled(self) -> None:
+    def test_value(self) -> None:
         start = datetime(2021, 1, 1)
         end = datetime(2021, 12, 31)
         value = (convert_datetime_type(datetime(2021, 2, 1)), convert_datetime_type(datetime(2021, 2, 28)))
@@ -179,12 +170,9 @@ class TestDateRangeSlider:
         s0 = mws.DateRangeSlider(start=start, end=end)
         with pytest.raises(UnsetValueError):
             s0.value
-        with pytest.raises(UnsetValueError):
-            s0.value_throttled
 
         s1 = mws.DateRangeSlider(start=start, end=end, value=value)
         assert s1.value == value
-        assert s1.value_throttled == value
 
     def test_value_as_datetime_when_set_as_datetime(self) -> None:
         start = datetime(2017, 8, 9, 0, 0, tzinfo=UTC)

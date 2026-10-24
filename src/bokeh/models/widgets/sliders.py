@@ -30,7 +30,6 @@ from ...core.enums import Orientation, SliderAppearance
 from ...core.has_props import abstract
 from ...core.property.container import Seq, Tuple
 from ...core.property.datetime import Datetime
-from ...core.property.descriptors import UnsetValueError
 from ...core.property.either import Either
 from ...core.property.enum import Enum
 from ...core.property.instance import Instance
@@ -43,9 +42,7 @@ from ...core.property.primitive import (
     Int,
     String,
 )
-from ...core.property.readonly import Readonly
 from ...core.property.required import Required
-from ...core.property.singletons import Undefined
 from ...core.property.string import MathString
 from ...core.validation import error
 from ...core.validation.errors import EQUAL_SLIDER_START_END
@@ -77,27 +74,14 @@ class AbstractSlider(Widget):
 
     """
 
+    _committed_callback_properties = frozenset({"value"})
+
+    # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-        try:
-            # synchronize the value of a readonly property `value_throttled`
-            self.lookup("value_throttled")._set(self, Undefined, self.value)
-        except UnsetValueError:
-            pass
-        except AttributeError:
-            # TODO Remove this when proper support for property overrides is
-            # implemented. For now this is required to make defaults' tests
-            # work, because we depend there on model instances to provide
-            # "default" values.
-            pass
-
     # TODO value = Required(GenericType, help="""
     # Initial or selected range.
-    # """)
-
-    # TODO value_throttled = Readonly(GenericType, help="""
-    # Initial or selected value, only updated at the end of an interaction.
     # """)
 
     orientation = Enum(Orientation, help="""
@@ -182,15 +166,6 @@ class CategoricalSlider(AbstractSlider):
     Initial or selected value.
     """)
 
-    value_throttled = Readonly(Required(String), help="""
-    Initial or selected value, only updated at the end of an interaction.
-
-    Unlike ``value``, which is updated continuously while dragging or holding
-    a key, this is updated once, when the pointer or the key is released (or
-    when the slider loses focus). Use it to avoid expensive computations
-    (e.g. in Python callbacks) for intermediate values.
-    """)
-
 class Slider(NumericalSlider):
     """ Slider-based number selection widget. """
 
@@ -206,15 +181,6 @@ class Slider(NumericalSlider):
     Initial or selected value.
     """)
 
-    value_throttled = Readonly(Required(Float), help="""
-    Initial or selected value, only updated at the end of an interaction.
-
-    Unlike ``value``, which is updated continuously while dragging or holding
-    a key, this is updated once, when the pointer or the key is released (or
-    when the slider loses focus). Use it to avoid expensive computations
-    (e.g. in Python callbacks) for intermediate values.
-    """)
-
     step = Nullable(Positive(Float), default=1, help="""
     The step between consecutive values for discrete sliders. If ``None``,
     then the slider becomes a continuous slider and any value between
@@ -228,15 +194,6 @@ class RangeSlider(NumericalSlider):
 
     value = Required(Tuple(Float, Float), help="""
     Initial or selected range.
-    """)
-
-    value_throttled = Readonly(Required(Tuple(Float, Float)), help="""
-    Initial or selected range, only updated at the end of an interaction.
-
-    Unlike ``value``, which is updated continuously while dragging or holding
-    a key, this is updated once, when the pointer or the key is released (or
-    when the slider loses focus). Use it to avoid expensive computations
-    (e.g. in Python callbacks) for intermediate ranges.
     """)
 
     start = Required(Float, help="""
@@ -259,15 +216,6 @@ class MultiValuedSlider(NumericalSlider):
     # TODO value = Override(Required(Seq(Float)), ...)
     value = Required(Seq(Float), help="""
     Initial or selected values.
-    """)
-
-    value_throttled = Readonly(Required(Seq(Float)), help="""
-    Initial or selected values, only updated at the end of an interaction.
-
-    Unlike ``value``, which is updated continuously while dragging or holding
-    a key, this is updated once, when the pointer or the key is released (or
-    when the slider loses focus). Use it to avoid expensive computations
-    (e.g. in Python callbacks) for intermediate values.
     """)
 
     start = Required(Float, help="""
@@ -318,15 +266,6 @@ class DateSlider(NumericalSlider):
 
     value = Required(Datetime, help="""
     Initial or selected value.
-    """)
-
-    value_throttled = Readonly(Required(Datetime), help="""
-    Initial or selected value, only updated at the end of an interaction.
-
-    Unlike ``value``, which is updated continuously while dragging or holding
-    a key, this is updated once, when the pointer or the key is released (or
-    when the slider loses focus). Use it to avoid expensive computations
-    (e.g. in Python callbacks) for intermediate values.
     """)
 
     start = Required(Datetime, help="""
@@ -392,15 +331,6 @@ class DateRangeSlider(NumericalSlider):
     Initial or selected range.
     """)
 
-    value_throttled = Readonly(Required(Tuple(Datetime, Datetime)), help="""
-    Initial or selected range, only updated at the end of an interaction.
-
-    Unlike ``value``, which is updated continuously while dragging or holding
-    a key, this is updated once, when the pointer or the key is released (or
-    when the slider loses focus). Use it to avoid expensive computations
-    (e.g. in Python callbacks) for intermediate ranges.
-    """)
-
     start = Required(Datetime, help="""
     The minimum allowable value.
     """)
@@ -438,15 +368,6 @@ class DatetimeRangeSlider(NumericalSlider):
 
     value = Required(Tuple(Datetime, Datetime), help="""
     Initial or selected range.
-    """)
-
-    value_throttled = Readonly(Required(Tuple(Datetime, Datetime)), help="""
-    Initial or selected range, only updated at the end of an interaction.
-
-    Unlike ``value``, which is updated continuously while dragging or holding
-    a key, this is updated once, when the pointer or the key is released (or
-    when the slider loses focus). Use it to avoid expensive computations
-    (e.g. in Python callbacks) for intermediate ranges.
     """)
 
     start = Required(Datetime, help="""

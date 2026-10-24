@@ -7,12 +7,14 @@ import type {Equatable, Comparator} from "core/util/eq"
 import {equals} from "core/util/eq"
 import type {Serializable, Serializer, ModelRep} from "core/serialization"
 import {serialize} from "core/serialization"
+import type {CallbackPolicy} from "model"
 
 export type ModelChanged = {
   kind: "ModelChanged"
   model: Ref
   attr: string
   new: unknown
+  callback_policy?: CallbackPolicy
 }
 
 export type MessageSent = {
@@ -68,6 +70,7 @@ export namespace Decoded {
     model: HasProps
     attr: string
     new: unknown
+    callback_policy?: CallbackPolicy
   }
 
   export type MessageSent = {
@@ -181,7 +184,8 @@ export class ModelChangedEvent extends DocumentChangedEvent {
   constructor(document: Document,
       readonly model: HasProps,
       readonly attr: string,
-      readonly value: unknown) {
+      readonly value: unknown,
+      readonly callback_policy?: CallbackPolicy) {
     super(document)
   }
 
@@ -189,16 +193,21 @@ export class ModelChangedEvent extends DocumentChangedEvent {
     return super[equals](that, cmp) &&
       cmp.eq(this.model, that.model) &&
       cmp.eq(this.attr, that.attr) &&
-      cmp.eq(this.value, that.value)
+      cmp.eq(this.value, that.value) &&
+      cmp.eq(this.callback_policy, that.callback_policy)
   }
 
   [serialize](serializer: Serializer): DocumentChanged {
-    return {
+    const event: ModelChanged = {
       kind: this.kind,
       model: this.model.ref(),
       attr: this.attr,
       new: serializer.encode(this.value),
     }
+    if (this.callback_policy != null) {
+      event.callback_policy = this.callback_policy
+    }
+    return event
   }
 }
 
