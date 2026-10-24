@@ -42,7 +42,7 @@ import {
 
 import {
   Button, Dropdown, Toggle, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup,
-  Div, TextInput, DatePicker, AutocompleteInput, Switch, DateRangePicker, DatetimePicker,
+  Div, TextInput, DatePicker, AutocompleteInput, Switch, DateRangePicker, DatetimePicker, RangeSlider,
 } from "@bokehjs/models/widgets"
 
 import {DataTable, TableColumn, DateFormatter, NumberFormatter} from "@bokehjs/models/widgets/tables"
@@ -2528,7 +2528,7 @@ describe("Bug", () => {
         return table
       }
 
-      const tabs = new Tabs({
+      const tabs = Tabs.create({
         tabs: [
           new TabPanel({title: "Table 0", closable: true, child: table(1)}),
           new TabPanel({title: "Table 1", closable: true, child: table(10)}),
@@ -5809,6 +5809,20 @@ describe("Bug", () => {
 
     it("doesn't lay out a grid plot in nested Tabs", async () => {
       await nested_tabs(false)
+    })
+  })
+
+  describe("in issue #14388", () => {
+    it("values is outside range bounds when end is changed", async () => {
+      const slider = new RangeSlider({start: 0, end: 10, step: 1, value: [4, 8]})
+
+      const {view} = await display(slider, [500, 100])
+      slider.start = 5
+      slider.end = 7
+
+      await view.ready
+
+      expect(slider.value).to.be.equal([5, 7])
     })
   })
 })
