@@ -157,6 +157,14 @@ class NumericalSlider(AbstractSlider):
     """ Base class for numerical sliders. """
 
     format = Either(String, Instance(TickFormatter), help="""
+    The format of displayed values, i.e. the value next to the title, tooltips
+    and the text announced by screen readers.
+
+    This can be either a format string or a tick formatter. Format strings use
+    the formats of :class:`~bokeh.models.NumeralTickFormatter` for numerical
+    sliders (e.g. ``"0[.]00"``) and ``strftime`` formats of
+    :class:`~bokeh.models.DatetimeTickFormatter` for date and datetime sliders
+    (e.g. ``"%d %b %Y"``).
     """)
 
 #-----------------------------------------------------------------------------
