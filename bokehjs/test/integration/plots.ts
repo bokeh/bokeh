@@ -474,8 +474,9 @@ describe("Plot", () => {
       // Two _actual_paint() calls because of how layout is integrated into
       // the painting pipeline. This doesn't mean that renderers are actually
       // painted twice, because paint invalidation logic prevents this. It's
-      // still quite confusing and requires a redesign.
-      expect(spy.callCount).to.be.equal(2)
+      // still quite confusing and requires a redesign. The third call is a
+      // repaint requested by data ranges updated to include the new glyphs.
+      expect(spy.callCount).to.be.equal(3)
     })
   })
 })
