@@ -4,14 +4,14 @@ import {InputWidgetView, InputWidget} from "./input_widget"
 import {TickFormatter} from "../formatters/tick_formatter"
 import type {VNode} from "core/vdom"
 import {UIComponent} from "core/vdom"
-import {bind} from "core/class"
 import {ValueSubmit} from "core/bokeh_events"
 import {isString} from "core/util/types"
 import {assert} from "core/util/assert"
 import type * as p from "core/properties"
 import * as inputs_css from "styles/widgets/inputs.css"
 
-import type {TargetedKeyboardEvent} from "preact"
+import type {TargetedKeyboardEvent, TargetedWheelEvent} from "preact"
+import {createRef} from "preact"
 import {computed} from "@preact/signals"
 
 const int_regex = /^[-+]?\d*$/
@@ -30,6 +30,8 @@ export class NumericInputView extends InputWidgetView {
   ///
 
   protected old_value: string
+
+  protected readonly input_ref = createRef<HTMLInputElement>()
 
   override connect_signals(): void {
     super.connect_signals()
@@ -84,16 +86,19 @@ export class NumericInputView extends InputWidgetView {
           {prefix != null ? <div class={inputs_css.prefix}>{prefix}</div> : null}
           <div class={inputs_css.inner}>
             <input
+              ref={this.input_ref}
               type="text"
               class={inputs_css.input}
               name={name ?? undefined}
               disabled={disabled}
               value={format_value}
               placeholder={placeholder}
-              onKeyUp={this._key_up}
+              onKeyDown={(event) => this._key_down(event)}
+              onKeyUp={(event) => this._key_up(event)}
+              onWheel={(event) => this._wheel(event)}
               onChange={(event) => this.change_value(event.currentTarget)}
               onInput={(event) => this.filter_value(event.currentTarget, input_filter)}
-              //onFocusOut={() => this.input_el.value = this.format_value}
+              onFocusOut={(event) => event.currentTarget.value = this.format_value}
             />
             {this._buttons != null ? <div class={inputs_css.buttons}>{this._buttons()}</div> : null}
           </div>
@@ -103,7 +108,10 @@ export class NumericInputView extends InputWidgetView {
     )
   }
 
-  @bind
+  protected _key_down(_event: TargetedKeyboardEvent<HTMLInputElement>): void {}
+
+  protected _wheel(_event: TargetedWheelEvent<HTMLInputElement>): void {}
+
   protected _key_up(event: TargetedKeyboardEvent<HTMLInputElement>): void {
     if (event.key == "Enter" && !event.shiftKey && !event.ctrlKey && !event.altKey) {
       this.model.trigger_event(new ValueSubmit(event.currentTarget.value))
