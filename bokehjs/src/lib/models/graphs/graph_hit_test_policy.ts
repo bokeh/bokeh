@@ -173,7 +173,7 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
 
     const linked_edges = Selection.create()
     for (const i of edge_indices) {
-      linked_edges.multiline_indices.set(i, new Int32Array([0])) //currently only supports 2-element multilines, so this is all of it
+      linked_edges.multiline_indices.set(i, [0]) //currently only supports 2-element multilines, so this is all of it
     }
     linked_edges.indices = edge_indices
 
