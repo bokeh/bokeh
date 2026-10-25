@@ -311,6 +311,12 @@ A widget for displaying text that can support HTML in a <div> tag:
 .. bokeh-plot:: __REPO__/examples/interaction/widgets/div.py
     :source-position: below
 
+Links to targets within the text, such as ``<a href="#results">``, scroll to
+their target in the same |Div| or in another one:
+
+.. bokeh-plot:: __REPO__/examples/interaction/widgets/div_fragment_links.py
+    :source-position: below
+
 More information can be found in the reference guide entry for |Div|.
 
 .. _ug_interaction_widgets_examples_dropdown:
