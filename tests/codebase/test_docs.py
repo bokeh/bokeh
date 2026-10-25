@@ -3,19 +3,21 @@ from __future__ import annotations
 # Standard library imports
 import json
 import shlex
+from collections.abc import Callable
 from pathlib import Path
 from subprocess import PIPE
 from types import SimpleNamespace
+from typing import Any
 from xml.etree import ElementTree as ET
 
 # External imports
 import pytest
-
-# Bokeh imports
-from tests.codebase._release_support import RecordingSystem
 from release import build, docs
 from release.config import Config
 from release.system import System
+
+# Bokeh imports
+from tests.codebase._release_support import RecordingSystem
 
 HTML = (
     b'<html><head><title>Keep me</title><link rel="canonical" href="old"><meta property="og:url" content="old">'
@@ -23,7 +25,7 @@ HTML = (
 )
 
 
-def test_html_metadata_is_normalized_without_changing_content():
+def test_html_metadata_is_normalized_without_changing_content() -> None:
     result = docs.patch_html(HTML, "en/latest/", "index.html")
     assert b'<title>Keep me</title>' in result
     assert result.split(b"</head>")[1] == HTML.split(b"</head>")[1]
@@ -33,7 +35,7 @@ def test_html_metadata_is_normalized_without_changing_content():
     assert docs.page_url("en/4.0.0/", "myindex.html").endswith("/myindex.html")
 
 
-def test_sitemap_uses_same_https_directory_urls_as_html():
+def test_sitemap_uses_same_https_directory_urls_as_html() -> None:
     data = docs.xml_urls("urlset", "url", ["http://docs.bokeh.org/en/4.0.0/index.html", "http://docs.bokeh.org/en/4.0.0/docs/index.html"])
     result = docs.sitemap(data, "en/latest/")
     urls = [loc.text for loc in ET.fromstring(result).iter(f"{{{docs.SITEMAP_NS}}}loc")]
@@ -43,7 +45,7 @@ def test_sitemap_uses_same_https_directory_urls_as_html():
         docs.sitemap(data.replace(b"docs.bokeh.org", b"other.example"), "en/latest/")
 
 
-def test_preparation_leaves_asset_html_untouched(tmp_path):
+def test_preparation_leaves_asset_html_untouched(tmp_path: Path) -> None:
     (tmp_path / "_static").mkdir()
     macro = tmp_path / "_static/webpack-macros.html"
     macro.write_bytes(b"{% macro js() %}template{% endmacro %}")
@@ -58,18 +60,18 @@ def test_preparation_leaves_asset_html_untouched(tmp_path):
 
 class FakeDocsBucket:
     published_stable_version = "3.10.1"
-    gets = []
-    puts = []
-    checks = []
-    conflict = None
-    failure = None
+    gets: list[str] = []
+    puts: list[tuple[str, bytes, dict[str, Any], str]] = []
+    checks: list[str] = []
+    conflict: str | None = None
+    failure: str | None = None
     older_patch = "3.9.2"
     development = "4.0.0.dev8"
 
-    def __init__(self, system):
+    def __init__(self, system: System) -> None:
         self.system = system
 
-    def get(self, key, path):
+    def get(self, key: str, path: Path) -> dict[str, Any]:
         self.gets.append(key)
         path.parent.mkdir(parents=True, exist_ok=True)
         if key == "switcher.json":
@@ -90,12 +92,12 @@ class FakeDocsBucket:
         path.write_bytes(data)
         return {"ETag": '"original"'}
 
-    def check_current(self, key, metadata):
+    def check_current(self, key: str, metadata: dict[str, Any]) -> None:
         self.checks.append(key)
         if key == self.conflict:
             raise RuntimeError("PreconditionFailed")
 
-    def put(self, key, path, metadata, content_type):
+    def put(self, key: str, path: Path, metadata: dict[str, Any], content_type: str) -> None:
         if key == self.failure:
             raise RuntimeError("PreconditionFailed")
         self.puts.append((key, path.read_bytes(), metadata, content_type))
@@ -103,21 +105,21 @@ class FakeDocsBucket:
 
 class ArtifactSystem(RecordingSystem):
     """Capture the artifact at each upload, before temporary files disappear."""
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
-        self.uploads = {}
+        self.uploads: dict[str, dict[str, bytes]] = {}
 
-    def run(self, command, **kwargs):
+    def run(self, cmd: str, **kwargs: Any) -> str:
         # Preserve backslashes in Windows artifact paths.
-        args = shlex.split(command, posix=False)
+        args = shlex.split(cmd, posix=False)
         if args[:3] == ["aws", "s3", "sync"]:
             source = Path(args[3])
             self.uploads[args[4]] = {path.relative_to(source).as_posix(): path.read_bytes() for path in source.rglob("*") if path.is_file()}
-        return super().run(command, **kwargs)
+        return super().run(cmd, **kwargs)
 
 
 @pytest.fixture
-def publication(tmp_path, monkeypatch):
+def publication(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Callable[[str], Path]:
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(docs, "DocsBucket", FakeDocsBucket)
     monkeypatch.setattr(FakeDocsBucket, "puts", [])
@@ -129,7 +131,7 @@ def publication(tmp_path, monkeypatch):
     monkeypatch.setattr(FakeDocsBucket, "older_patch", "3.9.2")
     monkeypatch.setattr(FakeDocsBucket, "development", "4.0.0.dev8")
 
-    def prepare(version):
+    def prepare(version: str) -> Path:
         artifact_root = Path(f"deployment-{version}/docs/bokeh")
         source = artifact_root / "build/html"
         (source / "docs").mkdir(parents=True)
@@ -153,7 +155,7 @@ def publication(tmp_path, monkeypatch):
     return prepare
 
 
-def assert_self_canonical(artifact, prefix):
+def assert_self_canonical(artifact: dict[str, bytes], prefix: str) -> None:
     assert artifact["index.html"].count(f'https://docs.bokeh.org/{prefix}'.encode()) == 2
     assert artifact["docs/index.html"].count(f'https://docs.bokeh.org/{prefix}docs/'.encode()) == 2
     assert artifact["index.html"].split(b"</head>")[1] == HTML.split(b"</head>")[1]
@@ -163,7 +165,7 @@ def assert_self_canonical(artifact, prefix):
 
 
 @pytest.mark.parametrize("version", ["4.0.0", "3.10.1"])
-def test_stable_uploads_separate_self_canonical_copies_without_touching_history(publication, version):
+def test_stable_uploads_separate_self_canonical_copies_without_touching_history(publication: Callable[[str], Path], version: str) -> None:
     source = publication(version)
     built_switcher = (source.parents[1] / "switcher.json").read_bytes()
     system = ArtifactSystem()
@@ -191,7 +193,7 @@ def test_stable_uploads_separate_self_canonical_copies_without_touching_history(
     assert "--delete" in syncs[1]
 
 
-def test_maintenance_release_cannot_downgrade_latest(publication, monkeypatch):
+def test_maintenance_release_cannot_downgrade_latest(publication: Callable[[str], Path], monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(FakeDocsBucket, "published_stable_version", "4.0.0")
     publication("3.10.2")
     system = ArtifactSystem()
@@ -207,7 +209,7 @@ def test_maintenance_release_cannot_downgrade_latest(publication, monkeypatch):
 
 
 @pytest.mark.parametrize("version", ["4.0.0rc1", "4.0.0.dev9"])
-def test_prerelease_is_self_canonical_within_dev_prefix(publication, version):
+def test_prerelease_is_self_canonical_within_dev_prefix(publication: Callable[[str], Path], version: str) -> None:
     publication(version)
     system = ArtifactSystem()
     docs.publish_docs(Config(version), system)
@@ -218,11 +220,11 @@ def test_prerelease_is_self_canonical_within_dev_prefix(publication, version):
     assert "/en/latest*" not in shlex.split(system.commands[-1])
 
 
-def test_invalid_root_sitemap_fails_before_uploads(publication, monkeypatch):
+def test_invalid_root_sitemap_fails_before_uploads(publication: Callable[[str], Path], monkeypatch: pytest.MonkeyPatch) -> None:
     publication("4.0.0")
     original = FakeDocsBucket.get
 
-    def invalid(self, key, path):
+    def invalid(self: FakeDocsBucket, key: str, path: Path) -> dict[str, Any]:
         metadata = original(self, key, path)
         if key == "sitemap_index.xml":
             path.write_bytes(b"<wrong-root/>")
@@ -236,7 +238,7 @@ def test_invalid_root_sitemap_fails_before_uploads(publication, monkeypatch):
 
 
 @pytest.mark.parametrize(("key", "content_type"), [("switcher.json", "application/json"), ("sitemap_index.xml", "application/xml")])
-def test_control_object_updates_check_etag_and_set_cache_headers(tmp_path, key, content_type):
+def test_control_object_updates_check_etag_and_set_cache_headers(tmp_path: Path, key: str, content_type: str) -> None:
     path = tmp_path / key
     path.write_text("new contents")
     system = RecordingSystem()
@@ -249,7 +251,7 @@ def test_control_object_updates_check_etag_and_set_cache_headers(tmp_path, key, 
 
 
 @pytest.mark.parametrize("key", ["switcher.json", "sitemap_index.xml"])
-def test_stale_control_objects_are_rejected_before_uploads(publication, monkeypatch, key):
+def test_stale_control_objects_are_rejected_before_uploads(publication: Callable[[str], Path], monkeypatch: pytest.MonkeyPatch, key: str) -> None:
     publication("4.0.0")
     monkeypatch.setattr(FakeDocsBucket, "conflict", key)
     system = ArtifactSystem()
@@ -260,7 +262,7 @@ def test_stale_control_objects_are_rejected_before_uploads(publication, monkeypa
 
 
 @pytest.mark.parametrize("key", ["switcher.json", "sitemap_index.xml"])
-def test_failed_metadata_write_invalidates_uploaded_docs_and_can_be_retried(publication, monkeypatch, key):
+def test_failed_metadata_write_invalidates_uploaded_docs_and_can_be_retried(publication: Callable[[str], Path], monkeypatch: pytest.MonkeyPatch, key: str) -> None:
     publication("4.0.0")
     monkeypatch.setattr(FakeDocsBucket, "failure", key)
     system = ArtifactSystem()
@@ -277,8 +279,8 @@ def test_failed_metadata_write_invalidates_uploaded_docs_and_can_be_retried(publ
     assert docs.stable_version(FakeDocsBucket.puts[-2][1]) == "4.0.0"
 
 
-def test_aws_json_output_is_not_contaminated_by_stderr_warnings(tmp_path, monkeypatch, caplog):
-    def run(command, **kwargs):
+def test_aws_json_output_is_not_contaminated_by_stderr_warnings(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture) -> None:
+    def run(command: str, **kwargs: Any) -> SimpleNamespace:
         assert kwargs["stderr"] is PIPE
         assert shlex.split(command)[1:3] == ["s3api", "get-object"]
         return SimpleNamespace(returncode=0, stdout='{"ETag":"original"}', stderr="AWS CLI warning")
@@ -288,7 +290,7 @@ def test_aws_json_output_is_not_contaminated_by_stderr_warnings(tmp_path, monkey
     assert "AWS CLI warning" in caplog.text
 
 
-def test_root_sitemap_preserves_existing_maps_and_adds_only_this_release():
+def test_root_sitemap_preserves_existing_maps_and_adds_only_this_release() -> None:
     original = docs.xml_urls("sitemapindex", "sitemap", [
         "http://docs.bokeh.org/en/1.0.0/sitemap.xml", "https://docs.bokeh.org/en/3.9.2/sitemap.xml",
     ])
@@ -300,7 +302,7 @@ def test_root_sitemap_preserves_existing_maps_and_adds_only_this_release():
     }
 
 
-def test_stable_release_preserves_a_newer_development_series(publication, monkeypatch):
+def test_stable_release_preserves_a_newer_development_series(publication: Callable[[str], Path], monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(FakeDocsBucket, "development", "4.1.0.dev2")
     publication("4.0.0")
     docs.publish_docs(Config("4.0.0"), ArtifactSystem())
@@ -309,22 +311,22 @@ def test_stable_release_preserves_a_newer_development_series(publication, monkey
     assert docs.stable_version(FakeDocsBucket.puts[0][1]) == "4.0.0"
 
 
-def test_publication_and_invalidation_failure_reports_both_causes(publication, monkeypatch):
+def test_publication_and_invalidation_failure_reports_both_causes(publication: Callable[[str], Path], monkeypatch: pytest.MonkeyPatch) -> None:
     publication("4.0.0")
     monkeypatch.setattr(FakeDocsBucket, "failure", "switcher.json")
 
     class FailedInvalidation(ArtifactSystem):
-        def run(self, command, **kwargs):
-            if "create-invalidation" in command:
+        def run(self, cmd: str, **kwargs: Any) -> str:
+            if "create-invalidation" in cmd:
                 raise RuntimeError("invalidation unavailable")
-            return super().run(command, **kwargs)
+            return super().run(cmd, **kwargs)
 
     with pytest.raises(RuntimeError, match=r"PreconditionFailed.*Invalidation also failed.*invalidation unavailable.*Rerun"):
         docs.publish_docs(Config("4.0.0"), FailedInvalidation())
 
 
 @pytest.mark.parametrize("built_switcher", [None, "not valid JSON"])
-def test_invalid_build_switcher_fails_before_uploads(publication, built_switcher):
+def test_invalid_build_switcher_fails_before_uploads(publication: Callable[[str], Path], built_switcher: str | None) -> None:
     source = publication("4.0.0")
     path = source.parents[1] / "switcher.json"
     if built_switcher is None:

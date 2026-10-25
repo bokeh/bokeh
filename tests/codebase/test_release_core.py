@@ -276,7 +276,7 @@ def test_pipeline_aborts_on_first_failure() -> None:
     assert system.aborted is True
 
 
-def test_system_stdout_capture_keeps_stderr_in_failure_details(monkeypatch):
+def test_system_stdout_capture_keeps_stderr_in_failure_details(monkeypatch: pytest.MonkeyPatch) -> None:
     result = type("Result", (), {"returncode": 1, "stdout": "output", "stderr": "AWS error"})()
     monkeypatch.setattr("release.system.stdlib_run", lambda *args, **kw: result)
     with pytest.raises(RuntimeError) as error:
