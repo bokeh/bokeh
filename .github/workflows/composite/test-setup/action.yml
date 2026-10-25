@@ -27,7 +27,8 @@ runs:
     - name: Setup conda environment
       uses: conda-incubator/setup-miniconda@v4
       with:
-        miniforge-version: latest
+        # Miniforge 26.9.4-0 fails during conda init on Windows.
+        miniforge-version: ${{ runner.os == 'Windows' && '26.7.2-0' || 'latest' }}
         mamba-version: "*"
         activate-environment: bk-test
         environment-file: conda/environment-test-${{ inputs.test-env }}-no-nodejs.yml
