@@ -201,11 +201,7 @@ export class Serializer {
   }
 
   protected _encode_typed_array(obj: TypedArray): TypedArrayRep {
-    const is_view = obj.byteOffset != 0 || obj.byteLength != obj.buffer.byteLength
-    const buffer = !this.binary && is_view
-      ? obj.buffer.slice(obj.byteOffset, obj.byteOffset + obj.byteLength)
-      : obj.buffer
-    const array = this.encode(buffer) as BytesRep
+    const array = this.encode(obj.buffer) as BytesRep
 
     const dtype = (() => {
       switch (obj.constructor) {
@@ -224,16 +220,11 @@ export class Serializer {
       }
     })()
 
-    const rep: TypedArrayRep = {
+    return {
       type: "typed_array",
       array,
       order: BYTE_ORDER,
       dtype,
     }
-    if (this.binary && is_view) {
-      rep.byte_offset = obj.byteOffset
-      rep.length = obj.length
-    }
-    return rep
   }
 }

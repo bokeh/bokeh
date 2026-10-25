@@ -2,12 +2,14 @@ import {Property} from "core/properties"
 import type {Comparator} from "core/util/eq"
 import type {Serializer, BytesRep} from "core/serialization"
 import {Deserializer} from "core/serialization/deserializer"
+import {Arrayable, Int, Mapping} from "core/kinds"
 import {isArrayable} from "core/util/types"
 import type {OpaqueIndices, MultiIndices} from "./selection"
 
 const MAX_INDEX = 2147483647
 // Require a useful saving after accounting for bitmap metadata.
 const SAVING_MARGIN = 64
+const multiline_kind = Mapping(Int, Arrayable(Int))
 
 type Descriptor = {
   mode: "int32" | "bitmap"
@@ -65,6 +67,7 @@ export function normalize_indices(values: OpaqueIndices): number[] {
 }
 
 function normalize_multiline(indices: MultiIndices): Map<number, number[]> {
+  indices = multiline_kind.coerce(indices) as MultiIndices
   if (!(indices instanceof Map)) {
     throw new Error("multiline indices must be a map")
   }

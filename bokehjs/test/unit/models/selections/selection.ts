@@ -19,6 +19,16 @@ const other_2d_selection = Selection.create({multiline_indices: new Map([[2, [0,
 describe("Selection", () => {
 
   describe("adaptive transport", () => {
+    for (const binary of [false, true]) {
+      it(`should restore empty maps in full documents with binary=${binary}`, () => {
+        const rep = new Serializer({binary, include_defaults: true}).encode(Selection.create())
+        const restored = new Deserializer(default_resolver).decode(JSON.parse(JSON.stringify(rep))) as Selection
+        expect(restored.indices).to.be.equal([])
+        expect(restored.line_indices).to.be.equal([])
+        expect(restored.multiline_indices).to.be.equal(new Map())
+      })
+    }
+
     function send(value: unknown): (string | ArrayBuffer)[] {
       const frames: (string | ArrayBuffer)[] = []
       Message.create("PATCH-DOC", new Serializer({binary: true}).encode(value)).send({
