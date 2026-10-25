@@ -243,3 +243,65 @@ async def test_pull_reply_precedes_later_patch_and_is_cancellation_safe() -> Non
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("attr", ["indices", "line_indices", "multiline_indices"])
+@pytest.mark.parametrize("hold", [False, True])
+async def test_selection_patch_callbacks_forwarding_and_setter_suppression(attr: str, hold: bool) -> None:
+    from bokeh.core.serialization import Deserializer, Serialized
+    from bokeh.document.events import ModelChangedEvent
+    from bokeh.models import Selection
+    from bokeh.protocol import patch_doc, pull_doc_reply
+
+    def value(indices):
+        return {7: indices, 42: []} if attr == "multiline_indices" else indices
+
+    selection = Selection()
+    document = Document()
+    document.add_root(selection)
+    executor = _ServerExecutor(max_workers=1)
+    session, origin, connection = make_connection(document, executor)
+    peer = RecordingSocket()
+    ServerConnection(peer, session)
+    changes = []
+    selection.on_change(attr, lambda attr, old, new: changes.append((old, new)))
+    expected = value(list(range(300)))
+    incoming = patch_doc([ModelChangedEvent(document, selection, attr, expected)])
+    try:
+        if hold:
+            await session.with_document_locked(document.hold)
+        reply = await connection.handle(incoming)
+        assert reply.msgtype == "OK"
+        if hold:
+            assert changes == []
+            assert peer.messages == []
+            await session.with_document_locked(document.unhold)
+        assert len(changes) == 1
+        actual = getattr(selection, attr)
+        assert actual == expected
+        assert isinstance(actual[7] if attr == "multiline_indices" else actual, list)
+        # A hold released after the originating request has finished forwards to both clients.
+        assert len(origin.messages) == int(hold)
+        assert len(peer.messages) == 1
+        message = peer.messages[0]
+        assert len(message.buffers) == 1
+        event = Deserializer([selection]).deserialize(message.payload)["events"][0]
+        assert event["new"] == expected
+        # Replaying the same set does not notify or forward another patch.
+        await connection.handle(incoming)
+        assert len(changes) == len(peer.messages) == 1
+        origin.messages.clear()
+        # A callback's server-side update must reach both clients.
+        def callback(attr, old, new):
+            selection.image_indices = [dict(index=0, i=1, j=2, flat_index=3)]
+        selection.on_change(attr, callback)
+        await connection.handle(patch_doc([ModelChangedEvent(document, selection, attr, value([1, 9]))]))
+        assert len(changes) == 2
+        assert [m.content["events"][0]["attr"] for m in origin.messages] == ["image_indices"]
+        assert [m.content["events"][0]["attr"] for m in peer.messages[1:]] == ["image_indices", attr]
+        # Full pull replies also restore ordinary public values.
+        reply = pull_doc_reply("request", document)
+        restored = Document.from_json(Serialized(reply.content["doc"], reply.buffers))
+        assert getattr(restored.roots[0], attr) == value([1, 9])
+    finally:
+        executor.shutdown()

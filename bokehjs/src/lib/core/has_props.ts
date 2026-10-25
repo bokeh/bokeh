@@ -613,7 +613,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
     const cmp = new Comparator({no_fail: true})
     for (const [prop, value] of changes) {
-      if (check_eq === false || prop.is_unset || !cmp.eq(prop.get_value(), value)) {
+      if (check_eq === false || prop.is_unset || !prop.is_equal(value, cmp)) {
         prop.set_value(value)
         changed.add(prop)
       }

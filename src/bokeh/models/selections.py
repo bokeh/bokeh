@@ -22,21 +22,18 @@ log = logging.getLogger(__name__)
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
-import numpy.typing as npt
 
 from ..core.has_props import abstract
-from ..core.property.container import (
-    Array,
-    Dict,
-    List,
-    Seq,
-)
+from ..core.property.container import Dict, List
 from ..core.property.primitive import Int
 from ..core.property.struct import Struct
 from ..model import Model
+from ._selection import encode, normalize, validate
 
 if TYPE_CHECKING:
+    from ..core.has_props import HasProps
     from ..core.serialization import Serializer
+    from ..document.events import DocumentPatchedEvent
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -53,37 +50,48 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def _indices(value: Any) -> npt.NDArray[np.int32]:
-    values = np.asarray(value)
-    if values.ndim == 1 and values.dtype == np.int32:
-        return values
-    if values.ndim != 1 or (values.size and values.dtype.kind not in "iu"):
-        raise ValueError("selection indices must be one-dimensional int32 integers")
-    if values.size and (np.any(values < -2147483648) or np.any(values > 2147483647)):
-        raise ValueError("selection indices must be int32 integers")
-    return np.asarray(values, dtype=np.int32)
+class _SelectionIndices(List[int]):
+    def prepare_value(self, owner: HasProps | type[HasProps], name: str, value: Any, *,
+            hint: DocumentPatchedEvent | None = None) -> list[int]:
+        try:
+            value = normalize(value)
+        except ValueError:
+            # Let the base property attach owner/property context to the error.
+            pass
+        return super().prepare_value(owner, name, value, hint=hint)
 
-
-class _SelectionIndices(Array[int]):
     def validate(self, value: Any, detail: bool = True) -> None:
-        if not isinstance(value, np.ndarray):
-            raise ValueError("expected a NumPy array")
-        _indices(value)
+        validate(value)
 
-    def transform(self, value: Any) -> npt.NDArray[np.int32]:
-        return _indices(value)
+    def transform(self, value: Any) -> list[int]:
+        return normalize(value)
 
 
-class _MultilineIndices(Dict[int, Any]):
+def _multiline_key(key: Any) -> int:
+    if not isinstance(key, (int, np.integer)) or isinstance(key, (bool, np.bool_)) or not 0 <= key <= 2147483647:
+        raise ValueError("multiline keys must be nonnegative int32 integers")
+    return int(key)
+
+
+class _MultilineIndices(Dict[int, list[int]]):
+    def prepare_value(self, owner: HasProps | type[HasProps], name: str, value: Any, *,
+            hint: DocumentPatchedEvent | None = None) -> dict[int, list[int]]:
+        if isinstance(value, dict):
+            try:
+                value = self.transform(value)
+            except (ValueError, TypeError):
+                pass
+        return super().prepare_value(owner, name, value, hint=hint)
+
     def validate(self, value: Any, detail: bool = True) -> None:
         if not isinstance(value, dict):
-            raise ValueError("expected a dictionary of index arrays")
+            raise ValueError("expected a dictionary of index lists")
         for key, values in value.items():
-            self.keys_type.validate(key, detail)
-            self.values_type.validate(values, detail)
+            _multiline_key(key)
+            validate(values)
 
-    def transform(self, value: Any) -> dict[int, npt.NDArray[np.int32]]:
-        return {key: _indices(values) for key, values in value.items()}
+    def transform(self, value: Any) -> dict[int, list[int]]:
+        return {_multiline_key(key): normalize(values) for key, values in sorted(value.items())}
 
 
 class Selection(Model):
@@ -96,12 +104,11 @@ class Selection(Model):
 
     For most glyphs, the ``indices`` property is the relevant value to use.
 
-    Index sequences are one-dimensional NumPy ``int32`` arrays in Python and
-    ``Int32Array`` values in JavaScript. Assigning a list or another integer
-    sequence converts it automatically. This also applies to ``line_indices``
-    and each value in ``multiline_indices``. Assign a new sequence to change a
-    selection; use ``indices.tolist()`` or ``Array.from(indices)`` when a list or ordinary
-    JavaScript array is required.
+    Index sequences are Python lists and JavaScript arrays of nonnegative int32
+    indices. They represent sets: duplicates are removed and order is not
+    significant. Values are stored in ascending order. This applies to
+    ``indices``, ``line_indices``, and values in ``multiline_indices``.
+    Assign a new sequence to change a selection.
 
     '''
 
@@ -113,14 +120,14 @@ class Selection(Model):
     For "multi" glyphs such as ``Patches``, ``MultiLine``, ``MultiPolygons``,
     etc, this array records the indices of which entire sub-items are selected.
     For example, which individual polygons of a ``MultiPolygon`` are selected.
-    """).accepts(Seq(Int), _indices)
+    """)
 
     line_indices = _SelectionIndices(Int, default=[], help="""
     The point indices included in a selection on a ``Line`` glyph.
 
     This value records the indices of the individual points on a ``Line`` that
     were selected by a selection tool.
-    """).accepts(Seq(Int), _indices)
+    """)
 
     multiline_indices = _MultilineIndices(Int, _SelectionIndices(Int), default={}, help="""
     The detailed point indices included in a selection on a ``MultiLine``.
@@ -132,17 +139,15 @@ class Selection(Model):
     If you only need to know which lines are selected, without knowing what
     individual points on those lines are selected, then you can look at the
     keys of this dictionary (converted to ints).
-    """).accepts(Dict(Int, Seq(Int)), lambda value: {key: _indices(values) for key, values in value.items()})
+    """)
 
-    image_indices = List(Struct(index=Int, i=Int, j=Int, flat_index=Int), help="""
+    image_indices = List[dict[str, int]](Struct(index=Int, i=Int, j=Int, flat_index=Int), help="""
 
     """)
 
     def _serialize_property(self, name: str, value: Any, serializer: Serializer) -> Any:
-        if name == "multiline_indices":
-            return serializer.encode_typed_array_map({key: _indices(values) for key, values in value.items()})
-        if name in ("indices", "line_indices"):
-            value = _indices(value)
+        if name in ("indices", "line_indices", "multiline_indices"):
+            return encode(value, serializer, multiline=name == "multiline_indices")
         return super()._serialize_property(name, value, serializer)
 
 @abstract

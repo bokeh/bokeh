@@ -71,9 +71,9 @@ describe("Glyph (using Rect as a concrete Glyph)", () => {
       const result2 = glyph_view.hit_test(geometry2)
       const result3 = glyph_view.hit_test(geometry3)
 
-      expect(result1?.indices).to.be.equal(new Int32Array([0]))
-      expect(result2?.indices).to.be.equal(new Int32Array([1]))
-      expect(result3?.indices).to.be.equal(new Int32Array([]))
+      expect(result1?.indices).to.be.equal([0])
+      expect(result2?.indices).to.be.equal([1])
+      expect(result3?.indices).to.be.equal([])
     })
   })
 })
@@ -199,9 +199,9 @@ describe("Rect", () => {
           const result2 = glyph_view.hit_test(geometry2)
           const result3 = glyph_view.hit_test(geometry3)
 
-          expect(result1?.indices).to.be.equal(new Int32Array([1]))
-          expect(result2?.indices).to.be.equal(new Int32Array([1]))
-          expect(result3?.indices).to.be.equal(new Int32Array([]))
+          expect(result1?.indices).to.be.equal([1])
+          expect(result2?.indices).to.be.equal([1])
+          expect(result3?.indices).to.be.equal([])
         })
 
         it("should work when width and height units are 'screen'", async () => {
@@ -215,9 +215,9 @@ describe("Rect", () => {
           const result2 = glyph_view.hit_test(geometry2)
           const result3 = glyph_view.hit_test(geometry3)
 
-          expect(result1?.indices).to.be.equal(new Int32Array([]))
-          expect(result2?.indices).to.be.equal(new Int32Array([1]))
-          expect(result3?.indices).to.be.equal(new Int32Array([]))
+          expect(result1?.indices).to.be.equal([])
+          expect(result2?.indices).to.be.equal([1])
+          expect(result3?.indices).to.be.equal([])
         })
 
         it("should work when rects are rotated", async () => {
@@ -236,9 +236,9 @@ describe("Rect", () => {
           const result2 = glyph_view.hit_test(geometry2)
           const result3 = glyph_view.hit_test(geometry3)
 
-          expect(result1?.indices).to.be.equal(new Int32Array([]))
-          expect(result2?.indices).to.be.equal(new Int32Array([]))
-          expect(result3?.indices).to.be.equal(new Int32Array([1]))
+          expect(result1?.indices).to.be.equal([])
+          expect(result2?.indices).to.be.equal([])
+          expect(result3?.indices).to.be.equal([1])
         })
 
         /*
@@ -286,8 +286,8 @@ describe("Rect", () => {
           const result4 = glyph_view.hit_test({type: "point", sx: 66.666,  sy: 133.333})
           const result5 = glyph_view.hit_test({type: "point", sx: 133.333, sy:  66.666})
 
-          expect(result4?.indices).to.be.equal(new Int32Array([]))  // XXX: this seems to be a hit if not for intermediate NaNs
-          expect(result5?.indices).to.be.equal(new Int32Array([2]))
+          expect(result4?.indices).to.be.equal([])  // XXX: this seems to be a hit if not for intermediate NaNs
+          expect(result5?.indices).to.be.equal([2])
         })
       })
     })

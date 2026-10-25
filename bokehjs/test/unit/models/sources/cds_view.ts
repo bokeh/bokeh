@@ -154,14 +154,14 @@ describe("CDSView", () => {
       const view = CDSView.create({filter: IntersectionFilter.create({operands: [filter1, filter2]})})
       await build(view, source)
       const selection = Selection.create({indices: [0]})
-      expect(view.convert_selection_from_subset(selection).indices).to.be.equal(new Int32Array([1]))
+      expect(view.convert_selection_from_subset(selection).indices).to.be.equal([1])
     })
 
     it("convert_selection_to_subset", async () => {
       const view = CDSView.create({filter: IntersectionFilter.create({operands: [filter1, filter2]})})
       await build(view, source)
       const selection = Selection.create({indices: [1]})
-      expect(view.convert_selection_to_subset(selection).indices).to.be.equal(new Int32Array([0]))
+      expect(view.convert_selection_to_subset(selection).indices).to.be.equal([0])
     })
 
     it("convert_indices_from_subset", async () => {

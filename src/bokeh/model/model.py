@@ -664,7 +664,8 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         # this may need to be further refined in the future, if the
         # assumption does not hold for future hinted events (e.g. the hint
         # could specify explicitly whether to do normal invalidation or not)
-        if hint is None:
+        descriptor = self.lookup(attr)
+        if hint is None and descriptor.property.has_ref:
             dirty_count = 0
             def mark_dirty(_: HasProps):
                 nonlocal dirty_count
@@ -675,7 +676,6 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
                 if dirty_count > 0:
                     self.document.models.invalidate()
         # chain up to invoke callbacks
-        descriptor = self.lookup(attr)
         super().trigger(descriptor.name, old, new, hint=hint, setter=setter)
 
     def _attach_document(self, doc: Document) -> None:

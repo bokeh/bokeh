@@ -40,28 +40,28 @@ describe("Patches", () => {
       const geometry1 = rect([0, 0], [-1, 1], true)
 
       const result0 = glyph_view.hit_test(geometry0)
-      expect(result0?.indices).to.be.equal(new Int32Array([]))
+      expect(result0?.indices).to.be.equal([])
 
       const result1 = glyph_view.hit_test(geometry1)
-      expect(result1?.indices).to.be.equal(new Int32Array([]))
+      expect(result1?.indices).to.be.equal([])
 
       const geometry2 = rect([0, 0], [6, 6], false)
       const geometry3 = rect([0, 0], [6, 6], true)
 
       const result2 = glyph_view.hit_test(geometry2)
-      expect(result2?.indices).to.be.equal(new Int32Array([0, 1, 2]))
+      expect(result2?.indices).to.be.equal([0, 1, 2])
 
       const result3 = glyph_view.hit_test(geometry3)
-      expect(result3?.indices).to.be.equal(new Int32Array([0, 1, 2]))
+      expect(result3?.indices).to.be.equal([0, 1, 2])
 
       const geometry4 = rect([0, 0], [6, 4], false)
       const geometry5 = rect([0, 0], [6, 4], true)
 
       const result4 = glyph_view.hit_test(geometry4)
-      expect(result4?.indices).to.be.equal(new Int32Array([0]))
+      expect(result4?.indices).to.be.equal([0])
 
       const result5 = glyph_view.hit_test(geometry5)
-      expect(result5?.indices).to.be.equal(new Int32Array([0, 1, 2]))
+      expect(result5?.indices).to.be.equal([0, 1, 2])
     })
 
     it("should point hit testing with holes", async () => {
@@ -89,15 +89,15 @@ describe("Patches", () => {
 
       // Point inside outer boundary but outside hole -> hit
       const result0 = glyph_view.hit_test(point(1, 1))
-      expect(result0?.indices).to.be.equal(new Int32Array([0]))
+      expect(result0?.indices).to.be.equal([0])
 
       // Point inside hole -> no hit
       const result1 = glyph_view.hit_test(point(5, 5))
-      expect(result1?.indices).to.be.equal(new Int32Array([]))
+      expect(result1?.indices).to.be.equal([])
 
       // Point outside outer boundary -> no hit
       const result2 = glyph_view.hit_test(point(15, 15))
-      expect(result2?.indices).to.be.equal(new Int32Array([]))
+      expect(result2?.indices).to.be.equal([])
     })
 
     it("should point hit testing with disjoint polygons", async () => {
@@ -126,19 +126,19 @@ describe("Patches", () => {
 
       // Point inside first square -> hit
       const result0 = glyph_view.hit_test(point(2, 2))
-      expect(result0?.indices).to.be.equal(new Int32Array([0]))
+      expect(result0?.indices).to.be.equal([0])
 
       // Point inside second square -> hit
       const result1 = glyph_view.hit_test(point(12, 2))
-      expect(result1?.indices).to.be.equal(new Int32Array([0]))
+      expect(result1?.indices).to.be.equal([0])
 
       // Point between squares -> no hit
       const result2 = glyph_view.hit_test(point(7, 2))
-      expect(result2?.indices).to.be.equal(new Int32Array([]))
+      expect(result2?.indices).to.be.equal([])
 
       // Point outside both -> no hit
       const result3 = glyph_view.hit_test(point(20, 20))
-      expect(result3?.indices).to.be.equal(new Int32Array([]))
+      expect(result3?.indices).to.be.equal([])
     })
 
     it("should poly hit testing", async () => {
@@ -174,28 +174,28 @@ describe("Patches", () => {
       const geometry1 = poly([], true)
 
       const result0 = glyph_view.hit_test(geometry0)
-      expect(result0?.indices).to.be.equal(new Int32Array([]))
+      expect(result0?.indices).to.be.equal([])
 
       const result1 = glyph_view.hit_test(geometry1)
-      expect(result1?.indices).to.be.equal(new Int32Array([]))
+      expect(result1?.indices).to.be.equal([])
 
       const geometry2 = poly([[0, 0], [6, 0], [6, 6], [0, 6], [0, 0]], false)
       const geometry3 = poly([[0, 0], [6, 0], [6, 6], [0, 6], [0, 0]], true)
 
       const result2 = glyph_view.hit_test(geometry2)
-      expect(result2?.indices).to.be.equal(new Int32Array([0, 1, 2]))
+      expect(result2?.indices).to.be.equal([0, 1, 2])
 
       const result3 = glyph_view.hit_test(geometry3)
-      expect(result3?.indices).to.be.equal(new Int32Array([0, 1, 2]))
+      expect(result3?.indices).to.be.equal([0, 1, 2])
 
       const geometry4 = poly([[0, 0], [6, 0], [6, 4], [0, 4], [0, 0]], false)
       const geometry5 = poly([[0, 0], [6, 0], [6, 4], [0, 4], [0, 0]], true)
 
       const result4 = glyph_view.hit_test(geometry4)
-      expect(result4?.indices).to.be.equal(new Int32Array([0]))
+      expect(result4?.indices).to.be.equal([0])
 
       const result5 = glyph_view.hit_test(geometry5)
-      expect(result5?.indices).to.be.equal(new Int32Array([0, 1, 2]))
+      expect(result5?.indices).to.be.equal([0, 1, 2])
     })
   })
 })

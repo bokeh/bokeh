@@ -718,18 +718,15 @@ class PropertyDescriptor[T]:
         if value is Undefined:
             raise RuntimeError("internal error attempting to set Undefined value")
 
-        # Normally we want a "no-op" if the new value and old value are identical
-        # but some hinted events are in-place. This check will allow those cases
-        # to continue on to the notification machinery
-        if self.property.matches(value, old) and (hint is None):
-            return
-
         was_set = self.name in obj._property_values
 
-        # "old" is the logical old value, but it may not be the actual current
-        # attribute value if our value was mutated behind our back and we got
-        # _notify_mutated.
+        # A mutation supplies a logical old value, which can differ from the
+        # currently stored container. Store normalization even when it restores
+        # the old value, without notifying for an unchanged logical value.
         old_attr_value = obj._property_values[self.name] if was_set else old
+        unchanged = self.property.matches(value, old) and hint is None
+        if unchanged and old_attr_value is old:
+            return
 
         if old_attr_value is not value:
             if isinstance(old_attr_value, PropertyValueContainer):
@@ -737,7 +734,8 @@ class PropertyDescriptor[T]:
             self._set_value(obj, value)
 
         # Preserve the caller's old-value semantics for notifications.
-        self._trigger(obj, old, value, hint=hint, setter=setter)
+        if not unchanged:
+            self._trigger(obj, old, value, hint=hint, setter=setter)
 
     # called when a container is mutated "behind our back" and
     # we detect it with our collection wrappers.

@@ -64,9 +64,7 @@ def test_binary_selection_patch(attr: str, hold: bool) -> None:
     serializer = Serializer()
     forwarded = serializer.encode(events[0])
     rep = forwarded["new"]
-    if attr == "multiline_indices":
-        rep = rep["entries"][0][1]
-    assert rep["type"] in ("typed_array", "ndarray")
+    assert rep["type"] == ("selection_map_v1" if attr == "multiline_indices" else "selection_indices_v1")
     assert len(serializer.buffers) == 1
     assert serializer.buffers[0].to_bytes() == indices.tobytes()
 
@@ -87,7 +85,7 @@ def test_shared_multiline_patch_forwarding(hold: bool) -> None:
     shared = dict(type="bytes", data=dict(id="values"))
     entries = [(3*i, dict(type="typed_array", dtype="int32", order=sys.byteorder,
                          array=shared, byte_offset=8*i, length=2)) for i in range(count)]
-    entries.insert(1, (-1, []))
+    entries.append((42_000, []))
     value = dict(type="map", entries=entries)
     patch = Serialized(dict(events=[dict(kind="ModelChanged", model=selection.ref, attr="multiline_indices", new=value)]),
                        buffers=[Buffer("values", packed.tobytes())])
@@ -99,8 +97,8 @@ def test_shared_multiline_patch_forwarding(hold: bool) -> None:
     assert len(events) == 1
     assert events[0].setter is setter
     assert changes == [selection.multiline_indices]
-    assert selection.multiline_indices[-1].size == 0
-    assert list(selection.multiline_indices)[:3] == [0, -1, 3]
+    assert selection.multiline_indices[42_000] == []
+    assert list(selection.multiline_indices)[:3] == [0, 3, 6]
     for i in range(count):
         assert list(selection.multiline_indices[3*i]) == [i, i + 1]
 
@@ -129,7 +127,7 @@ def test_multiline_patch_serializes_captured_value() -> None:
     serializer = Serializer()
     rep = serializer.encode(event)
     assert len(serializer.buffers) == 1
-    assert Deserializer([selection]).deserialize(Serialized(rep, serializer.buffers))["new"] == captured
+    assert Deserializer([selection]).deserialize(Serialized(rep, serializer.buffers))["new"] == {7: [0, 2], 9: [1]}
     np.testing.assert_array_equal(selection.multiline_indices[42], [3])
 
 
@@ -148,7 +146,7 @@ def test_equal_received_indices_do_not_notify(attr: str) -> None:
     assert changes == []
     value = getattr(selection, attr)
     values = value[7] if attr == "multiline_indices" else value
-    assert values.dtype == np.int32
+    assert isinstance(values, list)
     np.testing.assert_array_equal(values, [1, 2])
 
 
@@ -160,14 +158,13 @@ def test_canonical_selection_ingestion(attr: str, values: object) -> None:
     for _ in range(2):
         actual = getattr(selection, attr)
         actual = actual[7] if attr == "multiline_indices" else actual
-        assert actual.dtype == np.int32
-        assert actual.ndim == 1
+        assert isinstance(actual, list)
         np.testing.assert_array_equal(actual, [0, 2])
         setattr(selection, attr, value)
 
 
 @pytest.mark.parametrize("attr", ["indices", "line_indices", "multiline_indices"])
-@pytest.mark.parametrize("values", [[2**31], [-2**31-1], [1.5], [[1]], np.array([1.0]), [True]])
+@pytest.mark.parametrize("values", [[2**31], [-1], [-2**31-1], [1.5], [[1]], np.array([1.0]), [True]])
 def test_invalid_selection_indices(attr: str, values: object) -> None:
     with pytest.raises(ValueError):
         Selection(**{attr: {7: values} if attr == "multiline_indices" else values})
@@ -175,7 +172,228 @@ def test_invalid_selection_indices(attr: str, values: object) -> None:
 
 def test_canonical_defaults_and_multiline_mutation() -> None:
     first, second = Selection(), Selection()
-    assert first.indices.dtype == first.line_indices.dtype == np.int32
+    assert first.indices == first.line_indices == []
     assert first.indices is not second.indices
     first.multiline_indices[3] = [1, 2]
-    assert first.multiline_indices[3].dtype == np.int32
+    assert first.multiline_indices[3] == [1, 2]
+
+
+@pytest.mark.parametrize("attr", ["indices", "line_indices", "multiline_indices"])
+def test_selection_set_semantics_and_callbacks(attr: str) -> None:
+    def value(indices):
+        return {7: indices} if attr == "multiline_indices" else indices
+
+    selection = Selection(**{attr: value([9, 2, 9, 1])})
+    assert getattr(selection, attr) == value([1, 2, 9])
+    changes = []
+    selection.on_change(attr, lambda attr, old, new: changes.append((old, new)))
+    setattr(selection, attr, value([9, 1, 2, 2]))
+    assert changes == []
+    setattr(selection, attr, value([3, 1, 3]))
+    assert changes == [(value([1, 2, 9]), value([1, 3]))]
+    assert isinstance(changes[0][1][7] if attr == "multiline_indices" else changes[0][1], list)
+
+
+def test_selection_list_mutation_notifies_and_normalizes() -> None:
+    selection = Selection(indices=[1, 3])
+    changes = []
+    selection.on_change("indices", lambda attr, old, new: changes.append((old, new)))
+    selection.indices.append(2)
+    assert selection.indices == [1, 2, 3]
+    assert changes == [([1, 3], [1, 2, 3])]
+    selection.indices.append(2)
+    assert len(changes) == 1
+    assert selection.indices == [1, 2, 3]
+    selection.indices.reverse()
+    assert selection.indices == [1, 2, 3]
+    assert len(changes) == 1
+
+
+@pytest.mark.parametrize("binary", [False, True])
+@pytest.mark.parametrize("attr", ["indices", "line_indices", "multiline_indices"])
+def test_adaptive_full_document_and_captured_event(attr: str, binary: bool) -> None:
+    def value(indices):
+        return {7: indices, 42: []} if attr == "multiline_indices" else indices
+
+    original = value(list(range(300)))
+    selection = Selection(**{attr: original})
+    doc = Document()
+    doc.add_root(selection)
+    serializer = Serializer(deferred=binary)
+    model = serializer.encode(selection)
+    restored = Deserializer().deserialize(Serialized(model, serializer.buffers))
+    assert getattr(restored, attr) == original
+    assert isinstance(restored.indices, list)
+    if binary:
+        assert len(serializer.buffers) == 1
+        relevant = model["attributes"][attr]
+        meta = relevant["rows"][0][1] if attr == "multiline_indices" else relevant
+        assert meta["mode"] == "bitmap"
+    else:
+        assert serializer.buffers == []
+    captured = ModelChangedEvent(doc, selection, attr, original)
+    setattr(selection, attr, value([99]))
+    serializer = Serializer(deferred=binary)
+    rep = serializer.encode(captured)
+    received = Deserializer([selection]).deserialize(Serialized(rep, serializer.buffers))["new"]
+    assert received == original
+
+
+@pytest.mark.parametrize("values", [list(range(300)), list(range(0, 3000, 10)), [0, 2147483647], []])
+def test_adaptive_binary_representation(values: list[int]) -> None:
+    selection = Selection(indices=values)
+    serializer = Serializer()
+    rep = serializer.encode(ModelChangedEvent(None, selection, "indices", selection.indices))["new"]
+    assert rep["mode"] == ("bitmap" if len(values) == 300 else "int32")
+    assert len(serializer.buffers) == 1
+    assert Deserializer().deserialize(Serialized(rep, serializer.buffers)) == values
+
+
+@pytest.mark.parametrize("meta,data", [
+    (dict(mode="int32", count=2), b"\x00"*4),
+    (dict(mode="int32", count=2), np.array([1, 1], dtype="<i4").tobytes()),
+    (dict(mode="int32", count=2), np.array([2, 1], dtype="<i4").tobytes()),
+    (dict(mode="int32", count=1), np.array([-1], dtype="<i4").tobytes()),
+    (dict(mode="bitmap", count=2, span=8, origin=0), b"\x01"),
+    (dict(mode="bitmap", count=8, span=8, origin=0), b"\x7f"),
+    (dict(mode="bitmap", count=1, span=1, origin=0), b"\x80"),
+    (dict(mode="bitmap", count=1, span=2, origin=2**31-1), b"\x01"),
+    (dict(mode="bitmap", count=1, span=9, origin=0), b"\x01"),
+    (dict(mode="unknown", count=0), b""),
+])
+def test_reject_invalid_selection_wire_values(meta, data) -> None:
+    rep = dict(type="selection_indices_v1", data=dict(type="bytes", data=dict(id="bad")), **meta)
+    with pytest.raises(ValueError):
+        Deserializer().deserialize(Serialized(rep, [Buffer("bad", data)]))
+
+
+@pytest.mark.parametrize("mutation", ["overlap", "overrun", "count", "key", "padding", "trailing"])
+def test_reject_invalid_multiline_wire_values(mutation: str) -> None:
+    selection = Selection(multiline_indices={0: list(range(100)), 1: [3]})
+    serializer = Serializer()
+    rep = serializer.encode(ModelChangedEvent(None, selection, "multiline_indices", selection.multiline_indices))["new"]
+    if mutation == "overlap":
+        rep["rows"][1][1]["offset"] = 0
+    elif mutation == "overrun":
+        rep["rows"][0][1]["length"] = 1000
+    elif mutation == "count":
+        rep["rows"][0][1]["count"] = 101
+    elif mutation == "key":
+        rep["rows"][1][0] = 0
+    elif mutation == "padding":
+        rep["rows"][1][1]["offset"] += 4
+    else:
+        rep["rows"].pop()
+    with pytest.raises(ValueError):
+        Deserializer().deserialize(Serialized(rep, serializer.buffers))
+
+
+
+def test_equal_multiline_mutation_restores_canonical_values_without_notifying() -> None:
+    selection = Selection(multiline_indices={7: [1, 3]})
+    changes = []
+    selection.on_change("multiline_indices", lambda attr, old, new: changes.append(new))
+    selection.multiline_indices[7] = [3, 1, 3]
+    assert selection.multiline_indices == {7: [1, 3]}
+    assert changes == []
+
+
+@pytest.mark.parametrize("values", [[np.int32(0), np.int32(2147483647)],
+                                   [np.int32(i) for i in range(2147483347, 2147483648)]])
+def test_numpy_scalar_lists_round_trip_without_integer_overflow(values) -> None:
+    selection = Selection(indices=values)
+    serializer = Serializer()
+    rep = serializer.encode(ModelChangedEvent(None, selection, "indices", selection.indices))
+    actual = Deserializer([selection]).deserialize(Serialized(rep, serializer.buffers))["new"]
+    assert actual == [int(value) for value in values]
+
+
+@pytest.mark.parametrize("mutate", [
+    lambda value: value.append(4),
+    lambda value: value.extend([4, 2]),
+    lambda value: value.insert(0, 4),
+    lambda value: value.pop(),
+    lambda value: value.remove(2),
+    lambda value: value.reverse(),
+    lambda value: value.sort(reverse=True),
+    lambda value: value.__setitem__(0, 4),
+    lambda value: value.__setitem__(slice(0, 2), [4, 1]),
+    lambda value: value.__delitem__(0),
+    lambda value: value.__iadd__([4, 1]),
+    lambda value: value.__imul__(2),
+    lambda value: value.clear(),
+])
+def test_selection_encoding_revalidates_mutated_unowned_list(mutate) -> None:
+    selection = Selection(indices=[1, 2, 3])
+    captured = selection.indices
+    selection.indices = []
+    mutate(captured)
+    expected = sorted(set(captured))
+    serializer = Serializer()
+    rep = serializer.encode(ModelChangedEvent(None, selection, "indices", captured))
+    actual = Deserializer([selection]).deserialize(Serialized(rep, serializer.buffers))["new"]
+    assert actual == expected
+    assert isinstance(actual, list)
+
+
+def test_selection_encoding_revalidates_after_partial_failed_mutation() -> None:
+    selection = Selection(indices=[1, 2, 3])
+    captured = selection.indices
+    selection.indices = []
+
+    def broken():
+        yield 0
+        yield -1
+        raise RuntimeError("interrupted")
+
+    with pytest.raises(RuntimeError, match="interrupted"):
+        captured.extend(broken())
+    with pytest.raises(ValueError):
+        Serializer().encode(ModelChangedEvent(None, selection, "indices", captured))
+
+
+def test_multiline_encoding_revalidates_mutated_nested_lists() -> None:
+    selection = Selection(multiline_indices={7: [1, 2, 3]})
+    selection.multiline_indices[7].extend([4, 1])
+    serializer = Serializer()
+    rep = serializer.encode(ModelChangedEvent(None, selection, "multiline_indices", selection.multiline_indices))
+    actual = Deserializer([selection]).deserialize(Serialized(rep, serializer.buffers))["new"]
+    assert actual == {7: [1, 2, 3, 4]}
+
+
+@pytest.mark.parametrize("key", [-1, 2147483648, True, "1", 1.5])
+def test_selection_rejects_invalid_multiline_keys_during_ingestion(key) -> None:
+    with pytest.raises(ValueError):
+        Selection(multiline_indices={key: [1, 2]})
+
+
+def test_decoded_selection_is_a_list_with_working_mutation_notifications() -> None:
+    selection = Selection(indices=list(range(300)))
+    doc = Document()
+    doc.add_root(selection)
+    serializer = Serializer()
+    rep = serializer.encode(selection)
+    received = Deserializer().deserialize(Serialized(rep, serializer.buffers))
+    changes = []
+    received.on_change("indices", lambda attr, old, new: changes.append((old, new)))
+    received.indices.append(300)
+    assert isinstance(received.indices, list)
+    assert received.indices == list(range(301))
+    assert len(changes) == 1
+    assert changes[0][0] == list(range(300))
+    assert changes[0][1] == list(range(301))
+    clone = received.clone()
+    clone.indices = [9, 1, 9]
+    assert clone.indices == [1, 9]
+    assert received.indices == list(range(301))
+
+
+@pytest.mark.parametrize("origin", [0, 2147473648])
+def test_chunked_bitmap_packing_combines_multiple_bits_in_each_byte(origin: int) -> None:
+    values = [origin + index for index in range(10000) if index % 11]
+    selection = Selection(indices=values)
+    serializer = Serializer()
+    rep = serializer.encode(ModelChangedEvent(None, selection, "indices", selection.indices))
+    assert rep["new"]["mode"] == "bitmap"
+    actual = Deserializer([selection]).deserialize(Serialized(rep, serializer.buffers))["new"]
+    assert actual == values

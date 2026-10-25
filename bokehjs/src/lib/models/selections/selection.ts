@@ -1,47 +1,12 @@
 import {Model} from "../../model"
 import type * as p from "core/properties"
+import {IndicesProperty, MultiIndicesProperty} from "./indices"
 import type {SelectionMode} from "core/enums"
 import {union, intersection, difference, symmetric_difference} from "core/util/array"
 import {merge} from "core/util/object"
 import type {Glyph, GlyphView} from "../glyphs/glyph"
 import {Arrayable, Int, Mapping, List, Struct} from "core/kinds"
 import {map} from "core/util/arrayable"
-import type {HasProps} from "core/has_props"
-import type {Attrs} from "core/types"
-import type {Serializer} from "core/serialization"
-import {RaggedArray} from "core/util/ragged_array"
-
-function normalize_indices(indices: OpaqueIndices): Int32Array {
-  if (indices.constructor == Int32Array) {
-    return indices as Int32Array
-  }
-  for (const index of indices) {
-    if (!Number.isInteger(index) || index < -2147483648 || index > 2147483647) {
-      throw new Error("selection indices must be int32 integers")
-    }
-  }
-  return new Int32Array(indices)
-}
-
-function normalize_multiline_indices(indices: MultiIndices): Map<number, Int32Array> {
-  if ([...indices.values()].every((values) => values.constructor == Int32Array)) {
-    return indices as Map<number, Int32Array>
-  }
-  return new Map([...indices].map(([key, values]) => [key, normalize_indices(values)]))
-}
-
-function serialize_indices(indices: OpaqueIndices, serializer: Serializer): unknown {
-  return serializer.encode(normalize_indices(indices))
-}
-
-function serialize_multiline_indices(indices: MultiIndices, serializer: Serializer): unknown {
-  if (!serializer.binary || indices.size == 0) {
-    return serializer.encode(normalize_multiline_indices(indices))
-  }
-  const packed = RaggedArray.from([...indices.values()].map(normalize_indices), Int32Array)
-  return serializer.encode(new Map([...indices.keys()].map((key, i) => [key, packed.get(i)])))
-}
-
 export const OpaqueIndices = Arrayable(Int)
 export type OpaqueIndices = typeof OpaqueIndices["__type__"]
 
@@ -68,30 +33,16 @@ export namespace Selection {
 }
 
 export interface Selection extends Selection.Attrs {
-  get indices(): Int32Array
+  get indices(): number[]
   set indices(value: OpaqueIndices)
-  get line_indices(): Int32Array
+  get line_indices(): number[]
   set line_indices(value: OpaqueIndices)
-  get multiline_indices(): Map<number, Int32Array>
+  get multiline_indices(): Map<number, number[]>
   set multiline_indices(value: MultiIndices)
 }
 
 export class Selection extends Model {
   declare properties: Selection.Props
-
-  override setv<T extends Attrs>(changed_attrs: Partial<T>, options: HasProps.SetOptions = {}): void {
-    // Compare canonical values so list ingestion doesn't emit an equal-valued change.
-    const attrs: Attrs = {...changed_attrs}
-    for (const attr of ["indices", "line_indices"] as const) {
-      if (Object.hasOwn(attrs, attr)) {
-        attrs[attr] = normalize_indices(attrs[attr] as OpaqueIndices)
-      }
-    }
-    if (Object.hasOwn(attrs, "multiline_indices")) {
-      attrs.multiline_indices = normalize_multiline_indices(attrs.multiline_indices as MultiIndices)
-    }
-    super.setv(attrs, options)
-  }
 
   get_view(): GlyphView | null {
     return this.view
@@ -99,9 +50,9 @@ export class Selection extends Model {
 
   static {
     this.define<Selection.Props>({
-      indices:           [ OpaqueIndices, () => new Int32Array(), {convert: normalize_indices, serialize: serialize_indices} ],
-      line_indices:      [ OpaqueIndices, () => new Int32Array(), {convert: normalize_indices, serialize: serialize_indices} ],
-      multiline_indices: [ MultiIndices, new Map(), {convert: normalize_multiline_indices, serialize: serialize_multiline_indices} ],
+      indices:           [ IndicesProperty, [] ],
+      line_indices:      [ IndicesProperty, [] ],
+      multiline_indices: [ MultiIndicesProperty, new Map() ],
       image_indices:     [ ImageIndices, [] ],
     })
 

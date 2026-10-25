@@ -194,9 +194,9 @@ describe("column_data_source module", () => {
   describe("selection pruning", () => {
     it("should prune out-of-bounds indices when data is replaced", () => {
       const selected = Selection.create({
-        indices: [-1, 0, 2, 3],
-        line_indices: [-1, 0, 2, 3],
-        multiline_indices: new Map([[-1, [0]], [0, [0]], [2, [0]], [3, [0]]]),
+        indices: [0, 2, 3],
+        line_indices: [0, 2, 3],
+        multiline_indices: new Map([[0, [0]], [2, [0]], [3, [0]]]),
         image_indices: [
           {index: -1, i: 0, j: 0, flat_index: 0},
           {index: 0, i: 0, j: 0, flat_index: 0},
@@ -208,9 +208,9 @@ describe("column_data_source module", () => {
 
       source.data = {foo: [0, 1]}
 
-      expect(selected.indices).to.be.equal(new Int32Array([0]))
-      expect(selected.line_indices).to.be.equal(new Int32Array([0]))
-      expect(selected.multiline_indices).to.be.equal(new Map([[0, new Int32Array([0])]]))
+      expect(selected.indices).to.be.equal([0])
+      expect(selected.line_indices).to.be.equal([0])
+      expect(selected.multiline_indices).to.be.equal(new Map([[0, [0]]]))
       expect(selected.image_indices).to.be.equal([{index: 0, i: 0, j: 0, flat_index: 0}])
 
       source.clear()
@@ -228,7 +228,7 @@ describe("column_data_source module", () => {
       source.stream({foo: [4]}, 2)
 
       expect(source.length).to.be.equal(2)
-      expect(selected.indices).to.be.equal(new Int32Array([0, 1]))
+      expect(selected.indices).to.be.equal([0, 1])
     })
 
     it("should prune out-of-bounds indices after patching", () => {
@@ -237,14 +237,14 @@ describe("column_data_source module", () => {
 
       source.patch({foo: [[0, 2]]})
 
-      expect(selected.indices).to.be.equal(new Int32Array([0]))
+      expect(selected.indices).to.be.equal([0])
     })
 
     it("should not update the selection when all indices remain in bounds", () => {
       const selected = Selection.create({
         indices: [0],
         line_indices: [1],
-        multiline_indices: new Map([[0, new Int32Array([0])]]),
+        multiline_indices: new Map([[0, [0]]]),
         image_indices: [{index: 1, i: 0, j: 0, flat_index: 0}],
       })
       const source = ColumnDataSource.create({data: {foo: [0, 1]}, selected})
@@ -262,7 +262,7 @@ describe("column_data_source module", () => {
       const selected = Selection.create({
         indices: [0, 2],
         line_indices: [0],
-        multiline_indices: new Map([[0, new Int32Array([0])]]),
+        multiline_indices: new Map([[0, [0]]]),
         image_indices: [{index: 0, i: 0, j: 0, flat_index: 0}],
       })
       const source = ColumnDataSource.create({data: {foo: [0, 1, 2]}, selected})
@@ -289,7 +289,7 @@ describe("column_data_source module", () => {
 
       source.data = {foo: [0, 1]}
 
-      expect(selected.indices).to.be.equal(new Int32Array([0]))
+      expect(selected.indices).to.be.equal([0])
     })
 
     it("should preserve synchronization mode when pruning", () => {
@@ -302,7 +302,7 @@ describe("column_data_source module", () => {
 
       source.setv({data: {foo: [0, 1]}}, {sync: false})
 
-      expect(selected.indices).to.be.equal(new Int32Array([0]))
+      expect(selected.indices).to.be.equal([0])
       expect(events.filter((event) => event.sync)).to.be.empty
     })
 
@@ -316,7 +316,7 @@ describe("column_data_source module", () => {
 
       source.data = {foo: [0, 1]}
 
-      expect(linked.indices).to.be.equal(new Int32Array([0]))
+      expect(linked.indices).to.be.equal([0])
       expect(updates).to.be.equal(1)
     })
 
@@ -326,7 +326,7 @@ describe("column_data_source module", () => {
 
       source.data = {}
 
-      expect(selected.indices).to.be.equal(new Int32Array([0]))
+      expect(selected.indices).to.be.equal([0])
     })
   })
 })
