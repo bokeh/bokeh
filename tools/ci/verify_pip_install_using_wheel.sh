@@ -17,7 +17,5 @@ python -m bokeh.util.package $VERSION bokehjs/build
 SMOKE_ENV="$(mktemp -d)"
 trap 'rm -rf "$SMOKE_ENV"' EXIT
 python -m venv --without-pip "$SMOKE_ENV"
-# Use the patched build-environment pip instead of ensurepip's bundled copy.
-python -m pip --python "$SMOKE_ENV/bin/python" install "pip>=26.2.2"
-"$SMOKE_ENV/bin/python" -m pip install "$WHEEL_PATH"
+python -m pip --python "$SMOKE_ENV/bin/python" install "$WHEEL_PATH"
 "$SMOKE_ENV/bin/bokeh" info
