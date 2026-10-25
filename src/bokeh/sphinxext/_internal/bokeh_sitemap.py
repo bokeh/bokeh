@@ -72,8 +72,8 @@ def build_finished(app: Any, exception: Exception | None) -> None:
         with open(filename, "w", encoding="utf-8") as f:
             f.write(_header)
             for link in links_iter:
-                http_link = escape(link.strip().replace("https://", "http://"))
-                f.write(_item.format(link=http_link))
+                escaped_link = escape(link.strip())
+                f.write(_item.format(link=escaped_link))
             f.write(_footer)
     except OSError as e:
         raise SphinxError(f"cannot write sitemap.xml, reason: {e}")
@@ -117,6 +117,8 @@ def _sitemap_links(app: Any) -> list[str]:
 
     for path in outdir.rglob("*.html"):
         relative_path = path.relative_to(outdir)
+        if relative_path.parts[0] in ("_static", "_sources", "_downloads"):
+            continue
         pagename = relative_path.with_suffix("").as_posix()
         if "no-sitemap" in app.env.metadata.get(pagename, {}):
             continue
