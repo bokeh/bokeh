@@ -1,5 +1,4 @@
 import {display, fig} from "#framework/layouts"
-import {press} from "#framework/interactive"
 
 import * as all from "@bokehjs/models/tools"
 import {Toolbar} from "@bokehjs/models"
@@ -46,7 +45,7 @@ describe("Tools", () => {
       p.scatter([1, 2, 3], [1, 2, 3])
       const {view} = await display(p)
       const tool_button_view = view.owner.get_one(tool_button)
-      await press(tool_button_view.el)
+      tool_button_view.press()
     })
   }
 })
