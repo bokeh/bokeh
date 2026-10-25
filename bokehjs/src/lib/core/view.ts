@@ -36,12 +36,34 @@ export namespace View {
 
 export type IterViews<T extends View = View> = Generator<T, void, undefined>
 
+class ViewRemoved extends DOMException {
+  constructor() {
+    super("view removed", "AbortError")
+  }
+}
+
 /**
  * Shared abort reason. Aborting without one makes the browser construct a
  * `DOMException` with a stack trace, which is an order of magnitude more
  * expensive and is paid by every view being removed.
  */
-const view_removed = new DOMException("view removed", "AbortError")
+const view_removed = new ViewRemoved()
+
+/**
+ * A pending asynchronous task tracked by `View.ready`. The same object is
+ * registered with every view on its `path`, so it can be removed from all of
+ * them once it settles or its subtree is removed.
+ */
+type ReadyTask = {
+  /** The view that owns the task, followed by its ancestors. */
+  readonly path: View[]
+}
+
+/** A pending `View.ready` promise, settled once its view has no pending tasks. */
+type ReadyWaiter = {
+  resolve: () => void
+  reject: (error: unknown) => void
+}
 
 type TransitiveOpts = {
   recursive?: boolean
@@ -66,39 +88,125 @@ export abstract class View implements ISignalable, Equatable {
   readonly signals: {readonly [key: string]: PreactSignal<unknown>} = {}
   readonly values: {readonly [key: string]: unknown} = {}
 
-  private _ready: Promise<void> = Promise.resolve(undefined)
+  /** Pending tasks of this view and of all its descendants. */
+  private readonly _pending_tasks: Set<ReadyTask> = new Set()
+  /** Failures of tasks in this subtree not yet reported through `ready`. */
+  private _task_errors: unknown[] = []
+  private _ready_waiters: ReadyWaiter[] = []
 
   /**
-   * Resolves when this view (and, for a root view, its whole tree) has no
-   * outstanding asynchronous work, including tasks scheduled while waiting.
+   * Resolves when this view and all its descendants have no outstanding
+   * asynchronous work, including tasks scheduled while waiting.
+   *
+   * Rejects if any of these tasks failed since `ready` last settled, with the
+   * error, or an `AggregateError` if there were more of them. Failures are then
+   * cleared, so a subsequent `ready` reflects only new work. A removed view's
+   * `ready` resolves, and its tasks don't count towards its ancestors' `ready`.
    */
   get ready(): Promise<void> {
-    return (async () => {
-      let current: Promise<void>
-      do {
-        current = this._ready
-        await current
-      } while (current !== this._ready)
-    })()
+    return new Promise((resolve, reject) => {
+      this._ready_waiters.push({resolve, reject})
+      this._settle_ready()
+    })
+  }
+
+  private _settle_ready(): void {
+    if (this._pending_tasks.size != 0 || this._ready_waiters.length == 0) {
+      return
+    }
+    const waiters = this._ready_waiters
+    const errors = this._task_errors
+    this._ready_waiters = []
+    this._task_errors = []
+    if (errors.length == 0) {
+      for (const {resolve} of waiters) {
+        resolve()
+      }
+    } else {
+      const error = errors.length == 1 ? errors[0] : new AggregateError(errors, `${errors.length} tasks of ${this} failed`)
+      for (const {reject} of waiters) {
+        reject(error)
+      }
+    }
   }
 
   /**
-   * Runs `task` immediately and makes `ready` wait for its completion. A task
-   * that throws synchronously is treated as a rejected one.
+   * Runs `task` immediately and makes `ready` of this view and its ancestors
+   * wait for its completion. A task that throws synchronously is treated as a
+   * rejected one. `task` receives a signal that is aborted when this view is
+   * removed. Tasks of a removed view aren't run.
    */
-  schedule(task: () => Promise<unknown> | unknown): void {
-    const promise = new Promise<unknown>((resolve) => resolve(task()))
+  schedule(task: (signal: AbortSignal) => Promise<unknown> | unknown): void {
+    if (this.abort_signal.aborted) {
+      logger.debug(`${this}.schedule(): view was already removed, ignoring a task`)
+      return
+    }
+    const {abort_signal} = this
+    const promise = new Promise<unknown>((resolve) => resolve(task(abort_signal)))
     this._await_ready(promise.then(() => {}))
   }
 
   /**
-   * Makes `ready` of this view and its root wait for an already started
+   * Makes `ready` of this view and its ancestors wait for an already started
    * `promise`. Prefer `schedule()`, which also covers synchronous failures.
    */
   protected _await_ready(promise: Promise<void>): void {
-    this._ready = this._ready.then(() => promise)
-    if (this.root != this) {
-      this.root._ready = this.root._ready.then(() => this._ready)
+    if (this.abort_signal.aborted) {
+      promise.catch((error) => this._dropped_task_failed(error))
+      return
+    }
+    const path: View[] = []
+    for (let view: View | null = this; view != null; view = view.parent) {
+      // skip stand-in parents that aren't views (see e.g. `BaseColorBarView`)
+      if (view instanceof View) {
+        path.push(view)
+      }
+    }
+    const task: ReadyTask = {path}
+    for (const view of path) {
+      view._pending_tasks.add(task)
+    }
+    const finish = (failure: {error: unknown} | null) => {
+      let dropped = true
+      for (const view of path) {
+        if (view._pending_tasks.delete(task)) {
+          dropped = false
+          if (failure != null) {
+            view._task_errors.push(failure.error)
+          }
+          view._settle_ready()
+        }
+      }
+      if (failure != null) {
+        if (dropped) {
+          this._dropped_task_failed(failure.error)
+        } else {
+          logger.error(`${this}: task failed`, failure.error)
+        }
+      }
+    }
+    promise.then(() => finish(null), (error) => finish({error}))
+  }
+
+  private _dropped_task_failed(error: unknown): void {
+    if (!(error instanceof ViewRemoved)) {
+      logger.debug(`${this}: task of a removed view failed`, error)
+    }
+  }
+
+  /** Stops tracking tasks of this subtree and settles `ready` of affected views. */
+  private _drop_pending_tasks(): void {
+    const affected = new Set<View>()
+    for (const task of this._pending_tasks) {
+      for (const view of task.path) {
+        view._pending_tasks.delete(task)
+        affected.add(view)
+      }
+    }
+    this._task_errors = []
+    affected.add(this)
+    for (const view of affected) {
+      view._settle_ready()
     }
   }
 
@@ -180,6 +288,7 @@ export abstract class View implements ISignalable, Equatable {
       this.disconnect_signals()
     }
     this._abort_controller.abort(view_removed)
+    this._drop_pending_tasks()
     for (const view of this.children_views()) {
       view.remove()
     }

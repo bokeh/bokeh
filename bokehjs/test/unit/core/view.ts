@@ -352,6 +352,174 @@ describe("core/view", () => {
         expect(thrown).to.be.instanceof(Error)
         expect((thrown as Error).message).to.be.equal("task failed")
       })
+
+      async function rejection(promise: Promise<void>): Promise<unknown> {
+        try {
+          await promise
+          return null
+        } catch (error) {
+          return error
+        }
+      }
+
+      function deferred(): {promise: Promise<void>, resolve: () => void, reject: (error: unknown) => void} {
+        let resolve!: () => void
+        let reject!: (error: unknown) => void
+        const promise = new Promise<void>((res, rej) => {
+          resolve = res
+          reject = rej
+        })
+        return {promise, resolve, reject}
+      }
+
+      async function build_tree() {
+        const leaf = SomeModel.create()
+        const sibling = SomeModel.create()
+        const mid = SomeModel.create({children: [leaf, sibling]})
+        const root = SomeModel.create({children: [mid]})
+        const root_view = await build_view(root)
+        const mid_view = root_view.views.find_one(mid)
+        const leaf_view = root_view.views.find_one(leaf)
+        const sibling_view = root_view.views.find_one(sibling)
+        expect_not_null(mid_view)
+        expect_not_null(leaf_view)
+        expect_not_null(sibling_view)
+        return {root_view, mid_view, leaf_view, sibling_view}
+      }
+
+      it("which lets a non-root view wait for tasks of its descendants", async () => {
+        const {mid_view, leaf_view} = await build_tree()
+        let done = false
+        leaf_view.schedule(async () => {
+          await defer()
+          leaf_view.schedule(async () => {
+            await defer()
+            done = true
+          })
+        })
+        await mid_view.ready
+        expect(done).to.be.true
+      })
+
+      it("which doesn't wait for tasks of siblings or ancestors", async () => {
+        const {root_view, mid_view, leaf_view, sibling_view} = await build_tree()
+        const pending = deferred()
+        sibling_view.schedule(() => pending.promise)
+        root_view.schedule(() => pending.promise)
+        await leaf_view.ready
+        let mid_ready = false
+        void mid_view.ready.then(() => mid_ready = true)
+        await defer()
+        expect(mid_ready).to.be.false
+        pending.resolve()
+        await root_view.ready
+        expect(mid_ready).to.be.true
+      })
+
+      it("which reports a failure to the owner and all its ancestors", async () => {
+        const {root_view, mid_view, leaf_view} = await build_tree()
+        leaf_view.schedule(async () => {
+          throw new Error("leaf failed")
+        })
+        for (const view of [leaf_view, mid_view, root_view]) {
+          const error = await rejection(view.ready)
+          expect(error).to.be.instanceof(Error)
+          expect((error as Error).message).to.be.equal("leaf failed")
+        }
+      })
+
+      it("which clears failures once reported", async () => {
+        const view = await build_view(SomeModel.create())
+        view.schedule(async () => {
+          throw new Error("task failed")
+        })
+        expect(await rejection(view.ready)).to.be.instanceof(Error)
+        expect(await rejection(view.ready)).to.be.null
+        let done = false
+        view.schedule(async () => {
+          await defer()
+          done = true
+        })
+        expect(await rejection(view.ready)).to.be.null
+        expect(done).to.be.true
+      })
+
+      it("which rejects all concurrent waiters with the same failure", async () => {
+        const view = await build_view(SomeModel.create())
+        view.schedule(async () => {
+          await defer()
+          throw new Error("task failed")
+        })
+        const [error0, error1] = await Promise.all([rejection(view.ready), rejection(view.ready)])
+        expect(error0).to.be.instanceof(Error)
+        expect(error1).to.be.identical(error0)
+      })
+
+      it("which aggregates multiple failures", async () => {
+        const view = await build_view(SomeModel.create())
+        view.schedule(async () => {
+          throw new Error("task 0 failed")
+        })
+        view.schedule(async () => {
+          throw new Error("task 1 failed")
+        })
+        const error = await rejection(view.ready)
+        expect(error).to.be.instanceof(AggregateError)
+        const messages = (error as AggregateError).errors.map((error: Error) => error.message)
+        expect(messages).to.be.equal(["task 0 failed", "task 1 failed"])
+      })
+
+      it("which stops waiting for tasks of removed views", async () => {
+        const {root_view, mid_view, leaf_view} = await build_tree()
+        leaf_view.schedule(() => new Promise(() => {}))
+        let root_ready = false
+        let leaf_ready = false
+        void root_view.ready.then(() => root_ready = true)
+        void leaf_view.ready.then(() => leaf_ready = true)
+        await defer()
+        expect(root_ready).to.be.false
+        expect(leaf_ready).to.be.false
+        mid_view.remove()
+        await defer()
+        expect(root_ready).to.be.true
+        expect(leaf_ready).to.be.true
+      })
+
+      it("which ignores failures of tasks of removed views", async () => {
+        const {root_view, leaf_view} = await build_tree()
+        const pending = deferred()
+        leaf_view.schedule(() => pending.promise)
+        leaf_view.remove()
+        pending.reject(new Error("task failed"))
+        expect(await rejection(root_view.ready)).to.be.null
+        expect(await rejection(leaf_view.ready)).to.be.null
+      })
+
+      it("which aborts the task's signal when the view is removed", async () => {
+        const view = await build_view(SomeModel.create())
+        const signals: AbortSignal[] = []
+        view.schedule(async (signal) => {
+          signals.push(signal)
+          await new Promise(() => {})
+        })
+        expect(signals.length).to.be.equal(1)
+        const [signal] = signals
+        expect(signal.aborted).to.be.false
+        view.remove()
+        expect(signal.aborted).to.be.true
+        await view.ready
+      })
+
+      it("which doesn't run tasks of removed views", async () => {
+        const view = await build_view(SomeModel.create())
+        view.remove()
+        let started = false
+        view.schedule(async () => {
+          started = true
+        })
+        expect(started).to.be.false
+        await view.ready
+      })
     })
 
     it("should support ViewQuery", async () => {
