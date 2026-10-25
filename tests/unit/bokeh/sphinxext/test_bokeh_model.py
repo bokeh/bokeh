@@ -23,7 +23,6 @@ from bokeh.core.properties import (
     Nullable,
     String,
 )
-from bokeh.core.serialization import Deserializer
 from bokeh.model import Model
 from bokeh.models import BoxSelectTool, Filter, Selection
 from bokeh.sphinxext._internal.bokeh_model import (
@@ -334,11 +333,9 @@ def test_model_build_resolves_include_help_substitutions(tmp_path: Path) -> None
     assert "Undefined substitution" not in warning.getvalue()
 
 
-def test_model_json_inlines_selection_buffers() -> None:
+def test_model_json_serializes_selection_lists() -> None:
     selection = Selection(indices=[1, 2], line_indices=[3], multiline_indices={7: [0, 1]})
     rep = json.loads(json.dumps(to_json_rep(selection)))
-    decoder = Deserializer()
-    assert list(decoder.decode(rep["indices"])) == [1, 2]
-    assert list(decoder.decode(rep["line_indices"])) == [3]
-    assert list(decoder.decode(rep["multiline_indices"])) == [7]
-    assert list(decoder.decode(rep["multiline_indices"])[7]) == [0, 1]
+    assert rep["indices"] == [1, 2]
+    assert rep["line_indices"] == [3]
+    assert rep["multiline_indices"] == dict(type="map", entries=[[7, [0, 1]]])

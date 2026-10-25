@@ -54,7 +54,7 @@ def test_binary_selection_patch(attr: str, hold: bool) -> None:
 
     actual = getattr(selection, attr)
     decoded = actual[7] if attr == "multiline_indices" else actual
-    assert list(decoded) == [0, 42, 2_999_999]
+    assert decoded == [0, 42, 2_999_999]
     assert changes == [actual]
     assert len(events) == 1
     assert isinstance(events[0], ModelChangedEvent)
@@ -82,11 +82,12 @@ def test_shared_multiline_patch_forwarding(hold: bool) -> None:
     if hold:
         doc.hold()
     packed = array("i", (value for i in range(count) for value in (i, i + 1)))
+    if sys.byteorder != "little":
+        packed.byteswap()
     shared = dict(type="bytes", data=dict(id="values"))
-    entries = [(3*i, dict(type="typed_array", dtype="int32", order=sys.byteorder,
-                         array=shared, byte_offset=8*i, length=2)) for i in range(count)]
-    entries.append((42_000, []))
-    value = dict(type="map", entries=entries)
+    rows = [[3*i, dict(mode="int32", count=2, offset=8*i, length=8)] for i in range(count)]
+    rows.append([42_000, dict(mode="int32", count=0, offset=8*count, length=0)])
+    value = dict(type="selection_map_v1", rows=rows, data=shared)
     patch = Serialized(dict(events=[dict(kind="ModelChanged", model=selection.ref, attr="multiline_indices", new=value)]),
                        buffers=[Buffer("values", packed.tobytes())])
     setter = object()
@@ -100,7 +101,7 @@ def test_shared_multiline_patch_forwarding(hold: bool) -> None:
     assert selection.multiline_indices[42_000] == []
     assert list(selection.multiline_indices)[:3] == [0, 3, 6]
     for i in range(count):
-        assert list(selection.multiline_indices[3*i]) == [i, i + 1]
+        assert selection.multiline_indices[3*i] == [i, i + 1]
 
     message = patch_doc([events[0]])
     assert len(message.buffers) == 1
@@ -108,8 +109,7 @@ def test_shared_multiline_patch_forwarding(hold: bool) -> None:
     assert message.buffers[0].to_bytes() == packed.tobytes()
     decoded = Deserializer([selection]).deserialize(message.payload)["events"][0]["new"]
     assert decoded.keys() == selection.multiline_indices.keys()
-    for key in decoded:
-        np.testing.assert_array_equal(decoded[key], selection.multiline_indices[key])
+    assert decoded == selection.multiline_indices
 
     # Full documents must use the same packing when another client connects.
     serializer = Serializer()
@@ -128,7 +128,7 @@ def test_multiline_patch_serializes_captured_value() -> None:
     rep = serializer.encode(event)
     assert len(serializer.buffers) == 1
     assert Deserializer([selection]).deserialize(Serialized(rep, serializer.buffers))["new"] == {7: [0, 2], 9: [1]}
-    np.testing.assert_array_equal(selection.multiline_indices[42], [3])
+    assert selection.multiline_indices[42] == [3]
 
 
 @pytest.mark.parametrize("attr", ["indices", "line_indices", "multiline_indices"])
@@ -147,7 +147,7 @@ def test_equal_received_indices_do_not_notify(attr: str) -> None:
     value = getattr(selection, attr)
     values = value[7] if attr == "multiline_indices" else value
     assert isinstance(values, list)
-    np.testing.assert_array_equal(values, [1, 2])
+    assert values == [1, 2]
 
 
 @pytest.mark.parametrize("attr", ["indices", "line_indices", "multiline_indices"])
@@ -159,12 +159,12 @@ def test_canonical_selection_ingestion(attr: str, values: object) -> None:
         actual = getattr(selection, attr)
         actual = actual[7] if attr == "multiline_indices" else actual
         assert isinstance(actual, list)
-        np.testing.assert_array_equal(actual, [0, 2])
+        assert actual == [0, 2]
         setattr(selection, attr, value)
 
 
 @pytest.mark.parametrize("attr", ["indices", "line_indices", "multiline_indices"])
-@pytest.mark.parametrize("values", [[2**31], [-1], [-2**31-1], [1.5], [[1]], np.array([1.0]), [True]])
+@pytest.mark.parametrize("values", [[2**31], [-1], [-2**31-1], [1.5], [[1]], np.array([1.0]), [True], [False, 1], [np.bool_(False), 1]])
 def test_invalid_selection_indices(attr: str, values: object) -> None:
     with pytest.raises(ValueError):
         Selection(**{attr: {7: values} if attr == "multiline_indices" else values})
@@ -255,6 +255,7 @@ def test_adaptive_binary_representation(values: list[int]) -> None:
     (dict(mode="int32", count=2), np.array([2, 1], dtype="<i4").tobytes()),
     (dict(mode="int32", count=1), np.array([-1], dtype="<i4").tobytes()),
     (dict(mode="bitmap", count=2, span=8, origin=0), b"\x01"),
+    (dict(mode="bitmap", count=1, span=8, origin=0), b"\x03"),
     (dict(mode="bitmap", count=8, span=8, origin=0), b"\x7f"),
     (dict(mode="bitmap", count=1, span=1, origin=0), b"\x80"),
     (dict(mode="bitmap", count=1, span=2, origin=2**31-1), b"\x01"),
@@ -272,6 +273,8 @@ def test_reject_invalid_multiline_wire_values(mutation: str) -> None:
     selection = Selection(multiline_indices={0: list(range(100)), 1: [3]})
     serializer = Serializer()
     rep = serializer.encode(ModelChangedEvent(None, selection, "multiline_indices", selection.multiline_indices))["new"]
+    buffers = serializer.buffers
+    rep["data"]["data"] = dict(id=buffers[0].id)
     if mutation == "overlap":
         rep["rows"][1][1]["offset"] = 0
     elif mutation == "overrun":
@@ -281,11 +284,22 @@ def test_reject_invalid_multiline_wire_values(mutation: str) -> None:
     elif mutation == "key":
         rep["rows"][1][0] = 0
     elif mutation == "padding":
-        rep["rows"][1][1]["offset"] += 4
+        end = rep["rows"][0][1]["length"]
+        assert end < rep["rows"][1][1]["offset"]
+        data = bytearray(buffers[0].to_bytes())
+        data[end] = 1
+        buffers[0] = Buffer(buffers[0].id, bytes(data))
     else:
         rep["rows"].pop()
     with pytest.raises(ValueError):
-        Deserializer().deserialize(Serialized(rep, serializer.buffers))
+        Deserializer().deserialize(Serialized(rep, buffers))
+
+
+@pytest.mark.parametrize("rows", [None, {}, [None], [[0]], [[0, None]]])
+def test_reject_invalid_multiline_rows(rows: object) -> None:
+    rep = dict(type="selection_map_v1", rows=rows, data=dict(type="bytes", data=dict(id="bad")))
+    with pytest.raises(ValueError, match="invalid multiline row"):
+        Deserializer().deserialize(Serialized(rep, [Buffer("bad", b"")]))
 
 
 

@@ -300,7 +300,7 @@ class DocsSerializer(Serializer):
             return super()._encode(obj)
 
 def to_json_rep(obj: Model) -> dict[str, AnyRep]:
-    serializer = DocsSerializer(deferred=False)
+    serializer = DocsSerializer()
 
     properties = obj.properties_with_values(include_defaults=True, include_undefined=True)
     attributes = {key: serializer.encode(val) for key, val in properties.items()}

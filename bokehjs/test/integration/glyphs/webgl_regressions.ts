@@ -148,7 +148,7 @@ describe("in issue #15279", () => {
     await scenario.reset()
 
     expect(source.length).to.be.equal(n + 1)
-    expect(source.selected.indices).to.be.equal(new Int32Array())
+    expect(source.selected.indices).to.be.equal([])
     expect(alpha()).to.be.equal({fill: 140, line: 204})
   })
 })

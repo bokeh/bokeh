@@ -37,7 +37,7 @@ describe("HStrip", () => {
 
       function y_indices(y: number) {
         const geometry = {type: "point", ...compute(50, y)} satisfies PointGeometry
-        return Array.from(glyph_view.hit_test(geometry)!.indices)
+        return glyph_view.hit_test(geometry)?.indices
       }
 
       expect(y_indices(0)).to.be.equal([0])

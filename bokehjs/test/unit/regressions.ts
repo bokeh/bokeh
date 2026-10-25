@@ -651,7 +651,7 @@ describe("Bug", () => {
       function hit_test(x: number, y: number): Arrayable<number> | undefined {
         const sx = view.frame.x_scale.compute(x)
         const sy = view.frame.y_scale.compute(y)
-        return Array.from(rect_view.hit_test({type: "point", sx, sy})!.indices)
+        return rect_view.hit_test({type: "point", sx, sy})?.indices
       }
 
       expect(hit_test(0, 0)).to.be.equal([3])
@@ -1467,7 +1467,7 @@ describe("Bug", () => {
       const sy = gv.coordinates.y_scale.compute(y)
       const htr = gv.hit_test({type: "point", sx, sy})
       expect_not_null(htr)
-      return Array.from(htr.line_indices)
+      return htr.line_indices
     }
 
     describe("doesn't allow to correctly hit-test VAreaStep", () => {

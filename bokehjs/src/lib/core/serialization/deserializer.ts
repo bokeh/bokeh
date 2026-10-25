@@ -338,37 +338,27 @@ export class Deserializer {
   }
 
   protected _decode_typed_array(obj: TypedArrayRep): TypedArray {
-    const {array, order, dtype, byte_offset = 0} = obj
-    let buffer = this._decode(array) as ArrayBuffer
-    const ctor = (() => {
-      switch (dtype) {
-        case "uint8":   return Uint8Array
-        case "int8":    return Int8Array
-        case "uint16":  return Uint16Array
-        case "int16":   return Int16Array
-        case "uint32":  return Uint32Array
-        case "int32":   return Int32Array
-        case "float32": return Float32Array
-        case "float64": return Float64Array
-        default:
-          this.error(`unsupported dtype '${dtype}'`)
-      }
-    })()
-    const size = ctor.BYTES_PER_ELEMENT
-    if (!Number.isSafeInteger(byte_offset) || byte_offset < 0 || byte_offset > buffer.byteLength || byte_offset % size != 0) {
-      this.error("invalid typed array byte offset")
-    }
-    const length = obj.length === undefined ? (buffer.byteLength - byte_offset)/size : obj.length
-    if (!Number.isSafeInteger(length) || length < 0 || length > (buffer.byteLength - byte_offset)/size) {
-      this.error("invalid typed array length")
-    }
+    const {array, order, dtype} = obj
+
+    const buffer = this._decode(array) as ArrayBuffer
     if (order != BYTE_ORDER) {
-      // Shared buffers may be decoded more than once; never swap them in place.
-      buffer = buffer.slice(byte_offset, byte_offset + length*size)
       swap(buffer, dtype)
-      return new ctor(buffer)
     }
-    return new ctor(buffer, byte_offset, length)
+
+    switch (dtype) {
+      case "uint8":   return new Uint8Array(buffer)
+      case "int8":    return new Int8Array(buffer)
+      case "uint16":  return new Uint16Array(buffer)
+      case "int16":   return new Int16Array(buffer)
+      case "uint32":  return new Uint32Array(buffer)
+      case "int32":   return new Int32Array(buffer)
+      // case "uint64": return new BigInt64Array(buffer)
+      // case "int64":  return new BigInt64Array(buffer)
+      case "float32": return new Float32Array(buffer)
+      case "float64": return new Float64Array(buffer)
+      default:
+        this.error(`unsupported dtype '${dtype}'`)
+    }
   }
 
   protected _decode_ndarray(obj: NDArrayRep): NDArray {

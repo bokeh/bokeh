@@ -14,12 +14,9 @@ from __future__ import annotations
 # Imports
 #-----------------------------------------------------------------------------
 import subprocess
-import sys
 from pathlib import Path
 
-import numpy as np
-
-from tests.support.defaults import DefaultsSerializer, collect_defaults, output_defaults
+from tests.support.defaults import collect_defaults, output_defaults
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -30,13 +27,6 @@ from tests.support.defaults import DefaultsSerializer, collect_defaults, output_
 #-----------------------------------------------------------------------------
 
 class TestDefaults:
-    @pytest.mark.parametrize("shape", [(0,), (2,), (1, 2)])
-    def test_array_defaults(self, shape: tuple[int, ...]) -> None:
-        values = np.arange(np.prod(shape), dtype=np.int32).reshape(shape)
-        assert DefaultsSerializer().encode(values) == dict(
-            type="ndarray", array=values.ravel().tolist(), shape=list(shape), dtype="int32", order=sys.byteorder,
-        )
-
     def test_defaults(self) -> None:
         baseline = Path(__file__).parent / "baselines" / "defaults.json5"
 

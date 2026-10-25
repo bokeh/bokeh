@@ -24,7 +24,6 @@ from pathlib import Path
 from typing import Any
 
 import json5
-import numpy as np
 
 from bokeh.core.has_props import HasProps
 from bokeh.core.property.descriptors import AliasPropertyDescriptor, PropertyDescriptor
@@ -70,11 +69,6 @@ class DefaultsSerializer(Serializer):
                 attributes=attributes,
             )
             return rep
-        elif isinstance(obj, np.ndarray):
-            # Compare array defaults by dtype, shape, and values, not buffer framing.
-            array_rep = self._encode_ndarray(obj)
-            array_rep["array"] = [self.encode(value) for value in obj.ravel().tolist()]
-            return array_rep
         elif obj is Undefined:
             return SymbolRep(type="symbol", name="unset")
         else:
