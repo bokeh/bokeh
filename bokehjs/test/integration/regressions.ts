@@ -2528,7 +2528,7 @@ describe("Bug", () => {
         return table
       }
 
-      const tabs = Tabs.create({
+      const tabs = new Tabs({
         tabs: [
           new TabPanel({title: "Table 0", closable: true, child: table(1)}),
           new TabPanel({title: "Table 1", closable: true, child: table(10)}),
@@ -5758,8 +5758,8 @@ describe("Bug", () => {
 
     it("doesn't lay out a grid plot in Tabs with linked layouts in a row", async () => {
       const {layout, plots} = grid_layout()
-      const tabs = Tabs.create({
-        tabs: [TabPanel.create({title: "Tab with grid", child: layout})],
+      const tabs = new Tabs({
+        tabs: [new TabPanel({title: "Tab with grid", child: layout})],
         link_layouts: true,
       })
       await expect_frames_laid_out(row([tabs]), [320, 430], plots)
@@ -5773,8 +5773,8 @@ describe("Bug", () => {
 
   describe("in issue #14359", () => {
     function make_tabs(children: UIElement[], prefix: string, link_layouts: boolean) {
-      const tabs = children.map((child, i) => TabPanel.create({title: `${prefix}${i}`, child}))
-      return Tabs.create({tabs, link_layouts})
+      const tabs = children.map((child, i) => new TabPanel({title: `${prefix}${i}`, child}))
+      return new Tabs({tabs, link_layouts})
     }
 
     function inner_tabs(link_layouts: boolean) {
@@ -5793,7 +5793,7 @@ describe("Bug", () => {
       const inner0 = inner_tabs(link_layouts)
       const inner1 = inner_tabs(link_layouts)
       const outer = make_tabs([inner0.tabs, inner1.tabs], "outer", link_layouts)
-      const toggle = Toggle.create({label: "button1"})
+      const toggle = new Toggle({label: "button1"})
       const {view} = await display(column([toggle, outer]), [350, 450])
 
       for (const plot of inner0.grid_plots) {

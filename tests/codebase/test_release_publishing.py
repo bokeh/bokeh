@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 # Standard library imports
+from typing import Any
 from xml.etree.ElementTree import ParseError
 
 # External imports
@@ -23,11 +24,12 @@ def test_publish_documentation_delegates_metadata_policy(monkeypatch: pytest.Mon
 
 
 def test_publish_documentation_reports_preflight_failure(monkeypatch: pytest.MonkeyPatch, config: Config) -> None:
-    def fail(*args):
+    def fail(*args: Any) -> None:
         raise RuntimeError("Published switcher is invalid")
     monkeypatch.setattr(publishing, "publish_docs", fail)
     result = publishing.publish_documentation(config, RecordingSystem())
     assert result.kind is ActionResult.FAIL
+    assert result.details is not None
     assert "Published switcher is invalid" in result.details
 
 
@@ -74,8 +76,8 @@ def test_publish_bokehjs_to_cdn_returns_failure_for_missing_bundle(
 
 
 @pytest.mark.parametrize("error", [ParseError("Malformed sitemap"), KeyError("ETag")])
-def test_publish_documentation_reports_invalid_metadata(monkeypatch, config, error):
-    def fail(*args):
+def test_publish_documentation_reports_invalid_metadata(monkeypatch: pytest.MonkeyPatch, config: Config, error: Exception) -> None:
+    def fail(*args: Any) -> None:
         raise error
     monkeypatch.setattr(publishing, "publish_docs", fail)
     result = publishing.publish_documentation(config, RecordingSystem())

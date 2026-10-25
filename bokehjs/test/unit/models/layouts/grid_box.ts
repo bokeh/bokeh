@@ -6,11 +6,11 @@ import {Div} from "@bokehjs/models/widgets/div"
 
 describe("GridBox", () => {
   it("should not throw when layout is invalidated before child views are built", async () => {
-    const grid = GridBox.create({children: [[Div.create({text: "initial"}), 0, 0]], min_height: 100})
+    const grid = new GridBox({children: [[new Div({text: "initial"}), 0, 0]], min_height: 100})
     const {view} = await display(grid, [300, 300])
 
     // children triggers an async build of child views, min_height synchronously invalidates layout
-    grid.children = [0, 1, 2].map((i) => [Div.create({text: `cell ${i}`}), 0, i])
+    grid.children = [0, 1, 2].map((i) => [new Div({text: `cell ${i}`}), 0, i])
     expect(() => {
       grid.min_height = 200
     }).to.not.throw()
@@ -20,15 +20,15 @@ describe("GridBox", () => {
   })
 
   it("should not throw with Map-based track sizing when layout is invalidated before child views are built", async () => {
-    const grid = GridBox.create({
-      children: [[Div.create({text: "initial"}), 0, 0]],
+    const grid = new GridBox({
+      children: [[new Div({text: "initial"}), 0, 0]],
       rows: new Map([[0, "100px"]]),
       cols: new Map([[0, "100px"]]),
       min_height: 100,
     })
     const {view} = await display(grid, [300, 300])
 
-    grid.children = [0, 1, 2].map((i) => [Div.create({text: `cell ${i}`}), 0, i])
+    grid.children = [0, 1, 2].map((i) => [new Div({text: `cell ${i}`}), 0, i])
     expect(() => {
       grid.min_height = 200
     }).to.not.throw()
