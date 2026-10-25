@@ -111,11 +111,11 @@ export abstract class LayoutDOMView extends PaneView {
   protected override _update_visible(): void {
     super._update_visible()
 
-    this._await_ready((async () => {
+    this.schedule(async () => {
       // defer layout invalidation until after CSS layout updated visibility
       await defer()
       this.invalidate_layout()
-    })())
+    })
   }
 
   override _children_views(): ChildView[] {

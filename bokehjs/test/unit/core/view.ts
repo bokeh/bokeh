@@ -6,6 +6,7 @@ import type {ChildView, ViewStorage} from "@bokehjs/core/build_views"
 import {build_view, build_views} from "@bokehjs/core/build_views"
 import type * as p from "@bokehjs/core/properties"
 import {Ref, List} from "@bokehjs/core/kinds"
+import {defer} from "@bokehjs/core/util/defer"
 
 class SomeModelView extends View {
   declare model: SomeModel
@@ -281,6 +282,76 @@ describe("core/view", () => {
       expect(calls).to.be.equal(0)
       leaf1.change.emit()
       expect(calls).to.be.equal(1)
+    })
+
+    describe("should support schedule() and ready", () => {
+      it("which waits for a scheduled task", async () => {
+        const view = await build_view(SomeModel.create())
+        let done = false
+        view.schedule(async () => {
+          await defer()
+          done = true
+        })
+        await view.ready
+        expect(done).to.be.true
+      })
+
+      it("which runs a task immediately", async () => {
+        const view = await build_view(SomeModel.create())
+        let started = false
+        view.schedule(async () => {
+          started = true
+        })
+        expect(started).to.be.true
+        await view.ready
+      })
+
+      it("which waits for tasks scheduled while waiting", async () => {
+        const view = await build_view(SomeModel.create())
+        let done = false
+        view.schedule(async () => {
+          await defer()
+          view.schedule(async () => {
+            await defer()
+            done = true
+          })
+        })
+        await view.ready
+        expect(done).to.be.true
+      })
+
+      it("which lets a root wait for tasks of its descendants", async () => {
+        const child = SomeModel.create()
+        const root = SomeModel.create({children: [child]})
+        const root_view = await build_view(root)
+        const child_view = root_view.views.find_one(child)
+        expect_not_null(child_view)
+        let done = false
+        child_view.schedule(async () => {
+          await defer()
+          child_view.schedule(async () => {
+            await defer()
+            done = true
+          })
+        })
+        await root_view.ready
+        expect(done).to.be.true
+      })
+
+      it("which rejects when a task throws synchronously", async () => {
+        const view = await build_view(SomeModel.create())
+        view.schedule(() => {
+          throw new Error("task failed")
+        })
+        let thrown: unknown = null
+        try {
+          await view.ready
+        } catch (error) {
+          thrown = error
+        }
+        expect(thrown).to.be.instanceof(Error)
+        expect((thrown as Error).message).to.be.equal("task failed")
+      })
     })
 
     it("should support ViewQuery", async () => {

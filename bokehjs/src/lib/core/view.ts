@@ -67,10 +67,34 @@ export abstract class View implements ISignalable, Equatable {
   readonly values: {readonly [key: string]: unknown} = {}
 
   private _ready: Promise<void> = Promise.resolve(undefined)
+
+  /**
+   * Resolves when this view (and, for a root view, its whole tree) has no
+   * outstanding asynchronous work, including tasks scheduled while waiting.
+   */
   get ready(): Promise<void> {
-    return this._ready
+    return (async () => {
+      let current: Promise<void>
+      do {
+        current = this._ready
+        await current
+      } while (current !== this._ready)
+    })()
   }
 
+  /**
+   * Runs `task` immediately and makes `ready` wait for its completion. A task
+   * that throws synchronously is treated as a rejected one.
+   */
+  schedule(task: () => Promise<unknown> | unknown): void {
+    const promise = new Promise<unknown>((resolve) => resolve(task()))
+    this._await_ready(promise.then(() => {}))
+  }
+
+  /**
+   * Makes `ready` of this view and its root wait for an already started
+   * `promise`. Prefer `schedule()`, which also covers synchronous failures.
+   */
   protected _await_ready(promise: Promise<void>): void {
     this._ready = this._ready.then(() => promise)
     if (this.root != this) {
