@@ -381,6 +381,43 @@ describe("ToolbarView", () => {
     })
   })
 
+  it("should update context menu when tools' labels change (issue #15553)", async () => {
+    const pan = PanTool.create()
+    const action = CustomAction.create({label: "My Action"})
+
+    const p = fig([300, 300], {tools: [pan, action], toolbar_location: "right"})
+    const {view} = await display(p)
+
+    async function context_menu_labels(): Promise<(string | null)[]> {
+      // can't simply dispatchEvent() because of browser security
+      const {left, top} = view.el.getBoundingClientRect()
+      view.show_context_menu(new MouseEvent("contextmenu", {clientX: left + 50, clientY: top + 50}))
+      await view.ready
+
+      const menu_view = view.get_context_menu({x: 50, y: 50})
+      expect_not_null(menu_view)
+      expect(menu_view.is_open).to.be.true
+
+      const labels = menu_view.item_entries.map(({label_el}) => label_el.textContent)
+      menu_view.hide()
+      return labels
+    }
+
+    expect(await context_menu_labels()).to.be.equal(["Pan", "My Action"])
+
+    pan.label = "Drag"
+    action.label = "Other Action"
+    await view.ready
+
+    expect(await context_menu_labels()).to.be.equal(["Drag", "Other Action"])
+
+    pan.label = null
+    action.label = null
+    await view.ready
+
+    expect(await context_menu_labels()).to.be.equal(["Pan", "Custom Action"])
+  })
+
   describe("visible attribute of tools in toolbar", () => {
 
     it("should have correct visibility status of tools", () => {

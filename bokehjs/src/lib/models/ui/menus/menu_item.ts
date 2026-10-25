@@ -13,7 +13,7 @@ export namespace MenuItem {
   export type Props = Model.Props & {
     checked: p.Property<(() => boolean) | boolean | null>
     icon: p.Property<(() => IconLike | null) | IconLike | null>
-    label: p.Property<string>
+    label: p.Property<(() => string) | string>
     tooltip: p.Property<(() => string | null) | string | null>
     shortcut: p.Property<string | null>
     menu: p.Property<Menu | null>
@@ -31,7 +31,7 @@ export class MenuItem extends Model {
     this.define<MenuItem.Props>(({Bool, Str, Nullable, AnyRef, Ref, Func, Func0, Or}) => ({
       checked: [ Nullable(Or(Bool, Func0(Bool))), null ],
       icon: [ Nullable(Or(IconLike, Func0(Nullable(IconLike)))), null ],
-      label: [ Str ],
+      label: [ Or(Str, Func0(Str)) ],
       tooltip: [ Nullable(Or(Str, Func0(Nullable(Str)))), null ],
       shortcut: [ Nullable(Str), null ],
       menu: [ Nullable(AnyRef<Menu>()), null ],

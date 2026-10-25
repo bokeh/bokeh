@@ -212,7 +212,7 @@ export class ContextMenu {
         })()
         const checked = isBoolean(item.checked) ? item.checked : item.checked?.()
         const active = checked ?? false ? menus.active : null
-        const label = this.labels ? item.label : null
+        const label = this.labels ? (isString(item.label) ? item.label : item.label?.() ?? null) : null
         const tooltip = isString(item.tooltip) ? item.tooltip : item.tooltip?.() ?? null
         el = div({class: [active], title: tooltip, tabIndex: 0}, icon_el, label)
         if (isPlainObject(item)) {

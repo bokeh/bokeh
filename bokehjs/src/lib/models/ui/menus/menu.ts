@@ -172,7 +172,7 @@ export class MenuView extends UIElementView {
     for (const item of items) {
       if (item instanceof MenuItem) {
         const check_el = div({class: menus.check})
-        const label_el = div({class: menus.label}, item.label)
+        const label_el = div({class: menus.label}, to_val(item.label))
         const shortcut_el = div({class: menus.shortcut}, item.shortcut)
         const chevron_el = div({class: menus.chevron})
 
