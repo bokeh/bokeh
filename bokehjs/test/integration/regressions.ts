@@ -58,7 +58,7 @@ import {range, linspace, cumsum, reversed, subselect} from "@bokehjs/core/util/a
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
-import {paint, delay, defer} from "@bokehjs/core/util/defer"
+import {paint, delay} from "@bokehjs/core/util/defer"
 import {encode_rgba} from "@bokehjs/core/util/color"
 import {Figure, figure, show} from "@bokehjs/api/plotting"
 import {Spectral3, Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
@@ -4396,7 +4396,7 @@ describe("Bug", () => {
       plot.line([1, 2, 3, 4, 5], [3, 4, 1, 6, 15], {line_width: 2, legend_label: "Other.", color: "#0000ff"})
       plot.scatter([1, 2, 3, 4, 5], [3, 4, 1, 6, 15], {line_width: 2, legend_label: "Other.", color: "#0000ff"})
 
-      const html = new HTML({html: ""})
+      const html = new HTML({html: "", style: {"line-height": "0"}})
       const pane = new Pane({elements: [html]})
 
       const {view} = await display(row([plot, pane]), [400, 200])
@@ -4769,7 +4769,8 @@ describe("Bug", () => {
 
       const {view} = await display(row([plot, pane]), [400, 200])
 
-      await defer() // give time for SizeBar's layout; this should be included in pv.ready
+      await view.ready
+      await paint() // SizeBar's internal plot needs a frame to finish layout before export.
 
       const pv = view.owner.get_one(plot)
       const blob = await pv.export().to_blob()

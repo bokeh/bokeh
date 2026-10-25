@@ -42,10 +42,8 @@ export function throttle(func: () => void, wait: number): ThrottledFn {
 
       const now = Date.now()
       const remaining = wait - (now - previous)
-      if (remaining <= 0 && !pending) {
-        if (timeout != null) {
-          clearTimeout(timeout)
-        }
+      // A queued callback owns a promise; keep it even if its timer is late.
+      if (remaining <= 0 && timeout == null && !pending) {
         pending = true
         request = requestAnimationFrame(later)
       } else if (timeout == null && !pending) {

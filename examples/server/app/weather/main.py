@@ -29,7 +29,7 @@ def get_dataset(src, name, distribution):
     df['left'] = df.date - datetime.timedelta(days=0.5)
     df['right'] = df.date + datetime.timedelta(days=0.5)
     df = df.set_index(['date'])
-    df.sort_index(inplace=True)
+    df = df.sort_index()
     if distribution == 'Smoothed':
         window, order = 51, 3
         for key in STATISTICS:

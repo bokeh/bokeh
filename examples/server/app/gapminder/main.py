@@ -22,7 +22,7 @@ df = pd.concat({'fertility': fertility_df,
 
 data = {}
 
-regions_df.rename({'Group':'region'}, axis='columns', inplace=True)
+regions_df = regions_df.rename({'Group':'region'}, axis='columns')
 for year in years:
     df_year = df.iloc[:,df.columns.get_level_values(1)==year]
     df_year.columns = df_year.columns.droplevel(1)
