@@ -1,4 +1,6 @@
 import type {PlotView} from "@bokehjs/models/plots/plot_canvas"
+import type {UIElementView} from "@bokehjs/models/ui/ui_element"
+import type {MenuView} from "@bokehjs/models/ui/menus/menu"
 import {MouseButton, offset_bbox} from "@bokehjs/core/dom"
 import {linspace, zip, last} from "@bokehjs/core/util/array"
 import {delay} from "@bokehjs/core/util/defer"
@@ -108,6 +110,18 @@ export async function scroll_up(el: Element, count: number = 1): Promise<void> {
 export async function scroll_down(el: Element, count: number = 1): Promise<void> {
   assert(count >= 1)
   await scroll(el, -count)
+}
+
+/**
+ * Shows the context menu of `view` at `(x, y)` relative to the view's element.
+ *
+ * `contextmenu` can't simply be dispatched with `el.dispatchEvent()` because
+ * of browser security, so this invokes the view's handler directly.
+ */
+export function show_context_menu(view: UIElementView, x: number, y: number): MenuView | null {
+  const {left, top} = view.el.getBoundingClientRect()
+  view.show_context_menu(new MouseEvent("contextmenu", {clientX: left + x, clientY: top + y}))
+  return view.get_context_menu({x, y})
 }
 
 type Line = {type: "line", xy0: Point, xy1: Point, n?: number}

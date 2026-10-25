@@ -4,7 +4,7 @@ import pixelmatch from "pixelmatch"
 import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
 import {display, fig, row} from "#framework/layouts"
 import {restorable} from "#framework/util"
-import {PlotActions, actions, xy, line, tap, mouse_click, scroll_up, scroll_down} from "#framework/interactive"
+import {PlotActions, actions, xy, line, tap, mouse_click, scroll_up, scroll_down, show_context_menu} from "#framework/interactive"
 import {convert_to_uint32_palette} from "@bokehjs/models/mappers/color_mapper"
 import type {PlotView} from "@bokehjs/models/plots/plot"
 import type {ViewOf} from "@bokehjs/core/build_views"
@@ -2179,11 +2179,8 @@ ${view.host_selector} {
 
       const {view} = await display(p)
 
-      // can't simply dispatchEvent() because of browser security
-      const {left, top} = view.el.getBoundingClientRect()
       const open_menu = () => {
-        view.show_context_menu(new MouseEvent("contextmenu", {clientX: left + 50, clientY: top + 50}))
-        const menu_view = view.get_context_menu({x: 50, y: 50})
+        const menu_view = show_context_menu(view, 50, 50)
         expect_not_null(menu_view)
         expect(menu_view.is_open).to.be.true
         return menu_view

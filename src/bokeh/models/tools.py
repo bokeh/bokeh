@@ -203,6 +203,14 @@ class Tool(Model):
     will be used (may depend on tool's configuration).
     """)
 
+    label = Nullable(String, help="""
+    A short, human readable name of this tool.
+
+    If not defined, then the default name of the tool will be used. The
+    label will be typically presented in the user interface, e.g. in
+    context menus.
+    """)
+
     description = Nullable(String, help="""
     A string describing the purpose of this tool. If not defined, an auto-generated
     description will be used. This description will be typically presented in the

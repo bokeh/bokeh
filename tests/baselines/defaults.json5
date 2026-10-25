@@ -7153,6 +7153,7 @@
   Tool: {
     __extends__: "Model",
     icon: null,
+    label: null,
     description: null,
     visible: true,
     group: true,
