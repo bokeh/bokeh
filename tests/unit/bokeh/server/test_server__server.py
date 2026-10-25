@@ -817,6 +817,26 @@ async def test__accept_session_websocket(ManagedServerLoop: MSL) -> None:
         assert isinstance(msg, str)
         assert 'ACK' in msg
 
+@pytest.mark.parametrize("origin_host", ["[::1]", "[::1]:5006"])
+async def test__accept_ipv6_origin_websocket(ManagedServerLoop: MSL, origin_host: str) -> None:
+    application = Application()
+    with ManagedServerLoop(application, allow_websocket_origin=[origin_host]) as server:
+        token = generate_jwt_token("ipv6-session")
+        ws = await websocket_open(server.io_loop, ws_url(server), origin=f"http://{origin_host}", subprotocols=["bokeh", token], auto_close=False)
+        try:
+            msg = await ws.read_queue.get()
+            assert isinstance(msg, str)
+            assert "ACK" in msg
+        finally:
+            ws.close()
+
+async def test__reject_ipv6_origin_websocket(ManagedServerLoop: MSL) -> None:
+    application = Application()
+    with ManagedServerLoop(application, allow_websocket_origin=["[::1]:5006"]) as server:
+        token = generate_jwt_token("ipv6-session")
+        with pytest.raises(HTTPError, match="403"):
+            await websocket_open(server.io_loop, ws_url(server), origin="http://[::2]:5006", subprotocols=["bokeh", token])
+
 async def test__reject_expired_session_websocket(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, session_token_expiration=1) as server:

@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from ipaddress import IPv6Address
 from typing import TYPE_CHECKING, Sequence
 
 if TYPE_CHECKING:
@@ -83,7 +84,7 @@ def check_allowlist(host: str, allowlist: Sequence[str]) -> bool:
         ``False``
 
      '''
-    if ':' not in host:
+    if ':' not in host or host.endswith(']'):
         host = host + ':80'
 
     if host in allowlist:
@@ -113,7 +114,19 @@ def validate_hosts_allowlist(host_list: Sequence[str]) -> None:
     for host in host_list:
         if host == "*":
             continue
-        parts = host.split(":")
+        if host.startswith('['):
+            address, separator, suffix = host.partition(']')
+            if not separator or (suffix and not suffix.startswith(':')):
+                raise ValueError(f"Invalid host value: {host}")
+            try:
+                IPv6Address(address[1:])
+            except ValueError:
+                raise ValueError(f"Invalid host value: {host}") from None
+            parts = [address + ']']
+            if suffix:
+                parts.append(suffix[1:])
+        else:
+            parts = host.split(":")
         if len(parts) > 2:
             raise ValueError(f"Invalid host value: {host}")
         if parts[0] == "":
@@ -134,6 +147,8 @@ def create_hosts_allowlist(host_list: Sequence[str] | None, port: int | None) ->
         host_list (seq[str]) :
             A list of string `<name>` or `<name>:<port>` values to add to the
             allowlist.
+
+            IPv6 addresses must be enclosed in brackets, e.g. ``[::1]:5006``.
 
             If no port is specified in a host string, then ``":80"``  is
             implicitly assumed.
@@ -172,8 +187,7 @@ def create_hosts_allowlist(host_list: Sequence[str] | None, port: int | None) ->
             # accepted
             hosts.append(host)
             continue
-        parts = host.split(':')
-        if len(parts) == 1:
+        if ':' not in host or host.endswith(']'):
             hosts.append(host+":80")
         else:
             hosts.append(host)
@@ -238,11 +252,11 @@ def match_host(host: str, pattern: str) -> bool:
         return True
 
     host_port: str | None = None
-    if ':' in host:
+    if ':' in host and not host.endswith(']'):
         host, host_port = host.rsplit(':', 1)
 
     pattern_port: str | None = None
-    if ':' in pattern:
+    if ':' in pattern and not pattern.endswith(']'):
         pattern, pattern_port = pattern.rsplit(':', 1)
         if pattern_port == '*':
             pattern_port = None

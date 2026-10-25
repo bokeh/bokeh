@@ -15,6 +15,8 @@ New features
   decorations without requiring fixed tick locations or custom JavaScript.
 * Added :class:`~bokeh.models.SITickFormatter` for displaying values with a
   fixed or automatically selected SI prefix and a shared unit.
+* Added support for bracketed IPv6 addresses, such as ``[::1]:5006``, in the
+  Bokeh server's WebSocket origin allowlist.
 
 Removals
 --------
