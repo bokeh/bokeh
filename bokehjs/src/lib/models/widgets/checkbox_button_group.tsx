@@ -5,8 +5,9 @@ import {sorted} from "core/util/array"
 import {computed} from "@preact/signals"
 
 export class CheckboxButtonGroupView extends ToggleButtonGroupView {
-  declare model: CheckboxButtonGroup
+  declare readonly model: CheckboxButtonGroup
   declare readonly signals: p.SignalsOf<CheckboxButtonGroup.Props>
+  declare readonly values: CheckboxButtonGroup.Attrs
 
   override active_indices = computed(() => {
     return new Set(this.signals.active.value)

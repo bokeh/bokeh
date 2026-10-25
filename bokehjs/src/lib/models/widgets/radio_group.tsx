@@ -8,6 +8,7 @@ import * as inputs_css from "styles/widgets/inputs.css"
 export class RadioGroupView extends ToggleInputGroupView {
   declare readonly model: RadioGroup
   declare readonly signals: p.SignalsOf<RadioGroup.Props>
+  declare readonly values: RadioGroup.Attrs
 
   override component(): VNode {
     const {labels, active, disabled, inline} = this.signals

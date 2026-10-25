@@ -4,8 +4,9 @@ import type * as p from "core/properties"
 import {computed} from "@preact/signals"
 
 export class RadioButtonGroupView extends ToggleButtonGroupView {
-  declare model: RadioButtonGroup
+  declare readonly model: RadioButtonGroup
   declare readonly signals: p.SignalsOf<RadioButtonGroup.Props>
+  declare readonly values: RadioButtonGroup.Attrs
 
   override active_indices = computed(() => {
     const active = this.signals.active.value

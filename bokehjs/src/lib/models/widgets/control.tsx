@@ -4,7 +4,9 @@ import type * as p from "core/properties"
 
 /** @deprecated */
 export abstract class ControlView extends WidgetView {
-  declare model: Control
+  declare readonly model: Control
+  declare readonly signals: p.SignalsOf<Control.Props>
+  declare readonly values: Control.Attrs
 
   /** @deprecated */
   controls?(): Iterable<HTMLElement & {disabled: boolean}>
