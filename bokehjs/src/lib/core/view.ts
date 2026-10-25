@@ -311,7 +311,7 @@ export abstract class View implements ISignalable, Equatable {
       disconnect(models)
       models = collect()
       connect(models)
-      fn()
+      return fn()
     })
   }
 
