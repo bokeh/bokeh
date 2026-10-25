@@ -324,6 +324,81 @@ Views extend the respective ``BaseView`` base class.
       ...
     }
 
+.. _contributor_guide_bokehjs_views_ready:
+
+Dealing with asynchronous behavior and the ``ready`` promise
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Many things a view does after it was built are asynchronous, for example
+rebuilding child views after a property change, loading resources, running a
+``CustomJS`` callback, or repainting a plot. Each view tracks such work as
+*tasks*, and exposes the ``ready`` promise, which tells when all of them have
+finished.
+
+Schedule asynchronous work with ``schedule()``:
+
+.. code-block:: typescript
+
+    export class NewActionToolView extends ActionToolView {
+      declare model: NewActionTool
+
+      protected _load_icon(url: string): void {
+        this.schedule(async (signal) => {
+          const response = await fetch(url, {signal})
+          // ... update the view and request a repaint or relayout
+        })
+      }
+    }
+
+``schedule(task)`` runs ``task`` immediately, and ``ready`` of the view and of
+all its ancestors waits until the returned promise settles. A task that throws
+synchronously is treated like one that rejects. The task receives the view's
+abort signal, which is aborted when the view is removed. Pass it on to APIs
+that support it (like ``fetch()``) or check ``signal.aborted`` before touching
+the view after an ``await``.
+
+Signal handlers connected with ``connect()``, ``on_change()`` or
+``on_transitive_change()`` are tracked automatically, if they return a
+promise. Thus, always return (or ``await``) asynchronous work from handlers,
+instead of starting it and discarding its promise:
+
+.. code-block:: typescript
+
+    override connect_signals(): void {
+      super.connect_signals()
+      const {items} = this.model.properties
+      // tracked, because the promise is returned
+      this.on_change(items, () => this.build_item_views())
+      // not tracked, because the promise is discarded
+      this.on_change(items, () => { void this.build_item_views() })
+    }
+
+``ready`` behaves as follows:
+
+* It resolves when the view and all its descendants have no pending tasks.
+  This includes tasks that were scheduled while waiting, so ``ready`` covers
+  chains of work, like a task that schedules a follow-up task. ``ready`` of
+  the root view covers all views in its tree.
+* If any of these tasks failed since ``ready`` last settled, it rejects with
+  the error, or with an ``AggregateError`` if multiple tasks failed. Failures
+  are also logged when they happen. Once reported, failures are cleared, so
+  a subsequent ``ready`` only reflects new work. A failure is reported by the
+  view that owns the task and by each of its ancestors.
+* When a view is removed, its tasks and the tasks of its descendants stop
+  counting toward ``ready`` of its ancestors, and failures of these tasks are
+  ignored. ``ready`` of a removed view resolves, and ``schedule()`` on a
+  removed view doesn't run the task.
+
+``ready`` doesn't cover work that the browser does on its own, like
+CSS layout, ``ResizeObserver`` callbacks or loading of images through the DOM.
+If a view has to react to such events, the handler should schedule its own
+work with ``schedule()``.
+
+.. note::
+    ``_await_ready(promise)`` is a lower-level variant of ``schedule()``,
+    which tracks an already started promise. Prefer ``schedule()``, which
+    also handles synchronous failures and provides the abort signal.
+
 .. _gulp: https://gulpjs.com/
 .. _ESLint: https://eslint.org/
 .. _JSFiddle: http://jsfiddle.net/

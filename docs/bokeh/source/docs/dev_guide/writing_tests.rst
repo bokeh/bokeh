@@ -148,6 +148,65 @@ For example:
     expect(grid0).to.be.instanceof(Column)
     expect(h.msgid).to.not.be.equal(h2.msgid)
 
+.. _contributor_guide_writing_tests_bokehjs_ready:
+
+Waiting for asynchronous work in BokehJS tests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Many changes to models are handled by views asynchronously (see
+:ref:`contributor_guide_bokehjs_views_ready`). Use the views' ``ready``
+promise to wait until this work has finished, before making assertions or
+before a visual test captures its output:
+
+.. code-block:: TypeScript
+
+    it("should update the button when its label changes", async () => {
+      const button = Button.create({label: "Click me"})
+      const {view} = await display(button)
+
+      button.label = "Clicked"
+      await view.ready
+
+      expect(view.button_el.textContent).to.be.equal("Clicked")
+    })
+
+Follow these rules:
+
+* ``display()`` already waits for ``ready`` of the displayed views, so don't
+  ``await view.ready`` right after ``display()``.
+* After changing a model, ``await view.ready`` once. ``ready`` waits for
+  follow-up work as well (for example, a data update that triggers a
+  relayout and then a repaint), so awaiting it multiple times in a row is
+  unnecessary.
+* ``ready`` of any view covers all its descendants, so awaiting ``ready`` of
+  the root view (usually the one returned by ``display()``) is enough. Await
+  ``ready`` of a sub-view only when you specifically want to ignore work in
+  other parts of the tree.
+* Don't use ``await defer()`` or ``await paint()`` to wait for work done by
+  views. Use ``await view.ready`` instead. Simulated user interactions from
+  ``#framework/interactive`` (like ``actions(view).pan()`` or
+  ``mouse_click()``) only dispatch events, so ``await view.ready`` after them
+  when the test inspects their effects.
+* ``ready`` doesn't cover work that the browser does on its own, like CSS
+  layout or ``ResizeObserver`` callbacks. Use ``await paint()`` only when a
+  test depends on such work, for example after hiding an element with
+  ``display: none``.
+* Visual tests wait for one animation frame after each test, before capturing
+  the output. Thus, don't end a visual test with ``await paint()``.
+* If any task fails, ``ready`` rejects with the error (or an
+  ``AggregateError``), which fails the test. Failures are cleared once
+  reported. To test a failure, catch the rejection of ``await view.ready``.
+
+When testing views without ``display()``, for example with ``build_view()``,
+await the built view's ``ready`` before inspecting state that depends on
+asynchronous work:
+
+.. code-block:: TypeScript
+
+    const view = await build_view(model)
+    model.some_property = 10
+    await view.ready
+
 .. _contributor_guide_writing_tests_bokehjs_visual:
 
 BokehJS visual tests
