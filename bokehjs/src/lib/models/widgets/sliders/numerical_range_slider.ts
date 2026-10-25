@@ -2,6 +2,7 @@ import type {SliderSpec, SliderKind} from "./abstract_slider"
 import {range_kind} from "./abstract_slider"
 import {BaseNumericalSlider, BaseNumericalSliderView} from "./base_numerical_slider"
 import type * as p from "core/properties"
+import {clamp} from "core/util/math"
 
 export abstract class NumericalRangeSliderView extends BaseNumericalSliderView {
   declare readonly model: NumericalRangeSlider
@@ -50,29 +51,25 @@ export abstract class NumericalRangeSlider extends BaseNumericalSlider {
   declare value: [number, number]
   declare value_throttled: [number, number]
 
-  protected _clamp(value: [number, number]): [number, number] {
-    const [lo, hi] = this._bounds()
-    const clamp = (v: number) => Math.min(Math.max(v, lo), hi)
-    return [clamp(value[0]), clamp(value[1])]
-  }
-
   protected _enforce_bounds(): void {
-    const {value, value_throttled} = this.properties
-    const changes: Partial<{value: [number, number], value_throttled: [number, number]}> = {}
+    const changes: {value?: [number, number], value_throttled?: [number, number]} = {}
+    const [lo, hi] = this._bounds()
 
-    if (!value.is_unset) {
+    if (!this.properties.value.is_unset) {
       const [v0, v1] = this.value
-      const clamped = this._clamp([v0, v1])
-      if (clamped[0] != v0 || clamped[1] != v1) {
-        changes.value = clamped
+      const cv0 = clamp(v0, lo, hi)
+      const cv1 = clamp(v1, lo, hi)
+      if (cv0 != v0 || cv1 != v1) {
+        changes.value = [cv0, cv1]
       }
     }
 
-    if (!value_throttled.is_unset) {
+    if (!this.properties.value_throttled.is_unset) {
       const [t0, t1] = this.value_throttled
-      const clamped = this._clamp([t0, t1])
-      if (clamped[0] != t0 || clamped[1] != t1) {
-        changes.value_throttled = clamped
+      const ct0 = clamp(t0, lo, hi)
+      const ct1 = clamp(t1, lo, hi)
+      if (ct0 != t0 || ct1 != t1) {
+        changes.value_throttled = [ct0, ct1]
       }
     } else if (changes.value != null) {
       // copy, so that `value` and `value_throttled` never share one array

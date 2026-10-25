@@ -2,6 +2,7 @@ import type {SliderSpec, SliderKind} from "./abstract_slider"
 import {single_kind} from "./abstract_slider"
 import {BaseNumericalSlider, BaseNumericalSliderView} from "./base_numerical_slider"
 import type * as p from "core/properties"
+import {clamp} from "core/util/math"
 
 export abstract class NumericalSliderView extends BaseNumericalSliderView {
   declare readonly model: NumericalSlider
@@ -50,27 +51,22 @@ export abstract class NumericalSlider extends BaseNumericalSlider {
   declare value: number
   declare value_throttled: number
 
-  protected _clamp(value: number): number {
-    const [lo, hi] = this._bounds()
-    return Math.min(Math.max(value, lo), hi)
-  }
-
   protected _enforce_bounds(): void {
-    const {value, value_throttled} = this.properties
-    const changes: Partial<{value: number, value_throttled: number}> = {}
+    const changes: {value?: number, value_throttled?: number} = {}
+    const [lo, hi] = this._bounds()
 
-    if (!value.is_unset) {
-      const v = this.value
-      const clamped = this._clamp(v)
-      if (clamped != v) {
+    if (!this.properties.value.is_unset) {
+      const {value} = this
+      const clamped = clamp(value, lo, hi)
+      if (clamped != value) {
         changes.value = clamped
       }
     }
 
-    if (!value_throttled.is_unset) {
-      const t = this.value_throttled
-      const clamped = this._clamp(t)
-      if (clamped != t) {
+    if (!this.properties.value_throttled.is_unset) {
+      const {value_throttled} = this
+      const clamped = clamp(value_throttled, lo, hi)
+      if (clamped != value_throttled) {
         changes.value_throttled = clamped
       }
     } else if (changes.value != null) {

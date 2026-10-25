@@ -237,8 +237,9 @@ describe("Slider", () => {
         slider.end = 7
         await view.ready
 
-        /* @ts-ignore */
-        expect(view.title_el.textContent).to.be.equal("Value: 7")
+        const title_el = view.shadow_el.querySelector(`.${slider_css.title}`)
+        expect_not_null(title_el)
+        expect(title_el.textContent).to.be.equal("Value: 7")
       })
     })
   })
@@ -329,8 +330,11 @@ describe("RangeSlider", () => {
         const slider = make({start: 0, end: 10, value: [2, 3]})
         slider.start = 5
         expect(slider.value).to.be.equal([5, 5])
-        slider.end = 4.5
+        // moving end below start would make the slider reversed instead, so move both
+        slider.setv({start: 1, end: 4.5})
         expect(slider.value).to.be.equal([4.5, 4.5])
+        slider.setv({start: 6, end: 9})
+        expect(slider.value).to.be.equal([6, 6])
       })
 
       it("should clamp value_throttled when only it is out of bounds", () => {
@@ -428,6 +432,45 @@ describe("RangeSlider", () => {
 })
 
 describe("MultiValuedSlider", () => {
+  describe("bounds", () => {
+    it("should clamp values of reversed sliders", () => {
+      const slider = MultiValuedSlider.create({start: 10, end: 0, value: [-5, 5, 15]})
+      expect(slider.value).to.be.equal([0, 5, 10])
+      slider.start = 8
+      expect(slider.value).to.be.equal([0, 5, 8])
+    })
+
+    it("should clamp values at creation", () => {
+      const slider = MultiValuedSlider.create({start: 0, end: 10, value: [-5, 5, 15]})
+      expect(slider.value).to.be.equal([0, 5, 10])
+      expect(slider.value_throttled).to.be.equal([0, 5, 10])
+      expect(slider.value).to.not.be.identical(slider.value_throttled)
+    })
+
+    it("should clamp values when start or end change", () => {
+      const slider = MultiValuedSlider.create({start: 0, end: 10, value: [2, 5, 8]})
+      slider.end = 6
+      expect(slider.value).to.be.equal([2, 5, 6])
+      slider.start = 3
+      expect(slider.value).to.be.equal([3, 5, 6])
+    })
+
+    it("should not touch values when the range still contains them", () => {
+      const slider = MultiValuedSlider.create({start: 0, end: 10, value: [2, 5, 8]})
+      const {value} = slider
+      slider.setv({start: -10, end: 20})
+      expect(slider.value).to.be.identical(value)
+    })
+
+    it("should clamp value_throttled independently of value", () => {
+      const slider = MultiValuedSlider.create({start: 0, end: 10, value: [2, 5, 8]})
+      slider.setv({value_throttled: [1, 9, 9]})
+      slider.end = 8
+      expect(slider.value).to.be.equal([2, 5, 8])
+      expect(slider.value_throttled).to.be.equal([1, 8, 8])
+    })
+  })
+
   it("should support string format", async () => {
     const slider = MultiValuedSlider.create({format: "0a"})
     const view = await build_view(slider, {parent: null})

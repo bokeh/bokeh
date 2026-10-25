@@ -6,6 +6,7 @@ import {BaseNumericalSlider, BaseNumericalSliderView} from "./base_numerical_sli
 import type {TickFormatter} from "../../formatters/tick_formatter"
 import type * as p from "core/properties"
 import {isString} from "core/util/types"
+import {clamp} from "core/util/math"
 
 // TODO make this configurable; unordered handles are supported with `multi_kind({ordered: false})`
 const ordered_kind = multi_kind({ordered: true})
@@ -64,6 +65,34 @@ export class MultiValuedSlider extends BaseNumericalSlider {
 
   declare value: number[]
   declare value_throttled: number[]
+
+  protected _enforce_bounds(): void {
+    const changes: {value?: number[], value_throttled?: number[]} = {}
+    const [lo, hi] = this._bounds()
+
+    const changed = (values: number[], clamped: number[]) => clamped.some((v, i) => v != values[i])
+
+    if (!this.properties.value.is_unset) {
+      const clamped = this.value.map((v) => clamp(v, lo, hi))
+      if (changed(this.value, clamped)) {
+        changes.value = clamped
+      }
+    }
+
+    if (!this.properties.value_throttled.is_unset) {
+      const clamped = this.value_throttled.map((v) => clamp(v, lo, hi))
+      if (changed(this.value_throttled, clamped)) {
+        changes.value_throttled = clamped
+      }
+    } else if (changes.value != null) {
+      // copy, so that `value` and `value_throttled` never share one array
+      changes.value_throttled = [...changes.value]
+    }
+
+    if (changes.value != null || changes.value_throttled != null) {
+      this.setv(changes)
+    }
+  }
 
   static {
     this.prototype.default_view = MultiValuedSliderView
