@@ -59,7 +59,7 @@ import {range, linspace, cumsum, reversed, subselect} from "@bokehjs/core/util/a
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
-import {paint, delay} from "@bokehjs/core/util/defer"
+import {delay} from "@bokehjs/core/util/defer"
 import {encode_rgba} from "@bokehjs/core/util/color"
 import {Figure, figure, show} from "@bokehjs/api/plotting"
 import {Spectral3, Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
@@ -816,7 +816,6 @@ describe("Bug", () => {
 
       const choices_view = view.owner.get_one(choices)
       choices_view.choice_el.showDropdown()
-      await paint()
     })
   })
 
@@ -841,7 +840,6 @@ describe("Bug", () => {
 
       const choices_view = view.owner.get_one(choices)
       choices_view.choice_el.showDropdown()
-      await paint()
     })
   })
 
@@ -852,7 +850,6 @@ describe("Bug", () => {
 
       const {view} = await display(choices, [100, 200])
       view.choice_el.showDropdown()
-      await paint()
     })
   })
 
@@ -1346,12 +1343,8 @@ describe("Bug", () => {
       p0.renderers = [esri]
       // Renderer replacement spans two frames. Avoid waiting on unrelated tile
       // requests, which can leave the root ready promise pending indefinitely.
-      await paint()
-      await paint()
       p1.renderers = [osm]
 
-      await paint()
-      await paint()
     })
   })
 
@@ -2103,7 +2096,6 @@ describe("Bug", () => {
         }
         previous_width = bounds.width
       }
-      await paint()
     })
   })
 
@@ -2385,7 +2377,6 @@ describe("Bug", () => {
       await actions(pv0).pan_along(path)
       await actions(pv1).pan_along(path)
 
-      await paint()
     })
   })
 
@@ -2904,7 +2895,6 @@ describe("Bug", () => {
       const {view: pv} = await display(p)
 
       await actions(pv).hover({x: 3, y: 3})
-      await paint()
     })
   })
 
@@ -2947,13 +2937,9 @@ describe("Bug", () => {
 
       const actions = new PlotActions(view)
       await actions.pan_along({type: "line", xy0: {x: 1.5, y: 0.5}, xy1: {x: 0.0, y: 0.5}})
-      await paint()
       await actions.pan_along({type: "line", xy0: {x: 3.5, y: 0.5}, xy1: {x: 2.0, y: 0.5}})
-      await paint()
       await actions.pan_along({type: "line", xy0: {x: 5.5, y: 0.5}, xy1: {x: 6.0, y: 0.5}})
-      await paint()
       await actions.pan_along({type: "line", xy0: {x: 7.5, y: 0.5}, xy1: {x: 8.5, y: 0.5}})
-      await paint()
     })
   })
 
@@ -2980,11 +2966,8 @@ describe("Bug", () => {
 
       const actions = new PlotActions(overview_view)
       await actions.pan_along({type: "line", xy0: {x: 21, y: 2.0}, xy1: {x: 21, y: 3.0}}) // drag top edge down
-      await paint()
       await actions.pan_along({type: "line", xy0: {x: 21, y: 3.5}, xy1: {x: 21, y: 3.0}}) // move up
-      await paint()
       await actions.pan_along({type: "line", xy0: {x: 21, y: 3.5}, xy1: {x: 21, y: 3.1}}) // drag bottom edge up
-      await paint()
     })
   })
 
@@ -3024,22 +3007,18 @@ describe("Bug", () => {
 
       const input_el = view.choice_el.input.element
       await mouse_click(input_el)
-      await paint()
 
       const el_D = view.shadow_el.querySelector("[data-value='D']")
       expect_not_null(el_D)
       await mouse_down(el_D)
-      await paint()
 
       const el_A = view.shadow_el.querySelector("[data-value='A']")
       expect_not_null(el_A)
       await mouse_down(el_A)
-      await paint()
 
       const el_B = view.shadow_el.querySelector("[data-value='B']")
       expect_not_null(el_B)
       await mouse_down(el_B)
-      await paint()
     })
   })
 
@@ -3052,12 +3031,10 @@ describe("Bug", () => {
       await mouse_click(input_el)
       input_el.value = "B" // Can't enter value with a synthetic event.
       input_el.focus()
-      await paint()
       view.choice_el.input.isFocussed = true // Can't focus in headless.
 
       const init = {key: "B", code: "KeyB", keyCode: 66, shiftKey: true, bubbles: true, composed: true}
       input_el.dispatchEvent(new KeyboardEvent("keyup", init))
-      await paint()
     })
   })
 
@@ -3116,9 +3093,7 @@ describe("Bug", () => {
       const view = await box()
       const actions = new PlotActions(view, {units: "screen"})
       await actions.pan_along({type: "line", xy0: xy(250, 50), xy1: xy(250, 250)}) // pan the plot up
-      await paint()
       await actions.pan_along({type: "line", xy0: xy(100, 150), xy1: xy(200, 150)}) // move the box right
-      await paint()
     })
   })
 
@@ -4228,7 +4203,6 @@ describe("Bug", () => {
       const legend_view = view.owner.get_one(legend)
       const before = Math.round(legend_view.bbox.width)
       const frame_left = view.frame.bbox.left
-      await paint()
 
       legend.items[0].label = "Long ....... label"
       await view.ready
@@ -4253,7 +4227,6 @@ describe("Bug", () => {
       const legend_view = view.owner.get_one(legend)
       const before = bounding_box(legend_view.el).width
       const frame_left = view.frame.bbox.left
-      await paint()
 
       legend.items[0].label = "A very much longer legend label than before"
       await view.ready
@@ -4766,7 +4739,6 @@ describe("Bug", () => {
       const {view} = await display(row([plot, pane]), [400, 200])
 
       const pv = view.owner.get_one(plot)
-      await paint()
       await pv.ready
       const blob = await pv.export().to_blob()
       const ctx = canvas.getContext("2d")!

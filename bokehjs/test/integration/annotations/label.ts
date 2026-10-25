@@ -7,7 +7,6 @@ import {Label, HTMLLabel} from "@bokehjs/models/annotations"
 import type {PlotView} from "@bokehjs/models/plots/plot"
 import type {HasPropsFactory} from "@bokehjs/core/has_props"
 import type {OutputBackend, Anchor} from "@bokehjs/core/enums"
-import {paint} from "@bokehjs/core/util/defer"
 
 const r = String.raw
 
@@ -364,7 +363,6 @@ describe("Label annotation", () => {
     async function pan(view: PlotView, xy0: Point, xy1: Point) {
       const actions = new PlotActions(view)
       await actions.pan_along({type: "line", xy0, xy1})
-      await paint()
     }
 
     async function label(anchor: Anchor) {
