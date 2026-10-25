@@ -12,7 +12,6 @@ from typing import Any
 import pytest
 import yaml
 
-# Bokeh test imports
 from tests.support.util.project import TOP_PATH
 
 WORKFLOWS = {

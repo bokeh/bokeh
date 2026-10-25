@@ -7,7 +7,6 @@ from typing import Any
 
 import pytest
 
-# Bokeh test imports
 from tests.tools.release._support import AbortCalled, RecordingSystem
 from tools.release import ui
 from tools.release.action import (

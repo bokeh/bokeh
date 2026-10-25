@@ -8,7 +8,6 @@ import pytest
 import yaml
 from packaging.requirements import Requirement
 
-# Bokeh test imports
 from tests.support.util.project import TOP_PATH
 from tests.tools.release._support import RecordingSystem
 from tools.release import build

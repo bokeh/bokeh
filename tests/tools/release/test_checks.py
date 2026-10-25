@@ -4,7 +4,6 @@ from pathlib import Path
 
 import pytest
 
-# Bokeh test imports
 from tests.tools.release._support import RecordingSystem
 from tools.release import checks
 from tools.release.action import FAILED, PASSED

@@ -26,7 +26,6 @@ from typing import TYPE_CHECKING, Literal
 import PIL.Image
 import pytest
 
-## External imports
 if TYPE_CHECKING:
     from playwright.sync_api import Browser
     from selenium.webdriver.remote.webdriver import WebDriver

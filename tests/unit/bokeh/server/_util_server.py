@@ -25,7 +25,6 @@ from tornado.websocket import WebSocketClientConnection, websocket_connect
 if TYPE_CHECKING:
     from tornado.ioloop import IOLoop
 
-## Bokeh imports
 if TYPE_CHECKING:
     from bokeh.server.server import Server
 

@@ -110,7 +110,6 @@ from bokeh.model import Model
 from bokeh.resources import Resources
 from bokeh.util.warnings import BokehDeprecationWarning
 
-# Local imports
 from ._internal import PARALLEL_SAFE, SphinxParallelSpec
 from ._internal.bokeh_directive import BokehDirective
 from ._internal.example_handler import ExampleHandler
