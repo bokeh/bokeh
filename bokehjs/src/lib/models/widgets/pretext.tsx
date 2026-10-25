@@ -8,6 +8,7 @@ import * as markup_css from "styles/widgets/markup.css"
 export class PreTextView extends MarkupView {
   declare readonly model: PreText
   declare readonly signals: p.SignalsOf<PreText.Props>
+  declare readonly values: PreText.Attrs
 
   override component(): VNode {
     const {text} = this.signals

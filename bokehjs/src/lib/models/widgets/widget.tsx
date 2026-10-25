@@ -5,7 +5,9 @@ import {default_provider} from "models/text/providers"
 import type * as p from "core/properties"
 
 export abstract class WidgetView extends LayoutDOMView {
-  declare model: Widget
+  declare readonly model: Widget
+  declare readonly signals: p.SignalsOf<Widget.Props>
+  declare readonly values: Widget.Attrs
 
   get child_models(): LayoutDOM[] {
     return []

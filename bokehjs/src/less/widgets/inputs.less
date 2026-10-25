@@ -7,6 +7,82 @@
   --disabled-opacity: 1;
 }
 
+:host {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
+
+.bk-outer {
+  position: relative;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+
+  border: var(--border);
+  border-radius: var(--border-radius);
+  color: var(--inherit-color);
+}
+
+.bk-prefix {
+  position: relative;
+  flex: 0 1 auto;
+  border-right: var(--border);
+  border-top-left-radius: var(--border-radius);
+  border-bottom-left-radius: var(--border-radius);
+  background-color: var(--surface-background-color);
+  padding: var(--padding-vertical) var(--padding-horizontal);
+}
+
+.bk-inner {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+
+  padding: var(--padding-vertical) var(--padding-horizontal);
+}
+
+.bk-outer:has(.bk-input:focus) {
+  border-color: var(--focus-border-color);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px var(--focus-halo-color);
+}
+
+.bk-input {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  height: max-content;
+
+  .placeholder(var(--placeholder-color));
+  background-color: transparent;
+
+  &:focus {
+    outline: 0;
+  }
+}
+
+.bk-suffix {
+  position: relative;
+  flex: 0 1 auto;
+  border-left: var(--border);
+  border-top-right-radius: var(--border-radius);
+  border-bottom-right-radius: var(--border-radius);
+  background-color: var(--surface-background-color);
+  padding: var(--padding-vertical) var(--padding-horizontal);
+}
+
+.bk-disabled {
+  pointer-events: none;
+}
+
+/*
 .bk-input {
   position: relative;
   display: inline-block;
@@ -31,15 +107,21 @@
   .bk-disabled(var(--disabled-opacity), var(--disabled-background-color), var(--disabled-color), inherit);
 }
 
-.bk-input-container {
-  width: 100%;
-  height: 100%;
+.bk-inner {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
 
+.bk-outer {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
 
-  .bk-input-prefix, .bk-input-suffix {
+  width: 100%;
+  height: 100%;
+
+  .bk-prefix, .bk-suffix {
     display: flex;
     align-items: center;
     flex: 0 1 0;
@@ -50,13 +132,13 @@
     color: var(--inherit-color);
   }
 
-  .bk-input-prefix {
+  .bk-prefix {
     border-right: none;
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
   }
 
-  .bk-input-suffix {
+  .bk-suffix {
     border-left: none;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
@@ -76,6 +158,7 @@
     border-bottom-right-radius: 0;
   }
 }
+*/
 
 input[type=file].bk-input {
   // align the button with input's edge
@@ -113,6 +196,17 @@ select[multiple], select[size], textarea {
   }
 }
 
+// TODO remove
+.bk-input-group {
+  position: relative;
+}
+.bk-inline {
+  position: relative;
+}
+.bk-spin-wrapper {
+  position: relative;
+}
+
 .bk-input-group {
   position: relative;
   width: 100%;
@@ -132,67 +226,88 @@ select[multiple], select[size], textarea {
       margin-left: 5px;
     }
   }
+}
 
-  >.bk-spin-wrapper {
-    display: inherit;
-    width: inherit;
-    height: inherit;
-    position: relative;
-    overflow: hidden;
+.bk-buttons {
+  position: relative;
+  flex: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.bk-spin-btn {
+  position: relative;
+  flex: 1;
+}
+.bk-spin-btn-up {
+  position: relative;
+}
+.bk-spin-btn-down {
+  position: relative;
+}
+
+/*
+.bk-spin-wrapper {
+  display: inherit;
+  width: inherit;
+  height: inherit;
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  vertical-align: middle;
+
+  input {
+    padding-right: 20px;
+  }
+
+  >.bk-spin-btn {
+    position: absolute;
+    display: block;
+    height: 50%;
+    min-height: 0;
+    min-width: 0;
+    width: 30px;
     padding: 0;
-    vertical-align: middle;
+    margin: 0;
+    right: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
 
-    input {
-      padding-right: 20px;
+    &:before {
+      content: "";
+      display: inline-block;
+      transform: translateY(-50%);
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
     }
 
-    >.bk-spin-btn {
-      position: absolute;
-      display: block;
-      height: 50%;
-      min-height: 0;
-      min-width: 0;
-      width: 30px;
-      padding: 0;
-      margin: 0;
-      right: 0;
-      border: none;
-      background: none;
-      cursor: pointer;
+    &.bk-spin-btn-up {
+      top: 0;
 
       &:before {
-        content: "";
-        display: inline-block;
-        transform: translateY(-50%);
-        border-left: 5px solid transparent;
-        border-right: 5px solid transparent;
+        border-bottom: 5px solid var(--color);
+      }
+      &:disabled:before {
+        border-bottom-color: var(--disabled-color);
+      }
+    }
+
+    &.bk-spin-btn-down {
+      bottom: 0;
+
+      &:before {
+        border-top: 5px solid var(--color);
       }
 
-      &.bk-spin-btn-up {
-        top: 0;
-
-        &:before {
-          border-bottom: 5px solid var(--color);
-        }
-        &:disabled:before {
-          border-bottom-color: var(--disabled-color);
-        }
-      }
-
-      &.bk-spin-btn-down {
-        bottom: 0;
-
-        &:before {
-          border-top: 5px solid var(--color);
-        }
-
-        &:disabled:before {
-          border-top-color: var(--disabled-color);
-        }
+      &:disabled:before {
+        border-top-color: var(--disabled-color);
       }
     }
   }
 }
+*/
 
 .bk-description {
   position: relative;

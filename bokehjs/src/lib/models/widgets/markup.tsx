@@ -7,6 +7,7 @@ import * as markup_css from "styles/widgets/markup.css"
 export abstract class MarkupView extends WidgetView {
   declare readonly model: Markup
   declare readonly signals: p.SignalsOf<Markup.Props>
+  declare readonly values: Markup.Attrs
 
   protected override readonly _auto_width = "fit-content"
   protected override readonly _auto_height = "auto"
