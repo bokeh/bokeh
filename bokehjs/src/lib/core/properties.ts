@@ -1,6 +1,7 @@
 import {Signal0} from "./signaling"
 import {logger} from "./logging"
 import type {HasProps} from "./has_props"
+import type {Comparator} from "./util/eq"
 import * as enums from "./enums"
 import type {Arrayable, IntArray, FloatArray, TypedArray, uint32, Dict} from "./types"
 import {RGBAArray, ColorArray} from "./types"
@@ -132,8 +133,6 @@ export type PropertyOptions<T, HP extends HasProps> = {
   internal?: boolean
   readonly?: boolean
   convert?(value: T, obj: HP): T | undefined
-  /** Encode documents and change events without replacing the public value. */
-  serialize?(value: T, serializer: Serializer): unknown
   on_update?(value: T, obj: HP): void
 }
 
@@ -258,6 +257,10 @@ export abstract class Property<T = unknown> {
   convert?(value: T, obj: HasProps): T | undefined
   on_update?(value: T, obj: HasProps): void
 
+  is_equal(value: T, cmp: Comparator): boolean {
+    return cmp.eq(this.get_value(), value)
+  }
+
   serialize_value(value: T, serializer: Serializer): unknown {
     return serializer.encode(value)
   }
@@ -271,9 +274,6 @@ export abstract class Property<T = unknown> {
     this.internal = options.internal ?? false
     this.readonly = options.readonly ?? false
     this.convert = options.convert
-    if (options.serialize != null) {
-      this.serialize_value = options.serialize
-    }
     this.on_update = options.on_update
     this.may_have_refs = kind.may_have_refs()
   }

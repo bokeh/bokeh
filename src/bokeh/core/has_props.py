@@ -550,7 +550,7 @@ class HasProps(Serializable):
 
         '''
         if name in self.properties():
-            log.trace(f"Patching attribute {name!r} of {self!r} with {value!r}") # type: ignore[attr-defined]
+            log.trace("Patching attribute %r of %r with %r", name, self, value) # type: ignore[attr-defined]
             descriptor = self.lookup(name)
             descriptor.set_from_json(self, value, setter=setter)
         else:

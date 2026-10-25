@@ -91,7 +91,7 @@ describe("FreehandDrawTool", () => {
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
 
-      expect(testcase.data_source.selected.indices).to.be.equal(new Int32Array([1]))
+      expect(testcase.data_source.selected.indices).to.be.equal([1])
     })
 
     it("should select multiple patches on shift-tap", async () => {
@@ -105,7 +105,7 @@ describe("FreehandDrawTool", () => {
       tap_event = make_tap_event(560, 560, true)
       testcase.draw_tool_view._tap(tap_event)
 
-      expect(testcase.data_source.selected.indices).to.be.equal(new Int32Array([1, 0]))
+      expect(testcase.data_source.selected.indices).to.be.equal([0, 1])
     })
 
     it("should delete selected on delete key", async () => {
@@ -121,7 +121,7 @@ describe("FreehandDrawTool", () => {
       testcase.draw_tool_view._move_enter(moveenter_event)
       testcase.draw_tool_view._keyup(keyup_event)
 
-      expect(testcase.data_source.selected.indices).to.be.equal(new Int32Array([]))
+      expect(testcase.data_source.selected.indices).to.be.equal([])
       expect(testcase.data_source.data).to.be.equal({
         xs: [[0, 0.5, 1]],
         ys: [[0, -0.5, -1]],
@@ -142,7 +142,7 @@ describe("FreehandDrawTool", () => {
       testcase.draw_tool_view._move_enter(moveenter_event)
       testcase.draw_tool_view._keyup(keyup_event)
 
-      expect(testcase.data_source.selected.indices).to.be.equal(new Int32Array([]))
+      expect(testcase.data_source.selected.indices).to.be.equal([])
       expect(testcase.data_source.data).to.be.equal(testcase.data)
     })
 

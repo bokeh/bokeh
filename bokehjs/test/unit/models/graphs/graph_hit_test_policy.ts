@@ -97,7 +97,7 @@ describe("GraphHitTestPolicy", () => {
         const policy = EdgesOnly.create()
         const result = policy.hit_test({type: "point", sx: 0, sy: 0}, gv)
         expect_not_null(result)
-        expect(result.indices).to.be.equal(new Int32Array([1, 2]))
+        expect(result.indices).to.be.equal([1, 2])
       })
     })
 
@@ -170,7 +170,7 @@ describe("GraphHitTestPolicy", () => {
         const policy = NodesOnly.create()
         const result = policy.hit_test({type: "point", sx: 0, sy: 0}, gv)
         expect_not_null(result)
-        expect(result.indices).to.be.equal(new Int32Array([1, 2, 3]))
+        expect(result.indices).to.be.equal([1, 2, 3])
       })
     })
 
@@ -251,7 +251,7 @@ describe("GraphHitTestPolicy", () => {
 
         policy.do_selection(hit_test_result, gr, true, "replace")
 
-        expect(edge_source.selected.multiline_indices).to.be.equal(new Map([[0, new Int32Array([0])], [1, new Int32Array([0])]]))
+        expect(edge_source.selected.multiline_indices).to.be.equal(new Map([[0, [0]], [1, [0]]]))
       })
     })
 
@@ -277,7 +277,7 @@ describe("GraphHitTestPolicy", () => {
         const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
 
         expect(did_hit).to.be.true
-        expect(edge_source.inspected.multiline_indices).to.be.equal(new Map([[0, new Int32Array([0])], [1, new Int32Array([0])]]))
+        expect(edge_source.inspected.multiline_indices).to.be.equal(new Map([[0, [0]], [1, [0]]]))
       })
     })
   })
@@ -305,7 +305,7 @@ describe("GraphHitTestPolicy", () => {
         const policy = EdgesAndLinkedNodes.create()
         policy.do_selection(hit_test_result, gr, true, "replace")
 
-        expect(node_source.selected.indices).to.be.equal(new Int32Array([0, 2]))
+        expect(node_source.selected.indices).to.be.equal([0, 2])
       })
     })
 
@@ -331,7 +331,7 @@ describe("GraphHitTestPolicy", () => {
         const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
 
         expect(did_hit).to.be.true
-        expect(node_source.inspected.indices).to.be.equal(new Int32Array([0, 2]))
+        expect(node_source.inspected.indices).to.be.equal([0, 2])
       })
     })
   })
@@ -359,7 +359,7 @@ describe("GraphHitTestPolicy", () => {
         const policy = NodesAndAdjacentNodes.create()
         policy.do_selection(hit_test_result, gr, true, "replace")
 
-        expect(node_source.selected.indices).to.be.equal(new Int32Array([0, 2, 1]))
+        expect(node_source.selected.indices).to.be.equal([0, 1, 2])
       })
     })
 
@@ -385,7 +385,7 @@ describe("GraphHitTestPolicy", () => {
         const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
 
         expect(did_hit).to.be.true
-        expect(node_source.inspected.indices).to.be.equal(new Int32Array([0, 2, 1]))
+        expect(node_source.inspected.indices).to.be.equal([0, 1, 2])
       })
     })
   })

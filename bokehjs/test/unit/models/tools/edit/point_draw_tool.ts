@@ -91,7 +91,7 @@ describe("PointDrawTool", (): void => {
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
 
-      expect(testcase.data_source.selected.indices).to.be.equal(new Int32Array([1]))
+      expect(testcase.data_source.selected.indices).to.be.equal([1])
     })
 
     it("should select multiple point on shift-tap", async () => {
@@ -105,7 +105,7 @@ describe("PointDrawTool", (): void => {
       tap_event = make_tap_event(560, 560, true)
       testcase.draw_tool_view._tap(tap_event)
 
-      expect(testcase.data_source.selected.indices).to.be.equal(new Int32Array([1, 2]))
+      expect(testcase.data_source.selected.indices).to.be.equal([1, 2])
     })
 
     it("should add point on tap", async () => {
@@ -116,7 +116,7 @@ describe("PointDrawTool", (): void => {
       const tap_event = make_tap_event(300, 200)
       testcase.draw_tool_view._tap(tap_event)
 
-      expect(testcase.data_source.selected.indices).to.be.equal(new Int32Array([]))
+      expect(testcase.data_source.selected.indices).to.be.equal([])
       expect(testcase.data_source.data).to.be.equal({
         x: [0, 0.5, 1, 0.04424778761061947],
         y: [0, 0.5, 1, 0.3389830508474576],
@@ -133,7 +133,7 @@ describe("PointDrawTool", (): void => {
       const tap_event = make_tap_event(300, 200)
       testcase.draw_tool_view._tap(tap_event)
 
-      expect(testcase.data_source.selected.indices).to.be.equal(new Int32Array([]))
+      expect(testcase.data_source.selected.indices).to.be.equal([])
       expect(testcase.data_source.data).to.be.equal({
         x: [0.5, 1, 0.04424778761061947],
         y: [0.5, 1, 0.3389830508474576],
@@ -169,7 +169,7 @@ describe("PointDrawTool", (): void => {
       testcase.draw_tool_view._move_enter(moveenter_event)
       testcase.draw_tool_view._keyup(keyup_event)
 
-      expect(testcase.data_source.selected.indices).to.be.equal(new Int32Array([]))
+      expect(testcase.data_source.selected.indices).to.be.equal([])
       expect(testcase.data_source.data).to.be.equal({
         x: [0, 1],
         y: [0, 1],
@@ -190,7 +190,7 @@ describe("PointDrawTool", (): void => {
       testcase.draw_tool_view._move_enter(moveenter_event)
       testcase.draw_tool_view._keyup(keyup_event)
 
-      expect(testcase.data_source.selected.indices).to.be.equal(new Int32Array([]))
+      expect(testcase.data_source.selected.indices).to.be.equal([])
       expect(testcase.data_source.data).to.be.equal(testcase.data)
     })
 
@@ -210,7 +210,7 @@ describe("PointDrawTool", (): void => {
       drag_event = make_pan_event(200, 200)
       testcase.draw_tool_view._pan_end(drag_event)
       expect(testcase.draw_tool_view._basepoint).to.be.null
-      expect(testcase.data_source.selected.indices).to.be.equal(new Int32Array([]))
+      expect(testcase.data_source.selected.indices).to.be.equal([])
       expect(testcase.data_source.data).to.be.equal({
         x: [0, 0.14601769911504425, 1],
         y: [0, 0.8389830508474576, 1],
@@ -238,7 +238,7 @@ describe("PointDrawTool", (): void => {
       drag_event = make_pan_event(200, 200)
       testcase.draw_tool_view._pan_end(drag_event)
       expect(testcase.draw_tool_view._basepoint).to.be.null
-      expect(testcase.data_source.selected.indices).to.be.equal(new Int32Array([]))
+      expect(testcase.data_source.selected.indices).to.be.equal([])
       expect(testcase.data_source.data).to.be.equal({
         x: [0, 0.14601769911504425, 1],
         y: [0, 0.8389830508474576, 1],
@@ -266,7 +266,7 @@ describe("PointDrawTool", (): void => {
       drag_event = make_pan_event(200, 200)
       testcase.draw_tool_view._pan_end(drag_event)
       expect(testcase.draw_tool_view._basepoint).to.be.null
-      expect(testcase.data_source.selected.indices).to.be.equal(new Int32Array([]))
+      expect(testcase.data_source.selected.indices).to.be.equal([])
       expect(testcase.data_source.data).to.be.equal({
         x: [0, 0.14601769911504425, 0.6460176991150443],
         y: [0, 0.8389830508474576, 1.3389830508474576],

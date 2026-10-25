@@ -20,10 +20,10 @@ describe("Path span hit testing", () => {
         const sx = view.renderer.xscale.compute(50)
         const sy = view.renderer.yscale.compute(30)
         // HoverTool vline sends "h" and ignores y. Hline sends "v" and ignores x.
-        expect(view.hit_test({type: "span", direction: "h", sx, sy: -100})?.indices).to.be.equal(new Int32Array([0]))
-        expect(view.hit_test({type: "span", direction: "h", sx: -100, sy})?.indices).to.be.equal(new Int32Array([]))
-        expect(view.hit_test({type: "span", direction: "v", sx: -100, sy})?.indices).to.be.equal(new Int32Array([0]))
-        expect(view.hit_test({type: "span", direction: "v", sx, sy: -100})?.indices).to.be.equal(new Int32Array([]))
+        expect(view.hit_test({type: "span", direction: "h", sx, sy: -100})?.indices).to.be.equal([0])
+        expect(view.hit_test({type: "span", direction: "h", sx: -100, sy})?.indices).to.be.equal([])
+        expect(view.hit_test({type: "span", direction: "v", sx: -100, sy})?.indices).to.be.equal([0])
+        expect(view.hit_test({type: "span", direction: "v", sx, sy: -100})?.indices).to.be.equal([])
       })
     }
   }
