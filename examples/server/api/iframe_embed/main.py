@@ -9,14 +9,11 @@ in this directory, and navigate to:
     http://localhost:5000
 
 '''
-# Standard library imports
 import atexit
 import subprocess
 
-# External imports
 from flask import Flask, render_template_string
 
-# Bokeh imports
 from bokeh.client import pull_session
 from bokeh.embed import embed_server
 from bokeh.resources import INLINE

@@ -14,16 +14,13 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import argparse
 import os
 import shutil
 from unittest.mock import patch
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.command.bootstrap import main
 from bokeh.command.subcommand import Argument
 from tests.support.util.filesystem import TmpDir, WorkingDir, with_directory_contents

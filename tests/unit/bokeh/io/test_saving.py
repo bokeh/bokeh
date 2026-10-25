@@ -7,7 +7,6 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import os
 import pickle
 from copy import copy, deepcopy
@@ -15,10 +14,8 @@ from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.core.templates import FILE
 from bokeh.embed._util import ThemePolicy
 from bokeh.io.jupyter import FILE_MIME_TYPE

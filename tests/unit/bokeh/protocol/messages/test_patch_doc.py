@@ -14,11 +14,9 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
 import numpy as np
 import pytest
 
-# Bokeh imports
 import bokeh.document as document
 from bokeh.core.properties import Instance, Int, Nullable
 from bokeh.document.events import (

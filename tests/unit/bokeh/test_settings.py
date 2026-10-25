@@ -14,13 +14,10 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import logging
 
-# External imports
 import pytest
 
-# Bokeh imports
 from tests.support.util.api import verify_all
 from tests.support.util.env import envset
 

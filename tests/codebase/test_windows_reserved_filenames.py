@@ -15,7 +15,6 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import sys
 
 if sys.version_info >= (3, 13):
@@ -35,7 +34,6 @@ else:
                 return True
         return False
 
-# Bokeh imports
 from bokeh.util.strings import nice_join
 from tests.support.util.project import ls_files
 

@@ -19,14 +19,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, Literal
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from ..core.property.datetime import Datetime
 from ..models import (
     Axis,

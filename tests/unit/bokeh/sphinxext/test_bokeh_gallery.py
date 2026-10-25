@@ -7,7 +7,6 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import json
 from pathlib import Path
 

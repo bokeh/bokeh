@@ -14,13 +14,10 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.core.property.descriptors import PropertyDescriptor
 from bokeh.core.property.enum import Enum
 from bokeh.core.property.serialized import NotSerialized

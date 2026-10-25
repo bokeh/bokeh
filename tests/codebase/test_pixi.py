@@ -7,16 +7,13 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import re
 import tomllib
 from typing import Any
 
-# External imports
 from packaging.requirements import Requirement
 from packaging.utils import canonicalize_name
 
-# Bokeh imports
 # Bokeh test imports
 from tests.support.util.project import TOP_PATH
 

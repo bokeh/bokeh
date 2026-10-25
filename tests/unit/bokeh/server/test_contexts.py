@@ -14,18 +14,15 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import asyncio
 import gc
 import logging
 import threading
 from threading import Event, get_ident
 
-# External imports
 import pytest
 from tornado.ioloop import IOLoop
 
-# Bokeh imports
 from bokeh.application import Application
 from bokeh.application.handlers import CodeHandler, FunctionHandler
 from bokeh.application.handlers.lifecycle import LifecycleHandler

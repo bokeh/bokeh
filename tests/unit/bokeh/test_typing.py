@@ -27,7 +27,6 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import TYPE_CHECKING, Literal, assert_type
 
 if TYPE_CHECKING:
@@ -35,7 +34,6 @@ if TYPE_CHECKING:
     import numpy.typing as npt
     import pandas as pd
 
-# Bokeh imports
 from bokeh.document import Document
 from bokeh.io import curdoc
 from bokeh.models.annotations import LegendItem

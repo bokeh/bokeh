@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 from html import escape
 from os.path import abspath, expanduser
@@ -28,10 +27,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, SupportsIndex
 from urllib.parse import quote
 
-# External imports
 from jinja2 import Template
 
-# Bokeh imports
 from ..core.templates import FILE
 from ..embed._util import ThemePolicy, embed
 from ..resources import Resources

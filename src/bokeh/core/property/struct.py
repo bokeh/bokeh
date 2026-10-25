@@ -21,11 +21,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from types import SimpleNamespace
 from typing import Any
 
-# Bokeh imports
 from .bases import ParameterizedProperty, Property
 
 #-----------------------------------------------------------------------------

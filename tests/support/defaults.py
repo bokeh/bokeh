@@ -18,16 +18,13 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 import warnings
 from pathlib import Path
 from typing import Any
 
-# External imports
 import json5
 
-# Bokeh imports
 from bokeh.core.has_props import HasProps
 from bokeh.core.property.descriptors import AliasPropertyDescriptor, PropertyDescriptor
 from bokeh.core.property.singletons import Undefined

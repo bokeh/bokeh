@@ -29,11 +29,7 @@ those codebase tests locally:
 
     pytest tests/codebase
 
-Imports can be sorted automatically with ``ruff check --select I --fix``. In
-``src/bokeh``, ``tests`` and ``tools``, each section of imports also has to be
-preceded by a heading comment: ``# Standard library imports``, ``# External
-imports`` or ``# Bokeh imports``. Ruff doesn't manage those, so add them by
-hand. They are checked by ``tests/codebase/test_import_headings.py``.
+Imports can be sorted automatically with ``ruff check --select I --fix``.
 
 To learn more about running those tests on your system, see
 :ref:`contributor_guide_testing_local_codebase`.

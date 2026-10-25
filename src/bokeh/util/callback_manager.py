@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from collections import defaultdict
 from inspect import signature
 from typing import (
@@ -32,7 +31,6 @@ from typing import (
     cast,
 )
 
-# Bokeh imports
 from ..core.property.singletons import OldValueUnavailable
 from ..events import Event, ModelEvent
 from ..settings import settings

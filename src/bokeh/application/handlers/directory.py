@@ -47,7 +47,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import sys
 from os.path import (
     basename,
@@ -57,10 +56,8 @@ from os.path import (
 )
 from typing import TYPE_CHECKING, Any, Sequence
 
-# External imports
 from jinja2 import Environment, FileSystemLoader, Template
 
-# Bokeh imports
 from .code_runner import CodeRunner
 from .handler import Handler
 from .notebook import NotebookHandler

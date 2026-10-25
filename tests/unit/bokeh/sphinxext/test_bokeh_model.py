@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-# Standard library imports
 import inspect
 import posixpath
 import sys
@@ -8,12 +7,10 @@ from io import StringIO
 from pathlib import Path
 from typing import Any, cast
 
-# External imports
 import pytest
 from sphinx.application import Sphinx
 from sphinx.util.inventory import InventoryFile
 
-# Bokeh imports
 import bokeh.models as models
 from bokeh.core.has_props import HasProps, Local
 from bokeh.core.properties import (

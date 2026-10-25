@@ -35,7 +35,6 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 import importlib
 import inspect
 import json
@@ -46,19 +45,16 @@ from os import getenv
 from time import perf_counter
 from typing import Any, NamedTuple, cast
 
-# External imports
 from docutils.parsers.rst.directives import unchanged
 from sphinx import addnodes
 from sphinx.errors import SphinxError
 
-# Bokeh imports
 from bokeh.core.property.descriptors import AliasPropertyDescriptor, PropertyDescriptor
 from bokeh.core.property.singletons import Undefined
 from bokeh.core.serialization import AnyRep, Serializer, SymbolRep
 from bokeh.model import Model
 from bokeh.util.warnings import BokehDeprecationWarning
 
-# Bokeh imports
 from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective, py_sig_re
 from .bokeh_prop import _render_property_detail

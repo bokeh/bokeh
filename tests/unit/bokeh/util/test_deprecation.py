@@ -14,13 +14,10 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from unittest.mock import MagicMock, patch
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.util.warnings import BokehDeprecationWarning
 
 # Module under test

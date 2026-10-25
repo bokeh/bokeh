@@ -7,10 +7,8 @@
 
 from __future__ import annotations
 
-# External imports
 from shared import modify_document
 
-# Bokeh imports
 from bokeh.io import curdoc
 
 modify_document(curdoc())

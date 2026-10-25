@@ -417,15 +417,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import math
 from copy import deepcopy
 from typing import TYPE_CHECKING
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from .colors.util import RGB, NamedColor
 
 if TYPE_CHECKING:

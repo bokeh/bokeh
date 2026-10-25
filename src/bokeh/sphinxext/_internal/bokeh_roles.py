@@ -53,15 +53,12 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 from os.path import join
 from typing import Any
 
-# External imports
 import toml
 from docutils import nodes, utils
 
-# Bokeh imports
 from . import PARALLEL_SAFE, REPO_TOP, SphinxParallelSpec
 
 # -----------------------------------------------------------------------------

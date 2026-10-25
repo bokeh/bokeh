@@ -6,7 +6,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Standard library imports
 import os
 import re
 import subprocess
@@ -18,7 +17,6 @@ from shutil import copy, copytree, rmtree, which
 from textwrap import indent
 from typing import NoReturn
 
-# External imports
 from setuptools import (  # type: ignore[import]
     Distribution as SetuptoolsDistribution,
     setup,

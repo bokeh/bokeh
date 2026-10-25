@@ -15,11 +15,9 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import tomllib
 from subprocess import run
 
-# Bokeh imports
 from tests.support.util.project import TOP_PATH
 
 #-----------------------------------------------------------------------------

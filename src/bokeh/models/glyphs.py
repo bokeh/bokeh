@@ -26,7 +26,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from ..core.enums import (
     Direction,
     HexTileOrientation,

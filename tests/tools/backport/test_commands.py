@@ -1,13 +1,10 @@
-# Standard library imports
 import unittest
 from pathlib import Path
 from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
-# External imports
 import click
 
-# Bokeh imports
 import tools.backport.__main__ as entrypoint
 import tools.backport.commands.plan as plan_command
 import tools.backport.commands.release as release_command

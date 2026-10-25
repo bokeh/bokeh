@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from ...core.property.instance import Instance, InstanceDefault
 from ...core.property.override import Override
 from ...core.property.primitive import Bool, Float

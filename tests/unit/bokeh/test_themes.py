@@ -14,14 +14,11 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 import tempfile
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.core.properties import Int, String
 from bokeh.core.property_mixins import FillProps, LineProps, TextProps
 from bokeh.document import Document

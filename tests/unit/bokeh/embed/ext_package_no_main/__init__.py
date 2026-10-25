@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.model import Model
 
 

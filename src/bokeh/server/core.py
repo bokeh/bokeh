@@ -8,7 +8,6 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import asyncio
 import logging
 from collections.abc import (
@@ -28,7 +27,6 @@ from typing import (
 )
 from urllib.parse import urljoin
 
-# Bokeh imports
 from ..application import Application
 from ..resources import Resources
 from ..settings import settings

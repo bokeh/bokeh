@@ -14,10 +14,8 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.models import ColumnDataSource
 from bokeh.models.ui import Tooltip
 from bokeh.plotting import figure

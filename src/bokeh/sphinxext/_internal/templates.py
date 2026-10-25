@@ -21,10 +21,8 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 from os.path import dirname, join
 
-# External imports
 from jinja2 import Environment, FileSystemLoader
 
 # -----------------------------------------------------------------------------

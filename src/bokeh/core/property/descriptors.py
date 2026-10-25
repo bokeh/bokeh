@@ -88,7 +88,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from collections.abc import Mapping
 from copy import copy
 from typing import (
@@ -101,7 +100,6 @@ from typing import (
     overload,
 )
 
-# Bokeh imports
 from .singletons import Undefined
 from .wrappers import PropertyValueColumnData, PropertyValueContainer
 

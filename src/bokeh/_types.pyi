@@ -5,10 +5,8 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import datetime
 
-# Bokeh imports
 from .models.nodes import Node
 from .models.ranges import Factor
 from .models.text import BaseText

@@ -22,10 +22,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import TYPE_CHECKING, Callable
 
-# Bokeh imports
 from ...core.enums import ButtonType
 from ...core.has_props import HasProps, abstract
 from ...core.property.container import List, Tuple

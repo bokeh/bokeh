@@ -14,13 +14,10 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from dataclasses import dataclass
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.core.has_props import Local
 from bokeh.core.properties import (
     Dict,

@@ -14,14 +14,11 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from inspect import Parameter, signature
 from unittest import mock
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.models import CDSView, Marker
 from bokeh.plotting import figure
 from bokeh.plotting._docstring import generate_docstring

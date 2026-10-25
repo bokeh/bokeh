@@ -14,7 +14,6 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 import sys
 from concurrent.futures import ThreadPoolExecutor
@@ -22,7 +21,6 @@ from os.path import abspath, dirname
 from threading import Event
 from types import ModuleType
 
-# External imports
 import pytest
 
 # Module under test

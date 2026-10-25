@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import math
 from collections import defaultdict
 from dataclasses import dataclass
@@ -37,7 +36,6 @@ from typing import (
     overload,
 )
 
-# Bokeh imports
 from .core.enums import Location
 from .core.property.singletons import Undefined
 from .models import (

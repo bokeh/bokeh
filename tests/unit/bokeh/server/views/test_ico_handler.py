@@ -10,7 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-# External imports
 import pytest
 from tornado.web import HTTPError
 

@@ -14,16 +14,13 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import gc
 from types import MethodType
 from unittest.mock import MagicMock, patch
 from weakref import ref
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.core.enums import AngleUnits as AngleUnitsEnum
 from bokeh.core.properties import (
     Alias,

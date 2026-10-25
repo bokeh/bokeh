@@ -14,13 +14,10 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from types import SimpleNamespace
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.core.properties import (
     Dict,
     Instance,

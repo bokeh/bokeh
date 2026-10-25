@@ -7,7 +7,6 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import json
 import math
 import os
@@ -22,11 +21,9 @@ from pathlib import Path
 from types import MappingProxyType, SimpleNamespace
 from typing import Any
 
-# External imports
 import numpy as np
 import pytest
 
-# Bokeh imports
 from bokeh import __version__
 from bokeh.document import Document
 from bokeh.embed import (

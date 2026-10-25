@@ -14,7 +14,6 @@ from __future__ import annotations  # isort:skip
 # Imports
 # -----------------------------------------------------------------------------
 
-# External imports
 import pytest
 
 from _util_models import check_properties_existence

@@ -7,16 +7,13 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import re
 from pathlib import Path
 from typing import Any
 
-# External imports
 import pytest
 from packaging.version import Version
 
-# Bokeh imports
 import bokeh.resources as resources
 from bokeh.embed.resources import ResourceRequirements
 from bokeh.settings import PrioritizedSetting

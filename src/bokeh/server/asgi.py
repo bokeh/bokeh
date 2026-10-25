@@ -8,7 +8,6 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import asyncio
 import binascii
 import calendar
@@ -23,7 +22,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 from urllib.parse import parse_qs, urlparse
 
-# Bokeh imports
 from .. import __version__
 from ..embed._util import server_page_for_session
 from ..embed.resources import (

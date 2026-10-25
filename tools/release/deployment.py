@@ -6,7 +6,6 @@
 # -----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Bokeh imports
 from .action import FAILED, PASSED, ActionReturn
 from .config import Config
 from .npm import NPM_PACKAGES

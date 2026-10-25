@@ -19,10 +19,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import sys
 
-# Bokeh imports
 from ..core.property.vectorization import field
 from ..models import (
     Circle,

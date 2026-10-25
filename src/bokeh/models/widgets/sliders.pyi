@@ -5,12 +5,10 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 from datetime import date, datetime
 from typing import Literal, Sequence, Unpack
 
-# Bokeh imports
 from ..._types import Color, Datetime
 from ..formatters import TickFormatter
 from .widget import Widget, _WidgetInit

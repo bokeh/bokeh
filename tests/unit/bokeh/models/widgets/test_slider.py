@@ -14,14 +14,11 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import logging
 from datetime import UTC, date, datetime
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.core.properties import UnsetValueError
 from bokeh.core.validation.check import check_integrity, process_validation_issues
 from bokeh.util.logconfig import basicConfig

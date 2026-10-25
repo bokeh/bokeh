@@ -14,7 +14,6 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import asyncio
 import json
 import logging
@@ -22,11 +21,9 @@ import re
 import threading
 from unittest.mock import Mock, patch
 
-# External imports
 import pytest
 from _util_server import http_get, url
 
-# Bokeh imports
 from bokeh.application import Application
 from bokeh.application.handlers.function import FunctionHandler
 from bokeh.client import pull_session

@@ -14,15 +14,12 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import pickle
 from copy import copy, deepcopy
 from functools import partial
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.core.property.singletons import OldValueUnavailable
 from bokeh.document import Document
 from bokeh.events import ButtonClick, Tap

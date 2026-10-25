@@ -7,13 +7,10 @@
 
 from __future__ import annotations
 
-# Standard library imports
 from pathlib import Path
 
-# External imports
 import pytest
 
-# Bokeh imports
 from tools.ci.check_jupyter_artifacts import check_artifacts
 
 ARTIFACTS = [

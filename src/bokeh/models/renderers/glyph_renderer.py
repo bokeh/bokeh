@@ -21,14 +21,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from difflib import get_close_matches
 from typing import TYPE_CHECKING, Any, Literal
 
-# Bokeh imports
 from bokeh.core.property.vectorization import Field
 
-# Bokeh imports
 from ...core.property.auto import Auto
 from ...core.property.either import Either
 from ...core.property.instance import Instance, InstanceDefault

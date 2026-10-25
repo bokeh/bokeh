@@ -19,7 +19,6 @@ if not pytest.importorskip("selenium"):
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 import subprocess
 import sys
@@ -27,7 +26,6 @@ import threading
 from collections.abc import Iterator
 from unittest.mock import Mock
 
-# External imports
 import selenium.webdriver.chrome.webdriver
 import selenium.webdriver.firefox.webdriver
 from selenium.common.exceptions import WebDriverException

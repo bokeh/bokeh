@@ -14,13 +14,10 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from unittest import mock
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.core.validation import check_integrity, process_validation_issues
 from bokeh.layouts import (
     column,

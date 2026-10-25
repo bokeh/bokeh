@@ -14,19 +14,16 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import datetime as dt
 import io
 import warnings
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-# External imports
 import narwhals.stable.v1 as nw
 import numpy as np
 import pytest
 
-# Bokeh imports
 from bokeh.models import (
     ColumnDataSource,
     DataTable,

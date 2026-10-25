@@ -14,12 +14,10 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from datetime import datetime
 from math import inf
 from unittest import mock
 
-# Bokeh imports
 from bokeh.core.properties import field, value
 from bokeh.core.validation import check_integrity, process_validation_issues
 from bokeh.models import (

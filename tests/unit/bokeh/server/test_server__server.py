@@ -14,7 +14,6 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import asyncio
 import inspect
 import logging
@@ -28,7 +27,6 @@ from datetime import timedelta
 from pathlib import Path
 from unittest import mock
 
-# External imports
 import pytest
 import tornado
 from _util_server import (
@@ -41,7 +39,6 @@ from tornado.httpclient import AsyncHTTPClient, HTTPError, HTTPRequest
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 
-# Bokeh imports
 from bokeh.application import Application
 from bokeh.application.handlers import Handler
 from bokeh.client import pull_session

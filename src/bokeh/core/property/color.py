@@ -20,11 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import re
 from typing import Any
 
-# Bokeh imports
 from ... import colors
 from .. import enums
 from .bases import Init, Property, TypeOrInst

@@ -14,14 +14,11 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import re
 
-# External imports
 import numpy as np
 import pytest
 
-# Bokeh imports
 from bokeh.core.enums import MarkerType
 from bokeh.core.properties import value
 from bokeh.models import (

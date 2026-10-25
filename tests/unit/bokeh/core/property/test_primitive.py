@@ -14,14 +14,11 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from math import inf, nan
 from typing import TYPE_CHECKING
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from tests.support.util.api import verify_all
 
 from _util_property import _TestHasProps, _TestModel

@@ -14,7 +14,6 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 import signal
 import subprocess
@@ -26,7 +25,6 @@ from typing import TYPE_CHECKING, Literal, NoReturn
 if TYPE_CHECKING:
     from types import FrameType
 
-# External imports
 import _pytest.config
 import _pytest.mark
 import _pytest.python

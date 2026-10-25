@@ -27,7 +27,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import asyncio
 import atexit
 import io
@@ -38,7 +37,6 @@ import threading
 from collections.abc import Callable, Coroutine
 from typing import TYPE_CHECKING, Any, cast
 
-# Bokeh imports
 from ..resources import INLINE
 from ..util.dependencies import import_required
 from .util import (

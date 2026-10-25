@@ -13,10 +13,8 @@
 # Imports
 # -----------------------------------------------------------------------------
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.layouts import gridplot
 from bokeh.plotting import figure
 

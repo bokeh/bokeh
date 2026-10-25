@@ -1,10 +1,8 @@
 """Planning, cherry-picking, interruption recovery, adaptation, and rejection."""
 
-# Standard library imports
 from collections.abc import Callable
 from pathlib import Path
 
-# Bokeh imports
 from . import BackportError
 from .aggregate import CHERRY_PICK_ORIGIN_RE
 from .candidates import (

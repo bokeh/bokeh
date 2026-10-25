@@ -14,14 +14,11 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import re
 import warnings
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.util.warnings import BokehDeprecationWarning, BokehUserWarning
 from tests.support.util.api import verify_all
 from tests.support.util.types import Capture

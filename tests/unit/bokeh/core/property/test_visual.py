@@ -14,7 +14,6 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import base64
 import datetime
 import tempfile
@@ -23,12 +22,10 @@ from pathlib import Path
 from typing import Literal
 from urllib.parse import quote
 
-# External imports
 import numpy as np
 import PIL.Image
 import pytest
 
-# Bokeh imports
 from bokeh.core.enums import MarkerType, ToolIcon
 from bokeh.core.has_props import HasProps
 from tests.support.util.api import verify_all

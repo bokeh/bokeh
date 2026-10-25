@@ -14,10 +14,8 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.core.enums import LineJoin, NamedColor
 from tests.support.util.api import verify_all
 

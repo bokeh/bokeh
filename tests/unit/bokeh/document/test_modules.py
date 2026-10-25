@@ -14,16 +14,13 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import gc
 import logging
 import sys
 import weakref
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.document import Document
 from bokeh.util.logconfig import basicConfig
 

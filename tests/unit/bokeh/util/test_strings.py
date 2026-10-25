@@ -14,10 +14,8 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from urllib.parse import quote_plus
 
-# External imports
 import pytest
 
 # Module under test

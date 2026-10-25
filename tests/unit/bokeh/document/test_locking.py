@@ -14,13 +14,10 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import asyncio
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.document.document import Document
 from bokeh.io import curdoc
 

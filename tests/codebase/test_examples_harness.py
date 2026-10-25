@@ -14,17 +14,14 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 import subprocess
 import sys
 import time
 from pathlib import Path
 
-# External imports
 import pytest
 
-# Bokeh imports
 from tests import test_examples as examples
 from tests.support.util.examples import Example, Flags
 

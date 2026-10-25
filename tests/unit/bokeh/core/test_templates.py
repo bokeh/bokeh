@@ -14,14 +14,11 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import re
 import sys
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.embed import file_html
 from bokeh.plotting import figure
 from bokeh.util.warnings import BokehDeprecationWarning

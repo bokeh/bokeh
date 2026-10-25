@@ -1,8 +1,6 @@
-# Standard library imports
 import unittest
 from unittest.mock import MagicMock, patch
 
-# Bokeh imports
 from tests.tools.backport._support import RecordingAPI, valid_pr
 from tools.backport import BackportError, checks
 

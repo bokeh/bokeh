@@ -21,14 +21,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any, Awaitable, Callable
 
-# External imports
 from tornado import locks
 from tornado.websocket import WebSocketClientConnection
 
-# Bokeh imports
 from ..protocol.message import Message
 
 #-----------------------------------------------------------------------------

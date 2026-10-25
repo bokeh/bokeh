@@ -20,14 +20,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import colorsys
 from abc import ABCMeta, abstractmethod
 from math import sqrt
 from re import findall, match
 from typing import TYPE_CHECKING, Self, cast
 
-# Bokeh imports
 from ..core.serialization import AnyRep, Serializable, Serializer
 
 if TYPE_CHECKING:

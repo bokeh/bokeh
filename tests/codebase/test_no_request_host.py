@@ -15,7 +15,6 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from subprocess import check_output
 from typing import IO
 

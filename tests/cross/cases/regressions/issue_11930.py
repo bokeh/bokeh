@@ -1,6 +1,5 @@
 # https://github.com/bokeh/bokeh/issues/11930
 
-# Bokeh imports
 from bokeh.models import (
     ColumnDataSource,
     FixedTicker,

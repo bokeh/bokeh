@@ -14,10 +14,8 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
 import pytest
 
-# Bokeh imports
 import bokeh.models as models
 from bokeh.models import NormalHead
 

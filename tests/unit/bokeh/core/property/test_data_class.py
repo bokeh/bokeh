@@ -14,10 +14,8 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from dataclasses import dataclass
 
-# Bokeh imports
 from tests.support.util.api import verify_all
 
 # Module under test

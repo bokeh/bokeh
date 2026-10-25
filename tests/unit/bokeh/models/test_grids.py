@@ -14,7 +14,6 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from bokeh.models import FixedTicker, LinearAxis
 
 # Module under test

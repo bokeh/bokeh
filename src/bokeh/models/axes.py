@@ -23,7 +23,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from ..core.enums import Align, AxisLabelStandoffMode, LabelOrientation
 from ..core.has_props import abstract
 from ..core.property.auto import Auto

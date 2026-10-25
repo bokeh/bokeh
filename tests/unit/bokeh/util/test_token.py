@@ -14,7 +14,6 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import calendar
 import codecs
 import datetime as dt
@@ -23,10 +22,8 @@ import random
 import zlib
 from unittest.mock import MagicMock, Mock, patch
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.util.token import (
     _MAX_TOKEN_DECOMPRESSED_BYTES,
     _TOKEN_ZLIB_KEY,

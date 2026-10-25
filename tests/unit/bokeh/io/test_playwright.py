@@ -10,7 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Standard library imports
 import asyncio
 import multiprocessing
 import os
@@ -21,7 +20,6 @@ import time
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
-# External imports
 import pytest
 
 #-----------------------------------------------------------------------------

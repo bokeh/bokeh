@@ -5,7 +5,6 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from collections.abc import Mapping, Sequence
 from typing import (
     Any,
@@ -20,7 +19,6 @@ from typing import (
     overload,
 )
 
-# Bokeh imports
 from ..client.session import ClientSession
 from ..server.session import ServerSession
 from ..util.compiler import Implementation

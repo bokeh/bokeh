@@ -15,11 +15,9 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 from subprocess import run
 
-# External imports
 import pytest
 
 #-----------------------------------------------------------------------------

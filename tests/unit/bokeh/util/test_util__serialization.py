@@ -14,15 +14,12 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import datetime
 from math import inf, nan
 
-# External imports
 import numpy as np
 import pytest
 
-# Bokeh imports
 from bokeh.util.dependencies import is_installed
 from tests.support.util.env import envset
 

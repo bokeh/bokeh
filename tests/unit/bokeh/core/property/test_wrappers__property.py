@@ -14,15 +14,12 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import copy
 from unittest.mock import MagicMock, patch
 
-# External imports
 import numpy as np
 import pytest
 
-# Bokeh imports
 from bokeh.core.properties import (
     Angle,
     Any,

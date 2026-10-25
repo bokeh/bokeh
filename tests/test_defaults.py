@@ -14,11 +14,9 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import subprocess
 from pathlib import Path
 
-# Bokeh imports
 from tests.support.defaults import collect_defaults, output_defaults
 
 #-----------------------------------------------------------------------------

@@ -14,7 +14,6 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 import bokeh.document as document
 from bokeh.core.properties import Instance, Int, Nullable
 from bokeh.model import Model

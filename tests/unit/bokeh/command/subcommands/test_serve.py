@@ -14,7 +14,6 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import argparse
 import contextlib
 import os.path
@@ -31,10 +30,8 @@ from threading import Thread
 from typing import IO
 from urllib.request import urlopen
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.command.subcommand import Argument
 from bokeh.resources import DEFAULT_SERVER_PORT
 from tests.support.util.env import envset

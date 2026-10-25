@@ -24,15 +24,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import math
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Literal
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from ..core.enums import HexTileOrientationType
 
 if TYPE_CHECKING:

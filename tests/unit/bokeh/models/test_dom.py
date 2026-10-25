@@ -14,10 +14,8 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.core.properties import UnsetValueError
 from bokeh.models.widgets import Slider
 

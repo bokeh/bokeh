@@ -1,11 +1,9 @@
-# Standard library imports
 import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-# Bokeh imports
 from tests.tools.backport._support import candidate, state_with
 from tools.backport import (
     BackportError,

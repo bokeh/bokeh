@@ -14,16 +14,13 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import logging
 import weakref
 from typing import Any
 from unittest.mock import patch
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.core.enums import HoldPolicy
 from bokeh.core.has_props import (
     HasProps,

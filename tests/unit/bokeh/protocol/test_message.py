@@ -14,14 +14,11 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import json
 from pathlib import Path
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.core.serialization import Buffer
 from bokeh.core.types import ID
 from bokeh.protocol import ack

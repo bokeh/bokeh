@@ -14,14 +14,11 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from pathlib import Path
 from typing import Any
 
-# External imports
 from tornado.httputil import HTTPConnection, HTTPServerRequest
 
-# Bokeh imports
 from bokeh.application import Application
 from bokeh.util.paths import server_path
 from tests.support.plugins.managed_server_loop import MSL

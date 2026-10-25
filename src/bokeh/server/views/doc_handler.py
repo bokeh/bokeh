@@ -22,17 +22,13 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from collections.abc import Awaitable
 from typing import Any, cast
 
-# External imports
 from tornado.web import HTTPError, authenticated
 
-# Bokeh imports
 from bokeh.embed._util import server_page_for_session
 
-# Bokeh imports
 from ..session import ServerSession
 from .session_handler import SessionHandler
 

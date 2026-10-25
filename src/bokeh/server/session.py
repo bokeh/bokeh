@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import asyncio
 import inspect
 import threading
@@ -36,7 +35,6 @@ from typing import (
     cast,
 )
 
-# Bokeh imports
 from ..document.callbacks import invoke_with_curdoc
 from ..events import ConnectionLost
 from ..io.doc import patch_curdoc

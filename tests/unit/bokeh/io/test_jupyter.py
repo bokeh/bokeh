@@ -1,15 +1,12 @@
 from __future__ import annotations
 
-# Standard library imports
 import json
 import sys
 from pathlib import Path
 from typing import Literal
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh import __version__
 from bokeh.embed import embed_server
 from bokeh.embed.notebook import notebook_content

@@ -14,7 +14,6 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from bokeh.document import Document
 from tests.support.util.filesystem import with_file_contents
 

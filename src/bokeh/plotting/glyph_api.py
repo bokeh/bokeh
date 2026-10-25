@@ -19,10 +19,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import TYPE_CHECKING, Any
 
-# Bokeh imports
 from ..models import glyphs
 from ._decorators import glyph_method, marker_method
 

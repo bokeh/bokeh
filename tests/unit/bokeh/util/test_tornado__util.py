@@ -14,13 +14,10 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import asyncio
 
-# External imports
 import pytest
 
-# Bokeh imports
 # Module under test
 from bokeh.util.tornado import _wait_for_task
 

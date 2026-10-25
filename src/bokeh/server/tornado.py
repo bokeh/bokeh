@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import asyncio
 import gc
 import os
@@ -37,14 +36,12 @@ from typing import (
 )
 from urllib.parse import urljoin
 
-# External imports
 from tornado.ioloop import PeriodicCallback
 from tornado.web import Application as TornadoApplication
 
 if TYPE_CHECKING:
     from tornado.ioloop import IOLoop
 
-# Bokeh imports
 from ..application import Application
 from ..embed.resources import extension_dirs
 from ..model import Model

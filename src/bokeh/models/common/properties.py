@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from ...core.property.aliases import CoordinateLike, CoordinateLikeType
 from ...core.property.constraints import TypeOfAttr
 from ...core.property.either import Either

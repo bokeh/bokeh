@@ -1,10 +1,8 @@
 """Aggregate pull-request and CI validation."""
 
-# Standard library imports
 import re
 from typing import Any
 
-# Bokeh imports
 from . import BackportError
 from .github import GitHubAPI, repository_path
 

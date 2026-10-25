@@ -5,7 +5,6 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from contextlib import contextmanager
 from typing import (
     TYPE_CHECKING,
@@ -16,7 +15,6 @@ from typing import (
     overload,
 )
 
-# Bokeh imports
 from ..core.enums import (
     LocationType as Location,
     OutputBackendType as OutputBackend,

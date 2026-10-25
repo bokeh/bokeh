@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-# Standard library imports
 import gc
 import json
 import logging
@@ -12,11 +11,9 @@ from collections.abc import Callable
 from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
-# External imports
 import numpy as np
 import pytest
 
-# Bokeh imports
 from bokeh.document import Document
 from bokeh.embed import embed_server
 from bokeh.embed.notebook import notebook_content

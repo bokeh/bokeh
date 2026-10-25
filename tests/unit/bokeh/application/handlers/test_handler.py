@@ -15,7 +15,6 @@ from __future__ import annotations # isort:skip
 #-----------------------------------------------------------------------------
 
 
-# External imports
 import pytest
 
 # Module under test

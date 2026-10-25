@@ -14,14 +14,11 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from operator import delitem, setitem
 
-# External imports
 import numpy as np
 import pytest
 
-# Bokeh imports
 from bokeh.core.has_props import HasProps, Local
 from bokeh.core.properties import (
     Alias,

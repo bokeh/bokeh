@@ -5,7 +5,6 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 from typing import (
     NotRequired,
@@ -15,7 +14,6 @@ from typing import (
     overload,
 )
 
-# Bokeh imports
 from .._types import NonNegative
 from ..core.enums import (
     AlignType as Align,

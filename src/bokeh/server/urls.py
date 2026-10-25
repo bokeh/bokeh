@@ -54,13 +54,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any
 
-# External imports
 from tornado.web import RequestHandler
 
-# Bokeh imports
 from ..embed.resources import extension_dirs
 from .views.doc_handler import DocHandler
 from .views.embed_json_handler import EmbedJsonHandler

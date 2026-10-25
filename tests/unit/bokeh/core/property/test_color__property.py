@@ -14,7 +14,6 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from bokeh.colors import RGB
 from tests.support.util.api import verify_all
 

@@ -14,10 +14,8 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
 from numpy.testing import assert_allclose
 
-# Bokeh imports
 from tests.support.util.api import verify_all
 
 # Module under test

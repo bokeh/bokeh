@@ -14,16 +14,13 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 import sys
 import webbrowser
 from unittest.mock import MagicMock, patch
 
-# External imports
 import pytest
 
-# Bokeh imports
 from tests.support.util.env import envset
 
 # Module under test

@@ -14,10 +14,8 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
 from tornado.ioloop import IOLoop
 
-# Bokeh imports
 from bokeh.client.states import NOT_YET_CONNECTED
 
 # Module under test

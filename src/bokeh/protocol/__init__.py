@@ -8,7 +8,6 @@
 
 from __future__ import annotations
 
-# Bokeh imports
 from .message import Message, MessageType
 from .messages import (
     ack,

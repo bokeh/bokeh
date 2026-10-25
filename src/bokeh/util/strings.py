@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import re
 from typing import Any, Iterable, overload
 from urllib.parse import quote_plus

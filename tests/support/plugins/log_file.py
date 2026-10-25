@@ -20,12 +20,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from datetime import datetime
 from os.path import splitext
 from typing import IO, Iterator
 
-# External imports
 import pytest
 
 #-----------------------------------------------------------------------------

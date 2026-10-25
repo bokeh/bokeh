@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from inspect import (
     Parameter,
     Signature,
@@ -36,7 +35,6 @@ from typing import (
     Self,
 )
 
-# Bokeh imports
 from ..core.has_props import HasProps, _default_resolver, abstract
 from ..core.property._sphinx import type_link
 from ..core.property.any import AnyRef

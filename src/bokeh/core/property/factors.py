@@ -18,7 +18,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from ..types import FactorSeqType, FactorType
 from .bases import Init, SingleParameterizedProperty
 from .container import Seq, Tuple

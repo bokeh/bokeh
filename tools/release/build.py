@@ -9,17 +9,14 @@
 """
 from __future__ import annotations
 
-# Standard library imports
 import json
 import re
 from os import getenv
 from pathlib import Path
 from typing import Any, Callable
 
-# External imports
 from packaging.version import Version as V
 
-# Bokeh imports
 from .action import FAILED, PASSED, ActionReturn
 from .config import ANY_VERSION, Config
 from .git import get_tags

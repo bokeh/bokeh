@@ -41,7 +41,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import difflib
 from math import nan
 
@@ -53,7 +52,6 @@ from typing import (
     ClassVar,
 )
 
-# Bokeh imports
 from ..core.enums import (
     Anchor,
     Dimension,

@@ -1,15 +1,12 @@
 from __future__ import annotations
 
-# Standard library imports
 import os
 from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import Any
 
-# External imports
 import pytest
 
-# Bokeh imports
 # Bokeh test imports
 from tests.tools.release._support import AbortCalled, RecordingSystem
 from tools.release import ui

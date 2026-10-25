@@ -20,10 +20,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import TYPE_CHECKING, Literal
 
-# Bokeh imports
 from ..resources import DEFAULT_SERVER_HTTP_URL
 from ..util.deprecation import deprecated
 from ..util.strings import format_docstring

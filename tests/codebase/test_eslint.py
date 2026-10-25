@@ -15,13 +15,10 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from subprocess import run
 
-# External imports
 import pytest
 
-# Bokeh imports
 from tests.support.util.project import TOP_PATH
 
 #-----------------------------------------------------------------------------

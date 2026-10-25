@@ -19,13 +19,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import TYPE_CHECKING, Any
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from ..core.property.vectorization import field, value
 from ..models import Legend, LegendItem
 

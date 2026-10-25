@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-# Standard library imports
 import gzip
 import json
 from base64 import b64decode
@@ -8,13 +7,11 @@ from io import StringIO
 from pathlib import Path
 from types import SimpleNamespace
 
-# External imports
 import pytest
 from docutils import nodes
 from docutils.utils import new_document
 from sphinx.application import Sphinx
 
-# Bokeh imports
 from bokeh import __version__
 from bokeh.embed.resources import (
     ExtensionRequirement,

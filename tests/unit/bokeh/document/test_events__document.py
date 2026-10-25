@@ -14,13 +14,10 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from unittest.mock import MagicMock, patch
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.core.properties import Any, ColumnData, Instance
 from bokeh.core.property.bases import Property
 from bokeh.core.serialization import MapRep, ObjectRefRep, Serializer

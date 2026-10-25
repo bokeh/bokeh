@@ -14,12 +14,10 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import gzip
 from base64 import b64encode
 from math import nan
 
-# Bokeh imports
 from bokeh.core.json_encoder import serialize_json
 from bokeh.core.serialization import Serializer
 from bokeh.settings import settings

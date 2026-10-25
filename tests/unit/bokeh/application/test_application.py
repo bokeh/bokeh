@@ -14,16 +14,13 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import asyncio
 import logging
 from threading import Event, get_ident
 from unittest.mock import MagicMock, patch
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.application.handlers import CodeHandler, FunctionHandler, Handler
 from bokeh.core.properties import Instance, Int, Nullable
 from bokeh.document import Document

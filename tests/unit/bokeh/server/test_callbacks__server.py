@@ -14,17 +14,14 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import asyncio
 import time
 from concurrent.futures import ThreadPoolExecutor
 from itertools import repeat
 
-# External imports
 import pytest
 from tornado.ioloop import IOLoop
 
-# Bokeh imports
 from bokeh.util.serialization import make_id
 
 # Module under test

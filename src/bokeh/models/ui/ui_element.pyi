@@ -5,10 +5,8 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Sequence, Unpack
 
-# Bokeh imports
 from ...core.enums import AutoType as Auto
 from ...model.model import Model, _ModelInit
 from ..css import Styles, StyleSheet

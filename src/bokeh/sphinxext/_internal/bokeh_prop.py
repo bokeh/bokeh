@@ -32,7 +32,6 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 import importlib
 import re
 import textwrap
@@ -40,16 +39,13 @@ import warnings
 from dataclasses import dataclass
 from typing import Any
 
-# External imports
 from docutils.parsers.rst.directives import unchanged
 from sphinx.errors import SphinxError
 
-# Bokeh imports
 from bokeh.core.property._sphinx import type_link
 from bokeh.core.property.descriptors import AliasPropertyDescriptor, PropertyDescriptor
 from bokeh.util.warnings import BokehDeprecationWarning
 
-# Bokeh imports
 from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
 from .templates import PROP_DETAIL

@@ -14,7 +14,6 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from tests.support.util.api import verify_all
 
 from _util_property import _TestHasProps, _TestModel

@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-# External imports
 import pytest
 
-# Bokeh imports
 # Bokeh test imports
 from tests.tools.release._support import RecordingSystem
 from tools.release import git

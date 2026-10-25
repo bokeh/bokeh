@@ -17,12 +17,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from inspect import Parameter
 from textwrap import dedent
 from typing import Any
 
-# Bokeh imports
 from ..models import Marker
 
 #-----------------------------------------------------------------------------

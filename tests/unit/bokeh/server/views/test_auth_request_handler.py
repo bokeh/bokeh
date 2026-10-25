@@ -14,13 +14,11 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import asyncio
 from threading import Event, get_ident
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock
 
-# External imports
 import pytest
 
 # Module under test

@@ -14,14 +14,11 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from types import ModuleType
 
-# External imports
 import pytest
 from tornado.web import RequestHandler
 
-# Bokeh imports
 from tests.support.util.api import verify_all
 from tests.support.util.filesystem import with_file_contents, with_file_contents_async
 

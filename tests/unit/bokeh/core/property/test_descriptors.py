@@ -14,7 +14,6 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import typing as tp
 from unittest.mock import (
     ANY,
@@ -23,10 +22,8 @@ from unittest.mock import (
     patch,
 )
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.core.properties import (
     Alias,
     Any,

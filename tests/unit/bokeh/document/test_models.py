@@ -14,15 +14,12 @@ from __future__ import annotations # isort:skip
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import gc
 import weakref
 from unittest.mock import MagicMock, patch
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.core.has_props import Local
 from bokeh.core.properties import Instance, Nullable
 from bokeh.core.types import ID
