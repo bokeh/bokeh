@@ -2,7 +2,9 @@ import {Widget, WidgetView} from "./widget"
 import type * as p from "core/properties"
 
 export abstract class IndicatorView extends WidgetView {
-  declare model: Indicator
+  declare readonly model: Indicator
+  declare readonly signals: p.SignalsOf<Indicator.Props>
+  declare readonly values: Indicator.Attrs
 }
 
 export namespace Indicator {

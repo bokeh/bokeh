@@ -21,6 +21,7 @@ type LabelLocation = typeof LabelLocation["__type__"]
 export class ProgressView extends IndicatorView {
   declare readonly model: Progress
   declare readonly signals: p.SignalsOf<Progress.Props>
+  declare readonly values: Progress.Attrs
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), progress_css.default]

@@ -3,7 +3,9 @@ import {toggle_attribute} from "core/dom"
 import type * as p from "core/properties"
 
 export abstract class ControlView extends WidgetView {
-  declare model: Control
+  declare readonly model: Control
+  declare readonly signals: p.SignalsOf<Control.Props>
+  declare readonly values: Control.Attrs
 
   /** @deprecated */
   abstract controls(): Iterable<HTMLElement & {disabled: boolean}>

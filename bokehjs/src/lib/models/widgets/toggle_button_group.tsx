@@ -13,6 +13,7 @@ import type {ReadonlySignal} from "@preact/signals"
 export abstract class ToggleButtonGroupView extends OrientedControlView {
   declare readonly model: ToggleButtonGroup
   declare readonly signals: p.SignalsOf<ToggleButtonGroup.Props>
+  declare readonly values: ToggleButtonGroup.Attrs
 
   public *controls() {}
 

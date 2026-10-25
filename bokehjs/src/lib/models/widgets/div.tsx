@@ -56,6 +56,7 @@ function without_fragment(url: string): string {
 export class DivView extends MarkupView {
   declare readonly model: Div
   declare readonly signals: p.SignalsOf<Div.Props>
+  declare readonly values: Div.Attrs
 
   override connect_signals(): void {
     super.connect_signals()

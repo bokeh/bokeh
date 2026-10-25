@@ -7,6 +7,7 @@ import * as inputs_css from "styles/widgets/inputs.css"
 export class CheckboxGroupView extends ToggleInputGroupView {
   declare readonly model: CheckboxGroup
   declare readonly signals: p.SignalsOf<CheckboxGroup.Props>
+  declare readonly values: CheckboxGroup.Attrs
 
   get indices(): Set<number> {
     return new Set(this.signals.active.value)
