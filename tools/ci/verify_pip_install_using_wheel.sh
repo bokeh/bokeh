@@ -16,6 +16,8 @@ python -m bokeh.util.package $VERSION bokehjs/build
 # dependencies without mutating the locked Pixi build environment.
 SMOKE_ENV="$(mktemp -d)"
 trap 'rm -rf "$SMOKE_ENV"' EXIT
-python -m venv "$SMOKE_ENV"
+python -m venv --without-pip "$SMOKE_ENV"
+# Use the patched build-environment pip instead of ensurepip's bundled copy.
+python -m pip --python "$SMOKE_ENV/bin/python" install "pip>=26.2.2"
 "$SMOKE_ENV/bin/python" -m pip install "$WHEEL_PATH"
 "$SMOKE_ENV/bin/bokeh" info

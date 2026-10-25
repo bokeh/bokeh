@@ -81,6 +81,7 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@v0.10.0
         with:
+          pixi-version: v0.83.0
           environments: release-deploy
           activate-environment: release-deploy
           locked: true
@@ -153,6 +154,7 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@v0.10.0
         with:
+          pixi-version: v0.83.0
           environments: release-deploy
           activate-environment: release-deploy
           locked: true
@@ -227,7 +229,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: '24'
+          node-version: '>=24.22.1 <25'
           registry-url: https://registry.npmjs.org
           package-manager-cache: false
 

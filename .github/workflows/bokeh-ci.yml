@@ -34,6 +34,7 @@ jobs:
       - name: Set up Pixi
         uses: prefix-dev/setup-pixi@v0.10.0
         with:
+          pixi-version: v0.83.0
           environments: formatting
           activate-environment: formatting
           locked: true
@@ -154,6 +155,7 @@ jobs:
       - name: Set up Pixi
         uses: prefix-dev/setup-pixi@v0.10.0
         with:
+          pixi-version: v0.83.0
           environments: test-py312
           activate-environment: test-py312
           locked: true
