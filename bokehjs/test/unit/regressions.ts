@@ -1832,25 +1832,26 @@ describe("Bug", () => {
     it("doesn't allow Spinner widget to react to wheel events when focused", async () => {
       const spinner = Spinner.create({value: 0, step: 1, width: 100})
       const {view} = await display(spinner, [150, 100])
+      const input_el = view.shadow_el.querySelector("input")!
       expect(spinner.value).to.be.equal(0)
 
       window.focus() // make sure spinner doesn't have focus
-      await scroll_up(view.input_el)
+      await scroll_up(input_el)
       await view.ready
-      await scroll_up(view.input_el)
+      await scroll_up(input_el)
       await view.ready
       expect(spinner.value).to.be.equal(0)
-      await scroll_down(view.input_el)
+      await scroll_down(input_el)
       await view.ready
       expect(spinner.value).to.be.equal(0)
 
-      view.input_el.focus()
-      await scroll_up(view.input_el)
+      input_el.focus()
+      await scroll_up(input_el)
       await view.ready
-      await scroll_up(view.input_el)
+      await scroll_up(input_el)
       await view.ready
       expect(spinner.value).to.be.equal(2)
-      await scroll_down(view.input_el)
+      await scroll_down(input_el)
       await view.ready
       expect(spinner.value).to.be.equal(1)
     })
