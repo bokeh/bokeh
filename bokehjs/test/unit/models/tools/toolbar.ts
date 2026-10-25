@@ -1,6 +1,6 @@
 import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
 import {fig, display} from "#framework/layouts"
-import {mouse_enter, mouse_leave} from "#framework/interactive"
+import {mouse_enter, mouse_leave, show_context_menu} from "#framework/interactive"
 
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import type {ToolbarView} from "@bokehjs/models/tools/toolbar"
@@ -389,12 +389,9 @@ describe("ToolbarView", () => {
     const {view} = await display(p)
 
     async function context_menu_labels(): Promise<(string | null)[]> {
-      // can't simply dispatchEvent() because of browser security
-      const {left, top} = view.el.getBoundingClientRect()
-      view.show_context_menu(new MouseEvent("contextmenu", {clientX: left + 50, clientY: top + 50}))
+      const menu_view = show_context_menu(view, 50, 50)
       await view.ready
 
-      const menu_view = view.get_context_menu({x: 50, y: 50})
       expect_not_null(menu_view)
       expect(menu_view.is_open).to.be.true
 

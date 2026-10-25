@@ -3,7 +3,7 @@ import sinon from "sinon"
 import {expect, expect_condition, expect_not_null} from "#framework/assertions"
 import {display, fig, row, column, grid} from "#framework/layouts"
 import {DelayedInternalProvider} from "#framework/util"
-import {PlotActions, actions, xy, tap, press, mouse_enter, mouse_down, mouse_click} from "#framework/interactive"
+import {PlotActions, actions, xy, tap, press, mouse_enter, mouse_down, mouse_click, show_context_menu} from "#framework/interactive"
 import {async_trap} from "#framework/util"
 
 import type {ArrowHead, Image, Line, UIElement} from "@bokehjs/models"
@@ -5515,11 +5515,7 @@ describe("Bug", () => {
       }
       await view.ready
 
-      // can't simply dispatchEvent() because of browser security
-      const {left, top} = view.el.getBoundingClientRect()
-      view.show_context_menu(new MouseEvent("contextmenu", {clientX: left + 50, clientY: top + 50}))
-
-      const menu_view = view.get_context_menu({x: 50, y: 50})
+      const menu_view = show_context_menu(view, 50, 50)
       expect_not_null(menu_view)
       expect(menu_view.is_open).to.be.true
 

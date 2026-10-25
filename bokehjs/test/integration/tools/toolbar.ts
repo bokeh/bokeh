@@ -1,5 +1,6 @@
 import {expect, expect_not_null} from "#framework/assertions"
 import {display, fig} from "#framework/layouts"
+import {show_context_menu} from "#framework/interactive"
 
 import {PanTool, CustomAction} from "@bokehjs/models"
 
@@ -19,12 +20,9 @@ describe("Toolbar", () => {
 
     const {view} = await display(p)
 
-    // can't simply dispatchEvent() because of browser security
-    const {left, top} = view.el.getBoundingClientRect()
-    view.show_context_menu(new MouseEvent("contextmenu", {clientX: left + 50, clientY: top + 50}))
+    const menu_view = show_context_menu(view, 50, 50)
     await view.ready
 
-    const menu_view = view.get_context_menu({x: 50, y: 50})
     expect_not_null(menu_view)
     expect(menu_view.is_open).to.be.true
 
