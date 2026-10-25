@@ -4,6 +4,9 @@ import {cls} from "core/vdom"
 import type {Keys} from "core/dom"
 import type * as p from "core/properties"
 
+import type {TargetedKeyboardEvent, TargetedWheelEvent} from "preact"
+import {computed} from "@preact/signals"
+
 import * as inputs_css from "styles/widgets/inputs.css"
 
 const {min, max} = Math
@@ -74,15 +77,11 @@ export class SpinnerView extends NumericInputView {
     )
   }
 
-  /*
-    onKeydown={(event) => this._input_key_down(event)}
-    onKeyup={(event) => this._input_key_up(event)}
-    onFocusOut={() => this._commit_value()}
-    onWheel={(event) => this._input_mouse_wheel(event)}
-    onWheel={debounce(() => {
+  private readonly _wheel_throttled = computed(() => {
+    return debounce(() => {
       this._commit_value()
-    }, this.model.wheel_wait, false))
-  */
+    }, this.values.wheel_wait, false)
+  })
 
   override remove(): void {
     this._stop_incrementation(false)
@@ -131,7 +130,7 @@ export class SpinnerView extends NumericInputView {
     event.preventDefault()
     this._begin_value_change()
     this.increment(direction*this.values.step)
-    this.input_el.focus()
+    this.input_ref.current?.focus()
     // while mouse is down we increment at a certain rate
     this._handles.timeout = setTimeout(() => {
       this._start_incrementation(direction)
@@ -146,16 +145,19 @@ export class SpinnerView extends NumericInputView {
     this._stop_incrementation()
   }
 
-  protected _input_mouse_wheel(event: WheelEvent): void {
-    if (this.shadow_el.activeElement === this.input_el) {
+  protected override _wheel(event: TargetedWheelEvent<HTMLInputElement>): void {
+    const input_el = event.currentTarget
+    const root = input_el.getRootNode() as Document | ShadowRoot
+    if (root.activeElement === input_el) {
       event.preventDefault()
       this._begin_value_change()
       const sign = event.deltaY > 0 ? -1 : 1
       this.increment(sign*this.values.step)
     }
+    this._wheel_throttled.value()
   }
 
-  protected _input_key_down(event: KeyboardEvent): void {
+  protected override _key_down(event: TargetedKeyboardEvent<HTMLInputElement>): void {
     const step = (() => {
       const {step, page_step_multiplier} = this.values
       switch (event.key as Keys) {
@@ -173,7 +175,8 @@ export class SpinnerView extends NumericInputView {
     }
   }
 
-  protected _input_key_up(_event: KeyboardEvent): void {
+  protected override _key_up(event: TargetedKeyboardEvent<HTMLInputElement>): void {
+    super._key_up(event)
     this._commit_value()
   }
 
@@ -190,8 +193,8 @@ export class SpinnerView extends NumericInputView {
     }
   }
 
-  override change_input(): void {
-    super.change_input()
+  override change_value(input_el: HTMLInputElement): void {
+    super.change_value(input_el)
     this._commit_value()
   }
 
