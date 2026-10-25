@@ -60,7 +60,6 @@ describe("LegendView", () => {
       const legend = ModelDrivenLegend.create({items: [item]})
       p.add_layout(legend, "left")
       const {view} = await display(p)
-      await view.ready
       const legend_view = view.owner.get_one(legend)
       legend_view.disconnect_resize_observer()
       const [entry] = legend_view.entry_els
@@ -98,7 +97,6 @@ describe("LegendView", () => {
       const legend = ModelDrivenLegend.create({items: [item]})
       p.add_layout(legend, "left")
       const {view} = await display(p)
-      await view.ready
       const legend_view = view.owner.get_one(legend)
       legend_view.disconnect_resize_observer()
 
@@ -140,7 +138,6 @@ describe("LegendView", () => {
         const legend = ModelDrivenLegend.create({items: [item, LegendItem.create({label: "Short", renderers: [renderer]})]})
         p.add_layout(legend, "left")
         const {view} = await display(p)
-        await view.ready
         const legend_view = view.owner.get_one(legend)
         legend_view.disconnect_resize_observer()
         const {width, height} = legend_view.bbox
@@ -179,7 +176,6 @@ describe("LegendView", () => {
         ]})
         p.add_layout(legend, "left")
         const {view} = await display(p)
-        await view.ready
         const legend_view = view.owner.get_one(legend)
         legend_view.disconnect_resize_observer()
         const [shared_el, other_el] = legend_view.entry_els
@@ -217,7 +213,6 @@ describe("LegendView", () => {
         p.add_layout(legend, "left")
 
         const {view} = await display(p)
-        await view.ready
         const legend_view = view.owner.get_one(legend)
 
         // Initial geometry must use the configured glyph size before its first

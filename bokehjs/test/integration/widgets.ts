@@ -564,8 +564,7 @@ describe("Widgets", () => {
       TableColumn.create({field: "c3", title: HTML.create({html: "<b>a&lt;b</b>"}), width: 200}),
     ]
     const table = DataTable.create({source, columns, autosize_mode: "none"})
-    const {view} = await display(table, [600, 400])
-    await view.ready
+    await display(table, [600, 400])
   })
 
   it("should allow TeX on Divs with mathstrings", async () => {

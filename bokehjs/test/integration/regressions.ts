@@ -2087,7 +2087,6 @@ describe("Bug", () => {
       for (const i of [0, 1, 2]) {
         group.labels = [...group.labels, `Button ${i}`]
         await view.ready
-        await paint()
 
         const buttons = view.shadow_el.querySelectorAll("button")
         expect(buttons.length).to.be.equal(i + 1)
@@ -2140,16 +2139,13 @@ describe("Bug", () => {
       // strictly necessary, because test framework defers anyway after a test and
       // before collecting results and capturing screenshots.
       const {view} = await display(layout, [100, 200])
-      await paint()
 
       // We aren't clicking on the button, because it doesn't affect the outcome.
       selects.visible = false
       await view.ready
-      await paint()
 
       selects.visible = true
       await view.ready
-      await paint()
     })
   })
 
@@ -2175,7 +2171,6 @@ describe("Bug", () => {
 
       await mouse_click(button_view.button_el)
       await view.ready
-      await paint()
     })
   })
 
@@ -2186,7 +2181,6 @@ describe("Bug", () => {
 
       const pane = Pane.create({styles: {width: "200px", height: "200px"}, elements: [plot]})
       const {view} = await display(pane, [350, 350])
-      await paint()
 
       pane.styles = {width: "300px", height: "300px"}
       await view.ready
@@ -2216,7 +2210,6 @@ describe("Bug", () => {
       for (const _ of range(0, 5)) {
         await mouse_click(button_view.button_el)
         await view.ready
-        await paint()
       }
     })
   })
@@ -2804,7 +2797,6 @@ describe("Bug", () => {
       // TODO: this really shouldn't be necessary, because the test framework already awaits
       // for painting, but it looks like one await cycle is not enough for resize observer
       // to do its job.
-      await paint()
     })
   })
 
@@ -2874,7 +2866,6 @@ describe("Bug", () => {
       p.scatter([10, 20, 30, 40], [10, 20, 30, 40], {size: 10})
 
       const {view} = await display(p)
-      await paint()
 
       const actions = new PlotActions(view)
       await actions.tap({x: 15, y: 15})
@@ -2911,7 +2902,6 @@ describe("Bug", () => {
       p.add_tools(range_tool, hover_tool)
 
       const {view: pv} = await display(p)
-      await paint()
 
       await actions(pv).hover({x: 3, y: 3})
       await paint()
@@ -2954,7 +2944,6 @@ describe("Bug", () => {
       p.add_tools(tool0, tool1, tool2, tool3)
 
       const {view} = await display(p)
-      await paint()
 
       const actions = new PlotActions(view)
       await actions.pan_along({type: "line", xy0: {x: 1.5, y: 0.5}, xy1: {x: 0.0, y: 0.5}})
@@ -2986,7 +2975,6 @@ describe("Bug", () => {
       fig_zoomed.line(xx, yy)
 
       const {view} = await display(row([fig_overview, fig_zoomed]))
-      await paint()
 
       const overview_view = view.owner.get_one(fig_overview)
 
@@ -3023,7 +3011,6 @@ describe("Bug", () => {
       p.scatter({x: {field: "col2"}, y: {field: "col3"}, size: 10, source, view: cds_view})
 
       const {view} = await display(row([table, p]))
-      await paint()
 
       cds_view.filter = IndexFilter.create({indices: [1, 2]})
       await view.ready
@@ -3034,7 +3021,6 @@ describe("Bug", () => {
     it("doesn't allow MultiChoice widget's menu to persist after selection an option", async () => {
       const input = MultiChoice.create({options: ["A", "B", "C", "D"], width: 200})
       const {view} = await display(input, [300, 200])
-      await paint()
 
       const input_el = view.choice_el.input.element
       await mouse_click(input_el)
@@ -3061,7 +3047,6 @@ describe("Bug", () => {
     it("doesn't allow auto-completion to work correctly in MultiChoice widget", async () => {
       const input = MultiChoice.create({options: ["A1", "B1", "B2", "B3", "C1", "C2"], search_option_limit: 2, width: 200})
       const {view} = await display(input, [300, 300])
-      await paint()
 
       const input_el = view.choice_el.input.element
       await mouse_click(input_el)
@@ -3125,7 +3110,6 @@ describe("Bug", () => {
 
         const p = fig([300, 300], {tools: ["pan"], renderers: [box], x_range: [0, 6], y_range: [0, 6]})
         const {view} = await display(p)
-        await paint()
         return view
       }
 
@@ -5435,7 +5419,6 @@ describe("Bug", () => {
 
       await mouse_click(button_view.button_el)
       await view.ready
-      await paint()
     })
   })
 
@@ -5453,7 +5436,6 @@ describe("Bug", () => {
       ]
       const table = DataTable.create({source, columns, index_position: null, width: 320, height: 180})
       const {view} = await display(table, [350, 200])
-      await view.ready
       const values = source.get_array<number>("value")
       for (let i = 0; i < values.length; i++) {
         values[i] = values[i] + 1

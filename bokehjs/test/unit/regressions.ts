@@ -567,7 +567,6 @@ describe("Bug", () => {
       const r = p.scatter([1, 2, 3], [1, 2, 3])
 
       const {view} = await display(p)
-      await paint()
       expect(r.data_source.selected.indices).to.be.equal([])
 
       const actions = new PlotActions(view, {units: "screen"})
@@ -1661,8 +1660,6 @@ describe("Bug", () => {
       const table = DataTable.create({source, columns, selectable: "checkbox", view: cds_view, width: 300, height: 400})
       const {view} = await display(table, [350, 450])
 
-      await view.ready
-
       const checkbox1 = view.shadow_el.querySelectorAll(".slick-cell.l1.r1.bk-cell-select")[2]
       const checkbox1_el = checkbox1.querySelector('input[type="checkbox"]')
       expect_not_null(checkbox1_el)
@@ -2161,8 +2158,6 @@ ${view.host_selector} {
       const table = DataTable.create({source, columns, selectable: "checkbox", view: cds_view, width: 300, height: 400})
       const {view} = await display(table, [350, 450])
 
-      await view.ready
-
       const checkbox1 = view.shadow_el.querySelectorAll(".slick-cell.l1.r1.bk-cell-select")[2]
       const checkbox1_el = checkbox1.querySelector('input[type="checkbox"]')
       expect_not_null(checkbox1_el)
@@ -2321,13 +2316,9 @@ ${view.host_selector} {
       const {view} = await display(p)
       expect(y_range.interval).to.be.equal([1, 3])
 
-      // data updates are applied asynchronously and schedule a separate paint,
-      // hence awaiting view.ready twice after each of them
-
       // changing one endpoint freezes both, even when the data changes
       y_range.end = 10
       source.data = {x: [0, 1, 2], y: [0, 2, 4]}
-      await view.ready
       await view.ready
       expect(y_range.interval).to.be.equal([1, 10])
 
@@ -2336,7 +2327,6 @@ ${view.host_selector} {
       expect(y_range.interval).to.be.equal([0, 4])
 
       source.data = {x: [0, 1, 2], y: [-1, 2, 5]}
-      await view.ready
       await view.ready
       expect(y_range.interval).to.be.equal([-1, 5])
     })

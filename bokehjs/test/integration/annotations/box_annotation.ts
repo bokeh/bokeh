@@ -142,7 +142,6 @@ describe("BoxAnnotation annotation", () => {
 
     const p = fig([200, 200], {renderers: [box], x_range: [0, 6], y_range: [0, 6]})
     const {view} = await display(p)
-    await paint()
 
     await pan(view, xy(3, 3), xy(4, 4))
   })
@@ -158,7 +157,6 @@ describe("BoxAnnotation annotation", () => {
 
       const p = fig([200, 200], {renderers: [box], x_range: [0, 6], y_range: [0, 6]})
       const {view} = await display(p)
-      await paint()
       return view
     }
 
@@ -224,7 +222,6 @@ describe("BoxAnnotation annotation", () => {
 
       const p = fig([200, 200], {renderers: [box, box_limits], x_range: [0, 6], y_range: [0, 6]})
       const {view} = await display(p)
-      await paint()
       return view
     }
 
@@ -293,7 +290,6 @@ describe("BoxAnnotation annotation", () => {
 
       const p = fig([200, 200], {renderers: [box], x_range: [0, 6], y_range: [0, 6]})
       const {view} = await display(p)
-      await paint()
       return view
     }
 
