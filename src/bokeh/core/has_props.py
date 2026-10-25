@@ -29,7 +29,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import difflib
 from collections.abc import Mapping, Sequence
 from types import MappingProxyType
@@ -49,7 +48,6 @@ from typing import (
 )
 from weakref import WeakSet
 
-# Bokeh imports
 from ..settings import settings
 from ..util.strings import append_docstring
 from .property.descriptors import (

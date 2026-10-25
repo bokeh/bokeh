@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 import streamlit as st
+
 from streamlit_particles.modes import MODES
 from streamlit_particles.state import viewer_states
 

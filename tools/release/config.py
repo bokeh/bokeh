@@ -9,10 +9,8 @@
 """
 from __future__ import annotations
 
-# Standard library imports
 import re
 
-# Bokeh imports
 from .enums import VersionType
 
 __all__ = ("Config",)

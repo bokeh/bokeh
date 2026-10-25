@@ -25,17 +25,14 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 from html import escape
 from importlib import import_module
 from os.path import join
 from pathlib import Path
 from typing import Any
 
-# External imports
 from sphinx.errors import SphinxError
 
-# Bokeh imports
 from . import PARALLEL_SAFE, SphinxParallelSpec
 
 # -----------------------------------------------------------------------------

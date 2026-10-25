@@ -5,12 +5,10 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 from datetime import datetime as DateTime, timedelta as TimeDelta
 from typing import Sequence, Unpack, overload
 
-# Bokeh imports
 from ..core.enums import (
     AutoType as Auto,
     PaddingUnitsType as PaddingUnits,

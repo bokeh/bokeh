@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import ABCMeta, abstractmethod
 from argparse import ArgumentParser, Namespace
 from dataclasses import dataclass
@@ -32,7 +31,6 @@ from typing import (
     Sequence,
 )
 
-# Bokeh imports
 from ..util.dataclasses import NotRequired, Unspecified, entries
 
 #-----------------------------------------------------------------------------

@@ -8,15 +8,11 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Bokeh imports
 from bokeh.core.properties import Instance, Int, Nullable
 from bokeh.document import Document
 from bokeh.model import Model

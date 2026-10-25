@@ -8,7 +8,6 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import json
 import re
 from dataclasses import dataclass
@@ -24,7 +23,6 @@ from typing import (
 )
 from urllib.parse import urlsplit
 
-# Bokeh imports
 from ..core.templates import FILE, MACROS, get_env
 from ..document import DEFAULT_TITLE
 from ..resources import ResourceConflictError, Resources

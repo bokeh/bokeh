@@ -21,10 +21,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import TYPE_CHECKING, Sequence, cast
 
-# Bokeh imports
 from .core.enums import MarkerTypeType, PaletteType
 from .core.property.vectorization import Expr, Field
 from .core.property.visual import HatchPatternType

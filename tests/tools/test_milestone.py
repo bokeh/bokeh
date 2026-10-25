@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-# Standard library imports
 from importlib import import_module
 from pathlib import Path
 from typing import Any
 
-# External imports
 import pytest
 from click.testing import CliRunner
 

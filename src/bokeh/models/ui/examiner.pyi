@@ -5,10 +5,8 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Unpack
 
-# Bokeh imports
 from ...core.has_props import HasProps
 from .ui_element import UIElement, _UIElementInit
 

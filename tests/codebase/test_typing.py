@@ -7,7 +7,6 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import json
 import re
 import sys
@@ -15,11 +14,8 @@ from collections import Counter
 from pathlib import Path
 from subprocess import run
 
-# External imports
 import pytest
 
-# Bokeh imports
-# Bokeh test imports
 from tests.support.util.project import TOP_PATH
 
 

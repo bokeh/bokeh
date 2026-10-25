@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-# Bokeh imports
 from bokeh.embed.notebook import notebook_content
 from bokeh.embed.result import EMBED_SCHEMA
 from bokeh.plotting import figure

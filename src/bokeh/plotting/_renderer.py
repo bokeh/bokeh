@@ -19,15 +19,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import sys
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from ..core.property.dataspec import ColorSpec, DashPattern, DashPatternSpec
 from ..models import ColumnarDataSource, ColumnDataSource, GlyphRenderer
 from ._legends import pop_legend_kwarg, update_legend

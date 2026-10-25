@@ -65,7 +65,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from .enums import (
     FontStyle,
     HatchPattern,

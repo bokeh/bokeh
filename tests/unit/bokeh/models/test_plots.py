@@ -8,23 +8,18 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 from math import isnan
 from unittest import mock
 from unittest.mock import MagicMock, patch
 
-# External imports
+import pytest
 import xyzservices.providers as xyz
 
-# Bokeh imports
 from bokeh.core.validation import check_integrity, process_validation_issues
 from bokeh.core.validation.check import ValidationIssue, ValidationIssues
 from bokeh.models import (

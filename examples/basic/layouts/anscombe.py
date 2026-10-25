@@ -14,8 +14,16 @@ import numpy as np
 
 from bokeh.io import show
 from bokeh.layouts import column, gridplot
-from bokeh.models import (ColumnDataSource, Div, Grid, Line,
-                          LinearAxis, Plot, Range1d, Scatter)
+from bokeh.models import (
+    ColumnDataSource,
+    Div,
+    Grid,
+    Line,
+    LinearAxis,
+    Plot,
+    Range1d,
+    Scatter,
+)
 from bokeh.sampledata.anscombe import data as df
 
 circle_source = ColumnDataSource(data=df)

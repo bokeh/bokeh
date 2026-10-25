@@ -5,11 +5,9 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 from typing import TypedDict, Unpack
 
-# Bokeh imports
 from ..core.has_props import HasProps
 from ..model.model import Model, _ModelInit
 from .graphics import Decoration

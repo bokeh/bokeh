@@ -1,13 +1,10 @@
 """Rich entry point for ``python -m tools.backport``."""
 
-# Standard library imports
 import sys
 
-# External imports
 import rich_click as click
 from rich.panel import Panel
 
-# Bokeh imports
 from . import BackportError
 from .commands.plan import plan
 from .commands.release import merge

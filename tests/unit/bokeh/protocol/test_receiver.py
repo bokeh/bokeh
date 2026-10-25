@@ -5,14 +5,12 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-from __future__ import annotations # isort:skip
+from __future__ import annotations
 
-import pytest ; pytest
-
-# Standard library imports
 import json
 
-# Bokeh imports
+import pytest
+
 from bokeh.core.serialization import Buffer
 from bokeh.core.types import ID
 from bokeh.protocol import ack

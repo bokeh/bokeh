@@ -9,14 +9,12 @@
 """
 from __future__ import annotations
 
-# Standard library imports
 import logging
 import os
 import sys
 from subprocess import PIPE, STDOUT, run as stdlib_run
 from typing import Any
 
-# Bokeh imports
 from .ui import shell
 
 __all__ = ("System",)

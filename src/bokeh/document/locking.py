@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import inspect
 import threading
 import weakref
@@ -36,7 +35,6 @@ from typing import (
     cast,
 )
 
-## Bokeh imports
 if TYPE_CHECKING:
     from ..application.application import SessionContext
     from ..server.callbacks import NextTickCallback

@@ -8,21 +8,19 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import os
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from os.path import abspath, dirname
 from threading import Event
 from types import ModuleType
+
+import pytest
 
 # Module under test
 import bokeh.application.handlers.code_runner as bahc # isort:skip

@@ -3,8 +3,14 @@ import numpy as np
 from bokeh.core.properties import field
 from bokeh.io import show
 from bokeh.layouts import column
-from bokeh.models import (ColumnDataSource, FactorRange, Metric,
-                          Range1d, ScaleBar, WheelZoomTool)
+from bokeh.models import (
+    ColumnDataSource,
+    FactorRange,
+    Metric,
+    Range1d,
+    ScaleBar,
+    WheelZoomTool,
+)
 from bokeh.palettes import Category10
 from bokeh.plotting import figure
 

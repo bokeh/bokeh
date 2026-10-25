@@ -33,7 +33,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -42,7 +41,6 @@ from typing import (
 )
 from urllib.parse import quote_plus
 
-# Bokeh imports
 from ..document import Document
 from ..resources import DEFAULT_SERVER_HTTP_URL, SessionCoordinates
 from ..util.browser import NEW_PARAM

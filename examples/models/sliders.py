@@ -11,8 +11,16 @@ from datetime import date
 
 from bokeh.document import Document
 from bokeh.embed import embed
-from bokeh.models import (Column, CustomJS, DateRangeSlider,
-                          DateSlider, Div, RangeSlider, Row, Slider)
+from bokeh.models import (
+    Column,
+    CustomJS,
+    DateRangeSlider,
+    DateSlider,
+    Div,
+    RangeSlider,
+    Row,
+    Slider,
+)
 from bokeh.util.browser import view
 
 slider = Slider(title="Numerical", value=50, start=0, end=96, step=5)

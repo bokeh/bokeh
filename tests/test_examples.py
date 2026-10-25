@@ -8,15 +8,11 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import os
 import signal
 import subprocess
@@ -33,16 +29,15 @@ from os.path import (
 from typing import Any, Literal
 from urllib.parse import urlparse
 
-# External imports
 import _pytest.config
 import _pytest.mark
 import _pytest.python
+import pytest
 from playwright.sync_api import (  # type: ignore[attr-defined]
     TimeoutError as PlaywrightTimeoutError,
     sync_playwright,
 )
 
-# Bokeh imports
 from bokeh.client import push_session
 from bokeh.command.util import build_single_handler_application
 from bokeh.core.types import ID

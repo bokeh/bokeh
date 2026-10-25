@@ -19,7 +19,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from ..core.property.instance import Instance, InstanceDefault
 from ..model import Model
 from .ranges import DataRange1d, Range

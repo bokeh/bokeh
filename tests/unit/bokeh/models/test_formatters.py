@@ -8,15 +8,13 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+import pytest
 
-# Bokeh imports
 from bokeh.core.validation.check import check_integrity
 from bokeh.document import Document
 from bokeh.models import ColumnDataSource, TeX, Toggle

@@ -8,15 +8,11 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import datetime as dt
 import gzip
 import sys
@@ -28,10 +24,9 @@ from types import SimpleNamespace
 from typing import Any, Sequence
 from unittest.mock import patch
 
-# External imports
 import numpy as np
+import pytest
 
-# Bokeh imports
 from bokeh.colors import RGB
 from bokeh.core.has_props import HasProps
 from bokeh.core.properties import (

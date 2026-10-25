@@ -8,22 +8,17 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 from typing import Any
 from unittest.mock import MagicMock, patch
 
-# External imports
 import numpy as np
+import pytest
 
-# Bokeh imports
 from bokeh.core.has_props import HasProps
 from bokeh.core.property.validation import validate
 from tests.support.util.api import verify_all

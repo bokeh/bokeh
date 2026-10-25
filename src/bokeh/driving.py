@@ -45,7 +45,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from functools import partial
 from typing import (
     Any,

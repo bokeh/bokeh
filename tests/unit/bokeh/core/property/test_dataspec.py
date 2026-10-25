@@ -8,23 +8,18 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import datetime
 import warnings
 from copy import copy
 
-# External imports
 import numpy as np
+import pytest
 
-# Bokeh imports
 from bokeh.core.has_props import HasProps, Local
 from bokeh.core.property.override import Override
 from bokeh.core.property.vectorization import (

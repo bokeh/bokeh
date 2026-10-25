@@ -1,10 +1,8 @@
 """Aggregate PR merge command."""
 
-# External imports
 import rich_click as click
 from rich.panel import Panel
 
-# Bokeh imports
 from ..candidates import milestone_for_version
 from ..github import BOKEH_REPOSITORY, GitHubAPI
 from ..merging import find_backport_pr, merge_plan, published_plan_from_pr

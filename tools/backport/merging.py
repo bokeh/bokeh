@@ -1,10 +1,8 @@
 """Discover, verify, rebase-merge, and finalize an aggregate backport PR."""
 
-# Standard library imports
 from typing import Any
 from urllib.parse import quote
 
-# Bokeh imports
 from . import BackportError
 from .aggregate import AggregateSnapshot, load_aggregate, matching_backport
 from .candidates import BACKPORT_LABEL, milestone_for_version

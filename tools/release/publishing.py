@@ -6,14 +6,11 @@
 # -----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Standard library imports
 from itertools import product
 from xml.etree.ElementTree import ParseError
 
-# External imports
 from packaging.version import Version as V
 
-# Bokeh imports
 from . import BOKEHJS_BUCKETS
 from .action import FAILED, PASSED, ActionReturn
 from .config import Config

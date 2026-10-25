@@ -17,14 +17,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from argparse import Namespace
 
-# Bokeh imports
 from bokeh.settings import settings
 from bokeh.util.logconfig import basicConfig
 
-# Bokeh imports
 from ...application import Application
 from ..subcommand import Subcommand
 from ..util import report_server_init_errors

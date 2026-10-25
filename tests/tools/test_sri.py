@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-# Standard library imports
 import json
 from importlib import import_module
 from pathlib import Path
 from typing import Any
 
-# External imports
 import pytest
 
 sri = import_module("tools.sri")

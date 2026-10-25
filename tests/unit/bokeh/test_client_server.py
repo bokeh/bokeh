@@ -8,23 +8,18 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import asyncio
 import logging
 from unittest.mock import MagicMock, patch
 
-# External imports
+import pytest
 from tornado.httpclient import HTTPError
 
-# Bokeh imports
 import bokeh.document as document
 from bokeh.application import Application
 from bokeh.application.handlers import FunctionHandler

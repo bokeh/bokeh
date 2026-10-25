@@ -17,7 +17,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import itertools
 import re
 from dataclasses import dataclass
@@ -30,7 +29,6 @@ from typing import (
     cast,
 )
 
-# Bokeh imports
 from ..models import (
     HoverTool,
     Plot,

@@ -8,22 +8,19 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import os
 import subprocess
 import sys
 import time
 from pathlib import Path
 
-# Bokeh imports
+import pytest
+
 from tests import test_examples as examples
 from tests.support.util.examples import Example, Flags
 

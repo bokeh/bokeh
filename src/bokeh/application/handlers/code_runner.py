@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 import sys
 import traceback
@@ -35,7 +34,6 @@ from typing import (
     Sequence,
 )
 
-# Bokeh imports
 from ...util.serialization import make_globally_unique_id
 from .handler import handle_exception
 

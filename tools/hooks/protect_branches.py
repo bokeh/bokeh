@@ -1,4 +1,3 @@
-# Standard library imports
 import re
 import sys
 from subprocess import run

@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from .doc import curdoc
 from .export import export_png, export_svg, export_svgs
 from .jupyter import notebook_info

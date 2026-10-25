@@ -7,7 +7,6 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import asyncio
 import hashlib
 import inspect
@@ -18,12 +17,10 @@ from pathlib import Path
 from types import ModuleType, SimpleNamespace
 from typing import Any, Callable
 
-# External imports
 import pytest
 from tornado.httpclient import AsyncHTTPClient
 from tornado.web import HTTPError
 
-# Bokeh imports
 from bokeh import __version__
 from bokeh.application import Application
 from bokeh.core.properties import Any as AnyProperty, Instance

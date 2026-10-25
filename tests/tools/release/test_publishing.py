@@ -1,13 +1,9 @@
 from __future__ import annotations
 
-# Standard library imports
 from xml.etree.ElementTree import ParseError
 
-# External imports
 import pytest
 
-# Bokeh imports
-# Bokeh test imports
 from tests.tools.release._support import RecordingSystem
 from tools.release import publishing
 from tools.release.config import Config

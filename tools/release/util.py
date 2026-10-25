@@ -9,7 +9,6 @@
 """
 from __future__ import annotations
 
-# Bokeh imports
 from .pipeline import StepType
 
 __all__ = ("skip_for_prerelease",)

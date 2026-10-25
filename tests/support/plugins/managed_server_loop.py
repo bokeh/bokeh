@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import asyncio
 from collections.abc import Mapping
 from contextlib import contextmanager
@@ -33,11 +32,9 @@ from typing import (
     Protocol,
 )
 
-# External imports
 import pytest
 from tornado.ioloop import IOLoop
 
-# Bokeh imports
 from bokeh.server.server import Server
 
 if TYPE_CHECKING:

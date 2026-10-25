@@ -66,14 +66,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from argparse import Namespace
 
-# Bokeh imports
 from bokeh.settings import settings
 from bokeh.util.info import print_info, print_non_default_settings
 
-# Bokeh imports
 from ..subcommand import Argument, Subcommand
 
 #-----------------------------------------------------------------------------

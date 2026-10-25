@@ -1,12 +1,10 @@
 """Release inference, candidate discovery, and eligibility policy."""
 
-# Standard library imports
 import re
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
-# Bokeh imports
 from . import BackportError
 from .aggregate import CHERRY_PICK_ORIGIN_RE
 from .git import GitRepo

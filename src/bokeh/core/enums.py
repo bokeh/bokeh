@@ -69,7 +69,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import (
     Any,
     Iterator,
@@ -80,7 +79,6 @@ from typing import (
     get_args,
 )
 
-# Bokeh imports
 from .. import colors, palettes
 
 #-----------------------------------------------------------------------------

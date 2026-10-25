@@ -11,7 +11,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Standard library imports
 import asyncio
 from collections.abc import Awaitable, Callable
 from concurrent.futures import ThreadPoolExecutor

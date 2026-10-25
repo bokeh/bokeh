@@ -21,11 +21,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 from typing import TYPE_CHECKING, Sequence
 
-# Bokeh imports
 from ...util.callback_manager import _check_callback
 from .code_runner import CodeRunner
 from .lifecycle import LifecycleHandler

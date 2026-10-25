@@ -5,11 +5,9 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 from typing import Any, Sequence, Unpack
 
-# Bokeh imports
 from .._specs import AngleSpec, NumberSpec
 from ..core.enums import DirectionType as Direction
 from ..model.model import Model, _ModelInit

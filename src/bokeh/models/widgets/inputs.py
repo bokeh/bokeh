@@ -22,11 +22,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from math import inf
 from typing import Any
 
-# Bokeh imports
 from ...core.has_props import abstract
 from ...core.property.any import AnyRef
 from ...core.property.auto import Auto

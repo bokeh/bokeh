@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-# Standard library imports
 from types import SimpleNamespace
 from typing import Any, cast
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.sphinxext._internal.bokeh_autodoc import (
     _cache_python_domain_fuzzy_lookups,
     _canonicalize_model_source_links,

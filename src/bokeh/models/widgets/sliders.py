@@ -22,11 +22,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import numbers
 from datetime import UTC, date, datetime
 
-# Bokeh imports
 from ...core.has_props import abstract
 from ...core.property.color import Color
 from ...core.property.container import Seq, Tuple

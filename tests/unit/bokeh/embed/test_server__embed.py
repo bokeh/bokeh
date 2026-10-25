@@ -7,7 +7,6 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import importlib.util
 import sys
 from contextlib import nullcontext
@@ -15,10 +14,8 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
-# External imports
 import pytest
 
-# Bokeh imports
 import bokeh.embed.server as bes
 from bokeh.document import Document
 from bokeh.embed import EmbedResult

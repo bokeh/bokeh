@@ -8,19 +8,16 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import logging
 from datetime import UTC, date, datetime
 
-# Bokeh imports
+import pytest
+
 from bokeh.core.properties import UnsetValueError
 from bokeh.core.validation.check import check_integrity, process_validation_issues
 from bokeh.util.logconfig import basicConfig

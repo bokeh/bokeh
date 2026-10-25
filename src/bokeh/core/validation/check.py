@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import contextlib
 from contextvars import ContextVar
 from dataclasses import dataclass, field
@@ -31,7 +30,6 @@ from typing import (
     Protocol,
 )
 
-# Bokeh imports
 from ...model import Model
 from ...settings import settings
 from .issue import Warning

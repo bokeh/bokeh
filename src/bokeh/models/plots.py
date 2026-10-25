@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from contextlib import contextmanager
 from typing import (
     TYPE_CHECKING,
@@ -32,7 +31,6 @@ from typing import (
     overload,
 )
 
-# Bokeh imports
 from ..core.enums import (
     Location,
     OutputBackend,

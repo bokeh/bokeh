@@ -55,7 +55,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -67,7 +66,6 @@ from typing import (
     runtime_checkable,
 )
 
-# Bokeh imports
 from ..core.serialization import Serializable
 from .json import (
     ColumnDataChanged,

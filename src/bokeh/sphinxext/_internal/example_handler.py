@@ -17,10 +17,8 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import TYPE_CHECKING, Any
 
-# Bokeh imports
 from bokeh.application.handlers.code_runner import CodeRunner
 from bokeh.application.handlers.handler import Handler
 from bokeh.io.doc import curdoc, patch_curdoc

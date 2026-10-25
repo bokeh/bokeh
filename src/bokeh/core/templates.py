@@ -30,13 +30,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import sys
 from functools import lru_cache
 from os.path import dirname, join
 from typing import Any, Callable
 
-# External imports
 from jinja2 import Environment, FileSystemLoader, Template
 
 #-----------------------------------------------------------------------------

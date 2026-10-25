@@ -1,4 +1,3 @@
-# Standard library imports
 import json
 import re
 import sys

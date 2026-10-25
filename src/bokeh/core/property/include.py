@@ -18,12 +18,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from copy import copy
 from textwrap import dedent
 from typing import Any
 
-# Bokeh imports
 from ..has_props import HasProps
 from .override import Override
 

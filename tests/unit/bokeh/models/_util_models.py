@@ -8,19 +8,14 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 from itertools import chain
 from typing import TYPE_CHECKING
 
-# Bokeh imports
 from bokeh.core.enums import LineCap, LineJoin, NamedColor as Color
 from bokeh.core.property.vectorization import value
 

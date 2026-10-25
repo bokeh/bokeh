@@ -18,12 +18,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from functools import wraps
 from types import TracebackType
 from typing import Callable
 
-# Bokeh imports
 from . import bases
 
 #-----------------------------------------------------------------------------

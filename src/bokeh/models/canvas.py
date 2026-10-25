@@ -17,7 +17,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from ..core.enums import OutputBackend
 from ..core.property.enum import Enum
 from .ui import UIElement

@@ -35,7 +35,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from contextlib import contextmanager
 from os.path import basename, splitext
 from typing import (
@@ -47,7 +46,6 @@ from typing import (
     Sequence,
 )
 
-# Bokeh imports
 from ...io.doc import curdoc, patch_curdoc
 from .code_runner import CodeRunner, _hold_process_globals
 from .handler import Handler

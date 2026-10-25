@@ -65,20 +65,16 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from argparse import Namespace
 from dataclasses import dataclass, field
 from difflib import get_close_matches
 from typing import Any
 
-# External imports
 from jinja2 import Template
 
-# Bokeh imports
 from bokeh.settings import PrioritizedSetting, _Unset
 from bokeh.util.settings import get_all_settings
 
-# Bokeh imports
 from ..subcommand import Argument, Subcommand
 
 #-----------------------------------------------------------------------------

@@ -18,7 +18,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from ...core.property.container import List
 from ...core.property.either import Either
 from ...core.property.instance import Instance

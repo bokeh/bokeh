@@ -1,4 +1,3 @@
-# Standard library imports
 import re
 from typing import Any
 

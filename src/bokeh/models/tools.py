@@ -41,9 +41,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import difflib
 from math import nan
+
 # Public constructor types live in the stubs; declarations below cover local calls.
 from typing import (
     TYPE_CHECKING,
@@ -52,7 +52,6 @@ from typing import (
     ClassVar,
 )
 
-# Bokeh imports
 from ..core.enums import (
     Anchor,
     Dimension,

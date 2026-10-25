@@ -19,7 +19,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import sys
 from dataclasses import asdict, is_dataclass
 from typing import (
@@ -30,10 +29,8 @@ from typing import (
     cast,
 )
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from ..core.has_props import abstract
 from ..core.property.any import Any as AnyVal, AnyRef
 from ..core.property.container import ColumnData, Dict, Seq
