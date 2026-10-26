@@ -260,6 +260,28 @@ def test_repeated_children() -> None:
     test(GridBox(children=[(p0, 0, 0), (p1, 1, 0), (p0, 2, 0)]))
     test(gridplot([[p0], [p1], [p0]], toolbar_location=None))
 
+def test_grid_invalid_dimensions() -> None:
+    with pytest.raises(ValueError, match="nrows must be a positive integer"):
+        grid([Spacer()], nrows=0)
+        
+    with pytest.raises(ValueError, match="nrows must be a positive integer"):
+        grid([Spacer()], nrows=-2)
+
+    with pytest.raises(ValueError, match="ncols must be a positive integer"):
+        grid([Spacer()], ncols=0)
+        
+    with pytest.raises(ValueError, match="ncols must be a positive integer"):
+        grid([Spacer()], ncols=-1)
+
+def test_gridplot_invalid_ncols() -> None:
+    with pytest.raises(ValueError, match="ncols must be a positive integer"):
+        gridplot([Spacer()], ncols=0)
+        
+    with pytest.raises(ValueError, match="ncols must be a positive integer"):
+        gridplot([Spacer()], ncols=-5)
+
+
+
 def test_group_tools() -> None:
     pan0 = PanTool(dimensions="both")
     pan1 = PanTool(dimensions="both")

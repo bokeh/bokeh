@@ -291,6 +291,10 @@ def gridplot(
         if not hasattr(Location, toolbar_location):
             raise ValueError(f"Invalid value of toolbar_location: {toolbar_location}")
 
+    if ncols is not None:
+        if not isinstance(ncols, int) or ncols <= 0:
+            raise ValueError("ncols must be a positive integer")
+
     children = _parse_children_arg(children=children)
     if ncols:
         if any(isinstance(child, list) for child in children):
@@ -561,6 +565,12 @@ def grid(
     elif isinstance(children, Sequence):
         children = list(children)
         if nrows is not None or ncols is not None:
+            if nrows is not None:
+                if not isinstance(nrows, int) or nrows <= 0:
+                    raise ValueError("nrows must be a positive integer")
+            if ncols is not None:
+                if not isinstance(ncols, int) or ncols <= 0:
+                    raise ValueError("ncols must be a positive integer")
             N = len(children)
             if ncols is None:
                 ncols = math.ceil(N/nrows)
