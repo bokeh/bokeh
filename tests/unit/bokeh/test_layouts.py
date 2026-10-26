@@ -279,9 +279,7 @@ def test_gridplot_invalid_ncols() -> None:
         
     with pytest.raises(ValueError, match="ncols must be a positive integer"):
         gridplot([Spacer()], ncols=-5)
-
-
-
+        
 def test_group_tools() -> None:
     pan0 = PanTool(dimensions="both")
     pan1 = PanTool(dimensions="both")
