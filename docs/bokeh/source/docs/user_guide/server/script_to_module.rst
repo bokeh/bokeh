@@ -21,7 +21,7 @@ needed. Do not accidentally turn per-session state into shared module state.
 Compare the two slider examples:
 
 * :bokeh-tree:`examples/server/script_apps/adjust_plot_with_sliders.py`
-* :bokeh-tree:`examples/server/module_apps/getting_started/adjust_plot_with_sliders/main.py`
+* :bokeh-tree:`examples/server/module_apps/getting_started/adjust_plot_with_sliders/app.py`
 
 Replace directory discovery
 ----------------------------
@@ -38,9 +38,9 @@ See :ref:`ug_server_lifecycle` and
 Add the ASGI entry point
 ------------------------
 
-For a simple app, put document construction in ``main.py`` and expose
+For a simple app, put document construction in ``app.py`` and expose
 ``app = BokehASGI(modify_document)`` in the same file. Run it with
-``python -m uvicorn main:app``. No web framework is required.
+``python -m uvicorn app:app``. No web framework is required.
 
 When authentication, lifecycle hooks or static asset handling need separate
 setup, keep the document function in ``app.py`` and import it into ``server.py``.

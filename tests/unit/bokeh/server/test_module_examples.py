@@ -23,7 +23,9 @@ ROOT = Path(__file__).parents[4]
 EXAMPLES = ROOT / 'examples/server/module_apps'
 MODULES = sorted(
     '.'.join(path.relative_to(ROOT).with_suffix('').parts)
-    for path in EXAMPLES.rglob('*.py') if path.name in ('main.py', 'server.py')
+    for path in EXAMPLES.rglob('*.py')
+    if path.name in ('app.py', 'server.py')
+    and (path.name == 'server.py' or not path.with_name('server.py').exists())
     and 'frameworks' not in path.relative_to(EXAMPLES).parts
     and path.parent.name != 'embed_without_a_framework'
 )
@@ -87,7 +89,7 @@ async def test_auth_examples_reject_non_ascii_credentials(form, monkeypatch):
 def test_image_processing_preserves_original_blur(size):
     np = pytest.importorskip('numpy')
     pytest.importorskip('scipy')
-    from examples.server.module_apps.applications.process_images.main import blur
+    from examples.server.module_apps.applications.process_images.app import blur
 
     image = np.random.default_rng(19).integers(0, 255, size=(20, 21), dtype=np.int32)
     expected = image.copy()
@@ -140,7 +142,7 @@ def test_audio_input_decodes_bytes_and_closes_devices(form, monkeypatch):
 
 
 async def test_shared_producer_failure_still_stops_bokeh(monkeypatch):
-    module = importlib.import_module('examples.server.module_apps.updating_data.share_data_between_sessions.server')
+    module = importlib.import_module('examples.server.module_apps.lifecycle.share_data_with_asgi.server')
 
     async def fail(app):
         raise RuntimeError('producer failed')
@@ -165,7 +167,7 @@ async def test_shared_producer_failure_still_stops_bokeh(monkeypatch):
 
 
 async def test_shared_producer_shutdown_without_startup():
-    module = importlib.import_module('examples.server.module_apps.updating_data.share_data_between_sessions.server')
+    module = importlib.import_module('examples.server.module_apps.lifecycle.share_data_with_asgi.server')
     messages = []
 
     async def receive():
@@ -180,10 +182,9 @@ async def test_shared_producer_shutdown_without_startup():
 
 def test_clustering_can_select_agglomerative_algorithm():
     pytest.importorskip('sklearn')
-    from examples.server.module_apps.applications.clustering.main import modify_document
-
     from bokeh.document import Document
     from bokeh.models import Plot, Select
+    from examples.server.module_apps.applications.clustering.app import modify_document
 
     document = Document()
     modify_document(document)
@@ -193,7 +194,7 @@ def test_clustering_can_select_agglomerative_algorithm():
 
 
 async def test_shared_producer_reports_core_shutdown_failure(monkeypatch):
-    module = importlib.import_module('examples.server.module_apps.updating_data.share_data_between_sessions.server')
+    module = importlib.import_module('examples.server.module_apps.lifecycle.share_data_with_asgi.server')
     messages = []
 
     async def fail():
@@ -208,3 +209,30 @@ async def test_shared_producer_reports_core_shutdown_failure(monkeypatch):
     monkeypatch.setattr(module.bokeh_application.core, 'stop', fail)
     await module.app({'type': 'lifespan'}, receive, send)
     assert messages == [{'type': 'lifespan.shutdown.failed', 'message': 'core shutdown failed'}]
+
+
+async def test_application_shared_data_updates_sessions_and_stops_producer():
+    module = importlib.import_module('examples.server.module_apps.updating_data.share_data_between_sessions.server')
+    app = module.app
+    await app.core.start()
+    application = app.core.applications['/'].application
+    producer = application.producer
+    try:
+        context = app.core.applications['/']
+        first = await context.create_session_if_needed('shared-first')
+        second = await context.create_session_if_needed('shared-second')
+        first_source = first.document.select_one({'name': 'shared-source'})
+        second_source = second.document.select_one({'name': 'shared-source'})
+        before = list(first_source.data['y'])
+
+        async def wait_for_updates():
+            while list(first_source.data['y']) == before or list(second_source.data['y']) == before:
+                await asyncio.sleep(0.02)
+
+        await asyncio.wait_for(wait_for_updates(), 5)
+        assert producer.is_alive()
+        assert first_source is not second_source
+        assert application.producer is producer
+    finally:
+        await app.core.stop()
+    assert not producer.is_alive()

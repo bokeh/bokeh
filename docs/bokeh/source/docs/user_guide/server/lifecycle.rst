@@ -55,10 +55,17 @@ Keep shared computation separate from per-session models. Publish snapshots
 that each document can apply to its own data sources. A shared producer belongs
 to the host's lifecycle, not to an arbitrary viewer's session.
 
-See :bokeh-tree:`examples/server/module_apps/updating_data/share_data_between_sessions`.
-Its framework-free host starts one producer and cancels it on shutdown.
-``BokehASGI.update_sessions()`` applies a snapshot under each document's lock.
-The FastAPI version reuses the same application and producer:
+Start with
+:bokeh-tree:`examples/server/module_apps/updating_data/share_data_between_sessions`.
+Its ``Application`` hooks start and stop one producer thread. The thread only
+replaces data snapshots. Each session uses a periodic callback to apply the
+latest snapshot under its document lock. No ASGI lifespan code is needed.
+
+For explicit host ownership, see
+:bokeh-tree:`examples/server/module_apps/lifecycle/share_data_with_asgi`.
+That version starts an async producer in the host's lifespan and uses
+``BokehASGI.update_sessions()`` to apply snapshots under each document's lock.
+The FastAPI version reuses the same async producer:
 :bokeh-tree:`examples/server/module_apps/frameworks/share_data_with_fastapi/server.py`.
 
 Shared Python state is local to one process. Multiple workers need an external
@@ -80,4 +87,4 @@ starts and stop them before Bokeh shuts down. Ensure cleanup still runs if a
 producer fails.
 
 See :ref:`ug_server_frameworks` for a FastAPI lifespan that owns a mounted Bokeh
-application. The shared-data example above also owns a producer task.
+application. The raw ASGI shared-data example above also owns a producer task.

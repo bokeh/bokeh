@@ -13,13 +13,14 @@ The examples use this structure:
 
     adjust_plot_with_sliders/
       __init__.py
-      main.py
+      app.py
       README.md
 
-``main.py`` defines ``modify_document(doc)`` and exposes
-``app = BokehASGI(modify_document)``. Run it with ``python -m uvicorn main:app``
-from that directory, or use its package path from the repository root as shown
-in its README.
+``app.py`` defines ``modify_document(doc)`` and exposes
+``app = BokehASGI(modify_document)``. For a single-file local app, run
+``python -m uvicorn app:app`` from its directory. Repository examples use
+package paths from the repository root, as shown in each README. This keeps
+relative imports working when an example has companion modules.
 
 Examples with authentication, application lifecycle hooks or static asset
 configuration keep document construction in ``app.py`` and hosting in
@@ -38,7 +39,7 @@ a document function:
     from bokeh.application.handlers.function import FunctionHandler
     from bokeh.server.asgi import BokehASGI
 
-    from main import modify_document
+    from app import modify_document
 
     app = BokehASGI(Application(FunctionHandler(modify_document)))
 
@@ -80,7 +81,7 @@ A document function can be tested without starting a server:
 .. code-block:: python
 
     from bokeh.document import Document
-    from main import modify_document
+    from app import modify_document
 
     first = Document()
     second = Document()

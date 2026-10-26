@@ -27,7 +27,7 @@ Streamlit 1.57.
 
 FastAPI and Starlette do not send lifespan events to mounted applications.
 The parent starts and stops Bokeh explicitly. The shared-data host also owns
-one producer and reuses the [framework-independent implementation](../updating_data/share_data_between_sessions/).
+one producer and reuses the [raw ASGI producer](../lifecycle/share_data_with_asgi/).
 Snapshots update independent session models under their document locks.
 
 ## Streamlit particles

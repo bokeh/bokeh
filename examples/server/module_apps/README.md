@@ -1,11 +1,11 @@
 # Module apps
 
 Each application builds a fresh document in `modify_document(doc)`.
-Simple examples expose `app` from `main.py` and run as `main:app`. Examples
+Simple examples expose `app` from `app.py` and run as `app:app`. Examples
 with separate hosting setup run as `server:app` and keep document construction
 in `app.py`.
-Hosting and framework integrations give their exact entry points in their READMEs. Run commands from the
-repository root so package imports work.
+Hosting and framework integrations give their exact entry points in their READMEs.
+Run commands from the repository root so package imports work.
 
 | Topic | Examples |
 |---|---|
@@ -19,7 +19,7 @@ repository root so package imports work.
 For example:
 
 ```sh
-python -m uvicorn examples.server.module_apps.getting_started.adjust_plot_with_sliders.main:app
+python -m uvicorn examples.server.module_apps.getting_started.adjust_plot_with_sliders.app:app
 ```
 
 Open <http://localhost:8000/>. Each browser session gets its own models.

@@ -106,7 +106,7 @@ def response_header(events: list[dict[str, Any]], name: bytes) -> bytes | None:
 
 
 def test_example_application_initializes(monkeypatch: pytest.MonkeyPatch) -> None:
-    path = Path(__file__).parents[4] / "examples/server/module_apps/applications/fourier_studio/main.py"
+    path = Path(__file__).parents[4] / "examples/server/module_apps/applications/fourier_studio/app.py"
     monkeypatch.syspath_prepend(str(path.parent))
     modify_document = runpy.run_path(str(path))["modify_document"]
     application = BokehASGI(modify_document).core.applications["/"].application

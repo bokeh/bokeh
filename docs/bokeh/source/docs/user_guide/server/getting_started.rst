@@ -5,7 +5,7 @@ Getting started
 
 Start with a module app. No web framework is needed.
 
-Create ``main.py``:
+Create ``app.py``:
 
 .. code-block:: python
 
@@ -31,7 +31,7 @@ Uvicorn is installed with Bokeh. From that directory, start it:
 
 .. code-block:: sh
 
-    python -m uvicorn main:app
+    python -m uvicorn app:app
 
 Uvicorn defaults to port 8000, while ``bokeh serve`` defaults to 5006.
 Open ``http://localhost:8000/`` and click the button. The callback runs in
@@ -52,7 +52,7 @@ root. For example:
 
 .. code-block:: sh
 
-    python -m uvicorn examples.server.module_apps.getting_started.adjust_plot_with_sliders.main:app
+    python -m uvicorn examples.server.module_apps.getting_started.adjust_plot_with_sliders.app:app
 
 See :bokeh-tree:`examples/server/module_apps/getting_started/adjust_plot_with_sliders`.
 For a quick single-script alternative, see :ref:`ug_server_script_apps`.

@@ -6,7 +6,7 @@ import streamlit as st
 from starlette.routing import Mount
 
 from bokeh.server.asgi import BokehASGI
-from examples.server.module_apps.applications.fourier_studio.main import modify_document
+from examples.server.module_apps.applications.fourier_studio.app import modify_document
 
 bokeh_application = BokehASGI(modify_document)
 

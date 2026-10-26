@@ -24,7 +24,9 @@ ROOT = Path(__file__).parents[3]
 MODULES = sorted(
     '.'.join(path.relative_to(ROOT).with_suffix('').parts)
     for path in (ROOT / 'examples/server/module_apps').rglob('*.py')
-    if path.name in ('main.py', 'server.py') and 'frameworks' not in path.relative_to(ROOT).parts
+    if path.name in ('app.py', 'server.py')
+    and (path.name == 'server.py' or not path.with_name('server.py').exists())
+    and 'frameworks' not in path.relative_to(ROOT).parts
     and path.parent.name != 'embed_without_a_framework'
 )
 pytestmark = pytest.mark.skipif(os.environ.get('BOKEH_SERVER_E2E') != '1', reason='explicit browser integration run')

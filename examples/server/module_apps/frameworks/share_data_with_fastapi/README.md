@@ -1,6 +1,7 @@
 # Share data with FastAPI
 
-This host reuses the [shared-data application and producer](../../updating_data/share_data_between_sessions/).
+This host reuses the [shared-data document](../../updating_data/share_data_between_sessions/)
+and the [async producer](../../lifecycle/share_data_with_asgi/).
 
 Additional dependency: FastAPI.
 

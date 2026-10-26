@@ -1,40 +1,40 @@
-import asyncio
-from contextlib import suppress
+"""Own one data producer using Bokeh application lifecycle hooks."""
 
+from math import pi
+from threading import Event, Thread
+
+from bokeh.application import Application
+from bokeh.application.handlers.function import FunctionHandler
 from bokeh.server.asgi import BokehASGI
 
-from .app import modify_document, produce, report_producer_failure
-
-bokeh_application = BokehASGI(modify_document)
+from .app import apply_snapshot, latest, make_snapshot, modify_document
 
 
-async def app(scope, receive, send):
-    if scope["type"] != "lifespan":
-        await bokeh_application(scope, receive, send)
-        return
-    producer = None
-    while True:
-        event = await receive()
-        if event["type"] == "lifespan.startup":
-            try:
-                await bokeh_application.core.start()
-                producer = asyncio.create_task(produce(bokeh_application))
-                producer.add_done_callback(report_producer_failure)
-            except Exception as error:
-                await send({"type": "lifespan.startup.failed", "message": str(error)})
-                return
-            await send({"type": "lifespan.startup.complete"})
-        elif event["type"] == "lifespan.shutdown":
-            try:
-                try:
-                    if producer is not None:
-                        producer.cancel()
-                        with suppress(asyncio.CancelledError):
-                            await producer
-                finally:
-                    await bokeh_application.core.stop()
-            except Exception as error:
-                await send({"type": "lifespan.shutdown.failed", "message": str(error)})
-                return
-            await send({"type": "lifespan.shutdown.complete"})
-            return
+def modify_session(doc):
+    modify_document(doc)
+    doc.add_periodic_callback(lambda: apply_snapshot(doc, latest.read()), 100)
+
+
+class SharedData(Application):
+
+    def on_server_loaded(self, server_context):
+        super().on_server_loaded(server_context)
+        self.stop = Event()
+
+        def produce():
+            phase = 0.0
+            while not self.stop.is_set():
+                latest.replace(make_snapshot(phase))
+                phase = (phase + 0.12) % (2 * pi)
+                self.stop.wait(0.1)
+
+        self.producer = Thread(target=produce, daemon=True)
+        self.producer.start()
+
+    def on_server_unloaded(self, server_context):
+        self.stop.set()
+        self.producer.join()
+        super().on_server_unloaded(server_context)
+
+
+app = BokehASGI(SharedData(FunctionHandler(modify_session)))

@@ -8,7 +8,7 @@ from jinja2 import Environment, FileSystemLoader
 
 from bokeh.embed import embed_server
 from bokeh.server.asgi import BokehASGI
-from examples.server.module_apps.applications.fourier_studio.main import modify_document
+from examples.server.module_apps.applications.fourier_studio.app import modify_document
 
 type Message = dict[str, Any]
 type Receive = Callable[[], Awaitable[Message]]

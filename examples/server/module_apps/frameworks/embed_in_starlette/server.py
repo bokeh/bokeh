@@ -10,7 +10,7 @@ from starlette.routing import Mount, Route
 
 from bokeh.embed import embed_server
 from bokeh.server.asgi import BokehASGI
-from examples.server.module_apps.applications.fourier_studio.main import modify_document
+from examples.server.module_apps.applications.fourier_studio.app import modify_document
 
 bokeh_application = BokehASGI(modify_document)
 template = Environment(loader=FileSystemLoader(Path(__file__).parent), autoescape=True).get_template("index.html")

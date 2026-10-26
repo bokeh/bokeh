@@ -1,7 +1,5 @@
 """One producer supplies immutable snapshots to independent sessions."""
 
-import asyncio
-import logging
 from dataclasses import dataclass
 from math import pi, sin
 from threading import Lock
@@ -10,7 +8,6 @@ from bokeh.document import Document
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Div
 from bokeh.plotting import figure
-from bokeh.server.asgi import BokehASGI
 
 
 @dataclass(frozen=True)
@@ -65,26 +62,5 @@ def modify_document(doc: Document) -> None:
     plot = figure(height=320, sizing_mode="stretch_width", title="One producer, many sessions")
     plot.line("x", "y", source=source, line_width=3)
     doc.add_root(column(phase, plot, sizing_mode="stretch_width"))
-    doc.title = "Shared ASGI data"
+    doc.title = "Shared data"
     apply_snapshot(doc, snapshot)
-
-
-async def produce(bokeh_application: BokehASGI) -> None:
-    phase = 0.0
-    while True:
-        snapshot = make_snapshot(phase)
-        latest.replace(snapshot)
-
-        def update_document(doc: Document) -> None:
-            apply_snapshot(doc, snapshot)
-
-        await bokeh_application.update_sessions("/", update_document)
-        phase = (phase + 0.12) % (2 * pi)
-        await asyncio.sleep(0.1)
-
-
-
-
-def report_producer_failure(task):
-    if not task.cancelled() and (error := task.exception()) is not None:
-        logging.getLogger(__name__).error("Shared data producer stopped", exc_info=(type(error), error, error.__traceback__))

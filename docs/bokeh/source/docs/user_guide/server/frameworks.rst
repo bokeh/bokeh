@@ -58,8 +58,8 @@ Shared data and Streamlit
 -------------------------
 
 :bokeh-tree:`examples/server/module_apps/frameworks/share_data_with_fastapi/server.py`
-adds a producer using the same document function and data source as the direct
-ASGI example. See :ref:`ug_server_shared_data` for producer ownership and
+adds a producer using the same document function and async producer as
+:bokeh-tree:`examples/server/module_apps/lifecycle/share_data_with_asgi`. See :ref:`ug_server_shared_data` for producer ownership and
 updates across sessions.
 
 :bokeh-tree:`examples/server/module_apps/frameworks/control_particles_with_streamlit`

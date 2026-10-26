@@ -46,7 +46,7 @@ application in another page. Serve both the HTTP routes and the WebSocket route.
 See :bokeh-tree:`examples/server/module_apps/hosting/embed_without_a_framework/server.py`.
 This example adds a surrounding page using ASGI routing alone. Its document
 function comes from
-:bokeh-tree:`examples/server/module_apps/applications/fourier_studio/main.py`
+:bokeh-tree:`examples/server/module_apps/applications/fourier_studio/app.py`
 and is reused by the framework examples.
 
 .. _ug_server_authentication:
