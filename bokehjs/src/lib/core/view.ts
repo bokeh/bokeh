@@ -282,7 +282,11 @@ export abstract class View implements ISignalable, Equatable {
     let new_slot = this._slots.get(slot)
     if (new_slot == null) {
       new_slot = (args: Args, sender: Sender): void => {
-        this._await_ready(Promise.resolve(this._run_task(() => slot.call(this, args, sender))))
+        const result = this._run_task(() => slot.call(this, args, sender))
+        // track only asynchronous work, so that synchronous slots stay cheap
+        if (result instanceof Promise) {
+          this._await_ready(result)
+        }
       }
       this._slots.set(slot, new_slot)
     }

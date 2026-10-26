@@ -558,6 +558,29 @@ describe("core/view", () => {
         await view.ready
       })
 
+      it("which waits for asynchronous signal handlers", async () => {
+        const view = await build_view(SomeModel.create())
+        let done = false
+        view.on_change(view.model.properties.children, async () => {
+          await defer()
+          done = true
+        })
+        view.model.children = [SomeModel.create()]
+        await view.ready
+        expect(done).to.be.true
+      })
+
+      it("which doesn't track synchronous signal handlers", async () => {
+        const view = await build_view(SomeModel.create())
+        let called = false
+        view.on_change(view.model.properties.children, () => {
+          called = true
+        })
+        view.model.children = [SomeModel.create()]
+        expect(called).to.be.true
+        expect((view as any)._pending_tasks.size).to.be.equal(0)
+      })
+
       async function warnings(fn: () => Promise<void>): Promise<string[]> {
         const spy = sinon.spy(logger, "warn")
         try {
