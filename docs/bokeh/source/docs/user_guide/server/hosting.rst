@@ -101,10 +101,10 @@ Session tokens are bearer credentials. They do not replace request
 authentication. Enable ``sign_sessions`` and set a strong ``secret_key`` for
 an authenticated deployment. Signing is disabled by default. Signed tokens
 are not encrypted.
-Bokeh does not automatically copy cookies, Authorization, Proxy-Authorization
-or raw Cookie headers into generated tokens. Request filters do not enable
-cookie copying. Keep credentials out of custom request-hook payloads and
-query arguments too.
+Bokeh does not automatically copy any request headers or cookies into generated
+tokens. Header and cookie filters affect server-side context only. Generated
+tokens still contain query arguments as metadata. Keep credentials out of URLs
+and custom request-hook payloads.
 
 For the CLI, use ``--session-ids signed`` and set ``BOKEH_SECRET_KEY``.
 The ``external-signed`` mode requires a signed session ID supplied by a trusted
@@ -132,17 +132,20 @@ Neither option copies cookies into tokens.
 
 Session headers also come from the real initiating request, with
 ``include_headers`` and ``exclude_headers`` applied case-insensitively.
-Authorization headers are available server-side unless filtered out. They are
-never copied automatically into tokens, even when explicitly included. The
+All retained headers, including Authorization and gateway credential headers,
+stay server-side. Explicit inclusion does not copy them into tokens. The
 server-side Cookie header is rebuilt from the filtered cookies, unless header
 filters exclude it. This behavior is the same for HTTP and WebSocket creation.
 
 Filters do not alter the original request seen by authentication policies and
-request hooks. Supplied token header claims remain in ``token_payload`` and
-cannot replace the real request headers.
+request hooks. Request arguments also come from the real initiating request,
+with each name mapping to a list of bytes. Token header, cookie and argument
+claims remain in ``token_payload`` and cannot replace the real request data.
+Arguments are client input and must be validated before use. Signing a token
+does not make request arguments trusted.
 
 The initiating request may be HTTP or WebSocket. Reconnecting to an existing
-session does not replace its cookie snapshot. Cookie claims in a supplied token
+session does not replace its request snapshot. Cookie claims in a supplied token
 remain accessible through ``token_payload`` but never become request cookies.
 This also applies to external-signed sessions. Authentication policies always
 check the actual incoming request, including each WebSocket reconnect.

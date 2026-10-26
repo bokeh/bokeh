@@ -13,7 +13,6 @@ import logging
 from collections.abc import (
     Awaitable,
     Callable,
-    Iterable,
     Mapping,
     Sequence,
 )
@@ -83,10 +82,6 @@ class SessionConfig(TypingProtocol):
     def generate_session_ids(self) -> bool: ...
     @property
     def session_token_expiration(self) -> int: ...
-    @property
-    def include_headers(self) -> list[str] | None: ...
-    @property
-    def exclude_headers(self) -> list[str] | None: ...
 
 
 async def create_session(config: SessionConfig, context: ApplicationContext, request: RequestLike) -> ServerSession:
@@ -118,9 +113,8 @@ async def create_session(config: SessionConfig, context: ApplicationContext, req
         session_id = generate_session_id(secret_key=config.secret_key, signed=config.sign_sessions)
 
     if token is None:
-        headers = _filtered_headers(config, request)
         payload: dict[str, Any] = {
-            "headers": headers,
+            "headers": {},
             "cookies": {},
             "arguments": dict(request.arguments),
         }
@@ -149,26 +143,12 @@ def _argument(request: RequestLike, name: str) -> str | None:
     return values[-1].decode("utf-8")
 
 
-def _filtered_headers(config: SessionConfig, request: RequestLike) -> dict[str, str]:
-    allowed: Iterable[str]
-    if config.include_headers is None:
-        excluded = {name.lower() for name in config.exclude_headers or ()}
-        allowed = (name for name in request.headers if name.lower() not in excluded)
-    else:
-        allowed = config.include_headers
-    # Session tokens are visible to page scripts, even when signed.
-    sensitive = {"authorization", "proxy-authorization", "cookie"}
-    return {name: request.headers[name] for name in allowed
-            if name in request.headers and name.lower() not in sensitive}
-
-
-
 class BokehServerCore(SessionConfig):
     ''' Transport-independent Bokeh application, session, and connection state.
 
     Session request cookies come from the real initiating request and remain
     server-side. Cookie inclusion and exclusion lists filter that context only.
-    Cookies are never copied automatically into generated tokens.
+    Headers and cookies are never copied automatically into generated tokens.
     '''
 
     def __init__(

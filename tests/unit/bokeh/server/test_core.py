@@ -371,7 +371,7 @@ async def test_cookie_header_is_removed_case_insensitively_from_token() -> None:
         payload = get_token_payload(session.token)
 
         assert payload["cookies"] == {}
-        assert payload["headers"] == {"x-test": "visible"}
+        assert payload["headers"] == {}
     finally:
         await core.stop()
 
@@ -410,7 +410,7 @@ async def test_credentials_are_not_copied_into_session_tokens(include_headers) -
     try:
         session = await core.create_session(core.applications["/"], request)
         payload = get_token_payload(session.token)
-        assert payload["headers"] == {"x-test": "visible"}
+        assert payload["headers"] == {}
         assert payload["cookies"] == {}
         assert request.cookies["session"].value == "secret"
     finally:

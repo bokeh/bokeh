@@ -522,8 +522,8 @@ but before the browser opens its WebSocket connection.
 Server result ``headers`` and a directly supplied ``token`` are serialized
 into browser-visible page data. Do not put credentials or other secrets there
 unless they are explicitly safe for every page consumer. Prefer the normal
-``/embed.json`` bootstrap, which creates a short-lived signed session token,
-over persisting a token in reusable markup.
+``/embed.json`` bootstrap over persisting a token in reusable markup. Bootstrap
+tokens are short-lived. They are signed only when session signing is enabled.
 
 ``headers`` and ``with_credentials=True`` may be used together when an
 application requires both request headers and cookies. As with a directly

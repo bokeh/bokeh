@@ -60,3 +60,12 @@ def test_pixi_runtime_covers_project_dependencies() -> None:
     if "uvicorn-standard" in actual:
         actual["uvicorn"] = actual["uvicorn-standard"]
     assert {name: actual.get(name) for name in expected} == expected
+
+
+def test_uvicorn_runtime_dependency_excludes_emscripten() -> None:
+    pyproject, _ = _load_manifests()
+    uvicorn = next(Requirement(value) for value in pyproject['project']['dependencies']
+                   if Requirement(value).name == 'uvicorn')
+    assert uvicorn.marker is not None
+    assert not uvicorn.marker.evaluate({'sys_platform': 'emscripten'})
+    assert uvicorn.marker.evaluate({'sys_platform': 'linux'})

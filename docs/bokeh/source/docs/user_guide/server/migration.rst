@@ -44,18 +44,18 @@ real initiating request by default. A reconnect preserves that initial snapshot.
 Supplied token cookie claims do not override request cookies, including in
 external-signed sessions.
 
-Generated session tokens no longer copy Authorization, Proxy-Authorization or
-raw Cookie headers. Cookie filters now affect server-side context only. Neither
-``include_cookies`` nor ``exclude_cookies`` copies cookies into tokens. Code that
-reads cookies from ``token_payload`` should use
-``session_context.request.cookies`` instead.
+Generated session tokens no longer automatically copy request headers or cookies.
+Header and cookie filters affect only server-side context. Code that reads these
+values from ``token_payload`` should use ``session_context.request`` instead.
 
-Session headers now consistently come from the real initiating request, with
-header filters applied. Explicitly including Authorization makes it available
-server-side but never copies it into tokens. Supplied token header claims no
-longer replace session request headers. Custom token metadata remains available
-through ``token_payload``. Keep secrets out of that browser-visible metadata.
+Session arguments also come from the actual initiating request. Supplied token
+header, cookie and argument claims no longer replace request context. Custom
+token metadata remains available through ``token_payload``. Generated tokens
+still include query arguments as metadata, so keep secrets out of URLs and
+custom payloads. Arguments are client input and must be validated.
+
 Request hooks and authentication policies still receive the original request.
+Reconnecting to an existing session preserves its initial request snapshot.
 See :ref:`ug_server_session_request` and :ref:`ug_server_session_signing`.
 
 Example paths

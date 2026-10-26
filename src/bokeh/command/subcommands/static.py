@@ -24,7 +24,6 @@ from bokeh.util.logconfig import basicConfig
 
 # Bokeh imports
 from ...server.asgi import BokehASGI
-from ...server.host import serve
 from ..subcommand import Subcommand
 from ..util import report_server_init_errors
 from .serve import base_serve_args
@@ -68,6 +67,8 @@ class Static(Subcommand):
         if args.use_config is not None:
             log.info(f"Using override config file: {args.use_config}")
             settings.load_config(args.use_config)
+
+        from ...server.host import serve
 
         application = BokehASGI({}, use_index=False)
         with report_server_init_errors(address=args.address, port=args.port):

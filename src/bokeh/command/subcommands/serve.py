@@ -30,7 +30,6 @@ from bokeh.server.core import (
     DEFAULT_SESSION_TOKEN_EXPIRATION,
     DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
 )
-from bokeh.server.host import serve
 from bokeh.server.util import create_hosts_allowlist
 from bokeh.settings import settings
 from bokeh.util.logconfig import basicConfig
@@ -207,8 +206,8 @@ class Serve(Subcommand):
             action  = 'store',
             default = None,
             nargs='+',
-            help    = 'A list of request headers to exclude from the session '
-                      'context (authorization and raw cookie headers are never copied into tokens).',
+            help    = 'Request headers to exclude from server-side session context. '
+                      'Headers are never copied automatically into tokens.',
         )),
 
         ('--exclude-cookies', Argument(
@@ -223,8 +222,8 @@ class Serve(Subcommand):
             action  = 'store',
             default = None,
             nargs='+',
-            help    = 'A list of request headers to make available in the session '
-                      'context (authorization and raw cookie headers are never copied into tokens).',
+            help    = 'Request headers to retain in server-side session context. '
+                      'Headers are never copied automatically into tokens.',
         )),
 
         ('--include-cookies', Argument(
@@ -338,6 +337,8 @@ class Serve(Subcommand):
         if args.websocket_max_message_size <= 0:
             die("--websocket-max-message-size must be positive")
         application = BokehASGI(applications, **kwargs)
+        from bokeh.server.host import serve
+
         serve(application, address=args.address, port=args.port, unix_socket=args.unix_socket,
               show=args.show, ssl_certfile=certfile, ssl_keyfile=keyfile,
               ssl_keyfile_password=settings.ssl_password(), proxy_headers=args.use_xheaders,

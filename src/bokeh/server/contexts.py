@@ -284,7 +284,6 @@ class ApplicationContext:
                                               doc,
                                               logout_url=self._logout_url)
         if request is not None:
-            payload = get_token_payload(token) if token else {}
             # Cookies describe the real request, never client-supplied token claims.
             cookies = {
                 name: value if isinstance(value, str) else value.value
@@ -303,9 +302,10 @@ class ApplicationContext:
                 and 'cookie' not in self._exclude_headers
             if cookies and cookie_header_allowed:
                 headers['Cookie'] = '; '.join(f'{name}={value}' for name, value in cookies.items())
+            arguments = {name: list(values) for name, values in request.arguments.items()}
             # using private attr so users only have access to a read-only property
             session_context._request = _RequestProxy(request,
-                                                     arguments=payload.get('arguments'),
+                                                     arguments=arguments,
                                                      cookies=cookies,
                                                      headers=headers)
         session_context._token = token

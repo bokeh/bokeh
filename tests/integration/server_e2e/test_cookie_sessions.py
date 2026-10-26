@@ -49,28 +49,33 @@ def test_cookie_context_over_real_http_and_websocket(mode, bootstrap, cookie_opt
                    generate_session_ids=mode != 'external-signed', auth_policy=AuthPolicy(authenticate), **cookie_options)
     session_id = generate_session_id(secret_key=secret, signed=signed)
     with running_asgi(app) as host:
-        headers = {'Cookie': 'session=authenticated; theme=dark', 'Bokeh-Session-Id': session_id}
+        headers = {'Cookie': 'session=authenticated; theme=dark', 'Bokeh-Session-Id': session_id,
+                   'X-Forwarded-Access-Token': 'gateway-secret'}
         if bootstrap == 'http':
             if mode == 'external-signed':
                 with pytest.raises(HTTPError) as error:
                     urlopen(Request(host.url + '/embed.json', headers={'Cookie': headers['Cookie']}), timeout=5)
                 assert error.value.code == 403
-            with urlopen(Request(host.url + '/embed.json', headers=headers), timeout=5) as response:
+            with urlopen(Request(host.url + '/embed.json?admin=0', headers=headers), timeout=5) as response:
                 token = json.load(response)['token']
             payload = get_token_payload(token)
             assert payload['cookies'] == {}
-            assert not any(name.lower() == 'cookie' for name in payload['headers'])
+            assert payload['headers'] == {}
         else:
             token = generate_jwt_token(session_id, secret_key=secret, signed=signed,
-                                       extra_payload={'cookies': {'session': 'forged', 'theme': 'forged'}})
+                                       extra_payload={'cookies': {'session': 'forged', 'theme': 'forged'},
+                                                      'arguments': {'admin': [b'1']}})
         websocket_url = host.url.replace('http:', 'ws:') + '/ws'
         for preference in ['dark', 'light']:
-            with connect(websocket_url, origin=host.url, subprotocols=['bokeh', token],
-                         additional_headers={'Cookie': f'session=authenticated; theme={preference}'},
+            with connect(websocket_url + f'?admin={0 if preference == "dark" else 2}', origin=host.url, subprotocols=['bokeh', token],
+                         additional_headers={'Cookie': f'session=authenticated; theme={preference}',
+                                             'X-Forwarded-Access-Token': 'gateway-secret'},
                          open_timeout=5) as socket:
                 assert json.loads(socket.recv(timeout=5))['header']['msgtype'] == 'ACK'
             assert len(observed) == 1
             assert observed[0].request.cookies == expected
+            assert observed[0].request.arguments['admin'] == [b'0']
+            assert observed[0].request.headers['x-forwarded-access-token'] == 'gateway-secret'
         with pytest.raises(InvalidStatus):
             connect(websocket_url, origin=host.url, subprotocols=['bokeh', token],
                     additional_headers={'Cookie': 'session=attacker'}, open_timeout=5)

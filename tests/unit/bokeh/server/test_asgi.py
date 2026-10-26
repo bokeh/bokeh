@@ -1992,3 +1992,53 @@ async def test_session_headers_use_real_request_for_every_bootstrap(bootstrap, h
         assert request.cookies == {'sid': 'secret'}
     finally:
         await app.core.stop()
+
+
+@pytest.mark.parametrize('mode', ['unsigned', 'signed', 'external-signed'])
+@pytest.mark.parametrize('bootstrap', ['/', '/embed.json', 'websocket'])
+async def test_session_arguments_use_real_request_and_keep_initial_snapshot(mode, bootstrap):
+    secret = b'argument-context-signing-secret'
+    signed = mode != 'unsigned'
+    app = BokehASGI(Application(), sign_sessions=signed, secret_key=secret,
+                   generate_session_ids=mode != 'external-signed')
+    session_id = generate_session_id(secret_key=secret, signed=signed)
+    token = generate_jwt_token(session_id, secret_key=secret, signed=signed,
+                               extra_payload={'arguments': {'admin': [b'1'], 'forged': [b'yes']}})
+
+    async def websocket(query):
+        events = deque([{'type': 'websocket.connect'}, {'type': 'websocket.disconnect', 'code': 1000}])
+        sent = []
+
+        async def receive():
+            return events.popleft()
+
+        async def send(event):
+            sent.append(event)
+
+        await app({'type': 'websocket', 'asgi': {'version': '3.0'}, 'scheme': 'ws', 'path': '/ws',
+                   'root_path': '', 'query_string': query, 'headers': [(b'host', b'localhost')],
+                   'subprotocols': ['bokeh', token]}, receive, send)
+        assert sent[0]['type'] == 'websocket.accept'
+
+    try:
+        if bootstrap == 'websocket':
+            await websocket(b'admin=0&tag=one&tag=two&empty=')
+        else:
+            # A supplied token is valid on document requests but embed.json needs a session ID.
+            if bootstrap == '/':
+                headers = [(b'Bokeh-Token', token.encode())]
+            else:
+                headers = [(b'Bokeh-Session-Id', session_id.encode())]
+            response = await http_request(app, bootstrap, query={'admin': '0', 'empty': ''}, headers=headers)
+            assert response_status(response) == 200
+            token = app.core.get_sessions('/')[0].token
+        session = app.core.get_sessions('/')[0]
+        expected = {'admin': [b'0'], 'empty': [b'']}
+        if bootstrap == 'websocket':
+            expected['tag'] = [b'one', b'two']
+        assert session.document.session_context.request.arguments == expected
+        await websocket(b'admin=2&forged=yes')
+        assert app.core.get_sessions('/')[0] is session
+        assert session.document.session_context.request.arguments == expected
+    finally:
+        await app.core.stop()
