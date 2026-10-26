@@ -292,7 +292,7 @@ def gridplot(
             raise ValueError(f"Invalid value of toolbar_location: {toolbar_location}")
 
     if ncols is not None:
-        if not isinstance(ncols, int) or ncols <= 0:
+        if not (isinstance(ncols, int) and ncols > 0):
             raise ValueError("ncols must be a positive integer")
 
     children = _parse_children_arg(children=children)
