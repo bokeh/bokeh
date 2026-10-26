@@ -710,11 +710,12 @@ class Settings:
 
     ico_path: PrioritizedSetting[str] = PrioritizedSetting("ico_path", "BOKEH_ICO_PATH",
         default="default", dev_default="default-dev", convert=convert_ico_path, help="""
-    Legacy favicon setting. ASGI hosting and ``bokeh serve`` do not use this
-    value. Configure a favicon route in the surrounding website.
+    The path to a ``.ico`` file served at ``/favicon.ico`` by ``BokehASGI``
+    and ``bokeh serve``, under any configured URL prefix.
 
-    Retained for compatibility with settings readers. It has no effect on
-    either hosting approach and should not be used for new applications.
+    Use ``"default"`` for the Bokeh icon or ``"none"`` to disable it.
+    Development mode uses the development icon unless this setting is overridden.
+    The icon is loaded when the ASGI application is constructed.
 
     """)
 

@@ -85,3 +85,47 @@ Script apps through ASGI
 ``BokehASGI({"/plot": path})`` can load the same script or directory. This
 changes the host while retaining script-loading conventions. See
 :ref:`ug_server_script_to_module` to change the application form instead.
+
+Customizing the application index
+---------------------------------
+
+Use ``--index index.html`` to supply a Jinja2 template for the application
+listing. The template receives sorted application paths as ``items`` and the
+public URL prefix as ``prefix``. Includes are resolved beside the template.
+For example:
+
+.. code-block:: jinja
+
+    <h1>Applications</h1>
+    {% for item in items %}
+      <a href="{{ prefix }}{{ item }}">{{ item }}</a>
+    {% endfor %}
+
+When only one app is hosted, use ``--disable-index-redirect`` to show the index.
+``--disable-index`` disables the listing, including a custom template.
+Application document templates in ``templates/index.html`` are separate from
+this server-wide application listing.
+
+Diagnostics
+-----------
+
+Use ``--stats-log-frequency`` to set the statistics interval in milliseconds.
+Statistics are logged at DEBUG level, so also set ``--log-level debug``.
+The default interval is 15000 milliseconds.
+
+Use ``--mem-log-frequency`` to log process memory usage at INFO level.
+Install ``psutil`` to enable it. The interval is in milliseconds and defaults
+to zero, which disables memory logging. At DEBUG level, the log also includes
+counts of uncollected documents, sessions and models.
+
+CLI customization hooks
+-----------------------
+
+Subclasses of :class:`~bokeh.command.subcommands.serve.Serve` may override
+``customize_applications(args, applications)`` to change the application mapping
+or ``customize_kwargs(args, server_kwargs)`` to change the configuration.
+Both hooks return a new dictionary by default.
+
+The configuration contains ``BokehASGI`` options such as ``prefix`` and
+``index``, plus host options such as ``address``, ``port`` and ``ws_max_size``.
+These are ASGI configuration options. Tornado-specific options are not accepted.

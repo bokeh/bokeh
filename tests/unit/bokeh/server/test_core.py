@@ -437,3 +437,61 @@ async def test_cookie_header_reconstruction(headers, cookies, expected):
         assert session.document.session_context.request.cookies == cookies
     finally:
         await core.stop()
+
+
+async def test_statistics_and_memory_logging_are_periodic_and_stop(monkeypatch, caplog):
+    import logging
+    import sys
+    from types import SimpleNamespace
+
+    fired = asyncio.Event()
+    calls = []
+
+    def memory_info():
+        calls.append(threading.get_ident())
+        return SimpleNamespace(rss=2 * 2**20, vms=8 * 2**20)
+
+    process = SimpleNamespace(pid=123, memory_info=memory_info)
+    monkeypatch.setitem(sys.modules, "psutil", SimpleNamespace(Process=lambda: process))
+    monkeypatch.setattr("bokeh.server.core.gc.get_objects", lambda: [])
+    caplog.set_level(logging.DEBUG, logger="bokeh.server.core")
+    core = BokehServerCore(Application(), stats_log_frequency_milliseconds=1, mem_log_frequency_milliseconds=1)
+    original = core._log_mem
+
+    async def logged():
+        await original()
+        fired.set()
+
+    monkeypatch.setattr(core, "_log_mem", logged)
+    try:
+        await core.start()
+        await asyncio.wait_for(fired.wait(), timeout=2)
+    finally:
+        await core.stop()
+    assert "0 clients connected" in caplog.text
+    assert "2.00 MB (RSS), 8.00 MB (VMS)" in caplog.text
+    assert "uncollected Documents: 0" in caplog.text
+    assert all(identifier != threading.get_ident() for identifier in calls)
+    fired.clear()
+    with pytest.raises(TimeoutError):
+        await asyncio.wait_for(fired.wait(), timeout=0.03)
+
+
+async def test_memory_logging_is_optional_and_disabled_without_psutil(monkeypatch, caplog):
+    import sys
+
+    monkeypatch.setitem(sys.modules, "psutil", None)
+    core = BokehServerCore(Application())
+    await core.start()
+    await core.stop()
+    assert "requires psutil" not in caplog.text
+    core = BokehServerCore(Application(), mem_log_frequency_milliseconds=1)
+    await core.start()
+    await core.stop()
+    assert "Memory logging requires psutil" in caplog.text
+
+
+@pytest.mark.parametrize("options", [dict(stats_log_frequency_milliseconds=0), dict(mem_log_frequency_milliseconds=-1)])
+def test_invalid_diagnostic_intervals(options):
+    with pytest.raises(ValueError):
+        BokehServerCore(Application(), **options)

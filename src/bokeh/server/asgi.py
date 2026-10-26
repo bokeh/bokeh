@@ -22,6 +22,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 from urllib.parse import parse_qs, urlparse
 
+from jinja2 import Environment, FileSystemLoader, Template
+
 from .. import __version__
 from ..embed._util import server_page_for_session
 from ..embed.resources import (
@@ -137,11 +139,20 @@ class BokehASGI:
         redirect_root: bool = True,
         use_index: bool = True,
         auth_policy: AuthPolicy | None = None,
+        index: str | None = None,
+        ico_path: str | None = None,
         **kwargs: Any,
     ) -> None:
         if auth_policy is not None and auth_policy.logout_url is not None:
             kwargs.setdefault("logout_url", auth_policy.logout_url)
+        ico_path = settings.ico_path(ico_path)
+        self._icon = None if ico_path == "none" else Path(ico_path).read_bytes()
         self._core = BokehServerCore(applications, prefix=prefix, **kwargs)
+        self._index: Template | None = None
+        if index is not None:
+            path = Path(index).resolve()
+            environment = Environment(loader=FileSystemLoader(path.parent), autoescape=True)
+            self._index = environment.get_template(path.name)
         self._use_index = use_index
         self._redirect_root = redirect_root
         self._auth_policy = auth_policy
@@ -215,6 +226,9 @@ class BokehASGI:
         if not route:
             await self._not_found(request, send)
             return
+        if route == "/favicon.ico":
+            await self._favicon(request, send)
+            return
         if route.startswith("/static/"):
             await self._global_static(route, request, send)
             return
@@ -238,6 +252,15 @@ class BokehASGI:
             await self._application_static(context, suffix, request, send)
         else:
             await self._not_found(request, send)
+
+    async def _favicon(self, request: ServerRequest, send: Send) -> None:
+        method = request.method.upper()
+        if method not in ("GET", "HEAD"):
+            await self._method_not_allowed(send, ("GET", "HEAD"))
+        elif self._icon is None:
+            await self._not_found(request, send)
+        else:
+            await self._response(send, 200, self._icon, "image/x-icon", head=method == "HEAD")
 
     async def _global_static(self, route: str, request: ServerRequest, send: Send) -> None:
         method = request.method.upper()
@@ -409,6 +432,10 @@ class BokehASGI:
         base = request.root_path.rstrip("/") + self._core.prefix
         if self._redirect_root and len(paths) == 1:
             await self._response(send, 302, b"", "text/plain", head=head, extra_headers=[(b"location", (base + paths[0]).encode())])
+            return
+        if self._index is not None:
+            body = self._index.render(prefix=base, items=paths, current_user=request.user).encode()
+            await self._response(send, 200, body, "text/html; charset=UTF-8", head=head)
             return
         items = "".join(
             f'<li><a href="{html.escape(base + path)}">{html.escape(path)}</a></li>' for path in paths

@@ -27,10 +27,30 @@ CLI changes
 -----------
 
 The CLI no longer accepts notebook application files, ``--num-procs``,
-``--dev``, ``--cookie-secret``, ``--enable-xsrf-cookies``, custom index/favicon
-options, diagnostic timer options or fine-grained compression controls.
+``--dev``, ``--cookie-secret``, ``--enable-xsrf-cookies`` or fine-grained
+compression controls.
 Unsupported flags are errors. Retired authentication environment/configuration
 settings also fail startup rather than silently disabling authentication.
+
+The ``--ico-path`` option, ``ico_path`` setting and ``BOKEH_ICO_PATH``
+environment variable remain supported. They select the icon served at
+``/favicon.ico``, under any configured URL prefix. Set the value to a ``.ico`` file path, ``"default"`` for the Bokeh
+icon, or ``"none"`` to disable it. The icon is loaded when the ASGI application
+is constructed.
+
+The custom index option ``--index`` remains available. Index templates now use
+Jinja2, with ``prefix`` and ``items`` available as template variables. Convert
+Tornado template endings such as ``{% end %}`` to Jinja2 endings such as
+``{% endfor %}``.
+
+``--stats-log-frequency`` and ``--mem-log-frequency`` remain available in
+milliseconds. Statistics are logged at DEBUG level. Memory logging requires
+``psutil`` and is disabled by default.
+
+CLI subclasses can still override ``customize_applications`` and
+``customize_kwargs``. The configuration passed to ``customize_kwargs`` now
+contains ASGI application options and host options. Tornado-specific options
+and ``customize_server`` are not supported.
 
 Direct ASGI hosting uses explicit host configuration. Configure TLS, trusted
 proxies, WebSocket limits and keepalive on the host. See

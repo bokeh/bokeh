@@ -2042,3 +2042,105 @@ async def test_session_arguments_use_real_request_and_keep_initial_snapshot(mode
         assert session.document.session_context.request.arguments == expected
     finally:
         await app.core.stop()
+
+
+@pytest.mark.parametrize(("value", "filename"), [("default", "bokeh.ico"), ("default-dev", "bokeh-dev.ico"), ("none", None)])
+async def test_favicon_builtin_icons_and_disabled(monkeypatch, value, filename):
+    from bokeh.util.paths import server_path
+
+    monkeypatch.setenv("BOKEH_ICO_PATH", value)
+    app = BokehASGI(Application())
+    try:
+        get = await http_request(app, "/favicon.ico")
+        head = await http_request(app, "/favicon.ico", method="HEAD")
+        assert response_body(head) == b""
+        if filename is None:
+            assert response_status(get) == response_status(head) == 404
+        else:
+            content = (server_path() / "views" / filename).read_bytes()
+            assert response_status(get) == response_status(head) == 200
+            assert response_body(get) == content
+            assert response_header(get, b"content-type") == b"image/x-icon"
+            assert response_header(get, b"content-length") == response_header(head, b"content-length") == str(len(content)).encode()
+    finally:
+        await app.core.stop()
+
+
+@pytest.mark.parametrize(("prefix", "root_path"), [("", ""), ("/tools", ""), ("/tools", "/gateway")])
+async def test_favicon_custom_env_path_respects_mount_and_prefix(tmp_path, monkeypatch, prefix, root_path):
+    path = tmp_path / "company.ico"
+    content = b"\x00\x00\x01\x00custom-favicon"
+    path.write_bytes(content)
+    monkeypatch.setenv("BOKEH_ICO_PATH", str(path))
+    app = BokehASGI(Application(), prefix=prefix)
+    # Like the previous host, cache the configured file at application construction.
+    path.unlink()
+    try:
+        url = root_path + prefix + "/favicon.ico"
+        get = await http_request(app, url, root_path=root_path)
+        head = await http_request(app, url, method="HEAD", root_path=root_path)
+        assert response_status(get) == response_status(head) == 200
+        assert response_body(get) == content
+        assert response_body(head) == b""
+        assert response_header(head, b"content-length") == str(len(content)).encode()
+        rejected = await http_request(app, url, method="POST", root_path=root_path)
+        assert response_status(rejected) == 405
+        assert response_header(rejected, b"allow") == b"GET, HEAD"
+        if prefix:
+            outside = await http_request(app, root_path + "/favicon.ico", root_path=root_path)
+            assert response_status(outside) == 404
+    finally:
+        await app.core.stop()
+
+
+async def test_favicon_uses_development_default(monkeypatch):
+    from bokeh.util.paths import server_path
+
+    monkeypatch.delenv("BOKEH_ICO_PATH", raising=False)
+    monkeypatch.setenv("BOKEH_DEV", "yes")
+    app = BokehASGI(Application())
+    try:
+        response = await http_request(app, "/favicon.ico")
+        assert response_status(response) == 200
+        assert response_body(response) == (server_path() / "views" / "bokeh-dev.ico").read_bytes()
+    finally:
+        await app.core.stop()
+
+
+async def test_custom_index_template_preserves_prefix_includes_and_head(tmp_path):
+    (tmp_path / "links.html").write_text('{% for item in items %}<a href="{{ prefix }}{{ item }}">{{ item }}</a>{% endfor %}')
+    template = tmp_path / "index.html"
+    template.write_text('<h1>Choose an app</h1>{% include "links.html" %}')
+    app = BokehASGI({"/one": Application(), "/two": Application()}, prefix="/tools", index=str(template))
+    try:
+        get = await http_request(app, "/gateway/tools/", root_path="/gateway")
+        head = await http_request(app, "/gateway/tools/", root_path="/gateway", method="HEAD")
+        assert response_status(get) == response_status(head) == 200
+        assert b'<a href="/gateway/tools/one">/one</a>' in response_body(get)
+        assert b'<a href="/gateway/tools/two">/two</a>' in response_body(get)
+        assert response_body(head) == b""
+        assert response_header(head, b"content-length") == str(len(response_body(get))).encode()
+    finally:
+        await app.core.stop()
+
+
+async def test_custom_index_preserves_auth_redirect_and_disable_behavior(tmp_path):
+    template = tmp_path / "index.html"
+    template.write_text("Private application index")
+    app = BokehASGI({"/one": Application()}, index=str(template), auth_policy=AuthPolicy(lambda request: None))
+    try:
+        assert response_status(await http_request(app, "/")) == 401
+    finally:
+        await app.core.stop()
+    app = BokehASGI({"/one": Application()}, index=str(template))
+    try:
+        response = await http_request(app, "/")
+        assert response_status(response) == 302
+        assert response_header(response, b"location") == b"/one"
+    finally:
+        await app.core.stop()
+    app = BokehASGI({"/one": Application()}, index=str(template), use_index=False)
+    try:
+        assert response_status(await http_request(app, "/")) == 404
+    finally:
+        await app.core.stop()

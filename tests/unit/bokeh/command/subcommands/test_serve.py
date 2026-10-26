@@ -53,7 +53,8 @@ sys.meta_path.insert(0, BlockTornado())
     env = dict(os.environ, PYTHONPATH=str(tmp_path) + os.pathsep + os.environ.get("PYTHONPATH", ""))
     env.pop("BOKEH_AUTH_MODULE", None)
     executable = Path(sys.executable).with_name("bokeh.exe" if sys.platform == "win32" else "bokeh")
-    proc = subprocess.Popen([str(executable), command, "--port", "0", *options],
+    port_options = [] if "--unix-socket" in options else ["--port", "0"]
+    proc = subprocess.Popen([str(executable), command, *port_options, *options],
                             cwd=tmp_path, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     lines = Queue()
     output = []
@@ -74,9 +75,9 @@ sys.meta_path.insert(0, BlockTornado())
                 pytest.fail("Server startup timed out: " + "".join(output))
             if line is None:
                 pytest.fail("Server exited during startup: " + "".join(output))
-            match = re.search(r"Bokeh (?:app running at|static assets available at): (http://[^ ]+)", line)
+            match = re.search(r"Bokeh (?:app running at|static assets available at): (https?://[^ ]+)|Bokeh server listening on (\S+)", line)
             if match:
-                url = match.group(1).strip()
+                url = (match.group(1) or match.group(2)).strip()
                 yield url, proc
                 break
     finally:
@@ -93,7 +94,7 @@ sys.meta_path.insert(0, BlockTornado())
 
 
 @pytest.mark.parametrize("option", ["--num-procs", "--auth-module", "--dev", "--cookie-secret",
-                                    "--enable-xsrf-cookies", "--index", "--ico-path",
+                                    "--enable-xsrf-cookies",
                                     "--websocket-compression-level"])
 def test_removed_options_are_errors(option):
     with pytest.raises(SystemExit):
@@ -174,7 +175,7 @@ def test_cli_rejects_notebook(tmp_path):
     notebook.write_text("{}")
     args = parser().parse_args([str(notebook)])
     with pytest.raises(SystemExit):
-        Serve.invoke(object(), args)
+        Serve(argparse.ArgumentParser()).invoke(args)
 
 
 def test_cli_policy_import_failure_stops_startup(tmp_path):
@@ -200,7 +201,7 @@ def test_retired_auth_settings_are_not_silently_ignored(monkeypatch, variable):
     monkeypatch.setenv(variable, "configured")
     args = parser().parse_args([])
     with pytest.raises(SystemExit):
-        Serve.invoke(object(), args)
+        Serve(argparse.ArgumentParser()).invoke(args)
 
 
 def test_console_imports_policy_from_working_directory(tmp_path):

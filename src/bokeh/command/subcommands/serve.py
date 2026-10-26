@@ -21,6 +21,7 @@ import sys
 from glob import glob
 from ipaddress import ip_address
 from pathlib import Path
+from typing import Any
 
 from bokeh.application import Application
 from bokeh.resources import DEFAULT_SERVER_PORT
@@ -142,6 +143,11 @@ class Serve(Subcommand):
             help    = "URL prefix for Bokeh server URLs",
             default = None,
         )),
+
+        ('--ico-path', Argument(type=str, default=None, help='Path to a favicon .ico file, default, or none')),
+        ('--index', Argument(type=str, default=None, help='Path to a Jinja2 application index template')),
+        ('--stats-log-frequency', Argument(type=int, default=None, metavar='MILLISECONDS', help='How often to log stats')),
+        ('--mem-log-frequency', Argument(type=int, default=None, metavar='MILLISECONDS', help='How often to log memory usage, 0 to disable')),
 
         ('--keep-alive', Argument(
             metavar = 'MILLISECONDS',
@@ -271,6 +277,14 @@ class Serve(Subcommand):
     )
 
 
+    def customize_applications(self, args: argparse.Namespace, applications: dict[str, Any]) -> dict[str, Any]:
+        """Return a customized copy of the application mapping."""
+        return dict(applications)
+
+    def customize_kwargs(self, args: argparse.Namespace, server_kwargs: dict[str, Any]) -> dict[str, Any]:
+        """Return customized ASGI application and host configuration."""
+        return dict(server_kwargs)
+
     def invoke(self, args: argparse.Namespace) -> None:
         basicConfig(format=args.log_format, filename=args.log_file)
         if args.use_config is not None:
@@ -285,12 +299,13 @@ class Serve(Subcommand):
         applications = build_single_handler_applications(files, {path: args.args for path in files})
         if not applications:
             applications['/'] = Application()
+        applications = self.customize_applications(args, applications)
 
         kwargs = {key: getattr(args, key) for key in (
             'prefix', 'include_headers', 'include_cookies', 'exclude_headers', 'exclude_cookies',
-            'session_token_expiration',
+            'session_token_expiration', 'index', 'ico_path',
         ) if getattr(args, key) is not None}
-        for option in ('check_unused_sessions', 'unused_session_lifetime'):
+        for option in ('check_unused_sessions', 'unused_session_lifetime', 'stats_log_frequency', 'mem_log_frequency'):
             if (value := getattr(args, option)) is not None:
                 kwargs[option + '_milliseconds'] = value
         kwargs['sign_sessions'] = settings.sign_sessions()
@@ -336,12 +351,15 @@ class Serve(Subcommand):
             die("--keep-alive must be >= 0")
         if args.websocket_max_message_size <= 0:
             die("--websocket-max-message-size must be positive")
-        application = BokehASGI(applications, **kwargs)
+        host_kwargs = dict(address=args.address, port=args.port, unix_socket=args.unix_socket,
+                           show=args.show, ssl_certfile=certfile, ssl_keyfile=keyfile,
+                           ssl_keyfile_password=settings.ssl_password(), proxy_headers=args.use_xheaders,
+                           forwarded_allow_ips=args.forwarded_allow_ips,
+                           ws_max_size=args.websocket_max_message_size,
+                           ws_ping_interval=37 if args.keep_alive is None else (args.keep_alive / 1000 or None))
+        options = dict(self.customize_kwargs(args, dict(kwargs, **host_kwargs)))
+        host_options = {name: options.pop(name) for name in host_kwargs if name in options}
+        application = BokehASGI(applications, **options)
         from bokeh.server.host import serve
 
-        serve(application, address=args.address, port=args.port, unix_socket=args.unix_socket,
-              show=args.show, ssl_certfile=certfile, ssl_keyfile=keyfile,
-              ssl_keyfile_password=settings.ssl_password(), proxy_headers=args.use_xheaders,
-              forwarded_allow_ips=args.forwarded_allow_ips,
-              ws_max_size=args.websocket_max_message_size,
-              ws_ping_interval=37 if args.keep_alive is None else (args.keep_alive / 1000 or None))
+        serve(application, **host_options)

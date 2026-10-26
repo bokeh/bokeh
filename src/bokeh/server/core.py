@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import asyncio
+import gc
 import logging
 from collections.abc import (
     Awaitable,
@@ -53,6 +54,7 @@ log = logging.getLogger(__name__)
 
 DEFAULT_CHECK_UNUSED_MS = 17_000
 DEFAULT_STATS_LOG_FREQ_MS = 15_000
+DEFAULT_MEM_LOG_FREQ_MS = 0
 DEFAULT_UNUSED_LIFETIME_MS = 15_000
 DEFAULT_SESSION_TOKEN_EXPIRATION = 300
 DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES = 20*1024*1024
@@ -164,6 +166,7 @@ class BokehServerCore(SessionConfig):
         check_unused_sessions_milliseconds: int = DEFAULT_CHECK_UNUSED_MS,
         unused_session_lifetime_milliseconds: int = DEFAULT_UNUSED_LIFETIME_MS,
         stats_log_frequency_milliseconds: int = DEFAULT_STATS_LOG_FREQ_MS,
+        mem_log_frequency_milliseconds: int = DEFAULT_MEM_LOG_FREQ_MS,
         include_headers: list[str] | None = None,
         include_cookies: list[str] | None = None,
         exclude_headers: list[str] | None = None,
@@ -210,6 +213,18 @@ class BokehServerCore(SessionConfig):
             raise ValueError("unused_session_lifetime_milliseconds must be > 0")
         if stats_log_frequency_milliseconds <= 0:
             raise ValueError("stats_log_frequency_milliseconds must be > 0")
+        if mem_log_frequency_milliseconds < 0:
+            raise ValueError("mem_log_frequency_milliseconds must be >= 0")
+        self._process: Any = None
+        if mem_log_frequency_milliseconds > 0:
+            try:
+                import psutil
+            except ImportError:
+                log.warning("Memory logging requires psutil, disabling memory logging")
+                mem_log_frequency_milliseconds = 0
+            else:
+                self._process = psutil.Process()
+        self._mem_log_frequency_milliseconds = mem_log_frequency_milliseconds
         if session_token_expiration <= 0:
             raise ValueError("session_token_expiration must be > 0")
         if exclude_cookies and include_cookies:
@@ -318,6 +333,8 @@ class BokehServerCore(SessionConfig):
             _AsyncPeriodic(self._log_stats, self._stats_log_frequency_milliseconds, self._loop),
             _AsyncPeriodic(self._cleanup_sessions, self._check_unused_sessions_milliseconds, self._loop),
         ]
+        if self._mem_log_frequency_milliseconds > 0:
+            self._jobs.append(_AsyncPeriodic(self._log_mem, self._mem_log_frequency_milliseconds, self._loop))
         for job in self._jobs:
             job.start()
         for context in self._applications.values():
@@ -462,6 +479,24 @@ class BokehServerCore(SessionConfig):
     async def _cleanup_sessions(self) -> None:
         for context in self._applications.values():
             await context._cleanup_sessions(self._unused_session_lifetime_milliseconds)
+
+    async def _log_mem(self) -> None:
+        assert self._process is not None
+        memory = await asyncio.to_thread(self._process.memory_info)
+        log.info("[pid %d] Memory usage: %0.2f MB (RSS), %0.2f MB (VMS)",
+                 self._process.pid, memory.rss / 2**20, memory.vms / 2**20)
+        if log.isEnabledFor(logging.DEBUG):
+            def count_objects() -> list[tuple[str, int]]:
+                from ..document import Document
+                from ..model import Model
+                from .session import ServerSession
+
+                objects = gc.get_objects()
+                return [(name, sum(isinstance(obj, cls) for obj in objects))
+                        for name, cls in (("Documents", Document), ("Sessions", ServerSession), ("Models", Model))]
+
+            for name, count in await asyncio.to_thread(count_objects):
+                log.debug("  uncollected %s: %d", name, count)
 
     def _log_stats(self) -> None:
         if log.isEnabledFor(logging.DEBUG):
