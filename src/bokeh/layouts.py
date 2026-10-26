@@ -566,10 +566,10 @@ def grid(
         children = list(children)
         if nrows is not None or ncols is not None:
             if nrows is not None:
-                if not isinstance(nrows, int) or nrows <= 0:
+                if not (isinstance(nrows, int) and nrows > 0):
                     raise ValueError("nrows must be a positive integer")
             if ncols is not None:
-                if not isinstance(ncols, int) or ncols <= 0:
+                if not (isinstance(ncols, int) and ncols > 0):
                     raise ValueError("ncols must be a positive integer")
             N = len(children)
             if ncols is None:
