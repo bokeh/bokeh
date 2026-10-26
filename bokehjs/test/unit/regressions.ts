@@ -886,8 +886,8 @@ describe("Bug", () => {
       const new_icon = TablerIcon.create({icon_name: "thumb-down"})
       button.icon = new_icon
       await view.ready
-      // the icon is rebuilt asynchronously
-      await poll(() => view.owner.find_one(new_icon) != null)
+      // the icon is rebuilt asynchronously; give up after 1s and let the assertions below fail
+      await poll(() => view.owner.find_one(new_icon) != null, 50, 1000)
 
       const new_icon_view = view.owner.get_one(new_icon)
       expect(view.button_el.contains(new_icon_view.el)).to.be.true
