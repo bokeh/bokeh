@@ -36,6 +36,9 @@ export namespace View {
 
 export type IterViews<T extends View = View> = Generator<T, void, undefined>
 
+/** A slot whose result, if it is a promise, is awaited by `View.ready`. */
+export type ViewSlot<Args, Sender extends object> = (args: Args, sender: Sender) => unknown
+
 class ViewRemoved extends DOMException {
   constructor() {
     super("view removed", "AbortError")
@@ -143,14 +146,14 @@ export abstract class View implements ISignalable, Equatable {
     }
     const {abort_signal} = this
     const promise = new Promise<unknown>((resolve) => resolve(task(abort_signal)))
-    this._await_ready(promise.then(() => {}))
+    this._await_ready(promise)
   }
 
   /**
    * Makes `ready` of this view and its ancestors wait for an already started
    * `promise`. Prefer `schedule()`, which also covers synchronous failures.
    */
-  protected _await_ready(promise: Promise<void>): void {
+  protected _await_ready(promise: Promise<unknown>): void {
     if (this.abort_signal.aborted) {
       promise.catch((error) => this._dropped_task_failed(error))
       return
@@ -211,9 +214,9 @@ export abstract class View implements ISignalable, Equatable {
   }
 
   /** @internal */
-  protected _slots = new WeakMap<Slot<any, any>, Slot<any, any>>()
+  protected _slots = new WeakMap<ViewSlot<any, any>, Slot<any, any>>()
 
-  connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
+  connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: ViewSlot<Args, Sender>): boolean {
     let new_slot = this._slots.get(slot)
     if (new_slot == null) {
       new_slot = (args: Args, sender: Sender): void => {
@@ -225,7 +228,7 @@ export abstract class View implements ISignalable, Equatable {
     return signal.connect(new_slot, this)
   }
 
-  disconnect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
+  disconnect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: ViewSlot<Args, Sender>): boolean {
     const new_slot = this._slots.get(slot)
     return new_slot != null ? signal.disconnect(new_slot, this) : false
   }
@@ -387,13 +390,13 @@ export abstract class View implements ISignalable, Equatable {
     Signal.disconnect_receiver(this)
   }
 
-  on_change(properties: Property<unknown> | Property<unknown>[], fn: () => void): void {
+  on_change(properties: Property<unknown> | Property<unknown>[], fn: () => unknown): void {
     for (const property of isArray(properties) ? properties : [properties]) {
       this.connect(property.change, fn)
     }
   }
 
-  on_transitive_change<T>(property: Property<T>, fn: () => void, {recursive=false, signal=(obj) => obj.change}: TransitiveOpts = {}): void {
+  on_transitive_change<T>(property: Property<T>, fn: () => unknown, {recursive=false, signal=(obj) => obj.change}: TransitiveOpts = {}): void {
     const slot = () => fn()
 
     const collect = () => {
