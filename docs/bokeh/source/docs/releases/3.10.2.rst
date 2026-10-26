@@ -12,3 +12,34 @@ Changes
   sessions (:bokeh-pull:`15548`). Temporary overrides are now context-local.
   Use :func:`~bokeh.core.properties.set_validation_default` for process-wide
   validation configuration instead of assigning ``Property._should_validate``.
+
+* Correct layout of deeply nested rows, columns, grids, and tabs
+  (:bokeh-pull:`15498`) and avoid errors when CSS grid child views lag model
+  updates (:bokeh-pull:`15536`).
+* Clamp ``RangeSlider`` values when bounds change (:bokeh-pull:`14453`).
+* Support ISO date coordinates in range transforms (:bokeh-pull:`15446`).
+* Correct bitset counts (:bokeh-pull:`15501`) and improve spatial indexing
+  performance with radix sorting (:bokeh-pull:`15518`).
+* Improve pan and zoom performance after selections (:bokeh-pull:`15541`),
+  avoid redundant legend layout (:bokeh-pull:`15549`), and avoid unnecessary
+  glyph updates when clamping coordinates to the viewport (:bokeh-pull:`15534`).
+* Optimize serialization of NumPy string object arrays (:bokeh-pull:`15455`).
+* Support legend grouping for values that cannot be ordered
+  (:bokeh-pull:`15476`).
+* Fix event subscriptions for callbacks registered after a model is added to
+  a document (:bokeh-pull:`15506`).
+* Exclude dynamically generated application modules when bundling extensions
+  (:bokeh-pull:`15519`).
+* Fix notebook handle eviction and command-line server test hangs
+  (:bokeh-pull:`15570`).
+* Follow fragment links inside ``Div`` text (:bokeh-pull:`15532`).
+* Improve local testing on Windows (:bokeh-pull:`15509`, :bokeh-pull:`15574`)
+  and avoid Node.js subprocess deprecation warnings (:bokeh-pull:`15557`).
+* Use native GitHub issue types in milestone checks (:bokeh-pull:`15263`).
+* Improve documentation homepage metadata and release canonical URLs
+  (:bokeh-pull:`15582`, :bokeh-pull:`15584`).
+* Support pandas 3.1 without deprecated in-place DataFrame operations in
+  ``ColumnDataSource`` and the Gapminder and Weather examples
+  (:bokeh-pull:`15596`).
+* Prevent plot readiness from hanging when paint requests arrive on a busy
+  event loop (:bokeh-pull:`15596`).
