@@ -56,6 +56,15 @@ Direct ASGI hosting uses explicit host configuration. Configure TLS, trusted
 proxies, WebSocket limits and keepalive on the host. See
 :ref:`ug_server_deploy`.
 
+Static-file HTTP support
+------------------------
+
+ASGI static routes retain cache validators, conditional requests and single
+byte ranges without a web framework dependency. Ordinary URLs require cache
+revalidation. URLs with a nonempty ``v`` query argument can be cached for one
+year. Multiple ranges fall back to the full response.
+See :ref:`ug_server_static_http` for static-file cache and range behavior.
+
 Request context changes
 -----------------------
 

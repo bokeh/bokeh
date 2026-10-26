@@ -7,8 +7,10 @@ A Bokeh server application builds plots, widgets and Python callbacks for a
 browser. Each session owns a :class:`~bokeh.document.Document`. Changes to
 its models travel between Python and BokehJS over a WebSocket connection.
 
-Application forms
------------------
+.. _ug_server_app_forms:
+
+Comparing script apps and module apps
+-------------------------------------
 
 **Module apps** expose a ``modify_document(doc)`` function or an explicit
 :class:`~bokeh.application.Application` object through ordinary Python imports.
@@ -18,6 +20,36 @@ Keep models inside that function so that sessions do not share model instances.
 **Script apps** use a Python script or a directory containing ``main.py``.
 Bokeh executes the script for each session and supplies :func:`~bokeh.io.curdoc`.
 Directory apps can discover assets, templates, themes and lifecycle hooks.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 20 40 40
+
+   * - Aspect
+     - Module apps
+     - Script apps
+   * - Entry point
+     - An imported ``modify_document(doc)`` function or ``Application`` object
+     - A Python script or a directory containing ``main.py``
+   * - Session creation
+     - Call the document function for each session
+     - Execute the script for each session
+   * - State
+     - Function-local state belongs to the session. Module state is shared.
+     - Script globals belong to the session. Imported modules can share state.
+   * - Configuration
+     - Configure themes, templates, static assets and lifecycle hooks explicitly
+     - Directory apps discover these files and hooks
+   * - Hosting
+     - Expose ``BokehASGI`` to an ASGI server or parent application
+     - Use ``bokeh serve`` or load the script with ``BokehASGI``
+   * - Good fit
+     - Reusable application code, imports and testing
+     - Quick experiments and existing applications
+
+Start with a module app for reusable code. Both forms support Python callbacks
+and interactive documents. Neither form requires a web framework.
+See :ref:`ug_server_script_to_module` to convert an existing script app.
 
 Hosting choices
 ---------------
@@ -29,6 +61,88 @@ requires changing a module app's document function.
 ``bokeh serve`` loads script apps and uses ASGI internally. For direct hosting,
 ``BokehASGI`` can also load an existing script app from its file path.
 Application form and hosting method are separate choices.
+
+Choosing the hosting setup
+--------------------------
+
+``bokeh serve`` remains a convenient way to run script and directory apps. It
+supports Python callbacks, document templates, authentication policies, custom
+application indexes, diagnostics and static-file serving.
+
+Direct ASGI hosting can be just as small for a module app. Create ``app.py``:
+
+.. code-block:: python
+
+    from bokeh.models import Slider
+    from bokeh.server.asgi import BokehASGI
+
+
+    def modify_document(doc):
+        doc.add_root(Slider(start=0, end=10, value=1))
+
+
+    app = BokehASGI(modify_document)
+
+Run it with ``python -m uvicorn app:app``. No web framework is needed.
+See :ref:`ug_server_getting_started` for an example with a Python callback.
+
+A direct host also gives you control when Bokeh becomes part of a larger
+website or deployment. These features concern the surrounding service as well
+as the plots:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 22 35 43
+
+   * - Feature
+     - When it becomes useful
+     - ASGI approach
+   * - Additional HTTP routes
+     - Your application serves APIs or pages alongside its plots.
+     - Mount ``BokehASGI`` in a parent ASGI application and define the other
+       routes there. A web framework is optional.
+   * - Login and logout pages
+     - Your website manages login forms or an identity provider.
+     - Provide those endpoints in the parent application or a gateway. Use
+       ``AuthPolicy`` to authenticate Bokeh requests.
+   * - Signed cookies and CSRF protection
+     - Custom web endpoints manage browser credentials and submissions.
+     - Use the parent framework's security facilities. Bokeh session signing
+       and origin checks remain available.
+   * - Multiple worker processes
+     - Deployment needs more than one server process.
+     - Let the ASGI server or process manager run workers. Route requests to
+       the process that owns the session and plan how workers share data.
+   * - Transport tuning
+     - You need WebSocket or HTTP settings beyond the CLI options.
+     - Configure the ASGI server directly. Some Tornado settings have no exact
+       equivalent in other hosts.
+   * - Embedding in another Python service
+     - The surrounding service owns startup, shutdown and the event loop.
+     - Expose ``BokehASGI`` through that service. Use application lifecycle
+       hooks for resources owned by the Bokeh application.
+
+See :ref:`ug_server_hosting`, :ref:`ug_server_frameworks` and
+:ref:`ug_server_deploy` for the corresponding hosting examples and deployment
+configuration.
+
+Other migration considerations
+-------------------------------
+
+Some changes are convenience or security changes rather than advanced hosting
+features:
+
+* For development autoreload, run a module app with
+  ``python -m uvicorn app:app --reload``.
+* Convert notebook application files to a script or document function before
+  serving them. Ordinary notebook plotting remains supported.
+* External Python producers should use application-owned APIs or shared data
+  services. The former Python client session APIs have no direct ASGI
+  replacement.
+* Read request headers and cookies from server-side session context. They are
+  no longer copied automatically into session tokens.
+
+See :ref:`ug_server_migration` for the full migration details.
 
 Example collections
 -------------------

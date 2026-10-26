@@ -999,7 +999,7 @@ async def test_embed_bootstrap_extension_paths_preserve_proxy_prefix(
         await app.core.stop()
 
 
-async def test_root_application_static_files_stream_and_head_only_stats(tmp_path: Path) -> None:
+async def test_root_application_static_files_stream_and_head_has_no_body(tmp_path: Path) -> None:
     content = b"a" * (64*1024 + 1)
     (tmp_path / "artifact.bin").write_bytes(content)
     (tmp_path / "js").mkdir()

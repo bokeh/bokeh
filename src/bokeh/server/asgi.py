@@ -15,7 +15,6 @@ import datetime as dt
 import html
 import json
 import logging
-import mimetypes
 import zlib
 from http.cookies import SimpleCookie
 from pathlib import Path
@@ -44,6 +43,7 @@ from ..util.token import (
     get_token_payload,
 )
 from ._static import is_bokeh_js_path
+from ._static_http import StaticFiles
 from .auth import AuthPolicy
 from .core import BokehServerCore, SessionError
 from .request import Cookie, Headers, ServerRequest
@@ -153,6 +153,7 @@ class BokehASGI:
             path = Path(index).resolve()
             environment = Environment(loader=FileSystemLoader(path.parent), autoescape=True)
             self._index = environment.get_template(path.name)
+        self._static_files = StaticFiles()
         self._use_index = use_index
         self._redirect_root = redirect_root
         self._auth_policy = auth_policy
@@ -270,14 +271,14 @@ class BokehASGI:
 
         relative = route.removeprefix("/static/")
         if relative.startswith("extensions/"):
-            await self._serve_extension_static(send, relative.removeprefix("extensions/"), head=method == "HEAD")
+            await self._serve_extension_static(request, send, relative.removeprefix("extensions/"))
         elif self._is_bokeh_static(relative):
-            await self._serve_static(send, Path(settings.bokehjs_path()), relative, head=method == "HEAD")
+            await self._serve_static(request, send, Path(settings.bokehjs_path()), relative)
         else:
             root_context = self._core.applications.get("/")
             root = root_context.application.static_path if root_context is not None else None
             await self._serve_static(
-                send, root or Path(settings.bokehjs_path()), relative, head=method == "HEAD",
+                request, send, root or Path(settings.bokehjs_path()), relative,
             )
 
     async def _application_static(
@@ -293,11 +294,11 @@ class BokehASGI:
             return
         relative = suffix.removeprefix("/static/")
         if relative.startswith("extensions/"):
-            await self._serve_extension_static(send, relative.removeprefix("extensions/"), head=method == "HEAD")
+            await self._serve_extension_static(request, send, relative.removeprefix("extensions/"))
         elif self._is_bokeh_static(relative):
-            await self._serve_static(send, Path(settings.bokehjs_path()), relative, head=method == "HEAD")
+            await self._serve_static(request, send, Path(settings.bokehjs_path()), relative)
         else:
-            await self._serve_static(send, context.application.static_path, relative, head=method == "HEAD")
+            await self._serve_static(request, send, context.application.static_path, relative)
 
     async def _document(self, context: ApplicationContext, request: ServerRequest, send: Send) -> None:
         method = request.method.upper()
@@ -443,36 +444,12 @@ class BokehASGI:
         body = f"<!doctype html><title>Bokeh applications</title><h1>Bokeh applications</h1><ul>{items}</ul>".encode()
         await self._response(send, 200, body, "text/html; charset=UTF-8", head=head)
 
-    async def _serve_static(self, send: Send, root: str | Path | None, relative: str, *, head: bool) -> None:
-        if root is None or not relative:
-            await self._response(send, 404, b"Not found", "text/plain", head=head)
-            return
-        root_path = Path(root).resolve()
-        path = (root_path / relative).resolve()
-        if not path.is_relative_to(root_path) or not path.is_file():
-            await self._response(send, 404, b"Not found", "text/plain", head=head)
-            return
-        content_type = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
-        size = (await asyncio.to_thread(path.stat)).st_size
-        headers = [(b"content-type", content_type.encode()), (b"content-length", str(size).encode())]
-        await send({"type": "http.response.start", "status": 200, "headers": headers})
-        if head:
-            await send({"type": "http.response.body", "body": b""})
-            return
+    async def _serve_static(self, request: ServerRequest, send: Send, root: str | Path | None, relative: str) -> None:
+        await self._static_files.serve(request, send, root, relative)
 
-        stream = await asyncio.to_thread(path.open, "rb")
-        try:
-            while chunk := await asyncio.to_thread(stream.read, 64*1024):
-                await send({"type": "http.response.body", "body": chunk, "more_body": True})
-        finally:
-            await asyncio.to_thread(stream.close)
-        await send({"type": "http.response.body", "body": b""})
-
-    async def _serve_extension_static(self, send: Send, relative: str, *, head: bool) -> None:
+    async def _serve_extension_static(self, request: ServerRequest, send: Send, relative: str) -> None:
         name, separator, artifact = relative.partition("/")
-        await self._serve_static(
-            send, extension_dirs.get(name), artifact if separator else "", head=head,
-        )
+        await self._serve_static(request, send, extension_dirs.get(name), artifact if separator else "")
 
     @staticmethod
     def _is_bokeh_static(relative: str) -> bool:

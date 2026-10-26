@@ -49,6 +49,36 @@ function comes from
 :bokeh-tree:`examples/server/module_apps/applications/fourier_studio/app.py`
 and is reused by the framework examples.
 
+.. _ug_server_static_http:
+
+Static files and caching
+------------------------
+
+BokehJS assets, application static files and extension assets support HTTP
+caching and single byte ranges. These routes are public, including when an
+application uses an authentication policy.
+
+Responses include a content-based ``ETag``, ``Last-Modified`` and
+``Accept-Ranges: bytes``. Ordinary URLs require cache revalidation before reuse.
+URLs with a nonempty ``v`` query argument can be cached for one year. Change
+``v`` when the file contents change.
+
+Clients can send ``If-None-Match`` or ``If-Modified-Since`` to avoid downloading
+an unchanged file. A matching validator returns ``304 Not Modified`` without a
+body. ``If-Match`` and ``If-Unmodified-Since`` can reject a stale request with
+``412 Precondition Failed``. Entity tags take precedence over dates.
+
+A single ``Range: bytes=...`` request supports explicit offsets, open-ended
+ranges and suffix ranges. Successful range requests return ``206 Partial
+Content`` and ``Content-Range``. Unsatisfiable ranges return ``416`` with the
+file size. ``If-Range`` applies a range only when its validator matches.
+Weak entity tags and recent second-resolution dates do not validate a range.
+A failed range validator returns the full file instead.
+
+``HEAD`` returns the same headers as ``GET`` without a body and ignores
+``Range``. Malformed ranges, unknown range units and multiple ranges fall back
+to the full response. Multipart range responses are not generated.
+
 .. _ug_server_authentication:
 
 Authentication policies
