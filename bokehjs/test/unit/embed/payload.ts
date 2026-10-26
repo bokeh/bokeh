@@ -8,6 +8,7 @@ import {
   BOKEH_MOUNTED_ATTRIBUTE, BokehMount, mount, mount_embed_declaration, MountError, type MountErrorPhase, when_mounted,
 } from "@bokehjs/api/io"
 import {ModelResolver} from "@bokehjs/core/resolvers"
+import {logger} from "@bokehjs/core/logging"
 import {defer} from "@bokehjs/core/util/defer"
 import {to_object} from "@bokehjs/core/util/object"
 import {ReleaseType, Version} from "@bokehjs/core/util/version"
@@ -463,9 +464,7 @@ describe("EmbedPayload runtime", () => {
 
     cases.push(["schema", base, {...base, schema: "bokeh.embed/v2"}])
 
-    const resource = structuredClone(base)
-    resource.bokeh_version = "99.0.0"
-    cases.push(["resource", resource, resource])
+    cases.push(["resource", base, base])
 
     const deserialize = structuredClone(base)
     if (deserialize.source.kind != "standalone") {
@@ -476,6 +475,9 @@ describe("EmbedPayload runtime", () => {
 
     for (const [phase, declaration_payload, value] of cases) {
       const declaration = inline_declaration(declaration_payload, value)
+      if (phase == "resource") {
+        declaration.bootstrap.dataset.bokehResourceOverrideVersion = "99.0.0"
+      }
       const discoveries = declaration.targets.map((target) => when_mounted(target).then(
         () => null, (error: unknown) => error,
       ))
@@ -613,7 +615,7 @@ describe("EmbedPayload runtime", () => {
     target.remove()
   })
 
-  it("reports schema and runtime version errors through handle.ready", async () => {
+  it("reports schema errors through handle.ready", async () => {
     const payload = fixture("standalone-keyed-roots")
     const target = document.createElement("div")
     document.body.append(target)
@@ -626,13 +628,29 @@ describe("EmbedPayload runtime", () => {
     expect_instanceof(schema_error, MountError)
     expect(schema_error.kind).to.be.equal("schema")
 
-    const mismatched_payload = {...payload, bokeh_version: "99.0.0"}
-    const mismatched = mount(mismatched_payload, target, {resources: "none"})
-    const resource_error = await mismatched.ready.then(() => null, (error: unknown) => error)
-    expect_instanceof(resource_error, MountError)
-    expect(resource_error.kind).to.be.equal("resource")
-    expect(resource_error.message.includes("incompatible")).to.be.true
     target.remove()
+  })
+
+  it("warns and mounts a standalone document from a different producer version", async () => {
+    const payload = fixture("standalone-keyed-roots")
+    payload.bokeh_version = "99.0.0"
+    if (payload.source.kind != "standalone") {
+      throw new Error("expected a standalone fixture")
+    }
+    payload.source.documents[0].version = payload.bokeh_version
+    const resolver = new ModelResolver(default_resolver, [CustomJS])
+    const warn = sinon.spy(logger, "warn")
+    const mounted = mount(payload, undefined, {resources: "none", resolver})
+    try {
+      await mounted.ready
+      expect_instanceof(mounted.root("primary"), CustomJS)
+      expect(warn.calledWith(
+        `Bokeh/BokehJS version mismatch: new document using Bokeh 99.0.0 and BokehJS ${js_version}`,
+      )).to.be.true
+    } finally {
+      await mounted.dispose()
+      warn.restore()
+    }
   })
 
   it("allows an explicitly selected runtime version for a different payload release", async () => {
@@ -867,9 +885,9 @@ describe("EmbedPayload runtime", () => {
     ["independent host producer", "99.0.0", js_version, undefined, true],
     ["deliberate runtime override", "98.0.0", "99.0.0", js_version, true],
     ["incorrect runtime override", "99.0.0", js_version, "99.0.0", false],
-    ["incompatible server runtime", js_version, "99.0.0", undefined, false],
+    ["different server producer", js_version, "99.0.0", undefined, true],
   ] as const) {
-    it(`validates the authoritative server version with ${name}`, async () => {
+    it(`prepares a live session with ${name}`, async () => {
       const root = Div.create({text: "server version"})
       const server_document = new Document({roots: [root]})
       const connection = new ClientConnection()
@@ -1968,7 +1986,7 @@ describe("EmbedPayload runtime", () => {
     expect(widgets.components).to.be.equal(["bokeh/core", "bokeh/widgets"])
   })
 
-  it("retains explicit automatic CDN resource loading", async () => {
+  it("uses the loaded runtime for automatic CDN bundles despite a different producer version", async () => {
     const loader = new ResourceLoader()
     const widgets: ResourceRequirements = {components: ["bokeh/core", "bokeh/widgets"], extensions: []}
     const version = js_version.split("+")[0].replace(/-dev\.(\d+)$/, ".dev$1").replace(/-rc\.(\d+)$/, "rc$1")
@@ -1980,7 +1998,7 @@ describe("EmbedPayload runtime", () => {
     document.head.append(script)
 
     try {
-      await loader.ensure(widgets, "auto")
+      await loader.ensure(widgets, "auto", "99.0.0")
       expect(loader.size).to.be.equal(1)
     } finally {
       script.remove()
