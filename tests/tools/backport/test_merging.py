@@ -17,6 +17,42 @@ from tools.backport.models import BackportEntry, PublishedPlan
 
 
 class MergeWorkflowTests(unittest.TestCase):
+
+    def test_accepted_status_replaces_only_other_status_labels(self) -> None:
+        api = MagicMock()
+        api.get_all.return_value = [
+            {"name": "status: needs review"},
+            {"name": "status: ready"},
+            {"name": "type: task"},
+            {"name": "status: accepted"},
+        ]
+
+        with patch.object(merging, "remove_label") as remove_label:
+            merging.set_accepted_status(api, "bokeh/bokeh", 15264)
+
+        api.get_all.assert_called_once_with("/repos/bokeh/bokeh/issues/15264/labels")
+        api.request.assert_called_once_with(
+            "POST",
+            "/repos/bokeh/bokeh/issues/15264/labels",
+            json={"labels": ["status: accepted"]},
+        )
+        self.assertEqual(
+            [call.args for call in remove_label.call_args_list],
+            [
+                (api, "bokeh/bokeh", 15264, "status: needs review"),
+                (api, "bokeh/bokeh", 15264, "status: ready"),
+            ],
+        )
+
+    def test_accepted_status_is_safe_to_retry(self) -> None:
+        api = MagicMock()
+        for labels in ([], [{"name": "status: accepted"}]):
+            with self.subTest(labels=labels):
+                api.get_all.return_value = labels
+                with patch.object(merging, "remove_label") as remove_label:
+                    merging.set_accepted_status(api, "bokeh/bokeh", 15264)
+                remove_label.assert_not_called()
+
     @staticmethod
     def plan() -> PublishedPlan:
         return PublishedPlan(
@@ -40,6 +76,8 @@ class MergeWorkflowTests(unittest.TestCase):
     def test_requests_rebase_of_exact_preflight_head_then_finalizes(self) -> None:
         plan = self.plan()
         api = RecordingAPI()
+        messages: list[str] = []
+        progress = messages.append
 
         with (
             patch.object(merging, "get_pr", side_effect=[valid_pr(), valid_pr()]),
@@ -58,7 +96,7 @@ class MergeWorkflowTests(unittest.TestCase):
                 return_value=[],
             ) as finalize,
         ):
-            merge_sha, warnings = merging.merge_plan(api, plan)
+            merge_sha, warnings = merging.merge_plan(api, plan, progress=progress)
 
         self.assertEqual(
             api.calls,
@@ -78,20 +116,27 @@ class MergeWorkflowTests(unittest.TestCase):
         self.assertEqual(merge_sha, "f" * 40)
         self.assertEqual(warnings, [])
         require_rebase.assert_called_once_with(api, "bokeh/bokeh")
-        finalize.assert_called_once_with(api, plan)
+        finalize.assert_called_once_with(api, plan, progress=progress)
+        self.assertIn("Verifying the backport commits", messages)
+        self.assertEqual(messages[-1], "Rebase-merging PR #15264")
 
     def test_finalization_removes_the_label_whether_or_not_it_is_present(self) -> None:
         plan = self.plan()
         api = RecordingAPI()
+        messages: list[str] = []
         with (
             patch.object(merging, "ensure_milestone", return_value=7),
             patch.object(merging, "set_milestone"),
+            patch.object(merging, "set_accepted_status") as set_status,
             patch.object(merging, "closing_issue_numbers", return_value=set()),
             patch.object(merging, "remove_label") as remove_label,
         ):
-            warnings = merging.finalize_merged_plan(api, plan)
+            warnings = merging.finalize_merged_plan(api, plan, progress=messages.append)
 
         self.assertEqual(warnings, [])
+        self.assertIn("Finalizing source PR #15233 (1/1) and finding its closing issues", messages)
+        self.assertEqual(messages[-1], "Deleting remote branch backport/3.9.2")
+        set_status.assert_called_once_with(api, "bokeh/bokeh", plan.pull_request_number)
         remove_label.assert_called_once_with(
             api,
             "bokeh/bokeh",
@@ -115,6 +160,7 @@ class MergeWorkflowTests(unittest.TestCase):
         with (
             patch.object(merging, "ensure_milestone", return_value=7) as ensure_milestone,
             patch.object(merging, "set_milestone"),
+            patch.object(merging, "set_accepted_status"),
             patch.object(merging, "closing_issue_numbers", return_value=set()),
             patch.object(merging, "remove_label"),
         ):
