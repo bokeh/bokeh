@@ -193,9 +193,11 @@ Follow these rules:
   ``display: none``.
 * Visual tests wait for one animation frame after each test, before capturing
   the output. Thus, don't end a visual test with ``await paint()``.
-* If any task fails, ``ready`` rejects with the error (or an
-  ``AggregateError``), which fails the test. Failures are cleared once
-  reported. To test a failure, catch the rejection of ``await view.ready``.
+* If any task fails while ``ready`` is awaited, ``ready`` rejects with the
+  error (or an ``AggregateError``), which fails the test. Failures that happen
+  while nothing waits for ``ready`` are only logged. To test a failure, catch
+  the rejection of ``await view.ready``, and make sure to request ``ready``
+  before the task fails.
 
 When testing views without ``display()``, for example with ``build_view()``,
 await the built view's ``ready`` before inspecting state that depends on

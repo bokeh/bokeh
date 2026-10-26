@@ -106,7 +106,11 @@ export abstract class View implements ISignalable, Equatable {
 
   /** Pending tasks of this view and of all its descendants. */
   private readonly _pending_tasks: Set<ReadyTask> = new Set()
-  /** Failures of tasks in this subtree not yet reported through `ready`. */
+  /**
+   * Failures of tasks in this subtree not yet reported through `ready`. Only
+   * failures that happen while `ready` is awaited are collected, so that this
+   * doesn't grow without bounds and `ready` doesn't report stale failures.
+   */
   private _task_errors: unknown[] = []
   private _ready_waiters: ReadyWaiter[] = []
 
@@ -114,9 +118,10 @@ export abstract class View implements ISignalable, Equatable {
    * Resolves when this view and all its descendants have no outstanding
    * asynchronous work, including tasks scheduled while waiting.
    *
-   * Rejects if any of these tasks failed since `ready` last settled, with the
-   * error, or an `AggregateError` if there were more of them. Failures are then
-   * cleared, so a subsequent `ready` reflects only new work. A removed view's
+   * Rejects if any of these tasks failed while waiting, with the error, or an
+   * `AggregateError` if there were more of them. Failures that happen while
+   * nobody waits for `ready` are only logged, so `ready` reflects only work
+   * that it waits for. A removed view's
    * `ready` resolves, and its tasks don't count towards its ancestors' `ready`.
    *
    * A task must not wait for `ready` of its view or of an ancestor, because
@@ -218,7 +223,7 @@ export abstract class View implements ISignalable, Equatable {
       for (const view of path) {
         if (view._pending_tasks.delete(task)) {
           dropped = false
-          if (failure != null) {
+          if (failure != null && view._ready_waiters.length != 0) {
             view._task_errors.push(failure.error)
           }
           view._settle_ready()

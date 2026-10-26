@@ -423,11 +423,32 @@ describe("core/view", () => {
         leaf_view.schedule(async () => {
           throw new Error("leaf failed")
         })
-        for (const view of [leaf_view, mid_view, root_view]) {
-          const error = await rejection(view.ready)
+        const views = [leaf_view, mid_view, root_view]
+        const errors = await Promise.all(views.map((view) => rejection(view.ready)))
+        for (const error of errors) {
           expect(error).to.be.instanceof(Error)
           expect((error as Error).message).to.be.equal("leaf failed")
         }
+      })
+
+      it("which doesn't keep failures that happen while nobody waits", async () => {
+        const {root_view, leaf_view} = await build_tree()
+        const pending = deferred()
+        leaf_view.schedule(() => pending.promise)
+        pending.reject(new Error("leaf failed"))
+        await defer()
+        expect(await rejection(leaf_view.ready)).to.be.null
+        expect(await rejection(root_view.ready)).to.be.null
+      })
+
+      it("which reports a failure only to views waiting for it", async () => {
+        const {root_view, leaf_view} = await build_tree()
+        const pending = deferred()
+        leaf_view.schedule(() => pending.promise)
+        const root_error = rejection(root_view.ready)
+        pending.reject(new Error("leaf failed"))
+        expect(await root_error).to.be.instanceof(Error)
+        expect(await rejection(leaf_view.ready)).to.be.null
       })
 
       it("which clears failures once reported", async () => {

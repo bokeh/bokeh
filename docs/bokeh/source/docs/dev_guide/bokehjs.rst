@@ -379,11 +379,12 @@ instead of starting it and discarding its promise:
   This includes tasks that were scheduled while waiting, so ``ready`` covers
   chains of work, like a task that schedules a follow-up task. ``ready`` of
   the root view covers all views in its tree.
-* If any of these tasks failed since ``ready`` last settled, it rejects with
-  the error, or with an ``AggregateError`` if multiple tasks failed. Failures
-  are also logged when they happen. Once reported, failures are cleared, so
-  a subsequent ``ready`` only reflects new work. A failure is reported by the
-  view that owns the task and by each of its ancestors.
+* If any of these tasks failed while waiting, it rejects with the error, or
+  with an ``AggregateError`` if multiple tasks failed. A failure is reported
+  by ``ready`` of the view that owns the task and of each of its ancestors,
+  as long as it is awaited when the task fails. Failures are always logged
+  when they happen, but failures that nobody waits for aren't kept, so a
+  later ``ready`` doesn't report them.
 * When a view is removed, its tasks and the tasks of its descendants stop
   counting toward ``ready`` of its ancestors, and failures of these tasks are
   ignored. ``ready`` of a removed view resolves, and ``schedule()`` on a
