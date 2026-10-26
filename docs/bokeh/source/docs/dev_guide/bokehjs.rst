@@ -109,7 +109,7 @@ Developing BokehJS requires the following minimum versions:
 
 * Node.js 24+
 * npm 11+
-* Playwright-managed Chromium for browser tests (see
+* Chrome/Chromium 141+; Pixi setup supplies Playwright-managed Chromium (see
   :ref:`contributor_guide_testing_local_javascript`)
 
 Bokeh officially supports the following platforms for development and testing:

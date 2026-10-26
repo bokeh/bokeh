@@ -405,7 +405,19 @@ Run setup again after changes to the locked Playwright version.
 
 Bokeh uses this browser by default. Set ``BOKEH_CHROME`` or pass
 ``--executable`` to select another Chrome or Chromium executable explicitly.
-The visual baseline container retains its pinned browser.
+The minimum supported browser version is Chrome/Chromium 141. The locked
+``playwright-core`` 1.56.1 package installs Chromium 141.0.7390.37 (Playwright
+revision 1194). The visual baseline container retains Chrome 141.0.7390.54.
+
+When updating Playwright, check its bundled browser version with
+``npx --no-install playwright-core install --dry-run chromium`` from ``bokehjs``.
+Update both ``bokehjs/make/package.json`` and ``bokehjs/test/package.json`` and
+regenerate ``bokehjs/package-lock.json``. Review ``supported_chromium_version``
+in ``bokehjs/test/devtools/browser.ts`` and the minimum version above. Coordinate
+visual renderer changes with ``CHROME_VERSION`` in
+``bokehjs/test/baselines/Dockerfile`` and ``chrome_version`` in
+``bokehjs/test/run-baseline-tests.mjs``; regenerate and review visual baselines
+when changing that renderer.
 
 .. _contributor_guide_testing_local_javascript_all:
 

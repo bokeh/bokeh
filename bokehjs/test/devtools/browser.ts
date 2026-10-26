@@ -90,6 +90,10 @@ export class Failure {
   constructor(public text: string) {}
 }
 
+// Coordinate browser updates with playwright-core in make/package.json and test/package.json,
+// test/baselines/Dockerfile (CHROME_VERSION), and test/run-baseline-tests.mjs (chrome_version).
+// Playwright 1.56.1 manages Chromium 141.0.7390.37 (revision 1194); visual baselines
+// retain 141.0.7390.54. The compatibility check below intentionally ignores the patch.
 export const supported_chromium_version: Version = [141, 0, 7390, 54]
 
 export function get_version_tuple(version: string): Version | null {
