@@ -116,15 +116,7 @@ functionality.
 .. automodule:: bokeh.util.strings
   :members:
 
-.. _bokeh.util.tornado:
-
-``bokeh.util.tornado``
-----------------------
-
-.. automodule:: bokeh.util.tornado
-  :members:
-
-  .. _bokeh.util.terminal:
+.. _bokeh.util.terminal:
 
 ``bokeh.util.terminal``
 -----------------------

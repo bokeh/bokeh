@@ -33,7 +33,7 @@ pytestmark = pytest.mark.skipif(
 
 HERE = Path(__file__).parent
 REPO_ROOT = HERE.parents[2]
-APP_ROOT = REPO_ROOT / "examples" / "server" / "api" / "asgi"
+APP_ROOT = REPO_ROOT
 ARTIFACT_ROOT = REPO_ROOT / "work" / "server-e2e"
 SERVER = os.environ.get("BOKEH_SERVER_E2E_RUNNER", "uvicorn")
 
@@ -45,10 +45,10 @@ class FourierHost:
 
 
 FOURIER_HOSTS = [
-    FourierHost("framework_free:application", "framework-free ASGI"),
-    FourierHost("fastapi_embed:app", "FastAPI"),
-    FourierHost("starlette_embed:app", "Starlette"),
-    FourierHost("django_embed:application", "Django"),
+    FourierHost("examples.server.module_apps.hosting.embed_without_a_framework.server:app", "framework-free ASGI"),
+    FourierHost("examples.server.module_apps.frameworks.embed_in_fastapi.server:app", "FastAPI"),
+    FourierHost("examples.server.module_apps.frameworks.embed_in_starlette.server:app", "Starlette"),
+    FourierHost("examples.server.module_apps.frameworks.embed_in_django.server:app", "Django"),
 ]
 
 
@@ -177,7 +177,7 @@ def test_fourier_hosts_run_with_live_python_callbacks(browser: Any, host: Fourie
 
 
 @pytest.mark.parametrize("initially_empty", [False, True])
-def test_tornado_full_page_tracks_document_lifecycle(browser: Any, tmp_path: Path, initially_empty: bool) -> None:
+def test_cli_full_page_tracks_document_lifecycle(browser: Any, tmp_path: Path, initially_empty: bool) -> None:
     application = tmp_path / "full_page.py"
     application.write_text('''from bokeh.document.events import TitleChangedEvent
 from bokeh.io import curdoc
@@ -255,7 +255,7 @@ if not __INITIALLY_EMPTY__:
 
 
 def test_fastapi_shared_data_streams_to_independent_sessions(browser: Any) -> None:
-    with _running_app("fastapi_shared_data:app") as url:
+    with _running_app("examples.server.module_apps.frameworks.share_data_with_fastapi.server:app") as url:
         pages = [browser.new_page(), browser.new_page()]
         errors = [_page_errors(page) for page in pages]
         try:
@@ -280,7 +280,7 @@ def test_fastapi_shared_data_streams_to_independent_sessions(browser: Any) -> No
 
 
 def test_streamlit_simple_runs_bokeh_callbacks_in_its_iframe(browser: Any) -> None:
-    with _running_app("streamlit_simple:app") as url:
+    with _running_app("examples.server.module_apps.frameworks.embed_in_streamlit.server:app") as url:
         page = browser.new_page()
         errors = _page_errors(page)
         try:
@@ -296,7 +296,7 @@ def test_streamlit_simple_runs_bokeh_callbacks_in_its_iframe(browser: Any) -> No
 
 
 def test_streamlit_particle_viewers_animate_and_keep_independent_state(browser: Any) -> None:
-    with _running_app("streamlit_particles.app:app") as url:
+    with _running_app("examples.server.module_apps.frameworks.control_particles_with_streamlit.server:app") as url:
         contexts = [browser.new_context(), browser.new_context()]
         pages = [context.new_page() for context in contexts]
         errors = [_page_errors(page) for page in pages]

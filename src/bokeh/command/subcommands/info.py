@@ -21,7 +21,7 @@ settings as part of the output:
 
     Python version        :  3.12.3 | packaged by conda-forge | (main, Apr 15 2024, 18:38:13) [GCC 12.3.0]
     IPython version       :  8.19.0
-    Tornado version       :  6.3.3
+    Uvicorn version       :  0.30.0
     NumPy version         :  2.0.0
     Bokeh version         :  3.5.1
     BokehJS static path   :  /opt/anaconda/envs/test/lib/python3.12/site-packages/bokeh/server/static
@@ -35,7 +35,6 @@ settings as part of the output:
     =======================================
     Setting                Value
     ---------------------------------------
-    ico_path               /path/to/ico
     log_level              info
     ---------------------------------------
 

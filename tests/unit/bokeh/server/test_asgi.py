@@ -106,7 +106,7 @@ def response_header(events: list[dict[str, Any]], name: bytes) -> bytes | None:
 
 
 def test_example_application_initializes(monkeypatch: pytest.MonkeyPatch) -> None:
-    path = Path(__file__).parents[4] / "examples/server/api/asgi/fourier_studio.py"
+    path = Path(__file__).parents[4] / "examples/server/module_apps/applications/fourier_studio/main.py"
     monkeypatch.syspath_prepend(str(path.parent))
     modify_document = runpy.run_path(str(path))["modify_document"]
     application = BokehASGI(modify_document).core.applications["/"].application
@@ -256,10 +256,10 @@ async def test_update_sessions_updates_each_document_with_its_lock() -> None:
 
 
 async def test_framework_free_example_routes_site_and_bokeh(monkeypatch: pytest.MonkeyPatch) -> None:
-    path = Path(__file__).parents[4] / "examples/server/api/asgi/framework_free.py"
+    path = Path(__file__).parents[4] / "examples/server/module_apps/hosting/embed_without_a_framework/server.py"
     monkeypatch.syspath_prepend(str(path.parent))
     namespace = runpy.run_path(str(path))
-    application = namespace["application"]
+    application = namespace["app"]
     bokeh_application = cast(BokehASGI, namespace["bokeh_application"])
 
     try:
@@ -325,7 +325,7 @@ async def test_framework_example_composes_bokeh_lifespan(monkeypatch: pytest.Mon
     monkeypatch.setitem(sys.modules, "starlette.responses", starlette_responses)
     monkeypatch.setitem(sys.modules, "starlette.routing", starlette_routing)
 
-    path = Path(__file__).parents[4] / f"examples/server/api/asgi/{framework}_embed.py"
+    path = Path(__file__).parents[4] / f"examples/server/module_apps/frameworks/embed_in_{framework}/server.py"
     monkeypatch.syspath_prepend(str(path.parent))
     namespace = runpy.run_path(str(path))
     application = cast(BokehASGI, namespace["bokeh_application"])
@@ -345,8 +345,8 @@ async def test_framework_example_composes_bokeh_lifespan(monkeypatch: pytest.Mon
 
 
 @pytest.mark.parametrize(("example", "ui"), [
-    ("streamlit_simple.py", "streamlit_simple_page.py"),
-    ("streamlit_particles/app.py", "ui.py"),
+    ("embed_in_streamlit/server.py", "page.py"),
+    ("control_particles_with_streamlit/server.py", "ui.py"),
 ])
 async def test_streamlit_example_composes_bokeh_lifespan(
     monkeypatch: pytest.MonkeyPatch,
@@ -372,7 +372,7 @@ async def test_streamlit_example_composes_bokeh_lifespan(
     monkeypatch.setitem(sys.modules, "streamlit", streamlit)
     monkeypatch.setitem(sys.modules, "starlette.routing", starlette_routing)
 
-    examples_root = Path(__file__).parents[4] / "examples/server/api/asgi"
+    examples_root = Path(__file__).parents[4] / "examples/server/module_apps/frameworks"
     path = examples_root / example
     monkeypatch.syspath_prepend(str(examples_root))
     namespace = runpy.run_path(str(path))
@@ -393,7 +393,7 @@ async def test_streamlit_example_composes_bokeh_lifespan(
 
 
 def test_streamlit_example_state_is_isolated_by_viewer(monkeypatch: pytest.MonkeyPatch) -> None:
-    path = Path(__file__).parents[4] / "examples/server/api/asgi/streamlit_particles/state.py"
+    path = Path(__file__).parents[4] / "examples/server/module_apps/frameworks/control_particles_with_streamlit/state.py"
     monkeypatch.syspath_prepend(str(path.parent.parent))
     namespace = runpy.run_path(str(path))
     registry = namespace["ViewerRegistry"]()
@@ -441,7 +441,7 @@ def test_streamlit_example_state_is_isolated_by_viewer(monkeypatch: pytest.Monke
 def test_streamlit_particle_app_uses_client_side_mode_kernels(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    path = Path(__file__).parents[4] / "examples/server/api/asgi/streamlit_particles/simulation.py"
+    path = Path(__file__).parents[4] / "examples/server/module_apps/frameworks/control_particles_with_streamlit/simulation.py"
     javascript_root = path.with_name("js")
     monkeypatch.syspath_prepend(str(path.parent.parent))
     modify_document = runpy.run_path(str(path))["modify_document"]
@@ -503,7 +503,9 @@ def test_streamlit_particle_app_uses_client_side_mode_kernels(
         "wave",
     }
 
-    from streamlit_particles.state import viewer_states
+    from examples.server.module_apps.frameworks.control_particles_with_streamlit.state import (
+        viewer_states,
+    )
 
     viewer_state = viewer_states.for_viewer("standalone-bokeh-session")
     current = viewer_state.read()
@@ -1206,15 +1208,21 @@ async def test_embed_authentication_failure_has_cors_and_security_headers() -> N
         await app.core.stop()
 
 
-async def test_auth_policy_leaves_static_assets_and_preflight_public() -> None:
+async def test_auth_policy_leaves_static_assets_and_preflight_public(tmp_path: Path) -> None:
     authenticated: list[str] = []
 
     def authenticate(request) -> None:
         authenticated.append(request.path)
         return None
 
-    app = BokehASGI(Application(), auth_policy=AuthPolicy(authenticate))
+    application = Application()
+    (tmp_path / "data.txt").write_text("public application asset")
+    app = BokehASGI(application, auth_policy=AuthPolicy(authenticate))
+    application._static_path = str(tmp_path)
     try:
+        asset = await http_request(app, "/static/data.txt")
+        assert response_status(asset) == 200
+        assert response_body(asset) == b"public application asset"
         static = await http_request(app, "/static/js/bokeh.min.js")
         preflight = await http_request(app, "/embed.json", method="OPTIONS")
 
@@ -1846,3 +1854,30 @@ async def test_websocket_disconnect_after_core_stop_does_not_reuse_detached_sess
     assert not app.core._clients
     await incoming.put({"type": "websocket.disconnect", "code": 1001})
     await asyncio.wait_for(task, 1)
+
+
+@pytest.mark.parametrize('example, asset', [('dashboard', 'css/custom.css'), ('opencv_faces', 'css/base.css')])
+@pytest.mark.parametrize('scope_includes_mount', [False, True])
+async def test_example_static_urls_include_mount_and_application_path(example, asset, scope_includes_mount):
+    import importlib
+
+    pytest.importorskip('bokeh_sampledata')
+    if example == 'opencv_faces':
+        cv2 = pytest.importorskip('cv2')
+        if not hasattr(cv2, 'CascadeClassifier'):
+            pytest.skip('requires OpenCV 4 object detection')
+    module = importlib.import_module(f'examples.server.module_apps.applications.{example}.server')
+    application = module.app.core.applications['/'].application
+    app = BokehASGI({'/example': application}, prefix='/prefix')
+    path = '/prefix/example'
+    if scope_includes_mount:
+        path = '/mount' + path
+    try:
+        page = await http_request(app, path, root_path='/mount')
+        assert response_status(page) == 200
+        url = f'/mount/prefix/example/static/{asset}'
+        assert f'href="{url}"'.encode() in response_body(page)
+        response = await http_request(app, url, root_path='/mount')
+        assert response_status(response) == 200
+    finally:
+        await app.core.stop()

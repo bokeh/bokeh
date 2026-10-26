@@ -710,7 +710,7 @@ class ColumnDataSource(ColumnarDataSource):
 
             dict(foo=[11, 12, 30], bar=[101, 200, 301])
 
-        For a more comprehensive example, see :bokeh-tree:`examples/server/app/patch_app.py`.
+        For a more comprehensive example, see :bokeh-tree:`examples/server/module_apps/updating_data/patch_data/main.py`.
 
         '''
         extra = set(patches.keys()) - set(self.data.keys())

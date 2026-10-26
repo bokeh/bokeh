@@ -565,45 +565,18 @@ App sessions
 Sometimes, instead of loading a new session, you might wish to load a
 *specific* one.
 
-Take a Flask app that renders a page for an authenticated user. You might want
-it to pull a new session, make some customizations for that specific user, and
-serve this customized Bokeh server session.
+To choose a session ID before embedding, configure the CLI with
+``--session-ids external-signed`` and set ``BOKEH_SECRET_KEY``. In the trusted
+embedding service, use ``bokeh.util.token.generate_session_id`` with the same
+secret and ``signed=True``. Pass that ID to ``embed_server(session_id=...)``.
+Bokeh creates the document when the session is first requested. Keep the
+signing secret on the server and authenticate access to the embedding service.
 
-Supply the existing session ID to ``embed_server()``. You can also provide a
-mapping of logical root keys to specific session models.
-
-Here is an example with Flask:
-
-.. code-block:: python
-
-    from flask import Flask, render_template
-
-    from bokeh.client import pull_session
-    from bokeh.embed import embed_server
-
-    app = Flask(__name__)
-
-    @app.route('/', methods=['GET'])
-    def bkapp_page():
-
-        # pull a new session from a running Bokeh server
-        with pull_session(url="http://localhost:5006/sliders") as session:
-
-            # update or customize that session
-            session.document.roots[0].children[1].title.text = "Special sliders for a specific user!"
-
-            # generate markup to load the customized session
-            result = embed_server(
-                "http://localhost:5006/sliders",
-                session_id=session.id,
-            )
-            html = result.fragment(resources="server").html
-
-            # use the markup in the rendered page
-            return render_template("embed.html", script=html, template="Flask")
-
-    if __name__ == '__main__':
-        app.run(port=8080)
+Supply an existing session ID when the session is already managed by your
+application. Customize its document during session creation
+using application callbacks and authenticated request context. The removed
+``bokeh.client`` API is no longer used to retrieve and modify sessions from a
+separate Python process.
 
 .. deprecated:: 4.0
     The |server_session| compatibility facade remains available during the 4.x

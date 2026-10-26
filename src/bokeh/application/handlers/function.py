@@ -12,16 +12,20 @@ useful if users wish to embed the Bokeh server programmatically:
 
 .. code-block:: python
 
-    def make_doc(doc: Document):
-        # do work to modify the document, add plots, widgets, etc.
-        return doc
+    from bokeh.document import Document
+    from bokeh.models import Div
+    from bokeh.server.asgi import BokehASGI
 
-    app = Application(FunctionHandler(make_doc))
 
-    server = Server({'/bkapp': app}, io_loop=IOLoop.current())
-    server.start()
+    def make_doc(doc: Document) -> None:
+        doc.add_root(Div(text="Hello"))
 
-For complete examples of this technique, see :bokeh-tree:`examples/server/api`
+
+    app = BokehASGI(make_doc)
+
+Run this module with an ASGI server, for example ``uvicorn server:app``.
+
+For complete examples of this technique, see :bokeh-tree:`examples/server/module_apps/frameworks`
 
 '''
 

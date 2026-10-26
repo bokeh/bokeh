@@ -39,7 +39,7 @@ jupyter:
   - 'tools/release/**'
   - 'src/**'
   - 'examples/output/**'
-  - 'examples/server/api/**'
+  - 'examples/server/module_apps/frameworks/**'
   - 'tests/**'
 
 minimal_deps:

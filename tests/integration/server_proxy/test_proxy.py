@@ -26,7 +26,7 @@ FRONTEND = os.environ.get("BOKEH_SERVER_FRONTEND")
 PROXY_KIND = os.environ.get("BOKEH_SERVER_PROXY")
 LOCAL_DOCKER = os.environ.get("BOKEH_SERVER_PROXY_LOCAL") == "1"
 pytestmark = pytest.mark.skipif(
-    FRONTEND not in {"asgi", "tornado"} or PROXY_KIND not in {"nginx", "apache"}
+    FRONTEND not in {"asgi", "cli"} or PROXY_KIND not in {"nginx", "apache"}
     or (sys.platform != "linux" and not LOCAL_DOCKER),
     reason="requires the Linux nightly Bokeh proxy job or an explicit local Docker run",
 )

@@ -422,7 +422,7 @@ class _RequestProxy:
         if cookies is not None:
             self._cookies = cookies
         elif hasattr(request, 'cookies'):
-            # Django cookies are plain strings, tornado cookies are objects with a value
+            # Some request adapters supply strings, others supply cookie objects
             request_cookies = cast(dict[str, Any], request.cookies)
             self._cookies = {k: v if isinstance(v, str) else v.value for k, v in request_cookies.items()}
         else:

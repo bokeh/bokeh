@@ -575,7 +575,7 @@ You should see output similar to:
 
     Python version        :  3.13.5 | packaged by conda-forge | (main, Jun 16 2025, 08:12:13) [Clang 18.1.8]
     IPython version       :  9.3.0
-    Tornado version       :  6.5.1
+    Uvicorn version       :  0.30.0
     NumPy version         :  2.3.1
     Bokeh version         :  4.0.0.dev1
     BokehJS static path   :  /path/to/bokeh/src/bokeh/server/static
@@ -643,7 +643,7 @@ checkout* directory:
 
         .. code-block:: sh
 
-            BOKEH_DEV=false python -m bokeh serve --show examples/server/app/sliders.py
+            BOKEH_DEV=false python -m bokeh serve --show examples/server/script_apps/adjust_plot_with_sliders.py
 
     .. tab-item:: Windows (PS)
         :sync: ps
@@ -651,7 +651,7 @@ checkout* directory:
         .. code-block:: powershell
 
             $Env:BOKEH_DEV = "False"
-            python -m bokeh serve --show .\examples\server\app\sliders.py
+            python -m bokeh serve --show .\examples\server\script_apps\adjust_plot_with_sliders.py
 
     .. tab-item:: Windows (CMD)
         :sync: cmd
@@ -659,7 +659,7 @@ checkout* directory:
         .. code-block:: doscon
 
             set BOKEH_DEV=false
-            python -m bokeh serve --show examples\server\app\sliders.py
+            python -m bokeh serve --show examples\server\script_apps\adjust_plot_with_sliders.py
 
 This should open up a browser with an interactive figure:
 

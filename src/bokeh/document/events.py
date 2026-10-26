@@ -369,8 +369,7 @@ class ModelChangedEvent(DocumentPatchedEvent, kind="ModelChanged"):
         if not isinstance(event, ModelChangedEvent):
             return False
 
-        # If these are not true something weird is going on, maybe updates from
-        # Python bokeh.client, don't try to combine
+        # Do not combine events with different setters or documents.
         if self.setter != event.setter:
             return False
         if self.document != event.document:
@@ -756,8 +755,7 @@ class TitleChangedEvent(DocumentPatchedEvent, kind="TitleChanged"):
         if not isinstance(event, TitleChangedEvent):
             return False
 
-        # If these are not true something weird is going on, maybe updates from
-        # Python bokeh.client, don't try to combine
+        # Do not combine events with different setters or documents.
         if self.setter != event.setter:
             return False
         if self.document != event.document:

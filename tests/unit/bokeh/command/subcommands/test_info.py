@@ -63,7 +63,7 @@ def test_run(capsys: Capture) -> None:
     assert len(lines) >= 11
     assert lines[0].startswith("Python version")
     assert lines[1].startswith("IPython version")
-    assert lines[2].startswith("Tornado version")
+    assert lines[2].startswith("Uvicorn version")
     assert lines[3].startswith("NumPy version")
     assert lines[4].startswith("Bokeh version")
     assert lines[5].startswith("BokehJS static")

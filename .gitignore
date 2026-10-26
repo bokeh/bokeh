@@ -16,7 +16,6 @@
 # HTML files
 *.html
 !/src/bokeh/core/_templates/*.html
-!/examples/output/apis/embed_server_existing_session/templates/embed.html
 
 # generated model API reference sources
 /docs/bokeh/source/docs/reference/models/**/*.rst
@@ -83,3 +82,6 @@ examples-report.html
 
 # OS junk
 .DS_Store
+
+!/examples/server/script_apps/**/*.html
+!/examples/server/module_apps/**/*.html

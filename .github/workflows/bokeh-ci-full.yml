@@ -602,7 +602,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        frontend: [asgi, tornado]
+        frontend: [asgi, cli]
         proxy: [nginx, apache]
 
     steps:

@@ -124,11 +124,6 @@ async def create_session(config: SessionConfig, context: ApplicationContext, req
     if token is None:
         headers = _filtered_headers(config, request)
         cookies = _filtered_cookies(config, request)
-        included_headers = {name.lower() for name in config.include_headers or ()}
-        if "cookie" not in included_headers:
-            for name in list(headers):
-                if name.lower() == "cookie":
-                    del headers[name]
         payload: dict[str, Any] = {
             "headers": headers,
             "cookies": cookies,
@@ -166,11 +161,16 @@ def _filtered_headers(config: SessionConfig, request: RequestLike) -> dict[str, 
         allowed = (name for name in request.headers if name.lower() not in excluded)
     else:
         allowed = config.include_headers
-    return {name: request.headers[name] for name in allowed if name in request.headers}
+    # Session tokens are visible to page scripts, even when signed.
+    sensitive = {"authorization", "proxy-authorization", "cookie"}
+    return {name: request.headers[name] for name in allowed
+            if name in request.headers and name.lower() not in sensitive}
 
 
 def _filtered_cookies(config: SessionConfig, request: RequestLike) -> dict[str, str]:
     allowed: Iterable[str]
+    if config.include_cookies is None and config.exclude_cookies is None:
+        return {}
     if config.include_cookies is None:
         excluded = set(config.exclude_cookies or ())
         allowed = (name for name in request.cookies if name not in excluded)

@@ -11,7 +11,7 @@ import os
 from urllib.parse import urlsplit
 
 import pytest
-from tornado.web import RequestHandler
+from tests.support.util.asgi import running_asgi
 
 from bokeh.application import Application
 from bokeh.application.handlers.function import FunctionHandler
@@ -20,8 +20,8 @@ from bokeh.document import Document
 from bokeh.embed import embed_server
 from bokeh.model import DataModel, Model
 from bokeh.models import CustomJS, Div
+from bokeh.server.asgi import BokehASGI
 from bokeh.util.compiler import TypeScript
-from tests.support.plugins.managed_server_loop import MSL
 
 playwright = pytest.importorskip("playwright.async_api")
 
@@ -34,7 +34,7 @@ pytestmark = pytest.mark.skipif(
 @pytest.mark.parametrize("mode", ["inline", "offline"])
 @pytest.mark.parametrize("source", ["global-definition", "plain-any-callback"])
 async def test_restrictive_server_resources_cover_serialized_models(
-    ManagedServerLoop: MSL, mode: str, source: str,
+    mode: str, source: str,
 ) -> None:
     class Hidden(CustomJS):
         __view_model__ = "Hidden"
@@ -88,18 +88,19 @@ export class CallbackContainer extends CustomJS {
 
     host_html = ""
 
-    class HostHandler(RequestHandler):
-        def get(self) -> None:
-            self.set_header("Content-Type", "text/html")
-            self.write(host_html)
+    application = BokehASGI({"/app": Application(FunctionHandler(modify_document))})
+
+    async def site(scope, receive, send):
+        if scope["type"] == "http" and scope["path"] == "/host":
+            await send({"type": "http.response.start", "status": 200,
+                        "headers": [(b"content-type", b"text/html")]})
+            await send({"type": "http.response.body", "body": host_html.encode()})
+        else:
+            await application(scope, receive, send)
 
     try:
-        with ManagedServerLoop(
-            {"/app": Application(FunctionHandler(modify_document))},
-            address="127.0.0.1",
-            extra_patterns=[(r"/host", HostHandler)],
-        ) as server:
-            origin = f"http://localhost:{server.port}"
+        with running_asgi(site) as server:
+            origin = server.url
             fragment = embed_server(f"{origin}/app").fragment(resources=mode)
             assert fragment.requirements.extensions == ()
             assert "__bokeh_hidden_server_resource__" not in fragment.html
@@ -144,7 +145,7 @@ export class CallbackContainer extends CustomJS {
                     )
                     assert await page.evaluate("globalThis.__bokeh_hidden_server_resource__ === true")
                     assert any(urlsplit(url).path == "/app/ws" for url in websocket_urls)
-                    assert server.get_sessions("/app")[0].connection_count == 1
+                    assert application.core.get_sessions("/app")[0].connection_count == 1
 
                     if source == "global-definition":
                         decoded = await page.evaluate('''([definition_name, hidden_name]) => {

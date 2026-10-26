@@ -49,7 +49,7 @@ def print_info() -> None:
     newline = '\n'
     print(f"Python version        :  {sys.version.split(newline)[0]}")
     print(f"IPython version       :  {_if_installed(_version('IPython', '__version__'))}")
-    print(f"Tornado version       :  {_if_installed(_version('tornado', 'version'))}")
+    print(f"Uvicorn version       :  {_if_installed(_version('uvicorn', '__version__'))}")
     print(f"NumPy version         :  {_if_installed(_version('numpy', '__version__'))}")
     print(f"Bokeh version         :  {__version__}")
     print(f"BokehJS static path   :  {settings.bokehjs_path()}")

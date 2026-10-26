@@ -1,0 +1,43 @@
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
+from pathlib import Path
+
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
+from jinja2 import Environment, FileSystemLoader
+
+from bokeh.embed import embed_server
+from bokeh.server.asgi import BokehASGI
+from examples.server.module_apps.applications.fourier_studio.main import modify_document
+
+bokeh_application = BokehASGI(modify_document)
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
+    # Mounted Starlette/FastAPI applications don't receive lifespan events.
+    # Start and stop Bokeh from the parent application's lifespan instead.
+    await bokeh_application.core.start()
+    try:
+        yield
+    finally:
+        await bokeh_application.core.stop()
+
+
+app = FastAPI(lifespan=lifespan)
+template = Environment(loader=FileSystemLoader(Path(__file__).parent), autoescape=True).get_template("index.html")
+
+
+def render_page(root_path: str = "") -> str:
+    mount_url = f"{root_path.rstrip('/')}/bkapp"
+    result = embed_server(mount_url, relative_urls=True)
+    fragment = result.fragment(resources="server")
+    return template.render(framework="FastAPI", embed_html=fragment.html)
+
+
+@app.get("/", response_class=HTMLResponse)
+async def index(request: Request) -> HTMLResponse:
+    return HTMLResponse(render_page(request.scope.get("root_path", "")))
+
+
+app.mount("/bkapp", bokeh_application)

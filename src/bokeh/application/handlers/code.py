@@ -8,18 +8,19 @@
 and executing Python source code.
 
 This Handler is used by the Bokeh server command line tool to build
-applications that run off scripts and notebooks.
+applications from Python scripts. Notebook handlers remain available to
+library callers.
 
 .. code-block:: python
 
-    def make_doc(doc: Document):
-        # do work to modify the document, add plots, widgets, etc.
-        return doc
+    from bokeh.application import Application
+    from bokeh.application.handlers.script import ScriptHandler
+    from bokeh.server.asgi import BokehASGI
 
-    app = Application(FunctionHandler(make_doc))
+    handler = ScriptHandler(filename="plot.py")
+    app = BokehASGI(Application(handler))
 
-    server = Server({'/bkapp': app}, io_loop=IOLoop.current())
-    server.start()
+Run this module with an ASGI server, for example ``uvicorn server:app``.
 
 '''
 

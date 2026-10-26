@@ -152,7 +152,7 @@ standalone server component. Use the Bokeh server if you want to connect your
 JavaScript-based visualization running in a browser to Python code running on a
 server.
 
-Use this command on a command line to start Bokeh in server mode:
+Use this command on a command line to host this script app with ``bokeh serve``:
 
 .. code-block:: sh
 
@@ -192,7 +192,7 @@ widgets on the left to change the sine wave on the right:
     </div>
 
 Find the source code for this Bokeh server app at
-:bokeh-tree:`examples/server/app/sliders.py`.
+:bokeh-tree:`examples/server/script_apps/adjust_plot_with_sliders.py`.
 For more examples of Bokeh server applications, see the
 :ref:`gallery`.
 

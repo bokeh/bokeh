@@ -20,7 +20,6 @@ import threading
 from threading import Event, get_ident
 
 import pytest
-from tornado.ioloop import IOLoop
 
 from bokeh.application import Application
 from bokeh.application.handlers import CodeHandler, FunctionHandler
@@ -460,7 +459,7 @@ curdoc().template_variables["thread_id"] = get_ident()
 
     async def test_async_next_tick_callback_is_called(self) -> None:
         app = Application()
-        c = bsc.ApplicationContext(app, io_loop=IOLoop.current())
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
 
         s = await c.create_session_if_needed("foo")
 
@@ -482,7 +481,7 @@ curdoc().template_variables["thread_id"] = get_ident()
     async def test_sync_session_callbacks_run_in_worker(
             self, callback_type: str) -> None:
         app = Application()
-        c = bsc.ApplicationContext(app, io_loop=IOLoop.current())
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
         session = await c.create_session_if_needed("foo")
         loop_thread = get_ident()
         callback_thread = None
@@ -521,7 +520,7 @@ curdoc().template_variables["thread_id"] = get_ident()
 
     async def test_sync_unlocked_callback_runs_in_worker(self) -> None:
         app = Application()
-        c = bsc.ApplicationContext(app, io_loop=IOLoop.current())
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
         session = await c.create_session_if_needed("foo")
         loop_thread = get_ident()
         callback_thread = None
@@ -546,7 +545,7 @@ curdoc().template_variables["thread_id"] = get_ident()
     @pytest.mark.free_threading
     async def test_session_callbacks_are_serialized(self) -> None:
         app = Application()
-        c = bsc.ApplicationContext(app, io_loop=IOLoop.current())
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
         session = await c.create_session_if_needed("foo")
         state_lock = threading.Lock()
         active = 0
@@ -571,7 +570,7 @@ curdoc().template_variables["thread_id"] = get_ident()
     @pytest.mark.free_threading
     async def test_different_session_callbacks_can_run_concurrently(self) -> None:
         app = Application()
-        c = bsc.ApplicationContext(app, io_loop=IOLoop.current())
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
         first = await c.create_session_if_needed("first")
         second = await c.create_session_if_needed("second")
         barrier = threading.Barrier(2)
@@ -586,7 +585,7 @@ curdoc().template_variables["thread_id"] = get_ident()
 
     async def test_async_session_callback_runs_on_event_loop(self) -> None:
         app = Application()
-        c = bsc.ApplicationContext(app, io_loop=IOLoop.current())
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
         session = await c.create_session_if_needed("foo")
         loop_thread = get_ident()
         callback_thread = None
@@ -602,7 +601,7 @@ curdoc().template_variables["thread_id"] = get_ident()
 
     async def test_callback_can_schedule_timers_from_worker(self) -> None:
         app = Application()
-        c = bsc.ApplicationContext(app, io_loop=IOLoop.current())
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
         session = await c.create_session_if_needed("foo")
         timeout_finished = Event()
         periodic_finished = Event()
@@ -624,7 +623,7 @@ curdoc().template_variables["thread_id"] = get_ident()
 
     async def test_cancelling_locked_callback_waits_for_worker(self) -> None:
         app = Application()
-        c = bsc.ApplicationContext(app, io_loop=IOLoop.current())
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
         session = await c.create_session_if_needed("foo")
         started = Event()
         release = Event()
@@ -668,7 +667,7 @@ curdoc().template_variables["thread_id"] = get_ident()
 
     async def test_protocol_callback_runs_in_worker(self, monkeypatch: pytest.MonkeyPatch) -> None:
         app = Application()
-        c = bsc.ApplicationContext(app, io_loop=IOLoop.current())
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
         session = await c.create_session_if_needed("foo")
         slider = Slider()
         await session.with_document_locked(session.document.add_root, slider)
@@ -717,7 +716,7 @@ curdoc().template_variables["thread_id"] = get_ident()
 
     async def test_connection_lost_callback_runs_in_worker_with_curdoc(self) -> None:
         app = Application()
-        c = bsc.ApplicationContext(app, io_loop=IOLoop.current())
+        c = bsc.ApplicationContext(app, io_loop=asyncio.get_running_loop())
         session = await c.create_session_if_needed("foo")
         loop_thread = get_ident()
         callback_thread = None

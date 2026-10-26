@@ -57,4 +57,6 @@ def test_pixi_runtime_covers_project_dependencies() -> None:
     dependencies = pixi["feature"]["runtime-deps"]["dependencies"]
     actual = _constraints([f"{name} {constraint}" for name, constraint in dependencies.items()])
 
+    if "uvicorn-standard" in actual:
+        actual["uvicorn"] = actual["uvicorn-standard"]
     assert {name: actual.get(name) for name in expected} == expected

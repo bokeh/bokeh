@@ -19,13 +19,7 @@ import subprocess
 import sys
 import time
 from collections.abc import Iterator
-from concurrent.futures import ThreadPoolExecutor
-from os.path import (
-    abspath,
-    basename,
-    dirname,
-    join,
-)
+from os.path import abspath, dirname, join
 from typing import Any, Literal
 from urllib.parse import urlparse
 
@@ -37,10 +31,13 @@ from playwright.sync_api import (  # type: ignore[attr-defined]
     TimeoutError as PlaywrightTimeoutError,
     sync_playwright,
 )
+from tests.support.util.asgi import running_asgi
+from tests.support.util.examples import Example, Flags, collect_examples
 
-from bokeh.client import push_session
+# Bokeh imports
+from bokeh.application.handlers.function import FunctionHandler
 from bokeh.command.util import build_single_handler_application
-from bokeh.core.types import ID
+from bokeh.server.asgi import BokehASGI
 from bokeh.server.callbacks import NextTickCallback, PeriodicCallback, TimeoutCallback
 from bokeh.util.terminal import (
     fail,
@@ -49,7 +46,6 @@ from bokeh.util.terminal import (
     warn,
     white,
 )
-from tests.support.util.examples import Example, Flags, collect_examples
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -172,37 +168,33 @@ def test_server_examples(
     example: Example,
     report: list[Example],
     config: _pytest.config.Config,
-    bokeh_server: str,
     request: pytest.FixtureRequest,
 ) -> None:
     if config.option.verbose:
         print()
     app = build_single_handler_application(example.path)
-    doc = app.create_document()
 
-    # remove all next-tick, periodic, and timeout callbacks
-    for session_callback in doc.session_callbacks:
-        if isinstance(session_callback, NextTickCallback):
-            doc.remove_next_tick_callback(session_callback)
-        elif isinstance(session_callback, PeriodicCallback):
-            doc.remove_periodic_callback(session_callback)
-        elif isinstance(session_callback, TimeoutCallback):
-            doc.remove_timeout_callback(session_callback)
-        else:
-            raise RuntimeError('Unhandled callback type', type(session_callback))
+    def freeze_callbacks(doc):
+        # Reference screenshots represent a stable initial document.
+        for callback in doc.session_callbacks:
+            if isinstance(callback, NextTickCallback):
+                doc.remove_next_tick_callback(callback)
+            elif isinstance(callback, PeriodicCallback):
+                doc.remove_periodic_callback(callback)
+            elif isinstance(callback, TimeoutCallback):
+                doc.remove_timeout_callback(callback)
 
-    session_id = ID(basename(example.path))
-    # Playwright's synchronous driver owns the current thread's asyncio loop.
-    # Push from a worker thread so Tornado can run its own loop there.
-    with ThreadPoolExecutor(max_workers=1) as executor:
-        executor.submit(push_session, doc, session_id=session_id, url=bokeh_server).result()
-
+    app.add(FunctionHandler(freeze_callbacks))
     if example.no_js:
+        app.create_document()
         if not config.option.no_js:
             warn(f"skipping bokehjs for {example.relpath}")
-    else:
+        return
+
+    application = BokehASGI(app)
+    with running_asgi(application) as host:
         examples_browser = request.getfixturevalue("examples_browser")
-        _run_in_browser(example, f"{bokeh_server}/?bokeh-session-id={session_id}", report, examples_browser, config.option.verbose)
+        _run_in_browser(example, host.url + "/", report, examples_browser, config.option.verbose)
 
 type BrowserError = tuple[str | None, str]
 

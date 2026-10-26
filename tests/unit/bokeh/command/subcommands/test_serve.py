@@ -4,727 +4,247 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Boilerplate
-#-----------------------------------------------------------------------------
 from __future__ import annotations
 
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
+# Standard library imports
 import argparse
 import contextlib
-import os.path
+import json
+import os
 import re
-import signal
-import socket
 import subprocess
 import sys
-import time
-from os.path import join, split
 from pathlib import Path
 from queue import Empty, Queue
 from threading import Thread
-from typing import IO
-from urllib.request import urlopen
+from urllib.error import HTTPError
+from urllib.request import Request, urlopen
 
+# External imports
 import pytest
+from websockets.exceptions import InvalidStatus
+from websockets.sync.client import connect
 
-from bokeh.command.subcommand import Argument
-from bokeh.resources import DEFAULT_SERVER_PORT
-from tests.support.util.env import envset
+# Bokeh imports
+from bokeh.command.subcommands.serve import Serve
+from bokeh.protocol import pull_doc_req
+from bokeh.protocol.receiver import Receiver
+from bokeh.server.auth import AuthPolicy, load_auth_policy
 
-# Module under test
-import bokeh.command.subcommands.serve as bcss  # isort:skip
 
-#-----------------------------------------------------------------------------
-# Setup
-#-----------------------------------------------------------------------------
-
-HERE = os.path.abspath(os.path.dirname(__file__))
-APPS = os.path.join(HERE, 'apps', '*.py')
-
-PORT_PAT = re.compile(r'Bokeh app running at: http://localhost:(\d+)')
-
-# http://eyalarubas.com/python-subproc-nonblock.html
-class NBSR:
-    _s: IO[bytes]
-    _q: Queue[bytes]
-
-    def __init__(self, stream: IO[bytes]) -> None:
-        '''
-        stream: the stream to read from.
-                Usually a process' stdout or stderr.
-        '''
-        self._s = stream
-        self._q = Queue()
-
-        def _populateQueue(stream: IO[bytes], queue: Queue[bytes]) -> None:
-            '''
-            Collect lines from 'stream' and put them in 'queue'.
-            '''
-            while True:
-                line = stream.readline()
-                if line:
-                    queue.put(line)
-                else:
-                    break
-
-        self._t = Thread(target=_populateQueue, args=(self._s, self._q))
-        self._t.daemon = True
-        self._t.start() # start collecting lines from the stream
-
-    def readline(self, timeout: float | None = None) -> bytes | None:
-        try:
-            return self._q.get(block=timeout is not None, timeout=timeout)
-        except Empty:
-            return None
-
-#-----------------------------------------------------------------------------
-# General API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
-
-class TestServe:
-    def test_create(self) -> None:
-        from bokeh.command.subcommand import Subcommand
-        obj = bcss.Serve(parser=argparse.ArgumentParser())
-        assert isinstance(obj, Subcommand)
-
-    def test_default_customize_applications_is_identity(self):
-        obj = bcss.Serve(parser=argparse.ArgumentParser())
-        apps = {}
-        result = obj.customize_applications(argparse.Namespace(), apps)
-        assert result == apps
-        assert result is not apps
-
-    def test_default_customize_kwargs_is_identity(self):
-        obj = bcss.Serve(parser=argparse.ArgumentParser())
-        kws = {}
-        result = obj.customize_kwargs(argparse.Namespace(), kws)
-        assert result == kws
-        assert result is not kws
-
-def test_loglevels() -> None:
-    assert bcss.LOGLEVELS == ('trace', 'debug', 'info', 'warning', 'error', 'critical')
-
-def test_name() -> None:
-    assert bcss.Serve.name == "serve"
-
-def test_help() -> None:
-    assert bcss.Serve.help == "Run a Bokeh server hosting one or more applications"
-
-def test_args() -> None:
-    from bokeh.util.strings import nice_join
-
-    assert bcss.Serve.args == (
-        ('--port', Argument(
-            metavar = 'PORT',
-            type    = int,
-            help    = "Port to listen on",
-            default = DEFAULT_SERVER_PORT,
-        )),
-
-        ('--address', Argument(
-            metavar = 'ADDRESS',
-            type    = str,
-            help    = "Address to listen on",
-            default = None,
-        )),
-
-        ('--unix-socket', Argument(
-            metavar = 'UNIX-SOCKET',
-            type    = str,
-            help    = "Unix socket to bind. Network options such as port, address, ssl options are incompatible with unix socket",
-            default = None,
-        )),
-
-        ('--log-level', Argument(
-            metavar = 'LOG-LEVEL',
-            action  = 'store',
-            default = None,
-            choices = (*bcss.LOGLEVELS, 'None'),
-            help    = f"One of: {nice_join(bcss.LOGLEVELS)}",
-        )),
-
-        ('--log-format', Argument(
-            metavar ='LOG-FORMAT',
-            action  = 'store',
-            default = bcss.DEFAULT_LOG_FORMAT,
-            help    = f"A standard Python logging format string (default: {bcss.DEFAULT_LOG_FORMAT!r})".replace("%", "%%"),
-        )),
-
-        ('--log-file', Argument(
-            metavar ='LOG-FILE',
-            action  = 'store',
-            default = None,
-            help    = "A filename to write logs to, or None to write to the standard stream (default: None)",
-        )),
-
-        ('--use-config', Argument(
-            metavar = 'CONFIG',
-            type    = str,
-            help    = "Use a YAML config file for settings",
-            default = None,
-        )),
-
-        ('files', Argument(
-            metavar = 'DIRECTORY-OR-SCRIPT',
-            nargs   = '*',
-            help    = "The app directories or scripts to serve (serve empty document if not specified)",
-            default = None,
-        )),
-
-        ('--args', Argument(
-            metavar = 'COMMAND-LINE-ARGS',
-            nargs   = argparse.REMAINDER,
-            help    = "Command line arguments remaining to passed on to the application handler. "
-                      "NOTE: if this argument precedes DIRECTORY-OR-SCRIPT then some other argument, e.g. "
-                      "--show, must be placed before the directory or script. ",
-        )),
-
-        ('--dev', Argument(
-            metavar ='FILES-TO-WATCH',
-            action  ='store',
-            default = None,
-            type    = str,
-            nargs   = '*',
-            help    = "Enable live reloading during app development. "
-                      "By default it watches all *.py *.html *.css *.yaml files "
-                      "in the app directory tree. Additional files can be passed "
-                      "as arguments. "
-                      "NOTE: if this argument precedes DIRECTORY-OR-SCRIPT then some other argument, e.g "
-                      "--show, must be placed before the directory or script. "
-                      "NOTE: This setting only works with a single app. "
-                      "It also restricts the number of processes to 1. "
-                      "NOTE FOR WINDOWS USERS : this option must be invoked using "
-                      "'python -m bokeh'. If not Tornado will fail to restart the "
-                      "server",
-        )),
-
-        ('--show', Argument(
-            action = 'store_true',
-            help   = "Open server app(s) in a browser",
-        )),
-
-        ('--allow-websocket-origin', Argument(
-            metavar = 'HOST[:PORT]',
-            action  = 'append',
-            type    = str,
-            help    = "Public hostnames which may connect to the Bokeh websocket "
-                      "With unix socket, the websocket origin restrictions should be enforced by the proxy.",
-        )),
-
-        ('--prefix', Argument(
-            metavar = 'PREFIX',
-            type    = str,
-            help    = "URL prefix for Bokeh server URLs",
-            default = None,
-        )),
-
-        ('--ico-path', Argument(
-            metavar = "ICO_PATH",
-            type    = str,
-            help    = "Path to a .ico file to use as the favicon.ico, or 'none' to "
-                      "disable favicon.ico support. If unset, a default Bokeh .ico "
-                      "file will be used",
-            default = None,
-        )),
-
-        ('--keep-alive', Argument(
-            metavar = 'MILLISECONDS',
-            type    = int,
-            help    = "How often to send a keep-alive ping to clients, 0 to disable.",
-            default = None,
-        )),
-
-        ('--check-unused-sessions', Argument(
-            metavar = 'MILLISECONDS',
-            type    = int,
-            help    = "How often to check for unused sessions",
-            default = None,
-        )),
-
-        ('--unused-session-lifetime', Argument(
-            metavar = 'MILLISECONDS',
-            type    = int,
-            help    = "How long unused sessions last",
-            default = None,
-        )),
-
-        ('--stats-log-frequency', Argument(
-            metavar = 'MILLISECONDS',
-            type    = int,
-            help    = "How often to log stats",
-            default = None,
-        )),
-
-        ('--mem-log-frequency', Argument(
-            metavar = 'MILLISECONDS',
-            type    = int,
-            help    = "How often to log memory usage information",
-            default = None,
-        )),
-
-        ('--use-xheaders', Argument(
-            action = 'store_true',
-            help   = "Prefer X-headers for IP/protocol information",
-        )),
-
-        ('--ssl-certfile', Argument(
-            metavar = 'CERTFILE',
-            action  = 'store',
-            default = None,
-            help    = 'Absolute path to a certificate file for SSL termination',
-        )),
-
-        ('--ssl-keyfile', Argument(
-            metavar = 'KEYFILE',
-            action  = 'store',
-            default = None,
-            help    = 'Absolute path to a private key file for SSL termination',
-        )),
-
-        ('--session-ids', Argument(
-            metavar = 'MODE',
-            action  = 'store',
-            default = None,
-            choices = bcss.SESSION_ID_MODES,
-            help    = f"One of: {nice_join(bcss.SESSION_ID_MODES)}",
-        )),
-
-        ('--auth-module', Argument(
-            metavar = 'AUTH_MODULE',
-            action  = 'store',
-            default = None,
-            help    = 'Absolute path to a Python module that implements auth hooks',
-        )),
-
-        ('--enable-xsrf-cookies', Argument(
-            action  = 'store_true',
-            default = False,
-            help    = 'Whether to enable Tornado support for XSRF cookies. All '
-                      'PUT, POST, or DELETE handlers must be properly instrumented '
-                      'when this setting is enabled.',
-        )),
-
-        ('--exclude-headers', Argument(
-            action  = 'store',
-            default = None,
-            nargs='+',
-            help    = 'A list of request headers to exclude from the session '
-                      'context (by default all headers are included).',
-        )),
-
-        ('--exclude-cookies', Argument(
-            action  = 'store',
-            default = None,
-            nargs='+',
-            help    = 'A list of request cookies to exclude from the session '
-                      'context (by default all cookies are included).',
-        )),
-
-        ('--include-headers', Argument(
-            action  = 'store',
-            default = None,
-            nargs='+',
-            help    = 'A list of request headers to make available in the session '
-                      'context (by default all headers are included).',
-        )),
-
-        ('--include-cookies', Argument(
-            action  = 'store',
-            default = None,
-            nargs='+',
-            help    = 'A list of request cookies to make available in the session '
-                      'context (by default all cookies are included).',
-        )),
-
-        ('--cookie-secret', Argument(
-            metavar = 'COOKIE_SECRET',
-            action  = 'store',
-            default = None,
-            help    = 'Configure to enable getting/setting secure cookies',
-        )),
-
-        ('--index', Argument(
-            metavar = 'INDEX',
-            action  = 'store',
-            default = None,
-            help    = 'Path to a template to use for the site index',
-        )),
-
-        ('--disable-index', Argument(
-            action = 'store_true',
-            help   = 'Do not use the default index on the root path',
-        )),
-
-        ('--disable-index-redirect', Argument(
-            action = 'store_true',
-            help   = 'Do not redirect to running app from root path',
-        )),
-
-        ('--num-procs', Argument(
-             metavar = 'N',
-             action  = 'store',
-             help    = "Number of worker processes for an app. Using "
-                       "0 will autodetect number of cores (defaults to 1)",
-             default = 1,
-             type    =int,
-         )),
-
-        ('--session-token-expiration', Argument(
-            metavar = 'N',
-            action  = 'store',
-            help    = "Duration in seconds that a new session token "
-                      "is valid for session creation. After the expiry "
-                      "time has elapsed, the token will not be able "
-                      "create a new session (defaults to  seconds).",
-            default = 300,
-            type    = int,
-        )),
-
-         ('--websocket-max-message-size', Argument(
-            metavar = 'BYTES',
-            action  = 'store',
-            help    = "Set the Tornado websocket_max_message_size value "
-                      "(default: 20MB)",
-            default = 20*1024*1024,
-            type    = int,
-        )),
-
-        ('--websocket-compression-level', Argument(
-            metavar = 'LEVEL',
-            action  = 'store',
-            help    = "Set the Tornado WebSocket compression_level",
-            default = None,
-            type    = int,
-        )),
-
-        ('--websocket-compression-mem-level', Argument(
-            metavar = 'LEVEL',
-            action  = 'store',
-            help    = "Set the Tornado WebSocket compression mem_level",
-            default = None,
-            type    = int,
-        )),
-
-        ('--glob', Argument(
-            action='store_true',
-            help='Process all filename arguments as globs',
-        )),
-    )
-
-def _terminate_process(process: subprocess.Popen, timeout: float = 5) -> None:
-    if process.poll() is None:
-        process.terminate()
-    try:
-        process.wait(timeout=timeout)
-    except subprocess.TimeoutExpired:
-        process.kill()
-        process.wait(timeout=timeout)
+def parser():
+    result = argparse.ArgumentParser()
+    Serve(result)
+    return result
 
 
 @contextlib.contextmanager
-def run_bokeh_serve(args: list[str]):
-    cmd = [sys.executable, '-m', 'bokeh', 'serve', *args]
-    # Popen.__exit__ waits without a deadline, including when pytest's timeout
-    # raises a BaseException. Reap explicitly before closing the output pipe.
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=False)
-    nbsr = NBSR(p.stdout)
+def running_server(tmp_path, *options, command="serve"):
+    # The child must run without importing Tornado, even if notebook extras
+    # happen to have installed it in the development environment.
+    (tmp_path / "sitecustomize.py").write_text("""
+import sys
+class BlockTornado:
+    def find_spec(self, fullname, path=None, target=None):
+        if fullname == 'tornado' or fullname.startswith('tornado.'):
+            raise ImportError('Tornado is unavailable in this test')
+sys.meta_path.insert(0, BlockTornado())
+""")
+    env = dict(os.environ, PYTHONPATH=str(tmp_path) + os.pathsep + os.environ.get("PYTHONPATH", ""))
+    env.pop("BOKEH_AUTH_MODULE", None)
+    executable = Path(sys.executable).with_name("bokeh.exe" if sys.platform == "win32" else "bokeh")
+    proc = subprocess.Popen([str(executable), command, "--port", "0", *options],
+                            cwd=tmp_path, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    lines = Queue()
+    output = []
+
+    def read():
+        for line in proc.stdout:
+            output.append(line)
+            lines.put(line)
+        lines.put(None)
+
+    thread = Thread(target=read, daemon=True)
+    thread.start()
     try:
-        yield p, nbsr
+        while True:
+            try:
+                line = lines.get(timeout=30)
+            except Empty:
+                pytest.fail("Server startup timed out: " + "".join(output))
+            if line is None:
+                pytest.fail("Server exited during startup: " + "".join(output))
+            match = re.search(r"Bokeh (?:app running at|static assets available at): (http://[^ ]+)", line)
+            if match:
+                url = match.group(1).strip()
+                yield url, proc
+                break
     finally:
-        _terminate_process(p)
-        assert p.stdout is not None
-        nbsr._t.join(timeout=5)
-        if nbsr._t.is_alive():
-            raise RuntimeError("Bokeh server output reader did not stop after process shutdown")
-        p.stdout.close()
+        if proc.poll() is None:
+            proc.terminate()
+        try:
+            proc.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.wait(timeout=5)
+            pytest.fail("Server failed to shut down: " + "".join(output))
+        thread.join(timeout=5)
+        proc.stdout.close()
 
 
-def test_terminate_process_kills_unresponsive_child() -> None:
-    if sys.platform == "win32":
-        pytest.skip("requires a child that can ignore SIGTERM")
-    code = "import signal, time; signal.signal(signal.SIGTERM, signal.SIG_IGN); print('ready', flush=True); time.sleep(60)"
-    process = subprocess.Popen([sys.executable, "-c", code], stdout=subprocess.PIPE)
-    try:
-        assert process.stdout is not None
-        assert process.stdout.readline() == b"ready\n"
-        _terminate_process(process, timeout=0.1)
-        assert process.returncode == -signal.SIGKILL
-    finally:
-        if process.poll() is None:
-            process.kill()
-        process.wait(timeout=5)
-        assert process.stdout is not None
-        process.stdout.close()
+@pytest.mark.parametrize("option", ["--num-procs", "--auth-module", "--dev", "--cookie-secret",
+                                    "--enable-xsrf-cookies", "--index", "--ico-path",
+                                    "--websocket-compression-level"])
+def test_removed_options_are_errors(option):
+    with pytest.raises(SystemExit):
+        parser().parse_args([option])
 
 
-@pytest.mark.parametrize("error", [RuntimeError, pytest.fail.Exception, KeyboardInterrupt])
-def test_run_bokeh_serve_reaps_child_when_interrupted(error) -> None:
-    process = nbsr = None
-
-    def interrupted_test() -> None:
-        nonlocal process, nbsr
-        with run_bokeh_serve(["--port", "0"]) as (process, nbsr):
-            wait_until_serving(check_port(nbsr))
-            raise error("interrupted test")
-
-    with pytest.raises(error):
-        interrupted_test()
-    assert process is not None
-    assert process.poll() is not None
-    assert process.stdout.closed
-    assert nbsr is not None
-    assert not nbsr._t.is_alive()
+def test_load_auth_policy(monkeypatch):
+    policy = AuthPolicy(lambda request: "user")
+    from types import SimpleNamespace
+    monkeypatch.setitem(sys.modules, "test_policy", SimpleNamespace(policy=policy, invalid=object()))
+    assert load_auth_policy("test_policy:policy") is policy
+    with pytest.raises(TypeError):
+        load_auth_policy("test_policy:invalid")
+    with pytest.raises(ValueError):
+        load_auth_policy("test_policy")
+    with pytest.raises(AttributeError):
+        load_auth_policy("test_policy:missing")
+    with pytest.raises(ModuleNotFoundError):
+        load_auth_policy("missing_bokeh_auth_policy:policy")
 
 
-def find_pattern(nbsr: NBSR, pat: re.Pattern[str]) -> re.Match[str] | None:
-    for _ in range(20):
-        o = nbsr.readline(0.5)
-        if not o:
-            continue
-        s = o.decode()
-        m = pat.search(s)
-        if m is not None:
-            return m
-    return None
-
-def assert_pattern(nbsr: NBSR, pat: re.Pattern[str]):
-    m = find_pattern(nbsr, pat)
-    if m is None:
-        pytest.fail("Did not find pattern in process output")
-
-def check_port(nbsr: NBSR):
-    m = find_pattern(nbsr, PORT_PAT)
-    if m is None:
-        pytest.fail("Did not find port in process output")
-    return int(m.group(1))
-
-def wait_until_serving(port: int) -> None:
-    # Startup log messages can precede installation of Bokeh's SIGTERM handler.
-    # Wait for the event loop before terminating a coverage-instrumented child.
-    # The favicon is public even when the server uses an authentication module.
-    with urlopen(f"http://localhost:{port}/favicon.ico", timeout=10) as response:
-        assert response.status == 200
-
-
-def check_error(args: list[str]):
-    cmd = [sys.executable, '-m', 'bokeh', 'serve', *args]
-    try:
-        subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError as e:
-        assert e.returncode == 1
-        out = e.output.decode()
-    else:
-        pytest.fail(f"command {cmd} unexpected successful")
-    return out
-
-@pytest.mark.skipif(sys.platform != "win32", reason="Unix sockets not available on windows")
-def test_unix_socket_on_windows() -> None:
-    unix_socket = "test.sock"
-    out = check_error(["--unix-socket", unix_socket]).strip()
-    expected = "ERROR: Unix sockets are not supported on windows."
-    assert expected in out
-
-def test_unix_socket_with_port() -> None:
-    unix_socket = "test.sock"
-    out = check_error(["--unix-socket", unix_socket, "--port", "5000"]).strip()
-    expected = "ERROR: --port arg is not supported with a unix socket"
-    assert expected == out
-
-def test_unix_socket_with_invalid_args() -> None:
-    invalid_args = ['address', 'ssl-certfile', 'ssl-keyfile']
-    for arg in invalid_args:
-        unix_socket = "test.sock"
-        out = check_error(["--unix-socket", unix_socket, f"--{arg}", "value"]).strip()
-        expected = "ERROR: ['address', 'ssl_certfile', 'ssl_keyfile', 'port'] args are not supported with a unix socket"
-        assert expected == out
-
-def test_dev_with_no_app() -> None:
-    out = check_error(["--dev"]).strip()
-    expected = "ERROR: Bokeh server --dev option requires an app script or directory be provided"
-    assert expected == out
-
-def test_dev_with_multiple_apps() -> None:
-    out = check_error(["--glob", APPS, "--dev"]).strip()
-    expected = "ERROR: Bokeh server --dev option can only support a single app"
-    assert expected == out
+def test_cli_http_and_websocket_authentication(tmp_path, monkeypatch):
+    monkeypatch.setenv("BOKEH_SECRET_KEY", "test-only-session-signing-secret")
+    (tmp_path / "auth.py").write_text("""
+from bokeh.server.auth import AuthPolicy
+policy = AuthPolicy(lambda request: 'user' if request.headers.get('Authorization') == 'Bearer test' else None)
+""")
+    (tmp_path / "app.py").write_text("from bokeh.io import curdoc\nfrom bokeh.models import Div\ncurdoc().add_root(Div(text='hello'))\n")
+    with running_server(tmp_path, "app.py", "--prefix", "/tools", "--auth-policy", "auth:policy",
+                        "--session-ids", "signed", "--exclude-headers", "Authorization") as (url, proc):
+        headers = {"Authorization": "Bearer test"}
+        with pytest.raises(HTTPError) as error:
+            urlopen(url, timeout=5)
+        assert error.value.code == 401
+        with urlopen(Request(url, headers=headers), timeout=5) as response:
+            assert response.status == 200
+        with urlopen(Request(url + "/embed.json", headers=headers), timeout=5) as response:
+            token = json.load(response)["token"]
+        origin = url.split("/tools")[0]
+        websocket_url = url.replace("http:", "ws:") + "/ws"
+        with pytest.raises(InvalidStatus):
+            connect(websocket_url, origin=origin, subprotocols=["bokeh", token], open_timeout=5)
+        with pytest.raises(InvalidStatus):
+            connect(websocket_url, origin="http://untrusted.example", subprotocols=["bokeh", token],
+                    additional_headers=headers, open_timeout=5)
+        with connect(websocket_url, origin=origin.replace("127.0.0.1", "localhost"), subprotocols=["bokeh", token],
+                     additional_headers=headers, open_timeout=5) as socket:
+            assert json.loads(socket.recv(timeout=5))["header"]["msgtype"] == "ACK"
+            for fragment, binary in pull_doc_req().fragments():
+                socket.send(fragment)
+            receiver = Receiver()
+            reply = None
+            while reply is None:
+                reply = receiver.consume(socket.recv(timeout=5))
+            assert reply.msgtype == "PULL-DOC-REPLY"
+        assert proc.poll() is None
 
 
-@pytest.mark.skipif(sys.platform == "win32", reason="Unix sockets not available on windows")
-def test_unix_socket() -> None:
-    requests = pytest.importorskip("requests")
-    requests_unixsocket = pytest.importorskip("requests_unixsocket")
-    with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as sock:
-        file_name = "test.socket"
-
-        if os.path.exists(file_name):
-            os.remove(file_name)
-
-        sock.bind(file_name)
-        with run_bokeh_serve(["--unix-socket", file_name, "--glob", APPS]):
-            # The server is not ready is binds to the unix socket
-            # very quickly, having some sleep helps
-            with requests_unixsocket.monkeypatch():
-                for t in range(1, 11):
-                    time.sleep(1)
-                    try:
-                        r = requests.get(f"http+unix://{file_name.replace('/', '%2F')}/line_on_off")
-                        assert r.status_code == 200
-                        break
-                    except Exception:
-                        if t == 10:
-                            assert False
-                        pass
-        os.remove(file_name)
-
-def test_host_not_available() -> None:
-    host = "8.8.8.8"
-    out = check_error(["--address", host])
-    expected = f"Cannot start Bokeh server, address {host!r} not available"
-    assert expected in out
-
-def test_port_not_available() -> None:
-    sock = socket.socket()
-    try:
-        sock.bind(('0.0.0.0', 0))
-        port = sock.getsockname()[1]
-        out = check_error(["--port", str(port)])
-        expected = f"Cannot start Bokeh server, port {port} is already in use"
-        assert expected in out
-    finally:
-        sock.close()
-
-def test_no_glob_by_default_on_filename_if_wildcard_in_quotes() -> None:
-    out = check_error([APPS])
-    expected = "ERROR: Path for Bokeh server application does not exist:"
-    assert expected in out
-    assert '*' in out
-
-def test_glob_flag_on_filename_if_wildcard_in_quotes() -> None:
-    requests = pytest.importorskip("requests")
-    pat = re.compile(r'Bokeh app running at: http://localhost:(\d+)/line_on_off')
-    with run_bokeh_serve(["--port", "0", "--glob", APPS]) as (_, nbsr):
-        port = check_port(nbsr)
-        assert port > 0
-        assert_pattern(nbsr, pat)
-        r = requests.get(f"http://localhost:{port}/apply_theme")
-        assert r.status_code == 200
-
-def test_actual_port_printed_out() -> None:
-    requests = pytest.importorskip("requests")
-    with run_bokeh_serve(["--port", "0"]) as (_, nbsr):
-        port = check_port(nbsr)
-        assert port > 0
-        r = requests.get(f"http://localhost:{port}/")
-        assert r.status_code == 200
-
-def test_websocket_max_message_size_printed_out() -> None:
-    pat = re.compile(r'Torndado websocket_max_message_size set to 12345')
-    with run_bokeh_serve(["--port", "0", "--websocket-max-message-size", "12345"]) as (_, nbsr):
-        assert_pattern(nbsr, pat)
-        wait_until_serving(check_port(nbsr))
-
-class TestXSRF:
-
-    def test_printed_option(self) -> None:
-        pat = re.compile(r'XSRF cookie protection enabled')
-        with run_bokeh_serve(["--port", "0", "--enable-xsrf-cookies"]) as (_, nbsr):
-            assert_pattern(nbsr, pat)
-            wait_until_serving(check_port(nbsr))
-
-    def test_printed_envar(self) -> None:
-        pat = re.compile(r'XSRF cookie protection enabled')
-        with envset(BOKEH_XSRF_COOKIES="yes"):
-            with run_bokeh_serve(["--port", "0", "--enable-xsrf-cookies"]) as (_, nbsr):
-                assert_pattern(nbsr, pat)
-                wait_until_serving(check_port(nbsr))
-
-def test_auth_module_printed() -> None:
-    pat = re.compile(r'User authentication hooks provided(?! \()')
-    with run_bokeh_serve(["--port", "0", "--auth-module", join(split(__file__)[0], "_dummy_auth.py")]) as (_, nbsr):
-        assert_pattern(nbsr, pat)
-        wait_until_serving(check_port(nbsr))
+def test_cli_script_directory_and_static_assets(tmp_path):
+    app = tmp_path / "app"
+    app.mkdir()
+    (app / "static").mkdir()
+    (app / "static" / "sample.txt").write_text("asset")
+    (app / "main.py").write_text("from bokeh.io import curdoc\ncurdoc().title = 'Directory app'\n")
+    with running_server(tmp_path, "app", "--disable-index-redirect") as (url, proc):
+        with urlopen(url, timeout=5) as response:
+            assert b"Directory app" in response.read()
+        with urlopen(url + "/static/sample.txt", timeout=5) as response:
+            assert response.read() == b"asset"
+        root = url.rsplit("/", 1)[0]
+        with urlopen(root + "/", timeout=5) as response:
+            assert b"Bokeh applications" in response.read()
+        assert proc.poll() is None
 
 
-class TestIco:
-    def test_default(self) -> None:
-        requests = pytest.importorskip("requests")
-        with run_bokeh_serve(["--port", "0", "--glob", APPS]) as (_, nbsr):
-            port = check_port(nbsr)
-            assert port > 0
-            r = requests.get(f"http://localhost:{port}/favicon.ico")
-            assert r.status_code == 200
-            assert r.headers["content-type"] == "image/x-icon"
+def test_cli_rejects_notebook(tmp_path):
+    notebook = tmp_path / "app.ipynb"
+    notebook.write_text("{}")
+    args = parser().parse_args([str(notebook)])
+    with pytest.raises(SystemExit):
+        Serve.invoke(object(), args)
 
-    def test_explicit_option(self) -> None:
-        requests = pytest.importorskip("requests")
-        with run_bokeh_serve(["--port", "0", "--ico-path", join(HERE, "favicon-dev.ico"), "--glob", APPS]) as (_, nbsr):
-            port = check_port(nbsr)
-            assert port > 0
-            r = requests.get(f"http://localhost:{port}/favicon.ico")
-            assert r.status_code == 200
-            assert r.headers["content-type"] == "image/x-icon"
-            assert r.content == (Path(HERE) / "favicon-dev.ico").read_bytes()
 
-    def test_explicit_envvar(self) -> None:
-        requests = pytest.importorskip("requests")
-        with envset(BOKEH_ICO_PATH=join(HERE, "favicon-dev.ico")):
-            with run_bokeh_serve(["--port", "0", "--glob", APPS]) as (_, nbsr):
-                port = check_port(nbsr)
-                assert port > 0
-                r = requests.get(f"http://localhost:{port}/favicon.ico")
-                assert r.status_code == 200
-                assert r.headers["content-type"] == "image/x-icon"
-                assert r.content == (Path(HERE) / "favicon-dev.ico").read_bytes()
+def test_cli_policy_import_failure_stops_startup(tmp_path):
+    proc = subprocess.run([sys.executable, "-m", "bokeh", "serve", "--auth-policy", "missing_policy:policy"],
+                          cwd=tmp_path, capture_output=True, text=True, timeout=15)
+    assert proc.returncode != 0
+    assert "missing_policy" in proc.stderr
 
-    def test_none_option(self) -> None:
-        requests = pytest.importorskip("requests")
-        with run_bokeh_serve(["--port", "0", "--ico-path", "none", "--glob", APPS]) as (_, nbsr):
-            port = check_port(nbsr)
-            assert port > 0
-            r = requests.get(f"http://localhost:{port}/favicon.ico")
-            assert r.status_code == 404
 
-    def test_none_envvar(self) -> None:
-        requests = pytest.importorskip("requests")
-        with envset(BOKEH_ICO_PATH="none"):
-            with run_bokeh_serve(["--port", "0", "--glob", APPS]) as (_, nbsr):
-                port = check_port(nbsr)
-                assert port > 0
-                r = requests.get(f"http://localhost:{port}/favicon.ico")
-                assert r.status_code == 404
+def test_static_command_without_tornado(tmp_path):
+    with running_server(tmp_path, command="static") as (url, proc):
+        with urlopen(url + "js/bokeh.js", timeout=5) as response:
+            assert response.status == 200
+            assert b"Bokeh" in response.read()
+        with pytest.raises(HTTPError) as error:
+            urlopen(url.replace("/static/", "/"), timeout=5)
+        assert error.value.code == 404
+        assert proc.poll() is None
 
-@pytest.mark.skipif(sys.platform == "win32", reason="`ioloop.add_signal_handler()` is not available on Windows")
-def test_handling_SIGTERM() -> None:
-    pat_pid = re.compile(r"Starting Bokeh server with process id: (\d+)")
-    pat_term = re.compile(r"Received signal SIGTERM, shutting down")
 
-    with run_bokeh_serve(["--port", "0"]) as (process, nbsr):
-        port = check_port(nbsr)
-        match = find_pattern(nbsr, pat_pid)
-        if match is None:
-            pytest.fail("Did not find server PID in process output")
-        assert int(match.group(1)) == process.pid
+@pytest.mark.parametrize("variable", ["BOKEH_AUTH_MODULE", "BOKEH_COOKIE_SECRET", "BOKEH_XSRF_COOKIES"])
+def test_retired_auth_settings_are_not_silently_ignored(monkeypatch, variable):
+    monkeypatch.setenv(variable, "configured")
+    args = parser().parse_args([])
+    with pytest.raises(SystemExit):
+        Serve.invoke(object(), args)
 
-        wait_until_serving(port)
 
-        process.send_signal(signal.SIGTERM)
-        process.wait(timeout=30)
-        match = find_pattern(nbsr, pat_term)
-        if match is None:
-            pytest.fail("Did not find SIGTERM confirmation in process output")
+def test_console_imports_policy_from_working_directory(tmp_path):
+    (tmp_path / "auth.py").write_text("from bokeh.server.auth import AuthPolicy\npolicy = AuthPolicy(lambda request: 'user')\n")
+    executable = Path(sys.executable).with_name("bokeh.exe" if sys.platform == "win32" else "bokeh")
+    env = dict(os.environ)
+    env.pop("PYTHONPATH", None)
+    proc = subprocess.run([str(executable), "serve", "--auth-policy", "auth:policy", "--keep-alive", "-1"],
+                          cwd=tmp_path, env=env, capture_output=True, text=True, timeout=15)
+    assert proc.returncode != 0
+    assert "--keep-alive must be >= 0" in proc.stderr
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
+def test_explicit_address_is_preserved_in_advertised_url(tmp_path):
+    with running_server(tmp_path, '--address', '127.0.0.1') as (url, _proc):
+        assert url.startswith('http://127.0.0.1:')
+        with urlopen(url + 'embed.json', timeout=5) as response:
+            token = json.load(response)['token']
+        with connect(url.replace('http:', 'ws:') + 'ws', origin=url.rstrip('/'),
+                     subprotocols=['bokeh', token], open_timeout=5) as socket:
+            assert json.loads(socket.recv(timeout=5))['header']['msgtype'] == 'ACK'
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="POSIX signal handling")
+def test_cli_exits_cleanly_on_sigterm(tmp_path):
+    (tmp_path / "main.py").write_text("pass\n")
+    (tmp_path / "app_hooks.py").write_text(
+        "from pathlib import Path\n\n"
+        "def on_server_unloaded(context):\n"
+        "    Path(__file__).with_name('stopped').write_text('done')\n",
+    )
+    with running_server(tmp_path, str(tmp_path)) as (_url, proc):
+        proc.terminate()
+        # Uvicorn re-raises SIGTERM after awaiting application shutdown.
+        assert proc.wait(timeout=10) == -15
+        assert (tmp_path / "stopped").read_text() == "done"
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="Unix sockets")
+def test_long_unix_socket_path_fails_without_starting_lifespan(tmp_path):
+    executable = Path(sys.executable).with_name("bokeh")
+    path = str(tmp_path / ("x" * 200))
+    proc = subprocess.run([str(executable), "serve", "--unix-socket", path],
+                          capture_output=True, text=True, timeout=15)
+    assert proc.returncode != 0
+    assert "CancelledError" not in proc.stderr
+    assert "Traceback" not in proc.stderr

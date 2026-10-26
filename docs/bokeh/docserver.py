@@ -28,18 +28,18 @@ Guide:
 
 """
 
+# Standard library imports
 import threading
 import time
 import webbrowser
 from pathlib import Path
 
+# External imports
 import flask
 from flask import redirect
-from tornado.httpserver import HTTPServer
-from tornado.ioloop import IOLoop
-from tornado.wsgi import WSGIContainer
+from werkzeug.serving import make_server
 
-IOLOOP = None
+HTTP_SERVER = None
 HOST = "localhost"
 PORT = 5009
 VISIT_URL = f"http://{HOST}:{PORT}/en/latest/index.html"
@@ -70,11 +70,9 @@ def open_browser():
 
 
 def serve_http():
-    global IOLOOP
-    IOLOOP = IOLoop().current()
-    http_server = HTTPServer(WSGIContainer(app))
-    http_server.listen(PORT)
-    IOLOOP.start()
+    global HTTP_SERVER
+    HTTP_SERVER = make_server(HOST, PORT, app, threaded=True)
+    HTTP_SERVER.serve_forever()
 
 
 if __name__ == "__main__":
@@ -94,7 +92,7 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         pass
 
-    IOLOOP.add_callback(IOLOOP.stop)  # type: ignore
+    HTTP_SERVER.shutdown()
     server.join()
     browser.join()
 

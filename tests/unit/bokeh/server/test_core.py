@@ -395,3 +395,23 @@ async def test_create_session_rejects_invalid_header_token_payload(monkeypatch: 
             await core.create_session(core.applications["/"], request)
     finally:
         await core.stop()
+
+
+@pytest.mark.parametrize("include_headers", [None, ["Authorization", "Cookie", "Proxy-Authorization", "x-test"]])
+async def test_credentials_are_not_copied_into_session_tokens(include_headers) -> None:
+    core = BokehServerCore(Application(), include_headers=include_headers)
+    request = ServerRequest(
+        method="GET", uri="/", path="/",
+        headers=Headers({"Authorization": "Bearer secret", "Cookie": "session=secret",
+                         "Proxy-Authorization": "Basic secret", "x-test": "visible"}),
+        cookies={"session": Cookie("secret")},
+    )
+    await core.start()
+    try:
+        session = await core.create_session(core.applications["/"], request)
+        payload = get_token_payload(session.token)
+        assert payload["headers"] == {"x-test": "visible"}
+        assert payload["cookies"] == {}
+        assert request.cookies["session"].value == "secret"
+    finally:
+        await core.stop()

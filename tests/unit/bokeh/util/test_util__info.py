@@ -36,7 +36,7 @@ def test_print_info(capsys: Capture) -> None:
     assert len(lines) == 12
     assert lines[0].startswith("Python version")
     assert lines[1].startswith("IPython version")
-    assert lines[2].startswith("Tornado version")
+    assert lines[2].startswith("Uvicorn version")
     assert lines[3].startswith("NumPy version")
     assert lines[4].startswith("Bokeh version")
     assert lines[5].startswith("BokehJS static")
@@ -51,7 +51,7 @@ def test_print_info(capsys: Capture) -> None:
 def test__version_missing(ipython: Any) -> None:
     assert bui._version('bokeh', '__version__') is not None
     assert bui._version('IPython', '__version__') is not None
-    assert bui._version('tornado', 'version') is not None
+    assert bui._version('uvicorn', '__version__') is not None
     assert bui._version('junk', 'whatever') is None
 
 def test_print_non_default_settings(capsys: Capture) -> None:

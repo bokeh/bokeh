@@ -135,12 +135,14 @@ class BokehASGI:
         *,
         prefix: str | None = None,
         redirect_root: bool = True,
+        use_index: bool = True,
         auth_policy: AuthPolicy | None = None,
         **kwargs: Any,
     ) -> None:
         if auth_policy is not None and auth_policy.logout_url is not None:
             kwargs.setdefault("logout_url", auth_policy.logout_url)
         self._core = BokehServerCore(applications, prefix=prefix, **kwargs)
+        self._use_index = use_index
         self._redirect_root = redirect_root
         self._auth_policy = auth_policy
         self._start_lock: asyncio.Lock | None = None
@@ -393,6 +395,9 @@ class BokehASGI:
         )
 
     async def _root(self, request: ServerRequest, send: Send) -> None:
+        if not self._use_index:
+            await self._not_found(request, send)
+            return
         method = request.method.upper()
         head = method == "HEAD"
         if method not in ("GET", "HEAD"):

@@ -46,7 +46,7 @@ from ..protocol import (
 )
 from ..util.asyncio import Loop, _asyncio_loop
 from ..util.token import generate_jwt_token
-from ..util.tornado import _run_in_executor
+from ..util.asyncio import _run_in_executor
 from .callbacks import DocumentCallbackGroup
 from .executor import _await_cancellation_safe
 
