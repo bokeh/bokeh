@@ -2,14 +2,13 @@
 and a color picker.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.models.Column, bokeh.models.CustomJS, bokeh.models.DateRangeSlider, bokeh.models.DateSlider, bokeh.models.Div, bokeh.models.RangeSlider, bokeh.models.Row, bokeh.models.Slider, bokeh.document.document, bokeh.embed.embed, bokeh.util.browser.view
+    :apis: bokeh.models.Column, bokeh.models.CustomJS, bokeh.models.DateRangeSlider, bokeh.models.DateSlider, bokeh.models.Div, bokeh.models.InlineStyleSheet, bokeh.models.RangeSlider, bokeh.models.Row, bokeh.models.Slider, bokeh.document.document, bokeh.embed.embed, bokeh.util.browser.view
     :refs: :ref:`ug_interaction_widgets`
     :keywords: slider
 
 """ # noqa: E501
 from datetime import date
 
-from bokeh.colors import ColorLike
 from bokeh.document import Document
 from bokeh.embed import embed
 from bokeh.models import (
@@ -18,6 +17,7 @@ from bokeh.models import (
     DateRangeSlider,
     DateSlider,
     Div,
+    InlineStyleSheet,
     RangeSlider,
     Row,
     Slider,
@@ -39,8 +39,9 @@ only_value_slider = Slider(value=50, start=0, end=96, step=5)
 no_title_slider = Slider(title=None, value=50, start=0, end=96, step=5)
 
 def color_picker():
-    def color_slider(title: str, color: ColorLike):
-        return Slider(title=title, show_value=False, value=127, start=0, end=255, step=1, orientation="vertical") # TODO bar_color=color
+    def color_slider(title: str, color: str):
+        stylesheet = InlineStyleSheet(css=f".bk-span {{ background-color: {color}; }}")
+        return Slider(title=title, show_value=False, value=127, start=0, end=255, step=1, orientation="vertical", stylesheets=[stylesheet])
 
     red   = color_slider("R", "red")
     green = color_slider("G", "green")
