@@ -35,15 +35,7 @@ export class TabsView extends LayoutDOMView {
 
   override connect_signals(): void {
     super.connect_signals()
-    const {active, link_layouts, tabs} = this.model.properties
-
-    this.on_change([active, link_layouts], async () => {
-      await this.update_children()
-    })
-
-    this.on_transitive_change(tabs, async () => {
-      await this.update_children()
-    }, {signal: (obj) => (obj as TabPanel).properties.child.change})
+    const {tabs} = this.model.properties
 
     this.on_transitive_change(tabs, async () => {
       await this.build_tooltip_views()
@@ -68,14 +60,14 @@ export class TabsView extends LayoutDOMView {
   }
 
   get child_models(): UIElement[] {
-    const {link_layouts, tabs} = this.model
+    const {link_layouts, tabs} = this.values
+    const children = tabs.map((tab) => tab.properties.child.signal.value)
     if (link_layouts) {
-      return tabs.map((tab) => tab.child)
-    } else if (tabs.length == 0) {
+      return children
+    } else if (children.length == 0) {
       this._materialized_tabs.clear()
       return []
     } else {
-      const children = tabs.map((tab) => tab.child)
       const current = new Set(children)
       for (const child of this._materialized_tabs) {
         if (!current.has(child)) {
@@ -83,7 +75,7 @@ export class TabsView extends LayoutDOMView {
         }
       }
 
-      this._materialized_tabs.add(tabs[this.normalized_active].child)
+      this._materialized_tabs.add(children[this.normalized_active])
       return children.filter((child) => this._materialized_tabs.has(child))
     }
   }
@@ -340,7 +332,7 @@ export class TabsView extends LayoutDOMView {
       )
     })
 
-    const child_views = this.sig_child_views
+    const {child_views} = this
     const panel_els = tabs.map((tab, i) => {
       const is_active = i == active
       const active_cls = is_active ? tabs_css.active : null

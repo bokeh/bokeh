@@ -141,20 +141,20 @@ describe("Tabs", () => {
     const tabs = new_tabs(3)
     const {view: tabs_view} = await display(tabs, null)
 
-    const [view0] = tabs_view.sig_child_views
+    const [view0] = tabs_view.child_views
     expect(view0.model).to.be.identical(tabs.tabs[0].child)
 
     tabs.active = 1
     await defer()
 
-    const [retained_view0, view1] = tabs_view.sig_child_views
+    const [retained_view0, view1] = tabs_view.child_views
     expect(retained_view0).to.be.identical(view0)
     expect(view1.model).to.be.identical(tabs.tabs[1].child)
 
     tabs.active = 0
     await defer()
 
-    expect(tabs_view.sig_child_views).to.be.equal([view0, view1])
+    expect(tabs_view.child_views).to.be.equal([view0, view1])
     expect(view0.is_destroyed).to.be.false
     expect(view1.is_destroyed).to.be.false
   })
@@ -168,12 +168,12 @@ describe("Tabs", () => {
     await defer()
     await tabs_view.ready
 
-    const [view0, view1] = tabs_view.sig_child_views
+    const [view0, view1] = tabs_view.child_views
     tabs.tabs = [tab1, tab2]
     await defer()
     await tabs_view.ready
 
-    const [retained_view1, view2] = tabs_view.sig_child_views
+    const [retained_view1, view2] = tabs_view.child_views
     expect(retained_view1).to.be.identical(view1)
     expect(view0.model).to.be.identical(tab0.child)
     expect(view0.is_destroyed).to.be.true
@@ -187,7 +187,7 @@ describe("Tabs", () => {
     await defer()
     await tabs_view.ready
 
-    const [still_retained_view1, replacement_view] = tabs_view.sig_child_views
+    const [still_retained_view1, replacement_view] = tabs_view.child_views
     expect(still_retained_view1).to.be.identical(view1)
     expect(view2.is_destroyed).to.be.true
     expect(replacement_view.model).to.be.identical(replacement)
@@ -196,7 +196,7 @@ describe("Tabs", () => {
     await defer()
     await tabs_view.ready
 
-    expect(tabs_view.sig_child_views).to.be.equal([])
+    expect(tabs_view.child_views).to.be.equal([])
     expect(view1.is_destroyed).to.be.true
     expect(replacement_view.is_destroyed).to.be.true
 
@@ -205,7 +205,7 @@ describe("Tabs", () => {
     await defer()
     await tabs_view.ready
 
-    expect(tabs_view.sig_child_views.map((view) => view.model)).to.be.equal([restored[1].child])
+    expect(tabs_view.child_views.map((view) => view.model)).to.be.equal([restored[1].child])
   })
 
   it("should eagerly materialize all tab children only when layouts are linked", async () => {
@@ -213,15 +213,15 @@ describe("Tabs", () => {
     tabs.link_layouts = true
     const {view: tabs_view} = await display(tabs, null)
 
-    const linked_views = tabs_view.sig_child_views
+    const linked_views = tabs_view.child_views
     expect(linked_views.map((view) => view.model)).to.be.equal(tabs.tabs.map((tab) => tab.child))
 
     tabs.link_layouts = false
     await defer()
     await tabs_view.ready
 
-    expect(tabs_view.sig_child_views.map((view) => view.model)).to.be.equal([tabs.tabs[0].child])
-    expect(tabs_view.sig_child_views[0]).to.be.identical(linked_views[0])
+    expect(tabs_view.child_views.map((view) => view.model)).to.be.equal([tabs.tabs[0].child])
+    expect(tabs_view.child_views[0]).to.be.identical(linked_views[0])
     expect(linked_views[1].is_destroyed).to.be.true
     expect(linked_views[2].is_destroyed).to.be.true
 
@@ -229,7 +229,7 @@ describe("Tabs", () => {
     await defer()
     await tabs_view.ready
 
-    expect(tabs_view.sig_child_views.map((view) => view.model)).to.be.equal([
+    expect(tabs_view.child_views.map((view) => view.model)).to.be.equal([
       tabs.tabs[0].child,
       tabs.tabs[1].child,
     ])
@@ -238,6 +238,6 @@ describe("Tabs", () => {
     await defer()
     await tabs_view.ready
 
-    expect(tabs_view.sig_child_views.map((view) => view.model)).to.be.equal(tabs.tabs.map((tab) => tab.child))
+    expect(tabs_view.child_views.map((view) => view.model)).to.be.equal(tabs.tabs.map((tab) => tab.child))
   })
 })

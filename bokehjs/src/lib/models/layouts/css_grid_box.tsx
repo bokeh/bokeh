@@ -13,7 +13,9 @@ import type * as p from "core/properties"
 const {max} = Math
 
 export abstract class CSSGridBoxView extends LayoutDOMView {
-  declare model: CSSGridBox
+  declare readonly model: CSSGridBox
+  declare readonly signals: p.SignalsOf<CSSGridBox.Props>
+  declare readonly values: CSSGridBox.Attrs
 
   override connect_signals(): void {
     super.connect_signals()
@@ -59,7 +61,7 @@ export abstract class CSSGridBoxView extends LayoutDOMView {
       nrows = max(nrows, row + row_span)
       ncols = max(ncols, col + col_span)
 
-      const view = this._child_views.get(child)
+      const view = this._child_storage.get(child)
       if (view == null) {
         continue
       }
@@ -130,7 +132,7 @@ export abstract class CSSGridBoxView extends LayoutDOMView {
     parse_sizing(cols, cols_template)
 
     for (const [child, row, col] of this._children) {
-      const view = this._child_views.get(child)
+      const view = this._child_storage.get(child)
       if (view == null) {
         continue
       }

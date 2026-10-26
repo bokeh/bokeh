@@ -8,17 +8,18 @@ type HBoxChild = {child: UIElement, col?: number, span?: number} // XXX: can't i
 const HBoxChild = Struct<HBoxChild>({child: Ref(UIElement), col: Opt(Index), span: Opt(Span)})
 
 export class HBoxView extends CSSGridBoxView {
-  declare model: HBox
+  declare readonly model: HBox
+  declare readonly signals: p.SignalsOf<HBox.Props>
+  declare readonly values: HBox.Attrs
 
   override connect_signals(): void {
     super.connect_signals()
-    const {children, cols} = this.model.properties
-    this.on_change(children, () => this.update_children())
+    const {cols} = this.model.properties
     this.on_change(cols, () => this.invalidate_layout())
   }
 
   protected get _children(): [UIElement, number, number, number?, number?][] {
-    return this.model.children.map(({child, col, span}, i) => [child, 0, col ?? i, 1, span ?? 1])
+    return this.values.children.map(({child, col, span}, i) => [child, 0, col ?? i, 1, span ?? 1])
   }
 
   protected get _rows(): TracksSizing | null {
