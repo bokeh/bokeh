@@ -62,7 +62,17 @@ export abstract class LayoutDOMView extends PaneView {
   override connect_signals(): void {
     super.connect_signals()
 
+    // effect() runs immediately, but lazy_initialize() already built children
+    // and this view isn't rendered yet, so skip updating children on the first run.
+    let initial = true
     effect(() => {
+      if (initial) {
+        initial = false
+        // Dependencies are tracked per run, so the first run has to read the
+        // signals behind child_models, otherwise this effect would never re-run.
+        void this.child_models
+        return
+      }
       void this.update_children()
     })
 
