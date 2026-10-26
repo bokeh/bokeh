@@ -17,7 +17,6 @@ from bokeh.server.asgi import BokehASGI
 
 def modify_document(doc):
     x, y = np.meshgrid(np.linspace(-1, 1, 41), np.linspace(-1, 1, 41))
-
     levels = np.linspace(-1.0, 1.0, 11)
 
     def get_z(timestep):
@@ -26,7 +25,6 @@ def modify_document(doc):
         xmids = [-0.4,  0.4, -0.4,  0.4]
         ymids = [-0.4,  0.4,  0.4, -0.4]
         rads  = [0.4 + delta, 0.4 + delta, 0.4 - delta, 0.4 - delta]
-
         z = np.zeros_like(x)
         for amp, xmid, ymid, rad in zip(amps, xmids, ymids, rads):
             z += amp*np.exp( -((x-xmid)**2 + (y-ymid)**2)/rad**2 )
@@ -39,16 +37,11 @@ def modify_document(doc):
         contour_renderer.set_data(new_contour_data)
 
     fig = figure(width=600, height=450)
-
     contour_renderer = fig.contour(x, y, get_z(0), levels, fill_color=PiYG,
                                    line_color="black", line_width=[1]*5 + [3] + [1]*5)
-
     colorbar = contour_renderer.construct_color_bar()
-
     fig.add_layout(colorbar, 'right')
-
     doc.add_periodic_callback(callback, 40)
-
     doc.add_root(fig)
 
 

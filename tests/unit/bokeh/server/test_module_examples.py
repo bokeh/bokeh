@@ -190,3 +190,21 @@ def test_clustering_can_select_agglomerative_algorithm():
     selector = document.select_one({'type': Select, 'title': 'Select algorithm:'})
     selector.value = 'AgglomerativeClustering'
     assert any(plot.title.text == 'AgglomerativeClustering' for plot in document.select({'type': Plot}))
+
+
+async def test_shared_producer_reports_core_shutdown_failure(monkeypatch):
+    module = importlib.import_module('examples.server.module_apps.updating_data.share_data_between_sessions.server')
+    messages = []
+
+    async def fail():
+        raise RuntimeError('core shutdown failed')
+
+    async def receive():
+        return {'type': 'lifespan.shutdown'}
+
+    async def send(event):
+        messages.append(event)
+
+    monkeypatch.setattr(module.bokeh_application.core, 'stop', fail)
+    await module.app({'type': 'lifespan'}, receive, send)
+    assert messages == [{'type': 'lifespan.shutdown.failed', 'message': 'core shutdown failed'}]

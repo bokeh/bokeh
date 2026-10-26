@@ -13,13 +13,9 @@ from bokeh.transform import factor_cmap, transform
 
 def modify_document(doc):
     years = [str(x) for x in sorted(df.Year.unique())]
-
     locations = sorted(df.Location.unique())
-
     groups = list(df.AgeGrp.unique())
-
     ages = ColumnDataSource(data=dict(AgeGrp=[], Sex=[], Value=[]))
-
     gender_transform = CustomJSTransform(args=dict(source=ages), func="", v_func="""
         const val = new Float64Array(xs.length)
         for (let i = 0; i < xs.length; i++) {
@@ -30,57 +26,37 @@ def modify_document(doc):
         }
         return val
     """)
-
     pyramid = figure(width=600, height=500, toolbar_location=None, y_range=groups,
                      title="Population Breakdown by Age Group and Gender",
                      x_axis_label="Population",y_axis_label="Age Group")
-
     pyramid.hbar(y="AgeGrp", height=1, right=transform('Value', gender_transform),
                  source=ages, legend_field="Sex", line_color="white",
                  fill_color=factor_cmap('Sex', palette=["#3B8686", "#CFF09E"], factors=["Male", "Female"]))
-
     pyramid.ygrid.grid_line_color = None
-
     pyramid.xaxis.ticker = ScaledTicker(scale=1e6)
-
     pyramid.xaxis.formatter = ScaledTickFormatter(
         formatter=CustomJSTickFormatter(code="return Math.abs(tick)"),
         unit=" M",
     )
-
     known = ColumnDataSource(data=dict(x=[], y=[]))
-
     predicted = ColumnDataSource(data=dict(x=[], y=[]))
-
     population = figure(width=600, height=180, toolbar_location=None,
                         title="Total Population by Year",
                         x_axis_label="Year",y_axis_label="Population")
-
     population.line("x", "y", color="violet", line_width=2, source=known, legend_label="known")
-
     population.line("x", "y", color="violet", line_width=2, line_dash="dashed", source=predicted, legend_label="predicted")
-
     population.xaxis.major_label_orientation = pi/4
-
     population.xgrid.grid_line_color = None
-
     population.legend.location = "center_right"
-
     population.x_range.end = 2150
-
     population.yaxis.minor_tick_line_color = None
-
     population.yaxis.ticker = ScaledTicker(scale=1e9)
-
     population.yaxis.formatter = ScaledTickFormatter(unit=" B")
-
     year = Select(title="Year:", value="2010", options=years)
-
     location = Select(title="Location:", value="World", options=locations)
 
     def update():
         ages.data = df[(df.Location == location.value) & (df.Year == int(year.value))]
-
         pop = df[df.Location == location.value].groupby(df.Year).Value.sum()
         new_known = pop[pop.index <= 2010]
         new_predicted = pop[pop.index >= 2010]
@@ -88,13 +64,9 @@ def modify_document(doc):
         predicted.data = dict(x=new_predicted.index.map(str), y=new_predicted.values)
 
     year.on_change('value', lambda attr, old, new: update())
-
     location.on_change('value', lambda attr, old, new: update())
-
     update()
-
     controls = column(year, location, width=300)
-
     doc.add_root(row(column(pyramid, population), controls))
 
 

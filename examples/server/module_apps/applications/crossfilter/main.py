@@ -20,25 +20,17 @@ def modify_document(doc):
     doc.theme = Theme(filename=Path(__file__).with_name("theme.yaml"))
     doc.template = Environment(loader=FileSystemLoader(Path(__file__).parent / "templates")).get_template("index.html")
     df = df.copy()
-
     SIZES = list(range(6, 22, 3))
-
     COLORS = Spectral5
-
     N_SIZES = len(SIZES)
-
     N_COLORS = len(COLORS)
-
     df.cyl = df.cyl.astype(str)
-
     df.yr = df.yr.astype(str)
 
     del df['name']
 
     columns = sorted(df.columns)
-
     discrete = [x for x in columns if df[x].dtype == object]
-
     continuous = [x for x in columns if x not in discrete]
 
     def create_figure():
@@ -46,14 +38,12 @@ def modify_document(doc):
         ys = df[y.value].values
         x_title = x.value.title()
         y_title = y.value.title()
-
         kw = dict()
         if x.value in discrete:
             kw['x_range'] = sorted(set(xs))
         if y.value in discrete:
             kw['y_range'] = sorted(set(ys))
         kw['title'] = f"{x_title} vs {y_title}"
-
         p = figure(height=600, width=800, tools='pan,box_zoom,hover,reset', **kw)
         p.xaxis.axis_label = x_title
         p.yaxis.axis_label = y_title
@@ -85,27 +75,16 @@ def modify_document(doc):
         layout.children[1] = create_figure()
 
     x = Select(title='X-Axis', value='mpg', options=columns)
-
     x.on_change('value', update)
-
     y = Select(title='Y-Axis', value='hp', options=columns)
-
     y.on_change('value', update)
-
     size = Select(title='Size', value='None', options=['None', *continuous])
-
     size.on_change('value', update)
-
     color = Select(title='Color', value='None', options=['None', *continuous])
-
     color.on_change('value', update)
-
     controls = column(x, y, color, size, width=200)
-
     layout = row(controls, create_figure())
-
     doc.add_root(layout)
-
     doc.title = "Crossfilter"
 
 

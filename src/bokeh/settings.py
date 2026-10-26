@@ -713,11 +713,8 @@ class Settings:
     Legacy favicon setting. ASGI hosting and ``bokeh serve`` do not use this
     value. Configure a favicon route in the surrounding website.
 
-    The value should be the full path to a .ico file, or one the following
-    special values:
-
-    - ``default`` to use the default project .ico file
-    - ``none`` to turn off favicon.ico support entirely
+    Retained for compatibility with settings readers. It has no effect on
+    either hosting approach and should not be used for new applications.
 
     """)
 

@@ -10,35 +10,20 @@ from bokeh.server.asgi import BokehASGI
 
 def modify_document(doc):
     x = np.random.uniform(10, size=500)
-
     y = np.random.uniform(10, size=500)
-
     color = ["navy"]*500
-
     color[:200] = ["firebrick"]*200
-
     source = ColumnDataSource(data=dict(x=x, y=y, color=color))
-
     p = figure(width=400, height=400)
-
     p.scatter('x', 'y', alpha=0.6, size=8, color="color", source=source)
-
     x = np.linspace(0, 10, 200)
-
     y0 = np.sin(x)
-
     y1 = np.cos(x)
-
     source1d = ColumnDataSource(data=dict(xs=[x, x], ys=[y0, y1], color=["olive", "navy"]))
-
     p1d = figure(width=400, height=400)
-
     p1d.multi_line('xs', 'ys', alpha=0.6, line_width=4, color="color", source=source1d)
-
     N = 200
-
     img = np.empty((N,N), dtype=np.uint32)
-
     view = img.view(dtype=np.uint8).reshape((N, N, 4))
 
     for i in range(N):
@@ -46,9 +31,7 @@ def modify_document(doc):
             view[i, j, :] = [int(j/N*255), int(i/N*255), 158, 255]
 
     source2d = ColumnDataSource(data=dict(img=[img]))
-
     p2d = figure(width=400, height=400, x_range=(0,10), y_range=(0,10))
-
     p2d.image_rgba(image='img', x=0, y=0, dw=10, dh=10, source=source2d)
 
     def update():
@@ -71,7 +54,6 @@ def modify_document(doc):
         source2d.patch({ 'img' : [(index, new_data)] })
 
     doc.add_periodic_callback(update, 50)
-
     doc.add_root(gridplot([[p, p1d, p2d]]))
 
 

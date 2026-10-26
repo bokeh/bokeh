@@ -82,10 +82,8 @@ def modify_document(doc: Document) -> None:
         min_width=0,
         align="end",
     )
-
     signal = ColumnDataSource(data={"x": [], "y": [], "zero": []}, name="signal-source")
     spectrum = ColumnDataSource(data={"harmonic": [], "magnitude": [], "color": []}, name="spectrum-source")
-
     signal_plot = figure(
         height=320,
         width=720,
@@ -100,7 +98,6 @@ def modify_document(doc: Document) -> None:
     )
     signal_plot.varea(x="x", y1="zero", y2="y", source=signal, fill_color="#38bdf8", fill_alpha=0.12)
     signal_plot.line(x="x", y="y", source=signal, line_color="#38bdf8", line_width=3)
-
     spectrum_range = Range1d(0, 2)
     spectrum_plot = figure(
         height=320,
@@ -163,14 +160,12 @@ def modify_document(doc: Document) -> None:
         y = np.sin(np.outer(theta, harmonics)) @ coefficients
         magnitudes = np.abs(coefficients)
         colors = [palettes.Turbo256[int(40 + 180*i/max(1, len(harmonics) - 1))] for i in range(len(harmonics))]
-
         signal.data = {"x": SAMPLES, "y": y, "zero": ZERO}
         spectrum.data = {"harmonic": harmonics, "magnitude": magnitudes, "color": colors}
         spectrum_range.end = max(1, 1.15*float(np.max(magnitudes)))
         if signal_plot.title is not None:
             signal_plot.title.text = f"{waveform.value} · {len(harmonics)} active harmonics"
         terms.disabled = waveform.value == "Sine"
-
         peak_metric.text = metric("Peak", f"{np.max(np.abs(y)):.2f}")
         rms_metric.text = metric("RMS", f"{np.sqrt(np.mean(np.square(y))):.2f}")
         terms_metric.text = metric("Components", str(len(harmonics)))
@@ -215,7 +210,6 @@ def modify_document(doc: Document) -> None:
         spacing=cast(Any, 16),
         sizing_mode="stretch_width",
     )
-
     update_data()
     doc.theme = "dark_minimal"
     doc.add_periodic_callback(advance, 75)

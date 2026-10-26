@@ -44,113 +44,59 @@ def modify_document(doc):
         return python_callback
 
     N = 4000
-
     x = np.random.random(size=N) * 100
-
     y = np.random.random(size=N) * 100
-
     radii = np.random.random(size=N) * 1.5
-
     colors = np.array([(r, g, 150) for r, g in zip(50+2*x, 30+2*y)], dtype="uint8")
-
     p = figure(tools="pan,wheel_zoom,zoom_in,zoom_out,reset,tap,lasso_select,box_select,box_zoom,undo,redo")
-
     p.circle(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
-
     div = Div(width=1000)
-
     button = Button(label="Button", button_type="success", width=300)
-
     layout = column(button, row(p, div))
-
     point_attributes = ['x','y','sx','sy']
-
     pan_attributes = [*point_attributes, 'delta_x', 'delta_y']
-
     pinch_attributes = [*point_attributes, 'scale']
-
     wheel_attributes = [*point_attributes, 'delta']
-
     button.js_on_event(events.ButtonClick, display_event(div))
-
     p.xaxis[0].js_on_event(events.AxisClick, display_event(div, ["value"]))
-
     p.yaxis[0].js_on_event(events.AxisClick, display_event(div, ["value"]))
-
     p.js_on_event(events.LODStart, display_event(div))
-
     p.js_on_event(events.LODEnd,   display_event(div))
-
     p.js_on_event(events.Tap,       display_event(div, attributes=point_attributes))
-
     p.js_on_event(events.DoubleTap, display_event(div, attributes=point_attributes))
-
     p.js_on_event(events.Press,     display_event(div, attributes=point_attributes))
-
     p.js_on_event(events.MouseWheel, display_event(div,attributes=wheel_attributes))
-
     p.js_on_event(events.MouseEnter, display_event(div, attributes=point_attributes))
-
     p.js_on_event(events.MouseLeave, display_event(div, attributes=point_attributes))
-
     p.js_on_event(events.Pan,      display_event(div, attributes=pan_attributes))
-
     p.js_on_event(events.PanStart, display_event(div, attributes=point_attributes))
-
     p.js_on_event(events.PanEnd,   display_event(div, attributes=point_attributes))
-
     p.js_on_event(events.Pinch,      display_event(div, attributes=pinch_attributes))
-
     p.js_on_event(events.PinchStart, display_event(div, attributes=point_attributes))
-
     p.js_on_event(events.PinchEnd,   display_event(div, attributes=point_attributes))
-
     p.js_on_event(events.SelectionGeometry, display_event(div, attributes=['geometry', 'final']))
-
     p.js_on_event(events.RangesUpdate, display_event(div, attributes=['x0','x1','y0','y1']))
-
     p.js_on_event(events.Reset, display_event(div))
-
     button.on_event(events.ButtonClick, print_event())
-
     p.xaxis[0].on_event(events.AxisClick, print_event(attributes=["value"]))
-
     p.yaxis[0].on_event(events.AxisClick, print_event(attributes=["value"]))
-
     p.on_event(events.LODStart, print_event())
-
     p.on_event(events.LODEnd,   print_event())
-
     p.on_event(events.Tap,       print_event(attributes=point_attributes))
-
     p.on_event(events.DoubleTap, print_event(attributes=point_attributes))
-
     p.on_event(events.Press,     print_event(attributes=point_attributes))
-
     p.on_event(events.MouseWheel, print_event(attributes=wheel_attributes))
-
     p.on_event(events.MouseEnter, print_event(attributes=point_attributes))
-
     p.on_event(events.MouseLeave, print_event(attributes=point_attributes))
-
     p.on_event(events.Pan,      print_event(attributes=pan_attributes))
-
     p.on_event(events.PanStart, print_event(attributes=point_attributes))
-
     p.on_event(events.PanEnd,   print_event(attributes=point_attributes))
-
     p.on_event(events.Pinch,      print_event(attributes=pinch_attributes))
-
     p.on_event(events.PinchStart, print_event(attributes=point_attributes))
-
     p.on_event(events.PinchEnd,   print_event(attributes=point_attributes))
-
     p.on_event(events.RangesUpdate, print_event(attributes=['x0','x1','y0','y1']))
-
     p.on_event(events.SelectionGeometry, print_event(attributes=['geometry', 'final']))
-
     p.on_event(events.Reset, print_event())
-
     doc.add_root(layout)
 
 

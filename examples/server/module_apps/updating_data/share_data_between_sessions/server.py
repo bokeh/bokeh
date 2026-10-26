@@ -26,14 +26,15 @@ async def app(scope, receive, send):
             await send({"type": "lifespan.startup.complete"})
         elif event["type"] == "lifespan.shutdown":
             try:
-                if producer is not None:
-                    producer.cancel()
-                    with suppress(asyncio.CancelledError):
-                        await producer
+                try:
+                    if producer is not None:
+                        producer.cancel()
+                        with suppress(asyncio.CancelledError):
+                            await producer
+                finally:
+                    await bokeh_application.core.stop()
             except Exception as error:
-                await bokeh_application.core.stop()
                 await send({"type": "lifespan.shutdown.failed", "message": str(error)})
                 return
-            await bokeh_application.core.stop()
             await send({"type": "lifespan.shutdown.complete"})
             return

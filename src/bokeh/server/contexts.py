@@ -154,8 +154,11 @@ class ApplicationContext:
     _server_context: BokehServerContext
 
     def __init__(self, application: Application, io_loop: Loop | None = None,
-            url: str | None = None, logout_url: str | None = None, executor: _ServerExecutor | None = None):
+            url: str | None = None, logout_url: str | None = None, executor: _ServerExecutor | None = None,
+            *, include_cookies: list[str] | None = None, exclude_cookies: list[str] | None = None):
         self._application = application
+        self._include_cookies = include_cookies
+        self._exclude_cookies = set(exclude_cookies or ())
         self._loop = io_loop
         self._executor = executor
         self._sessions = {}
@@ -279,17 +282,22 @@ class ApplicationContext:
                                               logout_url=self._logout_url)
         if request is not None:
             payload = get_token_payload(token) if token else {}
-            if ('cookies' in payload and 'headers' in payload
-                and 'Cookie' not in payload['headers']):
-                # Restore Cookie header from cookies dictionary
-                payload['headers']['Cookie'] = '; '.join([
-                    f'{k}={v}' for k, v in payload['cookies'].items()
-                ])
+            # Cookies describe the real request, never client-supplied token claims.
+            cookies = {
+                name: value if isinstance(value, str) else value.value
+                for name, value in request.cookies.items()
+                if (self._include_cookies is None or name in self._include_cookies)
+                and name not in self._exclude_cookies
+            }
+            headers = dict(payload.get('headers', request.headers))
+            headers = {name: value for name, value in headers.items() if name.lower() != 'cookie'}
+            if cookies:
+                headers['Cookie'] = '; '.join(f'{name}={value}' for name, value in cookies.items())
             # using private attr so users only have access to a read-only property
             session_context._request = _RequestProxy(request,
                                                      arguments=payload.get('arguments'),
-                                                     cookies=payload.get('cookies'),
-                                                     headers=payload.get('headers'))
+                                                     cookies=cookies,
+                                                     headers=headers)
         session_context._token = token
 
         # expose the session context to the document

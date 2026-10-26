@@ -19,6 +19,7 @@ import logging
 import os
 import sys
 from glob import glob
+from ipaddress import ip_address
 from pathlib import Path
 
 from bokeh.application import Application
@@ -214,8 +215,8 @@ class Serve(Subcommand):
             action  = 'store',
             default = None,
             nargs='+',
-            help    = 'A list of request cookies to exclude from the session '
-                      'token payload. Cookies are omitted unless an inclusion or exclusion list is supplied.',
+            help    = 'Cookie names to exclude from session context. Supplying this list also '
+                      'copies the remaining cookies into browser-visible session tokens.',
         )),
 
         ('--include-headers', Argument(
@@ -230,8 +231,8 @@ class Serve(Subcommand):
             action  = 'store',
             default = None,
             nargs='+',
-            help    = 'A list of request cookies to make available in the session '
-                      'token payload. Cookies are omitted unless an inclusion or exclusion list is supplied.',
+            help    = 'Cookie names to retain in session context and copy into browser-visible '
+                      'tokens. By default context retains request cookies and tokens omit them.',
         )),
 
         ('--disable-index', Argument(
@@ -302,7 +303,14 @@ class Serve(Subcommand):
             die("To sign sessions, set BOKEH_SECRET_KEY to a strong random secret.")
         if not args.allow_websocket_origin and args.address not in (None, "0.0.0.0", "::"):
             host = f"[{args.address}]" if ":" in args.address else args.address
-            kwargs['extra_websocket_origins'] = [f"{host}:{args.port}"]
+            origins = [f"{host}:{args.port}"]
+            try:
+                loopback = ip_address(args.address).is_loopback
+            except ValueError:
+                loopback = False
+            if loopback:
+                origins.append(f"localhost:{args.port}")
+            kwargs['extra_websocket_origins'] = origins
         else:
             kwargs['extra_websocket_origins'] = create_hosts_allowlist(args.allow_websocket_origin or [], args.port)
         kwargs['use_index'] = not args.disable_index

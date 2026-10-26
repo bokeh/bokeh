@@ -32,14 +32,25 @@ options, diagnostic timer options or fine-grained compression controls.
 Unsupported flags are errors. Retired authentication environment/configuration
 settings also fail startup rather than silently disabling authentication.
 
-Session tokens no longer copy Authorization, Proxy-Authorization or raw Cookie
-headers. Cookies are omitted unless an inclusion or exclusion list is supplied.
-Prefer ``include_cookies`` with named non-secret cookies. Request hooks still
-receive the original request. See :ref:`ug_server_hosting`.
-
 Direct ASGI hosting uses explicit host configuration. Configure TLS, trusted
 proxies, WebSocket limits and keepalive on the host. See
 :ref:`ug_server_deploy`.
+
+Request context changes
+-----------------------
+
+Server-side ``doc.session_context.request.cookies`` retains cookies from the
+real initiating request by default. A reconnect preserves that initial snapshot.
+Supplied token cookie claims do not override request cookies, including in
+external-signed sessions.
+
+Generated session tokens no longer copy Authorization, Proxy-Authorization or
+raw Cookie headers. They omit cookies by default. Explicit ``include_cookies``
+or ``exclude_cookies`` options filter server-side context and opt into copying
+the selected cookies into tokens. Prefer named non-secret cookies. Copied
+cookies become readable to page scripts even if originally marked HttpOnly.
+Request hooks and authentication policies still receive the original request.
+See :ref:`ug_server_session_request` and :ref:`ug_server_session_signing`.
 
 Example paths
 -------------

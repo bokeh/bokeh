@@ -219,9 +219,10 @@ def test_explicit_address_is_preserved_in_advertised_url(tmp_path):
         assert url.startswith('http://127.0.0.1:')
         with urlopen(url + 'embed.json', timeout=5) as response:
             token = json.load(response)['token']
-        with connect(url.replace('http:', 'ws:') + 'ws', origin=url.rstrip('/'),
-                     subprotocols=['bokeh', token], open_timeout=5) as socket:
-            assert json.loads(socket.recv(timeout=5))['header']['msgtype'] == 'ACK'
+        for origin in (url.rstrip('/'), url.replace('127.0.0.1', 'localhost').rstrip('/')):
+            with connect(url.replace('http:', 'ws:') + 'ws', origin=origin,
+                         subprotocols=['bokeh', token], open_timeout=5) as socket:
+                assert json.loads(socket.recv(timeout=5))['header']['msgtype'] == 'ACK'
 
 
 @pytest.mark.skipif(sys.platform == "win32", reason="POSIX signal handling")

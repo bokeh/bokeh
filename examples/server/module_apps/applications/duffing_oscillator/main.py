@@ -22,31 +22,18 @@ from bokeh.server.asgi import BokehASGI
 
 def modify_document(doc):
     delta = 0.25
-
     gamma = 0.5
-
     omega = 1.35
-
     timesteps_per_period = 100
-
     timesteps_per_update = 100
-
     timesteps_per_plot = 2
-
     rollover = 5000
-
     dt = 2*np.pi / (omega*timesteps_per_period)
-
     alpha = delta / (2*dt)
-
     beta = 1 / dt**2
-
     n = 0
-
     t = 0
-
     xprev = 0
-
     x = 0
 
     def dV_dx(x):
@@ -63,10 +50,8 @@ def modify_document(doc):
         t = 0
         xprev = 0
         x = 0
-
         cds0.data = dict(x=[0], xdot=[0])
         cds1.data = dict(x=[], xdot=[])
-
         line.data_source = cds0
         circle.data_source = cds1
 
@@ -108,28 +93,19 @@ def modify_document(doc):
         ps.append(p)
 
     ps[0].title = "Phase diagram"
-
     ps[1].title = "Poincaré diagram"
-
     cds0 = ColumnDataSource(data=dict(x=[0], xdot=[0]))
-
     cds1 = ColumnDataSource(data=dict(x=[], xdot=[]))
-
     line = ps[0].line(source=cds0, x="x", y="xdot", alpha=0.5)
-
     circle = ps[1].scatter(source=cds1, x="x", y="xdot", line_alpha=0, fill_alpha=0.5)
-
     delta_slider = Slider(start=0, end=0.6, value=delta, step=0.05, title=r"$$\delta \text{ (damping factor, 1/s)}$$")
-
     gamma_slider = Slider(start=0, end=0.6, value=gamma, step=0.05, title=r"$$\gamma \text{ (amplitude of forcing, m/s}^2)$$")
-
     omega_slider = Slider(start=0.5, end=3.0, value=omega, step=0.05, title=r"$$\omega \text{ (frequency of forcing, 1/s)}$$")
 
     for slider in [delta_slider, gamma_slider, omega_slider]:
         slider.on_change("value", slider_callback)
 
     big = {"font-size": "150%"}
-
     col = [
         Div(text="Duffing oscillator", styles=big),
         Div(text=r"$$\frac{d^2x}{dt^2} + \delta \frac{dx}{dt} - \frac{dV}{dx} = \gamma \cos \omega t,$$", styles=big),
@@ -143,10 +119,7 @@ def modify_document(doc):
         gamma_slider,
         omega_slider,
     ]
-
-
     doc.add_periodic_callback(stream, 20)
-
     doc.add_root(row(column(col), ps[0], ps[1]))
 
 

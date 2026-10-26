@@ -23,16 +23,11 @@ def modify_document(doc):
             generate_data(app_dir)
 
     options = ['Gaussian', 'Exponential', 'Chi Square', 'Alpha', 'Beta']
-
     data_select = Select(title="Distribution:", value=options[0],
                          options=options)
-
     source = ColumnDataSource(data=dict(x=[], y=[]))
-
     p = figure(height=600, width=800, title="", toolbar_location=None)
-
     p.line(x="x", y="y", source=source, line_width=2)
-
     p.background_fill_color = "#efefef"
 
     def select_data():
@@ -45,13 +40,9 @@ def modify_document(doc):
         source.data = dict(x=x, y=y)
 
     data_select.on_change('value', lambda attr, old, new: update())
-
     inputs = data_select
-
     update()
-
     doc.add_root(row(inputs, p, width=1100))
-
     doc.title = "Simple HDF5"
 
 

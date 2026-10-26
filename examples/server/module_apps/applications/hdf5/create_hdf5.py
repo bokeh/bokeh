@@ -1,9 +1,7 @@
-# Standard library imports
 import os
 from os.path import join
 from tempfile import TemporaryDirectory
 
-# External imports
 import h5py
 import numpy as np
 import scipy.stats as ss

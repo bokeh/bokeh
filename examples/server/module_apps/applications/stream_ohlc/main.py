@@ -15,43 +15,26 @@ from bokeh.themes import Theme
 def modify_document(doc):
     doc.theme = Theme(filename=Path(__file__).with_name("theme.yaml"))
     rng = np.random.default_rng(1)
-
     MA12, MA26, EMA12, EMA26 = '12-tick Moving Avg', '26-tick Moving Avg', '12-tick EMA', '26-tick EMA'
-
     source = ColumnDataSource(dict(
         time=[], average=[], low=[], high=[], open=[], close=[],
         ma=[], macd=[], macd9=[], macdh=[], color=[],
     ))
-
     p = figure(height=500, tools="xpan,xwheel_zoom,xbox_zoom,reset",
                x_axis_type=None, y_axis_location="right", window_axis="x")
-
     p.x_range.follow = "end"
-
     p.x_range.follow_interval = 100
-
     p.x_range.range_padding = 0
-
     p.line(x='time', y='average', alpha=0.2, line_width=3, color='navy', source=source)
-
     p.line(x='time', y='ma', alpha=0.8, line_width=2, color='orange', source=source)
-
     p.segment(x0='time', y0='low', x1='time', y1='high', line_width=2, color='black', source=source)
-
     p.segment(x0='time', y0='open', x1='time', y1='close', line_width=8, color='color', source=source)
-
     p2 = figure(height=250, x_range=p.x_range, tools="xpan,xwheel_zoom,xbox_zoom,reset", y_axis_location="right")
-
     p2.line(x='time', y='macd', color='red', source=source)
-
     p2.line(x='time', y='macd9', color='blue', source=source)
-
     p2.segment(x0='time', y0=0, x1='time', y1='macdh', line_width=6, color='black', alpha=0.5, source=source)
-
     mean = Slider(title="mean", value=0, start=-0.01, end=0.01, step=0.001)
-
     stddev = Slider(title="stddev", value=0.04, start=0.01, end=0.1, step=0.01)
-
     mavg = Select(value=MA12, options=[MA12, MA26, EMA12, EMA26])
 
     def _create_prices(t):
@@ -82,7 +65,6 @@ def modify_document(doc):
     def update(t):
         open, high, low, close, average = _create_prices(t)
         color = "green" if open < close else "red"
-
         new_data = dict(
             time=[t],
             open=[open],
@@ -92,7 +74,6 @@ def modify_document(doc):
             average=[average],
             color=[color],
         )
-
         close = source.data['close'] + [close]
         ma12 = _moving_avg(close[-12:], 12)[0]
         ma26 = _moving_avg(close[-26:], 26)[0]
@@ -106,18 +87,14 @@ def modify_document(doc):
 
         macd = ema12 - ema26
         new_data['macd'] = [macd]
-
         macd_series = source.data['macd'] + [macd]
         macd9 = _ema(macd_series[-26:], 9)[0]
         new_data['macd9'] = [macd9]
         new_data['macdh'] = [macd - macd9]
-
         source.stream(new_data, 300)
 
     doc.add_root(column(row(mean, stddev, mavg), gridplot([[p], [p2]], toolbar_location="left", width=1000)))
-
     doc.add_periodic_callback(update, 50)
-
     doc.title = "OHLC"
 
 

@@ -102,7 +102,8 @@ authentication. Enable ``sign_sessions`` and set a strong ``secret_key`` for
 an authenticated deployment. Signing is disabled by default. Signed tokens
 are not encrypted.
 Authorization headers and raw Cookie headers are never copied into tokens.
-Cookies are omitted by default. Use ``include_cookies`` to copy only named,
+Cookies are omitted from generated tokens by default. This does not remove
+cookies from server-side request context. Use ``include_cookies`` to copy only named,
 non-secret cookies. An explicit ``exclude_cookies`` list instead copies all
 cookies except those listed. Copied cookies become readable by page scripts,
 including cookies originally marked HttpOnly. Keep credentials out of custom
@@ -121,8 +122,24 @@ Request context
 The authenticated user is available as
 ``doc.session_context.request.user``. Query arguments map names to lists of
 bytes. Request headers, cookies and ASGI state are also available through the
-request context. Header and cookie inclusion options limit what is copied
-into the session token. They do not remove values from the original request.
+request context.
+
+``doc.session_context.request.cookies`` contains a server-side snapshot of the
+real request that created the session. Cookies are available here by default,
+including HttpOnly cookies. They stay on the server unless application code
+copies them into a model, a template or an explicit token payload.
+
+``include_cookies`` and ``exclude_cookies`` filter this snapshot. Setting either
+option also opts into copying the selected cookies into generated tokens.
+For example, ``include_cookies=["theme"]`` keeps only ``theme`` in context and
+copies it into tokens. Avoid selecting credential cookies. The filters do not
+alter the original request seen by authentication policies and request hooks.
+
+The initiating request may be HTTP or WebSocket. Reconnecting to an existing
+session does not replace its cookie snapshot. Cookie claims in a supplied token
+remain accessible through ``token_payload`` but never become request cookies.
+This also applies to external-signed sessions. Authentication policies always
+check the actual incoming request, including each WebSocket reconnect.
 
 .. _ug_server_request_handler:
 

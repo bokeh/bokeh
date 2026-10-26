@@ -180,7 +180,12 @@ def _filtered_cookies(config: SessionConfig, request: RequestLike) -> dict[str, 
 
 
 class BokehServerCore(SessionConfig):
-    ''' Transport-independent Bokeh application, session, and connection state. '''
+    ''' Transport-independent Bokeh application, session, and connection state.
+
+    Session request cookies come from the real initiating request and remain
+    server-side by default. Explicit cookie inclusion or exclusion lists filter
+    that context and opt into copying those values into generated tokens.
+    '''
 
     def __init__(
         self,
@@ -269,7 +274,8 @@ class BokehServerCore(SessionConfig):
             app_logout_url = logout_url
             if app_logout_url is not None:
                 app_logout_url = urljoin(self._prefix + "/", app_logout_url.lstrip("/"))
-            self._applications[url] = ApplicationContext(app, url=url, logout_url=app_logout_url)
+            self._applications[url] = ApplicationContext(app, url=url, logout_url=app_logout_url,
+                include_cookies=include_cookies, exclude_cookies=exclude_cookies)
 
         self._loop: asyncio.AbstractEventLoop | None = None
         self._clients: set[ServerConnection] = set()

@@ -48,7 +48,7 @@ from bokeh.protocol.receiver import Receiver
 from bokeh.server.asgi import BokehASGI, _ASGIWebSocketTransport
 from bokeh.server.auth import AuthPolicy
 from bokeh.util.compiler import JavaScript
-from bokeh.util.token import generate_jwt_token, get_token_payload
+from bokeh.util.token import generate_jwt_token, generate_session_id, get_token_payload
 
 
 async def http_request(
@@ -1879,5 +1879,64 @@ async def test_example_static_urls_include_mount_and_application_path(example, a
         assert f'href="{url}"'.encode() in response_body(page)
         response = await http_request(app, url, root_path='/mount')
         assert response_status(response) == 200
+    finally:
+        await app.core.stop()
+
+
+@pytest.mark.parametrize('mode', ['unsigned', 'signed', 'external-signed'])
+@pytest.mark.parametrize('bootstrap', ['/', '/embed.json', 'websocket'])
+@pytest.mark.parametrize('cookie_options, expected', [
+    ({}, {'session': 'http-only-secret', 'theme': 'dark'}),
+    ({'include_cookies': ['theme']}, {'theme': 'dark'}),
+    ({'exclude_cookies': ['session']}, {'theme': 'dark'}),
+    ({'include_cookies': []}, {}),
+])
+async def test_request_cookies_survive_bootstrap_and_reconnect(mode, bootstrap, cookie_options, expected):
+    secret = b'cookie-context-test-signing-secret'
+    signed = mode != 'unsigned'
+    app = BokehASGI(Application(), sign_sessions=signed, secret_key=secret,
+                   generate_session_ids=mode != 'external-signed', **cookie_options)
+    session_id = generate_session_id(secret_key=secret, signed=signed)
+    initial_cookies = b'session=http-only-secret; theme=dark'
+
+    async def websocket(token, cookie):
+        events = deque([{'type': 'websocket.connect'}, {'type': 'websocket.disconnect', 'code': 1000}])
+        sent = []
+
+        async def receive():
+            return events.popleft()
+
+        async def send(event):
+            sent.append(event)
+
+        await app({'type': 'websocket', 'asgi': {'version': '3.0'}, 'scheme': 'ws',
+                   'path': '/ws', 'root_path': '', 'query_string': b'',
+                   'headers': [(b'host', b'localhost'), (b'cookie', cookie)],
+                   'subprotocols': ['bokeh', token]}, receive, send)
+        assert sent[0]['type'] == 'websocket.accept'
+        assert any(event['type'] == 'websocket.send' for event in sent)
+
+    try:
+        if bootstrap == 'websocket':
+            token = generate_jwt_token(session_id, secret_key=secret, signed=signed,
+                                       extra_payload={'cookies': {'forged': 'untrusted'}})
+            await websocket(token, initial_cookies)
+        else:
+            response = await http_request(app, bootstrap, headers=[
+                (b'Cookie', initial_cookies), (b'Bokeh-Session-Id', session_id.encode()),
+            ])
+            assert response_status(response) == 200
+            token = app.core.get_sessions('/')[0].token
+        session = app.core.get_sessions('/')[0]
+        context = session.document.session_context
+        assert context.request.cookies == expected
+        assert context.request.headers.get('Cookie') == ('; '.join(f'{k}={v}' for k, v in expected.items()) or None)
+        if bootstrap != 'websocket':
+            payload = get_token_payload(token)
+            assert payload['cookies'] == ({} if not cookie_options else expected)
+            assert not any(name.lower() == 'cookie' for name in payload['headers'])
+        await websocket(token, b'session=different-user; theme=light')
+        assert app.core.get_sessions('/')[0] is session
+        assert context.request.cookies == expected
     finally:
         await app.core.stop()

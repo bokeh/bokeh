@@ -35,7 +35,6 @@ def modify_document(doc):
     def make_plot(source, title):
         plot = figure(x_axis_type="datetime", width=800, tools="", toolbar_location=None)
         plot.title.text = title
-
         plot.quad(top='record_max_temp', bottom='record_min_temp', left='left', right='right',
                   color=Blues4[2], source=source, legend_label="Record")
         plot.quad(top='average_max_temp', bottom='average_min_temp', left='left', right='right',
@@ -55,14 +54,11 @@ def modify_document(doc):
     def update_plot(attrname, old, new):
         city = city_select.value
         plot.title.text = "Weather data for " + cities[city]['title']
-
         src = get_dataset(df, cities[city]['airport'], distribution_select.value)
         source.data.update(src.data)
 
     city = 'Austin'
-
     distribution = 'Discrete'
-
     cities = {
         'Austin': {
             'airport': 'AUS',
@@ -77,25 +73,15 @@ def modify_document(doc):
             'title': 'Seattle, WA',
         },
     }
-
     city_select = Select(value=city, title='City', options=sorted(cities.keys()))
-
     distribution_select = Select(value=distribution, title='Distribution', options=['Discrete', 'Smoothed'])
-
     df = pd.read_csv(join(dirname(__file__), 'data/2015_weather.csv'))
-
     source = get_dataset(df, cities[city]['airport'], distribution)
-
     plot = make_plot(source, "Weather data for " + cities[city]['title'])
-
     city_select.on_change('value', update_plot)
-
     distribution_select.on_change('value', update_plot)
-
     controls = column(city_select, distribution_select)
-
     doc.add_root(row(plot, controls))
-
     doc.title = "Weather"
 
 

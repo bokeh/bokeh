@@ -1,16 +1,13 @@
 """Detect faces with OpenCV and display video and detection counts."""
 
-# Standard library imports
 import os
 from datetime import datetime as dt
 from pathlib import Path
 
-# External imports
 import cv2
 import numpy as np
 from jinja2 import Environment, FileSystemLoader
 
-# Bokeh imports
 from bokeh.models import ColumnDataSource, Div
 from bokeh.plotting import figure
 from bokeh.sampledata.haar_cascade import frontalface_default_path
@@ -29,9 +26,7 @@ def modify_document(doc):
             path = mount + path
         static_url = path + "/static"
     doc.template_variables["static_url"] = static_url
-
     CAMERA_WIDTH, CAMERA_HEIGHT = (1280, 780)
-
     video_capture = None
     if os.environ.get("BOKEH_EXAMPLE_CAMERA") == "1":
         video_capture = cv2.VideoCapture(1)
@@ -47,7 +42,6 @@ def modify_document(doc):
             doc.on_session_destroyed(lambda context: video_capture.release())
 
     face_cascade = cv2.CascadeClassifier(str(frontalface_default_path))
-
     haar_feature = Div(
         text=r"$$f = \sum_{p \in R_+} I(p) - \sum_{p \in R_-} I(p).$$",
         styles={
@@ -60,35 +54,23 @@ def modify_document(doc):
         margin=0,
         name="haar_feature",
     )
-
     img_plot = figure(width=CAMERA_WIDTH//2, height=CAMERA_HEIGHT//2,
                       x_range=(0, CAMERA_WIDTH), y_range=(0, CAMERA_HEIGHT),
                       x_axis_type=None, y_axis_type=None,
                       tools="", toolbar_location=None, name="image")
-
     image_source = ColumnDataSource(dict(image=[], w=[], h=[]))
-
     img_plot.image_rgba('image', x=0, y=0, dw='w', dh='h',
                         source=image_source)
-
     rect_source = ColumnDataSource(dict(x=[], y=[], w=[], h=[]))
-
     img_plot.rect('x', 'y', width='w', height='h', source=rect_source,
                   fill_color=None, line_color="#fffdd0", line_width=4)
-
     ts_plot = figure(width=CAMERA_WIDTH//2, height=150,
                      tools="", toolbar_location=None, name="ts")
-
     ts_plot.y_range.start = 0
-
     ts_plot.y_range.min_interval = 2
-
     step_source = ColumnDataSource(dict(t=[], n=[]))
-
     ts_plot.step('t', 'n', source=step_source, line_color="#fffdd0")
-
     t0 = dt.now()
-
     empty_rects = dict(x=[], y=[], w=[], h=[])
 
     def update():
@@ -105,13 +87,11 @@ def modify_document(doc):
         frame_height, frame_width = frame.shape[:2]
         img_plot.x_range.end = frame_width
         img_plot.y_range.end = frame_height
-
         faces_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = face_cascade.detectMultiScale(faces_frame,
                                               scaleFactor=1.1,
                                               minNeighbors=5,
                                               minSize=(30, 30))
-
         img_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
         img_frame = img_frame.view(dtype="uint32").reshape(frame.shape[:2])
         img_frame = img_frame[::-2, ::2] # lightly decimate and invert for plotting
@@ -124,16 +104,13 @@ def modify_document(doc):
             rect_source.data = dict(zip(('x', 'y', 'w', 'h'), zip(*faces)))
 
         image_source.data = dict(image=[img_frame], w=[frame_width], h=[frame_height])
-
         step_source.stream({
             't': [(dt.now() - t0).total_seconds() * 1000],
             'n': [len(faces)],
         }, rollover=200)
 
     doc.add_root(haar_feature)
-
     doc.add_root(img_plot)
-
     doc.add_root(ts_plot)
 
     if video_capture is None:

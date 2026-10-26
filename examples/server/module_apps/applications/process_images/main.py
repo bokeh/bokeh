@@ -21,13 +21,9 @@ def blur(image, size):
 
 def modify_document(doc):
     image = scipy.datasets.ascent().astype(np.int32)[::-1, :]
-
     w, h = image.shape
-
     source = ColumnDataSource(data=dict(image=[image]))
-
     p = figure(x_range=(0, w), y_range=(0, h))
-
     p.image('image', x=0, y=0, dw=w, dh=h, palette=gray(256), source=source)
 
     def update(attr, old, new):
@@ -35,11 +31,8 @@ def modify_document(doc):
         source.data.update(image=[out])
 
     slider = Slider(title="Blur Factor", start=0, end=10, value=0)
-
     slider.on_change('value', update)
-
     doc.add_root(column(p, slider))
-
     doc.title = "Image Blur"
 
 

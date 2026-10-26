@@ -415,3 +415,25 @@ async def test_credentials_are_not_copied_into_session_tokens(include_headers) -
         assert request.cookies["session"].value == "secret"
     finally:
         await core.stop()
+
+
+
+@pytest.mark.parametrize('headers, cookies, expected', [
+    ({}, {}, {}),
+    ({}, {'theme': 'dark'}, {'Cookie': 'theme=dark'}),
+    ({'cookie': 'theme=forged'}, {'theme': 'dark'}, {'Cookie': 'theme=dark'}),
+])
+async def test_cookie_header_reconstruction(headers, cookies, expected):
+    core = BokehServerCore(Application())
+    request = ServerRequest(method='GET', uri='/', path='/', headers=Headers({}),
+                            cookies={name: Cookie(value) for name, value in cookies.items()})
+    token = generate_jwt_token('cookie-test', extra_payload={
+        'headers': headers, 'cookies': {'forged': 'must-not-become-request-data'},
+    })
+    await core.start()
+    try:
+        session = await core.applications['/'].create_session_if_needed('cookie-test', request, token)
+        assert session.document.session_context.request.headers == expected
+        assert session.document.session_context.request.cookies == cookies
+    finally:
+        await core.stop()

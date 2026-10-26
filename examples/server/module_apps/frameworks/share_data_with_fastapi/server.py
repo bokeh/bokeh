@@ -7,17 +7,14 @@ Run with::
 
 from __future__ import annotations
 
-# Standard library imports
 import asyncio
 from contextlib import asynccontextmanager, suppress
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 
-# Bokeh imports
 from bokeh.embed import embed_server
 from bokeh.server.asgi import BokehASGI
-# External imports
 from examples.server.module_apps.updating_data.share_data_between_sessions.app import (
     modify_document, produce as produce_shared, report_producer_failure)
 

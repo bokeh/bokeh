@@ -10,10 +10,7 @@ from bokeh.server.asgi import BokehASGI
 
 def modify_document(doc):
     source = ColumnDataSource(data=dict(x=[0.0], y=[0.0]))
-
-
     stop = Event()
-
     thread = None
 
     def start_producer() -> None:
@@ -37,13 +34,9 @@ def modify_document(doc):
             thread.join(timeout=1)
 
     plot = figure(x_range=(0, 1), y_range=(0, 1), height=350)
-
     plot.scatter(x="x", y="y", source=source, size=10)
-
     doc.add_root(plot)
-
     doc.on_session_destroyed(session_destroyed)
-
     doc.add_next_tick_callback(start_producer)
 
 
