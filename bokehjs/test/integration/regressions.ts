@@ -1341,10 +1341,7 @@ describe("Bug", () => {
       await display(row([p0, p1]))
 
       p0.renderers = [esri]
-      // Renderer replacement spans two frames. Avoid waiting on unrelated tile
-      // requests, which can leave the root ready promise pending indefinitely.
       p1.renderers = [osm]
-
     })
   })
 
@@ -2127,9 +2124,6 @@ describe("Bug", () => {
       const selects = Column.create({children: [select1, select2]})
       const layout = Column.create({children: [Column.create({children: [toggle, selects]}), div]})
 
-      // Defer to make sure CSS layout is done after each step. The last one isn't
-      // strictly necessary, because test framework defers anyway after a test and
-      // before collecting results and capturing screenshots.
       const {view} = await display(layout, [100, 200])
 
       // We aren't clicking on the button, because it doesn't affect the outcome.
@@ -2376,7 +2370,6 @@ describe("Bug", () => {
 
       await actions(pv0).pan_along(path)
       await actions(pv1).pan_along(path)
-
     })
   })
 
@@ -2784,10 +2777,6 @@ describe("Bug", () => {
 
       pane.styles = {display: "flex"}
       await view.ready
-
-      // TODO: this really shouldn't be necessary, because the test framework already awaits
-      // for painting, but it looks like one await cycle is not enough for resize observer
-      // to do its job.
     })
   })
 

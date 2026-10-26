@@ -64,7 +64,5 @@ describe("TileRenderer", () => {
     await display(plot)
 
     hidden.visible = false
-    // Visibility updates attribution synchronously; only its DOM paint is
-    // relevant here, not unrelated tile-renderer readiness.
   })
 })
