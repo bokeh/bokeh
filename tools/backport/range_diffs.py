@@ -206,6 +206,8 @@ def generate_range_diff(
     binary_files = adapted_binary_files(git, worktree, original, backport)
     output = git.run(
         "range-diff",
+        # These are known original/backport pairs, even when paths and tests moved.
+        "--creation-factor=100",
         "--dual-color",
         "--color=always",
         f"{original}^!",
