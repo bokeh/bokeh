@@ -65,7 +65,7 @@ Application form and hosting method are separate choices.
 Choosing the hosting setup
 --------------------------
 
-``bokeh serve`` remains a convenient way to run script and directory apps. It
+``bokeh serve`` provides convenient hosting for script and directory apps. It
 supports Python callbacks, document templates, authentication policies, custom
 application indexes, diagnostics and static-file serving.
 
@@ -108,15 +108,15 @@ as the plots:
    * - Signed cookies and CSRF protection
      - Custom web endpoints manage browser credentials and submissions.
      - Use the parent framework's security facilities. Bokeh session signing
-       and origin checks remain available.
+       and origin checks protect Bokeh connections.
    * - Multiple worker processes
      - Deployment needs more than one server process.
      - Let the ASGI server or process manager run workers. Route requests to
        the process that owns the session and plan how workers share data.
    * - Transport tuning
      - You need WebSocket or HTTP settings beyond the CLI options.
-     - Configure the ASGI server directly. Some Tornado settings have no exact
-       equivalent in other hosts.
+     - Configure the HTTP and WebSocket options supported by your chosen
+       ASGI server.
    * - Embedding in another Python service
      - The surrounding service owns startup, shutdown and the event loop.
      - Expose ``BokehASGI`` through that service. Use application lifecycle
@@ -126,23 +126,24 @@ See :ref:`ug_server_hosting`, :ref:`ug_server_frameworks` and
 :ref:`ug_server_deploy` for the corresponding hosting examples and deployment
 configuration.
 
-Other migration considerations
--------------------------------
+Other considerations
+--------------------
 
-Some changes are convenience or security changes rather than advanced hosting
-features:
+Development, external data sources and request credentials have their own
+configuration:
 
 * For development autoreload, run a module app with
   ``python -m uvicorn app:app --reload``.
-* Convert notebook application files to a script or document function before
-  serving them. Ordinary notebook plotting remains supported.
-* External Python producers should use application-owned APIs or shared data
-  services. The former Python client session APIs have no direct ASGI
-  replacement.
-* Read request headers and cookies from server-side session context. They are
-  no longer copied automatically into session tokens.
+* The CLI accepts Python scripts and directory apps. Put notebook application
+  code in a script or document function for serving. Use notebooks for
+  interactive plotting.
+* External Python producers communicate through application-owned APIs or
+  shared data services.
+* Read request headers and cookies from server-side session context. Generated
+  session tokens contain query arguments and explicit application metadata.
 
-See :ref:`ug_server_migration` for the full migration details.
+See :ref:`ug_server_authentication` for authentication setup and the browser
+login flow, and :ref:`ug_server_session_request` for request context.
 
 Example collections
 -------------------

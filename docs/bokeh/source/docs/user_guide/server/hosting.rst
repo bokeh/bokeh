@@ -54,6 +54,9 @@ and is reused by the framework examples.
 Static files and caching
 ------------------------
 
+Static-file caching applies to both ``bokeh serve`` and direct ASGI hosting,
+for script apps and module apps. Both hosts use the same static-file handler.
+
 BokehJS assets, application static files and extension assets support HTTP
 caching and single byte ranges. These routes are public, including when an
 application uses an authentication policy.
@@ -84,19 +87,30 @@ to the full response. Multipart range responses are not generated.
 Authentication policies
 -----------------------
 
-An :class:`~bokeh.server.auth.AuthPolicy` authenticates dynamic HTTP routes and WebSocket
-requests. Static assets, including application static directories, are public. The authenticator receives a framework-neutral
-:class:`~bokeh.server.request.ServerRequest` and returns a user or ``None``.
-Synchronous and async authenticators are supported.
+An :class:`~bokeh.server.auth.AuthPolicy` connects Bokeh to your authentication
+system. Application authors supply an authenticator function that receives a
+framework-neutral :class:`~bokeh.server.request.ServerRequest`. The function
+validates credentials through the application's authentication system and
+returns the authenticated user. Return ``None`` to reject a request.
+Synchronous and asynchronous authenticators are supported.
+
+Bokeh checks the policy for dynamic HTTP routes and WebSocket handshakes,
+including reconnects. Static assets, including application static directories,
+are public. An authenticated user's identity is available to application code
+as ``doc.session_context.request.user``.
+
+Defining a policy
+~~~~~~~~~~~~~~~~~
+
+An importable module can expose a policy instance. For example, this
+``auth.py`` checks an Authorization bearer header:
 
 .. code-block:: python
 
     import os
     from hmac import compare_digest
 
-    from bokeh.server.asgi import BokehASGI
     from bokeh.server.auth import AuthPolicy
-    from my_app import modify_document
 
     expected = ("Bearer " + os.environ["APP_ACCESS_TOKEN"]).encode("utf-8")
 
@@ -106,21 +120,78 @@ Synchronous and async authenticators are supported.
         return "engineer" if compare_digest(supplied, expected) else None
 
 
-    policy = AuthPolicy(authenticate, login_url="https://login.example.org/")
+    policy = AuthPolicy(authenticate)
+
+Set ``APP_ACCESS_TOKEN`` to a strong random secret. A client or trusted gateway
+must supply the header on both HTTP and WebSocket requests. Browser tabs do not
+add arbitrary bearer headers automatically.
+
+The repository examples show this policy with both application forms:
+
+* :bokeh-tree:`examples/server/script_apps/authenticate_users`
+* :bokeh-tree:`examples/server/module_apps/hosting/authenticate_users`
+
+Configuring the host
+~~~~~~~~~~~~~~~~~~~~
+
+For ``bokeh serve``, load the policy by its importable module and attribute:
+
+.. code-block:: sh
+
+    bokeh serve my_app --auth-policy auth:policy
+
+``BOKEH_AUTH_POLICY=auth:policy`` supplies the same setting through the
+environment. Import or validation failures stop startup.
+
+For direct ASGI hosting, pass the same policy to ``BokehASGI``. A separate
+``server.py`` can configure the host around an imported document function:
+
+.. code-block:: python
+
+    from bokeh.server.asgi import BokehASGI
+
+    from auth import policy
+    from my_app import modify_document
+
     app = BokehASGI(modify_document, auth_policy=policy)
 
-``login_url`` optionally redirects unauthenticated HTTP requests. It does not
-create login pages or validate credentials. WebSocket requests must also pass
-authentication. A parent website or identity provider owns login/logout flows.
+Run it with ``python -m uvicorn server:app``. The policy's authentication
+behavior is the same with either host.
 
-The repository example uses an Authorization bearer header:
-:bokeh-tree:`examples/server/module_apps/hosting/authenticate_users`.
-Set ``APP_ACCESS_TOKEN`` to a strong random secret, then run its documented
-command. A client or trusted gateway must supply the header on both HTTP and
-WebSocket requests. An ordinary browser tab does not add it automatically.
-Use TLS for credentials. Never trust a user header that an arbitrary client
-can supply. An identity gateway must strip client-supplied identity headers
-and restrict direct access to the backend.
+Browser login flow
+~~~~~~~~~~~~~~~~~~
+
+End users interact with the website's login flow. The policy runs on the
+server and connects that flow to Bokeh:
+
+#. A user visits a protected Bokeh page. If authentication fails, Bokeh
+   redirects the HTTP request to the policy's ``login_url``. Without a login
+   URL, it returns HTTP 401.
+#. The parent website or identity provider authenticates the user. For a
+   cookie-based login, the website sets its session cookie and returns the
+   browser to the Bokeh page.
+#. The browser sends the session cookie with the page request and WebSocket
+   handshake when the cookie's scope permits it. A browser-login authenticator
+   validates that cookie through the website's authentication system and
+   returns the user.
+#. Bokeh serves the document and accepts authenticated WebSocket connections.
+   Application callbacks can use ``doc.session_context.request.user``.
+
+The bearer-header example above is suited to clients or a trusted gateway.
+For browser login, write an authenticator that validates the website's session
+cookie or uses an identity supplied by trusted authentication middleware.
+
+``login_url`` can be a URL string or a request-dependent function. The website
+implements that endpoint. An optional ``logout_url`` is available to the
+application as ``doc.session_context.logout_url`` so it can provide a logout
+link. The website implements logout and session expiry as well.
+
+The policy checks each WebSocket handshake, including reconnects. An open
+WebSocket is not continuously reauthenticated. The surrounding service handles
+any disconnection required for logout or credential expiry.
+
+Use TLS for credentials. An identity gateway must strip client-supplied
+identity headers and restrict direct access to the backend.
 
 .. _ug_server_session_signing:
 
@@ -170,13 +241,13 @@ filters exclude it. This behavior is the same for HTTP and WebSocket creation.
 Filters do not alter the original request seen by authentication policies and
 request hooks. Request arguments also come from the real initiating request,
 with each name mapping to a list of bytes. Token header, cookie and argument
-claims remain in ``token_payload`` and cannot replace the real request data.
+claims are available in ``token_payload`` and cannot replace the real request data.
 Arguments are client input and must be validated before use. Signing a token
 does not make request arguments trusted.
 
 The initiating request may be HTTP or WebSocket. Reconnecting to an existing
 session does not replace its request snapshot. Cookie claims in a supplied token
-remain accessible through ``token_payload`` but never become request cookies.
+are accessible through ``token_payload`` but never become request cookies.
 This also applies to external-signed sessions. Authentication policies always
 check the actual incoming request, including each WebSocket reconnect.
 

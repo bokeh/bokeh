@@ -67,6 +67,10 @@ The application URL uses the script or directory name. ``--show`` opens it in
 a browser. ``--args`` must be last and supplies script arguments. Use
 ``bokeh serve --help`` for the full option list.
 
+``bokeh serve`` supports static-file caching, conditional requests and single
+byte ranges through the same handler used for direct ASGI hosting. See
+:ref:`ug_server_static_http` for cache policies and request behavior.
+
 Use ``--auth-policy module:attribute`` to load an AuthPolicy instance.
 ``BOKEH_AUTH_POLICY`` supplies the same setting through the environment.
 Import failures stop startup. See :ref:`ug_server_hosting` for the policy
