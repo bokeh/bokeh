@@ -9,7 +9,7 @@ import {InlineStyleSheet, parent} from "core/dom"
 import {bounding_box, box_size} from "core/dom"
 import {UIComponent, cls} from "core/vdom"
 import type {VNode} from "core/vdom"
-import {DOMElementView, bokeh_element} from "core/dom_view"
+import {bokeh_element} from "core/dom_view"
 import {isString, isArray} from "core/util/types"
 import {BBox} from "core/util/bbox"
 import {logger} from "core/logging"
@@ -55,8 +55,7 @@ export class TooltipView extends UIElementView {
       } else if (target instanceof NativeNode) {
         return target
       } else {
-        const {parent} = this
-        return parent instanceof DOMElementView ? parent.el : null
+        return this.ui_parent?.el ?? null
       }
     })()
 

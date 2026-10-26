@@ -6,7 +6,6 @@ import {build_views} from "core/build_views"
 import type * as p from "core/properties"
 import {Ref, Or} from "core/kinds"
 import type {Context2d} from "core/util/canvas"
-import {LayoutDOM} from "models/layouts/layout_dom"
 
 // TODO UIElement needs to inherit from DOMNode
 export const ElementLike = Or(Ref(UIElement), Ref(DOMNode))
@@ -49,7 +48,7 @@ export abstract class CompositeRendererView extends RendererView {
 
   protected async _build_renderers(): Promise<BuildResult<Renderer>> {
     const renderers = this.computed_renderers
-    const result = await build_views(this._renderer_views, renderers, {parent: this.plot_view})
+    const result = await build_views(this._renderer_views, renderers, {parent: this})
     this._computed_renderer_views = renderers.map((item) => this._renderer_views.get(item)).filter((rv) => rv != null)
     return result
   }
@@ -64,7 +63,7 @@ export abstract class CompositeRendererView extends RendererView {
 
   protected async _build_elements(): Promise<BuildResult<ElementLike>> {
     const elements = this.computed_elements
-    const result = await build_views(this._element_views, elements, {parent: (model) => model instanceof LayoutDOM ? null : this.plot_view})
+    const result = await build_views(this._element_views, elements, {parent: this})
     this._computed_element_views = elements.map((item) => this._element_views.get(item)).filter((ev) => ev != null)
     return result
   }

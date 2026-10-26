@@ -283,7 +283,7 @@ export class MenuView extends UIElementView {
       this.hide()
       return false
     }
-    const {parent} = this
+    const {ui_parent: parent} = this
     if (parent == null) {
       // TODO position: fixed
       this.hide()

@@ -24,7 +24,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
   declare model: Renderer
   visuals: Renderer.Visuals
 
-  declare readonly parent: PlotView
+  declare readonly parent: PlotView | RendererView
 
   layout?: Layoutable
 
@@ -79,7 +79,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
     await super.lazy_initialize()
     const {context_menu} = this.model
     if (context_menu != null) {
-      this._context_menu = await build_view(context_menu, {parent: this.plot_view})
+      this._context_menu = await build_view(context_menu, {parent: this})
     }
   }
 
@@ -116,12 +116,22 @@ export abstract class RendererView extends StyledElementView implements visuals.
     }
   }
 
+  /** The plot this renderer paints in and is laid out by. */
   get plot_view(): PlotView {
-    return this.parent
+    const {parent} = this
+    return parent instanceof RendererView ? parent.plot_view_for(this) : parent
+  }
+
+  /**
+   * The plot, which a descendant `view` of this renderer paints in and is
+   * laid out by. Allows composite renderers to substitute their own context.
+   */
+  plot_view_for(_view: View): PlotView {
+    return this.plot_view
   }
 
   get plot_model(): Plot {
-    return this.parent.model
+    return this.plot_view.model
   }
 
   get layer(): CanvasLayer {

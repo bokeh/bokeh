@@ -96,7 +96,7 @@ export class ScaleBarView extends AnnotationView {
     this.range = (() => {
       const {range, orientation} = this.model
       if (range == "auto") {
-        const {frame} = this.parent
+        const {frame} = this.plot_view
         switch (orientation) {
           case "horizontal": return frame.x_range
           case "vertical":   return frame.y_range
@@ -124,7 +124,7 @@ export class ScaleBarView extends AnnotationView {
       }
     })()
 
-    this.axis_view = await build_view(this.axis, {parent: this.plot_view})
+    this.axis_view = await build_view(this.axis, {parent: this})
     this.axis_view.coordinates = coordinates
     this.axis_view.panel = new SidePanel(this.model.orientation == "horizontal" ? "below" : "right")
     this.axis_view.update_layout()
@@ -216,7 +216,7 @@ export class ScaleBarView extends AnnotationView {
     const bar_width = bar_line.line_width.get_value()
     const border_width = border_line.line_width.get_value()
 
-    const {frame} = this.parent
+    const {frame} = this.plot_view
     const frame_span = orientation == "horizontal" ? frame.bbox.width : frame.bbox.height
 
     const bar_length_percent = (() => {
