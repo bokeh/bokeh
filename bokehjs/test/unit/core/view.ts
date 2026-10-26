@@ -1,3 +1,4 @@
+import * as sinon from "sinon"
 import {expect, expect_not_null} from "#framework/assertions"
 
 import {HasProps} from "@bokehjs/core/has_props"
@@ -7,6 +8,7 @@ import {build_view, build_views} from "@bokehjs/core/build_views"
 import type * as p from "@bokehjs/core/properties"
 import {Ref, List} from "@bokehjs/core/kinds"
 import {defer} from "@bokehjs/core/util/defer"
+import {logger} from "@bokehjs/core/logging"
 
 class SomeModelView extends View {
   declare model: SomeModel
@@ -519,6 +521,73 @@ describe("core/view", () => {
         })
         expect(started).to.be.false
         await view.ready
+      })
+
+      async function warnings(fn: () => Promise<void>): Promise<string[]> {
+        const spy = sinon.spy(logger, "warn")
+        try {
+          await fn()
+          return spy.args.map(([message]) => String(message))
+        } finally {
+          spy.restore()
+        }
+      }
+
+      const deadlock = /a task waits for 'ready' that it counts towards/
+
+      it("which warns when a task waits for ready of its view", async () => {
+        const view = await build_view(SomeModel.create())
+        const messages = await warnings(async () => {
+          view.schedule(async () => {
+            await view.ready
+          })
+          // the task would never finish otherwise
+          view.remove()
+          await view.ready
+        })
+        expect(messages.length).to.be.equal(1)
+        expect(deadlock.test(messages[0])).to.be.true
+      })
+
+      it("which warns when a signal handler waits for ready of an ancestor", async () => {
+        const {root_view, leaf_view} = await build_tree()
+        const messages = await warnings(async () => {
+          leaf_view.on_change(leaf_view.model.properties.children, async () => {
+            await root_view.ready
+          })
+          leaf_view.model.children = [SomeModel.create()]
+          leaf_view.remove()
+          await root_view.ready
+        })
+        expect(messages.length).to.be.equal(1)
+        expect(deadlock.test(messages[0])).to.be.true
+      })
+
+      it("which doesn't warn when a task waits for ready of a sibling", async () => {
+        const {root_view, leaf_view, sibling_view} = await build_tree()
+        const messages = await warnings(async () => {
+          let done = false
+          leaf_view.schedule(async () => {
+            await sibling_view.ready
+            done = true
+          })
+          await root_view.ready
+          expect(done).to.be.true
+        })
+        expect(messages).to.be.equal([])
+      })
+
+      it("which doesn't warn when a synchronous task requests ready of its view", async () => {
+        const view = await build_view(SomeModel.create())
+        const messages = await warnings(async () => {
+          let done = false
+          view.schedule(() => {
+            void view.ready.then(() => done = true)
+          })
+          await view.ready
+          expect(done).to.be.true
+        })
+        expect(messages).to.be.equal([])
       })
     })
 

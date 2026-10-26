@@ -62,6 +62,19 @@ type ReadyTask = {
   readonly path: View[]
 }
 
+/**
+ * A tracked task (a signal handler or a scheduled function), whose synchronous
+ * part is currently running.
+ */
+type RunningTask = {
+  readonly view: View
+  /** Whether the task requested `ready` of its view or of an ancestor. */
+  waits_for_ready: boolean
+}
+
+/** Tasks whose synchronous part is currently running, innermost last. */
+const running_tasks: RunningTask[] = []
+
 /** A pending `View.ready` promise, settled once its view has no pending tasks. */
 type ReadyWaiter = {
   resolve: () => void
@@ -105,8 +118,19 @@ export abstract class View implements ISignalable, Equatable {
    * error, or an `AggregateError` if there were more of them. Failures are then
    * cleared, so a subsequent `ready` reflects only new work. A removed view's
    * `ready` resolves, and its tasks don't count towards its ancestors' `ready`.
+   *
+   * A task must not wait for `ready` of its view or of an ancestor, because
+   * it counts towards it, so it would wait for itself and never resolve.
    */
   get ready(): Promise<void> {
+    for (const task of running_tasks) {
+      for (let view: View | null = task.view; view != null; view = view.parent) {
+        if (view == this) {
+          task.waits_for_ready = true
+          break
+        }
+      }
+    }
     return new Promise((resolve, reject) => {
       this._ready_waiters.push({resolve, reject})
       this._settle_ready()
@@ -145,8 +169,28 @@ export abstract class View implements ISignalable, Equatable {
       return
     }
     const {abort_signal} = this
-    const promise = new Promise<unknown>((resolve) => resolve(task(abort_signal)))
+    const promise = new Promise<unknown>((resolve) => resolve(this._run_task(() => task(abort_signal))))
     this._await_ready(promise)
+  }
+
+  /**
+   * Runs the synchronous part of a tracked task and warns if it requested
+   * `ready` that the task counts towards, because then the task's promise
+   * would wait for itself. Waiting after the first `await` isn't detected.
+   */
+  private _run_task<T>(fn: () => T): T {
+    const running: RunningTask = {view: this, waits_for_ready: false}
+    running_tasks.push(running)
+    let result: T
+    try {
+      result = fn()
+    } finally {
+      running_tasks.pop()
+    }
+    if (running.waits_for_ready && result instanceof Promise) {
+      logger.warn(`${this}: a task waits for 'ready' that it counts towards, which will never resolve`)
+    }
+    return result
   }
 
   /**
@@ -220,7 +264,7 @@ export abstract class View implements ISignalable, Equatable {
     let new_slot = this._slots.get(slot)
     if (new_slot == null) {
       new_slot = (args: Args, sender: Sender): void => {
-        this._await_ready(Promise.resolve(slot.call(this, args, sender)))
+        this._await_ready(Promise.resolve(this._run_task(() => slot.call(this, args, sender))))
       }
       this._slots.set(slot, new_slot)
     }

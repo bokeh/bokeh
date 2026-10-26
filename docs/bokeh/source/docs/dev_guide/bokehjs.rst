@@ -388,6 +388,12 @@ instead of starting it and discarding its promise:
   counting toward ``ready`` of its ancestors, and failures of these tasks are
   ignored. ``ready`` of a removed view resolves, and ``schedule()`` on a
   removed view doesn't run the task.
+* A task or a signal handler must not wait for ``ready`` of its own view or of
+  any of its ancestors. The task counts toward that ``ready``, so it would wait
+  for itself and never finish. If this happens before the task's first
+  ``await``, a warning is logged. Later waits can't be detected. If a task has
+  to wait for its subtree, it should wait for ``ready`` of the relevant
+  descendants instead.
 
 ``ready`` doesn't cover work that the browser does on its own, like
 CSS layout, ``ResizeObserver`` callbacks or loading of images through the DOM.
