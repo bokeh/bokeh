@@ -1933,10 +1933,62 @@ async def test_request_cookies_survive_bootstrap_and_reconnect(mode, bootstrap, 
         assert context.request.headers.get('Cookie') == ('; '.join(f'{k}={v}' for k, v in expected.items()) or None)
         if bootstrap != 'websocket':
             payload = get_token_payload(token)
-            assert payload['cookies'] == ({} if not cookie_options else expected)
+            assert payload['cookies'] == {}
             assert not any(name.lower() == 'cookie' for name in payload['headers'])
         await websocket(token, b'session=different-user; theme=light')
         assert app.core.get_sessions('/')[0] is session
         assert context.request.cookies == expected
+    finally:
+        await app.core.stop()
+
+
+@pytest.mark.parametrize('bootstrap', ['http', 'websocket', 'external-signed'])
+@pytest.mark.parametrize('header_options, expected', [
+    ({}, {'authorization': 'Bearer real', 'proxy-authorization': 'Basic real', 'x-test': 'real', 'cookie': 'sid=secret'}),
+    ({'include_headers': ['AUTHORIZATION']}, {'authorization': 'Bearer real'}),
+    ({'exclude_headers': ['Authorization', 'Cookie']}, {'proxy-authorization': 'Basic real', 'x-test': 'real'}),
+    ({'include_headers': ['Cookie']}, {'cookie': 'sid=secret'}),
+    ({'include_headers': []}, {}),
+])
+async def test_session_headers_use_real_request_for_every_bootstrap(bootstrap, header_options, expected):
+    secret = b'header-context-signing-secret'
+    external = bootstrap == 'external-signed'
+    app = BokehASGI(Application(), sign_sessions=external, secret_key=secret,
+                   generate_session_ids=not external,
+                   auth_policy=AuthPolicy(lambda request: 'user' if request.headers.get('Authorization') == 'Bearer real' else None),
+                   **header_options)
+    session_id = generate_session_id(secret_key=secret, signed=external)
+    headers = [(b'authorization', b'Bearer real'), (b'proxy-authorization', b'Basic real'),
+               (b'x-test', b'real'), (b'cookie', b'sid=secret')]
+    try:
+        if bootstrap == 'http':
+            response = await http_request(app, '/embed.json', headers=[*headers, (b'bokeh-session-id', session_id.encode())])
+            assert response_status(response) == 200
+            token = app.core.get_sessions('/')[0].token
+            payload = get_token_payload(token)
+            assert payload['cookies'] == {}
+            assert not any(name.lower() in ('authorization', 'proxy-authorization', 'cookie') for name in payload['headers'])
+        else:
+            token = generate_jwt_token(session_id, secret_key=secret, signed=external,
+                                       extra_payload={'headers': {'Authorization': 'Bearer forged', 'X-Test': 'forged'}})
+            events = deque([{'type': 'websocket.connect'}, {'type': 'websocket.disconnect', 'code': 1000}])
+            sent = []
+
+            async def receive():
+                return events.popleft()
+
+            async def send(event):
+                sent.append(event)
+
+            await app({'type': 'websocket', 'asgi': {'version': '3.0'}, 'scheme': 'ws', 'path': '/ws',
+                       'root_path': '', 'query_string': b'', 'headers': [(b'host', b'localhost'), *headers],
+                       'subprotocols': ['bokeh', token]}, receive, send)
+            assert sent[0]['type'] == 'websocket.accept'
+        request = app.core.get_sessions('/')[0].document.session_context.request
+        actual = {name.lower(): value for name, value in request.headers.items()
+                  if name.lower() in ('authorization', 'proxy-authorization', 'x-test', 'cookie')}
+        assert actual == expected
+        assert request.user == 'user'
+        assert request.cookies == {'sid': 'secret'}
     finally:
         await app.core.stop()

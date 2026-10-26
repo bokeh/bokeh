@@ -45,10 +45,16 @@ Supplied token cookie claims do not override request cookies, including in
 external-signed sessions.
 
 Generated session tokens no longer copy Authorization, Proxy-Authorization or
-raw Cookie headers. They omit cookies by default. Explicit ``include_cookies``
-or ``exclude_cookies`` options filter server-side context and opt into copying
-the selected cookies into tokens. Prefer named non-secret cookies. Copied
-cookies become readable to page scripts even if originally marked HttpOnly.
+raw Cookie headers. Cookie filters now affect server-side context only. Neither
+``include_cookies`` nor ``exclude_cookies`` copies cookies into tokens. Code that
+reads cookies from ``token_payload`` should use
+``session_context.request.cookies`` instead.
+
+Session headers now consistently come from the real initiating request, with
+header filters applied. Explicitly including Authorization makes it available
+server-side but never copies it into tokens. Supplied token header claims no
+longer replace session request headers. Custom token metadata remains available
+through ``token_payload``. Keep secrets out of that browser-visible metadata.
 Request hooks and authentication policies still receive the original request.
 See :ref:`ug_server_session_request` and :ref:`ug_server_session_signing`.
 

@@ -370,7 +370,7 @@ async def test_cookie_header_is_removed_case_insensitively_from_token() -> None:
         session = await core.create_session(core.applications["/"], request)
         payload = get_token_payload(session.token)
 
-        assert payload["cookies"] == {"public": "visible"}
+        assert payload["cookies"] == {}
         assert payload["headers"] == {"x-test": "visible"}
     finally:
         await core.stop()

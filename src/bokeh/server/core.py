@@ -123,10 +123,9 @@ async def create_session(config: SessionConfig, context: ApplicationContext, req
 
     if token is None:
         headers = _filtered_headers(config, request)
-        cookies = _filtered_cookies(config, request)
         payload: dict[str, Any] = {
             "headers": headers,
-            "cookies": cookies,
+            "cookies": {},
             "arguments": dict(request.arguments),
         }
         payload.update(await context.application.process_request_async(request))
@@ -167,24 +166,13 @@ def _filtered_headers(config: SessionConfig, request: RequestLike) -> dict[str, 
             if name in request.headers and name.lower() not in sensitive}
 
 
-def _filtered_cookies(config: SessionConfig, request: RequestLike) -> dict[str, str]:
-    allowed: Iterable[str]
-    if config.include_cookies is None and config.exclude_cookies is None:
-        return {}
-    if config.include_cookies is None:
-        excluded = set(config.exclude_cookies or ())
-        allowed = (name for name in request.cookies if name not in excluded)
-    else:
-        allowed = config.include_cookies
-    return {name: request.cookies[name].value for name in allowed if name in request.cookies}
-
 
 class BokehServerCore(SessionConfig):
     ''' Transport-independent Bokeh application, session, and connection state.
 
     Session request cookies come from the real initiating request and remain
-    server-side by default. Explicit cookie inclusion or exclusion lists filter
-    that context and opt into copying those values into generated tokens.
+    server-side. Cookie inclusion and exclusion lists filter that context only.
+    Cookies are never copied automatically into generated tokens.
     '''
 
     def __init__(
@@ -275,7 +263,8 @@ class BokehServerCore(SessionConfig):
             if app_logout_url is not None:
                 app_logout_url = urljoin(self._prefix + "/", app_logout_url.lstrip("/"))
             self._applications[url] = ApplicationContext(app, url=url, logout_url=app_logout_url,
-                include_cookies=include_cookies, exclude_cookies=exclude_cookies)
+                include_cookies=include_cookies, exclude_cookies=exclude_cookies,
+                include_headers=include_headers, exclude_headers=exclude_headers)
 
         self._loop: asyncio.AbstractEventLoop | None = None
         self._clients: set[ServerConnection] = set()

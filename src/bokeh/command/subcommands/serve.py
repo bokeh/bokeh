@@ -215,8 +215,8 @@ class Serve(Subcommand):
             action  = 'store',
             default = None,
             nargs='+',
-            help    = 'Cookie names to exclude from session context. Supplying this list also '
-                      'copies the remaining cookies into browser-visible session tokens.',
+            help    = 'Cookie names to exclude from server-side session context. '
+                      'Cookies are never copied automatically into tokens.',
         )),
 
         ('--include-headers', Argument(
@@ -231,8 +231,8 @@ class Serve(Subcommand):
             action  = 'store',
             default = None,
             nargs='+',
-            help    = 'Cookie names to retain in session context and copy into browser-visible '
-                      'tokens. By default context retains request cookies and tokens omit them.',
+            help    = 'Cookie names to retain in server-side session context. '
+                      'Cookies are never copied automatically into tokens.',
         )),
 
         ('--disable-index', Argument(

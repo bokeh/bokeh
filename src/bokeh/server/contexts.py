@@ -155,8 +155,11 @@ class ApplicationContext:
 
     def __init__(self, application: Application, io_loop: Loop | None = None,
             url: str | None = None, logout_url: str | None = None, executor: _ServerExecutor | None = None,
-            *, include_cookies: list[str] | None = None, exclude_cookies: list[str] | None = None):
+            *, include_cookies: list[str] | None = None, exclude_cookies: list[str] | None = None,
+            include_headers: list[str] | None = None, exclude_headers: list[str] | None = None):
         self._application = application
+        self._include_headers = None if include_headers is None else {name.lower() for name in include_headers}
+        self._exclude_headers = {name.lower() for name in exclude_headers or ()}
         self._include_cookies = include_cookies
         self._exclude_cookies = set(exclude_cookies or ())
         self._loop = io_loop
@@ -289,9 +292,16 @@ class ApplicationContext:
                 if (self._include_cookies is None or name in self._include_cookies)
                 and name not in self._exclude_cookies
             }
-            headers = dict(payload.get('headers', request.headers))
-            headers = {name: value for name, value in headers.items() if name.lower() != 'cookie'}
-            if cookies:
+            # Header claims are token metadata, not the initiating request.
+            headers = {
+                name: value for name, value in request.headers.items()
+                if name.lower() != 'cookie'
+                and (self._include_headers is None or name.lower() in self._include_headers)
+                and name.lower() not in self._exclude_headers
+            }
+            cookie_header_allowed = (self._include_headers is None or 'cookie' in self._include_headers) \
+                and 'cookie' not in self._exclude_headers
+            if cookies and cookie_header_allowed:
                 headers['Cookie'] = '; '.join(f'{name}={value}' for name, value in cookies.items())
             # using private attr so users only have access to a read-only property
             session_context._request = _RequestProxy(request,

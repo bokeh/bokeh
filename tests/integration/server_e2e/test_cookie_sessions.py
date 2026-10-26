@@ -27,7 +27,12 @@ from bokeh.util.token import generate_jwt_token, generate_session_id, get_token_
 
 @pytest.mark.parametrize('mode', ['unsigned', 'signed', 'external-signed'])
 @pytest.mark.parametrize('bootstrap', ['http', 'websocket'])
-def test_cookie_context_over_real_http_and_websocket(mode, bootstrap):
+@pytest.mark.parametrize('cookie_options, expected', [
+    ({}, {'session': 'authenticated', 'theme': 'dark'}),
+    ({'exclude_cookies': ['theme']}, {'session': 'authenticated'}),
+    ({'include_cookies': ['theme']}, {'theme': 'dark'}),
+])
+def test_cookie_context_over_real_http_and_websocket(mode, bootstrap, cookie_options, expected):
     secret = b'network-cookie-signing-secret'
     signed = mode != 'unsigned'
     observed = []
@@ -41,7 +46,7 @@ def test_cookie_context_over_real_http_and_websocket(mode, bootstrap):
         doc.add_root(Div(text='Cookie context stays on the server'))
 
     app = BokehASGI(modify_document, sign_sessions=signed, secret_key=secret,
-                   generate_session_ids=mode != 'external-signed', auth_policy=AuthPolicy(authenticate))
+                   generate_session_ids=mode != 'external-signed', auth_policy=AuthPolicy(authenticate), **cookie_options)
     session_id = generate_session_id(secret_key=secret, signed=signed)
     with running_asgi(app) as host:
         headers = {'Cookie': 'session=authenticated; theme=dark', 'Bokeh-Session-Id': session_id}
@@ -65,7 +70,7 @@ def test_cookie_context_over_real_http_and_websocket(mode, bootstrap):
                          open_timeout=5) as socket:
                 assert json.loads(socket.recv(timeout=5))['header']['msgtype'] == 'ACK'
             assert len(observed) == 1
-            assert observed[0].request.cookies == {'session': 'authenticated', 'theme': 'dark'}
+            assert observed[0].request.cookies == expected
         with pytest.raises(InvalidStatus):
             connect(websocket_url, origin=host.url, subprotocols=['bokeh', token],
                     additional_headers={'Cookie': 'session=attacker'}, open_timeout=5)

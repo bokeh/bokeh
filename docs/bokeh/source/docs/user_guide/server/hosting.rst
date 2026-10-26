@@ -101,13 +101,10 @@ Session tokens are bearer credentials. They do not replace request
 authentication. Enable ``sign_sessions`` and set a strong ``secret_key`` for
 an authenticated deployment. Signing is disabled by default. Signed tokens
 are not encrypted.
-Authorization headers and raw Cookie headers are never copied into tokens.
-Cookies are omitted from generated tokens by default. This does not remove
-cookies from server-side request context. Use ``include_cookies`` to copy only named,
-non-secret cookies. An explicit ``exclude_cookies`` list instead copies all
-cookies except those listed. Copied cookies become readable by page scripts,
-including cookies originally marked HttpOnly. Keep credentials out of custom
-request-hook payloads and query arguments too.
+Bokeh does not automatically copy cookies, Authorization, Proxy-Authorization
+or raw Cookie headers into generated tokens. Request filters do not enable
+cookie copying. Keep credentials out of custom request-hook payloads and
+query arguments too.
 
 For the CLI, use ``--session-ids signed`` and set ``BOKEH_SECRET_KEY``.
 The ``external-signed`` mode requires a signed session ID supplied by a trusted
@@ -129,11 +126,20 @@ real request that created the session. Cookies are available here by default,
 including HttpOnly cookies. They stay on the server unless application code
 copies them into a model, a template or an explicit token payload.
 
-``include_cookies`` and ``exclude_cookies`` filter this snapshot. Setting either
-option also opts into copying the selected cookies into generated tokens.
-For example, ``include_cookies=["theme"]`` keeps only ``theme`` in context and
-copies it into tokens. Avoid selecting credential cookies. The filters do not
-alter the original request seen by authentication policies and request hooks.
+``include_cookies`` and ``exclude_cookies`` filter this server-side snapshot
+only. For example, ``include_cookies=["theme"]`` keeps only ``theme`` in context.
+Neither option copies cookies into tokens.
+
+Session headers also come from the real initiating request, with
+``include_headers`` and ``exclude_headers`` applied case-insensitively.
+Authorization headers are available server-side unless filtered out. They are
+never copied automatically into tokens, even when explicitly included. The
+server-side Cookie header is rebuilt from the filtered cookies, unless header
+filters exclude it. This behavior is the same for HTTP and WebSocket creation.
+
+Filters do not alter the original request seen by authentication policies and
+request hooks. Supplied token header claims remain in ``token_payload`` and
+cannot replace the real request headers.
 
 The initiating request may be HTTP or WebSocket. Reconnecting to an existing
 session does not replace its cookie snapshot. Cookie claims in a supplied token
