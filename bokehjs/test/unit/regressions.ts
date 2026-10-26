@@ -1980,6 +1980,29 @@ ${view.host_selector} {
     })
   })
 
+  describe("in issue #11557", () => {
+    it("doesn't allow to empty a DataTable with autosize_mode and string columns", async () => {
+      const source = ColumnDataSource.create({data: {name: ["a", "b", "c"], salary: [10, 20, 30]}})
+      const columns = [
+        TableColumn.create({field: "name", title: "Name"}),
+        TableColumn.create({field: "salary", title: "Salary"}),
+      ]
+      const table = DataTable.create({source, columns, width: 400, autosize_mode: "fit_columns"})
+      const {view} = await display(table)
+
+      const rendered_rows = () => view.shadow_el.querySelectorAll(".slick-row").length
+      expect(rendered_rows()).to.be.equal(3)
+
+      source.data = {name: [], salary: []}
+      await view.ready
+      expect(rendered_rows()).to.be.equal(0)
+
+      source.data = {name: ["d"], salary: [40]}
+      await view.ready
+      expect(rendered_rows()).to.be.equal(1)
+    })
+  })
+
   describe("in issue #13931", () => {
     it("updates data and prunes stale DataTable selections", async () => {
       const source = ColumnDataSource.create({data: {my_col: ["a", "b", "c"]}})
