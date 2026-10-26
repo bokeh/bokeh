@@ -105,7 +105,7 @@ export abstract class GlyphView extends DOMComponentView {
         `${this.model.type} does not support ${decoration.type} decorations`)
       return decoration
     })
-    await build_views(this.decorations, models, {parent: this.parent})
+    await build_views(this.decorations, models, {parent: this})
   }
 
   protected _decoration_insets(i: number): {start: number, end: number} {
@@ -167,8 +167,16 @@ export abstract class GlyphView extends DOMComponentView {
     this.parent.request_paint()
   }
 
+  request_layout(): void {
+    this.parent.request_layout()
+  }
+
+  notify_finished_after_paint(): void {
+    this.parent.notify_finished_after_paint()
+  }
+
   get canvas() {
-    return this.renderer.parent.canvas_view
+    return this.renderer.plot_view.canvas_view
   }
 
   paint(ctx: Context2d, indices: Int32Array, data?: Partial<Glyph.Data>): void {

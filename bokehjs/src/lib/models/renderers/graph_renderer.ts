@@ -37,10 +37,9 @@ export class GraphRendererView extends DataRendererView {
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     this.apply_coordinates()
-    const {parent} = this
     const {edge_renderer, node_renderer} = this.model
-    this.edge_view = await build_view(edge_renderer, {parent})
-    this.node_view = await build_view(node_renderer, {parent})
+    this.edge_view = await build_view(edge_renderer, {parent: this})
+    this.node_view = await build_view(node_renderer, {parent: this})
   }
 
   override connect_signals(): void {

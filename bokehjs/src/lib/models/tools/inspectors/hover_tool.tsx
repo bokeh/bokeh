@@ -200,7 +200,7 @@ export class HoverToolView extends InspectToolView {
 
     const {tooltips} = this.model
     if (tooltips instanceof DOMElement) {
-      this._template_view = await build_view(tooltips, {parent: this.plot_view.canvas})
+      this._template_view = await build_view(tooltips, {parent: this})
       this._template_view.render()
     }
 
@@ -259,7 +259,7 @@ export class HoverToolView extends InspectToolView {
       }
     }
 
-    await build_views(this._ttviews, [...ttmodels.values()], {parent: this.plot_view})
+    await build_views(this._ttviews, [...ttmodels.values()], {parent: this})
 
     const glyph_renderers = [...(function* () {
       for (const r of computed_renderers) {
