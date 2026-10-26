@@ -62,7 +62,7 @@ jobs:
       max-parallel: 3
       matrix:
         os: [ubuntu-24.04, macos-latest, windows-latest]
-        node-version: [24.x]
+        node-version: ['>=24.22.1 <25']
 
     steps:
       - name: Checkout the repository
@@ -139,7 +139,7 @@ jobs:
       - name: Install node.js 24.x
         uses: actions/setup-node@v6
         with:
-          node-version: 24.x
+          node-version: '>=24.22.1 <25'
           cache: 'npm'
           cache-dependency-path: 'bokehjs/package-lock.json'
 
@@ -202,7 +202,7 @@ jobs:
       - name: Install node.js 22
         uses: actions/setup-node@v6
         with:
-          node-version: 22.x
+          node-version: '>=22.23.4 <23'
           cache: 'npm'
           cache-dependency-path: 'bokehjs/package-lock.json'
 
