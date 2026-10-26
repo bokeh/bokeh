@@ -260,25 +260,20 @@ def test_repeated_children() -> None:
     test(GridBox(children=[(p0, 0, 0), (p1, 1, 0), (p0, 2, 0)]))
     test(gridplot([[p0], [p1], [p0]], toolbar_location=None))
 
-def test_grid_invalid_dimensions() -> None:
+@pytest.mark.parametrize("nrows", [0, -2, 2.5, "2"])
+def test_grid_invalid_nrows(nrows) -> None:
     with pytest.raises(ValueError, match="nrows must be a positive integer"):
-        grid([Spacer()], nrows=0)
+        grid([Spacer()], nrows=nrows)
 
-    with pytest.raises(ValueError, match="nrows must be a positive integer"):
-        grid([Spacer()], nrows=-2)
-
+@pytest.mark.parametrize("ncols", [0, -1, 2.5, "2"])
+def test_grid_invalid_ncols(ncols) -> None:
     with pytest.raises(ValueError, match="ncols must be a positive integer"):
-        grid([Spacer()], ncols=0)
+        grid([Spacer()], ncols=ncols)
 
+@pytest.mark.parametrize("ncols", [0, -5, 2.5, "2"])
+def test_gridplot_invalid_ncols(ncols) -> None:
     with pytest.raises(ValueError, match="ncols must be a positive integer"):
-        grid([Spacer()], ncols=-1)
-
-def test_gridplot_invalid_ncols() -> None:
-    with pytest.raises(ValueError, match="ncols must be a positive integer"):
-        gridplot([Spacer()], ncols=0)
-
-    with pytest.raises(ValueError, match="ncols must be a positive integer"):
-        gridplot([Spacer()], ncols=-5)
+        gridplot([Spacer()], ncols=ncols)
 
 def test_group_tools() -> None:
     pan0 = PanTool(dimensions="both")
