@@ -246,12 +246,25 @@ export abstract class View implements ISignalable, Equatable {
     }
   }
 
-  /** Stops tracking tasks of this subtree and settles `ready` of affected views. */
+  /**
+   * Stops tracking tasks of this subtree and settles `ready` of affected views.
+   * Failures collected by views of this subtree are discarded, because `ready`
+   * of a removed view resolves.
+   */
   private _drop_pending_tasks(): void {
     const affected = new Set<View>()
     for (const task of this._pending_tasks) {
+      // the path starts with the owner of the task, so views up to and
+      // including this view belong to the removed subtree
+      let removed = true
       for (const view of task.path) {
         view._pending_tasks.delete(task)
+        if (removed) {
+          view._task_errors = []
+        }
+        if (view == this) {
+          removed = false
+        }
         affected.add(view)
       }
     }

@@ -508,6 +508,20 @@ describe("core/view", () => {
         expect(leaf_ready).to.be.true
       })
 
+      it("which resolves waiters of removed views that collected a failure", async () => {
+        const {root_view, mid_view, leaf_view} = await build_tree()
+        const failing = deferred()
+        leaf_view.schedule(() => failing.promise)
+        leaf_view.schedule(() => new Promise(() => {}))
+        const leaf_error = rejection(leaf_view.ready)
+        const root_error = rejection(root_view.ready)
+        failing.reject(new Error("leaf failed"))
+        await defer()
+        mid_view.remove()
+        expect(await leaf_error).to.be.null
+        expect(await root_error).to.be.instanceof(Error)
+      })
+
       it("which ignores failures of tasks of removed views", async () => {
         const {root_view, leaf_view} = await build_tree()
         const pending = deferred()
