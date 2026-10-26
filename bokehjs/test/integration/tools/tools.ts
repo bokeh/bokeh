@@ -1,4 +1,8 @@
+import {expect} from "#framework/assertions"
+import {press} from "#framework/interactive"
 import {display, fig} from "#framework/layouts"
+
+import * as sinon from "sinon"
 
 import * as all from "@bokehjs/models/tools"
 import {Toolbar} from "@bokehjs/models"
@@ -45,7 +49,13 @@ describe("Tools", () => {
       p.scatter([1, 2, 3], [1, 2, 3])
       const {view} = await display(p)
       const tool_button_view = view.owner.get_one(tool_button)
-      tool_button_view.press()
+      const on_press = sinon.spy(tool_button_view, "press")
+      try {
+        await press(tool_button_view.el)
+        expect(on_press.calledOnce).to.be.true
+      } finally {
+        on_press.restore()
+      }
     })
   }
 })
