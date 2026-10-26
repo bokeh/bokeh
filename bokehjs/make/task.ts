@@ -179,9 +179,9 @@ export async function run(task: Task): Promise<Result> {
     }
   }
 
-  function fail(failures: Task[]): Result {
+  function fail(task: Task, failures: Task[]): Failure<unknown> {
     const names = join(failures.map((dep_task) => `'${chalk.cyan(dep_task.name)}'`), ", ", " and ")
-    return failure(new BuildError(task.name, `task '${chalk.cyan(task.name)}' failed because ${names} failed`))
+    return new Failure(new BuildError(task.name, `task '${chalk.cyan(task.name)}' failed because ${names} failed`))
   }
 
   async function _run(task: Task, passthrough: boolean): Promise<Result> {
@@ -193,7 +193,6 @@ export async function run(task: Task): Promise<Result> {
       for (const dep of task.deps) {
         const result = await _run(dep.task, dep.passthrough)
         if (result.is_Failure()) {
-          show_failure(result)
           failed_deps.push(dep.task)
         }
       }
@@ -202,7 +201,7 @@ export async function run(task: Task): Promise<Result> {
       if (failed_deps.length == 0) {
         result = await exec_task(task)
       } else {
-        result = fail(failed_deps)
+        result = fail(task, failed_deps)
       }
 
       if (result.is_Failure()) {
@@ -221,7 +220,9 @@ export async function run(task: Task): Promise<Result> {
 
   const result = await _run(task, false)
   if (result.is_Success() && failures.length != 0) {
-    return fail(failures)
+    const failure = fail(task, failures)
+    show_failure(failure)
+    return failure
   } else {
     return result
   }

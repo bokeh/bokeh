@@ -6,7 +6,7 @@ const {magenta} = chalk
 
 import {argv} from "./args.js"
 
-import {task, run, log, task_names, show_error, show_failure} from "./task.js"
+import {task, run, log, task_names, show_error} from "./task.js"
 import "./tasks/index.js"
 
 function node_version(): string {
@@ -52,7 +52,6 @@ export async function main(pkg_json: PackageJson): Promise<void> {
     try {
       const result = await run(top_level)
       if (result.is_Failure()) {
-        show_failure(result)
         process.exit(1)
       }
     } catch (error) {
