@@ -55,6 +55,19 @@ describe("ScaleBar annotation", () => {
     it(`with label left and ${standoff}px standoff`, async () => await scale_bar_with_label_location("left", "center", standoff))
     it(`with label right and ${standoff}px standoff`, async () => await scale_bar_with_label_location("right", "center", standoff))
 
+    it("after changing orientation from vertical", async () => {
+      const scale_bar = ScaleBar.create({
+        range: Range1d.create({start: 0, end: 1}),
+        bar_length: 0.2,
+        orientation: "vertical",
+        location: "top_right",
+        label_location: "below",
+      })
+      const {view} = await display(plot(scale_bar))
+      scale_bar.orientation = orientation
+      await view.ready
+    })
+
     it("with 0px padding", async () => {
       const scale_bar = ScaleBar.create({
         range: Range1d.create({start: 0, end: 1}),
@@ -222,6 +235,19 @@ describe("ScaleBar annotation", () => {
     it(`with label below and ${standoff}px standoff`, async () => await scale_bar_with_label_location("below", "center", standoff))
     it(`with label left and ${standoff}px standoff`, async () => await scale_bar_with_label_location("left", "center", standoff))
     it(`with label right and ${standoff}px standoff`, async () => await scale_bar_with_label_location("right", "center", standoff))
+
+    it("after changing orientation from horizontal", async () => {
+      const scale_bar = ScaleBar.create({
+        range: Range1d.create({start: 0, end: 1}),
+        bar_length: 0.2,
+        orientation: "horizontal",
+        location: "top_right",
+        label_location: "below",
+      })
+      const {view} = await display(plot(scale_bar))
+      scale_bar.orientation = orientation
+      await view.ready
+    })
 
     for (const length_sizing of ["adaptive", "exact"] as const) {
       describe(`with ${length_sizing} sizing`, () => {
