@@ -29,12 +29,13 @@ from ..core.property.primitive import Int
 from ..core.property.struct import Struct
 from ..core.property.wrappers import PropertyValueDict
 from ..model import Model
-from ._selection import encode, normalize, validate
+from ._selection import SelectionPayload, normalize, validate
 
 if TYPE_CHECKING:
-    from ..core.has_props import HasProps
-    from ..core.serialization import Serializer
-    from ..document.events import DocumentPatchedEvent
+    from ..core.has_props import HasProps, Setter
+    from ..core.serialization import ObjectRep, Serializer
+    from ..document import Document
+    from ..document.events import DocumentPatchedEvent, Invoker, ModelChangedEvent
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -158,10 +159,19 @@ class Selection(Model):
 
     """)
 
-    def _serialize_property(self, name: str, value: Any, serializer: Serializer) -> Any:
-        if name in ("indices", "line_indices", "multiline_indices"):
-            return encode(value, serializer, multiline=name == "multiline_indices")
-        return super()._serialize_property(name, value, serializer)
+    def to_serializable(self, serializer: Serializer) -> ObjectRep:
+        return self._to_serializable(serializer, {
+            "indices": SelectionPayload(self.indices),
+            "line_indices": SelectionPayload(self.line_indices),
+            "multiline_indices": SelectionPayload(self.multiline_indices, multiline=True),
+        })
+
+    def _create_model_changed_event(self, document: Document, attr: str, new: Any,
+            setter: Setter | None = None, callback_invoker: Invoker | None = None) -> ModelChangedEvent:
+        event = super()._create_model_changed_event(document, attr, new, setter, callback_invoker)
+        if attr in ("indices", "line_indices", "multiline_indices"):
+            event._representation = SelectionPayload(new, multiline=attr == "multiline_indices")
+        return event
 
 @abstract
 class SelectionPolicy(Model):

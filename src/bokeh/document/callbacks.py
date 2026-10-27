@@ -251,7 +251,7 @@ class DocumentCallbackManager:
         event: DocumentPatchedEvent
         if hint is None:
             new = model.lookup(attr).get_value(model)
-            event = ModelChangedEvent(doc, model, attr, new, setter, callback_invoker)
+            event = model._create_model_changed_event(doc, attr, new, setter, callback_invoker)
         else:
             assert hint.callback_invoker is None
             hint.callback_invoker = callback_invoker

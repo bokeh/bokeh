@@ -1,7 +1,6 @@
 import {Signal0} from "./signaling"
 import {logger} from "./logging"
 import type {HasProps} from "./has_props"
-import type {Comparator} from "./util/eq"
 import * as enums from "./enums"
 import type {Arrayable, IntArray, FloatArray, TypedArray, uint32, Dict} from "./types"
 import {RGBAArray, ColorArray} from "./types"
@@ -23,7 +22,7 @@ import type {NDArray, NDArrayType} from "./util/ndarray"
 import {is_NDArray} from "./util/ndarray"
 import {diagnostics} from "./diagnostics"
 import {unreachable} from "./util/assert"
-import {serialize, type Serializer} from "./serialization"
+import {serialize} from "./serialization"
 import type {RaggedArray} from "./util/ragged_array"
 
 import {Uniform, UniformScalar, UniformVector, ColorUniformVector} from "./uniforms"
@@ -256,14 +255,6 @@ export abstract class Property<T = unknown> {
 
   convert?(value: T, obj: HasProps): T | undefined
   on_update?(value: T, obj: HasProps): void
-
-  is_equal(value: T, cmp: Comparator): boolean {
-    return cmp.eq(this.get_value(), value)
-  }
-
-  serialize_value(value: T, serializer: Serializer): unknown {
-    return serializer.encode(value)
-  }
 
   constructor(readonly obj: HasProps,
               readonly attr: string,

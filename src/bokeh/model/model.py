@@ -61,7 +61,7 @@ if TYPE_CHECKING:
     from ..core.serialization import ObjectRep
     from ..core.types import ID
     from ..document import Document
-    from ..document.events import DocumentPatchedEvent
+    from ..document.events import DocumentPatchedEvent, Invoker, ModelChangedEvent
     from ..models.callbacks import (
         Callback as JSEventCallback,
         CustomCode as JSChangeCallback,
@@ -631,11 +631,14 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         Returns:
             A model representation, with an ID when the serializer requires one.
         '''
+        return self._to_serializable(serializer)
+
+    def _to_serializable(self, serializer: Serializer, overrides: dict[str, Any] | None = None) -> ObjectRep | ObjectRefRep:
         use_id = serializer.use_model_id(self)
         if use_id:
             serializer.add_ref(self, serializer.model_ref(self.ref))
 
-        super_rep = super().to_serializable(serializer)
+        super_rep = super()._to_serializable(serializer, overrides)
         if not use_id:
             return super_rep
 
@@ -651,6 +654,11 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             if attributes is not None:
                 rep["attributes"] = attributes
             return rep
+
+    def _create_model_changed_event(self, document: Document, attr: str, new: Any,
+            setter: Setter | None = None, callback_invoker: Invoker | None = None) -> ModelChangedEvent:
+        from ..document.events import ModelChangedEvent
+        return ModelChangedEvent(document, self, attr, new, setter, callback_invoker)
 
     def trigger(self, attr: str, old: Any, new: Any,
             hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None:

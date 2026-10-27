@@ -1,6 +1,8 @@
+import {serialize, type Serializer, type ObjectRep, type ObjectRefRep} from "core/serialization"
+import {ModelChangedEvent} from "../../document/events"
 import {Model} from "../../model"
 import type * as p from "core/properties"
-import {IndicesProperty, MultiIndicesProperty} from "./indices"
+import {IndicesKind, MultilineIndicesKind, selection_wire_value} from "./indices"
 import type {SelectionMode} from "core/enums"
 import {union, intersection, difference, symmetric_difference} from "core/util/array"
 import {merge} from "core/util/object"
@@ -44,15 +46,27 @@ export interface Selection extends Selection.Attrs {
 export class Selection extends Model {
   declare properties: Selection.Props
 
+  override [serialize](serializer: Serializer): ObjectRep | ObjectRefRep {
+    return this._to_serializable(serializer, {
+      indices: selection_wire_value("indices", this.indices),
+      line_indices: selection_wire_value("line_indices", this.line_indices),
+      multiline_indices: selection_wire_value("multiline_indices", this.multiline_indices),
+    })
+  }
+
+  override _create_change_event(attr: string, value: unknown): ModelChangedEvent {
+    return new ModelChangedEvent(this.document!, this, attr, value, selection_wire_value(attr, value))
+  }
+
   get_view(): GlyphView | null {
     return this.view
   }
 
   static {
     this.define<Selection.Props>({
-      indices:           [ IndicesProperty, [] ],
-      line_indices:      [ IndicesProperty, [] ],
-      multiline_indices: [ MultiIndicesProperty, new Map() ],
+      indices:           [ new IndicesKind(), [] ],
+      line_indices:      [ new IndicesKind(), [] ],
+      multiline_indices: [ new MultilineIndicesKind(), new Map() ],
       image_indices:     [ ImageIndices, [] ],
     })
 
