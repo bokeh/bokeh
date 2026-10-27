@@ -375,9 +375,6 @@ class Plot(LayoutDOM):
         else:
             source, glyph = ColumnDataSource(), source_or_glyph
 
-        if not isinstance(source, IndexedDataSource):
-            raise ValueError("'source' argument to add_glyph() must be an IndexedDataSource subclass")
-
         if not isinstance(glyph, Glyph):
             raise ValueError("'glyph' argument to add_glyph() must be Glyph subclass")
 

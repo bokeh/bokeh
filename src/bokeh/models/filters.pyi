@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------
 
 from abc import abstractmethod
-from typing import Any, Sequence, Unpack
+from typing import Any, Sequence, Unpack, overload
 
 from ..model.model import Model, _ModelInit
 
@@ -74,6 +74,9 @@ class _IndexFilterInit(_FilterInit, total=False):
     indices: Sequence[int] | None
 
 class IndexFilter(Filter):
+    @overload
+    def __init__(self, indices: Sequence[int] | None, **kwargs: Unpack[_FilterInit]) -> None: ...
+    @overload
     def __init__(self, **kwargs: Unpack[_IndexFilterInit]) -> None: ...
 
     indices: Sequence[int] | None = ...
@@ -82,6 +85,9 @@ class _BooleanFilterInit(_FilterInit, total=False):
     booleans: Sequence[bool] | None
 
 class BooleanFilter(Filter):
+    @overload
+    def __init__(self, booleans: Sequence[bool] | None, **kwargs: Unpack[_FilterInit]) -> None: ...
+    @overload
     def __init__(self, **kwargs: Unpack[_BooleanFilterInit]) -> None: ...
 
     booleans: Sequence[bool] | None = ...
@@ -91,6 +97,9 @@ class _GroupFilterInit(_FilterInit, total=False):
     group: Any
 
 class GroupFilter(Filter):
+    @overload
+    def __init__(self, field_name: str, group: Any, **kwargs: Unpack[_FilterInit]) -> None: ...
+    @overload
     def __init__(self, **kwargs: Unpack[_GroupFilterInit]) -> None: ...
 
     field_name: str = ...

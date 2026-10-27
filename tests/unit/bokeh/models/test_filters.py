@@ -45,6 +45,12 @@ def test_Filter_set_operators() -> None:
     assert isinstance(f4, bmf.SymmetricDifferenceFilter)
     assert len(f4.operands) == 2
 
+def test_GroupFilter_accepts_positional_arguments() -> None:
+    filter = bmf.GroupFilter("kind", "city")
+
+    assert filter.field_name == "kind"
+    assert filter.group == "city"
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

@@ -19,7 +19,14 @@ import numpy as np
 import pytest
 
 # Bokeh imports
-from bokeh.models import GeometryDataSource, Polygons
+from bokeh.models import (
+    ColumnDataSource,
+    ContourRenderer,
+    GeometryDataSource,
+    GlyphRenderer,
+    MultiLine,
+    Polygons,
+)
 from bokeh.plotting.contour import (
     ContourData,
     FillData,
@@ -275,6 +282,19 @@ class Test_from_contour:
         assert "fill_color" not in cr.fill_renderer.data_source.data
         assert "line_color" not in cr.line_renderer.data_source.data
 
+    def test_set_data_preserves_matching_vectorized_visuals(self, xyz_levels: XYZ_Levels) -> None:
+        x, y, z, levels = xyz_levels
+        cr = from_contour(
+            x, y, z, levels,
+            fill_color=["red", "blue"],
+            line_color=["red", "green", "blue"],
+        )
+
+        cr.set_data(contour_data(x, y, z, levels, want_fill=True, want_line=True))
+
+        assert cr.fill_renderer.data_source.data["fill_color"] == ["red", "blue"]
+        assert cr.line_renderer.data_source.data["line_color"] == ["red", "green", "blue"]
+
     def test_set_data_clear_drops_nonempty_vectorized_visuals(self, xyz_levels: XYZ_Levels) -> None:
         x, y, z, levels = xyz_levels
         cr = from_contour(
@@ -287,6 +307,29 @@ class Test_from_contour:
 
         assert cr.fill_renderer.data_source.data == {"lower_levels": [], "upper_levels": []}
         assert cr.line_renderer.data_source.data == {"xs": [], "ys": [], "levels": []}
+
+    def test_set_data_supports_legacy_columnar_fill_source(self, xyz_levels: XYZ_Levels) -> None:
+        x, y, z, levels = xyz_levels
+        cr = ContourRenderer(
+            fill_renderer=GlyphRenderer(
+                glyph=Polygons(),
+                data_source=ColumnDataSource(data=dict(fill_color=["red", "blue"])),
+            ),
+            line_renderer=GlyphRenderer(
+                glyph=MultiLine(),
+                data_source=ColumnDataSource(data=dict(line_color=["red", "green", "blue"])),
+            ),
+        )
+
+        cr.set_data(contour_data(x, y, z, levels, want_fill=True, want_line=True))
+
+        fill_data = cr.fill_renderer.data_source.data
+        assert fill_data["fill_color"] == ["red", "blue"]
+        assert cr.line_renderer.data_source.data["line_color"] == ["red", "green", "blue"]
+
+        cr.set_data(ContourData(fill_data=None, line_data=None))
+
+        assert cr.fill_renderer.data_source.data == {"xs": [], "ys": [], "lower_levels": [], "upper_levels": []}
 
 def test_contour_colorbar(xyz_levels: XYZ_Levels) -> None:
     x, y, z, levels = xyz_levels
