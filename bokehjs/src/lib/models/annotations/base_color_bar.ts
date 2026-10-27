@@ -28,6 +28,8 @@ import {BorderLayout} from "core/layout/border"
 import {SidePanel} from "core/layout/side_panel"
 import type {ChildView} from "core/build_views"
 import {build_view} from "core/build_views"
+import type {View} from "core/view"
+import type {PlotView} from "../plots/plot"
 import {BBox} from "core/util/bbox"
 import {isString} from "core/util/types"
 import {Padding} from "../common/kinds"
@@ -114,13 +116,7 @@ export abstract class BaseColorBarView extends AnnotationView {
     await super.lazy_initialize()
 
     const self = this
-    const parent: any = {
-      get parent() {
-        return self.parent
-      },
-      get root() {
-        return self.root
-      },
+    this._plot_context = {
       get frame() {
         return self._frame_view
       },
@@ -128,25 +124,40 @@ export abstract class BaseColorBarView extends AnnotationView {
         return self._frame_view
       },
       get canvas_view() {
-        return self.parent.canvas_view
+        return self.plot_view.canvas_view
       },
       request_layout() {
         // force re-layout; not ideal but ColorBar's layout doesn't fully
         // participate in has_size_changed to detect if layout is needed
         self.layout.dirty = true
-        self.parent.request_layout()
+        self.plot_view.request_layout()
       },
       request_paint() {
-        self.parent.request_paint(self)
+        self.plot_view.request_paint(self)
       },
       notify_finished_after_paint() {
-        self.parent.notify_finished_after_paint()
+        self.plot_view.notify_finished_after_paint()
       },
-    }
+    } as any
 
-    this._frame_view = await build_view(this._frame, {parent})
-    this._axis_view = await build_view(this._axis, {parent})
-    this._title_view = await build_view(this._title, {parent})
+    this._frame_view = await build_view(this._frame, {parent: this})
+    this._axis_view = await build_view(this._axis, {parent: this})
+    this._title_view = await build_view(this._title, {parent: this})
+  }
+
+  /**
+   * The frame, the axis and the title of a color bar are laid out and painted
+   * by the color bar itself, so they get a plot-like context of the color bar.
+   */
+  protected _plot_context: PlotView
+
+  override plot_view_for(view: View): PlotView {
+    const {model} = view
+    if (model == this._frame || model == this._axis || model == this._title) {
+      return this._plot_context
+    } else {
+      return super.plot_view_for(view)
+    }
   }
 
   protected _apply_axis_properties(): void {
@@ -550,10 +561,10 @@ export abstract class BaseColorBarView extends AnnotationView {
 
     // XXX: shrink outline region by 1px to make right and bottom lines visible
     // if they are on the edge of the canvas.
-    if (x + width >= this.parent.canvas_view.bbox.width) {
+    if (x + width >= this.plot_view.canvas_view.bbox.width) {
       width -= 1
     }
-    if (y + height >= this.parent.canvas_view.bbox.height) {
+    if (y + height >= this.plot_view.canvas_view.bbox.height) {
       height -= 1
     }
 

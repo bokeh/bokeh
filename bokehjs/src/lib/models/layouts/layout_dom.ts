@@ -36,8 +36,22 @@ export abstract class LayoutDOMView extends PaneView {
 
   readonly disabled = new Signal<boolean, this>(this, "disabled")
 
+  /**
+   * Whether this view lays out its layoutable descendants. Views that only
+   * host other layouts, e.g. as renderers, let them lay out themselves.
+   */
+  get is_layout_container(): boolean {
+    return true
+  }
+
+  /** The view that lays out this view, if any. */
+  get layout_parent(): LayoutDOMView | null {
+    const {parent} = this
+    return parent instanceof LayoutDOMView && parent.is_layout_container ? parent : null
+  }
+
   get is_layout_root(): boolean {
-    return this.is_root || !(this.parent instanceof LayoutDOMView)
+    return this.layout_parent == null
   }
 
   protected override _after_resize(): void {
@@ -68,8 +82,9 @@ export abstract class LayoutDOMView extends PaneView {
       this.mouseleave.emit(event)
     })
 
-    if (this.parent instanceof LayoutDOMView) {
-      this.connect(this.parent.disabled, (disabled) => {
+    const {layout_parent} = this
+    if (layout_parent != null) {
+      this.connect(layout_parent.disabled, (disabled) => {
         this.disabled.emit(disabled || this.model.disabled)
       })
     }
@@ -386,7 +401,7 @@ export abstract class LayoutDOMView extends PaneView {
   }
 
   get is_managed(): boolean {
-    return this.parent instanceof LayoutDOMView
+    return this.layout_parent != null
   }
 
   /**
@@ -406,8 +421,9 @@ export abstract class LayoutDOMView extends PaneView {
   private _layout_computed: boolean = false
 
   compute_layout(): void {
-    if (this.parent instanceof LayoutDOMView) { // TODO: this.is_managed
-      this.parent.compute_layout()
+    const {layout_parent} = this
+    if (layout_parent != null) {
+      layout_parent.compute_layout()
     } else {
       this.measure_layout()
       this.update_bbox()
@@ -478,8 +494,9 @@ export abstract class LayoutDOMView extends PaneView {
   invalidate_layout(): void {
     // TODO: it would be better and more efficient to do a localized
     // update, but for now this guarantees consistent state of layout.
-    if (this.parent instanceof LayoutDOMView) {
-      this.parent.invalidate_layout()
+    const {layout_parent} = this
+    if (layout_parent != null) {
+      layout_parent.invalidate_layout()
     } else {
       this.update_layout()
       this.compute_layout()
@@ -516,8 +533,9 @@ export abstract class LayoutDOMView extends PaneView {
     const {sizing_mode} = this.model
     if (sizing_mode != null) {
       if (sizing_mode == "inherit") {
-        if (this.parent instanceof LayoutDOMView) {
-          const sizing = this.parent.box_sizing()
+        const {layout_parent} = this
+        if (layout_parent != null) {
+          const sizing = layout_parent.box_sizing()
           width_policy = sizing.width_policy
           height_policy = sizing.height_policy
           if (aspect_ratio == null) {

@@ -2,11 +2,13 @@
 name = "bokeh"
 channels = ["conda-forge"]
 platforms = ["linux-64", "osx-arm64", "win-64"]
-requires-pixi = ">=0.76.1"
+requires-pixi = ">=0.83.0"
 
 [feature.py-base.dependencies]
+ca-certificates = ">=2026.10.23"
+certifi = ">=2026.10.23"
 nomkl = "*"
-pip = "*"
+pip = ">=26.2.2"
 
 [target.osx.activation]
 scripts = ["tools/ci/activate_pixi.sh"]
@@ -35,7 +37,7 @@ python-freethreading = "*"
 
 [feature.js-tools.dependencies]
 jupyter-builder = ">=1,<2"
-nodejs = "24.*"
+nodejs = ">=24.22.1,<25"
 
 [feature.js-tools.tasks]
 clean-build = { cmd = "node make clean:all", cwd = "bokehjs" }
@@ -239,7 +241,7 @@ scipy = "*"
 uvicorn-standard = "*"
 
 [feature.build-tools.dependencies]
-pip = "*"
+pip = ">=26.2.2"
 python-build = "*"
 setuptools = "*"
 
@@ -247,6 +249,8 @@ setuptools = "*"
 build-py = { cmd = "python -m build .", env = { BOKEHJS_ACTION = "install", BOKEH_JUPYTER_ACTION = "install" }, depends-on = ["build-js", "jupyter-build"] }
 
 [feature.formatting-deps.dependencies]
+ca-certificates = ">=2026.10.23"
+certifi = ">=2026.10.23"
 pre-commit = "*"
 
 [feature.docs-deps.dependencies]

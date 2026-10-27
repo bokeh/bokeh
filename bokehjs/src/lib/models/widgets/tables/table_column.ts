@@ -65,7 +65,7 @@ export class TableColumnView extends View {
 
     const {title} = this.model
     if (title instanceof HTML) {
-      this.title_view = await build_view(title, {parent: this.parent})
+      this.title_view = await build_view(title, {parent: this})
       this.title_view.render()
     }
   }

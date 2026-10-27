@@ -42,7 +42,7 @@ export class ExamineToolView extends ActionToolView {
       visible: false,
       close_action: "hide",
     })
-    this.dialog = await build_view(dialog, {parent: this.parent})
+    this.dialog = await build_view(dialog, {parent: this})
   }
 
   override connect_signals(): void {

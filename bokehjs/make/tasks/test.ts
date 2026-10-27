@@ -54,7 +54,11 @@ task("test:devtools", async () => {
   await node(["--test", "./test/devtools/_build/image.test.js"])
 })
 
-task("test:codebase", ["test:codebase:compile", "test:devtools"], async () => {
+task("test:make", async () => {
+  await node(["--test", "./make/_build/make/task.test.js"])
+})
+
+task("test:codebase", ["test:codebase:compile", "test:devtools", "test:make"], async () => {
   await node(["./build/test/codebase/index.js"])
 })
 

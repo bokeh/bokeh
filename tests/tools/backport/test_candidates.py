@@ -367,9 +367,31 @@ class CandidateEligibilityTests(unittest.TestCase):
             [],
         )
 
-    def test_pr_without_linked_issue_is_rejected_even_with_a_type_label(self) -> None:
-        problems = candidate_ops.candidate_type_problems(
-            [candidate(15233, labels=["type: task"])],
+    def test_allows_standalone_task_pr(self) -> None:
+        self.assertEqual(
+            candidate_ops.candidate_type_problems([candidate(15233, labels=["type: task"])]),
+            [],
         )
-        self.assertEqual(len(problems), 1)
-        self.assertIn("no associated issue", problems[0])
+
+    def test_standalone_task_pr_still_validates_linked_issues(self) -> None:
+        for issue_type in ("Feature", "Discussion", None):
+            with self.subTest(issue_type=issue_type):
+                problems = candidate_ops.candidate_type_problems([
+                    candidate(15233, labels=["type: task"], issues=[
+                        IssueRef(number=100, issue_type="Task"),
+                        IssueRef(number=101, issue_type=issue_type),
+                    ]),
+                ])
+                self.assertEqual(len(problems), 1)
+                self.assertIn("issue #101", problems[0])
+
+    def test_task_pr_allows_features_for_new_minor_releases(self) -> None:
+        item = candidate(15233, labels=["type: task"], issues=[IssueRef(number=100, issue_type="Feature")])
+        self.assertEqual(candidate_ops.candidate_type_problems([item], allow_features=True), [])
+
+    def test_pr_without_linked_issue_is_rejected_with_other_type_labels(self) -> None:
+        for labels in ([], ["type: bug"], ["type: feature"], ["type: discussion"]):
+            with self.subTest(labels=labels):
+                problems = candidate_ops.candidate_type_problems([candidate(15233, labels=labels)])
+                self.assertEqual(len(problems), 1)
+                self.assertIn("no associated issue", problems[0])
