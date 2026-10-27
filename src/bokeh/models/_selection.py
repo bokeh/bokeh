@@ -27,7 +27,7 @@ import numpy as np
 
 # Bokeh imports
 from ..core.property.wrappers import PropertyValueList
-from ..core.serialization import Deserializer, Serializer
+from ..core.serialization import Deserializer, Serializable, Serializer
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -181,8 +181,8 @@ def encode(value: Any, serializer: Serializer, multiline: bool = False, adaptive
         value = {key: normalize(values) for key, values in sorted(value.items())}
     else:
         value = normalize(value)
-    if not serializer._deferred:
-        return serializer.encode(value)
+    if not serializer._deferred or not value:
+        return serializer.encode(dict(value) if multiline else list(value))
     if not multiline:
         meta, data = pack(value, adaptive)
         return dict(type="selection_indices_v1", **meta, data=serializer.encode(data))
@@ -231,3 +231,12 @@ def decode(rep: dict[str, Any], deserializer: Deserializer) -> list[int] | dict[
 
 for tag in ("selection_indices_v1", "selection_map_v1"):
     Deserializer.register(tag, decode)
+
+
+class SelectionPayload(Serializable):
+    def __init__(self, values: Any, *, multiline: bool = False) -> None:
+        self.values = values
+        self.multiline = multiline
+
+    def to_serializable(self, serializer: Serializer) -> Any:
+        return encode(self.values, serializer, multiline=self.multiline)

@@ -77,12 +77,12 @@ describe("Selection", () => {
         expect(selection[attr]).to.be.equal(value([1, 2, 9]))
         selection.setv({[attr]: value([2, 9, 1, 9])})
         expect(changes).to.be.equal(0)
-        apply(doc, new ModelChangedEvent(doc, selection, attr, value([9, 1, 2])))
+        apply(doc, selection._create_change_event(attr, value([9, 1, 2])))
         expect(changes).to.be.equal(0)
-        apply(doc, new ModelChangedEvent(doc, selection, attr, value(Array.from({length: 300}, (_, i) => i))))
+        apply(doc, selection._create_change_event(attr, value(Array.from({length: 300}, (_, i) => i))))
         expect(changes).to.be.equal(1)
         expect(selection[attr]).to.be.equal(value(Array.from({length: 300}, (_, i) => i)))
-        apply(doc, new ModelChangedEvent(doc, selection, attr, value([2147483647, 0])))
+        apply(doc, selection._create_change_event(attr, value([2147483647, 0])))
         expect(changes).to.be.equal(2)
         expect(selection[attr]).to.be.equal(value([0, 2147483647]))
       })
@@ -91,13 +91,40 @@ describe("Selection", () => {
         const selection = Selection.create()
         const doc = new Document()
         doc.add_root(selection)
-        const event = new ModelChangedEvent(doc, selection, attr, value([3, 1, 3]))
+        selection.setv({[attr]: value([3, 1, 3])})
+        const event = selection._create_change_event(attr, selection[attr])
         selection.setv({[attr]: value([99])})
         const frames = send(event)
         const {content, buffers} = Message.decode(frames[0] as string)
         const actual = new Deserializer(default_resolver).decode((content as {new: unknown}).new,
           new Map(buffers.map((id, i) => [id, frames[i + 1] as ArrayBuffer])))
         expect(actual).to.be.equal(value([1, 3]))
+      })
+    }
+
+    for (const attr of ["indices", "line_indices", "multiline_indices"] as const) {
+      it(`should keep captured ${attr} values ordinary after replacement`, () => {
+        const selection = Selection.create({[attr]: attr == "multiline_indices" ? new Map([[7, [3, 1, 3]]]) : [3, 1, 3]})
+        const captured = selection[attr]
+        selection.clear()
+        const restored = (decode(send({value: captured})) as {value: unknown}).value
+        expect(restored).to.be.equal(attr == "multiline_indices" ? new Map([[7, [1, 3]]]) : [1, 3])
+        const text = new Serializer({binary: false}).encode(captured)
+        expect(new Deserializer(default_resolver).decode(text)).to.be.equal(restored)
+      })
+
+      it(`should coerce ${attr} for silent and forced updates`, () => {
+        const selection = Selection.create()
+        let changes = 0
+        selection.properties[attr].change.connect(() => changes++)
+        const value = attr == "multiline_indices" ? new Map([[7, [3, 1, 3]]]) : [3, 1, 3]
+        const expected = attr == "multiline_indices" ? new Map([[7, [1, 3]]]) : [1, 3]
+        selection.setv({[attr]: value}, {silent: true})
+        expect(selection[attr]).to.be.equal(expected)
+        expect(changes).to.be.equal(0)
+        selection.setv({[attr]: value}, {check_eq: false})
+        expect(selection[attr]).to.be.equal(expected)
+        expect(changes).to.be.equal(1)
       })
     }
 
@@ -108,7 +135,7 @@ describe("Selection", () => {
       const selection = Selection.create({js_property_callbacks: {"change:indices": [callback]}})
       const doc = new Document()
       doc.add_root(selection)
-      apply(doc, new ModelChangedEvent(doc, selection, "indices", [3, 1, 3]))
+      apply(doc, selection._create_change_event("indices", [3, 1, 3]))
       await new Promise((resolve) => setTimeout(resolve, 0))
       expect(output.indices).to.be.equal([1, 3, 42])
     })
@@ -144,6 +171,82 @@ describe("Selection", () => {
         return json
       }
       expect(exported(2000).length < exported(1000).length*2.2).to.be.true
+    })
+
+    it("should reuse sorted arrays without altering caller-owned objects", () => {
+      const inputs = [[0, 2, 4], [0, 2, 4], [0, 2, 4]]
+      Object.freeze(inputs[1])
+      Object.preventExtensions(inputs[2])
+      for (const input of inputs) {
+        const keys = Reflect.ownKeys(input)
+        const selection = Selection.create({indices: input})
+        expect(selection.indices).to.be.identical(input)
+        expect(Object.getPrototypeOf(input)).to.be.identical(Array.prototype)
+        expect(Reflect.ownKeys(input)).to.be.equal(keys)
+        expect((decode(send(selection)) as Selection).indices).to.be.equal([0, 2, 4])
+        const doc = new Document()
+        doc.add_root(selection)
+        const restored = Document.from_json_string(doc.to_json_string(false)).roots()[0] as Selection
+        expect(restored.indices).to.be.equal([0, 2, 4])
+      }
+    })
+
+    it("should retain array identity and revalidate shared mutable input", () => {
+      const input = [0, 2, 4]
+      const first = Selection.create({indices: input})
+      const second = Selection.create({line_indices: input})
+      input[1] = 9
+      expect(first.indices).to.be.identical(input)
+      expect(second.line_indices).to.be.identical(input)
+      expect((decode(send(first)) as Selection).indices).to.be.equal([0, 4, 9])
+      expect((decode(send(second)) as Selection).line_indices).to.be.equal([0, 4, 9])
+      input[1] = -1
+      expect(() => send(first)).to.throw()
+    })
+
+    it("should scope binary transport to selection snapshots and events", () => {
+      const input = Array.from({length: 300}, (_, i) => i)
+      const selection = Selection.create({indices: input})
+      expect(selection.indices).to.be.identical(input)
+      const serializer = new Serializer({binary: true})
+      const rep = serializer.encode([input, selection, input]) as unknown[]
+      expect(rep[0]).to.be.equal(input)
+      expect(rep[2]).to.be.equal(input)
+      const decoded = (decode(send({values: [input, selection, input]})) as {values: [number[], Selection, number[]]}).values
+      expect(decoded[0]).to.be.equal(input)
+      expect(decoded[1].indices).to.be.equal(input)
+      expect(decoded[2]).to.be.equal(input)
+      input[1] = -1
+      expect(new Serializer({binary: true}).encode(input)).to.be.equal(input)
+      expect(() => send(selection)).to.throw()
+      selection.clear()
+      expect(new Serializer({binary: true}).encode(input)).to.be.equal(input)
+    })
+
+    it("should keep public change-event values as arrays", () => {
+      const selection = Selection.create()
+      const doc = new Document()
+      doc.add_root(selection)
+      const events: ModelChangedEvent[] = []
+      doc.on_change((event) => {
+        if (event instanceof ModelChangedEvent) {
+          events.push(event)
+        }
+      })
+      const input = [0, 2, 4]
+      selection.indices = input
+      expect(events.length).to.be.equal(1)
+      expect(events[0].value).to.be.identical(input)
+      expect((decode(send({selection, event: events[0]})) as {event: {new: number[]}}).event.new).to.be.equal(input)
+      expect(new Serializer({binary: true}).encode(events[0].value)).to.be.equal(input)
+    })
+
+    it("should keep derived arrays free of selection transport semantics", () => {
+      const selection = Selection.create({indices: [1, 3]})
+      for (const derived of [selection.indices.slice(), selection.indices.concat([3]), selection.indices.map((i) => -i)]) {
+        expect(Object.getPrototypeOf(derived)).to.be.identical(Array.prototype)
+        expect(new Serializer({binary: true}).encode(derived)).to.be.equal(derived)
+      }
     })
 
     it("should preserve input arrays and normalize defaults, typed ingestion and clear", () => {

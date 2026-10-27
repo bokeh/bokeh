@@ -16,6 +16,7 @@ import {isObject, isIterable, isPlainObject, isArray, isFunction, isPrimitive} f
 import type {Serializable, Serializer, ObjectRep, ObjectRefRep, AnyVal} from "./serialization"
 import {serialize} from "./serialization"
 import type {Document} from "../document/document"
+import type {CallbackPolicy} from "../model"
 import type {DocumentEvent} from "../document/events"
 import {DocumentEventBatch, ModelChangedEvent, ColumnsPatchedEvent, ColumnsStreamedEvent} from "../document/events"
 import type {Equatable} from "./util/eq"
@@ -381,6 +382,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   }
 
   [serialize](serializer: Serializer): ObjectRep | ObjectRefRep {
+    return this._to_serializable(serializer)
+  }
+
+  protected _to_serializable(serializer: Serializer, overrides: {[key: string]: unknown} = {}): ObjectRep | ObjectRefRep {
     const use_id = serializer.use_model_id(this)
     if (use_id) {
       serializer.add_ref(this, serializer.model_ref(this.ref()))
@@ -407,7 +412,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       })()
       if (prop.syncable && (serializer.include_defaults || prop.dirty || has_retained_ref) && !(prop.readonly && prop.is_unset)) {
         const value = prop.get_value()
-        attributes[prop.attr] = prop.serialize_value(value, serializer) as AnyVal
+        attributes[prop.attr] = serializer.encode(Object.hasOwn(overrides, prop.attr) ? overrides[prop.attr] : value) as AnyVal
       }
     }
 
@@ -613,8 +618,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     this._changing = true
 
     const cmp = new Comparator({no_fail: true})
-    for (const [prop, value] of changes) {
-      if (check_eq === false || prop.is_unset || !prop.is_equal(value, cmp)) {
+    for (const [prop, incoming] of changes) {
+      // Coerce once before equality so comparison and storage use the same value.
+      const value = prop.initialized && prop.kind.coerce != null ? prop.kind.coerce(incoming) : incoming
+      if (check_eq === false || prop.is_unset || !cmp.eq(prop.get_value(), value)) {
         prop.set_value(value)
         changed.add(prop)
       }
@@ -657,7 +664,8 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       this._clear_watchers()
 
       for (const [attr, value] of changes) {
-        this.properties[attr].set_value(value)
+        const prop = this.properties[attr]
+        prop.set_value(prop.initialized && prop.kind.coerce != null ? prop.kind.coerce(value) : value)
       }
 
       return
@@ -788,6 +796,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
+  _create_change_event(attr: string, value: unknown, callback_policy?: CallbackPolicy): ModelChangedEvent {
+    return new ModelChangedEvent(this.document!, this, attr, value, callback_policy)
+  }
+
   protected _push_changes(changes: [Property, unknown, unknown][], sync: boolean): void {
     if (!this.is_syncable) {
       return
@@ -801,7 +813,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     const events = []
     for (const [prop,, new_value] of changes) {
       if (prop.syncable) {
-        const event = new ModelChangedEvent(document, this, prop.attr, new_value)
+        const event = this._create_change_event(prop.attr, new_value)
         event.sync = sync
         events.push(event)
       }

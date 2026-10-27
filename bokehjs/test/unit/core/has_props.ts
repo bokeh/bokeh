@@ -1,6 +1,7 @@
 import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
 
 import {HasProps} from "@bokehjs/core/has_props"
+import {Kind} from "@bokehjs/core/kinds"
 import type {HasPropsFactory} from "@bokehjs/core/has_props"
 import * as mixins from "@bokehjs/core/property_mixins"
 import {Serializer} from "@bokehjs/core/serialization/serializer"
@@ -209,6 +210,43 @@ class CleanupFailureModel extends InitializeFailureModel {
 }
 
 describe("core/has_props module", () => {
+  it("should coerce once before comparison, including silent and forced updates", () => {
+    let coercions = 0
+    class Rounded extends Kind<number> {
+      override coerce(value: number): number {
+        coercions++
+        return Math.round(value)
+      }
+      valid(value: unknown): value is number {
+        return typeof value == "number" && Number.isInteger(value)
+      }
+      may_have_refs(): boolean {
+        return false
+      }
+    }
+    class RoundedModel extends HasProps {
+      declare properties: HasProps.Props & {rounded: p.Property<number>}
+      static {
+        this.define<{rounded: p.Property<number>}>({rounded: [new Rounded(), 0]})
+      }
+    }
+    const model = RoundedModel.create()
+    let changes = 0
+    model.properties.rounded.change.connect(() => changes++)
+    for (const [value, options, expected_changes] of [
+      [0.1, {}, 0],
+      [1.1, {}, 1],
+      [1.2, {}, 1],
+      [2.1, {silent: true}, 1],
+      [2.2, {check_eq: false}, 2],
+    ] as const) {
+      const previous = coercions
+      model.setv({rounded: value}, options)
+      expect(coercions).to.be.equal(previous + 1)
+      expect(model.properties.rounded.get_value()).to.be.equal(Math.round(value))
+      expect(changes).to.be.equal(expected_changes)
+    }
+  })
 
   describe("creation", () => {
 
