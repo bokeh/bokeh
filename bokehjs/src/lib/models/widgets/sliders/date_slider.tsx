@@ -6,15 +6,18 @@ import {isString} from "core/util/types"
 import {datetime} from "core/util/templating"
 
 export class DateSliderView extends NumericalSliderView {
-  declare model: DateSlider
+  declare readonly model: DateSlider
+  declare readonly signals: p.SignalsOf<DateSlider.Props>
+  declare readonly values: DateSlider.Attrs
 
-  override behaviour = "tap" as const
-  override connected = [true, false]
-
-  protected override _calc_to(): SliderSpec<number> {
-    const spec = super._calc_to()
-    spec.step *= 86_400_000
-    return spec
+  protected override _calc_spec(): SliderSpec<number> {
+    const spec = super._calc_spec()
+    const {step} = spec
+    if (step != null) {
+      return {...spec, step: step*86_400_000}
+    } else {
+      return spec
+    }
   }
 
   protected _formatter(value: number, format: string | TickFormatter): string {

@@ -288,6 +288,103 @@ supported by ``make.bat``). For example:
                 make.bat html
                 make.bat serve
 
+.. _contributor_guide_documentation_build_symlinks:
+
+Using symlinks to a local BokehJS build
+'''''''''''''''''''''''''''''''''''''''
+
+With ``BOKEH_DOCS_CDN=local``, the documentation uses BokehJS from
+``src/bokeh/server/static``, not from ``bokehjs/build``. Installing Bokeh in
+development mode (see :ref:`contributor_guide_setup`) copies the built BokehJS
+files there, so after rebuilding BokehJS you have to install Bokeh again for
+the documentation to pick up the changes. To copy an existing BokehJS build
+without rebuilding it, run from the root of the repository:
+
+.. code-block:: sh
+
+    BOKEHJS_ACTION=install python -m pip install --no-deps -e .
+
+Alternatively, you can replace the copied directories with symbolic links, so
+that the documentation always uses the most recent BokehJS build. Run the
+following commands from the root of the repository. The installation doesn't
+overwrite these directories if they are symbolic links:
+
+.. tab-set::
+
+    .. tab-item:: Linux/macOS
+        :sync: sh
+
+        .. code-block:: sh
+
+            rm -rf src/bokeh/server/static/js src/bokeh/server/static/lib
+            ln -s "$PWD/bokehjs/build/js" src/bokeh/server/static/js
+            ln -s "$PWD/bokehjs/node_modules/typescript/lib" src/bokeh/server/static/lib
+
+    .. tab-item:: Windows (PS)
+        :sync: ps
+
+        .. code-block:: powershell
+
+            Remove-Item -Recurse -Force src\bokeh\server\static\js, src\bokeh\server\static\lib
+            New-Item -ItemType SymbolicLink -Path src\bokeh\server\static\js -Target "$PWD\bokehjs\build\js"
+            New-Item -ItemType SymbolicLink -Path src\bokeh\server\static\lib -Target "$PWD\bokehjs\node_modules\typescript\lib"
+
+    .. tab-item:: Windows (CMD)
+        :sync: cmd
+
+        .. code-block:: doscon
+
+            rmdir /s /q src\bokeh\server\static\js src\bokeh\server\static\lib
+            mklink /D src\bokeh\server\static\js "%CD%\bokehjs\build\js"
+            mklink /D src\bokeh\server\static\lib "%CD%\bokehjs\node_modules\typescript\lib"
+
+Use absolute link targets, because the documentation build copies
+``src/bokeh/server/static`` (including the links) to the output directory. On
+Windows, creating symbolic links requires administrator privileges or
+Developer Mode.
+
+When using symbolic links, you also need to set the environment variable
+``NODE_OPTIONS`` to ``--preserve-symlinks-main`` when building the
+documentation. The documentation build uses Node.js to compile TypeScript in
+some of the examples, and by default Node.js resolves symbolic links, which
+puts the BokehJS compiler under ``bokehjs/``. ``bokehjs/package.json``
+declares ES modules, so Node.js would fail to run the compiler with
+``ReferenceError: require is not defined in ES module scope``:
+
+.. tab-set::
+
+    .. tab-item:: Linux/macOS
+        :sync: sh
+
+        .. code-block:: sh
+
+            NODE_OPTIONS=--preserve-symlinks-main BOKEH_DOCS_CDN=local make clean html serve
+
+    .. tab-item:: Windows (PS)
+        :sync: ps
+
+        .. code-block:: powershell
+
+            $Env:NODE_OPTIONS = "--preserve-symlinks-main"
+            $Env:BOKEH_DOCS_CDN = "local"
+            .\make.bat html
+            .\make.bat serve
+
+    .. tab-item:: Windows (CMD)
+        :sync: cmd
+
+        .. code-block:: doscon
+
+            set NODE_OPTIONS=--preserve-symlinks-main
+            set BOKEH_DOCS_CDN=local
+            make.bat html
+            make.bat serve
+
+.. _contributor_guide_documentation_build_parallel:
+
+Speeding up development using parallel builds
+'''''''''''''''''''''''''''''''''''''''''''''
+
 Sphinx can distribute reading and writing over several worker processes. To
 use all available CPUs for a clean local build, add the option
 ``SPHINXOPTS="-j auto"`` to your build command:
