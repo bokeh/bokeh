@@ -8,10 +8,22 @@
 
 # Bokeh imports
 from bokeh.layouts import column
-from bokeh.models import (BoxSelectTool, ColumnDataSource, CustomJS, Div,
-                          GraphDataSource, GraphRenderer, GraphSelectionPolicy,
-                          HoverTool, LabelSet, MultiLine, NormalHead, Scatter,
-                          StaticLayoutProvider, TapTool)
+from bokeh.models import (
+    BoxSelectTool,
+    ColumnDataSource,
+    CustomJS,
+    Div,
+    GraphDataSource,
+    GraphRenderer,
+    GraphSelectionPolicy,
+    HoverTool,
+    LabelSet,
+    MultiLine,
+    NormalHead,
+    Scatter,
+    StaticLayoutProvider,
+    TapTool,
+)
 from bokeh.plotting import figure, show
 
 NODES = list("ABCDEFGH")

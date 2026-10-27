@@ -7,9 +7,17 @@
 
 '''
 
-from bokeh.models import (ColumnDataSource, Ellipse, GraphDataSource,
-                          GraphRenderer, GraphSelectionPolicy, HoverTool,
-                          LabelSet, MultiLine, StaticLayoutProvider)
+from bokeh.models import (
+    ColumnDataSource,
+    Ellipse,
+    GraphDataSource,
+    GraphRenderer,
+    GraphSelectionPolicy,
+    HoverTool,
+    LabelSet,
+    MultiLine,
+    StaticLayoutProvider,
+)
 from bokeh.plotting import figure, show
 
 positions = {

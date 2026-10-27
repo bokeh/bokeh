@@ -7,8 +7,15 @@
 
 '''
 
-from bokeh.models import (ColumnDataSource, GraphDataSource, GraphRenderer,
-                          LabelSet, MultiLine, Scatter, StaticLayoutProvider)
+from bokeh.models import (
+    ColumnDataSource,
+    GraphDataSource,
+    GraphRenderer,
+    LabelSet,
+    MultiLine,
+    Scatter,
+    StaticLayoutProvider,
+)
 from bokeh.plotting import figure, show
 
 positions = {

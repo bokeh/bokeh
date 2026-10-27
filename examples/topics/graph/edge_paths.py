@@ -12,9 +12,14 @@ from collections.abc import Sequence
 
 # Bokeh imports
 from bokeh.layouts import gridplot
-from bokeh.models import (ArcEdgePathProvider, BezierEdgePathProvider,
-                          NormalHead, OrthogonalEdgePathProvider,
-                          StaticLayoutProvider, StraightEdgePathProvider)
+from bokeh.models import (
+    ArcEdgePathProvider,
+    BezierEdgePathProvider,
+    NormalHead,
+    OrthogonalEdgePathProvider,
+    StaticLayoutProvider,
+    StraightEdgePathProvider,
+)
 from bokeh.plotting import figure, show
 
 nodes = [

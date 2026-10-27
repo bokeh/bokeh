@@ -22,7 +22,6 @@ if TYPE_CHECKING:
     import pandas as pd
     from pandas.core.groupby import GroupBy
 
-from .._types import JSON
 from ..core.has_props import Setter
 from ..model.model import Model, _ModelInit
 from .callbacks import CustomJS

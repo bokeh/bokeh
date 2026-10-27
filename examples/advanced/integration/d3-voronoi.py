@@ -2,8 +2,14 @@ import numpy as np
 
 from bokeh.io import curdoc, show
 from bokeh.layouts import column
-from bokeh.models import (ColorBar, ColumnDataSource, CustomJS,
-                          GeometryDataSource, PointDrawTool, Slider)
+from bokeh.models import (
+    ColorBar,
+    ColumnDataSource,
+    CustomJS,
+    GeometryDataSource,
+    PointDrawTool,
+    Slider,
+)
 from bokeh.palettes import Sunset8
 from bokeh.plotting import figure
 from bokeh.transform import linear_cmap

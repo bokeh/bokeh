@@ -13,6 +13,8 @@ from __future__ import annotations
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+import pytest
+
 from bokeh.models import (
     ColumnDataSource,
     GeometryDataSource,
