@@ -283,8 +283,9 @@ export abstract class ColumnarDataSource extends DataSource {
 
   _row_to_csv(index: Index): string {
     const escape_characters = [",", '"', "\n", "\r"]
+    const raw_row_values = this.get_row(index)
     const row_values = this.columns().map(
-      (column) => this._csv_escaped_value(this.get_row(index)[column], escape_characters),
+      (column) => this._csv_escaped_value(raw_row_values[column], escape_characters),
     )
     return row_values.join()
   }
