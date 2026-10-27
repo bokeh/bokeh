@@ -17,6 +17,7 @@ import socket
 import ssl
 import subprocess
 import sys
+import sysconfig
 import tempfile
 from pathlib import Path
 from urllib.request import Request, urlopen
@@ -37,7 +38,7 @@ from tests.unit.bokeh.command.subcommands.test_serve import running_server
 
 
 def cli(tmp_path, *options):
-    executable = Path(sys.executable).with_name("bokeh.exe" if sys.platform == "win32" else "bokeh")
+    executable = Path(sysconfig.get_path("scripts")) / ("bokeh.exe" if sys.platform == "win32" else "bokeh")
     return subprocess.run([str(executable), "serve", *options], cwd=tmp_path, capture_output=True, text=True, timeout=30)
 
 

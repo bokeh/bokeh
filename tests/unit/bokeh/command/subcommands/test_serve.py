@@ -14,6 +14,7 @@ import os
 import re
 import subprocess
 import sys
+import sysconfig
 from pathlib import Path
 from queue import Empty, Queue
 from threading import Thread
@@ -52,7 +53,7 @@ sys.meta_path.insert(0, BlockTornado())
 """)
     env = dict(os.environ, PYTHONPATH=str(tmp_path) + os.pathsep + os.environ.get("PYTHONPATH", ""))
     env.pop("BOKEH_AUTH_MODULE", None)
-    executable = Path(sys.executable).with_name("bokeh.exe" if sys.platform == "win32" else "bokeh")
+    executable = Path(sysconfig.get_path("scripts")) / ("bokeh.exe" if sys.platform == "win32" else "bokeh")
     port_options = [] if "--unix-socket" in options else ["--port", "0"]
     proc = subprocess.Popen([str(executable), command, *port_options, *options],
                             cwd=tmp_path, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
@@ -206,7 +207,7 @@ def test_retired_auth_settings_are_not_silently_ignored(monkeypatch, variable):
 
 def test_console_imports_policy_from_working_directory(tmp_path):
     (tmp_path / "auth.py").write_text("from bokeh.server.auth import AuthPolicy\npolicy = AuthPolicy(lambda request: 'user')\n")
-    executable = Path(sys.executable).with_name("bokeh.exe" if sys.platform == "win32" else "bokeh")
+    executable = Path(sysconfig.get_path("scripts")) / ("bokeh.exe" if sys.platform == "win32" else "bokeh")
     env = dict(os.environ)
     env.pop("PYTHONPATH", None)
     proc = subprocess.run([str(executable), "serve", "--auth-policy", "auth:policy", "--keep-alive", "-1"],
@@ -243,7 +244,7 @@ def test_cli_exits_cleanly_on_sigterm(tmp_path):
 
 @pytest.mark.skipif(sys.platform == "win32", reason="Unix sockets")
 def test_long_unix_socket_path_fails_without_starting_lifespan(tmp_path):
-    executable = Path(sys.executable).with_name("bokeh")
+    executable = Path(sysconfig.get_path("scripts")) / "bokeh"
     path = str(tmp_path / ("x" * 200))
     proc = subprocess.run([str(executable), "serve", "--unix-socket", path],
                           capture_output=True, text=True, timeout=15)
