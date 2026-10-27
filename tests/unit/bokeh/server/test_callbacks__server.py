@@ -19,12 +19,11 @@ from concurrent.futures import ThreadPoolExecutor
 from itertools import repeat
 
 import pytest
-from tornado.ioloop import IOLoop
 
 from bokeh.util.serialization import make_id
 
 # Module under test
-from bokeh.util.tornado import _CallbackGroup # isort:skip
+from bokeh.util.asyncio import _CallbackGroup # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -47,14 +46,14 @@ def _make_invocation_counter(loop, stop_after=1):
 # error, which pytest otherwise won't do by default
 def run(loop):
     try:
-        loop.start()
+        loop.run_forever()
     except KeyboardInterrupt:
         print("Keyboard interrupt")
 
 class LoopAndGroup:
     def __init__(self, quit_after=None) -> None:
-        self.io_loop = IOLoop()
-        self.io_loop.make_current()
+        self.io_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.io_loop)
         self.group = _CallbackGroup(self.io_loop)
 
         if quit_after is not None:
@@ -66,11 +65,11 @@ class LoopAndGroup:
             run(self.io_loop)
         finally:
             # Finish cancelled periodic tasks before closing their owning loop.
-            tasks = asyncio.all_tasks(self.io_loop.asyncio_loop)
+            tasks = asyncio.all_tasks(self.io_loop)
             for task in tasks:
                 task.cancel()
             if tasks:
-                self.io_loop.run_sync(lambda: asyncio.gather(*tasks, return_exceptions=True))
+                self.io_loop.run_until_complete(asyncio.gather(*tasks, return_exceptions=True))
             self.io_loop.close()
 
     def __enter__(self):
@@ -170,11 +169,11 @@ class TestCallbackGroup:
                 count += 1
                 if count == 1 and delay:
                     # Make both timers due together, as can happen on a busy runner.
-                    ctx.io_loop.add_callback(time.sleep, 0.005)
+                    ctx.io_loop.call_soon(time.sleep, 0.005)
                 elif count == 2:
                     # Stopping the loop alone still runs other ready callbacks.
                     ctx.group.remove_all_callbacks()
-                    ctx.io_loop.add_callback(ctx.io_loop.stop)
+                    ctx.io_loop.call_soon(ctx.io_loop.stop)
 
             ctx.group.add_periodic_callback(callback=func, period_milliseconds=3, callback_id=make_id())
             ctx.group.add_periodic_callback(callback=func, period_milliseconds=2, callback_id=make_id())

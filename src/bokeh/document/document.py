@@ -478,7 +478,7 @@ class Document:
             model (Model) :
                 The model to add as a root of this document.
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
@@ -528,7 +528,7 @@ class Document:
             patch_json (JSON-data) :
                 The JSON-object containing the patch to apply.
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
@@ -803,7 +803,7 @@ side of a communications channel while it was being removed on the other end.\
             model (Model) :
                 The model to add as a root of this document.
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 

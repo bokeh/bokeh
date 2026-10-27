@@ -370,8 +370,8 @@ async def test_cookie_header_is_removed_case_insensitively_from_token() -> None:
         session = await core.create_session(core.applications["/"], request)
         payload = get_token_payload(session.token)
 
-        assert payload["cookies"] == {"public": "visible"}
-        assert payload["headers"] == {"x-test": "visible"}
+        assert payload["cookies"] == {}
+        assert payload["headers"] == {}
     finally:
         await core.stop()
 
@@ -395,3 +395,103 @@ async def test_create_session_rejects_invalid_header_token_payload(monkeypatch: 
             await core.create_session(core.applications["/"], request)
     finally:
         await core.stop()
+
+
+@pytest.mark.parametrize("include_headers", [None, ["Authorization", "Cookie", "Proxy-Authorization", "x-test"]])
+async def test_credentials_are_not_copied_into_session_tokens(include_headers) -> None:
+    core = BokehServerCore(Application(), include_headers=include_headers)
+    request = ServerRequest(
+        method="GET", uri="/", path="/",
+        headers=Headers({"Authorization": "Bearer secret", "Cookie": "session=secret",
+                         "Proxy-Authorization": "Basic secret", "x-test": "visible"}),
+        cookies={"session": Cookie("secret")},
+    )
+    await core.start()
+    try:
+        session = await core.create_session(core.applications["/"], request)
+        payload = get_token_payload(session.token)
+        assert payload["headers"] == {}
+        assert payload["cookies"] == {}
+        assert request.cookies["session"].value == "secret"
+    finally:
+        await core.stop()
+
+
+
+@pytest.mark.parametrize('headers, cookies, expected', [
+    ({}, {}, {}),
+    ({}, {'theme': 'dark'}, {'Cookie': 'theme=dark'}),
+    ({'cookie': 'theme=forged'}, {'theme': 'dark'}, {'Cookie': 'theme=dark'}),
+])
+async def test_cookie_header_reconstruction(headers, cookies, expected):
+    core = BokehServerCore(Application())
+    request = ServerRequest(method='GET', uri='/', path='/', headers=Headers({}),
+                            cookies={name: Cookie(value) for name, value in cookies.items()})
+    token = generate_jwt_token('cookie-test', extra_payload={
+        'headers': headers, 'cookies': {'forged': 'must-not-become-request-data'},
+    })
+    await core.start()
+    try:
+        session = await core.applications['/'].create_session_if_needed('cookie-test', request, token)
+        assert session.document.session_context.request.headers == expected
+        assert session.document.session_context.request.cookies == cookies
+    finally:
+        await core.stop()
+
+
+async def test_statistics_and_memory_logging_are_periodic_and_stop(monkeypatch, caplog):
+    import logging
+    import sys
+    from types import SimpleNamespace
+
+    fired = asyncio.Event()
+    calls = []
+
+    def memory_info():
+        calls.append(threading.get_ident())
+        return SimpleNamespace(rss=2 * 2**20, vms=8 * 2**20)
+
+    process = SimpleNamespace(pid=123, memory_info=memory_info)
+    monkeypatch.setitem(sys.modules, "psutil", SimpleNamespace(Process=lambda: process))
+    monkeypatch.setattr("bokeh.server.core.gc.get_objects", lambda: [])
+    caplog.set_level(logging.DEBUG, logger="bokeh.server.core")
+    core = BokehServerCore(Application(), stats_log_frequency_milliseconds=1, mem_log_frequency_milliseconds=1)
+    original = core._log_mem
+
+    async def logged():
+        await original()
+        fired.set()
+
+    monkeypatch.setattr(core, "_log_mem", logged)
+    try:
+        await core.start()
+        await asyncio.wait_for(fired.wait(), timeout=2)
+    finally:
+        await core.stop()
+    assert "0 clients connected" in caplog.text
+    assert "2.00 MB (RSS), 8.00 MB (VMS)" in caplog.text
+    assert "uncollected Documents: 0" in caplog.text
+    assert all(identifier != threading.get_ident() for identifier in calls)
+    fired.clear()
+    with pytest.raises(TimeoutError):
+        await asyncio.wait_for(fired.wait(), timeout=0.03)
+
+
+async def test_memory_logging_is_optional_and_disabled_without_psutil(monkeypatch, caplog):
+    import sys
+
+    monkeypatch.setitem(sys.modules, "psutil", None)
+    core = BokehServerCore(Application())
+    await core.start()
+    await core.stop()
+    assert "requires psutil" not in caplog.text
+    core = BokehServerCore(Application(), mem_log_frequency_milliseconds=1)
+    await core.start()
+    await core.stop()
+    assert "Memory logging requires psutil" in caplog.text
+
+
+@pytest.mark.parametrize("options", [dict(stats_log_frequency_milliseconds=0), dict(mem_log_frequency_milliseconds=-1)])
+def test_invalid_diagnostic_intervals(options):
+    with pytest.raises(ValueError):
+        BokehServerCore(Application(), **options)

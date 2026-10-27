@@ -9,11 +9,11 @@
 from __future__ import annotations
 
 import asyncio
+import gc
 import logging
 from collections.abc import (
     Awaitable,
     Callable,
-    Iterable,
     Mapping,
     Sequence,
 )
@@ -54,6 +54,7 @@ log = logging.getLogger(__name__)
 
 DEFAULT_CHECK_UNUSED_MS = 17_000
 DEFAULT_STATS_LOG_FREQ_MS = 15_000
+DEFAULT_MEM_LOG_FREQ_MS = 0
 DEFAULT_UNUSED_LIFETIME_MS = 15_000
 DEFAULT_SESSION_TOKEN_EXPIRATION = 300
 DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES = 20*1024*1024
@@ -83,14 +84,6 @@ class SessionConfig(TypingProtocol):
     def generate_session_ids(self) -> bool: ...
     @property
     def session_token_expiration(self) -> int: ...
-    @property
-    def include_headers(self) -> list[str] | None: ...
-    @property
-    def exclude_headers(self) -> list[str] | None: ...
-    @property
-    def include_cookies(self) -> list[str] | None: ...
-    @property
-    def exclude_cookies(self) -> list[str] | None: ...
 
 
 async def create_session(config: SessionConfig, context: ApplicationContext, request: RequestLike) -> ServerSession:
@@ -122,16 +115,9 @@ async def create_session(config: SessionConfig, context: ApplicationContext, req
         session_id = generate_session_id(secret_key=config.secret_key, signed=config.sign_sessions)
 
     if token is None:
-        headers = _filtered_headers(config, request)
-        cookies = _filtered_cookies(config, request)
-        included_headers = {name.lower() for name in config.include_headers or ()}
-        if "cookie" not in included_headers:
-            for name in list(headers):
-                if name.lower() == "cookie":
-                    del headers[name]
         payload: dict[str, Any] = {
-            "headers": headers,
-            "cookies": cookies,
+            "headers": {},
+            "cookies": {},
             "arguments": dict(request.arguments),
         }
         payload.update(await context.application.process_request_async(request))
@@ -159,28 +145,13 @@ def _argument(request: RequestLike, name: str) -> str | None:
     return values[-1].decode("utf-8")
 
 
-def _filtered_headers(config: SessionConfig, request: RequestLike) -> dict[str, str]:
-    allowed: Iterable[str]
-    if config.include_headers is None:
-        excluded = {name.lower() for name in config.exclude_headers or ()}
-        allowed = (name for name in request.headers if name.lower() not in excluded)
-    else:
-        allowed = config.include_headers
-    return {name: request.headers[name] for name in allowed if name in request.headers}
-
-
-def _filtered_cookies(config: SessionConfig, request: RequestLike) -> dict[str, str]:
-    allowed: Iterable[str]
-    if config.include_cookies is None:
-        excluded = set(config.exclude_cookies or ())
-        allowed = (name for name in request.cookies if name not in excluded)
-    else:
-        allowed = config.include_cookies
-    return {name: request.cookies[name].value for name in allowed if name in request.cookies}
-
-
 class BokehServerCore(SessionConfig):
-    ''' Transport-independent Bokeh application, session, and connection state. '''
+    ''' Transport-independent Bokeh application, session, and connection state.
+
+    Session request cookies come from the real initiating request and remain
+    server-side. Cookie inclusion and exclusion lists filter that context only.
+    Headers and cookies are never copied automatically into generated tokens.
+    '''
 
     def __init__(
         self,
@@ -195,6 +166,7 @@ class BokehServerCore(SessionConfig):
         check_unused_sessions_milliseconds: int = DEFAULT_CHECK_UNUSED_MS,
         unused_session_lifetime_milliseconds: int = DEFAULT_UNUSED_LIFETIME_MS,
         stats_log_frequency_milliseconds: int = DEFAULT_STATS_LOG_FREQ_MS,
+        mem_log_frequency_milliseconds: int = DEFAULT_MEM_LOG_FREQ_MS,
         include_headers: list[str] | None = None,
         include_cookies: list[str] | None = None,
         exclude_headers: list[str] | None = None,
@@ -241,6 +213,18 @@ class BokehServerCore(SessionConfig):
             raise ValueError("unused_session_lifetime_milliseconds must be > 0")
         if stats_log_frequency_milliseconds <= 0:
             raise ValueError("stats_log_frequency_milliseconds must be > 0")
+        if mem_log_frequency_milliseconds < 0:
+            raise ValueError("mem_log_frequency_milliseconds must be >= 0")
+        self._process: Any = None
+        if mem_log_frequency_milliseconds > 0:
+            try:
+                import psutil
+            except ImportError:
+                log.warning("Memory logging requires psutil, disabling memory logging")
+                mem_log_frequency_milliseconds = 0
+            else:
+                self._process = psutil.Process()
+        self._mem_log_frequency_milliseconds = mem_log_frequency_milliseconds
         if session_token_expiration <= 0:
             raise ValueError("session_token_expiration must be > 0")
         if exclude_cookies and include_cookies:
@@ -269,7 +253,9 @@ class BokehServerCore(SessionConfig):
             app_logout_url = logout_url
             if app_logout_url is not None:
                 app_logout_url = urljoin(self._prefix + "/", app_logout_url.lstrip("/"))
-            self._applications[url] = ApplicationContext(app, url=url, logout_url=app_logout_url)
+            self._applications[url] = ApplicationContext(app, url=url, logout_url=app_logout_url,
+                include_cookies=include_cookies, exclude_cookies=exclude_cookies,
+                include_headers=include_headers, exclude_headers=exclude_headers)
 
         self._loop: asyncio.AbstractEventLoop | None = None
         self._clients: set[ServerConnection] = set()
@@ -347,6 +333,8 @@ class BokehServerCore(SessionConfig):
             _AsyncPeriodic(self._log_stats, self._stats_log_frequency_milliseconds, self._loop),
             _AsyncPeriodic(self._cleanup_sessions, self._check_unused_sessions_milliseconds, self._loop),
         ]
+        if self._mem_log_frequency_milliseconds > 0:
+            self._jobs.append(_AsyncPeriodic(self._log_mem, self._mem_log_frequency_milliseconds, self._loop))
         for job in self._jobs:
             job.start()
         for context in self._applications.values():
@@ -491,6 +479,24 @@ class BokehServerCore(SessionConfig):
     async def _cleanup_sessions(self) -> None:
         for context in self._applications.values():
             await context._cleanup_sessions(self._unused_session_lifetime_milliseconds)
+
+    async def _log_mem(self) -> None:
+        assert self._process is not None
+        memory = await asyncio.to_thread(self._process.memory_info)
+        log.info("[pid %d] Memory usage: %0.2f MB (RSS), %0.2f MB (VMS)",
+                 self._process.pid, memory.rss / 2**20, memory.vms / 2**20)
+        if log.isEnabledFor(logging.DEBUG):
+            def count_objects() -> list[tuple[str, int]]:
+                from ..document import Document
+                from ..model import Model
+                from .session import ServerSession
+
+                objects = gc.get_objects()
+                return [(name, sum(isinstance(obj, cls) for obj in objects))
+                        for name, cls in (("Documents", Document), ("Sessions", ServerSession), ("Models", Model))]
+
+            for name, count in await asyncio.to_thread(count_objects):
+                log.debug("  uncollected %s: %d", name, count)
 
     def _log_stats(self) -> None:
         if log.isEnabledFor(logging.DEBUG):

@@ -94,18 +94,14 @@ global defaults
 If no value is obtained after searching all of these locations, then a
 RuntimeError will be raised.
 
-Usage with ``Server``
-~~~~~~~~~~~~~~~~~~~~~
+Usage with server applications
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``bokeh serve`` command applies relevant settings from this module
-automatically. When creating a :class:`~bokeh.server.server.Server`
-programmatically, use the :meth:`~bokeh.server.server.Server.from_settings`
-factory method to similarly relay relevant settings to the Server instance, as
-the primary ``Server`` constructor does not read from this module by default.
-
-Any values explicitly passed as keyword arguments to ``from_settings()`` will
-take precedence over settings values from environment variables or direct
-interaction with this module.
+automatically. Direct ASGI applications also use some settings, including
+``BOKEH_SIGN_SESSIONS``, ``BOKEH_SECRET_KEY`` and ``BOKEH_ALLOW_WS_ORIGIN``.
+Configure the application and ASGI host explicitly when predictable configuration
+is needed. CLI options are not forwarded to direct ASGI hosts.
 
 See :ref:`ug_server_library` for details.
 
@@ -618,13 +614,9 @@ class Settings:
     A comma-separated list of allowed websocket origins for Bokeh server applications.
     """)
 
-    auth_module = PrioritizedSetting[str | None]("auth_module", "BOKEH_AUTH_MODULE", default=None, help="""
-    A path to a Python modules that implements user authentication functions for
-    the Bokeh server.
-
-    .. warning::
-        The contents of this module will be executed!
-
+    auth_policy = PrioritizedSetting[str | None]("auth_policy", "BOKEH_AUTH_POLICY", default=None, help="""
+    An importable ``module:attribute`` referring to an AuthPolicy instance.
+    The module is executed when the server starts.
     """)
 
     browser = PrioritizedSetting[str | None]("browser", "BOKEH_BROWSER", default=None, dev_default="none", help="""
@@ -667,12 +659,6 @@ class Settings:
     * Level 0 will result in no compression.
 
     The default is level 2.
-    """)
-
-    cookie_secret = PrioritizedSetting[str | None]("cookie_secret", "BOKEH_COOKIE_SECRET", default=None, help="""
-    Configure the ``cookie_secret`` setting in Tornado. This value is required
-    if you use ``get_secure_cookie`` or ``set_secure_cookie``.  It should be a
-    long, random sequence of bytes
     """)
 
     docs_cdn = PrioritizedSetting[str | None]("docs_cdn", "BOKEH_DOCS_CDN", default=None, help="""
@@ -724,14 +710,12 @@ class Settings:
 
     ico_path: PrioritizedSetting[str] = PrioritizedSetting("ico_path", "BOKEH_ICO_PATH",
         default="default", dev_default="default-dev", convert=convert_ico_path, help="""
-    Configure the file path to a .ico file for the Bokeh server to use as a
-    favicon.ico file.
+    The path to a ``.ico`` file served at ``/favicon.ico`` by ``BokehASGI``
+    and ``bokeh serve``, under any configured URL prefix.
 
-    The value should be the full path to a .ico file, or one the following
-    special values:
-
-    - ``default`` to use the default project .ico file
-    - ``none`` to turn off favicon.ico support entirely
+    Use ``"default"`` for the Bokeh icon or ``"none"`` to disable it.
+    Development mode uses the development icon unless this setting is overridden.
+    The icon is loaded when the ASGI application is constructed.
 
     """)
 
@@ -866,17 +850,6 @@ class Settings:
     - ``errors``: exception raised on errors (but not on warnings)
     - ``all``: exception raised on both errors and warnings
 
-    """)
-
-    xsrf_cookies = PrioritizedSetting[bool]("xsrf_cookies", "BOKEH_XSRF_COOKIES", default=False, convert=convert_bool, help="""
-    Whether to enable Tornado XSRF cookie protection on the Bokeh server. This
-    is only applicable when also using an auth module or custom handlers. See
-
-    https://www.tornadoweb.org/en/stable/guide/security.html#cross-site-request-forgery-protection
-
-    for more information about XSRF protection in Tornado. All PUT, POST, and
-    DELETE handlers will need to be appropriately instrumented when this setting
-    is active.
     """)
 
     # Non-settings methods

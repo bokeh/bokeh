@@ -7,10 +7,7 @@
 
 from __future__ import annotations
 
-import importlib.util
-import sys
-from contextlib import nullcontext
-from pathlib import Path
+# Standard library imports
 from types import SimpleNamespace
 from typing import Any
 
@@ -38,27 +35,6 @@ def result_from_fragment(fragment: str) -> EmbedResult:
     return EmbedResult.from_json(scripts[-2].string)
 
 
-def test_existing_session_flask_example_renders_template(monkeypatch: pytest.MonkeyPatch) -> None:
-    pytest.importorskip("flask")
-    script = Path(__file__).parents[4] / "examples/output/apis/embed_server_existing_session/serve.py"
-    spec = importlib.util.spec_from_file_location("existing_session_example", script)
-    assert spec is not None and spec.loader is not None
-    module = importlib.util.module_from_spec(spec)
-    monkeypatch.setitem(sys.modules, spec.name, module)
-    spec.loader.exec_module(module)
-    document = Document()
-    document.add_root(figure())
-    session = SimpleNamespace(document=document, id="existing-session")
-    monkeypatch.setattr(module, "pull_session", lambda **kwargs: nullcontext(session))
-
-    response = module.app.test_client().get("/")
-
-    assert response.status_code == 200
-    html = response.get_data(as_text=True)
-    assert "Embedding a Bokeh Server With Flask" in html
-    assert result_from_fragment(html).source["session_id"] == "existing-session"
-
-
 def deprecated_server_document(*args: Any, **kwargs: Any) -> str:
     with pytest.warns(BokehDeprecationWarning, match=r"server_document\(\)"):
         return bes.server_document(*args, **kwargs)
@@ -71,7 +47,6 @@ def deprecated_server_session(*args: Any, **kwargs: Any) -> str:
 
 @pytest.fixture
 def test_plot():
-    from bokeh.plotting import figure
 
     plot = figure(name="selected")
     plot.scatter([1, 2], [2, 3])

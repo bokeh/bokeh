@@ -521,7 +521,7 @@ class ColumnDataSource(ColumnarDataSource):
             rollover (int, optional) : A maximum column size, above which data
                 from the start of the column begins to be discarded. If None,
                 then columns will continue to grow unbounded (default: None)
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
                 In the context of a Bokeh server application, incoming updates
@@ -710,7 +710,7 @@ class ColumnDataSource(ColumnarDataSource):
 
             dict(foo=[11, 12, 30], bar=[101, 200, 301])
 
-        For a more comprehensive example, see :bokeh-tree:`examples/server/app/patch_app.py`.
+        For a more comprehensive example, see :bokeh-tree:`examples/server/module_apps/updating_data/patch_data/app.py`.
 
         '''
         extra = set(patches.keys()) - set(self.data.keys())

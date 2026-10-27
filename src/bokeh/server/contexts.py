@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 
 import asyncio
 import weakref
+from collections.abc import Mapping
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -154,8 +155,14 @@ class ApplicationContext:
     _server_context: BokehServerContext
 
     def __init__(self, application: Application, io_loop: Loop | None = None,
-            url: str | None = None, logout_url: str | None = None, executor: _ServerExecutor | None = None):
+            url: str | None = None, logout_url: str | None = None, executor: _ServerExecutor | None = None,
+            *, include_cookies: list[str] | None = None, exclude_cookies: list[str] | None = None,
+            include_headers: list[str] | None = None, exclude_headers: list[str] | None = None):
         self._application = application
+        self._include_headers = None if include_headers is None else {name.lower() for name in include_headers}
+        self._exclude_headers = {name.lower() for name in exclude_headers or ()}
+        self._include_cookies = include_cookies
+        self._exclude_cookies = set(exclude_cookies or ())
         self._loop = io_loop
         self._executor = executor
         self._sessions = {}
@@ -278,18 +285,30 @@ class ApplicationContext:
                                               doc,
                                               logout_url=self._logout_url)
         if request is not None:
-            payload = get_token_payload(token) if token else {}
-            if ('cookies' in payload and 'headers' in payload
-                and 'Cookie' not in payload['headers']):
-                # Restore Cookie header from cookies dictionary
-                payload['headers']['Cookie'] = '; '.join([
-                    f'{k}={v}' for k, v in payload['cookies'].items()
-                ])
+            # Cookies describe the real request, never client-supplied token claims.
+            cookies = {
+                name: value if isinstance(value, str) else value.value
+                for name, value in request.cookies.items()
+                if (self._include_cookies is None or name in self._include_cookies)
+                and name not in self._exclude_cookies
+            }
+            # Header claims are token metadata, not the initiating request.
+            headers = {
+                name: value for name, value in request.headers.items()
+                if name.lower() != 'cookie'
+                and (self._include_headers is None or name.lower() in self._include_headers)
+                and name.lower() not in self._exclude_headers
+            }
+            cookie_header_allowed = (self._include_headers is None or 'cookie' in self._include_headers) \
+                and 'cookie' not in self._exclude_headers
+            if cookies and cookie_header_allowed:
+                headers['Cookie'] = '; '.join(f'{name}={value}' for name, value in cookies.items())
+            arguments = {name: list(values) for name, values in request.arguments.items()}
             # using private attr so users only have access to a read-only property
             session_context._request = _RequestProxy(request,
-                                                     arguments=payload.get('arguments'),
-                                                     cookies=payload.get('cookies'),
-                                                     headers=payload.get('headers'))
+                                                     arguments=arguments,
+                                                     cookies=cookies,
+                                                     headers=headers)
         session_context._token = token
 
         # expose the session context to the document
@@ -404,9 +423,9 @@ class _RequestProxy:
     def __init__(
         self,
         request: RequestLike,
-        arguments: dict[str, bytes | list[bytes]] | None = None,
+        arguments: Mapping[str, bytes | list[bytes]] | None = None,
         cookies: dict[str, str] | None = None,
-        headers: dict[str, str | list[str]] | None = None,
+        headers: Mapping[str, str | list[str]] | None = None,
     ) -> None:
         self._request = request
 
@@ -422,14 +441,14 @@ class _RequestProxy:
         if cookies is not None:
             self._cookies = cookies
         elif hasattr(request, 'cookies'):
-            # Django cookies are plain strings, tornado cookies are objects with a value
+            # Some request adapters supply strings, others supply cookie objects
             request_cookies = cast(dict[str, Any], request.cookies)
             self._cookies = {k: v if isinstance(v, str) else v.value for k, v in request_cookies.items()}
         else:
             self._cookies = {}
 
         if headers is not None:
-            self._headers = headers
+            self._headers = dict(headers)
         elif hasattr(request, 'headers'):
             self._headers = dict(request.headers)
         else:

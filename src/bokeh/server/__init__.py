@@ -27,7 +27,4 @@ possibilities immediately open up:
 purpose of the Bokeh Server.**
 
 Use :class:`~bokeh.server.asgi.BokehASGI` with an ASGI server or framework.
-The Tornado frontend remains available through :class:`~bokeh.server.server.Server` and
-:class:`~bokeh.server.tornado.BokehTornado`.
-
 '''

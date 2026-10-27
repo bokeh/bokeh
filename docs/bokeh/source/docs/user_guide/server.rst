@@ -1,28 +1,29 @@
 .. _ug_server:
 
-Bokeh server
-============
+Bokeh server applications
+=========================
 
-The Bokeh server is a component of Bokeh that allows you to build interactive
-web applications that are connected to Python code running on a server.
+Bokeh server applications connect browser interactions to Python callbacks.
+An application creates a document for each session. A host serves the pages,
+assets and WebSocket connections that keep those documents synchronized.
 
-:ref:`ug_server_introduction`
-
-:ref:`ug_server_apps`
-
-:ref:`ug_server_cli`
-
-:ref:`ug_server_library`
-
-:ref:`ug_server_deploy`
+Start with module apps for reusable Python code. Script apps offer a quick
+way to try an idea or run an existing application. Both forms support direct
+ASGI hosting. The ``bokeh serve`` command provides command-line hosting for
+script apps using ASGI internally. Neither hosting approach requires a web
+framework.
 
 .. toctree::
-    :hidden:
+    :maxdepth: 1
 
     server/server_introduction
-    server/app
-    server/cli
-    server/library
+    server/getting_started
+    server/module_apps
+    server/updating_data
+    server/lifecycle
+    server/script_apps
+    server/script_to_module
+    server/hosting
+    server/frameworks
     server/deploy
-
-.. _demo.bokeh.org: https://demo.bokeh.org
+    server/migration

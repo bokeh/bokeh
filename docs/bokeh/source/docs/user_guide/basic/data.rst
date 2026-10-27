@@ -264,7 +264,8 @@ grow unbounded.
 
     source.stream(new_data)
 
-For an example that uses streaming, see :bokeh-tree:`examples/server/app/ohlc`.
+For a full example, see
+:bokeh-tree:`examples/server/module_apps/updating_data/stream_data`.
 
 .. _ug_basic_data_cds_patching:
 
@@ -290,7 +291,8 @@ Examples of tuples that you can use with
 
     (slice, new_values) # replace several column values
 
-For a full example, see :bokeh-tree:`examples/server/app/patch_app.py`.
+For a full example, see
+:bokeh-tree:`examples/server/module_apps/updating_data/patch_data`.
 
 .. _ug_basic_data_transforming:
 

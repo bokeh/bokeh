@@ -9,7 +9,6 @@ from __future__ import annotations
 pytest_plugins = (
     "tests.support.plugins.examples_report",
     "tests.support.plugins.ipython",
-    "tests.support.plugins.managed_server_loop",
     "tests.support.plugins.networkx",
 )
 
@@ -163,14 +162,5 @@ def cdn_version_setting() -> Iterator[PrioritizedSetting[str | None]]:
 
 @pytest.fixture(scope="session")
 def base_url() -> None:
-    '''Session-scoped no-op override to prevent a fixture scope conflict.
-
-    ``pytest-base-url`` (pulled in by ``pytest-playwright``) ships a
-    session-scoped autouse ``_verify_url`` fixture that depends on
-    ``base_url``.  ``pytest-tornado`` also defines ``base_url`` but at
-    function scope.  When both plugins are installed, pytest raises
-    ``ScopeMismatch``.  This override short-circuits the resolution:
-    returning ``None`` causes ``_verify_url`` to skip its check, and no
-    Bokeh test actually consumes the ``base_url`` fixture.
-    '''
+    '''Disable automatic URL checks because tests start their own private hosts.'''
     return None

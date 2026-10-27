@@ -1,0 +1,57 @@
+"""Export selected table data as a CSV file."""
+
+from os.path import dirname, join
+from pathlib import Path
+
+import pandas as pd
+from jinja2 import Environment, FileSystemLoader
+
+from bokeh.layouts import column, row
+from bokeh.models import (
+    Button,
+    ColumnDataSource,
+    CustomJS,
+    DataTable,
+    NumberFormatter,
+    RangeSlider,
+    TableColumn,
+)
+from bokeh.server.asgi import BokehASGI
+
+
+def modify_document(doc):
+    doc.template = Environment(loader=FileSystemLoader(Path(__file__).parent / "templates"), autoescape=True).get_template("index.html")
+    df = pd.read_csv(join(dirname(__file__), 'salary_data.csv'))
+    source = ColumnDataSource(data=dict())
+
+    def update():
+        current = df[(df['salary'] >= slider.value[0]) & (df['salary'] <= slider.value[1])].dropna()
+        source.data = {
+            'name'             : current.name,
+            'salary'           : current.salary,
+            'years_experience' : current.years_experience,
+        }
+
+    slider = RangeSlider(title="Max Salary", start=10000, end=110000, value=(10000, 50000), step=1000, format="0,0")
+    slider.on_change('value', lambda attr, old, new: update())
+    button = Button(label="Download", button_type="success")
+    button.js_on_event(
+        "button_click",
+        CustomJS(
+            args=dict(source=source),
+            code=(Path(__file__).parent / "download.js").read_text("utf8"),
+        ),
+    )
+    columns = [
+        TableColumn(field="name", title="Employee Name"),
+        TableColumn(field="salary", title="Income", formatter=NumberFormatter(format="$0,0.00")),
+        TableColumn(field="years_experience", title="Experience (years)"),
+    ]
+    data_table = DataTable(source=source, columns=columns, width=800)
+    controls = column(slider, button)
+    doc.add_root(row(controls, data_table))
+    doc.title = "Export CSV"
+    update()
+
+
+app = BokehASGI(modify_document)

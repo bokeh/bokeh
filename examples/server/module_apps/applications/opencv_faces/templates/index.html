@@ -1,0 +1,56 @@
+{% from macros import embed %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <meta charset="utf-8">
+      <title>Face Detection</title>
+        <link rel="stylesheet" href="{{ static_url }}/css/base.css" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+        {{ bokeh_css | indent(8) | safe }}
+        {{ bokeh_js | indent(8) | safe }}
+  </head>
+  <body>
+    <nav class="navbar navbar-dark">
+      <a class="navbar-brand py-0" href="https://docs.bokeh.org/">
+        <img src="{{ static_url }}/images/bokeh_logo.svg" width="28" height="28" class="d-inline-block align-top" alt="">
+        Bokeh
+      </a>
+    </nav>
+    <div class="bg-dark">
+      <div id="container-fluid">
+        <div class="row">
+          <div class="col-lg-4">
+            <h3 class="m-2 text-light">
+              Face Detection with Bokeh and OpenCV
+            </h3>
+            <p class="mx-2 text-light">
+              This example detects faces in a live camera feed, draws a box around each one, and plots the number of faces seen over time.
+            </p>
+            <p class="mx-2 text-light">
+              Under the hood, OpenCV's Haar cascade scans each frame for contrast patterns. A Haar-like feature compares neighboring image regions:
+            </p>
+            <div class="mx-2 my-2">
+              {{ embed(roots.haar_feature) | indent(14) | safe }}
+            </div>
+            <p class="mx-2 text-light">
+              Here, <i>I(p)</i> is the intensity of pixel <i>p</i>, while <i>R</i><sub>+</sub> and <i>R</i><sub>&minus;</sub> are neighboring rectangles whose summed intensities are compared (see Wikipedia's overview of <a class="text-info" href="https://en.wikipedia.org/wiki/Haar-like_feature">Haar-like features</a>).
+            </p>
+            <p class="mx-2 text-light">
+              Integral images make these sums fast, while the cascade rejects unlikely windows early. Bokeh flips the surviving boxes from OpenCV's top-left origin into its bottom-left plot space and streams them with the RGBA frame.
+            </p>
+          </div>
+          <div class="col-lg-8">
+            <div class="my-2">
+              {{ embed(roots.image) | indent(10) | safe }}
+            </div>
+            <div class="my-2">
+              {{ embed(roots.ts) | indent(10) | safe }}
+            </div>
+          </div>
+        </div>
+      </div>
+    {{ plot_script | indent(8) | safe }}
+    </div>
+  </body>
+</html>

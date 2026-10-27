@@ -15,7 +15,7 @@ dependencies = [
     "packaging >=16.8",
     "pillow >=7.1.0",
     "pyyaml >=3.10",
-    "tornado >=6.2; sys_platform != 'emscripten'",
+    "uvicorn[standard] >=0.30; sys_platform != 'emscripten'",
     "xyzservices >=2021.09.1",
 ]
 authors = [
@@ -67,7 +67,6 @@ export = [
 ]
 notebook = [
     "anywidget >=0.11",
-    "uvicorn[standard] >=0.30; sys_platform != 'emscripten'",
 ]
 all = [
     "bokeh[sampledata,extra,export,notebook]",

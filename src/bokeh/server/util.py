@@ -61,8 +61,43 @@ def bind_sockets(address: str | None, port: int) -> tuple[list[socket], int]:
         (socket, port)
 
     '''
-    from .server import bind_sockets
-    return bind_sockets(address, port)
+    import errno
+    import os
+    import socket
+
+    listeners = []
+    seen = set()
+    try:
+        for family, socktype, protocol, _, endpoint in socket.getaddrinfo(
+                address, port, socket.AF_UNSPEC, socket.SOCK_STREAM, 0, socket.AI_PASSIVE):
+            if endpoint in seen:
+                continue
+            seen.add(endpoint)
+            try:
+                listener = socket.socket(family, socktype, protocol)
+            except OSError as error:
+                if error.errno == errno.EAFNOSUPPORT:
+                    continue
+                raise
+            listeners.append(listener)
+            if os.name != "nt":
+                listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            if family == socket.AF_INET6:
+                listener.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 1)
+            if len(listeners) > 1:
+                endpoint = (endpoint[0], port, *endpoint[2:])
+            listener.bind(endpoint)
+            port = listener.getsockname()[1]
+            listener.listen(socket.SOMAXCONN)
+            listener.setblocking(False)
+        if not listeners:
+            raise OSError("No supported listener addresses")
+        return listeners, port
+    except BaseException:
+        for listener in listeners:
+            listener.close()
+        raise
+
 
 def check_allowlist(host: str, allowlist: Sequence[str]) -> bool:
     ''' Check a given request host against a allowlist.

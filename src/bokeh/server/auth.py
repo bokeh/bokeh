@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import inspect
 from collections.abc import Awaitable, Callable
+from importlib import import_module
 from typing import Any
 
 from ..util.asyncio import _run_in_executor
@@ -17,6 +18,7 @@ from .request import ServerRequest
 
 __all__ = (
     'AuthPolicy',
+    'load_auth_policy',
 )
 
 type Authenticator = Callable[[ServerRequest], Any | None | Awaitable[Any | None]]
@@ -72,3 +74,18 @@ class AuthPolicy:
     def logout_url(self) -> str | None:
         ''' The logout URL exposed to authenticated Bokeh sessions. '''
         return self._logout_url
+
+
+def load_auth_policy(spec: str) -> AuthPolicy:
+    """Load an AuthPolicy instance from ``module:attribute``.
+
+    The module must be importable on Python's module search path. Import or
+    validation failures abort startup; authentication is never silently disabled.
+    """
+    module, separator, attribute = spec.partition(":")
+    if not separator or not module or not attribute or ":" in attribute:
+        raise ValueError("Authentication policy must have the form module:attribute")
+    policy = getattr(import_module(module), attribute)
+    if not isinstance(policy, AuthPolicy):
+        raise TypeError(f"{spec} must refer to an AuthPolicy instance")
+    return policy

@@ -17,19 +17,13 @@
   slow: ["clustering.py"]
 
 - path: "examples/output/apis/*"
-  skip: ["embed_page_template.py", "embed_page_template_themed.py", "iframe_embed", "embed_server_new_session", "embed_server_existing_session"]
+  skip: ["embed_page_template.py", "embed_page_template_themed.py", "embed_server_new_session"]
 
 - path: "examples/plotting/*"
 
-- path: "examples/server/app/*"
+- path: "examples/server/script_apps/*"
   type: server
-  skip: [
-    "faces",
-    "simple_hdf5",
-    "spectrogram", # Custom models not working in CI test harness
-    "stocks",      # Bokeh.index not available, can't compute bbox
-    "surface3d",   # Bokeh.index not available, can't compute bbox
-  ]
+  skip: ["authenticate_users", "track_stocks", "display_live_audio"]
 
 - path: "examples/styling/**"
 

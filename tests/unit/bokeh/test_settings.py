@@ -41,12 +41,11 @@ Test___all__ = verify_all(bs, ALL)
 
 _expected_settings = (
     'allowed_ws_origin',
-    'auth_module',
+    'auth_policy',
     'browser',
     'cdn_version',
     'chromedriver_path',
     'compression_level',
-    'cookie_secret',
     'default_server_host',
     'default_server_port',
     'docs_cdn',
@@ -70,7 +69,6 @@ _expected_settings = (
     'ssl_keyfile',
     'ssl_password',
     'validation_level',
-    'xsrf_cookies',
 )
 
 
@@ -94,7 +92,6 @@ class TestSettings:
         assert bs.settings.perform_document_validation.convert_type == "Bool"
         assert bs.settings.perform_error_diagnostics.convert_type == "Bool"
         assert bs.settings.simple_ids.convert_type == "Bool"
-        assert bs.settings.xsrf_cookies.convert_type == "Bool"
 
         assert bs.settings.default_server_port.convert_type == "Int"
 
@@ -119,7 +116,6 @@ class TestSettings:
             'py_log_level',
             'simple_ids',
             'validation_level',
-            'xsrf_cookies',
         }
         for name in default_typed:
             ps = getattr(bs.settings, name)
@@ -343,8 +339,8 @@ class TestDefaults:
     def test_allowed_ws_origin(self):
         assert bs.settings.allowed_ws_origin.default == []
 
-    def test_auth_module(self):
-        assert bs.settings.auth_module.default is None
+    def test_auth_policy(self):
+        assert bs.settings.auth_policy.default is None
 
     def test_browser(self):
         assert bs.settings.browser.default is None
@@ -357,9 +353,6 @@ class TestDefaults:
 
     def test_compression_level(self):
         assert bs.settings.compression_level.default == 2
-
-    def test_cookie_secret(self):
-        assert bs.settings.cookie_secret.default is None
 
     def test_docs_cdn(self):
         assert bs.settings.docs_cdn.default is None
@@ -423,15 +416,3 @@ class TestDefaults:
 
     def test_validation_level(self):
         assert bs.settings.validation_level.default == "none"
-
-    def test_xsrf_cookies(self):
-        assert bs.settings.xsrf_cookies.default is False
-
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------

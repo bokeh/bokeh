@@ -48,7 +48,7 @@ from bokeh.protocol.receiver import Receiver
 from bokeh.server.asgi import BokehASGI, _ASGIWebSocketTransport
 from bokeh.server.auth import AuthPolicy
 from bokeh.util.compiler import JavaScript
-from bokeh.util.token import generate_jwt_token, get_token_payload
+from bokeh.util.token import generate_jwt_token, generate_session_id, get_token_payload
 
 
 async def http_request(
@@ -106,7 +106,7 @@ def response_header(events: list[dict[str, Any]], name: bytes) -> bytes | None:
 
 
 def test_example_application_initializes(monkeypatch: pytest.MonkeyPatch) -> None:
-    path = Path(__file__).parents[4] / "examples/server/api/asgi/fourier_studio.py"
+    path = Path(__file__).parents[4] / "examples/server/module_apps/applications/fourier_studio/app.py"
     monkeypatch.syspath_prepend(str(path.parent))
     modify_document = runpy.run_path(str(path))["modify_document"]
     application = BokehASGI(modify_document).core.applications["/"].application
@@ -256,10 +256,10 @@ async def test_update_sessions_updates_each_document_with_its_lock() -> None:
 
 
 async def test_framework_free_example_routes_site_and_bokeh(monkeypatch: pytest.MonkeyPatch) -> None:
-    path = Path(__file__).parents[4] / "examples/server/api/asgi/framework_free.py"
+    path = Path(__file__).parents[4] / "examples/server/module_apps/hosting/embed_without_a_framework/server.py"
     monkeypatch.syspath_prepend(str(path.parent))
     namespace = runpy.run_path(str(path))
-    application = namespace["application"]
+    application = namespace["app"]
     bokeh_application = cast(BokehASGI, namespace["bokeh_application"])
 
     try:
@@ -325,7 +325,7 @@ async def test_framework_example_composes_bokeh_lifespan(monkeypatch: pytest.Mon
     monkeypatch.setitem(sys.modules, "starlette.responses", starlette_responses)
     monkeypatch.setitem(sys.modules, "starlette.routing", starlette_routing)
 
-    path = Path(__file__).parents[4] / f"examples/server/api/asgi/{framework}_embed.py"
+    path = Path(__file__).parents[4] / f"examples/server/module_apps/frameworks/embed_in_{framework}/server.py"
     monkeypatch.syspath_prepend(str(path.parent))
     namespace = runpy.run_path(str(path))
     application = cast(BokehASGI, namespace["bokeh_application"])
@@ -345,8 +345,8 @@ async def test_framework_example_composes_bokeh_lifespan(monkeypatch: pytest.Mon
 
 
 @pytest.mark.parametrize(("example", "ui"), [
-    ("streamlit_simple.py", "streamlit_simple_page.py"),
-    ("streamlit_particles/app.py", "ui.py"),
+    ("embed_in_streamlit/server.py", "page.py"),
+    ("control_particles_with_streamlit/server.py", "ui.py"),
 ])
 async def test_streamlit_example_composes_bokeh_lifespan(
     monkeypatch: pytest.MonkeyPatch,
@@ -372,7 +372,7 @@ async def test_streamlit_example_composes_bokeh_lifespan(
     monkeypatch.setitem(sys.modules, "streamlit", streamlit)
     monkeypatch.setitem(sys.modules, "starlette.routing", starlette_routing)
 
-    examples_root = Path(__file__).parents[4] / "examples/server/api/asgi"
+    examples_root = Path(__file__).parents[4] / "examples/server/module_apps/frameworks"
     path = examples_root / example
     monkeypatch.syspath_prepend(str(examples_root))
     namespace = runpy.run_path(str(path))
@@ -393,7 +393,7 @@ async def test_streamlit_example_composes_bokeh_lifespan(
 
 
 def test_streamlit_example_state_is_isolated_by_viewer(monkeypatch: pytest.MonkeyPatch) -> None:
-    path = Path(__file__).parents[4] / "examples/server/api/asgi/streamlit_particles/state.py"
+    path = Path(__file__).parents[4] / "examples/server/module_apps/frameworks/control_particles_with_streamlit/state.py"
     monkeypatch.syspath_prepend(str(path.parent.parent))
     namespace = runpy.run_path(str(path))
     registry = namespace["ViewerRegistry"]()
@@ -441,7 +441,7 @@ def test_streamlit_example_state_is_isolated_by_viewer(monkeypatch: pytest.Monke
 def test_streamlit_particle_app_uses_client_side_mode_kernels(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    path = Path(__file__).parents[4] / "examples/server/api/asgi/streamlit_particles/simulation.py"
+    path = Path(__file__).parents[4] / "examples/server/module_apps/frameworks/control_particles_with_streamlit/simulation.py"
     javascript_root = path.with_name("js")
     monkeypatch.syspath_prepend(str(path.parent.parent))
     modify_document = runpy.run_path(str(path))["modify_document"]
@@ -503,7 +503,9 @@ def test_streamlit_particle_app_uses_client_side_mode_kernels(
         "wave",
     }
 
-    from streamlit_particles.state import viewer_states
+    from examples.server.module_apps.frameworks.control_particles_with_streamlit.state import (
+        viewer_states,
+    )
 
     viewer_state = viewer_states.for_viewer("standalone-bokeh-session")
     current = viewer_state.read()
@@ -997,7 +999,7 @@ async def test_embed_bootstrap_extension_paths_preserve_proxy_prefix(
         await app.core.stop()
 
 
-async def test_root_application_static_files_stream_and_head_only_stats(tmp_path: Path) -> None:
+async def test_root_application_static_files_stream_and_head_has_no_body(tmp_path: Path) -> None:
     content = b"a" * (64*1024 + 1)
     (tmp_path / "artifact.bin").write_bytes(content)
     (tmp_path / "js").mkdir()
@@ -1206,15 +1208,21 @@ async def test_embed_authentication_failure_has_cors_and_security_headers() -> N
         await app.core.stop()
 
 
-async def test_auth_policy_leaves_static_assets_and_preflight_public() -> None:
+async def test_auth_policy_leaves_static_assets_and_preflight_public(tmp_path: Path) -> None:
     authenticated: list[str] = []
 
     def authenticate(request) -> None:
         authenticated.append(request.path)
         return None
 
-    app = BokehASGI(Application(), auth_policy=AuthPolicy(authenticate))
+    application = Application()
+    (tmp_path / "data.txt").write_text("public application asset")
+    app = BokehASGI(application, auth_policy=AuthPolicy(authenticate))
+    application._static_path = str(tmp_path)
     try:
+        asset = await http_request(app, "/static/data.txt")
+        assert response_status(asset) == 200
+        assert response_body(asset) == b"public application asset"
         static = await http_request(app, "/static/js/bokeh.min.js")
         preflight = await http_request(app, "/embed.json", method="OPTIONS")
 
@@ -1846,3 +1854,324 @@ async def test_websocket_disconnect_after_core_stop_does_not_reuse_detached_sess
     assert not app.core._clients
     await incoming.put({"type": "websocket.disconnect", "code": 1001})
     await asyncio.wait_for(task, 1)
+
+
+@pytest.mark.parametrize('example, asset', [('dashboard', 'css/custom.css'), ('opencv_faces', 'css/base.css')])
+@pytest.mark.parametrize('scope_includes_mount', [False, True])
+async def test_example_static_urls_include_mount_and_application_path(example, asset, scope_includes_mount):
+    import importlib
+
+    pytest.importorskip('bokeh_sampledata')
+    if example == 'opencv_faces':
+        cv2 = pytest.importorskip('cv2')
+        if not hasattr(cv2, 'CascadeClassifier'):
+            pytest.skip('requires OpenCV 4 object detection')
+    module = importlib.import_module(f'examples.server.module_apps.applications.{example}.server')
+    application = module.app.core.applications['/'].application
+    app = BokehASGI({'/example': application}, prefix='/prefix')
+    path = '/prefix/example'
+    if scope_includes_mount:
+        path = '/mount' + path
+    try:
+        page = await http_request(app, path, root_path='/mount')
+        assert response_status(page) == 200
+        url = f'/mount/prefix/example/static/{asset}'
+        assert f'href="{url}"'.encode() in response_body(page)
+        response = await http_request(app, url, root_path='/mount')
+        assert response_status(response) == 200
+    finally:
+        await app.core.stop()
+
+
+@pytest.mark.parametrize('mode', ['unsigned', 'signed', 'external-signed'])
+@pytest.mark.parametrize('bootstrap', ['/', '/embed.json', 'websocket'])
+@pytest.mark.parametrize('cookie_options, expected', [
+    ({}, {'session': 'http-only-secret', 'theme': 'dark'}),
+    ({'include_cookies': ['theme']}, {'theme': 'dark'}),
+    ({'exclude_cookies': ['session']}, {'theme': 'dark'}),
+    ({'include_cookies': []}, {}),
+])
+async def test_request_cookies_survive_bootstrap_and_reconnect(mode, bootstrap, cookie_options, expected):
+    secret = b'cookie-context-test-signing-secret'
+    signed = mode != 'unsigned'
+    app = BokehASGI(Application(), sign_sessions=signed, secret_key=secret,
+                   generate_session_ids=mode != 'external-signed', **cookie_options)
+    session_id = generate_session_id(secret_key=secret, signed=signed)
+    initial_cookies = b'session=http-only-secret; theme=dark'
+
+    async def websocket(token, cookie):
+        events = deque([{'type': 'websocket.connect'}, {'type': 'websocket.disconnect', 'code': 1000}])
+        sent = []
+
+        async def receive():
+            return events.popleft()
+
+        async def send(event):
+            sent.append(event)
+
+        await app({'type': 'websocket', 'asgi': {'version': '3.0'}, 'scheme': 'ws',
+                   'path': '/ws', 'root_path': '', 'query_string': b'',
+                   'headers': [(b'host', b'localhost'), (b'cookie', cookie)],
+                   'subprotocols': ['bokeh', token]}, receive, send)
+        assert sent[0]['type'] == 'websocket.accept'
+        assert any(event['type'] == 'websocket.send' for event in sent)
+
+    try:
+        if bootstrap == 'websocket':
+            token = generate_jwt_token(session_id, secret_key=secret, signed=signed,
+                                       extra_payload={'cookies': {'forged': 'untrusted'}})
+            await websocket(token, initial_cookies)
+        else:
+            response = await http_request(app, bootstrap, headers=[
+                (b'Cookie', initial_cookies), (b'Bokeh-Session-Id', session_id.encode()),
+            ])
+            assert response_status(response) == 200
+            token = app.core.get_sessions('/')[0].token
+        session = app.core.get_sessions('/')[0]
+        context = session.document.session_context
+        assert context.request.cookies == expected
+        assert context.request.headers.get('Cookie') == ('; '.join(f'{k}={v}' for k, v in expected.items()) or None)
+        if bootstrap != 'websocket':
+            payload = get_token_payload(token)
+            assert payload['cookies'] == {}
+            assert not any(name.lower() == 'cookie' for name in payload['headers'])
+        await websocket(token, b'session=different-user; theme=light')
+        assert app.core.get_sessions('/')[0] is session
+        assert context.request.cookies == expected
+    finally:
+        await app.core.stop()
+
+
+@pytest.mark.parametrize('bootstrap', ['http', 'websocket', 'external-signed'])
+@pytest.mark.parametrize('header_options, expected', [
+    ({}, {'authorization': 'Bearer real', 'proxy-authorization': 'Basic real', 'x-test': 'real', 'cookie': 'sid=secret'}),
+    ({'include_headers': ['AUTHORIZATION']}, {'authorization': 'Bearer real'}),
+    ({'exclude_headers': ['Authorization', 'Cookie']}, {'proxy-authorization': 'Basic real', 'x-test': 'real'}),
+    ({'include_headers': ['Cookie']}, {'cookie': 'sid=secret'}),
+    ({'include_headers': []}, {}),
+])
+async def test_session_headers_use_real_request_for_every_bootstrap(bootstrap, header_options, expected):
+    secret = b'header-context-signing-secret'
+    external = bootstrap == 'external-signed'
+    app = BokehASGI(Application(), sign_sessions=external, secret_key=secret,
+                   generate_session_ids=not external,
+                   auth_policy=AuthPolicy(lambda request: 'user' if request.headers.get('Authorization') == 'Bearer real' else None),
+                   **header_options)
+    session_id = generate_session_id(secret_key=secret, signed=external)
+    headers = [(b'authorization', b'Bearer real'), (b'proxy-authorization', b'Basic real'),
+               (b'x-test', b'real'), (b'cookie', b'sid=secret')]
+    try:
+        if bootstrap == 'http':
+            response = await http_request(app, '/embed.json', headers=[*headers, (b'bokeh-session-id', session_id.encode())])
+            assert response_status(response) == 200
+            token = app.core.get_sessions('/')[0].token
+            payload = get_token_payload(token)
+            assert payload['cookies'] == {}
+            assert not any(name.lower() in ('authorization', 'proxy-authorization', 'cookie') for name in payload['headers'])
+        else:
+            token = generate_jwt_token(session_id, secret_key=secret, signed=external,
+                                       extra_payload={'headers': {'Authorization': 'Bearer forged', 'X-Test': 'forged'}})
+            events = deque([{'type': 'websocket.connect'}, {'type': 'websocket.disconnect', 'code': 1000}])
+            sent = []
+
+            async def receive():
+                return events.popleft()
+
+            async def send(event):
+                sent.append(event)
+
+            await app({'type': 'websocket', 'asgi': {'version': '3.0'}, 'scheme': 'ws', 'path': '/ws',
+                       'root_path': '', 'query_string': b'', 'headers': [(b'host', b'localhost'), *headers],
+                       'subprotocols': ['bokeh', token]}, receive, send)
+            assert sent[0]['type'] == 'websocket.accept'
+        request = app.core.get_sessions('/')[0].document.session_context.request
+        actual = {name.lower(): value for name, value in request.headers.items()
+                  if name.lower() in ('authorization', 'proxy-authorization', 'x-test', 'cookie')}
+        assert actual == expected
+        assert request.user == 'user'
+        assert request.cookies == {'sid': 'secret'}
+    finally:
+        await app.core.stop()
+
+
+@pytest.mark.parametrize('mode', ['unsigned', 'signed', 'external-signed'])
+@pytest.mark.parametrize('bootstrap', ['/', '/embed.json', 'websocket'])
+async def test_session_arguments_use_real_request_and_keep_initial_snapshot(mode, bootstrap):
+    secret = b'argument-context-signing-secret'
+    signed = mode != 'unsigned'
+    app = BokehASGI(Application(), sign_sessions=signed, secret_key=secret,
+                   generate_session_ids=mode != 'external-signed')
+    session_id = generate_session_id(secret_key=secret, signed=signed)
+    token = generate_jwt_token(session_id, secret_key=secret, signed=signed,
+                               extra_payload={'arguments': {'admin': [b'1'], 'forged': [b'yes']}})
+
+    async def websocket(query):
+        events = deque([{'type': 'websocket.connect'}, {'type': 'websocket.disconnect', 'code': 1000}])
+        sent = []
+
+        async def receive():
+            return events.popleft()
+
+        async def send(event):
+            sent.append(event)
+
+        await app({'type': 'websocket', 'asgi': {'version': '3.0'}, 'scheme': 'ws', 'path': '/ws',
+                   'root_path': '', 'query_string': query, 'headers': [(b'host', b'localhost')],
+                   'subprotocols': ['bokeh', token]}, receive, send)
+        assert sent[0]['type'] == 'websocket.accept'
+
+    try:
+        if bootstrap == 'websocket':
+            await websocket(b'admin=0&tag=one&tag=two&empty=')
+        else:
+            # A supplied token is valid on document requests but embed.json needs a session ID.
+            if bootstrap == '/':
+                headers = [(b'Bokeh-Token', token.encode())]
+            else:
+                headers = [(b'Bokeh-Session-Id', session_id.encode())]
+            response = await http_request(app, bootstrap, query={'admin': '0', 'empty': ''}, headers=headers)
+            assert response_status(response) == 200
+            token = app.core.get_sessions('/')[0].token
+        session = app.core.get_sessions('/')[0]
+        expected = {'admin': [b'0'], 'empty': [b'']}
+        if bootstrap == 'websocket':
+            expected['tag'] = [b'one', b'two']
+        assert session.document.session_context.request.arguments == expected
+        await websocket(b'admin=2&forged=yes')
+        assert app.core.get_sessions('/')[0] is session
+        assert session.document.session_context.request.arguments == expected
+    finally:
+        await app.core.stop()
+
+
+@pytest.mark.parametrize(("value", "filename"), [("default", "bokeh.ico"), ("default-dev", "bokeh-dev.ico"), ("none", None)])
+async def test_favicon_builtin_icons_and_disabled(monkeypatch, value, filename):
+    from bokeh.util.paths import server_path
+
+    monkeypatch.setenv("BOKEH_ICO_PATH", value)
+    app = BokehASGI(Application())
+    try:
+        get = await http_request(app, "/favicon.ico")
+        head = await http_request(app, "/favicon.ico", method="HEAD")
+        assert response_body(head) == b""
+        if filename is None:
+            assert response_status(get) == response_status(head) == 404
+        else:
+            content = (server_path() / "views" / filename).read_bytes()
+            assert response_status(get) == response_status(head) == 200
+            assert response_body(get) == content
+            assert response_header(get, b"content-type") == b"image/x-icon"
+            assert response_header(get, b"content-length") == response_header(head, b"content-length") == str(len(content)).encode()
+    finally:
+        await app.core.stop()
+
+
+@pytest.mark.parametrize(("prefix", "root_path"), [("", ""), ("/tools", ""), ("/tools", "/gateway")])
+async def test_favicon_custom_env_path_respects_mount_and_prefix(tmp_path, monkeypatch, prefix, root_path):
+    path = tmp_path / "company.ico"
+    content = b"\x00\x00\x01\x00custom-favicon"
+    path.write_bytes(content)
+    monkeypatch.setenv("BOKEH_ICO_PATH", str(path))
+    app = BokehASGI(Application(), prefix=prefix)
+    # Like the previous host, cache the configured file at application construction.
+    path.unlink()
+    try:
+        url = root_path + prefix + "/favicon.ico"
+        get = await http_request(app, url, root_path=root_path)
+        head = await http_request(app, url, method="HEAD", root_path=root_path)
+        assert response_status(get) == response_status(head) == 200
+        assert response_body(get) == content
+        assert response_body(head) == b""
+        assert response_header(head, b"content-length") == str(len(content)).encode()
+        rejected = await http_request(app, url, method="POST", root_path=root_path)
+        assert response_status(rejected) == 405
+        assert response_header(rejected, b"allow") == b"GET, HEAD"
+        if prefix:
+            outside = await http_request(app, root_path + "/favicon.ico", root_path=root_path)
+            assert response_status(outside) == 404
+    finally:
+        await app.core.stop()
+
+
+async def test_favicon_uses_development_default(monkeypatch):
+    from bokeh.util.paths import server_path
+
+    monkeypatch.delenv("BOKEH_ICO_PATH", raising=False)
+    monkeypatch.setenv("BOKEH_DEV", "yes")
+    app = BokehASGI(Application())
+    try:
+        response = await http_request(app, "/favicon.ico")
+        assert response_status(response) == 200
+        assert response_body(response) == (server_path() / "views" / "bokeh-dev.ico").read_bytes()
+    finally:
+        await app.core.stop()
+
+
+async def test_custom_index_template_preserves_prefix_includes_and_head(tmp_path):
+    (tmp_path / "links.html").write_text('{% for item in items %}<a href="{{ prefix }}{{ item }}">{{ item }}</a>{% endfor %}')
+    template = tmp_path / "index.html"
+    template.write_text('<h1>Choose an app</h1>{% include "links.html" %}')
+    app = BokehASGI({"/one": Application(), "/two": Application()}, prefix="/tools", index=str(template))
+    try:
+        get = await http_request(app, "/gateway/tools/", root_path="/gateway")
+        head = await http_request(app, "/gateway/tools/", root_path="/gateway", method="HEAD")
+        assert response_status(get) == response_status(head) == 200
+        assert b'<a href="/gateway/tools/one">/one</a>' in response_body(get)
+        assert b'<a href="/gateway/tools/two">/two</a>' in response_body(get)
+        assert response_body(head) == b""
+        assert response_header(head, b"content-length") == str(len(response_body(get))).encode()
+    finally:
+        await app.core.stop()
+
+
+async def test_custom_index_preserves_auth_redirect_and_disable_behavior(tmp_path):
+    template = tmp_path / "index.html"
+    template.write_text("Private application index")
+    app = BokehASGI({"/one": Application()}, index=str(template), auth_policy=AuthPolicy(lambda request: None))
+    try:
+        assert response_status(await http_request(app, "/")) == 401
+    finally:
+        await app.core.stop()
+    app = BokehASGI({"/one": Application()}, index=str(template))
+    try:
+        response = await http_request(app, "/")
+        assert response_status(response) == 302
+        assert response_header(response, b"location") == b"/one"
+    finally:
+        await app.core.stop()
+    app = BokehASGI({"/one": Application()}, index=str(template), use_index=False)
+    try:
+        assert response_status(await http_request(app, "/")) == 404
+    finally:
+        await app.core.stop()
+
+
+@pytest.mark.parametrize('example', ['dashboard', 'opencv_faces'])
+async def test_example_templates_escape_values_and_preserve_bokeh_mounts(example, monkeypatch):
+    import importlib
+
+    from bokeh.embed._util import server_page_for_session
+
+    pytest.importorskip('bokeh_sampledata')
+    if example == 'opencv_faces':
+        cv2 = pytest.importorskip('cv2')
+        if not hasattr(cv2, 'CascadeClassifier'):
+            pytest.skip('requires OpenCV 4 object detection')
+    monkeypatch.delenv('BOKEH_EXAMPLE_CAMERA', raising=False)
+    module = importlib.import_module(f'examples.server.module_apps.applications.{example}.server')
+    app = module.app
+    await app.core.start()
+    try:
+        session = await app.core.applications['/'].create_session_if_needed('escaped')
+        document = session.document
+        document.template_variables['static_url'] = '"><img src=x onerror=alert(1)>'
+        page = server_page_for_session(
+            session, app.core.resources(), document.title,
+            template=document.template, template_variables=document.template_variables,
+        )
+        assert '&lt;img src=x onerror=alert(1)&gt;' in page
+        assert '<img src=x onerror=alert(1)>' not in page
+        assert '<div data-bokeh-document-target ' in page
+        assert '&lt;script' not in page
+    finally:
+        await app.core.stop()

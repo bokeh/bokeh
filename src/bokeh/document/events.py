@@ -189,7 +189,7 @@ class DocumentChangedEvent:
             document (Document) :
                 A Bokeh document that is to be updated.
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
@@ -343,7 +343,7 @@ class ModelChangedEvent(DocumentPatchedEvent, kind="ModelChanged"):
             new (object) :
                 The new value of the attribute
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
@@ -369,8 +369,7 @@ class ModelChangedEvent(DocumentPatchedEvent, kind="ModelChanged"):
         if not isinstance(event, ModelChangedEvent):
             return False
 
-        # If these are not true something weird is going on, maybe updates from
-        # Python bokeh.client, don't try to combine
+        # Do not combine events with different setters or documents.
         if self.setter != event.setter:
             return False
         if self.document != event.document:
@@ -442,7 +441,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent, kind="ColumnDataChanged"):
                 optional explicit list of column names to update. If None, all
                 columns will be updated (default: None)
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
@@ -546,7 +545,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent, kind="ColumnsStreamed"):
                 limit, earlier values will be discarded to maintain the
                 column length under the limit.
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
@@ -647,7 +646,7 @@ class ColumnsPatchedEvent(DocumentPatchedEvent, kind="ColumnsPatched"):
 
             patches (list) :
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
@@ -732,7 +731,7 @@ class TitleChangedEvent(DocumentPatchedEvent, kind="TitleChanged"):
             title (str) :
                 The new title to set on the Document
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
@@ -756,8 +755,7 @@ class TitleChangedEvent(DocumentPatchedEvent, kind="TitleChanged"):
         if not isinstance(event, TitleChangedEvent):
             return False
 
-        # If these are not true something weird is going on, maybe updates from
-        # Python bokeh.client, don't try to combine
+        # Do not combine events with different setters or documents.
         if self.setter != event.setter:
             return False
         if self.document != event.document:
@@ -814,7 +812,7 @@ class RootAddedEvent(DocumentPatchedEvent, kind="RootAdded"):
             model (Model) :
                 The Bokeh Model to add as a Document root.
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
@@ -878,7 +876,7 @@ class RootRemovedEvent(DocumentPatchedEvent, kind="RootRemoved"):
             model (Model) :
                 The Bokeh Model to remove as a Document root.
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 

@@ -22,7 +22,8 @@ from argparse import Namespace
 from bokeh.settings import settings
 from bokeh.util.logconfig import basicConfig
 
-from ...application import Application
+# Bokeh imports
+from ...server.asgi import BokehASGI
 from ..subcommand import Subcommand
 from ..util import report_server_init_errors
 from .serve import base_serve_args
@@ -67,35 +68,8 @@ class Static(Subcommand):
             log.info(f"Using override config file: {args.use_config}")
             settings.load_config(args.use_config)
 
-        # protect this import inside a function so that "bokeh info" can work
-        # even if Tornado is not installed
-        from bokeh.server.server import Server
+        from ...server.host import serve
 
-        applications: dict[str, Application] = {}
-
-        _allowed_keys = ['port', 'address']
-        server_kwargs = { key: getattr(args, key) for key in _allowed_keys if getattr(args, key, None) is not None }
-
-        with report_server_init_errors(**server_kwargs):
-            server = Server(applications, **server_kwargs)
-
-            address_string = ''
-            if server.address is not None and server.address != '':
-                address_string = ' address ' + server.address
-
-            log.info(f"Starting Bokeh static server at {server.port}{address_string}")
-            log.debug(f"Serving static files from: {settings.bokehjs_path()}")
-
-            server.run_until_shutdown()
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
+        application = BokehASGI({}, use_index=False)
+        with report_server_init_errors(address=args.address, port=args.port):
+            serve(application, address=args.address, port=args.port, unix_socket=args.unix_socket)

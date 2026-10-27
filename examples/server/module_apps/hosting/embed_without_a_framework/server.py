@@ -1,0 +1,65 @@
+from __future__ import annotations
+
+from collections.abc import Awaitable, Callable
+from pathlib import Path
+from typing import Any
+
+from jinja2 import Environment, FileSystemLoader
+
+from bokeh.embed import embed_server
+from bokeh.server.asgi import BokehASGI
+from examples.server.module_apps.applications.fourier_studio.app import modify_document
+
+type Message = dict[str, Any]
+type Receive = Callable[[], Awaitable[Message]]
+type Scope = dict[str, Any]
+type Send = Callable[[Message], Awaitable[None]]
+
+bokeh_application = BokehASGI(modify_document, prefix="/bkapp")
+template = Environment(loader=FileSystemLoader(Path(__file__).parent), autoescape=True).get_template("index.html")
+
+
+def render_page(root_path: str = "") -> bytes:
+    mount_url = f"{root_path.rstrip('/')}/bkapp"
+    result = embed_server(mount_url, relative_urls=True)
+    fragment = result.fragment(resources="server")
+    return template.render(framework="framework-free ASGI", embed_html=fragment.html).encode()
+
+
+async def response(send: Send, status: int, body: bytes, *, head: bool = False) -> None:
+    await send({
+        "type": "http.response.start",
+        "status": status,
+        "headers": [
+            (b"content-type", b"text/html; charset=utf-8"),
+            (b"content-length", str(len(body)).encode()),
+        ],
+    })
+    await send({"type": "http.response.body", "body": b"" if head else body})
+
+
+async def app(scope: Scope, receive: Receive, send: Send) -> None:
+    """Dispatch a small site and a mounted Bokeh app using only ASGI."""
+    scope_type = scope["type"]
+    path = scope.get("path", "")
+    root_path = scope.get("root_path", "").rstrip("/")
+    if root_path and (path == root_path or path.startswith(root_path + "/")):
+        path = path[len(root_path):] or "/"
+
+    if scope_type == "lifespan":
+        await bokeh_application(scope, receive, send)
+    elif scope_type in ("http", "websocket") and (
+        path == "/bkapp" or path.startswith("/bkapp/")
+    ):
+        await bokeh_application(scope, receive, send)
+    elif scope_type == "http":
+        method = scope["method"].upper()
+        if path == "/" and method in ("GET", "HEAD"):
+            page = render_page(scope.get("root_path", ""))
+            await response(send, 200, page, head=method == "HEAD")
+        else:
+            await response(send, 404, b"Not found", head=method == "HEAD")
+    elif scope_type == "websocket":
+        await send({"type": "websocket.close", "code": 1008, "reason": "Not found"})
+    else:
+        raise RuntimeError(f"Unsupported ASGI scope type {scope_type!r}")

@@ -156,3 +156,14 @@ def test_match_host() -> None:
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+
+def test_bind_sockets_default_binds_all_interfaces_on_same_port() -> None:
+    listeners, port = util.bind_sockets(None, 0)
+    try:
+        assert listeners
+        assert all(listener.getsockname()[0] in ("0.0.0.0", "::") for listener in listeners)
+        assert all(listener.getsockname()[1] == port for listener in listeners)
+    finally:
+        for listener in listeners:
+            listener.close()

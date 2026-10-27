@@ -15,12 +15,13 @@ import datetime as dt
 import html
 import json
 import logging
-import mimetypes
 import zlib
 from http.cookies import SimpleCookie
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 from urllib.parse import parse_qs, urlparse
+
+from jinja2 import Environment, FileSystemLoader, Template
 
 from .. import __version__
 from ..embed._util import server_page_for_session
@@ -42,6 +43,7 @@ from ..util.token import (
     get_token_payload,
 )
 from ._static import is_bokeh_js_path
+from ._static_http import StaticFiles
 from .auth import AuthPolicy
 from .core import BokehServerCore, SessionError
 from .request import Cookie, Headers, ServerRequest
@@ -135,12 +137,24 @@ class BokehASGI:
         *,
         prefix: str | None = None,
         redirect_root: bool = True,
+        use_index: bool = True,
         auth_policy: AuthPolicy | None = None,
+        index: str | None = None,
+        ico_path: str | None = None,
         **kwargs: Any,
     ) -> None:
         if auth_policy is not None and auth_policy.logout_url is not None:
             kwargs.setdefault("logout_url", auth_policy.logout_url)
+        ico_path = settings.ico_path(ico_path)
+        self._icon = None if ico_path == "none" else Path(ico_path).read_bytes()
         self._core = BokehServerCore(applications, prefix=prefix, **kwargs)
+        self._index: Template | None = None
+        if index is not None:
+            path = Path(index).resolve()
+            environment = Environment(loader=FileSystemLoader(path.parent), autoescape=True)
+            self._index = environment.get_template(path.name)
+        self._static_files = StaticFiles()
+        self._use_index = use_index
         self._redirect_root = redirect_root
         self._auth_policy = auth_policy
         self._start_lock: asyncio.Lock | None = None
@@ -213,6 +227,9 @@ class BokehASGI:
         if not route:
             await self._not_found(request, send)
             return
+        if route == "/favicon.ico":
+            await self._favicon(request, send)
+            return
         if route.startswith("/static/"):
             await self._global_static(route, request, send)
             return
@@ -237,6 +254,15 @@ class BokehASGI:
         else:
             await self._not_found(request, send)
 
+    async def _favicon(self, request: ServerRequest, send: Send) -> None:
+        method = request.method.upper()
+        if method not in ("GET", "HEAD"):
+            await self._method_not_allowed(send, ("GET", "HEAD"))
+        elif self._icon is None:
+            await self._not_found(request, send)
+        else:
+            await self._response(send, 200, self._icon, "image/x-icon", head=method == "HEAD")
+
     async def _global_static(self, route: str, request: ServerRequest, send: Send) -> None:
         method = request.method.upper()
         if method not in ("GET", "HEAD"):
@@ -245,14 +271,14 @@ class BokehASGI:
 
         relative = route.removeprefix("/static/")
         if relative.startswith("extensions/"):
-            await self._serve_extension_static(send, relative.removeprefix("extensions/"), head=method == "HEAD")
+            await self._serve_extension_static(request, send, relative.removeprefix("extensions/"))
         elif self._is_bokeh_static(relative):
-            await self._serve_static(send, Path(settings.bokehjs_path()), relative, head=method == "HEAD")
+            await self._serve_static(request, send, Path(settings.bokehjs_path()), relative)
         else:
             root_context = self._core.applications.get("/")
             root = root_context.application.static_path if root_context is not None else None
             await self._serve_static(
-                send, root or Path(settings.bokehjs_path()), relative, head=method == "HEAD",
+                request, send, root or Path(settings.bokehjs_path()), relative,
             )
 
     async def _application_static(
@@ -268,11 +294,11 @@ class BokehASGI:
             return
         relative = suffix.removeprefix("/static/")
         if relative.startswith("extensions/"):
-            await self._serve_extension_static(send, relative.removeprefix("extensions/"), head=method == "HEAD")
+            await self._serve_extension_static(request, send, relative.removeprefix("extensions/"))
         elif self._is_bokeh_static(relative):
-            await self._serve_static(send, Path(settings.bokehjs_path()), relative, head=method == "HEAD")
+            await self._serve_static(request, send, Path(settings.bokehjs_path()), relative)
         else:
-            await self._serve_static(send, context.application.static_path, relative, head=method == "HEAD")
+            await self._serve_static(request, send, context.application.static_path, relative)
 
     async def _document(self, context: ApplicationContext, request: ServerRequest, send: Send) -> None:
         method = request.method.upper()
@@ -393,6 +419,9 @@ class BokehASGI:
         )
 
     async def _root(self, request: ServerRequest, send: Send) -> None:
+        if not self._use_index:
+            await self._not_found(request, send)
+            return
         method = request.method.upper()
         head = method == "HEAD"
         if method not in ("GET", "HEAD"):
@@ -405,42 +434,22 @@ class BokehASGI:
         if self._redirect_root and len(paths) == 1:
             await self._response(send, 302, b"", "text/plain", head=head, extra_headers=[(b"location", (base + paths[0]).encode())])
             return
+        if self._index is not None:
+            body = self._index.render(prefix=base, items=paths, current_user=request.user).encode()
+            await self._response(send, 200, body, "text/html; charset=UTF-8", head=head)
+            return
         items = "".join(
             f'<li><a href="{html.escape(base + path)}">{html.escape(path)}</a></li>' for path in paths
         )
         body = f"<!doctype html><title>Bokeh applications</title><h1>Bokeh applications</h1><ul>{items}</ul>".encode()
         await self._response(send, 200, body, "text/html; charset=UTF-8", head=head)
 
-    async def _serve_static(self, send: Send, root: str | Path | None, relative: str, *, head: bool) -> None:
-        if root is None or not relative:
-            await self._response(send, 404, b"Not found", "text/plain", head=head)
-            return
-        root_path = Path(root).resolve()
-        path = (root_path / relative).resolve()
-        if not path.is_relative_to(root_path) or not path.is_file():
-            await self._response(send, 404, b"Not found", "text/plain", head=head)
-            return
-        content_type = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
-        size = (await asyncio.to_thread(path.stat)).st_size
-        headers = [(b"content-type", content_type.encode()), (b"content-length", str(size).encode())]
-        await send({"type": "http.response.start", "status": 200, "headers": headers})
-        if head:
-            await send({"type": "http.response.body", "body": b""})
-            return
+    async def _serve_static(self, request: ServerRequest, send: Send, root: str | Path | None, relative: str) -> None:
+        await self._static_files.serve(request, send, root, relative)
 
-        stream = await asyncio.to_thread(path.open, "rb")
-        try:
-            while chunk := await asyncio.to_thread(stream.read, 64*1024):
-                await send({"type": "http.response.body", "body": chunk, "more_body": True})
-        finally:
-            await asyncio.to_thread(stream.close)
-        await send({"type": "http.response.body", "body": b""})
-
-    async def _serve_extension_static(self, send: Send, relative: str, *, head: bool) -> None:
+    async def _serve_extension_static(self, request: ServerRequest, send: Send, relative: str) -> None:
         name, separator, artifact = relative.partition("/")
-        await self._serve_static(
-            send, extension_dirs.get(name), artifact if separator else "", head=head,
-        )
+        await self._serve_static(request, send, extension_dirs.get(name), artifact if separator else "")
 
     @staticmethod
     def _is_bokeh_static(relative: str) -> bool:

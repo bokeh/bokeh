@@ -19,7 +19,6 @@ from typing import (
     overload,
 )
 
-from ..client.session import ClientSession
 from ..server.session import ServerSession
 from ..util.compiler import Implementation
 from .property.bases import Property
@@ -32,7 +31,7 @@ from .serialization import (
     Serializer,
 )
 
-type Setter = ClientSession | ServerSession
+type Setter = ServerSession
 
 def abstract[HasPropsType: type[HasProps]](cls: HasPropsType) -> HasPropsType: ...
 

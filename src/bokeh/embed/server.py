@@ -118,7 +118,7 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
     a Bokeh server.
 
     This function is typically only useful for serving from a a specific session
-    that was previously created using the ``bokeh.client`` API.
+    that is already managed by the server application.
 
     Bokeh apps embedded using these methods will NOT set the browser window title.
 
