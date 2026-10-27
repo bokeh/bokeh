@@ -35,6 +35,7 @@ from playwright.sync_api import (  # type: ignore[attr-defined]
 # Bokeh imports
 from bokeh.application.handlers.function import FunctionHandler
 from bokeh.command.util import build_single_handler_application
+from bokeh.document import Document
 from bokeh.server.asgi import BokehASGI
 from bokeh.server.callbacks import NextTickCallback, PeriodicCallback, TimeoutCallback
 from bokeh.util.terminal import (
@@ -174,7 +175,7 @@ def test_server_examples(
         print()
     app = build_single_handler_application(example.path)
 
-    def freeze_callbacks(doc):
+    def freeze_callbacks(doc: Document) -> None:
         # Reference screenshots represent a stable initial document.
         for callback in doc.session_callbacks:
             if isinstance(callback, NextTickCallback):

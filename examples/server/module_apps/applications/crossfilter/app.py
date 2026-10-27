@@ -18,7 +18,7 @@ from bokeh.themes import Theme
 def modify_document(doc):
     df = autompg_data.copy()
     doc.theme = Theme(filename=Path(__file__).with_name("theme.yaml"))
-    doc.template = Environment(loader=FileSystemLoader(Path(__file__).parent / "templates")).get_template("index.html")
+    doc.template = Environment(loader=FileSystemLoader(Path(__file__).parent / "templates"), autoescape=True).get_template("index.html")
     df = df.copy()
     SIZES = list(range(6, 22, 3))
     COLORS = Spectral5

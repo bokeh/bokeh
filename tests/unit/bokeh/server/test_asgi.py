@@ -2144,3 +2144,34 @@ async def test_custom_index_preserves_auth_redirect_and_disable_behavior(tmp_pat
         assert response_status(await http_request(app, "/")) == 404
     finally:
         await app.core.stop()
+
+
+@pytest.mark.parametrize('example', ['dashboard', 'opencv_faces'])
+async def test_example_templates_escape_values_and_preserve_bokeh_mounts(example, monkeypatch):
+    import importlib
+
+    from bokeh.embed._util import server_page_for_session
+
+    pytest.importorskip('bokeh_sampledata')
+    if example == 'opencv_faces':
+        cv2 = pytest.importorskip('cv2')
+        if not hasattr(cv2, 'CascadeClassifier'):
+            pytest.skip('requires OpenCV 4 object detection')
+    monkeypatch.delenv('BOKEH_EXAMPLE_CAMERA', raising=False)
+    module = importlib.import_module(f'examples.server.module_apps.applications.{example}.server')
+    app = module.app
+    await app.core.start()
+    try:
+        session = await app.core.applications['/'].create_session_if_needed('escaped')
+        document = session.document
+        document.template_variables['static_url'] = '"><img src=x onerror=alert(1)>'
+        page = server_page_for_session(
+            session, app.core.resources(), document.title,
+            template=document.template, template_variables=document.template_variables,
+        )
+        assert '&lt;img src=x onerror=alert(1)&gt;' in page
+        assert '<img src=x onerror=alert(1)>' not in page
+        assert '<div data-bokeh-document-target ' in page
+        assert '&lt;script' not in page
+    finally:
+        await app.core.stop()

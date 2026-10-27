@@ -42,7 +42,7 @@
                   <h3>Network Activities <small>Traffic per day</small></h3>
                 </div>
               </div>
-              {{ embed(roots.line) }}
+              {{ embed(roots.line) | safe }}
             </div>
           </div>
 
@@ -56,7 +56,7 @@
               <h2>By Region</h2>
               <div class="clearfix"></div>
             </div>
-            {{ embed(roots.region) }}
+            {{ embed(roots.region) | safe }}
           </div>
         </div>
 
@@ -66,7 +66,7 @@
               <h2>By Platform</h2>
               <div class="clearfix"></div>
             </div>
-            {{ embed(roots.platform) }}
+            {{ embed(roots.platform) | safe }}
           </div>
         </div>
 
@@ -77,7 +77,7 @@
               <h2>Details</h2>
               <div class="clearfix"></div>
             </div>
-            {{ embed(roots.table) }}
+            {{ embed(roots.table) | safe }}
           </div>
         </div>
 

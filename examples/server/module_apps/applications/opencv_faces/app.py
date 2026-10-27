@@ -16,7 +16,7 @@ from bokeh.themes import Theme
 
 def modify_document(doc):
     doc.theme = Theme(filename=Path(__file__).with_name("theme.yaml"))
-    doc.template = Environment(loader=FileSystemLoader(Path(__file__).parent / "templates")).get_template("index.html")
+    doc.template = Environment(loader=FileSystemLoader(Path(__file__).parent / "templates"), autoescape=True).get_template("index.html")
     static_url = "static"
     if doc.session_context is not None and doc.session_context.request is not None:
         request = doc.session_context.request

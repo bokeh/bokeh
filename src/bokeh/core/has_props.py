@@ -66,7 +66,6 @@ from .serialization import (
 )
 
 if TYPE_CHECKING:
-    from ..client.session import ClientSession
     from ..server.session import ServerSession
     from ..util.compiler import Implementation
     from .property.bases import Property
@@ -92,7 +91,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    type Setter = ClientSession | ServerSession
+    type Setter = ServerSession
 
 _abstract_classes: WeakSet[type[HasProps]] = WeakSet()
 
@@ -531,7 +530,7 @@ class HasProps(Serializable):
 
             value (JSON-value) : value to set to the attribute to
 
-            setter(ClientSession or ServerSession or None, optional) :
+            setter(ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
 
                 In the context of a Bokeh server application, incoming updates

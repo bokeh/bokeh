@@ -386,7 +386,7 @@ class PropertyDescriptor[T]:
             value (obj) :
                 The new value to set the property to
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
@@ -501,7 +501,7 @@ class PropertyDescriptor[T]:
 
             value (JSON-value) : value to set to the attribute to
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
@@ -700,7 +700,7 @@ class PropertyDescriptor[T]:
                 update performance can be obtained by special-casing in
                 some way (e.g. streaming or patching column data sources)
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
@@ -800,7 +800,7 @@ class PropertyDescriptor[T]:
                 update performance can be obtained by special-casing in
                 some way (e.g. streaming or patching column data sources)
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
@@ -851,7 +851,7 @@ class ColumnDataPropertyDescriptor(PropertyDescriptor[Any]):
             value (obj) :
                 The new value to set the property to
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
@@ -913,7 +913,7 @@ class DataSpecPropertyDescriptor(PropertyDescriptor[Any]):
 
             value (JSON-dict) :
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 

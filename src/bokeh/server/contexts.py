@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 
 import asyncio
 import weakref
+from collections.abc import Mapping
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -422,9 +423,9 @@ class _RequestProxy:
     def __init__(
         self,
         request: RequestLike,
-        arguments: dict[str, bytes | list[bytes]] | None = None,
+        arguments: Mapping[str, bytes | list[bytes]] | None = None,
         cookies: dict[str, str] | None = None,
-        headers: dict[str, str | list[str]] | None = None,
+        headers: Mapping[str, str | list[str]] | None = None,
     ) -> None:
         self._request = request
 
@@ -447,7 +448,7 @@ class _RequestProxy:
             self._cookies = {}
 
         if headers is not None:
-            self._headers = headers
+            self._headers = dict(headers)
         elif hasattr(request, 'headers'):
             self._headers = dict(request.headers)
         else:

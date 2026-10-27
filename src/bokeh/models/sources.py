@@ -521,7 +521,7 @@ class ColumnDataSource(ColumnarDataSource):
             rollover (int, optional) : A maximum column size, above which data
                 from the start of the column begins to be discarded. If None,
                 then columns will continue to grow unbounded (default: None)
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
                 In the context of a Bokeh server application, incoming updates

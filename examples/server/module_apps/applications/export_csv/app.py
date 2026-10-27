@@ -20,7 +20,7 @@ from bokeh.server.asgi import BokehASGI
 
 
 def modify_document(doc):
-    doc.template = Environment(loader=FileSystemLoader(Path(__file__).parent / "templates")).get_template("index.html")
+    doc.template = Environment(loader=FileSystemLoader(Path(__file__).parent / "templates"), autoescape=True).get_template("index.html")
     df = pd.read_csv(join(dirname(__file__), 'salary_data.csv'))
     source = ColumnDataSource(data=dict())
 

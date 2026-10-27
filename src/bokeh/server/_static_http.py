@@ -140,7 +140,8 @@ class StaticFiles:
             # On Windows ctime can denote creation time, so preserved mtimes are insufficient.
             etag = self._etags.get(key) if os.name != "nt" else None
             if etag is None:
-                etag = '"' + await _run_in_executor(lambda: hashlib.file_digest(stream, "sha256").hexdigest()) + '"'
+                digest = await _run_in_executor(hashlib.file_digest, stream, "sha256")
+                etag = '"' + digest.hexdigest() + '"'
                 self._etags[key] = etag
                 if len(self._etags) > 128:
                     self._etags.popitem(last=False)

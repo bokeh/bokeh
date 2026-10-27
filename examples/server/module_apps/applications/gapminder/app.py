@@ -25,7 +25,7 @@ from .data import process_data
 
 def modify_document(doc):
     doc.theme = Theme(filename=Path(__file__).with_name("theme.yaml"))
-    doc.template = Environment(loader=FileSystemLoader(Path(__file__).parent / "templates")).get_template("index.html")
+    doc.template = Environment(loader=FileSystemLoader(Path(__file__).parent / "templates"), autoescape=True).get_template("index.html")
     fertility_df, life_expectancy_df, population_df_size, regions_df, years, regions_list = process_data()
     df = pd.concat({'fertility': fertility_df,
                     'life': life_expectancy_df,

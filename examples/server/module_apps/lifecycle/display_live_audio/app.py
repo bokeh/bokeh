@@ -1,7 +1,7 @@
 """Display an audio spectrum with application-owned input and cleanup."""
 
 from math import ceil
-from os.path import dirname, join
+from pathlib import Path
 
 import numpy as np
 
@@ -21,8 +21,7 @@ def modify_document(doc):
     EQ_CLAMP = 20
     PALETTE = ['#081d58', '#253494', '#225ea8', '#1d91c0', '#41b6c4', '#7fcdbb', '#c7e9b4', '#edf8b1', '#ffffd9']
     PLOTARGS = dict(tools="", toolbar_location=None, outline_line_color='#595959')
-    filename = join(dirname(__file__), "description.html")
-    desc = Div(text=open(filename).read(),
+    desc = Div(text=Path(__file__).with_name("description.html").read_text("utf-8"),
                render_as_text=False, width=1000)
     waterfall_renderer = WaterfallRenderer(palette=PALETTE, num_grams=NUM_GRAMS,
                                            gram_length=GRAM_LENGTH, tile_width=TILE_WIDTH)
