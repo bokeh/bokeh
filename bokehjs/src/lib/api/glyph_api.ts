@@ -194,15 +194,27 @@ export type NgonArgs          = GlyphArgs<Ngon.Props>          & AuxLine & AuxFi
 export type PatchArgs         = GlyphArgs<Patch.Props>         & AuxLine & AuxFill & AuxHatch
 export type PatchesArgs       = GlyphArgs<Patches.Props>       & AuxLine & AuxFill & AuxHatch
 export type PolygonSource = GeometryDataSource | MeshDataSource
-export type PolygonsArgs      = Omit<GlyphArgs<Polygons.Props>, "xs" | "ys" | "source"> & {
-  source: PolygonSource
-  x: Arrayable
-  y: Arrayable
-} & AuxLine & AuxFill & AuxHatch
-type PolygonXYArgs = Omit<Partial<PolygonsArgs>, "source" | "x" | "y"> & {
+type PolygonOptions = Partial<Omit<GlyphArgs<Polygons.Props>, "xs" | "ys" | "source"> & AuxLine & AuxFill & AuxHatch>
+type PolygonSourceArgs<S extends PolygonSource = PolygonSource> = PolygonOptions & {
+  source: S
+  x?: never
+  y?: never
+}
+type PolygonXYArgs = PolygonOptions & {
   source?: never
   x: Arrayable
   y: Arrayable
+}
+type PolygonDefaultArgs = PolygonOptions & {
+  source?: never
+  x?: never
+  y?: never
+}
+export type PolygonsArgs = PolygonSourceArgs | PolygonXYArgs | PolygonDefaultArgs
+type LoosePolygonsArgs = PolygonOptions & {
+  source?: PolygonSource
+  x?: Arrayable
+  y?: Arrayable
 }
 export type QuadArgs          = GlyphArgs<Quad.Props>          & AuxLine & AuxFill & AuxHatch
 export type QuadraticArgs     = GlyphArgs<Quadratic.Props>     & AuxLine
@@ -558,17 +570,19 @@ export abstract class GlyphAPI {
 
   polygons(): GlyphRendererWithSource<Polygons, GeometryDataSource>
   polygons(args: PolygonXYArgs): GlyphRendererWithSource<Polygons, GeometryDataSource>
-  polygons(geometry: GeometryInput | GeometryDataSource, args?: Partial<PolygonsArgs>): GlyphRendererWithSource<Polygons, GeometryDataSource>
-  polygons(source: MeshDataSource, args?: Partial<PolygonsArgs>): GlyphRendererWithSource<Polygons, MeshDataSource>
-  polygons(args: Partial<PolygonsArgs>): GlyphRendererWithSource<Polygons, PolygonSource>
-  polygons(x: Arrayable, y: Arrayable, args?: Partial<PolygonsArgs>): GlyphRendererWithSource<Polygons, GeometryDataSource>
+  polygons(geometry: GeometryInput | GeometryDataSource, args?: PolygonOptions): GlyphRendererWithSource<Polygons, GeometryDataSource>
+  polygons(source: MeshDataSource, args?: PolygonOptions): GlyphRendererWithSource<Polygons, MeshDataSource>
+  polygons(args: PolygonSourceArgs<GeometryDataSource>): GlyphRendererWithSource<Polygons, GeometryDataSource>
+  polygons(args: PolygonSourceArgs<MeshDataSource>): GlyphRendererWithSource<Polygons, MeshDataSource>
+  polygons(args: PolygonDefaultArgs): GlyphRendererWithSource<Polygons, GeometryDataSource>
+  polygons(x: Arrayable, y: Arrayable, args?: PolygonOptions): GlyphRendererWithSource<Polygons, GeometryDataSource>
   polygons(...args: unknown[]): GlyphRendererWithSource<Polygons, PolygonSource> {
     if (args.length >= 2 && isArrayable(args[0]) && isArrayable(args[1])) {
       if (args.length > 3) {
         throw new Error("wrong number of arguments for 'polygons' method")
       }
-      const [x, y] = args as [Arrayable, Arrayable, Partial<PolygonsArgs>?]
-      const options = (args[2] ?? {}) as Partial<PolygonsArgs>
+      const [x, y] = args as [Arrayable, Arrayable, LoosePolygonsArgs?]
+      const options = (args[2] ?? {}) as LoosePolygonsArgs
       if (options.source != null) {
         throw new Error("provide either x and y data or a source, not both")
       }
@@ -588,7 +602,7 @@ export abstract class GlyphAPI {
       if (args.length > 2) {
         throw new Error("wrong number of arguments for 'polygons' method")
       }
-      const options = (args[1] ?? {}) as Partial<PolygonsArgs>
+      const options = (args[1] ?? {}) as LoosePolygonsArgs
       if (options.source != null) {
         throw new Error("provide either geometry data or a source, not both")
       }
@@ -610,7 +624,7 @@ export abstract class GlyphAPI {
     if (geometry != null && !isPlainObject(geometry)) {
       throw new Error("polygons() expects geometry data, a geometry source, or an options object")
     }
-    const options = (args[0] ?? {}) as Partial<PolygonsArgs>
+    const options = (args[0] ?? {}) as LoosePolygonsArgs
     const {source: provided_source, x, y, ...glyph_options} = options
     if ((x == null) != (y == null)) {
       throw new Error("polygon x and y coordinates must be provided together")

@@ -261,10 +261,17 @@ describe("in api/plotting module", () => {
         }])
         expect(p1.glyph.fill_color).to.be.equal({value: "blue"})
 
-        expect(() => figure().polygons({x: [0, 1]})).to.throw(
-          Error,
-          "polygon x and y coordinates must be provided together",
-        )
+        const source = GeometryDataSource.create()
+        const coordinates_and_source = {x: [0, 1], y: [0, 1], source}
+        expect(() => {
+          // @ts-expect-error x/y coordinates and an explicit source are mutually exclusive
+          figure().polygons(coordinates_and_source)
+        }).to.throw(Error, "provide either x and y data or a source, not both")
+
+        expect(() => {
+          // @ts-expect-error polygon x and y coordinates must be provided together
+          figure().polygons({x: [0, 1]})
+        }).to.throw(Error, "polygon x and y coordinates must be provided together")
         expect(() => figure().polygons([0, 1], [0])).to.throw(
           Error,
           "polygon x and y coordinates must have the same length",
