@@ -418,14 +418,14 @@ class ColumnDataSource(ColumnarDataSource):
         # TODO: Handle pandas not being available
         selected_indices = self.selected.indices
         if len(selected_indices) > 0:
-            return self.to_df().iloc[self.selected.indices].to_csv(index=False)
+            return self.to_df().iloc[self.selected.indices].to_csv(index=False, lineterminator="\n")
         return self.to_df().to_csv(index=False, lineterminator="\n")
 
     def to_json(self) -> str:
         # TODO: Handle pandas not being available
         selected_indices = self.selected.indices
         if len(selected_indices) > 0:
-            return json.dumps(self.to_df().iloc[self.selected.indices].to_dict())
+            return json.dumps(self.to_df().iloc[self.selected.indices].to_dict(orient="list"))
         return json.dumps(self.to_df().to_dict(orient="list"))
 
     def add(self, data: Sequence[Any], name: str | None = None) -> str:
