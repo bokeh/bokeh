@@ -217,7 +217,7 @@ export abstract class ColumnarDataSource extends DataSource {
 
   get_rows(indices: OpaqueIndices): {[key: string]: unknown} {
     const mapped_indices = map(indices, (index: Index) => isNumber(index) ? index : index.index)
-    const result: {[key: string]: unknown} = {}
+    const result: {[key: string]: unknown} = Object.create(null)
     for (const [column, array] of entries(this.data)) {
       result[column] = map(mapped_indices, (index: number) => is_NDArray(array) ? array.get(index) : array[index])
     }
