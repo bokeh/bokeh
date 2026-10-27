@@ -443,6 +443,14 @@ Makefile:
 
     make -C docs/bokeh reference
 
+Each class page is placed in the section with the longest slug that is a
+prefix of the class's module path below ``bokeh.models``. For example, classes
+from ``bokeh.models.widgets.sliders`` are listed under ``widgets/sliders``.
+Sections are defined in :bokeh-tree:`docs/bokeh/api_reference/sections.json`.
+A section can also list classes explicitly, which places them in that section
+regardless of their module. If no section matches a class that isn't listed,
+generating the reference fails with an error that suggests how to fix it.
+
 Documentation builds check that the generated pages are current. Use
 ``make -C docs/bokeh reference-check`` to run the same check without changing
 any files. The underlying generator is available as ``python -m api_reference``

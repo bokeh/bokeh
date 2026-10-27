@@ -324,6 +324,7 @@ test-cross = "pytest tests/test_cross.py"
 test-codebase = "pytest tests/codebase"
 test-examples = { cmd = "pytest tests/test_examples.py", depends-on = ["install-browser"] }
 test-tools = "pytest tests/tools"
+test-docs = "pytest tests/docs"
 test = "pytest"
 build-docs = "bash tools/ci/build_docs.sh"
 install-browser = "python -m playwright install --only-shell chromium"
