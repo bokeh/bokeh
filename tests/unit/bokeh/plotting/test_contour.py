@@ -283,7 +283,8 @@ class Test_from_contour:
         assert "line_color" not in cr.line_renderer.data_source.data
 
     def test_set_data_preserves_matching_vectorized_visuals(self, xyz_levels: XYZ_Levels) -> None:
-        x, y, z, levels = xyz_levels
+        x, y, z, _ = xyz_levels
+        levels = [0.5, 1.5, 2.5]
         cr = from_contour(
             x, y, z, levels,
             fill_color=["red", "blue"],
