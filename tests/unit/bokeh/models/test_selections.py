@@ -122,8 +122,9 @@ def test_multiline_patch_serializes_captured_value() -> None:
     selection = Selection()
     doc = Document()
     doc.add_root(selection)
-    captured = {7: array("i", [0, 2]), 9: array("i", [1])}
-    event = ModelChangedEvent(doc, selection, "multiline_indices", captured)
+    selection.multiline_indices = {7: array("i", [0, 2]), 9: array("i", [1])}
+    captured = selection.multiline_indices
+    event = selection._create_model_changed_event(doc, "multiline_indices", captured)
     selection.multiline_indices = {42: [3]}
     serializer = Serializer()
     rep = serializer.encode(event)
@@ -142,7 +143,7 @@ def test_equal_received_indices_do_not_notify(attr: str) -> None:
     changes = []
     selection.on_change(attr, lambda attr, old, new: changes.append(new))
     serializer = Serializer()
-    payload = serializer.encode(ModelChangedEvent(doc, selection, attr, received))
+    payload = serializer.encode(selection._create_model_changed_event(doc, attr, received))
     doc.apply_json_patch(Serialized(dict(events=[payload]), serializer.buffers))
     assert changes == []
     value = getattr(selection, attr)
@@ -335,7 +336,7 @@ def test_adaptive_full_document_and_captured_event(attr: str, binary: bool) -> N
         assert meta["mode"] == "bitmap"
     else:
         assert serializer.buffers == []
-    captured = ModelChangedEvent(doc, selection, attr, original)
+    captured = selection._create_model_changed_event(doc, attr, original)
     setattr(selection, attr, value([99]))
     serializer = Serializer(deferred=binary)
     rep = serializer.encode(captured)
@@ -347,7 +348,11 @@ def test_adaptive_full_document_and_captured_event(attr: str, binary: bool) -> N
 def test_adaptive_binary_representation(values: list[int]) -> None:
     selection = Selection(indices=values)
     serializer = Serializer()
-    rep = serializer.encode(ModelChangedEvent(None, selection, "indices", selection.indices))["new"]
+    rep = serializer.encode(selection._create_model_changed_event(None, "indices", selection.indices))["new"]
+    if not values:
+        assert rep == []
+        assert not serializer.buffers
+        return
     assert rep["mode"] == ("bitmap" if len(values) == 300 else "int32")
     assert len(serializer.buffers) == 1
     assert Deserializer().deserialize(Serialized(rep, serializer.buffers)) == values
@@ -376,7 +381,7 @@ def test_reject_invalid_selection_wire_values(meta, data) -> None:
 def test_reject_invalid_multiline_wire_values(mutation: str) -> None:
     selection = Selection(multiline_indices={0: list(range(100)), 1: [3]})
     serializer = Serializer()
-    rep = serializer.encode(ModelChangedEvent(None, selection, "multiline_indices", selection.multiline_indices))["new"]
+    rep = serializer.encode(selection._create_model_changed_event(None, "multiline_indices", selection.multiline_indices))["new"]
     buffers = serializer.buffers
     rep["data"]["data"] = dict(id=buffers[0].id)
     if mutation == "overlap":
@@ -421,7 +426,7 @@ def test_equal_multiline_mutation_restores_canonical_values_without_notifying() 
 def test_numpy_scalar_lists_round_trip_without_integer_overflow(values) -> None:
     selection = Selection(indices=values)
     serializer = Serializer()
-    rep = serializer.encode(ModelChangedEvent(None, selection, "indices", selection.indices))
+    rep = serializer.encode(selection._create_model_changed_event(None, "indices", selection.indices))
     actual = Deserializer([selection]).deserialize(Serialized(rep, serializer.buffers))["new"]
     assert actual == [int(value) for value in values]
 
@@ -448,7 +453,7 @@ def test_selection_encoding_revalidates_mutated_unowned_list(mutate) -> None:
     mutate(captured)
     expected = sorted(set(captured))
     serializer = Serializer()
-    rep = serializer.encode(ModelChangedEvent(None, selection, "indices", captured))
+    rep = serializer.encode(selection._create_model_changed_event(None, "indices", captured))
     actual = Deserializer([selection]).deserialize(Serialized(rep, serializer.buffers))["new"]
     assert actual == expected
     assert isinstance(actual, list)
@@ -467,14 +472,14 @@ def test_selection_encoding_revalidates_after_partial_failed_mutation() -> None:
     with pytest.raises(RuntimeError, match="interrupted"):
         captured.extend(broken())
     with pytest.raises(ValueError):
-        Serializer().encode(ModelChangedEvent(None, selection, "indices", captured))
+        Serializer().encode(selection._create_model_changed_event(None, "indices", captured))
 
 
 def test_multiline_encoding_revalidates_mutated_nested_lists() -> None:
     selection = Selection(multiline_indices={7: [1, 2, 3]})
     selection.multiline_indices[7].extend([4, 1])
     serializer = Serializer()
-    rep = serializer.encode(ModelChangedEvent(None, selection, "multiline_indices", selection.multiline_indices))
+    rep = serializer.encode(selection._create_model_changed_event(None, "multiline_indices", selection.multiline_indices))
     actual = Deserializer([selection]).deserialize(Serialized(rep, serializer.buffers))["new"]
     assert actual == {7: [1, 2, 3, 4]}
 
@@ -511,7 +516,59 @@ def test_chunked_bitmap_packing_combines_multiple_bits_in_each_byte(origin: int)
     values = [origin + index for index in range(10000) if index % 11]
     selection = Selection(indices=values)
     serializer = Serializer()
-    rep = serializer.encode(ModelChangedEvent(None, selection, "indices", selection.indices))
+    rep = serializer.encode(selection._create_model_changed_event(None, "indices", selection.indices))
     assert rep["new"]["mode"] == "bitmap"
     actual = Deserializer([selection]).deserialize(Serialized(rep, serializer.buffers))["new"]
     assert actual == values
+
+
+@pytest.mark.parametrize("attr", ["indices", "line_indices", "multiline_indices"])
+@pytest.mark.parametrize("deferred", [False, True])
+def test_selection_values_serialize_without_property_context(attr: str, deferred: bool) -> None:
+    raw = {7: [3, 1, 3]} if attr == "multiline_indices" else [3, 1, 3]
+    expected = {7: [1, 3]} if attr == "multiline_indices" else [1, 3]
+    selection = Selection(**{attr: raw})
+    captured = getattr(selection, attr)
+    setattr(selection, attr, {} if attr == "multiline_indices" else [])
+    serializer = Serializer(deferred=deferred)
+    rep = serializer.encode(captured)
+    assert Deserializer().deserialize(Serialized(rep, serializer.buffers)) == expected
+    assert not serializer.buffers
+
+
+@pytest.mark.parametrize("attr", ["indices", "line_indices", "multiline_indices"])
+def test_binary_selection_encoding_does_not_escape_model_context(attr: str) -> None:
+    raw = {7: list(range(300))} if attr == "multiline_indices" else list(range(300))
+    selection = Selection(**{attr: raw})
+    held = getattr(selection, attr)
+    serializer = Serializer()
+    rep = serializer.encode([held, selection, held])
+    assert len(serializer.buffers) == 1
+    assert rep[0] == rep[2]
+    decoded = Deserializer().deserialize(Serialized(rep, serializer.buffers))
+    assert decoded[0] == decoded[2] == raw
+    assert getattr(decoded[1], attr) == raw
+    setattr(selection, attr, {} if attr == "multiline_indices" else [])
+    serializer = Serializer()
+    assert Deserializer().decode(serializer.encode(held)) == raw
+    assert not serializer.buffers
+
+
+@pytest.mark.parametrize("attr", ["indices", "line_indices", "multiline_indices"])
+def test_combined_selection_event_serializes_latest_public_value(attr: str) -> None:
+    selection = Selection()
+    doc = Document()
+    doc.add_root(selection)
+    events = []
+    doc.on_change(events.append)
+    doc.hold()
+    setattr(selection, attr, {7: [1]} if attr == "multiline_indices" else [1])
+    latest = {7: [2, 4]} if attr == "multiline_indices" else [2, 4]
+    setattr(selection, attr, latest)
+    doc.unhold()
+    assert len(events) == 1
+    assert events[0].new is getattr(selection, attr)
+    serializer = Serializer()
+    rep = serializer.encode(events[0])
+    assert len(serializer.buffers) == 1
+    assert Deserializer([selection]).deserialize(Serialized(rep, serializer.buffers))["new"] == latest

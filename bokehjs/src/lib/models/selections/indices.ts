@@ -1,8 +1,6 @@
-import {Property} from "core/properties"
-import type {Comparator} from "core/util/eq"
-import type {Serializer, BytesRep} from "core/serialization"
+import {serialize, type Serializable, type Serializer, type BytesRep} from "core/serialization"
 import {Deserializer} from "core/serialization/deserializer"
-import {Arrayable, Int, Mapping} from "core/kinds"
+import {Kind, Arrayable, Int, Mapping} from "core/kinds"
 import {isArrayable} from "core/util/types"
 import type {OpaqueIndices, MultiIndices} from "./selection"
 
@@ -77,37 +75,22 @@ function normalize_multiline(indices: MultiIndices): Map<number, number[]> {
   }))
 }
 
-export class IndicesProperty extends Property<OpaqueIndices> {
-  override readonly may_have_refs = false
+// Wire-only wrappers leave public arrays and maps with ordinary serialization.
+export class Indices implements Serializable {
+  constructor(readonly values: OpaqueIndices) {}
 
-  protected override _update(value: OpaqueIndices): void {
-    super._update(normalize_indices(value))
-  }
-
-  override is_equal(value: OpaqueIndices, cmp: Comparator): boolean {
-    return cmp.eq(this.get_value(), normalize_indices(value))
-  }
-
-  override serialize_value(value: OpaqueIndices, serializer: Serializer): unknown {
-    return encode_indices(normalize_indices(value), serializer)
+  [serialize](serializer: Serializer): unknown {
+    return encode_indices(normalize_indices(this.values), serializer)
   }
 }
 
-export class MultiIndicesProperty extends Property<MultiIndices> {
-  override readonly may_have_refs = false
+export class MultilineIndices implements Serializable {
+  constructor(readonly values: MultiIndices) {}
 
-  protected override _update(value: MultiIndices): void {
-    super._update(normalize_multiline(value))
-  }
-
-  override is_equal(value: MultiIndices, cmp: Comparator): boolean {
-    return cmp.eq(this.get_value(), normalize_multiline(value))
-  }
-
-  override serialize_value(value: MultiIndices, serializer: Serializer): unknown {
-    const indices = normalize_multiline(value)
-    if (!serializer.binary) {
-      return serializer.encode(indices)
+  [serialize](serializer: Serializer): unknown {
+    const indices = normalize_multiline(this.values)
+    if (!serializer.binary || indices.size == 0) {
+      return serializer.encode(new Map(indices))
     }
     const rows: [number, Row][] = []
     const chunks: Uint8Array[] = []
@@ -130,6 +113,34 @@ export class MultiIndicesProperty extends Property<MultiIndices> {
       cursor += chunk.byteLength
     }
     return {type: "selection_map_v1", rows, data: serializer.encode(data.buffer)}
+  }
+}
+
+export class IndicesKind extends Kind<OpaqueIndices> {
+  override coerce(value: OpaqueIndices): number[] {
+    return normalize_indices(value)
+  }
+
+  valid(value: unknown): value is OpaqueIndices {
+    return Array.isArray(value)
+  }
+
+  may_have_refs(): boolean {
+    return false
+  }
+}
+
+export class MultilineIndicesKind extends Kind<MultiIndices> {
+  override coerce(value: MultiIndices): Map<number, number[]> {
+    return normalize_multiline(value)
+  }
+
+  valid(value: unknown): value is MultiIndices {
+    return value instanceof Map
+  }
+
+  may_have_refs(): boolean {
+    return false
   }
 }
 
@@ -162,8 +173,8 @@ function pack(values: number[]): [Descriptor, Uint8Array] {
 }
 
 function encode_indices(value: number[], serializer: Serializer): unknown {
-  if (!serializer.binary) {
-    return serializer.encode(value)
+  if (!serializer.binary || value.length == 0) {
+    return serializer.encode(Array.from(value))
   }
   const [meta, data] = pack(value)
   return {type: "selection_indices_v1", ...meta, data: serializer.encode(data.buffer)}
@@ -276,3 +287,12 @@ function decode(rep: IndicesRep | MultiIndicesRep, deserializer: Deserializer): 
 
 Deserializer.register("selection_indices_v1", decode)
 Deserializer.register("selection_map_v1", decode)
+
+export function selection_wire_value(attr: string, value: unknown): unknown {
+  switch (attr) {
+    case "indices":
+    case "line_indices": return new Indices(value as OpaqueIndices)
+    case "multiline_indices": return new MultilineIndices(value as MultiIndices)
+    default: return value
+  }
+}
