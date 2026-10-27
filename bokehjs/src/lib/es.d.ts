@@ -78,3 +78,8 @@ interface Uint8ArrayConstructor {
 interface HTMLElement {
   showPopover(options?: {source?: Element}): void
 }
+
+// from lib.dom.d.ts (needs TS 6/7) (remove when #15012 is resolved)
+interface FocusOptions {
+  focusVisible?: boolean
+}

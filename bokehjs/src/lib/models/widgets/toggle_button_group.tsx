@@ -14,8 +14,6 @@ export abstract class ToggleButtonGroupView extends OrientedControlView {
   declare readonly model: ToggleButtonGroup
   declare readonly signals: p.SignalsOf<ToggleButtonGroup.Props>
 
-  public *controls() {}
-
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), buttons_css.default]
   }
