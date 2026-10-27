@@ -177,17 +177,17 @@ jobs:
           environment: test-py312
 
       - name: Run tools tests
-        run: pytest --color=yes --durations=20 --durations-min=1 tests/tools
+        run: pytest --color=yes --durations=20 --durations-min=1 tests/tools tests/docs
 
       - name: Check tools code quality
         if: runner.os == 'Linux'
         run: |
-          ruff check tools tests/tools
+          ruff check tools tests/tools tests/docs
 
       - name: Check tools types
         if: runner.os == 'Linux'
         run: |
-          mypy --no-sqlite-cache --show-traceback tools tests/tools
+          mypy --no-sqlite-cache --show-traceback tools tests/tools tests/docs
           pyright tools
 
   typing:

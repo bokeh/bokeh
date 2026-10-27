@@ -57,7 +57,7 @@ class SectionReference:
 
 def _load_sections() -> list[SectionReference]:
     raw_sections = json.loads(SECTION_REGISTRY_PATH.read_text())
-    sections = [SectionReference(item["slug"], item["title"], tuple(item["classes"])) for item in raw_sections]
+    sections = [SectionReference(item["slug"], item["title"], tuple(item.get("classes", ()))) for item in raw_sections]
 
     seen_slugs: set[str] = set()
     seen_classes: dict[str, str] = {}
@@ -87,9 +87,15 @@ def _infer_section(module: str, slugs: set[str]) -> str | None:
     return None
 
 
-def _load_public_classes(sections: list[SectionReference] | None = None) -> list[ClassReference]:
-    sys.path.insert(0, str(REPO_ROOT / "src"))
+def _unassigned_class_error(name: str, module: str, registry: str) -> str:
+    fix = f"list {name!r} under an existing section"
+    if module.startswith("bokeh.models."):
+        slug = module.removeprefix("bokeh.models.").replace(".", "/")
+        fix = f"add a section with slug {slug!r} or {fix}"
+    return f"cannot infer the section of public class {name!r} from its module {module!r}; {fix} in {registry}"
 
+
+def _load_public_classes(sections: list[SectionReference] | None = None) -> list[ClassReference]:
     import bokeh.models as models
     from bokeh.model import Model
 
@@ -119,11 +125,7 @@ def _load_public_classes(sections: list[SectionReference] | None = None) -> list
     missing = sorted(set(public_objects) - set(section_by_name), key=str.casefold)
     if missing or stale:
         registry = SECTION_REGISTRY_PATH.relative_to(REPO_ROOT).as_posix()
-        details = [
-            f"cannot infer the section of public class {name!r} from its module {public_objects[name].__module__!r}; "
-            f"add {name!r} to the classes of a section in {registry}"
-            for name in missing
-        ]
+        details = [_unassigned_class_error(name, public_objects[name].__module__, registry) for name in missing]
         if stale:
             details.append(f"unknown registered classes: {', '.join(stale)}; remove them from {registry}")
         raise RuntimeError("\n".join(details))
@@ -363,6 +365,8 @@ def main() -> int:
     mode.add_argument("--check", action="store_true", help="check that generated files are up to date")
     mode.add_argument("--clean", action="store_true", help="remove generated API reference sources")
     args = parser.parse_args()
+
+    sys.path.insert(0, str(REPO_ROOT / "src"))
 
     if args.clean:
         _clean()
