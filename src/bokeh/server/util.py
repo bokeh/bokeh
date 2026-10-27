@@ -268,6 +268,14 @@ def match_host(host: str, pattern: str) -> bool:
     if pattern == "*":
         return True
 
+    if host.startswith('[') or pattern.startswith('['):
+        if not (host.startswith('[') and host.endswith(']') and pattern.startswith('[') and pattern.endswith(']')):
+            return False
+        try:
+            return IPv6Address(host[1:-1]) == IPv6Address(pattern[1:-1])
+        except ValueError:
+            return False
+
     host_parts = host.split('.')
     pattern_parts = pattern.split('.')
 

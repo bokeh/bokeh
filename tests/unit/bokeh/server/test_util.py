@@ -130,9 +130,22 @@ def test_create_hosts_allowlist_invalid_ipv6(host: str) -> None:
     ("[::2]:5006", "[::1]:5006", False),
     ("[::1]:5006", "*:5006", True),
     ("[::1]:5006", "*:5007", False),
+    ("[0:0:0:0:0:0:0:1]:5006", "[::1]:5006", True),
+    ("[::1]:5006", "[0:0:0:0:0:0:0:1]:5006", True),
+    ("[2001:DB8::1]:5006", "[2001:db8:0:0:0:0:0:1]:5006", True),
+    ("[::ffff:192.0.2.1]:5006", "[::ffff:c000:201]:5006", True),
+    ("[::1]:5006", "[0:0:0:0:0:0:0:1]:5007", False),
+    ("[::2]:5006", "[0:0:0:0:0:0:0:1]:5006", False),
+    ("[not-ipv6]:5006", "[::1]:5006", False),
+    ("[::1]:5006", "localhost:5006", False),
 ])
 def test_match_host_ipv6(host: str, pattern: str, expected: bool) -> None:
     assert util.match_host(host, pattern) is expected
+
+
+def test_check_allowlist_ipv6_equivalent_spellings() -> None:
+    assert util.check_allowlist("[::1]:5006", ["[0:0:0:0:0:0:0:1]:5006"]) is True
+    assert util.check_allowlist("[0:0:0:0:0:0:0:1]", ["[::1]:80"]) is True
 
 def test_create_hosts_allowlist_bad_host_raises() -> None:
     with pytest.raises(ValueError):

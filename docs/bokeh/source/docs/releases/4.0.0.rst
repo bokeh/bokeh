@@ -16,7 +16,9 @@ New features
 * Added :class:`~bokeh.models.SITickFormatter` for displaying values with a
   fixed or automatically selected SI prefix and a shared unit.
 * Added support for bracketed IPv6 addresses, such as ``[::1]:5006``, in the
-  Bokeh server's WebSocket origin allowlist.
+  Bokeh server's WebSocket origin allowlist, including equivalent address
+  spellings. ASGI origin entries use the same validation and default port as
+  ``Server``.
 
 Removals
 --------

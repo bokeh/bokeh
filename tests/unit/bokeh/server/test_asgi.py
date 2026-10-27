@@ -948,6 +948,86 @@ async def test_embed_bootstrap_cors_matches_websocket_origin_policy() -> None:
         await app.core.stop()
 
 
+@pytest.mark.parametrize(("allowed_host", "origin", "accepted"), [
+    ("[::1]", "http://[::1]", True),
+    ("[::1]", "http://[::1]:80", True),
+    ("[::1]", "http://[::1]:5006", False),
+    ("[::1]", "http://[::2]", False),
+    ("[0:0:0:0:0:0:0:1]:5006", "http://[::1]:5006", True),
+    ("[::1]:5006", "http://[0:0:0:0:0:0:0:1]:5006", True),
+    ("[::1]:5006", "http://[::1]:5007", False),
+    ("[::1]:5006", "http://[::2]:5006", False),
+    ("[::1]:*", "http://[::1]:5006", True),
+    ("trusted.example", "http://trusted.example:5006", False),
+])
+@pytest.mark.parametrize("method", ["GET", "OPTIONS"])
+async def test_embed_ipv6_origin_allowlist(allowed_host: str, origin: str, accepted: bool, method: str) -> None:
+    app = BokehASGI(Application(), extra_websocket_origins=[allowed_host])
+    try:
+        response = await http_request(app, "/embed.json", method=method, headers=[(b"origin", origin.encode())])
+        expected_status = (200 if method == "GET" else 204) if accepted else 403
+        assert response_status(response) == expected_status
+        assert response_header(response, b"access-control-allow-origin") == (origin.encode() if accepted else None)
+        assert len(app.core.get_sessions("/")) == (1 if accepted and method == "GET" else 0)
+    finally:
+        await app.core.stop()
+
+
+@pytest.mark.parametrize(("allowed_host", "origin", "accepted"), [
+    ("[::1]", "http://[::1]", True),
+    ("[::1]", "http://[::1]:80", True),
+    ("[::1]", "http://[::1]:5006", False),
+    ("[::1]", "http://[::2]", False),
+    ("[0:0:0:0:0:0:0:1]:5006", "http://[::1]:5006", True),
+    ("[::1]:5006", "http://[0:0:0:0:0:0:0:1]:5006", True),
+    ("[::1]:5006", "http://[::1]:5007", False),
+    ("[::1]:5006", "http://[::2]:5006", False),
+    ("[::1]:*", "http://[::1]:5006", True),
+    ("trusted.example", "http://trusted.example:5006", False),
+])
+async def test_websocket_ipv6_origin_allowlist(allowed_host: str, origin: str, accepted: bool) -> None:
+    app = BokehASGI(Application(), extra_websocket_origins=[allowed_host])
+    token = generate_jwt_token(cast(ID, "ipv6-session"), expiration=300)
+    incoming = deque([{"type": "websocket.connect"}, {"type": "websocket.disconnect", "code": 1000}])
+    sent: list[dict[str, Any]] = []
+
+    async def receive() -> dict[str, Any]:
+        return incoming.popleft()
+
+    async def send(event: dict[str, Any]) -> None:
+        sent.append(event)
+
+    try:
+        await app(
+            {
+                "type": "websocket",
+                "asgi": {"version": "3.0", "spec_version": "2.3"},
+                "scheme": "ws",
+                "path": "/ws",
+                "root_path": "",
+                "query_string": b"",
+                "headers": [(b"host", b"localhost"), (b"origin", origin.encode())],
+                "subprotocols": ["bokeh", token],
+            },
+            receive,
+            send,
+        )
+        if accepted:
+            assert [event["type"] for event in sent] == ["websocket.accept", "websocket.send"]
+            assert "ACK" in sent[1]["text"]
+        else:
+            assert sent == [{"type": "websocket.close", "code": 1008, "reason": "Origin is not allowed"}]
+        assert len(app.core.get_sessions("/")) == (1 if accepted else 0)
+    finally:
+        await app.core.stop()
+
+
+@pytest.mark.parametrize("host", ["[::1", "[::1]extra", "[not-ipv6]:5006", "[::1]:xyz", "::1:5006"])
+def test_ipv6_origin_allowlist_validation(host: str) -> None:
+    with pytest.raises(ValueError):
+        BokehASGI(Application(), extra_websocket_origins=[host])
+
+
 async def test_embed_bootstrap_rejects_resource_policy_before_session_creation() -> None:
     initialized = 0
 
