@@ -25,7 +25,12 @@ from bokeh.embed.resources import extension_dirs
 from bokeh.server.asgi import BokehASGI
 
 # Bokeh test imports
-from tests.unit.bokeh.server.test_asgi import http_request, response_body, response_header, response_status
+from tests.unit.bokeh.server.test_asgi import (
+    http_request,
+    response_body,
+    response_header,
+    response_status,
+)
 
 
 @pytest.fixture(params=["root", "application", "extension"])

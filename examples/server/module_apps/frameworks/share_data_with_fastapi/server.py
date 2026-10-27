@@ -16,9 +16,12 @@ from fastapi.responses import HTMLResponse
 from bokeh.embed import embed_server
 from bokeh.server.asgi import BokehASGI
 from examples.server.module_apps.lifecycle.share_data_with_asgi.producer import (
-    produce as produce_shared, report_producer_failure)
-from examples.server.module_apps.updating_data.share_data_between_sessions.app import \
-    modify_document
+    produce as produce_shared,
+    report_producer_failure,
+)
+from examples.server.module_apps.updating_data.share_data_between_sessions.app import (
+    modify_document,
+)
 
 bokeh_application = BokehASGI({"/": modify_document})
 

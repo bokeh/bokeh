@@ -6,8 +6,15 @@ import pandas as pd
 from jinja2 import Environment, FileSystemLoader
 
 from bokeh.layouts import layout as make_layout
-from bokeh.models import (Button, CategoricalColorMapper, ColumnDataSource,
-                          HoverTool, Label, SingleIntervalTicker, Slider)
+from bokeh.models import (
+    Button,
+    CategoricalColorMapper,
+    ColumnDataSource,
+    HoverTool,
+    Label,
+    SingleIntervalTicker,
+    Slider,
+)
 from bokeh.palettes import Spectral6
 from bokeh.plotting import figure
 from bokeh.server.asgi import BokehASGI

@@ -14,7 +14,6 @@ from urllib.request import Request, urlopen
 
 # External imports
 import pytest
-from tests.support.util.asgi import running_asgi
 from websockets.exceptions import InvalidStatus
 from websockets.sync.client import connect
 
@@ -23,6 +22,7 @@ from bokeh.models import Div
 from bokeh.server.asgi import BokehASGI
 from bokeh.server.auth import AuthPolicy
 from bokeh.util.token import generate_jwt_token, generate_session_id, get_token_payload
+from tests.support.util.asgi import running_asgi
 
 
 @pytest.mark.parametrize('mode', ['unsigned', 'signed', 'external-signed'])

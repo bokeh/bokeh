@@ -11,7 +11,6 @@ import os
 from urllib.parse import urlsplit
 
 import pytest
-from tests.support.util.asgi import running_asgi
 
 from bokeh.application import Application
 from bokeh.application.handlers.function import FunctionHandler
@@ -22,6 +21,7 @@ from bokeh.model import DataModel, Model
 from bokeh.models import CustomJS, Div
 from bokeh.server.asgi import BokehASGI
 from bokeh.util.compiler import TypeScript
+from tests.support.util.asgi import running_asgi
 
 playwright = pytest.importorskip("playwright.async_api")
 

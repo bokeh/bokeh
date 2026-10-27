@@ -2,10 +2,12 @@ from uuid import uuid4
 
 import streamlit as st
 
-from examples.server.module_apps.frameworks.control_particles_with_streamlit.modes import \
-    MODES
-from examples.server.module_apps.frameworks.control_particles_with_streamlit.state import \
-    viewer_states
+from examples.server.module_apps.frameworks.control_particles_with_streamlit.modes import (
+    MODES,
+)
+from examples.server.module_apps.frameworks.control_particles_with_streamlit.state import (
+    viewer_states,
+)
 
 PAGE_TITLE = "Streamlit-controlled particle simulation"
 

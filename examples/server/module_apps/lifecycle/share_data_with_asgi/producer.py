@@ -7,7 +7,10 @@ from math import pi
 from bokeh.document import Document
 from bokeh.server.asgi import BokehASGI
 from examples.server.module_apps.updating_data.share_data_between_sessions.app import (
-    apply_snapshot, latest, make_snapshot)
+    apply_snapshot,
+    latest,
+    make_snapshot,
+)
 
 
 async def produce(bokeh_application: BokehASGI) -> None:

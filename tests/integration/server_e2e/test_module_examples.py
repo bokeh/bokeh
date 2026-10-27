@@ -14,6 +14,7 @@ from pathlib import Path
 
 # External imports
 import pytest
+
 # Bokeh imports
 from tests.integration.server_e2e.test_examples import browser as browser_fixture
 from tests.support.util.asgi import running_asgi

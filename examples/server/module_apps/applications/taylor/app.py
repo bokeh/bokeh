@@ -5,8 +5,14 @@ import sympy as sy
 
 from bokeh.core.properties import value
 from bokeh.layouts import column
-from bokeh.models import (ColumnDataSource, Legend, LegendItem,
-                          PreText, Slider, TextInput)
+from bokeh.models import (
+    ColumnDataSource,
+    Legend,
+    LegendItem,
+    PreText,
+    Slider,
+    TextInput,
+)
 from bokeh.plotting import figure
 from bokeh.server.asgi import BokehASGI
 

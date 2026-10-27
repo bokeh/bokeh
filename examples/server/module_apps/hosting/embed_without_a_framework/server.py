@@ -15,7 +15,7 @@ type Receive = Callable[[], Awaitable[Message]]
 type Scope = dict[str, Any]
 type Send = Callable[[Message], Awaitable[None]]
 
-bokeh_application = BokehASGI(modify_document)
+bokeh_application = BokehASGI(modify_document, prefix="/bkapp")
 template = Environment(loader=FileSystemLoader(Path(__file__).parent), autoescape=True).get_template("index.html")
 
 
@@ -42,15 +42,16 @@ async def app(scope: Scope, receive: Receive, send: Send) -> None:
     """Dispatch a small site and a mounted Bokeh app using only ASGI."""
     scope_type = scope["type"]
     path = scope.get("path", "")
+    root_path = scope.get("root_path", "").rstrip("/")
+    if root_path and (path == root_path or path.startswith(root_path + "/")):
+        path = path[len(root_path):] or "/"
 
     if scope_type == "lifespan":
         await bokeh_application(scope, receive, send)
     elif scope_type in ("http", "websocket") and (
         path == "/bkapp" or path.startswith("/bkapp/")
     ):
-        mounted_scope = dict(scope)
-        mounted_scope["root_path"] = scope.get("root_path", "") + "/bkapp"
-        await bokeh_application(mounted_scope, receive, send)
+        await bokeh_application(scope, receive, send)
     elif scope_type == "http":
         method = scope["method"].upper()
         if path == "/" and method in ("GET", "HEAD"):

@@ -37,19 +37,20 @@ if not settings.configured:
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", __name__)
 django_application = get_asgi_application()
-bokeh_application = BokehASGI(modify_document)
+bokeh_application = BokehASGI(modify_document, prefix="/bkapp")
 
 
 async def app(scope, receive, send):
     path_info = scope.get("path", "")
+    root_path = scope.get("root_path", "").rstrip("/")
+    if root_path and (path_info == root_path or path_info.startswith(root_path + "/")):
+        path_info = path_info[len(root_path):] or "/"
     if scope["type"] == "lifespan":
         # Django does not consume ASGI lifespan events, so Bokeh owns them.
         await bokeh_application(scope, receive, send)
     elif scope["type"] in ("http", "websocket") and (
         path_info == "/bkapp" or path_info.startswith("/bkapp/")
     ):
-        mounted_scope = dict(scope)
-        mounted_scope["root_path"] = scope.get("root_path", "") + "/bkapp"
-        await bokeh_application(mounted_scope, receive, send)
+        await bokeh_application(scope, receive, send)
     else:
         await django_application(scope, receive, send)

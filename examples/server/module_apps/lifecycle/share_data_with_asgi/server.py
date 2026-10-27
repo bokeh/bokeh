@@ -2,8 +2,9 @@ import asyncio
 from contextlib import suppress
 
 from bokeh.server.asgi import BokehASGI
-from examples.server.module_apps.updating_data.share_data_between_sessions.app import \
-    modify_document
+from examples.server.module_apps.updating_data.share_data_between_sessions.app import (
+    modify_document,
+)
 
 from .producer import produce, report_producer_failure
 

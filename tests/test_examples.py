@@ -31,8 +31,6 @@ from playwright.sync_api import (  # type: ignore[attr-defined]
     TimeoutError as PlaywrightTimeoutError,
     sync_playwright,
 )
-from tests.support.util.asgi import running_asgi
-from tests.support.util.examples import Example, Flags, collect_examples
 
 # Bokeh imports
 from bokeh.application.handlers.function import FunctionHandler
@@ -46,6 +44,8 @@ from bokeh.util.terminal import (
     warn,
     white,
 )
+from tests.support.util.asgi import running_asgi
+from tests.support.util.examples import Example, Flags, collect_examples
 
 #-----------------------------------------------------------------------------
 # Setup

@@ -9,8 +9,14 @@ import pandas as pd
 from jinja2 import Environment, FileSystemLoader
 
 from bokeh.layouts import column
-from bokeh.models import (ColumnDataSource, DataTable, NumberFormatter,
-                          RangeTool, StringFormatter, TableColumn)
+from bokeh.models import (
+    ColumnDataSource,
+    DataTable,
+    NumberFormatter,
+    RangeTool,
+    StringFormatter,
+    TableColumn,
+)
 from bokeh.palettes import Spectral11
 from bokeh.plotting import figure
 from bokeh.sampledata.autompg2 import autompg2 as mpg

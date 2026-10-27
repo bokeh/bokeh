@@ -3,8 +3,14 @@
 from math import pi
 
 from bokeh.layouts import column, row
-from bokeh.models import (ColumnDataSource, CustomJSTickFormatter, CustomJSTransform,
-                          ScaledTicker, ScaledTickFormatter, Select)
+from bokeh.models import (
+    ColumnDataSource,
+    CustomJSTickFormatter,
+    CustomJSTransform,
+    ScaledTicker,
+    ScaledTickFormatter,
+    Select,
+)
 from bokeh.plotting import figure
 from bokeh.sampledata.population import data as df
 from bokeh.server.asgi import BokehASGI

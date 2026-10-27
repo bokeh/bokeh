@@ -7,8 +7,15 @@ import pandas as pd
 from jinja2 import Environment, FileSystemLoader
 
 from bokeh.layouts import column, row
-from bokeh.models import (Button, ColumnDataSource, CustomJS, DataTable,
-                          NumberFormatter, RangeSlider, TableColumn)
+from bokeh.models import (
+    Button,
+    ColumnDataSource,
+    CustomJS,
+    DataTable,
+    NumberFormatter,
+    RangeSlider,
+    TableColumn,
+)
 from bokeh.server.asgi import BokehASGI
 
 

@@ -1,8 +1,9 @@
 from dataclasses import dataclass, replace
 from threading import Lock
 
-from examples.server.module_apps.frameworks.control_particles_with_streamlit.modes import \
-    MODES
+from examples.server.module_apps.frameworks.control_particles_with_streamlit.modes import (
+    MODES,
+)
 
 
 @dataclass(frozen=True)
