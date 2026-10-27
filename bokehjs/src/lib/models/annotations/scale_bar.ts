@@ -70,10 +70,29 @@ export class ScaleBarView extends AnnotationView {
     return [...super._children_views(), this.axis_view]
   }
 
-  protected axis_scale: Scale
-  protected cross_scale: Scale
+  protected x_scale: Scale
+  protected y_scale: Scale
 
-  protected range: Range
+  protected get axis_scale(): Scale {
+    return this.horizontal ? this.x_scale : this.y_scale
+  }
+
+  protected get cross_scale(): Scale {
+    return this.horizontal ? this.y_scale : this.x_scale
+  }
+
+  protected get range(): Range {
+    const {range, orientation} = this.model
+    if (range == "auto") {
+      const {frame} = this.plot_view
+      switch (orientation) {
+        case "horizontal": return frame.x_range
+        case "vertical":   return frame.y_range
+      }
+    } else {
+      return range
+    }
+  }
 
   protected override _get_size(): Size {
     const {width, height} = this.bbox
@@ -92,53 +111,37 @@ export class ScaleBarView extends AnnotationView {
       ticker,
       ...mixins.attrs_of(this.model, "bar_", mixins.Line, "axis_"),
     })
-
-    this.range = (() => {
-      const {range, orientation} = this.model
-      if (range == "auto") {
-        const {frame} = this.plot_view
-        switch (orientation) {
-          case "horizontal": return frame.x_range
-          case "vertical":   return frame.y_range
-        }
-      } else {
-        return range
-      }
-    })()
   }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
-    const coordinates = (() => {
-      const axis_source = Range1d.create()
-      const axis_target = Range1d.create()
-      const cross_source = Range1d.create()
-      const cross_target = Range1d.create()
-      this.axis_scale = LinearScale.create({source_range: axis_source, target_range: axis_target})
-      this.cross_scale = LinearScale.create({source_range: cross_source, target_range: cross_target})
-      if (this.model.orientation == "horizontal") {
-        return new CoordinateTransform(this.axis_scale, this.cross_scale)
-      } else {
-        return new CoordinateTransform(this.cross_scale, this.axis_scale)
-      }
-    })()
+    this.x_scale = LinearScale.create({source_range: Range1d.create(), target_range: Range1d.create()})
+    this.y_scale = LinearScale.create({source_range: Range1d.create(), target_range: Range1d.create()})
 
     this.axis_view = await build_view(this.axis, {parent: this})
-    this.axis_view.coordinates = coordinates
-    this.axis_view.panel = new SidePanel(this.model.orientation == "horizontal" ? "below" : "right")
-    this.axis_view.update_layout()
+    this.axis_view.coordinates = new CoordinateTransform(this.x_scale, this.y_scale)
+    this._update_axis_panel()
   }
 
   override connect_signals(): void {
     super.connect_signals()
 
+    const {orientation, range} = this.model.properties
+    this.on_change(orientation, () => {
+      this._update_axis_panel()
+    })
+    this.on_transitive_change(range, () => {
+      this.request_paint()
+    })
     this.connect(this.model.change, () => {
       this.request_paint()
     })
-    this.connect(this.range.change, () => {
-      this.request_paint()
-    })
+  }
+
+  protected _update_axis_panel(): void {
+    this.axis_view.panel = new SidePanel(this.horizontal ? "below" : "right")
+    this.axis_view.update_layout()
   }
 
   override update_layout(): void {
