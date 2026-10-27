@@ -346,6 +346,12 @@ Makefile:
 
     make -C docs/bokeh reference
 
+Each class page is placed in the section whose slug matches the class's
+module, for example classes from ``bokeh.models.widgets.sliders`` are listed
+under ``widgets/sliders``. Sections are defined in
+:bokeh-tree:`docs/bokeh/api_reference/sections.json`, which can also list a
+class explicitly to place it in a different section.
+
 Documentation builds check that the generated pages are current. Use
 ``make -C docs/bokeh reference-check`` to run the same check without changing
 any files. The underlying generator is available as ``python -m api_reference``

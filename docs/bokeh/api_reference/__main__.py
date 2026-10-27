@@ -76,6 +76,17 @@ def _load_sections() -> list[SectionReference]:
     return sections
 
 
+def _infer_section(module: str, slugs: set[str]) -> str | None:
+    # e.g. bokeh.models.widgets.sliders -> widgets/sliders, using the longest matching slug
+    if not module.startswith("bokeh.models."):
+        return None
+    parts = module.removeprefix("bokeh.models.").split(".")
+    for n in range(len(parts), 0, -1):
+        if (slug := "/".join(parts[:n])) in slugs:
+            return slug
+    return None
+
+
 def _load_public_classes(sections: list[SectionReference] | None = None) -> list[ClassReference]:
     sys.path.insert(0, str(REPO_ROOT / "src"))
 
@@ -98,15 +109,24 @@ def _load_public_classes(sections: list[SectionReference] | None = None) -> list
         seen.add(obj)
         public_objects[name] = obj
 
-    missing = sorted(set(public_objects) - set(section_by_name), key=str.casefold)
     stale = sorted(set(section_by_name) - set(public_objects), key=str.casefold)
+
+    slugs = {section.slug for section in sections}
+    for name, obj in public_objects.items():
+        if name not in section_by_name and (slug := _infer_section(obj.__module__, slugs)) is not None:
+            section_by_name[name] = slug
+
+    missing = sorted(set(public_objects) - set(section_by_name), key=str.casefold)
     if missing or stale:
-        details = []
-        if missing:
-            details.append(f"unassigned public classes: {', '.join(missing)}")
+        registry = SECTION_REGISTRY_PATH.relative_to(REPO_ROOT).as_posix()
+        details = [
+            f"cannot infer the section of public class {name!r} from its module {public_objects[name].__module__!r}; "
+            f"add {name!r} to the classes of a section in {registry}"
+            for name in missing
+        ]
         if stale:
-            details.append(f"unknown registered classes: {', '.join(stale)}")
-        raise RuntimeError("; ".join(details))
+            details.append(f"unknown registered classes: {', '.join(stale)}; remove them from {registry}")
+        raise RuntimeError("\n".join(details))
 
     classes = [
         ClassReference(name, obj.__module__, section_by_name[name], issubclass(obj, Model))
