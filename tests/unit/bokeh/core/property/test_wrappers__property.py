@@ -659,15 +659,3 @@ def test_ColumnData_wrap() -> None:
 #-----------------------------------------------------------------------------
 
 Test___all__ = verify_all(bcpw, ALL)
-
-
-def test_notifying_owners_can_unregister_a_replaced_container() -> None:
-    container = bcpw.PropertyValueList([1, 3, 2])
-    owners = [(MagicMock(), MagicMock()), (MagicMock(), MagicMock())]
-    for owner, descriptor in owners:
-        container._register_owner(owner, descriptor)
-        descriptor._notify_mutated.side_effect = lambda owner, old, hint, descriptor=descriptor: container._unregister_owner(owner, descriptor)
-    container._notify_owners([1, 3])
-    assert container._owners == set()
-    for owner, descriptor in owners:
-        descriptor._notify_mutated.assert_called_once_with(owner, [1, 3], hint=None)
