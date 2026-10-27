@@ -68,6 +68,7 @@ from typing import (
 )
 
 from ..core.serialization import Serializable
+from ..util.dataclasses import Unspecified
 from .json import (
     ColumnDataChanged,
     ColumnsPatched,
@@ -363,6 +364,7 @@ class ModelChangedEvent(DocumentPatchedEvent, kind="ModelChanged"):
         self.attr = attr
         self.new = new
         self.callback_policy = callback_policy
+        self._representation: Any = Unspecified
 
     def combine(self, event: DocumentChangedEvent) -> bool:
         '''
@@ -380,6 +382,7 @@ class ModelChangedEvent(DocumentPatchedEvent, kind="ModelChanged"):
 
         if (self.model == event.model) and (self.attr == event.attr) and (self.callback_policy == event.callback_policy):
             self.new = event.new
+            self._representation = event._representation
             self.callback_invoker = event.callback_invoker
             return True
 
@@ -407,7 +410,7 @@ class ModelChangedEvent(DocumentPatchedEvent, kind="ModelChanged"):
             kind  = self.kind,
             model = self.model.ref,
             attr  = self.attr,
-            new   = self.model._serialize_property(self.attr, self.new, serializer),
+            new   = serializer.encode(self.new if self._representation is Unspecified else self._representation),
         )
         if self.callback_policy is not None:
             event["callback_policy"] = list(self.callback_policy)
