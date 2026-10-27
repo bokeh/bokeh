@@ -38,10 +38,13 @@ async def test_script_example_builds_independent_sessions(path, caplog):
         assert not context.application._handlers[0].failed
         if path.stem == 'lock_document_callbacks':
             async def producer_for(session):
-                callback = next(iter(session.document.session_destroyed_callbacks))
-                while (thread := inspect.getclosurevars(callback).nonlocals.get('thread')) is None:
+                # LockedCallback registers its own cleanup hook in this unordered set.
+                while True:
+                    for callback in tuple(session.document.session_destroyed_callbacks):
+                        state = inspect.getclosurevars(callback).nonlocals
+                        if (thread := state.get('thread')) is not None and thread.is_alive():
+                            return thread
                     await asyncio.sleep(0.01)
-                return thread
 
             producers = await asyncio.wait_for(asyncio.gather(
                 producer_for(first), producer_for(second),

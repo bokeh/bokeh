@@ -54,6 +54,8 @@ def test_conda_recipe_dependencies_match_project_dependencies() -> None:
 
     actual = constraints(conda_dependencies)
     assert actual.pop("python") == ">=3.12"
+    # Conda packages the PyPI uvicorn[standard] dependency under a separate name.
+    actual["uvicorn"] = actual.pop("uvicorn-standard")
     assert actual == constraints(project_dependencies)
 
 
