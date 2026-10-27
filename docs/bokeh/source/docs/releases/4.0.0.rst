@@ -14,6 +14,9 @@ New features
 * Expanded :class:`~bokeh.models.Markdown` with syntax highlighting, footnotes,
   heading anchors, admonitions, definition lists, collapsible sections,
   embedded Bokeh models, rendering options, and ``_repr_markdown_()`` support.
+* Added compact binary transport for selection indices while preserving public
+  Python lists and JavaScript arrays (:bokeh-issue:`15542`, :bokeh-pull:`15575`).
+
 * Added :class:`~bokeh.models.ScaledTicker` and
   :class:`~bokeh.models.ScaledTickFormatter` for selecting and formatting ticks
   with a scale and configurable origin. They support repeated prefixes and

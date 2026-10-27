@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 
@@ -27,6 +27,7 @@ from ..core.has_props import abstract
 from ..core.property.container import Dict, List
 from ..core.property.primitive import Int
 from ..core.property.struct import Struct
+from ..core.property.wrappers import PropertyValueDict
 from ..model import Model
 from ._selection import encode, normalize, validate
 
@@ -73,6 +74,10 @@ def _multiline_key(key: Any) -> int:
     return int(key)
 
 
+class _MultilineMap(PropertyValueDict[list[int]]):
+    """ Distinguish selection maps from other observed dictionary inputs. """
+
+
 class _MultilineIndices(Dict[int, list[int]]):
     def prepare_value(self, owner: HasProps | type[HasProps], name: str, value: Any, *,
             hint: DocumentPatchedEvent | None = None) -> dict[int, list[int]]:
@@ -91,7 +96,13 @@ class _MultilineIndices(Dict[int, list[int]]):
             validate(values)
 
     def transform(self, value: Any) -> dict[int, list[int]]:
-        return {_multiline_key(key): normalize(values) for key, values in sorted(value.items())}
+        items = [(_multiline_key(key), normalize(values)) for key, values in sorted(value.items())]
+        if not isinstance(value, _MultilineMap):
+            value = _MultilineMap()
+        # Keep the selection mapping and its owners when normalizing a mutation.
+        dict.clear(value)
+        dict.update(value, items)
+        return cast(dict[int, list[int]], value)
 
 
 class Selection(Model):
@@ -108,7 +119,9 @@ class Selection(Model):
     indices. They represent sets: duplicates are removed and order is not
     significant. Values are stored in ascending order. This applies to
     ``indices``, ``line_indices``, and values in ``multiline_indices``.
-    Assign a new sequence to change a selection.
+    Python supports in-place updates to ``indices``, ``line_indices``, and the
+    ``multiline_indices`` dictionary. Replace a dictionary value to update that
+    row. In JavaScript, assign a new array to trigger a change.
 
     '''
 
@@ -134,14 +147,14 @@ class Selection(Model):
 
     This value records which points, on which lines, are part of a selection
     on a ``MultiLine``. The keys are the top level indices (i.e. which line)
-    which map to arrays of indices (i.e. which points on that line).
+    which map to lists of indices (i.e. which points on that line).
 
     If you only need to know which lines are selected, without knowing what
     individual points on those lines are selected, then you can look at the
     keys of this dictionary (converted to ints).
     """)
 
-    image_indices = List[dict[str, int]](Struct(index=Int, i=Int, j=Int, flat_index=Int), help="""
+    image_indices = List(Struct(index=Int, i=Int, j=Int, flat_index=Int), help="""
 
     """)
 

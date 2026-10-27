@@ -15,6 +15,7 @@ import numpy as np
 import pytest
 
 # Bokeh imports
+from bokeh.core.property.wrappers import PropertyValueDict
 from bokeh.core.serialization import (
     Buffer,
     Deserializer,
@@ -192,6 +193,109 @@ def test_selection_set_semantics_and_callbacks(attr: str) -> None:
     setattr(selection, attr, value([3, 1, 3]))
     assert changes == [(value([1, 2, 9]), value([1, 3]))]
     assert isinstance(changes[0][1][7] if attr == "multiline_indices" else changes[0][1], list)
+
+
+@pytest.mark.parametrize("attr", ["indices", "line_indices"])
+@pytest.mark.parametrize("empty", [False, True])
+def test_held_selection_list_keeps_identity_and_notifies(attr: str, empty: bool) -> None:
+    initial = [] if empty else [1, 3]
+    selection = Selection(**{attr: initial})
+    held = getattr(selection, attr)
+    changes = []
+
+    def callback(attr, old, new):
+        assert getattr(selection, attr) is held
+        changes.append((list(old), list(new)))
+
+    selection.on_change(attr, callback)
+    held.extend([5, 2, 5])
+    first = [2, 5] if empty else [1, 2, 3, 5]
+    assert held == first
+    held.append(7)
+    second = [*first, 7]
+    assert held == second
+    held.append(7)
+    held.reverse()
+    assert held == second
+    assert len(changes) == 2
+    del held[:]
+    assert held == []
+    held.extend([8, 1, 8])
+    assert held == [1, 8]
+    assert getattr(selection, attr) is held
+    assert changes == [(initial, first), (first, second), (second, []), ([], [1, 8])]
+
+
+@pytest.mark.parametrize("empty", [False, True])
+def test_held_multiline_map_keeps_identity_and_notifies(empty: bool) -> None:
+    initial = {} if empty else {7: [1, 3]}
+    selection = Selection(multiline_indices=initial)
+    held = selection.multiline_indices
+    changes = []
+
+    def snapshot(value):
+        return {key: list(indices) for key, indices in value.items()}
+
+    def callback(attr, old, new):
+        assert selection.multiline_indices is held
+        changes.append((snapshot(old), snapshot(new)))
+
+    selection.on_change("multiline_indices", callback)
+    held.update({7: [5, 1, 5], 2: [4, 4]})
+    first = {2: [4], 7: [1, 5]}
+    assert held == first
+    assert list(held) == [2, 7]
+    held[7] = [5, 1, 5]
+    assert held == first
+    assert len(changes) == 1
+    del held[2]
+    held[3] = [9, 8, 9]
+    assert held == {3: [8, 9], 7: [1, 5]}
+    assert list(held) == [3, 7]
+    assert selection.multiline_indices is held
+    assert changes == [(initial, first), (first, {7: [1, 5]}), ({7: [1, 5]}, {3: [8, 9], 7: [1, 5]})]
+
+
+def test_multiline_ingestion_does_not_mutate_foreign_property_dict() -> None:
+    supplied = PropertyValueDict({7: [3, 1, 3]})
+    selection = Selection(multiline_indices=supplied)
+    assert supplied == {7: [3, 1, 3]}
+    assert supplied._owners == set()
+    assert selection.multiline_indices == {7: [1, 3]}
+    assert selection.multiline_indices is not supplied
+
+
+def test_held_selection_list_normalizes_across_array_chunks() -> None:
+    count = 65_537
+    selection = Selection(indices=list(range(count)))
+    held = selection.indices
+    changes = []
+    selection.on_change("indices", lambda attr, old, new: changes.append(list(new)))
+    held.extend(reversed(held))
+    assert selection.indices is held
+    assert held == list(range(count))
+    assert changes == []
+    held.append(count)
+    assert selection.indices is held
+    assert changes == [list(range(count + 1))]
+
+
+@pytest.mark.parametrize("attr", ["indices", "line_indices", "multiline_indices"])
+def test_shared_selection_container_keeps_all_owners(attr: str) -> None:
+    first = Selection(**{attr: {7: [1]} if attr == "multiline_indices" else [1]})
+    held = getattr(first, attr)
+    second = Selection(**{attr: held})
+    changes = [[], []]
+    for model, events in zip([first, second], changes):
+        model.on_change(attr, lambda attr, old, new, events=events: events.append(new))
+    if attr == "multiline_indices":
+        held[7] = [5, 1, 5]
+        held[2] = [2]
+    else:
+        held.append(5)
+        held.append(7)
+    assert getattr(first, attr) is getattr(second, attr) is held
+    assert [len(events) for events in changes] == [2, 2]
 
 
 def test_selection_list_mutation_notifies_and_normalizes() -> None:
