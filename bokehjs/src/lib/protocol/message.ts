@@ -100,15 +100,9 @@ export class Message<T> {
   send(socket: Socket): void {
     const buffers: [ID, ArrayBuffer][] = []
     const buffer_ids: ID[] = []
-    const shared_buffers = new Map<ArrayBuffer, ID>()
     const envelope_json = JSON.stringify({header: this.header, content: this.content, buffers: buffer_ids}, (_, val) => {
       if (val instanceof Buffer) {
-        const shared_id = shared_buffers.get(val.buffer)
-        if (shared_id != null) {
-          return {id: shared_id}
-        }
         const id = `${buffers.length}`
-        shared_buffers.set(val.buffer, id)
         buffer_ids.push(id)
         buffers.push([id, val.buffer])
         return {id}

@@ -11,6 +11,9 @@ New features
 * Added explicit immediate delivery and configurable throttling, debouncing,
   and committed-only delivery to ``Model.on_change()`` and
   ``Model.js_on_change()`` callbacks.
+* Added compact binary transport for selection indices while preserving public
+  Python lists and JavaScript arrays (:bokeh-issue:`15542`, :bokeh-pull:`15575`).
+
 * Added :class:`~bokeh.models.ScaledTicker` and
   :class:`~bokeh.models.ScaledTickFormatter` for selecting and formatting ticks
   with a scale and configurable origin. They support repeated prefixes and

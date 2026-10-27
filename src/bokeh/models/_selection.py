@@ -55,8 +55,12 @@ def _canonical(values: Iterable[int]) -> _Indices:
     return result
 
 
-def _from_array(array: np.ndarray[Any, Any]) -> _Indices:
-    result = _Indices()
+def _from_array(array: np.ndarray[Any, Any], result: _Indices | None = None) -> _Indices:
+    if result is None:
+        result = _Indices()
+    else:
+        result._canonical = False
+        list.clear(result)
     # Bound temporary Python lists and avoid a second full-size pointer array.
     for start in range(0, len(array), 65536):
         list.extend(result, array[start:start + 65536].tolist())
@@ -86,11 +90,14 @@ def normalize(values: Any) -> list[int]:
     if isinstance(values, _Indices) and values._canonical:
         return values
     array = _validate_array(values)
-    if not array.size:
-        return _canonical(())
-    if np.all(array[1:] > array[:-1]):
+    if not array.size or np.all(array[1:] > array[:-1]):
+        if isinstance(values, _Indices):
+            values._canonical = True
+            return values
         return _canonical(values) if isinstance(values, list) else _from_array(array)
-    return _from_array(np.unique(array))
+    # Preserve held references and registered owners without recursively
+    # invoking the instrumented mutation methods during normalization.
+    return _from_array(np.unique(array), values if isinstance(values, _Indices) else None)
 
 
 def pack(values: list[int], adaptive: bool = True) -> tuple[dict[str, Any], bytes]:
