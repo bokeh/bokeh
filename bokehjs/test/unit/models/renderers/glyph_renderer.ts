@@ -13,7 +13,7 @@ import {Arc, Circle, MultiLine, Rect, Scatter, Segment} from "@bokehjs/models/gl
 import {NormalHead} from "@bokehjs/models/annotations/arrow_head"
 import {build_view} from "@bokehjs/core/build_views"
 import {Plot} from "@bokehjs/models/plots"
-import {FactorRange} from "@bokehjs/models/ranges"
+import {FactorRange, Range1d} from "@bokehjs/models/ranges"
 import {CategoricalScale} from "@bokehjs/models/scales"
 
 function mkrenderer(glyph: Scatter): GlyphRenderer {
@@ -147,6 +147,31 @@ describe("GlyphRendererView", () => {
     const {decimated_glyph} = await make_grv()
     expect((decimated_glyph.model as Scatter).line_alpha).to.be.equal({value: 0.3})
     expect((decimated_glyph.model as Scatter).line_color).to.be.equal({value: "grey"})
+  })
+
+  it("should paint overlapping selected glyphs in data order after nonselected glyphs", async () => {
+    const data_source = ColumnDataSource.create({data: {x: [0, 0, 0], y: [0, 0, 0], color: ["red", "green", "blue"]}})
+    const gr = GlyphRenderer.create({glyph: Scatter.create({size: 20, fill_color: {field: "color"}}), data_source})
+    const plot = Plot.create({
+      width: 200, height: 200, renderers: [gr],
+      x_range: Range1d.create({start: -1, end: 1}),
+      y_range: Range1d.create({start: -1, end: 1}),
+    })
+    const {view} = await display(plot)
+    const grv = view.renderer_views.get(gr)
+    assert(grv instanceof GlyphRendererView)
+    using selected = restorable(sinon.spy(grv.selection_glyph, "paint"))
+    using nonselected = restorable(sinon.spy(grv.nonselection_glyph, "paint"))
+    data_source.selected.indices = [0, 2]
+    // Exercise both orders directly, including the insertion order used before normalization.
+    for (let i = 0; i < 2; i++) {
+      data_source.selected.indices.reverse()
+      grv.paint(view.canvas_view.primary.ctx)
+      expect(Array.from(nonselected.lastCall.args[1])).to.be.equal([1])
+      expect(Array.from(selected.lastCall.args[1])).to.be.equal([0, 2])
+      expect(nonselected.lastCall.calledBefore(selected.lastCall)).to.be.true
+    }
+    expect(data_source.get_array("color")).to.be.equal(["red", "green", "blue"])
   })
 
   it("should call set_data() once when working with FactorRange", async () => {
