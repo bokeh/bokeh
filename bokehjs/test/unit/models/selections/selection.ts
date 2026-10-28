@@ -63,6 +63,20 @@ describe("Selection", () => {
     })
 
     for (const attr of ["indices", "line_indices", "multiline_indices"] as const) {
+      it(`should pack non-contiguous ${attr} with a high origin and partial final byte`, () => {
+        const values = Array.from({length: 128}, (_, i) => 2147483391 + 2*i)
+        const selection = Selection.create({[attr]: attr == "multiline_indices" ? new Map([[7, values]]) : values})
+        const frames = send(selection)
+        expect(frames.length).to.be.equal(2)
+        expect(new Uint8Array(frames[1] as ArrayBuffer)).to.be.equal(new Uint8Array(32).fill(0x55))
+        const restored = decode(frames) as Selection
+        expect(restored[attr]).to.be.equal(selection[attr])
+        const result = attr == "multiline_indices" ? restored.multiline_indices.get(7) : restored[attr]
+        expect(Array.isArray(result)).to.be.true
+      })
+    }
+
+    for (const attr of ["indices", "line_indices", "multiline_indices"] as const) {
       const value = (values: number[]) => attr == "multiline_indices" ? new Map([[7, values], [42, []]]) : values
       it(`should normalize ${attr} and notify only for changed sets, including received patches`, () => {
         const selection = Selection.create({[attr]: value([9, 2, 9, 1])})
