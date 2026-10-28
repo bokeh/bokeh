@@ -1,9 +1,9 @@
 import {DocumentRegistry} from "@jupyterlab/docregistry"
-import {INotebookModel} from "@jupyterlab/notebook"
 import {Contents} from "@jupyterlab/services"
 import {IDisposable} from "@lumino/disposable"
 
 import {resolveJupyterApplicationArtifact, resolveJupyterApplicationUrl} from "./host"
+import type {NotebookModel} from "./notebook_types"
 import {BokehNotebookError} from "./protocol"
 import {FrontendDocumentSnapshot} from "./runtime"
 
@@ -13,14 +13,14 @@ export interface SnapshotSource {
 
 export class ContextManager implements IDisposable {
   constructor(
-    private _context: DocumentRegistry.IContext<INotebookModel> | null,
+    private _context: DocumentRegistry.IContext<NotebookModel> | null,
     private readonly contents: Contents.IManager,
   ) {}
 
   private readonly renderers = new Set<SnapshotSource>()
   private ownedViews = new Set<string>()
 
-  get context(): DocumentRegistry.IContext<INotebookModel> {
+  get context(): DocumentRegistry.IContext<NotebookModel> {
     if (this._context == null) throw new Error("Notebook context was disposed")
     return this._context
   }

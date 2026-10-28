@@ -17,12 +17,12 @@
     "@jupyterlab/application": "^4",
     "@jupyterlab/cells": "^4",
     "@jupyterlab/docregistry": "^4",
-    "@jupyterlab/notebook": "^4",
     "@jupyterlab/rendermime": "^4",
     "@jupyterlab/rendermime-interfaces": "^3",
     "@jupyterlab/services": "^7",
     "@lumino/coreutils": "^2",
     "@lumino/disposable": "^2",
+    "@lumino/signaling": "^2",
     "@lumino/widgets": "^2"
   },
   "devDependencies": {
@@ -35,7 +35,6 @@
     "webpack-cli": "^6"
   },
   "overrides": {
-    "katex": "^0.18.2",
     "sanitize-html": "^2.18.0"
   },
   "jupyterlab": {
