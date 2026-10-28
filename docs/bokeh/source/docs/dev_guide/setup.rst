@@ -168,8 +168,9 @@ subdirectory.
 
 .. note::
     ``pixi run setup`` also installs the JavaScript dependencies, after
-    removing any previous BokehJS build. Run either command again whenever
-    ``bokehjs/package-lock.json`` changes.
+    removing any previous BokehJS build, and installs Playwright's matching
+    Chromium browser. Run setup again whenever ``bokehjs/package-lock.json``
+    changes to keep the browser and JavaScript dependencies aligned.
 
 .. _contributor_guide_setup_pre-commit:
 
@@ -232,10 +233,12 @@ Once Pixi has installed the environment, set up an editable Bokeh checkout with:
 
 This removes any previous BokehJS build, performs the :ref:`Node package
 installation <contributor_guide_setup_installing_node_packages>` from step 4, builds
-BokehJS and the Jupyter frontend, and uses `pip`_ to install the local Python
-package in editable mode. It also registers the Jupyter frontend and server
-extension in the Pixi environment. The command passes ``--no-deps`` to pip
-because third-party dependencies are managed by Pixi and ``pixi.lock``.
+BokehJS and the Jupyter frontend, installs Playwright-managed Chromium for
+BokehJS tests, and uses `pip`_ to install the local Python package in editable
+mode. Setup also registers the Jupyter frontend and server extension in the
+Pixi environment. The command passes ``--no-deps`` to pip because third-party
+dependencies are managed by Pixi and ``pixi.lock``. On Linux, the browser
+installer may request administrator privileges to install system dependencies.
 
 There are two ways to install a local development version of Bokeh with ``pip``:
 
@@ -272,7 +275,7 @@ different local version instead, set the ``BOKEHJS_ACTION`` environment variable
       package, and registers the Jupyter extensions.
     * **JavaScript dependencies changed:** run ``pixi run setup`` instead,
       which also removes the previous BokehJS build and reinstalls the
-      JavaScript dependencies first.
+      JavaScript dependencies and matching Chromium browser first.
 
 .. _contributor_guide_setup_interpreter:
 

@@ -81,9 +81,9 @@ various tests written in TypeScript. If all or parts of your changes affect
 the JavaScript code of BokehJS, you should add or update the relevant BokehJS
 tests.
 
-Bokeh's JavaScript tests use a custom testing framework that **requires Google
-Chrome or Chromium**. You need a recent version of one of these browsers
-available on your system to work with these tests.
+Bokeh's JavaScript tests use a custom testing framework with Playwright-managed
+Chromium. See :ref:`contributor_guide_testing_local_javascript` for browser
+installation instructions.
 
 Like several other testing frameworks such as `Mocha`_ or `Jasmine`_, the
 BokehJS testing framework uses ``describe()`` and ``it()`` functions to set up

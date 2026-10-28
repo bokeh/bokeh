@@ -1,11 +1,10 @@
 import type {ChildProcess} from "node:child_process"
 import {spawn} from "node:child_process"
-import {join, delimiter, basename, extname, dirname} from "node:path"
+import {join, basename, extname, dirname} from "node:path"
 import fs from "node:fs"
 import os from "node:os"
 
 import chalk from "chalk"
-import which from "which"
 import {glob} from "glob"
 
 import {argv} from "../args.js"
@@ -51,7 +50,7 @@ task("test:codebase:compile", async () => {
 
 task("test:devtools", async () => {
   compile_typescript("./test/devtools/tsconfig.json")
-  await node(["--test", "./test/devtools/_build/image.test.js"])
+  await node(["--test", "./test/devtools/_build/image.test.js", "./test/devtools/_build/browser-executable.test.js"])
 })
 
 task("test:make", async () => {
@@ -62,42 +61,13 @@ task("test:codebase", ["test:codebase:compile", "test:devtools", "test:make"], a
   await node(["./build/test/codebase/index.js"])
 })
 
-function sys_path(): string {
-  const path = [process.env.PATH]
-
-  switch (platform) {
-    case "linux": {
-      path.push("/opt/google/chrome/")
-      break
-    }
-    case "macos": {
-      path.push("/Applications/Google\ Chrome.app/Contents/MacOS/")
-      break
-    }
-    case "windows": {
-      path.push("c:\\Program Files\\Google\\Chrome\\Application\\")
-      path.push("c:\\Program Files (x86)\\Google\\Chrome\\Application\\")
-      break
-    }
-  }
-
-  return path.join(delimiter)
-}
-
-// Keep in sync with:
-//   https://github.com/actions/runner-images/blob/main/images/linux/Ubuntu2204-Readme.md#browsers-and-drivers
-//
-// Also update:
-// - bokehjs/test/devtools/devtools.ts
-// - bokehjs/test/run-baseline-tests.mjs
-const supported_chromium_revision = "r3265" // 141.0.7390.54
 const windows_test_timeout = 120
 
 function test_timeout(): number | undefined {
   return argv.testTimeout ?? (platform == "windows" ? windows_test_timeout : undefined)
 }
 
-function chrome(): string {
+async function chrome(): Promise<string> {
   const bokeh_chrome = process.env.BOKEH_CHROME
   if (bokeh_chrome !== undefined) {
     if (fs.existsSync(bokeh_chrome)) {
@@ -106,20 +76,15 @@ function chrome(): string {
       throw new BuildError("headless", `can't find BOKEH_CHROME=${bokeh_chrome}`)
     }
   }
-  const names = [`chromium_${supported_chromium_revision}`, "chromium", "chromium-browser", "chrome", "google-chrome", "Google Chrome for Testing", "Google Chrome"]
-  const path = sys_path()
-
-  for (const name of names) {
-    const executable = which.sync(name, {nothrow: true, path})
-    if (executable != null) {
-      return executable
-    }
+  const {chromium} = await import("playwright-core")
+  const executable = chromium.executablePath()
+  if (!fs.existsSync(executable)) {
+    throw new BuildError("headless", `managed Chromium not found at ${executable}. Run pixi run setup from the repository root, or npx --no-install playwright-core install --with-deps --no-shell chromium from bokehjs.`)
   }
-
-  throw new BuildError("headless", `can't find any of ${names.join(", ")} on PATH="${path}"`)
+  return executable
 }
 
-function chromium_executable(): string {
+async function chromium_executable(): Promise<string> {
   return argv.executable ?? chrome()
 }
 
@@ -176,7 +141,7 @@ async function headless(devtools_port: number): Promise<HeadlessProcess> {
     // supported software renderer instead of disabling GPU-backed coverage.
     args.push("--enable-unsafe-swiftshader")
   }
-  const exec = chromium_executable()
+  const exec = await chromium_executable()
   const proc = spawn(exec, args, {stdio: "pipe"})
   const max_stderr = 64*1024
   let stderr = ""
@@ -356,7 +321,7 @@ function _devtools(executable: string, user_args: string[]): Promise<void> {
 }
 
 task("test:info", async () => {
-  await devtools_info(chromium_executable())
+  await devtools_info(await chromium_executable())
 })
 
 task("test:run:headless", async () => {
@@ -459,12 +424,12 @@ export const build_unit = task("test:build:unit", [
 })
 
 task2("test:unit", [start, start_js_server, build_unit], async (server_port) => {
-  await devtools(chromium_executable(), server_port, "unit")
+  await devtools(await chromium_executable(), server_port, "unit")
   return success(undefined)
 })
 
 task2("test:unit:minified", [start, start_js_server, build_unit], async (server_port) => {
-  await devtools(chromium_executable(), server_port, "unit", undefined, false)
+  await devtools(await chromium_executable(), server_port, "unit", undefined, false)
   return success(undefined)
 })
 
@@ -489,7 +454,7 @@ task2("test:integration", [start, build_integration], async (server_port) => {
       return undefined
     }
   })()
-  await devtools(chromium_executable(), server_port, "integration", baselines_root)
+  await devtools(await chromium_executable(), server_port, "integration", baselines_root)
   return success(undefined)
 })
 
@@ -508,7 +473,7 @@ export const build_defaults = task("test:build:defaults", [passthrough("test:def
 })
 
 task2("test:defaults", [start, build_defaults], async (server_port) => {
-  await devtools(chromium_executable(), server_port, "defaults")
+  await devtools(await chromium_executable(), server_port, "defaults")
   return success(undefined)
 })
 

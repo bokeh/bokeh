@@ -9,6 +9,10 @@ import {TimeoutError} from "./types.js"
 // own timeout. A few integration tests legitimately need more than ten seconds
 // under software-rendered CI, while this still puts a firm bound on a hung page.
 const DEFAULT_COMMAND_TIMEOUT = 30_000
+const BROWSER_LAUNCH_TIMEOUT = 30_000
+// Playwright allows another 30 seconds for browser cleanup after a launch timeout.
+// Leave headroom for its detailed launch error before our watchdog fires.
+const BROWSER_LAUNCH_WATCHDOG = BROWSER_LAUNCH_TIMEOUT + 30_000 + 15_000
 
 function error_message(error: unknown): string {
   return error instanceof Error ? error.stack ?? error.message : `${error}`
@@ -86,6 +90,10 @@ export class Failure {
   constructor(public text: string) {}
 }
 
+// Coordinate browser updates with playwright-core in make/package.json and test/package.json,
+// test/baselines/Dockerfile (CHROME_VERSION), and test/run-baseline-tests.mjs (chrome_version).
+// Playwright 1.56.1 manages Chromium 141.0.7390.37 (revision 1194); visual baselines
+// retain 141.0.7390.54. The compatibility check below intentionally ignores the patch.
 export const supported_chromium_version: Version = [141, 0, 7390, 54]
 
 export function get_version_tuple(version: string): Version | null {
@@ -149,6 +157,7 @@ export class BrowserManager {
 
     const browser = await command("Browser.launch", chromium.launch({
       executablePath: this.executable,
+      timeout: BROWSER_LAUNCH_TIMEOUT,
       headless: true,
       // Ubuntu CI runners disable the unprivileged user namespaces Chromium's
       // sandbox requires. Preserve sandboxing for ordinary local runs.
@@ -157,7 +166,7 @@ export class BrowserManager {
       // hides them by default, unlike the former BokehJS Chrome launcher.
       ignoreDefaultArgs: ["--hide-scrollbars"],
       args,
-    }))
+    }), BROWSER_LAUNCH_WATCHDOG)
     browser.on("disconnected", () => {
       this.crashed = true
     })

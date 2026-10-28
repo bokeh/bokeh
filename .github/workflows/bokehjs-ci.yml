@@ -86,7 +86,15 @@ jobs:
         run: |
           npm ci --no-progress
 
+      - name: Install Chromium
+        working-directory: ./bokehjs
+        shell: bash
+        run: |
+          npx --no-install playwright-core install --with-deps --no-shell chromium
+
       - name: List installed software
+        env:
+          DEBUG: pw:browser
         working-directory: ./bokehjs
         shell: bash
         run: |
@@ -214,6 +222,11 @@ jobs:
         working-directory: ./bokehjs
         run: |
           npm ci --no-progress
+
+      - name: Install Chromium
+        working-directory: ./bokehjs
+        run: |
+          npx --no-install playwright-core install --with-deps --no-shell chromium
 
       - name: Build bokehjs
         working-directory: ./bokehjs
