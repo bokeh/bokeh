@@ -2154,7 +2154,6 @@ describe("Bug", () => {
         x_range.setv({start: x_center - 75000*factor, end: x_center + 75000*factor})
         y_range.setv({start: y_center - 65000*factor, end: y_center + 65000*factor})
         await view.ready
-        await paint()
         const actual = pixel()
         expect_condition(actual.every((value, i) => Math.abs(value - expected[i]) <= 3),
           `expected ${expected} at zoom factor ${factor}, got ${actual}`)
