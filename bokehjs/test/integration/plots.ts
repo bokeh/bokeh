@@ -143,7 +143,6 @@ describe("Plot", () => {
       data[nwax] = [1, 2, 10, 4, 5]
       s.data_source.data = data
       await view.ready
-      await view.ready
       expect(dr.start).to.be.equal(1)
       expect(dr.end).to.be.equal(10)
 
@@ -152,7 +151,6 @@ describe("Plot", () => {
       data2[wax] = [-1, 1, 2, 3, 4, 100]
       data2[nwax] = [-100, 1, 2, 10, 4, 100]
       s.data_source.data = data2
-      await view.ready
       await view.ready
       expect(dr.start).to.be.equal(1)
       expect(dr.end).to.be.equal(10)
@@ -163,7 +161,6 @@ describe("Plot", () => {
       new_data[nwax] = [-90, 100]
       s.data_source.stream(new_data)
       await view.ready
-      await view.ready
       expect(dr.start).to.be.equal(-90)
       expect(dr.end).to.be.equal(100)
 
@@ -173,7 +170,6 @@ describe("Plot", () => {
       new_data2[nwax] = [200]
       s.data_source.stream(new_data2)
       await view.ready
-      await view.ready
       expect(dr.start).to.be.equal(-90)
       expect(dr.end).to.be.equal(100)
 
@@ -182,7 +178,6 @@ describe("Plot", () => {
       data3[wax] = [1, 2, 3, 4, 5]
       data3[nwax] = [1, 2, 10, 4, -10]
       s.data_source.data = data3
-      await view.ready
       await view.ready
       expect(dr.start).to.be.equal(-10)
       expect(dr.end).to.be.equal(10)
@@ -479,8 +474,9 @@ describe("Plot", () => {
       // Two _actual_paint() calls because of how layout is integrated into
       // the painting pipeline. This doesn't mean that renderers are actually
       // painted twice, because paint invalidation logic prevents this. It's
-      // still quite confusing and requires a redesign.
-      expect(spy.callCount).to.be.equal(2)
+      // still quite confusing and requires a redesign. The third call is a
+      // repaint requested by data ranges updated to include the new glyphs.
+      expect(spy.callCount).to.be.equal(3)
     })
   })
 })

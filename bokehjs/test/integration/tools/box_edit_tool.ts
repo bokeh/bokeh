@@ -5,7 +5,6 @@ import type {BoxLikeGlyph} from "@bokehjs/models/tools/edit/box_edit_tool"
 import {BoxEditTool} from "@bokehjs/models/tools/edit/box_edit_tool"
 import type {GlyphRenderer} from "@bokehjs/models"
 import type {Figure} from "@bokehjs/api/figure"
-import {paint} from "@bokehjs/core/util/defer"
 
 describe("BoxEditTool", () => {
   describe("should support moving", () => {
@@ -25,7 +24,6 @@ describe("BoxEditTool", () => {
       const {view} = await display(p)
       const actions = new PlotActions(view)
       await actions.pan(xy(0.25, 0.25), xy(1.25, 1.25), 2)
-      await paint()
     }
 
     it("Rect glyph", async () => {
