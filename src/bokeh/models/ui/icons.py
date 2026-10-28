@@ -21,10 +21,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any
 
-# Bokeh imports
 from ...core.enums import ToolIcon
 from ...core.has_props import abstract
 from ...core.property.bases import ModelInit

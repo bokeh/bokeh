@@ -3,11 +3,37 @@ import numpy as np
 from bokeh.core.properties import value
 from bokeh.document import Document
 from bokeh.embed import embed
-from bokeh.models import (AnnularWedge, Annulus, Arc, Bezier, Circle, Column,
-                          ColumnDataSource, Ellipse, Grid, HoverTool, ImageURL,
-                          Line, LinearAxis, MultiLine, MultiPolygons, Paragraph,
-                          Patch, Patches, Plot, Quad, Quadratic, Ray, Rect,
-                          Scatter, Segment, TabPanel, Tabs, Text, Wedge)
+from bokeh.models import (
+    AnnularWedge,
+    Annulus,
+    Arc,
+    Bezier,
+    Circle,
+    Column,
+    ColumnDataSource,
+    Ellipse,
+    Grid,
+    HoverTool,
+    ImageURL,
+    Line,
+    LinearAxis,
+    MultiLine,
+    MultiPolygons,
+    Paragraph,
+    Patch,
+    Patches,
+    Plot,
+    Quad,
+    Quadratic,
+    Ray,
+    Rect,
+    Scatter,
+    Segment,
+    TabPanel,
+    Tabs,
+    Text,
+    Wedge,
+)
 from bokeh.util.browser import view
 
 N = 9

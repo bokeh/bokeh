@@ -5,10 +5,8 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any, Literal, Unpack
 
-# Bokeh imports
 from ..._specs import DataSpec, NumberSpec
 from ...core.enums import AutoType as Auto
 from ..annotations import ColorBar

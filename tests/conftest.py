@@ -13,7 +13,6 @@ pytest_plugins = (
     "tests.support.plugins.networkx",
 )
 
-# Standard library imports
 import importlib
 import importlib.util
 import os
@@ -24,7 +23,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
-# External imports
 import _pytest
 import pytest
 from narwhals.stable.v1.typing import IntoDataFrame

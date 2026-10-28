@@ -131,7 +131,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 from enum import Enum, auto
 from os.path import join
@@ -145,10 +144,8 @@ from typing import (
     cast,
 )
 
-# External imports
 import yaml
 
-# Bokeh imports
 from .util.paths import bokehjs_path, server_path
 
 if TYPE_CHECKING:

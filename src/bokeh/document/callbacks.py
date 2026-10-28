@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import weakref
 from collections import defaultdict
 from functools import wraps
@@ -32,7 +31,6 @@ from typing import (
     Callable,
 )
 
-# Bokeh imports
 from ..core.enums import HoldPolicy
 from ..events import (
     _CONCRETE_EVENT_CLASSES,

@@ -5,11 +5,9 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 from typing import Callable, TypedDict, Unpack
 
-# Bokeh imports
 from ...core.enums import ButtonTypeType as ButtonType
 from ...core.has_props import HasProps
 from ...util.callback_manager import EventCallback

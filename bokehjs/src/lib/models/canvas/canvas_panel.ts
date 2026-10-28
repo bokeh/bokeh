@@ -1,5 +1,6 @@
 import {StyledElement, StyledElementView} from "../ui/styled_element"
 import type {PlotView} from "../plots/plot"
+import {RendererView} from "../renderers/renderer"
 import type {Node} from "../coordinates/node"
 import type * as p from "core/properties"
 import {InlineStyleSheet} from "core/dom"
@@ -14,7 +15,13 @@ import * as css from "styles/canvas_panel.css"
 
 export class CanvasPanelView extends StyledElementView {
   declare model: CanvasPanel
-  declare parent: PlotView
+  declare parent: PlotView | RendererView
+
+  /** The plot this panel is placed in. */
+  get plot_view(): PlotView {
+    const {parent} = this
+    return parent instanceof RendererView ? parent.plot_view_for(this) : parent
+  }
 
   private _bbox: BBox = new BBox()
   override get bbox(): BBox {
@@ -29,9 +36,9 @@ export class CanvasPanelView extends StyledElementView {
 
   override rendering_target(): RenderingTarget {
     if (this.model.inner) {
-      return this.parent.frame_view.shadow_el
+      return this.plot_view.frame_view.shadow_el
     } else {
-      return this.parent.canvas_view.events_el
+      return this.plot_view.canvas_view.events_el
     }
   }
 

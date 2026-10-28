@@ -19,11 +19,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 # Public constructor types live in the stubs; declarations below cover local calls.
 from typing import TYPE_CHECKING, Any, Literal
 
-# Bokeh imports
 from ..core.has_props import abstract
 from ..core.property.container import Dict, Len, Seq
 from ..core.property.either import Either

@@ -1,12 +1,10 @@
 """Non-interactive Git operations for backport worktrees."""
 
-# Standard library imports
 import os
 import subprocess
 from pathlib import Path
 from typing import Self
 
-# Bokeh imports
 from . import BackportError
 
 

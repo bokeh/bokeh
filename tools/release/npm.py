@@ -6,7 +6,6 @@
 # -----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Standard library imports
 import json
 from dataclasses import dataclass
 from pathlib import Path

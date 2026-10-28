@@ -5,10 +5,8 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Literal, NotRequired, TypedDict
 
-# Bokeh imports
 from .._types import NonNegative
 from ..core.enums import (
     AlignType as Align,

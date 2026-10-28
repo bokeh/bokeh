@@ -8,19 +8,16 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import logging
 from datetime import UTC, date, datetime
 
-# Bokeh imports
+import pytest
+
 from bokeh.core.properties import UnsetValueError
 from bokeh.core.validation.check import check_integrity, process_validation_issues
 from bokeh.util.logconfig import basicConfig
@@ -39,6 +36,57 @@ basicConfig()
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+class TestAbstractSlider:
+    @pytest.mark.parametrize("cls", [mws.Slider, mws.RangeSlider, mws.MultiValuedSlider, mws.CategoricalSlider, mws.DateSlider])
+    def test_step_multiplier(self, cls: type[mws.AbstractSlider]) -> None:
+        s = cls()
+        assert s.step_multiplier == 5
+
+        s.step_multiplier = 10
+        assert s.step_multiplier == 10
+
+        with pytest.raises(ValueError):
+            s.step_multiplier = 0
+        with pytest.raises(ValueError):
+            s.step_multiplier = -1
+        with pytest.raises(ValueError):
+            s.step_multiplier = 2.5
+
+    @pytest.mark.parametrize("cls", [mws.Slider, mws.RangeSlider, mws.MultiValuedSlider, mws.CategoricalSlider, mws.DateSlider])
+    def test_default_step(self, cls: type[mws.AbstractSlider]) -> None:
+        s = cls()
+        assert s.default_step == 0.05
+
+        s.default_step = 0.1
+        assert s.default_step == 0.1
+
+        s.default_step = 1
+        assert s.default_step == 1
+
+        with pytest.raises(ValueError):
+            s.default_step = 0
+        with pytest.raises(ValueError):
+            s.default_step = 1.5
+        with pytest.raises(ValueError):
+            s.default_step = -0.1
+
+    @pytest.mark.parametrize("cls", [mws.Slider, mws.RangeSlider, mws.MultiValuedSlider, mws.CategoricalSlider, mws.DateSlider])
+    def test_acceleration(self, cls: type[mws.AbstractSlider]) -> None:
+        s = cls()
+        assert s.acceleration_interval == 10
+        assert s.acceleration_max == 8
+
+        s.acceleration_interval = 5
+        s.acceleration_max = 1
+        assert s.acceleration_interval == 5
+        assert s.acceleration_max == 1
+
+        for prop in ["acceleration_interval", "acceleration_max"]:
+            with pytest.raises(ValueError):
+                setattr(s, prop, 0)
+            with pytest.raises(ValueError):
+                setattr(s, prop, 2.5)
 
 class TestSlider:
     def test_value_and_value_throttled(self) -> None:

@@ -20,10 +20,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import TYPE_CHECKING, Any
 
-# Bokeh imports
 from .bases import Property
 
 if TYPE_CHECKING:

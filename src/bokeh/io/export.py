@@ -20,13 +20,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 from os.path import abspath, expanduser, splitext
 from types import ModuleType
 from typing import TYPE_CHECKING, Literal
 
-# Bokeh imports
 from ..resources import INLINE
 from ..settings import settings
 from ..util.dependencies import import_optional

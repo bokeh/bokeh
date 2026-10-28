@@ -6,15 +6,12 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Standard library imports
 import json
 import sys
 from pathlib import Path
 
-# External imports
 import pytest
 
-# Bokeh imports
 import bokeh
 
 ROOT = Path(__file__).parents[2]

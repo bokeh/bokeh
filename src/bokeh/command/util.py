@@ -19,14 +19,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import contextlib
 import errno
 import os
 import sys
 from typing import TYPE_CHECKING, Generator, Never
 
-# Bokeh imports
 from bokeh.application import Application
 from bokeh.application.handlers import DirectoryHandler, NotebookHandler, ScriptHandler
 

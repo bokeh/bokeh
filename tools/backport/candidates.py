@@ -1,12 +1,10 @@
 """Release inference, candidate discovery, and eligibility policy."""
 
-# Standard library imports
 import re
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
-# Bokeh imports
 from . import BackportError
 from .aggregate import CHERRY_PICK_ORIGIN_RE
 from .git import GitRepo
@@ -213,7 +211,7 @@ def candidate_type_problems(
     expected = "Bug, Task, or Feature" if allow_features else "Bug or Task"
     problems: list[str] = []
     for candidate in candidates:
-        if not candidate.issues:
+        if not candidate.issues and "type: task" not in candidate.labels:
             problems.append(
                 f"PR #{candidate.number} has no associated issue; GitHub issue types do not apply to pull requests",
             )

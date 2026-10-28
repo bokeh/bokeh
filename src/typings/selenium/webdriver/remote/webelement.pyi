@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-# Standard librarary imports
 from typing import Any, TypedDict
 
 from ..common.by import _ByType

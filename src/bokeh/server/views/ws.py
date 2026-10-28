@@ -20,18 +20,15 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import calendar
 import datetime as dt
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, cast
 from urllib.parse import urlparse
 
-# External imports
 from tornado import locks, web
 from tornado.websocket import WebSocketClosedError, WebSocketHandler
 
-# Bokeh imports
 from bokeh.settings import settings
 from bokeh.util.token import (
     TokenDecodeError,
@@ -40,7 +37,6 @@ from bokeh.util.token import (
     get_token_payload,
 )
 
-# Bokeh imports
 from ...protocol import ack
 from ...protocol.exceptions import ProtocolError
 from ...protocol.message import Message

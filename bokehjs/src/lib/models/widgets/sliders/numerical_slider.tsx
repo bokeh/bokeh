@@ -1,28 +1,35 @@
-import type {SliderSpec} from "./abstract_slider"
+import type {SliderSpec, SliderKind} from "./abstract_slider"
+import {single_kind} from "./abstract_slider"
 import {BaseNumericalSlider, BaseNumericalSliderView} from "./base_numerical_slider"
 import type * as p from "core/properties"
+import {clamp} from "core/util/math"
 
 export abstract class NumericalSliderView extends BaseNumericalSliderView {
-  declare model: NumericalSlider
+  declare readonly model: NumericalSlider
+  declare readonly signals: p.SignalsOf<NumericalSlider.Props>
+  declare readonly values: NumericalSlider.Attrs
 
-  protected _calc_to(): SliderSpec<number> {
-    const {start, end, value, step} = this.model
+  protected get kind(): SliderKind {
+    return single_kind
+  }
+
+  protected _calc_spec(): SliderSpec<number> {
+    const {start, end, step} = this.values
     return {
-      range: {
-        min: start,
-        max: end,
-      },
-      start: [value],
+      start,
+      end,
       step,
+      compute: (value: number) => value,
+      invert: (synthetic: number) => synthetic,
     }
   }
 
+  protected _calc_values(): number[] {
+    return [this.values.value]
+  }
+
   protected _calc_from([value]: number[]): number {
-    if (Number.isInteger(this.model.start) && Number.isInteger(this.model.end) && Number.isInteger(this.model.step)) {
-      return Math.round(value)
-    } else {
-      return value
-    }
+    return value
   }
 }
 
@@ -44,27 +51,22 @@ export abstract class NumericalSlider extends BaseNumericalSlider {
   declare value: number
   declare value_throttled: number
 
-  protected _clamp(value: number): number {
-    const [lo, hi] = this._bounds()
-    return Math.min(Math.max(value, lo), hi)
-  }
-
   protected _enforce_bounds(): void {
-    const {value, value_throttled} = this.properties
-    const changes: Partial<{value: number, value_throttled: number}> = {}
+    const changes: {value?: number, value_throttled?: number} = {}
+    const [lo, hi] = this._bounds()
 
-    if (!value.is_unset) {
-      const v = this.value
-      const clamped = this._clamp(v)
-      if (clamped != v) {
+    if (!this.properties.value.is_unset) {
+      const {value} = this
+      const clamped = clamp(value, lo, hi)
+      if (clamped != value) {
         changes.value = clamped
       }
     }
 
-    if (!value_throttled.is_unset) {
-      const t = this.value_throttled
-      const clamped = this._clamp(t)
-      if (clamped != t) {
+    if (!this.properties.value_throttled.is_unset) {
+      const {value_throttled} = this
+      const clamped = clamp(value_throttled, lo, hi)
+      if (clamped != value_throttled) {
         changes.value_throttled = clamped
       }
     } else if (changes.value != null) {

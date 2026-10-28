@@ -8,18 +8,15 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 from inspect import Parameter, Signature, signature
 
-# Bokeh imports
+import pytest
+
 from bokeh.core.has_props import Local, is_abstract
 from bokeh.core.properties import Int, List, String
 from bokeh.core.types import ID

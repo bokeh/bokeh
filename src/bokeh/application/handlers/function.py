@@ -37,10 +37,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import TYPE_CHECKING, Callable
 
-# Bokeh imports
 from ...document import Document
 from ...util.callback_manager import _check_callback
 from .handler import Handler, handle_exception

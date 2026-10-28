@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import (
     TYPE_CHECKING,
     Awaitable,
@@ -29,7 +28,6 @@ from typing import (
     Sequence,
 )
 
-# Bokeh imports
 from ..util.asyncio import Loop, _CallbackGroup
 
 if TYPE_CHECKING:

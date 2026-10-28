@@ -22,13 +22,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import numbers
 from datetime import UTC, date, datetime
+from typing import Any
 
-# Bokeh imports
+from ...core.enums import Orientation, SliderAppearance
 from ...core.has_props import abstract
-from ...core.property.color import Color
 from ...core.property.container import Seq, Tuple
 from ...core.property.datetime import Datetime
 from ...core.property.descriptors import UnsetValueError
@@ -36,6 +35,7 @@ from ...core.property.either import Either
 from ...core.property.enum import Enum
 from ...core.property.instance import Instance
 from ...core.property.nullable import Nullable
+from ...core.property.numeric import Percent, Positive
 from ...core.property.override import Override
 from ...core.property.primitive import (
     Bool,
@@ -59,11 +59,12 @@ from .widget import Widget
 __all__ = (
     'AbstractSlider',
     'CategoricalSlider',
-    'Slider',
-    'RangeSlider',
-    'DateSlider',
     'DateRangeSlider',
+    'DateSlider',
     'DatetimeRangeSlider',
+    'MultiValuedSlider',
+    'RangeSlider',
+    'Slider',
 )
 
 #-----------------------------------------------------------------------------
@@ -72,9 +73,11 @@ __all__ = (
 
 @abstract
 class AbstractSlider(Widget):
-    """ """
+    """ Base class for all slider widgets.
 
-    def __init__(self, *args, **kwargs) -> None:
+    """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
         try:
@@ -94,10 +97,10 @@ class AbstractSlider(Widget):
     # """)
 
     # TODO value_throttled = Readonly(GenericType, help="""
-    # Initial or selected value, throttled according to report only on mouseup.
+    # Initial or selected value, only updated at the end of an interaction.
     # """)
 
-    orientation = Enum("horizontal", "vertical", help="""
+    orientation = Enum(Orientation, help="""
     Orient the slider either horizontally (default) or vertically.
     """)
 
@@ -109,17 +112,39 @@ class AbstractSlider(Widget):
     Whether or not show slider's value.
     """)
 
-    direction = Enum("ltr", "rtl", help="""
-    """)
-
     tooltips = Bool(default=True, help="""
     Display the slider's current value in a tooltip.
     """)
 
-    bar_color = Color(default="#e6e6e6", help="""
+    appearance = Enum(SliderAppearance, default="normal", help="""
+    Stealth appearance doesn't include visible handles.
     """)
 
-    width = Override(default=300)
+    step_multiplier = Positive(Int, default=5, help="""
+    The number of steps by which ``PageUp`` and ``PageDown`` keys move a handle.
+
+    For sliders without a ``step`` (i.e. continuous sliders), a step is given
+    by ``default_step``.
+    """)
+
+    default_step = Positive(Percent, default=0.05, help="""
+    The fraction of the slider's range by which arrow keys move a handle of
+    a slider without a ``step`` (i.e. a continuous slider).
+
+    This doesn't restrict values of such sliders, which remain continuous
+    when interacting with a pointer.
+    """)
+
+    acceleration_interval = Positive(Int, default=10, help="""
+    The number of auto-repeated key presses (when holding a key), after which
+    the step, by which arrow, ``PageUp`` and ``PageDown`` keys move a handle,
+    doubles (up to ``acceleration_max``).
+    """)
+
+    acceleration_max = Positive(Int, default=8, help="""
+    The maximum multiplier of the step when holding a key (see
+    ``acceleration_interval``). Use ``1`` to disable acceleration.
+    """)
 
     @error(EQUAL_SLIDER_START_END)
     def _check_missing_dimension(self):
@@ -132,6 +157,14 @@ class NumericalSlider(AbstractSlider):
     """ Base class for numerical sliders. """
 
     format = Either(String, Instance(TickFormatter), help="""
+    The format of displayed values, i.e. the value next to the title, tooltips
+    and the text announced by screen readers.
+
+    This can be either a format string or a tick formatter. Format strings use
+    the formats of :class:`~bokeh.models.NumeralTickFormatter` for numerical
+    sliders (e.g. ``"0[.]00"``) and ``strftime`` formats of
+    :class:`~bokeh.models.DatetimeTickFormatter` for date and datetime sliders
+    (e.g. ``"%d %b %Y"``).
     """)
 
 #-----------------------------------------------------------------------------
@@ -150,7 +183,12 @@ class CategoricalSlider(AbstractSlider):
     """)
 
     value_throttled = Readonly(Required(String), help="""
-    Initial or throttled selected value.
+    Initial or selected value, only updated at the end of an interaction.
+
+    Unlike ``value``, which is updated continuously while dragging or holding
+    a key, this is updated once, when the pointer or the key is released (or
+    when the slider loses focus). Use it to avoid expensive computations
+    (e.g. in Python callbacks) for intermediate values.
     """)
 
 class Slider(NumericalSlider):
@@ -169,11 +207,18 @@ class Slider(NumericalSlider):
     """)
 
     value_throttled = Readonly(Required(Float), help="""
-    Initial or selected value, throttled according to report only on mouseup.
+    Initial or selected value, only updated at the end of an interaction.
+
+    Unlike ``value``, which is updated continuously while dragging or holding
+    a key, this is updated once, when the pointer or the key is released (or
+    when the slider loses focus). Use it to avoid expensive computations
+    (e.g. in Python callbacks) for intermediate values.
     """)
 
-    step = Float(default=1, help="""
-    The step between consecutive values.
+    step = Nullable(Positive(Float), default=1, help="""
+    The step between consecutive values for discrete sliders. If ``None``,
+    then the slider becomes a continuous slider and any value between
+    ``start`` and ``end`` can be picked.
     """)
 
     format = Override(default="0[.]00")
@@ -186,7 +231,43 @@ class RangeSlider(NumericalSlider):
     """)
 
     value_throttled = Readonly(Required(Tuple(Float, Float)), help="""
-    Initial or selected value, throttled according to report only on mouseup.
+    Initial or selected range, only updated at the end of an interaction.
+
+    Unlike ``value``, which is updated continuously while dragging or holding
+    a key, this is updated once, when the pointer or the key is released (or
+    when the slider loses focus). Use it to avoid expensive computations
+    (e.g. in Python callbacks) for intermediate ranges.
+    """)
+
+    start = Required(Float, help="""
+    The minimum allowable value.
+    """)
+
+    end = Required(Float, help="""
+    The maximum allowable value.
+    """)
+
+    step = Float(default=1, help="""
+    The step between consecutive values.
+    """)
+
+    format = Override(default="0[.]00")
+
+class MultiValuedSlider(NumericalSlider):
+    """ Slider that allows selection of multiple values. """
+
+    # TODO value = Override(Required(Seq(Float)), ...)
+    value = Required(Seq(Float), help="""
+    Initial or selected values.
+    """)
+
+    value_throttled = Readonly(Required(Seq(Float)), help="""
+    Initial or selected values, only updated at the end of an interaction.
+
+    Unlike ``value``, which is updated continuously while dragging or holding
+    a key, this is updated once, when the pointer or the key is released (or
+    when the slider loses focus). Use it to avoid expensive computations
+    (e.g. in Python callbacks) for intermediate values.
     """)
 
     start = Required(Float, help="""
@@ -240,7 +321,12 @@ class DateSlider(NumericalSlider):
     """)
 
     value_throttled = Readonly(Required(Datetime), help="""
-    Initial or selected value, throttled to report only on mouseup.
+    Initial or selected value, only updated at the end of an interaction.
+
+    Unlike ``value``, which is updated continuously while dragging or holding
+    a key, this is updated once, when the pointer or the key is released (or
+    when the slider loses focus). Use it to avoid expensive computations
+    (e.g. in Python callbacks) for intermediate values.
     """)
 
     start = Required(Datetime, help="""
@@ -307,7 +393,12 @@ class DateRangeSlider(NumericalSlider):
     """)
 
     value_throttled = Readonly(Required(Tuple(Datetime, Datetime)), help="""
-    Initial or selected value, throttled to report only on mouseup.
+    Initial or selected range, only updated at the end of an interaction.
+
+    Unlike ``value``, which is updated continuously while dragging or holding
+    a key, this is updated once, when the pointer or the key is released (or
+    when the slider loses focus). Use it to avoid expensive computations
+    (e.g. in Python callbacks) for intermediate ranges.
     """)
 
     start = Required(Datetime, help="""
@@ -350,7 +441,12 @@ class DatetimeRangeSlider(NumericalSlider):
     """)
 
     value_throttled = Readonly(Required(Tuple(Datetime, Datetime)), help="""
-    Initial or selected value, throttled to report only on mouseup.
+    Initial or selected range, only updated at the end of an interaction.
+
+    Unlike ``value``, which is updated continuously while dragging or holding
+    a key, this is updated once, when the pointer or the key is released (or
+    when the slider loses focus). Use it to avoid expensive computations
+    (e.g. in Python callbacks) for intermediate ranges.
     """)
 
     start = Required(Datetime, help="""
@@ -365,6 +461,8 @@ class DatetimeRangeSlider(NumericalSlider):
     The step between consecutive values, in units of milliseconds.
     Default is one hour.
     """)
+
+    # TODO step_unit = Enum("hour", ...)(default="hour")
 
     format = Override(default="%d %b %Y %H:%M:%S")
 

@@ -12,8 +12,14 @@ from numpy import arange, pi, sin
 
 from bokeh.document import Document
 from bokeh.embed import embed
-from bokeh.models import (ColumnDataSource, LinearAxis, PanTool,
-                          Plot, Scatter, WheelZoomTool)
+from bokeh.models import (
+    ColumnDataSource,
+    LinearAxis,
+    PanTool,
+    Plot,
+    Scatter,
+    WheelZoomTool,
+)
 from bokeh.util.browser import view
 
 x = arange(-2*pi, 2*pi, 0.1)

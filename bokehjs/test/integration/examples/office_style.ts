@@ -72,7 +72,7 @@ describe("Examples", () => {
     `
 
     const slider_style = `
-      .noUi-target, .noUi-handle {
+      .bk-track, .bk-handle, .bk-tooltip {
         text-transform: inherit;
         border: var(--border);
         border-radius: var(--border-radius);

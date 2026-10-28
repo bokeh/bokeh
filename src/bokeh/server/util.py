@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from ipaddress import IPv6Address
 from typing import TYPE_CHECKING, Sequence
 

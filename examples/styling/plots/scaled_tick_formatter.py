@@ -1,7 +1,5 @@
-# Standard library imports
 from math import pi, sin
 
-# Bokeh imports
 from bokeh.layouts import column
 from bokeh.models import AdaptiveTicker, ScaledTicker, ScaledTickFormatter
 from bokeh.plotting import figure, show

@@ -7,14 +7,11 @@
 
 from __future__ import annotations
 
-# Standard library imports
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.protocol import (
     ack,
     ok,

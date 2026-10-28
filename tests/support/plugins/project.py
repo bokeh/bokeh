@@ -20,11 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from hashlib import sha256
 from typing import TYPE_CHECKING
 
-# External imports
 import pytest
 
 if TYPE_CHECKING:

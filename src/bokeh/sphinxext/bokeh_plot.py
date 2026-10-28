@@ -81,7 +81,6 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 import re
 import warnings
 from heapq import nlargest
@@ -97,14 +96,12 @@ from time import perf_counter
 from typing import Any, NamedTuple, cast
 from uuid import uuid4
 
-# External imports
 from docutils import nodes
 from docutils.parsers.rst.directives import choice, flag
 from sphinx.errors import SphinxError
 from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import copyfile, ensuredir
 
-# Bokeh imports
 from bokeh.document import Document
 from bokeh.embed import embed
 from bokeh.embed._output import render_resource
@@ -113,8 +110,6 @@ from bokeh.model import Model
 from bokeh.resources import Resources
 from bokeh.util.warnings import BokehDeprecationWarning
 
-# Bokeh imports
-# Local imports
 from ._internal import PARALLEL_SAFE, SphinxParallelSpec
 from ._internal.bokeh_directive import BokehDirective
 from ._internal.example_handler import ExampleHandler

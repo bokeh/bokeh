@@ -26,6 +26,10 @@ JavaScript required.
     client-side JavaScript callbacks, or with real Python code in a Bokeh
     server application.
 
+:ref:`ug_interaction_sliders`
+    Bokeh's sliders select one or more values or a range of values, which
+    include numbers, dates and categories, with a pointer or the keyboard.
+
 :ref:`ug_interaction_js_callbacks`
     Bokeh's ``CustomJS`` callbacks allow you to define JavaScript-based custom
     interactivity for various widgets and events in Bokeh documents.
@@ -45,6 +49,7 @@ JavaScript required.
    interaction/linking
    interaction/legends
    interaction/widgets
+   interaction/sliders
    interaction/js_callbacks
    interaction/python_callbacks
    interaction/tooltips

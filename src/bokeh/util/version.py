@@ -42,13 +42,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import re
 
-# External imports
 from packaging.version import Version
 
-# Bokeh imports
 from .. import __version__
 
 #-----------------------------------------------------------------------------

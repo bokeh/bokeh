@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-# Standard library imports
 import asyncio
 import socket
 import sys
@@ -9,7 +8,6 @@ from collections.abc import Iterator
 from typing import Any
 from unittest.mock import MagicMock, call, patch
 
-# External imports
 import pytest
 
 # Module under test

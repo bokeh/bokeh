@@ -5,10 +5,8 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any, Sequence, Unpack
 
-# Bokeh imports
 from ...plotting.contour import ContourData
 from ..annotations import ContourColorBar
 from ..glyph import Glyph

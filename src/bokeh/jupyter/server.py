@@ -2,18 +2,15 @@
 
 from __future__ import annotations
 
-# Standard library imports
 from collections.abc import Awaitable
 from typing import Any, cast
 
-# External imports
 from jupyter_server.auth.decorator import authorized
 from jupyter_server.base.handlers import JupyterHandler
 from jupyter_server.nbconvert.handlers import NbconvertFileHandler
 from jupyter_server.utils import url_path_join
 from tornado import web
 
-# Bokeh imports
 from ..io.jupyter_export import (
     reset_export_correlation,
     set_export_correlation,

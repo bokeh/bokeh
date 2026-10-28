@@ -1,6 +1,6 @@
 import type {MarkingView} from "./marking"
 import {Marking} from "./marking"
-import type {RendererView} from "../renderers/renderer"
+import type {GlyphView} from "../glyphs/glyph"
 import {Model} from "../../model"
 import {View} from "core/view"
 import {build_views, remove_views} from "core/build_views"
@@ -14,7 +14,7 @@ import type {ColumnarDataSource} from "../sources/columnar_data_source"
 export class PathDecorationView extends View {
   declare model: PathDecoration | PathMarkings
   visuals: Decoration.Visuals
-  declare readonly parent: RendererView
+  declare readonly parent: GlyphView
 
   marking: MarkingView
   private readonly _marking_views: ViewStorage<Marking> = new Map()
@@ -49,7 +49,7 @@ export class PathDecorationView extends View {
   }
 
   private async _build_marking(): Promise<void> {
-    await build_views(this._marking_views, [this.model.marking], {parent: this.parent})
+    await build_views(this._marking_views, [this.model.marking], {parent: this})
     if (this.is_destroyed) {
       return
     }
@@ -60,6 +60,14 @@ export class PathDecorationView extends View {
         this.set_data(this._source, this._indices)
       }
     }
+  }
+
+  request_paint(): void {
+    this.parent.request_paint()
+  }
+
+  get canvas() {
+    return this.parent.canvas
   }
 
   override remove(): void {

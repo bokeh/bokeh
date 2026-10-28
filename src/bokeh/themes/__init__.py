@@ -58,10 +58,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Literal
 
-# Bokeh imports
 from . import (
     _caliber,
     _carbon,

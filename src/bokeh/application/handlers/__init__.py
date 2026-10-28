@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from .code import CodeHandler
 from .directory import DirectoryHandler
 from .function import FunctionHandler

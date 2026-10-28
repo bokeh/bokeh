@@ -5,11 +5,9 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 from typing import Sequence, Unpack
 
-# Bokeh imports
 from .._types import Color
 from ..core.enums import MarkerTypeType as MarkerType, PaletteType as Palette
 from ..core.property.visual import HatchPatternType as HatchPattern

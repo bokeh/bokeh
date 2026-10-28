@@ -16,7 +16,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import importlib.util
 from os.path import isfile
 from typing import (
@@ -26,11 +25,9 @@ from typing import (
     NewType,
 )
 
-# External imports
 from tornado.httputil import HTTPServerRequest
 from tornado.web import RequestHandler
 
-# Bokeh imports
 from ..util.serialization import make_globally_unique_id
 
 if TYPE_CHECKING:

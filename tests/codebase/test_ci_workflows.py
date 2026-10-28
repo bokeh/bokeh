@@ -7,15 +7,11 @@
 
 from __future__ import annotations
 
-# Standard library imports
 from typing import Any
 
-# External imports
 import pytest
 import yaml
 
-# Bokeh imports
-# Bokeh test imports
 from tests.support.util.project import TOP_PATH
 
 WORKFLOWS = {

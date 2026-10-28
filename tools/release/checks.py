@@ -6,15 +6,12 @@
 # -----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Standard library imports
 import json
 import os
 from pathlib import Path
 
-# External imports
 from packaging.version import Version as V
 
-# Bokeh imports
 from .action import FAILED, PASSED, ActionReturn
 from .config import Config
 from .git import get_tags

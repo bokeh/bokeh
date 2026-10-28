@@ -7,7 +7,6 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import hashlib
 import json
 import sys
@@ -15,10 +14,8 @@ from pathlib import Path
 from types import ModuleType, SimpleNamespace
 from typing import Any
 
-# External imports
 import pytest
 
-# Bokeh imports
 import bokeh.embed.resources as ber
 from bokeh import __version__
 from bokeh.core.properties import Any as AnyProperty, Instance, Override

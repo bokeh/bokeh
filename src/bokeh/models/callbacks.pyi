@@ -7,7 +7,6 @@
 
 # pyright: reportMissingImports=false
 
-# Standard library imports
 import sys
 from abc import abstractmethod
 from typing import Any, Unpack
@@ -15,7 +14,6 @@ from typing import Any, Unpack
 if sys.version_info[:2] >= (3, 14):
     from string.templatelib import Template  # novermin
 
-# Bokeh imports
 from ..core.enums import AutoType as Auto
 from ..core.has_props import HasProps
 from ..core.types import PathLike

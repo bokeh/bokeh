@@ -8,22 +8,19 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from threading import Event
 from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
-# Bokeh imports
+import pytest
+
 from bokeh.core.properties import Int
 from bokeh.core.validation.check import ValidationIssue, ValidationIssues
 from bokeh.core.validation.issue import Error, Warning

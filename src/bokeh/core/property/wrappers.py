@@ -63,7 +63,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import copy
 from typing import (
     TYPE_CHECKING,
@@ -77,10 +76,8 @@ from typing import (
     cast,
 )
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from ...util.warnings import BokehUserWarning, warn
 from .singletons import OldValueUnavailable
 

@@ -7,16 +7,13 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import inspect
 from pathlib import Path
 from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.application.application import Application
 from bokeh.models import ColumnDataSource, GlyphRenderer, Plot
 

@@ -61,6 +61,7 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@v0.10.0
         with:
+          pixi-version: v0.83.0
           environments: release-build
           activate-environment: release-build
           locked: true

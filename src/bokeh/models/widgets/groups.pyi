@@ -5,11 +5,9 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 from typing import Literal, Unpack
 
-# Bokeh imports
 from .buttons import ButtonLike, _ButtonLikeInit
 from .widget import Widget, _WidgetInit
 

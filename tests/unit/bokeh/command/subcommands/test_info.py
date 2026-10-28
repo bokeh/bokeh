@@ -8,18 +8,13 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 from os.path import join
 
-# Bokeh imports
 from bokeh.command.bootstrap import main
 from bokeh.command.subcommand import Argument
 from tests.support.util.types import Capture

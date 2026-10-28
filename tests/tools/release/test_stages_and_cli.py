@@ -1,16 +1,13 @@
 from __future__ import annotations
 
-# Standard library imports
 import runpy
 import sys
 from collections.abc import Sequence
 from typing import Any
 
-# External imports
 import pytest
 import yaml
 
-# Bokeh imports
 from tests.support.util.project import TOP_PATH
 from tools.release import stages
 from tools.release.build import (

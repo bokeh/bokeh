@@ -23,6 +23,12 @@ function to_val<T>(val: T | (() => T)): T {
 export const MenuItemLike = Or(Ref(MenuItem), Ref(DividerItem), Null)
 export type MenuItemLike = typeof MenuItemLike["__type__"]
 
+export type MenuItemEntry = {
+  item: MenuItem
+  el: HTMLElement
+  label_el: HTMLElement
+}
+
 export class MenuView extends UIElementView {
   declare model: Menu
 
@@ -30,6 +36,14 @@ export class MenuView extends UIElementView {
 
   override _children_views(): ChildView[] {
     return [...super._children_views(), ...this._menu_views.values()]
+  }
+
+  /**
+   * Rendered menu items (excluding dividers), in display order.
+   */
+  private _item_entries: MenuItemEntry[] = []
+  get item_entries(): readonly MenuItemEntry[] {
+    return this._item_entries
   }
 
   private _menu_items: MenuItemLike[] = []
@@ -148,7 +162,8 @@ export class MenuView extends UIElementView {
     super.render()
 
     const items = this.menu_items
-    const entries: {item: MenuItem, el: HTMLElement}[] = []
+    const entries: MenuItemEntry[] = []
+    this._item_entries = entries
 
     if (items.length == 0) {
       return
@@ -157,7 +172,7 @@ export class MenuView extends UIElementView {
     for (const item of items) {
       if (item instanceof MenuItem) {
         const check_el = div({class: menus.check})
-        const label_el = div({class: menus.label}, item.label)
+        const label_el = div({class: menus.label}, to_val(item.label))
         const shortcut_el = div({class: menus.shortcut}, item.shortcut)
         const chevron_el = div({class: menus.chevron})
 
@@ -241,7 +256,7 @@ export class MenuView extends UIElementView {
           })
         }
         this.shadow_el.append(item_el)
-        entries.push({item, el: item_el})
+        entries.push({item, el: item_el, label_el})
       } else {
         const item_el = div({class: menus.divider})
         this.shadow_el.append(item_el)
@@ -268,7 +283,7 @@ export class MenuView extends UIElementView {
       this.hide()
       return false
     }
-    const {parent} = this
+    const {ui_parent: parent} = this
     if (parent == null) {
       // TODO position: fixed
       this.hide()

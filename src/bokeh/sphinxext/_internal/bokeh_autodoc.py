@@ -24,25 +24,21 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 from dataclasses import dataclass
 from time import perf_counter
 from typing import Any
 
-# External imports
 from sphinx.ext.autodoc import (
     AttributeDocumenter,
     ClassDocumenter,
     ModuleLevelDocumenter,
 )
 
-# Bokeh imports
 from bokeh.colors.color import Color
 from bokeh.core.enums import Enumeration
 from bokeh.core.property.descriptors import PropertyDescriptor
 from bokeh.model import Model
 
-# Bokeh imports
 from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_toc import (
     _cache_titles_only_tocs,

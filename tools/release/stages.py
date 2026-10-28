@@ -6,7 +6,6 @@
 # -----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Bokeh imports
 from .build import (
     build_bokehjs,
     build_conda_package,

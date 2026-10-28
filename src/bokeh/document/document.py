@@ -33,7 +33,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import gc
 import weakref
 from collections import deque
@@ -47,10 +46,8 @@ from typing import (
     overload,
 )
 
-# External imports
 from jinja2 import Template
 
-# Bokeh imports
 from ..core.enums import HoldPolicyType
 from ..core.has_props import _data_models_in_dependency_order, is_DataModel
 from ..core.query import find, is_single_string_selector

@@ -8,28 +8,23 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import logging
 from collections.abc import Callable
 from types import SimpleNamespace
 from typing import Generator
 from unittest import mock
 
-# External imports
+import pytest
 from tornado import locks
 from tornado.httpclient import HTTPClientError, HTTPRequest
 from tornado.httpserver import HTTPServer
 from tornado.websocket import WebSocketClosedError, websocket_connect
 
-# Bokeh imports
 from bokeh.application import Application
 from bokeh.protocol.exceptions import ProtocolError
 from bokeh.server.tornado import BokehTornado

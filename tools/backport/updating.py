@@ -1,11 +1,9 @@
 """Reconstruct an open aggregate PR and add or remove backports."""
 
-# Standard library imports
 import re
 from pathlib import Path
 from typing import Any
 
-# Bokeh imports
 from . import BackportError
 from .aggregate import CHERRY_PICK_ORIGIN_RE, load_aggregate, matching_backport
 from .candidates import (

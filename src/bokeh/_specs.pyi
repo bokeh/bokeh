@@ -5,7 +5,6 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import (
     Never,
     NotRequired,
@@ -13,11 +12,9 @@ from typing import (
     TypedDict,
 )
 
-# External imports
 import numpy as np
 import numpy.typing as npt
 
-# Bokeh imports
 from ._types import (
     Color,
     Datetime,

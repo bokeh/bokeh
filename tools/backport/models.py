@@ -1,9 +1,7 @@
 """In-memory backport workflow models."""
 
-# Standard library imports
 from dataclasses import dataclass, field
 
-# Bokeh imports
 from . import BackportError
 
 

@@ -31,6 +31,19 @@ const {round, floor} = Math
 export abstract class UIElementView extends StyledElementView {
   declare model: UIElement
 
+  /**
+   * The nearest ancestor UI element, which this view is positioned relative
+   * to. This skips views that only host this view, like renderers or tools.
+   */
+  get ui_parent(): UIElementView | null {
+    for (let view = this.parent; view != null; view = view.parent) {
+      if (view instanceof UIElementView) {
+        return view
+      }
+    }
+    return null
+  }
+
   protected readonly display = new InlineStyleSheet("", "display")
 
   override computed_stylesheets(): InlineStyleSheet[] {
@@ -80,8 +93,9 @@ export abstract class UIElementView extends StyledElementView {
       const self = this.el.getBoundingClientRect()
 
       const {left, top} = (() => {
-        if (this.parent != null) {
-          const parent = this.parent.el.getBoundingClientRect()
+        const {ui_parent} = this
+        if (ui_parent != null) {
+          const parent = ui_parent.el.getBoundingClientRect()
           return {
             left: self.left - parent.left,
             top: self.top - parent.top,

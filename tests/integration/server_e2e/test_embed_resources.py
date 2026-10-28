@@ -7,15 +7,12 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import os
 from urllib.parse import urlsplit
 
-# External imports
 import pytest
 from tornado.web import RequestHandler
 
-# Bokeh imports
 from bokeh.application import Application
 from bokeh.application.handlers.function import FunctionHandler
 from bokeh.core.properties import Any as AnyProperty, Instance

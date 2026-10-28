@@ -41,9 +41,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import difflib
 from math import nan
+
 # Public constructor types live in the stubs; declarations below cover local calls.
 from typing import (
     TYPE_CHECKING,
@@ -52,7 +52,6 @@ from typing import (
     ClassVar,
 )
 
-# Bokeh imports
 from ..core.enums import (
     Anchor,
     Dimension,
@@ -201,6 +200,14 @@ class Tool(Model):
     a data URI with an ``image/*`` MIME, a path to an image, a PIL ``Image``
     object, or an RGB(A) NumPy array. If ``None``, then the intrinsic icon
     will be used (may depend on tool's configuration).
+    """)
+
+    label = Nullable(String, help="""
+    A short, human readable name of this tool.
+
+    If not defined, then the default name of the tool will be used. The
+    label will be typically presented in the user interface, e.g. in
+    context menus.
     """)
 
     description = Nullable(String, help="""

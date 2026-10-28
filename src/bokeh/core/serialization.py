@@ -18,7 +18,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import base64
 import datetime as dt
 import gzip
@@ -41,10 +40,8 @@ from typing import (
     cast,
 )
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from ..settings import settings
 from ..util.dataclasses import Unspecified, entries, is_dataclass
 from ..util.dependencies import uses_pandas

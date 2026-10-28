@@ -17,13 +17,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from dataclasses import dataclass
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from ..colors import ColorLike
 
 try:

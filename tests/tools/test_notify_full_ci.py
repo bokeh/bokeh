@@ -7,15 +7,12 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import json
 import subprocess
 from typing import Any
 
-# External imports
 import pytest
 
-# Bokeh imports
 from tools.ci import notify_full_ci as notify
 
 

@@ -8,18 +8,15 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 from typing import Any
 
-# Bokeh imports
+import pytest
+
 from bokeh.core.property.descriptors import PropertyDescriptor
 from bokeh.core.property.enum import Enum
 from bokeh.core.property.serialized import NotSerialized

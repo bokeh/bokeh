@@ -18,8 +18,17 @@ import pandas as pd
 from bokeh.colors import groups
 from bokeh.document import Document
 from bokeh.embed import embed
-from bokeh.models import (CategoricalAxis, CategoricalScale, ColumnDataSource,
-                          FactorRange, HoverTool, OpenURL, Plot, Rect, TapTool)
+from bokeh.models import (
+    CategoricalAxis,
+    CategoricalScale,
+    ColumnDataSource,
+    FactorRange,
+    HoverTool,
+    OpenURL,
+    Plot,
+    Rect,
+    TapTool,
+)
 from bokeh.util.browser import view
 
 data = []

@@ -249,6 +249,7 @@ describe("default model resolver", () => {
       "MultiLine",
       "MultiPolygons",
       "MultiSelect",
+      "MultiValuedSlider",
       "MultipleDatePicker",
       "MultipleDatetimePicker",
       "NanCompare",

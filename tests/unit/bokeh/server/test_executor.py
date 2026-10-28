@@ -8,17 +8,15 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import asyncio
 from threading import Event, get_ident
+
+import pytest
 
 # Module under test
 from bokeh.server.executor import _ServerExecutor # isort:skip

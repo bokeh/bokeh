@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from collections.abc import (
     Container,
     Iterable,
@@ -35,7 +34,6 @@ from typing import (
     overload,
 )
 
-# Bokeh imports
 from ._sphinx import property_link, register_type_link, type_link
 from .any import Any as AnyVal
 from .bases import (

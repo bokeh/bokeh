@@ -1,17 +1,13 @@
 from __future__ import annotations
 
-# Standard library imports
 import json
+import tomllib
 from pathlib import Path
 
-# External imports
 import pytest
-import tomllib
 import yaml
 from packaging.requirements import Requirement
 
-# Bokeh imports
-# Bokeh test imports
 from tests.support.util.project import TOP_PATH
 from tests.tools.release._support import RecordingSystem
 from tools.release import build

@@ -26,7 +26,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from collections.abc import Mapping
 from contextvars import ContextVar
 from copy import copy
@@ -38,7 +37,6 @@ from typing import (
     cast,
 )
 
-# Bokeh imports
 from ...util.dependencies import uses_pandas
 from ._sphinx import property_link, register_type_link, type_link
 from .descriptors import AliasPropertyDescriptor, PropertyDescriptor

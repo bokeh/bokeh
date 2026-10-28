@@ -22,13 +22,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import pathlib
 import sys
+
 # Public constructor types live in the stubs; declarations below cover local calls.
 from typing import TYPE_CHECKING, Any
 
-# Bokeh imports
 from ..core.has_props import HasProps, abstract
 from ..core.property.any import AnyRef
 from ..core.property.auto import Auto

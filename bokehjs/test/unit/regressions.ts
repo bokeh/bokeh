@@ -4,7 +4,7 @@ import pixelmatch from "pixelmatch"
 import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
 import {display, fig, row} from "#framework/layouts"
 import {restorable} from "#framework/util"
-import {PlotActions, actions, xy, line, tap, mouse_click, scroll_up, scroll_down} from "#framework/interactive"
+import {PlotActions, actions, xy, line, tap, mouse_click, scroll_up, scroll_down, show_context_menu} from "#framework/interactive"
 import {convert_to_uint32_palette} from "@bokehjs/models/mappers/color_mapper"
 import type {PlotView} from "@bokehjs/models/plots/plot"
 import type {ViewOf} from "@bokehjs/core/build_views"
@@ -99,6 +99,8 @@ import {TableDataProvider, DataTable} from "@bokehjs/models/widgets/tables/data_
 import {TableColumn} from "@bokehjs/models/widgets/tables/table_column"
 import {DTINDEX_NAME} from "@bokehjs/models/widgets/tables/definitions"
 import {Spinner} from "@bokehjs/models/widgets"
+
+import * as slider_css from "@bokehjs/styles/widgets/sliders.css"
 
 class QualifiedModelView extends UIElementView {
   declare model: QualifiedModel
@@ -1790,7 +1792,7 @@ describe("Bug", () => {
       const slider = CategoricalSlider.create({categories, value: "0"})
       const {view} = await display(slider, [300, 50])
 
-      const el = view.shadow_el.querySelector(".noUi-handle")
+      const el = view.shadow_el.querySelector(`.${slider_css.handle}`)
       expect_not_null(el)
       expect(slider.value).to.be.equal("0")
 
@@ -1977,6 +1979,29 @@ ${view.host_selector} {
       expect(x_range.end).to.be.similar(60)
       expect(n_start).to.not.be.equal(0)
       expect(n_end).to.not.be.equal(0)
+    })
+  })
+
+  describe("in issue #11557", () => {
+    it("doesn't allow to empty a DataTable with autosize_mode and string columns", async () => {
+      const source = ColumnDataSource.create({data: {name: ["a", "b", "c"], salary: [10, 20, 30]}})
+      const columns = [
+        TableColumn.create({field: "name", title: "Name"}),
+        TableColumn.create({field: "salary", title: "Salary"}),
+      ]
+      const table = DataTable.create({source, columns, width: 400, autosize_mode: "fit_columns"})
+      const {view} = await display(table)
+
+      const rendered_rows = () => view.shadow_el.querySelectorAll(".slick-row").length
+      expect(rendered_rows()).to.be.equal(3)
+
+      source.data = {name: [], salary: []}
+      await view.ready
+      expect(rendered_rows()).to.be.equal(0)
+
+      source.data = {name: ["d"], salary: [40]}
+      await view.ready
+      expect(rendered_rows()).to.be.equal(1)
     })
   })
 
@@ -2179,11 +2204,8 @@ ${view.host_selector} {
 
       const {view} = await display(p)
 
-      // can't simply dispatchEvent() because of browser security
-      const {left, top} = view.el.getBoundingClientRect()
       const open_menu = () => {
-        view.show_context_menu(new MouseEvent("contextmenu", {clientX: left + 50, clientY: top + 50}))
-        const menu_view = view.get_context_menu({x: 50, y: 50})
+        const menu_view = show_context_menu(view, 50, 50)
         expect_not_null(menu_view)
         expect(menu_view.is_open).to.be.true
         return menu_view

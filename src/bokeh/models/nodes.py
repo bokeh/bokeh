@@ -17,11 +17,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 # Public constructor types live in the stubs; declarations below cover local calls.
 from typing import TYPE_CHECKING, Any, ClassVar
 
-# Bokeh imports
 from ..core.enums import ImplicitTarget, ImplicitTargetType
 from ..core.has_props import abstract
 from ..core.property.aliases import CoordinateLike

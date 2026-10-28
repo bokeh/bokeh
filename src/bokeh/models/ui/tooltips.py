@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from ...core.enums import Anchor, TooltipAttachment
 from ...core.property.auto import Auto
 from ...core.property.container import Tuple

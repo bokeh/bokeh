@@ -48,11 +48,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from json import JSONEncoder
 from typing import Any
 
-# Bokeh imports
 from ..settings import settings
 from .serialization import Buffer, Serialized
 

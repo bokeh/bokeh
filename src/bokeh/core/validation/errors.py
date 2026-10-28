@@ -74,7 +74,7 @@ validation checks.
     An extra range name is configured with a name that does not correspond to any range.
 
 1021 *(EQUAL_SLIDER_START_END)*
-    ``noUiSlider`` most have a nonequal start and end.
+    Sliders must have a nonequal ``start`` and ``end``.
 
 1022 *(MIN_PREFERRED_MAX_WIDTH)*
     Expected min_width <= width <= max_width
@@ -114,7 +114,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from .issue import Error
 
 #-----------------------------------------------------------------------------

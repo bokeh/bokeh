@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from ..core.enums import JitterRandomDistribution, StepMode
 from ..core.has_props import abstract
 from ..core.property.any import AnyRef

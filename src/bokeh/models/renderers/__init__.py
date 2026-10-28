@@ -21,10 +21,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any
 
-# Bokeh imports
 from . import (
     contour_renderer,
     glyph_renderer,

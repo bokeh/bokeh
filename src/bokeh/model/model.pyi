@@ -5,7 +5,6 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from inspect import Parameter
 from typing import (
     Any,
@@ -15,7 +14,6 @@ from typing import (
     Unpack,
 )
 
-# Bokeh imports
 from ..core.has_props import HasProps, Setter
 from ..core.property.validation import without_property_validation
 from ..core.query import SelectorType

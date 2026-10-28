@@ -7,7 +7,6 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import asyncio
 import hashlib
 import json
@@ -20,11 +19,9 @@ from types import ModuleType
 from typing import Any, cast
 from urllib.parse import urlencode
 
-# External imports
 import numpy as np
 import pytest
 
-# Bokeh imports
 from bokeh.application import Application
 from bokeh.application.handlers.directory import DirectoryHandler
 from bokeh.application.handlers.function import FunctionHandler

@@ -34,16 +34,13 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 import importlib
 import textwrap
 from typing import Any
 
-# External imports
 from docutils.parsers.rst.directives import unchanged
 from sphinx.errors import SphinxError
 
-# Bokeh imports
 from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
 from .templates import ENUM_DETAIL

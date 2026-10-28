@@ -7,11 +7,9 @@
 
 # pyright: reportIncompatibleVariableOverride=false
 
-# Standard library imports
 from abc import abstractmethod
 from typing import Literal, Unpack
 
-# Bokeh imports
 from .._types import Datetime, TextLike
 from ..core.enums import (
     AlignType as Align,

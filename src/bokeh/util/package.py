@@ -21,11 +21,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import filecmp
 from pathlib import Path
 
-# Bokeh imports
 from .. import __version__, resources
 from ..settings import settings
 from .version import is_full_release

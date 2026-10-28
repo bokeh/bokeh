@@ -19,6 +19,10 @@ New features
   Bokeh server's WebSocket origin allowlist, including equivalent address
   spellings. ASGI origin entries use the same validation and default port as
   ``Server``.
+* Added ``label`` property to :class:`~bokeh.models.Tool`, allowing to change
+  the name of a tool displayed in the user interface, e.g. in a plot's context
+  menu (:bokeh-issue:`15553`).
+* Redesigned slider widgets for better visual appeal and easier theming (:bokeh-pull:`13551`)
 
 Removals
 --------
@@ -55,6 +59,14 @@ Removals
   remain available. Endpoints use data coordinates. Head sizes and decoration
   insets use screen pixels. See :ref:`ug_basic_annotations_arrows` for examples.
 
+* Removed ``bar_color`` and ``direction`` properties from slider widgets
+  (:bokeh-pull:`13551`). Use stylesheets to change the color of a slider's
+  bar, e.g. ``Slider(..., stylesheets=[InlineStyleSheet(css=".bk-span { background-color: red; }")])``.
+
+* BokehJS no longer depends on noUiSlider. Custom stylesheets that target
+  ``.noUi-*`` classes must be updated to target the new slider elements
+  (``.bk-track``, ``.bk-span``, ``.bk-handle`` and ``.bk-tooltip``).
+
 API changes
 -----------
 
@@ -70,6 +82,13 @@ API changes
   attaches a marking to a named path node, and ``PathMarkings`` places markings
   at fractional path positions. These concrete models define their own marking
   and placement properties.
+
+* Sliders no longer default to ``width=300``. The default size is now set
+  in CSS and can be changed with the ``--default-size`` CSS variable.
+
+* In BokehJS, ``OrientedControl`` now derives from ``Widget`` instead of
+  ``Control``, and ``Control`` is deprecated. ``BBox.relativize()`` now takes
+  and returns an ``{x, y}`` object instead of separate coordinates.
 
 Bug fixes
 ---------

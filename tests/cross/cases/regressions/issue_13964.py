@@ -1,6 +1,5 @@
 # https://github.com/bokeh/bokeh/issues/13964
 
-# Bokeh imports
 from bokeh.models import CustomJS, TextInput
 
 text_input = TextInput()
