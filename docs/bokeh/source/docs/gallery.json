@@ -457,6 +457,11 @@
   ],
   "interaction/widgets": [
     {
+      "name": "markdown.py",
+      "title": "Markdown",
+      "alt": "Thumbnail link to the Markdown example showing a formatted table of glyphs, plotting methods, and their uses."
+    },
+    {
       "name": "multiselect.py",
       "alt": "Thumbnail link to the examples/interaction/widgets/multiselect.py example shows a simple example of a multi-select widget."
     },

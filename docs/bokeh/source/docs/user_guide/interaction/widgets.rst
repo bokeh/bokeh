@@ -369,6 +369,15 @@ A widget to change between light and dark color schemes:
 
 More information can be found in the reference guide entry for |LightDark|.
 
+.. _ug_interaction_widgets_examples_markdown:
+
+Markdown
+~~~~~~~~
+
+The :class:`~bokeh.models.Markdown` widget displays formatted text, highlighted
+code, math, and embedded Bokeh models. See :ref:`ug_interaction_markdown` for
+syntax examples, rendering options, and Python object representations.
+
 .. _ug_interaction_widgets_examples_multichoice:
 
 MultiChoice
