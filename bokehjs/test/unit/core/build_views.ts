@@ -1,4 +1,4 @@
-import {expect} from "#framework/assertions"
+import {expect, expect_not_null} from "#framework/assertions"
 
 import {HasProps} from "@bokehjs/core/has_props"
 import {View} from "@bokehjs/core/view"
@@ -247,6 +247,180 @@ describe("core/build_views", () => {
     const result = await build_views(storage, [ok_model], {parent: null})
     expect(result.created.length).to.be.equal(1)
     expect(n_built_ok).to.be.equal(1)
+  })
+
+  it("should propagate a throwing error handler and allow a later batch to recover", async () => {
+    const build_error = new Error("build failed")
+    const handler_error = new Error("handler failed")
+    const built: ModelView[] = []
+
+    class ModelView extends View {
+      declare model: Model
+
+      override async lazy_initialize(): Promise<void> {
+        await super.lazy_initialize()
+        built.push(this)
+        if (this.model == bad) {
+          throw build_error
+        }
+      }
+    }
+
+    class Model extends HasProps {
+      declare __view_type__: ModelView
+
+      static {
+        this.prototype.default_view = ModelView
+      }
+    }
+
+    const before = Model.create()
+    const bad = Model.create()
+    const after = Model.create()
+    const storage: ViewStorage<HasProps> = new Map()
+    let rejected: unknown
+    try {
+      await build_views(storage, [before, bad, after], {
+        parent: null,
+        on_error: (error, model) => {
+          expect(error).to.be.equal(build_error)
+          expect(model).to.be.equal(bad)
+          throw handler_error
+        },
+      })
+    } catch (error) {
+      rejected = error
+    }
+    expect(rejected).to.be.equal(handler_error)
+    expect(built.map((view) => view.model)).to.be.equal([before, bad])
+    expect(built[1].is_destroyed).to.be.true
+    expect([...storage.keys()]).to.be.equal([before])
+
+    await build_views(storage, [before, after], {parent: null})
+    expect(storage.get(before)).to.be.equal(built[0])
+    expect([...storage.keys()]).to.be.equal([before, after])
+    remove_views(storage)
+    expect(built.every((view) => view.is_destroyed)).to.be.true
+  })
+
+  it("should isolate handled failures while sharing builds and preserving healthy views", async () => {
+    let reject_bad = true
+    let n_built_bad = 0
+    let n_built_good = 0
+    const error = new Error("boom")
+
+    class ModelView extends View {
+      declare model: Model
+
+      override async lazy_initialize(): Promise<void> {
+        await super.lazy_initialize()
+        if (this.model == bad) {
+          n_built_bad++
+          if (reject_bad) {
+            throw error
+          }
+        } else {
+          n_built_good++
+        }
+      }
+    }
+
+    class Model extends HasProps {
+      declare __view_type__: ModelView
+
+      static {
+        this.prototype.default_view = ModelView
+      }
+    }
+
+    const bad = Model.create()
+    const good = Model.create()
+    const storage: ViewStorage<HasProps> = new Map()
+    const failures: [unknown, HasProps][] = []
+    const options = {
+      parent: null,
+      on_error: (error: unknown, model: HasProps) => { failures.push([error, model]) },
+    }
+    const first = build_views(storage, [bad, good], options)
+    const waiting = build_views(storage, [bad, good], options)
+    await Promise.all([first, waiting])
+    expect(failures).to.be.equal([[error, bad], [error, bad]])
+    expect(n_built_bad).to.be.equal(1)
+    expect(n_built_good).to.be.equal(1)
+    expect(storage.has(bad)).to.be.false
+    const good_view = storage.get(good)
+    expect_not_null(good_view)
+
+    await build_views(storage, [bad, good], options)
+    expect(n_built_bad).to.be.equal(2)
+    expect(n_built_good).to.be.equal(1)
+    expect(storage.get(good)).to.be.equal(good_view)
+    expect(good_view.is_destroyed).to.be.false
+
+    reject_bad = false
+    const recovered = await build_views(storage, [bad, good], options)
+    const bad_view = storage.get(bad)
+    expect_not_null(bad_view)
+    expect(recovered.created).to.be.equal([bad_view])
+    expect(storage.get(good)).to.be.equal(good_view)
+    expect(failures.length).to.be.equal(3)
+    remove_views(storage)
+    expect(good_view.is_destroyed).to.be.true
+  })
+
+  it("should dispose a view whose signal connection fails and continue with healthy models", async () => {
+    let reject_bad = true
+    const failed_views: ModelView[] = []
+    const error = new Error("connection failed")
+
+    class ModelView extends View {
+      declare model: Model
+
+      override connect_signals(): void {
+        super.connect_signals()
+        if (this.model == bad && reject_bad) {
+          failed_views.push(this)
+          throw error
+        }
+      }
+    }
+
+    class Model extends HasProps {
+      declare __view_type__: ModelView
+
+      static {
+        this.prototype.default_view = ModelView
+      }
+    }
+
+    const bad = Model.create()
+    const good = Model.create()
+    const storage: ViewStorage<HasProps> = new Map()
+    const failures: [unknown, HasProps][] = []
+    const options = {
+      parent: null,
+      on_error: (error: unknown, model: HasProps) => { failures.push([error, model]) },
+    }
+    const result = await build_views(storage, [bad, good], options)
+    const good_view = storage.get(good)
+    const failed_view = failed_views.at(0)
+    expect_not_null(good_view)
+    expect_not_null(failed_view)
+    expect(failures).to.be.equal([[error, bad]])
+    expect(failed_view.is_destroyed).to.be.true
+    expect(storage.has(bad)).to.be.false
+    expect(result.created).to.be.equal([good_view])
+
+    reject_bad = false
+    await build_views(storage, [bad, good], options)
+    const recovered_view = storage.get(bad)
+    expect_not_null(recovered_view)
+    expect(recovered_view).to.not.be.equal(failed_view)
+    expect(recovered_view.is_destroyed).to.be.false
+    expect(storage.get(good)).to.be.equal(good_view)
+    remove_views(storage)
+    expect(recovered_view.is_destroyed).to.be.true
+    expect(good_view.is_destroyed).to.be.true
   })
 
   it("should build separate views for the same model in unrelated view_storage maps", async () => {

@@ -37,6 +37,10 @@ export async function build_view<T extends HasProps>(model: T, options: Options<
   }
 }
 
+export type BuildOptions<T extends HasProps> = Options<ViewOf<T>> & {
+  on_error?: (error: unknown, model: T) => void
+}
+
 export type BuildResult<T extends HasProps> = {created: ViewOf<T>[], removed: ViewOf<T>[]}
 
 /**
@@ -88,7 +92,15 @@ async function _build_into<T extends HasProps>(
       // that `view_storage` never holds a view that hasn't been connected yet.
       // An overlapping call's `to_remove` diff can see anything in there, and
       // remove() assumes connect_signals() already ran.
-      view.connect_signals()
+      try {
+        view.connect_signals()
+      } catch (error) {
+        if (view_storage.get(model) === view) {
+          view_storage.delete(model)
+        }
+        view.remove()
+        throw error
+      }
       return {view, stored: true}
     } else {
       // Nothing wants this model any more, but the call that dropped it couldn't
@@ -111,10 +123,14 @@ async function _build_into<T extends HasProps>(
  * most once, by whichever call got to it first, and a call wanting a model
  * somebody else is already building waits for that build instead of starting a
  * second one. So once this resolves, every requested model that is still wanted
- * has a connected view in `view_storage`.
+ * has a connected view in `view_storage`, unless its build failed and was
+ * handled by `on_error`.
  *
  * Models are processed in request order, waiting included, so a view is never
- * initialized ahead of a view requested before it.
+ * initialized ahead of a view requested before it. By default a failure rejects
+ * the call. Supplying `on_error` handles failures per model and continues with
+ * the remaining models without changing the shared desired set.
+ * If `on_error` itself throws, processing stops and that error rejects the call.
  *
  * A build belongs to the model, not to the call that started it, and never
  * waits on a call, so waiting can't cycle and a failing model doesn't poison
@@ -125,9 +141,10 @@ async function _build_into<T extends HasProps>(
 export async function build_views<T extends HasProps>(
   view_storage: ViewStorage<T>,
   models: T[],
-  options: Options<ViewOf<T>> = {parent: null},
+  options: BuildOptions<T> = {parent: null},
   cls: (model: T) => T["default_view"] = (model) => model.default_view,
 ): Promise<BuildResult<T>> {
+  const {on_error, ...view_options} = options
   const state = _state(view_storage)
   state.desired = new Set(models)
 
@@ -158,25 +175,32 @@ export async function build_views<T extends HasProps>(
         // case building it would just be followed by tearing it down again.
         continue
       }
-      const pending = state.pending.get(model)
-      if (pending != null) {
-        // Somebody got here first. Wait for their build, both to not build a
-        // second view for this model, and to keep the rest of our batch behind
-        // this model's initialization.
-        await pending
-        continue
-      }
-      // Registered before awaiting anything, so an overlapping call is
-      // guaranteed to find this build instead of starting its own. The build
-      // clears its own entry as it settles, so a failed one is never left
-      // around for a later call to inherit.
-      const build = _build_into(view_storage, state, model, options, cls)
-      state.pending.set(model, build)
-      const {view, stored} = await build
-      if (stored) {
-        built.push([model, view])
-      } else {
-        removed_views.push(view)
+      try {
+        const pending = state.pending.get(model)
+        if (pending != null) {
+          // Somebody got here first. Wait for their build, both to not build a
+          // second view for this model, and to keep the rest of our batch behind
+          // this model's initialization.
+          await pending
+          continue
+        }
+        // Registered before awaiting anything, so an overlapping call is
+        // guaranteed to find this build instead of starting its own. The build
+        // clears its own entry as it settles, so a failed one is never left
+        // around for a later call to inherit.
+        const build = _build_into(view_storage, state, model, view_options, cls)
+        state.pending.set(model, build)
+        const {view, stored} = await build
+        if (stored) {
+          built.push([model, view])
+        } else {
+          removed_views.push(view)
+        }
+      } catch (error) {
+        if (on_error == null) {
+          throw error
+        }
+        on_error(error, model)
       }
     }
   } catch (error) {

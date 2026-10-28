@@ -7638,6 +7638,12 @@
     __extends__: "Widget",
     text: "",
     disable_math: false,
+    dedent: true,
+    hard_line_break: false,
+    disable_anchors: false,
+    embeds: {
+      type: "map",
+    },
   },
   Div: {
     __extends__: "Markup",
