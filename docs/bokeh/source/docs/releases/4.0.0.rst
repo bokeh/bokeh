@@ -71,8 +71,10 @@ Indexed meshes and lookups
 
 ``MeshDataSource`` represents shared vertices separately from selectable mesh
 cells, allowing the ``polygons`` glyph to render indexed two-dimensional
-meshes without duplicating coordinates. ``IndexedLookup`` and the ``gather()``
-helper expose the same indexed lookup operation for other glyph properties.
+meshes without duplicating coordinates. It accepts vertex and cell dataframes
+directly, including custom coordinate and connectivity column names.
+``IndexedLookup`` and the ``gather()`` helper expose the same indexed lookup
+operation for other glyph properties.
 
 Other API changes
 -----------------

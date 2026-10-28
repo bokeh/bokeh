@@ -126,6 +126,37 @@ class TestMeshDataSource:
         }
         assert source.length == 2
 
+    @pytest.mark.skipif(pd is None, reason="requires pandas")
+    def test_accepts_dataframes_with_custom_field_names(self) -> None:
+        vertices = pd.DataFrame({
+            "Node Index": [10, 20, 30, 40],
+            "X": [0.0, 1.0, 1.0, 0.0],
+            "Y": [0.0, 0.0, 1.0, 1.0],
+            "temperature": [12.0, 13.0, 15.0, 14.0],
+        })
+        cells = pd.DataFrame({
+            "Element Index": [100, 200],
+            "Node Indices": [[0, 1, 2], [0, 2, 3]],
+            "material": ["steel", "aluminum"],
+        })
+
+        source = bms.MeshDataSource(
+            vertices=vertices,
+            cells=cells,
+            x_field="X",
+            y_field="Y",
+            connectivity_field="Node Indices",
+        )
+
+        assert list(source.vertices.data["Node Index"]) == [10, 20, 30, 40]
+        assert list(source.vertices.data["X"]) == [0.0, 1.0, 1.0, 0.0]
+        assert list(source.vertices.data["Y"]) == [0.0, 0.0, 1.0, 1.0]
+        assert list(source.vertices.data["temperature"]) == [12.0, 13.0, 15.0, 14.0]
+        assert list(source.cells.data["Element Index"]) == [100, 200]
+        assert list(source.cells.data["Node Indices"]) == [[0, 1, 2], [0, 2, 3]]
+        assert list(source.cells.data["material"]) == ["steel", "aluminum"]
+        assert source.length == 2
+
     def test_accepts_cell_records(self) -> None:
         source = bms.MeshDataSource(
             vertices=[[0, 0], [1, 0], [1, 1], [0, 1]],

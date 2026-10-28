@@ -137,6 +137,24 @@ Each cell can pair its vertex indices with attributes used to style that cell:
 .. bokeh-plot:: __REPO__/examples/topics/mesh/mesh.py
     :source-position: above
 
+Eager dataframes supported by Narwhals can also be passed directly. Use the
+field-name properties when their coordinate or connectivity columns use other
+names; all remaining columns stay available as vertex or cell attributes:
+
+.. code-block:: python
+
+    mesh = MeshDataSource(
+        vertices=nodes_df,
+        cells=elements_df,
+        x_field="X",
+        y_field="Y",
+        connectivity_field="Node Indices",
+    )
+
+Connectivity values are positional row indices into ``vertices``. Identifier
+columns such as ``"Node Index"`` remain available as attributes but are not
+used to resolve connectivity.
+
 For lower-level indexed data, :func:`~bokeh.transform.gather` builds an
 :class:`~bokeh.models.expressions.IndexedLookup` expression. For example,
 ``gather(vertices, "x", indices="vertices")`` resolves each row of vertex

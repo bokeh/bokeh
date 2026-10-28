@@ -118,9 +118,9 @@ class ColumnDataSource(ColumnarDataSource):
 
     def patch(self, patches: Patches, setter: Setter | None = ...) -> None: ...
 
-type MeshVertices = IndexedDataSource | Mapping[str, Sequence[Any]] | Sequence[Sequence[float]] | npt.NDArray[Any]
+type MeshVertices = IndexedDataSource | Mapping[str, Sequence[Any]] | Sequence[Sequence[float]] | npt.NDArray[Any] | pd.DataFrame
 type MeshCellRecord = Mapping[str, Any] | tuple[Sequence[int], Mapping[str, Any]]
-type MeshCells = IndexedDataSource | Mapping[str, Sequence[Any]] | Sequence[int] | Sequence[Sequence[int] | MeshCellRecord] | npt.NDArray[Any]
+type MeshCells = IndexedDataSource | Mapping[str, Sequence[Any]] | Sequence[int] | Sequence[Sequence[int] | MeshCellRecord] | npt.NDArray[Any] | pd.DataFrame
 
 class _MeshDataSourceInit(_IndexedDataSourceInit, total=False):
     vertices: MeshVertices

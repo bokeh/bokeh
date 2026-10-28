@@ -801,9 +801,16 @@ def _default_mesh_vertices() -> ColumnDataSource:
 def _default_mesh_cells() -> ColumnDataSource:
     return ColumnDataSource(data=dict(vertices=[]))
 
+def _is_eager_dataframe(value: Any) -> bool:
+    import narwhals.stable.v1 as nw
+
+    return uses_pandas(value) or nw.dependencies.is_into_dataframe(value)
+
 def _mesh_vertex_source(vertices: Any) -> IndexedDataSource:
     if isinstance(vertices, IndexedDataSource):
         return vertices
+    if _is_eager_dataframe(vertices):
+        return ColumnDataSource(vertices)
     if isinstance(vertices, Mapping):
         return ColumnDataSource(vertices)
     if isinstance(vertices, Sequence) and not isinstance(vertices, (str, bytes)) and len(vertices) == 0:
@@ -821,6 +828,8 @@ def _mesh_vertex_source(vertices: Any) -> IndexedDataSource:
 def _mesh_cell_source(cells: Any, connectivity_field: str) -> IndexedDataSource:
     if isinstance(cells, IndexedDataSource):
         return cells
+    if _is_eager_dataframe(cells):
+        return ColumnDataSource(cells)
     if isinstance(cells, Mapping):
         return ColumnDataSource(cells)
 
@@ -893,9 +902,13 @@ class MeshDataSource(IndexedDataSource):
     is the cell axis. By default the mesh and its ``cells`` source share the
     same selection and selection policy.
 
-    In addition to connectivity arrays and column mappings, ``cells`` accepts
-    row mappings or ``(connectivity, attributes)`` pairs. This keeps values
-    computed per element next to their connectivity during mesh construction.
+    ``vertices`` and ``cells`` accept eager dataframes supported by Narwhals,
+    with ``x_field``, ``y_field``, and ``connectivity_field`` identifying the
+    relevant columns. Other columns remain available as vertex or cell
+    attributes. In addition to connectivity arrays and column mappings,
+    ``cells`` accepts row mappings or ``(connectivity, attributes)`` pairs.
+    This keeps values computed per element next to their connectivity during
+    mesh construction.
 
     BokehJS exposes virtual ``xs``, ``ys``, and (when present) ``zs`` fields by
     gathering vertex coordinates through cell connectivity. This keeps shared
@@ -997,8 +1010,7 @@ def _node_source(nodes: Any) -> IndexedDataSource:
     if isinstance(nodes, IndexedDataSource):
         return nodes
 
-    import narwhals.stable.v1 as nw
-    if uses_pandas(nodes) or nw.dependencies.is_into_dataframe(nodes):
+    if _is_eager_dataframe(nodes):
         return _dataframe_source(nodes, {"id": "index"})
 
     if isinstance(nodes, Mapping):
@@ -1039,8 +1051,7 @@ def _edge_source(edges: Any) -> IndexedDataSource:
     if isinstance(edges, IndexedDataSource):
         return edges
 
-    import narwhals.stable.v1 as nw
-    if uses_pandas(edges) or nw.dependencies.is_into_dataframe(edges):
+    if _is_eager_dataframe(edges):
         return _dataframe_source(edges, {"source": "start", "target": "end"})
 
     if isinstance(edges, Mapping):
