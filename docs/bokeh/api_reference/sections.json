@@ -61,11 +61,8 @@
     "title": "Grids"
   },
   {
-    "slug": "i18n",
-    "title": "I18n",
-    "classes": [
-      "I18n"
-    ]
+    "slug": "i18n/i18n",
+    "title": "I18n"
   },
   {
     "slug": "labeling",
