@@ -123,8 +123,8 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
         if check_allowlist(origin_host, list(allowed_hosts)):
             return True
 
-        log.error("Refusing websocket connection from Origin '%s'; \
-                    use --allow-websocket-origin=%s or set BOKEH_ALLOW_WS_ORIGIN=%s to permit this; currently we allow origins %r",
+        log.error("Refusing websocket connection from Origin %r; \
+                    use --allow-websocket-origin=%r or set BOKEH_ALLOW_WS_ORIGIN=%r to permit this; currently we allow origins %r",
                     origin, origin_host, origin_host, allowed_hosts)
         return False
 

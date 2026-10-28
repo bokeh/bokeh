@@ -138,6 +138,20 @@ async def test_ws_handler_rejects_disallowed_origins(
     assert f"currently we allow origins {set(allowed_origins)!r}" in caplog.text
 
 
+def test_check_origin_escapes_log_values(caplog: pytest.LogCaptureFixture) -> None:
+    handler = SimpleNamespace(application=SimpleNamespace(websocket_origins={"example.com"}))
+    origin = "http://evil.example/\r\nforged log entry\x1b[31m"
+
+    with caplog.at_level(logging.ERROR):
+        assert not WSHandler.check_origin(handler, origin)
+
+    message = caplog.messages[-1]
+    assert repr(origin) in message
+    assert "--allow-websocket-origin='evil.example'" in message
+    assert "BOKEH_ALLOW_WS_ORIGIN='evil.example'" in message
+    assert not any(char in message for char in "\r\n\x1b")
+
+
 def test_open_rejects_invalid_signed_token_before_payload() -> None:
     handler = object.__new__(WSHandler)
     handler._token = generate_jwt_token("bad-session", signed=True, secret_key="bar", extra_payload=dict(foo="bar"))
