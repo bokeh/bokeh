@@ -1,0 +1,110 @@
+table {
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid var(--border-color);
+  padding: 6px 12px;
+}
+
+blockquote {
+  border-left: 3px solid var(--border-color);
+  margin-left: 0;
+  padding-left: 16px;
+}
+
+.bokeh-embed {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin: 1em 0;
+}
+
+.bokeh-embed-error {
+  padding: 0.5em;
+  border: 1px solid var(--border-color);
+  color: light-dark(#cf222e, #f85149);
+}
+
+.admonition {
+  --admonition-color: #0969da;
+  margin: 1em 0;
+  padding: 0.5em 1em;
+  border-left: 4px solid var(--admonition-color);
+  background-color: color-mix(in srgb, var(--admonition-color) 8%, transparent);
+
+  .admonition-title {
+    color: var(--admonition-color);
+    font-weight: bold;
+    margin-top: 0;
+  }
+}
+
+.admonition-tip { --admonition-color: light-dark(#1a7f37, #3fb950); }
+.admonition-important { --admonition-color: light-dark(#8250df, #a371f7); }
+.admonition-warning { --admonition-color: light-dark(#9a6700, #d29922); }
+.admonition-caution { --admonition-color: light-dark(#cf222e, #f85149); }
+.admonition-note { --admonition-color: light-dark(#0969da, #58a6ff); }
+
+details {
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 0.5em 1em;
+  margin: 1em 0;
+}
+
+summary {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+dt { font-weight: bold; }
+dd { margin-bottom: 0.75em; }
+
+.heading-anchor {
+  font-size: 0.8em;
+  font-weight: normal;
+  text-decoration: none;
+  opacity: 0;
+}
+
+:is(h1, h2, h3, h4, h5, h6):hover .heading-anchor,
+.heading-anchor:focus-visible {
+  opacity: 1;
+}
+
+.footnotes {
+  font-size: 0.9em;
+}
+
+pre {
+  overflow: auto;
+  padding: 12px;
+  background-color: light-dark(#f5f5f5, #202020);
+  color: light-dark(#24292e, #e6edf3);
+}
+
+.hljs {
+  color: light-dark(#24292e, #e6edf3);
+
+  .hljs-keyword, .hljs-selector-tag, .hljs-literal {
+    color: light-dark(#a626a4, #d2a8ff);
+  }
+
+  .hljs-string, .hljs-regexp, .hljs-attr {
+    color: light-dark(#287a2b, #a5d6ff);
+  }
+
+  .hljs-number, .hljs-symbol, .hljs-built_in, .hljs-type {
+    color: light-dark(#986801, #ffa657);
+  }
+
+  .hljs-title, .hljs-name, .hljs-attribute {
+    color: light-dark(#005cc5, #79c0ff);
+  }
+
+  .hljs-comment, .hljs-quote {
+    color: light-dark(#666666, #9da7b1);
+    font-style: italic;
+  }
+}
