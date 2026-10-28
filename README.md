@@ -241,11 +241,8 @@ If your company uses Bokeh and is able to sponsor the project, please contact <a
 
 Non-monetary support can help with development, collaboration, infrastructure, security, and vulnerability management. The Bokeh project is grateful to the following companies for their donation of services:
 
-* [Amazon Web Services](https://aws.amazon.com/)
-* [GitGuardian](https://gitguardian.com/)
 * [GitHub](https://github.com/)
 * [makepath](https://makepath.com/)
 * [Pingdom](https://www.pingdom.com/website-monitoring)
 * [Slack](https://slack.com)
-* [QuestionScout](https://www.questionscout.com/)
 * [1Password](https://1password.com/)
