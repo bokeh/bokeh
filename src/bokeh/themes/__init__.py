@@ -24,6 +24,11 @@ DARK_MINIMAL
 
 .. bokeh-plot:: __REPO__/examples/styling/themes/dark_minimal.py
 
+FRESH
+~~~~~
+
+.. bokeh-plot:: __REPO__/examples/styling/themes/fresh.py
+
 LIGHT_MINIMAL
 ~~~~~~~~~~~~~
 
@@ -65,6 +70,7 @@ from . import (
     _carbon,
     _contrast,
     _dark_minimal,
+    _fresh,
     _light_minimal,
     _night_sky,
 )
@@ -78,6 +84,7 @@ __all__ = (
     'CALIBER',
     'CARBON',
     'DARK_MINIMAL',
+    'FRESH',
     'LIGHT_MINIMAL',
     'NIGHT_SKY',
     'CONTRAST',
@@ -92,6 +99,7 @@ __all__ = (
 
 CALIBER      : Literal['caliber']       = 'caliber'
 CARBON       : Literal['carbon']        = 'carbon'
+FRESH        : Literal['fresh']         = 'fresh'
 LIGHT_MINIMAL: Literal['light_minimal'] = 'light_minimal'
 DARK_MINIMAL : Literal['dark_minimal']  = 'dark_minimal'
 NIGHT_SKY    : Literal['night_sky']     = 'night_sky'
@@ -103,6 +111,7 @@ built_in_themes: dict[BuiltinThemeName, Theme] = {
     CALIBER       : Theme(json=_caliber.json),
     CARBON        : Theme(json=_carbon.json),
     DARK_MINIMAL  : Theme(json=_dark_minimal.json),
+    FRESH         : Theme(json=_fresh.json),
     LIGHT_MINIMAL : Theme(json=_light_minimal.json),
     NIGHT_SKY     : Theme(json=_night_sky.json),
     CONTRAST      : Theme(json=_contrast.json),
