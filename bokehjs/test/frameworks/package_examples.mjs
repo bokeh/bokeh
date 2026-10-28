@@ -78,7 +78,9 @@ function verify_bundle_budget(example, root) {
   const largest = files.reduce((left, right) => left.bytes >= right.bytes ? left : right)
   const total = files.reduce((sum, file) => sum + file.bytes, 0)
   const max_chunk_bytes = 2_100_000
-  const max_total_bytes = example == "react-next" ? 4_250_000 : 4_000_000
+  // The multi-page React example also ships the lazy full registry for server
+  // documents, whose model types aren't known when the client is bundled.
+  const max_total_bytes = example == "react-vite" ? 4_500_000 : example == "react-next" ? 4_250_000 : 4_000_000
   if (largest.bytes > max_chunk_bytes || total > max_total_bytes) {
     throw new Error(`${example} exceeded its JavaScript bundle budget: largest=${largest.file} (${largest.bytes}), total=${total}`)
   }
