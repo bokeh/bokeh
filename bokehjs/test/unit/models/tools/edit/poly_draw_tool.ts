@@ -25,7 +25,11 @@ export interface PolyDrawTestCase {
   glyph_view: PatchesView
 }
 
-async function make_testcase(): Promise<PolyDrawTestCase> {
+async function make_testcase(data: PolyDrawTestCase["data"] = {
+  xs: [[0, 0.5, 1], [0, 0.5, 1]],
+  ys: [[0, -0.5, -1], [0, -0.5, -1]],
+  z: [null, null],
+}): Promise<PolyDrawTestCase> {
   // Note default plot dimensions is 600 x 600 (height x width)
   const plot = Plot.create({
     x_range: Range1d.create({start: -1, end: 1}),
@@ -34,11 +38,6 @@ async function make_testcase(): Promise<PolyDrawTestCase> {
 
   const {view: plot_view} = await display(plot)
 
-  const data = {
-    xs: [[0, 0.5, 1], [0, 0.5, 1]],
-    ys: [[0, -0.5, -1], [0, -0.5, -1]],
-    z: [null, null],
-  }
   const data_source = ColumnDataSource.create({data})
 
   const glyph = Patches.create({
@@ -107,6 +106,21 @@ describe("PolyDrawTool", (): void => {
       testcase.draw_tool_view._tap(tap_event)
 
       expect(testcase.data_source.selected.indices).to.be.equal([0, 1])
+    })
+
+    it("should delete shift-selected polygons by numeric index", async () => {
+      const xs = Array.from({length: 12}, (_, i) => [i, i + 0.25, i + 0.5])
+      const ys = xs.map(() => [0, 0.5, 0])
+      const testcase = await make_testcase({xs: xs.map((row) => row.slice()), ys: ys.map((row) => row.slice()), z: xs.map(() => null)})
+      const hits = sinon.stub(testcase.glyph_view, "hit_test")
+      hits.returns(Selection.create({indices: [10]}))
+      testcase.draw_tool_view._tap(make_tap_event(300, 300))
+      hits.returns(Selection.create({indices: [2]}))
+      testcase.draw_tool_view._tap(make_tap_event(300, 300, true))
+      expect(testcase.data_source.selected.indices).to.be.equal([2, 10])
+      testcase.draw_tool_view._keyup(make_key_event("Backspace"))
+      expect(testcase.data_source.get_array("xs")).to.be.equal(xs.filter((_, i) => i != 2 && i != 10))
+      expect(testcase.data_source.get_array("ys")).to.be.equal(ys.filter((_, i) => i != 2 && i != 10))
     })
 
     it("should delete selected on delete key", async () => {
