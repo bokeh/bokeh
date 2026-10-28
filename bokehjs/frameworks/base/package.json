@@ -10,6 +10,7 @@
     "directory": "bokehjs/frameworks/base"
   },
   "type": "module",
+  "sideEffects": false,
   "files": [
     "dist",
     "README.md"

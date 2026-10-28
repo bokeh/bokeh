@@ -190,7 +190,7 @@ export abstract class AxisView extends GuideRendererView {
         }).catch((error) => {
           logger.error(`failed to build formatted axis text: ${error}`)
         })
-        this._await_ready(building)
+        this.schedule(() => building)
       }
       return null
     }

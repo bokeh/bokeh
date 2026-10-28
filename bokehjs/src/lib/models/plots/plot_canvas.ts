@@ -263,7 +263,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   schedule_paint(): void {
     if (!this.is_paused) {
-      this._await_ready(this.throttled_paint())
+      this.schedule(() => this.throttled_paint())
     }
   }
 

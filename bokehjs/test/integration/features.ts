@@ -2,7 +2,6 @@ import {display, fig} from "#framework/layouts"
 import {PlotActions, xy, show_context_menu} from "#framework/interactive"
 
 import {PanTool, SaveTool, CrosshairTool, Span, GridBox, Row, Pane, Slope, GridPlot} from "@bokehjs/models"
-import {paint} from "@bokehjs/core/util/defer"
 import {range} from "@bokehjs/core/util/array"
 import {Random} from "@bokehjs/core/util/random"
 import type {IconLike} from "@bokehjs/models/common/kinds"
@@ -80,7 +79,6 @@ describe("Feature", () => {
       const p = fig([300, 300], {tools: ["box_zoom", "reset"], toolbar_location: "right"})
       p.circle({x: [1, 2, 3, 4], y: [1, 2, 3, 4], radius: [0.25, 0.50, 0.75, 1.00], fill_alpha: 0.8})
       const {view} = await display(p)
-      await paint()
 
       const actions = new PlotActions(view)
       await actions.pan(xy(1, 1), xy(4, 4))
@@ -113,7 +111,6 @@ describe("Feature", () => {
       })
 
       const {view} = await display(grid)
-      await paint()
 
       const pv0 = view.owner.get_one(p0)
 
@@ -133,7 +130,6 @@ describe("Feature", () => {
       const row = Row.create({children: [p0, p1], sizing_mode: "stretch_width"})
       const pane = Pane.create({elements: [row], styles: {width: "500px", height: "250px"}})
       const {view} = await display(pane, [650, 300])
-      await paint()
 
       pane.styles = {width: "600px", height: "250px"}
       await view.ready
