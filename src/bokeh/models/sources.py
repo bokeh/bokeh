@@ -46,7 +46,7 @@ from ..core.property.readonly import Readonly
 from ..core.property.required import Required
 from ..model import Model
 from ..util.dependencies import uses_pandas
-from ..util.serialization import convert_datetime_array
+from ..util.serialization import convert_datetime_array, transform_array
 from .callbacks import CustomJS
 from .filters import AllIndices, Filter
 from .selections import Selection, SelectionPolicy, UnionRenderers
@@ -86,6 +86,12 @@ if TYPE_CHECKING:
     type Index = int | slice | tuple[int | slice, ...]
 
     type Patches = Mapping[str, Sequence[tuple[Index, Value]]]
+
+class ToJSONEncoder(json.JSONEncoder):
+    def default(self, o: Any) -> Any:
+        if isinstance(o, np.ndarray):
+            return transform_array(o)
+        return super().default(o)
 
 @abstract
 class DataSource(Model):
@@ -425,8 +431,8 @@ class ColumnDataSource(ColumnarDataSource):
         # TODO: Handle pandas not being available
         selected_indices = self.selected.indices
         if len(selected_indices) > 0:
-            return json.dumps(self.to_df().iloc[self.selected.indices].to_dict(orient="list"))
-        return json.dumps(self.to_df().to_dict(orient="list"))
+            return json.dumps(self.to_df().iloc[self.selected.indices].to_dict(orient="list"), cls=ToJSONEncoder)
+        return json.dumps(self.to_df().to_dict(orient="list"), cls=ToJSONEncoder)
 
     def add(self, data: Sequence[Any], name: str | None = None) -> str:
         ''' Appends a new column of data to the data source.
