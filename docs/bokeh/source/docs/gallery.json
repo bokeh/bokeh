@@ -115,6 +115,10 @@
   ],
   "basic/areas": [
     {
+      "name": "band.py",
+      "alt": "Thumbnail link to the examples/basic/areas/band.py example that shows a band around a trend line in a scatter plot."
+    },
+    {
       "name": "stacked_area.py",
       "alt": "Thumbnail link to the examples/basic/areas/stacked_area.py example shows a stacked area plot of synthetic data for ten series, colormapped using the Sunset palette, with a legend at the top."
     }
@@ -143,10 +147,6 @@
       "name": "path_markings.py",
       "title": "Fractional arrow positioning",
       "alt": "Arrowheads at fractions along straight and curved paths, with per-path position lists and animated streamlines."
-    },
-    {
-      "name": "band.py",
-      "alt": "Thumbnail link to the examples/basic/annotations/band.py example that shows a band annotation around a trend line in a scatter plot."
     },
     {
       "name": "slope.py",

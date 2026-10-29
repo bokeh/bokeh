@@ -142,6 +142,22 @@ Examples:
 
 """
 
+    @glyph_method(glyphs.BandGlyph)
+    def band(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
+        """
+Examples:
+
+    .. code-block:: python
+
+        from bokeh.plotting import figure, show
+
+        plot = figure(width=300, height=300)
+        plot.band(dimension="height", lower=[1, 2, 1], upper=[3, 4, 2], base=[1, 2, 3])
+
+        show(plot)
+
+"""
+
     @glyph_method(glyphs.Bezier)
     def bezier(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         pass

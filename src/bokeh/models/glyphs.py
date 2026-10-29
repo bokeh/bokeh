@@ -108,6 +108,7 @@ __all__ = (
     'AnnularWedge',
     'Annulus',
     'Arc',
+    'BandGlyph',
     'Bezier',
     'Block',
     'Circle',
@@ -365,6 +366,52 @@ class Arc(XYGlyph, LineGlyph):
     line_props = Include(LineProps, help="""
     The {prop} values for the arcs.
     """)
+
+class BandGlyph(Glyph, LineGlyph, FillGlyph, HatchGlyph):
+    """ Render a filled area band along a dimension.
+
+    """
+
+    _args = ("dimension", "lower", "upper", "base")
+
+    dimension = Enum(Dimension, default="height", help="""
+    The direction of the band can be specified by setting this property to:
+
+    * ``"width"`` for ``x`` direction
+    * ``"height"`` for ``y`` direction
+    """)
+
+    lower = NumberSpec(default=field("lower"), help="""
+    The coordinates of the lower portion of the filled area band.
+    """)
+
+    upper = NumberSpec(default=field("upper"), help="""
+    The coordinates of the upper portion of the filled area band.
+    """)
+
+    base = NumberSpec(default=field("base"), help="""
+    The orthogonal coordinates of the upper and lower values.
+    """)
+
+    line_props = Include(ScalarLineProps, help="""
+    The {prop} values for the band.
+    """)
+
+    fill_props = Include(ScalarFillProps, help="""
+    The {prop} values for the band.
+    """)
+
+    hatch_props = Include(ScalarHatchProps, help="""
+    The {prop} values for the band.
+    """)
+
+    line_alpha = Override(default=0.3)
+
+    line_color = Override(default="#cccccc")
+
+    fill_alpha = Override(default=0.4)
+
+    fill_color = Override(default="#fff9ba")
 
 class Bezier(Glyph, LineGlyph):
     ''' Render Bezier curves.

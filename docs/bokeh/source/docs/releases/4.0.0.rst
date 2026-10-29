@@ -55,6 +55,15 @@ Removals
   remain available. Endpoints use data coordinates. Head sizes and decoration
   insets use screen pixels. See :ref:`ug_basic_annotations_arrows` for examples.
 
+* Removed the ``Band`` annotation model. Replace
+  ``plot.add_layout(Band(base=..., lower=..., upper=..., source=...))``
+  with ``renderer = plot.band(base=..., lower=..., upper=..., source=...)``.
+  The returned ``GlyphRenderer`` draws a :class:`~bokeh.models.BandGlyph`.
+  Change line, fill, and hatch properties on ``renderer.glyph``. Band
+  coordinates are always in data units; ``lower_units``, ``upper_units``, and
+  ``base_units`` are no longer supported. Unlike the annotation, bands
+  contribute to auto-ranging. See :ref:`ug_basic_areas_bands` for examples.
+
 * Removed the ``Whisker`` annotation model. Replace
   ``plot.add_layout(Whisker(base=..., lower=..., upper=..., source=...))``
   with ``renderer = plot.whisker(base=..., lower=..., upper=..., source=...)``.
