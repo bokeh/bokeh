@@ -87,7 +87,7 @@ runs:
       run: python tools/ci/import_all_modules.py
 
     - name: Upload code coverage
-      uses: codecov/codecov-action@v7
+      uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
       if: (success() || failure()) && inputs.collect-coverage == 'true'
       with:
         use_oidc: true

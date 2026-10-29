@@ -28,10 +28,10 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Set up Pixi
-        uses: prefix-dev/setup-pixi@v0.10.0
+        uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f # v0.10.0
         with:
           pixi-version: v0.83.0
           environments: formatting
@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 0 # full history to get proper build version
 
@@ -68,10 +68,10 @@ jobs:
 
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Install node.js 22
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: '>=22.23.4 <23'
           cache: 'npm'
@@ -105,7 +105,7 @@ jobs:
       id-token: write # Allow the Codecov upload step to authenticate with GitHub OIDC.
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Prepare wheel-installed environment
         uses: ./.github/workflows/composite/test-setup
@@ -122,7 +122,7 @@ jobs:
         run: pixi run --locked --environment notebook-test test-notebook --cov=bokeh --cov-report=xml
 
       - name: Upload code coverage
-        uses: codecov/codecov-action@v7
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         if: success() || failure()
         with:
           use_oidc: true
@@ -131,7 +131,7 @@ jobs:
 
       - name: Upload notebook smoke report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: notebook-report
           path: work/notebook-report
@@ -147,7 +147,7 @@ jobs:
         os: [ubuntu-24.04, macos-latest, windows-latest]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -175,12 +175,12 @@ jobs:
       PYTHONPATH: ${{ github.workspace }}/src
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 0
 
       - name: Set up Pixi
-        uses: prefix-dev/setup-pixi@v0.10.0
+        uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f # v0.10.0
         with:
           pixi-version: v0.83.0
           environments: test-py312
@@ -235,7 +235,7 @@ jobs:
             environment: test-py314
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -284,7 +284,7 @@ jobs:
             environment: test-py314
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -322,7 +322,7 @@ jobs:
 
       - name: Upload report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: examples-report-${{ matrix.os }}-${{ matrix.python-version }}
           path: examples-report
@@ -354,7 +354,7 @@ jobs:
       PYTHON: ${{ matrix.python-version }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -389,7 +389,7 @@ jobs:
       PYTHON: '3.14'
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -427,7 +427,7 @@ jobs:
       PYTHON: 3.14t
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -476,7 +476,7 @@ jobs:
       OS: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -521,7 +521,7 @@ jobs:
       PYTHON: ${{ matrix.python-version }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -565,7 +565,7 @@ jobs:
             environment: docs-py315
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -588,7 +588,7 @@ jobs:
         run: pixi run --locked --environment ${{ matrix.environment }} build-docs
 
       - name: Upload docs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: docs-html-${{ matrix.os }}-${{ matrix.python-version }}
           path: docs/bokeh/docs-html.tgz
@@ -606,7 +606,7 @@ jobs:
         proxy: [nginx, apache]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -625,7 +625,7 @@ jobs:
 
       - name: Upload proxy logs
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: server-proxy-${{ matrix.frontend }}-${{ matrix.proxy }}-logs
           path: work/server-proxy
@@ -643,7 +643,7 @@ jobs:
         runner: [uvicorn, hypercorn]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -662,7 +662,7 @@ jobs:
 
       - name: Upload server logs
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: server-e2e-${{ matrix.runner }}-logs
           path: work/server-e2e
@@ -674,7 +674,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Post failure notification to GitHub Discussions
         env:
@@ -687,7 +687,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Comment on associated PR
         env:
