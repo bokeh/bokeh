@@ -51,6 +51,7 @@ _renderer_args_values = dict(
     view=[None, CDSView()],
     visible=[None, False, True],
     muted=[None, False, True],
+    auto_ranging=[None, "x", "none", False],
 )
 @pytest.mark.parametrize('arg,values', [(arg, _renderer_args_values[arg]) for arg in RENDERER_ARGS])
 def test__glyph_receives_renderer_arg(arg, values) -> None:

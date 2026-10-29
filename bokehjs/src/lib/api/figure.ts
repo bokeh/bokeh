@@ -646,6 +646,9 @@ export class Figure extends BaseFigure {
     const visible = attrs.visible
     delete attrs.visible
 
+    const auto_ranging = attrs.auto_ranging
+    delete attrs.auto_ranging
+
     const x_range_name = attrs.x_range_name
     delete attrs.x_range_name
 
@@ -697,6 +700,7 @@ export class Figure extends BaseFigure {
       name,
       level,
       visible,
+      auto_ranging,
       x_range_name,
       y_range_name,
       coordinates,

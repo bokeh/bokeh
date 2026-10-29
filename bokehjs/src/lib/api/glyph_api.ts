@@ -4,7 +4,7 @@ import type {Vector} from "../core/vectorization"
 import {isVectorized} from "../core/vectorization"
 import {isPlainObject} from "../core/util/types"
 import type {VectorSpec, ScalarSpec, ColorSpec, UnitsSpec, Property} from "../core/properties"
-import type {Dimension, MarkerType, RenderLevel} from "../core/enums"
+import type {AutoRanging, Dimension, MarkerType, RenderLevel} from "../core/enums"
 import type * as nd from "core/util/ndarray"
 
 import type {Glyph, GlyphRenderer, ColumnarDataSource, CDSView, CoordinateMapping} from "./models"
@@ -132,6 +132,7 @@ export type AuxGlyph = {
   level: RenderLevel
   name: string
   visible: boolean
+  auto_ranging: AutoRanging
   x_range_name: string
   y_range_name: string
   coordinates: CoordinateMapping | null

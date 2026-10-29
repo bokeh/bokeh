@@ -33,6 +33,7 @@ from bokeh.models import (
     PanTool,
     ResetTool,
     Scatter,
+    StaticLayoutProvider,
     Title,
 )
 
@@ -457,6 +458,24 @@ class Test_scatter:
             r = p.scatter([1, 2, 3], [1, 2, 3], marker="circle", radius=0.2)
         assert isinstance(r.glyph, Circle)
         assert r.glyph.radius == 0.2
+
+
+class Test_auto_ranging:
+    def test_default(self) -> None:
+        p = bpf.figure()
+        r = p.scatter([1, 2, 3], [1, 2, 3])
+        assert r.auto_ranging == "both"
+
+    @pytest.mark.parametrize("value,expected", [("x", "x"), ("y", "y"), ("none", "none"), (True, "both"), (False, "none")])
+    def test_glyph_method(self, value, expected) -> None:
+        p = bpf.figure()
+        r = p.scatter([1, 2, 3], [1, 2, 3], auto_ranging=value)
+        assert r.auto_ranging == expected
+
+    def test_graph(self) -> None:
+        p = bpf.figure()
+        r = p.graph({"index": [0, 1]}, {"start": [0], "end": [1]}, StaticLayoutProvider(), auto_ranging="y")
+        assert r.auto_ranging == "y"
 
 
 class Test_hbar_stack:

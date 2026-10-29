@@ -66,6 +66,18 @@ describe("in api/plotting module", () => {
         expect(create_calls).to.be.equal(5)
       })
 
+      it("should support 'auto_ranging' renderer argument", () => {
+        const r0 = figure().scatter([1, 2], [3, 4])
+        expect(r0.auto_ranging).to.be.equal("both")
+
+        const r1 = figure().scatter([1, 2], [3, 4], {auto_ranging: "x"})
+        expect(r1.auto_ranging).to.be.equal("x")
+        expect("auto_ranging" in r1.glyph.properties).to.be.false
+
+        const r2 = figure().line({x: [1, 2], y: [3, 4], auto_ranging: "none"})
+        expect(r2.auto_ranging).to.be.equal("none")
+      })
+
       it("should validate arguments", () => {
         const source = ColumnDataSource.create()
 

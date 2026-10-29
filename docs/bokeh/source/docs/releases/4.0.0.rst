@@ -40,6 +40,12 @@ New features
   a shorthand for ``tools=[]`` with ``toolbar_location=None``. BokehJS'
   ``figure()`` API supports the equivalent ``tools: null``
   (:bokeh-issue:`15747`).
+* Added ``DataRenderer.auto_ranging`` property, which allows to exclude a
+  renderer from auto-ranging in either or both dimensions, e.g. so that a wide
+  reference line doesn't stretch a plot's range. It accepts values of the new
+  :class:`~bokeh.core.enums.AutoRanging` enumeration (``"both"``, ``"x"``,
+  ``"y"`` or ``"none"``), or booleans, and can be passed to glyph methods.
+  See :ref:`ug_basic_axes_auto_ranging` for details (:bokeh-issue:`15753`).
 
 Removals
 --------
