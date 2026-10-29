@@ -59,7 +59,7 @@ jobs:
           printf 'detached-environments = "%s/pixi-environments"\n' "$RUNNER_TEMP" > "$RUNNER_TEMP/pixi-config.toml"
           echo "PIXI_CONFIG_FILE=$RUNNER_TEMP/pixi-config.toml" >> "$GITHUB_ENV"
 
-      - uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f # v0.10.0
+      - uses: prefix-dev/setup-pixi@ad1da6449d9e506fd127fd67ab2d054a769f6a94 # v0.11.2
         with:
           pixi-version: v0.83.0
           environments: release-build
@@ -76,7 +76,7 @@ jobs:
 
       - name: Configure AWS credentials
         id: aws
-        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:
           role-to-assume: ${{ vars.AWS_RELEASE_BUILD_ROLE_ARN }}
           role-session-name: bokeh-release-build-${{ github.run_id }}
