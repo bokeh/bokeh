@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-import os
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -63,7 +62,7 @@ class MultiRootStaticHandler(AsyncStaticFileHandler):
             return super().get_absolute_path(root, path)
 
         try:
-            name, artifact_path = path.split(os.sep, 1)
+            name, artifact_path = path.split("/", 1)
         except ValueError:
             raise HTTPError(404)
 
