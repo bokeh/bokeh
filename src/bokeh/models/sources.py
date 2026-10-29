@@ -46,7 +46,12 @@ from ..core.property.readonly import Readonly
 from ..core.property.required import Required
 from ..model import Model
 from ..util.dependencies import uses_pandas
-from ..util.serialization import convert_datetime_array, transform_array
+from ..util.serialization import (
+    convert_datetime_array,
+    convert_datetime_type,
+    is_datetime_type,
+    transform_array,
+)
 from .callbacks import CustomJS
 from .filters import AllIndices, Filter
 from .selections import Selection, SelectionPolicy, UnionRenderers
@@ -89,8 +94,14 @@ if TYPE_CHECKING:
 
 class ToJSONEncoder(json.JSONEncoder):
     def default(self, o: Any) -> Any:
+        import pandas as pd
+
+        if o is pd.NaT:
+            return None
         if isinstance(o, np.ndarray):
             return transform_array(o)
+        if is_datetime_type(o):
+            return convert_datetime_type(o)
         return super().default(o)
 
 @abstract
@@ -429,10 +440,12 @@ class ColumnDataSource(ColumnarDataSource):
 
     def to_json(self) -> str:
         # TODO: Handle pandas not being available
+        import pandas as pd
+
         selected_indices = self.selected.indices
         if len(selected_indices) > 0:
-            return json.dumps(self.to_df().iloc[self.selected.indices].to_dict(orient="list"), cls=ToJSONEncoder)
-        return json.dumps(self.to_df().to_dict(orient="list"), cls=ToJSONEncoder)
+            return json.dumps(self.to_df().iloc[self.selected.indices].replace([np.inf, -np.inf], np.nan).to_dict(orient="list"), cls=ToJSONEncoder)
+        return json.dumps(self.to_df().replace([np.inf, -np.inf], pd.NaT).to_dict(orient="list"), cls=ToJSONEncoder)
 
     def add(self, data: Sequence[Any], name: str | None = None) -> str:
         ''' Appends a new column of data to the data source.
