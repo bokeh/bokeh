@@ -32,6 +32,29 @@ export class BrowserTimeoutError extends BrowserError {
   }
 }
 
+// Ubuntu 23.10+ restricts unprivileged user namespaces with AppArmor, unless
+// an executable has a profile that allows them. Packaged Chrome ships one, but
+// Playwright-managed Chromium doesn't, so its sandbox can't start.
+function sandbox_hint(executable: string, message: string): string | null {
+  if (!message.includes("No usable sandbox")) {
+    return null
+  }
+  return `\
+Chromium couldn't start its sandbox. On Ubuntu 23.10+ this is caused by AppArmor
+restricting unprivileged user namespaces. Allow them for this executable with:
+
+  sudo tee /etc/apparmor.d/bokeh-chromium <<'EOF'
+  abi <abi/4.0>,
+  include <tunables/global>
+  profile bokeh-chromium ${executable} flags=(unconfined) {
+    userns,
+  }
+  EOF
+  sudo apparmor_parser -r /etc/apparmor.d/bokeh-chromium
+
+See "Run JavaScript tests" in Bokeh's developer guide for details.`
+}
+
 function is_browser_lifecycle_error(error: BrowserError): boolean {
   const message = error.message.toLowerCase()
   return [
@@ -166,7 +189,13 @@ export class BrowserManager {
       // hides them by default, unlike the former BokehJS Chrome launcher.
       ignoreDefaultArgs: ["--hide-scrollbars"],
       args,
-    }), BROWSER_LAUNCH_WATCHDOG)
+    }), BROWSER_LAUNCH_WATCHDOG).catch((error: BrowserError) => {
+      const hint = sandbox_hint(this.executable, error.message)
+      if (hint != null) {
+        error.message += `\n\n${hint}`
+      }
+      throw error
+    })
     browser.on("disconnected", () => {
       this.crashed = true
     })

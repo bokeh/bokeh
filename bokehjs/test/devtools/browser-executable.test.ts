@@ -1,6 +1,6 @@
 import assert from "node:assert/strict"
 import {spawnSync} from "node:child_process"
-import {mkdtempSync, rmSync} from "node:fs"
+import {mkdtempSync, rmSync, writeFileSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {after, test} from "node:test"
@@ -41,4 +41,15 @@ void test("BOKEH_CHROME overrides a missing managed browser", () => {
 
 void test("--executable takes precedence over BOKEH_CHROME", () => {
   assert_override(test_info({BOKEH_CHROME: join(browsers, "missing-override")}, [`--executable=${process.execPath}`]))
+})
+
+// The fake browser is a shell script, which Windows can't execute.
+void test("unusable sandbox reports the AppArmor fix", {skip: process.platform == "win32"}, () => {
+  // Mimics Chromium aborting when AppArmor blocks its user namespace sandbox.
+  const chrome = join(browsers, "no-sandbox-chrome")
+  writeFileSync(chrome, "#!/bin/sh\necho 'FATAL:zygote_host_impl_linux.cc(128)] No usable sandbox!' >&2\nexit 1\n", {mode: 0o755})
+  const output = test_info({BOKEH_CHROME: chrome})
+  assert.match(output, /AppArmor/)
+  assert.ok(output.includes(`profile bokeh-chromium ${chrome} flags=(unconfined)`))
+  assert.match(output, /sudo apparmor_parser -r \/etc\/apparmor.d\/bokeh-chromium/)
 })
