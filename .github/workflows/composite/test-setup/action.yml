@@ -20,7 +20,7 @@ runs:
   using: "composite"
   steps:
     - name: Set up Pixi
-      uses: prefix-dev/setup-pixi@v0.10.0
+      uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f # v0.10.0
       with:
         pixi-version: v0.83.0
         environments: ${{ inputs.environment }}
@@ -41,7 +41,7 @@ runs:
 
     - name: Download wheel package
       id: download
-      uses: actions/download-artifact@v8
+      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
       with:
         name: wheel-package
         path: dist/
@@ -51,7 +51,7 @@ runs:
       run: python -m pip install --no-deps dist/bokeh-*-py3-none-any.whl
 
     - name: Download bokehjs package
-      uses: actions/download-artifact@v8
+      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
       with:
         name: bokehjs-package
         path: bokehjs/build/dist/

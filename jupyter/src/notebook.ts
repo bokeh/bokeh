@@ -1,18 +1,18 @@
 import type {ICellModel, ICodeCellModel} from "@jupyterlab/cells"
 import {DocumentRegistry} from "@jupyterlab/docregistry"
-import {INotebookModel, NotebookPanel} from "@jupyterlab/notebook"
 import {Contents} from "@jupyterlab/services"
 import {DisposableDelegate, IDisposable} from "@lumino/disposable"
 
 import {ContextManager} from "./context"
 import {kernelProxy} from "./kernel"
+import type {NotebookModel, NotebookPanel} from "./notebook_types"
 import {DISPLAY_MIME_TYPE, DisplayPayload, FILE_MIME_TYPE, RESOURCES_MIME_TYPE, ResourcePayload} from "./protocol"
 import {DisplayRenderer, FileRenderer, ResourceRenderer} from "./renderers"
 import {FrontendDocumentSnapshot, loadResources, resetResourceRegistry} from "./runtime"
 
 const VIEW_RELEASE_GRACE_MS = 30_000
 
-export class NotebookExtension implements DocumentRegistry.IWidgetExtension<NotebookPanel, INotebookModel> {
+export class NotebookExtension implements DocumentRegistry.IWidgetExtension<NotebookPanel, NotebookModel> {
   constructor(private readonly contents: Contents.IManager) {}
 
   private readonly managers = new Set<ContextManager>()
@@ -32,7 +32,7 @@ export class NotebookExtension implements DocumentRegistry.IWidgetExtension<Note
     return [...snapshots.values()]
   }
 
-  createNew(panel: NotebookPanel, context: DocumentRegistry.IContext<INotebookModel>): IDisposable {
+  createNew(panel: NotebookPanel, context: DocumentRegistry.IContext<NotebookModel>): IDisposable {
     const manager = new ContextManager(context, this.contents)
     const proxy = kernelProxy(manager)
     this.managers.add(manager)

@@ -122,7 +122,8 @@ describe("Examples", () => {
       font_style,
       `
       :host {
-        --bokeh-base-font: XKCD;
+        /* XKCD lacks some glyphs (e.g. ℃); fall back to the test font instead of system fonts */
+        --bokeh-base-font: XKCD, Bokeh;
         --border-color: var(--color);
         --border-width: 2px;
         --default-border-color: var(--color);
