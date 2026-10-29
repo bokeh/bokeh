@@ -26,6 +26,9 @@ export type AngleUnits = typeof AngleUnits["__type__"]
 export const AlternationPolicy = Enum("none", "even", "odd", "every")
 export type AlternationPolicy = typeof AlternationPolicy["__type__"]
 
+export const AutoRanging = Enum("both", "x", "y", "none")
+export type AutoRanging = typeof AutoRanging["__type__"]
+
 export const AxisLabelStandoffMode = Enum("tick_labels", "axis")
 export type AxisLabelStandoffMode = typeof AxisLabelStandoffMode["__type__"]
 

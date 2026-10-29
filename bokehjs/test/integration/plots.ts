@@ -5,7 +5,7 @@ import {display, fig, row} from "#framework/layouts"
 import {mouse_click} from "#framework/interactive"
 
 import {figure} from "@bokehjs/api/plotting"
-import type {Location, WindowAxis} from "@bokehjs/core/enums"
+import type {AutoRanging, Location, WindowAxis} from "@bokehjs/core/enums"
 import type {OverflowOrientation} from "@bokehjs/models/tools/toolbar"
 import {DataRange1d, Range1d, LinearScale, LinearAxis, ColumnDataSource, Pane} from "@bokehjs/models"
 import {Text} from "@bokehjs/models/dom"
@@ -341,6 +341,32 @@ describe("Plot", () => {
     fig1.scatter([0, 5, 10], [0, 5, 10], {size: 10})
     const layout = row([fig0, fig1])
     await display(layout, [600, 300])
+  })
+
+  describe("should support DataRenderer.auto_ranging", () => {
+    const values: AutoRanging[] = ["both", "x", "y", "none"]
+
+    function plot(auto_ranging: AutoRanging, axis_type: "linear" | "log") {
+      const p = figure({
+        width: 200, height: 200,
+        x_axis_type: axis_type, y_axis_type: axis_type,
+        title: `auto_ranging == "${auto_ranging}"`,
+        toolbar_location: null,
+      })
+      const [x0, y0] = axis_type == "linear" ? [[0, 5, 10], [0, 5, 10]] : [[1, 3, 10], [1, 3, 10]]
+      const [x1, y1] = axis_type == "linear" ? [[-10, 20], [-30, 40]] : [[0.1, 100], [0.01, 1000]]
+      p.scatter({x: x0, y: y0, size: 10, color: "blue"})
+      p.line({x: x1, y: y1, line_width: 3, color: "red", auto_ranging})
+      return p
+    }
+
+    it("with linear scales", async () => {
+      await display(row(values.map((value) => plot(value, "linear"))))
+    })
+
+    it("with log scales", async () => {
+      await display(row(values.map((value) => plot(value, "log"))))
+    })
   })
 
   describe("with webgl backend", () => {

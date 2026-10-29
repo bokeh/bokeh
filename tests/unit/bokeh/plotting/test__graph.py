@@ -126,6 +126,14 @@ class Test_get_graph_kwargs:
         assert r.muted_glyph.line_alpha == 0.2
         assert r.muted_glyph.line_color == "blue"
 
+    def test_renderer_args(self) -> None:
+        kw = bpg.get_graph_kwargs({}, {}, name="graph", visible=False, auto_ranging="x")
+        assert kw["name"] == "graph"
+        assert kw["visible"] is False
+        assert kw["auto_ranging"] == "x"
+        assert kw["node_renderer"].auto_ranging == "both"
+        assert kw["edge_renderer"].auto_ranging == "both"
+
     def test_bad_input(self) -> None:
         msg = """\
 Failed to auto-convert <class 'int'> to ColumnDataSource.

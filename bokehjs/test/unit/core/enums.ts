@@ -33,6 +33,10 @@ describe("enums module", () => {
     expect([...enums.AngleUnits]).to.be.equal(["deg", "rad", "grad", "turn"])
   })
 
+  it("should have AutoRanging", () => {
+    expect([...enums.AutoRanging]).to.be.equal(["both", "x", "y", "none"])
+  })
+
   it("should have BoxOrigin", () => {
     expect([...enums.BoxOrigin]).to.be.equal(["corner", "center"])
   })
