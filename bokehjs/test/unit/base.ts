@@ -207,7 +207,6 @@ describe("default model resolver", () => {
       "InversionFilter",
       "Jitter",
       "Label",
-      "LabelSet",
       "LabelingPolicy",
       "LassoSelectTool",
       "LayoutDOM",

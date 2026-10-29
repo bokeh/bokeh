@@ -1,8 +1,7 @@
 import {display, fig} from "#framework/layouts"
 
-import {LabelSet, HTMLLabelSet} from "@bokehjs/models/annotations"
+import {HTMLLabelSet} from "@bokehjs/models/annotations"
 import {ColumnDataSource} from "@bokehjs/models/sources"
-import type {HasPropsFactory} from "@bokehjs/core/has_props"
 
 function deg(value: number) {
   return {value, units: "deg"}
@@ -12,9 +11,9 @@ function turn(value: number) {
   return {value, units: "turn"}
 }
 
-describe("LabelSet annotation", () => {
+describe("HTMLLabelSet annotation", () => {
 
-  function plot(LabelSetCls: HasPropsFactory<LabelSet | HTMLLabelSet>) {
+  it("should support basic positioning", async () => {
     const plot = fig([300, 300], {x_range: [0, 10], y_range: [0, 10]})
 
     const source = ColumnDataSource.create({
@@ -26,7 +25,7 @@ describe("LabelSet annotation", () => {
       },
     })
 
-    const label_set0 = LabelSetCls.create({
+    const label_set0 = HTMLLabelSet.create({
       x: {field: "x1"}, y: {field: "y1"},
       x_offset: -10, y_offset: 25,
       angle: deg(15),
@@ -37,7 +36,7 @@ describe("LabelSet annotation", () => {
       border_line_color: "blue",
     })
 
-    const label_set1 = LabelSetCls.create({
+    const label_set1 = HTMLLabelSet.create({
       x: {field: "x2"}, y: 1,
       x_units: "screen", y_units: "data",
       x_offset: 0, y_offset: -5,
@@ -52,14 +51,6 @@ describe("LabelSet annotation", () => {
     plot.add_layout(label_set0)
     plot.add_layout(label_set1)
 
-    return plot
-  }
-
-  it("should support basic positioning using canvas rendering", async () => {
-    await display(plot(LabelSet))
-  })
-
-  it("should support basic positioning using CSS rendering", async () => {
-    await display(plot(HTMLLabelSet))
+    await display(plot)
   })
 })
