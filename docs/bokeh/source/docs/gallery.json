@@ -21,6 +21,10 @@
     {
       "name": "lorenz.py",
       "alt": "Thumbnail link to the examples/basic/lines/lorenz.py example shows a plot of the Lorenz attractor using the MultiLine glyph."
+    },
+    {
+      "name": "whisker.py",
+      "alt": "Thumbnail link to the examples/basic/lines/whisker.py example that shows whiskers marking quantile ranges over categorical scatter plots."
     }
   ],
   "basic/data": [
@@ -151,10 +155,6 @@
     {
       "name": "span.py",
       "alt": "Thumbnail link to the examples/basic/annotations/span.py example that shows green vertical spans marking the start and end dates of Daylight Savings time in Warsaw in 2013."
-    },
-    {
-      "name": "whisker.py",
-      "alt": "Thumbnail link to the examples/basic/annotations/whisker.py example that shows whisker annotations marking quantile ranges over categorical scatter plots."
     },
     {
       "name": "colorbar_log.py",

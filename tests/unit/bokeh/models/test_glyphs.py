@@ -33,6 +33,7 @@ from bokeh.core.enums import (
     TextBaseline,
 )
 from bokeh.core.property.vectorization import field, value
+from bokeh.models import TeeHead
 
 from _util_models import (
     BACKGROUND_FILL,
@@ -679,6 +680,41 @@ def test_Wedge() -> None:
         "direction",
     ], LINE, FILL, HATCH, GLYPH)
 
+
+
+def test_WhiskerGlyph() -> None:
+    glyph = m.WhiskerGlyph()
+    assert glyph.dimension == "height"
+    assert glyph.lower == field("lower")
+    assert glyph.upper == field("upper")
+    assert glyph.base == field("base")
+    assert isinstance(glyph.lower_head, TeeHead)
+    assert glyph.lower_head.size == 10
+    assert isinstance(glyph.upper_head, TeeHead)
+    assert glyph.upper_head.size == 10
+    assert glyph.lower_head is not glyph.upper_head
+    check_line_properties(glyph)
+    check_properties_existence(glyph, [
+        "dimension",
+        "lower",
+        "upper",
+        "base",
+        "lower_head",
+        "upper_head",
+    ], LINE, GLYPH)
+
+
+def test_WhiskerGlyph_accepts_negative_values() -> None:
+    glyph = m.WhiskerGlyph(base=-1.0, lower=-1.5, upper=-0.5)
+    assert glyph.base == -1.0
+    assert glyph.lower == -1.5
+    assert glyph.upper == -0.5
+
+
+def test_WhiskerGlyph_accepts_no_heads() -> None:
+    glyph = m.WhiskerGlyph(lower_head=None, upper_head=None)
+    assert glyph.lower_head is None
+    assert glyph.upper_head is None
 
 def test_Circle() -> None:
     glyph = m.Circle(radius=10)

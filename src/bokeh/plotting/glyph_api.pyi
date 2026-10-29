@@ -38,6 +38,7 @@ from .._types import Color, NonNegative
 from ..core.enums import (
     AnchorType as Anchor,
     AngleUnitsType as AngleUnits,
+    DimensionType as Dimension,
     DirectionType as Direction,
     PaletteType as Palette,
     RadiusDimensionType as RadiusDimension,
@@ -51,7 +52,7 @@ from ..core.property_aliases import (
     PaddingType as Padding,
 )
 from ..models import glyphs
-from ..models.annotations import Legend
+from ..models.annotations import ArrowHead, Legend
 from ..models.callbacks import CustomJS
 from ..models.coordinates import CoordinateMapping
 from ..models.graphics import Marking
@@ -492,6 +493,14 @@ class WedgeArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
     end_angle_units: AngleUnits
     # direction: Direction
 
+class WhiskerArgs(GlyphArgs, LineVisuals, total=False):
+    # dimension: Dimension
+    # lower: NumberArg
+    # upper: NumberArg
+    # base: NumberArg
+    lower_head: ArrowHead | None
+    upper_head: ArrowHead | None
+
 class GlyphAPI:
 
     @property
@@ -819,6 +828,14 @@ class GlyphAPI:
         direction: Direction = ...,
         **kwargs: Unpack[WedgeArgs],
     ) -> GlyphRenderer[glyphs.Wedge]: ...
+
+    def whisker(self,
+        dimension: Dimension = ...,
+        lower: NumberArg = ...,
+        upper: NumberArg = ...,
+        base: NumberArg = ...,
+        **kwargs: Unpack[WhiskerArgs],
+    ) -> GlyphRenderer[glyphs.WhiskerGlyph]: ...
 
     def scatter(self,
         x: NumberArg = ...,

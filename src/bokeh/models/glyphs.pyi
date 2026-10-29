@@ -21,6 +21,7 @@ from .._specs import (
 )
 from .._types import NonNegative
 from ..core.enums import (
+    DimensionType as Dimension,
     DirectionType as Direction,
     HexTileOrientationType as HexTileOrientation,
     ImageOriginType as ImageOrigin,
@@ -60,6 +61,7 @@ from ..core.property_mixins import (
     _ScalarLinePropsInit,
     _TextPropsInit,
 )
+from .annotations.arrows import ArrowHead
 from .callbacks import CustomJS
 from .glyph import (
     ConnectedXYGlyph,
@@ -674,3 +676,21 @@ class Wedge(XYGlyph, LineProps, FillProps, HatchProps):
     start_angle: AngleSpec = ...
     end_angle: AngleSpec = ...
     direction: Direction = ...
+
+class _WhiskerGlyphInit(_GlyphInit, _LinePropsInit, total=False):
+    dimension: Dimension
+    lower: NumberSpec
+    upper: NumberSpec
+    base: NumberSpec
+    lower_head: ArrowHead | None
+    upper_head: ArrowHead | None
+
+class WhiskerGlyph(Glyph, LineProps):
+    def __init__(self, **kwargs: Unpack[_WhiskerGlyphInit]) -> None: ...
+
+    dimension: Dimension = ...
+    lower: NumberSpec = ...
+    upper: NumberSpec = ...
+    base: NumberSpec = ...
+    lower_head: ArrowHead | None = ...
+    upper_head: ArrowHead | None = ...

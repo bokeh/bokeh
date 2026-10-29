@@ -1109,6 +1109,22 @@ Examples:
 
 """
 
+    @glyph_method(glyphs.WhiskerGlyph)
+    def whisker(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
+        """
+Examples:
+
+    .. code-block:: python
+
+        from bokeh.plotting import figure, show
+
+        plot = figure(width=300, height=300)
+        plot.whisker(dimension="height", lower=[10, 9, 15], upper=[11, 12, 19], base=[1, 2, 3])
+
+        show(plot)
+
+"""
+
     @marker_method()
     def x(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """

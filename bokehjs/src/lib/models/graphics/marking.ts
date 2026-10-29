@@ -19,7 +19,7 @@ export type MarkingGeometry = {
 export abstract class MarkingView extends DOMComponentView implements visuals.Paintable {
   declare model: Marking
   visuals: Marking.Visuals
-  declare readonly parent: RendererView | PathDecorationView
+  declare readonly parent: RendererView | GlyphView | PathDecorationView
 
   size: p.Uniform<number>
 

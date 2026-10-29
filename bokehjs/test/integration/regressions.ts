@@ -9,7 +9,7 @@ import {async_trap} from "#framework/util"
 import type {ArrowHead, Image, Line, UIElement} from "@bokehjs/models"
 import {
   NormalHead, OpenHead,
-  BoxAnnotation, LabelSet, ColorBar, Slope, Span, Whisker,
+  BoxAnnotation, LabelSet, ColorBar, Slope, Span,
   Range1d, DataRange1d, FactorRange,
   ColumnDataSource, CDSView, BooleanFilter, IndexFilter, Selection,
   LinearAxis, CategoricalAxis,
@@ -373,7 +373,7 @@ describe("Bug", () => {
       ["B", "02", "AA"], ["B", "02", "AB"], ["B", "02", "AC"], ["B", "02", "AD"], ["B", "02", "AE"],
     ]
 
-    it("disallows rendering Whisker annotation with a categorical x-range", async () => {
+    it("disallows rendering Whisker glyph with a categorical x-range", async () => {
       const random = new Random(1)
 
       const x = factors
@@ -382,17 +382,16 @@ describe("Bug", () => {
       const lower = y.map((yi) => yi - random.float())
 
       const source = ColumnDataSource.create({data: {x, y, lower, upper}})
-      const whisker = Whisker.create({source, dimension: "height", base: {field: "x"}})
 
       const x_range = FactorRange.create({factors})
       const p = fig([400, 200], {x_range})
       p.scatter({source})
-      p.add_layout(whisker)
+      p.whisker({source, dimension: "height", base: {field: "x"}})
 
       await display(p)
     })
 
-    it("disallows rendering Whisker annotation with a categorical y-range", async () => {
+    it("disallows rendering Whisker glyph with a categorical y-range", async () => {
       const random = new Random(1)
 
       const x = random.floats(factors.length)
@@ -401,12 +400,11 @@ describe("Bug", () => {
       const lower = x.map((xi) => xi - random.float())
 
       const source = ColumnDataSource.create({data: {x, y, lower, upper}})
-      const whisker = Whisker.create({source, dimension: "width", base: {field: "y"}})
 
       const y_range = FactorRange.create({factors})
       const p = fig([200, 400], {y_range})
       p.scatter({source})
-      p.add_layout(whisker)
+      p.whisker({source, dimension: "width", base: {field: "y"}})
 
       await display(p)
     })

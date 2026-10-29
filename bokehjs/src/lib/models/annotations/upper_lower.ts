@@ -78,14 +78,8 @@ export abstract class UpperLowerView extends DataAnnotationView {
   }
 }
 
-export class XOrYCoordinateSpec extends p.CoordinateSpec {
-  declare readonly obj: UpperLower
-
+export class XOrYCoordinateSpec extends p.XOrYCoordinateSpec {
   protected override _value: Dimensional<this["__vector__"], CoordinateUnits> | p.Unset = p.unset
-
-  get dimension(): "x" | "y" {
-    return this.obj.dimension == "width" ? "x" : "y"
-  }
 
   // XXX: a hack to make a coordinate & unit spec
   get units(): CoordinateUnits {

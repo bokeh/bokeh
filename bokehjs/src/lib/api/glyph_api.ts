@@ -50,6 +50,7 @@ import {
   VSpan,
   VStrip,
   Wedge,
+  WhiskerGlyph,
 } from "../models/glyphs"
 
 import type {Marker} from "../models/glyphs/marker"
@@ -203,6 +204,7 @@ export type VBarArgs          = GlyphArgs<VBar.Props>          & AuxLine & AuxFi
 export type VSpanArgs         = GlyphArgs<VSpan.Props>         & AuxLine
 export type VStripArgs        = GlyphArgs<VStrip.Props>        & AuxLine & AuxFill & AuxHatch
 export type WedgeArgs         = GlyphArgs<Wedge.Props>         & AuxLine & AuxFill & AuxHatch
+export type WhiskerGlyphArgs  = GlyphArgs<WhiskerGlyph.Props>  & AuxLine
 
 export abstract class GlyphAPI {
   abstract _glyph<G extends Glyph>(cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides?: object): GlyphRenderer<G>
@@ -714,6 +716,18 @@ export abstract class GlyphAPI {
     args?: Partial<WedgeArgs>): GlyphRenderer<Wedge>
   wedge(...args: unknown[]): GlyphRenderer<Wedge> {
     return this._glyph(Wedge, "wedge", ["x", "y", "radius", "start_angle", "end_angle"], args)
+  }
+
+  whisker(): GlyphRenderer<WhiskerGlyph>
+  whisker(args: Partial<WhiskerGlyphArgs>): GlyphRenderer<WhiskerGlyph>
+  whisker(
+    dimension: WhiskerGlyphArgs["dimension"],
+    lower: WhiskerGlyphArgs["lower"],
+    upper: WhiskerGlyphArgs["upper"],
+    base: WhiskerGlyphArgs["base"],
+    args?: Partial<WhiskerGlyphArgs>): GlyphRenderer<WhiskerGlyph>
+  whisker(...args: unknown[]): GlyphRenderer<WhiskerGlyph> {
+    return this._glyph(WhiskerGlyph, "whisker", ["dimension", "lower", "upper", "base"], args)
   }
 
   private _scatter(args: unknown[], marker?: MarkerType): GlyphRenderer<Scatter> {

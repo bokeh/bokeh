@@ -26,7 +26,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+from typing import TYPE_CHECKING
+
 from ..core.enums import (
+    Dimension,
     Direction,
     HexTileOrientation,
     ImageOrigin,
@@ -52,6 +55,7 @@ from ..core.property.either import Either
 from ..core.property.enum import Enum
 from ..core.property.include import Include
 from ..core.property.instance import Instance, InstanceDefault
+from ..core.property.nullable import Nullable
 from ..core.property.numeric import NonNegative, Size
 from ..core.property.override import Override
 from ..core.property.primitive import (
@@ -92,6 +96,9 @@ from .glyph import (
     XYGlyph,
 )
 from .mappers import ColorMapper, LinearColorMapper, StackColorMapper
+
+if TYPE_CHECKING:
+    from .annotations import ArrowHead
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -141,6 +148,7 @@ __all__ = (
     'VSpan',
     'VStrip',
     'Wedge',
+    'WhiskerGlyph',
     'XYGlyph',
 )
 
@@ -1878,6 +1886,48 @@ class Wedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
 
     hatch_props = Include(HatchProps, help="""
     The {prop} values for the wedges.
+    """)
+
+def _whisker_default_head() -> ArrowHead:
+    from .annotations import TeeHead  # avoid circular imports
+    return TeeHead(size=10)
+
+class WhiskerGlyph(Glyph, LineGlyph):
+    """ Render whiskers along a dimension.
+
+    """
+
+    _args = ("dimension", "lower", "upper", "base")
+
+    dimension = Enum(Dimension, default="height", help="""
+    The direction of the whisker can be specified by setting this property to:
+
+    * ``"width"`` for ``x`` direction
+    * ``"height"`` for ``y`` direction
+    """)
+
+    lower = NumberSpec(default=field("lower"), help="""
+    The coordinates of the lower end of the whiskers.
+    """)
+
+    upper = NumberSpec(default=field("upper"), help="""
+    The coordinates of the upper end of the whiskers.
+    """)
+
+    base = NumberSpec(default=field("base"), help="""
+    The orthogonal coordinates of the upper and lower values.
+    """)
+
+    lower_head = Nullable(Instance(".models.annotations.ArrowHead"), default=_whisker_default_head, help="""
+    Instance of ``ArrowHead``.
+    """)
+
+    upper_head = Nullable(Instance(".models.annotations.ArrowHead"), default=_whisker_default_head, help="""
+    Instance of ``ArrowHead``.
+    """)
+
+    line_props = Include(LineProps, help="""
+    The {prop} values for the whisker body.
     """)
 
 class HSpan(Glyph, LineGlyph):
