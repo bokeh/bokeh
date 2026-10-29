@@ -192,7 +192,7 @@ describe("artifact runtime", () => {
     const rendering = renderDisplay(node, display, html, undefined, controller.signal)
     await Promise.resolve()
     await Promise.resolve()
-    controller.abort()
+    controller.abort(new DOMException("The operation was aborted", "AbortError"))
 
     await expect(rendering).rejects.toMatchObject({name: "AbortError"})
     expect(dispose).toHaveBeenCalledOnce()
