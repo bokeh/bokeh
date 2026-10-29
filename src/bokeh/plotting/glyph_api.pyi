@@ -24,6 +24,7 @@ from .._specs import (
     LineJoinArg,
     MarkerArg,
     NullDistanceArg,
+    NullStringArg,
     Number1dArg,
     Number3dArg,
     NumberArg,
@@ -451,7 +452,7 @@ class TeXArgs(GlyphArgs, TextVisuals, total=False):
 class TextArgs(GlyphArgs, TextVisuals, total=False):
     # x: NumberArg
     # y: NumberArg
-    # text: StringArg
+    # text: NullStringArg
     # angle: AngleArg
     angle_units: AngleUnits
     # x_offset: FloatArg
@@ -693,7 +694,7 @@ class GlyphAPI:
     def mathml(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
-        text: StringArg = ...,
+        text: NullStringArg = ...,
         angle: AngleArg = ...,
         x_offset: FloatArg = ...,
         y_offset: FloatArg = ...,

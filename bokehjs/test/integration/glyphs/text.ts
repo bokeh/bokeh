@@ -1,7 +1,45 @@
 import {display, fig} from "#framework/layouts"
 import type {TextAlign, TextBaseline} from "@bokehjs/core/enums"
+import {ColumnDataSource} from "@bokehjs/models"
 
 describe("Text glyph", () => {
+  it("should support basic positioning", async () => {
+    const p = fig([300, 300], {x_range: [0, 10], y_range: [0, 10]})
+
+    const source = ColumnDataSource.create({
+      data: {
+        text: ["First label", "Second label\nspanning two lines", "Third label\nspanning\nthree lines", null, "Not shown"],
+        x1: [1, 3, 7, 9, NaN],
+        y1: [7, 5, 3, 1, NaN],
+        x2: [1, 2.5, 5, 6.5, NaN],
+      },
+    })
+
+    p.text({
+      x: {field: "x1"}, y: {field: "y1"},
+      x_offset: -10, y_offset: 25,
+      angle: {value: 15, units: "deg"},
+      text: {field: "text"},
+      source,
+      text_font_size: "24px", text_color: "red", text_alpha: 0.9, text_baseline: "bottom", text_align: "left",
+      background_fill_color: "green", background_fill_alpha: 0.8,
+      border_line_color: "blue",
+    })
+
+    p.text({
+      x: {field: "x2"}, y: 1,
+      x_offset: 0, y_offset: -5,
+      angle: {value: 0.25, units: "turn"},
+      text: {field: "text"},
+      source,
+      text_font_size: "18px", text_color: "black", text_alpha: 0.9, text_baseline: "top", text_align: "left",
+      background_fill_color: "orange", background_fill_alpha: 0.8,
+      border_line_color: "red", border_line_width: 3,
+    })
+
+    await display(p)
+  })
+
   it("should allow to paint text with embedded scripts", async () => {
     const p = fig([250, 100], {x_range: [0, 16], y_range: [0, 2]})
     p.text(0, 0, ["</script><script>throw new Error('XSS1')</script>"])

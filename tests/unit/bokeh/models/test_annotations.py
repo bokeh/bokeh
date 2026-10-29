@@ -26,7 +26,6 @@ from bokeh.models import (
     FixedTicker,
     GlyphRenderer,
     Label,
-    LabelSet,
     Legend,
     LegendItem,
     LinearColorMapper,
@@ -44,7 +43,6 @@ from bokeh.util.serialization import convert_datetime_type
 from _util_models import (
     ABOVE_FILL,
     ABOVE_HATCH,
-    ANGLE,
     BELOW_FILL,
     BELOW_HATCH,
     FILL,
@@ -440,46 +438,6 @@ def test_Label_accepts_datetime_xy() -> None:
     assert isinstance(obj.y, datetime)
     assert convert_datetime_type(obj.x) == 1533600000000.0
     assert convert_datetime_type(obj.y) == 1533600000000.0
-
-def test_LabelSet() -> None:
-    label_set = LabelSet()
-    assert label_set.level == 'annotation'
-    assert label_set.x == field("x")
-    assert label_set.y == field("y")
-    assert label_set.x_units == 'data'
-    assert label_set.y_units == 'data'
-    assert label_set.text == field("text")
-    assert label_set.angle == 0
-    assert label_set.angle_units == 'rad'
-    assert label_set.x_offset == 0
-    assert label_set.y_offset == 0
-    assert label_set.x_range_name == 'default'
-    assert label_set.y_range_name == 'default'
-    assert isinstance(label_set.source, ColumnDataSource)
-    assert label_set.source.data == {}
-    check_text_properties(label_set)
-    check_fill_properties(label_set, "background_", None, 1.0)
-    check_hatch_properties(label_set, "background_")
-    check_line_properties(label_set, "border_", None, 1.0, 1.0)
-    check_properties_existence(label_set, [
-        *ANNOTATION,
-        "x",
-        "y",
-        "x_units",
-        "y_units",
-        "text",
-        "angle",
-        "angle_units",
-        "x_offset",
-        "y_offset",
-        "source",
-    ],
-        TEXT,
-        ANGLE,
-        prefix('border_', LINE),
-        prefix('background_', FILL),
-        prefix('background_', HATCH),
-    )
 
 def test_PolyAnnotation() -> None:
     poly = PolyAnnotation()

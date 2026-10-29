@@ -47,6 +47,7 @@ from ..core.property.dataspec import (
     FloatSpec,
     MarkerSpec,
     NullDistanceSpec,
+    NullStringSpec,
     NumberSpec,
     SizeSpec,
     StringSpec,
@@ -1621,7 +1622,7 @@ class Text(XYGlyph, TextGlyph):
     The y-coordinates to locate the text anchors.
     """)
 
-    text = StringSpec(default=field("text"), help="""
+    text = NullStringSpec(default=field("text"), help="""
     The text values to render.
     """)
 

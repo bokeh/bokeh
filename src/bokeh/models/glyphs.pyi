@@ -15,6 +15,7 @@ from .._specs import (
     FloatSpec,
     MarkerSpec,
     NullDistanceSpec,
+    NullStringSpec,
     NumberSpec,
     SizeSpec,
     StringSpec,
@@ -569,7 +570,7 @@ class Step(XYGlyph, ScalarLineProps):
 class _TextInit(_XYGlyphInit, _TextPropsInit, _BackgroundFillPropsInit, _BackgroundHatchPropsInit, _BorderLinePropsInit, total=False):
     x: NumberSpec
     y: NumberSpec
-    text: StringSpec
+    text: NullStringSpec
     angle: AngleSpec
     x_offset: FloatSpec
     y_offset: FloatSpec
@@ -583,7 +584,7 @@ class Text(XYGlyph, TextProps, BackgroundFillProps, BackgroundHatchProps, Border
 
     x: NumberSpec = ...
     y: NumberSpec = ...
-    text: StringSpec = ...
+    text: NullStringSpec = ...
     angle: AngleSpec = ...
     x_offset: FloatSpec = ...
     y_offset: FloatSpec = ...

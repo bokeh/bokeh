@@ -10,7 +10,7 @@
 import numpy as np
 
 from bokeh.core.properties import field
-from bokeh.models import Button, Column, ColumnDataSource, CustomJS, Jitter, LabelSet
+from bokeh.models import Button, Column, ColumnDataSource, CustomJS, Jitter
 from bokeh.plotting import figure, show
 
 x = np.ones(1000)
@@ -35,9 +35,8 @@ u2 = p.scatter(x=field('xu', uniform), y='y', color='navy', source=source,
 label_data = ColumnDataSource(data=dict(
     x=[1, 2, 3], y=[0, 0, 0], t=['Original', 'Normal', 'Uniform'],
 ))
-label_set = LabelSet(x='x', y='y', text='t', y_offset=-4, source=label_data,
-                     text_baseline="top", text_align='center')
-p.add_layout(label_set)
+p.text(x='x', y='y', text='t', y_offset=-4, source=label_data,
+       text_baseline="top", text_align='center')
 
 callback = CustomJS(args=dict(r1=r1, n1=n1, r2=r2, u2=u2), code="""
 for (const r of [r1, n1, r2, u2]) {

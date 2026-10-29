@@ -55,6 +55,16 @@ Removals
   remain available. Endpoints use data coordinates. Head sizes and decoration
   insets use screen pixels. See :ref:`ug_basic_annotations_arrows` for examples.
 
+* Removed the ``LabelSet`` annotation model. Replace
+  ``plot.add_layout(LabelSet(x=..., y=..., text=..., source=...))`` with
+  ``renderer = plot.text(x=..., y=..., text=..., source=...)``. The returned
+  ``GlyphRenderer`` draws a :class:`~bokeh.models.Text` glyph, which supports
+  the same text, background, and border properties, as well as offsets and
+  angles. Label coordinates are always in data units; ``x_units`` and
+  ``y_units`` are no longer supported. Unlike the annotation, text glyphs
+  contribute to auto-ranging and hit testing. ``HTMLLabelSet`` remains
+  available for now.
+
 * Removed the ``Band`` annotation model. Replace
   ``plot.add_layout(Band(base=..., lower=..., upper=..., source=...))``
   with ``renderer = plot.band(base=..., lower=..., upper=..., source=...)``.
