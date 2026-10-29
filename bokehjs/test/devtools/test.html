@@ -28,6 +28,7 @@
         height: 20px;
         padding: 2px 0;
         white-space: nowrap;
+        overflow: hidden; /* system fonts' descenders may otherwise bleed into the viewport's screenshot */
       }
 
       .viewport {
@@ -54,10 +55,12 @@
     <!-- Preload fonts. Remove this when https://github.com/bokeh/bokeh/issues/9448 is fixed. -->
     <script>
       async function preload_fonts() {
+        // Include characters from all unicode-range faces, otherwise only faces covering " " are loaded.
+        const bokeh_text = "A℃∅⋅⋮⋯"
         for (let i = 5; i < 36; i++) {
-          await document.fonts.load(`normal ${i}px Bokeh`)
-          await document.fonts.load(`bold ${i}px Bokeh`)
-          await document.fonts.load(`italic normal ${i}px Bokeh`)
+          await document.fonts.load(`normal ${i}px Bokeh`, bokeh_text)
+          await document.fonts.load(`bold ${i}px Bokeh`, bokeh_text)
+          await document.fonts.load(`italic normal ${i}px Bokeh`, bokeh_text)
           await document.fonts.load(`normal ${i}px BokehMono`)
 
           await document.fonts.load(`normal ${i}px Stix`)

@@ -26,6 +26,11 @@ export class ToolbarPanelView extends AnnotationView {
   }
 
   override after_layout(): void {
+    // Size the panel and the toolbar before the toolbar measures itself for
+    // overflow, otherwise this happens at paint time and the toolbar's
+    // final size is only observed later through its ResizeObserver.
+    this.update_position()
+    this._update_style()
     this.toolbar_view.after_render()
   }
 
@@ -72,6 +77,10 @@ export class ToolbarPanelView extends AnnotationView {
   }
 
   protected _paint(): void {
+    this._update_style()
+  }
+
+  protected _update_style(): void {
     const {style} = this.toolbar_view.el
     if (this.is_horizontal) {
       style.width = "100%"

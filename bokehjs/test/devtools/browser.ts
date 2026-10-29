@@ -148,6 +148,7 @@ export class BrowserManager {
       "--disable-font-subpixel-positioning",  // makes images look similar on all platforms
       "--force-color-profile=srgb",           // ^^^
       "--force-device-scale-factor=1",        // ^^^
+      "--disable-lcd-text",                   // ^^^: ignores host's fontconfig sub-pixel (rgba) settings
     ]
     if (in_docker) {
       // Containers have no hardware GPU. Keep WebGL enabled through Chrome's
