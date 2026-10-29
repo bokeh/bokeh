@@ -164,12 +164,15 @@ describe("Markdown", () => {
       throw new Error("Resource unavailable")
     }))
     using observe = restorable(sinon.spy(ResizeObserver.prototype, "observe"))
+    using builds = restorable(sinon.spy(view, "build_child_views"))
     markdown.text = "::bokeh[child]"
     await initializing
+    expect(builds.callCount).to.be.equal(1)
     view.remove()
     observe.resetHistory()
     release()
-    await view.ready
+    // Removed views' ready resolves before their pending builds finish.
+    await builds.returnValues[0]
     expect(failure.callCount).to.be.equal(1)
     expect(pending[0].is_destroyed).to.be.true
     expect(observe.callCount).to.be.equal(0)
@@ -573,11 +576,27 @@ describe("Markdown", () => {
     const child = Div.create({text: "Content"})
     const markdown = Markdown.create({embeds: {child}})
     const {view} = await display(markdown, null)
+    let started: () => void = () => {}
+    const initializing = new Promise<void>((resolve) => { started = resolve })
+    let release: () => void = () => {}
+    const gate = new Promise<void>((resolve) => { release = resolve })
+    const initialize = DivView.prototype.lazy_initialize
+    using pending = restorable(sinon.stub(DivView.prototype, "lazy_initialize").callsFake(async function(this: DivView) {
+      await initialize.call(this)
+      started()
+      await gate
+    }))
     using spy = restorable(sinon.spy(DivView.prototype, "remove"))
+    using builds = restorable(sinon.spy(view, "build_child_views"))
     markdown.text = "::bokeh[child]"
+    await initializing
+    expect(builds.callCount).to.be.equal(1)
     view.remove()
-    await view.ready
+    release()
+    await builds.returnValues[0]
+    expect(pending.callCount).to.be.equal(1)
     expect(view.child_views.length).to.be.equal(0)
+    expect(view.sig_child_views.length).to.be.equal(0)
     expect(spy.callCount).to.be.equal(1)
   })
 
