@@ -641,24 +641,13 @@ multi-line label.
 
     Label(x=100, y=5, text='A very long label\nwith multiple lines')
 
-To create several labels at once, positioned by data, use the |text| glyph
-method. To configure the labels, use a data source that contains columns with
-data for the labels' properties such as ``text``, ``x`` and ``y``. If you assign
-a value to a property such as ``x_offset`` and ``y_offset`` directly instead of
-a column name, this value is used for all labels.
-
-.. code-block:: python
-
-    p.text(x='x', y='y', text='names',
-           x_offset=5, y_offset=5, source=source)
-
-The following example illustrates the use of |Label| and |text|:
+The following example illustrates the use of |Label|:
 
 .. bokeh-plot:: __REPO__/examples/basic/annotations/label.py
     :source-position: above
 
-The ``text`` values may contain newline characters which will result in
-multi-line labels.
+To draw several labels at once, positioned by data, use the |text| glyph
+method instead. See :ref:`ug_basic_text_labels`.
 
 .. _ug_basic_annotations_slope:
 

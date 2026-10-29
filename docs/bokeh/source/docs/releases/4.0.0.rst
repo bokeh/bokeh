@@ -63,7 +63,7 @@ Removals
   angles. Label coordinates are always in data units; ``x_units`` and
   ``y_units`` are no longer supported. Unlike the annotation, text glyphs
   contribute to auto-ranging and hit testing. ``HTMLLabelSet`` remains
-  available for now.
+  available for now. See :ref:`ug_basic_text_labels` for examples.
 
 * Removed the ``Band`` annotation model. Replace
   ``plot.add_layout(Band(base=..., lower=..., upper=..., source=...))``
