@@ -226,6 +226,13 @@ class ArcArgs(GlyphArgs, LineVisuals, total=False):
     end_angle_units: AngleUnits
     # direction: Direction
 
+class BandArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
+    # dimension: Dimension
+    # lower: NumberArg
+    # upper: NumberArg
+    # base: NumberArg
+    pass
+
 class BezierArgs(GlyphArgs, LineVisuals, total=False):
     # x0: NumberArg
     # y0: NumberArg
@@ -556,6 +563,14 @@ class GlyphAPI:
         direction: Direction = ...,
         **kwargs: Unpack[ArcArgs],
     ) -> GlyphRenderer[glyphs.Arc]: ...
+
+    def band(self,
+        dimension: Dimension = ...,
+        lower: NumberArg = ...,
+        upper: NumberArg = ...,
+        base: NumberArg = ...,
+        **kwargs: Unpack[BandArgs],
+    ) -> GlyphRenderer[glyphs.BandGlyph]: ...
 
     def bezier(self,
         x0: NumberArg = ...,

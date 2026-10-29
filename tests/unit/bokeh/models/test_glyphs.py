@@ -133,6 +133,30 @@ def test_Arc() -> None:
     ], LINE, ["path_markings"])
 
 
+def test_BandGlyph() -> None:
+    glyph = m.BandGlyph()
+    assert glyph.dimension == "height"
+    assert glyph.lower == field("lower")
+    assert glyph.upper == field("upper")
+    assert glyph.base == field("base")
+    check_line_properties(glyph)
+    check_fill_properties(glyph)
+    check_hatch_properties(glyph)
+    check_properties_existence(glyph, [
+        "dimension",
+        "lower",
+        "upper",
+        "base",
+    ], LINE, FILL, HATCH)
+
+
+def test_BandGlyph_accepts_negative_values() -> None:
+    glyph = m.BandGlyph(base=-1.0, lower=-1.5, upper=-0.5)
+    assert glyph.base == -1.0
+    assert glyph.lower == -1.5
+    assert glyph.upper == -0.5
+
+
 def test_Bezier() -> None:
     glyph = m.Bezier()
     assert glyph.x0 == field("x0")

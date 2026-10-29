@@ -640,20 +640,6 @@ by updating their position lists.
     :source-position: above
 
 
-.. _ug_basic_annotations_bands:
-
-Bands
------
-
-A |Band| annotation is a colored stripe that is dimensionally linked to the data
-in a plot. One common use for the band annotation is to indicate uncertainty
-related to a series of measurements.
-
-To define a band, use either |screen units| or |data units|.
-
-.. bokeh-plot:: __REPO__/examples/basic/annotations/band.py
-    :source-position: above
-
 .. _ug_basic_annotations_box_annotations:
 
 Box annotations
@@ -799,7 +785,6 @@ returns a glyph renderer.
 .. |ColorMapper| replace:: :class:`~bokeh.models.mappers.ColorMapper`
 
 .. |ArrowHead|     replace:: :class:`~bokeh.models.annotations.ArrowHead`
-.. |Band|          replace:: :class:`~bokeh.models.annotations.Band`
 .. |PolyAnnotation| replace:: :class:`~bokeh.models.annotations.PolyAnnotation`
 .. |ColorBar|      replace:: :class:`~bokeh.models.annotations.ColorBar`
 .. |SizeBar|       replace:: :class:`~bokeh.models.annotations.SizeBar`

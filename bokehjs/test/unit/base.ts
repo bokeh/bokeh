@@ -37,7 +37,7 @@ describe("default model resolver", () => {
       "AutocompleteInput",
       "Axis",
       "BBoxTileSource",
-      "Band",
+      "BandGlyph",
       "BaseColorBar",
       "BasicTickFormatter",
       "BasicTicker",

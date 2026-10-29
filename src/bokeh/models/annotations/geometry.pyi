@@ -7,7 +7,6 @@
 
 from typing import Sequence, Unpack
 
-from ..._specs import CoordinateSpec
 from ..._types import (
     Coordinate,
     CoordinateLike,
@@ -47,9 +46,7 @@ from ...model.model import Model, _ModelInit
 from ..nodes import BoxNodes
 from .annotation import (
     Annotation,
-    DataAnnotation,
     _AnnotationInit,
-    _DataAnnotationInit,
 )
 
 class _AreaVisualsInit(_ModelInit, _ScalarLinePropsInit, _ScalarFillPropsInit, _ScalarHatchPropsInit,
@@ -169,20 +166,6 @@ class BoxAnnotation(Annotation, AreaVisuals):
 
     @property
     def nodes(self) -> BoxNodes: ...
-
-class _BandInit(_DataAnnotationInit, _ScalarLinePropsInit, _ScalarFillPropsInit, _ScalarHatchPropsInit, total=False):
-    lower: CoordinateSpec
-    upper: CoordinateSpec
-    base: CoordinateSpec
-    dimension: Dimension
-
-class Band(DataAnnotation, ScalarLineProps, ScalarFillProps, ScalarHatchProps):
-    def __init__(self, **kwargs: Unpack[_BandInit]) -> None: ...
-
-    lower: CoordinateSpec = ...
-    upper: CoordinateSpec = ...
-    base: CoordinateSpec = ...
-    dimension: Dimension = ...
 
 class _PolyAnnotationInit(_AnnotationInit, _ScalarLinePropsInit, _ScalarFillPropsInit, _ScalarHatchPropsInit,
         _ScalarHoverLinePropsInit, _ScalarHoverFillPropsInit, _ScalarHoverHatchPropsInit, total=False):

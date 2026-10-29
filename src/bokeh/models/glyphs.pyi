@@ -21,6 +21,7 @@ from .._specs import (
 )
 from .._types import NonNegative
 from ..core.enums import (
+    DimensionType as Dimension,
     DirectionType as Direction,
     HexTileOrientationType as HexTileOrientation,
     ImageOriginType as ImageOrigin,
@@ -152,6 +153,20 @@ class Arc(XYGlyph, LineProps, SupportsPathMarking):
     start_angle: AngleSpec = ...
     end_angle: AngleSpec = ...
     direction: Direction = ...
+
+class _BandGlyphInit(_GlyphInit, _ScalarLinePropsInit, _ScalarFillPropsInit, _ScalarHatchPropsInit, total=False):
+    dimension: Dimension
+    lower: NumberSpec
+    upper: NumberSpec
+    base: NumberSpec
+
+class BandGlyph(Glyph, ScalarLineProps, ScalarFillProps, ScalarHatchProps):
+    def __init__(self, **kwargs: Unpack[_BandGlyphInit]) -> None: ...
+
+    dimension: Dimension = ...
+    lower: NumberSpec = ...
+    upper: NumberSpec = ...
+    base: NumberSpec = ...
 
 class _BezierInit(_GlyphInit, _LinePropsInit, _SupportsPathMarkingInit, total=False):
     x0: NumberSpec
