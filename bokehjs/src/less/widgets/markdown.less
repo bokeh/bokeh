@@ -23,11 +23,11 @@ blockquote {
 .bokeh-embed-error {
   padding: 0.5em;
   border: 1px solid var(--border-color);
-  color: light-dark(#cf222e, #f85149);
+  color: var(--error-text-color);
 }
 
 .admonition {
-  --admonition-color: #0969da;
+  --admonition-color: var(--primary-text-color);
   margin: 1em 0;
   padding: 0.5em 1em;
   border-left: 4px solid var(--admonition-color);
@@ -40,11 +40,11 @@ blockquote {
   }
 }
 
-.admonition-tip { --admonition-color: light-dark(#1a7f37, #3fb950); }
-.admonition-important { --admonition-color: light-dark(#8250df, #a371f7); }
-.admonition-warning { --admonition-color: light-dark(#9a6700, #d29922); }
-.admonition-caution { --admonition-color: light-dark(#cf222e, #f85149); }
-.admonition-note { --admonition-color: light-dark(#0969da, #58a6ff); }
+.admonition-tip { --admonition-color: var(--success-text-color); }
+.admonition-important { --admonition-color: var(--accent-text-color); }
+.admonition-warning { --admonition-color: var(--warning-text-color); }
+.admonition-caution { --admonition-color: var(--error-text-color); }
+.admonition-note { --admonition-color: var(--primary-text-color); }
 
 details {
   border: 1px solid var(--border-color);
@@ -80,31 +80,31 @@ dd { margin-bottom: 0.75em; }
 pre {
   overflow: auto;
   padding: 12px;
-  background-color: light-dark(#f5f5f5, #202020);
-  color: light-dark(#24292e, #e6edf3);
+  background-color: var(--code-background-color);
+  color: var(--code-color);
 }
 
 .hljs {
-  color: light-dark(#24292e, #e6edf3);
+  color: var(--code-color);
 
   .hljs-keyword, .hljs-selector-tag, .hljs-literal {
-    color: light-dark(#a626a4, #d2a8ff);
+    color: var(--code-keyword-color);
   }
 
   .hljs-string, .hljs-regexp, .hljs-attr {
-    color: light-dark(#287a2b, #a5d6ff);
+    color: var(--code-string-color);
   }
 
   .hljs-number, .hljs-symbol, .hljs-built_in, .hljs-type {
-    color: light-dark(#986801, #ffa657);
+    color: var(--code-number-color);
   }
 
   .hljs-title, .hljs-name, .hljs-attribute {
-    color: light-dark(#005cc5, #79c0ff);
+    color: var(--code-title-color);
   }
 
   .hljs-comment, .hljs-quote {
-    color: light-dark(#666666, #9da7b1);
+    color: var(--code-comment-color);
     font-style: italic;
   }
 }

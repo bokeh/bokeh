@@ -40,12 +40,26 @@
   --icon-color: var(--bokeh-icon-color, #colors[icon]);
   --icon-color-disabled: var(--bokeh-icon-color-disabled, #colors[icon-disabled]);
   --error: #colors[error];
+  --primary-text-color: #colors[primary-text];
+  --accent-text-color: #colors[accent-text];
+  --success-text-color: #colors[success-text];
+  --warning-text-color: #colors[warning-text];
+  --error-text-color: #colors[error-text];
   --inverted-color: #colors[inverted]; // the color for when the background is dark
   --placeholder-color: #colors[placeholder];
   --surface-background-color: #colors[surface];
   --disabled-background-color: #colors[surface]; // TODO this cannot be the same as surface
   --input-focus-border-color: #colors[input-border];
   --input-focus-halo-color: fade(#colors[input-border], 60%);
+
+  // Code blocks
+  --code-background-color: #colors[code-background];
+  --code-color: var(--color);
+  --code-keyword-color: var(--accent-text-color);
+  --code-string-color: var(--success-text-color);
+  --code-number-color: var(--warning-text-color);
+  --code-title-color: var(--primary-text-color);
+  --code-comment-color: #colors[code-comment];
 
   // Border, box shadow, outline
   --border-style: solid;
