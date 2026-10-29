@@ -409,6 +409,29 @@ The minimum supported browser version is Chrome/Chromium 141. The locked
 ``playwright-core`` 1.56.1 package installs Chromium 141.0.7390.37 (Playwright
 revision 1194). The visual baseline container retains Chrome 141.0.7390.54.
 
+Local test runs keep Chromium's sandbox enabled. Ubuntu 23.10 and later use
+AppArmor to restrict the unprivileged user namespaces that the sandbox requires,
+except for executables with an AppArmor profile that allows them. Packaged
+Google Chrome installs such a profile, but Playwright-managed Chromium doesn't,
+so launching it fails with ``No usable sandbox!``. Allow user namespaces for the
+managed browser with a profile like the following:
+
+.. code-block:: sh
+
+    sudo tee /etc/apparmor.d/bokeh-chromium <<'EOF'
+    abi <abi/4.0>,
+    include <tunables/global>
+    profile bokeh-chromium /home/*/.cache/ms-playwright/chromium-*/chrome-linux/chrome flags=(unconfined) {
+      userns,
+    }
+    EOF
+    sudo apparmor_parser -r /etc/apparmor.d/bokeh-chromium
+
+The wildcards keep the profile valid when Playwright updates its browser. Adjust
+the path if you set ``PLAYWRIGHT_BROWSERS_PATH`` or use another executable; the
+test runner prints the exact path when the sandbox fails to start. Tests run
+without the sandbox when ``CI=true`` or ``BOKEH_IN_DOCKER=1`` is set.
+
 When updating Playwright, check its bundled browser version with
 ``npx --no-install playwright-core install --dry-run chromium`` from ``bokehjs``.
 Update both ``bokehjs/make/package.json`` and ``bokehjs/test/package.json`` and
