@@ -40,7 +40,7 @@ ROUTED_JOBS = {
 
 
 def _load_workflow(filename: str) -> dict[str, Any]:
-    with open(TOP_PATH / ".github" / "workflows" / filename) as f:
+    with open(TOP_PATH / ".github" / "workflows" / filename, encoding="utf-8") as f:
         return yaml.load(f, Loader=yaml.BaseLoader)
 
 
@@ -104,4 +104,4 @@ def test_external_actions_are_pinned_to_commit_shas(path: Path) -> None:
             for item in value:
                 check(item)
 
-    check(yaml.load(path.read_text(), Loader=yaml.BaseLoader))
+    check(yaml.load(path.read_text(encoding="utf-8"), Loader=yaml.BaseLoader))
