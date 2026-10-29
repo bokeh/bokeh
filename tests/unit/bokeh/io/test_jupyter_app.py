@@ -139,8 +139,8 @@ def test_explicit_notebook_url_takes_precedence_over_frontend_discovery() -> Non
         assert not app.accepts_frontend_proxy
         discovered = f"https://hub.example.test/user/alice/proxy/{app.port}/{app._prefix}/"
         assert app._resolve_browser_url(discovered) == app.url.rstrip("/")
-        assert "apps.example.test" in app.asgi.core.websocket_origins
-        assert "hub.example.test" not in app.asgi.core.websocket_origins
+        assert "apps.example.test:80" in app.asgi.core.websocket_origins
+        assert "hub.example.test:80" not in app.asgi.core.websocket_origins
     finally:
         app.stop()
 
@@ -155,7 +155,7 @@ def test_callable_notebook_url_receives_the_assigned_port() -> None:
     try:
         assert notebook_url.call_args_list == [call(None), call(app.port)]
         assert app.url == f"https://apps.example.test/proxy/{app.port}/{app._prefix}/"
-        assert app.asgi.core.websocket_origins == {"apps.example.test"}
+        assert app.asgi.core.websocket_origins == {"apps.example.test:80"}
     finally:
         app.stop()
 
@@ -168,7 +168,7 @@ def test_jupyterhub_environment_builds_the_public_proxy_url(monkeypatch: pytest.
     try:
         assert not app.accepts_frontend_proxy
         assert app.url == f"https://our-hub.edu/user/homer@donuts.edu/proxy/{app.port}/{app._prefix}/"
-        assert "our-hub.edu" in app.asgi.core.websocket_origins
+        assert "our-hub.edu:80" in app.asgi.core.websocket_origins
     finally:
         app.stop()
 
@@ -198,7 +198,7 @@ def test_additional_websocket_origins_are_merged_with_notebook_origins() -> None
             extra_websocket_origins=["apps.example.test", "apps.example.test:443", "localhost:*"],
         )
     try:
-        assert {"127.0.0.1:*", "localhost:*", "apps.example.test", "apps.example.test:443"}.issubset(
+        assert {"127.0.0.1:*", "localhost:*", "apps.example.test:80", "apps.example.test:443"}.issubset(
             app.asgi.core.websocket_origins,
         )
     finally:

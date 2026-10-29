@@ -15,6 +15,10 @@ New features
   decorations without requiring fixed tick locations or custom JavaScript.
 * Added :class:`~bokeh.models.SITickFormatter` for displaying values with a
   fixed or automatically selected SI prefix and a shared unit.
+* Added support for bracketed IPv6 addresses, such as ``[::1]:5006``, in the
+  Bokeh server's WebSocket origin allowlist, including equivalent address
+  spellings. ASGI origin entries use the same validation and default port as
+  ``Server``.
 * Added ``label`` property to :class:`~bokeh.models.Tool`, allowing to change
   the name of a tool displayed in the user interface, e.g. in a plot's context
   menu (:bokeh-issue:`15553`).
