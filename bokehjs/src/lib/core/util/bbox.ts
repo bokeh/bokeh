@@ -18,6 +18,24 @@ export function empty(): Rect {
   }
 }
 
+export function x_only(x0: number, x1: number): Rect {
+  return {
+    x0,
+    x1,
+    y0:  Infinity,
+    y1: -Infinity,
+  }
+}
+
+export function y_only(y0: number, y1: number): Rect {
+  return {
+    x0:  Infinity,
+    x1: -Infinity,
+    y0,
+    y1,
+  }
+}
+
 export function full(): Rect {
   return {
     x0: -Infinity,
@@ -30,8 +48,8 @@ export function full(): Rect {
 export function x_range(x0: number, x1: number): Rect {
   return {
     x0,
-    y0: -Infinity,
     x1,
+    y0: -Infinity,
     y1:  Infinity,
   }
 }
@@ -39,8 +57,8 @@ export function x_range(x0: number, x1: number): Rect {
 export function y_range(y0: number, y1: number): Rect {
   return {
     x0: -Infinity,
-    y0,
     x1:  Infinity,
+    y0,
     y1,
   }
 }
