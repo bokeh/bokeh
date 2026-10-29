@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Set up Anaconda CLI
-        uses: anaconda/actions/setup-anaconda-cli@v0.3.1
+        uses: anaconda/actions/setup-anaconda-cli@a6f488910b4a1e4f3fe01736241ca1b92b4b355a # v0.3.1
         with:
           version: v0.2.1
           tools: anaconda-cli
@@ -54,7 +54,7 @@ jobs:
 
     steps:
       - name: Check Maintainer
-        uses: tspascoal/get-user-teams-membership@v4
+        uses: tspascoal/get-user-teams-membership@b2546c5affc730fd8e3d8483ae9ad3621938c2f9 # v4.0.2
         id: checkUserMember
         with:
           username: ${{ github.actor }}
@@ -77,9 +77,9 @@ jobs:
           echo "Please contact @bokeh/core about conducting releases."
           exit 1
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
-      - uses: prefix-dev/setup-pixi@v0.10.0
+      - uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f # v0.10.0
         with:
           pixi-version: v0.83.0
           environments: release-deploy
@@ -89,7 +89,7 @@ jobs:
 
       - name: Configure AWS credentials
         id: aws
-        uses: aws-actions/configure-aws-credentials@v6.2.3
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           role-to-assume: ${{ vars.AWS_RELEASE_DEPLOY_ROLE_ARN }}
           role-session-name: bokeh-release-prepare-${{ github.run_id }}
@@ -106,7 +106,7 @@ jobs:
         run: python -m tools.release prepare-deployment "$BOKEH_VERSION"
 
       - name: Upload documentation
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: docs-distribution
           path: deployment-${{ github.event.inputs.version }}/docs/
@@ -114,7 +114,7 @@ jobs:
           retention-days: 1
 
       - name: Upload Conda distribution
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: conda-distribution
           path: deployment-${{ github.event.inputs.version }}/bokeh-${{ github.event.inputs.version }}-py_0.tar.bz2
@@ -122,7 +122,7 @@ jobs:
           retention-days: 1
 
       - name: Upload npm distribution
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: npm-distribution
           path: deployment-${{ github.event.inputs.version }}/bokeh-*.tgz
@@ -130,7 +130,7 @@ jobs:
           retention-days: 1
 
       - name: Upload Python distributions
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: pypi-distributions
           path: |
@@ -150,9 +150,9 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
-      - uses: prefix-dev/setup-pixi@v0.10.0
+      - uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f # v0.10.0
         with:
           pixi-version: v0.83.0
           environments: release-deploy
@@ -161,14 +161,14 @@ jobs:
           cache: false
 
       - name: Download documentation
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: docs-distribution
           path: deployment-${{ github.event.inputs.version }}/docs/
 
       - name: Configure AWS credentials
         id: aws
-        uses: aws-actions/configure-aws-credentials@v6.2.3
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           role-to-assume: ${{ vars.AWS_RELEASE_DOCS_ROLE_ARN }}
           role-session-name: bokeh-release-docs-${{ github.run_id }}
@@ -194,13 +194,13 @@ jobs:
 
     steps:
       - name: Download Conda distribution
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: conda-distribution
           path: dist/
 
       - name: Publish Conda distribution
-        uses: anaconda/actions/upload-package@v0.3.1
+        uses: anaconda/actions/upload-package@a6f488910b4a1e4f3fe01736241ca1b92b4b355a # v0.3.1
         with:
           token: ${{ secrets.ANACONDA_TOKEN }}
           channel: bokeh
@@ -219,15 +219,15 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Download npm distribution
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: npm-distribution
           path: dist/
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: '>=24.22.1 <25'
           registry-url: https://registry.npmjs.org
@@ -253,13 +253,13 @@ jobs:
 
     steps:
       - name: Download Python distributions
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: pypi-distributions
           path: dist/
 
       - name: Publish Python distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
 
   finalize:
     if: ${{ always() }}

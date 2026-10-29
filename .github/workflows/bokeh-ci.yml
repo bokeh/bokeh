@@ -29,10 +29,10 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Set up Pixi
-        uses: prefix-dev/setup-pixi@v0.10.0
+        uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f # v0.10.0
         with:
           pixi-version: v0.83.0
           environments: formatting
@@ -69,7 +69,7 @@ jobs:
       groups: ${{ steps.filter.outputs.changes }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         if: github.event_name == 'pull_request'
         with:
           fetch-depth: 0
@@ -78,7 +78,7 @@ jobs:
       - name: Classify changed paths
         if: github.event_name == 'pull_request'
         id: filter
-        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         with:
           base: ${{ github.event.pull_request.base.sha }}
           token: ''
@@ -99,7 +99,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 0 # full history to get proper build version
 
@@ -118,7 +118,7 @@ jobs:
         os: [ubuntu-24.04, macos-latest, windows-latest]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -148,12 +148,12 @@ jobs:
       PYTHONPATH: ${{ github.workspace }}/src
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 0
 
       - name: Set up Pixi
-        uses: prefix-dev/setup-pixi@v0.10.0
+        uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f # v0.10.0
         with:
           pixi-version: v0.83.0
           environments: test-py312
@@ -207,7 +207,7 @@ jobs:
             environment: test-py314
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -248,7 +248,7 @@ jobs:
         python-version: ['3.14']
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -286,7 +286,7 @@ jobs:
 
       - name: Upload report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: examples-report
           path: examples-report
@@ -311,7 +311,7 @@ jobs:
       PYTHON: ${{ matrix.python-version }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -345,7 +345,7 @@ jobs:
       id-token: write # Allow the Codecov upload step to authenticate with GitHub OIDC.
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Prepare wheel-installed environment
         uses: ./.github/workflows/composite/test-setup
@@ -362,7 +362,7 @@ jobs:
         run: pixi run --locked --environment notebook-test test-notebook --cov=bokeh --cov-report=xml
 
       - name: Upload code coverage
-        uses: codecov/codecov-action@v7
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         if: success() || failure()
         with:
           use_oidc: true
@@ -371,7 +371,7 @@ jobs:
 
       - name: Upload notebook smoke report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: notebook-report
           path: work/notebook-report
@@ -389,7 +389,7 @@ jobs:
       OS: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -429,7 +429,7 @@ jobs:
       PYTHON: ${{ matrix.python-version }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -465,7 +465,7 @@ jobs:
         python-version: ['3.15']
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -488,7 +488,7 @@ jobs:
         run: pixi run --locked --environment docs-py315 build-docs
 
       - name: Upload docs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: docs-html
           path: docs/bokeh/docs-html.tgz
