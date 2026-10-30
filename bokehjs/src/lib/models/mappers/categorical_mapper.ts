@@ -1,7 +1,7 @@
 import type {Mapper} from "./mapper"
 import type {FactorSeq, Factor} from "../ranges/factor_range"
 import type {Arrayable} from "core/types"
-import {index_of, find_index} from "core/util/arrayable"
+import {find_index} from "core/util/arrayable"
 import {isArray} from "core/util/types"
 import type * as p from "core/properties"
 
@@ -22,16 +22,22 @@ export function _cat_equals(a: ArrayLike<unknown>, b: ArrayLike<unknown>): boole
 
 export function cat_v_compute<T>(data: Arrayable<unknown>, factors: Arrayable<Factor>,
     targets: Arrayable<T>, values: Arrayable<T>, start: number, end: number | null, extra_value: T): void {
+  // Duplicate factors resolve to their first occurrence
+  const indices = new Map<unknown, number>()
+  for (let i = factors.length - 1; i >= 0; i--) {
+    indices.set(factors[i], i)
+  }
+
   let i = 0
   for (const item of data) {
     let key: number
     if (!isArray(item)) {
-      key = index_of(factors, item)
+      key = indices.get(item) ?? -1
     } else {
       const d = item.slice(start, end ?? undefined)
 
       if (d.length == 1) {
-        key = index_of(factors, d[0])
+        key = indices.get(d[0]) ?? -1
       } else {
         key = find_index(factors, (x) => _cat_equals(x, d))
       }
