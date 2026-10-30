@@ -12,6 +12,7 @@ import {Column} from "@bokehjs/models/layouts/column"
 import {Div, DivView} from "@bokehjs/models/widgets/div"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {color2rgba, is_dark} from "@bokehjs/core/util/color"
 import {defer} from "@bokehjs/core/util/defer"
 import {dedent, markdown_extensions} from "@bokehjs/models/widgets/markdown_extensions"
 
@@ -829,6 +830,40 @@ describe("Markdown", () => {
     window.dispatchEvent(new HashChangeEvent("hashchange"))
     expect(spy.thisValues.at(-1)).to.be.equal(view.shadow_el.getElementById("first"))
   })
+
+  for (const nested of [false, true]) {
+    it(`should apply default light and dark colors without user styles (nested=${nested})`, async () => {
+      const markdown = Markdown.create({text: "Plain prose.\n\n> [!NOTE]\n> Callout prose.\n\n```python\ndef square(x):\n    return x**2\n```"})
+      const root = nested ? Column.create({children: [markdown]}) : markdown
+      const {view: root_view, doc} = await display(root, null)
+      const view = root_view.owner.get_one(markdown)
+      const prose = view.contents.querySelector("p")!
+      const callout = view.contents.querySelector(".admonition p:not(.admonition-title)")!
+      const title = view.contents.querySelector(".admonition-title")!
+      const code = view.contents.querySelector("pre")!
+      const keyword = view.contents.querySelector(".hljs-keyword")!
+      const colors = (["light", "dark", "light"] as const).map((scheme) => {
+        doc.config.color_scheme = scheme
+        const host_style = getComputedStyle(view.el)
+        expect(color2rgba(host_style.backgroundColor)[3]).to.be.equal(255)
+        expect(is_dark(color2rgba(host_style.backgroundColor))).to.be.equal(scheme == "dark")
+        expect(is_dark(color2rgba(host_style.color))).to.be.equal(scheme == "light")
+        expect(getComputedStyle(prose).color).to.be.equal(host_style.color)
+        expect(getComputedStyle(callout).color).to.be.equal(host_style.color)
+
+        const code_style = getComputedStyle(code)
+        expect(color2rgba(code_style.backgroundColor)[3]).to.be.equal(255)
+        expect(is_dark(color2rgba(code_style.backgroundColor))).to.be.equal(scheme == "dark")
+        expect(is_dark(color2rgba(code_style.color))).to.be.equal(scheme == "light")
+        const keyword_color = getComputedStyle(keyword).color
+        expect(keyword_color).to.not.be.equal(code_style.color)
+        return {keyword: keyword_color, callout: getComputedStyle(title).color}
+      })
+      expect(colors[0].keyword).to.not.be.equal(colors[1].keyword)
+      expect(colors[0].callout).to.not.be.equal(colors[1].callout)
+      expect(colors[2]).to.be.equal(colors[0])
+    })
+  }
 
   it("should highlight fenced code and apply its stylesheet in the shadow root", async () => {
     const markdown = Markdown.create({text: "```python\ndef square(x):\n    return x**2\n```"})
