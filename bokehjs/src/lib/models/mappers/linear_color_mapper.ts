@@ -1,5 +1,5 @@
 import {ContinuousColorMapper} from "./continuous_color_mapper"
-import type {Arrayable} from "core/types"
+import type {Arrayable, uint32} from "core/types"
 import {min, max, minmax} from "core/util/arrayable"
 import {clamp} from "core/util/math"
 import type * as p from "core/properties"
@@ -54,5 +54,32 @@ export class LinearColorMapper extends ContinuousColorMapper {
     const normed_value = (value - scan_data.min) * scan_data.norm_factor
     const index = Math.floor(normed_value / scan_data.normed_interval)
     return clamp(index, -1, palette_length)
+  }
+
+  // Equivalent to the generic implementation with `value_to_index()` inlined,
+  // which is significantly faster for large images.
+  protected override _map_values(data: Arrayable<number>, values: Arrayable<uint32>,
+      palette: Arrayable<uint32>, colors: {nan_color: uint32, low_color: uint32, high_color: uint32}): void {
+    const {nan_color, low_color, high_color} = colors
+    const {min, max, norm_factor, normed_interval} = this._scan_data as LinearScanData
+
+    const n = palette.length
+
+    for (let i = 0, end = data.length; i < end; i++) {
+      const value = data[i]
+
+      if (isNaN(value)) {
+        values[i] = nan_color
+      } else {
+        const index = value == max ? n - 1 : Math.floor((value - min) * norm_factor / normed_interval)
+        if (index < 0) {
+          values[i] = low_color
+        } else if (index >= n) {
+          values[i] = high_color
+        } else {
+          values[i] = palette[index]
+        }
+      }
+    }
   }
 }
