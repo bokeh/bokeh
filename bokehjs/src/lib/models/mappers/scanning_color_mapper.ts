@@ -21,7 +21,7 @@ export interface ScanningColorMapper extends ScanningColorMapper.Attrs {}
 export abstract class ScanningColorMapper extends ContinuousColorMapper {
   declare properties: ScanningColorMapper.Props
 
-  declare MatricsType: {min: number, max: number, binning: Arrayable<number>, force_low_cutoff: boolean}
+  declare MetricsType: {min: number, max: number, binning: Arrayable<number>, force_low_cutoff: boolean}
 
   override index_to_value(index: number): number {
     const scan_data = this._scan_data as ScanningScanData
