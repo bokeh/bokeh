@@ -95,3 +95,25 @@ describe("Arc decorations", () => {
     })
   }
 })
+
+describe("Arc bounds", () => {
+  const data = {
+    x: [1, 10, 5, 30],
+    y: [10, 60, 30, 80],
+    radius: [1, 2, 3, 4],
+  }
+
+  it("should include data-unit radii in its bounds", async () => {
+    const glyph = Arc.create({radius: {field: "radius"}})
+    const view = await create_glyph_view(glyph, data)
+
+    expect(view.bounds()).to.be.equal({x0: 0, y0: 9, x1: 34, y1: 84})
+  })
+
+  it("should not interpret screen-unit radii as data-unit bounds", async () => {
+    const glyph = Arc.create({radius: {field: "radius", units: "screen"}})
+    const view = await create_glyph_view(glyph, data)
+
+    expect(view.bounds()).to.be.equal({x0: 1, y0: 10, x1: 30, y1: 80})
+  })
+})
