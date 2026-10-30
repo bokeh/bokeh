@@ -25,6 +25,7 @@ import {
   CopyTool,
   CustomJS,
   DataRange1d,
+  Dodge,
   EqHistColorMapper,
   FactorRange,
   GlyphRenderer,
@@ -36,6 +37,7 @@ import {
   Line,
   LinearColorMapper,
   LogColorMapper,
+  Maximum,
   Node,
   PanTool,
   Pane,
@@ -81,7 +83,7 @@ import {b64decode} from "@bokehjs/core/util/buffer"
 import type {XY} from "@bokehjs/core/util/bbox"
 import {div} from "@bokehjs/core/dom"
 import type {Color, Arrayable} from "@bokehjs/core/types"
-import type {DocJson, DocumentEvent} from "@bokehjs/document"
+import type {DocJson, DocumentChangedEvent, DocumentEvent} from "@bokehjs/document"
 import {Document, ModelChangedEvent, MessageSentEvent} from "@bokehjs/document"
 import {DocumentReady, RangesUpdate} from "@bokehjs/core/bokeh_events"
 import {gridplot} from "@bokehjs/api/gridplot"
@@ -2641,6 +2643,82 @@ ${view.host_selector} {
         delete (canvas as any).width
         delete (canvas as any).height
       }
+    })
+  })
+
+  describe("in issue #14364", () => {
+    function setup(...roots: Model[]) {
+      const doc = new Document({roots})
+      const events: DocumentChangedEvent[] = []
+      doc.on_change((event) => events.push(event))
+      return {doc, events}
+    }
+
+    it("sends plain values of scalar specs unwrapped in document patches", () => {
+      const glyph = Line.create()
+      const {doc, events} = setup(glyph)
+
+      glyph.line_color = "#CC79A7"
+      glyph.line_width = 3
+
+      expect(doc.create_json_patch(events)).to.be.equal({
+        events: [
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "line_color", new: "#CC79A7"},
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "line_width", new: 3},
+        ],
+      })
+    })
+
+    it("sends plain values of scalar specs of new models unwrapped in document patches", () => {
+      const {doc, events} = setup()
+
+      const glyph = Line.create({line_color: "#CC79A7"})
+      doc.add_root(glyph)
+
+      expect(doc.create_json_patch(events)).to.be.equal({
+        events: [{
+          kind: "RootAdded",
+          model: {type: "object", name: "Line", id: glyph.id, attributes: {line_color: "#CC79A7"}},
+        }],
+      })
+    })
+
+    it("keeps scalar specs with a transform, units or an expression structured in document patches", () => {
+      const glyph = Line.create()
+      const {doc, events} = setup(glyph)
+
+      const transform = Dodge.create({value: 1})
+      const expr = Maximum.create({field: "y"})
+      glyph.line_width = {value: 3, transform}
+      glyph.line_dash_offset = {value: 2, units: "screen"} as any
+      glyph.line_alpha = {expr} as any
+
+      expect(doc.create_json_patch(events)).to.be.equal({
+        events: [
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "line_width", new: {
+            type: "value", value: 3, transform: {type: "object", name: "Dodge", id: transform.id, attributes: {value: 1}},
+          }},
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "line_dash_offset", new: {
+            type: "value", value: 2, units: "screen",
+          }},
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "line_alpha", new: {
+            type: "expr", expr: {type: "object", name: "Maximum", id: expr.id, attributes: {field: "y"}},
+          }},
+        ],
+      })
+    })
+
+    it("doesn't unwrap plain values of vector specs in document patches", () => {
+      const glyph = Scatter.create()
+      const {doc, events} = setup(glyph)
+
+      glyph.fill_color = "#CC79A7"
+
+      expect(doc.create_json_patch(events)).to.be.equal({
+        events: [
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "fill_color", new: {type: "value", value: "#CC79A7"}},
+        ],
+      })
     })
   })
 })
