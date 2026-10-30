@@ -103,14 +103,16 @@ export class PatchesView extends GlyphView {
     for (const i of candidates) {
       const sxs_i = this.sxs.get(i)
       const sys_i = this.sys.get(i)
-      const n = sxs_i.length
-      if (n == 0) {
-        continue
-      }
+      const n = Math.min(sxs_i.length, sys_i.length)
       let hit = !greedy
+      let tested = false
       for (let j = 0; j < n; j++) {
         const sx = sxs_i[j]
         const sy = sys_i[j]
+        if (!isFinite(sx + sy)) {
+          continue
+        }
+        tested = true
         if (!hittest.point_in_poly(sx, sy, sxs, sys)) {
           if (!greedy) {
             hit = false
@@ -123,7 +125,7 @@ export class PatchesView extends GlyphView {
           }
         }
       }
-      if (hit) {
+      if (tested && hit) {
         indices.push(i)
       }
     }
