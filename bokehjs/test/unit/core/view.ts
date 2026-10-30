@@ -9,9 +9,14 @@ import type * as p from "@bokehjs/core/properties"
 import {Ref, List} from "@bokehjs/core/kinds"
 import {defer} from "@bokehjs/core/util/defer"
 import {logger} from "@bokehjs/core/logging"
+import {restorable} from "#framework/util"
 
 class SomeModelView extends View {
   declare model: SomeModel
+
+  track(promise: Promise<unknown>): void {
+    this._await_ready(promise)
+  }
 
   protected _children_views_map: ViewStorage<HasProps> = new Map()
 
@@ -388,6 +393,75 @@ describe("core/view", () => {
         expect_not_null(sibling_view)
         return {root_view, mid_view, leaf_view, sibling_view}
       }
+
+      it("which tracks a shared promise once across direct registration and signal handlers", async () => {
+        const {root_view, leaf_view} = await build_tree()
+        const pending = deferred()
+        const error = new Error("shared failure")
+        using log = restorable(sinon.spy(logger, "error"))
+        leaf_view.track(pending.promise)
+        leaf_view.on_change(leaf_view.model.properties.children, () => pending.promise)
+        leaf_view.model.properties.children.change.emit()
+        leaf_view.model.properties.children.change.emit()
+        const errors = Promise.all([leaf_view, root_view].map((view) => rejection(view.ready)))
+        pending.reject(error)
+        for (const failure of await errors) {
+          expect(failure).to.be.identical(error)
+        }
+        expect(log.callCount).to.be.equal(1)
+        leaf_view.track(pending.promise)
+        leaf_view.model.properties.children.change.emit()
+        await leaf_view.ready
+        await root_view.ready
+        expect(log.callCount).to.be.equal(1)
+      })
+
+      it("which keeps distinct promises separate even when they reject with the same error", async () => {
+        const view = await build_view(SomeModel.create())
+        const error = new Error("shared error")
+        view.track(Promise.reject(error))
+        view.track(Promise.reject(error))
+        const failure = await rejection(view.ready)
+        expect(failure).to.be.instanceof(AggregateError)
+        expect((failure as AggregateError).errors.length).to.be.equal(2)
+        for (const item of (failure as AggregateError).errors) {
+          expect(item).to.be.identical(error)
+        }
+      })
+
+      it("which drops duplicate registrations on removal and handles their rejection once", async () => {
+        const {root_view, leaf_view} = await build_tree()
+        const pending = deferred()
+        using log = restorable(sinon.spy(logger, "error"))
+        using dropped = restorable(sinon.spy(logger, "debug"))
+        leaf_view.track(pending.promise)
+        leaf_view.track(pending.promise)
+        const completion = root_view.ready
+        leaf_view.remove()
+        await completion
+        await leaf_view.ready
+        leaf_view.track(pending.promise)
+        pending.reject(new Error("removed failure"))
+        await defer()
+        expect(log.callCount).to.be.equal(0)
+        expect(dropped.callCount).to.be.equal(1)
+        await root_view.ready
+      })
+
+      it("which tracks the same promise independently for different view owners", async () => {
+        const {root_view, leaf_view, sibling_view} = await build_tree()
+        const pending = deferred()
+        leaf_view.track(pending.promise)
+        sibling_view.track(pending.promise)
+        leaf_view.remove()
+        let ready = false
+        const completion = root_view.ready.then(() => ready = true)
+        await defer()
+        expect(ready).to.be.false
+        pending.resolve()
+        await completion
+        expect(ready).to.be.true
+      })
 
       it("which lets a non-root view wait for tasks of its descendants", async () => {
         const {mid_view, leaf_view} = await build_tree()

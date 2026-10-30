@@ -22,6 +22,7 @@ import {Text, TextView} from "@bokehjs/models/glyphs/text"
 import {defer} from "@bokehjs/core/util/defer"
 import type * as p from "@bokehjs/core/properties"
 import type {TextBox} from "@bokehjs/core/graphics"
+import {logger} from "@bokehjs/core/logging"
 
 function mkrenderer(glyph: Scatter): GlyphRenderer {
   const data_source = ColumnDataSource.create({
@@ -92,6 +93,70 @@ describe("GlyphRenderer", () => {
 })
 
 describe("GlyphRendererView", () => {
+  it("reports a coalesced failure once and recovers on the next source update", async () => {
+    const renderer = mkrenderer(Scatter.create({x: {field: "x"}, y: {field: "y"}}))
+    const {view} = await display(Plot.create({renderers: [renderer]}))
+    const grv = view.owner.get_one(renderer)
+    const error = new Error("coalesced failure")
+    const set_data = grv._set_data.bind(grv)
+    using stub = restorable(sinon.stub(grv, "_set_data").callsFake(set_data))
+    stub.onFirstCall().rejects(error)
+    using log = restorable(sinon.spy(logger, "error"))
+    renderer.data_source.patch({x: [[0, 11]]})
+    renderer.data_source.patch({x: [[1, 22]]})
+    const completion = grv.update_data([1])
+    const errors = await Promise.all([grv.ready, view.ready].map((ready) => ready.catch((error: unknown) => error)))
+    expect(await completion.catch((failure: unknown) => failure) === error).to.be.true
+    expect(errors[0] === error).to.be.true
+    expect(errors[1] === error).to.be.true
+    expect(log.callCount).to.be.equal(1)
+    renderer.data_source.patch({x: [[2, 33]]})
+    await view.ready
+    expect([...(grv.glyph as ScatterView).x]).to.be.equal([11, 22, 33, 40])
+  })
+
+  it("serializes masked visual updates behind active data preparation without feedback", async () => {
+    const renderer = mkrenderer(Scatter.create())
+    const {view} = await display(Plot.create({renderers: [renderer]}))
+    const grv = view.owner.get_one(renderer)
+    const set_data = grv._set_data.bind(grv)
+    let release!: () => void
+    let started!: () => void
+    const gate = new Promise<void>((resolve) => release = resolve)
+    const active = new Promise<void>((resolve) => started = resolve)
+    using stub = restorable(sinon.stub(grv, "_set_data").callsFake(async (indices) => {
+      await set_data(indices)
+      started()
+      await gate
+    }))
+    using visuals = restorable(sinon.spy(grv, "_set_visuals"))
+    renderer.data_source.patch({x: [[0, 11]]})
+    await active
+    renderer.view.properties.masked.change.emit()
+    await defer()
+    expect(visuals.callCount).to.be.equal(1)
+    release()
+    await view.ready
+    expect(stub.callCount).to.be.equal(1)
+    expect(visuals.callCount).to.be.equal(2)
+  })
+
+  it("promotes queued visuals to a data pass and deduplicates patch indices", async () => {
+    const renderer = mkrenderer(Scatter.create())
+    const {view} = await display(Plot.create({renderers: [renderer]}))
+    const grv = view.owner.get_one(renderer)
+    using stub = restorable(sinon.stub(grv, "_set_data").resolves())
+    using visuals = restorable(sinon.spy(grv, "_set_visuals"))
+    const pending = grv.update_visuals()
+    expect(grv.update_data([2, 2])).to.be.equal(pending)
+    expect(grv.update_data([1, 2])).to.be.equal(pending)
+    expect(grv.update_visuals()).to.be.equal(pending)
+    await pending
+    expect(stub.callCount).to.be.equal(1)
+    expect(stub.firstCall.args[0]).to.be.equal([2, 1])
+    expect(visuals.callCount).to.be.equal(0)
+  })
+
   it("serializes asynchronous text preparation so older labels cannot overwrite newer data", async () => {
     let release!: () => void
     let started!: () => void
@@ -117,7 +182,7 @@ describe("GlyphRendererView", () => {
     })
     const {view} = await display(Plot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
-    using spy = restorable(sinon.spy(grv, "set_data"))
+    using spy = restorable(sinon.spy(grv, "_set_data"))
     source.patch({text: [[0, "old"]]})
     await active
     let ready = false
@@ -141,9 +206,10 @@ describe("GlyphRendererView", () => {
     const renderer = mkrenderer(Scatter.create({x: {field: "x", transform}, y: {field: "y"}}))
     const {view} = await display(Plot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
-    using spy = restorable(sinon.spy(grv, "set_data"))
+    using spy = restorable(sinon.spy(grv, "_set_data"))
     renderer.data_source.patch({x: [[0, 11]]})
     renderer.data_source.patch({x: [[2, 33]]})
+    expect([...(grv.glyph as ScatterView).x]).to.be.equal([20, 40, 60, 80])
     await view.ready
     expect(spy.callCount).to.be.equal(1)
     expect([...(grv.glyph as ScatterView).x]).to.be.equal([22, 40, 66, 80])
@@ -161,7 +227,7 @@ describe("GlyphRendererView", () => {
     renderer.view.filter = filter
     const {view} = await display(Plot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
-    using spy = restorable(sinon.spy(grv, "set_data"))
+    using spy = restorable(sinon.spy(grv, "_set_data"))
     const source = renderer.data_source
     source.patch({x: [[0, 11]]})
     source.patch({y: [[2, 33]]})
@@ -179,9 +245,9 @@ describe("GlyphRendererView", () => {
   it("shares completion, merges partial indices, and gives full updates precedence", async () => {
     const {view} = await display(Plot.create({renderers: [mkrenderer(Scatter.create())]}))
     const grv = view.owner.get_one(view.model.renderers[0] as GlyphRenderer)
-    using stub = restorable(sinon.stub(grv, "set_data").resolves())
+    using stub = restorable(sinon.stub(grv, "_set_data").resolves())
     const first = grv.update_data([0])
-    expect(grv.update_data([2])).to.be.equal(first)
+    expect(grv.update_data([2, 0, 2])).to.be.equal(first)
     expect(stub.callCount).to.be.equal(0)
     await first
     expect(stub.firstCall.args[0]).to.be.equal([0, 2])
@@ -192,68 +258,22 @@ describe("GlyphRendererView", () => {
     expect(stub.lastCall.args[0]).to.be.undefined
   })
 
-  it("retains updates during an active pass and recovers after failure", async () => {
-    const renderer = mkrenderer(Scatter.create())
-    const {view} = await display(Plot.create({renderers: [renderer]}))
-    const grv = view.owner.get_one(renderer)
-    let release!: () => void
-    using stub = restorable(sinon.stub(grv, "set_data"))
-    stub.onFirstCall().returns(new Promise<void>((_resolve, reject) => release = () => reject(new Error("first failure"))))
-    stub.onSecondCall().rejects(new Error("data failure"))
-    stub.resolves()
-    const first = grv.update_data([0])
-    const first_error = first.catch((error: Error) => error)
-    await Promise.resolve()
-    const second = grv.update_data([1])
-    expect(first === second).to.be.false
-    expect(stub.callCount).to.be.equal(1)
-    release()
-    const error = await second.catch((error: Error) => error)
-    expect(error).to.be.instanceof(Error)
-    expect(await first_error).to.be.instanceof(Error)
-    await grv.update_data([2])
-    expect(stub.callCount).to.be.equal(3)
-    expect(stub.lastCall.args[0]).to.be.equal([2])
-  })
-
-  it("keeps ready pending until source-driven data work completes", async () => {
-    const renderer = mkrenderer(Scatter.create({x: {field: "x"}, y: {field: "y"}}))
-    const {view} = await display(Plot.create({renderers: [renderer]}))
-    const grv = view.owner.get_one(renderer)
-    const set_data = grv.set_data.bind(grv)
-    let release!: () => void
-    const gate = new Promise<void>((resolve) => release = resolve)
-    using stub = restorable(sinon.stub(grv, "set_data").callsFake(async (indices) => {
-      await gate
-      await set_data(indices)
-    }))
-    renderer.data_source.patch({x: [[0, 99]]})
-    let ready = false
-    const completion = view.ready.then(() => ready = true)
-    await Promise.resolve()
-    await Promise.resolve()
-    expect(stub.callCount).to.be.equal(1)
-    expect(ready).to.be.false
-    release()
-    await completion
-    expect([...(grv.glyph as ScatterView).x]).to.be.equal([99, 20, 30, 40])
-  })
-
   it("completes a queued source update after its active predecessor fails", async () => {
     const renderer = mkrenderer(Scatter.create({x: {field: "x"}, y: {field: "y"}}))
     const {view} = await display(Plot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
-    const set_data = grv.set_data.bind(grv)
+    const set_data = grv._set_data.bind(grv)
+    const error = new Error("first failure")
     let fail!: () => void
-    using stub = restorable(sinon.stub(grv, "set_data"))
+    using stub = restorable(sinon.stub(grv, "_set_data"))
     stub.callsFake(set_data)
-    stub.onFirstCall().returns(new Promise<void>((_resolve, reject) => fail = () => reject(new Error("first failure"))))
+    stub.onFirstCall().returns(new Promise<void>((_resolve, reject) => fail = () => reject(error)))
     renderer.data_source.patch({x: [[0, 11]]})
     await Promise.resolve()
     renderer.data_source.patch({x: [[1, 22]]})
     const completion = view.ready.catch((error: unknown) => error)
     fail()
-    expect(await completion).to.be.instanceof(Error)
+    expect(await completion === error).to.be.true
     expect(stub.callCount).to.be.equal(2)
     expect([...(grv.glyph as ScatterView).x]).to.be.equal([11, 22, 30, 40])
     await view.ready
@@ -264,7 +284,7 @@ describe("GlyphRendererView", () => {
     const {view} = await display(Plot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
     let fail!: () => void
-    using stub = restorable(sinon.stub(grv, "set_data"))
+    using stub = restorable(sinon.stub(grv, "_set_data"))
     stub.onFirstCall().returns(new Promise<void>((_resolve, reject) => fail = () => reject(new Error("removed failure"))))
     renderer.data_source.patch({x: [[0, 11]]})
     await Promise.resolve()
@@ -285,7 +305,7 @@ describe("GlyphRendererView", () => {
     const renderer = mkrenderer(Scatter.create())
     const {view} = await display(Plot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
-    using spy = restorable(sinon.spy(grv, "set_data"))
+    using spy = restorable(sinon.spy(grv, "_set_data"))
     const pending = grv.update_data()
     grv.remove()
     await pending
@@ -296,12 +316,12 @@ describe("GlyphRendererView", () => {
     const renderer = mkrenderer(Scatter.create({x: {field: "x"}, y: {field: "y"}}))
     const {view} = await display(Plot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
-    const set_data = grv.set_data.bind(grv)
+    const set_data = grv._set_data.bind(grv)
     let release!: () => void
     let started!: () => void
     const gate = new Promise<void>((resolve) => release = resolve)
     const active = new Promise<void>((resolve) => started = resolve)
-    using stub = restorable(sinon.stub(grv, "set_data").callsFake(async (indices) => {
+    using stub = restorable(sinon.stub(grv, "_set_data").callsFake(async (indices) => {
       await set_data(indices)
       started()
       await gate
@@ -330,12 +350,12 @@ describe("GlyphRendererView", () => {
     const renderer = mkrenderer(Scatter.create({x: {field: "x", transform}, y: {field: "y"}}))
     const {view} = await display(Plot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
-    const set_data = grv.set_data.bind(grv)
+    const set_data = grv._set_data.bind(grv)
     let release!: () => void
     let started!: () => void
     const gate = new Promise<void>((resolve) => release = resolve)
     const active = new Promise<void>((resolve) => started = resolve)
-    using stub = restorable(sinon.stub(grv, "set_data"))
+    using stub = restorable(sinon.stub(grv, "_set_data"))
     stub.callsFake(set_data)
     stub.onFirstCall().callsFake(async (indices) => {
       await set_data(indices)
@@ -450,7 +470,7 @@ describe("GlyphRendererView", () => {
     const bare = {toolbar_location: null, title: null, min_border: 0}
     const p = Plot.create({width: 300, height: 300, x_range, y_range, x_scale, y_scale, renderers: [gr], ...bare})
 
-    using spy = restorable(sinon.spy(GlyphRendererView.prototype, "set_data"))
+    using spy = restorable(sinon.spy(GlyphRendererView.prototype, "_set_data"))
     const {view} = await display(p)
 
     const actions = new PlotActions(view, {units: "screen"})
