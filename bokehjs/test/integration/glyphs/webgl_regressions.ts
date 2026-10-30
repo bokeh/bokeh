@@ -7,6 +7,7 @@ import {LCGRandom} from "@bokehjs/core/util/random"
 import type {Float32Buffer, Uint8Buffer} from "@bokehjs/models/glyphs/webgl/buffer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
+import {HoverTool} from "@bokehjs/models/tools/inspectors/hover_tool"
 import {Scatter} from "@bokehjs/models/glyphs/scatter"
 
 describe("in issue #15279", () => {
@@ -150,6 +151,55 @@ describe("in issue #15279", () => {
     expect(source.length).to.be.equal(n + 1)
     expect(source.selected.indices).to.be.equal([])
     expect(alpha()).to.be.equal({fill: 140, line: 204})
+  })
+})
+
+describe("shared WebGL markers", () => {
+  it.no_image("should preserve scalar and vector marker overrides through data replacement and hover", async () => {
+    const source = ColumnDataSource.create({data: {
+      x: [0, 1, 2], y: [0, 1, 2], marker: ["square", "star", "hex"], size: [10, 12, 14],
+    }})
+    const glyph = Scatter.create({x: {field: "x"}, y: {field: "y"}, marker: "circle", size: {field: "size"}})
+    const renderer = GlyphRenderer.create({
+      data_source: source, glyph,
+      selection_glyph: Scatter.create({marker: "diamond", size: 22}),
+      nonselection_glyph: Scatter.create({fill_alpha: 0.3}),
+      hover_glyph: Scatter.create({marker: "triangle", size: 30}),
+    })
+    source.selected.indices = [0]
+    const p = fig([300, 300], {output_backend: "webgl", x_range: [-1, 3], y_range: [-1, 3]})
+    p.renderers.push(renderer)
+    p.add_tools(HoverTool.create({renderers: [renderer], tooltips: null}))
+    const {view} = await display(p)
+    const rv = view.owner.get_one(renderer)
+    type State = {
+      _show_by_type: Map<string, Uint8Buffer>
+      _nshow_by_type: Map<string, number>
+      _widths: Float32Buffer
+    }
+    const state = (glyph: typeof rv.glyph) => require_glglyph(glyph) as unknown as State
+    function visible(gl: State): [string, number[]][] {
+      return [...gl._nshow_by_type].filter(([, n]) => n > 0).map<[string, number[]]>(([marker]) => [
+        marker, [...gl._show_by_type.get(marker)!.get_array()].flatMap((show, i) => show == 0 ? [] : [i]),
+      ])
+    }
+    expect(visible(state(rv.selection_glyph))).to.be.equal([["diamond", [0]]])
+    expect(visible(state(rv.nonselection_glyph))).to.be.equal([["circle", [1, 2]]])
+    const scenario = new WebGLScenario(view)
+    await scenario.mutate(() => {
+      glyph.marker = {field: "marker"}
+      source.data = {x: [0, 1], y: [0, 1], marker: ["hex", "star"], size: [16, 18]}
+      source.selected.indices = [1]
+    })
+    expect(visible(state(rv.selection_glyph))).to.be.equal([["diamond", [1]]])
+    expect(visible(state(rv.nonselection_glyph))).to.be.equal([["hex", [0]]])
+    expect([...state(rv.glyph)._widths.get_array()]).to.be.equal([16, 18])
+    await scenario.hover(xy(1, 1))
+    expect(visible(state(rv.hover_glyph!))).to.be.equal([["triangle", [1]]])
+    expect([...state(rv.hover_glyph!)._widths.get_array()]).to.be.equal([30])
+    await scenario.hover(xy(-0.5, 2.5))
+    await scenario.mutate(() => { glyph.marker = "circle" })
+    expect(visible(state(rv.nonselection_glyph))).to.be.equal([["circle", [0]]])
   })
 })
 
