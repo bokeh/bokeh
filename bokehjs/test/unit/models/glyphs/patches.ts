@@ -1,10 +1,12 @@
 import {expect} from "#framework/assertions"
+import * as sinon from "sinon"
 
 import {create_glyph_view} from "./_util"
 import {Patches} from "@bokehjs/models/glyphs/patches"
 import type {HitTestGeometry} from "@bokehjs/core/geometry"
 import {DataRange1d} from "@bokehjs/models"
 import type {Arrayable} from "@bokehjs/core/types"
+import {Indices} from "@bokehjs/core/types"
 import {unzip} from "@bokehjs/core/util/array"
 
 type Point = [number, number]
@@ -12,6 +14,43 @@ type Point = [number, number]
 describe("Patches", () => {
 
   describe("PatchesView", () => {
+
+    for (const type of ["rect", "poly"] as const) {
+      it(`should ${type} hit test NaN-separated parts with containment and greedy selection`, async () => {
+        const data = {
+          xs: [[0, 4, 4, 0, NaN, 1, 1, 2, 2, NaN, 6, 8, 8, 6], [0, 4, 4, 0], [], [NaN], [Infinity, -Infinity], [NaN, 1, 2, 1, NaN]],
+          ys: [[0, 0, 4, 4, NaN, 1, 2, 2, 1, NaN, 0, 0, 2, 2], [0, 0, 4, 4], [], [NaN], [0, 0], [NaN, 1, 1, 2, NaN]],
+        }
+        const glyph = Patches.create({xs: {field: "xs"}, ys: {field: "ys"}})
+        const view = await create_glyph_view(glyph, data)
+        const {xscale, yscale} = view.parent
+
+        function geometry(x0: number, y0: number, x1: number, y1: number, greedy: boolean): HitTestGeometry {
+          const [sx0, sx1] = xscale.r_compute(x0, x1)
+          const [sy0, sy1] = yscale.r_compute(y0, y1)
+          return type == "rect" ? {type, sx0, sy0, sx1, sy1, greedy} : {
+            type, sx: [sx0, sx1, sx1, sx0], sy: [sy0, sy0, sy1, sy1], greedy,
+          }
+        }
+
+        for (const greedy of [false, true]) {
+          expect(view.hit_test(geometry(-1, -1, 9, 5, greedy))?.indices).to.be.equal([0, 1, 5])
+          expect(view.hit_test(geometry(-1, -1, 5, 5, greedy))?.indices).to.be.equal(greedy ? [0, 1, 5] : [1, 5])
+          expect(view.hit_test(geometry(10, 10, 11, 11, greedy))?.indices).to.be.equal([])
+          expect(view.hit_test(geometry(0.5, 0.5, 0.75, 0.75, greedy))?.indices).to.be.equal([])
+        }
+
+        // Exercise empty candidates even when the spatial index would omit them.
+        const candidates = sinon.stub(view.index, "indices").returns(Indices.from_indices(6, [2, 3, 4]))
+        try {
+          for (const greedy of [false, true]) {
+            expect(view.hit_test(geometry(-1, -1, 9, 5, greedy))?.indices).to.be.equal([])
+          }
+        } finally {
+          candidates.restore()
+        }
+      })
+    }
 
     it("should rect hit testing", async () => {
       const data = {
