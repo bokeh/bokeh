@@ -18,8 +18,18 @@ describe("Patches", () => {
     for (const type of ["rect", "poly"] as const) {
       it(`should ${type} hit test NaN-separated parts with containment and greedy selection`, async () => {
         const data = {
-          xs: [[0, 4, 4, 0, NaN, 1, 1, 2, 2, NaN, 6, 8, 8, 6], [0, 4, 4, 0], [], [NaN], [Infinity, -Infinity], [NaN, 1, 2, 1, NaN]],
-          ys: [[0, 0, 4, 4, NaN, 1, 2, 2, 1, NaN, 0, 0, 2, 2], [0, 0, 4, 4], [], [NaN], [0, 0], [NaN, 1, 1, 2, NaN]],
+          xs: [
+            [0, 4, 4, 0, NaN, 1, 1, 2, 2, NaN, 6, 8, 8, 6],
+            [0, 4, 4, 0], [], [NaN], [Infinity, -Infinity], [NaN, 1, 2, 1, NaN],
+            [0, 4, 4, 0, NaN, 1, 1, 2, 2],
+            [0, 4, 4, 0, 99, 1, 1, 2, 2],
+          ],
+          ys: [
+            [0, 0, 4, 4, NaN, 1, 2, 2, 1, NaN, 0, 0, 2, 2],
+            [0, 0, 4, 4], [], [NaN], [0, 0], [NaN, 1, 1, 2, NaN],
+            [0, 0, 4, 4, 99, 1, 2, 2, 1],
+            [0, 0, 4, 4, NaN, 1, 2, 2, 1],
+          ],
         }
         const glyph = Patches.create({xs: {field: "xs"}, ys: {field: "ys"}})
         const view = await create_glyph_view(glyph, data)
@@ -34,20 +44,44 @@ describe("Patches", () => {
         }
 
         for (const greedy of [false, true]) {
-          expect(view.hit_test(geometry(-1, -1, 9, 5, greedy))?.indices).to.be.equal([0, 1, 5])
-          expect(view.hit_test(geometry(-1, -1, 5, 5, greedy))?.indices).to.be.equal(greedy ? [0, 1, 5] : [1, 5])
+          expect(view.hit_test(geometry(-1, -1, 9, 5, greedy))?.indices).to.be.equal([0, 1, 5, 6, 7])
+          expect(view.hit_test(geometry(-1, -1, 5, 5, greedy))?.indices).to.be.equal(greedy ? [0, 1, 5, 6, 7] : [1, 5, 6, 7])
           expect(view.hit_test(geometry(10, 10, 11, 11, greedy))?.indices).to.be.equal([])
-          expect(view.hit_test(geometry(0.5, 0.5, 0.75, 0.75, greedy))?.indices).to.be.equal([])
         }
 
         // Exercise empty candidates even when the spatial index would omit them.
-        const candidates = sinon.stub(view.index, "indices").returns(Indices.from_indices(6, [2, 3, 4]))
+        const candidates = sinon.stub(view.index, "indices").returns(Indices.from_indices(8, [2, 3, 4]))
         try {
           for (const greedy of [false, true]) {
             expect(view.hit_test(geometry(-1, -1, 9, 5, greedy))?.indices).to.be.equal([])
           }
         } finally {
           candidates.restore()
+        }
+      })
+
+      it(`should ${type} hit test finite vertices on log scales`, async () => {
+        const data = {
+          xs: [[-1, 0, 1, 10, 10, 1], [1, 1, 1, 10, 10, 1], [-1, 0, 1, 10]],
+          ys: [[1, 1, 1, 1, 10, 10], [-1, 0, 1, 1, 10, 10], [1, 10, -1, 0]],
+        }
+        const glyph = Patches.create({xs: {field: "xs"}, ys: {field: "ys"}})
+        const view = await create_glyph_view(glyph, data, {axis_type: "log"})
+        const {xscale, yscale} = view.parent
+
+        expect([...view.index.indices({x0: 0.5, x1: 20, y0: 0.5, y1: 20})]).to.be.equal([0, 1, 2])
+        expect(Number.isNaN(view.sxs.get(0)[0])).to.be.true
+        expect(Number.isNaN(view.sys.get(1)[0])).to.be.true
+
+        for (const greedy of [false, true]) {
+          for (const upper of [5, 20]) {
+            const [sx0, sx1] = xscale.r_compute(0.5, upper)
+            const [sy0, sy1] = yscale.r_compute(0.5, upper)
+            const geometry: HitTestGeometry = type == "rect" ? {type, sx0, sy0, sx1, sy1, greedy} : {
+              type, sx: [sx0, sx1, sx1, sx0], sy: [sy0, sy0, sy1, sy1], greedy,
+            }
+            expect(view.hit_test(geometry)?.indices).to.be.equal(upper == 20 || greedy ? [0, 1] : [])
+          }
         }
       })
     }

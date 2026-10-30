@@ -103,10 +103,7 @@ export class PatchesView extends GlyphView {
     for (const i of candidates) {
       const sxs_i = this.sxs.get(i)
       const sys_i = this.sys.get(i)
-      const n = sxs_i.length
-      if (n == 0) {
-        continue
-      }
+      const n = Math.min(sxs_i.length, sys_i.length)
       let hit = !greedy
       let tested = false
       for (let j = 0; j < n; j++) {
