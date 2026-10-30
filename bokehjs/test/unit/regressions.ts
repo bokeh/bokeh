@@ -874,6 +874,25 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #13299", () => {
+    it("doesn't allow to update Button's icon when it's replaced with a new icon", async () => {
+      const icon = TablerIcon.create({icon_name: "thumb-up"})
+      const button = Button.create({icon, label: "Like"})
+
+      const {view} = await display(button)
+
+      const new_icon = TablerIcon.create({icon_name: "thumb-down"})
+      button.icon = new_icon
+      await view.ready
+      // the icon is rebuilt asynchronously
+      await poll(() => view.owner.find_one(new_icon) != null)
+
+      const new_icon_view = view.owner.get_one(new_icon)
+      expect(view.button_el.contains(new_icon_view.el)).to.be.true
+      expect(view.owner.find_one(icon)).to.be.null
+    })
+  })
+
   describe("in issue #13377", () => {
     it("doesn't allow serialization of unset readonly properties", async () => {
       const obj = ModelWithUnsetReadonly.create()
