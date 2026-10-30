@@ -84,6 +84,10 @@ jobs:
         working-directory: ./bokehjs
         run: npm ci --no-progress
 
+      - name: Install Playwright browser
+        working-directory: ./bokehjs
+        run: npx --no-install playwright-core install --with-deps --no-shell chromium
+
       - name: Build bokehjs
         working-directory: ./bokehjs
         run: node make build
@@ -650,6 +654,12 @@ jobs:
         with:
           environment: server-integration
           source-tree: 'delete'
+
+      - name: Build frontend dependencies
+        working-directory: ./bokehjs
+        run: |
+          npm ci --no-progress
+          node make frameworks:build
 
       - name: Install Playwright browser
         run: playwright install chromium
