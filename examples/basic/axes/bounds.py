@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import numpy as np
 
@@ -64,25 +64,24 @@ fruits = {
 }
 
 # Plot with multiple ranges that are bounded
-apple_x = [datetime.fromisoformat(date) for date in AAPL['date'][0:1000]]
-google_x = [datetime.fromisoformat(date) for date in GOOG['date'][0:1000]]
+apple_x = np.array(AAPL['date'][0:1000], dtype='datetime64[ms]')
+google_x = np.array(GOOG['date'][0:1000], dtype='datetime64[ms]')
 apple_y = AAPL['adj_close'][0:1000]
 google_y = GOOG['adj_close'][0:1000]
 
-x_start = min(apple_x + google_x)
-x_end = max(apple_x + google_x)
-x_padding = (x_end - x_start) * 0.05
+x_start = min(apple_x.min(), google_x.min())
+x_end = max(apple_x.max(), google_x.max())
+x_margin = (x_end - x_start) // 10
 x_range = Range1d(
-    start=x_start - x_padding, end=x_end + x_padding,
-    bounds=(x_start - 2*x_padding, x_end + 2*x_padding),
+    start=x_start, end=x_end,
+    bounds=(x_start - x_margin, x_end + x_margin),
     min_interval=timedelta(100),
 )
 
 def bounded_price_range(prices):
     low, high = min(prices), max(prices)
-    padding = (high - low) * 0.1
-    return Range1d(start=low - padding, end=high + padding,
-                   bounds=(low - 2*padding, high + 2*padding))
+    margin = (high - low) * 0.2
+    return Range1d(start=low, end=high, bounds=(low - margin, high + margin))
 
 y_range = bounded_price_range(apple_y)
 y_range_extra = bounded_price_range(google_y)
