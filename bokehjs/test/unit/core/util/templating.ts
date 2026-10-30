@@ -2,6 +2,7 @@ import {expect} from "#framework/assertions"
 
 import * as tmpl from "@bokehjs/core/util/templating"
 import {keys} from "@bokehjs/core/util/object"
+import {Float64NDArray, ObjectNDArray} from "@bokehjs/core/util/ndarray"
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {CustomJSHover} from "@bokehjs/models/tools/inspectors/customjs_hover"
@@ -66,6 +67,43 @@ describe("templating module", () => {
     })
   })
 
+  describe("tooltip_formatter", () => {
+    it("should preserve scalar and short array formatting", () => {
+      for (const value of [1.2345, "text", null, [], [1, null, 3], [[1, 2], [], [3, null]], new Float64Array([1, 2, 3])]) {
+        expect(tmpl.tooltip_formatter(value, "", {})).to.be.equal(tmpl.basic_formatter(value, "", {}))
+      }
+      const value = Array.from({length: 10}, (_, i) => i)
+      expect(tmpl.tooltip_formatter(value, "", {})).to.be.equal(value.join(","))
+    })
+
+    it("should bound array reads and preserve the input", () => {
+      const value = Array.from({length: 1000}, (_, i) => i)
+      Object.defineProperty(value, "10", {get: () => { throw new Error("read beyond preview") }})
+      expect(tmpl.tooltip_formatter(value, "", {})).to.be.equal("[0,1,2,3,4,5,6,7,8,9,…] (length 1000)")
+      expect(value.length).to.be.equal(1000)
+      expect(value[999]).to.be.equal(999)
+      expect(tmpl.tooltip_formatter(new Float64Array(1000), "", {})).to.be.equal("[0,0,0,0,0,0,0,0,0,0,…] (length 1000)")
+    })
+
+    it("should bound nested arrays and long entries", () => {
+      const nested = [Array.from({length: 1000}, (_, i) => i)]
+      expect(tmpl.tooltip_formatter(nested, "", {})).to.be.equal("[0,1,2,3,4,5,6,7,8,…] (length 1)")
+      expect(tmpl.tooltip_formatter(["x".repeat(10000)], "", {})).to.be.equal(`[${"x".repeat(200)},…] (length 1)`)
+    })
+
+    it("should apply previews only to the requested default formatter", () => {
+      const values = Array.from({length: 1000}, (_, i) => i)
+      const source = ColumnDataSource.create({data: {values: [values]}})
+      const text = (spec: string, formatters?: tmpl.Formatters) => tmpl.replace_placeholders_html(
+        spec, source, 0, formatters, {}, tmpl.tooltip_formatter).map((node) => node.textContent).join("")
+      expect(text("@values")).to.be.equal("[0,1,2,3,4,5,6,7,8,9,…] (length 1000)")
+      expect(text("@values{custom}", {"@values": CustomJSHover.create({code: "return value.length"})})).to.be.equal("1000")
+      expect(text("@values{safe}")).to.be.equal(values.join(","))
+      expect(text("@values{raw}", {"@values": "basic"})).to.be.equal(values.join(","))
+      expect(tmpl.replace_placeholders("@values", source, 0)).to.be.equal(values.join(","))
+    })
+  })
+
   describe("get_formatter", () => {
 
     it("should return basic_formatter for null format", () => {
@@ -99,6 +137,32 @@ describe("templating module", () => {
   })
 
   describe("get_value", () => {
+
+    it("should read logical rows from shaped numeric and object columns", () => {
+      const numeric = new Float64NDArray([0, 1, 2, 0, 2, 3], [2, 3])
+      const objects = new ObjectNDArray(["a", "b", "c", "d"], [2, 2, 1])
+      const source = ColumnDataSource.create({data: {numeric, objects}})
+      expect(tmpl.get_value("@", "numeric", source, 1, {})).to.be.equal([0, 2, 3])
+      expect(tmpl.get_value("@", "objects", source, 1, {})).to.be.equal([["c"], ["d"]])
+      expect(source.get_column("numeric")).to.be.identical(numeric)
+      expect(Array.from(numeric)).to.be.equal([0, 1, 2, 0, 2, 3])
+    })
+
+    it("should preserve shaped image pixel and channel indexing", () => {
+      const source = ColumnDataSource.create({data: {
+        image: [new Float64NDArray([0, 1, 2, 3], [2, 2])],
+        stack: [new Float64NDArray([0, 1, 2, 3, 4, 5, 6, 7], [2, 2, 2])],
+      }})
+      const index = {index: 0, i: 0, j: 1, flat_index: 2}
+      expect(tmpl.get_value("@", "image", source, index, {})).to.be.equal(2)
+      expect(tmpl.get_value("@", "stack", source, index, {})).to.be.equal(new Float64Array([4, 5]))
+    })
+
+    it("should preserve ordinary nested column rows", () => {
+      const row = [0, 2, 3]
+      const source = ColumnDataSource.create({data: {values: [[0, 1, 2], row]}})
+      expect(tmpl.get_value("@", "values", source, 1, {})).to.be.identical(row)
+    })
 
     const source = ColumnDataSource.create({data: {foo: [10, 1.002], bar: ["a", "<div>b</div>"], baz: [1492890671885, 1290460671885]}})
 

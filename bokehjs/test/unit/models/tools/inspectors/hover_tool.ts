@@ -1,5 +1,6 @@
 import {expect, expect_not_null} from "#framework/assertions"
 import {display, fig} from "#framework/layouts"
+import {actions, xy} from "#framework/interactive"
 
 import type {ScatterView} from "@bokehjs/models/glyphs/scatter"
 import {Scatter} from "@bokehjs/models/glyphs/scatter"
@@ -15,6 +16,10 @@ import {CustomJS} from "@bokehjs/models/callbacks/customjs"
 import {isNumber} from "@bokehjs/core/util/types"
 import type {VNode} from "@bokehjs/core/vdom"
 import {assert} from "@bokehjs/core/util/assert"
+import {Float64NDArray} from "@bokehjs/core/util/ndarray"
+import {CustomJSHover} from "@bokehjs/models/tools/inspectors/customjs_hover"
+import {Template} from "@bokehjs/models/dom/template"
+import {ValueRef} from "@bokehjs/models/dom/value_ref"
 
 import {render} from "preact"
 
@@ -66,6 +71,102 @@ async function make_testcase(): Promise<{hover_view: HoverToolView, data_source:
 describe("HoverTool", () => {
 
   describe("View", () => {
+
+    it("should preview large arrays while preserving full filter and formatter values", async () => {
+      const values = new Float64NDArray(Array.from({length: 2000}, (_, i) => i), [2, 1000])
+      const source = ColumnDataSource.create({data: {x: [0, 1], y: [0, 1], values}})
+      const hover = HoverTool.create({tooltips: [["values", "@values"]], filters: {"@values": (_, {value, row}) => {
+        expect((value as number[]).length).to.be.equal(1000)
+        expect((row.values as number[])[999]).to.be.equal(1999)
+        return true
+      }}})
+      const p = fig([200, 200], {tools: [hover]})
+      p.scatter({x: {field: "x"}, y: {field: "y"}, source})
+      const {view} = await display(p)
+      const hv = view.owner.get_one(hover)
+      await actions(view).hover(xy(1, 1))
+      expect(hv._current_entries.map(({vars}) => vars.index)).to.be.equal([1])
+      const vars = hv._current_entries[0].vars
+      const text = () => {
+        const el = hv._render_tooltips(source, vars)
+        expect_not_null(el)
+        return outer_dom(el).textContent.trim()
+      }
+      const preview = "[1000,1001,1002,1003,1004,1005,1006,1007,1008,1009,…] (length 1000)"
+      expect(text()).to.be.equal(`values: ${preview}`)
+
+      hover.tooltips = "<div>@values</div>"
+      await hv.ready
+      expect(text()).to.be.equal(preview)
+
+      const formatter = CustomJSHover.create({code: "return value.length + ':' + value[value.length - 1]"})
+      hover.setv({tooltips: [["full", "@values{custom}"]], formatters: {"@values": formatter}})
+      await hv.ready
+      expect(text()).to.be.equal("full: 1000:1999")
+
+      expect(Array.from(values)).to.be.equal(Array.from({length: 2000}, (_, i) => i))
+    })
+
+    it("should preview arrays in DOM hover templates without truncating formatter inputs", async () => {
+      const source = ColumnDataSource.create({data: {x: [0], y: [0], values: [Array.from({length: 1000}, (_, i) => i)]}})
+      const ref = ValueRef.create({field: "values", filter: (_, {value}) => {
+        expect((value as number[]).length).to.be.equal(1000)
+        return true
+      }})
+      const hover = HoverTool.create({tooltips: Template.create({children: [ref]})})
+      const p = fig([200, 200], {tools: [hover]})
+      p.scatter({x: {field: "x"}, y: {field: "y"}, source})
+      const {view} = await display(p)
+      const hv = view.owner.get_one(hover)
+      await actions(view).hover(xy(0, 0))
+      expect(hv._current_entries.map(({vars}) => vars.index)).to.be.equal([0])
+      const text = () => {
+        const el = hv._render_tooltips(source, hv._current_entries[0].vars)
+        expect_not_null(el)
+        return outer_dom(el).textContent.trim()
+      }
+      expect(text()).to.be.equal("[0,1,2,3,4,5,6,7,8,9,…] (length 1000)")
+      const formatter = CustomJSHover.create({code: "return value.length + ':' + value[value.length - 1]"})
+      ref.setv({format: "custom", formatter})
+      await hv.ready
+      expect(text()).to.be.equal("1000:999")
+    })
+
+    it("should render a complete shaped column row in a hover tooltip", async () => {
+      const hover = HoverTool.create({tooltips: [["row", "@values"]]})
+      const p = fig([200, 200], {tools: [hover]})
+      const values = new Float64NDArray([0, 1, 2, 0, 2, 3], [2, 3])
+      const source = ColumnDataSource.create({data: {x: [0, 1], y: [0, 1], values}})
+      p.scatter({x: {field: "x"}, y: {field: "y"}, size: 20, source})
+      const {view} = await display(p)
+      const hv = view.owner.get_one(hover)
+      const hover_actions = actions(view)
+      await hover_actions.hover(xy(1, 1))
+      expect(hv._current_entries.map(({vars}) => vars.index)).to.be.equal([1])
+      const el = hv._render_tooltips(source, hv._current_entries[0].vars)
+      expect_not_null(el)
+      expect(outer_dom(el).querySelector(".bk-tooltip-row-value")?.textContent.trim()).to.be.equal("0,2,3")
+      expect(Array.from(values)).to.be.equal([0, 1, 2, 0, 2, 3])
+
+      hover.filters = {"@values": (_, {value, row}) => {
+        expect(value).to.be.equal([0, 2, 3])
+        expect(row.values).to.be.equal(value)
+        return true
+      }}
+      await hv.ready
+      hv._move_exit()
+      await hover_actions.hover(xy(1, 1))
+      expect(hv._current_entries.map(({vars}) => vars.index)).to.be.equal([1])
+
+      hover.filters = {"@values": CustomJS.create({code: `
+        export default (args, tool, {value, row}) =>
+          Array.isArray(row.values) && JSON.stringify(row.values) == JSON.stringify(value)
+      `})}
+      await hv.ready
+      hv._move_exit()
+      await hover_actions.hover(xy(1, 1))
+      expect(hv._current_entries.map(({vars}) => vars.index)).to.be.equal([1])
+    })
 
     it("should invalidate tooltips' template when changing the tooltips property", async () => {
       const {hover_view, data_source, glyph_view} = await make_testcase()
