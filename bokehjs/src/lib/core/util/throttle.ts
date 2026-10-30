@@ -20,18 +20,16 @@ export function throttle(func: () => void, wait: number): ThrottledFn {
   let timeout: ID | null = null
   let request: ID | null = null
   let previous = 0
-  let pending = false
-  let resolver: Resolve<void>
+  // Only the call that schedules work owns its cancellation resolver.
+  let resolver: Resolve<void> | null = null
 
   const fn = function() {
     return new Promise<void>((resolve, reject) => {
-      resolver = resolve
-
       const later = function() {
         previous = Date.now()
         timeout = null
         request = null
-        pending = false
+        resolver = null
         try {
           func()
           resolve()
@@ -42,13 +40,15 @@ export function throttle(func: () => void, wait: number): ThrottledFn {
 
       const now = Date.now()
       const remaining = wait - (now - previous)
-      if (remaining <= 0 && !pending) {
+      if (remaining <= 0 && request == null) {
         if (timeout != null) {
           clearTimeout(timeout)
+          resolver?.()
         }
-        pending = true
+        resolver = resolve
         request = requestAnimationFrame(later)
-      } else if (timeout == null && !pending) {
+      } else if (timeout == null && request == null) {
+        resolver = resolve
         timeout = setTimeout(() => request = requestAnimationFrame(later), remaining)
       } else {
         resolve()
@@ -65,7 +65,10 @@ export function throttle(func: () => void, wait: number): ThrottledFn {
       cancelAnimationFrame(request)
     }
 
-    resolver()
+    timeout = null
+    request = null
+    resolver?.()
+    resolver = null
   }
 
   return fn
