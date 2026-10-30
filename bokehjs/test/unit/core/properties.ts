@@ -137,6 +137,27 @@ describe("properties module", () => {
     })
   })
 
+  describe("CoordinateSeqSpec", () => {
+    it("preserves empty shaped coordinate rows", () => {
+      for (const shape of [[0, 3], [2, 0]]) {
+        const source = ColumnDataSource.create({data: {xs: ndarray(new Float64Array(), {shape})}})
+        const obj = Some.create({coordinate_seq_spec: {field: "xs"}})
+        const rows = obj.properties.coordinate_seq_spec.array(source)
+        expect(Array.from(rows, (row) => Array.from(row as ArrayLike<number>)))
+          .to.be.equal(Array.from({length: shape[0]}, () => []))
+      }
+    })
+
+    it("materializes dates in shaped coordinate rows", () => {
+      const xs = ndarray(["2025-01-01", "2025-01-02"], {dtype: "object", shape: [1, 2]})
+      const source = ColumnDataSource.create({data: {xs}})
+      const obj = Some.create({coordinate_seq_spec: {field: "xs"}})
+      const rows = obj.properties.coordinate_seq_spec.array(source, true)
+      expect(Array.from(rows, (row) => Array.from(row as ArrayLike<number>)))
+        .to.be.equal([[Date.UTC(2025, 0, 1), Date.UTC(2025, 0, 2)]])
+    })
+  })
+
   function enum_validation_errors(prop: p.Property<unknown>): void {
     expect(prop.valid(true)).to.be.false
     expect(prop.valid(10)).to.be.false

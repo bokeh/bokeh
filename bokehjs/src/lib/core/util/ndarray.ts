@@ -351,6 +351,17 @@ export function is_NDArray(v: unknown): v is NDArray {
   return isObject(v) && __ndarray__ in v
 }
 
+/** Extract a row from a multidimensional ndarray, preserving its inner shape. */
+export function get_row(array: NDArray, index: number): Arrayable {
+  const stride = array.length / array.shape[0]
+  const row = array.slice(index*stride, (index + 1)*stride)
+  if (array.dimension == 2) {
+    return row
+  }
+  const options = {dtype: array.dtype, shape: array.shape.slice(1)}
+  return ndarray(row, options)
+}
+
 export type NDArrayTypes = {
   bool:    {array: Uint8Array,   ndarray: BoolNDArray}
   uint8:   {array: Uint8Array,   ndarray: Uint8NDArray}

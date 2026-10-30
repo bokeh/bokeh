@@ -8,6 +8,20 @@ describe("core/signaling module", () => {
       expect(signal.name).to.be.equal("some")
     })
 
+    it("disconnects a receiver after one of its connections was already disconnected", () => {
+      const first = new Signal<void, object>({}, "first")
+      const last = new Signal<void, object>({}, "last")
+      const receiver = {}
+      let calls = 0
+      const slot = () => calls++
+      first.connect(slot, receiver)
+      last.connect(slot, receiver)
+      first.disconnect(slot, receiver)
+      Signal.disconnect_receiver(receiver)
+      last.emit()
+      expect(calls).to.be.equal(0)
+    })
+
     it("should support `{dis}connect()` method", () => {
       const signal = new Signal<number, object>(Object.create(null), "some")
 
