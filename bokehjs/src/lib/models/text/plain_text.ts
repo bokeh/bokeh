@@ -14,6 +14,10 @@ export class PlainTextView extends BaseTextView {
   graphics(): GraphicsBox {
     return new TextBox({text: this.model.text})
   }
+
+  html(): Node {
+    return document.createTextNode(this.model.text)
+  }
 }
 
 export namespace PlainText {
