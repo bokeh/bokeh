@@ -23,11 +23,11 @@ export class CategoricalPatternMapper extends Mapper<string> {
   declare properties: CategoricalPatternMapper.Props
 
   static {
-    this.define<CategoricalPatternMapper.Props>(({Float, List, Nullable}) => ({
+    this.define<CategoricalPatternMapper.Props>(({Int, List, Nullable}) => ({
       factors:       [ FactorSeq ],
       patterns:      [ List(HatchPatternType) ],
-      start:         [ Float, 0 ],
-      end:           [ Nullable(Float), null ],
+      start:         [ Int, 0 ],
+      end:           [ Nullable(Int), null ],
       default_value: [ HatchPatternType, " " ],
     }))
   }
