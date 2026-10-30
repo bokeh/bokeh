@@ -206,8 +206,10 @@ class TestCodeRunner:
         assert second_entered.is_set()
 
     @pytest.mark.skipif(sys.flags.optimize >= 2, reason="requires docstrings, which -OO removes")
-    def test_doc(self) -> None:
-        cr = bahc.CodeRunner("'''some docstring\n\nfoo bar'''", "path", [])
+    @pytest.mark.parametrize("suffix", ["", "\nfrom collections.abc import Sequence\nvalue: Sequence[int] = []"])
+    def test_doc(self, suffix: str) -> None:
+        source = "'''some docstring\n\nfoo bar'''" + suffix
+        cr = bahc.CodeRunner(source, "path", [])
         assert cr.failed is False
         assert cr.doc == "some docstring\n\nfoo bar"
 

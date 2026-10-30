@@ -111,9 +111,7 @@ class CodeRunner:
         try:
             nodes = ast.parse(source, os.fspath(path))
             self._code = compile(nodes, filename=path, mode='exec', dont_inherit=True)
-            # use a zip to associate code names with values, to then find the contents of the docstring
-            d = dict(zip(self._code.co_names, self._code.co_consts))
-            self._doc = d.get('__doc__', None)
+            self._doc = ast.get_docstring(nodes, clean=False)
         except SyntaxError as e:
             self._code = None
             filename = os.path.basename(e.filename) if e.filename is not None else "???"
