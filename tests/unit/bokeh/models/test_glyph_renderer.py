@@ -306,3 +306,25 @@ def test_path_markings_field_and_state_markings() -> None:
     assert selected.decorations[0].positions == "positions"
     assert selected.decorations[0].marking is selection_head
     assert renderer.glyph.decorations == [markings]
+
+
+def test_auto_ranging_default() -> None:
+    renderer = bmr.GlyphRenderer()
+    assert renderer.auto_ranging == "both"
+
+
+@pytest.mark.parametrize("value", ["both", "x", "y", "none"])
+def test_auto_ranging_accepts_dimensions(value: str) -> None:
+    renderer = bmr.GlyphRenderer(auto_ranging=value)
+    assert renderer.auto_ranging == value
+
+
+@pytest.mark.parametrize("value, expected", [(True, "both"), (False, "none")])
+def test_auto_ranging_accepts_bool(value: bool, expected: str) -> None:
+    renderer = bmr.GlyphRenderer(auto_ranging=value)
+    assert renderer.auto_ranging == expected
+
+
+def test_auto_ranging_rejects_invalid_value() -> None:
+    with pytest.raises(ValueError):
+        bmr.GlyphRenderer(auto_ranging="width")

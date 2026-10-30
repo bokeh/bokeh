@@ -51,7 +51,6 @@ from bokeh.models import (
     GroupFilter,
     HoverTool,
     Label,
-    LabelSet,
     MultiLine,
     PanTool,
     Plot,
@@ -60,6 +59,7 @@ from bokeh.models import (
     Scatter,
     TableColumn,
     TapTool,
+    Text,
 )
 
 if TYPE_CHECKING:
@@ -276,14 +276,18 @@ class _BokehStructureGraph:
         tap_tool = TapTool()
         tap_tool.renderers = [node_renderer]
 
-        labels = LabelSet(
+        label_glyph = Text(
             x="x",
             y="y",
             text="model",
-            source=node_source,
             text_font_size="8pt",
             x_offset=-20,
             y_offset=7,
+        )
+        labels = GlyphRenderer(
+            data_source=node_source,
+            glyph=label_glyph,
+            nonselection_glyph=label_glyph.clone(),
         )
 
         help = Label(

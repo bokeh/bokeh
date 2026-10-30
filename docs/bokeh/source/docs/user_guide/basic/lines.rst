@@ -156,6 +156,33 @@ and end angles.
 .. bokeh-plot:: __REPO__/examples/basic/lines/arcs.py
     :source-position: above
 
+.. _ug_basic_lines_whiskers:
+
+Whiskers
+~~~~~~~~
+
+To draw "stems" that are dimensionally linked to the data in the plot, use the
+|whisker| glyph method. A common use for whiskers is to indicate error margins
+or uncertainty for measurements at a single point.
+
+These are the most commonly used properties of the |WhiskerGlyph| glyph:
+
+* ``lower``: The coordinates of the lower end of the whisker.
+* ``upper``: The coordinates of the upper end of the whisker.
+* ``dimension``: The direction of the whisker. The direction can be one of
+  these two values: Either ``"width"`` for whiskers that are parallel to the
+  plot's x axis. Or ``"height"`` for whiskers that are parallel to the plot's y
+  axis.
+* ``base``: The location of the whisker along the dimension specified with
+  ``dimension``.
+* ``lower_head`` and ``upper_head``: The |ArrowHead| decorations drawn at the
+  ends of the whisker. By default, both are ``TeeHead`` instances. Set either
+  to ``None`` to omit it.
+* The standard |line properties|.
+
+.. bokeh-plot:: __REPO__/examples/basic/lines/whisker.py
+    :source-position: above
+
 .. _ug_basic_lines_parameterized:
 
 Parameterized
@@ -177,3 +204,7 @@ To draw parameterized quadratic and cubic curves, use the |quadratic| and
 .. |ray|               replace:: :func:`~bokeh.plotting.figure.ray`
 .. |segment|           replace:: :func:`~bokeh.plotting.figure.segment`
 .. |vspan|             replace:: :func:`~bokeh.plotting.figure.vspan`
+.. |whisker|           replace:: :func:`~bokeh.plotting.figure.whisker`
+
+.. |ArrowHead|         replace:: :class:`~bokeh.models.annotations.ArrowHead`
+.. |WhiskerGlyph|      replace:: :class:`~bokeh.models.glyphs.WhiskerGlyph`

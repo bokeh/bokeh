@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------
 
 from abc import abstractmethod
-from typing import Unpack
+from typing import Literal, Unpack
 
 from ...core.enums import RenderLevelType as RenderLevel
 from ...model.model import Model, _ModelInit
@@ -58,11 +58,13 @@ class CompositeRenderer(Renderer):
     elements: list[UIElement | DOMNode] = ...
 
 class _DataRendererInit(_RendererInit, total=False):
-    ...
+    auto_ranging: Literal["both", "x", "y", "none"] | bool
 
 class DataRenderer(Renderer):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_DataRendererInit]) -> None: ...
+
+    auto_ranging: Literal["both", "x", "y", "none"] = ...
 
 class _GuideRendererInit(_RendererInit, total=False):
     ...

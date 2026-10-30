@@ -21,6 +21,10 @@
     {
       "name": "lorenz.py",
       "alt": "Thumbnail link to the examples/basic/lines/lorenz.py example shows a plot of the Lorenz attractor using the MultiLine glyph."
+    },
+    {
+      "name": "whisker.py",
+      "alt": "Thumbnail link to the examples/basic/lines/whisker.py example that shows whiskers marking quantile ranges over categorical scatter plots."
     }
   ],
   "basic/data": [
@@ -111,6 +115,10 @@
   ],
   "basic/areas": [
     {
+      "name": "band.py",
+      "alt": "Thumbnail link to the examples/basic/areas/band.py example that shows a band around a trend line in a scatter plot."
+    },
+    {
       "name": "stacked_area.py",
       "alt": "Thumbnail link to the examples/basic/areas/stacked_area.py example shows a stacked area plot of synthetic data for ten series, colormapped using the Sunset palette, with a legend at the top."
     }
@@ -141,20 +149,12 @@
       "alt": "Arrowheads at fractions along straight and curved paths, with per-path position lists and animated streamlines."
     },
     {
-      "name": "band.py",
-      "alt": "Thumbnail link to the examples/basic/annotations/band.py example that shows a band annotation around a trend line in a scatter plot."
-    },
-    {
       "name": "slope.py",
       "alt": "Thumbnail link to the examples/basic/annotations/slope.py example that shows an orange y=mx+b trend line in a scatter plot."
     },
     {
       "name": "span.py",
       "alt": "Thumbnail link to the examples/basic/annotations/span.py example that shows green vertical spans marking the start and end dates of Daylight Savings time in Warsaw in 2013."
-    },
-    {
-      "name": "whisker.py",
-      "alt": "Thumbnail link to the examples/basic/annotations/whisker.py example that shows whisker annotations marking quantile ranges over categorical scatter plots."
     },
     {
       "name": "colorbar_log.py",

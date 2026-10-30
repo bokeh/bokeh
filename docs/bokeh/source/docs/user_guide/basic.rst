@@ -23,6 +23,8 @@ specifying tools, see :ref:`ug_interaction_tools`.
 
 :ref:`ug_basic_areas`
 
+:ref:`ug_basic_text`
+
 :ref:`ug_basic_layouts`
 
 :ref:`ug_basic_annotations`
@@ -36,5 +38,6 @@ specifying tools, see :ref:`ug_interaction_tools`.
     basic/axes
     basic/bars
     basic/areas
+    basic/text
     basic/layouts
     basic/annotations

@@ -91,6 +91,7 @@ bokeh_example_subdirs = [
     "basic/layouts",
     "basic/lines",
     "basic/scatters",
+    "basic/text",
     "styling/visuals",
     "styling/plots",
     "styling/mathtext",
