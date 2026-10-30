@@ -1,8 +1,56 @@
 import {expect} from "#framework/assertions"
 
 import {EqHistColorMapper} from "@bokehjs/models/mappers/eqhist_color_mapper"
+import {convert_to_uint32_color} from "@bokehjs/models/mappers/color_mapper"
+import {linspace} from "@bokehjs/core/util/array"
 
 describe("EqHistColorMapper module", () => {
+
+  describe("EqHistColorMapper.v_compute method", () => {
+
+    function v_compute_check(data: number[], palette: string[], attrs: Partial<EqHistColorMapper.Attrs> = {}) {
+      const color_mapper = EqHistColorMapper.create({palette, nan_color: "gray", ...attrs})
+      const colors = [...color_mapper.v_compute(data)]
+
+      // v_compute() uses a specialized implementation, so compare with the generic one
+      const n = palette.length
+      const nan_color = convert_to_uint32_color("gray")
+      const low_color = convert_to_uint32_color(attrs.low_color ?? palette[0])
+      const high_color = convert_to_uint32_color(attrs.high_color ?? palette[n-1])
+      const expected = [...new Uint32Array(data.map((value) => {
+        if (isNaN(value)) {
+          return nan_color
+        }
+        const index = color_mapper.value_to_index(value, n)
+        if (index < 0) {
+          return low_color
+        } else if (index >= n) {
+          return high_color
+        } else {
+          return convert_to_uint32_color(palette[index])
+        }
+      }))]
+      expect(colors).to.be.equal(expected)
+    }
+
+    const palette = ["#000000", "#330000", "#660000", "#990000", "#cc0000", "#ff0000"]
+    const data = [NaN, -Infinity, ...linspace(-10, 10, 201), Infinity, NaN]
+
+    it("should match value_to_index()", () => {
+      v_compute_check(data, palette)
+      v_compute_check(data.filter((v) => isFinite(v)), palette)
+      v_compute_check(data.filter((v) => isFinite(v)), ["red"])
+      v_compute_check([1, 1, 1], palette)
+      v_compute_check([], palette)
+    })
+
+    it("should match value_to_index() with low and high", () => {
+      const attrs = {low: -5, high: 5, low_color: "blue", high_color: "green"}
+      v_compute_check(data, palette, attrs)
+      v_compute_check(data, ["red"], attrs)
+      v_compute_check(data, palette, {...attrs, rescale_discrete_levels: true})
+    })
+  })
 
   describe("EqHistColorMapper.scan method", () => {
 

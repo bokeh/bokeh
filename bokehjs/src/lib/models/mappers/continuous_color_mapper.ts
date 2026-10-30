@@ -153,6 +153,15 @@ export abstract class ContinuousColorMapper extends ColorMapper {
     this._scan_data = scan_data
     this.metrics_change.emit()
 
+    this._map_values(data, values, palette, {nan_color, low_color, high_color})
+  }
+
+  // Maps data to colors using the current scan data. Subclasses can override this
+  // with a specialized implementation of `cmap()` and `value_to_index()`.
+  protected _map_values(data: Arrayable<number>, values: Arrayable<uint32>,
+      palette: Arrayable<uint32>, colors: {nan_color: uint32, low_color: uint32, high_color: uint32}): void {
+    const {nan_color, low_color, high_color} = colors
+
     for (let i = 0, end = data.length; i < end; i++) {
       const d = data[i]
 
