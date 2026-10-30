@@ -262,9 +262,36 @@ export class GlyphRendererView extends DataRendererView {
     return masked
   }
 
-  async update_data(indices?: number[]): Promise<void> {
-    await this.set_data(indices)
-    this.request_paint()
+  private _pending_update: {indices?: number[], promise: Promise<void>} | null = null
+  private _data_update_complete: Promise<void> = Promise.resolve()
+
+  update_data(indices?: number[]): Promise<void> {
+    if (this._pending_update != null) {
+      const previous = this._pending_update.indices
+      this._pending_update.indices = previous == null || indices == null ? undefined : [...previous, ...indices]
+      return this._pending_update.promise
+    }
+    // Read the final source state for notifications received before this pass starts.
+    // Updates during an active pass queue a subsequent pass. Never let older
+    // asynchronous glyph work finish after a newer pass and overwrite its state.
+    const pending = {
+      indices,
+      promise: this._data_update_complete.then(async () => {
+        this._pending_update = null
+        // Use different references so narrowing doesn't hide an abort during the await.
+        const {abort_signal} = this
+        if (!abort_signal.aborted) {
+          await this.set_data(pending.indices)
+          if (!this.abort_signal.aborted) {
+            this.request_paint()
+          }
+        }
+      }),
+    }
+    this._pending_update = pending
+    // A failed pass still rejects its callers, but must not block the queue.
+    this._data_update_complete = pending.promise.catch(() => {})
+    return pending.promise
   }
 
   // in case of partial updates like patching, the list of indices that actually
