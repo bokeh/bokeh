@@ -7,7 +7,7 @@
       "document": {
         "version": "__VERSION__",
         "title": "Bokeh Application",
-        "config": {"$type": "DocumentConfig", "notifications": {"$type": "Notifications"}},
+        "config": {"$type": "DocumentConfig", "notifications": {"$type": "Notifications"}, "i18n": {"$type": "I18n"}},
         "roots": [
           {
             "$type": "CustomJS",

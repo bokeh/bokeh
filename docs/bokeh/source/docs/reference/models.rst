@@ -47,6 +47,7 @@ the model looks like.
     models/graphics
     models/graphs
     models/grids
+    models/i18n/i18n
     models/labeling
     models/layouts
     models/map_plots
