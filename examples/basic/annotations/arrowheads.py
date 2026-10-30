@@ -16,6 +16,8 @@ p = figure(width=150, height=HEIGHT,
            x_range=(0, 1), y_range=(-0.5, len(ARROW_HEADS) - 0.5),
            toolbar_location=None, outline_line_color=None, min_border_left=0,
            min_border_right=0, min_border_top=0, min_border_bottom=0)
+p.axis.visible = False
+p.grid.visible = False
 
 for i, style in enumerate(ARROW_HEADS):
     p.arrow(x_start=0.2, y_start=i, x_end=0.2, y_end=i, end=style())
