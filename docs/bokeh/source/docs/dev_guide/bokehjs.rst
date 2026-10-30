@@ -374,6 +374,18 @@ instead of starting it and discarding its promise:
       this.on_change(items, () => { void this.build_item_views() })
     }
 
+Returning a promise that the same view already tracks is safe. Each promise
+is tracked only once per view, so returning a shared promise does not duplicate
+failure reports. Distinct promises remain separate tasks.
+
+Glyph renderers defer data preparation to a microtask and serialize it with
+visual updates. Source mutations and model notifications remain synchronous,
+but renderer state, including coordinate arrays and hit-test indices, may
+still describe the previous data immediately after a source change. Await
+the renderer's or plot view's ``ready`` before inspecting that state. Updates
+received before a pass starts are combined, including when a preceding pass
+is still active.
+
 ``ready`` behaves as follows:
 
 * It resolves when the view and all its descendants have no pending tasks.

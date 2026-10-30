@@ -45,12 +45,12 @@ export class GraphRendererView extends DataRendererView {
   override connect_signals(): void {
     super.connect_signals()
 
-    this.connect(this.model.layout_provider.change, async () => {
-      this.apply_coordinates()
-      await this.edge_view.set_data()
-      await this.node_view.set_data()
-      this.request_paint()
-    })
+    const {change} = this.model.layout_provider
+    this.connect(change, () => this.apply_coordinates())
+    // Track each shared pass promise on the child view that owns it.
+    for (const view of [this.edge_view, this.node_view]) {
+      view.connect(change, () => view.update_data())
+    }
   }
 
   protected apply_coordinates(): void {

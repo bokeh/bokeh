@@ -106,6 +106,8 @@ export abstract class View implements ISignalable, Equatable {
 
   /** Pending tasks of this view and of all its descendants. */
   private readonly _pending_tasks: Set<ReadyTask> = new Set()
+  /** Remember settled promises too, so registering them again doesn't replay failures. */
+  private readonly _tracked_promises: WeakSet<Promise<unknown>> = new WeakSet()
   /**
    * Failures of tasks in this subtree not yet reported through `ready`. Only
    * failures that happen while `ready` is awaited are collected, so that this
@@ -200,9 +202,14 @@ export abstract class View implements ISignalable, Equatable {
 
   /**
    * Makes `ready` of this view and its ancestors wait for an already started
-   * `promise`. Prefer `schedule()`, which also covers synchronous failures.
+   * `promise`. Repeated registrations of the same promise on this view are ignored.
+   * Prefer `schedule()`, which also covers synchronous failures.
    */
   protected _await_ready(promise: Promise<unknown>): void {
+    if (this._tracked_promises.has(promise)) {
+      return
+    }
+    this._tracked_promises.add(promise)
     if (this.abort_signal.aborted) {
       promise.catch((error) => this._dropped_task_failed(error))
       return

@@ -160,7 +160,7 @@ export class GlyphRendererView extends DataRendererView {
     this.muted_glyph.set_base(this.glyph)
     this.decimated_glyph.set_base(this.glyph)
 
-    await this.set_data()
+    await this._set_data()
   }
 
   async build_glyph_view<T extends Glyph>(glyph: T): Promise<GlyphView> {
@@ -231,10 +231,10 @@ export class GlyphRendererView extends DataRendererView {
     this.connect(this.model.properties.view.change, async () => {
       this.cds_view.remove()
       this.cds_view = await build_view(this.model.view, {parent: this})
-      await update()
+      void update()
     })
     this.connect(this.model.view.properties.indices.change, update)
-    this.connect(this.model.view.properties.masked.change, async () => await this.set_visuals())
+    this.connect(this.model.view.properties.masked.change, () => this.update_visuals())
     this.connect(this.model.properties.visible.change, () => this.plot_view.invalidate_dataranges = true)
 
     const {x_ranges, y_ranges} = this.plot_view.frame
@@ -262,26 +262,49 @@ export class GlyphRendererView extends DataRendererView {
     return masked
   }
 
-  private _pending_update: {indices?: number[], promise: Promise<void>} | null = null
+  private _pending_update: {data: boolean, indices?: Set<number>, promise: Promise<void>} | null = null
   private _data_update_complete: Promise<void> = Promise.resolve()
 
+  /** Queue data preparation. Renderer state becomes current asynchronously through `ready`. */
   update_data(indices?: number[]): Promise<void> {
+    return this._enqueue_update(true, indices)
+  }
+
+  update_visuals(): Promise<void> {
+    return this._enqueue_update(false)
+  }
+
+  private _enqueue_update(data: boolean, indices?: number[]): Promise<void> {
     if (this._pending_update != null) {
-      const previous = this._pending_update.indices
-      this._pending_update.indices = previous == null || indices == null ? undefined : [...previous, ...indices]
-      return this._pending_update.promise
+      const pending = this._pending_update
+      if (data) {
+        if (!pending.data) {
+          pending.indices = indices == null ? undefined : new Set(indices)
+        } else if (pending.indices != null && indices != null) {
+          for (const index of indices) {
+            pending.indices.add(index)
+          }
+        } else {
+          pending.indices = undefined
+        }
+        pending.data = true
+      }
+      return pending.promise
     }
-    // Read the final source state for notifications received before this pass starts.
-    // Updates during an active pass queue a subsequent pass. Never let older
-    // asynchronous glyph work finish after a newer pass and overwrite its state.
+    // Read the final source state before each pass, and serialize data and visual work.
     const pending = {
-      indices,
+      data,
+      indices: indices == null ? undefined : new Set(indices),
       promise: this._data_update_complete.then(async () => {
         this._pending_update = null
-        // Use different references so narrowing doesn't hide an abort during the await.
         const {abort_signal} = this
         if (!abort_signal.aborted) {
-          await this.set_data(pending.indices)
+          if (pending.data) {
+            await this._set_data(pending.indices == null ? undefined : [...pending.indices])
+          } else {
+            await this._set_visuals()
+          }
+          // Re-read through `this` to avoid narrowing across await. Removal may have aborted the signal.
           if (!this.abort_signal.aborted) {
             this.request_paint()
           }
@@ -289,6 +312,8 @@ export class GlyphRendererView extends DataRendererView {
       }),
     }
     this._pending_update = pending
+    // Direct callers and signal handlers share one tracked pass promise.
+    this._await_ready(pending.promise)
     // A failed pass still rejects its callers, but must not block the queue.
     this._data_update_complete = pending.promise.catch(() => {})
     return pending.promise
@@ -296,7 +321,8 @@ export class GlyphRendererView extends DataRendererView {
 
   // in case of partial updates like patching, the list of indices that actually
   // changed may be passed as the "indices" parameter to afford any optional optimizations
-  async set_data(indices?: number[]): Promise<void> {
+  // Internal preparation. Runtime callers must use update_data().
+  async _set_data(indices?: number[]): Promise<void> {
     const source = this.model.data_source
 
     this.all_indices = this.model.view.indices
@@ -309,7 +335,7 @@ export class GlyphRendererView extends DataRendererView {
     await this.hover_glyph?.set_data(source, all_indices, indices)
     await this.muted_glyph.set_data(source, all_indices, indices)
 
-    await this.set_visuals()
+    await this._set_visuals()
 
     this._update_masked_indices()
 
@@ -323,7 +349,8 @@ export class GlyphRendererView extends DataRendererView {
     this.plot_view.invalidate_dataranges = true
   }
 
-  async set_visuals(): Promise<void> {
+  // Internal preparation. Runtime callers must use update_visuals().
+  async _set_visuals(): Promise<void> {
     const source = this.model.data_source
     const {all_indices} = this
 
