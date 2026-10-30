@@ -630,9 +630,10 @@ the first axis. For example, hovering over the second point with a column
 Column values in DOM templates and ``OpenURL`` placeholders follow the same rule.
 
 Large arrays in tooltips show a preview of up to 10 entries or 200 characters,
-followed by an ellipsis and the array length. Filters and custom formatters still
-receive the complete value. Explicit formats, including ``{safe}``, retain their
-normal output.
+with ellipses marking omitted values and a label giving the outer array length.
+Nested arrays retain their brackets. Filters and custom formatters still receive
+the complete value. Explicit formats, including ``{safe}``, retain their normal
+output.
 
 Note that if a column name contains spaces, it must be surrounded by
 curly braces. For example, configuring ``@{adjusted close}`` will display values

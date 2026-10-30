@@ -69,7 +69,7 @@ describe("templating module", () => {
 
   describe("tooltip_formatter", () => {
     it("should preserve scalar and short array formatting", () => {
-      for (const value of [1.2345, "text", null, [], [1, null, 3], [[1, 2], [], [3, null]], new Float64Array([1, 2, 3])]) {
+      for (const value of [1.2345, "text", null, [], [1, null, 3], new Float64Array([1, 2, 3])]) {
         expect(tmpl.tooltip_formatter(value, "", {})).to.be.equal(tmpl.basic_formatter(value, "", {}))
       }
       const value = Array.from({length: 10}, (_, i) => i)
@@ -87,8 +87,23 @@ describe("templating module", () => {
 
     it("should bound nested arrays and long entries", () => {
       const nested = [Array.from({length: 1000}, (_, i) => i)]
-      expect(tmpl.tooltip_formatter(nested, "", {})).to.be.equal("[0,1,2,3,4,5,6,7,8,…] (length 1)")
-      expect(tmpl.tooltip_formatter(["x".repeat(10000)], "", {})).to.be.equal(`[${"x".repeat(200)},…] (length 1)`)
+      expect(tmpl.tooltip_formatter(nested, "", {})).to.be.equal("[[0,1,2,3,4,5,6,7,8,…]] (length 1)")
+      expect(tmpl.tooltip_formatter(["x".repeat(10000)], "", {})).to.be.equal(`[${"x".repeat(200)}…] (length 1)`)
+      expect(tmpl.tooltip_formatter([["x".repeat(10000)], [2]], "", {})).to.be.equal(`[[${"x".repeat(200)}…],…] (length 2)`)
+    })
+
+    it("should preserve nesting in short, empty, ragged, and typed rows", () => {
+      expect(tmpl.tooltip_formatter([[1, 2], [], [3, 4]], "", {})).to.be.equal("[[1,2],[],[3,4]]")
+      expect(tmpl.tooltip_formatter([new Float64Array([1, 2]), [3]], "", {})).to.be.equal("[[1,2],[3]]")
+      expect(tmpl.tooltip_formatter([[[1]]], "", {})).to.be.equal("[[[1]]]")
+    })
+
+    it("should mark omitted inner and outer entries without reading beyond the budget", () => {
+      const nested = Array.from({length: 3}, (_, row) => Array.from({length: 6}, (_, col) => 18 + row*6 + col))
+      const unread = () => { throw new Error("read beyond nested preview") }
+      Object.defineProperty(nested[1], "2", {get: unread})
+      Object.defineProperty(nested, "2", {get: unread})
+      expect(tmpl.tooltip_formatter(nested, "", {})).to.be.equal("[[18,19,20,21,22,23],[24,25,…],…] (length 3)")
     })
 
     it("should apply previews only to the requested default formatter", () => {

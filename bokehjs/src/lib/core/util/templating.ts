@@ -85,26 +85,40 @@ export function tooltip_formatter(value: unknown, format: string, special_vars: 
     remaining_chars -= part.length
     return part.length != text.length
   }
-  const visit = (array: Arrayable): boolean => {
+  const visit = (array: Arrayable): {truncated: boolean, nested: boolean} => {
+    let nested = false
+    parts.push("[")
     for (let i = 0; i < array.length; i++) {
-      if (remaining_entries == 0) {
-        return true
+      if (remaining_entries == 0 || remaining_chars == 0) {
+        parts.push(i == 0 ? "…]" : ",…]")
+        return {truncated: true, nested}
       }
       remaining_entries--
       if (i != 0 && append(",")) {
-        return true
+        parts.push("…]")
+        return {truncated: true, nested}
       }
       const item = array[i]
-      const truncated = isArray(item) || isTypedArray(item) ? visit(item) : append(item == null ? "" : `${item}`)
+      const is_nested = isArray(item) || isTypedArray(item)
+      nested ||= is_nested
+      const truncated = is_nested ? visit(item).truncated : append(item == null ? "" : `${item}`)
       if (truncated) {
-        return true
+        if (!is_nested) {
+          parts.push("…")
+        }
+        if (i + 1 < array.length) {
+          parts.push(",…")
+        }
+        parts.push("]")
+        return {truncated: true, nested}
       }
     }
-    return false
+    parts.push("]")
+    return {truncated: false, nested}
   }
-  const truncated = visit(value)
+  const {truncated, nested} = visit(value)
   const text = parts.join("")
-  return truncated ? `[${text},…] (length ${value.length})` : text
+  return truncated ? `${text} (length ${value.length})` : nested ? text : text.slice(1, -1)
 }
 
 export function get_formatter(spec: string, format?: string, formatters?: Formatters): FormatterFunc {

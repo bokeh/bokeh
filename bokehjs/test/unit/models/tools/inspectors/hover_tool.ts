@@ -107,6 +107,40 @@ describe("HoverTool", () => {
       expect(Array.from(values)).to.be.equal(Array.from({length: 2000}, (_, i) => i))
     })
 
+    it("should preserve nested previews and complete values at each point index", async () => {
+      const values = new Float64NDArray(Array.from({length: 36}, (_, i) => i), [2, 3, 6])
+      const source = ColumnDataSource.create({data: {x: [0, 1], y: [0, 1], values}})
+      const formatter = CustomJSHover.create({code: "return value.length + 'x' + value[0].length + ':' + value[2][5]"})
+      const hover = HoverTool.create({
+        tooltips: [["preview", "@values"], ["full", "@values{custom}"]],
+        formatters: {"@values": formatter},
+        filters: {"@values": (_, {value, row, vars}) => {
+          const expected = Array.from({length: 3}, (_, i) => Array.from({length: 6}, (_, j) => Number(vars.index)*18 + i*6 + j))
+          expect(value).to.be.equal(expected)
+          expect(row.values).to.be.equal(expected)
+          return true
+        }},
+      })
+      const p = fig([200, 200], {tools: [hover]})
+      p.scatter({x: {field: "x"}, y: {field: "y"}, source})
+      const {view} = await display(p)
+      const hv = view.owner.get_one(hover)
+      const hover_actions = actions(view)
+      const previews = [
+        "[[0,1,2,3,4,5],[6,7,…],…] (length 3)",
+        "[[18,19,20,21,22,23],[24,25,…],…] (length 3)",
+      ]
+      for (const index of [0, 1]) {
+        await hover_actions.hover(xy(index, index))
+        expect(hv._current_entries.map(({vars}) => vars.index)).to.be.equal([index])
+        const el = hv._render_tooltips(source, hv._current_entries[0].vars)
+        expect_not_null(el)
+        const text = Array.from(outer_dom(el).querySelectorAll(".bk-tooltip-row-value"), (cell) => cell.textContent.trim())
+        expect(text).to.be.equal([previews[index], `3x6:${index*18 + 17}`])
+      }
+      expect(Array.from(values)).to.be.equal(Array.from({length: 36}, (_, i) => i))
+    })
+
     it("should preview arrays in DOM hover templates without truncating formatter inputs", async () => {
       const source = ColumnDataSource.create({data: {x: [0], y: [0], values: [Array.from({length: 1000}, (_, i) => i)]}})
       const ref = ValueRef.create({field: "values", filter: (_, {value}) => {
