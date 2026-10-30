@@ -63,7 +63,10 @@ class MultiRootStaticHandler(AsyncStaticFileHandler):
             return super().get_absolute_path(root, path)
 
         try:
-            name, artifact_path = path.split(os.sep, 1)
+            # Normalize platform separators so Windows (backslash) paths and
+            # URL (forward slash) paths are handled by a single code path.
+            normalized = path.replace(os.sep, "/") if os.sep != "/" else path
+            name, artifact_path = normalized.split("/", 1)
         except ValueError:
             raise HTTPError(404)
 
