@@ -67,8 +67,8 @@ def section(text):
     return Markdown(text=text, sizing_mode="stretch_width", stylesheets=["""
         :host { min-width: 0; overflow-wrap: anywhere; }
         h2 {
-            background: light-dark(#edf2f6, #dbe4ec);
-            color: light-dark(#526371, #425564);
+            background: color-mix(in srgb, var(--primary-text-color) 8%, var(--background-color));
+            color: var(--primary-text-color);
             padding: 5px 16px;
             margin: 8px 0;
             font-size: 19px;
@@ -98,5 +98,8 @@ example = column(
     empty_example,
     spacing=24,
     sizing_mode="stretch_width",
+    stylesheets=["""
+        :host { background-color: var(--background-color); }
+    """],
 )
 show(example)
