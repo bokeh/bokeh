@@ -3,6 +3,7 @@ import {xy} from "#framework/interactive"
 import {display, fig, row} from "#framework/layouts"
 import {WebGLScenario, require_glglyph} from "#framework/webgl"
 import {range} from "@bokehjs/core/util/array"
+import {assert} from "@bokehjs/core/util/assert"
 import {LCGRandom} from "@bokehjs/core/util/random"
 import type {Float32Buffer, Uint8Buffer} from "@bokehjs/models/glyphs/webgl/buffer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
@@ -172,6 +173,8 @@ describe("shared WebGL markers", () => {
     p.add_tools(HoverTool.create({renderers: [renderer], tooltips: null}))
     const {view} = await display(p)
     const rv = view.owner.get_one(renderer)
+    const hover_glyph = rv.hover_glyph
+    assert(hover_glyph != null)
     type State = {
       _show_by_type: Map<string, Uint8Buffer>
       _nshow_by_type: Map<string, number>
@@ -195,8 +198,8 @@ describe("shared WebGL markers", () => {
     expect(visible(state(rv.nonselection_glyph))).to.be.equal([["hex", [0]]])
     expect([...state(rv.glyph)._widths.get_array()]).to.be.equal([16, 18])
     await scenario.hover(xy(1, 1))
-    expect(visible(state(rv.hover_glyph!))).to.be.equal([["triangle", [1]]])
-    expect([...state(rv.hover_glyph!)._widths.get_array()]).to.be.equal([30])
+    expect(visible(state(hover_glyph))).to.be.equal([["triangle", [1]]])
+    expect([...state(hover_glyph)._widths.get_array()]).to.be.equal([30])
     await scenario.hover(xy(-0.5, 2.5))
     await scenario.mutate(() => { glyph.marker = "circle" })
     expect(visible(state(rv.nonselection_glyph))).to.be.equal([["circle", [0]]])
