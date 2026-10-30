@@ -61,7 +61,7 @@ async function create_graph_document(edge_glyph: MultiLine | Segment | Bezier | 
 }
 
 describe("GraphRendererView", () => {
-  it("disconnects child-owned layout handlers and skips queued work on graph removal", async () => {
+  it("disconnects layout handlers and skips queued work on graph removal", async () => {
     const {test_graph_view: view, test_layout_provider: layout} = await create_graph_document()
     const node = view.node_view
     const set_data = node._set_data.bind(node)
@@ -78,12 +78,12 @@ describe("GraphRendererView", () => {
     layout.graph_layout = new Map([[4, [10, 1]], [5, [20, 2]], [6, [30, 3]], [7, [40, 4]]])
     await active
     layout.graph_layout = new Map([[4, [11, 1]], [5, [22, 2]], [6, [33, 3]], [7, [44, 4]]])
-    const queued = node.update_data()
+    node.update_data()
     const ready = view.ready
     view.remove()
     await ready
     release()
-    await queued
+    await defer()
     layout.graph_layout = new Map([[4, [12, 1]], [5, [23, 2]], [6, [34, 3]], [7, [45, 4]]])
     await defer()
     expect(stub.callCount).to.be.equal(1)

@@ -13,16 +13,19 @@ import {Arc, Circle, MultiLine, Rect, Scatter, Segment} from "@bokehjs/models/gl
 import {NormalHead} from "@bokehjs/models/annotations/arrow_head"
 import {build_view} from "@bokehjs/core/build_views"
 import {Plot} from "@bokehjs/models/plots"
-import {FactorRange} from "@bokehjs/models/ranges"
+import {FactorRange, Range1d} from "@bokehjs/models/ranges"
 import {CategoricalScale} from "@bokehjs/models/scales"
 import {IndexFilter} from "@bokehjs/models/filters/index_filter"
 import type {ScatterView} from "@bokehjs/models/glyphs/scatter"
 import {CustomJSTransform} from "@bokehjs/models/transforms/customjs_transform"
 import {Text, TextView} from "@bokehjs/models/glyphs/text"
-import {defer} from "@bokehjs/core/util/defer"
+import {defer, delay} from "@bokehjs/core/util/defer"
 import type * as p from "@bokehjs/core/properties"
 import type {TextBox} from "@bokehjs/core/graphics"
 import {logger} from "@bokehjs/core/logging"
+import {show} from "@bokehjs/api/plotting"
+import {CDSView} from "@bokehjs/models/sources/cds_view"
+import {PlotView} from "@bokehjs/models/plots/plot_canvas"
 
 function mkrenderer(glyph: Scatter): GlyphRenderer {
   const data_source = ColumnDataSource.create({
@@ -93,6 +96,305 @@ describe("GlyphRenderer", () => {
 })
 
 describe("GlyphRendererView", () => {
+  it("settles ready and bounds painting when renderers share a CDSView with different masks", async () => {
+    const source = ColumnDataSource.create({data: {x: [0, 10], x2: [10, 0], y: [-0.4, 0.4]}})
+    const shared = CDSView.create()
+    const renderers = ["x", "x2"].map((field) => GlyphRenderer.create({
+      glyph: Scatter.create({
+        x: {field}, y: {field: "y"}, size: 20, line_color: null,
+        fill_color: field == "x" ? "red" : "blue",
+      }),
+      data_source: source, view: shared,
+    }))
+    const x_range = Range1d.create({start: -1, end: 1})
+    const plot = Plot.create({
+      width: 300, height: 300, renderers, x_range,
+      y_range: Range1d.create({start: -1, end: 1}),
+    })
+    using paints = restorable(sinon.spy(PlotView.prototype, "paint"))
+    const el = document.createElement("div")
+    document.body.append(el)
+    const mounted = show(plot, el)
+    try {
+      // Bound the wait so a paint feedback regression fails and can be disposed.
+      const settled = await Promise.race([mounted.ready.then(() => true), delay(5000).then(() => false)])
+      expect(settled).to.be.true
+      const view = mounted.views[0]
+      const glyphs = renderers.map((renderer) => view.owner.get_one(renderer).glyph as ScatterView)
+      const {ctx, pixel_ratio} = view.canvas_view.primary
+      const pixel = (glyph: ScatterView, index: number) => [...ctx.getImageData(
+        Math.round(glyph.sx[index]*pixel_ratio), Math.round(glyph.sy[index]*pixel_ratio), 1, 1,
+      ).data]
+      expect([...glyphs[0].mask_data().ones()]).to.be.equal([0])
+      expect([...glyphs[1].mask_data().ones()]).to.be.equal([1])
+
+      const expect_settled = async () => {
+        const settled = await Promise.race([view.ready.then(() => true), delay(5000).then(() => false)])
+        expect(settled).to.be.true
+        const count = paints.callCount
+        await delay(100)
+        expect(paints.callCount).to.be.equal(count)
+      }
+      await expect_settled()
+      expect(pixel(glyphs[0], 0)).to.be.equal([255, 0, 0, 255])
+      expect(pixel(glyphs[1], 1)).to.be.equal([0, 0, 255, 255])
+      expect(paints.callCount > 0 && paints.callCount < 10).to.be.true
+      x_range.setv({start: 9, end: 11})
+      await expect_settled()
+      expect([...glyphs[0].mask_data().ones()]).to.be.equal([1])
+      expect([...glyphs[1].mask_data().ones()]).to.be.equal([0])
+      expect(pixel(glyphs[0], 1)).to.be.equal([255, 0, 0, 255])
+      expect(pixel(glyphs[1], 0)).to.be.equal([0, 0, 255, 255])
+      const count = paints.callCount
+      source.patch({x: [[1, 10.5]]})
+      await expect_settled()
+      expect(pixel(glyphs[0], 1)).to.be.equal([255, 0, 0, 255])
+      expect(paints.callCount > count).to.be.true
+      expect(paints.callCount < 20).to.be.true
+    } finally {
+      await mounted.dispose()
+      el.remove()
+    }
+  })
+
+  // Fill red when the CDSView's published mask is exactly the given index, otherwise blue.
+  function masked_color(view: CDSView, index: number): CustomJSTransform {
+    return CustomJSTransform.create({args: {view}, v_func: `
+      const color = view.masked != null && view.masked.count == 1 && view.masked.get(${index}) ? "red" : "blue"
+      return xs.map(() => color)
+    `})
+  }
+
+  // Mount a plot and return helpers that read canvas pixels and wait, with bounds, for painting to stop.
+  async function mount_bounded(plot: Plot) {
+    const paints = sinon.spy(PlotView.prototype, "paint")
+    const el = document.createElement("div")
+    document.body.append(el)
+    const mounted = show(plot, el)
+    const dispose = async () => {
+      paints.restore()
+      await mounted.dispose()
+      el.remove()
+    }
+    // Bound waits so a paint feedback regression fails and can be disposed.
+    const bounded = async (ready: Promise<void>) => {
+      const settled = await Promise.race([ready.then(() => true), delay(5000).then(() => false)])
+      expect(settled).to.be.true
+      const count = paints.callCount
+      await delay(100)
+      expect(paints.callCount).to.be.equal(count)
+    }
+    try {
+      await bounded(mounted.ready)
+    } catch (error) {
+      await dispose()
+      throw error
+    }
+    const view = mounted.views[0]
+    const settle = async () => bounded(view.ready)
+    const pixel = (glyph: ScatterView, index: number) => {
+      const {ctx, pixel_ratio} = view.canvas_view.primary
+      const x = Math.round(glyph.sx[index]*pixel_ratio)
+      const y = Math.round(glyph.sy[index]*pixel_ratio)
+      return [...ctx.getImageData(x, y, 1, 1).data]
+    }
+    return {view, paints, settle, pixel, dispose}
+  }
+
+  it("paints mask-dependent visuals, including selection states, before ready resolves", async () => {
+    const source = ColumnDataSource.create({data: {x: [0, 10], y: [0, 0]}})
+    const cds_view = CDSView.create()
+    const renderer = GlyphRenderer.create({
+      glyph: Scatter.create({size: 20, line_color: null, fill_color: {field: "x", transform: masked_color(cds_view, 0)}}),
+      data_source: source, view: cds_view,
+    })
+    const x_range = Range1d.create({start: -1, end: 11})
+    const plot = Plot.create({width: 300, height: 300, renderers: [renderer], x_range, y_range: Range1d.create({start: -1, end: 1})})
+    const {view, paints, settle, pixel, dispose} = await mount_bounded(plot)
+    try {
+      const glyph = view.owner.get_one(renderer).glyph as ScatterView
+      const red = [255, 0, 0, 255]
+      const blue = [0, 0, 255, 255]
+      expect(pixel(glyph, 0)).to.be.equal(blue)
+      expect(pixel(glyph, 1)).to.be.equal(blue)
+
+      x_range.setv({start: -1, end: 1})
+      await settle()
+      expect(pixel(glyph, 0)).to.be.equal(red)
+
+      x_range.setv({start: -1, end: 11})
+      await settle()
+      expect(pixel(glyph, 0)).to.be.equal(blue)
+      expect(pixel(glyph, 1)).to.be.equal(blue)
+
+      source.selected.indices = [0]
+      await settle()
+      x_range.setv({start: -1, end: 1})
+      await settle()
+      expect(pixel(glyph, 0)).to.be.equal(red)
+
+      x_range.setv({start: -1, end: 11})
+      await settle()
+      expect(pixel(glyph, 0)).to.be.equal(blue)
+      // The nonselected point is translucent, so it is blended with the background.
+      const [r, g, b] = pixel(glyph, 1)
+      expect(r == g && r < 255 && b == 255).to.be.true
+      expect(paints.callCount < 20).to.be.true
+    } finally {
+      await dispose()
+    }
+  })
+
+  it("paints each renderer with its own mask when renderers share a CDSView", async () => {
+    const source = ColumnDataSource.create({data: {x: [0, 10], x2: [10, 0], y: [-0.4, 0.4]}})
+    const shared = CDSView.create()
+    const renderers = ["x", "x2"].map((field) => GlyphRenderer.create({
+      glyph: Scatter.create({
+        x: {field}, y: {field: "y"}, size: 20, line_color: null,
+        fill_color: {field, transform: masked_color(shared, 0)},
+      }),
+      data_source: source, view: shared,
+    }))
+    const x_range = Range1d.create({start: -1, end: 1})
+    const plot = Plot.create({width: 300, height: 300, renderers, x_range, y_range: Range1d.create({start: -1, end: 1})})
+    const {view, paints, settle, pixel, dispose} = await mount_bounded(plot)
+    try {
+      const glyphs = renderers.map((renderer) => view.owner.get_one(renderer).glyph as ScatterView)
+      const red = [255, 0, 0, 255]
+      const blue = [0, 0, 255, 255]
+      // The first renderer shows index 0 and the second index 1.
+      expect(pixel(glyphs[0], 0)).to.be.equal(red)
+      expect(pixel(glyphs[1], 1)).to.be.equal(blue)
+
+      x_range.setv({start: 9, end: 11})
+      await settle()
+      expect(pixel(glyphs[0], 1)).to.be.equal(blue)
+      expect(pixel(glyphs[1], 0)).to.be.equal(red)
+
+      x_range.setv({start: -1, end: 1})
+      await settle()
+      expect(pixel(glyphs[0], 0)).to.be.equal(red)
+      expect(pixel(glyphs[1], 1)).to.be.equal(blue)
+      expect(paints.callCount < 20).to.be.true
+    } finally {
+      await dispose()
+    }
+  })
+
+  describe("serializes lazy visual hooks of immediate masked updates", () => {
+    async function setup() {
+      const renderer = mkrenderer(Scatter.create({x: {field: "x"}, y: {field: "y"}}))
+      const {view} = await display(Plot.create({renderers: [renderer]}))
+      const grv = view.owner.get_one(renderer)
+      let release!: () => void
+      let fail!: (error: Error) => void
+      const gate = new Promise<void>((resolve, reject) => {
+        release = resolve
+        fail = reject
+      })
+      const hook = sinon.stub(grv.glyph, "after_lazy_visuals").resolves()
+      hook.onFirstCall().returns(gate)
+      const set_visuals = sinon.spy(grv.glyph, "set_visuals")
+      const set_data = sinon.spy(grv, "_set_data")
+      const restore = () => {
+        release()
+        hook.restore()
+        set_visuals.restore()
+        set_data.restore()
+      }
+      // Publish a mask while idle, which applies visuals immediately and queues the lazy hooks.
+      renderer.view.properties.masked.change.emit()
+      let settled = false
+      const ready = view.ready.then(() => settled = true, (error: unknown) => {
+        settled = true
+        throw error
+      })
+      return {renderer, view, grv, hook, set_visuals, set_data, release, fail, restore, ready, is_settled: () => settled}
+    }
+
+    it("and makes queued data preparation and ready wait for them", async () => {
+      const {renderer, view, grv, hook, set_visuals, set_data, release, restore, ready, is_settled} = await setup()
+      try {
+        expect(set_visuals.callCount).to.be.equal(1)
+        await defer()
+        expect(hook.callCount).to.be.equal(1)
+        renderer.data_source.patch({x: [[0, 11]]})
+        // A further mask publication must not start overlapping hooks.
+        renderer.view.properties.masked.change.emit()
+        await defer()
+        expect(set_data.callCount).to.be.equal(0)
+        expect(hook.callCount).to.be.equal(1)
+        expect(is_settled()).to.be.false
+        release()
+        await ready
+        await view.ready
+        expect(set_data.callCount).to.be.equal(1)
+        expect([...(grv.glyph as ScatterView).x]).to.be.equal([11, 20, 30, 40])
+      } finally {
+        restore()
+      }
+    })
+
+    it("and reports their failure once without blocking queued data preparation", async () => {
+      const {renderer, view, grv, set_data, fail, restore, ready} = await setup()
+      using log = restorable(sinon.spy(logger, "error"))
+      try {
+        await defer()
+        renderer.data_source.patch({x: [[0, 11]]})
+        await defer()
+        expect(set_data.callCount).to.be.equal(0)
+        const error = new Error("lazy visuals failure")
+        fail(error)
+        expect(await ready.catch((failure: unknown) => failure) === error).to.be.true
+        expect(log.callCount).to.be.equal(1)
+        await view.ready
+        expect(set_data.callCount).to.be.equal(1)
+        expect([...(grv.glyph as ScatterView).x]).to.be.equal([11, 20, 30, 40])
+      } finally {
+        restore()
+      }
+    })
+
+    it("and skips queued data preparation and painting after removal", async () => {
+      const {renderer, view, grv, set_data, release, restore} = await setup()
+      using paint = restorable(sinon.spy(grv, "request_paint"))
+      try {
+        await defer()
+        renderer.data_source.patch({x: [[0, 11]]})
+        await defer()
+        const ready = view.ready
+        grv.remove()
+        await ready
+        release()
+        await defer()
+        expect(set_data.callCount).to.be.equal(0)
+        expect(paint.callCount).to.be.equal(0)
+      } finally {
+        restore()
+      }
+    })
+  })
+
+  it("defers a reentrant masked notification during immediate visual application", async () => {
+    const renderer = mkrenderer(Scatter.create())
+    const {view} = await display(Plot.create({renderers: [renderer]}))
+    const grv = view.owner.get_one(renderer)
+    const {masked} = renderer.view.properties
+    const set_visuals = grv.glyph.set_visuals.bind(grv.glyph)
+    using stub = restorable(sinon.stub(grv.glyph, "set_visuals").callsFake((source, indices) => {
+      set_visuals(source, indices)
+      if (stub.callCount == 1) {
+        masked.change.emit()
+      }
+    }))
+    using visuals = restorable(sinon.spy(grv, "_set_visuals"))
+    masked.change.emit()
+    expect(stub.callCount).to.be.equal(1)
+    await view.ready
+    expect(visuals.callCount).to.be.equal(1)
+    expect(stub.callCount).to.be.equal(2)
+  })
+
   it("reports a coalesced failure once and recovers on the next source update", async () => {
     const renderer = mkrenderer(Scatter.create({x: {field: "x"}, y: {field: "y"}}))
     const {view} = await display(Plot.create({renderers: [renderer]}))
@@ -104,9 +406,8 @@ describe("GlyphRendererView", () => {
     using log = restorable(sinon.spy(logger, "error"))
     renderer.data_source.patch({x: [[0, 11]]})
     renderer.data_source.patch({x: [[1, 22]]})
-    const completion = grv.update_data([1])
+    grv.update_data([1])
     const errors = await Promise.all([grv.ready, view.ready].map((ready) => ready.catch((error: unknown) => error)))
-    expect(await completion.catch((failure: unknown) => failure) === error).to.be.true
     expect(errors[0] === error).to.be.true
     expect(errors[1] === error).to.be.true
     expect(log.callCount).to.be.equal(1)
@@ -147,11 +448,11 @@ describe("GlyphRendererView", () => {
     const grv = view.owner.get_one(renderer)
     using stub = restorable(sinon.stub(grv, "_set_data").resolves())
     using visuals = restorable(sinon.spy(grv, "_set_visuals"))
-    const pending = grv.update_visuals()
-    expect(grv.update_data([2, 2])).to.be.equal(pending)
-    expect(grv.update_data([1, 2])).to.be.equal(pending)
-    expect(grv.update_visuals()).to.be.equal(pending)
-    await pending
+    grv.update_visuals()
+    grv.update_data([2, 2])
+    grv.update_data([1, 2])
+    grv.update_visuals()
+    await grv.ready
     expect(stub.callCount).to.be.equal(1)
     expect(stub.firstCall.args[0]).to.be.equal([2, 1])
     expect(visuals.callCount).to.be.equal(0)
@@ -242,19 +543,21 @@ describe("GlyphRendererView", () => {
     expect([...glyph.y]).to.be.equal([1, 33, 5])
   })
 
-  it("shares completion, merges partial indices, and gives full updates precedence", async () => {
+  it("merges partial indices and gives full updates precedence", async () => {
     const {view} = await display(Plot.create({renderers: [mkrenderer(Scatter.create())]}))
     const grv = view.owner.get_one(view.model.renderers[0] as GlyphRenderer)
     using stub = restorable(sinon.stub(grv, "_set_data").resolves())
-    const first = grv.update_data([0])
-    expect(grv.update_data([2, 0, 2])).to.be.equal(first)
+    grv.update_data([0])
+    grv.update_data([2, 0, 2])
     expect(stub.callCount).to.be.equal(0)
-    await first
+    await grv.ready
+    expect(stub.callCount).to.be.equal(1)
     expect(stub.firstCall.args[0]).to.be.equal([0, 2])
-    const partial = grv.update_data([1])
-    expect(grv.update_data()).to.be.equal(partial)
-    expect(grv.update_data([3])).to.be.equal(partial)
-    await partial
+    grv.update_data([1])
+    grv.update_data()
+    grv.update_data([3])
+    await grv.ready
+    expect(stub.callCount).to.be.equal(2)
     expect(stub.lastCall.args[0]).to.be.undefined
   })
 
@@ -289,14 +592,14 @@ describe("GlyphRendererView", () => {
     renderer.data_source.patch({x: [[0, 11]]})
     await Promise.resolve()
     renderer.data_source.patch({x: [[1, 22]]})
-    const queued = grv.update_data([2])
+    grv.update_data([2])
     const ready = view.ready
     grv.remove()
     await ready
     await grv.ready
     expect(stub.callCount).to.be.equal(1)
     fail()
-    await queued
+    await defer()
     expect(stub.callCount).to.be.equal(1)
     await view.ready
   })
@@ -306,9 +609,9 @@ describe("GlyphRendererView", () => {
     const {view} = await display(Plot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
     using spy = restorable(sinon.spy(grv, "_set_data"))
-    const pending = grv.update_data()
+    grv.update_data()
     grv.remove()
-    await pending
+    await defer()
     expect(spy.callCount).to.be.equal(0)
   })
 
@@ -329,12 +632,12 @@ describe("GlyphRendererView", () => {
     using paint = restorable(sinon.spy(grv, "request_paint"))
     renderer.data_source.patch({x: [[0, 99]]})
     await active
-    const completion = grv.update_data([1])
+    grv.update_data([1])
     const ready = view.ready
     grv.remove()
     await ready
     release()
-    await completion
+    await defer()
     expect(stub.callCount).to.be.equal(1)
     expect(paint.callCount).to.be.equal(0)
     await view.ready

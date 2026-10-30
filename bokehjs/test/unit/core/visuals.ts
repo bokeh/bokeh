@@ -319,7 +319,8 @@ describe("core/visuals", () => {
         const filter = IndexFilter.create({indices: [1, 2]})
         renderer_view.model.view = CDSView.create({filter})
         // Renderer signals are not connected by the create_glyph_view utility.
-        await renderer_view.update_data()
+        renderer_view.update_data()
+        await renderer_view.ready
 
         const canvas = document.createElement("canvas")
         const ctx = canvas.getContext("2d")! as Context2d

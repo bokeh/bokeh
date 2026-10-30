@@ -36,6 +36,14 @@ type Defaults = {
   line: {line_alpha?: number, line_color?: Color}
 }
 
+// A queued pass prepares data (which includes visuals), visuals, or only asynchronous visual hooks.
+type UpdatePass = {
+  data: boolean
+  visuals: boolean
+  paint: boolean
+  indices?: Set<number>
+}
+
 type DecorationOptions = {
   inset?: PathDecoration.Attrs["inset"]
   selection_marking?: Marking | "auto" | null
@@ -231,10 +239,10 @@ export class GlyphRendererView extends DataRendererView {
     this.connect(this.model.properties.view.change, async () => {
       this.cds_view.remove()
       this.cds_view = await build_view(this.model.view, {parent: this})
-      void update()
+      update()
     })
     this.connect(this.model.view.properties.indices.change, update)
-    this.connect(this.model.view.properties.masked.change, () => this.update_visuals())
+    this.connect(this.model.view.properties.masked.change, () => this._update_masked_visuals())
     this.connect(this.model.properties.visible.change, () => this.plot_view.invalidate_dataranges = true)
 
     const {x_ranges, y_ranges} = this.plot_view.frame
@@ -262,26 +270,54 @@ export class GlyphRendererView extends DataRendererView {
     return masked
   }
 
-  private _pending_update: {data: boolean, indices?: Set<number>, promise: Promise<void>} | null = null
+  private _pending_update: UpdatePass | null = null
+  private _active_update: UpdatePass | null = null
+  private _applying_visuals: boolean = false
   private _data_update_complete: Promise<void> = Promise.resolve()
 
-  /** Queue data preparation. Renderer state becomes current asynchronously through `ready`. */
-  update_data(indices?: number[]): Promise<void> {
-    return this._enqueue_update(true, indices)
+  // Painting publishes masks, which visuals may read (e.g. through a CustomJSTransform). Work
+  // started by a mask change never requests a paint, because renderers sharing a CDSView may
+  // publish different masks, so painting again would feed back.
+  private _update_masked_visuals(): void {
+    const preparing_data = this._pending_update?.data === true || this._active_update?.data === true
+    if (preparing_data || this._applying_visuals) {
+      // Don't interleave with data preparation, which paints when it completes. Paints are
+      // deferred to an animation frame, so a visual pass queued behind it applies first. A
+      // reentrant notification during visual application is deferred to a pass as well.
+      this._enqueue_update({data: false, visuals: true, paint: false})
+      return
+    }
+    // Apply visuals immediately, so the paint that published the mask draws with them.
+    this._applying_visuals = true
+    try {
+      this._apply_visuals()
+    } catch (error) {
+      // Don't break painting. Report the failure through `ready`, like a failed pass.
+      this._await_ready(Promise.reject(error))
+    } finally {
+      this._applying_visuals = false
+    }
+    // Serialize asynchronous visual hooks with other passes. A pending pass already runs them.
+    this._enqueue_update({data: false, visuals: false, paint: false})
   }
 
-  update_visuals(): Promise<void> {
-    return this._enqueue_update(false)
+  /** Queue data preparation. Like `request_paint()`, renderer state becomes current through `ready`. */
+  update_data(indices?: number[]): void {
+    this._enqueue_update({data: true, visuals: false, paint: true, indices: indices == null ? undefined : new Set(indices)})
   }
 
-  private _enqueue_update(data: boolean, indices?: number[]): Promise<void> {
-    if (this._pending_update != null) {
-      const pending = this._pending_update
-      if (data) {
+  update_visuals(): void {
+    this._enqueue_update({data: false, visuals: true, paint: true})
+  }
+
+  private _enqueue_update(request: UpdatePass): void {
+    const pending = this._pending_update
+    if (pending != null) {
+      if (request.data) {
         if (!pending.data) {
-          pending.indices = indices == null ? undefined : new Set(indices)
-        } else if (pending.indices != null && indices != null) {
-          for (const index of indices) {
+          pending.indices = request.indices
+        } else if (pending.indices != null && request.indices != null) {
+          for (const index of request.indices) {
             pending.indices.add(index)
           }
         } else {
@@ -289,34 +325,38 @@ export class GlyphRendererView extends DataRendererView {
         }
         pending.data = true
       }
-      return pending.promise
+      pending.visuals ||= request.visuals
+      pending.paint ||= request.paint
+      return
     }
     // Read the final source state before each pass, and serialize data and visual work.
-    const pending = {
-      data,
-      indices: indices == null ? undefined : new Set(indices),
-      promise: this._data_update_complete.then(async () => {
-        this._pending_update = null
-        const {abort_signal} = this
-        if (!abort_signal.aborted) {
-          if (pending.data) {
-            await this._set_data(pending.indices == null ? undefined : [...pending.indices])
-          } else {
+    this._pending_update = request
+    const pass = this._data_update_complete.then(async () => {
+      this._pending_update = null
+      const {abort_signal} = this
+      if (!abort_signal.aborted) {
+        // The running pass owns `_active_update` until it settles, also when it fails.
+        this._active_update = request
+        try {
+          if (request.data) {
+            await this._set_data(request.indices == null ? undefined : [...request.indices])
+          } else if (request.visuals) {
             await this._set_visuals()
+          } else {
+            await this._after_lazy_visuals()
           }
-          // Re-read through `this` to avoid narrowing across await. Removal may have aborted the signal.
-          if (!this.abort_signal.aborted) {
-            this.request_paint()
-          }
+        } finally {
+          this._active_update = null
         }
-      }),
-    }
-    this._pending_update = pending
-    // Direct callers and signal handlers share one tracked pass promise.
-    this._await_ready(pending.promise)
-    // A failed pass still rejects its callers, but must not block the queue.
-    this._data_update_complete = pending.promise.catch(() => {})
-    return pending.promise
+        // Re-read `this.abort_signal`, because the view may be removed during preparation.
+        if (request.paint && !this.abort_signal.aborted) {
+          this.request_paint()
+        }
+      }
+    })
+    this._await_ready(pass)
+    // A failed pass is reported through `ready`, but must not block the queue.
+    this._data_update_complete = pass.catch(() => {})
   }
 
   // in case of partial updates like patching, the list of indices that actually
@@ -351,31 +391,40 @@ export class GlyphRendererView extends DataRendererView {
 
   // Internal preparation. Runtime callers must use update_visuals().
   async _set_visuals(): Promise<void> {
+    this._apply_visuals()
+    await this._after_lazy_visuals()
+  }
+
+  // Update visuals of all glyph states synchronously, so they can be applied during painting.
+  private _apply_visuals(): void {
     const source = this.model.data_source
     const {all_indices} = this
 
     this.glyph.set_visuals(source, all_indices)
     this.glyph.after_visuals()
-    await this.glyph.after_lazy_visuals()
 
     this.decimated_glyph.set_visuals(source, all_indices)
     this.decimated_glyph.after_visuals()
-    await this.decimated_glyph.after_lazy_visuals()
 
     this.selection_glyph.set_visuals(source, all_indices)
     this.selection_glyph.after_visuals()
-    await this.selection_glyph.after_lazy_visuals()
 
     this.nonselection_glyph.set_visuals(source, all_indices)
     this.nonselection_glyph.after_visuals()
-    await this.nonselection_glyph.after_lazy_visuals()
 
     this.hover_glyph?.set_visuals(source, all_indices)
     this.hover_glyph?.after_visuals()
-    await this.hover_glyph?.after_lazy_visuals()
 
     this.muted_glyph.set_visuals(source, all_indices)
     this.muted_glyph.after_visuals()
+  }
+
+  private async _after_lazy_visuals(): Promise<void> {
+    await this.glyph.after_lazy_visuals()
+    await this.decimated_glyph.after_lazy_visuals()
+    await this.selection_glyph.after_lazy_visuals()
+    await this.nonselection_glyph.after_lazy_visuals()
+    await this.hover_glyph?.after_lazy_visuals()
     await this.muted_glyph.after_lazy_visuals()
   }
 
