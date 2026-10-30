@@ -3,6 +3,9 @@ import {expect} from "#framework/assertions"
 import {convert_to_uint32_color, convert_to_uint32_palette} from "@bokehjs/models/mappers/color_mapper"
 import {LinearColorMapper} from "@bokehjs/models/mappers/linear_color_mapper"
 import {linspace} from "@bokehjs/core/util/array"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
+import {Scatter} from "@bokehjs/models/glyphs/scatter"
 
 describe("LinearColorMapper module", () => {
 
@@ -100,6 +103,29 @@ describe("LinearColorMapper module", () => {
       expect(vals).to.be.equal(convert_to_uint32_palette(["red", "gray", "green", "blue", "gray"]))
       expect(color_mapper.metrics.min).to.be.equal(10)
       expect(color_mapper.metrics.max).to.be.equal(30)
+    })
+
+    function renderer_of(data: {[key: string]: unknown[]}): GlyphRenderer {
+      const data_source = ColumnDataSource.create({data})
+      const renderer = GlyphRenderer.create({data_source, glyph: Scatter.create()})
+      renderer.view.compute_indices(data_source)
+      return renderer
+    }
+
+    it("should scan all columns of the domain", () => {
+      const renderer = renderer_of({a: [1, null, 3], b: [[10, 20], [30], [-5]]})
+      const palette = ["red", "green"]
+      const color_mapper = LinearColorMapper.create({palette, domain: [[renderer, ["a", "b"]]]})
+      expect(color_mapper.metrics.min).to.be.equal(-5)
+      expect(color_mapper.metrics.max).to.be.equal(30)
+    })
+
+    it("should scan a single column of the domain", () => {
+      const renderer = renderer_of({a: [1, null, 3]})
+      const palette = ["red", "green"]
+      const color_mapper = LinearColorMapper.create({palette, domain: [[renderer, "a"]]})
+      expect(color_mapper.metrics.min).to.be.equal(1)
+      expect(color_mapper.metrics.max).to.be.equal(3)
     })
 
     function v_compute_check(data: number[], palette: string[], attrs: Partial<LinearColorMapper.Attrs> = {}) {

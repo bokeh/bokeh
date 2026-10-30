@@ -5,6 +5,7 @@ import type * as p from "core/properties"
 
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {map, intersection, is_empty} from "core/util/array"
+import {sum} from "core/util/arrayable"
 import {isNumber, isArray} from "core/util/types"
 
 // Plain arrays can contain nulls, which behave like zeros in numeric comparisons.
@@ -67,7 +68,7 @@ export abstract class ContinuousColorMapper extends ColorMapper {
 
   update_data(): void {
     const {domain, palette} = this
-    const all_data = [...this._collect(domain)]
+    const all_data = this._collect(domain)
     this._scan_data = this.scan(all_data, palette.length)
     this.metrics_change.emit()
     this.change.emit()
@@ -82,7 +83,10 @@ export abstract class ContinuousColorMapper extends ColorMapper {
     return this._scan_data!
   }
 
-  protected *_collect(domain: [GlyphRenderer, string | string[]][]) {
+  // Returns all values of the domain, avoiding a copy if there is only one column.
+  protected _collect(domain: [GlyphRenderer, string | string[]][]): Arrayable<number> {
+    const chunks: Arrayable<number | null>[] = []
+
     for (const [renderer, fields] of domain) {
       for (const field of isArray(fields) ? fields : [fields]) {
         if (renderer.view.properties.indices.is_unset) {
@@ -112,15 +116,28 @@ export abstract class ContinuousColorMapper extends ColorMapper {
           array = map(subset, (i) => array[i])
         }
 
-        if (array.length > 0 && !isNumber(array[0])) {
+        if (array.length > 0 && !isNumber(array[0]) && array[0] != null) {
           for (const subarray of array) {
-            yield* subarray
+            chunks.push(subarray)
           }
         } else {
-          yield* array
+          chunks.push(array)
         }
       }
     }
+
+    if (chunks.length == 1) {
+      return nulls_to_nan(chunks[0])
+    }
+
+    const result = new Float64Array(sum(chunks.map((chunk) => chunk.length)))
+    let offset = 0
+    for (const chunk of chunks) {
+      for (let i = 0, end = chunk.length; i < end; i++) {
+        result[offset++] = chunk[i] ?? NaN
+      }
+    }
+    return result
   }
 
   protected _scan_data: {min: number, max: number} | null = null
@@ -140,7 +157,7 @@ export abstract class ContinuousColorMapper extends ColorMapper {
    */
   public _v_scan(data: Arrayable<number>, n: number): {min: number, max: number} {
     const {domain} = this
-    const all_data = !is_empty(domain) ? [...this._collect(domain)] : data
+    const all_data = !is_empty(domain) ? this._collect(domain) : data
     return this.scan(all_data, n)
   }
 
