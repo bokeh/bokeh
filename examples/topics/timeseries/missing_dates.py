@@ -9,13 +9,10 @@ possible technique for handling missing dates.
 .. _Candlestick chart: https://en.wikipedia.org/wiki/Candlestick_chart
 
 '''
-import pandas as pd
-
 from bokeh.plotting import figure, show
-from bokeh.sampledata.stocks import MSFT
+from bokeh.sampledata.stocks import data as stocks
 
-df = pd.DataFrame(MSFT)[60:120]
-df["date"] = pd.to_datetime(df["date"])
+df = stocks.query("ticker == 'MSFT'").iloc[60:120].copy()
 
 inc = df.close > df.open
 dec = df.open > df.close
