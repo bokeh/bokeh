@@ -18,8 +18,29 @@ from bokeh.embed.resources import (
     ResourceAssetRequirement,
     ResourceRequirements,
 )
+from bokeh.models import Div
 from bokeh.settings import PrioritizedSetting
-from bokeh.sphinxext.bokeh_plot import add_page_resources, autoload_script
+from bokeh.sphinxext.bokeh_plot import (
+    _evaluate_source,
+    add_page_resources,
+    autoload_script,
+)
+
+
+@pytest.mark.parametrize("docstring", [None, "Example description"])
+def test_example_docstring(docstring: str | None) -> None:
+    source = (f"{docstring!r}\n" if docstring is not None else "") + """
+from collections.abc import Sequence
+from bokeh.models import Div
+from bokeh.io import show
+value: Sequence[int] = []
+assert __debug__
+show(Div(text="example"))
+"""
+    root, description = _evaluate_source(source, "example.py", SimpleNamespace(docname="example"))
+    assert isinstance(root, Div)
+    assert root.text == "example"
+    assert description == docstring
 
 
 def test_page_resources_union_includes_custom_assets_once() -> None:

@@ -43,7 +43,6 @@ class TestCodeRunner:
     def test_init(self) -> None:
         cr = bahc.CodeRunner("# test", "path", [])
         assert cr.failed is False
-        assert cr.doc is None
         assert cr.error is None
         assert cr.error_detail is None
         assert cr.ran is False
@@ -205,18 +204,16 @@ class TestCodeRunner:
 
         assert second_entered.is_set()
 
-    @pytest.mark.parametrize("suffix", ["", "\nfrom collections.abc import Sequence\nvalue: Sequence[int] = []"])
-    def test_doc(self, suffix: str) -> None:
-        source = "'''some docstring\n\nfoo bar'''" + suffix
-        cr = bahc.CodeRunner(source, "path", [])
-        assert cr.failed is False
-        assert cr.doc == "some docstring\n\nfoo bar"
-
-    def test_no_doc(self) -> None:
-        source = "value = __doc__\nother = 'not a docstring'"
-        cr = bahc.CodeRunner(source, "path", [])
-        assert cr.failed is False
-        assert cr.doc is None
+    @pytest.mark.parametrize("optimize", [-1, 0, 2])
+    def test_optimize(self, optimize: int) -> None:
+        cr = bahc.CodeRunner("'''app docstring'''\nvalue = __debug__", "path", [], optimize=optimize)
+        module = cr.new_module()
+        assert module is not None
+        cr.run(module)
+        assert not cr.failed
+        level = sys.flags.optimize if optimize == -1 else optimize
+        assert module.__doc__ == ("app docstring" if level < 2 else None)
+        assert module.value == (level == 0)
 
 #-----------------------------------------------------------------------------
 # Private API
