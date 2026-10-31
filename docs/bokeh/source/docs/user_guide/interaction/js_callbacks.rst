@@ -313,6 +313,16 @@ below simply copies selected points on the first plot to the second. However,
 more sophisticated actions and computations are easily constructed in a
 similar way.
 
+Selection indices are ordinary JavaScript arrays and Python lists of
+nonnegative int32 indices. They represent sets: duplicates are removed and
+values are stored in ascending order. This applies to ``indices``,
+``line_indices``, and each value in ``multiline_indices``. Binary transport is
+handled automatically.
+
+In JavaScript, assign a new array to trigger a change. In Python, ``indices``
+and ``line_indices`` support in-place list updates, as does the
+``multiline_indices`` dictionary. Replace a dictionary value to update that row.
+
 .. bokeh-plot:: __REPO__/examples/interaction/js_callbacks/customjs_for_selection.py
     :source-position: above
 

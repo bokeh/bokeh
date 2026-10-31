@@ -481,6 +481,9 @@ class HasProps(Serializable):
             return self.properties_with_values() == other.properties_with_values()
 
     def to_serializable(self, serializer: Serializer) -> ObjectRep:
+        return self._to_serializable(serializer)
+
+    def _to_serializable(self, serializer: Serializer, overrides: dict[str, Any] | None = None) -> ObjectRep:
         include_defaults = settings.serialize_include_defaults()
         properties = self.properties_with_values(include_defaults=include_defaults)
         if serializer.compact and not include_defaults:
@@ -512,6 +515,8 @@ class HasProps(Serializable):
                     key: properties.get(key, retained_defaults.get(key))
                     for key in self.properties() if key in properties or key in retained_defaults
                 }
+        if overrides is not None:
+            properties = {key: overrides.get(key, val) for key, val in properties.items()}
         attributes = {key: serializer.encode(val) for key, val in properties.items()}
 
         if serializer.compact:
@@ -546,7 +551,7 @@ class HasProps(Serializable):
 
         '''
         if name in self.properties():
-            log.trace(f"Patching attribute {name!r} of {self!r} with {value!r}") # type: ignore[attr-defined]
+            log.trace("Patching attribute %r of %r with %r", name, self, value) # type: ignore[attr-defined]
             descriptor = self.lookup(name)
             descriptor.set_from_json(self, value, setter=setter)
         else:

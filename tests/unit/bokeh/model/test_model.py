@@ -538,3 +538,35 @@ class Test_clear_extensions:
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+
+
+def test_trigger_skips_reference_walk_for_primitive_properties() -> None:
+    from unittest.mock import patch
+
+    from bokeh.document import Document
+
+    model = SomeModel()
+    doc = Document()
+    doc.add_root(model)
+    changes = []
+    model.on_change("c", lambda attr, old, new: changes.append(new))
+    with patch("bokeh.model.model.visit_value_and_its_immediate_references") as visitor:
+        model.c = [2, 3, 4]
+        visitor.assert_not_called()
+    assert changes == [[2, 3, 4]]
+
+
+def test_trigger_retains_reference_invalidation_for_model_properties() -> None:
+    from bokeh.document import Document
+
+    parent = Row()
+    doc = Document()
+    doc.add_root(parent)
+    child = Div()
+    parent.children = [child]
+    assert child.document is doc
+    assert doc.get_model_by_id(child.id) is child
+    parent.children = []
+    assert child.document is None
+    assert doc.get_model_by_id(child.id) is None

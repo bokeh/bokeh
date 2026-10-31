@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import inspect
+import json
 import posixpath
 import sys
 from io import StringIO
@@ -23,10 +24,11 @@ from bokeh.core.properties import (
     String,
 )
 from bokeh.model import Model
-from bokeh.models import BoxSelectTool, Filter
+from bokeh.models import BoxSelectTool, Filter, Selection
 from bokeh.sphinxext._internal.bokeh_model import (
     _DEFAULT_EXCLUDED_MEMBERS,
     _model_members,
+    to_json_rep,
 )
 from bokeh.sphinxext._internal.bokeh_prop import _render_property_detail
 from bokeh.sphinxext._internal.templates import MODEL_DETAIL
@@ -235,7 +237,9 @@ def test_model_build_registers_inventory_members_and_template_dependencies(tmp_p
         "Model API\n"
         "=========\n\n"
         ".. bokeh-model:: BoxSelectTool\n"
-        "    :module: bokeh.models.tools\n",
+        "    :module: bokeh.models.tools\n\n"
+        ".. bokeh-model:: Selection\n"
+        "    :module: bokeh.models.selections\n",
         encoding="utf-8",
     )
 
@@ -327,3 +331,11 @@ def test_model_build_resolves_include_help_substitutions(tmp_path: Path) -> None
     app.build()
     assert app.statuscode == 0, warning.getvalue()
     assert "Undefined substitution" not in warning.getvalue()
+
+
+def test_model_json_serializes_selection_lists() -> None:
+    selection = Selection(indices=[1, 2], line_indices=[3], multiline_indices={7: [0, 1]})
+    rep = json.loads(json.dumps(to_json_rep(selection)))
+    assert rep["indices"] == [1, 2]
+    assert rep["line_indices"] == [3]
+    assert rep["multiline_indices"] == dict(type="map", entries=[[7, [0, 1]]])

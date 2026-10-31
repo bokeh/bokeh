@@ -194,9 +194,9 @@ describe("column_data_source module", () => {
   describe("selection pruning", () => {
     it("should prune out-of-bounds indices when data is replaced", () => {
       const selected = Selection.create({
-        indices: [-1, 0, 2, 3],
-        line_indices: [-1, 0, 2, 3],
-        multiline_indices: new Map([[-1, [0]], [0, [0]], [2, [0]], [3, [0]]]),
+        indices: [0, 2, 3],
+        line_indices: [0, 2, 3],
+        multiline_indices: new Map([[0, [0]], [2, [0]], [3, [0]]]),
         image_indices: [
           {index: -1, i: 0, j: 0, flat_index: 0},
           {index: 0, i: 0, j: 0, flat_index: 0},

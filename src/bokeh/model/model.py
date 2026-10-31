@@ -61,7 +61,7 @@ if TYPE_CHECKING:
     from ..core.serialization import ObjectRep
     from ..core.types import ID
     from ..document import Document
-    from ..document.events import DocumentPatchedEvent
+    from ..document.events import DocumentPatchedEvent, Invoker, ModelChangedEvent
     from ..models.callbacks import (
         Callback as JSEventCallback,
         CustomCode as JSChangeCallback,
@@ -631,11 +631,14 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         Returns:
             A model representation, with an ID when the serializer requires one.
         '''
+        return self._to_serializable(serializer)
+
+    def _to_serializable(self, serializer: Serializer, overrides: dict[str, Any] | None = None) -> ObjectRep | ObjectRefRep:
         use_id = serializer.use_model_id(self)
         if use_id:
             serializer.add_ref(self, serializer.model_ref(self.ref))
 
-        super_rep = super().to_serializable(serializer)
+        super_rep = super()._to_serializable(serializer, overrides)
         if not use_id:
             return super_rep
 
@@ -652,6 +655,11 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
                 rep["attributes"] = attributes
             return rep
 
+    def _create_model_changed_event(self, document: Document, attr: str, new: Any,
+            setter: Setter | None = None, callback_invoker: Invoker | None = None) -> ModelChangedEvent:
+        from ..document.events import ModelChangedEvent
+        return ModelChangedEvent(document, self, attr, new, setter, callback_invoker)
+
     def trigger(self, attr: str, old: Any, new: Any,
             hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None:
         '''
@@ -664,7 +672,8 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         # this may need to be further refined in the future, if the
         # assumption does not hold for future hinted events (e.g. the hint
         # could specify explicitly whether to do normal invalidation or not)
-        if hint is None:
+        descriptor = self.lookup(attr)
+        if hint is None and descriptor.property.has_ref:
             dirty_count = 0
             def mark_dirty(_: HasProps):
                 nonlocal dirty_count
@@ -675,7 +684,6 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
                 if dirty_count > 0:
                     self.document.models.invalidate()
         # chain up to invoke callbacks
-        descriptor = self.lookup(attr)
         super().trigger(descriptor.name, old, new, hint=hint, setter=setter)
 
     def _attach_document(self, doc: Document) -> None:
