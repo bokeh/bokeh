@@ -4,11 +4,11 @@ import type {ColumnarDataSource} from "models/sources/columnar_data_source"
 import type {CustomJSHover} from "models/tools/inspectors/customjs_hover"
 import {sprintf as sprintf_js} from "sprintf-js"
 import tz from "timezone"
-import type {Dict} from "../types"
+import type {Arrayable, Dict} from "../types"
 import type {BuiltinFormatter} from "../enums"
 import {logger} from "../logging"
 import {dict} from "./object"
-import {is_NDArray} from "./ndarray"
+import {is_NDArray, get_array_item} from "./ndarray"
 import {isArray, isNumber, isString, isTypedArray/*, isInteger, isPlainObject*/} from "./types"
 import {to_string} from "./pretty"
 import {escape} from "./string"
@@ -71,6 +71,56 @@ export function basic_formatter(value: unknown, _format: string, _special_vars: 
   }
 }
 
+export function tooltip_formatter(value: unknown, format: string, special_vars: Vars): string {
+  if (!isArray(value) && !isTypedArray(value)) {
+    return basic_formatter(value, format, special_vars)
+  }
+
+  let remaining_entries = 10
+  let remaining_chars = 200
+  const parts: string[] = []
+  const append = (text: string): boolean => {
+    const part = text.slice(0, remaining_chars)
+    parts.push(part)
+    remaining_chars -= part.length
+    return part.length != text.length
+  }
+  const visit = (array: Arrayable): {truncated: boolean, nested: boolean} => {
+    let nested = false
+    parts.push("[")
+    for (let i = 0; i < array.length; i++) {
+      if (remaining_entries == 0 || remaining_chars == 0) {
+        parts.push(i == 0 ? "…]" : ",…]")
+        return {truncated: true, nested}
+      }
+      remaining_entries--
+      if (i != 0 && append(",")) {
+        parts.push("…]")
+        return {truncated: true, nested}
+      }
+      const item = array[i]
+      const is_nested = isArray(item) || isTypedArray(item)
+      nested ||= is_nested
+      const truncated = is_nested ? visit(item).truncated : append(item == null ? "" : `${item}`)
+      if (truncated) {
+        if (!is_nested) {
+          parts.push("…")
+        }
+        if (i + 1 < array.length) {
+          parts.push(",…")
+        }
+        parts.push("]")
+        return {truncated: true, nested}
+      }
+    }
+    parts.push("]")
+    return {truncated: false, nested}
+  }
+  const {truncated, nested} = visit(value)
+  const text = parts.join("")
+  return truncated ? `${text} (length ${value.length})` : nested ? text : text.slice(1, -1)
+}
+
 export function get_formatter(spec: string, format?: string, formatters?: Formatters): FormatterFunc {
   // no format, use default built in formatter
   if (format == null) {
@@ -125,7 +175,7 @@ export function _get_column_value(name: string, data_source: ColumnarDataSource,
 
   // typical (non-image) index
   if (isNumber(ind)) {
-    return column[ind]
+    return get_array_item(column, ind)
   }
 
   // image index
@@ -223,7 +273,8 @@ const functions = {
 }
 
 export function replace_placeholders_html(input: string, data_source: ColumnarDataSource,
-    index: Index | null, formatters?: Formatters, special_vars: Vars = {}): Node[] {
+    index: Index | null, formatters?: Formatters, special_vars: Vars = {},
+    default_formatter: FormatterFunc = DEFAULT_FORMATTERS.basic): Node[] {
 
   const html = process_placeholders(input, (type, name, format, _, spec) => {
     const value = get_value(type, name, data_source, index, special_vars)
@@ -277,7 +328,7 @@ export function replace_placeholders_html(input: string, data_source: ColumnarDa
         } else if (isNumber(value) && isNaN(value)) {
           return "NaN"
         } else {
-          const formatter = get_formatter(spec, format, formatters)
+          const formatter = format == null ? default_formatter : get_formatter(spec, format, formatters)
           return `${formatter(value, format ?? "", special_vars)}`
         }
       })()

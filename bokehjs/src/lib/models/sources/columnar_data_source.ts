@@ -4,11 +4,11 @@ import {logger} from "core/logging"
 import type * as p from "core/properties"
 import {SelectionManager} from "core/selection_manager"
 import {Signal, Signal0} from "core/signaling"
-import type {Arrayable, ArrayableNew, Attrs, Data, Dict} from "core/types"
+import type {Arrayable, ArrayableNew, Attrs, Data, Dict, PlainObject} from "core/types"
 import type {PatchSet} from "core/patching"
 import {assert} from "core/util/assert"
 import {inplace_filter, uniq} from "core/util/array"
-import {is_NDArray} from "core/util/ndarray"
+import {is_NDArray, get_array_item} from "core/util/ndarray"
 import {keys, values, entries, dict, clone} from "core/util/object"
 import {isBoolean, isNumber, isString, isArray} from "core/util/types"
 import type {GlyphRenderer} from "../renderers/glyph_renderer"
@@ -16,6 +16,23 @@ import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
 import {Selection} from "../selections/selection"
 import {DataSource} from "./data_source"
 import type {Index} from "core/util/templating"
+
+// Filters often use only a few columns, so unpack shaped values on demand.
+function define_lazy_row_value(row: PlainObject, column: string, array: Arrayable, index: number): void {
+  const set_value = (value: unknown) => {
+    Object.defineProperty(row, column, {value, enumerable: true, configurable: true, writable: true})
+  }
+  Object.defineProperty(row, column, {
+    enumerable: true,
+    configurable: true,
+    get: () => {
+      const value = get_array_item(array, index)
+      set_value(value)
+      return value
+    },
+    set: set_value,
+  })
+}
 
 // Abstract base class for column based data sources, where the column
 // based data may be supplied directly or be computed from an attribute
@@ -205,11 +222,15 @@ export abstract class ColumnarDataSource extends DataSource {
     return data.get(name) ?? null
   }
 
-  get_row(index: Index): {[key: string]: unknown} {
+  get_row(index: Index): PlainObject {
     const i = isNumber(index) ? index : index.index
-    const result: {[key: string]: unknown} = {}
+    const result: PlainObject = {}
     for (const [column, array] of entries(this.data)) {
-      result[column] = array[i]
+      if (is_NDArray(array) && array.dimension > 1) {
+        define_lazy_row_value(result, column, array, i)
+      } else {
+        result[column] = array[i]
+      }
     }
     return result
   }
