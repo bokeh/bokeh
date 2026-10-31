@@ -126,7 +126,7 @@ export namespace Signal {
 
     for (const connection of senders) {
       if (connection.signal == null) {
-        return
+        continue
       }
 
       if (slot != null && connection.slot != slot) {
