@@ -374,6 +374,19 @@ instead of starting it and discarding its promise:
       this.on_change(items, () => { void this.build_item_views() })
     }
 
+Glyph renderers defer data preparation to a microtask and serialize it with
+visual updates. Like ``request_paint()``, ``GlyphRendererView.update_data()``
+and ``update_visuals()`` only queue this work, track it themselves and return
+nothing. Source mutations and model notifications remain synchronous, but
+renderer state, including coordinate arrays and hit-test indices, may still
+describe the previous data immediately after a source change. Await the
+renderer's or plot view's ``ready`` before inspecting that state. Updates
+received before a pass starts are combined, including when a preceding pass
+is still active. The exception is a change of ``CDSView.masked``, which is
+published while painting: unless data preparation is queued or active, visuals
+are updated immediately, so the paint that published the mask draws with them.
+Asynchronous visual hooks still run in a queued pass.
+
 ``ready`` behaves as follows:
 
 * It resolves when the view and all its descendants have no pending tasks.

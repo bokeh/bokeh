@@ -59,7 +59,7 @@ async function make_testcase(): Promise<PolyDrawTestCase> {
 
   const draw_tool_view = plot_view.owner.get_one(draw_tool)
   plot_view.renderer_views.set(glyph_renderer, glyph_renderer_view)
-  sinon.stub(glyph_renderer_view, "set_data")
+  sinon.stub(glyph_renderer_view, "_set_data")
 
   return {
     data,
