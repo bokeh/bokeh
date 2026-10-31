@@ -64,7 +64,6 @@ class CodeRunner:
     '''
 
     _code: CodeType | None
-    _doc: str | None
     _permanent_error: str | None
     _permanent_error_detail: str | None
     _path: PathLike
@@ -77,7 +76,7 @@ class CodeRunner:
     _error: str | None
     _error_detail: str | None
 
-    def __init__(self, source: str, path: PathLike, argv: Sequence[str], package: ModuleType | None = None) -> None:
+    def __init__(self, source: str, path: PathLike, argv: Sequence[str], package: ModuleType | None = None, *, optimize: int = -1) -> None:
         '''
 
         Args:
@@ -94,6 +93,10 @@ class CodeRunner:
             package (bool) :
                 An optional package module to configure
 
+            optimize (int) :
+                The compilation optimization level. Defaults to the interpreter's
+                level. Use 0 to preserve docstrings and assertions.
+
         Raises:
             ValueError, if package is specified for an __init__.py
 
@@ -105,13 +108,10 @@ class CodeRunner:
         self._permanent_error_detail = None
         self.reset_run_errors()
 
-        import ast
         self._code = None
 
         try:
-            nodes = ast.parse(source, os.fspath(path))
-            self._code = compile(nodes, filename=path, mode='exec', dont_inherit=True)
-            self._doc = ast.get_docstring(nodes, clean=False)
+            self._code = compile(source, filename=path, mode='exec', dont_inherit=True, optimize=optimize)
         except SyntaxError as e:
             self._code = None
             filename = os.path.basename(e.filename) if e.filename is not None else "???"
@@ -125,13 +125,6 @@ class CodeRunner:
         self.ran = False
 
     # Properties --------------------------------------------------------------
-
-    @property
-    def doc(self) -> str | None:
-        ''' Contents of docstring, if code contains one.
-
-        '''
-        return self._doc
 
     @property
     def error(self) -> str | None:
