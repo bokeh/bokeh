@@ -99,7 +99,7 @@
         },
         view: {
           type: "object",
-          name: "CDSView",
+          name: "DataView",
           id: "p1015",
           attributes: {
             filter: {

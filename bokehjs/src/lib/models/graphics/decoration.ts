@@ -9,7 +9,7 @@ import type * as visuals from "core/visuals"
 import * as p from "core/properties"
 import type {Arrayable, Indices} from "core/types"
 import {isArrayable} from "core/util/types"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
 
 export class PathDecorationView extends View {
   declare model: PathDecoration | PathMarkings
@@ -36,7 +36,7 @@ export class PathDecorationView extends View {
     return Array.from(positions)
   }
 
-  private _source?: ColumnarDataSource
+  private _source?: IndexedDataSource
   private _indices?: Indices
 
   override _children_views(): ChildView[] {
@@ -91,7 +91,7 @@ export class PathDecorationView extends View {
     })
   }
 
-  set_data(source: ColumnarDataSource, indices: Indices): void {
+  set_data(source: IndexedDataSource, indices: Indices): void {
     this._source = source
     this._indices = indices
     this.inset = this.model instanceof PathDecoration

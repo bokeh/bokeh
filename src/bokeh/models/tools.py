@@ -94,7 +94,7 @@ from ..core.property.required import Required
 from ..core.property.struct import Optional, Struct
 from ..core.property_aliases import IconLike
 from ..core.validation import error
-from ..core.validation.errors import NO_RANGE_TOOL_RANGES
+from ..core.validation.errors import INCOMPATIBLE_EDIT_SOURCE, NO_RANGE_TOOL_RANGES
 from ..model import Model
 from .annotations import BoxAnnotation, PolyAnnotation, Span
 from .callbacks import Callback, CustomJS
@@ -113,7 +113,8 @@ from .glyphs import (
 from .misc.group_by import GroupBy, GroupByModels, GroupByName
 from .nodes import Node
 from .ranges import Range
-from .renderers import DataRenderer
+from .renderers import DataRenderer, GlyphRenderer
+from .sources import ColumnarDataSource
 from .ui import Menu, UIElement
 
 #-----------------------------------------------------------------------------
@@ -1674,6 +1675,10 @@ class RedoTool(PlotActionTool):
 class EditTool(GestureTool):
     ''' A base class for all interactive draw tool types.
 
+    Edited renderers, including vertex and intersection renderers, require
+    a ``ColumnarDataSource``. General indexed sources support read-only
+    rendering and selection.
+
     '''
 
     default_overrides = Dict(String, AnyRef, default={}, help="""
@@ -1698,6 +1703,20 @@ class EditTool(GestureTool):
     3. ``ColumnarDataSource``'s inferred default values
     4. ``EditTool.empty_value``
     """)
+
+    @error(INCOMPATIBLE_EDIT_SOURCE)
+    def _check_edit_sources(self):
+        properties = self.query_properties_with_values(
+            lambda prop: prop.name in ("renderers", "vertex_renderer", "intersection_renderer"),
+            include_undefined=True,
+        )
+        renderers = []
+        for value in properties.values():
+            renderers.extend(value if isinstance(value, list) else [value])
+        incompatible = [str(renderer) for renderer in renderers
+                        if isinstance(renderer, GlyphRenderer) and not isinstance(renderer.data_source, ColumnarDataSource)]
+        if incompatible:
+            return f"{type(self).__name__}: {', '.join(incompatible)}"
 
     # TODO abstract renderers = List(Instance(GlyphRenderer & ...))
 

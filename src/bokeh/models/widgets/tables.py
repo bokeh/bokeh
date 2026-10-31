@@ -49,7 +49,7 @@ from ...core.property.required import Required
 from ...model import Model
 from ..comparisons import Comparison
 from ..dom import HTML
-from ..sources import CDSView, ColumnDataSource, DataSource
+from ..sources import ColumnDataSource, DataView
 from .widget import Widget
 
 #-----------------------------------------------------------------------------
@@ -618,11 +618,11 @@ class TableWidget(Widget):
 
     '''
 
-    source = Instance(DataSource, default=InstanceDefault(ColumnDataSource), help="""
-    The source of data for the widget.
+    source = Instance(ColumnDataSource, default=InstanceDefault(ColumnDataSource), help="""
+    The column data source for the widget.
     """)
 
-    view = Instance(CDSView, default=InstanceDefault(CDSView), help="""
+    view = Instance(DataView, default=InstanceDefault(DataView), help="""
     A view into the data source to use when rendering table rows. A default view
     of the entire data source is created if a view is not passed in during
     initialization.

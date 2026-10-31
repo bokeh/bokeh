@@ -2,7 +2,7 @@ import type {Arrayable} from "core/types"
 import {is_NDArray, get_row} from "core/util/ndarray"
 import {isArrayable, isInteger} from "core/util/types"
 import type * as p from "core/properties"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
+import {IndexedDataSource} from "../sources/indexed_data_source"
 import {Expression} from "./expression"
 
 function value_at(values: Arrayable, index: unknown): unknown {
@@ -46,7 +46,7 @@ export namespace IndexedLookup {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Expression.Props & {
-    source: p.Property<ColumnarDataSource>
+    source: p.Property<IndexedDataSource>
     field: p.Property<string>
     indices: p.Property<string>
   }
@@ -60,7 +60,7 @@ export class IndexedLookup extends Expression {
 
   static {
     this.define<IndexedLookup.Props>(({Ref, Str}) => ({
-      source:  [ Ref(ColumnarDataSource) ],
+      source:  [ Ref(IndexedDataSource) ],
       field:   [ Str ],
       indices: [ Str ],
     }))
@@ -74,15 +74,13 @@ export class IndexedLookup extends Expression {
       clear()
       this.change.emit()
     }
-    const connect_source = (source: ColumnarDataSource) => {
+    const connect_source = (source: IndexedDataSource) => {
       this.connect(source.change, invalidate)
-      this.connect(source.streaming, invalidate)
-      this.connect(source.patching, invalidate)
+      this.connect(source.data_changed, invalidate)
     }
-    const disconnect_source = (source: ColumnarDataSource) => {
+    const disconnect_source = (source: IndexedDataSource) => {
       this.disconnect(source.change, invalidate)
-      this.disconnect(source.streaming, invalidate)
-      this.disconnect(source.patching, invalidate)
+      this.disconnect(source.data_changed, invalidate)
     }
 
     let source = this.source
@@ -96,12 +94,12 @@ export class IndexedLookup extends Expression {
     this.on_change([this.properties.field, this.properties.indices], clear)
   }
 
-  protected _v_compute(source: ColumnarDataSource): Arrayable {
-    const values = this.source.get_column(this.field)
+  protected _v_compute(source: IndexedDataSource): Arrayable {
+    const values = this.source.get_field(this.field)
     if (values == null) {
       throw new Error(`unknown lookup field '${this.field}' in ${this.source}`)
     }
-    const indices = source.get_column(this.indices)
+    const indices = source.get_index_field(this.indices, this.source)
     if (indices == null) {
       throw new Error(`unknown index field '${this.indices}' in ${source}`)
     }

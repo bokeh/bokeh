@@ -26,7 +26,7 @@ from ...core.has_props import abstract
 from ...core.property.instance import Instance, InstanceDefault
 from ...core.property.override import Override
 from ..renderers.renderer import CompositeRenderer
-from ..sources import ColumnDataSource, DataSource
+from ..sources import ColumnDataSource, IndexedDataSource
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -54,7 +54,7 @@ class DataAnnotation(Annotation):
 
     '''
 
-    source = Instance(DataSource, default=InstanceDefault(ColumnDataSource), help="""
+    source = Instance(IndexedDataSource, default=InstanceDefault(ColumnDataSource), help="""
     Local data source to use when rendering annotations on the plot.
     """)
 

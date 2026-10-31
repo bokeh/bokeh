@@ -34,7 +34,7 @@ type Entry = {
   glyph: CanvasLayer
   label_el: HTMLElement
   item: LegendItem
-  label: string
+  label: unknown
   i: number
   row: number
   col: number
@@ -146,7 +146,7 @@ export class LegendView extends AnnotationView {
     }
   }
 
-  get labels(): {item: LegendItem, label: string}[] {
+  get labels(): {item: LegendItem, label: unknown}[] {
     const collected = []
     for (const item of this.model.items) {
       const labels = item.get_labels_list_from_label_prop()

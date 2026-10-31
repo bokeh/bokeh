@@ -1,5 +1,5 @@
 from bokeh.layouts import gridplot
-from bokeh.models import BooleanFilter, CDSView, ColumnDataSource
+from bokeh.models import BooleanFilter, ColumnDataSource, DataView
 from bokeh.plotting import figure, show
 
 x = list(range(-20, 21))
@@ -10,7 +10,7 @@ y1 = [xx**2 for xx in x]
 source = ColumnDataSource(data=dict(x=x, y0=y0, y1=y1))
 
 # create a view of the source for one plot to use
-view = CDSView(filter=BooleanFilter([True if y > 250 or y < 100 else False for y in y1]))
+view = DataView(filter=BooleanFilter([True if y > 250 or y < 100 else False for y in y1]))
 
 TOOLS = "box_select,lasso_select,hover,help"
 

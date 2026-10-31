@@ -1,10 +1,11 @@
 import {Model} from "../../model"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {isValue, isField} from "core/vectorization"
 import * as p from "core/properties"
 import {logger} from "core/logging"
 import {uniq, includes} from "core/util/array"
+import {get_array_item, is_NDArray} from "core/util/ndarray"
+import {is_equal} from "core/util/eq"
 
 export namespace LegendItem {
   export type Attrs = p.AttrsOf<Props>
@@ -54,7 +55,7 @@ export class LegendItem extends Model {
         return false
       }
       const source = this.renderers[0].data_source
-      if (!includes(source.columns(), field)) {
+      if (!includes(source.fields(), field)) {
         return false
       }
     }
@@ -83,7 +84,7 @@ export class LegendItem extends Model {
     return isField(label) ? label.field : null
   }
 
-  get_labels_list_from_label_prop(): string[] {
+  get_labels_list_from_label_prop(): unknown[] {
     if (!this.visible) {
       return []
     }
@@ -108,17 +109,19 @@ export class LegendItem extends Model {
       const source = renderer.data_source
       const view_indices = renderer.view.indices
 
-      if (source instanceof ColumnarDataSource) {
-        const data = source.get_column(field)
-        if (data != null) {
-          const filtered_data = []
-          for (const i of view_indices) {
-            filtered_data.push(data[i])
+      const data = source.get_field(field)
+      if (data != null) {
+        const shaped = is_NDArray(data) && data.dimension > 1
+        const filtered_data: unknown[] = []
+        for (const i of view_indices) {
+          const item = get_array_item(data, i)
+          if (!shaped || !filtered_data.some((value) => is_equal(value, item))) {
+            filtered_data.push(item)
           }
-          return uniq(filtered_data)
-        } else {
-          return ["Invalid field"]
         }
+        return shaped ? filtered_data : uniq(filtered_data)
+      } else {
+        return ["Invalid field"]
       }
     }
 

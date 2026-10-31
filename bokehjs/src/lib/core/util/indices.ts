@@ -1,4 +1,6 @@
 import type {Arrayable} from "core/types"
+import {get_array_item, is_NDArray} from "./ndarray"
+import {is_equal} from "./eq"
 
 /**
  * Allows to efficiently map back and forth between superset and subset indices.
@@ -65,9 +67,10 @@ export class SubsetIndexMapper {
   }
 
   subset_index_of(array: Arrayable, value: unknown): number | null {
+    const shaped = is_NDArray(array) && array.dimension > 1
     for (let i = 0; i < this.size_subset; i++) {
       const superset_idx = this.subset_to_superset[i]
-      if (array[superset_idx] === value) {
+      if (shaped ? is_equal(get_array_item(array, superset_idx), value) : array[superset_idx] === value) {
         return i
       }
     }

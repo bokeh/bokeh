@@ -5,7 +5,7 @@ import {create_glyph_renderer_view} from "../models/glyphs/_util"
 
 import type {Context2d} from "@bokehjs/core/util/canvas"
 import {CanvasLayer} from "@bokehjs/core/util/canvas"
-import {CDSView} from "@bokehjs/models/sources/cds_view"
+import {DataView} from "@bokehjs/models/sources/data_view"
 import {IndexFilter} from "@bokehjs/models/filters/index_filter"
 import type {ScatterView} from "@bokehjs/models/glyphs/scatter"
 import {Scatter} from "@bokehjs/models/glyphs/scatter"
@@ -317,7 +317,7 @@ describe("core/visuals", () => {
         const renderer_view = await create_glyph_renderer_view(scatter, data)
 
         const filter = IndexFilter.create({indices: [1, 2]})
-        renderer_view.model.view = CDSView.create({filter})
+        renderer_view.model.view = DataView.create({filter})
         // Renderer signals are not connected by the create_glyph_view utility.
         renderer_view.update_data()
         await renderer_view.ready

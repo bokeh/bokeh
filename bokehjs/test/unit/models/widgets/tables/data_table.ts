@@ -1,19 +1,91 @@
+import {display, column} from "#framework/layouts"
+import {spy} from "sinon"
+import {TableColumn} from "@bokehjs/models/widgets/tables/table_column"
+import {IndexFilter} from "@bokehjs/models/filters/index_filter"
 import {expect} from "#framework/assertions"
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
-import {CDSView} from "@bokehjs/models/sources/cds_view"
+import {DataView} from "@bokehjs/models/sources/data_view"
 
 import {TableDataProvider, DataTable} from "@bokehjs/models/widgets/tables/data_table"
 import {DTINDEX_NAME} from "@bokehjs/models/widgets/tables/definitions"
 
 import {range} from "@bokehjs/core/util/array"
 
-import {build} from "../../sources/cds_view"
+import {build} from "../../sources/data_view"
 
 describe("data_table module", () => {
 
   it("should define DTINDEX_NAME", () => {
     expect(DTINDEX_NAME).to.be.equal("__bkdt_internal_index__")
+  })
+
+  it("reconnects replacement views, sources and selections and disposes obsolete views", async () => {
+    const old_source = ColumnDataSource.create({data: {x: [1, 2, 3]}})
+    const old_view = DataView.create({filter: IndexFilter.create({indices: [0, 2]})})
+    const table = DataTable.create({
+      source: old_source, view: old_view, columns: [TableColumn.create({field: "x"})], width: 300, height: 200,
+    })
+    const {view} = await display(table)
+    const old_child = view.owner.get_one(old_view)
+    const old_column = view.owner.get_one(table.columns[0])
+    const state = view as unknown as {data: TableDataProvider, grid: {getSelectedRows(): number[]}}
+    expect(state.data.index).to.be.equal([0, 2])
+    const current = DataView.create({filter: IndexFilter.create({indices: [1]})})
+    table.setv({view: current, columns: [TableColumn.create({field: "x"})]})
+    await view.ready
+    expect(old_child.is_destroyed).to.be.true
+    expect(old_column.is_destroyed).to.be.true
+    expect(state.data.index).to.be.equal([1])
+    const replacement = ColumnDataSource.create({data: {x: [10, 20, 30]}})
+    table.source = replacement
+    replacement.patch({x: [[1, 25]]})
+    replacement.selected.indices = [1]
+    await view.ready
+    expect(state.data.getField(0, "x")).to.be.equal(25)
+    expect(state.grid.getSelectedRows()).to.be.equal([0])
+    const update = spy(view, "updateGrid")
+    const select = spy(view, "updateSelection")
+    try {
+      old_source.stream({x: [4]})
+      old_source.selected.indices = [0]
+      old_view.filter = IndexFilter.create({indices: [0]})
+      await view.ready
+      expect(update.callCount).to.be.equal(0)
+      expect(select.callCount).to.be.equal(0)
+      current.filter = IndexFilter.create({indices: [0, 2]})
+      await view.ready
+      expect(state.data.index).to.be.equal([0, 2])
+      expect(state.data.getField(1, "x")).to.be.equal(30)
+    } finally {
+      update.restore()
+      select.restore()
+    }
+  })
+
+  it("cancels pending table data and column view replacements when the table is removed", async () => {
+    const source = ColumnDataSource.create({data: {x: [1, 2, 3]}})
+    const table = DataTable.create({source, columns: [TableColumn.create({field: "x"})], width: 300, height: 200})
+    const layout = column([table])
+    const {view} = await display(layout)
+    const table_view = view.owner.get_one(table)
+    const rerender = spy(table_view, "rerender")
+    table.setv({view: DataView.create({filter: IndexFilter.create({indices: [1]})}), columns: [TableColumn.create({field: "x"})]})
+    layout.children = []
+    await view.ready
+    expect(table_view.is_destroyed).to.be.true
+    expect(rerender.callCount).to.be.equal(0)
+    rerender.restore()
+    const update = spy(table_view, "updateGrid")
+    try {
+      source.stream({x: [4]})
+      table.view.filter = IndexFilter.create({indices: [0]})
+      await view.ready
+      expect(update.callCount).to.be.equal(0)
+      expect(table_view._children_views().filter((child) => child?.model instanceof DataView).length).to.be.equal(0)
+    } finally {
+      update.restore()
+    }
   })
 
   describe("DataTable class", () => {
@@ -52,14 +124,14 @@ describe("data_table module", () => {
 
     it("should raise an error if DTINDEX_NAME is in source", async () => {
       const bad = ColumnDataSource.create({data: {__bkdt_internal_index__: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = CDSView.create()
+      const view = DataView.create()
       await build(view, bad)
       expect(() => new TableDataProvider(bad, view)).to.throw()
     })
 
     it("should construct an internal index", async () => {
       const source = ColumnDataSource.create({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = CDSView.create()
+      const view = DataView.create()
       await build(view, source)
       const dp = new TableDataProvider(source, view)
       expect(dp.index).to.be.equal([0, 1, 2, 3])
@@ -67,7 +139,7 @@ describe("data_table module", () => {
 
     it("should report the data source length", async () => {
       const source = ColumnDataSource.create({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = CDSView.create()
+      const view = DataView.create()
       await build(view, source)
       const dp = new TableDataProvider(source, view)
       expect(dp.getLength()).to.be.equal(4)
@@ -75,7 +147,7 @@ describe("data_table module", () => {
 
     it("should return items when unsorted", async () => {
       const source = ColumnDataSource.create({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = CDSView.create()
+      const view = DataView.create()
       await build(view, source)
       const dp = new TableDataProvider(source, view)
 
@@ -89,7 +161,7 @@ describe("data_table module", () => {
 
     it("should return all items when unsorted", async () => {
       const source = ColumnDataSource.create({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = CDSView.create()
+      const view = DataView.create()
       await build(view, source)
       const dp = new TableDataProvider(source, view)
 
@@ -103,7 +175,7 @@ describe("data_table module", () => {
 
     it("should return items when sorted", async () => {
       const source = ColumnDataSource.create({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = CDSView.create()
+      const view = DataView.create()
       await build(view, source)
       const dp = new TableDataProvider(source, view)
       const fake_col = {columnId: "bar", sortAsc: true, sortCol: {id: "bar", field: "bar"}}
@@ -119,7 +191,7 @@ describe("data_table module", () => {
 
     it("should return fields when unsorted", async () => {
       const source = ColumnDataSource.create({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = CDSView.create()
+      const view = DataView.create()
       await build(view, source)
       const dp = new TableDataProvider(source, view)
 
@@ -141,7 +213,7 @@ describe("data_table module", () => {
 
     it("should return fields when sorted", async () => {
       const source = ColumnDataSource.create({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = CDSView.create()
+      const view = DataView.create()
       await build(view, source)
       const dp = new TableDataProvider(source, view)
 
@@ -166,7 +238,7 @@ describe("data_table module", () => {
 
     it("should get all records", async () => {
       const source = ColumnDataSource.create({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = CDSView.create()
+      const view = DataView.create()
       await build(view, source)
       const dp = new TableDataProvider(source, view)
       expect(dp.getRecords()).to.be.equal(range(0, dp.getLength()).map((i) => dp.getItem(i)))
@@ -178,7 +250,7 @@ describe("data_table module", () => {
 
     it("should re-order only the index when sorted", async () => {
       const source = ColumnDataSource.create({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = CDSView.create()
+      const view = DataView.create()
       await build(view, source)
       const dp = new TableDataProvider(source, view)
       expect(dp.index).to.be.equal([0, 1, 2, 3])
@@ -191,7 +263,7 @@ describe("data_table module", () => {
 
     it("should set fields when unsorted", async () => {
       const source = ColumnDataSource.create({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = CDSView.create()
+      const view = DataView.create()
       await build(view, source)
       const dp = new TableDataProvider(source, view)
 
@@ -204,7 +276,7 @@ describe("data_table module", () => {
 
     it("should set fields when sorted", async () => {
       const source = ColumnDataSource.create({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = CDSView.create()
+      const view = DataView.create()
       await build(view, source)
       const dp = new TableDataProvider(source, view)
       const fake_col = {columnId: "bar", sortAsc: true, sortCol: {id: "bar", field: "bar"}}
@@ -222,7 +294,7 @@ describe("data_table module", () => {
         index: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
         col0: [3.4, -Infinity, NaN, 1.21, 1.2, -Infinity, Infinity, 0, NaN, -10],
       }})
-      const view = CDSView.create()
+      const view = DataView.create()
       await build(view, source)
       const dp = new TableDataProvider(source, view)
 

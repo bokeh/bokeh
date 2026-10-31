@@ -1,5 +1,5 @@
 import {LayoutProvider} from "./layout_provider"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
 import type {Arrayable} from "core/types"
 import {dict} from "core/util/object"
 import type * as p from "core/properties"
@@ -27,9 +27,8 @@ export class StaticLayoutProvider extends LayoutProvider {
     }))
   }
 
-  get_node_coordinates(node_source: ColumnarDataSource): [Arrayable<number>, Arrayable<number>] {
-    const data = dict(node_source.data)
-    const index = data.get("index") ?? []
+  get_node_coordinates(node_source: IndexedDataSource): [Arrayable<number>, Arrayable<number>] {
+    const index = node_source.get_field("index") ?? []
     const n = index.length
     const xs = new Float64Array(n)
     const ys = new Float64Array(n)
@@ -43,15 +42,14 @@ export class StaticLayoutProvider extends LayoutProvider {
     return [xs, ys]
   }
 
-  get_edge_coordinates(edge_source: ColumnarDataSource): [Arrayable<number>[], Arrayable<number>[]] {
-    const data = dict(edge_source.data)
-    const starts = (data.get("start") ?? []) as Arrayable<string | number>
-    const ends = (data.get("end") ?? []) as Arrayable<string | number>
+  get_edge_coordinates(edge_source: IndexedDataSource): [Arrayable<number>[], Arrayable<number>[]] {
+    const starts = (edge_source.get_field("start") ?? []) as Arrayable<string | number>
+    const ends = (edge_source.get_field("end") ?? []) as Arrayable<string | number>
     const n = Math.min(starts.length, ends.length)
     const xs: number[][] = []
     const ys: number[][] = []
-    const edge_xs = data.get("xs")
-    const edge_ys = data.get("ys")
+    const edge_xs = edge_source.get_field("xs")
+    const edge_ys = edge_source.get_field("ys")
     const has_paths = edge_xs != null && edge_ys != null
     const graph_layout = dict(this.graph_layout)
     for (let i = 0; i < n; i++) {

@@ -1,7 +1,7 @@
 import {UpperLower, UpperLowerView} from "./upper_lower"
 import type {ArrowHeadView} from "./arrow_head"
 import {ArrowHead, TeeHead} from "./arrow_head"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
 import {Indices} from "core/types"
 import type {Context2d} from "core/util/canvas"
 import type {ChildView} from "core/build_views"
@@ -33,7 +33,7 @@ export class WhiskerView extends UpperLowerView {
     }
   }
 
-  override set_data(source: ColumnarDataSource): void {
+  override set_data(source: IndexedDataSource): void {
     super.set_data(source)
     const indices = Indices.all_set(this._lower.length)
     this.lower_head?.set_data(source, indices)

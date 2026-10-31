@@ -5,6 +5,8 @@ import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {LegendItem} from "@bokehjs/models/annotations/legend_item"
 import {logger} from "@bokehjs/core/logging"
+import {Float64NDArray} from "@bokehjs/core/util/ndarray"
+import {IndexFilter} from "@bokehjs/models/filters/index_filter"
 
 describe("LegendItem", () => {
 
@@ -120,6 +122,44 @@ describe("LegendItem", () => {
   })
 
   describe("get_labels_list_from_label_prop", () => {
+    it("reads shaped label fields by logical row after filtering", () => {
+      const source = ColumnDataSource.create({data: {label: new Float64NDArray([1, 2, 3, 4, 5, 6], [3, 2])}})
+      const renderer = GlyphRenderer.create({data_source: source})
+      renderer.view.filter = IndexFilter.create({indices: [1, 2]})
+      renderer.view.compute_indices(source)
+      const item = LegendItem.create({label: {field: "label"}, renderers: [renderer]})
+      const labels: unknown[] = item.get_labels_list_from_label_prop()
+      expect(labels).to.be.equal([[3, 4], [5, 6]])
+      expect(renderer.view.get_reference_point(source.get("label"), labels[0])).to.be.equal(0)
+      expect(renderer.view.get_reference_point(source.get("label"), labels[1])).to.be.equal(1)
+    })
+
+    it("merges repeated shaped labels and uses the first visible reference point", () => {
+      const source = ColumnDataSource.create({data: {label: new Float64NDArray([1, 2, 1, 2, 3, 4], [3, 2])}})
+      const renderer = GlyphRenderer.create({data_source: source})
+      renderer.view.compute_indices(source)
+      const item = LegendItem.create({label: {field: "label"}, renderers: [renderer]})
+      const labels = item.get_labels_list_from_label_prop()
+      expect(labels).to.be.equal([[1, 2], [3, 4]])
+      expect(renderer.view.get_reference_point(source.get("label"), labels[0])).to.be.equal(0)
+      expect(renderer.view.get_reference_point(source.get("label"), labels[1])).to.be.equal(2)
+      renderer.view.filter = IndexFilter.create({indices: [1, 2]})
+      renderer.view.compute_indices(source)
+      const filtered = item.get_labels_list_from_label_prop()
+      expect(filtered).to.be.equal([[1, 2], [3, 4]])
+      expect(renderer.view.get_reference_point(source.get("label"), filtered[0])).to.be.equal(0)
+      expect(renderer.view.get_reference_point(source.get("label"), filtered[1])).to.be.equal(1)
+    })
+
+    it("retains numeric field values for legend glyph lookup", () => {
+      const source = ColumnDataSource.create({data: {label: [10, 20, 10]}})
+      const renderer = GlyphRenderer.create({data_source: source})
+      renderer.view.compute_indices(source)
+      const item = LegendItem.create({label: {field: "label"}, renderers: [renderer]})
+      const labels = item.get_labels_list_from_label_prop()
+      expect(labels).to.be.equal([10, 20])
+      expect(renderer.view.get_reference_point(source.get("label"), labels[1])).to.be.equal(1)
+    })
 
     it("should return empty labels if visible is false", () => {
       const source = ColumnDataSource.create({

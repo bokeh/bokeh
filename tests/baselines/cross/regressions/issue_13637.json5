@@ -70,7 +70,7 @@
               },
               view: {
                 type: "object",
-                name: "CDSView",
+                name: "DataView",
                 id: "p1036",
                 attributes: {
                   filter: {
@@ -137,7 +137,7 @@
               },
               view: {
                 type: "object",
-                name: "CDSView",
+                name: "DataView",
                 id: "p1037",
                 attributes: {
                   filter: {
@@ -220,7 +220,7 @@
               },
               view: {
                 type: "object",
-                name: "CDSView",
+                name: "DataView",
                 id: "p1038",
                 attributes: {
                   filter: {
@@ -303,7 +303,7 @@
               },
               view: {
                 type: "object",
-                name: "CDSView",
+                name: "DataView",
                 id: "p1039",
                 attributes: {
                   filter: {
@@ -386,7 +386,7 @@
               },
               view: {
                 type: "object",
-                name: "CDSView",
+                name: "DataView",
                 id: "p1040",
                 attributes: {
                   filter: {
@@ -469,7 +469,7 @@
               },
               view: {
                 type: "object",
-                name: "CDSView",
+                name: "DataView",
                 id: "p1041",
                 attributes: {
                   filter: {
@@ -541,7 +541,7 @@
               },
               view: {
                 type: "object",
-                name: "CDSView",
+                name: "DataView",
                 id: "p1042",
                 attributes: {
                   filter: {

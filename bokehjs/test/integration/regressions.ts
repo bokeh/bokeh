@@ -11,7 +11,7 @@ import {
   NormalHead, OpenHead,
   BoxAnnotation, LabelSet, ColorBar, Slope, Span, Whisker,
   Range1d, DataRange1d, FactorRange,
-  ColumnDataSource, CDSView, BooleanFilter, IndexFilter, Selection,
+  ColumnDataSource, DataView as SourceDataView, BooleanFilter, IndexFilter, Selection,
   LinearAxis, CategoricalAxis,
   GlyphRenderer, GraphRenderer, GridBox,
   Circle, Quad, MultiLine, Scatter, Text,
@@ -287,7 +287,7 @@ describe("Bug", () => {
       const y = [0, 1, 2, 3]
       const c = ["black", "red", "green", "blue"]
       const source = ColumnDataSource.create({data: {x, y, c}, selected})
-      const view = CDSView.create({filter: BooleanFilter.create({booleans: [false, true, true, true]})})
+      const view = SourceDataView.create({filter: BooleanFilter.create({booleans: [false, true, true, true]})})
       p.scatter({field: "x"}, {field: "y"}, {source, view, color: {field: "c"}, size: 20})
       return p
     }
@@ -940,7 +940,7 @@ describe("Bug", () => {
         ys: [[0, 1], [0, 1], [0, 1]],
       }})
       const filter = IndexFilter.create({indices: [0, 2]})
-      const view = CDSView.create({filter})
+      const view = SourceDataView.create({filter})
 
       function make_plot(output_backend: OutputBackend) {
         const p = fig([200, 200], {output_backend, title: output_backend})
@@ -1075,7 +1075,7 @@ describe("Bug", () => {
         },
       })
 
-      const view = CDSView.create() // shared view between renderers
+      const view = SourceDataView.create() // shared view between renderers
 
       const scatter_renderer = GlyphRenderer.create({
         data_source: source,
@@ -1278,7 +1278,7 @@ describe("Bug", () => {
           },
         })
         const color_mapper = LinearColorMapper.create({low: 0, high: 6, palette: Spectral11})
-        const cds_view = CDSView.create({filter: IndexFilter.create({indices})})
+        const data_view = SourceDataView.create({filter: IndexFilter.create({indices})})
         const ir = p.image({
           image: {field: "image"},
           x: {field: "x"},
@@ -1287,7 +1287,7 @@ describe("Bug", () => {
           dh: 20,
           color_mapper,
           source,
-          view: cds_view,
+          view: data_view,
         })
         p.add_tools(HoverTool.create({
           renderers: [ir],
@@ -2961,7 +2961,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #11955", () => {
-    it("does not allow updating DataTable when its CDSView's filters change", async () => {
+    it("does not allow updating DataTable when its DataView's filters change", async () => {
       const source = ColumnDataSource.create({
         data: {
           col1: ["a", "b", "c", "d"],
@@ -2970,21 +2970,21 @@ describe("Bug", () => {
         },
       })
 
-      const cds_view = CDSView.create({filter: IndexFilter.create({indices: [1, 2, 3]})})
+      const data_view = SourceDataView.create({filter: IndexFilter.create({indices: [1, 2, 3]})})
 
       const columns = [
         TableColumn.create({field: "col1", title: "col1"}),
         TableColumn.create({field: "col2", title: "col2"}),
         TableColumn.create({field: "col3", title: "col3"}),
       ]
-      const table = DataTable.create({source, columns, view: cds_view, width: 200})
+      const table = DataTable.create({source, columns, view: data_view, width: 200})
 
       const p = fig([200, 200])
-      p.scatter({x: {field: "col2"}, y: {field: "col3"}, size: 10, source, view: cds_view})
+      p.scatter({x: {field: "col2"}, y: {field: "col3"}, size: 10, source, view: data_view})
 
       const {view} = await display(row([table, p]))
 
-      cds_view.filter = IndexFilter.create({indices: [1, 2]})
+      data_view.filter = IndexFilter.create({indices: [1, 2]})
       await view.ready
     })
   })
@@ -3306,7 +3306,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #12718", () => {
-    it("doesn't render Legend correctly when LegendItem.index is filtered out by CDSView", async () => {
+    it("doesn't render Legend correctly when LegendItem.index is filtered out by DataView", async () => {
       const data = {
         values: [0, 1, 2],
         type: [0, 1, 2],
@@ -3314,7 +3314,7 @@ describe("Bug", () => {
       }
 
       const source = ColumnDataSource.create({data})
-      const cds_view = CDSView.create()
+      const data_view = SourceDataView.create()
 
       const p = fig([200, 200])
       p.scatter({
@@ -3323,7 +3323,7 @@ describe("Bug", () => {
         fill_color: {field: "color"},
         size: 20,
         source,
-        view: cds_view,
+        view: data_view,
         legend_group: "type",
       })
 
@@ -3332,7 +3332,7 @@ describe("Bug", () => {
 
       const {view} = await display(p)
 
-      cds_view.filter = IndexFilter.create({indices: [1, 2]})
+      data_view.filter = IndexFilter.create({indices: [1, 2]})
       await view.ready
     })
   })
@@ -5058,13 +5058,13 @@ describe("Bug", () => {
   })
 
   describe("in issue #13244", () => {
-    it("doesn't render DataTable when a CDSView with BooleanFilter is shared with a plot that renders first", async () => {
+    it("doesn't render DataTable when a DataView with BooleanFilter is shared with a plot that renders first", async () => {
       const source = ColumnDataSource.create({data: {
         x: [1, 2, 3, 4, 5],
         y: [10, 11, 12, 13, 14],
       }})
 
-      const view = CDSView.create({filter: BooleanFilter.create({booleans: [true, true, false, true, false]})})
+      const view = SourceDataView.create({filter: BooleanFilter.create({booleans: [true, true, false, true, false]})})
 
       const table = DataTable.create({
         source,
@@ -5407,7 +5407,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #8010", () => {
-    it("doesn't respect CDSView filters when creating the legend via legend_field", async () => {
+    it("doesn't respect DataView filters when creating the legend via legend_field", async () => {
       const source = ColumnDataSource.create({
         data: {
           x_values: [1, 2, 3, 4, 5],
@@ -5417,7 +5417,7 @@ describe("Bug", () => {
       })
 
       const filter = BooleanFilter.create({booleans: [true, false, true, false, true]})
-      const view = CDSView.create({filter})
+      const view = SourceDataView.create({filter})
 
       view.compute_indices(source)
 

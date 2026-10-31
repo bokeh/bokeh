@@ -4,12 +4,12 @@ import {restorable} from "#framework/util"
 import {expect} from "#framework/assertions"
 import {display, fig} from "#framework/layouts"
 import {defer} from "@bokehjs/core/util/defer"
-import {CDSViewView} from "@bokehjs/models/sources/cds_view"
+import {DataViewView} from "@bokehjs/models/sources/data_view"
 import {Patches} from "@bokehjs/models/glyphs/patches"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {IndexedLookup} from "@bokehjs/models/expressions/indexed_lookup"
 import type {PatchesView} from "@bokehjs/models/glyphs/patches"
-import {CDSView} from "@bokehjs/models/sources/cds_view"
+import {DataView} from "@bokehjs/models/sources/data_view"
 import {IndexFilter} from "@bokehjs/models/filters/index_filter"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 
@@ -68,7 +68,7 @@ describe("IndexedLookup shared MultiLine coordinates", () => {
 })
 
 describe("IndexedLookup renderer source replacement", () => {
-  it("updates once with current CDSView indices after replacing the view", async () => {
+  it("updates once with current DataView indices after replacing the view", async () => {
     const values = ColumnDataSource.create({data: {x: [0, 1, 0], y: [0, 0, 1]}})
     const cells = ColumnDataSource.create({data: {vertices: [[0, 1, 2], [2, 1, 0]]}})
     const xs = IndexedLookup.create({source: values, field: "x", indices: "vertices"})
@@ -92,13 +92,13 @@ describe("IndexedLookup renderer source replacement", () => {
     }
 
     await replace_source([[0, 1, 2]])
-    renderer.view = CDSView.create()
+    renderer.view = DataView.create()
     await view.ready
     await replace_source([[0, 1, 2], [2, 1, 0]])
     await replace_source([[2, 1, 0]])
     await replace_source([[0, 2, 1]])
 
-    renderer.view = CDSView.create({filter: IndexFilter.create({indices: [0]})})
+    renderer.view = DataView.create({filter: IndexFilter.create({indices: [0]})})
     await view.ready
     await replace_source([[2, 1, 0], [0, 1, 2]])
     renderer.view.filter = IndexFilter.create({indices: [1]})
@@ -107,7 +107,7 @@ describe("IndexedLookup renderer source replacement", () => {
     expect(Array.from(glyph.xs.get(0))).to.be.equal([0, 1, 0])
     await replace_source([[0, 2, 1], [1, 0, 2]])
     renderer.setv({
-      view: CDSView.create(),
+      view: DataView.create(),
       data_source: ColumnDataSource.create({data: {vertices: [[1, 2, 0]]}}),
     })
     await view.ready
@@ -163,7 +163,7 @@ describe("IndexedLookup replacement lifecycle", () => {
     const {view, renderer, glyph} = await make_plot()
     renderer.setv({
       data_source: ColumnDataSource.create({data: {vertices: [[2, 3, 4]]}}),
-      view: CDSView.create(),
+      view: DataView.create(),
     })
     await view.ready
     expect(Array.from(glyph.xs.get(0))).to.be.equal([1, 0, 0.5])
@@ -177,13 +177,13 @@ describe("IndexedLookup replacement lifecycle", () => {
     it(`disconnects removed renderers during ${replace} replacement`, async () => {
       const {p, view, renderer, renderer_view} = await make_plot()
       using data_spy = restorable(sinon.spy(renderer_view, "_set_data"))
-      using indices_spy = restorable(sinon.spy(CDSViewView.prototype, "compute_indices"))
+      using indices_spy = restorable(sinon.spy(DataViewView.prototype, "compute_indices"))
       const source = ColumnDataSource.create({data: {vertices: [[2, 3, 4]]}})
       if (replace != "view") {
         renderer.data_source = source
       }
       if (replace != "source") {
-        renderer.view = CDSView.create()
+        renderer.view = DataView.create()
       }
       const active_source = renderer.data_source
       p.renderers = []
@@ -240,12 +240,12 @@ describe("IndexedLookup replacement lifecycle", () => {
 
   it("disposes superseded builds when view replacement returns to the same model", async () => {
     const {view, renderer, glyph} = await make_plot()
-    const first = CDSView.create()
+    const first = DataView.create()
     renderer.view = first
-    renderer.view = CDSView.create()
+    renderer.view = DataView.create()
     renderer.view = first
     await view.ready
-    using spy = restorable(sinon.spy(CDSViewView.prototype, "compute_indices"))
+    using spy = restorable(sinon.spy(DataViewView.prototype, "compute_indices"))
     renderer.data_source.patch({vertices: [[0, [2, 3, 4]]]})
     await view.ready
     expect(spy.callCount).to.be.equal(1)

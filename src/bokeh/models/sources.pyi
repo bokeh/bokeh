@@ -31,11 +31,12 @@ from .selections import Selection, SelectionPolicy
 
 __all__ = (
     "AjaxDataSource",
-    "CDSView",
     "ColumnarDataSource",
     "ColumnDataSource",
     "DataSource",
+    "DataView",
     "GeoJSONDataSource",
+    "IndexedDataSource",
     "ServerSentDataSource",
     "WebDataSource",
 )
@@ -49,24 +50,31 @@ type Index = int | slice | tuple[int | slice, ...]
 type Patches = Mapping[str, Sequence[tuple[Index, Any]]]
 
 class _DataSourceInit(_ModelInit, total=False):
-    selected: Selection
+    pass
 
 class DataSource(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_DataSourceInit]) -> None: ...
 
-    selected: Selection = ...
-
-class _ColumnarDataSourceInit(_DataSourceInit, total=False):
-    default_values: dict[str, Any]
+class _IndexedDataSourceInit(_DataSourceInit, total=False):
+    selected: Selection
     selection_policy: SelectionPolicy
 
-class ColumnarDataSource(DataSource):
+class IndexedDataSource(DataSource):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_IndexedDataSourceInit]) -> None: ...
+
+    selected: Selection = ...
+    selection_policy: SelectionPolicy = ...
+
+class _ColumnarDataSourceInit(_IndexedDataSourceInit, total=False):
+    default_values: dict[str, Any]
+
+class ColumnarDataSource(IndexedDataSource):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_ColumnarDataSourceInit]) -> None: ...
 
     default_values: dict[str, Any] = ...
-    selection_policy: SelectionPolicy = ...
 
 class _ColumnDataSourceInit(_ColumnarDataSourceInit, total=False):
     data: DataDictLike
@@ -104,11 +112,11 @@ class ColumnDataSource(ColumnarDataSource):
 
     def patch(self, patches: Patches, setter: Setter | None = ...) -> None: ...
 
-class _CDSViewInit(_ModelInit, total=False):
+class _DataViewInit(_ModelInit, total=False):
     filter: Filter
 
-class CDSView(Model):
-    def __init__(self, **kwargs: Unpack[_CDSViewInit]) -> None: ...
+class DataView(Model):
+    def __init__(self, **kwargs: Unpack[_DataViewInit]) -> None: ...
 
     filter: Filter = ...
 

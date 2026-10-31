@@ -219,19 +219,19 @@ class TestGlyphRenderer_check_bad_column_name:
         )
 
 @pytest.mark.parametrize('glyph', (Line, Patch))
-def test_check_cdsview_filters_with_connected_error(glyph) -> None:
+def test_check_dataview_filters_with_connected_error(glyph) -> None:
     renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
     renderer.glyph = glyph()
 
-    assert renderer._check_cdsview_filters_with_connected() == []
+    assert renderer._check_dataview_filters_with_connected() == []
 
     renderer.view.filter = IndexFilter()
-    check = renderer._check_cdsview_filters_with_connected()
+    check = renderer._check_dataview_filters_with_connected()
     assert len(check) == 1
     assert check[0] == ValidationIssue(
         code=1024,
-        name='CDSVIEW_FILTERS_WITH_CONNECTED',
-        text='CDSView filters are not compatible with glyphs with connected topology such as Line or Patch',
+        name='DATAVIEW_FILTERS_WITH_CONNECTED',
+        text='DataView filters are not compatible with glyphs with connected topology such as Line or Patch',
         extra=str(renderer),
     )
 

@@ -1,6 +1,6 @@
 import {HasProps} from "core/has_props"
 import {Expression} from "./expression"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
 import type * as p from "core/properties"
 import type {Arrayable, Dict} from "core/types"
 import {GeneratorFunction} from "core/types"
@@ -55,7 +55,7 @@ export class CustomJSExpr extends Expression {
     return new GeneratorFunction(...this.names, code)
   }
 
-  protected _v_compute(source: ColumnarDataSource): Arrayable<unknown> {
+  protected _v_compute(source: IndexedDataSource): Arrayable<unknown> {
     const generator = this.func.apply(source, this.values)
 
     let result = generator.next()

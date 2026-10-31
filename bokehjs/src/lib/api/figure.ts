@@ -21,6 +21,7 @@ import {
   CategoricalScale,
   ColumnDataSource,
   ColumnarDataSource,
+  IndexedDataSource,
   ContinuousTicker,
   CoordinateMapping,
   DataRange1d,
@@ -599,13 +600,13 @@ export class Figure extends BaseFigure {
       const {source} = attrs
       if (source == null) {
         return ColumnDataSource.create()
-      } else if (source instanceof ColumnarDataSource) {
+      } else if (source instanceof IndexedDataSource) {
         return source
       } else {
         return ColumnDataSource.create({data: source})
       }
     })()
-    const data = clone(source.data)
+    const data = source instanceof ColumnarDataSource ? clone(source.data) : {}
     delete attrs.source
 
     const {view} = attrs
@@ -657,7 +658,11 @@ export class Figure extends BaseFigure {
 
     this._fixup_values(cls, data_dict, attrs)
 
-    source.data = data
+    if (source instanceof ColumnarDataSource) {
+      source.data = data
+    } else if (data_dict.size != 0) {
+      throw new Error("literal arrays require a ColumnDataSource, use fields with an indexed source")
+    }
 
     const _make_glyph = (cls: HasPropsFactory<Glyph>, attrs: Attrs, extra_attrs: Attrs) => {
       return cls.create({...attrs, ...extra_attrs})
@@ -859,11 +864,10 @@ export class Figure extends BaseFigure {
   }
 
   protected _handle_legend_group(name: string, legend: Legend, glyph_renderer: GlyphRenderer): void {
-    const data = dict(glyph_renderer.data_source.data)
-    if (!data.has(name)) {
+    const column = glyph_renderer.data_source.get_field(name)
+    if (column == null) {
       throw new Error(`column to be grouped does not exist in glyph data source: ${name}`)
     }
-    const column = data.get(name) ?? []
     const values = uniq(column).sort()
     for (const value of values) {
       const label = {value: `${value}`}

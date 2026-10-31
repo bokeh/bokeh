@@ -47,7 +47,7 @@ export namespace HoverfulScatter {
   })
 
   const hover = p.toolbar.get_one(Bokeh.HoverTool)
-  hover.tooltips = (data_source: typeof source, info) => {
+  hover.tooltips = (data_source, info) => {
     const div = document.createElement("div")
     div.style.width = "200px"
     div.style.height = "75px"

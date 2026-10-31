@@ -1,5 +1,5 @@
 import {CoordinateTransform} from "../expressions/coordinate_transform"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
 
@@ -26,7 +26,7 @@ export class PolarTransform extends CoordinateTransform {
     }))
   }
 
-  protected _v_compute(source: ColumnarDataSource) {
+  protected _v_compute(source: IndexedDataSource) {
     const radius = this.properties.radius.uniform(source)
     const angle = this.properties.angle.uniform(source)
 

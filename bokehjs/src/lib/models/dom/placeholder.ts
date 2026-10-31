@@ -1,7 +1,7 @@
 import {DOMElement, DOMElementView} from "./dom_element"
 import {CustomJS} from "../callbacks/customjs"
 import {CustomJSHover} from "../tools/inspectors/customjs_hover"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
 import type {FormatterFunc, Index as DataIndex} from "core/util/templating"
 import type * as p from "core/properties"
 import type {Dict, PlainObject} from "core/types"
@@ -18,7 +18,7 @@ export abstract class PlaceholderView extends DOMElementView {
 
   static override tag_name = "span" as const
 
-  abstract update(source: ColumnarDataSource, i: DataIndex | null, vars: PlainObject<unknown>,
+  abstract update(source: IndexedDataSource, i: DataIndex | null, vars: PlainObject<unknown>,
     formatters?: Formatters, default_formatter?: FormatterFunc): void
 }
 

@@ -120,7 +120,7 @@ describe("glyph module", () => {
 
       const glyph = SomeGlyph.create()
       const data = {}
-      const glyph_view = await create_glyph_view(glyph, data) as SomeGlyphView // XXX
+      const glyph_view = await create_glyph_view(glyph, data) as unknown as SomeGlyphView // XXX
 
       with_log_level("debug", () => {
         const point: PointGeometry = {type: "point", sx: 0, sy: 0}

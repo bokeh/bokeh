@@ -82,8 +82,8 @@ validation checks.
 1023 *(MIN_PREFERRED_MAX_HEIGHT)*
     Expected min_height <= height <= max_height
 
-1024 *(CDSVIEW_FILTERS_WITH_CONNECTED)*
-    ``CDSView`` filters are not compatible with glyphs with connected topology such as Line or Patch.
+1024 *(DATAVIEW_FILTERS_WITH_CONNECTED)*
+    ``DataView`` filters are not compatible with glyphs with connected topology such as Line or Patch.
 
 1025 *(INCOMPATIBLE_LINE_EDIT_RENDERER)*
     The ``LineEditTool`` renderers may only reference ``MultiLine`` and ``Line`` glyph models.
@@ -96,6 +96,9 @@ validation checks.
 
 1032 *(INCOMPATIBLE_NESTED_TICK_FORMATTERS)*
     ``SITickFormatter`` and ``ScaledTickFormatter`` cannot be nested.
+
+1033 *(INCOMPATIBLE_EDIT_SOURCE)*
+    Edit tool renderers require a ``ColumnarDataSource``.
 
 9999 *(EXT)*
     Indicates that a custom error check has failed.
@@ -208,10 +211,10 @@ MIN_PREFERRED_MAX_HEIGHT = Error(
     1023,
     "MIN_PREFERRED_MAX_HEIGHT",
     "Expected min_height <= height <= max_height")
-CDSVIEW_FILTERS_WITH_CONNECTED = Error(
+DATAVIEW_FILTERS_WITH_CONNECTED = Error(
     1024,
-    "CDSVIEW_FILTERS_WITH_CONNECTED",
-    "CDSView filters are not compatible with glyphs with connected topology such as Line or Patch")
+    "DATAVIEW_FILTERS_WITH_CONNECTED",
+    "DataView filters are not compatible with glyphs with connected topology such as Line or Patch")
 INCOMPATIBLE_LINE_EDIT_RENDERER = Error(
     1025,
     "INCOMPATIBLE_LINE_EDIT_RENDERER",
@@ -244,6 +247,10 @@ INCOMPATIBLE_NESTED_TICK_FORMATTERS = Error(
     1032,
     "INCOMPATIBLE_NESTED_TICK_FORMATTERS",
     "SITickFormatter and ScaledTickFormatter cannot be nested")
+INCOMPATIBLE_EDIT_SOURCE = Error(
+    1033,
+    "INCOMPATIBLE_EDIT_SOURCE",
+    "Edit tool renderers require a ColumnarDataSource")
 EXT = Error(
     9999,
     "EXT",

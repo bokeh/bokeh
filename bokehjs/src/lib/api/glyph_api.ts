@@ -7,7 +7,9 @@ import type {VectorSpec, ScalarSpec, ColorSpec, UnitsSpec, Property} from "../co
 import type {MarkerType, RenderLevel} from "../core/enums"
 import type * as nd from "core/util/ndarray"
 
-import type {Glyph, GlyphRenderer, ColumnarDataSource, CDSView, CoordinateMapping} from "./models"
+import type {Glyph, GlyphRenderer, IndexedDataSource, ColumnarDataSource, ColumnDataSource, DataView, CoordinateMapping} from "./models"
+
+import type {GlyphRendererWithSource} from "../models/renderers/glyph_renderer"
 
 import {
   AnnularWedge,
@@ -124,8 +126,8 @@ export type AuxText = {
 }
 
 export type AuxGlyph = {
-  source: ColumnarDataSource | ColumnarDataSource["data"]
-  view: CDSView
+  source: IndexedDataSource | ColumnarDataSource["data"]
+  view: DataView
   legend_label: string
   legend_field: string
   legend_group: string
@@ -204,43 +206,50 @@ export type VSpanArgs         = GlyphArgs<VSpan.Props>         & AuxLine
 export type VStripArgs        = GlyphArgs<VStrip.Props>        & AuxLine & AuxFill & AuxHatch
 export type WedgeArgs         = GlyphArgs<Wedge.Props>         & AuxLine & AuxFill & AuxHatch
 
+type GlyphSource = AuxGlyph["source"]
+type SourceOf<Source extends GlyphSource> = Source extends IndexedDataSource ? Source : ColumnDataSource
+
+type GlyphOptions<Args, Source extends GlyphSource> = Omit<Partial<Args>, "source"> & {
+  source?: Source
+}
+
 export abstract class GlyphAPI {
   abstract _glyph<G extends Glyph>(cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides?: object): GlyphRenderer<G>
 
-  annular_wedge(): GlyphRenderer<AnnularWedge>
-  annular_wedge(args: Partial<AnnularWedgeArgs>): GlyphRenderer<AnnularWedge>
-  annular_wedge(
+  annular_wedge(): GlyphRendererWithSource<AnnularWedge, ColumnDataSource>
+  annular_wedge<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<AnnularWedgeArgs, Source>): GlyphRendererWithSource<AnnularWedge, SourceOf<Source>>
+  annular_wedge<Source extends GlyphSource = ColumnDataSource>(
     x: AnnularWedgeArgs["x"],
     y: AnnularWedgeArgs["y"],
     inner_radius: AnnularWedgeArgs["inner_radius"],
     outer_radius: AnnularWedgeArgs["outer_radius"],
     start_angle: AnnularWedgeArgs["start_angle"],
     end_angle: AnnularWedgeArgs["end_angle"],
-    args?: Partial<AnnularWedgeArgs>): GlyphRenderer<AnnularWedge>
+    args?: GlyphOptions<AnnularWedgeArgs, Source>): GlyphRendererWithSource<AnnularWedge, SourceOf<Source>>
   annular_wedge(...args: unknown[]): GlyphRenderer<AnnularWedge> {
     return this._glyph(AnnularWedge, "annular_wedge", ["x", "y", "inner_radius", "outer_radius", "start_angle", "end_angle"], args)
   }
 
-  annulus(): GlyphRenderer<Annulus>
-  annulus(args: Partial<AnnulusArgs>): GlyphRenderer<Annulus>
-  annulus(
+  annulus(): GlyphRendererWithSource<Annulus, ColumnDataSource>
+  annulus<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<AnnulusArgs, Source>): GlyphRendererWithSource<Annulus, SourceOf<Source>>
+  annulus<Source extends GlyphSource = ColumnDataSource>(
     x: AnnulusArgs["x"],
     y: AnnulusArgs["y"],
     inner_radius: AnnulusArgs["inner_radius"],
     outer_radius: AnnulusArgs["outer_radius"],
-    args?: Partial<AnnulusArgs>): GlyphRenderer<Annulus>
+    args?: GlyphOptions<AnnulusArgs, Source>): GlyphRendererWithSource<Annulus, SourceOf<Source>>
   annulus(...args: unknown[]): GlyphRenderer<Annulus> {
     return this._glyph(Annulus, "annulus", ["x", "y", "inner_radius", "outer_radius"], args)
   }
 
-  arrow(): GlyphRenderer<Segment>
-  arrow(args: Partial<ArrowArgs>): GlyphRenderer<Segment>
-  arrow(
+  arrow(): GlyphRendererWithSource<Segment, ColumnDataSource>
+  arrow<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<ArrowArgs, Source>): GlyphRendererWithSource<Segment, SourceOf<Source>>
+  arrow<Source extends GlyphSource = ColumnDataSource>(
     x_start: ArrowArgs["x_start"],
     y_start: ArrowArgs["y_start"],
     x_end: ArrowArgs["x_end"],
     y_end: ArrowArgs["y_end"],
-    args?: Partial<ArrowArgs>): GlyphRenderer<Segment>
+    args?: GlyphOptions<ArrowArgs, Source>): GlyphRendererWithSource<Segment, SourceOf<Source>>
   arrow(...args: unknown[]): GlyphRenderer<Segment> {
     const signature = () => "the method signature is arrow(x_start, y_start, x_end, y_end, args?)"
     let attrs: Partial<ArrowArgs>
@@ -293,22 +302,22 @@ export abstract class GlyphAPI {
     return renderer
   }
 
-  arc(): GlyphRenderer<Arc>
-  arc(args: Partial<ArcArgs>): GlyphRenderer<Arc>
-  arc(
+  arc(): GlyphRendererWithSource<Arc, ColumnDataSource>
+  arc<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<ArcArgs, Source>): GlyphRendererWithSource<Arc, SourceOf<Source>>
+  arc<Source extends GlyphSource = ColumnDataSource>(
     x: ArcArgs["x"],
     y: ArcArgs["y"],
     radius: ArcArgs["radius"],
     start_angle: ArcArgs["start_angle"],
     end_angle: ArcArgs["end_angle"],
-    args?: Partial<ArcArgs>): GlyphRenderer<Arc>
+    args?: GlyphOptions<ArcArgs, Source>): GlyphRendererWithSource<Arc, SourceOf<Source>>
   arc(...args: unknown[]): GlyphRenderer<Arc> {
     return this._glyph(Arc, "arc", ["x", "y", "radius", "start_angle", "end_angle"], args)
   }
 
-  bezier(): GlyphRenderer<Bezier>
-  bezier(args: Partial<BezierArgs>): GlyphRenderer<Bezier>
-  bezier(
+  bezier(): GlyphRendererWithSource<Bezier, ColumnDataSource>
+  bezier<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<BezierArgs, Source>): GlyphRendererWithSource<Bezier, SourceOf<Source>>
+  bezier<Source extends GlyphSource = ColumnDataSource>(
     x0: BezierArgs["x0"],
     y0: BezierArgs["y0"],
     x1: BezierArgs["x1"],
@@ -317,401 +326,401 @@ export abstract class GlyphAPI {
     cy0: BezierArgs["cy0"],
     cx1: BezierArgs["cx1"],
     cy1: BezierArgs["cy1"],
-    args?: Partial<BezierArgs>): GlyphRenderer<Bezier>
+    args?: GlyphOptions<BezierArgs, Source>): GlyphRendererWithSource<Bezier, SourceOf<Source>>
   bezier(...args: unknown[]): GlyphRenderer<Bezier> {
     return this._glyph(Bezier, "bezier", ["x0", "y0", "x1", "y1", "cx0", "cy0", "cx1", "cy1"], args)
   }
 
-  block(): GlyphRenderer<Block>
-  block(args: Partial<BlockArgs>): GlyphRenderer<Block>
-  block(
+  block(): GlyphRendererWithSource<Block, ColumnDataSource>
+  block<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<BlockArgs, Source>): GlyphRendererWithSource<Block, SourceOf<Source>>
+  block<Source extends GlyphSource = ColumnDataSource>(
     x: BlockArgs["x"],
     y: BlockArgs["y"],
     width: BlockArgs["width"],
     height: BlockArgs["height"],
-    args?: Partial<BlockArgs>): GlyphRenderer<Block>
+    args?: GlyphOptions<BlockArgs, Source>): GlyphRendererWithSource<Block, SourceOf<Source>>
   block(...args: unknown[]): GlyphRenderer<Block> {
     return this._glyph(Block, "block", ["x", "y", "width", "height"], args)
   }
 
-  circle(): GlyphRenderer<Circle>
-  circle(args: Partial<CircleArgs>): GlyphRenderer<Circle>
-  circle(
+  circle(): GlyphRendererWithSource<Circle, ColumnDataSource>
+  circle<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<CircleArgs, Source>): GlyphRendererWithSource<Circle, SourceOf<Source>>
+  circle<Source extends GlyphSource = ColumnDataSource>(
     x: CircleArgs["x"],
     y: CircleArgs["y"],
     radius: CircleArgs["radius"],
-    args?: Partial<CircleArgs>): GlyphRenderer<Circle>
+    args?: GlyphOptions<CircleArgs, Source>): GlyphRendererWithSource<Circle, SourceOf<Source>>
   circle(...args: unknown[]): GlyphRenderer<Circle> {
     return this._glyph(Circle, "circle", ["x", "y", "radius"], args)
   }
 
-  ellipse(): GlyphRenderer<Ellipse>
-  ellipse(args: Partial<EllipseArgs>): GlyphRenderer<Ellipse>
-  ellipse(
+  ellipse(): GlyphRendererWithSource<Ellipse, ColumnDataSource>
+  ellipse<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<EllipseArgs, Source>): GlyphRendererWithSource<Ellipse, SourceOf<Source>>
+  ellipse<Source extends GlyphSource = ColumnDataSource>(
     x: EllipseArgs["x"],
     y: EllipseArgs["y"],
     width: EllipseArgs["width"],
     height: EllipseArgs["height"],
-    args?: Partial<EllipseArgs>): GlyphRenderer<Ellipse>
+    args?: GlyphOptions<EllipseArgs, Source>): GlyphRendererWithSource<Ellipse, SourceOf<Source>>
   ellipse(...args: unknown[]): GlyphRenderer<Ellipse> {
     return this._glyph(Ellipse, "ellipse", ["x", "y", "width", "height"], args)
   }
 
-  harea(): GlyphRenderer<HArea>
-  harea(args: Partial<HAreaArgs>): GlyphRenderer<HArea>
-  harea(
+  harea(): GlyphRendererWithSource<HArea, ColumnDataSource>
+  harea<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<HAreaArgs, Source>): GlyphRendererWithSource<HArea, SourceOf<Source>>
+  harea<Source extends GlyphSource = ColumnDataSource>(
     x1: HAreaArgs["x1"],
     x2: HAreaArgs["x2"],
     y: HAreaArgs["y"],
-    args?: Partial<HAreaArgs>): GlyphRenderer<HArea>
+    args?: GlyphOptions<HAreaArgs, Source>): GlyphRendererWithSource<HArea, SourceOf<Source>>
   harea(...args: unknown[]): GlyphRenderer<HArea> {
     return this._glyph(HArea, "harea", ["x1", "x2", "y"], args)
   }
 
-  harea_step(): GlyphRenderer<HAreaStep>
-  harea_step(args: Partial<HAreaStepArgs>): GlyphRenderer<HAreaStep>
-  harea_step(
+  harea_step(): GlyphRendererWithSource<HAreaStep, ColumnDataSource>
+  harea_step<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<HAreaStepArgs, Source>): GlyphRendererWithSource<HAreaStep, SourceOf<Source>>
+  harea_step<Source extends GlyphSource = ColumnDataSource>(
     x1: HAreaStepArgs["x1"],
     x2: HAreaStepArgs["x2"],
     y: HAreaStepArgs["y"],
     step_mode: HAreaStepArgs["step_mode"],
-    args?: Partial<HAreaStepArgs>): GlyphRenderer<HAreaStep>
+    args?: GlyphOptions<HAreaStepArgs, Source>): GlyphRendererWithSource<HAreaStep, SourceOf<Source>>
   harea_step(...args: unknown[]): GlyphRenderer<HAreaStep> {
     return this._glyph(HAreaStep, "harea_step", ["x1", "x2", "y", "step_mode"], args)
   }
 
-  hbar(): GlyphRenderer<HBar>
-  hbar(args: Partial<HBarArgs>): GlyphRenderer<HBar>
-  hbar(
+  hbar(): GlyphRendererWithSource<HBar, ColumnDataSource>
+  hbar<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<HBarArgs, Source>): GlyphRendererWithSource<HBar, SourceOf<Source>>
+  hbar<Source extends GlyphSource = ColumnDataSource>(
     y: HBarArgs["y"],
     height: HBarArgs["height"],
     right: HBarArgs["right"],
     left: HBarArgs["left"],
-    args?: Partial<HBarArgs>): GlyphRenderer<HBar>
+    args?: GlyphOptions<HBarArgs, Source>): GlyphRendererWithSource<HBar, SourceOf<Source>>
   hbar(...args: unknown[]): GlyphRenderer<HBar> {
     return this._glyph(HBar, "hbar", ["y", "height", "right", "left"], args)
   }
 
-  hspan(): GlyphRenderer<HSpan>
-  hspan(args: Partial<HSpanArgs>): GlyphRenderer<HSpan>
-  hspan(
+  hspan(): GlyphRendererWithSource<HSpan, ColumnDataSource>
+  hspan<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<HSpanArgs, Source>): GlyphRendererWithSource<HSpan, SourceOf<Source>>
+  hspan<Source extends GlyphSource = ColumnDataSource>(
     y: HSpanArgs["y"],
-    args?: Partial<HSpanArgs>): GlyphRenderer<HSpan>
+    args?: GlyphOptions<HSpanArgs, Source>): GlyphRendererWithSource<HSpan, SourceOf<Source>>
   hspan(...args: unknown[]): GlyphRenderer<HSpan> {
     return this._glyph(HSpan, "hspan", ["y"], args)
   }
 
-  hstrip(): GlyphRenderer<HStrip>
-  hstrip(args: Partial<HStripArgs>): GlyphRenderer<HStrip>
-  hstrip(
+  hstrip(): GlyphRendererWithSource<HStrip, ColumnDataSource>
+  hstrip<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<HStripArgs, Source>): GlyphRendererWithSource<HStrip, SourceOf<Source>>
+  hstrip<Source extends GlyphSource = ColumnDataSource>(
     y0: HStripArgs["y0"],
     y1: HStripArgs["y1"],
-    args?: Partial<HStripArgs>): GlyphRenderer<HStrip>
+    args?: GlyphOptions<HStripArgs, Source>): GlyphRendererWithSource<HStrip, SourceOf<Source>>
   hstrip(...args: unknown[]): GlyphRenderer<HStrip> {
     return this._glyph(HStrip, "hstrip", ["y0", "y1"], args)
   }
 
-  hex_tile(): GlyphRenderer<HexTile>
-  hex_tile(args: Partial<HexTileArgs>): GlyphRenderer<HexTile>
-  hex_tile(
+  hex_tile(): GlyphRendererWithSource<HexTile, ColumnDataSource>
+  hex_tile<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<HexTileArgs, Source>): GlyphRendererWithSource<HexTile, SourceOf<Source>>
+  hex_tile<Source extends GlyphSource = ColumnDataSource>(
     q: HexTileArgs["q"],
     r: HexTileArgs["r"],
-    args?: Partial<HexTileArgs>): GlyphRenderer<HexTile>
+    args?: GlyphOptions<HexTileArgs, Source>): GlyphRendererWithSource<HexTile, SourceOf<Source>>
   hex_tile(...args: unknown[]): GlyphRenderer<HexTile> {
     return this._glyph(HexTile, "hex_tile", ["q", "r"], args)
   }
 
-  image(): GlyphRenderer<Image>
-  image(args: Partial<ImageArgs>): GlyphRenderer<Image>
-  image(
+  image(): GlyphRendererWithSource<Image, ColumnDataSource>
+  image<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<ImageArgs, Source>): GlyphRendererWithSource<Image, SourceOf<Source>>
+  image<Source extends GlyphSource = ColumnDataSource>(
     image: ImageArgs["image"],
     x: ImageArgs["x"],
     y: ImageArgs["y"],
     dw: ImageArgs["dw"],
     dh: ImageArgs["dh"],
-    args?: Partial<ImageArgs>): GlyphRenderer<Image>
+    args?: GlyphOptions<ImageArgs, Source>): GlyphRendererWithSource<Image, SourceOf<Source>>
   image(...args: unknown[]): GlyphRenderer<Image> {
     return this._glyph(Image, "image", ["color_mapper", "image", "x", "y", "dw", "dh"], args)
   }
 
-  image_stack(): GlyphRenderer<ImageStack>
-  image_stack(args: Partial<ImageStackArgs>): GlyphRenderer<ImageStack>
-  image_stack(
+  image_stack(): GlyphRendererWithSource<ImageStack, ColumnDataSource>
+  image_stack<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<ImageStackArgs, Source>): GlyphRendererWithSource<ImageStack, SourceOf<Source>>
+  image_stack<Source extends GlyphSource = ColumnDataSource>(
     image: ImageStackArgs["image"],
     x: ImageStackArgs["x"],
     y: ImageStackArgs["y"],
     dw: ImageStackArgs["dw"],
     dh: ImageStackArgs["dh"],
-    args?: Partial<ImageStackArgs>): GlyphRenderer<ImageStack>
+    args?: GlyphOptions<ImageStackArgs, Source>): GlyphRendererWithSource<ImageStack, SourceOf<Source>>
   image_stack(...args: unknown[]): GlyphRenderer<ImageStack> {
     return this._glyph(ImageStack, "image_stack", ["color_mapper", "image", "x", "y", "dw", "dh"], args)
   }
 
-  image_rgba(): GlyphRenderer<ImageRGBA>
-  image_rgba(args: Partial<ImageRGBAArgs>): GlyphRenderer<ImageRGBA>
-  image_rgba(
+  image_rgba(): GlyphRendererWithSource<ImageRGBA, ColumnDataSource>
+  image_rgba<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<ImageRGBAArgs, Source>): GlyphRendererWithSource<ImageRGBA, SourceOf<Source>>
+  image_rgba<Source extends GlyphSource = ColumnDataSource>(
     image: ImageRGBAArgs["image"],
     x: ImageRGBAArgs["x"],
     y: ImageRGBAArgs["y"],
     dw: ImageRGBAArgs["dw"],
     dh: ImageRGBAArgs["dh"],
-    args?: Partial<ImageRGBAArgs>): GlyphRenderer<ImageRGBA>
+    args?: GlyphOptions<ImageRGBAArgs, Source>): GlyphRendererWithSource<ImageRGBA, SourceOf<Source>>
   image_rgba(...args: unknown[]): GlyphRenderer<ImageRGBA> {
     return this._glyph(ImageRGBA, "image_rgba", ["image", "x", "y", "dw", "dh"], args)
   }
 
-  image_url(): GlyphRenderer<ImageURL>
-  image_url(args: Partial<ImageURLArgs>): GlyphRenderer<ImageURL>
-  image_url(
+  image_url(): GlyphRendererWithSource<ImageURL, ColumnDataSource>
+  image_url<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<ImageURLArgs, Source>): GlyphRendererWithSource<ImageURL, SourceOf<Source>>
+  image_url<Source extends GlyphSource = ColumnDataSource>(
     url: ImageURLArgs["url"],
     x: ImageURLArgs["x"],
     y: ImageURLArgs["y"],
     w: ImageURLArgs["w"],
     h: ImageURLArgs["h"],
-    args?: Partial<ImageURLArgs>): GlyphRenderer<ImageURL>
+    args?: GlyphOptions<ImageURLArgs, Source>): GlyphRendererWithSource<ImageURL, SourceOf<Source>>
   image_url(...args: unknown[]): GlyphRenderer<ImageURL> {
     return this._glyph(ImageURL, "image_url", ["url", "x", "y", "w", "h"], args)
   }
 
-  line(): GlyphRenderer<Line>
-  line(args: Partial<LineArgs>): GlyphRenderer<Line>
-  line(
+  line(): GlyphRendererWithSource<Line, ColumnDataSource>
+  line<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<LineArgs, Source>): GlyphRendererWithSource<Line, SourceOf<Source>>
+  line<Source extends GlyphSource = ColumnDataSource>(
     x: LineArgs["x"],
     y: LineArgs["y"],
-    args?: Partial<LineArgs>): GlyphRenderer<Line>
+    args?: GlyphOptions<LineArgs, Source>): GlyphRendererWithSource<Line, SourceOf<Source>>
   line(...args: unknown[]): GlyphRenderer<Line> {
     return this._glyph(Line, "line", ["x", "y"], args)
   }
 
-  mathml(): GlyphRenderer<MathML>
-  mathml(args: Partial<MathMLArgs>): GlyphRenderer<MathML>
-  mathml(
+  mathml(): GlyphRendererWithSource<MathML, ColumnDataSource>
+  mathml<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MathMLArgs, Source>): GlyphRendererWithSource<MathML, SourceOf<Source>>
+  mathml<Source extends GlyphSource = ColumnDataSource>(
     x: MathMLArgs["x"],
     y: MathMLArgs["y"],
     text: MathMLArgs["text"],
-    args?: Partial<MathMLArgs>): GlyphRenderer<MathML>
+    args?: GlyphOptions<MathMLArgs, Source>): GlyphRendererWithSource<MathML, SourceOf<Source>>
   mathml(...args: unknown[]): GlyphRenderer<MathML> {
     return this._glyph(MathML, "mathml", ["x", "y", "text"], args)
   }
 
-  multi_line(): GlyphRenderer<MultiLine>
-  multi_line(args: Partial<MultiLineArgs>): GlyphRenderer<MultiLine>
-  multi_line(
+  multi_line(): GlyphRendererWithSource<MultiLine, ColumnDataSource>
+  multi_line<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MultiLineArgs, Source>): GlyphRendererWithSource<MultiLine, SourceOf<Source>>
+  multi_line<Source extends GlyphSource = ColumnDataSource>(
     xs: MultiLineArgs["xs"],
     ys: MultiLineArgs["ys"],
-    args?: Partial<MultiLineArgs>): GlyphRenderer<MultiLine>
+    args?: GlyphOptions<MultiLineArgs, Source>): GlyphRendererWithSource<MultiLine, SourceOf<Source>>
   multi_line(...args: unknown[]): GlyphRenderer<MultiLine> {
     return this._glyph(MultiLine, "multi_line", ["xs", "ys"], args)
   }
 
-  multi_polygons(): GlyphRenderer<MultiPolygons>
-  multi_polygons(args: Partial<MultiPolygonsArgs>): GlyphRenderer<MultiPolygons>
-  multi_polygons(
+  multi_polygons(): GlyphRendererWithSource<MultiPolygons, ColumnDataSource>
+  multi_polygons<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MultiPolygonsArgs, Source>): GlyphRendererWithSource<MultiPolygons, SourceOf<Source>>
+  multi_polygons<Source extends GlyphSource = ColumnDataSource>(
     xs: MultiPolygonsArgs["xs"],
     ys: MultiPolygonsArgs["ys"],
-    args?: Partial<MultiPolygonsArgs>): GlyphRenderer<MultiPolygons>
+    args?: GlyphOptions<MultiPolygonsArgs, Source>): GlyphRendererWithSource<MultiPolygons, SourceOf<Source>>
   multi_polygons(...args: unknown[]): GlyphRenderer<MultiPolygons> {
     return this._glyph(MultiPolygons, "multi_polygons", ["xs", "ys"], args)
   }
 
-  ngon(): GlyphRenderer<Ngon>
-  ngon(args: Partial<NgonArgs>): GlyphRenderer<Ngon>
-  ngon(
+  ngon(): GlyphRendererWithSource<Ngon, ColumnDataSource>
+  ngon<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<NgonArgs, Source>): GlyphRendererWithSource<Ngon, SourceOf<Source>>
+  ngon<Source extends GlyphSource = ColumnDataSource>(
     x: NgonArgs["x"],
     y: NgonArgs["y"],
     radius: NgonArgs["radius"],
-    args?: Partial<NgonArgs>): GlyphRenderer<Ngon>
+    args?: GlyphOptions<NgonArgs, Source>): GlyphRendererWithSource<Ngon, SourceOf<Source>>
   ngon(...args: unknown[]): GlyphRenderer<Ngon> {
     return this._glyph(Ngon, "ngon", ["x", "y", "radius"], args)
   }
 
-  patch(): GlyphRenderer<Patch>
-  patch(args: Partial<PatchArgs>): GlyphRenderer<Patch>
-  patch(
+  patch(): GlyphRendererWithSource<Patch, ColumnDataSource>
+  patch<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<PatchArgs, Source>): GlyphRendererWithSource<Patch, SourceOf<Source>>
+  patch<Source extends GlyphSource = ColumnDataSource>(
     x: PatchArgs["x"],
     y: PatchArgs["y"],
-    args?: Partial<PatchArgs>): GlyphRenderer<Patch>
+    args?: GlyphOptions<PatchArgs, Source>): GlyphRendererWithSource<Patch, SourceOf<Source>>
   patch(...args: unknown[]): GlyphRenderer<Patch> {
     return this._glyph(Patch, "patch", ["x", "y"], args)
   }
 
-  patches(): GlyphRenderer<Patches>
-  patches(args: Partial<PatchesArgs>): GlyphRenderer<Patches>
-  patches(
+  patches(): GlyphRendererWithSource<Patches, ColumnDataSource>
+  patches<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<PatchesArgs, Source>): GlyphRendererWithSource<Patches, SourceOf<Source>>
+  patches<Source extends GlyphSource = ColumnDataSource>(
     xs: PatchesArgs["xs"],
     ys: PatchesArgs["ys"],
-    args?: Partial<PatchesArgs>): GlyphRenderer<Patches>
+    args?: GlyphOptions<PatchesArgs, Source>): GlyphRendererWithSource<Patches, SourceOf<Source>>
   patches(...args: unknown[]): GlyphRenderer<Patches> {
     return this._glyph(Patches, "patches", ["xs", "ys"], args)
   }
 
-  quad(): GlyphRenderer<Quad>
-  quad(args: Partial<QuadArgs>): GlyphRenderer<Quad>
-  quad(
+  quad(): GlyphRendererWithSource<Quad, ColumnDataSource>
+  quad<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<QuadArgs, Source>): GlyphRendererWithSource<Quad, SourceOf<Source>>
+  quad<Source extends GlyphSource = ColumnDataSource>(
     left: QuadArgs["left"],
     right: QuadArgs["right"],
     bottom: QuadArgs["bottom"],
     top: QuadArgs["top"],
-    args?: Partial<QuadArgs>): GlyphRenderer<Quad>
+    args?: GlyphOptions<QuadArgs, Source>): GlyphRendererWithSource<Quad, SourceOf<Source>>
   quad(...args: unknown[]): GlyphRenderer<Quad> {
     return this._glyph(Quad, "quad", ["left", "right", "bottom", "top"], args)
   }
 
-  quadratic(): GlyphRenderer<Quadratic>
-  quadratic(args: Partial<QuadraticArgs>): GlyphRenderer<Quadratic>
-  quadratic(
+  quadratic(): GlyphRendererWithSource<Quadratic, ColumnDataSource>
+  quadratic<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<QuadraticArgs, Source>): GlyphRendererWithSource<Quadratic, SourceOf<Source>>
+  quadratic<Source extends GlyphSource = ColumnDataSource>(
     x0: QuadraticArgs["x0"],
     y0: QuadraticArgs["y0"],
     x1: QuadraticArgs["x1"],
     y1: QuadraticArgs["y1"],
     cx: QuadraticArgs["cx"],
     cy: QuadraticArgs["cy"],
-    args?: Partial<QuadraticArgs>): GlyphRenderer<Quadratic>
+    args?: GlyphOptions<QuadraticArgs, Source>): GlyphRendererWithSource<Quadratic, SourceOf<Source>>
   quadratic(...args: unknown[]): GlyphRenderer<Quadratic> {
     return this._glyph(Quadratic, "quadratic", ["x0", "y0", "x1", "y1", "cx", "cy"], args)
   }
 
-  ray(): GlyphRenderer<Ray>
-  ray(args: Partial<RayArgs>): GlyphRenderer<Ray>
-  ray(
+  ray(): GlyphRendererWithSource<Ray, ColumnDataSource>
+  ray<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<RayArgs, Source>): GlyphRendererWithSource<Ray, SourceOf<Source>>
+  ray<Source extends GlyphSource = ColumnDataSource>(
     x: RayArgs["x"],
     y: RayArgs["y"],
     length: RayArgs["length"],
-    args?: Partial<RayArgs>): GlyphRenderer<Ray>
+    args?: GlyphOptions<RayArgs, Source>): GlyphRendererWithSource<Ray, SourceOf<Source>>
   ray(...args: unknown[]): GlyphRenderer<Ray> {
     return this._glyph(Ray, "ray", ["x", "y", "length"], args)
   }
 
-  rect(): GlyphRenderer<Rect>
-  rect(args: Partial<RectArgs>): GlyphRenderer<Rect>
-  rect(
+  rect(): GlyphRendererWithSource<Rect, ColumnDataSource>
+  rect<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<RectArgs, Source>): GlyphRendererWithSource<Rect, SourceOf<Source>>
+  rect<Source extends GlyphSource = ColumnDataSource>(
     x: RectArgs["x"],
     y: RectArgs["y"],
     width: RectArgs["width"],
     height: RectArgs["height"],
-    args?: Partial<RectArgs>): GlyphRenderer<Rect>
+    args?: GlyphOptions<RectArgs, Source>): GlyphRendererWithSource<Rect, SourceOf<Source>>
   rect(...args: unknown[]): GlyphRenderer<Rect> {
     return this._glyph(Rect, "rect", ["x", "y", "width", "height"], args)
   }
 
-  segment(): GlyphRenderer<Segment>
-  segment(args: Partial<SegmentArgs>): GlyphRenderer<Segment>
-  segment(
+  segment(): GlyphRendererWithSource<Segment, ColumnDataSource>
+  segment<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<SegmentArgs, Source>): GlyphRendererWithSource<Segment, SourceOf<Source>>
+  segment<Source extends GlyphSource = ColumnDataSource>(
     x0: SegmentArgs["x0"],
     y0: SegmentArgs["y0"],
     x1: SegmentArgs["x1"],
     y1: SegmentArgs["y1"],
-    args?: Partial<SegmentArgs>): GlyphRenderer<Segment>
+    args?: GlyphOptions<SegmentArgs, Source>): GlyphRendererWithSource<Segment, SourceOf<Source>>
   segment(...args: unknown[]): GlyphRenderer<Segment> {
     return this._glyph(Segment, "segment", ["x0", "y0", "x1", "y1"], args)
   }
 
-  spline(): GlyphRenderer<Spline>
-  spline(args: Partial<SplineArgs>): GlyphRenderer<Spline>
-  spline(
+  spline(): GlyphRendererWithSource<Spline, ColumnDataSource>
+  spline<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<SplineArgs, Source>): GlyphRendererWithSource<Spline, SourceOf<Source>>
+  spline<Source extends GlyphSource = ColumnDataSource>(
     x: SplineArgs["x"],
     y: SplineArgs["y"],
-    args?: Partial<SplineArgs>): GlyphRenderer<Spline>
+    args?: GlyphOptions<SplineArgs, Source>): GlyphRendererWithSource<Spline, SourceOf<Source>>
   spline(...args: unknown[]): GlyphRenderer<Spline> {
     return this._glyph(Spline, "spline", ["x", "y"], args)
   }
 
-  step(): GlyphRenderer<Step>
-  step(args: Partial<StepArgs>): GlyphRenderer<Step>
-  step(
+  step(): GlyphRendererWithSource<Step, ColumnDataSource>
+  step<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<StepArgs, Source>): GlyphRendererWithSource<Step, SourceOf<Source>>
+  step<Source extends GlyphSource = ColumnDataSource>(
     x: StepArgs["x"],
     y: StepArgs["y"],
     mode: StepArgs["mode"],
-    args?: Partial<StepArgs>): GlyphRenderer<Step>
+    args?: GlyphOptions<StepArgs, Source>): GlyphRendererWithSource<Step, SourceOf<Source>>
   step(...args: unknown[]): GlyphRenderer<Step> {
     return this._glyph(Step, "step", ["x", "y", "mode"], args)
   }
 
-  tex(): GlyphRenderer<TeX>
-  tex(args: Partial<TeXArgs>): GlyphRenderer<TeX>
-  tex(
+  tex(): GlyphRendererWithSource<TeX, ColumnDataSource>
+  tex<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<TeXArgs, Source>): GlyphRendererWithSource<TeX, SourceOf<Source>>
+  tex<Source extends GlyphSource = ColumnDataSource>(
     x: TeXArgs["x"],
     y: TeXArgs["y"],
     text: TeXArgs["text"],
-    args?: Partial<TeXArgs>): GlyphRenderer<TeX>
+    args?: GlyphOptions<TeXArgs, Source>): GlyphRendererWithSource<TeX, SourceOf<Source>>
   tex(...args: unknown[]): GlyphRenderer<TeX> {
     return this._glyph(TeX, "tex", ["x", "y", "text"], args)
   }
 
-  text(): GlyphRenderer<Text>
-  text(args: Partial<TextArgs>): GlyphRenderer<Text>
-  text(
+  text(): GlyphRendererWithSource<Text, ColumnDataSource>
+  text<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<TextArgs, Source>): GlyphRendererWithSource<Text, SourceOf<Source>>
+  text<Source extends GlyphSource = ColumnDataSource>(
     x: TextArgs["x"],
     y: TextArgs["y"],
     text: TextArgs["text"],
-    args?: Partial<TextArgs>): GlyphRenderer<Text>
+    args?: GlyphOptions<TextArgs, Source>): GlyphRendererWithSource<Text, SourceOf<Source>>
   text(...args: unknown[]): GlyphRenderer<Text> {
     return this._glyph(Text, "text", ["x", "y", "text"], args)
   }
 
-  varea(): GlyphRenderer<VArea>
-  varea(args: Partial<VAreaArgs>): GlyphRenderer<VArea>
-  varea(
+  varea(): GlyphRendererWithSource<VArea, ColumnDataSource>
+  varea<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<VAreaArgs, Source>): GlyphRendererWithSource<VArea, SourceOf<Source>>
+  varea<Source extends GlyphSource = ColumnDataSource>(
     x: VAreaArgs["x"],
     y1: VAreaArgs["y1"],
     y2: VAreaArgs["y2"],
-    args?: Partial<VAreaArgs>): GlyphRenderer<VArea>
+    args?: GlyphOptions<VAreaArgs, Source>): GlyphRendererWithSource<VArea, SourceOf<Source>>
   varea(...args: unknown[]): GlyphRenderer<VArea> {
     return this._glyph(VArea, "varea", ["x", "y1", "y2"], args)
   }
 
-  varea_step(): GlyphRenderer<VAreaStep>
-  varea_step(args: Partial<VAreaStepArgs>): GlyphRenderer<VAreaStep>
-  varea_step(
+  varea_step(): GlyphRendererWithSource<VAreaStep, ColumnDataSource>
+  varea_step<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<VAreaStepArgs, Source>): GlyphRendererWithSource<VAreaStep, SourceOf<Source>>
+  varea_step<Source extends GlyphSource = ColumnDataSource>(
     x: VAreaStepArgs["x"],
     y1: VAreaStepArgs["y1"],
     y2: VAreaStepArgs["y2"],
     step_mode: VAreaStepArgs["step_mode"],
-    args?: Partial<VAreaStepArgs>): GlyphRenderer<VAreaStep>
+    args?: GlyphOptions<VAreaStepArgs, Source>): GlyphRendererWithSource<VAreaStep, SourceOf<Source>>
   varea_step(...args: unknown[]): GlyphRenderer<VAreaStep> {
     return this._glyph(VAreaStep, "varea_step", ["x", "y1", "y2", "step_mode"], args)
   }
 
-  vbar(): GlyphRenderer<VBar>
-  vbar(args: Partial<VBarArgs>): GlyphRenderer<VBar>
-  vbar(
+  vbar(): GlyphRendererWithSource<VBar, ColumnDataSource>
+  vbar<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<VBarArgs, Source>): GlyphRendererWithSource<VBar, SourceOf<Source>>
+  vbar<Source extends GlyphSource = ColumnDataSource>(
     x: VBarArgs["x"],
     width: VBarArgs["width"],
     top: VBarArgs["top"],
     bottom: VBarArgs["bottom"],
-    args?: Partial<VBarArgs>): GlyphRenderer<VBar>
+    args?: GlyphOptions<VBarArgs, Source>): GlyphRendererWithSource<VBar, SourceOf<Source>>
   vbar(...args: unknown[]): GlyphRenderer<VBar> {
     return this._glyph(VBar, "vbar", ["x", "width", "top", "bottom"], args)
   }
 
-  vspan(): GlyphRenderer<VSpan>
-  vspan(args: Partial<VSpanArgs>): GlyphRenderer<VSpan>
-  vspan(
+  vspan(): GlyphRendererWithSource<VSpan, ColumnDataSource>
+  vspan<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<VSpanArgs, Source>): GlyphRendererWithSource<VSpan, SourceOf<Source>>
+  vspan<Source extends GlyphSource = ColumnDataSource>(
     x: VSpanArgs["x"],
-    args?: Partial<VSpanArgs>): GlyphRenderer<VSpan>
+    args?: GlyphOptions<VSpanArgs, Source>): GlyphRendererWithSource<VSpan, SourceOf<Source>>
   vspan(...args: unknown[]): GlyphRenderer<VSpan> {
     return this._glyph(VSpan, "vspan", ["x"], args)
   }
 
-  vstrip(): GlyphRenderer<VStrip>
-  vstrip(args: Partial<VStripArgs>): GlyphRenderer<VStrip>
-  vstrip(
+  vstrip(): GlyphRendererWithSource<VStrip, ColumnDataSource>
+  vstrip<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<VStripArgs, Source>): GlyphRendererWithSource<VStrip, SourceOf<Source>>
+  vstrip<Source extends GlyphSource = ColumnDataSource>(
     x0: VStripArgs["x0"],
     x1: VStripArgs["x1"],
-    args?: Partial<VStripArgs>): GlyphRenderer<VStrip>
+    args?: GlyphOptions<VStripArgs, Source>): GlyphRendererWithSource<VStrip, SourceOf<Source>>
   vstrip(...args: unknown[]): GlyphRenderer<VStrip> {
     return this._glyph(VStrip, "vstrip", ["x0", "x1"], args)
   }
 
-  wedge(): GlyphRenderer<Wedge>
-  wedge(args: Partial<WedgeArgs>): GlyphRenderer<Wedge>
-  wedge(
+  wedge(): GlyphRendererWithSource<Wedge, ColumnDataSource>
+  wedge<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<WedgeArgs, Source>): GlyphRendererWithSource<Wedge, SourceOf<Source>>
+  wedge<Source extends GlyphSource = ColumnDataSource>(
     x: WedgeArgs["x"],
     y: WedgeArgs["y"],
     radius: WedgeArgs["radius"],
     start_angle: WedgeArgs["start_angle"],
     end_angle: WedgeArgs["end_angle"],
-    args?: Partial<WedgeArgs>): GlyphRenderer<Wedge>
+    args?: GlyphOptions<WedgeArgs, Source>): GlyphRendererWithSource<Wedge, SourceOf<Source>>
   wedge(...args: unknown[]): GlyphRenderer<Wedge> {
     return this._glyph(Wedge, "wedge", ["x", "y", "radius", "start_angle", "end_angle"], args)
   }
@@ -720,198 +729,198 @@ export abstract class GlyphAPI {
     return this._glyph(Scatter, marker ?? "scatter", ["x", "y"], args, marker != null ? {marker} : undefined)
   }
 
-  scatter(): GlyphRenderer<Scatter>
-  scatter(args: Partial<ScatterArgs>): GlyphRenderer<Scatter>
-  scatter(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<ScatterArgs>): GlyphRenderer<Scatter>
+  scatter(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  scatter<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<ScatterArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  scatter<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<ScatterArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   scatter(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args)
   }
 
-  /** @deprecated */ asterisk(): GlyphRenderer<Scatter>
-  /** @deprecated */ asterisk(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ asterisk(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ asterisk(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ asterisk<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ asterisk<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ asterisk(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "asterisk")
   }
 
-  /** @deprecated */ circle_cross(): GlyphRenderer<Scatter>
-  /** @deprecated */ circle_cross(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ circle_cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ circle_cross(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ circle_cross<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ circle_cross<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ circle_cross(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "circle_cross")
   }
 
-  /** @deprecated */ circle_dot(): GlyphRenderer<Scatter>
-  /** @deprecated */ circle_dot(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ circle_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ circle_dot(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ circle_dot<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ circle_dot<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ circle_dot(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "circle_dot")
   }
 
-  /** @deprecated */ circle_x(): GlyphRenderer<Scatter>
-  /** @deprecated */ circle_x(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ circle_x(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ circle_x(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ circle_x<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ circle_x<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ circle_x(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "circle_x")
   }
 
-  /** @deprecated */ circle_y(): GlyphRenderer<Scatter>
-  /** @deprecated */ circle_y(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ circle_y(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ circle_y(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ circle_y<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ circle_y<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ circle_y(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "circle_y")
   }
 
-  /** @deprecated */ cross(): GlyphRenderer<Scatter>
-  /** @deprecated */ cross(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ cross(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ cross<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ cross<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ cross(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "cross")
   }
 
-  /** @deprecated */ dash(): GlyphRenderer<Scatter>
-  /** @deprecated */ dash(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ dash(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ dash(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ dash<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ dash<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ dash(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "dash")
   }
 
-  /** @deprecated */ diamond(): GlyphRenderer<Scatter>
-  /** @deprecated */ diamond(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ diamond(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ diamond(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ diamond<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ diamond<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ diamond(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "diamond")
   }
 
-  /** @deprecated */ diamond_cross(): GlyphRenderer<Scatter>
-  /** @deprecated */ diamond_cross(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ diamond_cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ diamond_cross(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ diamond_cross<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ diamond_cross<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ diamond_cross(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "diamond_cross")
   }
 
-  /** @deprecated */ diamond_dot(): GlyphRenderer<Scatter>
-  /** @deprecated */ diamond_dot(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ diamond_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ diamond_dot(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ diamond_dot<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ diamond_dot<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ diamond_dot(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "diamond_dot")
   }
 
-  /** @deprecated */ dot(): GlyphRenderer<Scatter>
-  /** @deprecated */ dot(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ dot(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ dot<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ dot<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ dot(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "dot")
   }
 
-  /** @deprecated */ hex(): GlyphRenderer<Scatter>
-  /** @deprecated */ hex(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ hex(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ hex(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ hex<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ hex<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ hex(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "hex")
   }
 
-  /** @deprecated */ hex_dot(): GlyphRenderer<Scatter>
-  /** @deprecated */ hex_dot(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ hex_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ hex_dot(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ hex_dot<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ hex_dot<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ hex_dot(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "hex_dot")
   }
 
-  /** @deprecated */ inverted_triangle(): GlyphRenderer<Scatter>
-  /** @deprecated */ inverted_triangle(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ inverted_triangle(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ inverted_triangle(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ inverted_triangle<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ inverted_triangle<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ inverted_triangle(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "inverted_triangle")
   }
 
-  /** @deprecated */ plus(): GlyphRenderer<Scatter>
-  /** @deprecated */ plus(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ plus(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ plus(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ plus<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ plus<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ plus(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "plus")
   }
 
-  /** @deprecated */ square(): GlyphRenderer<Scatter>
-  /** @deprecated */ square(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ square(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ square(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ square<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ square<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ square(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "square")
   }
 
-  /** @deprecated */ square_cross(): GlyphRenderer<Scatter>
-  /** @deprecated */ square_cross(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ square_cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ square_cross(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ square_cross<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ square_cross<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ square_cross(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "square_cross")
   }
 
-  /** @deprecated */ square_dot(): GlyphRenderer<Scatter>
-  /** @deprecated */ square_dot(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ square_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ square_dot(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ square_dot<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ square_dot<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ square_dot(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "square_dot")
   }
 
-  /** @deprecated */ square_pin(): GlyphRenderer<Scatter>
-  /** @deprecated */ square_pin(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ square_pin(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ square_pin(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ square_pin<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ square_pin<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ square_pin(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "square_pin")
   }
 
-  /** @deprecated */ square_x(): GlyphRenderer<Scatter>
-  /** @deprecated */ square_x(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ square_x(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ square_x(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ square_x<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ square_x<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ square_x(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "square_x")
   }
 
-  /** @deprecated */ star(): GlyphRenderer<Scatter>
-  /** @deprecated */ star(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ star(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ star(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ star<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ star<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ star(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "star")
   }
 
-  /** @deprecated */ star_dot(): GlyphRenderer<Scatter>
-  /** @deprecated */ star_dot(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ star_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ star_dot(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ star_dot<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ star_dot<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ star_dot(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "star_dot")
   }
 
-  /** @deprecated */ triangle(): GlyphRenderer<Scatter>
-  /** @deprecated */ triangle(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ triangle(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ triangle(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ triangle<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ triangle<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ triangle(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "triangle")
   }
 
-  /** @deprecated */ triangle_dot(): GlyphRenderer<Scatter>
-  /** @deprecated */ triangle_dot(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ triangle_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ triangle_dot(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ triangle_dot<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ triangle_dot<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ triangle_dot(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "triangle_dot")
   }
 
-  /** @deprecated */ triangle_pin(): GlyphRenderer<Scatter>
-  /** @deprecated */ triangle_pin(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ triangle_pin(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ triangle_pin(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ triangle_pin<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ triangle_pin<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ triangle_pin(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "triangle_pin")
   }
 
-  /** @deprecated */ x(): GlyphRenderer<Scatter>
-  /** @deprecated */ x(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ x(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ x(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ x<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ x<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ x(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "x")
   }
 
-  /** @deprecated */ y(): GlyphRenderer<Scatter>
-  /** @deprecated */ y(args: Partial<MarkerArgs>): GlyphRenderer<Scatter>
-  /** @deprecated */ y(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer<Scatter>
+  /** @deprecated */ y(): GlyphRendererWithSource<Scatter, ColumnDataSource>
+  /** @deprecated */ y<Source extends GlyphSource = ColumnDataSource>(args: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
+  /** @deprecated */ y<Source extends GlyphSource = ColumnDataSource>(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: GlyphOptions<MarkerArgs, Source>): GlyphRendererWithSource<Scatter, SourceOf<Source>>
   /** @deprecated */ y(...args: unknown[]): GlyphRenderer<Scatter> {
     return this._scatter(args, "y")
   }

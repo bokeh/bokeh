@@ -12,12 +12,12 @@ from ...core.enums import AutoType as Auto
 from ..annotations import ColorBar
 from ..glyph import Glyph
 from ..graphics import Marking, PathDecoration, PathMarkings
-from ..sources import CDSView, DataSource
+from ..sources import DataView, IndexedDataSource
 from .renderer import DataRenderer, _DataRendererInit
 
 class _GlyphRendererInit[GlyphType: Glyph](_DataRendererInit, total=False):
-    data_source: DataSource
-    view: CDSView
+    data_source: IndexedDataSource
+    view: DataView
     glyph: GlyphType
     selection_glyph: Auto | GlyphType | None
     nonselection_glyph: Auto | GlyphType | None
@@ -28,8 +28,8 @@ class _GlyphRendererInit[GlyphType: Glyph](_DataRendererInit, total=False):
 class GlyphRenderer[GlyphType: Glyph](DataRenderer):
     def __init__(self, **kwargs: Unpack[_GlyphRendererInit[GlyphType]]) -> None: ...
 
-    data_source: DataSource = ...
-    view: CDSView = ...
+    data_source: IndexedDataSource = ...
+    view: DataView = ...
     glyph: GlyphType = ...
     selection_glyph: Auto | GlyphType | None = ...
     nonselection_glyph: Auto | GlyphType | None = ...

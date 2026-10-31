@@ -1,5 +1,6 @@
 import {expect} from "#framework/assertions"
 import {SubsetIndexMapper} from "@bokehjs/core/util/indices"
+import {Float64NDArray} from "@bokehjs/core/util/ndarray"
 
 describe("SubsetIndexMapper", () => {
 
@@ -118,6 +119,24 @@ describe("SubsetIndexMapper", () => {
   })
 
   describe("subset_index_of", () => {
+    it("matches shaped logical items within the active subset", () => {
+      const mapper = new SubsetIndexMapper(3)
+      mapper.set_subset(new Int32Array([1, 2]))
+      const data = new Float64NDArray([1, 2, 3, 4, 5, 6], [3, 2])
+      expect(mapper.subset_index_of(data, [3, 4])).to.be.equal(0)
+      expect(mapper.subset_index_of(data, [5, 6])).to.be.equal(1)
+      expect(mapper.subset_index_of(data, [1, 2])).to.be.null
+    })
+
+    it("preserves strict matching for unshaped fields", () => {
+      const mapper = new SubsetIndexMapper(2)
+      mapper.set_subset(new Int32Array([0, 1]))
+      const item = [1, 2]
+      expect(mapper.subset_index_of([item, NaN], item)).to.be.equal(0)
+      expect(mapper.subset_index_of([item, NaN], [1, 2])).to.be.null
+      expect(mapper.subset_index_of([item, NaN], NaN)).to.be.null
+    })
+
     it("should return the subset index of the first matching value", () => {
       const mapper = new SubsetIndexMapper(5)
       const data = ["apple", "banana", "cherry", "date", "elderberry"]
