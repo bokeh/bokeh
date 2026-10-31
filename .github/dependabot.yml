@@ -7,7 +7,6 @@ updates:
     schedule:
       interval: monthly
     groups:
-      actions-minor-patch:
-        update-types:
-          - minor
-          - patch
+      actions:
+        patterns:
+          - "*"
