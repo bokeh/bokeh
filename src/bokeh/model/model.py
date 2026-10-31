@@ -517,6 +517,9 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
             source.js_on_change('streaming', callback)
 
+        Explicit ``"change:property_name"`` events require an existing property.
+        An unknown property raises ``ValueError`` before any callbacks are added.
+
         '''
         if len(callbacks) == 0:
             raise ValueError("js_on_change takes an event name and one or more callbacks, got only one parameter")
@@ -526,9 +529,12 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         if not all(isinstance(x, CustomCode) for x in callbacks):
             raise ValueError("not all callback values are CustomCode instances")
 
-        descriptor = self.lookup(event, raises=False)
-        if descriptor is not None:
-            event = f"change:{descriptor.name}"
+        if event in self.properties():
+            event = f"change:{event}"
+        elif event.startswith("change:"):
+            attr = event.removeprefix("change:")
+            if attr not in self.properties():
+                raise ValueError(f"{attr!r} is not a property of self ({self!r})")
 
         old = {k: [cb for cb in cbs] for k, cbs in self.js_property_callbacks.items()}
         if event not in self.js_property_callbacks:

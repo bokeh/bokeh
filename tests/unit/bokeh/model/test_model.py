@@ -276,6 +276,29 @@ class Test_js_on_change:
             m.js_on_change(name, cb)
             assert m.js_property_callbacks == {f"change:{name}": [cb]}
 
+    @pytest.mark.parametrize("event", ["change:missing", "change:", "change:change:a", "change:select", "change:__class__"])
+    def test_with_invalid_property_event(self, event: str) -> None:
+        cb = CustomJS(code="")
+        m = SomeModel()
+        m.js_on_change("a", cb)
+        with pytest.raises(ValueError, match="is not a property"):
+            m.js_on_change(event, cb)
+        assert m.js_property_callbacks == {"change:a": [cb]}
+
+    def test_with_explicit_property_events(self) -> None:
+        cb = CustomJS(code="")
+        m = SomeModel()
+        for name in m.properties():
+            m.js_on_change(f"change:{name}", cb)
+        assert m.js_property_callbacks == {f"change:{name}": [cb] for name in m.properties()}
+
+    @pytest.mark.parametrize("event", ["streaming", "patching"])
+    def test_with_data_source_signal(self, event: str) -> None:
+        cb = CustomJS(code="")
+        source = ColumnDataSource(data=dict(x=[1]))
+        source.js_on_change(event, cb)
+        assert source.js_property_callbacks == {event: [cb]}
+
     def test_with_non_propname(self) -> None:
         cb = CustomJS(code="")
         m1 = SomeModel()
