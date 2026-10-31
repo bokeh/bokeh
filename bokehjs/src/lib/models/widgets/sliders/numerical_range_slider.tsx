@@ -38,7 +38,6 @@ export namespace NumericalRangeSlider {
 
   export type Props = BaseNumericalSlider.Props & {
     value: p.Property<[number, number]>
-    value_throttled: p.Property<[number, number]>
   }
 }
 
@@ -49,10 +48,8 @@ export abstract class NumericalRangeSlider extends BaseNumericalSlider {
   declare __view_type__: NumericalRangeSliderView
 
   declare value: [number, number]
-  declare value_throttled: [number, number]
 
   protected _enforce_bounds(): void {
-    const changes: {value?: [number, number], value_throttled?: [number, number]} = {}
     const [lo, hi] = this._bounds()
 
     if (!this.properties.value.is_unset) {
@@ -60,24 +57,8 @@ export abstract class NumericalRangeSlider extends BaseNumericalSlider {
       const cv0 = clamp(v0, lo, hi)
       const cv1 = clamp(v1, lo, hi)
       if (cv0 != v0 || cv1 != v1) {
-        changes.value = [cv0, cv1]
+        this.setv({value: [cv0, cv1]})
       }
-    }
-
-    if (!this.properties.value_throttled.is_unset) {
-      const [t0, t1] = this.value_throttled
-      const ct0 = clamp(t0, lo, hi)
-      const ct1 = clamp(t1, lo, hi)
-      if (ct0 != t0 || ct1 != t1) {
-        changes.value_throttled = [ct0, ct1]
-      }
-    } else if (changes.value != null) {
-      // copy, so that `value` and `value_throttled` never share one array
-      changes.value_throttled = [...changes.value]
-    }
-
-    if (changes.value != null || changes.value_throttled != null) {
-      this.setv(changes)
     }
   }
 }

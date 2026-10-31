@@ -8,6 +8,8 @@ Bokeh version ``4.0.0`` is a major milestone of the Bokeh project.
 New features
 ------------
 
+* Added configurable throttling, debouncing, and committed-only delivery to
+  ``Model.on_change()`` and ``Model.js_on_change()`` callbacks.
 * Added :class:`~bokeh.models.ScaledTicker` and
   :class:`~bokeh.models.ScaledTickFormatter` for selecting and formatting ticks
   with a scale and configurable origin. They support repeated prefixes and
@@ -27,6 +29,9 @@ New features
 Removals
 --------
 
+* Removed the slider and spinner ``value_throttled`` properties. Configure
+  committed delivery when registering a callback on ``value``, for example
+  ``widget.on_change("value", callback, policy=Committed())``.
 * Removed ``output_notebook()``, ``push_notebook()``, the notebook hook
   registration APIs (including ``load_notebook()``, ``show_app()``,
   ``destroy_server()``, and ``get_comms()``), ``CommsHandle``, and

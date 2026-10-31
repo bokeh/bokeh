@@ -1,6 +1,7 @@
 # Copyright (c) Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved. The full license is in the file LICENSE.txt.
 
+from bokeh.model import Throttle
 from bokeh.models import ColumnDataSource, Range1d
 from bokeh.models.layouts import Column, Row
 from bokeh.models.widgets.sliders import Slider
@@ -13,6 +14,11 @@ Range1d(0)  # mypy: call-overload; pyright: reportCallIssue
 Range1d(bounds="invalid")  # mypy: call-overload; pyright: reportArgumentType
 Slider(value="invalid")  # mypy: arg-type; pyright: reportArgumentType
 Slider(value_throttled=1)  # mypy: call-arg; pyright: reportCallIssue
+slider = Slider(start=0, end=10, value=3)
+def update(attr: str, old: object, new: object) -> None: ...
+Throttle("fast")  # mypy: arg-type; pyright: reportArgumentType
+slider.on_change("value", update, policy=("throttle", 100))  # mypy: arg-type; pyright: reportArgumentType
+slider.on_change("value", update, policy="committed")  # mypy: arg-type; pyright: reportArgumentType
 Column(children=[ColumnDataSource()])  # mypy: list-item; pyright: reportArgumentType
 Column(Row(), children=[])  # mypy: call-overload; pyright: reportCallIssue
 column = Column()

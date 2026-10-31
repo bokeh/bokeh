@@ -75,7 +75,7 @@ class EventCallbackManager:
     def document(self) -> Document | None: ...
 
     id: ID
-    subscribed_events: set[str]
+    _subscribed_events: set[str]
     _event_callbacks: dict[str, list[EventCallback]]
 
     def __init__(self, *args: Any, **kw: Any) -> None:
@@ -97,7 +97,7 @@ class EventCallbackManager:
                 _check_callback(callback, ('event',), what='Event callback')
             self._event_callbacks[event].append(callback)
 
-        self.subscribed_events.add(event)
+        self._subscribed_events.add(event)
         self._update_event_callbacks()
 
     def _trigger_event(self, event: ModelEvent) -> None:
@@ -172,16 +172,23 @@ class PropertyCallbackManager:
             hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None:
         ''' Trigger callbacks for ``attr`` on this object.
         '''
+        selected = self._callbacks_for_change(attr, old)
         def invoke() -> None:
-            callbacks = self._callbacks.get(attr)
+            callbacks, callback_old = selected if selected is not None else (self._callbacks.get(attr), old)
             if callbacks:
-                for callback in callbacks:
-                    callback(attr, old, new)
+                self._invoke_callbacks(callbacks, attr, callback_old, new)
         if self.document is not None:
             from ..model import Model
             self.document.callbacks.notify_change(cast(Model, self), attr, old, new, hint, setter, invoke)
         else:
             invoke()
+
+    def _callbacks_for_change(self, attr: str, old: Any) -> tuple[list[PropertyCallback], Any] | None:
+        return None
+
+    def _invoke_callbacks(self, callbacks: list[PropertyCallback], attr: str, old: Any, new: Any) -> None:
+        for callback in callbacks:
+            callback(attr, old, new)
 
 #-----------------------------------------------------------------------------
 # Dev API

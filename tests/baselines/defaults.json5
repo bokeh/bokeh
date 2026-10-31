@@ -167,14 +167,20 @@
   Model: {
     name: null,
     tags: [],
-    js_event_callbacks: {
+    _js_event_callbacks: {
       type: "map",
     },
-    js_property_callbacks: {
+    _js_property_callbacks: {
       type: "map",
     },
-    subscribed_events: {
+    _js_property_callback_policies: {
+      type: "map",
+    },
+    _subscribed_events: {
       type: "set",
+    },
+    _subscribed_changes: {
+      type: "map",
     },
     syncable: true,
   },
@@ -7596,10 +7602,6 @@
   Spinner: {
     __extends__: "NumericInput",
     mode: "float",
-    value_throttled: {
-      type: "symbol",
-      name: "unset",
-    },
     step: 1,
     page_step_multiplier: 10,
     wheel_wait: 100,
@@ -7747,19 +7749,11 @@
       type: "symbol",
       name: "unset",
     },
-    value_throttled: {
-      type: "symbol",
-      name: "unset",
-    },
   },
   DateRangeSlider: {
     __extends__: "NumericalSlider",
     format: "%d %b %Y",
     value: {
-      type: "symbol",
-      name: "unset",
-    },
-    value_throttled: {
       type: "symbol",
       name: "unset",
     },
@@ -7780,10 +7774,6 @@
       type: "symbol",
       name: "unset",
     },
-    value_throttled: {
-      type: "symbol",
-      name: "unset",
-    },
     start: {
       type: "symbol",
       name: "unset",
@@ -7801,10 +7791,6 @@
       type: "symbol",
       name: "unset",
     },
-    value_throttled: {
-      type: "symbol",
-      name: "unset",
-    },
     start: {
       type: "symbol",
       name: "unset",
@@ -7819,10 +7805,6 @@
     __extends__: "NumericalSlider",
     format: "0[.]00",
     value: {
-      type: "symbol",
-      name: "unset",
-    },
-    value_throttled: {
       type: "symbol",
       name: "unset",
     },
@@ -7844,10 +7826,6 @@
     __extends__: "NumericalSlider",
     format: "0[.]00",
     value: {
-      type: "symbol",
-      name: "unset",
-    },
-    value_throttled: {
       type: "symbol",
       name: "unset",
     },
@@ -7873,10 +7851,6 @@
       name: "unset",
     },
     value: {
-      type: "symbol",
-      name: "unset",
-    },
-    value_throttled: {
       type: "symbol",
       name: "unset",
     },

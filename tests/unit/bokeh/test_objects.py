@@ -13,6 +13,8 @@ from __future__ import annotations
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+from inspect import signature
+
 import pytest
 
 from bokeh.core.properties import (
@@ -177,22 +179,36 @@ class TestModel:
         assert set(obj.properties()) == {
             "name",
             "tags",
-            "js_property_callbacks",
-            "js_event_callbacks",
-            "subscribed_events",
+            "_js_property_callbacks",
+            "_js_property_callback_policies",
+            "_js_event_callbacks",
+            "_subscribed_changes",
+            "_subscribed_events",
             "syncable",
             "some",
         }
         assert obj.properties_with_values(include_defaults=True) == dict(
             name=None,
             tags=[],
-            js_property_callbacks={},
-            js_event_callbacks={},
-            subscribed_events=set(),
+            _js_property_callbacks={},
+            _js_property_callback_policies={},
+            _js_event_callbacks={},
+            _subscribed_changes={},
+            _subscribed_events=set(),
             syncable=True,
             some=0,
         )
         assert obj.properties_with_values(include_defaults=False) == {}
+
+        parameters = signature(SomeModel).parameters
+        for name in [
+            "_js_property_callbacks",
+            "_js_property_callback_policies",
+            "_js_event_callbacks",
+            "_subscribed_changes",
+            "_subscribed_events",
+        ]:
+            assert name not in parameters
 
     def test_references_by_ref_by_value(self) -> None:
         from bokeh.core.has_props import HasProps
