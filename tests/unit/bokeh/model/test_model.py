@@ -276,7 +276,7 @@ class Test_js_on_change:
             m.js_on_change(name, cb)
             assert m.js_property_callbacks == {f"change:{name}": [cb]}
 
-    @pytest.mark.parametrize("event", ["change:missing", "change:", "change:change:a"])
+    @pytest.mark.parametrize("event", ["change:missing", "change:", "change:change:a", "change:select", "change:__class__"])
     def test_with_invalid_property_event(self, event: str) -> None:
         cb = CustomJS(code="")
         m = SomeModel()
