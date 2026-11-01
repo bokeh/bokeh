@@ -42,15 +42,25 @@ export class IndexedStackColorMapper extends StackColorMapper {
       this.change.emit()
     }
 
+    const metrics_changed = () => this.metrics_change.emit()
+
     let mapper = this.single_color_mapper
     this.connect(mapper.change, mapper_changed)
+    this.connect(mapper.metrics_change, metrics_changed)
 
     this.on_change(this.properties.single_color_mapper, () => {
       this.disconnect(mapper.change, mapper_changed)
+      this.disconnect(mapper.metrics_change, metrics_changed)
       mapper = this.single_color_mapper
       this.connect(mapper.change, mapper_changed)
+      this.connect(mapper.metrics_change, metrics_changed)
       this._scans = new WeakMap()
+      this.palette_mapper_change.emit()
     })
+  }
+
+  override get palette_mapper(): ContinuousColorMapper {
+    return this.single_color_mapper
   }
 
   override data_changed(): void {

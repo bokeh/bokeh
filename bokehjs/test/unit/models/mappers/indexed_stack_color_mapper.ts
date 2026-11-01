@@ -139,6 +139,32 @@ describe("IndexedStackColorMapper module", () => {
     })
   })
 
+  describe("IndexedStackColorMapper.palette_mapper property", () => {
+    it("should be single_color_mapper, whose metrics_change is forwarded", () => {
+      const single_color_mapper = LinearColorMapper.create({palette})
+      const mapper = IndexedStackColorMapper.create({single_color_mapper})
+      const metrics_change = sinon.spy()
+      const palette_mapper_change = sinon.spy()
+      mapper.metrics_change.connect(metrics_change)
+      mapper.palette_mapper_change.connect(palette_mapper_change)
+      expect(mapper.palette_mapper).to.be.equal(single_color_mapper)
+
+      rgba(mapper, stack())
+      expect(metrics_change.called).to.be.true
+
+      const other_mapper = LinearColorMapper.create({palette})
+      mapper.single_color_mapper = other_mapper
+      expect(mapper.palette_mapper).to.be.equal(other_mapper)
+      expect(palette_mapper_change.callCount).to.be.equal(1)
+
+      metrics_change.resetHistory()
+      single_color_mapper.metrics_change.emit()
+      expect(metrics_change.called).to.be.false
+      other_mapper.metrics_change.emit()
+      expect(metrics_change.callCount).to.be.equal(1)
+    })
+  })
+
   describe("in a ColorBar", () => {
     it("should draw single_color_mapper", async () => {
       const single_color_mapper = LinearColorMapper.create({palette})

@@ -34,6 +34,26 @@ export class WeightedStackColorMapper extends StackColorMapper {
     }))
   }
 
+  override connect_signals(): void {
+    super.connect_signals()
+
+    const metrics_changed = () => this.metrics_change.emit()
+
+    let mapper = this.alpha_mapper
+    this.connect(mapper.metrics_change, metrics_changed)
+
+    this.on_change(this.properties.alpha_mapper, () => {
+      this.disconnect(mapper.metrics_change, metrics_changed)
+      mapper = this.alpha_mapper
+      this.connect(mapper.metrics_change, metrics_changed)
+      this.palette_mapper_change.emit()
+    })
+  }
+
+  override get palette_mapper(): ContinuousColorMapper {
+    return this.alpha_mapper
+  }
+
   protected _palette(): Color[] {
     return this.palette
   }

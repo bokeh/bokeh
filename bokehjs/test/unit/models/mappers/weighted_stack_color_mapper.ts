@@ -1,8 +1,11 @@
 import {expect} from "#framework/assertions"
 
+import * as sinon from "sinon"
+
 import {varying_alpha_palette} from "@bokehjs/api/palettes"
 import {Float64NDArray} from "@bokehjs/core/util/ndarray"
 import {EqHistColorMapper} from "@bokehjs/models/mappers/eqhist_color_mapper"
+import {LinearColorMapper} from "@bokehjs/models/mappers/linear_color_mapper"
 import {WeightedStackColorMapper} from "@bokehjs/models/mappers/weighted_stack_color_mapper"
 
 describe("WeightedStackColorMapper module", () => {
@@ -48,6 +51,32 @@ describe("WeightedStackColorMapper module", () => {
       // Changes throughout
       const expected = [0, 0, 0, 0, 132, 0, 123, 40, 143, 0, 113, 169, 123, 0, 132, 40, 128, 0, 128, 40, 138, 0, 117, 212, 113, 0, 143, 169, 117, 0, 138, 212, 128, 0, 128, 255]
       expect(get_rgba_mapped(40, "#0000", false, -5)).to.be.equal(expected)
+    })
+  })
+
+  describe("WeightedStackColorMapper.palette_mapper property", () => {
+    it("should be alpha_mapper, whose metrics_change is forwarded", () => {
+      const alpha_mapper = LinearColorMapper.create({palette: ["#0004", "#000f"]})
+      const mapper = WeightedStackColorMapper.create({palette: ["red", "blue"], alpha_mapper})
+      const metrics_change = sinon.spy()
+      const palette_mapper_change = sinon.spy()
+      mapper.metrics_change.connect(metrics_change)
+      mapper.palette_mapper_change.connect(palette_mapper_change)
+      expect(mapper.palette_mapper).to.be.equal(alpha_mapper)
+
+      mapper.rgba_mapper.v_compute(new Float64NDArray([1, 2, 3, 4], [1, 2, 2]))
+      expect(metrics_change.called).to.be.true
+
+      const other_mapper = LinearColorMapper.create({palette: ["#0004", "#000f"]})
+      mapper.alpha_mapper = other_mapper
+      expect(mapper.palette_mapper).to.be.equal(other_mapper)
+      expect(palette_mapper_change.callCount).to.be.equal(1)
+
+      metrics_change.resetHistory()
+      alpha_mapper.metrics_change.emit()
+      expect(metrics_change.called).to.be.false
+      other_mapper.metrics_change.emit()
+      expect(metrics_change.callCount).to.be.equal(1)
     })
   })
 })

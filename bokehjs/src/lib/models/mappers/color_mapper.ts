@@ -50,6 +50,20 @@ export abstract class ColorMapper extends Mapper<Color> {
 
   readonly metrics_change: Signal0<this> = new Signal0(this, "metrics_change")
 
+  /**
+   * Emitted when `palette_mapper` is replaced by another mapper.
+   */
+  readonly palette_mapper_change: Signal0<this> = new Signal0(this, "palette_mapper_change")
+
+  /**
+   * The mapper whose palette and metrics represent this mapper, e.g. in a
+   * `ColorBar`. It's this mapper, unless it delegates to another one, whose
+   * `metrics_change` it then forwards.
+   */
+  get palette_mapper(): ColorMapper {
+    return this
+  }
+
   v_compute(xs: Arrayable<number> | Arrayable<Factor | number | null>): Arrayable<Color> {
     const values: ColorArray = new Uint32Array(xs.length)
     this._v_compute(xs, values, convert_to_uint32_palette(this._palette()), this._colors(convert_to_uint32_color))
