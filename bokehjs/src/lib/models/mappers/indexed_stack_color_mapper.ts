@@ -12,7 +12,7 @@ export namespace IndexedStackColorMapper {
   export type Props = StackColorMapper.Props & {
     single_color_mapper: p.Property<ContinuousColorMapper>
     index: p.Property<number>
-    map_all: p.Property<boolean>
+    scan_all: p.Property<boolean>
   }
 }
 
@@ -25,14 +25,14 @@ export class IndexedStackColorMapper extends StackColorMapper {
     this.define<IndexedStackColorMapper.Props>(({Bool, Int, NonNegative, Ref}) => ({
       single_color_mapper: [ Ref(ContinuousColorMapper) ],
       index:               [ NonNegative(Int), 0 ],
-      map_all:             [ Bool, false ],
+      scan_all:            [ Bool, false ],
     }))
   }
 
   // Scans of `single_color_mapper` per data array, keyed by stack index, or by
-  // "all" for the whole stack when `map_all` is set. Changing `index` or `map_all`
-  // reuses them; `data_changed()` drops those of the arrays it's given, and a
-  // change to `single_color_mapper` drops them all.
+  // "all" for the whole stack when `scan_all` is set. Changing `index` or
+  // `scan_all` reuses them; `data_changed()` drops those of the arrays it's
+  // given, and a change to `single_color_mapper` drops them all.
   protected _scans: WeakMap<Arrayable<number>, Map<number | "all", ScanData>> = new WeakMap()
 
   override connect_signals(): void {
@@ -85,7 +85,7 @@ export class IndexedStackColorMapper extends StackColorMapper {
 
   protected _v_compute(data: Arrayable<number>, values: Arrayable<uint32>,
       palette: Arrayable<uint32>, colors: {nan_color: uint32, low_color?: uint32, high_color?: uint32}): void {
-    const {index, map_all, single_color_mapper} = this
+    const {index, scan_all, single_color_mapper} = this
     const n = values.length
     const nstack = data.length / n
     assert(0 <= index && index < nstack, `Expected index in the range [0, ${nstack}), got ${index}`)
@@ -101,10 +101,10 @@ export class IndexedStackColorMapper extends StackColorMapper {
       this._scans.set(data, scans)
     }
 
-    const key = map_all ? "all" : index
+    const key = scan_all ? "all" : index
     let scan_data = scans.get(key)
     if (scan_data == null) {
-      scan_data = single_color_mapper._v_scan(map_all ? data : slice, palette.length)
+      scan_data = single_color_mapper._v_scan(scan_all ? data : slice, palette.length)
       scans.set(key, scan_data)
     }
 

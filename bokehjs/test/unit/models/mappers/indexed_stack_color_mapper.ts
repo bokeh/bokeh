@@ -65,9 +65,9 @@ describe("IndexedStackColorMapper module", () => {
       expect("nan_color" in mapper.properties).to.be.false
     })
 
-    it("should support map_all scanning the whole stack", () => {
+    it("should scan the whole stack with scan_all", () => {
       const single_color_mapper = LinearColorMapper.create({palette})
-      const mapper = IndexedStackColorMapper.create({single_color_mapper, index: 0, map_all: true})
+      const mapper = IndexedStackColorMapper.create({single_color_mapper, index: 0, scan_all: true})
 
       const expected = rgba(LinearColorMapper.create({palette, low: 0, high: 100}), slices[0])
       expect(rgba(mapper, stack())).to.be.equal(expected)
@@ -75,7 +75,7 @@ describe("IndexedStackColorMapper module", () => {
       expect(single_color_mapper.metrics.max).to.be.equal(100)
     })
 
-    it("should reuse scans when index or map_all change back", () => {
+    it("should reuse scans when index or scan_all change back", () => {
       const single_color_mapper = LinearColorMapper.create({palette})
       const mapper = IndexedStackColorMapper.create({single_color_mapper})
       const scan = sinon.spy(single_color_mapper, "_v_scan")
@@ -89,7 +89,7 @@ describe("IndexedStackColorMapper module", () => {
       expect(scan.callCount).to.be.equal(2)
       expect(result).to.be.equal(rgba(LinearColorMapper.create({palette}), slices[0]))
 
-      mapper.map_all = true
+      mapper.scan_all = true
       rgba(mapper, data)
       mapper.index = 2
       rgba(mapper, data)
