@@ -4,8 +4,9 @@ The data is a 3D array of shape ``(ny, nx, nt)`` holding the temperature of a
 plate at ``nt`` times, as heat spreads out from three sources. The
 ``IndexedStackColorMapper`` color maps the 2D array at its ``index`` with its
 ``single_color_mapper``, which the color bar also draws. The slider changes
-``index``, and the checkbox sets ``scan_all``, so that the color mapping limits
-come from scanning the whole 3D array rather than just the 2D array displayed.
+``index``. With ``scan_all`` set, the color mapping limits come from scanning
+the whole 3D array, so they are the same for every time step. The checkbox
+unsets it, so that each 2D array gets its own limits.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.image_stack, bokeh.models.IndexedStackColorMapper, bokeh.models.ColorBar, bokeh.models.Slider, bokeh.models.Checkbox
@@ -16,7 +17,13 @@ come from scanning the whole 3D array rather than just the 2D array displayed.
 import numpy as np
 
 from bokeh.layouts import column
-from bokeh.models import Checkbox, IndexedStackColorMapper, LinearColorMapper, Slider
+from bokeh.models import (
+    Checkbox,
+    CustomJS,
+    IndexedStackColorMapper,
+    LinearColorMapper,
+    Slider,
+)
 from bokeh.plotting import figure, show
 
 # Each 2D array is a sum of Gaussians that spread out and flatten over time.
@@ -31,7 +38,10 @@ data = sum(
     for x0, y0, strength in sources
 )
 
-color_mapper = IndexedStackColorMapper(single_color_mapper=LinearColorMapper(palette="Inferno256"))
+color_mapper = IndexedStackColorMapper(
+    single_color_mapper=LinearColorMapper(palette="Inferno256"),
+    scan_all=True,
+)
 
 p = figure(width=600, height=450, x_range=(0, 4), y_range=(0, 3),
            title="Heat spreading out from three sources")
@@ -43,7 +53,11 @@ p.add_layout(color_bar, "right")
 slider = Slider(start=0, end=len(t) - 1, value=0, step=1, title="Time step")
 slider.js_link("value", color_mapper, "index")
 
-checkbox = Checkbox(label="Use the same color mapping for all time steps")
-checkbox.js_link("active", color_mapper, "scan_all")
+checkbox = Checkbox(label="Use a different color mapping for each time step")
+checkbox.js_on_change("active", CustomJS(args=dict(color_mapper=color_mapper), code="""
+export default ({color_mapper}, {active}) => {
+    color_mapper.scan_all = !active
+}
+"""))
 
 show(column(p, slider, checkbox))
