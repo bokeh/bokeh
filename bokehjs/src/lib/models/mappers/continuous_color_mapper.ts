@@ -168,8 +168,7 @@ export abstract class ContinuousColorMapper extends ColorMapper {
     return this.palette
   }
 
-  // Public so that IndexedStackColorMapper can map with this mapper's colors.
-  public _colors<T>(conv: (c: Color) => T): {nan_color: T, low_color?: T, high_color?: T} {
+  protected _colors<T>(conv: (c: Color) => T): {nan_color: T, low_color?: T, high_color?: T} {
     return {
       nan_color: conv(this.nan_color),
       low_color: this.low_color != null ? conv(this.low_color) : undefined,

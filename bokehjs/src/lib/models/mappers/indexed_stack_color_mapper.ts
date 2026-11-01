@@ -75,7 +75,12 @@ export class IndexedStackColorMapper extends StackColorMapper {
   }
 
   protected _colors<T>(conv: (c: Color) => T): {nan_color: T, low_color?: T, high_color?: T} {
-    return this.single_color_mapper._colors(conv)
+    const {nan_color, low_color, high_color} = this.single_color_mapper
+    return {
+      nan_color: conv(nan_color),
+      low_color: low_color != null ? conv(low_color) : undefined,
+      high_color: high_color != null ? conv(high_color) : undefined,
+    }
   }
 
   protected _v_compute(data: Arrayable<number>, values: Arrayable<uint32>,
