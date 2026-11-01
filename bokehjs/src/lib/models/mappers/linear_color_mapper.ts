@@ -22,7 +22,7 @@ export interface LinearColorMapper extends LinearColorMapper.Attrs {}
 export class LinearColorMapper extends ContinuousColorMapper {
   declare properties: LinearColorMapper.Props
 
-  public scan(data: Arrayable<number>, n: number): LinearScanData {
+  protected scan(data: Arrayable<number>, n: number): LinearScanData {
     const [low, high] = (() => {
       if (this.low == null && this.high == null) {
         return minmax(data)

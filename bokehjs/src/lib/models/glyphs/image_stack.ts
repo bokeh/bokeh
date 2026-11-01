@@ -1,6 +1,8 @@
 import {ImageBase, ImageBaseView} from "./image_base"
 import {StackColorMapper} from "../mappers/stack_color_mapper"
+import type {ColumnarDataSource} from "../sources/columnar_data_source"
 import type {NDArrayType} from "core/util/ndarray"
+import type {Indices} from "core/types"
 import type * as p from "core/properties"
 import type {ImageGL} from "./webgl/image"
 
@@ -25,6 +27,12 @@ export class ImageStackView extends ImageBaseView {
 
   override get image_dimension(): number {
     return 3
+  }
+
+  override async set_data(source: ColumnarDataSource, indices: Indices, indices_to_update?: number[]): Promise<void> {
+    // The images may have been updated in place, e.g. by a patch
+    this.model.color_mapper.data_changed()
+    await super.set_data(source, indices, indices_to_update)
   }
 
   protected _update_image(): void {

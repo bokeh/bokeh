@@ -12,4 +12,9 @@ export interface StackColorMapper extends StackColorMapper.Attrs {}
 export abstract class StackColorMapper extends ColorMapper {
   declare properties: StackColorMapper.Props
 
+  /**
+   * Called by `ImageStack` when its data may have changed, including in place,
+   * so that anything computed from the previous data can be dropped.
+   */
+  data_changed(): void {}
 }

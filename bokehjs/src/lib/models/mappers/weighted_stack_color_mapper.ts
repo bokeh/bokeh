@@ -1,8 +1,9 @@
+import type {PaletteMixin} from "./color_mapper"
 import {convert_to_uint32_palette} from "./color_mapper"
 import {ContinuousColorMapper} from "./continuous_color_mapper"
 import {StackColorMapper} from "./stack_color_mapper"
 import type * as p from "core/properties"
-import type {Arrayable, ArrayableOf, uint32} from "core/types"
+import type {Arrayable, ArrayableOf, Color, uint32} from "core/types"
 import {RGBAArray} from "core/types"
 import {min} from "core/util/arrayable"
 import {assert} from "core/util/assert"
@@ -11,7 +12,7 @@ import {byte, decode_rgba, encode_rgba} from "core/util/color"
 export namespace WeightedStackColorMapper {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = StackColorMapper.Props & {
+  export type Props = StackColorMapper.Props & PaletteMixin.Props & {
     alpha_mapper: p.Property<ContinuousColorMapper>
     color_baseline: p.Property<number | null>
     stack_labels: p.Property<string[] | null>
@@ -24,11 +25,21 @@ export class WeightedStackColorMapper extends StackColorMapper {
   declare properties: WeightedStackColorMapper.Props
 
   static {
-    this.define<WeightedStackColorMapper.Props>(({List, Nullable, Float, Ref, Str}) => ({
+    this.define<WeightedStackColorMapper.Props>(({List, Nullable, Float, Ref, Str, Color}) => ({
+      palette:        [ List(Color) ],
+      nan_color:      [ Color, "gray" ],
       alpha_mapper:   [ Ref(ContinuousColorMapper) ],
       color_baseline: [ Nullable(Float), null ],
       stack_labels:   [ Nullable(List(Str)), null ],
     }))
+  }
+
+  protected _palette(): Color[] {
+    return this.palette
+  }
+
+  protected _colors<T>(conv: (c: Color) => T): {nan_color: T} {
+    return {nan_color: conv(this.nan_color)}
   }
 
   // Weighted mix of colors.

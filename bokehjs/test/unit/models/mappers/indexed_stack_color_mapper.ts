@@ -1,0 +1,148 @@
+import {expect} from "#framework/assertions"
+import {display, fig} from "#framework/layouts"
+
+import * as sinon from "sinon"
+
+import {ColorBar} from "@bokehjs/models/annotations/color_bar"
+import {IndexedStackColorMapper} from "@bokehjs/models/mappers/indexed_stack_color_mapper"
+import {LinearColorMapper} from "@bokehjs/models/mappers/linear_color_mapper"
+import {Float64NDArray} from "@bokehjs/core/util/ndarray"
+
+describe("IndexedStackColorMapper module", () => {
+  const palette = ["red", "green", "blue", "yellow"]
+
+  // Stack of shape (2, 2, 3), i.e. three 2D arrays of shape (2, 2) each.
+  const slices = [
+    [0, 1, 2, 3],
+    [10, 20, 30, 40],
+    [NaN, 5, 100, 50],
+  ]
+
+  function stack(): Float64NDArray {
+    const n = slices[0].length
+    const nstack = slices.length
+    const data = new Float64Array(n*nstack)
+    for (let i = 0; i < n; i++) {
+      for (let k = 0; k < nstack; k++) {
+        data[i*nstack + k] = slices[k][i]
+      }
+    }
+    return new Float64NDArray(data, [2, 2, nstack])
+  }
+
+  function rgba(mapper: IndexedStackColorMapper | LinearColorMapper, data: Float64NDArray | number[]): number[] {
+    return Array.from(mapper.rgba_mapper.v_compute(data))
+  }
+
+  describe("IndexedStackColorMapper.rgba_mapper method", () => {
+
+    it("should map the slice selected by index like single_color_mapper does", () => {
+      const single_color_mapper = LinearColorMapper.create({palette})
+      const mapper = IndexedStackColorMapper.create({single_color_mapper})
+      const data = stack()
+
+      for (let index = 0; index < slices.length; index++) {
+        mapper.index = index
+        const expected = rgba(LinearColorMapper.create({palette}), slices[index])
+        expect(rgba(mapper, data)).to.be.equal(expected)
+      }
+    })
+
+    it("should use nan_color, low_color and high_color of single_color_mapper", () => {
+      const attrs = {palette, low: 1, high: 40, nan_color: "pink", low_color: "white", high_color: "black"}
+      const mapper = IndexedStackColorMapper.create({single_color_mapper: LinearColorMapper.create(attrs), index: 2})
+
+      const expected = rgba(LinearColorMapper.create(attrs), slices[2])
+      expect(rgba(mapper, stack())).to.be.equal(expected)
+      expect("palette" in mapper.properties).to.be.false
+      expect("nan_color" in mapper.properties).to.be.false
+    })
+
+    it("should support map_all scanning the whole stack", () => {
+      const single_color_mapper = LinearColorMapper.create({palette})
+      const mapper = IndexedStackColorMapper.create({single_color_mapper, index: 0, map_all: true})
+
+      const expected = rgba(LinearColorMapper.create({palette, low: 0, high: 100}), slices[0])
+      expect(rgba(mapper, stack())).to.be.equal(expected)
+      expect(single_color_mapper.metrics.min).to.be.equal(0)
+      expect(single_color_mapper.metrics.max).to.be.equal(100)
+    })
+
+    it("should reuse scans when index or map_all change back", () => {
+      const single_color_mapper = LinearColorMapper.create({palette})
+      const mapper = IndexedStackColorMapper.create({single_color_mapper})
+      const scan = sinon.spy(single_color_mapper, "_v_scan")
+      const data = stack()
+
+      rgba(mapper, data)
+      mapper.index = 1
+      rgba(mapper, data)
+      mapper.index = 0
+      const result = rgba(mapper, data)
+      expect(scan.callCount).to.be.equal(2)
+      expect(result).to.be.equal(rgba(LinearColorMapper.create({palette}), slices[0]))
+
+      mapper.map_all = true
+      rgba(mapper, data)
+      mapper.index = 2
+      rgba(mapper, data)
+      expect(scan.callCount).to.be.equal(3)
+    })
+
+    it("should drop scans in data_changed()", () => {
+      const single_color_mapper = LinearColorMapper.create({palette})
+      const mapper = IndexedStackColorMapper.create({single_color_mapper})
+      const scan = sinon.spy(single_color_mapper, "_v_scan")
+      const data = stack()
+
+      rgba(mapper, data)
+      data[0] = -30  // in place, like a patch
+      mapper.data_changed()
+      rgba(mapper, data)
+      expect(scan.callCount).to.be.equal(2)
+      expect(single_color_mapper.metrics.min).to.be.equal(-30)
+    })
+
+    it("should drop scans and emit change when single_color_mapper changes", () => {
+      const single_color_mapper = LinearColorMapper.create({palette})
+      const mapper = IndexedStackColorMapper.create({single_color_mapper})
+      const scan = sinon.spy(single_color_mapper, "_v_scan")
+      const change = sinon.spy()
+      mapper.change.connect(change)
+      const data = stack()
+
+      rgba(mapper, data)
+      single_color_mapper.palette = ["black", "white"]
+      expect(change.called).to.be.true
+      const expected = rgba(LinearColorMapper.create({palette: ["black", "white"]}), slices[0])
+      expect(rgba(mapper, data)).to.be.equal(expected)
+      expect(scan.callCount).to.be.equal(2)
+
+      const other_mapper = LinearColorMapper.create({palette})
+      mapper.single_color_mapper = other_mapper
+      change.resetHistory()
+      single_color_mapper.palette = palette
+      expect(change.called).to.be.false
+      other_mapper.palette = ["black", "white"]
+      expect(change.called).to.be.true
+    })
+
+    it("should throw when index is out of range", () => {
+      const mapper = IndexedStackColorMapper.create({single_color_mapper: LinearColorMapper.create({palette}), index: 3})
+      expect(() => rgba(mapper, stack())).to.throw(Error, /Expected index in the range \[0, 3\), got 3/)
+    })
+  })
+
+  describe("in a ColorBar", () => {
+    it("should draw single_color_mapper", async () => {
+      const single_color_mapper = LinearColorMapper.create({palette})
+      const color_mapper = IndexedStackColorMapper.create({single_color_mapper})
+      const color_bar = ColorBar.create({color_mapper})
+      const p = fig([200, 200])
+      p.add_layout(color_bar, "right")
+      const {view} = await display(p)
+      const color_bar_view = view.owner.get_one(color_bar)
+      expect(color_bar_view.color_mapper).to.be.equal(single_color_mapper)
+    })
+  })
+})

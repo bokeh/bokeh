@@ -45,15 +45,18 @@ export class ColorBarView extends BaseColorBarView {
     }
   }
 
-  get color_mapper(): ColorMapper {
+  get color_mapper(): CategoricalColorMapper | ContinuousColorMapper {
     // Color mapper that is used to render this colorbar.
-    let mapper = this.model.color_mapper
+    const mapper = this.model.color_mapper
     if (mapper instanceof WeightedStackColorMapper) {
-      mapper = mapper.alpha_mapper
+      return mapper.alpha_mapper
     } else if (mapper instanceof IndexedStackColorMapper) {
-      mapper = mapper.single_color_mapper
+      return mapper.single_color_mapper
+    } else if (mapper instanceof CategoricalColorMapper || mapper instanceof ContinuousColorMapper) {
+      return mapper
+    } else {
+      unreachable(`${mapper} has no palette to draw a color bar from`)
     }
-    return mapper
   }
 
   override update_layout(): void {

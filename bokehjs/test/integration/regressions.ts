@@ -1561,7 +1561,7 @@ describe("Bug", () => {
 
       const {view} = await display(p, [350, 350])
 
-      color_bar.color_mapper.palette = plasma(50)
+      color_mapper.palette = plasma(50)
       color_bar.major_label_text_font_style = "bold italic"
       color_bar.title = "new title"
 
@@ -1835,7 +1835,7 @@ describe("Bug", () => {
 
     it("doesn't allow updating palette of a color mapper of a color bar", async () => {
       await plot((color_bar) => {
-        color_bar.color_mapper.palette = plasma(50)
+        (color_bar.color_mapper as LinearColorMapper).palette = plasma(50)
       })
     })
 

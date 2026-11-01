@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 
 from .. import palettes
 from ..core.enums import Palette
-from ..core.has_props import abstract
+from ..core.has_props import HasProps, abstract
 from ..core.property.color import Color
 from ..core.property.container import List, Seq, Tuple
 from ..core.property.either import Either
@@ -34,6 +34,7 @@ from ..core.property.enum import Enum
 from ..core.property.factors import FactorSeq
 from ..core.property.instance import Instance
 from ..core.property.nullable import Nullable
+from ..core.property.numeric import NonNegative
 from ..core.property.primitive import (
     Bool,
     Float,
@@ -53,6 +54,7 @@ from .transforms import Transform
 __all__ = (
     'Mapper',
     'ColorMapper',
+    'PaletteMixin',
     'CategoricalMapper',
     'CategoricalColorMapper',
     'CategoricalMarkerMapper',
@@ -80,6 +82,16 @@ class Mapper(Transform):
 @abstract
 class ColorMapper(Mapper):
     ''' Base class for color mapper types.
+
+    A color mapper doesn't have to have a palette of its own. The ones that map
+    into a palette get ``palette`` and ``nan_color`` from :class:`PaletteMixin`.
+
+    '''
+
+@abstract
+class PaletteMixin(HasProps):
+    ''' Shared properties for color mappers that map into a palette of their
+    own.
 
     '''
 
@@ -139,7 +151,7 @@ class CategoricalMapper(Mapper):
     """)
 
 
-class CategoricalColorMapper(CategoricalMapper, ColorMapper):
+class CategoricalColorMapper(PaletteMixin, CategoricalMapper, ColorMapper):
     ''' Map categorical factors to colors.
 
     Values that are passed to this mapper that are not in the factors list
@@ -196,7 +208,7 @@ class CategoricalPatternMapper(CategoricalMapper):
     """)
 
 @abstract
-class ContinuousColorMapper(ColorMapper):
+class ContinuousColorMapper(PaletteMixin, ColorMapper):
     ''' Base class for continuous color mapper types.
 
     '''
@@ -301,14 +313,19 @@ class IndexedStackColorMapper(StackColorMapper):
     determined from just the 2D array displayed. If ``map_all`` is ``True``
     they are determined from the whole 3D array.
 
+    The colors, including ``nan_color``, ``low_color`` and ``high_color``,
+    come from ``single_color_mapper``, which a ``ColorBar`` for this mapper
+    also uses.
+
     '''
 
     single_color_mapper = Instance(ContinuousColorMapper, help="""
     Color mapper used to calculate the colors of the 2D array displayed.
     """)
 
-    index = Int(default=0, help="""
-    Final dimension of the ``ImageStack`` 3D data array that is color mapped.
+    index = NonNegative(Int, default=0, help="""
+    Index into the final dimension of the ``ImageStack`` 3D data array, which
+    selects the 2D array that is color mapped.
     """)
 
     map_all = Bool(default=False, help="""
@@ -316,7 +333,7 @@ class IndexedStackColorMapper(StackColorMapper):
     of the 3D data array or just the 2D array that is displayed.
     """)
 
-class WeightedStackColorMapper(StackColorMapper):
+class WeightedStackColorMapper(PaletteMixin, StackColorMapper):
     ''' Maps 3D data arrays of shape ``(ny, nx, nstack)`` to 2D RGBA images
     of shape ``(ny, nx)`` using a palette of length ``nstack``.
 
