@@ -29,20 +29,49 @@ export class ColorBarView extends BaseColorBarView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.color_mapper.change, async () => {
+
+    const metrics_changed = () => this._metrics_changed()
+
+    // The axis, scale and ticker are made for the mapper this color bar draws
+    // (see `color_mapper` below), which a stack color mapper wraps and can
+    // replace on its own. Replacing either mapper rebuilds them for the mapper
+    // drawn now, and connects to its `metrics_change` instead.
+    let {color_mapper} = this.model
+    let drawn_mapper: ColorMapper = this.color_mapper
+
+    const connect_mappers = () => {
+      this.connect(color_mapper.change, mapper_changed)
+      this.connect(drawn_mapper.metrics_change, metrics_changed)
+    }
+
+    const disconnect_mappers = () => {
+      this.disconnect(color_mapper.change, mapper_changed)
+      this.disconnect(drawn_mapper.metrics_change, metrics_changed)
+    }
+
+    const rebuild = async () => {
+      disconnect_mappers()
+      color_mapper = this.model.color_mapper
+      drawn_mapper = this.color_mapper
+      connect_mappers()
+
       this._title_view.remove()
       this._axis_view.remove()
       this.initialize()
       await this.lazy_initialize()
       this.plot_view.invalidate_layout()
-    })
-    this.connect(this.model.color_mapper.metrics_change, () => this._metrics_changed())
-    this.connect(this.model.properties.display_low.change, () => this._metrics_changed())
-    this.connect(this.model.properties.display_high.change, () => this._metrics_changed())
-
-    if (this.model.color_mapper instanceof IndexedStackColorMapper) {
-      this.connect(this.model.color_mapper.single_color_mapper.metrics_change, () => this._metrics_changed())
     }
+
+    const mapper_changed = async () => {
+      if (this.color_mapper != drawn_mapper) {
+        await rebuild()
+      }
+    }
+
+    connect_mappers()
+    this.connect(this.model.properties.color_mapper.change, rebuild)
+    this.connect(this.model.properties.display_low.change, metrics_changed)
+    this.connect(this.model.properties.display_high.change, metrics_changed)
   }
 
   get color_mapper(): CategoricalColorMapper | ContinuousColorMapper {

@@ -4,8 +4,14 @@ import {display, fig} from "#framework/layouts"
 import * as sinon from "sinon"
 
 import {ColorBar} from "@bokehjs/models/annotations/color_bar"
+import {LogAxis} from "@bokehjs/models/axes/log_axis"
 import {IndexedStackColorMapper} from "@bokehjs/models/mappers/indexed_stack_color_mapper"
 import {LinearColorMapper} from "@bokehjs/models/mappers/linear_color_mapper"
+import {LogColorMapper} from "@bokehjs/models/mappers/log_color_mapper"
+import type {Range1d} from "@bokehjs/models/ranges/range1d"
+import {LogScale} from "@bokehjs/models/scales/log_scale"
+import {BasicTicker} from "@bokehjs/models/tickers/basic_ticker"
+import {LogTicker} from "@bokehjs/models/tickers/log_ticker"
 import {Float64NDArray} from "@bokehjs/core/util/ndarray"
 
 describe("IndexedStackColorMapper module", () => {
@@ -143,6 +149,63 @@ describe("IndexedStackColorMapper module", () => {
       const {view} = await display(p)
       const color_bar_view = view.owner.get_one(color_bar)
       expect(color_bar_view.color_mapper).to.be.equal(single_color_mapper)
+    })
+
+    async function display_color_bar(color_mapper: IndexedStackColorMapper) {
+      const color_bar = ColorBar.create({color_mapper})
+      const p = fig([200, 200])
+      p.image_stack({image: [stack()], x: 0, y: 0, dw: 1, dh: 1, color_mapper})
+      p.add_layout(color_bar, "right")
+      const {view} = await display(p)
+      const color_bar_view = view.owner.get_one(color_bar)
+
+      const internals = () => color_bar_view as any // XXX: protected
+
+      // The range and the major ticks of the color bar's axis.
+      function state() {
+        const {_major_range, _axis_view} = internals()
+        const {start, end} = _major_range as Range1d
+        const ticks = _axis_view.tick_coords.major[_axis_view.dimension] as number[]
+        return {start, end, ticks}
+      }
+
+      return {view, color_bar_view, internals, state}
+    }
+
+    it("should follow single_color_mapper after it's replaced", async () => {
+      const color_mapper = IndexedStackColorMapper.create({single_color_mapper: LinearColorMapper.create({palette}), index: 1})
+      const {view, color_bar_view, state} = await display_color_bar(color_mapper)
+      expect(state()).to.be.similar({start: 10, end: 40, ticks: [10, 15, 20, 25, 30, 35, 40]})
+
+      const single_color_mapper = LinearColorMapper.create({palette})
+      color_mapper.single_color_mapper = single_color_mapper
+      await view.ready
+      expect(color_bar_view.color_mapper).to.be.equal(single_color_mapper)
+
+      color_mapper.index = 2
+      await view.ready
+      expect(state()).to.be.similar({start: 5, end: 100, ticks: [20, 40, 60, 80, 100]})
+    })
+
+    it("should rebuild its axis when single_color_mapper is replaced with another type", async () => {
+      const color_mapper = IndexedStackColorMapper.create({single_color_mapper: LinearColorMapper.create({palette}), index: 1})
+      const {view, color_bar_view, internals, state} = await display_color_bar(color_mapper)
+      expect(internals()._ticker).to.be.instanceof(BasicTicker)
+
+      const single_color_mapper = LogColorMapper.create({palette})
+      color_mapper.single_color_mapper = single_color_mapper
+      await view.ready
+      expect(color_bar_view.color_mapper).to.be.equal(single_color_mapper)
+
+      const {_major_scale, _ticker, _axis} = internals()
+      expect(_major_scale).to.be.instanceof(LogScale)
+      expect(_ticker).to.be.instanceof(LogTicker)
+      expect(_axis).to.be.instanceof(LogAxis)
+      expect(state()).to.be.similar({start: 10, end: 40, ticks: [10, 15, 20, 25, 30, 35, 40]})
+
+      color_mapper.index = 2
+      await view.ready
+      expect(state()).to.be.similar({start: 5, end: 100, ticks: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]})
     })
   })
 })
