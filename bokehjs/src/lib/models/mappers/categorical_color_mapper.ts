@@ -20,8 +20,8 @@ export class CategoricalColorMapper extends ColorMapper {
   declare properties: CategoricalColorMapper.Props
 
   static {
-    this.define<CategoricalColorMapper.Props>(({Float, Nullable, Color, List}) => ({
-      palette:   [ List(Color) ],
+    this.define<CategoricalColorMapper.Props>(({Float, Nullable, Color, Palette}) => ({
+      palette:   [ Palette ],
       nan_color: [ Color, "gray" ],
       factors:   [ FactorSeq ],
       start:     [ Float, 0 ],

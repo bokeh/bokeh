@@ -25,8 +25,8 @@ export class WeightedStackColorMapper extends StackColorMapper {
   declare properties: WeightedStackColorMapper.Props
 
   static {
-    this.define<WeightedStackColorMapper.Props>(({List, Nullable, Float, Ref, Str, Color}) => ({
-      palette:        [ List(Color) ],
+    this.define<WeightedStackColorMapper.Props>(({List, Nullable, Float, Ref, Str, Color, Palette}) => ({
+      palette:        [ Palette ],
       nan_color:      [ Color, "gray" ],
       alpha_mapper:   [ Ref(ContinuousColorMapper) ],
       color_baseline: [ Nullable(Float), null ],

@@ -25,9 +25,9 @@ export abstract class ContinuousColorMapper extends ColorMapper {
   declare properties: ContinuousColorMapper.Props
 
   static {
-    this.define<ContinuousColorMapper.Props>(({Float, Str, Ref, Color, Or, Tuple, List, Nullable}) => {
+    this.define<ContinuousColorMapper.Props>(({Float, Str, Ref, Color, Or, Tuple, List, Nullable, Palette}) => {
       return {
-        palette:    [ List(Color) ],
+        palette:    [ Palette ],
         nan_color:  [ Color, "gray" ],
         high:       [ Nullable(Float), null ],
         low:        [ Nullable(Float), null ],

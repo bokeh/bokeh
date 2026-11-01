@@ -706,6 +706,7 @@ export const Positive = <BaseType extends number>(base_type: Kind<BaseType>) => 
 export const Percent = new Kinds.Percent()
 export const Alpha = Percent
 export const Color = new Kinds.Color()
+export const Palette = List(Color)
 export const Auto = Enum("auto")
 export const CSSLength = new Kinds.CSSLength()
 
