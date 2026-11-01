@@ -31,7 +31,8 @@ export class IndexedStackColorMapper extends StackColorMapper {
 
   // Scans of `single_color_mapper` per data array, keyed by stack index, or by
   // "all" for the whole stack when `map_all` is set. Changing `index` or `map_all`
-  // reuses them; a change to the data or to `single_color_mapper` drops them.
+  // reuses them; `data_changed()` drops those of the arrays it's given, and a
+  // change to `single_color_mapper` drops them all.
   protected _scans: WeakMap<Arrayable<number>, Map<number | "all", ScanData>> = new WeakMap()
 
   override connect_signals(): void {
@@ -63,8 +64,10 @@ export class IndexedStackColorMapper extends StackColorMapper {
     return this.single_color_mapper
   }
 
-  override data_changed(): void {
-    this._scans = new WeakMap()
+  override data_changed(images: Iterable<Arrayable<number>>): void {
+    for (const image of images) {
+      this._scans.delete(image)
+    }
   }
 
   protected _palette(): Color[] {

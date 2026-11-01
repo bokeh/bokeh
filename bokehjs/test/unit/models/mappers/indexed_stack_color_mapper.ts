@@ -10,6 +10,7 @@ import {LinearColorMapper} from "@bokehjs/models/mappers/linear_color_mapper"
 import {LogColorMapper} from "@bokehjs/models/mappers/log_color_mapper"
 import type {Range1d} from "@bokehjs/models/ranges/range1d"
 import {LogScale} from "@bokehjs/models/scales/log_scale"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {BasicTicker} from "@bokehjs/models/tickers/basic_ticker"
 import {LogTicker} from "@bokehjs/models/tickers/log_ticker"
 import {Float64NDArray} from "@bokehjs/core/util/ndarray"
@@ -95,18 +96,22 @@ describe("IndexedStackColorMapper module", () => {
       expect(scan.callCount).to.be.equal(3)
     })
 
-    it("should drop scans in data_changed()", () => {
+    it("should drop scans of the arrays given to data_changed()", () => {
       const single_color_mapper = LinearColorMapper.create({palette})
       const mapper = IndexedStackColorMapper.create({single_color_mapper})
       const scan = sinon.spy(single_color_mapper, "_v_scan")
       const data = stack()
+      const other_data = stack()
 
       rgba(mapper, data)
+      rgba(mapper, other_data)
       data[0] = -30  // in place, like a patch
-      mapper.data_changed()
+      mapper.data_changed([data])
       rgba(mapper, data)
-      expect(scan.callCount).to.be.equal(2)
+      expect(scan.callCount).to.be.equal(3)
       expect(single_color_mapper.metrics.min).to.be.equal(-30)
+      rgba(mapper, other_data)
+      expect(scan.callCount).to.be.equal(3)
     })
 
     it("should drop scans and emit change when single_color_mapper changes", () => {
@@ -162,6 +167,44 @@ describe("IndexedStackColorMapper module", () => {
       expect(metrics_change.called).to.be.false
       other_mapper.metrics_change.emit()
       expect(metrics_change.callCount).to.be.equal(1)
+    })
+  })
+
+  describe("in an ImageStack", () => {
+    async function display_image_stack(images: Float64NDArray[]) {
+      const single_color_mapper = LinearColorMapper.create({palette})
+      const color_mapper = IndexedStackColorMapper.create({single_color_mapper})
+      const source = ColumnDataSource.create({data: {image: images}})
+      const p = fig([200, 200])
+      p.image_stack({image: {field: "image"}, x: 0, y: 0, dw: 1, dh: 1, color_mapper, source})
+      const {view} = await display(p)
+      const scan = sinon.spy(single_color_mapper, "_v_scan")
+      return {view, color_mapper, single_color_mapper, source, scan}
+    }
+
+    it("should reuse the scans made when it was displayed", async () => {
+      const {view, color_mapper, scan} = await display_image_stack([stack()])
+
+      color_mapper.index = 1
+      await view.ready
+      color_mapper.index = 0
+      await view.ready
+      expect(scan.callCount).to.be.equal(1)
+    })
+
+    it("should drop scans only of the images that are patched", async () => {
+      const {view, color_mapper, single_color_mapper, source, scan} = await display_image_stack([stack(), stack()])
+
+      source.patch({image: [[[0, 0, 0], [-30]]]})  // in place
+      await view.ready
+      expect(scan.callCount).to.be.equal(1)
+      expect(single_color_mapper.metrics.min).to.be.equal(-30)
+
+      color_mapper.index = 1
+      await view.ready
+      color_mapper.index = 0
+      await view.ready
+      expect(scan.callCount).to.be.equal(3)
     })
   })
 
