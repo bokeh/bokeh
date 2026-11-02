@@ -29,6 +29,10 @@ export class CategoricalColorMapper extends ColorMapper {
     }))
   }
 
+  override get palette_mapper(): this {
+    return this
+  }
+
   protected _palette(): Color[] {
     return this.palette
   }

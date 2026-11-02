@@ -37,6 +37,11 @@ export namespace PaletteMixin {
   }
 }
 
+export interface PaletteMapper extends ColorMapper {
+  palette: Color[]
+  nan_color: Color
+}
+
 export namespace ColorMapper {
   export type Attrs = p.AttrsOf<Props>
 
@@ -57,12 +62,9 @@ export abstract class ColorMapper extends Mapper<Color> {
 
   /**
    * The mapper whose palette and metrics represent this mapper, e.g. in a
-   * `ColorBar`. It's this mapper, unless it delegates to another one, whose
-   * `metrics_change` it then forwards.
+   * `ColorBar`. Delegating mappers forward its `metrics_change` signal.
    */
-  get palette_mapper(): ColorMapper {
-    return this
-  }
+  abstract get palette_mapper(): PaletteMapper
 
   v_compute(xs: Arrayable<number> | Arrayable<Factor | number | null>): Arrayable<Color> {
     const values: ColorArray = new Uint32Array(xs.length)

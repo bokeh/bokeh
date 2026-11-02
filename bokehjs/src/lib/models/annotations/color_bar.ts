@@ -3,6 +3,7 @@ import type {Axis} from "../axes"
 import {CategoricalAxis, LinearAxis, LogAxis} from "../axes"
 import type {TickFormatter} from "../formatters/tick_formatter"
 import {BasicTickFormatter, LogTickFormatter, CategoricalTickFormatter} from "../formatters"
+import type {PaletteMapper} from "../mappers/color_mapper"
 import {ColorMapper} from "../mappers/color_mapper"
 import {LinearColorMapper, LogColorMapper, ScanningColorMapper, CategoricalColorMapper, ContinuousColorMapper} from "../mappers"
 import type {Range} from "../ranges"
@@ -57,14 +58,9 @@ export class ColorBarView extends BaseColorBarView {
     this.connect(this.model.properties.display_high.change, () => this._metrics_changed())
   }
 
-  get color_mapper(): CategoricalColorMapper | ContinuousColorMapper {
+  get color_mapper(): PaletteMapper {
     // Color mapper that is used to render this colorbar.
-    const mapper = this.model.color_mapper.palette_mapper
-    if (mapper instanceof CategoricalColorMapper || mapper instanceof ContinuousColorMapper) {
-      return mapper
-    } else {
-      unreachable(`${mapper} has no palette to draw a color bar from`)
-    }
+    return this.model.color_mapper.palette_mapper
   }
 
   override update_layout(): void {
