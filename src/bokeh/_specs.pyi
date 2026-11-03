@@ -26,6 +26,7 @@ from ._types import (
 from .core.enums import (
     AngleUnitsType as AngleUnits,
     CoordinateUnitsType as CoordinateUnits,
+    HatchPatternAbbreviationType as HatchPatternAbbreviation,
     HatchPatternType as HatchPattern,
     LineCapType as LineCap,
     LineJoinType as LineJoin,
@@ -155,7 +156,7 @@ type DashPatternVal = DashPattern
 type DashPatternSpec = DataSpec[DashPatternVal]
 type DashPatternArg = FieldName | DashPatternVal | Sequence[DashPatternVal] | DashPatternSpec | StringArray
 
-type HatchPatternVal = HatchPattern | None
+type HatchPatternVal = HatchPattern | HatchPatternAbbreviation | None
 type HatchPatternSpec = DataSpec[HatchPatternVal]
 type HatchPatternArg = FieldName | HatchPatternVal | Sequence[HatchPatternVal] | HatchPatternSpec | StringArray
 
