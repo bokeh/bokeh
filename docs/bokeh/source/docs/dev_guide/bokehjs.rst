@@ -91,6 +91,12 @@ directory, run ``node make lint`` to check your code. Run
 ``node make lint --fix`` to have ESLint fix some problems automatically. For
 more details, see the rules defined in :bokeh-tree:`bokehjs/eslint.config.mjs`.
 
+Lint tasks that use generated declarations compile the library and test
+framework first so type-aware rules use current declarations. The scoped
+``eslint:make`` and ``eslint:compiler`` tasks use source types directly and
+do not require this build step. Lint results are not cached because changes
+to imported types can affect files whose contents have not changed.
+
 .. tip::
   You can lint the code in your IDE. For example, if you use VSCode, then
   you need the `ESLint extension for VSCode`_ to be installed. This doesn't

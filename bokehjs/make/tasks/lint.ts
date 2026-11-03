@@ -1,4 +1,5 @@
 import {join, normalize} from "node:path"
+import assert from "node:assert/strict"
 
 import {clearCaches} from "@typescript-eslint/typescript-estree"
 import {ESLint} from "eslint"
@@ -12,7 +13,8 @@ import {glob} from "#compiler/sys.js"
 
 async function eslint(dirs: string[], tsconfig_file: string = "tsconfig.json"): Promise<void> {
   const {fix} = argv
-  const eslint = new ESLint({cache: true, cacheStrategy: "content", fix})
+  // Type-aware results also depend on imported files, which ESLint's cache doesn't track.
+  const eslint = new ESLint({fix})
 
   const files = new Set<string>()
   for (const dir of dirs) {
@@ -64,20 +66,41 @@ const test_subdirs = [
   "frameworks",
 ]
 
+task("eslint:prepare", ["test:framework:compile"], async () => {
+  // Fail if lint loses the generated types needed to detect floating promises in tests.
+  const eslint = new ESLint()
+  const results = await eslint.lintText(`
+import {create_glyph_renderer_view} from "../models/glyphs/_util"
+import {Scatter} from "@bokehjs/models/glyphs/scatter"
+import {Plot} from "@bokehjs/models/plots/plot"
+import {display} from "#framework/display"
+
+async function check(): Promise<void> {
+  const view = await create_glyph_renderer_view(new Scatter(), {})
+  view._set_data()
+  display(new Plot())
+}
+void check()
+`, {filePath: join(paths.src_dir.test, "unit/core/visuals.ts")}).finally(clearCaches)
+  const messages = results.flatMap(({messages}) => messages).filter(({ruleId}) => ruleId == "@typescript-eslint/no-floating-promises")
+  assert.equal(messages.length, 2,
+    "ESLint must detect floating promises through generated library and test framework types")
+})
+
 for (const name of test_subdirs) {
-  task(`eslint:test:${name}`, async () => await eslint([join(paths.src_dir.test, name)]))
+  task(`eslint:test:${name}`, ["eslint:prepare"], async () => await eslint([join(paths.src_dir.test, name)]))
 }
 
 task("eslint:make", async () => await eslint([paths.make_dir]))
-task("eslint:lib", async () => await eslint([paths.src_dir.lib]))
+task("eslint:lib", ["eslint:prepare"], async () => await eslint([paths.src_dir.lib]))
 task("eslint:compiler", async () => await eslint([paths.src_dir.compiler]))
-task("eslint:server", async () => await eslint([paths.src_dir.server]))
-task("eslint:test", async () => await eslint(test_subdirs.map((name) => join(paths.src_dir.test, name))))
-task("eslint:examples", async () => await eslint([paths.src_dir.examples]))
-task("eslint:frameworks", async () => await eslint([join(paths.base_dir, "frameworks")], "tsconfig.lint.json"))
-task("eslint:examples:frameworks", async () => await eslint([join(paths.src_dir.examples, "frameworks")], "tsconfig.lint.json"))
+task("eslint:server", ["eslint:prepare"], async () => await eslint([paths.src_dir.server]))
+task("eslint:test", ["eslint:prepare"], async () => await eslint(test_subdirs.map((name) => join(paths.src_dir.test, name))))
+task("eslint:examples", ["eslint:prepare"], async () => await eslint([paths.src_dir.examples]))
+task("eslint:frameworks", ["eslint:prepare"], async () => await eslint([join(paths.base_dir, "frameworks")], "tsconfig.lint.json"))
+task("eslint:examples:frameworks", ["eslint:prepare"], async () => await eslint([join(paths.src_dir.examples, "frameworks")], "tsconfig.lint.json"))
 
-task("eslint", async () => {
+task("eslint", ["eslint:prepare"], async () => {
   await eslint([
     paths.make_dir,
     paths.src_dir.lib,
