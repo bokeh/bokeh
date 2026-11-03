@@ -21,6 +21,21 @@ function encode_NDArray(array: NDArray, serializer: Serializer): NDArrayRep {
   }
 }
 
+/** Read one logical item without unpacking an entire shaped column. */
+export function get_array_item(array: Arrayable, index: number): unknown {
+  if (!is_NDArray(array) || array.dimension <= 1) {
+    return array[index]
+  }
+  if (!Number.isInteger(index) || index < 0 || index >= array.shape[0]) {
+    return undefined
+  }
+  const stride = array.shape.slice(1).reduce((size, length) => size*length, 1)
+  let offset = index*stride
+  const unpack = (dimension: number): unknown[] => Array.from({length: array.shape[dimension]}, () =>
+    dimension + 1 == array.dimension ? array[offset++] : unpack(dimension + 1))
+  return unpack(1)
+}
+
 export interface NDArrayType<T, U=T> extends Arrayable<U>, Equatable, Cloneable, Serializable {
   readonly [__ndarray__]: boolean
   readonly dtype: NDDataType

@@ -16,7 +16,7 @@ import type {CallbackLike1} from "core/util/callbacks"
 import {execute, execute_sync} from "core/util/callbacks"
 import {CustomJS} from "../../callbacks/customjs"
 import type {Formatters, Index} from "core/util/templating"
-import {replace_placeholders_html, get_value, Skip} from "core/util/templating"
+import {replace_placeholders_html, get_value, tooltip_formatter, Skip} from "core/util/templating"
 import {isFunction, isArray, isNumber, isBoolean, isString, is_undefined} from "core/util/types"
 import {tool_icon_hover} from "styles/icons.css"
 import * as hover_tool_css from "styles/hover_tool.css"
@@ -781,7 +781,7 @@ export class HoverToolView extends InspectToolView {
 
       const value_el = (() => {
         if (swatch_match == null && color_match == null) {
-          const content = replace_placeholders_html(value, ds, index, this.model.formatters, vars)
+          const content = replace_placeholders_html(value, ds, index, this.model.formatters, vars, tooltip_formatter)
           return <HTML>{content}</HTML>
         }
 
@@ -836,7 +836,7 @@ export class HoverToolView extends InspectToolView {
     const index = vars.image_index ?? vars.index
 
     if (isString(tooltips)) {
-      const content = replace_placeholders_html(tooltips, ds, index, this.model.formatters, vars)
+      const content = replace_placeholders_html(tooltips, ds, index, this.model.formatters, vars, tooltip_formatter)
       return div(content)
     } else if (isFunction(tooltips)) {
       return tooltips(ds, vars)
@@ -855,11 +855,11 @@ export class HoverToolView extends InspectToolView {
   protected _update_template(template_view: ViewOf<DOMElement>, ds: ColumnarDataSource, i: Index | null, vars: TooltipVars): void {
     const {formatters} = this.model
     if (template_view instanceof TemplateView) {
-      template_view.update(ds, i, vars, formatters)
+      template_view.update(ds, i, vars, formatters, tooltip_formatter)
     } else {
       traverse_views([template_view], (view) => {
         if (view instanceof PlaceholderView) {
-          view.update(ds, i, vars, formatters)
+          view.update(ds, i, vars, formatters, tooltip_formatter)
         }
       })
     }
