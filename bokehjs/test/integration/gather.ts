@@ -78,7 +78,7 @@ describe("IndexedLookup renderer source replacement", () => {
     const {view} = await display(p)
     const renderer_view = view.owner.get_one(renderer)
     const glyph = renderer_view.glyph as PatchesView
-    using spy = restorable(sinon.spy(renderer_view, "set_data"))
+    using spy = restorable(sinon.spy(renderer_view, "_set_data"))
 
     const replace_source = async (indices: number[][]) => {
       spy.resetHistory()
@@ -176,7 +176,7 @@ describe("IndexedLookup replacement lifecycle", () => {
   for (const replace of ["source", "view", "both"] as const) {
     it(`disconnects removed renderers during ${replace} replacement`, async () => {
       const {p, view, renderer, renderer_view} = await make_plot()
-      using data_spy = restorable(sinon.spy(renderer_view, "set_data"))
+      using data_spy = restorable(sinon.spy(renderer_view, "_set_data"))
       using indices_spy = restorable(sinon.spy(CDSViewView.prototype, "compute_indices"))
       const source = ColumnDataSource.create({data: {vertices: [[2, 3, 4]]}})
       if (replace != "view") {
@@ -219,7 +219,7 @@ describe("IndexedLookup replacement lifecycle", () => {
 
   it("coalesces rapid source replacements and keeps the final source subscribed", async () => {
     const {view, renderer, renderer_view, glyph} = await make_plot()
-    using spy = restorable(sinon.spy(renderer_view, "set_data"))
+    using spy = restorable(sinon.spy(renderer_view, "_set_data"))
     const first = ColumnDataSource.create({data: {vertices: [[0, 1, 4]]}})
     const last = ColumnDataSource.create({data: {vertices: [[0, 1, 4], [1, 2, 4]]}})
     renderer.data_source = first

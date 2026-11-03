@@ -201,7 +201,7 @@ export class GlyphRendererView extends DataRendererView {
           // CDSView has rebound by now. Keep its callbacks ahead of ours.
           disconnect_source(source)
           connect_source(source)
-          await this.update_data()
+          this.update_data()
         })()
       }
       return pending_update
