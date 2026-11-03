@@ -369,11 +369,8 @@ class DocumentViewHandle:
     def close(self) -> None:
         ''' Release all frontend comms, detach the source, and clear pending events.
 
-        handle (CommsHandle, optional): handle object returned by the ``show`` function
-            if the argument ``notebook_handle`` is set to ``True``.
-
-    Returns:
-        None
+        Returns:
+            None
 
         '''
         if self._closed:
