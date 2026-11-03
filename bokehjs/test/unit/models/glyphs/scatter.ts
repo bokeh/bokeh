@@ -1,8 +1,9 @@
-import {expect} from "#framework/assertions"
+import {expect, expect_instanceof} from "#framework/assertions"
 import * as sinon from "sinon"
 
 import {create_glyph_renderer_view, create_glyph_view} from "./_util"
 import {Scatter, ScatterView} from "@bokehjs/models/glyphs/scatter"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import type {Geometry} from "@bokehjs/core/geometry"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {FactorRange} from "@bokehjs/models/ranges/factor_range"
@@ -153,7 +154,7 @@ describe("Scatter", () => {
       const glyph_view = await create_glyph_view(glyph, {x: dates, y: [1, 2]})
 
       expect(glyph_view.bounds()).to.be.equal({x0: Date.UTC(2024, 0, 1), y0: 1, x1: Date.UTC(2024, 0, 2), y1: 2})
-      expect(glyph_view.renderer.model.data_source.get_array("x")).to.be.equal(expected_dates)
+      expect(glyph_view.renderer.model.data_source.get_field("x")).to.be.equal(expected_dates)
     })
 
     it("should materialize ISO date strings before coordinate transforms", async () => {
@@ -163,7 +164,7 @@ describe("Scatter", () => {
       const glyph_view = await create_glyph_view(glyph, {x: dates, y: [1, 2]})
 
       expect([...glyph_view.x]).to.be.equal([Date.UTC(2024, 0, 1) + 1000, Date.UTC(2024, 0, 2) + 1000])
-      expect(glyph_view.renderer.model.data_source.get_array("x")).to.be.equal(expected_dates)
+      expect(glyph_view.renderer.model.data_source.get_field("x")).to.be.equal(expected_dates)
     })
 
     it("should pass raw ISO strings to custom transforms before materializing their result", async () => {
@@ -176,7 +177,7 @@ describe("Scatter", () => {
       const glyph_view = await create_glyph_view(glyph, {x: dates, y: [1, 2]})
 
       expect([...glyph_view.x]).to.be.equal([Date.UTC(2024, 0, 1), Date.UTC(2024, 0, 2)])
-      expect(glyph_view.renderer.model.data_source.get_array("x")).to.be.equal(expected_dates)
+      expect(glyph_view.renderer.model.data_source.get_field("x")).to.be.equal(expected_dates)
     })
 
     it("should pass raw strings to custom transforms using string operations", async () => {
@@ -200,7 +201,7 @@ describe("Scatter", () => {
       const glyph_view = await create_glyph_view(glyph, {x: dates, y: [1, 2]})
 
       expect([...glyph_view.x]).to.be.equal([Date.UTC(2024, 0, 1), Date.UTC(2024, 0, 2)])
-      expect(glyph_view.renderer.model.data_source.get_array("x")).to.be.equal(expected_dates)
+      expect(glyph_view.renderer.model.data_source.get_field("x")).to.be.equal(expected_dates)
     })
 
     it("should pass raw date-looking factors to factor-range dodge transforms", async () => {
@@ -237,8 +238,8 @@ describe("Scatter", () => {
 
       expect([...first.x]).to.be.equal([null, NaN, 1704110400000, Date.UTC(2024, 0, 2)] as any)
       expect([...second.x]).to.be.equal([Date.UTC(2024, 0, 2), 1704110400000, NaN, null] as any)
-      expect(first.renderer.model.data_source.get_array("x")).to.be.equal(expected_values)
-      expect(second.renderer.model.data_source.get_array("x")).to.be.equal(expected_reversed)
+      expect(first.renderer.model.data_source.get_field("x")).to.be.equal(expected_values)
+      expect(second.renderer.model.data_source.get_field("x")).to.be.equal(expected_reversed)
     })
 
     it("should not normalize invalid ISO-looking calendar dates", async () => {
@@ -247,7 +248,7 @@ describe("Scatter", () => {
       const glyph_view = await create_glyph_view(glyph, {x: dates, y: [0, 1, 2, 3]})
 
       expect([...glyph_view.x]).to.be.equal([Date.UTC(2024, 1, 29), "2024-02-30", "2023-02-29", "2024-04-31"] as any)
-      expect(glyph_view.renderer.model.data_source.get_array("x")).to.be.equal(expected_dates)
+      expect(glyph_view.renderer.model.data_source.get_field("x")).to.be.equal(expected_dates)
     })
 
     it("should preserve date-looking categorical factors", async () => {
@@ -257,13 +258,14 @@ describe("Scatter", () => {
       const glyph_view = await create_glyph_view(glyph, {x: factors, y: [1, 2]}, {axis_type: "categorical", x_range})
 
       expect([...glyph_view.x]).to.be.equal([...x_range.v_synthetic(factors)])
-      expect(glyph_view.renderer.model.data_source.get_array("x")).to.be.equal(expected_factors)
+      expect(glyph_view.renderer.model.data_source.get_field("x")).to.be.equal(expected_factors)
     })
 
     it("should materialize date coordinates after source updates", async () => {
       const renderer_view = await create_glyph_renderer_view(glyph, {x: [0, 1], y: [0, 1]})
       const glyph_view = renderer_view.glyph as ScatterView
       const source = renderer_view.model.data_source
+      expect_instanceof(source, ColumnDataSource)
       const expect_dates = (values: number[]) => expect([...glyph_view.x]).to.be.equal(values)
 
       source.data = {x: ["2024-01-01", "2024-01-02"], y: [0, 1]} as any

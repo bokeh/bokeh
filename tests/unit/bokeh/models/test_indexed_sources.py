@@ -5,6 +5,7 @@ import pytest
 from bokeh.core.validation import check_integrity
 from bokeh.document import Document
 from bokeh.document.events import ModelChangedEvent
+from bokeh.model import Model
 from bokeh.models import (
     Bezier,
     BoxEditTool,
@@ -50,7 +51,12 @@ def test_record_source_plotting() -> None:
     assert check_integrity([renderer]).error == []
 
 
-def test_record_source_held_protocol_updates_and_setter() -> None:
+def test_record_source_held_protocol_updates_and_setter(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Other tests can clear extension registrations after test collection.
+    monkeypatch.setattr(Model, "model_class_reverse_map", {
+        **Model.model_class_reverse_map,
+        RecordDataSource.__qualified_model__: RecordDataSource,
+    })
     source = RecordDataSource(records=[dict(x=1, y=2)])
     doc = Document()
     doc.add_root(source)

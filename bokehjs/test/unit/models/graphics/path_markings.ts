@@ -1,5 +1,5 @@
 import * as sinon from "sinon"
-import {expect} from "#framework/assertions"
+import {expect, expect_instanceof} from "#framework/assertions"
 import {restorable} from "#framework/util"
 import {create_glyph_view} from "../glyphs/_util"
 import {PathMarkings} from "@bokehjs/models/graphics/decoration"
@@ -8,6 +8,7 @@ import {MultiLine} from "@bokehjs/models/glyphs/multi_line"
 import {Line} from "@bokehjs/models/glyphs/line"
 import {Segment} from "@bokehjs/models/glyphs/segment"
 import {IndexFilter} from "@bokehjs/models/filters/index_filter"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {path_segments, hit_decoration, decoration_hits_rect, decoration_hits_span} from "@bokehjs/models/glyphs/decorated_path"
 
 describe("Path markings", () => {
@@ -41,7 +42,9 @@ describe("Path markings", () => {
     const decoration = view.decorations.get(model)!
     expect(decoration.placements(0)).to.be.equal([0.25, 0.75])
     expect(decoration.placements(1)).to.be.equal([0, 0.5, 1])
-    view.renderer.model.data_source.patch({positions: [[2, [0.1, 0.9]]]})
+    const source = view.renderer.model.data_source
+    expect_instanceof(source, ColumnDataSource)
+    source.patch({positions: [[2, [0.1, 0.9]]]})
     await plot.ready
     expect(decoration.placements(1)).to.be.equal([0.1, 0.9])
     model.positions = []

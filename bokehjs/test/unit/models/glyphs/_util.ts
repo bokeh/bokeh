@@ -5,7 +5,6 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Plot} from "@bokehjs/models/plots/plot"
 import type {Glyph} from "@bokehjs/models/glyphs/glyph"
 import type {GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
-import type {GlyphRendererWithSource} from "@bokehjs/models/renderers/glyph_renderer"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import type {Scale} from "@bokehjs/models/scales/scale"
@@ -29,7 +28,7 @@ export type Options = {
   y_range?: Range
 }
 
-export async function create_glyph_renderer_view<G extends Glyph>(glyph: G, data: DataOf<G> = {}, options: Options = {}): Promise<GlyphRendererView & {model: GlyphRendererWithSource<Glyph, ColumnDataSource>}> {
+export async function create_glyph_renderer_view<G extends Glyph>(glyph: G, data: DataOf<G> = {}, options: Options = {}): Promise<GlyphRendererView> {
   const axis_type = options.axis_type ?? "linear"
 
   const data_source = ColumnDataSource.create({data: data as {[key: string]: Arrayable}}) // TODO: exactOptionalPropertyTypes
@@ -49,11 +48,11 @@ export async function create_glyph_renderer_view<G extends Glyph>(glyph: G, data
   })
 
   const {view} = await display(plot)
-  return view.owner.get_one(glyph_renderer) as GlyphRendererView & {model: GlyphRendererWithSource<Glyph, ColumnDataSource>}
+  return view.owner.get_one(glyph_renderer)
 }
 
-export async function create_glyph_view<G extends Glyph>(glyph: G, data: DataOf<G> = {}, options?: Options): Promise<ViewOf<G> & {renderer: GlyphRendererView & {model: GlyphRendererWithSource<Glyph, ColumnDataSource>}}> {
-  return (await create_glyph_renderer_view(glyph, data, options)).glyph as ViewOf<G> & {renderer: GlyphRendererView & {model: GlyphRendererWithSource<Glyph, ColumnDataSource>}}
+export async function create_glyph_view<G extends Glyph>(glyph: G, data: DataOf<G> = {}, options?: Options): Promise<ViewOf<G>> {
+  return (await create_glyph_renderer_view(glyph, data, options)).glyph
 }
 
 export type AxisType = "linear" | "log" | "categorical"
