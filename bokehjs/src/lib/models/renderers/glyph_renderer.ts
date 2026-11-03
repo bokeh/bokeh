@@ -178,8 +178,36 @@ export class GlyphRendererView extends DataRendererView {
   override connect_signals(): void {
     super.connect_signals()
 
+    let source = this.model.data_source
+    let pending_update: Promise<void> | null = null
+    let view_revision = 0
     const render = () => this.request_paint()
-    const update = () => this.update_data()
+    const update_later = () => {
+      if (pending_update == null) {
+        pending_update = (async () => {
+          await Promise.resolve()
+          pending_update = null
+          if (this.is_destroyed || this.cds_view.model != this.model.view) {
+            return
+          }
+          // CDSView has rebound by now. Keep its callbacks ahead of ours.
+          disconnect_source(source)
+          connect_source(source)
+          await this.update_data()
+        })()
+      }
+      return pending_update
+    }
+    const update_data = (indices?: number[]) => {
+      if (this.is_destroyed) {
+        return
+      }
+      if (pending_update != null || source != this.model.data_source || this.cds_view.model != this.model.view) {
+        return update_later()
+      }
+      return this.update_data(indices)
+    }
+    const update = () => update_data()
 
     this.connect(this.model.change, render)
 
@@ -206,35 +234,73 @@ export class GlyphRendererView extends DataRendererView {
     this.connect(this.muted_glyph.model.change, update)
     this.connect(this.decimated_glyph.model.change, update)
 
-    this.connect(this.model.data_source.change, update)
-    this.connect(this.model.data_source.streaming, update)
-    this.connect(this.model.data_source.patching, (indices) => this.update_data(indices))
-    this.connect(this.model.data_source.selected.change, render)
-    this.connect(this.model.data_source._select, render)
-    if (this.hover_glyph != null) {
-      this.connect(this.model.data_source.inspect, () => {
-        // XXX: hoping for the best, assuming no in-place mutation
-        const {inspected} = this.model.data_source
-        const current_inspected = {
-          indices: inspected.indices,
-          line_indices: inspected.line_indices,
-          multiline_indices: inspected.multiline_indices,
-          image_indices: inspected.image_indices,
-          selected_glyphs: inspected.selected_glyphs,
-        }
-        if (!is_equal(this._previous_inspected, current_inspected)) {
-          this._previous_inspected = current_inspected
-          render()
-        }
-      })
+    const patch = (indices: number[]) => update_data(indices)
+    const inspect = () => {
+      // XXX: hoping for the best, assuming no in-place mutation
+      const {inspected} = this.model.data_source
+      const current_inspected = {
+        indices: inspected.indices,
+        line_indices: inspected.line_indices,
+        multiline_indices: inspected.multiline_indices,
+        image_indices: inspected.image_indices,
+        selected_glyphs: inspected.selected_glyphs,
+      }
+      if (!is_equal(this._previous_inspected, current_inspected)) {
+        this._previous_inspected = current_inspected
+        render()
+      }
     }
+    const connect_source = (source: ColumnarDataSource) => {
+      this.connect(source.change, update)
+      this.connect(source.streaming, update)
+      this.connect(source.patching, patch)
+      this.connect(source.selected.change, render)
+      this.connect(source._select, render)
+      if (this.hover_glyph != null) {
+        this.connect(source.inspect, inspect)
+      }
+    }
+    const disconnect_source = (source: ColumnarDataSource) => {
+      this.disconnect(source.change, update)
+      this.disconnect(source.streaming, update)
+      this.disconnect(source.patching, patch)
+      this.disconnect(source.selected.change, render)
+      this.disconnect(source._select, render)
+      this.disconnect(source.inspect, inspect)
+    }
+    connect_source(source)
+    this.on_change(this.model.properties.data_source, () => {
+      disconnect_source(source)
+      source = this.model.data_source
+      // Subscribe immediately so same-tick edits participate in the queued refresh.
+      connect_source(source)
+      return update_later()
+    })
+    this.on_transitive_change(this.model.properties.view, update, {
+      signal: (view) => (view as CDSView).properties.indices.change,
+    })
+    this.on_transitive_change(this.model.properties.view, () => {
+      if (this.cds_view.model != this.model.view) {
+        return
+      }
+      return this.set_visuals()
+    }, {signal: (view) => (view as CDSView).properties.masked.change})
     this.connect(this.model.properties.view.change, async () => {
-      this.cds_view.remove()
-      this.cds_view = await build_view(this.model.view, {parent: this})
+      const revision = ++view_revision
+      if (!this.cds_view.is_destroyed) {
+        this.cds_view.remove()
+      }
+      const model = this.model.view
+      const cds_view = await build_view(model, {parent: this})
+      if (this.is_destroyed || revision != view_revision || this.model.view != model) {
+        cds_view.remove()
+        return
+      }
+      this.cds_view = cds_view
+      disconnect_source(source)
+      connect_source(source)
       await update()
     })
-    this.connect(this.model.view.properties.indices.change, update)
-    this.connect(this.model.view.properties.masked.change, async () => await this.set_visuals())
     this.connect(this.model.properties.visible.change, () => this.plot_view.invalidate_dataranges = true)
 
     const {x_ranges, y_ranges} = this.plot_view.frame
@@ -400,21 +466,20 @@ export class GlyphRendererView extends DataRendererView {
     })()
 
     const {lod_threshold} = this.plot_model
-    let glyph: GlyphView
-    let nonselection_glyph: GlyphView
-    let selection_glyph: GlyphView
-    if ((this.model.document != null ? this.model.document.interactive_duration() > 0 : false)
-        && !has_webgl && lod_threshold != null && all_indices.length > lod_threshold) {
-      // Render decimated during interaction if too many elements and not using GL
-      indices = this.decimated.ones()
-      glyph = this.decimated_glyph
-      nonselection_glyph = this.decimated_glyph
-      selection_glyph = this.selection_glyph
-    } else {
-      glyph = this.model.muted ? this.muted_glyph : this.glyph
-      nonselection_glyph = this.nonselection_glyph
-      selection_glyph = this.selection_glyph
-    }
+    const {glyph, nonselection_glyph} = (() => {
+      if ((this.model.document != null ? this.model.document.interactive_duration() > 0 : false)
+          && !has_webgl && lod_threshold != null && all_indices.length > lod_threshold) {
+        // Render decimated during interaction if too many elements and not using GL
+        indices = this.decimated.ones()
+        return {glyph: this.decimated_glyph, nonselection_glyph: this.decimated_glyph}
+      } else {
+        return {
+          glyph: this.model.muted ? this.muted_glyph : this.glyph,
+          nonselection_glyph: this.nonselection_glyph,
+        }
+      }
+    })()
+    const {selection_glyph} = this
 
     if (this.hover_glyph != null && inspected_subset_indices.length != 0) {
       const inspected = new Set(inspected_subset_indices)

@@ -2783,6 +2783,21 @@
   Expression: {
     __extends__: "Model",
   },
+  IndexedLookup: {
+    __extends__: "Expression",
+    source: {
+      type: "symbol",
+      name: "unset",
+    },
+    field: {
+      type: "symbol",
+      name: "unset",
+    },
+    indices: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
   Maximum: {
     __extends__: "ScalarExpression",
     field: {
