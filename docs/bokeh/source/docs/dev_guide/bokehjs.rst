@@ -91,11 +91,11 @@ directory, run ``node make lint`` to check your code. Run
 ``node make lint --fix`` to have ESLint fix some problems automatically. For
 more details, see the rules defined in :bokeh-tree:`bokehjs/eslint.config.mjs`.
 
-Lint tasks that use generated declarations compile the library and test
-framework first so type-aware rules use current declarations. The scoped
-``eslint:make`` and ``eslint:compiler`` tasks use source types directly and
-do not require this build step. Lint results are not cached because changes
-to imported types can affect files whose contents have not changed.
+If unexpected floating Promise errors appear after updating BokehJS, generated
+declarations or cached lint results may be stale. Remove ``.eslintcache`` from
+the ``bokehjs`` directory, then run
+``node make scripts:compile test:framework:compile lint`` to rebuild the
+declarations and retry linting.
 
 .. tip::
   You can lint the code in your IDE. For example, if you use VSCode, then

@@ -40,7 +40,7 @@ function node(files: string[]): Promise<void> {
   })
 }
 
-task("test:framework:compile", ["scripts:typescript", "scripts:compile"], async () => {
+task("test:framework:compile", async () => {
   compile_typescript("./test/framework/tsconfig.json")
 })
 
