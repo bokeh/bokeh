@@ -97,7 +97,7 @@ def get_screenshot_as_png(
     :func:`~bokeh.io.export.get_screenshot_as_png`.
 
     Args:
-        obj (UIElement or Document) : a Layout (Row/Column), Plot or Widget
+        obj (UIElement or Document) : a Layout (e.g. Row/Column), Plot or Widget
             object or Document to export.
 
         driver: An optional Playwright ``Browser`` or ``BrowserContext``.

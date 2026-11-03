@@ -609,7 +609,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
         Args:
             selector (JSON-like) : query selector
-            updates (dict) : data to add
+            updates (dict[str|Any]) : data to modify
 
         Returns:
             None
