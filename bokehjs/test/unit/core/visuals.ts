@@ -318,8 +318,9 @@ describe("core/visuals", () => {
 
         const filter = IndexFilter.create({indices: [1, 2]})
         renderer_view.model.view = CDSView.create({filter})
-        // XXX: need to manually set_data because signals for renderer aren't connected by create_glyph_view util
-        await renderer_view.set_data()
+        // Renderer signals are not connected by the create_glyph_view utility.
+        renderer_view.update_data()
+        await renderer_view.ready
 
         const canvas = document.createElement("canvas")
         const ctx = canvas.getContext("2d")! as Context2d
