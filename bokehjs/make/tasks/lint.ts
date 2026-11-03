@@ -68,7 +68,14 @@ const test_subdirs = [
 
 task("eslint:prepare", ["test:framework:compile"], async () => {
   // Fail if lint loses the generated types needed to detect floating promises in tests.
-  const eslint = new ESLint()
+  // The single-run optimization reads disk contents instead of this synthetic lintText input.
+  const eslint = new ESLint({
+    overrideConfig: {
+      languageOptions: {
+        parserOptions: {disallowAutomaticSingleRunInference: true},
+      },
+    },
+  })
   const results = await eslint.lintText(`
 import {create_glyph_renderer_view} from "../models/glyphs/_util"
 import {Scatter} from "@bokehjs/models/glyphs/scatter"
