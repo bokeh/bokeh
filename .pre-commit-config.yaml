@@ -30,7 +30,6 @@ repos:
         stages: [pre-commit]
       - id: check-yaml
         name: Validate YAML files
-        exclude: conda/recipe/meta.yaml
       - id: check-json
         name: Validate JSON files
 
@@ -45,12 +44,12 @@ repos:
 
       - id: run-codebase
         name: Run codebase checks
-        entry: pytest -n logical --maxprocesses=5 tests/codebase
-        language: conda
+        entry: pixi run pytest -n logical --maxprocesses=5 tests/codebase
+        language: unsupported
         pass_filenames: false
 
       - id: protect-branches
         name: Protect Git branches
-        entry: python tools/hooks/protect_branches.py
-        language: conda
+        entry: pixi run python tools/hooks/protect_branches.py
+        language: unsupported
         pass_filenames: false
