@@ -123,6 +123,7 @@ for (const application of applications) {
     tsconfig.compilerOptions.skipLibCheck = false
     // Browser consumers must not inherit ambient Node types from this checkout.
     tsconfig.compilerOptions.types = []
+    tsconfig.include = [join(bokehjs_dir, "src/lib/es.d.ts")]
     writeFileSync(tsconfig_path, `${JSON.stringify(tsconfig, null, 2)}\n`)
   }
   writeFileSync(package_path, `${JSON.stringify(pkg, null, 2)}\n`)

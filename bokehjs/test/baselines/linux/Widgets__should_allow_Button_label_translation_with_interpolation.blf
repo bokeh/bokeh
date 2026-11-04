@@ -1,0 +1,7 @@
+Column bbox=[0, 0, 310, 240]
+  Button bbox=[5, 5, 300, 30]
+  Button bbox=[5, 45, 300, 30]
+  Button bbox=[5, 85, 300, 30]
+  Button bbox=[5, 125, 300, 30]
+  Button bbox=[5, 165, 300, 30]
+  Button bbox=[5, 205, 300, 30]

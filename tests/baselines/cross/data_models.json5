@@ -9,6 +9,11 @@
         name: "Notifications",
         id: "p1008",
       },
+      i18n: {
+        type: "object",
+        name: "I18n",
+        id: "p1009",
+      },
     },
   },
   roots: [
@@ -32,7 +37,7 @@
           "default": {
             type: "object",
             name: "builtins.Later",
-            id: "p1009",
+            id: "p1010",
           },
         },
         {
