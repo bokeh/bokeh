@@ -180,7 +180,9 @@ class TestBuffer:
 
         assert isinstance(ret, bytes)
 
-        # make sure the gzip header "OS" field is *always* set to "unknown" (255)
+        assert ret[4:8] == b"\x00"*4
+
+        # The gzip header OS field must be unknown on every platform.
         assert ret[9] == 255
 
         assert gzip.decompress(ret) == val
@@ -194,7 +196,9 @@ class TestBuffer:
 
         assert isinstance(ret, bytes)
 
-        # make sure the gzip header "OS" field is *always* set to "unknown" (255)
+        assert ret[4:8] == b"\x00"*4
+
+        # The gzip header OS field must be unknown on every platform.
         assert ret[9] == 255
 
         assert gzip.decompress(ret) == val
@@ -208,7 +212,7 @@ class TestBuffer:
         monkeypatch.setenv("BOKEH_COMPRESSION_LEVEL", f"{level}")
         buf.to_compressed_bytes()
 
-        compress.assert_called_once_with(val, mtime=1, compresslevel=level)
+        compress.assert_called_once_with(val, mtime=0, compresslevel=level)
 
     def test_to_base64(self):
         val = b"\x001\xefabc\x12"

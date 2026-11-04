@@ -156,13 +156,13 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          environment: test-py312
+          environment: test-py313
           source-tree: 'keep'
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
         with:
-          environment: test-py312
+          environment: test-py313
 
       - name: Run codebase checks
         run: pytest -n logical --maxprocesses=5 --color=yes --durations=20 --durations-min=1 tests/codebase
@@ -187,15 +187,15 @@ jobs:
         uses: prefix-dev/setup-pixi@ad1da6449d9e506fd127fd67ab2d054a769f6a94 # v0.11.2
         with:
           pixi-version: v0.83.0
-          environments: test-py312
-          activate-environment: test-py312
+          environments: test-py313
+          activate-environment: test-py313
           locked: true
           cache: true
           cache-write: ${{ github.event_name == 'push' && (github.ref_name == 'main' || startsWith(github.ref_name, 'branch-')) }}
 
       - name: Install Bokeh from source
         if: runner.os != 'Windows'
-        run: pixi run --locked --environment test-py312 setup
+        run: pixi run --locked --environment test-py313 setup
 
       - name: Smoke test Windows setup without Unix tools
         if: runner.os == 'Windows'
@@ -205,7 +205,7 @@ jobs:
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
         with:
-          environment: test-py312
+          environment: test-py313
 
       - name: Run tools tests
         run: pytest --color=yes --durations=20 --durations-min=1 tests/tools
@@ -229,10 +229,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04, macos-latest, windows-latest]
-        python-version: ['3.12', '3.13', '3.14']
+        python-version: ['3.13', '3.14']
         include:
-          - python-version: '3.12'
-            environment: test-py312
           - python-version: '3.13'
             environment: test-py313
           - python-version: '3.14'
@@ -278,10 +276,8 @@ jobs:
       matrix:
         # Examples only run on Linux (Chrome/Chromium dependency)
         os: [ubuntu-24.04]
-        python-version: ['3.12', '3.13', '3.14']
+        python-version: ['3.13', '3.14']
         include:
-          - python-version: '3.12'
-            environment: test-py312
           - python-version: '3.13'
             environment: test-py313
           - python-version: '3.14'
@@ -345,10 +341,8 @@ jobs:
       matrix:
         # Comprehensive: All platforms × all Python versions
         os: [ubuntu-24.04, macos-latest, windows-latest]
-        python-version: ['3.12', '3.13', '3.14']
+        python-version: ['3.13', '3.14']
         include:
-          - python-version: '3.12'
-            environment: test-py312
           - python-version: '3.13'
             environment: test-py313
           - python-version: '3.14'
@@ -474,7 +468,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Comprehensive: All platforms, Python 3.12 (defined in minimal-deps environment)
+        # Comprehensive: All platforms, Python 3.13 (defined in minimal-deps environment)
         os: [ubuntu-24.04, macos-latest, windows-latest]
     env:
       OS: ${{ matrix.os }}
@@ -510,10 +504,8 @@ jobs:
       matrix:
         # Core dependencies on all platforms and supported Python versions.
         os: [ubuntu-24.04, macos-latest, windows-latest]
-        python-version: ['3.12', '3.13', '3.14', '3.15']
+        python-version: ['3.13', '3.14', '3.15']
         include:
-          - python-version: '3.12'
-            environment: core-py312
           - python-version: '3.13'
             environment: core-py313
           - python-version: '3.14'
@@ -556,8 +548,8 @@ jobs:
         # Oldest/newest Python on Linux; newest Python on macOS and Windows.
         include:
           - os: ubuntu-24.04
-            python-version: '3.12'
-            environment: docs-py312
+            python-version: '3.13'
+            environment: docs-py313
           - os: ubuntu-24.04
             python-version: '3.15'
             environment: docs-py315
