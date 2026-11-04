@@ -89,12 +89,12 @@ Some guidelines and tips to keep in mind when working on BokehJS:
 Always lint your BokehJS code with Oxlint_: From the :bokeh-tree:`bokehjs`
 directory, run ``node make lint`` to check your code. Run
 ``node make lint --fix`` to have Oxlint fix some problems automatically. For
-more details, see the rules defined in :bokeh-tree:`bokehjs/.oxlintrc.json`.
+more details, see the rules defined in :bokeh-tree:`bokehjs/.oxlintrc.jsonc`.
 
 .. tip::
   You can lint the code in your IDE. For example, if you use VSCode, then
   you need the `Oxc extension for VSCode`_ to be installed. It picks up
-  :bokeh-tree:`bokehjs/.oxlintrc.json` automatically.
+  :bokeh-tree:`bokehjs/.oxlintrc.jsonc` automatically.
 
 .. _contributor_guide_bokehjs_requirements:
 
