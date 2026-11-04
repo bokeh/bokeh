@@ -27,6 +27,8 @@ New features
 Removals
 --------
 
+* Removed support for Python 3.12. Bokeh now requires Python 3.13 or newer.
+
 * Removed ``output_notebook()``, ``push_notebook()``, the notebook hook
   registration APIs (including ``load_notebook()``, ``show_app()``,
   ``destroy_server()``, and ``get_comms()``), ``CommsHandle``, and

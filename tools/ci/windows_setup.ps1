@@ -23,7 +23,7 @@ foreach ($tool in @('bash', 'sh', 'grep')) {
     }
 }
 
-& $pixi run --locked --environment test-py312 setup
+& $pixi run --locked --environment test-py313 setup
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }

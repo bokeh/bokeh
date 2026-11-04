@@ -136,8 +136,8 @@ elsewhere in this guide also works unmodified when prefixed with
     ``pixi shell --locked`` again to pick up the change there too.
 
 Bokeh also defines environments for its supported Python versions and focused
-test configurations. Use ``pixi shell --locked -e test-py312`` for an
-interactive Python 3.12 shell, or ``pixi run --locked -e test-py312 <command>``
+test configurations. Use ``pixi shell --locked -e test-py313`` for an
+interactive Python 3.13 shell, or ``pixi run --locked -e test-py313 <command>``
 for a single command without activating a shell. See
 :ref:`contributor_guide_testing_ci_environments` for more information.
 
@@ -292,8 +292,8 @@ Python installation.
 
 Pixi creates one folder per environment inside your *source checkout*, named
 after the environment: ``.pixi/envs/<environment name>``. For example, the
-``default`` environment lives in ``.pixi/envs/default`` and the ``test-py312``
-environment in ``.pixi/envs/test-py312``. The Python interpreter is located
+``default`` environment lives in ``.pixi/envs/default`` and the ``test-py313``
+environment in ``.pixi/envs/test-py313``. The Python interpreter is located
 inside that folder:
 
 * Linux/macOS: ``<source checkout>/.pixi/envs/default/bin/python``
@@ -306,15 +306,15 @@ To list all environments together with their locations, run:
     pixi info
 
 Use the ``default`` environment unless you have a reason to work with another
-one, for example to debug an issue specific to Python 3.12. In your editor's
+one, for example to debug an issue specific to Python 3.13. In your editor's
 settings, select the interpreter from the path above. Most editors let you
 browse to or enter the interpreter path in their Python interpreter settings.
 
 .. note::
     The steps above set up the ``default`` environment only. Bokeh's editable
     installation belongs to a single environment, so to use another
-    environment as the interpreter (for example ``test-py312``), run
-    ``pixi run -e test-py312 setup`` first. This also creates the
+    environment as the interpreter (for example ``test-py313``), run
+    ``pixi run -e test-py313 setup`` first. This also creates the
     environment if it does not exist yet.
 
 .. _contributor_guide_setup_environment_variables:

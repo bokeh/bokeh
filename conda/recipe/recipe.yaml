@@ -23,10 +23,10 @@ build:
 
 requirements:
   host:
-    - python >=3.12
+    - python >=3.13
     - pip
   run:
-    - python >=3.12
+    - python >=3.13
     # Keep these constraints synchronized with [project.dependencies].
     - jinja2 >=2.9
     - narwhals >=1.13
