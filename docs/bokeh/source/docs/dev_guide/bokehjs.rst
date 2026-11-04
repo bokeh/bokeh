@@ -71,9 +71,9 @@ Code Style Guide
 -----------------
 
 BokehJS doesn't have an explicit style guide. Make sure to run ``node make
-lint`` or ``node make lint --fix`` before committing to the Bokeh repository.
-Also, review the surrounding code and try to be consistent with the existing
-code.
+build lint`` or ``node make build lint --fix`` before committing to the Bokeh
+repository. Also, review the surrounding code and try to be consistent with the
+existing code.
 
 Some guidelines and tips to keep in mind when working on BokehJS:
 
@@ -86,15 +86,22 @@ Some guidelines and tips to keep in mind when working on BokehJS:
 * Use `template literals (template strings)`_ for multiline, tagged, and
   interpolated strings ( ```Bokeh ${Bokeh.version}``` ).
 
-Always lint your BokehJS code with ESLint_: From the :bokeh-tree:`bokehjs`
-directory, run ``node make lint`` to check your code. Run
-``node make lint --fix`` to have ESLint fix some problems automatically. For
-more details, see the rules defined in :bokeh-tree:`bokehjs/eslint.config.mjs`.
+Always lint your BokehJS code with Oxlint_: From the :bokeh-tree:`bokehjs`
+directory, run ``node make build lint`` to check your code. Run
+``node make build lint --fix`` to have Oxlint fix some problems automatically.
+For more details, see the rules defined in :bokeh-tree:`bokehjs/.oxlintrc.jsonc`.
+
+.. note::
+  Type-aware lint rules check tests, examples and frameworks against the
+  generated ``*.d.ts`` files under ``bokehjs/build``. On a clean checkout, or
+  after changes that affect the generated declarations, these files are missing
+  or stale, so build BokehJS before linting. When the build is current, you can
+  run ``node make lint`` on its own.
 
 .. tip::
   You can lint the code in your IDE. For example, if you use VSCode, then
-  you need the `ESLint extension for VSCode`_ to be installed. This doesn't
-  require any additional configuration.
+  you need the `Oxc extension for VSCode`_ to be installed. It picks up
+  :bokeh-tree:`bokehjs/.oxlintrc.jsonc` automatically.
 
 .. _contributor_guide_bokehjs_requirements:
 
@@ -144,8 +151,8 @@ system. These are the most common commands:
   Component, vanilla Vite/Webpack/Rspack, and server-side-rendering examples,
   and runs the browser lifecycle tests in production and development builds.
   This is also part of ``node make test`` in continuous integration.
-* ``node make lint`` lint BokehJS with ESLint_. Run ``node make lint --fix`` to
-  have ESLint fix some problems automatically.
+* ``node make lint`` lint BokehJS with Oxlint_. Run ``node make lint --fix`` to
+  have Oxlint fix some problems automatically.
 
 ``node make`` automatically runs ``npm install`` whenever ``package.json``
 changes.
@@ -421,8 +428,8 @@ work with ``schedule()``.
     also handles synchronous failures and provides the abort signal.
 
 .. _gulp: https://gulpjs.com/
-.. _ESLint: https://eslint.org/
+.. _Oxlint: https://oxc.rs/docs/guide/usage/linter.html
 .. _JSFiddle: http://jsfiddle.net/
 .. _GitHub_Actions: https://github.com/bokeh/bokeh/actions?query=workflow%3ABokehJS-CI
-.. _ESLint extension for VSCode: https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
+.. _Oxc extension for VSCode: https://marketplace.visualstudio.com/items?itemName=oxc.oxc-vscode
 .. _template literals (template strings): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals

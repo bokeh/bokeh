@@ -2,6 +2,7 @@
   "compilerOptions": {
     "lib": ["es2022", "dom", "dom.iterable"],
     "outDir": "../../build/server",
+    "rootDir": "..",
     "paths": {
       "core/*": ["../../build/js/lib/core/*"]
     }

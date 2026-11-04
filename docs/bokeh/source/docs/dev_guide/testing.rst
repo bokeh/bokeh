@@ -94,9 +94,8 @@ Run codebase tests
 ~~~~~~~~~~~~~~~~~~
 
 The most basic set of tests are Bokeh's codebase tests. This includes
-checking Python code with `Ruff`_, checking JavaScript code with `ESLint`_,
-and various other tests for issues such as unused imports and extra white
-spaces.
+checking Python code with `Ruff`_ and various other tests for issues such as
+unused imports and extra white spaces.
 
 Any edits you make to Bokeh's Python or JavaScript codebase should pass this
 test.
@@ -532,7 +531,7 @@ the ``bokehjs`` subdirectory:
 
 .. code-block:: sh
 
-    $ node make build:all
+    $ node make build
     $ BOKEH_CHROME=/path/to/chrome node make test:integration
 
 Omit ``BOKEH_CHROME`` to use Playwright-managed Chromium. The native run reads
@@ -641,7 +640,7 @@ First, build the library and test bundles. Inside a Pixi shell, from the
 
 .. code-block:: sh
 
-    node make build:all
+    node make build
 
 Starting the devtools server does not build the tests. After changing tests,
 run ``node make test:build`` to rebuild their bundles. Missing bundles cause
@@ -889,7 +888,6 @@ group your commits into meaningful chunks of work before pushing to GitHub
 instead of pushing every commit individually. This will help you be considerate
 of others who require access to these limited resources.
 
-.. _ESLint: https://eslint.org/
 .. _Ruff: https://github.com/astral-sh/ruff
 .. _pytest: https://pytest.org/
 .. _pytest-xdist: https://github.com/pytest-dev/pytest-xdist

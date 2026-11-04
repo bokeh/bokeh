@@ -214,6 +214,7 @@ export namespace Kinds {
         return false
       }
 
+      // oxlint-disable-next-line typescript/no-unnecessary-type-assertion -- tsgolint false positive, removing it fails type checking
       const struct_type_proxy = new PlainObjectProxy(this.struct_type as types.PlainObject<Kind<unknown>>)
 
       for (const key of keys(value)) {
@@ -255,6 +256,7 @@ export namespace Kinds {
       }
 
       const value_proxy = new PlainObjectProxy(value)
+      // oxlint-disable-next-line typescript/no-unnecessary-type-assertion -- tsgolint false positive, removing it fails type checking
       const struct_type_proxy = new PlainObjectProxy(this.struct_type as types.PlainObject<Kind<unknown>>)
 
       for (const key of value_proxy.keys()) {

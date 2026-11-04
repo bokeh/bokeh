@@ -158,6 +158,10 @@ jobs:
         working-directory: ./bokehjs
         run: npm ci --no-progress --no-audit --no-fund
 
+      - name: Build BokehJS
+        working-directory: ./bokehjs
+        run: node make build
+
       - name: Lint BokehJS
         working-directory: ./bokehjs
         run: node make lint
