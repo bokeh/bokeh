@@ -141,14 +141,14 @@ class StackColorMapper(ColorMapper):
 class _IndexedStackColorMapperInit(_StackColorMapperInit, total=False):
     slice_color_mapper: ContinuousColorMapper
     index: int
-    scan_all: bool
+    scan_together: bool
 
 class IndexedStackColorMapper(StackColorMapper):
     def __init__(self, **kwargs: Unpack[_IndexedStackColorMapperInit]) -> None: ...
 
     slice_color_mapper: ContinuousColorMapper = ...
     index: int = ...
-    scan_all: bool = ...
+    scan_together: bool = ...
 
 class _WeightedStackColorMapperInit(_PaletteMixinInit, _StackColorMapperInit, total=False):
     alpha_mapper: ContinuousColorMapper

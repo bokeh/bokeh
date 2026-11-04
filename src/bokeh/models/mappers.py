@@ -309,9 +309,10 @@ class IndexedStackColorMapper(StackColorMapper):
     The mapped 2D array is determined by the ``index`` attribute and in terms
     of the ``ImageStack`` data is ``data[:, :, index]``.
 
-    If ``scan_all`` is ``False`` the color map limits and properties are
-    determined from just the 2D array displayed. If ``scan_all`` is ``True``
-    they are determined from the whole 3D array.
+    If ``scan_together`` is ``False`` the 2D arrays are scanned individually, so
+    the color map limits and properties are determined from just the 2D array
+    displayed. If ``scan_together`` is ``True`` the 2D arrays are scanned together
+    as one data set, so they are determined from the whole 3D array.
 
     The colors, including ``nan_color``, ``low_color`` and ``high_color``,
     come from ``slice_color_mapper``, which a ``ColorBar`` for this mapper
@@ -328,9 +329,9 @@ class IndexedStackColorMapper(StackColorMapper):
     selects the 2D array that is color mapped.
     """)
 
-    scan_all = Bool(default=False, help="""
-    Whether to scan all of the 3D data array, rather than just the 2D array
-    that is displayed, to calculate the color mapping limits and properties.
+    scan_together = Bool(default=False, help="""
+    Whether to scan the 2D arrays together as one data set, rather than
+    individually, to calculate the color mapping limits and properties.
     """)
 
 class WeightedStackColorMapper(PaletteMixin, StackColorMapper):

@@ -138,13 +138,13 @@ class Test_IndexedStackColorMapper:
         check_properties_existence(mapper, [
             "slice_color_mapper",
             "index",
-            "scan_all"],
+            "scan_together"],
         )
 
     def test_defaults(self) -> None:
         mapper = bmm.IndexedStackColorMapper(slice_color_mapper=bmm.LinearColorMapper(palette=Spectral6))
         assert mapper.index == 0
-        assert mapper.scan_all is False
+        assert mapper.scan_together is False
 
     def test_negative_index(self) -> None:
         with pytest.raises(ValueError):

@@ -4,9 +4,9 @@ The data is a 3D array of shape ``(ny, nx, nt)`` holding the temperature of a
 plate at ``nt`` times, as heat spreads out from three sources. The
 ``IndexedStackColorMapper`` color maps the 2D array at its ``index`` with its
 ``slice_color_mapper``, which the color bar also draws. The slider changes
-``index``. With ``scan_all`` set, the color mapping limits come from scanning
-the whole 3D array, so they are the same for every time step. The checkbox
-unsets it, so that each 2D array gets its own limits.
+``index``. With ``scan_together`` set, the color mapping limits come from
+scanning the whole 3D array as one data set, so they are the same for every
+time step. The checkbox unsets it, so that each 2D array gets its own limits.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.image_stack, bokeh.models.IndexedStackColorMapper, bokeh.models.ColorBar, bokeh.models.Slider, bokeh.models.Checkbox
@@ -40,7 +40,7 @@ data = sum(
 
 color_mapper = IndexedStackColorMapper(
     slice_color_mapper=LinearColorMapper(palette="Inferno256"),
-    scan_all=True,
+    scan_together=True,
 )
 
 p = figure(width=600, height=450, x_range=(0, 4), y_range=(0, 3),
@@ -56,7 +56,7 @@ slider.js_link("value", color_mapper, "index")
 checkbox = Checkbox(label="Use a different color mapping for each time step")
 checkbox.js_on_change("active", CustomJS(args=dict(color_mapper=color_mapper), code="""
 export default ({color_mapper}, {active}) => {
-    color_mapper.scan_all = !active
+    color_mapper.scan_together = !active
 }
 """))
 

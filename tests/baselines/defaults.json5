@@ -5666,7 +5666,7 @@
       name: "unset",
     },
     index: 0,
-    scan_all: false,
+    scan_together: false,
   },
   LinearColorMapper: {
     __extends__: "ContinuousColorMapper",

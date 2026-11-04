@@ -12,7 +12,7 @@ export namespace IndexedStackColorMapper {
   export type Props = StackColorMapper.Props & {
     slice_color_mapper: p.Property<ContinuousColorMapper>
     index: p.Property<number>
-    scan_all: p.Property<boolean>
+    scan_together: p.Property<boolean>
   }
 }
 
@@ -25,15 +25,15 @@ export class IndexedStackColorMapper extends StackColorMapper {
     this.define<IndexedStackColorMapper.Props>(({Bool, Int, NonNegative, Ref}) => ({
       slice_color_mapper: [ Ref(ContinuousColorMapper) ],
       index:              [ NonNegative(Int), 0 ],
-      scan_all:           [ Bool, false ],
+      scan_together:      [ Bool, false ],
     }))
   }
 
   // Scans of `slice_color_mapper` per data array, keyed by stack index, or by
-  // "all" for the whole stack when `scan_all` is set. Changing `index` or
-  // `scan_all` reuses them; `data_changed()` drops those of the arrays it's
-  // given, and a change to `slice_color_mapper` drops them all.
-  protected _scans: WeakMap<Arrayable<number>, Map<number | "all", ScanData>> = new WeakMap()
+  // "together" for the whole stack when `scan_together` is set. Changing `index`
+  // or `scan_together` reuses them; `data_changed()` drops those of the arrays
+  // it's given, and a change to `slice_color_mapper` drops them all.
+  protected _scans: WeakMap<Arrayable<number>, Map<number | "together", ScanData>> = new WeakMap()
 
   override connect_signals(): void {
     super.connect_signals()
@@ -85,7 +85,7 @@ export class IndexedStackColorMapper extends StackColorMapper {
 
   protected _v_compute(data: Arrayable<number>, values: Arrayable<uint32>,
       palette: Arrayable<uint32>, colors: {nan_color: uint32, low_color?: uint32, high_color?: uint32}): void {
-    const {index, scan_all, slice_color_mapper} = this
+    const {index, scan_together, slice_color_mapper} = this
     const n = values.length
     const nstack = data.length / n
     assert(0 <= index && index < nstack, `Expected index in the range [0, ${nstack}), got ${index}`)
@@ -101,10 +101,10 @@ export class IndexedStackColorMapper extends StackColorMapper {
       this._scans.set(data, scans)
     }
 
-    const key = scan_all ? "all" : index
+    const key = scan_together ? "together" : index
     let scan_data = scans.get(key)
     if (scan_data == null) {
-      scan_data = slice_color_mapper._v_scan(scan_all ? data : slice, palette.length)
+      scan_data = slice_color_mapper._v_scan(scan_together ? data : slice, palette.length)
       scans.set(key, scan_data)
     }
 
