@@ -96,7 +96,7 @@ time.sleep(60)
         examples._close_process(proc)
 
 def test_report_output_includes_stdout_and_stderr() -> None:
-    output = examples._report_output("printed\n", "Traceback: boom\n")
+    output = examples._report_output("printed", "Traceback: boom\n")
 
     assert output == "\nprinted\nTraceback: boom"
 
