@@ -197,7 +197,7 @@ def test_open_rejects_invalid_token_payload() -> None:
 #-----------------------------------------------------------------------------
 
 @pytest.fixture
-def websocket_url_factory(unused_tcp_port_factory) -> Generator[Callable[[list[str]], str], None, None]:
+def websocket_url_factory(unused_tcp_port_factory) -> Generator[Callable[[list[str]], str]]:
     servers: list[HTTPServer] = []
 
     def start(allowed_origins: list[str]) -> str:
