@@ -6,12 +6,14 @@ import * as sinon from "sinon"
 
 import {ColorBar} from "@bokehjs/models/annotations/color_bar"
 import type {ImageStackView} from "@bokehjs/models/glyphs/image_stack"
+import {Scatter} from "@bokehjs/models/glyphs/scatter"
 import {LogAxis} from "@bokehjs/models/axes/log_axis"
 import {IndexedStackColorMapper} from "@bokehjs/models/mappers/indexed_stack_color_mapper"
 import {LinearColorMapper} from "@bokehjs/models/mappers/linear_color_mapper"
 import {LogColorMapper} from "@bokehjs/models/mappers/log_color_mapper"
 import type {PlotView} from "@bokehjs/models/plots/plot"
 import type {Range1d} from "@bokehjs/models/ranges/range1d"
+import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {LogScale} from "@bokehjs/models/scales/log_scale"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {BasicTicker} from "@bokehjs/models/tickers/basic_ticker"
@@ -142,6 +144,34 @@ describe("IndexedStackColorMapper module", () => {
       expect(change.called).to.be.true
     })
 
+    it("should not cache scans when slice_color_mapper has a domain", () => {
+      const domain_source = ColumnDataSource.create({data: {value: [-5, 500]}})
+      const domain_renderer = GlyphRenderer.create({
+        data_source: domain_source,
+        glyph: Scatter.create({x: 0, y: 0}),
+      })
+      domain_renderer.view.compute_indices(domain_source)
+
+      const slice_color_mapper = LinearColorMapper.create({palette, domain: [[domain_renderer, "value"]]})
+      const mapper = IndexedStackColorMapper.create({slice_color_mapper})
+      const scan = sinon.spy(slice_color_mapper, "_v_scan")
+      const data = stack()
+
+      rgba(mapper, data)
+      expect(scan.callCount).to.be.equal(1)
+      expect(slice_color_mapper.metrics.min).to.be.equal(-5)
+      expect(slice_color_mapper.metrics.max).to.be.equal(500)
+
+      mapper.index = 1
+      const expected = rgba(LinearColorMapper.create({palette, low: -5, high: 500}), slices[1])
+      expect(rgba(mapper, data)).to.be.equal(expected)
+      expect(scan.callCount).to.be.equal(2)
+
+      mapper.index = 0
+      rgba(mapper, data)
+      expect(scan.callCount).to.be.equal(3)
+    })
+
     it("should log an error and use nan_color when index is out of range", () => {
       const slice_color_mapper = LinearColorMapper.create({palette, nan_color: "pink"})
       const mapper = IndexedStackColorMapper.create({slice_color_mapper, index: 3})
@@ -201,6 +231,31 @@ describe("IndexedStackColorMapper module", () => {
       color_mapper.index = 0
       await view.ready
       expect(scan.callCount).to.be.equal(1)
+    })
+
+    it("should scan the current data of a domain renderer", async () => {
+      const slice_color_mapper = LinearColorMapper.create({palette})
+      const color_mapper = IndexedStackColorMapper.create({slice_color_mapper})
+      const domain_source = ColumnDataSource.create({data: {x: [0, 1], y: [0, 1], value: [-5, 500]}})
+      const p = fig([200, 200])
+      const domain_renderer = p.scatter({x: {field: "x"}, y: {field: "y"}, source: domain_source})
+      slice_color_mapper.domain = [[domain_renderer, "value"]]
+      p.image_stack({image: [stack()], x: 0, y: 0, dw: 1, dh: 1, color_mapper})
+      const {view} = await display(p)
+      expect(slice_color_mapper.metrics.min).to.be.equal(-5)
+      expect(slice_color_mapper.metrics.max).to.be.equal(500)
+
+      color_mapper.index = 1
+      await view.ready
+
+      // Same length, so the renderer's view doesn't change and nothing tells the mapper.
+      domain_source.data = {x: [0, 1], y: [0, 1], value: [-7, 700]}
+      await view.ready
+
+      color_mapper.index = 0
+      await view.ready
+      expect(slice_color_mapper.metrics.min).to.be.equal(-7)
+      expect(slice_color_mapper.metrics.max).to.be.equal(700)
     })
 
     it("should still render when index is out of range", async () => {

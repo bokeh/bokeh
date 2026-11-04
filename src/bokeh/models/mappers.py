@@ -322,6 +322,10 @@ class IndexedStackColorMapper(StackColorMapper):
 
     slice_color_mapper = Instance(ContinuousColorMapper, help="""
     Color mapper used to calculate the colors of the 2D array displayed.
+
+    If its ``domain`` is set, that overrides ``index`` and ``scan_together`` for
+    scanning: the color mapping limits and properties come from the ``domain``
+    renderers, while ``index`` still selects the 2D array that is displayed.
     """)
 
     index = NonNegative(Int, default=0, help="""
