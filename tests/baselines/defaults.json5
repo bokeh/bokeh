@@ -5610,6 +5610,7 @@
   },
   CategoricalColorMapper: {
     __extends__: [
+      "PaletteMixin",
       "CategoricalMapper",
       "ColorMapper",
     ],
@@ -5641,14 +5642,12 @@
   },
   ColorMapper: {
     __extends__: "Mapper",
-    palette: {
-      type: "symbol",
-      name: "unset",
-    },
-    nan_color: "gray",
   },
   ContinuousColorMapper: {
-    __extends__: "ColorMapper",
+    __extends__: [
+      "PaletteMixin",
+      "ColorMapper",
+    ],
     domain: [],
     low: null,
     high: null,
@@ -5660,6 +5659,15 @@
     bins: 65536,
     rescale_discrete_levels: false,
   },
+  IndexedStackColorMapper: {
+    __extends__: "StackColorMapper",
+    slice_color_mapper: {
+      type: "symbol",
+      name: "unset",
+    },
+    index: 0,
+    scan_together: false,
+  },
   LinearColorMapper: {
     __extends__: "ContinuousColorMapper",
   },
@@ -5669,6 +5677,13 @@
   Mapper: {
     __extends__: "Transform",
   },
+  PaletteMixin: {
+    palette: {
+      type: "symbol",
+      name: "unset",
+    },
+    nan_color: "gray",
+  },
   ScanningColorMapper: {
     __extends__: "ContinuousColorMapper",
   },
@@ -5676,7 +5691,10 @@
     __extends__: "ColorMapper",
   },
   WeightedStackColorMapper: {
-    __extends__: "StackColorMapper",
+    __extends__: [
+      "PaletteMixin",
+      "StackColorMapper",
+    ],
     alpha_mapper: {
       type: "symbol",
       name: "unset",

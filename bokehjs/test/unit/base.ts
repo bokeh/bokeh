@@ -197,6 +197,7 @@ describe("default model resolver", () => {
       "IndexFilter",
       "Indexed",
       "IndexedLookup",
+      "IndexedStackColorMapper",
       "InlineStyleSheet",
       "InputWidget",
       "InspectTool",
