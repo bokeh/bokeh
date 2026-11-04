@@ -268,7 +268,7 @@ export class BoxZoomTool extends GestureTool {
   override tool_name = "Box Zoom"
   override event_type = ["pan" as "pan", "doubletap" as "doubletap"]
   override get event_role(): EventRole {
-    return "pan" as "pan"
+    return "pan"
   }
   override default_order = 20
 

@@ -155,7 +155,7 @@ export class SizeBarView extends BaseBarView implements Exportable {
       ...mixins.attrs_of(this.model, "glyph_", mixins.LineVector),
       ...mixins.attrs_of(this.model, "glyph_", mixins.FillVector),
       ...mixins.attrs_of(this.model, "glyph_", mixins.HatchVector),
-    } as RadialGlyph.Attrs)
+    })
     this._data_source = ColumnDataSource.create({
       data: {
         x: [],

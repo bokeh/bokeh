@@ -635,6 +635,7 @@ export class HoverToolView extends InspectToolView {
       entries.splice(limit)
     }
 
+    // oxlint-disable-next-line typescript/no-unnecessary-type-assertion -- tsgolint false positive, removing it fails type checking
     return entries as TooltipEntry[] // because filter() can't narrow null
   }
 
@@ -903,6 +904,7 @@ export class HoverTool extends InspectTool {
         ["screen (x, y)", "($sx, $sy)"],
       ]],
       formatters:   [ Dict(Or(Ref(CustomJSHover), BuiltinFormatter)), {} ],
+      // oxlint-disable-next-line typescript/no-unnecessary-type-assertion -- tsgolint false positive, removing it fails type checking
       filters:      [ Dict(Or(FilterDef, List(FilterDef))) as any, {} ], // XXX `any` cast because of CustomJS/Func types
       sort_by:      [ SortBy, null ],
       limit:        [ Nullable(Positive(Int)), null ],

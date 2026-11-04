@@ -150,10 +150,6 @@ export function check_version(current_chromium_version: Version | null): void {
   }
 }
 
-type PerformanceMetrics = {
-  metrics: Array<{name: string, value: number}>
-}
-
 export class BrowserManager {
   private browser: Browser | null = null
   private page: Page | null = null
@@ -359,7 +355,7 @@ export class BrowserManager {
 
   async get_metrics(): Promise<Array<{name: string, value: number}>> {
     const session = this.get_session()
-    const data = await command("Performance.getMetrics", session.send("Performance.getMetrics")) as PerformanceMetrics
+    const data = await command("Performance.getMetrics", session.send("Performance.getMetrics"))
     return data.metrics
   }
 }

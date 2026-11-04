@@ -260,6 +260,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       }
     }
 
+    // oxlint-disable-next-line typescript/no-unnecessary-type-assertion -- tsgolint false positive, removing it fails type checking
     this.define(mixin_defs as any)
     this.prototype._mixins = [...this.prototype._mixins, ...mixins]
   }
