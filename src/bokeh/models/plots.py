@@ -451,7 +451,7 @@ class Plot(LayoutDOM):
         return tile_renderer
 
     @contextmanager
-    def hold(self, *, render: bool) -> Generator[None, None, None]:
+    def hold(self, *, render: bool) -> Generator[None]:
         ''' Takes care of turning a property on and off within a scope.
 
         Args:

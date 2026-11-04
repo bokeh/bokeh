@@ -1,6 +1,7 @@
 import {ImageBase, ImageBaseView} from "./image_base"
 import {StackColorMapper} from "../mappers/stack_color_mapper"
 import type {NDArrayType} from "core/util/ndarray"
+import {range} from "core/util/array"
 import type * as p from "core/properties"
 import type {ImageGL} from "./webgl/image"
 
@@ -27,14 +28,24 @@ export class ImageStackView extends ImageBaseView {
     return 3
   }
 
+  protected override _set_data(indices: number[] | null): void {
+    if (!this._can_inherit_image_data) {
+      // These images may have changed, also in place, e.g. by a patch
+      const images = (indices ?? range(this.data_size)).map((i) => this.image.get(i))
+      this.model.color_mapper.data_changed(images)
+    }
+    super._set_data(indices)
+  }
+
   protected _update_image(): void {
     if (this.has_webgl()) {
       this.glglyph.set_image_changed()
     }
 
-    // Only reset image_data if already initialized
+    // Only reset image_data if already initialized. Only the color mapping has
+    // changed, not the images, so this skips the data_changed() call above.
     if (this.image_data != null) {
-      this._set_data(null)
+      super._set_data(null)
       this.renderer.request_paint()
     }
   }

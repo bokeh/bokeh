@@ -26,7 +26,7 @@ from typing import TYPE_CHECKING, Sequence, cast
 from .core.enums import MarkerTypeType, PaletteType
 from .core.property.vectorization import Expr, Field
 from .core.property.visual import HatchPatternType
-from .models.expressions import CumSum, Stack
+from .models.expressions import CumSum, IndexedLookup, Stack
 from .models.mappers import (
     CategoricalColorMapper,
     CategoricalMarkerMapper,
@@ -41,6 +41,7 @@ if TYPE_CHECKING:
     from .colors.color import RGBTuple
     from .core.enums import JitterRandomDistributionType
     from .models.ranges import Range
+    from .models.sources import ColumnarDataSource
     from .models.transforms import Transform
 
     type Factors = Sequence[str] | Sequence[tuple[str, str]] | Sequence[tuple[str, str, str]]
@@ -58,6 +59,7 @@ __all__ = (
     'factor_cmap',
     'factor_hatch',
     'factor_mark',
+    'gather',
     'jitter',
     'linear_cmap',
     'log_cmap',
@@ -96,6 +98,37 @@ def cumsum(field_name: str, include_zero: bool = False) -> Expr:
 
     '''
     return Expr(CumSum(field=field_name, include_zero=include_zero))
+
+
+def gather(source: ColumnarDataSource, field: str, indices: str) -> Expr:
+    ''' Gather values from ``source`` using indices on the glyph's data source.
+
+    Args:
+        source: The column data source containing values to gather.
+
+        field: The field on ``source`` containing those values.
+
+        indices: The field on the glyph's primary source containing scalar,
+            nested, or shaped integer indices.
+
+    Returns:
+        An expression suitable for use as a ``DataSpec`` value.
+
+    Example:
+
+        .. code-block:: python
+
+            cells = ColumnDataSource(dict(vertex_indices=[[0, 1, 2], [1, 2, 3]]))
+            vertices = ColumnDataSource(dict(x=[0, 2, 2, 3], y=[0, 2, 0, 0]))
+
+            p.multi_line(
+                xs=gather(vertices, "x", indices="vertex_indices"),
+                ys=gather(vertices, "y", indices="vertex_indices"),
+                source=cells,
+            )
+    '''
+    return Expr(IndexedLookup(source=source, field=field, indices=indices))
+
 
 def dodge(field_name: str, value: float, range: Range | None = None) -> Field:
     ''' Create a ``DataSpec`` dict that applies a client-side ``Dodge``

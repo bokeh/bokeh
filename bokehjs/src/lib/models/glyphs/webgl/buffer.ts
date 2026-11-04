@@ -191,7 +191,13 @@ export class Uint8Buffer extends WrappedBuffer<Uint8Array> {
   set_from_color(color_prop: Uniform<uint32>, alpha_prop: Uniform<number>): void {
     const is_scalar_colors = color_prop.is_Scalar()
     const is_scalar = is_scalar_colors && alpha_prop.is_Scalar()
-    const ncolors = is_scalar ? 1 : color_prop.length
+    const ncolors = (() => {
+      if (is_scalar) {
+        return 1
+      }
+      // Expanded alpha values determine the instance count for a scalar color.
+      return is_scalar_colors ? alpha_prop.length : color_prop.length
+    })()
 
     if (!is_scalar_colors) {
       const color_v = color_prop as ColorUniformVector

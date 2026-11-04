@@ -241,12 +241,12 @@ class CodeRunner:
 _PROCESS_GLOBALS_LOCK = RLock()
 
 @contextmanager
-def _hold_process_globals() -> Generator[None, None, None]:
+def _hold_process_globals() -> Generator[None]:
     with _PROCESS_GLOBALS_LOCK:
         yield
 
 @contextmanager
-def _patch_process_state(path: PathLike, argv: Sequence[str]) -> Generator[None, None, None]:
+def _patch_process_state(path: PathLike, argv: Sequence[str]) -> Generator[None]:
     # Simulate the sys.path behaviour described here:
     #
     # https://docs.python.org/2/library/sys.html#sys.path

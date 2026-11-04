@@ -19,7 +19,7 @@ import {settings} from "./settings"
 import type {Kind} from "./kinds"
 import {PrefixedStr} from "./kinds"
 import type {NDArray, NDArrayType} from "./util/ndarray"
-import {is_NDArray} from "./util/ndarray"
+import {is_NDArray, get_row} from "./util/ndarray"
 import {diagnostics} from "./diagnostics"
 import {unreachable} from "./util/assert"
 import {serialize} from "./serialization"
@@ -711,7 +711,14 @@ export abstract class BaseCoordinateSpec<T> extends DataSpec<T> {
 }
 
 export abstract class CoordinateSpec extends BaseCoordinateSpec<number | Factor> {}
-export abstract class CoordinateSeqSpec extends BaseCoordinateSpec<Arrayable<number> | Arrayable<Factor>> {}
+export abstract class CoordinateSeqSpec extends BaseCoordinateSpec<Arrayable<number> | Arrayable<Factor>> {
+  override normalize(values: Arrayable): Arrayable {
+    if (is_NDArray(values) && values.dimension == 2) {
+      return Array.from({length: values.shape[0]}, (_, i) => get_row(values, i))
+    }
+    return values
+  }
+}
 export abstract class CoordinateSeqSeqSeqSpec extends BaseCoordinateSpec<number[][][] | Factor[][][]> {}
 
 export class XCoordinateSpec extends CoordinateSpec {

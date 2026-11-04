@@ -20,8 +20,8 @@ from tests.support.util.project import TOP_PATH
 
 
 @pytest.mark.parametrize("checker", ["mypy", "pyright"])
-@pytest.mark.parametrize("fixture", ["model_initializers", "model_initializers_invalid"])
-def test_model_initializer_types(checker: str, fixture: str, tmp_path: Path) -> None:
+@pytest.mark.parametrize("fixture", ["model_initializers", "model_initializers_invalid", "type_parameter_defaults"])
+def test_consumer_types(checker: str, fixture: str, tmp_path: Path) -> None:
     # Copy fixtures outside the tests package so Mypy's test-module exclusions
     # cannot hide consumer errors. Invalid examples must not enter ordinary scans.
     source = (TOP_PATH / "tests" / "typing" / f"{fixture}.py.txt").read_text()
@@ -30,6 +30,7 @@ def test_model_initializer_types(checker: str, fixture: str, tmp_path: Path) -> 
     expected = Counter(
         (path.resolve(), line_number, code)
         for line_number, line in enumerate(source.splitlines(), 1)
+        if not line.lstrip().startswith("#")
         if (match := re.search(rf"{checker}: ([\w,-]+)", line)) is not None
         for code in match.group(1).split(",")
     )
