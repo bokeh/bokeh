@@ -14,7 +14,7 @@ from __future__ import annotations
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-from ntpath import isreserved as _is_reserved
+from ntpath import isreserved
 
 from bokeh.util.strings import nice_join
 from tests.support.util.project import ls_files
@@ -29,6 +29,6 @@ def test_windows_reserved_filenames() -> None:
     names are not present in the codebase.
 
     '''
-    bad = [path for path in ls_files() if path and _is_reserved(path)]
+    bad = [path for path in ls_files() if path and isreserved(path)]
 
     assert len(bad) == 0, f"Windows reserved filenames detected:\n{nice_join(bad)}"
