@@ -71,9 +71,9 @@ Code Style Guide
 -----------------
 
 BokehJS doesn't have an explicit style guide. Make sure to run ``node make
-lint`` or ``node make lint --fix`` before committing to the Bokeh repository.
-Also, review the surrounding code and try to be consistent with the existing
-code.
+build lint`` or ``node make build lint --fix`` before committing to the Bokeh
+repository. Also, review the surrounding code and try to be consistent with the
+existing code.
 
 Some guidelines and tips to keep in mind when working on BokehJS:
 
@@ -87,9 +87,16 @@ Some guidelines and tips to keep in mind when working on BokehJS:
   interpolated strings ( ```Bokeh ${Bokeh.version}``` ).
 
 Always lint your BokehJS code with Oxlint_: From the :bokeh-tree:`bokehjs`
-directory, run ``node make lint`` to check your code. Run
-``node make lint --fix`` to have Oxlint fix some problems automatically. For
-more details, see the rules defined in :bokeh-tree:`bokehjs/.oxlintrc.jsonc`.
+directory, run ``node make build lint`` to check your code. Run
+``node make build lint --fix`` to have Oxlint fix some problems automatically.
+For more details, see the rules defined in :bokeh-tree:`bokehjs/.oxlintrc.jsonc`.
+
+.. note::
+  Type-aware lint rules check tests, examples and frameworks against the
+  generated ``*.d.ts`` files under ``bokehjs/build``. On a clean checkout, or
+  after changes that affect the generated declarations, these files are missing
+  or stale, so build BokehJS before linting. When the build is current, you can
+  run ``node make lint`` on its own.
 
 .. tip::
   You can lint the code in your IDE. For example, if you use VSCode, then
