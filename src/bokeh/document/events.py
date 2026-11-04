@@ -62,6 +62,7 @@ from typing import (
     ClassVar,
     Literal,
     Protocol,
+    TypeIs,
     cast,
     runtime_checkable,
 )
@@ -81,7 +82,6 @@ from .json import (
 
 if TYPE_CHECKING:
     import pandas as pd
-    from typing_extensions import TypeIs
 
     from ..core.has_props import Setter
     from ..core.serialization import Serializer
