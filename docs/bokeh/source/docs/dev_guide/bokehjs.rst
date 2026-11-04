@@ -86,15 +86,15 @@ Some guidelines and tips to keep in mind when working on BokehJS:
 * Use `template literals (template strings)`_ for multiline, tagged, and
   interpolated strings ( ```Bokeh ${Bokeh.version}``` ).
 
-Always lint your BokehJS code with ESLint_: From the :bokeh-tree:`bokehjs`
+Always lint your BokehJS code with Oxlint_: From the :bokeh-tree:`bokehjs`
 directory, run ``node make lint`` to check your code. Run
-``node make lint --fix`` to have ESLint fix some problems automatically. For
-more details, see the rules defined in :bokeh-tree:`bokehjs/eslint.config.mjs`.
+``node make lint --fix`` to have Oxlint fix some problems automatically. For
+more details, see the rules defined in :bokeh-tree:`bokehjs/.oxlintrc.json`.
 
 .. tip::
   You can lint the code in your IDE. For example, if you use VSCode, then
-  you need the `ESLint extension for VSCode`_ to be installed. This doesn't
-  require any additional configuration.
+  you need the `Oxc extension for VSCode`_ to be installed. It picks up
+  :bokeh-tree:`bokehjs/.oxlintrc.json` automatically.
 
 .. _contributor_guide_bokehjs_requirements:
 
@@ -144,8 +144,8 @@ system. These are the most common commands:
   Component, vanilla Vite/Webpack/Rspack, and server-side-rendering examples,
   and runs the browser lifecycle tests in production and development builds.
   This is also part of ``node make test`` in continuous integration.
-* ``node make lint`` lint BokehJS with ESLint_. Run ``node make lint --fix`` to
-  have ESLint fix some problems automatically.
+* ``node make lint`` lint BokehJS with Oxlint_. Run ``node make lint --fix`` to
+  have Oxlint fix some problems automatically.
 
 ``node make`` automatically runs ``npm install`` whenever ``package.json``
 changes.
@@ -421,8 +421,8 @@ work with ``schedule()``.
     also handles synchronous failures and provides the abort signal.
 
 .. _gulp: https://gulpjs.com/
-.. _ESLint: https://eslint.org/
+.. _Oxlint: https://oxc.rs/docs/guide/usage/linter.html
 .. _JSFiddle: http://jsfiddle.net/
 .. _GitHub_Actions: https://github.com/bokeh/bokeh/actions?query=workflow%3ABokehJS-CI
-.. _ESLint extension for VSCode: https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
+.. _Oxc extension for VSCode: https://marketplace.visualstudio.com/items?itemName=oxc.oxc-vscode
 .. _template literals (template strings): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals

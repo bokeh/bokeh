@@ -25,8 +25,8 @@ from tests.support.util.project import TOP_PATH
 #-----------------------------------------------------------------------------
 
 @pytest.mark.timeout(240)
-def test_eslint() -> None:
-    ''' Assures that the BokehJS codebase passes configured eslint checks
+def test_oxlint() -> None:
+    ''' Assures that the BokehJS codebase passes configured oxlint checks
 
     '''
     proc = run(
@@ -34,7 +34,7 @@ def test_eslint() -> None:
         cwd=TOP_PATH/"bokehjs",
         capture_output=True,
     )
-    assert proc.returncode == 0, f"eslint issues:\n{proc.stdout.decode('utf-8')}\n{proc.stderr.decode('utf-8')}"
+    assert proc.returncode == 0, f"oxlint issues:\n{proc.stdout.decode('utf-8')}\n{proc.stderr.decode('utf-8')}"
 
 #-----------------------------------------------------------------------------
 # Support

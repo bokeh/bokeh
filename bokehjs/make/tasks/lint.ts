@@ -1,97 +1,36 @@
-import {join, normalize} from "node:path"
-
-import {clearCaches} from "@typescript-eslint/typescript-estree"
-import {ESLint} from "eslint"
-import chalk from "chalk"
+import {join} from "node:path"
+import cp from "node:child_process"
+import {fileURLToPath} from "node:url"
 
 import {argv} from "../args.js"
-import {task, log, BuildError} from "../task.js"
+import {task, BuildError} from "../task.js"
 import * as paths from "../paths.js"
 
-import {glob} from "#compiler/sys.js"
-
-async function eslint(dirs: string[], tsconfig_file: string = "tsconfig.json"): Promise<void> {
-  const {fix} = argv
-  const eslint = new ESLint({cache: true, cacheStrategy: "content", fix})
-
-  const files = new Set<string>()
-  for (const dir of dirs) {
-    const tsconfig_url = `file://${join(dir, tsconfig_file)}`
-    const {default: tsconfig_json} = await import(tsconfig_url, {with: {type: "json"}})
-    const tsconfig = tsconfig_json as {include?: string[], exclude?: string[]}
-
-    const included_files = new Set(glob(...(tsconfig.include ?? []).map((pat) => normalize(join(dir, pat)))))
-    const excluded_files = new Set(glob(...(tsconfig.exclude ?? []).map((pat) => normalize(join(dir, pat)))))
-
-    for (const file of included_files) {
-      if (!excluded_files.has(file)) {
-        files.add(file)
-      }
-    }
+function oxlint(dirs: string[]): void {
+  const oxlint = fileURLToPath(new URL("./bin/oxlint", import.meta.resolve("oxlint/package.json")))
+  const args = [oxlint, ...(argv.fix ? ["--fix"] : []), ...dirs]
+  const {status, error} = cp.spawnSync(process.execPath, args, {stdio: "inherit", cwd: paths.base_dir})
+  if (error != null) {
+    throw new BuildError("oxlint", `failed to start oxlint: ${error.message}`)
   }
-
-  const results = await eslint.lintFiles([...files]).finally(clearCaches)
-
-  const errors = results.some(result => result.errorCount != 0)
-  const warnings = results.some(result => result.warningCount != 0)
-
-  if (fix) {
-    await ESLint.outputFixes(results)
-  }
-
-  if (errors || warnings) {
-    const formatter = await eslint.loadFormatter("stylish")
-    const output = await formatter.format(results)
-
-    for (const line of output.trim().split("\n")) {
-      log(line)
-    }
-  }
-
-  if (errors) {
-    const total = results.reduce((total, result) => total + result.errorCount, 0)
-    throw new BuildError("eslint", `lint failed with ${chalk.red(total)} errors`)
+  if (status != 0) {
+    throw new BuildError("oxlint", "lint failed")
   }
 }
 
-const test_subdirs = [
-  "framework",
-  "defaults",
-  "unit",
-  "integration",
-  "codebase",
-  "devtools",
-  "frameworks",
-]
-
-for (const name of test_subdirs) {
-  task(`eslint:test:${name}`, async () => await eslint([join(paths.src_dir.test, name)]))
+const dirs = {
+  make: paths.make_dir,
+  lib: paths.src_dir.lib,
+  compiler: paths.src_dir.compiler,
+  server: paths.src_dir.server,
+  test: paths.src_dir.test,
+  examples: paths.src_dir.examples,
+  frameworks: join(paths.base_dir, "frameworks"),
 }
 
-task("eslint:make", async () => await eslint([paths.make_dir]))
-task("eslint:lib", async () => await eslint([paths.src_dir.lib]))
-task("eslint:compiler", async () => await eslint([paths.src_dir.compiler]))
-task("eslint:server", async () => await eslint([paths.src_dir.server]))
-task("eslint:test", async () => await eslint(test_subdirs.map((name) => join(paths.src_dir.test, name))))
-task("eslint:examples", async () => await eslint([paths.src_dir.examples]))
-task("eslint:frameworks", async () => await eslint([join(paths.base_dir, "frameworks")], "tsconfig.lint.json"))
-task("eslint:examples:frameworks", async () => await eslint([join(paths.src_dir.examples, "frameworks")], "tsconfig.lint.json"))
+for (const [name, dir] of Object.entries(dirs)) {
+  task(`oxlint:${name}`, async () => oxlint([dir]))
+}
 
-task("eslint", async () => {
-  await eslint([
-    paths.make_dir,
-    paths.src_dir.lib,
-    paths.src_dir.compiler,
-    paths.src_dir.server,
-  ])
-  await eslint([
-    ...test_subdirs.map((name) => join(paths.src_dir.test, name)),
-    paths.src_dir.examples,
-  ])
-  await eslint([
-    join(paths.base_dir, "frameworks"),
-    join(paths.src_dir.examples, "frameworks"),
-  ], "tsconfig.lint.json")
-})
-
-task("lint", ["eslint"])
+task("oxlint", async () => oxlint(Object.values(dirs)))
+task("lint", ["oxlint"])

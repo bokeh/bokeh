@@ -94,7 +94,7 @@ Run codebase tests
 ~~~~~~~~~~~~~~~~~~
 
 The most basic set of tests are Bokeh's codebase tests. This includes
-checking Python code with `Ruff`_, checking JavaScript code with `ESLint`_,
+checking Python code with `Ruff`_, checking JavaScript code with `Oxlint`_,
 and various other tests for issues such as unused imports and extra white
 spaces.
 
@@ -889,7 +889,7 @@ group your commits into meaningful chunks of work before pushing to GitHub
 instead of pushing every commit individually. This will help you be considerate
 of others who require access to these limited resources.
 
-.. _ESLint: https://eslint.org/
+.. _Oxlint: https://oxc.rs/docs/guide/usage/linter.html
 .. _Ruff: https://github.com/astral-sh/ruff
 .. _pytest: https://pytest.org/
 .. _pytest-xdist: https://github.com/pytest-dev/pytest-xdist

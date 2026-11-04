@@ -16,25 +16,23 @@
     "./src/compiler"
   ],
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
     "@stylistic/eslint-plugin": "^5.8.0",
     "@types/node": "^22.7.4",
     "@types/yargs": "^17.0.32",
-    "@typescript-eslint/typescript-estree": "^8.56.0",
     "chalk": "^4.1.2",
     "chokidar": "^4.0.0",
     "del": "^6.1.1",
     "esbuild": "^0.27.2",
-    "eslint": "^10.0.0",
     "glob": "^13.0.6",
     "magic-string": "^0.30.21",
     "oxc-parser": "^0.116.0",
+    "oxlint": "^1.91.0",
+    "oxlint-tsgolint": "^7.0.2005",
     "playwright-core": "1.56.1",
     "semver": "^7.6.2",
     "source-map": "^0.7.6",
     "typescript": "~5.9.2",
     "typescript7": "npm:typescript@~7.0.2",
-    "typescript-eslint": "^8.56.0",
     "yargs": "^17.7.2"
   }
 }
