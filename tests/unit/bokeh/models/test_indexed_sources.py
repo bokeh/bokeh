@@ -2,10 +2,10 @@ from typing import TYPE_CHECKING, Any, cast
 
 import pytest
 
+from bokeh.core.properties import AnyRef, Dict, List, String
 from bokeh.core.validation import check_integrity
 from bokeh.document import Document
 from bokeh.document.events import ModelChangedEvent
-from bokeh.model import Model
 from bokeh.models import (
     Bezier,
     BoxEditTool,
@@ -29,11 +29,15 @@ from bokeh.models import (
 )
 from bokeh.plotting import figure
 from bokeh.protocol import apply_patch, patch_doc
-from examples.server.app.record_data_source.record_data_source import RecordDataSource
 
 if TYPE_CHECKING:
     from bokeh.core.has_props import Setter
     from bokeh.models.glyph import Glyph
+
+
+class RecordDataSource(IndexedDataSource):
+    records = List(Dict(String, AnyRef), default=[])
+
 
 def test_record_source_plotting() -> None:
     source = RecordDataSource(records=[dict(x=1, y=2, name="first")])
@@ -51,12 +55,7 @@ def test_record_source_plotting() -> None:
     assert check_integrity([renderer]).error == []
 
 
-def test_record_source_held_protocol_updates_and_setter(monkeypatch: pytest.MonkeyPatch) -> None:
-    # Other tests can clear extension registrations after test collection.
-    monkeypatch.setattr(Model, "model_class_reverse_map", {
-        **Model.model_class_reverse_map,
-        RecordDataSource.__qualified_model__: RecordDataSource,
-    })
+def test_record_source_held_protocol_updates_and_setter() -> None:
     source = RecordDataSource(records=[dict(x=1, y=2)])
     doc = Document()
     doc.add_root(source)

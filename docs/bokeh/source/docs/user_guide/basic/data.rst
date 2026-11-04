@@ -728,8 +728,8 @@ records. This invalidates cached expressions and refreshes consumers. Custom
 sources are responsible for invalidating any field caches before notifying
 consumers.
 
-The ``examples/server/app/record_data_source`` extension demonstrates nested
-records, two linked plots, hover, filtering, and Python server updates. It
-materializes only requested fields and leaves its nested records intact.
+Custom sources can materialize only requested fields while retaining their
+original storage.
+
 ``ColumnDataSource`` remains the standard source for columns, patching,
 streaming, tables, and edit tools.
