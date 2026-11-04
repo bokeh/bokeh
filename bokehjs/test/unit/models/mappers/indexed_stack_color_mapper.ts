@@ -144,23 +144,23 @@ describe("IndexedStackColorMapper module", () => {
     })
   })
 
-  describe("IndexedStackColorMapper.palette_mapper property", () => {
+  describe("IndexedStackColorMapper.display_mapper property", () => {
     it("should be slice_color_mapper, whose metrics_change is forwarded", () => {
       const slice_color_mapper = LinearColorMapper.create({palette})
       const mapper = IndexedStackColorMapper.create({slice_color_mapper})
       const metrics_change = sinon.spy()
-      const palette_mapper_change = sinon.spy()
+      const display_mapper_change = sinon.spy()
       mapper.metrics_change.connect(metrics_change)
-      mapper.palette_mapper_change.connect(palette_mapper_change)
-      expect(mapper.palette_mapper).to.be.equal(slice_color_mapper)
+      mapper.display_mapper_change.connect(display_mapper_change)
+      expect(mapper.display_mapper).to.be.equal(slice_color_mapper)
 
       rgba(mapper, stack())
       expect(metrics_change.called).to.be.true
 
       const other_mapper = LinearColorMapper.create({palette})
       mapper.slice_color_mapper = other_mapper
-      expect(mapper.palette_mapper).to.be.equal(other_mapper)
-      expect(palette_mapper_change.callCount).to.be.equal(1)
+      expect(mapper.display_mapper).to.be.equal(other_mapper)
+      expect(display_mapper_change.callCount).to.be.equal(1)
 
       metrics_change.resetHistory()
       slice_color_mapper.metrics_change.emit()

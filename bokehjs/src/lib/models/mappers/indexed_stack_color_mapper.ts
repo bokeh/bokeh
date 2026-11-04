@@ -56,11 +56,11 @@ export class IndexedStackColorMapper extends StackColorMapper {
       this.connect(mapper.change, mapper_changed)
       this.connect(mapper.metrics_change, metrics_changed)
       this._scans = new WeakMap()
-      this.palette_mapper_change.emit()
+      this.display_mapper_change.emit()
     })
   }
 
-  override get palette_mapper(): ContinuousColorMapper {
+  override get display_mapper(): ContinuousColorMapper {
     return this.slice_color_mapper
   }
 

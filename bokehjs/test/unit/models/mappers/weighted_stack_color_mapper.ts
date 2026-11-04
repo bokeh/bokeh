@@ -54,23 +54,23 @@ describe("WeightedStackColorMapper module", () => {
     })
   })
 
-  describe("WeightedStackColorMapper.palette_mapper property", () => {
+  describe("WeightedStackColorMapper.display_mapper property", () => {
     it("should be alpha_mapper, whose metrics_change is forwarded", () => {
       const alpha_mapper = LinearColorMapper.create({palette: ["#0004", "#000f"]})
       const mapper = WeightedStackColorMapper.create({palette: ["red", "blue"], alpha_mapper})
       const metrics_change = sinon.spy()
-      const palette_mapper_change = sinon.spy()
+      const display_mapper_change = sinon.spy()
       mapper.metrics_change.connect(metrics_change)
-      mapper.palette_mapper_change.connect(palette_mapper_change)
-      expect(mapper.palette_mapper).to.be.equal(alpha_mapper)
+      mapper.display_mapper_change.connect(display_mapper_change)
+      expect(mapper.display_mapper).to.be.equal(alpha_mapper)
 
       mapper.rgba_mapper.v_compute(new Float64NDArray([1, 2, 3, 4], [1, 2, 2]))
       expect(metrics_change.called).to.be.true
 
       const other_mapper = LinearColorMapper.create({palette: ["#0004", "#000f"]})
       mapper.alpha_mapper = other_mapper
-      expect(mapper.palette_mapper).to.be.equal(other_mapper)
-      expect(palette_mapper_change.callCount).to.be.equal(1)
+      expect(mapper.display_mapper).to.be.equal(other_mapper)
+      expect(display_mapper_change.callCount).to.be.equal(1)
 
       metrics_change.resetHistory()
       alpha_mapper.metrics_change.emit()

@@ -46,11 +46,11 @@ export class WeightedStackColorMapper extends StackColorMapper {
       this.disconnect(mapper.metrics_change, metrics_changed)
       mapper = this.alpha_mapper
       this.connect(mapper.metrics_change, metrics_changed)
-      this.palette_mapper_change.emit()
+      this.display_mapper_change.emit()
     })
   }
 
-  override get palette_mapper(): ContinuousColorMapper {
+  override get display_mapper(): ContinuousColorMapper {
     return this.alpha_mapper
   }
 

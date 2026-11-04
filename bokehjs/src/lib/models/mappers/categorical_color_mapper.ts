@@ -29,7 +29,7 @@ export class CategoricalColorMapper extends ColorMapper {
     }))
   }
 
-  override get palette_mapper(): this {
+  override get display_mapper(): this {
     return this
   }
 

@@ -102,7 +102,7 @@ API changes
   using those mappers is unaffected. Custom color mappers that subclass
   ``ColorMapper`` directly need to include ``PaletteMixin`` (in Python) or
   define ``palette`` and ``nan_color`` themselves, and in BokehJS implement
-  ``_palette()`` and ``_colors()``. They also need a ``palette_mapper`` getter
+  ``_palette()`` and ``_colors()``. They also need a ``display_mapper`` getter
   there, usually returning ``this``. BokehJS code that reads ``palette`` through
   a plain ``ColorMapper``, e.g. ``color_bar.color_mapper.palette``, has to
   narrow its type first (:bokeh-issue:`13898`).

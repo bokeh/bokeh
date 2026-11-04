@@ -31,7 +31,7 @@ export class ColorBarView extends BaseColorBarView {
   override connect_signals(): void {
     super.connect_signals()
 
-    // The axis, scale and ticker are made for the color mapper's `palette_mapper`,
+    // The axis, scale and ticker are made for the color mapper's `display_mapper`,
     // so they are rebuilt when either mapper is replaced.
     const rebuild = async () => {
       this._title_view.remove()
@@ -44,14 +44,14 @@ export class ColorBarView extends BaseColorBarView {
 
     let {color_mapper} = this.model
     this.connect(color_mapper.metrics_change, metrics_changed)
-    this.connect(color_mapper.palette_mapper_change, rebuild)
+    this.connect(color_mapper.display_mapper_change, rebuild)
 
     this.connect(this.model.properties.color_mapper.change, async () => {
       this.disconnect(color_mapper.metrics_change, metrics_changed)
-      this.disconnect(color_mapper.palette_mapper_change, rebuild)
+      this.disconnect(color_mapper.display_mapper_change, rebuild)
       color_mapper = this.model.color_mapper
       this.connect(color_mapper.metrics_change, metrics_changed)
-      this.connect(color_mapper.palette_mapper_change, rebuild)
+      this.connect(color_mapper.display_mapper_change, rebuild)
       await rebuild()
     })
     this.connect(this.model.properties.display_low.change, () => this._metrics_changed())
@@ -60,7 +60,7 @@ export class ColorBarView extends BaseColorBarView {
 
   get color_mapper(): PaletteMapper {
     // Color mapper that is used to render this colorbar.
-    return this.model.color_mapper.palette_mapper
+    return this.model.color_mapper.display_mapper
   }
 
   override update_layout(): void {
