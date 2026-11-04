@@ -140,13 +140,19 @@ class Dependency {
   constructor(readonly task: Task, readonly passthrough: boolean = false) {}
 }
 
+function format_duration(start: number): string {
+  const diff = Date.now() - start
+  const duration = diff >= 1000 ? `${(diff / 1000).toFixed(2)} s` : `${diff} ms`
+  return chalk.magenta(duration)
+}
+
 export async function run(task: Task): Promise<Result> {
   const finished = new Map<Task, Result>()
   const failures: Task[] = []
 
-  async function exec_task(task: Task): Promise<Result> {
+  async function exec_task(task: Task, total_start: number): Promise<Result> {
     if (task.fn == null) {
-      log(`Finished '${chalk.cyan(task.name)}'`)
+      log(`Finished '${chalk.cyan(task.name)}' after cumulative ${format_duration(total_start)}`)
       return success(undefined)
     } else {
       log(`Starting '${chalk.cyan(task.name)}'...`)
@@ -171,10 +177,7 @@ export async function run(task: Task): Promise<Result> {
       } catch (error) {
         result = failure(error instanceof Error ? error : new Error(`${error}`))
       }
-      const end = Date.now()
-      const diff = end - start
-      const duration = diff >= 1000 ? `${(diff / 1000).toFixed(2)} s` : `${diff} ms`
-      log(`Finished '${chalk.cyan(task.name)}' after ${chalk.magenta(duration)}`)
+      log(`Finished '${chalk.cyan(task.name)}' after ${format_duration(start)}`)
       return result
     }
   }
@@ -188,6 +191,7 @@ export async function run(task: Task): Promise<Result> {
     if (finished.has(task)) {
       return finished.get(task)!
     } else {
+      const start = Date.now()
       const failed_deps = []
 
       for (const dep of task.deps) {
@@ -199,7 +203,7 @@ export async function run(task: Task): Promise<Result> {
 
       let result: Result
       if (failed_deps.length == 0) {
-        result = await exec_task(task)
+        result = await exec_task(task, start)
       } else {
         result = fail(task, failed_deps)
       }
