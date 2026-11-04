@@ -1835,7 +1835,7 @@ describe("Bug", () => {
 
     it("doesn't allow updating palette of a color mapper of a color bar", async () => {
       await plot((color_bar) => {
-        (color_bar.color_mapper as LinearColorMapper).palette = plasma(50)
+        color_bar.color_mapper.display_mapper.palette = plasma(50)
       })
     })
 
