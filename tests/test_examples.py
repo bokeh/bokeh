@@ -379,7 +379,7 @@ _MAX_REPORTED_OUTPUT_LINES = 40
 
 def _report_output(out: str, err: str) -> str:
     """Format the tail of a failed example's output, for use in a failure message."""
-    lines = [line for line in (out + err).splitlines() if line.strip()]
+    lines = [line for stream in (out, err) for line in stream.splitlines() if line.strip()]
     omitted = len(lines) - _MAX_REPORTED_OUTPUT_LINES
     if omitted > 0:
         lines = [f"... {omitted} earlier lines omitted ...", *lines[-_MAX_REPORTED_OUTPUT_LINES:]]
