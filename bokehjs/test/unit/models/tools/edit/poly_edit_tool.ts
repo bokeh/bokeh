@@ -148,7 +148,7 @@ describe("PolyEditTool", (): void => {
       tool._press(make_tap_event(sx, sy))
       expect(tool._cur_index).to.be.equal(0)
       expect(vertex_source.get_array("x")).to.be.equal([-0.5, 0.5, 0.5, -0.5])
-      await testcase.vertex_glyph_view.renderer.set_data()
+      await testcase.vertex_glyph_view.renderer.ready
       testcase.vertex_glyph_view.map_data()
       const vx = x_scale.compute(-0.5)
       const vy = y_scale.compute(-0.5)
@@ -170,7 +170,7 @@ describe("PolyEditTool", (): void => {
       glyph_view.map_data()
       const {x_scale, y_scale} = glyph_view.renderer.coordinates
       tool._press(make_tap_event(x_scale.compute(0), y_scale.compute(-0.25)))
-      await vertex_glyph_view.renderer.set_data()
+      await vertex_glyph_view.renderer.ready
       vertex_glyph_view.map_data()
       const sx = x_scale.compute(0.002)
       const sy = y_scale.compute(0.002)
