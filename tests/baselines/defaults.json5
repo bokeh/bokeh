@@ -5981,7 +5981,7 @@
     },
     view: {
       type: "object",
-      name: "DataView",
+      name: "IndexedView",
       attributes: {
         filter: {
           type: "object",
@@ -6037,7 +6037,7 @@
         },
         view: {
           type: "object",
-          name: "DataView",
+          name: "IndexedView",
           attributes: {
             filter: {
               type: "object",
@@ -6088,7 +6088,7 @@
         },
         view: {
           type: "object",
-          name: "DataView",
+          name: "IndexedView",
           attributes: {
             filter: {
               type: "object",
@@ -6255,14 +6255,6 @@
   DataSource: {
     __extends__: "Model",
   },
-  DataView: {
-    __extends__: "Model",
-    filter: {
-      type: "object",
-      name: "AllIndices",
-      attributes: {},
-    },
-  },
   GeoJSONDataSource: {
     __extends__: "ColumnarDataSource",
     geojson: {
@@ -6280,6 +6272,14 @@
     selection_policy: {
       type: "object",
       name: "UnionRenderers",
+      attributes: {},
+    },
+  },
+  IndexedView: {
+    __extends__: "Model",
+    filter: {
+      type: "object",
+      name: "AllIndices",
       attributes: {},
     },
   },
@@ -8042,7 +8042,7 @@
     },
     view: {
       type: "object",
-      name: "DataView",
+      name: "IndexedView",
       attributes: {
         filter: {
           type: "object",

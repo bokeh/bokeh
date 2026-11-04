@@ -327,7 +327,7 @@
                       },
                       view: {
                         type: "object",
-                        name: "DataView",
+                        name: "IndexedView",
                         id: "p1091",
                         attributes: {
                           filter: {
@@ -627,7 +627,7 @@
                       },
                       view: {
                         type: "object",
-                        name: "DataView",
+                        name: "IndexedView",
                         id: "p1102",
                         attributes: {
                           filter: {
@@ -927,7 +927,7 @@
                       },
                       view: {
                         type: "object",
-                        name: "DataView",
+                        name: "IndexedView",
                         id: "p1113",
                         attributes: {
                           filter: {

@@ -21,7 +21,7 @@ from ..dom import HTML
 from ..sources import (
     ColumnDataSource,
     DataDictLike,
-    DataView,
+    IndexedView,
 )
 from .widget import Widget, _WidgetInit
 
@@ -193,14 +193,14 @@ class TableColumn(Model):
 
 class _TableWidgetInit(_WidgetInit, total=False):
     source: ColumnDataSource
-    view: DataView
+    view: IndexedView
 
 class TableWidget(Widget):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_TableWidgetInit]) -> None: ...
 
     source: ColumnDataSource = ...
-    view: DataView = ...
+    view: IndexedView = ...
 
 class _DataTableInit(_TableWidgetInit, total=False):
     autosize_mode: AutosizeMode

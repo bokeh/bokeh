@@ -6,7 +6,7 @@ Data sources
 The basis for any data visualization is the underlying data. This section
 describes the various ways to provide data to Bokeh, from passing data values
 directly to creating a |ColumnDataSource| (CDS) and filtering the data with a
-|DataView|.
+|IndexedView|.
 
 .. _ug_basic_data_python_lists:
 
@@ -418,18 +418,18 @@ Filtering data
 --------------
 
 Bokeh uses a concept called "view" to select subsets of data. Views are
-represented by Bokeh's |DataView| class. When you use a view, you can use one or
+represented by Bokeh's |IndexedView| class. When you use a view, you can use one or
 more filters to select specific data points without changing the underlying
 data. You can also share those views between different plots.
 
-To plot with a filtered subset of data, pass a |DataView| to the ``view``
+To plot with a filtered subset of data, pass an |IndexedView| to the ``view``
 argument of any renderer method on a Bokeh plot.
 
-A |DataView| has one property, ``filter``:
+An |IndexedView| has one property, ``filter``:
 
 * ``filter`` is an instance of |Filter| model, listed and described below.
 
-In this example, you create a |DataView| called ``view``. ``view`` uses the
+In this example, you create an |IndexedView| called ``view``. ``view`` uses the
 ColumnDataSource ``source`` and an intersection of two filters, ``filter1``
 and ``filter2``. ``view`` is then passed to a :func:`~bokeh.plotting.figure.scatter`
 renderer function:
@@ -437,13 +437,13 @@ renderer function:
 .. code-block:: python
 
     from bokeh.plotting import figure
-    from bokeh.models import ColumnDataSource, DataView
+    from bokeh.models import ColumnDataSource, IndexedView
 
     filter1 = ... # IndexFilter(), BooleanFilter(), etc.
     filter2 = ...
 
     source = ColumnDataSource(some_data)
-    view = DataView(filter=filter1 & filter2)
+    view = IndexedView(filter=filter1 & filter2)
 
     p = figure()
     p.scatter(x="x", y="y", source=source, view=view)
@@ -500,7 +500,7 @@ Pass your code as a string to the parameter ``code`` of the CustomJSFilter.
 
 Your JavaScript or TypeScript code needs to return either a list of indices or a
 list of booleans representing the filtered subset. You can access the
-|ColumnDataSource| you are using with |DataView| from within your JavaScript or
+|ColumnDataSource| you are using with |IndexedView| from within your JavaScript or
 TypeScript code. Bokeh makes the ColumnDataSource available through the variable
 ``source``:
 
@@ -677,7 +677,7 @@ on.
 The following example demonstrates this behavior:
 
 * The second plot is a subset of the data of the first plot. The second plot
-  uses a |DataView| to include only y values that are either greater than 250 or
+  uses an |IndexedView| to include only y values that are either greater than 250 or
   less than 100.
 * If you make a selection with the ``BoxSelect`` tool in either plot, the
   selection is automatically reflected in the other plot as well.
@@ -694,7 +694,7 @@ You can also use Bokeh to render network graph data and geographical data. For
 more information about how to set up the data for these types of plots, see
 :ref:`ug_topics_graph` and :ref:`ug_topics_geo`.
 
-.. |DataView| replace:: :class:`~bokeh.models.sources.DataView`
+.. |IndexedView| replace:: :class:`~bokeh.models.sources.IndexedView`
 .. |Filter| replace:: :class:`~bokeh.models.filters.Filter`
 .. |IndexFilter| replace:: :class:`~bokeh.models.filters.IndexFilter`
 .. |BooleanFilter| replace:: :class:`~bokeh.models.filters.BooleanFilter`
@@ -709,7 +709,7 @@ Custom indexed sources
 expressions, hover tools, and selection. A custom source can store records
 instead of columns. Its BokehJS implementation supplies ``get_length()``,
 ``get_field(name)``, ``get_record(index)``, and ``fields()``. Selection indices
-refer to positions on this logical axis, including when a ``DataView`` filters
+refer to positions on this logical axis, including when an ``IndexedView`` filters
 which records are shown.
 
 The default ``get_index_field(name, target)`` delegates to ``get_field(name)``

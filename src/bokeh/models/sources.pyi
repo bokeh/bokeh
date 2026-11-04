@@ -34,9 +34,9 @@ __all__ = (
     "ColumnarDataSource",
     "ColumnDataSource",
     "DataSource",
-    "DataView",
     "GeoJSONDataSource",
     "IndexedDataSource",
+    "IndexedView",
     "ServerSentDataSource",
     "WebDataSource",
 )
@@ -112,11 +112,11 @@ class ColumnDataSource(ColumnarDataSource):
 
     def patch(self, patches: Patches, setter: Setter | None = ...) -> None: ...
 
-class _DataViewInit(_ModelInit, total=False):
+class _IndexedViewInit(_ModelInit, total=False):
     filter: Filter
 
-class DataView(Model):
-    def __init__(self, **kwargs: Unpack[_DataViewInit]) -> None: ...
+class IndexedView(Model):
+    def __init__(self, **kwargs: Unpack[_IndexedViewInit]) -> None: ...
 
     filter: Filter = ...
 

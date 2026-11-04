@@ -1,6 +1,6 @@
 import {Widget} from "../widget"
 import {ColumnDataSource} from "../../sources/column_data_source"
-import {DataView} from "../../sources/data_view"
+import {IndexedView} from "../../sources/indexed_view"
 import type * as p from "core/properties"
 
 export namespace TableWidget {
@@ -8,7 +8,7 @@ export namespace TableWidget {
 
   export type Props = Widget.Props & {
     source: p.Property<ColumnDataSource>
-    view: p.Property<DataView>
+    view: p.Property<IndexedView>
   }
 }
 
@@ -20,7 +20,7 @@ export class TableWidget extends Widget {
   static {
     this.define<TableWidget.Props>(({Ref}) => ({
       source: [ Ref(ColumnDataSource), () => ColumnDataSource.create() ],
-      view:   [ Ref(DataView), () => DataView.create() ],
+      view:   [ Ref(IndexedView), () => IndexedView.create() ],
     }))
   }
 }

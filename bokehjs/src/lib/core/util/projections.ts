@@ -61,15 +61,6 @@ export namespace inplace {
       merc_y[i] = merc_yi
     }
   }
-
-  export function project_xsys(xs: Arrayable<number>[], ys: Arrayable<number>[], merc_xs?: Arrayable<number>[], merc_ys?: Arrayable<number>[]): void {
-    const n = min(xs.length, ys.length)
-    merc_xs = merc_xs ?? xs
-    merc_ys = merc_ys ?? ys
-    for (let i = 0; i < n; i++) {
-      project_xy(xs[i], ys[i], merc_xs[i], merc_ys[i])
-    }
-  }
 }
 
 export function project_xy(x: Arrayable<number>, y: Arrayable<number>): [Arrayable<number>, Arrayable<number>] {

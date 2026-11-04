@@ -187,7 +187,7 @@ class CustomJSFilter(Filter):
     A snippet of JavaScript code to filter records in an indexed data source.
     The code is made into the body of a function, and all of of the named objects in
     ``args`` are available as parameters that the code can use. The variable
-    ``source`` will contain the data source that is associated with the ``DataView`` this
+    ``source`` will contain the data source that is associated with the ``IndexedView`` this
     filter is added to.
 
     The code should either return the indices of the subset or an array of booleans

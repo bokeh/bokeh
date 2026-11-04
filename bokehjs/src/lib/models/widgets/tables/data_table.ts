@@ -21,7 +21,7 @@ import {DTINDEX_NAME} from "./definitions"
 import {TableWidget} from "./table_widget"
 import {TableColumn} from "./table_column"
 import type {ColumnarDataSource} from "../../sources/columnar_data_source"
-import type {DataView} from "../../sources/data_view"
+import type {IndexedView} from "../../sources/indexed_view"
 import type {ChildView, ViewStorage} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import type {PatchSet} from "core/patching"
@@ -47,13 +47,13 @@ export type AutosizeMode = "FCV" | "FVC" | "LFF" | "IGV" | "NOA"
 export class TableDataProvider implements Partial<SlickDataView<Item>> {
   index: number[]
   source: ColumnarDataSource
-  view: DataView
+  view: IndexedView
 
-  constructor(source: ColumnarDataSource, view: DataView) {
+  constructor(source: ColumnarDataSource, view: IndexedView) {
     this.init(source, view)
   }
 
-  init(source: ColumnarDataSource, view: DataView): void {
+  init(source: ColumnarDataSource, view: IndexedView): void {
     if (DTINDEX_NAME in source.data) {
       throw new Error(`special name ${DTINDEX_NAME} cannot be used as a data table column`)
     }
@@ -163,7 +163,7 @@ export class TableDataProvider implements Partial<SlickDataView<Item>> {
 export class DataTableView extends WidgetView {
   declare model: DataTable
 
-  protected readonly _data_views: ViewStorage<DataView> = new Map()
+  protected readonly _indexed_views: ViewStorage<IndexedView> = new Map()
   protected _column_views: ViewStorage<TableColumn> = new Map()
 
   protected data: TableDataProvider
@@ -181,17 +181,17 @@ export class DataTableView extends WidgetView {
   protected wrapper_el: HTMLElement
 
   override _children_views(): ChildView[] {
-    return [...super._children_views(), ...this._data_views.values(), ...this._column_views.values()]
+    return [...super._children_views(), ...this._indexed_views.values(), ...this._column_views.values()]
   }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-    await build_views(this._data_views, [this.model.view], {parent: this})
+    await build_views(this._indexed_views, [this.model.view], {parent: this})
     await build_views(this._column_views, this.model.columns, {parent: this})
   }
 
   override remove(): void {
-    remove_views(this._data_views)
+    remove_views(this._indexed_views)
     remove_views(this._column_views)
     if (this._is_grid_initialized()) {
       this.grid.destroy()
@@ -203,7 +203,7 @@ export class DataTableView extends WidgetView {
     super.connect_signals()
     const rerender = () => {
       // Wait for the current data and column views before rendering.
-      if (this.is_destroyed || !this._data_views.has(this.model.view) || this.model.columns.some((col) => !this._column_views.has(col))) {
+      if (this.is_destroyed || !this._indexed_views.has(this.model.view) || this.model.columns.some((col) => !this._column_views.has(col))) {
         return
       }
       this.rerender()
@@ -218,14 +218,14 @@ export class DataTableView extends WidgetView {
 
     this.on_change(this.model.properties.view, async () => {
       const {view} = this.model
-      await build_views(this._data_views, [view], {parent: this})
+      await build_views(this._indexed_views, [view], {parent: this})
       if (this.model.view == view) {
         rerender()
       }
     })
     const update = () => this.updateGrid()
     this.on_transitive_change(this.model.properties.view, update, {
-      signal: (view) => (view as DataView).properties.indices.change,
+      signal: (view) => (view as IndexedView).properties.indices.change,
     })
     const {source} = this.model.properties
     this.on_transitive_change(source, update)
@@ -287,13 +287,13 @@ export class DataTableView extends WidgetView {
   }
 
   updateGrid(): void {
-    if (!this._is_grid_initialized() || !this._data_views.has(this.model.view)) {
+    if (!this._is_grid_initialized() || !this._indexed_views.has(this.model.view)) {
       return
     }
     this.data.init(this.model.source, this.model.view)
 
     // This is obnoxious but there is no better way to programmatically force
-    // a re-sort on the existing sorted columns until/if we start using DataView
+    // a re-sort on the existing sorted columns until/if we start using SlickDataView
     if (this.model.sortable) {
       const columns = this.grid.getColumns()
       const sorters = this.grid.getSortColumns().map((x) => ({

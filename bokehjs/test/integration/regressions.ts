@@ -11,7 +11,7 @@ import {
   NormalHead, OpenHead,
   BoxAnnotation, LabelSet, ColorBar, Slope, Span, Whisker,
   Range1d, DataRange1d, FactorRange,
-  ColumnDataSource, DataView as SourceDataView, BooleanFilter, IndexFilter, Selection,
+  ColumnDataSource, IndexedView, BooleanFilter, IndexFilter, Selection,
   LinearAxis, CategoricalAxis,
   GlyphRenderer, GraphRenderer, GridBox,
   Circle, Quad, MultiLine, Scatter, Text,
@@ -287,7 +287,7 @@ describe("Bug", () => {
       const y = [0, 1, 2, 3]
       const c = ["black", "red", "green", "blue"]
       const source = ColumnDataSource.create({data: {x, y, c}, selected})
-      const view = SourceDataView.create({filter: BooleanFilter.create({booleans: [false, true, true, true]})})
+      const view = IndexedView.create({filter: BooleanFilter.create({booleans: [false, true, true, true]})})
       p.scatter({field: "x"}, {field: "y"}, {source, view, color: {field: "c"}, size: 20})
       return p
     }
@@ -940,7 +940,7 @@ describe("Bug", () => {
         ys: [[0, 1], [0, 1], [0, 1]],
       }})
       const filter = IndexFilter.create({indices: [0, 2]})
-      const view = SourceDataView.create({filter})
+      const view = IndexedView.create({filter})
 
       function make_plot(output_backend: OutputBackend) {
         const p = fig([200, 200], {output_backend, title: output_backend})
@@ -1075,7 +1075,7 @@ describe("Bug", () => {
         },
       })
 
-      const view = SourceDataView.create() // shared view between renderers
+      const view = IndexedView.create() // shared view between renderers
 
       const scatter_renderer = GlyphRenderer.create({
         data_source: source,
@@ -1278,7 +1278,7 @@ describe("Bug", () => {
           },
         })
         const color_mapper = LinearColorMapper.create({low: 0, high: 6, palette: Spectral11})
-        const data_view = SourceDataView.create({filter: IndexFilter.create({indices})})
+        const indexed_view = IndexedView.create({filter: IndexFilter.create({indices})})
         const ir = p.image({
           image: {field: "image"},
           x: {field: "x"},
@@ -1287,7 +1287,7 @@ describe("Bug", () => {
           dh: 20,
           color_mapper,
           source,
-          view: data_view,
+          view: indexed_view,
         })
         p.add_tools(HoverTool.create({
           renderers: [ir],
@@ -2961,7 +2961,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #11955", () => {
-    it("does not allow updating DataTable when its DataView's filters change", async () => {
+    it("does not allow updating DataTable when its IndexedView's filters change", async () => {
       const source = ColumnDataSource.create({
         data: {
           col1: ["a", "b", "c", "d"],
@@ -2970,21 +2970,21 @@ describe("Bug", () => {
         },
       })
 
-      const data_view = SourceDataView.create({filter: IndexFilter.create({indices: [1, 2, 3]})})
+      const indexed_view = IndexedView.create({filter: IndexFilter.create({indices: [1, 2, 3]})})
 
       const columns = [
         TableColumn.create({field: "col1", title: "col1"}),
         TableColumn.create({field: "col2", title: "col2"}),
         TableColumn.create({field: "col3", title: "col3"}),
       ]
-      const table = DataTable.create({source, columns, view: data_view, width: 200})
+      const table = DataTable.create({source, columns, view: indexed_view, width: 200})
 
       const p = fig([200, 200])
-      p.scatter({x: {field: "col2"}, y: {field: "col3"}, size: 10, source, view: data_view})
+      p.scatter({x: {field: "col2"}, y: {field: "col3"}, size: 10, source, view: indexed_view})
 
       const {view} = await display(row([table, p]))
 
-      data_view.filter = IndexFilter.create({indices: [1, 2]})
+      indexed_view.filter = IndexFilter.create({indices: [1, 2]})
       await view.ready
     })
   })
@@ -3306,7 +3306,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #12718", () => {
-    it("doesn't render Legend correctly when LegendItem.index is filtered out by DataView", async () => {
+    it("doesn't render Legend correctly when LegendItem.index is filtered out by IndexedView", async () => {
       const data = {
         values: [0, 1, 2],
         type: [0, 1, 2],
@@ -3314,7 +3314,7 @@ describe("Bug", () => {
       }
 
       const source = ColumnDataSource.create({data})
-      const data_view = SourceDataView.create()
+      const indexed_view = IndexedView.create()
 
       const p = fig([200, 200])
       p.scatter({
@@ -3323,7 +3323,7 @@ describe("Bug", () => {
         fill_color: {field: "color"},
         size: 20,
         source,
-        view: data_view,
+        view: indexed_view,
         legend_group: "type",
       })
 
@@ -3332,7 +3332,7 @@ describe("Bug", () => {
 
       const {view} = await display(p)
 
-      data_view.filter = IndexFilter.create({indices: [1, 2]})
+      indexed_view.filter = IndexFilter.create({indices: [1, 2]})
       await view.ready
     })
   })
@@ -5058,13 +5058,13 @@ describe("Bug", () => {
   })
 
   describe("in issue #13244", () => {
-    it("doesn't render DataTable when a DataView with BooleanFilter is shared with a plot that renders first", async () => {
+    it("doesn't render DataTable when an IndexedView with BooleanFilter is shared with a plot that renders first", async () => {
       const source = ColumnDataSource.create({data: {
         x: [1, 2, 3, 4, 5],
         y: [10, 11, 12, 13, 14],
       }})
 
-      const view = SourceDataView.create({filter: BooleanFilter.create({booleans: [true, true, false, true, false]})})
+      const view = IndexedView.create({filter: BooleanFilter.create({booleans: [true, true, false, true, false]})})
 
       const table = DataTable.create({
         source,
@@ -5407,7 +5407,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #8010", () => {
-    it("doesn't respect DataView filters when creating the legend via legend_field", async () => {
+    it("doesn't respect IndexedView filters when creating the legend via legend_field", async () => {
       const source = ColumnDataSource.create({
         data: {
           x_values: [1, 2, 3, 4, 5],
@@ -5417,7 +5417,7 @@ describe("Bug", () => {
       })
 
       const filter = BooleanFilter.create({booleans: [true, false, true, false, true]})
-      const view = SourceDataView.create({filter})
+      const view = IndexedView.create({filter})
 
       view.compute_indices(source)
 

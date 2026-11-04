@@ -49,7 +49,7 @@ from ...core.property.required import Required
 from ...model import Model
 from ..comparisons import Comparison
 from ..dom import HTML
-from ..sources import ColumnDataSource, DataView
+from ..sources import ColumnDataSource, IndexedView
 from .widget import Widget
 
 #-----------------------------------------------------------------------------
@@ -622,7 +622,7 @@ class TableWidget(Widget):
     The column data source for the widget.
     """)
 
-    view = Instance(DataView, default=InstanceDefault(DataView), help="""
+    view = Instance(IndexedView, default=InstanceDefault(IndexedView), help="""
     A view into the data source to use when rendering table rows. A default view
     of the entire data source is created if a view is not passed in during
     initialization.

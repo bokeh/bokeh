@@ -46,10 +46,10 @@ from bokeh.models import (
     ColumnDataSource,
     CustomJS,
     DataTable,
-    DataView,
     GlyphRenderer,
     GroupFilter,
     HoverTool,
+    IndexedView,
     Label,
     LabelSet,
     MultiLine,
@@ -335,7 +335,7 @@ class _BokehStructureGraph:
         model_id = self._node_source.data["index"][0]
         groupfilter = GroupFilter(field_name="id", group=model_id)
 
-        data_table2_view = DataView(filter=groupfilter)
+        data_table2_view = IndexedView(filter=groupfilter)
         data_table2 = DataTable(
             source=prop_source,
             view=data_table2_view,

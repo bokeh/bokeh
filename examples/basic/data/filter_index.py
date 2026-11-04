@@ -1,9 +1,9 @@
 from bokeh.layouts import gridplot
-from bokeh.models import ColumnDataSource, DataView, IndexFilter
+from bokeh.models import ColumnDataSource, IndexedView, IndexFilter
 from bokeh.plotting import figure, show
 
 source = ColumnDataSource(data=dict(x=[1, 2, 3, 4, 5], y=[1, 2, 3, 4, 5]))
-view = DataView(filter=IndexFilter([0, 2, 4]))
+view = IndexedView(filter=IndexFilter([0, 2, 4]))
 
 TOOLS = "box_select,hover,reset"
 

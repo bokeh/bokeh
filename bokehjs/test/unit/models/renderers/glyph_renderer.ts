@@ -25,7 +25,7 @@ import type * as p from "@bokehjs/core/properties"
 import type {TextBox} from "@bokehjs/core/graphics"
 import {logger} from "@bokehjs/core/logging"
 import {show} from "@bokehjs/api/plotting"
-import {DataView} from "@bokehjs/models/sources/data_view"
+import {IndexedView} from "@bokehjs/models/sources/indexed_view"
 import {PlotView} from "@bokehjs/models/plots/plot_canvas"
 
 function mkrenderer(glyph: Scatter): GlyphRendererWithSource<Scatter, ColumnDataSource> {
@@ -97,9 +97,9 @@ describe("GlyphRenderer", () => {
 })
 
 describe("GlyphRendererView", () => {
-  it("settles ready and bounds painting when renderers share a DataView with different masks", async () => {
+  it("settles ready and bounds painting when renderers share an IndexedView with different masks", async () => {
     const source = ColumnDataSource.create({data: {x: [0, 10], x2: [10, 0], y: [-0.4, 0.4]}})
-    const shared = DataView.create()
+    const shared = IndexedView.create()
     const renderers = ["x", "x2"].map((field) => GlyphRenderer.create({
       glyph: Scatter.create({
         x: {field}, y: {field: "y"}, size: 20, line_color: null,
@@ -158,8 +158,8 @@ describe("GlyphRendererView", () => {
     }
   })
 
-  // Fill red when the DataView's published mask is exactly the given index, otherwise blue.
-  function masked_color(view: DataView, index: number): CustomJSTransform {
+  // Fill red when the IndexedView's published mask is exactly the given index, otherwise blue.
+  function masked_color(view: IndexedView, index: number): CustomJSTransform {
     return CustomJSTransform.create({args: {view}, v_func: `
       const color = view.masked != null && view.masked.count == 1 && view.masked.get(${index}) ? "red" : "blue"
       return xs.map(() => color)
@@ -204,10 +204,10 @@ describe("GlyphRendererView", () => {
 
   it("paints mask-dependent visuals, including selection states, before ready resolves", async () => {
     const source = ColumnDataSource.create({data: {x: [0, 10], y: [0, 0]}})
-    const data_view = DataView.create()
+    const indexed_view = IndexedView.create()
     const renderer = GlyphRenderer.create({
-      glyph: Scatter.create({size: 20, line_color: null, fill_color: {field: "x", transform: masked_color(data_view, 0)}}),
-      data_source: source, view: data_view,
+      glyph: Scatter.create({size: 20, line_color: null, fill_color: {field: "x", transform: masked_color(indexed_view, 0)}}),
+      data_source: source, view: indexed_view,
     })
     const x_range = Range1d.create({start: -1, end: 11})
     const plot = Plot.create({width: 300, height: 300, renderers: [renderer], x_range, y_range: Range1d.create({start: -1, end: 1})})
@@ -246,9 +246,9 @@ describe("GlyphRendererView", () => {
     }
   })
 
-  it("paints each renderer with its own mask when renderers share a DataView", async () => {
+  it("paints each renderer with its own mask when renderers share an IndexedView", async () => {
     const source = ColumnDataSource.create({data: {x: [0, 10], x2: [10, 0], y: [-0.4, 0.4]}})
-    const shared = DataView.create()
+    const shared = IndexedView.create()
     const renderers = ["x", "x2"].map((field) => GlyphRenderer.create({
       glyph: Scatter.create({
         x: {field}, y: {field: "y"}, size: 20, line_color: null,

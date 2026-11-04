@@ -65,9 +65,9 @@ __all__ = (
     'ColumnarDataSource',
     'ColumnDataSource',
     'DataSource',
-    'DataView',
     'GeoJSONDataSource',
     'IndexedDataSource',
+    'IndexedView',
     'ServerSentDataSource',
     'WebDataSource',
 )
@@ -785,7 +785,7 @@ class ColumnDataSource(ColumnarDataSource):
 
         self.data._patch(self.document, self, patches, setter)
 
-class DataView(Model):
+class IndexedView(Model):
     ''' A filtered subset of the logical records in an ``IndexedDataSource``.
 
     '''
@@ -802,7 +802,7 @@ class DataView(Model):
     .. code-block:: python
 
         # filters everything but indexes 10 and 11
-        data_view.filter &= ~IndexFilter(indices=[10, 11])
+        indexed_view.filter &= ~IndexFilter(indices=[10, 11])
     """)
 
 class GeoJSONDataSource(ColumnarDataSource):

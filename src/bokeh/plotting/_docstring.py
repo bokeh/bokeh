@@ -193,7 +193,7 @@ Other Parameters:
         other arguments. Only singular fixed values (e.g. ``x=10``) or column
         names in the data source (e.g. ``x="time"``) are permitted.
 
-    view (DataView, optional) :
+    view (IndexedView, optional) :
         A view for filtering the data source. (default: None)
 
     visible (bool, optional) :

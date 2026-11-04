@@ -18,7 +18,7 @@ from unittest import mock
 
 import pytest
 
-from bokeh.models import DataView, Marker
+from bokeh.models import IndexedView, Marker
 from bokeh.plotting import figure
 from bokeh.plotting._docstring import generate_docstring
 from bokeh.plotting._renderer import RENDERER_ARGS, GlyphRenderer
@@ -48,7 +48,7 @@ _renderer_args_values = dict(
     x_range_name=[None, "", "x range"],
     y_range_name=[None, "", "y range"],
     level=[None, "overlay"],
-    view=[None, DataView()],
+    view=[None, IndexedView()],
     visible=[None, False, True],
     muted=[None, False, True],
 )

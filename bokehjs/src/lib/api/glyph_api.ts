@@ -7,7 +7,7 @@ import type {VectorSpec, ScalarSpec, ColorSpec, UnitsSpec, Property} from "../co
 import type {MarkerType, RenderLevel} from "../core/enums"
 import type * as nd from "core/util/ndarray"
 
-import type {Glyph, GlyphRenderer, IndexedDataSource, ColumnarDataSource, ColumnDataSource, DataView, CoordinateMapping} from "./models"
+import type {Glyph, GlyphRenderer, IndexedDataSource, ColumnarDataSource, ColumnDataSource, IndexedView, CoordinateMapping} from "./models"
 
 import type {GlyphRendererWithSource} from "../models/renderers/glyph_renderer"
 
@@ -127,7 +127,7 @@ export type AuxText = {
 
 export type AuxGlyph = {
   source: IndexedDataSource | ColumnarDataSource["data"]
-  view: DataView
+  view: IndexedView
   legend_label: string
   legend_field: string
   legend_group: string

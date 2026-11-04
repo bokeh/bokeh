@@ -102,7 +102,7 @@
               },
               view: {
                 type: "object",
-                name: "DataView",
+                name: "IndexedView",
                 id: "p1008",
                 attributes: {
                   filter: {

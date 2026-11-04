@@ -33,14 +33,17 @@ from ...core.property.nullable import Nullable
 from ...core.property.primitive import Bool
 from ...core.property.required import Required
 from ...core.validation import error
-from ...core.validation.errors import BAD_COLUMN_NAME, DATAVIEW_FILTERS_WITH_CONNECTED
+from ...core.validation.errors import (
+    BAD_COLUMN_NAME,
+    INDEXEDVIEW_FILTERS_WITH_CONNECTED,
+)
 from ..filters import AllIndices
 from ..glyph import ConnectedXYGlyph, Glyph
 from ..graphics import Marking, PathDecoration, PathMarkings
 from ..sources import (
     ColumnDataSource,
-    DataView,
     IndexedDataSource,
+    IndexedView,
     WebDataSource,
 )
 from .renderer import DataRenderer
@@ -66,8 +69,8 @@ class GlyphRenderer(DataRenderer):
 
     '''
 
-    @error(DATAVIEW_FILTERS_WITH_CONNECTED)
-    def _check_dataview_filters_with_connected(self):
+    @error(INDEXEDVIEW_FILTERS_WITH_CONNECTED)
+    def _check_indexedview_filters_with_connected(self):
         if isinstance(self.glyph, ConnectedXYGlyph) and not isinstance(self.view.filter, AllIndices):
             return str(self)
 
@@ -99,13 +102,13 @@ class GlyphRenderer(DataRenderer):
     Local data source to use when rendering glyphs on the plot.
     """)
 
-    view = Instance(DataView, default=InstanceDefault(DataView), help="""
+    view = Instance(IndexedView, default=InstanceDefault(IndexedView), help="""
     A view into the data source to use when rendering glyphs. A default view
     of the entire data source is created when a view is not passed in during
     initialization.
 
     .. note:
-        Only the default (filterless) DataView is compatible with glyphs that
+        Only the default (filterless) IndexedView is compatible with glyphs that
         have connected topology, such as Line and Patch. Setting filters on
         views for these glyphs will result in a warning and undefined behavior.
     """)

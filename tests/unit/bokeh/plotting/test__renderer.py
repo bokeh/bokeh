@@ -297,7 +297,7 @@ class Test__process_sequence_literals:
 #     'x_range_name': [None, '', 'x range'],
 #     'y_range_name': [None, '', 'y range'],
 #     'level': [None, 'overlay'],
-#     'view': [None, DataView()],
+#     'view': [None, IndexedView()],
 #     'visible': [None, False, True],
 #     'muted': [None, False, True]
 # }

@@ -11,13 +11,13 @@ from bokeh.models import (
     BoxEditTool,
     ColumnDataSource,
     DataSource,
-    DataView,
     EditTool,
     FreehandDrawTool,
     GlyphRenderer,
     GraphRenderer,
     GroupFilter,
     IndexedDataSource,
+    IndexedView,
     Line,
     LineEditTool,
     Patches,
@@ -47,7 +47,7 @@ def test_record_source_plotting() -> None:
     assert "selected" not in DataSource.properties()
     plot = figure()
     renderer = plot.scatter("x", "y", source=source,
-                            view=DataView(filter=GroupFilter(field_name="name", group="first")))
+                            view=IndexedView(filter=GroupFilter(field_name="name", group="first")))
     assert renderer.data_source is source
     assert plot.add_glyph(source, Scatter()).data_source is source
     assert isinstance(renderer.view.filter, GroupFilter)

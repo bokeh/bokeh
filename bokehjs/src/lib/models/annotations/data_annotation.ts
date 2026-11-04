@@ -11,9 +11,22 @@ export abstract class DataAnnotationView extends AnnotationView {
 
   override connect_signals(): void {
     super.connect_signals()
+    let pending_update: Promise<void> | null = null
     const update = () => {
-      this.set_data(this.model.source)
-      this._rerender()
+      if (pending_update == null) {
+        pending_update = (async () => {
+          // A source mutation can emit both change signals in the same turn.
+          await Promise.resolve()
+          pending_update = null
+          if (this.is_destroyed) {
+            return
+          }
+          this.set_data(this.model.source)
+          this._initial_set_data = true
+          this._rerender()
+        })()
+      }
+      return pending_update
     }
     this.connect(this.model.change, update)
     this.on_transitive_change(this.model.properties.source, update)

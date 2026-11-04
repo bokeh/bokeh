@@ -2,7 +2,7 @@ import {expect} from "#framework/assertions"
 import * as sinon from "sinon"
 
 import {Rect} from "@bokehjs/models/glyphs/rect"
-import {DataView} from "@bokehjs/models/sources/data_view"
+import {IndexedView} from "@bokehjs/models/sources/indexed_view"
 import {Selection} from "@bokehjs/models/selections/selection"
 import {IndexFilter} from "@bokehjs/models/filters/index_filter"
 
@@ -29,14 +29,14 @@ describe("SelectionManager", () => {
       expect(source.selected.indices).to.be.equal([0])
     })
 
-    it("should set source selected correctly with a data_view", async () => {
+    it("should set source selected correctly with an IndexedView", async () => {
       const {renderer_view, glyph_stub} = await make_glyph()
 
       // hit-testing is done in subset space, whereas selected should be set in full data space
       glyph_stub.returns(Selection.create({indices: [0]}))
       const source = renderer_view.model.data_source
       const filter = IndexFilter.create({indices: [1]})
-      renderer_view.model.view = DataView.create({filter})
+      renderer_view.model.view = IndexedView.create({filter})
 
       const did_hit = source.selection_manager.select([renderer_view], {type: "point", sx: 0, sy: 0}, true)
       expect(did_hit).to.be.true
