@@ -25,7 +25,7 @@ New features
 * Redesigned slider widgets for better visual appeal and easier theming (:bokeh-pull:`13551`)
 * Added :class:`~bokeh.models.IndexedStackColorMapper` for ``ImageStack``
   glyphs. It color maps the 2D array selected by ``index`` with a
-  ``single_color_mapper``, scanning just that array or, with ``scan_all=True``,
+  ``slice_color_mapper``, scanning just that array or, with ``scan_all=True``,
   the whole stack. Scan results are cached per array, so changing ``index``
   doesn't rescan data that has already been scanned (:bokeh-issue:`13898`).
 

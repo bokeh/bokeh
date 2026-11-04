@@ -43,9 +43,9 @@ describe("IndexedStackColorMapper module", () => {
 
   describe("IndexedStackColorMapper.rgba_mapper method", () => {
 
-    it("should map the slice selected by index like single_color_mapper does", () => {
-      const single_color_mapper = LinearColorMapper.create({palette})
-      const mapper = IndexedStackColorMapper.create({single_color_mapper})
+    it("should map the slice selected by index like slice_color_mapper does", () => {
+      const slice_color_mapper = LinearColorMapper.create({palette})
+      const mapper = IndexedStackColorMapper.create({slice_color_mapper})
       const data = stack()
 
       for (let index = 0; index < slices.length; index++) {
@@ -55,9 +55,9 @@ describe("IndexedStackColorMapper module", () => {
       }
     })
 
-    it("should use nan_color, low_color and high_color of single_color_mapper", () => {
+    it("should use nan_color, low_color and high_color of slice_color_mapper", () => {
       const attrs = {palette, low: 1, high: 40, nan_color: "pink", low_color: "white", high_color: "black"}
-      const mapper = IndexedStackColorMapper.create({single_color_mapper: LinearColorMapper.create(attrs), index: 2})
+      const mapper = IndexedStackColorMapper.create({slice_color_mapper: LinearColorMapper.create(attrs), index: 2})
 
       const expected = rgba(LinearColorMapper.create(attrs), slices[2])
       expect(rgba(mapper, stack())).to.be.equal(expected)
@@ -66,19 +66,19 @@ describe("IndexedStackColorMapper module", () => {
     })
 
     it("should scan the whole stack with scan_all", () => {
-      const single_color_mapper = LinearColorMapper.create({palette})
-      const mapper = IndexedStackColorMapper.create({single_color_mapper, index: 0, scan_all: true})
+      const slice_color_mapper = LinearColorMapper.create({palette})
+      const mapper = IndexedStackColorMapper.create({slice_color_mapper, index: 0, scan_all: true})
 
       const expected = rgba(LinearColorMapper.create({palette, low: 0, high: 100}), slices[0])
       expect(rgba(mapper, stack())).to.be.equal(expected)
-      expect(single_color_mapper.metrics.min).to.be.equal(0)
-      expect(single_color_mapper.metrics.max).to.be.equal(100)
+      expect(slice_color_mapper.metrics.min).to.be.equal(0)
+      expect(slice_color_mapper.metrics.max).to.be.equal(100)
     })
 
     it("should reuse scans when index or scan_all change back", () => {
-      const single_color_mapper = LinearColorMapper.create({palette})
-      const mapper = IndexedStackColorMapper.create({single_color_mapper})
-      const scan = sinon.spy(single_color_mapper, "_v_scan")
+      const slice_color_mapper = LinearColorMapper.create({palette})
+      const mapper = IndexedStackColorMapper.create({slice_color_mapper})
+      const scan = sinon.spy(slice_color_mapper, "_v_scan")
       const data = stack()
 
       rgba(mapper, data)
@@ -97,9 +97,9 @@ describe("IndexedStackColorMapper module", () => {
     })
 
     it("should drop scans of the arrays given to data_changed()", () => {
-      const single_color_mapper = LinearColorMapper.create({palette})
-      const mapper = IndexedStackColorMapper.create({single_color_mapper})
-      const scan = sinon.spy(single_color_mapper, "_v_scan")
+      const slice_color_mapper = LinearColorMapper.create({palette})
+      const mapper = IndexedStackColorMapper.create({slice_color_mapper})
+      const scan = sinon.spy(slice_color_mapper, "_v_scan")
       const data = stack()
       const other_data = stack()
 
@@ -109,61 +109,61 @@ describe("IndexedStackColorMapper module", () => {
       mapper.data_changed([data])
       rgba(mapper, data)
       expect(scan.callCount).to.be.equal(3)
-      expect(single_color_mapper.metrics.min).to.be.equal(-30)
+      expect(slice_color_mapper.metrics.min).to.be.equal(-30)
       rgba(mapper, other_data)
       expect(scan.callCount).to.be.equal(3)
     })
 
-    it("should drop scans and emit change when single_color_mapper changes", () => {
-      const single_color_mapper = LinearColorMapper.create({palette})
-      const mapper = IndexedStackColorMapper.create({single_color_mapper})
-      const scan = sinon.spy(single_color_mapper, "_v_scan")
+    it("should drop scans and emit change when slice_color_mapper changes", () => {
+      const slice_color_mapper = LinearColorMapper.create({palette})
+      const mapper = IndexedStackColorMapper.create({slice_color_mapper})
+      const scan = sinon.spy(slice_color_mapper, "_v_scan")
       const change = sinon.spy()
       mapper.change.connect(change)
       const data = stack()
 
       rgba(mapper, data)
-      single_color_mapper.palette = ["black", "white"]
+      slice_color_mapper.palette = ["black", "white"]
       expect(change.called).to.be.true
       const expected = rgba(LinearColorMapper.create({palette: ["black", "white"]}), slices[0])
       expect(rgba(mapper, data)).to.be.equal(expected)
       expect(scan.callCount).to.be.equal(2)
 
       const other_mapper = LinearColorMapper.create({palette})
-      mapper.single_color_mapper = other_mapper
+      mapper.slice_color_mapper = other_mapper
       change.resetHistory()
-      single_color_mapper.palette = palette
+      slice_color_mapper.palette = palette
       expect(change.called).to.be.false
       other_mapper.palette = ["black", "white"]
       expect(change.called).to.be.true
     })
 
     it("should throw when index is out of range", () => {
-      const mapper = IndexedStackColorMapper.create({single_color_mapper: LinearColorMapper.create({palette}), index: 3})
+      const mapper = IndexedStackColorMapper.create({slice_color_mapper: LinearColorMapper.create({palette}), index: 3})
       expect(() => rgba(mapper, stack())).to.throw(Error, /Expected index in the range \[0, 3\), got 3/)
     })
   })
 
   describe("IndexedStackColorMapper.palette_mapper property", () => {
-    it("should be single_color_mapper, whose metrics_change is forwarded", () => {
-      const single_color_mapper = LinearColorMapper.create({palette})
-      const mapper = IndexedStackColorMapper.create({single_color_mapper})
+    it("should be slice_color_mapper, whose metrics_change is forwarded", () => {
+      const slice_color_mapper = LinearColorMapper.create({palette})
+      const mapper = IndexedStackColorMapper.create({slice_color_mapper})
       const metrics_change = sinon.spy()
       const palette_mapper_change = sinon.spy()
       mapper.metrics_change.connect(metrics_change)
       mapper.palette_mapper_change.connect(palette_mapper_change)
-      expect(mapper.palette_mapper).to.be.equal(single_color_mapper)
+      expect(mapper.palette_mapper).to.be.equal(slice_color_mapper)
 
       rgba(mapper, stack())
       expect(metrics_change.called).to.be.true
 
       const other_mapper = LinearColorMapper.create({palette})
-      mapper.single_color_mapper = other_mapper
+      mapper.slice_color_mapper = other_mapper
       expect(mapper.palette_mapper).to.be.equal(other_mapper)
       expect(palette_mapper_change.callCount).to.be.equal(1)
 
       metrics_change.resetHistory()
-      single_color_mapper.metrics_change.emit()
+      slice_color_mapper.metrics_change.emit()
       expect(metrics_change.called).to.be.false
       other_mapper.metrics_change.emit()
       expect(metrics_change.callCount).to.be.equal(1)
@@ -172,14 +172,14 @@ describe("IndexedStackColorMapper module", () => {
 
   describe("in an ImageStack", () => {
     async function display_image_stack(images: Float64NDArray[]) {
-      const single_color_mapper = LinearColorMapper.create({palette})
-      const color_mapper = IndexedStackColorMapper.create({single_color_mapper})
+      const slice_color_mapper = LinearColorMapper.create({palette})
+      const color_mapper = IndexedStackColorMapper.create({slice_color_mapper})
       const source = ColumnDataSource.create({data: {image: images}})
       const p = fig([200, 200])
       p.image_stack({image: {field: "image"}, x: 0, y: 0, dw: 1, dh: 1, color_mapper, source})
       const {view} = await display(p)
-      const scan = sinon.spy(single_color_mapper, "_v_scan")
-      return {view, color_mapper, single_color_mapper, source, scan}
+      const scan = sinon.spy(slice_color_mapper, "_v_scan")
+      return {view, color_mapper, slice_color_mapper, source, scan}
     }
 
     it("should reuse the scans made when it was displayed", async () => {
@@ -193,12 +193,12 @@ describe("IndexedStackColorMapper module", () => {
     })
 
     it("should drop scans only of the images that are patched", async () => {
-      const {view, color_mapper, single_color_mapper, source, scan} = await display_image_stack([stack(), stack()])
+      const {view, color_mapper, slice_color_mapper, source, scan} = await display_image_stack([stack(), stack()])
 
       source.patch({image: [[[0, 0, 0], [-30]]]})  // in place
       await view.ready
       expect(scan.callCount).to.be.equal(1)
-      expect(single_color_mapper.metrics.min).to.be.equal(-30)
+      expect(slice_color_mapper.metrics.min).to.be.equal(-30)
 
       color_mapper.index = 1
       await view.ready
@@ -209,15 +209,15 @@ describe("IndexedStackColorMapper module", () => {
   })
 
   describe("in a ColorBar", () => {
-    it("should draw single_color_mapper", async () => {
-      const single_color_mapper = LinearColorMapper.create({palette})
-      const color_mapper = IndexedStackColorMapper.create({single_color_mapper})
+    it("should draw slice_color_mapper", async () => {
+      const slice_color_mapper = LinearColorMapper.create({palette})
+      const color_mapper = IndexedStackColorMapper.create({slice_color_mapper})
       const color_bar = ColorBar.create({color_mapper})
       const p = fig([200, 200])
       p.add_layout(color_bar, "right")
       const {view} = await display(p)
       const color_bar_view = view.owner.get_one(color_bar)
-      expect(color_bar_view.color_mapper).to.be.equal(single_color_mapper)
+      expect(color_bar_view.color_mapper).to.be.equal(slice_color_mapper)
     })
 
     async function display_color_bar(color_mapper: IndexedStackColorMapper) {
@@ -241,30 +241,30 @@ describe("IndexedStackColorMapper module", () => {
       return {view, color_bar_view, internals, state}
     }
 
-    it("should follow single_color_mapper after it's replaced", async () => {
-      const color_mapper = IndexedStackColorMapper.create({single_color_mapper: LinearColorMapper.create({palette}), index: 1})
+    it("should follow slice_color_mapper after it's replaced", async () => {
+      const color_mapper = IndexedStackColorMapper.create({slice_color_mapper: LinearColorMapper.create({palette}), index: 1})
       const {view, color_bar_view, state} = await display_color_bar(color_mapper)
       expect(state()).to.be.similar({start: 10, end: 40, ticks: [10, 15, 20, 25, 30, 35, 40]})
 
-      const single_color_mapper = LinearColorMapper.create({palette})
-      color_mapper.single_color_mapper = single_color_mapper
+      const slice_color_mapper = LinearColorMapper.create({palette})
+      color_mapper.slice_color_mapper = slice_color_mapper
       await view.ready
-      expect(color_bar_view.color_mapper).to.be.equal(single_color_mapper)
+      expect(color_bar_view.color_mapper).to.be.equal(slice_color_mapper)
 
       color_mapper.index = 2
       await view.ready
       expect(state()).to.be.similar({start: 5, end: 100, ticks: [20, 40, 60, 80, 100]})
     })
 
-    it("should rebuild its axis when single_color_mapper is replaced with another type", async () => {
-      const color_mapper = IndexedStackColorMapper.create({single_color_mapper: LinearColorMapper.create({palette}), index: 1})
+    it("should rebuild its axis when slice_color_mapper is replaced with another type", async () => {
+      const color_mapper = IndexedStackColorMapper.create({slice_color_mapper: LinearColorMapper.create({palette}), index: 1})
       const {view, color_bar_view, internals, state} = await display_color_bar(color_mapper)
       expect(internals()._ticker).to.be.instanceof(BasicTicker)
 
-      const single_color_mapper = LogColorMapper.create({palette})
-      color_mapper.single_color_mapper = single_color_mapper
+      const slice_color_mapper = LogColorMapper.create({palette})
+      color_mapper.slice_color_mapper = slice_color_mapper
       await view.ready
-      expect(color_bar_view.color_mapper).to.be.equal(single_color_mapper)
+      expect(color_bar_view.color_mapper).to.be.equal(slice_color_mapper)
 
       const {_major_scale, _ticker, _axis} = internals()
       expect(_major_scale).to.be.instanceof(LogScale)

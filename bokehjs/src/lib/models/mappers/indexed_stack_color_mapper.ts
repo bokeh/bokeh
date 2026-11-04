@@ -10,7 +10,7 @@ export namespace IndexedStackColorMapper {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = StackColorMapper.Props & {
-    single_color_mapper: p.Property<ContinuousColorMapper>
+    slice_color_mapper: p.Property<ContinuousColorMapper>
     index: p.Property<number>
     scan_all: p.Property<boolean>
   }
@@ -23,16 +23,16 @@ export class IndexedStackColorMapper extends StackColorMapper {
 
   static {
     this.define<IndexedStackColorMapper.Props>(({Bool, Int, NonNegative, Ref}) => ({
-      single_color_mapper: [ Ref(ContinuousColorMapper) ],
-      index:               [ NonNegative(Int), 0 ],
-      scan_all:            [ Bool, false ],
+      slice_color_mapper: [ Ref(ContinuousColorMapper) ],
+      index:              [ NonNegative(Int), 0 ],
+      scan_all:           [ Bool, false ],
     }))
   }
 
-  // Scans of `single_color_mapper` per data array, keyed by stack index, or by
+  // Scans of `slice_color_mapper` per data array, keyed by stack index, or by
   // "all" for the whole stack when `scan_all` is set. Changing `index` or
   // `scan_all` reuses them; `data_changed()` drops those of the arrays it's
-  // given, and a change to `single_color_mapper` drops them all.
+  // given, and a change to `slice_color_mapper` drops them all.
   protected _scans: WeakMap<Arrayable<number>, Map<number | "all", ScanData>> = new WeakMap()
 
   override connect_signals(): void {
@@ -45,14 +45,14 @@ export class IndexedStackColorMapper extends StackColorMapper {
 
     const metrics_changed = () => this.metrics_change.emit()
 
-    let mapper = this.single_color_mapper
+    let mapper = this.slice_color_mapper
     this.connect(mapper.change, mapper_changed)
     this.connect(mapper.metrics_change, metrics_changed)
 
-    this.on_change(this.properties.single_color_mapper, () => {
+    this.on_change(this.properties.slice_color_mapper, () => {
       this.disconnect(mapper.change, mapper_changed)
       this.disconnect(mapper.metrics_change, metrics_changed)
-      mapper = this.single_color_mapper
+      mapper = this.slice_color_mapper
       this.connect(mapper.change, mapper_changed)
       this.connect(mapper.metrics_change, metrics_changed)
       this._scans = new WeakMap()
@@ -61,7 +61,7 @@ export class IndexedStackColorMapper extends StackColorMapper {
   }
 
   override get palette_mapper(): ContinuousColorMapper {
-    return this.single_color_mapper
+    return this.slice_color_mapper
   }
 
   override data_changed(images: Iterable<Arrayable<number>>): void {
@@ -71,11 +71,11 @@ export class IndexedStackColorMapper extends StackColorMapper {
   }
 
   protected _palette(): Color[] {
-    return this.single_color_mapper.palette
+    return this.slice_color_mapper.palette
   }
 
   protected _colors<T>(conv: (c: Color) => T): {nan_color: T, low_color?: T, high_color?: T} {
-    const {nan_color, low_color, high_color} = this.single_color_mapper
+    const {nan_color, low_color, high_color} = this.slice_color_mapper
     return {
       nan_color: conv(nan_color),
       low_color: low_color != null ? conv(low_color) : undefined,
@@ -85,7 +85,7 @@ export class IndexedStackColorMapper extends StackColorMapper {
 
   protected _v_compute(data: Arrayable<number>, values: Arrayable<uint32>,
       palette: Arrayable<uint32>, colors: {nan_color: uint32, low_color?: uint32, high_color?: uint32}): void {
-    const {index, scan_all, single_color_mapper} = this
+    const {index, scan_all, slice_color_mapper} = this
     const n = values.length
     const nstack = data.length / n
     assert(0 <= index && index < nstack, `Expected index in the range [0, ${nstack}), got ${index}`)
@@ -104,10 +104,10 @@ export class IndexedStackColorMapper extends StackColorMapper {
     const key = scan_all ? "all" : index
     let scan_data = scans.get(key)
     if (scan_data == null) {
-      scan_data = single_color_mapper._v_scan(scan_all ? data : slice, palette.length)
+      scan_data = slice_color_mapper._v_scan(scan_all ? data : slice, palette.length)
       scans.set(key, scan_data)
     }
 
-    single_color_mapper._v_map(slice, values, palette, colors, scan_data)
+    slice_color_mapper._v_map(slice, values, palette, colors, scan_data)
   }
 }

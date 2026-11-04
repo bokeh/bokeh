@@ -314,12 +314,12 @@ class IndexedStackColorMapper(StackColorMapper):
     they are determined from the whole 3D array.
 
     The colors, including ``nan_color``, ``low_color`` and ``high_color``,
-    come from ``single_color_mapper``, which a ``ColorBar`` for this mapper
+    come from ``slice_color_mapper``, which a ``ColorBar`` for this mapper
     also uses.
 
     '''
 
-    single_color_mapper = Instance(ContinuousColorMapper, help="""
+    slice_color_mapper = Instance(ContinuousColorMapper, help="""
     Color mapper used to calculate the colors of the 2D array displayed.
     """)
 

@@ -5661,7 +5661,7 @@
   },
   IndexedStackColorMapper: {
     __extends__: "StackColorMapper",
-    single_color_mapper: {
+    slice_color_mapper: {
       type: "symbol",
       name: "unset",
     },

@@ -3,7 +3,7 @@
 The data is a 3D array of shape ``(ny, nx, nt)`` holding the temperature of a
 plate at ``nt`` times, as heat spreads out from three sources. The
 ``IndexedStackColorMapper`` color maps the 2D array at its ``index`` with its
-``single_color_mapper``, which the color bar also draws. The slider changes
+``slice_color_mapper``, which the color bar also draws. The slider changes
 ``index``. With ``scan_all`` set, the color mapping limits come from scanning
 the whole 3D array, so they are the same for every time step. The checkbox
 unsets it, so that each 2D array gets its own limits.
@@ -39,7 +39,7 @@ data = sum(
 )
 
 color_mapper = IndexedStackColorMapper(
-    single_color_mapper=LinearColorMapper(palette="Inferno256"),
+    slice_color_mapper=LinearColorMapper(palette="Inferno256"),
     scan_all=True,
 )
 
