@@ -118,7 +118,7 @@ For font related customization Bokeh has:
 
 * ``--bokeh-base-font`` to allow setting a custom font to use
 * ``--bokeh-mono-font`` to allow setting a custom mono font to use
-* ``--bokeh-font-size```to allow setting a custom font size value
+* ``--bokeh-font-size`` to allow setting a custom font size value
 * ``--base-font`` as the actual variable used for components that handles as fallback
   values for font ``Helvetica``, ``Arial`` and ``sans-serif`` in case ``--bokeh-base-font``
   has an invalid value
