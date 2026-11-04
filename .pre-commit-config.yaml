@@ -49,6 +49,13 @@ repos:
         language: conda
         pass_filenames: false
 
+      - id: lint-bokehjs
+        name: Build and lint BokehJS
+        entry: python tools/hooks/lint_bokehjs.py
+        language: system
+        files: ^bokehjs/
+        pass_filenames: false
+
       - id: protect-branches
         name: Protect Git branches
         entry: python tools/hooks/protect_branches.py
