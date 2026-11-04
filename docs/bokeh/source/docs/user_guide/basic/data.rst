@@ -579,6 +579,78 @@ This is a preview of what a stream of live data in Bokeh can look like using
 For the full example, see :bokeh-tree:`examples/basic/data/ajax_source.py` in Bokeh's
 GitHub repository.
 
+.. _ug_basic_data_gather:
+
+Gathering from shared coordinates
+---------------------------------
+
+Use :func:`~bokeh.transform.gather` to read values from one column data source
+using integer row indices stored in another. For example, patches can share a
+vertex table with a scatter renderer:
+
+.. code-block:: python
+
+    from bokeh.models import ColumnDataSource
+    from bokeh.transform import gather
+
+    vertices = ColumnDataSource(dict(x=[0, 1, 1, 0, 0.5], y=[0, 0, 1, 1, 0.5]))
+    cells = ColumnDataSource(dict(vertex_indices=[[0, 1, 4], [1, 2, 4], [2, 3, 4], [3, 0, 4]]))
+    p.patches(
+        xs=gather(vertices, "x", indices="vertex_indices"),
+        ys=gather(vertices, "y", indices="vertex_indices"),
+        source=cells,
+    )
+    p.scatter(x="x", y="y", source=vertices)
+
+Pass the required ``indices`` argument to name the index field on the renderer's
+primary source. A flat index column gathers scalar values. Ragged rows or a
+two-dimensional integer NumPy array gather rows for ``Patches`` or ``MultiLine``.
+Indices must be integers between zero and the number of value rows minus one.
+For shaped value columns, each index selects a logical row on the first axis
+and preserves its inner shape.
+
+Coordinate fields on ``MultiLine`` and ``Patches`` can also use two-dimensional
+arrays directly. Filtering and data replacement treat the first axis as rows
+with both Canvas and WebGL rendering.
+
+Indices must remain valid while either source updates. When adding vertices,
+update the vertex table before connectivity. When removing vertices, update
+connectivity first. Invalid indices raise an error in the browser.
+
+Coordinates are stored and sent once, then gathered in the browser. Replacing,
+streaming, or patching either source updates the glyph, both in standalone
+JavaScript callbacks and in server applications. Selection and filtering apply
+to rows of each renderer's primary source. Selecting a cell does not select its
+vertices automatically.
+
+To append a cell that uses existing vertices, stream its indices as a nested list:
+
+.. code-block:: python
+
+    cells.stream(dict(vertex_indices=[[0, 1, 2]]))
+
+To change an existing cell, patch its row:
+
+.. code-block:: python
+
+    cells.patch(dict(vertex_indices=[(0, [0, 1, 3])]))
+
+Python ``ColumnDataSource.stream()`` does not accept two-dimensional NumPy
+columns. For a shaped connectivity array, replace ``cells.data`` instead:
+
+.. code-block:: python
+
+    import numpy as np
+
+    cells.data = dict(vertex_indices=np.array([
+        [0, 1, 4],
+        [1, 2, 4],
+    ], dtype=np.int32))
+
+Use these source update methods in JavaScript callbacks too. Editing an index
+array in place and then calling ``cells.change.emit()`` does not refresh the
+gathered values.
+
 .. _ug_basic_data_linked_selection:
 
 Linked selection

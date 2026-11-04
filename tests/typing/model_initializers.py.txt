@@ -3,6 +3,7 @@
 
 from typing import Sequence, assert_type
 
+from bokeh.core.properties import value
 from bokeh.models import Range1d
 from bokeh.models.layouts import Column, Row
 from bokeh.models.ui.ui_element import UIElement
@@ -36,3 +37,8 @@ column.children = rows
 column.children = children
 assert_type(row.children, list[UIElement])
 assert_type(column.children, list[UIElement])
+
+# Hatch pattern abbreviations are accepted like full pattern names (#14937).
+p.vbar(x=[1, 2], top=[3, 4], hatch_pattern=["x", "."])
+p.vbar(x=[1, 2], top=[3, 4], hatch_pattern=value("x"))
+p.vbar(x=[1, 2], top=[3, 4], hatch_pattern=["cross", "dot"])
