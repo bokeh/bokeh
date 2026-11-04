@@ -6,7 +6,7 @@ from typing import NoReturn
 BOKEHJS_DIR = Path(__file__).resolve().parents[2] / "bokehjs"
 
 
-def LintBokehJS() -> NoReturn:
+def lint_bokehjs() -> NoReturn:
     # Type-aware lint rules check tests, examples and frameworks against
     # the built *.d.ts files, so build BokehJS first.
     proc = run(["node", "make", "build", "lint"], cwd=BOKEHJS_DIR)
@@ -14,4 +14,4 @@ def LintBokehJS() -> NoReturn:
 
 
 if __name__ == "__main__":
-    LintBokehJS()
+    lint_bokehjs()
