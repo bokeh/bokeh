@@ -47,13 +47,18 @@ export class IndexedStackColorMapper extends StackColorMapper {
 
     const metrics_changed = () => this.metrics_change.emit()
 
-    let mapper = this.slice_color_mapper
-    this.connect(mapper.change, mapper_changed)
-    this.connect(mapper.metrics_change, metrics_changed)
+    // It's required, but may be unset until this mapper is used.
+    let mapper = this.properties.slice_color_mapper.is_unset ? null : this.slice_color_mapper
+    if (mapper != null) {
+      this.connect(mapper.change, mapper_changed)
+      this.connect(mapper.metrics_change, metrics_changed)
+    }
 
     this.on_change(this.properties.slice_color_mapper, () => {
-      this.disconnect(mapper.change, mapper_changed)
-      this.disconnect(mapper.metrics_change, metrics_changed)
+      if (mapper != null) {
+        this.disconnect(mapper.change, mapper_changed)
+        this.disconnect(mapper.metrics_change, metrics_changed)
+      }
       mapper = this.slice_color_mapper
       this.connect(mapper.change, mapper_changed)
       this.connect(mapper.metrics_change, metrics_changed)

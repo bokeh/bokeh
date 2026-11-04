@@ -39,11 +39,16 @@ export class WeightedStackColorMapper extends StackColorMapper {
 
     const metrics_changed = () => this.metrics_change.emit()
 
-    let mapper = this.alpha_mapper
-    this.connect(mapper.metrics_change, metrics_changed)
+    // It's required, but may be unset until this mapper is used.
+    let mapper = this.properties.alpha_mapper.is_unset ? null : this.alpha_mapper
+    if (mapper != null) {
+      this.connect(mapper.metrics_change, metrics_changed)
+    }
 
     this.on_change(this.properties.alpha_mapper, () => {
-      this.disconnect(mapper.metrics_change, metrics_changed)
+      if (mapper != null) {
+        this.disconnect(mapper.metrics_change, metrics_changed)
+      }
       mapper = this.alpha_mapper
       this.connect(mapper.metrics_change, metrics_changed)
       this.display_mapper_change.emit()

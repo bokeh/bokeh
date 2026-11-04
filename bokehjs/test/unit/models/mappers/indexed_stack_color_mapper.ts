@@ -18,6 +18,7 @@ import {LogScale} from "@bokehjs/models/scales/log_scale"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {BasicTicker} from "@bokehjs/models/tickers/basic_ticker"
 import {LogTicker} from "@bokehjs/models/tickers/log_ticker"
+import {UnsetValueError} from "@bokehjs/core/properties"
 import {Float64NDArray} from "@bokehjs/core/util/ndarray"
 import {version} from "@bokehjs/version"
 
@@ -182,6 +183,36 @@ describe("IndexedStackColorMapper module", () => {
       expect(out.error).to.be.equal(`[bokeh ${version}] ${mapper}: expected index in the range [0, 3), got 3\n`)
       expect(result).to.be.equal(rgba(LinearColorMapper.create({palette, nan_color: "pink"}), [NaN, NaN, NaN, NaN]))
       expect(scan.called).to.be.false
+    })
+  })
+
+  describe("IndexedStackColorMapper without slice_color_mapper", () => {
+    it("should only throw when it's first used, and connect slice_color_mapper when it's set", () => {
+      const mapper = IndexedStackColorMapper.create({index: 1})
+      expect(() => mapper.display_mapper).to.throw(UnsetValueError)
+      expect(() => rgba(mapper, stack())).to.throw(UnsetValueError)
+
+      const change = sinon.spy()
+      const metrics_change = sinon.spy()
+      const display_mapper_change = sinon.spy()
+      mapper.change.connect(change)
+      mapper.metrics_change.connect(metrics_change)
+      mapper.display_mapper_change.connect(display_mapper_change)
+
+      const slice_color_mapper = LinearColorMapper.create({palette})
+      mapper.slice_color_mapper = slice_color_mapper
+      expect(mapper.display_mapper).to.be.equal(slice_color_mapper)
+      expect(display_mapper_change.callCount).to.be.equal(1)
+
+      change.resetHistory()
+      slice_color_mapper.change.emit()
+      expect(change.callCount).to.be.equal(1)
+
+      metrics_change.resetHistory()
+      slice_color_mapper.metrics_change.emit()
+      expect(metrics_change.callCount).to.be.equal(1)
+
+      expect(rgba(mapper, stack())).to.be.equal(rgba(LinearColorMapper.create({palette}), slices[1]))
     })
   })
 
