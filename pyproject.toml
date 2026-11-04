@@ -11,11 +11,11 @@ requires-python = ">=3.13"
 dependencies = [
     "jinja2 >=2.9",
     "narwhals>=1.13",
-    "numpy >=1.16",
+    "numpy >=2.1",
     "packaging >=16.8",
     "pillow >=7.1.0",
     "pyyaml >=3.10",
-    "tornado >=6.2; sys_platform != 'emscripten'",
+    "tornado >=6.4.2; sys_platform != 'emscripten'",
     "xyzservices >=2021.09.1",
 ]
 authors = [
