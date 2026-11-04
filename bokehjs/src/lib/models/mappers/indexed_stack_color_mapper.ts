@@ -1,8 +1,8 @@
 import {ContinuousColorMapper} from "./continuous_color_mapper"
 import {StackColorMapper} from "./stack_color_mapper"
 import type * as p from "core/properties"
+import {logger} from "core/logging"
 import type {Arrayable, Color, uint32} from "core/types"
-import {assert} from "core/util/assert"
 
 type ScanData = {min: number, max: number}
 
@@ -88,7 +88,16 @@ export class IndexedStackColorMapper extends StackColorMapper {
     const {index, scan_together, slice_color_mapper} = this
     const n = values.length
     const nstack = data.length / n
-    assert(0 <= index && index < nstack, `Expected index in the range [0, ${nstack}), got ${index}`)
+
+    // This image has no such slice, but that shouldn't stop the rest of the
+    // render. It doesn't scan either, so a color bar keeps its current range.
+    if (index >= nstack) {
+      logger.error(`${this}: expected index in the range [0, ${nstack}), got ${index}`)
+      for (let i = 0; i < n; i++) {
+        values[i] = colors.nan_color
+      }
+      return
+    }
 
     const slice = new Float64Array(n)
     for (let i = 0; i < n; i++) {

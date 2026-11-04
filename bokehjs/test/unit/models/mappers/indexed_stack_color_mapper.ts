@@ -1,19 +1,23 @@
 import {expect} from "#framework/assertions"
 import {display, fig} from "#framework/layouts"
+import {async_trap, trap} from "#framework/util"
 
 import * as sinon from "sinon"
 
 import {ColorBar} from "@bokehjs/models/annotations/color_bar"
+import type {ImageStackView} from "@bokehjs/models/glyphs/image_stack"
 import {LogAxis} from "@bokehjs/models/axes/log_axis"
 import {IndexedStackColorMapper} from "@bokehjs/models/mappers/indexed_stack_color_mapper"
 import {LinearColorMapper} from "@bokehjs/models/mappers/linear_color_mapper"
 import {LogColorMapper} from "@bokehjs/models/mappers/log_color_mapper"
+import type {PlotView} from "@bokehjs/models/plots/plot"
 import type {Range1d} from "@bokehjs/models/ranges/range1d"
 import {LogScale} from "@bokehjs/models/scales/log_scale"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {BasicTicker} from "@bokehjs/models/tickers/basic_ticker"
 import {LogTicker} from "@bokehjs/models/tickers/log_ticker"
 import {Float64NDArray} from "@bokehjs/core/util/ndarray"
+import {version} from "@bokehjs/version"
 
 describe("IndexedStackColorMapper module", () => {
   const palette = ["red", "green", "blue", "yellow"]
@@ -138,9 +142,16 @@ describe("IndexedStackColorMapper module", () => {
       expect(change.called).to.be.true
     })
 
-    it("should throw when index is out of range", () => {
-      const mapper = IndexedStackColorMapper.create({slice_color_mapper: LinearColorMapper.create({palette}), index: 3})
-      expect(() => rgba(mapper, stack())).to.throw(Error, /Expected index in the range \[0, 3\), got 3/)
+    it("should log an error and use nan_color when index is out of range", () => {
+      const slice_color_mapper = LinearColorMapper.create({palette, nan_color: "pink"})
+      const mapper = IndexedStackColorMapper.create({slice_color_mapper, index: 3})
+      const scan = sinon.spy(slice_color_mapper, "_v_scan")
+
+      let result: number[] = []
+      const out = trap(() => result = rgba(mapper, stack()))
+      expect(out.error).to.be.equal(`[bokeh ${version}] ${mapper}: expected index in the range [0, 3), got 3\n`)
+      expect(result).to.be.equal(rgba(LinearColorMapper.create({palette, nan_color: "pink"}), [NaN, NaN, NaN, NaN]))
+      expect(scan.called).to.be.false
     })
   })
 
@@ -190,6 +201,37 @@ describe("IndexedStackColorMapper module", () => {
       color_mapper.index = 0
       await view.ready
       expect(scan.callCount).to.be.equal(1)
+    })
+
+    it("should still render when index is out of range", async () => {
+      const slice_color_mapper = LinearColorMapper.create({palette, nan_color: "pink"})
+      const color_mapper = IndexedStackColorMapper.create({slice_color_mapper, index: 3})
+      const color_bar = ColorBar.create({color_mapper})
+      const p = fig([200, 200])
+      const renderer = p.image_stack({image: [stack()], x: 0, y: 0, dw: 1, dh: 1, color_mapper})
+      p.add_layout(color_bar, "right")
+
+      let view!: PlotView
+      const out = await async_trap(async () => {
+        view = (await display(p)).view
+      })
+      expect(out.error.includes(`${color_mapper}: expected index in the range [0, 3), got 3`)).to.be.true
+
+      function pixels(): number[] {
+        const stack_view = view.owner.get_one(renderer).glyph as ImageStackView
+        const canvas = stack_view.image_data![0]!
+        const ctx = canvas.getContext("2d")!
+        return Array.from(ctx.getImageData(0, 0, canvas.width, canvas.height).data)
+      }
+
+      expect(pixels()).to.be.equal(rgba(LinearColorMapper.create({palette, nan_color: "pink"}), [NaN, NaN, NaN, NaN]))
+
+      color_mapper.index = 1
+      await view.ready
+      expect(pixels()).to.be.equal(rgba(LinearColorMapper.create({palette}), slices[1]))
+      const {_major_range} = view.owner.get_one(color_bar) as any // XXX: protected
+      expect(_major_range.start).to.be.equal(10)
+      expect(_major_range.end).to.be.equal(40)
     })
 
     it("should drop scans only of the images that are patched", async () => {
