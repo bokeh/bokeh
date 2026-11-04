@@ -531,7 +531,7 @@ the ``bokehjs`` subdirectory:
 
 .. code-block:: sh
 
-    $ node make build:all
+    $ node make build
     $ BOKEH_CHROME=/path/to/chrome node make test:integration
 
 Omit ``BOKEH_CHROME`` to use Playwright-managed Chromium. The native run reads
@@ -640,7 +640,7 @@ First, build the library and test bundles. Inside a Pixi shell, from the
 
 .. code-block:: sh
 
-    node make build:all
+    node make build
 
 Starting the devtools server does not build the tests. After changing tests,
 run ``node make test:build`` to rebuild their bundles. Missing bundles cause
