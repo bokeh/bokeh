@@ -29,12 +29,16 @@ import type {XY, LRTB, Corners} from "core/util/bbox"
 
 const {ceil} = Math
 
-type Entry = {
+type LegendEntry = {
+  item: LegendItem
+  label: string
+  value: unknown
+}
+
+type RenderedLegendEntry = LegendEntry & {
   el: HTMLElement
   glyph: CanvasLayer
   label_el: HTMLElement
-  item: LegendItem
-  label: unknown
   i: number
   row: number
   col: number
@@ -110,7 +114,7 @@ export class LegendView extends AnnotationView {
   protected readonly grid_el: HTMLElement = div({class: legend_css.grid})
   protected title_el: HTMLElement = div()
 
-  protected entries: Entry[] = []
+  protected entries: RenderedLegendEntry[] = []
 
   get padding(): LRTB<number> {
     const padding = this.model.border_line_color != null ? this.model.padding : 0
@@ -133,25 +137,25 @@ export class LegendView extends AnnotationView {
     const x1 = glyph_width
     const y1 = glyph_height
 
-    for (const {glyph, item, label} of this.entries) {
+    for (const {glyph, item, value} of this.entries) {
       const field = item.get_field_from_label_prop()
       glyph.resize(glyph_width, glyph_height)
 
       const ctx = glyph.prepare()
       for (const renderer of item.renderers) {
         const view = this.plot_view.views.find_one(renderer)
-        view?.draw_legend(ctx, x0, x1, y0, y1, field, label, item.index)
+        view?.draw_legend(ctx, x0, x1, y0, y1, field, value, item.index)
       }
       glyph.finish()
     }
   }
 
-  get labels(): {item: LegendItem, label: unknown}[] {
-    const collected = []
+  get labels(): LegendEntry[] {
+    const collected: LegendEntry[] = []
     for (const item of this.model.items) {
       const labels = item.get_labels_list_from_label_prop()
-      for (const label of labels) {
-        collected.push({item, label})
+      for (const value of labels) {
+        collected.push({item, label: `${value}`, value})
       }
     }
     return collected
@@ -162,15 +166,15 @@ export class LegendView extends AnnotationView {
     if (entries.length != labels.length) {
       return true
     }
-    for (const [entry, {item, label}] of zip(entries, labels)) {
-      if (entry.item != item || !is_equal(entry.label, label)) {
+    for (const [entry, {item, label, value}] of zip(entries, labels)) {
+      if (entry.item != item || entry.label != label || !is_equal(entry.value, value)) {
         return true
       }
     }
     return false
   }
 
-  protected _toggle_inactive({el, item}: Entry): void {
+  protected _toggle_inactive({el, item}: RenderedLegendEntry): void {
     el.classList.toggle(legend_css.inactive, !this.is_active(item))
   }
 
@@ -180,31 +184,27 @@ export class LegendView extends AnnotationView {
     const {click_policy} = this
     let i = 0
 
-    for (const item of this.model.items) {
-      const labels = item.get_labels_list_from_label_prop()
+    for (const {item, label, value} of this.labels) {
+      const glyph = this.plot_view.canvas.create_layer()
+      glyph.resize(this.model.glyph_width, this.model.glyph_height)
+      glyph.el.classList.add(legend_css.glyph)
 
-      for (const label of labels) {
-        const glyph = this.plot_view.canvas.create_layer()
-        glyph.resize(this.model.glyph_width, this.model.glyph_height)
-        glyph.el.classList.add(legend_css.glyph)
+      const glyph_el = glyph.canvas
+      const label_el = div({class: legend_css.label}, label)
+      const overlay_el = div({class: legend_css.overlay})
+      const item_el = div({class: legend_css.item}, glyph_el, label_el, overlay_el)
+      item_el.classList.toggle(legend_css.hidden, !item.visible)
 
-        const glyph_el = glyph.canvas
-        const label_el = div({class: legend_css.label}, `${label}`)
-        const overlay_el = div({class: legend_css.overlay})
-        const item_el = div({class: legend_css.item}, glyph_el, label_el, overlay_el)
-        item_el.classList.toggle(legend_css.hidden, !item.visible)
+      const entry: RenderedLegendEntry = {el: item_el, glyph, label_el, item, label, value, i: i++, row: 0, col: 0}
+      this.entries.push(entry)
 
-        const entry: Entry = {el: item_el, glyph, label_el, item, label, i: i++, row: 0, col: 0}
-        this.entries.push(entry)
-
-        item_el.addEventListener("pointerdown", () => {
-          this.model.trigger_event(new LegendItemClick(this.model, item))
-          for (const renderer of item.renderers) {
-            click_policy(renderer)
-          }
-          this._toggle_inactive(entry)
-        })
-      }
+      item_el.addEventListener("pointerdown", () => {
+        this.model.trigger_event(new LegendItemClick(this.model, item))
+        for (const renderer of item.renderers) {
+          click_policy(renderer)
+        }
+        this._toggle_inactive(entry)
+      })
     }
 
     const vertical = this.model.orientation == "vertical"

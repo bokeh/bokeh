@@ -670,13 +670,13 @@ export class GlyphRendererView extends DataRendererView {
     return null
   }
 
-  draw_legend(ctx: Context2d, x0: number, x1: number, y0: number, y1: number, field: string | null, label: unknown, index: number | null): void {
+  draw_legend(ctx: Context2d, x0: number, x1: number, y0: number, y1: number, field: string | null, value: unknown, index: number | null): void {
     if (this.glyph.data_size == 0) {
       return
     }
     const subset_index = (() => {
       if (index == null) {
-        return this.get_reference_point(field, label)
+        return this.get_reference_point(field, value)
       } else {
         return this.model.view.get_subset_index(index)
       }
