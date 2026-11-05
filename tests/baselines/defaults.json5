@@ -3577,26 +3577,11 @@
     },
     fill_color: "gray",
     fill_alpha: 1.0,
-    hatch_color: {
-      type: "value",
-      value: "black",
-    },
-    hatch_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    hatch_scale: {
-      type: "value",
-      value: 12.0,
-    },
-    hatch_pattern: {
-      type: "value",
-      value: null,
-    },
-    hatch_weight: {
-      type: "value",
-      value: 1.0,
-    },
+    hatch_color: "black",
+    hatch_alpha: 1.0,
+    hatch_scale: 12.0,
+    hatch_pattern: null,
+    hatch_weight: 1.0,
     hatch_extra: {
       type: "map",
     },
@@ -3622,26 +3607,11 @@
     step_mode: "before",
     fill_color: "gray",
     fill_alpha: 1.0,
-    hatch_color: {
-      type: "value",
-      value: "black",
-    },
-    hatch_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    hatch_scale: {
-      type: "value",
-      value: 12.0,
-    },
-    hatch_pattern: {
-      type: "value",
-      value: null,
-    },
-    hatch_weight: {
-      type: "value",
-      value: 1.0,
-    },
+    hatch_color: "black",
+    hatch_alpha: 1.0,
+    hatch_scale: 12.0,
+    hatch_pattern: null,
+    hatch_weight: 1.0,
     hatch_extra: {
       type: "map",
     },
@@ -4975,26 +4945,11 @@
     },
     fill_color: "gray",
     fill_alpha: 1.0,
-    hatch_color: {
-      type: "value",
-      value: "black",
-    },
-    hatch_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    hatch_scale: {
-      type: "value",
-      value: 12.0,
-    },
-    hatch_pattern: {
-      type: "value",
-      value: null,
-    },
-    hatch_weight: {
-      type: "value",
-      value: 1.0,
-    },
+    hatch_color: "black",
+    hatch_alpha: 1.0,
+    hatch_scale: 12.0,
+    hatch_pattern: null,
+    hatch_weight: 1.0,
     hatch_extra: {
       type: "map",
     },
@@ -5020,26 +4975,11 @@
     step_mode: "before",
     fill_color: "gray",
     fill_alpha: 1.0,
-    hatch_color: {
-      type: "value",
-      value: "black",
-    },
-    hatch_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    hatch_scale: {
-      type: "value",
-      value: 12.0,
-    },
-    hatch_pattern: {
-      type: "value",
-      value: null,
-    },
-    hatch_weight: {
-      type: "value",
-      value: 1.0,
-    },
+    hatch_color: "black",
+    hatch_alpha: 1.0,
+    hatch_scale: 12.0,
+    hatch_pattern: null,
+    hatch_weight: 1.0,
     hatch_extra: {
       type: "map",
     },

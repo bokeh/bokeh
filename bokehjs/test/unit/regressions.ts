@@ -29,6 +29,7 @@ import {
   EqHistColorMapper,
   FactorRange,
   GlyphRenderer,
+  HArea,
   HoverTool,
   Image,
   IndexFilter,
@@ -2678,6 +2679,21 @@ ${view.host_selector} {
           kind: "RootAdded",
           model: {type: "object", name: "Line", id: glyph.id, attributes: {line_color: "#CC79A7"}},
         }],
+      })
+    })
+
+    it("sends plain hatch patterns of area glyphs unwrapped in document patches", () => {
+      const glyph = HArea.create()
+      const {doc, events} = setup(glyph)
+
+      glyph.hatch_pattern = "horizontal"
+      glyph.hatch_pattern = "custom_pattern"
+
+      expect(doc.create_json_patch(events)).to.be.equal({
+        events: [
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "hatch_pattern", new: "horizontal"},
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "hatch_pattern", new: "custom_pattern"},
+        ],
       })
     })
 
