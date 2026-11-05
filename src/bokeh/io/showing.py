@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -29,7 +28,6 @@ from typing import (
     cast,
 )
 
-# Bokeh imports
 from ..models.dom import DOMNode
 from ..models.ui import UIElement
 from ..util.browser import get_browser_controller

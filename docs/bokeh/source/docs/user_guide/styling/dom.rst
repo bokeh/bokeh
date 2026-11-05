@@ -52,6 +52,6 @@ For example:
 
     from bokeh.models import InlineStyleSheet, Slider
 
-    stylesheet = InlineStyleSheet(css=".bk-slider-title { background-color: lightgray; }")
+    stylesheet = InlineStyleSheet(css=".bk-title { background-color: lightgray; }")
 
     slider = Slider(value=10, start=0, end=100, step=0.5, stylesheets=[stylesheet])

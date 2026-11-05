@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import asyncio
 import os
 import stat
@@ -28,12 +27,10 @@ from collections.abc import Callable, Iterator
 from datetime import UTC, datetime
 from typing import Any, TypeVar
 
-# External imports
 from tornado import httputil, iostream, version_info as tornado_version_info
 from tornado.ioloop import IOLoop
 from tornado.web import HTTPError, StaticFileHandler as TornadoStaticFileHandler
 
-# Bokeh imports
 from bokeh.settings import settings
 
 #-----------------------------------------------------------------------------

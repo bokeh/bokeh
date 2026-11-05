@@ -1,7 +1,15 @@
 import networkx as nx
 
-from bokeh.models import (BoxSelectTool, EdgesAndLinkedNodes, HoverTool,
-                          MultiLine, Plot, Range1d, Scatter, TapTool)
+from bokeh.models import (
+    BoxSelectTool,
+    EdgesAndLinkedNodes,
+    HoverTool,
+    MultiLine,
+    Plot,
+    Range1d,
+    Scatter,
+    TapTool,
+)
 from bokeh.palettes import Spectral4
 from bokeh.plotting import from_networkx, show
 

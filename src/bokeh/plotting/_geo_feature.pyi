@@ -5,15 +5,12 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any, Unpack
 
-# External imports
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import numpy as np
 
-# Bokeh imports
 from ..models import Plot
 from .glyph_api import LineArgs, MultiLineArgs, MultiPolygonsArgs
 

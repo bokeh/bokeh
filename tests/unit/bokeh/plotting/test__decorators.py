@@ -8,19 +8,16 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 from inspect import Parameter, signature
 from unittest import mock
 
-# Bokeh imports
+import pytest
+
 from bokeh.models import CDSView, Marker
 from bokeh.plotting import figure
 from bokeh.plotting._docstring import generate_docstring

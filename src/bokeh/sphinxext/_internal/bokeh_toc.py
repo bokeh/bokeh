@@ -19,11 +19,9 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 from copy import copy
 from typing import Any
 
-# External imports
 from docutils import nodes
 from sphinx import addnodes
 from sphinx.environment import BuildEnvironment

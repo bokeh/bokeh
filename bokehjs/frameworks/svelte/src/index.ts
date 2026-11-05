@@ -1,6 +1,6 @@
 import type {BokehMount, MountOptions} from "@bokeh/bokehjs"
-import {DocumentMountController, MountController} from "@bokeh/framework"
-import type {BokehModel, BokehRootModel} from "@bokeh/framework"
+import {DocumentMountController, MountController, SessionMountController} from "@bokeh/framework"
+import type {BokehModel, BokehRootModel, BokehRootReference, BokehSessionSource, SessionMountRequest} from "@bokeh/framework"
 
 /** Source, mount options, and callbacks for the `bokeh` action. */
 export type BokehActionOptions = {
@@ -59,13 +59,19 @@ export type BokehDocumentActionOptions = {
   onError?(error: unknown): void
 }
 
-/** One root supplied by the nearest `bokehDocument` action. */
+/** Source and callbacks for a `bokehSession` provider. */
+export type BokehSessionActionOptions = Omit<SessionMountRequest, "onDisposed"> & {
+  source: BokehSessionSource | null
+}
+
+/** One root supplied by the nearest document or session provider. */
 export type BokehRootActionOptions = {
-  model: BokehRootModel
+  /** A root model, or a unique model name when using a session provider. */
+  model: BokehRootReference
 }
 
 type DocumentRequest = {
-  controller: DocumentMountController | null
+  controller: DocumentMountController | SessionMountController | null
 }
 
 const request_event = "bokeh-document-request"
@@ -111,7 +117,52 @@ export function bokehDocument(node: HTMLElement, initial: BokehDocumentActionOpt
   }
 }
 
-/** Svelte action rendering one root through the nearest ancestor bokehDocument action. */
+/** Svelte action providing a borrowed or acquired live session to descendant root actions. */
+export function bokehSession(node: HTMLElement, initial: BokehSessionActionOptions): {
+  update(value: BokehSessionActionOptions): void
+  destroy(): void
+} {
+  const controller = new SessionMountController()
+  let current = initial
+
+  const on_request = (event: Event) => {
+    const request = event as CustomEvent<DocumentRequest>
+    request.stopPropagation()
+    request.detail.controller = controller
+  }
+  node.addEventListener(request_event, on_request)
+
+  function update(value: BokehSessionActionOptions): void {
+    current = value
+    controller.update(value.source, {
+      mountOptions: value.mountOptions,
+      onSession: (session) => {
+        current.onSession?.(session)
+        node.dispatchEvent(new CustomEvent("bokeh-session", {detail: session}))
+      },
+      onMounted: (mounted) => {
+        current.onMounted?.(mounted)
+        node.dispatchEvent(new CustomEvent("bokeh-mount", {detail: mounted}))
+      },
+      onDisposed: (mounted) => node.dispatchEvent(new CustomEvent("bokeh-unmount", {detail: mounted})),
+      onError: (error) => {
+        current.onError?.(error)
+        node.dispatchEvent(new CustomEvent("bokeh-mount-error", {detail: error}))
+      },
+    })
+  }
+
+  update(current)
+  return {
+    update,
+    destroy: () => {
+      node.removeEventListener(request_event, on_request)
+      controller.dispose()
+    },
+  }
+}
+
+/** Svelte action rendering one root through the nearest document or session provider. */
 export function bokehRoot(node: HTMLElement, initial: BokehRootActionOptions): {
   update(value: BokehRootActionOptions): void
   destroy(): void
@@ -135,7 +186,7 @@ export function bokehRoot(node: HTMLElement, initial: BokehRootActionOptions): {
         detail,
       }))
       if (detail.controller == null) {
-        throw new Error("bokehRoot must be nested inside an element using the bokehDocument action")
+        throw new Error("bokehRoot must be nested inside an element using bokehDocument or bokehSession")
       }
       detach = detail.controller.attach(current.model, node)
     })

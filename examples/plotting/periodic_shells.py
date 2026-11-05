@@ -15,8 +15,16 @@ import numpy as np
 
 from bokeh.io import show
 from bokeh.models import RendererGroup
-from bokeh.models.dom import (ColorRef, Div, Index, Span, Styles,
-                              Template, ToggleGroup, ValueRef)
+from bokeh.models.dom import (
+    ColorRef,
+    Div,
+    Index,
+    Span,
+    Styles,
+    Template,
+    ToggleGroup,
+    ValueRef,
+)
 from bokeh.plotting import figure
 from bokeh.sampledata.periodic_table import elements
 from bokeh.transform import dodge, factor_cmap

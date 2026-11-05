@@ -25,7 +25,6 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 import json
 import os
 from dataclasses import dataclass, field, replace
@@ -44,7 +43,6 @@ from typing import (
 )
 from urllib.parse import urlparse
 
-# Bokeh imports
 from . import __version__
 from .settings import settings
 from .util.paths import ROOT_DIR

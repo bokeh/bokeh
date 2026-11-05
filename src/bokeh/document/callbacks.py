@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Encapulate the management of Document callbacks with a
+''' Encapsulate the management of Document callbacks with a
 DocumentCallbackManager class.
 
 '''
@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import weakref
 from collections import defaultdict
 from functools import wraps
@@ -32,7 +31,6 @@ from typing import (
     Callable,
 )
 
-# Bokeh imports
 from ..core.enums import HoldPolicy
 from ..events import (
     _CONCRETE_EVENT_CLASSES,
@@ -484,7 +482,7 @@ def _combine_document_events(new_event: DocumentChangedEvent, old_events: list[D
         new_event (DocumentChangedEvent) :
             The new event to attempt to combine
 
-        old_events (list[DocumentChangedEvent])
+        old_events (list[DocumentChangedEvent]):
             A list of previous events to attempt to combine new_event with
 
             **This is an "out" parameter**. The values it contains will be

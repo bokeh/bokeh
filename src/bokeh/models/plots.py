@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from contextlib import contextmanager
 from typing import (
     TYPE_CHECKING,
@@ -32,7 +31,6 @@ from typing import (
     overload,
 )
 
-# Bokeh imports
 from ..core.enums import (
     Location,
     OutputBackend,
@@ -360,6 +358,8 @@ class Plot(LayoutDOM):
         and then add it to the plot's list of renderers.
 
         Args:
+            source_or_glyph (Glyph | ColumnarDataSource): a data source for the
+                glyphs or a glyph to add to the Plot
             source (DataSource) : a data source for the glyphs to all use
             glyph (Glyph) : the glyph to add to the Plot
 
@@ -451,7 +451,7 @@ class Plot(LayoutDOM):
         return tile_renderer
 
     @contextmanager
-    def hold(self, *, render: bool) -> Generator[None, None, None]:
+    def hold(self, *, render: bool) -> Generator[None]:
         ''' Takes care of turning a property on and off within a scope.
 
         Args:

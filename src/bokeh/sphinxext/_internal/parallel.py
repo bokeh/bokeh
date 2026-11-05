@@ -7,12 +7,10 @@
 """Resolve and index HTML pages in write workers when supported."""
 from __future__ import annotations
 
-# Standard library imports
 from copy import copy
 from types import MethodType
 from typing import Any
 
-# External imports
 from sphinx.builders import _write_docname
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.errors import ExtensionError

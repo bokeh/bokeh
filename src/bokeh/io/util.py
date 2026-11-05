@@ -13,7 +13,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Standard library imports
 import logging
 
 log = logging.getLogger(__name__)
@@ -22,7 +21,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 import sys
 from contextlib import contextmanager
@@ -36,7 +34,6 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Iterable, Iterator
 
-# Bokeh imports
 from .. import __version__
 from ..embed._util import ThemePolicy, embed
 from ..resources import CDN, INLINE, Resources

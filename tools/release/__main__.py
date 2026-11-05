@@ -6,11 +6,9 @@
 # -----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Standard library imports
 import logging
 import sys
 
-# Bokeh imports
 from . import stages
 from .config import Config
 from .pipeline import Pipeline

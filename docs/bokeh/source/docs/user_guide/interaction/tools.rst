@@ -124,8 +124,18 @@ Remove tools by passing a tool object to the ``remove_tools()`` method of a plot
 
 .. _ug_interaction_tools_customize_tools_icon:
 
-Customizing tools icon
-----------------------
+Customizing tools label, tooltip and icon
+-----------------------------------------
+
+You can change the name of a :ref:`bokeh.models.tools` by passing it to the
+``label`` keyword. The label is displayed in the user interface, e.g. in a
+plot's context menu, in place of the tool's default name (e.g. "Pan" for
+``PanTool``).
+
+.. code-block:: python
+
+    plot.add_tools(PanTool(label="Drag"), CustomAction(label="My action"))
+
 You can change the :ref:`bokeh.models.tools` tooltip by passing it to
 the ``description`` keyword using the ``add_tools()`` method of a plot or any
 of it's instances like |figure|.
@@ -133,6 +143,10 @@ of it's instances like |figure|.
 .. code-block:: python
 
     plot.add_tools(BoxSelectTool(description="My tool"))
+
+If ``description`` is not set, then the tooltip is generated from the tool's
+label, or from its default name if no label is set. For example, the tooltip
+of ``PanTool(label="Drag", dimensions="width")`` is "Drag (x-axis)".
 
 It's also possible to change a tool icon using the ``icon`` keyword.
 
@@ -610,6 +624,17 @@ Field names that begin with ``@`` are associated with columns in a
 values from the ``"price"`` column whenever a hover is triggered. If the hover
 is for the 17th glyph instance, then the hover tooltip will display the 17th price value.
 
+For a multidimensional NumPy array column, the value is the complete row along
+the first axis. For example, hovering over the second point with a column
+``np.array([[0, 1, 2], [0, 2, 3]])`` displays ``0,2,3`` with the default formatter.
+Column values in DOM templates and ``OpenURL`` placeholders follow the same rule.
+
+Large arrays in tooltips show a preview of up to 10 entries or 200 characters,
+with ellipses marking omitted values and a label giving the outer array length.
+Nested arrays retain their brackets. Filters and custom formatters still receive
+the complete value. Explicit formats, including ``{safe}``, retain their normal
+output.
+
 Note that if a column name contains spaces, it must be surrounded by
 curly braces. For example, configuring ``@{adjusted close}`` will display values
 from a column named ``"adjusted close"``.
@@ -787,7 +812,8 @@ function is as follows:
 where:
 
 * ``value`` contains the value of the currently processed data point
-* ``row`` contains values for all fields for the current index
+* ``row`` contains values for all fields at the current index, including complete
+  rows from multidimensional columns
 * ``index`` is the current linear index, image index or ``null``
 * ``field`` is the currently processed field name
 * ``data_source`` is the currently processed data source

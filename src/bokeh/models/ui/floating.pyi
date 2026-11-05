@@ -5,10 +5,8 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Unpack
 
-# Bokeh imports
 from ...core.enums import LocationType as Location
 from ...core.property_aliases import CSSLength
 from .panes import Pane, _PaneInit

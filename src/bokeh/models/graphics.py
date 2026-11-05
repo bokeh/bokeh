@@ -18,7 +18,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from ..core.has_props import abstract
 from ..core.property.container import List
 from ..core.property.dataspec import DataSpec, NumberSpec

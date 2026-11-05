@@ -420,17 +420,14 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import argparse
 import os
 from fnmatch import fnmatch
 from glob import glob
 from typing import TYPE_CHECKING, Any
 
-# External imports
 from tornado.autoreload import watch
 
-# Bokeh imports
 from bokeh.application import Application
 from bokeh.resources import DEFAULT_SERVER_PORT
 from bokeh.server.auth_provider import AuthModule, NullAuth
@@ -442,7 +439,6 @@ from bokeh.settings import settings
 from bokeh.util.logconfig import basicConfig
 from bokeh.util.strings import format_docstring, nice_join
 
-# Bokeh imports
 from ..subcommand import Argument, Subcommand
 from ..util import build_single_handler_applications, die, report_server_init_errors
 

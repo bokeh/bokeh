@@ -211,6 +211,7 @@ export class Parser {
     try {
       const nodes = this.gobbleExpressions(undefined)
       // If there's only one expression just try returning the expression
+      // oxlint-disable-next-line typescript/no-unnecessary-type-assertion -- tsgolint false positive, removing it fails type checking
       const node = nodes.length == 1 ? nodes[0] : {type: COMPOUND, body: nodes} as CompoundExpression
       return node
     } catch (error) {

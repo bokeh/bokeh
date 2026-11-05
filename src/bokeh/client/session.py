@@ -33,7 +33,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -42,7 +41,6 @@ from typing import (
 )
 from urllib.parse import quote_plus
 
-# Bokeh imports
 from ..document import Document
 from ..resources import DEFAULT_SERVER_HTTP_URL, SessionCoordinates
 from ..util.browser import NEW_PARAM
@@ -235,6 +233,7 @@ def show_session(
                 showing the current output file.  If **new** is 'tab', then
                 opens a new tab. If **new** is 'window', then opens a new window.
 
+            controller (BrowserLike, optional): controller object of a browser.
         '''
         if session is not None:
             server_url = server_url_for_websocket_url(session._connection.url)

@@ -10,8 +10,19 @@ import numpy as np
 
 from bokeh.core.properties import value
 from bokeh.io import curdoc, show
-from bokeh.models import (BasicTicker, BasicTickFormatter, ColumnDataSource, Ellipse,
-                          HBar, Line, LinearAxis, Plot, Scatter, Text, Title)
+from bokeh.models import (
+    BasicTicker,
+    BasicTickFormatter,
+    ColumnDataSource,
+    Ellipse,
+    HBar,
+    Line,
+    LinearAxis,
+    Plot,
+    Scatter,
+    Text,
+    Title,
+)
 from bokeh.themes import Theme
 from bokeh.transform import dodge
 

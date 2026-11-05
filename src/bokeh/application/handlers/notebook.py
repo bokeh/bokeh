@@ -28,11 +28,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import re
 from typing import TYPE_CHECKING, Sequence
 
-# Bokeh imports
 from ...util.dependencies import import_required
 from .code import CodeHandler
 

@@ -7,15 +7,15 @@ name = "bokeh"
 dynamic = ["version"]
 description = "Interactive plots and applications in the browser from Python"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 dependencies = [
     "jinja2 >=2.9",
     "narwhals>=1.13",
-    "numpy >=1.16",
+    "numpy >=2.1",
     "packaging >=16.8",
     "pillow >=7.1.0",
     "pyyaml >=3.10",
-    "tornado >=6.2; sys_platform != 'emscripten'",
+    "tornado >=6.4.2; sys_platform != 'emscripten'",
     "xyzservices >=2021.09.1",
 ]
 authors = [
@@ -40,7 +40,6 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: 3.15",
@@ -56,7 +55,7 @@ classifiers = [
 
 [project.optional-dependencies]
 sampledata = [
-    "bokeh_sampledata >=2025.0",
+    "bokeh_sampledata >=2026.1",
 ]
 extra = [
     "contourpy >=1.2",
@@ -146,7 +145,7 @@ patch = ["subprocess"]
 sigterm = true
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.13"
 mypy_path = "src/typings/"
 files = ["src/typings", "src/bokeh", "tools", "tests"]
 
@@ -166,7 +165,7 @@ warn_unreachable = true
 [tool.pyright]
 include = ["src/bokeh", "tools"]
 extraPaths = ["src", "src/typings"]
-pythonVersion = "3.12"
+pythonVersion = "3.13"
 typeCheckingMode = "standard"
 
 [tool.coverage.report]
@@ -181,8 +180,8 @@ lint.exclude = [
     ".git",
     'node_modules',
 ]
-lint.per-file-ignores = {"__init__.py" = ["F403"]}
-lint.select = ["B", "COM", "E", "F", "NPY", "PLC0414", "PT012", "RUF", "TID", "UP", "W"]
+lint.per-file-ignores = {"__init__.py" = ["F403"], "*.ipynb" = ["I"], "src/bokeh/sampledata/**" = ["I"]}
+lint.select = ["B", "COM", "E", "F", "I", "NPY", "PLC0414", "PT012", "RUF", "TID", "UP", "W"]
 lint.ignore = [
     'B005', # Using .strip() with multi-character strings is misleading the reader
     'B006', # Do not use mutable data structures for argument defaults
@@ -210,7 +209,43 @@ lint.ignore = [
     'RUF022', # Ruff uses weird "isort-style" sort rather than straigh alphabetic sort
     'TID252', # Prefer absolute imports over relative imports from parent modules
 ]
-line-length = 165
+# Used by import sorting (I001); E501 uses lint.pycodestyle.max-line-length instead.
+line-length = 88
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 165
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+known-first-party = ["bokeh"]
+known-third-party = [
+    "boto",
+    "ipyleaflet",
+    "ipyvolume",
+    "ipywidgets",
+    "ipywidgets_bokeh",
+    "jupyter_bokeh",
+    "mock",
+    "panel",
+    "selenium",
+    "sphinx",
+]
+known-local-folder = [
+    # tests
+    "_util_document",
+    "_util_models",
+    "_util_property",
+    "_util_subcommands",
+    "server",
+    # examples
+    "fontawesome_icon",
+    "gear",
+    "latex_label",
+    "named_icon",
+    "parallel_reset",
+    "parallel_selection_tool",
+    "streamlit_particles",
+]
 
 [tool.ruff.per-file-target-version]
 "examples/interaction/widgets/slider_template_string.py" = "py314"

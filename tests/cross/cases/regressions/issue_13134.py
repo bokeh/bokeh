@@ -1,9 +1,7 @@
 # https://github.com/bokeh/bokeh/issues/13134
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from bokeh.models import (
     CDSView,
     ColumnDataSource,

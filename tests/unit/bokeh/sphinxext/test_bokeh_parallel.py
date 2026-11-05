@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-# Standard library imports
 import json
 from pathlib import Path
 from typing import Any
 
-# External imports
 import pytest
 from sphinx.errors import SphinxError
 from sphinx.testing.util import SphinxTestApp, _clean_up_global_state

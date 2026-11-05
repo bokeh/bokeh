@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-# Standard library imports
 import gc
 import json
 import weakref
@@ -8,12 +7,10 @@ from collections.abc import Iterator
 from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
-# External imports
 import pytest
 
 pytest.importorskip("anywidget", minversion="0.11")
 
-# Bokeh imports
 from bokeh.document import Document
 from bokeh.embed import embed_server
 from bokeh.io.jupyter import ExecutableResourceRecord

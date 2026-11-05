@@ -1,4 +1,3 @@
-# Bokeh imports
 from tools.backport.models import Candidate, IssueRef, PlanState
 
 

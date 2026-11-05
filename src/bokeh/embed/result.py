@@ -8,7 +8,6 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import json
 import math
 from copy import deepcopy
@@ -16,7 +15,6 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Mapping
 from urllib.parse import urlsplit
 
-# Bokeh imports
 from .. import __version__
 from ._util import escape_json_surrogates
 from .resources import ResourceRequirements

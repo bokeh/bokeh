@@ -1,14 +1,11 @@
 # https://github.com/bokeh/bokeh/issues/12187
 
-# Standard library imports
 from datetime import date
 from random import randint
 
-# External imports
 import numpy as np
 import pandas as pd
 
-# Bokeh imports
 from bokeh.models import (
     ColumnDataSource,
     DataTable,

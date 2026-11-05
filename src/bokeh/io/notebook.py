@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import json
 import os
 import sys
@@ -37,7 +36,6 @@ from typing import (
     Self,
 )
 
-# Bokeh imports
 from ..core.json_encoder import serialize_json
 from ..util.serialization import make_id
 from .jupyter import NOTEBOOK_COMM_TARGET, RESOURCE_COMM_TARGET, ResourceRecord

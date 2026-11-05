@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-# Standard library imports
 import json
 import os
 import shutil
@@ -12,13 +11,11 @@ from typing import Any
 from urllib.parse import urlsplit
 from urllib.request import urlopen
 
-# External imports
 import nbformat
 import pytest
 from nbclient import NotebookClient
 from traitlets.config import Config
 
-# Bokeh imports
 import bokeh
 from bokeh.embed import embed
 from bokeh.io.jupyter import (

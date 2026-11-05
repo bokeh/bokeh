@@ -334,6 +334,101 @@ describe("in api/plotting module", () => {
       target.remove()
     })
 
+    it("tracks roots added while initial views are building", async () => {
+      let initialization_started!: () => void
+      let continue_initialization!: () => void
+      const started = new Promise<void>((resolve) => initialization_started = resolve)
+      const gate = new Promise<void>((resolve) => continue_initialization = resolve)
+
+      class DelayedPlotView extends PlotView {
+        override async lazy_initialize(): Promise<void> {
+          await super.lazy_initialize()
+          initialization_started()
+          await gate
+        }
+      }
+
+      class DelayedPlot extends Plot {
+        static {
+          this.prototype.default_view = DelayedPlotView
+        }
+      }
+
+      const target = document.createElement("div")
+      document.body.append(target)
+      const first = DelayedPlot.create()
+      const doc = new Document({roots: [first]})
+      const mounted = mount(doc, target)
+      const before_rendering = Plot.create()
+      doc.add_root(before_rendering)
+      await started
+
+      const added = Plot.create()
+      doc.add_root(added)
+      expect(mounted.state).to.be.equal("pending")
+      expect(mounted.root(added.id)).to.be.equal(added)
+
+      continue_initialization()
+      await mounted.ready
+      while (mounted.view(added.id) == null) {
+        await defer()
+      }
+      expect(mounted.root_keys).to.be.equal([first.id, before_rendering.id, added.id])
+      expect(mounted.views.length).to.be.equal(3)
+      expect(mounted.view_lookup.find_all(before_rendering).length).to.be.equal(1)
+      expect(mounted.view_lookup.find_all(added).length).to.be.equal(1)
+
+      await mounted.dispose()
+      doc.destroy()
+      target.remove()
+    })
+
+    it("tracks roots removed while initial views are building", async () => {
+      let initialization_started!: () => void
+      let continue_initialization!: () => void
+      const started = new Promise<void>((resolve) => initialization_started = resolve)
+      const gate = new Promise<void>((resolve) => continue_initialization = resolve)
+
+      class DelayedPlotView extends PlotView {
+        override async lazy_initialize(): Promise<void> {
+          await super.lazy_initialize()
+          initialization_started()
+          await gate
+        }
+      }
+
+      class DelayedPlot extends Plot {
+        static {
+          this.prototype.default_view = DelayedPlotView
+        }
+      }
+
+      const target = document.createElement("div")
+      document.body.append(target)
+      const building = DelayedPlot.create()
+      const waiting = Plot.create()
+      const retained = Plot.create()
+      const doc = new Document({roots: [building, waiting, retained]})
+      const mounted = mount(doc, target)
+      await started
+
+      doc.remove_root(building)
+      doc.remove_root(waiting)
+      continue_initialization()
+      await mounted.ready
+
+      expect(mounted.state).to.be.equal("ready")
+      expect(mounted.root_keys).to.be.equal([retained.id])
+      expect(mounted.view_lookup.find_one(building)).to.be.null
+      expect(mounted.view_lookup.find_one(waiting)).to.be.null
+      expect(mounted.view(retained.id)).to.be.instanceof(PlotView)
+      expect(mounted.views.length).to.be.equal(1)
+
+      await mounted.dispose()
+      doc.destroy()
+      target.remove()
+    })
+
     it("can be disposed before readiness without retaining models or views", async () => {
       let initialization_started!: () => void
       let continue_initialization!: () => void

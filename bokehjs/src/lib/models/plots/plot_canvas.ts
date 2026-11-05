@@ -13,7 +13,8 @@ import {ToolProxy} from "../tools/tool_proxy"
 import {ToolMenu} from "../tools/tool_menu"
 import type {Selection} from "../selections/selection"
 import type {DOMBoxSizing} from "../layouts/layout_dom"
-import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
+import type {LayoutDOM} from "../layouts/layout_dom"
+import {LayoutDOMView} from "../layouts/layout_dom"
 import type {Plot} from "./plot"
 import {Annotation, AnnotationView} from "../annotations/annotation"
 import {Title} from "../annotations/title"
@@ -208,6 +209,10 @@ export class PlotView extends LayoutDOMView implements Paintable {
     return []
   }
 
+  override get is_layout_container(): boolean {
+    return false
+  }
+
   private _is_paused: number = 0
   get is_paused(): boolean {
     return this._is_paused != 0
@@ -258,7 +263,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   schedule_paint(): void {
     if (!this.is_paused) {
-      this._await_ready(this.throttled_paint())
+      this.schedule(() => this.throttled_paint())
     }
   }
 
@@ -910,7 +915,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   protected async _build_renderers(): Promise<BuildResult<Renderer>> {
     this.computed_renderers = [...this._compute_renderers()]
-    const result = await build_views(this.renderer_views, this.computed_renderers, {parent: (model) => model instanceof LayoutDOM ? null : this})
+    const result = await build_views(this.renderer_views, this.computed_renderers, {parent: this})
     this._computed_renderer_views = this.computed_renderers.map((r) => this.renderer_views.get(r)).filter((rv) => rv != null) // TODO race condition again
     for (const renderer_view of result.created) {
       this.on_change(renderer_view.model.properties.visible, () => this._update_attribution())

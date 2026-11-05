@@ -20,10 +20,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any, Sequence
 
-# External imports
 import numpy as np
 import numpy.typing as npt
 

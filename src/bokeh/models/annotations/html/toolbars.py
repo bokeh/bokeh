@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from ....core.property.instance import Instance
 from .html_annotation import HTMLAnnotation
 

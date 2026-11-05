@@ -8,7 +8,6 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import base64
 import hashlib
 import json
@@ -24,7 +23,6 @@ from typing import (
     TypedDict,
 )
 
-# Bokeh imports
 from .. import __version__
 from ..embed.resources import ResolvedResource, ResolvedResources
 from ..embed.result import EMBED_MIME_TYPE, EmbedResult

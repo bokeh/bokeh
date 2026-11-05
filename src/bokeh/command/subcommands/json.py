@@ -47,10 +47,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from argparse import Namespace
 
-# Bokeh imports
 from ...core.json_encoder import serialize_json
 from ...document import Document
 from ..subcommand import Argument

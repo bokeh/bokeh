@@ -36,11 +36,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from itertools import permutations
 from typing import TYPE_CHECKING
 
-# Bokeh imports
 from bokeh.core.property.descriptors import UnsetValueError
 from bokeh.layouts import column
 from bokeh.models import (
@@ -160,7 +158,7 @@ class _BokehStructureGraph:
             a
 
         Args:
-            A bokeh model M
+            M: A bokeh model M
 
         """
         import networkx as nx

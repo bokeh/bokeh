@@ -8,18 +8,15 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 from unittest.mock import MagicMock, patch
 
-# Bokeh imports
+import pytest
+
 from bokeh.core.validation import check_integrity, process_validation_issues
 from bokeh.palettes import Spectral6
 
@@ -133,6 +130,55 @@ class Test_LogColorMapper:
             "high_color",
             "nan_color"],
         )
+
+
+class Test_IndexedStackColorMapper:
+    def test_basic(self) -> None:
+        mapper = bmm.IndexedStackColorMapper()
+        check_properties_existence(mapper, [
+            "slice_color_mapper",
+            "index",
+            "scan_together"],
+        )
+
+    def test_defaults(self) -> None:
+        mapper = bmm.IndexedStackColorMapper(slice_color_mapper=bmm.LinearColorMapper(palette=Spectral6))
+        assert mapper.index == 0
+        assert mapper.scan_together is False
+
+    def test_negative_index(self) -> None:
+        with pytest.raises(ValueError):
+            bmm.IndexedStackColorMapper(index=-1)
+
+
+class Test_PaletteMixin:
+    @pytest.mark.parametrize("cls", [
+        bmm.CategoricalColorMapper,
+        bmm.LinearColorMapper,
+        bmm.LogColorMapper,
+        bmm.EqHistColorMapper,
+        bmm.WeightedStackColorMapper,
+    ])
+    def test_palette_classes(self, cls: type[bmm.PaletteMixin]) -> None:
+        assert issubclass(cls, bmm.PaletteMixin)
+        assert issubclass(cls, bmm.ColorMapper)
+        mapper = cls(Spectral6)
+        assert list(mapper.palette) == list(Spectral6)
+        assert mapper.nan_color == "gray"
+
+    def test_palette_by_name(self) -> None:
+        mapper = bmm.LinearColorMapper("Spectral6")
+        assert list(mapper.palette) == list(Spectral6)
+
+    @pytest.mark.parametrize("cls", [
+        bmm.ColorMapper,
+        bmm.StackColorMapper,
+        bmm.IndexedStackColorMapper,
+    ])
+    def test_palette_free_classes(self, cls: type[bmm.ColorMapper]) -> None:
+        assert not issubclass(cls, bmm.PaletteMixin)
+        assert "palette" not in cls.properties()
+        assert "nan_color" not in cls.properties()
 
 
 class Test_WeightedStackColorMapper:

@@ -1,15 +1,12 @@
 """Rich interaction for an active backport plan."""
 
-# Standard library imports
 from typing import Literal
 
-# External imports
 from rich.panel import Panel
 from rich.prompt import Prompt
 from rich.table import Table
 from rich.text import Text
 
-# Bokeh imports
 from . import BackportError
 from .git import GitRepo
 from .models import Candidate, PlanState

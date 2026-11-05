@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from ...core.has_props import HasProps
 from ...core.property.instance import Instance
 from ...core.property.nullable import Nullable

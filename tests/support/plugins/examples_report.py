@@ -8,15 +8,12 @@
 
 from __future__ import annotations
 
-# Standard library imports
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
-# External imports
 import pytest
 
-# Bokeh imports
 from tests.support.util.examples import Example
 
 BASE_DIR = Path(__file__).parents[3]

@@ -38,18 +38,14 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any
 
-# External imports
 from docutils import nodes
 from docutils.parsers.rst import Directive
 from sphinx.errors import SphinxError
 
-# Bokeh imports
 import bokeh.palettes as bp
 
-# Bokeh imports
 from . import PARALLEL_SAFE, SphinxParallelSpec
 from .templates import PALETTE_GROUP_DETAIL
 

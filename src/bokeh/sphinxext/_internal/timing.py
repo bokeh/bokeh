@@ -19,7 +19,6 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 from dataclasses import dataclass, field
 from heapq import nlargest
 from time import perf_counter

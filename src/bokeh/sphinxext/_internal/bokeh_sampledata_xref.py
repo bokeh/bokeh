@@ -28,15 +28,12 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 from os.path import basename
 from typing import Any
 
-# External imports
 from docutils import nodes
 from sphinx.locale import _
 
-# Bokeh imports
 from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
 from .util import get_sphinx_resources

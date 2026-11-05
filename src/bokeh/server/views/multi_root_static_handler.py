@@ -22,15 +22,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-# External imports
 from tornado.web import HTTPError
 
-# Bokeh imports
 from .static_handler import AsyncStaticFileHandler
 
 if TYPE_CHECKING:

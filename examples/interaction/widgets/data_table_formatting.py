@@ -4,8 +4,13 @@ import numpy as np
 import pandas as pd
 
 from bokeh.io import save
-from bokeh.models import (ColumnDataSource, DataTable, DateFormatter,
-                          NumberFormatter, TableColumn)
+from bokeh.models import (
+    ColumnDataSource,
+    DataTable,
+    DateFormatter,
+    NumberFormatter,
+    TableColumn,
+)
 from bokeh.palettes import RdYlGn9
 from bokeh.transform import factor_cmap, linear_cmap
 

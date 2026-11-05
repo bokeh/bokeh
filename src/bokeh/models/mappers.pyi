@@ -5,13 +5,12 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
-from typing import Sequence, Unpack
+from typing import Sequence, TypedDict, Unpack
 
-# Bokeh imports
 from .._types import Color
 from ..core.enums import MarkerTypeType as MarkerType, PaletteType as Palette
+from ..core.has_props import HasProps
 from ..core.property.visual import HatchPatternType as HatchPattern
 from .glyph import Glyph
 from .ranges import FactorSeq
@@ -26,12 +25,19 @@ class Mapper(Transform):
     def __init__(self, **kwargs: Unpack[_MapperInit]) -> None: ...
 
 class _ColorMapperInit(_MapperInit, total=False):
-    palette: Sequence[Color] | Palette
-    nan_color: Color
+    ...
 
 class ColorMapper(Mapper):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_ColorMapperInit]) -> None: ...
+
+class _PaletteMixinInit(TypedDict, total=False):
+    palette: Sequence[Color] | Palette
+    nan_color: Color
+
+class PaletteMixin(HasProps):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_PaletteMixinInit]) -> None: ...
 
     @property
     def palette(self) -> Sequence[Color]: ...
@@ -53,10 +59,10 @@ class CategoricalMapper(Mapper):
     start: int = ...
     end: int | None = ...
 
-class _CategoricalColorMapperInit(_CategoricalMapperInit, _ColorMapperInit, total=False):
+class _CategoricalColorMapperInit(_PaletteMixinInit, _CategoricalMapperInit, _ColorMapperInit, total=False):
     ...
 
-class CategoricalColorMapper(CategoricalMapper, ColorMapper):
+class CategoricalColorMapper(PaletteMixin, CategoricalMapper, ColorMapper):
     def __init__(self, **kwargs: Unpack[_CategoricalColorMapperInit]) -> None: ...
 
 class _CategoricalMarkerMapperInit(_CategoricalMapperInit, total=False):
@@ -79,14 +85,14 @@ class CategoricalPatternMapper(CategoricalMapper):
     patterns: Sequence[HatchPattern] = ...
     default_value: HatchPattern = ...
 
-class _ContinuousColorMapperInit(_ColorMapperInit, total=False):
+class _ContinuousColorMapperInit(_PaletteMixinInit, _ColorMapperInit, total=False):
     domain: list[tuple[GlyphRenderer[Glyph], str | list[str]]]
     low: float | None
     high: float | None
     low_color: Color | None
     high_color: Color | None
 
-class ContinuousColorMapper(ColorMapper):
+class ContinuousColorMapper(PaletteMixin, ColorMapper):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_ContinuousColorMapperInit]) -> None: ...
 
@@ -132,12 +138,24 @@ class StackColorMapper(ColorMapper):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_StackColorMapperInit]) -> None: ...
 
-class _WeightedStackColorMapperInit(_StackColorMapperInit, total=False):
+class _IndexedStackColorMapperInit(_StackColorMapperInit, total=False):
+    slice_color_mapper: ContinuousColorMapper
+    index: int
+    scan_together: bool
+
+class IndexedStackColorMapper(StackColorMapper):
+    def __init__(self, **kwargs: Unpack[_IndexedStackColorMapperInit]) -> None: ...
+
+    slice_color_mapper: ContinuousColorMapper = ...
+    index: int = ...
+    scan_together: bool = ...
+
+class _WeightedStackColorMapperInit(_PaletteMixinInit, _StackColorMapperInit, total=False):
     alpha_mapper: ContinuousColorMapper
     color_baseline: float | None
     stack_labels: Sequence[str] | None
 
-class WeightedStackColorMapper(StackColorMapper):
+class WeightedStackColorMapper(PaletteMixin, StackColorMapper):
     def __init__(self, **kwargs: Unpack[_WeightedStackColorMapperInit]) -> None: ...
 
     alpha_mapper: ContinuousColorMapper = ...

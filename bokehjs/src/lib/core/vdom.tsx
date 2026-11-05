@@ -10,7 +10,7 @@ import type {VNode, HTMLAttributes, ContainerNode} from "preact"
 import {Component, render} from "preact"
 import {createPortal} from "preact/compat"
 
-export type {VNode} from "preact"
+export type {VNode, TargetedEvent} from "preact"
 
 export function is_SignalLike<T>(obj: Signalish<T>): obj is SignalLike<T> {
   return isPlainObject(obj) && "value" in obj

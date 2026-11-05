@@ -12,8 +12,15 @@ from os import getenv
 
 from bokeh.document import Document
 from bokeh.embed import embed
-from bokeh.models import (ColumnDataSource, GMapOptions, GMapPlot,
-                          Label, PanTool, Scatter, WheelZoomTool)
+from bokeh.models import (
+    ColumnDataSource,
+    GMapOptions,
+    GMapPlot,
+    Label,
+    PanTool,
+    Scatter,
+    WheelZoomTool,
+)
 from bokeh.sampledata.world_cities import data
 from bokeh.util.browser import view
 

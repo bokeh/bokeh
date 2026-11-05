@@ -3,8 +3,18 @@ from math import nan
 import numpy as np
 
 from bokeh.io import show
-from bokeh.models import (XY, Button, Column, CustomJS, Panel,
-                          Row, Select, Slider, TapTool, TextInput)
+from bokeh.models import (
+    XY,
+    Button,
+    Column,
+    CustomJS,
+    Panel,
+    Row,
+    Select,
+    Slider,
+    TapTool,
+    TextInput,
+)
 from bokeh.plotting import figure
 
 

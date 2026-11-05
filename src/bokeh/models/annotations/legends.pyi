@@ -5,11 +5,9 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 from typing import Literal, Sequence, Unpack
 
-# Bokeh imports
 from ..._specs import NullStringSpec
 from ..._types import CoordinateLike, TextLike
 from ...core.enums import (

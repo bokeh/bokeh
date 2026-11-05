@@ -130,6 +130,7 @@ export namespace Tool {
 
   export type Props = Model.Props & {
     icon: p.Property<IconLike | null>
+    label: p.Property<string | null>
     description: p.Property<string | null>
     visible: p.Property<boolean>
     active: p.Property<boolean>
@@ -149,6 +150,7 @@ export abstract class Tool extends Model {
 
     this.define<Tool.Props>(({Bool, Or, Str, Nullable}) => ({
       icon: [ Nullable(IconLike), null ],
+      label: [ Nullable(Str), null ],
       description: [ Nullable(Str), null ],
       visible: [ Bool, true ],
       group: [ Or(Str, Bool), true ],
@@ -182,8 +184,8 @@ export abstract class Tool extends Model {
   menu_item(): MenuItem {
     const item = MenuItem.create({
       icon: () => this.computed_icon ?? null,
-      label: this.tool_name,
-      tooltip: () => this.tooltip != this.tool_name ? this.tooltip : null,
+      label: () => this.computed_name,
+      tooltip: () => this.tooltip != this.computed_name ? this.tooltip : null,
       checked: () => this.active,
       disabled: () => this.disabled,
       action: () => this.active = !this.active,
@@ -196,8 +198,16 @@ export abstract class Tool extends Model {
     return item
   }
 
+  /**
+   * The user-facing name of this tool, i.e. `label` if provided,
+   * otherwise the default name of this tool.
+   */
+  get computed_name(): string {
+    return this.label ?? this.tool_name
+  }
+
   get tooltip(): string {
-    return this.description ?? this.tool_name
+    return this.description ?? this.computed_name
   }
 
   get computed_icon(): IconLike | undefined {
@@ -255,15 +265,15 @@ export abstract class Tool extends Model {
   // utility function to return a tool name, modified
   // by the active dimensions. Used by tools that have dimensions
   protected _get_dim_tooltip(dims: Dimensions | "auto"): string {
-    const {description, tool_name} = this
+    const {description, computed_name} = this
     if (description != null) {
       return description
     } else if (dims == "both") {
-      return tool_name
+      return computed_name
     } else if (dims == "auto") {
-      return `${tool_name} (either x, y or both dimensions)`
+      return `${computed_name} (either x, y or both dimensions)`
     } else {
-      return `${tool_name} (${dims == "width" ? "x" : "y"}-axis)`
+      return `${computed_name} (${dims == "width" ? "x" : "y"}-axis)`
     }
   }
 

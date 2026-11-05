@@ -17,10 +17,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any
 
-# Bokeh imports
 from ..transform import stack
 from ..util.datatypes import SequenceLike, is_SequenceLike
 

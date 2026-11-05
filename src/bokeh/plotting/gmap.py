@@ -17,10 +17,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any, cast
 
-# Bokeh imports
 from ..models import (
     GMapOptions,
     GMapPlot,

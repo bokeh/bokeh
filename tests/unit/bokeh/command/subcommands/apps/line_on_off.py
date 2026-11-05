@@ -2,10 +2,8 @@
 
 """
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from bokeh.io import curdoc
 from bokeh.layouts import row
 from bokeh.models import CheckboxGroup

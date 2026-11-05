@@ -10,7 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Standard library imports
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -26,10 +25,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from ..core.enums import (
     AxisType,
     HorizontalLocation,

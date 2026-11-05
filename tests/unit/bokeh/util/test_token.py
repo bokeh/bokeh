@@ -8,15 +8,11 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import calendar
 import codecs
 import datetime as dt
@@ -25,7 +21,8 @@ import random
 import zlib
 from unittest.mock import MagicMock, Mock, patch
 
-# Bokeh imports
+import pytest
+
 from bokeh.util.token import (
     _MAX_TOKEN_DECOMPRESSED_BYTES,
     _TOKEN_ZLIB_KEY,

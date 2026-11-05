@@ -8,7 +8,6 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import logging
 import re
 from collections.abc import Mapping, Sequence
@@ -25,7 +24,6 @@ from typing import (
 )
 from urllib.parse import urlsplit, urlunsplit
 
-# Bokeh imports
 from ..core.templates import FILE
 from ..document import DEFAULT_TITLE, Document
 from ..model import Model, collect_models

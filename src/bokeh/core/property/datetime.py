@@ -20,11 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import datetime
 from typing import Any
 
-# Bokeh imports
 from ...util.serialization import (
     convert_datetime_type,
     is_datetime_type,

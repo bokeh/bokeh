@@ -1,14 +1,58 @@
-# Standard library imports
+import re
+import tempfile
 import unittest
+from html import unescape
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-# Bokeh imports
 from tests.tools.backport._support import candidate, state_with
 from tools.backport import range_diffs
+from tools.backport.git import GitRepo
 
 
 class RangeDiffTests(unittest.TestCase):
+
+    def test_pairs_adaptations_with_moved_implementation_and_tests(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            git = GitRepo(root)
+            git.run("init")
+            git.run("config", "user.name", "Backport Test")
+            git.run("config", "user.email", "backport@example.invalid")
+            paths = [
+                "src/bokeh/embed/resources.py",
+                "tests/unit/bokeh/embed/test_resources__embed.py",
+                "src/bokeh/embed/bundle.py",
+                "tests/unit/bokeh/embed/test_bundle.py",
+            ]
+            for path in paths:
+                file = root / path
+                file.parent.mkdir(parents=True, exist_ok=True)
+                file.write_text("# bundling extensions\n")
+            git.run("add", ".")
+            git.run("commit", "-m", "Base")
+            base = git.rev_parse("HEAD")
+            (root / paths[0]).write_text("# bundling extensions\nif name.startswith('bokeh_app_'):\n    continue\n")
+            (root / paths[1]).write_text("# bundling extensions\nassert bundle.name == extension_name\n")
+            git.run("commit", "-am", "Skip application modules")
+            original = git.rev_parse("HEAD")
+            git.run("checkout", "--detach", base)
+            (root / paths[2]).write_text("# bundling extensions\nif name.startswith('bokeh_app_'):\n    continue\n")
+            (root / paths[3]).write_text("# bundling extensions\nassert extension_name in extension_dirs\n")
+            git.run("commit", "-am", "Skip application modules")
+            backport = git.rev_parse("HEAD")
+
+            html = range_diffs.generate_range_diff(git, root, 15519, original, backport)
+
+        plain = unescape(re.sub(r"<[^>]+>", "", html))
+        self.assertRegex(plain, r"1: .* ! 1:")
+        for path in paths:
+            self.assertIn(path, plain)
+        self.assertIn("-+assert bundle.name == extension_name", plain)
+        self.assertIn("++assert extension_name in extension_dirs", plain)
+        self.assertIn('<span class="diff-removed">', html)
+        self.assertIn('<span class="diff-added">', html)
+
     def test_generate_range_diff_renders_git_output_verbatim(self) -> None:
         git = MagicMock()
         git.run.return_value.stdout = "complete range diff\n"
@@ -31,6 +75,7 @@ class RangeDiffTests(unittest.TestCase):
         self.assertEqual(result, "<html>diff</html>")
         git.run.assert_called_once_with(
             "range-diff",
+            "--creation-factor=100",
             "--dual-color",
             "--color=always",
             f"{'1' * 40}^!",

@@ -1,17 +1,13 @@
 from __future__ import annotations
 
-# Standard library imports
 import json
+import tomllib
 from pathlib import Path
 
-# External imports
 import pytest
-import tomllib
 import yaml
 from packaging.requirements import Requirement
 
-# Bokeh imports
-# Bokeh test imports
 from tests.support.util.project import TOP_PATH
 from tests.tools.release._support import RecordingSystem
 from tools.release import build
@@ -57,7 +53,7 @@ def test_conda_recipe_dependencies_match_project_dependencies() -> None:
         return {requirement.name.lower(): str(requirement.specifier) for requirement in parsed}
 
     actual = constraints(conda_dependencies)
-    assert actual.pop("python") == ">=3.12"
+    assert actual.pop("python") == ">=3.13"
     assert actual == constraints(project_dependencies)
 
 

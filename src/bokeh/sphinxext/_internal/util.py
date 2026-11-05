@@ -18,7 +18,6 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Bokeh imports
 from bokeh.resources import CDN, Resources
 from bokeh.settings import settings
 

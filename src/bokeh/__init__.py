@@ -40,7 +40,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import importlib.metadata as importlib_metadata
 
 #-----------------------------------------------------------------------------

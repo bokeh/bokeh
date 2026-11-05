@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from .data_model import DataModel
 from .model import Model
 from .util import Qualified, collect_models, get_class

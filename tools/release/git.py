@@ -9,10 +9,8 @@
 """
 from __future__ import annotations
 
-# External imports
 from packaging.version import Version
 
-# Bokeh imports
 from .action import FAILED, PASSED, ActionReturn
 from .config import Config
 from .system import System

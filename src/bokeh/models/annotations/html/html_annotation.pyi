@@ -5,11 +5,9 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 from typing import Unpack
 
-# Bokeh imports
 from ..annotation import Annotation, _AnnotationInit
 
 class _HTMLAnnotationInit(_AnnotationInit, total=False):

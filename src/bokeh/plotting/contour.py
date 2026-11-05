@@ -17,7 +17,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
@@ -26,10 +25,8 @@ from typing import (
     cast,
 )
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from ..core.property_mixins import FillProps, HatchProps, LineProps
 from ..models.glyphs import MultiLine, MultiPolygons
 from ..models.renderers import ContourRenderer, GlyphRenderer

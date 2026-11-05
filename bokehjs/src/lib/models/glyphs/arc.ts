@@ -8,12 +8,28 @@ import {to_screen} from "core/types"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
 import type {Context2d} from "core/util/canvas"
+import type {SpatialIndex} from "core/util/spatial"
 
 export interface ArcView extends Arc.Data {}
 
 export class ArcView extends XYGlyphView {
   declare model: Arc
   declare visuals: Arc.Visuals
+
+  protected override _index_data(index: SpatialIndex): void {
+    if (this.model.properties.radius.units == "screen") {
+      super._index_data(index)
+      return
+    }
+
+    const {x, y, radius, data_size} = this
+    for (let i = 0; i < data_size; i++) {
+      const x_i = x[i]
+      const y_i = y[i]
+      const r_i = radius.get(i)
+      index.add_rect(x_i - r_i, y_i - r_i, x_i + r_i, y_i + r_i)
+    }
+  }
 
   protected override _map_data(): void {
     this._define_or_inherit_attr<Arc.Data>("sradius", () => {

@@ -1,0 +1,50 @@
+import type {SliderSpec} from "./abstract_slider"
+import {NumericalSlider, NumericalSliderView} from "./numerical_slider"
+import type {TickFormatter} from "../../formatters/tick_formatter"
+import type * as p from "core/properties"
+import {isString} from "core/util/types"
+import {datetime} from "core/util/templating"
+
+export class DateSliderView extends NumericalSliderView {
+  declare readonly model: DateSlider
+  declare readonly signals: p.SignalsOf<DateSlider.Props>
+  declare readonly values: DateSlider.Attrs
+
+  protected override _calc_spec(): SliderSpec<number> {
+    const spec = super._calc_spec()
+    const {step} = spec
+    if (step != null) {
+      return {...spec, step: step*86_400_000}
+    } else {
+      return spec
+    }
+  }
+
+  protected _formatter(value: number, format: string | TickFormatter): string {
+    if (isString(format)) {
+      return datetime(value, format)
+    } else {
+      return format.compute(value)
+    }
+  }
+}
+
+export namespace DateSlider {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = NumericalSlider.Props
+}
+
+export interface DateSlider extends DateSlider.Attrs {}
+
+export class DateSlider extends NumericalSlider {
+  declare properties: DateSlider.Props
+  declare __view_type__: DateSliderView
+
+  static {
+    this.prototype.default_view = DateSliderView
+
+    this.override<DateSlider.Props>({
+      format: "%d %b %Y",
+    })
+  }
+}

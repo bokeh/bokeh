@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -31,7 +30,6 @@ from typing import (
     cast,
 )
 
-# Bokeh imports
 from ..core.templates import FILE
 from ..document.document import Document
 from ..model import Model

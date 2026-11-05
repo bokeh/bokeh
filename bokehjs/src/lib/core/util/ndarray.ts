@@ -21,6 +21,21 @@ function encode_NDArray(array: NDArray, serializer: Serializer): NDArrayRep {
   }
 }
 
+/** Read one logical item without unpacking an entire shaped column. */
+export function get_array_item(array: Arrayable, index: number): unknown {
+  if (!is_NDArray(array) || array.dimension <= 1) {
+    return array[index]
+  }
+  if (!Number.isInteger(index) || index < 0 || index >= array.shape[0]) {
+    return undefined
+  }
+  const stride = array.shape.slice(1).reduce((size, length) => size*length, 1)
+  let offset = index*stride
+  const unpack = (dimension: number): unknown[] => Array.from({length: array.shape[dimension]}, () =>
+    dimension + 1 == array.dimension ? array[offset++] : unpack(dimension + 1))
+  return unpack(1)
+}
+
 export interface NDArrayType<T, U=T> extends Arrayable<U>, Equatable, Cloneable, Serializable {
   readonly [__ndarray__]: boolean
   readonly dtype: NDDataType
@@ -349,6 +364,17 @@ export type NDArray =
 
 export function is_NDArray(v: unknown): v is NDArray {
   return isObject(v) && __ndarray__ in v
+}
+
+/** Extract a row from a multidimensional ndarray, preserving its inner shape. */
+export function get_row(array: NDArray, index: number): Arrayable {
+  const stride = array.length / array.shape[0]
+  const row = array.slice(index*stride, (index + 1)*stride)
+  if (array.dimension == 2) {
+    return row
+  }
+  const options = {dtype: array.dtype, shape: array.shape.slice(1)}
+  return ndarray(row, options)
 }
 
 export type NDArrayTypes = {

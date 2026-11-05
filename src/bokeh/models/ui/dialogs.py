@@ -18,7 +18,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from ...core.enums import Movable, Resizable
 from ...core.property.either import Either
 from ...core.property.enum import Enum

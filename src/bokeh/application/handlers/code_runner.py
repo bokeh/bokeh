@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 import sys
 import traceback
@@ -35,7 +34,6 @@ from typing import (
     Sequence,
 )
 
-# Bokeh imports
 from ...util.serialization import make_globally_unique_id
 from .handler import handle_exception
 
@@ -66,7 +64,6 @@ class CodeRunner:
     '''
 
     _code: CodeType | None
-    _doc: str | None
     _permanent_error: str | None
     _permanent_error_detail: str | None
     _path: PathLike
@@ -79,7 +76,7 @@ class CodeRunner:
     _error: str | None
     _error_detail: str | None
 
-    def __init__(self, source: str, path: PathLike, argv: Sequence[str], package: ModuleType | None = None) -> None:
+    def __init__(self, source: str, path: PathLike, argv: Sequence[str], package: ModuleType | None = None, *, optimize: int = -1) -> None:
         '''
 
         Args:
@@ -96,6 +93,10 @@ class CodeRunner:
             package (bool) :
                 An optional package module to configure
 
+            optimize (int) :
+                The compilation optimization level. Defaults to the interpreter's
+                level. Use 0 to preserve docstrings and assertions.
+
         Raises:
             ValueError, if package is specified for an __init__.py
 
@@ -107,15 +108,10 @@ class CodeRunner:
         self._permanent_error_detail = None
         self.reset_run_errors()
 
-        import ast
         self._code = None
 
         try:
-            nodes = ast.parse(source, os.fspath(path))
-            self._code = compile(nodes, filename=path, mode='exec', dont_inherit=True)
-            # use a zip to associate code names with values, to then find the contents of the docstring
-            d = dict(zip(self._code.co_names, self._code.co_consts))
-            self._doc = d.get('__doc__', None)
+            self._code = compile(source, filename=path, mode='exec', dont_inherit=True, optimize=optimize)
         except SyntaxError as e:
             self._code = None
             filename = os.path.basename(e.filename) if e.filename is not None else "???"
@@ -129,13 +125,6 @@ class CodeRunner:
         self.ran = False
 
     # Properties --------------------------------------------------------------
-
-    @property
-    def doc(self) -> str | None:
-        ''' Contents of docstring, if code contains one.
-
-        '''
-        return self._doc
 
     @property
     def error(self) -> str | None:
@@ -252,12 +241,12 @@ class CodeRunner:
 _PROCESS_GLOBALS_LOCK = RLock()
 
 @contextmanager
-def _hold_process_globals() -> Generator[None, None, None]:
+def _hold_process_globals() -> Generator[None]:
     with _PROCESS_GLOBALS_LOCK:
         yield
 
 @contextmanager
-def _patch_process_state(path: PathLike, argv: Sequence[str]) -> Generator[None, None, None]:
+def _patch_process_state(path: PathLike, argv: Sequence[str]) -> Generator[None]:
     # Simulate the sys.path behaviour described here:
     #
     # https://docs.python.org/2/library/sys.html#sys.path

@@ -3,10 +3,11 @@ import {View} from "core/view"
 import type {GraphicsBox} from "core/graphics"
 import type * as p from "core/properties"
 import type {RendererView} from "models/renderers/renderer"
+import type {GlyphView} from "models/glyphs/glyph"
 
 export abstract class BaseTextView extends View {
   declare model: BaseText
-  declare readonly parent: RendererView
+  declare readonly parent: RendererView | GlyphView
 
   abstract graphics(): GraphicsBox
 

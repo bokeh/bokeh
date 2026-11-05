@@ -1,9 +1,7 @@
 """Rich terminal rendering and confirmations."""
 
-# Standard library imports
 from collections.abc import Callable
 
-# External imports
 import click
 from rich import box
 from rich.console import Console, Group
@@ -12,7 +10,6 @@ from rich.prompt import Confirm
 from rich.table import Table
 from rich.text import Text
 
-# Bokeh imports
 from .models import Candidate, PlanState, PublishedPlan
 
 console = Console(highlight=False)

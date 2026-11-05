@@ -1,6 +1,5 @@
 # https://github.com/bokeh/bokeh/issues/8766
 
-# Bokeh imports
 from bokeh.layouts import gridplot
 from bokeh.plotting import figure
 

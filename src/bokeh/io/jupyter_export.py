@@ -11,7 +11,6 @@ from __future__ import annotations
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
-# Standard library imports
 import base64
 import copy
 import io
@@ -24,13 +23,11 @@ from contextvars import ContextVar, Token
 from html.parser import HTMLParser
 from typing import Any, TypeGuard, cast
 
-# External imports
 from nbconvert.exporters import HTMLExporter
 from nbconvert.preprocessors import Preprocessor
 from nbformat.sign import NotebookNotary
 from traitlets import Bool, Enum, Integer
 
-# Bokeh imports
 from ..embed.result import EmbedResult, EmbedValidationError
 from ..resources import INLINE
 from .export import ExportBackendType, get_screenshot_as_png_from_html

@@ -29,14 +29,11 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any
 
-# External imports
 from docutils.parsers.rst.directives import unchanged
 from sphinx.errors import SphinxError
 
-# Bokeh imports
 from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
 from .templates import EXAMPLE_METADATA

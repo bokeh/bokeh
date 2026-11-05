@@ -1,9 +1,7 @@
-# Standard library imports
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-# Bokeh imports
 from tests.tools.backport._support import candidate, state_with, valid_pr
 from tools.backport import (
     BackportError,

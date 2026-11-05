@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import base64
 import datetime
 import re
@@ -31,7 +30,6 @@ from pathlib import Path
 from typing import Any, BinaryIO, Literal
 from urllib.parse import quote
 
-# Bokeh imports
 from ...util.serialization import convert_datetime_type
 from .. import enums
 from .auto import Auto

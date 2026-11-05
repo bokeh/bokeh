@@ -28,11 +28,12 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Pixi
-        uses: prefix-dev/setup-pixi@v0.10.0
+        uses: prefix-dev/setup-pixi@ad1da6449d9e506fd127fd67ab2d054a769f6a94 # v0.11.2
         with:
+          pixi-version: v0.83.0
           environments: formatting
           activate-environment: formatting
           locked: true
@@ -50,7 +51,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0 # full history to get proper build version
 
@@ -67,12 +68,12 @@ jobs:
 
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install node.js 22
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 22.x
+          node-version: '>=22.23.4 <23'
           cache: 'npm'
           cache-dependency-path: 'bokehjs/package-lock.json'
 
@@ -82,6 +83,10 @@ jobs:
       - name: Install dependencies
         working-directory: ./bokehjs
         run: npm ci --no-progress
+
+      - name: Install Playwright browser
+        working-directory: ./bokehjs
+        run: npx --no-install playwright-core install --with-deps --no-shell chromium
 
       - name: Build bokehjs
         working-directory: ./bokehjs
@@ -104,7 +109,7 @@ jobs:
       id-token: write # Allow the Codecov upload step to authenticate with GitHub OIDC.
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Prepare wheel-installed environment
         uses: ./.github/workflows/composite/test-setup
@@ -121,7 +126,7 @@ jobs:
         run: pixi run --locked --environment notebook-test test-notebook --cov=bokeh --cov-report=xml
 
       - name: Upload code coverage
-        uses: codecov/codecov-action@v7
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         if: success() || failure()
         with:
           use_oidc: true
@@ -130,7 +135,7 @@ jobs:
 
       - name: Upload notebook smoke report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: notebook-report
           path: work/notebook-report
@@ -146,18 +151,18 @@ jobs:
         os: [ubuntu-24.04, macos-latest, windows-latest]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          environment: test-py312
+          environment: test-py313
           source-tree: 'keep'
 
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
         with:
-          environment: test-py312
+          environment: test-py313
 
       - name: Run codebase checks
         run: pytest -n logical --maxprocesses=5 --color=yes --durations=20 --durations-min=1 tests/codebase
@@ -174,22 +179,23 @@ jobs:
       PYTHONPATH: ${{ github.workspace }}/src
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
       - name: Set up Pixi
-        uses: prefix-dev/setup-pixi@v0.10.0
+        uses: prefix-dev/setup-pixi@ad1da6449d9e506fd127fd67ab2d054a769f6a94 # v0.11.2
         with:
-          environments: test-py312
-          activate-environment: test-py312
+          pixi-version: v0.83.0
+          environments: test-py313
+          activate-environment: test-py313
           locked: true
           cache: true
           cache-write: ${{ github.event_name == 'push' && (github.ref_name == 'main' || startsWith(github.ref_name, 'branch-')) }}
 
       - name: Install Bokeh from source
         if: runner.os != 'Windows'
-        run: pixi run --locked --environment test-py312 setup
+        run: pixi run --locked --environment test-py313 setup
 
       - name: Smoke test Windows setup without Unix tools
         if: runner.os == 'Windows'
@@ -199,7 +205,7 @@ jobs:
       - name: List installed software
         uses: ./.github/workflows/composite/list-software
         with:
-          environment: test-py312
+          environment: test-py313
 
       - name: Run tools tests
         run: pytest --color=yes --durations=20 --durations-min=1 tests/tools
@@ -208,8 +214,6 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           ruff check tools tests/tools
-          isort --gitignore --diff -c tools
-          isort --gitignore --diff -c tests/tools
 
       - name: Check tools types
         if: runner.os == 'Linux'
@@ -225,17 +229,15 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04, macos-latest, windows-latest]
-        python-version: ['3.12', '3.13', '3.14']
+        python-version: ['3.13', '3.14']
         include:
-          - python-version: '3.12'
-            environment: test-py312
           - python-version: '3.13'
             environment: test-py313
           - python-version: '3.14'
             environment: test-py314
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -274,17 +276,15 @@ jobs:
       matrix:
         # Examples only run on Linux (Chrome/Chromium dependency)
         os: [ubuntu-24.04]
-        python-version: ['3.12', '3.13', '3.14']
+        python-version: ['3.13', '3.14']
         include:
-          - python-version: '3.12'
-            environment: test-py312
           - python-version: '3.13'
             environment: test-py313
           - python-version: '3.14'
             environment: test-py314
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -322,7 +322,7 @@ jobs:
 
       - name: Upload report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: examples-report-${{ matrix.os }}-${{ matrix.python-version }}
           path: examples-report
@@ -341,10 +341,8 @@ jobs:
       matrix:
         # Comprehensive: All platforms × all Python versions
         os: [ubuntu-24.04, macos-latest, windows-latest]
-        python-version: ['3.12', '3.13', '3.14']
+        python-version: ['3.13', '3.14']
         include:
-          - python-version: '3.12'
-            environment: test-py312
           - python-version: '3.13'
             environment: test-py313
           - python-version: '3.14'
@@ -354,7 +352,7 @@ jobs:
       PYTHON: ${{ matrix.python-version }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -389,7 +387,7 @@ jobs:
       PYTHON: '3.14'
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -427,7 +425,7 @@ jobs:
       PYTHON: 3.14t
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -470,13 +468,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Comprehensive: All platforms, Python 3.12 (defined in minimal-deps environment)
+        # Comprehensive: All platforms, Python 3.13 (defined in minimal-deps environment)
         os: [ubuntu-24.04, macos-latest, windows-latest]
     env:
       OS: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -506,10 +504,8 @@ jobs:
       matrix:
         # Core dependencies on all platforms and supported Python versions.
         os: [ubuntu-24.04, macos-latest, windows-latest]
-        python-version: ['3.12', '3.13', '3.14', '3.15']
+        python-version: ['3.13', '3.14', '3.15']
         include:
-          - python-version: '3.12'
-            environment: core-py312
           - python-version: '3.13'
             environment: core-py313
           - python-version: '3.14'
@@ -521,7 +517,7 @@ jobs:
       PYTHON: ${{ matrix.python-version }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -552,8 +548,8 @@ jobs:
         # Oldest/newest Python on Linux; newest Python on macOS and Windows.
         include:
           - os: ubuntu-24.04
-            python-version: '3.12'
-            environment: docs-py312
+            python-version: '3.13'
+            environment: docs-py313
           - os: ubuntu-24.04
             python-version: '3.15'
             environment: docs-py315
@@ -565,7 +561,7 @@ jobs:
             environment: docs-py315
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -588,7 +584,7 @@ jobs:
         run: pixi run --locked --environment ${{ matrix.environment }} build-docs
 
       - name: Upload docs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: docs-html-${{ matrix.os }}-${{ matrix.python-version }}
           path: docs/bokeh/docs-html.tgz
@@ -606,7 +602,7 @@ jobs:
         proxy: [nginx, apache]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -625,7 +621,7 @@ jobs:
 
       - name: Upload proxy logs
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: server-proxy-${{ matrix.frontend }}-${{ matrix.proxy }}-logs
           path: work/server-proxy
@@ -643,13 +639,19 @@ jobs:
         runner: [uvicorn, hypercorn]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
           environment: server-integration
           source-tree: 'delete'
+
+      - name: Build frontend dependencies
+        working-directory: ./bokehjs
+        run: |
+          npm ci --no-progress
+          node make frameworks:build
 
       - name: Install Playwright browser
         run: playwright install chromium
@@ -662,7 +664,7 @@ jobs:
 
       - name: Upload server logs
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: server-e2e-${{ matrix.runner }}-logs
           path: work/server-e2e
@@ -674,7 +676,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Post failure notification to GitHub Discussions
         env:
@@ -687,7 +689,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Comment on associated PR
         env:

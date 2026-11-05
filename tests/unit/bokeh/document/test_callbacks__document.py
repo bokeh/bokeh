@@ -8,22 +8,19 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import gc
 import logging
 import weakref
 from typing import Any
 from unittest.mock import MagicMock, patch
 
-# Bokeh imports
+import pytest
+
 from bokeh.core.enums import HoldPolicy, HoldPolicyType
 from bokeh.core.types import ID
 from bokeh.document import Document

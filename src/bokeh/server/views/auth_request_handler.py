@@ -20,14 +20,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any, cast
 from urllib.parse import urljoin
 
-# External imports
 from tornado.web import RequestHandler
 
-# Bokeh imports
 from ...util.asyncio import _run_in_executor
 
 #-----------------------------------------------------------------------------

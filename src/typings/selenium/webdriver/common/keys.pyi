@@ -1,4 +1,3 @@
-# Standard library imports
 from collections.abc import Sequence
 
 type _KeySeq = str | int | Sequence[str]

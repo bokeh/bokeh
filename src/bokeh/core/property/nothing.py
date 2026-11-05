@@ -18,10 +18,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any, NoReturn
 
-# Bokeh imports
 from .bases import Property, Undefined
 
 #-----------------------------------------------------------------------------

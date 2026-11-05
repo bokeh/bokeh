@@ -23,12 +23,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-import sys
 # Public constructor types live in the stubs; declarations below cover local calls.
 from typing import TYPE_CHECKING, Any, cast
 
-# Bokeh imports
 from ..core.enums import (
     ContextWhich,
     LatLon,
@@ -1098,9 +1095,7 @@ def create_format_table(fields: tuple[str, ...], primary: TickFormatter) -> str:
         c2_fmt = add_row_item(tertiary, field, lens[3])
         rows.append(extended_join("|", [scale, p_fmt, c1_fmt, c2_fmt]))
         rows.append(separator)
-    n = 0 if sys.version_info[:2] >= (3, 13) else 4 # remove when Python 3.12 is dropped
-    indent = " "*n
-    return f"\n{indent}".join(rows)
+    return "\n".join(rows)
 
 
 DatetimeTickFormatter.__doc__ = format_docstring(DatetimeTickFormatter.__doc__, defaults=create_format_table(

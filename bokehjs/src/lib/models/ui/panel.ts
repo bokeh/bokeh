@@ -38,7 +38,7 @@ export class PanelView extends PaneView {
       return
     }
 
-    const parent_el = this.parent?.el ?? document.body
+    const parent_el = this.ui_parent?.el ?? document.body
     const target_el = parent_el.shadowRoot ?? parent_el
 
     if (!this.el.isConnected) {

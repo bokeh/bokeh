@@ -20,13 +20,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 from os.path import abspath, expanduser, splitext
 from types import ModuleType
 from typing import TYPE_CHECKING, Literal
 
-# Bokeh imports
 from ..resources import INLINE
 from ..settings import settings
 from ..util.dependencies import import_optional
@@ -325,6 +323,13 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: DriverLike | Non
         timeout (int) : the maximum amount of time to wait for initialization.
             It will be used as a timeout for loading Bokeh, then when waiting for
             the layout to be rendered.
+
+        resources (Resources): information relating to loading or embedding Bokeh
+            JavaScript and CSS, defaults to ``"inline"`` mode
+
+        width (int) : the desired width of the exported layout.
+
+        height (int) : the desired height of the exported layout.
 
         scale_factor (float, optional) : A factor to scale the output PNG by,
             providing a higher resolution while maintaining element relative

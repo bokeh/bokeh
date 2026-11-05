@@ -157,7 +157,7 @@ async function run_page(url, expected_framework) {
       }
       return await window.__bokeh_framework_test__
     })()`)
-    if (result.framework != expected_framework || result.mounts != 4 || result.streams != 3) {
+    if (result.framework != expected_framework || result.mounts != 4 || result.streams != 3 || result.sessions != 1) {
       throw new Error(`unexpected framework result: ${JSON.stringify(result)}`)
     }
 

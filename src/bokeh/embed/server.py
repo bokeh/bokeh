@@ -20,10 +20,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import TYPE_CHECKING, Literal
 
-# Bokeh imports
 from ..resources import DEFAULT_SERVER_HTTP_URL
 from ..util.deprecation import deprecated
 from ..util.strings import format_docstring
@@ -79,15 +77,17 @@ def server_document(url: str = "default", relative_urls: bool = False, resources
             files you'll load separately are of the same version as that of the
             server's, otherwise the rendering may not work correctly.
 
-       arguments (dict[str, object], optional) :
+        arguments (dict[str, object], optional) :
             A dictionary of key/values to be passed as HTTP request arguments
             to Bokeh application code (default: None). Values are converted to strings.
 
-       headers (dict[str, str], optional) :
+        headers (dict[str, str], optional) :
             A dictionary of key/values to be passed as HTTP Headers
             to Bokeh application code (default: None)
 
-       with_credentials (bool, optional):
+            Mutually exclusive with ``with_credentials``
+
+        with_credentials (bool, optional):
             Whether cookies should be passed to Bokeh application code (default: False)
 
     Returns:
@@ -164,11 +164,13 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
             files you'll load separately are of the same version as that of the
             server's, otherwise the rendering may not work correctly.
 
-       headers (dict[str, str], optional) :
+        headers (dict[str, str], optional) :
             A dictionary of key/values to be passed as HTTP Headers
             to Bokeh application code (default: None)
 
-       with_credentials (bool, optional):
+            Mutually exclusive with ``with_credentials``
+
+        with_credentials (bool, optional):
             Whether cookies should be passed to Bokeh application code (default: False)
 
     Returns:

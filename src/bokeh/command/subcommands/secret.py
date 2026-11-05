@@ -35,13 +35,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from argparse import Namespace
 
-# Bokeh imports
 from bokeh.util.token import generate_secret_key
 
-# Bokeh imports
 from ..subcommand import Subcommand
 
 #-----------------------------------------------------------------------------

@@ -7,11 +7,9 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import asyncio
 from threading import get_ident
 
-# Bokeh imports
 from bokeh.server.auth import AuthPolicy
 from bokeh.server.request import ServerRequest
 

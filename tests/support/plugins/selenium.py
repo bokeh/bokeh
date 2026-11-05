@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import pathlib
 from shutil import which
 from typing import (
@@ -31,7 +30,6 @@ from typing import (
 )
 from warnings import warn
 
-# External imports
 import pytest
 
 if TYPE_CHECKING:

@@ -8,9 +8,87 @@ import {version} from "@bokehjs/version"
 import {keys} from "@bokehjs/core/util/object"
 import {Selection} from "@bokehjs/models/selections/selection"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
-import {Int32NDArray, Float32NDArray, Float64NDArray, ndarray} from "@bokehjs/core/util/ndarray"
+import {Int32NDArray, Float32NDArray, Float64NDArray, ObjectNDArray, ndarray} from "@bokehjs/core/util/ndarray"
 
 describe("column_data_source module", () => {
+
+  describe("get_row", () => {
+    it("should unpack shaped columns independently on first access and cache their rows", () => {
+      const first = new ObjectNDArray([0, 1, 2, 3], [2, 2])
+      const second = new ObjectNDArray([4, 5, 6, 7], [2, 2])
+      let first_reads = 0
+      let second_reads = 0
+      Object.defineProperty(first, "2", {get: () => {
+        first_reads++
+        return 2
+      }})
+      Object.defineProperty(second, "2", {get: () => {
+        second_reads++
+        return 6
+      }})
+      const source = ColumnDataSource.create({data: {first, second, label: ["a", "b"]}})
+      const row = source.get_row(1)
+      expect(Object.keys(row)).to.be.equal(["first", "second", "label"])
+      expect(row.label).to.be.equal("b")
+      expect([first_reads, second_reads]).to.be.equal([0, 0])
+
+      const value = row.first
+      expect(value).to.be.equal([2, 3])
+      expect([first_reads, second_reads]).to.be.equal([1, 0])
+      expect(row.first).to.be.identical(value)
+      expect([first_reads, second_reads]).to.be.equal([1, 0])
+
+      expect({...row}).to.be.equal({first: [2, 3], second: [6, 7], label: "b"})
+      expect([first_reads, second_reads]).to.be.equal([1, 1])
+      expect(JSON.stringify(row)).to.be.equal('{"first":[2,3],"second":[6,7],"label":"b"}')
+      expect([first_reads, second_reads]).to.be.equal([1, 1])
+      expect(source.get_row(1).first).to.not.be.identical(value)
+    })
+
+    it("should allow replacing or deleting shaped row values without reading the column", () => {
+      const values = new ObjectNDArray([0, 1, 2, 3], [2, 2])
+      let reads = 0
+      Object.defineProperty(values, "2", {get: () => {
+        reads++
+        return 2
+      }})
+      const source = ColumnDataSource.create({data: {values}})
+      const row = source.get_row(1)
+      const replacement = [10, 20]
+      row.values = replacement
+      expect(row.values).to.be.identical(replacement)
+      expect(reads).to.be.equal(0)
+      delete row.values
+      expect(Object.keys(row)).to.be.equal([])
+      expect(reads).to.be.equal(0)
+
+      const read_row = source.get_row(1)
+      const value = read_row.values as number[]
+      value[0] = 99
+      expect(read_row.values).to.be.equal([99, 3])
+      expect(source.get_row(1).values).to.be.equal([2, 3])
+      read_row.values = replacement
+      expect(read_row.values).to.be.identical(replacement)
+    })
+
+    it("should read logical rows from shaped columns", () => {
+      const numeric = new Float64NDArray([0, 1, 2, 3, 4, 5, 6, 7], [2, 2, 2])
+      const objects = new ObjectNDArray(["a", "b", "c", "d"], [2, 2])
+      const source = ColumnDataSource.create({data: {numeric, objects, label: ["first", "second"]}})
+      expect(source.get_row(1)).to.be.equal({numeric: [[4, 5], [6, 7]], objects: ["c", "d"], label: "second"})
+      expect(source.get_row(2)).to.be.equal({numeric: undefined, objects: undefined, label: undefined})
+      expect(source.get_column("numeric")).to.be.identical(numeric)
+      expect(Array.from(numeric)).to.be.equal([0, 1, 2, 3, 4, 5, 6, 7])
+    })
+
+    it("should use the image's outer row without indexing its pixels", () => {
+      const image = new Float64NDArray([0, 1, 2, 3], [2, 2])
+      const source = ColumnDataSource.create({data: {image: [image], label: ["image"]}})
+      const row = source.get_row({index: 0, i: 0, j: 1, flat_index: 2})
+      expect(row.image).to.be.identical(image)
+      expect(row.label).to.be.equal("image")
+    })
+  })
 
   describe("default creation", () => {
     const r = ColumnDataSource.create()

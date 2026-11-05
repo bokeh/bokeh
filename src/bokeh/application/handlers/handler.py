@@ -42,7 +42,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 import sys
 import traceback
@@ -145,7 +144,7 @@ class Handler:
         before any sessions are created.
 
         Args:
-            server_context (ServerContext) :
+            server_context (ServerContext) : server-specific information
 
         '''
         pass
@@ -158,7 +157,7 @@ class Handler:
         tear down that is necessary before the server exits.
 
         Args:
-            server_context (ServerContext) :
+            server_context (ServerContext) : server-specific information
 
         .. warning::
             In practice this code may not run, since servers are often killed
@@ -175,7 +174,7 @@ class Handler:
         the session.
 
         Args:
-            session_context (SessionContext) :
+            session_context (SessionContext) : session-specific information
 
         '''
         pass
@@ -187,7 +186,7 @@ class Handler:
         tear-down that is necessary when sessions are destroyed.
 
         Args:
-            session_context (SessionContext) :
+            session_context (SessionContext) : session-specific information
 
         '''
         pass

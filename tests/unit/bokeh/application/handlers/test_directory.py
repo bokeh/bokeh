@@ -8,21 +8,16 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 from typing import TYPE_CHECKING
 
-# External imports
 import jinja2
+import pytest
 
-# Bokeh imports
 from bokeh.core.templates import FILE
 from bokeh.document import Document
 from tests.support.util.filesystem import with_directory_contents

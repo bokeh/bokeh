@@ -4,7 +4,6 @@ import {Range1d} from "@bokehjs/models/ranges"
 import type {Plot} from "@bokehjs/models/plots"
 import type {TileSource} from "@bokehjs/models/tiles"
 import {TileRenderer, WMTSTileSource} from "@bokehjs/models/tiles"
-import {paint} from "@bokehjs/core/util/defer"
 
 describe("TileRenderer", () => {
 
@@ -65,8 +64,5 @@ describe("TileRenderer", () => {
     await display(plot)
 
     hidden.visible = false
-    // Visibility updates attribution synchronously; only its DOM paint is
-    // relevant here, not unrelated tile-renderer readiness.
-    await paint()
   })
 })

@@ -5,11 +5,9 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 from typing import Any, Literal, Unpack
 
-# Bokeh imports
 from ..._specs import ColorSpec, FontStyleSpec, TextAlignSpec
 from ...core.enums import (
     AutosizeModeType as AutosizeMode,

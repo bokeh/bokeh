@@ -1,10 +1,8 @@
 # https://github.com/bokeh/bokeh/issues/13637
 
-# Standard library imports
 from types import SimpleNamespace
 from typing import NamedTuple, NotRequired, TypedDict
 
-# Bokeh imports
 from bokeh.core.property.struct import struct
 from bokeh.models import (
     ColumnDataSource,

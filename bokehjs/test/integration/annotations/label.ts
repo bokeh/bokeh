@@ -7,7 +7,6 @@ import {Label, HTMLLabel} from "@bokehjs/models/annotations"
 import type {PlotView} from "@bokehjs/models/plots/plot"
 import type {HasPropsFactory} from "@bokehjs/core/has_props"
 import type {OutputBackend, Anchor} from "@bokehjs/core/enums"
-import {paint} from "@bokehjs/core/util/defer"
 
 const r = String.raw
 
@@ -364,7 +363,6 @@ describe("Label annotation", () => {
     async function pan(view: PlotView, xy0: Point, xy1: Point) {
       const actions = new PlotActions(view)
       await actions.pan_along({type: "line", xy0, xy1})
-      await paint()
     }
 
     async function label(anchor: Anchor) {
@@ -384,7 +382,6 @@ describe("Label annotation", () => {
       const annotation = await label("center")
       const p = fig([200, 200], {renderers: [annotation], x_range: [-3, 3], y_range: [-3, 3]})
       const {view} = await display(p)
-      await paint()
       await pan(view, xy(1, 0), xy(1, 1))
     })
 
@@ -392,7 +389,6 @@ describe("Label annotation", () => {
       const annotation = await label("bottom_left")
       const p = fig([200, 200], {renderers: [annotation], x_range: [-2, 4], y_range: [-2, 4]})
       const {view} = await display(p)
-      await paint()
       await pan(view, xy(2, 1), xy(1, 3))
     })
 
@@ -400,7 +396,6 @@ describe("Label annotation", () => {
       const annotation = await label("top_right")
       const p = fig([200, 200], {renderers: [annotation], x_range: [-5, 1], y_range: [-3, 3]})
       const {view} = await display(p)
-      await paint()
       await pan(view, xy(-2, -1), xy(-2, 2))
     })
   })

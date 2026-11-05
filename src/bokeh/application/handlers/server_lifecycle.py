@@ -21,11 +21,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 from typing import TYPE_CHECKING, Sequence
 
-# Bokeh imports
 from ...util.callback_manager import _check_callback
 from .code_runner import CodeRunner
 from .lifecycle import LifecycleHandler
@@ -65,6 +63,7 @@ class ServerLifecycleHandler(LifecycleHandler):
             argv (Sequence[str], optional) : a sequence of string arguments to use as
                 ``sys.argv`` when the callback code is executed. (default: ())
 
+            package (ModuleType, optional): An optional package module to configure
         '''
         super().__init__()
 

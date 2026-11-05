@@ -8,20 +8,17 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import pickle
 from copy import copy, deepcopy
 from functools import partial
 
-# Bokeh imports
+import pytest
+
 from bokeh.core.property.singletons import OldValueUnavailable
 from bokeh.document import Document
 from bokeh.events import ButtonClick, Tap

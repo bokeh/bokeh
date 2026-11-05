@@ -8,18 +8,15 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 from unittest.mock import MagicMock, patch
 
-# Bokeh imports
+import pytest
+
 from bokeh.core.properties import Any, ColumnData, Instance
 from bokeh.core.property.bases import Property
 from bokeh.core.serialization import MapRep, ObjectRefRep, Serializer

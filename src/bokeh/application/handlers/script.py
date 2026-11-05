@@ -45,10 +45,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import TYPE_CHECKING, Sequence
 
-# Bokeh imports
 from .code import CodeHandler
 
 if TYPE_CHECKING:

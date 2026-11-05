@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import hashlib
 import json
 import os
@@ -39,7 +38,6 @@ from subprocess import PIPE, Popen
 from threading import Lock
 from typing import Any, Callable, Sequence
 
-# Bokeh imports
 from ..core.has_props import HasProps
 from ..settings import settings
 from .strings import snakify

@@ -18,10 +18,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any
 
-# Bokeh imports
 from ._sphinx import property_link, register_type_link, type_link
 from .bases import (
     Init,

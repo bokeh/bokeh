@@ -30,10 +30,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any
 
-# Bokeh imports
 from ..model import Model
 from . import (
     annotations as _annotations,

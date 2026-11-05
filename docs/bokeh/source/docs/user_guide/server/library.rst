@@ -70,6 +70,11 @@ websocket URLs. Equivalent complete examples are available for:
 * :bokeh-tree:`examples/server/api/asgi/streamlit_simple.py`
 * :bokeh-tree:`examples/server/api/asgi/streamlit_particles/app.py`
 * :bokeh-tree:`examples/server/api/asgi/framework_free.py`
+* :bokeh-tree:`examples/server/api/asgi/react_mount.py`: a live React client with
+  independently placed roots and explicit connection/view ownership, plus a
+  framework-free ``server_document(app_url, target)`` page. See
+  :bokeh-tree:`bokehjs/examples/frameworks/react-vite/README-live.md` for commands
+  and the equivalent Tornado launch.
 
 The ASGI frontend handles Bokeh document, metadata, signed ``/embed.json``
 bootstrap, static asset, and WebSocket routes, as well as application startup
@@ -80,7 +85,7 @@ Reverse proxy deployment
 
 A reverse proxy must preserve the public ``Host`` and browser-supplied
 ``Origin`` headers. Forward ``Upgrade``, ``Connection``, and
-``Sec-WebSocket-Protocol`` unchanged; Bokeh's websocket handshake requires the
+``Sec-WebSocket-Protocol`` unchanged. Bokeh's websocket handshake requires the
 ``bokeh`` subprotocol followed by the session token. If the page origin is not
 the public Bokeh host, add that origin to ``extra_websocket_origins``. If the
 proxy strips a public path prefix, configure the ASGI server or parent mount to
@@ -221,7 +226,7 @@ available to the authenticator as ``request.state``.
 Session tokens are bearer credentials, not a replacement for authenticating
 HTTP and websocket requests. Authenticated deployments should enable signed
 sessions and configure a strong shared secret. Token payloads are signed but
-not encrypted; use ``include_headers``, ``exclude_headers``,
+not encrypted. Use ``include_headers``, ``exclude_headers``,
 ``include_cookies``, and ``exclude_cookies`` to avoid copying secrets into
 them.
 

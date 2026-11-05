@@ -19,11 +19,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from dataclasses import is_dataclass
 from typing import Any
 
-# Bokeh imports
 from .bases import Property
 
 #-----------------------------------------------------------------------------

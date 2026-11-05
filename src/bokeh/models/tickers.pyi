@@ -5,11 +5,9 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 from typing import Any, Sequence, Unpack
 
-# Bokeh imports
 from ..core.enums import AutoType as Auto, LatLonType as LatLon
 from ..model.model import Model, _ModelInit
 from .mappers import ScanningColorMapper

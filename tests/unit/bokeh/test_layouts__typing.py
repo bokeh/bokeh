@@ -9,13 +9,12 @@
 # Boilerplate
 # -----------------------------------------------------------------------------
 
-import pytest ; pytest
-
 # -----------------------------------------------------------------------------
 # Imports
 # -----------------------------------------------------------------------------
 
-# Bokeh imports
+import pytest
+
 from bokeh.layouts import gridplot
 from bokeh.plotting import figure
 

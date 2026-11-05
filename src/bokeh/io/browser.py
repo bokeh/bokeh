@@ -27,7 +27,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import asyncio
 import atexit
 import io
@@ -38,7 +37,6 @@ import threading
 from collections.abc import Callable, Coroutine
 from typing import TYPE_CHECKING, Any, cast
 
-# Bokeh imports
 from ..resources import INLINE
 from ..util.dependencies import import_required
 from .util import (
@@ -99,10 +97,28 @@ def get_screenshot_as_png(
     :func:`~bokeh.io.export.get_screenshot_as_png`.
 
     Args:
+        obj (UIElement or Document) : a Layout (e.g. Row/Column), Plot or Widget
+            object or Document to export.
+
         driver: An optional Playwright ``Browser`` or ``BrowserContext``.
             If provided, pages are created from it instead of the global
             ``playwright_control`` instance.  This allows callers to
             supply a ``launch_persistent_context`` or a custom browser.
+
+        timeout (int) : the maximum amount of time to wait for initialization.
+            It will be used as a timeout for loading Bokeh, then when waiting for
+            the layout to be rendered.
+
+        resources (Resources): information relating to loading or embedding Bokeh
+            JavaScript and CSS, defaults to ``"inline"`` mode
+
+        width (int) : the desired width of the exported layout.
+
+        height (int) : the desired height of the exported layout.
+
+        scale_factor (float, optional) : A factor to scale the output PNG by,
+            providing a higher resolution while maintaining element relative
+            scales.
     '''
     html = get_layout_html(obj, resources=resources, width=width, height=height)
 
@@ -461,7 +477,7 @@ class _PlaywrightThread:
         self._pid = os.getpid()
         self._thread: threading.Thread | None = None
         self._queue: queue.Queue[
-            tuple[Callable[..., Coroutine[Any, Any, Any]], tuple[Any, ...], queue.Queue[Any]] | None
+            tuple[Callable[..., Coroutine[Any, Any, Any]], tuple[Any, ...], queue.Queue[Any]]
         ] = queue.Queue()
         self._lifecycle_lock = threading.Lock()
         self._stopped = threading.Event()
@@ -504,9 +520,8 @@ class _PlaywrightThread:
                 if finalizer is not None:
                     finalizer_q = queue.Queue()
                     self._queue.put((finalizer, (), finalizer_q))
-                # The sentinel is queued while submissions are excluded by the
-                # lifecycle lock, so no work can be stranded behind it.
-                self._queue.put(None)
+                # Drain submitted work and the finalizer before stopping.
+                self._queue.shutdown()
 
         if wait_until_stopped:
             self._stopped.wait()
@@ -566,10 +581,10 @@ class _PlaywrightThread:
                 startup_q.put(("ok", None))
                 started = True
                 while True:
-                    item = self._queue.get()
-                    if item is None:
+                    try:
+                        fn, args, result_q = self._queue.get()
+                    except queue.ShutDown:
                         break
-                    fn, args, result_q = item
                     try:
                         result_q.put(("ok", runner.run(fn(*args))))
                     except (Exception, asyncio.CancelledError) as e:

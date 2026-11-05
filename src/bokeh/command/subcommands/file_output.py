@@ -20,13 +20,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import argparse
 import sys
 from abc import abstractmethod
 from os.path import splitext
 
-# Bokeh imports
 from ...document import Document
 from ..subcommand import (
     Arg,

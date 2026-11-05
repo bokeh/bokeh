@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from inspect import (
     Parameter,
     Signature,
@@ -36,7 +35,6 @@ from typing import (
     Self,
 )
 
-# Bokeh imports
 from ..core.has_props import HasProps, _default_resolver, abstract
 from ..core.property._sphinx import type_link
 from ..core.property.any import AnyRef
@@ -421,7 +419,6 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         property whenever another changes value.
 
         Args:
-
             attr (str) :
                 The name of a Bokeh property on this model
 
@@ -579,7 +576,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         match the given selector.
 
         Args:
-            selector (JSON-like) :
+            selector (JSON-like) : query selector
 
         Returns:
             seq[Model]
@@ -594,7 +591,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         is found. Returns single matching object, or None if nothing is found.
 
         Args:
-            selector (JSON-like):
+            selector (JSON-like) : query selector
 
         Returns:
             Model
@@ -611,8 +608,8 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         attribute/value updates.
 
         Args:
-            selector (JSON-like) :
-            updates (dict) :
+            selector (JSON-like) : query selector
+            updates (dict[str|Any]) : data to modify
 
         Returns:
             None

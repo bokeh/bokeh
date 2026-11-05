@@ -8,7 +8,6 @@
 
 from __future__ import annotations
 
-# Standard library imports
 from collections.abc import Iterator, Mapping
 from dataclasses import dataclass, field
 from typing import Any, Protocol

@@ -8,12 +8,10 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import inspect
 from collections.abc import Awaitable, Callable
 from typing import Any
 
-# Bokeh imports
 from ..util.asyncio import _run_in_executor
 from .request import ServerRequest
 

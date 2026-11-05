@@ -288,6 +288,9 @@ task("scripts:bundle", [passthrough("scripts:compile")], async () => {
     exports: ["tslib"],
     detect_cycles: argv.detectCycles,
     overrides: {
+      // Script bundles register their own models when loaded. Keep npm's lazy
+      // registry from pulling optional widgets and tables into the API bundle.
+      "api/session_models.js": "export function register_builtin_models() { return false }\n",
       // https://github.com/bokeh/bokeh/issues/12142
       "mathjax-full/js/components/version.js": `\
 Object.defineProperty(exports, "__esModule", { value: true });

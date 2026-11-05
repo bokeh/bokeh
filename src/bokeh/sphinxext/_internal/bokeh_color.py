@@ -33,17 +33,13 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any
 
-# External imports
 from docutils import nodes
 from docutils.parsers.rst.directives import unchanged
 
-# Bokeh imports
 from bokeh.colors import named
 
-# Bokeh imports
 from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
 from .templates import COLOR_DETAIL

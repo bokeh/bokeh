@@ -1,6 +1,6 @@
 import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
 import {fig, display} from "#framework/layouts"
-import {mouse_enter, mouse_leave} from "#framework/interactive"
+import {mouse_enter, mouse_leave, show_context_menu} from "#framework/interactive"
 
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import type {ToolbarView} from "@bokehjs/models/tools/toolbar"
@@ -379,6 +379,40 @@ describe("ToolbarView", () => {
       expect(hover.visible).to.be.true
       expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.false
     })
+  })
+
+  it("should update context menu when tools' labels change (issue #15553)", async () => {
+    const pan = PanTool.create()
+    const action = CustomAction.create({label: "My Action"})
+
+    const p = fig([300, 300], {tools: [pan, action], toolbar_location: "right"})
+    const {view} = await display(p)
+
+    async function context_menu_labels(): Promise<(string | null)[]> {
+      const menu_view = show_context_menu(view, 50, 50)
+      await view.ready
+
+      expect_not_null(menu_view)
+      expect(menu_view.is_open).to.be.true
+
+      const labels = menu_view.item_entries.map(({label_el}) => label_el.textContent)
+      menu_view.hide()
+      return labels
+    }
+
+    expect(await context_menu_labels()).to.be.equal(["Pan", "My Action"])
+
+    pan.label = "Drag"
+    action.label = "Other Action"
+    await view.ready
+
+    expect(await context_menu_labels()).to.be.equal(["Drag", "Other Action"])
+
+    pan.label = null
+    action.label = null
+    await view.ready
+
+    expect(await context_menu_labels()).to.be.equal(["Pan", "Custom Action"])
   })
 
   describe("visible attribute of tools in toolbar", () => {

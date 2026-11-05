@@ -32,6 +32,7 @@ import {
 } from "@bokehjs/models/widgets/tables"
 
 import type {PickerBaseView} from "@bokehjs/models/widgets/picker_base"
+import * as sliders_css from "@bokehjs/styles/widgets/sliders.css"
 
 import * as palettes from "@bokehjs/api/palettes"
 
@@ -409,6 +410,34 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
+  describe("should allow keyboard focused", () => {
+    // focus that doesn't originate from pointer interaction is considered keyboard focus
+    async function focus(view: {shadow_el: ShadowRoot, ready: Promise<void>}, css_class: string, index: number = 0): Promise<void> {
+      const el = view.shadow_el.querySelectorAll<HTMLElement>(`.${css_class}`)[index]
+      expect_not_null(el)
+      el.focus()
+      await view.ready
+    }
+
+    it("handle of Slider", async () => {
+      const obj = Slider.create({value: 10, start: 0, end: 100, step: 0.5})
+      const {view} = await display(obj, [500, 100])
+      await focus(view, sliders_css.handle)
+    })
+
+    it("handle of RangeSlider", async () => {
+      const obj = RangeSlider.create({value: [10, 90], start: 0, end: 100, step: 0.5})
+      const {view} = await display(obj, [500, 100])
+      await focus(view, sliders_css.handle, 1)
+    })
+
+    it("span of RangeSlider", async () => {
+      const obj = RangeSlider.create({value: [10, 90], start: 0, end: 100, step: 0.5})
+      const {view} = await display(obj, [500, 100])
+      await focus(view, sliders_css.span)
+    })
+  })
+
   it("should allow DatePicker", async () => {
     const d0 = "2023-01-18"
     const obj = DatePicker.create({value: d0, width: 400})
@@ -564,8 +593,7 @@ describe("Widgets", () => {
       TableColumn.create({field: "c3", title: HTML.create({html: "<b>a&lt;b</b>"}), width: 200}),
     ]
     const table = DataTable.create({source, columns, autosize_mode: "none"})
-    const {view} = await display(table, [600, 400])
-    await view.ready
+    await display(table, [600, 400])
   })
 
   it("should allow TeX on Divs with mathstrings", async () => {

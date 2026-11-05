@@ -23,7 +23,6 @@ export interface DOMView extends View {
 }
 
 export abstract class DOMView extends View {
-  declare readonly parent: DOMView | null
 
   static tag_name: keyof HTMLElementTagNameMap = "div"
   static aria_role?: ARIARole
@@ -136,7 +135,6 @@ export abstract class DOMElementView extends DOMView {
 }
 
 export abstract class DOMComponentView extends DOMElementView {
-  declare parent: DOMElementView | null
   declare readonly root: DOMComponentView
 
   declare shadow_el: ShadowRoot

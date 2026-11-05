@@ -20,10 +20,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any, overload
 
-# Bokeh imports
 from .. import enums
 from ._sphinx import model_link, property_link, register_type_link
 from .bases import Init, Property

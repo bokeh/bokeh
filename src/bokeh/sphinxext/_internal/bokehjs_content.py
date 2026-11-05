@@ -46,11 +46,9 @@ The inline example code above produces the following output:
 # -----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Standard library imports
 from os.path import basename, join
 from typing import Any, cast
 
-# External imports
 from docutils import nodes
 from docutils.parsers.rst.directives import unchanged
 from sphinx.directives.code import CodeBlock, container_wrapper, dedent_lines
@@ -59,10 +57,8 @@ from sphinx.locale import __
 from sphinx.util import logging as sphinx_logging, parselinenos
 from sphinx.util.nodes import set_source_info
 
-# Bokeh imports
 from bokeh.embed.resources import ResourceRequirements
 
-# Bokeh imports
 from . import PARALLEL_SAFE, SphinxParallelSpec
 from .templates import (
     BJS_CODEPEN_INIT,

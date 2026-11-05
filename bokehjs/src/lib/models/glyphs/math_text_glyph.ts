@@ -40,7 +40,7 @@ export abstract class MathTextGlyphView extends TextView {
       return text_i == null ? null : this._build_label(text_i)
     })
 
-    await build_views(this._label_views, labels.filter((v) => v != null), {parent: this.renderer})
+    await build_views(this._label_views, labels.filter((v) => v != null), {parent: this})
 
     return labels.map((label_i) => {
       return label_i == null ? null : this._label_views.get(label_i)!.graphics()

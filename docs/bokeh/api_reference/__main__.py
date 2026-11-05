@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import argparse
 import inspect
 import json
@@ -58,7 +57,7 @@ class SectionReference:
 
 def _load_sections() -> list[SectionReference]:
     raw_sections = json.loads(SECTION_REGISTRY_PATH.read_text())
-    sections = [SectionReference(item["slug"], item["title"], tuple(item["classes"])) for item in raw_sections]
+    sections = [SectionReference(item["slug"], item["title"], tuple(item.get("classes", ()))) for item in raw_sections]
 
     seen_slugs: set[str] = set()
     seen_classes: dict[str, str] = {}
@@ -77,9 +76,26 @@ def _load_sections() -> list[SectionReference]:
     return sections
 
 
-def _load_public_classes(sections: list[SectionReference] | None = None) -> list[ClassReference]:
-    sys.path.insert(0, str(REPO_ROOT / "src"))
+def _infer_section(module: str, slugs: set[str]) -> str | None:
+    # e.g. bokeh.models.widgets.sliders -> widgets/sliders, using the longest matching slug
+    if not module.startswith("bokeh.models."):
+        return None
+    parts = module.removeprefix("bokeh.models.").split(".")
+    for n in range(len(parts), 0, -1):
+        if (slug := "/".join(parts[:n])) in slugs:
+            return slug
+    return None
 
+
+def _unassigned_class_error(name: str, module: str, registry: str) -> str:
+    fix = f"list {name!r} under an existing section"
+    if module.startswith("bokeh.models."):
+        slug = module.removeprefix("bokeh.models.").replace(".", "/")
+        fix = f"add a section with slug {slug!r} or {fix}"
+    return f"cannot infer the section of public class {name!r} from its module {module!r}; {fix} in {registry}"
+
+
+def _load_public_classes(sections: list[SectionReference] | None = None) -> list[ClassReference]:
     import bokeh.models as models
     from bokeh.model import Model
 
@@ -99,15 +115,20 @@ def _load_public_classes(sections: list[SectionReference] | None = None) -> list
         seen.add(obj)
         public_objects[name] = obj
 
-    missing = sorted(set(public_objects) - set(section_by_name), key=str.casefold)
     stale = sorted(set(section_by_name) - set(public_objects), key=str.casefold)
+
+    slugs = {section.slug for section in sections}
+    for name, obj in public_objects.items():
+        if name not in section_by_name and (slug := _infer_section(obj.__module__, slugs)) is not None:
+            section_by_name[name] = slug
+
+    missing = sorted(set(public_objects) - set(section_by_name), key=str.casefold)
     if missing or stale:
-        details = []
-        if missing:
-            details.append(f"unassigned public classes: {', '.join(missing)}")
+        registry = SECTION_REGISTRY_PATH.relative_to(REPO_ROOT).as_posix()
+        details = [_unassigned_class_error(name, public_objects[name].__module__, registry) for name in missing]
         if stale:
-            details.append(f"unknown registered classes: {', '.join(stale)}")
-        raise RuntimeError("; ".join(details))
+            details.append(f"unknown registered classes: {', '.join(stale)}; remove them from {registry}")
+        raise RuntimeError("\n".join(details))
 
     classes = [
         ClassReference(name, obj.__module__, section_by_name[name], issubclass(obj, Model))
@@ -344,6 +365,8 @@ def main() -> int:
     mode.add_argument("--check", action="store_true", help="check that generated files are up to date")
     mode.add_argument("--clean", action="store_true", help="remove generated API reference sources")
     args = parser.parse_args()
+
+    sys.path.insert(0, str(REPO_ROOT / "src"))
 
     if args.clean:
         _clean()

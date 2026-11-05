@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-# Standard library imports
 from importlib.util import find_spec
 
 # Documentation dependencies are optional in the core test environment.

@@ -37,17 +37,14 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 import importlib
 import re
 import textwrap
 from os.path import basename
 from typing import Any
 
-# External imports
 from sphinx.errors import SphinxError
 
-# Bokeh imports
 from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
 from .templates import JINJA_DETAIL

@@ -1,7 +1,5 @@
-# Standard library imports
 import unittest
 
-# Bokeh imports
 from tests.tools.backport._support import candidate, state_with
 from tools.backport import BackportError, aggregate
 from tools.backport.models import BackportSummary

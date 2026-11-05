@@ -31,20 +31,16 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 import importlib
 import textwrap
 from typing import Any
 
-# External imports
 from docutils.parsers.rst.directives import unchanged
 from sphinx.errors import SphinxError
 
-# Bokeh imports
 from bokeh.core.property._sphinx import type_link
 from bokeh.util.options import Options
 
-# Bokeh imports
 from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective, py_sig_re
 from .templates import OPTIONS_DETAIL

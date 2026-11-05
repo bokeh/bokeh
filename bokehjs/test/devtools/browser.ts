@@ -9,6 +9,10 @@ import {TimeoutError} from "./types.js"
 // own timeout. A few integration tests legitimately need more than ten seconds
 // under software-rendered CI, while this still puts a firm bound on a hung page.
 const DEFAULT_COMMAND_TIMEOUT = 30_000
+const BROWSER_LAUNCH_TIMEOUT = 30_000
+// Playwright allows another 30 seconds for browser cleanup after a launch timeout.
+// Leave headroom for its detailed launch error before our watchdog fires.
+const BROWSER_LAUNCH_WATCHDOG = BROWSER_LAUNCH_TIMEOUT + 30_000 + 15_000
 
 function error_message(error: unknown): string {
   return error instanceof Error ? error.stack ?? error.message : `${error}`
@@ -26,6 +30,29 @@ export class BrowserTimeoutError extends BrowserError {
     super(operation, `browser did not respond within ${timeout} ms`)
     this.name = "BrowserTimeoutError"
   }
+}
+
+// Ubuntu 23.10+ restricts unprivileged user namespaces with AppArmor, unless
+// an executable has a profile that allows them. Packaged Chrome ships one, but
+// Playwright-managed Chromium doesn't, so its sandbox can't start.
+function sandbox_hint(executable: string, message: string): string | null {
+  if (!message.includes("No usable sandbox")) {
+    return null
+  }
+  return `\
+Chromium couldn't start its sandbox. On Ubuntu 23.10+ this is caused by AppArmor
+restricting unprivileged user namespaces. Allow them for this executable with:
+
+  sudo tee /etc/apparmor.d/bokeh-chromium <<'EOF'
+  abi <abi/4.0>,
+  include <tunables/global>
+  profile bokeh-chromium ${executable} flags=(unconfined) {
+    userns,
+  }
+  EOF
+  sudo apparmor_parser -r /etc/apparmor.d/bokeh-chromium
+
+See "Run JavaScript tests" in Bokeh's developer guide for details.`
 }
 
 function is_browser_lifecycle_error(error: BrowserError): boolean {
@@ -86,6 +113,10 @@ export class Failure {
   constructor(public text: string) {}
 }
 
+// Coordinate browser updates with playwright-core in make/package.json and test/package.json,
+// test/baselines/Dockerfile (CHROME_VERSION), and test/run-baseline-tests.mjs (chrome_version).
+// Playwright 1.56.1 manages Chromium 141.0.7390.37 (revision 1194); visual baselines
+// retain 141.0.7390.54. The compatibility check below intentionally ignores the patch.
 export const supported_chromium_version: Version = [141, 0, 7390, 54]
 
 export function get_version_tuple(version: string): Version | null {
@@ -119,10 +150,6 @@ export function check_version(current_chromium_version: Version | null): void {
   }
 }
 
-type PerformanceMetrics = {
-  metrics: Array<{name: string, value: number}>
-}
-
 export class BrowserManager {
   private browser: Browser | null = null
   private page: Page | null = null
@@ -140,6 +167,7 @@ export class BrowserManager {
       "--disable-font-subpixel-positioning",  // makes images look similar on all platforms
       "--force-color-profile=srgb",           // ^^^
       "--force-device-scale-factor=1",        // ^^^
+      "--disable-lcd-text",                   // ^^^: ignores host's fontconfig sub-pixel (rgba) settings
     ]
     if (in_docker) {
       // Containers have no hardware GPU. Keep WebGL enabled through Chrome's
@@ -149,6 +177,7 @@ export class BrowserManager {
 
     const browser = await command("Browser.launch", chromium.launch({
       executablePath: this.executable,
+      timeout: BROWSER_LAUNCH_TIMEOUT,
       headless: true,
       // Ubuntu CI runners disable the unprivileged user namespaces Chromium's
       // sandbox requires. Preserve sandboxing for ordinary local runs.
@@ -157,7 +186,13 @@ export class BrowserManager {
       // hides them by default, unlike the former BokehJS Chrome launcher.
       ignoreDefaultArgs: ["--hide-scrollbars"],
       args,
-    }))
+    }), BROWSER_LAUNCH_WATCHDOG).catch((error: BrowserError) => {
+      const hint = sandbox_hint(this.executable, error.message)
+      if (hint != null) {
+        error.message += `\n\n${hint}`
+      }
+      throw error
+    })
     browser.on("disconnected", () => {
       this.crashed = true
     })
@@ -320,7 +355,7 @@ export class BrowserManager {
 
   async get_metrics(): Promise<Array<{name: string, value: number}>> {
     const session = this.get_session()
-    const data = await command("Performance.getMetrics", session.send("Performance.getMetrics")) as PerformanceMetrics
+    const data = await command("Performance.getMetrics", session.send("Performance.getMetrics"))
     return data.metrics
   }
 }

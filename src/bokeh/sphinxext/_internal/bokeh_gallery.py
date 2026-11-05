@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 import json
 import os
 from importlib import import_module
@@ -36,11 +35,9 @@ from os.path import (
 from pathlib import PurePath
 from typing import Any, TypedDict
 
-# External imports
 from sphinx.errors import SphinxError
 from sphinx.util.osutil import ensuredir
 
-# Bokeh imports
 from . import PARALLEL_SAFE, REPO_TOP, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
 from .templates import GALLERY_DETAIL, GALLERY_PAGE

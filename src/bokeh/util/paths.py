@@ -17,10 +17,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from pathlib import Path
 
-# Bokeh imports
 from .deprecation import deprecated
 
 #-----------------------------------------------------------------------------

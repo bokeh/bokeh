@@ -1,8 +1,16 @@
 import numpy as np
 
 from bokeh.layouts import column
-from bokeh.models import (BasicTickFormatter, ColumnDataSource, CustomJSTickFormatter,
-                          Div, FixedTicker, LinearAxis, LinearColorMapper, Range1d)
+from bokeh.models import (
+    BasicTickFormatter,
+    ColumnDataSource,
+    CustomJSTickFormatter,
+    Div,
+    FixedTicker,
+    LinearAxis,
+    LinearColorMapper,
+    Range1d,
+)
 from bokeh.plotting import figure
 from bokeh.sampledata.autompg import autompg_clean as df
 

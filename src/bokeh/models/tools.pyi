@@ -5,7 +5,6 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 from typing import (
     Any,
@@ -18,7 +17,6 @@ from typing import (
     Unpack,
 )
 
-# Bokeh imports
 from .._types import (
     Alpha,
     Color,
@@ -68,6 +66,7 @@ class Modifiers(TypedDict):
 
 class _ToolInit(_ModelInit, total=False):
     icon: IconLike | None
+    label: str | None
     description: str | None
     visible: bool
     group: str | bool
@@ -77,6 +76,7 @@ class Tool(Model):
     def __init__(self, **kwargs: Unpack[_ToolInit]) -> None: ...
 
     icon: IconLike | None = ...
+    label: str | None = ...
     description: str | None = ...
     visible: bool = ...
     group: str | bool = ...

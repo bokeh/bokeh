@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-# Standard library imports
 import asyncio
 import copy
 import json
@@ -9,14 +8,12 @@ from inspect import unwrap
 from typing import Any
 from unittest.mock import MagicMock, patch
 
-# External imports
 import pytest
 
 pytest.importorskip("nbconvert")
 nbformat = pytest.importorskip("nbformat")
 Config = pytest.importorskip("traitlets.config").Config
 
-# Bokeh imports
 from bokeh.embed import embed, embed_server
 from bokeh.io.jupyter import DISPLAY_MIME_TYPE, RESOURCES_MIME_TYPE, display_payload
 from bokeh.io.notebook import static_fallback

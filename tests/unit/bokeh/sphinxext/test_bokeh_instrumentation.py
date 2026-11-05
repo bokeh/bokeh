@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-# Standard library imports
 from pickle import dumps, loads
 from types import SimpleNamespace
 from typing import Any, cast
 
-# Bokeh imports
 from bokeh.sphinxext._internal.bokeh_model import (
     _env_merge_info as merge_model_timings,
     _ModelTiming,

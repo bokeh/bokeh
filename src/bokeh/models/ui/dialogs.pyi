@@ -5,10 +5,8 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Literal, Unpack
 
-# Bokeh imports
 from ...core.enums import MovableType as Movable, ResizableType as Resizable
 from ..dom import DOMNode
 from ..nodes import Node

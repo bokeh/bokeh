@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import atexit
 import io
 import os
@@ -40,7 +39,6 @@ if TYPE_CHECKING:
     from ..models.ui import UIElement
     from ..resources import ResourcesLike
 
-# Bokeh imports
 from ..resources import INLINE
 from ..settings import settings
 from ..util.dependencies import import_required

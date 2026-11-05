@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import contextlib
 import weakref
 from typing import (
@@ -31,7 +30,6 @@ from typing import (
     Iterator,
 )
 
-# Bokeh imports
 from ..util.datatypes import MultiValuedDict
 
 if TYPE_CHECKING:
@@ -111,7 +109,7 @@ class DocumentModelManager:
         del self._models_by_name
 
     @contextlib.contextmanager
-    def freeze(self) -> Generator[None, None, None]:
+    def freeze(self) -> Generator[None]:
         ''' Defer expensive model recomputation until intermediate updates are
         complete.
 

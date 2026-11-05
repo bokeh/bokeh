@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import datetime
 import logging
 import os
@@ -17,7 +16,6 @@ from typing import (
     cast,
 )
 
-# External imports
 import click
 import requests
 

@@ -137,14 +137,15 @@ The aggregate head remains standardized when the target branch is overridden.
 Before creating anything, `python -m tools.backport plan` requires every selected PR to be merged and
 to satisfy the release's issue-type policy:
 
-- every PR must have at least one linked closing issue;
+- every PR must have at least one linked closing issue, unless the PR itself is
+  a standalone task labeled `type: task`;
 - for patch releases `X.Y.Z` where `Z > 0`, every linked issue's native GitHub issue
   type must be `Bug` or `Task`; and
 - for a new minor release `X.Y.0`, the native `Feature` issue type is also allowed.
 
-Labels named `type: ...` do not count. Other native types, including `Discussion`, are
-never allowed. Pull requests do not have a native GitHub issue type, so a PR without a
-linked closing issue is rejected. The rule is based on the selected release version, so
+Other `type: ...` labels do not substitute for linked issues. Other native types,
+including `Discussion`, are never allowed. Standalone task PRs must still satisfy
+the issue-type policy for any linked closing issues. The rule is based on the selected release version, so
 a 4.0 feature can be selected for a 3.10.0 backport with:
 
 ```bash
@@ -275,6 +276,8 @@ This PR collects backports for 3.9.2.
 Clean rows have no third-column content. At publication, the tool creates one public gist
 containing the complete dual-color ``git range-diff`` output for every adapted pick on a
 light background. Each adapted row links directly to its revision-pinned rendered page.
+The comparison uses `--creation-factor=100` for each known original/backport pair so
+substantial adaptations, including moved implementation and test paths, remain paired.
 When an adaptation changes binary files that `git range-diff` cannot display, the linked
 page shows a compact notice naming those files; the aggregate PR table remains unchanged.
 
@@ -301,8 +304,13 @@ The command requests a rebase merge of the exact checked head. After success, it
 - moves included source PRs and their current linked closing issues to the target-release
   milestone;
 - removes `NEEDS BACK PORT` from included source PRs when present;
-- sets the aggregate PR milestone; and
+- sets the aggregate PR milestone and replaces its `status:` labels with
+  `status: accepted`, preserving unrelated labels; and
 - deletes the remote `backport/<version>` branch.
+
+During preflight and finalization, the command prints the current step, CI check/status
+counts, and each source PR's position in the metadata updates so long-running GitHub
+requests do not leave only an unexplained spinner.
 
 Rejected PRs and their issues retain their existing milestones. If finalization needs to
 be retried after the PR is already merged, run `python -m tools.backport merge NUMBER`.

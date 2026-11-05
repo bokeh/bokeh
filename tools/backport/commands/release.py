@@ -1,10 +1,8 @@
 """Aggregate PR merge command."""
 
-# External imports
 import rich_click as click
 from rich.panel import Panel
 
-# Bokeh imports
 from ..candidates import milestone_for_version
 from ..github import BOKEH_REPOSITORY, GitHubAPI
 from ..merging import find_backport_pr, merge_plan, published_plan_from_pr
@@ -35,11 +33,12 @@ def merge(number: int | None) -> None:
 
     console.print(merge_summary(plan))
     confirm(
-        f"Rebase-merge and move included PRs/issues to {milestone_for_version(plan.version)}, remove labels, and delete the branch?",
+        f"Rebase-merge and move included PRs/issues to {milestone_for_version(plan.version)}, "
+        "mark the aggregate PR accepted, remove backport labels, and delete the branch?",
     )
     merge_sha, warnings = busy(
         "Checking CI, merging, and finalizing release metadata",
-        lambda: merge_plan(api, plan),
+        lambda: merge_plan(api, plan, progress=lambda message: console.print(message, markup=False)),
     )
     console.print(
         Panel(

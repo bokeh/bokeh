@@ -20,18 +20,15 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import calendar
 import datetime as dt
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, cast
 from urllib.parse import urlparse
 
-# External imports
 from tornado import locks, web
 from tornado.websocket import WebSocketClosedError, WebSocketHandler
 
-# Bokeh imports
 from bokeh.settings import settings
 from bokeh.util.token import (
     TokenDecodeError,
@@ -40,7 +37,6 @@ from bokeh.util.token import (
     get_token_payload,
 )
 
-# Bokeh imports
 from ...protocol import ack
 from ...protocol.exceptions import ProtocolError
 from ...protocol.message import Message
@@ -127,8 +123,8 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
         if check_allowlist(origin_host, list(allowed_hosts)):
             return True
 
-        log.error("Refusing websocket connection from Origin '%s'; \
-                    use --allow-websocket-origin=%s or set BOKEH_ALLOW_WS_ORIGIN=%s to permit this; currently we allow origins %r",
+        log.error("Refusing websocket connection from Origin %r; \
+                    use --allow-websocket-origin=%r or set BOKEH_ALLOW_WS_ORIGIN=%r to permit this; currently we allow origins %r",
                     origin, origin_host, origin_host, allowed_hosts)
         return False
 

@@ -8,15 +8,11 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import asyncio
 import json
 import re
@@ -27,15 +23,13 @@ from pathlib import Path
 from types import ModuleType, SimpleNamespace
 from typing import TYPE_CHECKING, Literal
 
-# External imports
 import PIL.Image
+import pytest
 
-## External imports
 if TYPE_CHECKING:
     from playwright.sync_api import Browser
     from selenium.webdriver.remote.webdriver import WebDriver
 
-# Bokeh imports
 from bokeh.core.validation import silenced
 from bokeh.core.validation.warnings import MISSING_RENDERERS
 from bokeh.document import Document

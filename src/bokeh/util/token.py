@@ -24,7 +24,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import base64
 import calendar
 import codecs
@@ -36,7 +35,6 @@ import time
 import zlib
 from typing import TYPE_CHECKING, Any
 
-# Bokeh imports
 from ..settings import settings
 
 if TYPE_CHECKING:

@@ -19,12 +19,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from functools import wraps
 from inspect import Parameter, Signature, signature
 from typing import Any, Callable, cast
 
-# Bokeh imports
 from ._docstring import ParameterSpec, generate_docstring
 from ._renderer import create_renderer
 

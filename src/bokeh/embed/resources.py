@@ -8,7 +8,6 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import hashlib
 import json
 import os
@@ -29,7 +28,6 @@ from typing import (
 )
 from urllib.parse import urljoin
 
-# Bokeh imports
 from ..core.has_props import HasProps
 from ..core.property.bases import ParameterizedProperty, Property
 from ..core.property.container import Dict, Seq, Tuple

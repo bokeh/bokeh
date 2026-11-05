@@ -5,11 +5,9 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 from typing import Unpack
 
-# Bokeh imports
 from ..core.enums import TextureRepetitionType as TextureRepetition
 from ..core.property.visual import ImageType as Image
 from ..model.model import Model, _ModelInit

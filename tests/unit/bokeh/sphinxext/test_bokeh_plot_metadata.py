@@ -1,17 +1,14 @@
 from __future__ import annotations
 
-# Standard library imports
 from io import StringIO
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
-# External imports
 import pytest
 from sphinx.application import Sphinx
 from sphinx.testing.util import _clean_up_global_state
 
-# Bokeh imports
 from bokeh.sphinxext.bokeh_plot import BokehPlotDirective, env_merge_info, env_purge_doc
 
 

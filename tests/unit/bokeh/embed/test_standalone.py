@@ -7,14 +7,11 @@
 
 from __future__ import annotations
 
-# Standard library imports
 from collections import OrderedDict
 from typing import Any
 
-# External imports
 import pytest
 
-# Bokeh imports
 import bokeh.embed.standalone as bes
 from bokeh.document import Document
 from bokeh.models.plots import Plot

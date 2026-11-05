@@ -15,9 +15,19 @@ from itertools import product
 
 from bokeh.io import show
 from bokeh.layouts import gridplot
-from bokeh.models import (BasicTicker, ColumnDataSource, DataRange1d,
-                          Grid, LassoSelectTool, LinearAxis, PanTool,
-                          Plot, ResetTool, Scatter, WheelZoomTool)
+from bokeh.models import (
+    BasicTicker,
+    ColumnDataSource,
+    DataRange1d,
+    Grid,
+    LassoSelectTool,
+    LinearAxis,
+    PanTool,
+    Plot,
+    ResetTool,
+    Scatter,
+    WheelZoomTool,
+)
 from bokeh.sampledata.penguins import data
 from bokeh.transform import factor_cmap
 

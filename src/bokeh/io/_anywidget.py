@@ -8,7 +8,6 @@
 
 from __future__ import annotations
 
-# Standard library imports
 from collections import OrderedDict
 from collections.abc import Mapping
 from pathlib import Path
@@ -22,7 +21,6 @@ from typing import (
     cast,
 )
 
-# External imports
 import anywidget
 import traitlets
 

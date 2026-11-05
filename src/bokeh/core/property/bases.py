@@ -26,7 +26,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from collections.abc import Mapping
 from contextvars import ContextVar
 from copy import copy
@@ -38,7 +37,6 @@ from typing import (
     cast,
 )
 
-# Bokeh imports
 from ...util.dependencies import uses_pandas
 from ._sphinx import property_link, register_type_link, type_link
 from .descriptors import AliasPropertyDescriptor, PropertyDescriptor
@@ -83,7 +81,7 @@ type Init[T] = T | UndefinedType | _NotGivenType
 
 type ModelInit[T] = T | _NotGivenType
 
-class Property[T]:
+class Property[T = Any]:
     """ Base class for Bokeh property instances, which can be added to Bokeh
     Models.
 
@@ -449,7 +447,7 @@ class Property[T]:
         else:
             return self
 
-class ParameterizedProperty[T](Property[T]):
+class ParameterizedProperty[T = Any](Property[T]):
     """ A base class for Properties that have type parameters, e.g. ``List(String)``.
 
     """
@@ -516,7 +514,7 @@ class ParameterizedProperty[T](Property[T]):
             params = [ type_param.replace(old, new) for type_param in self.type_params ]
             return self.__class__(*params)
 
-class SingleParameterizedProperty[T](ParameterizedProperty[T]):
+class SingleParameterizedProperty[T = Any](ParameterizedProperty[T]):
     """ A parameterized property with a single type parameter. """
 
     @property
@@ -536,7 +534,7 @@ class SingleParameterizedProperty[T](ParameterizedProperty[T]):
     def wrap(self, value: T) -> T:
         return self.type_param.wrap(value)
 
-class PrimitiveProperty[T](Property[T]):
+class PrimitiveProperty[T = Any](Property[T]):
     """ A base class for simple property types.
 
     Subclasses should define a class attribute ``_underlying_type`` that is
@@ -571,7 +569,7 @@ class PrimitiveProperty[T](Property[T]):
         msg = f"expected a value of type {expected_type}, got {value} of type {type(value).__name__}"
         raise ValueError(msg)
 
-class ContainerProperty[T](ParameterizedProperty[T]):
+class ContainerProperty[T = Any](ParameterizedProperty[T]):
     """ A base class for Container-like type properties.
 
     """

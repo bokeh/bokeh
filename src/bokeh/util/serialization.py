@@ -27,7 +27,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import datetime as dt
 import sys
 import uuid
@@ -41,10 +40,8 @@ from typing import (
     cast,
 )
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from ..settings import settings
 from .dependencies import is_installed, uses_pandas
 from .strings import format_docstring

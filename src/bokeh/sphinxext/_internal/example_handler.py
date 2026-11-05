@@ -17,10 +17,8 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import TYPE_CHECKING, Any
 
-# Bokeh imports
 from bokeh.application.handlers.code_runner import CodeRunner
 from bokeh.application.handlers.handler import Handler
 from bokeh.io.doc import curdoc, patch_curdoc
@@ -56,10 +54,11 @@ class ExampleHandler(Handler):
 
     _output_funcs: list[str] = []
     _io_funcs = ["show", "save"]
+    _doc: str | None = None
 
     def __init__(self, source: str, filename: PathLike) -> None:
         super().__init__()
-        self._runner = CodeRunner(source, filename, ())
+        self._runner = CodeRunner(source, filename, (), optimize=0)
 
     def modify_document(self, doc: Document) -> None:
         '''Execute the example source against a document.
@@ -84,6 +83,7 @@ class ExampleHandler(Handler):
         try:
             with patch_curdoc(doc):
                 self._runner.run(module, lambda: None)
+                self._doc = module.__doc__
         finally:
             self._unmonkeypatch(old_funcs, old_doc)
 
@@ -142,7 +142,7 @@ class ExampleHandler(Handler):
 
     @property
     def doc(self) -> str | None:
-        return self._runner.doc
+        return self._doc
 
 # -----------------------------------------------------------------------------
 # Private API

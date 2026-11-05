@@ -8,15 +8,11 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import asyncio
 import os
 import threading
@@ -24,10 +20,9 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
-# External imports
+import pytest
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest, HTTPResponse
 
-# Bokeh imports
 import bokeh.server.views.static_handler as static_handler
 from bokeh.application import Application
 from bokeh.server.views.static_handler import AsyncStaticFileHandler

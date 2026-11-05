@@ -1,16 +1,12 @@
 from __future__ import annotations
 
-# Standard library imports
 import os
 from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import Any
 
-# External imports
 import pytest
 
-# Bokeh imports
-# Bokeh test imports
 from tests.tools.release._support import AbortCalled, RecordingSystem
 from tools.release import ui
 from tools.release.action import (
@@ -274,3 +270,11 @@ def test_pipeline_aborts_on_first_failure() -> None:
 
     assert called == ["failing"]
     assert system.aborted is True
+
+
+def test_system_stdout_capture_keeps_stderr_in_failure_details(monkeypatch):
+    result = type("Result", (), {"returncode": 1, "stdout": "output", "stderr": "AWS error"})()
+    monkeypatch.setattr("tools.release.system.stdlib_run", lambda *args, **kw: result)
+    with pytest.raises(RuntimeError) as error:
+        System().run("bad", capture_stdout_only=True)
+    assert error.value.args == ("output", "AWS error")

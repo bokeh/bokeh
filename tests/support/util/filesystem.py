@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 import shutil
 import sys
@@ -35,7 +34,6 @@ from typing import (
     Iterator,
 )
 
-# Bokeh imports
 from bokeh.core.types import PathLike
 
 #-----------------------------------------------------------------------------

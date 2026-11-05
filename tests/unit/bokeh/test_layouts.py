@@ -8,18 +8,15 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 from unittest import mock
 
-# Bokeh imports
+import pytest
+
 from bokeh.core.validation import check_integrity, process_validation_issues
 from bokeh.layouts import (
     column,
@@ -259,6 +256,21 @@ def test_repeated_children() -> None:
 
     test(GridBox(children=[(p0, 0, 0), (p1, 1, 0), (p0, 2, 0)]))
     test(gridplot([[p0], [p1], [p0]], toolbar_location=None))
+
+@pytest.mark.parametrize("nrows", [0, -2, 2.5, "2"])
+def test_grid_invalid_nrows(nrows) -> None:
+    with pytest.raises(ValueError, match="nrows must be a positive integer"):
+        grid([Spacer()], nrows=nrows)
+
+@pytest.mark.parametrize("ncols", [0, -1, 2.5, "2"])
+def test_grid_invalid_ncols(ncols) -> None:
+    with pytest.raises(ValueError, match="ncols must be a positive integer"):
+        grid([Spacer()], ncols=ncols)
+
+@pytest.mark.parametrize("ncols", [0, -5, 2.5, "2"])
+def test_gridplot_invalid_ncols(ncols) -> None:
+    with pytest.raises(ValueError, match="ncols must be a positive integer"):
+        gridplot([Spacer()], ncols=ncols)
 
 def test_group_tools() -> None:
     pan0 = PanTool(dimensions="both")

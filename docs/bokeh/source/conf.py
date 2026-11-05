@@ -5,7 +5,6 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 import locale
 
 locale.setlocale(locale.LC_TIME, "C")
@@ -17,7 +16,6 @@ from datetime import date
 
 from sphinx.util import logging
 
-# Bokeh imports
 from bokeh import __version__
 from bokeh.settings import settings
 

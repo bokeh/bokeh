@@ -8,20 +8,17 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import datetime as dt
 from math import isnan
 from unittest import mock
 
-# Bokeh imports
+import pytest
+
 from bokeh.core.validation import check_integrity, process_validation_issues
 
 from _util_models import check_properties_existence

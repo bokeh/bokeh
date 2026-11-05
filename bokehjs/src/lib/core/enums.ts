@@ -187,6 +187,9 @@ export type Side = typeof Side["__type__"]
 export const SizingMode = Enum("stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed", "inherit")
 export type SizingMode = typeof SizingMode["__type__"]
 
+export const SliderAppearance = Enum("normal", "stealth")
+export type SliderAppearance = typeof SliderAppearance["__type__"]
+
 export const Sort = Enum("ascending", "descending")
 export type Sort = typeof Sort["__type__"]
 

@@ -19,10 +19,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import TYPE_CHECKING, Any, Sequence
 
-# Bokeh imports
 from ..models.graphs import StaticLayoutProvider
 from ..models.renderers import GraphRenderer
 

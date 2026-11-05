@@ -1,12 +1,9 @@
 from __future__ import annotations
 
-# Standard library imports
 from typing import Iterator
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh import __version__
 from bokeh.embed.resources import ResourceRequirements
 from bokeh.settings import PrioritizedSetting, settings

@@ -5,7 +5,6 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 from typing import (
     Any,
@@ -14,7 +13,6 @@ from typing import (
     Unpack,
 )
 
-# Bokeh imports
 from ..._types import (
     Color,
     ColorHex,

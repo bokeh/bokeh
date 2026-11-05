@@ -21,10 +21,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import TYPE_CHECKING
 
-# Bokeh imports
 from ...core.property.container import Seq
 from ...core.property.instance import Instance
 from ...core.property.numeric import Float

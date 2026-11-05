@@ -1,12 +1,10 @@
 """Aggregate pull-request publication and GitHub bookkeeping."""
 
-# Standard library imports
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote
 
-# Bokeh imports
 from .aggregate import render_pr_body
 from .candidates import BACKPORT_LABEL, milestone_for_version
 from .git import GitRepo

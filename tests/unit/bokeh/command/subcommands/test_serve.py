@@ -8,15 +8,11 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import argparse
 import contextlib
 import os.path
@@ -33,7 +29,8 @@ from threading import Thread
 from typing import IO
 from urllib.request import urlopen
 
-# Bokeh imports
+import pytest
+
 from bokeh.command.subcommand import Argument
 from bokeh.resources import DEFAULT_SERVER_PORT
 from tests.support.util.env import envset

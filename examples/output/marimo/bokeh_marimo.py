@@ -1,4 +1,3 @@
-# External imports
 import marimo
 
 __generated_with = "0.24.0"

@@ -1,8 +1,6 @@
-# Standard library imports
 import unittest
 from unittest.mock import MagicMock, patch
 
-# Bokeh imports
 from tests.tools.backport._support import candidate, state_with
 from tools.backport import BackportError, interactive
 from tools.backport.models import DedicatedCommit

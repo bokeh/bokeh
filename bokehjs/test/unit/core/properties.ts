@@ -137,6 +137,27 @@ describe("properties module", () => {
     })
   })
 
+  describe("CoordinateSeqSpec", () => {
+    it("preserves empty shaped coordinate rows", () => {
+      for (const shape of [[0, 3], [2, 0]]) {
+        const source = ColumnDataSource.create({data: {xs: ndarray(new Float64Array(), {shape})}})
+        const obj = Some.create({coordinate_seq_spec: {field: "xs"}})
+        const rows = obj.properties.coordinate_seq_spec.array(source)
+        expect(Array.from(rows, (row) => Array.from(row as ArrayLike<number>)))
+          .to.be.equal(Array.from({length: shape[0]}, () => []))
+      }
+    })
+
+    it("materializes dates in shaped coordinate rows", () => {
+      const xs = ndarray(["2025-01-01", "2025-01-02"], {dtype: "object", shape: [1, 2]})
+      const source = ColumnDataSource.create({data: {xs}})
+      const obj = Some.create({coordinate_seq_spec: {field: "xs"}})
+      const rows = obj.properties.coordinate_seq_spec.array(source, true)
+      expect(Array.from(rows, (row) => Array.from(row as ArrayLike<number>)))
+        .to.be.equal([[Date.UTC(2025, 0, 1), Date.UTC(2025, 0, 2)]])
+    })
+  })
+
   function enum_validation_errors(prop: p.Property<unknown>): void {
     expect(prop.valid(true)).to.be.false
     expect(prop.valid(10)).to.be.false
@@ -320,7 +341,7 @@ describe("properties module", () => {
 
       it("should apply a spec transform to a field", () => {
         const source = ColumnDataSource.create({data: {foo: [0, 1, 2, 3, 10]}})
-        const obj = Some.create({number_spec: {field: "foo", transform: TestTransform.create()}} as any) // XXX: transform
+        const obj = Some.create({number_spec: {field: "foo", transform: TestTransform.create()}}) // XXX: transform
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
         expect(arr).to.be.equal(new Float64Array([0, 2, 4, 6, 14]))
@@ -328,7 +349,7 @@ describe("properties module", () => {
 
       it("should apply a spec transform to a value array", () => {
         const source = ColumnDataSource.create({data: {foo: [0, 1, 2, 3, 10]}})
-        const obj = Some.create({number_spec: {value: 2, transform: TestTransform.create()}} as any) // XXX: transform
+        const obj = Some.create({number_spec: {value: 2, transform: TestTransform.create()}}) // XXX: transform
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
         expect(arr).to.be.equal(new Float64Array([2, 3, 4, 5, 6]))

@@ -1,10 +1,9 @@
 """Aggregate pull-request and CI validation."""
 
-# Standard library imports
 import re
+from collections.abc import Callable
 from typing import Any
 
-# Bokeh imports
 from . import BackportError
 from .github import GitHubAPI, repository_path
 
@@ -111,6 +110,8 @@ def check_pr_ci(
     api: GitHubAPI,
     repository: str,
     pr: dict[str, Any],
+    *,
+    progress: Callable[[str], None] = lambda message: None,
 ) -> None:
     root = repository_path(repository)
     candidate_shas = [
@@ -124,14 +125,17 @@ def check_pr_ci(
         if not sha or sha in seen:
             continue
         seen.add(sha)
+        progress(f"Fetching CI check runs for {sha[:12]}")
         runs = api.get_all(
             f"{root}/commits/{sha}/check-runs",
             list_key="check_runs",
         )
         runs = latest_check_runs(runs)
+        progress(f"Fetching commit statuses for {sha[:12]} ({len(runs)} latest check runs)")
         status = api.request("GET", f"{root}/commits/{sha}/status")
         problems = evaluate_checks(runs, status)
         has_results = bool(runs or status.get("statuses"))
+        progress(f"CI for {sha[:12]}: {len(runs)} checks, {len(status.get('statuses', []))} statuses, {len(problems)} blockers")
         if has_results and not problems:
             return
         if has_results:

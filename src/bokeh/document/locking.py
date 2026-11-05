@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import inspect
 import threading
 import weakref
@@ -36,7 +35,6 @@ from typing import (
     cast,
 )
 
-## Bokeh imports
 if TYPE_CHECKING:
     from ..application.application import SessionContext
     from ..server.callbacks import NextTickCallback
@@ -345,7 +343,7 @@ class UnlockedDocumentProxy: # TODO(mypy): this needs to implement Document inte
         ''' Add a "next tick" callback.
 
         Args:
-            callback (callable) :
+            callback (callable) : callback function
 
         '''
         return self._doc.add_next_tick_callback(callback)
@@ -354,7 +352,7 @@ class UnlockedDocumentProxy: # TODO(mypy): this needs to implement Document inte
         ''' Remove a "next tick" callback.
 
         Args:
-            callback (callable) :
+            callback (callable) : callback function
 
         '''
         self._doc.remove_next_tick_callback(callback)

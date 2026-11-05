@@ -29,7 +29,7 @@ export class HTMLView extends DOMElementView {
   }
 
   protected async _update_refs(): Promise<void> {
-    await build_views(this._refs, this.refs)
+    await build_views(this._refs, this.refs, {parent: this})
   }
 
   override _children_views(): ChildView[] {

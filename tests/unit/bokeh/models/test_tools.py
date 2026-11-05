@@ -9,19 +9,17 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+import pytest
 
 # Module under test
 from bokeh.models.tools import Tool, Toolbar # isort:skip
 import bokeh.models.tools as t # isort:skip
 
-# Bokeh imports
 from bokeh.core.validation.check import ValidationIssues, check_integrity
 from bokeh.models import (
     Block,

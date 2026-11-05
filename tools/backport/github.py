@@ -1,13 +1,11 @@
 """Small JSON interface to GitHub through the authenticated ``gh`` CLI."""
 
-# Standard library imports
 import json
 import re
 import subprocess
 from collections.abc import Iterable
 from typing import Any
 
-# Bokeh imports
 from . import BackportError
 
 BOKEH_REPOSITORY = "bokeh/bokeh"

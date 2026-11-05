@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from ...core.property.instance import Instance, InstanceDefault
 from ...core.validation import error
 from ...core.validation.errors import INVALID_PROPERTY_VALUE, MALFORMED_GRAPH_SOURCE

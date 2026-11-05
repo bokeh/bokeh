@@ -15,9 +15,24 @@ from math import pi
 from bokeh import palettes
 from bokeh.document import Document
 from bokeh.embed import embed
-from bokeh.models import (BuiltinIcon, ByCSS, Column, ColumnDataSource, CustomJS,
-                          Dialog, Examiner, GroupBox, Row, SetValue, SVGIcon,
-                          TablerIcon, TabPanel, Tabs, Tooltip, widgets as w)
+from bokeh.models import (
+    BuiltinIcon,
+    ByCSS,
+    Column,
+    ColumnDataSource,
+    CustomJS,
+    Dialog,
+    Examiner,
+    GroupBox,
+    Row,
+    SetValue,
+    SVGIcon,
+    TablerIcon,
+    TabPanel,
+    Tabs,
+    Tooltip,
+    widgets as w,
+)
 from bokeh.models.dom import HTML, ValueOf
 from bokeh.plotting import figure
 from bokeh.sampledata.autompg2 import autompg2 as mpg

@@ -11,8 +11,13 @@ use of mathtext on axes and in ``Div`` objects.
 import numpy as np
 
 from bokeh.layouts import column
-from bokeh.models import (Div, ScaledTicker, ScaledTickFormatter,
-                          SingleIntervalTicker, TeX)
+from bokeh.models import (
+    Div,
+    ScaledTicker,
+    ScaledTickFormatter,
+    SingleIntervalTicker,
+    TeX,
+)
 from bokeh.plotting import figure, show
 
 p = figure(width=670, height=400, toolbar_location=None,

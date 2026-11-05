@@ -5,10 +5,8 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import TypedDict
 
-# Bokeh imports
 from .._specs import (
     AlphaSpec,
     ColorSpec,

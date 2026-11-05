@@ -34,11 +34,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import sys
 from typing import Any, cast
 
-# Bokeh imports
 from ..settings import settings
 
 #-----------------------------------------------------------------------------

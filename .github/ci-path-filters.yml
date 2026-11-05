@@ -21,6 +21,7 @@ tools:
   - 'tools/**'
   - '!tools/ci/**'
   - 'src/**'
+  - 'docs/bokeh/api_reference/**'
 
 examples:
   - 'src/**'

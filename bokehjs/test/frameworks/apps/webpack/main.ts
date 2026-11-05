@@ -1,6 +1,6 @@
-import type {BokehMount} from "@bokeh/bokehjs"
-import {defineBokehDocumentElement, defineBokehElement, defineBokehRootElement} from "@bokeh/web-component"
-import type {BokehDocumentElement, BokehElement, BokehRootElement} from "@bokeh/web-component"
+import type {BokehMount, ClientSession} from "@bokeh/bokehjs"
+import {defineBokehDocumentElement, defineBokehElement, defineBokehRootElement, defineBokehSessionElement} from "@bokeh/web-component"
+import type {BokehDocumentElement, BokehElement, BokehRootElement, BokehSessionElement} from "@bokeh/web-component"
 
 import {install_framework_test} from "../shared"
 
@@ -9,6 +9,7 @@ const PrimaryElement = defineBokehElement("bokeh-ci-plot")
 const SecondaryElement = defineBokehElement("bokeh-ci-secondary")
 defineBokehDocumentElement("bokeh-ci-document")
 defineBokehRootElement("bokeh-ci-root")
+defineBokehSessionElement("bokeh-ci-session")
 if (PrimaryElement == SecondaryElement) {
   throw new Error("different custom-element names unexpectedly reused one constructor")
 }
@@ -60,5 +61,34 @@ install_framework_test("web-component-webpack", ({model, mountOptions, onMounted
   return {
     target: () => element,
     unmount: () => element.remove(),
+  }
+}, ({source, onSession, onMounted, onError}) => {
+  const host = document.createElement("div")
+  const provider = document.createElement("bokeh-ci-session") as BokehSessionElement
+  provider.source = source
+  provider.addEventListener("bokeh-session", (event) => onSession((event as CustomEvent<ClientSession>).detail))
+  provider.addEventListener("bokeh-mount", (event) => onMounted((event as CustomEvent<BokehMount>).detail))
+  provider.addEventListener("bokeh-mount-error", (event) => onError((event as CustomEvent<unknown>).detail))
+  const slots = new Map<string, BokehRootElement>()
+  host.append(provider)
+  for (const name of ["first", "second", "late"]) {
+    const slot = document.createElement("bokeh-ci-root") as BokehRootElement
+    slot.model = name
+    slot.bokehDocument = provider
+    slots.set(name, slot)
+    host.append(slot)
+  }
+  container.append(host)
+  return {
+    target: (name) => slots.get(name) ?? null,
+    showFirst: (visible) => {
+      const first = slots.get("first")!
+      if (visible) {
+        host.append(first)
+      } else {
+        first.remove()
+      }
+    },
+    unmount: () => host.remove(),
   }
 })

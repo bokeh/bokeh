@@ -8,19 +8,16 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import json
 from pathlib import Path
 
-# Bokeh imports
+import pytest
+
 from bokeh.core.serialization import Buffer
 from bokeh.core.types import ID
 from bokeh.protocol import ack

@@ -8,15 +8,11 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import datetime as dt
 import gzip
 import sys
@@ -28,10 +24,9 @@ from types import SimpleNamespace
 from typing import Any, Sequence
 from unittest.mock import patch
 
-# External imports
 import numpy as np
+import pytest
 
-# Bokeh imports
 from bokeh.colors import RGB
 from bokeh.core.has_props import HasProps
 from bokeh.core.properties import (
@@ -185,7 +180,9 @@ class TestBuffer:
 
         assert isinstance(ret, bytes)
 
-        # make sure the gzip header "OS" field is *always* set to "unknown" (255)
+        assert ret[4:8] == b"\x00"*4
+
+        # The gzip header OS field must be unknown on every platform.
         assert ret[9] == 255
 
         assert gzip.decompress(ret) == val
@@ -199,7 +196,9 @@ class TestBuffer:
 
         assert isinstance(ret, bytes)
 
-        # make sure the gzip header "OS" field is *always* set to "unknown" (255)
+        assert ret[4:8] == b"\x00"*4
+
+        # The gzip header OS field must be unknown on every platform.
         assert ret[9] == 255
 
         assert gzip.decompress(ret) == val
@@ -213,7 +212,7 @@ class TestBuffer:
         monkeypatch.setenv("BOKEH_COMPRESSION_LEVEL", f"{level}")
         buf.to_compressed_bytes()
 
-        compress.assert_called_once_with(val, mtime=1, compresslevel=level)
+        compress.assert_called_once_with(val, mtime=0, compresslevel=level)
 
     def test_to_base64(self):
         val = b"\x001\xefabc\x12"

@@ -20,14 +20,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import weakref
 from contextlib import contextmanager
 from contextvars import ContextVar
 from threading import local
 from typing import Generator, cast
 
-# Bokeh imports
 from ..document import Document, DocumentLike
 
 #-----------------------------------------------------------------------------

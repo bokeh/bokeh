@@ -8,15 +8,11 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import asyncio
 import inspect
 import logging
@@ -30,7 +26,7 @@ from datetime import timedelta
 from pathlib import Path
 from unittest import mock
 
-# External imports
+import pytest
 import tornado
 from _util_server import (
     http_get,
@@ -42,7 +38,6 @@ from tornado.httpclient import AsyncHTTPClient, HTTPError, HTTPRequest
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 
-# Bokeh imports
 from bokeh.application import Application
 from bokeh.application.handlers import Handler
 from bokeh.client import pull_session
@@ -816,6 +811,32 @@ async def test__accept_session_websocket(ManagedServerLoop: MSL) -> None:
         msg = await ws.read_queue.get()
         assert isinstance(msg, str)
         assert 'ACK' in msg
+
+@pytest.mark.parametrize(("allowed_host", "origin_host"), [
+    ("[::1]", "[::1]"),
+    ("[::1]:5006", "[::1]:5006"),
+    ("[0:0:0:0:0:0:0:1]:5006", "[::1]:5006"),
+    ("[::1]:5006", "[0:0:0:0:0:0:0:1]:5006"),
+])
+async def test__accept_ipv6_origin_websocket(ManagedServerLoop: MSL, allowed_host: str, origin_host: str) -> None:
+    application = Application()
+    with ManagedServerLoop(application, allow_websocket_origin=[allowed_host]) as server:
+        token = generate_jwt_token("ipv6-session")
+        ws = await websocket_open(server.io_loop, ws_url(server), origin=f"http://{origin_host}", subprotocols=["bokeh", token], auto_close=False)
+        try:
+            msg = await ws.read_queue.get()
+            assert isinstance(msg, str)
+            assert "ACK" in msg
+        finally:
+            ws.close()
+
+@pytest.mark.parametrize("origin_host", ["[::2]:5006", "[::1]:5007"])
+async def test__reject_ipv6_origin_websocket(ManagedServerLoop: MSL, origin_host: str) -> None:
+    application = Application()
+    with ManagedServerLoop(application, allow_websocket_origin=["[::1]:5006"]) as server:
+        token = generate_jwt_token("ipv6-session")
+        with pytest.raises(HTTPError, match="403"):
+            await websocket_open(server.io_loop, ws_url(server), origin=f"http://{origin_host}", subprotocols=["bokeh", token])
 
 async def test__reject_expired_session_websocket(ManagedServerLoop: MSL) -> None:
     application = Application()

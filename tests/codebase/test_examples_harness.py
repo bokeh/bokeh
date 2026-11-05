@@ -8,22 +8,19 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import os
 import subprocess
 import sys
 import time
 from pathlib import Path
 
-# Bokeh imports
+import pytest
+
 from tests import test_examples as examples
 from tests.support.util.examples import Example, Flags
 
@@ -97,6 +94,41 @@ time.sleep(60)
     finally:
         release.touch()
         examples._close_process(proc)
+
+def test_report_output_includes_stdout_and_stderr() -> None:
+    output = examples._report_output("printed", "Traceback: boom\n")
+
+    assert output == "\nprinted\nTraceback: boom"
+
+def test_report_output_omits_earlier_lines() -> None:
+    lines = [f"line {n}" for n in range(examples._MAX_REPORTED_OUTPUT_LINES + 5)]
+    output = examples._report_output("\n".join(lines) + "\n", "")
+
+    assert output.startswith("\n... 5 earlier lines omitted ...\n")
+    assert "line 0" not in output
+    assert "line 44" in output
+
+def test_report_output_is_empty_without_output() -> None:
+    assert examples._report_output("", "\n \n") == ""
+
+def test_check_example_status_reports_the_output() -> None:
+    example = Example("examples/gears.py", Flags.file, "examples")
+
+    with pytest.raises(AssertionError) as exc:
+        examples._check_example_status(example, 1, "printed\n", "boom\n")
+
+    assert "gears.py failed to run (exit code 1)" in str(exc.value)
+    assert "printed" in str(exc.value)
+    assert "boom" in str(exc.value)
+
+def test_check_example_status_reports_a_timeout() -> None:
+    example = Example("examples/gears.py", Flags.file, "examples")
+
+    with pytest.raises(AssertionError) as exc:
+        examples._check_example_status(example, "timeout", "", "boom\n")
+
+    assert "gears.py timed out" in str(exc.value)
+    assert "boom" in str(exc.value)
 
 #-----------------------------------------------------------------------------
 # Dev API

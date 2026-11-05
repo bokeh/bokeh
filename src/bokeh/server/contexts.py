@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import asyncio
 import weakref
 from typing import (
@@ -32,7 +31,6 @@ from typing import (
     cast,
 )
 
-# Bokeh imports
 from ..application.application import ServerContext, SessionContext
 from ..document import Document
 from ..protocol.exceptions import ProtocolError

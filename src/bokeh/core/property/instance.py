@@ -23,12 +23,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import types
 from importlib import import_module
 from typing import Any, Callable, cast
 
-# Bokeh imports
 from ..has_props import HasProps
 from ..serialization import Serializable
 from ._sphinx import model_link, property_link, register_type_link

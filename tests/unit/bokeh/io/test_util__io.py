@@ -8,15 +8,11 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import json
 import os
 import re
@@ -26,7 +22,8 @@ from pathlib import Path
 from types import ModuleType
 from unittest.mock import ANY, MagicMock, patch
 
-# Bokeh imports
+import pytest
+
 from bokeh import __version__
 from bokeh.embed._util import ThemePolicy
 from bokeh.models import Plot

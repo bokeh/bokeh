@@ -20,10 +20,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Literal, NotRequired, TypedDict
 
-# Bokeh imports
 from . import enums
 from .property.auto import Auto
 from .property.container import Dict, List, Tuple

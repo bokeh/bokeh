@@ -7,7 +7,6 @@
 
 # pyright: reportIncompatibleVariableOverride=false
 
-# Standard library imports
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -16,7 +15,6 @@ from typing import (
     Unpack,
 )
 
-# External imports
 import cartopy.crs as ccrs
 import numpy as np
 import numpy.typing as npt
@@ -26,7 +24,6 @@ if TYPE_CHECKING: # to work around ruff(TID253)
     from pandas import DataFrame
     from pandas.core.groupby import GroupBy
 
-# Bokeh imports
 from .._types import (
     Color,
     Datetime,

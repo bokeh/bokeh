@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-# Standard library imports
 from types import SimpleNamespace
 from typing import Any
 
-# External imports
 from docutils import nodes
 
-# Bokeh imports
 from bokeh.sphinxext._internal.bokeh_sampledata_xref import (
     gallery_xrefs,
     merge_gallery_xrefs,

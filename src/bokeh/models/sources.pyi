@@ -5,7 +5,6 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 from typing import (
     TYPE_CHECKING,
@@ -17,14 +16,12 @@ from typing import (
     overload,
 )
 
-# External imports
 import numpy.typing as npt
 
 if TYPE_CHECKING:
     import pandas as pd
     from pandas.core.groupby import GroupBy
 
-# Bokeh imports
 from .._types import JSON
 from ..core.has_props import Setter
 from ..model.model import Model, _ModelInit

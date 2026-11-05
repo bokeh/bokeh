@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 import socket
 import subprocess
@@ -33,12 +32,10 @@ from typing import (
     Iterator,
 )
 
-# External imports
 import pytest
 import requests
 from requests.exceptions import ConnectionError
 
-# Bokeh imports
 from bokeh.util.terminal import write
 
 #-----------------------------------------------------------------------------

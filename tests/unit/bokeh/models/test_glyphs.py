@@ -15,8 +15,6 @@ import pytest
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Bokeh imports
 import bokeh.models.glyphs as m  # module under test
 from bokeh.core.enums import (
     Anchor,

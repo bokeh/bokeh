@@ -9,7 +9,6 @@
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 import pathlib
 from typing import TypedDict

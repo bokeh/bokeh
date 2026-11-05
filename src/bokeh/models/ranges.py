@@ -24,12 +24,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from collections import Counter
 from math import nan
 from typing import cast
 
-# Bokeh imports
 from ..core.enums import PaddingUnits, StartEnd
 from ..core.has_props import abstract
 from ..core.property.auto import Auto

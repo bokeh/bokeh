@@ -49,7 +49,7 @@ describe("Examples", () => {
     `
 
     const slider_style = `
-      .noUi-target, .noUi-handle {
+      .bk-track, .bk-handle, .bk-tooltip {
         --border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
         text-transform: inherit;
         border: var(--border);
@@ -122,7 +122,8 @@ describe("Examples", () => {
       font_style,
       `
       :host {
-        --bokeh-base-font: XKCD;
+        /* XKCD lacks some glyphs (e.g. ℃); fall back to the test font instead of system fonts */
+        --bokeh-base-font: XKCD, Bokeh;
         --border-color: var(--color);
         --border-width: 2px;
         --default-border-color: var(--color);

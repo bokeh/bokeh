@@ -19,7 +19,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import sys
 from dataclasses import asdict, is_dataclass
 from typing import (
@@ -30,10 +29,8 @@ from typing import (
     cast,
 )
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from ..core.has_props import abstract
 from ..core.property.any import Any as AnyVal, AnyRef
 from ..core.property.container import ColumnData, Dict, Seq
@@ -303,7 +300,7 @@ class ColumnDataSource(ColumnarDataSource):
                 _df.index = pdx.Index(_df.index.values)
             else:
                 _df.index = pdx.Index(_df.index.values, name=index_name)
-            _df.reset_index(inplace=True)
+            _df = _df.reset_index()
             _df = nw.from_native(_df, eager_only=True)
         else:
             _df = nw.from_native(df, eager_only=True)
@@ -685,6 +682,9 @@ class ColumnDataSource(ColumnarDataSource):
 
         Args:
             patches (dict[str, list[tuple]]) : lists of patches for each column
+            setter (ClientSession or ServerSession or None, optional) :
+                This is used to prevent "boomerang" updates to Bokeh apps.
+                (default: None)
 
         Returns:
             None

@@ -5,11 +5,9 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 from typing import Literal, Sequence, Unpack
 
-# Bokeh imports
 from ..model.model import Model, _ModelInit
 from .expressions import CoordinateTransform, _CoordinateTransformInit
 

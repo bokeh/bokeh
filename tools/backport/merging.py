@@ -1,10 +1,9 @@
 """Discover, verify, rebase-merge, and finalize an aggregate backport PR."""
 
-# Standard library imports
+from collections.abc import Callable
 from typing import Any
 from urllib.parse import quote
 
-# Bokeh imports
 from . import BackportError
 from .aggregate import AggregateSnapshot, load_aggregate, matching_backport
 from .candidates import BACKPORT_LABEL, milestone_for_version
@@ -112,22 +111,44 @@ def resolve_backport_entries(
     return entries
 
 
-def finalize_merged_plan(api: GitHubAPI, plan: PublishedPlan) -> list[str]:
+def set_accepted_status(api: GitHubAPI, repository: str, number: int) -> None:
+    """Accept the aggregate PR while preserving unrelated labels."""
+    path = f"{repository_path(repository)}/issues/{number}/labels"
+    labels = api.get_all(path)
+    api.request("POST", path, json={"labels": ["status: accepted"]})
+    for label in labels:
+        name = label["name"]
+        if name.startswith("status:") and name != "status: accepted":
+            remove_label(api, repository, number, name)
+
+
+def finalize_merged_plan(
+    api: GitHubAPI,
+    plan: PublishedPlan,
+    *,
+    progress: Callable[[str], None] = lambda message: None,
+) -> list[str]:
+    progress("Finding the target release milestone")
     milestone_number = ensure_milestone(
         api,
         plan.repository,
         milestone_for_version(plan.version),
     )
     issue_numbers: set[int] = set()
-    for entry in plan.entries:
+    for index, entry in enumerate(plan.entries, 1):
+        progress(f"Finalizing source PR #{entry.number} ({index}/{len(plan.entries)}) and finding its closing issues")
         set_milestone(api, plan.repository, entry.number, milestone_number)
         remove_label(api, plan.repository, entry.number, BACKPORT_LABEL)
         issue_numbers.update(closing_issue_numbers(api, plan.repository, entry.number))
     for number in sorted(issue_numbers):
+        progress(f"Updating milestone for issue #{number}")
         set_milestone(api, plan.repository, number, milestone_number)
 
+    progress(f"Updating aggregate PR #{plan.pull_request_number} milestone and accepted status")
     set_milestone(api, plan.repository, plan.pull_request_number, milestone_number)
+    set_accepted_status(api, plan.repository, plan.pull_request_number)
     encoded_ref = quote(f"heads/{plan.branch}", safe="/")
+    progress(f"Deleting remote branch {plan.branch}")
     remote_cleanup = api.request(
         "DELETE",
         f"{repository_path(plan.repository)}/git/refs/{encoded_ref}",
@@ -141,9 +162,16 @@ def finalize_merged_plan(api: GitHubAPI, plan: PublishedPlan) -> list[str]:
     return warnings
 
 
-def merge_plan(api: GitHubAPI, plan: PublishedPlan) -> tuple[str, list[str]]:
+def merge_plan(
+    api: GitHubAPI,
+    plan: PublishedPlan,
+    *,
+    progress: Callable[[str], None] = lambda message: None,
+) -> tuple[str, list[str]]:
+    progress(f"Reading aggregate PR #{plan.pull_request_number}")
     pr = get_pr(api, plan.repository, plan.pull_request_number)
     if pr.get("state") == "open":
+        progress("Checking rebase-merge settings and aggregate PR identity")
         require_rebase_merge(api, plan.repository)
         current_plan = published_plan_from_pr(
             api,
@@ -155,6 +183,7 @@ def merge_plan(api: GitHubAPI, plan: PublishedPlan) -> tuple[str, list[str]]:
         if current_plan != plan:
             raise BackportError("aggregate PR changed during merge preparation; run merge again")
 
+        progress("Verifying the backport commits")
         commits = api.get_all(
             f"{repository_path(plan.repository)}/pulls/{plan.pull_request_number}/commits",
         )
@@ -165,7 +194,8 @@ def merge_plan(api: GitHubAPI, plan: PublishedPlan) -> tuple[str, list[str]]:
                 "summary references commits outside the aggregate PR: " + ", ".join(f"#{number}" for number in missing),
             )
 
-        check_pr_ci(api, plan.repository, pr)
+        check_pr_ci(api, plan.repository, pr, progress=progress)
+        progress("Rechecking the PR head and test merge before merging")
         current = get_pr(api, plan.repository, plan.pull_request_number)
         stable_plan = published_plan_from_pr(
             api,
@@ -179,6 +209,7 @@ def merge_plan(api: GitHubAPI, plan: PublishedPlan) -> tuple[str, list[str]]:
         if current.get("merge_commit_sha") != pr.get("merge_commit_sha"):
             raise BackportError("PR test merge changed during preflight; run merge again")
 
+        progress(f"Rebase-merging PR #{plan.pull_request_number}")
         result = api.request(
             "PUT",
             f"{repository_path(plan.repository)}/pulls/{plan.pull_request_number}/merge",
@@ -201,4 +232,4 @@ def merge_plan(api: GitHubAPI, plan: PublishedPlan) -> tuple[str, list[str]]:
     else:
         raise BackportError(f"PR #{plan.pull_request_number} is closed but was not merged")
 
-    return merge_sha, finalize_merged_plan(api, plan)
+    return merge_sha, finalize_merged_plan(api, plan, progress=progress)

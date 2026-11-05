@@ -80,6 +80,25 @@ export class StandaloneMount {
     this.views = new ViewManager([], index)
     document.views_manager = this.views
 
+    // Live documents can receive patches while targets or initial views resolve.
+    this.listen((event) => {
+      if (event instanceof RootAddedEvent && this.track_document_roots) {
+        const key = this._key_for_added_root(event.model)
+        this.roots.set(key, event.model)
+        if (this._shared_target != null) {
+          void this.attach(key, this._shared_target).catch((error) => this._report_render_error(error, key))
+        }
+      } else if (event instanceof RootRemovedEvent) {
+        const key = this._key_for(event.model)
+        if (key != null) {
+          this.detach(key)
+          this.roots.delete(key)
+        }
+      } else if (this._use_for_title && event instanceof TitleChangedEvent) {
+        window.document.title = event.title
+      }
+    })
+
     if (signal?.aborted == true) {
       this.dispose()
     } else {
@@ -246,6 +265,10 @@ export class StandaloneMount {
 
     try {
       for (const key of this.root_keys) {
+        // A preceding view's initialization may let patches remove or re-add this root.
+        if (!this.roots.has(key) || this._render_tokens.has(key)) {
+          continue
+        }
         const target = targets.get(key) ?? shared_target
         if (target != null) {
           try {
@@ -274,24 +297,6 @@ export class StandaloneMount {
       if (use_for_title) {
         window.document.title = this.document.title()
       }
-
-      this.listen((event) => {
-        if (event instanceof RootAddedEvent && this.track_document_roots) {
-          const key = this._key_for_added_root(event.model)
-          this.roots.set(key, event.model)
-          if (this._shared_target != null) {
-            void this.attach(key, this._shared_target).catch((error) => this._report_render_error(error, key))
-          }
-        } else if (event instanceof RootRemovedEvent) {
-          const key = this._key_for(event.model)
-          if (key != null) {
-            this.detach(key)
-            this.roots.delete(key)
-          }
-        } else if (this._use_for_title && event instanceof TitleChangedEvent) {
-          window.document.title = event.title
-        }
-      })
     } catch (error) {
       this.dispose()
       throw error

@@ -73,6 +73,9 @@ The sections below are examples for all widgets available in Bokeh. Many of the
 examples produce print output using the JavaScript `console.log` function. You
 can see this output in your browser's JavaScript console log.
 
+For more information about sliders, including keyboard bindings, value
+throttling and styling, see :ref:`ug_interaction_sliders`.
+
 .. _ug_interaction_widgets_examples_autocompleteinput:
 
 AutocompleteInput
@@ -294,6 +297,12 @@ Div
 A widget for displaying text that can support HTML in a <div> tag:
 
 .. bokeh-plot:: __REPO__/examples/interaction/widgets/div.py
+    :source-position: below
+
+Links to targets within the text, such as ``<a href="#results">``, scroll to
+their target in the same |Div| or in another one:
+
+.. bokeh-plot:: __REPO__/examples/interaction/widgets/div_fragment_links.py
     :source-position: below
 
 More information can be found in the reference guide entry for |Div|.

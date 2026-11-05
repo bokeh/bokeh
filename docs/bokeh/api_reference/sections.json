@@ -1,703 +1,215 @@
 [
   {
     "slug": "annotations",
-    "title": "Annotations",
-    "classes": [
-      "Angular",
-      "Annotation",
-      "ArrowHead",
-      "Band",
-      "BoxAnnotation",
-      "BoxInteractionHandles",
-      "ColorBar",
-      "ContourColorBar",
-      "HTMLAnnotation",
-      "HTMLLabel",
-      "HTMLLabelSet",
-      "HTMLTitle",
-      "ImperialLength",
-      "Label",
-      "LabelSet",
-      "Legend",
-      "LegendItem",
-      "Metric",
-      "MetricLength",
-      "NormalHead",
-      "OpenHead",
-      "PolyAnnotation",
-      "ReciprocalMetric",
-      "ReciprocalMetricLength",
-      "ScaleBar",
-      "SizeBar",
-      "Slope",
-      "Span",
-      "TeeHead",
-      "TextAnnotation",
-      "Title",
-      "ToolbarPanel",
-      "VeeHead",
-      "Whisker"
-    ]
+    "title": "Annotations"
   },
   {
     "slug": "axes",
-    "title": "Axes",
-    "classes": [
-      "Axis",
-      "CategoricalAxis",
-      "ContinuousAxis",
-      "DatetimeAxis",
-      "LinearAxis",
-      "LogAxis",
-      "MercatorAxis",
-      "TimedeltaAxis"
-    ]
+    "title": "Axes"
   },
   {
     "slug": "callbacks",
-    "title": "Callbacks",
-    "classes": [
-      "Callback",
-      "CloseDialog",
-      "CustomJS",
-      "OpenDialog",
-      "OpenURL",
-      "SetValue",
-      "ToggleVisibility"
-    ]
+    "title": "Callbacks"
   },
   {
     "slug": "canvas",
-    "title": "Canvas",
-    "classes": [
-      "Canvas"
-    ]
+    "title": "Canvas"
   },
   {
     "slug": "comparisons",
-    "title": "Comparisons",
-    "classes": [
-      "Comparison",
-      "CustomJSCompare",
-      "NanCompare"
-    ]
+    "title": "Comparisons"
   },
   {
     "slug": "coordinates",
-    "title": "Coordinates",
-    "classes": [
-      "CoordinateMapping"
-    ]
+    "title": "Coordinates"
   },
   {
     "slug": "css",
-    "title": "CSS",
-    "classes": [
-      "GlobalImportedStyleSheet",
-      "GlobalInlineStyleSheet",
-      "ImportedStyleSheet",
-      "InlineStyleSheet",
-      "Styles"
-    ]
+    "title": "CSS"
   },
   {
     "slug": "expressions",
-    "title": "Expressions",
-    "classes": [
-      "CumSum",
-      "CustomJSExpr",
-      "Expression",
-      "PolarTransform",
-      "Stack"
-    ]
+    "title": "Expressions"
   },
   {
     "slug": "filters",
-    "title": "Filters",
-    "classes": [
-      "AllIndices",
-      "BooleanFilter",
-      "CustomJSFilter",
-      "DifferenceFilter",
-      "Filter",
-      "GroupFilter",
-      "IndexFilter",
-      "IntersectionFilter",
-      "InversionFilter",
-      "SymmetricDifferenceFilter",
-      "UnionFilter"
-    ]
+    "title": "Filters"
   },
   {
     "slug": "formatters",
-    "title": "Formatters",
-    "classes": [
-      "BasicTickFormatter",
-      "CategoricalTickFormatter",
-      "CustomJSTickFormatter",
-      "DatetimeTickFormatter",
-      "LogTickFormatter",
-      "MercatorTickFormatter",
-      "NumeralTickFormatter",
-      "PrintfTickFormatter",
-      "ScaledTickFormatter",
-      "SITickFormatter",
-      "TickFormatter",
-      "TimedeltaTickFormatter"
-    ]
+    "title": "Formatters"
   },
   {
     "slug": "glyphs",
     "title": "Glyphs",
     "classes": [
-      "AnnularWedge",
-      "Annulus",
-      "Arc",
-      "Bezier",
-      "Block",
-      "Circle",
       "ConnectedXYGlyph",
-      "Ellipse",
       "Glyph",
-      "HArea",
-      "HAreaStep",
-      "HBar",
-      "HexTile",
-      "HSpan",
-      "HStrip",
-      "Image",
-      "ImageRGBA",
-      "ImageStack",
-      "ImageURL",
-      "Line",
-      "Marker",
-      "MathMLGlyph",
-      "MathTextGlyph",
-      "MultiLine",
-      "MultiPolygons",
-      "Ngon",
-      "Patch",
-      "Patches",
-      "Quad",
-      "Quadratic",
-      "Ray",
-      "Rect",
-      "Scatter",
-      "Segment",
-      "Step",
-      "TeXGlyph",
-      "Text",
-      "VArea",
-      "VAreaStep",
-      "VBar",
-      "VSpan",
-      "VStrip",
-      "Wedge",
       "XYGlyph"
     ]
   },
   {
     "slug": "graphics",
-    "title": "Graphics",
-    "classes": [
-      "Decoration",
-      "Marking",
-      "PathDecoration",
-      "PathMarkings"
-    ]
+    "title": "Graphics"
   },
   {
     "slug": "graphs",
-    "title": "Graphs",
-    "classes": [
-      "EdgeCoordinates",
-      "EdgePointCoordinates",
-      "EdgesAndLinkedNodes",
-      "EdgesOnly",
-      "GraphCoordinates",
-      "GraphHitTestPolicy",
-      "LayoutProvider",
-      "NodeCoordinates",
-      "NodesAndAdjacentNodes",
-      "NodesAndLinkedEdges",
-      "NodesOnly",
-      "StaticLayoutProvider"
-    ]
+    "title": "Graphs"
   },
   {
     "slug": "grids",
-    "title": "Grids",
-    "classes": [
-      "Grid"
-    ]
+    "title": "Grids"
   },
   {
     "slug": "labeling",
-    "title": "Labeling",
-    "classes": [
-      "AllLabels",
-      "CustomLabelingPolicy",
-      "LabelingPolicy",
-      "NoOverlap"
-    ]
+    "title": "Labeling"
   },
   {
     "slug": "layouts",
-    "title": "Layouts",
-    "classes": [
-      "Column",
-      "FlexBox",
-      "GridBox",
-      "GroupBox",
-      "HBox",
-      "LayoutDOM",
-      "Row",
-      "ScrollBox",
-      "Spacer",
-      "TabPanel",
-      "Tabs",
-      "VBox"
-    ]
+    "title": "Layouts"
   },
   {
     "slug": "map_plots",
-    "title": "map plots",
-    "classes": [
-      "GMapOptions",
-      "GMapPlot",
-      "MapOptions",
-      "MapPlot"
-    ]
+    "title": "map plots"
   },
   {
     "slug": "mappers",
-    "title": "Mappers",
-    "classes": [
-      "CategoricalColorMapper",
-      "CategoricalMapper",
-      "CategoricalMarkerMapper",
-      "CategoricalPatternMapper",
-      "ColorMapper",
-      "ContinuousColorMapper",
-      "EqHistColorMapper",
-      "LinearColorMapper",
-      "LogColorMapper",
-      "Mapper",
-      "StackColorMapper",
-      "WeightedStackColorMapper"
-    ]
+    "title": "Mappers"
   },
   {
     "slug": "misc",
-    "title": "Miscellaneous",
-    "classes": [
-      "GroupByModels",
-      "GroupByName"
-    ]
+    "title": "Miscellaneous"
   },
   {
     "slug": "nodes",
-    "title": "Nodes",
-    "classes": [
-      "Indexed",
-      "Node",
-      "XY"
-    ]
+    "title": "Nodes"
   },
   {
     "slug": "plots",
-    "title": "Plots",
-    "classes": [
-      "GridPlot",
-      "Plot"
-    ]
+    "title": "Plots"
   },
   {
     "slug": "ranges",
-    "title": "Ranges",
-    "classes": [
-      "DataRange",
-      "DataRange1d",
-      "FactorRange",
-      "Range",
-      "Range1d"
-    ]
+    "title": "Ranges"
   },
   {
     "slug": "renderers",
-    "title": "Renderers",
-    "classes": [
-      "CompositeRenderer",
-      "ContourRenderer",
-      "DataRenderer",
-      "GlyphRenderer",
-      "GraphRenderer",
-      "GuideRenderer",
-      "Renderer",
-      "RendererGroup",
-      "TileRenderer"
-    ]
+    "title": "Renderers"
   },
   {
     "slug": "scales",
-    "title": "Scales",
-    "classes": [
-      "CategoricalScale",
-      "CompositeScale",
-      "LinearScale",
-      "LogScale",
-      "Scale"
-    ]
+    "title": "Scales"
   },
   {
     "slug": "selections",
-    "title": "Selections",
-    "classes": [
-      "IntersectRenderers",
-      "Selection",
-      "SelectionPolicy",
-      "UnionRenderers"
-    ]
+    "title": "Selections"
   },
   {
     "slug": "selectors",
-    "title": "Selectors",
-    "classes": [
-      "ByClass",
-      "ByCSS",
-      "ByID",
-      "ByXPath"
-    ]
+    "title": "Selectors"
   },
   {
     "slug": "sources",
-    "title": "Sources",
-    "classes": [
-      "AjaxDataSource",
-      "CDSView",
-      "ColumnarDataSource",
-      "ColumnDataSource",
-      "DataSource",
-      "GeoJSONDataSource",
-      "ServerSentDataSource",
-      "WebDataSource"
-    ]
+    "title": "Sources"
   },
   {
     "slug": "text",
-    "title": "Text",
-    "classes": [
-      "Ascii",
-      "MathML",
-      "MathText",
-      "PlainText",
-      "TeX"
-    ]
+    "title": "Text"
   },
   {
     "slug": "textures",
-    "title": "Textures",
-    "classes": [
-      "CanvasTexture",
-      "ImageURLTexture",
-      "Texture"
-    ]
+    "title": "Textures"
   },
   {
     "slug": "tickers",
-    "title": "Tickers",
-    "classes": [
-      "AdaptiveTicker",
-      "BasicTicker",
-      "BinnedTicker",
-      "CategoricalTicker",
-      "CompositeTicker",
-      "ContinuousTicker",
-      "CustomJSTicker",
-      "DatetimeTicker",
-      "DaysTicker",
-      "FixedTicker",
-      "LogTicker",
-      "MercatorTicker",
-      "MonthsTicker",
-      "ScaledTicker",
-      "SingleIntervalTicker",
-      "Ticker",
-      "TimedeltaTicker",
-      "YearsTicker"
-    ]
+    "title": "Tickers"
   },
   {
     "slug": "tiles",
-    "title": "Tiles",
-    "classes": [
-      "BBoxTileSource",
-      "MercatorTileSource",
-      "QUADKEYTileSource",
-      "TileSource",
-      "TMSTileSource",
-      "WMTSTileSource"
-    ]
+    "title": "Tiles"
   },
   {
     "slug": "tools",
-    "title": "Tools",
-    "classes": [
-      "ActionTool",
-      "BoxEditTool",
-      "BoxSelectTool",
-      "BoxZoomTool",
-      "ClickPanTool",
-      "CopyTool",
-      "CrosshairTool",
-      "CustomAction",
-      "CustomJSHover",
-      "Drag",
-      "EditTool",
-      "ExamineTool",
-      "FreehandDrawTool",
-      "FullscreenTool",
-      "GestureTool",
-      "HelpTool",
-      "HoverTool",
-      "InspectTool",
-      "LassoSelectTool",
-      "LineEditTool",
-      "PanTool",
-      "PointDrawTool",
-      "PolyDrawTool",
-      "PolyEditTool",
-      "PolySelectTool",
-      "RangeTool",
-      "RedoTool",
-      "ResetTool",
-      "SaveTool",
-      "Scroll",
-      "Tap",
-      "TapTool",
-      "Tool",
-      "Toolbar",
-      "ToolMenu",
-      "ToolProxy",
-      "UndoTool",
-      "WheelPanTool",
-      "WheelZoomTool",
-      "ZoomInTool",
-      "ZoomOutTool"
-    ]
+    "title": "Tools"
   },
   {
     "slug": "transforms",
-    "title": "Transforms",
-    "classes": [
-      "CustomJSTransform",
-      "Dodge",
-      "Interpolator",
-      "Jitter",
-      "LinearInterpolator",
-      "StepInterpolator",
-      "Transform"
-    ]
+    "title": "Transforms"
   },
   {
     "slug": "ui/dialogs",
-    "title": "Dialogs",
-    "classes": [
-      "Dialog"
-    ]
+    "title": "Dialogs"
   },
   {
     "slug": "ui/examiner",
-    "title": "Examiner",
-    "classes": [
-      "Examiner"
-    ]
+    "title": "Examiner"
   },
   {
     "slug": "ui/floating",
-    "title": "Floating",
-    "classes": [
-      "Drawer"
-    ]
+    "title": "Floating"
   },
   {
     "slug": "ui/icons",
-    "title": "Icons",
-    "classes": [
-      "BuiltinIcon",
-      "Icon",
-      "SVGIcon",
-      "TablerIcon"
-    ]
+    "title": "Icons"
   },
   {
     "slug": "ui/menus",
-    "title": "Menus",
-    "classes": [
-      "ActionItem",
-      "CheckableItem",
-      "DividerItem",
-      "Menu",
-      "MenuItem"
-    ]
+    "title": "Menus"
   },
   {
     "slug": "ui/panels",
-    "title": "Panels",
-    "classes": [
-      "Panel"
-    ]
+    "title": "Panels"
   },
   {
     "slug": "ui/panes",
-    "title": "Panes",
-    "classes": [
-      "Pane"
-    ]
+    "title": "Panes"
   },
   {
     "slug": "ui/tooltips",
-    "title": "Tooltips",
-    "classes": [
-      "Tooltip"
-    ]
+    "title": "Tooltips"
   },
   {
     "slug": "ui/ui_element",
-    "title": "UI elements",
-    "classes": [
-      "StyledElement",
-      "UIElement"
-    ]
+    "title": "UI elements"
   },
   {
     "slug": "widgets/buttons",
-    "title": "Buttons",
-    "classes": [
-      "AbstractButton",
-      "Button",
-      "ButtonLike",
-      "Dropdown",
-      "HelpButton",
-      "Toggle"
-    ]
+    "title": "Buttons"
   },
   {
     "slug": "widgets/groups",
-    "title": "Groups",
-    "classes": [
-      "AbstractGroup",
-      "CheckboxButtonGroup",
-      "CheckboxGroup",
-      "RadioButtonGroup",
-      "RadioGroup",
-      "ToggleButtonGroup",
-      "ToggleInputGroup"
-    ]
+    "title": "Groups"
   },
   {
     "slug": "widgets/indicators",
-    "title": "Indicators",
-    "classes": [
-      "Progress"
-    ]
+    "title": "Indicators"
   },
   {
     "slug": "widgets/inputs",
-    "title": "Inputs",
-    "classes": [
-      "AutocompleteInput",
-      "Checkbox",
-      "ColorPicker",
-      "FileInput",
-      "InputWidget",
-      "LightDark",
-      "MultiChoice",
-      "MultiSelect",
-      "NumericInput",
-      "PaletteSelect",
-      "PasswordInput",
-      "Select",
-      "Spinner",
-      "Switch",
-      "TextAreaInput",
-      "TextInput"
-    ]
+    "title": "Inputs"
   },
   {
     "slug": "widgets/markdown",
-    "title": "Markdown",
-    "classes": [
-      "Markdown"
-    ]
+    "title": "Markdown"
   },
   {
     "slug": "widgets/markups",
-    "title": "Markups",
-    "classes": [
-      "Div",
-      "Markup",
-      "Paragraph",
-      "PreText"
-    ]
+    "title": "Markups"
   },
   {
     "slug": "widgets/pickers",
-    "title": "Pickers",
-    "classes": [
-      "DatePicker",
-      "DateRangePicker",
-      "DatetimePicker",
-      "DatetimeRangePicker",
-      "MultipleDatePicker",
-      "MultipleDatetimePicker",
-      "TimePicker"
-    ]
+    "title": "Pickers"
   },
   {
     "slug": "widgets/sliders",
-    "title": "Sliders",
-    "classes": [
-      "AbstractSlider",
-      "CategoricalSlider",
-      "DateRangeSlider",
-      "DateSlider",
-      "DatetimeRangeSlider",
-      "RangeSlider",
-      "Slider"
-    ]
+    "title": "Sliders"
   },
   {
     "slug": "widgets/tables",
-    "title": "Tables",
-    "classes": [
-      "BooleanFormatter",
-      "CellEditor",
-      "CellFormatter",
-      "CheckboxEditor",
-      "DataTable",
-      "DateEditor",
-      "DateFormatter",
-      "HTMLTemplateFormatter",
-      "IntEditor",
-      "NumberEditor",
-      "NumberFormatter",
-      "PercentEditor",
-      "ScientificFormatter",
-      "SelectEditor",
-      "StringEditor",
-      "StringFormatter",
-      "TableColumn",
-      "TableWidget",
-      "TextEditor",
-      "TimeEditor"
-    ]
+    "title": "Tables"
   },
   {
     "slug": "widgets/widget",
-    "title": "Widget",
-    "classes": [
-      "Widget"
-    ]
+    "title": "Widget"
   }
 ]

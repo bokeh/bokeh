@@ -17,12 +17,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from os import fspath
 from subprocess import Popen
 from typing import TYPE_CHECKING
 
-# Bokeh imports
 from . import __version__
 from .settings import settings
 from .util.compiler import _nodejs_path

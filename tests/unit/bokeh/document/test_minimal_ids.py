@@ -7,16 +7,13 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import json
 from copy import deepcopy
 from pathlib import Path
 from typing import Any, Iterator
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.core.properties import Any as AnyProperty, AnyRef, NotSerialized
 from bokeh.core.property.vectorization import value
 from bokeh.core.serialization import ObjectRep, Serializer

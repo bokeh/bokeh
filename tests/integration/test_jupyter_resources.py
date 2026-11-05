@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-# Standard library imports
 from collections.abc import Iterator
 from typing import Any
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.embed.resources import (
     ResolvedResource,
     ResolvedResources,

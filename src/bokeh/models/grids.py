@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from ..core.property.auto import Auto
 from ..core.property.container import Seq, Tuple
 from ..core.property.either import Either

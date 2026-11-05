@@ -168,21 +168,21 @@ function resource_description(asset: ResourceAsset): string {
   return asset.url != null ? normalized_url(asset.url) : "inline content"
 }
 
-function resolve_assets(requirements: ResourceRequirements, policy: NormalizedPolicy, embed_version: string): ResourceAsset[] {
+function resolve_assets(requirements: ResourceRequirements, policy: NormalizedPolicy): ResourceAsset[] {
   const mode = policy.mode == "auto" ? "cdn" : policy.mode
-  const expected_version = policy.override_version?.split("+")[0] ?? embed_version
-  const expected_semver = Version.from(expected_version)
-  const runtime_semver = Version.from(js_version)
-  const compatible = expected_semver != null && runtime_semver != null
-    ? is_equal(expected_semver, runtime_semver)
-    : expected_version == js_version
-  if (!compatible) {
-    throw new ResourceError(
-      "version",
-      policy.override_version == null
-        ? `Bokeh embed ${embed_version} is incompatible with the loaded BokehJS ${js_version}. Load matching resources`
-        : `Bokeh resource policy expects BokehJS ${expected_version}, but the loaded BokehJS is ${js_version}`,
-    )
+  if (policy.override_version != null) {
+    const expected_version = policy.override_version.split("+")[0]
+    const expected_semver = Version.from(expected_version)
+    const runtime_semver = Version.from(js_version)
+    const compatible = expected_semver != null && runtime_semver != null
+      ? is_equal(expected_semver, runtime_semver)
+      : expected_version == js_version
+    if (!compatible) {
+      throw new ResourceError(
+        "version",
+        `Bokeh resource policy expects BokehJS ${expected_version}, but the loaded BokehJS is ${js_version}`,
+      )
+    }
   }
   if (mode == "none") {
     return []
@@ -204,9 +204,8 @@ function resolve_assets(requirements: ResourceRequirements, policy: NormalizedPo
   const suffix = minified ? ".min.js" : ".js"
   const assets: ResourceAsset[] = []
   for (const component of requirements.components) {
-    // Core is necessarily present when this loader is executing. Validate its
-    // shared version above, then load every explicitly requested additive
-    // bundle, including the optional API bundle.
+    // Core is necessarily present when this loader is executing. Load additive
+    // bundles for that runtime even when the producer uses a different version.
     if (component == "bokeh/core") {
       continue
     }
@@ -308,9 +307,9 @@ export class ResourceLoader {
    * Explicit policy assets may contain executable code and must be trusted.
    */
   async ensure(requirements: ResourceRequirements, policy: ResourcePolicy = "none",
-      embed_version: string = js_version, signal?: AbortSignal): Promise<void> {
+      _embed_version: string = js_version, signal?: AbortSignal): Promise<void> {
     const normalized = normalize_policy(policy)
-    const assets = resolve_assets(requirements, normalized, embed_version)
+    const assets = resolve_assets(requirements, normalized)
     for (const asset of assets) {
       await wait_with_signal(this._ensure_asset(asset, normalized.retry ?? false), signal)
     }

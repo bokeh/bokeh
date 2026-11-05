@@ -1,12 +1,11 @@
 import {display} from "#framework/layouts"
-import {actions, xy} from "#framework/interactive"
+import {actions, xy, show_context_menu} from "#framework/interactive"
 
 import {Dialog, Drawer, Pane, Menu, MenuItem, CustomJS, BoxSelectTool} from "@bokehjs/models"
 import type {Figure} from "@bokehjs/api/plotting"
 import {figure} from "@bokehjs/api/plotting"
 import {Random} from "@bokehjs/core/util/random"
 import {color2hex} from "@bokehjs/core/util/color"
-import {paint} from "@bokehjs/core/util/defer"
 import {Spectral11} from "@bokehjs/api/palettes"
 import {f} from "@bokehjs/api/expr"
 
@@ -124,11 +123,8 @@ describe("UI elements", () => {
       // avoids repeated continuous-selection paints over all 4,000 glyphs.
       await actions(view).pan(xy(20, 20), xy(80, 80), 2)
 
-      // can't dispatch `contextmenu` with `el.dispatchEvent()`
-      const {x, y} = view.el.getBoundingClientRect()
-      view.show_context_menu(new MouseEvent("contextmenu", {clientX: x + 120, clientY: y + 120, shiftKey: false}))
+      show_context_menu(view, 120, 120)
       // TODO hover "Choose color" item to show its sub-menu
-      await paint()
     })
   })
 

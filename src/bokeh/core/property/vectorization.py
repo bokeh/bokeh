@@ -20,11 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
-# Bokeh imports
 from ...util.dataclasses import NotRequired, Unspecified
 from ..serialization import (
     AnyRep,
@@ -59,7 +57,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @dataclass
-class Value[T](Serializable):
+class Value[T = Any](Serializable):
     value: T
     transform: NotRequired[Transform] = Unspecified
     units: NotRequired[str] = Unspecified

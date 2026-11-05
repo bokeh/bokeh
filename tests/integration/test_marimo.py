@@ -6,7 +6,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Standard library imports
 import importlib.util
 import os
 import shutil
@@ -17,7 +16,6 @@ import time
 from pathlib import Path
 from urllib.request import urlopen
 
-# External imports
 import pytest
 
 pytestmark = pytest.mark.skipif(

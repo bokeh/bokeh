@@ -24,7 +24,7 @@ import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
-# Import
+# Imports
 #-----------------------------------------------------------------------------
 
 from typing import Any
@@ -37,7 +37,7 @@ from packaging.version import Version
 
 __all__ = ()
 
-SAMPLEDATA_MIN_VERSION = "2025.0"
+SAMPLEDATA_MIN_VERSION = "2026.1"
 
 #-----------------------------------------------------------------------------
 # General API

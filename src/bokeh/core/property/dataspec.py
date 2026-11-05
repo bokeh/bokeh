@@ -20,11 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from copy import copy
 from typing import TYPE_CHECKING, Any
 
-# Bokeh imports
 from ...util.dataclasses import Unspecified
 from ...util.serialization import convert_datetime_type, convert_timedelta_type
 from .. import enums

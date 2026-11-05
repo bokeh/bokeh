@@ -22,10 +22,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 
-# Bokeh imports
 from ...core.has_props import abstract
 from ...core.property.container import Dict, List, Tuple
 from ...core.property.either import Either

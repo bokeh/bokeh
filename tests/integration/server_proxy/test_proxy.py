@@ -7,7 +7,6 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import os
 import shutil
 import subprocess
@@ -18,7 +17,6 @@ from pathlib import Path
 from urllib.error import URLError
 from urllib.request import urlopen
 
-# External imports
 import pytest
 
 playwright = pytest.importorskip("playwright.sync_api")

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-# External imports
 from ..remote.webdriver import WebDriver
 from ..remote.webelement import WebElement
 from .keys import _KeySeq

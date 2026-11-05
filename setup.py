@@ -6,16 +6,21 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Standard library imports
-import os, re, subprocess, sys, time
+import os
+import re
+import subprocess
+import sys
+import time
 from itertools import product
 from pathlib import Path
 from shutil import copy, copytree, rmtree, which
 from textwrap import indent
 from typing import NoReturn
 
-# External imports
-from setuptools import Distribution as SetuptoolsDistribution, setup  # type: ignore[import]
+from setuptools import (  # type: ignore[import]
+    Distribution as SetuptoolsDistribution,
+    setup,
+)
 from setuptools.command.build import build  # type: ignore[import]
 from setuptools.command.editable_wheel import editable_wheel  # type: ignore[import]
 from setuptools.command.sdist import sdist  # type: ignore[import]

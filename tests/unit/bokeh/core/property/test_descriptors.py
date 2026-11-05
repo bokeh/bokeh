@@ -8,15 +8,11 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import typing as tp
 from unittest.mock import (
     ANY,
@@ -25,7 +21,8 @@ from unittest.mock import (
     patch,
 )
 
-# Bokeh imports
+import pytest
+
 from bokeh.core.properties import (
     Alias,
     Any,

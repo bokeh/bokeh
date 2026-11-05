@@ -5,7 +5,6 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import (
     Never,
     NotRequired,
@@ -13,11 +12,9 @@ from typing import (
     TypedDict,
 )
 
-# External imports
 import numpy as np
 import numpy.typing as npt
 
-# Bokeh imports
 from ._types import (
     Color,
     Datetime,
@@ -29,6 +26,7 @@ from ._types import (
 from .core.enums import (
     AngleUnitsType as AngleUnits,
     CoordinateUnitsType as CoordinateUnits,
+    HatchPatternAbbreviationType as HatchPatternAbbreviation,
     HatchPatternType as HatchPattern,
     LineCapType as LineCap,
     LineJoinType as LineJoin,
@@ -46,26 +44,26 @@ from .models.transforms import Transform
 
 type FieldName = str
 
-class ValueDict[ValueType, UnitsType](TypedDict):
+class ValueDict[ValueType, UnitsType = Never](TypedDict):
     value: ValueType
     transform: NotRequired[Transform]
     units: NotRequired[UnitsType]
 
-class FieldDict[ValueType, UnitsType](TypedDict):
+class FieldDict[ValueType, UnitsType = Never](TypedDict):
     field: FieldName
     transform: NotRequired[Transform]
     units: NotRequired[UnitsType]
 
-class ExprDict[ValueType, UnitsType](TypedDict):
+class ExprDict[ValueType, UnitsType = Never](TypedDict):
     expr: Expression
     transform: NotRequired[Transform]
     units: NotRequired[UnitsType]
 
 type VectorInit[ValueType] = Value[ValueType] | Field | Expr
-type VectorDict[ValueType, UnitsType] = ValueDict[ValueType, UnitsType] | FieldDict[ValueType, UnitsType] | ExprDict[ValueType, UnitsType]
-type VectorLike[ValueType, UnitsType] = VectorInit[ValueType] | VectorDict[ValueType, UnitsType]
+type VectorDict[ValueType, UnitsType = Never] = ValueDict[ValueType, UnitsType] | FieldDict[ValueType, UnitsType] | ExprDict[ValueType, UnitsType]
+type VectorLike[ValueType, UnitsType = Never] = VectorInit[ValueType] | VectorDict[ValueType, UnitsType]
 
-type Vectorized[ValueType, UnitsType] = FieldName | ValueType | VectorLike[ValueType, UnitsType]
+type Vectorized[ValueType, UnitsType = Never] = FieldName | ValueType | VectorLike[ValueType, UnitsType]
 
 type IntArray = npt.NDArray[np.integer]
 type FloatArray = npt.NDArray[np.floating]
@@ -75,7 +73,7 @@ type Number2dArray = NumberArray # TODO shape
 type Number3dArray = NumberArray # TODO shape
 type StringArray = npt.NDArray[np.str_]
 
-type DataSpec[T] = Vectorized[T, Never]
+type DataSpec[T] = Vectorized[T]
 type DataSpecWithUnits[T, U] = Vectorized[T, U]
 
 type IntVal = int
@@ -158,7 +156,7 @@ type DashPatternVal = DashPattern
 type DashPatternSpec = DataSpec[DashPatternVal]
 type DashPatternArg = FieldName | DashPatternVal | Sequence[DashPatternVal] | DashPatternSpec | StringArray
 
-type HatchPatternVal = HatchPattern | None
+type HatchPatternVal = HatchPattern | HatchPatternAbbreviation | None
 type HatchPatternSpec = DataSpec[HatchPatternVal]
 type HatchPatternArg = FieldName | HatchPatternVal | Sequence[HatchPatternVal] | HatchPatternSpec | StringArray
 

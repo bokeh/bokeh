@@ -22,11 +22,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import re
 from typing import Any
 
-# Bokeh imports
 from .bases import Init
 from .primitive import String
 from .singletons import Undefined

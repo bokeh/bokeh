@@ -8,19 +8,16 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import re
 import warnings
 
-# Bokeh imports
+import pytest
+
 from bokeh.util.warnings import BokehDeprecationWarning, BokehUserWarning
 from tests.support.util.api import verify_all
 from tests.support.util.types import Capture

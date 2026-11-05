@@ -8,7 +8,6 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import re
 
 BOKEH_JS_BUNDLE_NAMES = (

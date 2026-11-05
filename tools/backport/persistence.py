@@ -1,6 +1,5 @@
 """Local checkpoint storage for an interrupted backport plan."""
 
-# Standard library imports
 import json
 from dataclasses import asdict, fields
 from pathlib import Path
@@ -13,7 +12,6 @@ from typing import (
     get_type_hints,
 )
 
-# Bokeh imports
 from . import BackportError
 from .git import GitRepo
 from .models import (

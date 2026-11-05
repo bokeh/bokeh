@@ -40,7 +40,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import asyncio
 import atexit
 import signal
@@ -53,12 +52,10 @@ from typing import (
     cast,
 )
 
-# External imports
 from tornado import netutil, version as tornado_version
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 
-# Bokeh imports
 from .. import __version__
 from ..core.property.container import List
 from ..core.property.nullable import Nullable

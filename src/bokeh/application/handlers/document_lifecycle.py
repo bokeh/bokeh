@@ -21,10 +21,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import TYPE_CHECKING
 
-# Bokeh imports
 from .lifecycle import LifecycleHandler
 
 if TYPE_CHECKING:

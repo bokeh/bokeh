@@ -21,13 +21,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any
 
-# External imports
 from tornado.web import authenticated
 
-# Bokeh imports
 from .auth_request_handler import AuthRequestHandler
 
 #-----------------------------------------------------------------------------

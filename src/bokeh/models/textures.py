@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from ..core.enums import TextureRepetition
 from ..core.has_props import abstract
 from ..core.property.enum import Enum

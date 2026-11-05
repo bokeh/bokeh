@@ -7,13 +7,10 @@
 
 from __future__ import annotations
 
-# Standard library imports
 from threading import Event, Thread, current_thread
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.document import Document
 from bokeh.models import Button, Div
 from bokeh.themes import Theme, default

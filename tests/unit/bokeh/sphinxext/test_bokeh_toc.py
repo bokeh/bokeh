@@ -1,19 +1,16 @@
 from __future__ import annotations
 
-# Standard library imports
 from io import StringIO
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, cast
 
-# External imports
 import pytest
 from docutils import nodes
 from sphinx.application import Sphinx
 from sphinx.environment.adapters import toctree
 from sphinx.errors import ExtensionError
 
-# Bokeh imports
 from bokeh.sphinxext._internal.bokeh_toc import (
     _cache_titles_only_tocs,
     _shorten_reference_toc_titles,

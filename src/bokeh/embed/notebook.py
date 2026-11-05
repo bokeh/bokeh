@@ -14,11 +14,9 @@ retained for a later patch protocol.
 
 from __future__ import annotations
 
-# Standard library imports
 from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING
 
-# Bokeh imports
 from ._util import (
     ThemePolicy,
     ThemeSource,
