@@ -3,11 +3,17 @@ import {IndexedDataSource} from "../sources/indexed_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
 
 import type {Context2d} from "core/util/canvas"
+import type {Arrayable} from "core/types"
 import {project_xy, project_xsys} from "core/util/projections"
 import * as p from "core/properties"
 
 export abstract class DataAnnotationView extends AnnotationView {
   declare model: DataAnnotation
+
+  private _projected_x?: Arrayable<number>
+  private _projected_y?: Arrayable<number>
+  private _projected_xs?: Arrayable<number>[]
+  private _projected_ys?: Arrayable<number>[]
 
   override connect_signals(): void {
     super.connect_signals()
@@ -57,10 +63,14 @@ export abstract class DataAnnotationView extends AnnotationView {
 
     if (this.plot_model.use_map) {
       if (self._x != null) {
-        [self._x, self._y] = project_xy(self._x, self._y)
+        [this._projected_x, this._projected_y] = project_xy(self._x, self._y, this._projected_x, this._projected_y)
+        self._x = this._projected_x
+        self._y = this._projected_y
       }
       if (self._xs != null) {
-        [self._xs, self._ys] = project_xsys(self._xs, self._ys)
+        [this._projected_xs, this._projected_ys] = project_xsys(self._xs, self._ys, this._projected_xs, this._projected_ys)
+        self._xs = this._projected_xs
+        self._ys = this._projected_ys
       }
     }
 

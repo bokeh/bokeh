@@ -63,21 +63,23 @@ export namespace inplace {
   }
 }
 
-export function project_xy(x: Arrayable<number>, y: Arrayable<number>): [Arrayable<number>, Arrayable<number>] {
+/** Reuse output buffers when their length and precision match the projected coordinates. */
+export function project_xy(x: Arrayable<number>, y: Arrayable<number>, merc_x?: Arrayable<number>, merc_y?: Arrayable<number>): [Arrayable<number>, Arrayable<number>] {
   const n = min(x.length, y.length)
   const ArrayType = infer_type(x, y)
-  const merc_x = new ArrayType(n)
-  const merc_y = new ArrayType(n)
+  merc_x = merc_x instanceof ArrayType && merc_x.length == n ? merc_x : new ArrayType(n)
+  merc_y = merc_y instanceof ArrayType && merc_y.length == n ? merc_y : new ArrayType(n)
   inplace.project_xy(x, y, merc_x, merc_y)
   return [merc_x, merc_y]
 }
 
-export function project_xsys(xs: Arrayable<number>[], ys: Arrayable<number>[]): [Arrayable<number>[], Arrayable<number>[]] {
+/** Reuse outer arrays and compatible row buffers, discarding rows that are no longer needed. */
+export function project_xsys(xs: Arrayable<number>[], ys: Arrayable<number>[], merc_xs: Arrayable<number>[] = [], merc_ys: Arrayable<number>[] = []): [Arrayable<number>[], Arrayable<number>[]] {
   const n = min(xs.length, ys.length)
-  const merc_xs: Arrayable<number>[] = new Array(n)
-  const merc_ys: Arrayable<number>[] = new Array(n)
+  merc_xs.length = n
+  merc_ys.length = n
   for (let i = 0; i < n; i++) {
-    const [merc_x, merc_y] = project_xy(xs[i], ys[i])
+    const [merc_x, merc_y] = project_xy(xs[i], ys[i], merc_xs[i], merc_ys[i])
     merc_xs[i] = merc_x
     merc_ys[i] = merc_y
   }

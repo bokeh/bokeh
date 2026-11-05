@@ -8,6 +8,8 @@ import {Plot} from "@bokehjs/models/plots/plot"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {HTMLLabelSet} from "@bokehjs/models/annotations/html/label_set"
 import {ndarray} from "@bokehjs/core/util/ndarray"
+import {project_xy, project_xsys} from "@bokehjs/core/util/projections"
+import type {Arrayable} from "@bokehjs/core/types"
 import {build_view} from "@bokehjs/core/build_views"
 import * as p from "@bokehjs/core/properties"
 
@@ -71,6 +73,40 @@ class SubclassWithDistanceSpec extends DataAnnotation {
     this.define<SubclassWithDistanceSpec.Props>(({Bool}) => ({
       foo: [ p.DistanceSpec, {field: "colname"} ],
       bar: [ Bool, true ],
+    }))
+  }
+}
+
+class CoordinateAnnotationView extends DataAnnotationView {
+  _x!: Arrayable<number>
+  _y!: Arrayable<number>
+  _xs!: Arrayable<number>[]
+  _ys!: Arrayable<number>[]
+  map_data(): void {}
+  _paint_data(): void {}
+}
+
+namespace CoordinateAnnotation {
+  export type Props = DataAnnotation.Props & {
+    x: p.XCoordinateSpec
+    y: p.YCoordinateSpec
+    xs: p.XCoordinateSeqSpec
+    ys: p.YCoordinateSeqSpec
+  }
+  export type Attrs = p.AttrsOf<Props>
+}
+interface CoordinateAnnotation extends CoordinateAnnotation.Attrs {}
+class CoordinateAnnotation extends DataAnnotation {
+  declare properties: CoordinateAnnotation.Props
+  declare __view_type__: CoordinateAnnotationView
+
+  static {
+    this.prototype.default_view = CoordinateAnnotationView
+    this.define<CoordinateAnnotation.Props>(() => ({
+      x: [ p.XCoordinateSpec, {field: "x"} ],
+      y: [ p.YCoordinateSpec, {field: "y"} ],
+      xs: [ p.XCoordinateSeqSpec, {field: "xs"} ],
+      ys: [ p.YCoordinateSeqSpec, {field: "ys"} ],
     }))
   }
 }
@@ -215,6 +251,100 @@ describe("AnnotationView", () => {
       expect(prepare.callCount).to.be.equal(1)
       expect(view.plot_view.canvas_view.overlays_el.textContent).to.be.equal("after")
       view.remove()
+    })
+  })
+
+  describe("map projection", () => {
+    class MapPlot extends Plot {
+      override readonly use_map = true
+    }
+
+    it("reuses view-owned buffers without modifying shared source coordinates", async () => {
+      const data = {x: [1, 2], y: [3, 4], xs: [[5], [6, 7]], ys: [[8], [9, 10]]}
+      const original = structuredClone(data)
+      const source = ColumnDataSource.create({data})
+      const parent = await build_view(MapPlot.create())
+      const view = await build_view(CoordinateAnnotation.create({source}), {parent})
+      const other = await build_view(CoordinateAnnotation.create({source}), {parent})
+      view.set_data(source)
+      other.set_data(source)
+      const {_x: x, _y: y, _xs: xs, _ys: ys} = view
+      const [first_x] = xs
+      const [first_y] = ys
+      expect(source.data).to.be.equal(original)
+      expect([x, y]).to.be.equal(project_xy(data.x, data.y))
+      expect([xs, ys]).to.be.equal(project_xsys(data.xs, data.ys))
+      expect(other._x).to.not.be.identical(x)
+      expect(other._y).to.not.be.identical(y)
+      expect(other._xs[0]).to.not.be.identical(first_x)
+      expect(other._ys[0]).to.not.be.identical(first_y)
+
+      data.x[0] = 11
+      data.y[0] = 12
+      data.xs[0][0] = 13
+      data.ys[0][0] = 14
+      const updated = structuredClone(data)
+      source.data_changed.emit({structural: false, indices: [0]})
+      await view.ready
+      await other.ready
+      expect(view._x).to.be.identical(x)
+      expect(view._y).to.be.identical(y)
+      expect(view._xs).to.be.identical(xs)
+      expect(view._ys).to.be.identical(ys)
+      expect(xs[0]).to.be.identical(first_x)
+      expect(ys[0]).to.be.identical(first_y)
+      expect([x, y]).to.be.equal(project_xy(data.x, data.y))
+      expect([xs, ys]).to.be.equal(project_xsys(data.xs, data.ys))
+      expect([other._x, other._y]).to.be.equal([x, y])
+      expect(source.data).to.be.equal(updated)
+      parent.remove()
+    })
+
+    it("resizes projection buffers on stream, source replacement, and empty data", async () => {
+      const source = ColumnDataSource.create({data: {x: [1], y: [2], xs: [[3]], ys: [[4]]}})
+      const parent = await build_view(MapPlot.create())
+      const view = await build_view(CoordinateAnnotation.create({source}), {parent})
+      view.set_data(source)
+      const {_x: x, _y: y, _xs: xs, _ys: ys} = view
+      const [first_x] = xs
+      const [first_y] = ys
+
+      source.stream({x: [5], y: [6], xs: [[7, 8]], ys: [[9, 10]]})
+      await view.ready
+      expect(view._x.length).to.be.equal(2)
+      expect(view._y.length).to.be.equal(2)
+      expect(view._x).to.not.be.identical(x)
+      expect(view._y).to.not.be.identical(y)
+      expect(view._xs).to.be.identical(xs)
+      expect(view._ys).to.be.identical(ys)
+      expect(xs[0]).to.be.identical(first_x)
+      expect(ys[0]).to.be.identical(first_y)
+      expect([view._x, view._y]).to.be.equal(project_xy([1, 5], [2, 6]))
+      expect([xs, ys]).to.be.equal(project_xsys([[3], [7, 8]], [[4], [9, 10]]))
+      expect(source.data).to.be.equal({x: [1, 5], y: [2, 6], xs: [[3], [7, 8]], ys: [[4], [9, 10]]})
+
+      const replacement = ColumnDataSource.create({data: {x: [11], y: [12], xs: [[13, 14]], ys: [[15, 16]]}})
+      view.model.source = replacement
+      await view.ready
+      expect([view._x, view._y]).to.be.equal(project_xy([11], [12]))
+      expect(view._xs).to.be.identical(xs)
+      expect(view._ys).to.be.identical(ys)
+      expect(xs.length).to.be.equal(1)
+      expect(ys.length).to.be.equal(1)
+      expect(xs[0]).to.not.be.identical(first_x)
+      expect(ys[0]).to.not.be.identical(first_y)
+      expect([xs, ys]).to.be.equal(project_xsys([[13, 14]], [[15, 16]]))
+      expect(replacement.data).to.be.equal({x: [11], y: [12], xs: [[13, 14]], ys: [[15, 16]]})
+
+      replacement.data = {x: [], y: [], xs: [], ys: []}
+      await view.ready
+      expect(view._x.length).to.be.equal(0)
+      expect(view._y.length).to.be.equal(0)
+      expect(view._xs).to.be.identical(xs)
+      expect(view._ys).to.be.identical(ys)
+      expect(xs).to.be.equal([])
+      expect(ys).to.be.equal([])
+      parent.remove()
     })
   })
 })
