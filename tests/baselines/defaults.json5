@@ -7244,6 +7244,7 @@
     modifiers: {
       type: "map",
     },
+    hover_delay: 0,
   },
   ZoomBaseTool: {
     __extends__: "PlotActionTool",
