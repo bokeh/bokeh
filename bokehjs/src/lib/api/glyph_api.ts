@@ -209,7 +209,7 @@ export type WedgeArgs         = GlyphArgs<Wedge.Props>         & AuxLine & AuxFi
 type GlyphSource = AuxGlyph["source"]
 type SourceOf<Source extends GlyphSource> = Source extends IndexedDataSource ? Source : ColumnDataSource
 
-type GlyphOptions<Args, Source extends GlyphSource> = Omit<Partial<Args>, "source"> & {
+type GlyphOptions<Args, Source extends GlyphSource> = Partial<Args> & {
   source?: Source
 }
 
