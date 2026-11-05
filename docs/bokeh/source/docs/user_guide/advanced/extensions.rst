@@ -226,6 +226,37 @@ automatically includes the JavaScript implementation. Additionally, the
 standard synchronization of Bokeh model properties is transparent for custom
 user extensions, same as for built-in models.
 
+.. _ug_advanced_extensions_indexed_sources:
+
+Custom indexed sources
+----------------------
+
+``IndexedDataSource`` exposes one logical record axis to glyphs, filters,
+expressions, hover tools, and selection. A custom source can store records
+instead of columns. Its BokehJS implementation supplies ``get_length()``,
+``get_field(name)``, ``get_record(index)``, and ``fields()``. Selection indices
+refer to positions on this logical axis, including when an ``IndexedView`` filters
+which records are shown.
+
+The default ``get_index_field(name, target)`` delegates to ``get_field(name)``
+without copying the field. ``target`` is the values source passed to
+``IndexedLookup`` or ``gather()``. Sources storing reference IDs can override
+this hook to resolve IDs against that target's current row order. Any cached
+mappings must track changes to the target. Keep the original IDs available
+through ``get_field()`` and preserve the scalar, nested, or shaped index
+structure when resolving them.
+
+Replacing a source model property uses ordinary Bokeh change notifications and
+the document protocol. For an in-place update in BokehJS, emit ``data_changed``
+with ``structural`` indicating whether the record count or field structure
+changed. Optional ``fields`` and ``indices`` describe the affected fields and
+records. This invalidates cached expressions and refreshes consumers. Custom
+sources are responsible for invalidating any field caches before notifying
+consumers.
+
+Custom sources can materialize only requested fields while retaining their
+original storage.
+
 .. _ug_advanced_extensions_examples:
 
 Examples
