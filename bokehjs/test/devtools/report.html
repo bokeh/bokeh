@@ -158,7 +158,9 @@
         <div><dt>Recorded results</dt><dd>{{ total }}</dd></div>
         <div><dt>Reported failures</dt><dd>{{ failures }}</dd></div>
       </dl>
-      {% if not completed %}
+      {% if running %}
+      <p class="notice">Tests are still running{% if progress %} ({{ progress.finished }} of {{ progress.selected }} finished){% endif %}, or the run was interrupted. Reload to see newer failures. Don't accept changes until the run completes.</p>
+      {% elif not completed %}
       <p class="notice">This report is incomplete or from an older runner. Run baseline tests again before accepting changes.</p>
       {% endif %}
     </header>
