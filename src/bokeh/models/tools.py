@@ -1706,12 +1706,12 @@ class EditTool(GestureTool):
 
     @error(INCOMPATIBLE_EDIT_SOURCE)
     def _check_edit_sources(self):
-        properties = self.query_properties_with_values(
-            lambda prop: prop.name in ("renderers", "vertex_renderer", "intersection_renderer"),
-            include_undefined=True,
-        )
         renderers = []
-        for value in properties.values():
+        for name in ("renderers", "vertex_renderer", "intersection_renderer"):
+            prop = self.lookup(name, raises=False)
+            if prop is None or prop.value_is_unset(self):
+                continue
+            value = prop.get_value(self)
             renderers.extend(value if isinstance(value, list) else [value])
         incompatible = [str(renderer) for renderer in renderers
                         if isinstance(renderer, GlyphRenderer) and not isinstance(renderer.data_source, ColumnarDataSource)]
