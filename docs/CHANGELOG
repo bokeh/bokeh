@@ -1,3 +1,32 @@
+2026-11-05   3.10.2:
+--------------------
+  * bugfixes:
+    - #13384 [component: bokehjs] [BUG] Empty plots when gridplot nested inside Tab within row
+    - #14178 [component: bokehjs] [BUG] anchors in Div no longer work in bokeh 3
+    - #14179 [component: server] [BUG] custom data model causing server error (500)
+    - #14359 [component: bokehjs] Multi layer Tabs does not work
+    - #14388 [component: bokehjs] RangeSlider not updating properly when start or end are changed
+    - #14723 [component: server] Callback for Button in dynamically created TabPanel does not work
+    - #15166 [component: bokehjs] datetime.date values in a ColumnDataSource column serialize to ISO strings instead of   numeric timestamps, silently breaking glyph positioning
+    - #15274 [component: bokehjs] `GridBoxView._update_layout` throws when child views lag child models: `Cannot read properties of undefined (reading 'parent_style')`
+    - #15475 legend_group raises TypeError when the grouped column contains None (or NaN) alongside strings
+    - #15500 [component: bokehjs] Unsafe count in BitSet
+    - #15546 [component: server] `validate(False)` is process-wide, so it races now that server callbacks run on worker threads
+    - #15547 [component: bokehjs] Legend forces a layout on every data update of its renderers (regression from #15452)
+
+  * tasks:
+    - #14488 Set issue "Type"s for old issues
+    - #15495 Serializing numpy object string arrays is slow
+    - #15499 [component: tests] Local bokehjs unit test failures (Win11)
+    - #15517 [component: bokehjs] Improve time to plot performance for larger datasets.
+    - #15533 [component: bokehjs] Improve WebGL performance of LRTB glyphs
+    - #15540 [component: bokehjs] Improve pan performance with selection
+    - #15556 [component: build] Fix DEP0190 warnings for bokehjs tests
+    - #15573 [component: tests] make examples testing work locally on win11
+    - #15570 [component: tests] Fix issues causing test to hang forever
+    - #15582 [component: docs] Clarify documentation homepage metadata
+    - #15584 [component: docs] Align documentation canonicals during release publishing
+
 2026-10-13   3.10.1:
 --------------------
   * bugfixes:
