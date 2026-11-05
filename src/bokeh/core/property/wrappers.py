@@ -118,7 +118,7 @@ def notify_owner[F: Callable[..., Any]](func: F) -> F:
     that notifies owners of the property container about mutating changes.
 
     Args:
-        func (callable) : the container method to wrap in a notification
+        func: the container method to wrap in a notification
 
     Returns:
         wrapped method

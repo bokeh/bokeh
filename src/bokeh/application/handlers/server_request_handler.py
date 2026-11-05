@@ -59,10 +59,10 @@ class ServerRequestHandler(RequestHandler):
     def __init__(self, *, filename: PathLike, argv: Sequence[str] = (), package: ModuleType | None = None) -> None:
         '''
 
-        Keyword Args:
-            filename (str) : path to a module to load request handler callbacks from
+        Args:
+            filename: path to a module to load request handler callbacks from
 
-            argv (Sequence[str], optional) : a sequence of string arguments to use as
+            argv: a sequence of string arguments to use as
                 ``sys.argv`` when the callback code is executed. (default: ())
 
             package (ModuleType, optional): An optional package module to configure

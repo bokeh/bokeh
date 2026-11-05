@@ -93,7 +93,7 @@ class FunctionHandler(Handler):
         '''
 
         Args:
-            func (callable) : a function to modify and return a Bokeh Document.
+            func: a function to modify and return a Bokeh Document.
                 The function should have the form:
 
                 .. code-block:: python

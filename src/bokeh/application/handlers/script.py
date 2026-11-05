@@ -83,7 +83,7 @@ class ScriptHandler(CodeHandler):
         '''
 
         Keywords:
-            filename (str) : a path to a Python source (".py") file
+            filename: a path to a Python source (".py") file
 
         '''
         with open(filename, encoding='utf-8') as f:

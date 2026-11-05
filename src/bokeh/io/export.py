@@ -75,27 +75,31 @@ def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, w
     ``/foo/myplot.py`` will create ``/foo/myplot.png``)
 
     Args:
-        obj (UIElement or Document) : a Layout (Row/Column), Plot or Widget
-            object or Document to export.
+        obj: a Layout (e.g. Row/Column), Plot or Widget  or Document to export.
 
-        filename (PathLike, e.g. str, Path, optional) : filename to save document under (default: None)
+        filename: filename to save document under.
             If None, infer from the filename.
 
-        width (int) : the desired width of the exported layout obj only if
+        width: the desired width of the exported layout obj only if
             it's a Plot instance. Otherwise the width kwarg is ignored.
 
-        height (int) : the desired height of the exported layout obj only if
+        height: the desired height of the exported layout obj only if
             it's a Plot instance. Otherwise the height kwarg is ignored.
 
-        scale_factor (float, optional) : A factor to scale the output PNG by,
+        scale_factor A factor to scale the output PNG by,
             providing a higher resolution while maintaining element relative
             scales.
 
-        browser (playwright Browser or BrowserContext) :
-            An optional Playwright browser or browser context to use for export.
+        browser: An optional Playwright browser or browser context to use for export.
 
-        timeout (int) : the maximum amount of time (in seconds) to wait for
-            Bokeh to initialize (default: 5) (Added in 1.1.1).
+        timeout: the maximum amount of time (in seconds) to wait for
+            Bokeh to initialize (Added in 1.1.1).
+
+        backend:
+            Which browser backend to use for export. If None, uses the
+            ``BOKEH_EXPORT_BACKEND`` setting (default: Playwright).
+            Passing a ``webdriver`` instance overrides this setting. The
+            Selenium backend is deprecated.
 
     Returns:
         str : the filename where the static file is saved.
@@ -133,20 +137,25 @@ def export_svg(obj: UIElement | Document, *, filename: PathLike | None = None, w
     Args:
         obj (UIElement object) : a Layout (Row/Column), Plot or Widget object to display
 
-        filename (PathLike, e.g. str, Path, optional) : filename to save document under (default: None)
+        filename: filename to save document under
             If None, infer from the filename.
 
-        width (int) : the desired width of the exported layout obj only if
+        width: the desired width of the exported layout obj only if
             it's a Plot instance. Otherwise the width kwarg is ignored.
 
-        height (int) : the desired height of the exported layout obj only if
+        height: the desired height of the exported layout obj only if
             it's a Plot instance. Otherwise the height kwarg is ignored.
 
-        browser (playwright Browser or BrowserContext) :
-            An optional Playwright browser or browser context to use for export.
+        browser: An optional Playwright browser or browser context to use for export.
 
-        timeout (int) : the maximum amount of time (in seconds) to wait for
-            Bokeh to initialize (default: 5)
+        timeout: the maximum amount of time (in seconds) to wait for
+            Bokeh to initialize
+
+        backend:
+            Which browser backend to use for export. If None, uses the
+            ``BOKEH_EXPORT_BACKEND`` setting (default: Playwright).
+            Passing a ``webdriver`` instance overrides this setting. The
+            Selenium backend is deprecated.
 
     Returns:
         list[str] : the list of filenames where the SVGs files are saved.
@@ -170,20 +179,19 @@ def export_svgs(obj: UIElement | Document, *, filename: str | None = None, width
     Args:
         obj (UIElement object) : a Layout (Row/Column), Plot or Widget object to display
 
-        filename (str, optional) : filename to save document under (default: None)
+        filename (str, optional) : filename to save document under
             If None, infer from the filename.
 
-        width (int) : the desired width of the exported layout obj only if
+        width: the desired width of the exported layout obj only if
             it's a Plot instance. Otherwise the width kwarg is ignored.
 
-        height (int) : the desired height of the exported layout obj only if
+        height: the desired height of the exported layout obj only if
             it's a Plot instance. Otherwise the height kwarg is ignored.
 
-        browser (playwright Browser or BrowserContext) :
-            An optional Playwright browser or browser context to use for export.
+        browser: An optional Playwright browser or browser context to use for export.
 
-        timeout (int) : the maximum amount of time (in seconds) to wait for
-            Bokeh to initialize (default: 5) (Added in 1.1.1).
+        timeout: the maximum amount of time (in seconds) to wait for
+            Bokeh to initialize. (Added in 1.1.1).
 
     Returns:
         filenames (list(str)) : the list of filenames where the SVGs files are saved.

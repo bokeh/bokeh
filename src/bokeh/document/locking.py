@@ -273,10 +273,10 @@ def without_document_lock[F: Callable[..., Any]](func: F) -> NoLockCallback[F]:
     document lock.
 
     Args:
-        func (callable) : The function to wrap
+        func: The function to wrap
 
     Returns:
-        callable : a function wrapped to execute without a |Document| lock.
+        callable: a function wrapped to execute without a |Document| lock.
 
     While inside an unlocked callback, it is completely *unsafe* to modify
     ``curdoc()``. The value of ``curdoc()`` inside the callback will be a

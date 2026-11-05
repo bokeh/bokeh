@@ -63,11 +63,9 @@ class Bool(PrimitiveProperty[bool]):
     """ Accept boolean values.
 
     Args:
-        default (obj, optional) :
-            A default value for attributes created from this property to have.
+        default: A default value for attributes created from this property to have.
 
-        help (str or None, optional) :
-            A documentation string for this property. (default: None)
+        help: A documentation string for this property.
 
     Example:
 
@@ -96,11 +94,9 @@ class Complex(PrimitiveProperty[complex]):
     """ Accept complex floating point values.
 
     Args:
-        default (complex, optional) :
-            A default value for attributes created from this property to have.
+        default: A default value for attributes created from this property to have.
 
-        help (str or None, optional) :
-            A documentation string for this property. (default: None)
+        help: A documentation string for this property.
 
     """
 
@@ -114,11 +110,9 @@ class Int(PrimitiveProperty[int]):
     """ Accept signed integer values.
 
     Args:
-        default (int, optional) :
-            A default value for attributes created from this property to have.
+        default: A default value for attributes created from this property to have.
 
-        help (str or None, optional) :
-            A documentation string for this property. (default: None)
+        help: A documentation string for this property.
 
     Example:
 
@@ -148,11 +142,9 @@ class Float(PrimitiveProperty[float]):
     """ Accept floating point values.
 
     Args:
-        default (float, optional) :
-            A default value for attributes created from this property to have.
+        default: A default value for attributes created from this property to have.
 
-        help (str or None, optional) :
-            A documentation string for this property. (default: None)
+        help: A documentation string for this property.
 
     Example:
 
@@ -193,11 +185,9 @@ class String(PrimitiveProperty[str]):
     """ Accept string values.
 
     Args:
-        default (string, optional) :
-            A default value for attributes created from this property to have.
+        default: A default value for attributes created from this property to have.
 
-        help (str or None, optional) :
-            A documentation string for this property. (default: None)
+        help: A documentation string for this property.
 
     Example:
 

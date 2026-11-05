@@ -306,8 +306,8 @@ class PropertyDescriptor[GetType, SetType = GetType]:
         """ Create a PropertyDescriptor for basic Bokeh properties.
 
         Args:
-            name (str) : The attribute name that this property is for
-            property (Property) : A basic property to create a descriptor for
+            name: The attribute name that this property is for
+            property: A basic property to create a descriptor for
 
         """
         self.name = name
@@ -333,11 +333,11 @@ class PropertyDescriptor[GetType, SetType = GetType]:
         class attribute access, we return ourself.
 
         Args:
-            obj (HasProps or None) :
+            obj:
                 The instance to set a new property value on (for instance
                 attribute access), or None (for class attribute access)
 
-            owner (obj) :
+            owner:
                 The new value to set the property to
 
         Returns:
@@ -381,15 +381,14 @@ class PropertyDescriptor[GetType, SetType = GetType]:
             explicitly invoking ``__set__``. See below for more information.
 
         Args:
-            obj (HasProps) :
+            obj:
                 The instance to set a new property value on
 
-            value (obj) :
+            value:
                 The new value to set the property to
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter:
                 This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
 
                 In the context of a Bokeh server application, incoming updates
                 to properties will be annotated with the session that is
@@ -419,7 +418,7 @@ class PropertyDescriptor[GetType, SetType = GetType]:
         """ Implement the deleter for the Python `descriptor protocol`_.
 
         Args:
-            obj (HasProps) : An instance to delete this property from
+            obj: An instance to delete this property from
 
         """
 
@@ -454,10 +453,9 @@ class PropertyDescriptor[GetType, SetType = GetType]:
         which may not be used for an individual instance.
 
         Args:
-            cls (class) : The class to get the default value for.
+            cls: The class to get the default value for.
 
-            no_eval (bool, optional) :
-                Whether to evaluate callables for defaults (default: False)
+            no_eval: Whether to evaluate callables for defaults
 
         Returns:
             object
@@ -470,7 +468,7 @@ class PropertyDescriptor[GetType, SetType = GetType]:
         """ Get the default value that will be used for a specific instance.
 
         Args:
-            obj (HasProps) : The instance to get the default value for.
+            obj: The instance to get the default value for.
 
         Returns:
             object
@@ -486,7 +484,7 @@ class PropertyDescriptor[GetType, SetType = GetType]:
         for user or developer convenience.
 
         Args:
-            obj (HasProps) : the object to get the serialized attribute for
+            obj: the object to get the serialized attribute for
 
         Returns:
             Any
@@ -498,13 +496,12 @@ class PropertyDescriptor[GetType, SetType = GetType]:
         """Sets the value of this property from a JSON value.
 
         Args:
-            obj (HasProps) : instance to set the property value on
+            obj: instance to set the property value on
 
-            value (JSON-value) : value to set to the attribute to
+            value: value to set to the attribute to
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter:
                 This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
 
                 In the context of a Bokeh server application, incoming updates
                 to properties will be annotated with the session that is
@@ -526,12 +523,11 @@ class PropertyDescriptor[GetType, SetType = GetType]:
         value is not equal to ``old``.
 
         Args:
-            obj (HasProps) :
-                The object the property is being set on.
+            obj: The object the property is being set on.
 
-            old (obj) :
-                The previous value of the property, or ``Undefined`` if
-                there was no previous value.
+            old:
+                The previous value of the property, or ``Undefined``
+                if there was no previous value.
 
         Returns:
             None
@@ -614,7 +610,7 @@ class PropertyDescriptor[GetType, SetType = GetType]:
         value. Otherwise, return the default.
 
         Args:
-            obj (HasProps) : the instance to get a value of this property for
+            obj: the instance to get a value of this property for
 
         Returns:
             object
@@ -686,26 +682,24 @@ class PropertyDescriptor[GetType, SetType = GetType]:
         been explicitly set, etc.
 
         Args:
-            obj (HasProps) :
+            obj:
                 The object the property is being set on.
 
-            old (obj) :
+            old:
                 The previous value of the property to compare
 
-            value (obj) :
+            value:
                 The new value of the property
 
-            hint (event hint or None, optional) :
+            hint:
                 An optional update event hint, e.g. ``ColumnStreamedEvent``
-                (default: None)
 
                 Update event hints are usually used at times when better
                 update performance can be obtained by special-casing in
                 some way (e.g. streaming or patching column data sources)
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter:
                 This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
 
                 In the context of a Bokeh server application, incoming updates
                 to properties will be annotated with the session that is
@@ -749,19 +743,18 @@ class PropertyDescriptor[GetType, SetType = GetType]:
         and we detect it with our ``PropertyContainer`` wrappers.
 
         Args:
-            obj (HasProps) :
+            obj:
                 The object who's container value was mutated
 
-            old (object) :
+            old:
                 The "old" value of the container
 
                 This is normally a copy. Incremental updates that don't
                 retain the previous value use ``Undefined``. The
                 new value is already set unless validation changes it.
 
-            hint (event hint or None, optional) :
+            hint:
                 An optional update event hint, e.g. ``ColumnStreamedEvent``
-                (default: None)
 
                 Update event hints are usually used at times when better
                 update performance can be obtained by special-casing in
@@ -784,27 +777,25 @@ class PropertyDescriptor[GetType, SetType = GetType]:
         """ Unconditionally send a change event notification for the property.
 
         Args:
-            obj (HasProps):
+            obj:
                 The object the property is being set on.
 
-            old (obj) :
+            old:
                 The previous value of the property, or ``Undefined`` if
                 there was no previous value or it wasn't retained.
 
-            value (obj) :
+            value:
                 The new value of the property
 
-            hint (event hint or None, optional) :
+            hint:
                 An optional update event hint, e.g. ``ColumnStreamedEvent``
-                (default: None)
 
                 Update event hints are usually used at times when better
                 update performance can be obtained by special-casing in
                 some way (e.g. streaming or patching column data sources)
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter:
                 This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
 
                 In the context of a Bokeh server application, incoming updates
                 to properties will be annotated with the session that is
@@ -848,15 +839,14 @@ class ColumnDataPropertyDescriptor(PropertyDescriptor[Any]):
             explicitly invoking ``__set__``. See below for more information.
 
         Args:
-            obj (HasProps) :
+            obj:
                 The instance to set a new property value on
 
-            value (obj) :
+            value:
                 The new value to set the property to
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter:
                 This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
 
                 In the context of a Bokeh server application, incoming updates
                 to properties will be annotated with the session that is
@@ -912,13 +902,12 @@ class DataSpecPropertyDescriptor(PropertyDescriptor[Any]):
         This method first
 
         Args:
-            obj (HasProps) : object to set value to
+            obj: object to set value to
 
-            value (JSON-dict) : value to set
+            value: value to set
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter:
                 This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
 
                 In the context of a Bokeh server application, incoming updates
                 to properties will be annotated with the session that is

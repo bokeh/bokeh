@@ -97,17 +97,13 @@ class NamedColor(RGB):
         '''
 
         Args:
-            name (str) :
-                The name to associate with the color, e.g. "firebrick"
+            name: The name to associate with the color, e.g. "firebrick"
 
-            r (int) :
-                The value for the red channel in [0, 255]
+            r: The value for the red channel in [0, 255]
 
-            g (int) :
-                The value for the green channel in [0, 255]
+            g: The value for the green channel in [0, 255]
 
-            b (int) :
-                The value for the blue channel in [0, 255]
+            b: The value for the blue channel in [0, 255]
 
         '''
         if name not in self.__all__:
@@ -122,11 +118,11 @@ class NamedColor(RGB):
         ''' Find and return a named color.
 
         Args:
-            name (str) : Name of color to find.
+            name: Name of color to find.
 
         Returns:
             :class:`~bokeh.colors.NamedColor` or None if the name is not
-            recognised.
+            recognized.
 
         '''
         try:
@@ -140,7 +136,7 @@ class NamedColor(RGB):
         ''' Create an RGB color from a string.
 
         Args:
-            color (str) :
+            color:
                 String containing color. This may be a named color such as
                 "blue" or a hex RGB(A) string of one of the following formats:
                 '#rrggbb', '#rrggbbaa', '#rgb' or '#rgba'.

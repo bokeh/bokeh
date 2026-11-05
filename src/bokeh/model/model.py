@@ -581,16 +581,17 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         property whenever another changes value.
 
         Args:
-            attr (str) :
+
+            attr:
                 The name of a Bokeh property on this model
 
-            other (Model):
+            other:
                 A Bokeh model to link to self.attr
 
-            other_attr (str) :
+            other_attr:
                 The property on ``other`` to link together
 
-            attr_selector (int | str) :
+            attr_selector:
                 The index to link an item in a subscriptable ``attr``
 
         Added in version 1.1
@@ -771,8 +772,8 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         ''' Add a callback on this object to trigger when ``attr`` changes.
 
         Args:
-            attr (str) : an attribute name on this object
-            *callbacks (callable) : callback functions to register
+            attr: an attribute name on this object
+            *callbacks: callback functions to register
 
         Returns:
             None
@@ -920,7 +921,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         match the given selector.
 
         Args:
-            selector (JSON-like) : query selector
+            selector: query selector
 
         Returns:
             seq[Model]
@@ -935,7 +936,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         is found. Returns single matching object, or None if nothing is found.
 
         Args:
-            selector (JSON-like) : query selector
+            selector : query selector
 
         Returns:
             Model
@@ -952,8 +953,8 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         attribute/value updates.
 
         Args:
-            selector (JSON-like) : query selector
-            updates (dict[str|Any]) : data to modify
+            selector: query selector
+            updates: data to modify
 
         Returns:
             None

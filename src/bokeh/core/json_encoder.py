@@ -77,22 +77,19 @@ def serialize_json(obj: Any | Serialized[Any], *, pretty: bool | None = None, in
     serialization of all types of objects that may be encountered in Bokeh.
 
     Args:
-        obj (obj) : the object to serialize to JSON format
+        obj: the object to serialize to JSON format
 
-        pretty (bool, optional) :
-
+        pretty:
             Whether to generate prettified output. If ``True``, spaces are
-            added after added after separators, and indentation and newlines
-            are applied. (default: False)
+            added after separators, and indentation and newlines are applied.
 
             Pretty output can also be enabled with the environment variable
             ``BOKEH_PRETTY``, which overrides this argument, if set.
 
-        indent (int or None, optional) :
-
+        indent:
             Amount of indentation to use in generated JSON output. If ``None``
             then no indentation is used, unless pretty output is enabled,
-            in which case two spaces are used. (default: None)
+            in which case two spaces are used.
 
     Returns:
 

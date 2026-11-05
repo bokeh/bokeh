@@ -74,7 +74,7 @@ def show(
     cell to display multiple objects. The objects are displayed in order.
 
     Args:
-        obj (UIElement or UIElement[] or DOMNode or DOMNode[] or NotebookApplication) :
+        obj:
             A Bokeh object to display.
 
             Bokeh plots, widgets, layouts (i.e. rows and columns) may be
@@ -86,22 +86,22 @@ def show(
             In a Jupyter notebook, a managed application returned by
             :func:`~bokeh.io.serve` may be passed in any later cell.
 
-        filename (PathLike, optional) :
+        filename:
             HTML filename to save and open. If omitted outside notebook mode,
             the filename is derived from the running script. If the script
             filename is unavailable or its directory is not writable, a
             temporary ``.html`` file is used.
 
-        resources (Resources or resource setting, optional) :
+        resources:
             Select explicit BokehJS resource delivery for file or notebook
             output. Notebook outputs carry the resource records needed for a
             saved artifact, while the frontend executes identical records
             only once.
 
-        title (str, optional) :
+        title:
             HTML document title for file output.
 
-        template (Template or str, optional) :
+        template:
             HTML document template for file output.
 
     Returns:
