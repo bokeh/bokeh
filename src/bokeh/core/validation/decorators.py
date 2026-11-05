@@ -46,8 +46,8 @@ def _validator(code_or_name: int | str | Issue, validator_type: ValidatorType) -
     validation checks.
 
     Args:
-        code_or_name (int, str or Issue) : a defined error code or custom message
-        validator_type (str) : either "error" or "warning"
+        code_or_name: a defined error code or custom message
+        validator_type: either "error" or "warning"
 
     Returns:
         validation decorator
@@ -99,7 +99,7 @@ def error(code_or_name: int | str | Issue) -> ValidationDecorator:
     """ Decorator to mark a validator method for a Bokeh error condition
 
     Args:
-        code_or_name (int, str or Issue) : a code from ``bokeh.validation.errors`` or a string label for a custom check
+        code_or_name: a code from ``bokeh.validation.errors`` or a string label for a custom check
 
     Returns:
         callable : decorator for Bokeh model methods
@@ -139,10 +139,10 @@ def warning(code_or_name: int | str | Issue) -> ValidationDecorator:
     """ Decorator to mark a validator method for a Bokeh error condition
 
     Args:
-        code_or_name (int, str or Issue) : a code from ``bokeh.validation.errors`` or a string label for a custom check
+        code_or_name: a code from ``bokeh.validation.errors`` or a string label for a custom check
 
     Returns:
-        callable : decorator for Bokeh model methods
+        callable: decorator for Bokeh model methods
 
     The function that is decorated should have a name that starts with
     ``_check``, and return a string message in case a bad condition is

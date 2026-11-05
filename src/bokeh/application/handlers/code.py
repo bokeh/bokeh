@@ -91,11 +91,11 @@ class CodeHandler(Handler):
         '''
 
         Args:
-            source (str) : python source code
+            source: python source code
 
-            filename (str) : a filename to use in any debugging or error output
+            filename: a filename to use in any debugging or error output
 
-            argv (Sequence[str], optional) : a sequence of string arguments to make
+            argv: a sequence of string arguments to make
                 available as ``sys.argv`` when the code executes
 
             package (ModuleType, optional): An optional package module to configure

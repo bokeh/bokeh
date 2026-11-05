@@ -49,8 +49,8 @@ class Override[T]:
     Currently, ``Override`` can only be use to override the ``default`` value
     for the property.
 
-    Keyword Args:
-        default (obj) : a default value for this property on a subclass
+    Args:
+        default: a default value for this property on a subclass
 
     Example:
 

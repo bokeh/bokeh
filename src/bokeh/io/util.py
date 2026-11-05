@@ -78,7 +78,7 @@ def default_filename(ext: str) -> str:
     writable), then a temporary file with the given extension is returned.
 
     Args:
-        ext (str) : the desired extension for the filename
+        ext: the desired extension for the filename
 
     Returns:
         str

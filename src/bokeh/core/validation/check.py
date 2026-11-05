@@ -77,8 +77,8 @@ def silence(warning: Warning, silence: bool = True) -> set[Warning]:
     Use :func:`silenced` for temporary suppression in the current execution context.
 
     Args:
-        warning (Warning) : Bokeh warning to silence
-        silence (bool) : Whether or not to silence the warning
+        warning: Bokeh warning to silence
+        silence: Whether or not to silence the warning
 
     Returns:
         A set containing all globally silenced warnings
@@ -114,7 +114,7 @@ def is_silenced(warning: Warning) -> bool:
     ''' Check if a warning has been silenced globally or in the current execution context.
 
     Args:
-        warning (Warning) : Bokeh warning to check
+        warning: Bokeh warning to check
 
     Returns:
         bool
@@ -142,7 +142,7 @@ def silenced(warning: Warning) -> Generator[None]:
     for process-wide suppression.
 
     Args:
-        warning (Warning) : Bokeh warning to silence
+        warning: Bokeh warning to silence
 
     '''
     if not isinstance(warning, Warning):
@@ -205,7 +205,7 @@ def process_validation_issues(issues: ValidationIssues) -> None:
     ''' Log warning and error messages for a dictionary containing warnings and error messages.
 
     Args:
-        issues (ValidationIssue) : A collection of all warning and error messages
+        issues: A collection of all warning and error messages
 
     Returns:
         None

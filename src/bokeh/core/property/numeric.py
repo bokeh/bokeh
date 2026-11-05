@@ -77,14 +77,14 @@ class Interval[T: int | float](SingleParameterizedProperty[T]):
     """ Accept numeric values that are contained within a given interval.
 
     Args:
-        type_param (numeric property):
+        type_param:
             numeric types for the range, e.g. ``Int``, ``Float``
 
-        start (number) :
+        start:
             A minimum allowable value for the range. Values less than
             ``start`` will result in validation errors.
 
-        end (number) :
+        end:
             A maximum allowable value for the range. Values greater than
             ``end`` will result in validation errors.
 
@@ -158,11 +158,9 @@ class Size(Float):
     """ Accept non-negative numeric values.
 
     Args:
-        default (float, optional) :
-            A default value for attributes created from this property to have.
+        default: A default value for attributes created from this property to have.
 
-        help (str or None, optional) :
-            A documentation string for this property. (default: None)
+        help: A documentation string for this property.
 
     Example:
 
@@ -197,11 +195,9 @@ class Percent(Float):
     things like alpha values and extents.
 
     Args:
-        default (float, optional) :
-            A default value for attributes created from this property to have.
+        default: A default value for attributes created from this property to have.
 
-        help (str or None, optional) :
-            A documentation string for this property. (default: None)
+        help: A documentation string for this property.
 
     Example:
 
@@ -241,11 +237,9 @@ class Angle(Float):
     provided for cases when it is more semantically meaningful.
 
     Args:
-        default (float, optional) :
-            A default value for attributes created from this property to have.
+        default: A default value for attributes created from this property to have.
 
-        help (str or None, optional) :
-            A documentation string for this property. (default: None)
+        help: A documentation string for this property.
 
     """
 

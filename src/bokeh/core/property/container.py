@@ -270,7 +270,7 @@ class ColumnData(Dict[str, Any]):
         """Return the descriptor used to delegate access to column data.
 
         Args:
-            name (str) : the name of the property these descriptors are for
+            name: the name of the property these descriptors are for
 
         Returns:
             ColumnDataPropertyDescriptor

@@ -768,15 +768,15 @@ class DataTable(TableWidget):
         """ Create a simple table from a pandas dataframe, dictionary or ColumnDataSource.
 
         Args:
-            data (DataFrame or dict or ColumnDataSource) :
+            data:
                 The data to create the table from. If the data is a dataframe
                 or dictionary, a ColumnDataSource will be created from it.
 
-            columns (list, optional) :
+            columns:
                 A list of column names to use from the input data.
                 If None, use all columns. (default: None)
 
-            formatters (dict, optional) :
+            formatters:
                 A mapping of column names and corresponding Formatters to
                 apply to each column. (default: None)
 

@@ -172,12 +172,12 @@ class Plot(LayoutDOM):
         # Want to pass selector that is a dictionary
         return _list_attr_splat(find(self.references(), selector))
 
-    def row(self, row, gridplot):
+    def row(self, row: int, gridplot: GridPlot):
         ''' Return whether this plot is in a given row of a GridPlot.
 
         Args:
-            row (int) : index of the row to test
-            gridplot (GridPlot) : the GridPlot to check
+            row: index of the row to test
+            gridplot: the GridPlot to check
 
         Returns:
             bool
@@ -185,12 +185,12 @@ class Plot(LayoutDOM):
         '''
         return self in gridplot.row(row)
 
-    def column(self, col, gridplot):
+    def column(self, col: int, gridplot: GridPlot):
         ''' Return whether this plot is in a given column of a GridPlot.
 
         Args:
-            col (int) : index of the column to test
-            gridplot (GridPlot) : the GridPlot to check
+            col: index of the column to test
+            gridplot: the GridPlot to check
 
         Returns:
             bool
@@ -285,8 +285,8 @@ class Plot(LayoutDOM):
         Plot's properties manually.
 
         Args:
-            obj (Renderer) : the object to add to the Plot
-            place (str, optional) : where to add the object (default: 'center')
+            obj: the object to add to the Plot
+            place: Place where to add the object.
                 Valid places are: 'left', 'right', 'above', 'below', 'center'.
 
         Returns:
@@ -311,7 +311,7 @@ class Plot(LayoutDOM):
         ''' Adds tools to the plot.
 
         Args:
-            *tools (Tool) : the tools to add to the Plot
+            *tools: the tools to add to the Plot
 
         Returns:
             None
@@ -331,7 +331,7 @@ class Plot(LayoutDOM):
         ''' Removes tools from the plot.
 
         Args:
-            *tools (Tool) : the tools to remove from the Plot
+            *tools: the tools to remove from the Plot
 
         Returns:
             None
@@ -358,10 +358,10 @@ class Plot(LayoutDOM):
         and then add it to the plot's list of renderers.
 
         Args:
-            source_or_glyph (Glyph | ColumnarDataSource): a data source for the
+            source_or_glyph: a data source for the
                 glyphs or a glyph to add to the Plot
-            source (DataSource) : a data source for the glyphs to all use
-            glyph (Glyph) : the glyph to add to the Plot
+            source: a data source for the glyphs to all use
+            glyph: the glyph to add to the Plot
 
 
         Keyword Arguments:
@@ -391,10 +391,10 @@ class Plot(LayoutDOM):
         ''' Adds new ``TileRenderer`` into ``Plot.renderers``
 
         Args:
-            tile_source (TileSource, xyzservices.TileProvider, str) :
+            tile_source:
                 A tile source instance which contain tileset configuration
 
-            retina (bool) :
+            retina:
                 Whether to use retina version of tiles (if available). This
                 also sets ``TileSource.pixel_ratio``, so that the tiles are
                 displayed at their natural size.
@@ -455,7 +455,7 @@ class Plot(LayoutDOM):
         ''' Takes care of turning a property on and off within a scope.
 
         Args:
-            render (bool) :
+            render:
                 Turns the property hold_render on and off.
         '''
         if render:

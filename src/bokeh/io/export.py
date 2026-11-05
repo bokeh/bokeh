@@ -79,33 +79,32 @@ def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, w
     ``/foo/myplot.py`` will create ``/foo/myplot.png``)
 
     Args:
-        obj (UIElement or Document) : a Layout (Row/Column), Plot or Widget
-            object or Document to export.
+        obj: a Layout (e.g. Row/Column), Plot or Widget  or Document to export.
 
-        filename (PathLike, e.g. str, Path, optional) : filename to save document under (default: None)
+        filename: filename to save document under.
             If None, infer from the filename.
 
-        width (int) : the desired width of the exported layout obj only if
+        width: the desired width of the exported layout obj only if
             it's a Plot instance. Otherwise the width kwarg is ignored.
 
-        height (int) : the desired height of the exported layout obj only if
+        height: the desired height of the exported layout obj only if
             it's a Plot instance. Otherwise the height kwarg is ignored.
 
-        scale_factor (float, optional) : A factor to scale the output PNG by,
+        scale_factor A factor to scale the output PNG by,
             providing a higher resolution while maintaining element relative
             scales.
 
-        webdriver (selenium.webdriver or playwright Browser/BrowserContext) :
+        webdriver:
             A browser instance to use for export. Accepts a Selenium
             ``WebDriver`` or a Playwright ``Browser`` / ``BrowserContext``
             (e.g. from ``playwright.chromium.launch()`` or
             ``launch_persistent_context()``). The backend is auto-detected
             from the type of object passed. Selenium export is deprecated.
 
-        timeout (int) : the maximum amount of time (in seconds) to wait for
-            Bokeh to initialize (default: 5) (Added in 1.1.1).
+        timeout: the maximum amount of time (in seconds) to wait for
+            Bokeh to initialize (Added in 1.1.1).
 
-        backend (ExportBackendType, optional) :
+        backend (Added in 1.1.1):
             Which browser backend to use for export. If None, uses the
             ``BOKEH_EXPORT_BACKEND`` setting (default: Playwright).
             Passing a ``webdriver`` instance overrides this setting. The
@@ -148,23 +147,23 @@ def export_svg(obj: UIElement | Document, *, filename: PathLike | None = None, w
     Args:
         obj (UIElement object) : a Layout (Row/Column), Plot or Widget object to display
 
-        filename (PathLike, e.g. str, Path, optional) : filename to save document under (default: None)
+        filename: filename to save document under
             If None, infer from the filename.
 
-        width (int) : the desired width of the exported layout obj only if
+        width: the desired width of the exported layout obj only if
             it's a Plot instance. Otherwise the width kwarg is ignored.
 
-        height (int) : the desired height of the exported layout obj only if
+        height: the desired height of the exported layout obj only if
             it's a Plot instance. Otherwise the height kwarg is ignored.
 
-        webdriver (selenium.webdriver or playwright Browser/BrowserContext) :
+        webdriver:
             A browser instance to use for export. The backend is auto-detected
             from the type of object passed. Selenium export is deprecated.
 
-        timeout (int) : the maximum amount of time (in seconds) to wait for
-            Bokeh to initialize (default: 5)
+        timeout: the maximum amount of time (in seconds) to wait for
+            Bokeh to initialize
 
-        backend (ExportBackendType, optional) :
+        backend (Added in 1.1.1):
             Which browser backend to use for export. If None, uses the
             ``BOKEH_EXPORT_BACKEND`` setting (default: Playwright).
             Passing a ``webdriver`` instance overrides this setting. The
@@ -193,23 +192,23 @@ def export_svgs(obj: UIElement | Document, *, filename: str | None = None, width
     Args:
         obj (UIElement object) : a Layout (Row/Column), Plot or Widget object to display
 
-        filename (str, optional) : filename to save document under (default: None)
+        filename (str, optional) : filename to save document under
             If None, infer from the filename.
 
-        width (int) : the desired width of the exported layout obj only if
+        width: the desired width of the exported layout obj only if
             it's a Plot instance. Otherwise the width kwarg is ignored.
 
-        height (int) : the desired height of the exported layout obj only if
+        height: the desired height of the exported layout obj only if
             it's a Plot instance. Otherwise the height kwarg is ignored.
 
-        webdriver (selenium.webdriver or playwright Browser/BrowserContext) :
+        webdriver:
             A browser instance to use for export. The backend is auto-detected
             from the type of object passed. Selenium export is deprecated.
 
-        timeout (int) : the maximum amount of time (in seconds) to wait for
-            Bokeh to initialize (default: 5) (Added in 1.1.1).
+        timeout: the maximum amount of time (in seconds) to wait for
+            Bokeh to initialize. (Added in 1.1.1).
 
-        backend (ExportBackendType, optional) :
+        backend (Added in 1.1.1):
             Which browser backend to use for export. If None, uses the
             ``BOKEH_EXPORT_BACKEND`` setting (default: Playwright).
             Passing a ``webdriver`` instance overrides this setting. The
@@ -312,30 +311,29 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: DriverLike | Non
     ''' Get a screenshot of a ``UIElement`` object.
 
     Args:
-        obj (UIElement or Document) : a Layout (Row/Column), Plot or Widget
-            object or Document to export.
+        obj: a Layout (e.g. Row/Column), Plot or Widget object or Document to export.
 
-        driver (selenium.webdriver or playwright Browser/BrowserContext) :
+        driver:
             A browser instance to use for export. The backend is
             auto-detected from the type of object passed. Selenium export is
             deprecated.
 
-        timeout (int) : the maximum amount of time to wait for initialization.
+        timeout: the maximum amount of time to wait for initialization.
             It will be used as a timeout for loading Bokeh, then when waiting for
             the layout to be rendered.
 
-        resources (Resources): information relating to loading or embedding Bokeh
+        resources: information relating to loading or embedding Bokeh
             JavaScript and CSS, defaults to ``"inline"`` mode
 
-        width (int) : the desired width of the exported layout.
+        width: the desired width of the exported layout.
 
-        height (int) : the desired height of the exported layout.
+        height: the desired height of the exported layout.
 
-        scale_factor (float, optional) : A factor to scale the output PNG by,
+        scale_factor: A factor to scale the output PNG by,
             providing a higher resolution while maintaining element relative
             scales.
 
-        backend ("selenium" or "playwright", optional) :
+        backend:
             Which browser backend to use. If None, uses Playwright by default.
             Passing a ``driver`` overrides this setting. The Selenium backend
             is deprecated.

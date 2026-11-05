@@ -115,7 +115,7 @@ class Button(AbstractButton):
         ''' Set up a handler for button clicks.
 
         Args:
-            handler (func) : handler function to call when button is clicked.
+            handler: handler function to call when button is clicked.
 
         Returns:
             None
@@ -142,7 +142,7 @@ class Toggle(AbstractButton):
         """ Set up a handler for button state changes (clicks).
 
         Args:
-            handler (func) : handler function to call when button is toggled.
+            handler: handler function to call when button is toggled.
 
         Returns:
             None
@@ -172,7 +172,7 @@ class Dropdown(AbstractButton):
         ''' Set up a handler for button or menu item clicks.
 
         Args:
-            handler (func) : handler function to call when button is activated.
+            handler: handler function to call when button is activated.
 
         Returns:
             None

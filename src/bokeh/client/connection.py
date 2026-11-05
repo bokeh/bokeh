@@ -203,7 +203,7 @@ class ClientConnection:
         ''' Pull a document from the server, overwriting the passed-in document
 
         Args:
-            document : (Document)
+            document:
               The document to overwrite with server content.
 
         Returns:
@@ -225,7 +225,7 @@ class ClientConnection:
         ''' Push a document to the server, overwriting any existing server-side doc.
 
         Args:
-            document : (Document)
+            document:
                 A Document to push to the server
 
         Returns:

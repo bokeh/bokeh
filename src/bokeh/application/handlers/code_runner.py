@@ -80,25 +80,25 @@ class CodeRunner:
         '''
 
         Args:
-            source (str) :
+            source:
                 A string containing Python source code to execute
 
-            path (str) :
+            path:
                 A filename to use in any debugging or error output
 
-            argv (Sequence[str]) :
+            argv:
                 A sequence of string arguments to make available as ``sys.argv``
                 when the code executes
 
-            package (bool) :
+            package:
                 An optional package module to configure
 
-            optimize (int) :
+            optimize:
                 The compilation optimization level. Defaults to the interpreter's
                 level. Use 0 to preserve docstrings and assertions.
 
         Raises:
-            ValueError, if package is specified for an __init__.py
+            ValueError: if package is specified for an __init__.py
 
         '''
         if package and basename(path) == "__init__.py":

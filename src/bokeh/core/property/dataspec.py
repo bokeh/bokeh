@@ -221,7 +221,7 @@ class DataSpec(Either[Any]):
         """Return the descriptor used to delegate access to this DataSpec.
 
         Args:
-            name (str) : the name of the property these descriptors are for
+            name: the name of the property these descriptors are for
 
         Returns:
             DataSpecPropertyDescriptor
@@ -532,7 +532,7 @@ class ColorSpec(DataSpec):
         Checks for a well-formed hexadecimal color value or a named color.
 
         Args:
-            val (str) : the value to check
+            val: the value to check
 
         Returns:
             True, if the value is a string color literal
@@ -548,7 +548,7 @@ class ColorSpec(DataSpec):
         Checks for a 3 or 4-tuple of numbers
 
         Args:
-            val (str) : the value to check
+            val: the value to check
 
         Returns:
             True, if the value could be a color tuple

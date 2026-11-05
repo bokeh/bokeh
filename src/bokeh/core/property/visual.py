@@ -66,7 +66,7 @@ type DashPatternType = enums.DashPatternType | str | Sequence[int]
 class DashPattern(Either[DashPatternType]):
     """ Accept line dash specifications.
 
-    Express patterns that describe line dashes.  ``DashPattern`` values
+    Express patterns that describe line dashes. ``DashPattern`` values
     can be specified in a variety of ways:
 
     * An enum: "solid", "dashed", "dotted", "dotdash", "dashdot"
