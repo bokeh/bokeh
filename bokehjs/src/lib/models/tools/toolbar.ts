@@ -30,12 +30,25 @@ import toolbars_css, * as toolbars from "styles/toolbar.css"
 import logos_css, * as logos from "styles/logo.css"
 import icons_css from "styles/icons.css"
 
+type ToolbarItem = {
+  bar_el: HTMLElement
+  menu_el: HTMLElement
+}
+
 export class ToolbarView extends UIElementView {
   declare model: Toolbar
 
   protected readonly _tool_button_views: ViewStorage<ToolButton> = new Map()
+  protected readonly _tool_button_menu_views: ViewStorage<ToolButton> = new Map()
   protected _tool_buttons: ToolButton[][]
-  protected _items: HTMLElement[] = []
+
+  /**
+   * Pairs of elements, one rendered in the toolbar's bar and the other in the
+   * overflow menu. The menu's element is shown only when its bar's counterpart
+   * doesn't fit in the bar.
+   */
+  protected _items: ToolbarItem[] = []
+  protected _bar_el: HTMLElement | null = null
 
   get tool_buttons(): ToolButton[] {
     return this._tool_buttons.flat()
@@ -57,7 +70,7 @@ export class ToolbarView extends UIElementView {
   }
 
   override _children_views(): ChildView[] {
-    return [...super._children_views(), ...this._tool_button_views.values()]
+    return [...super._children_views(), ...this._tool_button_views.values(), ...this._tool_button_menu_views.values()]
   }
 
   override has_finished(): boolean {
@@ -65,7 +78,7 @@ export class ToolbarView extends UIElementView {
       return false
     }
 
-    for (const child_view of this._tool_button_views.values()) {
+    for (const child_view of [...this._tool_button_views.values(), ...this._tool_button_menu_views.values()]) {
       if (!child_view.has_finished()) {
         return false
       }
@@ -87,6 +100,9 @@ export class ToolbarView extends UIElementView {
       prevent_hide: (event) => {
         return event.composedPath().includes(this._overflow_el)
       },
+      extra_styles: [
+        ".bk-hidden { display: none; }",
+      ],
     })
   }
 
@@ -195,7 +211,9 @@ export class ToolbarView extends UIElementView {
       }
     })()
 
-    await build_views(this._tool_button_views, this._tool_buttons.flat(), {parent: this})
+    const tool_buttons = this._tool_buttons.flat()
+    await build_views(this._tool_button_views, tool_buttons, {parent: this})
+    await build_views(this._tool_button_menu_views, tool_buttons, {parent: this})
   }
 
   set_visibility(visible: boolean): void {
@@ -207,11 +225,6 @@ export class ToolbarView extends UIElementView {
 
   protected _on_visible_change(): void {
     this.el.classList.toggle(toolbars.hidden, !this.visible)
-  }
-
-  override _after_resize(): void {
-    super._after_resize()
-    this._after_render()
   }
 
   protected _menu_at(): At {
@@ -234,9 +247,7 @@ export class ToolbarView extends UIElementView {
     this.el.classList.toggle(toolbars.inner, this.model.inner)
     this._on_visible_change()
 
-    const {horizontal} = this.model
-
-    this._overflow_el = div({class: toolbars.tool_overflow, tabIndex: 0}, horizontal ? "⋮" : "⋯")
+    this._overflow_el = div({class: toolbars.overflow, tabIndex: 0}, div({class: toolbars.icon}))
     this._overflow_el.addEventListener("click", (_event) => {
       this.toggle_menu()
     })
@@ -246,76 +257,104 @@ export class ToolbarView extends UIElementView {
       }
     })
 
-    this._items = []
-
     if (this.model.logo != null) {
       const gray = this.model.logo === "grey" ? logos.grey : null
       const logo_el = a({href: "https://bokeh.org/", target: "_blank", class: [logos.logo, logos.logo_small, gray], title: `Bokeh ${version}`})
-      this._items.push(logo_el)
       this.shadow_el.appendChild(logo_el)
     }
 
-    for (const [, button_view] of this._tool_button_views) {
+    this._bar_el = div({class: toolbars.bar})
+    this.shadow_el.append(this._bar_el, this._overflow_el)
+
+    for (const button_view of this._tool_button_views.values()) {
+      button_view.render()
+    }
+    for (const button_view of this._tool_button_menu_views.values()) {
       button_view.render()
     }
 
     const bars = this._tool_buttons.map((group) => {
       return group
         .filter((button) => button.tool.visible)
-        .map((button) => this._tool_button_views.get(button))
-        .filter((view) => view != null)
-        .map((view) => view.el)
+        .map((button) => {
+          const bar_view = this._tool_button_views.get(button)
+          const menu_view = this._tool_button_menu_views.get(button)
+          return bar_view != null && menu_view != null ? {bar_el: bar_view.el, menu_el: menu_view.el} : null
+        })
+        .filter((item) => item != null)
     }).filter((bar) => bar.length != 0)
 
-    const divider = () => div({class: toolbars.divider})
+    const divider = (): ToolbarItem => ({bar_el: div({class: toolbars.divider}), menu_el: div({class: toolbars.divider})})
+    this._items = [...join(bars, divider)]
 
-    for (const el of join<HTMLElement>(bars, divider)) {
-      this._items.push(el)
+    clear(this._overflow_menu.items)
+    const overflow_cls = this.model.horizontal ? toolbars.right : toolbars.above
+
+    for (const {bar_el, menu_el} of this._items) {
+      this._bar_el.append(bar_el)
+      this._overflow_menu.items.push({custom: menu_el, class: overflow_cls})
     }
-
-    this.shadow_el.append(...this._items)
   }
 
   override _after_render(): void {
     super._after_render()
+    this._update_overflow()
+  }
 
-    clear(this._overflow_menu.items)
-
-    if (this.shadow_el.contains(this._overflow_el)) {
-      this.shadow_el.removeChild(this._overflow_el)
+  override update_bbox(): boolean {
+    // Don't rely on `_after_resize()`, because the bbox may have been already
+    // updated by a parent (e.g. `GridPlotView`), before the resize observer.
+    const changed = super.update_bbox()
+    if (changed) {
+      this._update_overflow()
     }
+    return changed
+  }
 
-    for (const el of this._items) {
-      if (!this.shadow_el.contains(el)) {
-        this.shadow_el.append(el)
-      }
+  /**
+   * Determine which items don't fit in the bar and show them (and only them)
+   * in the overflow menu. Clipping of the bar itself is done purely with CSS.
+   */
+  protected _update_overflow(): void {
+    const {_bar_el} = this
+    if (_bar_el == null) {
+      return
     }
 
     const {horizontal} = this.model
-    const overflow_size = 15
-    const {bbox} = this
-    const overflow_cls = horizontal ? toolbars.right : toolbars.above
-    let size = 0
-    let overflowed = false
 
-    for (const el of this._items) {
-      if (overflowed) {
-        this.shadow_el.removeChild(el)
-        this._overflow_menu.items.push({custom: el, class: overflow_cls})
-      } else {
-        const {width, height} = el.getBoundingClientRect()
-        size += horizontal ? width : height
-        overflowed = horizontal ? size > bbox.width - overflow_size : size > bbox.height - overflow_size
-        if (overflowed) {
-          this.shadow_el.removeChild(el)
-          this.shadow_el.appendChild(this._overflow_el)
-          this._overflow_menu.items.push({custom: el, class: overflow_cls})
-        }
-      }
+    // Clipped items aren't displayed, so reset them before measuring.
+    this.el.classList.remove(toolbars.overflows)
+    for (const {bar_el} of this._items) {
+      bar_el.classList.remove(toolbars.clipped)
     }
 
+    const bar_bbox = _bar_el.getBoundingClientRect()
+    const clipped: HTMLElement[] = []
+    let any_overflows = false
+
+    for (const {bar_el, menu_el} of this._items) {
+      const bbox = bar_el.getBoundingClientRect()
+      const overflows = horizontal ? bbox.right > bar_bbox.right : bbox.bottom > bar_bbox.bottom
+      if (overflows) {
+        clipped.push(bar_el)
+      }
+      menu_el.classList.toggle(toolbars.hidden, !overflows)
+      any_overflows ||= overflows
+    }
+
+    for (const bar_el of clipped) {
+      bar_el.classList.add(toolbars.clipped)
+    }
+
+    this.el.classList.toggle(toolbars.overflows, any_overflows)
+
     if (this._overflow_menu.is_open) {
-      this._overflow_menu.show(this._menu_at())
+      if (any_overflows) {
+        this._overflow_menu.show(this._menu_at())
+      } else {
+        this._overflow_menu.hide()
+      }
     }
 
     for (const tb_view of this.tool_button_views) {
