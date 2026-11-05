@@ -26,6 +26,6 @@ export class Maximum extends ScalarExpression<number> {
 
   protected _compute(source: IndexedDataSource): number {
     const column = source.get_field(this.field) ?? []
-    return Math.max(this.initial, max(column as number[]))
+    return Math.max(this.initial, max(column))
   }
 }

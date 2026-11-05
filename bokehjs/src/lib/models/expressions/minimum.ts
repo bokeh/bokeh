@@ -26,6 +26,6 @@ export class Minimum extends ScalarExpression<number> {
 
   protected _compute(source: IndexedDataSource): number {
     const column = source.get_field(this.field) ?? []
-    return Math.min(this.initial, min(column as number[]))
+    return Math.min(this.initial, min(column))
   }
 }
