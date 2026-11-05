@@ -60,6 +60,10 @@ export class ToolbarView extends UIElementView {
   protected _overflow_menu: ContextMenu
   protected _overflow_el: HTMLElement
 
+  get overflow_menu(): ContextMenu {
+    return this._overflow_menu
+  }
+
   get overflow_el(): HTMLElement {
     return this._overflow_el
   }
@@ -89,11 +93,20 @@ export class ToolbarView extends UIElementView {
 
   override initialize(): void {
     super.initialize()
+    this._overflow_menu = this._build_overflow_menu()
+  }
 
-    const {location} = this.model
-    const reversed = location == "left" || location == "above"
-    const orientation = this.model.horizontal ? "vertical" : "horizontal"
-    this._overflow_menu = new ContextMenu([], {
+  protected _build_overflow_menu(): ContextMenu {
+    const {location, horizontal, overflow_orientation} = this.model
+    // A parallel menu continues the toolbar, so it preserves the order of items.
+    const reversed = overflow_orientation == "perpendicular" && (location == "left" || location == "above")
+    const orientation = (() => {
+      switch (overflow_orientation) {
+        case "parallel":      return horizontal ? "horizontal" : "vertical"
+        case "perpendicular": return horizontal ? "vertical" : "horizontal"
+      }
+    })()
+    return new ContextMenu([], {
       target: this.el,
       orientation,
       reversed,
@@ -114,13 +127,13 @@ export class ToolbarView extends UIElementView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {buttons, tools, location, autohide, group, group_types} = this.model.properties
+    const {buttons, tools, location, overflow_orientation, autohide, group, group_types} = this.model.properties
     this.on_change([buttons, tools, group, group_types], async () => {
       await this._build_tool_button_views()
       this.rerender()
     })
 
-    this.on_change(location, () => {
+    this.on_change([location, overflow_orientation], () => {
       this.rerender()
     })
 
@@ -140,6 +153,7 @@ export class ToolbarView extends UIElementView {
   }
 
   override remove(): void {
+    this._overflow_menu.hide()
     this._destroy_proxies()
     super.remove()
   }
@@ -228,6 +242,18 @@ export class ToolbarView extends UIElementView {
   }
 
   protected _menu_at(): At {
+    if (this.model.overflow_orientation == "parallel") {
+      // A parallel menu is attached from the back, i.e. its end is aligned with the end of the
+      // overflow button, so that it extends along the toolbar instead of past its end.
+      const {left, right, top, bottom} = this._overflow_el.getBoundingClientRect()
+      switch (this.model.location) {
+        case "right": return {right: left, bottom}
+        case "left":  return {left: right, bottom}
+        case "above": return {right, top: bottom}
+        case "below": return {right, bottom: top}
+      }
+    }
+
     switch (this.model.location) {
       case "right": return {left_of:  this._overflow_el}
       case "left":  return {right_of: this._overflow_el}
@@ -242,6 +268,10 @@ export class ToolbarView extends UIElementView {
 
   override render(): void {
     super.render()
+
+    // Orientation of the menu depends on the toolbar's location, which may have changed.
+    this._overflow_menu.hide()
+    this._overflow_menu = this._build_overflow_menu()
 
     this.el.classList.add(toolbars[this.model.location])
     this.el.classList.toggle(toolbars.inner, this.model.inner)
@@ -383,7 +413,13 @@ export class ToolbarView extends UIElementView {
   }
 }
 
-import {Struct, Ref, Nullable, List, Or} from "core/kinds"
+import {Struct, Ref, Nullable, List, Or, Enum} from "core/kinds"
+
+/**
+ * Orientation of the overflow menu relative to the orientation of the toolbar.
+ */
+export const OverflowOrientation = Enum("perpendicular", "parallel")
+export type OverflowOrientation = typeof OverflowOrientation["__type__"]
 
 const GestureToolLike = Or(Ref(GestureTool), Ref(ToolProxy<GestureTool>))
 type GestureToolLike = GestureTool | ToolProxy<GestureTool>
@@ -435,6 +471,7 @@ export namespace Toolbar {
     buttons: p.Property<(ToolButton | null)[] | "auto">
     location: p.Property<Location>
     inner: p.Property<boolean>
+    overflow_orientation: p.Property<OverflowOrientation>
 
     gestures: p.Property<GesturesMap>
     actions: p.Property<ToolLike<ActionTool>[]>
@@ -489,6 +526,7 @@ export class Toolbar extends UIElement {
         buttons:    [ Or(List(Or(Ref(ToolButton), Null)), Auto), "auto" ],
         location:   [ Location, "right" ],
         inner:      [ Bool, false ],
+        overflow_orientation: [ OverflowOrientation, "perpendicular" ],
         gestures:   [ GesturesMap, create_gesture_map ],
         actions:    [ List(Or(Ref(ActionTool), Ref(ToolProxy))), [] ],
         inspectors: [ List(Or(Ref(InspectTool), Ref(ToolProxy))), [] ],

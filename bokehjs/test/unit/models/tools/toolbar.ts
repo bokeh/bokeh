@@ -899,3 +899,43 @@ describe("Toolbar Multi Gesture Tool", () => {
     })
   })
 })
+
+describe("ToolbarView's overflow menu", () => {
+  const locations: Location[] = ["above", "below", "left", "right"]
+
+  for (const location of locations) {
+    const horizontal = location == "above" || location == "below"
+
+    it(`should be perpendicular to a toolbar located ${location} by default`, async () => {
+      const toolbar = Toolbar.create({location})
+      const {view} = await display(toolbar, [300, 300])
+      expect(view.overflow_menu.orientation).to.be.equal(horizontal ? "vertical" : "horizontal")
+    })
+
+    it(`should support overflow_orientation='parallel' for a toolbar located ${location}`, async () => {
+      const toolbar = Toolbar.create({location, overflow_orientation: "parallel"})
+      const {view} = await display(toolbar, [300, 300])
+      expect(view.overflow_menu.orientation).to.be.equal(horizontal ? "horizontal" : "vertical")
+    })
+  }
+
+  it("should update orientation when overflow_orientation changes", async () => {
+    const toolbar = Toolbar.create({location: "above"})
+    const {view} = await display(toolbar, [300, 300])
+    expect(view.overflow_menu.orientation).to.be.equal("vertical")
+
+    toolbar.overflow_orientation = "parallel"
+    await view.ready
+    expect(view.overflow_menu.orientation).to.be.equal("horizontal")
+  })
+
+  it("should update orientation when location changes", async () => {
+    const toolbar = Toolbar.create({location: "above"})
+    const {view} = await display(toolbar, [300, 300])
+    expect(view.overflow_menu.orientation).to.be.equal("vertical")
+
+    toolbar.location = "left"
+    await view.ready
+    expect(view.overflow_menu.orientation).to.be.equal("horizontal")
+  })
+})
