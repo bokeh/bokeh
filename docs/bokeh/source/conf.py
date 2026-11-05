@@ -40,6 +40,7 @@ exclude_patterns = ["docs/includes/*", "docs/releases/*"]
 
 extensions = [
     "sphinxext.opengraph",
+    "sphinx_autodoc_typehints",
     "sphinx_copybutton",
     "sphinx_design",
     "sphinx_favicon",
@@ -84,7 +85,10 @@ rst_epilog = open("rst_epilog.txt").read()
 
 # -- Extensions configuration --------------------------------------------------
 
+typehints_defaults = "comma"
+
 autodoc_member_order = "groupwise"
+always_document_param_types = True
 
 autodoc_type_aliases = {
     "ArrayLike": "ArrayLike",  # This avoids complicated Unions in generated docs
