@@ -53,6 +53,36 @@ describe("core/util/eq module", () => {
       expect(is_equal(0, -Infinity)).to.be.false
     })
 
+    /* eslint-disable no-new-wrappers */
+    it("compares boxed numbers with primitives and other boxed numbers by value", () => {
+      for (const value of [0, -0, 1, -1, NaN, Infinity, -Infinity]) {
+        const boxed = new Number(value)
+        expect(is_equal(value, boxed)).to.be.true
+        expect(is_equal(boxed, value)).to.be.true
+        expect(is_equal(boxed, new Number(value))).to.be.true
+      }
+      expect(is_equal(new Number(-0), new Number(0))).to.be.true
+      expect(is_equal(new Number(0), new Number(-0))).to.be.true
+    })
+
+    it("distinguishes different numeric values and other primitive types from boxed numbers", () => {
+      for (const [a, b] of [[0, 1], [0, NaN], [-Infinity, Infinity]]) {
+        expect(is_equal(new Number(a), b)).to.be.false
+        expect(is_equal(a, new Number(b))).to.be.false
+        expect(is_equal(new Number(a), new Number(b))).to.be.false
+      }
+      expect(is_equal(new Number(1), "1")).to.be.false
+      expect(is_equal("1", new Number(1))).to.be.false
+      expect(is_equal(new Number(1), true)).to.be.false
+      expect(is_equal(true, new Number(1))).to.be.false
+    })
+
+    it("compares boxed numeric values within arrays and objects", () => {
+      expect(is_equal([new Number(1), new Number(NaN)], [1, NaN])).to.be.true
+      expect(is_equal({value: new Number(1)}, {value: 1})).to.be.true
+    })
+    /* eslint-enable no-new-wrappers */
+
     it("that supports string type", () => {
       expect(is_equal("a", "a")).to.be.true
       expect(is_equal("a", "b")).to.be.false

@@ -29,6 +29,20 @@ describe("GroupFilter", () => {
       expect([...group_filter.compute_indices(cds)]).to.be.equal([1, 3])
     })
 
+    /* eslint-disable no-new-wrappers */
+    it("matches primitive and boxed numeric groups by value", () => {
+      const source = ColumnDataSource.create({data: {x: [1, new Number(1), 2, new Number(NaN), NaN]}})
+      for (const group of [1, new Number(1)]) {
+        const filter = GroupFilter.create({field_name: "x", group})
+        expect([...filter.compute_indices(source)]).to.be.equal([0, 1])
+      }
+      for (const group of [NaN, new Number(NaN)]) {
+        const filter = GroupFilter.create({field_name: "x", group})
+        expect([...filter.compute_indices(source)]).to.be.equal([3, 4])
+      }
+    })
+    /* eslint-enable no-new-wrappers */
+
     for (const [storage, pairs] of Object.entries({
       shaped: new Float64NDArray([1, 2, 3, NaN, 1, 2], [3, 2]),
       nested: [[1, 2], [3, NaN], [1, 2]],

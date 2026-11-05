@@ -151,6 +151,7 @@ describe("LegendItem", () => {
     for (const {kind, primitive, boxed} of [
       {kind: "string", primitive: "x", boxed: new String("x")},
       {kind: "boolean", primitive: true, boxed: new Boolean(true)},
+      {kind: "number", primitive: 1, boxed: new Number(1)},
     ]) {
       for (const boxed_first of [false, true]) {
         it(`merges boxed ${kind} labels with primitives when the ${boxed_first ? "boxed" : "primitive"} value is first`, () => {
@@ -174,19 +175,6 @@ describe("LegendItem", () => {
       }
     }
 
-    it("keeps boxed numbers distinct from primitives and other boxed numbers", () => {
-      const first = new Number(1)
-      const second = new Number(1)
-      const data = [1, first, second, 1, first]
-      const source = ColumnDataSource.create({data: {label: data}})
-      const renderer = GlyphRenderer.create({data_source: source})
-      renderer.view.compute_indices(source)
-      const item = LegendItem.create({label: {field: "label"}, renderers: [renderer]})
-      const labels = item.get_labels_list_from_label_prop()
-      expect(labels).to.be.equal([1, first, second])
-      expect(labels[1]).to.be.identical(first)
-      expect(labels[2]).to.be.identical(second)
-    })
     /* eslint-enable no-new-wrappers */
 
     it("reads shaped label fields by logical row after filtering", () => {

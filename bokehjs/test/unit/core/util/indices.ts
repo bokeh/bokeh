@@ -150,6 +150,7 @@ describe("SubsetIndexMapper", () => {
     for (const {kind, primitive, boxed} of [
       {kind: "string", primitive: "x", boxed: new String("x")},
       {kind: "boolean", primitive: true, boxed: new Boolean(true)},
+      {kind: "number", primitive: 1, boxed: new Number(1)},
     ]) {
       it(`matches boxed ${kind} values and primitives in either direction`, () => {
         const data = [primitive, boxed, primitive]
@@ -162,15 +163,6 @@ describe("SubsetIndexMapper", () => {
       })
     }
 
-    it("keeps boxed numbers distinct from primitives and other boxed numbers", () => {
-      const boxed = new Number(1)
-      const mapper = new SubsetIndexMapper(3)
-      mapper.set_subset(new Int32Array([1, 2, 0]))
-      const data = [boxed, 1, new Number(1)]
-      expect(mapper.subset_index_of(data, 1)).to.be.equal(0)
-      expect(mapper.subset_index_of(data, boxed)).to.be.equal(2)
-      expect(mapper.subset_index_of(data, new Number(1))).to.be.null
-    })
     /* eslint-enable no-new-wrappers */
 
     it("matches shaped logical items within the active subset", () => {
