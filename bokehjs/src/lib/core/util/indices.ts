@@ -1,6 +1,7 @@
 import type {Arrayable} from "core/types"
 import {get_array_item} from "./ndarray"
 import {Comparator} from "./eq"
+import {isObject} from "./types"
 
 /**
  * Allows to efficiently map back and forth between superset and subset indices.
@@ -68,9 +69,11 @@ export class SubsetIndexMapper {
 
   subset_index_of(array: Arrayable, value: unknown): number | null {
     const cmp = new Comparator()
+    const structural = isObject(value)
     for (let i = 0; i < this.size_subset; i++) {
-      const superset_idx = this.subset_to_superset[i]
-      if (cmp.eq(get_array_item(array, superset_idx), value)) {
+      const item = get_array_item(array, this.subset_to_superset[i])
+      const matches = structural || isObject(item) ? cmp.eq(item, value) : item === value || Object.is(item, value)
+      if (matches) {
         return i
       }
     }

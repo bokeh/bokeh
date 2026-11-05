@@ -6,6 +6,7 @@ import {logger} from "core/logging"
 import {includes} from "core/util/array"
 import {get_array_item} from "core/util/ndarray"
 import {Comparator} from "core/util/eq"
+import {isObject} from "core/util/types"
 
 export namespace LegendItem {
   export type Attrs = p.AttrsOf<Props>
@@ -112,12 +113,26 @@ export class LegendItem extends Model {
       const data = source.get_field(field)
       if (data != null) {
         const cmp = new Comparator()
+        const seen = new Set<unknown>()
+        let has_objects = false
         const filtered_data: unknown[] = []
         for (const i of view_indices) {
           const item = get_array_item(data, i)
-          if (!filtered_data.some((value) => cmp.eq(value, item))) {
-            filtered_data.push(item)
+          if (isObject(item)) {
+            if (filtered_data.some((value) => cmp.eq(value, item))) {
+              continue
+            }
+            has_objects = true
+          } else if (seen.has(item)) {
+            continue
+          } else {
+            seen.add(item)
+            // A boxed string or boolean can equal a primitive label.
+            if (has_objects && filtered_data.some((value) => cmp.eq(value, item))) {
+              continue
+            }
           }
+          filtered_data.push(item)
         }
         return filtered_data
       } else {

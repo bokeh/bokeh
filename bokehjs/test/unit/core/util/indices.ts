@@ -1,6 +1,9 @@
 import {expect} from "#framework/assertions"
+import {restorable} from "#framework/util"
+import {spy} from "sinon"
 import {SubsetIndexMapper} from "@bokehjs/core/util/indices"
 import {Float64NDArray} from "@bokehjs/core/util/ndarray"
+import {Comparator} from "@bokehjs/core/util/eq"
 
 describe("SubsetIndexMapper", () => {
 
@@ -119,6 +122,57 @@ describe("SubsetIndexMapper", () => {
   })
 
   describe("subset_index_of", () => {
+    it("scans primitive values without structural comparisons", () => {
+      const data = Array.from({length: 128}, (_, i) => `label ${i}`)
+      const mapper = new SubsetIndexMapper(data.length)
+      mapper.set_subset(Int32Array.from(data, (_, i) => i))
+      using comparisons = restorable(spy(Comparator.prototype, "eq"))
+      const index = mapper.subset_index_of(data, "label 127")
+      expect(comparisons.callCount).to.be.below(data.length)
+      expect(index).to.be.equal(127)
+    })
+
+    it("matches primitive values within a reordered subset", () => {
+      const data = [0, NaN, undefined, null, true, "1", 1]
+      const mapper = new SubsetIndexMapper(data.length)
+      mapper.set_subset(new Int32Array([5, 3, 2, 1, 0, 4, 6]))
+      expect(mapper.subset_index_of(data, "1")).to.be.equal(0)
+      expect(mapper.subset_index_of(data, null)).to.be.equal(1)
+      expect(mapper.subset_index_of(data, undefined)).to.be.equal(2)
+      expect(mapper.subset_index_of(data, NaN)).to.be.equal(3)
+      expect(mapper.subset_index_of(data, -0)).to.be.equal(4)
+      expect(mapper.subset_index_of(data, true)).to.be.equal(5)
+      expect(mapper.subset_index_of(data, 1)).to.be.equal(6)
+      expect(mapper.subset_index_of(data, false)).to.be.null
+    })
+
+    /* eslint-disable no-new-wrappers */
+    for (const {kind, primitive, boxed} of [
+      {kind: "string", primitive: "x", boxed: new String("x")},
+      {kind: "boolean", primitive: true, boxed: new Boolean(true)},
+    ]) {
+      it(`matches boxed ${kind} values and primitives in either direction`, () => {
+        const data = [primitive, boxed, primitive]
+        const mapper = new SubsetIndexMapper(data.length)
+        for (const indices of [[1, 2], [2, 1]]) {
+          mapper.set_subset(new Int32Array(indices))
+          expect(mapper.subset_index_of(data, primitive)).to.be.equal(0)
+          expect(mapper.subset_index_of(data, boxed)).to.be.equal(0)
+        }
+      })
+    }
+
+    it("keeps boxed numbers distinct from primitives and other boxed numbers", () => {
+      const boxed = new Number(1)
+      const mapper = new SubsetIndexMapper(3)
+      mapper.set_subset(new Int32Array([1, 2, 0]))
+      const data = [boxed, 1, new Number(1)]
+      expect(mapper.subset_index_of(data, 1)).to.be.equal(0)
+      expect(mapper.subset_index_of(data, boxed)).to.be.equal(2)
+      expect(mapper.subset_index_of(data, new Number(1))).to.be.null
+    })
+    /* eslint-enable no-new-wrappers */
+
     it("matches shaped logical items within the active subset", () => {
       const mapper = new SubsetIndexMapper(3)
       mapper.set_subset(new Int32Array([1, 2]))

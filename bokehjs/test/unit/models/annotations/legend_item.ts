@@ -1,4 +1,5 @@
 import {expect} from "#framework/assertions"
+import {restorable} from "#framework/util"
 import * as sinon from "sinon"
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
@@ -7,6 +8,7 @@ import {LegendItem} from "@bokehjs/models/annotations/legend_item"
 import {logger} from "@bokehjs/core/logging"
 import {Float64NDArray} from "@bokehjs/core/util/ndarray"
 import {IndexFilter} from "@bokehjs/models/filters/index_filter"
+import {Comparator} from "@bokehjs/core/util/eq"
 
 describe("LegendItem", () => {
 
@@ -122,6 +124,71 @@ describe("LegendItem", () => {
   })
 
   describe("get_labels_list_from_label_prop", () => {
+    it("deduplicates primitive labels without pairwise comparisons", () => {
+      const data = Array.from({length: 128}, (_, i) => `label ${i % 64}`)
+      const source = ColumnDataSource.create({data: {label: data}})
+      const renderer = GlyphRenderer.create({data_source: source})
+      renderer.view.compute_indices(source)
+      const item = LegendItem.create({label: {field: "label"}, renderers: [renderer]})
+      using comparisons = restorable(sinon.spy(Comparator.prototype, "eq"))
+      const labels = item.get_labels_list_from_label_prop()
+      expect(comparisons.callCount).to.be.below(data.length*2)
+      expect(labels).to.be.equal(data.slice(0, 64))
+    })
+
+    it("retains first-seen primitive values, including NaN and signed zero", () => {
+      const data = [NaN, NaN, -0, 0, undefined, null, false, false, "1", 1]
+      const source = ColumnDataSource.create({data: {label: data}})
+      const renderer = GlyphRenderer.create({data_source: source})
+      renderer.view.compute_indices(source)
+      const item = LegendItem.create({label: {field: "label"}, renderers: [renderer]})
+      const labels = item.get_labels_list_from_label_prop()
+      expect(labels).to.be.equal([NaN, -0, undefined, null, false, "1", 1])
+      expect(Object.is(labels[1], -0)).to.be.true
+    })
+
+    /* eslint-disable no-new-wrappers */
+    for (const {kind, primitive, boxed} of [
+      {kind: "string", primitive: "x", boxed: new String("x")},
+      {kind: "boolean", primitive: true, boxed: new Boolean(true)},
+    ]) {
+      for (const boxed_first of [false, true]) {
+        it(`merges boxed ${kind} labels with primitives when the ${boxed_first ? "boxed" : "primitive"} value is first`, () => {
+          const data = boxed_first ? [boxed, primitive, boxed, primitive] : [primitive, boxed, primitive, boxed]
+          const source = ColumnDataSource.create({data: {label: data}})
+          const renderer = GlyphRenderer.create({data_source: source})
+          renderer.view.compute_indices(source)
+          const item = LegendItem.create({label: {field: "label"}, renderers: [renderer]})
+          const labels = item.get_labels_list_from_label_prop()
+          expect(labels.length).to.be.equal(1)
+          expect(labels[0]).to.be.identical(data[0])
+          expect(renderer.view.get_reference_point(data, labels[0])).to.be.equal(0)
+
+          renderer.view.filter = IndexFilter.create({indices: [1, 2, 3]})
+          renderer.view.compute_indices(source)
+          const filtered = item.get_labels_list_from_label_prop()
+          expect(filtered.length).to.be.equal(1)
+          expect(filtered[0]).to.be.identical(data[1])
+          expect(renderer.view.get_reference_point(data, filtered[0])).to.be.equal(0)
+        })
+      }
+    }
+
+    it("keeps boxed numbers distinct from primitives and other boxed numbers", () => {
+      const first = new Number(1)
+      const second = new Number(1)
+      const data = [1, first, second, 1, first]
+      const source = ColumnDataSource.create({data: {label: data}})
+      const renderer = GlyphRenderer.create({data_source: source})
+      renderer.view.compute_indices(source)
+      const item = LegendItem.create({label: {field: "label"}, renderers: [renderer]})
+      const labels = item.get_labels_list_from_label_prop()
+      expect(labels).to.be.equal([1, first, second])
+      expect(labels[1]).to.be.identical(first)
+      expect(labels[2]).to.be.identical(second)
+    })
+    /* eslint-enable no-new-wrappers */
+
     it("reads shaped label fields by logical row after filtering", () => {
       const source = ColumnDataSource.create({data: {label: new Float64NDArray([1, 2, 3, 4, 5, 6], [3, 2])}})
       const renderer = GlyphRenderer.create({data_source: source})
