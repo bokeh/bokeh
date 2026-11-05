@@ -1,4 +1,5 @@
 import {DataRenderer, DataRendererView} from "./data_renderer"
+import type {LegendEntry} from "../annotations/legend"
 import {LineView} from "../glyphs/line"
 import {StepView} from "../glyphs/step"
 import {PatchView} from "../glyphs/patch"
@@ -12,7 +13,7 @@ import {IndexedDataSource} from "../sources/indexed_data_source"
 import type {IndexedViewView} from "../sources/indexed_view"
 import {IndexedView} from "../sources/indexed_view"
 import type {DataChange} from "../sources/data_source"
-import type {Color} from "core/types"
+import type {Color, Rect} from "core/types"
 import {Indices} from "core/types"
 import type * as p from "core/properties"
 import {filter} from "core/util/arrayable"
@@ -670,18 +671,19 @@ export class GlyphRendererView extends DataRendererView {
     return null
   }
 
-  draw_legend(ctx: Context2d, x0: number, x1: number, y0: number, y1: number, field: string | null, value: unknown, index: number | null): void {
+  draw_legend(ctx: Context2d, bounds: Rect, {item, value}: LegendEntry): void {
     if (this.glyph.data_size == 0) {
       return
     }
+    const {index} = item
     const subset_index = (() => {
       if (index == null) {
-        return this.get_reference_point(field, value)
+        return this.get_reference_point(item.get_field_from_label_prop(), value)
       } else {
         return this.model.view.get_subset_index(index)
       }
     })()
-    this.glyph.draw_legend_for_index(ctx, {x0, x1, y0, y1}, subset_index)
+    this.glyph.draw_legend_for_index(ctx, bounds, subset_index)
   }
 
   hit_test(geometry: Geometry): HitTestResult {

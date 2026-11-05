@@ -8,6 +8,7 @@ import {resolve_line_dash} from "core/visuals/line"
 import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
 import type {Size} from "core/layout"
+import type {Rect} from "core/types"
 import {SideLayout, SidePanel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
 import {every, some, sum} from "core/util/array"
@@ -29,7 +30,7 @@ import type {XY, LRTB, Corners} from "core/util/bbox"
 
 const {ceil} = Math
 
-type LegendEntry = {
+export type LegendEntry = {
   item: LegendItem
   label: string
   value: unknown
@@ -131,20 +132,16 @@ export class LegendView extends AnnotationView {
 
   protected _paint_glyphs(): void {
     const {glyph_width, glyph_height} = this.model
+    const bounds: Rect = {x0: 0, y0: 0, x1: glyph_width, y1: glyph_height}
 
-    const x0 = 0
-    const y0 = 0
-    const x1 = glyph_width
-    const y1 = glyph_height
-
-    for (const {glyph, item, value} of this.entries) {
-      const field = item.get_field_from_label_prop()
+    for (const entry of this.entries) {
+      const {glyph, item} = entry
       glyph.resize(glyph_width, glyph_height)
 
       const ctx = glyph.prepare()
       for (const renderer of item.renderers) {
         const view = this.plot_view.views.find_one(renderer)
-        view?.draw_legend(ctx, x0, x1, y0, y1, field, value, item.index)
+        view?.draw_legend(ctx, bounds, entry)
       }
       glyph.finish()
     }
