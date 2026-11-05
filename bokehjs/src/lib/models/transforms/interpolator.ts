@@ -39,25 +39,8 @@ export abstract class Interpolator extends Transform {
     super.connect_signals()
     this.connect(this.change, () => this._sorted_dirty = true)
     const invalidate = () => this.change.emit()
-    const connect_source = (source: IndexedDataSource | null) => {
-      if (source != null) {
-        this.connect(source.change, invalidate)
-        this.connect(source.data_changed, invalidate)
-      }
-    }
-    const disconnect_source = (source: IndexedDataSource | null) => {
-      if (source != null) {
-        this.disconnect(source.change, invalidate)
-        this.disconnect(source.data_changed, invalidate)
-      }
-    }
-    let source = this.data
-    connect_source(source)
-    this.on_change(this.properties.data, () => {
-      disconnect_source(source)
-      source = this.data
-      connect_source(source)
-      invalidate()
+    this.on_reference_change(this.properties.data, invalidate, {
+      signals: (source) => [source.change, source.data_changed],
     })
   }
 

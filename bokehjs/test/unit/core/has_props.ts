@@ -407,6 +407,120 @@ describe("core/has_props module", () => {
     expect(obj.references()).to.be.equal(refs)
   })
 
+  describe("on_reference_change()", () => {
+    it("subscribes immediately and detaches replaced references", () => {
+      const first = TestModel.create()
+      const second = TestModel.create({p0: 2})
+      const owner = TestModel.create({p2: first})
+      let calls = 0
+      owner.on_reference_change(owner.properties.p2, () => calls++)
+      expect(calls).to.be.equal(0)
+      first.p0 = 1
+      expect(calls).to.be.equal(1)
+      owner.p2 = second
+      expect(calls).to.be.equal(2)
+      first.p0 = 2
+      expect(calls).to.be.equal(2)
+      second.p0 = 1
+      expect(calls).to.be.equal(3)
+    })
+
+    it("handles null transitions and rebinding to an earlier reference", () => {
+      const owner = TestModel.create()
+      const source = TestModel.create()
+      let calls = 0
+      owner.on_reference_change(owner.properties.p2, () => calls++)
+      source.change.emit()
+      expect(calls).to.be.equal(0)
+      owner.p2 = source
+      source.change.emit()
+      expect(calls).to.be.equal(2)
+      owner.p2 = null
+      source.change.emit()
+      expect(calls).to.be.equal(3)
+      owner.p2 = source
+      source.change.emit()
+      expect(calls).to.be.equal(5)
+    })
+
+    it("separates replacement from selected signals and binds before notifying", () => {
+      const owner = TestModel.create()
+      const source = TestModel.create()
+      const calls: string[] = []
+      owner.on_reference_change(owner.properties.p2, () => calls.push("signal"), {
+        signals: (model) => [model.streaming, model.patching],
+        on_replace: () => {
+          calls.push("replacement")
+          owner.p2?.streaming.emit()
+        },
+      })
+      owner.p2 = source
+      expect(calls).to.be.equal(["replacement", "signal"])
+      source.change.emit()
+      source.patching.emit([0])
+      expect(calls).to.be.equal(["replacement", "signal", "signal"])
+    })
+
+    it("keeps bindings independent when they share a callback", () => {
+      const first = TestModel.create()
+      const second = TestModel.create({p0: 2})
+      const owner = TestModel.create({p2: first})
+      let calls = 0
+      const callback = () => calls++
+      owner.on_reference_change(owner.properties.p2, callback, {on_replace: () => {}})
+      owner.on_reference_change(owner.properties.p2, callback, {
+        signals: (model) => [model.change, model.streaming],
+        on_replace: () => {},
+      })
+      first.change.emit()
+      expect(calls).to.be.equal(2)
+      owner.p2 = second
+      first.change.emit()
+      first.streaming.emit()
+      expect(calls).to.be.equal(2)
+      second.change.emit()
+      second.streaming.emit()
+      expect(calls).to.be.equal(5)
+    })
+
+    it("handles another replacement from the replacement callback", () => {
+      const first = TestModel.create()
+      const second = TestModel.create({p0: 2})
+      const owner = TestModel.create()
+      let calls = 0
+      owner.on_reference_change(owner.properties.p2, () => calls++, {
+        on_replace: () => {
+          if (owner.p2 == first) {
+            owner.p2 = second
+          }
+        },
+      })
+      owner.p2 = first
+      first.change.emit()
+      expect(calls).to.be.equal(0)
+      second.change.emit()
+      expect(calls).to.be.equal(1)
+    })
+
+    for (const [name, cleanup] of Object.entries({
+      disconnect_signals: (owner: TestModel) => owner.disconnect_signals(),
+      destroy: (owner: TestModel) => owner.destroy(),
+    })) {
+      it(`cleans up bindings and replacement callbacks on ${name}`, () => {
+        const first = TestModel.create()
+        const second = TestModel.create({p0: 2})
+        const owner = TestModel.create({p2: first})
+        let calls = 0
+        owner.on_reference_change(owner.properties.p2, () => calls++)
+        cleanup(owner)
+        owner.p2 = second
+        first.change.emit()
+        second.change.emit()
+        expect(calls).to.be.equal(0)
+      })
+    }
+  })
+
   describe("on_change() and remove_on_change() property-name overloads", () => {
     it("should support a single property name", () => {
       const obj = SubclassWithProps.create()

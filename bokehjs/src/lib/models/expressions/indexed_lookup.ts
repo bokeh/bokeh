@@ -74,22 +74,9 @@ export class IndexedLookup extends Expression {
       clear()
       this.change.emit()
     }
-    const connect_source = (source: IndexedDataSource) => {
-      this.connect(source.change, invalidate)
-      this.connect(source.data_changed, invalidate)
-    }
-    const disconnect_source = (source: IndexedDataSource) => {
-      this.disconnect(source.change, invalidate)
-      this.disconnect(source.data_changed, invalidate)
-    }
-
-    let source = this.source
-    connect_source(source)
-    this.on_change(this.properties.source, () => {
-      disconnect_source(source)
-      source = this.source
-      connect_source(source)
-      clear()
+    this.on_reference_change(this.properties.source, invalidate, {
+      signals: (source) => [source.change, source.data_changed],
+      on_replace: clear,
     })
     this.on_change([this.properties.field, this.properties.indices], clear)
   }

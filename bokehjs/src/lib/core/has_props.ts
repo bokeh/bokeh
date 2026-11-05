@@ -818,6 +818,38 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
+  /**
+   * Bind selected signals on a model reference and rebind when it changes.
+   * Notify on_replace after rebinding, defaulting to the signal callback.
+   */
+  on_reference_change<T extends HasProps>(
+    property: Property<T | null>,
+    fn: () => void,
+    {signals = (model) => [model.change], on_replace = fn}: {
+      signals?: (model: T) => readonly Signal<unknown, HasProps>[]
+      on_replace?: () => void
+    } = {},
+  ): void {
+    const slot = () => fn()
+    const bind = () => {
+      const model = property.is_unset ? null : property.get_value()
+      const connected = model == null ? [] : signals(model)
+      for (const signal of connected) {
+        this.connect(signal, slot)
+      }
+      return connected
+    }
+
+    let connected = bind()
+    this.on_change(property, () => {
+      for (const signal of connected) {
+        this.disconnect(signal, slot)
+      }
+      connected = bind()
+      on_replace()
+    })
+  }
+
   on_change<Name extends Extract<keyof this["properties"], string>>(properties: Name | readonly Name[], fn: () => void): void
   on_change(properties: Property<unknown> | readonly Property<unknown>[], fn: () => void): void
   on_change(properties: string | Property<unknown> | readonly (string | Property<unknown>)[], fn: () => void): void {

@@ -26,6 +26,40 @@ class IDSource extends RecordSource {
 }
 
 describe("IndexedLookup", () => {
+  it("rebinds dependencies without emitting an extra change on replacement", () => {
+    const original = RecordSource.create({records: [{x: 10}]})
+    const replacement = RecordSource.create({records: [{x: 20}]})
+    const indices = ColumnDataSource.create({data: {vertices: [0]}})
+    const lookup = IndexedLookup.create({source: original, field: "x", indices: "vertices"})
+    expect(lookup.v_compute(indices)).to.be.equal([10])
+    let changes = 0
+    lookup.change.connect(() => changes++)
+
+    lookup.source = replacement
+    expect(changes).to.be.equal(1)
+    // Consume the indices source's initial change marker before checking cache reuse.
+    lookup.v_compute(indices)
+    const current = lookup.v_compute(indices)
+    expect(current).to.be.equal([20])
+    original.change.emit()
+    original.data_changed.emit({structural: true})
+    expect(changes).to.be.equal(1)
+    expect(lookup.v_compute(indices) === current).to.be.true
+
+    dict(replacement.records[0]).set("x", 30)
+    replacement.data_changed.emit({structural: false, indices: [0]})
+    expect(changes).to.be.equal(2)
+    expect(lookup.v_compute(indices)).to.be.equal([30])
+    replacement.records = [{x: 40}]
+    expect(changes).to.be.equal(3)
+    expect(lookup.v_compute(indices)).to.be.equal([40])
+
+    lookup.destroy()
+    replacement.change.emit()
+    replacement.data_changed.emit({structural: true})
+    expect(changes).to.be.equal(3)
+  })
+
   it("preserves default CDS index fields without copying", () => {
     const source = ColumnDataSource.create({data: {x: [10, 20, 30]}})
     const primary = ColumnDataSource.create({data: {
