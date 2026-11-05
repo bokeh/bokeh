@@ -329,25 +329,32 @@ export class ToolbarView extends UIElementView {
       bar_el.classList.remove(toolbars.clipped)
     }
 
-    const bar_bbox = _bar_el.getBoundingClientRect()
-    const clipped: HTMLElement[] = []
-    let any_overflows = false
-
-    for (const {bar_el, menu_el} of this._items) {
-      const bbox = bar_el.getBoundingClientRect()
-      const overflows = horizontal ? bbox.right > bar_bbox.right : bbox.bottom > bar_bbox.bottom
-      if (overflows) {
-        clipped.push(bar_el)
-      }
-      menu_el.classList.toggle(toolbars.hidden, !overflows)
-      any_overflows ||= overflows
+    const measure = (): boolean[] => {
+      const bar_bbox = _bar_el.getBoundingClientRect()
+      return this._items.map(({bar_el}) => {
+        const bbox = bar_el.getBoundingClientRect()
+        return horizontal ? bbox.right > bar_bbox.right : bbox.bottom > bar_bbox.bottom
+      })
     }
 
-    for (const bar_el of clipped) {
-      bar_el.classList.add(toolbars.clipped)
+    let overflows = measure()
+    let any_overflows = overflows.some((overflow) => overflow)
+
+    if (any_overflows) {
+      // The overflow button takes space from the bar, so measure again with the button shown.
+      this.el.classList.add(toolbars.measuring)
+      overflows = measure()
+      any_overflows = overflows.some((overflow) => overflow)
+      this.el.classList.remove(toolbars.measuring)
     }
 
     this.el.classList.toggle(toolbars.overflows, any_overflows)
+
+    for (const [{bar_el, menu_el}, i] of enumerate(this._items)) {
+      const overflow = overflows[i]
+      bar_el.classList.toggle(toolbars.clipped, overflow)
+      menu_el.classList.toggle(toolbars.hidden, !overflow)
+    }
 
     if (this._overflow_menu.is_open) {
       if (any_overflows) {
