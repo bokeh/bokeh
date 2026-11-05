@@ -134,22 +134,27 @@ describe("LegendItem", () => {
       expect(renderer.view.get_reference_point(source.get("label"), labels[1])).to.be.equal(1)
     })
 
-    it("merges repeated shaped labels and uses the first visible reference point", () => {
-      const source = ColumnDataSource.create({data: {label: new Float64NDArray([1, 2, 1, 2, 3, 4], [3, 2])}})
-      const renderer = GlyphRenderer.create({data_source: source})
-      renderer.view.compute_indices(source)
-      const item = LegendItem.create({label: {field: "label"}, renderers: [renderer]})
-      const labels = item.get_labels_list_from_label_prop()
-      expect(labels).to.be.equal([[1, 2], [3, 4]])
-      expect(renderer.view.get_reference_point(source.get("label"), labels[0])).to.be.equal(0)
-      expect(renderer.view.get_reference_point(source.get("label"), labels[1])).to.be.equal(2)
-      renderer.view.filter = IndexFilter.create({indices: [1, 2]})
-      renderer.view.compute_indices(source)
-      const filtered = item.get_labels_list_from_label_prop()
-      expect(filtered).to.be.equal([[1, 2], [3, 4]])
-      expect(renderer.view.get_reference_point(source.get("label"), filtered[0])).to.be.equal(0)
-      expect(renderer.view.get_reference_point(source.get("label"), filtered[1])).to.be.equal(1)
-    })
+    for (const [storage, data] of Object.entries({
+      shaped: new Float64NDArray([1, 2, 1, 2, 3, 4], [3, 2]),
+      nested: [[1, 2], [1, 2], [3, 4]],
+    })) {
+      it(`merges repeated ${storage} labels and uses the first visible reference point`, () => {
+        const source = ColumnDataSource.create({data: {label: data}})
+        const renderer = GlyphRenderer.create({data_source: source})
+        renderer.view.compute_indices(source)
+        const item = LegendItem.create({label: {field: "label"}, renderers: [renderer]})
+        const labels = item.get_labels_list_from_label_prop()
+        expect(labels).to.be.equal([[1, 2], [3, 4]])
+        expect(renderer.view.get_reference_point(source.get("label"), labels[0])).to.be.equal(0)
+        expect(renderer.view.get_reference_point(source.get("label"), labels[1])).to.be.equal(2)
+        renderer.view.filter = IndexFilter.create({indices: [1, 2]})
+        renderer.view.compute_indices(source)
+        const filtered = item.get_labels_list_from_label_prop()
+        expect(filtered).to.be.equal([[1, 2], [3, 4]])
+        expect(renderer.view.get_reference_point(source.get("label"), filtered[0])).to.be.equal(0)
+        expect(renderer.view.get_reference_point(source.get("label"), filtered[1])).to.be.equal(1)
+      })
+    }
 
     it("retains numeric field values for legend glyph lookup", () => {
       const source = ColumnDataSource.create({data: {label: [10, 20, 10]}})
@@ -159,6 +164,22 @@ describe("LegendItem", () => {
       const labels = item.get_labels_list_from_label_prop()
       expect(labels).to.be.equal([10, 20])
       expect(renderer.view.get_reference_point(source.get("label"), labels[1])).to.be.equal(1)
+    })
+
+    it("merges equal object values and NaN using the first visible reference point", () => {
+      const source = ColumnDataSource.create({data: {label: [{x: [1, 2]}, {x: [1, 2]}, {x: [3, 4]}, NaN, NaN]}})
+      const renderer = GlyphRenderer.create({data_source: source})
+      renderer.view.compute_indices(source)
+      const item = LegendItem.create({label: {field: "label"}, renderers: [renderer]})
+      const labels = item.get_labels_list_from_label_prop()
+      expect(labels).to.be.equal([{x: [1, 2]}, {x: [3, 4]}, NaN])
+      expect(labels.map((value) => renderer.view.get_reference_point(source.get("label"), value))).to.be.equal([0, 2, 3])
+
+      renderer.view.filter = IndexFilter.create({indices: [1, 2, 4]})
+      renderer.view.compute_indices(source)
+      const filtered = item.get_labels_list_from_label_prop()
+      expect(filtered).to.be.equal(labels)
+      expect(filtered.map((value) => renderer.view.get_reference_point(source.get("label"), value))).to.be.equal([0, 1, 2])
     })
 
     it("should return empty labels if visible is false", () => {

@@ -29,11 +29,18 @@ describe("GroupFilter", () => {
       expect([...group_filter.compute_indices(cds)]).to.be.equal([1, 3])
     })
 
-    it("compares logical rows of shaped fields", () => {
-      const source = ColumnDataSource.create({data: {pairs: new Float64NDArray([1, 2, 3, 4, 1, 2], [3, 2])}})
-      const filter = GroupFilter.create({field_name: "pairs", group: [1, 2]})
-      expect([...filter.compute_indices(source)]).to.be.equal([0, 2])
-    })
+    for (const [storage, pairs] of Object.entries({
+      shaped: new Float64NDArray([1, 2, 3, NaN, 1, 2], [3, 2]),
+      nested: [[1, 2], [3, NaN], [1, 2]],
+    })) {
+      it(`compares logical records in ${storage} fields by value`, () => {
+        const source = ColumnDataSource.create({data: {pairs}})
+        const filter = GroupFilter.create({field_name: "pairs", group: [1, 2]})
+        expect([...filter.compute_indices(source)]).to.be.equal([0, 2])
+        filter.group = [3, NaN]
+        expect([...filter.compute_indices(source)]).to.be.equal([1])
+      })
+    }
 
     it("returns null when field_name is not in the data source", () => {
       const group_filter = GroupFilter.create({field_name: "z", group: "c"})

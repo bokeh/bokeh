@@ -128,14 +128,28 @@ describe("SubsetIndexMapper", () => {
       expect(mapper.subset_index_of(data, [1, 2])).to.be.null
     })
 
-    it("preserves strict matching for unshaped fields", () => {
+    it("matches ordinary array values and NaN by value", () => {
       const mapper = new SubsetIndexMapper(2)
       mapper.set_subset(new Int32Array([0, 1]))
       const item = [1, 2]
       expect(mapper.subset_index_of([item, NaN], item)).to.be.equal(0)
-      expect(mapper.subset_index_of([item, NaN], [1, 2])).to.be.null
-      expect(mapper.subset_index_of([item, NaN], NaN)).to.be.null
+      expect(mapper.subset_index_of([item, NaN], [1, 2])).to.be.equal(0)
+      expect(mapper.subset_index_of([item, NaN], NaN)).to.be.equal(1)
+      expect(mapper.subset_index_of([item, NaN], [1, 3])).to.be.null
     })
+
+    for (const [storage, data] of Object.entries({
+      shaped: new Float64NDArray([1, 2, 3, NaN, 1, 2], [3, 2]),
+      nested: [[1, 2], [3, NaN], [1, 2]],
+    })) {
+      it(`matches ${storage} logical records within the active subset by value`, () => {
+        const mapper = new SubsetIndexMapper(3)
+        mapper.set_subset(new Int32Array([1, 2]))
+        expect(mapper.subset_index_of(data, [3, NaN])).to.be.equal(0)
+        expect(mapper.subset_index_of(data, [1, 2])).to.be.equal(1)
+        expect(mapper.subset_index_of(data, [3, 4])).to.be.null
+      })
+    }
 
     it("should return the subset index of the first matching value", () => {
       const mapper = new SubsetIndexMapper(5)

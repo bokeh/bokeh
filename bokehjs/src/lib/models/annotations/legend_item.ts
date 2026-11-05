@@ -3,9 +3,9 @@ import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {isValue, isField} from "core/vectorization"
 import * as p from "core/properties"
 import {logger} from "core/logging"
-import {uniq, includes} from "core/util/array"
-import {get_array_item, is_NDArray} from "core/util/ndarray"
-import {is_equal} from "core/util/eq"
+import {includes} from "core/util/array"
+import {get_array_item} from "core/util/ndarray"
+import {Comparator} from "core/util/eq"
 
 export namespace LegendItem {
   export type Attrs = p.AttrsOf<Props>
@@ -111,15 +111,15 @@ export class LegendItem extends Model {
 
       const data = source.get_field(field)
       if (data != null) {
-        const shaped = is_NDArray(data) && data.dimension > 1
+        const cmp = new Comparator()
         const filtered_data: unknown[] = []
         for (const i of view_indices) {
           const item = get_array_item(data, i)
-          if (!shaped || !filtered_data.some((value) => is_equal(value, item))) {
+          if (!filtered_data.some((value) => cmp.eq(value, item))) {
             filtered_data.push(item)
           }
         }
-        return shaped ? filtered_data : uniq(filtered_data)
+        return filtered_data
       } else {
         return ["Invalid field"]
       }
