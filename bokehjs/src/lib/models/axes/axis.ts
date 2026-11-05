@@ -521,7 +521,7 @@ export abstract class AxisView extends GuideRendererView {
     const {major_label_policy} = this.model
     const selected = major_label_policy.filter(indices, bboxes, dist)
 
-    const ids = [...selected.ones()]
+    const ids = [...selected]
     if (ids.length != 0) {
       const cbox = this.canvas.bbox
 
@@ -563,50 +563,6 @@ export abstract class AxisView extends GuideRendererView {
         correct_x(i)
         correct_x(j)
       } else if (this.dimension == 1 && policy_y ) {
-        correct_y(i)
-        correct_y(j)
-      }
-    }
-
-    const ids = [...selected]
-    if (ids.length != 0) {
-      const cbox = this.canvas.bbox
-
-      const correct_x = (k: number) => {
-        const bbox = bboxes[k]
-
-        if (bbox.left < 0) {
-          const offset = -bbox.left
-          const {position} = items[k]
-          items[k].position = {...position, sx: position.sx + offset}
-        } else if (bbox.right > cbox.width) {
-          const offset = bbox.right - cbox.width
-          const {position} = items[k]
-          items[k].position = {...position, sx: position.sx - offset}
-        }
-      }
-
-      const correct_y = (k: number) => {
-        const bbox = bboxes[k]
-
-        if (bbox.top < 0) {
-          const offset = -bbox.top
-          const {position} = items[k]
-          items[k].position = {...position, sy: position.sy + offset}
-        } else if (bbox.bottom > cbox.height) {
-          const offset = bbox.bottom - cbox.height
-          const {position} = items[k]
-          items[k].position = {...position, sy: position.sy - offset}
-        }
-      }
-
-      const i = ids[0]
-      const j = ids[ids.length - 1]
-
-      if (this.dimension == 0) {
-        correct_x(i)
-        correct_x(j)
-      } else {
         correct_y(i)
         correct_y(j)
       }
