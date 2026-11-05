@@ -69,7 +69,7 @@ class DocumentModelManager:
         '''
 
         Args:
-            document (Document): A Document to manage models for
+            document: A Document to manage models for
                 A weak reference to the Document will be retained
 
         '''
@@ -136,7 +136,7 @@ class DocumentModelManager:
         ''' Find all the models for this Document with a given name.
 
         Args:
-            name (str) : the name of a model to search for
+            name: the name of a model to search for
 
         Returns
             A list of models
@@ -148,7 +148,7 @@ class DocumentModelManager:
         ''' Find the model for this Document with a given ID.
 
         Args:
-            id (ID) : model ID to search for
+            id: model ID to search for
                 If no model with the given ID exists, returns None
 
         Return:
@@ -163,7 +163,7 @@ class DocumentModelManager:
         If multiple models are found with the name, an error is raised.
 
         Args:
-            name (str) : the name of a model to search for
+            name: the name of a model to search for
 
         Returns
             A model with the given name, or None
@@ -244,7 +244,7 @@ class DocumentModelManager:
         Document.
 
         Args:
-            id (ID) : the model id of a model to check
+            id: the model id of a model to check
 
         Returns:
             bool
@@ -262,11 +262,11 @@ class DocumentModelManager:
             functions with a name selector
 
         Args:
-            model (Model) : a model to update the name for
+            model: a model to update the name for
 
-            old_name(str, None) : a previous name for the model, or None
+            old_name: a previous name for the model, or None
 
-            new_name(str, None) : a new name for the model, or None
+            new_name: a new name for the model, or None
 
         Returns:
             None

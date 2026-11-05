@@ -63,11 +63,11 @@ def find(objs: Iterable[Model], selector: SelectorType) -> Iterable[Model]:
     a selector.
 
     Args:
-        objs (Iterable[Model]) : model objects to test
-        selector (JSON-like) : query selector
+        objs: model objects to test
+        selector: query selector
 
     Yields:
-        Model : objects that match the query
+        Model: objects that match the query
 
     Queries are specified as selectors similar to MongoDB style query
     selectors, as described for :func:`~bokeh.core.query.match`.
@@ -95,8 +95,8 @@ def is_single_string_selector(selector: SelectorType, field: str) -> bool:
     ''' Whether a selector is a simple single field, e.g. ``{name: "foo"}``
 
     Args:
-        selector (JSON-like) : query selector
-        field (str) : field name to check for
+        selector: query selector
+        field: field name to check for
 
     Returns
         bool
@@ -108,11 +108,11 @@ def match(obj: Model, selector: SelectorType) -> bool:
     ''' Test whether a given Bokeh model matches a given selector.
 
     Args:
-        obj (Model) : object to test
-        selector (JSON-like) : query selector
+        obj: object to test
+        selector: query selector
 
     Returns:
-        bool : True if the object matches, False otherwise
+        bool: True if the object matches, False otherwise
 
     In general, the selectors have the form:
 

@@ -47,11 +47,9 @@ class Regex(String):
     """ Accept strings that match a given regular expression.
 
     Args:
-        default (string, optional) :
-            A default value for attributes created from this property to have.
+        default: A default value for attributes created from this property to have.
 
-        help (str or None, optional) :
-            A documentation string for this property. (default: None)
+        help: A documentation string for this property. (default: None)
 
     Example:
 
@@ -92,7 +90,7 @@ class MathString(String):
     """ A string with math TeX/LaTeX delimiters.
 
     Args:
-        value : a string that contains math
+        value: a string that contains math
 
     """
 

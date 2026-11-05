@@ -91,13 +91,13 @@ def collect_filtered_models(discard: Callable[[Model], bool] | None, *input_valu
     collecting all nested ``Models`` on the go.
 
     Args:
-        discard (Callable[[Model], bool]):
+        discard:
             a callable which accepts a *Model* instance as its single argument
             and returns a boolean stating whether to discard the instance. The
             latter means that the instance will not be added to collected
             models nor will its references be explored.
 
-        *input_values (Model):
+        *input_values:
             Bokeh models to collect other models from
 
     Returns:
@@ -134,7 +134,7 @@ def collect_models(*input_values: Any) -> list[Model]:
     duplicate-free based on objects' identifiers.
 
     Args:
-        *input_values (Model):
+        *input_values:
             Bokeh models to collect other models from
 
     Returns:
@@ -147,7 +147,7 @@ def get_class(view_model_name: str) -> type[Model]:
     ''' Look up a Bokeh model class, given its view model name.
 
     Args:
-        view_model_name (str) :
+        view_model_name:
             A view model name for a Bokeh model to look up
 
     Returns:
@@ -202,7 +202,7 @@ def visit_value_and_its_immediate_references(obj: Any, visitor: Callable[[Model]
     down Model subclasses).
 
     The ordering in this function is to optimize performance.  We check the
-    most comomn types (int, float, str) first so that we can quickly return in
+    most common types (int, float, str) first so that we can quickly return in
     the common case.  We avoid isinstance and issubclass checks in a couple
     places with `type` checks because isinstance checks can be slow.
     '''

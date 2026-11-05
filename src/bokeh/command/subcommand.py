@@ -122,7 +122,7 @@ class Subcommand(metaclass=ABCMeta):
         ''' Initialize the subcommand with its parser
 
         Args:
-            parser (Parser) : an Argparse ``Parser`` instance to configure
+            parser: an Argparse ``Parser`` instance to configure
                 with the args for this subcommand.
 
         This method will automatically add all the arguments described in
@@ -154,7 +154,7 @@ class Subcommand(metaclass=ABCMeta):
 
 
         Args:
-            args (argparse.Namespace) : command line arguments for the subcommand to parse
+            args: command line arguments for the subcommand to parse
 
         Raises:
             NotImplementedError

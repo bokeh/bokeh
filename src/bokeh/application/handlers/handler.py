@@ -128,7 +128,7 @@ class Handler:
         *Subclasses must implement this method*
 
         Args:
-            doc (Document) : A Bokeh Document to update in-place
+            doc: A Bokeh Document to update in-place
 
         Returns:
             Document
