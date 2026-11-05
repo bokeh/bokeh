@@ -1,6 +1,6 @@
 import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
 import {fig, display} from "#framework/layouts"
-import {mouse_enter, mouse_leave, show_context_menu} from "#framework/interactive"
+import {tap, mouse_enter, mouse_leave, show_context_menu} from "#framework/interactive"
 
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import type {ToolbarView} from "@bokehjs/models/tools/toolbar"
@@ -918,6 +918,28 @@ describe("ToolbarView's overflow menu", () => {
       expect(view.overflow_menu.orientation).to.be.equal(horizontal ? "horizontal" : "vertical")
     })
   }
+
+  it("should close after activating a tool button", async () => {
+    const p = fig([200, 200], {tools: "pan,box_zoom,undo,redo,reset,crosshair,examine", toolbar_location: "above"})
+    p.scatter([0, 5, 10], [0, 5, 10])
+    const {view} = await display(p)
+
+    const toolbar_view = view.owner.get_one(p.toolbar)
+    const examine = p.toolbar.tools.find((tool) => tool instanceof ExamineTool)
+    expect_not_null(examine)
+    const button_view = toolbar_view.tool_button_menu_views.find((view) => view.model.tool == examine)
+    expect_not_null(button_view)
+
+    toolbar_view.toggle_menu()
+    expect(toolbar_view.overflow_menu.is_open).to.be.true
+    expect(button_view.el.isConnected).to.be.true
+
+    await tap(button_view.el)
+    await view.ready
+
+    expect(examine.active).to.be.true
+    expect(toolbar_view.overflow_menu.is_open).to.be.false
+  })
 
   it("should update orientation when overflow_orientation changes", async () => {
     const toolbar = Toolbar.create({location: "above"})

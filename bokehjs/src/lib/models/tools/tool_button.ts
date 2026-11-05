@@ -52,7 +52,7 @@ export abstract class ToolButtonView extends UIElementView {
           return
         }
         if (event.native.composedPath().includes(this.el)) {
-          this.tap()
+          this._tap()
         }
       },
       on_press: () => {
@@ -63,7 +63,7 @@ export abstract class ToolButtonView extends UIElementView {
     this.el.addEventListener("keydown", (event) => {
       switch (event.key as Keys) {
         case "Enter": {
-          this.tap()
+          this._tap()
           break
         }
         case " ": {
@@ -126,6 +126,11 @@ export abstract class ToolButtonView extends UIElementView {
   }
 
   abstract tap(): void
+
+  protected _tap(): void {
+    this.tap()
+    this.parent.button_tapped(this)
+  }
 
   press(): void {
     const at = (() => {

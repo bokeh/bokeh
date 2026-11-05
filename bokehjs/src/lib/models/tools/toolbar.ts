@@ -16,6 +16,7 @@ import type {ToolLike} from "./tool_proxy"
 import {ToolProxy} from "./tool_proxy"
 import {ToolGroup} from "./tool_group"
 import {ToolButton} from "./tool_button"
+import type {ToolButtonView} from "./tool_button"
 import {GestureTool} from "./gestures/gesture_tool"
 import {InspectTool} from "./inspectors/inspect_tool"
 import {ActionTool} from "./actions/action_tool"
@@ -55,6 +56,9 @@ export class ToolbarView extends UIElementView {
   }
   get tool_button_views(): ViewOf<ToolButton>[] {
     return this.tool_buttons.map((tb) => this._tool_button_views.get(tb)).filter((view) => view != null)
+  }
+  get tool_button_menu_views(): ViewOf<ToolButton>[] {
+    return this.tool_buttons.map((tb) => this._tool_button_menu_views.get(tb)).filter((view) => view != null)
   }
 
   protected _overflow_menu: ContextMenu
@@ -259,6 +263,17 @@ export class ToolbarView extends UIElementView {
       case "left":  return {right_of: this._overflow_el}
       case "above": return {below: this._overflow_el}
       case "below": return {above: this._overflow_el}
+    }
+  }
+
+  /**
+   * Notifies the toolbar that a tool button was activated (e.g. tapped). If it's
+   * a button from the overflow menu, then the menu is closed, the same way it
+   * would be when activating a regular menu item.
+   */
+  button_tapped(button_view: ToolButtonView): void {
+    if (this._tool_button_menu_views.get(button_view.model) === button_view) {
+      this._overflow_menu.hide()
     }
   }
 
