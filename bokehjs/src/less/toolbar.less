@@ -68,39 +68,89 @@
   }
 }
 
-/// Overflow button
+/// Bar and overflow button
 
-.bk-tool-overflow {
-  color: var(--icon-color);
+.bk-bar {
   display: flex;
+  flex-wrap: nowrap;
   align-items: center;
-  background-color: var(--background-color);
+  overflow: hidden;
+  // The bar doesn't contribute to the toolbar's intrinsic size, so that the
+  // toolbar is sized by its container and overflows instead of growing it.
+  flex: 1 1 auto;
 }
 
-.bk-tool-overflow:hover {
+.bk-bar > * {
+  flex: 0 0 auto;
+}
+
+.bk-bar > .bk-clipped {
+  display: none;
+}
+
+// When overflowing, the remaining items fit, so let the bar shrink to them,
+// so that the overflow button directly follows the last visible item.
+:host(.bk-overflows.bk-above), :host(.bk-overflows.bk-below),
+:host(.bk-overflows.bk-left), :host(.bk-overflows.bk-right) {
+  .bk-bar {
+    flex-grow: 0;
+    width: auto;
+    height: auto;
+  }
+}
+
+:host(.bk-above), :host(.bk-below) {
+  .bk-bar {
+    flex-direction: row;
+    justify-content: safe flex-end;
+    width: 0;
+  }
+}
+
+:host(.bk-left), :host(.bk-right) {
+  .bk-bar {
+    flex-direction: column;
+    justify-content: safe flex-start;
+    height: 0;
+  }
+}
+
+.bk-overflow {
+  display: none;
+  flex: 0 0 auto;
+  cursor: pointer;
+  touch-action: none;
+  .no-user-select();
+}
+
+:host(.bk-overflows) .bk-overflow {
+  display: block;
+}
+
+.bk-overflow:hover {
   background-color: var(--hover-color);
 }
 
-.bk-tool-overflow:focus, .bk-tool-overflow:focus-visible {
+.bk-overflow:focus, .bk-overflow:focus-visible {
   outline: var(--outline-width) var(--outline-style) var(--highlight-color);
   outline-offset: -1px;
 }
 
-.bk-tool-overflow::-moz-focus-inner {
+.bk-overflow::-moz-focus-inner {
   border: 0;
 }
 
 :host(.bk-above), :host(.bk-below), :host(.bk-horizontal) {
-  .bk-tool-overflow {
+  .bk-overflow .bk-icon {
     width: calc(var(--button-width)/2);
     height: var(--button-height);
-    flex-direction: row;
+    .icon-mask(var(--bokeh-icon-vdots));
   }
 }
 :host(.bk-left), :host(.bk-right), :host(.bk-vertical) {
-  .bk-tool-overflow {
+  .bk-overflow .bk-icon {
     width: var(--button-width);
     height: calc(var(--button-height)/2);
-    flex-direction: column;
+    .icon-mask(var(--bokeh-icon-hdots));
   }
 }
