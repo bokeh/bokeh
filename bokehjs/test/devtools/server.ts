@@ -54,6 +54,8 @@ type ReportStatus = {
 }
 type Report = {
   completed: boolean
+  running?: boolean
+  progress?: {finished: number, selected: number}
   reference: string
   baseline_names: string[]
   results: [string[], ReportStatus][]
@@ -157,12 +159,12 @@ app.get("/unit/run", unit(true))
 app.get("/defaults/run", defaults(true))
 app.get("/integration/run", integration(true))
 
-app.get("/integration/report", using_report(({results, reference, completed}, platform, req, res) => {
+app.get("/integration/report", using_report(({results, reference, completed, running, progress}, platform, req, res) => {
   const full = req.query.full == ""
   const total = results.length
   const failures = results.filter(([, status]) => status.failure === true || status.timeout === true).length
   res.render("test/devtools/report.html", {
-    title: "BokehJS baseline review", results, full, platform, reference, completed, total, failures, layout_diff,
+    title: "BokehJS baseline review", results, full, platform, reference, completed, running, progress, total, failures, layout_diff,
   })
 }))
 
