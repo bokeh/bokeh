@@ -86,7 +86,7 @@ import {Document, ModelChangedEvent, MessageSentEvent} from "@bokehjs/document"
 import {DocumentReady, RangesUpdate} from "@bokehjs/core/bokeh_events"
 import {gridplot} from "@bokehjs/api/gridplot"
 import {Spectral11, Spectral6, Viridis11, Viridis256} from "@bokehjs/api/palettes"
-import {defer, paint, poll} from "@bokehjs/core/util/defer"
+import {defer, poll} from "@bokehjs/core/util/defer"
 import type {Field} from "@bokehjs/core/vectorization"
 import type {AxisType, ToolName} from "@bokehjs/api/figure"
 
@@ -99,6 +99,8 @@ import {TableDataProvider, DataTable} from "@bokehjs/models/widgets/tables/data_
 import {TableColumn} from "@bokehjs/models/widgets/tables/table_column"
 import {DTINDEX_NAME} from "@bokehjs/models/widgets/tables/definitions"
 import {Spinner} from "@bokehjs/models/widgets"
+
+import * as slider_css from "@bokehjs/styles/widgets/sliders.css"
 
 class QualifiedModelView extends UIElementView {
   declare model: QualifiedModel
@@ -567,18 +569,15 @@ describe("Bug", () => {
       const r = p.scatter([1, 2, 3], [1, 2, 3])
 
       const {view} = await display(p)
-      await paint()
       expect(r.data_source.selected.indices).to.be.equal([])
 
       const actions = new PlotActions(view, {units: "screen"})
 
       await actions.pan(xy(0, 0), xy(200, 200))
-      await paint()
       expect(r.data_source.selected.indices).to.be.equal([])
 
       const tbv = view.owner.get_one(p.toolbar)
       await actions.pan(xy(0, tbv.bbox.height + 1), xy(200, 200))
-      await paint()
       expect(r.data_source.selected.indices).to.be.equal([0, 1, 2])
     })
   })
@@ -696,7 +695,6 @@ describe("Bug", () => {
       const pv0 = view.owner.get_one(p0)
       const actions = new PlotActions(pv0)
       await actions.pan(xy(2, 1), xy(2, 3))
-      await paint()
 
       expect(events.length).to.be.equal(3)
 
@@ -1117,7 +1115,6 @@ describe("Bug", () => {
         const {view} = await display(p)
 
         await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
-        await paint()
 
         expect(data).to.be.equal({
           x:      [3.0, 8.0],
@@ -1153,7 +1150,6 @@ describe("Bug", () => {
         const {view} = await display(p)
 
         await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
-        await paint()
 
         expect(data).to.be.equal({
           x:      [3.0, 8.0],
@@ -1189,7 +1185,6 @@ describe("Bug", () => {
         const {view} = await display(p)
 
         await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
-        await paint()
 
         expect(data).to.be.equal({
           left:   [3.0, 7.0],
@@ -1225,7 +1220,6 @@ describe("Bug", () => {
         const {view} = await display(p)
 
         await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
-        await paint()
 
         expect(data).to.be.equal({
           y:      [3.0, 6.0],
@@ -1261,7 +1255,6 @@ describe("Bug", () => {
         const {view} = await display(p)
 
         await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
-        await paint()
 
         expect(data).to.be.equal({
           x:      [3.0, 8.0],
@@ -1295,7 +1288,6 @@ describe("Bug", () => {
         const {view} = await display(p)
 
         await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
-        await paint()
 
         expect(data).to.be.equal({
           y0:    [1.0, 4.0],
@@ -1327,7 +1319,6 @@ describe("Bug", () => {
         const {view} = await display(p)
 
         await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
-        await paint()
 
         expect(data).to.be.equal({
           x0:    [2.0, 7.0],
@@ -1680,8 +1671,6 @@ describe("Bug", () => {
       const table = DataTable.create({source, columns, selectable: "checkbox", view: cds_view, width: 300, height: 400})
       const {view} = await display(table, [350, 450])
 
-      await view.ready
-
       const checkbox1 = view.shadow_el.querySelectorAll(".slick-cell.l1.r1.bk-cell-select")[2]
       const checkbox1_el = checkbox1.querySelector('input[type="checkbox"]')
       expect_not_null(checkbox1_el)
@@ -1809,7 +1798,7 @@ describe("Bug", () => {
       const slider = CategoricalSlider.create({categories, value: "0"})
       const {view} = await display(slider, [300, 50])
 
-      const el = view.shadow_el.querySelector(".noUi-handle")
+      const el = view.shadow_el.querySelector(`.${slider_css.handle}`)
       expect_not_null(el)
       expect(slider.value).to.be.equal("0")
 
@@ -1999,6 +1988,29 @@ ${view.host_selector} {
     })
   })
 
+  describe("in issue #11557", () => {
+    it("doesn't allow to empty a DataTable with autosize_mode and string columns", async () => {
+      const source = ColumnDataSource.create({data: {name: ["a", "b", "c"], salary: [10, 20, 30]}})
+      const columns = [
+        TableColumn.create({field: "name", title: "Name"}),
+        TableColumn.create({field: "salary", title: "Salary"}),
+      ]
+      const table = DataTable.create({source, columns, width: 400, autosize_mode: "fit_columns"})
+      const {view} = await display(table)
+
+      const rendered_rows = () => view.shadow_el.querySelectorAll(".slick-row").length
+      expect(rendered_rows()).to.be.equal(3)
+
+      source.data = {name: [], salary: []}
+      await view.ready
+      expect(rendered_rows()).to.be.equal(0)
+
+      source.data = {name: ["d"], salary: [40]}
+      await view.ready
+      expect(rendered_rows()).to.be.equal(1)
+    })
+  })
+
   describe("in issue #13931", () => {
     it("updates data and prunes stale DataTable selections", async () => {
       const source = ColumnDataSource.create({data: {my_col: ["a", "b", "c"]}})
@@ -2156,8 +2168,6 @@ ${view.host_selector} {
 
       const table = DataTable.create({source, columns, selectable: "checkbox", view: cds_view, width: 300, height: 400})
       const {view} = await display(table, [350, 450])
-
-      await view.ready
 
       const checkbox1 = view.shadow_el.querySelectorAll(".slick-cell.l1.r1.bk-cell-select")[2]
       const checkbox1_el = checkbox1.querySelector('input[type="checkbox"]')
@@ -2317,13 +2327,9 @@ ${view.host_selector} {
       const {view} = await display(p)
       expect(y_range.interval).to.be.equal([1, 3])
 
-      // data updates are applied asynchronously and schedule a separate paint,
-      // hence awaiting view.ready twice after each of them
-
       // changing one endpoint freezes both, even when the data changes
       y_range.end = 10
       source.data = {x: [0, 1, 2], y: [0, 2, 4]}
-      await view.ready
       await view.ready
       expect(y_range.interval).to.be.equal([1, 10])
 
@@ -2332,7 +2338,6 @@ ${view.host_selector} {
       expect(y_range.interval).to.be.equal([0, 4])
 
       source.data = {x: [0, 1, 2], y: [-1, 2, 5]}
-      await view.ready
       await view.ready
       expect(y_range.interval).to.be.equal([-1, 5])
     })

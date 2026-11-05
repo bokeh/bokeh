@@ -1,7 +1,6 @@
 import {Model} from "../model"
 import * as kinds from "core/kinds"
 import type {HasProps} from "core/has_props"
-import type {AnyVal} from "core/serialization"
 import type {Deserializer} from "core/serialization/deserializer"
 import type {ID} from "core/types"
 import type {Ref} from "core/util/refs"
@@ -139,7 +138,7 @@ function finalize_def(def: ModelDef, model: typeof HasProps, deserializer: Deser
     if (value === undefined) {
       return value
     } else {
-      return deserializer.decode(value as AnyVal, buffers)
+      return deserializer.decode(value, buffers)
     }
   }
 

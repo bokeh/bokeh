@@ -211,7 +211,7 @@ def candidate_type_problems(
     expected = "Bug, Task, or Feature" if allow_features else "Bug or Task"
     problems: list[str] = []
     for candidate in candidates:
-        if not candidate.issues:
+        if not candidate.issues and "type: task" not in candidate.labels:
             problems.append(
                 f"PR #{candidate.number} has no associated issue; GitHub issue types do not apply to pull requests",
             )

@@ -22,7 +22,7 @@
     "stripInternal": true,
     "importHelpers": false,
     "experimentalDecorators": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "isolatedModules": true,
     "verbatimModuleSyntax": false,
     "esModuleInterop": true,

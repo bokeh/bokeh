@@ -73,6 +73,9 @@ The sections below are examples for all widgets available in Bokeh. Many of the
 examples produce print output using the JavaScript `console.log` function. You
 can see this output in your browser's JavaScript console log.
 
+For more information about sliders, including keyboard bindings, value
+throttling and styling, see :ref:`ug_interaction_sliders`.
+
 .. _ug_interaction_widgets_examples_autocompleteinput:
 
 AutocompleteInput

@@ -13,15 +13,22 @@ from __future__ import annotations
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+import numpy as np
+import pytest
+
+from bokeh.core.property.descriptors import UnsetValueError
 from bokeh.core.property.vectorization import Expr, Field
+from bokeh.core.serialization import Serializer
 from bokeh.models import (
     CategoricalColorMapper,
     CategoricalMarkerMapper,
     CategoricalPatternMapper,
+    ColumnDataSource,
     CumSum,
     Dodge,
     EqHistColorMapper,
     FactorRange,
+    IndexedLookup,
     Jitter,
     LinearColorMapper,
     LogColorMapper,
@@ -43,6 +50,7 @@ ALL = (
     'factor_cmap',
     'factor_hatch',
     'factor_mark',
+    'gather',
     'jitter',
     'linear_cmap',
     'log_cmap',
@@ -71,6 +79,61 @@ class Test_cumsum:
         assert isinstance(val.expr, CumSum)
         assert val.expr.field == 'foo'
         assert val.expr.include_zero is True
+
+
+class Test_gather:
+    def test_requires_indices(self) -> None:
+        source = ColumnDataSource(data=dict(x=[1, 2, 3]))
+        with pytest.raises(TypeError, match="indices"):
+            bt.gather(source, "x")
+
+    def test_lookup_requires_indices(self) -> None:
+        source = ColumnDataSource(data=dict(x=[1, 2, 3]))
+        lookup = IndexedLookup(source=source, field="x")
+        with pytest.raises(UnsetValueError, match="indices"):
+            Serializer().encode(lookup)
+
+    @pytest.mark.parametrize("shaped", [False, True])
+    def test_document_protocol_roundtrip(self, shaped: bool) -> None:
+        from bokeh.document import Document
+        from bokeh.plotting import figure
+        from bokeh.protocol import apply_patch, patch_doc
+
+        values = ColumnDataSource(data=dict(x=[0, 1, 2], y=[0, 1, 0]))
+        indices = np.array([[0, 1, 2]], dtype=np.int32) if shaped else [[0, 1, 2]]
+        cells = ColumnDataSource(data=dict(vertices=indices))
+        p = figure()
+        p.patches(xs=bt.gather(values, "x", indices="vertices"),
+                  ys=bt.gather(values, "y", indices="vertices"), source=cells)
+        doc = Document()
+        doc.add_root(p)
+        copy = Document.from_json(doc.to_json())
+        lookup = copy.roots[0].renderers[0].glyph.xs.expr
+        assert lookup.indices == "vertices"
+        assert lookup.source.id == values.id
+        assert lookup.source.data == values.data
+        events = []
+        doc.on_change(events.append)
+        values.patch(dict(x=[(0, 10)]))
+        if shaped:
+            cells.data = dict(vertices=np.array([[0, 1, 2], [2, 1, 0]], dtype=np.int32))
+        else:
+            cells.stream(dict(vertices=[[2, 1, 0]]))
+        message = patch_doc(events)
+        apply_patch(message, copy)
+        assert lookup.source.data["x"] == [10, 1, 2]
+        np.testing.assert_equal(copy.roots[0].renderers[0].data_source.data["vertices"],
+                                [[0, 1, 2], [2, 1, 0]])
+
+    def test_basic(self) -> None:
+        source = ColumnDataSource(data=dict(x=[1, 2, 3]))
+        val = bt.gather(source, "x", "indices")
+
+        assert isinstance(val, Expr)
+        assert isinstance(val.expr, IndexedLookup)
+        assert val.expr.source is source
+        assert val.expr.field == "x"
+        assert val.expr.indices == "indices"
 
 
 class Test_dodge:

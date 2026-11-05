@@ -1,3 +1,4 @@
+import type {PaletteMixin} from "./color_mapper"
 import {ColorMapper} from "./color_mapper"
 import type {Arrayable, Color, uint32} from "core/types"
 import type * as p from "core/properties"
@@ -9,7 +10,7 @@ import {isNumber, isArray} from "core/util/types"
 export namespace ContinuousColorMapper {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = ColorMapper.Props & {
+  export type Props = ColorMapper.Props & PaletteMixin.Props & {
     high: p.Property<number | null>
     low: p.Property<number | null>
     high_color: p.Property<Color | null>
@@ -24,8 +25,10 @@ export abstract class ContinuousColorMapper extends ColorMapper {
   declare properties: ContinuousColorMapper.Props
 
   static {
-    this.define<ContinuousColorMapper.Props>(({Float, Str, Ref, Color, Or, Tuple, List, Nullable}) => {
+    this.define<ContinuousColorMapper.Props>(({Float, Str, Ref, Color, Or, Tuple, List, Nullable, Palette}) => {
       return {
+        palette:    [ Palette ],
+        nan_color:  [ Color, "gray" ],
         high:       [ Nullable(Float), null ],
         low:        [ Nullable(Float), null ],
         high_color: [ Nullable(Color), null ],
@@ -117,6 +120,26 @@ export abstract class ContinuousColorMapper extends ColorMapper {
 
   public _v_compute(data: Arrayable<number>, values: Arrayable<uint32>,
       palette: Arrayable<uint32>, colors: {nan_color: uint32, low_color?: uint32, high_color?: uint32}): void {
+    const scan_data = this._v_scan(data, palette.length)
+    this._v_map(data, values, palette, colors, scan_data)
+  }
+
+  /**
+   * Scan step of `_v_compute()`: computes the metrics for mapping `data` to
+   * `n` colors, from the `domain` renderers instead if `domain` is set.
+   */
+  public _v_scan(data: Arrayable<number>, n: number): {min: number, max: number} {
+    const {domain} = this
+    const all_data = !is_empty(domain) ? [...this._collect(domain)] : data
+    return this.scan(all_data, n)
+  }
+
+  /**
+   * Map step of `_v_compute()`: maps `data` with metrics previously computed
+   * by `_v_scan()`, which become this mapper's current metrics.
+   */
+  public _v_map(data: Arrayable<number>, values: Arrayable<uint32>, palette: Arrayable<uint32>,
+      colors: {nan_color: uint32, low_color?: uint32, high_color?: uint32}, scan_data: {min: number, max: number}): void {
 
     const {nan_color} = colors
     let {low_color, high_color} = colors
@@ -127,9 +150,7 @@ export abstract class ContinuousColorMapper extends ColorMapper {
       high_color = palette[palette.length-1]
     }
 
-    const {domain} = this
-    const all_data = !is_empty(domain) ? [...this._collect(domain)] : data
-    this._scan_data = this.scan(all_data, palette.length)
+    this._scan_data = scan_data
     this.metrics_change.emit()
 
     for (let i = 0, end = data.length; i < end; i++) {
@@ -143,9 +164,17 @@ export abstract class ContinuousColorMapper extends ColorMapper {
     }
   }
 
-  protected override _colors<T>(conv: (c: Color) => T): {nan_color: T, low_color?: T, high_color?: T} {
+  override get display_mapper(): this {
+    return this
+  }
+
+  protected _palette(): Color[] {
+    return this.palette
+  }
+
+  protected _colors<T>(conv: (c: Color) => T): {nan_color: T, low_color?: T, high_color?: T} {
     return {
-      ...super._colors(conv),
+      nan_color: conv(this.nan_color),
       low_color: this.low_color != null ? conv(this.low_color) : undefined,
       high_color: this.high_color != null ? conv(this.high_color) : undefined,
     }

@@ -6,7 +6,6 @@ import json5 from "json5"
 
 import {version} from "@bokehjs/version"
 import type {DocJson} from "@bokehjs/document"
-import type {ColumnarDataSource} from "@bokehjs/models"
 import {Document} from "@bokehjs/document"
 import {GlyphRenderer} from "@bokehjs/models"
 import {PlotView} from "@bokehjs/models/plots/plot"
@@ -89,7 +88,7 @@ describe("Bug", () => {
       const [t] = views
       expect_instanceof(t, DataTableView)
 
-      const source = t.model.source as ColumnarDataSource
+      const source = t.model.source
       const dates = source.get_array("dates")
 
       expect(dates.length).to.be.equal(10)

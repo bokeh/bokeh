@@ -74,6 +74,6 @@ export abstract class Range extends Model {
   readonly frames = new Set<CartesianFrameView>()
 
   get linked_plots(): ReadonlySet<PlotView> {
-    return new Set(map(this.frames, (frame) => frame.parent))
+    return new Set(map(this.frames, (frame) => frame.plot_view))
   }
 }

@@ -48,7 +48,7 @@ export class CustomActionView extends ActionToolView {
   }
 
   doit(): void {
-    this._await_ready(this._execute())
+    this.schedule(() => this._execute())
   }
 }
 

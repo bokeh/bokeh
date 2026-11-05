@@ -1,6 +1,5 @@
 /build
 /npm-debug.log
-/.eslintcache
 .package.json
 /test/devtools/_build
 /test/baselines/*/report.json

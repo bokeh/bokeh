@@ -213,6 +213,10 @@ describe("enums module", () => {
     expect([...enums.SizingMode]).to.be.equal(["stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed", "inherit"])
   })
 
+  it("should have SliderAppearance", () => {
+    expect([...enums.SliderAppearance]).to.be.equal(["normal", "stealth"])
+  })
+
   it("should have Sort", () => {
     expect([...enums.Sort]).to.be.equal(["ascending", "descending"])
   })

@@ -1,0 +1,5 @@
+Row bbox=[0, 0, 520, 200]
+  Pane bbox=[0, 0, 200, 200]
+  Column bbox=[210, 0, 310, 102]
+    Slider bbox=[5, 5, 300, 29]
+    Slider bbox=[5, 44, 300, 53]

@@ -105,8 +105,8 @@ export class ClientConnection {
       const connected = new Promise<ClientSession>((resolve, reject) => {
         reject_connection = reject
         assert(this.socket != null)
-        // "arraybuffer" gives us binary data we can look at;
-        // if we just needed an opaque blob we could use "blob"
+        // "arraybuffer" gives us binary data we can look at.
+        // If we just needed an opaque blob we could use "blob".
         this.socket.binaryType = "arraybuffer"
         this.socket.onopen = () => this._on_open(resolve, reject)
         this.socket.onmessage = (event) => this._on_message(event)
@@ -374,8 +374,15 @@ export class ClientConnection {
   }
 }
 
-export function pull_session(url?: string, token?: string, args_string?: string,
+export async function pull_session(url?: string, token?: string, args_string?: string,
     signal?: AbortSignal): Promise<ClientSession> {
   const connection = new ClientConnection(url, token, args_string)
-  return connection.connect(signal)
+  try {
+    return await connection.connect(signal)
+  } catch (error) {
+    // No caller owns a connection or document whose acquisition failed.
+    connection.close()
+    connection.session?.document.destroy()
+    throw error
+  }
 }

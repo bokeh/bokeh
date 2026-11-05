@@ -43,7 +43,6 @@ class TestCodeRunner:
     def test_init(self) -> None:
         cr = bahc.CodeRunner("# test", "path", [])
         assert cr.failed is False
-        assert cr.doc is None
         assert cr.error is None
         assert cr.error_detail is None
         assert cr.ran is False
@@ -205,11 +204,16 @@ class TestCodeRunner:
 
         assert second_entered.is_set()
 
-    @pytest.mark.skipif(sys.flags.optimize >= 2, reason="requires docstrings, which -OO removes")
-    def test_doc(self) -> None:
-        cr = bahc.CodeRunner("'''some docstring\n\nfoo bar'''", "path", [])
-        assert cr.failed is False
-        assert cr.doc == "some docstring\n\nfoo bar"
+    @pytest.mark.parametrize("optimize", [-1, 0, 2])
+    def test_optimize(self, optimize: int) -> None:
+        cr = bahc.CodeRunner("'''app docstring'''\nvalue = __debug__", "path", [], optimize=optimize)
+        module = cr.new_module()
+        assert module is not None
+        cr.run(module)
+        assert not cr.failed
+        level = sys.flags.optimize if optimize == -1 else optimize
+        assert module.__doc__ == ("app docstring" if level < 2 else None)
+        assert module.value == (level == 0)
 
 #-----------------------------------------------------------------------------
 # Private API

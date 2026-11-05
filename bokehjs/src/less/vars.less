@@ -32,6 +32,8 @@
   --shortcut-color: #colors[disabled];
   --highlight-color: #colors[highlight];
   --active-bg: #colors[active-background];
+  --active-background-color: var(--active-bg);
+  --active-border: #colors[active-border];
   --active-fg: #colors[primary];
   --inactive-bg: #colors[surface];
   --inactive-fg: #colors[placeholder];
@@ -41,7 +43,7 @@
   --inverted-color: #colors[inverted]; // the color for when the background is dark
   --placeholder-color: #colors[placeholder];
   --surface-background-color: #colors[surface];
-  --disabled-background-color: #colors[surface];
+  --disabled-background-color: #colors[surface]; // TODO this cannot be the same as surface
   --input-focus-border-color: #colors[input-border];
   --input-focus-halo-color: fade(#colors[input-border], 60%);
 

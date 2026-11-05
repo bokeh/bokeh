@@ -8,7 +8,6 @@ import {
 
 import {Random} from "@bokehjs/core/util/random"
 import {range} from "@bokehjs/core/util/array"
-import {paint} from "@bokehjs/core/util/defer"
 import {Location, Orientation, TextAlign} from "@bokehjs/core/enums"
 import type {Side} from "@bokehjs/core/enums"
 import {np} from "@bokehjs/api/linalg"
@@ -182,9 +181,7 @@ describe("ColorBar annotation", () => {
 
     color_bar.title_location = "right"
     color_bar.title_orientation = "vertical"
-    await color_bar_view.ready
     await view.ready
-    await paint()
   })
 
   it("should support horizontal orientation and positioning within the center panel", async () => {

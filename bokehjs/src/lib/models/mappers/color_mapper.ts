@@ -25,13 +25,27 @@ export function convert_to_uint32_palette(palette: Color[]): Uint32Array {
   return new_palette
 }
 
-export namespace ColorMapper {
-  export type Attrs = p.AttrsOf<Props>
-
-  export type Props = Mapper.Props & {
+/**
+ * Properties of the color mappers that map into a palette of their own:
+ * `CategoricalColorMapper`, `ContinuousColorMapper` and `WeightedStackColorMapper`
+ * each define these (they come from `PaletteMixin` on the Python side).
+ */
+export namespace PaletteMixin {
+  export type Props = {
     palette: p.Property<Color[]>
     nan_color: p.Property<Color>
   }
+}
+
+export interface PaletteMapper extends ColorMapper {
+  palette: Color[]
+  nan_color: Color
+}
+
+export namespace ColorMapper {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = Mapper.Props
 }
 
 export interface ColorMapper extends ColorMapper.Attrs {}
@@ -41,22 +55,26 @@ export abstract class ColorMapper extends Mapper<Color> {
 
   readonly metrics_change: Signal0<this> = new Signal0(this, "metrics_change")
 
-  static {
-    this.define<ColorMapper.Props>(({Color, List}) => ({
-      palette:   [ List(Color) ],
-      nan_color: [ Color, "gray" ],
-    }))
-  }
+  /**
+   * Emitted when `display_mapper` is replaced by another mapper.
+   */
+  readonly display_mapper_change: Signal0<this> = new Signal0(this, "display_mapper_change")
+
+  /**
+   * The mapper whose palette and metrics represent this mapper, e.g. in a
+   * `ColorBar`. Delegating mappers forward its `metrics_change` signal.
+   */
+  abstract get display_mapper(): PaletteMapper
 
   v_compute(xs: Arrayable<number> | Arrayable<Factor | number | null>): Arrayable<Color> {
     const values: ColorArray = new Uint32Array(xs.length)
-    this._v_compute(xs, values, convert_to_uint32_palette(this.palette), this._colors(convert_to_uint32_color))
+    this._v_compute(xs, values, convert_to_uint32_palette(this._palette()), this._colors(convert_to_uint32_color))
     return new Uint32NDArray(values)
   }
 
   get rgba_mapper(): RGBAMapper {
     const self = this
-    const palette = convert_to_uint32_palette(this.palette)
+    const palette = convert_to_uint32_palette(this._palette())
     const colors = this._colors(convert_to_uint32_color)
     return {
       v_compute(xs) {
@@ -69,9 +87,13 @@ export abstract class ColorMapper extends Mapper<Color> {
     }
   }
 
-  protected _colors<T>(conv: (c: Color) => T): {nan_color: T} {
-    return {nan_color: conv(this.nan_color)}
-  }
+  /**
+   * The palette `_v_compute()` maps into. `ColorMapper` has no palette of its
+   * own, so subclasses either define one or take it from another mapper.
+   */
+  protected abstract _palette(): Color[]
+
+  protected abstract _colors<T>(conv: (c: Color) => T): {nan_color: T}
 
   protected abstract _v_compute(xs: Arrayable<uint32> | Arrayable<Factor | number | null>,
     values: Arrayable<uint32>, palette: Arrayable<uint32>, colors: {nan_color: uint32}): void

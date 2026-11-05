@@ -36,6 +36,14 @@ type Defaults = {
   line: {line_alpha?: number, line_color?: Color}
 }
 
+// A queued pass prepares data (which includes visuals), visuals, or only asynchronous visual hooks.
+type UpdatePass = {
+  data: boolean
+  visuals: boolean
+  paint: boolean
+  indices?: Set<number>
+}
+
 type DecorationOptions = {
   inset?: PathDecoration.Attrs["inset"]
   selection_marking?: Marking | "auto" | null
@@ -160,11 +168,11 @@ export class GlyphRendererView extends DataRendererView {
     this.muted_glyph.set_base(this.glyph)
     this.decimated_glyph.set_base(this.glyph)
 
-    await this.set_data()
+    await this._set_data()
   }
 
   async build_glyph_view<T extends Glyph>(glyph: T): Promise<GlyphView> {
-    return build_view(glyph, {parent: this}) as Promise<GlyphView>
+    return build_view(glyph, {parent: this})
   }
 
   private _previous_inspected?: {
@@ -178,8 +186,36 @@ export class GlyphRendererView extends DataRendererView {
   override connect_signals(): void {
     super.connect_signals()
 
+    let source = this.model.data_source
+    let pending_update: Promise<void> | null = null
+    let view_revision = 0
     const render = () => this.request_paint()
-    const update = () => this.update_data()
+    const update_later = () => {
+      if (pending_update == null) {
+        pending_update = (async () => {
+          await Promise.resolve()
+          pending_update = null
+          if (this.is_destroyed || this.cds_view.model != this.model.view) {
+            return
+          }
+          // CDSView has rebound by now. Keep its callbacks ahead of ours.
+          disconnect_source(source)
+          connect_source(source)
+          this.update_data()
+        })()
+      }
+      return pending_update
+    }
+    const update_data = (indices?: number[]) => {
+      if (this.is_destroyed) {
+        return
+      }
+      if (pending_update != null || source != this.model.data_source || this.cds_view.model != this.model.view) {
+        return update_later()
+      }
+      return this.update_data(indices)
+    }
+    const update = () => update_data()
 
     this.connect(this.model.change, render)
 
@@ -206,35 +242,73 @@ export class GlyphRendererView extends DataRendererView {
     this.connect(this.muted_glyph.model.change, update)
     this.connect(this.decimated_glyph.model.change, update)
 
-    this.connect(this.model.data_source.change, update)
-    this.connect(this.model.data_source.streaming, update)
-    this.connect(this.model.data_source.patching, (indices) => this.update_data(indices))
-    this.connect(this.model.data_source.selected.change, render)
-    this.connect(this.model.data_source._select, render)
-    if (this.hover_glyph != null) {
-      this.connect(this.model.data_source.inspect, () => {
-        // XXX: hoping for the best, assuming no in-place mutation
-        const {inspected} = this.model.data_source
-        const current_inspected = {
-          indices: inspected.indices,
-          line_indices: inspected.line_indices,
-          multiline_indices: inspected.multiline_indices,
-          image_indices: inspected.image_indices,
-          selected_glyphs: inspected.selected_glyphs,
-        }
-        if (!is_equal(this._previous_inspected, current_inspected)) {
-          this._previous_inspected = current_inspected
-          render()
-        }
-      })
+    const patch = (indices: number[]) => update_data(indices)
+    const inspect = () => {
+      // XXX: hoping for the best, assuming no in-place mutation
+      const {inspected} = this.model.data_source
+      const current_inspected = {
+        indices: inspected.indices,
+        line_indices: inspected.line_indices,
+        multiline_indices: inspected.multiline_indices,
+        image_indices: inspected.image_indices,
+        selected_glyphs: inspected.selected_glyphs,
+      }
+      if (!is_equal(this._previous_inspected, current_inspected)) {
+        this._previous_inspected = current_inspected
+        render()
+      }
     }
+    const connect_source = (source: ColumnarDataSource) => {
+      this.connect(source.change, update)
+      this.connect(source.streaming, update)
+      this.connect(source.patching, patch)
+      this.connect(source.selected.change, render)
+      this.connect(source._select, render)
+      if (this.hover_glyph != null) {
+        this.connect(source.inspect, inspect)
+      }
+    }
+    const disconnect_source = (source: ColumnarDataSource) => {
+      this.disconnect(source.change, update)
+      this.disconnect(source.streaming, update)
+      this.disconnect(source.patching, patch)
+      this.disconnect(source.selected.change, render)
+      this.disconnect(source._select, render)
+      this.disconnect(source.inspect, inspect)
+    }
+    connect_source(source)
+    this.on_change(this.model.properties.data_source, () => {
+      disconnect_source(source)
+      source = this.model.data_source
+      // Subscribe immediately so same-tick edits participate in the queued refresh.
+      connect_source(source)
+      return update_later()
+    })
+    this.on_transitive_change(this.model.properties.view, update, {
+      signal: (view) => (view as CDSView).properties.indices.change,
+    })
+    this.on_transitive_change(this.model.properties.view, () => {
+      if (this.cds_view.model != this.model.view) {
+        return
+      }
+      return this._update_masked_visuals()
+    }, {signal: (view) => (view as CDSView).properties.masked.change})
     this.connect(this.model.properties.view.change, async () => {
-      this.cds_view.remove()
-      this.cds_view = await build_view(this.model.view, {parent: this})
+      const revision = ++view_revision
+      if (!this.cds_view.is_destroyed) {
+        this.cds_view.remove()
+      }
+      const model = this.model.view
+      const cds_view = await build_view(model, {parent: this})
+      if (this.is_destroyed || revision != view_revision || this.model.view != model) {
+        cds_view.remove()
+        return
+      }
+      this.cds_view = cds_view
+      disconnect_source(source)
+      connect_source(source)
       await update()
     })
-    this.connect(this.model.view.properties.indices.change, update)
-    this.connect(this.model.view.properties.masked.change, async () => await this.set_visuals())
     this.connect(this.model.properties.visible.change, () => this.plot_view.invalidate_dataranges = true)
 
     const {x_ranges, y_ranges} = this.plot_view.frame
@@ -262,14 +336,99 @@ export class GlyphRendererView extends DataRendererView {
     return masked
   }
 
-  async update_data(indices?: number[]): Promise<void> {
-    await this.set_data(indices)
-    this.request_paint()
+  private _pending_update: UpdatePass | null = null
+  private _active_update: UpdatePass | null = null
+  private _applying_visuals: boolean = false
+  private _data_update_complete: Promise<void> = Promise.resolve()
+
+  // Painting publishes masks, which visuals may read (e.g. through a CustomJSTransform). Work
+  // started by a mask change never requests a paint, because renderers sharing a CDSView may
+  // publish different masks, so painting again would feed back.
+  private _update_masked_visuals(): void {
+    const preparing_data = this._pending_update?.data === true || this._active_update?.data === true
+    if (preparing_data || this._applying_visuals) {
+      // Don't interleave with data preparation, which paints when it completes. Paints are
+      // deferred to an animation frame, so a visual pass queued behind it applies first. A
+      // reentrant notification during visual application is deferred to a pass as well.
+      this._enqueue_update({data: false, visuals: true, paint: false})
+      return
+    }
+    // Apply visuals immediately, so the paint that published the mask draws with them.
+    this._applying_visuals = true
+    try {
+      this._apply_visuals()
+    } catch (error) {
+      // Don't break painting. Report the failure through `ready`, like a failed pass.
+      this._await_ready(Promise.reject(error))
+    } finally {
+      this._applying_visuals = false
+    }
+    // Serialize asynchronous visual hooks with other passes. A pending pass already runs them.
+    this._enqueue_update({data: false, visuals: false, paint: false})
+  }
+
+  /** Queue data preparation. Like `request_paint()`, renderer state becomes current through `ready`. */
+  update_data(indices?: number[]): void {
+    this._enqueue_update({data: true, visuals: false, paint: true, indices: indices == null ? undefined : new Set(indices)})
+  }
+
+  update_visuals(): void {
+    this._enqueue_update({data: false, visuals: true, paint: true})
+  }
+
+  private _enqueue_update(request: UpdatePass): void {
+    const pending = this._pending_update
+    if (pending != null) {
+      if (request.data) {
+        if (!pending.data) {
+          pending.indices = request.indices
+        } else if (pending.indices != null && request.indices != null) {
+          for (const index of request.indices) {
+            pending.indices.add(index)
+          }
+        } else {
+          pending.indices = undefined
+        }
+        pending.data = true
+      }
+      pending.visuals ||= request.visuals
+      pending.paint ||= request.paint
+      return
+    }
+    // Read the final source state before each pass, and serialize data and visual work.
+    this._pending_update = request
+    const pass = this._data_update_complete.then(async () => {
+      this._pending_update = null
+      const {abort_signal} = this
+      if (!abort_signal.aborted) {
+        // The running pass owns `_active_update` until it settles, also when it fails.
+        this._active_update = request
+        try {
+          if (request.data) {
+            await this._set_data(request.indices == null ? undefined : [...request.indices])
+          } else if (request.visuals) {
+            await this._set_visuals()
+          } else {
+            await this._after_lazy_visuals()
+          }
+        } finally {
+          this._active_update = null
+        }
+        // Re-read `this.abort_signal`, because the view may be removed during preparation.
+        if (request.paint && !this.abort_signal.aborted) {
+          this.request_paint()
+        }
+      }
+    })
+    this._await_ready(pass)
+    // A failed pass is reported through `ready`, but must not block the queue.
+    this._data_update_complete = pass.catch(() => {})
   }
 
   // in case of partial updates like patching, the list of indices that actually
   // changed may be passed as the "indices" parameter to afford any optional optimizations
-  async set_data(indices?: number[]): Promise<void> {
+  // Internal preparation. Runtime callers must use update_data().
+  async _set_data(indices?: number[]): Promise<void> {
     const source = this.model.data_source
 
     this.all_indices = this.model.view.indices
@@ -282,7 +441,7 @@ export class GlyphRendererView extends DataRendererView {
     await this.hover_glyph?.set_data(source, all_indices, indices)
     await this.muted_glyph.set_data(source, all_indices, indices)
 
-    await this.set_visuals()
+    await this._set_visuals()
 
     this._update_masked_indices()
 
@@ -296,32 +455,42 @@ export class GlyphRendererView extends DataRendererView {
     this.plot_view.invalidate_dataranges = true
   }
 
-  async set_visuals(): Promise<void> {
+  // Internal preparation. Runtime callers must use update_visuals().
+  async _set_visuals(): Promise<void> {
+    this._apply_visuals()
+    await this._after_lazy_visuals()
+  }
+
+  // Update visuals of all glyph states synchronously, so they can be applied during painting.
+  private _apply_visuals(): void {
     const source = this.model.data_source
     const {all_indices} = this
 
     this.glyph.set_visuals(source, all_indices)
     this.glyph.after_visuals()
-    await this.glyph.after_lazy_visuals()
 
     this.decimated_glyph.set_visuals(source, all_indices)
     this.decimated_glyph.after_visuals()
-    await this.decimated_glyph.after_lazy_visuals()
 
     this.selection_glyph.set_visuals(source, all_indices)
     this.selection_glyph.after_visuals()
-    await this.selection_glyph.after_lazy_visuals()
 
     this.nonselection_glyph.set_visuals(source, all_indices)
     this.nonselection_glyph.after_visuals()
-    await this.nonselection_glyph.after_lazy_visuals()
 
     this.hover_glyph?.set_visuals(source, all_indices)
     this.hover_glyph?.after_visuals()
-    await this.hover_glyph?.after_lazy_visuals()
 
     this.muted_glyph.set_visuals(source, all_indices)
     this.muted_glyph.after_visuals()
+  }
+
+  private async _after_lazy_visuals(): Promise<void> {
+    await this.glyph.after_lazy_visuals()
+    await this.decimated_glyph.after_lazy_visuals()
+    await this.selection_glyph.after_lazy_visuals()
+    await this.nonselection_glyph.after_lazy_visuals()
+    await this.hover_glyph?.after_lazy_visuals()
     await this.muted_glyph.after_lazy_visuals()
   }
 
@@ -400,21 +569,20 @@ export class GlyphRendererView extends DataRendererView {
     })()
 
     const {lod_threshold} = this.plot_model
-    let glyph: GlyphView
-    let nonselection_glyph: GlyphView
-    let selection_glyph: GlyphView
-    if ((this.model.document != null ? this.model.document.interactive_duration() > 0 : false)
-        && !has_webgl && lod_threshold != null && all_indices.length > lod_threshold) {
-      // Render decimated during interaction if too many elements and not using GL
-      indices = this.decimated.ones()
-      glyph = this.decimated_glyph
-      nonselection_glyph = this.decimated_glyph
-      selection_glyph = this.selection_glyph
-    } else {
-      glyph = this.model.muted ? this.muted_glyph : this.glyph
-      nonselection_glyph = this.nonselection_glyph
-      selection_glyph = this.selection_glyph
-    }
+    const {glyph, nonselection_glyph} = (() => {
+      if ((this.model.document != null ? this.model.document.interactive_duration() > 0 : false)
+          && !has_webgl && lod_threshold != null && all_indices.length > lod_threshold) {
+        // Render decimated during interaction if too many elements and not using GL
+        indices = this.decimated.ones()
+        return {glyph: this.decimated_glyph, nonselection_glyph: this.decimated_glyph}
+      } else {
+        return {
+          glyph: this.model.muted ? this.muted_glyph : this.glyph,
+          nonselection_glyph: this.nonselection_glyph,
+        }
+      }
+    })()
+    const {selection_glyph} = this
 
     if (this.hover_glyph != null && inspected_subset_indices.length != 0) {
       const inspected = new Set(inspected_subset_indices)

@@ -6,7 +6,6 @@ import type {Figure} from "@bokehjs/api/plotting"
 import {figure} from "@bokehjs/api/plotting"
 import {Random} from "@bokehjs/core/util/random"
 import {color2hex} from "@bokehjs/core/util/color"
-import {paint} from "@bokehjs/core/util/defer"
 import {Spectral11} from "@bokehjs/api/palettes"
 import {f} from "@bokehjs/api/expr"
 
@@ -126,7 +125,6 @@ describe("UI elements", () => {
 
       show_context_menu(view, 120, 120)
       // TODO hover "Choose color" item to show its sub-menu
-      await paint()
     })
   })
 
