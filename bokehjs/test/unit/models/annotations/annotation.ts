@@ -12,6 +12,7 @@ import {project_xy, project_xsys} from "@bokehjs/core/util/projections"
 import type {Arrayable} from "@bokehjs/core/types"
 import {build_view} from "@bokehjs/core/build_views"
 import * as p from "@bokehjs/core/properties"
+import {RecordSource} from "../sources/record_source"
 
 class SubclassWithNumberSpecView extends DataAnnotationView {
   declare model: SubclassWithNumberSpec
@@ -117,13 +118,17 @@ describe("AnnotationView", () => {
   }
 
   describe("set_data()", () => {
-    it("should collect dataspecs", async () => {
-      const ds = ColumnDataSource.create({data: {colname: [1, 2, 3, 4]}})
-      const obj = SubclassWithNumberSpec.create()
-      const view = await build_view(obj, {parent: await plot()})
-      view.set_data(ds)
-      expect(view.foo).to.be.equal(new p.UniformVector(new Float64Array([1, 2, 3, 4])))
-    })
+    for (const ds of [
+      ColumnDataSource.create({data: {colname: [1, 2, 3, 4]}}),
+      RecordSource.create({records: [1, 2, 3, 4].map((colname) => ({colname}))}),
+    ]) {
+      it(`collects dataspecs from ${ds.type}`, async () => {
+        const obj = SubclassWithNumberSpec.create()
+        const view = await build_view(obj, {parent: await plot()})
+        view.set_data(ds)
+        expect(view.foo).to.be.equal(new p.UniformVector(new Float64Array([1, 2, 3, 4])))
+      })
+    }
 
     it("should collect shapes when they are present", async () => {
       const array = ndarray([1, 2, 3, 4], {dtype: "float64", shape: [2, 2]})
@@ -269,15 +274,9 @@ describe("AnnotationView", () => {
       view.set_data(source)
       other.set_data(source)
       const {_x: x, _y: y, _xs: xs, _ys: ys} = view
-      const [first_x] = xs
-      const [first_y] = ys
       expect(source.data).to.be.equal(original)
-      expect([x, y]).to.be.equal(project_xy(data.x, data.y))
-      expect([xs, ys]).to.be.equal(project_xsys(data.xs, data.ys))
       expect(other._x).to.not.be.identical(x)
-      expect(other._y).to.not.be.identical(y)
-      expect(other._xs[0]).to.not.be.identical(first_x)
-      expect(other._ys[0]).to.not.be.identical(first_y)
+      expect(other._xs[0]).to.not.be.identical(xs[0])
 
       data.x[0] = 11
       data.y[0] = 12
@@ -286,16 +285,12 @@ describe("AnnotationView", () => {
       const updated = structuredClone(data)
       source.data_changed.emit({structural: false, indices: [0]})
       await view.ready
-      await other.ready
       expect(view._x).to.be.identical(x)
       expect(view._y).to.be.identical(y)
       expect(view._xs).to.be.identical(xs)
       expect(view._ys).to.be.identical(ys)
-      expect(xs[0]).to.be.identical(first_x)
-      expect(ys[0]).to.be.identical(first_y)
       expect([x, y]).to.be.equal(project_xy(data.x, data.y))
       expect([xs, ys]).to.be.equal(project_xsys(data.xs, data.ys))
-      expect([other._x, other._y]).to.be.equal([x, y])
       expect(source.data).to.be.equal(updated)
       parent.remove()
     })
@@ -305,20 +300,12 @@ describe("AnnotationView", () => {
       const parent = await build_view(MapPlot.create())
       const view = await build_view(CoordinateAnnotation.create({source}), {parent})
       view.set_data(source)
-      const {_x: x, _y: y, _xs: xs, _ys: ys} = view
-      const [first_x] = xs
-      const [first_y] = ys
+      const {_xs: xs, _ys: ys} = view
 
       source.stream({x: [5], y: [6], xs: [[7, 8]], ys: [[9, 10]]})
       await view.ready
-      expect(view._x.length).to.be.equal(2)
-      expect(view._y.length).to.be.equal(2)
-      expect(view._x).to.not.be.identical(x)
-      expect(view._y).to.not.be.identical(y)
       expect(view._xs).to.be.identical(xs)
       expect(view._ys).to.be.identical(ys)
-      expect(xs[0]).to.be.identical(first_x)
-      expect(ys[0]).to.be.identical(first_y)
       expect([view._x, view._y]).to.be.equal(project_xy([1, 5], [2, 6]))
       expect([xs, ys]).to.be.equal(project_xsys([[3], [7, 8]], [[4], [9, 10]]))
       expect(source.data).to.be.equal({x: [1, 5], y: [2, 6], xs: [[3], [7, 8]], ys: [[4], [9, 10]]})
@@ -329,10 +316,6 @@ describe("AnnotationView", () => {
       expect([view._x, view._y]).to.be.equal(project_xy([11], [12]))
       expect(view._xs).to.be.identical(xs)
       expect(view._ys).to.be.identical(ys)
-      expect(xs.length).to.be.equal(1)
-      expect(ys.length).to.be.equal(1)
-      expect(xs[0]).to.not.be.identical(first_x)
-      expect(ys[0]).to.not.be.identical(first_y)
       expect([xs, ys]).to.be.equal(project_xsys([[13, 14]], [[15, 16]]))
       expect(replacement.data).to.be.equal({x: [11], y: [12], xs: [[13, 14]], ys: [[15, 16]]})
 

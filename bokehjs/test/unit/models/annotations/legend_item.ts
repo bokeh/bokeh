@@ -9,6 +9,7 @@ import {logger} from "@bokehjs/core/logging"
 import {Float64NDArray} from "@bokehjs/core/util/ndarray"
 import {IndexFilter} from "@bokehjs/models/filters/index_filter"
 import {Comparator} from "@bokehjs/core/util/eq"
+import {RecordSource} from "../sources/record_source"
 
 describe("LegendItem", () => {
 
@@ -212,7 +213,7 @@ describe("LegendItem", () => {
     }
 
     it("retains numeric field values for legend glyph lookup", () => {
-      const source = ColumnDataSource.create({data: {label: [10, 20, 10]}})
+      const source = RecordSource.create({records: [{label: 10}, {label: 20}, {label: 10}]})
       const renderer = GlyphRenderer.create({data_source: source})
       renderer.view.compute_indices(source)
       const item = LegendItem.create({label: {field: "label"}, renderers: [renderer]})

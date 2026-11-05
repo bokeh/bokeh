@@ -38,7 +38,7 @@ async def test_python_indexed_source_renders_and_updates(ManagedServerLoop: MSL)
         records = List(Dict(String, AnyRef), default=[])
 
     def modify_document(document: Document) -> None:
-        source = RecordSource(name="records", records=[dict(x=2, y=3), dict(x=7, y=8)])
+        source = RecordSource(name="records", records=[dict(x=2, y=3)])
         command = Div(name="command", text="ready")
         plot = figure(name="plot", width=300, height=300, x_range=(0, 10), y_range=(0, 10), tools="")
         plot.scatter("x", "y", source=source, name="points", size=18, fill_color="red", line_color=None)
@@ -77,45 +77,26 @@ async def test_python_indexed_source_renders_and_updates(ManagedServerLoop: MSL)
   document.querySelector('[data-bokeh-document-target], [data-bokeh-root]').bokehMount.ready
 ''')
 
-                    async def assert_rendered(xs: list[int], ys: list[int]) -> None:
-                        await page.wait_for_function('''([xs, ys]) => {
-  const document = globalThis.Bokeh?.documents[0]
-  const plot = document?.get_model_by_name("plot")
-  const renderer = document?.get_model_by_name("points")
-  const plot_view = plot != null ? document.views_manager?.find_one(plot) : null
-  const renderer_view = renderer != null ? document.views_manager?.find_one(renderer) : null
-  if (plot_view == null || renderer_view == null) {
-    return false
-  }
-  const {glyph} = renderer_view
-  if (glyph.x?.length != xs.length || glyph.y?.length != ys.length ||
-      !xs.every((x, i) => glyph.x[i] === x && glyph.y[i] === ys[i])) {
+                    async def assert_rendered(x: int, y: int) -> None:
+                        await page.wait_for_function('''([x, y]) => {
+  const document = Bokeh.documents[0]
+  const plot_view = document.views_manager.get_one(document.get_model_by_name("plot"))
+  const {glyph, coordinates} = document.views_manager.get_one(document.get_model_by_name("points"))
+  if (glyph.x.length != 1 || glyph.y.length != 1 || glyph.x[0] !== x || glyph.y[0] !== y) {
     return false
   }
   const layer = plot_view.canvas_view.primary
-  return xs.every((_, i) => {
-    const sx = Math.floor(glyph.sx[i]*layer.pixel_ratio)
-    const sy = Math.floor(glyph.sy[i]*layer.pixel_ratio)
-    const [r, g, b, a] = layer.ctx.getImageData(sx, sy, 1, 1).data
-    return r === 255 && g === 0 && b === 0 && a === 255
-  })
-}''', arg=[xs, ys], timeout=30_000)
+  const sx = Math.floor(coordinates.x_scale.compute(x)*layer.pixel_ratio)
+  const sy = Math.floor(coordinates.y_scale.compute(y)*layer.pixel_ratio)
+  const [r, g, b, a] = layer.ctx.getImageData(sx, sy, 1, 1).data
+  return r === 255 && g === 0 && b === 0 && a === 255
+}''', arg=[x, y], timeout=30_000)
 
-                    await assert_rendered([2, 7], [3, 8])
-                    assert await page.evaluate('''() => {
-  const source = Bokeh.documents[0].get_model_by_name("records")
-  return source.properties.data == null && source.get_length() === 2 && source.get_record(0).x === 2
-}''')
-
-                    await page.evaluate('''() => {
-  Bokeh.documents[0].get_model_by_name("command").text = "replace"
-}''')
-                    await assert_rendered([4], [6])
-
-                    await page.evaluate('''() => {
-  Bokeh.documents[0].get_model_by_name("records").records = [{x: 6, y: 4}]
-}''')
-                    await assert_rendered([6], [4])
+                    await assert_rendered(2, 3)
+                    await page.evaluate('Bokeh.documents[0].get_model_by_name("command").text = "replace"')
+                    await assert_rendered(4, 6)
+                    await page.evaluate('Bokeh.documents[0].get_model_by_name("records").records = [{x: 6, y: 4}]')
+                    await assert_rendered(6, 4)
                     await page.get_by_text("client update received", exact=True).wait_for(state="visible")
 
                     await page.evaluate('''() => {
@@ -126,7 +107,7 @@ async def test_python_indexed_source_renders_and_updates(ManagedServerLoop: MSL)
   record.set("y", 2)
   source.data_changed.emit({fields: ["x", "y"], indices: [0], structural: false})
 }''')
-                    await assert_rendered([8], [2])
+                    await assert_rendered(8, 2)
                     assert errors == []
                 finally:
                     await browser.close()

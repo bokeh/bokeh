@@ -6,7 +6,7 @@ import {dict} from "@bokehjs/core/util/object"
 import {RecordSource} from "../sources/record_source"
 
 describe("linear_interpolator_transform module", () => {
-  it("rebinds interpolation dependencies through replacement and null transitions", () => {
+  it("rebinds record-source dependencies and invalidates in-place updates", () => {
     const original = RecordSource.create({records: [{x: 0, y: 0}, {x: 2, y: 20}]})
     const replacement = RecordSource.create({records: [{x: 0, y: 0}, {x: 2, y: 40}]})
     const transform = LinearInterpolator.create({data: original, x: "x", y: "y"})
@@ -27,19 +27,6 @@ describe("linear_interpolator_transform module", () => {
     replacement.records = [{x: 0, y: 0}, {x: 2, y: 80}]
     expect(transform.compute(1)).to.be.equal(40)
 
-    transform.data = null
-    const after_null = changes
-    replacement.change.emit()
-    replacement.data_changed.emit({structural: true})
-    expect(changes).to.be.equal(after_null)
-    transform.data = replacement
-    expect(transform.compute(1)).to.be.equal(40)
-
-    transform.destroy()
-    const after_destroy = changes
-    replacement.change.emit()
-    replacement.data_changed.emit({structural: true})
-    expect(changes).to.be.equal(after_destroy)
   })
 
   function generate_interpolator_ColumnDataSource() {

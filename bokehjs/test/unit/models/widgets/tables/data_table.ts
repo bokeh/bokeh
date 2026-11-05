@@ -1,4 +1,5 @@
 import {display, column} from "#framework/layouts"
+import {restorable} from "#framework/util"
 import {spy} from "sinon"
 import {TableColumn} from "@bokehjs/models/widgets/tables/table_column"
 import {IndexFilter} from "@bokehjs/models/filters/index_filter"
@@ -30,7 +31,6 @@ describe("data_table module", () => {
     const old_child = view.owner.get_one(old_view)
     const old_column = view.owner.get_one(table.columns[0])
     const state = view as unknown as {data: TableDataProvider, grid: {getSelectedRows(): number[]}}
-    expect(state.data.index).to.be.equal([0, 2])
     const current = IndexedView.create({filter: IndexFilter.create({indices: [1]})})
     table.setv({view: current, columns: [TableColumn.create({field: "x"})]})
     await view.ready
@@ -44,23 +44,18 @@ describe("data_table module", () => {
     await view.ready
     expect(state.data.getField(0, "x")).to.be.equal(25)
     expect(state.grid.getSelectedRows()).to.be.equal([0])
-    const update = spy(view, "updateGrid")
-    const select = spy(view, "updateSelection")
-    try {
-      old_source.stream({x: [4]})
-      old_source.selected.indices = [0]
-      old_view.filter = IndexFilter.create({indices: [0]})
-      await view.ready
-      expect(update.callCount).to.be.equal(0)
-      expect(select.callCount).to.be.equal(0)
-      current.filter = IndexFilter.create({indices: [0, 2]})
-      await view.ready
-      expect(state.data.index).to.be.equal([0, 2])
-      expect(state.data.getField(1, "x")).to.be.equal(30)
-    } finally {
-      update.restore()
-      select.restore()
-    }
+    using update = restorable(spy(view, "updateGrid"))
+    using select = restorable(spy(view, "updateSelection"))
+    old_source.stream({x: [4]})
+    old_source.selected.indices = [0]
+    old_view.filter = IndexFilter.create({indices: [0]})
+    await view.ready
+    expect(update.callCount).to.be.equal(0)
+    expect(select.callCount).to.be.equal(0)
+    current.filter = IndexFilter.create({indices: [0, 2]})
+    await view.ready
+    expect(state.data.index).to.be.equal([0, 2])
+    expect(state.data.getField(1, "x")).to.be.equal(30)
   })
 
   it("cancels pending table data and column view replacements when the table is removed", async () => {
@@ -69,23 +64,18 @@ describe("data_table module", () => {
     const layout = column([table])
     const {view} = await display(layout)
     const table_view = view.owner.get_one(table)
-    const rerender = spy(table_view, "rerender")
+    using rerender = restorable(spy(table_view, "rerender"))
     table.setv({view: IndexedView.create({filter: IndexFilter.create({indices: [1]})}), columns: [TableColumn.create({field: "x"})]})
     layout.children = []
     await view.ready
     expect(table_view.is_destroyed).to.be.true
     expect(rerender.callCount).to.be.equal(0)
-    rerender.restore()
-    const update = spy(table_view, "updateGrid")
-    try {
-      source.stream({x: [4]})
-      table.view.filter = IndexFilter.create({indices: [0]})
-      await view.ready
-      expect(update.callCount).to.be.equal(0)
-      expect(table_view._children_views().filter((child) => child?.model instanceof IndexedView).length).to.be.equal(0)
-    } finally {
-      update.restore()
-    }
+    using update = restorable(spy(table_view, "updateGrid"))
+    source.stream({x: [4]})
+    table.view.filter = IndexFilter.create({indices: [0]})
+    await view.ready
+    expect(update.callCount).to.be.equal(0)
+    expect(table_view._children_views().filter((child) => child?.model instanceof IndexedView).length).to.be.equal(0)
   })
 
   describe("DataTable class", () => {

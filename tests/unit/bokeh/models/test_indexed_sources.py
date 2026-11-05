@@ -110,8 +110,7 @@ def test_legacy_graph_reports_noncolumnar_sources_without_attribute_errors() -> 
 def test_edit_tools_validate_columnar_sources(tool_type: type[EditTool], glyph_type: type["Glyph"]) -> None:
     source = RecordDataSource(records=[dict(x=1, y=2)])
     renderer = GlyphRenderer(data_source=source, glyph=glyph_type())
-    kwargs: dict[str, Any] = dict(renderers=[renderer])
-    tool = tool_type(**kwargs)
+    tool = tool_type(renderers=[renderer])
     errors = check_integrity([tool]).error
     assert len(errors) == 1
     assert errors[0].name == "INCOMPATIBLE_EDIT_SOURCE"
