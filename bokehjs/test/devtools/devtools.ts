@@ -10,7 +10,7 @@ import {load_baselines} from "./baselines.js"
 import {platform} from "./sys.js"
 import type {Suite, TestRunContext, ScreenshotMode} from "./types.js"
 import {Exit} from "./types.js"
-import {descriptions, description, encode, show_tree} from "./format.js"
+import {descriptions, description, encode, show_tree, render_ansi} from "./format.js"
 import {BrowserError, BrowserManager, Value, Failure} from "./browser.js"
 import {TestDiscovery, type TestCase, type TestStatus} from "./discovery.js"
 import {MetricsCollector} from "./metrics.js"
@@ -119,14 +119,14 @@ async function restore_baseline_files(checkpoint: BaselineFilesCheckpoint | null
   }
 }
 
-function format_output(test_case: TestCase): string | null {
+function format_output(test_case: TestCase, color?: boolean): string | null {
   const [suites, test, status] = test_case
 
   if ((status.failure ?? false) || (status.timeout ?? false)) {
     const output = show_tree(suites, test)
 
     for (const error of status.errors) {
-      output.push(error)
+      output.push(render_ansi(error, color))
     }
 
     return output.join("\n")
@@ -385,7 +385,7 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
 
       function append_report_out(test_case: TestCase): void {
         if (out_stream != null) {
-          const output = format_output(test_case)
+          const output = format_output(test_case, false)
           if (output != null) {
             out_stream.write("\n")
             out_stream.write(output)
