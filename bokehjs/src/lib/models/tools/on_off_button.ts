@@ -1,25 +1,11 @@
 import {ToolButton, ToolButtonView} from "./tool_button"
-import * as tools from "styles/tool_button.css"
 import type * as p from "core/properties"
 
 export class OnOffButtonView extends ToolButtonView {
   declare model: OnOffButton
 
-  protected _toggle_active(): void {
-    this.class_list.toggle(tools.active, this.model.tool.active)
-  }
-
-  override connect_signals(): void {
-    super.connect_signals()
-    const {active} = this.model.tool.properties
-    this.on_change(active, () => {
-      this._toggle_active()
-    })
-  }
-
-  override render(): void {
-    super.render()
-    this._toggle_active()
+  protected override _is_active(): boolean {
+    return this._tool_state("active")
   }
 
   tap(): void {

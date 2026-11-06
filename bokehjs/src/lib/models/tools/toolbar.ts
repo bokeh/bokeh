@@ -117,9 +117,6 @@ export class ToolbarView extends UIElementView {
       prevent_hide: (event) => {
         return event.composedPath().includes(this._overflow_el)
       },
-      extra_styles: [
-        ".bk-hidden { display: none; }",
-      ],
     })
   }
 
@@ -267,6 +264,17 @@ export class ToolbarView extends UIElementView {
   }
 
   /**
+   * Notifies the toolbar that the DOM of a tool button was updated. Tool buttons
+   * are vDOM components, which update asynchronously, so this may happen after
+   * the toolbar already measured its contents.
+   */
+  button_updated(button_view: ToolButtonView): void {
+    if (this._bar_el != null && button_view.el.parentNode === this._bar_el) {
+      this._update_overflow()
+    }
+  }
+
+  /**
    * Notifies the toolbar that a tool button was activated (e.g. tapped). If it's
    * a button from the overflow menu, then the menu is closed, the same way it
    * would be when activating a regular menu item.
@@ -309,13 +317,15 @@ export class ToolbarView extends UIElementView {
     }
 
     this._bar_el = div({class: toolbars.bar})
-    this.shadow_el.append(this._bar_el, this._overflow_el)
 
-    for (const button_view of this._tool_button_views.values()) {
-      button_view.render()
-    }
-    for (const button_view of this._tool_button_menu_views.values()) {
-      button_view.render()
+    // Tool buttons are vDOM components, which have to be rendered into an attached
+    // node. This holds buttons of hidden tools and buttons of the overflow menu,
+    // the later until the menu is shown.
+    const holder_el = div({style: {display: "none"}})
+    this.shadow_el.append(this._bar_el, this._overflow_el, holder_el)
+
+    for (const button_view of [...this._tool_button_views.values(), ...this._tool_button_menu_views.values()]) {
+      button_view.render_to(holder_el)
     }
 
     const bars = this._tool_buttons.map((group) => {
@@ -368,10 +378,11 @@ export class ToolbarView extends UIElementView {
 
     const {horizontal} = this.model
 
-    // Clipped items aren't displayed, so reset them before measuring.
+    // Clipped items aren't displayed, so reset them before measuring. Use inline styles, because
+    // tool buttons are vDOM components, which manage their CSS classes.
     this.el.classList.remove(toolbars.overflows)
     for (const {bar_el} of this._items) {
-      bar_el.classList.remove(toolbars.clipped)
+      bar_el.style.display = ""
     }
 
     const measure = (): boolean[] => {
@@ -397,8 +408,8 @@ export class ToolbarView extends UIElementView {
 
     for (const [{bar_el, menu_el}, i] of enumerate(this._items)) {
       const overflow = overflows[i]
-      bar_el.classList.toggle(toolbars.clipped, overflow)
-      menu_el.classList.toggle(toolbars.hidden, !overflow)
+      bar_el.style.display = overflow ? "none" : ""
+      menu_el.style.display = overflow ? "" : "none"
     }
 
     if (this._overflow_menu.is_open) {
