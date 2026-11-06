@@ -9,6 +9,7 @@ import {ModelResolver} from "@bokehjs/core/resolvers"
 import {default_resolver} from "@bokehjs/base"
 import type * as p from "@bokehjs/core/properties"
 import {keys} from "@bokehjs/core/util/object"
+import {LegendItem} from "@bokehjs/models"
 
 class EmptyModel extends HasProps {}
 
@@ -513,6 +514,25 @@ describe("core/has_props module", () => {
 
       obj.foo = 1
       expect(changes).to.be.equal(0)
+    })
+  })
+
+  describe("property signals", () => {
+    it("should follow updates of plain properties", () => {
+      const obj = SubclassWithProps.create({foo: 1})
+      const {signal} = obj.properties.foo
+      expect(signal.value).to.be.equal(1)
+      obj.foo = 2
+      expect(signal.value).to.be.equal(2)
+    })
+
+    it("should follow updates of scalar and vector specs", () => {
+      const item = LegendItem.create({label: "foo"})
+      const {signal} = item.properties.label
+      expect(signal.value).to.be.equal({value: "foo"})
+      item.label = "bar"
+      expect(signal.value).to.be.equal({value: "bar"})
+      expect(item.properties.label.get_value()).to.be.equal({value: "bar"})
     })
   })
 })

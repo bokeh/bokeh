@@ -246,7 +246,7 @@ export abstract class Property<T = unknown> {
       }
       return this._signal
     } else {
-      throw new Error(`${this.obj}.${this.attr} is unset`)
+      throw new UnsetValueError(`${this} is unset`)
     }
   }
 
@@ -280,10 +280,18 @@ export abstract class Property<T = unknown> {
       }
     }
     this._value = attr_value
-    if (this._signal != null) {
+    this._sync_signal()
+    this.on_update?.(this._value, this.obj)
+  }
+
+  /**
+   * Propagates the current value to the preact signal, if it was created.
+   * Must be called by every implementation of `_update()`.
+   */
+  protected _sync_signal(): void {
+    if (this._signal != null && this._value !== unset) {
       this._signal.value = this._value
     }
-    this.on_update?.(this._value, this.obj)
   }
 
   to_full_string(): string {
@@ -344,7 +352,7 @@ export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Pro
     if (this._value !== unset) {
       return this._value
     } else {
-      throw new Error(`${this} is unset`)
+      throw new UnsetValueError(`${this} is unset`)
     }
   }
 
@@ -354,6 +362,7 @@ export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Pro
     } else {
       this._value = {value: attr_value} as any // Value<T>
     }
+    this._sync_signal()
 
     if (isPlainObject(this._value)) {
       const {_value} = this
@@ -454,7 +463,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
     if (this._value !== unset) {
       return this._value
     } else {
-      throw new Error(`${this} is unset`)
+      throw new UnsetValueError(`${this} is unset`)
     }
   }
 
@@ -464,6 +473,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
     } else {
       this._value = {value: attr_value} as any
     } // Value<T>
+    this._sync_signal()
 
     if (isPlainObject(this._value)) {
       const {_value} = this
@@ -642,7 +652,7 @@ export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vect
         delete this._value.units
       }
     } else {
-      throw new Error(`${this} is unset`)
+      throw new UnsetValueError(`${this} is unset`)
     }
   }
 }
