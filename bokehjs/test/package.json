@@ -27,6 +27,7 @@
     "cors": "^2.8.5",
     "diff": "^8.0.3",
     "express": "^4.22.3",
+    "express-rate-limit": "^8.7.1",
     "json5": "^2.2.3",
     "nunjucks": "^3.2.4",
     "path-browserify": "^1.0.1",
