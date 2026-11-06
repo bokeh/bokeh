@@ -81,6 +81,11 @@ Removals
   ``.noUi-*`` classes must be updated to target the new slider elements
   (``.bk-track``, ``.bk-span``, ``.bk-handle`` and ``.bk-tooltip``).
 
+* Removed the BokehJS ``Bokeh.Charts`` API, including ``Bokeh.Charts.pie()``
+  and ``Bokeh.Charts.bar()``. Use ``Bokeh.Plotting`` instead, e.g.
+  ``fig.annular_wedge()`` or ``fig.wedge()`` for pie and donut charts, and
+  ``fig.hbar()`` or ``fig.vbar()`` for bar charts.
+
 API changes
 -----------
 
