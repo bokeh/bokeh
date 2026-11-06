@@ -9,6 +9,9 @@ import {entries} from "@bokehjs/core/util/object"
 import {unreachable} from "@bokehjs/core/util/assert"
 import {defer} from "@bokehjs/core/util/defer"
 import {BBox} from "@bokehjs/core/util/bbox"
+import {select_tests, type Filters, type FilterResult} from "./filters"
+
+export type {Filters, FilterResult} from "./filters"
 
 let ready: () => Promise<void> = defer
 export function set_ready(fn: () => Promise<void>): void {
@@ -45,6 +48,7 @@ export type Test = {
   scale?: number
   no_image?: boolean
   module?: string
+  omit?: boolean
 }
 
 export type Suite = {
@@ -198,7 +202,50 @@ function description(suites: Suite[], test: Test, sep: string = " "): string {
   return descriptions(suites, test).join(sep)
 }
 
-export async function run_all(query?: string | string[] | RegExp): Promise<void> {
+/**
+ * The name of the current test suite (e.g. `unit` for `/unit/run`), if known.
+ */
+function current_suite(): string | undefined {
+  if (typeof location == "undefined") {
+    return undefined
+  }
+  const [suite] = location.pathname.split("/").filter((segment) => segment.length != 0)
+  return suite
+}
+
+/**
+ * Marks tests not matching `filters` as omitted (`test.omit = true`).
+ * This is used by devtools, which then runs only selected tests.
+ */
+export function apply_filters(filters: Filters, suite: string | undefined = current_suite()): FilterResult {
+  const all_tests = [...iter_tests()]
+  const infos = all_tests.map(([parents, test]) => ({description: description(parents, test), module: test.module}))
+  const {selected, errors, warnings} = select_tests(infos, filters, suite)
+  for (const [i, [, test]] of all_tests.entries()) {
+    test.omit = !selected[i]
+  }
+  return {errors, warnings}
+}
+
+type Query = string | string[] | RegExp | Filters
+
+function to_filters(query?: Query): Filters {
+  if (query == null) {
+    return {}
+  } else if (isString(query)) {
+    return {keyword: [query]}
+  } else if (isArray(query)) {
+    return {keyword: query}
+  } else if (query instanceof RegExp) {
+    return {grep: [query.source]}
+  } else if (isPlainObject(query)) {
+    return query
+  } else {
+    unreachable()
+  }
+}
+
+export async function run_all(query?: Query): Promise<void> {
   const re = /^\s+at\s+/
   for await (const result of yield_all(query)) {
     const {error} = result
@@ -213,23 +260,20 @@ export async function run_all(query?: string | string[] | RegExp): Promise<void>
   }
 }
 
-export async function* yield_all(query?: string | string[] | RegExp): AsyncGenerator<PartialResult> {
-  const matches = ((): (desc: string) => boolean => {
-    if (query == null) {
-      return () => true
-    } else if (isString(query)) {
-      return (desc) => desc.includes(query)
-    } else if (isArray(query)) {
-      return (desc) => query.every((q) => desc.includes(q))
-    } else if (query instanceof RegExp) {
-      return (desc) => desc.match(query) != null
-    } else {
-      unreachable()
+export async function* yield_all(query?: Query): AsyncGenerator<PartialResult> {
+  const {errors, warnings} = apply_filters(to_filters(query))
+  for (const warning of warnings) {
+    console.warn(warning)
+  }
+  if (errors.length != 0) {
+    for (const error of errors) {
+      console.error(error)
     }
-  })()
+    return
+  }
 
   for (const [parents, test] of iter_tests()) {
-    if (test.skip || !matches(description(parents, test))) {
+    if (test.skip || test.omit === true) {
       continue
     }
 

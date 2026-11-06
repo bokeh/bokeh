@@ -20,7 +20,7 @@ export const argv = yargs(process.argv.slice(2)).help(false).options({
   executable: {type: "string", alias: "e"},
   debug: {type: "boolean", default: false},
   keyword: {type: "string", array: true, alias: "k"},
-  grep: {type: "string", array: true},
+  grep: {type: "string", array: true, alias: "g"},
   skip: {type: "string", array: true},
   file: {type: "string", array: true, alias: "f"},
   ref: {type: "string"},

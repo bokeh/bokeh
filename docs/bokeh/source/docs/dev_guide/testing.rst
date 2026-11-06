@@ -536,7 +536,7 @@ the ``bokehjs`` subdirectory:
 
 Omit ``BOKEH_CHROME`` to use Playwright-managed Chromium. The native run reads
 and writes
-``bokehjs/test/baselines/linux`` and accepts the same ``-k``, ``--grep`` and
+``bokehjs/test/baselines/linux`` and accepts the same ``-k``, ``-g`` and
 ``-f`` test filters as the containerized run. This is a convenient path for fast iteration
 on Linux, but it is not the canonical baseline environment: the host's browser,
 fonts, system libraries, and rendering stack can all affect pixels. Confirm any
@@ -620,9 +620,12 @@ search string to the strings defined in the tests' ``describe()`` and
 
 This will only run integration tests that contain the string "Legend".
 
+To match test descriptions with a regular expression instead, use the ``-g``
+(or ``--grep``) argument, e.g. ``-g "^Legend.*title"``.
+
 You can also select unit and integration tests by the files they are defined
-in. Use the ``-f`` (or ``--file``) argument to supply a file name or a glob pattern. Paths are
-relative to the test suite's directory, e.g. ``bokehjs/test/unit`` for unit
+in. Use the ``-f`` (or ``--file``) argument to supply a file name or a glob
+pattern. Paths are relative to the test suite's directory, e.g. ``bokehjs/test/unit`` for unit
 tests, and the file extension is optional. For example:
 
 .. code-block:: sh
@@ -652,7 +655,7 @@ doesn't expand them. A pattern that doesn't match any test files is an error.
 
 When an argument is used multiple times, a test is selected if it matches
 any of the values, e.g. ``-f A -f B`` selects tests from either ``A`` or ``B``.
-The same applies to ``-k`` and ``--grep``. When different arguments are
+The same applies to ``-k`` and ``-g``. When different arguments are
 combined, a test must match all of them, e.g. ``-f A -k "Legend"`` selects
 tests from ``A`` that contain the string "Legend".
 
@@ -747,8 +750,13 @@ Initiate test runs
             :alt: Screenshot of devtool displaying various plots as a result of
                 running integration tests.
 
-To only run or view specific tests, append ``?k=some%20text`` to the URL. This
-will filter tests by keyword.
+To only run specific tests, append ``k``, ``g`` or ``f`` query parameters
+to the URL. They work the same way as the ``-k``, ``-g`` and ``-f`` command
+line arguments, including when combined or used multiple times. For example,
+``/unit/run?f=core/util/array&k=linspace`` runs tests from
+``bokehjs/test/unit/core/util/array.ts`` that contain the string "linspace".
+Errors, like a file pattern that doesn't match any test files, are reported in
+the browser's console.
 
 To only run or view tests for a specific platform, append either
 ``platform=linux``, ``platform=macos``, or ``platform=windows`` to the URL.

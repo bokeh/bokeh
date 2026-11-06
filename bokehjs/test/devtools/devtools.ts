@@ -8,7 +8,7 @@ import {Bar, Presets} from "cli-progress"
 
 import {load_baselines} from "./baselines.js"
 import {platform} from "./sys.js"
-import type {Suite, TestRunContext, ScreenshotMode} from "./types.js"
+import type {Suite, TestRunContext, ScreenshotMode, FilterResult} from "./types.js"
 import {Exit} from "./types.js"
 import {descriptions, description, encode, show_tree} from "./format.js"
 import {BrowserError, BrowserManager, Value, Failure} from "./browser.js"
@@ -44,7 +44,7 @@ const argv = yargs(process.argv.slice(2)).options({
   seed: {type: "number", default: Date.now()},
   pedantic: {type: "boolean", default: false},
   keyword: {type: "string", array: true, demandOption: false, alias: "k"},
-  grep: {type: "string", array: true, demandOption: false},
+  grep: {type: "string", array: true, demandOption: false, alias: "g"},
   skip: {type: "string", array: true, demandOption: false},
   file: {type: "string", array: true, demandOption: false, alias: "f"},
   "baselines-root": {type: "string", demandOption: false},
@@ -190,6 +190,19 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
         throw new Exit(code)
       }
 
+      const filters = {keyword, grep, file}
+      const filter_result = await browser.evaluate<FilterResult>(`Tests.apply_filters(${JSON.stringify(filters)})`)
+      if (!(filter_result instanceof Value)) {
+        const reason = filter_result instanceof Failure ? filter_result.text : "timeout"
+        fail(`internal error: failed to apply test filters: ${reason}`)
+      }
+      for (const warning of filter_result.value.warnings) {
+        console.log(`${chalk.yellow("warning")}: ${warning}`)
+      }
+      if (filter_result.value.errors.length != 0) {
+        fail(filter_result.value.errors.map((error) => `${chalk.red("error")}: ${error}`).join("\n"))
+      }
+
       const result = await browser.evaluate<Suite>("Tests.top_level")
       if (!(result instanceof Value)) {
         const reason = result instanceof Failure ? result.text : "timeout"
@@ -219,15 +232,7 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
         fail("one or more test descriptions use invalid characters")
       }
 
-      // e.g. http://localhost:5777/unit?dev=false -> unit
-      const suite = url.startsWith("http") ? new URL(url).pathname.replace(/^\//, "") : undefined
-      const filter_result = discovery.apply_filters(keyword, grep, skip, file, suite)
-      for (const warning of filter_result.warnings) {
-        console.log(`${chalk.yellow("warning")}: ${warning}`)
-      }
-      if (filter_result.errors.length != 0) {
-        fail(filter_result.errors.map((error) => `${chalk.red("error")}: ${error}`).join("\n"))
-      }
+      discovery.apply_filters(skip)
 
       const all_tests = discovery.get_all_tests()
       const selected_tests = discovery.get_selected_tests()
