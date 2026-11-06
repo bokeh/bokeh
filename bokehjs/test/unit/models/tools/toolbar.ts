@@ -353,8 +353,7 @@ describe("ToolbarView", () => {
     it("should not show inspect tools if toggleable=false", async () => {
       const hover = HoverTool.create({toggleable: false})
       const tb = Toolbar.create({tools: [hover]})
-      const tbv = await build_view(tb, {parent: null})
-      tbv.render()
+      const {view: tbv} = await display(tb, [300, 300])
 
       expect(hover.visible).to.be.false
       expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.true
@@ -363,8 +362,7 @@ describe("ToolbarView", () => {
     it("should show inspect tools if toggleable=true", async () => {
       const hover = HoverTool.create({toggleable: true})
       const tb = Toolbar.create({tools: [hover]})
-      const tbv = await build_view(tb, {parent: null})
-      tbv.render()
+      const {view: tbv} = await display(tb, [300, 300])
 
       expect(hover.visible).to.be.true
       expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.false
@@ -373,8 +371,7 @@ describe("ToolbarView", () => {
     it("should show inspect tools if toggleable is not set", async () => {
       const hover = HoverTool.create()
       const tb = Toolbar.create({tools: [hover]})
-      const tbv = await build_view(tb, {parent: null})
-      tbv.render()
+      const {view: tbv} = await display(tb, [300, 300])
 
       expect(hover.visible).to.be.true
       expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.false
@@ -448,8 +445,7 @@ describe("ToolbarView", () => {
       const hover = HoverTool.create({visible: false})
 
       const tb = Toolbar.create({tools: [pan, tap, hover]})
-      const tbv = await build_view(tb, {parent: null})
-      tbv.render()
+      const {view: tbv} = await display(tb, [300, 300])
 
       expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.true
       expect(tbv.tool_button_views[1].class_list.has(tb_css.hidden)).to.be.false
@@ -462,8 +458,7 @@ describe("ToolbarView", () => {
       const hover = HoverTool.create()
 
       const tb = Toolbar.create({tools: [pan, tap, hover]})
-      const tbv = await build_view(tb, {parent: null})
-      tbv.render()
+      const {view: tbv} = await display(tb, [300, 300])
 
       expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.false
       expect(tbv.tool_button_views[1].class_list.has(tb_css.hidden)).to.be.false
@@ -476,8 +471,7 @@ describe("ToolbarView", () => {
       const hover = HoverTool.create({visible: false})
 
       const tb = Toolbar.create({tools: [pan, tap, hover]})
-      const tbv = await build_view(tb, {parent: null})
-      tbv.render()
+      const {view: tbv} = await display(tb, [300, 300])
 
       expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.true
       expect(tbv.tool_button_views[1].class_list.has(tb_css.hidden)).to.be.true
@@ -487,8 +481,7 @@ describe("ToolbarView", () => {
     it("should properly show tools after changing visibility", async () => {
       const hover = HoverTool.create()
       const tb = Toolbar.create({tools: [hover]})
-      const tbv = await build_view(tb, {parent: null})
-      tbv.render()
+      const {view: tbv} = await display(tb, [300, 300])
 
       expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.false
 
@@ -959,6 +952,62 @@ describe("ToolbarView's overflow menu", () => {
     toolbar.location = "left"
     await view.ready
     expect(view.overflow_menu.orientation).to.be.equal("horizontal")
+  })
+})
+
+describe("ToolbarView's vDOM component", () => {
+  it("should follow toolbar's location and inner attributes", async () => {
+    const toolbar = Toolbar.create({tools: [PanTool.create()], location: "above"})
+    const {view} = await display(toolbar, [300, 300])
+    expect(view.el.classList.contains(toolbar_css.above)).to.be.true
+    expect(view.el.classList.contains(toolbar_css.inner)).to.be.false
+
+    toolbar.location = "left"
+    toolbar.inner = true
+    await view.ready
+    expect(view.el.classList.contains(toolbar_css.above)).to.be.false
+    expect(view.el.classList.contains(toolbar_css.left)).to.be.true
+    expect(view.el.classList.contains(toolbar_css.inner)).to.be.true
+  })
+
+  it("should update dividers when tools' visibility changes", async () => {
+    const pan = PanTool.create()
+    const tap = TapTool.create()
+    const toolbar = Toolbar.create({tools: [pan, tap], location: "above"})
+    const {view} = await display(toolbar, [300, 300])
+    const dividers = () => view.shadow_el.querySelectorAll(`.${toolbar_css.bar} .${toolbar_css.divider}`).length
+    expect(dividers()).to.be.equal(1)
+
+    tap.visible = false
+    await view.ready
+    expect(dividers()).to.be.equal(0)
+
+    tap.visible = true
+    await view.ready
+    expect(dividers()).to.be.equal(1)
+  })
+
+  it("should keep items of the open overflow menu when re-rendering", async () => {
+    const p = fig([200, 200], {tools: "pan,box_zoom,undo,redo,reset,crosshair,examine", toolbar_location: "above"})
+    p.scatter([0, 5, 10], [0, 5, 10])
+    const {view} = await display(p)
+
+    const toolbar_view = view.owner.get_one(p.toolbar)
+    const examine = p.toolbar.tools.find((tool) => tool instanceof ExamineTool)
+    expect_not_null(examine)
+    const button_view = toolbar_view.tool_button_menu_views.find((view) => view.model.tool == examine)
+    expect_not_null(button_view)
+
+    toolbar_view.toggle_menu()
+    const {overflow_menu} = toolbar_view
+    expect(overflow_menu.is_open).to.be.true
+    expect(button_view.el.getRootNode()).to.be.equal(overflow_menu.shadow_el)
+
+    p.toolbar.inner = true
+    await view.ready
+
+    expect(overflow_menu.is_open).to.be.true
+    expect(button_view.el.getRootNode()).to.be.equal(overflow_menu.shadow_el)
   })
 })
 
