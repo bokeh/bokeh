@@ -46,6 +46,7 @@ const argv = yargs(process.argv.slice(2)).options({
   keyword: {type: "string", array: true, demandOption: false, alias: "k"},
   grep: {type: "string", array: true, demandOption: false},
   skip: {type: "string", array: true, demandOption: false},
+  file: {type: "string", array: true, demandOption: false, alias: "f"},
   "baselines-root": {type: "string", demandOption: false},
   screenshot: {type: "string", choices: ["test", "save", "skip"] as const, default: "test"},
   "test-timeout": {type: "number", demandOption: false},
@@ -53,7 +54,7 @@ const argv = yargs(process.argv.slice(2)).options({
   info: {type: "boolean", default: false},
 }).parseSync()
 
-const {executable, ref, randomize, seed, pedantic, keyword, grep, skip, screenshot, retry, info} = argv as typeof argv & {screenshot: ScreenshotMode}
+const {executable, ref, randomize, seed, pedantic, keyword, grep, skip, file, screenshot, retry, info} = argv as typeof argv & {screenshot: ScreenshotMode}
 const url = argv._[0] as string | undefined ?? "about:blank"
 const MAX_BROWSER_RESTARTS = 2
 const MAX_BROWSER_LAUNCH_ATTEMPTS = 3
@@ -218,7 +219,15 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
         fail("one or more test descriptions use invalid characters")
       }
 
-      discovery.apply_filters(keyword, grep, skip)
+      // e.g. http://localhost:5777/unit?dev=false -> unit
+      const suite = url.startsWith("http") ? new URL(url).pathname.replace(/^\//, "") : undefined
+      const filter_result = discovery.apply_filters(keyword, grep, skip, file, suite)
+      for (const warning of filter_result.warnings) {
+        console.log(`${chalk.yellow("warning")}: ${warning}`)
+      }
+      if (filter_result.errors.length != 0) {
+        fail(filter_result.errors.map((error) => `${chalk.red("error")}: ${error}`).join("\n"))
+      }
 
       const all_tests = discovery.get_all_tests()
       const selected_tests = discovery.get_selected_tests()

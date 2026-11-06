@@ -34,7 +34,8 @@ export function remove_use_strict() {
   }
 }
 
-export function collect_imports(imports: Set<string>) {
+export function collect_imports(imports: Set<string>, options: {requires?: boolean} = {}) {
+  const {requires = false} = options
   return (context: ts.TransformationContext) => (root: ts.SourceFile): ts.SourceFile => {
     function visit(node: ts.Node): ts.Node {
       if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) {
@@ -42,7 +43,7 @@ export function collect_imports(imports: Set<string>) {
         if (name != null && ts.isStringLiteral(name) && name.text.length != 0) {
           imports.add(name.text)
         }
-      } else if (isImportCall(node)) {
+      } else if (isImportCall(node) || (requires && is_require(node))) {
         const [name] = node.arguments
         if (ts.isStringLiteral(name) && name.text.length != 0) {
           imports.add(name.text)

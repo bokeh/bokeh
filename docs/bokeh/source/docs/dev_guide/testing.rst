@@ -536,8 +536,8 @@ the ``bokehjs`` subdirectory:
 
 Omit ``BOKEH_CHROME`` to use Playwright-managed Chromium. The native run reads
 and writes
-``bokehjs/test/baselines/linux`` and accepts the same ``-k`` and ``--grep`` test
-filters as the containerized run. This is a convenient path for fast iteration
+``bokehjs/test/baselines/linux`` and accepts the same ``-k``, ``--grep`` and
+``-f`` test filters as the containerized run. This is a convenient path for fast iteration
 on Linux, but it is not the canonical baseline environment: the host's browser,
 fonts, system libraries, and rendering stack can all affect pixels. Confirm any
 new or updated baselines with ``node make baseline-test`` before accepting them.
@@ -619,6 +619,42 @@ search string to the strings defined in the tests' ``describe()`` and
     node make test:integration -k "Legend"
 
 This will only run integration tests that contain the string "Legend".
+
+You can also select unit and integration tests by the files they are defined
+in. Use the ``-f`` (or ``--file``) argument to supply a file name or a glob pattern. Paths are
+relative to the test suite's directory, e.g. ``bokehjs/test/unit`` for unit
+tests, and the file extension is optional. For example:
+
+.. code-block:: sh
+
+    node make test:unit -f core/util/array
+    node make test:unit -f "models/glyphs/*" -f core/util
+    node make test:integration -f regressions -k "Legend"
+
+Patterns follow rules similar to ``.gitignore`` files:
+
+* ``*`` matches any characters except ``/``, ``**`` matches any characters
+  including ``/``, ``?`` matches a single character except ``/``, ``[abc]``
+  matches one of the listed characters, and ``{a,b}`` matches any of the
+  comma-separated alternatives.
+* A pattern without ``/`` matches file or directory names at any depth, e.g.
+  ``-f "*arr*"`` selects ``core/util/array.ts``, ``core/util/ndarray.ts``, etc.
+* A pattern with ``/`` is anchored at the root of the test suite, e.g.
+  ``-f core/util/array`` selects only ``bokehjs/test/unit/core/util/array.ts``.
+* A pattern that names a directory selects all files under it, e.g.
+  ``-f core/util``.
+* Paths like ``test/unit/core/util/array.ts`` or
+  ``bokehjs/test/unit/core/util/array.ts`` are accepted as well, so you can
+  use paths completed by your shell.
+
+Quote patterns containing ``*``, ``?``, ``[`` or ``{``, so that your shell
+doesn't expand them. A pattern that doesn't match any test files is an error.
+
+When an argument is used multiple times, a test is selected if it matches
+any of the values, e.g. ``-f A -f B`` selects tests from either ``A`` or ``B``.
+The same applies to ``-k`` and ``--grep``. When different arguments are
+combined, a test must match all of them, e.g. ``-f A -k "Legend"`` selects
+tests from ``A`` that contain the string "Legend".
 
 .. note::
     BokehJS Unit and integration tests require a recent version of Chrome or

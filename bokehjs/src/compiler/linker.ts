@@ -840,7 +840,8 @@ export ${export_type} yaml;
         }
 
         const transform: {before: Transformers, after: Transformers} = {
-          before: [transforms.collect_imports(imports)],
+          // `require()` calls are allowed in ESM modules under the primary base only (e.g. test's `auto_index`)
+          before: [transforms.collect_imports(imports, {requires: base == this.bases[0]})],
           after: [],
         }
 
