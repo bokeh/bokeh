@@ -72,7 +72,7 @@ export class SubsetIndexMapper {
     const structural = isObject(value)
     for (let i = 0; i < this.size_subset; i++) {
       const item = get_array_item(array, this.subset_to_superset[i])
-      const matches = structural || isObject(item) ? cmp.eq(item, value) : item === value || Object.is(item, value)
+      const matches = (structural || isObject(item)) ? cmp.eq(item, value) : (item === value || Object.is(item, value))
       if (matches) {
         return i
       }
