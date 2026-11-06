@@ -355,8 +355,13 @@ async function tsc(name: string) {
 }
 
 async function auto_index(name: string): Promise<void> {
+  const src_dir = join(paths.src_dir.test, name)
   const build_dir = join(paths.build_dir.test, name)
-  const files = await glob(join(build_dir, "/**/*.js").replace(/\\/g, "/"))
+
+  // Discover test modules from sources, not from compiled outputs, because
+  // `tsc` doesn't remove outputs of deleted sources, which would be loaded
+  // as stale tests otherwise.
+  const files = await glob("**/*.{ts,tsx}", {cwd: src_dir, ignore: "**/*.d.ts", posix: true})
 
   // Test modules are loaded with `require()` (not hoisted `import`s), so that
   // the framework knows which module registers which tests (see `--file`).
@@ -364,9 +369,9 @@ async function auto_index(name: string): Promise<void> {
   for (const file of files) {
     const ext = extname(file)
     const name = basename(file, ext)
-    if (!name.startsWith("_") && !name.endsWith(".d") && name != "index" && name != "auto_index") {
-      const dir = dirname(file).replace(build_dir, "").replace(/^\//, "").replace(/\\/g, "/")
-      const module_name = dir == "" ? name : `${dir}/${name}`
+    if (!name.startsWith("_") && name != "index" && name != "auto_index") {
+      const dir = dirname(file)
+      const module_name = dir == "." ? name : `${dir}/${name}`
       imports.push(`load_module("${module_name}", () => require("./${module_name}"))`)
     }
   }
