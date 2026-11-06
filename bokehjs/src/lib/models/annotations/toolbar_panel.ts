@@ -139,7 +139,7 @@ export class ToolbarPanelView extends AnnotationView {
   protected _button_size(): Size {
     // Prefer a rendered button: its computed size reflects the actual layout
     // and avoids creating a probe element on every layout pass.
-    const button_view = this.toolbar_view.tool_button_views.find((view) => view.el.isConnected)
+    const button_view = this.toolbar_view.tool_button_views.find((view) => view.el.isConnected && view.el.checkVisibility())
     if (button_view != null) {
       const style = getComputedStyle(button_view.el)
       const width = to_px(style.width)
