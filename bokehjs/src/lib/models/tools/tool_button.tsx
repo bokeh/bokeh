@@ -23,29 +23,10 @@ import {useLayoutEffect} from "preact/hooks"
 
 import type {ToolbarView} from "./toolbar"
 
-type ToolLike = Tool | ToolProxy<Tool>
-
-/**
- * Read signals of properties that derived attributes of a tool depend on
- * (e.g. `computed_icon` or `tooltip`), including tools proxied by tool
- * proxies, so that the calling computation updates when they change.
- */
-function track_tool(tool: ToolLike): void {
-  if (tool instanceof ToolProxy) {
-    for (const proxied of tool.properties.tools.signal.value) {
-      track_tool(proxied)
-    }
-  } else {
-    const {icon, label, description} = tool.properties
-    void icon.signal.value
-    void label.signal.value
-    void description.signal.value
-  }
-}
-
 export abstract class ToolButtonView extends UIElementView {
   declare model: ToolButton
   declare readonly signals: p.SignalsOf<ToolButton.Props>
+  declare readonly values: ToolButton.Attrs
   declare readonly parent: ToolbarView
 
   protected _menu: ContextMenu
@@ -55,39 +36,18 @@ export abstract class ToolButtonView extends UIElementView {
     return this._menu
   }
 
-  /**
-   * The current tool. Reading it subscribes the calling computation to changes of `tool`.
-   */
-  protected get _tool(): ToolLike {
-    return this.signals.tool.value
-  }
-
-  /**
-   * The current tool, additionally subscribing the calling computation to changes
-   * of properties that the tool's derived attributes depend on.
-   */
-  protected get _tracked_tool(): ToolLike {
-    const tool = this._tool
-    track_tool(tool)
-    return tool
-  }
-
-  protected _tool_state(name: "visible" | "active" | "disabled"): boolean {
-    return this._tool.properties[name].signal.value
-  }
-
-  readonly location = computed(() => this.parent.model.properties.location.signal.value)
-  readonly icon = computed(() => this.signals.icon.value ?? this._tracked_tool.computed_icon ?? null)
-  readonly tooltip = computed(() => this.signals.tooltip.value ?? this._tracked_tool.tooltip)
-  readonly visible = computed(() => this._tool_state("visible"))
-  readonly disabled = computed(() => this._tool_state("disabled"))
+  readonly location = computed(() => this.parent.model.location)
+  readonly icon = computed(() => this.values.icon ?? this.values.tool.computed_icon ?? null)
+  readonly tooltip = computed(() => this.values.tooltip ?? this.values.tool.tooltip)
+  readonly visible = computed(() => this.values.tool.visible)
+  readonly disabled = computed(() => this.values.tool.disabled)
   readonly active = computed(() => this._is_active())
-  readonly has_menu = computed(() => this._tracked_tool.menu != null)
+  readonly has_menu = computed(() => this.values.tool.menu != null)
 
   readonly count = computed(() => {
-    const tool = this._tool
-    if (tool instanceof ToolGroup && tool.properties.show_count.signal.value) {
-      return tool.properties.tools.signal.value.length
+    const {tool} = this.values
+    if (tool instanceof ToolGroup && tool.show_count) {
+      return tool.tools.length
     } else {
       return null
     }
