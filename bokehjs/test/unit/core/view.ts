@@ -9,6 +9,56 @@ import type * as p from "@bokehjs/core/properties"
 import {Ref, List} from "@bokehjs/core/kinds"
 import {defer} from "@bokehjs/core/util/defer"
 import {logger} from "@bokehjs/core/logging"
+import {display} from "#framework/layouts"
+import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
+import {UIComponent} from "@bokehjs/core/vdom"
+import type {VNode} from "@bokehjs/core/vdom"
+import {pending_render} from "@bokehjs/core/rendering"
+import {h} from "preact"
+
+class RenderingProbeView extends UIElementView {
+  declare model: RenderingProbe
+
+  done_for: number | null = null
+
+  override component(): VNode {
+    const {value} = this.model
+    if (value != 0) {
+      // A re-render scheduling further work, e.g. like a child view would.
+      this.schedule(async () => {
+        await defer()
+        this.done_for = value
+      })
+    }
+    return h(UIComponent, {parent: this.resolved_props}, h("span", {}, `${value}`)) as VNode
+  }
+}
+
+namespace RenderingProbe {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = UIElement.Props & {
+    value: p.Property<number>
+  }
+}
+
+interface RenderingProbe extends RenderingProbe.Attrs {}
+
+class RenderingProbe extends UIElement {
+  declare properties: RenderingProbe.Props
+  declare __view_type__: RenderingProbeView
+
+  constructor(attrs?: Partial<RenderingProbe.Attrs>) {
+    super(attrs)
+  }
+
+  static {
+    this.prototype.default_view = RenderingProbeView
+
+    this.define<RenderingProbe.Props>(({Float}) => ({
+      value: [ Float, 0 ],
+    }))
+  }
+}
 
 class SomeModelView extends View {
   declare model: SomeModel
@@ -679,5 +729,32 @@ describe("core/view", () => {
       expect(view4.children_views()).to.be.equal([view1, view2])
       expect(view5.children_views()).to.be.equal([view3, view4])
     })
+  })
+})
+
+describe("core/rendering module", () => {
+  it("should track pending renders of vDOM components", async () => {
+    const probe = RenderingProbe.create()
+    const {view} = await display(probe, [100, 100])
+    expect(pending_render()).to.be.null
+
+    probe.value = 1
+    const render = pending_render()
+    expect_not_null(render)
+    expect(view.shadow_el.textContent).to.be.equal("0")
+
+    await render
+    expect(pending_render()).to.be.null
+    expect(view.shadow_el.textContent).to.be.equal("1")
+  })
+
+  it("should allow ready to wait for tasks scheduled by pending renders", async () => {
+    const probe = RenderingProbe.create()
+    const {view} = await display(probe, [100, 100])
+
+    probe.value = 1
+    await view.ready
+    expect(view.shadow_el.textContent).to.be.equal("1")
+    expect(view.done_for).to.be.equal(1)
   })
 })

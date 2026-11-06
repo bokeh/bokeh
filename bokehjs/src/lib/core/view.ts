@@ -13,6 +13,7 @@ import {ViewManager, ViewQuery} from "./view_manager"
 import type {Equatable, Comparator} from "./util/eq"
 import {equals} from "./util/eq"
 import {logger} from "./logging"
+import {pending_render} from "./rendering"
 
 import type {Signal as PreactSignal} from "@preact/signals"
 
@@ -116,7 +117,9 @@ export abstract class View implements ISignalable, Equatable {
 
   /**
    * Resolves when this view and all its descendants have no outstanding
-   * asynchronous work, including tasks scheduled while waiting.
+   * asynchronous work, including tasks scheduled while waiting. This also
+   * includes pending re-renders of vDOM components (e.g. due to changes of
+   * signals), which may schedule further tasks.
    *
    * Rejects if any of these tasks failed while waiting, with the error, or an
    * `AggregateError` if there were more of them. Failures that happen while
@@ -144,6 +147,12 @@ export abstract class View implements ISignalable, Equatable {
 
   private _settle_ready(): void {
     if (this._pending_tasks.size != 0 || this._ready_waiters.length == 0) {
+      return
+    }
+    const render = pending_render()
+    if (render != null) {
+      // Pending renders aren't tied to any view, so wait for them and check again.
+      void render.then(() => this._settle_ready())
       return
     }
     const waiters = this._ready_waiters
