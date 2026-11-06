@@ -285,7 +285,18 @@ task("scripts:bundle", [passthrough("scripts:compile")], async () => {
     bases: [paths.build_dir.lib, "./node_modules"],
     cache: argv.cache ? join(paths.build_dir.js, "bokeh.json") : undefined,
     target: "ES2024",
-    exports: ["tslib"],
+    // Packages that other bundles (e.g. tests) can `require()` by name. Bundles
+    // that use preact must share bokehjs' instance of it, because preact keeps
+    // global state (e.g. hooks' and signals' current component or computation).
+    exports: [
+      "tslib",
+      "preact",
+      "preact/hooks",
+      "preact/compat",
+      "preact/jsx-runtime",
+      "@preact/signals",
+      "@preact/signals-core",
+    ],
     detect_cycles: argv.detectCycles,
     overrides: {
       // Script bundles register their own models when loaded. Keep npm's lazy

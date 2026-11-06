@@ -3,9 +3,12 @@ import {display} from "#framework/layouts"
 
 import {Model} from "@bokehjs/model"
 import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
-import {UIComponent, h} from "@bokehjs/core/vdom"
+import {UIComponent} from "@bokehjs/core/vdom"
 import type {VNode} from "@bokehjs/core/vdom"
 import * as p from "@bokehjs/core/properties"
+
+import {h} from "preact"
+import {computed} from "@preact/signals"
 
 namespace Source {
   export type Attrs = p.AttrsOf<Props>
@@ -139,5 +142,21 @@ describe("model getters", () => {
     source1.value = 11
     await view.ready
     expect(view.text).to.be.equal("11|22|-")
+  })
+
+  it("should register preact signals when accessed in computed signals", () => {
+    const source = Source.create({value: 1, label: "foo"})
+    const probe = Probe.create({source})
+    const text = computed(() => `${probe.source.doubled}|${(probe.source.label as {value: string}).value}`)
+    expect(text.value).to.be.equal("2|foo")
+
+    source.value = 2
+    expect(text.value).to.be.equal("4|foo")
+
+    source.label = "bar"
+    expect(text.value).to.be.equal("4|bar")
+
+    probe.source = Source.create({value: 10, label: "baz"})
+    expect(text.value).to.be.equal("20|baz")
   })
 })

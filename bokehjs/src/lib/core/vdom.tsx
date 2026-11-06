@@ -11,14 +11,6 @@ import {Component, render} from "preact"
 import {createPortal} from "preact/compat"
 
 export type {VNode, TargetedEvent} from "preact"
-/**
- * Re-exported so that code outside of bokehjs' library (e.g. unit tests) can
- * create vNodes with the same preact instance that bokehjs uses for rendering.
- * Importing `preact` directly there would bundle a separate copy of it, whose
- * vNodes (and hooks, signals integration, etc.) aren't compatible with bokehjs'
- * instance. Also, JSX outside of bokehjs' library doesn't compile to preact.
- */
-export {h} from "preact"
 
 export function is_SignalLike<T>(obj: Signalish<T>): obj is SignalLike<T> {
   return isPlainObject(obj) && "value" in obj
