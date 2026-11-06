@@ -1,5 +1,6 @@
 import {UIElement, UIElementView} from "../ui/ui_element"
 import {IconLike} from "../common/kinds"
+import {resolve_icon} from "../common/resolve"
 import {Tool} from "./tool"
 import {ToolProxy} from "./tool_proxy"
 import {ToolGroup} from "./tool_group"
@@ -9,8 +10,6 @@ import type {Keys} from "core/dom"
 import type {StyleSheetLike} from "core/stylesheets"
 import type {VNode, TargetedEvent} from "core/vdom"
 import {UIComponent, cls} from "core/vdom"
-import {ToolIcon} from "core/enums"
-import {logger} from "core/logging"
 import type {At} from "core/util/menus"
 import {ContextMenu} from "core/util/menus"
 import {reversed} from "core/util/array"
@@ -41,28 +40,6 @@ function track_tool(tool: ToolLike): void {
     void icon.signal.value
     void label.signal.value
     void description.signal.value
-  }
-}
-
-type ResolvedIcon = {class?: string, style?: {maskImage: string}}
-
-/**
- * Tool icons are masks (colored with `--icon-color`), unlike the generic `Icon` component.
- */
-function resolve_icon(icon: IconLike | null): ResolvedIcon {
-  if (icon == null) {
-    return {}
-  } else if (icon.startsWith("data:image")) {
-    return {style: {maskImage: `url("${encodeURI(icon)}")`}}
-  } else if (icon.startsWith("--")) {
-    return {style: {maskImage: `var(${icon})`}}
-  } else if (icon.startsWith(".")) {
-    return {class: icon.substring(1)}
-  } else if (ToolIcon.valid(icon)) {
-    return {class: `bk-tool-icon-${icon.replace(/_/g, "-")}`}
-  } else {
-    logger.warn(`unable to resolve icon: ${icon}`)
-    return {}
   }
 }
 
