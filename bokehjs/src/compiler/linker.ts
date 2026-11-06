@@ -830,7 +830,10 @@ export ${export_type} yaml;
             const reso = pkg.type == "module" || pkg.module != null ? "ESM" : "CJS"
             const entry = pkg.module ?? pkg.name
             const primary = entry != null && join(dir, entry) == join(base, path)
-            const name = canonicalize(primary ? basename(dir) : path)
+            // Use the package's path relative to the base (not just `basename(dir)`),
+            // so that scoped packages (`@preact/signals`) and subpackages
+            // (`preact/hooks`) get their full names.
+            const name = canonicalize(primary ? relative(base, dir) : path)
             const exported = this.exports.has(name)
             return [base, path, exported ? name : undefined, reso]
           } else {
