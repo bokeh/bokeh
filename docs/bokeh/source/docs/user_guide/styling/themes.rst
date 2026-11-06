@@ -116,146 +116,138 @@ buttons and menus and definition of a set of colors to handle components differe
 
 For font related customization Bokeh has:
 
-* ``--bokeh-base-font`` to allow setting a custom font to use
-* ``--bokeh-mono-font`` to allow setting a custom mono font to use
+* ``--bokeh-base-font`` to allow setting a custom font
+* ``--bokeh-mono-font`` to allow setting a custom mono font
 * ``--bokeh-font-size`` to allow setting a custom font size value
-* ``--base-font`` as the actual variable used for components that handles as fallback
-  values for font ``Helvetica``, ``Arial`` and ``sans-serif`` in case ``--bokeh-base-font``
-  has an invalid value
-* ``--mono-font`` as the actual variable used for components that handles as fallback
-  value for mono font ``monospace``in case ``--bokeh-mono-font`` has an invalid value
-* ``--font-size`` as the actual variable used for components that handles as fallback
-  mono font ``12px`` in case ``--bokeh-font-size`` has an invalid value
-* ``--font-weight`` as the font weight value (defaults to ``normal``)
-* ``--line-height`` as the line height constant value (defaults to ``calc(20 / 14)``)
-* ``--line-height-computed`` as computed value for line height which products
-  ``--font-size`` and ``--line-height``
+* ``--bokeh-font-weight`` to allow setting a custom font weight value
+* ``--bokeh-line-height`` to allow setting a custom line height value
 
-For colors related customization, which in their majority offer light and dark values
-following the document configuration ``color_scheme`` value as long as they are defined using
-the ``light-dark`` CSS function, Bokeh has:
+For colors related customization, which can be defined using the ``light-dark`` CSS function
+to follow the document configuration ``color_scheme``, Bokeh has:
 
-* ``--bokeh-icon-color`` to allow setting a custom icon color to use
-* ``--bokeh-icon-color-disabled`` to allow setting a custom icon disabled color to use
-* ``--color`` as the text color used in the majority of components
-* ``--background-color`` as the color used in the majority of components
-  for their background color
-* ``--hover-color`` as the color used in the majority of components for on hover elements
-  background color
-* ``--disabled-color`` as the color used in the majority of disabled components elements for
-  text and background color
-* ``--border-color`` as the color used in the majority of components borders
-* ``--divider-color`` as the divider color value used for components such as menus,
-  dropdowns, dialogs and the hover tool
-* ``--shortcut-color`` as the color value used for components such as dialogs and menus
+* ``--bokeh-color`` to allow setting a custom text color
+* ``--bokeh-background-color`` to allow setting a custom background color
+* ``--bokeh-hover-color`` as the color/background color used in the majority of components elements
+  when they are on hover
+* ``--bokeh-disabled-color`` to allow setting a custom color for disabled components elements
+* ``--bokeh-border-color`` to allow setting a custom color for components borders
+* ``--bokeh-divider-color`` to allow setting a custom color for components such as menus,
+  dropdowns, dialogs and the hover tool which use a divider element
+* ``--bokeh-shortcut-color`` to allow setting a custom color for components such as dialogs and menus
   to show shortcut related information
-* ``--highlight-color`` as the color value used to outline active/focused components elements
+* ``--bokeh-highlight-color`` to allow setting a custom color to outline active/focused components elements
   such as tabs, menu entries, tool buttons, sliders handles, etc
-* ``--active-bg`` and ``--active-background-color`` as the color value used for the background
-  color of active components such as switch, progress bars, and sliders
-* ``--active-border`` as the active border color value (TODO not being used anywhere? maybe
+* ``--bokeh-active-bg`` to allow setting a custom color for the background color of active components such
+  as switches, progress bars, and sliders
+* ``--bokeh-active-border`` to allow setting a custom color for the active border (TODO not being used anywhere? maybe
   remanent of accessibility changes?)
-* ``--active-fg`` as the color value used for components such as progress
-  bar and switch to show current/selected value
-* ``--inactive-bg`` as the color used for the background of elements of components such
-  as switch and progress bars when they are disabled (background for bar like elements)
-* ``--inactive-fg`` as the color value used for the background of elements of components such
-  as switch and progress bars when they are disabled (background for value bar and knob like
-  elements)
-* ``--icon-color`` as the actual variable used for icons that handles as fallback value
-  ``#colors[icon]``
-* ``--icon-color-disabled``: as the actual variable used for disabled icons color that
-  handles as fallback value ``#colors[icon-disabled]``
-* ``--error`` as the color used for the tabs close icon when hovered
-* ``--inverted-color`` as the color for when the background is dark regardless of color scheme
+* ``--bokeh-active-fg`` to allow setting a custom color for components such as progress
+  bar and switch related elements that show current/selected value
+* ``--bokeh-inactive-bg`` to allow setting a custom color for the background of elements of components such
+  as switch and progress bars when they are disabled (background for bar and knob like elements)
+* ``--bokeh-icon-color`` to allow setting a custom icon color
+* ``--bokeh-icon-color-disabled`` to allow setting a custom disabled icon color
+* ``--bokeh-error`` to allow setting a custom color for the tabs close icon when hovered
+* ``--bokeh-primary-text-color`` to allow setting a custom color for markdown rendered primary text
+* ``--bokeh-accent-text-color`` to allow setting a custom color for markdown rendered accent text
+* ``--bokeh-success-text-color`` to allow setting a custom color for markdown rendered accent text
+* ``--bokeh-warning-text-color`` to allow setting a custom color for markdown rendered warning text
+* ``--bokeh-error-text-color`` to allow setting a custom color for markdown rendered error text
+* ``--bokeh-inverted-color`` as the color for when the background is dark regardless of color scheme
   selected
-* ``--placeholder-color`` as the input placeholder element color
-* ``--surface-background-color`` used for input like components as well as sliders and dropdowns
+* ``--bokeh-placeholder-color`` to allow setting a custom color for input like components placeholder element
+* ``--bokeh-surface-background-color`` used for input like components as well as sliders and dropdowns
   elements background color
-* ``--disabled-background-color``
-* ``--input-focus-border-color``
-* ``--input-focus-halo-color``
+* ``--bokeh-disabled-background-color`` to allow setting a custom color for the majority of disabled components
+  background
+* ``--bokeh-input-focus-border-color``
+* ``--bokeh-input-focus-halo-color``
+
+For code blocks related customization when markdown is being rendered Bokeh has:
+
+* ``--bokeh-code-background-color``
+* ``--bokeh-code-color``
+* ``--bokeh-code-keyword-color``
+* ``--bokeh-code-string-color``
+* ``--bokeh-code-number-color``
+* ``--bokeh-code-title-color``
+* ``--bokeh-code-comment-color``
 
 For border related customization Bokeh has:
 
-* ``--border-radius``
-* ``--border-top-left-radius`` (equal to ``--border-radius``)
-* ``--border-top-right-radius`` (equal to ``--border-radius``)
-* ``--border-bottom-left-radius`` (equal to ``--border-radius``)
-* ``--border-bottom-right-radius`` (equal to ``--border-radius``)
-* ``--border-style``
-* ``--border-width``
-* ``--border`` as the value for the border property using ``--border-color``, ``--border-style`` and
-  ``--border-width``
+* ``--bokeh-border-radius``
+* ``--bokeh-border-style``
+* ``--bokeh-border-width``
+* ``--bokeh-border`` to allow setting a custom value for an otherwise predefined border that uses
+  ``--bokeh-border-color``, ``--bokeh-border-style`` and ``--bokeh-border-width``
 
-For the box-shadow property customization (mainly used for button and menu like widgets), Bokeh has:
+For the box-shadow property customization (mainly used for button and menu like widgets and panes), Bokeh has:
 
-* ``--box-shadow-color``
-* ``--box-shadow-inset`` as predefined inset box shadow definition using ``--box-shadow-color`` as color
-* ``--box-shadow-x-symmetric`` as a predefined x-axis symetric box shadow definition using
-  ``--box-shadow-color`` as color
-* ``--box-shadow`` as a box shadow definition using ``--box-shadow-color`` as color
+* ``--bokeh-box-shadow-color`` to allow setting a custom color for the box-shadow related property mainly
+  used by menus and drawers
+* ``--bokeh-box-shadow-inset`` to allow setting a custom value for an otherwise predefined inset box shadow definition
+  that uses ``--bokeh-box-shadow-color`` as color
+* ``--bokeh-box-shadow-x-symmetric`` to allow setting a custom value for an otherwise predefined x-axis symetric
+  box shadow definition that uses ``--bokeh-box-shadow-color`` as color
+* ``--bokeh-box-shadow`` to allow setting a custom box shadow definition which otherwise uses ``--box-shadow-color``
+  as color
 
 For outline property customization Bokeh has:
 
-* ``--outline-color``
-* ``--outline-style``
-* ``--outline-width``
-* ``--outline-offset``
-* ``--outline`` as a predifined outline using ``--outline-color``, ``--outline-style`` and ``--outline-width``
+* ``--bokeh-outline-color``
+* ``--bokeh-outline-style``
+* ``--bokeh-outline-width``
+* ``--bokeh-outline-offset``
+* ``--bokeh-outline`` to allow setting a custom outline which otherwise uses ``--outline-color``, ``--outline-style``
+  and ``--outline-width``
 
 For tools (tool buttons and toolbar) Bokeh has:
 
-* ``--bokeh-tool-button-width`` as a way to define tool buttons width
-* ``--bokeh-tool-button-height`` as a way to define tool buttons height
-* ``--bokeh-toolbar-divider-color`` as a way to define toolbar divider border color
-* ``--active-tool-border-color``
-* ``--active-tool-background``
-* ``--button-width`` as the actual value for tool buttons width using ``--bokeh-tool-button-width``
-  if it is defined
-* ``--button-height`` as the actual value for tool buttons height using ``--bokeh-tool-button-height``
-  if it is defined
-* ``--button-color`` as the actual value for toolbar divider border color using ``--bokeh-toolbar-divider-color``
-  if it is defined
-* ``--disabled-tool-color``
+* ``--bokeh-active-tool-border-color``
+* ``--bokeh-active-tool-background``
+* ``--bokeh-tool-button-width``
+* ``--bokeh-tool-button-height``
+* ``--bokeh-toolbar-divider-color``
+* ``--bokeh-disabled-tool-color``
 
 For buttons colors (following the different buttons types and their properties and states) Bokeh has:
 
-* ``--default-color``
-* ``--default-border-color``
-* ``--default-hover-color``
-* ``--default-active-color``
-* ``--default-disabled-color``
-* ``--default-disabled-border-color``
-* ``--primary-color``
-* ``--primary-hover-color``
-* ``--primary-disabled-color``
-* ``--success-color``
-* ``--success-hover-color``
-* ``--success-disabled-color``
-* ``--warning-color``
-* ``--warning-hover-color``
-* ``--warning-disabled-color``
-* ``--danger-color``
-* ``--danger-hover-color``
-* ``--danger-disabled-color``
+* ``--bokeh-default-color``
+* ``--bokeh-default-border-color``
+* ``--bokeh-default-hover-color``
+* ``--bokeh-default-active-color``
+* ``--bokeh-default-disabled-color``
+* ``--bokeh-default-disabled-border-color``
+* ``--bokeh-primary-color``
+* ``--bokeh-primary-hover-color``
+* ``--bokeh-primary-disabled-color``
+* ``--bokeh-success-color``
+* ``--bokeh-success-hover-color``
+* ``--bokeh-success-disabled-color``
+* ``--bokeh-warning-color``
+* ``--bokeh-warning-hover-color``
+* ``--bokeh-warning-disabled-color``
+* ``--bokeh-danger-color``
+* ``--bokeh-danger-hover-color``
+* ``--bokeh-danger-disabled-color``
 
 For tooltip Bokeh has:
 
-* ``--tooltip-border-color``
+* ``--bokeh-tooltip-border-color``
 
 For menus Bokeh has:
 
-* ``--menu-item-hover-text-decoration``
+* ``--bokeh-menu-item-hover-text-decoration``
 
 Other variables:
 
 * ``--bokeh-top-level`` as the base value for the ``z-index`` property of several components
   like menus, dropdowns, etc.
-* ``--padding-vertical``
-* ``--padding-horizontal``
-* ``--divider-width``
-* ``--divider`` as a predefined border style that uses the ``--divider-color``
+* ``--bokeh-padding-vertical``
+* ``--bokeh-padding-horizontal``
+* ``--bokeh-divider-width``
+* ``--bokeh-divider`` to allow setting a custom style for borders used as divider which otherwise
+  uses the ``--bokeh-divider-color``
 
 Via the definition of a custom stylesheet a component then can modify this values to
 customize its appearance. Examples of this type of customization are available under
