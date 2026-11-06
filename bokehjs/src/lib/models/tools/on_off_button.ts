@@ -5,7 +5,7 @@ export class OnOffButtonView extends ToolButtonView {
   declare model: OnOffButton
 
   protected override _is_active(): boolean {
-    return this._tool_state("active")
+    return this.values.tool.active
   }
 
   tap(): void {
