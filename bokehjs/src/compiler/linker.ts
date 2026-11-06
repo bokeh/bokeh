@@ -439,6 +439,27 @@ export class Linker {
     return {bundles, status}
   }
 
+  /**
+   * Linker options that affect cached artifacts (e.g. which dependencies are
+   * external or how modules are named), so that a cache is discarded when they
+   * change. Otherwise, unchanged modules would keep stale resolutions.
+   */
+  protected get cache_config(): string {
+    return JSON.stringify({
+      bases: this.bases,
+      externals: [...this.external_modules].sort(),
+      external_regex: this.external_regex.map((re) => re.toString()),
+      exports: [...this.exports].sort(),
+      shims: [...this.shims].sort(),
+      import_map: this.import_map,
+      target: this.target,
+      es_modules: this.es_modules,
+      plugin: this.plugin,
+      overrides: [...this.overrides.entries()],
+      apply_transforms: this.apply_transforms,
+    })
+  }
+
   load_cache(): void {
     const {cache_path} = this
     if (cache_path == null || !file_exists(cache_path)) {
@@ -450,6 +471,11 @@ export class Linker {
     const json = JSON.parse(read(cache_path)!)
     if (json.version !== cache_version) {
       console.warn("ignoring cache due to format version mismatch")
+      return
+    }
+
+    if (json.config !== this.cache_config) {
+      console.warn("ignoring cache due to linker configuration change")
       return
     }
 
@@ -507,7 +533,7 @@ export class Linker {
       })
     }
 
-    const json = JSON.stringify({version: cache_version, artifacts})
+    const json = JSON.stringify({version: cache_version, config: this.cache_config, artifacts})
     write(this.cache_path, json)
   }
 
