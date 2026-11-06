@@ -24,8 +24,36 @@ from bokeh.core.serialization import (
 )
 from bokeh.document import Document
 from bokeh.document.events import ModelChangedEvent
+from bokeh.model import Debounce
 from bokeh.models import Selection
 from bokeh.protocol import patch_doc
+
+
+@pytest.mark.parametrize("attr", ["indices", "line_indices", "multiline_indices"])
+def test_binary_selection_preserves_callback_delivery_policy(attr: str) -> None:
+    selection = Selection()
+    calls = []
+    selection.on_change(attr, lambda attr, old, new: calls.append("immediate"))
+    selection.on_change(attr, lambda attr, old, new: calls.append("debounce"), policy=Debounce(1000))
+    doc = Document()
+    doc.add_root(selection)
+    events = []
+    doc.on_change(lambda event: events.append(event))
+    indices = list(range(300))
+    value = dict(type="map", entries=[[7, indices]]) if attr == "multiline_indices" else indices
+    for policy, wait in (("immediate", None), ("debounce", 1000)):
+        doc.apply_json_patch(dict(events=[dict(kind="ModelChanged", model=selection.ref,
+            attr=attr, new=value, callback_policy=[policy, wait])]))
+    assert calls == ["immediate", "debounce"]
+    assert len(events) == 2
+    for event, (policy, wait) in zip(events, (("immediate", None), ("debounce", 1000))):
+        assert event.new is getattr(selection, attr)
+        serializer = Serializer()
+        rep = serializer.encode(event)
+        assert rep["callback_policy"] == [policy, wait]
+        assert rep["new"]["type"] == ("selection_map_v1" if attr == "multiline_indices" else "selection_indices_v1")
+        assert len(serializer.buffers) == 1
+        assert len(serializer.buffers[0].to_bytes()) == 38
 
 
 @pytest.mark.parametrize("attr", ["indices", "line_indices", "multiline_indices"])
