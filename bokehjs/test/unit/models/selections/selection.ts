@@ -146,7 +146,7 @@ describe("Selection", () => {
       const output = Selection.create()
       const callback = CustomJS.create({args: {output}, code: "output.indices = cb_obj.indices.concat([42])"})
       await callback.compile()
-      const selection = Selection.create({js_property_callbacks: {"change:indices": [callback]}})
+      const selection = Selection.create({_js_property_callbacks: {"change:indices": [callback]}})
       const doc = new Document()
       doc.add_root(selection)
       apply(doc, selection._create_change_event("indices", [3, 1, 3]))

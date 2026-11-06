@@ -893,11 +893,10 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
                 if self.document is None:
                     invoke()
                 else:
-                    from ..document.events import ModelChangedEvent
-                    event = ModelChangedEvent(
-                        self.document, self, descriptor.name, physical_new,
-                        setter, invoke, policy,
+                    event = self._create_model_changed_event(
+                        self.document, descriptor.name, physical_new, setter, invoke,
                     )
+                    event.callback_policy = policy
                     self.document.callbacks.trigger_on_change(event)
 
     def references(self) -> set[Model]:
