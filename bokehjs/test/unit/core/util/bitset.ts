@@ -33,6 +33,19 @@ describe("core/util/bitset module", () => {
       expect([...bs2].length).to.be.equal(39)
     })
 
+    it("should distinguish a one-word initializer from an all-set flag", () => {
+      const words = new Uint32Array([1])
+      const bits = new BitSet(5, words)
+      expect([...bits]).to.be.equal([0])
+      words[0] = 2
+      expect([...bits]).to.be.equal([1])
+    })
+
+    it("should preserve a single low bit when cloning", () => {
+      const bits = BitSet.from_indices_array(5, [0])
+      expect([...bits.clone()]).to.be.equal([0])
+    })
+
     const bs0 = BitSet.from_indices(39, [0, 1, 15, 16, 31, 32, 33, 38])
     const bs1 = BitSet.from_indices(39, [1, 6, 15, 31, 32, 34, 35, 38])
 
