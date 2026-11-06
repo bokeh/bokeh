@@ -1,9 +1,6 @@
 import * as LinAlg from "./linalg"
 export {LinAlg}
 
-import * as Charts from "./charts"
-export {Charts}
-
 import * as Plotting from "./plotting"
 export {Plotting}
 
