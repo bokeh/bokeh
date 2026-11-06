@@ -264,9 +264,7 @@ class Spinner(NumericInput):
 
     '''
 
-    value_throttled = Readonly(Either(Null, Float, Int), help="""
-    Value reported at the end of interactions.
-    """)
+    _committed_callback_properties = frozenset({"value"})
 
     mode = Override(default="float")
 
@@ -280,8 +278,8 @@ class Spinner(NumericInput):
     """)
 
     wheel_wait = Either(Int, Float, default=100, help="""
-    Defines the debounce time in ms before updating `value_throttled` when the
-    mouse wheel is used to change the input.
+    Defines the debounce time in ms before committing a value changed with the
+    mouse wheel.
     """)
 
 @abstract

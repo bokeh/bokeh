@@ -14,6 +14,7 @@ from sklearn.preprocessing import StandardScaler
 
 from bokeh.io import curdoc
 from bokeh.layouts import column, row
+from bokeh.model import Committed
 from bokeh.models import ColumnDataSource, Select, Slider
 from bokeh.palettes import Spectral6
 from bokeh.plotting import figure
@@ -180,10 +181,10 @@ def update_samples_or_dataset(attrname, old, new):
     source.data = dict(colors=colors, x=X[:, 0], y=X[:, 1])
 
 algorithm_select.on_change('value', update_algorithm_or_clusters)
-clusters_slider.on_change('value_throttled', update_algorithm_or_clusters)
+clusters_slider.on_change('value', update_algorithm_or_clusters, policy=Committed())
 
 dataset_select.on_change('value', update_samples_or_dataset)
-samples_slider.on_change('value_throttled', update_samples_or_dataset)
+samples_slider.on_change('value', update_samples_or_dataset, policy=Committed())
 
 # set up layout
 selects = row(dataset_select, algorithm_select, width=420)

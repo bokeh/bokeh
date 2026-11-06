@@ -99,7 +99,7 @@ def test_model_members_separate_properties_and_methods() -> None:
     assert python_properties == ["document"]
     assert "apply_theme" in methods
     assert "properties_with_values" in methods
-    assert "js_event_callbacks" not in properties
+    assert "_js_event_callbacks" not in properties
 
 
 @pytest.mark.skipif(sys.flags.optimize >= 2, reason="requires docstrings, which -OO removes")
@@ -118,7 +118,7 @@ def test_model_members_support_global_exclusions() -> None:
 
     assert "name" not in properties
     assert "tags" not in properties
-    assert "js_event_callbacks" in properties
+    assert "_js_event_callbacks" not in properties
 
 
 def test_all_documented_model_members_are_classified() -> None:
@@ -223,12 +223,7 @@ def test_model_build_registers_inventory_members_and_template_dependencies(tmp_p
         "    'bokeh.sphinxext._internal.bokeh_model',\n"
         "]\n"
         "project = 'bokeh-model-test'\n"
-        "bokeh_model_excluded_members = [\n"
-        "    'greedy',\n"
-        "    'js_event_callbacks',\n"
-        "    'js_property_callbacks',\n"
-        "    'subscribed_events',\n"
-        "]\n",
+        "bokeh_model_excluded_members = ['greedy']\n",
         encoding="utf-8",
     )
     (source_dir / "index.rst").write_text(
@@ -266,7 +261,7 @@ def test_model_build_registers_inventory_members_and_template_dependencies(tmp_p
     assert "bokeh.models.BoxSelectTool.document" in inventory["py:property"]
     assert "bokeh.models.BoxSelectTool.apply_theme" in inventory["py:method"]
     assert "bokeh.models.BoxSelectTool.greedy" not in inventory["py:attribute"]
-    assert "bokeh.models.BoxSelectTool.js_event_callbacks" not in inventory["py:attribute"]
+    assert "bokeh.models.BoxSelectTool._js_event_callbacks" not in inventory["py:attribute"]
 
     local_toc = app.env.tocs["index"].astext()
     assert "continuous" in local_toc

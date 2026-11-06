@@ -17,6 +17,7 @@ except ImportError:
 
 from bokeh.io import curdoc
 from bokeh.layouts import column
+from bokeh.model import Throttle
 from bokeh.models import ColumnDataSource, Slider
 from bokeh.palettes import gray
 from bokeh.plotting import figure
@@ -45,7 +46,7 @@ def update(attr, old, new):
     source.data.update(image=[out])
 
 slider = Slider(title="Blur Factor", start=0, end=10, value=0)
-slider.on_change('value', update)
+slider.on_change('value', update, policy=Throttle(100))
 
 curdoc().add_root(column(p, slider))
 curdoc().title = "Image Blur"
