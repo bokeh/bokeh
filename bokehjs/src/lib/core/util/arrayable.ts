@@ -422,8 +422,8 @@ export const sorted_index = bisect_left
 
 /**
  * Counts samples of `data` in bins `(bin_edges[i], bin_edges[i+1]]`, where
- * samples below (or equal to) the first edge (and NaNs) fall into the first
- * bin and samples above the last edge fall into the last bin.
+ * samples below (or equal to) the first edge fall into the first bin and
+ * samples above the last edge fall into the last bin. NaNs are not counted.
  */
 export function bin_counts(data: Arrayable<number>, bin_edges: Arrayable<number>): Arrayable<number> {
   const nbins = bin_edges.length - 1
@@ -436,6 +436,9 @@ export function bin_counts(data: Arrayable<number>, bin_edges: Arrayable<number>
   if (!(isFinite(first) && isFinite(last) && first < last && isFinite(scale))) {
     for (let i = 0; i < data.length; i++) {
       const sample = data[i]
+      if (isNaN(sample)) {
+        continue
+      }
       const index = sorted_index(bin_edges, sample)
       const bin = clamp(index - 1, 0, nbins - 1)
       counts[bin] += 1
@@ -453,6 +456,9 @@ export function bin_counts(data: Arrayable<number>, bin_edges: Arrayable<number>
 
     let bin: number
     if (!(sample > first)) {
+      if (isNaN(sample)) {
+        continue
+      }
       bin = 0
     } else if (sample > last_inner) {
       bin = nbins - 1

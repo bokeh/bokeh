@@ -98,5 +98,26 @@ describe("EqHistColorMapper module", () => {
       scan_check(values, [1, 5.500137, 9.999519, 54.999382, 100], 4, false)
       scan_check(values, [1, 5.546049, 32.729042, 100], 4, true, 1)
     })
+
+    it("Should ignore NaNs", () => {
+      function scan(values: number[], attrs: Partial<EqHistColorMapper.Attrs> = {}) {
+        const palette = new Array(3).fill("red")
+        const color_mapper = EqHistColorMapper.create({palette, ...attrs})
+        return color_mapper.scan(values, palette.length)
+      }
+
+      const values = [1, 1.001, 2, 3, 3, 3]
+      const with_nans = [NaN, 1, NaN, 1.001, 2, NaN, 3, 3, 3, NaN]
+      expect(scan(with_nans)).to.be.equal(scan(values))
+      expect(scan(with_nans, {rescale_discrete_levels: true})).to.be.equal(scan(values, {rescale_discrete_levels: true}))
+      expect(scan(with_nans, {low: 0, high: 2})).to.be.equal(scan(values, {low: 0, high: 2}))
+    })
+
+    it("Should scan only NaNs using uniform binning", () => {
+      const palette = new Array(4).fill("red")
+      const color_mapper = EqHistColorMapper.create({palette, low: 0, high: 2})
+      const scan = color_mapper.scan([NaN, NaN, NaN], palette.length)
+      expect(scan).to.be.equal({min: 0, max: 2, binning: [0, 0.5, 1, 1.5, 2], force_low_cutoff: false})
+    })
   })
 })

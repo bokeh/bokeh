@@ -242,6 +242,9 @@ describe("core/util/arrayable module", () => {
       const nbins = bin_edges.length - 1
       const counts = new Array<number>(nbins).fill(0)
       for (const sample of Array.from(data)) {
+        if (isNaN(sample)) {
+          continue
+        }
         const index = arrayable.bisect_left(bin_edges, sample)
         counts[Math.min(Math.max(index - 1, 0), nbins - 1)] += 1
       }
@@ -265,7 +268,9 @@ describe("core/util/arrayable module", () => {
     })
 
     it("with special values", () => {
-      expect(arrayable.bin_counts([NaN, -Infinity, Infinity], [0, 1, 2])).to.be.equal([2, 1])
+      expect(arrayable.bin_counts([NaN, -Infinity, Infinity], [0, 1, 2])).to.be.equal([1, 1])
+      expect(arrayable.bin_counts([NaN, NaN], [0, 1, 2])).to.be.equal([0, 0])
+      expect(arrayable.bin_counts([NaN, 0, 2], [1, 1])).to.be.equal([2])
       check([NaN, -Infinity, Infinity, 0, 1, 2], linspace(0, 2, 11))
     })
 

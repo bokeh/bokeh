@@ -49,6 +49,11 @@ export class EqHistColorMapper extends ScanningColorMapper {
       }
     }
 
+    // There is no (non-NaN) data, so there is nothing to equalize
+    if (nhist == 0) {
+      return {min: low, max: high, binning: linspace(low, high, n+1), force_low_cutoff: false}
+    }
+
     // 2) Remove zeros, leaving extra element at beginning for rescale_discrete_levels
     const hist = new Array(nhist+1)
     const eq_bin_centers = new Array(nhist+1)
