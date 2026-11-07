@@ -654,16 +654,16 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   private _deferred: Map<string, unknown> | null = null
 
   /**
-   * Run `fn` and apply all property assignments made on this model within it
-   * (via setters or option-less `setv()`) as a single `setv()` call, i.e. with
-   * one round of change notifications and one document patch.
+   * Run `fn` with this model as its argument and apply all property assignments
+   * made on this model within it (via setters or option-less `setv()`) as a single
+   * `setv()` call, i.e. with one round of change notifications and one document patch.
    *
    * Reading a property within the block returns its pending value. Nested calls
    * are merged into the outermost one. If `fn` throws, pending changes are discarded.
    */
-  simultaneously<T>(fn: () => T, options: HasProps.SetOptions = {}): T {
+  simultaneously<T>(fn: (model: this) => T, options: HasProps.SetOptions = {}): T {
     if (this._deferred != null) {
-      return fn()
+      return fn(this)
     }
 
     const deferred = new Map<string, unknown>()
@@ -671,7 +671,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
     let result: T
     try {
-      result = fn()
+      result = fn(this)
     } finally {
       this._deferred = null
     }
