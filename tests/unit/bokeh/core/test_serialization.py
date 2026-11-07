@@ -62,7 +62,6 @@ from bokeh.document import Document
 from bokeh.model import Model
 from bokeh.models import ColumnDataSource, CustomJS
 from bokeh.util.dataclasses import NotRequired, Unspecified
-from bokeh.util.warnings import BokehUserWarning
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -255,7 +254,7 @@ class TestSerializer:
     def test_max_int(self) -> None:
         encoder = Serializer()
 
-        with pytest.warns(BokehUserWarning, match="out of range integer may result in loss of precision"):
+        with pytest.warns(UserWarning, match="out of range integer may result in loss of precision"):
             rep = encoder.encode(2**64)
 
         assert rep == 2.0**64
@@ -1274,7 +1273,7 @@ class TestDeserializer:
         rep = encoder.encode(val)
 
         decoder = Deserializer([val])
-        with pytest.warns(BokehUserWarning, match=f"reference already known '{val.id}'"):
+        with pytest.warns(UserWarning, match=f"reference already known '{val.id}'"):
             ret = decoder.deserialize(rep)
 
         assert ret == val

@@ -268,9 +268,9 @@ This is a backwards compatibility alias for the {self.aliased_name!r} property.
 """
 
     def _warn(self) -> None:
-        from ...util.deprecation import deprecated
+        from ...util.warnings import warn_deprecated
 
-        deprecated(self.alias.since, self.name, self.aliased_name, self.alias.extra)
+        warn_deprecated(self.name, self.aliased_name, since=self.alias.since, extra=self.alias.extra)
 
     @overload
     def __get__(self, obj: HasProps, owner: type[HasProps] | None) -> T: ...

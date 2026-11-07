@@ -15,7 +15,6 @@ from __future__ import annotations
 #-----------------------------------------------------------------------------
 import gc
 from types import MethodType
-from unittest.mock import MagicMock, patch
 from weakref import ref
 
 import pytest
@@ -52,7 +51,6 @@ from bokeh.core.property.vectorization import field, value
 from bokeh.core.serialization import Serializer
 from bokeh.model import Model
 from bokeh.settings import settings
-from bokeh.util.warnings import BokehUserWarning
 
 # Module under test
 import bokeh.core.has_props as hp # isort:skip
@@ -1017,19 +1015,13 @@ def test_HasProps_clone_with_unset_properties() -> None:
     assert obj1 is not obj0
     assert obj1.properties_with_values(include_defaults=False, include_undefined=True) == dict(f0=Undefined, f1=1, f2=2)
 
-@patch("warnings.warn")
-def test_HasProps_model_redefinition(mock_warn: MagicMock) -> None:
+def test_HasProps_model_redefinition() -> None:
     class Foo1(hp.HasProps):
         __qualified_model__ = "Foo"
 
-    class Foo2(hp.HasProps):
-        __qualified_model__ = "Foo"
-
-    assert mock_warn.called
-
-    msg, cls = mock_warn.call_args[0]
-    assert msg.startswith("Duplicate qualified model definition of 'Foo'.")
-    assert cls is BokehUserWarning
+    with pytest.warns(UserWarning, match="Duplicate qualified model definition of 'Foo'"):
+        class Foo2(hp.HasProps):
+            __qualified_model__ = "Foo"
 
 #-----------------------------------------------------------------------------
 # Private API

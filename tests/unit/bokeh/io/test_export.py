@@ -49,7 +49,6 @@ from bokeh.plotting import figure
 from bokeh.resources import Resources
 from bokeh.themes import Theme
 from bokeh.util.dependencies import is_installed
-from bokeh.util.warnings import BokehDeprecationWarning
 
 # Module under test
 import bokeh.io.browser as bib # isort:skip
@@ -68,7 +67,7 @@ _webdriver_params = [
 ]
 
 pytestmark = pytest.mark.filterwarnings(
-    "ignore:'Selenium export backend' was deprecated.*:bokeh.util.warnings.BokehDeprecationWarning",
+    "ignore:'Selenium export backend' was deprecated.*:DeprecationWarning",
 )
 
 if not _has_selenium and not _has_playwright:
@@ -607,7 +606,7 @@ def test_implicit_playwright_browser_across_execution_contexts__issues_15401_154
 class TestResolveBackend:
 
     def test_driver_forces_selenium(self) -> None:
-        with pytest.warns(BokehDeprecationWarning, match="Selenium export backend"):
+        with pytest.warns(DeprecationWarning, match="Selenium export backend"):
             assert bie._resolve_backend(driver="fake_driver", backend=None) is bie._selenium_backend
 
     @pytest.mark.skipif(not _has_playwright, reason="Playwright not installed")
@@ -616,7 +615,7 @@ class TestResolveBackend:
 
     def test_explicit_backend_param(self) -> None:
         assert bie._resolve_backend(driver=None, backend="playwright") is bie._playwright_backend
-        with pytest.warns(BokehDeprecationWarning, match="Selenium export backend"):
+        with pytest.warns(DeprecationWarning, match="Selenium export backend"):
             assert bie._resolve_backend(driver=None, backend="selenium") is bie._selenium_backend
 
     def test_auto_prefers_playwright(self, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -639,7 +638,7 @@ class TestResolveBackend:
         monkeypatch.setattr(bie, "settings", SimpleNamespace(export_backend=lambda: "auto"))
         monkeypatch.setattr(bie, "import_optional", import_optional)
 
-        with pytest.warns(BokehDeprecationWarning, match="Selenium export backend"):
+        with pytest.warns(DeprecationWarning, match="Selenium export backend"):
             assert bie._resolve_backend(driver=None, backend=None) is bie._selenium_backend
 
     def test_invalid_backend_raises(self) -> None:

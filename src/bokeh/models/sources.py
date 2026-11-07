@@ -119,12 +119,11 @@ class ColumnarDataSource(DataSource):
     """)
 
 def _cds_lengths_warning(_, __, data: dict[str, Any]) -> None:
-    from ..util.warnings import BokehUserWarning, warn
+    from ..util.warnings import warn
 
     current_lengths = ', '.join(sorted(str((k, len(v))) for k, v in data.items()))
     warn(
         f"ColumnDataSource's columns must be of the same length. Current lengths: {current_lengths}",
-        BokehUserWarning,
     )
 
 class ColumnDataSource(ColumnarDataSource):

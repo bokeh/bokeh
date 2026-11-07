@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 from functools import wraps
 from inspect import Parameter, Signature, signature
 from typing import Any, Callable, cast
+from warnings import deprecated
 
 from ._docstring import ParameterSpec, generate_docstring
 from ._renderer import create_renderer
@@ -58,9 +59,6 @@ def marker_method() -> GlyphMethodDecorator:
 
         @wraps(func)
         def wrapped(self: Any, *args: Any, **kwargs: Any) -> Any:
-            from ..util.deprecation import deprecated
-
-            deprecated((3, 4, 0), f"{func.__name__}() method", f"scatter(marker={func.__name__!r}, ...) instead")
             glyph_args = cast(Any, glyphclass)._args
             if len(args) > len(glyph_args):
                 raise TypeError(f"{func.__name__} takes {len(glyph_args)} positional argument but {len(args)} were given")
@@ -73,7 +71,10 @@ def marker_method() -> GlyphMethodDecorator:
 
         wrapped.__doc__ = generate_docstring(glyphclass, parameters, func.__doc__)
 
-        return wrapped
+        return deprecated(
+            f"{func.__name__}() method was deprecated in Bokeh 3.4.0 and will be removed, "
+            f"use scatter(marker={marker_type!r}, ...) instead.",
+        )(wrapped)
 
     return decorator
 

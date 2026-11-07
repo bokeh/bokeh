@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 from typing import Any
+from warnings import deprecated
 
 from ...core.property.container import List
 from ...core.property.either import Either
@@ -95,23 +96,23 @@ class MenuItem(Model):
     An optional action (callback) associated with this item.
     """)
 
+@deprecated("'ActionItem' was deprecated in Bokeh 3.7.0 and will be removed, use 'MenuItem' instead.")
 class ActionItem(MenuItem):
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        from ...util.deprecation import deprecated
-
-        deprecated((3, 7, 0), "ActionItem", "MenuItem")
         super().__init__(*args, **kwargs)
 
+@deprecated("'CheckableItem' was deprecated in Bokeh 3.7.0 and will be removed, use 'MenuItem with checked=True or checked=False' instead.")
 class CheckableItem(MenuItem):
-    """ A two state checkable menu item. """
+    """ A two state checkable menu item.
+
+    .. deprecated:: 3.7.0
+        Use ``MenuItem`` with ``checked=True`` or ``checked=False`` instead.
+    """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        from ...util.deprecation import deprecated
-
-        deprecated((3, 7, 0), "CheckableItem", "ActionItem.checked")
         super().__init__(*args, **kwargs)
 
 class DividerItem(Model):
