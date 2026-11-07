@@ -8,7 +8,9 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations
+from __future__ import annotations # isort:skip
+
+import pytest
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -700,6 +702,12 @@ def test_Circle() -> None:
 # regression: https://github.com/bokeh/bokeh/issues/14082
 def test_Circle_XYGlpyh() -> None:
     assert issubclass(m.Circle, m.XYGlyph)
+
+# regression: https://github.com/bokeh/bokeh/issues/14364
+@pytest.mark.parametrize("glyph_type", [m.HArea, m.HAreaStep, m.VArea, m.VAreaStep])
+def test_area_glyphs_have_scalar_hatch_properties(glyph_type: type[m.Glyph]) -> None:
+    # BokehJS declares hatch properties of area glyphs as scalars (mixins.HatchScalar)
+    assert set(HATCH).isdisjoint(glyph_type.dataspecs())
 
 #-----------------------------------------------------------------------------
 # Dev API

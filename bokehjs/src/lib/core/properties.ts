@@ -359,7 +359,8 @@ export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Pro
       const {_value} = this
       this._value[serialize] = (serializer) => {
         const {value, field, expr, transform, units} = _value as any
-        if (serializer.compact && value !== undefined && transform == null && units == null) {
+        // plain values are serialized bare in both compact and non-compact modes
+        if (value !== undefined && transform == null && units == null) {
           return serializer.encode(value)
         }
         if (serializer.compact && field !== undefined && transform == null && units == null) {
