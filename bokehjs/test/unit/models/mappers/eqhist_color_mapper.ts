@@ -113,6 +113,43 @@ describe("EqHistColorMapper module", () => {
       expect(scan(with_nans, {low: 0, high: 2})).to.be.equal(scan(values, {low: 0, high: 2}))
     })
 
+    it("Should ignore infinities when computing low and high", () => {
+      function scan(values: number[], attrs: Partial<EqHistColorMapper.Attrs> = {}) {
+        const palette = new Array(3).fill("red")
+        const color_mapper = EqHistColorMapper.create({palette, ...attrs})
+        return color_mapper.scan(values, palette.length)
+      }
+
+      // infinities are counted in the outermost bins, like the extreme finite values
+      const with_infs = [-Infinity, 1, 1.001, 2, 3, Infinity, Infinity]
+      const with_extremes = [1, 1, 1.001, 2, 3, 3, 3]
+      expect(scan(with_infs)).to.be.equal(scan(with_extremes))
+      expect(scan(with_infs).min).to.be.equal(1)
+      expect(scan(with_infs).max).to.be.equal(3)
+      // with explicit low or high, infinities are like any other value outside the range
+      expect(scan(with_infs, {low: 0})).to.be.equal(scan([-1, 1, 1.001, 2, 3, 3, 3], {low: 0}))
+      expect(scan(with_infs, {high: 2})).to.be.equal(scan([1, 1, 1.001, 2, 3, 4, 4], {high: 2}))
+      expect(scan([NaN, ...with_infs, NaN], {rescale_discrete_levels: true})).to.be.equal(scan(with_extremes, {rescale_discrete_levels: true}))
+    })
+
+    it("Should scan constant values using uniform binning", () => {
+      const palette = new Array(3).fill("red")
+      const color_mapper = EqHistColorMapper.create({palette})
+      const scan = color_mapper.scan([2, 2, NaN, 2, Infinity], palette.length)
+      expect(scan).to.be.equal({min: 2, max: 2, binning: [2, 2, 2, 2], force_low_cutoff: false})
+    })
+
+    it("Should scan without finite values", () => {
+      const palette = new Array(3).fill("red")
+      const color_mapper = EqHistColorMapper.create({palette})
+      for (const values of [[], [NaN], [Infinity, -Infinity]]) {
+        const scan = color_mapper.scan(values, palette.length)
+        expect(scan.min).to.be.equal(Infinity)
+        expect(scan.max).to.be.equal(-Infinity)
+        expect(scan.binning.length).to.be.equal(4)
+      }
+    })
+
     it("Should scan only NaNs using uniform binning", () => {
       const palette = new Array(4).fill("red")
       const color_mapper = EqHistColorMapper.create({palette, low: 0, high: 2})
