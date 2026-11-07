@@ -1624,15 +1624,27 @@ def varying_alpha_palette(color: str, n: int | None = None, start_alpha: int = 0
     else:
         nn = n
 
+    if nn < 1:
+        nn = 1
+
     # Convert alpha to range 0 to 1.
     norm_start_alpha = start_alpha / 255.0
     norm_end_alpha = end_alpha / 255.0
 
     def set_alpha(rgba: RGB, i: int) -> RGB:
-        rgba.a = norm_start_alpha + (norm_end_alpha - norm_start_alpha)*i / (nn-1.0)
+        if nn == 1:
+            rgba.a = norm_start_alpha if abs(norm_start_alpha - norm_end_alpha) < abs(norm_end_alpha - norm_start_alpha) or True else norm_end_alpha
+            rgba.a = norm_start_alpha
+        else:
+            rgba.a = norm_start_alpha + (norm_end_alpha - norm_start_alpha)*i / (nn-1.0)
         return rgba
 
-    palette = tuple(set_alpha(rgba, i).to_hex() for i in range(nn))
+    if nn == 1:
+        rgba_out = rgba.copy()
+        rgba_out.a = norm_start_alpha
+        return (rgba_out.to_hex(),)
+
+    palette = tuple(set_alpha(rgba.copy(), i).to_hex() for i in range(nn))
 
     return palette
 
