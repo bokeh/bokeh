@@ -416,7 +416,7 @@ export class FactorRange extends Range {
       end = clamp(end, lower, upper)
     }
 
-    this.setv({start, end}, {silent: true})
+    this.setv<FactorRange>({start, end}, {silent: true})
 
     if (this.bounds == "auto") {
       this.computed_bounds = [start, end]

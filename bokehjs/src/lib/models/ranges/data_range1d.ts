@@ -343,7 +343,7 @@ export class DataRange1d extends DataRange {
       if (end != _end) {
         new_range.end = end
       }
-      this.setv(new_range)
+      this.setv<DataRange1d>(new_range)
       // auto-ranging's own update isn't an explicit one (see connect_signals())
       this.have_updated_interactively = false
       needs_emit = false
@@ -357,7 +357,7 @@ export class DataRange1d extends DataRange {
   reset(): void {
     this.have_updated_interactively = false
     // change events silenced as PlotView.update_dataranges triggers property callbacks
-    this.setv({
+    this.setv<DataRange1d>({
       range_padding: this._initial_range_padding,
       range_padding_units: this._initial_range_padding_units,
       follow: this._initial_follow,

@@ -515,4 +515,193 @@ describe("core/has_props module", () => {
       expect(changes).to.be.equal(0)
     })
   })
+
+  describe("simultaneously()", () => {
+    it("should apply assignments like a single setv() call", () => {
+      const obj = SubclassWithProps.create()
+      const calls: string[] = []
+      obj.on_change("foo", () => calls.push(`foo:${obj.foo},${obj.bar}`))
+      obj.on_change("bar", () => calls.push(`bar:${obj.foo},${obj.bar}`))
+      obj.connect(obj.change, () => calls.push("change"))
+
+      const result = obj.simultaneously(() => {
+        obj.foo = 1
+        obj.bar = false
+        expect(calls).to.be.equal([])
+        return 7
+      })
+
+      expect(result).to.be.equal(7)
+      expect(calls).to.be.equal(["foo:1,false", "bar:1,false", "change"])
+    })
+
+    it("should pass the model to the callback", () => {
+      const obj = SubclassWithProps.create()
+      const args: SubclassWithProps[] = []
+      obj.simultaneously((model) => {
+        args.push(model)
+        model.foo = 1
+        model.bar = false
+        obj.simultaneously((inner) => expect(inner).to.be.equal(obj))
+      })
+      expect(args).to.be.equal([obj])
+      expect(obj.foo).to.be.equal(1)
+      expect(obj.bar).to.be.false
+    })
+
+    it("should return pending values when reading within the block", () => {
+      const obj = SubclassWithProps.create()
+      obj.simultaneously(() => {
+        obj.foo = 1
+        expect(obj.foo).to.be.equal(1)
+        expect(obj.properties.foo.get_value()).to.not.be.equal(1)
+        obj.foo += 1
+      })
+      expect(obj.foo).to.be.equal(2)
+    })
+
+    it("should merge option-less setv() and nested calls into the outer block", () => {
+      const obj = SubclassWithProps.create()
+      let changes = 0
+      obj.connect(obj.change, () => changes += 1)
+
+      obj.simultaneously(() => {
+        obj.setv({foo: 1})
+        obj.simultaneously(() => obj.bar = false)
+        expect(changes).to.be.equal(0)
+      })
+
+      expect(changes).to.be.equal(1)
+      expect(obj.foo).to.be.equal(1)
+      expect(obj.bar).to.be.false
+    })
+
+    it("should apply setv() with explicit options immediately", () => {
+      const obj = SubclassWithProps.create()
+      obj.simultaneously(() => {
+        obj.foo = 1
+        obj.setv({foo: 2}, {silent: true})
+        expect(obj.properties.foo.get_value()).to.be.equal(2)
+      })
+      expect(obj.foo).to.be.equal(2)
+    })
+
+    it("should discard pending changes when the block throws", () => {
+      const obj = SubclassWithProps.create()
+      const foo = obj.foo
+      expect(() => obj.simultaneously(() => {
+        obj.foo = foo + 1
+        throw new Error("oops")
+      })).to.throw(Error, "oops")
+      expect(obj.foo).to.be.equal(foo)
+    })
+
+    it("should reject unknown properties eagerly", () => {
+      const obj = SubclassWithProps.create()
+      expect(() => obj.simultaneously(() => {
+        // @ts-expect-error "whatever" is not a property of SubclassWithProps
+        obj.setv({whatever: 1})
+      })).to.throw(Error, "unknown property SubclassWithProps.whatever")
+    })
+
+    describe("nested", () => {
+      it("should return the inner callback's result", () => {
+        const obj = SubclassWithProps.create()
+        const result = obj.simultaneously(() => {
+          const inner = obj.simultaneously(() => {
+            obj.foo = 1
+            return "inner"
+          })
+          expect(inner).to.be.equal("inner")
+          return `${inner}+outer`
+        })
+        expect(result).to.be.equal("inner+outer")
+        expect(obj.foo).to.be.equal(1)
+      })
+
+      it("should not apply changes when the inner block exits", () => {
+        const obj = SubclassWithProps.create()
+        const calls: string[] = []
+        obj.on_change("foo", () => calls.push("foo"))
+        obj.on_change("bar", () => calls.push("bar"))
+        obj.connect(obj.change, () => calls.push("change"))
+
+        obj.simultaneously(() => {
+          obj.simultaneously(() => {
+            obj.simultaneously(() => obj.foo = 1)
+            expect(calls).to.be.equal([])
+            obj.bar = false
+          })
+          expect(calls).to.be.equal([])
+          expect(obj.properties.foo.get_value()).to.be.equal(0)
+        })
+
+        expect(calls).to.be.equal(["foo", "bar", "change"])
+      })
+
+      it("should use the outermost options and ignore inner ones", () => {
+        const obj = SubclassWithProps.create()
+        let changes = 0
+        obj.connect(obj.change, () => changes += 1)
+
+        obj.simultaneously(() => {
+          obj.simultaneously(() => obj.foo = 1, {no_change: true})
+        })
+        expect(changes).to.be.equal(1)
+
+        obj.simultaneously(() => {
+          obj.simultaneously(() => obj.foo = 2)
+        }, {no_change: true})
+        expect(changes).to.be.equal(1)
+        expect(obj.foo).to.be.equal(2)
+      })
+
+      it("should share pending values across nesting levels", () => {
+        const obj = SubclassWithProps.create()
+        obj.simultaneously(() => {
+          obj.foo = 1
+          obj.simultaneously(() => {
+            expect(obj.foo).to.be.equal(1)
+            obj.foo += 1
+            obj.bar = false
+          })
+          expect(obj.foo).to.be.equal(2)
+          expect(obj.bar).to.be.false
+          obj.foo += 1
+        })
+        expect(obj.foo).to.be.equal(3)
+        expect(obj.bar).to.be.false
+      })
+
+      it("should keep inner changes when an inner exception is caught by the outer block", () => {
+        const obj = SubclassWithProps.create()
+        obj.simultaneously(() => {
+          obj.foo = 1
+          expect(() => obj.simultaneously(() => {
+            obj.bar = false
+            throw new Error("inner")
+          })).to.throw(Error, "inner")
+          expect(obj.bar).to.be.false
+        })
+        expect(obj.foo).to.be.equal(1)
+        expect(obj.bar).to.be.false
+      })
+
+      it("should discard all changes when an inner exception escapes the outermost block", () => {
+        const obj = SubclassWithProps.create()
+        let changes = 0
+        obj.connect(obj.change, () => changes += 1)
+        expect(() => obj.simultaneously(() => {
+          obj.foo = 1
+          obj.simultaneously(() => {
+            obj.bar = false
+            throw new Error("inner")
+          })
+        })).to.throw(Error, "inner")
+        expect(changes).to.be.equal(0)
+        expect(obj.foo).to.be.equal(0)
+        expect(obj.bar).to.be.true
+      })
+    })
+  })
 })

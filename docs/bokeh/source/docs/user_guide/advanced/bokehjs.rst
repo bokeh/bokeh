@@ -826,11 +826,84 @@ finished, so custom model fields are available to defaults, ``initialize()``,
 and ``connect_signals()``. Once you create a Bokeh model,
 you can set its properties in exactly the same way in both languages. For
 example, ``xdr.end = 30`` sets the ``end`` value to 30 on the `Range1d` model
-above in both Python and JavaScript.
+above in both Python and JavaScript. See :ref:`ug_advanced_bokehjs_setting_properties`
+for other ways of setting properties in JavaScript.
 
 Construct models with ``SomeModel.create(attributes)``. Custom extensions
 inherit ``create()`` and do not need to repeat a constructor or call a
 per-class initialization helper.
+
+.. _ug_advanced_bokehjs_setting_properties:
+
+Setting properties
+~~~~~~~~~~~~~~~~~~
+
+There are three ways to change the properties of a BokehJS model. They differ
+in how many changes are reported at once. This matters for
+:ref:`property change callbacks <ug_advanced_bokehjs_property_change_callbacks>`
+and, when the model belongs to a document that is synchronized with Python
+(e.g. in a Bokeh server application or a notebook), for how many updates are
+sent to the other side.
+
+Assigning to a property sets a single value and reports the change right away:
+
+.. code-block:: javascript
+
+    xdr.start = 0
+    xdr.end = 30
+
+Each assignment above is a separate change. Callbacks observing ``start`` run
+before ``end`` is updated, so they briefly see a range from ``0`` to the old
+``end``, and two separate updates are sent to a synchronized document.
+
+Use ``setv()`` to set several properties at once:
+
+.. code-block:: javascript
+
+    xdr.setv({start: 0, end: 30})
+
+All values are updated first. Then the change callbacks run for each property
+whose value actually changed, and a single update is sent to a synchronized
+document. Callbacks therefore always see the final state of all properties.
+
+Use ``simultaneously()`` to get the behavior of ``setv()`` while writing plain
+assignments:
+
+.. code-block:: javascript
+
+    xdr.simultaneously(() => {
+      xdr.start = 0
+      xdr.end = xdr.start + 30
+    })
+
+Assignments made on the model within the callback, as well as ``setv()`` calls
+without options, are collected and applied as a single ``setv()`` call when
+the callback returns. This is useful when the new values are computed step by
+step, or depend on each other. Within the callback:
+
+* Reading a property returns its new, pending value.
+* Nested ``simultaneously()`` calls on the same model are merged into the
+  outermost one.
+* If an error propagates out of the outermost callback, all pending changes
+  are discarded.
+* Only changes to the model ``simultaneously()`` was called on are collected.
+  Changes to other models are applied immediately.
+
+The model is also passed to the callback as its argument. This is convenient
+when the model is reached through a longer expression, which would otherwise
+have to be repeated or stored in a variable first:
+
+.. code-block:: javascript
+
+    plot.renderers[0].glyph.simultaneously((glyph) => {
+      glyph.line_color = "red"
+      glyph.line_width = 2*glyph.line_width
+    })
+
+``simultaneously()`` returns the callback's return value. In all three cases,
+assigning a value that is equal to the current one is not reported as a change.
+
+.. _ug_advanced_bokehjs_property_change_callbacks:
 
 Property change callbacks
 ~~~~~~~~~~~~~~~~~~~~~~~~~
