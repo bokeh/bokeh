@@ -77,7 +77,7 @@
       (async () => {
         await preload_fonts()
         const params = new URLSearchParams(location.search)
-        await Tests.run_all(params.getAll("k"))
+        await Tests.run_all({keyword: params.getAll("k"), grep: params.getAll("g"), file: params.getAll("f")})
       })()
     </script>
     {% else %}

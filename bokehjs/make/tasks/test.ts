@@ -10,6 +10,7 @@ import {glob} from "glob"
 import {argv} from "../args.js"
 import {task, task2, success, passthrough, BuildError} from "../task.js"
 import * as paths from "../paths.js"
+import {order_by_imports} from "../utilities.js"
 import {platform, find_port, retry, terminate, keep_alive} from "./_util.js"
 import {compile_typescript} from "./_util.js"
 import {start_server as start_js_server} from "./server.js"
@@ -54,7 +55,7 @@ task("test:devtools", async () => {
 })
 
 task("test:make", async () => {
-  await node(["--test", "./make/_build/make/task.test.js"])
+  await node(["--test", "./make/_build/make/task.test.js", "./make/_build/make/utilities.test.js"])
 })
 
 task("test:codebase", ["test:codebase:compile", "test:devtools", "test:make"], async () => {
@@ -256,6 +257,7 @@ function baseline_test_options(): string[] {
     ...opt("keyword", argv.keyword),
     ...opt("grep", argv.grep),
     ...opt("skip", argv.skip),
+    ...opt("file", argv.file),
     ...opt("ref", argv.ref),
     ...opt("randomize", argv.randomize),
     ...opt("seed", argv.seed),
@@ -276,6 +278,7 @@ function devtools(executable: string, server_port: number, name: string, baselin
     ...opt("keyword", argv.keyword),
     ...opt("grep", argv.grep),
     ...opt("skip", argv.skip),
+    ...opt("file", argv.file),
     ...opt("ref", argv.ref),
     ...opt("baselines-root", baselines_root),
     ...opt("randomize", argv.randomize),
@@ -353,22 +356,32 @@ async function tsc(name: string) {
 }
 
 async function auto_index(name: string): Promise<void> {
+  const src_dir = join(paths.src_dir.test, name)
   const build_dir = join(paths.build_dir.test, name)
-  const files = await glob(join(build_dir, "/**/*.js").replace(/\\/g, "/"))
 
-  const imports = []
-  for (const file of files) {
-    const ext = extname(file)
-    const name = basename(file, ext)
-    if (!name.startsWith("_") && !name.endsWith(".d") && name != "index" && name != "auto_index") {
-      const dir = dirname(file).replace(build_dir, "").replace(/^\//, "").replace(/\\/g, "/")
-      const module = dir == "" ? `./${name}` : [".", ...dir.split("/"), name].join("/")
-      imports.push(`import "${module}"`)
-    }
+  // Discover test modules from sources, not from compiled outputs, because
+  // `tsc` doesn't remove outputs of deleted sources, which would be loaded
+  // as stale tests otherwise.
+  const files = await glob("**/*.{ts,tsx}", {cwd: src_dir, ignore: "**/*.d.ts", posix: true})
+
+  // Test modules are loaded with `require()` (not hoisted `import`s), so that
+  // the framework knows which module registers which tests (see `--file`).
+  // The order of loading is significant, see `order_by_imports()`.
+  const is_test_module = (file: string) => {
+    const name = basename(file, extname(file))
+    return !name.startsWith("_") && name != "index" && name != "auto_index"
+  }
+
+  const imports = ['import {load_module} from "#framework/framework"']
+  for (const file of order_by_imports(src_dir, files, is_test_module)) {
+    const dir = dirname(file)
+    const name = basename(file, extname(file))
+    const module_name = dir == "." ? name : `${dir}/${name}`
+    imports.push(`load_module("${module_name}", () => require("./${module_name}"))`)
   }
 
   const index_file = join(build_dir, "auto_index.js")
-  const source = imports.join("\n")
+  const source = `${imports.join("\n")}\n`
   fs.writeFileSync(index_file, source, {encoding: "utf-8"})
 }
 
