@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import sys
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
@@ -326,6 +327,73 @@ def test_bundle_extensions_skips_dynamically_created_application_modules(
 
     assert bundle.name == extension_name
     assert bundle.artifact_path == artifact
+
+
+def _multi_root_static_handler(root: dict[str, Path], path: str) -> Any:
+    """Build a real ``MultiRootStaticHandler`` so the test exercises
+    Tornado's actual symlink validation — the check that 403s in #15545."""
+    from tornado import web as tornado_web
+    from tornado.httputil import (
+        HTTPConnection,
+        HTTPHeaders,
+        HTTPServerRequest,
+        RequestStartLine,
+    )
+
+    from bokeh.server.views.multi_root_static_handler import MultiRootStaticHandler
+
+    class _NoopConnection(HTTPConnection):
+        def set_close_callback(self, *args: Any, **kwargs: Any) -> None:
+            pass
+
+    request = HTTPServerRequest(
+        start_line=RequestStartLine(method="GET", path=f"/static/extensions/{path}", version="HTTP/1.1"),
+        headers=HTTPHeaders({"Host": "localhost"}),
+        connection=_NoopConnection(),
+    )
+    handler = MultiRootStaticHandler(tornado_web.Application([]), request, root=root)
+    handler.path = path
+    return handler
+
+
+def test_bundle_extensions_resolves_symlinked_install_root(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Reproduce a uv `--link-mode symlink` / Nix / Bazel install: the
+    # package's files are symlinks into a shared cache while the
+    # directories under site-packages are real. Tornado >= 6.5.9 rejects
+    # any static file whose realpath escapes the registered root, so the
+    # root stored in extension_dirs must be resolved to where the files
+    # actually live (issue #15545).
+    name = "symlinked_extension"
+
+    cache = tmp_path / "cache" / name
+    (cache / "dist").mkdir(parents=True)
+    (cache / "__init__.py").write_text("")
+    (cache / "bokeh.ext.json").write_text("{}")
+    (cache / "dist" / f"{name}.min.js").write_text("globalThis.extension = true")
+
+    site_packages = tmp_path / "site-packages" / name
+    (site_packages / "dist").mkdir(parents=True)
+    for rel in ("__init__.py", "bokeh.ext.json"):
+        os.symlink(cache / rel, site_packages / rel)
+    os.symlink(cache / "dist" / f"{name}.min.js", site_packages / "dist" / f"{name}.min.js")
+
+    module = ModuleType(name)
+    module.__file__ = str(site_packages / "__init__.py")  # a symlink
+    monkeypatch.setitem(sys.modules, name, module)
+
+    [bundle] = ber.bundle_extensions({_extension_model(name)}, Resources(mode="server"))
+
+    # The registered root must resolve to the same place the files live, so
+    # Tornado's realpath check (which 403s otherwise) passes.
+    root = ber.extension_dirs[name]
+    artifact = root / bundle.artifact_path.name
+    assert os.path.realpath(str(artifact)).startswith(os.path.realpath(str(root)) + os.sep)
+
+    handler = _multi_root_static_handler(ber.extension_dirs, f"{name}/{bundle.artifact_path.name}")
+    absolute_path = handler.get_absolute_path(handler.root, handler.path)
+    assert handler.validate_absolute_path(handler.root, absolute_path) is not None
 
 
 def test_packaged_extension_requirements_resolve_under_each_policy(
