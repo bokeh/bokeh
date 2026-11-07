@@ -1,10 +1,10 @@
 from bokeh.layouts import gridplot
-from bokeh.models import ColumnDataSource, GroupFilter, IndexedView
+from bokeh.models import ColumnDataSource, GroupFilter, IndexedSubset
 from bokeh.plotting import figure, show
 from bokeh.sampledata.penguins import data
 
 source = ColumnDataSource(data)
-view = IndexedView(filter=GroupFilter(field_name="species", group="Adelie"))
+view = IndexedSubset(filter=GroupFilter(field_name="species", group="Adelie"))
 
 TOOLS = "box_select,reset,help"
 

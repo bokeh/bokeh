@@ -10,8 +10,8 @@ import {AllIndices} from "../filters/all_indices"
 import {IntersectionFilter} from "../filters/intersection_filter"
 import type {IndexedDataSource} from "./indexed_data_source"
 
-export class IndexedViewView extends View {
-  declare model: IndexedView
+export class IndexedSubsetView extends View {
+  declare model: IndexedSubset
   declare readonly parent: View & {
     readonly data_source: p.Property<IndexedDataSource>
   }
@@ -75,7 +75,7 @@ export class IndexedViewView extends View {
   }
 }
 
-export namespace IndexedView {
+export namespace IndexedSubset {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
@@ -88,20 +88,20 @@ export namespace IndexedView {
   }
 }
 
-export interface IndexedView extends IndexedView.Attrs {}
+export interface IndexedSubset extends IndexedSubset.Attrs {}
 
-export class IndexedView extends Model {
-  declare properties: IndexedView.Props
-  declare __view_type__: IndexedViewView
+export class IndexedSubset extends Model {
+  declare properties: IndexedSubset.Props
+  declare __view_type__: IndexedSubsetView
 
   static {
-    this.prototype.default_view = IndexedViewView
+    this.prototype.default_view = IndexedSubsetView
 
-    this.define<IndexedView.Props>(({Ref}) => ({
+    this.define<IndexedSubset.Props>(({Ref}) => ({
       filter: [ Ref(Filter), () => AllIndices.create() ],
     }))
 
-    this.internal<IndexedView.Props>(({Ref, Nullable}) => ({
+    this.internal<IndexedSubset.Props>(({Ref, Nullable}) => ({
       indices:       [ Ref(Indices) ],
       indices_array: [ Ref(Int32Array), () => new Int32Array(0) ],
       indices_map:   [ Ref(SubsetIndexMapper), () => new SubsetIndexMapper(0) ],

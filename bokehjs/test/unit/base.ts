@@ -198,7 +198,7 @@ describe("default model resolver", () => {
       "IndexedDataSource",
       "IndexedLookup",
       "IndexedStackColorMapper",
-      "IndexedView",
+      "IndexedSubset",
       "InlineStyleSheet",
       "InputWidget",
       "InspectTool",

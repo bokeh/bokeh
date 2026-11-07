@@ -5,14 +5,14 @@ import numpy as np
 from bokeh.models import (
     ColumnDataSource,
     GlyphRenderer,
-    IndexedView,
+    IndexedSubset,
     IndexFilter,
     Plot,
     Scatter,
 )
 
 data_source = ColumnDataSource(data=dict(x=np.array([1, 2, 3, 4, 5]), y=np.array([1, 2, 3, 4, 5])))
-view = IndexedView(filter=IndexFilter(indices=np.array([0, 2, 4])))
+view = IndexedSubset(filter=IndexFilter(indices=np.array([0, 2, 4])))
 glyph = Scatter(size=10)
 glyph_renderer = GlyphRenderer(glyph=glyph, data_source=data_source, view=view)
 plot = Plot(renderers=[glyph_renderer])

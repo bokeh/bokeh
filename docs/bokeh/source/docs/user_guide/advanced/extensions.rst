@@ -235,7 +235,7 @@ Custom indexed sources
 expressions, hover tools, and selection. A custom source can store records
 instead of columns. Its BokehJS implementation supplies ``get_length()``,
 ``get_field(name)``, ``get_record(index)``, and ``fields()``. Selection indices
-refer to positions on this logical axis, including when an ``IndexedView`` filters
+refer to positions on this logical axis, including when an ``IndexedSubset`` filters
 which records are shown.
 
 The default ``get_index_field(name, target)`` delegates to ``get_field(name)``

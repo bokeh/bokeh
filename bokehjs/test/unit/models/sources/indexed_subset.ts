@@ -1,7 +1,7 @@
 import {expect} from "#framework/assertions"
 
-import type {IndexedViewView} from "@bokehjs/models/sources/indexed_view"
-import {IndexedView} from "@bokehjs/models/sources/indexed_view"
+import type {IndexedSubsetView} from "@bokehjs/models/sources/indexed_subset"
+import {IndexedSubset} from "@bokehjs/models/sources/indexed_subset"
 import {Selection} from "@bokehjs/models/selections/selection"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {BooleanFilter} from "@bokehjs/models/filters/boolean_filter"
@@ -50,13 +50,13 @@ class DummyModel extends Model {
   }
 }
 
-export async function build(cds: IndexedView, source: ColumnDataSource): Promise<IndexedViewView> {
+export async function build(cds: IndexedSubset, source: ColumnDataSource): Promise<IndexedSubsetView> {
   const model = DummyModel.create({source})
   const parent = await build_view(model)
   return await build_view(cds, {parent})
 }
 
-describe("IndexedView", () => {
+describe("IndexedSubset", () => {
 
   const source = ColumnDataSource.create({
     data: {
@@ -73,13 +73,13 @@ describe("IndexedView", () => {
   describe("compute_indices", () => {
 
     it("is called on init and sets the cds view's indices", async () => {
-      const cds = IndexedView.create({filter: filter1})
+      const cds = IndexedSubset.create({filter: filter1})
       await build(cds, source)
       expect([...cds.indices]).to.be.equal([0, 1, 2])
     })
 
     it("updates indices when filter is changed", async () => {
-      const view = IndexedView.create({filter: filter1})
+      const view = IndexedSubset.create({filter: filter1})
       await build(view, source)
       expect([...view.indices]).to.be.equal([0, 1, 2])
       view.filter = filter2
@@ -90,21 +90,21 @@ describe("IndexedView", () => {
 
     it("updates indices when filter's properties are changed", async () => {
       const boolean_filter = BooleanFilter.create({booleans: [true, true, false, false, true]})
-      const boolean_view = IndexedView.create({filter: boolean_filter})
+      const boolean_view = IndexedSubset.create({filter: boolean_filter})
       await build(boolean_view, source)
       expect([...boolean_view.indices]).to.be.equal([0, 1, 4])
       boolean_filter.booleans = [false, true, true, false, true]
       expect([...boolean_view.indices]).to.be.equal([1, 2, 4])
 
       const index_filter = IndexFilter.create({indices: [0, 1, 2]})
-      const index_view = IndexedView.create({filter: index_filter})
+      const index_view = IndexedSubset.create({filter: index_filter})
       await build(index_view, source)
       expect([...index_view.indices]).to.be.equal([0, 1, 2])
       index_filter.indices = [1, 2, 3]
       expect([...index_view.indices]).to.be.equal([1, 2, 3])
 
       const union_filter = UnionFilter.create({operands: [boolean_filter, index_filter]})
-      const union_view = IndexedView.create({filter: union_filter})
+      const union_view = IndexedSubset.create({filter: union_filter})
       await build(union_view, source)
       expect([...union_view.indices]).to.be.equal([1, 2, 3, 4])
       boolean_filter.booleans = [false, false, false, false, true]
@@ -114,7 +114,7 @@ describe("IndexedView", () => {
       expect([...boolean_view.indices]).to.be.equal([4])
 
       const inversion_filter = InversionFilter.create({operand: union_filter})
-      const intersection_view = IndexedView.create({filter: inversion_filter})
+      const intersection_view = IndexedSubset.create({filter: inversion_filter})
       await build(intersection_view, source)
       expect([...intersection_view.indices]).to.be.equal([1, 2])
       boolean_filter.booleans = [true, false, false, true, false]
@@ -126,13 +126,13 @@ describe("IndexedView", () => {
     })
 
     it("computes indices based on the intersection of filters", async () => {
-      const view = IndexedView.create({filter: IntersectionFilter.create({operands: [filter1, filter2]})})
+      const view = IndexedSubset.create({filter: IntersectionFilter.create({operands: [filter1, filter2]})})
       await build(view, source)
       expect([...view.indices]).to.be.equal([1, 2])
     })
 
     it("computes indices ignoring null filters", async () => {
-      const view = IndexedView.create({filter: IntersectionFilter.create({operands: [filter1, filter2, filter_null]})})
+      const view = IndexedSubset.create({filter: IntersectionFilter.create({operands: [filter1, filter2, filter_null]})})
       await build(view, source)
       expect([...view.indices]).to.be.equal([1, 2])
     })
@@ -141,7 +141,7 @@ describe("IndexedView", () => {
   describe("indices_map_to_subset", () => {
 
     it("sets indices_map, a mapping from full data set indices to subset indices", async () => {
-      const view = IndexedView.create({filter: IntersectionFilter.create({operands: [filter1, filter2]})})
+      const view = IndexedSubset.create({filter: IntersectionFilter.create({operands: [filter1, filter2]})})
       await build(view, source)
       expect(view.indices_map.convert_indices_from_subset(new Int32Array([0, 1]))).to.be.equal(new Int32Array([1, 2]))
       expect(view.indices_map.convert_indices_to_subset(new Int32Array([1, 2]))).to.be.equal(new Int32Array([0, 1]))
@@ -151,21 +151,21 @@ describe("IndexedView", () => {
   describe("functions for converting selections and indices", () => {
 
     it("convert_selection_from_subset", async () => {
-      const view = IndexedView.create({filter: IntersectionFilter.create({operands: [filter1, filter2]})})
+      const view = IndexedSubset.create({filter: IntersectionFilter.create({operands: [filter1, filter2]})})
       await build(view, source)
       const selection = Selection.create({indices: [0]})
       expect(view.convert_selection_from_subset(selection).indices).to.be.equal([1])
     })
 
     it("convert_selection_to_subset", async () => {
-      const view = IndexedView.create({filter: IntersectionFilter.create({operands: [filter1, filter2]})})
+      const view = IndexedSubset.create({filter: IntersectionFilter.create({operands: [filter1, filter2]})})
       await build(view, source)
       const selection = Selection.create({indices: [1]})
       expect(view.convert_selection_to_subset(selection).indices).to.be.equal([0])
     })
 
     it("convert_indices_from_subset", async () => {
-      const view = IndexedView.create({filter: IntersectionFilter.create({operands: [filter1, filter2]})})
+      const view = IndexedSubset.create({filter: IntersectionFilter.create({operands: [filter1, filter2]})})
       await build(view, source)
       expect(view.convert_indices_from_subset(new Int32Array([0, 1]))).to.be.equal(new Int32Array([1, 2]))
     })
@@ -174,7 +174,7 @@ describe("IndexedView", () => {
   for (const size of [3, 5]) {
     it(`publishes consistent subset arrays and mappings when the source has ${size} records`, () => {
       const source = ColumnDataSource.create({data: {x: [1, 2, 3]}})
-      const view = IndexedView.create({filter: IndexFilter.create({indices: [0]})})
+      const view = IndexedSubset.create({filter: IndexFilter.create({indices: [0]})})
       view.compute_indices(source)
       const observed: number[][] = []
       view.properties.indices.change.connect(() => {
@@ -190,7 +190,7 @@ describe("IndexedView", () => {
     const source = ColumnDataSource.create({data: {x: [], y: []}})
     const new_data = {x: [1], y: [1]}
 
-    const view = IndexedView.create()
+    const view = IndexedSubset.create()
     await build(view, source)
     expect([...view.indices]).to.be.equal([])
     source.stream(new_data)
@@ -201,7 +201,7 @@ describe("IndexedView", () => {
     const source = ColumnDataSource.create({data: {x: ["a"], y: [1]}})
     const group_filter = GroupFilter.create({field_name: "x", group: "b"})
 
-    const view = IndexedView.create({filter: group_filter})
+    const view = IndexedSubset.create({filter: group_filter})
     await build(view, source)
     expect([...view.indices]).to.be.equal([])
     source.patch({x: [[0, "b"]]})
@@ -214,7 +214,7 @@ describe("IndexedView", () => {
     const source = ColumnDataSource.create({data: data1})
     const group_filter = GroupFilter.create({field_name: "x", group: "b"})
 
-    const view = IndexedView.create({filter: group_filter})
+    const view = IndexedSubset.create({filter: group_filter})
     await build(view, source)
     expect([...view.indices]).to.be.equal([])
     source.data = data2
@@ -222,7 +222,7 @@ describe("IndexedView", () => {
   })
 
   it("should get subset indices", async  () => {
-    const view = IndexedView.create({filter: IntersectionFilter.create({operands: [filter1, filter2]})})
+    const view = IndexedSubset.create({filter: IntersectionFilter.create({operands: [filter1, filter2]})})
     await build(view, source)
     expect(() => view.get_subset_index(-2)).to.throw(Error)
     expect(view.get_subset_index(1)).to.be.equal(0)
@@ -231,7 +231,7 @@ describe("IndexedView", () => {
   })
 
   it("should has subset indices", async  () => {
-    const view = IndexedView.create({filter: IntersectionFilter.create({operands: [filter1, filter2]})})
+    const view = IndexedSubset.create({filter: IntersectionFilter.create({operands: [filter1, filter2]})})
     await build(view, source)
     expect(view.has_subset_index(-2)).to.be.equal(false)
     expect(view.has_subset_index(1)).to.be.equal(true)

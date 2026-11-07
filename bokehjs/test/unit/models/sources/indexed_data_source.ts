@@ -4,7 +4,7 @@ import {restorable} from "#framework/util"
 import {spy} from "sinon"
 import {RecordSource} from "./record_source"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
-import {IndexedView} from "@bokehjs/models/sources/indexed_view"
+import {IndexedSubset} from "@bokehjs/models/sources/indexed_subset"
 import {GroupFilter} from "@bokehjs/models/filters/group_filter"
 import {IndexFilter} from "@bokehjs/models/filters/index_filter"
 import type {TooltipVars} from "@bokehjs/models/tools/inspectors/hover_tool"
@@ -48,7 +48,7 @@ describe("IndexedDataSource", () => {
     it(`renders and selects filtered records on ${output_backend}`, async () => {
       const records = source()
       const plot = fig([300, 300], {output_backend, x_range: [0, 8], y_range: [0, 8]})
-      const filtered = IndexedView.create({filter: GroupFilter.create({field_name: "group", group: "a"})})
+      const filtered = IndexedSubset.create({filter: GroupFilter.create({field_name: "group", group: "a"})})
       const first = plot.scatter({source: records, x: {field: "x"}, y: {field: "y"}, size: {field: "size"}, color: {field: "color"}, view: filtered})
       const {view} = await display(plot)
       const first_view = view.owner.get_one(first)
@@ -92,13 +92,13 @@ describe("IndexedDataSource", () => {
     const records = source()
     const plot = fig([300, 300])
     const filter = GroupFilter.create({field_name: "group", group: "a"})
-    const renderer = plot.scatter({source: records, x: {field: "x"}, y: {field: "y"}, view: IndexedView.create({filter})})
+    const renderer = plot.scatter({source: records, x: {field: "x"}, y: {field: "y"}, view: IndexedSubset.create({filter})})
     const {view} = await display(plot)
     const renderer_view = view.owner.get_one(renderer)
     filter.group = "b"
     await view.ready
     expect([...renderer.view.indices]).to.be.equal([1])
-    renderer.view = IndexedView.create({filter: IndexFilter.create({indices: [0, 2]})})
+    renderer.view = IndexedSubset.create({filter: IndexFilter.create({indices: [0, 2]})})
     records.records = [{x: 10, y: 20}, {x: 30, y: 40}, {x: 50, y: 60}]
     await view.ready
     expect([...(renderer_view.glyph as ScatterView).x]).to.be.equal([10, 50])
@@ -195,7 +195,7 @@ describe("IndexedDataSource", () => {
     const plot = fig([300, 300])
     const renderer = plot.scatter({
       source: cds, x: {field: "x"}, y: {field: "y"},
-      view: IndexedView.create({filter: GroupFilter.create({field_name: "group", group: "a"})}),
+      view: IndexedSubset.create({filter: GroupFilter.create({field_name: "group", group: "a"})}),
     })
     const {view, doc} = await display(plot)
     cds.selected.indices = [0, 2]

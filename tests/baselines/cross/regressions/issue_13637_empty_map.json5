@@ -493,7 +493,7 @@
               },
               view: {
                 type: "object",
-                name: "IndexedView",
+                name: "IndexedSubset",
                 id: "p1023",
                 attributes: {
                   name: null,
@@ -787,7 +787,7 @@
               },
               view: {
                 type: "object",
-                name: "IndexedView",
+                name: "IndexedSubset",
                 id: "p1024",
                 attributes: {
                   name: null,

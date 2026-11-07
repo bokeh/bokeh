@@ -5981,7 +5981,7 @@
     },
     view: {
       type: "object",
-      name: "IndexedView",
+      name: "IndexedSubset",
       attributes: {
         filter: {
           type: "object",
@@ -6037,7 +6037,7 @@
         },
         view: {
           type: "object",
-          name: "IndexedView",
+          name: "IndexedSubset",
           attributes: {
             filter: {
               type: "object",
@@ -6088,7 +6088,7 @@
         },
         view: {
           type: "object",
-          name: "IndexedView",
+          name: "IndexedSubset",
           attributes: {
             filter: {
               type: "object",
@@ -6275,7 +6275,7 @@
       attributes: {},
     },
   },
-  IndexedView: {
+  IndexedSubset: {
     __extends__: "Model",
     filter: {
       type: "object",
@@ -8042,7 +8042,7 @@
     },
     view: {
       type: "object",
-      name: "IndexedView",
+      name: "IndexedSubset",
       attributes: {
         filter: {
           type: "object",
