@@ -1,4 +1,5 @@
 import {DataRenderer, DataRendererView} from "./data_renderer"
+import type {LegendEntry} from "../annotations/legend"
 import {LineView} from "../glyphs/line"
 import {StepView} from "../glyphs/step"
 import {PatchView} from "../glyphs/patch"
@@ -8,10 +9,11 @@ import {VAreaStepView} from "../glyphs/varea_step"
 import {VAreaView} from "../glyphs/varea"
 import type {GlyphView} from "../glyphs/glyph"
 import {Glyph} from "../glyphs/glyph"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
-import type {CDSViewView} from "../sources/cds_view"
-import {CDSView} from "../sources/cds_view"
-import type {Color} from "core/types"
+import {IndexedDataSource} from "../sources/indexed_data_source"
+import type {IndexedSubsetView} from "../sources/indexed_subset"
+import {IndexedSubset} from "../sources/indexed_subset"
+import type {DataChange} from "../sources/data_source"
+import type {Color, Rect} from "core/types"
 import {Indices} from "core/types"
 import type * as p from "core/properties"
 import {filter} from "core/util/arrayable"
@@ -75,7 +77,7 @@ const muted_defaults: Defaults = {
 export class GlyphRendererView extends DataRendererView {
   declare model: GlyphRenderer
 
-  cds_view: CDSViewView
+  subset_view: IndexedSubsetView
 
   glyph: GlyphView
   selection_glyph: GlyphView
@@ -91,7 +93,7 @@ export class GlyphRendererView extends DataRendererView {
   override _children_views(): ChildView[] {
     return [
       ...super._children_views(),
-      this.cds_view,
+      this.subset_view,
       this.glyph,
       this.selection_glyph,
       this.nonselection_glyph,
@@ -106,14 +108,14 @@ export class GlyphRendererView extends DataRendererView {
 
   protected last_dtrender: number
 
-  get data_source(): p.Property<ColumnarDataSource> {
+  get data_source(): p.Property<IndexedDataSource> {
     return this.model.properties.data_source
   }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
-    this.cds_view = await build_view(this.model.view, {parent: this})
+    this.subset_view = await build_view(this.model.view, {parent: this})
 
     const base_glyph = this.model.glyph
     this.glyph = await this.build_glyph_view(base_glyph)
@@ -195,10 +197,10 @@ export class GlyphRendererView extends DataRendererView {
         pending_update = (async () => {
           await Promise.resolve()
           pending_update = null
-          if (this.is_destroyed || this.cds_view.model != this.model.view) {
+          if (this.is_destroyed || this.subset_view.model != this.model.view) {
             return
           }
-          // CDSView has rebound by now. Keep its callbacks ahead of ours.
+          // IndexedSubset has rebound by now. Keep its callbacks ahead of ours.
           disconnect_source(source)
           connect_source(source)
           this.update_data()
@@ -210,7 +212,7 @@ export class GlyphRendererView extends DataRendererView {
       if (this.is_destroyed) {
         return
       }
-      if (pending_update != null || source != this.model.data_source || this.cds_view.model != this.model.view) {
+      if (pending_update != null || source != this.model.data_source || this.subset_view.model != this.model.view) {
         return update_later()
       }
       return this.update_data(indices)
@@ -242,7 +244,7 @@ export class GlyphRendererView extends DataRendererView {
     this.connect(this.muted_glyph.model.change, update)
     this.connect(this.decimated_glyph.model.change, update)
 
-    const patch = (indices: number[]) => update_data(indices)
+    const data_changed = ({indices, structural}: DataChange) => update_data(structural ? undefined : indices)
     const inspect = () => {
       // XXX: hoping for the best, assuming no in-place mutation
       const {inspected} = this.model.data_source
@@ -258,20 +260,18 @@ export class GlyphRendererView extends DataRendererView {
         render()
       }
     }
-    const connect_source = (source: ColumnarDataSource) => {
+    const connect_source = (source: IndexedDataSource) => {
       this.connect(source.change, update)
-      this.connect(source.streaming, update)
-      this.connect(source.patching, patch)
+      this.connect(source.data_changed, data_changed)
       this.connect(source.selected.change, render)
       this.connect(source._select, render)
       if (this.hover_glyph != null) {
         this.connect(source.inspect, inspect)
       }
     }
-    const disconnect_source = (source: ColumnarDataSource) => {
+    const disconnect_source = (source: IndexedDataSource) => {
       this.disconnect(source.change, update)
-      this.disconnect(source.streaming, update)
-      this.disconnect(source.patching, patch)
+      this.disconnect(source.data_changed, data_changed)
       this.disconnect(source.selected.change, render)
       this.disconnect(source._select, render)
       this.disconnect(source.inspect, inspect)
@@ -285,26 +285,26 @@ export class GlyphRendererView extends DataRendererView {
       return update_later()
     })
     this.on_transitive_change(this.model.properties.view, update, {
-      signal: (view) => (view as CDSView).properties.indices.change,
+      signal: (view) => (view as IndexedSubset).properties.indices.change,
     })
     this.on_transitive_change(this.model.properties.view, () => {
-      if (this.cds_view.model != this.model.view) {
+      if (this.subset_view.model != this.model.view) {
         return
       }
       return this._update_masked_visuals()
-    }, {signal: (view) => (view as CDSView).properties.masked.change})
+    }, {signal: (view) => (view as IndexedSubset).properties.masked.change})
     this.connect(this.model.properties.view.change, async () => {
       const revision = ++view_revision
-      if (!this.cds_view.is_destroyed) {
-        this.cds_view.remove()
+      if (!this.subset_view.is_destroyed) {
+        this.subset_view.remove()
       }
       const model = this.model.view
-      const cds_view = await build_view(model, {parent: this})
+      const subset_view = await build_view(model, {parent: this})
       if (this.is_destroyed || revision != view_revision || this.model.view != model) {
-        cds_view.remove()
+        subset_view.remove()
         return
       }
-      this.cds_view = cds_view
+      this.subset_view = subset_view
       disconnect_source(source)
       connect_source(source)
       await update()
@@ -342,7 +342,7 @@ export class GlyphRendererView extends DataRendererView {
   private _data_update_complete: Promise<void> = Promise.resolve()
 
   // Painting publishes masks, which visuals may read (e.g. through a CustomJSTransform). Work
-  // started by a mask change never requests a paint, because renderers sharing a CDSView may
+  // started by a mask change never requests a paint, because renderers sharing an IndexedSubset may
   // publish different masks, so painting again would feed back.
   private _update_masked_visuals(): void {
     const preparing_data = this._pending_update?.data === true || this._active_update?.data === true
@@ -663,7 +663,7 @@ export class GlyphRendererView extends DataRendererView {
 
   _get_reference_point(field: string | null, value?: unknown): number | undefined | null {
     if (field != null) {
-      const array = this.model.data_source.get_column(field)
+      const array = this.model.data_source.get_field(field)
       if (array != null) {
         return this.model.view.get_reference_point(array, value)
       }
@@ -671,18 +671,19 @@ export class GlyphRendererView extends DataRendererView {
     return null
   }
 
-  draw_legend(ctx: Context2d, x0: number, x1: number, y0: number, y1: number, field: string | null, label: unknown, index: number | null): void {
+  draw_legend(ctx: Context2d, bounds: Rect, {item, value}: LegendEntry): void {
     if (this.glyph.data_size == 0) {
       return
     }
+    const {index} = item
     const subset_index = (() => {
       if (index == null) {
-        return this.get_reference_point(field, label)
+        return this.get_reference_point(item.get_field_from_label_prop(), value)
       } else {
         return this.model.view.get_subset_index(index)
       }
     })()
-    this.glyph.draw_legend_for_index(ctx, {x0, x1, y0, y1}, subset_index)
+    this.glyph.draw_legend_for_index(ctx, bounds, subset_index)
   }
 
   hit_test(geometry: Geometry): HitTestResult {
@@ -708,7 +709,8 @@ export namespace GlyphRenderer {
     NonSelectionGlyph = BaseGlyph,
     SelectionGlyph = BaseGlyph,
     MutedGlyph = BaseGlyph,
-  > = p.AttrsOf<Props<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph>>
+    Source extends IndexedDataSource = IndexedDataSource,
+  > = p.AttrsOf<Props<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph, Source>>
 
   export type Props<
     BaseGlyph,
@@ -716,9 +718,10 @@ export namespace GlyphRenderer {
     NonSelectionGlyph = BaseGlyph,
     SelectionGlyph = BaseGlyph,
     MutedGlyph = BaseGlyph,
+    Source extends IndexedDataSource = IndexedDataSource,
   > = DataRenderer.Props & {
-    data_source: p.Property<ColumnarDataSource>
-    view: p.Property<CDSView>
+    data_source: p.Property<Source>
+    view: p.Property<IndexedSubset>
     glyph: p.Property<BaseGlyph>
     hover_glyph: p.Property<HoverGlyph | null>
     nonselection_glyph: p.Property<NonSelectionGlyph | "auto" | null>
@@ -734,7 +737,13 @@ export interface GlyphRenderer<
   NonSelectionGlyph extends Glyph = BaseGlyph,
   SelectionGlyph extends Glyph = BaseGlyph,
   MutedGlyph extends Glyph = BaseGlyph,
-> extends GlyphRenderer.Attrs<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph> {}
+  Source extends IndexedDataSource = IndexedDataSource,
+> extends GlyphRenderer.Attrs<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph, Source> {}
+
+export type GlyphRendererWithSource<
+  BaseGlyph extends Glyph,
+  Source extends IndexedDataSource,
+> = GlyphRenderer<BaseGlyph, BaseGlyph, BaseGlyph, BaseGlyph, BaseGlyph, Source>
 
 export class GlyphRenderer<
   BaseGlyph extends Glyph = Glyph,
@@ -742,16 +751,17 @@ export class GlyphRenderer<
   NonSelectionGlyph extends Glyph = BaseGlyph,
   SelectionGlyph extends Glyph = BaseGlyph,
   MutedGlyph extends Glyph = BaseGlyph,
+  Source extends IndexedDataSource = IndexedDataSource,
 > extends DataRenderer {
-  declare properties: GlyphRenderer.Props<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph>
+  declare properties: GlyphRenderer.Props<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph, Source>
   declare __view_type__: GlyphRendererView
 
   static {
     this.prototype.default_view = GlyphRendererView
 
     this.define<GlyphRenderer.Props<Glyph>>(({Bool, Auto, Or, Ref, Null, Nullable}) => ({
-      data_source:        [ Ref(ColumnarDataSource) ],
-      view:               [ Ref(CDSView), () => CDSView.create() ],
+      data_source:        [ Ref(IndexedDataSource) ],
+      view:               [ Ref(IndexedSubset), () => IndexedSubset.create() ],
       glyph:              [ Ref(Glyph) ],
       hover_glyph:        [ Nullable(Ref(Glyph)), null ],
       nonselection_glyph: [ Or(Ref(Glyph), Auto, Null), "auto" ],

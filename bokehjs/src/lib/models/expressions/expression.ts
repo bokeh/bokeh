@@ -1,4 +1,4 @@
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
 import {Model} from "../../model"
 import type {Arrayable} from "core/types"
 import type * as p from "core/properties"
@@ -14,11 +14,11 @@ export interface Expression<T = Arrayable> extends Expression.Attrs {}
 export abstract class Expression<T = Arrayable> extends Model {
   declare properties: Expression.Props
 
-  protected readonly _result: Map<ColumnarDataSource, T> = new Map()
+  protected readonly _result: Map<IndexedDataSource, T> = new Map()
 
-  protected abstract _v_compute(source: ColumnarDataSource): T
+  protected abstract _v_compute(source: IndexedDataSource): T
 
-  v_compute(source: ColumnarDataSource): T {
+  v_compute(source: IndexedDataSource): T {
     let result = this._result.get(source)
     if (result === undefined || source.changed_for(this)) {
       result = this._v_compute(source)
@@ -39,11 +39,11 @@ export interface ScalarExpression<T> extends ScalarExpression.Attrs {}
 export abstract class ScalarExpression<T> extends Model {
   declare properties: ScalarExpression.Props
 
-  protected readonly _result: Map<ColumnarDataSource, T> = new Map()
+  protected readonly _result: Map<IndexedDataSource, T> = new Map()
 
-  protected abstract _compute(source: ColumnarDataSource): T
+  protected abstract _compute(source: IndexedDataSource): T
 
-  compute(source: ColumnarDataSource): T {
+  compute(source: IndexedDataSource): T {
     let result = this._result.get(source)
     if (result === undefined || source.changed_for(this)) {
       result = this._compute(source)

@@ -16,7 +16,7 @@ describe("MultiLine", () => {
     const glyph_view = await create_glyph_view(glyph, {xs: xs as any, ys: [[1, 2]]})
 
     expect([...glyph_view.xs.get(0)]).to.be.equal([Date.UTC(2024, 0, 1), Date.UTC(2024, 0, 2)])
-    expect(glyph_view.renderer.model.data_source.get_array("xs")).to.be.equal(expected_xs)
+    expect(glyph_view.renderer.model.data_source.get_field("xs")).to.be.equal(expected_xs)
   })
 
   it("should place vectorized end decorations on the final path tangent and stop the shaft at the rear of the marking", async () => {

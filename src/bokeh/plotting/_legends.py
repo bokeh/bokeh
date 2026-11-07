@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 
 from ..core.property.vectorization import field, value
-from ..models import Legend, LegendItem
+from ..models import ColumnDataSource, Legend, LegendItem
 
 if TYPE_CHECKING:
     from ..core.property.dataspec import DataSpec
@@ -168,7 +168,9 @@ def _handle_legend_group(label: str, legend: Legend, glyph_renderer: GlyphRender
     source = glyph_renderer.data_source
     if source is None:
         raise ValueError("Cannot use 'legend_group' on a glyph without a data source already configured")
-    if not (hasattr(source, 'column_names') and label in source.column_names):
+    if not isinstance(source, ColumnDataSource):
+        raise ValueError("legend_group requires a ColumnDataSource. Use legend_field for indexed sources")
+    if label not in source.column_names:
         raise ValueError("Column to be grouped does not exist in glyph data source")
 
     column = source.data[label]

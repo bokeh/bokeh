@@ -1,9 +1,13 @@
 import {expect, expect_not_null} from "#framework/assertions"
 import {display, fig} from "#framework/layouts"
+import {restorable} from "#framework/util"
+import {spy} from "sinon"
 
 import {Legend, LegendView} from "@bokehjs/models/annotations/legend"
 import {LegendItem} from "@bokehjs/models/annotations/legend_item"
 import {bounding_box} from "@bokehjs/core/dom"
+import {Float64NDArray} from "@bokehjs/core/util/ndarray"
+import {IndexFilter} from "@bokehjs/models/filters/index_filter"
 
 class ModelDrivenLegendView extends LegendView {
   declare model: ModelDrivenLegend
@@ -46,6 +50,43 @@ class ModelDrivenLegend extends Legend {
 }
 
 describe("LegendView", () => {
+  it("keeps shaped lookup values separate from display labels", async () => {
+    const p = fig([600, 200], {x_range: [0, 10], y_range: [0, 10]})
+    const renderer = p.scatter([1, 2, 3], [1, 2, 3])
+    renderer.data_source.data = {
+      x: [1, 2, 3], y: [1, 2, 3],
+      label: new Float64NDArray([1, 2, 1, 2, 3, 4], [3, 2]),
+    }
+    const item = LegendItem.create({label: {field: "label"}, renderers: [renderer]})
+    const legend = ModelDrivenLegend.create({items: [item]})
+    p.add_layout(legend, "left")
+    const {view} = await display(p)
+    const legend_view = view.owner.get_one(legend)
+    legend_view.disconnect_resize_observer()
+    const renderer_view = view.owner.get_one(renderer)
+    using draw = restorable(spy(renderer_view.glyph, "draw_legend_for_index"))
+
+    const check_labels = (indices: number[], values: unknown[] = [[1, 2], [3, 4]]) => {
+      expect(legend_view.labels.map(({label}) => label)).to.be.equal(["1,2", "3,4"])
+      expect(legend_view.labels.map(({value}) => value)).to.be.equal(values)
+      expect(legend_view.entry_els.map((el) => el.textContent)).to.be.equal(["1,2", "3,4"])
+      draw.resetHistory()
+      legend_view.paint(view.canvas_view.primary.ctx)
+      expect(draw.getCalls().map((call) => call.args[2])).to.be.equal(indices)
+    }
+    check_labels([0, 2])
+
+    renderer.view.filter = IndexFilter.create({indices: [1, 2]})
+    await view.ready
+    check_labels([0, 1])
+
+    renderer.data_source.data = {
+      x: [1, 2, 3], y: [1, 2, 3], label: ["1,2", "1,2", "3,4"],
+    }
+    await view.ready
+    check_labels([0, 1], ["1,2", "3,4"])
+  })
+
   for (const {name, label} of [
     {name: "NaN", label: () => NaN},
     {name: "two-level tuple", label: () => ["A", "one"]},

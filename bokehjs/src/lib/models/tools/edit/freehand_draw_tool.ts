@@ -23,7 +23,8 @@ export class FreehandDrawToolView extends EditToolView {
     }
 
     const [x, y] = point
-    const {glyph, data_source} = renderer
+    const {glyph} = renderer
+    const data_source = this._data_source(renderer)
     const xkey = isField(glyph.xs) ? glyph.xs.field : null
     const ykey = isField(glyph.ys) ? glyph.ys.field : null
     const data = dict(data_source.data)
@@ -83,7 +84,7 @@ export class FreehandDrawToolView extends EditToolView {
     }
     for (const renderer of this.model.renderers) {
       if (ev.key == "Escape") {
-        renderer.data_source.selection_manager.clear()
+        this._data_source(renderer).selection_manager.clear()
       } else if (ev.key == "Backspace") {
         this._delete_selected(renderer)
       }

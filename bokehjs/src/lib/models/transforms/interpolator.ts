@@ -1,5 +1,5 @@
 import {Transform} from "./transform"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
+import {IndexedDataSource} from "../sources/indexed_data_source"
 import type * as p from "core/properties"
 import type {Arrayable} from "core/types"
 import {infer_type} from "core/types"
@@ -12,7 +12,7 @@ export namespace Interpolator {
   export type Props = Transform.Props & {
     x: p.Property<string | number[]>
     y: p.Property<string | number[]>
-    data: p.Property<ColumnarDataSource | null>
+    data: p.Property<IndexedDataSource | null>
     clip: p.Property<boolean>
   }
 }
@@ -26,7 +26,7 @@ export abstract class Interpolator extends Transform {
     this.define<Interpolator.Props>(({Bool, Float, Str, Ref, List, Or, Nullable}) => ({
       x:    [ Or(Str, List(Float)) ],
       y:    [ Or(Str, List(Float)) ],
-      data: [ Nullable(Ref(ColumnarDataSource)), null ],
+      data: [ Nullable(Ref(IndexedDataSource)), null ],
       clip: [ Bool, true ],
     }))
   }
@@ -38,6 +38,10 @@ export abstract class Interpolator extends Transform {
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.change, () => this._sorted_dirty = true)
+    const invalidate = () => this.change.emit()
+    this.on_reference_change(this.properties.data, invalidate, {
+      signals: (source) => [source.change, source.data_changed],
+    })
   }
 
   v_compute(xs: Arrayable<number>): Arrayable<number> {
@@ -58,7 +62,7 @@ export abstract class Interpolator extends Transform {
     let tsx: Arrayable<number>
     let tsy: Arrayable<number>
     if (isString(this.x) && isString(this.y) && this.data != null) {
-      const column_names = this.data.columns()
+      const column_names = this.data.fields()
       if (!includes(column_names, this.x)) {
         throw new Error("The x parameter does not correspond to a valid column name defined in the data parameter")
       }
@@ -66,8 +70,8 @@ export abstract class Interpolator extends Transform {
         throw new Error("The y parameter does not correspond to a valid column name defined in the data parameter")
       }
 
-      tsx = this.data.get_column(this.x)!
-      tsy = this.data.get_column(this.y)!
+      tsx = this.data.get_field(this.x)!
+      tsy = this.data.get_field(this.y)!
     } else if (isArray(this.x) && isArray(this.y)) {
       tsx = this.x
       tsy = this.y

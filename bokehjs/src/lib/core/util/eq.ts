@@ -66,7 +66,7 @@ export class Comparator {
 
     switch (class_name) {
       case "[object Number]":
-        return this.numbers(a, b)
+        return this.numbers(+a, +b)
       case "[object Symbol]":
         return a === b
       case "[object RegExp]":

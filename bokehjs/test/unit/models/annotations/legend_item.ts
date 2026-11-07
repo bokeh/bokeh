@@ -1,10 +1,15 @@
 import {expect} from "#framework/assertions"
+import {restorable} from "#framework/util"
 import * as sinon from "sinon"
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {LegendItem} from "@bokehjs/models/annotations/legend_item"
 import {logger} from "@bokehjs/core/logging"
+import {Float64NDArray} from "@bokehjs/core/util/ndarray"
+import {IndexFilter} from "@bokehjs/models/filters/index_filter"
+import {Comparator} from "@bokehjs/core/util/eq"
+import {RecordSource} from "../sources/record_source"
 
 describe("LegendItem", () => {
 
@@ -120,6 +125,118 @@ describe("LegendItem", () => {
   })
 
   describe("get_labels_list_from_label_prop", () => {
+    it("deduplicates primitive labels without pairwise comparisons", () => {
+      const data = Array.from({length: 128}, (_, i) => `label ${i % 64}`)
+      const source = ColumnDataSource.create({data: {label: data}})
+      const renderer = GlyphRenderer.create({data_source: source})
+      renderer.view.compute_indices(source)
+      const item = LegendItem.create({label: {field: "label"}, renderers: [renderer]})
+      using comparisons = restorable(sinon.spy(Comparator.prototype, "eq"))
+      const labels = item.get_labels_list_from_label_prop()
+      expect(comparisons.callCount).to.be.below(data.length*2)
+      expect(labels).to.be.equal(data.slice(0, 64))
+    })
+
+    it("retains first-seen primitive values, including NaN and signed zero", () => {
+      const data = [NaN, NaN, -0, 0, undefined, null, false, false, "1", 1]
+      const source = ColumnDataSource.create({data: {label: data}})
+      const renderer = GlyphRenderer.create({data_source: source})
+      renderer.view.compute_indices(source)
+      const item = LegendItem.create({label: {field: "label"}, renderers: [renderer]})
+      const labels = item.get_labels_list_from_label_prop()
+      expect(labels).to.be.equal([NaN, -0, undefined, null, false, "1", 1])
+      expect(Object.is(labels[1], -0)).to.be.true
+    })
+
+    /* eslint-disable no-new-wrappers */
+    for (const {kind, primitive, boxed} of [
+      {kind: "string", primitive: "x", boxed: new String("x")},
+      {kind: "boolean", primitive: true, boxed: new Boolean(true)},
+      {kind: "number", primitive: 1, boxed: new Number(1)},
+    ]) {
+      for (const boxed_first of [false, true]) {
+        it(`merges boxed ${kind} labels with primitives when the ${boxed_first ? "boxed" : "primitive"} value is first`, () => {
+          const data = boxed_first ? [boxed, primitive, boxed, primitive] : [primitive, boxed, primitive, boxed]
+          const source = ColumnDataSource.create({data: {label: data}})
+          const renderer = GlyphRenderer.create({data_source: source})
+          renderer.view.compute_indices(source)
+          const item = LegendItem.create({label: {field: "label"}, renderers: [renderer]})
+          const labels = item.get_labels_list_from_label_prop()
+          expect(labels.length).to.be.equal(1)
+          expect(labels[0]).to.be.identical(data[0])
+          expect(renderer.view.get_reference_point(data, labels[0])).to.be.equal(0)
+
+          renderer.view.filter = IndexFilter.create({indices: [1, 2, 3]})
+          renderer.view.compute_indices(source)
+          const filtered = item.get_labels_list_from_label_prop()
+          expect(filtered.length).to.be.equal(1)
+          expect(filtered[0]).to.be.identical(data[1])
+          expect(renderer.view.get_reference_point(data, filtered[0])).to.be.equal(0)
+        })
+      }
+    }
+
+    /* eslint-enable no-new-wrappers */
+
+    it("reads shaped label fields by logical row after filtering", () => {
+      const source = ColumnDataSource.create({data: {label: new Float64NDArray([1, 2, 3, 4, 5, 6], [3, 2])}})
+      const renderer = GlyphRenderer.create({data_source: source})
+      renderer.view.filter = IndexFilter.create({indices: [1, 2]})
+      renderer.view.compute_indices(source)
+      const item = LegendItem.create({label: {field: "label"}, renderers: [renderer]})
+      const labels: unknown[] = item.get_labels_list_from_label_prop()
+      expect(labels).to.be.equal([[3, 4], [5, 6]])
+      expect(renderer.view.get_reference_point(source.get("label"), labels[0])).to.be.equal(0)
+      expect(renderer.view.get_reference_point(source.get("label"), labels[1])).to.be.equal(1)
+    })
+
+    for (const [storage, data] of Object.entries({
+      shaped: new Float64NDArray([1, 2, 1, 2, 3, 4], [3, 2]),
+      nested: [[1, 2], [1, 2], [3, 4]],
+    })) {
+      it(`merges repeated ${storage} labels and uses the first visible reference point`, () => {
+        const source = ColumnDataSource.create({data: {label: data}})
+        const renderer = GlyphRenderer.create({data_source: source})
+        renderer.view.compute_indices(source)
+        const item = LegendItem.create({label: {field: "label"}, renderers: [renderer]})
+        const labels = item.get_labels_list_from_label_prop()
+        expect(labels).to.be.equal([[1, 2], [3, 4]])
+        expect(renderer.view.get_reference_point(source.get("label"), labels[0])).to.be.equal(0)
+        expect(renderer.view.get_reference_point(source.get("label"), labels[1])).to.be.equal(2)
+        renderer.view.filter = IndexFilter.create({indices: [1, 2]})
+        renderer.view.compute_indices(source)
+        const filtered = item.get_labels_list_from_label_prop()
+        expect(filtered).to.be.equal([[1, 2], [3, 4]])
+        expect(renderer.view.get_reference_point(source.get("label"), filtered[0])).to.be.equal(0)
+        expect(renderer.view.get_reference_point(source.get("label"), filtered[1])).to.be.equal(1)
+      })
+    }
+
+    it("retains numeric field values for legend glyph lookup", () => {
+      const source = RecordSource.create({records: [{label: 10}, {label: 20}, {label: 10}]})
+      const renderer = GlyphRenderer.create({data_source: source})
+      renderer.view.compute_indices(source)
+      const item = LegendItem.create({label: {field: "label"}, renderers: [renderer]})
+      const labels = item.get_labels_list_from_label_prop()
+      expect(labels).to.be.equal([10, 20])
+      expect(renderer.view.get_reference_point(source.get("label"), labels[1])).to.be.equal(1)
+    })
+
+    it("merges equal object values and NaN using the first visible reference point", () => {
+      const source = ColumnDataSource.create({data: {label: [{x: [1, 2]}, {x: [1, 2]}, {x: [3, 4]}, NaN, NaN]}})
+      const renderer = GlyphRenderer.create({data_source: source})
+      renderer.view.compute_indices(source)
+      const item = LegendItem.create({label: {field: "label"}, renderers: [renderer]})
+      const labels = item.get_labels_list_from_label_prop()
+      expect(labels).to.be.equal([{x: [1, 2]}, {x: [3, 4]}, NaN])
+      expect(labels.map((value) => renderer.view.get_reference_point(source.get("label"), value))).to.be.equal([0, 2, 3])
+
+      renderer.view.filter = IndexFilter.create({indices: [1, 2, 4]})
+      renderer.view.compute_indices(source)
+      const filtered = item.get_labels_list_from_label_prop()
+      expect(filtered).to.be.equal(labels)
+      expect(filtered.map((value) => renderer.view.get_reference_point(source.get("label"), value))).to.be.equal([0, 1, 2])
+    })
 
     it("should return empty labels if visible is false", () => {
       const source = ColumnDataSource.create({
