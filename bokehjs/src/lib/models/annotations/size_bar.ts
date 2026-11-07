@@ -4,7 +4,6 @@ import {RadialGlyph} from "../glyphs/radial_glyph"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import type {Context2d, Exportable} from "core/util/canvas"
 import {exportable} from "core/util/canvas"
-import type {Range} from "../ranges/range"
 import type {Scale} from "../scales"
 import {LinearScale} from "../scales"
 import {Range1d} from "../ranges/range1d"
@@ -79,9 +78,9 @@ export class SizeBarView extends BaseBarView implements Exportable {
   declare visuals: SizeBar.Visuals
   declare layout: InternalBorderLayout
 
-  protected _major_range: Range
+  protected _major_range: Range1d
   protected _major_scale: Scale
-  protected _minor_range: Range
+  protected _minor_range: Range1d
   protected _minor_scale: Scale
 
   protected _size_bar: InternalPlot

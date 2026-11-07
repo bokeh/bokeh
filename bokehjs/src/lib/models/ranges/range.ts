@@ -12,6 +12,8 @@ export namespace Range {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
+    start: p.Property<number>
+    end: p.Property<number>
     bounds: p.Property<Bounds>
     min_interval: p.Property<number | null>
     max_interval: p.Property<number | null>
@@ -43,9 +45,6 @@ export abstract class Range extends Model {
       max_interval: [ Nullable(Float), null ],
     }))
   }
-
-  abstract start: number
-  abstract end: number
 
   abstract get min(): number
   abstract get max(): number
