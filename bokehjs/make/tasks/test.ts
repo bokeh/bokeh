@@ -80,7 +80,7 @@ async function chrome(): Promise<string> {
   const {chromium} = await import("playwright-core")
   const executable = chromium.executablePath()
   if (!fs.existsSync(executable)) {
-    throw new BuildError("headless", `managed Chromium not found at ${executable}. Run pixi run setup from the repository root, or npx --no-install playwright-core install --with-deps --no-shell chromium from bokehjs.`)
+    throw new BuildError("headless", `managed Chromium not found at ${executable}. Run pixi run setup from the repository root, or npx --no-install playwright-core install --no-shell chromium from bokehjs.`)
   }
   return executable
 }
