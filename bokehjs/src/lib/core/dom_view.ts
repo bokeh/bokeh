@@ -11,7 +11,7 @@ import {create_root_fragment} from "./vdom"
 import vars_css from "styles/vars.css"
 import core_css from "styles/core.css"
 
-import type {VNode} from "preact"
+import type {VNode, ContainerNode} from "preact"
 import {render, h} from "preact"
 
 export const bokeh_element = Symbol("bokeh_element")
@@ -218,12 +218,35 @@ export abstract class DOMComponentView extends DOMElementView {
 
   component?(): VNode
 
+  /**
+   * The root of the rendered vDOM tree, if any.
+   */
+  protected _vdom_root: ContainerNode | null = null
+
+  /**
+   * Unmounts the rendered vDOM tree, which runs cleanup of its components,
+   * including disposal of their subscriptions to (preact) signals.
+   */
+  protected _unmount_vdom(): void {
+    const {_vdom_root} = this
+    if (_vdom_root != null) {
+      this._vdom_root = null
+      render(null, _vdom_root)
+    }
+  }
+
+  override remove(): void {
+    this._unmount_vdom()
+    super.remove()
+  }
+
   render(): void {
     if (this.component != null) {
       const component = h(this.component.bind(this), {})
       const parent = this.el.parentNode
       assert(parent != null, "attempted to render vDOM into a detached DOM node")
       const target = create_root_fragment(parent, this.el)
+      this._vdom_root = target
       render(component, target)
     } else {
       this.empty()
