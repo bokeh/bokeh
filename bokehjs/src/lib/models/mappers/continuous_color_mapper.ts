@@ -5,7 +5,17 @@ import type * as p from "core/properties"
 
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {map, intersection, is_empty} from "core/util/array"
+import {sum} from "core/util/arrayable"
 import {isNumber, isArray} from "core/util/types"
+
+// Plain arrays can contain nulls, which behave like zeros in numeric comparisons.
+function nulls_to_nan(data: Arrayable<number | null>): Arrayable<number> {
+  if (isArray<number | null>(data) && data.includes(null)) {
+    return data.map((value) => value ?? NaN)
+  } else {
+    return data as Arrayable<number>
+  }
+}
 
 export namespace ContinuousColorMapper {
   export type Attrs = p.AttrsOf<Props>
@@ -58,22 +68,25 @@ export abstract class ContinuousColorMapper extends ColorMapper {
 
   update_data(): void {
     const {domain, palette} = this
-    const all_data = [...this._collect(domain)]
+    const all_data = this._collect(domain)
     this._scan_data = this.scan(all_data, palette.length)
     this.metrics_change.emit()
     this.change.emit()
   }
 
-  MatricsType: {min: number, max: number}
+  MetricsType: {min: number, max: number}
 
-  get metrics(): this["MatricsType"] {
+  get metrics(): this["MetricsType"] {
     if (this._scan_data == null) {
       this.update_data()
     }
     return this._scan_data!
   }
 
-  protected *_collect(domain: [GlyphRenderer, string | string[]][]) {
+  // Returns all values of the domain, avoiding a copy if there is only one column.
+  protected _collect(domain: [GlyphRenderer, string | string[]][]): Arrayable<number> {
+    const chunks: Arrayable<number | null>[] = []
+
     for (const [renderer, fields] of domain) {
       for (const field of isArray(fields) ? fields : [fields]) {
         if (renderer.view.properties.indices.is_unset) {
@@ -103,23 +116,37 @@ export abstract class ContinuousColorMapper extends ColorMapper {
           array = map(subset, (i) => array[i])
         }
 
-        if (array.length > 0 && !isNumber(array[0])) {
+        if (array.length > 0 && !isNumber(array[0]) && array[0] != null) {
           for (const subarray of array) {
-            yield* subarray
+            chunks.push(subarray)
           }
         } else {
-          yield* array
+          chunks.push(array)
         }
       }
     }
+
+    if (chunks.length == 1) {
+      return nulls_to_nan(chunks[0])
+    }
+
+    const result = new Float64Array(sum(chunks.map((chunk) => chunk.length)))
+    let offset = 0
+    for (const chunk of chunks) {
+      for (let i = 0, end = chunk.length; i < end; i++) {
+        result[offset++] = chunk[i] ?? NaN
+      }
+    }
+    return result
   }
 
   protected _scan_data: {min: number, max: number} | null = null
 
   protected abstract scan(data: Arrayable<number>, n: number): {min: number, max: number}
 
-  public _v_compute(data: Arrayable<number>, values: Arrayable<uint32>,
+  public _v_compute(raw_data: Arrayable<number | null>, values: Arrayable<uint32>,
       palette: Arrayable<uint32>, colors: {nan_color: uint32, low_color?: uint32, high_color?: uint32}): void {
+    const data = nulls_to_nan(raw_data)
     const scan_data = this._v_scan(data, palette.length)
     this._v_map(data, values, palette, colors, scan_data)
   }
@@ -130,7 +157,7 @@ export abstract class ContinuousColorMapper extends ColorMapper {
    */
   public _v_scan(data: Arrayable<number>, n: number): {min: number, max: number} {
     const {domain} = this
-    const all_data = !is_empty(domain) ? [...this._collect(domain)] : data
+    const all_data = !is_empty(domain) ? this._collect(domain) : data
     return this.scan(all_data, n)
   }
 
@@ -152,6 +179,15 @@ export abstract class ContinuousColorMapper extends ColorMapper {
 
     this._scan_data = scan_data
     this.metrics_change.emit()
+
+    this._map_values(data, values, palette, {nan_color, low_color, high_color})
+  }
+
+  // Maps data to colors using the current scan data. Subclasses can override this
+  // with a specialized implementation of `cmap()` and `value_to_index()`.
+  protected _map_values(data: Arrayable<number>, values: Arrayable<uint32>,
+      palette: Arrayable<uint32>, colors: {nan_color: uint32, low_color: uint32, high_color: uint32}): void {
+    const {nan_color, low_color, high_color} = colors
 
     for (let i = 0, end = data.length; i < end; i++) {
       const d = data[i]

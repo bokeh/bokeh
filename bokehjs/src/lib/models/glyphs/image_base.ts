@@ -103,7 +103,8 @@ export abstract class ImageBaseView extends XYGlyphView {
     ctx.restore()
   }
 
-  protected abstract _flat_img_to_buf8(img: NDArrayType<number>): Uint8ClampedArray
+  // Returns a function converting images to RGBA, reused for all images of this glyph.
+  protected abstract _img_to_buf8(): (img: NDArrayType<number>) => Uint8ClampedArray
 
   protected get _can_inherit_image_data(): boolean {
     return this.inherited_image
@@ -120,6 +121,7 @@ export abstract class ImageBaseView extends XYGlyphView {
       }
 
       const {image_dimension} = this
+      const img_to_buf8 = this._img_to_buf8()
 
       for (let i = 0; i < n; i++) {
         if (indices != null && !indices.includes(i)) {
@@ -133,7 +135,7 @@ export abstract class ImageBaseView extends XYGlyphView {
         this.image_width[i] = width
         this.image_height[i] = height
 
-        const buf8 = this._flat_img_to_buf8(img)
+        const buf8 = img_to_buf8(img)
         this._set_image_data_from_buffer(i, buf8)
       }
     } else {

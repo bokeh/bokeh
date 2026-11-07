@@ -23,11 +23,11 @@ export class CategoricalMarkerMapper extends Mapper<string> {
   declare properties: CategoricalMarkerMapper.Props
 
   static {
-    this.define<CategoricalMarkerMapper.Props>(({Float, List, Nullable}) => ({
+    this.define<CategoricalMarkerMapper.Props>(({Int, List, Nullable}) => ({
       factors:       [ FactorSeq ],
       markers:       [ List(MarkerType) ],
-      start:         [ Float, 0 ],
-      end:           [ Nullable(Float), null],
+      start:         [ Int, 0 ],
+      end:           [ Nullable(Int), null],
       default_value: [ MarkerType, "circle" ],
     }))
   }

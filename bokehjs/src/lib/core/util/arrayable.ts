@@ -420,16 +420,89 @@ export function binary_search<T>(array: Arrayable<T>, value: T): number | null {
 
 export const sorted_index = bisect_left
 
+/**
+ * Counts samples of `data` in bins `(bin_edges[i], bin_edges[i+1]]`, where
+ * samples below (or equal to) the first edge fall into the first bin and
+ * samples above the last edge fall into the last bin. NaNs are not counted.
+ */
 export function bin_counts(data: Arrayable<number>, bin_edges: Arrayable<number>): Arrayable<number> {
   const nbins = bin_edges.length - 1
   const counts = Array(nbins).fill(0)
-  for (let i = 0; i < data.length; i++) {
+
+  const first = nbins >= 1 ? bin_edges[0] : NaN
+  const last = nbins >= 1 ? bin_edges[nbins] : NaN
+  const scale = nbins / (last - first)
+
+  if (!(isFinite(first) && isFinite(last) && first < last && isFinite(scale))) {
+    for (let i = 0; i < data.length; i++) {
+      const sample = data[i]
+      if (isNaN(sample)) {
+        continue
+      }
+      const index = sorted_index(bin_edges, sample)
+      const bin = clamp(index - 1, 0, nbins - 1)
+      counts[bin] += 1
+    }
+    return counts
+  }
+
+  // Bin `b` satisfies `bin_edges[b] < sample <= bin_edges[b+1]`, which is what
+  // `sorted_index(bin_edges, sample) - 1` computes. Instead of searching all
+  // edges, guess `b` assuming uniformly spaced edges and correct the guess with
+  // a search limited to its neighborhood, which is exact for any sorted edges.
+  const last_inner = bin_edges[nbins - 1]
+  for (let i = 0, end = data.length; i < end; i++) {
     const sample = data[i]
-    const index = sorted_index(bin_edges, sample)
-    const bin = clamp(index - 1, 0, nbins - 1)
+
+    let bin: number
+    if (!(sample > first)) {
+      if (isNaN(sample)) {
+        continue
+      }
+      bin = 0
+    } else if (sample > last_inner) {
+      bin = nbins - 1
+    } else {
+      // `bin_edges[0] < sample <= bin_edges[nbins-1]`, thus `0 <= bin <= nbins-2`
+      bin = Math.ceil((sample - first)*scale) - 1
+      if (!(bin >= 0)) {
+        bin = 0
+      } else if (bin > nbins - 2) {
+        bin = nbins - 2
+      }
+
+      if (!(bin_edges[bin] < sample)) {
+        if (!(bin_edges[bin - 1] < sample)) {
+          bin = _bisect_left(bin_edges, sample, 1, bin - 1) - 1
+        } else {
+          bin -= 1
+        }
+      } else if (!(sample <= bin_edges[bin + 1])) {
+        if (!(sample <= bin_edges[bin + 2])) {
+          bin = _bisect_left(bin_edges, sample, bin + 3, nbins - 1) - 1
+        } else {
+          bin += 1
+        }
+      }
+    }
+
     counts[bin] += 1
   }
+
   return counts
+}
+
+// Like `bisect_left()`, but without the overhead of a key function.
+function _bisect_left(array: Arrayable<number>, value: number, low: number, high: number): number {
+  while (low < high) {
+    const mid = (low + high) >>> 1
+    if (array[mid] < value) {
+      low = mid + 1
+    } else {
+      high = mid
+    }
+  }
+  return low
 }
 
 export function interpolate(points: Arrayable<number>, x_values: Arrayable<number>, y_values: Arrayable<number>): Arrayable<number> {

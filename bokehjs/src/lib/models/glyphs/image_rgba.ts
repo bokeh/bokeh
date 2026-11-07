@@ -18,9 +18,11 @@ export class ImageRGBAView extends ImageBaseView {
     return ImageGL
   }
 
-  protected _flat_img_to_buf8(img: NDArrayType<number>): Uint8ClampedArray {
-    const array = isTypedArray(img) ? img : new Uint32Array(img)
-    return new Uint8ClampedArray(array.buffer)
+  protected _img_to_buf8(): (img: NDArrayType<number>) => Uint8ClampedArray {
+    return (img) => {
+      const array = isTypedArray(img) ? img : new Uint32Array(img)
+      return new Uint8ClampedArray(array.buffer)
+    }
   }
 }
 

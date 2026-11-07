@@ -1,9 +1,27 @@
 import type {ScanningScanData} from "./scanning_color_mapper"
 import {ScanningColorMapper} from "./scanning_color_mapper"
 import type {Arrayable} from "core/types"
-import {min, max, bin_counts, interpolate, sorted_index} from "core/util/arrayable"
+import {bin_counts, interpolate, sorted_index} from "core/util/arrayable"
 import {linspace, cumsum} from "core/util/array"
 import type * as p from "core/properties"
+
+// Infinities can't be equalized, so they are only counted in the outermost bins.
+function finite_minmax(data: Arrayable<number>): [number, number] {
+  let min = +Infinity
+  let max = -Infinity
+  for (let i = 0, end = data.length; i < end; i++) {
+    const value = data[i]
+    if (isFinite(value)) {
+      if (value < min) {
+        min = value
+      }
+      if (value > max) {
+        max = value
+      }
+    }
+  }
+  return [min, max]
+}
 
 export namespace EqHistColorMapper {
   export type Attrs = p.AttrsOf<Props>
@@ -28,8 +46,19 @@ export class EqHistColorMapper extends ScanningColorMapper {
 
   // Public for unit tests
   /*protected*/ scan(data: Arrayable<number>, n: number): ScanningScanData {
-    const low = this.low != null ? this.low : min(data)
-    const high = this.high != null ? this.high : max(data)
+    const [low, high] = (() => {
+      if (this.low != null && this.high != null) {
+        return [this.low, this.high]
+      } else {
+        const [min, max] = finite_minmax(data)
+        return [this.low ?? min, this.high ?? max]
+      }
+    })()
+
+    // There is no (finite) data or the range is empty, so there is nothing to equalize
+    if (!(isFinite(low) && isFinite(high) && low < high)) {
+      return {min: low, max: high, binning: linspace(low, high, n+1), force_low_cutoff: false}
+    }
 
     const nbins = this.bins
     const eq_bin_edges = linspace(low, high, nbins+1)
@@ -42,6 +71,11 @@ export class EqHistColorMapper extends ScanningColorMapper {
       if (full_hist[i] != 0) {
         nhist++
       }
+    }
+
+    // There is no (non-NaN) data, so there is nothing to equalize
+    if (nhist == 0) {
+      return {min: low, max: high, binning: linspace(low, high, n+1), force_low_cutoff: false}
     }
 
     // 2) Remove zeros, leaving extra element at beginning for rescale_discrete_levels

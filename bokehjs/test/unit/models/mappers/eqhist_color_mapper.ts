@@ -1,8 +1,56 @@
 import {expect} from "#framework/assertions"
 
 import {EqHistColorMapper} from "@bokehjs/models/mappers/eqhist_color_mapper"
+import {convert_to_uint32_color} from "@bokehjs/models/mappers/color_mapper"
+import {linspace} from "@bokehjs/core/util/array"
 
 describe("EqHistColorMapper module", () => {
+
+  describe("EqHistColorMapper.v_compute method", () => {
+
+    function v_compute_check(data: number[], palette: string[], attrs: Partial<EqHistColorMapper.Attrs> = {}) {
+      const color_mapper = EqHistColorMapper.create({palette, nan_color: "gray", ...attrs})
+      const colors = [...color_mapper.v_compute(data)]
+
+      // v_compute() uses a specialized implementation, so compare with the generic one
+      const n = palette.length
+      const nan_color = convert_to_uint32_color("gray")
+      const low_color = convert_to_uint32_color(attrs.low_color ?? palette[0])
+      const high_color = convert_to_uint32_color(attrs.high_color ?? palette[n-1])
+      const expected = [...new Uint32Array(data.map((value) => {
+        if (isNaN(value)) {
+          return nan_color
+        }
+        const index = color_mapper.value_to_index(value, n)
+        if (index < 0) {
+          return low_color
+        } else if (index >= n) {
+          return high_color
+        } else {
+          return convert_to_uint32_color(palette[index])
+        }
+      }))]
+      expect(colors).to.be.equal(expected)
+    }
+
+    const palette = ["#000000", "#330000", "#660000", "#990000", "#cc0000", "#ff0000"]
+    const data = [NaN, -Infinity, ...linspace(-10, 10, 201), Infinity, NaN]
+
+    it("should match value_to_index()", () => {
+      v_compute_check(data, palette)
+      v_compute_check(data.filter((v) => isFinite(v)), palette)
+      v_compute_check(data.filter((v) => isFinite(v)), ["red"])
+      v_compute_check([1, 1, 1], palette)
+      v_compute_check([], palette)
+    })
+
+    it("should match value_to_index() with low and high", () => {
+      const attrs = {low: -5, high: 5, low_color: "blue", high_color: "green"}
+      v_compute_check(data, palette, attrs)
+      v_compute_check(data, ["red"], attrs)
+      v_compute_check(data, palette, {...attrs, rescale_discrete_levels: true})
+    })
+  })
 
   describe("EqHistColorMapper.scan method", () => {
 
@@ -49,6 +97,64 @@ describe("EqHistColorMapper module", () => {
       const values = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 10, 100]
       scan_check(values, [1, 5.500137, 9.999519, 54.999382, 100], 4, false)
       scan_check(values, [1, 5.546049, 32.729042, 100], 4, true, 1)
+    })
+
+    it("Should ignore NaNs", () => {
+      function scan(values: number[], attrs: Partial<EqHistColorMapper.Attrs> = {}) {
+        const palette = new Array(3).fill("red")
+        const color_mapper = EqHistColorMapper.create({palette, ...attrs})
+        return color_mapper.scan(values, palette.length)
+      }
+
+      const values = [1, 1.001, 2, 3, 3, 3]
+      const with_nans = [NaN, 1, NaN, 1.001, 2, NaN, 3, 3, 3, NaN]
+      expect(scan(with_nans)).to.be.equal(scan(values))
+      expect(scan(with_nans, {rescale_discrete_levels: true})).to.be.equal(scan(values, {rescale_discrete_levels: true}))
+      expect(scan(with_nans, {low: 0, high: 2})).to.be.equal(scan(values, {low: 0, high: 2}))
+    })
+
+    it("Should ignore infinities when computing low and high", () => {
+      function scan(values: number[], attrs: Partial<EqHistColorMapper.Attrs> = {}) {
+        const palette = new Array(3).fill("red")
+        const color_mapper = EqHistColorMapper.create({palette, ...attrs})
+        return color_mapper.scan(values, palette.length)
+      }
+
+      // infinities are counted in the outermost bins, like the extreme finite values
+      const with_infs = [-Infinity, 1, 1.001, 2, 3, Infinity, Infinity]
+      const with_extremes = [1, 1, 1.001, 2, 3, 3, 3]
+      expect(scan(with_infs)).to.be.equal(scan(with_extremes))
+      expect(scan(with_infs).min).to.be.equal(1)
+      expect(scan(with_infs).max).to.be.equal(3)
+      // with explicit low or high, infinities are like any other value outside the range
+      expect(scan(with_infs, {low: 0})).to.be.equal(scan([-1, 1, 1.001, 2, 3, 3, 3], {low: 0}))
+      expect(scan(with_infs, {high: 2})).to.be.equal(scan([1, 1, 1.001, 2, 3, 4, 4], {high: 2}))
+      expect(scan([NaN, ...with_infs, NaN], {rescale_discrete_levels: true})).to.be.equal(scan(with_extremes, {rescale_discrete_levels: true}))
+    })
+
+    it("Should scan constant values using uniform binning", () => {
+      const palette = new Array(3).fill("red")
+      const color_mapper = EqHistColorMapper.create({palette})
+      const scan = color_mapper.scan([2, 2, NaN, 2, Infinity], palette.length)
+      expect(scan).to.be.equal({min: 2, max: 2, binning: [2, 2, 2, 2], force_low_cutoff: false})
+    })
+
+    it("Should scan without finite values", () => {
+      const palette = new Array(3).fill("red")
+      const color_mapper = EqHistColorMapper.create({palette})
+      for (const values of [[], [NaN], [Infinity, -Infinity]]) {
+        const scan = color_mapper.scan(values, palette.length)
+        expect(scan.min).to.be.equal(Infinity)
+        expect(scan.max).to.be.equal(-Infinity)
+        expect(scan.binning.length).to.be.equal(4)
+      }
+    })
+
+    it("Should scan only NaNs using uniform binning", () => {
+      const palette = new Array(4).fill("red")
+      const color_mapper = EqHistColorMapper.create({palette, low: 0, high: 2})
+      const scan = color_mapper.scan([NaN, NaN, NaN], palette.length)
+      expect(scan).to.be.equal({min: 0, max: 2, binning: [0, 0.5, 1, 1.5, 2], force_low_cutoff: false})
     })
   })
 })

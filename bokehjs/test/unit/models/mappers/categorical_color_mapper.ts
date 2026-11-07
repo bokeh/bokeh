@@ -17,6 +17,20 @@ describe("CategoricalColorMapper module", () => {
         expect(vals).to.be.equal(convert_to_uint32_palette(["blue", "green", "red", "green"]))
       })
 
+      it("should map duplicate factors to their first occurrence", () => {
+        const palette = ["red", "green", "blue"]
+        const cm = CategoricalColorMapper.create({palette, factors: ["a", "b", "a"]})
+        const vals = cm.v_compute(["a", "b"])
+        expect(vals).to.be.equal(convert_to_uint32_palette(["red", "green"]))
+      })
+
+      it("should not coerce data when matching factors", () => {
+        const palette = ["red", "green"]
+        const cm = CategoricalColorMapper.create({palette, factors: ["1", "2"], nan_color: "gray"})
+        const vals = cm.v_compute([1, "2", null])
+        expect(vals).to.be.equal(convert_to_uint32_palette(["gray", "green", "gray"]))
+      })
+
       it("should map data unknown data to nan_color value", () => {
         const palette = ["red", "green", "blue"]
         const cm = CategoricalColorMapper.create({palette, nan_color: "gray", factors: ["a", "b", "c"]})

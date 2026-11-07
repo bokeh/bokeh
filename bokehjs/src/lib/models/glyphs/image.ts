@@ -41,9 +41,9 @@ export class ImageView extends ImageBaseView {
       this._can_inherit_from(this.model.properties.color_mapper, this.base)
   }
 
-  protected _flat_img_to_buf8(img: NDArrayType<number>): Uint8ClampedArray {
+  protected _img_to_buf8(): (img: NDArrayType<number>) => Uint8ClampedArray {
     const cmap = this.model.color_mapper.rgba_mapper
-    return cmap.v_compute(img)
+    return (img) => cmap.v_compute(img)
   }
 }
 

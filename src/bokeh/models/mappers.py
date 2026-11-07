@@ -139,7 +139,7 @@ class CategoricalMapper(Mapper):
     """)
 
     end = Nullable(Int, help="""
-    A start index to "slice" data factors with before mapping.
+    An end index to "slice" data factors with before mapping.
 
     For example, if the data to color map consists of 2-level factors such
     as ``["2016", "sales"]`` and ``["2017", "marketing"]``, then setting

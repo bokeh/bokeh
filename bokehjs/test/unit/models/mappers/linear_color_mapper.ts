@@ -1,7 +1,11 @@
 import {expect} from "#framework/assertions"
 
-import {convert_to_uint32_palette} from "@bokehjs/models/mappers/color_mapper"
+import {convert_to_uint32_color, convert_to_uint32_palette} from "@bokehjs/models/mappers/color_mapper"
 import {LinearColorMapper} from "@bokehjs/models/mappers/linear_color_mapper"
+import {linspace} from "@bokehjs/core/util/array"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
+import {Scatter} from "@bokehjs/models/glyphs/scatter"
 
 describe("LinearColorMapper module", () => {
 
@@ -90,6 +94,86 @@ describe("LinearColorMapper module", () => {
 
       const vals = color_mapper.v_compute([-1, 0, 1, 2, 3])
       expect(vals).to.be.equal(convert_to_uint32_palette(["pink", "red", "green", "blue", "orange"]))
+    })
+
+    it("should treat nulls as NaNs", () => {
+      const palette = ["red", "green", "blue"]
+      const color_mapper = LinearColorMapper.create({palette, nan_color: "gray"})
+      const vals = color_mapper.v_compute([10, null, 20, 30, null])
+      expect(vals).to.be.equal(convert_to_uint32_palette(["red", "gray", "green", "blue", "gray"]))
+      expect(color_mapper.metrics.min).to.be.equal(10)
+      expect(color_mapper.metrics.max).to.be.equal(30)
+    })
+
+    function renderer_of(data: {[key: string]: unknown[]}): GlyphRenderer {
+      const data_source = ColumnDataSource.create({data})
+      const renderer = GlyphRenderer.create({data_source, glyph: Scatter.create()})
+      renderer.view.compute_indices(data_source)
+      return renderer
+    }
+
+    it("should scan all columns of the domain", () => {
+      const renderer = renderer_of({a: [1, null, 3], b: [[10, 20], [30], [-5]]})
+      const palette = ["red", "green"]
+      const color_mapper = LinearColorMapper.create({palette, domain: [[renderer, ["a", "b"]]]})
+      expect(color_mapper.metrics.min).to.be.equal(-5)
+      expect(color_mapper.metrics.max).to.be.equal(30)
+    })
+
+    it("should scan a single column of the domain", () => {
+      const renderer = renderer_of({a: [1, null, 3]})
+      const palette = ["red", "green"]
+      const color_mapper = LinearColorMapper.create({palette, domain: [[renderer, "a"]]})
+      expect(color_mapper.metrics.min).to.be.equal(1)
+      expect(color_mapper.metrics.max).to.be.equal(3)
+    })
+
+    function v_compute_check(data: number[], palette: string[], attrs: Partial<LinearColorMapper.Attrs> = {}) {
+      const color_mapper = LinearColorMapper.create({palette, nan_color: "gray", ...attrs})
+      const colors = [...color_mapper.v_compute(data)]
+
+      // v_compute() uses a specialized implementation, so compare with the generic one
+      const n = palette.length
+      const uint32_palette = convert_to_uint32_palette(palette)
+      const nan_color = convert_to_uint32_color("gray")
+      const low_color = convert_to_uint32_color(attrs.low_color ?? palette[0])
+      const high_color = convert_to_uint32_color(attrs.high_color ?? palette[n-1])
+      const expected = [...new Uint32Array(data.map((value) => {
+        if (isNaN(value)) {
+          return nan_color
+        }
+        const index = color_mapper.value_to_index(value, n)
+        if (index < 0) {
+          return low_color
+        } else if (index >= n) {
+          return high_color
+        } else {
+          return uint32_palette[index]
+        }
+      }))]
+      expect(colors).to.be.equal(expected)
+    }
+
+    const palette = ["#000000", "#330000", "#660000", "#990000", "#cc0000", "#ff0000"]
+    const data = [NaN, -Infinity, ...linspace(-10, 10, 201), Infinity, NaN]
+    const finite_data = data.filter((v) => isFinite(v))
+
+    it("should match value_to_index()", () => {
+      v_compute_check(data, palette)
+      v_compute_check(finite_data, palette)
+      v_compute_check(finite_data, ["red"])
+      v_compute_check([1, 1, 1], palette)
+      v_compute_check([], palette)
+    })
+
+    it("should match value_to_index() with low and high", () => {
+      const attrs = {low_color: "blue", high_color: "green"}
+      v_compute_check(data, palette, {...attrs, low: -5, high: 5})
+      v_compute_check(data, ["red"], {...attrs, low: -5, high: 5})
+      v_compute_check(data, palette, {...attrs, low: 5, high: -5})
+      v_compute_check(data, palette, {...attrs, low: 5, high: 5})
+      v_compute_check(data, palette, {...attrs, low: -5})
+      v_compute_check(data, palette, {...attrs, high: 5})
     })
   })
 })
