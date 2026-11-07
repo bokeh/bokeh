@@ -535,6 +535,20 @@ describe("core/has_props module", () => {
       expect(calls).to.be.equal(["foo:1,false", "bar:1,false", "change"])
     })
 
+    it("should pass the model to the callback", () => {
+      const obj = SubclassWithProps.create()
+      const args: SubclassWithProps[] = []
+      obj.simultaneously((model) => {
+        args.push(model)
+        model.foo = 1
+        model.bar = false
+        obj.simultaneously((inner) => expect(inner).to.be.equal(obj))
+      })
+      expect(args).to.be.equal([obj])
+      expect(obj.foo).to.be.equal(1)
+      expect(obj.bar).to.be.false
+    })
+
     it("should return pending values when reading within the block", () => {
       const obj = SubclassWithProps.create()
       obj.simultaneously(() => {
