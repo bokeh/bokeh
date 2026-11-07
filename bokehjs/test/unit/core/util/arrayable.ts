@@ -1,5 +1,6 @@
 import * as arrayable from "@bokehjs/core/util/arrayable"
 import {expect} from "#framework/assertions"
+import type {Arrayable} from "@bokehjs/core/types"
 
 describe("core/util/arrayable module", () => {
 
@@ -233,5 +234,73 @@ describe("core/util/arrayable module", () => {
     expect(arrayable.binary_search([10, 20, 30, 40], 30)).to.be.equal(2)
     expect(arrayable.binary_search([10, 20, 30, 40], 40)).to.be.equal(3)
     expect(arrayable.binary_search([10, 20, 30, 40], 50)).to.be.equal(null)
+  })
+
+  describe("should support bin_counts() function", () => {
+    // bin_counts() uses a specialized implementation, so compare with the generic one
+    function expected_counts(data: Arrayable<number>, bin_edges: Arrayable<number>): number[] {
+      const nbins = bin_edges.length - 1
+      const counts = new Array<number>(nbins).fill(0)
+      for (const sample of Array.from(data)) {
+        const index = arrayable.bisect_left(bin_edges, sample)
+        counts[Math.min(Math.max(index - 1, 0), nbins - 1)] += 1
+      }
+      return counts
+    }
+
+    function check(data: Arrayable<number>, bin_edges: Arrayable<number>) {
+      expect(arrayable.bin_counts(data, bin_edges)).to.be.equal(expected_counts(data, bin_edges))
+    }
+
+    function linspace(start: number, stop: number, num: number): number[] {
+      const step = (stop - start) / (num - 1)
+      return Array.from({length: num}, (_, i) => start + i*step)
+    }
+
+    it("with basic cases", () => {
+      expect(arrayable.bin_counts([], [0, 1, 2])).to.be.equal([0, 0])
+      expect(arrayable.bin_counts([0, 0.5, 1, 1.5, 2], [0, 1, 2])).to.be.equal([3, 2])
+      expect(arrayable.bin_counts([-10, 10], [0, 1, 2])).to.be.equal([1, 1])
+      expect(arrayable.bin_counts([0, 1, 2], [0, 2])).to.be.equal([3])
+    })
+
+    it("with special values", () => {
+      expect(arrayable.bin_counts([NaN, -Infinity, Infinity], [0, 1, 2])).to.be.equal([2, 1])
+      check([NaN, -Infinity, Infinity, 0, 1, 2], linspace(0, 2, 11))
+    })
+
+    it("with samples on and around uniform bin edges", () => {
+      for (const [start, stop, nbins] of [[0, 1, 10], [-3.7, 11.3, 256], [1, 1 + 1e-9, 1000], [0.1, 0.7, 65536], [-1e10, 1e10, 7]]) {
+        const edges = linspace(start, stop, nbins + 1)
+        const data: number[] = []
+        for (const edge of edges) {
+          data.push(edge, edge - Math.abs(edge)*1e-15, edge + Math.abs(edge)*1e-15, edge*(1 - Number.EPSILON), edge*(1 + Number.EPSILON))
+        }
+        const step = (stop - start)/nbins
+        for (let i = 0; i < 1000; i++) {
+          data.push(start - step + (stop - start + 2*step)*i/999)
+        }
+        check(data, edges)
+        check(Float32Array.from(data), edges)
+      }
+    })
+
+    it("with non-uniform bin edges", () => {
+      const data = linspace(-1, 101, 1021)
+      check(data, [0, 1, 2, 100])
+      check(data, [0, 98, 99, 100])
+      check(data, [0, 10, 10, 10, 20, 100])
+      check(data, [0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 100])
+      check(data, [0, 0.5, 99.5, 99.75, 100])
+    })
+
+    it("with degenerate bin edges", () => {
+      const data = [NaN, -1, 0, 1, 2, Infinity]
+      check(data, [1, 1])
+      check(data, [1, 1, 1])
+      check(data, [-Infinity, 0, Infinity])
+      check(data, [0, 1, Infinity])
+      check(data, [-1e308, 0, 1e308])
+    })
   })
 })

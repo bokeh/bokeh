@@ -1,7 +1,7 @@
 import type {ScanningScanData} from "./scanning_color_mapper"
 import {ScanningColorMapper} from "./scanning_color_mapper"
 import type {Arrayable} from "core/types"
-import {min, max, bin_counts, interpolate, sorted_index} from "core/util/arrayable"
+import {min, max, minmax, bin_counts, interpolate, sorted_index} from "core/util/arrayable"
 import {linspace, cumsum} from "core/util/array"
 import type * as p from "core/properties"
 
@@ -28,8 +28,13 @@ export class EqHistColorMapper extends ScanningColorMapper {
 
   // Public for unit tests
   /*protected*/ scan(data: Arrayable<number>, n: number): ScanningScanData {
-    const low = this.low != null ? this.low : min(data)
-    const high = this.high != null ? this.high : max(data)
+    const [low, high] = (() => {
+      if (this.low == null && this.high == null) {
+        return minmax(data)
+      } else {
+        return [this.low ?? min(data), this.high ?? max(data)]
+      }
+    })()
 
     const nbins = this.bins
     const eq_bin_edges = linspace(low, high, nbins+1)
