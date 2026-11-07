@@ -5,8 +5,8 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-from abc import abstractmethod
 from typing import Unpack
+from warnings import deprecated
 
 from ...core.property_aliases import IconLikeType as IconLike
 from ...model.model import Model, _ModelInit
@@ -24,7 +24,6 @@ class _MenuItemInit(_ModelInit, total=False):
     action: Callback | None
 
 class MenuItem(Model):
-    @abstractmethod
     def __init__(self, **kwargs: Unpack[_MenuItemInit]) -> None: ...
 
     checked: bool | None = ...
@@ -39,13 +38,15 @@ class MenuItem(Model):
 class _ActionItemInit(_MenuItemInit, total=False):
     ...
 
+@deprecated("'ActionItem' was deprecated in Bokeh 3.7.0 and will be removed, use 'MenuItem' instead.")
 class ActionItem(MenuItem):
     def __init__(self, **kwargs: Unpack[_ActionItemInit]) -> None: ...
 
-class _CheckableItemInit(_ActionItemInit, total=False):
+class _CheckableItemInit(_MenuItemInit, total=False):
     ...
 
-class CheckableItem(ActionItem):
+@deprecated("'CheckableItem' was deprecated in Bokeh 3.7.0 and will be removed, use 'MenuItem with checked=True or checked=False' instead.")
+class CheckableItem(MenuItem):
     def __init__(self, **kwargs: Unpack[_CheckableItemInit]) -> None: ...
 
 class _DividerItemInit(_ModelInit, total=False):

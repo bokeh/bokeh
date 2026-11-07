@@ -34,7 +34,6 @@ from bokeh.models import (
     Scatter,
     Title,
 )
-from bokeh.util.warnings import BokehDeprecationWarning
 
 # Module under test
 # different import pattern due to figure function shadowing figure.py module
@@ -348,19 +347,19 @@ class TestMarkers:
         func = getattr(p, marker)
 
         # color/line_color
-        with pytest.warns(BokehDeprecationWarning):
+        with pytest.warns(DeprecationWarning):
             r = func([1, 2, 3], [1, 2, 3], color=rgb, line_color=rgb_other)
         assert r.glyph.fill_color == rgb
         assert r.glyph.line_color == rgb_other
 
         # color/fill_color
-        with pytest.warns(BokehDeprecationWarning):
+        with pytest.warns(DeprecationWarning):
             r = func([1, 2, 3], [1, 2, 3], color=rgb, fill_color=rgb_other)
         assert r.glyph.line_color == rgb
         assert r.glyph.fill_color == rgb_other
 
         # alpha/line_alpha
-        with pytest.warns(BokehDeprecationWarning):
+        with pytest.warns(DeprecationWarning):
             r = func([1, 2, 3], [1, 2, 3], color=rgb, alpha=alpha1, line_alpha=alpha2)
         assert r.glyph.line_alpha == alpha2
         assert r.glyph.fill_alpha == alpha1
@@ -370,7 +369,7 @@ class TestMarkers:
     def test_color_input(self, color, marker) -> None:
         p = bpf.figure()
         func = getattr(p, marker)
-        with pytest.warns(BokehDeprecationWarning):
+        with pytest.warns(DeprecationWarning):
             r = func([1, 2, 3], [1, 2, 3], color=color)
         assert r.glyph.line_color == color
         assert r.glyph.fill_color == color
@@ -385,7 +384,7 @@ class TestMarkers:
     def test_line_color_input(self, color, marker) -> None:
         p = bpf.figure()
         func = getattr(p, marker)
-        with pytest.warns(BokehDeprecationWarning):
+        with pytest.warns(DeprecationWarning):
             r = func([1, 2, 3], [1, 2, 3], line_color=color)
         assert r.glyph.line_color == color
         # rgb should always be an integer by the time it is added to property
@@ -397,7 +396,7 @@ class TestMarkers:
     def test_fill_color_input(self, color, marker) -> None:
         p = bpf.figure()
         func = getattr(p, marker)
-        with pytest.warns(BokehDeprecationWarning):
+        with pytest.warns(DeprecationWarning):
             r = func([1, 2, 3], [1, 2, 3], fill_color=color)
         assert r.glyph.fill_color == color
         # rgb should always be an integer by the time it is added to property
@@ -408,7 +407,7 @@ class TestMarkers:
     def test_render_level(self, marker) -> None:
         p = bpf.figure()
         func = getattr(p, marker)
-        with pytest.warns(BokehDeprecationWarning):
+        with pytest.warns(DeprecationWarning):
             r = func([1, 2, 3], [1, 2, 3], level="underlay")
         assert r.level == "underlay"
         with pytest.raises(ValueError):
@@ -432,7 +431,7 @@ class Test_scatter:
 
     def test_circle_with_radius(self) -> None:
         p = bpf.figure()
-        with pytest.warns(BokehDeprecationWarning):
+        with pytest.warns(DeprecationWarning):
             r = p.scatter([1, 2, 3], [1, 2, 3], marker="circle", radius=0.2)
         assert isinstance(r.glyph, Circle)
         assert r.glyph.radius == 0.2

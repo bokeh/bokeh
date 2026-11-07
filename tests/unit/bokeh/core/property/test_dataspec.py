@@ -29,7 +29,6 @@ from bokeh.core.property.vectorization import (
     value,
 )
 from bokeh.core.property_aliases import AngleUnits, CoordinateUnits, SpatialUnits
-from bokeh.util.warnings import BokehDeprecationWarning
 from tests.support.util.api import verify_all
 
 # Module under test
@@ -374,7 +373,7 @@ class Test_NumberSpec:
 
     def tests_accepts_timedelta(self):
         with warnings.catch_warnings():
-            warnings.simplefilter(action="ignore", category=BokehDeprecationWarning)
+            warnings.simplefilter(action="ignore", category=DeprecationWarning)
 
             class Foo(HasProps):
                 dt = bcpd.NumberSpec("dt", accept_datetime=True)
@@ -405,7 +404,7 @@ class Test_NumberSpec:
     def tests_accepts_timedelta_with_pandas(self):
         pd = pytest.importorskip("pandas")
         with warnings.catch_warnings():
-            warnings.simplefilter(action="ignore", category=BokehDeprecationWarning)
+            warnings.simplefilter(action="ignore", category=DeprecationWarning)
 
             class Foo(HasProps):
                 dt = bcpd.NumberSpec("dt", accept_datetime=True)
@@ -422,7 +421,7 @@ class Test_NumberSpec:
 
     def test_accepts_datetime(self) -> None:
         with warnings.catch_warnings():
-            warnings.simplefilter(action="ignore", category=BokehDeprecationWarning)
+            warnings.simplefilter(action="ignore", category=DeprecationWarning)
 
             class Foo(HasProps):
                 dt = bcpd.NumberSpec("dt", accept_datetime=True)

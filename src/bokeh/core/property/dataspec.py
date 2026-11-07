@@ -288,16 +288,16 @@ class NumberSpec(DataSpec):
         if accept_timedelta:
             self.accepts(TimeDelta, convert_timedelta_type)
         else:
-            from ...util.deprecation import deprecated
+            from ...util.warnings import warn_deprecated
 
-            deprecated((3, 7, 0), "NumberSpec(..., accept_datetime=False)", "FloatSpec()")
+            warn_deprecated("NumberSpec(..., accept_timedelta=False)", "FloatSpec()", since=(3, 7, 0))
 
         if accept_datetime:
             self.accepts(Datetime, convert_datetime_type)
         else:
-            from ...util.deprecation import deprecated
+            from ...util.warnings import warn_deprecated
 
-            deprecated((3, 7, 0), "NumberSpec(..., accept_timedelta=False)", "FloatSpec()")
+            warn_deprecated("NumberSpec(..., accept_datetime=False)", "FloatSpec()", since=(3, 7, 0))
 
 class AlphaSpec(FloatSpec):
 

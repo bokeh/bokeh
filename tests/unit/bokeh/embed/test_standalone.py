@@ -16,7 +16,6 @@ import bokeh.embed.standalone as bes
 from bokeh.document import Document
 from bokeh.models.plots import Plot
 from bokeh.plotting import figure
-from bokeh.util.warnings import BokehDeprecationWarning
 
 
 @pytest.fixture
@@ -27,12 +26,12 @@ def test_plot() -> Plot:
 
 
 def deprecated_components(*args: Any, **kwargs: Any) -> tuple[str, Any]:
-    with pytest.warns(BokehDeprecationWarning, match=r"components\(\)"):
+    with pytest.warns(DeprecationWarning, match=r"components\(\)"):
         return bes.components(*args, **kwargs)
 
 
 def deprecated_file_html(*args: Any, **kwargs: Any) -> str:
-    with pytest.warns(BokehDeprecationWarning, match=r"file_html\(\)"):
+    with pytest.warns(DeprecationWarning, match=r"file_html\(\)"):
         return bes.file_html(*args, **kwargs)
 
 
@@ -89,7 +88,7 @@ class Test_components:
     ])
     def test_wrapping_flags_raise_value_error(self, test_plot: Plot,
             wrap_script: bool, wrap_plot_info: bool) -> None:
-        with pytest.warns(BokehDeprecationWarning, match=r"components\(\)"):
+        with pytest.warns(DeprecationWarning, match=r"components\(\)"):
             with pytest.raises(ValueError, match=r"fragment\(resources='none'\)"):
                 bes.components(test_plot, wrap_script=wrap_script, wrap_plot_info=wrap_plot_info)
 

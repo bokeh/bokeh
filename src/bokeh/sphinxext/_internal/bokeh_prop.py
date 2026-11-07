@@ -44,7 +44,6 @@ from sphinx.errors import SphinxError
 
 from bokeh.core.property._sphinx import type_link
 from bokeh.core.property.descriptors import AliasPropertyDescriptor, PropertyDescriptor
-from bokeh.util.warnings import BokehDeprecationWarning
 
 from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
@@ -104,7 +103,7 @@ class BokehPropDirective(BokehDirective):
             # documenting them. Suppress warnings just for this case and cache
             # the instance because a model page renders every property.
             with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=BokehDeprecationWarning)
+                warnings.filterwarnings("ignore", message=r".* was deprecated in Bokeh ", category=DeprecationWarning)
                 model_obj = model()
             _model_instances[model] = model_obj
 
