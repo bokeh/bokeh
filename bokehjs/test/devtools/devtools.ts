@@ -153,6 +153,10 @@ function create_progress(total: number): Progress {
     const bar = new Bar({
       format: "{bar} {percentage}% | {value} of {total}{failed}{skipped} | {duration}s",
       stream: process.stdout,
+      // By default line wrapping is disabled while the bar is active, which would
+      // truncate failure details logged mid-run. Keep it enabled; the bar line is
+      // trimmed to the terminal width by cli-progress instead.
+      linewrap: true,
     }, Presets.shades_classic)
 
     return {
