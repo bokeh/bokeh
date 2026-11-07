@@ -237,8 +237,11 @@ BokehJS and the Jupyter frontend, installs Playwright-managed Chromium for
 BokehJS tests, and uses `pip`_ to install the local Python package in editable
 mode. Setup also registers the Jupyter frontend and server extension in the
 Pixi environment. The command passes ``--no-deps`` to pip because third-party
-dependencies are managed by Pixi and ``pixi.lock``. On Linux, the browser
-installer may request administrator privileges to install system dependencies.
+dependencies are managed by Pixi and ``pixi.lock``. Setup doesn't require
+administrator privileges. On Linux, if Chromium fails to start due to missing
+system libraries, install them once with
+``npx --no-install playwright-core install-deps chromium`` from ``bokehjs``
+(this step requires administrator privileges).
 
 There are two ways to install a local development version of Bokeh with ``pip``:
 
