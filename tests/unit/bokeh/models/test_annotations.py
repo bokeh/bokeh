@@ -20,15 +20,12 @@ from unittest import mock
 from bokeh.core.properties import field, value
 from bokeh.core.validation import check_integrity, process_validation_issues
 from bokeh.models import (
-    ArrowHead,
-    Band,
     BoxAnnotation,
     ColorBar,
     ColumnDataSource,
     FixedTicker,
     GlyphRenderer,
     Label,
-    LabelSet,
     Legend,
     LegendItem,
     LinearColorMapper,
@@ -39,7 +36,6 @@ from bokeh.models import (
     Slope,
     Span,
     Title,
-    Whisker,
 )
 from bokeh.models.annotations.dimensional import CustomDimensional, Metric
 from bokeh.util.serialization import convert_datetime_type
@@ -47,7 +43,6 @@ from bokeh.util.serialization import convert_datetime_type
 from _util_models import (
     ABOVE_FILL,
     ABOVE_HATCH,
-    ANGLE,
     BELOW_FILL,
     BELOW_HATCH,
     FILL,
@@ -393,34 +388,6 @@ def test_BoxAnnotation_accepts_datetime() -> None:
     assert convert_datetime_type(obj.top) == 1533600000000.0
     assert convert_datetime_type(obj.bottom) == 1533600000000.0
 
-def test_Band() -> None:
-    band = Band()
-    assert band.level == 'annotation'
-    assert band.lower == field("lower")
-    assert band.lower_units == 'data'
-    assert band.upper == field("upper")
-    assert band.upper_units == 'data'
-    assert band.base == field("base")
-    assert band.dimension == 'height'
-    assert isinstance(band.source, ColumnDataSource)
-    assert band.x_range_name == 'default'
-    assert band.y_range_name == 'default'
-    check_line_properties(band, "", "#cccccc", 1.0, 0.3)
-    check_fill_properties(band, "", "#fff9ba", 0.4)
-    check_hatch_properties(band)
-    check_properties_existence(band, [
-        *ANNOTATION,
-        "lower",
-        "lower_units",
-        "upper",
-        "upper_units",
-        "base",
-        "base_units",
-        "dimension",
-        "source",
-    ], LINE, FILL, HATCH)
-
-
 def test_Label() -> None:
     label = Label(x=11, y=12)
     assert label.level == 'annotation'
@@ -471,46 +438,6 @@ def test_Label_accepts_datetime_xy() -> None:
     assert isinstance(obj.y, datetime)
     assert convert_datetime_type(obj.x) == 1533600000000.0
     assert convert_datetime_type(obj.y) == 1533600000000.0
-
-def test_LabelSet() -> None:
-    label_set = LabelSet()
-    assert label_set.level == 'annotation'
-    assert label_set.x == field("x")
-    assert label_set.y == field("y")
-    assert label_set.x_units == 'data'
-    assert label_set.y_units == 'data'
-    assert label_set.text == field("text")
-    assert label_set.angle == 0
-    assert label_set.angle_units == 'rad'
-    assert label_set.x_offset == 0
-    assert label_set.y_offset == 0
-    assert label_set.x_range_name == 'default'
-    assert label_set.y_range_name == 'default'
-    assert isinstance(label_set.source, ColumnDataSource)
-    assert label_set.source.data == {}
-    check_text_properties(label_set)
-    check_fill_properties(label_set, "background_", None, 1.0)
-    check_hatch_properties(label_set, "background_")
-    check_line_properties(label_set, "border_", None, 1.0, 1.0)
-    check_properties_existence(label_set, [
-        *ANNOTATION,
-        "x",
-        "y",
-        "x_units",
-        "y_units",
-        "text",
-        "angle",
-        "angle_units",
-        "x_offset",
-        "y_offset",
-        "source",
-    ],
-        TEXT,
-        ANGLE,
-        prefix('border_', LINE),
-        prefix('background_', FILL),
-        prefix('background_', HATCH),
-    )
 
 def test_PolyAnnotation() -> None:
     poly = PolyAnnotation()
@@ -619,47 +546,6 @@ def test_Title() -> None:
         prefix("background_", FILL),
         prefix('background_', HATCH),
     )
-
-def test_Whisker() -> None:
-    whisker = Whisker()
-    assert whisker.level == 'underlay'
-    assert whisker.lower == field("lower")
-    assert whisker.lower_units == 'data'
-    assert isinstance(whisker.lower_head, ArrowHead)
-    assert whisker.lower_head.size == 10
-    assert whisker.upper == field("upper")
-    assert whisker.upper_units == 'data'
-    assert isinstance(whisker.upper_head, ArrowHead)
-    assert whisker.upper_head.size == 10
-    assert whisker.base == field("base")
-    assert whisker.dimension == 'height'
-    assert isinstance(whisker.source, ColumnDataSource)
-    assert whisker.x_range_name == 'default'
-    assert whisker.y_range_name == 'default'
-    check_line_properties(whisker, "")
-    check_properties_existence(whisker, [
-        *ANNOTATION,
-        "lower",
-        "lower_units",
-        "lower_head",
-        "upper",
-        "upper_units",
-        "upper_head",
-        "base",
-        "base_units",
-        "dimension",
-        "source",
-    ], LINE)
-
-def test_Whisker_and_Band_accept_negative_values() -> None:
-    whisker = Whisker(base=-1., lower=-1.5, upper=-0.5)
-    assert whisker.base == -1.
-    assert whisker.lower == -1.5
-    assert whisker.upper == -0.5
-    band = Band(base=-1., lower=-1.5, upper=-0.5)
-    assert band.base == -1.
-    assert band.lower == -1.5
-    assert band.upper == -0.5
 
 def test_can_add_multiple_glyph_renderers_to_legend_item() -> None:
     legend_item = LegendItem()

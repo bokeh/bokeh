@@ -9,7 +9,7 @@ import {async_trap} from "#framework/util"
 import type {ArrowHead, Image, Line, UIElement} from "@bokehjs/models"
 import {
   NormalHead, OpenHead,
-  BoxAnnotation, LabelSet, ColorBar, Slope, Span, Whisker,
+  BoxAnnotation, ColorBar, Slope, Span,
   Range1d, DataRange1d, FactorRange,
   ColumnDataSource, CDSView, BooleanFilter, IndexFilter, Selection,
   LinearAxis, CategoricalAxis,
@@ -373,7 +373,7 @@ describe("Bug", () => {
       ["B", "02", "AA"], ["B", "02", "AB"], ["B", "02", "AC"], ["B", "02", "AD"], ["B", "02", "AE"],
     ]
 
-    it("disallows rendering Whisker annotation with a categorical x-range", async () => {
+    it("disallows rendering Whisker glyph with a categorical x-range", async () => {
       const random = new Random(1)
 
       const x = factors
@@ -382,17 +382,16 @@ describe("Bug", () => {
       const lower = y.map((yi) => yi - random.float())
 
       const source = ColumnDataSource.create({data: {x, y, lower, upper}})
-      const whisker = Whisker.create({source, dimension: "height", base: {field: "x"}})
 
       const x_range = FactorRange.create({factors})
       const p = fig([400, 200], {x_range})
       p.scatter({source})
-      p.add_layout(whisker)
+      p.whisker({source, dimension: "height", base: {field: "x"}})
 
       await display(p)
     })
 
-    it("disallows rendering Whisker annotation with a categorical y-range", async () => {
+    it("disallows rendering Whisker glyph with a categorical y-range", async () => {
       const random = new Random(1)
 
       const x = random.floats(factors.length)
@@ -401,12 +400,11 @@ describe("Bug", () => {
       const lower = x.map((xi) => xi - random.float())
 
       const source = ColumnDataSource.create({data: {x, y, lower, upper}})
-      const whisker = Whisker.create({source, dimension: "width", base: {field: "y"}})
 
       const y_range = FactorRange.create({factors})
       const p = fig([200, 400], {y_range})
       p.scatter({source})
-      p.add_layout(whisker)
+      p.whisker({source, dimension: "width", base: {field: "y"}})
 
       await display(p)
     })
@@ -603,23 +601,19 @@ describe("Bug", () => {
   })
 
   describe("in issue #10454", () => {
-    it("disallows using categorical coordinates with LabelSet annotation", async () => {
+    it("disallows using categorical coordinates with Text glyph", async () => {
       const p = fig([300, 300], {x_range: ["X1", "X2", "X3"], y_range: ["Y1", "Y2", "Y3"]})
       p.rect({x: ["X1", "X2", "X3"], y: ["Y1", "Y2", "Y3"], width: 1, height: 1, fill_alpha: 0.3})
 
-      const labels0 = LabelSet.create({x: {value: "X1"}, y: {value: "Y3"}, text: {value: "L0"}, text_color: "red"})
-      p.add_layout(labels0)
-
-      const labels1 = LabelSet.create({x: {value: "X3"}, y: {value: "Y1"}, text: {value: "L1"}, text_color: "green"})
-      p.add_layout(labels1)
+      p.text({x: {value: "X1"}, y: {value: "Y3"}, text: {value: "L0"}, text_color: "red"})
+      p.text({x: {value: "X3"}, y: {value: "Y1"}, text: {value: "L1"}, text_color: "green"})
 
       const source = ColumnDataSource.create({data: {
         x: ["X1", "X2", "X3"],
         y: ["Y1", "Y2", "Y3"],
         text: ["L20", "L21", "L22"],
       }})
-      const labels2 = LabelSet.create({x: {field: "x"}, y: {field: "y"}, text: {field: "text"}, source, text_color: "blue"})
-      p.add_layout(labels2)
+      p.text({x: {field: "x"}, y: {field: "y"}, text: {field: "text"}, source, text_color: "blue"})
 
       await display(p)
     })
@@ -1952,7 +1946,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #12127", () => {
-    it("prevents displaying non-text labels in LabelSet", async () => {
+    it("prevents displaying non-text labels in Text glyph", async () => {
       const p = fig([200, 200], {
         x_range: Range1d.create({start: -1, end: 2}),
         y_range: Range1d.create({start: -1, end: 2}),
@@ -1964,14 +1958,12 @@ describe("Bug", () => {
         c: [6, 7, 8, 9],
       }})
 
-      const labels = LabelSet.create({
+      p.text({
         x: {field: "a"},
         y: {field: "b"},
         text: {field: "c"},
         source,
       })
-
-      p.add_layout(labels)
 
       await display(p)
     })

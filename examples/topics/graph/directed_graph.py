@@ -11,13 +11,13 @@ from bokeh.models import (
     CustomJS,
     Div,
     GraphRenderer,
-    LabelSet,
     MultiLine,
     NodesAndLinkedEdges,
     NormalHead,
     Scatter,
     Slider,
     StaticLayoutProvider,
+    TapTool,
 )
 from bokeh.plotting import figure, show
 
@@ -72,13 +72,14 @@ graph.edge_renderer.add_path_decoration(
 graph.selection_policy = NodesAndLinkedEdges()
 
 p = figure(width=750, height=500, x_range=(-2.5, 2.7), y_range=(-1.7, 1.7),
-           title="Directed graph: arrowheads follow node size", tools="tap,reset")
+           title="Directed graph: arrowheads follow node size", tools="reset")
 p.axis.visible = False
 p.grid.visible = False
 p.renderers.append(graph)
-p.add_layout(LabelSet(x="x", y="y", text="label", source=nodes,
-                      text_align="center", text_baseline="middle",
-                      text_color="white", text_font_size="10px"))
+p.add_tools(TapTool(renderers=[graph]))
+p.text(x="x", y="y", text="label", source=nodes,
+       text_align="center", text_baseline="middle",
+       text_color="white", text_font_size="10px")
 
 size = Slider(title="Node size multiplier", start=0.6, end=1.8, value=1, step=0.1,
               width=750, name="node-size-multiplier")

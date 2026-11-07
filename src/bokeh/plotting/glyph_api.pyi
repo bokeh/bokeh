@@ -24,6 +24,7 @@ from .._specs import (
     LineJoinArg,
     MarkerArg,
     NullDistanceArg,
+    NullStringArg,
     Number1dArg,
     Number3dArg,
     NumberArg,
@@ -38,6 +39,7 @@ from .._types import Color, NonNegative
 from ..core.enums import (
     AnchorType as Anchor,
     AngleUnitsType as AngleUnits,
+    DimensionType as Dimension,
     DirectionType as Direction,
     PaletteType as Palette,
     RadiusDimensionType as RadiusDimension,
@@ -51,7 +53,7 @@ from ..core.property_aliases import (
     PaddingType as Padding,
 )
 from ..models import glyphs
-from ..models.annotations import Legend
+from ..models.annotations import ArrowHead, Legend
 from ..models.callbacks import CustomJS
 from ..models.coordinates import CoordinateMapping
 from ..models.graphics import Marking
@@ -222,6 +224,13 @@ class ArcArgs(GlyphArgs, LineVisuals, total=False):
     # end_angle: AngleArg
     end_angle_units: AngleUnits
     # direction: Direction
+
+class BandArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
+    # dimension: Dimension
+    # lower: NumberArg
+    # upper: NumberArg
+    # base: NumberArg
+    pass
 
 class BezierArgs(GlyphArgs, LineVisuals, total=False):
     # x0: NumberArg
@@ -443,7 +452,7 @@ class TeXArgs(GlyphArgs, TextVisuals, total=False):
 class TextArgs(GlyphArgs, TextVisuals, total=False):
     # x: NumberArg
     # y: NumberArg
-    # text: StringArg
+    # text: NullStringArg
     # angle: AngleArg
     angle_units: AngleUnits
     # x_offset: FloatArg
@@ -491,6 +500,14 @@ class WedgeArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
     # end_angle: AngleArg
     end_angle_units: AngleUnits
     # direction: Direction
+
+class WhiskerArgs(GlyphArgs, LineVisuals, total=False):
+    # dimension: Dimension
+    # lower: NumberArg
+    # upper: NumberArg
+    # base: NumberArg
+    lower_head: ArrowHead | None
+    upper_head: ArrowHead | None
 
 class GlyphAPI:
 
@@ -543,6 +560,14 @@ class GlyphAPI:
         direction: Direction = ...,
         **kwargs: Unpack[ArcArgs],
     ) -> GlyphRenderer[glyphs.Arc]: ...
+
+    def band(self,
+        dimension: Dimension = ...,
+        lower: NumberArg = ...,
+        upper: NumberArg = ...,
+        base: NumberArg = ...,
+        **kwargs: Unpack[BandArgs],
+    ) -> GlyphRenderer[glyphs.BandGlyph]: ...
 
     def bezier(self,
         x0: NumberArg = ...,
@@ -669,7 +694,7 @@ class GlyphAPI:
     def mathml(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
-        text: StringArg = ...,
+        text: NullStringArg = ...,
         angle: AngleArg = ...,
         x_offset: FloatArg = ...,
         y_offset: FloatArg = ...,
@@ -819,6 +844,14 @@ class GlyphAPI:
         direction: Direction = ...,
         **kwargs: Unpack[WedgeArgs],
     ) -> GlyphRenderer[glyphs.Wedge]: ...
+
+    def whisker(self,
+        dimension: Dimension = ...,
+        lower: NumberArg = ...,
+        upper: NumberArg = ...,
+        base: NumberArg = ...,
+        **kwargs: Unpack[WhiskerArgs],
+    ) -> GlyphRenderer[glyphs.WhiskerGlyph]: ...
 
     def scatter(self,
         x: NumberArg = ...,

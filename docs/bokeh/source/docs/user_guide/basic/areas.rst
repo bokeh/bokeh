@@ -76,6 +76,28 @@ methods.
 .. bokeh-plot:: __REPO__/examples/basic/areas/varea_stack.py
     :source-position: above
 
+.. _ug_basic_areas_bands:
+
+Bands
+~~~~~
+
+To draw a colored stripe that is dimensionally linked to the data in a plot,
+use the |band| glyph method. One common use for bands is to indicate
+uncertainty related to a series of measurements.
+
+These are the most commonly used properties of the |BandGlyph| glyph:
+
+* ``lower``: The coordinates of the lower edge of the band.
+* ``upper``: The coordinates of the upper edge of the band.
+* ``dimension``: The direction of the band. Either ``"height"`` for a band
+  whose edges vary along the plot's y axis, or ``"width"`` for one whose edges
+  vary along the x axis.
+* ``base``: The coordinates along the orthogonal dimension, shared by both edges.
+* The standard |line properties|, |fill properties| and |hatch properties|.
+
+.. bokeh-plot:: __REPO__/examples/basic/areas/band.py
+    :source-position: above
+
 .. _ug_basic_areas_patches:
 
 Patches
@@ -199,6 +221,7 @@ ellipse shapes.
 .. bokeh-plot:: __REPO__/examples/basic/areas/ellipses.py
     :source-position: above
 
+.. |band|              replace:: :func:`~bokeh.plotting.figure.band`
 .. |block|             replace:: :func:`~bokeh.plotting.figure.block`
 .. |ellipse|           replace:: :func:`~bokeh.plotting.figure.ellipse`
 .. |harea|             replace:: :func:`~bokeh.plotting.figure.harea`
@@ -216,3 +239,5 @@ ellipse shapes.
 .. |varea_stack|       replace:: :func:`~bokeh.plotting.figure.varea_stack`
 .. |vbar|              replace:: :func:`~bokeh.plotting.figure.vbar`
 .. |vstrip|            replace:: :func:`~bokeh.plotting.figure.vstrip`
+
+.. |BandGlyph|         replace:: :class:`~bokeh.models.glyphs.BandGlyph`

@@ -7,7 +7,6 @@
 
 from typing import Sequence, Unpack
 
-from ..._specs import CoordinateSpec
 from ..._types import (
     Coordinate,
     CoordinateLike,
@@ -22,7 +21,6 @@ from ...core.enums import (
 )
 from ...core.property_aliases import BorderRadius
 from ...core.property_mixins import (
-    LineProps,
     ScalarAboveFillProps,
     ScalarAboveHatchProps,
     ScalarBelowFillProps,
@@ -33,7 +31,6 @@ from ...core.property_mixins import (
     ScalarHoverHatchProps,
     ScalarHoverLineProps,
     ScalarLineProps,
-    _LinePropsInit,
     _ScalarAboveFillPropsInit,
     _ScalarAboveHatchPropsInit,
     _ScalarBelowFillPropsInit,
@@ -49,11 +46,8 @@ from ...model.model import Model, _ModelInit
 from ..nodes import BoxNodes
 from .annotation import (
     Annotation,
-    DataAnnotation,
     _AnnotationInit,
-    _DataAnnotationInit,
 )
-from .arrows import ArrowHead
 
 class _AreaVisualsInit(_ModelInit, _ScalarLinePropsInit, _ScalarFillPropsInit, _ScalarHatchPropsInit,
         _ScalarHoverLinePropsInit, _ScalarHoverFillPropsInit, _ScalarHoverHatchPropsInit, total=False):
@@ -173,20 +167,6 @@ class BoxAnnotation(Annotation, AreaVisuals):
     @property
     def nodes(self) -> BoxNodes: ...
 
-class _BandInit(_DataAnnotationInit, _ScalarLinePropsInit, _ScalarFillPropsInit, _ScalarHatchPropsInit, total=False):
-    lower: CoordinateSpec
-    upper: CoordinateSpec
-    base: CoordinateSpec
-    dimension: Dimension
-
-class Band(DataAnnotation, ScalarLineProps, ScalarFillProps, ScalarHatchProps):
-    def __init__(self, **kwargs: Unpack[_BandInit]) -> None: ...
-
-    lower: CoordinateSpec = ...
-    upper: CoordinateSpec = ...
-    base: CoordinateSpec = ...
-    dimension: Dimension = ...
-
 class _PolyAnnotationInit(_AnnotationInit, _ScalarLinePropsInit, _ScalarFillPropsInit, _ScalarHatchPropsInit,
         _ScalarHoverLinePropsInit, _ScalarHoverFillPropsInit, _ScalarHoverHatchPropsInit, total=False):
     xs: Sequence[CoordinateLike]
@@ -229,21 +209,3 @@ class Span(Annotation, ScalarLineProps, ScalarHoverLineProps):
     location_units: CoordinateUnits = ...
     dimension: Dimension = ...
     editable: bool = ...
-
-class _WhiskerInit(_DataAnnotationInit, _LinePropsInit, total=False):
-    lower: CoordinateSpec
-    lower_head: ArrowHead | None
-    upper: CoordinateSpec
-    upper_head: ArrowHead | None
-    base: CoordinateSpec
-    dimension: Dimension
-
-class Whisker(DataAnnotation, LineProps):
-    def __init__(self, **kwargs: Unpack[_WhiskerInit]) -> None: ...
-
-    lower: CoordinateSpec = ...
-    lower_head: ArrowHead | None = ...
-    upper: CoordinateSpec = ...
-    upper_head: ArrowHead | None = ...
-    base: CoordinateSpec = ...
-    dimension: Dimension = ...

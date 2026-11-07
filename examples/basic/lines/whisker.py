@@ -3,13 +3,13 @@ sample data. This example demonstrates the use of whiskers to display quantile r
 
 .. bokeh-example-metadata::
     :sampledata: autompg2
-    :apis: bokeh.models.ColumnDataSource, bokeh.models.Whisker, bokeh.transform.factor_cmap, bokeh.transform.jitter, bokeh.plotting.figure.scatter
-    :refs: :ref:`ug_basic_annotations_whiskers`
+    :apis: bokeh.plotting.figure.whisker, bokeh.plotting.figure.scatter, bokeh.transform.factor_cmap, bokeh.transform.jitter
+    :refs: :ref:`ug_basic_lines_whiskers`
     :keywords: whisker, jitter, scatter, error
 
 '''
 
-from bokeh.models import ColumnDataSource, Whisker
+from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure, show
 from bokeh.sampledata.autompg2 import autompg2 as df
 from bokeh.transform import factor_cmap, jitter
@@ -25,14 +25,12 @@ upper = g.hwy.quantile(0.80)
 lower = g.hwy.quantile(0.20)
 source = ColumnDataSource(data=dict(base=classes, upper=upper, lower=lower))
 
-error = Whisker(base="base", upper="upper", lower="lower", source=source,
-                level="annotation", line_width=2)
-error.upper_head.size=20
-error.lower_head.size=20
-p.add_layout(error)
-
 p.scatter(jitter("class", 0.3, range=p.x_range), "hwy", source=df,
           alpha=0.5, size=13, line_color="white",
           color=factor_cmap("class", "Light7", classes))
+
+error = p.whisker(base="base", upper="upper", lower="lower", source=source, line_width=2)
+error.glyph.upper_head.size = 20
+error.glyph.lower_head.size = 20
 
 show(p)

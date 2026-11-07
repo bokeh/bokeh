@@ -13,6 +13,7 @@ import {
   AnnularWedge,
   Annulus,
   Arc,
+  BandGlyph,
   Bezier,
   Block,
   Circle,
@@ -50,6 +51,7 @@ import {
   VSpan,
   VStrip,
   Wedge,
+  WhiskerGlyph,
 } from "../models/glyphs"
 
 import type {Marker} from "../models/glyphs/marker"
@@ -165,6 +167,7 @@ export type AnnularWedgeArgs  = GlyphArgs<AnnularWedge.Props>  & AuxLine & AuxFi
 export type AnnulusArgs       = GlyphArgs<Annulus.Props>       & AuxLine & AuxFill & AuxHatch
 export type ArrowArgs         = GlyphArgs<ArrowProps>          & AuxLine
 export type ArcArgs           = GlyphArgs<Arc.Props>           & AuxLine
+export type BandGlyphArgs     = GlyphArgs<BandGlyph.Props>     & AuxLine & AuxFill & AuxHatch
 export type BezierArgs        = GlyphArgs<Bezier.Props>        & AuxLine
 export type BlockArgs         = GlyphArgs<Block.Props>         & AuxLine & AuxFill & AuxHatch
 export type CircleArgs        = GlyphArgs<Circle.Props>        & AuxLine & AuxFill & AuxHatch
@@ -203,6 +206,7 @@ export type VBarArgs          = GlyphArgs<VBar.Props>          & AuxLine & AuxFi
 export type VSpanArgs         = GlyphArgs<VSpan.Props>         & AuxLine
 export type VStripArgs        = GlyphArgs<VStrip.Props>        & AuxLine & AuxFill & AuxHatch
 export type WedgeArgs         = GlyphArgs<Wedge.Props>         & AuxLine & AuxFill & AuxHatch
+export type WhiskerGlyphArgs  = GlyphArgs<WhiskerGlyph.Props>  & AuxLine
 
 export abstract class GlyphAPI {
   abstract _glyph<G extends Glyph>(cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides?: object): GlyphRenderer<G>
@@ -304,6 +308,18 @@ export abstract class GlyphAPI {
     args?: Partial<ArcArgs>): GlyphRenderer<Arc>
   arc(...args: unknown[]): GlyphRenderer<Arc> {
     return this._glyph(Arc, "arc", ["x", "y", "radius", "start_angle", "end_angle"], args)
+  }
+
+  band(): GlyphRenderer<BandGlyph>
+  band(args: Partial<BandGlyphArgs>): GlyphRenderer<BandGlyph>
+  band(
+    dimension: BandGlyphArgs["dimension"],
+    lower: BandGlyphArgs["lower"],
+    upper: BandGlyphArgs["upper"],
+    base: BandGlyphArgs["base"],
+    args?: Partial<BandGlyphArgs>): GlyphRenderer<BandGlyph>
+  band(...args: unknown[]): GlyphRenderer<BandGlyph> {
+    return this._glyph(BandGlyph, "band", ["dimension", "lower", "upper", "base"], args)
   }
 
   bezier(): GlyphRenderer<Bezier>
@@ -714,6 +730,18 @@ export abstract class GlyphAPI {
     args?: Partial<WedgeArgs>): GlyphRenderer<Wedge>
   wedge(...args: unknown[]): GlyphRenderer<Wedge> {
     return this._glyph(Wedge, "wedge", ["x", "y", "radius", "start_angle", "end_angle"], args)
+  }
+
+  whisker(): GlyphRenderer<WhiskerGlyph>
+  whisker(args: Partial<WhiskerGlyphArgs>): GlyphRenderer<WhiskerGlyph>
+  whisker(
+    dimension: WhiskerGlyphArgs["dimension"],
+    lower: WhiskerGlyphArgs["lower"],
+    upper: WhiskerGlyphArgs["upper"],
+    base: WhiskerGlyphArgs["base"],
+    args?: Partial<WhiskerGlyphArgs>): GlyphRenderer<WhiskerGlyph>
+  whisker(...args: unknown[]): GlyphRenderer<WhiskerGlyph> {
+    return this._glyph(WhiskerGlyph, "whisker", ["dimension", "lower", "upper", "base"], args)
   }
 
   private _scatter(args: unknown[], marker?: MarkerType): GlyphRenderer<Scatter> {
