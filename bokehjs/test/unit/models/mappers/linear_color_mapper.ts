@@ -93,6 +93,15 @@ describe("LinearColorMapper module", () => {
       expect(vals).to.be.equal(convert_to_uint32_palette(["pink", "red", "green", "blue", "orange"]))
     })
 
+    it("should treat nulls as NaNs", () => {
+      const palette = ["red", "green", "blue"]
+      const color_mapper = LinearColorMapper.create({palette, nan_color: "gray"})
+      const vals = color_mapper.v_compute([10, null, 20, 30, null])
+      expect(vals).to.be.equal(convert_to_uint32_palette(["red", "gray", "green", "blue", "gray"]))
+      expect(color_mapper.metrics.min).to.be.equal(10)
+      expect(color_mapper.metrics.max).to.be.equal(30)
+    })
+
     function v_compute_check(data: number[], palette: string[], attrs: Partial<LinearColorMapper.Attrs> = {}) {
       const color_mapper = LinearColorMapper.create({palette, nan_color: "gray", ...attrs})
       const colors = [...color_mapper.v_compute(data)]
