@@ -63,8 +63,7 @@ export abstract class EditToolView extends GestureToolView {
   _delete_selected(renderer: GlyphRenderer): void {
     // Deletes all selected rows in the ColumnDataSource
     const cds = renderer.data_source
-    const indices = cds.selected.indices
-    indices.sort()
+    const indices = cds.selected.indices.slice().sort((a, b) => a - b)
     for (const column of cds.columns()) {
       const values = cds.get_array(column)
       for (let index = 0; index < indices.length; index++) {

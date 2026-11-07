@@ -1038,3 +1038,21 @@ def test_HasProps_model_redefinition(mock_warn: MagicMock) -> None:
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+
+def test_set_from_json_does_not_format_values_when_trace_is_disabled(caplog: pytest.LogCaptureFixture) -> None:
+    class UnformattableList(list):
+        def __repr__(self) -> str:
+            raise AssertionError("disabled logging must not format the selection")
+
+    obj = Child()
+    with caplog.at_level("INFO", logger=hp.log.name):
+        obj.set_from_json("lst2", UnformattableList([1, 2]))
+    assert obj.lst2 == [1, 2]
+
+
+def test_set_from_json_retains_trace_message(caplog: pytest.LogCaptureFixture) -> None:
+    obj = Child()
+    with caplog.at_level(9, logger=hp.log.name):
+        obj.set_from_json("lst2", [1, 2])
+    assert any(message.startswith("Patching attribute 'lst2'") and message.endswith("with [1, 2]") for message in caplog.messages)
