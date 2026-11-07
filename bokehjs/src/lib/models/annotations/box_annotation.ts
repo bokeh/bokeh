@@ -1001,7 +1001,7 @@ export class BoxAnnotation extends Annotation {
   readonly pan = new Signal<["pan:start" | "pan" | "pan:end", KeyModifiers], this>(this, "pan")
 
   update({left, right, top, bottom}: LRTB<number | Coordinate>): void {
-    this.setv({left, right, top, bottom, visible: true})
+    this.setv<BoxAnnotation>({left, right, top, bottom, visible: true})
   }
 
   clear(): void {

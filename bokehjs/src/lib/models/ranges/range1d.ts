@@ -70,7 +70,7 @@ export class Range1d extends NumericalRange {
     this._set_auto_bounds()
     const {_reset_start, _reset_end} = this
     if (this.start != _reset_start || this.end != _reset_end) {
-      this.setv({start: _reset_start, end: _reset_end})
+      this.setv<Range1d>({start: _reset_start, end: _reset_end})
     } else {
       this.change.emit()
     }

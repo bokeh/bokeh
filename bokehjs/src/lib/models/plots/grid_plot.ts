@@ -29,7 +29,7 @@ export class GridPlotView extends LayoutDOMView {
     if (location == null) {
       this.model.toolbar.visible = false
     } else {
-      this.model.toolbar.setv<Toolbar.Attrs>({visible: true, location})
+      this.model.toolbar.setv({visible: true, location})
     }
   }
 
@@ -60,7 +60,7 @@ export class GridPlotView extends LayoutDOMView {
 
     this.on_change([children, rows, cols, spacing], async () => {
       const {children, rows, cols, spacing} = this.model
-      this._grid_box.setv<GridBox.Attrs>({children, rows, cols, spacing})
+      this._grid_box.setv({children, rows, cols, spacing})
       await this.grid_box_view.ready
     })
 

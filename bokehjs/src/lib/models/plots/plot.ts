@@ -224,7 +224,7 @@ export class Plot extends LayoutDOM {
     this.remove_layout(renderer)
 
     const renderers = this.properties[side].get_value()
-    this.setv({[side]: [...renderers, renderer]})
+    this.setv<Plot>({[side]: [...renderers, renderer]})
   }
 
   remove_layout(renderer: Annotation | GuideRenderer | StyledElement): void {

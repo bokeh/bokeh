@@ -384,10 +384,10 @@ export class PolyAnnotation extends Annotation {
   readonly pan = new Signal<["pan:start" | "pan" | "pan:end", KeyModifiers], this>(this, "pan")
 
   update({xs, ys}: {xs: Arrayable<number>, ys: Arrayable<number>}): void {
-    this.setv({xs: xs.slice(), ys: ys.slice(), visible: true})
+    this.setv<PolyAnnotation>({xs: xs.slice(), ys: ys.slice(), visible: true})
   }
 
   clear(): void {
-    this.setv({xs: [], ys: [], visible: false})
+    this.setv<PolyAnnotation>({xs: [], ys: [], visible: false})
   }
 }

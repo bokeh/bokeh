@@ -56,7 +56,7 @@ export abstract class NumericalSlider extends BaseNumericalSlider {
       const {value} = this
       const clamped = clamp(value, lo, hi)
       if (clamped != value) {
-        this.setv({value: clamped})
+        this.setv<NumericalSlider>({value: clamped})
       }
     }
   }
