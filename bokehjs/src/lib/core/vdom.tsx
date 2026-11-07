@@ -46,10 +46,22 @@ export type ShadowComponentProps = DivAttributes & {
   stylesheets?: StyleSheet[]
 }
 export class ShadowComponent extends Component<ShadowComponentProps> {
+  protected _shadow_el: ShadowRoot | null = null
+
+  override componentWillUnmount(): void {
+    // Contents of the shadow root are a separate vDOM tree, so unmount it as well.
+    const {_shadow_el} = this
+    if (_shadow_el != null) {
+      this._shadow_el = null
+      render(null, _shadow_el)
+    }
+  }
+
   render(): VNode {
     const attach_shadow = (el: HTMLElement | null): void => {
       if (el != null) {
         const shadow_el = el.shadowRoot ?? el.attachShadow({mode: "open"})
+        this._shadow_el = shadow_el
         const {stylesheets=[]} = this.props
         const adopted: CSSStyleSheet[] = []
         const links: VNode[] = []

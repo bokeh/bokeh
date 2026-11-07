@@ -412,6 +412,60 @@ describe("ToolbarView", () => {
     expect(await context_menu_labels()).to.be.equal(["Pan", "Custom Action"])
   })
 
+  describe("should stop updating removed tool buttons", () => {
+    async function setup() {
+      const pan = PanTool.create()
+      const toolbar = Toolbar.create({tools: [pan]})
+      const {view} = await display(toolbar, [200, 100])
+
+      const [bar_view] = view.tool_button_views
+      const [menu_view] = view.tool_button_menu_views
+      expect_not_null(bar_view)
+      expect_not_null(menu_view)
+
+      const updated: unknown[] = []
+      const {button_updated} = view
+      view.button_updated = (button_view) => {
+        updated.push(button_view)
+        button_updated.call(view, button_view)
+      }
+
+      // Sanity check that buttons update when the tool changes.
+      pan.description = "Pan 1"
+      await view.ready
+      expect(updated.includes(bar_view)).to.be.true
+      updated.length = 0
+
+      return {pan, toolbar, view, bar_view, menu_view, updated}
+    }
+
+    it("when tools are replaced", async () => {
+      const {pan, toolbar, view, bar_view, menu_view, updated} = await setup()
+
+      toolbar.tools = []
+      await view.ready
+
+      pan.description = "Pan 2"
+      await view.ready
+
+      expect(updated.includes(bar_view)).to.be.false
+      expect(updated.includes(menu_view)).to.be.false
+    })
+
+    it("when the toolbar is removed", async () => {
+      const {pan, view, bar_view, menu_view, updated} = await setup()
+
+      view.remove()
+
+      pan.description = "Pan 2"
+      await bar_view.ready
+      await menu_view.ready
+
+      expect(updated.includes(bar_view)).to.be.false
+      expect(updated.includes(menu_view)).to.be.false
+    })
+  })
+
   describe("visible attribute of tools in toolbar", () => {
 
     it("should have correct visibility status of tools", () => {
