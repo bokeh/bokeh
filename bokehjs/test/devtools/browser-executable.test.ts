@@ -24,7 +24,7 @@ void test("missing managed Chromium reports how to install it", () => {
   assert.match(output, /managed Chromium not found/)
   assert.ok(output.includes(browsers))
   assert.match(output, /pixi run setup/)
-  assert.match(output, /npx --no-install playwright-core install --with-deps --no-shell chromium/)
+  assert.match(output, /npx --no-install playwright-core install --no-shell chromium/)
   assert.ok(!output.includes("<launching>"))
 })
 
