@@ -17,3 +17,9 @@ pre, code, tt {
   font-family: var(--mono-font);
   margin: 0;
 }
+
+// Hosts a child view's element (see `ViewSlot` component), without affecting
+// the layout of its container.
+.bk-slot {
+  display: contents;
+}

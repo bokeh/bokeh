@@ -1,6 +1,6 @@
 import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
 import {fig, display} from "#framework/layouts"
-import {mouse_enter, mouse_leave, show_context_menu} from "#framework/interactive"
+import {tap, mouse_enter, mouse_leave, show_context_menu} from "#framework/interactive"
 
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import type {ToolbarView} from "@bokehjs/models/tools/toolbar"
@@ -353,8 +353,7 @@ describe("ToolbarView", () => {
     it("should not show inspect tools if toggleable=false", async () => {
       const hover = HoverTool.create({toggleable: false})
       const tb = Toolbar.create({tools: [hover]})
-      const tbv = await build_view(tb, {parent: null})
-      tbv.render()
+      const {view: tbv} = await display(tb, [300, 300])
 
       expect(hover.visible).to.be.false
       expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.true
@@ -363,8 +362,7 @@ describe("ToolbarView", () => {
     it("should show inspect tools if toggleable=true", async () => {
       const hover = HoverTool.create({toggleable: true})
       const tb = Toolbar.create({tools: [hover]})
-      const tbv = await build_view(tb, {parent: null})
-      tbv.render()
+      const {view: tbv} = await display(tb, [300, 300])
 
       expect(hover.visible).to.be.true
       expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.false
@@ -373,8 +371,7 @@ describe("ToolbarView", () => {
     it("should show inspect tools if toggleable is not set", async () => {
       const hover = HoverTool.create()
       const tb = Toolbar.create({tools: [hover]})
-      const tbv = await build_view(tb, {parent: null})
-      tbv.render()
+      const {view: tbv} = await display(tb, [300, 300])
 
       expect(hover.visible).to.be.true
       expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.false
@@ -415,6 +412,60 @@ describe("ToolbarView", () => {
     expect(await context_menu_labels()).to.be.equal(["Pan", "Custom Action"])
   })
 
+  describe("should stop updating removed tool buttons", () => {
+    async function setup() {
+      const pan = PanTool.create()
+      const toolbar = Toolbar.create({tools: [pan]})
+      const {view} = await display(toolbar, [200, 100])
+
+      const [bar_view] = view.tool_button_views
+      const [menu_view] = view.tool_button_menu_views
+      expect_not_null(bar_view)
+      expect_not_null(menu_view)
+
+      const updated: unknown[] = []
+      const {button_updated} = view
+      view.button_updated = (button_view) => {
+        updated.push(button_view)
+        button_updated.call(view, button_view)
+      }
+
+      // Sanity check that buttons update when the tool changes.
+      pan.description = "Pan 1"
+      await view.ready
+      expect(updated.includes(bar_view)).to.be.true
+      updated.length = 0
+
+      return {pan, toolbar, view, bar_view, menu_view, updated}
+    }
+
+    it("when tools are replaced", async () => {
+      const {pan, toolbar, view, bar_view, menu_view, updated} = await setup()
+
+      toolbar.tools = []
+      await view.ready
+
+      pan.description = "Pan 2"
+      await view.ready
+
+      expect(updated.includes(bar_view)).to.be.false
+      expect(updated.includes(menu_view)).to.be.false
+    })
+
+    it("when the toolbar is removed", async () => {
+      const {pan, view, bar_view, menu_view, updated} = await setup()
+
+      view.remove()
+
+      pan.description = "Pan 2"
+      await bar_view.ready
+      await menu_view.ready
+
+      expect(updated.includes(bar_view)).to.be.false
+      expect(updated.includes(menu_view)).to.be.false
+    })
+  })
+
   describe("visible attribute of tools in toolbar", () => {
 
     it("should have correct visibility status of tools", () => {
@@ -448,8 +499,7 @@ describe("ToolbarView", () => {
       const hover = HoverTool.create({visible: false})
 
       const tb = Toolbar.create({tools: [pan, tap, hover]})
-      const tbv = await build_view(tb, {parent: null})
-      tbv.render()
+      const {view: tbv} = await display(tb, [300, 300])
 
       expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.true
       expect(tbv.tool_button_views[1].class_list.has(tb_css.hidden)).to.be.false
@@ -462,8 +512,7 @@ describe("ToolbarView", () => {
       const hover = HoverTool.create()
 
       const tb = Toolbar.create({tools: [pan, tap, hover]})
-      const tbv = await build_view(tb, {parent: null})
-      tbv.render()
+      const {view: tbv} = await display(tb, [300, 300])
 
       expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.false
       expect(tbv.tool_button_views[1].class_list.has(tb_css.hidden)).to.be.false
@@ -476,8 +525,7 @@ describe("ToolbarView", () => {
       const hover = HoverTool.create({visible: false})
 
       const tb = Toolbar.create({tools: [pan, tap, hover]})
-      const tbv = await build_view(tb, {parent: null})
-      tbv.render()
+      const {view: tbv} = await display(tb, [300, 300])
 
       expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.true
       expect(tbv.tool_button_views[1].class_list.has(tb_css.hidden)).to.be.true
@@ -487,8 +535,7 @@ describe("ToolbarView", () => {
     it("should properly show tools after changing visibility", async () => {
       const hover = HoverTool.create()
       const tb = Toolbar.create({tools: [hover]})
-      const tbv = await build_view(tb, {parent: null})
-      tbv.render()
+      const {view: tbv} = await display(tb, [300, 300])
 
       expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.false
 
@@ -811,8 +858,8 @@ describe("ToolbarView", () => {
       p.toolbar.tools[0].visible = false
       const {view} = await display(p)
       const toolbar_view = view.owner.get_one(p.toolbar)
-      expect(toolbar_view.tool_button_views[0].el.isConnected).to.be.false
-      const button_view = toolbar_view.tool_button_views.find((view) => view.el.isConnected)
+      expect(toolbar_view.tool_button_views[0].el.checkVisibility()).to.be.false
+      const button_view = toolbar_view.tool_button_views.find((view) => view.el.checkVisibility())
       expect_not_null(button_view)
       const {width} = button_view.el.getBoundingClientRect()
 
@@ -897,5 +944,240 @@ describe("Toolbar Multi Gesture Tool", () => {
       expect(multi.active).to.be.false
       expect(pan.active).to.be.true
     })
+  })
+})
+
+describe("ToolbarView's overflow menu", () => {
+  const locations: Location[] = ["above", "below", "left", "right"]
+
+  for (const location of locations) {
+    const horizontal = location == "above" || location == "below"
+
+    it(`should be perpendicular to a toolbar located ${location} by default`, async () => {
+      const toolbar = Toolbar.create({location})
+      const {view} = await display(toolbar, [300, 300])
+      expect(view.overflow_menu.orientation).to.be.equal(horizontal ? "vertical" : "horizontal")
+    })
+
+    it(`should support overflow_orientation='parallel' for a toolbar located ${location}`, async () => {
+      const toolbar = Toolbar.create({location, overflow_orientation: "parallel"})
+      const {view} = await display(toolbar, [300, 300])
+      expect(view.overflow_menu.orientation).to.be.equal(horizontal ? "horizontal" : "vertical")
+    })
+  }
+
+  it("should close after activating a tool button", async () => {
+    const p = fig([200, 200], {tools: "pan,box_zoom,undo,redo,reset,crosshair,examine", toolbar_location: "above"})
+    p.scatter([0, 5, 10], [0, 5, 10])
+    const {view} = await display(p)
+
+    const toolbar_view = view.owner.get_one(p.toolbar)
+    const examine = p.toolbar.tools.find((tool) => tool instanceof ExamineTool)
+    expect_not_null(examine)
+    const button_view = toolbar_view.tool_button_menu_views.find((view) => view.model.tool == examine)
+    expect_not_null(button_view)
+
+    toolbar_view.toggle_menu()
+    expect(toolbar_view.overflow_menu.is_open).to.be.true
+    expect(button_view.el.isConnected).to.be.true
+
+    await tap(button_view.el)
+    await view.ready
+
+    expect(examine.active).to.be.true
+    expect(toolbar_view.overflow_menu.is_open).to.be.false
+  })
+
+  it("should update orientation when overflow_orientation changes", async () => {
+    const toolbar = Toolbar.create({location: "above"})
+    const {view} = await display(toolbar, [300, 300])
+    expect(view.overflow_menu.orientation).to.be.equal("vertical")
+
+    toolbar.overflow_orientation = "parallel"
+    await view.ready
+    expect(view.overflow_menu.orientation).to.be.equal("horizontal")
+  })
+
+  it("should update orientation when location changes", async () => {
+    const toolbar = Toolbar.create({location: "above"})
+    const {view} = await display(toolbar, [300, 300])
+    expect(view.overflow_menu.orientation).to.be.equal("vertical")
+
+    toolbar.location = "left"
+    await view.ready
+    expect(view.overflow_menu.orientation).to.be.equal("horizontal")
+  })
+})
+
+describe("ToolbarView's vDOM component", () => {
+  it("should follow toolbar's location and inner attributes", async () => {
+    const toolbar = Toolbar.create({tools: [PanTool.create()], location: "above"})
+    const {view} = await display(toolbar, [300, 300])
+    expect(view.el.classList.contains(toolbar_css.above)).to.be.true
+    expect(view.el.classList.contains(toolbar_css.inner)).to.be.false
+
+    toolbar.location = "left"
+    toolbar.inner = true
+    await view.ready
+    expect(view.el.classList.contains(toolbar_css.above)).to.be.false
+    expect(view.el.classList.contains(toolbar_css.left)).to.be.true
+    expect(view.el.classList.contains(toolbar_css.inner)).to.be.true
+  })
+
+  it("should update dividers when tools' visibility changes", async () => {
+    const pan = PanTool.create()
+    const tap = TapTool.create()
+    const toolbar = Toolbar.create({tools: [pan, tap], location: "above"})
+    const {view} = await display(toolbar, [300, 300])
+    const dividers = () => view.shadow_el.querySelectorAll(`.${toolbar_css.bar} .${toolbar_css.divider}`).length
+    expect(dividers()).to.be.equal(1)
+
+    tap.visible = false
+    await view.ready
+    expect(dividers()).to.be.equal(0)
+
+    tap.visible = true
+    await view.ready
+    expect(dividers()).to.be.equal(1)
+  })
+
+  it("should keep items of the open overflow menu when re-rendering", async () => {
+    const p = fig([200, 200], {tools: "pan,box_zoom,undo,redo,reset,crosshair,examine", toolbar_location: "above"})
+    p.scatter([0, 5, 10], [0, 5, 10])
+    const {view} = await display(p)
+
+    const toolbar_view = view.owner.get_one(p.toolbar)
+    const examine = p.toolbar.tools.find((tool) => tool instanceof ExamineTool)
+    expect_not_null(examine)
+    const button_view = toolbar_view.tool_button_menu_views.find((view) => view.model.tool == examine)
+    expect_not_null(button_view)
+
+    toolbar_view.toggle_menu()
+    const {overflow_menu} = toolbar_view
+    expect(overflow_menu.is_open).to.be.true
+    expect(button_view.el.getRootNode()).to.be.equal(overflow_menu.shadow_el)
+
+    p.toolbar.inner = true
+    await view.ready
+
+    expect(overflow_menu.is_open).to.be.true
+    expect(button_view.el.getRootNode()).to.be.equal(overflow_menu.shadow_el)
+  })
+})
+
+describe("ToolButtonView", () => {
+  async function button(tool: PanTool | ToolGroup<PanTool>) {
+    const toolbar = Toolbar.create({tools: [tool], location: "above"})
+    const {view} = await display(toolbar, [300, 300])
+    const [button_view] = view.tool_button_views
+    expect_not_null(button_view)
+    return {toolbar, button_view}
+  }
+
+  function icon_el(button_view: {shadow_el: ShadowRoot}): HTMLElement {
+    const el = button_view.shadow_el.querySelector<HTMLElement>(`.${tb_css.tool_icon}`)
+    expect_not_null(el)
+    return el
+  }
+
+  it("should reflect tool's active state", async () => {
+    const pan = PanTool.create()
+    const {button_view} = await button(pan)
+    expect(pan.active).to.be.true // activated by the toolbar
+    expect(button_view.el.classList.contains(tb_css.active)).to.be.true
+
+    pan.active = false
+    await button_view.ready
+    expect(button_view.el.classList.contains(tb_css.active)).to.be.false
+
+    pan.active = true
+    await button_view.ready
+    expect(button_view.el.classList.contains(tb_css.active)).to.be.true
+  })
+
+  it("should reflect tool's disabled and visible states", async () => {
+    const pan = PanTool.create()
+    const {button_view} = await button(pan)
+    expect(button_view.el.classList.contains(tb_css.disabled)).to.be.false
+    expect(button_view.el.classList.contains(tb_css.hidden)).to.be.false
+
+    pan.disabled = true
+    pan.visible = false
+    await button_view.ready
+    expect(button_view.el.classList.contains(tb_css.disabled)).to.be.true
+    expect(button_view.el.classList.contains(tb_css.hidden)).to.be.true
+  })
+
+  it("should update tooltip when tool's description changes", async () => {
+    const pan = PanTool.create()
+    const {button_view} = await button(pan)
+    expect(button_view.el.title).to.be.equal(pan.tooltip)
+
+    pan.description = "Custom pan"
+    await button_view.ready
+    expect(button_view.el.title).to.be.equal("Custom pan")
+
+    button_view.model.tooltip = "Button tooltip"
+    await button_view.ready
+    expect(button_view.el.title).to.be.equal("Button tooltip")
+  })
+
+  it("should update icon when tool's icon changes", async () => {
+    const pan = PanTool.create()
+    const {button_view} = await button(pan)
+    expect(icon_el(button_view).classList.contains("bk-tool-icon-pan")).to.be.true
+
+    pan.icon = "zoom_in"
+    await button_view.ready
+    expect(icon_el(button_view).classList.contains("bk-tool-icon-zoom-in")).to.be.true
+    expect(icon_el(button_view).classList.contains("bk-tool-icon-pan")).to.be.false
+
+    pan.icon = "--my-icon"
+    await button_view.ready
+    expect(icon_el(button_view).style.maskImage).to.be.equal("var(--my-icon)")
+  })
+
+  it("should show count of grouped tools", async () => {
+    const group = ToolGroup.create({tools: [PanTool.create(), PanTool.create()], show_count: true})
+    const {button_view} = await button(group)
+    const count_el = button_view.shadow_el.querySelector(`.${tb_css.count}`)
+    expect_not_null(count_el)
+    expect(count_el.textContent).to.be.equal("2")
+
+    group.tools = [...group.tools, PanTool.create()]
+    await button_view.ready
+    expect(button_view.shadow_el.querySelector(`.${tb_css.count}`)?.textContent).to.be.equal("3")
+  })
+
+  it("should allow the toolbar to re-measure after a tool becomes visible", async () => {
+    const pan = PanTool.create()
+    const tap = TapTool.create({visible: false})
+    const hover = HoverTool.create()
+    const p = fig([200, 200], {tools: [pan, tap, hover], toolbar_location: "above"})
+    p.scatter([1, 2, 3], [1, 2, 3])
+    const {view} = await display(p)
+    const toolbar_view = view.owner.get_one(p.toolbar)
+
+    tap.visible = true
+    await view.ready
+
+    const lefts = toolbar_view.tool_button_views.map((button_view) => {
+      expect(button_view.is_displayed).to.be.true
+      return button_view.bbox.left
+    })
+    const [pan_left, tap_left, hover_left] = lefts
+    expect(tap_left).to.be.above(pan_left + 29)
+    expect(hover_left).to.be.above(tap_left + 29)
+  })
+
+  it("should follow toolbar's location", async () => {
+    const pan = PanTool.create()
+    const {toolbar, button_view} = await button(pan)
+    expect(button_view.el.classList.contains(tb_css.above)).to.be.true
+
+    toolbar.location = "left"
+    await button_view.ready
+    expect(button_view.el.classList.contains(tb_css.left)).to.be.true
+    expect(button_view.el.classList.contains(tb_css.above)).to.be.false
   })
 })

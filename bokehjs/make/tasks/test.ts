@@ -262,6 +262,7 @@ function baseline_test_options(): string[] {
     ...opt("pedantic", argv.pedantic),
     ...opt("test-timeout", test_timeout()),
     ...opt("rebuild", argv.rebuild),
+    ...opt("continuous", argv.continuous),
     `--screenshot=${argv.screenshot}`,
   ]
 }
@@ -278,6 +279,7 @@ function devtools(executable: string, server_port: number, name: string, baselin
     ...opt("skip", argv.skip),
     ...opt("ref", argv.ref),
     ...opt("baselines-root", baselines_root),
+    ...opt("continuous", baselines_root != null ? argv.continuous : undefined),
     ...opt("randomize", argv.randomize),
     ...opt("seed", argv.seed),
     ...opt("pedantic", argv.pedantic),
@@ -383,7 +385,9 @@ async function bundle(name: string): Promise<void> {
     },
     target: "ES2024",
     minify: false,
-    externals: [/^@bokehjs\//],
+    // Share bokehjs' instances of preact and preact signals, which are exported by
+    // name from bokeh's main bundle, otherwise tests would bundle separate copies.
+    externals: [/^@bokehjs\//, /^preact(\/|$)/, /^@preact\//],
     shims: ["fs", "module"],
   })
 

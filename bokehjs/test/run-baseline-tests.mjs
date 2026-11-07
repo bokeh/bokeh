@@ -28,7 +28,8 @@ Commands:
   run      Run visual tests and write new or updated Linux baselines into the
            current checkout. This is the default when the command is omitted.
   review   Serve the most recent completed visual report at
-           http://127.0.0.1:5777.
+           http://127.0.0.1:5777. A report of a run still in progress with
+           --continuous is served as well.
   accept   Stage changed Linux .blf and .png files represented by the most
            recent completed report.
 
@@ -38,6 +39,9 @@ Test arguments:
   --test-timeout=SECONDS
             Set the default test-body deadline. Use 0 to disable it. The
             default is 120 on Windows hosts and 30 elsewhere.
+  --continuous
+            Update the report after each failure, so that it can be reviewed
+            (e.g. with the review command) while tests are still running.
 
 Environment:
   BOKEHJS_CONTAINER_ENGINE  Container CLI to use (default: docker). Set this to
@@ -242,7 +246,7 @@ function parse_port(args) {
   return value
 }
 
-function load_completed_report() {
+function load_completed_report({allow_running = false} = {}) {
   let report
   try {
     report = JSON.parse(fs.readFileSync(report_path, "utf-8"))
@@ -252,14 +256,15 @@ function load_completed_report() {
   const valid_results = Array.isArray(report.results) && report.results.every((entry) =>
     Array.isArray(entry) && entry.length === 2 && typeof entry[1]?.baseline_name === "string",
   )
-  if (report.completed !== true || !Array.isArray(report.baseline_names) || !valid_results) {
+  const accepted = report.completed === true || (allow_running && report.running === true)
+  if (!accepted || !Array.isArray(report.baseline_names) || !valid_results) {
     fail("The baseline report is incomplete or from an older runner. Run baseline tests again.")
   }
   return report
 }
 
 async function review(args) {
-  load_completed_report()
+  load_completed_report({allow_running: true})
   const port = parse_port(args)
   await prepare_image()
   process.stdout.write(`Review baseline changes at http://127.0.0.1:${port}/integration/report?platform=linux\n`)

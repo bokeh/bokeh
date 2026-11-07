@@ -4,6 +4,8 @@ import type {StyleSheet} from "./stylesheets"
 import {isArray, isPlainObject} from "./util/types"
 import {omit} from "./util/object"
 import type {IconLike} from "../models/common/kinds"
+import type {DOMView} from "./dom_view"
+import * as core_css from "styles/core.css"
 
 import type {Signalish, SignalLike} from "preact"
 import type {VNode, HTMLAttributes, ContainerNode} from "preact"
@@ -44,10 +46,22 @@ export type ShadowComponentProps = DivAttributes & {
   stylesheets?: StyleSheet[]
 }
 export class ShadowComponent extends Component<ShadowComponentProps> {
+  protected _shadow_el: ShadowRoot | null = null
+
+  override componentWillUnmount(): void {
+    // Contents of the shadow root are a separate vDOM tree, so unmount it as well.
+    const {_shadow_el} = this
+    if (_shadow_el != null) {
+      this._shadow_el = null
+      render(null, _shadow_el)
+    }
+  }
+
   render(): VNode {
     const attach_shadow = (el: HTMLElement | null): void => {
       if (el != null) {
         const shadow_el = el.shadowRoot ?? el.attachShadow({mode: "open"})
+        this._shadow_el = shadow_el
         const {stylesheets=[]} = this.props
         const adopted: CSSStyleSheet[] = []
         const links: VNode[] = []
@@ -123,6 +137,49 @@ export class Icon extends Component<IconProps> {
       icon_class = `bk-tool-icon-${icon.replace(/_/g, "-")}`
     }
     return <div role="img" class={cls(classes, icon_class)} style={style}></div>
+  }
+}
+
+export type ViewSlotProps = {
+  view: DOMView
+}
+
+/**
+ * Hosts a child view, i.e. renders its element as a child of this element.
+ *
+ * Child views own their elements (`view.el`), which can't be adopted by preact,
+ * so this renders an element (a slot), which doesn't affect the layout (it uses
+ * `display: contents`), and moves child view's element into it.
+ *
+ * This is transitional, until child views are rendered directly with preact.
+ */
+export class ViewSlot extends Component<ViewSlotProps> {
+  protected _el: HTMLElement | null = null
+
+  // A stable ref, so that preact doesn't call it on every render.
+  protected readonly _ref = (el: HTMLElement | null): void => {
+    this._el = el
+    this._mount()
+  }
+
+  protected _mount(): void {
+    const {_el} = this
+    if (_el != null) {
+      const {view} = this.props
+      if (view.el.parentNode !== _el) {
+        view.render_to(_el)
+      }
+    }
+  }
+
+  override componentDidUpdate(prev: ViewSlotProps): void {
+    if (prev.view !== this.props.view) {
+      this._mount()
+    }
+  }
+
+  render(): VNode {
+    return <div class={core_css.slot} ref={this._ref}/>
   }
 }
 

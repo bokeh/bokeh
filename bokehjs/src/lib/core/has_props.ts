@@ -201,10 +201,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       }
 
       Object.defineProperty(this.prototype, name, {
-        // XXX: don't use tail calls in getters/setters due to https://bugs.webkit.org/show_bug.cgi?id=164306
+        // Read through the property's preact signal, so that accessing attributes
+        // inside computed signals, effects or vdom components is tracked.
         get(this: HasProps): any {
-          const value = this.properties[name].get_value()
-          return value
+          return this.properties[name].signal.value
         },
         set(this: HasProps, value: any): HasProps {
           this.setv({[name]: value})

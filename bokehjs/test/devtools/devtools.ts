@@ -51,9 +51,10 @@ const argv = yargs(process.argv.slice(2)).options({
   "test-timeout": {type: "number", demandOption: false},
   retry: {type: "boolean", default: false},
   info: {type: "boolean", default: false},
+  continuous: {type: "boolean", default: false},
 }).parseSync()
 
-const {executable, ref, randomize, seed, pedantic, keyword, grep, skip, screenshot, retry, info} = argv as typeof argv & {screenshot: ScreenshotMode}
+const {executable, ref, randomize, seed, pedantic, keyword, grep, skip, screenshot, retry, info, continuous} = argv as typeof argv & {screenshot: ScreenshotMode}
 const url = argv._[0] as string | undefined ?? "about:blank"
 const MAX_BROWSER_RESTARTS = 2
 const MAX_BROWSER_LAUNCH_ATTEMPTS = 3
@@ -329,10 +330,46 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
         }
       }
 
+      /**
+       * Write `report.json` for the given tests. Incomplete reports are written in `--continuous`
+       * mode, so that the report can be previewed while tests are still running.
+       */
+      async function write_report(baselines_root: string, tests: TestCase[], completed: boolean): Promise<void> {
+        const selected_baseline_names = tests.map(([,, status]) => status.baseline_name!)
+        const results = tests.map(([suites, test, status]) => {
+          const {failure, timeout, skipped, baseline_name, baseline, existing_blf, image, image_diff, reference} = status
+          const success = !(failure ?? false) && !(timeout ?? false) && !(skipped ?? false)
+          return [descriptions(suites, test), {success, failure, timeout, skipped, baseline_name, baseline, existing_blf, image, image_diff, reference}]
+        })
+        const json = JSON.stringify({
+          completed,
+          running: !completed,
+          progress: {finished: tests.length, selected: selected_tests.length},
+          reference: ref,
+          baseline_names: selected_baseline_names,
+          results,
+          metrics: metrics?.get_metrics() ?? {},
+        }, (_key, value) => {
+          if (value?.type == "Buffer") {
+            return Buffer.from(value.data).toString("base64")
+          } else {
+            return value
+          }
+        })
+        const report_path = path.join(baselines_root, platform, "report.json")
+        const temporary_report_path = `${report_path}.${process.pid}.tmp`
+        await fs.promises.writeFile(temporary_report_path, json)
+        await fs.promises.rename(temporary_report_path, report_path)
+      }
+
+      if (continuous && baselines_root != null) {
+        await write_report(baselines_root, [], false)
+      }
+
       try {
         let browser_ready = true
         let browser_error: unknown = null
-        for (const test_case of selected_tests) {
+        for (const [i, test_case] of selected_tests.entries()) {
           const [suites, test, status] = test_case
           const test_name = description(suites, test)
           const status_checkpoint = copy_status(status)
@@ -401,6 +438,10 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
           }
           if ((status.failure ?? false) || (status.timeout ?? false)) {
             failed++
+
+            if (continuous && baselines_root != null) {
+              await write_report(baselines_root, selected_tests.slice(0, i + 1), false)
+            }
           }
 
           append_report_out(test_case)
@@ -421,29 +462,7 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
       }
 
       if (baselines_root != null) {
-        const selected_baseline_names = selected_tests.map(([,, status]) => status.baseline_name!)
-        const results = selected_tests.map(([suites, test, status]) => {
-          const {failure, timeout, skipped, baseline_name, baseline, existing_blf, image, image_diff, reference} = status
-          const success = !(failure ?? false) && !(timeout ?? false) && !(skipped ?? false)
-          return [descriptions(suites, test), {success, failure, timeout, skipped, baseline_name, baseline, existing_blf, image, image_diff, reference}]
-        })
-        const json = JSON.stringify({
-          completed: true,
-          reference: ref,
-          baseline_names: selected_baseline_names,
-          results,
-          metrics: metrics?.get_metrics() ?? {},
-        }, (_key, value) => {
-          if (value?.type == "Buffer") {
-            return Buffer.from(value.data).toString("base64")
-          } else {
-            return value
-          }
-        })
-        const report_path = path.join(baselines_root, platform, "report.json")
-        const temporary_report_path = `${report_path}.${process.pid}.tmp`
-        await fs.promises.writeFile(temporary_report_path, json)
-        await fs.promises.rename(temporary_report_path, report_path)
+        await write_report(baselines_root, selected_tests, true)
 
         const files = new Set(await fs.promises.readdir(path.join(baselines_root, platform)))
         files.delete("report.json")
