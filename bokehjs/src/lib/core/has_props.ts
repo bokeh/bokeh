@@ -204,6 +204,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       Object.defineProperty(this.prototype, name, {
         // XXX: don't use tail calls in getters/setters due to https://bugs.webkit.org/show_bug.cgi?id=164306
         get(this: HasProps): any {
+          const deferred = this._deferred
+          if (deferred != null && deferred.has(name)) {
+            return deferred.get(name)
+          }
           const value = this.properties[name].get_value()
           return value
         },
@@ -647,11 +651,56 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return changed
   }
 
+  private _deferred: Map<string, unknown> | null = null
+
+  /**
+   * Run `fn` and apply all property assignments made on this model within it
+   * (via setters or option-less `setv()`) as a single `setv()` call, i.e. with
+   * one round of change notifications and one document patch.
+   *
+   * Reading a property within the block returns its pending value. Nested calls
+   * are merged into the outermost one. If `fn` throws, pending changes are discarded.
+   */
+  simultaneously<T>(fn: () => T, options: HasProps.SetOptions = {}): T {
+    if (this._deferred != null) {
+      return fn()
+    }
+
+    const deferred = new Map<string, unknown>()
+    this._deferred = deferred
+
+    let result: T
+    try {
+      result = fn()
+    } finally {
+      this._deferred = null
+    }
+
+    this.setv(Object.fromEntries(deferred), options)
+    return result
+  }
+
   setv<T extends Attrs>(changed_attrs: Partial<T>, options: HasProps.SetOptions = {}): void {
     const changes = entries(changed_attrs)
 
     if (changes.length == 0) {
       return
+    }
+
+    const deferred = this._deferred
+    if (deferred != null) {
+      if (is_empty(options)) {
+        for (const [attr, value] of changes) {
+          this.property(attr) // validate eagerly
+          deferred.set(attr, value)
+        }
+        return
+      } else {
+        // explicit options opt out of deferral; don't let stale pending values override this
+        for (const [attr] of changes) {
+          deferred.delete(attr)
+        }
+      }
     }
 
     if (options.silent ?? false) {
