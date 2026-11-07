@@ -6,8 +6,11 @@
 export type Filters = {
   /** substrings of test descriptions (`-k`, `--keyword`, `?k=`) */
   keyword?: string[] | null
-  /** regular expressions matching test descriptions (`-g`, `--grep`, `?g=`) */
-  grep?: string[] | null
+  /**
+   * regular expressions matching test descriptions (`-g`, `--grep`, `?g=`); `RegExp`
+   * objects (e.g. from `Tests.run_all(/re/i)`) are allowed to preserve their flags
+   */
+  grep?: (string | RegExp)[] | null
   /** file names or glob patterns of test modules (`-f`, `--file`, `?f=`) */
   file?: string[] | null
 }
@@ -106,7 +109,7 @@ export function file_pattern_to_regex(pattern: string): RegExp {
   return new RegExp(`^${prefix}${re}(?:/.*)?$`)
 }
 
-function non_empty(values: string[] | null | undefined): string[] | null {
+function non_empty<T>(values: T[] | null | undefined): T[] | null {
   return values != null && values.length != 0 ? values : null
 }
 
@@ -157,7 +160,12 @@ export function select_tests(tests: TestInfo[], filters: Filters, suite?: string
     const regexes: RegExp[] = []
     for (const pattern of grep) {
       try {
-        regexes.push(new RegExp(pattern))
+        if (pattern instanceof RegExp) {
+          // `g` and `y` flags make `test()` stateful (via `lastIndex`), so drop them
+          regexes.push(new RegExp(pattern, pattern.flags.replace(/[gy]/g, "")))
+        } else {
+          regexes.push(new RegExp(pattern))
+        }
       } catch (error) {
         errors.push(`invalid grep pattern '${pattern}': ${error instanceof Error ? error.message : error}`)
       }

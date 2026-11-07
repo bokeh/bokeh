@@ -237,7 +237,7 @@ function to_filters(query?: Query): Filters {
   } else if (isArray(query)) {
     return {keyword: query}
   } else if (query instanceof RegExp) {
-    return {grep: [query.source]}
+    return {grep: [query]}
   } else if (isPlainObject(query)) {
     return query
   } else {
