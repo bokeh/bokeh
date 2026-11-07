@@ -108,6 +108,7 @@ from bokeh.embed._output import render_resource
 from bokeh.embed.resources import ResourceRequirements
 from bokeh.model import Model
 from bokeh.resources import Resources
+from bokeh.util.warnings import BOKEH_DEPRECATION_MESSAGE_PATTERN
 
 from ._internal import PARALLEL_SAFE, SphinxParallelSpec
 from ._internal.bokeh_directive import BokehDirective
@@ -431,7 +432,7 @@ def _evaluate_source(source: str, filename: str, env: Any) -> tuple[Model, str |
     # in the reference guide. Suppress warnings here to keep the build clean
     with warnings.catch_warnings():
         if "reference" in env.docname:
-            warnings.filterwarnings("ignore", message=r".* was deprecated in Bokeh ", category=DeprecationWarning)
+            warnings.filterwarnings("ignore", message=BOKEH_DEPRECATION_MESSAGE_PATTERN, category=DeprecationWarning)
         c.modify_document(d)
 
     if c.error:

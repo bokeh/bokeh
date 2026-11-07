@@ -28,7 +28,7 @@ from bokeh.util.paths import bokehjsdir, serverdir
     (server_session, (), {"session_id": "test"}, "4.0.0", "embed_server(session_id=...).fragment(...).html"),
     (ColorMap, (), {}, "3.4.0", "PaletteSelect"),
     (ActionItem, (), {}, "3.7.0", "MenuItem"),
-    (CheckableItem, (), {}, "3.7.0", "MenuItem with checked=True or checked=False"),
+    (CheckableItem, (), {}, "3.7.0", "MenuItem(checked=True) or MenuItem(checked=False)"),
     (serverdir, (), {}, "3.4.0", "server_path()"),
     (bokehjsdir, (), {}, "3.4.0", "bokehjs_path()"),
     (settings.bokehjsdir, (), {}, "3.4.0", "bokehjs_path()"),

@@ -47,7 +47,7 @@ __all__ = (
 
 _ACTION_ITEM_DEPRECATION: Final = "'ActionItem' was deprecated in Bokeh 3.7.0 and will be removed, use 'MenuItem' instead."
 _CHECKABLE_ITEM_DEPRECATION: Final = (
-    "'CheckableItem' was deprecated in Bokeh 3.7.0 and will be removed, use 'MenuItem with checked=True or checked=False' instead."
+    "'CheckableItem' was deprecated in Bokeh 3.7.0 and will be removed, use MenuItem(checked=True) or MenuItem(checked=False) instead."
 )
 
 #-----------------------------------------------------------------------------

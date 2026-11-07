@@ -27,9 +27,13 @@ from os.path import dirname
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'BOKEH_DEPRECATION_MESSAGE_PATTERN',
+    'BokehUserWarning',
     'warn',
     'warn_deprecated',
 )
+
+BOKEH_DEPRECATION_MESSAGE_PATTERN = r".* was deprecated in Bokeh "
 
 # Include the separator so sibling directories aren't treated as part of Bokeh.
 _BOKEH_WARNING_PREFIXES = (dirname(dirname(__file__)) + sep,)
@@ -38,12 +42,12 @@ _BOKEH_WARNING_PREFIXES = (dirname(dirname(__file__)) + sep,)
 # General API
 #-----------------------------------------------------------------------------
 
-def warn(message: str, category: type[Warning] | None = None, stacklevel: int | None = None) -> None:
-    """Issue a warning, skipping Bokeh frames by default."""
-    if stacklevel is None:
-        warnings.warn(message, category, skip_file_prefixes=_BOKEH_WARNING_PREFIXES)
-    else:
-        warnings.warn(message, category, stacklevel=stacklevel)
+class BokehUserWarning(UserWarning):
+    """A warning category retained for callers that filter Bokeh serializer warnings."""
+
+def warn(message: str, category: type[Warning] | None = None) -> None:
+    """Issue a warning attributed to the caller outside Bokeh."""
+    warnings.warn(message, category, skip_file_prefixes=_BOKEH_WARNING_PREFIXES)
 
 def warn_deprecated(old: str, new: str, *, since: tuple[int, int, int], extra: str | None = None) -> None:
     """Issue a versioned deprecation warning with a suggested replacement."""

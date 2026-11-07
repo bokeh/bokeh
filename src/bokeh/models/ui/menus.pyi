@@ -45,7 +45,7 @@ class ActionItem(MenuItem):
 class _CheckableItemInit(_MenuItemInit, total=False):
     ...
 
-@deprecated("'CheckableItem' was deprecated in Bokeh 3.7.0 and will be removed, use 'MenuItem with checked=True or checked=False' instead.")
+@deprecated("'CheckableItem' was deprecated in Bokeh 3.7.0 and will be removed, use MenuItem(checked=True) or MenuItem(checked=False) instead.")
 class CheckableItem(MenuItem):
     def __init__(self, **kwargs: Unpack[_CheckableItemInit]) -> None: ...
 

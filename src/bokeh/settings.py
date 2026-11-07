@@ -888,7 +888,7 @@ class Settings:
         '''
         return bokehjs_path(self.dev)
 
-    @deprecated("'bokehjsdir()' was deprecated in Bokeh 3.4.0 and will be removed, use 'bokehjs_path() method' instead.")
+    @deprecated("'bokehjsdir()' was deprecated in Bokeh 3.4.0 and will be removed, use 'bokehjs_path()' instead.")
     def bokehjsdir(self) -> str:
         ''' The location of the BokehJS source tree.
 

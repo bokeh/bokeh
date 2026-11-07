@@ -62,6 +62,7 @@ from bokeh.document import Document
 from bokeh.model import Model
 from bokeh.models import ColumnDataSource, CustomJS
 from bokeh.util.dataclasses import NotRequired, Unspecified
+from bokeh.util.warnings import BokehUserWarning
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -1273,7 +1274,7 @@ class TestDeserializer:
         rep = encoder.encode(val)
 
         decoder = Deserializer([val])
-        with pytest.warns(UserWarning, match=f"reference already known '{val.id}'"):
+        with pytest.warns(BokehUserWarning, match=f"reference already known '{val.id}'"):
             ret = decoder.deserialize(rep)
 
         assert ret == val

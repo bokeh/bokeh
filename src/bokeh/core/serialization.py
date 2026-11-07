@@ -870,9 +870,9 @@ class Deserializer:
 
         instance = self._references.get(id)
         if instance is not None:
-            from ..util.warnings import warn
+            from ..util.warnings import BokehUserWarning, warn
 
-            warn(f"reference already known '{id}'")
+            warn(f"reference already known '{id}'", BokehUserWarning)
             return instance
 
         attributes: dict[str, AnyRep] | None

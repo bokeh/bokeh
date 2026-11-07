@@ -53,6 +53,7 @@ from bokeh.core.property.descriptors import AliasPropertyDescriptor, PropertyDes
 from bokeh.core.property.singletons import Undefined
 from bokeh.core.serialization import AnyRep, Serializer, SymbolRep
 from bokeh.model import Model
+from bokeh.util.warnings import BOKEH_DEPRECATION_MESSAGE_PATTERN
 
 from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective, py_sig_re
@@ -119,7 +120,7 @@ class BokehModelDirective(BokehDirective):
         # them in the reference guide. Suppress any warnings here to keep the
         # docs build clean just for this case
         with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", message=r".* was deprecated in Bokeh ", category=DeprecationWarning)
+            warnings.filterwarnings("ignore", message=BOKEH_DEPRECATION_MESSAGE_PATTERN, category=DeprecationWarning)
             model_obj = model()
 
         model_json = json.dumps(to_json_rep(model_obj), sort_keys=True, indent=2, separators=(", ", ": "))
