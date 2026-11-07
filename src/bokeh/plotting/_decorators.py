@@ -71,10 +71,12 @@ def marker_method() -> GlyphMethodDecorator:
 
         wrapped.__doc__ = generate_docstring(glyphclass, parameters, func.__doc__)
 
-        return deprecated(
+        # The stubs supply literal messages to type checkers. This message is for runtime use.
+        message = (
             f"{func.__name__}() method was deprecated in Bokeh 3.4.0 and will be removed, "
-            f"use scatter(marker={marker_type!r}, ...) instead.",
-        )(wrapped)
+            f"use scatter(marker={marker_type!r}, ...) instead."
+        )
+        return deprecated(message)(wrapped)  # pyright: ignore[reportArgumentType]
 
     return decorator
 

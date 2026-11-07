@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-from typing import Any
+from typing import Any, Final
 from warnings import deprecated
 
 from ...core.property.container import List
@@ -29,6 +29,7 @@ from ...core.property.primitive import Bool, Null, String
 from ...core.property.required import Required
 from ...core.property_aliases import IconLike
 from ...model import Model
+from ...util.warnings import warn
 from ..callbacks import Callback
 from .ui_element import UIElement
 
@@ -42,6 +43,11 @@ __all__ = (
     "DividerItem",
     "Menu",
     "MenuItem",
+)
+
+_ACTION_ITEM_DEPRECATION: Final = "'ActionItem' was deprecated in Bokeh 3.7.0 and will be removed, use 'MenuItem' instead."
+_CHECKABLE_ITEM_DEPRECATION: Final = (
+    "'CheckableItem' was deprecated in Bokeh 3.7.0 and will be removed, use 'MenuItem with checked=True or checked=False' instead."
 )
 
 #-----------------------------------------------------------------------------
@@ -96,14 +102,16 @@ class MenuItem(Model):
     An optional action (callback) associated with this item.
     """)
 
-@deprecated("'ActionItem' was deprecated in Bokeh 3.7.0 and will be removed, use 'MenuItem' instead.")
+# A runtime class decorator wraps __new__ and hides the signature generated on __init__.
+@deprecated(_ACTION_ITEM_DEPRECATION, category=None)
 class ActionItem(MenuItem):
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
+        warn(_ACTION_ITEM_DEPRECATION, DeprecationWarning)
         super().__init__(*args, **kwargs)
 
-@deprecated("'CheckableItem' was deprecated in Bokeh 3.7.0 and will be removed, use 'MenuItem with checked=True or checked=False' instead.")
+@deprecated(_CHECKABLE_ITEM_DEPRECATION, category=None)
 class CheckableItem(MenuItem):
     """ A two state checkable menu item.
 
@@ -113,6 +121,7 @@ class CheckableItem(MenuItem):
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
+        warn(_CHECKABLE_ITEM_DEPRECATION, DeprecationWarning)
         super().__init__(*args, **kwargs)
 
 class DividerItem(Model):
