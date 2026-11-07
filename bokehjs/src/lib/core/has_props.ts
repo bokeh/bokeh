@@ -676,11 +676,11 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       this._deferred = null
     }
 
-    this.setv(Object.fromEntries(deferred), options)
+    (this as HasProps).setv(Object.fromEntries(deferred), options)
     return result
   }
 
-  setv<T extends Attrs>(changed_attrs: Partial<T>, options: HasProps.SetOptions = {}): void {
+  setv<T extends HasProps>(this: T, changed_attrs: Partial<p.AttrsOf<T["properties"]>>, options: HasProps.SetOptions = {}): void {
     const changes = entries(changed_attrs)
 
     if (changes.length == 0) {

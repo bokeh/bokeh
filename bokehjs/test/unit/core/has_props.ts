@@ -585,6 +585,7 @@ describe("core/has_props module", () => {
     it("should reject unknown properties eagerly", () => {
       const obj = SubclassWithProps.create()
       expect(() => obj.simultaneously(() => {
+        // @ts-expect-error "whatever" is not a property of SubclassWithProps
         obj.setv({whatever: 1})
       })).to.throw(Error, "unknown property SubclassWithProps.whatever")
     })
