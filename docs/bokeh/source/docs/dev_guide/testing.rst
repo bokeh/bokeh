@@ -535,12 +535,12 @@ the ``bokehjs`` subdirectory:
     $ BOKEH_CHROME=/path/to/chrome node make test:integration
 
 Omit ``BOKEH_CHROME`` to use Playwright-managed Chromium. The native run reads
-and writes
-``bokehjs/test/baselines/linux`` and accepts the same ``-k``, ``-g`` and
-``-f`` test filters as the containerized run. This is a convenient path for fast iteration
-on Linux, but it is not the canonical baseline environment: the host's browser,
-fonts, system libraries, and rendering stack can all affect pixels. Confirm any
-new or updated baselines with ``node make baseline-test`` before accepting them.
+and writes ``bokehjs/test/baselines/linux`` and accepts the same ``-k``, ``-g``
+and ``-f`` test filters as the containerized run. This is a convenient path for
+fast iteration on Linux, but it is not the canonical baseline environment: the
+host's browser, fonts, system libraries, and rendering stack can all affect
+pixels. Confirm any new or updated baselines with ``node make baseline-test``
+before accepting them.
 
 To review the latest results with the same BokehJS report used by CI, start the
 containerized review server:
@@ -625,8 +625,9 @@ To match test descriptions with a regular expression instead, use the ``-g``
 
 You can also select unit and integration tests by the files they are defined
 in. Use the ``-f`` (or ``--file``) argument to supply a file name or a glob
-pattern. Paths are relative to the test suite's directory, e.g. ``bokehjs/test/unit`` for unit
-tests, and the file extension is optional. For example:
+pattern. Paths are relative to the test suite's directory, e.g.
+``bokehjs/test/unit`` for unit tests, and the file extension is optional. For
+example:
 
 .. code-block:: sh
 
