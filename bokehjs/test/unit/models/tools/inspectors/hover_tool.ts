@@ -21,6 +21,9 @@ import {CustomJSHover} from "@bokehjs/models/tools/inspectors/customjs_hover"
 import {Template} from "@bokehjs/models/dom/template"
 import {ValueRef} from "@bokehjs/models/dom/value_ref"
 
+import {delay} from "@bokehjs/core/util/defer"
+import type {MoveEvent} from "@bokehjs/core/ui_events"
+
 import {render} from "preact"
 
 function outer_html(el: Element | VNode): string {
@@ -200,6 +203,82 @@ describe("HoverTool", () => {
       hv._move_exit()
       await hover_actions.hover(xy(1, 1))
       expect(hv._current_entries.map(({vars}) => vars.index)).to.be.equal([1])
+    })
+
+    describe("should support hide_delay", () => {
+      async function setup(hide_delay: number) {
+        const hover = HoverTool.create({hide_delay})
+        const p = fig([200, 200], {tools: [hover], x_range: [-1, 3], y_range: [-1, 3]})
+        const source = ColumnDataSource.create({data: {x: [0, 2], y: [0, 2]}})
+        const renderer = p.scatter({x: {field: "x"}, y: {field: "y"}, size: 10, source})
+        const {view} = await display(p)
+        const hv = view.owner.get_one(hover)
+        const tooltip = hv.ttmodels.get(renderer)
+        expect_not_null(tooltip)
+        const {x_scale, y_scale} = view.frame
+        const move = (x: number, y: number) => {
+          const sx = x_scale.compute(x)
+          const sy = y_scale.compute(y)
+          hv._move({sx, sy} as unknown as MoveEvent) // only sx and sy are used
+        }
+        const inspected = () => {
+          const inspection = renderer.get_selection_manager().inspectors.get(renderer)
+          return inspection?.indices ?? []
+        }
+        return {hv, tooltip, move, inspected}
+      }
+
+      it("when hide_delay=0, hiding immediately", async () => {
+        const {tooltip, move, inspected} = await setup(0)
+        move(0, 0)
+        expect(tooltip.position).to.not.be.null
+        expect(inspected()).to.be.equal([0])
+        move(1, 1)
+        expect(tooltip.position).to.be.null
+        expect(inspected()).to.be.equal([])
+      })
+
+      it("when hide_delay>0, hiding after a delay", async () => {
+        const {tooltip, move, inspected} = await setup(50)
+        move(0, 0)
+        const position = tooltip.position
+        expect(position).to.not.be.null
+        move(1, 1)
+        expect(tooltip.position).to.be.equal(position)
+        expect(inspected()).to.be.equal([0])
+        await delay(100)
+        expect(tooltip.position).to.be.null
+        expect(inspected()).to.be.equal([])
+      })
+
+      it("when hide_delay>0, bridging gaps between points", async () => {
+        const {tooltip, move, inspected} = await setup(50)
+        move(0, 0)
+        const position0 = tooltip.position
+        move(1, 1)
+        expect(inspected()).to.be.equal([0])
+        move(2, 2)
+        const position1 = tooltip.position
+        expect(position1).to.not.be.null
+        expect(position1).to.not.be.equal(position0)
+        expect(inspected()).to.be.equal([1])
+        await delay(100)
+        expect(tooltip.position).to.be.equal(position1)
+        expect(inspected()).to.be.equal([1])
+      })
+
+      it("when hide_delay>0, hiding immediately when leaving the plot", async () => {
+        const {hv, tooltip, move, inspected} = await setup(50)
+        move(0, 0)
+        expect(tooltip.position).to.not.be.null
+        expect(inspected()).to.be.equal([0])
+        hv._move_exit()
+        expect(tooltip.position).to.be.null
+        expect(inspected()).to.be.equal([])
+        await delay(100)
+        expect(tooltip.position).to.be.null
+        expect(inspected()).to.be.equal([])
+      })
     })
 
     it("should invalidate tooltips' template when changing the tooltips property", async () => {

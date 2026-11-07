@@ -4,6 +4,7 @@ import {div, empty} from "core/dom"
 import {Anchor, HoverMode, LinePolicy, MutedPolicy, PointPolicy, TooltipAttachment, BuiltinFormatter} from "core/enums"
 import type {Geometry, GeometryData, PointGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
+import type {HitTestResult} from "core/hittest"
 import type * as p from "core/properties"
 import {Signal} from "core/signaling"
 import type {Arrayable, Color, Dict} from "core/types"
@@ -176,6 +177,18 @@ export class HoverToolView extends InspectToolView {
 
   public readonly ttmodels: Map<GlyphRenderer, Tooltip> = new Map()
 
+  /**
+   * Renderers that currently have a non-empty inspection.
+   */
+  protected readonly _hit_renderers: Set<DataRenderer> = new Set()
+
+  /**
+   * Renderers that lost their hits, but their inspection (thus the hover glyph
+   * and tooltip) is kept for `hide_delay` ms to bridge small gaps between data
+   * points and avoid flickering. `geometry` is the most recent missed geometry.
+   */
+  protected readonly _pending_misses: Map<DataRenderer, {timer: number, geometry: PointGeometry | SpanGeometry}> = new Map()
+
   protected readonly _ttviews: ViewStorage<Tooltip> = new Map()
   protected _template_el?: HTMLElement
   protected _template_view?: ViewOf<DOMElement>
@@ -230,7 +243,63 @@ export class HoverToolView extends InspectToolView {
     this.on_change(filters, () => this._update_filters())
   }
 
+  override remove(): void {
+    this._cancel_pending_misses()
+    super.remove()
+  }
+
+  protected _cancel_pending_misses(): void {
+    for (const {timer} of this._pending_misses.values()) {
+      clearTimeout(timer)
+    }
+    this._pending_misses.clear()
+  }
+
+  protected _apply_inspection(renderer: DataRenderer, geometry: PointGeometry | SpanGeometry, hit_test_result?: HitTestResult): void {
+    const rview = this.plot_view.views.find_one(renderer)
+    if (rview == null) {
+      return
+    }
+    const sm = renderer.get_selection_manager()
+    const result = hit_test_result !== undefined ? hit_test_result : sm.inspect_hit_test(rview, geometry)
+    if (result != null && !result.is_empty()) {
+      this._hit_renderers.add(renderer)
+    } else {
+      this._hit_renderers.delete(renderer)
+    }
+    sm.apply_inspection(rview, geometry, result)
+  }
+
+  protected _defer_miss(renderer: DataRenderer, geometry: PointGeometry | SpanGeometry, delay: number): void {
+    const pending = this._pending_misses.get(renderer)
+    if (pending != null) {
+      pending.geometry = geometry
+    } else {
+      const timer = setTimeout(() => {
+        const pending = this._pending_misses.get(renderer)
+        if (pending != null) {
+          this._pending_misses.delete(renderer)
+          this._apply_inspection(renderer, pending.geometry)
+        }
+      }, delay)
+      this._pending_misses.set(renderer, {timer, geometry})
+    }
+  }
+
+  /**
+   * Apply all pending misses now, without waiting for `hide_delay`.
+   */
+  protected _flush_pending_misses(): void {
+    const pending_misses = [...this._pending_misses]
+    this._cancel_pending_misses()
+    for (const [renderer, {geometry}] of pending_misses) {
+      this._apply_inspection(renderer, geometry)
+    }
+  }
+
   protected async _update_ttmodels(): Promise<void> {
+    this._flush_pending_misses()
+
     const {ttmodels} = this
     ttmodels.clear()
 
@@ -365,12 +434,38 @@ export class HoverToolView extends InspectToolView {
       }
     }
 
+    // Clearing (e.g. when leaving the plot) is never delayed.
+    const delay = isFinite(sx + sy) ? this.model.hide_delay : 0
+    if (delay == 0) {
+      this._cancel_pending_misses()
+    }
+
+    let any_hit = false
     for (const r of this.computed_renderers) {
-      const sm = r.get_selection_manager()
       const rview = this.plot_view.views.find_one(r)
-      if (rview != null) {
-        sm.inspect(rview, geometry)
+      if (rview == null) {
+        continue
       }
+      const sm = r.get_selection_manager()
+      const result = sm.inspect_hit_test(rview, geometry)
+      const is_hit = result != null && !result.is_empty()
+      if (is_hit) {
+        any_hit = true
+        const pending = this._pending_misses.get(r)
+        if (pending != null) {
+          clearTimeout(pending.timer)
+          this._pending_misses.delete(r)
+        }
+      } else if (delay > 0 && (this._hit_renderers.has(r) || this._pending_misses.has(r))) {
+        this._defer_miss(r, geometry, delay)
+        continue
+      }
+      this._apply_inspection(r, geometry, result)
+    }
+
+    // A new hit supersedes any lingering inspections (possibly of other renderers).
+    if (any_hit) {
+      this._flush_pending_misses()
     }
 
     this._emit_callback(geometry)
@@ -882,6 +977,7 @@ export namespace HoverTool {
     point_policy: p.Property<PointPolicy>
     line_policy: p.Property<LinePolicy>
     show_arrow: p.Property<boolean>
+    hide_delay: p.Property<number>
     anchor: p.Property<Anchor>
     attachment: p.Property<TooltipAttachment>
     callback: p.Property<CallbackLike1<HoverTool, {geometry: GeometryData, renderer: Renderer, index: Selection}> | null>
@@ -897,7 +993,7 @@ export class HoverTool extends InspectTool {
   static {
     this.prototype.default_view = HoverToolView
 
-    this.define<HoverTool.Props>(({Any, Bool, Int, Str, Positive, List, Tuple, Dict, Or, Ref, Func, Auto, Nullable}) => ({
+    this.define<HoverTool.Props>(({Any, Bool, Int, Str, Positive, NonNegative, List, Tuple, Dict, Or, Ref, Func, Auto, Nullable}) => ({
       tooltips: [ Nullable(Or(Ref(DOMElement), Str, List(Tuple(Str, Str)), Func<[ColumnarDataSource, TooltipVars], HTMLElement>())), [
         ["index",         "$index"    ],
         ["data (x, y)",   "($x, $y)"  ],
@@ -914,6 +1010,7 @@ export class HoverTool extends InspectTool {
       point_policy: [ PointPolicy, "snap_to_data" ],
       line_policy:  [ LinePolicy, "nearest" ],
       show_arrow:   [ Bool, true ],
+      hide_delay:   [ NonNegative(Int), 200 ],
       anchor:       [ Anchor, "center" ],
       attachment:   [ TooltipAttachment, "horizontal" ],
       callback:     [ Nullable(Any /*TODO*/), null ],

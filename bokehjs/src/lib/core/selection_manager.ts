@@ -1,4 +1,5 @@
 import type {Geometry} from "./geometry"
+import type {HitTestResult} from "./hittest"
 import type {SelectionMode} from "core/enums"
 import {Selection} from "models/selections/selection"
 import type {ColumnarDataSource} from "models/sources/columnar_data_source"
@@ -48,10 +49,30 @@ export class SelectionManager {
   }
 
   inspect(renderer_view: DataRendererView, geometry: Geometry): boolean {
+    const hit_test_result = this.inspect_hit_test(renderer_view, geometry)
+    return this.apply_inspection(renderer_view, geometry, hit_test_result)
+  }
+
+  /**
+   * Computes what `inspect()` would inspect, without applying the inspection.
+   */
+  inspect_hit_test(renderer_view: DataRendererView, geometry: Geometry): HitTestResult {
+    if (is_GlyphRendererView(renderer_view)) {
+      return renderer_view.hit_test(geometry)
+    } else if (is_GraphRendererView(renderer_view)) {
+      return renderer_view.model.inspection_policy.hit_test(geometry, renderer_view)
+    } else {
+      return null
+    }
+  }
+
+  /**
+   * Applies the result of `inspect_hit_test()`.
+   */
+  apply_inspection(renderer_view: DataRendererView, geometry: Geometry, hit_test_result: HitTestResult): boolean {
     let did_hit = false
 
     if (is_GlyphRendererView(renderer_view)) {
-      const hit_test_result = renderer_view.hit_test(geometry)
       if (hit_test_result != null) {
         did_hit = !hit_test_result.is_empty()
         const inspection = this.get_or_create_inspector(renderer_view.model)
@@ -60,7 +81,6 @@ export class SelectionManager {
         this.source.inspect.emit([renderer_view.model, {geometry}])
       }
     } else if (is_GraphRendererView(renderer_view)) {
-      const hit_test_result = renderer_view.model.inspection_policy.hit_test(geometry, renderer_view)
       did_hit = renderer_view.model.inspection_policy.do_inspection(hit_test_result, geometry, renderer_view, false, "replace")
     }
 
