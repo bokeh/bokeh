@@ -7,12 +7,15 @@
 ''' Provide Jinja2 templates used by Bokeh to embed Bokeh documents and
 models in various ways.
 
-.. bokeh-jinja:: bokeh.core.templates.CSS_RESOURCES
-.. bokeh-jinja:: bokeh.core.templates.FILE
-.. bokeh-jinja:: bokeh.core.templates.JS_RESOURCES
-.. bokeh-jinja:: bokeh.core.templates.NOTEBOOK_INFO
-.. bokeh-jinja:: bokeh.core.templates.PORTABLE_RESOURCES_JS
-.. bokeh-jinja:: bokeh.core.templates.SCRIPT_TAG
+The templates themselves are the Jinja2 files under ``src/bokeh/core/_templates``
+in the Bokeh source tree. Each constant below loads one of them:
+
+* :data:`~bokeh.core.templates.CSS_RESOURCES`
+* :data:`~bokeh.core.templates.FILE`
+* :data:`~bokeh.core.templates.JS_RESOURCES`
+* :data:`~bokeh.core.templates.NOTEBOOK_INFO`
+* :data:`~bokeh.core.templates.PORTABLE_RESOURCES_JS`
+* :data:`~bokeh.core.templates.SCRIPT_TAG`
 
 '''
 

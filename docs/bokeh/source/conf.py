@@ -55,7 +55,6 @@ extensions = [
     "bokeh.sphinxext._internal.bokeh_enum",
     "bokeh.sphinxext._internal.bokeh_example_metadata",
     "bokeh.sphinxext._internal.bokeh_gallery",
-    "bokeh.sphinxext._internal.bokeh_jinja",
     "bokeh.sphinxext._internal.bokeh_model",
     "bokeh.sphinxext._internal.bokeh_options",
     "bokeh.sphinxext._internal.bokeh_palette",
