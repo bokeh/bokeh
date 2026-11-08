@@ -16,6 +16,7 @@
     "./src/compiler"
   ],
   "devDependencies": {
+    "@jridgewell/remapping": "^2.3.5",
     "@stylistic/eslint-plugin": "^5.8.0",
     "@types/node": "^22.7.4",
     "@types/yargs": "^17.0.32",
@@ -31,7 +32,6 @@
     "playwright-core": "1.56.1",
     "postcss-less": "^6.0.0",
     "semver": "^7.6.2",
-    "source-map": "^0.7.6",
     "stylelint": "^17.16.0",
     "stylelint-config-recommended": "^18.0.0",
     "stylelint-declaration-strict-value": "^1.12.1",
