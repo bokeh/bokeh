@@ -516,7 +516,7 @@ describe("core/has_props module", () => {
     })
   })
 
-  describe("simultaneously()", () => {
+  describe("hold()", () => {
     it("should apply assignments like a single setv() call", () => {
       const obj = SubclassWithProps.create()
       const calls: string[] = []
@@ -524,7 +524,7 @@ describe("core/has_props module", () => {
       obj.on_change("bar", () => calls.push(`bar:${obj.foo},${obj.bar}`))
       obj.connect(obj.change, () => calls.push("change"))
 
-      const result = obj.simultaneously(() => {
+      const result = obj.hold(() => {
         obj.foo = 1
         obj.bar = false
         expect(calls).to.be.equal([])
@@ -538,11 +538,11 @@ describe("core/has_props module", () => {
     it("should pass the model to the callback", () => {
       const obj = SubclassWithProps.create()
       const args: SubclassWithProps[] = []
-      obj.simultaneously((model) => {
+      obj.hold((model) => {
         args.push(model)
         model.foo = 1
         model.bar = false
-        obj.simultaneously((inner) => expect(inner).to.be.equal(obj))
+        obj.hold((inner) => expect(inner).to.be.equal(obj))
       })
       expect(args).to.be.equal([obj])
       expect(obj.foo).to.be.equal(1)
@@ -551,7 +551,7 @@ describe("core/has_props module", () => {
 
     it("should return pending values when reading within the block", () => {
       const obj = SubclassWithProps.create()
-      obj.simultaneously(() => {
+      obj.hold(() => {
         obj.foo = 1
         expect(obj.foo).to.be.equal(1)
         expect(obj.properties.foo.get_value()).to.not.be.equal(1)
@@ -565,9 +565,9 @@ describe("core/has_props module", () => {
       let changes = 0
       obj.connect(obj.change, () => changes += 1)
 
-      obj.simultaneously(() => {
+      obj.hold(() => {
         obj.setv({foo: 1})
-        obj.simultaneously(() => obj.bar = false)
+        obj.hold(() => obj.bar = false)
         expect(changes).to.be.equal(0)
       })
 
@@ -578,7 +578,7 @@ describe("core/has_props module", () => {
 
     it("should apply setv() with explicit options immediately", () => {
       const obj = SubclassWithProps.create()
-      obj.simultaneously(() => {
+      obj.hold(() => {
         obj.foo = 1
         obj.setv({foo: 2}, {silent: true})
         expect(obj.properties.foo.get_value()).to.be.equal(2)
@@ -589,7 +589,7 @@ describe("core/has_props module", () => {
     it("should discard pending changes when the block throws", () => {
       const obj = SubclassWithProps.create()
       const foo = obj.foo
-      expect(() => obj.simultaneously(() => {
+      expect(() => obj.hold(() => {
         obj.foo = foo + 1
         throw new Error("oops")
       })).to.throw(Error, "oops")
@@ -598,7 +598,7 @@ describe("core/has_props module", () => {
 
     it("should reject unknown properties eagerly", () => {
       const obj = SubclassWithProps.create()
-      expect(() => obj.simultaneously(() => {
+      expect(() => obj.hold(() => {
         // @ts-expect-error "whatever" is not a property of SubclassWithProps
         obj.setv({whatever: 1})
       })).to.throw(Error, "unknown property SubclassWithProps.whatever")
@@ -607,8 +607,8 @@ describe("core/has_props module", () => {
     describe("nested", () => {
       it("should return the inner callback's result", () => {
         const obj = SubclassWithProps.create()
-        const result = obj.simultaneously(() => {
-          const inner = obj.simultaneously(() => {
+        const result = obj.hold(() => {
+          const inner = obj.hold(() => {
             obj.foo = 1
             return "inner"
           })
@@ -626,9 +626,9 @@ describe("core/has_props module", () => {
         obj.on_change("bar", () => calls.push("bar"))
         obj.connect(obj.change, () => calls.push("change"))
 
-        obj.simultaneously(() => {
-          obj.simultaneously(() => {
-            obj.simultaneously(() => obj.foo = 1)
+        obj.hold(() => {
+          obj.hold(() => {
+            obj.hold(() => obj.foo = 1)
             expect(calls).to.be.equal([])
             obj.bar = false
           })
@@ -644,13 +644,13 @@ describe("core/has_props module", () => {
         let changes = 0
         obj.connect(obj.change, () => changes += 1)
 
-        obj.simultaneously(() => {
-          obj.simultaneously(() => obj.foo = 1, {no_change: true})
+        obj.hold(() => {
+          obj.hold(() => obj.foo = 1, {no_change: true})
         })
         expect(changes).to.be.equal(1)
 
-        obj.simultaneously(() => {
-          obj.simultaneously(() => obj.foo = 2)
+        obj.hold(() => {
+          obj.hold(() => obj.foo = 2)
         }, {no_change: true})
         expect(changes).to.be.equal(1)
         expect(obj.foo).to.be.equal(2)
@@ -658,9 +658,9 @@ describe("core/has_props module", () => {
 
       it("should share pending values across nesting levels", () => {
         const obj = SubclassWithProps.create()
-        obj.simultaneously(() => {
+        obj.hold(() => {
           obj.foo = 1
-          obj.simultaneously(() => {
+          obj.hold(() => {
             expect(obj.foo).to.be.equal(1)
             obj.foo += 1
             obj.bar = false
@@ -675,9 +675,9 @@ describe("core/has_props module", () => {
 
       it("should keep inner changes when an inner exception is caught by the outer block", () => {
         const obj = SubclassWithProps.create()
-        obj.simultaneously(() => {
+        obj.hold(() => {
           obj.foo = 1
-          expect(() => obj.simultaneously(() => {
+          expect(() => obj.hold(() => {
             obj.bar = false
             throw new Error("inner")
           })).to.throw(Error, "inner")
@@ -691,9 +691,9 @@ describe("core/has_props module", () => {
         const obj = SubclassWithProps.create()
         let changes = 0
         obj.connect(obj.change, () => changes += 1)
-        expect(() => obj.simultaneously(() => {
+        expect(() => obj.hold(() => {
           obj.foo = 1
-          obj.simultaneously(() => {
+          obj.hold(() => {
             obj.bar = false
             throw new Error("inner")
           })

@@ -661,7 +661,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
    * Reading a property within the block returns its pending value. Nested calls
    * are merged into the outermost one. If `fn` throws, pending changes are discarded.
    */
-  simultaneously<T>(fn: (model: this) => T, options: HasProps.SetOptions = {}): T {
+  hold<T>(fn: (model: this) => T, options: HasProps.SetOptions = {}): T {
     if (this._deferred != null) {
       return fn(this)
     }

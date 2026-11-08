@@ -32,10 +32,10 @@ New features
   ``scan_together=True``, the whole stack as one data set. Scan results are
   cached per array, so changing ``index`` doesn't rescan data that has already
   been scanned (:bokeh-issue:`13898`).
-* Added ``simultaneously()`` to BokehJS models. It applies all property
-  assignments made within a callback as a single ``setv()`` call, with one
-  round of change notifications and one document update, e.g.
-  ``model.simultaneously(() => { model.start = 0; model.end = 30 })``. See
+* Added ``hold()`` to BokehJS models. It applies all property assignments made
+  within a callback as a single ``setv()`` call, with one round of change
+  notifications and one document update, e.g.
+  ``model.hold(() => { model.start = 0; model.end = 30 })``. See
   :ref:`ug_advanced_bokehjs_setting_properties` for details.
 
 Removals

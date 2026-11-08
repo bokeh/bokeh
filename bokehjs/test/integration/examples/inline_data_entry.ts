@@ -58,7 +58,7 @@ describe("Examples", () => {
     const tap_tool = TapTool.create({
       behavior: "inspect",
       callback: (_tool, {geometries}) => {
-        position.simultaneously((p) => {
+        position.hold((p) => {
           p.x = geometries.x
           p.y = geometries.y
         })
