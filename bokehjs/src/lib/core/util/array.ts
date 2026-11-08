@@ -7,7 +7,7 @@ import {logger} from "../logging"
 import type {Arrayable} from "../types"
 import {randomIn} from "./math"
 import {assert} from "./assert"
-import {isInteger} from "./types"
+import {isInteger, isNumber, isString} from "./types"
 import {min, min_by, max_by, includes, filter, sort_by} from "./arrayable"
 import * as iter from "./iterator"
 
@@ -206,6 +206,24 @@ export function uniq<T>(array: Arrayable<T>): T[] {
     result.add(value)
   }
   return [...result]
+}
+
+/**
+ * Like `np.unique()` in Python, returns the unique values of an array sorted,
+ * but only if all values are numbers or all are strings. Otherwise values that
+ * can't be ordered against each other are returned in the order of their first
+ * appearance.
+ */
+export function uniq_sorted<T>(array: Arrayable<T>): T[]
+export function uniq_sorted(array: Arrayable<unknown>): unknown[] {
+  const unique = uniq(array)
+  if (unique.every(isNumber)) {
+    return sorted(unique)
+  } else if (unique.every(isString)) {
+    return sorted(unique)
+  } else {
+    return unique
+  }
 }
 
 export function uniq_by<T, U>(array: T[], key: (item: T) => U): T[] {

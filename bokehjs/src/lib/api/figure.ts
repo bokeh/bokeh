@@ -8,7 +8,7 @@ import {VectorSpec, UnitsSpec} from "../core/properties"
 import {extend} from "../core/class"
 import type {Location} from "../core/enums"
 import {is_equal, Comparator} from "../core/util/eq"
-import {includes, uniq, sorted, zip} from "../core/util/array"
+import {includes, uniq_sorted, zip} from "../core/util/array"
 import {clone, keys, entries, is_empty, dict} from "../core/util/object"
 import {isNumber, isString, isArray, isArrayOf, isPlainObject} from "../core/util/types"
 import {enumerate} from "core/util/iterator"
@@ -864,18 +864,7 @@ export class Figure extends BaseFigure {
       throw new Error(`column to be grouped does not exist in glyph data source: ${name}`)
     }
     const column = data.get(name) ?? []
-    // Like `np.unique()` in Python, but values that can't be ordered against
-    // each other are grouped in the order of their first appearance (#15475).
-    const values = (() => {
-      const unique = uniq(column)
-      if (unique.every(isNumber)) {
-        return sorted(unique)
-      } else if (unique.every(isString)) {
-        return sorted(unique)
-      } else {
-        return unique
-      }
-    })()
+    const values = uniq_sorted(column) // #15475
     for (const value of values) {
       const label = {value: `${value}`}
       const index = column.indexOf(value)
