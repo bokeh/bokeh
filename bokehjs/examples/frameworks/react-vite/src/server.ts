@@ -24,7 +24,7 @@ async function connect(): Promise<void> {
   }
 }
 
-toggle.addEventListener("click", async () => {
+async function toggle_connection(): Promise<void> {
   if (mounted == null) {
     await connect()
   } else {
@@ -35,6 +35,8 @@ toggle.addEventListener("click", async () => {
     status.textContent = "Disconnected. The views, connection, and client document have been released."
     toggle.disabled = false
   }
-})
+}
+
+toggle.addEventListener("click", () => void toggle_connection())
 
 void connect()

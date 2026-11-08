@@ -186,6 +186,16 @@ describe("column_data_source module", () => {
         expect(out1.warn).to.be.equal(`[bokeh ${version}] data source has columns of inconsistent lengths\n`)
       })
     })
+
+    it("should return the shortest length if column lengths are inconsistent", () => {
+      with_log_level("error", () => {
+        const r0 = ColumnDataSource.create({data: {foo: new Array(10).fill(0), bar: new Array(9).fill(0)}})
+        expect(r0.get_length()).to.be.equal(9)
+
+        const r1 = ColumnDataSource.create({data: {foo: new Array(2).fill(0), bar: new Array(10).fill(0)}})
+        expect(r1.get_length()).to.be.equal(2)
+      })
+    })
   })
 
   describe("columns method", () => {

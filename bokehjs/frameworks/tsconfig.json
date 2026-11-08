@@ -1,19 +1,11 @@
 {
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "declaration": true,
-    "declarationMap": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "types": [],
     "noEmitOnError": true,
     "outDir": "dist",
     "rootDir": "src",
-    "sourceMap": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "target": "ES2022",
-    "types": [],
-    "verbatimModuleSyntax": true,
     "paths": {
       "@bokeh/bokehjs": ["../build/js/lib/bokeh_package.d.ts"]
     }

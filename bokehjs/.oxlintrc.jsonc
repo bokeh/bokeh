@@ -20,7 +20,7 @@
   "overrides": [
     {
       "files": ["**/*.ts", "**/*.tsx"],
-      "plugins": ["typescript"],
+      "plugins": ["typescript", "import"],
       "jsPlugins": ["@stylistic/eslint-plugin"],
       "rules": {
         // Stylistic rules (ESLint JS plugin)
@@ -92,17 +92,26 @@
         "@stylistic/yield-star-spacing": ["error", {"before": false, "after": true}],
 
         // TypeScript rules
+        "typescript/await-thenable": "error",
         "typescript/consistent-type-assertions": "error",
+        "typescript/consistent-type-exports": "error",
         "typescript/consistent-type-imports": ["error", {
           "prefer": "type-imports",
           "fixStyle": "separate-type-imports"
         }],
         "typescript/dot-notation": "error",
+        "typescript/no-array-delete": "error",
+        "typescript/no-duplicate-type-constituents": "error",
         "typescript/no-empty-object-type": ["error", {
           "allowInterfaces": "with-single-extends",
           "allowWithName": "^.*$"
         }],
         "typescript/no-floating-promises": ["error", {"ignoreVoid": true}],
+        "typescript/no-for-in-array": "error",
+        "typescript/no-generated-empty-object-type": "error",
+        "typescript/no-meaningless-void-operator": "error",
+        "typescript/no-misused-promises": "error",
+        "typescript/no-mixed-enums": "error",
         "typescript/no-restricted-types": ["error", {
           "types": {
             "DeprecatedOldAPI": {
@@ -111,11 +120,26 @@
             }
           }
         }],
+        "typescript/no-unnecessary-boolean-literal-compare": "error",
         "typescript/no-unnecessary-condition": ["error", {"allowConstantLoopConditions": true}],
+        "typescript/no-unnecessary-qualifier": "error",
         "typescript/no-unnecessary-type-assertion": "error",
         "typescript/no-unnecessary-type-constraint": "error",
+        "typescript/no-unsafe-enum-comparison": "error",
         // TODO "typescript/no-unsafe-function-type": "error",
+        "typescript/no-unsafe-unary-minus": "error",
         "typescript/no-wrapper-object-types": "error",
+        "typescript/only-throw-error": ["error", {"allowThrowingAny": true, "allowThrowingUnknown": true}],
+        "typescript/prefer-find": "error",
+        "typescript/prefer-includes": "error",
+        "typescript/prefer-promise-reject-errors": ["error", {"allowThrowingAny": true, "allowThrowingUnknown": true}],
+        "typescript/prefer-reduce-type-parameter": "error",
+        "typescript/prefer-regexp-exec": "error",
+        "typescript/prefer-return-this-type": "error",
+        "typescript/prefer-string-starts-ends-with": "error",
+        "typescript/related-getter-setter-pairs": "error",
+        "typescript/require-array-sort-compare": "error",
+        "typescript/restrict-plus-operands": "error",
         "typescript/strict-boolean-expressions": ["error", {
           "allowAny": true,
           "allowString": false,
@@ -129,6 +153,9 @@
           "allowDefaultCaseForExhaustiveSwitch": true,
           "considerDefaultExhaustiveForUnions": true
         }],
+
+        // Import rules
+        "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
 
         // Core rules
         "curly": ["error", "all"],

@@ -1,7 +1,8 @@
 import {expect, expect_not_null} from "#framework/assertions"
 
 import {Deserializer} from "@bokehjs/core/serialization/deserializer"
-import {decode_defs, type ModelDef} from "@bokehjs/document/defs"
+import {decode_defs} from "@bokehjs/document/defs"
+import type {ModelDef} from "@bokehjs/document/defs"
 import {Model} from "@bokehjs/model"
 import {default_resolver} from "@bokehjs/base"
 import {ModelResolver} from "@bokehjs/core/resolvers"

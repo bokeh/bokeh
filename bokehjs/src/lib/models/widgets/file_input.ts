@@ -57,10 +57,10 @@ export class FileInputView extends InputWidgetView {
   override render(): void {
     super.render()
 
-    this.input_el.addEventListener("change", async () => {
+    this.input_el.addEventListener("change", () => {
       const {files} = this.input_el
       if (files != null) {
-        await this.load_files(files)
+        void this.load_files(files)
       }
     })
   }

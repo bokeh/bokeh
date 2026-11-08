@@ -6,7 +6,8 @@ import yargs from "yargs"
 import express from "express"
 import cors from "cors"
 import nunjucks from "nunjucks"
-import {structuredPatch, type StructuredPatch, type StructuredPatchHunk} from "diff"
+import {structuredPatch} from "diff"
+import type {StructuredPatch, StructuredPatchHunk} from "diff"
 
 import * as sys from "./sys.js"
 
@@ -83,21 +84,21 @@ function layout_diff(existing: string, proposed: string): Omit<StructuredPatch, 
 
     for (const line of hunk.lines) {
       const text = line.slice(1)
-      if (line[0] == " ") {
+      if (line.startsWith(" ")) {
         flush()
         const left = {number: old_number++, text, changed: false}
         const right = {number: new_number++, text, changed: false}
         rows.push({left, right})
         previous = [left, right]
-      } else if (line[0] == "-") {
+      } else if (line.startsWith("-")) {
         const cell = {number: old_number++, text, changed: true}
         removed.push(cell)
         previous = [cell]
-      } else if (line[0] == "+") {
+      } else if (line.startsWith("+")) {
         const cell = {number: new_number++, text, changed: true}
         added.push(cell)
         previous = [cell]
-      } else if (line[0] == "\\") {
+      } else if (line.startsWith("\\")) {
         for (const cell of previous) {
           cell.no_newline = true
         }
@@ -109,8 +110,17 @@ function layout_diff(existing: string, proposed: string): Omit<StructuredPatch, 
   return {...patch, hunks}
 }
 
+/**
+ * Express 4 ignores promises returned by handlers, so pass rejections to `next()`.
+ */
+function async_handler(fn: (req: express.Request, res: express.Response) => Promise<void>): express.RequestHandler {
+  return (req, res, next) => {
+    fn(req, res).catch(next)
+  }
+}
+
 function using_report(fn: (report: Report, platform: string, req: express.Request, res: express.Response) => void) {
-  return async (req: express.Request, res: express.Response) => {
+  return async_handler(async (req: express.Request, res: express.Response) => {
     const platform = typeof req.query.platform == "string" ? req.query.platform : sys.platform
     switch (platform) {
       case "linux":
@@ -128,10 +138,10 @@ function using_report(fn: (report: Report, platform: string, req: express.Reques
       default:
         res.status(404).send("Invalid platform specifier")
     }
-  }
+  })
 }
 
-app.get("/", async (_req, res) => {
+app.get("/", (_req, res) => {
   res.render("test/devtools/server_home.html")
 })
 
@@ -160,12 +170,12 @@ app.get("/integration/metrics", using_report(({metrics}, _platform, _, res) => {
   res.render("test/devtools/metrics.html", {title: "Integration Tests Metrics", metrics, js: js_path})
 }))
 
-app.post("/ajax/dummy_data", async (_req, res) => {
+app.post("/ajax/dummy_data", (_req, res) => {
   res.setHeader("Content-Type", "application/json")
   res.end(JSON.stringify({x: [0, 1, 2], y: [1, 2, 3], radius: [0.5, 0.7, 1.1], color: ["red", "green", "blue"]}))
 })
 
-app.get("/examples", async (_req, res) => {
+app.get("/examples", async_handler(async (_req, res) => {
   const dir = await fs.promises.opendir("examples")
   const entries = []
   for await (const dirent of dir) {
@@ -180,9 +190,9 @@ app.get("/examples", async (_req, res) => {
   }
   entries.sort()
   res.render("test/devtools/examples.html", {entries})
-})
+}))
 
-app.get("/examples/:name", async (req, res) => {
+app.get("/examples/:name", async_handler(async (req, res) => {
   const {name} = req.params
   const template = join("examples", name, `${name}.html`)
   try {
@@ -193,7 +203,7 @@ app.get("/examples/:name", async (req, res) => {
     }
   } catch {}
   res.status(404).send("No such example")
-})
+}))
 
 type Resources = "server" | "cdn"
 type BuildOptions = {dev?: boolean, resources?: Resources}
@@ -259,7 +269,7 @@ with open(__file__, "rb") as example:
   })
 }
 
-app.get("/bokeh/examples/:path(*)", async (req, res) => {
+app.get("/bokeh/examples/:path(*)", async_handler(async (req, res) => {
   const {path} = req.params
 
   function not_found(): void {
@@ -327,7 +337,7 @@ app.get("/bokeh/examples/:path(*)", async (req, res) => {
 
   const html = await fs.promises.readFile(html_path, {encoding: "utf-8"})
   res.status(200).send(html)
-})
+}))
 
 process.once("SIGTERM", () => {
   process.exit(0)

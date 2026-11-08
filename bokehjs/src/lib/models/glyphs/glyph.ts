@@ -179,6 +179,7 @@ export abstract class GlyphView extends DOMComponentView {
     return this.renderer.plot_view.canvas_view
   }
 
+  // oxlint-disable-next-line typescript/no-generated-empty-object-type -- subclasses define their own data
   paint(ctx: Context2d, indices: Int32Array, data?: Partial<Glyph.Data>): void {
     for (const decoration of this.decorations.values()) {
       decoration.marking.inherit_from(this)
@@ -681,6 +682,7 @@ export namespace Glyph {
 
   export type Visuals = visuals.Visuals
 
+  // oxlint-disable-next-line typescript/no-generated-empty-object-type -- the base glyph has no data
   export type Data = p.GlyphDataOf<Props>
 }
 

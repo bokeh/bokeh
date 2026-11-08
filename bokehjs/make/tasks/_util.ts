@@ -139,7 +139,7 @@ export function debounce<Args extends unknown[]>(func: (args: Args[]) => Promise
   const later = async () => {
     const passed = Date.now() - previous
     if (wait > passed) {
-      timeout = setTimeout(later, wait - passed)
+      timeout = setTimeout(() => void later(), wait - passed)
     } else {
       timeout = null
       if (!immediate) {
@@ -153,7 +153,7 @@ export function debounce<Args extends unknown[]>(func: (args: Args[]) => Promise
     previous = Date.now()
     collected.push(args)
     if (timeout == null) {
-      timeout = setTimeout(later, wait)
+      timeout = setTimeout(() => void later(), wait)
       if (immediate) {
         await func(collected)
         clear(collected)

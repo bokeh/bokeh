@@ -591,7 +591,7 @@ describe("core/view", () => {
         }
       }
 
-      const deadlock = /a task waits for 'ready' that it counts towards/
+      const deadlock = "a task waits for 'ready' that it counts towards"
 
       it("which warns when a task waits for ready of its view", async () => {
         const view = await build_view(SomeModel.create())
@@ -604,7 +604,7 @@ describe("core/view", () => {
           await view.ready
         })
         expect(messages.length).to.be.equal(1)
-        expect(deadlock.test(messages[0])).to.be.true
+        expect(messages[0].includes(deadlock)).to.be.true
       })
 
       it("which warns when a signal handler waits for ready of an ancestor", async () => {
@@ -618,7 +618,7 @@ describe("core/view", () => {
           await root_view.ready
         })
         expect(messages.length).to.be.equal(1)
-        expect(deadlock.test(messages[0])).to.be.true
+        expect(messages[0].includes(deadlock)).to.be.true
       })
 
       it("which doesn't warn when a task waits for ready of a sibling", async () => {

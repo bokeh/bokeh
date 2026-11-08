@@ -121,7 +121,7 @@ export class RangeManager {
     const height = frame.y_target.span
 
     let r: number | undefined
-    if (this.parent.model.match_aspect !== false && width != 0 && height != 0) {
+    if (this.parent.model.match_aspect && width != 0 && height != 0) {
       r = (1/this.parent.model.aspect_scale)*(width/height)
     }
 

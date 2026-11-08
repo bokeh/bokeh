@@ -32,7 +32,7 @@ export type TestInfo = {
 export function normalize_file_pattern(pattern: string, suite?: string): string {
   let result = pattern.replace(/\\/g, "/").replace(/^\.\//, "")
   if (suite != null) {
-    const match = result.match(new RegExp(`(^|/)test/${suite}/(.*)$`))
+    const match = new RegExp(`(^|/)test/${suite}/(.*)$`).exec(result)
     if (match != null) {
       result = match[2]
     }

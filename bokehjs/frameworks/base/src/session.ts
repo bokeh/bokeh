@@ -180,17 +180,18 @@ export class SessionMountController {
       if (generation != this._generation) {
         return
       }
-      let failure: unknown = null
+      // assigned in a callback, so don't let TypeScript narrow this to `null`
+      let failure = null as {error: unknown} | null
       const mounted = await this._controller.start(session.document, {}, {
         mountOptions: {...this._options, signal},
-        onError: (error) => failure = error,
+        onError: (error) => failure = {error},
         onDisposed: (mounted) => this._request.onDisposed?.(mounted),
       })
       if (generation != this._generation) {
         return
       }
       if (mounted == null) {
-        throw failure ?? new Error("Bokeh session mount did not become ready")
+        throw failure != null ? failure.error : new Error("Bokeh session mount did not become ready")
       }
       this._listener = (event) => {
         if (event.kind == "RootAdded" || event.kind == "RootRemoved") {
@@ -216,7 +217,7 @@ export class SessionMountController {
 
   private async _refresh(generation: number): Promise<void> {
     const mounted = this.mounted
-    if (generation != this._generation || mounted == null || mounted.state != "ready") {
+    if (generation != this._generation || mounted?.state != "ready") {
       return
     }
     const planned = new Map<string, {reference: BokehRootReference, slot: {target: BokehTarget}}>()

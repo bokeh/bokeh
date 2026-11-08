@@ -230,10 +230,14 @@ export function reduce<T>(array: Arrayable<T>, fn: (previous: T, current: T, ind
   return value
 }
 
-export function sort_by<T>(array: T[], key: (item: T) => number): T[]
-export function sort_by<T>(array: Arrayable<T>, key: (item: T) => number): Arrayable<T>
+/**
+ * Return a copy of an array stably sorted by keys, in their natural order,
+ * i.e. numbers numerically and strings by UTF-16 code units.
+ */
+export function sort_by<T>(array: T[], key: (item: T) => number | string): T[]
+export function sort_by<T>(array: Arrayable<T>, key: (item: T) => number | string): Arrayable<T>
 
-export function sort_by<T>(array: Arrayable<T>, key: (item: T) => number): Arrayable<T> {
+export function sort_by<T>(array: Arrayable<T>, key: (item: T) => number | string): Arrayable<T> {
   const tmp = Array.from(array, (value, index) => {
     return {index, key: key(value)}
   })

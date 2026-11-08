@@ -4625,7 +4625,7 @@ describe("Bug", () => {
       await view.ready
       await mouse_click(days_el[2])
       await view.ready
-      await view.picker.close()
+      view.picker.close()
       expect(obj.value).to.be.equal(null)
     })
   })
@@ -4641,7 +4641,7 @@ describe("Bug", () => {
       await view.ready
       await mouse_click(days_el[2])
       await view.ready
-      await view.picker.close()
+      view.picker.close()
       expect(obj.value).to.not.be.equal(null)
     })
   })

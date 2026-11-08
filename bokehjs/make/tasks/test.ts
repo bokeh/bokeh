@@ -180,14 +180,14 @@ async function headless(devtools_port: number): Promise<HeadlessProcess> {
         stderr = stderr.slice(-max_stderr)
       }
 
-      const result = stderr.match(/DevTools listening [^\n]*\n/)
+      const result = /DevTools listening [^\n]*\n/.exec(stderr)
       if (!ready && result != null) {
         ready = true
         clearTimeout(timer)
         const [line] = result
         console.log(line.trim())
         resolve({process: proc, stderr: () => stderr})
-      } else if (stderr.match(/bind\(\)/) != null) {
+      } else if (/bind\(\)/.exec(stderr) != null) {
         clearTimeout(timer)
         reject_startup(new BuildError("headless", `can't start headless browser on port ${devtools_port}`))
       }

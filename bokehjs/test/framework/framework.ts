@@ -9,7 +9,8 @@ import {entries} from "@bokehjs/core/util/object"
 import {unreachable} from "@bokehjs/core/util/assert"
 import {defer} from "@bokehjs/core/util/defer"
 import {BBox} from "@bokehjs/core/util/bbox"
-import {select_tests, type Filters, type FilterResult} from "./filters"
+import {select_tests} from "./filters"
+import type {Filters, FilterResult} from "./filters"
 
 export type {Filters, FilterResult} from "./filters"
 
@@ -437,7 +438,7 @@ async function _run_test(suites: Suite[], test: Test, ctx: TestRunContext): Prom
   return {error, time}
 }
 
-export async function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void, svg: SVGSVGElement, {width, height}: {width: number, height: number}): Promise<void> {
+export async function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void | Promise<void>, svg: SVGSVGElement, {width, height}: {width: number, height: number}): Promise<void> {
   const canvas = document.createElement("canvas")
   canvas.height = height
   canvas.width = width
@@ -446,7 +447,7 @@ export async function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void
 
   const ctx = canvas.getContext("2d")!
 
-  fn(ctx)
+  await fn(ctx)
 
   container.appendChild(svg)
 
