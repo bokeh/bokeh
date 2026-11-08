@@ -73,7 +73,7 @@ import {version} from "@bokehjs/version"
 import {Model} from "@bokehjs/model"
 import * as p from "@bokehjs/core/properties"
 import {is_equal} from "@bokehjs/core/util/eq"
-import {linspace, logspace, range} from "@bokehjs/core/util/array"
+import {linspace, logspace, range, sorted} from "@bokehjs/core/util/array"
 import {keys} from "@bokehjs/core/util/object"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {BitSet} from "@bokehjs/core/util/bitset"
@@ -1679,8 +1679,8 @@ describe("Bug", () => {
 
       table.view.filter = IndexFilter.create({indices: [0, 1, 2]})
 
-      expect(view.get_selected_rows().slice().sort()).to.be.equal([0, 2].sort())
-      expect(table.source.selected.indices.slice().sort()).to.be.equal([0, 2].sort())
+      expect(sorted(view.get_selected_rows())).to.be.equal([0, 2])
+      expect(sorted(table.source.selected.indices)).to.be.equal([0, 2])
     })
   })
 
@@ -2180,8 +2180,8 @@ ${view.host_selector} {
 
       table.view.filter = IndexFilter.create({indices: [0, 1, 2]})
 
-      expect(view.get_selected_rows().slice().sort()).to.be.equal([])
-      expect(table.source.selected.indices.slice().sort()).to.be.equal([])
+      expect(sorted(view.get_selected_rows())).to.be.equal([])
+      expect(sorted(table.source.selected.indices)).to.be.equal([])
     })
   })
 

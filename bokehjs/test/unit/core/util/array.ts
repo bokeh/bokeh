@@ -105,6 +105,18 @@ describe("core/util/array module", () => {
     expect(array.unzip([[0, 1], [1, 5], [2, 2]])).to.be.equal([a, b])
   })
 
+  it("sorted() should return a sorted copy in natural order", () => {
+    expect(array.sorted([])).to.be.equal([])
+    expect(array.sorted([10, 9, 1, 100])).to.be.equal([1, 9, 10, 100])
+    expect(array.sorted([-1, -10, 0.5])).to.be.equal([-10, -1, 0.5])
+    expect(array.sorted(["b", "c", "a", "B"])).to.be.equal(["B", "a", "b", "c"])
+    expect(array.sorted(new Set([3, 11, 2]))).to.be.equal([2, 3, 11])
+
+    const input = [2, 1]
+    expect(array.sorted(input)).to.be.equal([1, 2])
+    expect(input).to.be.equal([2, 1])
+  })
+
   it("uniq should return only the uniq values of an array", () => {
     expect(array.uniq([0, 1, 2])).to.be.equal([0, 1, 2])
     expect(array.uniq([0, 1, 2, 1, 2])).to.be.equal([0, 1, 2])

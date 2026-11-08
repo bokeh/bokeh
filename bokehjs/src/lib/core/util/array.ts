@@ -8,7 +8,7 @@ import type {Arrayable} from "../types"
 import {randomIn} from "./math"
 import {assert} from "./assert"
 import {isInteger} from "./types"
-import {min, min_by, max_by, includes, filter} from "./arrayable"
+import {min, min_by, max_by, includes, filter, sort_by} from "./arrayable"
 import * as iter from "./iterator"
 
 export {
@@ -187,6 +187,17 @@ export function argsort(array: number[]): number[] {
   const indices = Array.from(array.keys())
   indices.sort((a, b) => array[a] - array[b])
   return indices
+}
+
+/**
+ * Return a sorted copy of numbers or strings, in their natural order, i.e.
+ * numbers numerically and strings by UTF-16 code units.
+ *
+ * Use this instead of `Array.prototype.sort()` without a comparator, which
+ * compares numbers as strings, e.g. `[10, 9].sort()` gives `[10, 9]`.
+ */
+export function sorted<T extends number | string>(iterable: Iterable<T>): T[] {
+  return sort_by([...iterable], (item) => item)
 }
 
 export function uniq<T>(array: Arrayable<T>): T[] {

@@ -7,7 +7,7 @@ import {Signal, Signal0} from "core/signaling"
 import type {Arrayable, ArrayableNew, Attrs, Data, Dict, PlainObject} from "core/types"
 import type {PatchSet} from "core/patching"
 import {assert} from "core/util/assert"
-import {inplace_filter, uniq} from "core/util/array"
+import {inplace_filter, uniq, min} from "core/util/array"
 import {is_NDArray, get_array_item} from "core/util/ndarray"
 import {keys, values, entries, dict, clone} from "core/util/object"
 import {isBoolean, isNumber, isString, isArray} from "core/util/types"
@@ -254,7 +254,7 @@ export abstract class ColumnarDataSource extends DataSource {
         const msg = "data source has columns of inconsistent lengths"
         if (soft) {
           logger.warn(msg)
-          return lengths.sort()[0]
+          return min(lengths)
         } else {
           throw new Error(msg)
         }

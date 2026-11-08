@@ -8,6 +8,7 @@ import {BOKEH_MOUNTED_ATTRIBUTE, BokehMount, mount, mount_embed_declaration, Mou
 import type {MountErrorPhase} from "@bokehjs/api/io"
 import {ModelResolver} from "@bokehjs/core/resolvers"
 import {logger} from "@bokehjs/core/logging"
+import {sorted} from "@bokehjs/core/util/array"
 import {defer} from "@bokehjs/core/util/defer"
 import {to_object} from "@bokehjs/core/util/object"
 import {ReleaseType, Version} from "@bokehjs/core/util/version"
@@ -1617,8 +1618,8 @@ describe("EmbedPayload runtime", () => {
     expect(state.embed_core).to.be.equal(1)
     expect(state.embed_widgets).to.be.equal(1)
     expect(document.querySelectorAll("[data-bokeh-resource]").length).to.be.equal(2)
-    const markers = [...document.querySelectorAll<HTMLElement>("[data-bokeh-resource]")]
-      .map((element) => element.dataset.bokehResource).sort()
+    const markers = sorted([...document.querySelectorAll<HTMLElement>("[data-bokeh-resource]")]
+      .map((element) => element.dataset.bokehResource ?? ""))
     expect(markers).to.be.equal([
       `script:sha256:${core_asset.content_sha256}`,
       `script:sha256:${widget_asset.content_sha256}`,

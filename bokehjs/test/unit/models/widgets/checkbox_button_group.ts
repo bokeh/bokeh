@@ -25,6 +25,16 @@ describe("CheckboxButtonGroup", () => {
       expect(g.active).to.be.equal([0])
     })
 
+    it("should keep active sorted numerically", async () => {
+      const labels = Array.from({length: 12}, (_, i) => `label ${i}`)
+      const g = CheckboxButtonGroup.create({active: [2], labels})
+      const {view} = await display(g, null)
+      view.change_active(10)
+      expect(g.active).to.be.equal([2, 10])
+      view.change_active(1)
+      expect(g.active).to.be.equal([1, 2, 10])
+    })
+
     it("should trigger on change", async () => {
       const g = CheckboxButtonGroup.create({active: [0, 1, 2], labels: ["foo", "bar", "baz"]})
       const {view} = await display(g, null)

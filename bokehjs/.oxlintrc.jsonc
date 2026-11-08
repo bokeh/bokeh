@@ -125,6 +125,7 @@
         "typescript/prefer-find": "error",
         "typescript/prefer-reduce-type-parameter": "error",
         "typescript/prefer-return-this-type": "error",
+        "typescript/require-array-sort-compare": "error",
         "typescript/strict-boolean-expressions": ["error", {
           "allowAny": true,
           "allowString": false,
