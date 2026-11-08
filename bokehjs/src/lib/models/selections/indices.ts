@@ -1,4 +1,5 @@
-import {serialize, type Serializable, type Serializer, type BytesRep} from "core/serialization"
+import {serialize} from "core/serialization"
+import type {Serializable, Serializer, BytesRep} from "core/serialization"
 import {Deserializer} from "core/serialization/deserializer"
 import {Kind, Arrayable, Int, Mapping} from "core/kinds"
 import {isArrayable} from "core/util/types"
