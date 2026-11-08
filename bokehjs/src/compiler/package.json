@@ -9,6 +9,8 @@
     "url": "https://github.com/bokeh/bokeh.git"
   },
   "devDependencies": {
+    "@oxc-minify/binding-wasm32-wasip1": "^0.157.0",
+    "@oxc-parser/binding-wasm32-wasip1": "^0.157.0",
     "@types/combine-source-map": "^0.8.4",
     "@types/convert-source-map": "^2.0.3",
     "@types/css": "^0.0.37",
@@ -20,8 +22,8 @@
     "convert-source-map": "^2.0.0",
     "css": "^3.0.0",
     "less": "^4.2.0",
-    "oxc-minify": "^0.155.0",
-    "oxc-parser": "^0.116.0",
+    "oxc-minify": "^0.157.0",
+    "oxc-parser": "^0.157.0",
     "typescript": "~5.9.2",
     "yargs": "^17.7.2"
   }

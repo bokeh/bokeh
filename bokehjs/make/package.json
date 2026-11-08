@@ -25,7 +25,7 @@
     "esbuild": "^0.27.2",
     "glob": "^13.0.6",
     "magic-string": "^0.30.21",
-    "oxc-parser": "^0.116.0",
+    "oxc-parser": "^0.157.0",
     "oxlint": "^1.91.0",
     "oxlint-tsgolint": "^7.0.2005",
     "playwright-core": "1.56.1",
