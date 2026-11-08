@@ -272,6 +272,7 @@ export class ScaleBarView extends AnnotationView {
           case "unit": {
             switch (format ?? "short") {
               case "short": return new_unit
+              default:      return null
             }
           }
           default: {

@@ -1,8 +1,7 @@
 import {expect} from "#framework/assertions"
 
-import type {Comparator} from "@bokehjs/core/util/eq"
 import type {Equatable} from "@bokehjs/core/util/eq"
-import {is_equal, is_structurally_equal, equals} from "@bokehjs/core/util/eq"
+import {is_equal, is_structurally_equal, equals, Comparator, EqNotImplemented} from "@bokehjs/core/util/eq"
 import {HasProps} from "@bokehjs/core/has_props"
 import type * as p from "@bokehjs/core/properties"
 
@@ -198,6 +197,82 @@ describe("core/util/eq module", () => {
       const o3 = {a: 1, b: 3, c: 5, d: 7}
       expect(is_equal(o2, o3)).to.be.true
       expect(is_equal(o3, o2)).to.be.true
+    })
+
+    it("that supports objects with null prototype", () => {
+      const o0 = Object.assign(Object.create(null), {a: 1, b: 2})
+      const o1 = Object.assign(Object.create(null), {b: 2, a: 1})
+      const o2 = Object.assign(Object.create(null), {a: 1, b: 3})
+      expect(is_equal(o0, o1)).to.be.true
+      expect(is_equal(o1, o0)).to.be.true
+      expect(is_equal(o0, o2)).to.be.false
+      expect(is_equal(o2, o0)).to.be.false
+    })
+
+    it("that doesn't support objects with mixed prototypes", () => {
+      const o0 = Object.assign(Object.create(null), {a: 1})
+      const o1 = {a: 1}
+      expect(() => is_equal(o0, o1)).to.throw(EqNotImplemented)
+      expect(() => is_equal(o1, o0)).to.throw(EqNotImplemented)
+
+      const cmp = new Comparator({no_fail: true})
+      expect(cmp.eq(o0, o1)).to.be.false
+      expect(cmp.eq(o1, o0)).to.be.false
+    })
+
+    it("that doesn't support objects with non-Object constructors", () => {
+      class X {
+        constructor(readonly f: number) {}
+      }
+      class Y {
+        constructor(readonly f: number) {}
+      }
+
+      expect(() => is_equal(new X(0), new X(0))).to.throw(EqNotImplemented)
+      expect(() => is_equal(new X(0), new Y(0))).to.throw(EqNotImplemented)
+      expect(() => is_equal(new X(0), {f: 0})).to.throw(EqNotImplemented)
+      expect(() => is_equal({f: 0}, new X(0))).to.throw(EqNotImplemented)
+
+      const cmp = new Comparator({no_fail: true})
+      expect(cmp.eq(new X(0), new X(0))).to.be.false
+      expect(cmp.eq(new X(0), new Y(0))).to.be.false
+      expect(cmp.eq(new X(0), {f: 0})).to.be.false
+    })
+
+    it("that doesn't compare objects with constructor property set to Function as functions", () => {
+      // Such objects used to fall through to the [object Function] case and be
+      // compared by their string representation, i.e. "[object Object]".
+      const o0 = {constructor: Function, a: 1}
+      const o1 = {constructor: Function, a: 2}
+      expect(() => is_equal(o0, o1)).to.throw(EqNotImplemented)
+
+      const cmp = new Comparator({no_fail: true})
+      expect(cmp.eq(o0, o1)).to.be.false
+    })
+
+    it("that supports functions", () => {
+      const f0 = new Function("x", "return x + 1")
+      const f1 = new Function("x", "return x + 1")
+      const f2 = new Function("x", "return x + 2")
+      expect(is_equal(f0, f0)).to.be.true
+      expect(is_equal(f0, f1)).to.be.true
+      expect(is_equal(f1, f0)).to.be.true
+      expect(is_equal(f0, f2)).to.be.false
+      expect(is_equal(f2, f0)).to.be.false
+
+      expect(is_equal(f0, {})).to.be.false
+      expect(is_equal({}, f0)).to.be.false
+    })
+
+    it("that doesn't support functions with non-Function constructors", () => {
+      const f0 = new Function("x", "return x + 1")
+      const f1 = new Function("x", "return x + 1")
+      Object.setPrototypeOf(f1, null)
+      expect(() => is_equal(f0, f1)).to.throw(EqNotImplemented)
+      expect(() => is_equal(f1, f0)).to.throw(EqNotImplemented)
+
+      const cmp = new Comparator({no_fail: true})
+      expect(cmp.eq(f0, f1)).to.be.false
     })
   })
 
