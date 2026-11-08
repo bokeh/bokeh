@@ -1,7 +1,8 @@
 import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
 
 import {default_resolver} from "@bokehjs/base"
-import {Document, type DocJson} from "@bokehjs/document"
+import {Document} from "@bokehjs/document"
+import type {DocJson} from "@bokehjs/document"
 import * as events from "@bokehjs/document/events"
 import {Model} from "@bokehjs/model"
 import type * as p from "@bokehjs/core/properties"

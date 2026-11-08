@@ -4,9 +4,8 @@ import * as sinon from "sinon"
 import {default_resolver, register_models} from "@bokehjs/base"
 import {ClientConnection} from "@bokehjs/client/connection"
 import {ClientSession} from "@bokehjs/client/session"
-import {
-  BOKEH_MOUNTED_ATTRIBUTE, BokehMount, mount, mount_embed_declaration, MountError, type MountErrorPhase, when_mounted,
-} from "@bokehjs/api/io"
+import {BOKEH_MOUNTED_ATTRIBUTE, BokehMount, mount, mount_embed_declaration, MountError, when_mounted} from "@bokehjs/api/io"
+import type {MountErrorPhase} from "@bokehjs/api/io"
 import {ModelResolver} from "@bokehjs/core/resolvers"
 import {logger} from "@bokehjs/core/logging"
 import {defer} from "@bokehjs/core/util/defer"

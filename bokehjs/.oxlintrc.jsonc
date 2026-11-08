@@ -20,7 +20,7 @@
   "overrides": [
     {
       "files": ["**/*.ts", "**/*.tsx"],
-      "plugins": ["typescript"],
+      "plugins": ["typescript", "import"],
       "jsPlugins": ["@stylistic/eslint-plugin"],
       "rules": {
         // Stylistic rules (ESLint JS plugin)
@@ -129,6 +129,9 @@
           "allowDefaultCaseForExhaustiveSwitch": true,
           "considerDefaultExhaustiveForUnions": true
         }],
+
+        // Import rules
+        "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
 
         // Core rules
         "curly": ["error", "all"],

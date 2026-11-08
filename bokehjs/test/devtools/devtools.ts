@@ -12,7 +12,8 @@ import type {Suite, TestRunContext, ScreenshotMode, FilterResult} from "./types.
 import {Exit} from "./types.js"
 import {descriptions, description, encode, show_tree, render_ansi} from "./format.js"
 import {BrowserError, BrowserManager, Value, Failure} from "./browser.js"
-import {TestDiscovery, type TestCase, type TestStatus} from "./discovery.js"
+import {TestDiscovery} from "./discovery.js"
+import type {TestCase, TestStatus} from "./discovery.js"
 import {MetricsCollector} from "./metrics.js"
 import {TestRunner} from "./test-runner.js"
 

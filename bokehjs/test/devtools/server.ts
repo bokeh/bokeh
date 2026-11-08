@@ -6,7 +6,8 @@ import yargs from "yargs"
 import express from "express"
 import cors from "cors"
 import nunjucks from "nunjucks"
-import {structuredPatch, type StructuredPatch, type StructuredPatchHunk} from "diff"
+import {structuredPatch} from "diff"
+import type {StructuredPatch, StructuredPatchHunk} from "diff"
 
 import * as sys from "./sys.js"
 

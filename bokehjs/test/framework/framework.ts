@@ -9,7 +9,8 @@ import {entries} from "@bokehjs/core/util/object"
 import {unreachable} from "@bokehjs/core/util/assert"
 import {defer} from "@bokehjs/core/util/defer"
 import {BBox} from "@bokehjs/core/util/bbox"
-import {select_tests, type Filters, type FilterResult} from "./filters"
+import {select_tests} from "./filters"
+import type {Filters, FilterResult} from "./filters"
 
 export type {Filters, FilterResult} from "./filters"
 
