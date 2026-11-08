@@ -888,6 +888,11 @@ step, or depend on each other. Within the callback:
 * Only changes to the model ``hold()`` was called on are collected. Changes to
   other models are applied immediately.
 
+The callback must be synchronous. Changes are applied when the callback
+returns, so an ``async`` callback would have its changes split at the first
+``await``. Passing a callback that returns a promise is a type error, and
+raises an error at runtime, discarding all pending changes.
+
 The model is also passed to the callback as its argument. This is convenient
 when the model is reached through a longer expression, which would otherwise
 have to be repeated or stored in a variable first:

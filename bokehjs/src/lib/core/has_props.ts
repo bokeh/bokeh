@@ -1,7 +1,7 @@
 import {logger} from "./logging"
 import type {View} from "./view"
 import type {Class} from "./class"
-import type {Attrs, Data, Dict} from "./types"
+import type {Attrs, Data, Dict, NotPromise} from "./types"
 import type {ISignalable} from "./signaling"
 import {Signal0, Signal, Signalable} from "./signaling"
 import type {Ref} from "./util/refs"
@@ -662,10 +662,22 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
    *
    * Reading a property within the block returns its pending value. Nested calls
    * are merged into the outermost one. If `fn` throws, pending changes are discarded.
+   *
+   * `fn` must be synchronous. Changes are applied when `fn` returns, so assignments
+   * made after an `await` couldn't be collected. Passing a function that returns a
+   * promise is a type error, and an error at runtime, with pending changes discarded.
    */
-  hold<T>(fn: (model: this) => T, options: HasProps.SetOptions = {}): T {
+  hold<T>(fn: (model: this) => NotPromise<T>, options: HasProps.SetOptions = {}): T {
+    const call = (): T => {
+      const result: T = fn(this)
+      if (result instanceof Promise) {
+        throw new Error("hold() requires a synchronous callback, but the callback returned a promise")
+      }
+      return result
+    }
+
     if (this._deferred != null) {
-      return fn(this)
+      return call()
     }
 
     const deferred = new Map<Property, unknown>()
@@ -673,7 +685,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
     let result: T
     try {
-      result = fn(this)
+      result = call()
     } finally {
       this._deferred = null
     }

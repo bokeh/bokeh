@@ -641,6 +641,38 @@ describe("core/has_props module", () => {
       expect(obj.visible).to.be.true
     })
 
+    it("should reject callbacks returning promises and discard pending changes", async () => {
+      const obj = SubclassWithProps.create()
+      let changes = 0
+      obj.connect(obj.change, () => changes += 1)
+
+      let promise: Promise<void> | undefined
+      expect(() => {
+        // @ts-expect-error async callbacks are not allowed
+        void obj.hold(() => {
+          promise = (async () => {
+            obj.foo = 1
+            await Promise.resolve()
+          })()
+          return promise
+        })
+      }).to.throw(Error, "hold() requires a synchronous callback, but the callback returned a promise")
+      await promise
+
+      expect(changes).to.be.equal(0)
+      expect(obj.foo).to.be.equal(0)
+    })
+
+    it("should reject nested callbacks returning promises", () => {
+      const obj = SubclassWithProps.create()
+      expect(() => obj.hold(() => {
+        obj.foo = 1
+        // @ts-expect-error async callbacks are not allowed
+        void obj.hold(async () => {})
+      })).to.throw(Error, "hold() requires a synchronous callback, but the callback returned a promise")
+      expect(obj.foo).to.be.equal(0)
+    })
+
     it("should reject unknown properties eagerly", () => {
       const obj = SubclassWithProps.create()
       expect(() => obj.hold(() => {
