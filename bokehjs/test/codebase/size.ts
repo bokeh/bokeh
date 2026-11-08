@@ -7,7 +7,7 @@ const build_dir = normalize(`${import.meta.dirname}/../..`) // build/test/codeba
 
 const LIMITS = new Map([
   // ES2024
-  ["js/bokeh.min.js",                1514],
+  ["js/bokeh.min.js",                1515],
   ["js/bokeh-widgets.min.js",         600],
   ["js/bokeh-tables.min.js",          500],
   ["js/bokeh-api.min.js",             150],

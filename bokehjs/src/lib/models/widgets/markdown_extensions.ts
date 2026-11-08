@@ -1,4 +1,5 @@
-import {Lexer, type MarkedExtension, type Token} from "marked"
+import {Lexer} from "marked"
+import type {MarkedExtension, Token} from "marked"
 
 type DefinitionItem = {term: Token[], definitions: Token[][]}
 type DefinitionList = {type: "definition_list", raw: string, items: DefinitionItem[], tokens: Token[]}
