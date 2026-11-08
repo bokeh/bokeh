@@ -3,6 +3,12 @@
 // Rewrites only what CJS requires: import/export statements and references to imported
 // bindings. Everything else, including names of classes and functions, is left as is.
 // Interop with CJS modules and `export *` use tslib's helpers, like tsc's output.
+//
+// Like in tsc's output, exports are assigned as early as possible, so that modules
+// tolerate import cycles: exported functions (hoisted) and live bindings at the top,
+// other declarations right after their statements and re-exports right after the
+// respective `require()`. A module in a cycle can still observe exports, which aren't
+// initialized yet, if it accesses them during its own evaluation (as in ESM).
 import {parseSync} from "oxc-parser"
 import MagicString from "magic-string"
 import * as eslint_scope from "eslint-scope"
@@ -78,8 +84,32 @@ export function to_cjs(file: string, code: string): {code: string, deps: string[
 
   // local import binding -> expression
   const imported = new Map<string, string>()
-  // export name -> local name (or expression for re-exports)
-  const exported = new Map<string, {local: string, reexport: boolean}>()
+  // local import binding -> its import statement
+  const import_stmt_of = new Map<string, Node>()
+
+  type Export = {name: string} & ({kind: "local", local: string} | {kind: "reexport", value: string, stmt: Node})
+  const exported: Export[] = []
+
+  // top-level declarations: name -> declaring statement
+  const declarations = new Map<string, {stmt: Node, hoisted: boolean}>()
+  for (const stmt of program.body as Node[]) {
+    const decl = stmt.type == "ExportNamedDeclaration" || stmt.type == "ExportDefaultDeclaration" ? stmt.declaration : stmt
+    switch (decl?.type) {
+      case "FunctionDeclaration":
+      case "ClassDeclaration":
+        if (decl.id != null) {
+          declarations.set(decl.id.name, {stmt, hoisted: decl.type == "FunctionDeclaration"})
+        }
+        break
+      case "VariableDeclaration":
+        for (const d of decl.declarations) {
+          for (const name of bound_names(d.id)) {
+            declarations.set(name, {stmt, hoisted: false})
+          }
+        }
+        break
+    }
+  }
 
   // assigned in closures, so not narrowed to `null` by the control flow analysis
   const tslib: {name: string | null} = {name: null}
@@ -106,6 +136,7 @@ export function to_cjs(file: string, code: string): {code: string, deps: string[
         const source = source_of(stmt.source.value)
         for (const spec of stmt.specifiers) {
           const local = spec.local.name
+          import_stmt_of.set(local, stmt)
           switch (spec.type) {
             case "ImportDefaultSpecifier":
               source.default = true
@@ -128,6 +159,7 @@ export function to_cjs(file: string, code: string): {code: string, deps: string[
           }
         }
         pending_requires.push({stmt, source})
+        removed.push([stmt.start, stmt.end])
         break
       }
       case "ExportAllDeclaration": {
@@ -135,11 +167,12 @@ export function to_cjs(file: string, code: string): {code: string, deps: string[
         if (stmt.exported != null) {
           source.namespace = true
           const name = stmt.exported.type == "Identifier" ? stmt.exported.name : stmt.exported.value
-          exported.set(name, {local: source.local, reexport: true})
+          exported.push({name, kind: "reexport", value: source.local, stmt})
         } else {
           source.star = true
         }
         pending_requires.push({stmt, source})
+        removed.push([stmt.start, stmt.end])
         break
       }
       case "ExportNamedDeclaration": {
@@ -158,26 +191,27 @@ export function to_cjs(file: string, code: string): {code: string, deps: string[
             } else {
               source.named = true
             }
-            exported.set(as, {local: prop(source.local, name), reexport: true})
+            exported.push({name: as, kind: "reexport", value: prop(source.local, name), stmt})
           }
           pending_requires.push({stmt, source})
+          removed.push([stmt.start, stmt.end])
         } else if (stmt.declaration != null) {
           const {declaration} = stmt
           str.remove(stmt.start, declaration.start)
           if (declaration.type == "VariableDeclaration") {
             for (const decl of declaration.declarations) {
               for (const name of bound_names(decl.id)) {
-                exported.set(name, {local: name, reexport: false})
+                exported.push({name, kind: "local", local: name})
               }
             }
           } else {
-            exported.set(declaration.id.name, {local: declaration.id.name, reexport: false})
+            exported.push({name: declaration.id.name, kind: "local", local: declaration.id.name})
           }
         } else {
           for (const spec of stmt.specifiers) {
             const local = spec.local.name
             const as = spec.exported.type == "Identifier" ? spec.exported.name : spec.exported.value
-            exported.set(as, {local, reexport: false})
+            exported.push({name: as, kind: "local", local})
           }
           str.remove(stmt.start, stmt.end)
           removed.push([stmt.start, stmt.end])
@@ -189,14 +223,15 @@ export function to_cjs(file: string, code: string): {code: string, deps: string[
         const named = (declaration.type == "FunctionDeclaration" || declaration.type == "ClassDeclaration") && declaration.id != null
         if (named) {
           str.remove(stmt.start, declaration.start)
-          exported.set("default", {local: declaration.id.name, reexport: false})
+          exported.push({name: "default", kind: "local", local: declaration.id.name})
         } else {
           const local = fresh("default")
           str.overwrite(stmt.start, declaration.start, `const ${local} = `)
           if (declaration.type == "FunctionDeclaration" || declaration.type == "ClassDeclaration") {
             str.appendLeft(declaration.end, ";")
           }
-          exported.set("default", {local, reexport: false})
+          exported.push({name: "default", kind: "local", local})
+          declarations.set(local, {stmt, hoisted: false})
         }
         break
       }
@@ -212,25 +247,6 @@ export function to_cjs(file: string, code: string): {code: string, deps: string[
     } else {
       return required
     }
-  }
-
-  // Emit requires: one per source, at its first import-like statement.
-  const emitted = new Set<Source>()
-  let hoisted = ""
-  for (const {stmt, source} of pending_requires) {
-    const text = emitted.has(source) ? "" : `const ${source.local} = ${require_of(source)};`
-    emitted.add(source)
-    const is_side_effect_only = stmt.type == "ImportDeclaration" && stmt.specifiers.length == 0
-    const replacement = is_side_effect_only && !source.default && !source.named && !source.namespace && !source.star ? `require(${JSON.stringify(source.spec)});` : text
-    if (hoist) {
-      hoisted += replacement.length != 0 ? `${replacement}\n` : ""
-      str.remove(stmt.start, stmt.end)
-    } else if (replacement.length == 0) {
-      str.remove(stmt.start, stmt.end)
-    } else {
-      str.overwrite(stmt.start, stmt.end, replacement)
-    }
-    removed.push([stmt.start, stmt.end])
   }
 
   // Rewrite references to imported bindings.
@@ -297,26 +313,70 @@ export function to_cjs(file: string, code: string): {code: string, deps: string[
     }
   }
 
-  const assignments = []
-  for (const [name, {local, reexport}] of exported) {
-    if (!reexport && reassigned.has(local)) {
-      assignments.push(`Object.defineProperty(exports, ${JSON.stringify(name)}, {enumerable: true, get: () => ${local}});`)
+  const assign = (name: string, value: string) => `${prop("exports", name)} = ${value};`
+  const live = (name: string, local: string) => `Object.defineProperty(exports, ${JSON.stringify(name)}, {enumerable: true, get: () => ${local}});`
+
+  const top: string[] = []                        // before requires
+  const after_require = new Map<Node, string[]>() // import-like statement -> assignments
+  const after_stmt = new Map<Node, string[]>()    // declaring statement -> assignments
+  const end: string[] = []
+  const push = (map: Map<Node, string[]>, stmt: Node, line: string) => map.set(stmt, [...map.get(stmt) ?? [], line])
+
+  for (const exp of exported) {
+    if (exp.kind == "reexport") {
+      push(after_require, exp.stmt, assign(exp.name, exp.value))
+      continue
+    }
+    const {name, local} = exp
+    const import_stmt = import_stmt_of.get(local)
+    const decl = declarations.get(local)
+    if (import_stmt != null) {
+      push(after_require, import_stmt, assign(name, imported.get(local)!))
+    } else if (reassigned.has(local)) {
+      top.push(live(name, local))
+    } else if (decl == null) {
+      end.push(assign(name, local)) // e.g. `var` in a block
+    } else if (decl.hoisted) {
+      top.push(assign(name, local))
     } else {
-      const value = !reexport ? (imported.get(local) ?? local) : local
-      assignments.push(`${prop("exports", name)} = ${value};`)
+      push(after_stmt, decl.stmt, assign(name, local))
     }
   }
   // star exports don't override local ones, so must come after them
   for (const source of sources.values()) {
     if (source.star) {
-      assignments.push(`${tslib_ref()}.__exportStar(${source.local}, exports);`)
+      end.push(`${tslib_ref()}.__exportStar(${source.local}, exports);`)
     }
   }
 
+  // Emit requires: one per source, at its first import-like statement.
+  const emitted = new Set<Source>()
+  let hoisted = ""
+  for (const {stmt, source} of pending_requires) {
+    const text = emitted.has(source) ? "" : `const ${source.local} = ${require_of(source)};`
+    emitted.add(source)
+    const is_side_effect_only = stmt.type == "ImportDeclaration" && stmt.specifiers.length == 0
+    const required = is_side_effect_only && !source.default && !source.named && !source.namespace && !source.star ? `require(${JSON.stringify(source.spec)});` : text
+    const replacement = [required, ...after_require.get(stmt) ?? []].filter((line) => line.length != 0).join("\n")
+    if (hoist) {
+      hoisted += replacement.length != 0 ? `${replacement}\n` : ""
+      str.remove(stmt.start, stmt.end)
+    } else if (replacement.length == 0) {
+      str.remove(stmt.start, stmt.end)
+    } else {
+      str.overwrite(stmt.start, stmt.end, replacement)
+    }
+  }
+
+  for (const [stmt, lines] of after_stmt) {
+    str.appendLeft(stmt.end, `\n${lines.join("\n")}`)
+  }
+
   const tslib_require = tslib.name != null ? `const ${tslib.name} = require("tslib");\n` : ""
-  str.prepend(`__esModule();\n${tslib_require}${hoisted}`)
-  if (assignments.length != 0) {
-    str.append(`\n${assignments.join("\n")}\n`)
+  const top_lines = top.length != 0 ? `${top.join("\n")}\n` : ""
+  str.prepend(`__esModule();\n${tslib_require}${top_lines}${hoisted}`)
+  if (end.length != 0) {
+    str.append(`\n${end.join("\n")}\n`)
   }
   const deps = [...sources.keys(), ...dynamic, ...(tslib.name != null ? ["tslib"] : [])]
   return {code: str.toString(), deps: [...new Set(deps)]}

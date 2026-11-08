@@ -288,8 +288,10 @@ export class Linker {
         graph.set(module, [...module.dependencies.values()])
       }
 
-      // Converted ES modules assign their exports at the end, so they can't be a part of
-      // a cycle. Cycles of CommonJS modules (e.g. in mathjax-full) are fine.
+      // Converted ES modules tolerate cycles as long as cyclic dependencies are used lazily,
+      // but e.g. a named re-export of a module that is still being evaluated is undefined.
+      // So report cycles involving ES modules. Cycles of CommonJS modules (e.g. in
+      // mathjax-full) are allowed, as they were before.
       const cycles = detect_cycles(graph).filter((cycle) => cycle.some((module) => module.esm))
       if (cycles.length != 0) {
         status = false
