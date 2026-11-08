@@ -18,7 +18,7 @@ import {detect_cycles} from "./graph.js"
 
 const root_path = process.cwd()
 
-const cache_version = 7
+const cache_version = 8
 
 export type Parent = {
   file: Path
@@ -34,6 +34,8 @@ export type ModuleInfo = {
   file: Path
   base_path: Path
   canonical?: string
+  /** converted from an ES module */
+  esm: boolean
   id: number | string
   hash: string
   changed: boolean
@@ -281,26 +283,22 @@ export class Linker {
     }
 
     if (this.detect_cycles) {
-      function is_internal(module: ModuleInfo) {
-        return module.canonical != null
-      }
-
-      const nodes = all_modules.filter(is_internal)
       const graph: Graph<ModuleInfo> = new Map()
-      for (const node of nodes) {
-        const deps = [...node.dependencies.values()]
-        graph.set(node, deps.filter(is_internal))
+      for (const module of all_modules) {
+        graph.set(module, [...module.dependencies.values()])
       }
 
-      const cycles = detect_cycles(graph)
+      // Converted ES modules assign their exports at the end, so they can't be a part of
+      // a cycle. Cycles of CommonJS modules (e.g. in mathjax-full) are fine.
+      const cycles = detect_cycles(graph).filter((cycle) => cycle.some((module) => module.esm))
       if (cycles.length != 0) {
         status = false
         for (const cycle of cycles) {
           console.log(`${chalk.red("\u2717")} cycle detected:`)
-          for (const module of cycle) {
-            const is_last = cycle[cycle.length-1] == module
-            console.log(`${is_last ? "\u2514" : "\u251c"}\u2500 ${module.canonical ?? module.base_path}`)
-          }
+          const names = [...cycle, cycle[0]].map((module) => module.canonical ?? module.base_path.replaceAll("\\", "/"))
+          names.forEach((name, i) => {
+            console.log(`${i == names.length - 1 ? "\u2514" : "\u251c"}\u2500 ${name}`)
+          })
         }
       }
     }
@@ -732,23 +730,27 @@ export default json;
 
     let dependency_paths: Map<string, Path>
     let externals: Set<string>
+    let esm: boolean
     let shims: Set<string>
 
     const changed = cached == null || cached.module.hash != hash
     if (changed) {
       let collected: string[]
       if (resolution == "ESM" || type == "json") {
+        // Bundles provide tslib to extensions, so include it, unless this is tslib itself.
         const imports = new Set<string>()
-        if (canonical != "tslib") {
+        if (canonical != "tslib" && this.resolve_file("tslib", {file}) != file) {
           imports.add("tslib")
         }
 
+        esm = true
         const converted = to_cjs(file, source)
         source = converted.code
         // `require()` calls are allowed in ESM modules under the primary base only (e.g. test's `auto_index`)
         const requires = base == this.bases[0] ? transforms.collect_deps(transforms.parse_script(file, source)) : []
         collected = [...new Set([...imports, ...converted.deps, ...requires])]
       } else {
+        esm = false
         collected = transforms.collect_deps(transforms.parse_script(file, source))
       }
       const filtered = collected.filter((dep) => !this.is_external(dep) && !this.excluded(dep) && !this.is_shimmed(dep))
@@ -770,12 +772,14 @@ export default json;
       externals = cached.module.externals
       shims = cached.module.shims
       source = cached.module.source
+      esm = cached.module.esm
     }
 
     return {
       file,
       base_path,
       canonical,
+      esm,
       id: NaN,
       hash,
       changed,
