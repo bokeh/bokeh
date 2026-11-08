@@ -5,7 +5,6 @@ import {minifySync} from "oxc-minify"
 import {parseSync} from "oxc-parser"
 import chalk from "chalk"
 
-import * as combine from "combine-source-map"
 import * as convert from "convert-source-map"
 
 import type {Path} from "./sys.js"
@@ -15,10 +14,12 @@ import {to_cjs} from "./esm_to_cjs.js"
 import {BuildError} from "./error.js"
 import type {Graph} from "./graph.js"
 import {detect_cycles} from "./graph.js"
+import type {SourceMap, Section, Contents} from "./source_map.js"
+import {load_source_map, chain, concat, extract_contents, restore_contents} from "./source_map.js"
 
 const root_path = process.cwd()
 
-const cache_version = 8
+const cache_version = 10
 
 export type Parent = {
   file: Path
@@ -40,6 +41,8 @@ export type ModuleInfo = {
   hash: string
   changed: boolean
   source: string
+  /** maps `source` to the original sources, if there are any */
+  map: SourceMap | null
   dependency_paths: Map<string, Path>
   dependencies: Map<string, ModuleInfo>
   externals: Set<string>
@@ -48,7 +51,9 @@ export type ModuleInfo = {
 
 export type ModuleCode = {
   source: string
+  map: SourceMap
   min_source: string
+  min_map: SourceMap
 }
 
 export type ModuleArtifact = {
@@ -97,7 +102,7 @@ export class Bundle {
   assemble(options: AssemblyOptions): Artifact {
     let line = 0
     let sources: string = ""
-    const sourcemap = combine.create()
+    const sections: Section[] = []
     const aliases = new Map<string, number | string>()
     const externals = new Map<string, boolean>()
 
@@ -136,15 +141,14 @@ export class Bundle {
         externals.set(external, false)
       }
 
+      // module's code starts on the same line as its wrapper
       const start = wrap(safe_id(module), "")
       sources += start
-      line += newlines(start)
 
-      const source_with_sourcemap = minified ? artifact.code.min_source : artifact.code.source
-      const source = combine.removeComments(source_with_sourcemap).trimEnd()
+      const {code} = artifact
+      const source = (minified ? code.min_source : code.source).trimEnd()
       sources += source
-      const map_path = join("@@", relative(root_path, module.file))
-      sourcemap.addFile({source: source_with_sourcemap, sourceFile: map_path}, {line})
+      sections.push({line, column: start.length, map: minified ? code.min_map : code.map})
       line += newlines(source)
 
       const end = ",\n"
@@ -157,8 +161,8 @@ export class Bundle {
 
     sources += `${suffix}, ${safe_id(entry)}, ${aliases_json}, ${externals_json});${postlude}`
 
-    const source_map = convert.fromBase64(sourcemap.base64()).toObject()
-    return new Artifact(sources, minified ? null : source_map)
+    const name = (file: Path) => join("@@", relative(root_path, file)).replaceAll("\\", "/")
+    return new Artifact(sources, concat(sections, name))
   }
 }
 
@@ -305,10 +309,10 @@ export class Linker {
       }
     }
 
-    const print = (module: ModuleInfo): string => {
+    const print = (module: ModuleInfo): {source: string, map: SourceMap} => {
       const resolve = (dep: string) => module.dependencies.get(dep)?.id
-      const source = transforms.link_module(module.file, module.source, module.base_path, resolve)
-      return convert.removeMapFileComments(source)
+      const {code, map} = transforms.link_module(module.file, module.source, module.base_path, resolve)
+      return {source: code, map: chain(map, module.map)}
     }
 
     const deps_changed = (module: ModuleInfo, cached: ModuleInfo): boolean => {
@@ -332,9 +336,9 @@ export class Linker {
 
         let code: ModuleCode
         if (module.changed || (cached != null && deps_changed(module, cached.module))) {
-          const source = print(module)
-          const minified = minify(module, source)
-          code = {source, ...minified}
+          const printed = print(module)
+          const minified = minify(module, printed.source)
+          code = {...printed, min_source: minified.code, min_map: chain(minified.map, printed.map)}
         } else {
           code = cached!.code
         }
@@ -401,17 +405,22 @@ export class Linker {
       return
     }
 
+    // contents of sources are stored once, not in every source map
+    const contents: Contents = json.contents
+    const restore = (map: SourceMap | null) => map != null ? restore_contents(map, contents) : null
+
     for (const {module, code} of json.artifacts) {
       const artifact = {
         module: {
           ...module,
+          map: restore(module.map),
           changed: false,
           dependencies: new Map(),
           dependency_paths: new Map(module.dependency_paths),
           externals: new Set(module.externals),
           shims: new Set(module.shims),
         },
-        code,
+        code: {...code, map: restore(code.map), min_map: restore(code.min_map)},
       }
       this.cache.set(artifact.module.file, artifact)
     }
@@ -432,10 +441,15 @@ export class Linker {
       return
     }
 
+    const contents: Contents = {}
+    const extract = (map: SourceMap | null) => map != null ? extract_contents(map, contents) : null
+
     const artifacts = []
     for (const artifact of this.cache.values()) {
+      const {code} = artifact
       const module = {
         ...artifact.module,
+        map: extract(artifact.module.map),
         changed: undefined,
         dependencies: undefined,
       }
@@ -447,11 +461,11 @@ export class Linker {
           externals: [...module.externals.values()],
           shims: [...module.shims.values()],
         },
-        code: artifact.code,
+        code: {...code, map: extract(code.map), min_map: extract(code.min_map)},
       })
     }
 
-    const json = JSON.stringify({version: cache_version, config: this.cache_config, artifacts})
+    const json = JSON.stringify({version: cache_version, config: this.cache_config, artifacts, contents})
     write(this.cache_path, json)
   }
 
@@ -644,14 +658,20 @@ export class Linker {
       throw new BuildError("linker", `'${file} doesn't exist`)
     }
 
+    let overridden = false
     for (const [path, override] of this.overrides) {
       if (file.endsWith(normalize(path))) {
         source = override
+        overridden = true
         break
       }
     }
 
-    const hash = crypto.createHash("sha256").update(source).digest("hex")
+    // Removing the trailing source map comment doesn't invalidate the map.
+    const input_map = !overridden ? load_source_map(file, source) : null
+    source = convert.removeMapFileComments(convert.removeComments(source))
+
+    const hash = crypto.createHash("sha256").update(source).update(JSON.stringify(input_map)).digest("hex")
     const type: ModuleType = (() => {
       switch (extname(file)) {
         case ".json": return "json"
@@ -734,6 +754,7 @@ export default json;
     let externals: Set<string>
     let esm: boolean
     let shims: Set<string>
+    let map: SourceMap | null
 
     const changed = cached == null || cached.module.hash != hash
     if (changed) {
@@ -748,11 +769,13 @@ export default json;
         esm = true
         const converted = to_cjs(file, source)
         source = converted.code
+        map = chain(converted.map, input_map)
         // `require()` calls are allowed in ESM modules under the primary base only (e.g. test's `auto_index`)
         const requires = base == this.bases[0] ? transforms.collect_deps(transforms.parse_script(file, source)) : []
         collected = [...new Set([...imports, ...converted.deps, ...requires])]
       } else {
         esm = false
+        map = input_map
         collected = transforms.collect_deps(transforms.parse_script(file, source))
       }
       const filtered = collected.filter((dep) => !this.is_external(dep) && !this.excluded(dep) && !this.is_shimmed(dep))
@@ -775,6 +798,7 @@ export default json;
       shims = cached.module.shims
       source = cached.module.source
       esm = cached.module.esm
+      map = cached.module.map
     }
 
     return {
@@ -786,6 +810,7 @@ export default json;
       hash,
       changed,
       source,
+      map,
       dependency_paths,
       dependencies: new Map(),
       externals,
@@ -863,12 +888,13 @@ function mark_license_comments(name: string, source: string): string {
   return result + source.slice(pos)
 }
 
-function minify(module: ModuleInfo, source: string): {min_source: string} {
+function minify(module: ModuleInfo, source: string): {code: string, map: SourceMap} {
   // oxc infers module type from the extension (e.g. `.mjs` or `.cjs`), which would allow
   // it to remove the unused top-level module function, so always use `.js`.
   const name = `${basename(module.file, extname(module.file))}.js`
-  const {code, errors} = minifySync(name, mark_license_comments(name, source), {
+  const {code, map, errors} = minifySync(name, mark_license_comments(name, source), {
     module: false,
+    sourcemap: true,
     compress: {target: "es2024", keepNames: {function: false, class: true}},
     mangle: {toplevel: false, keepNames: {function: false, class: true}},
     codegen: {asciiOnly: true, legalComments: "inline"},
@@ -881,5 +907,5 @@ function minify(module: ModuleInfo, source: string): {min_source: string} {
     throw new BuildError("linker", `minification of ${module.file} resulted in empty output`)
   }
 
-  return {min_source: code}
+  return {code, map: map as SourceMap}
 }
