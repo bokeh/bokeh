@@ -8,7 +8,6 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Tooltip} from "@bokehjs/models/ui/tooltip"
 import {range} from "@bokehjs/core/util/array"
 import {enumerate} from "@bokehjs/core/util/iterator"
-import {defer} from "@bokehjs/core/util/defer"
 
 describe("Tabs", () => {
   function new_tabs(num_panels: number, add_tooltip: boolean = false): Tabs {
@@ -145,14 +144,14 @@ describe("Tabs", () => {
     expect(view0.model).to.be.identical(tabs.tabs[0].child)
 
     tabs.active = 1
-    await defer()
+    await tabs_view.ready
 
     const [retained_view0, view1] = tabs_view.sig_child_views
     expect(retained_view0).to.be.identical(view0)
     expect(view1.model).to.be.identical(tabs.tabs[1].child)
 
     tabs.active = 0
-    await defer()
+    await tabs_view.ready
 
     expect(tabs_view.sig_child_views).to.be.equal([view0, view1])
     expect(view0.is_destroyed).to.be.false
@@ -165,12 +164,10 @@ describe("Tabs", () => {
     const {view: tabs_view} = await display(tabs, null)
 
     tabs.active = 1
-    await defer()
     await tabs_view.ready
 
     const [view0, view1] = tabs_view.sig_child_views
     tabs.tabs = [tab1, tab2]
-    await defer()
     await tabs_view.ready
 
     const [retained_view1, view2] = tabs_view.sig_child_views
@@ -184,7 +181,6 @@ describe("Tabs", () => {
       y_range: Range1d.create({start: 0, end: 10}),
     })
     tab2.child = replacement
-    await defer()
     await tabs_view.ready
 
     const [still_retained_view1, replacement_view] = tabs_view.sig_child_views
@@ -193,7 +189,6 @@ describe("Tabs", () => {
     expect(replacement_view.model).to.be.identical(replacement)
 
     tabs.tabs = []
-    await defer()
     await tabs_view.ready
 
     expect(tabs_view.sig_child_views).to.be.equal([])
@@ -202,7 +197,6 @@ describe("Tabs", () => {
 
     const restored = new_tabs(2).tabs
     tabs.tabs = restored
-    await defer()
     await tabs_view.ready
 
     expect(tabs_view.sig_child_views.map((view) => view.model)).to.be.equal([restored[1].child])
@@ -217,7 +211,6 @@ describe("Tabs", () => {
     expect(linked_views.map((view) => view.model)).to.be.equal(tabs.tabs.map((tab) => tab.child))
 
     tabs.link_layouts = false
-    await defer()
     await tabs_view.ready
 
     expect(tabs_view.sig_child_views.map((view) => view.model)).to.be.equal([tabs.tabs[0].child])
@@ -226,7 +219,6 @@ describe("Tabs", () => {
     expect(linked_views[2].is_destroyed).to.be.true
 
     tabs.active = 1
-    await defer()
     await tabs_view.ready
 
     expect(tabs_view.sig_child_views.map((view) => view.model)).to.be.equal([
@@ -235,7 +227,6 @@ describe("Tabs", () => {
     ])
 
     tabs.link_layouts = true
-    await defer()
     await tabs_view.ready
 
     expect(tabs_view.sig_child_views.map((view) => view.model)).to.be.equal(tabs.tabs.map((tab) => tab.child))

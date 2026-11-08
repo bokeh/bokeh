@@ -25,6 +25,10 @@ export abstract class ToolButtonView extends UIElementView {
   protected _menu: ContextMenu
   protected _ui_gestures: UIGestures
 
+  get menu(): ContextMenu {
+    return this._menu
+  }
+
   override initialize(): void {
     super.initialize()
 

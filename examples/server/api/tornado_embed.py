@@ -9,7 +9,7 @@ from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
 from bokeh.server.server import Server
 from bokeh.themes import Theme
 
-env = Environment(loader=FileSystemLoader('templates'))
+env = Environment(loader=FileSystemLoader('templates'), autoescape=True)
 
 class IndexHandler(RequestHandler):
     def get(self):

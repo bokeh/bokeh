@@ -104,7 +104,8 @@ export function _color2rgba(color: string | null, alpha: number = 1.0): RGBA {
 }
 */
 
-const rgb_modern = /^rgba?\(\s*(?<r>[^\s,]+?)\s+(?<g>[^\s,]+?)\s+(?<b>[^\s,]+?)(?:\s*\/\s*(?<a>[^\s,]+?))?\s*\)$/
+// Keep channel tokens disjoint from the alpha separator to avoid backtracking.
+const rgb_modern = /^rgba?\(\s*(?<r>[^\s,/]+)\s+(?<g>[^\s,/]+)\s+(?<b>[^\s,/]+)(?:\s*\/\s*(?<a>[^\s,/]+))?\s*\)$/
 const rgb_legacy = /^rgba?\(\s*(?<r>[^\s,]+?)\s*,\s*(?<g>[^\s,]+?)\s*,\s*(?<b>[^\s,]+?)(?:\s*,\s*(?<a>[^\s,]+?))?\s*\)$/
 
 // Defer canvas setup so importing this module doesn't require a DOM.

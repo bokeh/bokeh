@@ -8,6 +8,9 @@ Bokeh version ``4.0.0`` is a major milestone of the Bokeh project.
 New features
 ------------
 
+* Added explicit immediate delivery and configurable throttling, debouncing,
+  and committed-only delivery to ``Model.on_change()`` and
+  ``Model.js_on_change()`` callbacks.
 * Added :class:`~bokeh.models.ScaledTicker` and
   :class:`~bokeh.models.ScaledTickFormatter` for selecting and formatting ticks
   with a scale and configurable origin. They support repeated prefixes and
@@ -15,14 +18,29 @@ New features
   decorations without requiring fixed tick locations or custom JavaScript.
 * Added :class:`~bokeh.models.SITickFormatter` for displaying values with a
   fixed or automatically selected SI prefix and a shared unit.
+* Added support for bracketed IPv6 addresses, such as ``[::1]:5006``, in the
+  Bokeh server's WebSocket origin allowlist, including equivalent address
+  spellings. ASGI origin entries use the same validation and default port as
+  ``Server``.
 * Added ``label`` property to :class:`~bokeh.models.Tool`, allowing to change
   the name of a tool displayed in the user interface, e.g. in a plot's context
   menu (:bokeh-issue:`15553`).
 * Redesigned slider widgets for better visual appeal and easier theming (:bokeh-pull:`13551`)
+* Added :class:`~bokeh.models.IndexedStackColorMapper` for ``ImageStack``
+  glyphs. It color maps the 2D array selected by ``index`` with a
+  ``slice_color_mapper``, scanning just that array or, with
+  ``scan_together=True``, the whole stack as one data set. Scan results are
+  cached per array, so changing ``index`` doesn't rescan data that has already
+  been scanned (:bokeh-issue:`13898`).
 
 Removals
 --------
 
+* Removed support for Python 3.12. Bokeh now requires Python 3.13 or newer.
+
+* Removed the slider and spinner ``value_throttled`` properties. Configure
+  committed delivery when registering a callback on ``value``, for example
+  ``widget.on_change("value", callback, policy=Committed())``.
 * Removed ``output_notebook()``, ``push_notebook()``, the notebook hook
   registration APIs (including ``load_notebook()``, ``show_app()``,
   ``destroy_server()``, and ``get_comms()``), ``CommsHandle``, and
@@ -63,8 +81,17 @@ Removals
   ``.noUi-*`` classes must be updated to target the new slider elements
   (``.bk-track``, ``.bk-span``, ``.bk-handle`` and ``.bk-tooltip``).
 
+* Removed the BokehJS ``Bokeh.Charts`` API, including ``Bokeh.Charts.pie()``
+  and ``Bokeh.Charts.bar()``. Use ``Bokeh.Plotting`` instead, e.g.
+  ``fig.annular_wedge()`` or ``fig.wedge()`` for pie and donut charts, and
+  ``fig.hbar()`` or ``fig.vbar()`` for bar charts.
+
 API changes
 -----------
+
+* Generic property base classes and ``Value`` now default their type parameter
+  to ``Any`` when it is omitted. Explicit type arguments and constructor
+  inference continue to preserve more specific types.
 
 * Renamed ``GlyphRenderer.add_decoration()`` to
   ``GlyphRenderer.add_path_decoration()``. It takes a marking first and a
@@ -85,6 +112,17 @@ API changes
 * In BokehJS, ``OrientedControl`` now derives from ``Widget`` instead of
   ``Control``, and ``Control`` is deprecated. ``BBox.relativize()`` now takes
   and returns an ``{x, y}`` object instead of separate coordinates.
+
+* ``ColorMapper`` no longer has ``palette`` and ``nan_color``. They moved to
+  the new :class:`~bokeh.models.PaletteMixin`, which ``CategoricalColorMapper``,
+  ``ContinuousColorMapper`` and ``WeightedStackColorMapper`` include, so code
+  using those mappers is unaffected. Custom color mappers that subclass
+  ``ColorMapper`` directly need to include ``PaletteMixin`` (in Python) or
+  define ``palette`` and ``nan_color`` themselves, and in BokehJS implement
+  ``_palette()`` and ``_colors()``. They also need a ``display_mapper`` getter
+  there, usually returning ``this``. BokehJS code that uses ``palette`` through
+  a plain ``ColorMapper``, e.g. ``color_bar.color_mapper.palette``, can get it
+  from ``color_bar.color_mapper.display_mapper.palette`` (:bokeh-issue:`13898`).
 
 Bug fixes
 ---------

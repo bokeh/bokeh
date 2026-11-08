@@ -3,8 +3,9 @@ import type {Axis} from "../axes"
 import {CategoricalAxis, LinearAxis, LogAxis} from "../axes"
 import type {TickFormatter} from "../formatters/tick_formatter"
 import {BasicTickFormatter, LogTickFormatter, CategoricalTickFormatter} from "../formatters"
+import type {PaletteMapper} from "../mappers/color_mapper"
 import {ColorMapper} from "../mappers/color_mapper"
-import {LinearColorMapper, LogColorMapper, ScanningColorMapper, CategoricalColorMapper, ContinuousColorMapper, WeightedStackColorMapper} from "../mappers"
+import {LinearColorMapper, LogColorMapper, ScanningColorMapper, CategoricalColorMapper, ContinuousColorMapper} from "../mappers"
 import type {Range} from "../ranges"
 import {Range1d, FactorRange} from "../ranges"
 import type {Scale} from "../scales"
@@ -29,25 +30,37 @@ export class ColorBarView extends BaseColorBarView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.color_mapper.change, async () => {
+
+    // The axis, scale and ticker are made for the color mapper's `display_mapper`,
+    // so they are rebuilt when either mapper is replaced.
+    const rebuild = async () => {
       this._title_view.remove()
       this._axis_view.remove()
       this.initialize()
       await this.lazy_initialize()
       this.plot_view.invalidate_layout()
+    }
+    const metrics_changed = () => this._metrics_changed()
+
+    let {color_mapper} = this.model
+    this.connect(color_mapper.metrics_change, metrics_changed)
+    this.connect(color_mapper.display_mapper_change, rebuild)
+
+    this.connect(this.model.properties.color_mapper.change, async () => {
+      this.disconnect(color_mapper.metrics_change, metrics_changed)
+      this.disconnect(color_mapper.display_mapper_change, rebuild)
+      color_mapper = this.model.color_mapper
+      this.connect(color_mapper.metrics_change, metrics_changed)
+      this.connect(color_mapper.display_mapper_change, rebuild)
+      await rebuild()
     })
-    this.connect(this.model.color_mapper.metrics_change, () => this._metrics_changed())
     this.connect(this.model.properties.display_low.change, () => this._metrics_changed())
     this.connect(this.model.properties.display_high.change, () => this._metrics_changed())
   }
 
-  get color_mapper(): ColorMapper {
+  get color_mapper(): PaletteMapper {
     // Color mapper that is used to render this colorbar.
-    let mapper = this.model.color_mapper
-    if (mapper instanceof WeightedStackColorMapper) {
-      mapper = mapper.alpha_mapper
-    }
-    return mapper
+    return this.model.color_mapper.display_mapper
   }
 
   override update_layout(): void {

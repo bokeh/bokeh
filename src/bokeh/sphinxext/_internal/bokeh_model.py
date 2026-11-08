@@ -191,11 +191,7 @@ def setup(app: Any) -> SphinxParallelSpec:
 # Private API
 # -----------------------------------------------------------------------------
 
-_DEFAULT_EXCLUDED_MEMBERS = frozenset({
-    "js_event_callbacks",
-    "js_property_callbacks",
-    "subscribed_events",
-})
+_DEFAULT_EXCLUDED_MEMBERS: frozenset[str] = frozenset()
 
 
 class _ModelTiming(NamedTuple):

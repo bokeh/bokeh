@@ -198,6 +198,82 @@ def test_playwright_thread_serializes_shutdown_and_submissions() -> None:
     finally:
         playwright_thread.shutdown()
 
+
+def test_playwright_thread_drains_pending_work_before_finalizer() -> None:
+    playwright_thread = bib._PlaywrightThread()
+    entered = threading.Event()
+    release = threading.Event()
+    completed: list[str] = []
+    errors = queue.Queue[BaseException]()
+
+    async def blocking_task() -> None:
+        entered.set()
+        while not release.is_set():
+            await asyncio.sleep(0.01)
+        completed.append("running")
+
+    async def queued_task() -> None:
+        completed.append("queued")
+
+    async def finalizer() -> None:
+        completed.append("finalizer")
+
+    def submit(fn: Any, *args: Any) -> None:
+        try:
+            fn(*args)
+        except BaseException as e:
+            errors.put(e)
+
+    running = threading.Thread(target=submit, args=(playwright_thread.run, blocking_task))
+    pending = threading.Thread(target=submit, args=(playwright_thread.run, queued_task))
+    shutdown = threading.Thread(target=submit, args=(playwright_thread.shutdown, finalizer))
+
+    try:
+        running.start()
+        assert entered.wait(timeout=5)
+        pending.start()
+        deadline = time.monotonic() + 5
+        while playwright_thread._queue.qsize() == 0 and time.monotonic() < deadline:
+            time.sleep(0.01)
+        assert playwright_thread._queue.qsize() == 1
+        shutdown.start()
+        deadline = time.monotonic() + 5
+        while not playwright_thread._stopping and time.monotonic() < deadline:
+            time.sleep(0.01)
+        assert playwright_thread._stopping
+    finally:
+        release.set()
+        running.join(timeout=5)
+        if pending.ident is not None:
+            pending.join(timeout=5)
+        if shutdown.ident is not None:
+            shutdown.join(timeout=5)
+        playwright_thread.shutdown()
+
+    assert not running.is_alive()
+    assert not pending.is_alive()
+    assert not shutdown.is_alive()
+    assert errors.empty()
+    assert completed == ["running", "queued", "finalizer"]
+
+
+def test_playwright_thread_restarts_after_failed_finalizer() -> None:
+    playwright_thread = bib._PlaywrightThread()
+
+    async def finalizer() -> None:
+        raise ValueError("finalizer failed")
+
+    try:
+        playwright_thread.run(_worker_identity)
+        with pytest.raises(ValueError, match="finalizer failed"):
+            playwright_thread.shutdown(finalizer)
+        assert not playwright_thread._started
+        assert not playwright_thread._stopping
+        assert playwright_thread.run(_worker_identity)[0] == os.getpid()
+    finally:
+        playwright_thread.shutdown()
+
+
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------

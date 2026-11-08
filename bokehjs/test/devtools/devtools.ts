@@ -8,9 +8,9 @@ import {Bar, Presets} from "cli-progress"
 
 import {load_baselines} from "./baselines.js"
 import {platform} from "./sys.js"
-import type {Suite, TestRunContext, ScreenshotMode} from "./types.js"
+import type {Suite, TestRunContext, ScreenshotMode, FilterResult} from "./types.js"
 import {Exit} from "./types.js"
-import {descriptions, description, encode, show_tree} from "./format.js"
+import {descriptions, description, encode, show_tree, render_ansi} from "./format.js"
 import {BrowserError, BrowserManager, Value, Failure} from "./browser.js"
 import {TestDiscovery, type TestCase, type TestStatus} from "./discovery.js"
 import {MetricsCollector} from "./metrics.js"
@@ -44,8 +44,9 @@ const argv = yargs(process.argv.slice(2)).options({
   seed: {type: "number", default: Date.now()},
   pedantic: {type: "boolean", default: false},
   keyword: {type: "string", array: true, demandOption: false, alias: "k"},
-  grep: {type: "string", array: true, demandOption: false},
+  grep: {type: "string", array: true, demandOption: false, alias: "g"},
   skip: {type: "string", array: true, demandOption: false},
+  file: {type: "string", array: true, demandOption: false, alias: "f"},
   "baselines-root": {type: "string", demandOption: false},
   screenshot: {type: "string", choices: ["test", "save", "skip"] as const, default: "test"},
   "test-timeout": {type: "number", demandOption: false},
@@ -53,7 +54,7 @@ const argv = yargs(process.argv.slice(2)).options({
   info: {type: "boolean", default: false},
 }).parseSync()
 
-const {executable, ref, randomize, seed, pedantic, keyword, grep, skip, screenshot, retry, info} = argv as typeof argv & {screenshot: ScreenshotMode}
+const {executable, ref, randomize, seed, pedantic, keyword, grep, skip, file, screenshot, retry, info} = argv as typeof argv & {screenshot: ScreenshotMode}
 const url = argv._[0] as string | undefined ?? "about:blank"
 const MAX_BROWSER_RESTARTS = 2
 const MAX_BROWSER_LAUNCH_ATTEMPTS = 3
@@ -119,19 +120,93 @@ async function restore_baseline_files(checkpoint: BaselineFilesCheckpoint | null
   }
 }
 
-function format_output(test_case: TestCase): string | null {
+function format_output(test_case: TestCase, color?: boolean): string | null {
   const [suites, test, status] = test_case
 
   if ((status.failure ?? false) || (status.timeout ?? false)) {
     const output = show_tree(suites, test)
 
     for (const error of status.errors) {
-      output.push(error)
+      output.push(render_ansi(error, color))
     }
 
     return output.join("\n")
   } else {
     return null
+  }
+}
+
+type ProgressState = {failed: string, skipped: string}
+
+interface Progress {
+  start(state: ProgressState): void
+  increment(state: ProgressState): void
+  log(text: string): void
+  stop(): void
+}
+
+/**
+ * Shows an animated progress bar on a TTY. Otherwise (e.g. CI logs, piped
+ * output, agents), prints a plain status line only every 10% or 30 seconds.
+ */
+function create_progress(total: number): Progress {
+  if (process.stdout.isTTY) {
+    const bar = new Bar({
+      format: "{bar} {percentage}% | {value} of {total}{failed}{skipped} | {duration}s",
+      stream: process.stdout,
+      // By default line wrapping is disabled while the bar is active, which would
+      // truncate failure details logged mid-run. Keep it enabled; the bar line is
+      // trimmed to the terminal width by cli-progress instead.
+      linewrap: true,
+    }, Presets.shades_classic)
+
+    return {
+      start(state) {
+        bar.start(total, 0, state)
+      },
+      increment(state) {
+        bar.increment(1, state)
+      },
+      log(text) {
+        // Clear the bar's line; it will be redrawn below the text on the next update.
+        process.stdout.write(`\r\x1b[K${text}\n`)
+      },
+      stop() {
+        bar.stop()
+      },
+    }
+  } else {
+    const step = Math.max(1, Math.ceil(total / 10))
+    const interval = 30_000
+
+    let value = 0
+    let started = Date.now()
+    let reported = started
+
+    const report = (state: ProgressState) => {
+      const now = Date.now()
+      const percentage = total == 0 ? 100 : Math.floor(value / total * 100)
+      const duration = Math.round((now - started) / 1000)
+      console.log(`${percentage}% | ${value} of ${total}${state.failed}${state.skipped} | ${duration}s`)
+      reported = now
+    }
+
+    return {
+      start() {
+        started = Date.now()
+        reported = started
+      },
+      increment(state) {
+        value++
+        if (value == total || value % step == 0 || Date.now() - reported >= interval) {
+          report(state)
+        }
+      },
+      log(text) {
+        console.log(text)
+      },
+      stop() {},
+    }
   }
 }
 
@@ -189,6 +264,19 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
         throw new Exit(code)
       }
 
+      const filters = {keyword, grep, file}
+      const filter_result = await browser.evaluate<FilterResult>(`Tests.apply_filters(${JSON.stringify(filters)})`)
+      if (!(filter_result instanceof Value)) {
+        const reason = filter_result instanceof Failure ? filter_result.text : "timeout"
+        fail(`internal error: failed to apply test filters: ${reason}`)
+      }
+      for (const warning of filter_result.value.warnings) {
+        console.log(`${chalk.yellow("warning")}: ${warning}`)
+      }
+      if (filter_result.value.errors.length != 0) {
+        fail(filter_result.value.errors.map((error) => `${chalk.red("error")}: ${error}`).join("\n"))
+      }
+
       const result = await browser.evaluate<Suite>("Tests.top_level")
       if (!(result instanceof Value)) {
         const reason = result instanceof Failure ? result.text : "timeout"
@@ -218,7 +306,7 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
         fail("one or more test descriptions use invalid characters")
       }
 
-      discovery.apply_filters(keyword, grep, skip)
+      discovery.apply_filters(skip)
 
       const all_tests = discovery.get_all_tests()
       const selected_tests = discovery.get_selected_tests()
@@ -263,17 +351,12 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
         }
       }
 
-      const progress = new Bar({
-        format: "{bar} {percentage}% | {value} of {total}{failed}{skipped} | {duration}s",
-        stream: process.stdout,
-        noTTYOutput: true,
-        notTTYSchedule: 1000,
-      }, Presets.shades_classic)
+      const progress = create_progress(selected_tests.length)
 
       let skipped = 0
       let failed = 0
 
-      function state(): object {
+      function state(): ProgressState {
         function format(value: number, single: string, plural?: string): string {
           if (value == 0) {
             return ""
@@ -289,7 +372,7 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
         }
       }
 
-      progress.start(selected_tests.length, 0, state())
+      progress.start(state())
 
       const metrics = baselines_root != null ? new MetricsCollector() : null
       const runner = new TestRunner(browser, ctx, baselines_root, screenshot, pedantic, top_level, ref, metrics, test_timeout)
@@ -320,7 +403,7 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
 
       function append_report_out(test_case: TestCase): void {
         if (out_stream != null) {
-          const output = format_output(test_case)
+          const output = format_output(test_case, false)
           if (output != null) {
             out_stream.write("\n")
             out_stream.write(output)
@@ -404,7 +487,14 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
           }
 
           append_report_out(test_case)
-          progress.increment(1, state())
+
+          // Report failures as they happen, so that they aren't lost if the run is interrupted.
+          const output = format_output(test_case)
+          if (output != null) {
+            progress.log(`\n${output}\n`)
+          }
+
+          progress.increment(state())
         }
       } finally {
         progress.stop()
@@ -412,11 +502,13 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
 
       await finish_report_out()
 
-      for (const test_case of selected_tests) {
-        const output = format_output(test_case)
-        if (output != null) {
-          console.log("")
-          console.log(output)
+      const failed_tests = selected_tests.filter(([,, status]) => (status.failure ?? false) || (status.timeout ?? false))
+      if (failed_tests.length != 0) {
+        console.log("")
+        console.log("Failed tests:")
+        for (const [suites, test, status] of failed_tests) {
+          const reason = (status.timeout ?? false) ? " (timeout)" : ""
+          console.log(`  ${chalk.red(description(suites, test))}${reason}`)
         }
       }
 

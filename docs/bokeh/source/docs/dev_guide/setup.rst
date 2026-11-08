@@ -136,8 +136,8 @@ elsewhere in this guide also works unmodified when prefixed with
     ``pixi shell --locked`` again to pick up the change there too.
 
 Bokeh also defines environments for its supported Python versions and focused
-test configurations. Use ``pixi shell --locked -e test-py312`` for an
-interactive Python 3.12 shell, or ``pixi run --locked -e test-py312 <command>``
+test configurations. Use ``pixi shell --locked -e test-py313`` for an
+interactive Python 3.13 shell, or ``pixi run --locked -e test-py313 <command>``
 for a single command without activating a shell. See
 :ref:`contributor_guide_testing_ci_environments` for more information.
 
@@ -168,8 +168,9 @@ subdirectory.
 
 .. note::
     ``pixi run setup`` also installs the JavaScript dependencies, after
-    removing any previous BokehJS build. Run either command again whenever
-    ``bokehjs/package-lock.json`` changes.
+    removing any previous BokehJS build, and installs Playwright's matching
+    Chromium browser. Run setup again whenever ``bokehjs/package-lock.json``
+    changes to keep the browser and JavaScript dependencies aligned.
 
 .. _contributor_guide_setup_pre-commit:
 
@@ -200,7 +201,7 @@ Python linting
 Codebase tests
     The pre-push hook will run Bokeh's
     :ref:`codebase tests <contributor_guide_testing_local_codebase>`. This includes
-    testing with `ESLint`_ and `Ruff`_.
+    testing with `Ruff`_.
 
 Protected branches
     The pre-push hook will make sure you don't accidentally push a commit to
@@ -232,10 +233,12 @@ Once Pixi has installed the environment, set up an editable Bokeh checkout with:
 
 This removes any previous BokehJS build, performs the :ref:`Node package
 installation <contributor_guide_setup_installing_node_packages>` from step 4, builds
-BokehJS and the Jupyter frontend, and uses `pip`_ to install the local Python
-package in editable mode. It also registers the Jupyter frontend and server
-extension in the Pixi environment. The command passes ``--no-deps`` to pip
-because third-party dependencies are managed by Pixi and ``pixi.lock``.
+BokehJS and the Jupyter frontend, installs Playwright-managed Chromium for
+BokehJS tests, and uses `pip`_ to install the local Python package in editable
+mode. Setup also registers the Jupyter frontend and server extension in the
+Pixi environment. The command passes ``--no-deps`` to pip because third-party
+dependencies are managed by Pixi and ``pixi.lock``. On Linux, the browser
+installer may request administrator privileges to install system dependencies.
 
 There are two ways to install a local development version of Bokeh with ``pip``:
 
@@ -272,7 +275,7 @@ different local version instead, set the ``BOKEHJS_ACTION`` environment variable
       package, and registers the Jupyter extensions.
     * **JavaScript dependencies changed:** run ``pixi run setup`` instead,
       which also removes the previous BokehJS build and reinstalls the
-      JavaScript dependencies first.
+      JavaScript dependencies and matching Chromium browser first.
 
 .. _contributor_guide_setup_interpreter:
 
@@ -289,8 +292,8 @@ Python installation.
 
 Pixi creates one folder per environment inside your *source checkout*, named
 after the environment: ``.pixi/envs/<environment name>``. For example, the
-``default`` environment lives in ``.pixi/envs/default`` and the ``test-py312``
-environment in ``.pixi/envs/test-py312``. The Python interpreter is located
+``default`` environment lives in ``.pixi/envs/default`` and the ``test-py313``
+environment in ``.pixi/envs/test-py313``. The Python interpreter is located
 inside that folder:
 
 * Linux/macOS: ``<source checkout>/.pixi/envs/default/bin/python``
@@ -303,15 +306,15 @@ To list all environments together with their locations, run:
     pixi info
 
 Use the ``default`` environment unless you have a reason to work with another
-one, for example to debug an issue specific to Python 3.12. In your editor's
+one, for example to debug an issue specific to Python 3.13. In your editor's
 settings, select the interpreter from the path above. Most editors let you
 browse to or enter the interpreter path in their Python interpreter settings.
 
 .. note::
     The steps above set up the ``default`` environment only. Bokeh's editable
     installation belongs to a single environment, so to use another
-    environment as the interpreter (for example ``test-py312``), run
-    ``pixi run -e test-py312 setup`` first. This also creates the
+    environment as the interpreter (for example ``test-py313``), run
+    ``pixi run -e test-py313 setup`` first. This also creates the
     environment if it does not exist yet.
 
 .. _contributor_guide_setup_environment_variables:
@@ -854,7 +857,6 @@ Slack`_.
 .. _pre-commit: https://pre-commit.com/
 .. _Git hooks: https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks
 .. _Ruff: https://github.com/astral-sh/ruff
-.. _ESLint: https://eslint.org/
 .. _Bokeh's protected branches: https://github.com/bokeh/bokeh/wiki/BEP-6:-Branching-Strategy
 .. _pip: https://pip.pypa.io/
 .. _merge conflicts: https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging#_basic_merge_conflicts

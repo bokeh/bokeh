@@ -4,7 +4,6 @@ import {actions, xy} from "#framework/interactive"
 
 import {BoxAnnotation, Node} from "@bokehjs/models"
 import type {OutputBackend} from "@bokehjs/core/enums"
-import {paint} from "@bokehjs/core/util/defer"
 import type {PlotView} from "@bokehjs/models/plots/plot"
 import {gridplot} from "@bokehjs/api/gridplot"
 import {entries} from "@bokehjs/core/util/object"
@@ -130,7 +129,6 @@ describe("BoxAnnotation annotation", () => {
 
   async function pan(pv: PlotView, xy0: Point, xy1: Point) {
     await actions(pv).pan_along({type: "line", xy0, xy1})
-    await paint()
   }
 
   it("should support moving by dragging", async () => {
@@ -142,7 +140,6 @@ describe("BoxAnnotation annotation", () => {
 
     const p = fig([200, 200], {renderers: [box], x_range: [0, 6], y_range: [0, 6]})
     const {view} = await display(p)
-    await paint()
 
     await pan(view, xy(3, 3), xy(4, 4))
   })
@@ -158,7 +155,6 @@ describe("BoxAnnotation annotation", () => {
 
       const p = fig([200, 200], {renderers: [box], x_range: [0, 6], y_range: [0, 6]})
       const {view} = await display(p)
-      await paint()
       return view
     }
 
@@ -224,7 +220,6 @@ describe("BoxAnnotation annotation", () => {
 
       const p = fig([200, 200], {renderers: [box, box_limits], x_range: [0, 6], y_range: [0, 6]})
       const {view} = await display(p)
-      await paint()
       return view
     }
 
@@ -293,7 +288,6 @@ describe("BoxAnnotation annotation", () => {
 
       const p = fig([200, 200], {renderers: [box], x_range: [0, 6], y_range: [0, 6]})
       const {view} = await display(p)
-      await paint()
       return view
     }
 

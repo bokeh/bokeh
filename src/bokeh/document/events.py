@@ -62,6 +62,7 @@ from typing import (
     ClassVar,
     Literal,
     Protocol,
+    TypeIs,
     cast,
     runtime_checkable,
 )
@@ -81,7 +82,6 @@ from .json import (
 
 if TYPE_CHECKING:
     import pandas as pd
-    from typing_extensions import TypeIs
 
     from ..core.has_props import Setter
     from ..core.serialization import Serializer
@@ -253,7 +253,7 @@ class DocumentPatchedEvent(DocumentChangedEvent, Serializable):
         *Sub-classes must implement this method.*
 
         Args:
-            serializer (Serializer):
+            serializer (Serializer): serializer object
 
         '''
         raise NotImplementedError()
@@ -327,7 +327,8 @@ class ModelChangedEvent(DocumentPatchedEvent, kind="ModelChanged"):
     kind: ClassVar[Literal["ModelChanged"]] = "ModelChanged"
 
     def __init__(self, document: Document, model: Model, attr: str, new: Any,
-            setter: Setter | None = None, callback_invoker: Invoker | None = None):
+            setter: Setter | None = None, callback_invoker: Invoker | None = None,
+            callback_policy: tuple[str, float | None] | None = None):
         '''
 
         Args:
@@ -361,6 +362,7 @@ class ModelChangedEvent(DocumentPatchedEvent, kind="ModelChanged"):
         self.model = model
         self.attr = attr
         self.new = new
+        self.callback_policy = callback_policy
 
     def combine(self, event: DocumentChangedEvent) -> bool:
         '''
@@ -376,7 +378,7 @@ class ModelChangedEvent(DocumentPatchedEvent, kind="ModelChanged"):
         if self.document != event.document:
             return False
 
-        if (self.model == event.model) and (self.attr == event.attr):
+        if (self.model == event.model) and (self.attr == event.attr) and (self.callback_policy == event.callback_policy):
             self.new = event.new
             self.callback_invoker = event.callback_invoker
             return True
@@ -398,19 +400,30 @@ class ModelChangedEvent(DocumentPatchedEvent, kind="ModelChanged"):
         to clients.
 
         Args:
-            serializer (Serializer):
+            serializer (Serializer): serializer object
 
         '''
-        return ModelChanged(
+        event = ModelChanged(
             kind  = self.kind,
             model = self.model.ref,
             attr  = self.attr,
             new   = serializer.encode(self.new),
         )
+        if self.callback_policy is not None:
+            event["callback_policy"] = list(self.callback_policy)
+        return event
 
     @classmethod
     def _handle_json(cls, doc: Document, setter: Setter | None, event_data: dict[str, Any]) -> None:
-        event = cls(document=doc, setter=setter, model=event_data["model"], attr=event_data["attr"], new=event_data["new"])
+        callback_policy = event_data.get("callback_policy")
+        event = cls(
+            document=doc,
+            setter=setter,
+            model=event_data["model"],
+            attr=event_data["attr"],
+            new=event_data["new"],
+            callback_policy=tuple(callback_policy) if callback_policy is not None else None,
+        )
         cls._handle_event(doc, event)
 
     @staticmethod
@@ -418,7 +431,10 @@ class ModelChangedEvent(DocumentPatchedEvent, kind="ModelChanged"):
         model = event.model
         attr = event.attr
         value = event.new
-        model.set_from_json(attr, value, setter=event.setter)
+        if event.callback_policy is None:
+            model.set_from_json(attr, value, setter=event.setter)
+        else:
+            model._set_from_json_with_callback_policy(attr, value, event.callback_policy, setter=event.setter)
 
 class ColumnDataChangedEvent(DocumentPatchedEvent, kind="ColumnDataChanged"):
     ''' A concrete event representing efficiently replacing *all*
@@ -436,7 +452,12 @@ class ColumnDataChangedEvent(DocumentPatchedEvent, kind="ColumnDataChanged"):
             document (Document) :
                 A Bokeh document that is to be updated.
 
-            model (ColumnDataSource) :
+            model (ColumnDataSource) : bokeh model
+
+            attr (str):
+                The name of the attribute to change on the model.
+
+            data (DataDict, optional): data object
 
             cols (list[str]) :
                 optional explicit list of column names to update. If None, all
@@ -486,7 +507,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent, kind="ColumnDataChanged"):
             }
 
         Args:
-            serializer (Serializer):
+            serializer (Serializer): serializer object
 
         '''
         data = self.data if self.data is not None else getattr(self.model, self.attr)
@@ -535,6 +556,9 @@ class ColumnsStreamedEvent(DocumentPatchedEvent, kind="ColumnsStreamed"):
 
             model (ColumnDataSource) :
                 The data source to stream new data to.
+
+            attr (str):
+                The name of the attribute to stream on the model.
 
             data (dict or DataFrame) :
                 New data to stream.
@@ -599,7 +623,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent, kind="ColumnsStreamed"):
             }
 
         Args:
-            serializer (Serializer):
+            serializer (Serializer): serializer object
 
         '''
         return ColumnsStreamed(
@@ -645,7 +669,10 @@ class ColumnsPatchedEvent(DocumentPatchedEvent, kind="ColumnsPatched"):
             model (ColumnDataSource) :
                 The data source to apply patches to.
 
-            patches (list) :
+            attr (str):
+                The name of the attribute to patch on the model.
+
+            patches (list) : patches
 
             setter (ClientSession or ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
@@ -688,7 +715,7 @@ class ColumnsPatchedEvent(DocumentPatchedEvent, kind="ColumnsPatched"):
             }
 
         Args:
-            serializer (Serializer):
+            serializer (Serializer): serializer object
 
         '''
         return ColumnsPatched(
@@ -779,7 +806,7 @@ class TitleChangedEvent(DocumentPatchedEvent, kind="TitleChanged"):
             }
 
         Args:
-            serializer (Serializer):
+            serializer (Serializer): serializer object
 
         '''
         return TitleChanged(
@@ -842,7 +869,7 @@ class RootAddedEvent(DocumentPatchedEvent, kind="RootAdded"):
             }
 
         Args:
-            serializer (Serializer):
+            serializer (Serializer): serializer object
 
         '''
         return RootAdded(
@@ -907,7 +934,7 @@ class RootRemovedEvent(DocumentPatchedEvent, kind="RootRemoved"):
             }
 
         Args:
-            serializer (Serializer):
+            serializer (Serializer): serializer object
 
         '''
         return RootRemoved(

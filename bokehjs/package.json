@@ -61,6 +61,9 @@
     "dev-build": "node make dev-build",
     "test:frameworks": "node make test:frameworks"
   },
+  "overrides": {
+    "decode-uri-component": "^0.5.0"
+  },
   "allowScripts": {
     "esbuild": true
   },

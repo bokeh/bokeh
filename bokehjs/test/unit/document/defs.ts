@@ -223,9 +223,11 @@ describe("document/defs module", () => {
       const model_props = [
         "tags",
         "name",
-        "js_property_callbacks",
-        "js_event_callbacks",
-        "subscribed_events",
+        "_js_property_callbacks",
+        "_js_property_callback_policies",
+        "_js_event_callbacks",
+        "_subscribed_changes",
+        "_subscribed_events",
         "syncable",
       ]
 

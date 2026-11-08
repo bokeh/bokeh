@@ -74,7 +74,6 @@ describe("MultiLine", () => {
     decoration.inset = 10
     marking.size = 18
     await decoration_view.ready
-    await decoration_view.marking.ready
     expect(decoration_view.inset.get(0)).to.be.equal(10)
     expect(decoration_view.marking.size.get(0)).to.be.equal(18)
   })

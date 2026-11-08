@@ -59,7 +59,7 @@ export class ValueOfView extends DOMElementView {
         const contents = await execute(formatter, this.model, {value, format, vars})
         render(contents)
       })()
-      this._await_ready(promise)
+      this.schedule(() => promise)
     } else {
       const contents = DEFAULT_FORMATTERS[formatter](value, format ?? "", vars)
       render(contents)

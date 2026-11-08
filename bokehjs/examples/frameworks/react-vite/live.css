@@ -1,0 +1,79 @@
+:root {
+  font-family: system-ui, sans-serif;
+  color: #243b53;
+  background: #f3f6f8;
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  max-width: 1100px;
+  margin: auto;
+  padding: 32px 20px;
+}
+
+h1, h2 {
+  color: #102a43;
+}
+
+h2 {
+  font-size: 1.1rem;
+}
+
+p {
+  line-height: 1.5;
+}
+
+button, input {
+  font: inherit;
+  accent-color: #087f8c;
+}
+
+button {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.session-panel, .root-panel {
+  padding: 20px;
+  border: 1px solid #bcccdc;
+  background: white;
+}
+
+.session-panel {
+  margin: 20px 0;
+}
+
+.session-panel label {
+  display: block;
+}
+
+.session-panel input {
+  width: min(100%, 400px);
+}
+
+.roots {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) minmax(500px, 2fr);
+  gap: 20px;
+}
+
+.root-panel {
+  overflow-x: auto;
+}
+
+[data-testid="plot-host"] {
+  min-height: 320px;
+}
+
+[role="alert"] {
+  color: #9b1c1c;
+}
+
+@media (max-width: 850px) {
+  .roots {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

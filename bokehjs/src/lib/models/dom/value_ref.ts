@@ -3,7 +3,7 @@ import type {Formatters} from "./placeholder"
 import {CustomJS} from "../callbacks/customjs"
 import {CustomJSHover} from "../tools/inspectors/customjs_hover"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
-import type {Index} from "core/util/templating"
+import type {FormatterFunc, Index} from "core/util/templating"
 import {_get_column_value, MISSING, DEFAULT_FORMATTERS, Skip} from "core/util/templating"
 import type {SyncExecutableLike} from "core/util/callbacks"
 import {execute, execute_sync} from "core/util/callbacks"
@@ -48,7 +48,8 @@ export class ValueRefView extends PlaceholderView {
     }
   }
 
-  update(data_source: ColumnarDataSource, index: Index | null, vars: PlainObject, _formatters?: Formatters): void {
+  update(data_source: ColumnarDataSource, index: Index | null, vars: PlainObject, _formatters?: Formatters,
+      default_formatter: FormatterFunc = DEFAULT_FORMATTERS.basic): void {
     const {field, format, formatter, filter} = this.model
 
     const value = _get_column_value(field, data_source, index)
@@ -90,7 +91,7 @@ export class ValueRefView extends PlaceholderView {
     } else {
       const output = (() => {
         if (format == null) {
-          return DEFAULT_FORMATTERS.basic(value, "", vars)
+          return default_formatter(value, "", vars)
         } else {
           if (formatter instanceof CustomJSHover) {
             return formatter.format(value, format, vars)

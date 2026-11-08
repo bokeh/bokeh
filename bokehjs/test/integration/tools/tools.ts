@@ -1,5 +1,6 @@
 import {display, fig} from "#framework/layouts"
 import {press} from "#framework/interactive"
+import {expect} from "#framework/assertions"
 
 import * as all from "@bokehjs/models/tools"
 import {Toolbar} from "@bokehjs/models"
@@ -47,6 +48,9 @@ describe("Tools", () => {
       const {view} = await display(p)
       const tool_button_view = view.owner.get_one(tool_button)
       await press(tool_button_view.el)
+      const {menu} = tool_button_view
+      expect(menu.is_open).to.be.true
+      expect(menu.el.isConnected).to.be.true
     })
   }
 })

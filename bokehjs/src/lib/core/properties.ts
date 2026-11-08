@@ -19,7 +19,7 @@ import {settings} from "./settings"
 import type {Kind} from "./kinds"
 import {PrefixedStr} from "./kinds"
 import type {NDArray, NDArrayType} from "./util/ndarray"
-import {is_NDArray} from "./util/ndarray"
+import {is_NDArray, get_row} from "./util/ndarray"
 import {diagnostics} from "./diagnostics"
 import {unreachable} from "./util/assert"
 import {serialize} from "./serialization"
@@ -406,7 +406,7 @@ export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Pro
       const {expr, transform} = obj
       let result = (expr as ScalarExpression<T>).compute(source)
       if (transform != null) {
-        result = transform.compute(result) as any
+        result = transform.compute(result)
       }
       result = this.materialize(result)
       return this.scalar(result, n)
@@ -416,7 +416,7 @@ export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Pro
       if (transform != null) {
         result = transform.compute(result)
       }
-      result = this.materialize(result as any)
+      result = this.materialize(result)
       return this.scalar(result, n)
     }
   }
@@ -544,7 +544,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
       const {expr, transform} = obj
       let array = (expr as VectorExpression<T>).v_compute(source)
       if (transform != null) {
-        array = transform.v_compute(array) as any
+        array = transform.v_compute(array)
       }
       array = this.v_materialize(array)
       return this.vector(array)
@@ -554,7 +554,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
       if (transform != null) {
         result = transform.compute(result)
       }
-      result = this.materialize(result as any)
+      result = this.materialize(result)
       return this.scalar(result, n)
     } else {
       unreachable()
@@ -711,7 +711,14 @@ export abstract class BaseCoordinateSpec<T> extends DataSpec<T> {
 }
 
 export abstract class CoordinateSpec extends BaseCoordinateSpec<number | Factor> {}
-export abstract class CoordinateSeqSpec extends BaseCoordinateSpec<Arrayable<number> | Arrayable<Factor>> {}
+export abstract class CoordinateSeqSpec extends BaseCoordinateSpec<Arrayable<number> | Arrayable<Factor>> {
+  override normalize(values: Arrayable): Arrayable {
+    if (is_NDArray(values) && values.dimension == 2) {
+      return Array.from({length: values.shape[0]}, (_, i) => get_row(values, i))
+    }
+    return values
+  }
+}
 export abstract class CoordinateSeqSeqSeqSpec extends BaseCoordinateSpec<number[][][] | Factor[][][]> {}
 
 export class XCoordinateSpec extends CoordinateSpec {

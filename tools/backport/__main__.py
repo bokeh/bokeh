@@ -1,7 +1,5 @@
 """Rich entry point for ``python -m tools.backport``."""
 
-import sys
-
 import rich_click as click
 from rich.panel import Panel
 
@@ -32,14 +30,7 @@ cli.add_command(plan)
 cli.add_command(merge)
 
 
-def _require_supported_python() -> None:
-    if sys.version_info < (3, 13):
-        raise SystemExit("tools.backport requires Python 3.13 or newer")
-
-
 def main() -> None:
-    _require_supported_python()
-
     try:
         cli(prog_name="python -m tools.backport")
     except (BackportError, OSError) as error:
