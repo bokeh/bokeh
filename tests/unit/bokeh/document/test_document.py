@@ -144,6 +144,52 @@ class TestDocumentHold:
         assert mock_unhold.call_args[0] == ()
         assert mock_unhold.call_args[1] == {}
 
+    @pytest.mark.parametrize('policy', HoldPolicy)
+    def test_hold_context_manager(self, policy) -> None:
+        d = document.Document()
+        m = SomeModelInTestDocument()
+        d.add_root(m)
+        events: list[Any] = []
+        d.on_change(lambda event: events.append(event))
+
+        with d.hold(policy) as h:
+            assert isinstance(h, document.DocumentHold)
+            assert d.callbacks.hold_value == policy
+            m.foo = 10
+            assert events == []
+
+        assert d.callbacks.hold_value is None
+        assert len(events) == 1
+        assert isinstance(events[0], ModelChangedEvent)
+        assert events[0].attr == "foo"
+
+    def test_hold_context_manager_unholds_on_error(self) -> None:
+        d = document.Document()
+        with pytest.raises(RuntimeError):
+            with d.hold():
+                raise RuntimeError("error")
+        assert d.callbacks.hold_value is None
+
+    def test_hold_context_manager_keeps_outer_hold(self) -> None:
+        d = document.Document()
+        d.hold("collect")
+        with d.hold("collect"):
+            pass
+        assert d.callbacks.hold_value == "collect"
+        with d.hold():  # different policy, ignored with a warning
+            pass
+        assert d.callbacks.hold_value == "collect"
+        d.unhold()
+        assert d.callbacks.hold_value is None
+
+    def test_hold_context_manager_nested(self) -> None:
+        d = document.Document()
+        with d.hold():
+            with d.hold():
+                pass
+            assert d.callbacks.hold_value == "combine"
+        assert d.callbacks.hold_value is None
+
 class TestDocument:
     def test_basic(self) -> None:
         d = document.Document()

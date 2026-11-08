@@ -586,6 +586,61 @@ session callback with a different update rate.
 As before, you can run this example by saving to a Python file and running
 ``bokeh serve`` on it.
 
+.. _ug_server_apps_hold:
+
+Holding document changes
+''''''''''''''''''''''''
+
+A callback that makes many changes to a document, for example by setting the
+same property repeatedly, triggers change callbacks and sends an update for
+each of them. To avoid this, use :meth:`~bokeh.document.Document.hold` to
+collect the resulting change events and process them later, all at once:
+
+.. code-block:: python
+
+    doc = curdoc()
+
+    with doc.hold():
+        slider.value = 10
+        slider.value = 11
+        slider.value = 12
+
+While a hold is active, property values are updated as usual, but the change
+events they produce are collected instead of triggering change callbacks or
+being sent to the browser. When the ``with`` block exits, the collected events
+are processed according to the hold policy:
+
+* ``"combine"`` (the default) merges compatible events, so that in the above
+  example only one change callback runs, for ``slider.value = 12``.
+* ``"collect"`` replays all events in their original order.
+
+The hold starts as soon as ``hold()`` is called, so you can also release it
+explicitly by calling :meth:`~bokeh.document.Document.unhold`, for example,
+when a hold has to span multiple callbacks:
+
+.. code-block:: python
+
+    doc.hold("collect")
+    ...
+    doc.unhold()
+
+Keep the following in mind when using a hold:
+
+* Holds don't nest. A single ``unhold()`` releases the hold and processes all
+  events collected since the first ``hold()``.
+* A ``with`` block only releases the hold it started. If a hold is already
+  active when the block is entered, the hold remains active after the block
+  exits.
+* Calling ``hold()`` with a different policy while a hold is active logs a
+  warning and keeps the current policy.
+* If an exception is raised within a ``with`` block, the hold is still
+  released and the collected events are processed.
+* A hold only applies to document change events, i.e. setting properties on
+  models. Events such as ``ButtonClick`` are not held.
+
+For an interactive demonstration of both policies, see
+:bokeh-tree:`examples/server/app/hold_app.py`.
+
 .. _ug_server_apps_hooks:
 
 Lifecycle hooks

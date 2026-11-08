@@ -86,6 +86,8 @@ from .models import DocumentModelManager
 from .modules import DocumentModuleManager
 
 if TYPE_CHECKING:
+    from types import TracebackType
+
     from ..application.application import SessionContext, SessionDestroyedCallback
     from ..core.has_props import HasProps, Setter
     from ..core.query import SelectorType
@@ -668,12 +670,32 @@ side of a communications channel while it was being removed on the other end.\
         '''
         return self.models.get_one_by_name(name)
 
-    def hold(self, policy: HoldPolicyType = "combine") -> None:
+    def hold(self, policy: HoldPolicyType = "combine") -> DocumentHold:
         ''' Activate a document hold.
 
         While a hold is active, no model changes will be applied, or trigger
         callbacks. Once ``unhold`` is called, the events collected during the
         hold will be applied according to the hold policy.
+
+        The hold is activated immediately, so ``hold`` can be paired with an
+        explicit call to ``unhold``:
+
+        .. code-block:: python
+
+            doc.hold()
+            slider.value = 10
+            doc.unhold()
+
+        or used as a context manager, which calls ``unhold`` on exit, even if
+        an exception is raised:
+
+        .. code-block:: python
+
+            with doc.hold():
+                slider.value = 10
+
+        A context manager only releases a hold that it activated itself. If a
+        hold is already active, leaving the ``with`` block doesn't release it.
 
         Args:
             policy ('combine' or 'collect', optional):
@@ -699,7 +721,7 @@ side of a communications channel while it was being removed on the other end.\
                 will be triggered.
 
         Returns:
-            None
+            DocumentHold
 
         .. note::
             ``hold`` only applies to document change events, i.e. setting
@@ -707,7 +729,9 @@ side of a communications channel while it was being removed on the other end.\
             ``ButtonClick``, etc.
 
         '''
+        owner = self.callbacks.hold_value is None
         self.callbacks.hold(policy)
+        return DocumentHold(self, owner)
 
     def on_change(self, *callbacks: DocumentChangeCallback) -> None:
         ''' Provide callbacks to invoke if the document or any Model reachable
@@ -1140,6 +1164,30 @@ side of a communications channel while it was being removed on the other end.\
             dest_doc.add_root(root)
 
         dest_doc.title = self.title
+
+class DocumentHold:
+    ''' The result of ``Document.hold()``, which can be used as a context manager.
+
+    The hold is already active when this object is created. Leaving a ``with``
+    block calls ``Document.unhold()``, but only if this object activated the
+    hold, so that a hold that was already active is not released prematurely.
+
+    '''
+
+    _document: Document
+    _owner: bool
+
+    def __init__(self, document: Document, owner: bool) -> None:
+        self._document = document
+        self._owner = owner
+
+    def __enter__(self) -> DocumentHold:
+        return self
+
+    def __exit__(self, exc_type: type[BaseException] | None,
+            exc_value: BaseException | None, traceback: TracebackType | None) -> None:
+        if self._owner:
+            self._document.unhold()
 
 #-----------------------------------------------------------------------------
 # Private API
