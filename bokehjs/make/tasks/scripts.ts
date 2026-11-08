@@ -108,7 +108,7 @@ task("scripts:typescript", ["scripts:styles", "scripts:glsl", "scripts:grammar"]
 /** Chains the map of edits in `str` onto `source_map` (tsc's map of `file`). */
 function remap(str: MagicString, file: string, source_map: string): string {
   const name = basename(file)
-  const map = str.generateMap({hires: true, source: name, file: name})
+  const map = str.generateMap({hires: "boundary", source: name, file: name})
   return remapping(map.toString(), (source) => source == name ? source_map : null).toString()
 }
 

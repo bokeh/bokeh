@@ -2,6 +2,9 @@ import type {Program} from "oxc-parser"
 import {parseSync} from "oxc-parser"
 import MagicString from "magic-string"
 
+import type {SourceMap} from "./source_map.js"
+import {edits_map} from "./source_map.js"
+
 type Node = {type: string, start: number, end: number, [key: string]: any}
 
 export function walk(node: unknown, visit: (node: Node, parent: Node | null) => void, parent: Node | null = null): void {
@@ -126,11 +129,13 @@ function fix_esexports(program: Program, str: MagicString): void {
   }
 }
 
+type Resolve = (dep: string) => number | string | undefined
+
 /**
  * Prepares a CommonJS module for a bundle: removes redundant code, replaces
  * dependencies with module IDs and wraps the module in a function.
  */
-export function link_module(file: string, code: string, module_name: string, resolve: (dep: string) => number | string | undefined): string {
+export function link_module(file: string, code: string, module_name: string, resolve: Resolve): {code: string, map: SourceMap} {
   const program = parse_script(file, code)
   const str = new MagicString(code)
 
@@ -153,5 +158,6 @@ export function link_module(file: string, code: string, module_name: string, res
 
   str.prepend(`/* ${module_name} */ function _(require, module, exports, __esModule, __esExport) {\n`)
   str.append("\n}")
-  return str.toString()
+  const map = edits_map(str, file)
+  return {code: str.toString(), map}
 }

@@ -5,7 +5,11 @@ import {join, dirname} from "node:path"
 import type {TestContext} from "node:test"
 import {test} from "node:test"
 
+import MagicString from "magic-string"
+import {TraceMap, originalPositionFor} from "@jridgewell/trace-mapping"
+
 import {Linker} from "#compiler/linker.js"
+import * as preludes from "#compiler/prelude.js"
 
 type Files = {[file: string]: string}
 
@@ -27,7 +31,7 @@ function fixture(t: TestContext, files: Files): string {
 }
 
 /** Links `lib/index.js` and returns the reported status and cycles. */
-async function link(t: TestContext, files: Files, options: {detect_cycles?: boolean} = {}): Promise<{status: boolean, output: string}> {
+async function link(t: TestContext, files: Files, options: {detect_cycles?: boolean} = {}): Promise<{status: boolean, output: string, linker: Linker}> {
   const dir = fixture(t, files)
   const linker = new Linker({
     entries: [join(dir, "lib", "index.js")],
@@ -38,7 +42,7 @@ async function link(t: TestContext, files: Files, options: {detect_cycles?: bool
   const {status} = await linker.link()
   const output = log.mock.calls.map((call) => call.arguments.join(" ")).join("\n")
   log.mock.restore()
-  return {status, output}
+  return {status, output, linker}
 }
 
 const esm_package = (name: string, source: string) => ({
@@ -104,4 +108,32 @@ void test("Linker doesn't detect cycles when disabled", async (t) => {
     "lib/a.js": `import "./index.js"`,
   }, {detect_cycles: false})
   assert.equal(status, true)
+})
+
+void test("Linker maps bundles to original sources", async (t) => {
+  // like tsc's output, i.e. `lib/index.js` with a map pointing to `src/index.ts`
+  const ts = "// greeting\nexport function greet(name: string): string {\n  return 'hello ' + name\n}\n"
+  const str = new MagicString(ts)
+  for (const match of ts.matchAll(/: string/g)) {
+    str.remove(match.index, match.index + match[0].length)
+  }
+  const map = str.generateMap({hires: true, source: "../src/index.ts", file: "index.js", includeContent: true})
+  const {linker} = await link(t, {
+    "src/index.ts": ts,
+    "lib/index.js": `${str.toString()}//# sourceMappingURL=index.js.map\n`,
+    "lib/index.js.map": map.toString(),
+  })
+  const {bundles: [bundle]} = await linker.link()
+
+  const prelude = {main: preludes.prelude(), plugin: preludes.plugin_prelude()}
+  const postlude = {main: preludes.postlude(), plugin: preludes.plugin_postlude()}
+  for (const minified of [false, true]) {
+    const {source, sourcemap} = bundle.assemble({prelude, postlude, minified})
+    assert.ok(sourcemap != null)
+    const index = source.search(/["'`]hello /) // the minifier may use a template literal
+    const lines = source.slice(0, index).split("\n")
+    const position = originalPositionFor(new TraceMap(sourcemap as any), {line: lines.length, column: lines[lines.length - 1].length})
+    assert.match(position.source ?? "", /src\/index\.ts$/, `${minified ? "minified" : "unminified"} bundle`)
+    assert.deepEqual([position.line, position.column], [3, 9])
+  }
 })

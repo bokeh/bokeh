@@ -14,6 +14,8 @@ import MagicString from "magic-string"
 import * as eslint_scope from "eslint-scope"
 
 import {walk} from "./transforms.js"
+import type {SourceMap} from "./source_map.js"
+import {edits_map} from "./source_map.js"
 
 type Node = {type: string, start: number, end: number, [key: string]: any}
 
@@ -42,7 +44,7 @@ type Source = {
   star: boolean            // `export * from`
 }
 
-export function to_cjs(file: string, code: string): {code: string, deps: string[]} {
+export function to_cjs(file: string, code: string): {code: string, map: SourceMap, deps: string[]} {
   const {program, errors} = parseSync(file, code, {sourceType: "module", preserveParens: false, range: true})
   if (errors.length != 0) {
     throw new ConversionError(`${file}: ${errors[0].message}`)
@@ -379,5 +381,6 @@ export function to_cjs(file: string, code: string): {code: string, deps: string[
     str.append(`\n${end.join("\n")}\n`)
   }
   const deps = [...sources.keys(), ...dynamic, ...(tslib.name != null ? ["tslib"] : [])]
-  return {code: str.toString(), deps: [...new Set(deps)]}
+  const map = edits_map(str, file)
+  return {code: str.toString(), map, deps: [...new Set(deps)]}
 }
