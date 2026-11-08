@@ -90,7 +90,7 @@ export class ImageVector extends VisualUniforms {
   declare Values: ValuesOf<mixins.Image>
   values(i: number): this["Values"] {
     return {
-      alpha: this.global_alpha.get(i),
+      global_alpha: this.global_alpha.get(i),
     }
   }
 
