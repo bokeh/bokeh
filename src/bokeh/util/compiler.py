@@ -105,7 +105,7 @@ def npmjs_version() -> str | None:
     return _version(_run_npmjs)
 
 def nodejs_compile(code: str, lang: str = "javascript", file: str | None = None) -> AttrDict:
-    compilejs_script = join(bokehjs_dir, "js", "compiler.js")
+    compilejs_script = join(bokehjs_dir, "js", "compiler.mjs")
     output = _run_nodejs([compilejs_script], dict(code=code, lang=lang, file=file, bokehjs_dir=os.fspath(bokehjs_dir)))
     lines = output.split("\n")
     i = 0
