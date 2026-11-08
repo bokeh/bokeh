@@ -242,3 +242,86 @@ void test("to_cjs() rejects unsupported syntax", () => {
   assert.throws(() => to_cjs("main.js", "export const url = import.meta.url"), /import\.meta/)
   assert.throws(() => to_cjs("main.js", "export const p = import(name)"), /dynamic import/)
 })
+
+void test("to_cjs() assigns exports early, so that modules tolerate cycles", () => {
+  const {code} = to_cjs("main.js", `
+    import {x} from "./x"
+    export const a = 1
+    export class C {}
+    export function f() {}
+    export {b as renamed} from "./y"
+    const late = 2
+    export {late}
+  `)
+  const index = (pattern: RegExp) => code.search(pattern)
+  assert.ok(index(/exports\.f = f;/) < index(/require\("\.\/x"\)/), "functions before requires")
+  assert.ok(index(/const a = 1;?\nexports\.a = a;/) != -1, "variables right after their declarations")
+  assert.ok(index(/class C \{\}\nexports\.C = C;/) != -1, "classes right after their declarations")
+  assert.ok(index(/require\("\.\/y"\);\nexports\.renamed = y_\d+\.b;/) != -1, "re-exports right after requires")
+  assert.ok(index(/const late = 2;?\nexports\.late = late;/) != -1, "`export {local}` after the declaration")
+})
+
+void test("to_cjs() supports cycles with eager use of hoisted functions", () => {
+  const main = run({
+    "./main": `import {a} from "./a"; export const result = a()`,
+    "./a": `
+      import {b} from "./b"
+      export function a() { return \`a\${b()}\` }
+      export function a2() { return "a2" }
+    `,
+    // evaluated while ./a is being evaluated
+    "./b": `
+      import {a2} from "./a"
+      const eager = a2()
+      export function b() { return \`b\${eager}\` }
+    `,
+  })
+  assert.equal(main.result, "aba2")
+})
+
+void test("to_cjs() supports cycles with lazy use of variables and classes", () => {
+  const main = run({
+    "./main": `import {make} from "./a"; export const result = make()`,
+    "./a": `
+      import {B} from "./b"
+      export const A_NAME = "A"
+      export function make() { return new B().name() }
+    `,
+    "./b": `
+      import {A_NAME} from "./a"
+      export class B { name() { return \`B of \${A_NAME}\` } }
+    `,
+  })
+  assert.equal(main.result, "B of A")
+})
+
+void test("to_cjs() supports cycles through barrel modules", () => {
+  const main = run({
+    "./main": `import {A} from "./index"; export const result = new A().b() instanceof Object`,
+    "./index": `
+      export {A} from "./a"
+      export {B} from "./b"
+    `,
+    "./a": `
+      import {B} from "./index"
+      export class A { b() { return new B() } }
+    `,
+    "./b": "export class B {}",
+  })
+  assert.equal(main.result, true)
+})
+
+void test("to_cjs() doesn't make uninitialized exports available in cycles", () => {
+  // like in ESM, where this would be a ReferenceError (TDZ)
+  assert.throws(() => run({
+    "./main": `import "./a"`,
+    "./a": `
+      import "./b"
+      export class A {}
+    `,
+    "./b": `
+      import {A} from "./a"
+      export const a = new A()
+    `,
+  }), TypeError)
+})
