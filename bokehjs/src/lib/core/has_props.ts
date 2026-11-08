@@ -578,7 +578,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   }
 
   // Create a new model with exact attribute values to this one, but new identity.
-  clone(attrs?: Partial<HasProps.Attrs>): this {
+  clone(attrs?: Partial<p.AttrsOf<this["properties"]>>): this {
     const cloner = new Cloner()
     const that = cloner.clone(this)
     if (attrs != null) {
