@@ -1,7 +1,6 @@
 import {resolve, relative, join, dirname, basename, extname, normalize, sep} from "node:path"
 import crypto from "node:crypto"
 
-import ts from "typescript"
 import {minifySync} from "oxc-minify"
 import {parseSync} from "oxc-parser"
 import chalk from "chalk"
@@ -11,17 +10,15 @@ import * as convert from "convert-source-map"
 
 import type {Path} from "./sys.js"
 import {read, write, file_exists, directory_exists} from "./sys.js"
-import {report_diagnostics} from "./compiler.js"
 import * as transforms from "./transforms.js"
+import {to_cjs} from "./esm_to_cjs.js"
 import {BuildError} from "./error.js"
 import type {Graph} from "./graph.js"
 import {detect_cycles} from "./graph.js"
 
 const root_path = process.cwd()
 
-const cache_version = 6
-
-export type Transformers = ts.TransformerFactory<ts.SourceFile>[]
+const cache_version = 7
 
 export type Parent = {
   file: Path
@@ -41,7 +38,6 @@ export type ModuleInfo = {
   hash: string
   changed: boolean
   source: string
-  ast?: ts.SourceFile
   dependency_paths: Map<string, Path>
   dependencies: Map<string, ModuleInfo>
   externals: Set<string>
@@ -309,35 +305,9 @@ export class Linker {
       }
     }
 
-    const transformers = (module: ModuleInfo): Transformers => {
-      const transformers: Transformers = []
-
-      const remove_use_strict = transforms.remove_use_strict()
-      transformers.push(remove_use_strict)
-
-      const fix_esmodule = transforms.fix_esmodule()
-      transformers.push(fix_esmodule)
-
-      const remove_void0 = transforms.remove_void0()
-      transformers.push(remove_void0)
-
-      const fix_esexports = transforms.fix_esexports()
-      transformers.push(fix_esexports)
-
-      const rewrite_deps = transforms.rewrite_deps((dep) => {
-        const module_dep = module.dependencies.get(dep)
-        return module_dep != null ? module_dep.id : undefined
-      })
-      transformers.push(rewrite_deps)
-
-      transformers.push(transforms.wrap_in_function(module.base_path))
-      return transformers
-    }
-
     const print = (module: ModuleInfo): string => {
-      let ast = module.ast ?? this.parse_module(module)
-      ast = transforms.apply(ast, ...transformers(module))
-      const source = transforms.print_es(ast)
+      const resolve = (dep: string) => module.dependencies.get(dep)?.id
+      const source = transforms.link_module(module.file, module.source, module.base_path, resolve)
       return convert.removeMapFileComments(source)
     }
 
@@ -435,7 +405,6 @@ export class Linker {
       const artifact = {
         module: {
           ...module,
-          ast: undefined,
           changed: false,
           dependencies: new Map(),
           dependency_paths: new Map(module.dependency_paths),
@@ -468,7 +437,6 @@ export class Linker {
       const module = {
         ...artifact.module,
         changed: undefined,
-        ast: undefined,
         dependencies: undefined,
       }
 
@@ -670,10 +638,6 @@ export class Linker {
     }
   }
 
-  private parse_module({file, source}: {file: Path, source: string}): ts.SourceFile {
-    return transforms.parse_es(file, source)
-  }
-
   new_module(file: Path): ModuleInfo {
     let source = read(file)
     if (source == null) {
@@ -766,41 +730,26 @@ export default json;
 
     const cached = this.cache.get(file)
 
-    let ast: ts.SourceFile | undefined
     let dependency_paths: Map<string, Path>
     let externals: Set<string>
     let shims: Set<string>
 
     const changed = cached == null || cached.module.hash != hash
     if (changed) {
-      let collected: string[] | null = null
+      let collected: string[]
       if (resolution == "ESM" || type == "json") {
         const imports = new Set<string>()
         if (canonical != "tslib") {
           imports.add("tslib")
         }
 
-        const transform: {before: Transformers, after: Transformers} = {
-          // `require()` calls are allowed in ESM modules under the primary base only (e.g. test's `auto_index`)
-          before: [transforms.collect_imports(imports, {requires: base == this.bases[0]})],
-          after: [],
-        }
-
-        // XXX: .json or .mjs extension will cause an internal error
-        const adjusted_file = type == "json" ? `${file}.ts` : (file.endsWith(".mjs") ? file.replace(/\.mjs$/, ".js") : file)
-        const {output, error} = transpile(adjusted_file, source, transform)
-        if (error != null) {
-          throw new BuildError("linker", error)
-        } else {
-          source = output
-          collected = [...imports]
-        }
-      }
-
-      ast = this.parse_module({file, source})
-
-      if (collected == null) {
-        collected = transforms.collect_deps(ast)
+        const converted = to_cjs(file, source)
+        source = converted.code
+        // `require()` calls are allowed in ESM modules under the primary base only (e.g. test's `auto_index`)
+        const requires = base == this.bases[0] ? transforms.collect_deps(transforms.parse_script(file, source)) : []
+        collected = [...new Set([...imports, ...converted.deps, ...requires])]
+      } else {
+        collected = transforms.collect_deps(transforms.parse_script(file, source))
       }
       const filtered = collected.filter((dep) => !this.is_external(dep) && !this.excluded(dep) && !this.is_shimmed(dep))
 
@@ -831,7 +780,6 @@ export default json;
       hash,
       changed,
       source,
-      ast,
       dependency_paths,
       dependencies: new Map(),
       externals,
@@ -886,29 +834,6 @@ export default json;
     }
 
     return [...reached.values()]
-  }
-}
-
-function transpile(file: Path, source: string,
-    transformers?: {before: Transformers, after: Transformers}): {output: string, error?: string} {
-  const {outputText: output, diagnostics} = ts.transpileModule(source, {
-    fileName: file,
-    reportDiagnostics: true,
-    compilerOptions: {
-      target: ts.ScriptTarget.ES2024,
-      module: ts.ModuleKind.CommonJS,
-      esModuleInterop: true,
-      importHelpers: true,
-      downlevelIteration: true,
-    },
-    transformers,
-  })
-
-  if (diagnostics == null || diagnostics.length == 0) {
-    return {output}
-  } else {
-    const {text} = report_diagnostics(diagnostics)
-    return {output, error: text}
   }
 }
 
