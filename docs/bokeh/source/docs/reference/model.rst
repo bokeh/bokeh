@@ -9,7 +9,7 @@ bokeh.model
 .. automodule:: bokeh.model
     :members:
 
-    .. autoclass: Model
+    .. autoclass:: Model
         :members:
         :show-inheritance:
         :inherited-members:
