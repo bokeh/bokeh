@@ -16,7 +16,7 @@ function red(s: string): string {
 type Constructor<T> = Function & {prototype: T}
 
 type ToFn<T> = {
-  to: Throw & NotThrow & Be<T>
+  to: Throw<T> & NotThrow & Be<T>
 }
 
 type ToVal<T> = {
@@ -31,12 +31,18 @@ type Have = {
   have: ElementAssertions
 }
 
-type Throw = {
-  throw(error_type?: Class<Error>, pattern?: RegExp | string): void
+// Asynchronous functions are expected to reject, so the result must be awaited.
+// `any` results are treated as synchronous (`0 extends 1 & T` is true only for `any`).
+type ThrowResult<T> = 0 extends 1 & T ? void : T extends PromiseLike<unknown> ? Promise<void> : void
+
+type Throw<T> = {
+  throw(error_type?: Class<Error>, pattern?: RegExp | string): ThrowResult<T>
 }
 
 type NotThrow = {
-  not: Throw
+  not: {
+    throw(error_type?: Class<Error>, pattern?: RegExp | string): void
+  }
 }
 
 type Be<T> = {
@@ -346,7 +352,7 @@ export function expect<T>(fn_or_val: (() => T) | T): ToFn<T> | ToVal<T> {
     const fn = fn_or_val
     return {
       to: {
-        throw: Throws(fn),
+        throw: Throws(fn) as Throw<T>["throw"],
         be: new Asserts(fn),
         not: {
           throw: NotThrows(fn),
