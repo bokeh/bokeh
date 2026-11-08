@@ -32,7 +32,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
   get panel(): SidePanel | null {
     return this._panel
   }
-  set panel(panel: SidePanel) {
+  set panel(panel: SidePanel | null) {
     this._panel = panel
   }
 

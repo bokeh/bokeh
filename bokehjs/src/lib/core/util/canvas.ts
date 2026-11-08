@@ -146,7 +146,7 @@ export class CanvasLayer {
     const {_canvas} = this
     if (_canvas instanceof HTMLCanvasElement) {
       return new Promise((resolve, reject) => {
-        _canvas.toBlob((blob) => blob != null ? resolve(blob) : reject(), "image/png")
+        _canvas.toBlob((blob) => blob != null ? resolve(blob) : reject(new Error("failed to encode canvas as PNG")), "image/png")
       })
     } else {
       const ctx = this._ctx as SVGRenderingContext2D

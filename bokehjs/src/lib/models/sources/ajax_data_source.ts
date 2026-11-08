@@ -45,7 +45,7 @@ export class AjaxDataSource extends WebDataSource {
   }
 
   setup(): void {
-    if (this.initialized !== true) {
+    if (!this.initialized) {
       this.initialized = true
       this.get_data(this.mode)
       if (this.polling_interval != null) {
@@ -58,7 +58,7 @@ export class AjaxDataSource extends WebDataSource {
   get_data(mode: UpdateMode, max_size: number | null = null, if_modified: boolean = false): void {
     const xhr = this.prepare_request()
 
-    xhr.addEventListener("load", () => this.do_load(xhr, mode, max_size ?? undefined))
+    xhr.addEventListener("load", () => void this.do_load(xhr, mode, max_size ?? undefined))
     xhr.addEventListener("error", () => this.do_error(xhr))
 
     if (if_modified && this.last_fetch_time != null) {

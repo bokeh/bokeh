@@ -155,7 +155,7 @@ export function css4_parse(color: string): RGBAf | null {
   } else if (is_named_color(color)) {
     const [r, g, b, a] = decode_rgba(named_colors[color])
     return [r, g, b, a/255]
-  } else if (color[0] == "#") {
+  } else if (color.startsWith("#")) {
     const v = Number(`0x${color.substring(1)}`)
     if (isNaN(v)) {
       return null
@@ -196,7 +196,7 @@ export function css4_parse(color: string): RGBAf | null {
       }
     }
   } else if (color.startsWith("rgb")) {
-    const result = color.match(rgb_modern) ?? color.match(rgb_legacy)
+    const result = rgb_modern.exec(color) ?? rgb_legacy.exec(color)
     if (result?.groups != null) {
       let {r, g, b, a="1"} = result.groups
 

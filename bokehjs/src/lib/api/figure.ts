@@ -468,7 +468,7 @@ export class Figure extends BaseFigure {
     }
 
     const result: Attrs = {}
-    const traits = new Set()
+    const traits = new Set<string>()
     for (const pname of keys(cls.prototype._props)) {
       if (_is_visual(pname)) {
         const trait = _split_feature_trait(pname)[1]

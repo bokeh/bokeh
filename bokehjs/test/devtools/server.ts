@@ -84,21 +84,21 @@ function layout_diff(existing: string, proposed: string): Omit<StructuredPatch, 
 
     for (const line of hunk.lines) {
       const text = line.slice(1)
-      if (line[0] == " ") {
+      if (line.startsWith(" ")) {
         flush()
         const left = {number: old_number++, text, changed: false}
         const right = {number: new_number++, text, changed: false}
         rows.push({left, right})
         previous = [left, right]
-      } else if (line[0] == "-") {
+      } else if (line.startsWith("-")) {
         const cell = {number: old_number++, text, changed: true}
         removed.push(cell)
         previous = [cell]
-      } else if (line[0] == "+") {
+      } else if (line.startsWith("+")) {
         const cell = {number: new_number++, text, changed: true}
         added.push(cell)
         previous = [cell]
-      } else if (line[0] == "\\") {
+      } else if (line.startsWith("\\")) {
         for (const cell of previous) {
           cell.no_newline = true
         }

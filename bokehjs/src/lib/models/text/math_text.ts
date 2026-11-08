@@ -558,7 +558,7 @@ export class MathMLView extends MathTextView {
 
   override get styled_text(): string {
     let styled = this.text.trim()
-    let matches = styled.match(/<math(.*?[^?])?>/s)
+    let matches = /<math(.*?[^?])?>/s.exec(styled)
     if (matches == null) {
       return this.text.trim()
     }
@@ -569,7 +569,7 @@ export class MathMLView extends MathTextView {
       `<mstyle displaystyle="true" mathcolor="${color2hexrgb(this.color)}" ${this.font.includes("bold") ? 'mathvariant="bold"' : "" }>`,
     )
 
-    matches = styled.match(/<\/[^>]*?math.*?>/s)
+    matches = /<\/[^>]*?math.*?>/s.exec(styled)
     if (matches == null) {
       return this.text.trim()
     }

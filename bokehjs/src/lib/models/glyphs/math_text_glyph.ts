@@ -50,11 +50,11 @@ export abstract class MathTextGlyphView extends TextView {
   override async after_lazy_visuals(): Promise<void> {
     await super.after_lazy_visuals()
 
-    const promises = [...this._label_views.values()].map((label_view) => {
+    const promises = [...this._label_views.values()].flatMap((label_view) => {
       if (label_view instanceof MathTextView) {
-        return label_view.request_image()
+        return [label_view.request_image()]
       } else {
-        return null
+        return []
       }
     })
     await Promise.allSettled(promises)

@@ -96,7 +96,7 @@ function compare_attributes(actual: Element, expected: Element) {
     } else {
       const tag = actual.nodeName
       if (tag == "image" && attr == "href" && expected_val.startsWith("^") && expected_val.endsWith("$")) {
-        if (actual_val.match(expected_val) == null) {
+        if (new RegExp(expected_val).exec(actual_val) == null) {
           throw new ExpectationError(`expected <${tag} ${attr}="${expected_val}"> to match <${tag} ${attr}="${actual_val}>"`)
         }
       } else {

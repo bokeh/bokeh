@@ -66,6 +66,7 @@ export class ValueRefView extends PlaceholderView {
           }
         })()
         if (isBoolean(result) && !result) {
+          // oxlint-disable-next-line typescript/only-throw-error -- control flow marker, not an error
           throw new Skip()
         }
       }

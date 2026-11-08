@@ -149,7 +149,7 @@ export async function build_views<T extends HasProps>(
   const {baseline} = state
 
   const built: [T, ViewOf<T>][] = []
-  let failure: unknown = null
+  let failure: {error: unknown} | null = null
 
   try {
     for (const model of models) {
@@ -180,7 +180,7 @@ export async function build_views<T extends HasProps>(
       }
     }
   } catch (error) {
-    failure = error
+    failure = {error}
   }
 
   _reorder(view_storage, [...state.desired].filter((model) => !baseline.has(model)))
@@ -201,7 +201,7 @@ export async function build_views<T extends HasProps>(
   }
 
   if (failure != null) {
-    throw failure
+    throw failure.error
   }
 
   return {

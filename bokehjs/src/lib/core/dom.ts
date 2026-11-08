@@ -751,7 +751,7 @@ export type ARIARole =
   | "row"          // the <tr> with <table>
   | "rowgroup"     // <thead>, <tfoot> and <tbody>
   | "rowheader"    // <th scope="row">
-  | "separator"    // <hr> if it doesn't have focus
+  | "separator"    // <hr> if it doesn't have focus, otherwise a widget role
   | "table"        // <table>
   | "term"         // <dfn>
   | "associationlist"
@@ -782,7 +782,7 @@ export type ARIARole =
   | "radio"
   | "scrollbar"
   | "searchbox"
-  | "separator"  // when focusable
+  // "separator" when focusable, see above
   | "slider"
   | "spinbutton"
   | "switch"

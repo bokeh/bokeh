@@ -65,6 +65,7 @@ type ReferenceCollector = {
 }
 
 export namespace HasProps {
+  // oxlint-disable-next-line typescript/no-generated-empty-object-type -- the base model has no properties
   export type Attrs = p.AttrsOf<Props>
   export type Props = {}
 
