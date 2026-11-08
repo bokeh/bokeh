@@ -1,10 +1,10 @@
-import {join, normalize, relative, dirname} from "node:path"
+import {join, normalize, relative, dirname, basename} from "node:path"
 import cp from "node:child_process"
 import fs from "node:fs"
 
 import MagicString from "magic-string"
+import remapping from "@jridgewell/remapping"
 import * as esbuild from "esbuild"
-import {SourceMapConsumer, SourceMapGenerator} from "source-map"
 import * as oxc from "oxc-parser"
 import {glob} from "glob"
 import {GlslMinify} from "webpack-glsl-minify/build/minify.js"
@@ -104,6 +104,13 @@ export default shader;
 task("scripts:typescript", ["scripts:styles", "scripts:glsl", "scripts:grammar"], async () => {
   compile_typescript("./src/lib/tsconfig.json")
 })
+
+/** Chains the map of edits in `str` onto `source_map` (tsc's map of `file`). */
+function remap(str: MagicString, file: string, source_map: string): string {
+  const name = basename(file)
+  const map = str.generateMap({hires: true, source: name, file: name})
+  return remapping(map.toString(), (source) => source == name ? source_map : null).toString()
+}
 
 task("scripts:imports", async () => {
   const base_path = paths.build_dir.lib
@@ -220,54 +227,36 @@ task("scripts:imports", async () => {
     }
 
     if (rewrites.length != 0 || stable_names.length != 0) {
-      const str = new MagicString(source, {filename: file})
+      const str = new MagicString(source)
       for (const {new_path, start, end} of rewrites) {
         str.update(start, end, `"${new_path}"`)
       }
       for (const {name, start} of stable_names) {
         str.appendLeft(start, `\n    static __name__ = ${JSON.stringify(name)};`)
       }
-
-      const new_source = str.toString()
-      const new_source_map = str.generateMap({
-        hires: true,
-        source: file,
-        file: file_map,
-        includeContent: true,
-      }).toString()
-
-      const consumer = await new SourceMapConsumer(source_map)
-      const generator = SourceMapGenerator.fromSourceMap(consumer)
-
-      generator.applySourceMap(await new SourceMapConsumer(new_source_map))
-      const gen_source_map = generator.toString()
-
-      fs.writeFileSync(file, new_source, {encoding: "utf-8"})
-      fs.writeFileSync(file_map, gen_source_map, {encoding: "utf-8"})
+      fs.writeFileSync(file, str.toString(), {encoding: "utf-8"})
+      fs.writeFileSync(file_map, remap(str, file, source_map), {encoding: "utf-8"})
     }
   }
 })
 
 task("scripts:version", async () => {
-  function version(lib_dir: string) {
-    const version_js = "version.js"
-    const version_js_path = join(lib_dir, version_js)
-    const version_map_path = join(lib_dir, `${version_js}.map`)
+  const version_js_path = join(paths.build_dir.lib, "version.js")
+  const version_map_path = `${version_js_path}.map`
 
-    const source = fs.readFileSync(version_js_path, {encoding: "utf-8"})
-    const str = new MagicString(source, {filename: version_js})
-    str.replace("VERSION", pkg.version)
+  const source = fs.readFileSync(version_js_path, {encoding: "utf-8"})
+  const start = source.indexOf("VERSION")
 
-    const map = str.generateMap({
-      source: version_js,
-      file: `${version_js}.map`,
-      includeContent: true,
-    })
-
-    fs.writeFileSync(version_js_path, str.toString())
-    fs.writeFileSync(version_map_path, map.toString())
+  // Outputs are up to date, if compilation didn't emit a new version.js.
+  if (start == -1) {
+    return
   }
-  version(join(paths.build_dir.js, "lib"))
+
+  const source_map = fs.readFileSync(version_map_path, {encoding: "utf-8"})
+  const str = new MagicString(source)
+  str.update(start, start + "VERSION".length, pkg.version)
+  fs.writeFileSync(version_js_path, str.toString(), {encoding: "utf-8"})
+  fs.writeFileSync(version_map_path, remap(str, version_js_path, source_map), {encoding: "utf-8"})
 })
 
 task("scripts:compile", [passthrough("scripts:typescript"), "scripts:imports", "scripts:version"])
