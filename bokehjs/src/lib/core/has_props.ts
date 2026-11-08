@@ -204,11 +204,12 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       Object.defineProperty(this.prototype, name, {
         // XXX: don't use tail calls in getters/setters due to https://bugs.webkit.org/show_bug.cgi?id=164306
         get(this: HasProps): any {
+          const prop = this.properties[name]
           const deferred = this._deferred
-          if (deferred != null && deferred.has(name)) {
-            return deferred.get(name)
+          if (deferred != null && deferred.has(prop)) {
+            return deferred.get(prop)
           }
-          const value = this.properties[name].get_value()
+          const value = prop.get_value()
           return value
         },
         set(this: HasProps, value: any): HasProps {
@@ -651,7 +652,8 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return changed
   }
 
-  private _deferred: Map<string, unknown> | null = null
+  // Pending values are keyed by property, so that aliases of a property share them.
+  private _deferred: Map<Property, unknown> | null = null
 
   /**
    * Run `fn` with this model as its argument and apply all property assignments
@@ -666,7 +668,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       return fn(this)
     }
 
-    const deferred = new Map<string, unknown>()
+    const deferred = new Map<Property, unknown>()
     this._deferred = deferred
 
     let result: T
@@ -676,7 +678,8 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       this._deferred = null
     }
 
-    (this as HasProps).setv(Object.fromEntries(deferred), options)
+    const self: HasProps = this
+    self.setv(Object.fromEntries([...deferred].map(([prop, value]) => [prop.attr, value])), options)
     return result
   }
 
@@ -691,14 +694,14 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     if (deferred != null) {
       if (is_empty(options)) {
         for (const [attr, value] of changes) {
-          this.property(attr) // validate eagerly
-          deferred.set(attr, value)
+          const prop = this.property(attr) // validates eagerly
+          deferred.set(prop, value)
         }
         return
       } else {
         // explicit options opt out of deferral; don't let stale pending values override this
         for (const [attr] of changes) {
-          deferred.delete(attr)
+          deferred.delete(this.property(attr))
         }
       }
     }

@@ -8,6 +8,7 @@ import {Deserializer} from "@bokehjs/core/serialization/deserializer"
 import {ModelResolver} from "@bokehjs/core/resolvers"
 import {default_resolver} from "@bokehjs/base"
 import type * as p from "@bokehjs/core/properties"
+import {PropertyAlias} from "@bokehjs/core/properties"
 import {keys} from "@bokehjs/core/util/object"
 
 class EmptyModel extends HasProps {}
@@ -60,6 +61,27 @@ class SubclassWithProps extends HasProps {
     this.define<SubclassWithProps.Props>(({Bool, Float}) => ({
       foo: [ Float, 0 ],
       bar: [ Bool, true ],
+    }))
+  }
+}
+
+namespace ModelWithAlias {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = HasProps.Props & {
+    visible: p.Property<boolean>
+    toggleable: p.Property<boolean>
+  }
+}
+interface ModelWithAlias extends ModelWithAlias.Attrs {}
+class ModelWithAlias extends HasProps {
+  declare properties: ModelWithAlias.Props
+  constructor(attrs?: Partial<ModelWithAlias.Attrs>) {
+    super(attrs)
+  }
+  static {
+    this.define<ModelWithAlias.Props>(({Bool}) => ({
+      visible: [ Bool, true ],
+      toggleable: [ new PropertyAlias("visible") ],
     }))
   }
 }
@@ -594,6 +616,29 @@ describe("core/has_props module", () => {
         throw new Error("oops")
       })).to.throw(Error, "oops")
       expect(obj.foo).to.be.equal(foo)
+    })
+
+    it("should share pending values between a property and its aliases", () => {
+      const obj = ModelWithAlias.create()
+      obj.hold(() => {
+        obj.toggleable = false
+        expect(obj.visible).to.be.false
+        obj.visible = true
+        expect(obj.toggleable).to.be.true
+        obj.toggleable = false
+      })
+      expect(obj.visible).to.be.false
+      expect(obj.toggleable).to.be.false
+    })
+
+    it("should let explicit options override pending values of aliases", () => {
+      const obj = ModelWithAlias.create()
+      obj.hold(() => {
+        obj.toggleable = false
+        obj.setv({visible: true}, {check_eq: false})
+        expect(obj.toggleable).to.be.true
+      })
+      expect(obj.visible).to.be.true
     })
 
     it("should reject unknown properties eagerly", () => {
