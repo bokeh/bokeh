@@ -15,6 +15,7 @@ import {keys, values, entries, extend, is_empty, dict} from "./util/object"
 import {isObject, isIterable, isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
 import type {Serializable, Serializer, ObjectRep, ObjectRefRep, AnyVal} from "./serialization"
 import {serialize} from "./serialization"
+import {call_sync} from "./util/callbacks"
 import type {Document} from "../document/document"
 import type {DocumentEvent} from "../document/events"
 import {DocumentEventBatch, ModelChangedEvent, ColumnsPatchedEvent, ColumnsStreamedEvent} from "../document/events"
@@ -662,37 +663,58 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
    *
    * Reading a property within the block returns its pending value. Nested calls
    * are merged into the outermost one. If `fn` throws, pending changes are discarded.
+   * Within `Document.hold()` of this model's document, this is merged into that hold.
    *
    * `fn` must be synchronous. Changes are applied when `fn` returns, so assignments
    * made after an `await` couldn't be collected. Passing a function that returns a
    * promise is a type error, and an error at runtime, with pending changes discarded.
    */
   hold<T>(fn: (model: this) => NotPromise<T>, options: HasProps.SetOptions = {}): T {
-    const call = (): T => {
-      const result: T = fn(this)
-      if (result instanceof Promise) {
-        throw new Error("hold() requires a synchronous callback, but the callback returned a promise")
-      }
-      return result
+    if (this._deferred != null || (this.document?.is_holding ?? false)) {
+      return call_sync("hold()", fn, this)
     }
 
-    if (this._deferred != null) {
-      return call()
-    }
-
-    const deferred = new Map<Property, unknown>()
-    this._deferred = deferred
+    this._deferred = new Map()
 
     let result: T
     try {
-      result = call()
-    } finally {
-      this._deferred = null
+      result = call_sync("hold()", fn, this)
+    } catch (error) {
+      this._end_hold(false)
+      throw error
     }
 
-    const self: HasProps = this
-    self.setv(Object.fromEntries([...deferred].map(([prop, value]) => [prop.attr, value])), options)
+    this._end_hold(true, options)
     return result
+  }
+
+  /**
+   * End the hold on this model, i.e. stop deferring changes, and either apply
+   * (`commit == true`) or discard pending changes.
+   * @internal
+   */
+  _end_hold(commit: boolean, options: HasProps.SetOptions = {}): void {
+    const deferred = this._deferred
+    this._deferred = null
+
+    if (commit && deferred != null) {
+      const self: HasProps = this
+      self.setv(Object.fromEntries([...deferred].map(([prop, value]) => [prop.attr, value])), options)
+    }
+  }
+
+  /**
+   * Pending changes of this model, if any of its or its document's holds is active.
+   */
+  private _get_deferred(): Map<Property, unknown> | null {
+    if (this._deferred == null) {
+      const {document} = this
+      if (document != null && document.is_holding) {
+        this._deferred = new Map()
+        document._hold_model(this)
+      }
+    }
+    return this._deferred
   }
 
   setv<T extends HasProps>(this: T, changed_attrs: Partial<p.AttrsOf<T["properties"]>>, options: HasProps.SetOptions = {}): void {
@@ -702,7 +724,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       return
     }
 
-    const deferred = this._deferred
+    const deferred = this._get_deferred()
     if (deferred != null) {
       if (is_empty(options)) {
         for (const [attr, value] of changes) {

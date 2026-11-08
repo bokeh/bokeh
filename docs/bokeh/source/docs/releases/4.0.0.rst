@@ -37,6 +37,10 @@ New features
   notifications and one document update, e.g.
   ``model.hold(() => { model.start = 0; model.end = 30 })``. See
   :ref:`ug_advanced_bokehjs_setting_properties` for details.
+* Added ``Document.hold()`` to BokehJS, which works like ``hold()`` on models,
+  but collects changes to all models of a document, and sends them as a single
+  document update. See :ref:`ug_advanced_bokehjs_setting_properties` for
+  details.
 * Allowed using :meth:`~bokeh.document.Document.hold` as a context manager,
   e.g. ``with doc.hold(): ...``, which calls ``unhold()`` on exit. Calling
   ``hold()`` and ``unhold()`` explicitly works as before. See

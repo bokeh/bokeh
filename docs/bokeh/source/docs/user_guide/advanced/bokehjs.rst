@@ -907,6 +907,34 @@ have to be repeated or stored in a variable first:
 ``hold()`` returns the callback's return value. In all three cases, assigning a
 value that is equal to the current one is not reported as a change.
 
+To collect changes to several models, use ``Document.hold()``. It works like
+``hold()`` on a model, but for all models of the document at once:
+
+.. code-block:: javascript
+
+    doc.hold(() => {
+      xdr.start = 0
+      xdr.end = 30
+      ydr.start = 0
+      ydr.end = 10
+    })
+
+When the callback returns, the changes to each model are applied as a single
+``setv()`` call, in the order the models were first changed, and all resulting
+document changes are sent to a synchronized document as a single update. In
+addition:
+
+* Calls to ``hold()`` on models of the document, as well as nested calls to
+  ``Document.hold()``, are merged into the outermost ``Document.hold()``.
+* While the changes to one model are applied, models whose changes weren't
+  applied yet still return their pending values, and assignments made to them
+  in change callbacks are merged into their pending changes.
+* Changes to models that are not part of the document are applied immediately.
+* Other document changes, like adding roots, streaming or patching data, or
+  ``setv()`` calls with options, take effect immediately, but are sent with the
+  other changes when the callback returns. UI events, like ``ButtonClick``, are
+  sent immediately.
+
 .. _ug_advanced_bokehjs_property_change_callbacks:
 
 Property change callbacks

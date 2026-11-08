@@ -1380,4 +1380,142 @@ describe("Document", () => {
       child4_children: 0, // no change
     })
   })
+
+  describe("hold()", () => {
+    function setup() {
+      const doc = new Document()
+      const m0 = SomeModel.create()
+      const m1 = AnotherModel.create()
+      const root = SomeModelWithChildren.create({children: [m0, m1]})
+      doc.add_root(root)
+      const events: ev.DocumentEvent[] = []
+      doc.on_change((event) => events.push(event), true)
+      return {doc, m0, m1, events}
+    }
+
+    it("should defer changes to all models and report them as one batch", () => {
+      const {doc, m0, m1, events} = setup()
+      const calls: string[] = []
+      m0.on_change("foo", () => calls.push(`foo:${m0.foo},${m1.bar}`))
+      m1.on_change("bar", () => calls.push(`bar:${m0.foo},${m1.bar}`))
+
+      const result = doc.hold((d) => {
+        expect(d).to.be.equal(doc)
+        expect(doc.is_holding).to.be.true
+        m0.foo = 10
+        m1.bar = 20
+        m0.foo += 1
+        expect(m0.foo).to.be.equal(11)
+        expect(m0.properties.foo.get_value()).to.be.equal(2)
+        expect(calls).to.be.equal([])
+        expect(events).to.be.equal([])
+        return "result"
+      })
+
+      expect(result).to.be.equal("result")
+      expect(doc.is_holding).to.be.false
+      expect(calls).to.be.equal(["foo:11,20", "bar:11,20"])
+      expect(events.length).to.be.equal(1)
+      const [batch] = events
+      expect_instanceof(batch, ev.DocumentEventBatch)
+      expect(batch.events.map((e) => e instanceof ev.ModelChangedEvent ? [e.model, e.attr, e.value] : null)).to.be.equal([
+        [m0, "foo", 11],
+        [m1, "bar", 20],
+      ])
+    })
+
+    it("should merge changes made by change callbacks into pending changes", () => {
+      const {doc, m0, m1} = setup()
+      const bars: number[] = []
+      m0.on_change("foo", () => m1.bar = m1.bar + m0.foo)
+      m1.on_change("bar", () => bars.push(m1.bar))
+
+      doc.hold(() => {
+        m0.foo = 10
+        m1.bar = 20
+      })
+
+      expect(m1.bar).to.be.equal(30)
+      expect(bars).to.be.equal([30])
+    })
+
+    it("should merge nested holds into the outermost one", () => {
+      const {doc, m0, m1, events} = setup()
+      doc.hold(() => {
+        m0.hold(() => m0.foo = 10)
+        doc.hold(() => m1.bar = 20)
+        expect(m0.properties.foo.get_value()).to.be.equal(2)
+        expect(m1.properties.bar.get_value()).to.be.equal(1)
+      })
+      expect(m0.foo).to.be.equal(10)
+      expect(m1.bar).to.be.equal(20)
+      expect(events.length).to.be.equal(1)
+    })
+
+    it("should apply changes to models not in the document immediately", () => {
+      const {doc} = setup()
+      const other = SomeModel.create()
+      doc.hold(() => {
+        other.foo = 10
+        expect(other.properties.foo.get_value()).to.be.equal(10)
+      })
+    })
+
+    it("should apply changes with explicit options immediately, but report them when the hold ends", () => {
+      const {doc, m0, m1, events} = setup()
+      doc.hold(() => {
+        m0.foo = 10
+        m1.setv({bar: 20}, {check_eq: false})
+        expect(m1.properties.bar.get_value()).to.be.equal(20)
+        expect(events).to.be.equal([])
+      })
+      expect(events.length).to.be.equal(1)
+      const [batch] = events
+      expect_instanceof(batch, ev.DocumentEventBatch)
+      expect(batch.events.length).to.be.equal(2)
+    })
+
+    it("should discard pending changes when the callback throws", () => {
+      const {doc, m0, m1, events} = setup()
+      expect(() => doc.hold(() => {
+        m0.foo = 10
+        m1.setv({bar: 20}, {check_eq: false})
+        throw new Error("oops")
+      })).to.throw(Error, "oops")
+      expect(doc.is_holding).to.be.false
+      expect(m0.foo).to.be.equal(2)
+      // changes that took effect are still reported
+      expect(m1.bar).to.be.equal(20)
+      expect(events.length).to.be.equal(1)
+
+      m0.foo = 30
+      expect(m0.properties.foo.get_value()).to.be.equal(30)
+    })
+
+    it("should apply all changes when a change callback throws and rethrow the error", () => {
+      const {doc, m0, m1, events} = setup()
+      m0.on_change("foo", () => {
+        throw new Error("callback")
+      })
+      expect(() => doc.hold(() => {
+        m0.foo = 10
+        m1.bar = 20
+      })).to.throw(Error, "callback")
+      expect(m0.foo).to.be.equal(10)
+      expect(m1.bar).to.be.equal(20)
+      expect(events.length).to.be.equal(1)
+    })
+
+    it("should reject callbacks returning promises and discard pending changes", () => {
+      const {doc, m0} = setup()
+      expect(() => {
+        // @ts-expect-error async callbacks are not allowed
+        void doc.hold(async () => {
+          m0.foo = 10
+        })
+      }).to.throw(Error, "hold() requires a synchronous callback, but the callback returned a promise")
+      expect(doc.is_holding).to.be.false
+      expect(m0.foo).to.be.equal(2)
+    })
+  })
 })

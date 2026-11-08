@@ -11,7 +11,7 @@ import {Serializer} from "core/serialization"
 import {Deserializer} from "core/serialization/deserializer"
 import {Version} from "core/util/version"
 import type {Ref} from "core/util/refs"
-import type {ID, Data} from "core/types"
+import type {ID, Data, NotPromise} from "core/types"
 import {Signal, Signal0} from "core/signaling"
 import {isArray, isString} from "core/util/types"
 import type {Equatable, Comparator} from "core/util/eq"
@@ -20,7 +20,7 @@ import {copy} from "core/util/array"
 import {entries, dict} from "core/util/object"
 import * as sets from "core/util/set"
 import type {CallbackLike} from "core/util/callbacks"
-import {execute} from "core/util/callbacks"
+import {execute, call_sync} from "core/util/callbacks"
 import type {SyncPolicyKind} from "core/util/sync_policy"
 import {assert} from "core/util/assert"
 import {Model} from "model"
@@ -661,6 +661,111 @@ export class Document implements Equatable {
     }
   }
 
+  private _held_models: Set<HasProps> | null = null
+  private _held_events: DocumentEvent[] | null = null
+
+  /**
+   * Whether a hold is active, i.e. whether this is called within `hold()`'s callback.
+   */
+  get is_holding(): boolean {
+    return this._held_models != null
+  }
+
+  /**
+   * Register a model whose changes are deferred by the active hold.
+   * @internal
+   */
+  _hold_model(model: HasProps): void {
+    assert(this._held_models != null, "no hold is active")
+    this._held_models.add(model)
+  }
+
+  /**
+   * Run `fn` with this document as its argument and apply all property assignments
+   * made within it on models of this document (via setters or option-less `setv()`)
+   * as a single `setv()` call per model, and report all document changes made within
+   * it as a single batch of events, i.e. as one document patch.
+   *
+   * This works like `HasProps.hold()` for all models of this document at once.
+   * Reading a property within the block returns its pending value. Nested calls,
+   * including `HasProps.hold()` on models of this document, are merged into the
+   * outermost one. If `fn` throws, pending changes are discarded. Changes to models
+   * not in this document are applied immediately, and other document changes, e.g.
+   * adding roots or streaming data, take effect immediately, but are reported when
+   * the hold ends. Messages, e.g. UI events like `ButtonClick`, aren't held.
+   *
+   * Pending changes are applied model by model in the order the models were first
+   * changed. Callbacks observing a model's changes see the pending values of models
+   * whose changes weren't applied yet, and assignments to such models made in the
+   * callbacks are merged into their pending changes.
+   *
+   * `fn` must be synchronous. Passing a function that returns a promise is a type
+   * error, and an error at runtime, with pending changes discarded.
+   */
+  hold<T>(fn: (document: this) => NotPromise<T>, options: HasProps.SetOptions = {}): T {
+    if (this._held_models != null) {
+      return call_sync("hold()", fn, this)
+    }
+
+    const held_models = new Set<HasProps>()
+    const held_events: DocumentEvent[] = []
+    this._held_models = held_models
+    this._held_events = held_events
+
+    try {
+      let result: T
+      try {
+        result = call_sync("hold()", fn, this)
+      } catch (error) {
+        this._held_models = null
+        for (const model of held_models) {
+          model._end_hold(false)
+        }
+        throw error
+      }
+
+      this._held_models = null
+
+      // Apply all changes even if a change callback throws, and rethrow the first error.
+      let failure: {error: unknown} | null = null
+      for (const model of held_models) {
+        try {
+          model._end_hold(true, options)
+        } catch (error) {
+          failure ??= {error}
+        }
+      }
+      if (failure != null) {
+        throw failure.error
+      }
+
+      return result
+    } finally {
+      this._held_events = null
+      this._trigger_held_events(held_events)
+    }
+  }
+
+  protected _trigger_held_events(held_events: DocumentEvent[]): void {
+    const events: DocumentChangedEvent[] = []
+    for (const event of held_events) {
+      if (event instanceof DocumentEventBatch) {
+        for (const ev of event.events) {
+          ev.sync &&= event.sync
+          events.push(ev)
+        }
+      } else {
+        events.push(event as DocumentChangedEvent)
+      }
+    }
+
+    if (events.length == 1) {
+      this._trigger_on_change(events[0])
+    } else if (events.length > 1) {
+      this._trigger_on_change(new DocumentEventBatch(this, events))
+    }
+  }
+
   on_change(callback: (event: DocumentEvent) => void, allow_batches: true): void
   on_change(callback: (event: DocumentChangedEvent) => void, allow_batches?: false): void
 
@@ -675,6 +780,12 @@ export class Document implements Equatable {
   }
 
   _trigger_on_change(event: DocumentEvent): void {
+    const held_events = this._held_events
+    if (held_events != null && !(event instanceof MessageSentEvent)) {
+      held_events.push(event)
+      return
+    }
+
     for (const [callback, allow_batches] of this._callbacks) {
       if (!allow_batches && event instanceof DocumentEventBatch) {
         for (const ev of event.events) {
