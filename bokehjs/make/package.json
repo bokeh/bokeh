@@ -38,8 +38,7 @@
     "stylelint-declaration-strict-value": "^1.12.1",
     "stylelint-no-unsupported-browser-features": "^8.1.2",
     "stylelint-value-no-unknown-custom-properties": "^6.1.1",
-    "typescript": "~5.9.2",
-    "typescript7": "npm:typescript@~7.0.2",
+    "typescript": "~7.0.2",
     "yargs": "^17.7.2"
   }
 }

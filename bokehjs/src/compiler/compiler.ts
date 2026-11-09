@@ -1,12 +1,29 @@
-import ts from "typescript"
+// The only module, which uses TypeScript's API (of TypeScript 6, because TypeScript 7
+// doesn't have one yet). Others use options, configs and diagnostics through this module.
+import ts from "typescript6"
 
-import {dirname} from "node:path"
+import {basename, dirname, join} from "node:path"
 
 import type {Path} from "./sys.js"
 
-export type CompileConfig = {
-  tslib_dir?: Path
-  inputs?(files: Path[]): Inputs
+/** Returns the directory with TypeScript's `lib.*.d.ts` files for bokehjs in `bokehjs_dir`. */
+export function default_lib_dir(bokehjs_dir: Path): Path {
+  if (basename(bokehjs_dir) == "static") {
+    return join(bokehjs_dir, "lib") // bokeh/server/static (see setup.py)
+  } else {
+    return join(dirname(bokehjs_dir), "node_modules", "typescript6", "lib") // bokehjs/build
+  }
+}
+
+/** Compiler options that bokeh's compiler relies on (a subset of TypeScript's). */
+export type CompilerOptions = {
+  paths?: {[pattern: string]: string[]}
+  outDir?: Path
+  declarationDir?: Path
+  noEmitOnError?: boolean
+  sourceMap?: boolean
+  declaration?: boolean
+  declarationMap?: boolean
 }
 
 export type Inputs = Map<Path, string>
@@ -25,7 +42,7 @@ export function is_failed<T>(obj: T | Partial<Failed>): obj is Failed {
 
 export type TSConfig = {
   files: Path[]
-  options: ts.CompilerOptions
+  options: CompilerOptions
   diagnostics?: undefined
 }
 
@@ -45,7 +62,7 @@ export function report_diagnostics(diagnostics: Diagnostics): {count: number, te
   return {count: errors.length, text}
 }
 
-export function compiler_host(inputs: Inputs, options: ts.CompilerOptions, tslib_dir?: Path): ts.CompilerHost {
+export function compiler_host(inputs: Inputs, options: CompilerOptions, tslib_dir?: Path): ts.CompilerHost {
   const default_host = ts.createIncrementalCompilerHost(options)
 
   const host = {
@@ -75,9 +92,9 @@ export function compiler_host(inputs: Inputs, options: ts.CompilerOptions, tslib
   return host
 }
 
-export function compile_files(inputs: Path[], options: ts.CompilerOptions, transformers?: ts.CustomTransformers, host?: ts.CompilerHost): TSOutput {
+export function compile_files(inputs: Path[], options: CompilerOptions, host?: ts.CompilerHost): TSOutput {
   const program = ts.createIncrementalProgram({rootNames: inputs, options, host})
-  const emitted = program.emit(undefined, undefined, undefined, false, transformers)
+  const emitted = program.emit()
 
   const diagnostics = [
     ...program.getConfigFileParsingDiagnostics(),
@@ -91,9 +108,7 @@ export function compile_files(inputs: Path[], options: ts.CompilerOptions, trans
   return diagnostics.length != 0 ? {diagnostics} : {}
 }
 
-export type OutDir = Path | {js: Path, dts: Path}
-
-export function parse_tsconfig(tsconfig_json: object, base_dir: Path, preconfigure?: ts.CompilerOptions): TSConfig | Failed {
+export function parse_tsconfig(tsconfig_json: object, base_dir: Path, preconfigure?: CompilerOptions): TSConfig | Failed {
   const host: ts.ParseConfigHost = {
     useCaseSensitiveFileNames: ts.sys.useCaseSensitiveFileNames,
     readDirectory: ts.sys.readDirectory,
@@ -109,7 +124,7 @@ export function parse_tsconfig(tsconfig_json: object, base_dir: Path, preconfigu
   return {files: tsconfig.fileNames, options: tsconfig.options}
 }
 
-export function read_tsconfig(tsconfig_path: Path, preconfigure?: ts.CompilerOptions): TSConfig | Failed {
+export function read_tsconfig(tsconfig_path: Path, preconfigure?: CompilerOptions): TSConfig | Failed {
   const tsconfig_file = ts.readConfigFile(tsconfig_path, ts.sys.readFile)
   if (tsconfig_file.error != null) {
     return {diagnostics: [tsconfig_file.error]}

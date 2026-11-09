@@ -42,7 +42,7 @@ except ModuleNotFoundError:
 ROOT = Path(__file__).resolve().parent
 SRC_ROOT = ROOT / "src"
 BUILD_JS = ROOT / 'bokehjs' / 'build' / 'js'
-BUILD_TSLIB = ROOT / 'bokehjs' / 'node_modules' / 'typescript' / 'lib'
+BUILD_TSLIB = ROOT / 'bokehjs' / 'node_modules' / 'typescript6' / 'lib'  # the extensions' compiler's TypeScript
 PKG_STATIC = SRC_ROOT / 'bokeh' / 'server' / 'static'
 PKG_JS = PKG_STATIC / 'js'
 PKG_TSLIB = PKG_STATIC / 'lib'

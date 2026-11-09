@@ -25,8 +25,7 @@ export const file_exists = (path: string) => exists(path) && is_file(path)
 export const dir_exists = (path: string) => exists(path) && is_dir(path)
 
 export function compile_typescript(tsconfig_path: string): void {
-  // TODO: depend on `typescript` directly when the linker no longer needs typescript 5.x API
-  const tsc = fileURLToPath(new URL("./bin/tsc", import.meta.resolve("typescript7/package.json")))
+  const tsc = fileURLToPath(new URL("./bin/tsc", import.meta.resolve("typescript/package.json")))
   const {status, error} = cp.spawnSync(process.execPath, [tsc, "--project", tsconfig_path], {stdio: "inherit"})
   if (error != null) {
     throw new BuildError("typescript", `failed to start tsc: ${error.message}`)

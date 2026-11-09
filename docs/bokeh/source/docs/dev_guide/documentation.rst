@@ -318,7 +318,7 @@ overwrite these directories if they are symbolic links:
 
             rm -rf src/bokeh/server/static/js src/bokeh/server/static/lib
             ln -s "$PWD/bokehjs/build/js" src/bokeh/server/static/js
-            ln -s "$PWD/bokehjs/node_modules/typescript/lib" src/bokeh/server/static/lib
+            ln -s "$PWD/bokehjs/node_modules/typescript6/lib" src/bokeh/server/static/lib
 
     .. tab-item:: Windows (PS)
         :sync: ps
@@ -327,7 +327,7 @@ overwrite these directories if they are symbolic links:
 
             Remove-Item -Recurse -Force src\bokeh\server\static\js, src\bokeh\server\static\lib
             New-Item -ItemType SymbolicLink -Path src\bokeh\server\static\js -Target "$PWD\bokehjs\build\js"
-            New-Item -ItemType SymbolicLink -Path src\bokeh\server\static\lib -Target "$PWD\bokehjs\node_modules\typescript\lib"
+            New-Item -ItemType SymbolicLink -Path src\bokeh\server\static\lib -Target "$PWD\bokehjs\node_modules\typescript6\lib"
 
     .. tab-item:: Windows (CMD)
         :sync: cmd
@@ -336,7 +336,7 @@ overwrite these directories if they are symbolic links:
 
             rmdir /s /q src\bokeh\server\static\js src\bokeh\server\static\lib
             mklink /D src\bokeh\server\static\js "%CD%\bokehjs\build\js"
-            mklink /D src\bokeh\server\static\lib "%CD%\bokehjs\node_modules\typescript\lib"
+            mklink /D src\bokeh\server\static\lib "%CD%\bokehjs\node_modules\typescript6\lib"
 
 Use absolute link targets, because the documentation build copies
 ``src/bokeh/server/static`` (including the links) to the output directory. On
