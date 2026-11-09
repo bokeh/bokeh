@@ -1,4 +1,5 @@
 import {isFunction} from "core/util/types"
+import type {NotPromise} from "core/types"
 
 type Fn<Obj, Args extends unknown[], Ret = void> = (obj: Obj, ...args: Args) => Ret
 type AsyncFn<Obj, Args extends unknown[], Ret = void> = (obj: Obj, ...args: Args) => Promise<Ret>
@@ -29,4 +30,16 @@ export function execute_sync<Obj, Args extends unknown[], Ret>(cb: SyncExecutabl
   } else {
     return cb.execute_sync(obj, ...args)
   }
+}
+
+/**
+ * Call `fn` with `arg` and return its result, but throw if `fn` returned a promise,
+ * i.e. when `fn` was asynchronous where a synchronous callback was required.
+ */
+export function call_sync<Arg, Ret>(name: string, fn: (arg: Arg) => NotPromise<Ret>, arg: Arg): Ret {
+  const result: Ret = fn(arg)
+  if (result instanceof Promise) {
+    throw new Error(`${name} requires a synchronous callback, but the callback returned a promise`)
+  }
+  return result
 }

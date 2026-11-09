@@ -1,5 +1,8 @@
 import type {Anchor} from "./enums"
 
+/** Rejects promise-like types, e.g. return types of async callbacks. */
+export type NotPromise<T> = T extends PromiseLike<unknown> ? never : T
+
 export const GeneratorFunction: GeneratorFunctionConstructor = Object.getPrototypeOf(function* () {}).constructor
 export const AsyncGeneratorFunction: AsyncGeneratorFunctionConstructor = Object.getPrototypeOf(async function* () {}).constructor
 

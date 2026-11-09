@@ -60,14 +60,20 @@ export class GMapOptions extends MapOptions {
 export namespace GMapPlot {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Plot.Props & {
+  export type Props = Omit<Plot.Props, "x_range" | "y_range"> & {
+    x_range: p.Property<Range1d>
+    y_range: p.Property<Range1d>
     map_options: p.Property<GMapOptions>
     api_key: p.Property<ArrayBuffer>
     api_version: p.Property<string>
   }
 }
 
-export interface GMapPlot extends GMapPlot.Attrs {}
+export interface GMapPlot extends GMapPlot.Attrs {
+  // narrowed from Plot; mirrors MapPlot's restriction to Range1d in Python
+  x_range: Range1d
+  y_range: Range1d
+}
 
 export class GMapPlot extends Plot {
   declare properties: GMapPlot.Props

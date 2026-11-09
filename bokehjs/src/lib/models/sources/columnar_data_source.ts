@@ -4,7 +4,7 @@ import {logger} from "core/logging"
 import type * as p from "core/properties"
 import {SelectionManager} from "core/selection_manager"
 import {Signal, Signal0} from "core/signaling"
-import type {Arrayable, ArrayableNew, Attrs, Data, Dict, PlainObject} from "core/types"
+import type {Arrayable, ArrayableNew, Data, Dict, PlainObject} from "core/types"
 import type {PatchSet} from "core/patching"
 import {assert} from "core/util/assert"
 import {inplace_filter, uniq, min} from "core/util/array"
@@ -67,9 +67,10 @@ export abstract class ColumnarDataSource extends DataSource {
     }
   }
 
-  override setv<T extends Attrs>(changed_attrs: Partial<T>, options: HasProps.SetOptions = {}): void {
+  override setv<T extends HasProps>(this: T, changed_attrs: Partial<p.AttrsOf<T["properties"]>>, options: HasProps.SetOptions = {}): void {
+    const self = this as HasProps as ColumnarDataSource
     if ("data" in changed_attrs) {
-      this._with_selection_sync(options.sync, () => super.setv(changed_attrs, options))
+      self._with_selection_sync(options.sync, () => super.setv(changed_attrs, options))
     } else {
       super.setv(changed_attrs, options)
     }

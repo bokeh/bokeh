@@ -57,7 +57,7 @@ export abstract class NumericalRangeSlider extends BaseNumericalSlider {
       const cv0 = clamp(v0, lo, hi)
       const cv1 = clamp(v1, lo, hi)
       if (cv0 != v0 || cv1 != v1) {
-        this.setv({value: [cv0, cv1]})
+        this.setv<NumericalRangeSlider>({value: [cv0, cv1]})
       }
     }
   }

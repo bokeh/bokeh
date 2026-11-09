@@ -231,8 +231,9 @@ export class GMapPlotView extends PlotView {
     const bounds = this.map.getBounds()
     if (bounds != null) {
       const [proj_xstart, proj_xend, proj_ystart, proj_yend] = this._get_projected_bounds(bounds)
-      this.frame.x_range.setv({start: proj_xstart, end: proj_xend})
-      this.frame.y_range.setv({start: proj_ystart, end: proj_yend})
+      const {x_range, y_range} = this.model
+      x_range.setv({start: proj_xstart, end: proj_xend})
+      y_range.setv({start: proj_ystart, end: proj_yend})
     }
   }
 

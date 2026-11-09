@@ -8,6 +8,7 @@ import {Deserializer} from "@bokehjs/core/serialization/deserializer"
 import {ModelResolver} from "@bokehjs/core/resolvers"
 import {default_resolver} from "@bokehjs/base"
 import type * as p from "@bokehjs/core/properties"
+import {PropertyAlias} from "@bokehjs/core/properties"
 import {keys} from "@bokehjs/core/util/object"
 
 class EmptyModel extends HasProps {}
@@ -60,6 +61,27 @@ class SubclassWithProps extends HasProps {
     this.define<SubclassWithProps.Props>(({Bool, Float}) => ({
       foo: [ Float, 0 ],
       bar: [ Bool, true ],
+    }))
+  }
+}
+
+namespace ModelWithAlias {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = HasProps.Props & {
+    visible: p.Property<boolean>
+    toggleable: p.Property<boolean>
+  }
+}
+interface ModelWithAlias extends ModelWithAlias.Attrs {}
+class ModelWithAlias extends HasProps {
+  declare properties: ModelWithAlias.Props
+  constructor(attrs?: Partial<ModelWithAlias.Attrs>) {
+    super(attrs)
+  }
+  static {
+    this.define<ModelWithAlias.Props>(({Bool}) => ({
+      visible: [ Bool, true ],
+      toggleable: [ new PropertyAlias("visible") ],
     }))
   }
 }
@@ -513,6 +535,250 @@ describe("core/has_props module", () => {
 
       obj.foo = 1
       expect(changes).to.be.equal(0)
+    })
+  })
+
+  describe("hold()", () => {
+    it("should apply assignments like a single setv() call", () => {
+      const obj = SubclassWithProps.create()
+      const calls: string[] = []
+      obj.on_change("foo", () => calls.push(`foo:${obj.foo},${obj.bar}`))
+      obj.on_change("bar", () => calls.push(`bar:${obj.foo},${obj.bar}`))
+      obj.connect(obj.change, () => calls.push("change"))
+
+      const result = obj.hold(() => {
+        obj.foo = 1
+        obj.bar = false
+        expect(calls).to.be.equal([])
+        return 7
+      })
+
+      expect(result).to.be.equal(7)
+      expect(calls).to.be.equal(["foo:1,false", "bar:1,false", "change"])
+    })
+
+    it("should pass the model to the callback", () => {
+      const obj = SubclassWithProps.create()
+      const args: SubclassWithProps[] = []
+      obj.hold((model) => {
+        args.push(model)
+        model.foo = 1
+        model.bar = false
+        obj.hold((inner) => expect(inner).to.be.equal(obj))
+      })
+      expect(args).to.be.equal([obj])
+      expect(obj.foo).to.be.equal(1)
+      expect(obj.bar).to.be.false
+    })
+
+    it("should return pending values when reading within the block", () => {
+      const obj = SubclassWithProps.create()
+      obj.hold(() => {
+        obj.foo = 1
+        expect(obj.foo).to.be.equal(1)
+        expect(obj.properties.foo.get_value()).to.not.be.equal(1)
+        obj.foo += 1
+      })
+      expect(obj.foo).to.be.equal(2)
+    })
+
+    it("should merge option-less setv() and nested calls into the outer block", () => {
+      const obj = SubclassWithProps.create()
+      let changes = 0
+      obj.connect(obj.change, () => changes += 1)
+
+      obj.hold(() => {
+        obj.setv({foo: 1})
+        obj.hold(() => obj.bar = false)
+        expect(changes).to.be.equal(0)
+      })
+
+      expect(changes).to.be.equal(1)
+      expect(obj.foo).to.be.equal(1)
+      expect(obj.bar).to.be.false
+    })
+
+    it("should apply setv() with explicit options immediately", () => {
+      const obj = SubclassWithProps.create()
+      obj.hold(() => {
+        obj.foo = 1
+        obj.setv({foo: 2}, {silent: true})
+        expect(obj.properties.foo.get_value()).to.be.equal(2)
+      })
+      expect(obj.foo).to.be.equal(2)
+    })
+
+    it("should discard pending changes when the block throws", () => {
+      const obj = SubclassWithProps.create()
+      const foo = obj.foo
+      expect(() => obj.hold(() => {
+        obj.foo = foo + 1
+        throw new Error("oops")
+      })).to.throw(Error, "oops")
+      expect(obj.foo).to.be.equal(foo)
+    })
+
+    it("should share pending values between a property and its aliases", () => {
+      const obj = ModelWithAlias.create()
+      obj.hold(() => {
+        obj.toggleable = false
+        expect(obj.visible).to.be.false
+        obj.visible = true
+        expect(obj.toggleable).to.be.true
+        obj.toggleable = false
+      })
+      expect(obj.visible).to.be.false
+      expect(obj.toggleable).to.be.false
+    })
+
+    it("should let explicit options override pending values of aliases", () => {
+      const obj = ModelWithAlias.create()
+      obj.hold(() => {
+        obj.toggleable = false
+        obj.setv({visible: true}, {check_eq: false})
+        expect(obj.toggleable).to.be.true
+      })
+      expect(obj.visible).to.be.true
+    })
+
+    it("should reject callbacks returning promises and discard pending changes", async () => {
+      const obj = SubclassWithProps.create()
+      let changes = 0
+      obj.connect(obj.change, () => changes += 1)
+
+      let promise: Promise<void> | undefined
+      expect(() => {
+        // @ts-expect-error async callbacks are not allowed
+        void obj.hold(() => {
+          promise = (async () => {
+            obj.foo = 1
+            await Promise.resolve()
+          })()
+          return promise
+        })
+      }).to.throw(Error, "hold() requires a synchronous callback, but the callback returned a promise")
+      await promise
+
+      expect(changes).to.be.equal(0)
+      expect(obj.foo).to.be.equal(0)
+    })
+
+    it("should reject nested callbacks returning promises", () => {
+      const obj = SubclassWithProps.create()
+      expect(() => obj.hold(() => {
+        obj.foo = 1
+        // @ts-expect-error async callbacks are not allowed
+        void obj.hold(async () => {})
+      })).to.throw(Error, "hold() requires a synchronous callback, but the callback returned a promise")
+      expect(obj.foo).to.be.equal(0)
+    })
+
+    it("should reject unknown properties eagerly", () => {
+      const obj = SubclassWithProps.create()
+      expect(() => obj.hold(() => {
+        // @ts-expect-error "whatever" is not a property of SubclassWithProps
+        obj.setv({whatever: 1})
+      })).to.throw(Error, "unknown property SubclassWithProps.whatever")
+    })
+
+    describe("nested", () => {
+      it("should return the inner callback's result", () => {
+        const obj = SubclassWithProps.create()
+        const result = obj.hold(() => {
+          const inner = obj.hold(() => {
+            obj.foo = 1
+            return "inner"
+          })
+          expect(inner).to.be.equal("inner")
+          return `${inner}+outer`
+        })
+        expect(result).to.be.equal("inner+outer")
+        expect(obj.foo).to.be.equal(1)
+      })
+
+      it("should not apply changes when the inner block exits", () => {
+        const obj = SubclassWithProps.create()
+        const calls: string[] = []
+        obj.on_change("foo", () => calls.push("foo"))
+        obj.on_change("bar", () => calls.push("bar"))
+        obj.connect(obj.change, () => calls.push("change"))
+
+        obj.hold(() => {
+          obj.hold(() => {
+            obj.hold(() => obj.foo = 1)
+            expect(calls).to.be.equal([])
+            obj.bar = false
+          })
+          expect(calls).to.be.equal([])
+          expect(obj.properties.foo.get_value()).to.be.equal(0)
+        })
+
+        expect(calls).to.be.equal(["foo", "bar", "change"])
+      })
+
+      it("should use the outermost options and ignore inner ones", () => {
+        const obj = SubclassWithProps.create()
+        let changes = 0
+        obj.connect(obj.change, () => changes += 1)
+
+        obj.hold(() => {
+          obj.hold(() => obj.foo = 1, {no_change: true})
+        })
+        expect(changes).to.be.equal(1)
+
+        obj.hold(() => {
+          obj.hold(() => obj.foo = 2)
+        }, {no_change: true})
+        expect(changes).to.be.equal(1)
+        expect(obj.foo).to.be.equal(2)
+      })
+
+      it("should share pending values across nesting levels", () => {
+        const obj = SubclassWithProps.create()
+        obj.hold(() => {
+          obj.foo = 1
+          obj.hold(() => {
+            expect(obj.foo).to.be.equal(1)
+            obj.foo += 1
+            obj.bar = false
+          })
+          expect(obj.foo).to.be.equal(2)
+          expect(obj.bar).to.be.false
+          obj.foo += 1
+        })
+        expect(obj.foo).to.be.equal(3)
+        expect(obj.bar).to.be.false
+      })
+
+      it("should keep inner changes when an inner exception is caught by the outer block", () => {
+        const obj = SubclassWithProps.create()
+        obj.hold(() => {
+          obj.foo = 1
+          expect(() => obj.hold(() => {
+            obj.bar = false
+            throw new Error("inner")
+          })).to.throw(Error, "inner")
+          expect(obj.bar).to.be.false
+        })
+        expect(obj.foo).to.be.equal(1)
+        expect(obj.bar).to.be.false
+      })
+
+      it("should discard all changes when an inner exception escapes the outermost block", () => {
+        const obj = SubclassWithProps.create()
+        let changes = 0
+        obj.connect(obj.change, () => changes += 1)
+        expect(() => obj.hold(() => {
+          obj.foo = 1
+          obj.hold(() => {
+            obj.bar = false
+            throw new Error("inner")
+          })
+        })).to.throw(Error, "inner")
+        expect(changes).to.be.equal(0)
+        expect(obj.foo).to.be.equal(0)
+        expect(obj.bar).to.be.true
+      })
     })
   })
 })

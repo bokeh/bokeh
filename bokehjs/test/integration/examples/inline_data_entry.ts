@@ -25,8 +25,9 @@ describe("Examples", () => {
 
     const p = plot(500)
 
+    const position = XY.create({x: NaN, y: NaN})
     const data_entry = Panel.create({
-      position: XY.create({x: NaN, y: NaN}),
+      position,
       anchor: "top_left",
       stylesheets: [`
         :host {
@@ -56,7 +57,12 @@ describe("Examples", () => {
 
     const tap_tool = TapTool.create({
       behavior: "inspect",
-      callback: (_tool, {geometries: {x, y}}) => data_entry.position.setv({x, y}),
+      callback: (_tool, {geometries}) => {
+        position.hold((p) => {
+          p.x = geometries.x
+          p.y = geometries.y
+        })
+      },
     })
     p.add_tools(tap_tool)
 

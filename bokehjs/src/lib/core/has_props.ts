@@ -1,7 +1,7 @@
 import {logger} from "./logging"
 import type {View} from "./view"
 import type {Class} from "./class"
-import type {Attrs, Data, Dict} from "./types"
+import type {Attrs, Data, Dict, NotPromise} from "./types"
 import type {ISignalable} from "./signaling"
 import {Signal0, Signal, Signalable} from "./signaling"
 import type {Ref} from "./util/refs"
@@ -15,6 +15,7 @@ import {keys, values, entries, extend, is_empty, dict} from "./util/object"
 import {isObject, isIterable, isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
 import type {Serializable, Serializer, ObjectRep, ObjectRefRep, AnyVal} from "./serialization"
 import {serialize} from "./serialization"
+import {call_sync} from "./util/callbacks"
 import type {Document} from "../document/document"
 import type {DocumentEvent} from "../document/events"
 import {DocumentEventBatch, ModelChangedEvent, ColumnsPatchedEvent, ColumnsStreamedEvent} from "../document/events"
@@ -204,7 +205,12 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       Object.defineProperty(this.prototype, name, {
         // XXX: don't use tail calls in getters/setters due to https://bugs.webkit.org/show_bug.cgi?id=164306
         get(this: HasProps): any {
-          const value = this.properties[name].get_value()
+          const prop = this.properties[name]
+          const deferred = this._deferred
+          if (deferred != null && deferred.has(prop)) {
+            return deferred.get(prop)
+          }
+          const value = prop.get_value()
           return value
         },
         set(this: HasProps, value: any): HasProps {
@@ -647,11 +653,91 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return changed
   }
 
-  setv<T extends Attrs>(changed_attrs: Partial<T>, options: HasProps.SetOptions = {}): void {
+  // Pending values are keyed by property, so that aliases of a property share them.
+  private _deferred: Map<Property, unknown> | null = null
+
+  /**
+   * Run `fn` with this model as its argument and apply all property assignments
+   * made on this model within it (via setters or option-less `setv()`) as a single
+   * `setv()` call, i.e. with one round of change notifications and one document patch.
+   *
+   * Reading a property within the block returns its pending value. Nested calls
+   * are merged into the outermost one. If `fn` throws, pending changes are discarded.
+   * Within `Document.hold()` of this model's document, this is merged into that hold.
+   *
+   * `fn` must be synchronous. Changes are applied when `fn` returns, so assignments
+   * made after an `await` couldn't be collected. Passing a function that returns a
+   * promise is a type error, and an error at runtime, with pending changes discarded.
+   */
+  hold<T>(fn: (model: this) => NotPromise<T>, options: HasProps.SetOptions = {}): T {
+    if (this._deferred != null || (this.document?.is_holding ?? false)) {
+      return call_sync("hold()", fn, this)
+    }
+
+    this._deferred = new Map()
+
+    let result: T
+    try {
+      result = call_sync("hold()", fn, this)
+    } catch (error) {
+      this._end_hold(false)
+      throw error
+    }
+
+    this._end_hold(true, options)
+    return result
+  }
+
+  /**
+   * End the hold on this model, i.e. stop deferring changes, and either apply
+   * (`commit == true`) or discard pending changes.
+   * @internal
+   */
+  _end_hold(commit: boolean, options: HasProps.SetOptions = {}): void {
+    const deferred = this._deferred
+    this._deferred = null
+
+    if (commit && deferred != null) {
+      const self: HasProps = this
+      self.setv(Object.fromEntries([...deferred].map(([prop, value]) => [prop.attr, value])), options)
+    }
+  }
+
+  /**
+   * Pending changes of this model, if any of its or its document's holds is active.
+   */
+  private _get_deferred(): Map<Property, unknown> | null {
+    if (this._deferred == null) {
+      const {document} = this
+      if (document != null && document.is_holding) {
+        this._deferred = new Map()
+        document._hold_model(this)
+      }
+    }
+    return this._deferred
+  }
+
+  setv<T extends HasProps>(this: T, changed_attrs: Partial<p.AttrsOf<T["properties"]>>, options: HasProps.SetOptions = {}): void {
     const changes = entries(changed_attrs)
 
     if (changes.length == 0) {
       return
+    }
+
+    const deferred = this._get_deferred()
+    if (deferred != null) {
+      if (is_empty(options)) {
+        for (const [attr, value] of changes) {
+          const prop = this.property(attr) // validates eagerly
+          deferred.set(prop, value)
+        }
+        return
+      } else {
+        // explicit options opt out of deferral; don't let stale pending values override this
+        for (const [attr] of changes) {
+          deferred.delete(this.property(attr))
+        }
+      }
     }
 
     if (options.silent ?? false) {
