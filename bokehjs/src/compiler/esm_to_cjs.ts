@@ -9,11 +9,10 @@
 // other declarations right after their statements and re-exports right after the
 // respective `require()`. A module in a cycle can still observe exports, which aren't
 // initialized yet, if it accesses them during its own evaluation (as in ESM).
-import {parseSync} from "oxc-parser"
 import MagicString from "magic-string"
 import * as eslint_scope from "eslint-scope"
 
-import {walk} from "./transforms.js"
+import {parse, walk} from "./transforms.js"
 import type {SourceMap} from "./source_map.js"
 import {edits_map} from "./source_map.js"
 
@@ -45,7 +44,7 @@ type Source = {
 }
 
 export function to_cjs(file: string, code: string): {code: string, map: SourceMap, deps: string[]} {
-  const {program, errors} = parseSync(file, code, {sourceType: "module", preserveParens: false, range: true})
+  const {program, errors} = parse(file, code, {sourceType: "module", preserveParens: false, range: true})
   if (errors.length != 0) {
     throw new ConversionError(`${file}: ${errors[0].message}`)
   }

@@ -1,5 +1,5 @@
-import type {Program} from "oxc-parser"
-import {parseSync} from "oxc-parser"
+import type {Program, ParserOptions, ParseResult} from "oxc-parser"
+import {parseSync, rawTransferSupported} from "oxc-parser"
 import MagicString from "magic-string"
 
 import type {SourceMap} from "./source_map.js"
@@ -22,8 +22,17 @@ export function walk(node: unknown, visit: (node: Node, parent: Node | null) => 
   }
 }
 
+// Raw transfer builds ASTs several times faster than (default) JSON transfer, but it isn't
+// supported everywhere, e.g. by WASI bindings of the extensions' compiler.
+const raw_transfer = rawTransferSupported()
+
+/** Parses `code` of `file` like `parseSync()`, using raw transfer when supported. */
+export function parse(file: string, code: string, options: ParserOptions): ParseResult {
+  return parseSync(file, code, {...options, experimentalRawTransfer: raw_transfer} as ParserOptions)
+}
+
 export function parse_script(file: string, code: string): Program {
-  const {program, errors} = parseSync(file, code, {sourceType: "script", preserveParens: false})
+  const {program, errors} = parse(file, code, {sourceType: "script", preserveParens: false})
   if (errors.length != 0) {
     throw new Error(`failed to parse ${file}: ${errors.map((error) => error.message).join("\n")}`)
   }
