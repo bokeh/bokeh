@@ -1,9 +1,6 @@
 @import "./_mixins.less";
 
 :host {
-  --bokeh-bg-color: var(--background-color);
-  --bokeh-border-color: var(--divider-color);
-  --bokeh-shadow-color: var(--divider-color);
   --bokeh-ctrl-size: 16px;
   --bokeh-ctrl-color: var(--shortcut-color);
 }
@@ -29,9 +26,9 @@
   height: 100%;
   overflow: hidden;
   border-radius: 4px;
-  background-color: var(--bokeh-bg-color);
-  border: 1px solid var(--bokeh-border-color);
-  box-shadow: 5px 5px 10px var(--bokeh-shadow-color);
+  background-color: var(--background-color);
+  border: 1px solid var(--divider-color);
+  box-shadow: 5px 5px 10px var(--divider-color);
 }
 
 .bk-header {
