@@ -15,7 +15,7 @@ import {BuildError} from "./error.js"
 import type {Graph} from "./graph.js"
 import {detect_cycles} from "./graph.js"
 import type {SourceMap, Section, Contents} from "./source_map.js"
-import {load_source_map, chain, concat, extract_contents, restore_contents} from "./source_map.js"
+import {load_source_map, chain, concat, shift_lines, extract_contents, restore_contents} from "./source_map.js"
 
 const root_path = process.cwd()
 
@@ -99,6 +99,9 @@ export class Bundle {
     readonly artifacts: ModuleArtifact[],
     readonly plugin: boolean) {}
 
+  /** Source maps of modules (relative to the first one), shared by all preludes. */
+  private readonly modules_maps = new Map<boolean, SourceMap>()
+
   assemble(options: AssemblyOptions): Artifact {
     let line = 0
     let sources: string = ""
@@ -125,7 +128,7 @@ export class Bundle {
     const postlude = !plugin ? options.postlude.main : options.postlude.plugin
 
     sources += `${prelude}(${prefix}\n`
-    line += newlines(sources)
+    const first_line = newlines(sources)
 
     for (const artifact of artifacts) {
       const {module} = artifact
@@ -161,14 +164,20 @@ export class Bundle {
 
     sources += `${suffix}, ${safe_id(entry)}, ${aliases_json}, ${externals_json});${postlude}`
 
-    const name = (file: Path) => join("@@", relative(root_path, file)).replaceAll("\\", "/")
-    return new Artifact(sources, concat(sections, name))
+    let modules_map = this.modules_maps.get(minified)
+    if (modules_map == null) {
+      const name = (file: Path) => join("@@", relative(root_path, file)).replaceAll("\\", "/")
+      modules_map = concat(sections, name)
+      this.modules_maps.set(minified, modules_map)
+    }
+
+    return new Artifact(sources, shift_lines(modules_map, first_line))
   }
 }
 
 export class Artifact {
   constructor(readonly source: string,
-              readonly sourcemap: object | null) {}
+              readonly sourcemap: SourceMap | null) {}
 
   full_source(name: string): string {
     if (this.sourcemap != null) {
@@ -216,6 +225,9 @@ export class Linker {
   readonly shims: Set<string>
   readonly detect_cycles: boolean
   readonly overrides: Map<string, string>
+
+  /** whether `cache` differs from what is stored in `cache_path` */
+  private cache_changed = true
 
   constructor(opts: LinkerOpts) {
     this.entries = opts.entries.map((path) => resolve(path))
@@ -329,6 +341,8 @@ export class Linker {
       return false
     }
 
+    let reprinted = 0
+
     const artifacts = async (modules: ModuleInfo[]) => {
       const result = []
       for (const module of modules) {
@@ -339,6 +353,7 @@ export class Linker {
           const printed = print(module)
           const minified = minify(module, printed.source)
           code = {...printed, min_source: minified.code, min_map: chain(minified.map, printed.map)}
+          reprinted++
         } else {
           code = cached!.code
         }
@@ -357,6 +372,9 @@ export class Linker {
     }
 
     const bundles = [main_bundle, ...plugin_bundles]
+
+    const files = new Set(bundles.flatMap((bundle) => bundle.artifacts.map((artifact) => artifact.module.file)))
+    this.cache_changed ||= reprinted != 0 || files.size != this.cache.size || [...this.cache.keys()].some((file) => !files.has(file))
 
     this.cache.clear()
     for (const bundle of bundles) {
@@ -393,6 +411,7 @@ export class Linker {
     }
 
     this.cache.clear()
+    this.cache_changed = true
 
     const json = JSON.parse(read(cache_path)!)
     if (json.version !== cache_version) {
@@ -434,10 +453,12 @@ export class Linker {
         module.dependencies.set(dep, file_entry.module)
       }
     }
+
+    this.cache_changed = false
   }
 
   store_cache(): void {
-    if (this.cache_path == null) {
+    if (this.cache_path == null || !this.cache_changed) {
       return
     }
 
@@ -467,6 +488,7 @@ export class Linker {
 
     const json = JSON.stringify({version: cache_version, config: this.cache_config, artifacts, contents})
     write(this.cache_path, json)
+    this.cache_changed = false
   }
 
   get_package(dir: string): {[key: string]: unknown} {

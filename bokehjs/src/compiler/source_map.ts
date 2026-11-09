@@ -84,6 +84,11 @@ export function concat(sections: Section[], name: (file: string) => string): Sou
   return {...flat, sources}
 }
 
+/** Moves code mapped by `map` by `lines` down, e.g. below a prelude. */
+export function shift_lines(map: SourceMap, lines: number): SourceMap {
+  return {...map, mappings: `${";".repeat(lines)}${map.mappings}`}
+}
+
 export type Contents = {[source: string]: string}
 
 /** Moves contents of `map`'s sources to `contents`, e.g. to store them only once. */
