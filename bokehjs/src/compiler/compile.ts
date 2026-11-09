@@ -1,54 +1,36 @@
-import {join, basename, dirname} from "node:path"
+import {join} from "node:path"
 
-import ts from "typescript"
 import lesscss from "less"
 
-import type {TSOutput, Inputs, Outputs} from "./compiler.js"
-import {compiler_host, parse_tsconfig, compile_files, report_diagnostics} from "./compiler.js"
+import type {TSOutput, Inputs, Outputs, CompilerOptions} from "./compiler.js"
+import {compiler_host, parse_tsconfig, compile_files, report_diagnostics, default_lib_dir} from "./compiler.js"
 import type {Path} from "./sys.js"
 import {rename} from "./sys.js"
+import {to_cjs} from "./esm_to_cjs.js"
 import * as transforms from "./transforms.js"
 
 import tsconfig_json from "./tsconfig.ext.json" with {type: "json"}
 
-function parse_patched_tsconfig(base_dir: string, preconfigure: ts.CompilerOptions) {
-  // XXX: silence the config validator. We are providing inputs through `inputs` argument anyway.
-  const json = {...tsconfig_json, include: undefined, files: ["dummy.ts"]}
-  return parse_tsconfig(json, base_dir, preconfigure)
-}
-
 export function compile_typescript(base_dir: string, inputs: Inputs, bokehjs_dir: string): {outputs?: Outputs} & TSOutput {
-  const is_static_dir = basename(bokehjs_dir) == "static"
-
-  const preconfigure: ts.CompilerOptions = {
-    module: ts.ModuleKind.CommonJS,
-    target: ts.ScriptTarget.ES2024,
+  const preconfigure: CompilerOptions = {
     paths: {
-      "@bokehjs/*": [
-        join(bokehjs_dir, "js/lib/*"),
-      ],
-      "*": [
-        join(bokehjs_dir, "js/lib/*"),
-      ],
+      "@bokehjs/*": [join(bokehjs_dir, "js/lib/*")],
+      "*": [join(bokehjs_dir, "js/lib/*")],
     },
     outDir: undefined,
+    sourceMap: false,
+    declaration: false,
+    declarationMap: false,
   }
 
-  const tsconfig = parse_patched_tsconfig(base_dir, preconfigure)
+  // XXX: silence the config validator. We are providing inputs through `inputs` argument anyway.
+  const json = {...tsconfig_json, include: undefined, files: ["dummy.ts"]}
+  const tsconfig = parse_tsconfig(json, base_dir, preconfigure)
   if (tsconfig.diagnostics != null) {
     return {diagnostics: tsconfig.diagnostics}
   }
 
-  const tslib_dir = (() => {
-    // bokeh/server/static or bokehjs/build
-    if (is_static_dir) {
-      return join(bokehjs_dir, "lib")
-    } else {
-      return join(dirname(bokehjs_dir), "node_modules", "typescript", "lib")
-    }
-  })()
-
-  const host = compiler_host(inputs, tsconfig.options, tslib_dir)
+  const host = compiler_host(inputs, tsconfig.options, default_lib_dir(bokehjs_dir))
 
   const outputs: Outputs = new Map()
   host.writeFile = (name: Path, data: string) => {
@@ -56,24 +38,25 @@ export function compile_typescript(base_dir: string, inputs: Inputs, bokehjs_dir
   }
 
   const files = [...inputs.keys()]
-  return {outputs, ...compile_files(files, tsconfig.options, undefined, host)}
+  return {outputs, ...compile_files(files, tsconfig.options, host)}
 }
 
-function compile_javascript(base_dir: string, file: string, code: string): {output?: string} & TSOutput {
-  const tsconfig = parse_patched_tsconfig(base_dir, {})
-  if (tsconfig.diagnostics != null) {
-    return {diagnostics: tsconfig.diagnostics}
+/** Converts ES modules to CommonJS (like the linker does) and leaves other code as is. */
+function compile_javascript(file: string, code: string): {code: string, deps: string[]} | {error: string} {
+  const {program, module, errors} = transforms.parse(file, code, {sourceType: "unambiguous"})
+  if (errors.length != 0) {
+    return {error: errors.map((error) => error.codeframe ?? `${file}: ${error.message}`).join("\n")}
   }
-
-  const {outputText, diagnostics} = ts.transpileModule(code, {
-    fileName: file,
-    reportDiagnostics: true,
-    compilerOptions: {
-      target: tsconfig.options.target,
-      module: ts.ModuleKind.CommonJS,
-    },
-  })
-  return {output: outputText, diagnostics}
+  if (module.hasModuleSyntax) {
+    try {
+      const {code: output, deps} = to_cjs(file, code)
+      return {code: output, deps}
+    } catch (error) {
+      return {error: error instanceof Error ? error.message : `${error}`}
+    }
+  } else {
+    return {code, deps: transforms.collect_deps(program)}
+  }
 }
 
 function normalize(path: string): string {
@@ -81,12 +64,10 @@ function normalize(path: string): string {
 }
 
 export async function compile_and_resolve_deps(input: {code: string, lang: string, file: string, bokehjs_dir: string}) {
-  const {file, lang, bokehjs_dir} = input
-  const {code} = input
+  const {code, file, lang, bokehjs_dir} = input
 
-  let output: string
   switch (lang) {
-    case "typescript":
+    case "typescript": {
       const inputs = new Map([[normalize(file), code]])
       const {outputs, diagnostics} = compile_typescript(".", inputs, bokehjs_dir)
 
@@ -95,19 +76,11 @@ export async function compile_and_resolve_deps(input: {code: string, lang: strin
         return {error: failure.text}
       } else {
         const js_file = normalize(rename(file, {ext: ".js"}))
-        output = outputs!.get(js_file)!
+        return compile_javascript(js_file, outputs!.get(js_file)!)
       }
-      break
-    case "javascript": {
-      const result = compile_javascript(".", file, code)
-      if (result.diagnostics != null && result.diagnostics.length != 0) {
-        const failure = report_diagnostics(result.diagnostics)
-        return {error: failure.text}
-      } else {
-        output = result.output!
-      }
-      break
     }
+    case "javascript":
+      return compile_javascript(file, code)
     case "less":
       try {
         const {css} = await lesscss.render(code, {filename: file, compress: true})
@@ -118,8 +91,4 @@ export async function compile_and_resolve_deps(input: {code: string, lang: strin
     default:
       throw new Error(`unsupported input type: ${lang}`)
   }
-
-  const deps = transforms.collect_deps(transforms.parse_script(file, output))
-
-  return {code: output, deps}
 }

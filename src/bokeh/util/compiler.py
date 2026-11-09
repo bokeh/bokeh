@@ -407,7 +407,7 @@ _export_template = \
 """"%(name)s": require("%(module)s").%(name)s"""
 
 _module_template = \
-""""%(module)s": function(require, module, exports) {\n%(source)s\n}"""
+""""%(module)s": function(require, module, exports, __esModule, __esExport) {\n%(source)s\n}"""
 
 def _detect_nodejs() -> Path:
     nodejs_path = settings.nodejs_path()
@@ -529,7 +529,8 @@ def _bundle_models(custom_models: dict[str, CustomModel]) -> str:
     modules = []
 
     lib_dir = Path(bokehjs_dir) / "js" / "lib"
-    known_modules: set[str] = set()
+    # bokehjs' bundle provides tslib, which modules converted from ESM may require
+    known_modules: set[str] = {"tslib"}
 
     for path in lib_dir.rglob("*.d.ts"):
         s = str(path.relative_to(lib_dir))

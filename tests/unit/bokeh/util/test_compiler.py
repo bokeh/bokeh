@@ -35,17 +35,12 @@ import bokeh.util.compiler as buc # isort:skip
 
 def test_nodejs_compile_javascript() -> None:
     assert buc.nodejs_compile("""function f(a, b) { return a + b; };""", "javascript", "some.js") == \
-        dict(code="""\
-function f(a, b) { return a + b; }
-;
-""", deps=[])
+        dict(code="""function f(a, b) { return a + b; };""", deps=[])
 
     assert buc.nodejs_compile("""const some = require('some/module');""", "javascript", "some.js") == \
-        dict(code="""\
-const some = require('some/module');
-""", deps=["some/module"])
+        dict(code="""const some = require('some/module');""", deps=["some/module"])
 
-    assert buc.nodejs_compile("""
+    code = """
 const {Model} = require("lib/model");
 
 class MyModel extends Model {
@@ -53,24 +48,66 @@ class MyModel extends Model {
 }
 
 exports.MyModel = MyModel;
+"""
+    assert buc.nodejs_compile(code, "javascript", "some.js") == dict(code=code, deps=["lib/model"])
+
+    assert buc.nodejs_compile("""\
+import {Model} from "lib/model"
+export class MyModel extends Model {
+  static __name__ = "MyModel"
+}
 """, "javascript", "some.js") == \
         dict(code="""\
-const { Model } = require("lib/model");
-class MyModel extends Model {
-    static __name__ = 'MyModel';
+__esModule();
+const model_1 = require("lib/model");
+class MyModel extends model_1.Model {
+  static __name__ = "MyModel"
 }
 exports.MyModel = MyModel;
 """,
              deps=["lib/model"])
 
     assert buc.nodejs_compile("""function f(a, b) { eturn a + b; };""", "javascript", "some.js") == \
+        dict(error="""
+  x Expected a semicolon or an implicit semicolon after a statement, but found
+  | none
+   ,-[some.js:1:25]
+ 1 | function f(a, b) { eturn a + b; };
+   :                         ^
+   `----
+  help: Try inserting a semicolon here
+""",
+        )
+
+def test_nodejs_compile_typescript() -> None:
+    assert buc.nodejs_compile("""\
+import {TickFormatter} from "models/formatters/tick_formatter"
+
+export class MyFormatter extends TickFormatter {
+  doFormat(ticks: number[]): string[] {
+    return ticks.map((tick) => `${tick}`)
+  }
+}
+""", "typescript", "some.ts") == \
+        dict(code="""\
+__esModule();
+const tick_formatter_1 = require("models/formatters/tick_formatter");
+class MyFormatter extends tick_formatter_1.TickFormatter {
+    doFormat(ticks) {
+        return ticks.map((tick) => `${tick}`);
+    }
+}
+exports.MyFormatter = MyFormatter;
+""",
+             deps=["models/formatters/tick_formatter"])
+
+    assert buc.nodejs_compile("""const x: number = "a"\n""", "typescript", "some.ts") == \
         dict(error=
-            '\x1b[96msome.js\x1b[0m:\x1b[93m1\x1b[0m:\x1b[93m20\x1b[0m - '
-            '\x1b[91merror\x1b[0m\x1b[90m TS1435: \x1b[0mUnknown keyword or '
-            "identifier. Did you mean 'return'?\n"
+            '\x1b[96msome.ts\x1b[0m:\x1b[93m1\x1b[0m:\x1b[93m7\x1b[0m - '
+            '\x1b[91merror\x1b[0m\x1b[90m TS2322: \x1b[0mType \'string\' is not assignable to type \'number\'.\n'
             '\n'
-            '\x1b[7m1\x1b[0m function f(a, b) { eturn a + b; };\n'
-            '\x1b[7m \x1b[0m \x1b[91m                   ~~~~~\x1b[0m\n',
+            '\x1b[7m1\x1b[0m const x: number = "a"\n'
+            '\x1b[7m \x1b[0m \x1b[91m      ~\x1b[0m\n',
         )
 
 def test_nodejs_compile_less() -> None:

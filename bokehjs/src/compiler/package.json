@@ -26,7 +26,7 @@
     "magic-string": "^0.30.21",
     "oxc-minify": "^0.157.0",
     "oxc-parser": "^0.157.0",
-    "typescript": "~5.9.2",
+    "typescript6": "npm:typescript@~6.0.2",
     "yargs": "^17.7.2"
   }
 }

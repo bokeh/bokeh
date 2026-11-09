@@ -146,6 +146,13 @@ API changes
   of the new ``PropertyError`` base class, which itself derives from
   ``ValueError``. Both are available from ``bokeh.core.properties``. Existing
   code catching ``ValueError`` is unaffected.
+* Bokeh's extensions compiler (``bokeh build`` and ``__implementation__``) now
+  uses TypeScript 6 and its own ``lib.*.d.ts`` files, even if an extension
+  depends on another version of TypeScript. TypeScript 6 rejects
+  ``"moduleResolution": "node"``, so change it to ``"bundler"`` in extensions'
+  ``tsconfig.json``. Inline ES modules (``JavaScript`` or ``TypeScript``
+  implementations) are now converted to CommonJS by BokehJS's linker instead of
+  TypeScript, and plain CommonJS code is used as is.
 
 Bug fixes
 ---------

@@ -1,11 +1,10 @@
-import type * as ts from "typescript"
-
 import * as cp from "node:child_process"
-import {join, dirname, basename, relative} from "node:path"
+import {join, basename, relative} from "node:path"
 
 import type {Path} from "./sys.js"
 import {read, read_json, write, rename, file_exists, directory_exists, hash, hash_file, resolve_npm} from "./sys.js"
-import {compile_files, read_tsconfig, parse_tsconfig, is_failed, compiler_host, report_diagnostics} from "./compiler.js"
+import type {CompilerOptions} from "./compiler.js"
+import {compile_files, read_tsconfig, parse_tsconfig, is_failed, compiler_host, report_diagnostics, default_lib_dir} from "./compiler.js"
 import {Linker} from "./linker.js"
 import {collect_styles, compile_styles, wrap_css_modules} from "./styles.js"
 import * as preludes from "./prelude.js"
@@ -16,17 +15,6 @@ import chalk from "chalk"
 const {cyan, magenta, red} = chalk
 
 import * as readline from "readline"
-
-type Package = {
-  name: string
-  version: string
-  description: string
-  license: string
-  keywords: string[]
-  repository: {type: string, url: string}
-  dependencies: {[key: string]: string}
-  devDependencies: {[key: string]: string}
-}
 
 const toString = Object.prototype.toString
 export function isString(obj: unknown): obj is string {
@@ -288,22 +276,9 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
     }
   }
 
-  const package_json = (is_package ? read_json(package_json_path) : {}) as Partial<Package>
-
-  const is_static_dir = basename(bokehjs_dir) == "static"
-
-  const tslib_dir = (() => {
-    if (package_json.devDependencies?.typescript != null) {
-      return join(base_dir, "node_modules", "typescript", "lib")
-    } else {
-      // bokeh/server/static or bokehjs/build
-      if (is_static_dir) {
-        return join(bokehjs_dir, "lib")
-      } else {
-        return join(dirname(bokehjs_dir), "node_modules", "typescript", "lib")
-      }
-    }
-  })()
+  // always use the compiler's TypeScript's libs, because the TypeScript of a package
+  // (if any) may not match the compiler (e.g. TypeScript 7 doesn't ship `lib.*.d.ts`)
+  const tslib_dir = default_lib_dir(bokehjs_dir)
 
   print(`TypeScript lib: ${cyan(tslib_dir)}`)
 
@@ -312,7 +287,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
     print(`Using ${cyan(tsconfig_path)}`)
   }
 
-  const preconfigure: ts.CompilerOptions = {
+  const preconfigure: CompilerOptions = {
     paths: {
       "@bokehjs/*": [
         join(bokehjs_dir, "js/lib/*"),
@@ -371,7 +346,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   if (setup.verbose) {
     print_files(files)
   }
-  const tsoutput = compile_files(files, options, undefined, host)
+  const tsoutput = compile_files(files, options, host)
 
   if (is_failed(tsoutput)) {
     print(report_diagnostics(tsoutput.diagnostics).text)
