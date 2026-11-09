@@ -490,6 +490,8 @@ class PrintfTickFormatter(TickFormatter):
         - ``e`` --- yields a float using scientific notation
         - ``u`` --- yields an integer as an unsigned decimal number
         - ``f`` --- yields a float as is
+        - ``g`` --- formats a float to the specified number of significant digits
+          and drops trailing zeros
         - ``o`` --- yields an integer as an octal number
         - ``s`` --- yields a string as is
         - ``x`` --- yields an integer as a hexadecimal number (lower-case)

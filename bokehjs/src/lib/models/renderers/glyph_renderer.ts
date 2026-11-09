@@ -1,4 +1,5 @@
 import type {PathNode} from "../graphics/path_placement"
+import {RendererView} from "./renderer"
 import {DataRenderer, DataRendererView} from "./data_renderer"
 import type {LegendEntry} from "../annotations/legend"
 import {LineView} from "../glyphs/line"
@@ -24,7 +25,9 @@ import type {HitTestResult} from "core/hittest"
 import type {Geometry} from "core/geometry"
 import type {SelectionManager} from "core/selection_manager"
 import type {ChildView} from "core/build_views"
-import {build_view} from "core/build_views"
+import {build_view, build_views, remove_views} from "core/build_views"
+import {GlyphAttachment} from "./glyph_attachment"
+import type {GlyphAttachmentView, PreparedAttachment} from "./glyph_attachment"
 import type {HasPropsClass, ModelAttrs} from "core/has_props"
 import type {Context2d} from "core/util/canvas"
 import {is_equal} from "core/util/eq"
@@ -51,6 +54,11 @@ type UpdatePass = {
   visuals: boolean
   paint: boolean
   indices?: Set<number>
+}
+
+type PaintMasks = {
+  glyph: Indices
+  attachments: Map<GlyphAttachmentView, Indices>
 }
 
 type OrientationOptions = Partial<Pick<PathPlacement.Attrs, "angle" | "angle_reference">>
@@ -110,6 +118,8 @@ export class GlyphRendererView extends DataRendererView {
   muted_glyph: GlyphView
   decimated_glyph: GlyphView
 
+  private readonly _attachments = new Map<GlyphAttachment, GlyphAttachmentView>()
+
   get glyph_view(): GlyphView {
     return this.glyph
   }
@@ -117,6 +127,7 @@ export class GlyphRendererView extends DataRendererView {
   override _children_views(): ChildView[] {
     return [
       ...super._children_views(),
+      ...this._attachments.values(),
       this.subset_view,
       this.glyph,
       this.selection_glyph,
@@ -195,6 +206,24 @@ export class GlyphRendererView extends DataRendererView {
     this.decimated_glyph.set_base(this.glyph)
 
     await this._set_data()
+    await this._build_attachments()
+  }
+
+  override request_paint(): void {
+    if (this.parent instanceof RendererView) {
+      this.parent.request_paint()
+    } else {
+      super.request_paint()
+    }
+  }
+
+  private async _build_attachments(): Promise<void> {
+    await build_views(this._attachments, this.model.attachments, {parent: this})
+  }
+
+  override remove(): void {
+    remove_views(this._attachments)
+    super.remove()
   }
 
   async build_glyph_view<T extends Glyph>(glyph: T): Promise<GlyphView> {
@@ -244,6 +273,12 @@ export class GlyphRendererView extends DataRendererView {
     const update = () => update_data()
 
     this.connect(this.model.change, render)
+    this.on_change(this.model.properties.attachments, async () => {
+      await this._build_attachments()
+      if (!this.is_destroyed) {
+        this.request_paint()
+      }
+    })
 
     const glyph = this.glyph.model
     if (supports_path_marking(glyph)) {
@@ -541,14 +576,75 @@ export class GlyphRendererView extends DataRendererView {
     return this.glyph.has_webgl()
   }
 
+  private _paint_glyph(ctx: Context2d, glyph: GlyphView, indices: Int32Array, masks?: PaintMasks): void {
+    if (this._attachments.size == 0) {
+      glyph.paint(ctx, indices)
+      return
+    }
+
+    const glyph_indices = masks == null ? indices : filter(indices, (i) => masks.glyph.get(i))
+    const prepared: PreparedAttachment[] = []
+    for (const attachment of this._attachments.values()) {
+      const mask = masks?.attachments.get(attachment)
+      const attachment_indices = mask == null ? glyph_indices :
+        mask.count == mask.size ? indices : filter(indices, (i) => mask.get(i))
+      const pass = attachment.prepare(glyph, attachment_indices)
+      if (pass != null) {
+        prepared.push(pass)
+      }
+    }
+
+    // A sibling glyph in a composite renderer may have drawn into the shared buffer.
+    this.canvas.blit_webgl(ctx)
+    ctx.save()
+    try {
+      for (const pass of prepared) {
+        pass.clip?.(ctx)
+      }
+      for (const pass of prepared) {
+        pass.paint_before?.(ctx)
+      }
+      const uses_webgl = glyph.has_webgl()
+      if (uses_webgl && ctx.layer.backend == "svg") {
+        glyph.paint_canvas(ctx, glyph_indices)
+      } else {
+        glyph.paint(ctx, glyph_indices)
+        if (uses_webgl) {
+          // Composite this pass under its clip before painting its attachments.
+          this.canvas.blit_webgl(ctx)
+        }
+      }
+    } finally {
+      ctx.restore()
+    }
+
+    for (const pass of prepared) {
+      pass.paint?.(ctx)
+    }
+  }
+
   protected _paint(ctx: Context2d): void {
     const {has_webgl} = this
 
     this.map_data()
 
-    // all_indices is in full data space, indices is converted to subset space by mask_data (that may use the spatial index)
+    // Partition the union of paint candidates by state, then apply each mask in that pass.
+    // Keep the viewport mask published on the IndexedSubset independent of attachments.
     const all_indices = this.model.view.indices_array
-    let indices = this._update_masked_indices().ones()
+    const masked = this._update_masked_indices()
+    let candidates = masked
+    let attachment_masks: Map<GlyphAttachmentView, Indices> | undefined
+    for (const attachment of this._attachments.values()) {
+      const mask = attachment.paint_candidates(this.glyph, masked)
+      if (mask != masked) {
+        attachment_masks ??= new Map()
+        attachment_masks.set(attachment, mask)
+        candidates = candidates.union(mask)
+      }
+    }
+    const masks = attachment_masks == null ? undefined : {glyph: masked, attachments: attachment_masks}
+    let glyph_masks = masks
+    let indices = candidates.ones()
 
     // selected is in full set space
     const {selected} = this.model.data_source
@@ -604,6 +700,7 @@ export class GlyphRendererView extends DataRendererView {
           && !has_webgl && lod_threshold != null && all_indices.length > lod_threshold) {
         // Render decimated during interaction if too many elements and not using GL
         indices = this.decimated.ones()
+        glyph_masks = undefined
         return {glyph: this.decimated_glyph, nonselection_glyph: this.decimated_glyph}
       } else {
         return {
@@ -625,9 +722,9 @@ export class GlyphRendererView extends DataRendererView {
     if (selected_full_indices.length == 0) {
       if (this.glyph instanceof LineView || this.glyph instanceof StepView) {
         if (this.hover_glyph != null && inspected_subset_indices.length != 0) {
-          this.hover_glyph.paint(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices))
+          this._paint_glyph(ctx, this.hover_glyph, this.model.view.convert_indices_from_subset(inspected_subset_indices))
         } else {
-          glyph.paint(ctx, all_indices)
+          this._paint_glyph(ctx, glyph, all_indices)
         }
       } else if (this.glyph instanceof PatchView ||
                  this.glyph instanceof HAreaView ||
@@ -635,18 +732,18 @@ export class GlyphRendererView extends DataRendererView {
                  this.glyph instanceof VAreaStepView ||
                  this.glyph instanceof HAreaStepView) {
         if (inspected.selected_glyphs.length == 0 || this.hover_glyph == null) {
-          glyph.paint(ctx, all_indices)
+          this._paint_glyph(ctx, glyph, all_indices)
         } else {
           for (const sglyph of inspected.selected_glyphs) {
             if (sglyph == this.glyph.model) {
-              this.hover_glyph.paint(ctx, all_indices)
+              this._paint_glyph(ctx, this.hover_glyph, all_indices)
             }
           }
         }
       } else {
-        glyph.paint(ctx, indices)
+        this._paint_glyph(ctx, glyph, indices, glyph_masks)
         if (this.hover_glyph != null && inspected_subset_indices.length != 0) {
-          this.hover_glyph.paint(ctx, inspected_subset_indices)
+          this._paint_glyph(ctx, this.hover_glyph, inspected_subset_indices, masks)
         }
       }
     // Render with selection
@@ -673,13 +770,14 @@ export class GlyphRendererView extends DataRendererView {
         }
       }
       // paint order matters, selection should be paint last/on top
-      nonselection_glyph.paint(ctx, nonselected_subset_indices.subarray(0, n_nonselected))
-      selection_glyph.paint(ctx, selected_subset_indices.subarray(0, n_selected))
+      const subset_masks = is_line_or_step ? undefined : glyph_masks
+      this._paint_glyph(ctx, nonselection_glyph, nonselected_subset_indices.subarray(0, n_nonselected), subset_masks)
+      this._paint_glyph(ctx, selection_glyph, selected_subset_indices.subarray(0, n_selected), subset_masks)
       if (this.hover_glyph != null) {
         if (this.glyph instanceof LineView || this.glyph instanceof StepView) {
-          this.hover_glyph.paint(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices))
+          this._paint_glyph(ctx, this.hover_glyph, this.model.view.convert_indices_from_subset(inspected_subset_indices))
         } else {
-          this.hover_glyph.paint(ctx, inspected_subset_indices)
+          this._paint_glyph(ctx, this.hover_glyph, inspected_subset_indices, masks)
         }
       }
     }
@@ -758,6 +856,7 @@ export namespace GlyphRenderer {
     selection_glyph: p.Property<SelectionGlyph | "auto" | null>
     muted_glyph: p.Property<MutedGlyph | "auto" | null>
     muted: p.Property<boolean>
+    attachments: p.Property<GlyphAttachment[]>
   }
 }
 
@@ -803,7 +902,7 @@ export class GlyphRenderer<
   static {
     this.prototype.default_view = GlyphRendererView
 
-    this.define<GlyphRenderer.Props<Glyph>>(({Bool, Auto, Or, Ref, Null, Nullable}) => ({
+    this.define<GlyphRenderer.Props<Glyph>>(({Bool, Auto, Or, Ref, Null, Nullable, List}) => ({
       data_source:        [ Ref(IndexedDataSource) ],
       view:               [ Ref(IndexedSubset), () => IndexedSubset.create() ],
       glyph:              [ Ref(Glyph) ],
@@ -812,6 +911,7 @@ export class GlyphRenderer<
       selection_glyph:    [ Or(Ref(Glyph), Auto, Null), "auto" ],
       muted_glyph:        [ Or(Ref(Glyph), Auto, Null), "auto" ],
       muted:              [ Bool, false ],
+      attachments:       [ List(Ref(GlyphAttachment)), [] ],
     }))
   }
 

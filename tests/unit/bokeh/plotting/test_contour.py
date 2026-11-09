@@ -18,6 +18,10 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 
+from bokeh.core.properties import value
+from bokeh.document import Document
+from bokeh.models import ContourLabels, PrintfTickFormatter
+from bokeh.plotting import figure
 from bokeh.plotting.contour import (
     FillData,
     LineData,
@@ -106,6 +110,45 @@ class Test_contour_data:
 
         with pytest.raises(TypeError):  # No z, not matching exception string as originates in ContourPy
             contour_data(levels=[1])
+
+class Test_contour_labels:
+    def test_roundtrip(self, xyz_levels: XYZ_Levels) -> None:
+        x, y, z, levels = xyz_levels
+        plot = figure()
+        contours = plot.contour(x, y, z, levels, line_color="black")
+        automatic = contours.add_labels()
+        formatter = PrintfTickFormatter(format="%.2g")
+        custom = contours.add_labels(value("summit"), formatter=formatter, positions=[0.25, 0.75],
+                                     inline_gap=True, text_color="red", background_fill_color="yellow",
+                                     background_fill_alpha=0.5)
+        gap = contours.add_labels(inline_gap=True)
+        transparent = contours.add_labels(background_fill_color=None)
+        assert contours.line_renderer.attachments == [automatic, custom, gap, transparent]
+        assert contours.fill_renderer.attachments == []
+        assert isinstance(custom, ContourLabels)
+        assert automatic.text is None
+        assert isinstance(automatic.formatter, PrintfTickFormatter)
+        assert automatic.formatter.format == "%.3g"
+        assert automatic.formatter is not gap.formatter
+        assert custom.formatter is formatter
+        assert automatic.background_fill_color == "white"
+        assert custom.background_fill_color == "yellow"
+        assert custom.background_fill_alpha == 0.5
+        assert gap.background_fill_color is None
+        assert transparent.background_fill_color is None
+
+        doc = Document()
+        doc.add_root(plot)
+        decoded = Document.from_json(doc.to_json())
+        decoded_custom = decoded.get_model_by_id(custom.id)
+        assert isinstance(decoded_custom, ContourLabels)
+        assert decoded_custom.formatter is decoded.get_model_by_id(formatter.id)
+        assert isinstance(decoded_custom.formatter, PrintfTickFormatter)
+        assert decoded_custom.formatter.format == "%.2g"
+        decoded_properties = decoded_custom.properties_with_values()
+        custom_properties = custom.properties_with_values()
+        del decoded_properties["formatter"], custom_properties["formatter"]
+        assert decoded_properties == custom_properties
 
 class Test_from_contour:
     @pytest.mark.parametrize("want_fill,want_line", [(True, True), (True, False), (False, True)])

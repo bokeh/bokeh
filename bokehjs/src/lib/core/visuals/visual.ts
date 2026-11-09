@@ -36,7 +36,7 @@ export abstract class VisualProperties {
     this._props = []
     for (const attr of this.attrs) {
       const prop = obj.model.properties[prefix + attr]
-      prop.change.connect(() => this.update())
+      prop.change.connect(() => this.update(), obj)
       self[attr] = prop
       this._props.push(prop)
     }

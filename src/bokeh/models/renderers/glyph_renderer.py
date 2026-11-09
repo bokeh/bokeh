@@ -30,6 +30,7 @@ import numpy as np
 from bokeh.core.property.vectorization import Field
 
 from ...core.property.auto import Auto
+from ...core.property.container import List
 from ...core.property.either import Either
 from ...core.property.instance import Instance, InstanceDefault
 from ...core.property.nullable import Nullable
@@ -50,6 +51,7 @@ from ..sources import (
     IndexedSubset,
     WebDataSource,
 )
+from ._glyph_attachment import GlyphAttachment
 from .renderer import DataRenderer
 
 if TYPE_CHECKING:
@@ -102,6 +104,10 @@ class GlyphRenderer(DataRenderer):
 
         if missing:
             return f"{', '.join(missing)} {{renderer: {self}}}"
+
+    attachments = List(Instance(GlyphAttachment), help="""
+    Internal models painted with this renderer.
+    """)
 
     data_source = Required(Instance(IndexedDataSource), help="""
     Local data source to use when rendering glyphs on the plot.

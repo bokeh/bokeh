@@ -40,6 +40,40 @@ There is a colorbar on the right of the plot which is obtained using
 :meth:`~bokeh.models.ContourRenderer.construct_color_bar`. It automatically
 displays the same fill and line visual properties as the contour plot.
 
+Contour labels
+--------------
+
+Call :meth:`~bokeh.models.ContourRenderer.add_labels` on the object returned by
+``figure.contour()`` to label the lines. Bokeh formats each contour level and
+places an upright label along its path. Labels follow the lines as you pan,
+zoom, or update the contour data with ``set_data()``.
+
+.. code-block:: python
+
+    from bokeh.models import PrintfTickFormatter
+
+    contours = p.contour(x, y, z, levels, line_color="black")
+    contours.add_labels(formatter=PrintfTickFormatter(format="%.2g"), text_font_size="10pt")
+
+In BokehJS, pass the text as the first argument and the options as the second.
+Pass ``null`` for the text to format the contour levels. The default formatter
+is :class:`~bokeh.models.PrintfTickFormatter` with ``format="%.3g"``, which
+uses three significant digits.
+
+By default the label has a white background. Use ``inline_gap=True`` to leave a
+gap in the contour stroke under each label on canvas and WebGL plots.
+SVG plots and SVG exports draw labels over continuous strokes.
+Set ``background_fill_color`` and ``background_fill_alpha`` to customize the
+background. The method returns a :class:`~bokeh.models.ContourLabels` model
+that you can update after creating the labels.
+
+Use ``positions=[0.25, 0.75]`` to place two labels at fixed fractions of each
+level's screen path length. You can also name a contour line source column
+containing a sequence of fractions per level. Supply that column as a string.
+Empty rows draw no labels, and fractions outside the interval from zero to
+one are skipped. Pass a text field name or
+``value("...")`` to replace the formatted levels with custom text.
+
 .. _ug_topics_contour_polar:
 
 Polar grid example

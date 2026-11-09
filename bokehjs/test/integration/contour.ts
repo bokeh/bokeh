@@ -1,6 +1,6 @@
 import {display, fig} from "#framework/layouts"
 
-import {ContourColorBar, GlyphRenderer, MultiLine, MultiPolygons} from "@bokehjs/models"
+import {ContourColorBar, GlyphRenderer, MultiLine, MultiPolygons, PrintfTickFormatter} from "@bokehjs/models"
 import {ContourRenderer} from "@bokehjs/models/renderers/contour_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 
@@ -49,4 +49,40 @@ describe("ContourRenderer", () => {
 
     await display(p)
   })
+
+  const label_cases = [
+    {output_backend: "canvas", label_style: "boxed contour labels", positions: null},
+    {output_backend: "webgl", label_style: "inline contour labels", positions: null},
+    {output_backend: "canvas", label_style: "contour labels at per-level fractions", positions: "label_positions"},
+  ] as const
+
+  for (const {output_backend, label_style, positions} of label_cases) {
+    const inline_gap = output_backend == "webgl"
+    it(`should draw ${label_style} on ${output_backend}`, async () => {
+      const levels = [0.125, 0.75, 1.5]
+      const angles = Array.from({length: 65}, (_, i) => 2*Math.PI*i/64)
+      const radii = [0.36, 0.61, 0.86]
+      const line_source = ColumnDataSource.create({data: {
+        xs: radii.map((radius) => angles.map((angle) => radius*Math.cos(angle))),
+        ys: radii.map((radius) => angles.map((angle) => 0.7*radius*Math.sin(angle))),
+        levels,
+        label_positions: [[0.25, 0.75], [0.35], [0.10, 0.55]],
+      }})
+      const line_renderer = GlyphRenderer.create({
+        glyph: MultiLine.create({line_color: "#254a68", line_width: 3}),
+        data_source: line_source,
+      })
+      const fill_renderer = GlyphRenderer.create({
+        glyph: MultiPolygons.create(),
+        data_source: ColumnDataSource.create(),
+        visible: false,
+      })
+      const contours = ContourRenderer.create({fill_renderer, line_renderer, levels})
+      contours.add_labels(null, {inline_gap, positions, formatter: PrintfTickFormatter.create({format: "%.2g"}), text_font_size: "14px"})
+
+      const p = fig([320, 250], {output_backend, x_range: [-1, 1], y_range: [-0.85, 0.85]})
+      p.add_renderers(contours)
+      await display(p)
+    })
+  }
 })
