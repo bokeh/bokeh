@@ -268,7 +268,10 @@ To define a specific value:
     }
 
     .custom-class {
-      border-color: var(--border-color);  // Its value will be `black` here due to the definition above but even
-                                          // if `--bokeh-border-color` was not defined ``--border-color`` would
-                                          // give fallback to a predefined color (i.e `#BBBBBD`)
+      /*
+        Its value will be `black` here due to the definition above but even
+        if `--bokeh-border-color` was not defined ``--border-color`` would
+        give fallback to a predefined color (i.e `#BBBBBD`)
+      */
+      border-color: var(--border-color);
     }
