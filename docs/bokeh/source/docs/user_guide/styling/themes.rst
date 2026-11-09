@@ -249,7 +249,26 @@ Other variables:
 * ``--bokeh-divider`` to allow setting a custom style for borders used as divider which otherwise
   uses the ``--bokeh-divider-color``
 
-Via the definition of a custom stylesheet a component then can modify this values to
+Via the definition of a custom stylesheet a component then can define this variables to
 customize its appearance. Examples of this type of customization are available under
 ``examples/styling/accessible-style``, ``examples/styling/office-style`` and
 ``examples/styling/xkcd-style``
+
+Also, for each of these there are variables defined without the ``bokeh`` which should be
+the ones you use with ``var`` to access the underline value. So for example, for the variable
+``--bokeh-border-color`` there is a ``--border-color`` variable which even if ``--bokeh-border-color``
+is not defined will allow you to access a default value for the ``border-color`` property.
+
+To define a specific value:
+
+.. code-block:: css
+
+    :host {
+      --bokeh-border-color: black;
+    }
+
+    .custom-class {
+      border-color: var(--border-color);  // Its value will be `black` here due to the definition above but even
+                                          // if `--bokeh-border-color` was not defined ``--border-color`` would
+                                          // give fallback to a predefined color (i.e `#BBBBBD`)
+    }
