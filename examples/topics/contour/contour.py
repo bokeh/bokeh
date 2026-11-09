@@ -2,7 +2,7 @@
 between each pair of contour levels.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.contour, bokeh.models.ContourRenderer
+    :apis: bokeh.plotting.figure.contour, bokeh.models.ContourRenderer.add_labels, bokeh.models.ContourRenderer
     :refs: :ref:`ug_topics_contour`
     :keywords: contour
 
@@ -24,6 +24,8 @@ contour_renderer = fig.contour(
     x, y, z, levels, fill_color=OrRd,
     line_color=['white']*4 + ['black']*5, line_dash=['solid']*5 + ['dashed']*4, line_width=2,
 )
+
+contour_renderer.add_labels(text_font_style="bold")
 
 colorbar = contour_renderer.construct_color_bar()
 fig.add_layout(colorbar, 'right')

@@ -11,7 +11,7 @@ at your command prompt. Then navigate to the URL
 in your browser.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.contour, bokeh.models.ContourRenderer, bokeh.models.contour.contour_data
+    :apis: bokeh.plotting.figure.contour, bokeh.models.ContourRenderer.add_labels, bokeh.models.ContourRenderer, bokeh.models.contour.contour_data
     :refs: :ref:`ug_topics_contour_animated`
     :keywords: contour
 
@@ -48,6 +48,11 @@ fig = figure(width=600, height=450)
 
 contour_renderer = fig.contour(x, y, get_z(0), levels, fill_color=PiYG,
                                line_color="black", line_width=[1]*5 + [3] + [1]*5)
+
+contour_renderer.add_labels(
+    inline_gap=True, text_color="black", text_font_style="bold",
+    text_outline_color="white", text_outline_width=0.75,
+)
 
 colorbar = contour_renderer.construct_color_bar()
 fig.add_layout(colorbar, 'right')

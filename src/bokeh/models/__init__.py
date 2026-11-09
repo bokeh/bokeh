@@ -93,6 +93,7 @@ from .nodes import *
 from .plots import *
 from .ranges import *
 from .renderers import *
+from .renderers import ContourLabels as ContourLabels
 from .scales import *
 from .selections import *
 from .selectors import *

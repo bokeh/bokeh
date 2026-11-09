@@ -263,29 +263,34 @@ export class CanvasView extends UIElementView {
     }
   }
 
+  // A renderer may already have composited its WebGL passes.
+  private _webgl_dirty = false
+
+  mark_webgl_dirty(): void {
+    this._webgl_dirty = true
+  }
+
   blit_webgl(ctx: Context2d): void {
-    // This should be called when the ctx has no state except the HiDPI transform
     const {webgl} = this
-    if (webgl != null && webgl.canvas.width*webgl.canvas.height > 0) {
-      // Blit gl canvas into the 2D canvas. To do 1-on-1 blitting, we need
-      // to remove the HiDPI transform, then blit, then restore.
-      // ctx.globalCompositeOperation = "source-over"  -> OK; is the default
+    if (this._webgl_dirty && webgl != null && webgl.canvas.width*webgl.canvas.height > 0) {
       logger.debug("Blitting WebGL canvas")
-      ctx.restore()
-      // GL draws into the viewport in the bottom-left corner of the shared canvas
-      const {width, height} = this.primary.canvas
-      const {width: vw = 0, height: vh = 0} = webgl.regl_wrapper.viewport
-      ctx.drawImage(webgl.canvas, 0, webgl.canvas.height - vh, vw, vh, 0, 0, width, height)
-      // Set back the HiDPI transform
+      // Copy in device pixels while preserving any clip on the destination.
       ctx.save()
-      const ratio = this.pixel_ratio
-      ctx.scale(ratio, ratio)
-      ctx.translate(0.5, 0.5)
-      this._clear_webgl()
+      try {
+        ctx.resetTransform()
+        // GL draws into the viewport in the bottom-left corner of the shared canvas.
+        const {width, height} = this.primary.canvas
+        const {width: vw = 0, height: vh = 0} = webgl.regl_wrapper.viewport
+        ctx.drawImage(webgl.canvas, 0, webgl.canvas.height - vh, vw, vh, 0, 0, width, height)
+      } finally {
+        ctx.restore()
+        this._clear_webgl()
+      }
     }
   }
 
   protected _clear_webgl(): void {
+    this._webgl_dirty = false
     const {webgl} = this
     if (webgl != null) {
       // Prepare GL for drawing

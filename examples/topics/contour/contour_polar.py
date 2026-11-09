@@ -1,7 +1,7 @@
 ''' Contour plot with polar grid and many visual properties.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.contour, bokeh.models.ContourRenderer.contruct_color_bar
+    :apis: bokeh.plotting.figure.contour, bokeh.models.ContourRenderer.add_labels, bokeh.models.ContourRenderer.construct_color_bar
     :refs: :ref:`ug_topics_contour_polar`
     :keywords: contour
 
@@ -31,6 +31,8 @@ contour_renderer = p.contour(
     line_dash=["solid"]*6 + ["dashed"]*5,
     line_width=[1]*6 + [2]*5,
 )
+
+contour_renderer.add_labels()
 
 colorbar = contour_renderer.construct_color_bar(title="Colorbar title")
 p.add_layout(colorbar, "right")
