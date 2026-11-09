@@ -8,8 +8,8 @@ import {Wedge} from "@bokehjs/models/glyphs/wedge"
 import {AnnularWedge} from "@bokehjs/models/glyphs/annular_wedge"
 
 describe("WebGL wedge glyphs", () => {
-  // Same angle as the hvplot pie chart that exposed the bug. For an empty span,
-  // cross_z(a, b) is 0, which the old shader drew as a full disc.
+  // For an empty wedge (start_angle == end_angle) the shader computes cross_z(a, b) == 0,
+  // which used to be drawn as a full disc. The angle itself is arbitrary.
   const a = 2*Math.PI*1200/1380
 
   for (const glyph_type of ["Wedge", "AnnularWedge"] as const) {
