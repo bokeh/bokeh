@@ -15,7 +15,7 @@ font_style = GlobalInlineStyleSheet(
 
 switch_style =  InlineStyleSheet(css="""
   .bk-bar, .bk-knob {
-    --border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
+    --bokeh-border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
     text-transform: inherit;
     border: var(--border);
     border-radius: var(--border-radius);
@@ -32,7 +32,7 @@ button_style = InlineStyleSheet(css="""
 
 slider_style =  InlineStyleSheet(css="""
   .bk-track, .bk-handle, .bk-tooltip {
-    --border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
+    --bokeh-border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
     text-transform: inherit;
     border: var(--border);
     border-radius: var(--border-radius);
@@ -51,7 +51,7 @@ choices_style = InlineStyleSheet(css="""
 
 legend_style = InlineStyleSheet(css="""
   :host {
-    --border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
+    --bokeh-border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
     border: var(--border);
     border-radius: var(--border-radius);
   }
@@ -105,16 +105,16 @@ layout = row(children=w_columns, sizing_mode="stretch_width", stylesheets=[
   InlineStyleSheet(css="""
   :host {
     --bokeh-base-font: XKCD;
-    --border-color: var(--color);
-    --border-width: 2px;
-    --default-border-color: var(--color);
+    --bokeh-border-color: var(--color);
+    --bokhe-border-width: 2px;
+    --bokhe-default-border-color: var(--color);
     --bokeh-font-size: 1rem;
-    --border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
-    --border-top-left-radius: 20px 5px;
-    --border-top-right-radius: 5px 20px;
-    --border-bottom-left-radius: 5px 20px;
-    --border-bottom-right-radius: 20px 5px;
-    --font-weight: bold;
+    --bokeh-border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
+    --bokeh-border-top-left-radius: 20px 5px;
+    --bokeh-border-top-right-radius: 5px 20px;
+    --bokeh-border-bottom-left-radius: 5px 20px;
+    --bokeh-border-bottom-right-radius: 20px 5px;
+    --bokeh-font-weight: bold;
     text-transform: uppercase;
     background-color: var(--background-color);
   }"""),
