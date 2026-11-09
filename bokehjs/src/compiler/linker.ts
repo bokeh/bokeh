@@ -2,7 +2,6 @@ import {resolve, relative, join, dirname, basename, extname, normalize, sep} fro
 import crypto from "node:crypto"
 
 import {minifySync} from "oxc-minify"
-import {parseSync} from "oxc-parser"
 import chalk from "chalk"
 
 import * as convert from "convert-source-map"
@@ -897,7 +896,7 @@ const license_like = /copyright|license|\(c\)/i
 const legal = /^!|@license|@preserve/
 
 function mark_license_comments(name: string, source: string): string {
-  const {comments} = parseSync(name, source, {sourceType: "script"})
+  const {comments} = transforms.parse(name, source, {sourceType: "script"})
   let result = ""
   let pos = 0
   for (const {type, value, start, end} of comments) {
