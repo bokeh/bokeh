@@ -125,15 +125,64 @@ void test("Linker maps bundles to original sources", async (t) => {
   })
   const {bundles: [bundle]} = await linker.link()
 
-  const prelude = {main: preludes.prelude(), plugin: preludes.plugin_prelude()}
-  const postlude = {main: preludes.postlude(), plugin: preludes.plugin_postlude()}
-  for (const minified of [false, true]) {
-    const {source, sourcemap} = bundle.assemble({prelude, postlude, minified})
-    assert.ok(sourcemap != null)
-    const index = source.search(/["'`]hello /) // the minifier may use a template literal
-    const lines = source.slice(0, index).split("\n")
-    const position = originalPositionFor(new TraceMap(sourcemap as any), {line: lines.length, column: lines[lines.length - 1].length})
-    assert.match(position.source ?? "", /src\/index\.ts$/, `${minified ? "minified" : "unminified"} bundle`)
-    assert.deepEqual([position.line, position.column], [3, 9])
+  // bundles share maps of modules between preludes, so assemble each kind twice
+  const kinds = {
+    plain: {
+      prelude: {main: preludes.prelude(), plugin: preludes.plugin_prelude()},
+      postlude: {main: preludes.postlude(), plugin: preludes.plugin_postlude()},
+    },
+    esm: {
+      prelude: {main: preludes.prelude_esm(false), plugin: preludes.plugin_prelude_esm(false)},
+      postlude: {main: preludes.postlude_esm(), plugin: preludes.plugin_postlude_esm()},
+    },
   }
+  for (const kind of ["plain", "esm", "plain", "esm"] as const) {
+    for (const minified of [false, true]) {
+      const {source, sourcemap} = bundle.assemble({...kinds[kind], minified})
+      assert.ok(sourcemap != null)
+      const index = source.search(/["'`]hello /) // the minifier may use a template literal
+      const lines = source.slice(0, index).split("\n")
+      const position = originalPositionFor(new TraceMap(sourcemap), {line: lines.length, column: lines[lines.length - 1].length})
+      const message = `${minified ? "minified" : "unminified"} ${kind} bundle`
+      assert.match(position.source ?? "", /src\/index\.ts$/, message)
+      assert.deepEqual([position.line, position.column], [3, 9], message)
+    }
+  }
+})
+
+void test("Linker stores its cache only when it changed", async (t) => {
+  const dir = fixture(t, {
+    "lib/index.js": `import {a} from "./a.js"; export {a}`,
+    "lib/a.js": "export const a = 1",
+  })
+  const cache = join(dir, "cache.json")
+  const build = async () => {
+    const linker = new Linker({entries: [join(dir, "lib", "index.js")], bases: [join(dir, "lib"), join(dir, "node_modules")], cache})
+    linker.load_cache()
+    await linker.link()
+    linker.store_cache()
+  }
+  const stored = () => fs.readFileSync(cache, "utf-8")
+
+  await build()
+  const initial = stored()
+  assert.match(initial, /export const a = 1/)
+
+  const marked = JSON.stringify({...JSON.parse(initial), marked: true})
+  fs.writeFileSync(cache, marked)
+  await build()
+  assert.equal(stored(), marked, "nothing changed, so not stored")
+
+  fs.writeFileSync(cache, JSON.stringify({version: 0}))
+  t.mock.method(console, "warn", () => {})
+  await build()
+  assert.equal(stored(), initial, "incompatible cache, so stored")
+
+  fs.writeFileSync(join(dir, "lib", "a.js"), "export const a = 2")
+  await build()
+  assert.match(stored(), /export const a = 2/, "a module changed, so stored")
+
+  fs.writeFileSync(join(dir, "lib", "index.js"), "export const a = 3")
+  await build()
+  assert.doesNotMatch(stored(), /a\.js/, "a module was removed, so stored")
 })
