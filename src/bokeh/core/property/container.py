@@ -225,13 +225,13 @@ class Dict[K, V](ContainerProperty[dict[K, V]]):
         if not isinstance(value, dict):
             raise ValueError(f"{expected}, got a value of type {type(value)}" if detail else "")
 
-        bad_keys = [str(k) for k in value if not key_is_valid(k)]
-        bad_value_keys = [str(k) for (k, v) in value.items() if not value_is_valid(v)]
+        bad_keys = [str(k) or "''" for k in value if not key_is_valid(k)]
+        bad_value_keys = [str(k) or "''" for (k, v) in value.items() if not value_is_valid(v)]
         exception_header = f"{expected}, got a dict with"
         bad_keys_str = f"invalid keys: {', '.join(bad_keys)}"
         bad_value_keys_str = f"invalid values for keys: {', '.join(bad_value_keys)}"
         err = None
-        if (has_bad_keys := any(bad_keys)) & (has_bad_key_values := any(bad_value_keys)):
+        if (has_bad_keys := bool(bad_keys)) & (has_bad_key_values := bool(bad_value_keys)):
             err = ValueError(f"{exception_header} {bad_keys_str} and {bad_value_keys_str}")
         elif has_bad_keys:
             err = ValueError(f"{exception_header} {bad_keys_str}")
