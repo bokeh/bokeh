@@ -39,7 +39,7 @@ import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GraphRenderer} from "../../renderers/graph_renderer"
 import type {Renderer} from "../../renderers/renderer"
 import type {ImageIndex, MultiIndices, OpaqueIndices, Selection} from "../../selections/selection"
-import type {ColumnarDataSource} from "../../sources/columnar_data_source"
+import type {IndexedDataSource} from "../../sources/indexed_data_source"
 import {compute_renderers} from "../../util"
 import {CustomJSHover} from "./customjs_hover"
 import {InspectTool, InspectToolView} from "./inspect_tool"
@@ -59,9 +59,9 @@ function Swatch({color}: {color: Color}) {
   return <span class={hover_tool_css.tooltip_color_block} style={{backgroundColor: color2css(color)}}></span>
 }
 
-function Color(props: {colname: string, source: ColumnarDataSource, index: Index | null, value?: boolean, hex?: boolean, swatch?: boolean}): VNode {
+function Color(props: {colname: string, source: IndexedDataSource, index: Index | null, value?: boolean, hex?: boolean, swatch?: boolean}): VNode {
   const {colname, source, index, value=false, hex=false, swatch=true} = props
-  const column = source.get_column(colname)
+  const column = source.get_field(colname)
 
   if (column == null) {
     return <Value>{colname} unknown</Value>
@@ -235,11 +235,7 @@ export class HoverToolView extends InspectToolView {
     ttmodels.clear()
 
     const {tooltips} = this.model
-    if (tooltips == null) {
-      return
-    }
-
-    const {computed_renderers} = this
+    const computed_renderers = tooltips == null ? [] : this.computed_renderers
     for (const r of computed_renderers) {
       const tooltip = Tooltip.create({
         stylesheets: [hover_tool_css.default],
@@ -259,19 +255,27 @@ export class HoverToolView extends InspectToolView {
       }
     }
 
+    this._connect_inspectors()
     await build_views(this._ttviews, [...ttmodels.values()], {parent: this})
+  }
 
-    const glyph_renderers = [...(function* () {
-      for (const r of computed_renderers) {
-        if (r instanceof GlyphRenderer) {
-          yield r
-        } else if (r instanceof GraphRenderer) {
-          yield r.node_renderer
-          yield r.edge_renderer
-        }
-      }
-    })()]
+  protected _inspect_renderers = new Set<GlyphRenderer>()
+  protected readonly _source_changed = () => this._connect_sources()
 
+  protected _connect_inspectors(): void {
+    for (const renderer of this._inspect_renderers) {
+      this.disconnect(renderer.properties.data_source.change, this._source_changed)
+    }
+    const glyph_renderers = [...this.ttmodels.keys()]
+    this._inspect_renderers = new Set(glyph_renderers)
+    for (const renderer of glyph_renderers) {
+      this.connect(renderer.properties.data_source.change, this._source_changed)
+    }
+    this._connect_sources()
+  }
+
+  protected _connect_sources(): void {
+    const glyph_renderers = [...this._inspect_renderers]
     const slot = this._slots.get(this.update)
     if (slot != null) {
       const except = new Set(glyph_renderers.map((r) => r.data_source))
@@ -396,7 +400,7 @@ export class HoverToolView extends InspectToolView {
     const {glyph} = renderer_view
     const subset_indices = renderer.view.convert_selection_to_subset(fullset_indices)
 
-    const collected: {ds: ColumnarDataSource, vars: TooltipVars}[] = []
+    const collected: {ds: IndexedDataSource, vars: TooltipVars}[] = []
 
     if (glyph instanceof PatchView) {
       const [snap_sx, snap_sy] = [sx, sy]
@@ -681,7 +685,7 @@ export class HoverToolView extends InspectToolView {
     }
   }
 
-  protected _get_value(field: string, ds: ColumnarDataSource, vars: TooltipVars): unknown {
+  protected _get_value(field: string, ds: IndexedDataSource, vars: TooltipVars): unknown {
     const [type, name] = ((): ["@" | "$", string] => {
       switch (field[0]) {
         case "@": return ["@", field.substring(1)]
@@ -693,14 +697,14 @@ export class HoverToolView extends InspectToolView {
     return get_value(type, name, ds, index, vars)
   }
 
-  protected _can_render_tooltip(data_source: ColumnarDataSource, vars: TooltipVars): boolean {
+  protected _can_render_tooltip(data_source: IndexedDataSource, vars: TooltipVars): boolean {
     const {filters} = this.model
 
     for (const [field, filter] of entries(filters)) {
       const value = this._get_value(field, data_source, vars)
 
       const index = vars.image_index ?? vars.index
-      const row = index != null ? data_source.get_row(index) : {}
+      const row = index != null ? data_source.get_record(index) : {}
 
       for (const fn of isArray(filter) ? filter : [filter]) {
         const args: FilterArgs = {value, field, row, data_source, vars}
@@ -771,7 +775,7 @@ export class HoverToolView extends InspectToolView {
     }
   }
 
-  _render_vdom(ds: ColumnarDataSource, index: Index | null, vars: TooltipVars): VNode {
+  _render_vdom(ds: IndexedDataSource, index: Index | null, vars: TooltipVars): VNode {
     const tooltips = this.signals.tooltips.value
     assert(isArray(tooltips))
 
@@ -818,7 +822,7 @@ export class HoverToolView extends InspectToolView {
     return <div class={hover_tool_css.tooltip_entry}>{rows}</div>
   }
 
-  _render_tooltips_if_can(ds: ColumnarDataSource, vars: TooltipVars): Element | VNode | null {
+  _render_tooltips_if_can(ds: IndexedDataSource, vars: TooltipVars): Element | VNode | null {
     try {
       return this._render_tooltips(ds, vars)
     } catch (error) {
@@ -830,7 +834,7 @@ export class HoverToolView extends InspectToolView {
     }
   }
 
-  _render_tooltips(ds: ColumnarDataSource, vars: TooltipVars): Element | VNode | null {
+  _render_tooltips(ds: IndexedDataSource, vars: TooltipVars): Element | VNode | null {
     const {tooltips} = this.model
 
     // if we have an image_index, that is what replace_placeholders needs
@@ -853,7 +857,7 @@ export class HoverToolView extends InspectToolView {
     }
   }
 
-  protected _update_template(template_view: ViewOf<DOMElement>, ds: ColumnarDataSource, i: Index | null, vars: TooltipVars): void {
+  protected _update_template(template_view: ViewOf<DOMElement>, ds: IndexedDataSource, i: Index | null, vars: TooltipVars): void {
     const {formatters} = this.model
     if (template_view instanceof TemplateView) {
       template_view.update(ds, i, vars, formatters, tooltip_formatter)
@@ -871,7 +875,7 @@ export namespace HoverTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = InspectTool.Props & {
-    tooltips: p.Property<null | DOMElement | string | [string, string][] | ((source: ColumnarDataSource, vars: TooltipVars) => HTMLElement)>
+    tooltips: p.Property<null | DOMElement | string | [string, string][] | ((source: IndexedDataSource, vars: TooltipVars) => HTMLElement)>
     formatters: p.Property<Formatters>
     filters: p.Property<Dict<FilterDef | FilterDef[]>>
     sort_by: p.Property<SortBy>
@@ -898,7 +902,7 @@ export class HoverTool extends InspectTool {
     this.prototype.default_view = HoverToolView
 
     this.define<HoverTool.Props>(({Any, Bool, Int, Str, Positive, List, Tuple, Dict, Or, Ref, Func, Auto, Nullable}) => ({
-      tooltips: [ Nullable(Or(Ref(DOMElement), Str, List(Tuple(Str, Str)), Func<[ColumnarDataSource, TooltipVars], HTMLElement>())), [
+      tooltips: [ Nullable(Or(Ref(DOMElement), Str, List(Tuple(Str, Str)), Func<[IndexedDataSource, TooltipVars], HTMLElement>())), [
         ["index",         "$index"    ],
         ["data (x, y)",   "($x, $y)"  ],
         ["screen (x, y)", "($sx, $sy)"],

@@ -196,7 +196,7 @@ Examples:
 
             color (color value, optional): shorthand to set both fill and line color
 
-            source (:class:`~bokeh.models.sources.ColumnDataSource`) : a user-supplied data source.
+            source (:class:`~bokeh.models.sources.IndexedDataSource`) : a user-supplied data source.
                 An attempt will be made to convert the object to :class:`~bokeh.models.sources.ColumnDataSource`
                 if needed. If none is supplied, one is created for the user automatically.
 
@@ -1196,7 +1196,7 @@ Examples:
 
             color (color value, optional): shorthand to set both fill and line color
 
-            source (:class:`~bokeh.models.sources.ColumnDataSource`) : a user-supplied data source.
+            source (:class:`~bokeh.models.sources.IndexedDataSource`) : a user-supplied data source.
                 An attempt will be made to convert the object to :class:`~bokeh.models.sources.ColumnDataSource`
                 if needed. If none is supplied, one is created for the user automatically.
 

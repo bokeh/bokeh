@@ -9,6 +9,7 @@ import {restorable} from "#framework/util"
 import {PlotActions, xy} from "#framework/interactive"
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import type {GlyphRendererWithSource} from "@bokehjs/models/renderers/glyph_renderer"
 import {GlyphRenderer, GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
 import {Arc, Circle, MultiLine, Rect, Scatter, Segment} from "@bokehjs/models/glyphs"
 import {NormalHead, OpenHead} from "@bokehjs/models/annotations/arrow_head"
@@ -28,7 +29,7 @@ import {figure, show} from "@bokehjs/api/plotting"
 import {IndexedSubset} from "@bokehjs/models/sources/indexed_subset"
 import {PlotView} from "@bokehjs/models/plots/plot_canvas"
 
-function mkrenderer(glyph: Scatter): GlyphRenderer {
+function mkrenderer(glyph: Scatter): GlyphRendererWithSource<Scatter, ColumnDataSource> {
   const data_source = ColumnDataSource.create({
     data: {
       x: [10, 20, 30, 40],
@@ -37,7 +38,7 @@ function mkrenderer(glyph: Scatter): GlyphRenderer {
       label: ["foo", "bar", "foo", "bar"],
     },
   })
-  return GlyphRenderer.create({glyph, data_source})
+  return GlyphRenderer.create<GlyphRendererWithSource<Scatter, ColumnDataSource>>({glyph, data_source})
 }
 
 describe("GlyphRenderer", () => {

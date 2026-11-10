@@ -66,6 +66,7 @@ __all__ = (
     'ColumnDataSource',
     'DataSource',
     'GeoJSONDataSource',
+    'IndexedDataSource',
     'IndexedSubset',
     'ServerSentDataSource',
     'WebDataSource',
@@ -92,14 +93,26 @@ class DataSource(Model):
 
     '''
 
+@abstract
+class IndexedDataSource(DataSource):
+    ''' A source exposing one selectable, field-addressable logical record axis.
+
+    Subclasses define their storage and implement the indexed field contract
+    in BokehJS. Records do not need to be stored as columns.
+    '''
+
     selected = Readonly(Instance(Selection), default=InstanceDefault(Selection), help="""
-    An instance of a ``Selection`` that indicates selected indices on this ``DataSource``.
+    An instance of a ``Selection`` containing logical record indices.
     This is a read-only property. You may only change the attributes of this object
     to change the selection (e.g., ``selected.indices``).
     """)
 
+    selection_policy = Instance(SelectionPolicy, default=InstanceDefault(UnionRenderers), help="""
+    An instance of a ``SelectionPolicy`` that determines how selections are set.
+    """)
+
 @abstract
-class ColumnarDataSource(DataSource):
+class ColumnarDataSource(IndexedDataSource):
     ''' A base class for data source types, which can be mapped onto
     a columnar format.
 
@@ -112,10 +125,6 @@ class ColumnarDataSource(DataSource):
     when a value for a given column is not explicitly provided. If a default
     value is missing, a tool will defer to its own configuration or will try
     to let the data source to infer a sensible default value.
-    """)
-
-    selection_policy = Instance(SelectionPolicy, default=InstanceDefault(UnionRenderers), help="""
-    An instance of a ``SelectionPolicy`` that determines how selections are set.
     """)
 
 def _cds_lengths_warning(_, __, data: dict[str, Any]) -> None:
@@ -776,7 +785,7 @@ class ColumnDataSource(ColumnarDataSource):
         self.data._patch(self.document, self, patches, setter)
 
 class IndexedSubset(Model):
-    ''' A view into a ``ColumnDataSource`` that represents a row-wise subset.
+    ''' A filtered subset of the logical records in an ``IndexedDataSource``.
 
     '''
 

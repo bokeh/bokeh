@@ -7,7 +7,7 @@ import type {VectorSpec, ScalarSpec, ColorSpec, UnitsSpec, Property} from "../co
 import type {Dimension, RenderLevel} from "../core/enums"
 import type * as nd from "core/util/ndarray"
 
-import type {Glyph, GlyphRenderer, ColumnarDataSource, ColumnDataSource, IndexedSubset, CoordinateMapping} from "./models"
+import type {Glyph, GlyphRenderer, IndexedDataSource, ColumnarDataSource, ColumnDataSource, IndexedSubset, CoordinateMapping} from "./models"
 
 import type {GlyphRendererWithSource} from "../models/renderers/glyph_renderer"
 
@@ -126,7 +126,7 @@ export type AuxText = {
 }
 
 export type AuxGlyph = {
-  source: ColumnarDataSource | ColumnarDataSource["data"]
+  source: IndexedDataSource | ColumnarDataSource["data"]
   view: IndexedSubset
   legend_label: string
   legend_field: string
@@ -215,7 +215,7 @@ export type VStripArgs        = GlyphArgs<VStrip.Props>        & AuxLine & AuxFi
 export type WedgeArgs         = GlyphArgs<Wedge.Props>         & AuxLine & AuxFill & AuxHatch
 
 type GlyphSource = AuxGlyph["source"]
-type SourceOf<Source extends GlyphSource> = Source extends ColumnarDataSource ? Source : ColumnDataSource
+type SourceOf<Source extends GlyphSource> = Source extends IndexedDataSource ? Source : ColumnDataSource
 
 type GlyphOptions<Args, Source extends GlyphSource> = Partial<Args> & {
   source?: Source

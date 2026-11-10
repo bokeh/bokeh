@@ -86,6 +86,38 @@ export interface HasProps extends HasProps.Attrs, ISignalable {
 
 export type PropertyGenerator = Generator<Property, void, undefined>
 
+export type TransitiveOpts = {
+  recursive?: boolean
+  signals?: (obj: HasProps) => readonly Signal<unknown, HasProps>[]
+  on_replace?: (() => unknown) | null
+}
+
+/** Bind signals from referenced models and rebind before notifying on replacement. */
+export function on_transitive_change(
+  receiver: ISignalable, property: Property, fn: () => unknown,
+  {recursive = false, signals = (obj) => [obj.change], on_replace = fn}: TransitiveOpts = {},
+): void {
+  const slot = () => fn()
+  const bind = () => {
+    const value = property.is_unset ? null : property.get_value()
+    const models = HasProps.references(value, {recursive})
+    const connected = Array.from(models).flatMap(signals)
+    for (const signal of connected) {
+      receiver.connect(signal, slot)
+    }
+    return connected
+  }
+
+  let connected = bind()
+  receiver.connect(property.change, () => {
+    for (const signal of connected) {
+      receiver.disconnect(signal, slot)
+    }
+    connected = bind()
+    return on_replace?.()
+  })
+}
+
 const _qualified_names = new WeakMap<typeof HasProps, string>()
 
 export abstract class HasProps extends Signalable() implements Equatable, Printable, Serializable, Cloneable {
@@ -817,6 +849,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       }
       document._trigger_on_change(event)
     }
+  }
+
+  on_transitive_change(property: Property, fn: () => unknown, options?: TransitiveOpts): void {
+    on_transitive_change(this, property, fn, options)
   }
 
   on_change<Name extends Extract<keyof this["properties"], string>>(properties: Name | readonly Name[], fn: () => void): void

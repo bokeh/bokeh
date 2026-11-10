@@ -234,8 +234,8 @@ describe("document/defs module", () => {
 
       const cds_props = [
         "selected",
-        "default_values",
         "selection_policy",
+        "default_values",
         "data",
       ]
 

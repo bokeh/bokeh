@@ -194,6 +194,7 @@ describe("default model resolver", () => {
       "ImportedStyleSheet",
       "IndexFilter",
       "Indexed",
+      "IndexedDataSource",
       "IndexedLookup",
       "IndexedStackColorMapper",
       "IndexedSubset",

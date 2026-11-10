@@ -6187,29 +6187,32 @@
     },
   },
   ColumnarDataSource: {
-    __extends__: "DataSource",
+    __extends__: "IndexedDataSource",
     default_values: {
       type: "map",
-    },
-    selection_policy: {
-      type: "object",
-      name: "UnionRenderers",
-      attributes: {},
     },
   },
   DataSource: {
     __extends__: "Model",
-    selected: {
-      type: "object",
-      name: "Selection",
-      attributes: {},
-    },
   },
   GeoJSONDataSource: {
     __extends__: "ColumnarDataSource",
     geojson: {
       type: "symbol",
       name: "unset",
+    },
+  },
+  IndexedDataSource: {
+    __extends__: "DataSource",
+    selected: {
+      type: "object",
+      name: "Selection",
+      attributes: {},
+    },
+    selection_policy: {
+      type: "object",
+      name: "UnionRenderers",
+      attributes: {},
     },
   },
   IndexedSubset: {

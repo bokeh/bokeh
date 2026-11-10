@@ -97,6 +97,9 @@ validation checks.
 1032 *(INCOMPATIBLE_NESTED_TICK_FORMATTERS)*
     ``SITickFormatter`` and ``ScaledTickFormatter`` cannot be nested.
 
+1033 *(INCOMPATIBLE_EDIT_SOURCE)*
+    Edit tool renderers require a ``ColumnarDataSource``.
+
 9999 *(EXT)*
     Indicates that a custom error check has failed.
 
@@ -244,6 +247,10 @@ INCOMPATIBLE_NESTED_TICK_FORMATTERS = Error(
     1032,
     "INCOMPATIBLE_NESTED_TICK_FORMATTERS",
     "SITickFormatter and ScaledTickFormatter cannot be nested")
+INCOMPATIBLE_EDIT_SOURCE = Error(
+    1033,
+    "INCOMPATIBLE_EDIT_SOURCE",
+    "Edit tool renderers require a ColumnarDataSource")
 EXT = Error(
     9999,
     "EXT",

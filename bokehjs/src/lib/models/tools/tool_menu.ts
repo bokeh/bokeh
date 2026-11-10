@@ -18,7 +18,7 @@ export class ToolMenuView extends MenuView {
     // else about an item (icon, checked, disabled) is resolved at render time
     const {toolbar} = this.model.properties
     this.on_transitive_change(toolbar, () => this._update_menu(), {
-      signal: (obj) => (obj as Toolbar).properties.tools.change,
+      signals: () => [this.model.toolbar.properties.tools.change],
     })
   }
 }

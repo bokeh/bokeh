@@ -5,6 +5,7 @@ import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import type {GraphRendererView} from "@bokehjs/models/renderers/graph_renderer"
 import {GraphRenderer} from "@bokehjs/models/renderers/graph_renderer"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
+import type {GlyphRendererWithSource} from "@bokehjs/models/renderers/glyph_renderer"
 import {StaticLayoutProvider} from "@bokehjs/models/graphs"
 import {SegmentView} from "@bokehjs/models/glyphs/segment"
 import {Segment} from "@bokehjs/models/glyphs/segment"
@@ -39,11 +40,11 @@ async function create_graph_document(edge_glyph: MultiLine | Segment | Bezier = 
     ]),
   })
 
-  const node_renderer = GlyphRenderer.create({
+  const node_renderer = GlyphRenderer.create<GlyphRendererWithSource<Scatter, ColumnDataSource>>({
     glyph: Scatter.create({size: 10, fill_color: "red"}),
     data_source: ColumnDataSource.create({data: {index: [4, 5, 6, 7]}}),
   })
-  const edge_renderer = GlyphRenderer.create({
+  const edge_renderer = GlyphRenderer.create<GlyphRendererWithSource<typeof edge_glyph, ColumnDataSource>>({
     glyph: edge_glyph,
     data_source: ColumnDataSource.create({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
   })

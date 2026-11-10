@@ -81,6 +81,7 @@ from ..labeling import LabelingPolicy, NoOverlap
 from ..mappers import ColorMapper
 from ..ranges import Range
 from ..renderers import GlyphRenderer
+from ..sources import ColumnDataSource
 from ..tickers import FixedTicker, Ticker
 from .annotation import Annotation
 from .dimensional import Dimensional, MetricLength
@@ -366,7 +367,7 @@ class LegendItem(Model):
             if len(self.renderers) < 1:
                 return str(self)
             source = self.renderers[0].data_source
-            if self.label.field not in source.column_names:
+            if isinstance(source, ColumnDataSource) and self.label.field not in source.column_names:
                 return str(self)
 
 class Legend(Annotation):

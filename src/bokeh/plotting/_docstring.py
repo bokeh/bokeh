@@ -181,7 +181,7 @@ Other Parameters:
         Bokeh does not use this value in any way, but it may be useful for
         searching a Bokeh document to find a specific model.
 
-    source (ColumnDataSource, optional) :
+    source (IndexedDataSource, optional) :
         A user-supplied data source. (default: None)
 
         If not supplied, Bokeh will automatically construct an internal

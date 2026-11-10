@@ -32,7 +32,7 @@ from ..glyphs import (
     Segment,
 )
 from ..graphs import GraphHitTestPolicy, LayoutProvider, NodesOnly
-from ..sources import ColumnDataSource
+from ..sources import ColumnarDataSource, ColumnDataSource
 from .glyph_renderer import GlyphRenderer
 from .renderer import DataRenderer
 
@@ -66,12 +66,16 @@ class GraphRenderer(DataRenderer):
 
     @error(MALFORMED_GRAPH_SOURCE)
     def _check_malformed_graph_source(self):
+        node_source = self.node_renderer.data_source
+        edge_source = self.edge_renderer.data_source
+        if not isinstance(node_source, ColumnarDataSource) or not isinstance(edge_source, ColumnarDataSource):
+            return f"Graph renderers require columnar node and edge sources [{self}]"
         missing = []
-        if "index" not in self.node_renderer.data_source.column_names:
+        if isinstance(node_source, ColumnDataSource) and "index" not in node_source.column_names:
             missing.append("Column 'index' is missing in GraphSource.node_renderer.data_source")
-        if "start" not in self.edge_renderer.data_source.column_names:
+        if isinstance(edge_source, ColumnDataSource) and "start" not in edge_source.column_names:
             missing.append("Column 'start' is missing in GraphSource.edge_renderer.data_source")
-        if "end" not in self.edge_renderer.data_source.column_names:
+        if isinstance(edge_source, ColumnDataSource) and "end" not in edge_source.column_names:
             missing.append("Column 'end' is missing in GraphSource.edge_renderer.data_source")
         if missing:
             return " ,".join(missing) + f" [{self}]"
@@ -84,8 +88,9 @@ class GraphRenderer(DataRenderer):
 
     @error(MALFORMED_GRAPH_SOURCE)
     def _check_bezier_controls(self):
-        if isinstance(self.edge_renderer.glyph, Bezier):
-            data = self.edge_renderer.data_source.data
+        source = self.edge_renderer.data_source
+        if isinstance(self.edge_renderer.glyph, Bezier) and isinstance(source, ColumnDataSource):
+            data = source.data
             names = ("cx0", "cy0", "cx1", "cy1")
             if any(name in data for name in names):
                 count = len(data.get("start", []))

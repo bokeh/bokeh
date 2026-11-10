@@ -584,7 +584,7 @@ GitHub repository.
 Gathering from shared coordinates
 ---------------------------------
 
-Use :func:`~bokeh.transform.gather` to read values from one column data source
+Use :func:`~bokeh.transform.gather` to read values from one indexed data source
 using integer row indices stored in another. For example, patches can share a
 vertex table with a scatter renderer:
 
@@ -605,7 +605,9 @@ vertex table with a scatter renderer:
 Pass the required ``indices`` argument to name the index field on the renderer's
 primary source. A flat index column gathers scalar values. Ragged rows or a
 two-dimensional integer NumPy array gather rows for ``Patches`` or ``MultiLine``.
-Indices must be integers between zero and the number of value rows minus one.
+Resolved indices must be integers between zero and the number of value rows
+minus one. Custom indexed sources can resolve stored IDs through the BokehJS
+``get_index_field()`` hook described below.
 For shaped value columns, each index selects a logical row on the first axis
 and preserves its inner shape.
 
@@ -617,11 +619,11 @@ Indices must remain valid while either source updates. When adding vertices,
 update the vertex table before connectivity. When removing vertices, update
 connectivity first. Invalid indices raise an error in the browser.
 
-Coordinates are stored and sent once, then gathered in the browser. Replacing,
-streaming, or patching either source updates the glyph, both in standalone
-JavaScript callbacks and in server applications. Selection and filtering apply
-to rows of each renderer's primary source. Selecting a cell does not select its
-vertices automatically.
+Coordinates are stored and sent once, then gathered in the browser. In this
+``ColumnDataSource`` example, replacing, streaming, or patching either source
+updates the glyph in standalone JavaScript callbacks and server applications.
+Selection and filtering apply to rows of each renderer's primary source.
+Selecting a cell does not select its vertices automatically.
 
 To append a cell that uses existing vertices, stream its indices as a nested list:
 
@@ -699,3 +701,14 @@ more information about how to set up the data for these types of plots, see
 .. |GroupFilter| replace:: :class:`~bokeh.models.filters.GroupFilter`
 .. |CustomJSFilter| replace:: :class:`~bokeh.models.filters.CustomJSFilter`
 .. |DataTable| replace:: :class:`~bokeh.models.widgets.tables.DataTable`
+
+Custom indexed sources
+~~~~~~~~~~~~~~~~~~~~~~
+
+Custom sources based on :class:`~bokeh.models.sources.IndexedDataSource`
+can expose logical records stored in formats other than columns. Glyphs,
+filters, expressions, hover tools, and selection work with these records.
+For implementation details, see :ref:`ug_advanced_extensions_indexed_sources`.
+
+``ColumnDataSource`` remains the standard source for columns, patching,
+streaming, tables, and edit tools.

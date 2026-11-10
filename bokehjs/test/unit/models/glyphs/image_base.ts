@@ -1,4 +1,4 @@
-import {expect, expect_not_null} from "#framework/assertions"
+import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
 import {async_trap} from "#framework/util"
 
 import {create_glyph_renderer_view} from "./_util"
@@ -8,6 +8,7 @@ import {ImageRGBA} from "@bokehjs/models/glyphs/image_rgba"
 import {ImageStack} from "@bokehjs/models/glyphs/image_stack"
 import {WeightedStackColorMapper} from "@bokehjs/models/mappers/weighted_stack_color_mapper"
 import {LinearColorMapper} from "@bokehjs/models/mappers/linear_color_mapper"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import type {Arrayable} from "@bokehjs/core/types"
 import type {NDArrayType} from "@bokehjs/core/util/ndarray"
 import {ndarray} from "@bokehjs/core/util/ndarray"
@@ -67,6 +68,7 @@ describe("ImageBase module", () => {
     })
     const glyph_view = renderer_view.glyph as ImageBase["__view_type__"]
     const source = renderer_view.model.data_source
+    expect_instanceof(source, ColumnDataSource)
     const update = async (fn: () => void) => async_trap(async () => {
       fn()
       await renderer_view.ready

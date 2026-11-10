@@ -11,9 +11,10 @@ import {VAreaView} from "../glyphs/varea"
 import type {GlyphView} from "../glyphs/glyph"
 import {Glyph, supports_path_marking} from "../glyphs/glyph"
 import type {SupportsPathMarking} from "../glyphs/glyph"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
+import {IndexedDataSource} from "../sources/indexed_data_source"
 import type {IndexedSubsetView} from "../sources/indexed_subset"
 import {IndexedSubset} from "../sources/indexed_subset"
+import type {DataChange} from "../sources/data_source"
 import type {Arrayable, Color, Rect} from "core/types"
 import {Indices} from "core/types"
 import type * as p from "core/properties"
@@ -131,7 +132,7 @@ export class GlyphRendererView extends DataRendererView {
 
   protected last_dtrender: number
 
-  get data_source(): p.Property<ColumnarDataSource> {
+  get data_source(): p.Property<IndexedDataSource> {
     return this.model.properties.data_source
   }
 
@@ -273,7 +274,7 @@ export class GlyphRendererView extends DataRendererView {
     this.connect(this.muted_glyph.model.change, update)
     this.connect(this.decimated_glyph.model.change, update)
 
-    const patch = (indices: number[]) => update_data(indices)
+    const data_changed = ({indices, structural}: DataChange) => update_data(structural ? undefined : indices)
     const inspect = () => {
       // XXX: hoping for the best, assuming no in-place mutation
       const {inspected} = this.model.data_source
@@ -289,20 +290,18 @@ export class GlyphRendererView extends DataRendererView {
         render()
       }
     }
-    const connect_source = (source: ColumnarDataSource) => {
+    const connect_source = (source: IndexedDataSource) => {
       this.connect(source.change, update)
-      this.connect(source.streaming, update)
-      this.connect(source.patching, patch)
+      this.connect(source.data_changed, data_changed)
       this.connect(source.selected.change, render)
       this.connect(source._select, render)
       if (this.hover_glyph != null) {
         this.connect(source.inspect, inspect)
       }
     }
-    const disconnect_source = (source: ColumnarDataSource) => {
+    const disconnect_source = (source: IndexedDataSource) => {
       this.disconnect(source.change, update)
-      this.disconnect(source.streaming, update)
-      this.disconnect(source.patching, patch)
+      this.disconnect(source.data_changed, data_changed)
       this.disconnect(source.selected.change, render)
       this.disconnect(source._select, render)
       this.disconnect(source.inspect, inspect)
@@ -316,14 +315,14 @@ export class GlyphRendererView extends DataRendererView {
       return update_later()
     })
     this.on_transitive_change(this.model.properties.view, update, {
-      signal: (view) => (view as IndexedSubset).properties.indices.change,
+      signals: () => [this.model.view.properties.indices.change],
     })
     this.on_transitive_change(this.model.properties.view, () => {
       if (this.subset_view.model != this.model.view) {
         return
       }
       return this._update_masked_visuals()
-    }, {signal: (view) => (view as IndexedSubset).properties.masked.change})
+    }, {signals: () => [this.model.view.properties.masked.change]})
     this.connect(this.model.properties.view.change, async () => {
       const revision = ++view_revision
       if (!this.subset_view.is_destroyed) {
@@ -694,7 +693,7 @@ export class GlyphRendererView extends DataRendererView {
 
   _get_reference_point(field: string | null, value?: unknown): number | undefined | null {
     if (field != null) {
-      const array = this.model.data_source.get_column(field)
+      const array = this.model.data_source.get_field(field)
       if (array != null) {
         return this.model.view.get_reference_point(array, value)
       }
@@ -740,7 +739,7 @@ export namespace GlyphRenderer {
     NonSelectionGlyph = BaseGlyph,
     SelectionGlyph = BaseGlyph,
     MutedGlyph = BaseGlyph,
-    Source extends ColumnarDataSource = ColumnarDataSource,
+    Source extends IndexedDataSource = IndexedDataSource,
   > = p.AttrsOf<Props<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph, Source>>
 
   export type Props<
@@ -749,7 +748,7 @@ export namespace GlyphRenderer {
     NonSelectionGlyph = BaseGlyph,
     SelectionGlyph = BaseGlyph,
     MutedGlyph = BaseGlyph,
-    Source extends ColumnarDataSource = ColumnarDataSource,
+    Source extends IndexedDataSource = IndexedDataSource,
   > = DataRenderer.Props & {
     data_source: p.Property<Source>
     view: p.Property<IndexedSubset>
@@ -768,12 +767,12 @@ export interface GlyphRenderer<
   NonSelectionGlyph extends Glyph = BaseGlyph,
   SelectionGlyph extends Glyph = BaseGlyph,
   MutedGlyph extends Glyph = BaseGlyph,
-  Source extends ColumnarDataSource = ColumnarDataSource,
+  Source extends IndexedDataSource = IndexedDataSource,
 > extends GlyphRenderer.Attrs<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph, Source> {}
 
 export type GlyphRendererWithSource<
   BaseGlyph extends Glyph,
-  Source extends ColumnarDataSource,
+  Source extends IndexedDataSource,
 > = GlyphRenderer<BaseGlyph, BaseGlyph, BaseGlyph, BaseGlyph, BaseGlyph, Source>
 
 export class GlyphRenderer<
@@ -782,7 +781,7 @@ export class GlyphRenderer<
   NonSelectionGlyph extends Glyph = BaseGlyph,
   SelectionGlyph extends Glyph = BaseGlyph,
   MutedGlyph extends Glyph = BaseGlyph,
-  Source extends ColumnarDataSource = ColumnarDataSource,
+  Source extends IndexedDataSource = IndexedDataSource,
 > extends DataRenderer {
   declare properties: GlyphRenderer.Props<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph, Source>
   declare __view_type__: GlyphRendererView
@@ -805,7 +804,7 @@ export class GlyphRenderer<
     this.prototype.default_view = GlyphRendererView
 
     this.define<GlyphRenderer.Props<Glyph>>(({Bool, Auto, Or, Ref, Null, Nullable}) => ({
-      data_source:        [ Ref(ColumnarDataSource) ],
+      data_source:        [ Ref(IndexedDataSource) ],
       view:               [ Ref(IndexedSubset), () => IndexedSubset.create() ],
       glyph:              [ Ref(Glyph) ],
       hover_glyph:        [ Nullable(Ref(Glyph)), null ],

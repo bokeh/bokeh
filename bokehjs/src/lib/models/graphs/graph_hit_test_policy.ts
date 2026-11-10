@@ -1,14 +1,13 @@
 import {Model} from "../../model"
 import {index_of, map} from "core/util/arrayable"
 import {contains, uniq} from "core/util/array"
-import {dict} from "core/util/object"
 import type {HitTestResult} from "core/hittest"
 import type {Geometry} from "core/geometry"
 import type {SelectionMode} from "core/enums"
 import type * as p from "core/properties"
 import {Selection} from "../selections/selection"
 import type {GraphRenderer, GraphRendererView} from "../renderers/graph_renderer"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
 import type {GlyphRendererView} from "../renderers/glyph_renderer"
 
 type IndicesType = "selection" | "inspection"
@@ -148,9 +147,8 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
     return this._hit_test(geometry, graph_view, graph_view.node_view)
   }
 
-  get_linked_edges(node_source: ColumnarDataSource, edge_source: ColumnarDataSource, mode: IndicesType): Selection {
-    const node_data = dict(node_source.data)
-    const index = node_data.get("index") ?? []
+  get_linked_edges(node_source: IndexedDataSource, edge_source: IndexedDataSource, mode: IndicesType): Selection {
+    const index = node_source.get_field("index") ?? []
 
     const node_indices = (() => {
       switch (mode) {
@@ -159,9 +157,8 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
       }
     })()
 
-    const edge_data = dict(edge_source.data)
-    const start = edge_data.get("start") ?? []
-    const end = edge_data.get("end") ?? []
+    const start = edge_source.get_field("start") ?? []
+    const end = edge_source.get_field("end") ?? []
 
     const edge_indices = []
     const n = start.length
@@ -233,7 +230,7 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
     return this._hit_test(geometry, graph_view, graph_view.edge_view)
   }
 
-  get_linked_nodes(node_source: ColumnarDataSource, edge_source: ColumnarDataSource, mode: IndicesType): Selection {
+  get_linked_nodes(node_source: IndexedDataSource, edge_source: IndexedDataSource, mode: IndicesType): Selection {
     const edge_indices = (() => {
       switch (mode) {
         case "selection":  return edge_source.selected.indices
@@ -241,17 +238,15 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
       }
     })()
 
-    const edge_data = dict(edge_source.data)
-    const start = edge_data.get("start") ?? []
-    const end = edge_data.get("end") ?? []
+    const start = edge_source.get_field("start") ?? []
+    const end = edge_source.get_field("end") ?? []
 
     const nodes = []
     for (const i of edge_indices) {
       nodes.push(start[i], end[i])
     }
 
-    const node_data = dict(node_source.data)
-    const index = node_data.get("index") ?? []
+    const index = node_source.get_field("index") ?? []
     const node_indices = uniq(nodes).map((i) => index_of(index, i))
     return Selection.create({indices: node_indices})
   }
@@ -309,9 +304,8 @@ export class NodesAndAdjacentNodes extends GraphHitTestPolicy {
     return this._hit_test(geometry, graph_view, graph_view.node_view)
   }
 
-  get_adjacent_nodes(node_source: ColumnarDataSource, edge_source: ColumnarDataSource, mode: IndicesType): Selection {
-    const node_data = dict(node_source.data)
-    const index = node_data.get("index") ?? []
+  get_adjacent_nodes(node_source: IndexedDataSource, edge_source: IndexedDataSource, mode: IndicesType): Selection {
+    const index = node_source.get_field("index") ?? []
 
     const selected_node_indices = (() => {
       switch (mode) {
@@ -320,9 +314,8 @@ export class NodesAndAdjacentNodes extends GraphHitTestPolicy {
       }
     })()
 
-    const edge_data = dict(edge_source.data)
-    const start = edge_data.get("start") ?? []
-    const end = edge_data.get("end") ?? []
+    const start = edge_source.get_field("start") ?? []
+    const end = edge_source.get_field("end") ?? []
 
     const adjacent_nodes = []
     const selected_nodes = []

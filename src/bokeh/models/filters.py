@@ -147,16 +147,17 @@ class BooleanFilter(Filter):
         super().__init__(**kwargs)
 
 class GroupFilter(Filter):
-    ''' A ``GroupFilter`` represents the rows of a ``ColumnDataSource`` where the
-    values of the column indicated by ``field_name`` match the ``group`` variable.
+    ''' A ``GroupFilter`` represents records of an ``IndexedDataSource`` where the
+    values of the field indicated by ``field_name`` match the ``group`` variable.
     '''
 
     field_name = Required(String, help="""
-    The name of the column to perform the group filtering operation on.
+    The name of the logical field to filter.
     """)
 
     group = Required(AnyRef, help="""
-    The value of the column indicating the rows of data to keep.
+    The field value to match. For a shaped field, use a list matching one
+    record's shape and values.
     """)
 
     def __init__(self, *args, **kwargs) -> None:
@@ -184,7 +185,7 @@ class CustomJSFilter(Filter):
     """)
 
     code = String(default="", help="""
-    A snippet of JavaScript code to filter data contained in a columnar data source.
+    A snippet of JavaScript code to filter records in an indexed data source.
     The code is made into the body of a function, and all of of the named objects in
     ``args`` are available as parameters that the code can use. The variable
     ``source`` will contain the data source that is associated with the ``IndexedSubset`` this

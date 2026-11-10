@@ -49,6 +49,7 @@ import {
 import {DataTable, TableColumn, DateFormatter, NumberFormatter} from "@bokehjs/models/widgets/tables"
 
 import type {Factor} from "@bokehjs/models/ranges/factor_range"
+import type {GlyphRendererWithSource} from "@bokehjs/models/renderers/glyph_renderer"
 
 import type {Color, Arrayable} from "@bokehjs/core/types"
 import type {LineDash, Location, OutputBackend} from "@bokehjs/core/enums"
@@ -703,11 +704,11 @@ describe("Bug", () => {
         ]),
       })
 
-      const node_renderer = GlyphRenderer.create({
+      const node_renderer = GlyphRenderer.create<GlyphRendererWithSource<Scatter, ColumnDataSource>>({
         glyph: Scatter.create({size: 10, fill_color: "red"}),
         data_source: ColumnDataSource.create({data: {index: [4, 5, 6, 7]}}),
       })
-      const edge_renderer = GlyphRenderer.create({
+      const edge_renderer = GlyphRenderer.create<GlyphRendererWithSource<MultiLine, ColumnDataSource>>({
         glyph: MultiLine.create({line_width: 2, line_color: "gray"}),
         data_source: ColumnDataSource.create({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
       })
@@ -1397,11 +1398,11 @@ describe("Bug", () => {
         ]),
       })
 
-      const node_renderer = GlyphRenderer.create({
+      const node_renderer = GlyphRenderer.create<GlyphRendererWithSource<Scatter, ColumnDataSource>>({
         glyph: Scatter.create({size: 10, fill_color: "red"}),
         data_source: ColumnDataSource.create({data: {index: [4, 5, 6, 7]}}),
       })
-      const edge_renderer = GlyphRenderer.create({
+      const edge_renderer = GlyphRenderer.create<GlyphRendererWithSource<MultiLine, ColumnDataSource>>({
         glyph: MultiLine.create({line_width: 2, line_color: "gray"}),
         data_source: ColumnDataSource.create({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
       })
@@ -3182,11 +3183,11 @@ describe("Bug", () => {
           ]),
         })
 
-        const node_renderer = GlyphRenderer.create({
+        const node_renderer = GlyphRenderer.create<GlyphRendererWithSource<Scatter, ColumnDataSource>>({
           glyph: Scatter.create({size: 10, fill_color: "red"}),
           data_source: ColumnDataSource.create({data: {index: [4, 5, 6, 7]}}),
         })
-        const edge_renderer = GlyphRenderer.create({
+        const edge_renderer = GlyphRenderer.create<GlyphRendererWithSource<MultiLine, ColumnDataSource>>({
           glyph: MultiLine.create({line_width: 2, line_color: "gray"}),
           data_source: ColumnDataSource.create({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
         })
@@ -3783,13 +3784,13 @@ describe("Bug", () => {
         ]),
       })
 
-      const node_renderer = GlyphRenderer.create({
+      const node_renderer = GlyphRenderer.create<GlyphRendererWithSource<Scatter, ColumnDataSource>>({
         glyph: Scatter.create({size: 10, fill_color: "red"}),
         selection_glyph: Scatter.create({size: 20, fill_color: "yellow"}),
         nonselection_glyph: Scatter.create({size: 10, fill_color: "pink"}),
         data_source: ColumnDataSource.create({data: {index: [4, 5, 6, 7]}}),
       })
-      const edge_renderer = GlyphRenderer.create({
+      const edge_renderer = GlyphRenderer.create<GlyphRendererWithSource<MultiLine, ColumnDataSource>>({
         glyph: MultiLine.create({line_width: 2, line_color: "gray"}),
         selection_glyph: MultiLine.create({line_width: 4, line_color: "blue"}),
         nonselection_glyph: MultiLine.create({line_width: 2, line_color: "gray", line_dash: "dashed"}),

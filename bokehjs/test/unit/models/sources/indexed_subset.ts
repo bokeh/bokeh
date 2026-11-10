@@ -171,6 +171,21 @@ describe("IndexedSubset", () => {
     })
   })
 
+  for (const size of [3, 5]) {
+    it(`publishes consistent subset arrays and mappings when the source has ${size} records`, () => {
+      const source = ColumnDataSource.create({data: {x: [1, 2, 3]}})
+      const view = IndexedSubset.create({filter: IndexFilter.create({indices: [0]})})
+      view.compute_indices(source)
+      const observed: number[][] = []
+      view.properties.indices.change.connect(() => {
+        observed.push([...view.indices_array, view.indices_map.size, view.get_subset_index(2)])
+      })
+      view.filter = IndexFilter.create({indices: [2]})
+      view.compute_indices(ColumnDataSource.create({data: {x: Array(size).fill(0)}}))
+      expect(observed).to.be.equal([[2, size, 0]])
+    })
+  }
+
   it("should update its indices when its source streams new data", async () => {
     const source = ColumnDataSource.create({data: {x: [], y: []}})
     const new_data = {x: [1], y: [1]}

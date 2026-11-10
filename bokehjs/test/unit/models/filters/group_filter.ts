@@ -1,6 +1,7 @@
 import {expect} from "#framework/assertions"
 
 import {GroupFilter} from "@bokehjs/models/filters/group_filter"
+import {Float64NDArray} from "@bokehjs/core/util/ndarray"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 
 describe("GroupFilter", () => {
@@ -27,6 +28,19 @@ describe("GroupFilter", () => {
       const group_filter = GroupFilter.create({field_name: "y", group: NaN})
       expect([...group_filter.compute_indices(cds)]).to.be.equal([1, 3])
     })
+
+    for (const [storage, pairs] of Object.entries({
+      shaped: new Float64NDArray([1, 2, 3, NaN, 1, 2], [3, 2]),
+      nested: [[1, 2], [3, NaN], [1, 2]],
+    })) {
+      it(`compares logical records in ${storage} fields by value`, () => {
+        const source = ColumnDataSource.create({data: {pairs}})
+        const filter = GroupFilter.create({field_name: "pairs", group: [1, 2]})
+        expect([...filter.compute_indices(source)]).to.be.equal([0, 2])
+        filter.group = [3, NaN]
+        expect([...filter.compute_indices(source)]).to.be.equal([1])
+      })
+    }
 
     it("returns null when field_name is not in the data source", () => {
       const group_filter = GroupFilter.create({field_name: "z", group: "c"})

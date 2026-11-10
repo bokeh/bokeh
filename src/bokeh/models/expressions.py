@@ -60,7 +60,7 @@ from ..core.property.required import Required
 from ..core.property.vectorization import field
 from ..core.property_aliases import AngleUnits
 from ..model import Model
-from .sources import ColumnarDataSource
+from .sources import IndexedDataSource
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -88,7 +88,7 @@ class Expression(Model):
 
     .. code-block:: typescript
 
-        v_compute(source: ColumnarDataSource): Arrayable {
+        v_compute(source: IndexedDataSource): Arrayable {
             // compute and return array of values
         }
 
@@ -181,7 +181,7 @@ class Stack(Expression):
 
 
 class IndexedLookup(Expression):
-    ''' Gather values from another column data source.
+    ''' Gather values from another indexed data source.
 
     The expression reads the ``indices`` field on the renderer's primary data
     source and resolves it against ``field`` on ``source``. Scalar indices produce
@@ -189,8 +189,11 @@ class IndexedLookup(Expression):
     allows compact connectivity data to address a shared vertex table without
     repeating coordinates in the serialized document.
 
-    Indices must be non-negative integers smaller than the number of value
-    rows. Index columns may be flat, ragged, or two-dimensional NumPy arrays.
+    Resolved indices must be non-negative integers smaller than the number of
+    value rows. The primary source may override ``get_index_field(name, target)``
+    in BokehJS to resolve stored IDs against the values source's current row
+    positions. Index fields may be flat, ragged, or two-dimensional
+    NumPy arrays.
     Shaped value columns are indexed along their first axis.
     '''
 
@@ -198,8 +201,8 @@ class IndexedLookup(Expression):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-    source = Required(Instance(ColumnarDataSource), help="""
-    The column data source containing values to gather.
+    source = Required(Instance(IndexedDataSource), help="""
+    The indexed data source containing values to gather.
     """)
 
     field = Required(String, help="""

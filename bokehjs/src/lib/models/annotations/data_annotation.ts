@@ -1,9 +1,9 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
+import {IndexedDataSource} from "../sources/indexed_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
 
 import type {Context2d} from "core/util/canvas"
-import {inplace} from "core/util/projections"
+import {project_xy, project_xsys} from "core/util/projections"
 import * as p from "core/properties"
 
 export abstract class DataAnnotationView extends AnnotationView {
@@ -13,19 +13,24 @@ export abstract class DataAnnotationView extends AnnotationView {
     super.connect_signals()
     const update = () => {
       this.set_data(this.model.source)
+      this._initial_set_data = true
       this._rerender()
     }
     this.connect(this.model.change, update)
-    this.connect(this.model.source.streaming, update)
-    this.connect(this.model.source.patching, update)
-    this.connect(this.model.source.change, update)
+    this.on_transitive_change(this.model.properties.source, update, {
+      signals: () => {
+        const {source} = this.model
+        return [source.change, source.data_changed]
+      },
+      on_replace: null,
+    })
   }
 
   protected _rerender(): void {
     this.request_paint()
   }
 
-  set_data(source: ColumnarDataSource): void {
+  set_data(source: IndexedDataSource): void {
     const self = this as any
     for (const prop of this.model) {
       if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec)) {
@@ -43,10 +48,10 @@ export abstract class DataAnnotationView extends AnnotationView {
 
     if (this.plot_model.use_map) {
       if (self._x != null) {
-        inplace.project_xy(self._x, self._y)
+        [self._x, self._y] = project_xy(self._x, self._y)
       }
       if (self._xs != null) {
-        inplace.project_xsys(self._xs, self._ys)
+        [self._xs, self._ys] = project_xsys(self._xs, self._ys)
       }
     }
 
@@ -75,7 +80,7 @@ export namespace DataAnnotation {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Annotation.Props & {
-    source: p.Property<ColumnarDataSource>
+    source: p.Property<IndexedDataSource>
   }
 
   export type Visuals = Annotation.Visuals
@@ -89,7 +94,7 @@ export abstract class DataAnnotation extends Annotation {
 
   static {
     this.define<DataAnnotation.Props>(({Ref}) => ({
-      source: [ Ref(ColumnarDataSource), () => ColumnDataSource.create() ],
+      source: [ Ref(IndexedDataSource), () => ColumnDataSource.create() ],
     }))
   }
 }

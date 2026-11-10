@@ -49,7 +49,7 @@ from ...core.property.required import Required
 from ...model import Model
 from ..comparisons import Comparison
 from ..dom import HTML
-from ..sources import ColumnDataSource, DataSource, IndexedSubset
+from ..sources import ColumnDataSource, IndexedSubset
 from .widget import Widget
 
 #-----------------------------------------------------------------------------
@@ -618,8 +618,8 @@ class TableWidget(Widget):
 
     '''
 
-    source = Instance(DataSource, default=InstanceDefault(ColumnDataSource), help="""
-    The source of data for the widget.
+    source = Instance(ColumnDataSource, default=InstanceDefault(ColumnDataSource), help="""
+    The column data source for the widget.
     """)
 
     view = Instance(IndexedSubset, default=InstanceDefault(IndexedSubset), help="""

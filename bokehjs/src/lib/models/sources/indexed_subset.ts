@@ -8,12 +8,12 @@ import type {Arrayable} from "core/types"
 import {Filter} from "../filters/filter"
 import {AllIndices} from "../filters/all_indices"
 import {IntersectionFilter} from "../filters/intersection_filter"
-import type {ColumnarDataSource} from "./columnar_data_source"
+import type {IndexedDataSource} from "./indexed_data_source"
 
 export class IndexedSubsetView extends View {
   declare model: IndexedSubset
   declare readonly parent: View & {
-    readonly data_source: p.Property<ColumnarDataSource>
+    readonly data_source: p.Property<IndexedDataSource>
   }
 
   override initialize(): void {
@@ -46,18 +46,14 @@ export class IndexedSubsetView extends View {
       compute_indices()
     })
 
-    const connect_data_source = (data_source: ColumnarDataSource) => {
+    const connect_data_source = (data_source: IndexedDataSource) => {
       this.connect(data_source.change, compute_indices)
-      this.connect(data_source.streaming, compute_indices)
-      this.connect(data_source.patching, compute_indices)
-      this.connect(data_source.properties.data.change, compute_indices)
+      this.connect(data_source.data_changed, compute_indices)
     }
 
-    const disconnect_data_source = (data_source: ColumnarDataSource) => {
+    const disconnect_data_source = (data_source: IndexedDataSource) => {
       this.disconnect(data_source.change, compute_indices)
-      this.disconnect(data_source.streaming, compute_indices)
-      this.disconnect(data_source.patching, compute_indices)
-      this.disconnect(data_source.properties.data.change, compute_indices)
+      this.disconnect(data_source.data_changed, compute_indices)
     }
 
     let data_source = this.parent.data_source.get_value()
@@ -137,22 +133,20 @@ export class IndexedSubset extends Model {
     return this.indices_map.subset_index_of(array, value)
   }
 
-  compute_indices(source: ColumnarDataSource): void {
+  compute_indices(source: IndexedDataSource): void {
     const size = source.get_length() ?? 1
     const indices = Indices.all_set(size)
 
     const filtered = this.filter.compute_indices(source)
     indices.intersect(filtered)
 
-    this.indices = indices
-    this.indices_array = indices.ones()
-
-    // reuse mapper if possible
-    if (size !== this.indices_map.size) {
-      this.indices_map = new SubsetIndexMapper(size)
-    }
-
-    this.indices_map.set_subset(this.indices_array)
+    const indices_array = indices.ones()
+    const current_indices_map = this.indices_map
+    const indices_map = size == current_indices_map.size ? current_indices_map : new SubsetIndexMapper(size)
+    // Update the mapping before property signals fire. setv compares the index
+    // contents so views sharing the subset don't publish the same indices twice.
+    indices_map.set_subset(indices_array)
+    this.setv({indices, indices_array, indices_map})
   }
 
   /** @deprecated */

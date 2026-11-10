@@ -13,6 +13,7 @@ import {Div} from "@bokehjs/models/widgets/div"
 import {Place} from "@bokehjs/core/enums"
 import {GraphRenderer, GraphRendererView} from "@bokehjs/models/renderers/graph_renderer"
 import {GlyphRenderer, GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
+import type {GlyphRendererWithSource} from "@bokehjs/models/renderers/glyph_renderer"
 import {ResetTool, PanTool, Toolbar} from "@bokehjs/models"
 import {Rect, Scatter, MultiLine} from "@bokehjs/models/glyphs"
 import {ColumnDataSource} from "@bokehjs/models/sources"
@@ -91,11 +92,11 @@ describe("Plot module", () => {
     it("should allow to resolve child renderers of its composite renderers", async () => {
       const graph = GraphRenderer.create({
         layout_provider: StaticLayoutProvider.create(),
-        node_renderer: GlyphRenderer.create({
+        node_renderer: GlyphRenderer.create<GlyphRendererWithSource<Scatter, ColumnDataSource>>({
           data_source: ColumnDataSource.create({data: {start: [], end: []}}),
           glyph: Scatter.create(),
         }),
-        edge_renderer: GlyphRenderer.create({
+        edge_renderer: GlyphRenderer.create<GlyphRendererWithSource<MultiLine, ColumnDataSource>>({
           data_source: ColumnDataSource.create({data: {index: []}}),
           glyph: MultiLine.create(),
         }),

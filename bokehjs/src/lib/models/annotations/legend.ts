@@ -13,7 +13,7 @@ import {SideLayout, SidePanel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
 import {every, some, sum} from "core/util/array"
 import {dict} from "core/util/object"
-import {is_equal} from "core/util/eq"
+import {FieldValueComparator} from "core/util/eq"
 import {isString} from "core/util/types"
 import {zip} from "core/util/iterator"
 import type {Context2d, CanvasLayer} from "core/util/canvas"
@@ -163,8 +163,9 @@ export class LegendView extends AnnotationView {
     if (entries.length != labels.length) {
       return true
     }
+    const cmp = new FieldValueComparator()
     for (const [entry, {item, label, value}] of zip(entries, labels)) {
-      if (entry.item != item || entry.label != label || !is_equal(entry.value, value)) {
+      if (entry.item != item || entry.label != label || !cmp.eq(entry.value, value)) {
         return true
       }
     }

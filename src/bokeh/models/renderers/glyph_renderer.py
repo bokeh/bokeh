@@ -46,7 +46,7 @@ from ..glyph import ConnectedXYGlyph, Glyph, SupportsPathMarking
 from ..graphics import Marking, PathPlacement
 from ..sources import (
     ColumnDataSource,
-    DataSource,
+    IndexedDataSource,
     IndexedSubset,
     WebDataSource,
 )
@@ -103,7 +103,7 @@ class GlyphRenderer(DataRenderer):
         if missing:
             return f"{', '.join(missing)} {{renderer: {self}}}"
 
-    data_source = Required(Instance(DataSource), help="""
+    data_source = Required(Instance(IndexedDataSource), help="""
     Local data source to use when rendering glyphs on the plot.
     """)
 
