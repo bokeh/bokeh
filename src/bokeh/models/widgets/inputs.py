@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 
 from math import inf
 from typing import Any
+from warnings import deprecated
 
 from ...core.has_props import abstract
 from ...core.property.any import AnyRef
@@ -560,15 +561,13 @@ class PaletteSelect(InputWidget):
 # Legacy API
 #-----------------------------------------------------------------------------
 
+@deprecated("'ColorMap widget' was deprecated in Bokeh 3.4.0 and will be removed, use 'PaletteSelect widget' instead.")
 def ColorMap(*args: Any, **kwargs: Any) -> PaletteSelect:
     ''' Color palette select widget.
 
     .. deprecated:: 3.4.0
         Use ``PaletteSelect`` widget instead.
     '''
-    from ...util.deprecation import deprecated
-
-    deprecated((3, 4, 0), "ColorMap widget", "PaletteSelect widget")
     return PaletteSelect(*args, **kwargs)
 
 #-----------------------------------------------------------------------------

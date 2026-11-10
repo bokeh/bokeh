@@ -20,7 +20,6 @@ import pytest
 
 from bokeh.embed import file_html
 from bokeh.plotting import figure
-from bokeh.util.warnings import BokehDeprecationWarning
 
 # Module under test
 import bokeh.core.templates as m # isort:skip
@@ -32,7 +31,7 @@ import bokeh.core.templates as m # isort:skip
 def get_html_lines(resource_mode: str) -> list[str]:
     p = figure()
     p.scatter(x=[], y=[])
-    with pytest.warns(BokehDeprecationWarning, match=r"file_html\(\)"):
+    with pytest.warns(DeprecationWarning, match=r"file_html\(\)"):
         html = file_html(p, resources=resource_mode)
     return html.split('\n')
 

@@ -143,6 +143,7 @@ from typing import (
     Sequence,
     cast,
 )
+from warnings import deprecated
 
 import yaml
 
@@ -887,15 +888,13 @@ class Settings:
         '''
         return bokehjs_path(self.dev)
 
+    @deprecated("'bokehjsdir()' was deprecated in Bokeh 3.4.0 and will be removed, use 'bokehjs_path()' instead.")
     def bokehjsdir(self) -> str:
         ''' The location of the BokehJS source tree.
 
         .. deprecated:: 3.4.0
             Use ``bokehjs_path()`` method instead.
         '''
-        from .util.deprecation import deprecated
-
-        deprecated((3, 4, 0), "bokehjsdir()", "bokehjs_path() method")
         return str(self.bokehjs_path())
 
     def css_files(self) -> list[str]:

@@ -33,7 +33,6 @@ from bokeh.models import (
 from bokeh.models.annotations.dimensional import Metric
 from bokeh.models.dom import HTML
 from bokeh.plotting import *  # noqa: F403
-from bokeh.util.warnings import BokehDeprecationWarning
 
 from bokeh.document import document # isort:skip
 
@@ -783,7 +782,7 @@ def test_all_builtin_models_default_constructible() -> None:
             continue
         try:
             cls()
-        except BokehDeprecationWarning:
+        except DeprecationWarning:
             pass
         except Exception:
             bad.append(name)

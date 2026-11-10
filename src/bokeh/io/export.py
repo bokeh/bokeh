@@ -28,7 +28,7 @@ from typing import TYPE_CHECKING, Literal
 from ..resources import INLINE
 from ..settings import settings
 from ..util.dependencies import import_optional
-from ..util.deprecation import deprecated
+from ..util.warnings import warn_deprecated
 from . import browser as _playwright_backend, webdriver as _selenium_backend
 from .util import default_filename, get_layout_html
 
@@ -249,7 +249,7 @@ def _is_playwright_browser(obj: object) -> bool:
 
 
 def _get_selenium_backend() -> ModuleType:
-    deprecated((4, 0, 0), "Selenium export backend", "Playwright export backend")
+    warn_deprecated("Selenium export backend", "Playwright export backend", since=(4, 0, 0))
     return _selenium_backend
 
 

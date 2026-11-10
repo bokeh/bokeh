@@ -24,13 +24,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from .bases import Property
 from .descriptors import AliasPropertyDescriptor, DeprecatedAliasPropertyDescriptor
-
-if TYPE_CHECKING:
-    from ...util.deprecation import Version
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -40,6 +37,8 @@ __all__ = (
     "Alias",
     "DeprecatedAlias",
 )
+
+type Version = tuple[int, int, int]
 
 #-----------------------------------------------------------------------------
 # General API

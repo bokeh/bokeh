@@ -59,9 +59,9 @@ class HexBinResult:
     def __getitem__(self, key: Literal["q", "r", "counts"]) -> npt.NDArray[np.integer]:
         if key not in ("q", "r", "counts"):
             raise KeyError(f"Invalid key {key!r}, must be one of 'q', 'r', or 'counts'")
-        from .warnings import BokehUserWarning, warn
+        from .warnings import warn
 
-        warn(f"Use obj.{key} instead of obj['{key}']", BokehUserWarning)
+        warn(f"Use obj.{key} instead of obj['{key}']")
         return getattr(self, key)
 
 

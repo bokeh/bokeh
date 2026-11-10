@@ -255,7 +255,7 @@ class TestSerializer:
     def test_max_int(self) -> None:
         encoder = Serializer()
 
-        with pytest.warns(BokehUserWarning, match="out of range integer may result in loss of precision"):
+        with pytest.warns(UserWarning, match="out of range integer may result in loss of precision"):
             rep = encoder.encode(2**64)
 
         assert rep == 2.0**64

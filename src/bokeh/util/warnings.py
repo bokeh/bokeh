@@ -4,12 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide Bokeh-specific warning subclasses.
-
-The primary use of these subclasses to to force them to be unconditionally
-displayed to users by default.
-
-'''
+''' Provide Bokeh warning utilities. '''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -23,72 +18,44 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+import warnings
+from os import sep
+from os.path import dirname
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'BokehDeprecationWarning',
+    'BOKEH_DEPRECATION_MESSAGE_PATTERN',
     'BokehUserWarning',
-    'find_stack_level',
     'warn',
+    'warn_deprecated',
 )
+
+BOKEH_DEPRECATION_MESSAGE_PATTERN = r".* was deprecated in Bokeh "
+
+# Include the separator so sibling directories aren't treated as part of Bokeh.
+_BOKEH_WARNING_PREFIXES = (dirname(dirname(__file__)) + sep,)
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class BokehDeprecationWarning(DeprecationWarning):
-    ''' A Bokeh-specific ``DeprecationWarning`` subclass.
-
-    Used to selectively filter Bokeh deprecations for unconditional display.
-
-    '''
-
 class BokehUserWarning(UserWarning):
-    ''' A Bokeh-specific ``UserWarning`` subclass.
+    """A warning category retained for callers that filter Bokeh serializer warnings."""
 
-    Used to selectively filter Bokeh warnings for unconditional display.
+def warn(message: str, category: type[Warning] | None = None) -> None:
+    """Issue a warning attributed to the caller outside Bokeh."""
+    warnings.warn(message, category, skip_file_prefixes=_BOKEH_WARNING_PREFIXES)
 
-    '''
-
-def warn(message: str, category: type[Warning] | None = None, stacklevel: int | None = None) -> None:
-    if stacklevel is None:
-        stacklevel = find_stack_level()
-    import warnings
-
-    warnings.warn(message, category, stacklevel=stacklevel)
-
-def find_stack_level() -> int:
-    """Find the first place in the stack that is not inside Bokeh.
-
-    Inspired by: pandas.util._exceptions.find_stack_level
-    """
-    import inspect
-    import os
-
-    import bokeh
-
-    pkg_file = getattr(bokeh, "__file__", None)
-    if pkg_file is None:
-        return 2
-
-    pkg_dir = os.path.dirname(pkg_file)
-
-    # https://stackoverflow.com/questions/17407119/python-inspect-stack-is-slow
-    frame = inspect.currentframe()
-    n = 0
-    try:
-        while frame:
-            fname = inspect.getfile(frame)
-            if fname.startswith(pkg_dir):
-                frame = frame.f_back
-                n += 1
-            else:
-                break
-    finally:
-        del frame
-    return n
+def warn_deprecated(old: str, new: str, *, since: tuple[int, int, int], extra: str | None = None) -> None:
+    """Issue a versioned deprecation warning with a suggested replacement."""
+    version = ".".join(map(str, since))
+    message = f"{old!r} was deprecated in Bokeh {version} and will be removed, use {new!r} instead."
+    if extra is not None:
+        message += " " + extra.strip()
+    warn(message, DeprecationWarning)
 
 #-----------------------------------------------------------------------------
 # Dev API

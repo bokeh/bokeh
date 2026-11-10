@@ -340,9 +340,9 @@ class Serializer:
         if -_MAX_SAFE_INT < obj <= _MAX_SAFE_INT:
             return obj
         else:
-            from ..util.warnings import BokehUserWarning, warn
+            from ..util.warnings import warn
 
-            warn("out of range integer may result in loss of precision", BokehUserWarning)
+            warn("out of range integer may result in loss of precision")
             return self._encode_float(float(obj))
 
     def _encode_float(self, obj: float) -> NumberRep | float:

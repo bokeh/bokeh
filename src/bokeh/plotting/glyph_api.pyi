@@ -6,6 +6,7 @@
 #-----------------------------------------------------------------------------
 
 from typing import Literal, TypedDict, Unpack
+from warnings import deprecated
 
 from .._specs import (
     AlphaArg,
@@ -831,6 +832,7 @@ class GlyphAPI:
 
     # Markers
 
+    @deprecated("asterisk() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='asterisk', ...) instead.")
     def asterisk(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -839,6 +841,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("circle_cross() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='circle_cross', ...) instead.")
     def circle_cross(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -847,6 +850,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("circle_dot() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='circle_dot', ...) instead.")
     def circle_dot(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -855,6 +859,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("circle_x() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='circle_x', ...) instead.")
     def circle_x(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -863,6 +868,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("circle_y() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='circle_y', ...) instead.")
     def circle_y(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -871,6 +877,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("cross() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='cross', ...) instead.")
     def cross(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -879,6 +886,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("dash() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='dash', ...) instead.")
     def dash(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -887,6 +895,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("diamond() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='diamond', ...) instead.")
     def diamond(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -895,6 +904,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("diamond_cross() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='diamond_cross', ...) instead.")
     def diamond_cross(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -903,6 +913,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("diamond_dot() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='diamond_dot', ...) instead.")
     def diamond_dot(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -911,6 +922,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("dot() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='dot', ...) instead.")
     def dot(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -919,6 +931,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("hex() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='hex', ...) instead.")
     def hex(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -927,6 +940,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("hex_dot() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='hex_dot', ...) instead.")
     def hex_dot(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -935,6 +949,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("inverted_triangle() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='inverted_triangle', ...) instead.")
     def inverted_triangle(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -943,6 +958,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("plus() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='plus', ...) instead.")
     def plus(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -951,6 +967,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("square() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='square', ...) instead.")
     def square(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -959,6 +976,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("square_cross() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='square_cross', ...) instead.")
     def square_cross(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -967,6 +985,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("square_dot() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='square_dot', ...) instead.")
     def square_dot(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -975,6 +994,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("square_pin() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='square_pin', ...) instead.")
     def square_pin(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -983,6 +1003,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("square_x() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='square_x', ...) instead.")
     def square_x(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -991,6 +1012,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("star() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='star', ...) instead.")
     def star(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -999,6 +1021,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("star_dot() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='star_dot', ...) instead.")
     def star_dot(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -1007,6 +1030,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("triangle() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='triangle', ...) instead.")
     def triangle(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -1015,6 +1039,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("triangle_dot() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='triangle_dot', ...) instead.")
     def triangle_dot(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -1023,6 +1048,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("triangle_pin() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='triangle_pin', ...) instead.")
     def triangle_pin(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -1031,6 +1057,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("x() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='x', ...) instead.")
     def x(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -1039,6 +1066,7 @@ class GlyphAPI:
         **kwargs: Unpack[MarkerArgs],
     ) -> GlyphRenderer[glyphs.Marker]: ...
 
+    @deprecated("y() method was deprecated in Bokeh 3.4.0 and will be removed, use scatter(marker='y', ...) instead.")
     def y(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
