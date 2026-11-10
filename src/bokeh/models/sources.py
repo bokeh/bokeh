@@ -62,11 +62,11 @@ if TYPE_CHECKING:
 
 __all__ = (
     'AjaxDataSource',
-    'CDSView',
     'ColumnarDataSource',
     'ColumnDataSource',
     'DataSource',
     'GeoJSONDataSource',
+    'IndexedSubset',
     'ServerSentDataSource',
     'WebDataSource',
 )
@@ -775,7 +775,7 @@ class ColumnDataSource(ColumnarDataSource):
 
         self.data._patch(self.document, self, patches, setter)
 
-class CDSView(Model):
+class IndexedSubset(Model):
     ''' A view into a ``ColumnDataSource`` that represents a row-wise subset.
 
     '''
@@ -792,7 +792,7 @@ class CDSView(Model):
     .. code-block:: python
 
         # filters everything but indexes 10 and 11
-        cds_view.filter &= ~IndexFilter(indices=[10, 11])
+        indexed_subset.filter &= ~IndexFilter(indices=[10, 11])
     """)
 
 class GeoJSONDataSource(ColumnarDataSource):

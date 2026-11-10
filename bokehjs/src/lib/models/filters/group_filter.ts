@@ -9,7 +9,7 @@ export namespace GroupFilter {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Filter.Props & {
-    column_name: p.Property<string>
+    field_name: p.Property<string>
     group: p.Property<unknown>
   }
 }
@@ -21,16 +21,16 @@ export class GroupFilter extends Filter {
 
   static {
     this.define<GroupFilter.Props>(({Str, Unknown}) => ({
-      column_name: [ Str ],
+      field_name: [ Str ],
       group:       [ Unknown ],
     }))
   }
 
   compute_indices(source: ColumnarDataSource): Indices {
-    const column = source.get_column(this.column_name)
+    const column = source.get_column(this.field_name)
     const size = source.get_length() ?? 1
     if (column == null) {
-      logger.warn(`${this}: groupby column '${this.column_name}' not found in the data source`)
+      logger.warn(`${this}: groupby column '${this.field_name}' not found in the data source`)
       return Indices.all_set(size)
     } else {
       const indices = new Indices(size, 0)

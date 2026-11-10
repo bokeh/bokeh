@@ -82,8 +82,8 @@ validation checks.
 1023 *(MIN_PREFERRED_MAX_HEIGHT)*
     Expected min_height <= height <= max_height
 
-1024 *(CDSVIEW_FILTERS_WITH_CONNECTED)*
-    ``CDSView`` filters are not compatible with glyphs with connected topology such as Line or Patch.
+1024 *(INDEXEDSUBSET_FILTERS_WITH_CONNECTED)*
+    ``IndexedSubset`` filters are not compatible with glyphs with connected topology such as Line or Patch.
 
 1025 *(INCOMPATIBLE_LINE_EDIT_RENDERER)*
     The ``LineEditTool`` renderers may only reference ``MultiLine`` and ``Line`` glyph models.
@@ -208,10 +208,10 @@ MIN_PREFERRED_MAX_HEIGHT = Error(
     1023,
     "MIN_PREFERRED_MAX_HEIGHT",
     "Expected min_height <= height <= max_height")
-CDSVIEW_FILTERS_WITH_CONNECTED = Error(
+INDEXEDSUBSET_FILTERS_WITH_CONNECTED = Error(
     1024,
-    "CDSVIEW_FILTERS_WITH_CONNECTED",
-    "CDSView filters are not compatible with glyphs with connected topology such as Line or Patch")
+    "INDEXEDSUBSET_FILTERS_WITH_CONNECTED",
+    "IndexedSubset filters are not compatible with glyphs with connected topology such as Line or Patch")
 INCOMPATIBLE_LINE_EDIT_RENDERER = Error(
     1025,
     "INCOMPATIBLE_LINE_EDIT_RENDERER",

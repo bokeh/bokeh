@@ -31,11 +31,11 @@ from .selections import Selection, SelectionPolicy
 
 __all__ = (
     "AjaxDataSource",
-    "CDSView",
     "ColumnarDataSource",
     "ColumnDataSource",
     "DataSource",
     "GeoJSONDataSource",
+    "IndexedSubset",
     "ServerSentDataSource",
     "WebDataSource",
 )
@@ -104,11 +104,11 @@ class ColumnDataSource(ColumnarDataSource):
 
     def patch(self, patches: Patches, setter: Setter | None = ...) -> None: ...
 
-class _CDSViewInit(_ModelInit, total=False):
+class _IndexedSubsetInit(_ModelInit, total=False):
     filter: Filter
 
-class CDSView(Model):
-    def __init__(self, **kwargs: Unpack[_CDSViewInit]) -> None: ...
+class IndexedSubset(Model):
+    def __init__(self, **kwargs: Unpack[_IndexedSubsetInit]) -> None: ...
 
     filter: Filter = ...
 

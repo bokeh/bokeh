@@ -60,7 +60,7 @@ from ..models.coordinates import CoordinateMapping
 from ..models.graphics import Marking
 from ..models.plots import Plot
 from ..models.renderers import GlyphRenderer
-from ..models.sources import CDSView, ColumnarDataSource, DataDictLike
+from ..models.sources import ColumnarDataSource, DataDictLike, IndexedSubset
 from ..models.textures import Texture
 
 class AuxVisuals(TypedDict, total=False):
@@ -182,7 +182,7 @@ class AuxGlyphArgs(TypedDict, total=False):
 
     # GlyphRenderer
     source: ColumnarDataSource | DataDictLike
-    view: CDSView
+    view: IndexedSubset
     muted: bool
 
     legend: Legend

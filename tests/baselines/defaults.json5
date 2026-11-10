@@ -2822,7 +2822,7 @@
   },
   GroupFilter: {
     __extends__: "Filter",
-    column_name: {
+    field_name: {
       type: "symbol",
       name: "unset",
     },
@@ -5921,7 +5921,7 @@
     },
     view: {
       type: "object",
-      name: "CDSView",
+      name: "IndexedSubset",
       attributes: {
         filter: {
           type: "object",
@@ -5977,7 +5977,7 @@
         },
         view: {
           type: "object",
-          name: "CDSView",
+          name: "IndexedSubset",
           attributes: {
             filter: {
               type: "object",
@@ -6028,7 +6028,7 @@
         },
         view: {
           type: "object",
-          name: "CDSView",
+          name: "IndexedSubset",
           attributes: {
             filter: {
               type: "object",
@@ -6180,14 +6180,6 @@
       type: "map",
     },
   },
-  CDSView: {
-    __extends__: "Model",
-    filter: {
-      type: "object",
-      name: "AllIndices",
-      attributes: {},
-    },
-  },
   ColumnDataSource: {
     __extends__: "ColumnarDataSource",
     data: {
@@ -6218,6 +6210,14 @@
     geojson: {
       type: "symbol",
       name: "unset",
+    },
+  },
+  IndexedSubset: {
+    __extends__: "Model",
+    filter: {
+      type: "object",
+      name: "AllIndices",
+      attributes: {},
     },
   },
   ServerSentDataSource: {
@@ -7985,7 +7985,7 @@
     },
     view: {
       type: "object",
-      name: "CDSView",
+      name: "IndexedSubset",
       attributes: {
         filter: {
           type: "object",

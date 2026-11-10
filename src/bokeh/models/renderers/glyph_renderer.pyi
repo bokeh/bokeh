@@ -13,7 +13,7 @@ from ...core.property.vectorization import Field
 from ..annotations import ArrowHead, ColorBar
 from ..glyph import Glyph, SupportsPathMarking
 from ..graphics import Marking, PathPlacement
-from ..sources import CDSView, DataSource
+from ..sources import DataSource, IndexedSubset
 from .renderer import DataRenderer, _DataRendererInit
 
 # A read-only host allows receivers with supported glyph subclasses and unions.
@@ -37,7 +37,7 @@ class _PathMarkingOptions(TypedDict, total=False):
 
 class _GlyphRendererInit[GlyphType: Glyph](_DataRendererInit, total=False):
     data_source: DataSource
-    view: CDSView
+    view: IndexedSubset
     glyph: GlyphType
     selection_glyph: Auto | GlyphType | None
     nonselection_glyph: Auto | GlyphType | None
@@ -49,7 +49,7 @@ class GlyphRenderer[GlyphType: Glyph](DataRenderer):
     def __init__(self, **kwargs: Unpack[_GlyphRendererInit[GlyphType]]) -> None: ...
 
     data_source: DataSource = ...
-    view: CDSView = ...
+    view: IndexedSubset = ...
     glyph: GlyphType = ...
     selection_glyph: Auto | GlyphType | None = ...
     nonselection_glyph: Auto | GlyphType | None = ...

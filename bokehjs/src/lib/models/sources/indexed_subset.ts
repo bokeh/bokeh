@@ -10,8 +10,8 @@ import {AllIndices} from "../filters/all_indices"
 import {IntersectionFilter} from "../filters/intersection_filter"
 import type {ColumnarDataSource} from "./columnar_data_source"
 
-export class CDSViewView extends View {
-  declare model: CDSView
+export class IndexedSubsetView extends View {
+  declare model: IndexedSubset
   declare readonly parent: View & {
     readonly data_source: p.Property<ColumnarDataSource>
   }
@@ -79,7 +79,7 @@ export class CDSViewView extends View {
   }
 }
 
-export namespace CDSView {
+export namespace IndexedSubset {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
@@ -92,20 +92,20 @@ export namespace CDSView {
   }
 }
 
-export interface CDSView extends CDSView.Attrs {}
+export interface IndexedSubset extends IndexedSubset.Attrs {}
 
-export class CDSView extends Model {
-  declare properties: CDSView.Props
-  declare __view_type__: CDSViewView
+export class IndexedSubset extends Model {
+  declare properties: IndexedSubset.Props
+  declare __view_type__: IndexedSubsetView
 
   static {
-    this.prototype.default_view = CDSViewView
+    this.prototype.default_view = IndexedSubsetView
 
-    this.define<CDSView.Props>(({Ref}) => ({
+    this.define<IndexedSubset.Props>(({Ref}) => ({
       filter: [ Ref(Filter), () => AllIndices.create() ],
     }))
 
-    this.internal<CDSView.Props>(({Ref, Nullable}) => ({
+    this.internal<IndexedSubset.Props>(({Ref, Nullable}) => ({
       indices:       [ Ref(Indices) ],
       indices_array: [ Ref(Int32Array), () => new Int32Array(0) ],
       indices_map:   [ Ref(SubsetIndexMapper), () => new SubsetIndexMapper(0) ],

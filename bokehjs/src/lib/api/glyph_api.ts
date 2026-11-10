@@ -7,7 +7,7 @@ import type {VectorSpec, ScalarSpec, ColorSpec, UnitsSpec, Property} from "../co
 import type {Dimension, MarkerType, RenderLevel} from "../core/enums"
 import type * as nd from "core/util/ndarray"
 
-import type {Glyph, GlyphRenderer, ColumnarDataSource, CDSView, CoordinateMapping} from "./models"
+import type {Glyph, GlyphRenderer, ColumnarDataSource, IndexedSubset, CoordinateMapping} from "./models"
 
 import {
   AnnularWedge,
@@ -125,7 +125,7 @@ export type AuxText = {
 
 export type AuxGlyph = {
   source: ColumnarDataSource | ColumnarDataSource["data"]
-  view: CDSView
+  view: IndexedSubset
   legend_label: string
   legend_field: string
   legend_group: string

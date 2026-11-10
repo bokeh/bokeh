@@ -11,8 +11,8 @@ import type {GlyphView} from "../glyphs/glyph"
 import {Glyph, supports_path_marking} from "../glyphs/glyph"
 import type {SupportsPathMarking} from "../glyphs/glyph"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
-import type {CDSViewView} from "../sources/cds_view"
-import {CDSView} from "../sources/cds_view"
+import type {IndexedSubsetView} from "../sources/indexed_subset"
+import {IndexedSubset} from "../sources/indexed_subset"
 import type {Arrayable, Color} from "core/types"
 import {Indices} from "core/types"
 import type * as p from "core/properties"
@@ -99,7 +99,7 @@ const muted_defaults: Defaults = {
 export class GlyphRendererView extends DataRendererView {
   declare model: GlyphRenderer
 
-  cds_view: CDSViewView
+  subset_view: IndexedSubsetView
 
   glyph: GlyphView
   selection_glyph: GlyphView
@@ -115,7 +115,7 @@ export class GlyphRendererView extends DataRendererView {
   override _children_views(): ChildView[] {
     return [
       ...super._children_views(),
-      this.cds_view,
+      this.subset_view,
       this.glyph,
       this.selection_glyph,
       this.nonselection_glyph,
@@ -137,7 +137,7 @@ export class GlyphRendererView extends DataRendererView {
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
-    this.cds_view = await build_view(this.model.view, {parent: this})
+    this.subset_view = await build_view(this.model.view, {parent: this})
 
     const base_glyph = this.model.glyph
     this.glyph = await this.build_glyph_view(base_glyph)
@@ -219,10 +219,10 @@ export class GlyphRendererView extends DataRendererView {
         pending_update = (async () => {
           await Promise.resolve()
           pending_update = null
-          if (this.is_destroyed || this.cds_view.model != this.model.view) {
+          if (this.is_destroyed || this.subset_view.model != this.model.view) {
             return
           }
-          // CDSView has rebound by now. Keep its callbacks ahead of ours.
+          // IndexedSubset has rebound by now. Keep its callbacks ahead of ours.
           disconnect_source(source)
           connect_source(source)
           this.update_data()
@@ -234,7 +234,7 @@ export class GlyphRendererView extends DataRendererView {
       if (this.is_destroyed) {
         return
       }
-      if (pending_update != null || source != this.model.data_source || this.cds_view.model != this.model.view) {
+      if (pending_update != null || source != this.model.data_source || this.subset_view.model != this.model.view) {
         return update_later()
       }
       return this.update_data(indices)
@@ -315,26 +315,26 @@ export class GlyphRendererView extends DataRendererView {
       return update_later()
     })
     this.on_transitive_change(this.model.properties.view, update, {
-      signal: (view) => (view as CDSView).properties.indices.change,
+      signal: (view) => (view as IndexedSubset).properties.indices.change,
     })
     this.on_transitive_change(this.model.properties.view, () => {
-      if (this.cds_view.model != this.model.view) {
+      if (this.subset_view.model != this.model.view) {
         return
       }
       return this._update_masked_visuals()
-    }, {signal: (view) => (view as CDSView).properties.masked.change})
+    }, {signal: (view) => (view as IndexedSubset).properties.masked.change})
     this.connect(this.model.properties.view.change, async () => {
       const revision = ++view_revision
-      if (!this.cds_view.is_destroyed) {
-        this.cds_view.remove()
+      if (!this.subset_view.is_destroyed) {
+        this.subset_view.remove()
       }
       const model = this.model.view
-      const cds_view = await build_view(model, {parent: this})
+      const subset_view = await build_view(model, {parent: this})
       if (this.is_destroyed || revision != view_revision || this.model.view != model) {
-        cds_view.remove()
+        subset_view.remove()
         return
       }
-      this.cds_view = cds_view
+      this.subset_view = subset_view
       disconnect_source(source)
       connect_source(source)
       await update()
@@ -372,7 +372,7 @@ export class GlyphRendererView extends DataRendererView {
   private _data_update_complete: Promise<void> = Promise.resolve()
 
   // Painting publishes masks, which visuals may read (e.g. through a CustomJSTransform). Work
-  // started by a mask change never requests a paint, because renderers sharing a CDSView may
+  // started by a mask change never requests a paint, because renderers sharing an IndexedSubset may
   // publish different masks, so painting again would feed back.
   private _update_masked_visuals(): void {
     const preparing_data = this._pending_update?.data === true || this._active_update?.data === true
@@ -748,7 +748,7 @@ export namespace GlyphRenderer {
     MutedGlyph = BaseGlyph,
   > = DataRenderer.Props & {
     data_source: p.Property<ColumnarDataSource>
-    view: p.Property<CDSView>
+    view: p.Property<IndexedSubset>
     glyph: p.Property<BaseGlyph>
     hover_glyph: p.Property<HoverGlyph | null>
     nonselection_glyph: p.Property<NonSelectionGlyph | "auto" | null>
@@ -795,7 +795,7 @@ export class GlyphRenderer<
 
     this.define<GlyphRenderer.Props<Glyph>>(({Bool, Auto, Or, Ref, Null, Nullable}) => ({
       data_source:        [ Ref(ColumnarDataSource) ],
-      view:               [ Ref(CDSView), () => CDSView.create() ],
+      view:               [ Ref(IndexedSubset), () => IndexedSubset.create() ],
       glyph:              [ Ref(Glyph) ],
       hover_glyph:        [ Nullable(Ref(Glyph)), null ],
       nonselection_glyph: [ Or(Ref(Glyph), Auto, Null), "auto" ],
