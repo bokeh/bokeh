@@ -100,7 +100,7 @@ from typing import (
     overload,
 )
 
-from .exceptions import ValidationError
+from .exceptions import PropertyError
 from .singletons import Undefined
 from .wrappers import PropertyValueColumnData, PropertyValueContainer
 
@@ -943,7 +943,7 @@ class DataSpecPropertyDescriptor(PropertyDescriptor[Any]):
                     cast(_DataSpecProperty, self.property).value_type.validate(old, False)
                     if 'value' in value:
                         value = value['value']
-                except ValidationError:
+                except PropertyError:
                     if isinstance(old, str) and 'field' in value:
                         value = value['field']
                 # leave it as a dict if 'old' was a dict

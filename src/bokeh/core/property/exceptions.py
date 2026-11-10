@@ -25,6 +25,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    "PropertyError",
     "ValidationError",
 )
 
@@ -36,7 +37,13 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class ValidationError(ValueError):
+class PropertyError(ValueError):
+    """ Base class for errors raised by the properties system when a value
+    is rejected, e.g. while setting a property of a model.
+
+    """
+
+class ValidationError(PropertyError):
     """ Raised when a value doesn't match the type of a property, e.g. by
     ``Property.validate()``.
 

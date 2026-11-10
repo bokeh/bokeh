@@ -285,6 +285,7 @@ __all__ = (
     'PandasGroupBy',
     'Percent',
     'Positive',
+    'PropertyError',
     'RGB',
     'Readonly',
     'Regex',
@@ -307,6 +308,7 @@ __all__ = (
     'Tuple',
     'TypeOfAttr',
     'UnsetValueError',
+    'ValidationError',
     'expr',
     'field',
     'set_validation_default',
@@ -382,6 +384,9 @@ from .property.descriptors import UnsetValueError
 from .property.either import Either
 
 from .property.enum import Enum
+
+from .property.exceptions import PropertyError
+from .property.exceptions import ValidationError
 
 from .property.factors import Factor
 from .property.factors import FactorSeq

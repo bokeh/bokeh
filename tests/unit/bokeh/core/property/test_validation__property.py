@@ -59,7 +59,7 @@ from bokeh.core.properties import (
 )
 from bokeh.core.property.any import Any
 from bokeh.core.property.bases import validation_on
-from bokeh.core.property.exceptions import ValidationError
+from bokeh.core.property.exceptions import PropertyError, ValidationError
 from tests.support.util.api import verify_all
 
 # Module under test
@@ -411,8 +411,8 @@ class TestValidateDetailDefault:
         d = Dict(key_type, val_type)
         try:
             d.validate({key: val})
-        except ValidationError:
-            pytest.fail("ValidationError should not be raised on validating a correct dictionary")
+        except PropertyError:
+            pytest.fail("PropertyError should not be raised on validating a correct dictionary")
 
     def test_Dict_Multiple_Invalid_Keys(self) -> None:
         d = Dict(String, String)

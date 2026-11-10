@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING, Any
 
 from ._sphinx import property_link, register_type_link, type_link
 from .bases import SingleParameterizedProperty
-from .exceptions import ValidationError
+from .exceptions import PropertyError, ValidationError
 
 if TYPE_CHECKING:
     from .bases import Init, Property, TypeOrInst
@@ -57,7 +57,7 @@ class Nullable[T](SingleParameterizedProperty[T | None]):
 
         try:
             super().validate(value, detail=False)
-        except ValidationError:
+        except PropertyError:
             pass
         else:
             return

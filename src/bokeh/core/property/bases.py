@@ -40,7 +40,7 @@ from typing import (
 from ...util.dependencies import uses_pandas
 from ._sphinx import property_link, register_type_link, type_link
 from .descriptors import AliasPropertyDescriptor, PropertyDescriptor
-from .exceptions import ValidationError
+from .exceptions import PropertyError, ValidationError
 from .singletons import (
     Undefined,
     UndefinedType,
@@ -332,7 +332,7 @@ class Property[T = Any]:
         try:
             if validation_on():
                 self.validate(value, False)
-        except ValidationError:
+        except PropertyError:
             return False
         else:
             return True
@@ -351,7 +351,7 @@ class Property[T = Any]:
 
         if value is Undefined:
             if isinstance(owner, HasProps):
-                raise ValueError(f"can't set {owner}.{name} to Undefined")
+                raise PropertyError(f"can't set {owner}.{name} to Undefined")
             return cast(T, value)
 
         error = None
@@ -359,7 +359,7 @@ class Property[T = Any]:
             if validation_on():
                 hinted_value = self._hinted_value(value, hint)
                 self.validate(hinted_value)
-        except ValidationError as e:
+        except PropertyError as e:
             for tp, converter in self.alternatives:
                 if tp.is_valid(value):
                     value = converter(value)
