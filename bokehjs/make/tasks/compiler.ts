@@ -22,6 +22,7 @@ const oxc_wasi: esbuild.Plugin = {
     const loaders = [
       {filter: /[\\/]node_modules[\\/]oxc-parser[\\/]src-js[\\/]bindings\.js$/, binding: "@oxc-parser/binding-wasm32-wasip1"},
       {filter: /[\\/]node_modules[\\/]oxc-minify[\\/]index\.js$/, binding: "@oxc-minify/binding-wasm32-wasip1"},
+      {filter: /[\\/]node_modules[\\/]oxc-transform[\\/]index\.js$/, binding: "@oxc-transform/binding-wasm32-wasip1"},
     ]
     for (const {filter, binding} of loaders) {
       build.onLoad({filter}, () => ({contents: `export * from "${binding}"`, loader: "js"}))

@@ -304,10 +304,10 @@ without rebuilding it, run from the root of the repository:
 
     BOKEHJS_ACTION=install python -m pip install --no-deps -e .
 
-Alternatively, you can replace the copied directories with symbolic links, so
+Alternatively, you can replace the copied directory with a symbolic link, so
 that the documentation always uses the most recent BokehJS build. Run the
 following commands from the root of the repository. The installation doesn't
-overwrite these directories if they are symbolic links:
+overwrite this directory if it's a symbolic link:
 
 .. tab-set::
 
@@ -316,30 +316,27 @@ overwrite these directories if they are symbolic links:
 
         .. code-block:: sh
 
-            rm -rf src/bokeh/server/static/js src/bokeh/server/static/lib
+            rm -rf src/bokeh/server/static/js
             ln -s "$PWD/bokehjs/build/js" src/bokeh/server/static/js
-            ln -s "$PWD/bokehjs/node_modules/typescript6/lib" src/bokeh/server/static/lib
 
     .. tab-item:: Windows (PS)
         :sync: ps
 
         .. code-block:: powershell
 
-            Remove-Item -Recurse -Force src\bokeh\server\static\js, src\bokeh\server\static\lib
+            Remove-Item -Recurse -Force src\bokeh\server\static\js
             New-Item -ItemType SymbolicLink -Path src\bokeh\server\static\js -Target "$PWD\bokehjs\build\js"
-            New-Item -ItemType SymbolicLink -Path src\bokeh\server\static\lib -Target "$PWD\bokehjs\node_modules\typescript6\lib"
 
     .. tab-item:: Windows (CMD)
         :sync: cmd
 
         .. code-block:: doscon
 
-            rmdir /s /q src\bokeh\server\static\js src\bokeh\server\static\lib
+            rmdir /s /q src\bokeh\server\static\js
             mklink /D src\bokeh\server\static\js "%CD%\bokehjs\build\js"
-            mklink /D src\bokeh\server\static\lib "%CD%\bokehjs\node_modules\typescript6\lib"
 
-Use absolute link targets, because the documentation build copies
-``src/bokeh/server/static`` (including the links) to the output directory. On
+Use an absolute link target, because the documentation build copies
+``src/bokeh/server/static`` (including the link) to the output directory. On
 Windows, creating symbolic links requires administrator privileges or
 Developer Mode.
 

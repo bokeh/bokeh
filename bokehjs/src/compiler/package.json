@@ -13,6 +13,7 @@
     "@jridgewell/trace-mapping": "^0.3.31",
     "@oxc-minify/binding-wasm32-wasip1": "^0.157.0",
     "@oxc-parser/binding-wasm32-wasip1": "^0.157.0",
+    "@oxc-transform/binding-wasm32-wasip1": "^0.157.0",
     "@types/convert-source-map": "^2.0.3",
     "@types/css": "^0.0.37",
     "@types/less": "^3.0.6",
@@ -26,7 +27,7 @@
     "magic-string": "^0.30.21",
     "oxc-minify": "^0.157.0",
     "oxc-parser": "^0.157.0",
-    "typescript6": "npm:typescript@~6.0.2",
+    "oxc-transform": "^0.157.0",
     "yargs": "^17.7.2"
   }
 }

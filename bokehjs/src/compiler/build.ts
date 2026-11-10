@@ -1,10 +1,10 @@
 import * as cp from "node:child_process"
-import {join, basename, relative} from "node:path"
+import {createRequire} from "node:module"
+import {join, dirname, basename, relative, resolve} from "node:path"
 
 import type {Path} from "./sys.js"
 import {read, read_json, write, rename, file_exists, directory_exists, hash, hash_file, resolve_npm} from "./sys.js"
-import type {CompilerOptions} from "./compiler.js"
-import {compile_files, read_tsconfig, parse_tsconfig, is_failed, compiler_host, report_diagnostics, default_lib_dir} from "./compiler.js"
+import {strip_modules} from "./strip.js"
 import {Linker} from "./linker.js"
 import {collect_styles, compile_styles, wrap_css_modules} from "./styles.js"
 import * as preludes from "./prelude.js"
@@ -12,7 +12,7 @@ import * as preludes from "./prelude.js"
 import tsconfig_json from "./tsconfig.ext.json" with {type: "json"}
 
 import chalk from "chalk"
-const {cyan, magenta, red} = chalk
+const {cyan, magenta, red, yellow} = chalk
 
 import * as readline from "readline"
 
@@ -68,6 +68,38 @@ function npm_install(base_dir: Path): void {
 function preamble(base_dir: Path): void {
   print(`Using nodejs ${magenta(node_version)} and npm ${magenta(npm_version(base_dir))}`)
   print(`Working directory: ${cyan(base_dir)}`)
+}
+
+type TypeScript = {version: string, tsc: Path}
+
+/** Finds TypeScript, if it's a dependency of the package in `base_dir` and it's installed. */
+function find_typescript(base_dir: Path, package_json: {[key: string]: unknown}): TypeScript | null {
+  const {dependencies, devDependencies} = package_json
+  const declared = [dependencies, devDependencies].some((deps) => isPlainObject(deps) && "typescript" in deps)
+  if (!declared) {
+    return null
+  }
+  try {
+    const require = createRequire(join(base_dir, "package.json"))
+    const path = require.resolve("typescript/package.json")
+    const {version, bin} = read_json(path) as {version: string, bin?: string | {tsc?: string}}
+    const tsc = isString(bin) ? bin : bin?.tsc
+    return tsc != null ? {version, tsc: join(dirname(path), tsc)} : null
+  } catch {
+    return null
+  }
+}
+
+function run_tsc(typescript: TypeScript, base_dir: Path, args: string[], capture: boolean = false): {status: number, stdout: string} {
+  const {status, stdout, error} = cp.spawnSync(process.execPath, [typescript.tsc, ...args], {
+    cwd: base_dir,
+    encoding: "utf-8",
+    stdio: capture ? ["ignore", "pipe", "inherit"] : "inherit",
+  })
+  if (error != null) {
+    throw new Error(`failed to run ${typescript.tsc}: ${error.message}`)
+  }
+  return {status: status ?? 1, stdout: capture ? stdout : ""} // `stdout` is `null` unless captured
 }
 
 type Metadata = {
@@ -153,7 +185,10 @@ export async function init(base_dir: Path, _bokehjs_dir: Path, base_setup: InitO
     dependencies: {
       "@bokeh/bokehjs": `^${setup.bokehjs_version}`,
     },
-    devDependencies: {},
+    devDependencies: {
+      // any version, which supports extensions' tsconfig.json, e.g. `"moduleResolution": "bundler"`
+      typescript: "^7.0.2",
+    },
   }
 
   if (setup.interactive) {
@@ -182,7 +217,7 @@ export async function init(base_dir: Path, _bokehjs_dir: Path, base_setup: InitO
       }
     }
 
-    if (await ask_yn(`Create ${cyan("package.json")}? This will allow you to specify external dependencies.`)) {
+    if (await ask_yn(`Create ${cyan("package.json")}? This will allow you to specify external dependencies and to type-check with TypeScript.`)) {
       const {name} = package_json
       package_json.name = await ask(`  What's the extension's name? [${name}]`, name)
 
@@ -276,45 +311,72 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
     }
   }
 
-  // always use the compiler's TypeScript's libs, because the TypeScript of a package
-  // (if any) may not match the compiler (e.g. TypeScript 7 doesn't ship `lib.*.d.ts`)
-  const tslib_dir = default_lib_dir(bokehjs_dir)
-
-  print(`TypeScript lib: ${cyan(tslib_dir)}`)
+  const package_json = is_package ? read_json(package_json_path) : null
+  const typescript = isPlainObject(package_json) ? find_typescript(base_dir, package_json) : null
 
   const tsconfig_path = join(base_dir, "tsconfig.json")
-  if (file_exists(tsconfig_path)) {
-    print(`Using ${cyan(tsconfig_path)}`)
-  }
+  const dist_dir = join(base_dir, "dist")
 
-  const preconfigure: CompilerOptions = {
-    paths: {
-      "@bokehjs/*": [
-        join(bokehjs_dir, "js/lib/*"),
-      ],
-    },
-  }
-
-  function load_tsconfig() {
-    if (file_exists(tsconfig_path)) {
-      return read_tsconfig(tsconfig_path, is_package ? undefined : preconfigure)
-    } else {
-      return parse_tsconfig(tsconfig_json, base_dir, preconfigure)
+  const tsc_config = (() => {
+    if (typescript == null) {
+      return null
     }
-  }
+    print(`Using TypeScript ${magenta(typescript.version)} from ${cyan(dirname(dirname(typescript.tsc)))}`)
 
-  const tsconfig = load_tsconfig()
-  if (is_failed(tsconfig)) {
-    print(report_diagnostics(tsconfig.diagnostics).text)
+    const config_path = (() => {
+      if (file_exists(tsconfig_path)) {
+        print(`Using ${cyan(tsconfig_path)}`)
+        return tsconfig_path
+      } else {
+        const posix = (path: Path) => path.replaceAll("\\", "/")
+        const path = join(dist_dir, "tsconfig.json")
+        write(path, JSON.stringify({
+          compilerOptions: {
+            ...tsconfig_json.compilerOptions,
+            rootDir: posix(base_dir),
+            outDir: posix(join(dist_dir, "lib")),
+            paths: {"@bokehjs/*": [posix(join(bokehjs_dir, "js/lib/*"))]},
+          },
+          include: [posix(join(base_dir, "**/*.ts"))], // excludes `outDir` and `node_modules` by default
+        }, undefined, 2))
+        return path
+      }
+    })()
+
+    const {status, stdout} = run_tsc(typescript, base_dir, ["--project", config_path, "--showConfig"], true)
+    if (status != 0) {
+      return {path: config_path, options: null}
+    }
+    const {compilerOptions: options = {}} = JSON.parse(stdout) as {compilerOptions?: {[key: string]: unknown}}
+    const dir = (option: unknown) => isString(option) ? resolve(dirname(config_path), option) : null
+    return {
+      path: config_path,
+      options: {
+        outDir: dir(options.outDir),
+        declarationDir: dir(options.declarationDir),
+        noEmitOnError: options.noEmitOnError == true,
+      },
+    }
+  })()
+
+  if (tsc_config != null && tsc_config.options == null) {
+    print(`Failed to load ${cyan(tsc_config.path)}`)
     return false
   }
 
-  let success = true
-  const {options} = tsconfig
+  if (typescript == null) {
+    if (is_package) {
+      print(yellow(`${cyan("typescript")} isn't a dependency of this package, so types won't be checked. Add it with ${magenta("npm install --save-dev typescript")}.`))
+    } else {
+      print("Types won't be checked, because this isn't a npm package.")
+    }
+  }
 
-  const dist_dir = join(base_dir, "dist")
-  const lib_dir = options.outDir ?? join(dist_dir, "lib")
-  const dts_dir = options.declarationDir ?? lib_dir
+  let success = true
+  const options = tsc_config?.options
+
+  const lib_dir = options?.outDir ?? join(dist_dir, "lib")
+  const dts_dir = options?.declarationDir ?? lib_dir
   const dts_internal_dir = join(dist_dir, "dts")
 
   const styles_dir = join(base_dir, "styles")
@@ -331,27 +393,29 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
 
   wrap_css_modules(css_dir, lib_dir, dts_dir, dts_internal_dir)
 
-  // load tsconfig.json again to include generated source files
-  const tsconfig2 = load_tsconfig()
-  if (is_failed(tsconfig2)) {
-    print(report_diagnostics(tsconfig2.diagnostics).text)
-    return false
-  }
-
-  const {files} = tsconfig2
-
-  const host = compiler_host(new Map(), options, tslib_dir)
-
-  print(`Compiling TypeScript (${magenta(count_files(files))})`)
-  if (setup.verbose) {
-    print_files(files)
-  }
-  const tsoutput = compile_files(files, options, host)
-
-  if (is_failed(tsoutput)) {
-    print(report_diagnostics(tsoutput.diagnostics).text)
-
-    if (options.noEmitOnError ?? false) {
+  if (typescript != null && tsc_config != null) {
+    print("Compiling TypeScript")
+    const {status} = run_tsc(typescript, base_dir, ["--project", tsc_config.path, "--pretty"])
+    if (status != 0) {
+      success = false
+      // 0 and 2 mean that outputs were emitted
+      if (status != 2 || (options?.noEmitOnError ?? false)) {
+        return false
+      }
+    }
+  } else {
+    const entry = ["index.ts", "index.js"].map((file) => join(base_dir, file)).find((file) => file_exists(file))
+    if (entry == null) {
+      print(`${cyan(join(base_dir, "index.ts"))} doesn't exist`)
+      return false
+    }
+    print("Stripping types")
+    const {files, errors} = strip_modules(entry, base_dir, lib_dir)
+    if (setup.verbose) {
+      print_files(files)
+    }
+    if (errors.length != 0) {
+      print(errors.join("\n"))
       return false
     }
   }
@@ -359,8 +423,9 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   const artifact = basename(base_dir)
 
   const bases = [lib_dir]
-  if (is_package) {
-    bases.push(join(base_dir, "node_modules"))
+  const node_modules = join(base_dir, "node_modules")
+  if (is_package && directory_exists(node_modules)) { // not if there are no dependencies
+    bases.push(node_modules)
   }
 
   const linker = new Linker({
@@ -430,5 +495,5 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
 
   print(`Output written to ${cyan(dist_dir)}`)
   print("All done.")
-  return !is_failed(tsoutput) && success
+  return success
 }

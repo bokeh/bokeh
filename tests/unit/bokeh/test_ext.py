@@ -44,6 +44,7 @@ def test_ext_commands(tmpdir) -> None:
     with open(package_path) as f:
         package_json = json.load(f)
     assert package_json["dependencies"] == {"@bokeh/bokehjs": "^3.0.0"}
+    assert list(package_json["devDependencies"]) == ["typescript"]
 
     # The compiler gets BokehJS from --bokehjs-dir, but expects node_modules to exist.
     bokehjs_stub = str(tmpdir.mkdir("bokehjs_stub"))
@@ -51,6 +52,8 @@ def test_ext_commands(tmpdir) -> None:
         json.dump({"name": "@bokeh/bokehjs", "version": "3.0.0"}, f)
     bokehjs_stub_ref = os.path.relpath(bokehjs_stub, tmp).replace(os.sep, "/")
     package_json["dependencies"] = {"@bokeh/bokehjs": f"file:{bokehjs_stub_ref}"}
+    # Don't download TypeScript. Without it, types are stripped instead of checked.
+    del package_json["devDependencies"]
     with open(package_path, "w") as f:
         json.dump(package_json, f)
 

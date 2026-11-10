@@ -32,6 +32,5 @@ exclude src/bokeh/server/static/js/bokeh*.esm.min.js
 # include extensions' compiler
 include src/bokeh/server/static/js/compiler.mjs
 
-# include bokeh's and typescript's type declarations
+# include bokeh's type declarations
 recursive-include src/bokeh/server/static/js/lib *.d.ts
-recursive-include src/bokeh/server/static/lib *.d.ts
