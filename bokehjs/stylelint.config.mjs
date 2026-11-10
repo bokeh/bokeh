@@ -52,6 +52,9 @@ export default {
     "declaration-property-value-no-unknown": true,
     // repeated `:host` etc. blocks are used to group rules by concern
     "no-duplicate-selectors": null,
+    // ignores properties, so it reports base rules following state variants (e.g.
+    // `.x` after `:host(.bk-active) .x`), even when they set different properties
+    "no-descending-specificity": null,
     // TODO remove when `@import (less) "..."` is gone
     "at-rule-prelude-no-invalid": [true, {ignoreAtRules: ["import"]}],
     ...Object.fromEntries([known_custom_properties()]),
