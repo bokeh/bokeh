@@ -1,3 +1,7 @@
+:host {
+  --tooltip-label-color: #26aae1; // --highlight-color not as lively
+}
+
 .bk-tooltip-entry {
   display: table;
   border-spacing: 2px;
@@ -10,7 +14,7 @@
 .bk-tooltip-row-label {
   display: table-cell;
   text-align: right;
-  color: #26aae1; // --highlight-color not as lively
+  color: var(--tooltip-label-color);
 }
 
 .bk-tooltip-row-value {
