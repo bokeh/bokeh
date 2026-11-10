@@ -17,4 +17,16 @@ task("lint:scripts", async () => {
   }
 })
 
-task("lint", ["lint:scripts"])
+task("lint:styles", async () => {
+  const stylelint = fileURLToPath(new URL("./bin/stylelint.mjs", import.meta.resolve("stylelint/package.json")))
+  const args = [stylelint, ...(argv.fix ? ["--fix"] : []), "src/less/**/*.less"]
+  const {status, error} = cp.spawnSync(process.execPath, args, {stdio: "inherit", cwd: paths.base_dir})
+  if (error != null) {
+    throw new BuildError("lint:styles", `failed to start stylelint: ${error.message}`)
+  }
+  if (status != 0) {
+    throw new BuildError("lint:styles", "lint failed")
+  }
+})
+
+task("lint", ["lint:scripts", "lint:styles"])
