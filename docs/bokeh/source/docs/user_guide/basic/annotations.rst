@@ -743,23 +743,15 @@ These are the most commonly used properties for this annotation:
 Whiskers
 --------
 
-A |Whisker| annotation is a "stem" that is dimensionally linked to the data in
-the plot. You can define this annotation using |data units| or |screen units|.
+Use :meth:`~bokeh.plotting.figure.whisker` to draw quantile ranges or error
+bars. By default, ``base`` is the x-coordinate and ``lower`` and ``upper`` are
+the y-coordinates. Use ``dimension="width"`` to draw the interval horizontally
+at y-coordinate ``base``.
 
-A common use for whisker annotations is to indicate error margins or
-uncertainty for measurements at a single point.
-
-These are the most commonly used properties for this annotation:
-
-* ``lower``: The coordinates of the lower end of the whisker.
-* ``upper``: The coordinates of the upper end of the whisker.
-* ``dimension``: The direction of the whisker. The direction can be one of
-  these two values: Either * ``"width"`` for whiskers that are parallel to the
-  plot's x axis. Or ``"height"`` for whiskers that are parallel to the plot's y
-  axis.
-* ``base``: The location of the whisker along the dimension specified with
-  ``dimension``.
-* The standard |line properties|.
+The endpoints are in data coordinates. Set ``cap_size`` in screen pixels.
+The caps inherit the line color, alpha, and width. Like ``figure.segment()``,
+``figure.whisker()`` accepts a source, a view, and line styling options and
+returns a glyph renderer.
 
 .. bokeh-plot:: __REPO__/examples/basic/annotations/whisker.py
     :source-position: above
@@ -778,7 +770,6 @@ These are the most commonly used properties for this annotation:
 .. |Slope|         replace:: :class:`~bokeh.models.annotations.Slope`
 .. |Span|          replace:: :class:`~bokeh.models.annotations.Span`
 .. |Title|         replace:: :class:`~bokeh.models.annotations.Title`
-.. |Whisker|       replace:: :class:`~bokeh.models.annotations.Whisker`
 
 .. |Circle|        replace:: :class:`~bokeh.models.glyphs.Circle`
 .. |Ngon|          replace:: :class:`~bokeh.models.glyphs.Ngon`

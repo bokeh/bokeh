@@ -55,7 +55,7 @@ import {
 import type {Marker} from "../models/glyphs/marker"
 import type {Marking} from "../models/graphics/marking"
 import type {PathMarking} from "../models/graphics/decoration"
-import {OpenHead} from "../models/annotations/arrow_head"
+import {OpenHead, TeeHead} from "../models/annotations/arrow_head"
 
 export type NamesOf<T extends HasProps> = (Extract<keyof T["properties"], string>)[]
 
@@ -159,6 +159,14 @@ type ArrowProps = Omit<Segment.Props, "x0" | "y0" | "x1" | "y1"> & {
   end: Property<Marking | "auto" | null>
   start_inset: Property<PathMarking["inset"]>
   end_inset: Property<PathMarking["inset"]>
+}
+
+export type WhiskerArgs = Omit<SegmentArgs, "x0" | "y0" | "x1" | "y1"> & {
+  base: SegmentArgs["x0"]
+  lower: SegmentArgs["y0"]
+  upper: SegmentArgs["y1"]
+  dimension: "height" | "width"
+  cap_size: TeeHead.Attrs["size"]
 }
 
 export type AnnularWedgeArgs  = GlyphArgs<AnnularWedge.Props>  & AuxLine & AuxFill & AuxHatch
@@ -289,6 +297,26 @@ export abstract class GlyphAPI {
     const end_marking = end == "auto" ? OpenHead.create({inherit_visuals: ["line_color", "line_alpha", "line_width"]}) : end
     if (end_marking != null) {
       renderer.add_path_decoration(end_marking, {node: "end", inset: end_inset})
+    }
+    return renderer
+  }
+
+  whisker(options: Partial<WhiskerArgs> = {}): GlyphRenderer<Segment> {
+    const {
+      base = {field: "base"}, lower = {field: "lower"}, upper = {field: "upper"},
+      dimension = "height", cap_size = 10, level = "underlay", ...attrs
+    } = options
+    // Validate values supplied by untyped JavaScript callers.
+    // oxlint-disable-next-line typescript/no-unnecessary-condition
+    if (dimension != "height" && dimension != "width") {
+      throw new Error("dimension must be 'height' or 'width'")
+    }
+    const cap = TeeHead.create({size: cap_size, inherit_visuals: ["line_color", "line_alpha", "line_width"]})
+    const [x0, y0, x1, y1] = dimension == "height" ? [base, lower, base, upper] : [lower, base, upper, base]
+    const renderer = this.segment({x0, y0, x1, y1, level, ...attrs})
+    const angle = dimension == "height" ? 0 : -Math.PI/2
+    for (const node of ["start", "end"] as const) {
+      renderer.add_path_decoration(cap, {node, angle, angle_reference: "screen"})
     }
     return renderer
   }

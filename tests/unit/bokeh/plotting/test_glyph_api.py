@@ -10,14 +10,20 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+from math import pi
+
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+import pytest
+
 from bokeh.models import (
     ColumnDataSource,
     GlyphRenderer,
     NormalHead,
     OpenHead,
+    PathMarking,
+    TeeHead,
     glyphs,
 )
 from bokeh.plotting import figure
@@ -289,3 +295,37 @@ def test_wedge() -> None:
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+
+def test_whisker_with_categorical_base() -> None:
+    p = figure(x_range=["a", "b"])
+    source = ColumnDataSource(dict(base=["a", "b"], lower=[-2, 1], upper=[-1, 3], width=[8, 10]))
+    renderer = p.whisker(source=source, cap_size="width", line_color="red")
+    assert renderer in p.renderers
+    assert renderer.data_source is source
+    assert renderer.level == "underlay"
+    assert isinstance(renderer.glyph, glyphs.Segment)
+    assert renderer.glyph.decorations[0].angle == 0
+    assert (renderer.glyph.x0, renderer.glyph.y0, renderer.glyph.x1, renderer.glyph.y1) == ("base", "lower", "base", "upper")
+    assert [decoration.node for decoration in renderer.glyph.decorations] == ["start", "end"]
+    for decoration in renderer.glyph.decorations:
+        assert isinstance(decoration, PathMarking)
+        assert isinstance(decoration.marking, TeeHead)
+        assert decoration.marking.size == "width"
+        assert decoration.marking.inherit_visuals == ["line_color", "line_alpha", "line_width"]
+
+
+def test_horizontal_whisker() -> None:
+    p = figure(y_range=["a"])
+    renderer = p.whisker(["a"], [-1.5], [-0.5], dimension="width", level="annotation")
+    assert renderer.level == "annotation"
+    assert renderer.glyph.decorations[0].angle == -pi/2
+    assert renderer.data_source.data == dict(x0=[-1.5], y0=["a"], x1=[-0.5], y1=["a"])
+    assert renderer.glyph.decorations[0].marking.size == 10
+
+
+def test_whisker_rejects_invalid_dimension() -> None:
+    p = figure()
+    with pytest.raises(ValueError, match="dimension"):
+        p.whisker(dimension="horizontal")  # type: ignore[arg-type]
+    assert p.renderers == []

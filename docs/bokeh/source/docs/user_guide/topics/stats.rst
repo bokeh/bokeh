@@ -24,7 +24,7 @@ In Bokeh they can be created using |hbar| glyphs.
 Boxplot
 -------
 
-Box plots can be assembled using |Whisker| annotations, |vbar| and |scatter|
+Box plots can be assembled using |whisker|, |vbar| and |scatter|
 glyphs:
 
 .. bokeh-plot:: __REPO__/examples/topics/stats/boxplot.py
@@ -72,4 +72,4 @@ components of a SPLOM are :ref:`ug_interaction_linked_panning` and
 .. |scatter| replace:: :func:`~bokeh.plotting.figure.scatter`
 .. |varea|   replace:: :func:`~bokeh.plotting.figure.varea`
 .. |vbar|    replace:: :func:`~bokeh.plotting.figure.vbar`
-.. |Whisker| replace:: :class:`~bokeh.models.annotations.Whisker`
+.. |whisker| replace:: :meth:`~bokeh.plotting.figure.whisker`
