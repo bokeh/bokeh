@@ -560,7 +560,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent, kind="ColumnsStreamed"):
             attr (str):
                 The name of the attribute to stream on the model.
 
-            data (dict or DataFrame) :
+            data (dict | pd.DataFrame) :
                 New data to stream.
 
                 If a DataFrame, will be stored as ``{c: df[c] for c in df.columns}``

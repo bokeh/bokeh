@@ -192,7 +192,7 @@ def convert_compression(value: int | str) -> int:
 def convert_bool(value: bool | str) -> bool:
     ''' Convert a string to True or False.
 
-    If a boolean is passed in, it is returned as-is. Otherwise the function
+    If a Boolean is passed in, it is returned as-is. Otherwise the function
     maps the following strings, ignoring case:
 
     * "yes", "1", "on" -> True

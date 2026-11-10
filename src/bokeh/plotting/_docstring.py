@@ -60,7 +60,7 @@ hover. See the :ref:`ug_styling_plots_glyphs` section of the user guide for
 full details.
 
 Returns:
-    :class:`~bokeh.models.renderers.GlyphRenderer`
+    :class:`~bokeh.models.GlyphRenderer`
 
 {_docstring_extra(extra_docs)}
 """

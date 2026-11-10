@@ -56,7 +56,7 @@ def add_line_geometries(p, projection, geometries_collection, **line_kwargs):
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        geometries_collection (catopy.feature.NaturalEarthFeature): collection of
+        geometries_collection (cartopy.feature.NaturalEarthFeature): collection of
             line geometries given by a Cartopy NaturalEarthFeature.
 
     .. note::
@@ -92,7 +92,7 @@ def add_polygon_geometries(p, projection, geometries_collection, **poly_kwargs):
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        geometries_collection (catopy.feature.NaturalEarthFeature): collection of
+        geometries_collection (cartopy.feature.NaturalEarthFeature): collection of
             line geometries given by a Cartopy NaturalEarthFeature.
 
     Keyword Arguments:
@@ -443,7 +443,7 @@ def _collect_line_geometries(projection, geometries_collection):
 
     Args:
         projection (catopy.crs.Projection): cartopy Projection.
-        geometries_collection (catopy.feature.NaturalEarthFeature): collection of
+        geometries_collection (cartopy.feature.NaturalEarthFeature): collection of
             line geometries given by a Cartopy NaturalEarthFeature.
 
     Example:
@@ -476,7 +476,7 @@ def _collect_polygon_geometries(projection, geometries_collection, **kwargs):
 
     Args:
         projection (catopy.crs.Projection): Cartopy Projection
-        geometries_collection (catopy.feature.NaturalEarthFeature): collection of
+        geometries_collection (cartopy.feature.NaturalEarthFeature): collection of
             multi-polygon geometries given by a Cartopy NaturalEarthFeature.
 
     Keyword Arguments:

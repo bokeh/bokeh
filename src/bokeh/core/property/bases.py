@@ -314,7 +314,7 @@ class Property[T = Any]:
             None
 
         Raises:
-            ValidationError if the value is not valid for this property type
+            ValidationError: if the value is not valid for this property type
 
         """
         pass

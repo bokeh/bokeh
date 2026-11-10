@@ -181,7 +181,7 @@ class DocumentCallbackManager:
             SessionCallback : passed in as ``callback_obj``.
 
         Raises:
-            ValueError, if the callback has been previously added
+            ValueError: if the callback has been previously added
 
         '''
         doc = self._document()
@@ -338,7 +338,7 @@ class DocumentCallbackManager:
         ''' Remove a callback added earlier with ``on_change``.
 
         Raises:
-            KeyError, if the callback was never added
+            KeyError: if the callback was never added
 
         '''
         for callback in callbacks:
@@ -360,7 +360,7 @@ class DocumentCallbackManager:
             None
 
         Raises:
-            KeyError, if the callback was never added
+            KeyError: if the callback was never added
 
         '''
         try:

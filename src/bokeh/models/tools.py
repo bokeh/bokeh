@@ -915,7 +915,7 @@ class TapTool(Tap, SelectTool):
     This is often useful with the  :class:`~bokeh.models.callbacks.OpenURL`
     model to open URLs based on a user clicking or tapping a specific glyph.
 
-    However, it may also be a :class:`~bokeh.models.callbacks.CustomJS`
+    However, it may also be a :class:`~bokeh.models.CustomJS`
     which can execute arbitrary JavaScript code in response to clicking or
     tapping glyphs. The callback will be executed for each individual glyph
     that is it hit by a click or tap, and will receive the ``TapTool`` model

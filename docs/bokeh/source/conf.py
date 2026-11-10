@@ -73,6 +73,13 @@ extensions = [
 
 needs_sphinx = "4.3.2"
 
+nitpicky = True
+nitpick_ignore = [
+    tuple(item.strip() for item in line.split(", "))
+    for line in open("nitpick_ignore.txt")
+    if line.strip() and not line.startswith("#")
+]
+
 rst_epilog = open("rst_epilog.txt").read()
 
 # -- Extensions configuration --------------------------------------------------

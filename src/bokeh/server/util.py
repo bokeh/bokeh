@@ -104,7 +104,7 @@ def validate_hosts_allowlist(host_list: Sequence[str]) -> None:
 
     Raises:
         TypeError, if ``host_list`` is a string or contains non-string values
-        ValueError, if a host or port value is invalid
+        ValueError: if a host or port value is invalid
 
     '''
     if isinstance(host_list, str) or not all(isinstance(host, str) for host in host_list):
@@ -162,7 +162,7 @@ def create_hosts_allowlist(host_list: Sequence[str] | None, port: int | None) ->
         list[str]
 
     Raises:
-        ValueError, if host or port values are invalid
+        ValueError: if host or port values are invalid
 
     Note:
         If any host in ``host_list`` contains a wildcard ``*`` a warning will

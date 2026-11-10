@@ -254,7 +254,7 @@ def factor_hatch(
     Args:
         field_name (str) : a field name to configure ``DataSpec`` with
 
-        patterns (seq[string]) : a list of hatch patterns to use to map to
+        patterns (seq[str]) : a list of hatch patterns to use to map to
 
         factors (seq) : a sequences of categorical factors corresponding to
             the palette
@@ -299,7 +299,7 @@ def factor_mark(
     Args:
         field_name (str) : a field name to configure ``DataSpec`` with
 
-        markers (seq[string]) : a list of markers to use to map to
+        markers (seq[str]) : a list of markers to use to map to
 
         factors (seq) : a sequences of categorical factors corresponding to
             the palette

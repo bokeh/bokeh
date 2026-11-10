@@ -251,7 +251,10 @@ class ColumnDataSource(ColumnarDataSource):
 
     @property
     def length(self) -> int:
-        ''' Number of row entries in the data. Note: All columns have the same number of row entries.
+        ''' Number of row entries in the data.
+
+        .. note::
+            All columns have the same number of row entries.
 
         '''
         data_lengths = {len(v) for _, v in self.data.items()}

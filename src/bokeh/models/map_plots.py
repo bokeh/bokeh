@@ -184,12 +184,12 @@ class GMapPlot(MapPlot):
     background_fill_alpha = Override(default=0.0)
 
     api_key = Required(Bytes, help="""
-    Google Maps API requires an API key. See https://developers.google.com/maps/documentation/javascript/get-api-key
+    Google Maps API requires an API key. See the `API key documentation <https://developers.google.com/maps/documentation/javascript/get-api-key>`__
     for more information on how to obtain your own.
     """).accepts(String, lambda val: val.encode("utf-8"))
 
     api_version = String(default="weekly", help="""
-    The version of Google Maps API to use. See https://developers.google.com/maps/documentation/javascript/versions
+    The version of Google Maps API to use. See `API version documentation <https://developers.google.com/maps/documentation/javascript/versions>`__
     for more information.
 
     .. note::

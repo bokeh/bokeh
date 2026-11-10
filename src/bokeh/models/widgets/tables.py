@@ -781,7 +781,7 @@ class DataTable(TableWidget):
                 apply to each column. (default: None)
 
         Keyword arguments:
-            Any additional keyword arguments will be passed to DataTable.
+            kwargs: Any additional keyword arguments will be passed to DataTable.
 
         Returns:
             DataTable

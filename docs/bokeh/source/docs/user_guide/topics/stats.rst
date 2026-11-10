@@ -72,4 +72,4 @@ components of a SPLOM are :ref:`ug_interaction_linked_panning` and
 .. |scatter| replace:: :func:`~bokeh.plotting.figure.scatter`
 .. |varea|   replace:: :func:`~bokeh.plotting.figure.varea`
 .. |vbar|    replace:: :func:`~bokeh.plotting.figure.vbar`
-.. |Whisker| replace:: :class:`~bokeh.models.annotations.Whisker`
+.. |Whisker| replace:: :class:`~bokeh.models.Whisker`

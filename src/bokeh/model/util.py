@@ -154,7 +154,7 @@ def get_class(view_model_name: str) -> type[Model]:
         Model: the model class corresponding to ``view_model_name``
 
     Raises:
-        KeyError, if the model cannot be found
+        KeyError: if the model cannot be found
 
     Example:
 

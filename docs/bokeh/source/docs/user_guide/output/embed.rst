@@ -381,7 +381,7 @@ Static JSON and model identity
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Static embedding does not use construction-time model IDs as addresses. The
-explicit :meth:`~bokeh.document.document.Document.to_static_json` path omits an
+explicit :meth:`~bokeh.document.Document.to_static_json` path omits an
 ID when an object can be reconstructed from its position in the serialized
 tree. It retains IDs only where sharing, a cycle, or an explicitly external
 identity requires them. Canonical documents and live protocol patches remain

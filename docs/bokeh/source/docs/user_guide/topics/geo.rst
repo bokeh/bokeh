@@ -12,7 +12,7 @@ Tile provider maps
 
 Bokeh is compatible with several XYZ tile services that use the Web Mercator projection.
 Bokeh uses the `xyzservices`_ library to take care of the tile sources and their attributions.
-To add these to a plot, use the method :func:`~bokeh.models.plots.Plot.add_tile`. You can pass
+To add these to a plot, use the method :func:`~bokeh.models.Plot.add_tile`. You can pass
 any name xyzservices may recognize. The ``retina`` keyword can control the resolution of tiles.
 
 .. bokeh-plot:: __REPO__/examples/topics/geo/tile_source.py
