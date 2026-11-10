@@ -127,6 +127,11 @@ API changes
   a plain ``ColorMapper``, e.g. ``color_bar.color_mapper.palette``, can get it
   from ``color_bar.color_mapper.display_mapper.palette`` (:bokeh-issue:`13898`).
 
+* Property validation failures now raise ``ValidationError``, a subclass
+  of the new ``PropertyError`` base class, which itself derives from
+  ``ValueError``. Both are available from ``bokeh.core.properties``. Existing
+  code catching ``ValueError`` is unaffected.
+
 Bug fixes
 ---------
 

@@ -50,7 +50,7 @@ But also by setting the attributes on an instance:
     m.foo = 20
 
 Attempts to set a property to a value of the wrong type will
-result in a ``ValueError`` exception:
+result in a ``ValidationError`` exception:
 
 .. code-block:: python
 
@@ -59,7 +59,9 @@ result in a ``ValueError`` exception:
 
       << traceback omitted >>
 
-    ValueError: expected a value of type Integral, got 2.3 of type float
+    ValidationError: failed to validate SomeModel(id='p1000', ...).foo: expected a value of type Integral, got 2.3 of type float
+
+See :ref:`bokeh.core.properties.validation_errors` for details.
 
 Models with properties know how to serialize themselves, to be understood
 by BokehJS.
@@ -189,6 +191,21 @@ without an override.
 .. autoclass:: validate
 .. autofunction:: without_property_validation
 .. autofunction:: set_validation_default
+
+.. _bokeh.core.properties.validation_errors:
+
+Validation Errors
+-----------------
+
+Errors raised by the properties system derive from ``PropertyError``. Values
+that don't match a property's type raise ``ValidationError``, a subclass of
+``PropertyError``. ``PropertyError`` derives from ``ValueError``, so code
+catching ``ValueError`` continues to work. Catch ``PropertyError`` (or
+``ValidationError``) to handle property errors only, without also catching
+unrelated errors.
+
+.. autoclass:: PropertyError
+.. autoclass:: ValidationError
 
 '''
 #-----------------------------------------------------------------------------
