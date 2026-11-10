@@ -5834,4 +5834,31 @@ describe("Bug", () => {
       expect(slider.value).to.be.equal([5, 7])
     })
   })
+
+  describe("in issue #15712", () => {
+    it("renders wedges with start_angle == end_angle as full discs", async () => {
+      // one zero-valued category; its empty slice sits on the seam between its neighbours
+      const values = [3, 2, 0, 1, 2]
+      const total = values.reduce((a, b) => a + b, 0)
+      const end_angle = values.map((_, i) => 2*Math.PI*values.slice(0, i + 1).reduce((a, b) => a + b, 0)/total)
+      const start_angle = end_angle.map((end, i) => end - 2*Math.PI*values[i]/total)
+      const fill_color = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
+      const neg = (xs: number[]) => xs.map((x) => -x)
+
+      function plot(output_backend: OutputBackend) {
+        const p = fig([200, 200], {output_backend, title: output_backend, x_range: [0, 4], y_range: [0, 4]})
+        p.xgrid.visible = false
+        p.ygrid.visible = false
+        const common = {fill_color, line_color: "white", line_width: 2}
+        // top: Wedge; bottom: AnnularWedge; left: anticlock; right: clock
+        p.wedge({x: 1, y: 3, radius: 0.9, start_angle, end_angle, ...common})
+        p.wedge({x: 3, y: 3, radius: 0.9, start_angle: neg(start_angle), end_angle: neg(end_angle), direction: "clock", ...common})
+        p.annular_wedge({x: 1, y: 1, inner_radius: 0.4, outer_radius: 0.9, start_angle, end_angle, ...common})
+        p.annular_wedge({x: 3, y: 1, inner_radius: 0.4, outer_radius: 0.9, start_angle: neg(start_angle), end_angle: neg(end_angle), direction: "clock", ...common})
+        return p
+      }
+
+      await display(row([plot("canvas"), plot("svg"), plot("webgl")]))
+    })
+  })
 })

@@ -294,7 +294,9 @@ float wedge(in vec2 p, in float r, in float start_angle, in float end_angle)
 
     // sign
     float s;
-    if (cross_z(a, b) < 0.0) {
+    // cross_z(a, b) is ~0 for equal angles, so it can't tell an empty wedge from a full one.
+    // Treat equal angles as empty, like canvas.
+    if (start_angle == end_angle || cross_z(a, b) < 0.0) {
         s =  sign(max(cross_z(a, p), cross_z(p, b)));
     } else {
         s = -sign(max(cross_z(p, a), cross_z(b, p)));

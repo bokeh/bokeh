@@ -1173,10 +1173,10 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
      * error on both the start and end angles, hence the factor of 2. Do not assume full circle if
      * start and end angles are close, but test here depends on combination of sign of angular
      * difference and wedge direction (clockwise/counterclockwise) to obtain the same results as on
-     * canvas.
+     * canvas. Identical angles are an empty arc, not a full ellipse (issue #15712).
      */
     if (Math.abs(start_angle - end_angle) < 2*float32_epsilon &&
-        !(Math.abs(initial_diff) < 2*float32_epsilon && initial_diff < 0)) {
+        !(Math.abs(initial_diff) < 2*float32_epsilon && initial_diff <= 0)) {
 
       // Draw full ellipse. SVG elliptical arc cannot do this, so instead use two semi ellipses.
       const [tstart_x, tstart_y] = this._transform.apply(start_x, start_y)
