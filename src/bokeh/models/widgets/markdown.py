@@ -139,10 +139,11 @@ class Markdown(Widget):
     Explicit Markdown and HTML IDs and footnote links remain available.
     """)
 
-    embeds = Dict(Regex(r"^[A-Za-z0-9_.-]+\Z"), Instance(LayoutDOM), default={}, help="""
+    embeds = Dict(Regex(r"^[A-Za-z0-9_][A-Za-z0-9_.-]*\Z"), Instance(LayoutDOM), default={}, help="""
     Named Bokeh models to display in standalone ``::bokeh[name]`` blocks.
 
-    Names may contain ASCII letters, digits, underscores, hyphens, and periods.
+    Names use ASCII letters, digits, underscores, hyphens, and periods, and
+    must start with a letter, digit, or underscore.
     Each model can appear once, even if multiple names refer to it. Missing
     names, repeated references, and failed view initialization display a message
     in the Markdown contents.

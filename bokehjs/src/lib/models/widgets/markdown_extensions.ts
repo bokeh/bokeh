@@ -5,6 +5,8 @@ type DefinitionItem = {term: Token[], definitions: Token[][]}
 type DefinitionList = {type: "definition_list", raw: string, items: DefinitionItem[], tokens: Token[]}
 
 const heading_id = /\s+\{#([A-Za-z][\w-]*)\}\s*$/
+const embed_block = /^ {0,3}::bokeh\[([A-Za-z0-9_][A-Za-z0-9_.-]*)\][ \t]*(?:\n|$)/
+const embed_start = new RegExp(embed_block.source, "m")
 const definition = /^ {0,3}:[ \t]+(.*)$/
 const block_start = /^(?: {4}|\t)|^ {0,3}(?:#{1,6}\s|>|[-+*]\s|\d+[.)]\s|`{3}|~{3})/
 
@@ -55,10 +57,10 @@ export function markdown_extensions(marker_prefix = "data"): MarkedExtension {
       name: "bokeh_embed",
       level: "block",
       start(src) {
-        return /^ {0,3}::bokeh\[[A-Za-z0-9_.-]+\][ \t]*(?:\n|$)/m.exec(first_paragraph(src))?.index
+        return embed_start.exec(first_paragraph(src))?.index
       },
       tokenizer(src) {
-        const match = /^ {0,3}::bokeh\[([A-Za-z0-9_.-]+)\][ \t]*(?:\n|$)/.exec(src)
+        const match = embed_block.exec(src)
         return match == null ? undefined : {type: "bokeh_embed", raw: match[0], name: match[1]}
       },
       renderer(token) {

@@ -141,13 +141,14 @@ def test_rendering_options_roundtrip() -> None:
     assert restored.disable_anchors is True
 
 
-@pytest.mark.parametrize("name", ["", "bad name", "bad]name", "é", "name\n"])
+@pytest.mark.parametrize("name", ["", "bad name", "bad]name", "é", "name\n", ".trend", "-trend"])
 def test_invalid_embed_names(name: str) -> None:
     with pytest.raises(ValueError):
         Markdown(embeds={name: Plot()})
 
 
-def test_valid_embed_names() -> None:
+@pytest.mark.parametrize("name", ["trend_1.a-b", "1.a-b", "_"])
+def test_valid_embed_names(name: str) -> None:
     model = Plot()
-    markdown = Markdown(embeds={"trend_1.a-b": model})
-    assert markdown.embeds == {"trend_1.a-b": model}
+    markdown = Markdown(embeds={name: model})
+    assert markdown.embeds == {name: model}

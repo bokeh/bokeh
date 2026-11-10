@@ -404,6 +404,14 @@ describe("Markdown", () => {
     expect(html.includes("<p>After</p>")).to.be.true
   })
 
+  it("should allow periods and hyphens only after the first character of an embed name", () => {
+    const parser = new Marked(markdown_extensions())
+    const html = parser.parse("::bokeh[.trend]\n\nBefore\n::bokeh[-trend]\n::bokeh[_trend.1-x]\n", {async: false})
+    expect(html.includes("<p>::bokeh[.trend]</p>")).to.be.true
+    expect(html.includes("<p>Before\n::bokeh[-trend]</p>")).to.be.true
+    expect(html.match(/data-bokeh-embed="[^"]+"/g)).to.be.equal(['data-bokeh-embed="_trend.1-x"'])
+  })
+
   it("should parse long documents without repeatedly scanning their remaining paragraphs", () => {
     const parser = new Marked(markdown_extensions())
     // A generous bound catches the former multi-second quadratic scan without relying on ratios.

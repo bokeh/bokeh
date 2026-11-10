@@ -161,12 +161,12 @@ layouts:
     )
     show(report)
 
-Names must be nonempty and contain only ASCII letters, digits, underscores,
-periods, or hyphens. Each model can appear once within a widget, even when
-multiple names refer to it. Models not referenced by the text do not create
-views. Missing names, repeated models, recursive embeds, and failed view
-initialization display messages in the corresponding slots. A later text or
-mapping update can retry a failed build.
+Names use ASCII letters, digits, underscores, periods, and hyphens, and must
+start with a letter, digit, or underscore. Each model can appear once within
+a widget, even when multiple names refer to it. Models not referenced by the
+text do not create views. Missing names, repeated models, recursive embeds,
+and failed view initialization display messages in the corresponding slots.
+A later text or mapping update can retry a failed build.
 
 Embedded models retain their views and state when surrounding text changes.
 They use their own sizing properties within the available space. A Markdown
