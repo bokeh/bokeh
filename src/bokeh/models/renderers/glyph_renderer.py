@@ -150,7 +150,8 @@ class GlyphRenderer(DataRenderer):
     """)
 
     def add_path_decoration(self, marking: Marking, *, node: Literal["start", "middle", "end"],
-            inset: Any = 0, selection_marking: Marking | Literal["auto"] | None = "auto",
+            inset: Any = 0, angle: Any = 0, angle_reference: Literal["auto", "left", "right", "screen"] = "auto",
+            selection_marking: Marking | Literal["auto"] | None = "auto",
             nonselection_marking: Marking | Literal["auto"] | None = "auto",
             hover_marking: Marking | Literal["auto"] | None = "auto",
             muted_marking: Marking | Literal["auto"] | None = "auto") -> PathMarking:
@@ -161,13 +162,14 @@ class GlyphRenderer(DataRenderer):
         Use add_path_markings() for fractional or repeated placements.
         State-specific markings require explicitly configured state glyphs.
         """
-        decoration = PathMarking(marking=marking, node=node, inset=inset)
+        decoration = PathMarking(marking=marking, node=node, inset=inset, angle=angle, angle_reference=angle_reference)
         self._add_decoration(decoration, selection_marking=selection_marking,
                              nonselection_marking=nonselection_marking,
                              hover_marking=hover_marking, muted_marking=muted_marking)
         return decoration
 
     def add_path_markings(self, marking: Marking, *, positions: Any = None,
+            angle: Any = 0, angle_reference: Literal["auto", "left", "right", "screen"] = "auto",
             selection_marking: Marking | Literal["auto"] | None = "auto",
             nonselection_marking: Marking | Literal["auto"] | None = "auto",
             hover_marking: Marking | Literal["auto"] | None = "auto",
@@ -179,7 +181,7 @@ class GlyphRenderer(DataRenderer):
         Markings use rear-to-tip chord alignment without shaft trimming or inset.
         Fractions 0 and 1 differ from named endpoints. Styling resolves per path.
         """
-        decoration = PathMarkings(marking=marking, positions=[0.5] if positions is None else positions)
+        decoration = PathMarkings(marking=marking, positions=[0.5] if positions is None else positions, angle=angle, angle_reference=angle_reference)
         self._add_decoration(decoration, selection_marking=selection_marking,
                              nonselection_marking=nonselection_marking,
                              hover_marking=hover_marking, muted_marking=muted_marking)
@@ -210,9 +212,11 @@ class GlyphRenderer(DataRenderer):
                 glyph.decorations.append(decoration)
             else:
                 glyph.decorations.append(
-                    PathMarking(marking=state_marking, node=decoration.node, inset=decoration.inset)
+                    PathMarking(marking=state_marking, node=decoration.node, inset=decoration.inset,
+                                angle=decoration.angle, angle_units=decoration.angle_units, angle_reference=decoration.angle_reference)
                     if isinstance(decoration, PathMarking) else
-                    PathMarkings(marking=state_marking, positions=decoration.positions),
+                    PathMarkings(marking=state_marking, positions=decoration.positions,
+                                 angle=decoration.angle, angle_units=decoration.angle_units, angle_reference=decoration.angle_reference),
                 )
 
 

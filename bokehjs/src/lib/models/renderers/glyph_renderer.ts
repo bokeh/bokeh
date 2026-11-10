@@ -45,6 +45,8 @@ type UpdatePass = {
 }
 
 type DecorationOptions = {
+  angle?: PathMarking.Attrs["angle"]
+  angle_reference?: PathMarking.Attrs["angle_reference"]
   inset?: PathMarking.Attrs["inset"]
   selection_marking?: Marking | "auto" | null
   nonselection_marking?: Marking | "auto" | null
@@ -766,12 +768,20 @@ export class GlyphRenderer<
   }
 
   add_path_decoration(marking: Marking, options: DecorationOptions & {node: PathMarking["node"]}): PathMarking {
-    const decoration = PathMarking.create({node: options.node, marking, inset: options.inset ?? 0})
+    const decoration = PathMarking.create({
+      node: options.node, marking, inset: options.inset ?? 0,
+      angle: options.angle ?? 0,
+      angle_reference: options.angle_reference ?? "auto",
+    })
     return this._add_decoration(decoration, options)
   }
 
   add_path_markings(marking: Marking, options: Omit<DecorationOptions, "inset"> & {positions?: PathMarkings["positions"]} = {}): PathMarkings {
-    const decoration = PathMarkings.create({marking, positions: options.positions ?? [0.5]})
+    const decoration = PathMarkings.create({
+      marking, positions: options.positions ?? [0.5],
+      angle: options.angle ?? 0,
+      angle_reference: options.angle_reference ?? "auto",
+    })
     return this._add_decoration(decoration, options)
   }
 

@@ -5305,6 +5305,11 @@
       type: "value",
       value: 0,
     },
+    angle: {
+      type: "value",
+      value: 0,
+    },
+    angle_reference: "auto",
   },
   PathMarkings: {
     __extends__: "Decoration",
@@ -5318,6 +5323,11 @@
         0.5,
       ],
     },
+    angle: {
+      type: "value",
+      value: 0,
+    },
+    angle_reference: "auto",
   },
   EdgeCoordinates: {
     __extends__: "GraphCoordinates",

@@ -113,7 +113,7 @@ export abstract class GlyphView extends DOMComponentView {
     let end = 0
 
     for (const decoration of this.decorations.values()) {
-      const inset = Math.max(0, decoration.inset.get(i) + decoration.marking.line_extent(i))
+      const inset = decoration.shaft_inset(i)
       if (decoration.node == "start") {
         start = Math.max(start, inset)
       } else if (decoration.node == "end") {

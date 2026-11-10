@@ -117,9 +117,13 @@ export class ArcView extends XYGlyphView {
           : start_angle + sweep - direction*inset_angle
           rotation = angle + ((placement == "start") != anticlock ? 0 : PI)
         }
+        const orientation = decoration.resolve_angle(i, rotation, angle + (anticlock ? 0 : PI))
+        if (!isFinite(orientation)) {
+          continue
+        }
         ctx.save()
         ctx.translate(sradius*cos(angle) + sx, sradius*sin(angle) + sy)
-        ctx.rotate(rotation)
+        ctx.rotate(orientation)
         decoration.marking.paint(ctx, i)
         ctx.restore()
       }

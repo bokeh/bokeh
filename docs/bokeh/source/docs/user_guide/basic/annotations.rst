@@ -488,6 +488,29 @@ later, for example with ``decoration.inset = 10``. Decorations can also be added
 or removed after display, and replacing ``decoration.marking`` rebuilds its
 head view. These changes work through server document patches as well.
 
+Set a path marking's ``angle`` to rotate it counterclockwise around its anchor.
+The default ``angle_reference="auto"`` uses the usual path orientation.
+Use ``"left"`` or ``"right"`` to start from the corresponding normal to the
+forward screen-space tangent, or ``"screen"`` to measure from straight up.
+The angle can be a fixed value or a source field. It defaults to zero radians.
+Only unrotated automatic placements trim the shaft.
+
+.. code-block:: python
+
+    from math import pi
+    from bokeh.models import NormalHead
+
+    renderer = plot.segment(0, 0, 1, 1)
+    renderer.add_path_decoration(
+        NormalHead(), node="end", angle_reference="screen", angle=-pi/2,
+    )
+
+The dot marks the start of the curve in each panel. The left and right
+normals point in opposite directions at the same positions.
+
+.. bokeh-plot:: __REPO__/examples/basic/annotations/path_marking_angles.py
+    :source-position: above
+
 Arrow endpoints use data coordinates. Arrowhead size, visuals, and decoration
 ``inset`` can refer to fields in the
 renderer's data source. Size and inset are measured in screen pixels. Head

@@ -7,7 +7,7 @@
 
 from typing import Any, Literal, Unpack
 
-from ..._specs import DataSpec, NumberSpec
+from ..._specs import AngleSpec, DataSpec, NumberSpec
 from ...core.enums import AutoType as Auto
 from ..annotations import ColorBar
 from ..glyph import Glyph
@@ -38,11 +38,13 @@ class GlyphRenderer[GlyphType: Glyph](DataRenderer):
     muted: bool = ...
 
     def add_path_decoration(self, marking: Marking, *, node: Literal["start", "middle", "end"],
-        inset: NumberSpec = ..., selection_marking: Auto | Marking | None = ...,
+        inset: NumberSpec = ..., angle: AngleSpec = ..., angle_reference: Literal["auto", "left", "right", "screen"] = ...,
+        selection_marking: Auto | Marking | None = ...,
         nonselection_marking: Auto | Marking | None = ..., hover_marking: Auto | Marking | None = ...,
         muted_marking: Auto | Marking | None = ...) -> PathMarking: ...
 
     def add_path_markings(self, marking: Marking, *, positions: DataSpec[list[float]] | None = ...,
+        angle: AngleSpec = ..., angle_reference: Literal["auto", "left", "right", "screen"] = ...,
         selection_marking: Auto | Marking | None = ..., nonselection_marking: Auto | Marking | None = ...,
         hover_marking: Auto | Marking | None = ..., muted_marking: Auto | Marking | None = ...) -> PathMarkings: ...
 
