@@ -270,7 +270,7 @@ def _template_roots(result: EmbedResult, mounts: tuple[EmbedMount, ...]) -> _Tem
                     definitions[model_id] = value
                 for item in value.values():
                     collect(item, definitions)
-            elif isinstance(value, list):
+            elif isinstance(value, list | tuple):
                 for item in value:
                     collect(item, definitions)
 
@@ -286,7 +286,7 @@ def _template_roots(result: EmbedResult, mounts: tuple[EmbedMount, ...]) -> _Tem
                     collect(documents, models)
                 root = models[model_id]
             attributes = root if "$type" in root else root.get("attributes", {})
-            name = attributes.get("name")
+            name = (dict(attributes) if isinstance(attributes, list) else attributes).get("name")
             if isinstance(name, str) and name:
                 aliases.setdefault(name, mount)
     return _TemplateRoots(mounts, aliases)
