@@ -832,10 +832,16 @@ describe("Markdown", () => {
   })
 
   for (const nested of [false, true]) {
-    it(`should apply default light and dark colors without user styles (nested=${nested})`, async () => {
+    it(`should keep a transparent light background and apply dark theme colors (nested=${nested})`, async () => {
       const markdown = Markdown.create({text: "Plain prose.\n\n> [!NOTE]\n> Callout prose.\n\n```python\ndef square(x):\n    return x**2\n```"})
-      const root = nested ? Column.create({children: [markdown]}) : markdown
+      const root = nested ? Column.create({
+        children: [markdown],
+        stylesheets: [":host { background-color: #dbeafe; }"],
+      }) : markdown
       const {view: root_view, doc} = await display(root, null)
+      if (nested) {
+        expect(color2rgba(getComputedStyle(root_view.el).backgroundColor)).to.be.equal([219, 234, 254, 255])
+      }
       const view = root_view.owner.get_one(markdown)
       const prose = view.contents.querySelector("p")!
       const callout = view.contents.querySelector(".admonition p:not(.admonition-title)")!
@@ -845,8 +851,11 @@ describe("Markdown", () => {
       const colors = (["light", "dark", "light"] as const).map((scheme) => {
         doc.config.color_scheme = scheme
         const host_style = getComputedStyle(view.el)
-        expect(color2rgba(host_style.backgroundColor)[3]).to.be.equal(255)
-        expect(is_dark(color2rgba(host_style.backgroundColor))).to.be.equal(scheme == "dark")
+        const background = color2rgba(host_style.backgroundColor)
+        expect(background[3]).to.be.equal(scheme == "dark" ? 255 : 0)
+        if (scheme == "dark") {
+          expect(is_dark(background)).to.be.true
+        }
         expect(is_dark(color2rgba(host_style.color))).to.be.equal(scheme == "light")
         expect(getComputedStyle(prose).color).to.be.equal(host_style.color)
         expect(getComputedStyle(callout).color).to.be.equal(host_style.color)
