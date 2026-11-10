@@ -93,21 +93,26 @@ export class MyFormatter extends TickFormatter {
 __esModule();
 const tick_formatter_1 = require("models/formatters/tick_formatter");
 class MyFormatter extends tick_formatter_1.TickFormatter {
-    doFormat(ticks) {
-        return ticks.map((tick) => `${tick}`);
-    }
+\tdoFormat(ticks) {
+\t\treturn ticks.map((tick) => `${tick}`);
+\t}
 }
 exports.MyFormatter = MyFormatter;
 """,
              deps=["models/formatters/tick_formatter"])
 
+    # inline models aren't type-checked
     assert buc.nodejs_compile("""const x: number = "a"\n""", "typescript", "some.ts") == \
-        dict(error=
-            '\x1b[96msome.ts\x1b[0m:\x1b[93m1\x1b[0m:\x1b[93m7\x1b[0m - '
-            '\x1b[91merror\x1b[0m\x1b[90m TS2322: \x1b[0mType \'string\' is not assignable to type \'number\'.\n'
-            '\n'
-            '\x1b[7m1\x1b[0m const x: number = "a"\n'
-            '\x1b[7m \x1b[0m \x1b[91m      ~\x1b[0m\n',
+        dict(code="""const x = "a";\n""", deps=[])
+
+    assert buc.nodejs_compile("""const x: = 1\n""", "typescript", "some.ts") == \
+        dict(error="""
+  x Unexpected token
+   ,-[some.ts:1:10]
+ 1 | const x: = 1
+   :          ^
+   `----
+""",
         )
 
 def test_nodejs_compile_less() -> None:

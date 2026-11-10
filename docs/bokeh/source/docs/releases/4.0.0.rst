@@ -153,6 +153,16 @@ API changes
   ``tsconfig.json``. Inline ES modules (``JavaScript`` or ``TypeScript``
   implementations) are now converted to CommonJS by BokehJS's linker instead of
   TypeScript, and plain CommonJS code is used as is.
+* Bokeh no longer ships TypeScript. ``bokeh build`` compiles extensions with
+  the ``typescript`` package they depend on, using any version that supports
+  their ``tsconfig.json`` (``bokeh init`` adds TypeScript 7). Extensions
+  without ``typescript`` in their ``package.json``, extensions without a
+  ``package.json`` and inline models (``__implementation__``) aren't
+  type-checked: Bokeh only removes their types and reports syntax errors and
+  unresolved relative imports. Decorators aren't supported there. TypeScript 6
+  and later reject ``"moduleResolution": "node"``, so use ``"bundler"`` in
+  ``tsconfig.json``. Inline ES modules are converted to CommonJS by BokehJS's
+  linker, and plain CommonJS code is used as is.
 
 Bug fixes
 ---------

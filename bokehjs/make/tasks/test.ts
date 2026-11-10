@@ -55,7 +55,7 @@ task("test:devtools", async () => {
 })
 
 task("test:make", async () => {
-  await node(["--test", "./make/_build/make/task.test.js", "./make/_build/make/utilities.test.js", "./make/_build/make/esm_to_cjs.test.js", "./make/_build/make/graph.test.js", "./make/_build/make/linker.test.js", "./make/_build/make/source_map.test.js"])
+  await node(["--test", "./make/_build/make/task.test.js", "./make/_build/make/utilities.test.js", "./make/_build/make/esm_to_cjs.test.js", "./make/_build/make/graph.test.js", "./make/_build/make/linker.test.js", "./make/_build/make/source_map.test.js", "./make/_build/make/strip.test.js"])
 })
 
 task("test:codebase", ["test:codebase:compile", "test:devtools", "test:make"], async () => {
