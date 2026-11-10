@@ -11,9 +11,9 @@ import * as k from "./kinds"
 import type {Property} from "./properties"
 import {assert} from "./util/assert"
 import {unique_id} from "./util/string"
-import {keys, values, entries, extend, is_empty, dict} from "./util/object"
+import {keys, values, entries, extend, dict, to_object} from "./util/object"
 import {isObject, isIterable, isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
-import type {Serializable, Serializer, ObjectRep, ObjectRefRep, AnyVal} from "./serialization"
+import type {Serializable, Serializer, ObjectRep, ObjectRefRep, LegacyObjectRep, AnyVal} from "./serialization"
 import {serialize} from "./serialization"
 import type {Document} from "../document/document"
 import type {DocumentEvent} from "../document/events"
@@ -387,7 +387,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       serializer.add_ref(this, serializer.model_ref(this.ref()))
     }
 
-    const attributes: {[key: string]: AnyVal} = {}
+    const attributes: [key: string, val: AnyVal][] = []
     for (const prop of this) {
       const has_retained_ref = (() => {
         if (!serializer.compact || !prop.may_have_refs || prop.is_unset) {
@@ -408,17 +408,22 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       })()
       if (prop.syncable && (serializer.include_defaults || prop.dirty || has_retained_ref) && !(prop.readonly && prop.is_unset)) {
         const value = prop.get_value()
-        attributes[prop.attr] = serializer.encode(value) as AnyVal
+        attributes.push([prop.attr, serializer.encode(value) as AnyVal])
       }
     }
 
     const {type: name, id} = this
     if (serializer.compact) {
-      return use_id ? {$type: name, $id: id, ...attributes} : {$type: name, ...attributes}
+      const attrs = to_object(attributes)
+      return use_id ? {$type: name, $id: id, ...attrs} : {$type: name, ...attrs}
     }
 
-    const rep = use_id ? {type: "object" as const, name, id} : {type: "object" as const, name}
-    return is_empty(attributes) ? rep : {...rep, attributes}
+    const rep: LegacyObjectRep & {id?: string} = use_id ? {type: "object", name, id} : {type: "object", name}
+    if (attributes.length != 0) {
+      rep.attributes = serializer.legacy_obj_rep ? to_object(attributes) : attributes
+    }
+
+    return rep
   }
 
   protected constructor(attrs: {id: string} | AttrsLike = {}) {

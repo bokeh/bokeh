@@ -126,6 +126,8 @@ class SliceRep(TypedDict):
     stop: int | None
     step: int | None
 
+type AttrsRep = dict[str, AnyRep] | list[tuple[str, AnyRep]]
+
 class ObjectRep(dict[str, AnyRep]):
     pass
 
@@ -396,11 +398,10 @@ class Serializer:
 
         attributes = list(entries(obj))
         if attributes:
-            encoded = {key: self.encode(val) for key, val in attributes}
             if self.compact:
-                rep.update(encoded)
+                rep.update({key: self.encode(val) for key, val in attributes})
             else:
-                rep["attributes"] = encoded
+                rep["attributes"] = [(key, self.encode(val)) for key, val in attributes]
 
         return rep
 
@@ -844,13 +845,13 @@ class Deserializer:
         return ndarray
 
     def _decode_object(self, obj: ObjectRep) -> Model:
-        attributes: dict[str, AnyRep] | None
+        attributes: AttrsRep | None
         if "$type" in obj:
             name = cast(str, obj["$type"])
             attributes = {key: value for key, value in obj.items() if key not in {"$type", "$id"}}
         else:
             name = cast(str, obj["name"])
-            attributes = cast(dict[str, AnyRep] | None, obj.get("attributes"))
+            attributes = cast(AttrsRep | None, obj.get("attributes"))
 
         cls = self._resolve_type(name)
         instance = cls._new(make_id())
@@ -875,13 +876,13 @@ class Deserializer:
             warn(f"reference already known '{id}'", BokehUserWarning)
             return instance
 
-        attributes: dict[str, AnyRep] | None
+        attributes: AttrsRep | None
         if "$type" in obj:
             name = cast(str, obj["$type"])
             attributes = {key: value for key, value in obj.items() if key not in {"$type", "$id"}}
         else:
             name = cast(str, obj["name"])
-            attributes = cast(dict[str, AnyRep] | None, obj.get("attributes"))
+            attributes = cast(AttrsRep | None, obj.get("attributes"))
 
         cls = self._resolve_type(name)
         instance = cls._new(id)
@@ -894,7 +895,7 @@ class Deserializer:
 
         return instance
 
-    def _initialize_object(self, instance: Model, attributes: dict[str, AnyRep] | None) -> None:
+    def _initialize_object(self, instance: Model, attributes: AttrsRep | None) -> None:
         # We want to avoid any Model specific initialization that happens with
         # Slider(...) when reconstituting from JSON, but we do need to perform
         # general HasProps machinery that sets properties, so call it explicitly
@@ -903,7 +904,9 @@ class Deserializer:
             HasProps.__init__(instance)
 
         if attributes is not None:
-            decoded_attributes = {key: self._decode(val) for key, val in attributes.items()}
+            attributes_iter = attributes.items() if isinstance(attributes, dict) else attributes
+            decoded_attributes = {key: self._decode(val) for key, val in attributes_iter}
+
             for key, val in decoded_attributes.items():
                 instance.set_from_json(key, val, setter=self._setter)
 

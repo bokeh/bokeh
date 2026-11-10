@@ -287,30 +287,30 @@ class TestSerializer:
             ObjectRep(
                 type="object",
                 name="test_serialization.SomeProps",
-                attributes=dict(
-                    p0=2,
-                    p1="a",
-                    p2=[1, 2, 3],
-                ),
+                attributes=[
+                    ("p0", 2),
+                    ("p1", "a"),
+                    ("p2", [1, 2, 3]),
+                ],
             ),
             ObjectRefRep(
                 type="object",
                 name="test_serialization.SomeModel",
                 id=v1.id,
-                attributes=dict(
-                    p0=3,
-                    p1="b",
-                    p2=[4, 5, 6],
-                ),
+                attributes=[
+                    ("p0", 3),
+                    ("p1", "b"),
+                    ("p2", [4, 5, 6]),
+                ],
             ),
             ObjectRep(
                 type="object",
                 name="test_serialization.SomeDataClass",
-                attributes=dict(
-                    f0=2,
-                    f1=[1, 2, 3],
-                    f2=None,
-                ),
+                attributes=[
+                    ("f0", 2),
+                    ("f1", [1, 2, 3]),
+                    ("f2", None),
+                ],
             ),
             [NumberRep(type="number", value="nan")],
         ]
@@ -779,17 +779,17 @@ class TestSerializer:
                 ObjectRep(
                     type="object",
                     name="test_serialization.TestSerializer.test_ndarray_object.X",
-                    attributes=dict(f=0, g="a"),
+                    attributes=[("f", 0), ("g", "a")],
                 ),
                 ObjectRep(
                     type="object",
                     name="test_serialization.TestSerializer.test_ndarray_object.X",
-                    attributes=dict(f=1, g="a"),
+                    attributes=[("f", 1), ("g", "a")],
                 ),
                 ObjectRep(
                     type="object",
                     name="test_serialization.TestSerializer.test_ndarray_object.X",
-                    attributes=dict(f=2, g="b"),
+                    attributes=[("f", 2), ("g", "b")],
                 ),
             ],
             order=sys.byteorder,
@@ -864,11 +864,11 @@ class TestSerializer:
         assert rep == ObjectRep(
             type="object",
             name="test_serialization.SomeProps",
-            attributes=dict(
-                p0=2,
-                p1="a",
-                p2=[1, 2, 3],
-            ),
+            attributes=[
+                ("p0", 2),
+                ("p1", "a"),
+                ("p2", [1, 2, 3]),
+            ],
         )
         assert encoder.buffers == []
 
@@ -880,11 +880,11 @@ class TestSerializer:
             type="object",
             name="test_serialization.SomeModel",
             id=val.id,
-            attributes=dict(
-                p0=3,
-                p1="b",
-                p2=[4, 5, 6],
-            ),
+            attributes=[
+                ("p0", 3),
+                ("p1", "b"),
+                ("p2", [4, 5, 6]),
+            ],
         )
         assert encoder.buffers == []
 
@@ -967,26 +967,26 @@ class TestSerializer:
             type="object",
             name="test_serialization.SomeModel",
             id=val2.id,
-            attributes=dict(
-                p0=30,
-                p3=ObjectRefRep(
+            attributes=[
+                ("p0", 30),
+                ("p3", ObjectRefRep(
                     type="object",
                     name="test_serialization.SomeModel",
                     id=val1.id,
-                    attributes=dict(
-                        p0=20,
-                        p3=ObjectRefRep(
+                    attributes=[
+                        ("p0", 20),
+                        ("p3", ObjectRefRep(
                             type="object",
                             name="test_serialization.SomeModel",
                             id=val0.id,
-                            attributes=dict(
-                                p0=10,
-                                p3=Ref(id=val2.id),
-                            ),
-                        ),
-                    ),
-                ),
-            ),
+                            attributes=[
+                                ("p0", 10),
+                                ("p3", Ref(id=val2.id)),
+                            ],
+                        )),
+                    ],
+                )),
+            ],
         )
         assert encoder.buffers == []
 
@@ -1004,11 +1004,11 @@ class TestSerializer:
         assert rep == ObjectRep(
             type="object",
             name="test_serialization.SomeDataClass",
-            attributes=dict(
-                f0=2,
-                f1=[1, 2, 3],
-                f2=None,
-            ),
+            attributes=[
+                ("f0", 2),
+                ("f1", [1, 2, 3]),
+                ("f2", None),
+            ],
         )
         assert encoder.buffers == []
 
@@ -1019,19 +1019,19 @@ class TestSerializer:
         assert rep == ObjectRep(
             type="object",
             name="test_serialization.SomeDataClass",
-            attributes=dict(
-                f0=2,
-                f1=[1, 2, 3],
-                f2=ObjectRep(
+            attributes=[
+                ("f0", 2),
+                ("f1", [1, 2, 3]),
+                ("f2", ObjectRep(
                     type="object",
                     name="test_serialization.SomeDataClass",
-                    attributes=dict(
-                        f0=3,
-                        f1=[4, 5, 6],
-                        f2=None,
-                    ),
-                ),
-            ),
+                    attributes=[
+                        ("f0", 3),
+                        ("f1", [4, 5, 6]),
+                        ("f2", None),
+                    ],
+                )),
+            ],
         )
         assert encoder.buffers == []
 
@@ -1043,20 +1043,20 @@ class TestSerializer:
         assert rep == ObjectRep(
             type="object",
             name="test_serialization.SomeDataClass",
-            attributes=dict(
-                f0=2,
-                f1=[1, 2, 3],
-                f2=None,
-                f4=ObjectRep(
+            attributes=[
+                ("f0", 2),
+                ("f1", [1, 2, 3]),
+                ("f2", None),
+                ("f4", ObjectRep(
                     type="object",
                     name="test_serialization.SomeProps",
-                    attributes=dict(
-                        p0=2,
-                        p1="a",
-                        p2=[1, 2, 3],
-                    ),
-                ),
-            ),
+                    attributes=[
+                        ("p0", 2),
+                        ("p1", "a"),
+                        ("p2", [1, 2, 3]),
+                    ],
+                )),
+            ],
         )
         assert encoder.buffers == []
 
@@ -1068,21 +1068,21 @@ class TestSerializer:
         assert rep == ObjectRep(
             type="object",
             name="test_serialization.SomeDataClass",
-            attributes=dict(
-                f0=2,
-                f1=[1, 2, 3],
-                f2=None,
-                f5=ObjectRefRep(
+            attributes=[
+                ("f0", 2),
+                ("f1", [1, 2, 3]),
+                ("f2", None),
+                ("f5", ObjectRefRep(
                     type="object",
                     name="test_serialization.SomeModel",
                     id=v0.id,
-                    attributes=dict(
-                        p0=3,
-                        p1="b",
-                        p2=[4, 5, 6],
-                    ),
-                ),
-            ),
+                    attributes=[
+                        ("p0", 3),
+                        ("p1", "b"),
+                        ("p2", [4, 5, 6]),
+                    ],
+                )),
+            ],
         )
         assert encoder.buffers == []
 

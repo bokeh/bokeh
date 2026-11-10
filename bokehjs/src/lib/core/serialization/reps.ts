@@ -80,10 +80,14 @@ type CompactObjectRefRep = CompactObjectRep & {
   $id: string
 }
 
-type LegacyObjectRep = {
+export type AttrList = [string, AnyVal][]
+export type AttrDict = {[key: string]: AnyVal}
+export type AttrsRep = AttrList | AttrDict
+
+export type LegacyObjectRep = {
   type: "object"
   name: string
-  attributes?: {[key: string]: AnyVal}
+  attributes?: AttrsRep
 }
 
 type LegacyObjectRefRep = LegacyObjectRep & {

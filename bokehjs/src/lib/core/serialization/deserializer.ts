@@ -7,7 +7,7 @@ import type {Ref} from "../util/refs"
 import {is_ref} from "../util/refs"
 import type {NDArray} from "../util/ndarray"
 import {ndarray} from "../util/ndarray"
-import {entries} from "../util/object"
+import {entries, dict, to_object} from "../util/object"
 import {map} from "../util/array"
 import {BYTE_ORDER} from "../util/platform"
 import {base64_to_buffer, swap} from "../util/buffer"
@@ -16,8 +16,22 @@ import {Slice} from "../util/slice"
 import type {Value, Field, Expr} from "../vectorization"
 
 import type {
-  SymbolRep, NumberRep, ArrayRep, SetRep, MapRep, BytesRep, SliceRep, DateRep,
-  TypedArrayRep, NDArrayRep, ObjectRep, ObjectRefRep, ValueRep, FieldRep, ExprRep,
+  ArrayRep,
+  AttrsRep,
+  BytesRep,
+  DateRep,
+  ExprRep,
+  FieldRep,
+  MapRep,
+  NDArrayRep,
+  NumberRep,
+  ObjectRefRep,
+  ObjectRep,
+  SetRep,
+  SliceRep,
+  SymbolRep,
+  TypedArrayRep,
+  ValueRep,
 } from "./reps"
 
 export type Decoder = (rep: any, deserializer: Deserializer) => unknown
@@ -381,7 +395,7 @@ export class Deserializer {
     })() : rep.attributes ?? {}
     const cls = this._resolve_type(type)
     if (Object.keys(attributes).length != 0) {
-      return construct(cls, this._decode(attributes) as Attrs)
+      return construct(cls, to_object(this._decode(attributes) as AttrsRep))
     } else {
       return construct(cls)
     }
@@ -399,11 +413,16 @@ export class Deserializer {
   protected _decode_object_ref(obj: ObjectRefRep): HasProps {
     const rep = obj as any
     const id = isString(rep.$id) ? rep.$id : rep.id
-    const type = isString(rep.$type) ? rep.$type : rep.name
-    const attributes = isString(rep.$type) ? (() => {
+    const compact = isString(rep.$type)
+    const type = compact ? rep.$type : rep.name
+    const attributes: AttrsRep = compact ? (() => {
       const {$type: _type, $id: _id, ...attributes} = rep
       return attributes
-    })() : rep.attributes ?? {}
+    })() : rep.attributes ?? []
+
+    if (!compact && isPlainObject(attributes)) {
+      this._legacy_obj_rep = true
+    }
 
     if (this._defined_model_ids.has(id)) {
       this.error(`duplicate model ID '${id}'`)
@@ -413,7 +432,7 @@ export class Deserializer {
     const ref = this.references.get(id)
     if (ref != null) {
       if (ref.type == type) {
-        const decoded_attributes = this._decode(attributes) as Attrs
+        const decoded_attributes = this._decode_attributes(ref, attributes)
         if (this._deferred_references.delete(id)) {
           ref.initialize_props(decoded_attributes)
           this._finalizable.add(ref)
@@ -444,12 +463,48 @@ export class Deserializer {
       this.references.set(id, instance)
       this._new_references.add(id)
 
-      const decoded_attributes = this._decode(attributes) as Attrs
+      const decoded_attributes = this._decode_attributes(instance, attributes)
       instance.initialize_props(decoded_attributes)
 
       this._finalizable.add(instance)
       return instance
     }
+  }
+
+  private _legacy_obj_rep: boolean = false
+  get legacy_obj_rep(): boolean {
+    return this._legacy_obj_rep
+  }
+
+  protected _decode_attributes(obj: HasProps, attrs: AttrsRep = []): Attrs {
+    const decoded_attrs: Attrs = {}
+
+    if (isArray(attrs)) {
+      for (const [attr, value] of attrs) {
+        if (attr in obj.properties) {
+          decoded_attrs[attr] = this._decode(value)
+        } else {
+          this.warning(`ignoring unexpected attribute '${attr}' for ${obj}`)
+        }
+      }
+    } else {
+      const encoded_attrs = dict(attrs)
+
+      for (const {attr} of obj) {
+        const value = encoded_attrs.get(attr)
+        if (value !== undefined) {
+          decoded_attrs[attr] = this._decode(value)
+        }
+      }
+
+      for (const attr of encoded_attrs.keys()) {
+        if (!(attr in obj.properties)) {
+          this.warning(`ignoring unexpected attribute '${attr}' for ${obj}`)
+        }
+      }
+    }
+
+    return decoded_attrs
   }
 
   error(message: string): never {
