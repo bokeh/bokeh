@@ -738,7 +738,8 @@ export namespace GlyphRenderer {
     NonSelectionGlyph = BaseGlyph,
     SelectionGlyph = BaseGlyph,
     MutedGlyph = BaseGlyph,
-  > = p.AttrsOf<Props<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph>>
+    Source extends ColumnarDataSource = ColumnarDataSource,
+  > = p.AttrsOf<Props<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph, Source>>
 
   export type Props<
     BaseGlyph,
@@ -746,8 +747,9 @@ export namespace GlyphRenderer {
     NonSelectionGlyph = BaseGlyph,
     SelectionGlyph = BaseGlyph,
     MutedGlyph = BaseGlyph,
+    Source extends ColumnarDataSource = ColumnarDataSource,
   > = DataRenderer.Props & {
-    data_source: p.Property<ColumnarDataSource>
+    data_source: p.Property<Source>
     view: p.Property<IndexedSubset>
     glyph: p.Property<BaseGlyph>
     hover_glyph: p.Property<HoverGlyph | null>
@@ -764,7 +766,13 @@ export interface GlyphRenderer<
   NonSelectionGlyph extends Glyph = BaseGlyph,
   SelectionGlyph extends Glyph = BaseGlyph,
   MutedGlyph extends Glyph = BaseGlyph,
-> extends GlyphRenderer.Attrs<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph> {}
+  Source extends ColumnarDataSource = ColumnarDataSource,
+> extends GlyphRenderer.Attrs<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph, Source> {}
+
+export type GlyphRendererWithSource<
+  BaseGlyph extends Glyph,
+  Source extends ColumnarDataSource,
+> = GlyphRenderer<BaseGlyph, BaseGlyph, BaseGlyph, BaseGlyph, BaseGlyph, Source>
 
 export class GlyphRenderer<
   BaseGlyph extends Glyph = Glyph,
@@ -772,8 +780,9 @@ export class GlyphRenderer<
   NonSelectionGlyph extends Glyph = BaseGlyph,
   SelectionGlyph extends Glyph = BaseGlyph,
   MutedGlyph extends Glyph = BaseGlyph,
+  Source extends ColumnarDataSource = ColumnarDataSource,
 > extends DataRenderer {
-  declare properties: GlyphRenderer.Props<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph>
+  declare properties: GlyphRenderer.Props<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph, Source>
   declare __view_type__: GlyphRendererView
 
   // Infer glyphs for the base factory while keeping concrete renderer subclasses intact.
