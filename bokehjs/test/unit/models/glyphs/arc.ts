@@ -3,7 +3,7 @@ import {restorable} from "#framework/util"
 import {expect} from "#framework/assertions"
 import {create_glyph_view} from "./_util"
 import {Arc} from "@bokehjs/models/glyphs/arc"
-import {PathDecoration, PathMarkings} from "@bokehjs/models/graphics/decoration"
+import {PathMarking, PathMarkings} from "@bokehjs/models/graphics/decoration"
 import {NormalHead} from "@bokehjs/models/annotations/arrow_head"
 
 const pi = Math.PI
@@ -23,7 +23,7 @@ describe("Arc decorations", () => {
       it(`should place ${placement} on ${direction} arc from ${start} to ${end}`, async () => {
         const decoration = typeof placement == "number"
           ? PathMarkings.create({positions: [placement], marking: NormalHead.create({size: 20})})
-          : PathDecoration.create({node: placement, marking: NormalHead.create({size: 20}), inset: 999})
+          : PathMarking.create({node: placement, marking: NormalHead.create({size: 20}), inset: 999})
         const glyph = Arc.create({direction, decorations: [decoration]})
         const view = await create_glyph_view(glyph, {x: [0], y: [0], radius: [100], start_angle: [0], end_angle: [pi]})
         const ctx = view.canvas.create_layer().ctx
@@ -54,7 +54,7 @@ describe("Arc decorations", () => {
     for (const placement of ["start", "end"] as const) {
       it(`should preserve endpoint tangents and inset for ${placement} on ${direction} arcs`, async () => {
         const glyph = Arc.create({direction, decorations: [
-          PathDecoration.create({node: placement, inset: 10, marking: NormalHead.create({size: 20})}),
+          PathMarking.create({node: placement, inset: 10, marking: NormalHead.create({size: 20})}),
         ]})
         const view = await create_glyph_view(glyph, {x: [0], y: [0], radius: [100], start_angle: [0], end_angle: [pi]})
         const ctx = view.canvas.create_layer().ctx

@@ -7,15 +7,15 @@ import {MultiLine} from "@bokehjs/models/glyphs/multi_line"
 import {Line} from "@bokehjs/models/glyphs/line"
 import {Bezier} from "@bokehjs/models/glyphs/bezier"
 import {NormalHead} from "@bokehjs/models/annotations/arrow_head"
-import {PathDecoration, PathMarkings} from "@bokehjs/models/graphics/decoration"
+import {PathMarking, PathMarkings} from "@bokehjs/models/graphics/decoration"
 
 // Exercise each glyph's paint entry point, rather than only the shared path helpers.
 describe("Endpoint decorations", () => {
   for (const [name, create] of [
-    ["Segment", (decoration: PathDecoration | PathMarkings) => Segment.create({decorations: [decoration]})],
-    ["MultiLine", (decoration: PathDecoration | PathMarkings) => MultiLine.create({decorations: [decoration]})],
-    ["Line", (decoration: PathDecoration | PathMarkings) => Line.create({decorations: [decoration]})],
-    ["Bezier", (decoration: PathDecoration | PathMarkings) => Bezier.create({decorations: [decoration]})],
+    ["Segment", (decoration: PathMarking | PathMarkings) => Segment.create({decorations: [decoration]})],
+    ["MultiLine", (decoration: PathMarking | PathMarkings) => MultiLine.create({decorations: [decoration]})],
+    ["Line", (decoration: PathMarking | PathMarkings) => Line.create({decorations: [decoration]})],
+    ["Bezier", (decoration: PathMarking | PathMarkings) => Bezier.create({decorations: [decoration]})],
   ] as const) {
     for (const fraction of [0, 0.25, 0.5, 0.75, 1]) {
       it(`should place fraction ${fraction} on ${name} without trimming the shaft`, async () => {
@@ -44,7 +44,7 @@ describe("Endpoint decorations", () => {
     for (const placement of ["start", "end"] as const) {
       it(`should position and trim ${placement} decorations on ${name}`, async () => {
         const marking = NormalHead.create({size: {field: "head_size"}})
-        const decoration = PathDecoration.create({node: placement, marking, inset: {field: "inset"}})
+        const decoration = PathMarking.create({node: placement, marking, inset: {field: "inset"}})
         const glyph = create(decoration)
         const coordinates = glyph instanceof Line ? {
           x: [0, 40, 100], y: [0, 30, 30],
@@ -105,7 +105,7 @@ describe("Endpoint decorations", () => {
   for (const placement of ["start", "end"] as const) {
     it(`should orient a Bezier ${placement} head along the curve rather than the endpoint chord`, async () => {
       const glyph = Bezier.create({decorations: [
-        PathDecoration.create({node: placement, marking: NormalHead.create({size: 12})}),
+        PathMarking.create({node: placement, marking: NormalHead.create({size: 12})}),
       ]})
       const view = await create_glyph_view(glyph, {
         x0: [0], y0: [0], cx0: [60], cy0: [0], cx1: [100], cy1: [40], x1: [100], y1: [100],

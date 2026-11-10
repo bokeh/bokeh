@@ -104,7 +104,7 @@ API changes
 * ``GlyphRenderer.add_path_markings()`` adds repeated fractional markings.
   Positions can be a shared list or a field containing one list per path.
 
-* ``Decoration`` is an abstract base for decoration models. ``PathDecoration``
+* ``Decoration`` is an abstract base for decoration models. ``PathMarking``
   attaches a marking to a named path node, and ``PathMarkings`` places markings
   at fractional path positions. These concrete models define their own marking
   and placement properties.

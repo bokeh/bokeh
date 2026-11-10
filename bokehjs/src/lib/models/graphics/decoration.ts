@@ -11,8 +11,8 @@ import type {Arrayable, Indices} from "core/types"
 import {isArrayable} from "core/util/types"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
 
-export class PathDecorationView extends View {
-  declare model: PathDecoration | PathMarkings
+export class PathMarkingView extends View {
+  declare model: PathMarking | PathMarkings
   visuals: Decoration.Visuals
   declare readonly parent: GlyphView
 
@@ -21,12 +21,12 @@ export class PathDecorationView extends View {
   inset: p.Uniform<number>
   private positions?: p.Uniform<Arrayable<number>>
 
-  get node(): PathDecoration["node"] | null {
-    return this.model instanceof PathDecoration ? this.model.node : null
+  get node(): PathMarking["node"] | null {
+    return this.model instanceof PathMarking ? this.model.node : null
   }
 
-  placements(i: number): (PathDecoration["node"] | number)[] {
-    if (this.model instanceof PathDecoration) {
+  placements(i: number): (PathMarking["node"] | number)[] {
+    if (this.model instanceof PathMarking) {
       return [this.model.node]
     }
     const positions = this.positions!.get(i)
@@ -83,7 +83,7 @@ export class PathDecorationView extends View {
         this.parent.request_paint()
       }
     })
-    this.connect<void, PathDecoration | PathMarkings>(this.model.change, () => {
+    this.connect<void, PathMarking | PathMarkings>(this.model.change, () => {
       if (this._source != null && this._indices != null) {
         this.set_data(this._source, this._indices)
       }
@@ -94,7 +94,7 @@ export class PathDecorationView extends View {
   set_data(source: ColumnarDataSource, indices: Indices): void {
     this._source = source
     this._indices = indices
-    this.inset = this.model instanceof PathDecoration
+    this.inset = this.model instanceof PathMarking
       ? this.model.properties.inset.uniform(source).select(indices)
       : new p.UniformScalar(0, indices.count)
     if (this.model instanceof PathMarkings) {
@@ -114,7 +114,7 @@ export abstract class Decoration extends Model {
   declare properties: Decoration.Props
 }
 
-export namespace PathDecoration {
+export namespace PathMarking {
   export type Attrs = p.AttrsOf<Props>
   export type Props = Decoration.Props & {
     marking: p.Property<Marking>
@@ -122,13 +122,13 @@ export namespace PathDecoration {
     inset: p.NumberSpec
   }
 }
-export interface PathDecoration extends PathDecoration.Attrs {}
-export class PathDecoration extends Decoration {
-  declare properties: PathDecoration.Props
-  declare __view_type__: PathDecorationView
+export interface PathMarking extends PathMarking.Attrs {}
+export class PathMarking extends Decoration {
+  declare properties: PathMarking.Props
+  declare __view_type__: PathMarkingView
   static {
-    this.prototype.default_view = PathDecorationView
-    this.define<PathDecoration.Props>(({Enum, Ref}) => ({
+    this.prototype.default_view = PathMarkingView
+    this.define<PathMarking.Props>(({Enum, Ref}) => ({
       marking: [Ref(Marking)],
       node: [Enum("start", "middle", "end")],
       inset: [p.NumberSpec, 0],
@@ -154,9 +154,9 @@ export namespace PathMarkings {
 export interface PathMarkings extends PathMarkings.Attrs {}
 export class PathMarkings extends Decoration {
   declare properties: PathMarkings.Props
-  declare __view_type__: PathDecorationView
+  declare __view_type__: PathMarkingView
   static {
-    this.prototype.default_view = PathDecorationView
+    this.prototype.default_view = PathMarkingView
     this.define<PathMarkings.Props>(({Ref}) => ({
       marking: [Ref(Marking)],
       positions: [PositionsSpec, [0.5]],

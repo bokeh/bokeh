@@ -5,7 +5,7 @@ import {expect} from "#framework/assertions"
 import {create_glyph_view} from "./_util"
 import {MultiLine} from "@bokehjs/models/glyphs/multi_line"
 import {NormalHead} from "@bokehjs/models/annotations/arrow_head"
-import {PathDecoration} from "@bokehjs/models/graphics/decoration"
+import {PathMarking} from "@bokehjs/models/graphics/decoration"
 import type {Context2d} from "@bokehjs/core/util/canvas"
 
 describe("MultiLine", () => {
@@ -21,7 +21,7 @@ describe("MultiLine", () => {
 
   it("should place vectorized end decorations on the final path tangent and stop the shaft at the rear of the marking", async () => {
     const marking = NormalHead.create({size: {field: "head_size"}})
-    const decoration = PathDecoration.create({marking, node: "end", inset: {field: "inset"}})
+    const decoration = PathMarking.create({marking, node: "end", inset: {field: "inset"}})
     const glyph = MultiLine.create({
       xs: {field: "xs"},
       ys: {field: "ys"},
@@ -81,7 +81,7 @@ describe("MultiLine", () => {
   for (const placement of ["start", "end"] as const) {
     it(`should hit a curved decorated path only where its shaft or marking is visible at ${placement}`, async () => {
       const marking = NormalHead.create({size: 12})
-      const decoration = PathDecoration.create({marking, node: placement, inset: 20})
+      const decoration = PathMarking.create({marking, node: placement, inset: 20})
       const glyph = MultiLine.create({
         xs: {field: "xs"},
         ys: {field: "ys"},

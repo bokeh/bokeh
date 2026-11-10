@@ -26,7 +26,7 @@ import type {Context2d} from "core/util/canvas"
 import {is_equal} from "core/util/eq"
 import type {BBox} from "core/util/bbox"
 import {FactorRange} from "../ranges/factor_range"
-import {PathDecoration, PathMarkings} from "../graphics/decoration"
+import {PathMarking, PathMarkings} from "../graphics/decoration"
 import type {Marking} from "../graphics/marking"
 import type {OpaqueIndices, MultiIndices, ImageIndex} from "../selections/selection"
 import {BitSet} from "core/util/bitset"
@@ -45,7 +45,7 @@ type UpdatePass = {
 }
 
 type DecorationOptions = {
-  inset?: PathDecoration.Attrs["inset"]
+  inset?: PathMarking.Attrs["inset"]
   selection_marking?: Marking | "auto" | null
   nonselection_marking?: Marking | "auto" | null
   hover_marking?: Marking | "auto" | null
@@ -765,8 +765,8 @@ export class GlyphRenderer<
     return this.data_source.selection_manager
   }
 
-  add_path_decoration(marking: Marking, options: DecorationOptions & {node: PathDecoration["node"]}): PathDecoration {
-    const decoration = PathDecoration.create({node: options.node, marking, inset: options.inset ?? 0})
+  add_path_decoration(marking: Marking, options: DecorationOptions & {node: PathMarking["node"]}): PathMarking {
+    const decoration = PathMarking.create({node: options.node, marking, inset: options.inset ?? 0})
     return this._add_decoration(decoration, options)
   }
 
@@ -775,7 +775,7 @@ export class GlyphRenderer<
     return this._add_decoration(decoration, options)
   }
 
-  private _add_decoration<T extends PathDecoration | PathMarkings>(decoration: T, options: DecorationOptions): T {
+  private _add_decoration<T extends PathMarking | PathMarkings>(decoration: T, options: DecorationOptions): T {
     const {
       selection_marking = "auto",
       nonselection_marking = "auto",
@@ -790,8 +790,8 @@ export class GlyphRenderer<
     ]
 
     for (const glyph of [this.glyph, ...states.filter(([, marking]) => marking != null).map(([glyph]) => glyph)]) {
-      if (glyph instanceof Glyph && !glyph._supports_path_decorations(decoration instanceof PathDecoration ? decoration.node : 0.5)) {
-        const operation = decoration instanceof PathDecoration ? "add_path_decoration" : "add_path_markings"
+      if (glyph instanceof Glyph && !glyph._supports_path_decorations(decoration instanceof PathMarking ? decoration.node : 0.5)) {
+        const operation = decoration instanceof PathMarking ? "add_path_decoration" : "add_path_markings"
         throw new Error(`${operation}() does not support ${glyph.type}. Use Segment, Line, MultiLine, Bezier, or Arc.`)
       }
     }

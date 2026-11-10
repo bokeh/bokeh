@@ -4,7 +4,7 @@ import {expect} from "#framework/assertions"
 import {create_glyph_view} from "./_util"
 import {Line} from "@bokehjs/models/glyphs/line"
 import {NormalHead} from "@bokehjs/models/annotations/arrow_head"
-import {PathDecoration, PathMarkings} from "@bokehjs/models/graphics/decoration"
+import {PathMarking, PathMarkings} from "@bokehjs/models/graphics/decoration"
 
 describe("Line decorations", () => {
   for (const placement of ["middle", 0.5] as const) {
@@ -17,7 +17,7 @@ describe("Line decorations", () => {
         const glyph = Line.create({decorations: [
           typeof placement == "number"
             ? PathMarkings.create({positions: [placement], marking: NormalHead.create({size: 12})})
-            : PathDecoration.create({node: placement, marking: NormalHead.create({size: 12})}),
+            : PathMarking.create({node: placement, marking: NormalHead.create({size: 12})}),
         ]})
         const view = await create_glyph_view(glyph, {x, y: x.map(value => isFinite(value) ? 50 : NaN)})
         const {renderer} = view
@@ -47,7 +47,7 @@ describe("Line decorations", () => {
   for (const placement of ["start", "end"] as const) {
     it(`should hit visible heads and trimmed shafts without losing Line selection indices at ${placement}`, async () => {
       const glyph = Line.create({x: {field: "x"}, y: {field: "y"}, decorations: [
-        PathDecoration.create({node: placement, inset: 20, marking: NormalHead.create({size: 12})}),
+        PathMarking.create({node: placement, inset: 20, marking: NormalHead.create({size: 12})}),
       ]})
       const view = await create_glyph_view(glyph, {x: [0, 50, 100], y: [50, 50, 50]})
       const sx = placement == "end" ? view.sx[2] : view.sx[0], sy = view.sy[2]

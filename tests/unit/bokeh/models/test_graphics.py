@@ -35,7 +35,7 @@ def test_decoration_base_has_no_marking_or_path_placement() -> None:
     assert set(bmg.Decoration.properties()).isdisjoint({"marking", "node", "inset", "positions"})
 
 
-@pytest.mark.parametrize("model", [bmg.PathDecoration, bmg.PathMarkings])
+@pytest.mark.parametrize("model", [bmg.PathMarking, bmg.PathMarkings])
 def test_path_decorations_own_their_marking(model) -> None:
     marking = NormalHead()
     decoration = model(marking=marking)

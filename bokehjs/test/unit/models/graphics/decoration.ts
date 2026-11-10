@@ -4,7 +4,7 @@ import {create_glyph_view} from "../glyphs/_util"
 import {Segment} from "@bokehjs/models/glyphs/segment"
 import {NormalHead, OpenHead} from "@bokehjs/models/annotations/arrow_head"
 import {IndexFilter} from "@bokehjs/models/filters/index_filter"
-import {Decoration, PathDecoration, PathMarkings} from "@bokehjs/models/graphics/decoration"
+import {Decoration, PathMarking, PathMarkings} from "@bokehjs/models/graphics/decoration"
 import {ModelChangedEvent, ColumnsPatchedEvent} from "@bokehjs/document/events"
 
 describe("Decoration models", () => {
@@ -15,14 +15,14 @@ describe("Decoration models", () => {
     }
 
     const marking = NormalHead.create()
-    for (const decoration of [PathDecoration.create({marking}), PathMarkings.create({marking})]) {
+    for (const decoration of [PathMarking.create({marking}), PathMarkings.create({marking})]) {
       expect(decoration).to.be.instanceof(Decoration)
       expect(decoration.marking).to.be.equal(marking)
     }
   })
 })
 
-describe("PathDecoration live PATCH-DOC updates", () => {
+describe("PathMarking live PATCH-DOC updates", () => {
   it("should update filtered field uniforms and inherited colors through a column patch", async () => {
     const glyph = Segment.create({line_color: {field: "color"}})
     const view = await create_glyph_view(glyph, {
@@ -33,7 +33,7 @@ describe("PathDecoration live PATCH-DOC updates", () => {
     view.renderer.model.view.filter = IndexFilter.create({indices: [1]})
     await plot.ready
     const doc = plot.model.document!
-    const decoration = PathDecoration.create({node: "end", marking: NormalHead.create({size: {field: "size"}, inherit_visuals: ["fill_color"]})})
+    const decoration = PathMarking.create({node: "end", marking: NormalHead.create({size: {field: "size"}, inherit_visuals: ["fill_color"]})})
     doc.apply_json_patch(doc.create_json_patch([new ModelChangedEvent(doc, glyph, "decorations", [decoration])]))
     await plot.ready
     const marking = [...view.decorations.values()][0].marking
@@ -47,7 +47,7 @@ describe("PathDecoration live PATCH-DOC updates", () => {
   })
 
   it("should keep only the latest marking and dispose decorations removed while rebuilding", async () => {
-    const decoration = PathDecoration.create({node: "end", marking: NormalHead.create()})
+    const decoration = PathMarking.create({node: "end", marking: NormalHead.create()})
     const glyph = Segment.create({decorations: [decoration]})
     const view = await create_glyph_view(glyph, {x0: [0], y0: [50], x1: [100], y1: [50]})
     const plot = view.renderer.plot_view
@@ -58,7 +58,7 @@ describe("PathDecoration live PATCH-DOC updates", () => {
     await plot.ready
     expect(view.decorations.get(decoration)!.marking.model).to.be.equal(latest)
     expect(view.owner.find_all(discarded).length).to.be.equal(0)
-    const transient = PathDecoration.create({node: "start", marking: OpenHead.create()})
+    const transient = PathMarking.create({node: "start", marking: OpenHead.create()})
     glyph.decorations = [decoration, transient]
     glyph.decorations = []
     await plot.ready
@@ -75,12 +75,12 @@ describe("PathDecoration live PATCH-DOC updates", () => {
     const plot = view.renderer.plot_view
     const doc = plot.model.document!
     const head = NormalHead.create({size: 12, inherit_visuals: ["fill_color"]})
-    const decoration = PathDecoration.create({node: "end", inset: 20, marking: head})
+    const decoration = PathMarking.create({node: "end", inset: 20, marking: head})
     const patch = doc.create_json_patch([new ModelChangedEvent(doc, glyph, "decorations", [decoration])])
     doc.apply_json_patch(patch)
     await plot.ready
     const added = glyph.decorations[0]
-    assert(added instanceof PathDecoration)
+    assert(added instanceof PathMarking)
     const added_view = view.decorations.get(added)!
     expect(added_view).to.not.be.undefined
     expect(added_view.marking.size.get(0)).to.be.equal(12)

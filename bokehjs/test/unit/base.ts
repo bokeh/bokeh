@@ -281,7 +281,7 @@ describe("default model resolver", () => {
       "PasswordInput",
       "Patch",
       "Patches",
-      "PathDecoration",
+      "PathMarking",
       "PathMarkings",
       "PercentEditor",
       "PlainText",

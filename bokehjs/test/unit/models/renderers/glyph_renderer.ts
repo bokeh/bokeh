@@ -1,5 +1,5 @@
 import {assert} from "@bokehjs/core/util/assert"
-import {PathDecoration} from "@bokehjs/models/graphics/decoration"
+import {PathMarking} from "@bokehjs/models/graphics/decoration"
 import * as sinon from "sinon"
 
 import {expect} from "#framework/assertions"
@@ -88,7 +88,7 @@ describe("GlyphRenderer", () => {
     expect(glyph.decorations).to.be.equal([decoration])
     expect(decoration.inset).to.be.equal({field: "inset"})
     expect(selection_glyph.decorations.length).to.be.equal(1)
-    assert(selection_glyph.decorations[0] instanceof PathDecoration)
+    assert(selection_glyph.decorations[0] instanceof PathMarking)
     expect(selection_glyph.decorations[0].marking).to.be.equal(selection_marking)
     expect(selection_glyph.decorations[0].inset).to.be.equal({field: "inset"})
     expect(nonselection_glyph.decorations).to.be.equal([])
