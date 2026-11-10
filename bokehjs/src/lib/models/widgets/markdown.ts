@@ -1,7 +1,6 @@
 import {Widget, WidgetView} from "./widget"
 import {dedent, markdown_extensions} from "./markdown_extensions"
 import type * as p from "core/properties"
-import type {View} from "core/view"
 import type {Dict} from "core/types"
 import {LayoutDOM} from "../layouts/layout_dom"
 import type {CSSSizeKeyword, DOMBoxSizing} from "../layouts/layout_dom"
@@ -80,15 +79,6 @@ export class MarkdownView extends WidgetView {
     return this._parsed
   }
 
-  private _is_ancestor(model: LayoutDOM): boolean {
-    for (let view: View | null = this; view != null; view = view.parent) {
-      if (view.model == model) {
-        return true
-      }
-    }
-    return false
-  }
-
   protected override _auto_width: CSSSizeKeyword = "fit-content"
 
   protected override _update_layout(): void {
@@ -140,7 +130,7 @@ export class MarkdownView extends WidgetView {
     const embeds = dict(this.model.embeds)
     const models = names.flatMap((name) => {
       const model = embeds.get(name)
-      return model == null || this._is_ancestor(model) ? [] : [model]
+      return model == null || this.has_model_in_ancestry(model) ? [] : [model]
     })
     return [...new Set(models)]
   }
@@ -178,11 +168,12 @@ export class MarkdownView extends WidgetView {
       const name = slot.getAttribute("data-bokeh-embed")!
       const model = embeds.get(name)
       const view = model == null ? undefined : this._child_views.get(model)
-      if (model == null || this._is_ancestor(model) || used.has(model) || view == null) {
+      const is_ancestor = model != null && this.has_model_in_ancestry(model)
+      if (model == null || is_ancestor || used.has(model) || view == null) {
         slot.classList.add("bokeh-embed-error")
         slot.textContent = model == null ? `Unknown Bokeh embed: ${name}`
           : model == this.model ? `Cannot embed Markdown in itself: ${name}`
-          : this._is_ancestor(model) ? `Cannot embed an ancestor layout: ${name}`
+          : is_ancestor ? `Cannot embed an ancestor layout: ${name}`
           : used.has(model) ? `Bokeh model is already embedded: ${name}` : this._failed_embeds.has(model) ? `Failed to build Bokeh embed: ${name}` : `Loading Bokeh embed: ${name}`
         continue
       }
