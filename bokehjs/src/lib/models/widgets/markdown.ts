@@ -17,7 +17,7 @@ import {Marked} from "marked"
 import Purify from "dompurify"
 import hljs from "highlight.js/lib/common"
 import markedFootnote from "marked-footnote"
-import GithubSlugger from "github-slugger"
+import {slug} from "github-slugger"
 
 import markdown_css, * as classes from "styles/widgets/markdown.css"
 
@@ -190,33 +190,12 @@ export class MarkdownView extends WidgetView {
   protected _render_markdown(text: string): void {
     this.contents.innerHTML = this._parse_markdown(text).html
 
-    const headings = this.contents.querySelectorAll<HTMLElement>("h1, h2, h3, h4, h5, h6")
-    // Assign fragment targets before MathJax replaces the heading text.
-    this._assign_explicit_heading_ids(headings)
     this._render_admonitions()
-    this._add_heading_anchors(headings)
+    // Assign fragment targets before MathJax replaces the heading text.
+    this._render_headings()
     this._render_math()
     this._highlight_code()
     this._mount_embeds()
-  }
-
-  private _assign_explicit_heading_ids(headings: Iterable<HTMLElement>): void {
-    const occupied = new Set([...this.contents.querySelectorAll("[id], a[name]")]
-      .flatMap((el) => [el.id, el.getAttribute("name") ?? ""]))
-    const explicit_ids = new Set([...headings].map((heading) => heading.getAttribute("data-heading-id")))
-    for (const heading of headings) {
-      const id = heading.getAttribute("data-heading-id")
-      if (id != null) {
-        let unique = id
-        let suffix = 1
-        while (occupied.has(unique) || (unique != id && explicit_ids.has(unique))) {
-          unique = `${id}-${suffix++}`
-        }
-        heading.id = unique
-        occupied.add(unique)
-        heading.removeAttribute("data-heading-id")
-      }
-    }
   }
 
   private _render_admonitions(): void {
@@ -246,23 +225,44 @@ export class MarkdownView extends WidgetView {
     }
   }
 
-  private _add_heading_anchors(headings: Iterable<HTMLElement>): void {
-    const slugger = new GithubSlugger()
-    const reserved = new Set([...this.contents.querySelectorAll("[id], a[name]")]
+  private _render_headings(): void {
+    const headings = this.contents.querySelectorAll<HTMLElement>("h1, h2, h3, h4, h5, h6")
+    const explicit = [...headings].flatMap((heading) => {
+      const id = heading.getAttribute("data-heading-id")
+      return id == null ? [] : [{heading, id}]
+    })
+    // Preserve existing HTML and footnote targets, and reserve later explicit IDs.
+    const occupied = new Set([...this.contents.querySelectorAll("[id], a[name]")]
       .flatMap((el) => [el.id, el.getAttribute("name") ?? ""]))
+    const explicit_ids = new Set(explicit.map(({id}) => id))
+    const next_suffix = new Map<string, number>()
+    const claim_id = (base: string): string => {
+      let id = base
+      if (occupied.has(id)) {
+        let suffix = next_suffix.get(base) ?? 1
+        do {
+          id = `${base}-${suffix++}`
+        } while (occupied.has(id) || explicit_ids.has(id))
+        next_suffix.set(base, suffix)
+      }
+      occupied.add(id)
+      return id
+    }
+    for (const {heading, id} of explicit) {
+      heading.id = claim_id(id)
+      heading.removeAttribute("data-heading-id")
+    }
+
+    if (this.model.disable_anchors) {
+      return
+    }
     for (const heading of headings) {
-      if (this.model.disable_anchors || heading.closest(".footnotes") != null) {
+      if (heading.closest(".footnotes") != null) {
         continue
       }
       if (heading.id.length == 0) {
-        // Reserve HTML and footnote targets before allocating generated IDs.
-        const text = heading.textContent.trim().toLowerCase()
-        let id: string
-        do {
-          id = slugger.slug(text.length == 0 ? "section" : text)
-        } while (reserved.has(id))
-        heading.id = id
-        reserved.add(id)
+        const base = slug(heading.textContent.trim())
+        heading.id = claim_id(base == "" ? "section" : base)
       }
       const anchor = document.createElement("a")
       anchor.className = classes.heading_anchor

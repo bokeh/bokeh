@@ -748,6 +748,15 @@ describe("Markdown", () => {
     expect(spy.thisValues.at(-1)).to.be.equal(heading)
   })
 
+  it("should assign nonempty, unique IDs to headings whose text produces an empty slug", async () => {
+    const markdown = Markdown.create({text: '<a name="section"></a>\n\n# !!!\n\n# ???\n\n# Section'})
+    const {view} = await display(markdown, null)
+    const headings = [...view.contents.querySelectorAll("h1")]
+    expect(headings.map((heading) => heading.id)).to.be.equal(["section-1", "section-2", "section-3"])
+    expect(headings.map((heading) => heading.querySelector("a")?.getAttribute("href")))
+      .to.be.equal(["#section-1", "#section-2", "#section-3"])
+  })
+
   it("should keep fragment clicks in their originating Markdown widget", async () => {
     window.history.replaceState(null, "", window.location.pathname + window.location.search)
     const text = "[Jump](#shared)\n\n# Shared"
