@@ -1526,7 +1526,7 @@ def linear_palette(palette: Palette, n: int) -> Palette:
         seq[str] : a sequence of hex RGB color strings
 
     Raises:
-        ValueError if n > len(palette)
+        ValueError: if n > len(palette)
 
     """
     if n > len(palette):
@@ -1562,7 +1562,7 @@ def diverging_palette(palette1: Palette, palette2: Palette, n: int, midpoint: fl
             seq[str] : a sequence of hex RGB color strings
 
     Raises:
-        ValueError if n is greater than the possible combined length the input palettes
+        ValueError: if n is greater than the possible combined length the input palettes
     """
 
     # flip palette2 so that perceptually light colors are joined
@@ -1608,7 +1608,7 @@ def varying_alpha_palette(color: str, n: int | None = None, start_alpha: int = 0
         seq[str] : a sequence of hex RGBA color strings
 
     Raises:
-        ValueError if ``color`` is not recognizable as a string name or hex
+        ValueError: if ``color`` is not recognizable as a string name or hex
             RGB(A) string, or if ``start_alpha`` or ``end_alpha`` are outside
             the range 0 to 255 inclusive.
 
@@ -1661,7 +1661,7 @@ def interp_palette(palette: Palette, n: int) -> Palette:
         tuple[str] : a sequence of hex RGB(A) color strings
 
     Raises:
-        ValueError if ``n`` is negative or the supplied ``palette`` is empty.
+        ValueError: if ``n`` is negative or the supplied ``palette`` is empty.
 
     """
     npalette = len(palette)
@@ -1696,7 +1696,7 @@ def magma(n: int) -> Palette:
         seq[str] : a sequence of hex RGB color strings
 
     Raises:
-        ValueError if n is greater than the base palette length of 256
+        ValueError: if n is greater than the base palette length of 256
 
     Examples:
 
@@ -1725,7 +1725,7 @@ def inferno(n: int) -> Palette:
         seq[str] : a sequence of hex RGB color strings
 
     Raises:
-        ValueError if n is greater than the base palette length of 256
+        ValueError: if n is greater than the base palette length of 256
 
     Examples:
 
@@ -1754,7 +1754,7 @@ def plasma(n: int) -> Palette:
         seq[str] : a sequence of hex RGB color strings
 
     Raises:
-        ValueError if n is greater than the base palette length of 256
+        ValueError: if n is greater than the base palette length of 256
 
     Examples:
 
@@ -1783,7 +1783,7 @@ def viridis(n: int) -> Palette:
         seq[str] : a sequence of hex RGB color strings
 
     Raises:
-        ValueError if n is greater than the base palette length of 256
+        ValueError: if n is greater than the base palette length of 256
 
     Examples:
 
@@ -1812,7 +1812,7 @@ def cividis(n: int) -> Palette:
         seq[str] : a sequence of hex RGB color strings
 
     Raises:
-        ValueError if n is greater than the base palette length of 256
+        ValueError: if n is greater than the base palette length of 256
 
     Examples:
 
@@ -1845,7 +1845,7 @@ def turbo(n: int) -> Palette:
         seq[str] : a sequence of hex RGB color strings
 
     Raises:
-        ValueError if n is greater than the base palette length of 256
+        ValueError: if n is greater than the base palette length of 256
 
     Examples:
 
@@ -1874,7 +1874,7 @@ def grey(n: int) -> Palette:
         seq[str] : a sequence of hex RGB color strings
 
     Raises:
-        ValueError if n is greater than the base palette length of 256
+        ValueError: if n is greater than the base palette length of 256
 
     Examples:
 
@@ -1906,7 +1906,7 @@ def gray(n: int) -> Palette:
         seq[str] : a sequence of hex RGB color strings
 
     Raises:
-        ValueError if n is greater than the base palette length of 256
+        ValueError: if n is greater than the base palette length of 256
 
     Examples:
 

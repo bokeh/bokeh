@@ -51,7 +51,7 @@ def indent(text: str, n: int = 2, ch: str = " ") -> str:
         n (int, optional) :
             The amount to indent each line by (default: 2)
 
-        ch (char, optional) :
+        ch (chr, optional) :
             What character to fill the indentation with (default: " ")
 
     '''
@@ -64,7 +64,7 @@ def nice_join(seq: Iterable[Any], *, sep: str = ", ", conjunction: str | None = 
     the conjunction ``or`` when appropriate.
 
     Args:
-        seq (seq[any]) : a sequence of values to nicely join
+        seq (Iterable[Any]) : a sequence of values to nicely join
         sep (str, optional) : a sequence delimiter to use (default: ", ")
         conjunction (str or None, optional) : a conjunction to use for the last
             two items, or None to reproduce basic join behavior (default: "or")

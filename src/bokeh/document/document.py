@@ -757,7 +757,7 @@ side of a communications channel while it was being removed on the other end.\
             None
 
         Raises:
-            ValueError, if the callback was never added or has already been run or removed
+            ValueError: if the callback was never added or has already been run or removed
 
         '''
         self.callbacks.remove_session_callback(callback_obj)
@@ -766,7 +766,7 @@ side of a communications channel while it was being removed on the other end.\
         ''' Remove a callback added earlier with ``on_change``.
 
         Raises:
-            KeyError, if the callback was never added
+            KeyError: if the callback was never added
 
         '''
         self.callbacks.remove_on_change(*callbacks)
@@ -787,7 +787,7 @@ side of a communications channel while it was being removed on the other end.\
             None
 
         Raises:
-            ValueError, if the callback was never added or has already been removed
+            ValueError: if the callback was never added or has already been removed
 
         '''
         self.callbacks.remove_session_callback(callback_obj)
@@ -833,7 +833,7 @@ side of a communications channel while it was being removed on the other end.\
             None
 
         Raises:
-            ValueError, if the callback was never added or has already been run or removed
+            ValueError: if the callback was never added or has already been run or removed
 
         '''
         self.callbacks.remove_session_callback(callback_obj)

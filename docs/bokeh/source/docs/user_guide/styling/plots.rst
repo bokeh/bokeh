@@ -34,7 +34,7 @@ You can also use the |select| method to query on other attributes as well:
     <bokeh.plotting.figure at 0x106608810>
 
     >>> p.select(name="mycircle")
-    [<bokeh.models.renderers.GlyphRenderer at 0x106a4c810>]
+    [<bokeh.models.GlyphRenderer at 0x106a4c810>]
 
 This query method can be especially useful when you want to style visual
 attributes of `Styling glyphs`_.
@@ -75,7 +75,7 @@ Responsive sizes
 
 To automatically adjust the width or height of your plot in relation to the
 available space in the browser, use the plot's
-:class:`~bokeh.models.plots.Plot.sizing_mode` property.
+:attr:`~bokeh.models.Plot.sizing_mode` property.
 
 To control how the plot scales to fill its container, see the documentation for
 :ref:`bokeh.models.layouts`, in particular the ``sizing_mode`` property of
@@ -101,8 +101,8 @@ as the ``.title`` property of the |Plot|.
 
 You can use most of the standard |text properties|. However, ``text_align`` and
 ``text_baseline`` do not apply. To position the title relative to the entire
-plot, use the properties :class:`~bokeh.models.annotations.Title.align` and
-:class:`~bokeh.models.annotations.Title.offset` instead.
+plot, use the properties :class:`~bokeh.models.Title.align` and
+:class:`~bokeh.models.Title.offset` instead.
 
 As an example, to set the color and font style of the title text, use
 ``plot.title.text_color``:
@@ -167,7 +167,7 @@ identify which ``GlyphRenderer`` you want to customize. If you are using the
 
     >>> r = p.circle([1,2,3,4,5], [2,5,8,2,7], radius=1)
     >>> r
-    <bokeh.models.renderers.GlyphRenderer at 0x106a4c810>
+    <bokeh.models.GlyphRenderer at 0x106a4c810>
 
 Next, obtain the glyph itself from the ``.glyph`` attribute of a
 ``GlyphRenderer``:
@@ -191,10 +191,10 @@ To customize the styling of selected and non-selected glyphs, set the
 |selection_glyph| and |nonselection_glyph| attributes of the |GlyphRenderer|.
 You can either set them manually or by passing them to |add_glyph|.
 
-.. |add_glyph| replace:: :func:`~bokeh.models.plots.Plot.add_glyph`
-.. |GlyphRenderer| replace:: :class:`~bokeh.models.renderers.GlyphRenderer`
-.. |selection_glyph| replace:: :attr:`~bokeh.models.renderers.GlyphRenderer.selection_glyph`
-.. |nonselection_glyph| replace:: :attr:`~bokeh.models.renderers.GlyphRenderer.nonselection_glyph`
+.. |add_glyph| replace:: :func:`~bokeh.models.Plot.add_glyph`
+.. |GlyphRenderer| replace:: :class:`~bokeh.models.GlyphRenderer`
+.. |selection_glyph| replace:: :attr:`~bokeh.models.GlyphRenderer.selection_glyph`
+.. |nonselection_glyph| replace:: :attr:`~bokeh.models.GlyphRenderer.nonselection_glyph`
 
 The plot below uses the |bokeh.plotting| interface to set these attributes.
 Click or tap any of the circles on the plot to see the effect on the selected
@@ -212,7 +212,7 @@ prefixed by ``"selection_"`` or ``"nonselection_"``:
     :source-position: above
 
 If you use the |bokeh.models| interface, use the
-:func:`~bokeh.models.plots.Plot.add_glyph` function:
+:func:`~bokeh.models.Plot.add_glyph` function:
 
 .. code-block:: python
 
@@ -739,7 +739,7 @@ Styling legends
 ---------------
 
 Similar to the convenience methods for axes and grids, there is a
-:func:`~bokeh.models.plots.Plot.legend` method on |Plot| that you can use to
+:attr:`~bokeh.models.Plot.legend` method on |Plot| that you can use to
 obtain a plot's |Legend| objects:
 
 bokeh.models.plots.Plot.legend
@@ -957,8 +957,8 @@ You can see a complete example with output in the section
 :ref:`ug_topics_images_colormapped`.
 
 
-.. |select| replace:: :func:`~bokeh.models.plots.Plot.select`
-.. |Title| replace:: :class:`~bokeh.models.annotations.Title`
+.. |select| replace:: :func:`~bokeh.models.Plot.select`
+.. |Title| replace:: :class:`~bokeh.models.annotations.labels.Title`
 .. |BasicTickFormatter| replace:: :class:`~bokeh.models.formatters.BasicTickFormatter`
 .. |AdaptiveTicker| replace:: :class:`~bokeh.models.tickers.AdaptiveTicker`
 .. |CategoricalTickFormatter| replace:: :class:`~bokeh.models.formatters.CategoricalTickFormatter`

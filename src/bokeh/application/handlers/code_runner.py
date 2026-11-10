@@ -98,7 +98,7 @@ class CodeRunner:
                 level. Use 0 to preserve docstrings and assertions.
 
         Raises:
-            ValueError, if package is specified for an __init__.py
+            ValueError: if package is specified for an __init__.py
 
         '''
         if package and basename(path) == "__init__.py":

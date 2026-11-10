@@ -151,7 +151,7 @@ toolbar, which then shows only the Bokeh logo.
 Customizing tools label, tooltip and icon
 -----------------------------------------
 
-You can change the name of a :ref:`bokeh.models.tools` by passing it to the
+You can change the name of a :ref:`bokeh.models` by passing it to the
 ``label`` keyword. The label is displayed in the user interface, e.g. in a
 plot's context menu, in place of the tool's default name (e.g. "Pan" for
 ``PanTool``).
@@ -160,7 +160,7 @@ plot's context menu, in place of the tool's default name (e.g. "Pan" for
 
     plot.add_tools(PanTool(label="Drag"), CustomAction(label="My action"))
 
-You can change the :ref:`bokeh.models.tools` tooltip by passing it to
+You can change the :ref:`bokeh.models` tooltip by passing it to
 the ``description`` keyword using the ``add_tools()`` method of a plot or any
 of it's instances like |figure|.
 
@@ -249,7 +249,7 @@ Toggling ToolBar autohide
 -------------------------
 
 To make your toolbar hide automatically, set the toolbar's
-:class:`~bokeh.models.tools.Toolbar.autohide` property to True. When you set
+:class:`~bokeh.models.Toolbar.autohide` property to True. When you set
 ``autohide`` to True, the toolbar is visible only when the mouse is inside the
 plot area and is otherwise hidden.
 
@@ -271,11 +271,11 @@ respective attributes:
     :source-position: above
 
 For more information, see the reference guide's entries for
-:class:`BoxSelectTool.overlay <bokeh.models.tools.BoxSelectTool.overlay>`,
-:class:`BoxZoomTool.overlay <bokeh.models.tools.BoxZoomTool.overlay>`,
-:class:`LassoSelectTool.overlay <bokeh.models.tools.LassoSelectTool.overlay>`,
-:class:`PolySelectTool.overlay <bokeh.models.tools.PolySelectTool.overlay>`, and
-:class:`RangeTool.overlay <bokeh.models.tools.RangeTool.overlay>`.
+:class:`BoxSelectTool.overlay <bokeh.models.BoxSelectTool.overlay>`,
+:class:`BoxZoomTool.overlay <bokeh.models.BoxZoomTool.overlay>`,
+:class:`LassoSelectTool.overlay <bokeh.models.LassoSelectTool.overlay>`,
+:class:`PolySelectTool.overlay <bokeh.models.PolySelectTool.overlay>`, and
+:class:`RangeTool.overlay <bokeh.models.RangeTool.overlay>`.
 
 .. _ug_interaction_tools_pandrag:
 
@@ -820,7 +820,7 @@ clauses respectively) or similar tools.
 Filtering can be accomplished by providing via ``filters`` property a ``CustomJS``
 function or a sequence of ``CustomJS`` functions per field. Such function are
 given access to all relevant information regarding the currently processed data
-point, and must return a boolean value. Returning a value of any other type will
+point, and must return a Boolean value. Returning a value of any other type will
 be ignored and is equivalent to returning ``true``. An example of a simple filter
 function is as follows:
 
@@ -1263,8 +1263,8 @@ control LOD behavior:
     :module: bokeh.models.plots
 
 
-.. |HoverTool| replace:: :class:`~bokeh.models.tools.HoverTool`
-.. |CustomJSHover| replace:: :class:`~bokeh.models.tools.CustomJSHover`
+.. |HoverTool| replace:: :class:`~bokeh.models.HoverTool`
+.. |CustomJSHover| replace:: :class:`~bokeh.models.CustomJSHover`
 
 .. |NumeralTickFormatter| replace:: :class:`~bokeh.models.formatters.NumeralTickFormatter`
 .. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.formatters.DatetimeTickFormatter`

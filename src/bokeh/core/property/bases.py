@@ -373,7 +373,7 @@ class Property[GetType = Any, SetType = GetType]:
             None
 
         Raises:
-            ValidationError if the value is not valid for this property type
+            ValidationError: if the value is not valid for this property type
 
         """
         pass

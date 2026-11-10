@@ -133,7 +133,7 @@ Updating active sessions from the host
 An enclosing ASGI application's lifespan can own a single background producer
 and publish its output to every currently active Bokeh session. Pass
 :meth:`~bokeh.server.asgi.BokehASGI.update_sessions` a callable that accepts a
-single :class:`~bokeh.document.document.Document`:
+single :class:`~bokeh.document.Document`:
 
 .. code-block:: python
 

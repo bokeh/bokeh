@@ -109,7 +109,7 @@ Examples:
             end_inset: screen-pixel inset for the end marking
 
         Returns:
-            :class:`~bokeh.models.renderers.GlyphRenderer`
+            :class:`~bokeh.models.GlyphRenderer`
         """
         from ..models.annotations.arrows import auto_arrowhead
 

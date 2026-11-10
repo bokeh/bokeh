@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
-""" Make javascript code blocks also include a live link to codepen.io for instant experimentation.
+""" Make JavaScript code blocks also include a live link to codepen.io for instant experimentation.
 
 This directive takes a title to use for the codepen example:
 
@@ -21,7 +21,7 @@ that Sphinx supplies, with the addition of one new option:
 title : string
     A title for the codepen.
 js_file : string
-    location of javascript source file
+    location of JavaScript source file
 include_html: string
     if present, this code block will be emitted as a complete HTML template with
     js inside a script block

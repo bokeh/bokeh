@@ -37,7 +37,7 @@ Which one to use depends on whether you are using
 * If you want to use widgets to interact with Bokeh objects in a **standalone**
   HTML document, the browser needs to handle all interactivity. Therefore,
   you can only use :ref:`ug_interaction_js_callbacks`.
-  You can write your own Javascript code, or use Bokeh's pre-defined Python
+  You can write your own JavaScript code, or use Bokeh's pre-defined Python
   conveniences such as the :ref:`js_link <ug_interaction_linked_properties>`
   function or a :class:`~bokeh.models.SetValue` object which generate the
   necessary JavaScript code for you.
@@ -48,7 +48,7 @@ Which one to use depends on whether you are using
   still can use :ref:`ug_interaction_js_callbacks` as
   well!
 
-.. _ug_interaction_widgets_tootltips:
+.. _ug_interaction_widgets_tooltips:
 
 Widget tooltips
 ---------------
@@ -600,42 +600,42 @@ widget, the toggle button can also use an :class:`~bokeh.models.Icon` (such as
 
 More information can be found in the reference guide entry for |Toggle|.
 
-.. |AutocompleteInput|      replace:: :class:`~bokeh.models.widgets.inputs.AutocompleteInput`
-.. |Button|                 replace:: :class:`~bokeh.models.widgets.buttons.Button`
-.. |CheckboxButtonGroup|    replace:: :class:`~bokeh.models.widgets.groups.CheckboxButtonGroup`
-.. |CheckboxGroup|          replace:: :class:`~bokeh.models.widgets.groups.CheckboxGroup`
-.. |ColorPicker|            replace:: :class:`~bokeh.models.widgets.inputs.ColorPicker`
-.. |DataTable|              replace:: :class:`~bokeh.models.widgets.tables.DataTable`
-.. |DatePicker|             replace:: :class:`~bokeh.models.widgets.inputs.DatePicker`
-.. |DateRangePicker|        replace:: :class:`~bokeh.models.widgets.inputs.DateRangePicker`
-.. |MultipleDatePicker|     replace:: :class:`~bokeh.models.widgets.inputs.MultipleDatePicker`
-.. |DatetimePicker|         replace:: :class:`~bokeh.models.widgets.inputs.DatetimePicker`
-.. |DatetimeRangePicker|    replace:: :class:`~bokeh.models.widgets.inputs.DatetimeRangePicker`
-.. |MultipleDatetimePicker| replace:: :class:`~bokeh.models.widgets.inputs.MultipleDatetimePicker`
-.. |TimePicker|             replace:: :class:`~bokeh.models.widgets.inputs.TimePicker`
-.. |DateRangeSlider|        replace:: :class:`~bokeh.models.widgets.sliders.DateRangeSlider`
-.. |DateSlider|             replace:: :class:`~bokeh.models.widgets.sliders.DateSlider`
-.. |DatetimeRangeSlider|    replace:: :class:`~bokeh.models.widgets.sliders.DatetimeRangeSlider`
-.. |Div|                    replace:: :class:`~bokeh.models.widgets.markups.Div`
-.. |Dropdown|               replace:: :class:`~bokeh.models.widgets.buttons.Dropdown`
-.. |FileInput|              replace:: :class:`~bokeh.models.widgets.inputs.FileInput`
-.. |LightDark|              replace:: :class:`~bokeh.models.widgets.inputs.LightDark`
-.. |HelpButton|             replace:: :class:`~bokeh.models.widgets.buttons.HelpButton`
-.. |MultiChoice|            replace:: :class:`~bokeh.models.widgets.inputs.MultiChoice`
-.. |MultiSelect|            replace:: :class:`~bokeh.models.widgets.inputs.MultiSelect`
-.. |NumericInput|           replace:: :class:`~bokeh.models.widgets.inputs.NumericInput`
-.. |Paragraph|              replace:: :class:`~bokeh.models.widgets.markups.Paragraph`
-.. |PasswordInput|          replace:: :class:`~bokeh.models.widgets.inputs.PasswordInput`
-.. |PreText|                replace:: :class:`~bokeh.models.widgets.markups.PreText`
-.. |Progress|               replace:: :class:`~bokeh.models.widgets.inputs.Progress`
-.. |RadioButtonGroup|       replace:: :class:`~bokeh.models.widgets.groups.RadioButtonGroup`
-.. |RadioGroup|             replace:: :class:`~bokeh.models.widgets.groups.RadioGroup`
-.. |RangeSlider|            replace:: :class:`~bokeh.models.widgets.sliders.RangeSlider`
-.. |Select|                 replace:: :class:`~bokeh.models.widgets.inputs.Select`
-.. |Slider|                 replace:: :class:`~bokeh.models.widgets.sliders.Slider`
-.. |Spinner|                replace:: :class:`~bokeh.models.widgets.inputs.Spinner`
-.. |Switch|                 replace:: :class:`~bokeh.models.widgets.inputs.Switch`
+.. |AutocompleteInput|      replace:: :class:`~bokeh.models.AutocompleteInput`
+.. |Button|                 replace:: :class:`~bokeh.models.Button`
+.. |CheckboxButtonGroup|    replace:: :class:`~bokeh.models.CheckboxButtonGroup`
+.. |CheckboxGroup|          replace:: :class:`~bokeh.models.CheckboxGroup`
+.. |ColorPicker|            replace:: :class:`~bokeh.models.ColorPicker`
+.. |DataTable|              replace:: :class:`~bokeh.models.DataTable`
+.. |DatePicker|             replace:: :class:`~bokeh.models.DatePicker`
+.. |DateRangePicker|        replace:: :class:`~bokeh.models.DateRangePicker`
+.. |MultipleDatePicker|     replace:: :class:`~bokeh.models.MultipleDatePicker`
+.. |DatetimePicker|         replace:: :class:`~bokeh.models.DatetimePicker`
+.. |DatetimeRangePicker|    replace:: :class:`~bokeh.models.DatetimeRangePicker`
+.. |MultipleDatetimePicker| replace:: :class:`~bokeh.models.MultipleDatetimePicker`
+.. |TimePicker|             replace:: :class:`~bokeh.models.TimePicker`
+.. |DateRangeSlider|        replace:: :class:`~bokeh.models.DateRangeSlider`
+.. |DateSlider|             replace:: :class:`~bokeh.models.DateSlider`
+.. |DatetimeRangeSlider|    replace:: :class:`~bokeh.models.DatetimeRangeSlider`
+.. |Div|                    replace:: :class:`~bokeh.models.Div`
+.. |Dropdown|               replace:: :class:`~bokeh.models.Dropdown`
+.. |FileInput|              replace:: :class:`~bokeh.models.FileInput`
+.. |LightDark|              replace:: :class:`~bokeh.models.LightDark`
+.. |HelpButton|             replace:: :class:`~bokeh.models.HelpButton`
+.. |MultiChoice|            replace:: :class:`~bokeh.models.MultiChoice`
+.. |MultiSelect|            replace:: :class:`~bokeh.models.MultiSelect`
+.. |NumericInput|           replace:: :class:`~bokeh.models.NumericInput`
+.. |Paragraph|              replace:: :class:`~bokeh.models.Paragraph`
+.. |PasswordInput|          replace:: :class:`~bokeh.models.PasswordInput`
+.. |PreText|                replace:: :class:`~bokeh.models.PreText`
+.. |Progress|               replace:: :class:`~bokeh.models.Progress`
+.. |RadioButtonGroup|       replace:: :class:`~bokeh.models.RadioButtonGroup`
+.. |RadioGroup|             replace:: :class:`~bokeh.models.RadioGroup`
+.. |RangeSlider|            replace:: :class:`~bokeh.models.RangeSlider`
+.. |Select|                 replace:: :class:`~bokeh.models.Select`
+.. |Slider|                 replace:: :class:`~bokeh.models.Slider`
+.. |Spinner|                replace:: :class:`~bokeh.models.Spinner`
+.. |Switch|                 replace:: :class:`~bokeh.models.Switch`
 .. |Tabs|                   replace:: :class:`~bokeh.models.layouts.Tabs`
-.. |TextAreaInput|          replace:: :class:`~bokeh.models.widgets.inputs.TextAreaInput`
-.. |TextInput|              replace:: :class:`~bokeh.models.widgets.inputs.TextInput`
-.. |Toggle|                 replace:: :class:`~bokeh.models.widgets.buttons.Toggle`
+.. |TextAreaInput|          replace:: :class:`~bokeh.models.TextAreaInput`
+.. |TextInput|              replace:: :class:`~bokeh.models.TextInput`
+.. |Toggle|                 replace:: :class:`~bokeh.models.Toggle`

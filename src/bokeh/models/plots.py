@@ -365,7 +365,7 @@ class Plot(LayoutDOM):
 
 
         Keyword Arguments:
-            Any additional keyword arguments are passed on as-is to the
+            kwargs: Any additional keyword arguments are passed on as-is to the
             Glyph initializer.
 
         Returns:
@@ -400,7 +400,7 @@ class Plot(LayoutDOM):
                 displayed at their natural size.
 
         Keyword Arguments:
-            Additional keyword arguments are passed on as-is to the tile renderer
+            kwargs: Additional keyword arguments are passed on as-is to the tile renderer
 
         Returns:
             TileRenderer : TileRenderer
@@ -620,7 +620,7 @@ class Plot(LayoutDOM):
     """)
 
     toolbar_sticky = Bool(default=True, help="""
-    Stick the toolbar to the edge of the plot. Default: True. If False,
+    Stick the toolbar to the edge of the plot. If False,
     the toolbar will be outside of the axes, titles etc.
     """)
 
