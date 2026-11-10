@@ -200,6 +200,16 @@ export class MarkdownView extends WidgetView {
     this.contents.innerHTML = this._parse_markdown(text).html
 
     const headings = this.contents.querySelectorAll<HTMLElement>("h1, h2, h3, h4, h5, h6")
+    // Assign fragment targets before MathJax replaces the heading text.
+    this._assign_explicit_heading_ids(headings)
+    this._render_admonitions()
+    this._add_heading_anchors(headings)
+    this._render_math()
+    this._highlight_code()
+    this._mount_embeds()
+  }
+
+  private _assign_explicit_heading_ids(headings: Iterable<HTMLElement>): void {
     const occupied = new Set([...this.contents.querySelectorAll("[id], a[name]")]
       .flatMap((el) => [el.id, el.getAttribute("name") ?? ""]))
     const explicit_ids = new Set([...headings].map((heading) => heading.getAttribute("data-heading-id")))
@@ -216,7 +226,9 @@ export class MarkdownView extends WidgetView {
         heading.removeAttribute("data-heading-id")
       }
     }
+  }
 
+  private _render_admonitions(): void {
     for (const quote of this.contents.querySelectorAll("blockquote")) {
       const paragraph = quote.firstElementChild
       const first = paragraph?.firstChild
@@ -241,7 +253,9 @@ export class MarkdownView extends WidgetView {
       title.textContent = kind[0].toUpperCase() + kind.slice(1)
       quote.prepend(title)
     }
+  }
 
+  private _add_heading_anchors(headings: Iterable<HTMLElement>): void {
     const slugger = new GithubSlugger()
     const reserved = new Set([...this.contents.querySelectorAll("[id], a[name]")]
       .flatMap((el) => [el.id, el.getAttribute("name") ?? ""]))
@@ -266,7 +280,9 @@ export class MarkdownView extends WidgetView {
       anchor.textContent = " #"
       heading.append(anchor)
     }
+  }
 
+  private _render_math(): void {
     // Process math in prose only, preserving literal TeX in code blocks and inline code.
     const mathjax = this.provider.MathJax
     if (!this.model.disable_math && mathjax != null) {
@@ -328,7 +344,9 @@ export class MarkdownView extends WidgetView {
         render_math()
       }
     }
+  }
 
+  private _highlight_code(): void {
     for (const code of this.contents.querySelectorAll("pre code")) {
       const language = [...code.classList].find((cls) => cls.startsWith("language-"))?.slice(9)
       if (language != null && hljs.getLanguage(language) != null) {
@@ -337,7 +355,6 @@ export class MarkdownView extends WidgetView {
         code.classList.add("hljs")
       }
     }
-    this._mount_embeds()
   }
 
   override stylesheets(): StyleSheetLike[] {
