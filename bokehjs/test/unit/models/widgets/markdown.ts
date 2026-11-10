@@ -35,12 +35,12 @@ describe("Markdown", () => {
       await view.ready
       expect(fail.callCount).to.be.equal(1)
       expect(view.contents.textContent.includes("New prose")).to.be.true
-      expect(view.contents.querySelector(".bokeh-embed-error")?.textContent).to.be.equal("Failed to build Bokeh embed: child")
+      expect(view.contents.querySelector(".bk-embed-error")?.textContent).to.be.equal("Failed to build Bokeh embed: child")
     }
     markdown.text = "Retry\n\n::bokeh[child]"
     await view.ready
     expect(view.owner.get_one(child).shadow_el.textContent.includes("Recovered")).to.be.true
-    expect(view.contents.querySelector(".bokeh-embed-error")).to.be.null
+    expect(view.contents.querySelector(".bk-embed-error")).to.be.null
   })
 
   for (const initial of [false, true]) {
@@ -65,10 +65,10 @@ describe("Markdown", () => {
         await view.ready
       }
       const good_view = view.owner.get_one(good)
-      const slots = view.contents.querySelectorAll(".bokeh-embed")
+      const slots = view.contents.querySelectorAll(".bk-embed")
       expect(slots[0].textContent).to.be.equal("Failed to build Bokeh embed: bad")
       expect(slots[1].firstElementChild).to.be.equal(good_view.el)
-      expect(slots[1].classList.contains("bokeh-embed-error")).to.be.false
+      expect(slots[1].classList.contains("bk-embed-error")).to.be.false
       expect(good_view.shadow_el.textContent.includes("Healthy child")).to.be.true
       expect(view.contents.textContent.includes("Current prose")).to.be.true
 
@@ -77,13 +77,13 @@ describe("Markdown", () => {
       await view.ready
       expect(view.owner.get_one(good)).to.be.equal(good_view)
       expect(render.callCount).to.be.equal(0)
-      expect(view.contents.querySelectorAll(".bokeh-embed-error").length).to.be.equal(1)
+      expect(view.contents.querySelectorAll(".bk-embed-error").length).to.be.equal(1)
       expect(initialize_stub.getCalls().filter((call) => call.thisValue.model == good).length).to.be.equal(1)
 
       fail_bad = false
       markdown.text = `Recovered ${text}`
       await view.ready
-      expect(view.contents.querySelector(".bokeh-embed-error")).to.be.null
+      expect(view.contents.querySelector(".bk-embed-error")).to.be.null
       expect(view.owner.get_one(good)).to.be.equal(good_view)
       expect(view.owner.get_one(bad).shadow_el.textContent.includes("Recovered child")).to.be.true
       expect(render.callCount).to.be.equal(0)
@@ -104,12 +104,12 @@ describe("Markdown", () => {
     const markdown = Markdown.create({text: "::bokeh[first]\n\n::bokeh[good]\n\n::bokeh[last]", embeds: {first, good, last}})
     const {view} = await display(markdown, [600, 400])
     const good_view = view.owner.get_one(good)
-    const slots = view.contents.querySelectorAll(".bokeh-embed")
+    const slots = view.contents.querySelectorAll(".bk-embed")
     expect(slots[0].textContent).to.be.equal("Failed to build Bokeh embed: first")
     expect(slots[1].firstElementChild).to.be.equal(good_view.el)
-    expect(slots[1].classList.contains("bokeh-embed-error")).to.be.false
+    expect(slots[1].classList.contains("bk-embed-error")).to.be.false
     expect(slots[2].textContent).to.be.equal("Failed to build Bokeh embed: last")
-    expect(view.contents.querySelectorAll(".bokeh-embed-error").length).to.be.equal(2)
+    expect(view.contents.querySelectorAll(".bk-embed-error").length).to.be.equal(2)
     expect(good_view.shadow_el.textContent.includes("Healthy child")).to.be.true
     expect(failures.callCount).to.be.equal(3)
   })
@@ -133,14 +133,14 @@ describe("Markdown", () => {
     const failed = remove.getCalls().filter((call) => call.thisValue.model == bad)
     expect(failed.length).to.be.equal(1)
     expect(failed[0].thisValue.is_destroyed).to.be.true
-    expect(view.contents.querySelector(".bokeh-embed-error")?.textContent).to.be.equal("Failed to build Bokeh embed: bad")
+    expect(view.contents.querySelector(".bk-embed-error")?.textContent).to.be.equal("Failed to build Bokeh embed: bad")
     expect(view.child_views).to.be.equal([good_view])
 
     using render = restorable(sinon.spy(good_view, "render"))
     fail_bad = false
     markdown.text = `Retry\n\n${text}`
     await view.ready
-    expect(view.contents.querySelector(".bokeh-embed-error")).to.be.null
+    expect(view.contents.querySelector(".bk-embed-error")).to.be.null
     expect(view.owner.get_one(bad).shadow_el.textContent.includes("Recovered child")).to.be.true
     expect(view.owner.get_one(good)).to.be.equal(good_view)
     expect(render.callCount).to.be.equal(0)
@@ -212,8 +212,8 @@ describe("Markdown", () => {
     expect(pending[0].is_destroyed).to.be.true
     expect(view.owner.get_one(replacement)).to.be.equal(replacement_view)
     expect(replacement_view.shadow_el.textContent.includes("Replacement child")).to.be.true
-    expect(view.contents.querySelector(".bokeh-embed-error")).to.be.null
-    expect(view.contents.querySelector(".bokeh-embed")?.firstElementChild).to.be.equal(replacement_view.el)
+    expect(view.contents.querySelector(".bk-embed-error")).to.be.null
+    expect(view.contents.querySelector(".bk-embed")?.firstElementChild).to.be.equal(replacement_view.el)
     expect(view.sig_child_views).to.be.equal([replacement_view])
   })
 
@@ -230,7 +230,7 @@ describe("Markdown", () => {
     await view.ready
     const good_view = view.owner.get_one(good)
     expect(good_view.shadow_el.textContent.includes("Good child")).to.be.true
-    expect(view.contents.querySelectorAll(".bokeh-embed-error").length).to.be.equal(1)
+    expect(view.contents.querySelectorAll(".bk-embed-error").length).to.be.equal(1)
     markdown.text = "No embeds"
     await view.ready
     expect(good_view.is_destroyed).to.be.true
@@ -244,7 +244,7 @@ describe("Markdown", () => {
     const {view} = await display(markdown, [600, 400])
     expect(fail.callCount).to.be.equal(1)
     expect(view.contents.textContent.includes("Initial prose")).to.be.true
-    expect_not_null(view.contents.querySelector(".bokeh-embed-error"))
+    expect_not_null(view.contents.querySelector(".bk-embed-error"))
   })
 
   it("should fill remaining row width for embeds while respecting explicit sizing policies", async () => {
@@ -277,11 +277,11 @@ describe("Markdown", () => {
 
   it("should ignore raw HTML embed and heading markers while retaining real extensions", async () => {
     const child = Div.create({text: "Real embed"})
-    const markdown = Markdown.create({text: 'Inline <span class="bokeh-embed" data-bokeh-embed="child"></span> text\n\n<h2 data-heading-id="has space&quot;x">Raw heading</h2>\n\n::bokeh[child]\n\n## Explicit {#real-id}', embeds: {child}})
+    const markdown = Markdown.create({text: 'Inline <span class="bk-embed" data-bokeh-embed="child"></span> text\n\n<h2 data-heading-id="has space&quot;x">Raw heading</h2>\n\n::bokeh[child]\n\n## Explicit {#real-id}', embeds: {child}})
     const {view} = await display(markdown, [600, 400])
     expect(view.contents.querySelector("span")?.childElementCount).to.be.equal(0)
     expect(view.contents.querySelectorAll("[data-bokeh-embed]").length).to.be.equal(1)
-    expect(view.contents.querySelector(".bokeh-embed-error")).to.be.null
+    expect(view.contents.querySelector(".bk-embed-error")).to.be.null
     expect([...view.contents.querySelectorAll("h2")].map((heading) => heading.id)).to.be.equal(["raw-heading", "real-id"])
     expect(view.child_views.length).to.be.equal(1)
   })
@@ -304,7 +304,7 @@ describe("Markdown", () => {
     const {view} = await display(parent, [600, 400])
     const markdown_view = view.owner.get_one(markdown)
     expect(markdown_view.child_views.length).to.be.equal(0)
-    expect(markdown_view.contents.querySelector(".bokeh-embed-error")?.textContent)
+    expect(markdown_view.contents.querySelector(".bk-embed-error")?.textContent)
       .to.be.equal("Cannot embed an ancestor layout: parent")
   })
 
@@ -315,7 +315,7 @@ describe("Markdown", () => {
     const {view} = await display(parent, [600, 400])
     const markdown_view = view.owner.get_one(markdown)
     expect(markdown_view.child_views.length).to.be.equal(0)
-    expect([...markdown_view.contents.querySelectorAll(".bokeh-embed-error")].map((el) => el.textContent))
+    expect([...markdown_view.contents.querySelectorAll(".bk-embed-error")].map((el) => el.textContent))
       .to.be.equal(["Cannot embed an ancestor layout: parent", "Cannot embed Markdown in itself: self"])
   })
 
@@ -327,7 +327,7 @@ describe("Markdown", () => {
     const second_view = view.owner.get_one(second)
     expect(view.child_views.length).to.be.equal(1)
     expect(second_view.child_views.length).to.be.equal(0)
-    expect(second_view.contents.querySelector(".bokeh-embed-error")?.textContent)
+    expect(second_view.contents.querySelector(".bk-embed-error")?.textContent)
       .to.be.equal("Cannot embed an ancestor layout: other")
   })
 
@@ -342,7 +342,7 @@ describe("Markdown", () => {
     const child_view = view.owner.get_one(child)
     expect(spy.callCount).to.be.equal(1)
     expect(child_view.shadow_el.textContent.includes("Embedded content")).to.be.true
-    expect(view.contents.querySelector(".bokeh-embed")?.firstElementChild).to.be.equal(child_view.el)
+    expect(view.contents.querySelector(".bk-embed")?.firstElementChild).to.be.equal(child_view.el)
   })
 
   it("should render after synchronous mapping and text updates", async () => {
@@ -445,7 +445,7 @@ describe("Markdown", () => {
     expect(view.contents.querySelectorAll("br").length).to.be.equal(0)
     markdown.hard_line_break = true
     expect(view.contents.querySelectorAll("br").length).to.be.equal(1)
-    expect(view.contents.querySelector(".admonition")?.textContent.includes("Callout")).to.be.true
+    expect(view.contents.querySelector(".bk-admonition")?.textContent.includes("Callout")).to.be.true
     expect(view.contents.querySelector("pre code")?.textContent).to.be.equal("first\nsecond\n")
     markdown.hard_line_break = false
     expect(view.contents.querySelectorAll("br").length).to.be.equal(0)
@@ -467,13 +467,13 @@ describe("Markdown", () => {
     const {view} = await display(markdown, null)
     markdown.disable_anchors = true
     expect(view.contents.querySelector("h1")?.hasAttribute("id")).to.be.false
-    expect(view.contents.querySelector(".heading-anchor")).to.be.null
+    expect(view.contents.querySelector(".bk-heading-anchor")).to.be.null
     expect_not_null(view.shadow_el.getElementById("custom"))
     expect_not_null(view.shadow_el.getElementById("html-id"))
     expect_not_null(view.contents.querySelector("[data-footnote-ref]"))
     markdown.disable_anchors = false
     expect(view.contents.querySelector("h1")?.id).to.be.equal("automatic")
-    expect(view.contents.querySelectorAll(".heading-anchor").length).to.be.equal(3)
+    expect(view.contents.querySelectorAll(".bk-heading-anchor").length).to.be.equal(3)
   })
 
   it("should reconcile embeds exposed by dedenting and retain them across presentation changes", async () => {
@@ -500,7 +500,7 @@ describe("Markdown", () => {
     const markdown = Markdown.create({text: "Before\n\n::bokeh[content]\n\nAfter", embeds: new Map([["content", child], ["unused", unused]])})
     const {view} = await display(markdown, null)
     expect(view.child_models).to.be.equal([child])
-    const slot = view.contents.querySelector(".bokeh-embed")
+    const slot = view.contents.querySelector(".bk-embed")
     expect_not_null(slot)
     expect(slot.firstElementChild).to.be.equal(view.child_views[0].el)
     expect(view.contents.firstElementChild?.textContent).to.be.equal("Before")
@@ -520,7 +520,7 @@ describe("Markdown", () => {
     await view.ready
     expect(view.owner.get_one(first)).to.be.equal(first_view)
     expect(spy.callCount).to.be.equal(0)
-    expect([...view.contents.querySelectorAll(".bokeh-embed")].map((el) => el.firstElementChild))
+    expect([...view.contents.querySelectorAll(".bk-embed")].map((el) => el.firstElementChild))
       .to.be.equal([second_view.el, first_view.el])
     expect(first.text).to.be.equal("Updated child")
   })
@@ -535,7 +535,7 @@ describe("Markdown", () => {
     await view.ready
     const second_view = view.owner.get_one(second)
     expect(first_view.is_destroyed).to.be.true
-    expect(view.contents.querySelector(".bokeh-embed")?.firstElementChild).to.be.equal(second_view.el)
+    expect(view.contents.querySelector(".bk-embed")?.firstElementChild).to.be.equal(second_view.el)
     markdown.text = "No embed"
     await view.ready
     expect(second_view.is_destroyed).to.be.true
@@ -553,7 +553,7 @@ describe("Markdown", () => {
     const markdown = Markdown.create({text: "::bokeh[missing]\n\n::bokeh[constructor]\n\n::bokeh[first]\n\n::bokeh[alias]", embeds: {first: child, alias: child}})
     const {view} = await display(markdown, null)
     expect(view.child_models).to.be.equal([child])
-    expect([...view.contents.querySelectorAll(".bokeh-embed-error")].map((el) => el.textContent)).to.be.equal([
+    expect([...view.contents.querySelectorAll(".bk-embed-error")].map((el) => el.textContent)).to.be.equal([
       "Unknown Bokeh embed: missing", "Unknown Bokeh embed: constructor", "Bokeh model is already embedded: alias",
     ])
   })
@@ -563,7 +563,7 @@ describe("Markdown", () => {
     const markdown = Markdown.create({text: "Inline ::bokeh[child] text\n\n`::bokeh[child]`\n\n```text\n::bokeh[child]\n```", embeds: {child}})
     const {view} = await display(markdown, null)
     expect(view.child_models).to.be.equal([])
-    expect(view.contents.querySelector(".bokeh-embed")).to.be.null
+    expect(view.contents.querySelector(".bk-embed")).to.be.null
   })
 
   it("should reconcile rapid text and mapping changes without stale child views", async () => {
@@ -577,8 +577,8 @@ describe("Markdown", () => {
     markdown.text = "::bokeh[second]"
     await view.ready
     expect(view.child_views.map((child) => child.model)).to.be.equal([second])
-    expect(view.contents.querySelector(".bokeh-embed")?.firstElementChild).to.be.equal(view.child_views[0].el)
-    expect(view.contents.querySelector(".bokeh-embed-error")).to.be.null
+    expect(view.contents.querySelector(".bk-embed")?.firstElementChild).to.be.equal(view.child_views[0].el)
+    expect(view.contents.querySelector(".bk-embed-error")).to.be.null
   })
 
   it("should dispose an embedded view still being built when its parent is removed", async () => {
@@ -641,13 +641,13 @@ describe("Markdown", () => {
       markdown.text = `> [!${kind}]\n> A **formatted** callout.\n>\n> - One\n> - Two`
       const quote = view.contents.querySelector("blockquote")
       expect_not_null(quote)
-      expect(quote.classList.contains(`admonition-${kind.toLowerCase()}`)).to.be.true
-      expect(quote.querySelector(".admonition-title")?.textContent).to.be.equal(kind[0] + kind.slice(1).toLowerCase())
+      expect(quote.classList.contains(`bk-admonition-${kind.toLowerCase()}`)).to.be.true
+      expect(quote.querySelector(".bk-admonition-title")?.textContent).to.be.equal(kind[0] + kind.slice(1).toLowerCase())
       expect(quote.querySelector("strong")?.textContent).to.be.equal("formatted")
       expect(quote.querySelectorAll("li").length).to.be.equal(2)
     }
     markdown.text = "> [!UNKNOWN]\n> Ordinary quote\n\n```text\n> [!NOTE]\n```"
-    expect(view.contents.querySelector(".admonition")).to.be.null
+    expect(view.contents.querySelector(".bk-admonition")).to.be.null
     expect(view.contents.querySelector("code")?.textContent).to.be.equal("> [!NOTE]\n")
   })
 
@@ -686,7 +686,7 @@ describe("Markdown", () => {
     const {view} = await display(markdown, null)
     expect_not_null(view.contents.querySelector("dd [data-footnote-ref]"))
     expect_not_null(view.contents.querySelector(".footnotes li"))
-    expect(view.contents.querySelector("dd .admonition-tip strong")?.textContent).to.be.equal("details")
+    expect(view.contents.querySelector("dd .bk-admonition-tip strong")?.textContent).to.be.equal("details")
     expect_not_null(view.contents.querySelector("dd svg use"))
     expect(view.contents.querySelector("[data-mjx-error], [onerror]")).to.be.null
     markdown.text = "Term\n: Definition at end of input"
@@ -742,7 +742,7 @@ describe("Markdown", () => {
     const {view} = await display(markdown, null)
     const heading = view.shadow_el.getElementById("custom")
     expect_not_null(heading)
-    expect(heading.querySelector(".heading-anchor")?.getAttribute("href")).to.be.equal("#custom")
+    expect(heading.querySelector(".bk-heading-anchor")?.getAttribute("href")).to.be.equal("#custom")
     using spy = restorable(sinon.spy(Element.prototype, "scrollIntoView"))
     view.contents.querySelector<HTMLAnchorElement>("p a")!.click()
     expect(spy.thisValues.at(-1)).to.be.equal(heading)
@@ -787,7 +787,7 @@ describe("Markdown", () => {
     const {view} = await display(markdown, null)
     const ids = () => [...view.contents.querySelectorAll("h1, h2")].map((el) => el.id)
     expect(ids()).to.be.equal(["hello-world", "hello-world-1", "café", "images"])
-    const anchor = view.contents.querySelector<HTMLAnchorElement>("#hello-world .heading-anchor")
+    const anchor = view.contents.querySelector<HTMLAnchorElement>("#hello-world .bk-heading-anchor")
     expect_not_null(anchor)
     expect(anchor.getAttribute("href")).to.be.equal("#hello-world")
     expect(anchor.getAttribute("aria-label")).to.be.equal("Link to Hello, World!")
@@ -852,8 +852,8 @@ describe("Markdown", () => {
       }
       const view = root_view.owner.get_one(markdown)
       const prose = view.contents.querySelector("p")!
-      const callout = view.contents.querySelector(".admonition p:not(.admonition-title)")!
-      const title = view.contents.querySelector(".admonition-title")!
+      const callout = view.contents.querySelector(".bk-admonition p:not(.bk-admonition-title)")!
+      const title = view.contents.querySelector(".bk-admonition-title")!
       const code = view.contents.querySelector("pre")!
       const keyword = view.contents.querySelector(".hljs-keyword")!
       const colors = (["light", "dark", "light"] as const).map((scheme) => {

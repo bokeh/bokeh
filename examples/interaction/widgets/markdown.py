@@ -74,7 +74,7 @@ def section(text):
             font-size: 19px;
             font-weight: 400;
         }
-        h2 .heading-anchor { color: inherit; }
+        h2 .bk-heading-anchor { color: inherit; }
         p { max-width: 700px; }
     """])
 

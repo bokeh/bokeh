@@ -19,7 +19,7 @@ import hljs from "highlight.js/lib/common"
 import markedFootnote from "marked-footnote"
 import GithubSlugger from "github-slugger"
 
-import markdown_css from "styles/widgets/markdown.css"
+import markdown_css, * as classes from "styles/widgets/markdown.css"
 
 export class MarkdownView extends WidgetView {
   declare model: Markdown
@@ -72,7 +72,7 @@ export class MarkdownView extends WidgetView {
           element.removeAttribute(attribute)
         }
       }
-      const names = [...container.querySelectorAll(".bokeh-embed[data-bokeh-embed]")]
+      const names = [...container.querySelectorAll(`.${classes.embed}[data-bokeh-embed]`)]
         .map((el) => el.getAttribute("data-bokeh-embed")!)
       this._parsed = {text, dedent: use_dedent, breaks, html: container.innerHTML, names}
     }
@@ -164,13 +164,13 @@ export class MarkdownView extends WidgetView {
   private _mount_embeds(): void {
     const used = new Set<LayoutDOM>()
     const embeds = dict(this.model.embeds)
-    for (const slot of this.contents.querySelectorAll<HTMLElement>(".bokeh-embed[data-bokeh-embed]")) {
+    for (const slot of this.contents.querySelectorAll<HTMLElement>(`.${classes.embed}[data-bokeh-embed]`)) {
       const name = slot.getAttribute("data-bokeh-embed")!
       const model = embeds.get(name)
       const view = model == null ? undefined : this._child_views.get(model)
       const is_ancestor = model != null && this.has_model_in_ancestry(model)
       if (model == null || is_ancestor || used.has(model) || view == null) {
-        slot.classList.add("bokeh-embed-error")
+        slot.classList.add(classes.embed_error)
         slot.textContent = model == null ? `Unknown Bokeh embed: ${name}`
           : model == this.model ? `Cannot embed Markdown in itself: ${name}`
           : is_ancestor ? `Cannot embed an ancestor layout: ${name}`
@@ -238,9 +238,9 @@ export class MarkdownView extends WidgetView {
       if (paragraph.childNodes.length == 1 && first.length == 0) {
         paragraph.remove()
       }
-      quote.classList.add("admonition", `admonition-${kind}`)
+      quote.classList.add(classes.admonition, `${classes.admonition}-${kind}`)
       const title = document.createElement("p")
-      title.className = "admonition-title"
+      title.className = classes.admonition_title
       title.textContent = kind[0].toUpperCase() + kind.slice(1)
       quote.prepend(title)
     }
@@ -265,7 +265,7 @@ export class MarkdownView extends WidgetView {
         reserved.add(id)
       }
       const anchor = document.createElement("a")
-      anchor.className = "heading-anchor"
+      anchor.className = classes.heading_anchor
       anchor.href = `#${encodeURIComponent(heading.id)}`
       anchor.setAttribute("aria-label", `Link to ${heading.textContent}`)
       anchor.textContent = " #"

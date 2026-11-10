@@ -1,5 +1,6 @@
 import {Lexer} from "marked"
 import type {MarkedExtension, Token} from "marked"
+import {embed} from "styles/widgets/markdown.css"
 
 type DefinitionItem = {term: Token[], definitions: Token[][]}
 type DefinitionList = {type: "definition_list", raw: string, items: DefinitionItem[], tokens: Token[]}
@@ -65,7 +66,7 @@ export function markdown_extensions(marker_prefix = "data"): MarkedExtension {
       },
       renderer(token) {
         const name = token.name as string
-        return `<div class="bokeh-embed" ${marker_prefix}-bokeh-embed="${name}"></div>\n`
+        return `<div class="${embed}" ${marker_prefix}-bokeh-embed="${name}"></div>\n`
       },
     }, {
       name: "definition_list",

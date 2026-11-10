@@ -18,38 +18,38 @@ blockquote {
   padding-left: 16px;
 }
 
-.bokeh-embed {
+.bk-embed {
   display: block;
   width: 100%;
   min-width: 0;
   margin: 1em 0;
 }
 
-.bokeh-embed-error {
+.bk-embed-error {
   padding: 0.5em;
   border: 1px solid var(--border-color);
   color: var(--error-text-color);
 }
 
-.admonition {
+.bk-admonition {
   --admonition-color: var(--primary-text-color);
   margin: 1em 0;
   padding: 0.5em 1em;
   border-left: 4px solid var(--admonition-color);
   background-color: color-mix(in srgb, var(--admonition-color) 8%, transparent);
 
-  .admonition-title {
+  .bk-admonition-title {
     color: var(--admonition-color);
     font-weight: bold;
     margin-top: 0;
   }
 }
 
-.admonition-tip { --admonition-color: var(--success-text-color); }
-.admonition-important { --admonition-color: var(--accent-text-color); }
-.admonition-warning { --admonition-color: var(--warning-text-color); }
-.admonition-caution { --admonition-color: var(--error-text-color); }
-.admonition-note { --admonition-color: var(--primary-text-color); }
+.bk-admonition-tip { --admonition-color: var(--success-text-color); }
+.bk-admonition-important { --admonition-color: var(--accent-text-color); }
+.bk-admonition-warning { --admonition-color: var(--warning-text-color); }
+.bk-admonition-caution { --admonition-color: var(--error-text-color); }
+.bk-admonition-note { --admonition-color: var(--primary-text-color); }
 
 details {
   border: 1px solid var(--border-color);
@@ -66,15 +66,15 @@ summary {
 dt { font-weight: bold; }
 dd { margin-bottom: 0.75em; }
 
-.heading-anchor {
+.bk-heading-anchor {
   font-size: 0.8em;
   font-weight: normal;
   text-decoration: none;
   opacity: 0;
 }
 
-:is(h1, h2, h3, h4, h5, h6):hover .heading-anchor,
-.heading-anchor:focus-visible {
+:is(h1, h2, h3, h4, h5, h6):hover .bk-heading-anchor,
+.bk-heading-anchor:focus-visible {
   opacity: 1;
 }
 
