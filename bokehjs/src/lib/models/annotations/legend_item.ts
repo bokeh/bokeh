@@ -83,7 +83,7 @@ export class LegendItem extends Model {
     return isField(label) ? label.field : null
   }
 
-  get_labels_list_from_label_prop(): string[] {
+  get_labels_list_from_label_prop(): unknown[] {
     if (!this.visible) {
       return []
     }
