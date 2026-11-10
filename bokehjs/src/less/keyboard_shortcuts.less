@@ -1,0 +1,60 @@
+.bk-key {
+  position: relative;
+  padding: 0px 8px;
+  border: 1px solid gray;
+  border-radius: 4px;
+  background-color: lightgray;
+}
+
+.bk-key-combination {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  gap: 0.25em;
+  font-family: var(--mono-font);
+}
+
+.bk-description {
+  position: relative;
+  padding: 0.25em;
+}
+
+.bk-key-sequence {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  gap: 0.5em;
+  padding: 0.25em;
+}
+
+.bk-command {
+  position: relative;
+  font-family: var(--mono-font);
+  padding: 0.25em;
+}
+
+.bk-origin {
+  position: relative;
+  padding: 0.25em;
+}
+
+.bk-key-binding {
+  position: relative;
+  &:nth-child(2n) {
+    background-color: #e5e5e5;
+  }
+}
+
+.bk-key-bindings {
+  position: relative;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.bk-search {
+  width: 100%;
+}
+
+th {
+  text-align: left;
+}
