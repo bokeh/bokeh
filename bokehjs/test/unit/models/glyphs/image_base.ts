@@ -21,6 +21,7 @@ describe("ImageBase module", () => {
 
   const empty_2d = () => ndarray([], {dtype: "uint32", shape: [0, 2]})
   const empty_3d = () => ndarray([], {dtype: "uint32", shape: [2, 0, 2]})
+  const no_layers_3d = () => ndarray([], {dtype: "uint32", shape: [2, 2, 0]})
 
   type Case = {
     name: string
@@ -28,7 +29,7 @@ describe("ImageBase module", () => {
     glyph: () => ImageBase
     valid: () => NDArrayType<number>
     invalid: () => NDArrayType<number>
-    empty: () => NDArrayType<number>
+    empty: (() => NDArrayType<number>)[]
   }
 
   const cases: Case[] = [{
@@ -37,14 +38,14 @@ describe("ImageBase module", () => {
     glyph: () => Image.create({image: {field: "image"}, x: 0, y: 0, dw: 10, dh: 10}),
     valid: img_2d,
     invalid: img_1d,
-    empty: empty_2d,
+    empty: [empty_2d],
   }, {
     name: "ImageRGBA",
     dimension: 2,
     glyph: () => ImageRGBA.create({image: {field: "image"}, x: 0, y: 0, dw: 10, dh: 10}),
     valid: img_2d,
     invalid: img_3d,
-    empty: empty_2d,
+    empty: [empty_2d],
   }, {
     name: "ImageStack",
     dimension: 3,
@@ -55,7 +56,7 @@ describe("ImageBase module", () => {
     },
     valid: img_3d,
     invalid: img_2d,
-    empty: empty_3d,
+    empty: [empty_3d, no_layers_3d],
   }]
 
   async function create_view(glyph: ImageBase, image: unknown[]) {
@@ -118,18 +119,22 @@ describe("ImageBase module", () => {
       })
 
       it("should skip empty images without errors", async () => {
-        const {glyph_view, out} = await create_view(glyph(), [empty(), valid()])
+        const empties = empty.map((fn) => fn())
+        const skipped = empties.map(() => false)
+        const zeros = empties.map(() => 0)
+
+        const {glyph_view, out} = await create_view(glyph(), [...empties, valid()])
         expect(out.error).to.be.equal("")
 
         const {image_data} = glyph_view
         expect_not_null(image_data)
-        expect(present(image_data)).to.be.equal([false, true])
-        expect(widths(image_data)).to.be.equal([0, 2])
-        expect(heights(image_data)).to.be.equal([0, 2])
+        expect(present(image_data)).to.be.equal([...skipped, true])
+        expect(widths(image_data)).to.be.equal([...zeros, 2])
+        expect(heights(image_data)).to.be.equal([...zeros, 2])
       })
 
       it("should not hit test skipped images", async () => {
-        const {glyph_view} = await create_view(glyph(), [invalid(), valid(), empty()])
+        const {glyph_view} = await create_view(glyph(), [invalid(), valid(), ...empty.map((fn) => fn())])
         const sx = glyph_view.renderer.xscale.compute(5)
         const sy = glyph_view.renderer.yscale.compute(5)
 

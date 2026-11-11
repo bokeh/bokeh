@@ -138,12 +138,14 @@ export abstract class ImageBaseView extends XYGlyphView {
           continue
         }
 
-        const [height, width] = img.shape
-        if (width == 0 || height == 0) {
-          // nothing to render and a zero sized canvas can't be drawn
+        if (img.length == 0) {
+          // nothing to render (including stacks without layers), a zero
+          // sized canvas can't be drawn and color mappers can't handle it
           image_data[i] = null
           continue
         }
+
+        const [height, width] = img.shape
 
         const buf8 = this._flat_img_to_buf8(img)
         image_data[i] = this._image_from_buffer(image_data[i], width, height, buf8)
