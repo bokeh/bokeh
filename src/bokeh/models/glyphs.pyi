@@ -219,25 +219,25 @@ class Ellipse(XYGlyph, LineProps, FillProps, HatchProps):
     height: DistanceSpec = ...
     angle: AngleSpec = ...
 
-class _HAreaInit(_GlyphInit, _ScalarFillPropsInit, _HatchPropsInit, total=False):
+class _HAreaInit(_GlyphInit, _ScalarFillPropsInit, _ScalarHatchPropsInit, total=False):
     x1: NumberSpec
     x2: NumberSpec
     y: NumberSpec
 
-class HArea(Glyph, ScalarFillProps, HatchProps):
+class HArea(Glyph, ScalarFillProps, ScalarHatchProps):
     def __init__(self, **kwargs: Unpack[_HAreaInit]) -> None: ...
 
     x1: NumberSpec = ...
     x2: NumberSpec = ...
     y: NumberSpec = ...
 
-class _HAreaStepInit(_GlyphInit, _ScalarFillPropsInit, _HatchPropsInit, total=False):
+class _HAreaStepInit(_GlyphInit, _ScalarFillPropsInit, _ScalarHatchPropsInit, total=False):
     x1: NumberSpec
     x2: NumberSpec
     y: NumberSpec
     step_mode: StepMode
 
-class HAreaStep(Glyph, ScalarFillProps, HatchProps):
+class HAreaStep(Glyph, ScalarFillProps, ScalarHatchProps):
     def __init__(self, **kwargs: Unpack[_HAreaStepInit]) -> None: ...
 
     x1: NumberSpec = ...
@@ -599,25 +599,25 @@ class TeXGlyph(MathTextGlyph):
     macros: dict[str, str | tuple[str, int]] = ...
     display: TeXDisplay = ...
 
-class _VAreaInit(_GlyphInit, _ScalarFillPropsInit, _HatchPropsInit, total=False):
+class _VAreaInit(_GlyphInit, _ScalarFillPropsInit, _ScalarHatchPropsInit, total=False):
     x: NumberSpec
     y1: NumberSpec
     y2: NumberSpec
 
-class VArea(Glyph, ScalarFillProps, HatchProps):
+class VArea(Glyph, ScalarFillProps, ScalarHatchProps):
     def __init__(self, **kwargs: Unpack[_VAreaInit]) -> None: ...
 
     x: NumberSpec = ...
     y1: NumberSpec = ...
     y2: NumberSpec = ...
 
-class _VAreaStepInit(_GlyphInit, _ScalarFillPropsInit, _HatchPropsInit, total=False):
+class _VAreaStepInit(_GlyphInit, _ScalarFillPropsInit, _ScalarHatchPropsInit, total=False):
     x: NumberSpec
     y1: NumberSpec
     y2: NumberSpec
     step_mode: StepMode
 
-class VAreaStep(Glyph, ScalarFillProps, HatchProps):
+class VAreaStep(Glyph, ScalarFillProps, ScalarHatchProps):
     def __init__(self, **kwargs: Unpack[_VAreaStepInit]) -> None: ...
 
     x: NumberSpec = ...

@@ -582,7 +582,7 @@ class HArea(Glyph, FillGlyph, HatchGlyph):
     The {prop} values for the horizontal directed area.
     """)
 
-    hatch_props = Include(HatchProps, help="""
+    hatch_props = Include(ScalarHatchProps, help="""
     The {prop} values for the horizontal directed area.
     """)
 
@@ -621,7 +621,7 @@ class HAreaStep(Glyph, FillGlyph, HatchGlyph):
     The {prop} values for the horizontal directed area.
     """)
 
-    hatch_props = Include(HatchProps, help="""
+    hatch_props = Include(ScalarHatchProps, help="""
     The {prop} values for the horizontal directed area.
     """)
 
@@ -1747,7 +1747,7 @@ class VArea(Glyph, FillGlyph, HatchGlyph):
     The {prop} values for the vertical directed area.
     """)
 
-    hatch_props = Include(HatchProps, help="""
+    hatch_props = Include(ScalarHatchProps, help="""
     The {prop} values for the vertical directed area.
     """)
 
@@ -1786,7 +1786,7 @@ class VAreaStep(Glyph, FillGlyph, HatchGlyph):
     The {prop} values for the vertical directed area.
     """)
 
-    hatch_props = Include(HatchProps, help="""
+    hatch_props = Include(ScalarHatchProps, help="""
     The {prop} values for the vertical directed area.
     """)
 
