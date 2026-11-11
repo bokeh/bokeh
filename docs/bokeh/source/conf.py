@@ -165,7 +165,8 @@ html_context = {
 
 html_css_files = ["custom.css"]
 
-html_static_path = ["_static"]
+# Keep the original PNG in _images and regenerate these assets with optimize_hero.py.
+html_static_path = ["_static", "_images/bokeh-hero-600.webp", "_images/bokeh-hero.webp"]
 
 html_theme ="pydata_sphinx_theme"
 
