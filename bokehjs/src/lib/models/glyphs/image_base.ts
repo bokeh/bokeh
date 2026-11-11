@@ -13,7 +13,7 @@ import type {PointGeometry} from "core/geometry"
 import type {SpatialIndex} from "core/util/spatial"
 import type {NDArrayType} from "core/util/ndarray"
 import {is_NDArray} from "core/util/ndarray"
-import {assert} from "core/util/assert"
+import {assert_not_null} from "core/util/assert"
 import {logger} from "core/logging"
 import type {XY} from "core/util/bbox"
 import {Anchor} from "../common/kinds"
@@ -73,7 +73,7 @@ export abstract class ImageBaseView extends XYGlyphView {
     const {image_data, sx, sy, sdw, sdh} = {...this, ...data}
     const {xy_sign, xy_scale, xy_offset, xy_anchor} = this
 
-    assert(image_data != null)
+    assert_not_null(image_data)
 
     ctx.save()
     ctx.imageSmoothingEnabled = false
@@ -195,7 +195,7 @@ export abstract class ImageBaseView extends XYGlyphView {
     // putImageData(), but not for general rendering due to lack of hardware acceleration.
     const canvas = this._get_or_create_canvas(prev, width, height)
     const ctx = canvas.getContext("2d", {willReadFrequently: true})
-    assert(ctx != null)
+    assert_not_null(ctx)
     const image_data = ctx.getImageData(0, 0, width, height)
     image_data.data.set(buf8)
     ctx.putImageData(image_data, 0, 0)
@@ -231,7 +231,7 @@ export abstract class ImageBaseView extends XYGlyphView {
   protected _image_index(index: number, x: number, y: number): ImageIndex {
     const [l, r, t, b] = this._lrtb(index)
     const canvas = this.image_data?.[index]
-    assert(canvas != null)
+    assert_not_null(canvas)
     const {width, height} = canvas
 
     // The handling of log scales here assumes that users themselves have
@@ -268,7 +268,7 @@ export abstract class ImageBaseView extends XYGlyphView {
     const result = Selection.create()
 
     const {image_data} = this
-    assert(image_data != null)
+    assert_not_null(image_data)
 
     const indices = []
     for (const index of candidates) {

@@ -5,7 +5,7 @@ import type {ReglWrapper} from "./regl_wrap"
 import type {ImageProps} from "./types"
 import type {ImageBaseView} from "../image_base"
 import type {Texture2D, Texture2DOptions} from "regl"
-import {assert} from "core/util/assert"
+import {assert_not_null} from "core/util/assert"
 
 export class ImageGL extends BaseGLGlyph {
   // data properties
@@ -104,7 +104,7 @@ export class ImageGL extends BaseGLGlyph {
     const {image, image_data} = this.glyph
     const nimage = image.length
 
-    assert(image_data != null)
+    assert_not_null(image_data)
 
     if (this._tex.length != nimage) {
       for (const tex of this._tex) {
