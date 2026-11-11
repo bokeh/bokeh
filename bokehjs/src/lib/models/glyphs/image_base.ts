@@ -115,14 +115,24 @@ export abstract class ImageBaseView extends XYGlyphView {
     const n = this.data_size
 
     if (!this._can_inherit_image_data) {
-      if (this.image_data == null || this.image_data.length != n) {
-        this._define_attr<ImageBase.Data>("image_data", new Array(n).fill(null))
-        this._define_attr<ImageBase.Data>("image_width", new Uint32Array(n))
-        this._define_attr<ImageBase.Data>("image_height", new Uint32Array(n))
+      let {image_data, image_width, image_height} = this
+      if (image_data?.length != n) {
+        image_data = new Array(n).fill(null)
+        image_width = new Uint32Array(n)
+        image_height = new Uint32Array(n)
+        this._define_attr<ImageBase.Data>("image_data", image_data)
+        this._define_attr<ImageBase.Data>("image_width", image_width)
+        this._define_attr<ImageBase.Data>("image_height", image_height)
       }
 
-      const {image_data, image_width, image_height, image_dimension} = this
-      assert(image_data != null)
+      const {image_dimension} = this
+
+      // don't keep rendering a stale image from a previous update
+      const clear = (i: number) => {
+        image_data[i] = null
+        image_width[i] = 0
+        image_height[i] = 0
+      }
 
       for (let i = 0; i < n; i++) {
         if (indices != null && !indices.includes(i)) {
@@ -134,10 +144,7 @@ export abstract class ImageBaseView extends XYGlyphView {
         if (!is_NDArray(img) || img.dimension != image_dimension) {
           const got = is_NDArray(img) ? `${img.dimension}D array` : typeof img
           logger.error(`${this.model}.image[${i}]: expected a ${image_dimension}D array, got ${got}`)
-          // don't keep rendering a stale image from a previous update
-          image_data[i] = null
-          image_width[i] = 0
-          image_height[i] = 0
+          clear(i)
           continue
         }
 
