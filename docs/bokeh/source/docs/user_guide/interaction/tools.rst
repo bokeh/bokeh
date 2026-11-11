@@ -34,16 +34,22 @@ Gestures
     glyphs on a plot. Since they may respond to several gestures at once, an
     edit tool when activated will potentially deactivate multiple single-gesture tools.
 
-This chapter contains information about all the individual tools and describes how
-the toolbar may be configured.
+This chapter contains information about adding and configuring all the individual
+tools, and describes how the toolbar may be configured.
+
+.. seealso::
+    For how readers of your plots use each tool (gestures, keyboard modifiers,
+    and expected behavior), see :ref:`plot_reader_guide_tools` in the
+    :ref:`plot_reader_guide`.
 
 .. _ug_interaction_tools_toolbar:
 
 Positioning the toolbar
 -----------------------
 
-By default, Bokeh plots come with a toolbar above the plot. You can change the
-location of the toolbar or remove it.
+By default, Bokeh plots come with a toolbar to the right of the plot (grid
+plots place a shared toolbar above the grid). You can change the location of
+the toolbar or remove it.
 
 You can specify the toolbar location by passing the ``toolbar_location``
 parameter to the |figure| function. Valid values are:
@@ -253,6 +259,25 @@ For more information, see the reference guide's entries for
 :class:`PolySelectTool.overlay <bokeh.models.tools.PolySelectTool.overlay>`, and
 :class:`RangeTool.overlay <bokeh.models.tools.RangeTool.overlay>`.
 
+.. _ug_interaction_tools_selections:
+
+Working with selections
+-----------------------
+
+The selection tools (``BoxSelectTool``, ``LassoSelectTool``, ``PolySelectTool``,
+and ``TapTool``) update the |Selection| object of a glyph's data source. After a
+selection is made, the indices of the selected points are available from its
+properties. For example:
+
+.. code-block:: python
+
+    source.selected.indices
+
+will hold the selected indices in the common case of a "scatter" type glyph.
+
+For the gestures and keyboard modifiers readers use to make, combine, and clear
+selections, see :ref:`plot_reader_guide_selection`.
+
 .. _ug_interaction_tools_pandrag:
 
 Pan/Drag tools
@@ -265,37 +290,32 @@ applicable, Pan/Drag tools will respect any max and min values set on ranges.
 BoxSelectTool
 ~~~~~~~~~~~~~
 
-* name: ``'box_select'``
+* name: ``'box_select'``, ``'xbox_select'``, ``'ybox_select'``
 * icon: |box_select_icon|
 
 The box selection tool allows you to define a rectangular selection
 by left-dragging a mouse, or dragging a finger across the plot area.
 You can configure the box select tool to select across only one dimension by
 setting the ``dimensions`` property to ``width`` or ``height`` instead of the
-default ``both``.
-
-After a selection is made, the indices of the selected points are available
-from properties on the |Selection| object for a glyph data source. For example:
-
-.. code-block:: python
-
-    source.selected.indices
-
-will hold the selected indices in the common case of a "scatter" type glyph.
-
-.. note::
-    To make multiple selections, press the SHIFT key. To clear the
-    selection, press the ESC key.
+default ``both``. Additionally, there are tool names ``'xbox_select'`` and
+``'ybox_select'``, respectively. See :ref:`ug_interaction_tools_selections`.
 
 BoxZoomTool
 ~~~~~~~~~~~
 
-* name: ``'box_zoom'``
-* icon: |box_zoom_icon|
+* name: ``'auto_box_zoom'``, ``'box_zoom'``, ``'xbox_zoom'``, ``'ybox_zoom'``
+* icon: |auto_box_zoom_icon| (``auto``), |box_zoom_icon| (``both``)
 
 The box zoom tool allows you to define a rectangular region to zoom the
 plot bounds to by left-dragging a mouse, or dragging a finger across the
 plot area.
+
+The ``dimensions`` property controls which directions are zoomed. It accepts
+``width``, ``height``, ``both``, or ``auto``. With ``auto`` (the default, and
+the ``'auto_box_zoom'`` tool name used by |figure|'s default tools), the
+direction is inferred from the shape of the drag. The tool names
+``'box_zoom'``, ``'xbox_zoom'``, and ``'ybox_zoom'`` correspond to ``both``,
+``width``, and ``height``, respectively.
 
 LassoSelectTool
 ~~~~~~~~~~~~~~~
@@ -305,19 +325,7 @@ LassoSelectTool
 
 The lasso selection tool allows you to define an arbitrary region for
 selection by left-dragging a mouse, or dragging a finger across the plot area.
-
-After a selection is made, the indices of the selected points are available
-from properties on the |Selection| object for a glyph data source. For example:
-
-.. code-block:: python
-
-    source.selected.indices
-
-will hold the selected indices in the common case of a "scatter" type glyph.
-
-.. note::
-    To make a multiple selection, press the SHIFT key. To clear the selection,
-    press the ESC key.
+See :ref:`ug_interaction_tools_selections`.
 
 PanTool
 ~~~~~~~
@@ -349,43 +357,19 @@ PolySelectTool
 
 The polygon selection tool allows you to define an arbitrary polygonal
 region for selection by left-clicking a mouse, or tapping a finger at different
-locations.
-
-After a selection is made, the indices of the selected points are available
-from properties on the |Selection| object for a glyph data source. For example:
-
-.. code-block:: python
-
-    source.selected.indices
-
-will hold the selected indices in the common case of a "scatter" type glyph.
-
-.. note::
-    Complete the selection by making press tap on the canvas. To make
-    a multiple selection, press the SHIFT key. To clear the selection,
-    press the ESC key.
+locations. See :ref:`ug_interaction_tools_selections`.
 
 TapTool
 ~~~~~~~
 
-* name: ``'tap'``
+* name: ``'tap'``, ``'doubletap'``, ``'click'``
 * icon: |tap_icon|
 
 The tap selection tool allows you to select single points by clicking
-the left mouse button, or tapping with a finger.
-
-After a selection is made, the indices of the selected points are available
-from properties on the |Selection| object for a glyph data source. For example:
-
-.. code-block:: python
-
-    source.selected.indices
-
-will hold the selected indices in the common case of a "scatter" type glyph.
-
-.. note::
-    To make a multiple selection, press the SHIFT key. To clear the selection,
-    press the ESC key.
+the left mouse button, or tapping with a finger. The ``'doubletap'`` tool name
+sets ``gesture="doubletap"``, and the ``'click'`` tool name sets
+``behavior="inspect"``, which triggers callbacks without changing the
+selection. See :ref:`ug_interaction_tools_selections`.
 
 .. _ug_interaction_tools_scrollpinch:
 
@@ -432,6 +416,7 @@ ExamineTool
 ~~~~~~~~~~~
 
 * name: ``'examine'``
+* icon: |settings_icon|
 
 The examine tool displays a modal dialog that affords a view of all the current
 property values for every object that is part of the plot.
@@ -462,7 +447,9 @@ ResetTool
 * name: ``'reset'``
 * icon: |reset_icon|
 
-The reset tool restores the plot ranges to their original values.
+The reset tool restores the plot ranges to their original values, clears any
+selections, and clears the undo history. Set the plot's ``reset_policy`` to
+``"event_only"`` to only emit a ``Reset`` event instead.
 
 SaveTool
 ~~~~~~~~
@@ -470,16 +457,25 @@ SaveTool
 * name: ``'save'``
 * icon: |save_icon|
 
-The save tool allows you to save a PNG image of the plot. By default, you will be
+The save tool allows you to save an image of the plot. By default, you will be
 prompted for a filename. Alternatively, you can create an instance of the tool
 yourself and provide a filename:
 
 .. code-block:: python
 
-    SaveTool(filename='custom_filename') # png extension not needed
+    SaveTool(filename='custom_filename') # extension not needed
 
 Either way, the file will then be downloaded directly or a modal dialog will open
-depending on your browser.
+depending on your browser. The tool's menu also lets readers copy the image to
+the clipboard or open it in a new tab.
+
+CopyTool
+~~~~~~~~
+
+* name: ``'copy'``
+* icon: |copy_icon|
+
+The copy tool copies an image of the plot to the clipboard.
 
 ZoomInTool
 ~~~~~~~~~~
@@ -487,10 +483,11 @@ ZoomInTool
 * name: ``'zoom_in'``, ``'xzoom_in'``, ``'yzoom_in'``
 * icon: |zoom_in_icon|
 
-The zoom-in tool increases the zoom of the plot. It will respect any min and max
-values and ranges, preventing zooming in and out beyond these.
+The zoom-in tool increases the zoom of the plot by ``factor`` (10% by default).
+It will respect any min and max values and ranges, preventing zooming in and out
+beyond these.
 
-You can configure the wheel zoom tool to act only on either
+You can configure the zoom-in tool to act only on either
 the x-axis or the y-axis by setting the ``dimensions`` property to
 a list containing ``width`` or ``height``. Additionally, there are tool names
 ``'xzoom_in'`` and ``'yzoom_in'``, respectively.
@@ -501,13 +498,14 @@ ZoomOutTool
 * name: ``'zoom_out'``, ``'xzoom_out'``, ``'yzoom_out'``
 * icon: |zoom_out_icon|
 
-The zoom-out tool decreases the zoom level of the plot. It will respect any min and
-max values and ranges, preventing zooming in and out beyond these values.
+The zoom-out tool decreases the zoom level of the plot by ``factor`` (10% by
+default). It will respect any min and max values and ranges, preventing zooming
+in and out beyond these values.
 
-You can configure the wheel zoom tool to act only on either
+You can configure the zoom-out tool to act only on either
 the x-axis or the y-axis by setting the ``dimensions`` property to
 a list containing ``width`` or ``height``. Additionally, there are tool names
-``'xzoom_in'`` and ``'yzoom_in'``, respectively.
+``'xzoom_out'`` and ``'yzoom_out'``, respectively.
 
 .. _ug_interaction_tools_inspectors:
 
@@ -516,18 +514,23 @@ Inspectors
 
 Inspectors are passive tools that annotate or report information about
 the plot based on the current cursor position. Multiple inspectors may be
-active at any given time. You can toggle the active state of an inspector
-in the inspectors menu in the toolbar.
+active at any given time. Inspectors are active by default, and readers can
+toggle each one by clicking its button in the toolbar (see
+:ref:`plot_reader_guide_inspection`). Use the toolbar's ``active_inspect``
+property to control which inspectors are initially active (see
+:ref:`ug_interaction_tools_setting_active_tools`).
 
 CrosshairTool
 ~~~~~~~~~~~~~
 
-* name: ``'crosshair'``
-* menu icon: |crosshair_icon|
+* name: ``'crosshair'``, ``'xcrosshair'``, ``'ycrosshair'``
+* icon: |crosshair_icon|
 
 The crosshair tool draws a crosshair annotation over the plot, centered on
 the current mouse position. You can configure the crosshair tool dimensions
 by setting the ``dimensions`` property to ``width``, ``height``, or ``both``.
+Additionally, there are tool names ``'xcrosshair'`` and ``'ycrosshair'``,
+respectively.
 
 .. _ug_interaction_tools_hover_tool:
 
@@ -535,10 +538,10 @@ HoverTool
 ~~~~~~~~~
 
 * name: ``'hover'``
-* menu icon: |hover_icon|
+* icon: |hover_icon|
 
 The hover tool is a passive inspector tool. It defaults to be on at all times,
-but you can change this in the inspector's menu in the toolbar.
+but readers can toggle it by clicking its button in the toolbar.
 
 .. _ug_interaction_tools_basic_tooltips:
 
@@ -885,26 +888,14 @@ The edit tools provide functionality for drawing and editing glyphs
 client-side by adding, modifying, and deleting ``ColumnDataSource``
 data.
 
-All the edit tools share a small number of key bindings:
-
-SHIFT
-  Modifier key to add to selection or start drawing
-
-BACKSPACE
-  Deletes the selected glyphs
-
-ESC
-  Clears the selection
-
-.. note::
-   On MacBooks and some other keyboards, the BACKSPACE key is labeled
-   "delete".
+For the shared key bindings and the gestures readers use with each edit tool,
+see :ref:`plot_reader_guide_edit`.
 
 BoxEditTool
 ~~~~~~~~~~~
 
 * name: ``'box_edit'``
-* menu icon: |box_edit_icon|
+* icon: |box_edit_icon|
 
 The BoxEditTool() allows you to draw, drag, and delete ``Rect`` glyphs
 on one or more renderers by editing the underlying ``ColumnDataSource``
@@ -945,39 +936,8 @@ Using the ``num_objects`` property, you can ensure that once the limit
 has been reached, the oldest box will be popped off the queue to make
 space for the newest box being added.
 
-.. raw:: html
-
-    <img src="https://docs.bokeh.org/static/box_edit_keyboard_optimized.gif"
-     width='400px' alt="Animation showing box draw, select, and delete actions">
-
-The animation above shows the supported tool actions, highlighting
-mouse actions with a circle around the cursor, and key strokes by
-showing the pressed keys. The ``BoxEditTool`` can **Add**, **Move**
-and **Delete** boxes on plots:
-
-Add box
-  Hold shift, then click and drag anywhere on the plot or press tap
-  once to start drawing. Move the mouse and press tap again to
-  finish drawing.
-
-Move box
-  Click and drag an existing box. The box will be dropped once you let
-  go of the mouse button.
-
-Delete box
-  Tap a box to select it, then press the BACKSPACE key while the mouse is
-  within the plot area.
-
-To **Move** or **Delete** multiple boxes at once:
-
-Move selection
-  Select box(es) with SHIFT+tap (or another selection tool) then drag
-  anywhere on the plot. Selecting and then dragging on a specific box
-  will move both.
-
-Delete selection
-  Select box(es) with SHIFT+tap (or another selection tool) then press
-  BACKSPACE while the mouse is within the plot area.
+The ``BoxEditTool`` can **Add**, **Move** and **Delete** boxes on plots. See
+:ref:`plot_reader_guide_box_edit` for how to use it:
 
 .. bokeh-plot:: __REPO__/examples/interaction/tools/box_edit.py
     :source-position: none
@@ -987,7 +947,7 @@ FreehandDrawTool
 ~~~~~~~~~~~~~~~~
 
 * name: ``'freehand_draw'``
-* menu icon: |freehand_draw_icon|
+* icon: |freehand_draw_icon|
 
 The ``FreehandDrawTool()`` allows freehand drawing of lines and polygons
 using the ``Patches`` and ``MultiLine`` glyphs, by editing the
@@ -1012,35 +972,14 @@ Using the ``num_objects`` property, you can ensure that once the limit
 has been reached, the oldest patch/multi-line will be popped off the
 queue to make space for the new patch/multi-line being added.
 
-.. raw:: html
-
-    <img src="https://docs.bokeh.org/static/freehand_draw_keyboard_optimized.gif"
-     width='400px' alt="Animation showing freehand drawing and delete actions">
-
-The animation above shows the supported tool actions, highlighting
-mouse actions with a circle around the cursor, and key strokes by
-showing the pressed keys. The ``PolyDrawTool`` can **Draw** and
-**Delete** patches and multi-lines:
-
-Draw patch/multi-line
-  Click and drag to start drawing and release the mouse button to
-  finish drawing.
-
-Delete patch/multi-line
-  Tap a line or patch to select it then press the BACKSPACE key while the
-  mouse is within the plot area.
-
-  To **Delete** multiple patches/lines at once:
-
-Delete selection
-  Select patches/lines with SHIFT+tap (or another selection tool), then
-  press BACKSPACE while the mouse is within the plot area.
+The ``FreehandDrawTool`` can **Draw** and **Delete** patches and multi-lines.
+See :ref:`plot_reader_guide_freehand_draw` for how to use it.
 
 PointDrawTool
 ~~~~~~~~~~~~~
 
 * name: ``'point_draw'``
-* menu icon: |point_draw_icon|
+* icon: |point_draw_icon|
 
 The ``PointDrawTool()`` allows you to add, drag, and delete point-like
 glyphs (of ``XYGlyph`` type) on one or more renderers by editing the
@@ -1065,37 +1004,8 @@ drawn. Using the ``num_objects`` property, you can ensure that once the
 limit has been reached, the oldest point will be popped off the queue
 to make space for the new point being added.
 
-.. raw:: html
-
-    <img src="https://docs.bokeh.org/static/point_draw_keyboard_optimized.gif"
-     width='400px' alt="Animation showing point draw, drag, select, and delete actions">
-
-The animation above shows the supported tool actions, highlighting
-mouse actions with a circle around the cursor, and key strokes by
-showing the pressed keys. The PointDrawTool can **Add**, **Move**, and
-**Delete** point-like glyphs on plots:
-
-Add point
-  Tap anywhere on the plot.
-
-Move point
-  Tap and drag an existing point. The point will be dropped once
-  you let go of the mouse button.
-
-Delete point
-  Tap a point to select it then press BACKSPACE key while the mouse is
-  within the plot area.
-
-To **Move** or **Delete** multiple points at once:
-
-Move selection
-  Select point(s) with SHIFT+tap (or another selection tool), then drag
-  anywhere on the plot. Selecting and then dragging a specific point
-  will move both.
-
-Delete selection
-  Select point(s) with SHIFT+tap (or another selection tool), then
-  press BACKSPACE while the mouse is within the plot area.
+The ``PointDrawTool`` can **Add**, **Move**, and **Delete** point-like glyphs
+on plots. See :ref:`plot_reader_guide_point_draw` for how to use it:
 
 .. bokeh-plot:: __REPO__/examples/interaction/tools/point_draw.py
     :source-position: none
@@ -1105,7 +1015,7 @@ PolyDrawTool
 ~~~~~~~~~~~~
 
 * name: ``'poly_draw'``
-* menu icon: |poly_draw_icon|
+* icon: |poly_draw_icon|
 
 The ``PolyDrawTool()`` allows you to draw, select, and delete
 ``Patches`` and ``MultiLine`` glyphs on one or more renderers by
@@ -1130,28 +1040,8 @@ PolyDrawTool will use it to display the vertices of the
 multi-lines/patches on all supplied renderers. This also enables the
 ability to snap to existing vertices while drawing.
 
-.. raw:: html
-
-    <img src="https://docs.bokeh.org/static/poly_draw_keyboard_optimized.gif"
-     width='400px' alt="Animation showing polygon draw, select, and delete actions">
-
-The animation above shows the supported tool actions, highlighting
-mouse actions with a circle around the cursor, and key strokes by
-showing the pressed keys. The ``PolyDrawTool`` can **Add**, **Move**,
-and **Delete** patches and multi-lines:
-
-Add patch/multi-line
-  Press tap to add the first vertex, then use tap to add each
-  subsequent vertex. To finalize the draw action, press tap to insert
-  the final vertex or press the ESC key.
-
-Move patch/multi-line
-  Tap and drag an existing patch/multi-line. The point will be dropped
-  once you let go of the mouse button.
-
-Delete patch/multi-line
-  Tap a patch/multi-line to select it, then press the BACKSPACE key while
-  the mouse is within the plot area.
+The ``PolyDrawTool`` can **Add**, **Move**, and **Delete** patches and
+multi-lines. See :ref:`plot_reader_guide_poly_draw` for how to use it:
 
 .. bokeh-plot:: __REPO__/examples/interaction/tools/poly_draw.py
     :source-position: none
@@ -1161,7 +1051,7 @@ PolyEditTool
 ~~~~~~~~~~~~~~
 
 * name: ``'poly_edit'``
-* menu icon: |poly_edit_icon|
+* icon: |poly_edit_icon|
 
 The PolyEditTool() allows you to edit the vertices of one or more
 ``Patches`` or ``MultiLine`` glyphs. You can define the glyphs to be
@@ -1175,31 +1065,9 @@ additional columns in the data source will be padded in accordance
 to :ref:`ug_interaction_tools_default_values` procedure when adding
 a new point.
 
-.. raw:: html
-
-    <img src="https://docs.bokeh.org/static/poly_edit_keyboard_optimized.gif"
-     width='400px' alt="Animation showing polygon and vertex drag, select, and delete actions">
-
-The animation above shows the supported tool actions, highlighting
-mouse actions with a circle around the cursor, and key strokes by
-showing the pressed keys. The ``PolyEditTool`` can **Add**, **Move**,
-and **Delete** vertices on existing patches and multi-lines:
-
-Show vertices
-  Press tap an existing patch or multi-line.
-
-Add vertex
-  Press tap an existing vertex to select it. The tool will draw the
-  next point. To add it, tap in a new location. To finish editing
-  and add a point, press tap. Otherwise press the ESC key to cancel.
-
-Move vertex
-  Drag an existing vertex and let go of the mouse button to release
-  it.
-
-Delete vertex
-  After selecting one or more vertices, press BACKSPACE while the mouse
-  cursor is within the plot area.
+The ``PolyEditTool`` can **Add**, **Move**, and **Delete** vertices on existing
+patches and multi-lines. See :ref:`plot_reader_guide_poly_edit` for how to
+use it:
 
 .. bokeh-plot:: __REPO__/examples/interaction/tools/poly_edit.py
     :source-position: none
@@ -1250,47 +1118,4 @@ control LOD behavior:
 
 .. |hover_basic| image:: /_images/icons/hover.svg
 
-.. |box_select_icon| image:: /_images/icons/box-select.svg
-    :height: 19px
-.. |box_zoom_icon| image:: /_images/icons/box-zoom.svg
-    :height: 19px
-.. |help_icon| image:: /_images/icons/help.svg
-    :height: 19px
-.. |crosshair_icon| image:: /_images/icons/crosshair.svg
-    :height: 19px
-.. |hover_icon| image:: /_images/icons/hover.svg
-    :height: 19px
-.. |lasso_select_icon| image:: /_images/icons/lasso-select.svg
-    :height: 19px
-.. |pan_icon| image:: /_images/icons/pan.svg
-    :height: 19px
-.. |poly_select_icon| image:: /_images/icons/polygon-select.svg
-    :height: 19px
-.. |redo_icon| image:: /_images/icons/redo.svg
-    :height: 19px
-.. |reset_icon| image:: /_images/icons/reset.svg
-    :height: 19px
-.. |save_icon| image:: /_images/icons/save.svg
-    :height: 19px
-.. |tap_icon| image:: /_images/icons/tap.svg
-    :height: 19px
-.. |undo_icon| image:: /_images/icons/undo.svg
-    :height: 19px
-.. |wheel_pan_icon| image:: /_images/icons/wheel-pan.svg
-    :height: 19px
-.. |wheel_zoom_icon| image:: /_images/icons/wheel-zoom.svg
-    :height: 19px
-.. |zoom_in_icon| image:: /_images/icons/zoom-in.svg
-    :height: 19px
-.. |zoom_out_icon| image:: /_images/icons/zoom-out.svg
-    :height: 19px
-.. |box_edit_icon| image:: /_images/icons/box-edit.svg
-    :height: 19px
-.. |freehand_draw_icon| image:: /_images/icons/freehand-draw.svg
-    :height: 19px
-.. |point_draw_icon| image:: /_images/icons/point-draw.svg
-    :height: 19px
-.. |poly_draw_icon| image:: /_images/icons/poly-draw.svg
-    :height: 19px
-.. |poly_edit_icon| image:: /_images/icons/poly-edit.svg
-    :height: 19px
+.. include:: ../../includes/tool_icons.rst

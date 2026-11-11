@@ -15,6 +15,7 @@ User guide
     user_guide/output
     user_guide/server
     user_guide/advanced
+    plot_readers_guide
 
 In this user guide, you will find detailed descriptions and examples that
 describe many common tasks that you can accomplish with Bokeh. To get started
@@ -55,6 +56,10 @@ This user guide is arranged by topic:
 :ref:`ug_advanced`
     Learn how to use Bokeh with other tools, extend Bokeh, or create plots in
     JavaScript by using BokehJS directly.
+
+:ref:`plot_reader_guide`
+    Learn how to read and interact with a Bokeh plot, including how to use
+    each of the plot tools. Useful to share with the audience of your plots.
 
 The user guide contains a lot of examples. They are as minimal as possible and
 usually focus on highlighting one functionality or concept each. You can copy
