@@ -322,10 +322,6 @@ class AlphaSpec(FloatSpec):
         help = f"{help or ''}\n{ALPHA_DEFAULT_HELP}"
         super().__init__(default=default, help=help)
 
-class NullStringSpec(DataSpec):
-    def __init__(self, default: Any = None, *, help: str | None = None) -> None:
-        super().__init__(Nullable(String), default=default, help=help)
-
 class StringSpec(DataSpec):
     """ A |DataSpec| property that accepts string fixed values.
 
@@ -479,21 +475,6 @@ class DistanceSpec(NumberSpec):
         try:
             if value < 0:
                 raise ValueError("Distances must be positive!")
-        except TypeError:
-            pass
-        return super().prepare_value(owner, name, value, hint=hint)
-
-class NullDistanceSpec(DistanceSpec):
-
-    def __init__(self, default: Any = None, *, help: str | None = None) -> None:
-        super().__init__(default=default, help=help)
-        self.value_type = Nullable(Float)
-        self._type_params = [Null(), *self._type_params]
-
-    def prepare_value(self, owner: HasProps | type[HasProps], name: str, value: Any, *, hint: DocumentPatchedEvent | None = None) -> Any:
-        try:
-            if value is not None and value < 0:
-                raise ValueError("Distances must be positive or None!")
         except TypeError:
             pass
         return super().prepare_value(owner, name, value, hint=hint)

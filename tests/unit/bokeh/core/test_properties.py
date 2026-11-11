@@ -111,8 +111,6 @@ ALL = (
     'NotSerialized',
     'Nothing',
     'Null',
-    'NullDistanceSpec',
-    'NullStringSpec',
     'Nullable',
     'NullableProp',
     'NullableSpec',

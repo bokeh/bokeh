@@ -157,7 +157,7 @@ export namespace HTMLLabelSet {
     y: p.YCoordinateSpec
     x_units: p.Property<CoordinateUnits>
     y_units: p.Property<CoordinateUnits>
-    text: p.NullStringSpec
+    text: p.NullableSpec<p.StringSpec>
     angle: p.AngleSpec
     x_offset: p.NumberSpec
     y_offset: p.NumberSpec
@@ -195,7 +195,7 @@ export class HTMLLabelSet extends DataAnnotation {
       y:            [ p.YCoordinateSpec, {field: "y"} ],
       x_units:      [ CoordinateUnits, "data" ],
       y_units:      [ CoordinateUnits, "data" ],
-      text:         [ p.NullStringSpec, {field: "text"} ],
+      text:         [ p.Nullable(p.StringSpec), {field: "text"} ],
       angle:        [ p.AngleSpec, 0 ],
       x_offset:     [ p.NumberSpec, {value: 0} ],
       y_offset:     [ p.NumberSpec, {value: 0} ],

@@ -66,10 +66,9 @@ UNIT_SPECS = (
     (bcpd.AngleSpec, AngleUnits, "rad", "deg"),
     (bcpd.CoordinateSpec, CoordinateUnits, "data", "screen"),
     (bcpd.DistanceSpec, SpatialUnits, "data", "screen"),
-    (bcpd.NullDistanceSpec, SpatialUnits, "data", "screen"),
 )
 
-UNIT_SPEC_IDS = ("angle", "coordinate", "distance", "null-distance")
+UNIT_SPEC_IDS = ("angle", "coordinate", "distance")
 
 
 @pytest.fixture(params=UNIT_SPECS, ids=UNIT_SPEC_IDS)

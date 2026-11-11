@@ -451,7 +451,6 @@ export class ColorScalar extends ScalarSpec<types.Color | null> {
 }
 export class NumberScalar extends ScalarSpec<number> {}
 export class StringScalar extends ScalarSpec<string> {}
-export class NullStringScalar extends ScalarSpec<string | null> {}
 export class ArrayScalar extends ScalarSpec<any[]> {}
 export class LineJoinScalar extends ScalarSpec<enums.LineJoin> {}
 export class LineCapScalar extends ScalarSpec<enums.LineCap> {}
@@ -861,12 +860,6 @@ export class DistanceSpec extends NumberUnitsSpec<enums.SpatialUnits> {
   }
 }
 
-export class NullDistanceSpec extends DistanceSpec { // TODO: T = number | null
-  override materialize(value: number | null): number {
-    return value ?? NaN
-  }
-}
-
 export class BooleanSpec extends DataSpec<boolean> {
   override v_materialize(values: Arrayable<boolean>): Arrayable<boolean> /* Uint8Array */ {
     return new Uint8Array(values as any) as any
@@ -1012,7 +1005,6 @@ export class NDArraySpec extends DataSpec<NDArrayType<number>> {}
 /** @deprecated */
 export class AnySpec extends DataSpec<any> {}
 export class StringSpec extends DataSpec<string> {}
-export class NullStringSpec extends DataSpec<string | null> {}
 export class ArraySpec extends DataSpec<any[]> {}
 
 export const ExtMarkerType = PrefixedStr("@")

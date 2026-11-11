@@ -126,8 +126,7 @@ type StringSpec = DataSpec[StringVal]
 type StringArg = FieldName | StringVal | Sequence[StringVal] | StringSpec | StringArray
 
 type NullStringVal = StringVal | None
-type NullStringSpec = DataSpec[NullStringVal]
-type NullStringArg = FieldName | NullStringVal | Sequence[NullStringVal] | NullStringSpec | StringArray
+type NullStringArg = FieldName | NullStringVal | Sequence[NullStringVal] | NullableSpec[str] | StringArray
 
 type FontSizeVal = FontSize
 type FontSizeSpec = DataSpec[FontSizeVal]
@@ -186,5 +185,4 @@ type DistanceSpec = DataSpecWithUnits[DistanceVal, SpatialUnits]
 type DistanceArg = FieldName | DistanceVal | DistanceSpec | Sequence[DistanceVal] | NumberArray
 
 type NullDistanceVal = DistanceVal | None
-type NullDistanceSpec = DataSpecWithUnits[NullDistanceVal, SpatialUnits]
-type NullDistanceArg = FieldName | NullDistanceVal | NullDistanceSpec | Sequence[NullDistanceVal] | NumberArray
+type NullDistanceArg = FieldName | NullDistanceVal | NullableSpec[DistanceVal, SpatialUnits] | Sequence[NullDistanceVal] | NumberArray

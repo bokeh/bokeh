@@ -43,7 +43,6 @@ from ..core.property.dataspec import (
     DistanceSpec,
     FloatSpec,
     MarkerSpec,
-    NullDistanceSpec,
     NumberSpec,
     SizeSpec,
     StringSpec,
@@ -52,6 +51,7 @@ from ..core.property.either import Either
 from ..core.property.enum import Enum
 from ..core.property.include import Include
 from ..core.property.instance import Instance, InstanceDefault
+from ..core.property.nullable import Nullable
 from ..core.property.numeric import NonNegative, Size
 from ..core.property.override import Override
 from ..core.property.primitive import (
@@ -883,20 +883,24 @@ class ImageURL(XYGlyph):
     The y-coordinates to locate the image anchors.
     """)
 
-    w = NullDistanceSpec(help="""
+    w = Nullable(DistanceSpec, help="""
     The width of the plot region that the image will occupy in data space.
 
     The default value is ``None``, in which case the image will be displayed
     at its actual image size (regardless of the units specified here).
+    When this dimension is ``None``, its anchor coordinate contributes to
+    automatic ranges without adding a data-space width.
     """)
 
     w_units = SpatialUnits
 
-    h = NullDistanceSpec(help="""
+    h = Nullable(DistanceSpec, help="""
     The height of the plot region that the image will occupy in data space.
 
     The default value is ``None``, in which case the image will be displayed
     at its actual image size (regardless of the units specified here).
+    When this dimension is ``None``, its anchor coordinate contributes to
+    automatic ranges without adding a data-space height.
     """)
 
     h_units = SpatialUnits

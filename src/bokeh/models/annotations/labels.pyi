@@ -8,7 +8,7 @@
 from abc import abstractmethod
 from typing import Unpack
 
-from ..._specs import AngleSpec, NullStringSpec, NumberSpec
+from ..._specs import AngleSpec, NullableSpec, NumberSpec
 from ..._types import Angle, Coordinate, TextLike
 from ...core.enums import (
     AngleUnitsType as AngleUnits,
@@ -91,7 +91,7 @@ class _LabelSetInit(_DataAnnotationInit, _TextPropsInit, _BackgroundFillPropsIni
     x_units: CoordinateUnits
     y: NumberSpec
     y_units: CoordinateUnits
-    text: NullStringSpec
+    text: NullableSpec[str]
     angle: AngleSpec
     x_offset: NumberSpec
     y_offset: NumberSpec
@@ -103,7 +103,7 @@ class LabelSet(DataAnnotation, TextProps, BackgroundFillProps, BackgroundHatchPr
     x_units: CoordinateUnits = ...
     y: NumberSpec = ...
     y_units: CoordinateUnits = ...
-    text: NullStringSpec = ...
+    text: NullableSpec[str] = ...
     angle: AngleSpec = ...
     x_offset: NumberSpec = ...
     y_offset: NumberSpec = ...

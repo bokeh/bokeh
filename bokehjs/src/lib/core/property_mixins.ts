@@ -160,7 +160,7 @@ export const HatchScalar: p.DefineOf<HatchScalar> = {
   hatch_color:      [ p.ColorScalar,        "black"     ],
   hatch_alpha:      [ p.NumberScalar,       1.0         ],
   hatch_scale:      [ p.NumberScalar,       12.0        ],
-  hatch_pattern:    [ p.NullStringScalar,   null        ],
+  hatch_pattern:    [ p.Nullable(p.StringScalar), null ],
   hatch_weight:     [ p.NumberScalar,       1.0         ],
   hatch_extra:      [ p.DictScalar,         {}          ],
 }
@@ -244,7 +244,7 @@ export const HatchVector: p.DefineOf<HatchVector> = {
   hatch_color:      [ p.ColorSpec,      "black"     ],
   hatch_alpha:      [ p.NumberSpec,     1.0         ],
   hatch_scale:      [ p.NumberSpec,     12.0        ],
-  hatch_pattern:    [ p.NullStringSpec, null        ],
+  hatch_pattern:    [ p.Nullable(p.StringSpec), null ],
   hatch_weight:     [ p.NumberSpec,     1.0         ],
   hatch_extra:      [ p.DictScalar,     {}          ],
 }
