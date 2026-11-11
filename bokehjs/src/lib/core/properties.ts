@@ -466,6 +466,14 @@ export class TextAlignScalar extends ScalarSpec<enums.TextAlign> {}
 export class TextBaselineScalar extends ScalarSpec<enums.TextBaseline> {}
 
 export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Property<T | V> {
+  /** Whether vector materialization accepts and preserves null entries.
+   *
+   * Override this to return false if a subclass's materializer cannot preserve nulls.
+   */
+  protected get materializes_nulls(): boolean {
+    return false
+  }
+
   declare __value__: T
   __vector__: V
 
@@ -672,13 +680,13 @@ export function Nullable<P extends ScalarSpec<any> | VectorSpec<any>>(
       return value === null || super.valid(value)
     }
 
-    override materialize(value: any): any {
+    override materialize(value: unknown): unknown {
       return value === null ? null : super.materialize(value)
     }
 
     override v_materialize(values: Arrayable<any>): Arrayable<any> {
-      if (Base.prototype.v_materialize == VectorSpec.prototype.v_materialize) {
-        return values
+      if (this.materializes_nulls) {
+        return super.v_materialize(values)
       }
       return preserve_nulls(values, (values) => super.v_materialize(values), (values) => Array.from(super.vector(values)))
     }
@@ -1004,7 +1012,11 @@ export class NDArraySpec extends DataSpec<NDArrayType<number>> {}
 
 /** @deprecated */
 export class AnySpec extends DataSpec<any> {}
-export class StringSpec extends DataSpec<string> {}
+export class StringSpec extends DataSpec<string> {
+  protected override get materializes_nulls(): boolean {
+    return true
+  }
+}
 export class ArraySpec extends DataSpec<any[]> {}
 
 export const ExtMarkerType = PrefixedStr("@")
