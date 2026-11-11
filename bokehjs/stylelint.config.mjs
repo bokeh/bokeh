@@ -6,7 +6,7 @@ import less from "postcss-less"
 function custom_properties_from(...paths) {
   const customProperties = {}
   for (const path of paths) {
-    less.parse(fs.readFileSync(path, "utf-8")).walkDecls(/^--/, (decl) => {
+    less.parse(fs.readFileSync(new URL(path, import.meta.url), "utf-8")).walkDecls(/^--/, (decl) => {
       customProperties[decl.prop] = decl.value
     })
   }
