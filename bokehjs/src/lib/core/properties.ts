@@ -663,14 +663,10 @@ export function Nullable<P extends ScalarSpec<any> | VectorSpec<any>>(
     return base as unknown as Constructor<NullableSpec<P>>
   }
   const Base = base as Constructor<VectorSpec<any>>
-  const preserve_nulls = (values: Arrayable<any>, convert: (values: Arrayable<any>) => Arrayable<any>,
-    unpack: (values: Arrayable<any>) => Arrayable<any> = (values) => values): Arrayable<any> => {
-    if (!some(values, (value) => value === null)) {
-      return convert(values)
-    }
-    const converted = unpack(convert(filter(values, (value) => value !== null)))
+
+  function restore_nulls<T>(values: Arrayable<unknown>, get: (i: number) => T): (T | null)[] {
     let i = 0
-    return Array.from(values, (value) => value === null ? null : converted[i++])
+    return Array.from(values, (value) => value === null ? null : get(i++))
   }
 
   return class extends Base {
@@ -684,15 +680,25 @@ export function Nullable<P extends ScalarSpec<any> | VectorSpec<any>>(
       return value === null ? null : super.materialize(value)
     }
 
-    override v_materialize(values: Arrayable<any>): Arrayable<any> {
-      if (this.materializes_nulls) {
+    override v_materialize(values: Arrayable<unknown>): Arrayable<unknown> {
+      if (this.materializes_nulls || !some(values, (value) => value === null)) {
         return super.v_materialize(values)
       }
-      return preserve_nulls(values, (values) => super.v_materialize(values), (values) => Array.from(super.vector(values)))
+
+      // Typed conversion can coerce null to zero. Convert only present values.
+      const present = filter(values, (value) => value !== null)
+      const converted = super.vector(super.v_materialize(present))
+      return restore_nulls(values, (i) => converted.get(i))
     }
 
-    protected override _convert_array(values: Arrayable<any>, type: any): any {
-      return preserve_nulls(values, (values) => super._convert_array(values, type))
+    protected override _convert_array(values: Arrayable<number | null>, type: any): any {
+      if (!some(values, (value) => value === null)) {
+        return super._convert_array(values as Arrayable<number>, type)
+      }
+
+      const present = filter(values, (value) => value !== null)
+      const converted = super._convert_array(present as Arrayable<number>, type)
+      return restore_nulls(values, (i) => converted[i])
     }
 
     override vector(values: Arrayable<any>): UniformVector<any> {
