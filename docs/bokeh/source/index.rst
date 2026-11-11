@@ -93,12 +93,6 @@ You can also find more information about Bokeh on `Medium`_, and `LinkedIn`_.
     docs/releases
 
 
-.. image:: _images/bokeh-hero.png
-    :width: 100%
-    :alt: A collage of 36 thumbnails of Bokeh plots
-    :target: `gallery`_
-
-
 .. _Interactive tutorial notebooks: https://github.com/bokeh/tutorial/
 .. _Bokeh community: https://bokeh.org/community/
 .. _Bokeh Discourse: https://discourse.bokeh.org
@@ -106,4 +100,3 @@ You can also find more information about Bokeh on `Medium`_, and `LinkedIn`_.
 .. _`Bokeh's GitHub repository`: https://github.com/bokeh/bokeh
 .. _Medium: https://medium.com/bokeh
 .. _LinkedIn: https://www.linkedin.com/company/project-bokeh/
-.. _gallery: docs/gallery.html
