@@ -19,12 +19,16 @@ describe("ImageBase module", () => {
   const img_2d = () => ndarray([1, 2, 3, 4], {dtype: "uint32", shape: [2, 2]})
   const img_3d = () => ndarray([1, 2, 3, 4, 5, 6, 7, 8], {dtype: "uint32", shape: [2, 2, 2]})
 
+  const empty_2d = () => ndarray([], {dtype: "uint32", shape: [0, 2]})
+  const empty_3d = () => ndarray([], {dtype: "uint32", shape: [2, 0, 2]})
+
   type Case = {
     name: string
     dimension: number
     glyph: () => ImageBase
     valid: () => NDArrayType<number>
     invalid: () => NDArrayType<number>
+    empty: () => NDArrayType<number>
   }
 
   const cases: Case[] = [{
@@ -33,12 +37,14 @@ describe("ImageBase module", () => {
     glyph: () => Image.create({image: {field: "image"}, x: 0, y: 0, dw: 10, dh: 10}),
     valid: img_2d,
     invalid: img_1d,
+    empty: empty_2d,
   }, {
     name: "ImageRGBA",
     dimension: 2,
     glyph: () => ImageRGBA.create({image: {field: "image"}, x: 0, y: 0, dw: 10, dh: 10}),
     valid: img_2d,
     invalid: img_3d,
+    empty: empty_2d,
   }, {
     name: "ImageStack",
     dimension: 3,
@@ -49,6 +55,7 @@ describe("ImageBase module", () => {
     },
     valid: img_3d,
     invalid: img_2d,
+    empty: empty_3d,
   }]
 
   async function create_view(glyph: ImageBase, image: unknown[]) {
@@ -72,7 +79,7 @@ describe("ImageBase module", () => {
     return `[bokeh ${version}] ${glyph}.image[${i}]: expected a ${dimension}D array, got ${got}\n`
   }
 
-  for (const {name, dimension, glyph, valid, invalid} of cases) {
+  for (const {name, dimension, glyph, valid, invalid, empty} of cases) {
     describe(`${name}View`, () => {
 
       it(`should render valid ${dimension}D images without errors`, async () => {
@@ -106,6 +113,17 @@ describe("ImageBase module", () => {
         const {image_data} = glyph_view
         expect_not_null(image_data)
         expect(present(image_data)).to.be.equal([false, false, true])
+      })
+
+      it("should skip empty images without errors", async () => {
+        const {glyph_view, out} = await create_view(glyph(), [empty(), valid()])
+        expect(out.error).to.be.equal("")
+
+        const {image_data, image_width, image_height} = glyph_view
+        expect_not_null(image_data)
+        expect(present(image_data)).to.be.equal([false, true])
+        expect(image_width).to.be.equal(new Uint32Array([0, 2]))
+        expect(image_height).to.be.equal(new Uint32Array([0, 2]))
       })
 
       it("should not retain stale image data when an image is replaced with bad data", async () => {

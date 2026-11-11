@@ -149,6 +149,12 @@ export abstract class ImageBaseView extends XYGlyphView {
         }
 
         const [height, width] = img.shape
+        if (width == 0 || height == 0) {
+          // nothing to render and a zero sized canvas can't be drawn
+          clear(i)
+          continue
+        }
+
         image_width[i] = width
         image_height[i] = height
 
