@@ -8,7 +8,7 @@
 from typing import Any, Literal, Unpack
 
 from ..._specs import AngleSpec, DataSpec, NumberSpec
-from ...core.enums import AutoType as Auto
+from ...core.enums import AngleReferenceType as AngleReference, AutoType as Auto
 from ..annotations import ColorBar
 from ..glyph import Glyph
 from ..graphics import Marking, PathMarking, PathMarkings
@@ -37,15 +37,31 @@ class GlyphRenderer[GlyphType: Glyph](DataRenderer):
     muted_glyph: Auto | GlyphType | None = ...
     muted: bool = ...
 
-    def add_path_decoration(self, marking: Marking, *, node: Literal["start", "middle", "end"],
-        inset: NumberSpec = ..., angle: AngleSpec = ..., angle_reference: Literal["auto", "left", "right", "screen"] = ...,
+    def add_path_decoration(
+        self,
+        marking: Marking,
+        *,
+        node: Literal["start", "middle", "end"],
+        inset: NumberSpec = ...,
+        angle: AngleSpec = ...,
+        angle_reference: AngleReference = ...,
         selection_marking: Auto | Marking | None = ...,
-        nonselection_marking: Auto | Marking | None = ..., hover_marking: Auto | Marking | None = ...,
-        muted_marking: Auto | Marking | None = ...) -> PathMarking: ...
+        nonselection_marking: Auto | Marking | None = ...,
+        hover_marking: Auto | Marking | None = ...,
+        muted_marking: Auto | Marking | None = ...,
+    ) -> PathMarking: ...
 
-    def add_path_markings(self, marking: Marking, *, positions: DataSpec[list[float]] | None = ...,
-        angle: AngleSpec = ..., angle_reference: Literal["auto", "left", "right", "screen"] = ...,
-        selection_marking: Auto | Marking | None = ..., nonselection_marking: Auto | Marking | None = ...,
-        hover_marking: Auto | Marking | None = ..., muted_marking: Auto | Marking | None = ...) -> PathMarkings: ...
+    def add_path_markings(
+        self,
+        marking: Marking,
+        *,
+        positions: DataSpec[list[float]] | None = ...,
+        angle: AngleSpec = ...,
+        angle_reference: AngleReference = ...,
+        selection_marking: Auto | Marking | None = ...,
+        nonselection_marking: Auto | Marking | None = ...,
+        hover_marking: Auto | Marking | None = ...,
+        muted_marking: Auto | Marking | None = ...,
+    ) -> PathMarkings: ...
 
     def construct_color_bar(self, **kwargs: Any) -> ColorBar: ...

@@ -18,6 +18,7 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+from ..core.enums import AngleReference
 from ..core.has_props import abstract
 from ..core.property.container import List
 from ..core.property.dataspec import AngleSpec, DataSpec, NumberSpec
@@ -90,7 +91,7 @@ class PathMarking(Decoration):
 
     angle_units = AngleUnits
 
-    angle_reference = Enum("auto", "left", "right", "screen", default="auto", help="""
+    angle_reference = Enum(AngleReference, help="""
     The direction before applying angle. Auto uses the usual placement direction.
     Left and right use the normals to the forward screen-space tangent.
     Screen points up.
@@ -117,7 +118,7 @@ class PathMarkings(Decoration):
 
     angle_units = AngleUnits
 
-    angle_reference = Enum("auto", "left", "right", "screen", default="auto", help="""
+    angle_reference = Enum(AngleReference, help="""
     The direction before applying angle. Auto uses the usual placement direction.
     Left and right use the normals to the forward screen-space tangent.
     Screen points up.

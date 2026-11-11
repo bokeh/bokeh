@@ -46,6 +46,7 @@ from ..sources import (
 from .renderer import DataRenderer
 
 if TYPE_CHECKING:
+    from ...core.enums import AngleReferenceType
     from ..annotations import ColorBar
 
 #-----------------------------------------------------------------------------
@@ -150,7 +151,7 @@ class GlyphRenderer(DataRenderer):
     """)
 
     def add_path_decoration(self, marking: Marking, *, node: Literal["start", "middle", "end"],
-            inset: Any = 0, angle: Any = 0, angle_reference: Literal["auto", "left", "right", "screen"] = "auto",
+            inset: Any = 0, angle: Any = 0, angle_reference: AngleReferenceType = "auto",
             selection_marking: Marking | Literal["auto"] | None = "auto",
             nonselection_marking: Marking | Literal["auto"] | None = "auto",
             hover_marking: Marking | Literal["auto"] | None = "auto",
@@ -169,7 +170,7 @@ class GlyphRenderer(DataRenderer):
         return decoration
 
     def add_path_markings(self, marking: Marking, *, positions: Any = None,
-            angle: Any = 0, angle_reference: Literal["auto", "left", "right", "screen"] = "auto",
+            angle: Any = 0, angle_reference: AngleReferenceType = "auto",
             selection_marking: Marking | Literal["auto"] | None = "auto",
             nonselection_marking: Marking | Literal["auto"] | None = "auto",
             hover_marking: Marking | Literal["auto"] | None = "auto",
