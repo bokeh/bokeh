@@ -341,7 +341,7 @@ export namespace Text {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = XYGlyph.Props & {
-    text: p.NullableSpec<p.StringSpec>
+    text: p.VectorSpec<string | null>
     angle: p.AngleSpec
     x_offset: p.NumberSpec
     y_offset: p.NumberSpec

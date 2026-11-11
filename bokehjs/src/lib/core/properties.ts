@@ -73,7 +73,7 @@ export type UniformsOf<Props> = {
       Props[Key] extends ScalarSpec<infer T, any> ? UniformScalar<T> : never
 }
 
-type DistanceProperty = DistanceSpec | NullableSpec<DistanceSpec>
+type DistanceProperty = DistanceSpec | VectorUnitsSpec<number | null, enums.SpatialUnits>
 
 export type MaxAttrsOf<Props> = {
   [Key in keyof Props & string as Props[Key] extends DistanceProperty ? `max_${Key}` : never]: number
@@ -647,23 +647,47 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
 
 export abstract class DataSpec<T> extends VectorSpec<T> {}
 
-/** A spec with nullable values, retaining the base spec's specialized API. */
-export type NullableSpec<P extends ScalarSpec<any> | VectorSpec<any>> =
-  null extends P["__value__"] ? P : P extends {__vector__: unknown} ?
-    Omit<P, keyof VectorSpec<any>> & VectorSpec<P["__value__"] | null,
-      P extends {units: infer Units} ? Dimensional<Vector<P["__value__"] | null>, Units> : Vector<P["__value__"] | null>> &
-      {array(...args: P extends {array(...args: infer Args): unknown} ? Args : never): Arrayable<unknown>} :
-    Omit<P, keyof ScalarSpec<any>> & ScalarSpec<P["__value__"] | null>
+// Use the vector spec's attribute type to retain unit checking in AttrsOf.
+export type VectorUnitsSpec<T, Units> =
+  VectorSpec<T, Dimensional<Vector<T>, Units>> & Pick<UnitsSpec<T, Units>, "units" | "default_units" | "valid_units">
 
 /** Preserve null values while delegating conversion to the wrapped spec. */
 export function Nullable<P extends ScalarSpec<any> | VectorSpec<any>>(
-  base: Constructor<P> & {readonly inherently_nullable?: boolean},
-): Constructor<NullableSpec<P>> {
+  base: Constructor<P> & {readonly inherently_nullable: true},
+): Constructor<P>
+export function Nullable<T, Units>(base: Constructor<UnitsSpec<T, Units>>): Constructor<VectorUnitsSpec<T | null, Units>>
+export function Nullable<T, Dim extends "x" | "y">(
+  base: Constructor<BaseCoordinateSpec<T> & {readonly dimension: Dim}>,
+): Constructor<BaseCoordinateSpec<T | null> & {readonly dimension: Dim}>
+export function Nullable<T>(base: Constructor<VectorSpec<T>>): Constructor<VectorSpec<T | null>>
+export function Nullable<T>(base: Constructor<ScalarSpec<T>>): Constructor<ScalarSpec<T | null>>
+export function Nullable(
+  base: Constructor<ScalarSpec<any> | VectorSpec<any>> & {readonly inherently_nullable?: boolean},
+): Constructor {
   if (base.inherently_nullable === true) {
-    return base as unknown as Constructor<NullableSpec<P>>
+    return base
   }
-  const Base = base as Constructor<VectorSpec<any>>
+  if (base.prototype instanceof VectorSpec) {
+    return nullable_vector(base as Constructor<VectorSpec<unknown>>)
+  }
+  return nullable_scalar(base as Constructor<ScalarSpec<unknown>>)
+}
 
+function nullable_scalar(Base: Constructor<ScalarSpec<unknown>>) {
+  return class extends Base {
+    static readonly inherently_nullable = true
+
+    override valid(value: unknown): boolean {
+      return value === null || super.valid(value)
+    }
+
+    override materialize(value: unknown): unknown {
+      return value === null ? null : super.materialize(value)
+    }
+  }
+}
+
+function nullable_vector(Base: Constructor<VectorSpec<unknown>>) {
   function restore_nulls<T>(values: Arrayable<unknown>, get: (i: number) => T): (T | null)[] {
     let i = 0
     return Array.from(values, (value) => value === null ? null : get(i++))
@@ -707,7 +731,7 @@ export function Nullable<P extends ScalarSpec<any> | VectorSpec<any>>(
       }
       return some(values, (value) => value === null) ? new UniformVector(values) : super.vector(values)
     }
-  } as unknown as Constructor<NullableSpec<P>>
+  }
 }
 
 export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vector<T>, Units>> {

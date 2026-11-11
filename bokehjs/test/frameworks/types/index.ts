@@ -8,6 +8,7 @@ import {
   mount, publish_mount_error, register_models, register_standard_models, server_document, when_mounted,
 } from "@bokeh/bokehjs"
 import type {BokehMount, ClientSession, ServerDocumentOptions, properties as p} from "@bokeh/bokehjs"
+import type {AngleUnits, SpatialUnits} from "@bokeh/bokehjs/build/js/lib/core/enums.js"
 
 import {SessionMountController} from "@bokeh/framework"
 import type {BokehSessionSource} from "@bokeh/framework"
@@ -20,9 +21,9 @@ import {defineBokehDocumentElement, defineBokehElement, defineBokehRootElement, 
 import type {BokehDocumentElement, BokehElement, BokehRootElement, BokehSessionElement} from "@bokeh/web-component"
 
 type NullableGlyphProps = {
-  angle: p.NullableSpec<p.AngleSpec>
-  distance: p.NullableSpec<p.DistanceSpec>
-  text: p.NullableSpec<p.StringSpec>
+  angle: p.VectorUnitsSpec<number | null, AngleUnits>
+  distance: p.VectorUnitsSpec<number | null, SpatialUnits>
+  text: p.VectorSpec<string | null>
 }
 declare const nullable_data: p.GlyphDataOf<NullableGlyphProps>
 const nullable_angle: number | null = nullable_data.angle.get(0)

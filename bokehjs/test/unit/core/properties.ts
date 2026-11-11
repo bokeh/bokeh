@@ -9,6 +9,7 @@ import {ndarray} from "@bokehjs/core/util/ndarray"
 import type {Color} from  "@bokehjs/core/types"
 import type {Arrayable} from "@bokehjs/core/types"
 import {HasProps} from  "@bokehjs/core/has_props"
+import type {Factor} from "@bokehjs/models/ranges/factor_range"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {named_colors} from  "@bokehjs/core/util/svg_colors"
 import {Transform} from  "@bokehjs/models/transforms/transform"
@@ -57,13 +58,13 @@ namespace Some {
     font: p.Property<string>
     direction: p.Property<enums.Direction>
     angle_spec: p.AngleSpec
-    nullable_angle_spec: p.NullableSpec<p.AngleSpec>
-    nullable_int_spec: p.NullableSpec<p.IntSpec>
-    nullable_size_spec: p.NullableSpec<p.ScreenSizeSpec>
-    nullable_string_scalar: p.NullableSpec<p.StringScalar>
-    nullable_string_spec: p.NullableSpec<p.StringSpec>
-    nullable_color_spec: p.NullableSpec<p.ColorSpec>
-    nullable_coordinate_spec: p.NullableSpec<p.XCoordinateSpec>
+    nullable_angle_spec: p.VectorUnitsSpec<number | null, enums.AngleUnits>
+    nullable_int_spec: p.VectorSpec<number | null>
+    nullable_size_spec: p.VectorSpec<number | null>
+    nullable_string_scalar: p.ScalarSpec<string | null>
+    nullable_string_spec: p.VectorSpec<string | null>
+    nullable_color_spec: p.ColorSpec
+    nullable_coordinate_spec: p.BaseCoordinateSpec<number | Factor | null> & {readonly dimension: "x"}
     boolean_spec: p.BooleanSpec
     color_spec: p.ColorSpec
     coordinate_spec: p.CoordinateSpec
@@ -73,7 +74,7 @@ namespace Some {
     marker_spec: p.MarkerSpec
     number_spec: p.NumberSpec
     string_spec: p.StringSpec
-    null_string_spec: p.NullableSpec<p.StringSpec>
+    null_string_spec: p.VectorSpec<string | null>
   }
 }
 
