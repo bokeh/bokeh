@@ -257,6 +257,9 @@ describe("properties module", () => {
       const source = ColumnDataSource.create({data: {x: [1, null, 3]}})
       expect([...obj.properties.nullable_int_spec.uniform(source)]).to.be.equal([1, null, 3])
       expect(obj.properties.nullable_int_spec.array(source)).to.be.equal([1, null, 3])
+      source.data = {x: [null, null]}
+      expect([...obj.properties.nullable_int_spec.uniform(source)]).to.be.equal([null, null])
+      expect(obj.properties.nullable_int_spec.array(source)).to.be.equal([null, null])
       expect(obj.properties.angle_spec.uniform(source).get(0)).to.be.equal(-Math.PI)
     })
   })
