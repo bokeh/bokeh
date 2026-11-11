@@ -1,3 +1,11 @@
+// Sphinx can return null for an empty search preview, but its caller appends a Node.
+window.addEventListener('DOMContentLoaded', function () {
+  if (typeof Search !== "undefined") {
+    const makeSearchSummary = Search.makeSearchSummary.bind(Search)
+    Search.makeSearchSummary = (...args) => makeSearchSummary(...args) ?? document.createDocumentFragment()
+  }
+})
+
 // Simplify the sidebar TOC on the releases page
 window.addEventListener('DOMContentLoaded', function () {
   if (window.location.pathname.endsWith("releases.html")) {

@@ -93,10 +93,15 @@ You can also find more information about Bokeh on `Medium`_, and `LinkedIn`_.
     docs/releases
 
 
-.. image:: _images/bokeh-hero.png
-    :width: 100%
-    :alt: A collage of 36 thumbnails of Bokeh plots
-    :target: `gallery`_
+.. raw:: html
+
+    <a href="docs/gallery.html">
+      <img class="bokeh-hero" src="_static/images/bokeh-hero.webp"
+           srcset="_static/images/bokeh-hero-600.webp 600w, _static/images/bokeh-hero.webp 1200w"
+           sizes="100vw"
+           width="1200" height="400"
+           alt="A collage of 36 thumbnails of Bokeh plots">
+    </a>
 
 
 .. _Interactive tutorial notebooks: https://github.com/bokeh/tutorial/
