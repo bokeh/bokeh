@@ -11,6 +11,7 @@ import {every, sort_by, includes, intersection, clear} from "core/util/array"
 import {join, enumerate} from "core/util/iterator"
 import {typed_keys, values} from "core/util/object"
 import {isArray} from "core/util/types"
+import {unique_id} from "core/util/string"
 import {assert} from "core/util/assert"
 import {Tool} from "./tool"
 import type {ToolLike} from "./tool_proxy"
@@ -119,6 +120,17 @@ export class ToolbarView extends UIElementView {
   protected readonly _menu_items: MenuItemLike_[] = []
   protected _overflow_menu: ContextMenu | null = null
 
+  /** The `id` of the overflow menu's element, shared by all instances of the menu. */
+  protected readonly _overflow_menu_id = unique_id("bk-overflow-menu")
+
+  /** Whether the overflow menu is shown, which determines `aria-expanded` of its button. */
+  protected readonly _overflow_menu_open = signal(false)
+
+  /** Whether the view is rendered in the overflow menu (rather than in the bar). */
+  is_menu_view(view: ToolButtonView): boolean {
+    return this._menu_views.get(view.model) === view
+  }
+
   /**
    * The overflow menu. It's (re)created on demand, because its orientation depends
    * on the toolbar's location and `overflow_orientation`, which may change.
@@ -146,6 +158,11 @@ export class ToolbarView extends UIElementView {
       reversed,
       prevent_hide: (event) => {
         return this._overflow_el != null && event.composedPath().includes(this._overflow_el)
+      },
+      id: this._overflow_menu_id,
+      aria_label: "More tools",
+      on_toggle: (open) => {
+        this._overflow_menu_open.value = open
       },
     })
   }
@@ -311,7 +328,7 @@ export class ToolbarView extends UIElementView {
    * would be when activating a regular menu item.
    */
   button_tapped(button_view: ToolButtonView): void {
-    if (this._menu_views.get(button_view.model) === button_view) {
+    if (this.is_menu_view(button_view)) {
       this._overflow_menu?.hide()
     }
   }
@@ -331,8 +348,14 @@ export class ToolbarView extends UIElementView {
   }
 
   private readonly _on_overflow_keydown = (event: KeyboardEvent) => {
-    if ((event.key as Keys) == "Enter") {
-      this.toggle_menu()
+    switch (event.key as Keys) {
+      case "Enter":
+      case " ": {
+        event.preventDefault()
+        this.toggle_menu()
+        break
+      }
+      default:
     }
   }
 
@@ -384,7 +407,18 @@ export class ToolbarView extends UIElementView {
       <UIComponent parent={this.resolved_props} class={classes}>
         {logo_el}
         <div class={toolbars.bar} ref={this._bar_ref}>{bar_els}</div>
-        <div class={toolbars.overflow} tabIndex={0} ref={this._overflow_ref} onClick={() => this.toggle_menu()} onKeyDown={this._on_overflow_keydown}>
+        <div
+          class={toolbars.overflow}
+          role="button"
+          tabIndex={0}
+          aria-label="More tools"
+          aria-haspopup="menu"
+          aria-expanded={this._overflow_menu_open.value ? "true" : "false"}
+          aria-controls={this._overflow_menu_id}
+          ref={this._overflow_ref}
+          onClick={() => this.toggle_menu()}
+          onKeyDown={this._on_overflow_keydown}
+        >
           <div class={toolbars.icon}/>
         </div>
         <div style={{display: "none"}}>{held_els}</div>

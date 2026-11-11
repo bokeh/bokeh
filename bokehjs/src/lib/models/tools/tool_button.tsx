@@ -57,6 +57,14 @@ export abstract class ToolButtonView extends UIElementView {
     return false
   }
 
+  /**
+   * Whether tapping the button toggles its state (reflected by `active`), which
+   * determines the button's ARIA role.
+   */
+  protected get _is_toggle(): boolean {
+    return false
+  }
+
   override initialize(): void {
     super.initialize()
 
@@ -125,8 +133,27 @@ export abstract class ToolButtonView extends UIElementView {
       !this.visible.value ? tool_button.hidden : null,
     )
 
+    // In the overflow menu, buttons behave like menu items.
+    const in_menu = this.parent.is_menu_view(this)
+    const is_toggle = this._is_toggle
+    const role = in_menu ? (is_toggle ? "menuitemcheckbox" : "menuitem") : undefined
+    const aria_checked = in_menu && is_toggle ? (this.active.value ? "true" : "false") : undefined
+    const aria_disabled = in_menu && this.disabled.value ? "true" : undefined
+    const aria_haspopup = in_menu && this.has_menu.value ? "menu" : undefined
+
     return (
-      <UIComponent parent={this.resolved_props} class={classes} title={this.tooltip.value} tabIndex={0} onKeyDown={this._on_keydown}>
+      <UIComponent
+        parent={this.resolved_props}
+        class={classes}
+        title={this.tooltip.value}
+        tabIndex={0}
+        role={role}
+        aria-label={in_menu ? this.tooltip.value : undefined}
+        aria-checked={aria_checked}
+        aria-disabled={aria_disabled}
+        aria-haspopup={aria_haspopup}
+        onKeyDown={this._on_keydown}
+      >
         <div class={cls(tool_button.tool_icon, icon.class)} style={icon.style}></div>
         {this.has_menu.value ? <div class={tool_button.tool_chevron}></div> : null}
         {count != null ? <div class={tool_button.count}>{count}</div> : null}

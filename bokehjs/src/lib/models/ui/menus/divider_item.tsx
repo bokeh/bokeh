@@ -21,7 +21,7 @@ export class DividerItemView extends DOMComponentView {
   }
 
   override component(): VNode {
-    return <UIComponent parent={this.resolved_props} class={menus.divider}/>
+    return <UIComponent parent={this.resolved_props} class={menus.divider} role="separator"/>
   }
 }
 

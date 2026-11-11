@@ -8,6 +8,10 @@ export class OnOffButtonView extends ToolButtonView {
     return this.values.tool.active
   }
 
+  protected override get _is_toggle(): boolean {
+    return true
+  }
+
   tap(): void {
     const {active} = this.model.tool
     this.model.tool.active = !active

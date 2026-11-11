@@ -11,7 +11,7 @@ import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"
 import {TapTool} from "@bokehjs/models/tools/gestures/tap_tool"
 import {build_view} from "@bokehjs/core/build_views"
 import {gridplot} from "@bokehjs/api/gridplot"
-import {ExamineTool, Plot, CustomAction, Legend, LegendItem, CustomJS, Range1d} from "@bokehjs/models"
+import {ExamineTool, UndoTool, Plot, CustomAction, Legend, LegendItem, CustomJS, Range1d} from "@bokehjs/models"
 import * as tb_css from "@bokehjs/styles/tool_button.css"
 import * as toolbar_css from "@bokehjs/styles/toolbar.css"
 import * as logo_css from "@bokehjs/styles/logo.css"
@@ -986,6 +986,61 @@ describe("ToolbarView's overflow menu", () => {
 
     expect(examine.active).to.be.true
     expect(toolbar_view.overflow_menu.is_open).to.be.false
+  })
+
+  it("should support ARIA roles and attributes", async () => {
+    const p = fig([200, 200], {tools: "pan,box_zoom,undo,redo,reset,crosshair,examine", toolbar_location: "above"})
+    p.scatter([0, 5, 10], [0, 5, 10])
+    const {view} = await display(p)
+
+    const toolbar_view = view.owner.get_one(p.toolbar)
+    const {overflow_el} = toolbar_view
+    expect(overflow_el.getAttribute("role")).to.be.equal("button")
+    expect(overflow_el.getAttribute("aria-haspopup")).to.be.equal("menu")
+    expect(overflow_el.getAttribute("aria-expanded")).to.be.equal("false")
+
+    toolbar_view.toggle_menu()
+    await view.ready
+
+    const {overflow_menu} = toolbar_view
+    expect(overflow_menu.is_open).to.be.true
+    expect(overflow_el.getAttribute("aria-expanded")).to.be.equal("true")
+    expect(overflow_menu.el.getAttribute("role")).to.be.equal("menu")
+    expect(overflow_menu.el.getAttribute("aria-orientation")).to.be.equal("vertical")
+    const controls = overflow_el.getAttribute("aria-controls")
+    expect_not_null(controls)
+    expect((overflow_el.getRootNode() as ShadowRoot).getElementById(controls)).to.be.equal(overflow_menu.el)
+
+    const menu_view = (tool: unknown) => toolbar_view.tool_button_menu_views.find((view) => view.model.tool == tool)
+    const bar_view = (tool: unknown) => toolbar_view.tool_button_views.find((view) => view.model.tool == tool)
+
+    const examine = p.toolbar.tools.find((tool) => tool instanceof ExamineTool)
+    expect_not_null(examine)
+    const examine_view = menu_view(examine)
+    expect_not_null(examine_view)
+    expect(examine_view.el.getAttribute("role")).to.be.equal("menuitemcheckbox")
+    expect(examine_view.el.getAttribute("aria-checked")).to.be.equal("false")
+    expect(examine_view.el.getAttribute("aria-label")).to.be.equal("Examine")
+
+    examine.active = true
+    await view.ready
+    expect(examine_view.el.getAttribute("aria-checked")).to.be.equal("true")
+
+    const undo = p.toolbar.tools.find((tool) => tool instanceof UndoTool)
+    const undo_view = menu_view(undo)
+    expect_not_null(undo_view)
+    expect(undo_view.el.getAttribute("role")).to.be.equal("menuitem")
+    expect(undo_view.el.hasAttribute("aria-checked")).to.be.false
+
+    // Buttons in the bar aren't menu items.
+    const examine_bar_view = bar_view(examine)
+    expect_not_null(examine_bar_view)
+    expect(examine_bar_view.el.hasAttribute("role")).to.be.false
+
+    toolbar_view.toggle_menu()
+    await view.ready
+    expect(overflow_menu.is_open).to.be.false
+    expect(overflow_el.getAttribute("aria-expanded")).to.be.equal("false")
   })
 
   it("should update orientation when overflow_orientation changes", async () => {
