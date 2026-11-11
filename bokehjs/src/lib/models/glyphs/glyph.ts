@@ -561,7 +561,7 @@ export abstract class GlyphView extends DOMComponentView {
           this._define_attr(prop.attr, uniform)
 
           if (prop instanceof p.DistanceSpec || prop instanceof p.ScreenSizeSpec) {
-            const max_value = uniforms.max(uniform)
+            const max_value = prop.is_nullable ? uniforms.max_nullable(uniform) : uniforms.max(uniform)
             this._define_attr(`max_${prop.attr}`, max_value)
           }
         }

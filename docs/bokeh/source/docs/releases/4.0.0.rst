@@ -107,6 +107,16 @@ Removals
 API changes
 -----------
 
+* ``Nullable`` now composes with DataSpec properties, including unit-aware
+  specs such as ``Nullable(AngleSpec)``. For newly nullable specs, null values
+  in literals, source columns, and expression results remain null during
+  BokehJS materialization. Transforms receive nullable inputs and must handle
+  them explicitly.
+  ``Nullable`` dispatches to ``NullableProp`` or ``NullableSpec``. Both share
+  the ``Nullable`` base, so existing ``isinstance(prop, Nullable)`` checks and
+  ``Nullable[T]`` annotations continue to work. Already-nullable color specs
+  retain their existing transparent color encoding and specialized uniforms.
+
 * Generic property base classes and ``Value`` now default their type parameter
   to ``Any`` when it is omitted. Explicit type arguments and constructor
   inference continue to preserve more specific types.

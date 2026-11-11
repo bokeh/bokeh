@@ -123,6 +123,14 @@ export function max(u: Uniform<number>): number {
   return u.is_Scalar() ? u.value : arrayable.max((u as UniformVector<number>).array)
 }
 
+export function min_nullable(u: Uniform<number | null>): number {
+  return u.is_Scalar() ? u.value ?? NaN : arrayable.min_nullable((u as UniformVector<number | null>).array)
+}
+
+export function max_nullable(u: Uniform<number | null>): number {
+  return u.is_Scalar() ? u.value ?? NaN : arrayable.max_nullable((u as UniformVector<number | null>).array)
+}
+
 export function some<T>(u: Uniform<T>, predicate: (item: T) => boolean): boolean {
   return u.is_Scalar() ? predicate(u.value) : arrayable.some((u as UniformVector<T>).array, predicate)
 }

@@ -181,6 +181,22 @@ class DataSpec(Either[Any]):
     """
 
     _units_enum: Any | None = None
+    _units_alias: str = ""
+
+    def _make_nullable(self) -> DataSpec:
+        """ Copy this spec with nullable literal values. """
+        result = copy(self)
+        if isinstance(self.value_type, Nullable):
+            return result
+        value_type = Nullable(self.value_type)
+        result.value_type = value_type
+        result._type_params = [Null(), *self._type_params]
+        for i, param in enumerate(result._type_params):
+            if isinstance(param, Struct) and "value" in param._fields:
+                struct = copy(param)
+                struct._fields = {**param._fields, "value": value_type}
+                result._type_params[i] = struct
+        return result
 
     def __init__(self, value_type: Any, default: Any, *, help: str | None = None) -> None:
         super().__init__(

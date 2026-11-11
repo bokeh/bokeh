@@ -1,12 +1,13 @@
 import {Signal0} from "./signaling"
 import {logger} from "./logging"
 import type {HasProps} from "./has_props"
+import type {Constructor} from "./class"
 import * as enums from "./enums"
 import type {Arrayable, IntArray, FloatArray, TypedArray, uint32, Dict} from "./types"
 import {RGBAArray, ColorArray} from "./types"
 import type * as types from "./types"
 import {includes, repeat} from "./util/array"
-import {mul} from "./util/arrayable"
+import {mul, some, filter} from "./util/arrayable"
 import {to_radians_coeff} from "./util/math"
 import {color2rgba, encode_rgba} from "./util/color"
 import {to_big_endian} from "./util/platform"
@@ -72,8 +73,10 @@ export type UniformsOf<Props> = {
       Props[Key] extends ScalarSpec<infer T, any> ? UniformScalar<T> : never
 }
 
+type DistanceProperty = DistanceSpec | NullableSpec<DistanceSpec>
+
 export type MaxAttrsOf<Props> = {
-  [Key in keyof Props & string as Props[Key] extends DistanceSpec ? `max_${Key}` : never]: number
+  [Key in keyof Props & string as Props[Key] extends DistanceProperty ? `max_${Key}` : never]: number
 }
 
 export type CoordsAttrsOf<Props> = {
@@ -84,8 +87,8 @@ export type CoordsAttrsOf<Props> = {
 }
 
 export type ScreenAttrsOf<Props> = {
-  [Key in keyof Props & string as Props[Key] extends BaseCoordinateSpec<any> | DistanceSpec ? `s${Key}` : never]:
-    Props[Key] extends CoordinateSpec | DistanceSpec ? Arrayable<number> :
+  [Key in keyof Props & string as Props[Key] extends BaseCoordinateSpec<any> | DistanceProperty ? `s${Key}` : never]:
+    Props[Key] extends CoordinateSpec | DistanceProperty ? Arrayable<number> :
     Props[Key] extends CoordinateSeqSpec             ? RaggedArray<FloatArray> :
     Props[Key] extends CoordinateSeqSeqSeqSpec       ? Arrayable<Arrayable<Arrayable<Arrayable<number>>>> : never
 }
@@ -97,7 +100,7 @@ export type InheritedAttrsOf<Props> = {
 /* eslint-enable @stylistic/indent */
 
 export type InheritedScreenOf<Props> = {
-  [Key in keyof Props & string as Props[Key] extends BaseCoordinateSpec<any> | DistanceSpec ? `inherited_s${Key}` : never]: boolean
+  [Key in keyof Props & string as Props[Key] extends BaseCoordinateSpec<any> | DistanceProperty ? `inherited_s${Key}` : never]: boolean
 }
 
 export type InheritedOf<Props> = InheritedAttrsOf<Props> & InheritedScreenOf<Props>
@@ -146,7 +149,15 @@ export type Unset = typeof unset
 export class UnsetValueError extends Error {}
 
 export abstract class Property<T = unknown> {
+  /** Preserve the null representation of specs that already support it. */
+  static readonly inherently_nullable: boolean = false
+
   __value__: T
+
+  /** Whether the spec class explicitly supports null values. */
+  get is_nullable(): boolean {
+    return (this.constructor as typeof Property).inherently_nullable
+  }
 
   get syncable(): boolean {
     return !this.internal
@@ -435,7 +446,9 @@ export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Pro
 /** @deprecated */
 export class AnyScalar extends ScalarSpec<any> {}
 export class DictScalar<T> extends ScalarSpec<Dict<T>> {}
-export class ColorScalar extends ScalarSpec<types.Color | null> {}
+export class ColorScalar extends ScalarSpec<types.Color | null> {
+  static override readonly inherently_nullable = true
+}
 export class NumberScalar extends ScalarSpec<number> {}
 export class StringScalar extends ScalarSpec<string> {}
 export class NullStringScalar extends ScalarSpec<string | null> {}
@@ -619,9 +632,70 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
     }
     return array
   }
+
+  protected _convert_array<T extends TypedArray>(values: Arrayable<number>, type: {new (values: Arrayable<number>): T}): T {
+    return new type(values)
+  }
 }
 
 export abstract class DataSpec<T> extends VectorSpec<T> {}
+
+/** A spec with nullable values, retaining the base spec's specialized API. */
+export type NullableSpec<P extends ScalarSpec<any> | VectorSpec<any>> =
+  null extends P["__value__"] ? P : P extends {__vector__: unknown} ?
+    Omit<P, keyof VectorSpec<any>> & VectorSpec<P["__value__"] | null,
+      P extends {units: infer Units} ? Dimensional<Vector<P["__value__"] | null>, Units> : Vector<P["__value__"] | null>> &
+      {array(...args: P extends {array(...args: infer Args): unknown} ? Args : never): Arrayable<unknown>} :
+    Omit<P, keyof ScalarSpec<any>> & ScalarSpec<P["__value__"] | null>
+
+/** Preserve null values while delegating conversion to the wrapped spec. */
+export function Nullable<P extends ScalarSpec<any> | VectorSpec<any>>(
+  base: Constructor<P> & {readonly inherently_nullable?: boolean},
+): Constructor<NullableSpec<P>> {
+  if (base.inherently_nullable === true) {
+    return base as unknown as Constructor<NullableSpec<P>>
+  }
+  const Base = base as Constructor<VectorSpec<any>>
+  const preserve_nulls = (values: Arrayable<any>, convert: (values: Arrayable<any>) => Arrayable<any>,
+    unpack: (values: Arrayable<any>) => Arrayable<any> = (values) => values): Arrayable<any> => {
+    if (!some(values, (value) => value === null)) {
+      return convert(values)
+    }
+    const converted = unpack(convert(filter(values, (value) => value !== null)))
+    let i = 0
+    return Array.from(values, (value) => value === null ? null : converted[i++])
+  }
+
+  return class extends Base {
+    static readonly inherently_nullable = true
+
+    override valid(value: unknown): boolean {
+      return value === null || super.valid(value)
+    }
+
+    override materialize(value: any): any {
+      return value === null ? null : super.materialize(value)
+    }
+
+    override v_materialize(values: Arrayable<any>): Arrayable<any> {
+      if (Base.prototype.v_materialize == VectorSpec.prototype.v_materialize) {
+        return values
+      }
+      return preserve_nulls(values, (values) => super.v_materialize(values), (values) => Array.from(super.vector(values)))
+    }
+
+    protected override _convert_array(values: Arrayable<any>, type: any): any {
+      return preserve_nulls(values, (values) => super._convert_array(values, type))
+    }
+
+    override vector(values: Arrayable<any>): UniformVector<any> {
+      if (Base.prototype.vector == VectorSpec.prototype.vector) {
+        return super.vector(values)
+      }
+      return some(values, (value) => value === null) ? new UniformVector(values) : super.vector(values)
+    }
+  } as unknown as Constructor<NullableSpec<P>>
+}
 
 export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vector<T>, Units>> {
   abstract get default_units(): Units
@@ -659,7 +733,7 @@ export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vect
 
 export abstract class NumberUnitsSpec<Units> extends UnitsSpec<number, Units> {
   override array(source: IndexedDataSource): FloatArray {
-    return new Float64Array(super.array(source) as Arrayable<number>)
+    return this._convert_array(super.array(source) as Arrayable<number>, Float64Array)
   }
 }
 
@@ -799,7 +873,7 @@ export class BooleanSpec extends DataSpec<boolean> {
   }
 
   override array(source: IndexedDataSource): Uint8Array {
-    return new Uint8Array(super.array(source) as any)
+    return this._convert_array(super.array(source) as Arrayable<number>, Uint8Array)
   }
 }
 
@@ -809,7 +883,7 @@ export class IntSpec extends DataSpec<number> {
   }
 
   override array(source: IndexedDataSource): IntArray {
-    return new Int32Array(super.array(source) as Arrayable<number>)
+    return this._convert_array(super.array(source) as Arrayable<number>, Int32Array)
   }
 }
 
@@ -819,7 +893,7 @@ export class NumberSpec extends DataSpec<number> {
   }
 
   override array(source: IndexedDataSource): FloatArray {
-    return new Float64Array(super.array(source) as Arrayable<number>)
+    return this._convert_array(super.array(source) as Arrayable<number>, Float64Array)
   }
 }
 
@@ -830,6 +904,8 @@ export class ScreenSizeSpec extends NumberSpec {
 }
 
 export class ColorSpec extends DataSpec<types.Color | null> {
+  static override readonly inherently_nullable = true
+
   override materialize(color: types.Color | null): uint32 {
     return encode_rgba(color2rgba(color))
   }

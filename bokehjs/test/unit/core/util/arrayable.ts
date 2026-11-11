@@ -131,6 +131,17 @@ describe("core/util/arrayable module", () => {
     expect(arrayable.minmax([3, 2, NaN, 1])).to.be.equal([1, 3])
   })
 
+  it("should support nullable numeric reductions", () => {
+    expect(arrayable.minmax_nullable([])).to.be.equal([Infinity, -Infinity])
+    expect(arrayable.minmax_nullable([null])).to.be.equal([Infinity, -Infinity])
+    expect(arrayable.minmax_nullable([NaN, null])).to.be.equal([Infinity, -Infinity])
+    expect(arrayable.minmax_nullable([null, 2, 3])).to.be.equal([2, 3])
+    expect(arrayable.minmax_nullable([null, -2, -3])).to.be.equal([-3, -2])
+    expect(arrayable.min_nullable([null, 2, 3])).to.be.equal(2)
+    expect(arrayable.max_nullable([null, -2, -3])).to.be.equal(-2)
+    expect(arrayable.minmax_nullable(new Float64Array([1, NaN, 3]))).to.be.equal([1, 3])
+  })
+
   it("should support left_edge_index() function", () => {
     expect(arrayable.left_edge_index(-100, [1, 2])).to.be.equal(-1)
     expect(arrayable.left_edge_index(0.999, [1, 2])).to.be.equal(-1)

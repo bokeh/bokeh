@@ -1,6 +1,6 @@
 import {expect} from "#framework/assertions"
 
-import {UniformScalar, UniformVector, min, max, some, every} from "@bokehjs/core/uniforms"
+import {UniformScalar, UniformVector, min, max, min_nullable, max_nullable, some, every} from "@bokehjs/core/uniforms"
 
 describe("core/uniforms", () => {
 
@@ -18,6 +18,15 @@ describe("core/uniforms", () => {
 
     expect(max(u0)).to.be.equal(1.1)
     expect(max(u1)).to.be.equal(20.2)
+  })
+
+  it("should ignore nulls when calculating numeric extents", () => {
+    expect(Number.isNaN(min_nullable(new UniformScalar(null, 1)))).to.be.true
+    expect(Number.isNaN(max_nullable(new UniformScalar(null, 1)))).to.be.true
+    expect(min_nullable(new UniformVector([null, 2, 3]))).to.be.equal(2)
+    expect(max_nullable(new UniformVector([null, -2, -3]))).to.be.equal(-2)
+    expect(min_nullable(new UniformVector([null, null]))).to.be.equal(Infinity)
+    expect(max_nullable(new UniformVector([null, null]))).to.be.equal(-Infinity)
   })
 
   it("should support some() function", () => {

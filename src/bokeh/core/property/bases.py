@@ -482,10 +482,10 @@ class ParameterizedProperty[T = Any](Property[T]):
             return False
 
     @staticmethod
-    def _validate_type_param(type_param: Any, *, help_allowed: bool = False) -> Property[Any]:
+    def _validate_type_param(type_param: Any, *, help_allowed: bool = False, default: Init[Any] = _NotGiven) -> Property[Any]:
         if isinstance(type_param, type):
             if issubclass(type_param, Property):
-                return type_param()
+                return type_param() if default is _NotGiven else type_param(default=default)
             else:
                 type_param = type_param.__name__
         elif isinstance(type_param, Property):
