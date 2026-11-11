@@ -21,8 +21,10 @@ def main() -> None:
     if encoder is None:
         raise SystemExit("Install cwebp and make it available on PATH.")
 
-    images = Path(__file__).resolve().parent / "source" / "_images"
-    source = images / "bokeh-hero.png"
+    docs_source = Path(__file__).resolve().parent / "source"
+    source = docs_source / "_images" / "bokeh-hero.png"
+    images = docs_source / "_static" / "images"
+    images.mkdir(parents=True, exist_ok=True)
     options = [encoder, "-q", "90", "-m", "6"]
     run([*options, str(source), "-o", str(images / "bokeh-hero.webp")], check=True)
     run([*options, "-resize", "600", "200", str(source), "-o", str(images / "bokeh-hero-600.webp")], check=True)

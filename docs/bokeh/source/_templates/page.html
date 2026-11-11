@@ -6,10 +6,10 @@
   {% set gallery = "docs/gallery" %}
   {% if hasdoc(gallery) %}
     {# Match the PyData page width cap and article padding on the homepage. #}
-    {% set hero = pathto('_static/bokeh-hero.webp', 1) %}
+    {% set hero = pathto('_static/images/bokeh-hero.webp', 1) %}
     <a href="{{ pathto(gallery) | e }}">
       <img class="bokeh-hero" src="{{ hero | e }}"
-           srcset="{{ pathto('_static/bokeh-hero-600.webp', 1) | e }} 600w, {{ hero | e }} 1200w"
+           srcset="{{ pathto('_static/images/bokeh-hero-600.webp', 1) | e }} 600w, {{ hero | e }} 1200w"
            sizes="(min-width: 1200px) min(84rem, calc(100vw - 4rem)), calc(100vw - 2rem)"
            width="1200" height="400"
            alt="A collage of 36 thumbnails of Bokeh plots">
