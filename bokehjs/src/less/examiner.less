@@ -2,6 +2,7 @@
 
 :host {
   --common-padding: 3px;
+  --emphasis-color: #def189; // background of a value that just changed
 
   // Note: use of var(--outline) would make the focus ring barely visible
   --common-outline: rgb(26, 115, 232) solid 1px;
@@ -235,7 +236,7 @@
 
 @keyframes highlight {
   0% {
-    background-color: #def189;
+    background-color: var(--emphasis-color);
   }
   100% {
     background-color: initial;
@@ -251,7 +252,7 @@
 
   background-color: var(--btn-color);
   &:hover {
-    background-color: red;
+    background-color: var(--danger-color);
   }
 }
 
@@ -283,6 +284,6 @@
   }
 
   .btn-accept:hover {
-    background-color: green;
+    background-color: var(--success-color);
   }
 }
