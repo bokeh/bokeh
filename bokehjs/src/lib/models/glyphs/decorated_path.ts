@@ -182,7 +182,7 @@ export function position_decoration(decoration: PathMarkingView, i: number, segm
       }
     }
   }
-  const angle = path_angle + Math.PI/2 + (placement == "start" ? Math.PI : 0)
+  const angle = decoration.resolve_angle(i, path_angle + Math.PI/2 + (placement == "start" ? Math.PI : 0), path_node.angle + Math.PI/2)
   return {decoration, index: path_node.index, sx: path_node.sx, sy: path_node.sy, angle, placement}
 }
 
@@ -248,7 +248,7 @@ export function paint_decorations(ctx: Context2d, decorations: Iterable<PathMark
   for (const decoration of decorations) {
     for (const placement of decoration.placements(i)) {
       const positioned = position_decoration(decoration, i, segments, length, placement)
-      if (!visible(positioned)) {
+      if (!isFinite(positioned.angle) || !visible(positioned)) {
         continue
       }
       ctx.save()

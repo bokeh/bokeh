@@ -18,13 +18,15 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+from ..core.enums import AngleReference
 from ..core.has_props import abstract
 from ..core.property.container import List
-from ..core.property.dataspec import DataSpec, NumberSpec
+from ..core.property.dataspec import AngleSpec, DataSpec, NumberSpec
 from ..core.property.enum import Enum
 from ..core.property.instance import Instance
 from ..core.property.numeric import Percent
 from ..core.property.required import Required
+from ..core.property_aliases import AngleUnits
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -82,6 +84,19 @@ class PathMarking(Decoration):
     This can be a fixed value or a field in the glyph renderer's data source.
     """)
 
+    angle = AngleSpec(default=0, help="""
+    Counterclockwise rotation from the direction selected by angle_reference.
+    A source field can supply a different angle for each path.
+    """)
+
+    angle_units = AngleUnits
+
+    angle_reference = Enum(AngleReference, help="""
+    The direction before applying angle. Auto uses the usual placement direction.
+    Left and right use the normals to the forward screen-space tangent.
+    Screen points up.
+    """)
+
 
 class PathMarkings(Decoration):
     """Repeated fractional markings along each path."""
@@ -94,4 +109,17 @@ class PathMarkings(Decoration):
     markings. Each marking points along a rear-to-tip chord within its finite
     subpath, without inset or shaft trimming. Fractions 0 and 1 retain this
     behavior and are not aliases for named endpoints. Visuals resolve per path.
+    """)
+
+    angle = AngleSpec(default=0, help="""
+    Counterclockwise rotation from the direction selected by angle_reference.
+    A source field can supply a different angle for each path.
+    """)
+
+    angle_units = AngleUnits
+
+    angle_reference = Enum(AngleReference, help="""
+    The direction before applying angle. Auto uses the usual placement direction.
+    Left and right use the normals to the forward screen-space tangent.
+    Screen points up.
     """)

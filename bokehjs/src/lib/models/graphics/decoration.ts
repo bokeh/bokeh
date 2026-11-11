@@ -6,6 +6,7 @@ import {View} from "core/view"
 import {build_views, remove_views} from "core/build_views"
 import type {ChildView, ViewStorage} from "core/build_views"
 import type * as visuals from "core/visuals"
+import {AngleReference} from "core/enums"
 import * as p from "core/properties"
 import type {Arrayable, Indices} from "core/types"
 import {isArrayable} from "core/util/types"
@@ -19,7 +20,30 @@ export class PathMarkingView extends View {
   marking: MarkingView
   private readonly _marking_views: ViewStorage<Marking> = new Map()
   inset: p.Uniform<number>
+  angle: p.Uniform<number>
   private positions?: p.Uniform<Arrayable<number>>
+
+  resolve_angle(i: number, automatic: number, tangent: number): number {
+    const offset = this.angle.get(i)
+    switch (this.model.angle_reference) {
+      case "auto": return automatic + offset
+      case "left": return tangent - Math.PI/2 + offset
+      case "right": return tangent + Math.PI/2 + offset
+      case "screen": return offset
+    }
+  }
+
+  /** The distance to trim from a named endpoint of the shaft.
+   *
+   * With the automatic orientation and zero rotation, trim by the marking's
+   * rear extent plus its inset. For other orientations, keep the full shaft
+   * because the marking's rear extent may point away from the shaft.
+   */
+  shaft_inset(i: number): number {
+    return this.model.angle_reference == "auto" && this.angle.get(i) == 0
+      ? Math.max(0, this.inset.get(i) + this.marking.line_extent(i))
+      : 0
+  }
 
   get node(): PathMarking["node"] | null {
     return this.model instanceof PathMarking ? this.model.node : null
@@ -100,6 +124,7 @@ export class PathMarkingView extends View {
     if (this.model instanceof PathMarkings) {
       this.positions = this.model.properties.positions.uniform(source).select(indices)
     }
+    this.angle = this.model.properties.angle.uniform(source).select(indices)
     this.marking.set_data(source, indices)
   }
 }
@@ -117,6 +142,8 @@ export abstract class Decoration extends Model {
 export namespace PathMarking {
   export type Attrs = p.AttrsOf<Props>
   export type Props = Decoration.Props & {
+    angle: p.AngleSpec
+    angle_reference: p.Property<AngleReference>
     marking: p.Property<Marking>
     node: p.Property<"start" | "middle" | "end">
     inset: p.NumberSpec
@@ -129,6 +156,8 @@ export class PathMarking extends Decoration {
   static {
     this.prototype.default_view = PathMarkingView
     this.define<PathMarking.Props>(({Enum, Ref}) => ({
+      angle: [p.AngleSpec, 0],
+      angle_reference: [AngleReference, "auto"],
       marking: [Ref(Marking)],
       node: [Enum("start", "middle", "end")],
       inset: [p.NumberSpec, 0],
@@ -147,6 +176,8 @@ class PositionsSpec extends p.DataSpec<Arrayable<number>> {
 export namespace PathMarkings {
   export type Attrs = p.AttrsOf<Props>
   export type Props = Decoration.Props & {
+    angle: p.AngleSpec
+    angle_reference: p.Property<AngleReference>
     marking: p.Property<Marking>
     positions: PositionsSpec
   }
@@ -158,6 +189,8 @@ export class PathMarkings extends Decoration {
   static {
     this.prototype.default_view = PathMarkingView
     this.define<PathMarkings.Props>(({Ref}) => ({
+      angle: [p.AngleSpec, 0],
+      angle_reference: [AngleReference, "auto"],
       marking: [Ref(Marking)],
       positions: [PositionsSpec, [0.5]],
     }))

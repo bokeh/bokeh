@@ -72,6 +72,9 @@ export class SegmentView extends GlyphView {
     for (const decoration of this.decorations.values()) {
       for (const placement of decoration.placements(i)) {
         const {sx, sy, angle} = this._position_decoration(decoration, i, sx0, sy0, sx1, sy1, placement)
+        if (!isFinite(angle)) {
+          continue
+        }
         ctx.save()
         ctx.translate(sx, sy)
         ctx.rotate(angle)
@@ -83,7 +86,8 @@ export class SegmentView extends GlyphView {
 
   protected _position_decoration(decoration: PathMarkingView, i: number,
       sx0: number, sy0: number, sx1: number, sy1: number, placement = decoration.placements(i)[0]): {sx: number, sy: number, angle: number} {
-    const angle = atan2([sx0, sy0], [sx1, sy1]) + Math.PI/2
+    const tangent = atan2([sx0, sy0], [sx1, sy1]) + Math.PI/2
+    const angle = decoration.resolve_angle(i, tangent + (placement == "start" ? Math.PI : 0), tangent)
     const length = Math.hypot(sx1 - sx0, sy1 - sy0)
     const ux = length == 0 ? 0 : (sx1 - sx0)/length
     const uy = length == 0 ? 0 : (sy1 - sy0)/length
@@ -92,7 +96,7 @@ export class SegmentView extends GlyphView {
       return {sx: sx0 + placement*(sx1 - sx0), sy: sy0 + placement*(sy1 - sy0), angle}
     }
     switch (placement) {
-      case "start": return {sx: sx0 + inset*ux, sy: sy0 + inset*uy, angle: angle + Math.PI}
+      case "start": return {sx: sx0 + inset*ux, sy: sy0 + inset*uy, angle}
       case "middle": return {sx: (sx0 + sx1)/2, sy: (sy0 + sy1)/2, angle}
       case "end": return {sx: sx1 - inset*ux, sy: sy1 - inset*uy, angle}
     }

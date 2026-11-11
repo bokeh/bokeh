@@ -17,6 +17,9 @@ export const Anchor = Enum(
 )
 export type Anchor = typeof Anchor["__type__"]
 
+export const AngleReference = Enum("auto", "left", "right", "screen")
+export type AngleReference = typeof AngleReference["__type__"]
+
 export const AngleUnits = Enum("deg", "rad", "grad", "turn")
 export type AngleUnits = typeof AngleUnits["__type__"]
 

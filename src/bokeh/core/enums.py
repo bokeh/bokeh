@@ -89,6 +89,7 @@ __all__ = (
     'Align',
     'AlternationPolicy',
     'Anchor',
+    'AngleReference',
     'AngleUnits',
     'Auto',
     'AutosizeMode',
@@ -305,6 +306,10 @@ type AnchorType = Literal[
 ]
 #: Specify an anchor position on a box/frame.
 Anchor = _string_enumeration(AnchorType)
+
+type AngleReferenceType = Literal["auto", "left", "right", "screen"]
+#: Specify the reference direction for a path marking angle.
+AngleReference = _string_enumeration(AngleReferenceType)
 
 type AngleUnitsType = Literal["deg", "rad", "grad", "turn"]
 #: Specify the units for an angle value.
