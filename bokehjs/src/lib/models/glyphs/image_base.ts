@@ -285,8 +285,15 @@ export abstract class ImageBaseView extends XYGlyphView {
     const candidates = this.index.indices({x0: x, x1: x, y0: y, y1: y})
     const result = Selection.create()
 
+    const {image_data} = this
+    assert(image_data != null)
+
     const indices = []
     for (const index of candidates) {
+      // skipped (invalid or empty) images have no pixels to hit
+      if (image_data[index] == null) {
+        continue
+      }
       if (isFinite(sx) && isFinite(sy)) {
         indices.push(index)
         result.image_indices.push(this._image_index(index, x, y))

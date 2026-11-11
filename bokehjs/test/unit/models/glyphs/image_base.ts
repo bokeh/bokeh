@@ -126,6 +126,17 @@ describe("ImageBase module", () => {
         expect(image_height).to.be.equal(new Uint32Array([0, 2]))
       })
 
+      it("should not hit test skipped images", async () => {
+        const {glyph_view} = await create_view(glyph(), [invalid(), valid(), empty()])
+        const sx = glyph_view.renderer.xscale.compute(5)
+        const sy = glyph_view.renderer.yscale.compute(5)
+
+        const result = glyph_view.hit_test({type: "point", sx, sy})
+        expect_not_null(result)
+        expect(result.indices).to.be.equal([1])
+        expect(result.image_indices.map(({index}) => index)).to.be.equal([1])
+      })
+
       it("should not retain stale image data when an image is replaced with bad data", async () => {
         const model = glyph()
         const {glyph_view, source, update} = await create_view(model, [valid(), valid()])
