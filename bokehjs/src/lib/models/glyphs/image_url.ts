@@ -3,6 +3,7 @@ import {inherit} from "./glyph"
 import type {Arrayable, Rect} from "core/types"
 import {ScreenArray, to_screen, Indices} from "core/types"
 import {Anchor} from "core/enums"
+import type {SpatialUnits} from "core/enums"
 import * as p from "core/properties"
 import {resize} from "core/util/array"
 import {minmax2} from "core/util/arrayable"
@@ -279,8 +280,8 @@ export namespace ImageURL {
     anchor: p.Property<Anchor>
     global_alpha: p.NumberSpec
     angle: p.AngleSpec
-    w: p.NullableSpec<p.DistanceSpec>
-    h: p.NullableSpec<p.DistanceSpec>
+    w: p.VectorUnitsSpec<number | null, SpatialUnits>
+    h: p.VectorUnitsSpec<number | null, SpatialUnits>
     dilate: p.Property<boolean>
     retry_attempts: p.Property<number>
     retry_timeout: p.Property<number>

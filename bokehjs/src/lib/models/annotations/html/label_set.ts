@@ -157,7 +157,7 @@ export namespace HTMLLabelSet {
     y: p.YCoordinateSpec
     x_units: p.Property<CoordinateUnits>
     y_units: p.Property<CoordinateUnits>
-    text: p.NullableSpec<p.StringSpec>
+    text: p.VectorSpec<string | null>
     angle: p.AngleSpec
     x_offset: p.NumberSpec
     y_offset: p.NumberSpec
