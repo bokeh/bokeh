@@ -169,8 +169,10 @@ function create_progress(total: number): Progress {
         bar.increment(1, state)
       },
       log(text) {
-        // Clear the bar's line; it will be redrawn below the text on the next update.
-        process.stdout.write(`\r\x1b[K${text}\n`)
+        // Clear the bar's line; it will be redrawn below the text on the next update. The bar
+        // restores the cursor position saved at start when it stops, but that position refers
+        // to a screen row, which becomes stale when text scrolls the screen, so save it again.
+        process.stdout.write(`\r\x1b[K${text}\n\x1b7`)
       },
       stop() {
         bar.stop()
@@ -238,12 +240,15 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
       }
     }
 
+    // Messages logged while tests are running must go through the progress bar.
+    let log_message = (text: string) => console.error(text)
+
     const recover_browser = async (initial_error: unknown, test_name: string) => {
       let error = initial_error
       for (let attempt = 1; attempt <= MAX_BROWSER_LAUNCH_ATTEMPTS; attempt++) {
         const message = error instanceof Error ? error.message : `${error}`
         const reason = `${message} while running "${test_name}"`
-        console.error(`Browser became unavailable ${reason}`)
+        log_message(`Browser became unavailable ${reason}`)
         await browser.reset()
         try {
           await browser.launch()
@@ -252,7 +257,7 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
         } catch (recovery_error) {
           error = recovery_error
           const recovery_message = recovery_error instanceof Error ? recovery_error.message : `${recovery_error}`
-          console.error(`Browser recovery attempt ${attempt} failed: ${recovery_message}`)
+          log_message(`Browser recovery attempt ${attempt} failed: ${recovery_message}`)
         }
       }
       const message = error instanceof Error ? error.message : `${error}`
@@ -376,6 +381,7 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
       }
 
       progress.start(state())
+      log_message = (text) => progress.log(text)
 
       const metrics = baselines_root != null ? new MetricsCollector() : null
       const runner = new TestRunner(browser, ctx, baselines_root, screenshot, pedantic, top_level, ref, metrics, test_timeout)
@@ -532,7 +538,7 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
               }
 
               browser_restarts++
-              console.error(`Retrying "${test_name}" in a fresh browser`)
+              log_message(`Retrying "${test_name}" in a fresh browser`)
             }
           }
 
@@ -556,6 +562,7 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
         }
       } finally {
         progress.stop()
+        log_message = (text) => console.error(text)
       }
 
       await finish_report_out()
