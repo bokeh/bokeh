@@ -127,6 +127,10 @@ function format_output(test_case: TestCase, color?: boolean): string | null {
   if ((status.failure ?? false) || (status.timeout ?? false)) {
     const output = show_tree(suites, test)
 
+    if (test.file != null) {
+      output.push(render_ansi(`file: ${chalk.cyan(test.file)}`, color))
+    }
+
     for (const error of status.errors) {
       output.push(render_ansi(error, color))
     }
@@ -468,10 +472,11 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
       function append_report_result([suites, test, status]: TestCase): void {
         const {failure, timeout, skipped, baseline_name, baseline, existing_blf, image, image_diff, reference} = status
         const success = !(failure ?? false) && !(timeout ?? false) && !(skipped ?? false)
+        const {file} = test
         append_report_json({
           type: "result",
           descriptions: descriptions(suites, test),
-          status: {success, failure, timeout, skipped, baseline_name, baseline, existing_blf, image, image_diff, reference},
+          status: {success, failure, timeout, skipped, file, baseline_name, baseline, existing_blf, image, image_diff, reference},
         })
       }
 

@@ -94,7 +94,9 @@
       .result[data-layout-changed] details { border-top: 0; }
       .result[data-layout-changed] summary { padding: 10px 12px; border-radius: 5px; color: #754600; background: #fff0cc; }
       .result-meta { display: flex; align-items: flex-start; gap: 12px; }
-      .filename { display: block; flex: 1; min-width: 0; color: #526176; overflow-wrap: anywhere; }
+      .filenames { flex: 1; min-width: 0; }
+      .filename { display: block; color: #526176; overflow-wrap: anywhere; }
+      .filename.test-file { color: #205ea6; }
       .comparison { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 20px; }
       figure { min-width: 0; }
       figcaption { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 32px; margin-bottom: 8px; font-size: 13px; font-weight: 600; }
@@ -172,7 +174,7 @@
         </nav>
         <div class="search" hidden>
           <label for="filter">Filter</label>
-          <input id="filter" type="search" placeholder="Test name or baseline filename" autocomplete="off" aria-controls="results">
+          <input id="filter" type="search" placeholder="Test name, test filename or baseline filename" autocomplete="off" aria-controls="results">
         </div>
         <div class="diff-view select-control" hidden>
           <label for="diff-view">Layout diff</label>
@@ -220,7 +222,7 @@
         {% set name = description | join(" / ") %}
         {% set layout_changed = status.baseline != null and status.existing_blf != null and status.baseline != status.existing_blf %}
         {% set passed = status.success or (completed and status.success == null and status.baseline != null) %}
-        <article class="result" data-search="{{ name }} {{ status.baseline_name }}"{% if layout_changed %} data-layout-changed{% endif %}>
+        <article class="result" data-search="{{ name }} {{ status.file }} {{ status.baseline_name }}"{% if layout_changed %} data-layout-changed{% endif %}>
           <div class="result-header">
             <div class="result-badges">
               <span class="badge {% if failed %}failure{% elif not status.skipped and passed %}success{% else %}neutral{% endif %}">{% if failed %}Failed{% elif status.skipped %}Skipped{% elif passed %}Passed{% else %}No failure recorded{% endif %}</span>
@@ -229,7 +231,10 @@
             <h2>{{ name }}</h2>
           </div>
           <div class="result-meta">
-            <code class="filename">{% if status.baseline_name %}test/baselines/{{ platform }}/{{ status.baseline_name }}.{blf,png}{% else %}No baseline filename recorded{% endif %}</code>
+            <div class="filenames">
+              <code class="filename test-file">{% if status.file %}{{ status.file }}{% else %}No test filename recorded{% endif %}</code>
+              <code class="filename">{% if status.baseline_name %}test/baselines/{{ platform }}/{{ status.baseline_name }}.{blf,png}{% else %}No baseline filename recorded{% endif %}</code>
+            </div>
             {% if status.image or status.reference or status.image_diff %}
             <button class="zoom" type="button" aria-controls="comparison-{{ loop.index }}" aria-pressed="false" aria-label="All images at 1:1: {{ name }}" hidden>1:1</button>
             {% endif %}
@@ -286,7 +291,7 @@
       <section class="empty-state"><h2>No failures recorded</h2><p>Open All results to inspect the images and layouts in this report.</p></section>
       {% endif %}
       <section id="no-matches" class="empty-state" hidden>
-        <h2>No matching tests</h2><p>Try another test name or baseline filename in this view.</p>
+        <h2>No matching tests</h2><p>Try another test name, test filename or baseline filename in this view.</p>
         <button id="clear-filter" type="button">Clear filter</button>
       </section>
       <footer>This viewer does not stage or accept baselines.{% if platform == "linux" %} After review, use <code>node make baseline-test:accept</code> to stage Linux baseline changes.{% endif %}</footer>

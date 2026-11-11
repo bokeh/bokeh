@@ -49,6 +49,8 @@ export type Test = {
   scale?: number
   no_image?: boolean
   module?: string
+  /** source file of the module, e.g. `test/unit/core/util/array.ts` */
+  file?: string
   omit?: boolean
 }
 
@@ -63,15 +65,15 @@ export type Suite = {
 export const top_level: Suite = {description: "top-level", suites: [], tests: [], before_each: [], after_each: []}
 const stack: Suite[] = [top_level]
 
-let current_module: string | undefined = undefined
+let current_module: {name: string, file: string} | undefined = undefined
 
 /**
- * Loads a test module, attributing tests registered by it to `name`.
+ * Loads a test module, attributing tests registered by it to `name` (defined in `file`).
  * This is used by the generated `auto_index` module.
  */
-export function load_module(name: string, load: () => unknown): void {
+export function load_module(name: string, file: string, load: () => unknown): void {
   const previous = current_module
-  current_module = name
+  current_module = {name, file}
   try {
     load()
   } finally {
@@ -101,7 +103,7 @@ type _It = ItFn & {
 }
 
 function _it(description: string, fn: ItFunc | ItAsyncFunc, skip: boolean, no_image: boolean = false): Test {
-  const test: Test = {description, fn, skip, mounts: [], views: [], no_image, module: current_module}
+  const test: Test = {description, fn, skip, mounts: [], views: [], no_image, module: current_module?.name, file: current_module?.file}
   stack[0].tests.push(test)
   return test
 }

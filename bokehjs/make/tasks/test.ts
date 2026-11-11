@@ -358,6 +358,7 @@ async function tsc(name: string) {
 async function auto_index(name: string): Promise<void> {
   const src_dir = join(paths.src_dir.test, name)
   const build_dir = join(paths.build_dir.test, name)
+  const src_prefix = `test/${name}` // relative to bokehjs/, for reporting
 
   // Discover test modules from sources, not from compiled outputs, because
   // `tsc` doesn't remove outputs of deleted sources, which would be loaded
@@ -377,7 +378,8 @@ async function auto_index(name: string): Promise<void> {
     const dir = dirname(file)
     const name = basename(file, extname(file))
     const module_name = dir == "." ? name : `${dir}/${name}`
-    imports.push(`load_module("${module_name}", () => require("./${module_name}"))`)
+    const module_file = `${src_prefix}/${file}`
+    imports.push(`load_module("${module_name}", "${module_file}", () => require("./${module_name}"))`)
   }
 
   const index_file = join(build_dir, "auto_index.js")

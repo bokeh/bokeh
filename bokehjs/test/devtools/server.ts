@@ -45,6 +45,7 @@ type ReportStatus = {
   failure?: boolean
   timeout?: boolean
   skipped?: boolean
+  file?: string
   baseline_name?: string
   baseline?: string
   existing_blf?: string
