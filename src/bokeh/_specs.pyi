@@ -75,6 +75,7 @@ type StringArray = npt.NDArray[np.str_]
 
 type DataSpec[T] = Vectorized[T]
 type DataSpecWithUnits[T, U] = Vectorized[T, U]
+type NullableSpec[T, U = Never] = Vectorized[T | None, U]
 
 type IntVal = int
 type IntSpec = DataSpec[IntVal]

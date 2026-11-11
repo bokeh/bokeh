@@ -114,6 +114,8 @@ ALL = (
     'NullDistanceSpec',
     'NullStringSpec',
     'Nullable',
+    'NullableProp',
+    'NullableSpec',
     'NumberSpec',
     'Object',
     'Override',
