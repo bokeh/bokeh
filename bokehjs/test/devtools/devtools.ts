@@ -60,6 +60,8 @@ const {executable, ref, randomize, seed, pedantic, keyword, grep, skip, file, sc
 const url = argv._[0] as string | undefined ?? "about:blank"
 const MAX_BROWSER_RESTARTS = 2
 const MAX_BROWSER_LAUNCH_ATTEMPTS = 3
+/** Minimum time between incomplete reports in `--continuous` mode, in milliseconds. */
+const CONTINUOUS_REPORT_INTERVAL = 5000
 const DEFAULT_TEST_TIMEOUT = 30
 const MAX_TEST_TIMEOUT = 2_147_483 // Largest whole-second Node.js timer.
 
@@ -446,6 +448,19 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
         await fs.promises.rename(temporary_report_path, report_path)
       }
 
+      // Incomplete reports are coalesced, so that widespread failures don't result in rewriting
+      // a growing report after every test. The interval is measured from the end of the last write.
+      let continuous_report_pending = false
+      let last_continuous_report = 0
+
+      async function write_continuous_report(tests: TestCase[]): Promise<void> {
+        if (continuous && baselines_root != null) {
+          await write_report(baselines_root, tests, false)
+          continuous_report_pending = false
+          last_continuous_report = Date.now()
+        }
+      }
+
       if (continuous && baselines_root != null) {
         await write_report(baselines_root, [], false)
       }
@@ -522,10 +537,11 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
           }
           if ((status.failure ?? false) || (status.timeout ?? false)) {
             failed++
+            continuous_report_pending = true
+          }
 
-            if (continuous && baselines_root != null) {
-              await write_report(baselines_root, selected_tests.slice(0, i + 1), false)
-            }
+          if (continuous_report_pending && Date.now() - last_continuous_report >= CONTINUOUS_REPORT_INTERVAL) {
+            await write_continuous_report(selected_tests.slice(0, i + 1))
           }
 
           append_report_out(test_case)
@@ -560,6 +576,13 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
         const files = new Set(await fs.promises.readdir(path.join(baselines_root, platform)))
         files.delete("report.json")
         files.delete("report.out")
+
+        // Temporary reports may be left behind by interrupted runs.
+        for (const file of files) {
+          if (/^report\.json\.\d+\.tmp$/.test(file)) {
+            files.delete(file)
+          }
+        }
 
         for (const name of baseline_names) {
           files.delete(`${name}.blf`)
