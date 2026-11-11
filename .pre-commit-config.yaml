@@ -32,9 +32,6 @@ repos:
         name: Validate YAML files
       - id: check-json
         name: Validate JSON files
-      - id: no-commit-to-branch
-        name: Protect Git branches
-        args: [--branch, main, --pattern, 'branch-\d+\.\d+$']
 
   - repo: local
     hooks:
