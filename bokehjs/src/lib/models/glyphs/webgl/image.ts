@@ -107,6 +107,9 @@ export class ImageGL extends BaseGLGlyph {
     assert(image_data != null)
 
     if (this._tex.length != nimage) {
+      for (const tex of this._tex) {
+        tex?.destroy()
+      }
       this._tex = Array(nimage).fill(null)
     }
 
@@ -114,6 +117,7 @@ export class ImageGL extends BaseGLGlyph {
       const image_data_i = image_data[i]
 
       if (image_data_i == null) {
+        this._tex[i]?.destroy()
         this._tex[i] = null
         continue
       }
