@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-from math import pi
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -316,6 +314,8 @@ def test_whisker_with_categorical_base() -> None:
 
 
 def test_horizontal_whisker() -> None:
+    from math import pi
+
     p = figure(y_range=["a"])
     renderer = p.whisker(["a"], [-1.5], [-0.5], dimension="width", level="annotation")
     assert renderer.level == "annotation"

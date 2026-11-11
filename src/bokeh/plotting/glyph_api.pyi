@@ -40,6 +40,7 @@ from .._types import Color, NonNegative
 from ..core.enums import (
     AnchorType as Anchor,
     AngleUnitsType as AngleUnits,
+    DimensionType as Dimension,
     DirectionType as Direction,
     PaletteType as Palette,
     RadiusDimensionType as RadiusDimension,
@@ -541,7 +542,7 @@ class GlyphAPI:
         lower: NumberArg = ...,
         upper: NumberArg = ...,
         *,
-        dimension: Literal["height", "width"] = ...,
+        dimension: Dimension = ...,
         cap_size: NumberSpec = ...,
         **kwargs: Unpack[SegmentArgs],
     ) -> GlyphRenderer[glyphs.Segment]: ...

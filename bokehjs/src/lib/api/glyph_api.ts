@@ -4,7 +4,7 @@ import type {Vector} from "../core/vectorization"
 import {isVectorized} from "../core/vectorization"
 import {isPlainObject} from "../core/util/types"
 import type {VectorSpec, ScalarSpec, ColorSpec, UnitsSpec, Property} from "../core/properties"
-import type {MarkerType, RenderLevel} from "../core/enums"
+import type {Dimension, MarkerType, RenderLevel} from "../core/enums"
 import type * as nd from "core/util/ndarray"
 
 import type {Glyph, GlyphRenderer, ColumnarDataSource, CDSView, CoordinateMapping} from "./models"
@@ -165,7 +165,7 @@ export type WhiskerArgs = Omit<SegmentArgs, "x0" | "y0" | "x1" | "y1"> & {
   base: SegmentArgs["x0"]
   lower: SegmentArgs["y0"]
   upper: SegmentArgs["y1"]
-  dimension: "height" | "width"
+  dimension: Dimension
   cap_size: TeeHead.Attrs["size"]
 }
 
@@ -313,7 +313,7 @@ export abstract class GlyphAPI {
     }
     const cap = TeeHead.create({size: cap_size, inherit_visuals: ["line_color", "line_alpha", "line_width"]})
     const [x0, y0, x1, y1] = dimension == "height" ? [base, lower, base, upper] : [lower, base, upper, base]
-    const renderer = this.segment({x0, y0, x1, y1, level, ...attrs})
+    const renderer = this.segment({...attrs, x0, y0, x1, y1, level})
     const angle = dimension == "height" ? 0 : -Math.PI/2
     for (const node of ["start", "end"] as const) {
       renderer.add_path_decoration(cap, {node, angle, angle_reference: "screen"})

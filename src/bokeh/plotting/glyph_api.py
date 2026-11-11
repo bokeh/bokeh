@@ -20,12 +20,14 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 from math import pi
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any
 
+from ..core.enums import Dimension
 from ..models import glyphs
 from ._decorators import glyph_method, marker_method
 
 if TYPE_CHECKING:
+    from ..core.enums import DimensionType
     from ..models.coordinates import CoordinateMapping
     from ..models.plots import Plot
     from ..models.renderers import GlyphRenderer
@@ -124,7 +126,7 @@ Examples:
         return renderer
 
     def whisker(self, base: Any = "base", lower: Any = "lower", upper: Any = "upper", *,
-            dimension: Literal["height", "width"] = "height", cap_size: Any = 10, **kwargs: Any) -> GlyphRenderer:
+            dimension: DimensionType = "height", cap_size: Any = 10, **kwargs: Any) -> GlyphRenderer:
         """Draw data-coordinate intervals with perpendicular caps.
 
         For vertical whiskers, ``base`` gives the x-coordinates and ``lower``
@@ -137,7 +139,7 @@ Examples:
         """
         from ..models.annotations import TeeHead
 
-        if dimension not in ("height", "width"):
+        if dimension not in Dimension:
             raise ValueError("dimension must be 'height' or 'width'")
         cap = TeeHead(size=cap_size, inherit_visuals=["line_color", "line_alpha", "line_width"])
         kwargs.setdefault("level", "underlay")

@@ -154,7 +154,7 @@
     },
     {
       "name": "whisker.py",
-      "alt": "Thumbnail link to the examples/basic/annotations/whisker.py example that shows whisker annotations marking quantile ranges over categorical scatter plots."
+      "alt": "Thumbnail link to an example of whiskers marking quantile ranges over categorical scatter plots."
     },
     {
       "name": "colorbar_log.py",

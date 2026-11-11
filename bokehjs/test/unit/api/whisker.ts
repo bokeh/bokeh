@@ -25,6 +25,15 @@ describe("whisker()", () => {
     expect(figure().whisker({source}).data_source).to.be.identical(source)
   })
 
+  it("should use the whisker coordinates when raw segment coordinates are supplied", () => {
+    const renderer = figure().whisker({
+      base: 1, lower: 2, upper: 3,
+      // @ts-expect-error Simulate an untyped JavaScript caller.
+      x0: 99,
+    })
+    expect(renderer.glyph.x0).to.be.equal({value: 1})
+  })
+
   for (const node of ["start", "end"] as const) {
     it(`should place a field-sized tee at the ${node}`, () => {
       const renderer = figure().whisker({cap_size: {field: "width"}})

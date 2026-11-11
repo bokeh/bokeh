@@ -79,8 +79,11 @@ Removals
 * Removed the ``Whisker`` annotation model. Replace
   ``plot.add_layout(Whisker(base=..., lower=..., upper=..., source=...))``
   with ``plot.whisker(base=..., lower=..., upper=..., source=...)``.
-  Whisker endpoints use data coordinates and ``cap_size`` sets the tee width
-  in screen pixels. Use ``plot.arrow()`` for custom endpoint heads.
+  The helper returns a ``Segment`` glyph renderer, with support for glyph
+  selection, inspection, and legends. Its endpoints use data coordinates and
+  participate in automatic ranging like other segments. Set ``cap_size`` to
+  control the tee width in screen pixels. Use ``plot.arrow()`` for custom endpoint
+  heads.
   See :ref:`ug_basic_annotations_whiskers` for an example.
 
 * Removed ``bar_color`` and ``direction`` properties from slider widgets
