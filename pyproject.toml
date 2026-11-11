@@ -146,8 +146,13 @@ sigterm = true
 
 [tool.mypy]
 python_version = "3.13"
-mypy_path = "src/typings/"
-files = ["src/typings", "src/bokeh", "tools", "tests"]
+mypy_path = "$MYPY_CONFIG_FILE_DIR/src/typings/"
+files = [
+    "$MYPY_CONFIG_FILE_DIR/src/typings",
+    "$MYPY_CONFIG_FILE_DIR/src/bokeh",
+    "$MYPY_CONFIG_FILE_DIR/tools",
+    "$MYPY_CONFIG_FILE_DIR/tests",
+]
 
 strict = true
 
