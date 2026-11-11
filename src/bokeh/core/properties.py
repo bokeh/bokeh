@@ -294,8 +294,6 @@ __all__ = (
     'NotSerialized',
     'Nothing',
     'Null',
-    'NullDistanceSpec',
-    'NullStringSpec',
     'Nullable',
     'NullableProp',
     'NullableSpec',
@@ -387,8 +385,6 @@ from .property.dataspec import IntSpec
 from .property.dataspec import LineCapSpec
 from .property.dataspec import LineJoinSpec
 from .property.dataspec import MarkerSpec
-from .property.dataspec import NullDistanceSpec
-from .property.dataspec import NullStringSpec
 from .property.dataspec import NumberSpec
 from .property.dataspec import SizeSpec
 from .property.dataspec import StringSpec

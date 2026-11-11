@@ -12,9 +12,10 @@ from .._specs import (
     AngleSpec,
     DataSpec,
     DistanceSpec,
+    DistanceVal,
     FloatSpec,
     MarkerSpec,
-    NullDistanceSpec,
+    NullableSpec,
     NumberSpec,
     SizeSpec,
     StringSpec,
@@ -27,6 +28,7 @@ from ..core.enums import (
     OutlineShapeNameType as OutlineShapeName,
     PaletteType as Palette,
     RadiusDimensionType as RadiusDimension,
+    SpatialUnitsType as SpatialUnits,
     StepModeType as StepMode,
     TeXDisplayType as TeXDisplay,
 )
@@ -354,8 +356,8 @@ class _ImageURLInit(_XYGlyphInit, total=False):
     url: StringSpec
     x: NumberSpec
     y: NumberSpec
-    w: NullDistanceSpec
-    h: NullDistanceSpec
+    w: NullableSpec[DistanceVal, SpatialUnits]
+    h: NullableSpec[DistanceVal, SpatialUnits]
     angle: AngleSpec
     global_alpha: NumberSpec
     dilate: bool
@@ -369,8 +371,8 @@ class ImageURL(XYGlyph):
     url: StringSpec = ...
     x: NumberSpec = ...
     y: NumberSpec = ...
-    w: NullDistanceSpec = ...
-    h: NullDistanceSpec = ...
+    w: NullableSpec[DistanceVal, SpatialUnits] = ...
+    h: NullableSpec[DistanceVal, SpatialUnits] = ...
     angle: AngleSpec = ...
     global_alpha: NumberSpec = ...
     dilate: bool = ...

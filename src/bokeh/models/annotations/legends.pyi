@@ -8,7 +8,7 @@
 from abc import abstractmethod
 from typing import Literal, Sequence, Unpack
 
-from ..._specs import NullStringSpec
+from ..._specs import NullableSpec
 from ..._types import CoordinateLike, TextLike
 from ...core.enums import (
     AlignType as Align,
@@ -149,7 +149,7 @@ class ContourColorBar(BaseColorBar):
     levels: Sequence[float] = ...
 
 class _LegendItemInit(_ModelInit, total=False):
-    label: NullStringSpec
+    label: NullableSpec[str]
     renderers: list[GlyphRenderer[Glyph]]
     index: int | None
     visible: bool
@@ -157,7 +157,7 @@ class _LegendItemInit(_ModelInit, total=False):
 class LegendItem(Model):
     def __init__(self, **kwargs: Unpack[_LegendItemInit]) -> None: ...
 
-    label: NullStringSpec = ...
+    label: NullableSpec[str] = ...
     renderers: list[GlyphRenderer[Glyph]] = ...
     index: int | None = ...
     visible: bool = ...

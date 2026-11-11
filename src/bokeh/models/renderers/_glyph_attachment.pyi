@@ -6,7 +6,7 @@
 
 from typing import Sequence, Unpack
 
-from ..._specs import NullStringSpec
+from ..._specs import NullableSpec
 from ..._types import Color
 from ...core.property_mixins import ScalarTextProps, _ScalarTextPropsInit
 from ...model.model import Model, _ModelInit
@@ -20,7 +20,7 @@ class _ContourLabelStyle(_ModelInit, _ScalarTextPropsInit, total=False):
     background_fill_alpha: float
 
 class _ContourLabelsInit(_ContourLabelStyle, total=False):
-    text: NullStringSpec
+    text: NullableSpec[str]
     formatter: TickFormatter
     positions: Sequence[float] | str | None
     label_all_paths: bool
@@ -30,7 +30,7 @@ class _ContourLabelsInit(_ContourLabelStyle, total=False):
 class ContourLabels(GlyphAttachment, ScalarTextProps):
     def __init__(self, **kwargs: Unpack[_ContourLabelsInit]) -> None: ...
 
-    text: NullStringSpec = ...
+    text: NullableSpec[str] = ...
     formatter: TickFormatter = ...
     positions: Sequence[float] | str | None = ...
     visible: bool = ...

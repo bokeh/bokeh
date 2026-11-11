@@ -73,7 +73,7 @@ namespace Some {
     marker_spec: p.MarkerSpec
     number_spec: p.NumberSpec
     string_spec: p.StringSpec
-    null_string_spec: p.NullStringSpec
+    null_string_spec: p.NullableSpec<p.StringSpec>
   }
 }
 
@@ -120,7 +120,7 @@ class Some extends HasProps {
       marker_spec: [ p.MarkerSpec ],
       number_spec: [ p.NumberSpec ],
       string_spec: [ p.StringSpec ],
-      null_string_spec: [ p.NullStringSpec ],
+      null_string_spec: [ p.Nullable(p.StringSpec) ],
     }))
   }
 }

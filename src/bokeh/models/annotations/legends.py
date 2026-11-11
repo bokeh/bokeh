@@ -45,7 +45,7 @@ from ...core.property.container import (
     Seq,
     Tuple,
 )
-from ...core.property.dataspec import NullStringSpec
+from ...core.property.dataspec import StringSpec
 from ...core.property.either import Either
 from ...core.property.enum import Enum
 from ...core.property.include import Include
@@ -327,7 +327,7 @@ class LegendItem(Model):
             # Allow convenience of setting label as a string
             self.label = value(self.label)
 
-    label = NullStringSpec(help="""
+    label = Nullable(StringSpec, help="""
     A label for this legend. Can be a string, or a column of a
     ColumnDataSource. If ``label`` is a field, then it must
     be in the renderers' data_source.

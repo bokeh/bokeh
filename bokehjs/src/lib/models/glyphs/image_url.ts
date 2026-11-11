@@ -279,8 +279,8 @@ export namespace ImageURL {
     anchor: p.Property<Anchor>
     global_alpha: p.NumberSpec
     angle: p.AngleSpec
-    w: p.NullDistanceSpec
-    h: p.NullDistanceSpec
+    w: p.NullableSpec<p.DistanceSpec>
+    h: p.NullableSpec<p.DistanceSpec>
     dilate: p.Property<boolean>
     retry_attempts: p.Property<number>
     retry_timeout: p.Property<number>
@@ -305,8 +305,8 @@ export class ImageURL extends XYGlyph {
       anchor:         [ Anchor, "top_left" ],
       global_alpha:   [ p.NumberSpec, {value: 1.0} ],
       angle:          [ p.AngleSpec, 0 ],
-      w:              [ p.NullDistanceSpec, null ],
-      h:              [ p.NullDistanceSpec, null ],
+      w:              [ p.Nullable(p.DistanceSpec), null ],
+      h:              [ p.Nullable(p.DistanceSpec), null ],
       dilate:         [ Bool, false ],
       retry_attempts: [ Int, 0 ],
       retry_timeout:  [ Int, 0 ],
