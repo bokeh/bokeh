@@ -32,6 +32,9 @@ repos:
         name: Validate YAML files
       - id: check-json
         name: Validate JSON files
+      - id: no-commit-to-branch
+        name: Protect Git branches
+        args: [--branch, main, --pattern, 'branch-\d+\.\d+$']
 
   - repo: local
     hooks:
@@ -45,11 +48,5 @@ repos:
       - id: run-codebase
         name: Run codebase checks
         entry: pixi run pytest -n logical --maxprocesses=5 tests/codebase
-        language: unsupported
-        pass_filenames: false
-
-      - id: protect-branches
-        name: Protect Git branches
-        entry: pixi run python tools/hooks/protect_branches.py
         language: unsupported
         pass_filenames: false
