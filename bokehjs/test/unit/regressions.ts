@@ -1782,20 +1782,6 @@ describe("Bug", () => {
       expect(grv.decimated_glyph.inherited_image_data).to.be.true
       expect(grv.hover_glyph.inherited_image_data).to.be.true
       expect(grv.muted_glyph.inherited_image_data).to.be.true
-
-      expect(grv.glyph.inherited_image_width).to.be.false
-      expect(grv.selection_glyph.inherited_image_width).to.be.true
-      expect(grv.nonselection_glyph.inherited_image_width).to.be.false
-      expect(grv.decimated_glyph.inherited_image_width).to.be.true
-      expect(grv.hover_glyph.inherited_image_width).to.be.true
-      expect(grv.muted_glyph.inherited_image_width).to.be.true
-
-      expect(grv.glyph.inherited_image_height).to.be.false
-      expect(grv.selection_glyph.inherited_image_height).to.be.true
-      expect(grv.nonselection_glyph.inherited_image_height).to.be.false
-      expect(grv.decimated_glyph.inherited_image_height).to.be.true
-      expect(grv.hover_glyph.inherited_image_height).to.be.true
-      expect(grv.muted_glyph.inherited_image_height).to.be.true
     })
   })
 

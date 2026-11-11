@@ -74,6 +74,8 @@ describe("ImageBase module", () => {
   }
 
   const present = (image_data: Arrayable<unknown>) => Array.from(image_data, (data) => data != null)
+  const widths = (image_data: Arrayable<HTMLCanvasElement | null>) => Array.from(image_data, (data) => data?.width ?? 0)
+  const heights = (image_data: Arrayable<HTMLCanvasElement | null>) => Array.from(image_data, (data) => data?.height ?? 0)
 
   const error = (glyph: ImageBase, i: number, dimension: number, got: string) => {
     return `[bokeh ${version}] ${glyph}.image[${i}]: expected a ${dimension}D array, got ${got}\n`
@@ -86,11 +88,11 @@ describe("ImageBase module", () => {
         const {glyph_view, out} = await create_view(glyph(), [valid(), valid()])
         expect(out.error).to.be.equal("")
 
-        const {image_data, image_width, image_height} = glyph_view
+        const {image_data} = glyph_view
         expect_not_null(image_data)
         expect(present(image_data)).to.be.equal([true, true])
-        expect(image_width).to.be.equal(new Uint32Array([2, 2]))
-        expect(image_height).to.be.equal(new Uint32Array([2, 2]))
+        expect(widths(image_data)).to.be.equal([2, 2])
+        expect(heights(image_data)).to.be.equal([2, 2])
       })
 
       it("should skip and report images of unexpected dimension", async () => {
@@ -98,11 +100,11 @@ describe("ImageBase module", () => {
         const {glyph_view, out} = await create_view(model, [valid(), invalid()])
         expect(out.error).to.be.equal(error(model, 1, dimension, `${invalid().dimension}D array`))
 
-        const {image_data, image_width, image_height} = glyph_view
+        const {image_data} = glyph_view
         expect_not_null(image_data)
         expect(present(image_data)).to.be.equal([true, false])
-        expect(image_width).to.be.equal(new Uint32Array([2, 0]))
-        expect(image_height).to.be.equal(new Uint32Array([2, 0]))
+        expect(widths(image_data)).to.be.equal([2, 0])
+        expect(heights(image_data)).to.be.equal([2, 0])
       })
 
       it("should skip and report images that aren't ndarrays", async () => {
@@ -119,11 +121,11 @@ describe("ImageBase module", () => {
         const {glyph_view, out} = await create_view(glyph(), [empty(), valid()])
         expect(out.error).to.be.equal("")
 
-        const {image_data, image_width, image_height} = glyph_view
+        const {image_data} = glyph_view
         expect_not_null(image_data)
         expect(present(image_data)).to.be.equal([false, true])
-        expect(image_width).to.be.equal(new Uint32Array([0, 2]))
-        expect(image_height).to.be.equal(new Uint32Array([0, 2]))
+        expect(widths(image_data)).to.be.equal([0, 2])
+        expect(heights(image_data)).to.be.equal([0, 2])
       })
 
       it("should not hit test skipped images", async () => {
@@ -146,11 +148,11 @@ describe("ImageBase module", () => {
         const out = await update(() => source.patch({image: [[1, invalid()]]}))
         expect(out.error).to.be.equal(error(model, 1, dimension, `${invalid().dimension}D array`))
 
-        const {image_data, image_width, image_height} = glyph_view
+        const {image_data} = glyph_view
         expect_not_null(image_data)
         expect(present(image_data)).to.be.equal([true, false])
-        expect(image_width).to.be.equal(new Uint32Array([2, 0]))
-        expect(image_height).to.be.equal(new Uint32Array([2, 0]))
+        expect(widths(image_data)).to.be.equal([2, 0])
+        expect(heights(image_data)).to.be.equal([2, 0])
       })
 
       it("should recover when bad data is replaced with valid data", async () => {
@@ -161,11 +163,11 @@ describe("ImageBase module", () => {
         const out = await update(() => source.data = {image: [valid()]})
         expect(out.error).to.be.equal("")
 
-        const {image_data, image_width, image_height} = glyph_view
+        const {image_data} = glyph_view
         expect_not_null(image_data)
         expect(present(image_data)).to.be.equal([true])
-        expect(image_width).to.be.equal(new Uint32Array([2]))
-        expect(image_height).to.be.equal(new Uint32Array([2]))
+        expect(widths(image_data)).to.be.equal([2])
+        expect(heights(image_data)).to.be.equal([2])
       })
     })
   }
