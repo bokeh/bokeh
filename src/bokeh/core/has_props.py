@@ -200,10 +200,10 @@ class _ModelResolver:
             # update the mapping of view model names to classes, checking for any duplicates
             previous = self._known_models.get(cls.__qualified_model__, None)
             if previous is not None and not hasattr(cls, "__implementation__"):
-                from ..util.warnings import BokehUserWarning, warn
+                from ..util.warnings import warn
 
                 warn(f"Duplicate qualified model definition of '{cls.__qualified_model__}'. " \
-                     f"Previous definition was {previous} (@{hex(id(previous))}), the new is {cls} (@{hex(id(cls))}).", BokehUserWarning)
+                     f"Previous definition was {previous} (@{hex(id(previous))}), the new is {cls} (@{hex(id(cls))}).")
             self._known_models[cls.__qualified_model__] = cls
 
     def remove(self, cls: type[HasProps]) -> None:
@@ -664,6 +664,10 @@ class HasProps(Serializable):
                 Whether to include properties that haven't been explicitly set
                 since the object was created. (default: True)
 
+            include_undefined  (bool, optional) :
+                Whether to include properties that are undefined
+                since the object was created. (default: False)
+
         Returns:
            dict : mapping from property names to their values
 
@@ -694,6 +698,10 @@ class HasProps(Serializable):
             include_defaults (bool, optional) :
                 Whether to include properties that have not been explicitly
                 set by a user (default: True)
+
+            include_undefined  (bool, optional) :
+                Whether to include properties that are undefined
+                since the object was created. (default: False)
 
         Returns:
             dict : mapping of property names and values for matching properties

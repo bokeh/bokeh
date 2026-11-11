@@ -78,7 +78,7 @@ from typing import (
 
 import numpy as np
 
-from ...util.warnings import BokehUserWarning, warn
+from ...util.warnings import warn
 from .singletons import OldValueUnavailable
 
 if TYPE_CHECKING:
@@ -546,11 +546,11 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
             # type check is necessary.
             if isinstance(array, Sequence):
                 if not isinstance(array, MutableSequence):
-                    warn(f"attempted to patch an immutable sequence of type {type(array).__qualname__}", BokehUserWarning)
+                    warn(f"attempted to patch an immutable sequence of type {type(array).__qualname__}")
                     continue
             elif isinstance(array, np.ndarray):
                 if not array.flags.writeable:
-                    warn("attempted to patch an immutable numpy array (flags.writable is False)", BokehUserWarning)
+                    warn("attempted to patch an immutable numpy array (flags.writable is False)")
                     continue
             # No else: branch here, because there is no universal type check
             # for mutable container like objects that Seq() permits, so

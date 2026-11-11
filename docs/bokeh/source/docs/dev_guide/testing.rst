@@ -94,9 +94,8 @@ Run codebase tests
 ~~~~~~~~~~~~~~~~~~
 
 The most basic set of tests are Bokeh's codebase tests. This includes
-checking Python code with `Ruff`_, checking JavaScript code with `ESLint`_,
-and various other tests for issues such as unused imports and extra white
-spaces.
+checking Python code with `Ruff`_ and various other tests for issues such as
+unused imports and extra white spaces.
 
 Any edits you make to Bokeh's Python or JavaScript codebase should pass this
 test.
@@ -399,11 +398,48 @@ Run JavaScript tests
 ~~~~~~~~~~~~~~~~~~~~
 
 Most of the JavaScript-based tests for :term:`BokehJS` use a custom-made testing
-framework. This framework **requires Google Chrome or Chromium**. You need a
-recent version of one of these browsers available on your system to run those
-tests locally. Bokeh will try to find Google Chrome or Chromium in your
-``PATH``, but you can set the environment variable ``BOKEH_CHROME`` to point to
-the executable if desired.
+framework with Playwright-managed Chromium. ``pixi run setup`` installs the
+matching browser automatically after installing the JavaScript dependencies.
+Run setup again after changes to the locked Playwright version.
+
+Bokeh uses this browser by default. Set ``BOKEH_CHROME`` or pass
+``--executable`` to select another Chrome or Chromium executable explicitly.
+The minimum supported browser version is Chrome/Chromium 141. The locked
+``playwright-core`` 1.56.1 package installs Chromium 141.0.7390.37 (Playwright
+revision 1194). The visual baseline container retains Chrome 141.0.7390.54.
+
+Local test runs keep Chromium's sandbox enabled. Ubuntu 23.10 and later use
+AppArmor to restrict the unprivileged user namespaces that the sandbox requires,
+except for executables with an AppArmor profile that allows them. Packaged
+Google Chrome installs such a profile, but Playwright-managed Chromium doesn't,
+so launching it fails with ``No usable sandbox!``. Allow user namespaces for the
+managed browser with a profile like the following:
+
+.. code-block:: sh
+
+    sudo tee /etc/apparmor.d/bokeh-chromium <<'EOF'
+    abi <abi/4.0>,
+    include <tunables/global>
+    profile bokeh-chromium /home/*/.cache/ms-playwright/chromium-*/chrome-linux/chrome flags=(unconfined) {
+      userns,
+    }
+    EOF
+    sudo apparmor_parser -r /etc/apparmor.d/bokeh-chromium
+
+The wildcards keep the profile valid when Playwright updates its browser. Adjust
+the path if you set ``PLAYWRIGHT_BROWSERS_PATH`` or use another executable; the
+test runner prints the exact path when the sandbox fails to start. Tests run
+without the sandbox when ``CI=true`` or ``BOKEH_IN_DOCKER=1`` is set.
+
+When updating Playwright, check its bundled browser version with
+``npx --no-install playwright-core install --dry-run chromium`` from ``bokehjs``.
+Update both ``bokehjs/make/package.json`` and ``bokehjs/test/package.json`` and
+regenerate ``bokehjs/package-lock.json``. Review ``supported_chromium_version``
+in ``bokehjs/test/devtools/browser.ts`` and the minimum version above. Coordinate
+visual renderer changes with ``CHROME_VERSION`` in
+``bokehjs/test/baselines/Dockerfile`` and ``chrome_version`` in
+``bokehjs/test/run-baseline-tests.mjs``; regenerate and review visual baselines
+when changing that renderer.
 
 .. _contributor_guide_testing_local_javascript_all:
 
@@ -495,16 +531,16 @@ the ``bokehjs`` subdirectory:
 
 .. code-block:: sh
 
-    $ node make build:all
+    $ node make build
     $ BOKEH_CHROME=/path/to/chrome node make test:integration
 
-Omit ``BOKEH_CHROME`` when a supported Chrome or Chromium executable is already
-available in ``PATH``. The native run reads and writes
-``bokehjs/test/baselines/linux`` and accepts the same ``-k`` and ``--grep`` test
-filters as the containerized run. This is a convenient path for fast iteration
-on Linux, but it is not the canonical baseline environment: the host's browser,
-fonts, system libraries, and rendering stack can all affect pixels. Confirm any
-new or updated baselines with ``node make baseline-test`` before accepting them.
+Omit ``BOKEH_CHROME`` to use Playwright-managed Chromium. The native run reads
+and writes ``bokehjs/test/baselines/linux`` and accepts the same ``-k``, ``-g``
+and ``-f`` test filters as the containerized run. This is a convenient path for
+fast iteration on Linux, but it is not the canonical baseline environment: the
+host's browser, fonts, system libraries, and rendering stack can all affect
+pixels. Confirm any new or updated baselines with ``node make baseline-test``
+before accepting them.
 
 To review the latest results with the same BokehJS report used by CI, start the
 containerized review server:
@@ -584,6 +620,46 @@ search string to the strings defined in the tests' ``describe()`` and
 
 This will only run integration tests that contain the string "Legend".
 
+To match test descriptions with a regular expression instead, use the ``-g``
+(or ``--grep``) argument, e.g. ``-g "^Legend.*title"``.
+
+You can also select unit and integration tests by the files they are defined
+in. Use the ``-f`` (or ``--file``) argument to supply a file name or a glob
+pattern. Paths are relative to the test suite's directory, e.g.
+``bokehjs/test/unit`` for unit tests, and the file extension is optional. For
+example:
+
+.. code-block:: sh
+
+    node make test:unit -f core/util/array
+    node make test:unit -f "models/glyphs/*" -f core/util
+    node make test:integration -f regressions -k "Legend"
+
+Patterns follow rules similar to ``.gitignore`` files:
+
+* ``*`` matches any characters except ``/``, ``**`` matches any characters
+  including ``/``, ``?`` matches a single character except ``/``, ``[abc]``
+  matches one of the listed characters, and ``{a,b}`` matches any of the
+  comma-separated alternatives.
+* A pattern without ``/`` matches file or directory names at any depth, e.g.
+  ``-f "*arr*"`` selects ``core/util/array.ts``, ``core/util/ndarray.ts``, etc.
+* A pattern with ``/`` is anchored at the root of the test suite, e.g.
+  ``-f core/util/array`` selects only ``bokehjs/test/unit/core/util/array.ts``.
+* A pattern that names a directory selects all files under it, e.g.
+  ``-f core/util``.
+* Paths like ``test/unit/core/util/array.ts`` or
+  ``bokehjs/test/unit/core/util/array.ts`` are accepted as well, so you can
+  use paths completed by your shell.
+
+Quote patterns containing ``*``, ``?``, ``[`` or ``{``, so that your shell
+doesn't expand them. A pattern that doesn't match any test files is an error.
+
+When an argument is used multiple times, a test is selected if it matches
+any of the values, e.g. ``-f A -f B`` selects tests from either ``A`` or ``B``.
+The same applies to ``-k`` and ``-g``. When different arguments are
+combined, a test must match all of them, e.g. ``-f A -k "Legend"`` selects
+tests from ``A`` that contain the string "Legend".
+
 .. note::
     BokehJS Unit and integration tests require a recent version of Chrome or
     Chromium. The BokehJS testing framework starts the browser automatically
@@ -604,7 +680,7 @@ First, build the library and test bundles. Inside a Pixi shell, from the
 
 .. code-block:: sh
 
-    node make build:all
+    node make build
 
 Starting the devtools server does not build the tests. After changing tests,
 run ``node make test:build`` to rebuild their bundles. Missing bundles cause
@@ -675,8 +751,13 @@ Initiate test runs
             :alt: Screenshot of devtool displaying various plots as a result of
                 running integration tests.
 
-To only run or view specific tests, append ``?k=some%20text`` to the URL. This
-will filter tests by keyword.
+To only run specific tests, append ``k``, ``g`` or ``f`` query parameters
+to the URL. They work the same way as the ``-k``, ``-g`` and ``-f`` command
+line arguments, including when combined or used multiple times. For example,
+``/unit/run?f=core/util/array&k=linspace`` runs tests from
+``bokehjs/test/unit/core/util/array.ts`` that contain the string "linspace".
+Errors, like a file pattern that doesn't match any test files, are reported in
+the browser's console.
 
 To only run or view tests for a specific platform, append either
 ``platform=linux``, ``platform=macos``, or ``platform=windows`` to the URL.
@@ -784,10 +865,10 @@ in ``pixi.lock``.
 When adding or changing a dependency, update ``pixi.toml``, run
 ``pixi lock``, and commit both files. Use
 ``pixi run --locked -e <environment>`` to run a command in a particular CI
-environment, such as ``test-py312``, ``minimal``, or ``core-py315``.
+environment, such as ``test-py313``, ``minimal``, or ``core-py315``.
 Core-dependency environments are available for each supported Python version:
-``core-py312``, ``core-py313``, ``core-py314``, and ``core-py315``.
-Documentation builds use ``docs-py312`` and ``docs-py315``, sharing their
+``core-py313``, ``core-py314``, and ``core-py315``.
+Documentation builds use ``docs-py313`` and ``docs-py315``, sharing their
 documentation dependencies with the release-build environment.
 
 CI Workflows
@@ -801,9 +882,9 @@ Bokeh uses multiple CI workflows to balance speed and coverage:
 
     - **Coverage**: 11 jobs total
     - **Unit tests**: Latest Python (3.14) on all platforms (Ubuntu, macOS, Windows)
-    - **Codebase checks**: All platforms with Python 3.12
+    - **Codebase checks**: All platforms with Python 3.13
     - **Other tests**: Linux only (examples, minimal-deps, core-deps, documentation)
-    - **Core dependencies**: Python 3.12 and 3.15 on Linux
+    - **Core dependencies**: Python 3.13 and 3.15 on Linux
     - **Documentation**: Python 3.15 on Linux
     - **Features**: Cancel-in-progress enabled for faster iteration
 
@@ -813,9 +894,9 @@ Bokeh uses multiple CI workflows to balance speed and coverage:
 
     - **Coverage**: 29 jobs total
     - **Platforms**: Ubuntu 24.04, macOS latest, Windows latest
-    - **Python versions**: 3.12, 3.13, 3.14; core-dependency tests also cover 3.15
-    - **Core dependencies**: Python 3.12 through 3.15 on all platforms
-    - **Documentation**: Python 3.12 and 3.15 on Linux; Python 3.15 on macOS and Windows
+    - **Python versions**: 3.13 and 3.14. Core-dependency tests also cover 3.15
+    - **Core dependencies**: Python 3.13 through 3.15 on all platforms
+    - **Documentation**: Python 3.13 and 3.15 on Linux. Python 3.15 on macOS and Windows
 
     **To manually trigger the full workflow:**
 
@@ -852,7 +933,6 @@ group your commits into meaningful chunks of work before pushing to GitHub
 instead of pushing every commit individually. This will help you be considerate
 of others who require access to these limited resources.
 
-.. _ESLint: https://eslint.org/
 .. _Ruff: https://github.com/astral-sh/ruff
 .. _pytest: https://pytest.org/
 .. _pytest-xdist: https://github.com/pytest-dev/pytest-xdist

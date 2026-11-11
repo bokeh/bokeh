@@ -23,9 +23,14 @@ import bokeh.model as bm # isort:skip
 #-----------------------------------------------------------------------------
 
 ALL = (
+    'CallbackPolicy',
+    'Committed',
     'DataModel',
+    'Debounce',
+    'Immediate',
     'Model',
     'Qualified',
+    'Throttle',
     'collect_models',
     'get_class',
 )

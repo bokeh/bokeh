@@ -4,9 +4,9 @@ import fs from "node:fs"
 import cp from "node:child_process"
 import type {ChildProcess} from "node:child_process"
 import {Socket} from "node:net"
+import {fileURLToPath} from "node:url"
 
 import {BuildError} from "../task.js"
-import {resolve_npx} from "#compiler/sys.js"
 
 export const platform = (() => {
   switch (os.type()) {
@@ -25,13 +25,14 @@ export const file_exists = (path: string) => exists(path) && is_file(path)
 export const dir_exists = (path: string) => exists(path) && is_dir(path)
 
 export function compile_typescript(tsconfig_path: string): void {
-  const [resolved_executable, resolved_args] = resolve_npx(["--loglevel=warn", "tsgo", "--project", tsconfig_path])
-  const {status, error} = cp.spawnSync(resolved_executable, resolved_args, {stdio: "inherit"})
+  // TODO: depend on `typescript` directly when the linker no longer needs typescript 5.x API
+  const tsc = fileURLToPath(new URL("./bin/tsc", import.meta.resolve("typescript7/package.json")))
+  const {status, error} = cp.spawnSync(process.execPath, [tsc, "--project", tsconfig_path], {stdio: "inherit"})
   if (error != null) {
-    throw new BuildError("typescript", `failed to start tsgo: ${error.message}`)
+    throw new BuildError("typescript", `failed to start tsc: ${error.message}`)
   }
   if (status != 0) {
-    throw new BuildError("typescript", "compilation failed with tsgo")
+    throw new BuildError("typescript", "compilation failed with tsc")
   }
 }
 
@@ -138,7 +139,7 @@ export function debounce<Args extends unknown[]>(func: (args: Args[]) => Promise
   const later = async () => {
     const passed = Date.now() - previous
     if (wait > passed) {
-      timeout = setTimeout(later, wait - passed)
+      timeout = setTimeout(() => void later(), wait - passed)
     } else {
       timeout = null
       if (!immediate) {
@@ -152,7 +153,7 @@ export function debounce<Args extends unknown[]>(func: (args: Args[]) => Promise
     previous = Date.now()
     collected.push(args)
     if (timeout == null) {
-      timeout = setTimeout(later, wait)
+      timeout = setTimeout(() => void later(), wait)
       if (immediate) {
         await func(collected)
         clear(collected)

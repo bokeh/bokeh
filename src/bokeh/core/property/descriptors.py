@@ -43,7 +43,7 @@ set operations to the corresponding property.
 
     # But can raise a validation exception if an attempt to set to a list
     # is made
-    rng.end = [1,2,3]   # ValueError !
+    rng.end = [1,2,3]   # ValidationError !
 
 More sophisticated properties such as ``DataSpec`` and its subclasses can
 exert control over how values are serialized. Consider this example with
@@ -100,6 +100,7 @@ from typing import (
     overload,
 )
 
+from .exceptions import PropertyError
 from .singletons import Undefined
 from .wrappers import PropertyValueColumnData, PropertyValueContainer
 
@@ -268,9 +269,9 @@ This is a backwards compatibility alias for the {self.aliased_name!r} property.
 """
 
     def _warn(self) -> None:
-        from ...util.deprecation import deprecated
+        from ...util.warnings import warn_deprecated
 
-        deprecated(self.alias.since, self.name, self.aliased_name, self.alias.extra)
+        warn_deprecated(self.name, self.aliased_name, since=self.alias.since, extra=self.alias.extra)
 
     @overload
     def __get__(self, obj: HasProps, owner: type[HasProps] | None) -> T: ...
@@ -525,7 +526,7 @@ class PropertyDescriptor[T]:
         value is not equal to ``old``.
 
         Args:
-            obj (HasProps)
+            obj (HasProps) :
                 The object the property is being set on.
 
             old (obj) :
@@ -686,13 +687,16 @@ class PropertyDescriptor[T]:
         been explicitly set, etc.
 
         Args:
-            obj (HasProps)
+            obj (HasProps) :
                 The object the property is being set on.
 
             old (obj) :
                 The previous value of the property to compare
 
-            hint (event hint or None, optional)
+            value (obj) :
+                The new value of the property
+
+            hint (event hint or None, optional) :
                 An optional update event hint, e.g. ``ColumnStreamedEvent``
                 (default: None)
 
@@ -756,7 +760,7 @@ class PropertyDescriptor[T]:
                 retain the previous value use ``OldValueUnavailable``. The
                 new value is already set unless validation changes it.
 
-            hint (event hint or None, optional)
+            hint (event hint or None, optional) :
                 An optional update event hint, e.g. ``ColumnStreamedEvent``
                 (default: None)
 
@@ -792,7 +796,7 @@ class PropertyDescriptor[T]:
             value (obj) :
                 The new value of the property
 
-            hint (event hint or None, optional)
+            hint (event hint or None, optional) :
                 An optional update event hint, e.g. ``ColumnStreamedEvent``
                 (default: None)
 
@@ -872,7 +876,7 @@ class ColumnDataPropertyDescriptor(PropertyDescriptor[Any]):
             raise RuntimeError(f"Cannot set a property value {self.name!r} on a {class_name} instance before HasProps.__init__")
 
         if self.property.readonly and obj._initialized:
-            # Allow to set a value during object initialization (e.g. value -> value_throttled)
+            # Allow readonly values to be set during object initialization.
             class_name = obj.__class__.__name__
             raise RuntimeError(f"{class_name}.{self.name} is a readonly property")
 
@@ -909,9 +913,9 @@ class DataSpecPropertyDescriptor(PropertyDescriptor[Any]):
         This method first
 
         Args:
-            obj (HasProps) :
+            obj (HasProps) : object to set value to
 
-            value (JSON-dict) :
+            value (JSON-dict) : value to set
 
             setter (ClientSession or ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
@@ -939,7 +943,7 @@ class DataSpecPropertyDescriptor(PropertyDescriptor[Any]):
                     cast(_DataSpecProperty, self.property).value_type.validate(old, False)
                     if 'value' in value:
                         value = value['value']
-                except ValueError:
+                except PropertyError:
                     if isinstance(old, str) and 'field' in value:
                         value = value['field']
                 # leave it as a dict if 'old' was a dict

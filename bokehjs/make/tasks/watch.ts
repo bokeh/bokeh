@@ -30,7 +30,7 @@ task("watch", [], async () => {
     persistent: true,
   })
 
-  watcher.on("change", debounce(async (files: [string][]) => {
+  const on_change = debounce(async (files: [string][]) => {
     const changed_paths = new Map([...watched_paths].map(([path, task]) => [path, {changed: false, task}]))
 
     for (const [file] of files) {
@@ -51,7 +51,9 @@ task("watch", [], async () => {
         await run(task)
       }
     }
-  }, 100))
+  }, 100)
+
+  watcher.on("change", (file: string) => void on_change(file))
 
   await keep_alive()
 })

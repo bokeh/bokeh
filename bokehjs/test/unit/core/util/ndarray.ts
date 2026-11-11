@@ -1,7 +1,7 @@
 import {expect} from "#framework/assertions"
 
 import {
-  ndarray, is_NDArray,
+  ndarray, is_NDArray, get_array_item, BoolNDArray,
   Uint8NDArray, Int8NDArray,
   Uint16NDArray, Int16NDArray,
   Uint32NDArray, Int32NDArray,
@@ -12,6 +12,74 @@ import {
 import {Cloner} from "@bokehjs/core/util/cloneable"
 
 describe("core/util/ndarray module", () => {
+
+  describe("get_array_item", () => {
+    it("should preserve integer and boolean storage values in shaped rows", () => {
+      expect(get_array_item(new Int32NDArray([1, -2, -3, 4], [2, 2]), 1)).to.be.equal([-3, 4])
+      expect(get_array_item(new BoolNDArray([0, 1, 1, 0], [2, 2]), 1)).to.be.equal([1, 0])
+    })
+
+    it("should read numeric and object rows in two and three dimensions", () => {
+      for (const array of [
+        new Float64NDArray([0, 1, 2, 0, 2, 3], [2, 3]),
+        new ObjectNDArray([0, 1, 2, 0, 2, 3], [2, 3]),
+      ]) {
+        expect(get_array_item(array, 0)).to.be.equal([0, 1, 2])
+        expect(get_array_item(array, 1)).to.be.equal([0, 2, 3])
+      }
+      for (const array of [
+        new Float64NDArray([0, 1, 2, 3, 4, 5, 6, 7], [2, 2, 2]),
+        new ObjectNDArray([0, 1, 2, 3, 4, 5, 6, 7], [2, 2, 2]),
+      ]) {
+        expect(get_array_item(array, 0)).to.be.equal([[0, 1], [2, 3]])
+        expect(get_array_item(array, 1)).to.be.equal([[4, 5], [6, 7]])
+      }
+      const object = {name: "a"}
+      expect(get_array_item(new ObjectNDArray([object, null], [2, 1]), 0)).to.be.equal([object])
+    })
+
+    it("should preserve empty inner axes", () => {
+      for (const shape of [[2, 0], [2, 0, 3], [2, 3, 0]]) {
+        for (const array of [new Float64NDArray([], shape), new ObjectNDArray([], shape)]) {
+          expect(get_array_item(array, 1)).to.be.equal(shape[1] == 0 ? [] : [[], [], []])
+        }
+      }
+    })
+
+    it("should reject indices outside the logical first axis", () => {
+      for (const array of [
+        new Float64NDArray([0, 1, 2, 3, 4, 5], [2, 3]),
+        new ObjectNDArray([0, 1, 2, 3, 4, 5], [2, 3]),
+      ]) {
+        for (const index of [-1, 0.5, 2, 5, NaN, Infinity, -Infinity]) {
+          expect(get_array_item(array, index)).to.be.undefined
+        }
+      }
+      expect(get_array_item(new Float64NDArray([], [0, 3]), 0)).to.be.undefined
+    })
+
+    it("should preserve ordinary and one-dimensional array indexing", () => {
+      for (const array of [[10, 20], new Float64Array([10, 20]), new Float64NDArray([10, 20]), new ObjectNDArray([10, 20])]) {
+        expect(get_array_item(array, 1)).to.be.equal(20)
+        expect(get_array_item(array, 2)).to.be.undefined
+      }
+      const row = [1, 2]
+      expect(get_array_item([row], 0)).to.be.identical(row)
+    })
+
+    it("should leave buffers and shapes unchanged when reading or editing a returned row", () => {
+      for (const array of [
+        new Float64NDArray([0, 1, 2, 3], [2, 2]),
+        new ObjectNDArray([0, 1, 2, 3], [2, 2]),
+      ]) {
+        const row = get_array_item(array, 1) as unknown[]
+        row[0] = 99
+        expect(get_array_item(array, 1)).to.be.equal([2, 3])
+        expect(Array.from(array)).to.be.equal([0, 1, 2, 3])
+        expect(array.shape).to.be.equal([2, 2])
+      }
+    })
+  })
 
   it("should support is_NDArray predicate", () => {
     const nd0 = new Uint8NDArray([1, 2, 3, 4, 5, 6])

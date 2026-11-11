@@ -13,7 +13,7 @@ import {LegendItemClick} from "@bokehjs/core/bokeh_events"
 import type {Scatter} from "@bokehjs/models/glyphs"
 import {HTML} from "@bokehjs/models/dom"
 import {Pane} from "@bokehjs/models"
-import {type Plot} from "@bokehjs/models"
+import type {Plot} from "@bokehjs/models"
 import {canvas} from "@bokehjs/core/dom"
 
 async function show_with_exported(plot: Plot) {

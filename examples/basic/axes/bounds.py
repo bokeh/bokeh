@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import numpy as np
 
@@ -64,25 +64,34 @@ fruits = {
 }
 
 # Plot with multiple ranges that are bounded
-x = np.array(AAPL['date'], dtype=np.datetime64)
-x = x[0:1000]
+apple_x = np.array(AAPL['date'][0:1000], dtype='datetime64[ms]')
+google_x = np.array(GOOG['date'][0:1000], dtype='datetime64[ms]')
 apple_y = AAPL['adj_close'][0:1000]
 google_y = GOOG['adj_close'][0:1000]
 
+x_start = min(apple_x.min(), google_x.min())
+x_end = max(apple_x.max(), google_x.max())
+x_margin = (x_end - x_start) // 10
 x_range = Range1d(
-    start=datetime(2000, 1, 1), end=datetime(2004, 12, 31),
-    bounds=(datetime(2000, 1, 1), datetime(2006, 12, 31)),
+    start=x_start, end=x_end,
+    bounds=(x_start - x_margin, x_end + x_margin),
     min_interval=timedelta(100),
 )
-y_range = Range1d(start=0, end=40, bounds=(0, 60))
-y_range_extra = Range1d(start=300, end=700, bounds=(200, 1000))
+
+def bounded_price_range(prices):
+    low, high = min(prices), max(prices)
+    margin = (high - low) * 0.2
+    return Range1d(start=low, end=high, bounds=(low - margin, high + margin))
+
+y_range = bounded_price_range(apple_y)
+y_range_extra = bounded_price_range(google_y)
 
 plot_extra = figure(x_axis_type="datetime",
                     x_range=x_range, y_range=y_range,
-                    title="Multiple ranges x:(2000/1/1, 2006/12/31), y1:(10, 60), y2:(200, 1000)")
-plot_extra.line(x, apple_y, color='lightblue')
+                    title="Multiple bounded ranges: AAPL and GOOG adjusted close")
+plot_extra.line(apple_x, apple_y, color='lightblue')
 plot_extra.extra_y_ranges = {'goog': y_range_extra}
-plot_extra.line(x, google_y, color='pink', y_range_name='goog')
+plot_extra.line(google_x, google_y, color='pink', y_range_name='goog')
 plot_extra.add_layout(LinearAxis(y_range_name="goog", major_label_text_color='pink'), 'left')
 
 # Tweak the formats to make it all readable

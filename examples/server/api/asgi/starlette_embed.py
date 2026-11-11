@@ -28,7 +28,7 @@ async def index(request: Request) -> HTMLResponse:
 
 
 @asynccontextmanager
-async def lifespan(_app: Starlette) -> AsyncGenerator[None, None]:
+async def lifespan(_app: Starlette) -> AsyncGenerator[None]:
     # Mounted Starlette applications don't receive lifespan events. Start and
     # stop Bokeh from the parent application's lifespan instead.
     await bokeh_application.core.start()

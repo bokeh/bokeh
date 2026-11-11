@@ -6,7 +6,6 @@
     "moduleResolution": "Bundler",
     "noEmit": true,
     "types": ["node"],
-    "baseUrl": ".",
     "paths": {
       "@bokeh/bokehjs": ["../../build/js/lib/bokeh_package.d.ts"]
     }

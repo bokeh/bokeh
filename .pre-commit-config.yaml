@@ -47,3 +47,10 @@ repos:
         entry: pixi run pytest -n logical --maxprocesses=5 tests/codebase
         language: unsupported
         pass_filenames: false
+
+      - id: lint-bokehjs
+        name: Build and lint BokehJS
+        entry: python tools/hooks/lint_bokehjs.py
+        language: system
+        files: ^bokehjs/
+        pass_filenames: false

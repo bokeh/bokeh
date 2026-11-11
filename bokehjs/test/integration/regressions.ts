@@ -1561,7 +1561,7 @@ describe("Bug", () => {
 
       const {view} = await display(p, [350, 350])
 
-      color_bar.color_mapper.palette = plasma(50)
+      color_mapper.palette = plasma(50)
       color_bar.major_label_text_font_style = "bold italic"
       color_bar.title = "new title"
 
@@ -1835,7 +1835,7 @@ describe("Bug", () => {
 
     it("doesn't allow updating palette of a color mapper of a color bar", async () => {
       await plot((color_bar) => {
-        color_bar.color_mapper.palette = plasma(50)
+        color_bar.color_mapper.display_mapper.palette = plasma(50)
       })
     })
 
@@ -4625,7 +4625,7 @@ describe("Bug", () => {
       await view.ready
       await mouse_click(days_el[2])
       await view.ready
-      await view.picker.close()
+      view.picker.close()
       expect(obj.value).to.be.equal(null)
     })
   })
@@ -4641,7 +4641,7 @@ describe("Bug", () => {
       await view.ready
       await mouse_click(days_el[2])
       await view.ready
-      await view.picker.close()
+      view.picker.close()
       expect(obj.value).to.not.be.equal(null)
     })
   })
@@ -5832,6 +5832,33 @@ describe("Bug", () => {
       await view.ready
 
       expect(slider.value).to.be.equal([5, 7])
+    })
+  })
+
+  describe("in issue #15712", () => {
+    it("renders wedges with start_angle == end_angle as full discs", async () => {
+      // one zero-valued category; its empty slice sits on the seam between its neighbours
+      const values = [3, 2, 0, 1, 2]
+      const total = values.reduce((a, b) => a + b, 0)
+      const end_angle = values.map((_, i) => 2*Math.PI*values.slice(0, i + 1).reduce((a, b) => a + b, 0)/total)
+      const start_angle = end_angle.map((end, i) => end - 2*Math.PI*values[i]/total)
+      const fill_color = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
+      const neg = (xs: number[]) => xs.map((x) => -x)
+
+      function plot(output_backend: OutputBackend) {
+        const p = fig([200, 200], {output_backend, title: output_backend, x_range: [0, 4], y_range: [0, 4]})
+        p.xgrid.visible = false
+        p.ygrid.visible = false
+        const common = {fill_color, line_color: "white", line_width: 2}
+        // top: Wedge; bottom: AnnularWedge; left: anticlock; right: clock
+        p.wedge({x: 1, y: 3, radius: 0.9, start_angle, end_angle, ...common})
+        p.wedge({x: 3, y: 3, radius: 0.9, start_angle: neg(start_angle), end_angle: neg(end_angle), direction: "clock", ...common})
+        p.annular_wedge({x: 1, y: 1, inner_radius: 0.4, outer_radius: 0.9, start_angle, end_angle, ...common})
+        p.annular_wedge({x: 3, y: 1, inner_radius: 0.4, outer_radius: 0.9, start_angle: neg(start_angle), end_angle: neg(end_angle), direction: "clock", ...common})
+        return p
+      }
+
+      await display(row([plot("canvas"), plot("svg"), plot("webgl")]))
     })
   })
 })

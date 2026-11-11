@@ -45,7 +45,7 @@ from ._static import is_bokeh_js_path
 from .auth import AuthPolicy
 from .core import BokehServerCore, SessionError
 from .request import Cookie, Headers, ServerRequest
-from .util import check_allowlist
+from .util import check_allowlist, create_hosts_allowlist
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Mapping
@@ -140,6 +140,8 @@ class BokehASGI:
     ) -> None:
         if auth_policy is not None and auth_policy.logout_url is not None:
             kwargs.setdefault("logout_url", auth_policy.logout_url)
+        if kwargs.get("extra_websocket_origins"):
+            kwargs["extra_websocket_origins"] = create_hosts_allowlist(kwargs["extra_websocket_origins"], None)
         self._core = BokehServerCore(applications, prefix=prefix, **kwargs)
         self._redirect_root = redirect_root
         self._auth_policy = auth_policy

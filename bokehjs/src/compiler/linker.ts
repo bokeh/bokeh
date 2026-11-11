@@ -466,7 +466,7 @@ export class Linker {
           shims: new Set(module.shims),
         },
         code,
-      } as ModuleArtifact
+      }
       this.cache.set(artifact.module.file, artifact)
     }
 
@@ -524,7 +524,7 @@ export class Linker {
 
   resolve_export_map(dir: string, subpath: string): string | null {
     const pkg = this.get_package(dir)
-    const export_map = (pkg.exports ?? {}) as object
+    const export_map = (pkg.exports ?? {})
     const path = join(dir, subpath)
     for (const [key, val] of Object.entries(export_map)) {
       if (join(dir, key) == path) {
@@ -840,7 +840,8 @@ export ${export_type} yaml;
         }
 
         const transform: {before: Transformers, after: Transformers} = {
-          before: [transforms.collect_imports(imports)],
+          // `require()` calls are allowed in ESM modules under the primary base only (e.g. test's `auto_index`)
+          before: [transforms.collect_imports(imports, {requires: base == this.bases[0]})],
           after: [],
         }
 

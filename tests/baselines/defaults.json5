@@ -167,14 +167,20 @@
   Model: {
     name: null,
     tags: [],
-    js_event_callbacks: {
+    _js_event_callbacks: {
       type: "map",
     },
-    js_property_callbacks: {
+    _js_property_callbacks: {
       type: "map",
     },
-    subscribed_events: {
+    _js_property_callback_policies: {
+      type: "map",
+    },
+    _subscribed_events: {
       type: "set",
+    },
+    _subscribed_changes: {
+      type: "map",
     },
     syncable: true,
   },
@@ -2783,6 +2789,21 @@
   Expression: {
     __extends__: "Model",
   },
+  IndexedLookup: {
+    __extends__: "Expression",
+    source: {
+      type: "symbol",
+      name: "unset",
+    },
+    field: {
+      type: "symbol",
+      name: "unset",
+    },
+    indices: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
   Maximum: {
     __extends__: "ScalarExpression",
     field: {
@@ -3577,26 +3598,11 @@
     },
     fill_color: "gray",
     fill_alpha: 1.0,
-    hatch_color: {
-      type: "value",
-      value: "black",
-    },
-    hatch_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    hatch_scale: {
-      type: "value",
-      value: 12.0,
-    },
-    hatch_pattern: {
-      type: "value",
-      value: null,
-    },
-    hatch_weight: {
-      type: "value",
-      value: 1.0,
-    },
+    hatch_color: "black",
+    hatch_alpha: 1.0,
+    hatch_scale: 12.0,
+    hatch_pattern: null,
+    hatch_weight: 1.0,
     hatch_extra: {
       type: "map",
     },
@@ -3622,26 +3628,11 @@
     step_mode: "before",
     fill_color: "gray",
     fill_alpha: 1.0,
-    hatch_color: {
-      type: "value",
-      value: "black",
-    },
-    hatch_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    hatch_scale: {
-      type: "value",
-      value: 12.0,
-    },
-    hatch_pattern: {
-      type: "value",
-      value: null,
-    },
-    hatch_weight: {
-      type: "value",
-      value: 1.0,
-    },
+    hatch_color: "black",
+    hatch_alpha: 1.0,
+    hatch_scale: 12.0,
+    hatch_pattern: null,
+    hatch_weight: 1.0,
     hatch_extra: {
       type: "map",
     },
@@ -4975,26 +4966,11 @@
     },
     fill_color: "gray",
     fill_alpha: 1.0,
-    hatch_color: {
-      type: "value",
-      value: "black",
-    },
-    hatch_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    hatch_scale: {
-      type: "value",
-      value: 12.0,
-    },
-    hatch_pattern: {
-      type: "value",
-      value: null,
-    },
-    hatch_weight: {
-      type: "value",
-      value: 1.0,
-    },
+    hatch_color: "black",
+    hatch_alpha: 1.0,
+    hatch_scale: 12.0,
+    hatch_pattern: null,
+    hatch_weight: 1.0,
     hatch_extra: {
       type: "map",
     },
@@ -5020,26 +4996,11 @@
     step_mode: "before",
     fill_color: "gray",
     fill_alpha: 1.0,
-    hatch_color: {
-      type: "value",
-      value: "black",
-    },
-    hatch_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    hatch_scale: {
-      type: "value",
-      value: 12.0,
-    },
-    hatch_pattern: {
-      type: "value",
-      value: null,
-    },
-    hatch_weight: {
-      type: "value",
-      value: 1.0,
-    },
+    hatch_color: "black",
+    hatch_alpha: 1.0,
+    hatch_scale: 12.0,
+    hatch_pattern: null,
+    hatch_weight: 1.0,
     hatch_extra: {
       type: "map",
     },
@@ -5595,6 +5556,7 @@
   },
   CategoricalColorMapper: {
     __extends__: [
+      "PaletteMixin",
       "CategoricalMapper",
       "ColorMapper",
     ],
@@ -5626,14 +5588,12 @@
   },
   ColorMapper: {
     __extends__: "Mapper",
-    palette: {
-      type: "symbol",
-      name: "unset",
-    },
-    nan_color: "gray",
   },
   ContinuousColorMapper: {
-    __extends__: "ColorMapper",
+    __extends__: [
+      "PaletteMixin",
+      "ColorMapper",
+    ],
     domain: [],
     low: null,
     high: null,
@@ -5645,6 +5605,15 @@
     bins: 65536,
     rescale_discrete_levels: false,
   },
+  IndexedStackColorMapper: {
+    __extends__: "StackColorMapper",
+    slice_color_mapper: {
+      type: "symbol",
+      name: "unset",
+    },
+    index: 0,
+    scan_together: false,
+  },
   LinearColorMapper: {
     __extends__: "ContinuousColorMapper",
   },
@@ -5654,6 +5623,13 @@
   Mapper: {
     __extends__: "Transform",
   },
+  PaletteMixin: {
+    palette: {
+      type: "symbol",
+      name: "unset",
+    },
+    nan_color: "gray",
+  },
   ScanningColorMapper: {
     __extends__: "ContinuousColorMapper",
   },
@@ -5661,7 +5637,10 @@
     __extends__: "ColorMapper",
   },
   WeightedStackColorMapper: {
-    __extends__: "StackColorMapper",
+    __extends__: [
+      "PaletteMixin",
+      "StackColorMapper",
+    ],
     alpha_mapper: {
       type: "symbol",
       name: "unset",
@@ -7596,10 +7575,6 @@
   Spinner: {
     __extends__: "NumericInput",
     mode: "float",
-    value_throttled: {
-      type: "symbol",
-      name: "unset",
-    },
     step: 1,
     page_step_multiplier: 10,
     wheel_wait: 100,
@@ -7638,6 +7613,12 @@
     __extends__: "Widget",
     text: "",
     disable_math: false,
+    dedent: true,
+    hard_line_break: false,
+    disable_anchors: false,
+    embeds: {
+      type: "map",
+    },
   },
   Div: {
     __extends__: "Markup",
@@ -7747,19 +7728,11 @@
       type: "symbol",
       name: "unset",
     },
-    value_throttled: {
-      type: "symbol",
-      name: "unset",
-    },
   },
   DateRangeSlider: {
     __extends__: "NumericalSlider",
     format: "%d %b %Y",
     value: {
-      type: "symbol",
-      name: "unset",
-    },
-    value_throttled: {
       type: "symbol",
       name: "unset",
     },
@@ -7780,10 +7753,6 @@
       type: "symbol",
       name: "unset",
     },
-    value_throttled: {
-      type: "symbol",
-      name: "unset",
-    },
     start: {
       type: "symbol",
       name: "unset",
@@ -7801,10 +7770,6 @@
       type: "symbol",
       name: "unset",
     },
-    value_throttled: {
-      type: "symbol",
-      name: "unset",
-    },
     start: {
       type: "symbol",
       name: "unset",
@@ -7819,10 +7784,6 @@
     __extends__: "NumericalSlider",
     format: "0[.]00",
     value: {
-      type: "symbol",
-      name: "unset",
-    },
-    value_throttled: {
       type: "symbol",
       name: "unset",
     },
@@ -7844,10 +7805,6 @@
     __extends__: "NumericalSlider",
     format: "0[.]00",
     value: {
-      type: "symbol",
-      name: "unset",
-    },
-    value_throttled: {
       type: "symbol",
       name: "unset",
     },
@@ -7873,10 +7830,6 @@
       name: "unset",
     },
     value: {
-      type: "symbol",
-      name: "unset",
-    },
-    value_throttled: {
       type: "symbol",
       name: "unset",
     },

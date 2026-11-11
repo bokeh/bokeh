@@ -39,7 +39,7 @@ import * as palettes from "@bokehjs/api/palettes"
 async function finished_animating(el: Element): Promise<void> {
   return new Promise((resolve, reject) => {
     el.addEventListener("animationend", () => resolve(), {once: true})
-    el.addEventListener("animationcancel", () => reject(), {once: true})
+    el.addEventListener("animationcancel", () => reject(new Error("animation was canceled")), {once: true})
   })
 }
 

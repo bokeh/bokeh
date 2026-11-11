@@ -725,8 +725,7 @@ export function has_focus(el: Element): boolean {
   }
 }
 
-export type ARIARole =
-  // Structural roles
+type ARIAStructuralRole =
   | "toolbar"
   | "tooltip"
   | "feed"
@@ -769,7 +768,7 @@ export type ARIARole =
   | "superscript"
   | "time"
 
-  // Widget roles
+type ARIAWidgetRole =
   | "button"
   | "checkbox"
   | "gridcell"
@@ -782,7 +781,7 @@ export type ARIARole =
   | "radio"
   | "scrollbar"
   | "searchbox"
-  | "separator"  // when focusable
+  | "separator"    // only when focusable; see also "separator" in ARIAStructuralRole
   | "slider"
   | "spinbutton"
   | "switch"
@@ -791,7 +790,7 @@ export type ARIARole =
   | "textbox"
   | "treeitem"
 
-  // Composite widget roles
+type ARIACompositeWidgetRole =
   | "combobox"
   | "menu"
   | "menubar"
@@ -799,7 +798,7 @@ export type ARIARole =
   | "tree"
   | "treegrid"
 
-  // Landmark roles
+type ARIALandmarkRole =
   | "banner"        // document <header>
   | "complementary" // <aside>
   | "contentinfo"   // document <footer>
@@ -809,13 +808,21 @@ export type ARIARole =
   | "region"        // <section>
   | "search"        // <search>
 
-  // Live region roles
+type ARIALiveRegionRole =
   | "alert"
   | "log"
   | "marquee"
   | "status"
   | "timer"
 
-  // Window roles
+type ARIAWindowRole =
   | "alertdialog"
   | "dialog"
+
+export type ARIARole =
+  | ARIAStructuralRole
+  | ARIAWidgetRole
+  | ARIACompositeWidgetRole
+  | ARIALandmarkRole
+  | ARIALiveRegionRole
+  | ARIAWindowRole

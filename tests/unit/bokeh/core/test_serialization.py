@@ -180,7 +180,9 @@ class TestBuffer:
 
         assert isinstance(ret, bytes)
 
-        # make sure the gzip header "OS" field is *always* set to "unknown" (255)
+        assert ret[4:8] == b"\x00"*4
+
+        # The gzip header OS field must be unknown on every platform.
         assert ret[9] == 255
 
         assert gzip.decompress(ret) == val
@@ -194,7 +196,9 @@ class TestBuffer:
 
         assert isinstance(ret, bytes)
 
-        # make sure the gzip header "OS" field is *always* set to "unknown" (255)
+        assert ret[4:8] == b"\x00"*4
+
+        # The gzip header OS field must be unknown on every platform.
         assert ret[9] == 255
 
         assert gzip.decompress(ret) == val
@@ -208,7 +212,7 @@ class TestBuffer:
         monkeypatch.setenv("BOKEH_COMPRESSION_LEVEL", f"{level}")
         buf.to_compressed_bytes()
 
-        compress.assert_called_once_with(val, mtime=1, compresslevel=level)
+        compress.assert_called_once_with(val, mtime=0, compresslevel=level)
 
     def test_to_base64(self):
         val = b"\x001\xefabc\x12"
@@ -251,7 +255,7 @@ class TestSerializer:
     def test_max_int(self) -> None:
         encoder = Serializer()
 
-        with pytest.warns(BokehUserWarning, match="out of range integer may result in loss of precision"):
+        with pytest.warns(UserWarning, match="out of range integer may result in loss of precision"):
             rep = encoder.encode(2**64)
 
         assert rep == 2.0**64
@@ -1635,9 +1639,9 @@ def test_transform_series_force_list_default_with_buffers() -> None:
             "id": obj.id,
             "name": None,
             "tags": [],
-            'js_property_callbacks': dict(type="map", entries=[]),
-            "js_event_callbacks": dict(type="map", entries=[]),
-            "subscribed_events": dict(type="set", entries=[]),
+            '_js_property_callbacks': dict(type="map", entries=[]),
+            "_js_event_callbacks": dict(type="map", entries=[]),
+            "_subscribed_events": dict(type="set", entries=[]),
             "syncable": True,
             "foo": 42,
             "bar": "world",
@@ -1647,11 +1651,11 @@ def test_transform_series_force_list_default_with_buffers() -> None:
             '"child":{"id":"%s"},' +
             '"foo":42,' +
             '"id":"%s",' +
-            '"js_event_callbacks":{"entries":[],"type":"map"},' +
-            '"js_property_callbacks":{"entries":[],"type":"map"},' +
+            '"_js_event_callbacks":{"entries":[],"type":"map"},' +
+            '"_js_property_callbacks":{"entries":[],"type":"map"},' +
             '"name":null,' +
             '"null_child":null,' +
-            '"subscribed_events":{"entries":[],"type":"set"},' +
+            '"_subscribed_events":{"entries":[],"type":"set"},' +
             '"syncable":true,' +
             '"tags":[]}'
         ) % (child_obj.id, obj.id) == json_string

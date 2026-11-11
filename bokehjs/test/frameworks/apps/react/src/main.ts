@@ -1,7 +1,7 @@
 import {StrictMode, createElement} from "react"
 import {createRoot} from "react-dom/client"
 
-import {Bokeh, BokehDocument, BokehRoot} from "@bokeh/react"
+import {Bokeh, BokehDocument, BokehRoot, BokehSession} from "@bokeh/react"
 
 import {install_framework_test} from "../../shared"
 import type {FrameworkRenderRequest} from "../../shared"
@@ -24,6 +24,23 @@ install_framework_test("react", ({model, mountOptions, onMounted, onError}) => {
   return {
     target: () => container.querySelector(".bokeh-target"),
     update: render,
+    unmount: () => root.unmount(),
+  }
+}, ({source, onSession, onMounted, onError}) => {
+  const root = createRoot(container)
+  let visible = true
+  const render = () => root.render(createElement(StrictMode, null,
+    createElement(BokehSession, {source, onSession, onMounted, onError},
+      createElement("section", null, visible && createElement(BokehRoot, {model: "first", className: "first"})),
+      createElement("p", null, "ordinary React content between session roots"),
+      createElement("aside", null, createElement(BokehRoot, {model: "second", className: "second"})),
+      createElement(BokehRoot, {model: "late", className: "late"}),
+    ),
+  ))
+  render()
+  return {
+    target: (name) => container.querySelector(`.${name}`),
+    showFirst: (value) => { visible = value; render() },
     unmount: () => root.unmount(),
   }
 })

@@ -45,6 +45,7 @@ from .bases import (
 )
 from .descriptors import ColumnDataPropertyDescriptor
 from .enum import Enum
+from .exceptions import ValidationError
 from .numeric import Int
 from .singletons import Undefined, _NotGiven
 from .wrappers import (
@@ -97,7 +98,7 @@ class Seq[T, TSeq](ContainerProperty[TSeq]):
 
         if not self._is_seq(value):
             msg = "" if not detail else f"expected sequence {self}, got {value!r} of type {type(value)!r}"
-            raise ValueError(msg)
+            raise ValidationError(msg)
 
         if self._should_skip_item_validation() or all(self.item_type.is_valid(item) for item in value):
             return
@@ -108,10 +109,10 @@ class Seq[T, TSeq](ContainerProperty[TSeq]):
                 if not self.item_type.is_valid(item):
                     invalid.append(item)
             msg = "" if not detail else f"expected an element of {self}, got seq with invalid items {invalid!r}"
-            raise ValueError(msg)
+            raise ValidationError(msg)
 
         msg = "" if not detail else f"expected an element of {self}, got {value!r}"
-        raise ValueError(msg)
+        raise ValidationError(msg)
 
     def _should_skip_item_validation(self) -> bool:
         return isinstance(self.item_type, AnyVal)
@@ -223,22 +224,22 @@ class Dict[K, V](ContainerProperty[dict[K, V]]):
         expected = f"expected a dict of type {self}"
 
         if not isinstance(value, dict):
-            raise ValueError(f"{expected}, got a value of type {type(value)}" if detail else "")
+            raise ValidationError(f"{expected}, got a value of type {type(value)}" if detail else "")
 
-        bad_keys = [str(k) for k in value if not key_is_valid(k)]
-        bad_value_keys = [str(k) for (k, v) in value.items() if not value_is_valid(v)]
+        bad_keys = [str(k) or "''" for k in value if not key_is_valid(k)]
+        bad_value_keys = [str(k) or "''" for (k, v) in value.items() if not value_is_valid(v)]
         exception_header = f"{expected}, got a dict with"
         bad_keys_str = f"invalid keys: {', '.join(bad_keys)}"
         bad_value_keys_str = f"invalid values for keys: {', '.join(bad_value_keys)}"
         err = None
-        if (has_bad_keys := any(bad_keys)) & (has_bad_key_values := any(bad_value_keys)):
-            err = ValueError(f"{exception_header} {bad_keys_str} and {bad_value_keys_str}")
+        if (has_bad_keys := bool(bad_keys)) & (has_bad_key_values := bool(bad_value_keys)):
+            err = ValidationError(f"{exception_header} {bad_keys_str} and {bad_value_keys_str}")
         elif has_bad_keys:
-            err = ValueError(f"{exception_header} {bad_keys_str}")
+            err = ValidationError(f"{exception_header} {bad_keys_str}")
         elif has_bad_key_values:
-            err = ValueError(f"{exception_header} {bad_value_keys_str}")
+            err = ValidationError(f"{exception_header} {bad_value_keys_str}")
         if err:
-            raise err if detail else ValueError("")
+            raise err if detail else ValidationError("")
 
     @overload
     def wrap(self, value: dict[K, V]) -> PropertyValueDict[V]: ...
@@ -318,7 +319,7 @@ class Tuple(ContainerProperty[Any]):
                 return
 
         msg = "" if not detail else f"expected an element of {self}, got {value!r}"
-        raise ValueError(msg)
+        raise ValidationError(msg)
 
     def transform(self, value: Any) -> tuple[Any, ...]:
         """ Change the value into a JSON serializable format.
@@ -358,7 +359,7 @@ class RestrictedDict[K, V](Dict[K, V]):
 
         if error_keys:
             msg = "" if not detail else f"Disallowed keys: {error_keys!r}"
-            raise ValueError(msg)
+            raise ValidationError(msg)
 
 class NonEmpty[TSeq: Seq[Any, Any]](SingleParameterizedProperty[TSeq]):
     """ Allows only non-empty containers. """
@@ -372,7 +373,7 @@ class NonEmpty[TSeq: Seq[Any, Any]](SingleParameterizedProperty[TSeq]):
 
         if not value:
             msg = "" if not detail else "Expected a non-empty container"
-            raise ValueError(msg)
+            raise ValidationError(msg)
 
 class Len[TSeq: Seq[Any, Any]](SingleParameterizedProperty[TSeq]):
     """ Allows only containers of the given length. """
@@ -387,7 +388,7 @@ class Len[TSeq: Seq[Any, Any]](SingleParameterizedProperty[TSeq]):
 
         if len(value) != self.length:
             msg = "" if not detail else f"Expected a container of length #{self.length}, got #{len(value)}"
-            raise ValueError(msg)
+            raise ValidationError(msg)
 
 #-----------------------------------------------------------------------------
 # Dev API

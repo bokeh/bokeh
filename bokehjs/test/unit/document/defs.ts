@@ -1,7 +1,8 @@
 import {expect, expect_not_null} from "#framework/assertions"
 
 import {Deserializer} from "@bokehjs/core/serialization/deserializer"
-import {decode_defs, type ModelDef} from "@bokehjs/document/defs"
+import {decode_defs} from "@bokehjs/document/defs"
+import type {ModelDef} from "@bokehjs/document/defs"
 import {Model} from "@bokehjs/model"
 import {default_resolver} from "@bokehjs/base"
 import {ModelResolver} from "@bokehjs/core/resolvers"
@@ -223,9 +224,11 @@ describe("document/defs module", () => {
       const model_props = [
         "tags",
         "name",
-        "js_property_callbacks",
-        "js_event_callbacks",
-        "subscribed_events",
+        "_js_property_callbacks",
+        "_js_property_callback_policies",
+        "_js_event_callbacks",
+        "_subscribed_changes",
+        "_subscribed_events",
         "syncable",
       ]
 

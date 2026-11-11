@@ -65,6 +65,7 @@ type ReferenceCollector = {
 }
 
 export namespace HasProps {
+  // oxlint-disable-next-line typescript/no-generated-empty-object-type -- the base model has no properties
   export type Attrs = p.AttrsOf<Props>
   export type Props = {}
 
@@ -260,6 +261,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       }
     }
 
+    // oxlint-disable-next-line typescript/no-unnecessary-type-assertion -- tsgolint false positive, removing it fails type checking
     this.define(mixin_defs as any)
     this.prototype._mixins = [...this.prototype._mixins, ...mixins]
   }
@@ -577,7 +579,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   }
 
   // Create a new model with exact attribute values to this one, but new identity.
-  clone(attrs?: Partial<HasProps.Attrs>): this {
+  clone(attrs?: Partial<p.AttrsOf<this["properties"]>>): this {
     const cloner = new Cloner()
     const that = cloner.clone(this)
     if (attrs != null) {

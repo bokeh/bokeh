@@ -60,6 +60,7 @@ from ..core.property.required import Required
 from ..core.property.vectorization import field
 from ..core.property_aliases import AngleUnits
 from ..model import Model
+from .sources import ColumnarDataSource
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -69,6 +70,7 @@ __all__ = (
     'CumSum',
     'CustomJSExpr',
     'Expression',
+    'IndexedLookup',
     'PolarTransform',
     'Stack',
 )
@@ -175,6 +177,37 @@ class Stack(Expression):
 
     Will compute an array of values (in the browser) by adding the elements
     of the ``'sales'`` and ``'marketing'`` columns of a data source.
+    """)
+
+
+class IndexedLookup(Expression):
+    ''' Gather values from another column data source.
+
+    The expression reads the ``indices`` field on the renderer's primary data
+    source and resolves it against ``field`` on ``source``. Scalar indices produce
+    scalar values, while nested or shaped indices produce nested values. This
+    allows compact connectivity data to address a shared vertex table without
+    repeating coordinates in the serialized document.
+
+    Indices must be non-negative integers smaller than the number of value
+    rows. Index columns may be flat, ragged, or two-dimensional NumPy arrays.
+    Shaped value columns are indexed along their first axis.
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    source = Required(Instance(ColumnarDataSource), help="""
+    The column data source containing values to gather.
+    """)
+
+    field = Required(String, help="""
+    The field on ``source`` containing values to gather.
+    """)
+
+    indices = Required(String, help="""
+    The field on the renderer's primary source containing lookup indices.
     """)
 
 

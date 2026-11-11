@@ -57,7 +57,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @dataclass
-class Value[T](Serializable):
+class Value[T = Any](Serializable):
     value: T
     transform: NotRequired[Transform] = Unspecified
     units: NotRequired[str] = Unspecified

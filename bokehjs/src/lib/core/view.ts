@@ -437,6 +437,16 @@ export abstract class View implements ISignalable, Equatable {
     return this.parent == null
   }
 
+  /** Whether this view or any of its ancestors represents the given model. */
+  protected has_model_in_ancestry(model: HasProps): boolean {
+    for (let view: View | null = this; view != null; view = view.parent) {
+      if (view.model == model) {
+        return true
+      }
+    }
+    return false
+  }
+
   has_finished(): boolean {
     return this._has_finished
   }

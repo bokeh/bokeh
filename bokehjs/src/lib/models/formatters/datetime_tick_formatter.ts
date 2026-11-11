@@ -86,7 +86,7 @@ export function _strftime(t: number, format: string): string {
     // By default use 9 digits for nanoseconds, this is applied not only in case of no padding
     // (%N) but also for padding out of range (i.e. %0N, %15N)
     let padding = 9
-    const str_padding_matched = match.match(/%([1-9])N/)
+    const str_padding_matched = /%([1-9])N/.exec(match)
     if (str_padding_matched != null) {
       const padding_parsed = parseInt(str_padding_matched[1], 10)
       if (!Number.isNaN(padding_parsed)) {
@@ -103,7 +103,7 @@ export function _strftime(t: number, format: string): string {
   // and just return the time argument back instead of the string argument.
   // But we want the string argument, in case a user supplies a format string
   // which doesn't contain a formatting directive or is only using %f.
-  if (format.indexOf("%") == -1) {
+  if (!format.includes("%")) {
     return format
   }
 

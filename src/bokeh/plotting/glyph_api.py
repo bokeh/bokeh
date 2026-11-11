@@ -181,9 +181,9 @@ Examples:
 
         """
         if "size" in kwargs:
-            from ..util.deprecation import deprecated
+            from ..util.warnings import warn_deprecated
 
-            deprecated((3, 4, 0), "circle() method with size value", "scatter(size=...) instead")
+            warn_deprecated("circle() method with size value", "scatter(size=...)", since=(3, 4, 0))
             if "radius" in kwargs:
                 raise ValueError("can only provide one of size or radius")
             return self.scatter(*args, **kwargs)
@@ -1185,9 +1185,9 @@ Examples:
             marker_type = _MARKER_SHORTCUTS[marker_type]
 
         if marker_type == "circle" and "radius" in kwargs:
-            from ..util.deprecation import deprecated
+            from ..util.warnings import warn_deprecated
 
-            deprecated((3, 4, 0), "scatter(radius=...)", "circle(radius=...) instead")
+            warn_deprecated("scatter(radius=...)", "circle(radius=...)", since=(3, 4, 0))
             if "size" in kwargs:
                 raise ValueError("can only provide one of size or radius")
             return self.circle(*args, **kwargs)

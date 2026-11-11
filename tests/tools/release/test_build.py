@@ -53,7 +53,7 @@ def test_conda_recipe_dependencies_match_project_dependencies() -> None:
         return {requirement.name.lower(): str(requirement.specifier) for requirement in parsed}
 
     actual = constraints(conda_dependencies)
-    assert actual.pop("python") == ">=3.12"
+    assert actual.pop("python") == ">=3.13"
     assert actual == constraints(project_dependencies)
 
 

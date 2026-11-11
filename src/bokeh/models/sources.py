@@ -119,12 +119,11 @@ class ColumnarDataSource(DataSource):
     """)
 
 def _cds_lengths_warning(_, __, data: dict[str, Any]) -> None:
-    from ..util.warnings import BokehUserWarning, warn
+    from ..util.warnings import warn
 
     current_lengths = ', '.join(sorted(str((k, len(v))) for k, v in data.items()))
     warn(
         f"ColumnDataSource's columns must be of the same length. Current lengths: {current_lengths}",
-        BokehUserWarning,
     )
 
 class ColumnDataSource(ColumnarDataSource):
@@ -300,7 +299,7 @@ class ColumnDataSource(ColumnarDataSource):
                 _df.index = pdx.Index(_df.index.values)
             else:
                 _df.index = pdx.Index(_df.index.values, name=index_name)
-            _df.reset_index(inplace=True)
+            _df = _df.reset_index()
             _df = nw.from_native(_df, eager_only=True)
         else:
             _df = nw.from_native(df, eager_only=True)
@@ -682,6 +681,9 @@ class ColumnDataSource(ColumnarDataSource):
 
         Args:
             patches (dict[str, list[tuple]]) : lists of patches for each column
+            setter (ClientSession or ServerSession or None, optional) :
+                This is used to prevent "boomerang" updates to Bokeh apps.
+                (default: None)
 
         Returns:
             None

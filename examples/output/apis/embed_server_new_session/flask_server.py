@@ -60,4 +60,4 @@ def visualization(batchid):
     return render_template_string(app_html, embed_html=fragment.html)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()

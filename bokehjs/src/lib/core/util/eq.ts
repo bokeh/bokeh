@@ -126,6 +126,7 @@ export class Comparator {
           if (a.constructor == b.constructor && (a.constructor == null || a.constructor === Object)) {
             return this.objects(a, b)
           }
+          break
         }
         case "[object Function]": {
           if (a.constructor == b.constructor && a.constructor === Function) {

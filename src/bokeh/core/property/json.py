@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 
 from typing import Any
 
+from .exceptions import ValidationError
 from .primitive import String
 
 #-----------------------------------------------------------------------------
@@ -61,7 +62,7 @@ class JSON(String):
             json.loads(value)
         except ValueError:
             msg = "" if not detail else f"expected JSON text, got {value!r}"
-            raise ValueError(msg)
+            raise ValidationError(msg)
 
 #-----------------------------------------------------------------------------
 # Dev API

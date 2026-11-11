@@ -7,3 +7,19 @@
 {{ super() }}
 {% endif %}
 {% endblock %}
+
+{% block extrahead %}
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="color-scheme" content="light dark"/>
+<meta name="docsearch:language" content="{{ language }}"/>
+<meta name="docsearch:version" content="{{ version }}"/>
+{% if last_updated %}
+<meta name="docbuild:last-update" content="{{ last_updated | e }}"/>
+{% endif %}
+{% if pagename != "search" %}
+{# The runtime and language data precede the index, and Sphinx queues early queries. #}
+<script src="{{ pathto('_static/searchtools.js', 1) | e }}"></script>
+<script src="{{ pathto('_static/language_data.js', 1) | e }}"></script>
+<script async src="{{ pathto('searchindex.js', 1) | e }}"></script>
+{% endif %}
+{% endblock %}

@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 
 from math import inf
 from typing import Any
+from warnings import deprecated
 
 from ...core.has_props import abstract
 from ...core.property.any import AnyRef
@@ -264,9 +265,7 @@ class Spinner(NumericInput):
 
     '''
 
-    value_throttled = Readonly(Either(Null, Float, Int), help="""
-    Value reported at the end of interactions.
-    """)
+    _committed_callback_properties = frozenset({"value"})
 
     mode = Override(default="float")
 
@@ -280,8 +279,8 @@ class Spinner(NumericInput):
     """)
 
     wheel_wait = Either(Int, Float, default=100, help="""
-    Defines the debounce time in ms before updating `value_throttled` when the
-    mouse wheel is used to change the input.
+    Defines the debounce time in ms before committing a value changed with the
+    mouse wheel.
     """)
 
 @abstract
@@ -562,15 +561,13 @@ class PaletteSelect(InputWidget):
 # Legacy API
 #-----------------------------------------------------------------------------
 
+@deprecated("'ColorMap widget' was deprecated in Bokeh 3.4.0 and will be removed, use 'PaletteSelect widget' instead.")
 def ColorMap(*args: Any, **kwargs: Any) -> PaletteSelect:
     ''' Color palette select widget.
 
     .. deprecated:: 3.4.0
         Use ``PaletteSelect`` widget instead.
     '''
-    from ...util.deprecation import deprecated
-
-    deprecated((3, 4, 0), "ColorMap widget", "PaletteSelect widget")
     return PaletteSelect(*args, **kwargs)
 
 #-----------------------------------------------------------------------------

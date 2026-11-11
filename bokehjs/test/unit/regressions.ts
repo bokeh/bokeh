@@ -25,9 +25,11 @@ import {
   CopyTool,
   CustomJS,
   DataRange1d,
+  Dodge,
   EqHistColorMapper,
   FactorRange,
   GlyphRenderer,
+  HArea,
   HoverTool,
   Image,
   IndexFilter,
@@ -36,6 +38,7 @@ import {
   Line,
   LinearColorMapper,
   LogColorMapper,
+  Maximum,
   Node,
   PanTool,
   Pane,
@@ -73,7 +76,7 @@ import {version} from "@bokehjs/version"
 import {Model} from "@bokehjs/model"
 import * as p from "@bokehjs/core/properties"
 import {is_equal} from "@bokehjs/core/util/eq"
-import {linspace, logspace, range} from "@bokehjs/core/util/array"
+import {linspace, logspace, range, sorted} from "@bokehjs/core/util/array"
 import {keys} from "@bokehjs/core/util/object"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {BitSet} from "@bokehjs/core/util/bitset"
@@ -81,7 +84,7 @@ import {b64decode} from "@bokehjs/core/util/buffer"
 import type {XY} from "@bokehjs/core/util/bbox"
 import {div} from "@bokehjs/core/dom"
 import type {Color, Arrayable} from "@bokehjs/core/types"
-import type {DocJson, DocumentEvent} from "@bokehjs/document"
+import type {DocJson, DocumentChangedEvent, DocumentEvent} from "@bokehjs/document"
 import {Document, ModelChangedEvent, MessageSentEvent} from "@bokehjs/document"
 import {DocumentReady, RangesUpdate} from "@bokehjs/core/bokeh_events"
 import {gridplot} from "@bokehjs/api/gridplot"
@@ -874,6 +877,23 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #13299", () => {
+    it("doesn't allow to update Button's icon when it's replaced with a new icon", async () => {
+      const icon = TablerIcon.create({icon_name: "thumb-up"})
+      const button = Button.create({icon, label: "Like"})
+
+      const {view} = await display(button)
+
+      const new_icon = TablerIcon.create({icon_name: "thumb-down"})
+      button.icon = new_icon
+      await view.ready
+
+      const new_icon_view = view.owner.get_one(new_icon)
+      expect(view.button_el.contains(new_icon_view.el)).to.be.true
+      expect(view.owner.find_one(icon)).to.be.null
+    })
+  })
+
   describe("in issue #13377", () => {
     it("doesn't allow serialization of unset readonly properties", async () => {
       const obj = ModelWithUnsetReadonly.create()
@@ -889,9 +909,11 @@ describe("Bug", () => {
           attributes: {
             tags: [],
             name: null,
-            js_property_callbacks: {type: "map"},
-            js_event_callbacks: {type: "map"},
-            subscribed_events: {type: "set"},
+            _js_property_callbacks: {type: "map"},
+            _js_property_callback_policies: {type: "map"},
+            _js_event_callbacks: {type: "map"},
+            _subscribed_changes: {type: "map"},
+            _subscribed_events: {type: "set"},
             syncable: true,
             reconnect_session: true,
             notify_connection_status: true,
@@ -902,9 +924,11 @@ describe("Bug", () => {
               attributes: {
                 tags: [],
                 name: null,
-                js_property_callbacks: {type: "map"},
-                js_event_callbacks: {type: "map"},
-                subscribed_events: {type: "set"},
+                _js_property_callbacks: {type: "map"},
+                _js_property_callback_policies: {type: "map"},
+                _js_event_callbacks: {type: "map"},
+                _subscribed_changes: {type: "map"},
+                _subscribed_events: {type: "set"},
                 syncable: true,
                 html_attributes: {type: "map"},
                 html_id: null,
@@ -926,9 +950,11 @@ describe("Bug", () => {
           attributes: {
             tags: [],
             name: null,
-            js_property_callbacks: {type: "map"},
-            js_event_callbacks: {type: "map"},
-            subscribed_events: {type: "set"},
+            _js_property_callbacks: {type: "map"},
+            _js_property_callback_policies: {type: "map"},
+            _js_event_callbacks: {type: "map"},
+            _subscribed_changes: {type: "map"},
+            _subscribed_events: {type: "set"},
             syncable: true,
           },
         }],
@@ -1673,8 +1699,8 @@ describe("Bug", () => {
 
       table.view.filter = IndexFilter.create({indices: [0, 1, 2]})
 
-      expect(view.get_selected_rows().slice().sort()).to.be.equal([0, 2].sort())
-      expect(table.source.selected.indices.slice().sort()).to.be.equal([0, 2].sort())
+      expect(sorted(view.get_selected_rows())).to.be.equal([0, 2])
+      expect(sorted(table.source.selected.indices)).to.be.equal([0, 2])
     })
   })
 
@@ -2174,8 +2200,8 @@ ${view.host_selector} {
 
       table.view.filter = IndexFilter.create({indices: [0, 1, 2]})
 
-      expect(view.get_selected_rows().slice().sort()).to.be.equal([])
-      expect(table.source.selected.indices.slice().sort()).to.be.equal([])
+      expect(sorted(view.get_selected_rows())).to.be.equal([])
+      expect(sorted(table.source.selected.indices)).to.be.equal([])
     })
   })
 
@@ -2258,7 +2284,7 @@ ${view.host_selector} {
           y_range.end = Math.max(...vis_y1, ...vis_y2) + 1
         }
       `})
-      x_range.js_property_callbacks = {"change:end": [autoscale]}
+      x_range._js_property_callbacks = {"change:end": [autoscale]}
 
       const {view} = await display(p)
       await actions(view).scroll_up(xy(50, 0), 2)
@@ -2641,6 +2667,97 @@ ${view.host_selector} {
         delete (canvas as any).width
         delete (canvas as any).height
       }
+    })
+  })
+
+  describe("in issue #14364", () => {
+    function setup(...roots: Model[]) {
+      const doc = new Document({roots})
+      const events: DocumentChangedEvent[] = []
+      doc.on_change((event) => events.push(event))
+      return {doc, events}
+    }
+
+    it("sends plain values of scalar specs unwrapped in document patches", () => {
+      const glyph = Line.create()
+      const {doc, events} = setup(glyph)
+
+      glyph.line_color = "#CC79A7"
+      glyph.line_width = 3
+
+      expect(doc.create_json_patch(events)).to.be.equal({
+        events: [
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "line_color", new: "#CC79A7"},
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "line_width", new: 3},
+        ],
+      })
+    })
+
+    it("sends plain values of scalar specs of new models unwrapped in document patches", () => {
+      const {doc, events} = setup()
+
+      const glyph = Line.create({line_color: "#CC79A7"})
+      doc.add_root(glyph)
+
+      expect(doc.create_json_patch(events)).to.be.equal({
+        events: [{
+          kind: "RootAdded",
+          model: {type: "object", name: "Line", id: glyph.id, attributes: {line_color: "#CC79A7"}},
+        }],
+      })
+    })
+
+    it("sends plain hatch patterns of area glyphs unwrapped in document patches", () => {
+      const glyph = HArea.create()
+      const {doc, events} = setup(glyph)
+
+      glyph.hatch_pattern = "horizontal"
+      glyph.hatch_pattern = "custom_pattern"
+
+      expect(doc.create_json_patch(events)).to.be.equal({
+        events: [
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "hatch_pattern", new: "horizontal"},
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "hatch_pattern", new: "custom_pattern"},
+        ],
+      })
+    })
+
+    it("keeps scalar specs with a transform, units or an expression structured in document patches", () => {
+      const glyph = Line.create()
+      const {doc, events} = setup(glyph)
+
+      const transform = Dodge.create({value: 1})
+      const expr = Maximum.create({field: "y"})
+      glyph.line_width = {value: 3, transform}
+      glyph.line_dash_offset = {value: 2, units: "screen"} as any
+      glyph.line_alpha = {expr} as any
+
+      expect(doc.create_json_patch(events)).to.be.equal({
+        events: [
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "line_width", new: {
+            type: "value", value: 3, transform: {type: "object", name: "Dodge", id: transform.id, attributes: {value: 1}},
+          }},
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "line_dash_offset", new: {
+            type: "value", value: 2, units: "screen",
+          }},
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "line_alpha", new: {
+            type: "expr", expr: {type: "object", name: "Maximum", id: expr.id, attributes: {field: "y"}},
+          }},
+        ],
+      })
+    })
+
+    it("doesn't unwrap plain values of vector specs in document patches", () => {
+      const glyph = Scatter.create()
+      const {doc, events} = setup(glyph)
+
+      glyph.fill_color = "#CC79A7"
+
+      expect(doc.create_json_patch(events)).to.be.equal({
+        events: [
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "fill_color", new: {type: "value", value: "#CC79A7"}},
+        ],
+      })
     })
   })
 })

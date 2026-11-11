@@ -21,9 +21,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 from typing import TYPE_CHECKING, Literal
+from warnings import deprecated
 
 from ..resources import DEFAULT_SERVER_HTTP_URL
-from ..util.deprecation import deprecated
 from ..util.strings import format_docstring
 
 if TYPE_CHECKING:
@@ -43,6 +43,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
+@deprecated("'server_document()' was deprecated in Bokeh 4.0.0 and will be removed, use 'embed_server(...).fragment(...).html' instead.")
 def server_document(url: str = "default", relative_urls: bool = False, resources: Literal["default"] | None = "default",
         arguments: dict[str, object] | None = None, headers: dict[str, str] | None = None, with_credentials: bool = False) -> str:
     ''' Return an embed fragment that embeds content from a Bokeh server.
@@ -77,15 +78,17 @@ def server_document(url: str = "default", relative_urls: bool = False, resources
             files you'll load separately are of the same version as that of the
             server's, otherwise the rendering may not work correctly.
 
-       arguments (dict[str, object], optional) :
+        arguments (dict[str, object], optional) :
             A dictionary of key/values to be passed as HTTP request arguments
             to Bokeh application code (default: None). Values are converted to strings.
 
-       headers (dict[str, str], optional) :
+        headers (dict[str, str], optional) :
             A dictionary of key/values to be passed as HTTP Headers
             to Bokeh application code (default: None)
 
-       with_credentials (bool, optional):
+            Mutually exclusive with ``with_credentials``
+
+        with_credentials (bool, optional):
             Whether cookies should be passed to Bokeh application code (default: False)
 
     Returns:
@@ -96,7 +99,6 @@ def server_document(url: str = "default", relative_urls: bool = False, resources
         facade will be removed in a later 4.x release.
 
     '''
-    deprecated((4, 0, 0), "server_document()", "embed_server(...).fragment(...).html")
     if resources not in ("default", None):
         raise ValueError("resources must be 'default' or None")
     from ._util import embed_server
@@ -111,6 +113,7 @@ def server_document(url: str = "default", relative_urls: bool = False, resources
     policy: Literal["none", "server"] = "none" if resources is None else "server"
     return result.fragment(resources=policy).html
 
+@deprecated("'server_session()' was deprecated in Bokeh 4.0.0 and will be removed, use 'embed_server(session_id=...).fragment(...).html' instead.")
 def server_session(model: Model | None = None, session_id: ID | None = None, url: str = "default",
         relative_urls: bool = False, resources: Literal["default"] | None = "default", headers: dict[str, str] | None = None,
         with_credentials: bool = False) -> str:
@@ -162,11 +165,13 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
             files you'll load separately are of the same version as that of the
             server's, otherwise the rendering may not work correctly.
 
-       headers (dict[str, str], optional) :
+        headers (dict[str, str], optional) :
             A dictionary of key/values to be passed as HTTP Headers
             to Bokeh application code (default: None)
 
-       with_credentials (bool, optional):
+            Mutually exclusive with ``with_credentials``
+
+        with_credentials (bool, optional):
             Whether cookies should be passed to Bokeh application code (default: False)
 
     Returns:
@@ -183,7 +188,6 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
         compatibility facade will be removed in a later 4.x release.
 
     '''
-    deprecated((4, 0, 0), "server_session()", "embed_server(session_id=...).fragment(...).html")
     if session_id is None:
         raise ValueError("Must supply a session_id")
 

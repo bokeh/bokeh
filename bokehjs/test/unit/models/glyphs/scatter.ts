@@ -272,7 +272,7 @@ describe("Scatter", () => {
 
       source.data = {x: [0], y: [0]} as any
       await defer()
-      source.stream({x: ["2024-01-02"], y: [1]} as any)
+      source.stream({x: ["2024-01-02"], y: [1]})
       await defer()
       expect_dates([0, Date.UTC(2024, 0, 2)])
 

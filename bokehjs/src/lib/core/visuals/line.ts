@@ -65,7 +65,7 @@ export class Line extends VisualProperties {
       join:   this.get_line_join(),
       cap:    this.get_line_cap(),
       dash:   this.get_line_dash(),
-      offset: this.get_line_dash_offset(),
+      dash_offset: this.get_line_dash_offset(),
     }
   }
 
@@ -197,7 +197,7 @@ export class LineScalar extends VisualUniforms {
       join:   this.line_join.value,
       cap:    this.line_cap.value,
       dash:   this.line_dash.value,
-      offset: this.line_dash_offset.value,
+      dash_offset: this.line_dash_offset.value,
     }
   }
 
@@ -274,7 +274,7 @@ export class LineVector extends VisualUniforms {
       join:   this.line_join.get(i),
       cap:    this.line_cap.get(i),
       dash:   this.line_dash.get(i),
-      offset: this.line_dash_offset.get(i),
+      dash_offset: this.line_dash_offset.get(i),
     }
   }
 

@@ -29,11 +29,11 @@ from typing import (
     Sequence,
     cast,
 )
+from warnings import deprecated
 
 from ..core.templates import FILE
 from ..document.document import Document
 from ..model import Model
-from ..util.deprecation import deprecated
 from ._output import render_fragment, render_resource
 from ._util import ThemeSource, project_embed_result
 from .resources import ResolvedResource
@@ -74,6 +74,7 @@ def json_item(model: Model, target: ID | None = None, theme: ThemeSource = None)
         "or embed(model).external(...) for a declarative external payload.",
     )
 
+@deprecated("'components()' was deprecated in Bokeh 4.0.0 and will be removed, use 'embed(...).fragment(...)' instead.")
 def components(models: Model | Document | Sequence[Model | Document] | dict[str, Model | Document],
         wrap_script: bool = True, wrap_plot_info: bool = True, *, theme: ThemeSource = None) -> tuple[str, Any]:
     ''' Return HTML components to embed a Bokeh plot. The data for the plot is
@@ -151,7 +152,6 @@ def components(models: Model | Document | Sequence[Model | Document] | dict[str,
     '''
     from ._util import embed
 
-    deprecated((4, 0, 0), "components()", "embed(...).fragment(...)")
     if wrap_script is not True or wrap_plot_info is not True:
         raise ValueError(
             "components() wrapping flags were removed. Use "
@@ -193,6 +193,7 @@ def components(models: Model | Document | Sequence[Model | Document] | dict[str,
         result = tuple(divs.values())
     return script, result
 
+@deprecated("'file_html()' was deprecated in Bokeh 4.0.0 and will be removed, use 'embed(...).page(...)' instead.")
 def file_html(
     models: Model | Document | Sequence[Model],
     resources: ResourcesLike | None = None,
@@ -252,7 +253,6 @@ def file_html(
     '''
     from ._util import embed
 
-    deprecated((4, 0, 0), "file_html()", "embed(...).page(...)")
     callback_policy: Literal["suppress", "warn"] = "suppress" if suppress_callback_warning else "warn"
     result = embed(models, theme=theme, callback_policy=callback_policy)
     return result.page(

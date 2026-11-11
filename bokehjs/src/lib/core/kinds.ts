@@ -214,6 +214,7 @@ export namespace Kinds {
         return false
       }
 
+      // oxlint-disable-next-line typescript/no-unnecessary-type-assertion -- tsgolint false positive, removing it fails type checking
       const struct_type_proxy = new PlainObjectProxy(this.struct_type as types.PlainObject<Kind<unknown>>)
 
       for (const key of keys(value)) {
@@ -255,6 +256,7 @@ export namespace Kinds {
       }
 
       const value_proxy = new PlainObjectProxy(value)
+      // oxlint-disable-next-line typescript/no-unnecessary-type-assertion -- tsgolint false positive, removing it fails type checking
       const struct_type_proxy = new PlainObjectProxy(this.struct_type as types.PlainObject<Kind<unknown>>)
 
       for (const key of value_proxy.keys()) {
@@ -706,6 +708,7 @@ export const Positive = <BaseType extends number>(base_type: Kind<BaseType>) => 
 export const Percent = new Kinds.Percent()
 export const Alpha = Percent
 export const Color = new Kinds.Color()
+export const Palette = List(Color)
 export const Auto = Enum("auto")
 export const CSSLength = new Kinds.CSSLength()
 

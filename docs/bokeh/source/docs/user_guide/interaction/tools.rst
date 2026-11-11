@@ -624,6 +624,17 @@ Field names that begin with ``@`` are associated with columns in a
 values from the ``"price"`` column whenever a hover is triggered. If the hover
 is for the 17th glyph instance, then the hover tooltip will display the 17th price value.
 
+For a multidimensional NumPy array column, the value is the complete row along
+the first axis. For example, hovering over the second point with a column
+``np.array([[0, 1, 2], [0, 2, 3]])`` displays ``0,2,3`` with the default formatter.
+Column values in DOM templates and ``OpenURL`` placeholders follow the same rule.
+
+Large arrays in tooltips show a preview of up to 10 entries or 200 characters,
+with ellipses marking omitted values and a label giving the outer array length.
+Nested arrays retain their brackets. Filters and custom formatters still receive
+the complete value. Explicit formats, including ``{safe}``, retain their normal
+output.
+
 Note that if a column name contains spaces, it must be surrounded by
 curly braces. For example, configuring ``@{adjusted close}`` will display values
 from a column named ``"adjusted close"``.
@@ -801,7 +812,8 @@ function is as follows:
 where:
 
 * ``value`` contains the value of the currently processed data point
-* ``row`` contains values for all fields for the current index
+* ``row`` contains values for all fields at the current index, including complete
+  rows from multidimensional columns
 * ``index`` is the current linear index, image index or ``null``
 * ``field`` is the currently processed field name
 * ``data_source`` is the currently processed data source

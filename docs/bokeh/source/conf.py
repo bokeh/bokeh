@@ -13,7 +13,9 @@ import os
 import re
 import sys
 from datetime import date
+from pathlib import Path
 
+from sphinx.errors import SphinxError
 from sphinx.util import logging
 
 from bokeh import __version__
@@ -242,6 +244,10 @@ favicons = [
 templates_path = ["_templates"]
 
 def setup(app):
+    for name in ("bokeh-hero.webp", "bokeh-hero-600.webp"):
+        if not (Path(app.confdir) / "_static" / "images" / name).is_file():
+            raise SphinxError(f"Missing homepage image {name}. Run python docs/bokeh/optimize_hero.py to regenerate it.")
+
     app.add_object_type("confval", "confval", objname="configuration value", indextemplate="pair: %s; configuration value")
     app.add_js_file(None, body=f"const BOKEH_CURRENT_VERSION = {version!r};", priority=100)
     app.add_js_file("custom.js")

@@ -5,16 +5,18 @@ import "./vue_components.js"
 
 import {
   ColumnDataSource, Document, ModelResolver, MountError, MountSource, Plotting, Range1d,
-  mount, publish_mount_error, register_models, register_standard_models, when_mounted,
+  mount, publish_mount_error, register_models, register_standard_models, server_document, when_mounted,
 } from "@bokeh/bokehjs"
-import type {properties as p} from "@bokeh/bokehjs"
-import {Bokeh as ReactBokeh, BokehDocument as ReactBokehDocument, BokehRoot as ReactBokehRoot} from "@bokeh/react"
+import type {BokehMount, ClientSession, ServerDocumentOptions, properties as p} from "@bokeh/bokehjs"
+import {SessionMountController} from "@bokeh/framework"
+import type {BokehSessionSource} from "@bokeh/framework"
+import {Bokeh as ReactBokeh, BokehDocument as ReactBokehDocument, BokehRoot as ReactBokehRoot, BokehSession as ReactBokehSession} from "@bokeh/react"
 import type {useBokeh as useReactBokeh} from "@bokeh/react"
-import {bokeh, bokehDocument, bokehRoot} from "@bokeh/svelte"
-import {Bokeh as VueBokeh, BokehDocument as VueBokehDocument, BokehRoot as VueBokehRoot} from "@bokeh/vue"
+import {bokeh, bokehDocument, bokehRoot, bokehSession} from "@bokeh/svelte"
+import {Bokeh as VueBokeh, BokehDocument as VueBokehDocument, BokehRoot as VueBokehRoot, BokehSession as VueBokehSession} from "@bokeh/vue"
 import type {useBokeh as useVueBokeh} from "@bokeh/vue"
-import {defineBokehDocumentElement, defineBokehElement, defineBokehRootElement} from "@bokeh/web-component"
-import type {BokehDocumentElement, BokehElement, BokehRootElement} from "@bokeh/web-component"
+import {defineBokehDocumentElement, defineBokehElement, defineBokehRootElement, defineBokehSessionElement} from "@bokeh/web-component"
+import type {BokehDocumentElement, BokehElement, BokehRootElement, BokehSessionElement} from "@bokeh/web-component"
 
 const source = ColumnDataSource.create({data: {x: [0, 1], y: [1, 0]}})
 const plot = Plotting.figure({tools: []})
@@ -25,6 +27,15 @@ const roots = [plot, detail]
 const roots_document = new Document({roots})
 
 const target = document.createElement("div")
+const server_options: ServerDocumentOptions = {
+  arguments: {dataset: "sales"}, headers: {Authorization: "Bearer example"},
+  credentials: "include", signal: new AbortController().signal,
+  on_error: (error) => void error.kind,
+}
+const server_mount: BokehMount = server_document("/app", "#plot", server_options)
+void server_mount.ready
+void server_mount.dispose()
+void server_document("/app", target)
 const direct_mount = mount(plot, target)
 void direct_mount
 void target.bokehMount?.ready
@@ -76,6 +87,32 @@ void web_component_root_model
 void defineBokehElement
 void defineBokehDocumentElement
 void defineBokehRootElement
+
+declare const session: ClientSession
+const borrowed_session: BokehSessionSource = {session}
+const owned_session: BokehSessionSource = {connection: {url: "wss://example.test/app/ws", token: "issued-token"}}
+// @ts-expect-error A provider must either borrow or own its session.
+const ambiguous_session: BokehSessionSource = {session, connection: owned_session.connection}
+void ambiguous_session
+createElement(ReactBokehSession, {source: borrowed_session, onSession: (value) => void value.document},
+  createElement(ReactBokehRoot, {model: "plot"}),
+)
+void h(VueBokehSession, {source: owned_session, onSession: (value) => void value.document},
+  () => h(VueBokehRoot, {model: "plot"}),
+)
+void bokehSession(document.createElement("main"), {source: borrowed_session, onSession: (value) => void value.document})
+void bokehRoot(document.createElement("div"), {model: "plot"})
+declare const session_element: BokehSessionElement
+declare const root_element: BokehRootElement
+session_element.source = owned_session
+root_element.bokehDocument = session_element
+root_element.model = "plot"
+void defineBokehSessionElement
+const session_controller = new SessionMountController()
+session_controller.update(borrowed_session)
+session_controller.attach("plot", target)
+session_controller.update(null)
+session_controller.dispose()
 
 namespace CustomRange {
   export type Attrs = p.AttrsOf<Props>

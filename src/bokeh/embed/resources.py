@@ -409,7 +409,12 @@ def bundle_extensions(objs: Iterable[HasProps | type[HasProps]] | None, policy: 
         module = __import__(name)
         if module.__file__ is None:
             continue
-        base_dir = Path(module.__file__).absolute().parent
+        # Resolve the module path so the registered static root lands on the
+        # same side of Tornado's realpath check as the files it serves. Under
+        # symlinked installs (uv --link-mode symlink, Nix, Bazel) the files
+        # resolve into a shared cache; an unresolved root would make every
+        # asset 403 (see #15545).
+        base_dir = Path(module.__file__).resolve().parent
         dist_dir = base_dir / "dist"
         if not (base_dir / "bokeh.ext.json").exists():
             continue

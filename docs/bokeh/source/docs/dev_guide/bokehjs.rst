@@ -71,9 +71,9 @@ Code Style Guide
 -----------------
 
 BokehJS doesn't have an explicit style guide. Make sure to run ``node make
-lint`` or ``node make lint --fix`` before committing to the Bokeh repository.
-Also, review the surrounding code and try to be consistent with the existing
-code.
+build lint`` or ``node make build lint --fix`` before committing to the Bokeh
+repository. Also, review the surrounding code and try to be consistent with the
+existing code.
 
 Some guidelines and tips to keep in mind when working on BokehJS:
 
@@ -86,15 +86,22 @@ Some guidelines and tips to keep in mind when working on BokehJS:
 * Use `template literals (template strings)`_ for multiline, tagged, and
   interpolated strings ( ```Bokeh ${Bokeh.version}``` ).
 
-Always lint your BokehJS code with ESLint_: From the :bokeh-tree:`bokehjs`
-directory, run ``node make lint`` to check your code. Run
-``node make lint --fix`` to have ESLint fix some problems automatically. For
-more details, see the rules defined in :bokeh-tree:`bokehjs/eslint.config.mjs`.
+Always lint your BokehJS code with Oxlint_: From the :bokeh-tree:`bokehjs`
+directory, run ``node make build lint`` to check your code. Run
+``node make build lint --fix`` to have Oxlint fix some problems automatically.
+For more details, see the rules defined in :bokeh-tree:`bokehjs/.oxlintrc.jsonc`.
+
+.. note::
+  Type-aware lint rules check tests, examples and frameworks against the
+  generated ``*.d.ts`` files under ``bokehjs/build``. On a clean checkout, or
+  after changes that affect the generated declarations, these files are missing
+  or stale, so build BokehJS before linting. When the build is current, you can
+  run ``node make lint`` on its own.
 
 .. tip::
   You can lint the code in your IDE. For example, if you use VSCode, then
-  you need the `ESLint extension for VSCode`_ to be installed. This doesn't
-  require any additional configuration.
+  you need the `Oxc extension for VSCode`_ to be installed. It picks up
+  :bokeh-tree:`bokehjs/.oxlintrc.jsonc` automatically.
 
 .. _contributor_guide_bokehjs_requirements:
 
@@ -109,7 +116,8 @@ Developing BokehJS requires the following minimum versions:
 
 * Node.js 24+
 * npm 11+
-* Chrome/Chromium browser 141+ or equivalent
+* Chrome/Chromium 141+; Pixi setup supplies Playwright-managed Chromium (see
+  :ref:`contributor_guide_testing_local_javascript`)
 
 Bokeh officially supports the following platforms for development and testing:
 
@@ -143,8 +151,8 @@ system. These are the most common commands:
   Component, vanilla Vite/Webpack/Rspack, and server-side-rendering examples,
   and runs the browser lifecycle tests in production and development builds.
   This is also part of ``node make test`` in continuous integration.
-* ``node make lint`` lint BokehJS with ESLint_. Run ``node make lint --fix`` to
-  have ESLint fix some problems automatically.
+* ``node make lint`` lint BokehJS with Oxlint_. Run ``node make lint --fix`` to
+  have Oxlint fix some problems automatically.
 
 ``node make`` automatically runs ``npm install`` whenever ``package.json``
 changes.
@@ -373,6 +381,19 @@ instead of starting it and discarding its promise:
       this.on_change(items, () => { void this.build_item_views() })
     }
 
+Glyph renderers defer data preparation to a microtask and serialize it with
+visual updates. Like ``request_paint()``, ``GlyphRendererView.update_data()``
+and ``update_visuals()`` only queue this work, track it themselves and return
+nothing. Source mutations and model notifications remain synchronous, but
+renderer state, including coordinate arrays and hit-test indices, may still
+describe the previous data immediately after a source change. Await the
+renderer's or plot view's ``ready`` before inspecting that state. Updates
+received before a pass starts are combined, including when a preceding pass
+is still active. The exception is a change of ``CDSView.masked``, which is
+published while painting: unless data preparation is queued or active, visuals
+are updated immediately, so the paint that published the mask draws with them.
+Asynchronous visual hooks still run in a queued pass.
+
 ``ready`` behaves as follows:
 
 * It resolves when the view and all its descendants have no pending tasks.
@@ -406,9 +427,55 @@ work with ``schedule()``.
     which tracks an already started promise. Prefer ``schedule()``, which
     also handles synchronous failures and provides the abort signal.
 
+Supporting committed property callbacks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Callback :ref:`delivery policies <ug_interaction_callback_policies>` normally
+need no special support from a model or view. Throttled and debounced callbacks
+observe ordinary property changes and are scheduled automatically. A committed
+callback is different: the component defines when an active interaction begins
+and when its final value is committed.
+
+A view that supports committed callbacks must begin deferral before the first
+property change in an interaction, and request a flush when the interaction
+finishes. Continue updating the model property normally while it is deferred.
+Browser-side model state, rendering, and internal signal handlers remain
+immediate. Only callbacks registered with a committed policy and corresponding
+browser-to-server updates wait for the flush.
+
+.. code-block:: typescript
+
+    protected _begin_value_change(): void {
+      if (this.model.has_callback_policy("value", "committed")) {
+        this.model.document?.begin_sync_deferral(this.model, "value")
+      }
+    }
+
+    protected _commit_value(): void {
+      this.model.document?.request_sync_flush(this.model, "value", "committed")
+    }
+
+    override remove(): void {
+      this._commit_value()
+      super.remove()
+    }
+
+Call the begin method before the first model assignment, not after it. Every way
+an interaction can end must call the commit method. Depending on the component,
+this can include pointer release or cancellation, lost pointer capture, keyup,
+focus loss, a pause in wheel events, and view removal. Passing ``"committed"``
+to ``request_sync_flush()`` prevents a redundant flush when no committed
+interaction is active.
+
+Tests for a component with committed support should verify that its model value
+and rendering still update during the interaction, that committed callbacks do
+not run until the interaction ends, and that every completion path delivers the
+final value exactly once. Sliders and ``Spinner`` provide examples covering
+pointer, keyboard, wheel, focus, and removal paths.
+
 .. _gulp: https://gulpjs.com/
-.. _ESLint: https://eslint.org/
+.. _Oxlint: https://oxc.rs/docs/guide/usage/linter.html
 .. _JSFiddle: http://jsfiddle.net/
 .. _GitHub_Actions: https://github.com/bokeh/bokeh/actions?query=workflow%3ABokehJS-CI
-.. _ESLint extension for VSCode: https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
+.. _Oxc extension for VSCode: https://marketplace.visualstudio.com/items?itemName=oxc.oxc-vscode
 .. _template literals (template strings): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals

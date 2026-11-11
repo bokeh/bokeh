@@ -26,7 +26,6 @@ from bokeh.models import CustomJS
 from bokeh.plotting import figure
 from bokeh.resources import Resources
 from bokeh.util.compiler import JavaScript
-from bokeh.util.warnings import BokehDeprecationWarning
 
 
 def result_from_fragment(fragment: str) -> EmbedResult:
@@ -60,12 +59,12 @@ def test_existing_session_flask_example_renders_template(monkeypatch: pytest.Mon
 
 
 def deprecated_server_document(*args: Any, **kwargs: Any) -> str:
-    with pytest.warns(BokehDeprecationWarning, match=r"server_document\(\)"):
+    with pytest.warns(DeprecationWarning, match=r"server_document\(\)"):
         return bes.server_document(*args, **kwargs)
 
 
 def deprecated_server_session(*args: Any, **kwargs: Any) -> str:
-    with pytest.warns(BokehDeprecationWarning, match=r"server_session\(\)"):
+    with pytest.warns(DeprecationWarning, match=r"server_session\(\)"):
         return bes.server_session(*args, **kwargs)
 
 

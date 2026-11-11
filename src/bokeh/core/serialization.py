@@ -168,11 +168,8 @@ class Buffer:
 
     def to_compressed_bytes(self) -> bytes:
         level = settings.compression_level()
-        # we do not want the result to be different depending on mtime, since that is
-        # irrelevant and also makes things harder to test, but Python 3.11 and 3.12 have
-        # bug where using mtime=0 results in the Gzip header OS field varies by platforam
-        # instead of getting set to a fixed value of 255. So, for now use mtime=1 instead.
-        return gzip.compress(self.to_bytes(), mtime=1, compresslevel=level)
+        # Omit creation time for reproducible output across runs and platforms.
+        return gzip.compress(self.to_bytes(), mtime=0, compresslevel=level)
 
     def to_base64(self) -> str:
         return base64.b64encode(self.to_compressed_bytes()).decode("utf-8")
@@ -343,9 +340,9 @@ class Serializer:
         if -_MAX_SAFE_INT < obj <= _MAX_SAFE_INT:
             return obj
         else:
-            from ..util.warnings import BokehUserWarning, warn
+            from ..util.warnings import warn
 
-            warn("out of range integer may result in loss of precision", BokehUserWarning)
+            warn("out of range integer may result in loss of precision")
             return self._encode_float(float(obj))
 
     def _encode_float(self, obj: float) -> NumberRep | float:

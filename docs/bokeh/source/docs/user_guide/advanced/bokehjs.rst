@@ -215,6 +215,236 @@ Caller-driven abort and early disposal instead reject a pending ``ready``
 promise and set ``error``. They are expected lifecycle cancellation and are not
 sent to ``on_error``.
 
+Embedding a server application by URL
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``server_document()`` embeds a running Bokeh application using its HTTP(S) URL
+and a DOM element or selector. It obtains a session token from the application's
+``/embed.json`` endpoint and prepares Bokeh's built-in core, widget, and table
+models automatically:
+
+.. code-block:: typescript
+
+    import {server_document} from "@bokeh/bokehjs"
+
+    const mounted = server_document("/bkapp", "#plot")
+    await mounted.ready
+
+    // Later, release the views, connection, and client document together.
+    await mounted.dispose()
+
+For script-based applications, load the matching ``bokeh`` and ``bokeh-api``
+bundles and any optional bundles the application needs, such as
+``bokeh-widgets`` and ``bokeh-tables``. Each bundle registers its own models.
+Call ``Bokeh.server_document(app_url, target)`` to get a ``BokehMount``
+immediately. ``ready`` resolves after initial rendering.
+``dispose()`` or an optional ``signal`` also cancels pending acquisition. The
+mount owns its connection, document, and views, including roots added or removed
+by the server. The target element remains owned by the host application.
+
+The URL may be absolute or relative to the page, without a query or fragment.
+Pass application arguments and HTTP bootstrap options separately:
+
+.. code-block:: typescript
+
+    const mounted = server_document("https://plots.example.org/bkapp", "#plot", {
+      arguments: {dataset: "sales"},
+      credentials: "include",
+      signal: abort.signal,
+      on_error(error) { console.error(error) },
+    })
+
+``headers`` supplies bootstrap request headers. Optional ``session_id`` or
+``token`` requests a particular session. These options are mutually exclusive.
+HTTP credentials and headers apply to the bootstrap request, while the returned
+token authenticates the WebSocket connection. The server's authentication,
+cross-origin request, and WebSocket origin policies still apply.
+
+Resource loading defaults to ``resources: "none"``. The npm API prepares built-in
+models automatically, while script-based hosts preload the bundles their
+application needs. Custom model implementations must already be registered, or
+their server extension assets can be requested through the ``resources`` policy.
+Automatic built-in preparation preserves custom registrations and can be disabled
+with ``register_builtin_models: false`` when the host manages its own registry.
+
+The :bokeh-tree:`bokehjs/examples/frameworks/react-vite/server.html` example
+demonstrates this two-argument call, Python callbacks, dynamic roots, and full
+disconnect/remount against either ASGI or Tornado. See its
+:bokeh-tree:`bokehjs/examples/frameworks/react-vite/README-live.md` for commands.
+
+Mounting live server sessions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use ``connect_session()`` when the connection must outlive mounted views or
+roots need independently placed framework slots. It acquires a live document
+using Bokeh's existing WebSocket protocol and returns a
+``BokehSessionConnection`` immediately, so a component
+can cancel acquisition before a document arrives. Its ``ready`` promise resolves
+to a ``ClientSession`` after the initial document is decoded. View readiness is
+still reported separately by ``BokehMount.ready``.
+
+The application supplies the full WebSocket URL, a server-issued token, and
+optionally URL-encoded ``args_string`` and an ``AbortSignal``. Acquisition
+automatically prepares Bokeh's built-in core, widget, and table models before
+decoding the document:
+
+.. code-block:: typescript
+
+    import {connect_session, mount} from "@bokeh/bokehjs"
+    import type {BokehMount, ClientSession} from "@bokeh/bokehjs"
+
+    const abort = new AbortController()
+    const owner = connect_session({url: websocket_url, token, signal: abort.signal})
+    let session: ClientSession | undefined
+    let mounted: BokehMount | undefined
+    try {
+      session = await owner.ready
+      // Track all document roots, leaving them detached until the host places them.
+      mounted = mount(session.document, {})
+      await mounted.ready
+      const plot = session.document.get_model_by_name("plot")!
+      await mounted.attach(plot.id, document.querySelector<HTMLElement>("#plot")!)
+    } catch (error) {
+      await mounted?.dispose()
+      owner.dispose()
+      session?.document.destroy()
+      throw error
+    }
+
+    // Component cleanup, when both the views and connection are no longer needed:
+    await mounted.dispose()
+    owner.dispose()
+    session.document.destroy()  // This example has no other document consumers.
+
+There are two independent ownership scopes:
+
+* ``BokehSessionConnection`` owns one fresh connection. ``dispose()`` is
+  idempotent, rejects pending readiness, and permanently closes that connection.
+  Aborting its signal also closes it after readiness. Failed acquisition closes
+  the connection automatically. Calls are not cached, even for the same token.
+  A decoded document that never reaches the caller is destroyed on acquisition
+  failure or cancellation.
+* ``mount(session.document, ...)`` borrows the document. Its disposal, abort, or
+  rendering failure releases views and mount listeners without closing the
+  session or destroying the document. A connection owner is responsible for
+  its own cleanup if rendering fails. Closing the connection leaves decoded
+  models intact. It does not dispose views or immediately destroy the Python
+  session. Server unused-session cleanup still applies.
+
+After successful acquisition the host owns the decoded document's lifetime.
+An application that exclusively owns it can call ``session.document.destroy()``
+after all borrowed views and consumers have been removed. The React example does
+this on final disconnection. Disposing just its borrowed views preserves it.
+
+If another part of the application already owns a ``ClientSession``, use its
+``document`` directly with ``mount()`` and leave connection closure to that
+owner. A document supports one active mount with multiple independent targets.
+Do not create a separate mount for each root of the same live document.
+
+``mount(session.document, {})`` tracks root additions and removals,
+including updates during initial rendering. Keys are model IDs. New roots stay
+detached until the host calls ``attach()``. Removed roots lose their views.
+``detach()`` only removes a view: models keep receiving server updates.
+Initial ``ready`` does not wait for later root additions. Await each explicit
+``attach()`` when the host needs that root's rendered view.
+For a fixed subset with application-defined keys, use
+``mount({plot, controls}, {plot: plot_target, controls: controls_target})`` with
+roots from that session.
+This subset does not automatically include later roots. The React, Vue, and
+Svelte document adapters also accept acquired roots. Their model inputs remain
+decoded objects, not URLs or session tokens.
+
+The :bokeh-tree:`bokehjs/examples/frameworks/react-vite/README-live.md` prototype
+uses one live mount with React-owned slots. It demonstrates independent roots,
+Python callbacks, server ticks, dynamic root addition/removal, selective
+detach/reattach, and disposing every view while retaining the shared session.
+Its backend is :bokeh-tree:`examples/server/api/asgi/react_mount.py`, runnable
+with either ASGI or Tornado. Neither transport needs a different client API.
+
+For npm applications, built-in model preparation uses a lazy import shared by
+concurrent acquisitions. Ordinary package imports and standalone mounts do not
+trigger this registration. Existing custom registrations are preserved.
+The host must still provide matching BokehJS code and load application-specific
+model implementations and extension resources before acquisition. This API
+does not discover server resources or issue tokens. The host also enforces
+authentication, token policy, permitted WebSocket origins, and proxy paths.
+The example's unauthenticated token endpoint is for local development.
+Existing reconnect behavior is unchanged: it repulls into the same document,
+may replace root identities, and reuses the original token. Hosts must account
+for replacement roots. Token refresh and recovery after server process loss
+are outside this prototype. Readiness describes initial acquisition/rendering,
+not a guarantee of continued connectivity.
+
+Live sessions in framework adapters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All packaged framework adapters provide the same session ownership contract:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Framework
+     - Session provider
+     - Root slot
+   * - React
+     - ``BokehSession``
+     - ``BokehRoot``
+   * - Vue
+     - ``BokehSession``
+     - ``BokehRoot``
+   * - Svelte
+     - ``bokehSession`` action
+     - ``bokehRoot`` action
+   * - Web Components
+     - ``BokehSessionElement``
+     - ``BokehRootElement``
+
+A provider's ``source`` is either ``{session}`` to borrow a ``ClientSession``,
+or ``{connection: {url, token}}`` to acquire one. A borrowing provider disposes
+only its views. An acquiring provider disposes its views, closes its connection,
+and destroys its exclusively acquired document when replaced, aborted, failed,
+or removed. Keep source and option objects stable across ordinary renders.
+Acquiring providers use ``connect_session()`` and prepare the built-in models
+automatically. Borrowed sessions already contain decoded documents.
+
+Root slots accept a decoded model or a string naming a unique document root.
+Named slots can exist before their server roots. They become empty when roots
+are removed and attach again when matching roots arrive. Root names must stay
+stable. Missing names are allowed, but ambiguous names are errors. Removing a slot
+only detaches that view, leaving siblings and the session intact.
+
+For example, React can acquire and place server roots without a custom hook:
+
+.. code-block:: tsx
+
+    import {useMemo} from "react"
+    import {BokehSession, BokehRoot} from "@bokeh/react"
+
+    function LivePlots({url, token}) {
+      const source = useMemo(() => ({connection: {url, token}}), [url, token])
+      return <BokehSession source={source} onError={reportError}>
+        <section><BokehRoot model="plot" /></section>
+        <aside><BokehRoot model="controls" /></aside>
+        <footer><BokehRoot model="extra" /></footer>
+      </BokehSession>
+    }
+
+Register any custom model implementations before rendering the provider.
+Use ``{session}`` instead when the session must outlive that subtree. ``onSession``
+(Vue's ``session`` event or a Web Component's ``bokeh-session`` event) reports
+acquisition. The existing mounted callback/event reports initial slot rendering.
+Connection signals and ``mountOptions.signal`` cancel with the same ownership
+rules. See the :bokeh-tree:`bokehjs/frameworks` package READMEs for runnable
+framework-specific syntax and event names.
+
+The providers all delegate to ``SessionMountController`` from
+``@bokeh/framework``. Angular and other imperative integrations can use this
+controller in their client lifecycle: register slots with
+``controller.attach("plot", element)``, call ``controller.update(source)``,
+and call ``controller.dispose()`` when the component is destroyed. This uses
+the same core ``BokehMount`` and connection machinery. There is no separate
+Angular package or Angular browser-test fixture.
+
 Discovering declarative mounts from page JavaScript
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -606,7 +836,7 @@ Property change callbacks
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Use ``on_change`` with a property name to run a callback when that property
-changes. The callback receives no old or new value arguments; read the current
+changes. The callback receives no old or new value arguments. Read the current
 value from the model instead:
 
 .. code-block:: javascript
@@ -642,10 +872,9 @@ this level:
 Interfaces
 ----------
 
-Similar to the Python Bokeh library, BokehJS provides various higher-level
-interfaces. These interfaces let you interact with and compose low-level
-model objects. The higher-level interfaces comprise ``Bokeh.Plotting`` and
-``Bokeh.Charts``.
+Similar to the Python Bokeh library, BokehJS provides the higher-level
+``Bokeh.Plotting`` interface. This interface lets you interact with and
+compose low-level model objects.
 
 .. note::
     Starting from version ``0.12.2`` these APIs make up the BokehJS API in
@@ -703,150 +932,6 @@ The JavaScript sample below is very similar to the Python code in
 
     // show the plot
     plt.show(p);
-
-.. _ug_advanced_bokehjs_interfaces_charts:
-
-``Bokeh.Charts``
-~~~~~~~~~~~~~~~~
-
-The JavaScript ``Bokeh.Charts`` API is a high-level charting interface that
-is unique to BokehJS. The API supports two high-level charts: ``pie`` and ``bar``.
-
-.. _ug_advanced_bokehjs_interfaces_charts_pie:
-
-``Bokeh.Charts.pie``
-''''''''''''''''''''
-
-The following lets you create basic pie charts with ``Bokeh.Charts.pie``:
-
-.. code-block:: javascript
-
-    Bokeh.Charts.pie(data, { options })
-
-Where ``data`` is a JavaScript object that has ``labels`` and
-``values`` keys and ``options`` is an object that can include
-any of the following optional keys:
-
-:``width``: *number* --- chart width in pixels
-:``height``: *number* --- chart height in pixels
-:``inner_radius``: *number* --- inner radius for wedges in pixels
-:``outer_radius``: *number* --- outer radius for wedges in pixels
-:``start_angle``: *number* --- start angle for wedges in radians
-:``end_angle``: *number* --- end angle for wedges in radians
-:``center``: *[number, number]* --- ``(x, y)`` location of the pie center in pixels
-:``palette``: *Palette | Array<Color>* --- a named palette or list of colors to color-map the values
-:``slice_labels``: *"labels" | "values" | "percentages"* --- what the tooltip should show
-
-By default, plots created with ``Bokeh.Charts.pie`` automatically add a tooltip
-and hover policy. Here is an example of a ``pie`` chart and the plot it generates:
-
-.. bokehjs-content::
-    :title: Bokeh pie chart
-
-    const plt = Bokeh.Plotting;
-
-    const pie_data = {
-        labels: ['Work', 'Eat', 'Commute', 'Sport', 'Watch TV', 'Sleep'],
-        values: [8, 2, 2, 4, 0, 8],
-    };
-
-    const p1 = Bokeh.Charts.pie(pie_data);
-    const p2 = Bokeh.Charts.pie(pie_data, {
-        inner_radius: 0.2,
-        start_angle: Math.PI / 2
-    });
-    const p3 = Bokeh.Charts.pie(pie_data, {
-        inner_radius: 0.2,
-        start_angle: Math.PI / 6,
-        end_angle: 5 * Math.PI / 6
-    });
-    const p4 = Bokeh.Charts.pie(pie_data, {
-        inner_radius: 0.2,
-        palette: "Oranges9",
-        slice_labels: "percentages"
-    });
-
-    // add the plot to a document and display it
-    const doc = new Bokeh.Document();
-    doc.add_root(plt.gridplot(
-                     [[p1, p2], [p3, p4]],
-                     {width: 250, height: 250}));
-    const mounted = Bokeh.mount(doc, document.currentScript.parentElement)
-    await mounted.ready;
-
-.. _ug_advanced_bokehjs_interfaces_charts_bar:
-
-``Bokeh.Charts.bar``
-''''''''''''''''''''
-
-The following lets you create basic bar charts with ``Bokeh.Charts.bar``:
-
-.. code-block:: javascript
-
-    Bokeh.Charts.bar(data, { options })
-
-Where ``data`` is an array with entries representing rows of a data table.
-The first row should contain the column headers. Here is an example of
-some sales data from different regions for different years:
-
-.. code-block:: javascript
-
-    const data = [
-        ['Region', 'Year', 'Sales'],
-        ['East',   2015,    23000 ],
-        ['East',   2016,    35000 ],
-        ['West',   2015,    16000 ],
-        ['West',   2016,    34000 ],
-        ['North',  2016,    12000 ],
-    ];
-
-Similar to the ``pie`` chart, the ``options`` parameter is an object that
-can include any of the following optional keys:
-
-:``width``: *number* --- chart width in pixels
-:``height``: *number* --- chart height in pixels
-:``stacked``: *boolean* --- whether the bars should be stacked or not
-:``orientation``: *"horizontal" | "vertical"* --- how the bars should be oriented
-:``bar_width``: *number* --- width of each bar in pixels
-:``palette``: *Palette | Array<Color>* --- a named palette or list of colors to color-map the values
-:``axis_number_format``: *string* --- a format string to use for axis ticks
-
-By default, plots created with ``Bokeh.Charts.bar`` automatically add a tooltip
-and hover policy. Here is an example of a ``bar`` chart and the plot it generates:
-
-.. bokehjs-content::
-    :title: Bokeh bar chart
-
-    const plt = Bokeh.Plotting;
-
-    const bar_data = [
-        ['City', '2010 Population', '2000 Population'],
-        ['NYC', 8175000, 8008000],
-        ['LA', 3792000, 3694000],
-        ['Chicago', 2695000, 2896000],
-        ['Houston', 2099000, 1953000],
-        ['Philadelphia', 1526000, 1517000],
-    ];
-
-    const p1 = Bokeh.Charts.bar(bar_data, {
-        axis_number_format: "0.[00]a"
-    });
-    const p2 = Bokeh.Charts.bar(bar_data, {
-        axis_number_format: "0.[00]a",
-        stacked: true
-    });
-    const p3 = Bokeh.Charts.bar(bar_data, {
-        axis_number_format: "0.[00]a",
-        orientation: "vertical"
-    });
-    const p4 = Bokeh.Charts.bar(bar_data, {
-        axis_number_format: "0.[00]a",
-        orientation: "vertical",
-        stacked: true
-    });
-
-    plt.show(plt.gridplot([[p1, p2], [p3, p4]], {width: 350, height: 350}));
-
 
 Minimal example
 ---------------

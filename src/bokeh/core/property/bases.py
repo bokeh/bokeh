@@ -40,6 +40,7 @@ from typing import (
 from ...util.dependencies import uses_pandas
 from ._sphinx import property_link, register_type_link, type_link
 from .descriptors import AliasPropertyDescriptor, PropertyDescriptor
+from .exceptions import PropertyError, ValidationError
 from .singletons import (
     Undefined,
     UndefinedType,
@@ -81,7 +82,7 @@ type Init[T] = T | UndefinedType | _NotGivenType
 
 type ModelInit[T] = T | _NotGivenType
 
-class Property[T]:
+class Property[T = Any]:
     """ Base class for Bokeh property instances, which can be added to Bokeh
     Models.
 
@@ -313,7 +314,7 @@ class Property[T]:
             None
 
         Raises:
-            ValueError if the value is not valid for this property type
+            ValidationError if the value is not valid for this property type
 
         """
         pass
@@ -331,7 +332,7 @@ class Property[T]:
         try:
             if validation_on():
                 self.validate(value, False)
-        except ValueError:
+        except PropertyError:
             return False
         else:
             return True
@@ -350,7 +351,7 @@ class Property[T]:
 
         if value is Undefined:
             if isinstance(owner, HasProps):
-                raise ValueError(f"can't set {owner}.{name} to Undefined")
+                raise PropertyError(f"can't set {owner}.{name} to Undefined")
             return cast(T, value)
 
         error = None
@@ -358,7 +359,7 @@ class Property[T]:
             if validation_on():
                 hinted_value = self._hinted_value(value, hint)
                 self.validate(hinted_value)
-        except ValueError as e:
+        except PropertyError as e:
             for tp, converter in self.alternatives:
                 if tp.is_valid(value):
                     value = converter(value)
@@ -370,7 +371,7 @@ class Property[T]:
             value = self.transform(value)
         else:
             obj_repr = owner if isinstance(owner, HasProps) else owner.__name__
-            raise ValueError(f"failed to validate {obj_repr}.{name}: {error}")
+            raise ValidationError(f"failed to validate {obj_repr}.{name}: {error}")
 
         if isinstance(owner, HasProps):
             obj = owner
@@ -385,7 +386,7 @@ class Property[T]:
 
                 if not result:
                     if isinstance(msg_or_fn, str):
-                        raise ValueError(msg_or_fn)
+                        raise ValidationError(msg_or_fn)
                     else:
                         msg_or_fn(obj, name, value)
 
@@ -447,7 +448,7 @@ class Property[T]:
         else:
             return self
 
-class ParameterizedProperty[T](Property[T]):
+class ParameterizedProperty[T = Any](Property[T]):
     """ A base class for Properties that have type parameters, e.g. ``List(String)``.
 
     """
@@ -514,7 +515,7 @@ class ParameterizedProperty[T](Property[T]):
             params = [ type_param.replace(old, new) for type_param in self.type_params ]
             return self.__class__(*params)
 
-class SingleParameterizedProperty[T](ParameterizedProperty[T]):
+class SingleParameterizedProperty[T = Any](ParameterizedProperty[T]):
     """ A parameterized property with a single type parameter. """
 
     @property
@@ -534,7 +535,7 @@ class SingleParameterizedProperty[T](ParameterizedProperty[T]):
     def wrap(self, value: T) -> T:
         return self.type_param.wrap(value)
 
-class PrimitiveProperty[T](Property[T]):
+class PrimitiveProperty[T = Any](Property[T]):
     """ A base class for simple property types.
 
     Subclasses should define a class attribute ``_underlying_type`` that is
@@ -561,15 +562,15 @@ class PrimitiveProperty[T](Property[T]):
             return
 
         if not detail:
-            raise ValueError("")
+            raise ValidationError("")
 
         from ...util.strings import nice_join
 
         expected_type = nice_join([ cls.__name__ for cls in self._underlying_type ])
         msg = f"expected a value of type {expected_type}, got {value} of type {type(value).__name__}"
-        raise ValueError(msg)
+        raise ValidationError(msg)
 
-class ContainerProperty[T](ParameterizedProperty[T]):
+class ContainerProperty[T = Any](ParameterizedProperty[T]):
     """ A base class for Container-like type properties.
 
     """

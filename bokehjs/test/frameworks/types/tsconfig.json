@@ -6,9 +6,8 @@
     "noEmit": true,
     "skipLibCheck": false,
     "strict": true,
-    "target": "ES2022",
+    "target": "ES2024",
     "types": [],
-    "baseUrl": ".",
     "paths": {
       "@bokeh/bokehjs": ["../../../build/js/lib/bokeh_package.d.ts"]
     }

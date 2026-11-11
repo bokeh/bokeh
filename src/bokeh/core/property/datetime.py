@@ -29,6 +29,7 @@ from ...util.serialization import (
     is_timedelta_type,
 )
 from .bases import Init, Property
+from .exceptions import ValidationError
 from .primitive import bokeh_integer_types
 from .singletons import Undefined
 
@@ -65,7 +66,7 @@ class Date(Property[str | datetime.date]):
         # datetime.datetime is datetime.date, exclude manually up front
         if isinstance(value, datetime.datetime):
             msg = "" if not detail else "Expected a date value, got a datetime.datetime"
-            raise ValueError(msg)
+            raise ValidationError(msg)
 
         if isinstance(value, datetime.date):
             return
@@ -74,7 +75,7 @@ class Date(Property[str | datetime.date]):
             datetime.datetime.fromisoformat(value)
         except Exception:
             msg = "" if not detail else f"Expected an ISO date string, got {value!r}"
-            raise ValueError(msg)
+            raise ValidationError(msg)
 
 class Datetime(Property[str | datetime.date | datetime.datetime]):
     """ Accept ISO format Datetime values.
@@ -116,7 +117,7 @@ class Datetime(Property[str | datetime.date | datetime.datetime]):
                 pass
 
         msg = "" if not detail else f"Expected a date, datetime object, or timestamp, got {value!r}"
-        raise ValueError(msg)
+        raise ValidationError(msg)
 
     @staticmethod
     def is_timestamp(value: Any) -> bool:
@@ -144,7 +145,7 @@ class Time(Property[str | datetime.time]):
                 pass
 
         msg = "" if not detail else f"Expected a time object, or ISO formatted time string, got {value!r}"
-        raise ValueError(msg)
+        raise ValidationError(msg)
 
     def transform(self, value: Any) -> Any:
         value = super().transform(value)
@@ -174,7 +175,7 @@ class TimeDelta(Property[datetime.timedelta]):
             return
 
         msg = "" if not detail else f"Expected a timedelta instance, got {value!r}"
-        raise ValueError(msg)
+        raise ValidationError(msg)
 
 #-----------------------------------------------------------------------------
 # Dev API

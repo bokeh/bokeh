@@ -255,6 +255,22 @@ describe("in api/plotting module", () => {
       expect(() => p.yaxis.axis_label).to.throw()
     })
 
+    it("should order legend_group items like Python", () => {
+      const labels = (group: unknown[]) => {
+        const p = figure()
+        const source = ColumnDataSource.create({data: {x: group.map((_, i) => i), y: group.map((_, i) => i), group}})
+        p.scatter({x: {field: "x"}, y: {field: "y"}, source, legend_group: "group"})
+        return p.legend.items.map((item) => item.label)
+      }
+
+      // numbers numerically, not as strings
+      expect(labels([10, 2, 1, 2])).to.be.equal([{value: "1"}, {value: "2"}, {value: "10"}])
+      // strings lexicographically
+      expect(labels(["b", "c", "a", "b"])).to.be.equal([{value: "a"}, {value: "b"}, {value: "c"}])
+      // values that can't be ordered against each other in first appearance order
+      expect(labels([2, "a", 1, null])).to.be.equal([{value: "2"}, {value: "a"}, {value: "1"}, {value: "null"}])
+    })
+
     it("should throw if multiple legend_* attributes are provided", () => {
       expect(() => figure().scatter(0, 0, {legend_label: "circle", legend_field: "circle"})).to.throw()
     })

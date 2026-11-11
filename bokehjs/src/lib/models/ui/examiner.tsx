@@ -26,7 +26,7 @@ function highlight(el: Element): void {
     animation.cancel()
   }
   el.animate([
-    {backgroundColor: "#def189"},
+    {backgroundColor: "var(--emphasis-color)"},
     {backgroundColor: "initial"},
   ], {duration: 2000})
 }

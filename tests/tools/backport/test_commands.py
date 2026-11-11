@@ -256,18 +256,8 @@ class EntryPointTests(unittest.TestCase):
         callback = cast(Any, entrypoint.cli.callback)
         callback()
 
-    def test_accepts_supported_python(self) -> None:
-        with patch.object(entrypoint.sys, "version_info", (3, 13)):
-            entrypoint._require_supported_python()
-
-    def test_rejects_unsupported_python(self) -> None:
-        with patch.object(entrypoint.sys, "version_info", (3, 12)):
-            with self.assertRaisesRegex(SystemExit, "Python 3.13"):
-                entrypoint._require_supported_python()
-
     def test_main_reports_expected_workflow_errors(self) -> None:
         with (
-            patch.object(entrypoint, "_require_supported_python"),
             patch.object(entrypoint, "cli", side_effect=BackportError("stopped")),
             patch.object(entrypoint.error_console, "print") as output,
         ):
@@ -279,7 +269,6 @@ class EntryPointTests(unittest.TestCase):
 
     def test_main_returns_after_a_successful_command(self) -> None:
         with (
-            patch.object(entrypoint, "_require_supported_python"),
             patch.object(entrypoint, "cli") as cli,
         ):
             entrypoint.main()

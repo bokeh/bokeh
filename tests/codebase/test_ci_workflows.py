@@ -7,6 +7,8 @@
 
 from __future__ import annotations
 
+import re
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -38,7 +40,7 @@ ROUTED_JOBS = {
 
 
 def _load_workflow(filename: str) -> dict[str, Any]:
-    with open(TOP_PATH / ".github" / "workflows" / filename) as f:
+    with open(TOP_PATH / ".github" / "workflows" / filename, encoding="utf-8") as f:
         return yaml.load(f, Loader=yaml.BaseLoader)
 
 
@@ -86,3 +88,20 @@ def test_codeql_runs_for_merge_groups() -> None:
     workflow = _load_workflow("codeql-analysis.yml")
 
     assert workflow["on"]["merge_group"]["types"] == ["checks_requested"]
+
+
+@pytest.mark.parametrize("path", sorted((TOP_PATH / ".github").rglob("*.yml")) + sorted((TOP_PATH / ".github").rglob("*.yaml")))
+def test_external_actions_are_pinned_to_commit_shas(path: Path) -> None:
+    def check(value: Any) -> None:
+        if isinstance(value, dict):
+            if "uses" in value:
+                action = value["uses"]
+                if not action.startswith("./"):
+                    assert re.fullmatch(r"[^@\s]+@[0-9a-f]{40}", action), f"{path}: {action} must use a full commit SHA"
+            for item in value.values():
+                check(item)
+        elif isinstance(value, list):
+            for item in value:
+                check(item)
+
+    check(yaml.load(path.read_text(encoding="utf-8"), Loader=yaml.BaseLoader))

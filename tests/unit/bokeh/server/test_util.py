@@ -104,6 +104,47 @@ def test_create_hosts_allowlist_host_non_int_port_raises() -> None:
     with pytest.raises(ValueError):
         util.create_hosts_allowlist(["foo:xyz"], 1000)
 
+@pytest.mark.parametrize(("host", "expected"), [
+    ("[::1]", "[::1]:80"),
+    ("[::1]:5006", "[::1]:5006"),
+    ("[2001:db8:85a3:8d3:1319:8a2e:370:7348]:5006", "[2001:db8:85a3:8d3:1319:8a2e:370:7348]:5006"),
+    ("[::ffff:192.0.2.1]:5006", "[::ffff:192.0.2.1]:5006"),
+])
+def test_create_hosts_allowlist_ipv6(host: str, expected: str) -> None:
+    allowlist = util.create_hosts_allowlist([host], 1000)
+    assert allowlist == [expected]
+    assert util.check_allowlist(host, allowlist) is True
+
+@pytest.mark.parametrize("host", ["[::1", "[::1]extra", "[not-ipv6]:5006", "[::1]:xyz", "[::1]:5006:80", "::1:5006"])
+def test_create_hosts_allowlist_invalid_ipv6(host: str) -> None:
+    with pytest.raises(ValueError):
+        util.create_hosts_allowlist([host], 1000)
+
+@pytest.mark.parametrize(("host", "pattern", "expected"), [
+    ("[::1]", "[::1]", True),
+    ("[::1]:5006", "[::1]", True),
+    ("[::1]:5006", "[::1]:5006", True),
+    ("[::1]:5006", "[::1]:5007", False),
+    ("[::2]:5006", "[::1]:5006", False),
+    ("[::1]:5006", "*:5006", True),
+    ("[::1]:5006", "*:5007", False),
+    ("[0:0:0:0:0:0:0:1]:5006", "[::1]:5006", True),
+    ("[::1]:5006", "[0:0:0:0:0:0:0:1]:5006", True),
+    ("[2001:DB8::1]:5006", "[2001:db8:0:0:0:0:0:1]:5006", True),
+    ("[::ffff:192.0.2.1]:5006", "[::ffff:c000:201]:5006", True),
+    ("[::1]:5006", "[0:0:0:0:0:0:0:1]:5007", False),
+    ("[::2]:5006", "[0:0:0:0:0:0:0:1]:5006", False),
+    ("[not-ipv6]:5006", "[::1]:5006", False),
+    ("[::1]:5006", "localhost:5006", False),
+])
+def test_match_host_ipv6(host: str, pattern: str, expected: bool) -> None:
+    assert util.match_host(host, pattern) is expected
+
+
+def test_check_allowlist_ipv6_equivalent_spellings() -> None:
+    assert util.check_allowlist("[::1]:5006", ["[0:0:0:0:0:0:0:1]:5006"]) is True
+    assert util.check_allowlist("[0:0:0:0:0:0:0:1]", ["[::1]:80"]) is True
+
 def test_create_hosts_allowlist_bad_host_raises() -> None:
     with pytest.raises(ValueError):
         util.create_hosts_allowlist([""], 1000)

@@ -4,7 +4,9 @@ import type * as p from "../properties"
 
 const global_css_prefix = "--bk-"
 
-export type NameOf<Key extends string> = Key extends `text_${infer Name}` ? Name : never
+export type VisualType = "fill" | "hatch" | "image" | "line" | "text"
+
+export type NameOf<Key extends string> = Key extends `${VisualType}_${infer Name}` ? Name : Key
 export type ValuesOf<T> = {[Key in keyof T & string as NameOf<Key>]: T[Key] extends p.Property<infer V> ? V : never}
 
 export interface Paintable {
@@ -17,7 +19,7 @@ export interface Paintable {
 
 export abstract class VisualProperties {
   /** @prototype */
-  declare type: string
+  declare type: VisualType
   declare attrs: string[]
 
   private readonly _props: p.Property<unknown>[]
@@ -69,7 +71,7 @@ export abstract class VisualProperties {
 
 export abstract class VisualUniforms {
   /** @prototype */
-  declare type: string
+  declare type: VisualType
   declare attrs: string[]
 
   *[Symbol.iterator](): Generator<p.Property<unknown>, void, undefined> {
