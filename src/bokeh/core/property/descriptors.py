@@ -43,7 +43,7 @@ set operations to the corresponding property.
 
     # But can raise a validation exception if an attempt to set to a list
     # is made
-    rng.end = [1,2,3]   # ValueError !
+    rng.end = [1,2,3]   # ValidationError !
 
 More sophisticated properties such as ``DataSpec`` and its subclasses can
 exert control over how values are serialized. Consider this example with
@@ -100,6 +100,7 @@ from typing import (
     overload,
 )
 
+from .exceptions import PropertyError
 from .singletons import Undefined
 from .wrappers import PropertyValueColumnData, PropertyValueContainer
 
@@ -942,7 +943,7 @@ class DataSpecPropertyDescriptor(PropertyDescriptor[Any]):
                     cast(_DataSpecProperty, self.property).value_type.validate(old, False)
                     if 'value' in value:
                         value = value['value']
-                except ValueError:
+                except PropertyError:
                     if isinstance(old, str) and 'field' in value:
                         value = value['field']
                 # leave it as a dict if 'old' was a dict

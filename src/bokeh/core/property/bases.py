@@ -40,6 +40,7 @@ from typing import (
 from ...util.dependencies import uses_pandas
 from ._sphinx import property_link, register_type_link, type_link
 from .descriptors import AliasPropertyDescriptor, PropertyDescriptor
+from .exceptions import PropertyError, ValidationError
 from .singletons import (
     Undefined,
     UndefinedType,
@@ -313,7 +314,7 @@ class Property[T = Any]:
             None
 
         Raises:
-            ValueError if the value is not valid for this property type
+            ValidationError if the value is not valid for this property type
 
         """
         pass
@@ -331,7 +332,7 @@ class Property[T = Any]:
         try:
             if validation_on():
                 self.validate(value, False)
-        except ValueError:
+        except PropertyError:
             return False
         else:
             return True
@@ -350,7 +351,7 @@ class Property[T = Any]:
 
         if value is Undefined:
             if isinstance(owner, HasProps):
-                raise ValueError(f"can't set {owner}.{name} to Undefined")
+                raise PropertyError(f"can't set {owner}.{name} to Undefined")
             return cast(T, value)
 
         error = None
@@ -358,7 +359,7 @@ class Property[T = Any]:
             if validation_on():
                 hinted_value = self._hinted_value(value, hint)
                 self.validate(hinted_value)
-        except ValueError as e:
+        except PropertyError as e:
             for tp, converter in self.alternatives:
                 if tp.is_valid(value):
                     value = converter(value)
@@ -370,7 +371,7 @@ class Property[T = Any]:
             value = self.transform(value)
         else:
             obj_repr = owner if isinstance(owner, HasProps) else owner.__name__
-            raise ValueError(f"failed to validate {obj_repr}.{name}: {error}")
+            raise ValidationError(f"failed to validate {obj_repr}.{name}: {error}")
 
         if isinstance(owner, HasProps):
             obj = owner
@@ -385,7 +386,7 @@ class Property[T = Any]:
 
                 if not result:
                     if isinstance(msg_or_fn, str):
-                        raise ValueError(msg_or_fn)
+                        raise ValidationError(msg_or_fn)
                     else:
                         msg_or_fn(obj, name, value)
 
@@ -561,13 +562,13 @@ class PrimitiveProperty[T = Any](Property[T]):
             return
 
         if not detail:
-            raise ValueError("")
+            raise ValidationError("")
 
         from ...util.strings import nice_join
 
         expected_type = nice_join([ cls.__name__ for cls in self._underlying_type ])
         msg = f"expected a value of type {expected_type}, got {value} of type {type(value).__name__}"
-        raise ValueError(msg)
+        raise ValidationError(msg)
 
 class ContainerProperty[T = Any](ParameterizedProperty[T]):
     """ A base class for Container-like type properties.

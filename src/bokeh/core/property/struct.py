@@ -25,6 +25,7 @@ from types import SimpleNamespace
 from typing import Any
 
 from .bases import ParameterizedProperty, Property
+from .exceptions import ValidationError
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -101,7 +102,7 @@ class Struct[T](ParameterizedProperty[T]):
                     return
 
         msg = "" if not detail else f"expected an element of {self}, got {value!r}"
-        raise ValueError(msg)
+        raise ValidationError(msg)
 
     def __str__(self) -> str:
         class_name = self.__class__.__name__

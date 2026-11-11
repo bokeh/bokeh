@@ -29,6 +29,7 @@ from .bases import (
     SingleParameterizedProperty,
     TypeOrInst,
 )
+from .exceptions import ValidationError
 from .singletons import _NotGiven
 
 #-----------------------------------------------------------------------------
@@ -84,12 +85,12 @@ class TypeOfAttr[T](SingleParameterizedProperty[T]):
         try:
             attr = getattr(value, name)
         except AttributeError:
-            raise ValueError(f"expected {value!r} to have an attribute '{name}'" if detail else "")
+            raise ValidationError(f"expected {value!r} to have an attribute '{name}'" if detail else "")
 
         if type.is_valid(attr):
             return
 
-        raise ValueError(f"expected {value!r} to have an attribute {name!r} of type {type}" if detail else "")
+        raise ValidationError(f"expected {value!r} to have an attribute {name!r} of type {type}" if detail else "")
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -23,6 +23,7 @@ from dataclasses import is_dataclass
 from typing import Any
 
 from .bases import Property
+from .exceptions import ValidationError
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -50,7 +51,7 @@ class Dataclass[T: object](Property[T]):
             return
 
         msg = "" if not detail else f"expected object to be dataclass, got {value!r}"
-        raise ValueError(msg)
+        raise ValidationError(msg)
 
 #-----------------------------------------------------------------------------
 # Dev API
