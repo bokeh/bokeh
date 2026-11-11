@@ -12,6 +12,12 @@ export function assert(condition: boolean | (() => boolean), message?: string): 
   throw new AssertionError(message ?? "Assertion failed")
 }
 
+export function assert_not_null<T>(value: T, message?: string): asserts value is NonNullable<T> {
+  if (value == null) {
+    throw new AssertionError(message ?? "Assertion failed: expected a non-nullable value")
+  }
+}
+
 declare const DEBUG: boolean | undefined
 
 export function assert_debug(condition: boolean, message?: string): asserts condition
