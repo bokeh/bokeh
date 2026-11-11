@@ -53,15 +53,12 @@ const argv = yargs(process.argv.slice(2)).options({
   "test-timeout": {type: "number", demandOption: false},
   retry: {type: "boolean", default: false},
   info: {type: "boolean", default: false},
-  continuous: {type: "boolean", default: false},
 }).parseSync()
 
-const {executable, ref, randomize, seed, pedantic, keyword, grep, skip, file, screenshot, retry, info, continuous} = argv as typeof argv & {screenshot: ScreenshotMode}
+const {executable, ref, randomize, seed, pedantic, keyword, grep, skip, file, screenshot, retry, info} = argv as typeof argv & {screenshot: ScreenshotMode}
 const url = argv._[0] as string | undefined ?? "about:blank"
 const MAX_BROWSER_RESTARTS = 2
 const MAX_BROWSER_LAUNCH_ATTEMPTS = 3
-/** Minimum time between incomplete reports in `--continuous` mode, in milliseconds. */
-const CONTINUOUS_REPORT_INTERVAL = 5000
 const DEFAULT_TEST_TIMEOUT = 30
 const MAX_TEST_TIMEOUT = 2_147_483 // Largest whole-second Node.js timer.
 
@@ -220,8 +217,10 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
   try {
     if (baselines_root != null) {
       const report_dir = path.join(baselines_root, platform)
-      await fs.promises.rm(path.join(report_dir, "report.json"), {force: true})
+      await fs.promises.rm(path.join(report_dir, "report.jsonl"), {force: true})
       await fs.promises.rm(path.join(report_dir, "report.out"), {force: true})
+      // Remove reports written by older runners.
+      await fs.promises.rm(path.join(report_dir, "report.json"), {force: true})
       for (const file of await fs.promises.readdir(report_dir)) {
         if (/^report\.json\.\d+\.tmp$/.test(file)) {
           await fs.promises.rm(path.join(report_dir, file), {force: true})
@@ -417,58 +416,63 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
       }
 
       /**
-       * Write `report.json` for the given tests. Incomplete reports are written in `--continuous`
-       * mode, so that the report can be previewed while tests are still running.
+       * `report.jsonl` is written incrementally as JSON Lines, so that it can be reviewed while
+       * tests are still running. It consists of a `start` record, a `result` record per finished
+       * test and an `end` record, whose absence indicates a running or an interrupted run.
        */
-      async function write_report(baselines_root: string, tests: TestCase[], completed: boolean): Promise<void> {
-        const selected_baseline_names = tests.map(([,, status]) => status.baseline_name!)
-        const results = tests.map(([suites, test, status]) => {
-          const {failure, timeout, skipped, baseline_name, baseline, existing_blf, image, image_diff, reference} = status
-          const success = !(failure ?? false) && !(timeout ?? false) && !(skipped ?? false)
-          return [descriptions(suites, test), {success, failure, timeout, skipped, baseline_name, baseline, existing_blf, image, image_diff, reference}]
-        })
-        const json = JSON.stringify({
-          completed,
-          running: !completed,
-          progress: {finished: tests.length, selected: selected_tests.length},
-          reference: ref,
-          baseline_names: selected_baseline_names,
-          results,
-          metrics: metrics?.get_metrics() ?? {},
-        }, (_key, value) => {
-          if (value?.type == "Buffer") {
-            return Buffer.from(value.data).toString("base64")
-          } else {
-            return value
-          }
-        })
-        const report_path = path.join(baselines_root, platform, "report.json")
-        const temporary_report_path = `${report_path}.${process.pid}.tmp`
-        await fs.promises.writeFile(temporary_report_path, json)
-        await fs.promises.rename(temporary_report_path, report_path)
-      }
+      const json_stream = (() => {
+        if (baselines_root != null) {
+          const report_path = path.join(baselines_root, platform, "report.jsonl")
+          return fs.createWriteStream(report_path, {flags: "w"})
+        } else {
+          return null
+        }
+      })()
 
-      // Incomplete reports are coalesced, so that widespread failures don't result in rewriting
-      // a growing report after every test. The interval is measured from the end of the last write.
-      let continuous_report_pending = false
-      let last_continuous_report = 0
-
-      async function write_continuous_report(tests: TestCase[]): Promise<void> {
-        if (continuous && baselines_root != null) {
-          await write_report(baselines_root, tests, false)
-          continuous_report_pending = false
-          last_continuous_report = Date.now()
+      function append_report_json(record: object): void {
+        if (json_stream != null) {
+          const json = JSON.stringify(record, (_key, value) => {
+            if (value?.type == "Buffer") {
+              return Buffer.from(value.data).toString("base64")
+            } else {
+              return value
+            }
+          })
+          json_stream.write(`${json}\n`)
         }
       }
 
-      if (continuous && baselines_root != null) {
-        await write_report(baselines_root, [], false)
+      const finish_report_json = async () => {
+        if (json_stream != null) {
+          append_report_json({type: "end", metrics: metrics?.get_metrics() ?? {}})
+          await new Promise<void>((resolve, reject) => {
+            json_stream.once("error", reject)
+            json_stream.end(resolve)
+          })
+        }
+      }
+
+      append_report_json({
+        type: "start",
+        reference: ref,
+        baseline_names: selected_tests.map(([,, status]) => status.baseline_name!),
+        selected: selected_tests.length,
+      })
+
+      function append_report_result([suites, test, status]: TestCase): void {
+        const {failure, timeout, skipped, baseline_name, baseline, existing_blf, image, image_diff, reference} = status
+        const success = !(failure ?? false) && !(timeout ?? false) && !(skipped ?? false)
+        append_report_json({
+          type: "result",
+          descriptions: descriptions(suites, test),
+          status: {success, failure, timeout, skipped, baseline_name, baseline, existing_blf, image, image_diff, reference},
+        })
       }
 
       try {
         let browser_ready = true
         let browser_error: unknown = null
-        for (const [i, test_case] of selected_tests.entries()) {
+        for (const test_case of selected_tests) {
           const [suites, test, status] = test_case
           const test_name = description(suites, test)
           const status_checkpoint = copy_status(status)
@@ -537,14 +541,10 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
           }
           if ((status.failure ?? false) || (status.timeout ?? false)) {
             failed++
-            continuous_report_pending = true
-          }
-
-          if (continuous_report_pending && Date.now() - last_continuous_report >= CONTINUOUS_REPORT_INTERVAL) {
-            await write_continuous_report(selected_tests.slice(0, i + 1))
           }
 
           append_report_out(test_case)
+          append_report_result(test_case)
 
           // Report failures as they happen, so that they aren't lost if the run is interrupted.
           const output = format_output(test_case)
@@ -570,19 +570,12 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
         }
       }
 
+      await finish_report_json()
+
       if (baselines_root != null) {
-        await write_report(baselines_root, selected_tests, true)
-
         const files = new Set(await fs.promises.readdir(path.join(baselines_root, platform)))
-        files.delete("report.json")
+        files.delete("report.jsonl")
         files.delete("report.out")
-
-        // Temporary reports may be left behind by interrupted runs.
-        for (const file of files) {
-          if (/^report\.json\.\d+\.tmp$/.test(file)) {
-            files.delete(file)
-          }
-        }
 
         for (const name of baseline_names) {
           files.delete(`${name}.blf`)
