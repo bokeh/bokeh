@@ -36,7 +36,7 @@ from ...core.validation import error
 from ...core.validation.errors import BAD_COLUMN_NAME, CDSVIEW_FILTERS_WITH_CONNECTED
 from ..filters import AllIndices
 from ..glyph import ConnectedXYGlyph, Glyph
-from ..graphics import Marking, PathDecoration, PathMarkings
+from ..graphics import Marking, PathMarking, PathMarkings
 from ..sources import (
     CDSView,
     ColumnDataSource,
@@ -153,7 +153,7 @@ class GlyphRenderer(DataRenderer):
             inset: Any = 0, selection_marking: Marking | Literal["auto"] | None = "auto",
             nonselection_marking: Marking | Literal["auto"] | None = "auto",
             hover_marking: Marking | Literal["auto"] | None = "auto",
-            muted_marking: Marking | Literal["auto"] | None = "auto") -> PathDecoration:
+            muted_marking: Marking | Literal["auto"] | None = "auto") -> PathMarking:
         """Attach a marking to a named start, middle, or end node.
 
         Start and end honor inset and trim the shaft using endpoint tangents.
@@ -161,7 +161,7 @@ class GlyphRenderer(DataRenderer):
         Use add_path_markings() for fractional or repeated placements.
         State-specific markings require explicitly configured state glyphs.
         """
-        decoration = PathDecoration(marking=marking, node=node, inset=inset)
+        decoration = PathMarking(marking=marking, node=node, inset=inset)
         self._add_decoration(decoration, selection_marking=selection_marking,
                              nonselection_marking=nonselection_marking,
                              hover_marking=hover_marking, muted_marking=muted_marking)
@@ -185,7 +185,7 @@ class GlyphRenderer(DataRenderer):
                              hover_marking=hover_marking, muted_marking=muted_marking)
         return decoration
 
-    def _add_decoration(self, decoration: PathDecoration | PathMarkings, *,
+    def _add_decoration(self, decoration: PathMarking | PathMarkings, *,
             selection_marking: Marking | Literal["auto"] | None = "auto",
             nonselection_marking: Marking | Literal["auto"] | None = "auto",
             hover_marking: Marking | Literal["auto"] | None = "auto",
@@ -197,8 +197,8 @@ class GlyphRenderer(DataRenderer):
             (self.muted_glyph, muted_marking),
         ]
         for glyph in [self.glyph, *(glyph for glyph, marking in states if marking is not None)]:
-            if isinstance(glyph, Glyph) and not glyph._supports_path_decorations(decoration.node if isinstance(decoration, PathDecoration) else 0.5):
-                operation = "add_path_decoration" if isinstance(decoration, PathDecoration) else "add_path_markings"
+            if isinstance(glyph, Glyph) and not glyph._supports_path_decorations(decoration.node if isinstance(decoration, PathMarking) else 0.5):
+                operation = "add_path_decoration" if isinstance(decoration, PathMarking) else "add_path_markings"
                 raise ValueError(f"{operation}() does not support {type(glyph).__name__}. "
                                  "Use Segment, Line, MultiLine, Bezier, or Arc.")
         self.glyph.decorations.append(decoration)
@@ -210,8 +210,8 @@ class GlyphRenderer(DataRenderer):
                 glyph.decorations.append(decoration)
             else:
                 glyph.decorations.append(
-                    PathDecoration(marking=state_marking, node=decoration.node, inset=decoration.inset)
-                    if isinstance(decoration, PathDecoration) else
+                    PathMarking(marking=state_marking, node=decoration.node, inset=decoration.inset)
+                    if isinstance(decoration, PathMarking) else
                     PathMarkings(marking=state_marking, positions=decoration.positions),
                 )
 

@@ -37,7 +37,7 @@ from bokeh.models import (
     Segment,
     StaticLayoutProvider,
 )
-from bokeh.models.graphics import PathDecoration
+from bokeh.models.graphics import PathMarking
 from bokeh.protocol import apply_patch, patch_doc
 
 #-----------------------------------------------------------------------------
@@ -76,7 +76,7 @@ class TestPatchDocument:
         sample.add_root(renderer)
         copy = document.Document.from_json(sample.to_json())
         copy_decoration = copy.get_model_by_id(decoration.id)
-        assert isinstance(copy_decoration, PathDecoration)
+        assert isinstance(copy_decoration, PathMarking)
 
         events = []
         sample.on_change(events.append)

@@ -3,7 +3,7 @@ import type {RectGeometry} from "core/geometry"
 import type {Context2d} from "core/util/canvas"
 import * as hittest from "core/hittest"
 import {atan2} from "core/util/math"
-import type {PathDecorationView} from "../graphics/decoration"
+import type {PathMarkingView} from "../graphics/decoration"
 import type {MarkingGeometry} from "../graphics/marking"
 
 export type PathSegment = {
@@ -144,7 +144,7 @@ export function point_on_path(segments: PathSegment[], distance: number): PathNo
 export type ScreenPoint = {x: number, y: number}
 
 export type PositionedDecoration = {
-  decoration: PathDecorationView
+  decoration: PathMarkingView
   index: number
   sx: number
   sy: number
@@ -152,7 +152,7 @@ export type PositionedDecoration = {
   placement: "start" | "middle" | "end" | number
 }
 
-export function position_decoration(decoration: PathDecorationView, i: number, segments: PathSegment[], total_length: number, placement = decoration.placements(i)[0]): PositionedDecoration {
+export function position_decoration(decoration: PathMarkingView, i: number, segments: PathSegment[], total_length: number, placement = decoration.placements(i)[0]): PositionedDecoration {
   const inset = decoration.inset.get(i)
   const distance = Math.max(0, Math.min(total_length,
     typeof placement == "number" ? placement*total_length :
@@ -239,7 +239,7 @@ export function marking_intersects_rect(marking: MarkingGeometry, geometry: Rect
   return false
 }
 
-export function paint_decorations(ctx: Context2d, decorations: Iterable<PathDecorationView>, i: number, segments: PathSegment[],
+export function paint_decorations(ctx: Context2d, decorations: Iterable<PathMarkingView>, i: number, segments: PathSegment[],
     visible: (positioned: PositionedDecoration) => boolean = () => true): void {
   if (segments.length == 0) {
     return
@@ -260,7 +260,7 @@ export function paint_decorations(ctx: Context2d, decorations: Iterable<PathDeco
   }
 }
 
-export function hit_decoration(point: ScreenPoint, decoration: PathDecorationView, i: number, segments: PathSegment[]): number | null {
+export function hit_decoration(point: ScreenPoint, decoration: PathMarkingView, i: number, segments: PathSegment[]): number | null {
   if (segments.length == 0) {
     return null
   }
@@ -317,7 +317,7 @@ export function span_path_indices(segments: PathSegment[], direction: "h" | "v",
   }).map(segment => segment.index)
 }
 
-export function decoration_hits_span(decoration: PathDecorationView, i: number, segments: PathSegment[], direction: "h" | "v", value: number): number | null {
+export function decoration_hits_span(decoration: PathMarkingView, i: number, segments: PathSegment[], direction: "h" | "v", value: number): number | null {
   if (segments.length == 0) {
     return null
   }
@@ -336,7 +336,7 @@ export function decoration_hits_span(decoration: PathDecorationView, i: number, 
   return null
 }
 
-export function decoration_hits_rect(decoration: PathDecorationView, i: number, segments: PathSegment[], rect: RectGeometry): number | null {
+export function decoration_hits_rect(decoration: PathMarkingView, i: number, segments: PathSegment[], rect: RectGeometry): number | null {
   if (segments.length == 0) {
     return null
   }

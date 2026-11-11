@@ -54,7 +54,7 @@ import {
 
 import type {Marker} from "../models/glyphs/marker"
 import type {Marking} from "../models/graphics/marking"
-import type {PathDecoration} from "../models/graphics/decoration"
+import type {PathMarking} from "../models/graphics/decoration"
 import {OpenHead} from "../models/annotations/arrow_head"
 
 export type NamesOf<T extends HasProps> = (Extract<keyof T["properties"], string>)[]
@@ -157,8 +157,8 @@ type ArrowProps = Omit<Segment.Props, "x0" | "y0" | "x1" | "y1"> & {
   y_end: Segment.Props["y1"]
   start: Property<Marking | null>
   end: Property<Marking | "auto" | null>
-  start_inset: Property<PathDecoration["inset"]>
-  end_inset: Property<PathDecoration["inset"]>
+  start_inset: Property<PathMarking["inset"]>
+  end_inset: Property<PathMarking["inset"]>
 }
 
 export type AnnularWedgeArgs  = GlyphArgs<AnnularWedge.Props>  & AuxLine & AuxFill & AuxHatch

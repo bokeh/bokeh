@@ -28,7 +28,7 @@ import {FactorRange} from "../ranges/factor_range"
 import {Selection} from "../selections/selection"
 import type {GlyphRendererView} from "../renderers/glyph_renderer"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
-import {Decoration, PathDecoration, PathMarkings} from "../graphics/decoration"
+import {Decoration, PathMarking, PathMarkings} from "../graphics/decoration"
 import type {BaseGLGlyph, BaseGLGlyphConstructor} from "./webgl/base"
 
 const {abs, ceil} = Math
@@ -97,11 +97,11 @@ export abstract class GlyphView extends DOMComponentView {
     this.visuals = new visuals.Visuals(this)
   }
 
-  readonly decorations: ViewStorage<PathDecoration | PathMarkings> = new Map()
+  readonly decorations: ViewStorage<PathMarking | PathMarkings> = new Map()
 
   protected async _build_decorations(): Promise<void> {
     const models = this.model.decorations.map((decoration) => {
-      assert(decoration instanceof PathDecoration || decoration instanceof PathMarkings,
+      assert(decoration instanceof PathMarking || decoration instanceof PathMarkings,
         `${this.model.type} does not support ${decoration.type} decorations`)
       return decoration
     })

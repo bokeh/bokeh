@@ -5291,7 +5291,7 @@
     __extends__: "Model",
     inherit_visuals: [],
   },
-  PathDecoration: {
+  PathMarking: {
     __extends__: "Decoration",
     marking: {
       type: "symbol",

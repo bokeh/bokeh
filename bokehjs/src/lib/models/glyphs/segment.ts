@@ -10,7 +10,7 @@ import type {Context2d} from "core/util/canvas"
 import {atan2} from "core/util/math"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
-import type {PathDecorationView} from "../graphics/decoration"
+import type {PathMarkingView} from "../graphics/decoration"
 import {Selection} from "../selections/selection"
 
 export interface SegmentView extends Segment.Data {}
@@ -81,7 +81,7 @@ export class SegmentView extends GlyphView {
     }
   }
 
-  protected _position_decoration(decoration: PathDecorationView, i: number,
+  protected _position_decoration(decoration: PathMarkingView, i: number,
       sx0: number, sy0: number, sx1: number, sy1: number, placement = decoration.placements(i)[0]): {sx: number, sy: number, angle: number} {
     const angle = atan2([sx0, sy0], [sx1, sy1]) + Math.PI/2
     const length = Math.hypot(sx1 - sx0, sy1 - sy0)

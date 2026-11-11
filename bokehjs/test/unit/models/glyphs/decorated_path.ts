@@ -4,7 +4,7 @@ import {cubic_path, path_length, path_segments, position_decoration, trim_path} 
 
 import {create_glyph_view} from "./_util"
 import {Line} from "@bokehjs/models/glyphs/line"
-import {PathDecoration, PathMarkings} from "@bokehjs/models/graphics/decoration"
+import {PathMarking, PathMarkings} from "@bokehjs/models/graphics/decoration"
 import {NormalHead} from "@bokehjs/models/annotations/arrow_head"
 
 describe("decorated path geometry", () => {
@@ -12,7 +12,7 @@ describe("decorated path geometry", () => {
     it(`should use chord alignment only for fractional and middle placement at ${placement}`, async () => {
       const model = typeof placement == "number"
         ? PathMarkings.create({positions: [placement], marking: NormalHead.create({size: 20})})
-        : PathDecoration.create({node: placement, marking: NormalHead.create({size: 20})})
+        : PathMarking.create({node: placement, marking: NormalHead.create({size: 20})})
       const view = await create_glyph_view(Line.create({decorations: [model]}), {x: [0, 40, 40], y: [0, 0, 60]})
       const decoration = view.decorations.get(model)!
       const positioned = position_decoration(decoration, 0, path_segments([0, 40, 40], [0, 0, 60]), 100)

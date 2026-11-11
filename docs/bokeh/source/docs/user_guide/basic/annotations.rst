@@ -483,7 +483,7 @@ renderer, use :meth:`~bokeh.models.GlyphRenderer.add_path_decoration`:
 ``figure.arrow()`` is a convenience API for creating a ``Segment`` renderer
 and adding its start and end decorations. With ``add_path_decoration()``, you
 choose the glyph yourself and attach markings at ``"start"``, ``"middle"``,
-or ``"end"``. The method returns a ``PathDecoration`` model, which you can update
+or ``"end"``. The method returns a ``PathMarking`` model, which you can update
 later, for example with ``decoration.inset = 10``. Decorations can also be added
 or removed after display, and replacing ``decoration.marking`` rebuilds its
 head view. These changes work through server document patches as well.

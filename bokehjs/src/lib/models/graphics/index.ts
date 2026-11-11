@@ -1,2 +1,2 @@
-export {Decoration, PathDecoration, PathMarkings} from "./decoration"
+export {Decoration, PathMarking, PathMarkings} from "./decoration"
 export {Marking} from "./marking"

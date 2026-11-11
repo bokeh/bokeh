@@ -34,7 +34,7 @@ from ..model import Model
 __all__ = (
     "Decoration",
     "Marking",
-    "PathDecoration",
+    "PathMarking",
     "PathMarkings",
 )
 
@@ -66,7 +66,7 @@ class Decoration(Model):
     """
 
 
-class PathDecoration(Decoration):
+class PathMarking(Decoration):
     """A marking attached to a named path node."""
 
     marking = Instance(Marking, help="""The graphical marking attached to the path node.""")

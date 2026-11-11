@@ -11,7 +11,7 @@ from ..._specs import DataSpec, NumberSpec
 from ...core.enums import AutoType as Auto
 from ..annotations import ColorBar
 from ..glyph import Glyph
-from ..graphics import Marking, PathDecoration, PathMarkings
+from ..graphics import Marking, PathMarking, PathMarkings
 from ..sources import CDSView, DataSource
 from .renderer import DataRenderer, _DataRendererInit
 
@@ -40,7 +40,7 @@ class GlyphRenderer[GlyphType: Glyph](DataRenderer):
     def add_path_decoration(self, marking: Marking, *, node: Literal["start", "middle", "end"],
         inset: NumberSpec = ..., selection_marking: Auto | Marking | None = ...,
         nonselection_marking: Auto | Marking | None = ..., hover_marking: Auto | Marking | None = ...,
-        muted_marking: Auto | Marking | None = ...) -> PathDecoration: ...
+        muted_marking: Auto | Marking | None = ...) -> PathMarking: ...
 
     def add_path_markings(self, marking: Marking, *, positions: DataSpec[list[float]] | None = ...,
         selection_marking: Auto | Marking | None = ..., nonselection_marking: Auto | Marking | None = ...,
