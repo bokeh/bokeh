@@ -88,4 +88,8 @@ export class CustomAction extends ActionTool {
 
   override tool_name = "Custom Action"
   override tool_icon = icons.tool_icon_unknown
+
+  override get checkable(): boolean {
+    return this.active_callback != null
+  }
 }

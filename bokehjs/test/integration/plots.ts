@@ -6,6 +6,7 @@ import {mouse_click} from "#framework/interactive"
 
 import {figure} from "@bokehjs/api/plotting"
 import type {Location, WindowAxis} from "@bokehjs/core/enums"
+import type {OverflowOrientation} from "@bokehjs/models/tools/toolbar"
 import {DataRange1d, Range1d, LinearScale, LinearAxis, ColumnDataSource, Pane} from "@bokehjs/models"
 import {Text} from "@bokehjs/models/dom"
 import type {Data} from "@bokehjs/core/types"
@@ -77,34 +78,31 @@ describe("Plot", () => {
   })
 
   describe("should support toolbar's overflow menu", () => {
-    const f = (toolbar_location: Location | null) => {
+    const f = (toolbar_location: Location | null, overflow_orientation: OverflowOrientation = "perpendicular") => {
       const p = fig([200, 200], {tools: "pan,box_zoom,undo,redo,reset,crosshair,help", toolbar_location})
+      p.toolbar.overflow_orientation = overflow_orientation
       p.scatter([0, 5, 10], [0, 5, 10], {size: 10})
       return p
     }
 
-    it("with toolbar located above a plot", async () => {
-      const {view} = await display(f("above"))
-      const {overflow_el} = view.owner.get_one(view.model.toolbar)
-      await mouse_click(overflow_el)
-    })
+    const locations = [["above", "above"], ["below", "below"], ["left", "left of"], ["right", "right of"]] as const
 
-    it("with toolbar located below a plot", async () => {
-      const {view} = await display(f("below"))
-      const {overflow_el} = view.owner.get_one(view.model.toolbar)
-      await mouse_click(overflow_el)
-    })
+    for (const [location, description] of locations) {
+      it(`with toolbar located ${description} a plot`, async () => {
+        const {view} = await display(f(location))
+        const {overflow_el} = view.owner.get_one(view.model.toolbar)
+        await mouse_click(overflow_el)
+      })
+    }
 
-    it("with toolbar located left of a plot", async () => {
-      const {view} = await display(f("left"))
-      const {overflow_el} = view.owner.get_one(view.model.toolbar)
-      await mouse_click(overflow_el)
-    })
-
-    it("with toolbar located right of a plot", async () => {
-      const {view} = await display(f("right"))
-      const {overflow_el} = view.owner.get_one(view.model.toolbar)
-      await mouse_click(overflow_el)
+    describe("with overflow_orientation='parallel'", () => {
+      for (const [location, description] of locations) {
+        it(`with toolbar located ${description} a plot`, async () => {
+          const {view} = await display(f(location, "parallel"))
+          const {overflow_el} = view.owner.get_one(view.model.toolbar)
+          await mouse_click(overflow_el)
+        })
+      }
     })
   })
 

@@ -5,6 +5,7 @@ import {join, resolve, dirname} from "node:path"
 import yargs from "yargs"
 import express from "express"
 import cors from "cors"
+import {rateLimit} from "express-rate-limit"
 import nunjucks from "nunjucks"
 import {structuredPatch} from "diff"
 import type {StructuredPatch, StructuredPatchHunk} from "diff"
@@ -23,6 +24,16 @@ app.use(cors())
 app.use("/static", express.static("build/"))
 app.use("/assets", express.static("test/assets/"))
 app.use("/cases", express.static("../tests/baselines/cross/"))
+
+// Light rate limiting of dynamic routes, which e.g. access the file system. Static
+// files are served above, so they aren't limited. This is a local development
+// server, so the limit is generous (e.g. the report page may be reloaded often).
+app.use(rateLimit({
+  windowMs: 60*1000,
+  limit: 1000,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+}))
 
 const js_path = (name: string, dev: boolean = true): string => {
   const min = dev ? "" : ".min"

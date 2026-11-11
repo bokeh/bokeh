@@ -396,7 +396,9 @@ async function bundle(name: string): Promise<void> {
     },
     target: "ES2024",
     minify: false,
-    externals: [/^@bokehjs\//],
+    // Share bokehjs' instances of preact and preact signals, which are exported by
+    // name from bokeh's main bundle, otherwise tests would bundle separate copies.
+    externals: [/^@bokehjs\//, /^preact(\/|$)/, /^@preact\//],
     shims: ["fs", "module"],
   })
 

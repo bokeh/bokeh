@@ -1,27 +1,32 @@
 import {logger} from "core/logging"
-import type {StyleSheetLike} from "core/dom"
-import {div, a} from "core/dom"
+import type {StyleSheetLike, Keys} from "core/dom"
 import type {ViewStorage, ChildView, ViewOf} from "core/build_views"
 import {build_views} from "core/build_views"
 import type * as p from "core/properties"
+import type {VNode} from "core/vdom"
+import {UIComponent, ViewSlot, cls} from "core/vdom"
 import {UIElement, UIElementView} from "../ui/ui_element"
 import {Logo, Location, ToolName} from "core/enums"
-import {every, sort_by, includes, intersection, split, clear} from "core/util/array"
+import {every, sort_by, includes, intersection, clear} from "core/util/array"
 import {join, enumerate} from "core/util/iterator"
-import {typed_keys, values, entries} from "core/util/object"
+import {typed_keys, values} from "core/util/object"
 import {isArray} from "core/util/types"
-import type {EventRole} from "./tool"
+import {unique_id} from "core/util/string"
+import {assert} from "core/util/assert"
 import {Tool} from "./tool"
 import type {ToolLike} from "./tool_proxy"
 import {ToolProxy} from "./tool_proxy"
 import {ToolGroup} from "./tool_group"
-import {ToolButton} from "./tool_button"
+import {ToolButton, ToolButtonView} from "./tool_button"
 import {GestureTool} from "./gestures/gesture_tool"
 import {InspectTool} from "./inspectors/inspect_tool"
 import {ActionTool} from "./actions/action_tool"
 import {HelpTool} from "./actions/help_tool"
 import {Menu, DividerItem} from "../ui/menus"
-import type {At} from "core/util/menus"
+import type {MenuItem} from "../ui/menus"
+import {collapse_dividers} from "../ui/menus/divider_item"
+import type {Model} from "../../model"
+import type {At, MenuItemLike_} from "core/util/menus"
 import {ContextMenu} from "core/util/menus"
 import {Signal0} from "core/signaling"
 import {version} from "version"
@@ -30,34 +35,140 @@ import toolbars_css, * as toolbars from "styles/toolbar.css"
 import logos_css, * as logos from "styles/logo.css"
 import icons_css from "styles/icons.css"
 
+import {signal, computed} from "@preact/signals"
+import {useLayoutEffect} from "preact/hooks"
+
+type RefFn<T> = (el: T | null) => void
+
+/**
+ * An entry of the toolbar, either a tool button or a divider between groups of
+ * tool buttons. Each entry has two views, one rendered in the bar and the other
+ * in the overflow menu.
+ */
+type Entry = ToolButton | DividerItem
+
+function is_divider(entry: Entry): entry is DividerItem {
+  return entry instanceof DividerItem
+}
+
+type ToolbarItem = {
+  /** An element rendered in the bar, measured and clipped when it doesn't fit. */
+  bar_el: HTMLElement
+  /** Its counterpart in the overflow menu, shown only when `bar_el` doesn't fit. */
+  menu_el: HTMLElement
+}
+
 export class ToolbarView extends UIElementView {
   declare model: Toolbar
+  declare readonly signals: p.SignalsOf<Toolbar.Props>
+  declare readonly values: Toolbar.Attrs
 
-  protected readonly _tool_button_views: ViewStorage<ToolButton> = new Map()
-  protected _tool_buttons: ToolButton[][]
-  protected _items: HTMLElement[] = []
+  protected readonly _bar_views: ViewStorage<Entry> = new Map()
+  protected readonly _menu_views: ViewStorage<Entry> = new Map()
+
+  /** All entries, including dividers and buttons of hidden tools. */
+  protected readonly _entries = signal<Entry[]>([])
+
+  /** Entries shown in the bar (or in the overflow menu), as of the last render. */
+  protected _shown_entries: Entry[] = []
 
   get tool_buttons(): ToolButton[] {
-    return this._tool_buttons.flat()
+    return this._entries.value.filter((entry) => entry instanceof ToolButton)
   }
   get tool_button_views(): ViewOf<ToolButton>[] {
-    return this.tool_buttons.map((tb) => this._tool_button_views.get(tb)).filter((view) => view != null)
+    return this.tool_buttons.map((tb) => this._bar_views.get(tb)).filter((view) => view instanceof ToolButtonView)
+  }
+  get tool_button_menu_views(): ViewOf<ToolButton>[] {
+    return this.tool_buttons.map((tb) => this._menu_views.get(tb)).filter((view) => view instanceof ToolButtonView)
   }
 
-  protected _overflow_menu: ContextMenu
-  protected _overflow_el: HTMLElement
+  /**
+   * Whether the pointer is over the toolbar's target (e.g. a plot), which
+   * determines visibility of auto-hidden toolbars.
+   */
+  protected readonly _hover = signal<boolean | null>(null)
+
+  protected readonly _visible = computed(() => {
+    const {visible, autohide} = this.values
+    return !visible ? false : (!autohide || (this._hover.value ?? false))
+  })
+  get visible(): boolean {
+    return this._visible.value
+  }
+
+  set_visibility(visible: boolean): void {
+    this._hover.value = visible
+  }
+
+  /**
+   * Whether any items don't fit in the bar. This is determined by measuring the
+   * DOM, see `_update_overflow()`.
+   */
+  protected readonly _overflows = signal(false)
+
+  protected _bar_el: HTMLElement | null = null
+  protected _overflow_el: HTMLElement | null = null
 
   get overflow_el(): HTMLElement {
+    assert(this._overflow_el != null, "toolbar wasn't rendered")
     return this._overflow_el
   }
 
-  private _visible: boolean | null = null
-  get visible(): boolean {
-    return !this.model.visible ? false : (!this.model.autohide || (this._visible ?? false))
+  /**
+   * Items of the overflow menu. This array is shared by all instances of the menu.
+   */
+  protected readonly _menu_items: MenuItemLike_[] = []
+  protected _overflow_menu: ContextMenu | null = null
+
+  /** The `id` of the overflow menu's element, shared by all instances of the menu. */
+  protected readonly _overflow_menu_id = unique_id("bk-overflow-menu")
+
+  /** Whether the overflow menu is shown, which determines `aria-expanded` of its button. */
+  protected readonly _overflow_menu_open = signal(false)
+
+  /** Whether the view is rendered in the overflow menu (rather than in the bar). */
+  is_menu_view(view: ToolButtonView): boolean {
+    return this._menu_views.get(view.model) === view
+  }
+
+  /**
+   * The overflow menu. It's (re)created on demand, because its orientation depends
+   * on the toolbar's location and `overflow_orientation`, which may change.
+   */
+  get overflow_menu(): ContextMenu {
+    const {location, horizontal, overflow_orientation} = this.model
+    // A parallel menu continues the toolbar, so it preserves the order of items.
+    const reversed = overflow_orientation == "perpendicular" && (location == "left" || location == "above")
+    const orientation = (() => {
+      switch (overflow_orientation) {
+        case "parallel":      return horizontal ? "horizontal" : "vertical"
+        case "perpendicular": return horizontal ? "vertical" : "horizontal"
+      }
+    })()
+
+    const menu = this._overflow_menu
+    if (menu != null && menu.orientation == orientation && menu.reversed == reversed) {
+      return menu
+    }
+
+    menu?.hide()
+    return this._overflow_menu = new ContextMenu(this._menu_items, {
+      target: this.el,
+      orientation,
+      reversed,
+      prevent_hide: (event) => {
+        return this._overflow_el != null && event.composedPath().includes(this._overflow_el)
+      },
+      id: this._overflow_menu_id,
+      aria_label: "More tools",
+      on_toggle: (open) => {
+        this._overflow_menu_open.value = open
+      },
+    })
   }
 
   override _children_views(): ChildView[] {
-    return [...super._children_views(), ...this._tool_button_views.values()]
+    return [...super._children_views(), ...this._bar_views.values(), ...this._menu_views.values()]
   }
 
   override has_finished(): boolean {
@@ -65,29 +176,13 @@ export class ToolbarView extends UIElementView {
       return false
     }
 
-    for (const child_view of this._tool_button_views.values()) {
+    for (const child_view of [...this._bar_views.values(), ...this._menu_views.values()]) {
       if (!child_view.has_finished()) {
         return false
       }
     }
 
     return true
-  }
-
-  override initialize(): void {
-    super.initialize()
-
-    const {location} = this.model
-    const reversed = location == "left" || location == "above"
-    const orientation = this.model.horizontal ? "vertical" : "horizontal"
-    this._overflow_menu = new ContextMenu([], {
-      target: this.el,
-      orientation,
-      reversed,
-      prevent_hide: (event) => {
-        return event.composedPath().includes(this._overflow_el)
-      },
-    })
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -98,24 +193,9 @@ export class ToolbarView extends UIElementView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {buttons, tools, location, autohide, group, group_types} = this.model.properties
+    const {buttons, tools, group, group_types} = this.model.properties
     this.on_change([buttons, tools, group, group_types], async () => {
       await this._build_tool_button_views()
-      this.rerender()
-    })
-
-    this.on_change(location, () => {
-      this.rerender()
-    })
-
-    this.on_change(autohide, () => {
-      this._on_visible_change()
-    })
-
-    this.on_transitive_change(tools, () => {
-      this.rerender()
-    }, {
-      signal: (obj) => obj.properties.visible.change,
     })
   }
 
@@ -124,19 +204,27 @@ export class ToolbarView extends UIElementView {
   }
 
   override remove(): void {
-    this._destroy_proxies()
+    this._overflow_menu?.hide()
+    this._destroy_our_models()
     super.remove()
   }
 
-  // Manually keep track of view constructed ToolProxy models, because models don't
-  // have any sensible life cycle management (at least from views' perspective).
-  private readonly _our_proxies: ToolProxy<Tool>[] = []
+  // Manually keep track of view constructed models (tool proxies and dividers), because models
+  // don't have any sensible life cycle management (at least from views' perspective).
+  private readonly _our_models: Model[] = []
 
-  private _destroy_proxies(): void {
-    for (const proxy of this._our_proxies) {
-      proxy.destroy()
+  private _destroy_our_models(): void {
+    for (const model of this._our_models) {
+      model.destroy()
     }
-    clear(this._our_proxies)
+    clear(this._our_models)
+  }
+
+  private _divider(): DividerItem {
+    // Not syncable, because it's an implementation detail of the view.
+    const divider = DividerItem.create({syncable: false})
+    this._our_models.push(divider)
+    return divider
   }
 
   /**
@@ -163,7 +251,7 @@ export class ToolbarView extends UIElementView {
     return Array.from(grouped.values(), (group) => {
       if (group.length > 1) {
         const proxy = ToolGroup.create({tools: group})
-        this._our_proxies.push(proxy)
+        this._our_models.push(proxy)
         return proxy
       } else {
         return group[0]
@@ -172,9 +260,9 @@ export class ToolbarView extends UIElementView {
   }
 
   protected async _build_tool_button_views(): Promise<void> {
-    this._destroy_proxies()
+    this._destroy_our_models()
 
-    this._tool_buttons = (() => {
+    const entries = (() => {
       const {buttons} = this.model
       if (buttons == "auto") {
         const tool_bars: ToolLike<Tool>[][] = [
@@ -185,137 +273,255 @@ export class ToolbarView extends UIElementView {
         ]
 
         const {group} = this.model
-        const button_bars = tool_bars.map((bar) => {
+        // Dividers that don't separate anything are removed when rendering.
+        return tool_bars.flatMap((bar) => {
           const grouped = group ? this._group_tools(bar) : bar
-          return grouped.map((tool) => tool.tool_button())
+          return [this._divider(), ...grouped.map((tool) => tool.tool_button())]
         })
-        return button_bars
       } else {
-        return split(buttons, null)
+        return buttons.map((button) => button ?? this._divider())
       }
     })()
 
-    await build_views(this._tool_button_views, this._tool_buttons.flat(), {parent: this})
+    await build_views(this._bar_views, entries, {parent: this})
+    await build_views(this._menu_views, entries, {parent: this})
+
+    // Set after views were built, so that the component can render them.
+    this._entries.value = entries
   }
 
-  set_visibility(visible: boolean): void {
-    if (visible != this._visible) {
-      this._visible = visible
-      this._on_visible_change()
+  protected _menu_at(overflow_el: HTMLElement): At {
+    if (this.model.overflow_orientation == "parallel") {
+      // A parallel menu is attached from the back, i.e. its end is aligned with the end of the
+      // overflow button, so that it extends along the toolbar instead of past its end.
+      const {left, right, top, bottom} = overflow_el.getBoundingClientRect()
+      switch (this.model.location) {
+        case "right": return {right: left, bottom}
+        case "left":  return {left: right, bottom}
+        case "above": return {right, top: bottom}
+        case "below": return {right, bottom: top}
+      }
+    }
+
+    switch (this.model.location) {
+      case "right": return {left_of:  overflow_el}
+      case "left":  return {right_of: overflow_el}
+      case "above": return {below: overflow_el}
+      case "below": return {above: overflow_el}
     }
   }
 
-  protected _on_visible_change(): void {
-    this.el.classList.toggle(toolbars.hidden, !this.visible)
+  /**
+   * Notifies the toolbar that the DOM of a tool button was updated. Tool buttons
+   * are vDOM components, which update asynchronously, so this may happen after
+   * the toolbar already measured its contents.
+   */
+  button_updated(button_view: ToolButtonView): void {
+    if (this._bar_el?.contains(button_view.el) ?? false) {
+      this._update_overflow()
+    }
   }
 
-  override _after_resize(): void {
-    super._after_resize()
-    this._after_render()
-  }
-
-  protected _menu_at(): At {
-    switch (this.model.location) {
-      case "right": return {left_of:  this._overflow_el}
-      case "left":  return {right_of: this._overflow_el}
-      case "above": return {below: this._overflow_el}
-      case "below": return {above: this._overflow_el}
+  /**
+   * Notifies the toolbar that a tool button was activated (e.g. tapped). If it's
+   * a button from the overflow menu, then the menu is closed, the same way it
+   * would be when activating a regular menu item.
+   */
+  button_tapped(button_view: ToolButtonView): void {
+    if (this.is_menu_view(button_view)) {
+      this._overflow_menu?.hide()
     }
   }
 
   toggle_menu(): void {
-    this._overflow_menu.toggle(this._menu_at())
+    if (this._overflow_el != null) {
+      this.overflow_menu.toggle(this._menu_at(this._overflow_el))
+    }
   }
 
-  override render(): void {
-    super.render()
+  private readonly _bar_ref: RefFn<HTMLElement> = (el) => {
+    this._bar_el = el
+  }
 
-    this.el.classList.add(toolbars[this.model.location])
-    this.el.classList.toggle(toolbars.inner, this.model.inner)
-    this._on_visible_change()
+  private readonly _overflow_ref: RefFn<HTMLElement> = (el) => {
+    this._overflow_el = el
+  }
 
-    const {horizontal} = this.model
-
-    this._overflow_el = div({class: toolbars.tool_overflow, tabIndex: 0}, horizontal ? "⋮" : "⋯")
-    this._overflow_el.addEventListener("click", (_event) => {
-      this.toggle_menu()
-    })
-    this._overflow_el.addEventListener("keydown", (event) => {
-      if (event.key == "Enter") {
+  private readonly _on_overflow_keydown = (event: KeyboardEvent) => {
+    switch (event.key as Keys) {
+      case "Enter":
+      case " ": {
+        event.preventDefault()
         this.toggle_menu()
+        break
       }
+      default:
+    }
+  }
+
+  override component(): VNode {
+    const {location, inner, logo} = this.values
+
+    useLayoutEffect(() => {
+      this._update_overflow()
     })
 
-    this._items = []
+    // Track visibility of tools, so that the toolbar re-renders when it changes.
+    const entries = this._entries.value
+    const shown = collapse_dividers(entries.filter((entry) => is_divider(entry) || entry.tool.visible), is_divider)
+    this._shown_entries = shown
+    const is_shown = new Set(shown)
 
-    if (this.model.logo != null) {
-      const gray = this.model.logo === "grey" ? logos.grey : null
-      const logo_el = a({href: "https://bokeh.org/", target: "_blank", class: [logos.logo, logos.logo_small, gray], title: `Bokeh ${version}`})
-      this._items.push(logo_el)
-      this.shadow_el.appendChild(logo_el)
+    const slot = (entry: Entry, views: ViewStorage<Entry>, prefix: string) => {
+      const view = views.get(entry)
+      return view != null ? <ViewSlot key={`${prefix}-${entry.id}`} view={view}/> : null
     }
 
-    for (const [, button_view] of this._tool_button_views) {
-      button_view.render()
+    const bar_els = shown.map((entry) => slot(entry, this._bar_views, "bar"))
+
+    // Entries are vDOM components, which have to be rendered into an attached node.
+    // This holds entries that aren't shown (e.g. buttons of hidden tools) and entries
+    // of the overflow menu, the later until the menu is shown.
+    const held_els = [
+      ...entries.filter((entry) => !is_shown.has(entry)).map((entry) => slot(entry, this._bar_views, "bar")),
+      ...entries.map((entry) => slot(entry, this._menu_views, "menu")),
+    ]
+
+    const logo_el = (() => {
+      if (logo == null) {
+        return null
+      } else {
+        const gray = logo === "grey" ? logos.grey : null
+        return <a href="https://bokeh.org/" target="_blank" class={cls(logos.logo, logos.logo_small, gray)} title={`Bokeh ${version}`}/>
+      }
+    })()
+
+    const classes = cls(
+      toolbars[location],
+      inner ? toolbars.inner : null,
+      !this.visible ? toolbars.hidden : null,
+      this._overflows.value ? toolbars.overflows : null,
+    )
+
+    return (
+      <UIComponent parent={this.resolved_props} class={classes}>
+        {logo_el}
+        <div class={toolbars.bar} ref={this._bar_ref}>{bar_els}</div>
+        <div
+          class={toolbars.overflow}
+          role="button"
+          tabIndex={0}
+          aria-label="More tools"
+          aria-haspopup="menu"
+          aria-expanded={this._overflow_menu_open.value ? "true" : "false"}
+          aria-controls={this._overflow_menu_id}
+          ref={this._overflow_ref}
+          onClick={() => this.toggle_menu()}
+          onKeyDown={this._on_overflow_keydown}
+        >
+          <div class={toolbars.icon}/>
+        </div>
+        <div style={{display: "none"}}>{held_els}</div>
+      </UIComponent>
+    )
+  }
+
+  /**
+   * Pairs of elements, one rendered in the toolbar's bar and the other in the
+   * overflow menu, for the entries of the last render.
+   */
+  protected get _items(): ToolbarItem[] {
+    const items: ToolbarItem[] = []
+    for (const entry of this._shown_entries) {
+      const bar_view = this._bar_views.get(entry)
+      const menu_view = this._menu_views.get(entry)
+      if (bar_view != null && menu_view != null) {
+        items.push({bar_el: bar_view.el, menu_el: menu_view.el})
+      }
     }
-
-    const bars = this._tool_buttons.map((group) => {
-      return group
-        .filter((button) => button.tool.visible)
-        .map((button) => this._tool_button_views.get(button))
-        .filter((view) => view != null)
-        .map((view) => view.el)
-    }).filter((bar) => bar.length != 0)
-
-    const divider = () => div({class: toolbars.divider})
-
-    for (const el of join<HTMLElement>(bars, divider)) {
-      this._items.push(el)
-    }
-
-    this.shadow_el.append(...this._items)
+    return items
   }
 
   override _after_render(): void {
     super._after_render()
+    this._update_overflow()
+  }
 
-    clear(this._overflow_menu.items)
-
-    if (this.shadow_el.contains(this._overflow_el)) {
-      this.shadow_el.removeChild(this._overflow_el)
+  override update_bbox(): boolean {
+    // Don't rely on `_after_resize()`, because the bbox may have been already
+    // updated by a parent (e.g. `GridPlotView`), before the resize observer.
+    const changed = super.update_bbox()
+    if (changed) {
+      this._update_overflow()
     }
+    return changed
+  }
 
-    for (const el of this._items) {
-      if (!this.shadow_el.contains(el)) {
-        this.shadow_el.append(el)
-      }
+  /**
+   * Determine which items don't fit in the bar and show them (and only them)
+   * in the overflow menu. Clipping of the bar itself is done purely with CSS.
+   *
+   * This has to measure the DOM synchronously, so it manipulates classes and
+   * styles directly. Classes of the toolbar are also maintained by its component,
+   * so the outcome is stored in `_overflows`, so that re-renders preserve it.
+   * Items' elements are clipped with inline styles, which aren't managed by
+   * vDOM (neither the toolbar's nor tool buttons').
+   */
+  protected _update_overflow(): void {
+    const {_bar_el} = this
+    if (_bar_el == null) {
+      return
     }
 
     const {horizontal} = this.model
-    const overflow_size = 15
-    const {bbox} = this
-    const overflow_cls = horizontal ? toolbars.right : toolbars.above
-    let size = 0
-    let overflowed = false
+    const items = this._items
 
-    for (const el of this._items) {
-      if (overflowed) {
-        this.shadow_el.removeChild(el)
-        this._overflow_menu.items.push({custom: el, class: overflow_cls})
-      } else {
-        const {width, height} = el.getBoundingClientRect()
-        size += horizontal ? width : height
-        overflowed = horizontal ? size > bbox.width - overflow_size : size > bbox.height - overflow_size
-        if (overflowed) {
-          this.shadow_el.removeChild(el)
-          this.shadow_el.appendChild(this._overflow_el)
-          this._overflow_menu.items.push({custom: el, class: overflow_cls})
-        }
-      }
+    // Clipped items aren't displayed, so reset them before measuring.
+    this.el.classList.remove(toolbars.overflows)
+    for (const {bar_el} of items) {
+      bar_el.style.display = ""
     }
 
-    if (this._overflow_menu.is_open) {
-      this._overflow_menu.show(this._menu_at())
+    const measure = (): boolean[] => {
+      const bar_bbox = _bar_el.getBoundingClientRect()
+      return items.map(({bar_el}) => {
+        const bbox = bar_el.getBoundingClientRect()
+        return horizontal ? bbox.right > bar_bbox.right : bbox.bottom > bar_bbox.bottom
+      })
+    }
+
+    let overflows = measure()
+    let any_overflows = overflows.some((overflow) => overflow)
+
+    if (any_overflows) {
+      // The overflow button takes space from the bar, so measure again with the button shown.
+      this.el.classList.add(toolbars.measuring)
+      overflows = measure()
+      any_overflows = overflows.some((overflow) => overflow)
+      this.el.classList.remove(toolbars.measuring)
+    }
+
+    this.el.classList.toggle(toolbars.overflows, any_overflows)
+    this._overflows.value = any_overflows
+
+    clear(this._menu_items)
+    const overflow_cls = horizontal ? toolbars.right : toolbars.above
+
+    for (const [{bar_el, menu_el}, i] of enumerate(items)) {
+      const overflow = overflows[i]
+      bar_el.style.display = overflow ? "none" : ""
+      menu_el.style.display = overflow ? "" : "none"
+      this._menu_items.push({custom: menu_el, class: overflow_cls})
+    }
+
+    // This also replaces the menu if its orientation changed.
+    const {overflow_menu} = this
+    if (overflow_menu.is_open && this._overflow_el != null) {
+      if (any_overflows) {
+        overflow_menu.show(this._menu_at(this._overflow_el))
+      } else {
+        overflow_menu.hide()
+      }
     }
 
     for (const tb_view of this.tool_button_views) {
@@ -337,7 +543,13 @@ export class ToolbarView extends UIElementView {
   }
 }
 
-import {Struct, Ref, Nullable, List, Or} from "core/kinds"
+import {Struct, Ref, Nullable, List, Or, Enum} from "core/kinds"
+
+/**
+ * Orientation of the overflow menu relative to the orientation of the toolbar.
+ */
+export const OverflowOrientation = Enum("perpendicular", "parallel")
+export type OverflowOrientation = typeof OverflowOrientation["__type__"]
 
 const GestureToolLike = Or(Ref(GestureTool), Ref(ToolProxy<GestureTool>))
 type GestureToolLike = GestureTool | ToolProxy<GestureTool>
@@ -389,6 +601,7 @@ export namespace Toolbar {
     buttons: p.Property<(ToolButton | null)[] | "auto">
     location: p.Property<Location>
     inner: p.Property<boolean>
+    overflow_orientation: p.Property<OverflowOrientation>
 
     gestures: p.Property<GesturesMap>
     actions: p.Property<ToolLike<ActionTool>[]>
@@ -443,6 +656,7 @@ export class Toolbar extends UIElement {
         buttons:    [ Or(List(Or(Ref(ToolButton), Null)), Auto), "auto" ],
         location:   [ Location, "right" ],
         inner:      [ Bool, false ],
+        overflow_orientation: [ OverflowOrientation, "perpendicular" ],
         gestures:   [ GesturesMap, create_gesture_map ],
         actions:    [ List(Or(Ref(ActionTool), Ref(ToolProxy))), [] ],
         inspectors: [ List(Or(Ref(InspectTool), Ref(ToolProxy))), [] ],
@@ -620,8 +834,8 @@ export class Toolbar extends UIElement {
       }
     }
 
-    for (const [event_role, gesture] of entries(this.gestures)) {
-      const et = event_role as EventRole
+    for (const et of typed_keys(this.gestures)) {
+      const gesture = this.gestures[et]
       const active_attr = _get_active_attr(et)
       _resolve_gesture_activation(gesture, active_attr)
       if (active_attr != null) {
@@ -683,7 +897,7 @@ export class Toolbar extends UIElement {
       .filter((group) => group.length != 0)
       .map((group) => group.map((tool) => tool.menu_item()))
 
-    const items = [...join(entries, () => DividerItem.create())]
+    const items = [...join<MenuItem | DividerItem>(entries, () => DividerItem.create())]
     return Menu.create({items})
   }
 }
