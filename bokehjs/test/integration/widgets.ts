@@ -376,21 +376,20 @@ describe("Widgets", () => {
     }
   })
 
-  describe("should support title and description", () => {
-    type Attrs = Partial<InputWidget.Attrs>
-    const widgets: [string, (attrs: Attrs) => InputWidget][] = [
-      ["TextInput", (attrs) => TextInput.create({placeholder: "Enter value ...", ...attrs})],
-      ["PasswordInput", (attrs) => PasswordInput.create({value: "foo", ...attrs})],
-      ["AutocompleteInput", (attrs) => AutocompleteInput.create({placeholder: "Enter value ...", completions: ["aaa", "aab"], ...attrs})],
-      ["TextAreaInput", (attrs) => TextAreaInput.create({placeholder: "Enter text ...", cols: 20, rows: 3, ...attrs})],
-      ["NumericInput", (attrs) => NumericInput.create({value: 10, ...attrs})],
-      ["Spinner", (attrs) => Spinner.create({value: 10, ...attrs})],
-      ["Select", (attrs) => Select.create({options: ["Option 1", "Option 2"], value: "Option 1", ...attrs})],
-      ["MultiSelect", (attrs) => MultiSelect.create({options: ["Option 1", "Option 2", "Option 3"], value: ["Option 2"], size: 3, ...attrs})],
-      ["ColorPicker", (attrs) => ColorPicker.create({color: "orange", ...attrs})],
-      ["FileInput", (attrs) => FileInput.create({accept: ".csv", ...attrs})],
-    ]
+  const input_widgets: [string, (attrs: Partial<InputWidget.Attrs>) => InputWidget][] = [
+    ["TextInput", (attrs) => TextInput.create({placeholder: "Enter value ...", ...attrs})],
+    ["PasswordInput", (attrs) => PasswordInput.create({value: "foo", ...attrs})],
+    ["AutocompleteInput", (attrs) => AutocompleteInput.create({placeholder: "Enter value ...", completions: ["aaa", "aab"], ...attrs})],
+    ["TextAreaInput", (attrs) => TextAreaInput.create({placeholder: "Enter text ...", cols: 20, rows: 3, ...attrs})],
+    ["NumericInput", (attrs) => NumericInput.create({value: 10, ...attrs})],
+    ["Spinner", (attrs) => Spinner.create({value: 10, ...attrs})],
+    ["Select", (attrs) => Select.create({options: ["Option 1", "Option 2"], value: "Option 1", ...attrs})],
+    ["MultiSelect", (attrs) => MultiSelect.create({options: ["Option 1", "Option 2", "Option 3"], value: ["Option 2"], size: 3, ...attrs})],
+    ["ColorPicker", (attrs) => ColorPicker.create({color: "orange", ...attrs})],
+    ["FileInput", (attrs) => FileInput.create({accept: ".csv", ...attrs})],
+  ]
 
+  describe("should support title and description", () => {
     const viewport: [number, number] = [400, 150]
     const title = "Widget title"
     const tooltip = () => Tooltip.create({content: "Widget description.", position: "right"})
@@ -401,7 +400,7 @@ describe("Widgets", () => {
       return desc_el
     }
 
-    for (const [name, create] of widgets) {
+    for (const [name, create] of input_widgets) {
       describe(`in ${name}`, () => {
         it("without title", async () => {
           await display(create({}), viewport)
@@ -426,6 +425,31 @@ describe("Widgets", () => {
           const help_el = await help_button_of(view)
           await mouse_enter(help_el)
           await mouse_down(help_el)
+          await view.ready
+        })
+      })
+    }
+  })
+
+  describe("should support disabled and focused states", () => {
+    const viewport: [number, number] = [400, 150]
+    const title = "Widget title"
+
+    function input_of(view: InputWidgetView): HTMLElement {
+      const el = view.shadow_el.getElementById("input")
+      expect_not_null(el)
+      return el
+    }
+
+    for (const [name, create] of input_widgets) {
+      describe(`in ${name}`, () => {
+        it("when disabled", async () => {
+          await display(create({title, disabled: true}), viewport)
+        })
+
+        it("when focused", async () => {
+          const {view} = await display(create({title}), viewport)
+          input_of(view).focus()
           await view.ready
         })
       })
