@@ -1,14 +1,18 @@
 import {TextInput, TextInputView} from "./text_input"
 import type {VNode} from "core/vdom"
-import {UIComponent} from "core/vdom"
+import {UIComponent, cls} from "core/vdom"
 import type {StyleSheetLike} from "core/stylesheets"
 import type * as p from "core/properties"
+import {bind} from "core/class"
 import {take} from "core/util/iterator"
 import {clamp} from "core/util/math"
 import {Enum} from "core/kinds"
+import * as inputs_css from "styles/widgets/inputs.css"
 import * as dropdown_css from "styles/dropdown.css"
 
-import type {TargetedKeyboardEvent} from "preact"
+import type {TargetedEvent, TargetedKeyboardEvent} from "preact"
+import {createRef} from "preact"
+import {signal} from "@preact/signals"
 
 const SearchStrategy = Enum("starts_with", "includes")
 type SearchStrategy = typeof SearchStrategy["__type__"]
@@ -18,63 +22,90 @@ export class AutocompleteInputView extends TextInputView {
   declare readonly signals: p.SignalsOf<AutocompleteInput.Props>
   declare readonly values: AutocompleteInput.Attrs
 
-  protected _open: boolean = false
+  protected readonly input_ref = createRef<HTMLInputElement>()
 
-  protected _last_value: string = ""
-
-  protected _hover_index: number = 0
-
-  protected menu: HTMLElement
+  protected readonly _open = signal<boolean>(false)
+  protected readonly _completions = signal<string[]>([])
+  protected readonly _hover_index = signal<number>(0)
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), dropdown_css.default]
   }
 
   override component(): VNode {
-    const {disabled, value} = this.signals
+    const {disabled, value, placeholder} = this.signals
+    const {max_length, prefix, suffix} = this.values
+    const Title = this._title_el
     return (
       <UIComponent parent={this.resolved_props}>
+        <Title></Title>
         <div class={inputs_css.outer}>
+          {prefix != null ? <div class={inputs_css.prefix}>{prefix}</div> : null}
           <div class={inputs_css.inner}>
+            <input
+              ref={this.input_ref}
+              type="text"
+              class={inputs_css.input}
+              disabled={disabled}
+              value={value}
+              placeholder={placeholder}
+              maxLength={max_length ?? undefined}
+              onKeyUp={this._key_up}
+              onFocusIn={this._focus_in}
+              onChange={this._change}
+              onInput={(event) => this.model.value_input = event.currentTarget.value}
+            />
           </div>
+          {suffix != null ? <div class={inputs_css.suffix}>{suffix}</div> : null}
         </div>
+        {this._menu()}
       </UIComponent>
     )
   }
 
-  override render(): void {
-    super.render()
-    //this.input_el.addEventListener("focusin", () => this._toggle_menu())
-
-    this.menu = div({class: [dropdown_css.menu, dropdown_css.below]})
-    this.menu.addEventListener("click", (event) => this._menu_click(event))
-    this.menu.addEventListener("mouseover", (event) => this._menu_hover(event))
-    this.shadow_el.appendChild(this.menu)
-    undisplay(this.menu)
+  protected _menu(): VNode {
+    const open = this._open.value
+    const completions = this._completions.value
+    const hover_index = this._hover_index.value
+    return (
+      <div
+        class={cls(dropdown_css.menu, dropdown_css.below)}
+        style={{display: open ? undefined : "none"}}
+      >
+        {completions.map((text, i) => (
+          <div
+            class={cls(i == hover_index ? dropdown_css.active : null)}
+            onClick={() => this._select(text)}
+            onMouseOver={() => this._bump_hover(i)}
+          >{text}</div>
+        ))}
+      </div>
+    )
   }
 
-  override change_input(): void {
-    if (this._open && this.menu.children.length > 0) {
-      this.model.value = this.menu.children[this._hover_index].textContent!
-      this.input_el.focus()
-      this._hide_menu()
-    } else if (!this.model.restrict) {
-      super.change_input()
+  @bind
+  protected _focus_in(_event: TargetedEvent<HTMLInputElement>): void {
+    this._toggle_menu()
+  }
+
+  @bind
+  protected _change(event: TargetedEvent<HTMLInputElement>): void {
+    this._commit(event.currentTarget.value)
+  }
+
+  protected _commit(input_value: string): void {
+    const completions = this._completions.value
+    if (this._open.value && completions.length > 0) {
+      this._select(completions[this._hover_index.value])
+    } else if (!this.values.restrict) {
+      this.model.value = input_value
     }
   }
 
-  protected _update_completions(completions: string[]): void {
-    empty(this.menu)
-
-    const {max_completions} = this.model
-    const selected_completions = max_completions != null ? take(completions, max_completions) : completions
-
-    for (const text of selected_completions) {
-      const item = div(text)
-      this.menu.append(item)
-    }
-
-    this.menu.firstElementChild?.classList.add(dropdown_css.active)
+  protected _select(text: string): void {
+    this.model.value = text
+    this.input_ref.current?.focus()
+    this._hide_menu()
   }
 
   compute_completions(value: string): string[] {
@@ -104,17 +135,19 @@ export class AutocompleteInputView extends TextInputView {
   }
 
   protected _toggle_menu(): void {
-    const {value} = this.input_el
+    const value = this.input_ref.current?.value ?? ""
 
     if (value.length < this.model.min_characters) {
       this._hide_menu()
       return
     }
 
+    const {max_completions} = this.model
     const completions = this.compute_completions(value)
-    this._update_completions(completions)
+    const selected_completions = max_completions != null ? [...take(completions, max_completions)] : completions
+    this._completions.value = selected_completions
 
-    if (completions.length == 0) {
+    if (selected_completions.length == 0) {
       this._hide_menu()
     } else {
       this._show_menu()
@@ -122,11 +155,9 @@ export class AutocompleteInputView extends TextInputView {
   }
 
   protected _show_menu(): void {
-    if (!this._open) {
-      this._open = true
-      this._hover_index = 0
-      this._last_value = this.model.value
-      display(this.menu)
+    if (!this._open.value) {
+      this._open.value = true
+      this._hover_index.value = 0
 
       const listener = (event: MouseEvent) => {
         if (!event.composedPath().includes(this.el)) {
@@ -139,46 +170,23 @@ export class AutocompleteInputView extends TextInputView {
   }
 
   protected _hide_menu(): void {
-    if (this._open) {
-      this._open = false
-      undisplay(this.menu)
-    }
-  }
-
-  protected _menu_click(event: MouseEvent): void {
-    if (event.target != event.currentTarget && event.target instanceof Element) {
-      this.model.value = event.target.textContent!
-      this.input_el.focus()
-      this._hide_menu()
-    }
-  }
-
-  protected _menu_hover(event: MouseEvent): void {
-    if (event.target != event.currentTarget && event.target instanceof Element) {
-      for (let i = 0; i < this.menu.children.length; i++) {
-        if (this.menu.children[i].textContent == event.target.textContent) {
-          this._bump_hover(i)
-          break
-        }
-      }
-    }
+    this._open.value = false
   }
 
   protected _bump_hover(new_index: number): void {
-    const n_children = this.menu.children.length
-    if (this._open && n_children > 0) {
-      this.menu.children[this._hover_index].classList.remove(dropdown_css.active)
-      this._hover_index = clamp(new_index, 0, n_children-1)
-      this.menu.children[this._hover_index].classList.add(dropdown_css.active)
+    const n_completions = this._completions.value.length
+    if (this._open.value && n_completions > 0) {
+      this._hover_index.value = clamp(new_index, 0, n_completions-1)
     }
   }
 
+  @bind
   protected override _key_up(event: TargetedKeyboardEvent<HTMLInputElement>): void {
     super._key_up(event)
 
     switch (event.key) {
       case "Enter": {
-        this.change_input()
+        this._commit(event.currentTarget.value)
         break
       }
       case "Escape": {
@@ -186,11 +194,11 @@ export class AutocompleteInputView extends TextInputView {
         break
       }
       case "ArrowUp": {
-        this._bump_hover(this._hover_index - 1)
+        this._bump_hover(this._hover_index.value - 1)
         break
       }
       case "ArrowDown": {
-        this._bump_hover(this._hover_index + 1)
+        this._bump_hover(this._hover_index.value + 1)
         break
       }
       default:
