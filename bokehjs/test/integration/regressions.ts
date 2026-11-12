@@ -38,7 +38,7 @@ import {
 } from "@bokehjs/models"
 
 import {
-  InlineStyleSheet, HTML, ValueOf, Text as DOMText, Styles,
+  InlineStyleSheet, HTML, ValueOf, Styles,
 } from "@bokehjs/models/dom"
 
 import {
@@ -4628,7 +4628,7 @@ describe("Bug", () => {
         `}),
       ]})
 
-      const text = (content: string) => DOMText.create({content})
+      const text = (content: string) => HTML.create({html: content, style: {display: "inline"}})
 
       const s0 = Spacer.create({width_policy: "auto", height_policy: "fixed", height: 25, styles: Styles.create({background_color: "red"}), elements: [text("Aaaaaaaaaaaaaa")]})
       const s1 = Spacer.create({width_policy: "auto", height_policy: "fixed", height: 25, styles: Styles.create({background_color: "green"}), elements: [text("Baaaaaaaaaaaaa")]})
