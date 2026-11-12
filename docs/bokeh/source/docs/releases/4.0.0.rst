@@ -37,7 +37,8 @@ New features
   been scanned (:bokeh-issue:`13898`).
 * Added support for ``figure(tools=None)`` (and ``gmap(..., tools=None)``),
   which creates a plot without any tools and without the toolbar, i.e. it is
-  a shorthand for ``tools=[]`` with ``toolbar_location=None``
+  a shorthand for ``tools=[]`` with ``toolbar_location=None``. BokehJS'
+  ``figure()`` API supports the equivalent ``tools: null``
   (:bokeh-issue:`15747`).
 
 Removals

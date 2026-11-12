@@ -51,7 +51,7 @@ import {GlyphAPI} from "./glyph_api"
 
 export type ToolName = keyof ToolAliases
 
-const _default_tools: ToolName[] = ["pan", "wheel_zoom", "auto_box_zoom", "save", "reset", "help"]
+export const DEFAULT_TOOLS: ToolName[] = ["pan", "wheel_zoom", "auto_box_zoom", "save", "reset", "help"]
 
 // export type ExtMarkerType = MarkerType | "*" | "+" | "o" | "ox" | "o+"
 
@@ -74,7 +74,7 @@ export namespace Figure {
     y_axis_label: Axis["axis_label"]
     x_minor_ticks: number | "auto"
     y_minor_ticks: number | "auto"
-    tools: (Tool | ToolName)[] | string
+    tools: (Tool | ToolName)[] | string | null
     active_drag: Toolbar.Attrs["active_drag"] | string
     active_inspect: Toolbar.Attrs["active_inspect"] | string
     active_scroll: Toolbar.Attrs["active_scroll"] | string
@@ -299,7 +299,18 @@ export class Figure extends BaseFigure {
 
     const tools = (() => {
       const {tools, toolbar} = attrs
-      if (tools != null) {
+      if (tools === null) {
+        // `tools: null` means no tools and no toolbar
+        if (toolbar != null) {
+          throw new Error("'toolbar' cannot be used when 'tools' is set to null")
+        } else {
+          delete attrs.tools
+          if (attrs.toolbar_location === undefined) {
+            attrs.toolbar_location = null
+          }
+          return null
+        }
+      } else if (tools !== undefined) {
         if (toolbar != null) {
           throw new Error("'tools' and 'toolbar' can't be used together")
         } else {
@@ -312,7 +323,7 @@ export class Figure extends BaseFigure {
           }
         }
       } else {
-        return toolbar != null ? null : _default_tools
+        return toolbar != null ? null : DEFAULT_TOOLS
       }
     })()
 

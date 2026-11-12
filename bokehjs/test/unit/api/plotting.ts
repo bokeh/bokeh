@@ -3,15 +3,51 @@ import {PathPlacement} from "@bokehjs/models/graphics/path_placement"
 import {expect} from "#framework/assertions"
 
 import {figure} from "@bokehjs/api/plotting"
+import {DEFAULT_TOOLS} from "@bokehjs/api/figure"
 import {construct} from "@bokehjs/core/has_props"
 import type {HasProps, HasPropsClass, ModelAttrs} from "@bokehjs/core/has_props"
 import {
   Circle, ColumnDataSource, LinearAxis,
-  NormalHead, Segment,
+  NormalHead, Segment, Toolbar,
 } from "@bokehjs/models"
 
 describe("in api/plotting module", () => {
   describe("figure()", () => {
+    describe("should support 'tools' option", () => {
+      it("with default value", () => {
+        const p = figure()
+        expect(p.toolbar.tools.length).to.be.equal(DEFAULT_TOOLS.length)
+        expect(p.toolbar_location).to.be.equal("right")
+      })
+
+      it("with an empty list", () => {
+        const p = figure({tools: []})
+        expect(p.toolbar.tools).to.be.equal([])
+        expect(p.toolbar_location).to.be.equal("right")
+      })
+
+      it("with a string of tool names", () => {
+        const p = figure({tools: "pan, reset"})
+        expect(p.toolbar.tools.map((tool) => tool.type)).to.be.equal(["PanTool", "ResetTool"])
+      })
+
+      it("with null value", () => {
+        const p = figure({tools: null})
+        expect(p.toolbar.tools).to.be.equal([])
+        expect(p.toolbar_location).to.be.null
+      })
+
+      it("with null value and explicit toolbar_location", () => {
+        const p = figure({tools: null, toolbar_location: "above"})
+        expect(p.toolbar.tools).to.be.equal([])
+        expect(p.toolbar_location).to.be.equal("above")
+      })
+
+      it("with null value and toolbar", () => {
+        expect(() => figure({tools: null, toolbar: Toolbar.create()})).to.throw(Error)
+      })
+    })
+
     describe("glyph methods", () => {
       it("should instantiate glyphs through their public factory", () => {
         let create_calls = 0
