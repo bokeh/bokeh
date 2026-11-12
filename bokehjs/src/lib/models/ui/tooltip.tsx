@@ -319,8 +319,8 @@ export class TooltipView extends UIElementView {
 
     // slightly confusing: side "left" (for example) is relative to point that
     // is being annotated but CS class ".bk-left" is relative to the tooltip itself
-    this.class_list.remove(tooltips_css.right, tooltips_css.left, tooltips_css.above, tooltips_css.below)
-    this.class_list.add((() => {
+    this.el.classList.remove(tooltips_css.right, tooltips_css.left, tooltips_css.above, tooltips_css.below)
+    this.el.classList.add((() => {
       switch (side) {
         case "left":  return tooltips_css.right
         case "right": return tooltips_css.left

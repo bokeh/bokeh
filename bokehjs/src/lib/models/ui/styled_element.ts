@@ -98,7 +98,7 @@ export abstract class StyledElementView extends DOMComponentView {
       if (key == "class") {
         const classes = val.split(/ +/)
         this._applied_css_classes.push(...classes)
-        this.class_list.add(...classes)
+        this.el.classList.add(...classes)
       } else {
         this.el.setAttribute(key, val)
         this._applied_html_attributes.push(key)

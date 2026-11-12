@@ -25,7 +25,7 @@ class UIView extends UIElementView {
 
   override render(): void {
     super.render()
-    this.class_list.add("render0")
+    this.el.classList.add("render0")
   }
 }
 

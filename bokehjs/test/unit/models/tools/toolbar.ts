@@ -356,7 +356,7 @@ describe("ToolbarView", () => {
       const {view: tbv} = await display(tb, [300, 300])
 
       expect(hover.visible).to.be.false
-      expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.true
+      expect(tbv.tool_button_views[0].el.classList.contains(tb_css.hidden)).to.be.true
     })
 
     it("should show inspect tools if toggleable=true", async () => {
@@ -365,7 +365,7 @@ describe("ToolbarView", () => {
       const {view: tbv} = await display(tb, [300, 300])
 
       expect(hover.visible).to.be.true
-      expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.false
+      expect(tbv.tool_button_views[0].el.classList.contains(tb_css.hidden)).to.be.false
     })
 
     it("should show inspect tools if toggleable is not set", async () => {
@@ -374,7 +374,7 @@ describe("ToolbarView", () => {
       const {view: tbv} = await display(tb, [300, 300])
 
       expect(hover.visible).to.be.true
-      expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.false
+      expect(tbv.tool_button_views[0].el.classList.contains(tb_css.hidden)).to.be.false
     })
   })
 
@@ -501,9 +501,9 @@ describe("ToolbarView", () => {
       const tb = Toolbar.create({tools: [pan, tap, hover]})
       const {view: tbv} = await display(tb, [300, 300])
 
-      expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.true
-      expect(tbv.tool_button_views[1].class_list.has(tb_css.hidden)).to.be.false
-      expect(tbv.tool_button_views[2].class_list.has(tb_css.hidden)).to.be.true
+      expect(tbv.tool_button_views[0].el.classList.contains(tb_css.hidden)).to.be.true
+      expect(tbv.tool_button_views[1].el.classList.contains(tb_css.hidden)).to.be.false
+      expect(tbv.tool_button_views[2].el.classList.contains(tb_css.hidden)).to.be.true
     })
 
     it("should have default tools all be visible", async () => {
@@ -514,9 +514,9 @@ describe("ToolbarView", () => {
       const tb = Toolbar.create({tools: [pan, tap, hover]})
       const {view: tbv} = await display(tb, [300, 300])
 
-      expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.false
-      expect(tbv.tool_button_views[1].class_list.has(tb_css.hidden)).to.be.false
-      expect(tbv.tool_button_views[2].class_list.has(tb_css.hidden)).to.be.false
+      expect(tbv.tool_button_views[0].el.classList.contains(tb_css.hidden)).to.be.false
+      expect(tbv.tool_button_views[1].el.classList.contains(tb_css.hidden)).to.be.false
+      expect(tbv.tool_button_views[2].el.classList.contains(tb_css.hidden)).to.be.false
     })
 
     it("should show no tools if all tools have visible=false", async () => {
@@ -527,9 +527,9 @@ describe("ToolbarView", () => {
       const tb = Toolbar.create({tools: [pan, tap, hover]})
       const {view: tbv} = await display(tb, [300, 300])
 
-      expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.true
-      expect(tbv.tool_button_views[1].class_list.has(tb_css.hidden)).to.be.true
-      expect(tbv.tool_button_views[2].class_list.has(tb_css.hidden)).to.be.true
+      expect(tbv.tool_button_views[0].el.classList.contains(tb_css.hidden)).to.be.true
+      expect(tbv.tool_button_views[1].el.classList.contains(tb_css.hidden)).to.be.true
+      expect(tbv.tool_button_views[2].el.classList.contains(tb_css.hidden)).to.be.true
     })
 
     it("should properly show tools after changing visibility", async () => {
@@ -537,17 +537,17 @@ describe("ToolbarView", () => {
       const tb = Toolbar.create({tools: [hover]})
       const {view: tbv} = await display(tb, [300, 300])
 
-      expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.false
+      expect(tbv.tool_button_views[0].el.classList.contains(tb_css.hidden)).to.be.false
 
       hover.visible = false
       await tbv.ready
 
-      expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.true
+      expect(tbv.tool_button_views[0].el.classList.contains(tb_css.hidden)).to.be.true
 
       hover.visible = true
       await tbv.ready
 
-      expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.false
+      expect(tbv.tool_button_views[0].el.classList.contains(tb_css.hidden)).to.be.false
     })
   })
 
