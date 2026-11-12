@@ -8,7 +8,6 @@ import {isString} from "core/util/types"
 
 import {Control, ControlView} from "./control"
 import {DOMNode} from "../dom/dom_node"
-import {Text} from "../dom/text"
 import {Icon} from "../ui/icons/icon"
 
 import buttons_css, * as buttons from "styles/buttons.css"
@@ -16,7 +15,7 @@ import buttons_css, * as buttons from "styles/buttons.css"
 export abstract class AbstractButtonView extends ControlView {
   declare model: AbstractButton
 
-  protected label_view?: ViewOf<DOMNode>
+  protected label_view: ViewOf<DOMNode> | null = null
   protected icon_view?: ViewOf<Icon>
 
   button_el: HTMLButtonElement
@@ -38,11 +37,19 @@ export abstract class AbstractButtonView extends ControlView {
 
   async _rebuild_label(): Promise<void> {
     this.label_view?.remove()
-    const label = (() => {
+    const {label} = this.model
+    this.label_view = isString(label) ? null : await this.owner.build_view(label, this)
+  }
+
+  protected _label_el(): ChildNode {
+    const {label_view} = this
+    if (label_view != null) {
+      label_view.render()
+      return label_view.el
+    } else {
       const {label} = this.model
-      return isString(label) ? Text.create({content: label}) : label
-    })()
-    this.label_view = await this.owner.build_view(label, this)
+      return text(isString(label) ? label : "")
+    }
   }
 
   async _rebuild_icon(): Promise<void> {
@@ -85,8 +92,7 @@ export abstract class AbstractButtonView extends ControlView {
   override render(): void {
     super.render()
 
-    this.label_view?.render()
-    this.button_el = this._render_button(this.label_view?.el)
+    this.button_el = this._render_button(this._label_el())
     this.button_el.addEventListener("click", () => this.click())
 
     if (this.icon_view != null) {
