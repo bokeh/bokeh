@@ -52,6 +52,18 @@
   box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px var(--focus-halo-color);
 }
 
+.bk-outer:has(.bk-input:disabled) {
+  background-color: var(--disabled-background-color);
+  color: var(--disabled-color);
+  opacity: var(--disabled-opacity);
+  cursor: not-allowed;
+
+  .bk-input {
+    color: inherit;
+    cursor: inherit;
+  }
+}
+
 .bk-input {
   position: relative;
   flex: 1;
@@ -192,7 +204,15 @@ input[type=color].bk-input {
   }
 }
 
-select:not([multiple]), select:not([size]) {
+// let <select> fill the whole box, so that its caret or scrollbar is at box's edge
+.bk-inner:has(> select.bk-input) {
+  padding: 0;
+}
+select.bk-input {
+  padding: var(--padding-vertical) var(--padding-horizontal);
+}
+
+select:not([multiple]):not([size]) {
   &.bk-input {
     height: auto;
     appearance: none;
@@ -212,6 +232,11 @@ option {
 select[multiple], select[size], textarea {
   &.bk-input {
     height: auto;
+  }
+}
+select[multiple], select[size] {
+  &.bk-input {
+    padding-block: 0;
   }
 }
 
