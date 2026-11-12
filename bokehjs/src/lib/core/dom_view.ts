@@ -2,7 +2,6 @@ import {View} from "./view"
 import type {SerializableState} from "./view"
 import type {StyleSheet, StyleSheetLike} from "./stylesheets"
 import {InlineStyleSheet} from "./stylesheets"
-import type {ARIARole} from "./dom"
 import {create_element, empty} from "./dom"
 import {isString} from "./util/types"
 import {assert} from "./util/assert"
@@ -19,13 +18,12 @@ export const bokeh_element = Symbol("bokeh_element")
 export type RenderingTarget = HTMLElement | ShadowRoot
 
 export interface DOMView extends View {
-  constructor: Function & {tag_name: keyof HTMLElementTagNameMap, aria_role?: ARIARole}
+  constructor: Function & {tag_name: keyof HTMLElementTagNameMap}
 }
 
 export abstract class DOMView extends View {
 
   static tag_name: keyof HTMLElementTagNameMap = "div"
-  static aria_role?: ARIARole
 
   el: HTMLElement
   shadow_el?: ShadowRoot
@@ -89,7 +87,7 @@ export abstract class DOMView extends View {
   }
 
   protected _create_element(): this["el"] {
-    const el = create_element(this.constructor.tag_name, {role: this.constructor.aria_role})
+    const el = create_element(this.constructor.tag_name, null)
     ;(el as any)[bokeh_element] = true
     return el
   }
