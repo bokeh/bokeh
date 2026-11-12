@@ -3,7 +3,7 @@ import {display} from "#framework/layouts"
 import {gridplot} from "@bokehjs/api/gridplot"
 import {transpose, linspace} from "@bokehjs/core/util/array"
 import {Plot, ColumnDataSource, Range1d, LinearAxis, Grid, Line, Scatter, Pane, Column} from "@bokehjs/models"
-import {Text} from "@bokehjs/models/dom"
+import {HTML} from "@bokehjs/models/dom"
 
 describe("Examples", () => {
   it("should support Anscombe", async () => {
@@ -74,7 +74,7 @@ describe("Examples", () => {
     const grid = gridplot([[I, II], [III, IV]], {toolbar_location: null})
 
     const header = Pane.create({
-      elements: [Text.create({content: "Anscombe's Quartet"})],
+      elements: [HTML.create({html: "Anscombe's Quartet", style: {display: "inline"}})],
       styles: {
         font_size: "150%",
         font_weight: "bold",

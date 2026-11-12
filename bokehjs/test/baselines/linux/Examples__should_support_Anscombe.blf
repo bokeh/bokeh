@@ -1,5 +1,6 @@
 Column bbox=[0, 0, 800, 825]
   Pane bbox=[0, 0, 800, 25]
+    bokeh.models.dom.HTML bbox=[0, 0, 163, 21]
   GridPlot bbox=[0, 26, 800, 800]
     GridBox bbox=[0, 0, 800, 800]
       Plot bbox=[0, 0, 400, 400]
