@@ -16,7 +16,6 @@ type RawHTML = typeof HTMLMarkup["__type__"]
 
 export class HTMLView extends DOMElementView {
   declare model: HTML
-  declare el: HTMLElement
 
   protected readonly _refs: ViewStorage<HTMLRef> = new Map()
 

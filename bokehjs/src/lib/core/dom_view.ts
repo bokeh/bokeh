@@ -27,8 +27,12 @@ export abstract class DOMView extends View {
   static tag_name: keyof HTMLElementTagNameMap = "div"
   static aria_role?: ARIARole
 
-  el: ChildNode
+  el: HTMLElement
   shadow_el?: ShadowRoot
+
+  get self_target(): RenderingTarget {
+    return this.shadow_el ?? this.el
+  }
 
   get bbox(): BBox | undefined {
     return undefined
@@ -118,12 +122,7 @@ export abstract class DOMView extends View {
 export abstract class DOMComponentView extends DOMView {
   declare readonly root: DOMComponentView
 
-  declare el: HTMLElement
   declare shadow_el: ShadowRoot
-
-  get self_target(): RenderingTarget {
-    return this.shadow_el
-  }
 
   /**
    * Indicates whether this element is the first to render to DOM,
