@@ -35,6 +35,7 @@ from bokeh.models import (
     Patch,
     PathPlacement,
     Scatter,
+    ScatterMarking,
     Segment,
     Text,
     WebDataSource,
@@ -63,6 +64,20 @@ def test_add_arrowheads_named(node: Literal["start", "middle", "end"]) -> None:
     assert isinstance(path_marking.marking, OpenHead)
     assert path_marking.marking.inherit_visuals == ["line_color", "line_alpha", "line_width"]
     assert renderer.glyph.path_markings == [path_marking]
+
+
+def test_add_path_marking_with_scatter_marker() -> None:
+    renderer = bmr.GlyphRenderer(glyph=Segment())
+    marker = ScatterMarking(marker="diamond", size=12)
+    named = renderer.add_path_marking(marker, at="end")
+    fractional = renderer.add_path_marking(marker, at=1.0)
+    field_backed = renderer.add_path_marking(marker, at=field("positions"))
+    assert isinstance(named, PathPlacement)
+    assert isinstance(fractional, PathPlacement)
+    assert named.positions == "end"
+    assert fractional.positions == [1.0]
+    assert field_backed.positions == field("positions")
+    assert named.marking is fractional.marking is field_backed.marking is marker
 
 
 @pytest.mark.parametrize("at", ["end", 0.5])

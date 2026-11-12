@@ -1,5 +1,6 @@
 import {assert} from "@bokehjs/core/util/assert"
 import {PathPlacement} from "@bokehjs/models/graphics/path_placement"
+import {ScatterMarking} from "@bokehjs/models/graphics/scatter_marking"
 import * as sinon from "sinon"
 
 import {expect} from "#framework/assertions"
@@ -93,6 +94,15 @@ describe("GlyphRenderer", () => {
       expect(() => renderer.add_arrowheads({at})).to.throw(Error)
       expect(renderer.glyph.path_markings).to.be.equal([])
     }
+  })
+
+  it("should attach named, fractional, and field-backed markers", () => {
+    const renderer = figure().line()
+    const marker = ScatterMarking.create()
+    const named = renderer.add_path_marking(marker, {at: "end"})
+    const fractional = renderer.add_path_marking(marker, {at: 1})
+    const field = renderer.add_path_marking(marker, {at: {field: "positions"}})
+    expect(renderer.glyph.path_markings).to.be.equal([named, fractional, field])
   })
 
   it("should attach both named and fractional Arc path markings", () => {

@@ -1,15 +1,15 @@
-''' Compare arrowhead directions along a curve.
+''' Compare arrowhead directions and rotate scatter markers along a curve.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.models.PathPlacement, bokeh.models.GlyphRenderer.add_path_marking
+    :apis: bokeh.models.ScatterMarking, bokeh.models.GlyphRenderer.add_path_marking
     :refs: :ref:`ug_basic_annotations_path_markings`
-    :keywords: arrowheads, paths, angles
+    :keywords: arrowheads, markers, paths, angles
 
 '''
 from math import pi, sin, tau
 
 from bokeh.layouts import column, row
-from bokeh.models import NormalHead
+from bokeh.models import NormalHead, ScatterMarking
 from bokeh.plotting import figure, show
 
 x = [i / 24 for i in range(241)]
@@ -45,4 +45,11 @@ for title, reference, angle, color in [
     renderer.add_path_marking(head, at=positions, angle_reference=reference, angle=angle)
     panels.append(p)
 
+p, renderer = panel("ScatterMarking · screen + 35°")
+renderer.add_path_marking(
+    ScatterMarking(marker="square", size=16, fill_color="#be185d",
+                line_color="white", line_width=1.3),
+    at=positions, angle_reference="screen", angle=35 * pi / 180,
+)
+panels.append(p)
 show(column(row(*panels[:3]), row(*panels[3:])))

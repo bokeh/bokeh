@@ -322,6 +322,7 @@ describe("default model resolver", () => {
       "ScaledTicker",
       "ScanningColorMapper",
       "Scatter",
+      "ScatterMarking",
       "ScientificFormatter",
       "ScrollBox",
       "Segment",

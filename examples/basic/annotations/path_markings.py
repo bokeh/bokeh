@@ -1,7 +1,7 @@
 ''' Arrowheads and scatter markers at fractional positions along paths.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.models.GlyphRenderer.add_path_marking, bokeh.models.GlyphRenderer.add_arrowheads, bokeh.models.MarkerShape
+    :apis: bokeh.models.GlyphRenderer.add_path_marking, bokeh.models.GlyphRenderer.add_arrowheads, bokeh.models.ScatterMarking
     :refs: :ref:`ug_basic_annotations_path_markings`
     :keywords: arrows, markers, fractional positions, paths, streamlines, animation
 
@@ -12,7 +12,7 @@ from bokeh.core.properties import field
 from bokeh.events import DocumentReady
 from bokeh.io import curdoc
 from bokeh.layouts import column, gridplot
-from bokeh.models import ColumnDataSource, CustomJS, Div, MarkerShape, NormalHead
+from bokeh.models import ColumnDataSource, CustomJS, Div, NormalHead, ScatterMarking
 from bokeh.plotting import figure, show
 
 positions = [
@@ -45,7 +45,7 @@ for kind in ["Segment", "Line", "MultiLine", "Bezier", "Per-path positions", "An
             animated_source = source
         else:
             renderer.add_path_marking(
-                MarkerShape(marker="circle", size=12, fill_color="color", line_color="color"),
+                ScatterMarking(marker="circle", size=12, fill_color="color", line_color="color"),
                 at=field("arrow_positions"),
             )
         plots.append(p)
@@ -69,7 +69,7 @@ for kind in ["Segment", "Line", "MultiLine", "Bezier", "Per-path positions", "An
             renderer.add_arrowheads(at=fraction, head=NormalHead(size=17, fill_color=color, line_color=color))
         else:
             renderer.add_path_marking(
-                MarkerShape(marker="diamond", size=16, fill_color=color, line_color=color),
+                ScatterMarking(marker="diamond", size=16, fill_color=color, line_color=color),
                 at=fraction,
             )
     plots.append(p)

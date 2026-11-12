@@ -506,7 +506,8 @@ Only unrotated automatic placements trim the shaft.
     )
 
 The dot marks the start of the curve in each panel. The left and right
-normals point in opposite directions at the same positions.
+normals point in opposite directions at the same positions. The squares use
+a fixed rotation relative to the screen.
 
 .. bokeh-plot:: __REPO__/examples/basic/annotations/path_marking_angles.py
     :source-position: above
@@ -561,8 +562,8 @@ Path marking placement
 
 Use :meth:`~bokeh.models.GlyphRenderer.add_path_marking` to attach a marking to
 an existing path. The :class:`~bokeh.models.Marking` you pass in defines what
-to draw, such as a :class:`~bokeh.models.NormalHead`. The returned
-:class:`~bokeh.models.PathPlacement`
+to draw, such as a :class:`~bokeh.models.NormalHead` or a
+:class:`~bokeh.models.ScatterMarking`. The returned :class:`~bokeh.models.PathPlacement`
 holds that marking and controls where it goes and how it rotates through
 ``positions``, ``angle``, and ``angle_reference``.
 
@@ -590,6 +591,13 @@ inherits the shaft's line color, alpha, and width.
 .. code-block:: python
 
     renderer.add_arrowheads()
+
+Use :class:`~bokeh.models.ScatterMarking` to draw a scatter marker centered at
+each position. In this example, ``"end"`` and ``1.0`` place the same marker at
+the tip and leave the line intact.
+
+.. bokeh-plot:: __REPO__/examples/basic/annotations/marker_markings.py
+    :source-position: above
 
 Pass a source field to set positions for each path separately. Store a list
 of fractions in each row, or an empty list to skip that path. In this example,

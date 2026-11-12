@@ -18,15 +18,17 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-from ..core.enums import AngleReference
+from ..core.enums import AngleReference, MarkerType
 from ..core.has_props import abstract
 from ..core.property.container import List
-from ..core.property.dataspec import AngleSpec, DataSpec, NumberSpec
+from ..core.property.dataspec import AngleSpec, DataSpec, NumberSpec, SizeSpec
 from ..core.property.either import Either
 from ..core.property.enum import Enum
+from ..core.property.include import Include
 from ..core.property.instance import Instance
 from ..core.property.numeric import Percent
 from ..core.property_aliases import AngleUnits
+from ..core.property_mixins import FillProps, HatchProps, LineProps
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -34,6 +36,7 @@ from ..model import Model
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    "ScatterMarking",
     "Marking",
     "PathPlacement",
 )
@@ -58,6 +61,20 @@ class Marking(Model):
     listed here retain this marking's own values, allowing explicit overrides.
     The marking is not modified, so it can be shared by differently styled hosts.
     """)
+
+class ScatterMarking(Marking):
+    """A scatter-style marker centered on a path position.
+
+    Markers follow the path orientation and leave the shaft intact.
+    """
+
+    marker = Enum(MarkerType, default="circle", help="The built-in marker shape to draw.")
+    size = SizeSpec(default=8, help="The size of the marker in screen pixels.")
+
+    line_props = Include(LineProps, help="The {prop} values for the marker outline.")
+    fill_props = Include(FillProps, help="The {prop} values for the marker fill.")
+    hatch_props = Include(HatchProps, help="The {prop} values for the marker hatch.")
+
 
 class PathPlacement(Model):
     """Places a marking along a glyph's path."""
