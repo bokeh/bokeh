@@ -21,7 +21,7 @@ source = ColumnDataSource(dict(
 
 segments = figure(width=650, height=260, x_range=(0, 5), y_range=(0.5, 4),
                   title="Segments: vectorized head sizes and end insets",
-                  tools="", toolbar_location=None)
+                  tools=None)
 renderer = segments.segment("x0", "y0", "x1", "y1", source=source,
                             line_color="color", line_width=2)
 renderer.add_path_marking(
@@ -31,7 +31,7 @@ renderer.add_path_marking(
 
 paths = figure(width=650, height=260, x_range=(0, 5), y_range=(0.5, 4),
                title="MultiLine: arrowheads follow the path's final tangent",
-               tools="", toolbar_location=None)
+               tools=None)
 renderer = paths.multi_line("xs", "ys", source=source,
                             line_color="color", line_width=2)
 renderer.add_path_marking(OpenHead(size=12, line_color="color"), at="start")

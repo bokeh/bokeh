@@ -14,8 +14,7 @@ def make_plot(multiple: int, title: str):
         height=250,
         x_range=(-bound, bound),
         y_range=(-1.1, 1.1),
-        tools="",
-        toolbar_location=None,
+        tools=None,
         title=title,
     )
     p.line(x, [sin(value) for value in x], line_width=2)

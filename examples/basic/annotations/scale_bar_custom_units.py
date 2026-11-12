@@ -39,8 +39,7 @@ select_plot = figure(
     height=150,
     y_range=detailed_plot.y_range,
     y_axis_location=None,
-    tools="",
-    toolbar_location=None,
+    tools=None,
     background_fill_color=detailed_plot.background_fill_color,
 )
 

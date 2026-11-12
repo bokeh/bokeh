@@ -35,7 +35,7 @@ from bokeh.transform import cumsum
 dates = np.array(AAPL['date'], dtype=np.datetime64)
 source = ColumnDataSource(data=dict(date=dates, close=AAPL['adj_close']))
 
-p = figure(height=180, tools="", toolbar_location=None,  # name="line",
+p = figure(height=180, tools=None,  # name="line",
            x_axis_type="datetime", x_range=(dates[1500], dates[2500]), sizing_mode="stretch_width")
 
 p.line('date', 'close', source=source, line_width=2, alpha=0.7)
@@ -45,7 +45,7 @@ p.grid.grid_line_color = "white"
 
 select = figure(height=90, width=800, y_range=p.y_range,
                 x_axis_type="datetime", y_axis_type=None,
-                tools="", toolbar_location=None, sizing_mode="stretch_width")
+                tools=None, sizing_mode="stretch_width")
 
 range_rool = RangeTool(x_range=p.x_range)
 range_rool.overlay.fill_color = "navy"

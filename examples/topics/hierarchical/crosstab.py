@@ -21,8 +21,8 @@ source = ColumnDataSource(rows.T)
 cats = ["Office Supplies", "Furniture", "Technology"]
 regions = source.data["Region"]
 
-p = figure(y_range=cats, x_range=(-0.55, 1.02), height=400, width=700, tools="",
-           x_axis_location=None, toolbar_location=None, outline_line_color=None)
+p = figure(y_range=cats, x_range=(-0.55, 1.02), height=400, width=700, tools=None,
+           x_axis_location=None, outline_line_color=None)
 p.grid.grid_line_color = None
 p.yaxis.fixed_location = 0
 p.axis.major_tick_line_color = None

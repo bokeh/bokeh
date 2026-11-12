@@ -46,7 +46,7 @@ def hover_plot():
     x = data.loc['2010-10-06'].index.to_series()
     y = data.loc['2010-10-06']['glucose']
     p = figure(width=800, height=400, x_axis_type="datetime",
-               tools="", toolbar_location=None, title='Hover over points')
+               tools=None, title='Hover over points')
     p.line(x, y, line_dash="4 4", line_width=1, color='gray')
     cr = p.scatter(x, y, size=20, fill_color="grey", alpha=0.1, line_color=None,
                    hover_fill_color="firebrick", hover_alpha=0.5, hover_line_color=None)

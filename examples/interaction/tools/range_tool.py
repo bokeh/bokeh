@@ -29,7 +29,7 @@ p.yaxis.axis_label = 'Price'
 select = figure(title="Drag the middle and edges of the selection box to change the range above",
                 height=130, width=800,
                 x_axis_type="datetime", y_axis_type=None,
-                tools="", toolbar_location=None, background_fill_color="#efefef")
+                tools=None, background_fill_color="#efefef")
 select.x_range.range_padding = 0
 select.x_range.bounds = "auto"
 

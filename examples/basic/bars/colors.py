@@ -17,7 +17,7 @@ counts = [5, 3, 4, 2, 4, 6]
 source = ColumnDataSource(data=dict(fruits=fruits, counts=counts, color=Bright6))
 
 p = figure(x_range=fruits, y_range=(0,9), height=350, title="Fruit Counts",
-           toolbar_location=None, tools="")
+           tools=None)
 
 p.vbar(x='fruits', top='counts', width=0.9, color='color', legend_field="fruits", source=source)
 

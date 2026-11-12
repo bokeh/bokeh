@@ -10,7 +10,7 @@ from bokeh.models import NormalHead, OpenHead, VeeHead
 from bokeh.palettes import Muted3 as color
 from bokeh.plotting import figure, show
 
-p = figure(tools="", toolbar_location=None, background_fill_color="#efefef")
+p = figure(tools=None, background_fill_color="#efefef")
 p.grid.grid_line_color = None
 
 p.circle(x=(0, 1, 0.5), y=(0, 0, 0.7), radius=0.1, color="#fafafa")

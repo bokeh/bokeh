@@ -17,7 +17,7 @@ clips = [
     'https://static.bokeh.org/clipart/clipart-beads-64x64.png',
 ]
 
-p = figure(width=900, height=450, toolbar_location=None, tools="")
+p = figure(width=900, height=450, tools=None)
 p.x_range.range_padding = p.y_range.range_padding = 0
 
 for i, url in enumerate(clips):
