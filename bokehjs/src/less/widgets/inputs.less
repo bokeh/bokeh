@@ -173,6 +173,25 @@ input[type=file]::file-selector-button {
   line-height: inherit;
 }
 
+input[type=color].bk-input {
+  // the native swatch is sized by the element, so it collapses with `height: max-content`;
+  // use one line of text, to match the height of text inputs
+  height: 1lh;
+  cursor: pointer;
+
+  &::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+  &::-webkit-color-swatch {
+    border: var(--border);
+    border-radius: var(--border-radius);
+  }
+  &::-moz-color-swatch {
+    border: var(--border);
+    border-radius: var(--border-radius);
+  }
+}
+
 select:not([multiple]), select:not([size]) {
   &.bk-input {
     height: auto;
