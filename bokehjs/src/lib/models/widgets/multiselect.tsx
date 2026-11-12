@@ -33,12 +33,15 @@ export class MultiSelectView extends InputWidgetView {
       return <option value={value} selected={selected}>{label}</option>
     })
 
+    const Title = this._title_el
     return (
       <UIComponent parent={this.resolved_props}>
+        <Title></Title>
         <div class={inputs_css.outer}>
           <div class={inputs_css.inner}>
             <select
               multiple={true}
+              id={this.input_id}
               class={inputs_css.input}
               name={name ?? undefined}
               disabled={disabled}

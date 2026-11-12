@@ -45,6 +45,7 @@ export class AutocompleteInputView extends TextInputView {
             <input
               ref={this.input_ref}
               type="text"
+              id={this.input_id}
               class={inputs_css.input}
               disabled={disabled}
               value={value}

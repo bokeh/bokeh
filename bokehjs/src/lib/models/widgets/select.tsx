@@ -104,11 +104,14 @@ export class SelectView extends InputWidgetView {
     const {disabled} = this.signals
     const {selected_value} = this
 
+    const Title = this._title_el
     return (
       <UIComponent parent={this.resolved_props}>
+        <Title></Title>
         <div class={inputs_css.outer}>
           <div class={inputs_css.inner}>
             <select
+              id={this.input_id}
               class={inputs_css.input}
               name={name ?? undefined}
               disabled={disabled}
