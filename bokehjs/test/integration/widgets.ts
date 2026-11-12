@@ -468,6 +468,25 @@ describe("Widgets", () => {
         })
       })
     }
+
+    for (const [name, create] of picker_widgets) {
+      describe(`in ${name}`, () => {
+        it("when disabled", async () => {
+          await display(create({title, disabled: true}), viewport)
+        })
+
+        // Focusing picker's (visible) input opens the calendar.
+        it("when focused", async () => {
+          const {view} = await display(create({title}), [400, 450])
+          view.picker._input.focus()
+          await view.ready
+
+          const calendar_el = view.shadow_el.querySelector(".flatpickr-calendar")
+          expect_not_null(calendar_el)
+          await finished_animating(calendar_el)
+        })
+      })
+    }
   })
 
   it("should allow MultiChoice", async () => {
@@ -647,10 +666,6 @@ describe("Widgets", () => {
         it("with title and description when opened", async () => {
           const {view} = await display(create({title, description, width: 400}), [500, 450])
           await open_picker(view)
-        })
-
-        it("when disabled", async () => {
-          await display(create({title, disabled: true, width: 400}), [500, 100])
         })
       })
     }
