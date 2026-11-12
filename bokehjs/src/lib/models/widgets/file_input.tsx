@@ -12,6 +12,7 @@ import * as inputs_css from "styles/widgets/inputs.css"
 import * as buttons_css from "styles/buttons.css"
 
 import type {TargetedEvent} from "preact"
+import {createRef} from "preact"
 import {computed} from "@preact/signals"
 
 declare module "preact" {
@@ -40,11 +41,7 @@ export class FileInputView extends InputWidgetView {
   declare readonly signals: p.SignalsOf<FileInput.Props>
   declare readonly values: FileInput.Attrs
 
-  /// TODO remove
-  protected override _render_input(): HTMLElement {
-    return undefined as any
-  }
-  ///
+  protected readonly input_ref = createRef<HTMLInputElement>()
 
   override connect_signals(): void {
     super.connect_signals()
@@ -56,7 +53,10 @@ export class FileInputView extends InputWidgetView {
         filename:  "", // p.unset,
       })
       this.model.trigger_event(new FileInputChange({value: "", filename: "", mime_type: ""}))
-      this.input_el.value = ""
+      const input_el = this.input_ref.current
+      if (input_el != null) {
+        input_el.value = ""
+      }
     })
   }
 
@@ -81,6 +81,7 @@ export class FileInputView extends InputWidgetView {
         <div class={inputs_css.outer}>
           <div class={inputs_css.inner}>
             <input
+              ref={this.input_ref}
               type="file"
               id={this.input_id}
               class={inputs_css.input}

@@ -17,8 +17,6 @@ import * as inputs_css from "styles/widgets/inputs.css"
 import {createRef} from "preact"
 import {signal, effect} from "@preact/signals"
 
-export type HTMLInputElementLike = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-
 @server_event("clear_input")
 export class ClearInput extends ModelEvent {
   constructor(readonly model: InputWidget) {
@@ -36,9 +34,6 @@ export abstract class InputWidgetView extends WidgetView {
   declare readonly model: InputWidget
   declare readonly signals: p.SignalsOf<InputWidget.Props>
   declare readonly values: InputWidget.Attrs
-
-  protected input_el: HTMLInputElementLike = document.createElement("input")
-  protected group_el: HTMLElement
 
   /**
    * The `id` of the primary input element, to be referenced by title's `<label for>`.
@@ -262,8 +257,6 @@ export abstract class InputWidgetView extends WidgetView {
       old_description.remove()
     }
   }
-
-  protected abstract _render_input(): HTMLElement
 
   change_input(): void {}
 }

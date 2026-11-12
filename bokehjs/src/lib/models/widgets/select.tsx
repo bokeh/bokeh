@@ -28,12 +28,6 @@ export class SelectView extends InputWidgetView {
   declare readonly signals: p.SignalsOf<Select.Props>
   declare readonly values: Select.Attrs
 
-  /// TODO remove
-  protected override _render_input(): HTMLElement {
-    return undefined as any
-  }
-  ///
-
   private _known_values = computed<Map<Value, Label>>(() => {
     const _known_values = new Map<Value, Label>()
 

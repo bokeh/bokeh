@@ -17,6 +17,11 @@ export abstract class PickerBaseView extends InputWidgetView {
 
   protected _picker?: FlatpickrInstance
 
+  // TODO These are leftovers from the pre-vDOM design of input widgets. Pickers
+  // have to be migrated to vDOM; until then, they don't render anything.
+  protected input_el: HTMLInputElement
+  protected group_el: HTMLElement
+
   get picker(): FlatpickrInstance {
     assert(this._picker != null)
     return this._picker

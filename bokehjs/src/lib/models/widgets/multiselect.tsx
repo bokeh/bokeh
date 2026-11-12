@@ -10,12 +10,6 @@ export class MultiSelectView extends InputWidgetView {
   declare readonly signals: p.SignalsOf<MultiSelect.Props>
   declare readonly values: MultiSelect.Attrs
 
-  /// TODO remove
-  protected override _render_input(): HTMLElement {
-    return undefined as any
-  }
-  ///
-
   override component(): VNode {
     const {name, options} = this.values
     const {disabled, size} = this.signals

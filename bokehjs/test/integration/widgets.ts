@@ -320,8 +320,8 @@ describe("Widgets", () => {
     const completions = ["aaa", "aab", "aac", "baa", "caa"]
     const obj = AutocompleteInput.create({placeholder: "Enter value ...", completions, min_characters: 0})
     const {view} = await display(obj, [500, 300])
-    const ev = new FocusEvent("focusin")
-    view.input_el.dispatchEvent(ev)
+    const input_el = view.shadow_el.querySelector("input")!
+    input_el.dispatchEvent(new FocusEvent("focusin"))
     await view.ready
   })
 

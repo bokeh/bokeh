@@ -12,12 +12,6 @@ export class ColorPickerView extends InputWidgetView {
   declare readonly signals: p.SignalsOf<ColorPicker.Props>
   declare readonly values: ColorPicker.Attrs
 
-  /// TODO remove
-  protected override _render_input(): HTMLElement {
-    return undefined as any
-  }
-  ///
-
   override component(): VNode {
     const {name, color} = this.values
     const {disabled} = this.signals

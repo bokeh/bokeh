@@ -9,6 +9,7 @@ import {enumerate} from "core/util/iterator"
 import {color2css} from "core/util/color"
 import {cycle} from "core/util/math"
 import {linspace} from "core/util/array"
+import {assert} from "core/util/assert"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 import * as inputs_css from "styles/widgets/inputs.css"
@@ -19,6 +20,7 @@ import * as panes_css from "styles/panes.css"
 import {Tuple, Str, Arrayable, Color} from "core/kinds"
 
 import type {TargetedKeyboardEvent} from "preact"
+import {createRef} from "preact"
 import {signal} from "@preact/signals"
 
 const Item = Tuple(Str, Arrayable(Color))
@@ -40,13 +42,16 @@ export class PaletteSelectView extends InputWidgetView {
   declare readonly signals: p.SignalsOf<PaletteSelect.Props>
   declare readonly values: PaletteSelect.Attrs
 
-  declare input_el: HTMLSelectElement
+  protected readonly _input_ref = createRef<HTMLDivElement>()
 
-  /// TODO remove
-  protected override _render_input(): HTMLElement {
-    return undefined as any
+  /**
+   * The element acting as the input (a non-native, `<select>`-like element).
+   */
+  get input_el(): HTMLDivElement {
+    const input_el = this._input_ref.current
+    assert(input_el != null, "PaletteSelect wasn't rendered")
+    return input_el
   }
-  ///
 
   protected readonly _open = signal<boolean>(false)
 
@@ -63,13 +68,6 @@ export class PaletteSelectView extends InputWidgetView {
   override get resolved_style() {
     const {ncols} = this.values
     return {...super.resolved_style, "--number-of-columns": `${ncols}`}
-  }
-
-  @bind
-  protected _input_ref(el: HTMLDivElement | null): void {
-    if (el != null) {
-      this.input_el = el as any // XXX Div is not an Input-like element
-    }
   }
 
   protected _render_item(item: Item): VNode {
@@ -102,7 +100,7 @@ export class PaletteSelectView extends InputWidgetView {
       <DropPane
         open={this._open.value}
         on_dismiss={this.hide}
-        ignore={this.input_el}
+        ignore={this.el}
         class={cls(panes_css.drop_pane, palette_select_css.pane)}
       >
         {items.map((item, i) => (

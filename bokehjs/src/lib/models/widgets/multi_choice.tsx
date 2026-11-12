@@ -67,15 +67,8 @@ export class MultiChoiceView extends InputWidgetView {
   declare readonly signals: p.SignalsOf<MultiChoice.Props>
   declare readonly values: MultiChoice.Attrs
 
-  declare input_el: HTMLSelectElement
   protected _choices: ChoicesInstance | null = null
   protected _Choices: typeof Choices
-
-  /// TODO remove
-  protected override _render_input(): HTMLElement {
-    return undefined as any
-  }
-  ///
 
   /**
    * The element hosting Choices.js' component. Choices.js manages its own DOM,
@@ -155,14 +148,14 @@ export class MultiChoiceView extends InputWidgetView {
 
     this._destroy_choices()
 
-    this.input_el = select({
+    const select_el = select({
       id: this.input_id,
       multiple: true,
       class: inputs_css.input,
       name: this.model.name,
       disabled: this.model.disabled,
     })
-    host.append(this.input_el)
+    host.append(select_el)
 
     const selected = new Set(this.model.value)
     const choices = this.model.options.map((opt) => {
@@ -192,8 +185,8 @@ export class MultiChoiceView extends InputWidgetView {
       searchResultLimit: this.model.search_option_limit ?? 4,
     }
 
-    this._choices = new this._Choices(this.input_el, options)
-    this.input_el.addEventListener("change", () => this.change_input())
+    this._choices = new this._Choices(select_el, options)
+    select_el.addEventListener("change", () => this.change_input())
   }
 
   set_disabled(): void {
