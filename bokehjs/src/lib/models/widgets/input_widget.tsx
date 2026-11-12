@@ -87,13 +87,13 @@ export abstract class InputWidgetView extends WidgetView {
 
     this._disposers.push(
       effect(() => {
-        const title = this.signals.title.value
+        const {title} = this.values
         if (title !== this._built_title) {
           this.schedule(() => this._build_title(title))
         }
       }),
       effect(() => {
-        const description = this.signals.description.value
+        const {description} = this.values
         if (description !== this._built_description) {
           this.schedule(() => this._build_description(description))
         }
@@ -101,7 +101,7 @@ export abstract class InputWidgetView extends WidgetView {
       effect(() => {
         // Unpin when the tooltip was closed by other means (e.g. its close button).
         const description = this.computed_description.value
-        if (description instanceof View && !description.signals.visible.value) {
+        if (description instanceof View && !description.values.visible) {
           this._description_pinned.value = false
         }
       }),
@@ -187,7 +187,7 @@ export abstract class InputWidgetView extends WidgetView {
         </div>
       )
     } else {
-      const opaque = description.signals.visible.value && this._description_pinned.value
+      const opaque = description.values.visible && this._description_pinned.value
       return (
         <div
           key={description.model.id}
