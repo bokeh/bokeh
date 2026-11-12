@@ -3,32 +3,51 @@ import type {FlatpickrInstance, FlatpickrOptions} from "../../external/flatpickr
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 import type {StyleSheetLike} from "core/dom"
-import {input} from "core/dom"
+import {input, empty} from "core/dom"
+import type {VNode} from "core/vdom"
+import {UIComponent} from "core/vdom"
+import {bind} from "core/class"
 import {CalendarPosition} from "core/enums"
 import {bounding_box} from "core/dom"
 import {assert} from "core/util/assert"
 import type * as p from "core/properties"
 
 import flatpickr_css from "styles/widgets/flatpickr.css"
-import * as inputs from "styles/widgets/inputs.css"
+import * as inputs_css from "styles/widgets/inputs.css"
+
+import {createRef} from "preact"
 
 export abstract class PickerBaseView extends InputWidgetView {
-  declare model: PickerBase
+  declare readonly model: PickerBase
+  declare readonly signals: p.SignalsOf<PickerBase.Props>
+  declare readonly values: PickerBase.Attrs
 
   protected _picker?: FlatpickrInstance
-
-  // TODO These are leftovers from the pre-vDOM design of input widgets. Pickers
-  // have to be migrated to vDOM; until then, they don't render anything.
-  protected input_el: HTMLInputElement
-  protected group_el: HTMLElement
 
   get picker(): FlatpickrInstance {
     assert(this._picker != null)
     return this._picker
   }
 
+  /**
+   * The element hosting flatpickr's input. flatpickr manages its own DOM
+   * (e.g. it adds an alternative input), so this element has no vDOM children.
+   */
+  protected _input_host: HTMLElement | null = null
+
+  /**
+   * The element hosting flatpickr's calendar, which is positioned relative to
+   * the widget (see `_position()`).
+   */
+  protected _calendar_host: HTMLElement | null = null
+
+  /**
+   * The element relative to which the calendar is positioned.
+   */
+  protected readonly _outer_ref = createRef<HTMLDivElement>()
+
   override remove(): void {
-    this._picker?.destroy()
+    this._destroy_picker()
     super.remove()
   }
 
@@ -39,13 +58,40 @@ export abstract class PickerBaseView extends InputWidgetView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {inline} = this.model.properties
+    const {inline, disabled} = this.model.properties
     this.connect(inline.change, () => this.picker.set("inline", this.model.inline))
+    this.connect(disabled.change, () => this._update_disabled())
+  }
+
+  @bind
+  protected _input_host_ref(el: HTMLDivElement | null): void {
+    this._input_host = el
+    this._rebuild_picker()
+  }
+
+  @bind
+  protected _calendar_host_ref(el: HTMLDivElement | null): void {
+    this._calendar_host = el
+    this._rebuild_picker()
+  }
+
+  override component(): VNode {
+    const Title = this._title_el
+    return (
+      <UIComponent parent={this.resolved_props}>
+        <Title></Title>
+        <div ref={this._outer_ref} class={inputs_css.outer}>
+          <div class={inputs_css.inner} ref={this._input_host_ref}/>
+        </div>
+        <div ref={this._calendar_host_ref}/>
+      </UIComponent>
+    )
   }
 
   protected get flatpickr_options(): FlatpickrOptions {
     return {
-      appendTo: this.group_el,
+      appendTo: this._calendar_host ?? undefined,
+      positionElement: this._outer_ref.current ?? undefined,
       inline: this.model.inline,
       position: this._position.bind(this),
       onChange: (selected) => {
@@ -57,16 +103,44 @@ export abstract class PickerBaseView extends InputWidgetView {
 
   protected abstract _on_change(selected: Date[]): void
 
-  protected _render_input(): HTMLElement {
-    return this.input_el = input({type: "text", class: inputs.input, disabled: this.model.disabled})
+  protected _destroy_picker(): void {
+    this._picker?.destroy()
+    this._picker = undefined
+    if (this._input_host != null) {
+      empty(this._input_host)
+    }
+    if (this._calendar_host != null) {
+      empty(this._calendar_host)
+    }
   }
 
-  override render(): void {
-    super.render()
-    this._picker?.destroy()
+  protected _rebuild_picker(): void {
+    this._destroy_picker()
+    if (this._input_host != null && this._calendar_host != null) {
+      this._build_picker(this._input_host)
+    }
+  }
 
-    const options = this.flatpickr_options
-    this._picker = flatpickr(this.input_el, options)
+  protected _build_picker(host: HTMLElement): void {
+    const input_el = input({
+      type: "text",
+      id: this.input_id,
+      class: inputs_css.input,
+      disabled: this.model.disabled,
+    })
+    host.append(input_el)
+    this._picker = flatpickr(input_el, this.flatpickr_options)
+  }
+
+  protected _update_disabled(): void {
+    const {disabled} = this.model
+    const picker = this._picker
+    if (picker != null) {
+      picker.input.disabled = disabled
+      if (picker.altInput != null) {
+        picker.altInput.disabled = disabled
+      }
+    }
   }
 
   // https://github.com/flatpickr/flatpickr/pull/2362

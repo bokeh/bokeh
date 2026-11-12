@@ -45,8 +45,8 @@ export abstract class BaseDatetimePickerView extends BaseDatePickerView {
     return options
   }
 
-  override render(): void {
-    super.render()
+  protected override _build_picker(host: HTMLElement): void {
+    super._build_picker(host)
     this._update_second_increment()
   }
 
