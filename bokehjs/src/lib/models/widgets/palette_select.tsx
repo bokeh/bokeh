@@ -13,8 +13,6 @@ import {linspace} from "core/util/array"
 import {InputWidget, InputWidgetView} from "./input_widget"
 import * as inputs_css from "styles/widgets/inputs.css"
 import * as palette_select_css from "styles/widgets/palette_select.css"
-import * as item_css from "styles/widgets/palette_select_item.css"
-import * as pane_css from "styles/widgets/palette_select_pane.css"
 import * as icons_css from "styles/icons.css"
 import * as panes_css from "styles/panes.css"
 
@@ -59,7 +57,7 @@ export class PaletteSelectView extends InputWidgetView {
   }
 
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), palette_select_css.default, item_css.default, panes_css.default, pane_css.default, icons_css.default]
+    return [...super.stylesheets(), palette_select_css.default, panes_css.default, icons_css.default]
   }
 
   @bind
@@ -78,8 +76,8 @@ export class PaletteSelectView extends InputWidgetView {
       background: gradient_of(colors),
     }
     return (
-      <div class={item_css.entry}>
-        <div class={item_css.swatch} style={style}/>
+      <div class={palette_select_css.entry}>
+        <div class={palette_select_css.swatch} style={style}/>
         <div>{name}</div>
       </div>
     )
@@ -100,12 +98,12 @@ export class PaletteSelectView extends InputWidgetView {
         open={this._open.value}
         on_dismiss={this.hide}
         ignore={this.input_el}
-        class={cls(panes_css.drop_pane, pane_css.pane)}
+        class={cls(panes_css.drop_pane, palette_select_css.pane)}
         style={{"--number-of-columns": `${ncols}`}}
       >
         {items.map((item, i) => (
           <div
-            class={item_css.item}
+            class={palette_select_css.item}
             tabIndex={0}
             ref={(el) => { this._item_els[i] = el }}
             onPointerUp={() => this.select(item)}
@@ -136,7 +134,9 @@ export class PaletteSelectView extends InputWidgetView {
               onKeyUp={this._input_key_up}
               onKeyDown={this._input_key_down}
             >
-              <div class={cls(palette_select_css.value, item_css.entry)}>{this._render_value()}</div>
+              <div class={cls(palette_select_css.value, palette_select_css.entry)}>
+                {this._render_value()}
+              </div>
               <div class={palette_select_css.chevron}/>
             </div>
           </div>

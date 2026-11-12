@@ -18,3 +18,44 @@
   width: 16px;
   height: 16px;
 }
+
+.bk-entry {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.bk-swatch {
+  width: 100px;
+  height: auto;
+  align-self: stretch;
+}
+
+.bk-item {
+  border: var(--border-width) var(--border-style) transparent;
+  color: var(--inherit-color);
+
+  &.bk-active {
+    border-color: var(--highlight-color);
+  }
+  &:hover {
+    background-color: var(--hover-color);
+  }
+  &:focus, &:focus-visible {
+    outline: var(--outline-width) var(--outline-style) var(--highlight-color);
+    outline-offset: -1px;
+  }
+  &::-moz-focus-inner {
+    border: 0;
+  }
+}
+
+.bk-pane {
+  --number-of-columns: 1;
+  padding: 5px;
+  display: grid;
+  grid-template-columns: repeat(var(--number-of-columns), 1fr);
+  gap: 0.25em;
+}
