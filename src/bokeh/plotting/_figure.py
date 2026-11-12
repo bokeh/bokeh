@@ -78,6 +78,8 @@ if TYPE_CHECKING:
     import numpy.typing as npt
     from numpy.typing import ArrayLike
 
+    from ..colors.color import ColorLike
+    from ..core.enums import HexTileOrientationType
     from ..models.glyphs import (
         HArea,
         HBar,
@@ -88,6 +90,8 @@ if TYPE_CHECKING:
     from ..models.renderers.contour_renderer import ContourRenderer
     from ..models.renderers.glyph_renderer import GlyphRenderer
     from ..util.datatypes import SequenceLike
+
+    GEO_SCALE = Literal["10m", "50m", "110m"]
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -787,7 +791,7 @@ class figure(Plot, GlyphAPI):
         self.renderers.append(contour_renderer)
         return contour_renderer
 
-    def borders(self, projection, scale="110m", **line_kwargs):
+    def borders(self, projection, scale:GEO_SCALE="110m", **line_kwargs):
         """ Adds the borders of countries to a map with respect to a given projection.
 
         .. note::
@@ -795,7 +799,7 @@ class figure(Plot, GlyphAPI):
 
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+            scale(GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
                 "50m" and "10m".
 
         .. note::
@@ -818,7 +822,7 @@ class figure(Plot, GlyphAPI):
         from ._geo_feature import add_borders
         self = add_borders(self, projection, scale, **line_kwargs)
 
-    def coastlines(self, projection, scale="110m", **line_kwargs):
+    def coastlines(self, projection, scale:GEO_SCALE="110m", **line_kwargs):
         """ Adds coastlines to a map with respect to a given projection.
 
         .. note::
@@ -826,7 +830,7 @@ class figure(Plot, GlyphAPI):
 
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+            scale(GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
                 "50m" and "10m".
 
         .. note::
@@ -849,7 +853,7 @@ class figure(Plot, GlyphAPI):
         from ._geo_feature import add_coastlines
         self = add_coastlines(self, projection, scale, **line_kwargs)
 
-    def land(self, projection, scale="110m", **poly_kwargs):
+    def land(self, projection, scale:GEO_SCALE="110m", **poly_kwargs):
         """ Adds land geometries including islands to a map with respect to a
         given projection.
 
@@ -858,7 +862,7 @@ class figure(Plot, GlyphAPI):
 
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+            scale(GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
                 "50m" and "10m".
 
         Keyword Arguments:
@@ -885,7 +889,7 @@ class figure(Plot, GlyphAPI):
         from ._geo_feature import add_land
         self = add_land(self, projection, scale, **poly_kwargs)
 
-    def lakes(self, projection, scale="110m", **poly_kwargs):
+    def lakes(self, projection, scale:GEO_SCALE="110m", **poly_kwargs):
         """ Adds lakes to a map with respect to a given projection.
 
         .. note::
@@ -893,7 +897,7 @@ class figure(Plot, GlyphAPI):
 
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+            scale(GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
                 "50m" and "10m".
 
         Keyword Arguments:
@@ -920,7 +924,7 @@ class figure(Plot, GlyphAPI):
         from ._geo_feature import add_lakes
         self = add_lakes(self, projection, scale, **poly_kwargs)
 
-    def ocean(self, projection, scale="110m", **poly_kwargs):
+    def ocean(self, projection, scale:GEO_SCALE="110m", **poly_kwargs):
         """ Adds ocean to a map with respect to a given projection.
 
         .. note::
@@ -928,7 +932,7 @@ class figure(Plot, GlyphAPI):
 
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+            scale(GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
                 "50m" and "10m".
 
         Keyword Arguments:
@@ -955,7 +959,7 @@ class figure(Plot, GlyphAPI):
         from ._geo_feature import add_ocean
         self = add_ocean(self, projection, scale, **poly_kwargs)
 
-    def rivers(self, projection, scale="110m", **line_kwargs):
+    def rivers(self, projection, scale:GEO_SCALE="110m", **line_kwargs):
         """ Adds rivers to a map with respect to a given projection.
 
         .. note::
@@ -963,7 +967,7 @@ class figure(Plot, GlyphAPI):
 
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+            scale(GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
                 "50m" and "10m".
 
         .. note::
@@ -994,7 +998,7 @@ class figure(Plot, GlyphAPI):
 
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+            scale(GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
                 "50m" and "10m".
 
         .. note::
@@ -1017,7 +1021,7 @@ class figure(Plot, GlyphAPI):
         from ._geo_feature import add_projection_boundary
         self = add_projection_boundary(self, projection, **line_kwargs)
 
-    def provinces(self, projection, scale="110m", **line_kwargs):
+    def provinces(self, projection, scale:GEO_SCALE="110m", **line_kwargs):
         """ Adds the borders of provinces to a map with respect to a given projection.
 
         .. note::
@@ -1025,7 +1029,7 @@ class figure(Plot, GlyphAPI):
 
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+            scale(GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
                 "50m" and "10m".
 
         .. note::
@@ -1048,7 +1052,7 @@ class figure(Plot, GlyphAPI):
         from ._geo_feature import add_provinces
         self = add_provinces(self, projection, scale, **line_kwargs)
 
-    def states(self, projection, scale="110m", **poly_kwargs):
+    def states(self, projection, scale:GEO_SCALE="110m", **poly_kwargs):
         """ Adds states and provinces as multi-polygons to a map for a given projection.
 
         .. note::
@@ -1056,7 +1060,7 @@ class figure(Plot, GlyphAPI):
 
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+            scale(GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
                 "50m" and "10m".
 
         Keyword Arguments:
