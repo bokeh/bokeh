@@ -1,6 +1,5 @@
 import type {StyleSheetLike, Keys} from "core/dom"
-import {px, InlineStyleSheet} from "core/dom"
-import type {StyleSheet} from "core/stylesheets"
+import {px} from "core/dom"
 import type {VNode} from "core/vdom"
 import {UIComponent, cls} from "core/vdom"
 import {DropPane} from "core/util/panes"
@@ -17,6 +16,7 @@ import * as palette_select_css from "styles/widgets/palette_select.css"
 import * as item_css from "styles/widgets/palette_select_item.css"
 import * as pane_css from "styles/widgets/palette_select_pane.css"
 import * as icons_css from "styles/icons.css"
+import * as panes_css from "styles/panes.css"
 
 import {Tuple, Str, Arrayable, Color} from "core/kinds"
 
@@ -25,9 +25,6 @@ import {signal} from "@preact/signals"
 
 const Item = Tuple(Str, Arrayable(Color))
 type Item = typeof Item["__type__"]
-
-const pane_stylesheets: StyleSheet[] = [item_css.default, pane_css.default]
-  .map((css) => new InlineStyleSheet(css))
 
 function gradient_of(colors: Item[1]): string {
   const n = colors.length
@@ -62,7 +59,7 @@ export class PaletteSelectView extends InputWidgetView {
   }
 
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), palette_select_css.default, item_css.default, icons_css.default]
+    return [...super.stylesheets(), palette_select_css.default, item_css.default, panes_css.default, pane_css.default, icons_css.default]
   }
 
   @bind
@@ -103,7 +100,7 @@ export class PaletteSelectView extends InputWidgetView {
         open={this._open.value}
         on_dismiss={this.hide}
         ignore={this.input_el}
-        stylesheets={pane_stylesheets}
+        class={cls(panes_css.drop_pane, pane_css.pane)}
         style={{"--number-of-columns": `${ncols}`}}
       >
         {items.map((item, i) => (
