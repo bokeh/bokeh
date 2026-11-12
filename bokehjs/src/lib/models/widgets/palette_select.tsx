@@ -60,6 +60,11 @@ export class PaletteSelectView extends InputWidgetView {
     return [...super.stylesheets(), palette_select_css.default, panes_css.default, icons_css.default]
   }
 
+  override get resolved_style() {
+    const {ncols} = this.values
+    return {...super.resolved_style, "--number-of-columns": `${ncols}`}
+  }
+
   @bind
   protected _input_ref(el: HTMLDivElement | null): void {
     if (el != null) {
@@ -90,7 +95,7 @@ export class PaletteSelectView extends InputWidgetView {
   }
 
   protected _pane(): VNode {
-    const {items, ncols} = this.values
+    const {items} = this.values
     this._item_els = items.map(() => null)
 
     return (
@@ -99,7 +104,6 @@ export class PaletteSelectView extends InputWidgetView {
         on_dismiss={this.hide}
         ignore={this.input_el}
         class={cls(panes_css.drop_pane, palette_select_css.pane)}
-        style={{"--number-of-columns": `${ncols}`}}
       >
         {items.map((item, i) => (
           <div
