@@ -1,5 +1,5 @@
 import {display, column} from "#framework/layouts"
-import {tap, mouse_click} from "#framework/interactive"
+import {tap, mouse_click, mouse_enter, mouse_down} from "#framework/interactive"
 import {expect, expect_not_null} from "#framework/assertions"
 
 import {range} from "@bokehjs/core/util/array"
@@ -8,6 +8,7 @@ import type {Color} from "@bokehjs/core/types"
 
 import {HTML} from "@bokehjs/models/dom"
 import {ColumnDataSource, Row} from "@bokehjs/models"
+import {Tooltip} from "@bokehjs/models/ui/tooltip"
 
 import {
   Button, Toggle, Dropdown,
@@ -16,6 +17,7 @@ import {
   CheckboxButtonGroup, RadioButtonGroup,
   PaletteSelect,
   TextInput, PasswordInput, AutocompleteInput, TextAreaInput, FileInput,
+  NumericInput, Spinner, ColorPicker,
   MultiChoice, Select, MultiSelect,
   Slider, RangeSlider, DateSlider, DateRangeSlider, CategoricalSlider,
   TimePicker,
@@ -32,6 +34,7 @@ import {
 } from "@bokehjs/models/widgets/tables"
 
 import type {PickerBaseView} from "@bokehjs/models/widgets/picker_base"
+import type {InputWidget, InputWidgetView} from "@bokehjs/models/widgets/input_widget"
 import * as sliders_css from "@bokehjs/styles/widgets/sliders.css"
 
 import * as palettes from "@bokehjs/api/palettes"
@@ -339,6 +342,62 @@ describe("Widgets", () => {
   it("should allow FileInput", async () => {
     const obj = FileInput.create({accept: ".csv,.json.,.txt", multiple: false})
     await display(obj, [500, 100])
+  })
+
+  describe("should support title and description", () => {
+    type Attrs = Partial<InputWidget.Attrs>
+    const widgets: [string, (attrs: Attrs) => InputWidget][] = [
+      ["TextInput", (attrs) => TextInput.create({placeholder: "Enter value ...", ...attrs})],
+      ["PasswordInput", (attrs) => PasswordInput.create({value: "foo", ...attrs})],
+      ["AutocompleteInput", (attrs) => AutocompleteInput.create({placeholder: "Enter value ...", completions: ["aaa", "aab"], ...attrs})],
+      ["TextAreaInput", (attrs) => TextAreaInput.create({placeholder: "Enter text ...", cols: 20, rows: 3, ...attrs})],
+      ["NumericInput", (attrs) => NumericInput.create({value: 10, ...attrs})],
+      ["Spinner", (attrs) => Spinner.create({value: 10, ...attrs})],
+      ["Select", (attrs) => Select.create({options: ["Option 1", "Option 2"], value: "Option 1", ...attrs})],
+      ["MultiSelect", (attrs) => MultiSelect.create({options: ["Option 1", "Option 2", "Option 3"], value: ["Option 2"], size: 3, ...attrs})],
+      ["ColorPicker", (attrs) => ColorPicker.create({color: "orange", ...attrs})],
+      ["FileInput", (attrs) => FileInput.create({accept: ".csv", ...attrs})],
+    ]
+
+    const viewport: [number, number] = [400, 150]
+    const title = "Widget title"
+    const tooltip = () => Tooltip.create({content: "Widget description.", position: "right"})
+
+    async function help_button_of(view: InputWidgetView): Promise<HTMLElement> {
+      const {desc_el} = view
+      expect_not_null(desc_el)
+      return desc_el
+    }
+
+    for (const [name, create] of widgets) {
+      describe(`in ${name}`, () => {
+        it("without title", async () => {
+          await display(create({}), viewport)
+        })
+
+        it("with title", async () => {
+          await display(create({title}), viewport)
+        })
+
+        it("with title and help button", async () => {
+          await display(create({title, description: "Widget description."}), viewport)
+        })
+
+        it("with title and tooltip description shown after hovering over help button", async () => {
+          const {view} = await display(create({title, description: tooltip()}), viewport)
+          await mouse_enter(await help_button_of(view))
+          await view.ready
+        })
+
+        it("with title and tooltip description pinned after clicking on help button", async () => {
+          const {view} = await display(create({title, description: tooltip()}), viewport)
+          const help_el = await help_button_of(view)
+          await mouse_enter(help_el)
+          await mouse_down(help_el)
+          await view.ready
+        })
+      })
+    }
   })
 
   it("should allow MultiChoice", async () => {
