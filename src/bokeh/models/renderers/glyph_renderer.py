@@ -105,7 +105,7 @@ class GlyphRenderer(DataRenderer):
     of the entire data source is created when a view is not passed in during
     initialization.
 
-    .. note:
+    .. note::
         Only the default (filterless) CDSView is compatible with glyphs that
         have connected topology, such as Line and Patch. Setting filters on
         views for these glyphs will result in a warning and undefined behavior.

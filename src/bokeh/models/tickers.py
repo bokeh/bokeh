@@ -162,7 +162,7 @@ class ContinuousTicker(Ticker):
     A desired target number of major tick positions to generate across
     the plot range.
 
-    .. note:
+    .. note::
         This value is a suggestion, and ticker subclasses may ignore
         it entirely, or use it only as an ideal goal to approach as well
         as can be, in the context of a specific ticking strategy.

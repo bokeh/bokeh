@@ -59,7 +59,7 @@ def bokehjs_path(dev: bool = False) -> Path:
     if not available, then a warning is issued and the former files are
     used as a fallback.
 
-    .. note:
+    .. note::
         This is a low-level API. Prefer using ``settings.bokehjs_path()``
         instead of this function.
     """
@@ -94,7 +94,7 @@ def bokehjsdir(dev: bool = False) -> str:
     if not available, then a warning is issued and the former files are
     used as a fallback.
 
-    .. note:
+    .. note::
         This is a low-level API. Prefer using ``settings.bokehjsdir()``
         instead of this function.
 
