@@ -54,14 +54,14 @@ Here's a simple example that creates a custom readout for a slider:
 
         slider = Instance(Slider)
 
-This example creates a subclass from :class:`~bokeh.models.ui.UIElement` to
+This example creates a subclass from :class:`~bokeh.models.UIElement` to
 allow the extension to integrate into the DOM layout. It also adds two
 properties:
 
 * a :class:`~bokeh.core.properties.String` to configure a text message for the
   readout and
 * an :class:`~bokeh.core.properties.Instance` that can hold a
-  :class:`~bokeh.models.widgets.inputs.Slider`.
+  :class:`~bokeh.models.Slider`.
 
 This creates a JavaScript ``Slider`` object that corresponds to a ``Slider`` in
 Python.

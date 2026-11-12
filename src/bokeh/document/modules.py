@@ -55,7 +55,7 @@ class DocumentModuleManager:
         '''
 
         Args:
-            document (Document): A Document to manage modules for
+            document: A Document to manage modules for
                 A weak reference to the Document will be retained
 
         '''
@@ -72,7 +72,7 @@ class DocumentModuleManager:
             This method will install the module in ``sys.modules``
 
         Args:
-            module (Module) : a module to install for the configured Document
+            module: a module to install for the configured Document
 
         Returns:
             None

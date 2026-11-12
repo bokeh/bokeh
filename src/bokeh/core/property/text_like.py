@@ -48,6 +48,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 type TextLikeType = str | BaseText
+#: String or basic text object.
 
 class TextLike(Either[TextLikeType]):
     """ Accept a string that may be interpreted into text models or the models themselves.

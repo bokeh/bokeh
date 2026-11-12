@@ -60,7 +60,7 @@ hover. See the :ref:`ug_styling_plots_glyphs` section of the user guide for
 full details.
 
 Returns:
-    :class:`~bokeh.models.renderers.GlyphRenderer`
+    :class:`~bokeh.models.GlyphRenderer`
 
 {_docstring_extra(extra_docs)}
 """
@@ -70,10 +70,10 @@ Returns:
 #-----------------------------------------------------------------------------
 
 def _add_arglines(arglines: list[str], param: Parameter, typ: str, doc: str | None) -> None:
-    default = param.default if param.default != Parameter.empty else None
+    # default = param.default if param.default != Parameter.empty else None
 
     # add a line for the arg
-    arglines.append(f"    {param.name} ({typ}{', optional' if default else ''}):")
+    arglines.append(f"    {param.name}:")
 
     # add the docs for the argument
     if doc:
@@ -81,8 +81,8 @@ def _add_arglines(arglines: list[str], param: Parameter, typ: str, doc: str | No
             arglines.append(f"        {line}" if line else "")
 
     # if there is a default, add it last
-    if arglines and default is not None:
-        arglines[-1] += f" (default: {default!r})"
+    # if arglines and default is not None:
+    #     arglines[-1] += f" (default: {default!r})"
 
     # blank line between args
     arglines.append("")
@@ -112,16 +112,16 @@ def _docstring_other() -> str:
 
 _OTHER_PARAMS = """
 Other Parameters:
-    alpha (``float``, optional) :
-        An alias to set all alpha keyword arguments at once. (default: None)
+    alpha:
+        An alias to set all alpha keyword arguments at once.
 
         Alpha values must be between 0 (fully transparent) and 1 (fully opaque).
 
         Any explicitly set values for ``line_alpha``, etc. will override this
         setting.
 
-    color (ColorLike, optional) :
-        An alias to set all color keyword arguments at once. (default: None)
+    color:
+        An alias to set all color keyword arguments at once.
 
         See :ref:`ug_styling_colors` in the user guide for different
         options to define colors.
@@ -129,7 +129,7 @@ Other Parameters:
         Any explicitly set values for ``line_color``, etc. will override this
         setting.
 
-    legend_field (str, optional) :
+    legend_field:
         Specify that the glyph should produce multiple legend entries by
         :ref:`grouping them in the browser <ug_basic_annotations_legends_legend_field>`.
         The value of this parameter is the name of a column in the data source
@@ -143,7 +143,7 @@ Other Parameters:
             Only one of ``legend_field``, ``legend_group``, or ``legend_label``
             should be supplied
 
-    legend_group (str, optional) :
+    legend_group:
         Specify that the glyph should produce multiple legend entries by
         :ref:`grouping them in Python <ug_basic_annotations_legends_legend_group>`.
         The value of this parameter is the name of a column in the data source
@@ -157,7 +157,7 @@ Other Parameters:
             Only one of ``legend_field``, ``legend_group``, or ``legend_label``
             should be supplied
 
-    legend_label (str, optional) :
+    legend_label:
         Specify that the glyph should produce a single
         :ref:`basic legend label <ug_basic_annotations_legends_legend_label>` in
         the legend. The legend entry is labeled with the exact text supplied
@@ -167,22 +167,22 @@ Other Parameters:
             Only one of ``legend_field``, ``legend_group``, or ``legend_label``
             should be supplied.
 
-    muted (bool, optional) :
-        Whether the glyph should be rendered as muted (default: False)
+    muted:
+        Whether the glyph should be rendered as muted.
 
         For this to be useful, an ``muted_glyph`` must be configured on the
         returned ``GlyphRender``. This can be done by explicitly creating a
         ``Glyph`` to use, or more simply by passing e.g. ``muted_color``, etc.
         to this glyph function.
 
-    name (str, optional) :
-        An optional user-supplied name to attach to the renderer (default: None)
+    name:
+        An optional user-supplied name to attach to the renderer.
 
         Bokeh does not use this value in any way, but it may be useful for
         searching a Bokeh document to find a specific model.
 
-    source (ColumnDataSource, optional) :
-        A user-supplied data source. (default: None)
+    source:
+        A user-supplied data source.
 
         If not supplied, Bokeh will automatically construct an internal
         ``ColumnDataSource`` with default column names from the coordinates and
@@ -193,27 +193,25 @@ Other Parameters:
         other arguments. Only singular fixed values (e.g. ``x=10``) or column
         names in the data source (e.g. ``x="time"``) are permitted.
 
-    view (CDSView, optional) :
-        A view for filtering the data source. (default: None)
+    view:
+        A view for filtering the data source.
 
-    visible (bool, optional) :
-        Whether the glyph should be rendered. (default: True)
+    visible:
+        Whether the glyph should be rendered.
 
-    x_range_name (str, optional) :
+    x_range_name:
         The name of an extra range to use for mapping x-coordinates.
-        (default: None)
 
         If not supplied, then the default ``y_range`` of the plot will be used
         for coordinate mapping.
 
-    y_range_name (str, optional) :
+    y_range_name:
         The name of an extra range to use for mapping y-coordinates.
-        (default: None)
 
         If not supplied, then the default ``y_range`` of the plot will be used
         for coordinate mapping.
 
-    level (RenderLevel, optional) :
+    level:
         Specify the render level order for this glyph.
 
 """

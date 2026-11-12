@@ -90,15 +90,14 @@ def row(*children: UIElement | list[UIElement], sizing_mode: SizingModeType | No
     have the same sizing_mode, which is required for complex layouts to work.
 
     Args:
-        children (list of :class:`~bokeh.models.LayoutDOM` ): A list of instances for
+        children: A list of instances for
             the row. Can be any of the following - |Plot|,
             :class:`~bokeh.models.Widget`,
             :class:`~bokeh.models.Row`,
             :class:`~bokeh.models.Column`,
             :class:`~bokeh.models.Spacer`.
 
-        sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
-            will the items in the layout resize to fill the available space.
+        sizing_mode: How will the items in the layout resize to fill the available space.
             Default is ``"fixed"``. For more information on the different
             modes see :attr:`~bokeh.models.LayoutDOM.sizing_mode`
             description on :class:`~bokeh.models.LayoutDOM`.
@@ -125,15 +124,14 @@ def column(*children: UIElement | list[UIElement], sizing_mode: SizingModeType |
     have the same sizing_mode, which is required for complex layouts to work.
 
     Args:
-        children (list of :class:`~bokeh.models.LayoutDOM` ): A list of instances for
+        children: A list of instances for
             the column. Can be any of the following - |Plot|,
             :class:`~bokeh.models.Widget`,
             :class:`~bokeh.models.Row`,
             :class:`~bokeh.models.Column`,
             :class:`~bokeh.models.Spacer`.
 
-        sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
-            will the items in the layout resize to fill the available space.
+        sizing_mode: How will the items in the layout resize to fill the available space.
             Default is ``"fixed"``. For more information on the different
             modes see :attr:`~bokeh.models.LayoutDOM.sizing_mode`
             description on :class:`~bokeh.models.LayoutDOM`.
@@ -155,15 +153,14 @@ def layout(*args: UIElement, children: list[UIElement] | None = None, sizing_mod
     """ Create a grid-based arrangement of Bokeh Layout objects.
 
     Args:
-        children (list of lists of :class:`~bokeh.models.LayoutDOM` ): A list of lists of instances
+        children: A list of lists of instances
             for a grid layout. Can be any of the following - |Plot|,
             :class:`~bokeh.models.Widget`,
             :class:`~bokeh.models.Row`,
             :class:`~bokeh.models.Column`,
             :class:`~bokeh.models.Spacer`.
 
-        sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
-            will the items in the layout resize to fill the available space.
+        sizing_mode: How will the items in the layout resize to fill the available space.
             Default is ``"fixed"``. For more information on the different
             modes see :attr:`~bokeh.models.LayoutDOM.sizing_mode`
             description on :class:`~bokeh.models.LayoutDOM`.
@@ -236,35 +233,33 @@ def gridplot(
     grid layout, use the :func:`~bokeh.layouts.layout` function.
 
     Args:
-        children (list or list of lists of |Plot|): An array of plots to display in a
+        children: An array of plots to display in a
             grid, given as a list of lists of Plot objects. To leave a position
             in the grid empty, pass None for that position in the children list.
             OR list of |Plot| if called with ncols.
 
-        sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
-            will the items in the layout resize to fill the available space.
+        sizing_mode: How will the items in the layout resize to fill the available space.
             Default is ``"fixed"``. For more information on the different
             modes see :attr:`~bokeh.models.LayoutDOM.sizing_mode`
             description on :class:`~bokeh.models.LayoutDOM`.
 
-        toolbar_location (``above``, ``below``, ``left``, ``right`` ): Where the
-            toolbar will be located, with respect to the grid. Default is
+        toolbar_location: Where the toolbar will be located, with respect to the grid. Default is
             ``above``. If set to None, no toolbar will be attached to the grid.
 
-        ncols (int, optional): Specify the number of columns you would like in your grid.
+        ncols: Specify the number of columns you would like in your grid.
             You must only pass an un-nested list of plots (as opposed to a list of lists of plots)
             when using ncols.
 
-        width (int, optional): The width you would like all your plots to be
+        width: The width you would like all your plots to be
 
-        height (int, optional): The height you would like all your plots to be.
+        height: The height you would like all your plots to be.
 
-        toolbar_options (dict, optional) : A dictionary of options that will be
+        toolbar_options: A dictionary of options that will be
             used to construct the grid's toolbar (an instance of
             :class:`~bokeh.models.Toolbar`). If none is supplied,
             Toolbar's defaults will be used.
 
-        merge_tools (``True``, ``False``): Combine tools from all child plots into
+        merge_tools: Combine tools from all child plots into
             a single toolbar.
 
     Returns:

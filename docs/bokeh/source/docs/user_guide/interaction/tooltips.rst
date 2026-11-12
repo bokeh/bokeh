@@ -136,7 +136,7 @@ UI element. You have two options to identify an UI element to the ``target``
 property:
 
 * an instance of any Bokeh model
-* an instance of one of the :class:`~bokeh.models.selectors` models representing
+* an instance of one of the :ref:`bokeh.models.selectors` models representing
   a CSS selector for the element you want to attach the tooltip to
 
 After defining your Tooltip object and specifying the target, you need to add

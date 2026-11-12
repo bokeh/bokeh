@@ -141,4 +141,11 @@ functionality.
 .. automodule:: bokeh.util.warnings
   :members:
 
+
+``bokeh.util.datatypes``
+------------------------
+
+.. automodule:: bokeh.util.datatypes
+  :members:
+
 '''

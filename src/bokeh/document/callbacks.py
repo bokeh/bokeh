@@ -120,7 +120,7 @@ class DocumentCallbackManager:
         '''
 
         Args:
-            document (Document): A Document to manage models for
+            document: A Document to manage models for
                 A weak reference to the Document will be retained
 
         '''
@@ -166,22 +166,22 @@ class DocumentCallbackManager:
         ''' Internal implementation for adding session callbacks.
 
         Args:
-            callback_obj (SessionCallback) :
+            callback_obj:
                 A session callback object that wraps a callable and is
                 passed to ``trigger_on_change``.
 
-            callback (callable) :
+            callback:
                 A callable to execute when session events happen.
 
-            one_shot (bool) :
+            one_shot:
                 Whether the callback should immediately auto-remove itself
                 after one execution.
 
         Returns:
-            SessionCallback : passed in as ``callback_obj``.
+            SessionCallback: passed in as ``callback_obj``.
 
         Raises:
-            ValueError, if the callback has been previously added
+            ValueError: if the callback has been previously added
 
         '''
         doc = self._document()
@@ -338,7 +338,7 @@ class DocumentCallbackManager:
         ''' Remove a callback added earlier with ``on_change``.
 
         Raises:
-            KeyError, if the callback was never added
+            KeyError: if the callback was never added
 
         '''
         for callback in callbacks:
@@ -360,7 +360,7 @@ class DocumentCallbackManager:
             None
 
         Raises:
-            KeyError, if the callback was never added
+            KeyError: if the callback was never added
 
         '''
         try:
@@ -385,7 +385,7 @@ class DocumentCallbackManager:
         event name.
 
         Args:
-            event_name (str) : the event name to look up callbacks for
+            event_name: the event name to look up callbacks for
 
         '''
         return tuple(self._event_callbacks.get(event_name, []))
@@ -480,10 +480,10 @@ def _combine_document_events(new_event: DocumentChangedEvent, old_events: list[D
     ``old_events``.
 
     Args:
-        new_event (DocumentChangedEvent) :
+        new_event:
             The new event to attempt to combine
 
-        old_events (list[DocumentChangedEvent]):
+        old_events:
             A list of previous events to attempt to combine new_event with
 
             **This is an "out" parameter**. The values it contains will be

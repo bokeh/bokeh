@@ -165,7 +165,7 @@ would have a size of 80 screen units or 2 data-space units.
 Objects in Bokeh that support both screen units and data-space units usually
 have a dedicated property to choose which unit to use. This unit-setting
 property is the name of the property with an added ``_units``. For
-example: A :class:`~bokeh.models.annotations.Whisker`
+example: A :class:`~bokeh.models.Whisker`
 :ref:`annotation <ug_basic_annotations_whiskers>` has the property ``upper``. To
 define which unit to use, set the ``upper_units`` property to either
 ``'screen'`` or ``'data'``.

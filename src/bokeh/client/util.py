@@ -42,16 +42,13 @@ def server_url_for_websocket_url(url: str) -> str:
     ``http(s)`` URL for the websocket endpoint.
 
     Args:
-        url (str):
-            An ``ws(s)`` URL ending in ``/ws``
+        url: An ``ws(s)`` URL ending in ``/ws``
 
     Returns:
-        str:
-            The corresponding ``http(s)`` URL.
+        str: The corresponding ``http(s)`` URL.
 
     Raises:
-        ValueError:
-            If the input URL is not of the proper form.
+        ValueError: If the input URL is not of the proper form.
 
     '''
     if url.startswith("ws:"):
@@ -69,16 +66,13 @@ def websocket_url_for_server_url(url: str) -> str:
     the appropriate ``ws(s)`` URL
 
     Args:
-        url (str):
-            An ``http(s)`` URL
+        url: An ``http(s)`` URL
 
     Returns:
-        str:
-            The corresponding ``ws(s)`` URL ending in ``/ws``
+        str: The corresponding ``ws(s)`` URL ending in ``/ws``
 
     Raises:
-        ValueError:
-            If the input URL is not of the proper form.
+        ValueError: If the input URL is not of the proper form.
 
     '''
     if url.startswith("http:"):

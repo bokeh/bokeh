@@ -69,7 +69,7 @@ class NotebookHandler(CodeHandler):
         '''
 
         Keywords:
-            filename (str) : a path to a Jupyter notebook (".ipynb") file
+            filename: a path to a Jupyter notebook (".ipynb") file
 
         '''
         nbformat = import_required('nbformat', 'The Bokeh notebook application handler requires Jupyter Notebook to be installed.')

@@ -48,10 +48,10 @@ def set_validation_default(value: bool) -> None:
     override remains.
 
     Args:
-        value (bool) : Whether property validation is enabled by default.
+        value: Whether property validation is enabled by default.
 
     Raises:
-        TypeError : If ``value`` is not a boolean.
+        TypeError: If ``value`` is not a boolean.
 
     """
     if not isinstance(value, bool):
@@ -80,7 +80,7 @@ class validate:
     it was constructed. Instances are single-use and cannot be reentered.
 
     Args:
-        value (bool) : Whether validation should occur or not
+        value: Whether validation should occur or not
 
     Example:
         .. code-block:: python

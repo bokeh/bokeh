@@ -102,21 +102,15 @@ def generate_jwt_token(session_id: ID,
     """ Generates a JWT token given a session_id and additional payload.
 
     Args:
-        session_id (str):
-            The session id to add to the token
+        session_id: The session id to add to the token
 
-        secret_key (str, optional) :
-            Secret key (default: value of BOKEH_SECRET_KEY environment variable)
+        secret_key: Secret key
 
-        signed (bool, optional) :
-            Whether to sign the session ID (default: value of BOKEH_SIGN_SESSIONS
-            environment variable)
+        signed: Whether to sign the session ID
 
-        extra_payload (dict, optional) :
-            Extra key/value pairs to include in the Bokeh session token
+        extra_payload: Extra key/value pairs to include in the Bokeh session token
 
-        expiration (int, optional) :
-            Expiration time
+        expiration: Expiration time
 
     Returns:
         str
@@ -163,8 +157,7 @@ def get_token_payload(token: str) -> TokenPayload:
     """Extract the payload from the token.
 
     Args:
-        token (str):
-            A JWT token containing the session_id and other data.
+        token: A JWT token containing the session_id and other data.
 
     Returns:
         dict
@@ -196,15 +189,11 @@ def check_token_signature(token: str,
     If signed sessions are disabled, this function always returns True.
 
     Args:
-        token (str) :
-            The token to check
+        token: The token to check
 
-        secret_key (str, optional) :
-            Secret key (default: value of BOKEH_SECRET_KEY environment variable)
+        secret_key: Secret key
 
-        signed (bool, optional) :
-            Whether to check anything (default: value of BOKEH_SIGN_SESSIONS
-            environment variable)
+        signed: Whether to check anything
 
     Returns:
         bool

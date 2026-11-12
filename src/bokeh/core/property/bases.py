@@ -87,11 +87,11 @@ class Property[T = Any]:
     Models.
 
     Args:
-        default (obj, optional) :
+        default:
             A default value for attributes created from this property to have.
 
-        help (str or None, optional) :
-            A documentation string for this property. (default: None)
+        help:
+            A documentation string for this property.
 
     """
 
@@ -166,7 +166,7 @@ class Property[T = Any]:
         """Return the descriptor used to delegate access to this property.
 
         Args:
-            name (str) : the name of the property these descriptors are for
+            name: the name of the property these descriptors are for
 
         Returns:
             PropertyDescriptor
@@ -288,7 +288,7 @@ class Property[T = Any]:
         """ Change the value into the canonical format for this property.
 
         Args:
-            value (obj) : the value to apply transformation to.
+            value: the value to apply transformation to.
 
         Returns:
             obj: transformed value
@@ -302,19 +302,19 @@ class Property[T = Any]:
         Validation happens before transform()
 
         Args:
-            value (obj) : the value to validate against this property type
-            detail (bool, optional) : whether to construct detailed exceptions
+            value: the value to validate against this property type
+            detail: whether to construct detailed exceptions
 
                 Generating detailed type validation error messages can be
                 expensive. When doing type checks internally that will not
                 escape exceptions to users, these messages can be skipped
-                by setting this value to False (default: True)
+                by setting this value to False
 
         Returns:
             None
 
         Raises:
-            ValidationError if the value is not valid for this property type
+            ValidationError: if the value is not valid for this property type
 
         """
         pass
@@ -323,7 +323,7 @@ class Property[T = Any]:
         """ Whether the value passes validation
 
         Args:
-            value (obj) : the value to validate against this property type
+            value: the value to validate against this property type
 
         Returns:
             True if valid, False otherwise
@@ -400,11 +400,11 @@ class Property[T = Any]:
         """ Declare that other types may be converted to this property type.
 
         Args:
-            tp (Property) :
+            tp:
                 A type that may be converted automatically to this property
                 type.
 
-            converter (callable) :
+            converter:
                 A function accepting ``value`` to perform conversion of the
                 value to this property type.
 
@@ -426,11 +426,11 @@ class Property[T = Any]:
         length at all times.
 
         Args:
-            fn (callable) :
+            fn:
                 A function accepting ``(obj, value)`` that returns True if the value
                 passes the assertion, or False otherwise.
 
-            msg_or_fn (str or callable) :
+            msg_or_fn:
                 A message to print in case the assertion fails, or a function
                 accepting ``(obj, name, value)`` to call in in case the assertion
                 fails.

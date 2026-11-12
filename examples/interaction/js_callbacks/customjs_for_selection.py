@@ -1,14 +1,14 @@
 ''' An interactive plot showcasing Bokeh's ability to add interactions
-using Custom Javascript.
+using Custom JavaScript.
 
 This example demonstrates selecting highlighted points on a graph.
 These points will show on the secondary graph which uses ``CustomJS``
 callbacks to update its plot.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.model.Model.js_on_change, bokeh.models.sources.ColumnDataSource, bokeh.models.callbacks.CustomJS
+    :apis: bokeh.model.Model.js_on_change, bokeh.models.sources.ColumnDataSource, bokeh.models.CustomJS
     :refs: :ref:`ug_interaction_js_callbacks_customjs`
-    :keywords: hover, javascript callback, CustomJS
+    :keywords: hover, JavaScript callback, CustomJS
 
 '''
 

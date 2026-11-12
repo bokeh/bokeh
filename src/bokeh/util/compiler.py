@@ -134,11 +134,11 @@ class Inline(Implementation):
     be given as inline code in some language.
 
     Args:
-        code (str) :
+        code:
             The source code for the implementation
 
-        file (str, optional)
-            A file path to a file containing the source text (default: None)
+        file:
+            A file path to a file containing the source text.
 
     '''
     def __init__(self, code: str, file: str|None = None) -> None:
@@ -187,7 +187,7 @@ class FromFile(Implementation):
     ''' A custom model implementation read from a separate source file.
 
     Args:
-        path (str) :
+        path:
             The path to the file containing the extension source code
 
     '''

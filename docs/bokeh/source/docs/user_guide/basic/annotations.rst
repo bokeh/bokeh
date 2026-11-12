@@ -157,7 +157,7 @@ Hiding legend items
 ~~~~~~~~~~~~~~~~~~~
 
 To manually control the visibility of individual legend items, set the
-``visible`` property of a :class:`~bokeh.models.annotations.LegendItem` to
+``visible`` property of a :class:`~bokeh.models.LegendItem` to
 either ``True`` or ``False``.
 
 .. bokeh-plot:: __REPO__/examples/basic/annotations/legends_item_visibility.py
@@ -202,7 +202,7 @@ Explicit index
 ~~~~~~~~~~~~~~
 
 To explicitly specify which index into a |ColumnDataSource| to use in a legend,
-set the ``index`` property of a :class:`~bokeh.models.annotations.LegendItem`.
+set the ``index`` property of a :class:`~bokeh.models.LegendItem`.
 
 This is useful for displaying multiple entries in a legend when you use glyphs
 that are rendered in several parts, such as
@@ -386,7 +386,7 @@ model. For example, angular units of measurements can be defined as follows:
 .. code:: python
 
     from bokeh.models import ScaleBar
-    from bokeh.models.annotations.dimensional import CustomDimensional
+    from bokeh.models.dimensional import CustomDimensional
 
     units = CustomDimensional(
         basis={
@@ -764,21 +764,21 @@ These are the most commonly used properties for this annotation:
 .. bokeh-plot:: __REPO__/examples/basic/annotations/whisker.py
     :source-position: above
 
-.. |ColorMapper| replace:: :class:`~bokeh.models.mappers.ColorMapper`
+.. |ColorMapper|    replace:: :class:`~bokeh.models.mappers.ColorMapper`
 
-.. |ArrowHead|     replace:: :class:`~bokeh.models.annotations.ArrowHead`
-.. |Band|          replace:: :class:`~bokeh.models.annotations.Band`
-.. |PolyAnnotation| replace:: :class:`~bokeh.models.annotations.PolyAnnotation`
-.. |ColorBar|      replace:: :class:`~bokeh.models.annotations.ColorBar`
-.. |SizeBar|       replace:: :class:`~bokeh.models.annotations.SizeBar`
-.. |ScaleBar|      replace:: :class:`~bokeh.models.annotations.ScaleBar`
-.. |Label|         replace:: :class:`~bokeh.models.annotations.Label`
-.. |LabelSet|      replace:: :class:`~bokeh.models.annotations.LabelSet`
-.. |Range|         replace:: :class:`~bokeh.models.ranges.Range`
-.. |Slope|         replace:: :class:`~bokeh.models.annotations.Slope`
-.. |Span|          replace:: :class:`~bokeh.models.annotations.Span`
-.. |Title|         replace:: :class:`~bokeh.models.annotations.Title`
-.. |Whisker|       replace:: :class:`~bokeh.models.annotations.Whisker`
+.. |ArrowHead|      replace:: :class:`~bokeh.models.ArrowHead`
+.. |Band|           replace:: :class:`~bokeh.models.Band`
+.. |PolyAnnotation| replace:: :class:`~bokeh.models.PolyAnnotation`
+.. |ColorBar|       replace:: :class:`~bokeh.models.ColorBar`
+.. |SizeBar|        replace:: :class:`~bokeh.models.SizeBar`
+.. |ScaleBar|       replace:: :class:`~bokeh.models.ScaleBar`
+.. |Label|          replace:: :class:`~bokeh.models.Label`
+.. |LabelSet|       replace:: :class:`~bokeh.models.LabelSet`
+.. |Range|          replace:: :class:`~bokeh.models.Range`
+.. |Slope|          replace:: :class:`~bokeh.models.Slope`
+.. |Span|           replace:: :class:`~bokeh.models.Span`
+.. |Title|          replace:: :class:`~bokeh.models.Title`
+.. |Whisker|        replace:: :class:`~bokeh.models.Whisker`
 
 .. |Circle|        replace:: :class:`~bokeh.models.glyphs.Circle`
 .. |Ngon|          replace:: :class:`~bokeh.models.glyphs.Ngon`

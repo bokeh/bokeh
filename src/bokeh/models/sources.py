@@ -251,7 +251,10 @@ class ColumnDataSource(ColumnarDataSource):
 
     @property
     def length(self) -> int:
-        ''' Number of row entries in the data. Note: All columns have the same number of row entries.
+        ''' Number of row entries in the data.
+
+        .. note::
+            All columns have the same number of row entries.
 
         '''
         data_lengths = {len(v) for _, v in self.data.items()}
@@ -271,7 +274,7 @@ class ColumnDataSource(ColumnarDataSource):
         suitable for creating a ColumnDataSource.
 
         Args:
-            df (DataFrame) : data to convert
+            df: data to convert
 
         Returns:
             dict[str, np.array]
@@ -331,7 +334,7 @@ class ColumnDataSource(ColumnarDataSource):
         on the group.
 
         Args:
-            group (GroupBy) : data to convert
+            group: data to convert
 
         Returns:
             dict[str, np.array]
@@ -354,7 +357,7 @@ class ColumnDataSource(ColumnarDataSource):
         is returned.
 
         Args:
-            df (DataFrame) : the ``DataFrame`` to find an index name for
+            df: the ``DataFrame`` to find an index name for
 
         Returns:
             str
@@ -377,7 +380,7 @@ class ColumnDataSource(ColumnarDataSource):
         suitable for creating a ``ColumnDataSource``.
 
         Args:
-            data (DataFrame) : data to convert
+            data: data to convert
 
         Returns:
             dict[str, np.array]
@@ -394,7 +397,7 @@ class ColumnDataSource(ColumnarDataSource):
         on the group.
 
         Args:
-            data (Groupby) : data to convert
+            data: data to convert
 
         Returns:
             dict[str, np.array]
@@ -416,8 +419,8 @@ class ColumnDataSource(ColumnarDataSource):
         ''' Appends a new column of data to the data source.
 
         Args:
-            data (seq) : new data to add
-            name (str, optional) : column name to use.
+            data: new data to add
+            name: column name to use.
                 If not supplied, generate a name of the form "Series ####"
 
         Returns:
@@ -436,7 +439,7 @@ class ColumnDataSource(ColumnarDataSource):
         ''' Remove a column of data.
 
         Args:
-            name (str) : name of the column to remove
+            name: name of the column to remove
 
         Returns:
             None
@@ -460,15 +463,15 @@ class ColumnDataSource(ColumnarDataSource):
         entire data set to be re-sent.
 
         Args:
-            new_data (dict[str, seq]) : a mapping of column names to sequences of
+            new_data: a mapping of column names to sequences of
                 new data to append to each column.
 
                 All columns of the data source must be present in ``new_data``,
                 with identical-length append data.
 
-            rollover (int, optional) : A maximum column size, above which data
+            rollover: A maximum column size, above which data
                 from the start of the column begins to be discarded. If None,
-                then columns will continue to grow unbounded (default: None)
+                then columns will continue to grow unbounded
 
         Returns:
             None
@@ -505,7 +508,7 @@ class ColumnDataSource(ColumnarDataSource):
         entire data set to be re-sent.
 
         Args:
-            new_data (dict[str, seq] or DataFrame or Series) : a mapping of
+            new_data: a mapping of
                 column names to sequences of new data to append to each column,
                 a pandas DataFrame, or a pandas Series in case of a single row -
                 in this case the Series index is used as column names
@@ -517,18 +520,19 @@ class ColumnDataSource(ColumnarDataSource):
                 ``new_data`` replaces the empty ``.data`` dict of the
                 data source.
 
-            rollover (int, optional) : A maximum column size, above which data
+            rollover: A maximum column size, above which data
                 from the start of the column begins to be discarded. If None,
-                then columns will continue to grow unbounded (default: None)
-            setter (ClientSession or ServerSession or None, optional) :
+                then columns will continue to grow unbounded
+            setter:
                 This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
+
                 In the context of a Bokeh server application, incoming updates
                 to properties will be annotated with the session that is
                 doing the updating. This value is propagated through any
                 subsequent change notifications that the update triggers.
                 The session can compare the event setter to itself, and
                 suppress any updates that originate from itself.
+
         Returns:
             None
 
@@ -680,10 +684,8 @@ class ColumnDataSource(ColumnarDataSource):
           of the appropriate size.
 
         Args:
-            patches (dict[str, list[tuple]]) : lists of patches for each column
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
+            patches: lists of patches for each column
+            setter: This is used to prevent "boomerang" updates to Bokeh apps.
 
         Returns:
             None

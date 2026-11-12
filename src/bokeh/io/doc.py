@@ -46,7 +46,7 @@ def curdoc() -> Document:
     ''' Return the current callback context or thread's default document.
 
     Returns:
-        Document : the current default document object.
+        Document: the current default document object.
 
     .. note::
         Inside a callback decorated with
@@ -79,7 +79,7 @@ def patch_curdoc(doc: DocumentLike) -> Generator[None]:
     while invoking functions (e.g. callbacks). The cont
 
     Args:
-        doc (Document) : new Document to use for ``curdoc()``
+        doc: new Document to use for ``curdoc()``
 
     '''
     token = _PATCHED_CURDOCS.set((*_PATCHED_CURDOCS.get(), weakref.ref(doc)))
@@ -93,7 +93,7 @@ def set_curdoc(doc: Document) -> None:
     ''' Configure the current thread's default document returned by ``curdoc()``.
 
     Args:
-        doc (Document) : new Document to use for curdoc()
+        doc: new Document to use for curdoc()
 
     Returns:
         None

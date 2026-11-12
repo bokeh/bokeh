@@ -67,6 +67,8 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 type Callback = Callable[[], None]
+type Handlers = list[Handler]
+type Metadata = dict[str, Any] | Callable[[], dict[str, Any]] | None
 
 class Application:
     ''' An Application is a factory for Document instances.
@@ -78,18 +80,17 @@ class Application:
     _is_a_bokeh_application_class: ClassVar[bool] = True
 
     _static_path: str | None
-    _handlers: list[Handler]
-    _metadata: dict[str, Any] | Callable[[], dict[str, Any]] | None
+    _handlers: Handlers
+    _metadata: Metadata
 
-    def __init__(self, *handlers: Handler, metadata: dict[str, Any] | Callable[[], dict[str, Any]] | None = None) -> None:
+    def __init__(self, *handlers: Handlers, metadata: Metadata = None) -> None:
         ''' Application factory.
 
         Args:
-            handlers (seq[Handler]): List of handlers to call.
+            handlers: List of handlers to call.
                 The URL is taken from the first one only.
 
-        Keyword Args:
-            metadata (dict): arbitrary user-supplied JSON data to make available
+            metadata: arbitrary user-supplied JSON data to make available
                 with the application.
 
                 The server will provide a URL ``http://applicationurl/metadata``
@@ -151,7 +152,7 @@ class Application:
         ''' Add a handler to the pipeline used to initialize new documents.
 
         Args:
-            handler (Handler) : a handler for this Application to use to
+            handler: a handler for this Application to use to
                 process Documents
 
         '''
@@ -357,7 +358,7 @@ class SessionContext(metaclass=ABCMeta):
         *Subclasses must implement this method.*
 
         Args:
-            func (callable): function that takes a single parameter (the Document)
+            func: function that takes a single parameter (the Document)
                 and returns ``None`` or a ``Future``
 
         Returns:

@@ -51,12 +51,12 @@ def server_document(url: str = "default", relative_urls: bool = False, resources
     Bokeh apps embedded using these methods will NOT set the browser window title.
 
     Args:
-        url (str, optional) :
-            A URL to a Bokeh application on a Bokeh server (default: "default")
+        url:
+            A URL to a Bokeh application on a Bokeh server.
 
             If ``"default"`` the default URL ``{DEFAULT_SERVER_HTTP_URL}`` will be used.
 
-        relative_urls (bool, optional) :
+        relative_urls:
             Whether to use relative URLs for resources.
 
             If ``True`` the links generated for resources such a BokehJS
@@ -65,9 +65,9 @@ def server_document(url: str = "default", relative_urls: bool = False, resources
             This should normally be set to ``False``, but must be set to
             ``True`` in situations where only relative URLs will work. E.g.
             when running the Bokeh behind reverse-proxies under certain
-            configurations
+            configurations.
 
-        resources (str) : A string specifying what resources need to be loaded
+        resources: A string specifying what resources need to be loaded
             along with the document.
 
             If ``default`` then the default JS/CSS bokeh files will be loaded.
@@ -78,18 +78,18 @@ def server_document(url: str = "default", relative_urls: bool = False, resources
             files you'll load separately are of the same version as that of the
             server's, otherwise the rendering may not work correctly.
 
-        arguments (dict[str, object], optional) :
+        arguments:
             A dictionary of key/values to be passed as HTTP request arguments
-            to Bokeh application code (default: None). Values are converted to strings.
+            to Bokeh application code. Values are converted to strings.
 
-        headers (dict[str, str], optional) :
+        headers:
             A dictionary of key/values to be passed as HTTP Headers
-            to Bokeh application code (default: None)
+            to Bokeh application code.
 
             Mutually exclusive with ``with_credentials``
 
-        with_credentials (bool, optional):
-            Whether cookies should be passed to Bokeh application code (default: False)
+        with_credentials:
+            Whether cookies should be passed to Bokeh application code.
 
     Returns:
         Embed declaration HTML that mounts content from a Bokeh Server.
@@ -130,20 +130,20 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
         function for different or multiple page loads.
 
     Args:
-        model (Model or None, optional) :
-            The object to render from the session, or None. (default: None)
+        model:
+            The object to render from the session, or None.
 
             If None, the entire document will be rendered.
 
-        session_id (str) :
+        session_id:
             A server session ID
 
-        url (str, optional) :
-            A URL to a Bokeh application on a Bokeh server (default: "default")
+        url:
+            A URL to a Bokeh application on a Bokeh server
 
             If ``"default"`` the default URL ``{DEFAULT_SERVER_HTTP_URL}`` will be used.
 
-        relative_urls (bool, optional) :
+        relative_urls:
             Whether to use relative URLs for resources.
 
             If ``True`` the links generated for resources such a BokehJS
@@ -152,9 +152,9 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
             This should normally be set to ``False``, but must be set to
             ``True`` in situations where only relative URLs will work. E.g.
             when running the Bokeh behind reverse-proxies under certain
-            configurations
+            configurations.
 
-        resources (str) : A string specifying what resources need to be loaded
+        resources: A string specifying what resources need to be loaded
             along with the document.
 
             If ``default`` then the default JS/CSS bokeh files will be loaded.
@@ -165,14 +165,14 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
             files you'll load separately are of the same version as that of the
             server's, otherwise the rendering may not work correctly.
 
-        headers (dict[str, str], optional) :
+        headers:
             A dictionary of key/values to be passed as HTTP Headers
-            to Bokeh application code (default: None)
+            to Bokeh application code
 
             Mutually exclusive with ``with_credentials``
 
-        with_credentials (bool, optional):
-            Whether cookies should be passed to Bokeh application code (default: False)
+        with_credentials:
+            Whether cookies should be passed to Bokeh application code
 
     Returns:
         Embed declaration HTML that mounts content from a Bokeh Server.

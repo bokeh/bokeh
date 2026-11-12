@@ -80,25 +80,20 @@ class CodeRunner:
         '''
 
         Args:
-            source (str) :
-                A string containing Python source code to execute
+            source: A string containing Python source code to execute
 
-            path (str) :
-                A filename to use in any debugging or error output
+            path: A filename to use in any debugging or error output
 
-            argv (Sequence[str]) :
-                A sequence of string arguments to make available as ``sys.argv``
+            argv: A sequence of string arguments to make available as ``sys.argv``
                 when the code executes
 
-            package (bool) :
-                An optional package module to configure
+            package: An optional package module to configure
 
-            optimize (int) :
-                The compilation optimization level. Defaults to the interpreter's
+            optimize: The compilation optimization level. Defaults to the interpreter's
                 level. Use 0 to preserve docstrings and assertions.
 
         Raises:
-            ValueError, if package is specified for an __init__.py
+            ValueError: if package is specified for an __init__.py
 
         '''
         if package and basename(path) == "__init__.py":
@@ -212,11 +207,9 @@ class CodeRunner:
         checks.
 
         Args:
-            module (Module) :
-                A module to execute the configured code in.
+            module: A module to execute the configured code in.
 
-            post_check (callable, optional) :
-                A function that raises an exception if expected post-conditions
+            post_check: A function that raises an exception if expected post-conditions
                 are not met after code execution.
 
         '''

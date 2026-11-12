@@ -63,12 +63,11 @@ class Color(Serializable, metaclass=ABCMeta):
         given maximum.
 
         Args:
-            value (float) :
-                A number to clamp.
+            value: A number to clamp.
 
-            maximum (float, optional) :
+            maximum:
                 A max bound to to clamp to. If None, there is no upper bound,
-                and values are only clamped to be non-negative. (default: None)
+                and values are only clamped to be non-negative.
 
         Returns:
             float
@@ -96,8 +95,7 @@ class Color(Serializable, metaclass=ABCMeta):
         *Subclasses must implement this method.*
 
         Args:
-            amount (float) :
-                Amount to reduce the luminance by (clamped above zero)
+            amount: Amount to reduce the luminance by (clamped above zero)
 
         Returns:
             Color
@@ -113,8 +111,7 @@ class Color(Serializable, metaclass=ABCMeta):
         *Subclasses must implement this method.*
 
         Args:
-            value (HSL) :
-                A color to convert from HSL
+            value: A color to convert from HSL
 
         Returns:
             Color
@@ -130,8 +127,7 @@ class Color(Serializable, metaclass=ABCMeta):
         *Subclasses must implement this method.*
 
         Args:
-            value (:class:`~bokeh.colors.RGB`) :
-                A color to convert from RGB
+            value: A color to convert from RGB
 
         Returns:
             Color
@@ -145,8 +141,7 @@ class Color(Serializable, metaclass=ABCMeta):
         *Subclasses must implement this method.*
 
         Args:
-            amount (float) :
-                Amount to increase the luminance by (clamped above zero)
+            amount: Amount to increase the luminance by (clamped above zero)
 
         Returns:
             Color
@@ -220,17 +215,13 @@ class RGB(Color):
         '''
 
         Args:
-            r (float) :
-                The value for the red channel in [0.0, 255.0]
+            r: The value for the red channel in [0.0, 255.0]
 
-            g (float) :
-                The value for the green channel in [0.0, 255.0]
+            g: The value for the green channel in [0.0, 255.0]
 
-            b (float) :
-                The value for the blue channel in [0.0, 255.0]
+            b: The value for the blue channel in [0.0, 255.0]
 
-            a (float, optional) :
-                An alpha value for this color in [0.0, 1.0] (default: 1.0)
+            a: An alpha value for this color in [0.0, 1.0]
 
         '''
         self.r = cast(float, r)
@@ -253,7 +244,7 @@ class RGB(Color):
         ''' Create an RGB color from a CSS color string.
 
         Args:
-            css_color_string (str) :
+            css_color_string:
                 String containing RGBA values. Valid formats are "rgb(125, 123, 12)" or
                 "rgba(125, 123, 12, 0.1)". The RGB values can be in the range between 0 and 255 and
                 are allowed to have decimal points. The alpha value can be in range between 0 and 1.
@@ -278,8 +269,7 @@ class RGB(Color):
         ''' Create an RGB color from an HSL color value.
 
         Args:
-            value (HSL) :
-                The HSL color to convert.
+            value: The HSL color to convert.
 
         Returns:
             :class:`~bokeh.colors.RGB`
@@ -292,7 +282,7 @@ class RGB(Color):
         ''' Create an RGB color from a RGB(A) hex string.
 
         Args:
-            hex_string (str) :
+            hex_string:
                 String containing hex-encoded RGBA(A) values. Valid formats
                 are '#rrggbb', '#rrggbbaa', '#rgb' and '#rgba'.
 
@@ -334,8 +324,7 @@ class RGB(Color):
         ''' Copy an RGB color from another RGB color value.
 
         Args:
-            value (:class:`~bokeh.colors.RGB`) :
-                The RGB color to copy.
+            value: The RGB color to copy.
 
         Returns:
             :class:`~bokeh.colors.RGB`
@@ -416,17 +405,13 @@ class HSL(Color):
         '''
 
         Args:
-            h (float) :
-                The Hue, in [0, 360]
+            h: The Hue, in [0, 360]
 
-            s (float) :
-                The Saturation, in [0, 1]
+            s: The Saturation, in [0, 1]
 
-            l (float) :
-                The lightness, in [0, 1]
+            l: The lightness, in [0, 1]
 
-            a (float, optional) :
-                An alpha value for this color in [0, 1] (default: 1.0)
+            a: An alpha value for this color in [0, 1]
 
         '''
         self.h = h
@@ -447,8 +432,7 @@ class HSL(Color):
         ''' Darken (reduce the luminance) of this color.
 
         Args:
-            amount (float) :
-                Amount to reduce the luminance by (clamped above zero)
+            amount: Amount to reduce the luminance by (clamped above zero)
 
         Returns:
             :class:`~bokeh.colors.HSL`
@@ -461,8 +445,7 @@ class HSL(Color):
         ''' Copy an HSL color from another HSL color value.
 
         Args:
-            value (HSL) :
-                The HSL color to copy.
+            value: The HSL color to copy.
 
         Returns:
             :class:`~bokeh.colors.hsl.HSL`
@@ -475,8 +458,7 @@ class HSL(Color):
         ''' Create an HSL color from an RGB color value.
 
         Args:
-            value (:class:`~bokeh.colors.RGB`) :
-                The RGB color to convert.
+            value: The RGB color to convert.
 
         Returns:
             :class:`~bokeh.colors.HSL`
@@ -520,8 +502,7 @@ class HSL(Color):
         ''' Lighten (increase the luminance) of this color.
 
         Args:
-            amount (float) :
-                Amount to increase the luminance by (clamped above zero)
+            amount: Amount to increase the luminance by (clamped above zero)
 
         Returns:
             :class:`~bokeh.colors.HSL`

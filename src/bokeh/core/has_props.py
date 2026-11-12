@@ -391,8 +391,8 @@ class HasProps(Serializable):
         * suggest similar attribute names on attribute errors
 
         Args:
-            name (str) : the name of the attribute to set on this object
-            value (obj) : the value to set
+            name: the name of the attribute to set on this object
+            value: the value to set
 
         Returns:
             None
@@ -419,7 +419,7 @@ class HasProps(Serializable):
         * suggest similar attribute names on attribute errors
 
         Args:
-            name (str) : the name of the attribute to set on this object
+            name: the name of the attribute to set on this object
 
         Returns:
             Any
@@ -469,7 +469,7 @@ class HasProps(Serializable):
         ''' Structural equality of models.
 
         Args:
-            other (HasProps) : the other instance to compare to
+            other: the other instance to compare to
 
         Returns:
             True, if properties are structurally equal, otherwise False
@@ -527,11 +527,11 @@ class HasProps(Serializable):
         ''' Set a property value on this object from JSON.
 
         Args:
-            name (str) : name of the attribute to set
+            name: name of the attribute to set
 
-            value (JSON-value) : value to set to the attribute to
+            value: value to set to the attribute to
 
-            setter(ClientSession or ServerSession or None, optional) :
+            setter:
                 This is used to prevent "boomerang" updates to Bokeh apps.
 
                 In the context of a Bokeh server application, incoming updates
@@ -593,8 +593,8 @@ class HasProps(Serializable):
         given the property name.
 
         Args:
-            name (str) : name of the property to search for
-            raises (bool) : whether to raise or return None if missing
+            name: name of the property to search for
+            raises: whether to raise or return None if missing
 
         Returns:
             PropertyDescriptor : descriptor for property named ``name``
@@ -660,16 +660,16 @@ class HasProps(Serializable):
         object instance.
 
         Args:
-            include_defaults (bool, optional) :
+            include_defaults:
                 Whether to include properties that haven't been explicitly set
-                since the object was created. (default: True)
+                since the object was created.
 
-            include_undefined  (bool, optional) :
+            include_undefined:
                 Whether to include properties that are undefined
-                since the object was created. (default: False)
+                since the object was created.
 
         Returns:
-           dict : mapping from property names to their values
+           dict: mapping from property names to their values
 
         '''
         return self.query_properties_with_values(lambda prop: prop.serialized,
@@ -691,20 +691,20 @@ class HasProps(Serializable):
         predicate.
 
         Args:
-            query (callable) :
+            query:
                 A callable that accepts property descriptors and returns True
                 or False
 
-            include_defaults (bool, optional) :
+            include_defaults:
                 Whether to include properties that have not been explicitly
-                set by a user (default: True)
+                set by a user
 
-            include_undefined  (bool, optional) :
+            include_undefined:
                 Whether to include properties that are undefined
-                since the object was created. (default: False)
+                since the object was created.
 
         Returns:
-            dict : mapping of property names and values for matching properties
+            dict: mapping of property names and values for matching properties
 
         '''
         result: dict[str, Any] = {}
@@ -751,7 +751,7 @@ class HasProps(Serializable):
         |HasProps| instance should modify it).
 
         Args:
-            property_values (dict) : theme values to use in place of defaults
+            property_values: theme values to use in place of defaults
 
         Returns:
             None

@@ -2,7 +2,7 @@
 leaves a canvas.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.circle, bokeh.models.tools.Toolbar.autohide
+    :apis: bokeh.plotting.figure.circle, bokeh.models.Toolbar.autohide
     :refs: :ref:`first_steps_4_toolbar`, :ref:`bokeh.models.tools`
     :keywords: autohide, Toolbar
 

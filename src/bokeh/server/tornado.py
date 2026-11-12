@@ -104,7 +104,7 @@ class BokehTornado(TornadoApplication):
     ''' A Tornado Application used to implement the Bokeh Server.
 
     Args:
-        applications (dict[str,Application] or Application) :
+        applications:
             A map from paths to ``Application`` instances.
 
             If the value is a single Application, then the following mapping
@@ -117,36 +117,36 @@ class BokehTornado(TornadoApplication):
             When a connection comes in to a given path, the associate
             Application is used to generate a new document for the session.
 
-        prefix (str, optional) :
-            A URL prefix to use for all Bokeh server paths. (default: None)
+        prefix:
+            A URL prefix to use for all Bokeh server paths.
 
-        ico_path (str, optional) :
+        ico_path:
             A path to a .ico file to return for ``/favicon.ico``.
 
-        extra_websocket_origins (list[str], optional) :
+        extra_websocket_origins:
             A list of hosts that can connect to the websocket.
 
             This is typically required when embedding a Bokeh server app in an
             external web site using :func:`~bokeh.embed.embed_server` or
             similar.
 
-            If None, ``["localhost"]`` will be assumed (default: None)
+            If None, ``["localhost"]`` will be assumed
 
-        extra_patterns (seq[tuple], optional) :
+        extra_patterns:
             A list of tuples of (str, http or websocket handler)
 
             Use this argument to add additional endpoints to custom deployments
             of the Bokeh Server.
 
-            If None, then ``[]`` will be used. (default: None)
+            If None, then ``[]`` will be used.
 
-        secret_key (str, optional) :
+        secret_key:
             A secret key for signing session IDs.
 
             Defaults to the current value of the environment variable
             ``BOKEH_SECRET_KEY``
 
-        sign_sessions (bool, optional) :
+        sign_sessions:
             Whether to cryptographically sign session IDs
 
             Defaults to the current value of the environment variable
@@ -154,92 +154,84 @@ class BokehTornado(TornadoApplication):
             also be provided (either via environment setting or passed as
             a parameter value)
 
-        generate_session_ids (bool, optional) :
+        generate_session_ids:
             Whether to generate a session ID if one is not provided
-            (default: True)
 
-        keep_alive_milliseconds (int, optional) :
+        keep_alive_milliseconds:
             Number of milliseconds between keep-alive pings
-            (default: {DEFAULT_KEEP_ALIVE_MS})
 
             Pings normally required to keep the websocket open. Set to 0 to
             disable pings.
 
-        check_unused_sessions_milliseconds (int, optional) :
+        check_unused_sessions_milliseconds:
             Number of milliseconds between checking for unused sessions
-            (default: {DEFAULT_CHECK_UNUSED_MS})
 
-        unused_session_lifetime_milliseconds (int, optional) :
+        unused_session_lifetime_milliseconds:
             Number of milliseconds for unused session lifetime
-            (default: {DEFAULT_UNUSED_LIFETIME_MS})
 
-        stats_log_frequency_milliseconds (int, optional) :
+        stats_log_frequency_milliseconds:
             Number of milliseconds between logging stats
-            (default: {DEFAULT_STATS_LOG_FREQ_MS})
 
-        mem_log_frequency_milliseconds (int, optional) :
+        mem_log_frequency_milliseconds:
             Number of milliseconds between logging memory information
-            (default: {DEFAULT_MEM_LOG_FREQ_MS})
+
 
             Enabling this feature requires the optional dependency ``psutil`` to be
             installed.
 
-        use_index (bool, optional) :
+        use_index:
             Whether to generate an index of running apps in the ``RootHandler``
-            (default: True)
 
-        index (str, optional) :
+
+        index:
             Path to a Jinja2 template to serve as the index for "/" if use_index
             is True. If None, the basic built in app index template is used.
-            (default: None)
 
-        redirect_root (bool, optional) :
+
+        redirect_root:
             When there is only a single running application, whether to
             redirect requests to ``"/"`` to that application automatically
-            (default: True)
 
             If there are multiple Bokeh applications configured, this option
             has no effect.
 
-        websocket_max_message_size_bytes (int, optional):
+        websocket_max_message_size_bytes:
             Set the Tornado ``websocket_max_message_size`` value.
-            (default: {DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES})
 
-        websocket_compression_level (int, optional):
+        websocket_compression_level:
             Set the Tornado WebSocket ``compression_level`` documented in
             https://docs.python.org/3.7/library/zlib.html#zlib.compressobj.
 
-        websocket_compression_mem_level (int, optional):
+        websocket_compression_mem_level:
             Set the Tornado WebSocket compression ``mem_level`` documented in
             https://docs.python.org/3.7/library/zlib.html#zlib.compressobj.
 
-        index (str, optional):
+        index:
             Path to a Jinja2 template to use for the root URL
 
-        auth_provider (AuthProvider, optional):
+        auth_provider:
             An AuthProvider instance
 
-        include_headers (list, optional) :
+        include_headers:
             List of request headers to include in session context
             (by default all headers are included)
 
-        exclude_headers (list, optional) :
+        exclude_headers:
             List of request headers to exclude in session context
             (by default all headers are included)
 
-        include_cookies (list, optional) :
+        include_cookies:
             List of cookies to include in session context
             (by default all cookies are included)
 
-        exclude_cookies (list, optional) :
+        exclude_cookies:
             List of cookies to exclude in session context
             (by default all cookies are included)
 
-        session_token_expiration (int, optional) :
+        session_token_expiration:
             Duration in seconds that a new session token is valid
             for session creation. After the expiry time has elapsed,
             the token will not be able create a new session
-            (default: {DEFAULT_SESSION_TOKEN_EXPIRATION})
 
     Any additional keyword arguments are passed to ``tornado.web.Application``.
 
@@ -627,11 +619,11 @@ class BokehTornado(TornadoApplication):
         Bokeh application sessions should load BokehJS resources from.
 
         Args:
-            absolute_url (str, bool):
+            absolute_url:
                 An absolute URL prefix to use for locating resources. If
                 ``True``, a prefix consisting of server's protocol, host
                 and port will be used. Otherwise, root-relative URLs are
-                used (default: ``None``)
+                used.
 
         '''
         mode = settings.resources(default="server")
@@ -725,7 +717,7 @@ class BokehTornado(TornadoApplication):
         ''' Stop the Bokeh Server application.
 
         Args:
-            wait (bool): whether to wait for orderly cleanup (default: True)
+            wait: whether to wait for orderly cleanup.
 
         Returns:
             None
@@ -780,11 +772,11 @@ class BokehTornado(TornadoApplication):
         ''' Get an active a session by name application path and session ID.
 
         Args:
-            app_path (str) :
+            app_path:
                 The configured application path for the application to return
                 a session for.
 
-            session_id (str) :
+            session_id:
                 The session ID of the session to retrieve.
 
         Returns:
@@ -799,7 +791,7 @@ class BokehTornado(TornadoApplication):
         ''' Gets all currently active sessions for an application.
 
         Args:
-            app_path (str) :
+            app_path:
                 The configured application path for the application to return
                 sessions for.
 

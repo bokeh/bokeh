@@ -35,7 +35,7 @@ The following code:
 yields the output:
 
 The repo history shows that :bokeh-commit:`bf19bcb` was made in
-in :bokeh-pull:`1698`,which closed :bokeh-issue:`1694`. This included
+in :bokeh-pull:`1698`, which closed :bokeh-issue:`1694`. This included
 updating all of the files in the :bokeh-tree:`examples` subdirectory.
 
 """

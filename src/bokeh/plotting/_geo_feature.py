@@ -18,6 +18,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 from dataclasses import dataclass
+from typing import Literal
 
 import numpy as np
 
@@ -49,6 +50,10 @@ class GEO_FEATURE_COLORS:
     COASTLINES: ColorLike = "#000000"
 
 
+type GEO_SCALE = Literal["10m", "50m", "110m"]
+#: Valid string for the geographical scale option
+
+
 def add_line_geometries(p, projection, geometries_collection, **line_kwargs):
     """ Adds line geometries to a map with respect to a given projection.
     The lines are added by the :func:`~bokeh.plotting.figure.multi_line` function.
@@ -56,7 +61,7 @@ def add_line_geometries(p, projection, geometries_collection, **line_kwargs):
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        geometries_collection (catopy.feature.NaturalEarthFeature): collection of
+        geometries_collection (cartopy.feature.NaturalEarthFeature): collection of
             line geometries given by a Cartopy NaturalEarthFeature.
 
     .. note::
@@ -92,7 +97,7 @@ def add_polygon_geometries(p, projection, geometries_collection, **poly_kwargs):
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        geometries_collection (catopy.feature.NaturalEarthFeature): collection of
+        geometries_collection (cartopy.feature.NaturalEarthFeature): collection of
             line geometries given by a Cartopy NaturalEarthFeature.
 
     Keyword Arguments:
@@ -128,13 +133,13 @@ def add_polygon_geometries(p, projection, geometries_collection, **poly_kwargs):
     return p
 
 
-def add_borders(p, projection, scale="110m", **line_kwargs):
+def add_borders(p, projection, scale: GEO_SCALE = "110m", **line_kwargs):
     """ Adds the borders of countries to a map with respect to a given projection.
 
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+        scale (GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     .. note::
@@ -160,13 +165,13 @@ def add_borders(p, projection, scale="110m", **line_kwargs):
     return add_line_geometries(p, projection, borders, **line_kwargs)
 
 
-def add_coastlines(p, projection, scale="110m", **line_kwargs):
+def add_coastlines(p, projection, scale: GEO_SCALE = "110m", **line_kwargs):
     """ Adds coastlines to a map with respect to a given projection.
 
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+        scale (GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     .. note::
@@ -192,14 +197,14 @@ def add_coastlines(p, projection, scale="110m", **line_kwargs):
     return add_line_geometries(p, projection, coastline, **line_kwargs)
 
 
-def add_land(p, projection, scale="110m", **poly_kwargs):
+def add_land(p, projection, scale: GEO_SCALE = "110m", **poly_kwargs):
     """ Adds land geometries including islands to a map with respect to a
     given projection.
 
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+        scale (GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     Keyword Arguments:
@@ -229,13 +234,13 @@ def add_land(p, projection, scale="110m", **poly_kwargs):
     return add_polygon_geometries(p, projection, land, **poly_kwargs)
 
 
-def add_lakes(p, projection, scale="110m", **poly_kwargs):
-    """ Adds lakes to a map with respect to a given projection.
+def add_lakes(p, projection, scale: GEO_SCALE = "110m", **poly_kwargs):
+    """Adds lakes to a map with respect to a given projection.
 
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+        scale (GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     Keyword Arguments:
@@ -265,13 +270,13 @@ def add_lakes(p, projection, scale="110m", **poly_kwargs):
     return add_polygon_geometries(p, projection, lakes, **poly_kwargs)
 
 
-def add_ocean(p, projection, scale="110m", **poly_kwargs):
+def add_ocean(p, projection, scale: GEO_SCALE = "110m", **poly_kwargs):
     """ Adds ocean to a map with respect to a given projection.
 
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+        scale (GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     Keyword Arguments:
@@ -301,13 +306,13 @@ def add_ocean(p, projection, scale="110m", **poly_kwargs):
     return add_polygon_geometries(p, projection, ocean, **poly_kwargs)
 
 
-def add_rivers(p, projection, scale="110m", **line_kwargs):
+def add_rivers(p, projection, scale: GEO_SCALE = "110m", **line_kwargs):
     """ Adds rivers to a map with respect to a given projection.
 
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+        scale (GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     .. note::
@@ -339,7 +344,7 @@ def add_projection_boundary(p, projection, **line_kwargs):
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+        scale (GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     .. note::
@@ -366,13 +371,13 @@ def add_projection_boundary(p, projection, **line_kwargs):
     return p
 
 
-def add_provinces(p, projection, scale="110m", **line_kwargs):
+def add_provinces(p, projection, scale: GEO_SCALE = "110m", **line_kwargs):
     """ Adds the borders of provinces to a map with respect to a given projection.
 
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+        scale (GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     .. note::
@@ -398,13 +403,13 @@ def add_provinces(p, projection, scale="110m", **line_kwargs):
     return add_line_geometries(p, projection, provinces, **line_kwargs)
 
 
-def add_states(p, projection, scale="110m", **poly_kwargs):
+def add_states(p, projection, scale: GEO_SCALE = "110m", **poly_kwargs):
     """ Adds states and provinces as multi-polygons to a map for a given projection.
 
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+        scale (GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     Keyword Arguments:
@@ -443,7 +448,7 @@ def _collect_line_geometries(projection, geometries_collection):
 
     Args:
         projection (catopy.crs.Projection): cartopy Projection.
-        geometries_collection (catopy.feature.NaturalEarthFeature): collection of
+        geometries_collection (cartopy.feature.NaturalEarthFeature): collection of
             line geometries given by a Cartopy NaturalEarthFeature.
 
     Example:
@@ -476,7 +481,7 @@ def _collect_polygon_geometries(projection, geometries_collection, **kwargs):
 
     Args:
         projection (catopy.crs.Projection): Cartopy Projection
-        geometries_collection (catopy.feature.NaturalEarthFeature): collection of
+        geometries_collection (cartopy.feature.NaturalEarthFeature): collection of
             multi-polygon geometries given by a Cartopy NaturalEarthFeature.
 
     Keyword Arguments:

@@ -465,7 +465,7 @@ class BokehServerCore(SessionConfig):
 
         ``update_document`` is called once for each session that exists when
         this method starts. Each call receives that session's
-        :class:`~bokeh.document.document.Document` with its document lock held.
+        :class:`~bokeh.document.Document` with its document lock held.
         Synchronous and asynchronous callbacks are both supported, and
         different sessions are updated concurrently.
 

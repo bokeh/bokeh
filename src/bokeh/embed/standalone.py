@@ -118,11 +118,11 @@ def components(models: Model | Document | Sequence[Model | Document] | dict[str,
     separately.
 
     Args:
-        models (Model|list|dict|tuple) :
+        models:
             A single Model, a list/tuple of Models, or a dictionary of keys
             and Models.
 
-        theme (Theme, optional) :
+        theme:
             Applies the specified theme when creating the components. If None,
             or not specified, and the supplied models constitute the full set
             of roots of a document, applies the theme of that document to the
@@ -211,37 +211,37 @@ def file_html(
     customizing the jinja2 template.
 
     Args:
-        models (Model or Document or seq[Model]) : Bokeh object or objects to render
+        models: Bokeh object or objects to render
             typically a Model or Document
 
         resources (Resources or resource setting) :
             A resource policy for Bokeh JS & CSS assets.
 
-        title (str, optional) :
-            A title for the HTML document ``<title>`` tags or None. (default: None)
+        title:
+            A title for the HTML document ``<title>`` tags or None.
 
             If None, attempt to automatically find the Document title from the given
             plot objects.
 
-        template (Template, optional) : HTML document template (default: FILE)
+        template: HTML document template
             A Jinja2 Template, see bokeh.core.templates.FILE for the required
             template parameters
 
-        template_variables (dict, optional) : variables to be used in the Jinja2
+        template_variables: variables to be used in the Jinja2
             template. If used, the following variable names will be overwritten:
             title, bokeh_js, bokeh_css, plot_script, plot_div
 
-        theme (Theme, optional) :
+        theme:
             Applies the specified theme to the created html. If ``None``, or
             not specified, and the function is passed a document or the full set
             of roots of a document, applies the theme of that document.  Otherwise
             applies the default theme.
 
-        suppress_callback_warning (bool, optional) :
+        suppress_callback_warning:
             Normally generating standalone HTML from a Bokeh Document that has
             Python callbacks will result in a warning stating that the callbacks
             cannot function. However, this warning can be suppressed by setting
-            this value to True (default: False)
+            this value to True.
 
     Returns:
         UTF-8 encoded HTML

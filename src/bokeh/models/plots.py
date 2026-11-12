@@ -124,10 +124,10 @@ class Plot(LayoutDOM):
         single argument or as keyword arguments:
 
         Args:
-            selector (JSON-like) : some sample text
+            selector (dict[str, obj]): some sample text
 
         Keyword Arguments:
-            kwargs : query dict key/values as keyword arguments
+            kwargs: query dict key/values as keyword arguments
 
         Additionally, for compatibility with ``Model.select``, a selector
         dict may be passed as ``selector`` keyword argument, in which case
@@ -137,16 +137,16 @@ class Plot(LayoutDOM):
         the ``name`` string as the single parameter:
 
         Args:
-            name (str) : the name to query on
+            name (str): the name to query on
 
         Also queries on just type can be made simply by supplying the
         ``Model`` subclass as the single parameter:
 
         Args:
-            type (Model) : the type to query on
+            type (Model): the type to query on
 
         Returns:
-            seq[Model]
+            Sequence[Model]
 
         Examples:
 
@@ -172,12 +172,12 @@ class Plot(LayoutDOM):
         # Want to pass selector that is a dictionary
         return _list_attr_splat(find(self.references(), selector))
 
-    def row(self, row, gridplot):
+    def row(self, row: int, gridplot: GridPlot):
         ''' Return whether this plot is in a given row of a GridPlot.
 
         Args:
-            row (int) : index of the row to test
-            gridplot (GridPlot) : the GridPlot to check
+            row: index of the row to test
+            gridplot: the GridPlot to check
 
         Returns:
             bool
@@ -185,12 +185,12 @@ class Plot(LayoutDOM):
         '''
         return self in gridplot.row(row)
 
-    def column(self, col, gridplot):
+    def column(self, col: int, gridplot: GridPlot):
         ''' Return whether this plot is in a given column of a GridPlot.
 
         Args:
-            col (int) : index of the column to test
-            gridplot (GridPlot) : the GridPlot to check
+            col: index of the column to test
+            gridplot: the GridPlot to check
 
         Returns:
             bool
@@ -285,8 +285,8 @@ class Plot(LayoutDOM):
         Plot's properties manually.
 
         Args:
-            obj (Renderer) : the object to add to the Plot
-            place (str, optional) : where to add the object (default: 'center')
+            obj: the object to add to the Plot
+            place: Place where to add the object.
                 Valid places are: 'left', 'right', 'above', 'below', 'center'.
 
         Returns:
@@ -311,7 +311,7 @@ class Plot(LayoutDOM):
         ''' Adds tools to the plot.
 
         Args:
-            *tools (Tool) : the tools to add to the Plot
+            *tools: the tools to add to the Plot
 
         Returns:
             None
@@ -331,7 +331,7 @@ class Plot(LayoutDOM):
         ''' Removes tools from the plot.
 
         Args:
-            *tools (Tool) : the tools to remove from the Plot
+            *tools: the tools to remove from the Plot
 
         Returns:
             None
@@ -358,14 +358,14 @@ class Plot(LayoutDOM):
         and then add it to the plot's list of renderers.
 
         Args:
-            source_or_glyph (Glyph | ColumnarDataSource): a data source for the
+            source_or_glyph: a data source for the
                 glyphs or a glyph to add to the Plot
-            source (DataSource) : a data source for the glyphs to all use
-            glyph (Glyph) : the glyph to add to the Plot
+            source: a data source for the glyphs to all use
+            glyph: the glyph to add to the Plot
 
 
         Keyword Arguments:
-            Any additional keyword arguments are passed on as-is to the
+            kwargs: Any additional keyword arguments are passed on as-is to the
             Glyph initializer.
 
         Returns:
@@ -391,16 +391,16 @@ class Plot(LayoutDOM):
         ''' Adds new ``TileRenderer`` into ``Plot.renderers``
 
         Args:
-            tile_source (TileSource, xyzservices.TileProvider, str) :
+            tile_source:
                 A tile source instance which contain tileset configuration
 
-            retina (bool) :
+            retina:
                 Whether to use retina version of tiles (if available). This
                 also sets ``TileSource.pixel_ratio``, so that the tiles are
                 displayed at their natural size.
 
         Keyword Arguments:
-            Additional keyword arguments are passed on as-is to the tile renderer
+            kwargs: Additional keyword arguments are passed on as-is to the tile renderer
 
         Returns:
             TileRenderer : TileRenderer
@@ -455,7 +455,7 @@ class Plot(LayoutDOM):
         ''' Takes care of turning a property on and off within a scope.
 
         Args:
-            render (bool) :
+            render:
                 Turns the property hold_render on and off.
         '''
         if render:
@@ -620,7 +620,7 @@ class Plot(LayoutDOM):
     """)
 
     toolbar_sticky = Bool(default=True, help="""
-    Stick the toolbar to the edge of the plot. Default: True. If False,
+    Stick the toolbar to the edge of the plot. If False,
     the toolbar will be outside of the axes, titles etc.
     """)
 

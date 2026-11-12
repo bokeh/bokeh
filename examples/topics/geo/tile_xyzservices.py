@@ -5,7 +5,7 @@ with a map background using tile_providers. The chart shows a map of a specific 
 which is defined by the range bounds supplied in web mercator coordinates.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.add_title
+    :apis: bokeh.plotting.figure.add_tile
     :refs: :ref:`ug_topics_geo_tile_provider_maps`
     :keywords: map plot, tiles, geo
 

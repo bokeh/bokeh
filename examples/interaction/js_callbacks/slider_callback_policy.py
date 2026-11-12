@@ -5,9 +5,9 @@ This example demonstrates how callback delivery policies control ``CustomJS``
 property callbacks.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.layouts.column, bokeh.models.callbacks.CustomJS
+    :apis: bokeh.layouts.column, bokeh.models.CustomJS
     :refs: :ref:`ug_interaction_callback_policies`
-    :keywords: javascript callback, callback policy
+    :keywords: JavaScript callback, callback policy
 
 '''
 from bokeh.io import show
