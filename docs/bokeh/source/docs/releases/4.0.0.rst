@@ -104,6 +104,11 @@ Removals
   ``fig.annular_wedge()`` or ``fig.wedge()`` for pie and donut charts, and
   ``fig.hbar()`` or ``fig.vbar()`` for bar charts.
 
+* Removed the ``bokeh.models.dom.Text`` model. Properties that accept plain
+  strings, e.g. ``AbstractButton.label``, ``Dialog.title`` and
+  ``Dialog.content``, render them as text directly, so pass a string instead
+  of ``Text(content=...)``. Elsewhere, use ``HTML`` (:bokeh-pull:`15749`).
+
 API changes
 -----------
 
@@ -147,7 +152,24 @@ API changes
   ``ValueError``. Both are available from ``bokeh.core.properties``. Existing
   code catching ``ValueError`` is unaffected.
 
+* In BokehJS, the DOM view hierarchy was simplified (:bokeh-pull:`15749`).
+  This only affects code that implements custom views:
+
+  - ``DOMElementView`` was removed. Derive from ``DOMComponentView`` (or
+    ``DOMView``) instead.
+  - ``DOMView.el`` is now typed as ``HTMLElement`` (previously ``ChildNode``),
+    and ``self_target`` is defined on ``DOMView``, returning the shadow root
+    when present and ``el`` otherwise.
+  - ``DOMView.children_el`` was removed. Use ``self_target`` instead.
+  - ``DOMView.aria_role`` was removed. Set the ``role`` attribute on the
+    rendered element instead.
+  - ``ClassList`` and ``classes()`` were removed from ``core/dom``, along with
+    the ``class_list`` property of views. Use the native ``el.classList``
+    instead, e.g. ``classList.contains()`` instead of ``class_list.has()``
+    and ``el.removeAttribute("class")`` instead of ``class_list.clear()``.
+
 Bug fixes
 ---------
 
 * Fixed property validation and warning suppression leaking between concurrent sessions (:bokeh-pull:`15548`).
+* Fixed ``Dialog`` not updating when its ``title`` or ``content`` change (:bokeh-pull:`15749`).
