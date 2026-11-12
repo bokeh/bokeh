@@ -152,9 +152,10 @@ export class SubFigure extends GlyphAPI {
     super()
   }
 
-  _glyph<G extends Glyph>(cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides?: object): GlyphRenderer<G> {
+  _glyph<G extends Glyph>(cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[],
+    overrides?: object, alias?: readonly [from: string, to: string]): GlyphRenderer<G> {
     const {coordinates} = this
-    return this.parent._glyph(cls, method, positional, args, {coordinates, ...overrides})
+    return this.parent._glyph(cls, method, positional, args, {coordinates, ...overrides}, alias)
   }
 }
 
@@ -560,7 +561,8 @@ export class Figure extends BaseFigure {
     return `the method signature is ${method}(${positional.join(", ")}, args?)`
   }
 
-  _glyph<G extends Glyph>(cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides: object = {}): GlyphRenderer<G> {
+  _glyph<G extends Glyph>(cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[],
+    overrides: object = {}, alias?: readonly [from: string, to: string]): GlyphRenderer<G> {
     let attrs: Attrs & Partial<AuxGlyph>
 
     const n_args = args.length
@@ -656,6 +658,10 @@ export class Figure extends BaseFigure {
     this._fixup_values(cls, data_dict, mglyph_ca)
 
     this._fixup_values(cls, data_dict, attrs)
+    if (alias != null) {
+      const [from, to] = alias
+      attrs[to] = attrs[from]
+    }
 
     source.data = data
 

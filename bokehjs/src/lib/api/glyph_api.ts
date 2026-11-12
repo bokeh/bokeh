@@ -4,7 +4,7 @@ import type {Vector} from "../core/vectorization"
 import {isVectorized} from "../core/vectorization"
 import {isPlainObject} from "../core/util/types"
 import type {VectorSpec, ScalarSpec, ColorSpec, UnitsSpec, Property} from "../core/properties"
-import type {MarkerType, RenderLevel} from "../core/enums"
+import type {Dimension, MarkerType, RenderLevel} from "../core/enums"
 import type * as nd from "core/util/ndarray"
 
 import type {Glyph, GlyphRenderer, ColumnarDataSource, CDSView, CoordinateMapping} from "./models"
@@ -55,7 +55,7 @@ import {
 import type {Marker} from "../models/glyphs/marker"
 import type {Marking} from "../models/graphics/marking"
 import type {PathMarking} from "../models/graphics/decoration"
-import {OpenHead} from "../models/annotations/arrow_head"
+import {OpenHead, TeeHead} from "../models/annotations/arrow_head"
 
 export type NamesOf<T extends HasProps> = (Extract<keyof T["properties"], string>)[]
 
@@ -161,6 +161,14 @@ type ArrowProps = Omit<Segment.Props, "x0" | "y0" | "x1" | "y1"> & {
   end_inset: Property<PathMarking["inset"]>
 }
 
+export type WhiskerArgs = Omit<SegmentArgs, "x0" | "y0" | "x1" | "y1"> & {
+  base: SegmentArgs["x0"]
+  lower: SegmentArgs["y0"]
+  upper: SegmentArgs["y1"]
+  dimension: Dimension
+  cap_size: TeeHead.Attrs["size"]
+}
+
 export type AnnularWedgeArgs  = GlyphArgs<AnnularWedge.Props>  & AuxLine & AuxFill & AuxHatch
 export type AnnulusArgs       = GlyphArgs<Annulus.Props>       & AuxLine & AuxFill & AuxHatch
 export type ArrowArgs         = GlyphArgs<ArrowProps>          & AuxLine
@@ -205,7 +213,8 @@ export type VStripArgs        = GlyphArgs<VStrip.Props>        & AuxLine & AuxFi
 export type WedgeArgs         = GlyphArgs<Wedge.Props>         & AuxLine & AuxFill & AuxHatch
 
 export abstract class GlyphAPI {
-  abstract _glyph<G extends Glyph>(cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides?: object): GlyphRenderer<G>
+  abstract _glyph<G extends Glyph>(cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[],
+    overrides?: object, alias?: readonly [from: string, to: string]): GlyphRenderer<G>
 
   annular_wedge(): GlyphRenderer<AnnularWedge>
   annular_wedge(args: Partial<AnnularWedgeArgs>): GlyphRenderer<AnnularWedge>
@@ -289,6 +298,55 @@ export abstract class GlyphAPI {
     const end_marking = end == "auto" ? OpenHead.create({inherit_visuals: ["line_color", "line_alpha", "line_width"]}) : end
     if (end_marking != null) {
       renderer.add_path_decoration(end_marking, {node: "end", inset: end_inset})
+    }
+    return renderer
+  }
+
+  whisker(args?: Partial<WhiskerArgs>): GlyphRenderer<Segment>
+  whisker(
+    base: WhiskerArgs["base"],
+    lower: WhiskerArgs["lower"],
+    upper: WhiskerArgs["upper"],
+    args?: Partial<WhiskerArgs>): GlyphRenderer<Segment>
+  whisker(...args: unknown[]): GlyphRenderer<Segment> {
+    const signature = "the method signature is whisker(base, lower, upper, args?)"
+    const options: Partial<WhiskerArgs> = (() => {
+      if (args.length == 0 || (args.length == 1 && args[0] === undefined)) {
+        return {}
+      }
+      if (args.length == 1 && isPlainObject(args[0]) && !isVectorized(args[0])) {
+        return args[0]
+      }
+      if (args.length == 3 || args.length == 4) {
+        const [base, lower, upper, options] = args
+        if (options != null && (!isPlainObject(options) || isVectorized(options))) {
+          throw new Error(`expected optional arguments: ${signature}`)
+        }
+        return {
+          ...(options as Partial<WhiskerArgs> | undefined),
+          base: base as WhiskerArgs["base"],
+          lower: lower as WhiskerArgs["lower"],
+          upper: upper as WhiskerArgs["upper"],
+        }
+      }
+      throw new Error(`wrong number of arguments: ${signature}`)
+    })()
+    const {
+      base = {field: "base"}, lower = {field: "lower"}, upper = {field: "upper"},
+      dimension = "height", cap_size = 10, level = "underlay", ...attrs
+    } = options
+    // Validate values supplied by untyped JavaScript callers.
+    // oxlint-disable-next-line typescript/no-unnecessary-condition
+    if (dimension != "height" && dimension != "width") {
+      throw new Error("dimension must be 'height' or 'width'")
+    }
+    const cap = TeeHead.create({size: cap_size, inherit_visuals: ["line_color", "line_alpha", "line_width"]})
+    const [x0, y0, x1, y1] = dimension == "height" ? [base, lower, undefined, upper] : [lower, base, upper, undefined]
+    const alias = dimension == "height" ? ["x0", "x1"] as const : ["y0", "y1"] as const
+    const renderer = this._glyph(Segment, "segment", ["x0", "y0", "x1", "y1"], [{...attrs, x0, y0, x1, y1, level}], {}, alias)
+    const angle = dimension == "height" ? 0 : -Math.PI/2
+    for (const node of ["start", "end"] as const) {
+      renderer.add_path_decoration(cap, {node, angle, angle_reference: "screen"})
     }
     return renderer
   }

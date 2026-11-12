@@ -407,7 +407,6 @@ describe("default model resolver", () => {
       "WeightedStackColorMapper",
       "WheelPanTool",
       "WheelZoomTool",
-      "Whisker",
       "Widget",
       "XComponent",
       "XY",

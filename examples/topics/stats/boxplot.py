@@ -12,7 +12,7 @@ multiple basic glyphs to create a more complicated chart.
 '''
 import pandas as pd
 
-from bokeh.models import ColumnDataSource, Whisker
+from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure, show
 from bokeh.sampledata.autompg2 import autompg2
 from bokeh.transform import factor_cmap
@@ -57,9 +57,7 @@ p = figure(x_range=kinds, tools="", toolbar_location=None,
            background_fill_color="#eaefef", y_axis_label="MPG")
 
 # outlier range
-whisker = Whisker(base="kind", upper="upper", lower="lower", source=source)
-whisker.upper_head.size = whisker.lower_head.size = 20
-p.add_layout(whisker)
+p.whisker(base="kind", source=source, cap_size=20, line_color="black")
 
 # quantile boxes
 cmap = factor_cmap("kind", "TolRainbow7", kinds)

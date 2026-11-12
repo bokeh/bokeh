@@ -19,12 +19,16 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+from collections.abc import Iterable
+from math import pi
 from typing import TYPE_CHECKING, Any
 
+from ..core.enums import Dimension
 from ..models import glyphs
 from ._decorators import glyph_method, marker_method
 
 if TYPE_CHECKING:
+    from ..core.enums import DimensionType
     from ..models.coordinates import CoordinateMapping
     from ..models.plots import Plot
     from ..models.renderers import GlyphRenderer
@@ -120,6 +124,36 @@ Examples:
             end = OpenHead(inherit_visuals=["line_color", "line_alpha", "line_width"])
         if end is not None:
             renderer.add_path_decoration(end, node="end", inset=end_inset)
+        return renderer
+
+    def whisker(self, base: Any = "base", lower: Any = "lower", upper: Any = "upper", *,
+            dimension: DimensionType = "height", cap_size: Any = 10, **kwargs: Any) -> GlyphRenderer:
+        """Draw data-coordinate intervals with perpendicular caps.
+
+        For vertical whiskers, ``base`` gives the x-coordinates and ``lower``
+        and ``upper`` give the y-coordinates. Use ``dimension="width"`` for
+        horizontal whiskers. Coordinates accept the same inputs as
+        :meth:`segment`. Set ``cap_size`` to a width in screen pixels or a
+        source field. The caps inherit the shaft's line color, alpha, and width.
+
+        Returns the :class:`~bokeh.models.GlyphRenderer` for the whiskers.
+        """
+        from ..models.annotations import TeeHead
+
+        if dimension not in Dimension:
+            raise ValueError("dimension must be 'height' or 'width'")
+        cap = TeeHead(size=cap_size, inherit_visuals=["line_color", "line_alpha", "line_width"])
+        kwargs.setdefault("level", "underlay")
+        # Segment turns a literal base into the x0 or y0 source column.
+        literal_base = kwargs.get("source") is None and isinstance(base, Iterable) and not isinstance(base, (str, dict))
+        if dimension == "height":
+            renderer = self.segment(base, lower, "x0" if literal_base else base, upper, **kwargs)
+            angle = 0
+        else:
+            renderer = self.segment(lower, base, upper, "y0" if literal_base else base, **kwargs)
+            angle = -pi/2
+        for node in ("start", "end"):
+            renderer.add_path_decoration(cap, node=node, angle=angle, angle_reference="screen")
         return renderer
 
     @glyph_method(glyphs.Arc)
