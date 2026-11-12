@@ -11,9 +11,7 @@ import type {Infer} from "core/kinds"
 
 import * as inputs_css from "styles/widgets/inputs.css"
 import * as dropdown_css from "styles/dropdown.css"
-import * as menu_css from "styles/widgets/autocomplete_menu.css"
 import {DropPane} from "core/util/panes"
-import {InlineStyleSheet} from "core/dom"
 
 import type {TargetedEvent, TargetedKeyboardEvent} from "preact"
 import {createRef} from "preact"
@@ -21,8 +19,6 @@ import {signal} from "@preact/signals"
 
 const SearchStrategy = Enum("starts_with", "includes")
 type SearchStrategy = Infer<typeof SearchStrategy>
-
-const menu_stylesheets = [new InlineStyleSheet(menu_css.default)]
 
 export class AutocompleteInputView extends TextInputView {
   declare readonly model: AutocompleteInput
@@ -86,11 +82,10 @@ export class AutocompleteInputView extends TextInputView {
         on_dismiss={this._hide_menu}
         ignore={this.el}
         class={cls(dropdown_css.menu, dropdown_css.below)}
-        stylesheets={menu_stylesheets}
       >
         {completions.map((text, i) => (
           <div
-            class={cls(menu_css.item, i == hover_index ? menu_css.active : null)}
+            class={cls(i == hover_index ? dropdown_css.active : null)}
             onClick={() => this._select(text)}
             onMouseOver={() => this._bump_hover(i)}
           >{text}</div>

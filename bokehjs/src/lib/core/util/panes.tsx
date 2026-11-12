@@ -1,16 +1,7 @@
 import type {Keys} from "../dom"
-import {InlineStyleSheet} from "../dom"
-import type {StyleSheet} from "../stylesheets"
-import {ShadowComponent} from "../vdom"
 
 import type {VNode, ComponentChildren, JSX} from "preact"
-import {useEffect, useRef} from "preact/hooks"
-
-import panes_css from "styles/panes.css"
-import vars_css from "styles/vars.css"
-import core_css from "styles/core.css"
-
-const base_stylesheets: StyleSheet[] = [vars_css, core_css, panes_css].map((css) => new InlineStyleSheet(css))
+import {useLayoutEffect, useRef} from "preact/hooks"
 
 export type DropPaneProps = {
   /**
@@ -30,20 +21,21 @@ export type DropPaneProps = {
    */
   ignore?: Element | ((event: UIEvent) => boolean)
   /**
-   * Additional stylesheets for pane's contents.
+   * CSS classes of the pane, which determine its appearance and position
+   * (e.g. `.bk-drop-pane` from `styles/panes.css`). The pane is rendered in
+   * its owner's DOM, so the owner has to provide the relevant stylesheets.
    */
-  stylesheets?: StyleSheet[]
   class?: string
   style?: JSX.CSSProperties
   children?: ComponentChildren
 }
 
 /**
- * A pane that drops down below its anchor, i.e. the nearest positioned ancestor
- * (see `styles/panes.less`). Pane's contents are rendered in a shadow root.
+ * A pane (e.g. a menu) that can be dismissed by the user. This manages
+ * visibility and dismissal of the pane, but not its appearance.
  */
 export function DropPane(props: DropPaneProps): VNode {
-  const {open, stylesheets=[], children} = props
+  const {open, children} = props
 
   // Keep the latest props, so that listeners don't have to be reattached on each render.
   const props_ref = useRef(props)
@@ -51,7 +43,8 @@ export function DropPane(props: DropPaneProps): VNode {
 
   const el_ref = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
+  // A layout effect, so that listeners are attached as soon as the pane is shown.
+  useLayoutEffect(() => {
     if (!open) {
       return
     }
@@ -93,15 +86,11 @@ export function DropPane(props: DropPaneProps): VNode {
     return () => controller.abort()
   }, [open])
 
-  // Inline style, because it has to take precedence over `:host` rules (e.g. `display: grid`).
   const style = {...props.style, display: open ? undefined : "none"}
 
   return (
-    // `display: contents`, so that the host of the shadow root is positioned relative to pane's anchor
-    <div ref={el_ref} style={{display: "contents"}}>
-      <ShadowComponent class={props.class} style={style} stylesheets={[...base_stylesheets, ...stylesheets]}>
-        {children}
-      </ShadowComponent>
+    <div ref={el_ref} class={props.class} style={style}>
+      {children}
     </div>
   )
 }
