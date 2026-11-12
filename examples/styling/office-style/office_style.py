@@ -89,7 +89,7 @@ tabs_style = InlineStyleSheet(css="""
   }
 
   .bk-header {
-    --border-color: transparent;
+    --bokeh-border-color: transparent;
     background-color: var(--primary-color);
   }
 
@@ -181,11 +181,11 @@ layout = row(children=w_columns, sizing_mode="stretch_width", stylesheets=[
   InlineStyleSheet(css="""
   :host {
     --bokeh-base-font: Segoe UI, Inter;
-    --border-color: var(--color);
-    --border-width: 1px;
-    --default-border-color: var(--color);
+    --bokeh-border-color: var(--color);
+    --bokeh-border-width: 1px;
+    --bokeh-default-border-color: var(--color);
     --bokeh-font-size: 1rem;
-    --border-radius: 2px;
+    --bokeh-border-radius: 2px;
     transition: transform 0.1s ease;
     background-color: var(--background-color);
   }"""),

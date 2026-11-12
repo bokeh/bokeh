@@ -266,13 +266,13 @@ w_columns = [
 layout = row(children=w_columns, sizing_mode="stretch_width", stylesheets=[
   InlineStyleSheet(css="""
   :host {
-    --border-width: 2px;
-    --outline-color: #B74CA7;
-    --outline-style: solid;
-    --outline-width: 2px;
-    --outline-offset: 2px;
-    --default-outline-color: #5D5E62;
-    --menu-item-hover-text-decoration: underline;
+    --bokeh-border-width: 2px;
+    --bokeh-outline-color: #B74CA7;
+    --bokeh-outline-style: solid;
+    --bokeh-outline-width: 2px;
+    --bokeh-outline-offset: 2px;
+    --bokeh-default-outline-color: #5D5E62;
+    --bokeh-menu-item-hover-text-decoration: underline;
     background-color: var(--background-color);
   }
 """),

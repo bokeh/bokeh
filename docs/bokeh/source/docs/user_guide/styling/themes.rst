@@ -5,12 +5,15 @@ Themes
 
 .. _ug_styling_using_themes:
 
-Using themes
-------------
+Using themes, CSS variables and custom stylesheets
+--------------------------------------------------
 
 Bokeh's themes are a set of pre-defined design parameters that you can apply to
 your plots. Themes can include settings for parameters such as colors, fonts,
 or line styles.
+
+Besides those, Bokeh defines a set of CSS variables that you can use to customize
+widgets and in general DOM based components.
 
 .. _ug_styling_using_themes_built_in:
 
@@ -98,3 +101,175 @@ To use your custom theme in a Bokeh plot, load your YAML or JSON file into a
 
     from bokeh.themes import Theme
     curdoc().theme = Theme(filename="./theme.yml")
+
+.. _ug_styling_using_css_variables_built_in:
+
+Available Bokeh's built-in CSS variables
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bokeh has a set of CSS variables related with theme/color scheme which include a series
+of reusable color definitions as well as base style properties which the DOM based
+components follow. There are variables available for properties like font, line height,
+border/outline, padding, as well as specific widget related variables for tools, tooltip,
+buttons and menus and definition of a set of colors to handle components different states
+(active, disabled, on hover, focused, etc).
+
+For font related customization Bokeh has:
+
+* ``--bokeh-base-font`` to allow setting a custom font
+* ``--bokeh-mono-font`` to allow setting a custom mono font
+* ``--bokeh-font-size`` to allow setting a custom font size value
+* ``--bokeh-font-weight`` to allow setting a custom font weight value
+* ``--bokeh-line-height`` to allow setting a custom line height value
+
+For colors related customization, which can be defined using the ``light-dark`` CSS function
+to follow the document configuration ``color_scheme``, Bokeh has:
+
+* ``--bokeh-color`` to allow setting a custom text color
+* ``--bokeh-background-color`` to allow setting a custom background color
+* ``--bokeh-hover-color`` as the color/background color used in the majority of components elements
+  when they are on hover
+* ``--bokeh-disabled-color`` to allow setting a custom color for disabled components elements
+* ``--bokeh-border-color`` to allow setting a custom color for components borders
+* ``--bokeh-divider-color`` to allow setting a custom color for components such as menus,
+  dropdowns, dialogs and the hover tool which use a divider element
+* ``--bokeh-shortcut-color`` to allow setting a custom color for components such as dialogs and menus
+  to show shortcut related information
+* ``--bokeh-highlight-color`` to allow setting a custom color to outline active/focused components elements
+  such as tabs, menu entries, tool buttons, sliders handles, etc
+* ``--bokeh-active-bg`` to allow setting a custom color for the background color of active components such
+  as switches, progress bars, and sliders
+* ``--bokeh-active-border`` to allow setting a custom color for the active border (TODO not being used anywhere? maybe
+  remanent of accessibility changes?)
+* ``--bokeh-active-fg`` to allow setting a custom color for components such as progress
+  bar and switch related elements that show current/selected value
+* ``--bokeh-inactive-bg`` to allow setting a custom color for the background of elements of components such
+  as switch and progress bars when they are disabled (background for bar and knob like elements)
+* ``--bokeh-icon-color`` to allow setting a custom icon color
+* ``--bokeh-icon-color-disabled`` to allow setting a custom disabled icon color
+* ``--bokeh-error`` to allow setting a custom color for the tabs close icon when hovered
+* ``--bokeh-primary-text-color`` to allow setting a custom color for markdown rendered primary text
+* ``--bokeh-accent-text-color`` to allow setting a custom color for markdown rendered accent text
+* ``--bokeh-success-text-color`` to allow setting a custom color for markdown rendered accent text
+* ``--bokeh-warning-text-color`` to allow setting a custom color for markdown rendered warning text
+* ``--bokeh-error-text-color`` to allow setting a custom color for markdown rendered error text
+* ``--bokeh-inverted-color`` as the color for when the background is dark regardless of color scheme
+  selected
+* ``--bokeh-placeholder-color`` to allow setting a custom color for input like components placeholder element
+* ``--bokeh-surface-background-color`` used for input like components as well as sliders and dropdowns
+  elements background color
+* ``--bokeh-disabled-background-color`` to allow setting a custom color for the majority of disabled components
+  background
+* ``--bokeh-input-focus-border-color``
+* ``--bokeh-input-focus-halo-color``
+
+For code blocks related customization when markdown is being rendered Bokeh has:
+
+* ``--bokeh-code-background-color``
+* ``--bokeh-code-color``
+* ``--bokeh-code-keyword-color``
+* ``--bokeh-code-string-color``
+* ``--bokeh-code-number-color``
+* ``--bokeh-code-title-color``
+* ``--bokeh-code-comment-color``
+
+For border related customization Bokeh has:
+
+* ``--bokeh-border-radius``
+* ``--bokeh-border-style``
+* ``--bokeh-border-width``
+* ``--bokeh-border`` to allow setting a custom value for an otherwise predefined border that uses
+  ``--bokeh-border-color``, ``--bokeh-border-style`` and ``--bokeh-border-width``
+
+For the box-shadow property customization (mainly used for button and menu like widgets and panes), Bokeh has:
+
+* ``--bokeh-box-shadow-color`` to allow setting a custom color for the box-shadow related property mainly
+  used by menus and drawers
+* ``--bokeh-box-shadow-inset`` to allow setting a custom value for an otherwise predefined inset box shadow definition
+  that uses ``--bokeh-box-shadow-color`` as color
+* ``--bokeh-box-shadow-x-symmetric`` to allow setting a custom value for an otherwise predefined x-axis symetric
+  box shadow definition that uses ``--bokeh-box-shadow-color`` as color
+* ``--bokeh-box-shadow`` to allow setting a custom box shadow definition which otherwise uses ``--box-shadow-color``
+  as color
+
+For outline property customization Bokeh has:
+
+* ``--bokeh-outline-color``
+* ``--bokeh-outline-style``
+* ``--bokeh-outline-width``
+* ``--bokeh-outline-offset``
+* ``--bokeh-outline`` to allow setting a custom outline which otherwise uses ``--outline-color``, ``--outline-style``
+  and ``--outline-width``
+
+For tools (tool buttons and toolbar) Bokeh has:
+
+* ``--bokeh-active-tool-border-color``
+* ``--bokeh-active-tool-background``
+* ``--bokeh-tool-button-width``
+* ``--bokeh-tool-button-height``
+* ``--bokeh-toolbar-divider-color``
+* ``--bokeh-disabled-tool-color``
+
+For buttons colors (following the different buttons types, their properties and states) Bokeh has:
+
+* ``--bokeh-default-color``
+* ``--bokeh-default-border-color``
+* ``--bokeh-default-hover-color``
+* ``--bokeh-default-active-color``
+* ``--bokeh-default-disabled-color``
+* ``--bokeh-default-disabled-border-color``
+* ``--bokeh-primary-color``
+* ``--bokeh-primary-hover-color``
+* ``--bokeh-primary-disabled-color``
+* ``--bokeh-success-color``
+* ``--bokeh-success-hover-color``
+* ``--bokeh-success-disabled-color``
+* ``--bokeh-warning-color``
+* ``--bokeh-warning-hover-color``
+* ``--bokeh-warning-disabled-color``
+* ``--bokeh-danger-color``
+* ``--bokeh-danger-hover-color``
+* ``--bokeh-danger-disabled-color``
+
+For tooltip Bokeh has:
+
+* ``--bokeh-tooltip-border-color``
+
+For menus Bokeh has:
+
+* ``--bokeh-menu-item-hover-text-decoration``
+
+Other variables:
+
+* ``--bokeh-top-level`` as the base value for the ``z-index`` property of several components
+  like menus, dropdowns, etc.
+* ``--bokeh-padding-vertical``
+* ``--bokeh-padding-horizontal``
+* ``--bokeh-divider-width``
+* ``--bokeh-divider`` to allow setting a custom style for borders used as divider which otherwise
+  uses the ``--bokeh-divider-color``
+
+Via the definition of a custom stylesheet a component then can define this variables to
+customize its appearance. Examples of this type of customization are available under
+``examples/styling/accessible-style``, ``examples/styling/office-style`` and
+``examples/styling/xkcd-style``
+
+Also, for each of these there are variables defined without the ``bokeh`` prefix which should be
+the ones you use with ``var`` to access the underline value. As an example, for the variable
+``--bokeh-border-color`` there is a ``--border-color`` variable which even if ``--bokeh-border-color``
+is not defined will allow you to access a default value for the ``border-color`` property.
+
+.. code-block:: css
+
+    :host {
+      --bokeh-border-color: black;
+    }
+
+    .custom-class {
+      /*
+        Its value will be `black` here due to the definition above but even
+        if `--bokeh-border-color` was not defined ``--border-color`` would
+        fallback to a predefined color (i.e `#BBBBBD`)
+      */
+      border-color: var(--border-color);
+    }

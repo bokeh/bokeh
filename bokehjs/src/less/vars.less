@@ -4,116 +4,116 @@
   --base-font: var(--bokeh-base-font, Helvetica, Arial, sans-serif);
   --mono-font: var(--bokeh-mono-font, monospace);
   --font-size: var(--bokeh-font-size, 12px);
-  --font-weight: normal;
+  --font-weight: var(--bokeh-font-weight, normal);
 
-  --line-height: calc(20 / 14);
+  --line-height: var(--bokeh-line-height, calc(20 / 14));
   --line-height-computed: calc(var(--font-size) * var(--line-height));
 
-  --border-radius: 4px;
-  --border-top-left-radius: var(--border-radius);
-  --border-top-right-radius: var(--border-radius);
-  --border-bottom-left-radius: var(--border-radius);
-  --border-bottom-right-radius: var(--border-radius);
+  --border-radius: var(--bokeh-border-radius, 4px);
+  --border-top-left-radius: var(--bokeh-border-top-left-radius, var(--border-radius));
+  --border-top-right-radius: var(--bokeh-border-top-right-radius, var(--border-radius));
+  --border-bottom-left-radius: var(--bokeh-bottom-left-radius, var(--border-radius));
+  --border-bottom-right-radius: var(--bokeh-bottom-right-radius, var(--border-radius));
 
-  --padding-vertical: 6px;
-  --padding-horizontal: 12px;
+  --padding-vertical: var(--bokeh-padding-vertical, 6px);
+  --padding-horizontal: var(--bokeh-padding-horizontal, 12px);
 
   --bokeh-top-level: 10000; // used for z-index of menus, dropdowns, etc.
 
   // Colors
-  --color: #colors[text];
+  --color: var(--bokeh-color, #colors[text]);
   --inherit-color: light-dark(black, var(--color)); // used to prevent too many baselines updates. --color should be used directly instead in the future
-  --background-color: #colors[background];
+  --background-color: var(--bokeh-background-color, #colors[background]);
   --inherit-background-color: light-dark(transparent, var(--background-color)); // used to prevent too many baselines updates. --background-color should be used directly instead in the future
-  --hover-color: #colors[hover];
-  --disabled-color: #colors[disabled];
-  --border-color: #colors[border];
-  --divider-color: #colors[divider];
-  --shortcut-color: #colors[disabled];
-  --highlight-color: #colors[highlight];
-  --active-bg: #colors[active-background];
+  --hover-color: var(--bokeh-hover-color, #colors[hover]);
+  --disabled-color: var(--bokeh-disabled-color, #colors[disabled]);
+  --border-color: var(--bokeh-border-color, #colors[border]);
+  --divider-color: var(--bokeh-divider-color, #colors[divider]);
+  --shortcut-color: var(--bokeh-shortcut-color, #colors[disabled]);
+  --highlight-color: var(--bokeh-highlight-color, #colors[highlight]);
+  --active-bg: var(--bokeh-active-bg, #colors[active-background]);
   --active-background-color: var(--active-bg);
-  --active-border: #colors[active-border];
-  --active-fg: #colors[primary];
-  --inactive-bg: #colors[surface];
-  --inactive-fg: #colors[placeholder];
+  --active-border:var(--bokeh-active-border, #colors[active-border]);
+  --active-fg: var(--bokeh-active-fg, #colors[primary]);
+  --inactive-bg: var(--bokeh-inactive-bg, #colors[surface]);
+  --inactive-fg: var(--bokeh-inactive-fg, #colors[placeholder]);
   --icon-color: var(--bokeh-icon-color, #colors[icon]);
   --icon-color-disabled: var(--bokeh-icon-color-disabled, #colors[icon-disabled]);
-  --error: #colors[error];
-  --primary-text-color: #colors[primary-text];
-  --accent-text-color: #colors[accent-text];
-  --success-text-color: #colors[success-text];
-  --warning-text-color: #colors[warning-text];
-  --error-text-color: #colors[error-text];
-  --inverted-color: #colors[inverted]; // the color for when the background is dark
-  --placeholder-color: #colors[placeholder];
-  --surface-background-color: #colors[surface];
-  --disabled-background-color: #colors[surface]; // TODO this cannot be the same as surface
-  --input-focus-border-color: #colors[input-border];
-  --input-focus-halo-color: fade(#colors[input-border], 60%);
+  --error: var(--bokeh-error, #colors[error]);
+  --primary-text-color: var(--bokeh-primary-text-color, #colors[primary-text]);
+  --accent-text-color: var(--bokeh-accent-text-color, #colors[accent-text]);
+  --success-text-color: var(--bokeh-success-text-color, #colors[success-text]);
+  --warning-text-color: var(--bokeh-warning-text-color, #colors[warning-text]);
+  --error-text-color: var(--bokeh-error-text-color, #colors[error-text]);
+  --inverted-color: var(--bokeh-inverted-color, #colors[inverted]); // the color for when the background is dark
+  --placeholder-color: var(--bokeh-placeholder-color, #colors[placeholder]);
+  --surface-background-color: var(--bokeh-surface-background-color, #colors[surface]);
+  --disabled-background-color: var(--bokeh-disabled-background-color, #colors[surface]); // TODO this cannot be the same as surface
+  --input-focus-border-color: var(--bokeh-input-focus-border-color, #colors[input-border]);
+  --input-focus-halo-color: var(--bokeh-input-focus-halo-color, fade(#colors[input-border], 60%));
 
   // Code blocks
-  --code-background-color: #colors[code-background];
-  --code-color: var(--color);
-  --code-keyword-color: var(--accent-text-color);
-  --code-string-color: var(--success-text-color);
-  --code-number-color: var(--warning-text-color);
-  --code-title-color: var(--primary-text-color);
-  --code-comment-color: #colors[code-comment];
+  --code-background-color: var(--bokeh-code-background-color, #colors[code-background]);
+  --code-color: var(--bokeh-code-color, var(--color));
+  --code-keyword-color: var(--bokeh-code-keywork-color, var(--accent-text-color));
+  --code-string-color: var(--bokeh-code-string-color, var(--success-text-color));
+  --code-number-color: var(--bokeh-code-number-color, var(--warning-text-color));
+  --code-title-color: var(--bokeh-code-title-color, var(--primary-text-color));
+  --code-comment-color: var(--bokeh-code-comment-color, #colors[code-comment]);
 
   // Border, box shadow, outline
-  --border-style: solid;
-  --border-width: 1px;
-  --border: var(--border-color) var(--border-style) var(--border-width);
-  --box-shadow-color: light-dark(rgba(0, 0, 0, 0.175), rgba(255, 255, 255, 0.175));
-  --box-shadow-inset: inset 0 3px 5px var(--box-shadow-color);
-  --box-shadow-x-symmetric: 0 6px 12px var(--box-shadow-color); // symmetric about the x-axis
-  --box-shadow: 2px 4px 8px var(--box-shadow-color);
-  --divider-width: 1px;
-  --divider: 1px var(--divider-color) solid;
-  --outline-color: #colors[border];
-  --outline-style: dotted;
-  --outline-width: 1px;
-  --outline-offset: -5px;
-  --outline: var(--outline-color) var(--outline-style) var(--outline-width);
+  --border-style: var(--bokeh-border-style, solid);
+  --border-width: var(--bokeh-border-width, 1px);
+  --border: var(--bokeh-border, var(--border-color) var(--border-style) var(--border-width));
+  --box-shadow-color: var(--bokeh-box-shadow-color, light-dark(rgba(0, 0, 0, 0.175), rgba(255, 255, 255, 0.175)));
+  --box-shadow-inset: var(--bokeh-box-shadow-inset, inset 0 3px 5px var(--box-shadow-color));
+  --box-shadow-x-symmetric: var(--bokeh-box-shadow-x-symmetric, 0 6px 12px var(--box-shadow-color)); // symmetric about the x-axis
+  --box-shadow: var(--bokeh-shadow, 2px 4px 8px var(--box-shadow-color));
+  --divider-width: var(--bokeh-divider-width, 1px);
+  --divider: var(--bokeh-divider, 1px var(--divider-color) solid);
+  --outline-color: var(--bokeh-outline-color, #colors[border]);
+  --outline-style: var(--bokeh-outline-style, dotted);
+  --outline-width: var(--bokeh-outline-width, 1px);
+  --outline-offset: var(--bokeh-outline-offset, -5px);
+  --outline: var(--bokeh-outline, var(--outline-color) var(--outline-style) var(--outline-width));
 
   // Tools (tool buttons and toolbar)
-  --active-tool-border-color: #colors[active-tool-border];
-  --active-tool-background: #colors[active-tool-background];
+  --active-tool-border-color: var(--bokeh-active-tool-border-color, #colors[active-tool-border]);
+  --active-tool-background: var(--bokeh-active-tool-background, #colors[active-tool-background]);
   --button-width: var(--bokeh-tool-button-width, 30px);
   --button-height: var(--bokeh-tool-button-height, 30px);
-  --button-color: var(--bokeh-toolbar-divider-color, lightgray);
-  --disabled-tool-color: #colors[disabled-tool];
+  --toolbar-divider-color: var(--bokeh-toolbar-divider-color, lightgray);
+  --disabled-tool-color: var(--bokeh-disabled-tool-color, #colors[disabled-tool]);
 
   // Buttons colors
-  --default-color: #colors[default];
-  --default-border-color: #colors[default-border];
-  --default-hover-color: #colors[default-hover];
-  --default-active-color: #colors[default-active];
-  --default-disabled-color: #colors[default-disabled];
-  --default-disabled-border-color: #colors[default-border];
+  --default-color: var(--bokeh-default-color, #colors[default]);
+  --default-border-color: var(--bokeh-default-border-color, #colors[default-border]);
+  --default-hover-color: var(--bokeh-default-hover-color, #colors[default-hover]);
+  --default-active-color: var(--bokeh-default-active-color, #colors[default-active]);
+  --default-disabled-color: var(--bokeh-disabled-color, #colors[default-disabled]);
+  --default-disabled-border-color: var(--bokeh-disabled-border-color, #colors[default-border]);
 
-  --primary-color: #colors[primary];
-  --primary-hover-color: #colors[primary-hover];
-  --primary-disabled-color: #colors[primary-disabled];
+  --primary-color: var(--bokeh-primary-color, #colors[primary]);
+  --primary-hover-color: var(--bokeh-primary-hover-color, #colors[primary-hover]);
+  --primary-disabled-color: var(--bokeh-primary-disabled-color, #colors[primary-disabled]);
 
-  --success-color: #colors[success];
-  --success-hover-color: #colors[success-hover];
-  --success-disabled-color: #colors[success-disabled];
+  --success-color: var(--bokeh-success-color, #colors[success]);
+  --success-hover-color: var(--bokeh-success-hover-color, #colors[success-hover]);
+  --success-disabled-color: var(--bokeh-success-disabled-color, #colors[success-disabled]);
 
-  --warning-color: #colors[warning];
-  --warning-hover-color: #colors[warning-hover];
-  --warning-disabled-color: #colors[warning-disabled];
+  --warning-color: var(--bokeh-warning-color, #colors[warning]);
+  --warning-hover-color: var(--bokeh-warning-hover-color, #colors[warning-hover]);
+  --warning-disabled-color: var(--bokeh-warning-disabled-color, #colors[warning-disabled]);
 
-  --danger-color: #colors[danger];
-  --danger-hover-color: #colors[danger-hover];
-  --danger-disabled-color: #colors[danger-disabled];
+  --danger-color: var(--bokeh-danger-color, #colors[danger]);
+  --danger-hover-color: var(--bokeh-danger-hover-color, #colors[danger-hover]);
+  --danger-disabled-color: var(--bokeh-danger-disabled-color, #colors[danger-disabled]);
 
   // Tooltip
-  --tooltip-border-color: #colors[tooltip-border];
+  --tooltip-border-color: var(--bokeh-tooltip-border-color, #colors[tooltip-border]);
 
   // Menus
-  --menu-item-hover-text-decoration: none;
+  --menu-item-hover-text-decoration: var(--bokeh-menu-item-hover-text-decoration, none);
 
   // Based on https://tabler-icons.io/ (MIT License) & independent design contributions
   --bokeh-cursor-rotate: data-uri("icons/cursor-rotate.svg") 12 12, auto;
