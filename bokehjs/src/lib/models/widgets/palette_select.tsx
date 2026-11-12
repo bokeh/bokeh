@@ -2,7 +2,8 @@ import type {StyleSheetLike, Keys} from "core/dom"
 import {px, InlineStyleSheet} from "core/dom"
 import type {StyleSheet} from "core/stylesheets"
 import type {VNode} from "core/vdom"
-import {UIComponent, ShadowComponent, cls} from "core/vdom"
+import {UIComponent, cls} from "core/vdom"
+import {DropPane} from "core/util/panes"
 import type * as p from "core/properties"
 import {bind} from "core/class"
 import {enumerate} from "core/util/iterator"
@@ -16,9 +17,6 @@ import * as palette_select_css from "styles/widgets/palette_select.css"
 import * as item_css from "styles/widgets/palette_select_item.css"
 import * as pane_css from "styles/widgets/palette_select_pane.css"
 import * as icons_css from "styles/icons.css"
-import vars_css from "styles/vars.css"
-import core_css from "styles/core.css"
-import panes_css from "styles/panes.css"
 
 import {Tuple, Str, Arrayable, Color} from "core/kinds"
 
@@ -28,7 +26,7 @@ import {signal} from "@preact/signals"
 const Item = Tuple(Str, Arrayable(Color))
 type Item = typeof Item["__type__"]
 
-const pane_stylesheets: StyleSheet[] = [vars_css, core_css, panes_css, item_css.default, pane_css.default]
+const pane_stylesheets: StyleSheet[] = [item_css.default, pane_css.default]
   .map((css) => new InlineStyleSheet(css))
 
 function gradient_of(colors: Item[1]): string {
@@ -67,24 +65,6 @@ export class PaletteSelectView extends InputWidgetView {
     return [...super.stylesheets(), palette_select_css.default, item_css.default, icons_css.default]
   }
 
-  override connect_signals(): void {
-    super.connect_signals()
-
-    document.addEventListener("mousedown", (event) => {
-      if (this._open.peek() && !event.composedPath().includes(this.el)) {
-        this.hide()
-      }
-    }, {signal: this.abort_signal})
-
-    document.addEventListener("keydown", (event) => {
-      if (this._open.peek() && (event.key as Keys) == "Escape") {
-        this.hide()
-      }
-    }, {signal: this.abort_signal})
-
-    window.addEventListener("blur", () => this.hide(), {signal: this.abort_signal})
-  }
-
   @bind
   protected _input_ref(el: HTMLDivElement | null): void {
     if (el != null) {
@@ -114,16 +94,18 @@ export class PaletteSelectView extends InputWidgetView {
     return entry != null ? this._render_item(entry) : null
   }
 
-  protected _pane(): VNode | null {
-    if (!this._open.value) {
-      return null
-    }
-
+  protected _pane(): VNode {
     const {items, ncols} = this.values
     this._item_els = items.map(() => null)
 
     return (
-      <ShadowComponent stylesheets={pane_stylesheets} style={{"--number-of-columns": `${ncols}`}}>
+      <DropPane
+        open={this._open.value}
+        on_dismiss={this.hide}
+        ignore={this.input_el}
+        stylesheets={pane_stylesheets}
+        style={{"--number-of-columns": `${ncols}`}}
+      >
         {items.map((item, i) => (
           <div
             class={item_css.item}
@@ -136,7 +118,7 @@ export class PaletteSelectView extends InputWidgetView {
             {this._render_item(item)}
           </div>
         ))}
-      </ShadowComponent>
+      </DropPane>
     )
   }
 
@@ -253,6 +235,7 @@ export class PaletteSelectView extends InputWidgetView {
     }
   }
 
+  @bind
   hide(): void {
     this._open.value = false
   }
