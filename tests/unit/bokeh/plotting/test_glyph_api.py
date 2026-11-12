@@ -20,7 +20,7 @@ from bokeh.models import (
     GlyphRenderer,
     NormalHead,
     OpenHead,
-    PathMarking,
+    PathPlacement,
     TeeHead,
     glyphs,
 )
@@ -57,9 +57,9 @@ def test_arrow() -> None:
     assert gr.glyph.x1 == "x1"
     assert gr.glyph.y1 == "y1"
     assert gr.data_source.data == dict(x0=[0], y0=[1], x1=[2], y1=[3])
-    assert len(gr.glyph.decorations) == 1
-    assert gr.glyph.decorations[0].node == "end"
-    assert isinstance(gr.glyph.decorations[0].marking, OpenHead)
+    assert len(gr.glyph.path_markings) == 1
+    assert gr.glyph.path_markings[0].positions == "end"
+    assert isinstance(gr.glyph.path_markings[0].marking, OpenHead)
 
 def test_arrow_with_both_heads_and_insets() -> None:
     p = figure()
@@ -70,7 +70,7 @@ def test_arrow_with_both_heads_and_insets() -> None:
         start=start, end=end,
         start_inset=3, end_inset=4,
     )
-    assert [(decoration.node, decoration.marking, decoration.inset) for decoration in gr.glyph.decorations] == [
+    assert [(path_marking.positions, path_marking.marking, path_marking.inset) for path_marking in gr.glyph.path_markings] == [
         ("start", start, 3),
         ("end", end, 4),
     ]
@@ -303,14 +303,14 @@ def test_whisker_with_categorical_base() -> None:
     assert renderer.data_source is source
     assert renderer.level == "underlay"
     assert isinstance(renderer.glyph, glyphs.Segment)
-    assert renderer.glyph.decorations[0].angle == 0
+    assert renderer.glyph.path_markings[0].angle == 0
     assert (renderer.glyph.x0, renderer.glyph.y0, renderer.glyph.x1, renderer.glyph.y1) == ("base", "lower", "base", "upper")
-    assert [decoration.node for decoration in renderer.glyph.decorations] == ["start", "end"]
-    for decoration in renderer.glyph.decorations:
-        assert isinstance(decoration, PathMarking)
-        assert isinstance(decoration.marking, TeeHead)
-        assert decoration.marking.size == "width"
-        assert decoration.marking.inherit_visuals == ["line_color", "line_alpha", "line_width"]
+    assert [path_marking.positions for path_marking in renderer.glyph.path_markings] == ["start", "end"]
+    for path_marking in renderer.glyph.path_markings:
+        assert isinstance(path_marking, PathPlacement)
+        assert isinstance(path_marking.marking, TeeHead)
+        assert path_marking.marking.size == "width"
+        assert path_marking.marking.inherit_visuals == ["line_color", "line_alpha", "line_width"]
 
 
 def test_horizontal_whisker() -> None:
@@ -319,10 +319,10 @@ def test_horizontal_whisker() -> None:
     p = figure(y_range=["a"])
     renderer = p.whisker(["a"], [-1.5], [-0.5], dimension="width", level="annotation")
     assert renderer.level == "annotation"
-    assert renderer.glyph.decorations[0].angle == -pi/2
+    assert renderer.glyph.path_markings[0].angle == -pi/2
     assert renderer.data_source.data == dict(x0=[-1.5], y0=["a"], x1=[-0.5])
     assert renderer.glyph.y0 == renderer.glyph.y1 == "y0"
-    assert renderer.glyph.decorations[0].marking.size == 10
+    assert renderer.glyph.path_markings[0].marking.size == 10
 
 
 def test_whisker_rejects_invalid_dimension() -> None:

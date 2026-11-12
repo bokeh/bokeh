@@ -464,28 +464,28 @@ both the shafts and arrowheads by vector magnitude:
 .. bokeh-plot:: __REPO__/examples/basic/annotations/quiver.py
     :source-position: above
 
-Decorating existing glyphs
+Marking existing paths
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To add arrowheads to an existing ``Segment``, ``Line``, ``MultiLine``, ``Bezier``, or ``Arc``
-renderer, use :meth:`~bokeh.models.GlyphRenderer.add_path_decoration`:
+renderer, use :meth:`~bokeh.models.GlyphRenderer.add_path_marking`:
 
 .. code-block:: python
 
     from bokeh.models import NormalHead
 
     renderer = plot.segment(x0=0, y0=0, x1=1, y1=1, line_color="navy")
-    decoration = renderer.add_path_decoration(
+    path_marking = renderer.add_path_marking(
         NormalHead(size=12, fill_color="navy", line_color="navy"),
-        node="end",
+        at="end",
     )
 
 ``figure.arrow()`` is a convenience API for creating a ``Segment`` renderer
-and adding its start and end decorations. With ``add_path_decoration()``, you
+and adding its start and end markings. With ``add_path_marking()``, you
 choose the glyph yourself and attach markings at ``"start"``, ``"middle"``,
-or ``"end"``. The method returns a ``PathMarking`` model, which you can update
-later, for example with ``decoration.inset = 10``. Decorations can also be added
-or removed after display, and replacing ``decoration.marking`` rebuilds its
+or ``"end"``. The method returns a ``PathPlacement`` model, which you can update
+later, for example with ``path_marking.inset = 10``. Path markings can also be added
+or removed after display, and replacing ``path_marking.marking`` rebuilds its
 head view. These changes work through server document patches as well.
 
 Set a path marking's ``angle`` to rotate it counterclockwise around its anchor.
@@ -501,8 +501,8 @@ Only unrotated automatic placements trim the shaft.
     from bokeh.models import NormalHead
 
     renderer = plot.segment(0, 0, 1, 1)
-    renderer.add_path_decoration(
-        NormalHead(), node="end", angle_reference="screen", angle=-pi/2,
+    renderer.add_path_marking(
+        NormalHead(), at="end", angle_reference="screen", angle=-pi/2,
     )
 
 The dot marks the start of the curve in each panel. The left and right
@@ -526,19 +526,18 @@ by ``figure.arrow()`` inherits shaft color, alpha, and width. An end inset moves
 head back along the path, and the visible shaft stops at the rear of the
 head. On ``MultiLine``, the head follows the path's local tangent.
 
-The following example attaches decorations to vectorized segments and
+The following example attaches markings to vectorized segments and
 multi-segment paths without calling ``figure.arrow()``:
 
-.. bokeh-plot:: __REPO__/examples/basic/annotations/line_decorations.py
+.. bokeh-plot:: __REPO__/examples/basic/annotations/line_markings.py
     :source-position: above
 
-``add_path_decoration(marking, node="end")`` accepts only the named nodes ``"start"``,
-``"middle"``, and ``"end"``. Start and end use endpoint tangents, honor
+For named positions, start and end use endpoint tangents, honor
 ``inset``, and trim the shaft. Middle uses rear-to-tip chord alignment at
 half the screen-space path length, without inset or shaft trimming.
 
-Path decorations and fractional path markings support ``Segment``, ``Line``,
-``MultiLine``, ``Bezier``, and ``Arc`` and reject unsupported glyphs.
+The ``Segment``, ``Line``, ``MultiLine``, ``Bezier``, and ``Arc`` glyphs
+use the ``SupportsPathMarking`` mixin, which defines ``path_markings``.
 For a ``Line``, the first data row supplies marking size, inset, and
 non-inherited visuals. Start and end refer to the entire finite path, including
 across NaN-separated subpaths. A middle marking follows the visual state of
@@ -546,55 +545,85 @@ the segment containing the midpoint by path length. ``Bezier`` decorations use
 adaptive screen-space subdivision with a 0.25-pixel chord tolerance and a
 recursion limit of 12. Undecorated Beziers retain native cubic rendering.
 
-The following example shares one marking between a Line and a Bezier. Heads
+The following example shares one arrowhead between a Line and a Bezier. Heads
 inherit each shaft's color and alpha while retaining a thin, explicit outline
-width, so increasing the shaft width keeps the filled heads crisp:
+width, so increasing the shaft width keeps the filled heads crisp. The Bezier
+also uses tee markings to show the quarter and three-quarter positions.
 
-.. bokeh-plot:: __REPO__/examples/basic/annotations/path_decorations.py
+.. bokeh-plot:: __REPO__/examples/basic/annotations/path_marking_insets.py
     :source-position: above
 
 .. _ug_basic_annotations_path_markings:
+.. _arrowhead-placement:
 
-Fractional arrow positioning
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Path marking placement
+~~~~~~~~~~~~~~~~~~~~~~
 
-Use :meth:`~bokeh.models.GlyphRenderer.add_path_markings` to place arrowheads
-at fractions of a path's screen-space length::
+Use :meth:`~bokeh.models.GlyphRenderer.add_path_marking` to attach a marking to
+an existing path. The :class:`~bokeh.models.Marking` you pass in defines what
+to draw, such as a :class:`~bokeh.models.NormalHead`. The returned
+:class:`~bokeh.models.PathPlacement`
+holds that marking and controls where it goes and how it rotates through
+``positions``, ``angle``, and ``angle_reference``.
 
-    markings = renderer.add_path_markings(head, positions=[0.2, 0.5, 0.8])
+Pass ``"start"``, ``"middle"``, or ``"end"`` to place it at a named position.
 
-Positions must be between 0 and 1, inclusive. Each arrowhead's tip sits at the
-specified fraction. A literal list applies to every path.
+.. code-block:: python
 
-To move the arrowheads, update the returned model's positions::
+    renderer.add_path_marking(NormalHead(size=12), at="end")
 
-    markings.positions = [0.1, 0.4, 0.9]
+To place markings along the path, pass a fraction, a sequence, or a
+one-dimensional NumPy array. Fractions run from 0 to 1 and measure the
+path's length on screen. A fixed list applies to every path. Update
+``positions`` to move the markings or switch between named and fractional
+placement.
 
-To use different positions per path, store a list of fractions in each source row::
+.. code-block:: python
 
-    source.data = dict(
-        xs=[[0, 1, 2], [0, 1, 2]],
-        ys=[[0, 1, 0], [1, 0, 1]],
-        arrow_positions=[[0.2, 0.5, 0.8], [0.25, 0.75]],
-    )
-    renderer.add_path_markings(head, positions="arrow_positions")
+    markings = renderer.add_path_marking(NormalHead(size=12), at=[0.2, 0.5, 0.8])
+    markings.positions = "end"  # Switch to endpoint placement.
 
-An empty list draws no markings for that path. Updating the positions column
-moves the markings without changing the paths. Marking sizes and visuals
-resolve per source row and are shared by that row's repeated markings.
-For a ``Line``, the first data row supplies the position list and marking
-visuals. Arc fractions follow the directed circular sweep, including wrapped
-angles and full turns.
+For an arrowhead at the end of a path, call
+:meth:`~bokeh.models.GlyphRenderer.add_arrowheads`. The default ``OpenHead``
+inherits the shaft's line color, alpha, and width.
 
-Fractional markings align to the chord from one marking rear extent behind
-the tip, within the same finite subpath. A zero-length chord uses the local
-forward tangent. They do not trim the shaft and have no inset option.
-Numeric 0 and 1 are not aliases for named endpoints. In particular, 0 points
-forward, whereas the named start node points outward against the tangent.
+.. code-block:: python
 
-The following example compares positions 0, 0.25, 0.5, 0.75, and 1 on
-``Segment``, ``Line``, ``MultiLine``, and ``Bezier`` paths. It also shows
-per-path position lists and animated streamlines:
+    renderer.add_arrowheads()
+
+Pass a source field to set positions for each path separately. Store a list
+of fractions in each row, or an empty list to skip that path. In this example,
+the empty list leaves the second path from the top without arrowheads.
+
+.. bokeh-plot:: __REPO__/examples/basic/annotations/field_arrowheads.py
+    :source-position: above
+
+Updating the column moves the markings. Bokeh checks each list when it draws
+the path. Markings on the same path share the size and visuals from that row.
+A ``Line`` takes its positions and visuals from the first row. On an ``Arc``,
+fractions follow the arc's sweep, including wrapped angles and full turns.
+
+Named endpoints follow the path's tangent and trim the shaft by the length of
+the marking behind its anchor. Fractional placements leave the shaft intact.
+They follow the chord from a point that far back on the same finite subpath
+to the anchor. If the chord has zero length, the marking uses the forward
+tangent. An arrowhead at ``"start"`` points out of the path, while one at
+``0.0`` points forward.
+
+Both arrowheads below have their tip at ``(280, 0)``. With ``"end"``, the
+shaft stops at the back of the head. With ``1.0``, it runs to the tip.
+The default ``OpenHead`` leaves the shaft intact and follows the tangent
+at either placement because it has zero rear extent.
+
+.. bokeh-plot:: __REPO__/examples/basic/annotations/arrowhead_placement.py
+    :source-position: above
+
+Pass ``inset`` with ``at="start"`` or ``at="end"`` to move the marking inward.
+Use ``selection_marking``, ``nonselection_marking``, ``hover_marking``, and
+``muted_marking`` to override the marking on configured state glyphs.
+
+This example compares fractions on several glyphs and animates arrowheads
+by updating their position lists.
 
 .. bokeh-plot:: __REPO__/examples/basic/annotations/path_markings.py
     :source-position: above

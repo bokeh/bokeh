@@ -1,3 +1,4 @@
+import type {PathNode} from "../graphics/path_placement"
 import {DataRenderer, DataRendererView} from "./data_renderer"
 import {LineView} from "../glyphs/line"
 import {StepView} from "../glyphs/step"
@@ -7,11 +8,12 @@ import {HAreaView} from "../glyphs/harea"
 import {VAreaStepView} from "../glyphs/varea_step"
 import {VAreaView} from "../glyphs/varea"
 import type {GlyphView} from "../glyphs/glyph"
-import {Glyph} from "../glyphs/glyph"
+import {Glyph, supports_path_marking} from "../glyphs/glyph"
+import type {SupportsPathMarking} from "../glyphs/glyph"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import type {CDSViewView} from "../sources/cds_view"
 import {CDSView} from "../sources/cds_view"
-import type {Color} from "core/types"
+import type {Arrayable, Color} from "core/types"
 import {Indices} from "core/types"
 import type * as p from "core/properties"
 import {filter} from "core/util/arrayable"
@@ -21,13 +23,18 @@ import type {Geometry} from "core/geometry"
 import type {SelectionManager} from "core/selection_manager"
 import type {ChildView} from "core/build_views"
 import {build_view} from "core/build_views"
-import type {ModelAttrs} from "core/has_props"
+import type {HasPropsClass, ModelAttrs} from "core/has_props"
 import type {Context2d} from "core/util/canvas"
 import {is_equal} from "core/util/eq"
 import type {BBox} from "core/util/bbox"
 import {FactorRange} from "../ranges/factor_range"
-import {PathMarking, PathMarkings} from "../graphics/decoration"
+import {PathPlacement} from "../graphics/path_placement"
 import type {Marking} from "../graphics/marking"
+import {auto_arrowhead} from "../annotations/arrow_head"
+import type {ArrowHead} from "../annotations/arrow_head"
+import {isArrayable} from "core/util/types"
+import {isField} from "core/vectorization"
+import type {Field, Vector} from "core/vectorization"
 import type {OpaqueIndices, MultiIndices, ImageIndex} from "../selections/selection"
 import {BitSet} from "core/util/bitset"
 
@@ -44,15 +51,25 @@ type UpdatePass = {
   indices?: Set<number>
 }
 
-type DecorationOptions = {
-  angle?: PathMarking.Attrs["angle"]
-  angle_reference?: PathMarking.Attrs["angle_reference"]
-  inset?: PathMarking.Attrs["inset"]
+type OrientationOptions = Partial<Pick<PathPlacement.Attrs, "angle" | "angle_reference">>
+
+type PathMarkingStateOptions = OrientationOptions & {
+  inset?: PathPlacement.Attrs["inset"]
   selection_marking?: Marking | "auto" | null
   nonselection_marking?: Marking | "auto" | null
   hover_marking?: Marking | "auto" | null
   muted_marking?: Marking | "auto" | null
 }
+
+type FractionalPlacement = number | Arrayable<number> | Extract<Vector<Arrayable<number>>, Field>
+type PathMarkingPosition = PathNode | FractionalPlacement
+type PathMarkingOptions = Omit<PathMarkingStateOptions, "inset"> & (
+  | {at: "start" | "end", inset: PathPlacement.Attrs["inset"]}
+  | {at: PathMarkingPosition, inset?: never}
+)
+
+// Keep the receiver independent of the renderer's state glyph type parameters.
+type PathRenderer = GlyphRenderer & {readonly glyph: p.AttrsOf<SupportsPathMarking>}
 
 const selection_defaults: Defaults = {
   fill: {},
@@ -221,19 +238,25 @@ export class GlyphRendererView extends DataRendererView {
 
     this.connect(this.model.change, render)
 
-    this.connect(this.glyph.model.properties.decorations.change, () => {
-      const {decorations} = this.glyph.model
-      for (const [model, view] of [
-        [this.model.selection_glyph, this.selection_glyph],
-        [this.model.nonselection_glyph, this.nonselection_glyph],
-        [this.model.muted_glyph, this.muted_glyph],
-      ] as const) {
-        if (!(model instanceof Glyph)) {
-          view.model.decorations = decorations
+    const glyph = this.glyph.model
+    if (supports_path_marking(glyph)) {
+      this.connect(glyph.properties.path_markings.change, () => {
+        const {path_markings} = glyph
+        for (const [model, view] of [
+          [this.model.selection_glyph, this.selection_glyph],
+          [this.model.nonselection_glyph, this.nonselection_glyph],
+          [this.model.muted_glyph, this.muted_glyph],
+        ] as const) {
+          if (!(model instanceof Glyph) && supports_path_marking(view.model)) {
+            view.model.path_markings = path_markings
+          }
         }
-      }
-      this.decimated_glyph.model.decorations = decorations
-    })
+        const decimated = this.decimated_glyph.model
+        if (supports_path_marking(decimated)) {
+          decimated.path_markings = path_markings
+        }
+      })
+    }
 
     this.connect(this.glyph.model.change, update)
     this.connect(this.selection_glyph.model.change, update)
@@ -748,6 +771,20 @@ export class GlyphRenderer<
   declare properties: GlyphRenderer.Props<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph>
   declare __view_type__: GlyphRendererView
 
+  // Infer glyphs for the base factory while keeping concrete renderer subclasses intact.
+  declare static create: {
+    <
+      Base extends Glyph,
+      Hover extends Glyph = Base,
+      NonSelection extends Glyph = Base,
+      Selection extends Glyph = Base,
+      Muted extends Glyph = Base,
+      Renderer extends GlyphRenderer = GlyphRenderer,
+    >(this: HasPropsClass<Renderer>,
+      attrs: ModelAttrs<Renderer> & Partial<GlyphRenderer.Attrs<Base, Hover, NonSelection, Selection, Muted>> & {glyph: Base},
+    ): GlyphRenderer extends Renderer ? GlyphRenderer<Base, Hover, NonSelection, Selection, Muted> : Renderer
+  } & typeof DataRenderer.create
+
   static {
     this.prototype.default_view = GlyphRendererView
 
@@ -767,25 +804,29 @@ export class GlyphRenderer<
     return this.data_source.selection_manager
   }
 
-  add_path_decoration(marking: Marking, options: DecorationOptions & {node: PathMarking["node"]}): PathMarking {
-    const decoration = PathMarking.create({
-      node: options.node, marking, inset: options.inset ?? 0,
-      angle: options.angle ?? 0,
-      angle_reference: options.angle_reference ?? "auto",
+  add_path_marking(this: PathRenderer, marking: Marking, options: PathMarkingOptions): PathPlacement {
+    const {at, inset, angle, angle_reference} = options
+    if ("inset" in options && at !== "start" && at !== "end") {
+      throw new Error("inset requires at='start' or at='end'")
+    }
+    const positions = typeof at == "number" ? [at] : at
+    if (positions !== "start" && positions !== "middle" && positions !== "end" &&
+        !isArrayable(positions) && !(isField(positions) && typeof positions.field == "string")) {
+      throw new Error("at must be 'start', 'middle', 'end', a fraction, a sequence of fractions, or a field spec")
+    }
+    const path_marking = PathPlacement.create({
+      marking, positions, inset: inset ?? 0, angle: angle ?? 0, angle_reference: angle_reference ?? "auto",
     })
-    return this._add_decoration(decoration, options)
+    return this._add_path_marking(path_marking, options)
   }
 
-  add_path_markings(marking: Marking, options: Omit<DecorationOptions, "inset"> & {positions?: PathMarkings["positions"]} = {}): PathMarkings {
-    const decoration = PathMarkings.create({
-      marking, positions: options.positions ?? [0.5],
-      angle: options.angle ?? 0,
-      angle_reference: options.angle_reference ?? "auto",
-    })
-    return this._add_decoration(decoration, options)
+  add_arrowheads(this: PathRenderer,
+      {at = "end", head = "auto", ...orientation}: {at?: PathNode | FractionalPlacement, head?: ArrowHead | "auto"} & OrientationOptions = {}): PathPlacement {
+    const marking = head == "auto" ? auto_arrowhead() : head
+    return this.add_path_marking(marking, {at, ...orientation})
   }
 
-  private _add_decoration<T extends PathMarking | PathMarkings>(decoration: T, options: DecorationOptions): T {
+  private _add_path_marking(path_marking: PathPlacement, options: PathMarkingStateOptions): PathPlacement {
     const {
       selection_marking = "auto",
       nonselection_marking = "auto",
@@ -799,24 +840,27 @@ export class GlyphRenderer<
       [this.muted_glyph, muted_marking],
     ]
 
-    for (const glyph of [this.glyph, ...states.filter(([, marking]) => marking != null).map(([glyph]) => glyph)]) {
-      if (glyph instanceof Glyph && !glyph._supports_path_decorations(decoration instanceof PathMarking ? decoration.node : 0.5)) {
-        const operation = decoration instanceof PathMarking ? "add_path_decoration" : "add_path_markings"
-        throw new Error(`${operation}() does not support ${glyph.type}. Use Segment, Line, MultiLine, Bezier, or Arc.`)
+    const glyph = this.glyph
+    if (!supports_path_marking(glyph)) {
+      throw new Error(`add_path_marking() does not support ${glyph.type}.`)
+    }
+    for (const [state_glyph, marking] of states) {
+      if (marking != null && state_glyph instanceof Glyph && !supports_path_marking(state_glyph)) {
+        throw new Error(`add_path_marking() does not support ${state_glyph.type}.`)
       }
     }
-    this.glyph.decorations = [...this.glyph.decorations, decoration]
+    glyph.path_markings = [...glyph.path_markings, path_marking]
 
     for (const [glyph, state_marking] of states) {
-      if (!(glyph instanceof Glyph) || state_marking == null) {
+      if (!(glyph instanceof Glyph) || !supports_path_marking(glyph) || state_marking == null) {
         continue
       }
-      const state_decoration = state_marking == "auto"
-        ? decoration
-        : decoration.clone({marking: state_marking})
-      glyph.decorations = [...glyph.decorations, state_decoration]
+      const state_path_marking = state_marking == "auto"
+        ? path_marking
+        : path_marking.clone({marking: state_marking})
+      glyph.path_markings = [...glyph.path_markings, state_path_marking]
     }
 
-    return decoration
+    return path_marking
   }
 }

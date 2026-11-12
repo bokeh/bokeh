@@ -1,17 +1,18 @@
-''' Fractional arrowhead positions and animated streamlines.
+''' Arrowheads and scatter markers at fractional positions along paths.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.models.GlyphRenderer.add_path_markings, bokeh.models.NormalHead, bokeh.models.CustomJS
+    :apis: bokeh.models.GlyphRenderer.add_path_marking, bokeh.models.GlyphRenderer.add_arrowheads, bokeh.models.MarkerShape
     :refs: :ref:`ug_basic_annotations_path_markings`
-    :keywords: arrows, fractional positions, paths, streamlines, animation
+    :keywords: arrows, markers, fractional positions, paths, streamlines, animation
 
 '''
 from math import sin, tau
 
+from bokeh.core.properties import field
 from bokeh.events import DocumentReady
 from bokeh.io import curdoc
 from bokeh.layouts import column, gridplot
-from bokeh.models import ColumnDataSource, CustomJS, Div, NormalHead
+from bokeh.models import ColumnDataSource, CustomJS, Div, MarkerShape, NormalHead
 from bokeh.plotting import figure, show
 
 positions = [
@@ -38,12 +39,15 @@ for kind in ["Segment", "Line", "MultiLine", "Bezier", "Per-path positions", "An
             color=["#56b4e9", "#ffb454", "#cc79a7", "#4dd9b4"],
         ))
         renderer = p.multi_line("xs", "ys", source=source, **style)
-        renderer.add_path_markings(
-            NormalHead(size=14, fill_color="color", line_color="color"),
-            positions="arrow_positions",
-        )
         if kind == "Animated streamlines":
+            renderer.add_arrowheads(at=field("arrow_positions"),
+                                   head=NormalHead(size=14, fill_color="color", line_color="color"))
             animated_source = source
+        else:
+            renderer.add_path_marking(
+                MarkerShape(marker="circle", size=12, fill_color="color", line_color="color"),
+                at=field("arrow_positions"),
+            )
         plots.append(p)
         continue
 
@@ -60,18 +64,22 @@ for kind in ["Segment", "Line", "MultiLine", "Bezier", "Per-path positions", "An
     else:
         renderer = p.bezier(x0=0, y0=0, x1=6, y1=1, cx0=1, cy0=4, cx1=3, cy1=-3, **style)
 
-    for fraction, color in positions:
-        renderer.add_path_markings(
-            NormalHead(size=17, fill_color=color, line_color=color),
-            positions=[fraction],
-        )
+    for i, (fraction, color) in enumerate(positions):
+        if i % 2 == 0:
+            renderer.add_arrowheads(at=fraction, head=NormalHead(size=17, fill_color=color, line_color=color))
+        else:
+            renderer.add_path_marking(
+                MarkerShape(marker="diamond", size=16, fill_color=color, line_color=color),
+                at=fraction,
+            )
     plots.append(p)
 
 legend = Div(
     text='Pink: <b>0</b> · Blue: <b>0.25</b> · Orange: <b>0.5</b> · '
          'Green: <b>0.75</b> · Yellow: <b>1</b>.<br>'
-         'Positions measure screen-space path length. The bottom row uses a column of position lists, '
-         'including an empty list for a path with no arrows. The bottom-right panel animates those positions.',
+         'Arrowheads mark 0, 0.5, and 1. Diamonds mark 0.25 and 0.75.<br>'
+         'The bottom row uses a column of position lists, including an empty list for an unmarked path. '
+         'The left panel uses circles. The right panel animates arrowheads.',
     width=950,
     styles={"color": "#243244", "background-color": "#f6f7f9", "font-size": "15px"},
 )

@@ -2960,10 +2960,12 @@
   FillGlyph: {},
   Glyph: {
     __extends__: "Model",
-    decorations: [],
   },
   HatchGlyph: {},
   LineGlyph: {},
+  SupportsPathMarking: {
+    path_markings: [],
+  },
   RadialGlyph: {
     __extends__: "XYGlyph",
   },
@@ -3150,6 +3152,7 @@
     __extends__: [
       "XYGlyph",
       "LineGlyph",
+      "SupportsPathMarking",
     ],
     x: {
       type: "field",
@@ -3205,6 +3208,7 @@
     __extends__: [
       "Glyph",
       "LineGlyph",
+      "SupportsPathMarking",
     ],
     x0: {
       type: "field",
@@ -3961,6 +3965,7 @@
     __extends__: [
       "ConnectedXYGlyph",
       "LineGlyph",
+      "SupportsPathMarking",
     ],
     x: {
       type: "field",
@@ -4072,6 +4077,7 @@
     __extends__: [
       "Glyph",
       "LineGlyph",
+      "SupportsPathMarking",
     ],
     xs: {
       type: "field",
@@ -4665,6 +4671,7 @@
     __extends__: [
       "Glyph",
       "LineGlyph",
+      "SupportsPathMarking",
     ],
     x0: {
       type: "field",
@@ -5219,35 +5226,12 @@
       type: "map",
     },
   },
-  Decoration: {
-    __extends__: "Model",
-  },
   Marking: {
     __extends__: "Model",
     inherit_visuals: [],
   },
-  PathMarking: {
-    __extends__: "Decoration",
-    marking: {
-      type: "symbol",
-      name: "unset",
-    },
-    node: {
-      type: "symbol",
-      name: "unset",
-    },
-    inset: {
-      type: "value",
-      value: 0,
-    },
-    angle: {
-      type: "value",
-      value: 0,
-    },
-    angle_reference: "auto",
-  },
-  PathMarkings: {
-    __extends__: "Decoration",
+  PathPlacement: {
+    __extends__: "Model",
     marking: {
       type: "symbol",
       name: "unset",
@@ -5257,6 +5241,10 @@
       value: [
         0.5,
       ],
+    },
+    inset: {
+      type: "value",
+      value: 0,
     },
     angle: {
       type: "value",

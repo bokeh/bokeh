@@ -3,7 +3,7 @@ import type {RectGeometry} from "core/geometry"
 import type {Context2d} from "core/util/canvas"
 import * as hittest from "core/hittest"
 import {atan2} from "core/util/math"
-import type {PathMarkingView} from "../graphics/decoration"
+import type {PathPlacementView} from "../graphics/path_placement"
 import type {MarkingGeometry} from "../graphics/marking"
 
 export type PathSegment = {
@@ -143,8 +143,8 @@ export function point_on_path(segments: PathSegment[], distance: number): PathNo
 
 export type ScreenPoint = {x: number, y: number}
 
-export type PositionedDecoration = {
-  decoration: PathMarkingView
+export type PositionedPathMarking = {
+  path_marking: PathPlacementView
   index: number
   sx: number
   sy: number
@@ -152,8 +152,8 @@ export type PositionedDecoration = {
   placement: "start" | "middle" | "end" | number
 }
 
-export function position_decoration(decoration: PathMarkingView, i: number, segments: PathSegment[], total_length: number, placement = decoration.placements(i)[0]): PositionedDecoration {
-  const inset = decoration.inset.get(i)
+export function position_path_marking(path_marking: PathPlacementView, i: number, segments: PathSegment[], total_length: number, placement = path_marking.placements(i)[0]): PositionedPathMarking {
+  const inset = path_marking.inset.get(i)
   const distance = Math.max(0, Math.min(total_length,
     typeof placement == "number" ? placement*total_length :
       placement == "start" ? inset : placement == "middle" ? total_length/2 : total_length - inset))
@@ -174,7 +174,7 @@ export function position_decoration(decoration: PathMarkingView, i: number, segm
       }
       travelled += segment.length
     }
-    const lookback = Math.min(Math.max(0, decoration.marking.line_extent(i)), distance - subpath_start)
+    const lookback = Math.min(Math.max(0, path_marking.marking.line_extent(i)), distance - subpath_start)
     if (lookback > 0) {
       const rear = point_on_path(segments.slice(subpath_index), distance - subpath_start - lookback)
       if (rear.sx != path_node.sx || rear.sy != path_node.sy) {
@@ -182,11 +182,11 @@ export function position_decoration(decoration: PathMarkingView, i: number, segm
       }
     }
   }
-  const angle = decoration.resolve_angle(i, path_angle + Math.PI/2 + (placement == "start" ? Math.PI : 0), path_node.angle + Math.PI/2)
-  return {decoration, index: path_node.index, sx: path_node.sx, sy: path_node.sy, angle, placement}
+  const angle = path_marking.resolve_angle(i, path_angle + Math.PI/2 + (placement == "start" ? Math.PI : 0), path_node.angle + Math.PI/2)
+  return {path_marking, index: path_node.index, sx: path_node.sx, sy: path_node.sy, angle, placement}
 }
 
-export function transform_marking_geometry(geometry: MarkingGeometry, {sx, sy, angle}: PositionedDecoration): MarkingGeometry {
+export function transform_marking_geometry(geometry: MarkingGeometry, {sx, sy, angle}: PositionedPathMarking): MarkingGeometry {
   const {cos, sin} = Math
   const c = cos(angle)
   const s = sin(angle)
@@ -239,39 +239,39 @@ export function marking_intersects_rect(marking: MarkingGeometry, geometry: Rect
   return false
 }
 
-export function paint_decorations(ctx: Context2d, decorations: Iterable<PathMarkingView>, i: number, segments: PathSegment[],
-    visible: (positioned: PositionedDecoration) => boolean = () => true): void {
+export function paint_path_markings(ctx: Context2d, path_markings: Iterable<PathPlacementView>, i: number, segments: PathSegment[],
+    visible: (positioned: PositionedPathMarking) => boolean = () => true): void {
   if (segments.length == 0) {
     return
   }
   const length = path_length(segments)
-  for (const decoration of decorations) {
-    for (const placement of decoration.placements(i)) {
-      const positioned = position_decoration(decoration, i, segments, length, placement)
+  for (const path_marking of path_markings) {
+    for (const placement of path_marking.placements(i)) {
+      const positioned = position_path_marking(path_marking, i, segments, length, placement)
       if (!isFinite(positioned.angle) || !visible(positioned)) {
         continue
       }
       ctx.save()
       ctx.translate(positioned.sx, positioned.sy)
       ctx.rotate(positioned.angle)
-      decoration.marking.paint(ctx, i)
+      path_marking.marking.paint(ctx, i)
       ctx.restore()
     }
   }
 }
 
-export function hit_decoration(point: ScreenPoint, decoration: PathMarkingView, i: number, segments: PathSegment[]): number | null {
+export function hit_path_marking(point: ScreenPoint, path_marking: PathPlacementView, i: number, segments: PathSegment[]): number | null {
   if (segments.length == 0) {
     return null
   }
   const length = path_length(segments)
-  for (const placement of decoration.placements(i)) {
-    const positioned = position_decoration(decoration, i, segments, length, placement)
+  for (const placement of path_marking.placements(i)) {
+    const positioned = position_path_marking(path_marking, i, segments, length, placement)
     const dx = point.x - positioned.sx
     const dy = point.y - positioned.sy
     const c = Math.cos(positioned.angle)
     const s = Math.sin(positioned.angle)
-    if (decoration.marking.contains(c*dx + s*dy, -s*dx + c*dy, i)) {
+    if (path_marking.marking.contains(c*dx + s*dy, -s*dx + c*dy, i)) {
       return positioned.index
     }
   }
@@ -317,16 +317,16 @@ export function span_path_indices(segments: PathSegment[], direction: "h" | "v",
   }).map(segment => segment.index)
 }
 
-export function decoration_hits_span(decoration: PathMarkingView, i: number, segments: PathSegment[], direction: "h" | "v", value: number): number | null {
+export function path_marking_hits_span(path_marking: PathPlacementView, i: number, segments: PathSegment[], direction: "h" | "v", value: number): number | null {
   if (segments.length == 0) {
     return null
   }
-  const geometry = decoration.marking.hit_geometry(i)
+  const geometry = path_marking.marking.hit_geometry(i)
   if (geometry == null) {
     return null
   }
-  for (const placement of decoration.placements(i)) {
-    const positioned = position_decoration(decoration, i, segments, path_length(segments), placement)
+  for (const placement of path_marking.placements(i)) {
+    const positioned = position_path_marking(path_marking, i, segments, path_length(segments), placement)
     const marking = transform_marking_geometry(geometry, positioned)
     const values = direction == "h" ? marking.x : marking.y
     if (Math.min(...values) <= value && value <= Math.max(...values)) {
@@ -336,16 +336,16 @@ export function decoration_hits_span(decoration: PathMarkingView, i: number, seg
   return null
 }
 
-export function decoration_hits_rect(decoration: PathMarkingView, i: number, segments: PathSegment[], rect: RectGeometry): number | null {
+export function path_marking_hits_rect(path_marking: PathPlacementView, i: number, segments: PathSegment[], rect: RectGeometry): number | null {
   if (segments.length == 0) {
     return null
   }
-  const geometry = decoration.marking.hit_geometry(i)
+  const geometry = path_marking.marking.hit_geometry(i)
   if (geometry == null) {
     return null
   }
-  for (const placement of decoration.placements(i)) {
-    const positioned = position_decoration(decoration, i, segments, path_length(segments), placement)
+  for (const placement of path_marking.placements(i)) {
+    const positioned = position_path_marking(path_marking, i, segments, path_length(segments), placement)
     if (marking_intersects_rect(transform_marking_geometry(geometry, positioned), rect)) {
       return positioned.index
     }

@@ -1,7 +1,7 @@
 ''' Compare arrowhead directions along a curve.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.models.PathMarking, bokeh.models.GlyphRenderer.add_path_markings
+    :apis: bokeh.models.PathPlacement, bokeh.models.GlyphRenderer.add_path_marking
     :refs: :ref:`ug_basic_annotations_path_markings`
     :keywords: arrowheads, paths, angles
 
@@ -42,7 +42,7 @@ for title, reference, angle, color in [
 ]:
     p, renderer = panel(title)
     head = NormalHead(size=15, fill_color=color, line_color=color)
-    renderer.add_path_markings(head, positions=positions, angle_reference=reference, angle=angle)
+    renderer.add_path_marking(head, at=positions, angle_reference=reference, angle=angle)
     panels.append(p)
 
 show(column(row(*panels[:3]), row(*panels[3:])))

@@ -5,7 +5,7 @@ import {expect} from "#framework/assertions"
 import {create_glyph_view} from "./_util"
 import {MultiLine} from "@bokehjs/models/glyphs/multi_line"
 import {NormalHead} from "@bokehjs/models/annotations/arrow_head"
-import {PathMarking} from "@bokehjs/models/graphics/decoration"
+import {PathPlacement} from "@bokehjs/models/graphics/path_placement"
 import type {Context2d} from "@bokehjs/core/util/canvas"
 
 describe("MultiLine", () => {
@@ -19,13 +19,13 @@ describe("MultiLine", () => {
     expect(glyph_view.renderer.model.data_source.get_array("xs")).to.be.equal(expected_xs)
   })
 
-  it("should place vectorized end decorations on the final path tangent and stop the shaft at the rear of the marking", async () => {
+  it("should place vectorized end path_markings on the final path tangent and stop the shaft at the rear of the marking", async () => {
     const marking = NormalHead.create({size: {field: "head_size"}})
-    const decoration = PathMarking.create({marking, node: "end", inset: {field: "inset"}})
+    const path_marking = PathPlacement.create({marking, positions: "end", inset: {field: "inset"}})
     const glyph = MultiLine.create({
       xs: {field: "xs"},
       ys: {field: "ys"},
-      decorations: [decoration],
+      path_markings: [path_marking],
     })
     const glyph_view = await create_glyph_view(glyph, {
       xs: [[0, 40, 100]],
@@ -34,7 +34,7 @@ describe("MultiLine", () => {
       head_size: [12],
     } as any)
     expect((glyph_view as any)._compute_can_use_webgl()).to.be.false
-    const [decoration_view] = glyph_view.decorations.values()
+    const [decoration_view] = glyph_view.path_markings.values()
     const paint = sinon.stub(decoration_view.marking, "paint")
     const save = sinon.spy()
     const restore = sinon.spy()
@@ -46,7 +46,7 @@ describe("MultiLine", () => {
     const stroke = sinon.spy()
     const ctx = {save, restore, translate, rotate, beginPath, moveTo, lineTo, stroke} as unknown as Context2d
 
-    ;(glyph_view as any)._render_decorations(
+    ;(glyph_view as any)._render_path_markings(
       ctx,
       0,
       new Float64Array([0, 40, 100]),
@@ -71,7 +71,7 @@ describe("MultiLine", () => {
     expect(lineTo.calledWith(80, 30)).to.be.false
     expect(lineTo.calledWith(100, 30)).to.be.false
 
-    decoration.inset = 10
+    path_marking.inset = 10
     marking.size = 18
     await decoration_view.ready
     expect(decoration_view.inset.get(0)).to.be.equal(10)
@@ -81,11 +81,11 @@ describe("MultiLine", () => {
   for (const placement of ["start", "end"] as const) {
     it(`should hit a curved decorated path only where its shaft or marking is visible at ${placement}`, async () => {
       const marking = NormalHead.create({size: 12})
-      const decoration = PathMarking.create({marking, node: placement, inset: 20})
+      const path_marking = PathPlacement.create({marking, positions: placement, inset: 20})
       const glyph = MultiLine.create({
         xs: {field: "xs"},
         ys: {field: "ys"},
-        decorations: [decoration],
+        path_markings: [path_marking],
       })
       const glyph_view = await create_glyph_view(glyph, {
         xs: [[0, 50, 100]],

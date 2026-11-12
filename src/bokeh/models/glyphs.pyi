@@ -65,10 +65,12 @@ from .glyph import (
     ConnectedXYGlyph,
     Glyph,
     RadialGlyph,
+    SupportsPathMarking,
     XYGlyph,
     _ConnectedXYGlyphInit,
     _GlyphInit,
     _RadialGlyphInit,
+    _SupportsPathMarkingInit,
     _XYGlyphInit,
 )
 from .mappers import ColorMapper, StackColorMapper
@@ -133,7 +135,7 @@ class Annulus(XYGlyph, LineProps, FillProps, HatchProps):
     inner_radius: DistanceSpec = ...
     outer_radius: DistanceSpec = ...
 
-class _ArcInit(_XYGlyphInit, _LinePropsInit, total=False):
+class _ArcInit(_XYGlyphInit, _LinePropsInit, _SupportsPathMarkingInit, total=False):
     x: NumberSpec
     y: NumberSpec
     radius: DistanceSpec
@@ -141,7 +143,7 @@ class _ArcInit(_XYGlyphInit, _LinePropsInit, total=False):
     end_angle: AngleSpec
     direction: Direction
 
-class Arc(XYGlyph, LineProps):
+class Arc(XYGlyph, LineProps, SupportsPathMarking):
     def __init__(self, **kwargs: Unpack[_ArcInit]) -> None: ...
 
     x: NumberSpec = ...
@@ -151,7 +153,7 @@ class Arc(XYGlyph, LineProps):
     end_angle: AngleSpec = ...
     direction: Direction = ...
 
-class _BezierInit(_GlyphInit, _LinePropsInit, total=False):
+class _BezierInit(_GlyphInit, _LinePropsInit, _SupportsPathMarkingInit, total=False):
     x0: NumberSpec
     y0: NumberSpec
     x1: NumberSpec
@@ -161,7 +163,7 @@ class _BezierInit(_GlyphInit, _LinePropsInit, total=False):
     cx1: NumberSpec
     cy1: NumberSpec
 
-class Bezier(Glyph, LineProps):
+class Bezier(Glyph, LineProps, SupportsPathMarking):
     def __init__(self, **kwargs: Unpack[_BezierInit]) -> None: ...
 
     x0: NumberSpec = ...
@@ -376,21 +378,21 @@ class ImageURL(XYGlyph):
     retry_attempts: int = ...
     retry_timeout: int = ...
 
-class _LineInit(_ConnectedXYGlyphInit, _ScalarLinePropsInit, total=False):
+class _LineInit(_ConnectedXYGlyphInit, _ScalarLinePropsInit, _SupportsPathMarkingInit, total=False):
     x: NumberSpec
     y: NumberSpec
 
-class Line(ConnectedXYGlyph, ScalarLineProps):
+class Line(ConnectedXYGlyph, ScalarLineProps, SupportsPathMarking):
     def __init__(self, **kwargs: Unpack[_LineInit]) -> None: ...
 
     x: NumberSpec = ...
     y: NumberSpec = ...
 
-class _MultiLineInit(_GlyphInit, _LinePropsInit, total=False):
+class _MultiLineInit(_GlyphInit, _LinePropsInit, _SupportsPathMarkingInit, total=False):
     xs: NumberSpec
     ys: NumberSpec
 
-class MultiLine(Glyph, LineProps):
+class MultiLine(Glyph, LineProps, SupportsPathMarking):
     def __init__(self, **kwargs: Unpack[_MultiLineInit]) -> None: ...
 
     xs: NumberSpec = ...
@@ -520,13 +522,13 @@ class Scatter(Marker):
     marker: MarkerSpec = ...
     defs: dict[str, CustomJS] = ...
 
-class _SegmentInit(_GlyphInit, _LinePropsInit, total=False):
+class _SegmentInit(_GlyphInit, _LinePropsInit, _SupportsPathMarkingInit, total=False):
     x0: NumberSpec
     y0: NumberSpec
     x1: NumberSpec
     y1: NumberSpec
 
-class Segment(Glyph, LineProps):
+class Segment(Glyph, LineProps, SupportsPathMarking):
     def __init__(self, **kwargs: Unpack[_SegmentInit]) -> None: ...
 
     x0: NumberSpec = ...

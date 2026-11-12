@@ -564,7 +564,6 @@
                     type: "map",
                   },
                   syncable: true,
-                  decorations: [],
                   x: {
                     type: "value",
                     value: 0,
@@ -858,7 +857,7 @@
                     type: "map",
                   },
                   syncable: true,
-                  decorations: [],
+                  path_markings: [],
                   xs: {
                     type: "value",
                     value: [

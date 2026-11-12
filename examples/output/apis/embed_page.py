@@ -98,9 +98,9 @@ arrow = plot.add_glyph(arrow_source, Segment(
     x0="x_start", y0="y", x1="x_end", y1="y",
     line_color="black", line_width=1.5,
 ))
-arrow.add_path_decoration(
+arrow.add_path_marking(
     NormalHead(size=6, fill_color="black", line_color="black"),
-    node="start",
+    at="start",
 )
 
 meters_back = Label(

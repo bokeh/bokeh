@@ -111,7 +111,7 @@ Examples:
         Returns:
             :class:`~bokeh.models.renderers.GlyphRenderer`
         """
-        from ..models.annotations import OpenHead
+        from ..models.annotations.arrows import auto_arrowhead
 
         kwargs.setdefault("level", "annotation")
         renderer = self.segment(
@@ -119,11 +119,11 @@ Examples:
             **kwargs,
         )
         if start is not None:
-            renderer.add_path_decoration(start, node="start", inset=start_inset)
+            renderer.add_path_marking(start, at="start", inset=start_inset)
         if end == "auto":
-            end = OpenHead(inherit_visuals=["line_color", "line_alpha", "line_width"])
+            end = auto_arrowhead()
         if end is not None:
-            renderer.add_path_decoration(end, node="end", inset=end_inset)
+            renderer.add_path_marking(end, at="end", inset=end_inset)
         return renderer
 
     def whisker(self, base: Any = "base", lower: Any = "lower", upper: Any = "upper", *,
@@ -153,7 +153,7 @@ Examples:
             renderer = self.segment(lower, base, upper, "y0" if literal_base else base, **kwargs)
             angle = -pi/2
         for node in ("start", "end"):
-            renderer.add_path_decoration(cap, node=node, angle=angle, angle_reference="screen")
+            renderer.add_path_marking(cap, at=node, angle=angle, angle_reference="screen")
         return renderer
 
     @glyph_method(glyphs.Arc)

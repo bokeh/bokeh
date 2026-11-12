@@ -17,7 +17,7 @@ describe("Arrowhead angle overrides", () => {
           line_color: "navy", line_width: 2, level: "annotation",
         })
         for (const node of ["start", "end"] as const) {
-          renderer.add_path_decoration(head, {node, angle: angle ?? 0, angle_reference: angle == null ? "auto" : "screen"})
+          renderer.add_path_marking(head, {at: node, angle: angle ?? 0, angle_reference: angle == null ? "auto" : "screen"})
         }
         return p
       }
@@ -33,7 +33,7 @@ describe("Arrowhead angle overrides", () => {
       })
       for (const [x, angle] of [[1, 0], [2, -Math.PI/2]]) {
         const renderer = p.segment({x0: x, y0: 1.5, x1: x, y1: 1.5, line_alpha: 0, level: "annotation"})
-        renderer.add_path_decoration(TeeHead.create({size: 30, line_width: 3}), {node: "end", angle, angle_reference: "screen"})
+        renderer.add_path_marking(TeeHead.create({size: 30, line_width: 3}), {at: "end", angle, angle_reference: "screen"})
       }
       await display(p)
     })

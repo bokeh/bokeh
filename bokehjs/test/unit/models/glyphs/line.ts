@@ -4,9 +4,9 @@ import {expect} from "#framework/assertions"
 import {create_glyph_view} from "./_util"
 import {Line} from "@bokehjs/models/glyphs/line"
 import {NormalHead} from "@bokehjs/models/annotations/arrow_head"
-import {PathMarking, PathMarkings} from "@bokehjs/models/graphics/decoration"
+import {PathPlacement} from "@bokehjs/models/graphics/path_placement"
 
-describe("Line decorations", () => {
+describe("Line path_markings", () => {
   for (const placement of ["middle", 0.5] as const) {
     for (const [x, endpoints] of [
       [[0, 90, 95, 100], [0, 1]],
@@ -14,15 +14,15 @@ describe("Line decorations", () => {
       [[0, 90, NaN, 95, 100], [0, 1]],
     ]) {
       it(`should select the ${placement} head with its actual path segment for x=${x}`, async () => {
-        const glyph = Line.create({decorations: [
+        const glyph = Line.create({path_markings: [
           typeof placement == "number"
-            ? PathMarkings.create({positions: [placement], marking: NormalHead.create({size: 12})})
-            : PathMarking.create({node: placement, marking: NormalHead.create({size: 12})}),
+            ? PathPlacement.create({positions: [placement], marking: NormalHead.create({size: 12})})
+            : PathPlacement.create({positions: placement, marking: NormalHead.create({size: 12})}),
         ]})
         const view = await create_glyph_view(glyph, {x, y: x.map(value => isFinite(value) ? 50 : NaN)})
         const {renderer} = view
-        const selected_marking = [...renderer.selection_glyph.decorations.values()][0].marking
-        const nonselected_marking = [...renderer.nonselection_glyph.decorations.values()][0].marking
+        const selected_marking = [...renderer.selection_glyph.path_markings.values()][0].marking
+        const nonselected_marking = [...renderer.nonselection_glyph.path_markings.values()][0].marking
         using selected_paint = restorable(sinon.spy(selected_marking, "paint"))
         using nonselected_paint = restorable(sinon.spy(nonselected_marking, "paint"))
         const ctx = view.canvas.create_layer().ctx
@@ -46,8 +46,8 @@ describe("Line decorations", () => {
 
   for (const placement of ["start", "end"] as const) {
     it(`should hit visible heads and trimmed shafts without losing Line selection indices at ${placement}`, async () => {
-      const glyph = Line.create({x: {field: "x"}, y: {field: "y"}, decorations: [
-        PathMarking.create({node: placement, inset: 20, marking: NormalHead.create({size: 12})}),
+      const glyph = Line.create({x: {field: "x"}, y: {field: "y"}, path_markings: [
+        PathPlacement.create({positions: placement, inset: 20, marking: NormalHead.create({size: 12})}),
       ]})
       const view = await create_glyph_view(glyph, {x: [0, 50, 100], y: [50, 50, 50]})
       const sx = placement == "end" ? view.sx[2] : view.sx[0], sy = view.sy[2]

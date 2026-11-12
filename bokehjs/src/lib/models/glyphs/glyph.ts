@@ -28,7 +28,8 @@ import {FactorRange} from "../ranges/factor_range"
 import {Selection} from "../selections/selection"
 import type {GlyphRendererView} from "../renderers/glyph_renderer"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
-import {Decoration, PathMarking, PathMarkings} from "../graphics/decoration"
+import {PathPlacement} from "../graphics/path_placement"
+import {List, Ref} from "core/kinds"
 import type {BaseGLGlyph, BaseGLGlyphConstructor} from "./webgl/base"
 
 const {abs, ceil} = Math
@@ -97,26 +98,22 @@ export abstract class GlyphView extends DOMComponentView {
     this.visuals = new visuals.Visuals(this)
   }
 
-  readonly decorations: ViewStorage<PathMarking | PathMarkings> = new Map()
+  readonly path_markings: ViewStorage<PathPlacement> = new Map()
 
-  protected async _build_decorations(): Promise<void> {
-    const models = this.model.decorations.map((decoration) => {
-      assert(decoration instanceof PathMarking || decoration instanceof PathMarkings,
-        `${this.model.type} does not support ${decoration.type} decorations`)
-      return decoration
-    })
-    await build_views(this.decorations, models, {parent: this})
+  protected async _build_path_markings(): Promise<void> {
+    const models = supports_path_marking(this.model) ? this.model.path_markings : []
+    await build_views(this.path_markings, models, {parent: this})
   }
 
-  protected _decoration_insets(i: number): {start: number, end: number} {
+  protected _path_marking_insets(i: number): {start: number, end: number} {
     let start = 0
     let end = 0
 
-    for (const decoration of this.decorations.values()) {
-      const inset = decoration.shaft_inset(i)
-      if (decoration.node == "start") {
+    for (const path_marking of this.path_markings.values()) {
+      const inset = path_marking.shaft_inset(i)
+      if (path_marking.node == "start") {
         start = Math.max(start, inset)
-      } else if (decoration.node == "end") {
+      } else if (path_marking.node == "end") {
         end = Math.max(end, inset)
       }
     }
@@ -125,12 +122,12 @@ export abstract class GlyphView extends DOMComponentView {
   }
 
   override _children_views(): ChildView[] {
-    return [...super._children_views(), ...this.decorations.values()]
+    return [...super._children_views(), ...this.path_markings.values()]
   }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-    await this._build_decorations()
+    await this._build_path_markings()
 
     const {webgl} = this.canvas
     if (webgl != null && this.load_glglyph != null) {
@@ -141,15 +138,18 @@ export abstract class GlyphView extends DOMComponentView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.decorations.change, async () => {
-      await this._build_decorations()
+    if (!supports_path_marking(this.model)) {
+      return
+    }
+    this.connect(this.model.properties.path_markings.change, async () => {
+      await this._build_path_markings()
       if (this.is_destroyed) {
         return
       }
       const source = this.renderer.model.data_source
       const indices = this.renderer.model.view.indices
-      for (const decoration of this.decorations.values()) {
-        decoration.set_data(source, indices)
+      for (const path_marking of this.path_markings.values()) {
+        path_marking.set_data(source, indices)
       }
       if (this.glglyph != null) {
         this._can_use_webgl = this._compute_can_use_webgl()
@@ -159,7 +159,7 @@ export abstract class GlyphView extends DOMComponentView {
   }
 
   override remove(): void {
-    remove_views(this.decorations)
+    remove_views(this.path_markings)
     super.remove()
   }
 
@@ -181,8 +181,8 @@ export abstract class GlyphView extends DOMComponentView {
 
   // oxlint-disable-next-line typescript/no-generated-empty-object-type -- subclasses define their own data
   paint(ctx: Context2d, indices: Int32Array, data?: Partial<Glyph.Data>): void {
-    for (const decoration of this.decorations.values()) {
-      decoration.marking.inherit_from(this)
+    for (const path_marking of this.path_markings.values()) {
+      path_marking.marking.inherit_from(this)
     }
     if (this.has_webgl()) {
       this.glglyph.render(ctx, indices, this.base ?? this)
@@ -575,8 +575,8 @@ export abstract class GlyphView extends DOMComponentView {
     this._set_data(indices_to_update ?? null) // TODO doesn't take subset indices into account
     await this._set_lazy_data(indices_to_update ?? null) // TODO doesn't take subset indices into account
 
-    for (const decoration of this.decorations.values()) {
-      decoration.set_data(source, indices)
+    for (const path_marking of this.path_markings.values()) {
+      path_marking.set_data(source, indices)
     }
 
     if (this.glglyph != null) {
@@ -676,9 +676,7 @@ export abstract class GlyphView extends DOMComponentView {
 export namespace Glyph {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Model.Props & {
-    decorations: p.Property<Decoration[]>
-  }
+  export type Props = Model.Props
 
   export type Visuals = visuals.Visuals
 
@@ -689,16 +687,20 @@ export namespace Glyph {
 export interface Glyph extends Glyph.Attrs {}
 
 export abstract class Glyph extends Model {
-  _supports_path_decorations(_placement: string | number): boolean {
-    return false
-  }
-
   declare properties: Glyph.Props
   declare __view_type__: GlyphView
+}
 
-  static {
-    this.define<Glyph.Props>(({List, Ref}) => ({
-      decorations: [ List(Ref(Decoration)), [] ],
-    }))
-  }
+export type SupportsPathMarking = {
+  path_markings: p.Property<PathPlacement[]>
+}
+
+export const SupportsPathMarking: p.DefineOf<SupportsPathMarking> = {
+  path_markings: [List(Ref(PathPlacement)), []],
+}
+
+export function supports_path_marking<T extends Glyph>(glyph: T): glyph is T & p.AttrsOf<SupportsPathMarking> & {
+  properties: SupportsPathMarking
+} {
+  return "path_markings" in glyph.properties
 }

@@ -1,5 +1,5 @@
 import {assert} from "@bokehjs/core/util/assert"
-import {PathMarking} from "@bokehjs/models/graphics/decoration"
+import {PathPlacement} from "@bokehjs/models/graphics/path_placement"
 import {expect} from "#framework/assertions"
 
 import {figure} from "@bokehjs/api/plotting"
@@ -7,7 +7,7 @@ import {construct} from "@bokehjs/core/has_props"
 import type {HasProps, HasPropsClass, ModelAttrs} from "@bokehjs/core/has_props"
 import {
   Circle, ColumnDataSource, LinearAxis,
-  NormalHead, OpenHead, Segment,
+  NormalHead, Segment,
 } from "@bokehjs/models"
 
 describe("in api/plotting module", () => {
@@ -175,28 +175,27 @@ describe("in api/plotting module", () => {
         expect(() => p.annular_wedge({...attrs, end_angle_units: "deg"})).to.throw(Error)
       })
 
-      it("should construct arrows from decorated segments", () => {
-        const start = NormalHead.create({size: 10})
-        const end = OpenHead.create({size: 12})
-        const renderer = figure().arrow(10, 20, 1, 2, {
-          start, end,
-          start_inset: 3, end_inset: 4,
+      describe("arrow()", () => {
+        it("should construct an annotation segment with the supplied coordinates", () => {
+          const renderer = figure().arrow(10, 20, 1, 2)
+          expect(renderer.glyph).to.be.instanceof(Segment)
+          expect(renderer.level).to.be.equal("annotation")
+          expect([renderer.glyph.x0, renderer.glyph.y0, renderer.glyph.x1, renderer.glyph.y1])
+            .to.be.equal([{value: 10}, {value: 20}, {value: 1}, {value: 2}])
         })
 
-        expect(renderer.glyph).to.be.instanceof(Segment)
-        expect(renderer.level).to.be.equal("annotation")
-        expect(renderer.glyph.x0).to.be.equal({value: 10})
-        expect(renderer.glyph.y0).to.be.equal({value: 20})
-        expect(renderer.glyph.x1).to.be.equal({value: 1})
-        expect(renderer.glyph.y1).to.be.equal({value: 2})
-        expect(renderer.glyph.decorations.length).to.be.equal(2)
-        assert(renderer.glyph.decorations[0] instanceof PathMarking && renderer.glyph.decorations[1] instanceof PathMarking)
-        expect(renderer.glyph.decorations[0].marking).to.be.identical(start)
-        expect(renderer.glyph.decorations[0].node).to.be.equal("start")
-        expect(renderer.glyph.decorations[0].inset).to.be.equal({value: 3})
-        expect(renderer.glyph.decorations[1].marking).to.be.identical(end)
-        expect(renderer.glyph.decorations[1].node).to.be.equal("end")
-        expect(renderer.glyph.decorations[1].inset).to.be.equal({value: 4})
+        for (const node of ["start", "end"] as const) {
+          it(`should place the supplied ${node} head with its inset`, () => {
+            const head = NormalHead.create({size: 10})
+            const renderer = figure().arrow({start: null, end: null, [node]: head, [`${node}_inset`]: 3})
+            const [path_marking] = renderer.glyph.path_markings
+            expect(renderer.glyph.path_markings.length).to.be.equal(1)
+            assert(path_marking instanceof PathPlacement)
+            expect(path_marking.marking).to.be.identical(head)
+            expect(path_marking.positions).to.be.equal({value: node})
+            expect(path_marking.inset).to.be.equal({value: 3})
+          })
+        }
       })
     })
 
