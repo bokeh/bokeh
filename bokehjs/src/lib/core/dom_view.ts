@@ -3,7 +3,7 @@ import type {SerializableState} from "./view"
 import type {StyleSheet, StyleSheetLike} from "./stylesheets"
 import {InlineStyleSheet} from "./stylesheets"
 import type {ARIARole} from "./dom"
-import {create_element, empty, ClassList} from "./dom"
+import {create_element, empty} from "./dom"
 import {isString} from "./util/types"
 import {assert} from "./util/assert"
 import type {BBox} from "./util/bbox"
@@ -122,13 +122,6 @@ export abstract class DOMView extends View {
 export abstract class DOMElementView extends DOMView {
   declare el: HTMLElement
 
-  class_list: ClassList
-
-  override initialize(): void {
-    super.initialize()
-    this.class_list = new ClassList(this.el.classList)
-  }
-
   get self_target(): RenderingTarget {
     return this.el
   }
@@ -194,7 +187,7 @@ export abstract class DOMComponentView extends DOMElementView {
 
   empty(): void {
     empty(this.shadow_el)
-    this.class_list.clear()
+    this.el.removeAttribute("class")
     this._applied_css_classes = []
   }
 
@@ -337,11 +330,11 @@ export abstract class DOMComponentView extends DOMElementView {
   protected _applied_css_classes: string[] = []
   protected _apply_css_classes(classes: string[]): void {
     this._applied_css_classes.push(...classes)
-    this.class_list.add(...classes)
+    this.el.classList.add(...classes)
   }
 
   protected _update_css_classes(): void {
-    this.class_list.remove(this._applied_css_classes)
+    this.el.classList.remove(...this._applied_css_classes)
     this._applied_css_classes = []
     this._apply_css_classes([...this._css_classes()])
   }
