@@ -9,6 +9,9 @@ import {clamp} from "core/util/math"
 import {Enum} from "core/kinds"
 import * as inputs_css from "styles/widgets/inputs.css"
 import * as dropdown_css from "styles/dropdown.css"
+import * as menu_css from "styles/widgets/autocomplete_menu.css"
+import {DropPane} from "core/util/panes"
+import {InlineStyleSheet} from "core/dom"
 
 import type {TargetedEvent, TargetedKeyboardEvent} from "preact"
 import {createRef} from "preact"
@@ -16,6 +19,8 @@ import {signal} from "@preact/signals"
 
 const SearchStrategy = Enum("starts_with", "includes")
 type SearchStrategy = typeof SearchStrategy["__type__"]
+
+const menu_stylesheets = [new InlineStyleSheet(menu_css.default)]
 
 export class AutocompleteInputView extends TextInputView {
   declare readonly model: AutocompleteInput
@@ -65,22 +70,24 @@ export class AutocompleteInputView extends TextInputView {
   }
 
   protected _menu(): VNode {
-    const open = this._open.value
     const completions = this._completions.value
     const hover_index = this._hover_index.value
     return (
-      <div
+      <DropPane
+        open={this._open.value}
+        on_dismiss={this._hide_menu}
+        ignore={this.el}
         class={cls(dropdown_css.menu, dropdown_css.below)}
-        style={{display: open ? undefined : "none"}}
+        stylesheets={menu_stylesheets}
       >
         {completions.map((text, i) => (
           <div
-            class={cls(i == hover_index ? dropdown_css.active : null)}
+            class={cls(menu_css.item, i == hover_index ? menu_css.active : null)}
             onClick={() => this._select(text)}
             onMouseOver={() => this._bump_hover(i)}
           >{text}</div>
         ))}
-      </div>
+      </DropPane>
     )
   }
 
@@ -159,17 +166,10 @@ export class AutocompleteInputView extends TextInputView {
     if (!this._open.value) {
       this._open.value = true
       this._hover_index.value = 0
-
-      const listener = (event: MouseEvent) => {
-        if (!event.composedPath().includes(this.el)) {
-          document.removeEventListener("click", listener)
-          this._hide_menu()
-        }
-      }
-      document.addEventListener("click", listener, {signal: this.abort_signal})
     }
   }
 
+  @bind
   protected _hide_menu(): void {
     this._open.value = false
   }
