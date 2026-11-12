@@ -320,7 +320,8 @@ def test_horizontal_whisker() -> None:
     renderer = p.whisker(["a"], [-1.5], [-0.5], dimension="width", level="annotation")
     assert renderer.level == "annotation"
     assert renderer.glyph.decorations[0].angle == -pi/2
-    assert renderer.data_source.data == dict(x0=[-1.5], y0=["a"], x1=[-0.5], y1=["a"])
+    assert renderer.data_source.data == dict(x0=[-1.5], y0=["a"], x1=[-0.5])
+    assert renderer.glyph.y0 == renderer.glyph.y1 == "y0"
     assert renderer.glyph.decorations[0].marking.size == 10
 
 

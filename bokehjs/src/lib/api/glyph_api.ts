@@ -213,7 +213,8 @@ export type VStripArgs        = GlyphArgs<VStrip.Props>        & AuxLine & AuxFi
 export type WedgeArgs         = GlyphArgs<Wedge.Props>         & AuxLine & AuxFill & AuxHatch
 
 export abstract class GlyphAPI {
-  abstract _glyph<G extends Glyph>(cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides?: object): GlyphRenderer<G>
+  abstract _glyph<G extends Glyph>(cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[],
+    overrides?: object, alias?: readonly [from: string, to: string]): GlyphRenderer<G>
 
   annular_wedge(): GlyphRenderer<AnnularWedge>
   annular_wedge(args: Partial<AnnularWedgeArgs>): GlyphRenderer<AnnularWedge>
@@ -301,7 +302,35 @@ export abstract class GlyphAPI {
     return renderer
   }
 
-  whisker(options: Partial<WhiskerArgs> = {}): GlyphRenderer<Segment> {
+  whisker(args?: Partial<WhiskerArgs>): GlyphRenderer<Segment>
+  whisker(
+    base: WhiskerArgs["base"],
+    lower: WhiskerArgs["lower"],
+    upper: WhiskerArgs["upper"],
+    args?: Partial<WhiskerArgs>): GlyphRenderer<Segment>
+  whisker(...args: unknown[]): GlyphRenderer<Segment> {
+    const signature = "the method signature is whisker(base, lower, upper, args?)"
+    const options: Partial<WhiskerArgs> = (() => {
+      if (args.length == 0 || (args.length == 1 && args[0] === undefined)) {
+        return {}
+      }
+      if (args.length == 1 && isPlainObject(args[0]) && !isVectorized(args[0])) {
+        return args[0]
+      }
+      if (args.length == 3 || args.length == 4) {
+        const [base, lower, upper, options] = args
+        if (options != null && (!isPlainObject(options) || isVectorized(options))) {
+          throw new Error(`expected optional arguments: ${signature}`)
+        }
+        return {
+          ...(options as Partial<WhiskerArgs> | undefined),
+          base: base as WhiskerArgs["base"],
+          lower: lower as WhiskerArgs["lower"],
+          upper: upper as WhiskerArgs["upper"],
+        }
+      }
+      throw new Error(`wrong number of arguments: ${signature}`)
+    })()
     const {
       base = {field: "base"}, lower = {field: "lower"}, upper = {field: "upper"},
       dimension = "height", cap_size = 10, level = "underlay", ...attrs
@@ -312,8 +341,9 @@ export abstract class GlyphAPI {
       throw new Error("dimension must be 'height' or 'width'")
     }
     const cap = TeeHead.create({size: cap_size, inherit_visuals: ["line_color", "line_alpha", "line_width"]})
-    const [x0, y0, x1, y1] = dimension == "height" ? [base, lower, base, upper] : [lower, base, upper, base]
-    const renderer = this.segment({...attrs, x0, y0, x1, y1, level})
+    const [x0, y0, x1, y1] = dimension == "height" ? [base, lower, undefined, upper] : [lower, base, upper, undefined]
+    const alias = dimension == "height" ? ["x0", "x1"] as const : ["y0", "y1"] as const
+    const renderer = this._glyph(Segment, "segment", ["x0", "y0", "x1", "y1"], [{...attrs, x0, y0, x1, y1, level}], {}, alias)
     const angle = dimension == "height" ? 0 : -Math.PI/2
     for (const node of ["start", "end"] as const) {
       renderer.add_path_decoration(cap, {node, angle, angle_reference: "screen"})

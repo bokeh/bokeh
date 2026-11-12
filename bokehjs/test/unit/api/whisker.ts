@@ -25,6 +25,22 @@ describe("whisker()", () => {
     expect(figure().whisker({source}).data_source).to.be.identical(source)
   })
 
+  it("should accept positional coordinates and options", () => {
+    const {glyph, level} = figure().whisker(5, 2, 8, {dimension: "width", level: "annotation"})
+    expect([glyph.x0, glyph.y0, glyph.x1, glyph.y1]).to.be.equal([
+      {value: 2}, {value: 5}, {value: 8}, {value: 5},
+    ])
+    expect(level).to.be.equal("annotation")
+  })
+
+  it("should share the generated base column when the source has a conflicting column name", () => {
+    const source = ColumnDataSource.create({data: {x0: [99]}})
+    const {glyph} = figure().whisker([2], 1, 3, {source})
+    expect(glyph.x0).to.be.equal({field: "x0__1"})
+    expect(glyph.x1).to.be.equal(glyph.x0)
+    expect(source.data).to.be.equal({x0: [99], x0__1: [2]})
+  })
+
   it("should use the whisker coordinates when raw segment coordinates are supplied", () => {
     const renderer = figure().whisker({
       base: 1, lower: 2, upper: 3,

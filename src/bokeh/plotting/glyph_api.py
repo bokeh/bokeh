@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+from collections.abc import Iterable
 from math import pi
 from typing import TYPE_CHECKING, Any
 
@@ -143,11 +144,13 @@ Examples:
             raise ValueError("dimension must be 'height' or 'width'")
         cap = TeeHead(size=cap_size, inherit_visuals=["line_color", "line_alpha", "line_width"])
         kwargs.setdefault("level", "underlay")
+        # Segment turns a literal base into the x0 or y0 source column.
+        literal_base = kwargs.get("source") is None and isinstance(base, Iterable) and not isinstance(base, (str, dict))
         if dimension == "height":
-            renderer = self.segment(base, lower, base, upper, **kwargs)
+            renderer = self.segment(base, lower, "x0" if literal_base else base, upper, **kwargs)
             angle = 0
         else:
-            renderer = self.segment(lower, base, upper, base, **kwargs)
+            renderer = self.segment(lower, base, upper, "y0" if literal_base else base, **kwargs)
             angle = -pi/2
         for node in ("start", "end"):
             renderer.add_path_decoration(cap, node=node, angle=angle, angle_reference="screen")
