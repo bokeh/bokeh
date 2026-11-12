@@ -259,6 +259,16 @@ class NumericInput(InputWidget):
     format = Either(Null, String, Instance(TickFormatter), help="""
     """)
 
+    prefix = Nullable(String, help="""
+    An optional string prefix to display before the input. This is useful to
+    indicate e.g. a variable the entered value will be assigned to.
+    """)
+
+    suffix = Nullable(String, help="""
+    An optional string suffix to display after the input. This is useful to
+    indicate e.g. the units of measurement of the entered value.
+    """)
+
 
 class Spinner(NumericInput):
     ''' Numeric Spinner input widget.

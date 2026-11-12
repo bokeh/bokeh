@@ -7549,6 +7549,8 @@
     placeholder: "",
     mode: "int",
     format: null,
+    prefix: null,
+    suffix: null,
   },
   PaletteSelect: {
     __extends__: "InputWidget",
