@@ -52,7 +52,7 @@ df = pd.merge(df, qs, on="kind", how="left")
 
 source = ColumnDataSource(qs)
 
-p = figure(x_range=kinds, tools="", toolbar_location=None,
+p = figure(x_range=kinds, tools=None,
            title="Highway MPG distribution by vehicle class",
            background_fill_color="#eaefef", y_axis_label="MPG")
 

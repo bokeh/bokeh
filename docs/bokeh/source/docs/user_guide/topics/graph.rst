@@ -63,7 +63,7 @@ The following code snippet
     node_indices = list(range(N))
 
     plot = figure(title="Graph layout demonstration", x_range=(-1.1,1.1),
-                  y_range=(-1.1,1.1), tools="", toolbar_location=None)
+                  y_range=(-1.1,1.1), tools=None)
 
     graph = GraphRenderer()
 

@@ -43,7 +43,7 @@ def scale(mic):
     return - sqrt(log(mic * 1E4)) + (micmin + micmax)
 
 p = figure(
-    width=800, height=800, title=None, tools="", toolbar_location=None,
+    width=800, height=800, title=None, tools=None,
     x_axis_type=None, y_axis_type=None, match_aspect=True,
     min_border=0, outline_line_color="black", background_fill_color="#f0e1d2",
 )

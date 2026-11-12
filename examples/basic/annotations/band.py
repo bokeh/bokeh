@@ -28,7 +28,7 @@ df["upper"] = df.y_mean + df.y_std
 
 source = ColumnDataSource(df.reset_index())
 
-p = figure(tools="", toolbar_location=None, x_range=(40, 160))
+p = figure(tools=None, x_range=(40, 160))
 p.title.text = "Rolling Standard Deviation"
 p.xgrid.grid_line_color=None
 p.ygrid.grid_line_alpha=0.5

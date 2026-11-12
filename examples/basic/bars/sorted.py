@@ -18,7 +18,7 @@ counts = [5, 3, 4, 2, 4, 6]
 sorted_fruits = sorted(fruits, key=lambda x: counts[fruits.index(x)])
 
 p = figure(x_range=sorted_fruits, height=350, title="Fruit Counts",
-           toolbar_location=None, tools="")
+           tools=None)
 
 p.vbar(x=fruits, top=counts, width=0.9)
 

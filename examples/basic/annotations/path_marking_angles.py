@@ -19,7 +19,7 @@ positions = [0.17, 0.34, 0.51, 0.68, 0.85]
 
 def panel(title):
     p = figure(width=335, height=205, title=title, x_range=(-0.6, 10.6),
-               y_range=(-2.65, 2.65), toolbar_location=None, tools="")
+               y_range=(-2.65, 2.65), tools=None)
     p.title.text_font_size = "14px"
     p.title.text_color = "#1e293b"
     p.title.offset = 8

@@ -41,7 +41,7 @@ def slider():
 
     plot = figure(
         width=836, height=300, y_range=(-10, 10),
-        tools="", toolbar_location=None,
+        tools=None,
         title="Parameterized sine wave",
     )
     plot.line("x", "y", source=source, line_width=3, line_color="#0f766e")

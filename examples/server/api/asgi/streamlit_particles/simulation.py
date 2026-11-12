@@ -157,8 +157,7 @@ def modify_document(doc: Document) -> None:
         y_axis_label="y position",
         x_range=(-3, 3),
         y_range=(-2, 2),
-        tools=[],
-        toolbar_location=None,
+        tools=None,
     )
     plot.scatter(
         "x",

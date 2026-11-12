@@ -42,8 +42,8 @@ the toolbar may be configured.
 Positioning the toolbar
 -----------------------
 
-By default, Bokeh plots come with a toolbar above the plot. You can change the
-location of the toolbar or remove it.
+By default, Bokeh plots come with a toolbar to the right of the plot. You can
+change the location of the toolbar or remove it.
 
 You can specify the toolbar location by passing the ``toolbar_location``
 parameter to the |figure| function. Valid values are:
@@ -53,7 +53,10 @@ parameter to the |figure| function. Valid values are:
 * ``"left"``
 * ``"right"``
 
-If you would like to hide the toolbar entirely, pass ``None``.
+If you would like to hide the toolbar entirely, pass ``None``. Note that this
+only hides the toolbar. The plot's tools remain present, so you can still, for
+example, pan and zoom with the mouse. To create a plot without any tools, see
+:ref:`ug_interaction_tools_no_tools`.
 
 The code below positions the toolbar below the plot. Try
 running the code and changing the ``toolbar_location`` value.
@@ -121,6 +124,27 @@ Remove tools by passing a tool object to the ``remove_tools()`` method of a plot
     plot = figure(tools=tools)
 
     plot.remove_tools(box)
+
+.. _ug_interaction_tools_no_tools:
+
+Plots without tools
+~~~~~~~~~~~~~~~~~~~
+
+To create a static plot that doesn't respond to any gestures, pass
+``tools=None`` to the |figure| function:
+
+.. code-block:: python
+
+    from bokeh.plotting import figure
+
+    plot = figure(tools=None)
+
+This creates a plot without any tools and also hides the toolbar. It is a
+shorthand for ``figure(tools=[], toolbar_location=None)``. If you pass
+``toolbar_location`` explicitly, your value is used instead.
+
+Passing ``tools=[]`` alone also creates a plot without any tools, but keeps the
+toolbar, which then shows only the Bokeh logo.
 
 .. _ug_interaction_tools_customize_tools_icon:
 

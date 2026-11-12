@@ -35,6 +35,11 @@ New features
   ``scan_together=True``, the whole stack as one data set. Scan results are
   cached per array, so changing ``index`` doesn't rescan data that has already
   been scanned (:bokeh-issue:`13898`).
+* Added support for ``figure(tools=None)`` (and ``gmap(..., tools=None)``),
+  which creates a plot without any tools and without the toolbar, i.e. it is
+  a shorthand for ``tools=[]`` with ``toolbar_location=None``. BokehJS'
+  ``figure()`` API supports the equivalent ``tools: null``
+  (:bokeh-issue:`15747`).
 
 Removals
 --------

@@ -45,7 +45,7 @@ haar_feature = Div(
 img_plot = figure(width=CAMERA_WIDTH//2, height=CAMERA_HEIGHT//2,
                   x_range=(0, CAMERA_WIDTH), y_range=(0, CAMERA_HEIGHT),
                   x_axis_type=None, y_axis_type=None,
-                  tools="", toolbar_location=None, name="image")
+                  tools=None, name="image")
 
 image_source = ColumnDataSource(dict(image=[], w=[], h=[]))
 img_plot.image_rgba('image', x=0, y=0, dw='w', dh='h',
@@ -56,7 +56,7 @@ img_plot.rect('x', 'y', width='w', height='h', source=rect_source,
               fill_color=None, line_color="#fffdd0", line_width=4)
 
 ts_plot = figure(width=CAMERA_WIDTH//2, height=150,
-                 tools="", toolbar_location=None, name="ts")
+                 tools=None, name="ts")
 ts_plot.y_range.start = 0
 ts_plot.y_range.min_interval = 2
 
