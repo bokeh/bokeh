@@ -22,42 +22,42 @@ import {
 describe("Input widgets", () => {
   describe("should support <label for>", () => {
     it("in ColorPicker", async () => {
-      const input = ColorPicker.create()
+      const input = ColorPicker.create({title: "Title"})
       const {view} = await display(input, null)
       expect(view.shadow_el.querySelector("label")?.getAttribute("for")).to.be.equal("input")
     })
     it("in DatePicker", async () => {
-      const input = DatePicker.create()
+      const input = DatePicker.create({title: "Title"})
       const {view} = await display(input, null)
       expect(view.shadow_el.querySelector("label")?.getAttribute("for")).to.be.equal("input")
     })
     it("in DateRangePicker", async () => {
-      const input = DateRangePicker.create()
+      const input = DateRangePicker.create({title: "Title"})
       const {view} = await display(input, null)
       expect(view.shadow_el.querySelector("label")?.getAttribute("for")).to.be.equal("input")
     })
     it("in DatetimePicker", async () => {
-      const input = DatetimePicker.create()
+      const input = DatetimePicker.create({title: "Title"})
       const {view} = await display(input, null)
       expect(view.shadow_el.querySelector("label")?.getAttribute("for")).to.be.equal("input")
     })
     it("in DatetimeRangePicker", async () => {
-      const input = DatetimeRangePicker.create()
+      const input = DatetimeRangePicker.create({title: "Title"})
       const {view} = await display(input, null)
       expect(view.shadow_el.querySelector("label")?.getAttribute("for")).to.be.equal("input")
     })
     it("in FileInput", async () => {
-      const input = FileInput.create()
+      const input = FileInput.create({title: "Title"})
       const {view} = await display(input, null)
       expect(view.shadow_el.querySelector("label")?.getAttribute("for")).to.be.equal("input")
     })
     it("in MultiChoice", async () => {
-      const input = MultiChoice.create()
+      const input = MultiChoice.create({title: "Title"})
       const {view} = await display(input, null)
       expect(view.shadow_el.querySelector("label")?.getAttribute("for")).to.be.equal("input")
     })
     it("in MultiSelect", async () => {
-      const input = MultiSelect.create()
+      const input = MultiSelect.create({title: "Title"})
       const {view} = await display(input, null)
       expect(view.shadow_el.querySelector("label")?.getAttribute("for")).to.be.equal("input")
     })
@@ -67,27 +67,27 @@ describe("Input widgets", () => {
       expect(view.shadow_el.querySelector("label")?.getAttribute("for")).to.be.equal("input")
     })
     it("in Select", async () => {
-      const input = Select.create()
+      const input = Select.create({title: "Title"})
       const {view} = await display(input, null)
       expect(view.shadow_el.querySelector("label")?.getAttribute("for")).to.be.equal("input")
     })
     it("in Spinner", async () => {
-      const input = Spinner.create()
+      const input = Spinner.create({title: "Title"})
       const {view} = await display(input, null)
       expect(view.shadow_el.querySelector("label")?.getAttribute("for")).to.be.equal("input")
     })
     it("in TextAreaInput", async () => {
-      const input = TextAreaInput.create()
+      const input = TextAreaInput.create({title: "Title"})
       const {view} = await display(input, null)
       expect(view.shadow_el.querySelector("label")?.getAttribute("for")).to.be.equal("input")
     })
     it("in TextInput", async () => {
-      const input = TextInput.create()
+      const input = TextInput.create({title: "Title"})
       const {view} = await display(input, null)
       expect(view.shadow_el.querySelector("label")?.getAttribute("for")).to.be.equal("input")
     })
     it("in TimePicker", async () => {
-      const input = TimePicker.create()
+      const input = TimePicker.create({title: "Title"})
       const {view} = await display(input, null)
       expect(view.shadow_el.querySelector("label")?.getAttribute("for")).to.be.equal("input")
     })
