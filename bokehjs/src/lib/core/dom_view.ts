@@ -115,20 +115,13 @@ export abstract class DOMView extends View {
   }
 }
 
-export abstract class DOMElementView extends DOMView {
-  declare el: HTMLElement
-
-  get self_target(): RenderingTarget {
-    return this.el
-  }
-}
-
-export abstract class DOMComponentView extends DOMElementView {
+export abstract class DOMComponentView extends DOMView {
   declare readonly root: DOMComponentView
 
+  declare el: HTMLElement
   declare shadow_el: ShadowRoot
 
-  override get self_target(): RenderingTarget {
+  get self_target(): RenderingTarget {
     return this.shadow_el
   }
 
