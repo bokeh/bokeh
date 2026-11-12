@@ -39,7 +39,7 @@ nodejs = ">=24.22.1,<25"
 [feature.js-tools.tasks]
 clean-build = { cmd = "node make clean:all", cwd = "bokehjs" }
 js-install = { cmd = "npm ci --no-progress", cwd = "bokehjs" }
-js-install-browser = { cmd = "npx --no-install playwright-core install --with-deps --no-shell chromium", cwd = "bokehjs", depends-on = ["js-install"] }
+js-install-browser = { cmd = "npx --no-install playwright-core install --no-shell chromium", cwd = "bokehjs", depends-on = ["js-install"] }
 test-js = { cmd = "node make test", cwd = "bokehjs" }
 test-js-codebase = { cmd = "node make test:codebase", cwd = "bokehjs" }
 test-js-defaults = { cmd = "node make test:defaults", cwd = "bokehjs" }
