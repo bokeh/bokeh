@@ -41,6 +41,7 @@ export class AutocompleteInputView extends TextInputView {
     const {disabled, value, placeholder} = this.signals
     const {max_length, prefix, suffix} = this.values
     const Title = this._title_el
+    const Menu = this._menu
     return (
       <UIComponent parent={this.resolved_props}>
         <Title></Title>
@@ -64,11 +65,16 @@ export class AutocompleteInputView extends TextInputView {
           </div>
           {suffix != null ? <div class={inputs_css.suffix}>{suffix}</div> : null}
         </div>
-        {this._menu()}
+        <Menu/>
       </UIComponent>
     )
   }
 
+  /**
+   * The menu is a separate component, so that updating it doesn't re-render the
+   * input, which would reset input's value to the last committed value.
+   */
+  @bind
   protected _menu(): VNode {
     const completions = this._completions.value
     const hover_index = this._hover_index.value
