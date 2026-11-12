@@ -329,11 +329,19 @@ creating your figure:
 Deactivating and hiding the toolbar
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To deactivate the toolbar completely, set ``toolbar_location`` to ``None``.
+To hide the toolbar, set ``toolbar_location`` to ``None``.
 
 .. code-block:: python
 
     p.toolbar_location = None
+
+This only hides the toolbar. The plot's tools remain present, so you can still,
+for example, pan and zoom with the mouse. To create a plot without any tools
+and without a toolbar, pass ``tools=None`` when creating your figure:
+
+.. code-block:: python
+
+    p = figure(title="Static plot", tools=None)
 
 To make your toolbar hide automatically, set
 :class:`~bokeh.models.tools.Toolbar.autohide` to ``True``:
