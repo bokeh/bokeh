@@ -24,6 +24,7 @@ from bokeh.models import (
     BoxZoomTool,
     Circle,
     ColumnDataSource,
+    HoverTool,
     LassoSelectTool,
     Legend,
     LinearAxis,
@@ -190,6 +191,27 @@ class Test_figure:
         assert len(fig.tools) == len(expected)
         for i, _type in enumerate(expected):
             assert isinstance(fig.tools[i], _type)
+
+    def test_tools_None(self) -> None:
+        fig = bpf.figure(tools=None)
+        assert fig.tools == []
+        assert fig.toolbar_location is None
+
+    def test_tools_None_with_toolbar_location(self) -> None:
+        fig = bpf.figure(tools=None, toolbar_location="above")
+        assert fig.tools == []
+        assert fig.toolbar_location == "above"
+
+    def test_tools_None_with_tooltips(self) -> None:
+        fig = bpf.figure(tools=None, tooltips=[("x", "$x")])
+        assert len(fig.tools) == 1
+        assert isinstance(fig.tools[0], HoverTool)
+        assert fig.toolbar_location is None
+
+    def test_tools_empty(self) -> None:
+        fig = bpf.figure(tools=[])
+        assert fig.tools == []
+        assert fig.toolbar_location == "right"
 
     def test_plot_fill_props(self) -> None:
         p = bpf.figure(background_fill_color='red',

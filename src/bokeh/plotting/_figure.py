@@ -217,6 +217,9 @@ class figure(Plot, GlyphAPI):
     def __init__(self, *arg, **kw) -> None:
         opts = cast(Any, FigureOptions(kw))
 
+        if opts.tools is None:
+            kw.setdefault("toolbar_location", None)
+
         names = self.properties()
         for name in kw.keys():
             if name not in names:
@@ -1089,8 +1092,12 @@ def markers() -> None:
 # documentation elsewhere)
 class BaseFigureOptions(Options):
 
-    tools = Either(String, Seq(Either(String, Instance(Tool))), default=DEFAULT_TOOLS, help="""
+    tools = Nullable(Either(String, Seq(Either(String, Instance(Tool)))), default=DEFAULT_TOOLS, help="""
     Tools the plot should start with.
+
+    Use ``None`` to create a plot without any tools and without the toolbar.
+    This is equivalent to ``tools=[]`` combined with ``toolbar_location=None``,
+    unless ``toolbar_location`` is given explicitly.
     """)
 
     x_minor_ticks = Either(Auto, Int, default="auto", help="""
