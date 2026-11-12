@@ -86,7 +86,7 @@ def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, w
         height: the desired height of the exported layout obj only if
             it's a Plot instance. Otherwise the height kwarg is ignored.
 
-        scale_factor A factor to scale the output PNG by,
+        scale_factor: A factor to scale the output PNG by,
             providing a higher resolution while maintaining element relative
             scales.
 
@@ -97,7 +97,7 @@ def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, w
 
         backend:
             Which browser backend to use for export. If None, uses the
-            ``BOKEH_EXPORT_BACKEND`` setting (default: Playwright).
+            ``BOKEH_EXPORT_BACKEND`` setting.
             Passing a ``webdriver`` instance overrides this setting. The
             Selenium backend is deprecated.
 
@@ -153,7 +153,7 @@ def export_svg(obj: UIElement | Document, *, filename: PathLike | None = None, w
 
         backend:
             Which browser backend to use for export. If None, uses the
-            ``BOKEH_EXPORT_BACKEND`` setting (default: Playwright).
+            ``BOKEH_EXPORT_BACKEND`` setting.
             Passing a ``webdriver`` instance overrides this setting. The
             Selenium backend is deprecated.
 
@@ -177,9 +177,9 @@ def export_svgs(obj: UIElement | Document, *, filename: str | None = None, width
     (e.g. ``/foo/myplot.py`` will create ``/foo/myplot.svg``)
 
     Args:
-        obj (UIElement object) : a Layout (Row/Column), Plot or Widget object to display
+        obj: a Layout (Row/Column), Plot or Widget object to display
 
-        filename (str, optional) : filename to save document under
+        filename: filename to save document under
             If None, infer from the filename.
 
         width: the desired width of the exported layout obj only if

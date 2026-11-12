@@ -45,14 +45,11 @@ def indent(text: str, n: int = 2, ch: str = " ") -> str:
     ''' Indent all the lines in a given block of text by a specified amount.
 
     Args:
-        text (str) :
-            The text to indent
+        text: The text to indent
 
-        n (int, optional) :
-            The amount to indent each line by (default: 2)
+        n: The amount to indent each line by
 
-        ch (chr, optional) :
-            What character to fill the indentation with (default: " ")
+        ch: What character to fill the indentation with
 
     '''
     padding = ch * n
@@ -64,10 +61,10 @@ def nice_join(seq: Iterable[Any], *, sep: str = ", ", conjunction: str | None = 
     the conjunction ``or`` when appropriate.
 
     Args:
-        seq (Iterable[Any]) : a sequence of values to nicely join
-        sep (str, optional) : a sequence delimiter to use (default: ", ")
-        conjunction (str or None, optional) : a conjunction to use for the last
-            two items, or None to reproduce basic join behavior (default: "or")
+        seq: a sequence of values to nicely join
+        sep: a sequence delimiter to use
+        conjunction: a conjunction to use for the last
+            two items, or None to reproduce basic join behavior
 
     Returns:
         a joined string
@@ -99,8 +96,8 @@ def append_docstring(docstring: str | None, extra: str) -> str | None:
     extra content in that case.
 
     Args:
-        docstring (str or None) : The docstring to format, or None
-        extra (str): the content to append if docstring is not None
+        docstring: The docstring to format, or None
+        extra: the content to append if docstring is not None
 
     Returns:
         str or None
@@ -121,9 +118,9 @@ def format_docstring(docstring: str | None, *args: Any, **kwargs: Any) -> str | 
     formatting options in that case.
 
     Args:
-        docstring (str or None) : The docstring to format, or ``None``
-        args (tuple) : string formatting arguments for the docsring
-        kwargs (dict) : string formatting arguments for the docsring
+        docstring: The docstring to format, or ``None``
+        args: string formatting arguments for the docstring
+        kwargs: string formatting arguments for the docstring
 
     Returns:
         str or None
@@ -136,10 +133,10 @@ def format_url_query_arguments(url: str, arguments: dict[str, str] | None = None
     ''' Format a base URL with optional query arguments
 
     Args:
-        url (str) :
+        url:
             An base URL to append query arguments to
-        arguments (dict or None, optional) :
-            A mapping of key/value URL query arguments, or None (default: None)
+        arguments:
+            A mapping of key/value URL query arguments, or None
 
     Returns:
         str

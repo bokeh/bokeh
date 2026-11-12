@@ -42,15 +42,12 @@ def validate(*, version: str | None = None, build_dir: str | None = None) -> lis
     """ Perform some basic package validation checks for the installed package.
 
     Args:
-        version (str | None, optional) :
-            A version to compare against the package's reported version
+        version: A version to compare against the package's reported version
 
-        build_dir (str | None, optional) :
-            A path to a JS build dir to make detailed BokehJS file comparisons
+        build_dir: A path to a JS build dir to make detailed BokehJS file comparisons
 
     Returns:
-        list[str]
-            A list of all errors encountered
+        list[str]: A list of all errors encountered
 
     """
     errors = []

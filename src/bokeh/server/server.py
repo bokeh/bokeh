@@ -176,8 +176,8 @@ class BaseServer:
         as stops the ``HTTPServer`` that this instance was configured with.
 
         Args:
-            wait (bool):
-                Whether to wait for orderly cleanup (default: True)
+            wait:
+                Whether to wait for orderly cleanup.
 
                 A synchronous call made from the server's own running event
                 loop cannot block that loop. In that case cleanup is scheduled
@@ -275,12 +275,10 @@ class BaseServer:
         ''' Get an active a session by name application path and session ID.
 
         Args:
-            app_path (str) :
-                The configured application path for the application to return
+            app_path: The configured application path for the application to return
                 a session for.
 
-            session_id (str) :
-                The session ID of the session to retrieve.
+            session_id: The session ID of the session to retrieve.
 
         Returns:
             ServerSession
@@ -292,10 +290,10 @@ class BaseServer:
         ''' Gets all currently active sessions for applications.
 
         Args:
-            app_path (str, optional) :
+            app_path:
                 The configured application path for the application to return
                 sessions for. If None, return active sessions for all
-                applications. (default: None)
+                applications.
 
         Returns:
             list[ServerSession]
@@ -316,16 +314,16 @@ class BaseServer:
         an actual deployment.
 
         Args:
-            app_path (str) : the app path to open
+            app_path: the app path to open
                 The part of the URL after the hostname:port, with leading slash.
 
-            browser (str, optional) : browser to show with (default: None)
+            browser: browser to show with.
                 For systems that support it, the **browser** argument allows
                 specifying which browser to display in, e.g. "safari", "firefox",
                 "opera", "windows-default" (see the :doc:`webbrowser <python:library/webbrowser>`
                 module documentation in the standard lib for more details).
 
-            new (str, optional) : window or tab (default: "tab")
+            new: window or tab
                 If ``new`` is 'tab', then opens a new tab.
                 If ``new`` is 'window', then opens a new window.
 
@@ -419,7 +417,7 @@ class Server(BaseServer):
         ''' Create a ``Server`` instance.
 
         Args:
-            applications (dict[str, Application] or Application or callable) :
+            applications:
                 A mapping from URL paths to Application instances, or a single
                 Application to put at the root URL.
 
@@ -434,11 +432,11 @@ class Server(BaseServer):
                 an Application will be created for it using
                 ``FunctionHandler``.
 
-            io_loop (IOLoop, optional) :
+            io_loop:
                 An explicit Tornado ``IOLoop`` to run Bokeh Server code on. If
-                None, ``IOLoop.current()`` will be used (default: None)
+                None, ``IOLoop.current()`` will be used
 
-            http_server_kwargs (dict, optional) :
+            http_server_kwargs:
                 Extra arguments passed to ``tornado.httpserver.HTTPServer``.
 
                 E.g. ``max_buffer_size`` to specify the maximum upload size.
@@ -446,7 +444,7 @@ class Server(BaseServer):
 
                 http://www.tornadoweb.org/en/stable/httpserver.html#http-server
 
-                If None, no extra arguments are passed (default: None)
+                If None, no extra arguments are passed.
 
         Additionally, the following options may be passed to configure the
         operation of ``Server``:
@@ -552,42 +550,42 @@ class Server(BaseServer):
         settings module, if they were not explicitly passed as keyword arguments.
 
         Args:
-            applications (dict[str, Application] or Application or callable) :
+            applications:
                 See :class:`~bokeh.server.server.Server`.
 
-            io_loop (IOLoop, optional) :
+            io_loop:
                 See :class:`~bokeh.server.server.Server`.
 
-            http_server_kwargs (dict, optional) :
+            http_server_kwargs:
                 See :class:`~bokeh.server.server.Server`.
 
-            auth_provider (AuthProvider, optional) :
+            auth_provider:
                 An :class:`~bokeh.server.auth_provider.AuthProvider` instance. Defaults to
                 an ``AuthModule`` loaded from the path in ``settings.auth_module()``, or
                 ``NullAuth`` if no module path is configured.
 
-            secret_key (bytes, optional) :
+            secret_key:
                 Secret key bytes used to sign sessions. Defaults to ``settings.secret_key_bytes()``.
 
-            sign_sessions (bool, optional) :
+            sign_sessions:
                 Whether to cryptographically sign session IDs. Defaults to ``settings.sign_sessions()``.
 
-            ssl_certfile (str, optional) :
+            ssl_certfile:
                 Path to the SSL certificate file. Defaults to ``settings.ssl_certfile()``.
 
-            ssl_keyfile (str, optional) :
+            ssl_keyfile:
                 Path to the SSL key file. Defaults to ``settings.ssl_keyfile()``.
 
-            ssl_password (str, optional) :
+            ssl_password:
                 Password for the SSL key file. Defaults to ``settings.ssl_password()``.
 
-            cookie_secret (str, optional) :
+            cookie_secret:
                 Secret used for signing cookies. Defaults to ``settings.cookie_secret()``.
 
-            xsrf_cookies (bool, optional) :
+            xsrf_cookies:
                 Whether to enable XSRF cookie protection. Defaults to ``settings.xsrf_cookies()``.
 
-            ico_path (str, optional) :
+            ico_path:
                 Path to a custom favicon ``.ico`` file. Defaults to ``settings.ico_path()``.
 
         Any additional keyword arguments are passed directly to

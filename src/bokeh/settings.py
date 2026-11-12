@@ -198,7 +198,7 @@ def convert_bool(value: bool | str) -> bool:
     * "no", "0", "off" -> False
 
     Args:
-        value (str):
+        value:
             A string value to convert to bool
 
     Returns:
@@ -217,7 +217,7 @@ def convert_bool(value: bool | str) -> bool:
     if val in ["no", "0", "off", "false", "False"]:
         return False
 
-    raise ValueError(f"Cannot convert {value} to boolean value")
+    raise ValueError(f"Cannot convert {value} to Boolean value")
 
 def convert_str_seq(value: list[str] | str) -> list[str]:
     ''' Convert a string to a list of strings.
@@ -225,8 +225,7 @@ def convert_str_seq(value: list[str] | str) -> list[str]:
     If a list or tuple is passed in, it is returned as-is.
 
     Args:
-        value (seq[str] or str) :
-            A string to convert to a list of strings
+        value: A string to convert to a list of strings
 
     Returns
         list[str]
@@ -270,8 +269,7 @@ def convert_logging(value: str | int) -> PyLogLevel:
     * "none"
 
     Args:
-        value (str):
-            A string value to convert to a logging level
+        value: A string value to convert to a logging level
 
     Returns:
         int or None
@@ -298,8 +296,7 @@ def convert_validation(value: str | ValidationLevel) -> ValidationLevel:
     If a validation level is passed in, it is returned as-is.
 
     Args:
-        value (str):
-            A string value to convert to a validation level
+        value: A string value to convert to a validation level
 
     Returns:
         string
@@ -320,11 +317,10 @@ def convert_ico_path(value: str) -> str:
     '''Convert a string to an .ico path
 
     Args:
-        value (str):
-            A string value to convert to a .ico path
+        value: A string value to convert to a .ico path
 
     Returns:
-        string
+        str
 
     Raises:
         ValueError
@@ -458,12 +454,9 @@ class PrioritizedSetting[T]:
         '''Return the setting value according to the standard precedence.
 
         Args:
-            value (any, optional):
-                An optional immediate value. If not None, the value will
-                be converted, then returned.
+            value: If not None, the value will be converted, then returned.
 
-            default (any, optional):
-                An optional default value that only takes precedence over
+            default: An optional default value that only takes precedence over
                 implicit default values specified on the property itself.
 
         Returns:
@@ -492,8 +485,7 @@ class PrioritizedSetting[T]:
         immediate values.
 
         Args:
-            value (str or int or float):
-                A user-set value for this setting
+            value: A user-set value for this setting
 
         Returns:
             None

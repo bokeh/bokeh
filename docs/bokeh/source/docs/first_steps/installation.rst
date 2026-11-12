@@ -131,7 +131,7 @@ NodeJS
     ``CustomJS`` implementations in TypeScript.
 
 NetworkX
-    Necessary to use the :func:`~bokeh.plotting.graph.from_networkx` function
+    Necessary to use the :func:`~bokeh.plotting.from_networkx` function
     to generate Bokeh graph renderers directly from NetworkX data.
 
 psutil

@@ -65,7 +65,7 @@ def get_browser_controller(browser: str | None = None) -> BrowserLike:
     ''' Return a browser controller.
 
     Args:
-        browser (str or None) : browser name, or ``None`` (default: ``None``)
+        browser: browser name, or ``None``
             If passed the string ``'none'``, a dummy web browser controller
             is returned.
 
@@ -92,20 +92,20 @@ def view(location: str, browser: str | None = None, new: BrowserTarget = "same",
     ''' Open a browser to view the specified location.
 
     Args:
-        location (str) : Location to open
+        location: Location to open
             If location does not begin with "http:" it is assumed
             to be a file path on the local filesystem.
-        browser (str or None) : what browser to use (default: None)
+        browser: what browser to use
             If ``None``, use the system default browser.
-        new (str) : How to open the location. Valid values are:
+        new: How to open the location. Valid values are:
 
             ``'same'`` - open in the current tab
 
             ``'tab'`` - open a new tab in the current window
 
             ``'window'`` - open in a new window
-        autoraise (bool) : Whether to automatically raise the location
-            in a new browser window (default: True)
+        autoraise: Whether to automatically raise the location
+            in a new browser window
 
     Returns:
         None

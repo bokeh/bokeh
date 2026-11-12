@@ -77,10 +77,10 @@ def cumsum(field_name: str, include_zero: bool = False) -> Expr:
     for a ``ColumnDataSource``.
 
     Args:
-        field_name (str) : a field name to configure ``CumSum`` with
+        field_name: a field name to configure ``CumSum`` with
 
-        include_zero (bool, optional) : whether to include zero in the sum
-            (default: False)
+        include_zero: whether to include zero in the sum
+
 
     Examples:
 
@@ -137,13 +137,13 @@ def dodge(field_name: str, value: float, range: Range | None = None) -> Field:
     transformation to a ``ColumnDataSource`` column.
 
     Args:
-        field_name (str) : a field name to configure ``DataSpec`` with
+        field_name: a field name to configure ``DataSpec`` with
 
-        value (float) : the fixed offset to add to column data
+        value: the fixed offset to add to column data
 
-        range (Range, optional) : a range to use for computing synthetic
+        range: a range to use for computing synthetic
             coordinates when necessary, e.g. a ``FactorRange`` when the
-            column data is categorical (default: None)
+            column data is categorical
 
     Returns:
         Field
@@ -164,26 +164,26 @@ def eqhist_cmap(
     ``EqHistColorMapper`` transformation to a ``ColumnDataSource`` column.
 
     Args:
-        field_name (str) : a field name to configure ``DataSpec`` with
+        field_name: a field name to configure ``DataSpec`` with
 
-        palette (PaletteLike) : a list of colors to use for colormapping
+        palette: a list of colors to use for color mapping
 
-        low (float) : a minimum value of the range to map into the palette.
+        low: a minimum value of the range to map into the palette.
             Values below this are clamped to ``low``.
 
-        high (float) : a maximum value of the range to map into the palette.
+        high: a maximum value of the range to map into the palette.
             Values above this are clamped to ``high``.
 
-        low_color (ColorType, optional) : color to be used if data is lower than
+        low_color: color to be used if data is lower than
             ``low`` value. If None, values lower than ``low`` are mapped to the
-            first color in the palette. (default: None)
+            first color in the palette.
 
-        high_color (ColorType, optional) : color to be used if data is higher than
+        high_color: color to be used if data is higher than
             ``high`` value. If None, values higher than ``high`` are mapped to
-            the last color in the palette. (default: None)
+            the last color in the palette.
 
-        nan_color (ColorType, optional) : a default color to use when mapping data
-            from a column does not succeed (default: "gray")
+        nan_color: a default color to use when mapping data
+            from a column does not succeed
 
     '''
     return Field(
@@ -211,21 +211,21 @@ def factor_cmap(
     column.
 
     Args:
-        field_name (str) : a field name to configure ``DataSpec`` with
+        field_name: a field name to configure ``DataSpec`` with
 
-        palette (PaletteLike) : a list of colors to use for colormapping
+        palette: a list of colors to use for color mapping
 
-        factors (seq) : a sequence of categorical factors corresponding to
+        factors: a sequence of categorical factors corresponding to
             the palette
 
-        start (int, optional) : a start slice index to apply when the column
-            data has factors with multiple levels. (default: 0)
+        start: a start slice index to apply when the column
+            data has factors with multiple levels.
 
-        end (int, optional) : an end slice index to apply when the column
-            data has factors with multiple levels. (default: None)
+        end: an end slice index to apply when the column
+            data has factors with multiple levels.
 
-        nan_color (ColorType, optional) : a default color to use when mapping data
-            from a column does not succeed (default: "gray")
+        nan_color: a default color to use when mapping data
+            from a column does not succeed
 
     Returns:
         Field
@@ -254,18 +254,17 @@ def factor_hatch(
     column.
 
     Args:
-        field_name (str) : a field name to configure ``DataSpec`` with
+        field_name: a field name to configure ``DataSpec`` with
 
-        patterns (seq[str]) : a list of hatch patterns to use to map to
+        patterns: a list of hatch patterns to use to map to
 
-        factors (seq) : a sequences of categorical factors corresponding to
-            the palette
+        factors: a sequences of categorical factors corresponding to the palette
 
-        start (int, optional) : a start slice index to apply when the column
-            data has factors with multiple levels. (default: 0)
+        start: a start slice index to apply when the column
+            data has factors with multiple levels.
 
-        end (int, optional) : an end slice index to apply when the column
-            data has factors with multiple levels. (default: None)
+        end: an end slice index to apply when the column
+            data has factors with multiple levels.
 
     Returns:
         Field
@@ -299,18 +298,18 @@ def factor_mark(
         can be parameterized by glyph type.
 
     Args:
-        field_name (str) : a field name to configure ``DataSpec`` with
+        field_name: a field name to configure ``DataSpec`` with
 
-        markers (seq[str]) : a list of markers to use to map to
+        markers: a list of markers to use to map to
 
-        factors (seq) : a sequences of categorical factors corresponding to
+        factors: a sequences of categorical factors corresponding to
             the palette
 
-        start (int, optional) : a start slice index to apply when the column
-            data has factors with multiple levels. (default: 0)
+        start: a start slice index to apply when the column
+            data has factors with multiple levels.
 
-        end (int, optional) : an end slice index to apply when the column
-            data has factors with multiple levels. (default: None)
+        end: an end slice index to apply when the column
+            data has factors with multiple levels.
 
     Returns:
         Field
@@ -337,18 +336,17 @@ def jitter(
     transformation to a ``ColumnDataSource`` column.
 
     Args:
-        field_name (str) : a field name to configure ``DataSpec`` with
+        field_name: a field name to configure ``DataSpec`` with
 
-        width (float) : the width of the random distribution to apply
+        width: the width of the random distribution to apply
 
-        mean (float, optional) : an offset to apply (default: 0)
+        mean: an offset to apply
 
-        distribution (str, optional) : ``"uniform"`` or ``"normal"``
-            (default: ``"uniform"``)
+        distribution: ``"uniform"`` or ``"normal"``
 
-        range (Range, optional) : a range to use for computing synthetic
+        range: a range to use for computing synthetic
             coordinates when necessary, e.g. a ``FactorRange`` when the
-            column data is categorical (default: None)
+            column data is categorical
 
     Returns:
         Field
@@ -377,26 +375,26 @@ def linear_cmap(
     ``LinearColorMapper`` transformation to a ``ColumnDataSource`` column.
 
     Args:
-        field_name (str) : a field name to configure ``DataSpec`` with
+        field_name: a field name to configure ``DataSpec`` with
 
-        palette (PaletteLike) : a list of colors to use for colormapping
+        palette: a list of colors to use for color mapping
 
-        low (float) : a minimum value of the range to map into the palette.
+        low: a minimum value of the range to map into the palette.
             Values below this are clamped to ``low``.
 
-        high (float) : a maximum value of the range to map into the palette.
+        high: a maximum value of the range to map into the palette.
             Values above this are clamped to ``high``.
 
-        low_color (ColorType, optional) : color to be used if data is lower than
+        low_color: color to be used if data is lower than
             ``low`` value. If None, values lower than ``low`` are mapped to the
-            first color in the palette. (default: None)
+            first color in the palette.
 
-        high_color (ColorType, optional) : color to be used if data is higher than
+        high_color: color to be used if data is higher than
             ``high`` value. If None, values higher than ``high`` are mapped to
-            the last color in the palette. (default: None)
+            the last color in the palette.
 
-        nan_color (ColorType, optional) : a default color to use when mapping data
-            from a column does not succeed (default: "gray")
+        nan_color: a default color to use when mapping data
+            from a column does not succeed
 
     '''
     return Field(
@@ -424,26 +422,26 @@ def log_cmap(
     transformation to a ``ColumnDataSource`` column.
 
     Args:
-        field_name (str) : a field name to configure ``DataSpec`` with
+        field_name: a field name to configure ``DataSpec`` with
 
-        palette (PaletteLike) : a list of colors to use for colormapping
+        palette: a list of colors to use for color mapping
 
-        low (float) : a minimum value of the range to map into the palette.
+        low: a minimum value of the range to map into the palette.
             Values below this are clamped to ``low``.
 
-        high (float) : a maximum value of the range to map into the palette.
+        high: a maximum value of the range to map into the palette.
             Values above this are clamped to ``high``.
 
-        low_color (ColorType, optional) : color to be used if data is lower than
+        low_color: color to be used if data is lower than
             ``low`` value. If None, values lower than ``low`` are mapped to the
-            first color in the palette. (default: None)
+            first color in the palette.
 
-        high_color (ColorType, optional) : color to be used if data is higher than
+        high_color: color to be used if data is higher than
             ``high`` value. If None, values higher than ``high`` are mapped to
-            the last color in the palette. (default: None)
+            the last color in the palette.
 
-        nan_color (ColorType, optional) : a default color to use when mapping data
-            from a column does not succeed (default: "gray")
+        nan_color: a default color to use when mapping data
+            from a column does not succeed
 
     '''
     return Field(
@@ -481,7 +479,7 @@ def transform(field_name: str, transform: Transform) -> Field:
     ``Transform`` to a ``ColumnDataSource`` column.
 
     Args:
-        field_name (str) : A field name to configure ``DataSpec`` with
+        field_name: A field name to configure ``DataSpec`` with
 
         transform (Transform) : A transforms to apply to that field
 

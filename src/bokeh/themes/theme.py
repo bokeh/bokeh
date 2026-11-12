@@ -74,8 +74,8 @@ class Theme:
     using the plotting API.
 
     Args:
-        filename (str, optional) : path to a YAML theme file
-        json (str, optional) : a JSON dictionary specifying theme values
+        filename: path to a YAML theme file
+        json: a JSON dictionary specifying theme values
 
     Raises:
         ValueError

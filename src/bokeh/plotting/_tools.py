@@ -129,13 +129,13 @@ def process_tools_arg(plot: Plot, tools: str | Sequence[Tool | str] | None,
     """ Adds tools to the plot object
 
     Args:
-        plot (Plot): instance of a plot object
+        plot: instance of a plot object
 
-        tools (seq[Tool or str]|str|None): list of tool types or string listing the
+        tools: list of tool types or string listing the
             tool names. Those are converted using the to actual Tool instances.
             ``None`` is equivalent to an empty list.
 
-        tooltips (string or seq[tuple[str, str]], optional):
+        tooltips:
             tooltips to use to configure a HoverTool
 
     Returns:

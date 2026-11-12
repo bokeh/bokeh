@@ -367,7 +367,7 @@ class Property[GetType = Any, SetType = GetType]:
                 Generating detailed type validation error messages can be
                 expensive. When doing type checks internally that will not
                 escape exceptions to users, these messages can be skipped
-                by setting this value to False (default: True)
+                by setting this value to False
 
         Returns:
             None

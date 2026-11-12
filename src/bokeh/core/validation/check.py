@@ -74,7 +74,8 @@ class Validator(Protocol):
 def silence(warning: Warning, silence: bool = True) -> set[Warning]:
     ''' Configure process-wide suppression of a particular warning on all Bokeh models.
 
-    Use :func:`silenced` for temporary suppression in the current execution context.
+    Use :func:`~bokeh.core.validation.silenced` for temporary suppression in the current
+    execution context.
 
     Args:
         warning: Bokeh warning to silence
@@ -133,7 +134,7 @@ def silenced(warning: Warning) -> Generator[None]:
     The suppression is local to the current thread and asyncio task. New asyncio
     tasks and worker threads started with ``asyncio.to_thread`` inherit the
     caller's suppression. Nested scopes restore the enclosing suppression, and
-    process-wide settings configured by :func:`silence` are preserved.
+    process-wide settings configured by :func:`~bokeh.core.validation.check.silence` are preserved.
 
     ``loop.run_in_executor`` and user-managed ``ThreadPoolExecutor`` calls do not
     copy the caller's context. ``threading.Thread`` follows Python's thread-context

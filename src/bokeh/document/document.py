@@ -933,13 +933,13 @@ side of a communications channel while it was being removed on the other end.\
             buffers are kept as references and the result is a ``Serialized``
             wrapper, so e.g. ``json.dumps(doc.to_json())`` will raise
             ``TypeError``. To obtain a JSON *string*, pass the result to
-            ``bokeh.core.json_encoder.serialize_json``. Alternatively, pass
+            :meth:`bokeh.core.json_encoder.serialize_json`. Alternatively, pass
             ``deferred=False`` to inline any binary buffers as base64 and return
             a plain ``dict`` that is directly JSON-serializable.
 
         Args:
             deferred:
-                If ``True`` (default), encode binary buffers lazily as
+                If ``True``, encode binary buffers lazily as
                 references and return a ``Serialized`` wrapper. If ``False``,
                 encode buffers immediately as inline base64 and return a plain
                 ``DocJson`` dict that is directly JSON-serializable.
@@ -974,12 +974,12 @@ side of a communications channel while it was being removed on the other end.\
         Embed roots should be addressed by logical key and their ordinal in
         ``Document.roots``. A root ID must not be retained solely to find its
         mount target. Canonical documents and live protocol messages must use
-        :meth:`to_json` instead.
+        :meth:`~bokeh.document.Document.to_json` instead.
 
         Args:
             deferred:
                 Whether binary buffers are returned separately. This has the
-                same meaning as in :meth:`to_json`.
+                same meaning as in :meth:`~bokeh.document.Document.to_json`.
 
             models_with_ids:
                 Additional models whose IDs cross an external boundary.

@@ -67,7 +67,7 @@ class Color(Serializable, metaclass=ABCMeta):
 
             maximum:
                 A max bound to to clamp to. If None, there is no upper bound,
-                and values are only clamped to be non-negative. (default: None)
+                and values are only clamped to be non-negative.
 
         Returns:
             float
@@ -221,7 +221,7 @@ class RGB(Color):
 
             b: The value for the blue channel in [0.0, 255.0]
 
-            a: An alpha value for this color in [0.0, 1.0] (default: 1.0)
+            a: An alpha value for this color in [0.0, 1.0]
 
         '''
         self.r = cast(float, r)
@@ -411,7 +411,7 @@ class HSL(Color):
 
             l: The lightness, in [0, 1]
 
-            a: An alpha value for this color in [0, 1] (default: 1.0)
+            a: An alpha value for this color in [0, 1]
 
         '''
         self.h = h

@@ -231,7 +231,7 @@ def show_session(
                 showing the current output file.  If **new** is 'tab', then
                 opens a new tab. If **new** is 'window', then opens a new window.
 
-            controller (BrowserLike, optional): controller object of a browser.
+            controller: controller object of a browser.
         '''
         if session is not None:
             server_url = server_url_for_websocket_url(session._connection.url)
@@ -454,8 +454,7 @@ class ClientSession:
             Automatically calls :func:`~connect` before pushing.
 
         Args:
-            document (|Document|, optional) :
-                The document that will be kept in sync with the server document.
+            document: The document that will be kept in sync with the server document.
                 None to use ``session.document`` or create a new document.
 
         '''
