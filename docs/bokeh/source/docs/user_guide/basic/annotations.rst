@@ -606,10 +606,13 @@ the empty list leaves the second path from the top without arrowheads.
 .. bokeh-plot:: __REPO__/examples/basic/annotations/field_arrowheads.py
     :source-position: above
 
-Updating the column moves the markings. Bokeh checks each list when it draws
-the path. Markings on the same path share the size and visuals from that row.
-A ``Line`` takes its positions and visuals from the first row. On an ``Arc``,
-fractions follow the arc's sweep, including wrapped angles and full turns.
+Updating the column moves the markings. The :ref:`animated arrows example <example_animated_arrows_basic/annotations>`
+updates the positions while leaving one path unmarked.
+
+Bokeh checks each list when it draws the path. Markings on the same path share
+the size and visuals from that row. A ``Line`` takes its positions and visuals
+from the first row. On an ``Arc``, fractions follow the arc's sweep, including
+wrapped angles and full turns.
 
 Named endpoints follow the path's tangent and trim the shaft by the length of
 the marking behind its anchor. Fractional placements leave the shaft intact.

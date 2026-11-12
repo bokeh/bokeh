@@ -3,16 +3,15 @@
 .. bokeh-example-metadata::
     :apis: bokeh.models.GlyphRenderer.add_path_marking, bokeh.models.GlyphRenderer.add_arrowheads, bokeh.models.ScatterMarking
     :refs: :ref:`ug_basic_annotations_path_markings`
-    :keywords: arrows, markers, fractional positions, paths, streamlines, animation
+    :keywords: arrows, markers, fractional positions, paths, streamlines
 
 '''
 from math import sin, tau
 
 from bokeh.core.properties import field
-from bokeh.events import DocumentReady
 from bokeh.io import curdoc
 from bokeh.layouts import column, gridplot
-from bokeh.models import ColumnDataSource, CustomJS, Div, NormalHead, ScatterMarking
+from bokeh.models import ColumnDataSource, Div, NormalHead, ScatterMarking
 from bokeh.plotting import figure, show
 
 positions = [
@@ -20,7 +19,7 @@ positions = [
     (0.75, "#4dd9b4"), (1, "#f0e442"),
 ]
 plots = []
-for kind in ["Segment", "Line", "MultiLine", "Bezier", "Per-path positions", "Animated streamlines"]:
+for kind in ["Segment", "Line", "MultiLine", "Bezier", "Per-path positions"]:
     p = figure(width=480, height=300, x_range=(-0.6, 6.6), y_range=(-1.6, 2.6),
                title=kind, tools="", toolbar_location=None,
                background_fill_color="#202a36", border_fill_color="#f6f7f9")
@@ -31,7 +30,7 @@ for kind in ["Segment", "Line", "MultiLine", "Bezier", "Per-path positions", "An
     style = dict(line_color="#c0ceda", line_width=3)
     t = [i/100 for i in range(101)]
 
-    if kind in ("Per-path positions", "Animated streamlines"):
+    if kind == "Per-path positions":
         source = ColumnDataSource(dict(
             xs=[[6*u for u in t] for _ in range(4)],
             ys=[[-1 + j*0.8 + 0.25*sin(tau*u + j*0.6) for u in t] for j in range(4)],
@@ -39,15 +38,10 @@ for kind in ["Segment", "Line", "MultiLine", "Bezier", "Per-path positions", "An
             color=["#56b4e9", "#ffb454", "#cc79a7", "#4dd9b4"],
         ))
         renderer = p.multi_line("xs", "ys", source=source, **style)
-        if kind == "Animated streamlines":
-            renderer.add_arrowheads(at=field("arrow_positions"),
-                                   head=NormalHead(size=14, fill_color="color", line_color="color"))
-            animated_source = source
-        else:
-            renderer.add_path_marking(
-                ScatterMarking(marker="circle", size=12, fill_color="color", line_color="color"),
-                at=field("arrow_positions"),
-            )
+        renderer.add_path_marking(
+            ScatterMarking(marker="circle", size=12, fill_color="color", line_color="color"),
+            at=field("arrow_positions"),
+        )
         plots.append(p)
         continue
 
@@ -78,38 +72,16 @@ legend = Div(
     text='Pink: <b>0</b> · Blue: <b>0.25</b> · Orange: <b>0.5</b> · '
          'Green: <b>0.75</b> · Yellow: <b>1</b>.<br>'
          'Arrowheads mark 0, 0.5, and 1. Diamonds mark 0.25 and 0.75.<br>'
-         'The bottom row uses a column of position lists, including an empty list for an unmarked path. '
-         'The left panel uses circles. The right panel animates arrowheads.',
+         'The bottom panel uses a column of position lists, including an empty list for an unmarked path.',
     width=950,
     styles={"color": "#243244", "background-color": "#f6f7f9", "font-size": "15px"},
 )
 layout = column(legend, gridplot([
     [plots[0], plots[1]],
     [plots[2], plots[3]],
-    [plots[4], plots[5]],
+    [plots[4], None],
 ], toolbar_location=None))
 
 curdoc().config.color_scheme = "light"
-curdoc().js_on_event(DocumentReady, CustomJS(args=dict(source=animated_source), code="""
-    const bases = [[0, 0.25, 0.5, 0.75], [0.15, 0.55, 0.85], [], [0.2, 0.8]]
-    let start = null
-    let last = 0
-    function frame(now) {
-        if (source.document == null) {
-            return
-        }
-        // Use the animation clock for both timestamps, including the first frame.
-        start ??= now
-        if (now - last >= 50) {
-            last = now
-            const offset = (now - start)/10000
-            source.data = {...source.data,
-                arrow_positions: bases.map((positions, i) =>
-                    positions.map(p => ((p + offset*(1 + i*0.15))%1 + 1)%1))}
-        }
-        requestAnimationFrame(frame)
-    }
-    requestAnimationFrame(frame)
-"""))
 
 show(layout)
