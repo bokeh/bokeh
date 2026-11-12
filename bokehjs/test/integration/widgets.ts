@@ -389,6 +389,20 @@ describe("Widgets", () => {
     ["FileInput", (attrs) => FileInput.create({accept: ".csv", ...attrs})],
   ]
 
+  const picker_widgets: [string, (attrs: Partial<InputWidget.Attrs>) => PickerBase][] = [
+    ["DatePicker", (attrs) => DatePicker.create({value: "2023-01-18", ...attrs})],
+    ["DateRangePicker", (attrs) => DateRangePicker.create({value: ["2023-01-18", "2023-01-23"], ...attrs})],
+    ["MultipleDatePicker", (attrs) => MultipleDatePicker.create({value: ["2023-01-18", "2023-01-23"], ...attrs})],
+    ["DatetimePicker", (attrs) => DatetimePicker.create({value: "2023-01-18T09:37:52", ...attrs})],
+    ["DatetimeRangePicker", (attrs) => {
+      return DatetimeRangePicker.create({value: ["2023-01-18T09:37:52", "2023-01-23T20:17:25"], ...attrs})
+    }],
+    ["MultipleDatetimePicker", (attrs) => {
+      return MultipleDatetimePicker.create({value: ["2023-01-18T09:37:52", "2023-01-23T20:17:25"], ...attrs})
+    }],
+    ["TimePicker", (attrs) => TimePicker.create({value: "09:37:52", ...attrs})],
+  ]
+
   describe("should support title and description", () => {
     const viewport: [number, number] = [400, 150]
     const title = "Widget title"
@@ -400,7 +414,7 @@ describe("Widgets", () => {
       return desc_el
     }
 
-    for (const [name, create] of input_widgets) {
+    for (const [name, create] of [...input_widgets, ...picker_widgets]) {
       describe(`in ${name}`, () => {
         it("without title", async () => {
           await display(create({}), viewport)
@@ -625,25 +639,10 @@ describe("Widgets", () => {
   })
 
   describe("should support date and time pickers", () => {
-    type Attrs = Partial<InputWidget.Attrs>
-    const pickers: [string, (attrs: Attrs) => PickerBase][] = [
-      ["DatePicker", (attrs) => DatePicker.create({value: "2023-01-18", ...attrs})],
-      ["DateRangePicker", (attrs) => DateRangePicker.create({value: ["2023-01-18", "2023-01-23"], ...attrs})],
-      ["MultipleDatePicker", (attrs) => MultipleDatePicker.create({value: ["2023-01-18", "2023-01-23"], ...attrs})],
-      ["DatetimePicker", (attrs) => DatetimePicker.create({value: "2023-01-18T09:37:52", ...attrs})],
-      ["DatetimeRangePicker", (attrs) => {
-        return DatetimeRangePicker.create({value: ["2023-01-18T09:37:52", "2023-01-23T20:17:25"], ...attrs})
-      }],
-      ["MultipleDatetimePicker", (attrs) => {
-        return MultipleDatetimePicker.create({value: ["2023-01-18T09:37:52", "2023-01-23T20:17:25"], ...attrs})
-      }],
-      ["TimePicker", (attrs) => TimePicker.create({value: "09:37:52", ...attrs})],
-    ]
-
     const title = "Widget title"
     const description = "Widget description."
 
-    for (const [name, create] of pickers) {
+    for (const [name, create] of picker_widgets) {
       describe(`in ${name}`, () => {
         it("with title and description when opened", async () => {
           const {view} = await display(create({title, description, width: 400}), [500, 450])
