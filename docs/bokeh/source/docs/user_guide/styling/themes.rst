@@ -210,7 +210,7 @@ For tools (tool buttons and toolbar) Bokeh has:
 * ``--bokeh-toolbar-divider-color``
 * ``--bokeh-disabled-tool-color``
 
-For buttons colors (following the different buttons types and their properties and states) Bokeh has:
+For buttons colors (following the different buttons types, their properties and states) Bokeh has:
 
 * ``--bokeh-default-color``
 * ``--bokeh-default-border-color``
@@ -254,12 +254,10 @@ customize its appearance. Examples of this type of customization are available u
 ``examples/styling/accessible-style``, ``examples/styling/office-style`` and
 ``examples/styling/xkcd-style``
 
-Also, for each of these there are variables defined without the ``bokeh`` which should be
-the ones you use with ``var`` to access the underline value. So for example, for the variable
+Also, for each of these there are variables defined without the ``bokeh`` prefix which should be
+the ones you use with ``var`` to access the underline value. As an example, for the variable
 ``--bokeh-border-color`` there is a ``--border-color`` variable which even if ``--bokeh-border-color``
 is not defined will allow you to access a default value for the ``border-color`` property.
-
-To define a specific value:
 
 .. code-block:: css
 
@@ -271,7 +269,7 @@ To define a specific value:
       /*
         Its value will be `black` here due to the definition above but even
         if `--bokeh-border-color` was not defined ``--border-color`` would
-        give fallback to a predefined color (i.e `#BBBBBD`)
+        fallback to a predefined color (i.e `#BBBBBD`)
       */
       border-color: var(--border-color);
     }
