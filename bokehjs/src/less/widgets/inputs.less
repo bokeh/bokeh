@@ -222,9 +222,6 @@ select[multiple], select[size], textarea {
 .bk-inline {
   position: relative;
 }
-.bk-spin-wrapper {
-  position: relative;
-}
 
 .bk-input-group {
   position: relative;
@@ -249,84 +246,60 @@ select[multiple], select[size], textarea {
 
 .bk-buttons {
   position: relative;
-  flex: 0;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  // span the full height of the input box, flush with its right edge
+  margin:
+    calc(-1*var(--padding-vertical))
+    calc(-1*var(--padding-horizontal))
+    calc(-1*var(--padding-vertical))
+    0;
 }
 
 .bk-spin-btn {
   position: relative;
-  flex: 1;
-}
-.bk-spin-btn-up {
-  position: relative;
-}
-.bk-spin-btn-down {
-  position: relative;
-}
-
-/*
-.bk-spin-wrapper {
-  display: inherit;
-  width: inherit;
-  height: inherit;
-  position: relative;
-  overflow: hidden;
+  flex: 1 1 0;
+  min-height: 0;
+  width: 30px;
   padding: 0;
-  vertical-align: middle;
+  margin: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
 
-  input {
-    padding-right: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &::before {
+    content: "";
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
   }
 
-  >.bk-spin-btn {
-    position: absolute;
-    display: block;
-    height: 50%;
-    min-height: 0;
-    min-width: 0;
-    width: 30px;
-    padding: 0;
-    margin: 0;
-    right: 0;
-    border: none;
-    background: none;
-    cursor: pointer;
-
-    &:before {
-      content: "";
-      display: inline-block;
-      transform: translateY(-50%);
-      border-left: 5px solid transparent;
-      border-right: 5px solid transparent;
-    }
-
-    &.bk-spin-btn-up {
-      top: 0;
-
-      &:before {
-        border-bottom: 5px solid var(--color);
-      }
-      &:disabled:before {
-        border-bottom-color: var(--disabled-color);
-      }
-    }
-
-    &.bk-spin-btn-down {
-      bottom: 0;
-
-      &:before {
-        border-top: 5px solid var(--color);
-      }
-
-      &:disabled:before {
-        border-top-color: var(--disabled-color);
-      }
-    }
+  &:disabled {
+    cursor: default;
   }
 }
-*/
+
+.bk-spin-btn-up {
+  &::before {
+    border-bottom: 5px solid var(--color);
+  }
+  &:disabled::before {
+    border-bottom-color: var(--disabled-color);
+  }
+}
+
+.bk-spin-btn-down {
+  &::before {
+    border-top: 5px solid var(--color);
+  }
+  &:disabled::before {
+    border-top-color: var(--disabled-color);
+  }
+}
 
 .bk-description {
   position: relative;
