@@ -4,15 +4,15 @@ import {Segment} from "@bokehjs/models/glyphs/segment"
 import {MultiLine} from "@bokehjs/models/glyphs/multi_line"
 import {Bezier} from "@bokehjs/models/glyphs/bezier"
 import {NormalHead} from "@bokehjs/models/annotations/arrow_head"
-import {PathMarking} from "@bokehjs/models/graphics/decoration"
+import {PathPlacement} from "@bokehjs/models/graphics/path_placement"
 
 describe("Path span hit testing", () => {
   for (const decorated of [false, true]) {
     for (const Glyph of [Segment, MultiLine, Bezier]) {
       it(`should follow HoverTool's span convention for ${Glyph.name}, decorated=${decorated}`, async () => {
-        const decorations = decorated ? [PathMarking.create({node: "end", marking: NormalHead.create({size: 12})})] : []
-        const glyph = Glyph == Segment ? Segment.create({decorations}) :
-          Glyph == Bezier ? Bezier.create({decorations}) : MultiLine.create({decorations})
+        const path_markings = decorated ? [PathPlacement.create({positions: "end", marking: NormalHead.create({size: 12})})] : []
+        const glyph = Glyph == Segment ? Segment.create({path_markings}) :
+          Glyph == Bezier ? Bezier.create({path_markings}) : MultiLine.create({path_markings})
         const data = Glyph == MultiLine ? {xs: [[20, 80]], ys: [[30, 30]]} : {
           x0: [20], y0: [30], x1: [80], y1: [30], cx0: [40], cy0: [30], cx1: [60], cy1: [30],
         }

@@ -1,6 +1,6 @@
 import * as sinon from "sinon"
 import {assert} from "@bokehjs/core/util/assert"
-import {PathMarking} from "@bokehjs/models/graphics/decoration"
+import {PathPlacement} from "@bokehjs/models/graphics/path_placement"
 import {ColumnDataSource, FactorRange, TeeHead} from "@bokehjs/models"
 import {SegmentView} from "@bokehjs/models/glyphs/segment"
 import {figure} from "@bokehjs/api/plotting"
@@ -53,11 +53,11 @@ describe("whisker()", () => {
   for (const node of ["start", "end"] as const) {
     it(`should place a field-sized tee at the ${node}`, () => {
       const renderer = figure().whisker({cap_size: {field: "width"}})
-      const decoration = renderer.glyph.decorations[node == "start" ? 0 : 1]
-      assert(decoration instanceof PathMarking)
-      expect(decoration.node).to.be.equal(node)
-      assert(decoration.marking instanceof TeeHead)
-      expect(decoration.marking.size).to.be.equal({field: "width"})
+      const path_marking = renderer.glyph.path_markings[node == "start" ? 0 : 1]
+      assert(path_marking instanceof PathPlacement)
+      expect(path_marking.positions).to.be.equal({value: node})
+      assert(path_marking.marking instanceof TeeHead)
+      expect(path_marking.marking.size).to.be.equal({field: "width"})
     })
   }
 

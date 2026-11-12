@@ -5,14 +5,14 @@ import {expect} from "#framework/assertions"
 import {create_glyph_view} from "./_util"
 import {NormalHead, OpenHead, VeeHead} from "@bokehjs/models/annotations/arrow_head"
 import {Segment} from "@bokehjs/models/glyphs/segment"
-import {PathMarking} from "@bokehjs/models/graphics/decoration"
+import {PathPlacement} from "@bokehjs/models/graphics/path_placement"
 
 describe("Segment", () => {
   for (const [Head, distance] of [[OpenHead, 15], [VeeHead, 28]] as const) {
     for (const placement of ["start", "end"] as const) {
       it(`should keep the shaft connected to ${Head.name} at the ${placement}`, async () => {
-        const glyph = Segment.create({decorations: [
-          PathMarking.create({node: placement, marking: Head.create({size: 40})}),
+        const glyph = Segment.create({path_markings: [
+          PathPlacement.create({positions: placement, marking: Head.create({size: 40})}),
         ]})
         const view = await create_glyph_view(glyph, {x0: [0], y0: [50], x1: [100], y1: [50]})
         const sx = placement == "end" ? view.sx1[0] - distance : view.sx0[0] + distance
@@ -24,13 +24,13 @@ describe("Segment", () => {
   for (const placement of ["start", "end"] as const) {
     it(`should hit a decorated segment only where its shaft or marking is visible at ${placement}`, async () => {
       const marking = NormalHead.create({size: 12})
-      const decoration = PathMarking.create({marking, node: placement, inset: 20})
+      const path_marking = PathPlacement.create({marking, positions: placement, inset: 20})
       const glyph = Segment.create({
         x0: {field: "x0"},
         y0: {field: "y0"},
         x1: {field: "x1"},
         y1: {field: "y1"},
-        decorations: [decoration],
+        path_markings: [path_marking],
       })
       const glyph_view = await create_glyph_view(glyph, {
         x0: [0], y0: [50], x1: [100], y1: [50],
@@ -59,13 +59,13 @@ describe("Segment", () => {
   for (const placement of ["start", "end"] as const) {
     for (const [inset, x1] of [[-20, 150], [250, 150], [20, 50]]) {
       it(`should preserve ${placement} painting and hits for inset=${inset}, x1=${x1}`, async () => {
-        const glyph = Segment.create({decorations: [
-          PathMarking.create({node: placement, inset, marking: NormalHead.create({size: 12})}),
+        const glyph = Segment.create({path_markings: [
+          PathPlacement.create({positions: placement, inset, marking: NormalHead.create({size: 12})}),
         ]})
         const view = await create_glyph_view(glyph, {x0: [50], y0: [50], x1: [x1], y1: [50]})
-        const [decoration] = view.decorations.values()
+        const [path_marking] = view.path_markings.values()
         const ctx = view.canvas.create_layer().ctx
-        using paint = restorable(sinon.stub(decoration.marking, "paint"))
+        using paint = restorable(sinon.stub(path_marking.marking, "paint"))
         using translate = restorable(sinon.spy(ctx, "translate"))
         const sign = placement == "start" ? 1 : -1
         const sy = view.sy0[0]

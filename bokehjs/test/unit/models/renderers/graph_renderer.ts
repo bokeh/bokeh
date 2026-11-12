@@ -29,7 +29,7 @@ type GraphComponents = {
   test_graph_view: GraphRendererView
 }
 
-async function create_graph_document(edge_glyph: MultiLine | Segment | Bezier | Scatter = MultiLine.create({line_width: 2, line_color: "gray"})): Promise<GraphComponents> {
+async function create_graph_document(edge_glyph: MultiLine | Segment | Bezier = MultiLine.create({line_width: 2, line_color: "gray"})): Promise<GraphComponents> {
   const layout_provider = StaticLayoutProvider.create({
     graph_layout: new Map([
       [4, [2, 1]],
@@ -129,6 +129,7 @@ describe("GraphRendererView", () => {
   })
 
   it("should keep the plot usable with an unsupported edge glyph", async () => {
+    // @ts-expect-error Exercise the runtime fallback for an unsupported edge glyph.
     const {test_graph_view: view} = await create_graph_document(Scatter.create({x: 0, y: 0}))
     expect(view.node_view.glyph.data_size).to.be.equal(4)
   })

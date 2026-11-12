@@ -54,8 +54,8 @@ import {
 
 import type {Marker} from "../models/glyphs/marker"
 import type {Marking} from "../models/graphics/marking"
-import type {PathMarking} from "../models/graphics/decoration"
-import {OpenHead, TeeHead} from "../models/annotations/arrow_head"
+import type {PathPlacement} from "../models/graphics/path_placement"
+import {auto_arrowhead, TeeHead} from "../models/annotations/arrow_head"
 
 export type NamesOf<T extends HasProps> = (Extract<keyof T["properties"], string>)[]
 
@@ -157,8 +157,8 @@ type ArrowProps = Omit<Segment.Props, "x0" | "y0" | "x1" | "y1"> & {
   y_end: Segment.Props["y1"]
   start: Property<Marking | null>
   end: Property<Marking | "auto" | null>
-  start_inset: Property<PathMarking["inset"]>
-  end_inset: Property<PathMarking["inset"]>
+  start_inset: Property<PathPlacement["inset"]>
+  end_inset: Property<PathPlacement["inset"]>
 }
 
 export type WhiskerArgs = Omit<SegmentArgs, "x0" | "y0" | "x1" | "y1"> & {
@@ -293,11 +293,11 @@ export abstract class GlyphAPI {
       level: segment_attrs.level ?? "annotation",
     })
     if (start != null) {
-      renderer.add_path_decoration(start, {node: "start", inset: start_inset})
+      renderer.add_path_marking(start, {at: "start", inset: start_inset})
     }
-    const end_marking = end == "auto" ? OpenHead.create({inherit_visuals: ["line_color", "line_alpha", "line_width"]}) : end
+    const end_marking = end == "auto" ? auto_arrowhead() : end
     if (end_marking != null) {
-      renderer.add_path_decoration(end_marking, {node: "end", inset: end_inset})
+      renderer.add_path_marking(end_marking, {at: "end", inset: end_inset})
     }
     return renderer
   }
@@ -346,7 +346,7 @@ export abstract class GlyphAPI {
     const renderer = this._glyph(Segment, "segment", ["x0", "y0", "x1", "y1"], [{...attrs, x0, y0, x1, y1, level}], {}, alias)
     const angle = dimension == "height" ? 0 : -Math.PI/2
     for (const node of ["start", "end"] as const) {
-      renderer.add_path_decoration(cap, {node, angle, angle_reference: "screen"})
+      renderer.add_path_marking(cap, {at: node, angle, angle_reference: "screen"})
     }
     return renderer
   }

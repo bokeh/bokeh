@@ -2960,12 +2960,14 @@
   FillGlyph: {},
   Glyph: {
     __extends__: "Model",
-    decorations: [],
   },
   HatchGlyph: {},
   LineGlyph: {},
   RadialGlyph: {
     __extends__: "XYGlyph",
+  },
+  SupportsPathMarking: {
+    path_markings: [],
   },
   TextGlyph: {},
   XYGlyph: {
@@ -3150,6 +3152,7 @@
     __extends__: [
       "XYGlyph",
       "LineGlyph",
+      "SupportsPathMarking",
     ],
     x: {
       type: "field",
@@ -3205,6 +3208,7 @@
     __extends__: [
       "Glyph",
       "LineGlyph",
+      "SupportsPathMarking",
     ],
     x0: {
       type: "field",
@@ -3961,6 +3965,7 @@
     __extends__: [
       "ConnectedXYGlyph",
       "LineGlyph",
+      "SupportsPathMarking",
     ],
     x: {
       type: "field",
@@ -4072,6 +4077,7 @@
     __extends__: [
       "Glyph",
       "LineGlyph",
+      "SupportsPathMarking",
     ],
     xs: {
       type: "field",
@@ -4665,6 +4671,7 @@
     __extends__: [
       "Glyph",
       "LineGlyph",
+      "SupportsPathMarking",
     ],
     x0: {
       type: "field",
@@ -5219,22 +5226,21 @@
       type: "map",
     },
   },
-  Decoration: {
-    __extends__: "Model",
-  },
   Marking: {
     __extends__: "Model",
     inherit_visuals: [],
   },
-  PathMarking: {
-    __extends__: "Decoration",
+  PathPlacement: {
+    __extends__: "Model",
     marking: {
       type: "symbol",
       name: "unset",
     },
-    node: {
-      type: "symbol",
-      name: "unset",
+    positions: {
+      type: "value",
+      value: [
+        0.5,
+      ],
     },
     inset: {
       type: "value",
@@ -5246,23 +5252,72 @@
     },
     angle_reference: "auto",
   },
-  PathMarkings: {
-    __extends__: "Decoration",
-    marking: {
-      type: "symbol",
-      name: "unset",
-    },
-    positions: {
+  ScatterMarking: {
+    __extends__: "Marking",
+    marker: "circle",
+    size: {
       type: "value",
-      value: [
-        0.5,
-      ],
+      value: 8,
     },
-    angle: {
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: "solid",
+    },
+    line_dash_offset: {
       type: "value",
       value: 0,
     },
-    angle_reference: "auto",
+    fill_color: {
+      type: "value",
+      value: "gray",
+    },
+    fill_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
+    },
   },
   EdgeCoordinates: {
     __extends__: "GraphCoordinates",

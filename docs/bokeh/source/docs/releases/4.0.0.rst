@@ -106,18 +106,18 @@ API changes
   to ``Any`` when it is omitted. Explicit type arguments and constructor
   inference continue to preserve more specific types.
 
-* Renamed ``GlyphRenderer.add_decoration()`` to
-  ``GlyphRenderer.add_path_decoration()``. It takes a marking first and a
-  keyword-only node: ``renderer.add_path_decoration(head, node="end")``. BokehJS uses
-  ``renderer.add_path_decoration(head, {node: "end"})``.
+* Use ``GlyphRenderer.add_path_marking()`` to add a marking at a named or
+  fractional position. In Python, call ``renderer.add_path_marking(head, at="end")``.
+  In BokehJS, pass ``{at: "end"}`` as the second argument. A field can supply
+  one list of fractions per path. Only named start and end positions accept
+  an ``inset``.
 
-* ``GlyphRenderer.add_path_markings()`` adds repeated fractional markings.
-  Positions can be a shared list or a field containing one list per path.
+* ``GlyphRenderer.add_arrowheads()`` places arrowheads at named path nodes or
+  fractional positions, including positions supplied by a source column.
 
-* ``Decoration`` is an abstract base for decoration models. ``PathMarking``
-  attaches a marking to a named path node, and ``PathMarkings`` places markings
-  at fractional path positions. These concrete models define their own marking
-  and placement properties.
+* ``PathPlacement``
+  places a graphical marking at named or fractional path positions. Its
+  ``positions`` property can also reference a source column of fractional lists.
 
 * Sliders no longer default to ``width=300``. The default size is now set
   in CSS and can be changed with the ``--default-size`` CSS variable.
