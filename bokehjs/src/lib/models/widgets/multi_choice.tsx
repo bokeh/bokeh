@@ -2,12 +2,16 @@ import type Choices from "choices.js"
 import type {ChoicesInstance} from "../../external/choices"
 
 import type {StyleSheetLike} from "core/dom"
-import {select} from "core/dom"
+import {select, empty} from "core/dom"
+import type {VNode} from "core/vdom"
+import {UIComponent} from "core/vdom"
+import {bind} from "core/class"
 import {isString} from "core/util/types"
 import {is_equal} from "core/util/eq"
+import {assert} from "core/util/assert"
 import type * as p from "core/properties"
 
-import * as inputs from "styles/widgets/inputs.css"
+import * as inputs_css from "styles/widgets/inputs.css"
 import choices_css from "styles/widgets/choices.css"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
@@ -59,11 +63,30 @@ async function load_retargeting_choices_class(): Promise<typeof Choices> {
 }
 
 export class MultiChoiceView extends InputWidgetView {
-  declare model: MultiChoice
+  declare readonly model: MultiChoice
+  declare readonly signals: p.SignalsOf<MultiChoice.Props>
+  declare readonly values: MultiChoice.Attrs
 
   declare input_el: HTMLSelectElement
-  choice_el: ChoicesInstance
+  protected _choices: ChoicesInstance | null = null
   protected _Choices: typeof Choices
+
+  /// TODO remove
+  protected override _render_input(): HTMLElement {
+    return undefined as any
+  }
+  ///
+
+  /**
+   * The element hosting Choices.js' component. Choices.js manages its own DOM,
+   * so this element has no vDOM children.
+   */
+  protected _choices_host: HTMLElement | null = null
+
+  get choice_el(): ChoicesInstance {
+    assert(this._choices != null, "Choices.js component wasn't rendered")
+    return this._choices
+  }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
@@ -74,34 +97,72 @@ export class MultiChoiceView extends InputWidgetView {
     super.connect_signals()
     this.connect(this.model.properties.disabled.change, () => this.set_disabled())
 
-    const {value, max_items, option_limit, search_option_limit, delete_button, placeholder, options, name, title} = this.model.properties
-    this.on_change([max_items, option_limit, search_option_limit, delete_button, placeholder, options, name, title], () => this.rerender())
+    const {value, max_items, option_limit, search_option_limit, delete_button, placeholder, options, name, solid} = this.model.properties
+    this.on_change([max_items, option_limit, search_option_limit, delete_button, placeholder, options, name, solid], () => this._build_choices())
     this.on_change(value, () => {
       // Detects if value change originated in UI or elsewhere. Choices.js automatically
       // updates itself, so we don't have to do anything, and in fact we shouldn't do
       // anything, because the component is finicky and hard to update without breaking
       // something, losing focus, etc.
       if (!is_equal(this.model.value, this._current_values)) {
-        this.rerender()
+        this._build_choices()
       }
     })
+  }
+
+  override remove(): void {
+    this._destroy_choices()
+    super.remove()
   }
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), choices_css]
   }
 
-  protected _render_input(): HTMLElement {
-    return this.input_el = select({
+  @bind
+  protected _choices_ref(el: HTMLDivElement | null): void {
+    if (el !== this._choices_host) {
+      this._destroy_choices()
+      this._choices_host = el
+      this._build_choices()
+    }
+  }
+
+  override component(): VNode {
+    const Title = this._title_el
+    return (
+      <UIComponent parent={this.resolved_props}>
+        <Title></Title>
+        <div ref={this._choices_ref}/>
+      </UIComponent>
+    )
+  }
+
+  protected _destroy_choices(): void {
+    this._choices?.destroy()
+    this._choices = null
+    const host = this._choices_host
+    if (host != null) {
+      empty(host)
+    }
+  }
+
+  protected _build_choices(): void {
+    const host = this._choices_host
+    if (host == null) {
+      return
+    }
+
+    this._destroy_choices()
+
+    this.input_el = select({
+      id: this.input_id,
       multiple: true,
-      class: inputs.input,
+      class: inputs_css.input,
       name: this.model.name,
       disabled: this.model.disabled,
     })
-  }
-
-  override render(): void {
-    super.render()
+    host.append(this.input_el)
 
     const selected = new Set(this.model.value)
     const choices = this.model.options.map((opt) => {
@@ -131,20 +192,20 @@ export class MultiChoiceView extends InputWidgetView {
       searchResultLimit: this.model.search_option_limit ?? 4,
     }
 
-    this.choice_el = new this._Choices(this.input_el, options)
+    this._choices = new this._Choices(this.input_el, options)
     this.input_el.addEventListener("change", () => this.change_input())
   }
 
   set_disabled(): void {
     if (this.model.disabled) {
-      this.choice_el.disable()
+      this._choices?.disable()
     } else {
-      this.choice_el.enable()
+      this._choices?.enable()
     }
   }
 
   protected get _current_values(): string[] {
-    const values = this.choice_el.getValue() as {value: string}[]
+    const values = (this._choices?.getValue() ?? []) as {value: string}[]
     return values.map((item) => item.value)
   }
 
