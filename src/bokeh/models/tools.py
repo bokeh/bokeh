@@ -1625,6 +1625,18 @@ class HoverTool(InspectTool):
     Whether tooltip's arrow should be shown.
     """)
 
+    hide_delay = NonNegative(Int, default=200, help="""
+    How long (in milliseconds) a tooltip and the hover glyph stay visible after
+    the cursor moved away from the data point they were showing, while the cursor
+    is still within the plot.
+
+    This bridges small gaps between densely packed data points and prevents
+    the tooltip and the hover glyph from flickering when moving the cursor quickly
+    from one point to another. If another point is hit during this period, the
+    inspection is updated immediately. Leaving the plot hides the tooltip and the
+    hover glyph without a delay. Use ``0`` to hide them immediately.
+    """)
+
 DEFAULT_HELP_TIP = "Click the question mark to learn more about Bokeh plot tools."
 DEFAULT_HELP_URL = "https://docs.bokeh.org/en/latest/docs/user_guide/interaction/tools.html"
 
