@@ -62,7 +62,7 @@ describe("Input widgets", () => {
       expect(view.shadow_el.querySelector("label")?.getAttribute("for")).to.be.equal("input")
     })
     it("in PaletteSelect", async () => {
-      const input = PaletteSelect.create({value: "RGB", items: [["RGB", ["red", "green", "blue"]]]})
+      const input = PaletteSelect.create({title: "Title", value: "RGB", items: [["RGB", ["red", "green", "blue"]]]})
       const {view} = await display(input, null)
       expect(view.shadow_el.querySelector("label")?.getAttribute("for")).to.be.equal("input")
     })
