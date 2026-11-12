@@ -14,8 +14,6 @@ import {register_standard_models} from "@bokehjs/models/register"
 import {version as js_version} from "@bokehjs/version"
 
 class SomeView extends DOMView {
-  declare el: HTMLElement
-
   render(): void {
     this.el.style.width = "100px"
     this.el.style.height = "100px"
