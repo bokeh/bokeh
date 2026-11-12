@@ -7,12 +7,16 @@
 ''' Provide Jinja2 templates used by Bokeh to embed Bokeh documents and
 models in various ways.
 
-.. bokeh-jinja:: bokeh.core.templates.CSS_RESOURCES
-.. bokeh-jinja:: bokeh.core.templates.FILE
-.. bokeh-jinja:: bokeh.core.templates.JS_RESOURCES
-.. bokeh-jinja:: bokeh.core.templates.NOTEBOOK_INFO
-.. bokeh-jinja:: bokeh.core.templates.PORTABLE_RESOURCES_JS
-.. bokeh-jinja:: bokeh.core.templates.SCRIPT_TAG
+The templates themselves are the Jinja2 files under
+:bokeh-tree:`src/bokeh/core/_templates` in the Bokeh source tree. Each constant
+below loads one of them:
+
+* :data:`~bokeh.core.templates.CSS_RESOURCES` --- :bokeh-tree:`src/bokeh/core/_templates/css_resources.html.jinja`
+* :data:`~bokeh.core.templates.FILE` --- :bokeh-tree:`src/bokeh/core/_templates/file.html.jinja`
+* :data:`~bokeh.core.templates.JS_RESOURCES` --- :bokeh-tree:`src/bokeh/core/_templates/js_resources.html.jinja`
+* :data:`~bokeh.core.templates.NOTEBOOK_INFO` --- :bokeh-tree:`src/bokeh/core/_templates/notebook_info.html.jinja`
+* :data:`~bokeh.core.templates.PORTABLE_RESOURCES_JS` --- :bokeh-tree:`src/bokeh/core/_templates/portable_resources.js.jinja`
+* :data:`~bokeh.core.templates.SCRIPT_TAG` --- :bokeh-tree:`src/bokeh/core/_templates/script_tag.html.jinja`
 
 '''
 
