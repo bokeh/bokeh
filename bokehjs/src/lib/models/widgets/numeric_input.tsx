@@ -22,13 +22,6 @@ export class NumericInputView extends InputWidgetView {
   declare readonly signals: p.SignalsOf<NumericInput.Props>
   declare readonly values: NumericInput.Attrs
 
-  /// TODO remove
-  protected override _render_input(): HTMLElement {
-    return undefined as any
-  }
-  declare input_el: never
-  ///
-
   protected old_value: string
 
   protected readonly input_ref = createRef<HTMLInputElement>()

@@ -5,12 +5,6 @@ export abstract class TextLikeInputView extends InputWidgetView {
   declare readonly model: TextLikeInput
   declare readonly signals: p.SignalsOf<TextLikeInput.Props>
   declare readonly values: TextLikeInput.Attrs
-
-  /// TODO remove
-  protected override _render_input(): HTMLElement {
-    return undefined as any
-  }
-  ///
 }
 
 export namespace TextLikeInput {

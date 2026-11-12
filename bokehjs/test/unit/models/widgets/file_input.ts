@@ -76,6 +76,12 @@ describe("FileInputView", () => {
     await view.load_files(files)
     expect(file_input.filename).to.be.equal("foo.txt")
 
+    const input_el = view.shadow_el.querySelector("input")!
+    const dt = new DataTransfer()
+    dt.items.add(file)
+    input_el.files = dt.files
+    expect(input_el.files.length).to.be.equal(1)
+
     const msg: MessageSent = {
       kind: "MessageSent",
       msg_type: "bokeh_event",
@@ -96,6 +102,7 @@ describe("FileInputView", () => {
     await view.ready
 
     expect(file_input.filename).to.be.equal("") // TODO should be `unset`
+    expect(input_el.files.length).to.be.equal(0)
   })
 
   it("should upload a directory", async () => {
