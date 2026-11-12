@@ -2963,11 +2963,11 @@
   },
   HatchGlyph: {},
   LineGlyph: {},
-  SupportsPathMarking: {
-    path_markings: [],
-  },
   RadialGlyph: {
     __extends__: "XYGlyph",
+  },
+  SupportsPathMarking: {
+    path_markings: [],
   },
   TextGlyph: {},
   XYGlyph: {
@@ -5226,6 +5226,32 @@
       type: "map",
     },
   },
+  Marking: {
+    __extends__: "Model",
+    inherit_visuals: [],
+  },
+  PathPlacement: {
+    __extends__: "Model",
+    marking: {
+      type: "symbol",
+      name: "unset",
+    },
+    positions: {
+      type: "value",
+      value: [
+        0.5,
+      ],
+    },
+    inset: {
+      type: "value",
+      value: 0,
+    },
+    angle: {
+      type: "value",
+      value: 0,
+    },
+    angle_reference: "auto",
+  },
   ScatterMarking: {
     __extends__: "Marking",
     marker: "circle",
@@ -5292,32 +5318,6 @@
     hatch_extra: {
       type: "map",
     },
-  },
-  Marking: {
-    __extends__: "Model",
-    inherit_visuals: [],
-  },
-  PathPlacement: {
-    __extends__: "Model",
-    marking: {
-      type: "symbol",
-      name: "unset",
-    },
-    positions: {
-      type: "value",
-      value: [
-        0.5,
-      ],
-    },
-    inset: {
-      type: "value",
-      value: 0,
-    },
-    angle: {
-      type: "value",
-      value: 0,
-    },
-    angle_reference: "auto",
   },
   EdgeCoordinates: {
     __extends__: "GraphCoordinates",

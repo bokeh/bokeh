@@ -32,7 +32,7 @@ import {PathPlacement} from "../graphics/path_placement"
 import type {Marking} from "../graphics/marking"
 import {auto_arrowhead} from "../annotations/arrow_head"
 import type {ArrowHead} from "../annotations/arrow_head"
-import {isArrayable} from "core/util/types"
+import {isArrayable, isNumber, isString} from "core/util/types"
 import {isField} from "core/vectorization"
 import type {Field, Vector} from "core/vectorization"
 import type {OpaqueIndices, MultiIndices, ImageIndex} from "../selections/selection"
@@ -63,6 +63,11 @@ type PathMarkingStateOptions = OrientationOptions & {
 
 type FractionalPlacement = number | Arrayable<number> | Extract<Vector<Arrayable<number>>, Field>
 type PathMarkingPosition = PathNode | FractionalPlacement
+type ArrowHeadsOptions = OrientationOptions & {
+  at?: PathMarkingPosition
+  head?: ArrowHead | "auto"
+}
+
 type PathMarkingOptions = Omit<PathMarkingStateOptions, "inset"> & (
   | {at: "start" | "end", inset: PathPlacement.Attrs["inset"]}
   | {at: PathMarkingPosition, inset?: never}
@@ -809,9 +814,9 @@ export class GlyphRenderer<
     if ("inset" in options && at !== "start" && at !== "end") {
       throw new Error("inset requires at='start' or at='end'")
     }
-    const positions = typeof at == "number" ? [at] : at
+    const positions = isNumber(at) ? [at] : at
     if (positions !== "start" && positions !== "middle" && positions !== "end" &&
-        !isArrayable(positions) && !(isField(positions) && typeof positions.field == "string")) {
+        !isArrayable(positions) && !(isField(positions) && isString(positions.field))) {
       throw new Error("at must be 'start', 'middle', 'end', a fraction, a sequence of fractions, or a field spec")
     }
     const path_marking = PathPlacement.create({
@@ -820,8 +825,7 @@ export class GlyphRenderer<
     return this._add_path_marking(path_marking, options)
   }
 
-  add_arrowheads(this: PathRenderer,
-      {at = "end", head = "auto", ...orientation}: {at?: PathNode | FractionalPlacement, head?: ArrowHead | "auto"} & OrientationOptions = {}): PathPlacement {
+  add_arrowheads(this: PathRenderer, {at = "end", head = "auto", ...orientation}: ArrowHeadsOptions = {}): PathPlacement {
     const marking = head == "auto" ? auto_arrowhead() : head
     return this.add_path_marking(marking, {at, ...orientation})
   }
