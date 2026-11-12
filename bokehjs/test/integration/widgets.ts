@@ -33,7 +33,7 @@ import {
   TableColumn,
 } from "@bokehjs/models/widgets/tables"
 
-import type {PickerBaseView} from "@bokehjs/models/widgets/picker_base"
+import type {PickerBase, PickerBaseView} from "@bokehjs/models/widgets/picker_base"
 import type {InputWidget, InputWidgetView} from "@bokehjs/models/widgets/input_widget"
 import * as sliders_css from "@bokehjs/styles/widgets/sliders.css"
 
@@ -622,6 +622,97 @@ describe("Widgets", () => {
     const obj = TimePicker.create({value: t0, time_format: "H:i:S", seconds: true, clock: "12h"})
     const {view} = await display(obj, [500, 150])
     await open_picker(view)
+  })
+
+  describe("should support date and time pickers", () => {
+    type Attrs = Partial<InputWidget.Attrs>
+    const pickers: [string, (attrs: Attrs) => PickerBase][] = [
+      ["DatePicker", (attrs) => DatePicker.create({value: "2023-01-18", ...attrs})],
+      ["DateRangePicker", (attrs) => DateRangePicker.create({value: ["2023-01-18", "2023-01-23"], ...attrs})],
+      ["MultipleDatePicker", (attrs) => MultipleDatePicker.create({value: ["2023-01-18", "2023-01-23"], ...attrs})],
+      ["DatetimePicker", (attrs) => DatetimePicker.create({value: "2023-01-18T09:37:52", ...attrs})],
+      ["DatetimeRangePicker", (attrs) => {
+        return DatetimeRangePicker.create({value: ["2023-01-18T09:37:52", "2023-01-23T20:17:25"], ...attrs})
+      }],
+      ["MultipleDatetimePicker", (attrs) => {
+        return MultipleDatetimePicker.create({value: ["2023-01-18T09:37:52", "2023-01-23T20:17:25"], ...attrs})
+      }],
+      ["TimePicker", (attrs) => TimePicker.create({value: "09:37:52", ...attrs})],
+    ]
+
+    const title = "Widget title"
+    const description = "Widget description."
+
+    for (const [name, create] of pickers) {
+      describe(`in ${name}`, () => {
+        it("with title and description when opened", async () => {
+          const {view} = await display(create({title, description, width: 400}), [500, 450])
+          await open_picker(view)
+        })
+
+        it("when disabled", async () => {
+          await display(create({title, disabled: true, width: 400}), [500, 100])
+        })
+      })
+    }
+
+    describe("in DatePicker", () => {
+      const value = "2023-01-18"
+
+      it("with inline=true", async () => {
+        await display(DatePicker.create({value, inline: true, width: 400}), [500, 400])
+      })
+
+      it("with position=above when opened", async () => {
+        const picker = DatePicker.create({value, position: "above", width: 400})
+        const spacer = Div.create({width: 400, height: 350})
+        const {view} = await display(column([spacer, picker]), [500, 450])
+        await open_picker(view.owner.get_one(picker))
+      })
+
+      it("with min_date and max_date when opened", async () => {
+        const picker = DatePicker.create({value, min_date: "2023-01-10", max_date: "2023-01-25", width: 400})
+        const {view} = await display(picker, [500, 400])
+        await open_picker(view)
+      })
+
+      it("with disabled_dates when opened", async () => {
+        const disabled_dates = ["2023-01-02", ["2023-01-09", "2023-01-13"] as [string, string], "2023-01-30"]
+        const {view} = await display(DatePicker.create({value, disabled_dates, width: 400}), [500, 400])
+        await open_picker(view)
+      })
+
+      it("with enabled_dates when opened", async () => {
+        const enabled_dates = ["2023-01-02", ["2023-01-16", "2023-01-20"] as [string, string], "2023-01-30"]
+        const {view} = await display(DatePicker.create({value, enabled_dates, width: 400}), [500, 400])
+        await open_picker(view)
+      })
+
+      it("with date_format", async () => {
+        await display(DatePicker.create({value, date_format: "F j, Y", width: 400}), [500, 100])
+      })
+    })
+
+    describe("in MultipleDatePicker", () => {
+      it("with separator", async () => {
+        const value = ["2023-01-18", "2023-01-23", "2023-01-24"]
+        await display(MultipleDatePicker.create({value, separator: " | ", width: 400}), [500, 100])
+      })
+    })
+
+    describe("in DatetimePicker", () => {
+      it("with seconds and 12h clock when opened", async () => {
+        const picker = DatetimePicker.create({
+          value: "2023-01-18T21:37:52",
+          seconds: true,
+          clock: "12h",
+          date_format: "Y-m-d h:i:S K",
+          width: 400,
+        })
+        const {view} = await display(picker, [500, 450])
+        await open_picker(view)
+      })
+    })
   })
 
   it("should allow Div", async () => {
