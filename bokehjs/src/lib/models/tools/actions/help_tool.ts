@@ -1,5 +1,6 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 import type {InternalKeyBinding} from "core/keyboard"
+import type {Command} from "core/commands"
 import type * as p from "core/properties"
 import {tool_icon_help} from "styles/icons.css"
 import type {DialogView} from "../../ui/dialog"
@@ -67,10 +68,17 @@ export class HelpToolView extends ActionToolView {
     this._dialog.toggle()
   }
 
+  override commands(): Command[] {
+    return [
+      ...super.commands(),
+      {name: "help", description: "Open help dialog", execute: () => this.doit(), origin: this.model},
+    ]
+  }
+
   override key_bindings(): InternalKeyBinding[] {
     return [
       ...super.key_bindings(),
-      {description: "Open help dialog", keys: ["H"], command: "help", action: () => this.doit(), origin: this.model},
+      {keys: ["H"], command: "help", origin: this.model},
     ]
   }
 }

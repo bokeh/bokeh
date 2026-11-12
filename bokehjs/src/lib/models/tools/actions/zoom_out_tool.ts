@@ -1,6 +1,7 @@
 import {ZoomBaseTool, ZoomBaseToolView} from "./zoom_base_tool"
 import {tool_icon_zoom_out} from "styles/icons.css"
 import type {InternalKeyBinding} from "core/keyboard"
+import type {Command} from "core/commands"
 import type * as p from "core/properties"
 
 export class ZoomOutToolView extends ZoomBaseToolView {
@@ -11,11 +12,18 @@ export class ZoomOutToolView extends ZoomBaseToolView {
     return -factor / (1 - factor)
   }
 
+  override commands(): Command[] {
+    return [
+      ...super.commands(),
+      {name: "zoom_out", description: "Zoom out", execute: () => this.doit(), origin: this.model},
+    ]
+  }
+
   override key_bindings(): InternalKeyBinding[] {
     return [
       ...super.key_bindings(),
-      {description: "Zoom Out", keys: ["-"], command: "zoom_out", action: () => this.doit(), origin: this.model},
-      {description: "Zoom Out", keys: ["z", "o"], command: "zoom_out", action: () => this.doit(), origin: this.model},
+      {keys: ["-"], command: "zoom_out", origin: this.model},
+      {keys: ["z", "o"], command: "zoom_out", origin: this.model},
     ]
   }
 }

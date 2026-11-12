@@ -33,6 +33,7 @@ import type {ResetTool} from "./actions/reset_tool"
 import type {HelpTool} from "./actions/help_tool"
 
 import type {KeyCombination, KeySequence, InternalKeyBinding} from "core/keyboard"
+import type {Command} from "core/commands"
 
 import {IconLike} from "../common/kinds"
 import type {ToolLike} from "./tool_proxy"
@@ -126,19 +127,37 @@ export abstract class ToolView extends View {
   _keydown?(e: KeyEvent): void | boolean
   _keyup?(e: KeyEvent): void | boolean
 
+  /**
+   * Name of the command that toggles this tool.
+   */
+  protected get _activate_command(): string {
+    const tool_name = this.model.tool_name.toLocaleLowerCase().replace(/[^a-z0-9_]+/g, "_").replace(/^_+|_+$/g, "")
+    return `activate_${tool_name}`
+  }
+
+  /**
+   * Commands provided by this tool. Commands can be invoked by name via
+   * key bindings, the command line or programmatically.
+   */
+  commands(): Command[] {
+    return [{
+      name: this._activate_command,
+      description: `Activate ${this.model.tool_name}`,
+      execute: () => { this.model.active = !this.model.active },
+      origin: this.model,
+    }]
+  }
+
+  /**
+   * Default key bindings of this tool. Bindings should preferably reference
+   * commands provided by `commands()`.
+   */
   key_bindings(): InternalKeyBinding[] {
     const bindings: InternalKeyBinding[] = []
     const {toggle_key} = this.model
     if (toggle_key != null) {
-      const tool_name = this.model.tool_name.toLocaleLowerCase().replace(/ /g, "_")
       const key_seq = isArray(toggle_key) ? toggle_key : [toggle_key]
-      bindings.push({
-        description: `Activate ${this.model.tool_name}`,
-        keys: ["a", ...key_seq],
-        command: `activate_${tool_name}`,
-        action: () => { this.model.active = !this.model.active },
-        origin: this.model,
-      })
+      bindings.push({keys: ["a", ...key_seq], command: this._activate_command, origin: this.model})
     }
     return bindings
   }

@@ -3,6 +3,7 @@ import type {Document} from "document"
 import {Enum, List} from "core/kinds"
 import type {Infer} from "core/kinds"
 import type {ExecutableLike, SyncExecutableLike} from "core/util/callbacks"
+import type {GivenArgs} from "core/commands"
 
 export const UpperKey = Enum(
   "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
@@ -69,12 +70,18 @@ export type KeyCombination = Infer<typeof KeyCombination>
 export const KeySequence = List(KeyCombination)
 export type KeySequence = Infer<typeof KeySequence>
 
+/**
+ * Associates a key sequence with either a named command (see `core/commands`),
+ * optionally with arguments, or with an ad-hoc `action`. If both are given,
+ * `action` takes precedence and `command` is only informative.
+ */
 export type InternalKeyBinding = {
-  description: string
+  description?: string | null
   keys: KeySequence
   command?: string | null
+  args?: GivenArgs | null
   when?: SyncExecutableLike<Model, [], boolean> | null
-  action: ExecutableLike<Model, [], void>
+  action?: ExecutableLike<Model, [], void> | null
   priority?: number | null
   origin: Document | Model
 }

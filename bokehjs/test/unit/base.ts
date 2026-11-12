@@ -210,6 +210,7 @@ describe("default model resolver", () => {
       "InversionFilter",
       "Jitter",
       "KeyBinding",
+      "KeyboardShortcuts",
       "Label",
       "LabelSet",
       "LabelingPolicy",

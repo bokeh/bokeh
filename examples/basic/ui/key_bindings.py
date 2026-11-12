@@ -19,7 +19,7 @@ p.circle(x, y, radius=radii,
 
 do_something = KeyBinding(
     description="Do something",
-    key="Ctrl+b",
+    keys="Ctrl+b",
     command="do_something",
     action=CustomJS(code="export default () => alert('doing something')"),
 )

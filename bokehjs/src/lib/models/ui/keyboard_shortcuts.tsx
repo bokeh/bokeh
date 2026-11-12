@@ -2,6 +2,8 @@ import {UIElement, UIElementView} from "./ui_element"
 import type {StyleSheetLike} from "core/dom"
 import type * as p from "core/properties"
 import type {InternalKeyBinding} from "core/keyboard"
+import type {Command, GivenArgs} from "core/commands"
+import {entries} from "core/util/object"
 import {parse, is_upper_like} from "core/keyboard"
 
 import * as key_css from "styles/keyboard_shortcuts.css"
@@ -13,7 +15,13 @@ import type {VNode} from "preact"
 
 type KeyboardShortcutsProps = {
   bindings: InternalKeyBinding[]
+  commands: Command[]
   editable: boolean
+}
+
+function format_command(command: string, args: GivenArgs | null | undefined): string {
+  const formatted_args = entries(args ?? {}).map(([name, value]) => `${name}=${value}`)
+  return [`:${command}`, ...formatted_args].join(" ")
 }
 class KeyboardShortcutsPanel extends Component<KeyboardShortcutsProps> {
   constructor(props: KeyboardShortcutsProps) {
@@ -21,9 +29,22 @@ class KeyboardShortcutsPanel extends Component<KeyboardShortcutsProps> {
   }
 
   override render(): VNode<HTMLElement> {
-    const {bindings} = this.props
+    const {bindings, commands} = this.props
 
-    const elements = bindings.map(({description, keys, command, origin}) => {
+    const describe = (binding: InternalKeyBinding): string => {
+      const {description, command} = binding
+      if (description != null) {
+        return description
+      }
+      if (command != null) {
+        return commands.find((cmd) => cmd.name == command)?.description ?? ""
+      }
+      return ""
+    }
+
+    const elements = bindings.map((binding) => {
+      const {keys, command, args, origin} = binding
+      const description = describe(binding)
       const seq = keys.map((key_combination) => {
         const {key, modifiers} = parse(key_combination)
 
@@ -48,7 +69,7 @@ class KeyboardShortcutsPanel extends Component<KeyboardShortcutsProps> {
         <tr class={key_css.key_binding}>
           <td class={key_css.description}>{description}</td>
           <td class={key_css.key_sequence}>{seq}</td>
-          <td class={key_css.command}>{command != null ? `:${command}` : ""}</td>
+          <td class={key_css.command}>{command != null ? format_command(command, args) : ""}</td>
           <td class={key_css.origin}>{origin.toString()}</td>
         </tr>
       )
@@ -87,7 +108,9 @@ export class KeyboardShortcutsView extends UIElementView {
       ...source_view?.computed_key_bindings ?? [],
     ]
 
-    const panel = <KeyboardShortcutsPanel bindings={bindings} editable={this.model.editable}></KeyboardShortcutsPanel>
+    const commands = source_view?.computed_commands ?? []
+
+    const panel = <KeyboardShortcutsPanel bindings={bindings} commands={commands} editable={this.model.editable}></KeyboardShortcutsPanel>
     render(panel, this.shadow_el)
   }
 }

@@ -12,6 +12,7 @@ import {CanvasLayer} from "core/util/canvas"
 import type {XY} from "core/util/bbox"
 import {BBox} from "core/util/bbox"
 import type {InternalKeyBinding} from "core/keyboard"
+import type {Command} from "core/commands"
 import {isNumber} from "core/util/types"
 import {defer} from "core/util/defer"
 import type * as p from "core/properties"
@@ -274,6 +275,13 @@ export abstract class UIElementView extends StyledElementView {
   }
 
   get key_bindings(): InternalKeyBinding[] {
+    return []
+  }
+
+  /**
+   * Commands available in the context of this UI element.
+   */
+  get computed_commands(): Command[] {
     return []
   }
 }

@@ -3,6 +3,7 @@ import type {BoxAnnotation} from "../../annotations/box_annotation"
 import type {PolyAnnotation} from "../../annotations/poly_annotation"
 import type {DataRendererView} from "../../renderers/data_renderer"
 import type {InternalKeyBinding} from "core/keyboard"
+import type {Command} from "core/commands"
 import {RegionSelectionMode} from "core/enums"
 import type {SelectionMode} from "core/enums"
 import type {Geometry} from "core/geometry"
@@ -53,10 +54,23 @@ export abstract class RegionSelectToolView extends SelectToolView {
     this._clear_selection()
   }
 
+  override commands(): Command[] {
+    return [
+      ...super.commands(),
+      {
+        name: "clear_selection",
+        description: "Stop or clear selection",
+        when: () => this.model.active,
+        execute: () => this._stop_or_clear_selection(),
+        origin: this.model,
+      },
+    ]
+  }
+
   override key_bindings(): InternalKeyBinding[] {
     return [
       ...super.key_bindings(),
-      {description: "Stop or clear selection", keys: ["Escape"], action: () => this._stop_or_clear_selection(), origin: this.model},
+      {keys: ["Escape"], command: "clear_selection", origin: this.model},
     ]
   }
 }

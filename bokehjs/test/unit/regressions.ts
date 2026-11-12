@@ -912,6 +912,7 @@ describe("Bug", () => {
             context_menu: null,
           },
           color_scheme: "auto",
+          key_bindings: [],
         },
         roots: [{
           $type: "ModelWithUnsetReadonly",

@@ -66,6 +66,7 @@ import type {Indexed} from "../coordinates/indexed"
 import {Node} from "../coordinates/node"
 import type {StyledElement} from "../ui/styled_element"
 import type {InternalKeyBinding} from "core/keyboard"
+import type {Command} from "core/commands"
 
 import * as plots_css from "styles/plots.css"
 import * as canvas_css from "styles/canvas.css"
@@ -1583,6 +1584,10 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   override get computed_key_bindings(): InternalKeyBinding[] {
     return [...super.computed_key_bindings, ...this.canvas.ui_event_bus.key_bindings]
+  }
+
+  override get computed_commands(): Command[] {
+    return [...super.computed_commands, ...this.canvas.ui_event_bus.commands.commands]
   }
 
   override get key_bindings(): InternalKeyBinding[] {

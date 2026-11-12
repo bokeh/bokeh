@@ -4,11 +4,12 @@ import {MenuItem} from "../../ui/menus"
 import type {MenuItemLike} from "../../ui/menus"
 import type {IconLike} from "../../common/kinds"
 import type {InternalKeyBinding} from "core/keyboard"
+import type {Command} from "core/commands"
 import type * as p from "core/properties"
 import type {PanEvent} from "core/ui_events"
 import {assert} from "core/util/assert"
 import {Dimensions} from "core/enums"
-import type {PanDirection} from "core/enums"
+import {PanDirection} from "core/enums"
 import type {SXY} from "core/util/bbox"
 import type {Scale} from "models/scales/scale"
 import * as icons from "styles/icons.css"
@@ -174,19 +175,32 @@ export class PanToolView extends GestureToolView {
     }
   }
 
+  override commands(): Command[] {
+    return [
+      ...super.commands(),
+      {
+        name: "pan",
+        description: "Pan the plot in the given direction",
+        args: [{name: "direction", type: PanDirection, description: "Direction to pan in"}],
+        execute: (args) => this._pan_by(args.direction as PanDirection),
+        origin: this.model,
+      },
+    ]
+  }
+
   override key_bindings(): InternalKeyBinding[] {
     return [
       ...super.key_bindings(),
 
-      {description: "Pan left",  keys: ["ArrowLeft"],  command: "pan_left",  action: () => this._pan_by("left"), origin: this.model},
-      {description: "Pan right", keys: ["ArrowRight"], command: "pan_right", action: () => this._pan_by("right"), origin: this.model},
-      {description: "Pan up",    keys: ["ArrowUp"],    command: "pan_up",    action: () => this._pan_by("up"), origin: this.model},
-      {description: "Pan down",  keys: ["ArrowDown"],  command: "pan_down",  action: () => this._pan_by("down"), origin: this.model},
+      {description: "Pan left",  keys: ["ArrowLeft"],  command: "pan", args: {direction: "left"},  origin: this.model},
+      {description: "Pan right", keys: ["ArrowRight"], command: "pan", args: {direction: "right"}, origin: this.model},
+      {description: "Pan up",    keys: ["ArrowUp"],    command: "pan", args: {direction: "up"},    origin: this.model},
+      {description: "Pan down",  keys: ["ArrowDown"],  command: "pan", args: {direction: "down"},  origin: this.model},
 
-      {description: "Pan left",  keys: ["p", "l"], action: () => this._pan_by("left"), origin: this.model},
-      {description: "Pan right", keys: ["p", "r"], action: () => this._pan_by("right"), origin: this.model},
-      {description: "Pan up",    keys: ["p", "u"], action: () => this._pan_by("up"), origin: this.model},
-      {description: "Pan down",  keys: ["p", "d"], action: () => this._pan_by("down"), origin: this.model},
+      {description: "Pan left",  keys: ["p", "l"], command: "pan", args: {direction: "left"},  origin: this.model},
+      {description: "Pan right", keys: ["p", "r"], command: "pan", args: {direction: "right"}, origin: this.model},
+      {description: "Pan up",    keys: ["p", "u"], command: "pan", args: {direction: "up"},    origin: this.model},
+      {description: "Pan down",  keys: ["p", "d"], command: "pan", args: {direction: "down"},  origin: this.model},
     ]
   }
 }

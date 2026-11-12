@@ -25,7 +25,8 @@ from typing import Any
 
 # Bokeh imports
 from ...core.enums import enumeration
-from ...core.property.container import Seq
+from ...core.property.any import AnyRef
+from ...core.property.container import Dict, Seq
 from ...core.property.either import Either
 from ...core.property.enum import Enum
 from ...core.property.instance import Instance
@@ -103,15 +104,21 @@ KeyCombination = enumeration(
 )
 
 class KeyBinding(Model):
-    """ Represents an action associated with a key or a sequence of keys.
+    """ Associates a key or a sequence of keys with a command or an action.
+
+    A binding either references a named command (e.g. ``"zoom_in"`` or
+    ``"pan"``), optionally with arguments, or provides an ad-hoc ``action``.
+    If both are provided, ``action`` takes precedence.
     """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-    description = Required(String, help="""
+    description = Nullable(String, default=None, help="""
     Descriptive explanation of the binding.
+
+    If not provided, the description of the referenced command is used.
     """)
 
     keys = Required(Either(Enum(KeyCombination), Seq(Enum(KeyCombination))), help="""
@@ -119,15 +126,20 @@ class KeyBinding(Model):
     """)
 
     command = Nullable(String, default=None, help="""
-    Command name excluding leader character (typically colon).
+    Name of the command to execute, excluding the leader character (typically
+    colon).
+    """)
+
+    args = Dict(String, AnyRef, default={}, help="""
+    Arguments to pass to the command.
     """)
 
     when = Nullable(Instance(Callback), default=None, help="""
     A callback determining when a binding is active or not.
     """)
 
-    action = Required(Instance(Callback), help="""
-    An associated action with this binding.
+    action = Nullable(Instance(Callback), default=None, help="""
+    An ad-hoc action to execute instead of a command.
     """)
 
     priority = Int(default=0, help="""

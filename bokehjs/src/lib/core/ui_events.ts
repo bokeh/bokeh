@@ -15,6 +15,9 @@ import type {RendererView} from "../models/renderers/renderer"
 import type {CanvasView} from "../models/canvas/canvas"
 import {execute, execute_sync} from "./util/callbacks"
 import type {InternalKeyBinding} from "./keyboard"
+import {CommandRegistry} from "./commands"
+import type {GivenArgs} from "./commands"
+import type {Model} from "../model"
 
 import type {TapEvent, PanEvent, PinchEvent, RotateEvent, MoveEvent, KeyModifiers} from "./ui_gestures"
 export type {TapEvent, PanEvent, PinchEvent, RotateEvent, MoveEvent, KeyModifiers} from "./ui_gestures"
@@ -213,6 +216,8 @@ export class UIEventBus {
   protected readonly _tools: ViewStorage<ToolLike<Tool>> = new Map()
   protected readonly _key_bindings: InternalKeyBinding[] = []
 
+  readonly commands: CommandRegistry = new CommandRegistry()
+
   get key_bindings(): InternalKeyBinding[] {
     return [...this._key_bindings]
   }
@@ -228,6 +233,9 @@ export class UIEventBus {
       throw new Error(`${tool} already registered`)
     } else {
       this._tools.set(tool, tool_view)
+      for (const command of tool_view.commands()) {
+        this.commands.register(command)
+      }
       this.add_key_bindings(tool_view.key_bindings())
     }
   }
@@ -869,15 +877,6 @@ export class UIEventBus {
       return key.length == 1 && (key == "_" || ("a" <= key && key <= "z") || ("A" <= key && key <= "Z") || ("0" <= key && key <= "9"))
     }
 
-    const find_cmd = (cmd: string): InternalKeyBinding | null => {
-      for (const binding of this._key_bindings) {
-        if (binding.command == cmd) {
-          return binding
-        }
-      }
-      return null
-    }
-
     switch (ev.key) {
       case "Ctrl":
       case "Shift":
@@ -890,14 +889,8 @@ export class UIEventBus {
 
     if (this._key_state == "cmd") {
       if (ev.key == "Enter") {
-        const binding = find_cmd(this._key_buffer.slice(this._cmd_start.length))
-        if (binding != null) {
-          if (binding.when == null || execute_sync(binding.when, target)) {
-            void execute(binding.action, target)
-          }
-        } else {
-          this.notifications.emit(`${this._key_buffer} command not found`)
-        }
+        const name = this._key_buffer.slice(this._cmd_start.length)
+        this._execute_command(name)
         this._key_state = "none"
         this._key_buffer = ""
       } else if (ev.key == "Backspace") {
@@ -983,14 +976,36 @@ export class UIEventBus {
       } else {
         for (const binding of prioritized(collected)) {
           if (binding.keys.length-1 == i) {
-            if (binding.when == null || execute_sync(binding.when, target)) {
-              void execute(binding.action, target)
+            if (this._is_binding_enabled(binding, target)) {
+              this._execute_binding(binding, target)
               break
             }
           }
         }
         reset_state()
       }
+    }
+  }
+
+  protected _execute_command(name: string, args: GivenArgs = {}): void {
+    this.commands.try_execute(name, args, (error) => this.notifications.emit(error.message))
+  }
+
+  protected _is_binding_enabled(binding: InternalKeyBinding, target: Model): boolean {
+    const {when, action, command} = binding
+    if (when != null && !execute_sync(when, target)) {
+      return false
+    }
+    // bindings referencing commands are only enabled when the command is available
+    return action != null || command == null || this.commands.is_enabled(command)
+  }
+
+  protected _execute_binding(binding: InternalKeyBinding, target: Model): void {
+    const {action, command, args} = binding
+    if (action != null) {
+      void execute(action, target)
+    } else if (command != null) {
+      this._execute_command(command, args ?? {})
     }
   }
 

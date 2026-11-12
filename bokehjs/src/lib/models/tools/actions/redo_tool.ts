@@ -1,5 +1,6 @@
 import {PlotActionTool, PlotActionToolView} from "./plot_action_tool"
 import type {InternalKeyBinding} from "core/keyboard"
+import type {Command} from "core/commands"
 import type * as p from "core/properties"
 import {tool_icon_redo} from "styles/icons.css"
 
@@ -21,10 +22,17 @@ export class RedoToolView extends PlotActionToolView {
     }
   }
 
+  override commands(): Command[] {
+    return [
+      ...super.commands(),
+      {name: "redo", description: "Redo last action", execute: () => this.doit(), origin: this.model},
+    ]
+  }
+
   override key_bindings(): InternalKeyBinding[] {
     return [
       ...super.key_bindings(),
-      {description: "Redo last action", keys: ["r"], command: "redo", action: () => this.doit(), origin: this.model},
+      {keys: ["r"], command: "redo", origin: this.model},
     ]
   }
 }
