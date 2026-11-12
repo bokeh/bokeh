@@ -80,21 +80,16 @@ class CodeRunner:
         '''
 
         Args:
-            source:
-                A string containing Python source code to execute
+            source: A string containing Python source code to execute
 
-            path:
-                A filename to use in any debugging or error output
+            path: A filename to use in any debugging or error output
 
-            argv:
-                A sequence of string arguments to make available as ``sys.argv``
+            argv: A sequence of string arguments to make available as ``sys.argv``
                 when the code executes
 
-            package:
-                An optional package module to configure
+            package: An optional package module to configure
 
-            optimize:
-                The compilation optimization level. Defaults to the interpreter's
+            optimize: The compilation optimization level. Defaults to the interpreter's
                 level. Use 0 to preserve docstrings and assertions.
 
         Raises:
@@ -212,11 +207,9 @@ class CodeRunner:
         checks.
 
         Args:
-            module (Module) :
-                A module to execute the configured code in.
+            module: A module to execute the configured code in.
 
-            post_check (callable, optional) :
-                A function that raises an exception if expected post-conditions
+            post_check: A function that raises an exception if expected post-conditions
                 are not met after code execution.
 
         '''

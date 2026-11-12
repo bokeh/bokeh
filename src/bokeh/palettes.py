@@ -1511,11 +1511,11 @@ def linear_palette(palette: Palette, n: int) -> Palette:
 
     Args:
 
-        palette (seq[str]) : a sequence of hex RGB color strings
-        n (int) : the size of the output palette to generate
+        palette: a sequence of hex RGB color strings
+        n: the size of the output palette to generate
 
     Returns:
-        seq[str] : a sequence of hex RGB color strings
+        Palette: a sequence of hex RGB color strings
 
     Raises:
         ValueError: if n > len(palette)
@@ -1537,21 +1537,21 @@ def diverging_palette(palette1: Palette, palette2: Palette, n: int, midpoint: fl
 
     Args:
 
-        palette1 (seq[str]) :
+        palette1:
             A sequence of hex RGB color strings for the first palette
 
-        palette2 (seq[str]) :
+        palette2:
             A sequence of hex RGB color strings for the second palette
 
-        n (int) :
+        n:
             The size of the output palette to generate
 
-        midpoint (float, optional) :
+        midpoint:
             Relative position in the returned palette where input palettes are
-            connected (default: 0.5)
+            connected
 
     Returns:
-            seq[str] : a sequence of hex RGB color strings
+            Palette: a sequence of hex RGB color strings
 
     Raises:
         ValueError: if n is greater than the possible combined length the input palettes
@@ -1575,29 +1575,29 @@ def varying_alpha_palette(color: str, n: int | None = None, start_alpha: int = 0
     ``start_alpha`` and ``end_alpha``.
 
     Args:
-        color (str) :
+        color:
             Named color or RGB(A) hex color string. Any alpha component is
             combined with the ``start_alpha`` to ``end_alpha`` range by
             multiplying them together, so it is the maximum possible alpha that
             can be obtained.
 
-        n (int, optional) :
+        n:
             The size of the palette to generate. If not specified uses the
             maximum number of colors such that adjacent colors differ by an
             alpha of 1.
 
-        start_alpha (int, optional) :
+        start_alpha:
             The alpha component of the start of the palette is this value (in
             the range 0 to 255) multiplied by the alpha component of the
             ``color`` argument.
 
-        end_alpha (int, optional) :
+        end_alpha:
             The alpha component of the end of the palette is this value (in
             the range 0 to 255) multiplied by the alpha component of the
             ``color`` argument.
 
     Returns:
-        seq[str] : a sequence of hex RGBA color strings
+        Palette: a sequence of hex RGBA color strings
 
     Raises:
         ValueError: if ``color`` is not recognizable as a string name or hex
@@ -1643,14 +1643,12 @@ def interp_palette(palette: Palette, n: int) -> Palette:
     components.
 
     Args:
-        palette (seq[str]) :
-            A sequence of hex RGB(A) color strings to create new palette from
+        palette: A sequence of hex RGB(A) color strings to create new palette from
 
-        n (int) :
-            The size of the palette to generate
+        n: The size of the palette to generate
 
     Returns:
-        tuple[str] : a sequence of hex RGB(A) color strings
+        Palette: a sequence of hex RGB(A) color strings
 
     Raises:
         ValueError: if ``n`` is negative or the supplied ``palette`` is empty.
@@ -1682,10 +1680,10 @@ def magma(n: int) -> Palette:
     :bokeh-palette:`magma(256)`
 
     Args:
-        n (int) : size of the palette to generate
+        n: size of the palette to generate
 
     Returns:
-        seq[str] : a sequence of hex RGB color strings
+        Palette: a sequence of hex RGB color strings
 
     Raises:
         ValueError: if n is greater than the base palette length of 256
@@ -1711,10 +1709,10 @@ def inferno(n: int) -> Palette:
     :bokeh-palette:`inferno(256)`
 
     Args:
-        n (int) : size of the palette to generate
+        n: size of the palette to generate
 
     Returns:
-        seq[str] : a sequence of hex RGB color strings
+        Palette: a sequence of hex RGB color strings
 
     Raises:
         ValueError: if n is greater than the base palette length of 256
@@ -1740,10 +1738,10 @@ def plasma(n: int) -> Palette:
     :bokeh-palette:`plasma(256)`
 
     Args:
-        n (int) : size of the palette to generate
+        n: size of the palette to generate
 
     Returns:
-        seq[str] : a sequence of hex RGB color strings
+        Palette: a sequence of hex RGB color strings
 
     Raises:
         ValueError: if n is greater than the base palette length of 256
@@ -1769,10 +1767,10 @@ def viridis(n: int) -> Palette:
     :bokeh-palette:`viridis(256)`
 
     Args:
-        n (int) : size of the palette to generate
+        n: size of the palette to generate
 
     Returns:
-        seq[str] : a sequence of hex RGB color strings
+        Palette: a sequence of hex RGB color strings
 
     Raises:
         ValueError: if n is greater than the base palette length of 256
@@ -1798,10 +1796,10 @@ def cividis(n: int) -> Palette:
     :bokeh-palette:`cividis(256)`
 
     Args:
-        n (int) : size of the palette to generate
+        n: size of the palette to generate
 
     Returns:
-        seq[str] : a sequence of hex RGB color strings
+        Palette: a sequence of hex RGB color strings
 
     Raises:
         ValueError: if n is greater than the base palette length of 256
@@ -1831,10 +1829,10 @@ def turbo(n: int) -> Palette:
     :bokeh-palette:`turbo(256)`
 
     Args:
-        n (int) : size of the palette to generate
+        n: size of the palette to generate
 
     Returns:
-        seq[str] : a sequence of hex RGB color strings
+        Palette: a sequence of hex RGB color strings
 
     Raises:
         ValueError: if n is greater than the base palette length of 256
@@ -1860,10 +1858,10 @@ def grey(n: int) -> Palette:
     :bokeh-palette:`grey(256)`
 
     Args:
-        n (int) : size of the palette to generate
+        n: size of the palette to generate
 
     Returns:
-        seq[str] : a sequence of hex RGB color strings
+        Palette: a sequence of hex RGB color strings
 
     Raises:
         ValueError: if n is greater than the base palette length of 256
@@ -1892,10 +1890,10 @@ def gray(n: int) -> Palette:
     :bokeh-palette:`grey(256)`
 
     Args:
-        n (int) : size of the palette to generate
+        n: size of the palette to generate
 
     Returns:
-        seq[str] : a sequence of hex RGB color strings
+        Palette: a sequence of hex RGB color strings
 
     Raises:
         ValueError: if n is greater than the base palette length of 256

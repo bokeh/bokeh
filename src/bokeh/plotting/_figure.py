@@ -27,10 +27,13 @@ log = logging.getLogger(__name__)
 
 import numpy as np
 
+from ..colors.color import ColorLike
 from ..core.enums import (
     AxisType,
+    HexTileOrientationType,
     HorizontalLocation,
     MarkerType,
+    PaletteType,
     VerticalLocation,
 )
 from ..core.property.auto import Auto
@@ -72,6 +75,7 @@ from .contour import from_contour
 from .glyph_api import _MARKER_SHORTCUTS, GlyphAPI
 
 if TYPE_CHECKING:
+    import numpy.typing as npt
     from numpy.typing import ArrayLike
 
     from ..models.glyphs import (
@@ -263,7 +267,18 @@ class figure(Plot, GlyphAPI):
         coordinates = CoordinateMapping(x_source=cast(Range, x_source), y_source=cast(Range, y_source), x_target=x_target, y_target=y_target)
         return GlyphAPI(self, coordinates)
 
-    def hexbin(self, x, y, size, orientation="pointytop", palette="Viridis256", line_color=None, fill_color=None, aspect_scale=1, **kwargs):
+    def hexbin(
+            self,
+            x:npt.NDArray[np.floating],
+            y:npt.NDArray[np.floating],
+            size:float,
+            orientation:HexTileOrientationType = "pointytop",
+            palette:PaletteType = "Viridis256",
+            line_color: ColorLike | None=None,
+            fill_color: ColorLike | None=None,
+            aspect_scale:float=1,
+            **kwargs,
+        ):
         ''' Perform a simple equal-weight hexagonal binning.
 
         A :class:`~bokeh.models.glyphs.HexTile` glyph will be added to display
@@ -281,13 +296,11 @@ class figure(Plot, GlyphAPI):
         level library such as HoloViews.
 
         Args:
-            x (array[float]) :
-                A NumPy array of x-coordinates to bin into hexagonal tiles.
+            x: A NumPy array of x-coordinates to bin into hexagonal tiles.
 
-            y (array[float]) :
-                A NumPy array of y-coordinates to bin into hexagonal tiles.
+            y: A NumPy array of y-coordinates to bin into hexagonal tiles.
 
-            size (float) :
+            size:
                 The size of the hexagonal tiling to use. The size is defined as
                 distance from the center of a hexagon to a corner.
 
@@ -296,25 +309,24 @@ class figure(Plot, GlyphAPI):
                 `"pointytop"` orientation, and the distance from the center to
                 a "side" corner with the "flattop" orientation.
 
-            orientation ("pointytop" or "flattop", optional) :
+            orientation:
                 Whether the hexagonal tiles should be oriented with a pointed
-                corner on top, or a flat side on top. (default: "pointytop")
+                corner on top, or a flat side on top.
 
-            palette (str or seq[ColorLike], optional) :
+            palette:
                 A palette (or palette name) to use to colormap the bins according
-                to count. (default: 'Viridis256')
+                to count.
 
                 If ``fill_color`` is supplied, it overrides this value.
 
-            line_color (ColorLike, optional) :
-                The outline color for hex tiles, or None (default: None)
+            line_color: The outline color for hex tiles, or None
 
-            fill_color (ColorLike, optional) :
+            fill_color:
                 An optional fill color for hex tiles, or None. If None, then
                 the ``palette`` will be used to color map the tiles by
-                count. (default: None)
+                count.
 
-            aspect_scale (float) :
+            aspect_scale:
                 Match a plot's aspect ratio scaling.
 
                 When working with a plot with ``aspect_scale != 1``, this
@@ -328,7 +340,7 @@ class figure(Plot, GlyphAPI):
         Any additional keyword arguments are passed to :func:`hex_tile`.
 
         Returns:
-            (Glyphrender, DataFrame)
+            (Glyphrender, DataFrame):
                 A tuple with the ``HexTile`` renderer generated to display the
                 binning, and a Pandas ``DataFrame`` with columns ``q``, ``r``,
                 and ``count``, where ``q`` and ``r`` are `axial coordinates`_
@@ -383,7 +395,7 @@ class figure(Plot, GlyphAPI):
         to right.
 
         Args:
-            stackers (seq[str]) : a list of data source field names to stack
+            stackers: a list of data source field names to stack
                 successively for ``x1`` and ``x2`` harea coordinates.
 
                 Additionally, the ``name`` of the renderer will be set to
@@ -428,7 +440,7 @@ class figure(Plot, GlyphAPI):
         ''' Generate multiple ``HBar`` renderers for levels stacked left to right.
 
         Args:
-            stackers (seq[str]) : a list of data source field names to stack
+            stackers: a list of data source field names to stack
                 successively for ``left`` and ``right`` bar coordinates.
 
                 Additionally, the ``name`` of the renderer will be set to
@@ -475,10 +487,10 @@ class figure(Plot, GlyphAPI):
         or horizontally.
 
         Args:
-            stackers (seq[str]) : a sequence of data source field names to
+            stackers: a sequence of data source field names to
                 stack successively.
 
-            spec (str) : the line coordinate to stack, either ``"x"`` or
+            spec: the line coordinate to stack, either ``"x"`` or
                 ``"y"``.
 
         Additionally, the ``name`` of the renderer will be set to
@@ -524,7 +536,7 @@ class figure(Plot, GlyphAPI):
         ''' Generate multiple ``Line`` renderers for lines stacked horizontally.
 
         Args:
-            stackers (seq[str]) : a list of data source field names to stack
+            stackers: a list of data source field names to stack
                 successively for ``x`` line coordinates.
 
         Additionally, the ``name`` of the renderer will be set to
@@ -568,7 +580,7 @@ class figure(Plot, GlyphAPI):
         to top.
 
         Args:
-            stackers (seq[str]) : a list of data source field names to stack
+            stackers: a list of data source field names to stack
                 successively for ``y1`` and ``y1`` varea coordinates.
 
                 Additionally, the ``name`` of the renderer will be set to
@@ -614,7 +626,7 @@ class figure(Plot, GlyphAPI):
         to top.
 
         Args:
-            stackers (seq[str]) : a list of data source field names to stack
+            stackers: a list of data source field names to stack
                 successively for ``left`` and ``right`` bar coordinates.
 
                 Additionally, the ``name`` of the renderer will be set to
@@ -659,7 +671,7 @@ class figure(Plot, GlyphAPI):
         ''' Generate multiple ``Line`` renderers for lines stacked vertically.
 
         Args:
-            stackers (seq[str]) : a list of data source field names to stack
+            stackers: a list of data source field names to stack
                 successively for ``y`` line coordinates.
 
         Additionally, the ``name`` of the renderer will be set to
@@ -733,24 +745,24 @@ class figure(Plot, GlyphAPI):
         contour lines if ``line_color`` is set.
 
         Args:
-            x (array-like[float] of shape (ny, nx) or (nx,), optional) :
+            x:
                 The x-coordinates of the ``z`` values. May be 2D with the same
                 shape as ``z.shape``, or 1D with length ``nx = z.shape[1]``.
                 If not specified are assumed to be ``np.arange(nx)``. Must be
                 ordered monotonically.
 
-            y (array-like[float] of shape (ny, nx) or (ny,), optional) :
+            y:
                 The y-coordinates of the ``z`` values. May be 2D with the same
                 shape as ``z.shape``, or 1D with length ``ny = z.shape[0]``.
                 If not specified are assumed to be ``np.arange(ny)``. Must be
                 ordered monotonically.
 
-            z (array-like[float] of shape (ny, nx)) :
+            z:
                 A 2D NumPy array of gridded values to calculate the contours
                 of.  It may be a masked array, and any invalid values (``np.inf``
                 or ``np.nan``) will also be masked out.
 
-            levels (array-like[float]) :
+            levels:
                 The z-levels to calculate the contours at, must be increasing.
                 Contour lines are calculated at each level and filled contours
                 are calculated between each adjacent pair of levels so the

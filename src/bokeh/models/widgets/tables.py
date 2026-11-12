@@ -774,11 +774,11 @@ class DataTable(TableWidget):
 
             columns:
                 A list of column names to use from the input data.
-                If None, use all columns. (default: None)
+                If None, use all columns.
 
             formatters:
                 A mapping of column names and corresponding Formatters to
-                apply to each column. (default: None)
+                apply to each column.
 
         Keyword arguments:
             kwargs: Any additional keyword arguments will be passed to DataTable.

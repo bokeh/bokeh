@@ -63,9 +63,9 @@ class ServerRequestHandler(RequestHandler):
             filename: path to a module to load request handler callbacks from
 
             argv: a sequence of string arguments to use as
-                ``sys.argv`` when the callback code is executed. (default: ())
+                ``sys.argv`` when the callback code is executed.
 
-            package (ModuleType, optional): An optional package module to configure
+            package: An optional package module to configure
         '''
         super().__init__()
 

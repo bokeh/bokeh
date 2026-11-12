@@ -807,14 +807,11 @@ class Image(ImageBase):
 
     # a hook to specify any additional kwargs handled by an initializer
     _extra_kws = {
-        'palette': (
-            'str or list[color value]',
-            'a palette to construct a value for the color mapper property from',
-        ),
+        'palette': ('', 'a palette to construct a value for the color mapper property from'),
     }
 
     image = NumberSpec(default=field("image"), help="""
-    The arrays of scalar data for the images to be colormapped.
+    The arrays of scalar data for the images to be color mapped.
     """)
 
     color_mapper = Instance(ColorMapper, default=InstanceDefault(LinearColorMapper, palette="Greys9"), help="""

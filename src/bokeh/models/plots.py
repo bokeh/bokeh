@@ -124,10 +124,10 @@ class Plot(LayoutDOM):
         single argument or as keyword arguments:
 
         Args:
-            selector (JSON-like) : some sample text
+            selector (dict[str, obj]): some sample text
 
         Keyword Arguments:
-            kwargs : query dict key/values as keyword arguments
+            kwargs: query dict key/values as keyword arguments
 
         Additionally, for compatibility with ``Model.select``, a selector
         dict may be passed as ``selector`` keyword argument, in which case
@@ -137,16 +137,16 @@ class Plot(LayoutDOM):
         the ``name`` string as the single parameter:
 
         Args:
-            name (str) : the name to query on
+            name (str): the name to query on
 
         Also queries on just type can be made simply by supplying the
         ``Model`` subclass as the single parameter:
 
         Args:
-            type (Model) : the type to query on
+            type (Model): the type to query on
 
         Returns:
-            seq[Model]
+            Sequence[Model]
 
         Examples:
 

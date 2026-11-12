@@ -223,7 +223,7 @@ def file_html(
             If None, attempt to automatically find the Document title from the given
             plot objects.
 
-        template: HTML document template (default: FILE)
+        template: HTML document template
             A Jinja2 Template, see bokeh.core.templates.FILE for the required
             template parameters
 

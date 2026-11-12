@@ -161,24 +161,24 @@ def from_contour(
     contour lines if ``line_color`` is set.
 
     Args:
-        x (array-like[float] of shape (ny, nx) or (nx,), optional) :
+        x:
             The x-coordinates of the ``z`` values. May be 2D with the same
             shape as ``z.shape``, or 1D with length ``nx = z.shape[1]``.
             If not specified are assumed to be ``np.arange(nx)``. Must be
             ordered monotonically.
 
-        y (array-like[float] of shape (ny, nx) or (ny,), optional) :
+        y:
             The y-coordinates of the ``z`` values. May be 2D with the same
             shape as ``z.shape``, or 1D with length ``ny = z.shape[0]``.
             If not specified are assumed to be ``np.arange(ny)``. Must be
             ordered monotonically.
 
-        z (array-like[float] of shape (ny, nx)) :
+        z:
             A 2D NumPy array of gridded values to calculate the contours
             of.  May be a masked array, and any invalid values (``np.inf``
             or ``np.nan``) will also be masked out.
 
-        levels (array-like[float]) :
+        levels:
             The z-levels to calculate the contours at, must be increasing.
             Contour lines are calculated at each level and filled contours
             are calculated between each adjacent pair of levels so the

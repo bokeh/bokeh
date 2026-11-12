@@ -49,7 +49,7 @@ class Regex(String):
     Args:
         default: A default value for attributes created from this property to have.
 
-        help: A documentation string for this property. (default: None)
+        help: A documentation string for this property.
 
     Example:
 

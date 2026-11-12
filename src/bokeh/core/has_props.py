@@ -664,9 +664,9 @@ class HasProps(Serializable):
                 Whether to include properties that haven't been explicitly set
                 since the object was created.
 
-            include_undefined  (bool, optional) :
+            include_undefined:
                 Whether to include properties that are undefined
-                since the object was created. (default: False)
+                since the object was created.
 
         Returns:
            dict: mapping from property names to their values
@@ -699,9 +699,9 @@ class HasProps(Serializable):
                 Whether to include properties that have not been explicitly
                 set by a user
 
-            include_undefined  (bool, optional) :
+            include_undefined:
                 Whether to include properties that are undefined
-                since the object was created. (default: False)
+                since the object was created.
 
         Returns:
             dict: mapping of property names and values for matching properties
