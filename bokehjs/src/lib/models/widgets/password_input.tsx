@@ -48,7 +48,7 @@ export class PasswordInputView extends TextInputView {
               onChange={(event) => this.model.value = event.currentTarget.value}
               onInput={(event) => this.model.value_input = event.currentTarget.value}
             />
-            <button type="button" class={password_input_css.toggle} onClick={this._toggle_click}>
+            <button type="button" class={password_input_css.toggle} disabled={disabled} onClick={this._toggle_click}>
               <div class={password_input_css.icon}></div>
             </button>
           </div>
