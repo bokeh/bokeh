@@ -839,6 +839,7 @@
                 name: "MultiLine",
                 id: "p1009",
                 attributes: {
+                  path_markings: [],
                   name: null,
                   tags: [],
                   _js_event_callbacks: {
@@ -857,7 +858,6 @@
                     type: "map",
                   },
                   syncable: true,
-                  path_markings: [],
                   xs: {
                     type: "value",
                     value: [
