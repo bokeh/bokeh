@@ -74,12 +74,15 @@ export class FileInputView extends InputWidgetView {
     const {disabled, multiple, directory} = this.signals
     const accept = this.computed_accept
 
+    const Title = this._title_el
     return (
       <UIComponent parent={this.resolved_props}>
+        <Title></Title>
         <div class={inputs_css.outer}>
           <div class={inputs_css.inner}>
             <input
               type="file"
+              id={this.input_id}
               class={inputs_css.input}
               name={name ?? undefined}
               disabled={disabled}

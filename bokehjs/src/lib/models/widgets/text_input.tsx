@@ -25,6 +25,7 @@ export class TextInputView extends TextLikeInputView {
           <div class={inputs_css.inner}>
             <input
               type="text"
+              id={this.input_id}
               class={inputs_css.input}
               disabled={disabled}
               value={value}

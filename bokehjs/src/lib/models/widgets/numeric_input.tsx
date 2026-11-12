@@ -88,6 +88,7 @@ export class NumericInputView extends InputWidgetView {
             <input
               ref={this.input_ref}
               type="text"
+              id={this.input_id}
               class={inputs_css.input}
               name={name ?? undefined}
               disabled={disabled}

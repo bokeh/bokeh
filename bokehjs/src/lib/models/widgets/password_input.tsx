@@ -38,6 +38,7 @@ export class PasswordInputView extends TextInputView {
           <div class={inputs_css.inner}>
             <input
               type={unprotected ? "text" : "password"}
+              id={this.input_id}
               class={inputs_css.input}
               disabled={disabled}
               value={value}

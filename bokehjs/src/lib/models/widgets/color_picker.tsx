@@ -21,12 +21,15 @@ export class ColorPickerView extends InputWidgetView {
   override component(): VNode {
     const {name, color} = this.values
     const {disabled} = this.signals
+    const Title = this._title_el
     return (
       <UIComponent parent={this.resolved_props}>
+        <Title></Title>
         <div class={inputs_css.outer}>
           <div class={inputs_css.inner}>
             <input
               type="color"
+              id={this.input_id}
               class={inputs_css.input}
               name={name ?? undefined}
               disabled={disabled}

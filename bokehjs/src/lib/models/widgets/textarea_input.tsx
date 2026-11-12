@@ -12,11 +12,14 @@ export class TextAreaInputView extends TextLikeInputView {
   override component(): VNode {
     const {disabled, value, placeholder, rows, cols} = this.signals
     const {max_length} = this.values
+    const Title = this._title_el
     return (
       <UIComponent parent={this.resolved_props}>
+        <Title></Title>
         <div class={inputs_css.outer}>
           <div class={inputs_css.inner}>
             <textarea
+              id={this.input_id}
               class={inputs_css.input}
               disabled={disabled}
               value={value}
