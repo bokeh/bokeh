@@ -40,10 +40,6 @@ export abstract class DOMView extends View {
     return bbox != null ? {...state, bbox: bbox.round()} : state
   }
 
-  get children_el(): Node {
-    return this.shadow_el ?? this.el
-  }
-
   override initialize(): void {
     super.initialize()
     this.el = this._create_element()
