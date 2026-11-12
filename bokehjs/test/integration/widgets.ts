@@ -344,6 +344,38 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
+  describe("should support prefix and suffix", () => {
+    type Attrs = {title?: string, prefix?: string, suffix?: string}
+    const widgets: [string, (attrs: Attrs) => InputWidget][] = [
+      ["PasswordInput", (attrs) => PasswordInput.create({value: "foo", ...attrs})],
+      ["AutocompleteInput", (attrs) => AutocompleteInput.create({placeholder: "Enter value ...", completions: ["aaa", "aab"], ...attrs})],
+      ["NumericInput", (attrs) => NumericInput.create({value: 10, ...attrs})],
+      ["Spinner", (attrs) => Spinner.create({value: 10, ...attrs})],
+    ]
+
+    const viewport: [number, number] = [400, 100]
+
+    for (const [name, create] of widgets) {
+      describe(`in ${name}`, () => {
+        it("with prefix", async () => {
+          await display(create({prefix: "T"}), viewport)
+        })
+
+        it("with suffix", async () => {
+          await display(create({suffix: "\u2103"}), viewport)
+        })
+
+        it("with prefix and suffix", async () => {
+          await display(create({prefix: "T", suffix: "\u2103"}), viewport)
+        })
+
+        it("with title, prefix and suffix", async () => {
+          await display(create({title: "Widget title", prefix: "T", suffix: "\u2103"}), viewport)
+        })
+      })
+    }
+  })
+
   describe("should support title and description", () => {
     type Attrs = Partial<InputWidget.Attrs>
     const widgets: [string, (attrs: Attrs) => InputWidget][] = [
