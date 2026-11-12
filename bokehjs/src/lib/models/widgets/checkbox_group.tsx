@@ -11,7 +11,7 @@ export class CheckboxGroupView extends ToggleInputGroupView {
   declare readonly values: CheckboxGroup.Attrs
 
   get indices(): Set<number> {
-    return new Set(this.signals.active.value)
+    return new Set(this.values.active)
   }
 
   override component(): VNode {

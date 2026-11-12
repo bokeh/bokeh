@@ -122,7 +122,7 @@ export class PaletteSelectView extends InputWidgetView {
   }
 
   override component(): VNode {
-    const disabled = this.signals.disabled.value
+    const {disabled} = this.values
     const Title = this._title_el
     return (
       <UIComponent parent={this.resolved_props}>

@@ -10,7 +10,7 @@ export class CheckboxButtonGroupView extends ToggleButtonGroupView {
   declare readonly values: CheckboxButtonGroup.Attrs
 
   override active_indices = computed(() => {
-    return new Set(this.signals.active.value)
+    return new Set(this.values.active)
   })
 
   change_active(i: number): void {

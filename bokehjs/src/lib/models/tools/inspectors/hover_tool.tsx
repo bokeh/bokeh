@@ -773,7 +773,7 @@ export class HoverToolView extends InspectToolView {
   }
 
   _render_vdom(ds: ColumnarDataSource, index: Index | null, vars: TooltipVars): VNode {
-    const tooltips = this.signals.tooltips.value
+    const {tooltips} = this.values
     assert(isArray(tooltips))
 
     const rows = []

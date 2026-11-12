@@ -9,7 +9,7 @@ export class RadioButtonGroupView extends ToggleButtonGroupView {
   declare readonly values: RadioButtonGroup.Attrs
 
   override active_indices = computed(() => {
-    const active = this.signals.active.value
+    const {active} = this.values
     return new Set(active == null ? [] : [active])
   })
 

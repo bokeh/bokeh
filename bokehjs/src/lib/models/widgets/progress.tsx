@@ -30,9 +30,7 @@ export class ProgressView extends IndicatorView {
   override component(): VNode {
     const {mode, label, reversed, orientation, disabled, label_location, description} = this.signals
 
-    const min = this.signals.min.value
-    const max = this.signals.max.value
-    const value = this.signals.value.value
+    const {min, max, value} = this.values
 
     const total = Math.abs(max - min)
     const index = clamp(value, min, max) - min
