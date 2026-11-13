@@ -651,7 +651,7 @@ class DataTable(TableWidget):
 
     ``"force_fit"``
         Fit columns into available space dividing the table width across
-        the columns equally (equivalent to `fit_columns=True`).
+        the columns equally.
         This results in no horizontal scrollbar showing up, but data
         can get unreadable if there is not enough space available.
 
@@ -672,16 +672,6 @@ class DataTable(TableWidget):
 
     columns = List(Instance(TableColumn), help="""
     The list of child column widgets.
-    """)
-
-    fit_columns = Nullable(Bool, help="""
-    **This is a legacy parameter.** For new development, use the
-    ``autosize_mode`` parameter.
-
-    Whether columns should be fit to the available width. This results in
-    no horizontal scrollbar showing up, but data can get unreadable if there
-    is not enough space available. If set to True, each column's width is
-    understood as maximum width.
     """)
 
     frozen_columns = Nullable(Int, help="""

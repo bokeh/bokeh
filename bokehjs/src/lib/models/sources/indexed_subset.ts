@@ -7,7 +7,6 @@ import {Indices} from "core/types"
 import type {Arrayable} from "core/types"
 import {Filter} from "../filters/filter"
 import {AllIndices} from "../filters/all_indices"
-import {IntersectionFilter} from "../filters/intersection_filter"
 import type {IndexedDataSource} from "./indexed_data_source"
 
 export class IndexedSubsetView extends View {
@@ -147,28 +146,5 @@ export class IndexedSubset extends Model {
     // contents so views sharing the subset don't publish the same indices twice.
     indices_map.set_subset(indices_array)
     this.setv({indices, indices_array, indices_map})
-  }
-
-  /** @deprecated */
-  get filters(): Filter[] {
-    const {filter} = this
-    if (filter instanceof IntersectionFilter) {
-      return filter.operands
-    } else if (filter instanceof AllIndices) {
-      return []
-    } else {
-      return [filter]
-    }
-  }
-
-  /** @deprecated */
-  set filters(filters: Filter[]) {
-    if (filters.length == 0) {
-      this.filter = AllIndices.create()
-    } else if (filters.length == 1) {
-      this.filter = filters[0]
-    } else {
-      this.filter = IntersectionFilter.create({operands: filters})
-    }
   }
 }

@@ -349,9 +349,9 @@ describe("ToolbarView", () => {
     })
   })
 
-  describe("toggleable attribute with inspect tools", () => {
-    it("should not show inspect tools if toggleable=false", async () => {
-      const hover = HoverTool.create({toggleable: false})
+  describe("visible attribute with inspect tools", () => {
+    it("should not show inspect tools if visible=false", async () => {
+      const hover = HoverTool.create({visible: false})
       const tb = Toolbar.create({tools: [hover]})
       const {view: tbv} = await display(tb, [300, 300])
 
@@ -359,8 +359,8 @@ describe("ToolbarView", () => {
       expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.true
     })
 
-    it("should show inspect tools if toggleable=true", async () => {
-      const hover = HoverTool.create({toggleable: true})
+    it("should show inspect tools if visible=true", async () => {
+      const hover = HoverTool.create({visible: true})
       const tb = Toolbar.create({tools: [hover]})
       const {view: tbv} = await display(tb, [300, 300])
 
@@ -368,7 +368,7 @@ describe("ToolbarView", () => {
       expect(tbv.tool_button_views[0].class_list.has(tb_css.hidden)).to.be.false
     })
 
-    it("should show inspect tools if toggleable is not set", async () => {
+    it("should show inspect tools if visible is not set", async () => {
       const hover = HoverTool.create()
       const tb = Toolbar.create({tools: [hover]})
       const {view: tbv} = await display(tb, [300, 300])

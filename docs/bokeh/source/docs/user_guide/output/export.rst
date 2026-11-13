@@ -8,156 +8,16 @@ PNG and SVG export
 Additional dependencies
 -----------------------
 
-To use Bokeh's export functions, you need a headless browser backend.
-Bokeh uses `Playwright`_ by default and temporarily retains the deprecated
-`Selenium`_ backend for compatibility.
+Bokeh uses `Playwright`_ to render PNG and SVG exports in a headless browser.
 
-Using Playwright
-~~~~~~~~~~~~~~~~
-
-Playwright is the default export backend. Install the optional export
-dependencies and Chromium with:
+Install the optional export dependencies and Chromium:
 
 .. code-block:: sh
 
     pip install "bokeh[export]"
     playwright install --only-shell chromium
 
-You can also install the ``playwright`` package directly. Separate browser
-driver binaries do not have to be managed. Bokeh only requires Chromium's
-headless shell for export.
-
-Using Selenium (deprecated)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. deprecated:: 4.0.0
-    The Selenium export backend is deprecated and will be removed in a future
-    release. Use Playwright for new code.
-
-Selenium requires both the ``selenium`` Python package and a
-`web driver`_ binary on your PATH:
-
-* geckodriver for Firefox
-* ChromeDriver for Chrome / Chromium
-
-You can install these dependencies in various ways. The recommended way is to
-use ``conda`` and install Selenium together with geckodriver.
-
-.. tab-set::
-
-    .. tab-item:: install with ``conda``
-
-        .. tab-set::
-
-          .. tab-item:: Selenium and geckodriver (Firefox):
-
-              .. code-block:: sh
-
-                  conda install selenium geckodriver -c conda-forge
-
-              In order for geckodriver to work, you also need to have Firefox
-              available on your system. See `Supported platforms`_ in the geckodriver
-              documentation to make sure your version of Firefox is compatible.
-
-              You can also install Firefox from conda-forge:
-
-              .. code-block:: sh
-
-                  conda install firefox -c conda-forge
-
-              Installing Firefox with ``conda`` is helpful to make sure that you are
-              running compatible versions of geckodriver and Firefox.
-
-          .. tab-item:: Selenium and ChromeDriver (Chrome):
-
-            .. code-block:: sh
-
-                conda install selenium python-chromedriver-binary -c conda-forge
-
-            After downloading and installing with ``conda``, make sure that the
-            executable ``chromedriver`` (``chromedriver.exe`` on Windows) is
-            available in your PATH. See the `chromedriver-binary documentation`_ for
-            more information.
-
-            ChromeDriver requires a compatible version of Google Chrome or Chromium
-            to be available on your system. See the `ChromeDriver documentation`_
-            for details about which version of ChromeDriver works with which
-            version of Chrome or Chromium.
-
-    .. tab-item:: install with ``pip``
-
-        .. tab-set::
-
-          .. tab-item:: Selenium and geckodriver (Firefox):
-
-              .. code-block:: sh
-
-                  pip install selenium
-
-              After installing Selenium, you need to download and install the
-              geckodriver binary from the `geckodriver repository on GitHub`_. Make
-              sure that geckodriver is available in your PATH. See the
-              `geckodriver documentation`_ for more information.
-
-              In order for geckodriver to work, you also need to have Firefox
-              available on your system. See `Supported platforms`_ in the geckodriver
-              documentation to make sure your version of Firefox is compatible.
-
-          .. tab-item:: Selenium and ChromeDriver (Chrome):
-
-              .. code-block:: sh
-
-                  pip install selenium chromedriver-binary
-
-              After downloading and installing with ``pip``, make sure that the
-              executable ``chromedriver`` (``chromedriver.exe`` on Windows) is
-              available in your PATH. See the `chromedriver-binary documentation`_ for
-              more information.
-
-              ChromeDriver requires a compatible version of Google Chrome or Chromium
-              to be available on your system. See the `ChromeDriver documentation`_
-              for details about which version of ChromeDriver works with which
-              version of Chrome or Chromium.
-
-.. _ug_output_export_backend:
-
-Choosing a backend
-------------------
-
-Bokeh uses Playwright by default. You can select a backend in three ways. The
-``auto`` setting also prefers Playwright, but falls back to the deprecated
-Selenium backend when Playwright is not installed.
-
-**Environment variable** — set ``BOKEH_EXPORT_BACKEND`` to one of
-``auto``, ``playwright``, or ``selenium``:
-
-.. code-block:: sh
-
-    BOKEH_EXPORT_BACKEND=playwright python my_script.py
-
-**Per-call parameter** — pass ``backend`` directly to any export function:
-
-.. code-block:: python
-
-    from bokeh.io import export_png
-
-    export_png(plot, filename="plot.png", backend="playwright")
-
-You can also pass a browser instance directly to any export function using the
-``webdriver`` keyword argument. This accepts a Selenium ``WebDriver`` or a
-Playwright ``Browser`` / ``BrowserContext``. The appropriate backend is
-selected automatically from the type of instance passed, overriding the
-``backend`` parameter and the ``export_backend`` setting. Passing a Selenium
-``WebDriver`` selects the deprecated Selenium backend and emits a deprecation
-warning.
-
-**Global settings** — update the ``export_backend`` setting:
-
-.. code-block:: python
-
-    from bokeh.settings import settings
-
-    settings.export_backend = "playwright"
+The browser installation command installs Chromium's headless shell.
 
 .. _ug_output_export_png:
 
@@ -279,12 +139,4 @@ You can export an SVG plot in several ways:
 .. |export_svgs|     replace:: :func:`~bokeh.io.export_svgs`
 
 .. _Playwright: https://playwright.dev/python/
-.. _Selenium: https://www.selenium.dev/documentation/en/
-.. _web driver: https://www.selenium.dev/documentation/en/webdriver/
-.. _web drivers: https://www.selenium.dev/documentation/en/webdriver/
-.. _ChromeDriver documentation: https://chromedriver.chromium.org/
-.. _geckodriver repository on GitHub: https://github.com/mozilla/geckodriver/releases
-.. _geckodriver documentation: https://firefox-source-docs.mozilla.org/testing/geckodriver/Usage.html
-.. _chromedriver-binary documentation: https://github.com/danielkaiser/python-chromedriver-binary#usage
-.. _Supported platforms: https://firefox-source-docs.mozilla.org/testing/geckodriver/Support.html
 .. _SVG-Crowbar: http://nytimes.github.io/svg-crowbar/

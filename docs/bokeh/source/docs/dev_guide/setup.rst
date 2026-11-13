@@ -34,7 +34,7 @@ Install or update Pixi
 
 Working on the Bokeh codebase requires installing several software packages that
 are not Python packages. For example, `Node.js`_ for TypeScript development or
-`Selenium`_ for testing and exporting.
+`Selenium`_ for browser tests.
 
 To manage Python and non-Python dependencies in one place, Bokeh uses `Pixi`_.
 Pixi is a single executable available for Windows, macOS, and Linux. It creates

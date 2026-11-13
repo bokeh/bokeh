@@ -143,7 +143,6 @@ from typing import (
     Sequence,
     cast,
 )
-from warnings import deprecated
 
 import yaml
 
@@ -706,23 +705,6 @@ class Settings:
     fixes or changes.
     """)
 
-    export_backend: PrioritizedSetting[str] = PrioritizedSetting("export_backend", "BOKEH_EXPORT_BACKEND", default="playwright", help="""
-    Which browser backend to use for PNG and SVG export.
-
-    Valid values are:
-
-    - ``playwright``: use Playwright (default; requires
-      ``pip install playwright`` and
-      ``playwright install --only-shell chromium``).
-    - ``auto``: try Playwright first, then fall back to the deprecated
-      Selenium backend.
-    - ``selenium``: use the deprecated Selenium backend with a browser driver
-      on PATH.
-
-    This can also be overridden per-call via the ``backend`` parameter
-    on ``export_png``, ``export_svg``, etc.
-    """)
-
     ico_path: PrioritizedSetting[str] = PrioritizedSetting("ico_path", "BOKEH_ICO_PATH",
         default="default", dev_default="default-dev", convert=convert_ico_path, help="""
     Configure the file path to a .ico file for the Bokeh server to use as a
@@ -887,15 +869,6 @@ class Settings:
 
         '''
         return bokehjs_path(self.dev)
-
-    @deprecated("'bokehjsdir()' was deprecated in Bokeh 3.4.0 and will be removed, use 'bokehjs_path()' instead.")
-    def bokehjsdir(self) -> str:
-        ''' The location of the BokehJS source tree.
-
-        .. deprecated:: 3.4.0
-            Use ``bokehjs_path()`` method instead.
-        '''
-        return str(self.bokehjs_path())
 
     def css_files(self) -> list[str]:
         ''' The CSS files in the BokehJS directory.

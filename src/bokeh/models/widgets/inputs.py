@@ -23,8 +23,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 from math import inf
-from typing import Any
-from warnings import deprecated
 
 from ...core.has_props import abstract
 from ...core.property.any import AnyRef
@@ -79,7 +77,6 @@ __all__ = (
     'Switch',
     'TextAreaInput',
     'TextInput',
-    'ColorMap',
 )
 
 #-----------------------------------------------------------------------------
@@ -556,19 +553,6 @@ class PaletteSelect(InputWidget):
     ncols = Positive(Int, default=1, help="""
     The number of columns to split the display of the palettes into.
     """)
-
-#-----------------------------------------------------------------------------
-# Legacy API
-#-----------------------------------------------------------------------------
-
-@deprecated("'ColorMap widget' was deprecated in Bokeh 3.4.0 and will be removed, use 'PaletteSelect widget' instead.")
-def ColorMap(*args: Any, **kwargs: Any) -> PaletteSelect:
-    ''' Color palette select widget.
-
-    .. deprecated:: 3.4.0
-        Use ``PaletteSelect`` widget instead.
-    '''
-    return PaletteSelect(*args, **kwargs)
 
 #-----------------------------------------------------------------------------
 # Private API

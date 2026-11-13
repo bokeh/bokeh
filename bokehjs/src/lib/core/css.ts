@@ -114,8 +114,6 @@ type CSSStylesCamel = {
   captionSide?: string | null
   caretColor?: string | null
   clear?: string | null
-  /** @deprecated */
-  clip?: string | null
   clipPath?: string | null
   clipRule?: string | null
   color?: string | null
@@ -167,8 +165,6 @@ type CSSStylesCamel = {
   fontStyle?: string | null
   fontSynthesis?: string | null
   fontVariant?: string | null
-  /** @deprecated */
-  fontVariantAlternates?: string | null
   fontVariantCaps?: string | null
   fontVariantEastAsian?: string | null
   fontVariantLigatures?: string | null
@@ -184,15 +180,9 @@ type CSSStylesCamel = {
   gridAutoRows?: string | null
   gridColumn?: string | null
   gridColumnEnd?: string | null
-  /** @deprecated This is a legacy alias of `columnGap`. */
-  gridColumnGap?: string | null
   gridColumnStart?: string | null
-  /** @deprecated This is a legacy alias of `gap`. */
-  gridGap?: string | null
   gridRow?: string | null
   gridRowEnd?: string | null
-  /** @deprecated This is a legacy alias of `rowGap`. */
-  gridRowGap?: string | null
   gridRowStart?: string | null
   gridTemplate?: string | null
   gridTemplateAreas?: string | null
@@ -200,8 +190,6 @@ type CSSStylesCamel = {
   gridTemplateRows?: string | null
   height?: string | null
   hyphens?: string | null
-  /** @deprecated */
-  imageOrientation?: string | null
   imageRendering?: string | null
   inlineSize?: string | null
   inset?: string | null
@@ -391,8 +379,6 @@ type CSSStylesCamel = {
   willChange?: string | null
   wordBreak?: string | null
   wordSpacing?: string | null
-  /** @deprecated */
-  wordWrap?: string | null
   writingMode?: string | null
   zIndex?: string | null
 }
@@ -501,8 +487,6 @@ type CSSStylesDashed = {
   "caption-side"?: CSSStylesCamel["captionSide"]
   "caret-color"?: CSSStylesCamel["caretColor"]
   "clear"?: CSSStylesCamel["clear"]
-  /** @deprecated */
-  "clip"?: CSSStylesCamel["clip"]
   "clip-path"?: CSSStylesCamel["clipPath"]
   "clip-rule"?: CSSStylesCamel["clipRule"]
   "color"?: CSSStylesCamel["color"]
@@ -554,8 +538,6 @@ type CSSStylesDashed = {
   "font-style"?: CSSStylesCamel["fontStyle"]
   "font-synthesis"?: CSSStylesCamel["fontSynthesis"]
   "font-variant"?: CSSStylesCamel["fontVariant"]
-  /** @deprecated */
-  "font-variant-alternates"?: CSSStylesCamel["fontVariantAlternates"]
   "font-variant-caps"?: CSSStylesCamel["fontVariantCaps"]
   "font-variant-east-asian"?: CSSStylesCamel["fontVariantEastAsian"]
   "font-variant-ligatures"?: CSSStylesCamel["fontVariantLigatures"]
@@ -571,15 +553,9 @@ type CSSStylesDashed = {
   "grid-auto-rows"?: CSSStylesCamel["gridAutoRows"]
   "grid-column"?: CSSStylesCamel["gridColumn"]
   "grid-column-end"?: CSSStylesCamel["gridColumnEnd"]
-  /** @deprecated This is a legacy alias of `column-gap`. */
-  "grid-column-gap"?: CSSStylesCamel["gridColumnGap"]
   "grid-column-start"?: CSSStylesCamel["gridColumnStart"]
-  /** @deprecated This is a legacy alias of `gap`. */
-  "grid-gap"?: CSSStylesCamel["gridGap"]
   "grid-row"?: CSSStylesCamel["gridRow"]
   "grid-row-end"?: CSSStylesCamel["gridRowEnd"]
-  /** @deprecated This is a legacy alias of `row-gap`. */
-  "grid-row-gap"?: CSSStylesCamel["gridRowGap"]
   "grid-row-start"?: CSSStylesCamel["gridRowStart"]
   "grid-template"?: CSSStylesCamel["gridTemplate"]
   "grid-template-areas"?: CSSStylesCamel["gridTemplateAreas"]
@@ -587,8 +563,6 @@ type CSSStylesDashed = {
   "grid-template-rows"?: CSSStylesCamel["gridTemplateRows"]
   "height"?: CSSStylesCamel["height"]
   "hyphens"?: CSSStylesCamel["hyphens"]
-  /** @deprecated */
-  "image-orientation"?: CSSStylesCamel["imageOrientation"]
   "image-rendering"?: CSSStylesCamel["imageRendering"]
   "inline-size"?: CSSStylesCamel["inlineSize"]
   "inset"?: CSSStylesCamel["inset"]
@@ -778,8 +752,6 @@ type CSSStylesDashed = {
   "will-change"?: CSSStylesCamel["willChange"]
   "word-break"?: CSSStylesCamel["wordBreak"]
   "word-spacing"?: CSSStylesCamel["wordSpacing"]
-  /** @deprecated */
-  "word-wrap"?: CSSStylesCamel["wordWrap"]
   "writing-mode"?: CSSStylesCamel["writingMode"]
   "z-index"?: CSSStylesCamel["zIndex"]
 }
@@ -888,8 +860,6 @@ type CSSStylesSnake = {
   caption_side?: CSSStylesCamel["captionSide"]
   caret_color?: CSSStylesCamel["caretColor"]
   clear?: CSSStylesCamel["clear"]
-  /** @deprecated */
-  clip?: CSSStylesCamel["clip"]
   clip_path?: CSSStylesCamel["clipPath"]
   clip_rule?: CSSStylesCamel["clipRule"]
   color?: CSSStylesCamel["color"]
@@ -941,8 +911,6 @@ type CSSStylesSnake = {
   font_style?: CSSStylesCamel["fontStyle"]
   font_synthesis?: CSSStylesCamel["fontSynthesis"]
   font_variant?: CSSStylesCamel["fontVariant"]
-  /** @deprecated */
-  font_variant_alternates?: CSSStylesCamel["fontVariantAlternates"]
   font_variant_caps?: CSSStylesCamel["fontVariantCaps"]
   font_variant_east_asian?: CSSStylesCamel["fontVariantEastAsian"]
   font_variant_ligatures?: CSSStylesCamel["fontVariantLigatures"]
@@ -958,15 +926,9 @@ type CSSStylesSnake = {
   grid_auto_rows?: CSSStylesCamel["gridAutoRows"]
   grid_column?: CSSStylesCamel["gridColumn"]
   grid_column_end?: CSSStylesCamel["gridColumnEnd"]
-  /** @deprecated This is a legacy alias of `column_gap`. */
-  grid_column_gap?: CSSStylesCamel["gridColumnGap"]
   grid_column_start?: CSSStylesCamel["gridColumnStart"]
-  /** @deprecated This is a legacy alias of `gap`. */
-  grid_gap?: CSSStylesCamel["gridGap"]
   grid_row?: CSSStylesCamel["gridRow"]
   grid_row_end?: CSSStylesCamel["gridRowEnd"]
-  /** @deprecated This is a legacy alias of `row_gap`. */
-  grid_row_gap?: CSSStylesCamel["gridRowGap"]
   grid_row_start?: CSSStylesCamel["gridRowStart"]
   grid_template?: CSSStylesCamel["gridTemplate"]
   grid_template_areas?: CSSStylesCamel["gridTemplateAreas"]
@@ -974,8 +936,6 @@ type CSSStylesSnake = {
   grid_template_rows?: CSSStylesCamel["gridTemplateRows"]
   height?: CSSStylesCamel["height"]
   hyphens?: CSSStylesCamel["hyphens"]
-  /** @deprecated */
-  image_orientation?: CSSStylesCamel["imageOrientation"]
   image_rendering?: CSSStylesCamel["imageRendering"]
   inline_size?: CSSStylesCamel["inlineSize"]
   inset?: CSSStylesCamel["inset"]
@@ -1165,8 +1125,6 @@ type CSSStylesSnake = {
   will_change?: CSSStylesCamel["willChange"]
   word_break?: CSSStylesCamel["wordBreak"]
   word_spacing?: CSSStylesCamel["wordSpacing"]
-  /** @deprecated */
-  word_wrap?: CSSStylesCamel["wordWrap"]
   writing_mode?: CSSStylesCamel["writingMode"]
   z_index?: CSSStylesCamel["zIndex"]
 }

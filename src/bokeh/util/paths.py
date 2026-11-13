@@ -18,7 +18,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 from pathlib import Path
-from warnings import deprecated
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -29,9 +28,7 @@ ROOT_DIR = Path(__file__).absolute().resolve().parent.parent
 
 __all__ = (
     "bokehjs_path",
-    "bokehjsdir",
     "server_path",
-    "serverdir",
     "static_path",
 )
 
@@ -71,37 +68,6 @@ def bokehjs_path(dev: bool = False) -> Path:
             log.warning(f"bokehjs' build directory '{js_dir}' doesn't exist; required by 'settings.dev'")
 
     return static_path()
-
-#-----------------------------------------------------------------------------
-# Legacy API
-#-----------------------------------------------------------------------------
-
-@deprecated("'serverdir()' was deprecated in Bokeh 3.4.0 and will be removed, use 'server_path()' instead.")
-def serverdir() -> str:
-    """ Get the location of the server subpackage.
-
-    .. deprecated:: 3.4.0
-        Use ``server_path()`` instead.
-    """
-    return str(server_path())
-
-@deprecated("'bokehjsdir()' was deprecated in Bokeh 3.4.0 and will be removed, use 'bokehjs_path()' instead.")
-def bokehjsdir(dev: bool = False) -> str:
-    """ Get the location of the bokehjs source files.
-
-    By default the files in ``bokeh/server/static`` are used.  If ``dev``
-    is ``True``, then the files in ``bokehjs/build`` preferred. However,
-    if not available, then a warning is issued and the former files are
-    used as a fallback.
-
-    .. note:
-        This is a low-level API. Prefer using ``settings.bokehjsdir()``
-        instead of this function.
-
-    .. deprecated:: 3.4.0
-        Use ``bokehjs_path()`` instead.
-    """
-    return str(bokehjs_path(dev))
 
 #-----------------------------------------------------------------------------
 # Dev API

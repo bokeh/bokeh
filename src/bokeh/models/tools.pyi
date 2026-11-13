@@ -154,7 +154,6 @@ class SelectTool(GestureTool):
 class _RegionSelectToolInit(_SelectToolInit, total=False):
     mode: RegionSelectionMode
     continuous: bool
-    select_every_mousemove: bool
     persistent: bool
     greedy: bool
 
@@ -164,18 +163,15 @@ class RegionSelectTool(SelectTool):
 
     mode: RegionSelectionMode = ...
     continuous: bool = ...
-    select_every_mousemove: bool = ...
     persistent: bool = ...
     greedy: bool = ...
 
 class _InspectToolInit(_GestureToolInit, total=False):
-    toggleable: bool
+    ...
 
 class InspectTool(GestureTool):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_InspectToolInit]) -> None: ...
-
-    toggleable: bool = ...
 
 class _ToolbarInit(_UIElementInit, total=False):
     tools: list[Tool | ToolProxy]

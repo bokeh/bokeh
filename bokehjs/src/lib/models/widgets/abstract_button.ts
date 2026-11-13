@@ -6,14 +6,14 @@ import type {ViewOf, ChildView} from "core/build_views"
 import {build_view} from "core/build_views"
 import {isString} from "core/util/types"
 
-import {Control, ControlView} from "./control"
+import {Widget, WidgetView} from "./widget"
 import {DOMNode} from "../dom/dom_node"
 import {Text} from "../dom/text"
 import {Icon} from "../ui/icons/icon"
 
 import buttons_css, * as buttons from "styles/buttons.css"
 
-export abstract class AbstractButtonView extends ControlView {
+export abstract class AbstractButtonView extends WidgetView {
   declare model: AbstractButton
 
   protected label_view?: ViewOf<DOMNode>
@@ -22,7 +22,7 @@ export abstract class AbstractButtonView extends ControlView {
   button_el: HTMLButtonElement
   protected group_el: HTMLElement
 
-  override *controls() {
+  protected override *disabled_controls() {
     yield this.button_el
   }
 
@@ -105,7 +105,7 @@ export abstract class AbstractButtonView extends ControlView {
 export namespace AbstractButton {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Control.Props & {
+  export type Props = Widget.Props & {
     label: p.Property<DOMNode | string>
     icon: p.Property<Icon | null>
     button_type: p.Property<ButtonType>
@@ -114,7 +114,7 @@ export namespace AbstractButton {
 
 export interface AbstractButton extends AbstractButton.Attrs {}
 
-export abstract class AbstractButton extends Control {
+export abstract class AbstractButton extends Widget {
   declare properties: AbstractButton.Props
   declare __view_type__: AbstractButtonView
 

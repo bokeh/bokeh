@@ -34,12 +34,8 @@ from bokeh.embed import (
     EmbedValidationError,
     ResourceAssetRequirement,
     ThemePolicy,
-    components,
     embed,
     embed_server,
-    file_html,
-    server_document,
-    server_session,
 )
 from bokeh.embed.resources import (
     ExtensionRequirement,
@@ -797,10 +793,6 @@ def test_builder_captures_inline_custom_model_bundle(
     fragment = result.fragment(resources="none")
     assert fragment.result is result
     assert fragment.script.count("compiled-custom-models") == 1
-    with pytest.warns(DeprecationWarning, match=r"components\(\)"):
-        script, _ = components(InlineCustomJS(code="return value"))
-    assert script.count("compiled-custom-models") == 1
-    assert script.index("compiled-custom-models") < script.index("application/vnd.bokeh.embed+json")
 
 
 def test_builder_adapts_external_and_legacy_package_assets(
@@ -831,13 +823,6 @@ def test_builder_adapts_external_and_legacy_package_assets(
     assert ResourceAssetRequirement("script", url="https://example.test/extension.js") in assets
     assert ResourceAssetRequirement("style", url="https://example.test/extension.css") in assets
     assert ResourceAssetRequirement("script", package="legacy-package") in assets
-
-    with pytest.warns(DeprecationWarning, match=r"components\(\)"):
-        script, _ = components(ExternalCustomJS(code="external"))
-    assert script.count("<script") == 2
-    assert '<script src="https://example.test/extension.js"' not in script
-    assert '<link href="https://example.test/extension.css"' not in script
-    assert "data-bokeh-resource-state" not in script
 
 
 def test_resources_resolve_none_cdn_inline_and_offline_conflicts(tmp_path: Path) -> None:
@@ -1396,45 +1381,11 @@ def test_external_only_renderer_applies_bootstrap_integrity(monkeypatch: pytest.
     assert "data-bokeh-resource-integrity" in external.bootstrap
 
 
-def test_retained_facades_delegate_and_preserve_useful_shapes() -> None:
-    plot = _plot()
-    with pytest.warns(DeprecationWarning, match=r"components\(\)"):
-        script, div = components(plot)
-    assert "bokeh.embed/v1" in script
-    assert "data-bokeh-root=\"root\"" in div
-
-    with pytest.warns(DeprecationWarning, match=r"components\(\)"):
-        script, divs = components({"left": _plot(), "right": _plot()})
-    assert list(divs) == ["left", "right"]
-    assert "Bokeh.mount" in script
-
-    with pytest.warns(DeprecationWarning, match=r"file_html\(\)"):
-        html = file_html(plot, resources="cdn", title="Facade")
-    assert "bokeh.embed/v1" in html
-    assert "<title>Facade</title>" in html
-
-
-def test_save_and_server_facades_use_embed_routes(tmp_path: Path) -> None:
+def test_save_uses_embed_route(tmp_path: Path) -> None:
     filename = tmp_path / "saved.html"
     result = save(_plot(), filename=filename, resources="cdn", title="Saved result")
     assert Path(result) == filename
     assert "bokeh.embed/v1" in filename.read_text()
-
-    with pytest.warns(DeprecationWarning, match=r"server_document\(\)"):
-        new_session = server_document("https://example.test/app", resources=None)
-    assert '\"kind\":\"server\"' in new_session
-    assert "mount_embed_declaration" in new_session
-    assert "/autoload.js" not in new_session
-    with pytest.warns(DeprecationWarning, match=r"server_document\(\)"):
-        with_resources = server_document("https://example.test/app")
-    assert "https://example.test/app/static/js/bokeh.min.js" in with_resources
-    assert "bokeh-api.min.js" not in with_resources
-
-    model = _plot()
-    with pytest.warns(DeprecationWarning, match=r"server_session\(\)"):
-        selected = server_session(model, session_id="session", url="https://example.test/app", resources=None)
-    assert model.id in selected
-    assert 'data-bokeh-root="root"' in selected
 
 
 def test_server_result_is_deterministic_structured_and_selective() -> None:

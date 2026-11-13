@@ -91,7 +91,6 @@ export namespace Styles {
     caption_side: p.Property<string | null>
     caret_color: p.Property<string | null>
     clear: p.Property<string | null>
-    clip: p.Property<string | null>
     clip_path: p.Property<string | null>
     clip_rule: p.Property<string | null>
     color: p.Property<string | null>
@@ -154,12 +153,9 @@ export namespace Styles {
     grid_auto_rows: p.Property<string | null>
     grid_column: p.Property<string | null>
     grid_column_end: p.Property<string | null>
-    grid_column_gap: p.Property<string | null>
     grid_column_start: p.Property<string | null>
-    grid_gap: p.Property<string | null>
     grid_row: p.Property<string | null>
     grid_row_end: p.Property<string | null>
-    grid_row_gap: p.Property<string | null>
     grid_row_start: p.Property<string | null>
     grid_template: p.Property<string | null>
     grid_template_areas: p.Property<string | null>
@@ -167,7 +163,6 @@ export namespace Styles {
     grid_template_rows: p.Property<string | null>
     height: p.Property<string | null>
     hyphens: p.Property<string | null>
-    image_orientation: p.Property<string | null>
     image_rendering: p.Property<string | null>
     inline_size: p.Property<string | null>
     justify_content: p.Property<string | null>
@@ -314,7 +309,6 @@ export namespace Styles {
     will_change: p.Property<string | null>
     word_break: p.Property<string | null>
     word_spacing: p.Property<string | null>
-    word_wrap: p.Property<string | null>
     writing_mode: p.Property<string | null>
     z_index: p.Property<string | null>
   }
@@ -414,7 +408,6 @@ export class Styles extends Model {
       caption_side: [ Nullable(Str), null ],
       caret_color: [ Nullable(Str), null ],
       clear: [ Nullable(Str), null ],
-      clip: [ Nullable(Str), null ],
       clip_path: [ Nullable(Str), null ],
       clip_rule: [ Nullable(Str), null ],
       color: [ Nullable(Str), null ],
@@ -477,12 +470,9 @@ export class Styles extends Model {
       grid_auto_rows: [ Nullable(Str), null ],
       grid_column: [ Nullable(Str), null ],
       grid_column_end: [ Nullable(Str), null ],
-      grid_column_gap: [ Nullable(Str), null ],
       grid_column_start: [ Nullable(Str), null ],
-      grid_gap: [ Nullable(Str), null ],
       grid_row: [ Nullable(Str), null ],
       grid_row_end: [ Nullable(Str), null ],
-      grid_row_gap: [ Nullable(Str), null ],
       grid_row_start: [ Nullable(Str), null ],
       grid_template: [ Nullable(Str), null ],
       grid_template_areas: [ Nullable(Str), null ],
@@ -490,7 +480,6 @@ export class Styles extends Model {
       grid_template_rows: [ Nullable(Str), null ],
       height: [ Nullable(Str), null ],
       hyphens: [ Nullable(Str), null ],
-      image_orientation: [ Nullable(Str), null ],
       image_rendering: [ Nullable(Str), null ],
       inline_size: [ Nullable(Str), null ],
       justify_content: [ Nullable(Str), null ],
@@ -637,7 +626,6 @@ export class Styles extends Model {
       will_change: [ Nullable(Str), null ],
       word_break: [ Nullable(Str), null ],
       word_spacing: [ Nullable(Str), null ],
-      word_wrap: [ Nullable(Str), null ],
       writing_mode: [ Nullable(Str), null ],
       z_index: [ Nullable(Str), null ],
     }))

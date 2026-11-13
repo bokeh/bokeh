@@ -72,13 +72,8 @@ date by running ``pip install bokeh_sampledata``. In case you are not able to in
 sampledata on your system, you have the option to
 :ref:`disable those specific tests <contributor_guide_testing_local_python_select>`.
 
-Several tests also require `Selenium`_ and a corresponding `web driver`_ to be
-available on your system. While it is possible to use other web drivers for some
-tests, the recommended setup is to use Selenium with `ChromeDriver`_ and
-`Chrome`_. See :ref:`ug_output_export_dependencies` for
-installation instructions and more information. In case Selenium is not
-available on your system, you have the option to
-:ref:`disable those specific tests <contributor_guide_testing_local_python_select>`.
+Export tests use Playwright and Chromium. See :ref:`ug_output_export_dependencies`
+for installation instructions.
 
 On some Unix platforms, you may also need to increase the "maximum
 number of open file descriptors". Some tests open many files when testing the
@@ -176,25 +171,13 @@ Unit tests
 
     .. code-block:: sh
 
-        pixi run test-py -m "not selenium"
+        pixi run test-py
 
     **Inside a pixi shell:**
 
     .. code-block:: sh
 
-        pytest -m "not selenium" tests/unit
-
-    .. note::
-        This command will exclude unit tests that require `Selenium`_. Because
-        Selenium can be difficult to set up and because some unit tests require
-        both `geckodriver`_ and `ChromeDriver`_ to be available on your system,
-        using ``-m "not selenium"`` is the recommended way to run unit tests
-        locally. Once you :ref:`create a Pull Request
-        <contributor_guide_pull_requests>`, :ref:`Bokeh's CI
-        <contributor_guide_testing_ci>` will run all tests, including
-        Selenium-based unit tests. In case Selenium with both geckodriver and
-        ChromeDriver is available on your system, you can run all unit tests
-        by omitting the ``-m`` flag.
+        pytest tests/unit
 
 .. _contributor_guide_testing_local_python_coverage:
 
@@ -936,12 +919,7 @@ of others who require access to these limited resources.
 .. _Ruff: https://github.com/astral-sh/ruff
 .. _pytest: https://pytest.org/
 .. _pytest-xdist: https://github.com/pytest-dev/pytest-xdist
-.. _Selenium: https://www.selenium.dev/documentation/en/
-.. _web driver: https://www.selenium.dev/documentation/en/webdriver/
-.. _ChromeDriver: https://chromedriver.chromium.org/
-.. _Chrome: https://www.google.com/chrome/
 .. _Chromium: https://www.chromium.org/Home
-.. _geckodriver: https://firefox-source-docs.mozilla.org/testing/geckodriver/Usage.html
 .. _pytest-cov: https://github.com/pytest-dev/pytest-cov
 .. _Specifying which tests to run: https://docs.pytest.org/en/latest/how-to/usage.html#specifying-which-tests-to-run
 .. _documentation for pytest-cov: https://pytest-cov.readthedocs.io/en/latest/

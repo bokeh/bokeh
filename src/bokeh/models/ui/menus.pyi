@@ -6,7 +6,6 @@
 #-----------------------------------------------------------------------------
 
 from typing import Unpack
-from warnings import deprecated
 
 from ...core.property_aliases import IconLikeType as IconLike
 from ...model.model import Model, _ModelInit
@@ -34,20 +33,6 @@ class MenuItem(Model):
     tooltip: str | None = ...
     disabled: bool = ...
     action: Callback | None = ...
-
-class _ActionItemInit(_MenuItemInit, total=False):
-    ...
-
-@deprecated("'ActionItem' was deprecated in Bokeh 3.7.0 and will be removed, use 'MenuItem' instead.")
-class ActionItem(MenuItem):
-    def __init__(self, **kwargs: Unpack[_ActionItemInit]) -> None: ...
-
-class _CheckableItemInit(_MenuItemInit, total=False):
-    ...
-
-@deprecated("'CheckableItem' was deprecated in Bokeh 3.7.0 and will be removed, use MenuItem(checked=True) or MenuItem(checked=False) instead.")
-class CheckableItem(MenuItem):
-    def __init__(self, **kwargs: Unpack[_CheckableItemInit]) -> None: ...
 
 class _DividerItemInit(_ModelInit, total=False):
     ...

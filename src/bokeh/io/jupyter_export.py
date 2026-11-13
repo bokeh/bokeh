@@ -21,7 +21,7 @@ import threading
 import time
 from contextvars import ContextVar, Token
 from html.parser import HTMLParser
-from typing import Any, TypeGuard, cast
+from typing import Any, TypeGuard
 
 from nbconvert.exporters import HTMLExporter
 from nbconvert.preprocessors import Preprocessor
@@ -30,7 +30,7 @@ from traitlets import Bool, Enum, Integer
 
 from ..embed.result import EmbedResult, EmbedValidationError
 from ..resources import INLINE
-from .export import ExportBackendType, get_screenshot_as_png_from_html
+from .export import get_screenshot_as_png_from_html
 from .jupyter import DISPLAY_MIME_TYPE, RESOURCES_MIME_TYPE
 from .notebook import STATIC_FALLBACK_ATTRIBUTE, static_fallback
 
@@ -452,7 +452,7 @@ class BokehPNGPreprocessor(Preprocessor):
         if isinstance(width, (int, float)) and 1 <= width <= 10000:
             page = page.replace("<body>", f'<body style="width:{round(width)}px">', 1)
         image = get_screenshot_as_png_from_html(
-            page, timeout=self.timeout, backend=cast(ExportBackendType, self.backend),
+            page, timeout=self.timeout,
         )
         buffer = io.BytesIO()
         image.save(buffer, format="PNG")

@@ -51,7 +51,6 @@ _expected_settings = (
     'default_server_port',
     'docs_cdn',
     'docs_version',
-    'export_backend',
     'ico_path',
     'log_level',
     'minified',
@@ -366,9 +365,6 @@ class TestDefaults:
 
     def test_docs_version(self):
         assert bs.settings.docs_version.default is None
-
-    def test_export_backend(self):
-        assert bs.settings.export_backend.default == "playwright"
 
     def test_ico_path(self):
         assert bs.settings.ico_path.default == "default"

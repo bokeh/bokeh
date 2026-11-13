@@ -59,7 +59,7 @@ export const Line: p.DefineOf<Line> = {
   line_width:       [ k.Float, 1 ],
   line_join:        [ LineJoin, "bevel"],
   line_cap:         [ LineCap, "butt" ],
-  line_dash:        [ k.Or(LineDash, k.Array(k.Float)), [] ],
+  line_dash:        [ k.Or(LineDash, k.List(k.Float)), [] ],
   line_dash_offset: [ k.Float, 0 ],
 }
 

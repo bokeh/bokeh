@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 from functools import wraps
 from inspect import Parameter, Signature, signature
 from typing import Any, Callable, cast
-from warnings import deprecated
 
 from ._docstring import ParameterSpec, generate_docstring
 from ._renderer import create_renderer
@@ -33,7 +32,6 @@ from ._renderer import create_renderer
 
 __all__ = (
     'glyph_method',
-    'marker_method',
 )
 
 #-----------------------------------------------------------------------------
@@ -46,39 +44,6 @@ __all__ = (
 
 type GlyphFunction = Callable[..., Any]
 type GlyphMethodDecorator = Callable[[GlyphFunction], GlyphFunction]
-
-def marker_method() -> GlyphMethodDecorator:
-    from ..models import Marker, Scatter
-    glyphclass = Marker
-    def decorator(func: GlyphFunction) -> GlyphFunction:
-        parameters = cast(list[ParameterSpec], glyphclass.parameters())
-
-        sigparams = [Parameter("self", Parameter.POSITIONAL_OR_KEYWORD)] + [x[0] for x in parameters] + [Parameter("kwargs", Parameter.VAR_KEYWORD)]
-
-        marker_type = func.__name__
-
-        @wraps(func)
-        def wrapped(self: Any, *args: Any, **kwargs: Any) -> Any:
-            glyph_args = cast(Any, glyphclass)._args
-            if len(args) > len(glyph_args):
-                raise TypeError(f"{func.__name__} takes {len(glyph_args)} positional argument but {len(args)} were given")
-            for arg, param in zip(args, sigparams[1:]):
-                kwargs[param.name] = arg
-            kwargs["marker"] = marker_type
-            return create_renderer(Scatter, self, **kwargs)
-
-        cast(Any, wrapped).__signature__ = Signature(parameters=sigparams, return_annotation=signature(func).return_annotation)
-
-        wrapped.__doc__ = generate_docstring(glyphclass, parameters, func.__doc__)
-
-        # The stubs supply literal messages to type checkers. This message is for runtime use.
-        message = (
-            f"{func.__name__}() method was deprecated in Bokeh 3.4.0 and will be removed, "
-            f"use scatter(marker={marker_type!r}, ...) instead."
-        )
-        return deprecated(message)(wrapped)  # pyright: ignore[reportArgumentType]
-
-    return decorator
 
 def glyph_method(glyphclass: Any) -> GlyphMethodDecorator:
     def decorator(func: GlyphFunction) -> GlyphFunction:
