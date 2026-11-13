@@ -92,7 +92,8 @@ class Containers(HasProps):
     array_prop = Array(Float)
     seq_prop = Seq(Int)  # KNOWN GAP # mypy: var-annotated
     tuple_prop = Tuple(Int, String)
-    restricted_dict_prop = RestrictedDict(String, Int, disallow=("x",))  # KNOWN GAP # mypy: var-annotated
+    restricted_dict_prop = RestrictedDict(String, Int, disallow=("x",))
+    restricted_dict_invalid_disallow_prop = RestrictedDict(String, Int, disallow=(1,))  # mypy: misc; pyright: reportArgumentType
     non_empty_prop = NonEmpty(List(Int))
     len_prop = Len(List(Float), 2)
     non_empty_non_container_prop = NonEmpty(Int)  # mypy: var-annotated,arg-type,arg-type; pyright: reportArgumentType
@@ -109,7 +110,7 @@ assert_type(containers.relative_delta_prop, dict[str, int])
 assert_type(containers.array_prop, AnyType)
 assert_type(containers.seq_prop, Sequence[int])  # KNOWN GAP # mypy: assert-type; pyright: reportAssertTypeFailure
 assert_type(containers.tuple_prop, tuple[int, str])  # KNOWN GAP # mypy: assert-type; pyright: reportAssertTypeFailure
-assert_type(containers.restricted_dict_prop, dict[str, int])  # KNOWN GAP # mypy: assert-type; pyright: reportAssertTypeFailure
+assert_type(containers.restricted_dict_prop, dict[str, int])
 assert_type(containers.non_empty_prop, list[int])
 assert_type(containers.len_prop, list[float])
 
