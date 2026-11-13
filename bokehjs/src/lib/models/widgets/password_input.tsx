@@ -1,4 +1,5 @@
 import {TextInput, TextInputView} from "./text_input"
+import {Prefix, Suffix} from "./input_widget"
 import type {StyleSheetLike} from "core/stylesheets"
 import type {VNode} from "core/vdom"
 import {UIComponent} from "core/vdom"
@@ -34,7 +35,7 @@ export class PasswordInputView extends TextInputView {
       <UIComponent parent={this.resolved_props}>
         <Title></Title>
         <div class={inputs_css.outer}>
-          {prefix != null ? <div class={inputs_css.prefix}>{prefix}</div> : null}
+          <Prefix text={prefix}/>
           <div class={inputs_css.inner}>
             <input
               type={unprotected ? "text" : "password"}
@@ -52,7 +53,7 @@ export class PasswordInputView extends TextInputView {
               <div class={password_input_css.icon}></div>
             </button>
           </div>
-          {suffix != null ? <div class={inputs_css.suffix}>{suffix}</div> : null}
+          <Suffix text={suffix}/>
         </div>
       </UIComponent>
     )

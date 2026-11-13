@@ -347,6 +347,20 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
+  const picker_widgets: [string, (attrs: Partial<PickerBase.Attrs>) => PickerBase][] = [
+    ["DatePicker", (attrs) => DatePicker.create({value: "2023-01-18", ...attrs})],
+    ["DateRangePicker", (attrs) => DateRangePicker.create({value: ["2023-01-18", "2023-01-23"], ...attrs})],
+    ["MultipleDatePicker", (attrs) => MultipleDatePicker.create({value: ["2023-01-18", "2023-01-23"], ...attrs})],
+    ["DatetimePicker", (attrs) => DatetimePicker.create({value: "2023-01-18T09:37:52", ...attrs})],
+    ["DatetimeRangePicker", (attrs) => {
+      return DatetimeRangePicker.create({value: ["2023-01-18T09:37:52", "2023-01-23T20:17:25"], ...attrs})
+    }],
+    ["MultipleDatetimePicker", (attrs) => {
+      return MultipleDatetimePicker.create({value: ["2023-01-18T09:37:52", "2023-01-23T20:17:25"], ...attrs})
+    }],
+    ["TimePicker", (attrs) => TimePicker.create({value: "09:37:52", ...attrs})],
+  ]
+
   describe("should support prefix and suffix", () => {
     type Attrs = {title?: string, prefix?: string, suffix?: string}
     const widgets: [string, (attrs: Attrs) => InputWidget][] = [
@@ -354,6 +368,11 @@ describe("Widgets", () => {
       ["AutocompleteInput", (attrs) => AutocompleteInput.create({placeholder: "Enter value ...", completions: ["aaa", "aab"], ...attrs})],
       ["NumericInput", (attrs) => NumericInput.create({value: 10, ...attrs})],
       ["Spinner", (attrs) => Spinner.create({value: 10, ...attrs})],
+      ["Select", (attrs) => Select.create({options: ["Option 1", "Option 2"], value: "Option 1", ...attrs})],
+      ["PaletteSelect", (attrs) => {
+        return PaletteSelect.create({value: "Accent", items: [["Accent", palettes.Accent8]], ...attrs})
+      }],
+      ...picker_widgets,
     ]
 
     const viewport: [number, number] = [400, 100]
@@ -390,20 +409,6 @@ describe("Widgets", () => {
     ["MultiSelect", (attrs) => MultiSelect.create({options: ["Option 1", "Option 2", "Option 3"], value: ["Option 2"], size: 3, ...attrs})],
     ["ColorPicker", (attrs) => ColorPicker.create({color: "orange", ...attrs})],
     ["FileInput", (attrs) => FileInput.create({accept: ".csv", ...attrs})],
-  ]
-
-  const picker_widgets: [string, (attrs: Partial<InputWidget.Attrs>) => PickerBase][] = [
-    ["DatePicker", (attrs) => DatePicker.create({value: "2023-01-18", ...attrs})],
-    ["DateRangePicker", (attrs) => DateRangePicker.create({value: ["2023-01-18", "2023-01-23"], ...attrs})],
-    ["MultipleDatePicker", (attrs) => MultipleDatePicker.create({value: ["2023-01-18", "2023-01-23"], ...attrs})],
-    ["DatetimePicker", (attrs) => DatetimePicker.create({value: "2023-01-18T09:37:52", ...attrs})],
-    ["DatetimeRangePicker", (attrs) => {
-      return DatetimeRangePicker.create({value: ["2023-01-18T09:37:52", "2023-01-23T20:17:25"], ...attrs})
-    }],
-    ["MultipleDatetimePicker", (attrs) => {
-      return MultipleDatetimePicker.create({value: ["2023-01-18T09:37:52", "2023-01-23T20:17:25"], ...attrs})
-    }],
-    ["TimePicker", (attrs) => TimePicker.create({value: "09:37:52", ...attrs})],
   ]
 
   describe("should support title and description", () => {

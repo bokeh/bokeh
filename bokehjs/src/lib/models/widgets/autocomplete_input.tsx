@@ -1,4 +1,5 @@
 import {TextInput, TextInputView} from "./text_input"
+import {Prefix, Suffix} from "./input_widget"
 import type {VNode} from "core/vdom"
 import {UIComponent, cls} from "core/vdom"
 import type {StyleSheetLike} from "core/stylesheets"
@@ -42,7 +43,7 @@ export class AutocompleteInputView extends TextInputView {
       <UIComponent parent={this.resolved_props}>
         <Title></Title>
         <div class={inputs_css.outer}>
-          {prefix != null ? <div class={inputs_css.prefix}>{prefix}</div> : null}
+          <Prefix text={prefix}/>
           <div class={inputs_css.inner}>
             <input
               ref={this.input_ref}
@@ -59,7 +60,7 @@ export class AutocompleteInputView extends TextInputView {
               onInput={(event) => this.model.value_input = event.currentTarget.value}
             />
           </div>
-          {suffix != null ? <div class={inputs_css.suffix}>{suffix}</div> : null}
+          <Suffix text={suffix}/>
         </div>
         <Menu/>
       </UIComponent>

@@ -1,4 +1,5 @@
 import {TextLikeInput, TextLikeInputView} from "./text_like_input"
+import {PrefixSuffixCommon, Prefix, Suffix} from "./input_widget"
 import type {VNode} from "core/vdom"
 import {UIComponent} from "core/vdom"
 import type * as p from "core/properties"
@@ -21,7 +22,7 @@ export class TextInputView extends TextLikeInputView {
       <UIComponent parent={this.resolved_props}>
         <Title></Title>
         <div class={inputs_css.outer}>
-          {prefix != null ? <div class={inputs_css.prefix}>{prefix}</div> : null}
+          <Prefix text={prefix}/>
           <div class={inputs_css.inner}>
             <input
               type="text"
@@ -36,7 +37,7 @@ export class TextInputView extends TextLikeInputView {
               onInput={(event) => this.model.value_input = event.currentTarget.value}
             />
           </div>
-          {suffix != null ? <div class={inputs_css.suffix}>{suffix}</div> : null}
+          <Suffix text={suffix}/>
         </div>
       </UIComponent>
     )
@@ -53,10 +54,7 @@ export class TextInputView extends TextLikeInputView {
 export namespace TextInput {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = TextLikeInput.Props & {
-    prefix: p.Property<string | null>
-    suffix: p.Property<string | null>
-  }
+  export type Props = TextLikeInput.Props & PrefixSuffixCommon.Props
 }
 
 export interface TextInput extends TextInput.Attrs {}
@@ -68,9 +66,6 @@ export class TextInput extends TextLikeInput {
   static {
     this.prototype.default_view = TextInputView
 
-    this.define<TextInput.Props>(({Str, Nullable}) => ({
-      prefix: [ Nullable(Str), null ],
-      suffix: [ Nullable(Str), null ],
-    }))
+    this.define<PrefixSuffixCommon.Props>(PrefixSuffixCommon.define)
   }
 }

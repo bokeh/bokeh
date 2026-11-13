@@ -10,6 +10,7 @@ from typing import (
     Any,
     Literal,
     Sequence,
+    TypedDict,
     Unpack,
 )
 from warnings import deprecated
@@ -21,6 +22,7 @@ from ..._types import (
     Positive,
 )
 from ...core.enums import AutoType as Auto
+from ...core.has_props import HasProps
 from ...core.property_aliases import IconLikeType as IconLike
 from ...events import ModelEvent
 from ..dom import HTML
@@ -41,6 +43,17 @@ class InputWidget(Widget):
 
     title: str | HTML = ...
     description: str | Tooltip | None = ...
+
+class _PrefixSuffixCommonInit(TypedDict, total=False):
+    prefix: str | None
+    suffix: str | None
+
+class PrefixSuffixCommon(HasProps):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_PrefixSuffixCommonInit]) -> None: ...
+
+    prefix: str | None = ...
+    suffix: str | None = ...
 
 class _FileInputInit(_InputWidgetInit, total=False):
     accept: str | list[str]
@@ -63,17 +76,15 @@ class FileInput(InputWidget):
 
     def clear(self) -> None: ...
 
-class _NumericInputInit(_InputWidgetInit, total=False):
+class _NumericInputInit(_InputWidgetInit, _PrefixSuffixCommonInit, total=False):
     value: None | float | int
     low: None | float | int
     high: None | float | int
     placeholder: str
     mode: Literal["int", "float"]
     format: None | str | TickFormatter
-    prefix: str | None
-    suffix: str | None
 
-class NumericInput(InputWidget):
+class NumericInput(InputWidget, PrefixSuffixCommon):
     def __init__(self, **kwargs: Unpack[_NumericInputInit]) -> None: ...
 
     value: None | float | int = ...
@@ -82,8 +93,6 @@ class NumericInput(InputWidget):
     placeholder: str = ...
     mode: Literal["int", "float"] = ...
     format: None | str | TickFormatter = ...
-    prefix: str | None = ...
-    suffix: str | None = ...
 
 class _SpinnerInit(_NumericInputInit, total=False):
     step: float
@@ -151,15 +160,11 @@ class TextLikeInput(InputWidget):
     placeholder: str = ...
     max_length: int | None = ...
 
-class _TextInputInit(_TextLikeInputInit, total=False):
-    prefix: str | None
-    suffix: str | None
+class _TextInputInit(_TextLikeInputInit, _PrefixSuffixCommonInit, total=False):
+    ...
 
-class TextInput(TextLikeInput):
+class TextInput(TextLikeInput, PrefixSuffixCommon):
     def __init__(self, **kwargs: Unpack[_TextInputInit]) -> None: ...
-
-    prefix: str | None = ...
-    suffix: str | None = ...
 
 class _TextAreaInputInit(_TextLikeInputInit, total=False):
     cols: int
@@ -198,11 +203,11 @@ class AutocompleteInput(TextInput):
 type Options = list[str | tuple[Any, str]]
 type OptionsGroups = dict[str, Options]
 
-class _SelectInit(_InputWidgetInit, total=False):
+class _SelectInit(_InputWidgetInit, _PrefixSuffixCommonInit, total=False):
     options: Options | OptionsGroups | list[str | None]
     value: Any
 
-class Select(InputWidget):
+class Select(InputWidget, PrefixSuffixCommon):
     def __init__(self, **kwargs: Unpack[_SelectInit]) -> None: ...
 
     @property
@@ -254,14 +259,14 @@ class ColorPicker(InputWidget):
 
     color: ColorHex = ...
 
-class _PaletteSelectInit(_InputWidgetInit, total=False):
+class _PaletteSelectInit(_InputWidgetInit, _PrefixSuffixCommonInit, total=False):
     value: str
     items: Sequence[tuple[str, Sequence[Color]]]
     swatch_width: NonNegative[int]
     swatch_height: Auto | NonNegative[int]
     ncols: Positive[int]
 
-class PaletteSelect(InputWidget):
+class PaletteSelect(InputWidget, PrefixSuffixCommon):
     def __init__(self, **kwargs: Unpack[_PaletteSelectInit]) -> None: ...
 
     value: str = ...

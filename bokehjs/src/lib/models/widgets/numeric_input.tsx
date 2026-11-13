@@ -1,6 +1,6 @@
 import * as numbro from "@bokeh/numbro"
 
-import {InputWidgetView, InputWidget} from "./input_widget"
+import {InputWidgetView, InputWidget, PrefixSuffixCommon, Prefix, Suffix} from "./input_widget"
 import {TickFormatter} from "../formatters/tick_formatter"
 import type {VNode} from "core/vdom"
 import {UIComponent} from "core/vdom"
@@ -76,7 +76,7 @@ export class NumericInputView extends InputWidgetView {
       <UIComponent parent={this.resolved_props}>
         <Title></Title>
         <div class={inputs_css.outer}>
-          {prefix != null ? <div class={inputs_css.prefix}>{prefix}</div> : null}
+          <Prefix text={prefix}/>
           <div class={inputs_css.inner}>
             <input
               ref={this.input_ref}
@@ -96,7 +96,7 @@ export class NumericInputView extends InputWidgetView {
             />
             {this._buttons != null ? <div class={inputs_css.buttons}>{this._buttons()}</div> : null}
           </div>
-          {suffix != null ? <div class={inputs_css.suffix}>{suffix}</div> : null}
+          <Suffix text={suffix}/>
         </div>
       </UIComponent>
     )
@@ -147,9 +147,7 @@ export class NumericInputView extends InputWidgetView {
 export namespace NumericInput {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = InputWidget.Props & {
-    prefix: p.Property<string | null>
-    suffix: p.Property<string | null>
+  export type Props = InputWidget.Props & PrefixSuffixCommon.Props & {
     value: p.Property<number | null>
     placeholder: p.Property<string>
     mode: p.Property<"int" | "float">
@@ -168,9 +166,8 @@ export class NumericInput extends InputWidget {
   static {
     this.prototype.default_view = NumericInputView
 
+    this.define<PrefixSuffixCommon.Props>(PrefixSuffixCommon.define)
     this.define<NumericInput.Props>(({Float, Str, Enum, Ref, Or, Nullable}) => ({
-      prefix:      [ Nullable(Str), null ],
-      suffix:      [ Nullable(Str), null ],
       value:       [ Nullable(Float), null ],
       placeholder: [ Str, "" ],
       mode:        [ Enum("int", "float"), "int" ],

@@ -26,7 +26,7 @@ from math import inf
 from typing import Any
 from warnings import deprecated
 
-from ...core.has_props import abstract
+from ...core.has_props import HasProps, abstract
 from ...core.property.any import AnyRef
 from ...core.property.auto import Auto
 from ...core.property.color import Color, ColorHex
@@ -98,6 +98,20 @@ class InputWidget(Widget):
 
     description = Nullable(Either(String, Instance(Tooltip)), default=None, help="""
     Either a plain text or a tooltip with a rich HTML description of the function of this widget.
+    """)
+
+@abstract
+class PrefixSuffixCommon(HasProps):
+    """ Common properties for input widgets that allow a prefix and a suffix. """
+
+    prefix = Nullable(String, help="""
+    An optional string prefix to display before the input. This is useful to
+    indicate e.g. a variable the entered value will be assigned to.
+    """)
+
+    suffix = Nullable(String, help="""
+    An optional string suffix to display after the input. This is useful to
+    indicate e.g. the units of measurement of the entered value.
     """)
 
 #-----------------------------------------------------------------------------
@@ -225,7 +239,7 @@ class FileInput(InputWidget):
         if doc is not None:
             doc.callbacks.send_event(ClearInput(self))
 
-class NumericInput(InputWidget):
+class NumericInput(InputWidget, PrefixSuffixCommon):
     ''' Numeric input widget.
 
     '''
@@ -257,16 +271,6 @@ class NumericInput(InputWidget):
     """)
 
     format = Either(Null, String, Instance(TickFormatter), help="""
-    """)
-
-    prefix = Nullable(String, help="""
-    An optional string prefix to display before the input. This is useful to
-    indicate e.g. a variable the entered value will be assigned to.
-    """)
-
-    suffix = Nullable(String, help="""
-    An optional string suffix to display after the input. This is useful to
-    indicate e.g. the units of measurement of the entered value.
     """)
 
 
@@ -370,20 +374,10 @@ class TextLikeInput(InputWidget):
     Max count of characters in field
     """)
 
-class TextInput(TextLikeInput):
+class TextInput(TextLikeInput, PrefixSuffixCommon):
     ''' Single-line input widget.
 
     '''
-
-    prefix = Nullable(String, help="""
-    An optional string prefix to display before the input. This is useful to
-    indicate e.g. a variable the entered value will be assigned to.
-    """)
-
-    suffix = Nullable(String, help="""
-    An optional string suffix to display after the input. This is useful to
-    indicate e.g. the units of measurement of the entered value.
-    """)
 
 class TextAreaInput(TextLikeInput):
     ''' Multi-line input widget.
@@ -451,7 +445,7 @@ OptionsGroups = Dict(String, Options)
 
 NotSelected = "" # TODO symbol
 
-class Select(InputWidget):
+class Select(InputWidget, PrefixSuffixCommon):
     ''' Single-select widget.
 
     '''
@@ -545,7 +539,7 @@ class ColorPicker(InputWidget):
     The initial color of the picked color (named or hexadecimal)
     """)
 
-class PaletteSelect(InputWidget):
+class PaletteSelect(InputWidget, PrefixSuffixCommon):
     ''' Color palette select widget.
 
     '''

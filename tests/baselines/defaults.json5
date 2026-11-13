@@ -7542,18 +7542,22 @@
     size: 4,
   },
   NumericInput: {
-    __extends__: "InputWidget",
+    __extends__: [
+      "InputWidget",
+      "PrefixSuffixCommon",
+    ],
     value: null,
     low: null,
     high: null,
     placeholder: "",
     mode: "int",
     format: null,
-    prefix: null,
-    suffix: null,
   },
   PaletteSelect: {
-    __extends__: "InputWidget",
+    __extends__: [
+      "InputWidget",
+      "PrefixSuffixCommon",
+    ],
     value: {
       type: "symbol",
       name: "unset",
@@ -7569,8 +7573,15 @@
   PasswordInput: {
     __extends__: "TextInput",
   },
+  PrefixSuffixCommon: {
+    prefix: null,
+    suffix: null,
+  },
   Select: {
-    __extends__: "InputWidget",
+    __extends__: [
+      "InputWidget",
+      "PrefixSuffixCommon",
+    ],
     options: [],
     value: "",
   },
@@ -7594,9 +7605,10 @@
     rows: 2,
   },
   TextInput: {
-    __extends__: "TextLikeInput",
-    prefix: null,
-    suffix: null,
+    __extends__: [
+      "TextLikeInput",
+      "PrefixSuffixCommon",
+    ],
   },
   TextLikeInput: {
     __extends__: "InputWidget",
@@ -7687,7 +7699,10 @@
     separator: ", ",
   },
   PickerBase: {
-    __extends__: "InputWidget",
+    __extends__: [
+      "InputWidget",
+      "PrefixSuffixCommon",
+    ],
     position: "auto",
     inline: false,
   },
