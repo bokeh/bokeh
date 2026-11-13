@@ -119,7 +119,7 @@ class Test_contour_labels:
         automatic = contours.add_labels()
         formatter = PrintfTickFormatter(format="%.2g")
         custom = contours.add_labels(value("summit"), formatter=formatter, positions=[0.25, 0.75],
-                                     inline_gap=True, text_color="red", background_fill_color="yellow",
+                                     inline_gap=True, label_all_paths=True, text_color="red", background_fill_color="yellow",
                                      background_fill_alpha=0.5)
         gap = contours.add_labels(inline_gap=True)
         transparent = contours.add_labels(background_fill_color=None)
@@ -127,6 +127,8 @@ class Test_contour_labels:
         assert contours.fill_renderer.attachments == []
         assert isinstance(custom, ContourLabels)
         assert automatic.text is None
+        assert automatic.label_all_paths is False
+        assert custom.label_all_paths is True
         assert isinstance(automatic.formatter, PrintfTickFormatter)
         assert automatic.formatter.format == "%.3g"
         assert automatic.formatter is not gap.formatter

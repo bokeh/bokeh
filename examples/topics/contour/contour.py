@@ -27,7 +27,7 @@ contour_renderer = fig.contour(
 )
 
 contour_renderer.add_labels(
-    formatter=PrintfTickFormatter(format="%.1f"), inline_gap=True,
+    formatter=PrintfTickFormatter(format="%.1f"), inline_gap=True, label_all_paths=True,
     text_color="black", text_font_style="bold",
     text_outline_color="white", text_outline_width=0.75,
 )

@@ -5922,6 +5922,7 @@
     },
     positions: null,
     visible: true,
+    label_all_paths: false,
     inline_gap: false,
     gap_padding: 2,
     background_fill_color: null,
