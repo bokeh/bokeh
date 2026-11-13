@@ -588,7 +588,7 @@ export class GlyphRendererView extends DataRendererView {
       const mask = masks?.attachments.get(attachment)
       const attachment_indices = mask == null ? glyph_indices :
         mask.count == mask.size ? indices : filter(indices, (i) => mask.get(i))
-      const pass = attachment.prepare(glyph, attachment_indices)
+      const pass = attachment.prepare_attachment(glyph, attachment_indices)
       if (pass != null) {
         prepared.push(pass)
       }

@@ -6,9 +6,8 @@ import type {GlyphView} from "../glyphs/glyph"
 import {path_segments, path_length, point_on_path} from "../glyphs/marked_path"
 import type {PathNode, PathSegment} from "../glyphs/marked_path"
 import {TextBox} from "core/graphics"
-import type {Rect} from "core/util/affine"
 import type {BBox} from "core/util/bbox"
-import type {Context2d} from "core/util/canvas"
+import {trace_rect} from "core/util/canvas"
 import {color2css} from "core/util/color"
 import type {Color} from "core/types"
 import {TickFormatter} from "../formatters/tick_formatter"
@@ -19,18 +18,14 @@ import * as p from "core/properties"
 import {Text} from "core/property_mixins"
 import * as visuals from "core/visuals"
 
-function trace_rect(ctx: Context2d, {p0, p1, p2, p3}: Rect): void {
-  ctx.moveTo(p0.x, p0.y)
-  ctx.lineTo(p1.x, p1.y)
-  ctx.lineTo(p2.x, p2.y)
-  ctx.lineTo(p3.x, p3.y)
-  ctx.closePath()
-}
-
 type PositionedLabel = {box: TextBox, background_alpha: number}
 
+const {abs, hypot, max, min, PI, sin} = Math
+
+// Cycle through these fractions of screen-space path length to stagger labels by source row.
 const preferred_positions = [0.18, 0.43, 0.68, 0.86]
 
+// Return the fractional interval of a segment inside the plot frame.
 function visible_segment({sx0, sy0, sx1, sy1}: PathSegment, {left, right, top, bottom}: BBox): [number, number] | null {
   let start = 0
   let end = 1
@@ -43,8 +38,8 @@ function visible_segment({sx0, sy0, sx1, sy1}: PathSegment, {left, right, top, b
     } else {
       const a = (low - from)/span
       const b = (high - from)/span
-      start = Math.max(start, Math.min(a, b))
-      end = Math.min(end, Math.max(a, b))
+      start = max(start, min(a, b))
+      end = min(end, max(a, b))
       if (start >= end) {
         return null
       }
@@ -53,6 +48,7 @@ function visible_segment({sx0, sy0, sx1, sy1}: PathSegment, {left, right, top, b
   return [start, end]
 }
 
+// Find the midpoint of the longest continuous stretch inside the plot frame.
 function visible_midpoint(segments: PathSegment[], frame: BBox): PathNode | null {
   let distance = 0
   let span_start = 0
@@ -99,20 +95,34 @@ export class ContourLabelsView extends GlyphAttachmentView {
     let best: PathNode | null = null
     let best_score = Infinity
 
-    for (let k = 6; k <= 94; k += 2) {
-      const fraction = k/100
+    // Sample every two percentage points, leaving a small margin at either end.
+    const first_percent = 6
+    const last_percent = 94
+    const step_percent = 2
+
+    // These thresholds and weights are placement heuristics in screen space.
+    const label_spacing = 40
+    const frame_margin = 12
+    const angle_weight = 0.6
+    const preferred_position_weight = 0.1
+    const label_spacing_scale = 10
+    const frame_margin_scale = 5
+
+    for (let percent = first_percent; percent <= last_percent; percent += step_percent) {
+      const fraction = percent/100
       const node = point_on_path(segments, fraction*length)
       const {sx, sy, angle} = node
       if (!frame.contains(sx, sy)) {
         continue
       }
-      const edge = Math.min(sx - frame.left, frame.right - sx, sy - frame.top, frame.bottom - sy)
-      let separation = 40
+      const edge = min(sx - frame.left, frame.right - sx, sy - frame.top, frame.bottom - sy)
+      let separation = label_spacing
       for (const {box: {position}} of labels) {
-        separation = Math.min(separation, Math.hypot(sx - position.sx, sy - position.sy))
+        separation = min(separation, hypot(sx - position.sx, sy - position.sy))
       }
-      const score = 0.6*Math.abs(Math.sin(angle)) + 0.1*Math.abs(fraction - preferred)
-        + Math.max(0, 40 - separation)/10 + Math.max(0, 12 - edge)/5
+      // Favor horizontal text and staggered positions, with penalties near labels and frame edges.
+      const score = angle_weight*abs(sin(angle)) + preferred_position_weight*abs(fraction - preferred)
+        + max(0, label_spacing - separation)/label_spacing_scale + max(0, frame_margin - edge)/frame_margin_scale
       if (score < best_score) {
         best = node
         best_score = score
@@ -122,7 +132,7 @@ export class ContourLabelsView extends GlyphAttachmentView {
     return best ?? visible_midpoint(segments, frame)
   }
 
-  prepare(glyph: GlyphView, indices: Int32Array): PreparedAttachment | null {
+  override prepare_attachment(glyph: GlyphView, indices: Int32Array): PreparedAttachment | null {
     const {model} = this
     if (!model.visible || !(glyph instanceof MultiLineView) || !glyph.visuals.line.doit || indices.length == 0) {
       return null
@@ -186,7 +196,7 @@ export class ContourLabelsView extends GlyphAttachmentView {
       for (const {sx, sy, angle} of nodes) {
         const box = new TextBox({text: label})
         box.position = {sx, sy}
-        box.angle = angle > Math.PI/2 ? angle - Math.PI : angle < -Math.PI/2 ? angle + Math.PI : angle
+        box.angle = angle > PI/2 ? angle - PI : angle < -PI/2 ? angle + PI : angle
         box.visuals = {...values, alpha: values.alpha*alpha}
         labels.push({box, background_alpha: background_fill_alpha*alpha})
       }

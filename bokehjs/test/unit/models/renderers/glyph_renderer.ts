@@ -184,7 +184,7 @@ describe("GlyphRendererView", () => {
         return Indices.all_set(masked.size)
       }
 
-      override prepare(_glyph: GlyphView, indices: Int32Array) {
+      override prepare_attachment(_glyph: GlyphView, indices: Int32Array) {
         calls.push(["prepare", ...indices])
         return {
           clip: () => calls.push(["clip"]),

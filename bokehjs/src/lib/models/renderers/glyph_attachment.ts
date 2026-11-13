@@ -36,8 +36,11 @@ export abstract class GlyphAttachmentView extends DOMComponentView {
     return masked
   }
 
-  /** Indices are in the space expected by the active glyph's paint method. */
-  abstract prepare(glyph: GlyphView, indices: Int32Array): PreparedAttachment | null
+  /**
+   * Prepare clipping and painting for one pass of the mapped glyph.
+   * Indices are in the space expected by the active glyph's paint method.
+   */
+  abstract prepare_attachment(glyph: GlyphView, indices: Int32Array): PreparedAttachment | null
 }
 
 /** Base model for attachments owned and painted by a glyph renderer. */
