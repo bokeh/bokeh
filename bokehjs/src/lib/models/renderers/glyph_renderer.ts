@@ -541,6 +541,13 @@ export class GlyphRendererView extends DataRendererView {
     return this.glyph.has_webgl()
   }
 
+  override paint(ctx: Context2d): void {
+    super.paint(ctx)
+    if (!(this.displayed && this.is_renderable)) {
+      this.glyph.update_dom(new Int32Array(0))
+    }
+  }
+
   protected _paint(ctx: Context2d): void {
     const {has_webgl} = this
 
@@ -549,6 +556,8 @@ export class GlyphRendererView extends DataRendererView {
     // all_indices is in full data space, indices is converted to subset space by mask_data (that may use the spatial index)
     const all_indices = this.model.view.indices_array
     let indices = this._update_masked_indices().ones()
+
+    this.glyph.update_dom(indices)
 
     // selected is in full set space
     const {selected} = this.model.data_source
