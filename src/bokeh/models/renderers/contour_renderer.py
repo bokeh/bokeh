@@ -117,9 +117,16 @@ class ContourRenderer(DataRenderer):
         to supply custom text.
 
         Labels follow the mapped lines and stay upright. Automatic placement
-        favors gentler sections in the frame and spreads labels apart. Pass a
-        sequence of screen path length fractions to use the same positions
-        for every level, or a source column name with a sequence per level.
+        favors horizontal sections in the frame and skips a label when no
+        candidate fits without overlap. Pass a sequence of screen-space path
+        length fractions to use the same positions for every level, or a
+        source column name with a sequence per level.
+
+        Fractions run from the first stored vertex (0) to the last (1) in
+        contour traversal order. They measure the full mapped path, including
+        portions outside the plot frame. Lengths of disconnected pieces are
+        added together, excluding the gaps between them. For a closed contour,
+        the starting point depends on the stored vertex order.
 
         Text properties such as ``text_font_size`` and ``text_color`` style the
         labels. The default background is white. With ``inline_gap=True``,

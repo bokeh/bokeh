@@ -3,7 +3,7 @@ the `scipy.stats.gaussian_kde`_ function and Bokeh contour renderers.
 
 .. bokeh-example-metadata::
     :sampledata: autompg
-    :apis: bokeh.plotting.figure.contour, bokeh.models.ContourRenderer.add_labels
+    :apis: bokeh.plotting.figure.contour
     :refs: :ref:`ug_topics_stats_kde`
     :keywords: kde, contour
 
@@ -14,7 +14,6 @@ the `scipy.stats.gaussian_kde`_ function and Bokeh contour renderers.
 import numpy as np
 from scipy.stats import gaussian_kde
 
-from bokeh.models import PrintfTickFormatter
 from bokeh.palettes import Blues9
 from bokeh.plotting import figure, show
 from bokeh.sampledata.autompg import autompg as df
@@ -43,7 +42,6 @@ p.grid.grid_line_alpha = 0.05
 
 palette = Blues9[::-1]
 levels = np.linspace(np.min(z), np.max(z), 10)
-contours = p.contour(x, y, z, levels[1:], fill_color=palette, line_color=palette)
-contours.add_labels(formatter=PrintfTickFormatter(format="%.2g"))
+p.contour(x, y, z, levels[1:], fill_color=palette, line_color=palette)
 
 show(p)
