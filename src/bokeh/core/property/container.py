@@ -361,10 +361,10 @@ class RestrictedDict[K, V](Dict[K, V]):
             msg = "" if not detail else f"Disallowed keys: {error_keys!r}"
             raise ValidationError(msg)
 
-class NonEmpty[TSeq: Seq[Any, Any]](SingleParameterizedProperty[TSeq]):
+class NonEmpty[TSeq](SingleParameterizedProperty[TSeq]):
     """ Allows only non-empty containers. """
 
-    def __init__(self, type_param: TypeOrInst[TSeq], *, default: Init[TSeq] = _NotGiven,
+    def __init__(self, type_param: TypeOrInst[ContainerProperty[TSeq]], *, default: Init[TSeq] = _NotGiven,
             help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
 
@@ -375,10 +375,10 @@ class NonEmpty[TSeq: Seq[Any, Any]](SingleParameterizedProperty[TSeq]):
             msg = "" if not detail else "Expected a non-empty container"
             raise ValidationError(msg)
 
-class Len[TSeq: Seq[Any, Any]](SingleParameterizedProperty[TSeq]):
+class Len[TSeq](SingleParameterizedProperty[TSeq]):
     """ Allows only containers of the given length. """
 
-    def __init__(self, type_param: TypeOrInst[TSeq], length: int, *, default: Init[TSeq] = _NotGiven,
+    def __init__(self, type_param: TypeOrInst[ContainerProperty[TSeq]], length: int, *, default: Init[TSeq] = _NotGiven,
             help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
         self.length = length
