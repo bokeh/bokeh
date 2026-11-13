@@ -7,6 +7,7 @@ import * as p from "core/properties"
 import type {FloatArray} from "core/types"
 import {ScreenArray} from "core/types"
 import type {Context2d} from "core/util/canvas"
+import {trace_rect} from "core/util/canvas"
 
 export class LabelSetView extends DataAnnotationView {
   declare model: LabelSet
@@ -73,13 +74,8 @@ export class LabelSetView extends DataAnnotationView {
 
     const {background_fill, background_hatch, border_line} = this.visuals
     if (background_fill.doit || background_hatch.doit || border_line.doit) {
-      const {p0, p1, p2, p3} = graphics.rect()
       ctx.beginPath()
-      ctx.moveTo(p0.x, p0.y)
-      ctx.lineTo(p1.x, p1.y)
-      ctx.lineTo(p2.x, p2.y)
-      ctx.lineTo(p3.x, p3.y)
-      ctx.closePath()
+      trace_rect(ctx, graphics.rect())
 
       this.visuals.background_fill.apply(ctx, i)
       this.visuals.background_hatch.apply(ctx, i)
