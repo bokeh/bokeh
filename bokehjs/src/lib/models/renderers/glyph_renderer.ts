@@ -635,6 +635,10 @@ export class GlyphRendererView extends DataRendererView {
 
     this.map_data()
 
+    // The glyph's bbox may depend on mapped data, which `paint()` didn't have
+    // available when it positioned this renderer, so update it again.
+    this.update_position()
+
     // Partition the union of paint candidates by state, then apply each mask in that pass.
     // Keep the viewport mask published on the IndexedSubset independent of attachments.
     const all_indices = this.model.view.indices_array
