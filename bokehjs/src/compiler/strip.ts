@@ -57,8 +57,9 @@ function resolve_relative(dir: Path, spec: string): Path | null {
 
 /** Returns `line:column` of the first occurrence of `spec` as a string literal in `code`. */
 function location(code: string, spec: string): string {
-  const index = Math.max(code.indexOf(JSON.stringify(spec)), code.indexOf(`'${spec}'`))
-  const lines = code.slice(0, Math.max(index, 0)).split("\n")
+  const indices = [code.indexOf(JSON.stringify(spec)), code.indexOf(`'${spec}'`)].filter((i) => i >= 0)
+  const index = indices.length != 0 ? Math.min(...indices) : 0
+  const lines = code.slice(0, index).split("\n")
   return `${lines.length}:${lines[lines.length - 1].length + 1}`
 }
 
