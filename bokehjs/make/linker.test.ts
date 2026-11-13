@@ -1,6 +1,7 @@
 import assert from "node:assert/strict"
 import fs from "node:fs"
 import os from "node:os"
+import vm from "node:vm"
 import {join, dirname} from "node:path"
 import type {TestContext} from "node:test"
 import {test} from "node:test"
@@ -108,6 +109,35 @@ void test("Linker doesn't detect cycles when disabled", async (t) => {
     "lib/a.js": `import "./index.js"`,
   }, {detect_cycles: false})
   assert.equal(status, true)
+})
+
+/** Links `lib/index.js`, evaluates the bundle and returns exports of the entry module. */
+async function evaluate(t: TestContext, files: Files): Promise<{[key: string]: unknown}> {
+  const {linker} = await link(t, {
+    "node_modules/tslib/tslib.js": "export function __importDefault(mod) { return mod && mod.__esModule ? mod : {default: mod} }",
+    ...files,
+  })
+  const {bundles: [bundle]} = await linker.link()
+  const prelude = {main: preludes.prelude(), plugin: preludes.plugin_prelude()}
+  const postlude = {main: preludes.postlude(), plugin: preludes.plugin_postlude()}
+  const {source} = bundle.assemble({prelude, postlude, minified: false})
+  const context: {Bokeh?: {[key: string]: unknown}} = {}
+  vm.runInNewContext(source, context)
+  return context.Bokeh!
+}
+
+void test("Linker doesn't convert CommonJS modules of packages with ES modules", async (t) => {
+  const exports = await evaluate(t, {
+    "lib/index.js": `import {cjs} from "esm"; import {helper} from "dual"; export const result = [cjs, helper]`,
+    "node_modules/esm/package.json": JSON.stringify({name: "esm", type: "module", main: "index.js"}),
+    "node_modules/esm/index.js": `import cjs from "./cjs.cjs"; export {cjs}`,
+    "node_modules/esm/cjs.cjs": "exports.a = 1",
+    "node_modules/dual/package.json": JSON.stringify({name: "dual", main: "cjs/index.js", module: "esm/index.js"}),
+    "node_modules/dual/esm/index.js": `import helper from "../helper.js"; export {helper}`,
+    "node_modules/dual/helper.js": "exports.b = 2",
+  })
+  // CommonJS modules don't set `__esModule`, so their default import is `module.exports`
+  assert.equal(JSON.stringify(exports.result), JSON.stringify([{a: 1}, {b: 2}]))
 })
 
 void test("Linker maps bundles to original sources", async (t) => {

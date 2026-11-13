@@ -31,6 +31,12 @@ export function parse(file: string, code: string, options: ParserOptions): Parse
   return parseSync(file, code, {...options, experimentalRawTransfer: raw_transfer} as ParserOptions)
 }
 
+/** Whether `code` has `import` or `export` statements, or `import.meta`. */
+export function has_module_syntax(file: string, code: string): boolean {
+  const {module, errors} = parse(file, code, {sourceType: "unambiguous"})
+  return errors.length == 0 && module.hasModuleSyntax
+}
+
 export function parse_script(file: string, code: string): Program {
   const {program, errors} = parse(file, code, {sourceType: "script", preserveParens: false})
   if (errors.length != 0) {
