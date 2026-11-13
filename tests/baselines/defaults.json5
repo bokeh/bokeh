@@ -6224,6 +6224,17 @@
       name: "unset",
     },
   },
+  GeometryDataSource: {
+    __extends__: "IndexedDataSource",
+    geometries: [],
+    data: {
+      type: "map",
+    },
+    default_values: {
+      type: "map",
+    },
+    crs: null,
+  },
   IndexedDataSource: {
     __extends__: "DataSource",
     selected: {

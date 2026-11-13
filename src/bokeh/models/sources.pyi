@@ -38,6 +38,7 @@ __all__ = (
     "ColumnDataSource",
     "DataSource",
     "GeoJSONDataSource",
+    "GeometryDataSource",
     "IndexedDataSource",
     "IndexedSubset",
     "RecordDataSource",
@@ -135,6 +136,37 @@ class ColumnDataSource(ColumnarDataSource):
     def stream(self, new_data: DataDictArg, rollover: int | None = ...) -> None: ...
 
     def patch(self, patches: Patches, setter: Setter | None = ...) -> None: ...
+
+Geometry = dict[str, Any]
+GeometryData = DataDict
+
+class _GeometryDataSourceInit(_IndexedDataSourceInit, total=False):
+    default_values: dict[str, Any]
+    geometries: Sequence[Geometry | None]
+    data: GeometryData
+    crs: str | None
+
+class GeometryDataSource(IndexedDataSource):
+    @overload
+    def __init__(self, **kwargs: Unpack[_GeometryDataSourceInit]) -> None: ...
+    @overload
+    def __init__(self, data: Any, /, **kwargs: Unpack[_GeometryDataSourceInit]) -> None: ...
+
+    default_values: dict[str, Any] = ...
+    geometries: Sequence[Geometry | None] = ...
+    data: GeometryData = ...
+    crs: str | None = ...
+
+    @classmethod
+    def from_xy(cls, x: Sequence[Any] | npt.NDArray[Any], y: Sequence[Any] | npt.NDArray[Any], *, data: Mapping[str, Any] | None = ...) -> GeometryDataSource: ...
+
+    @property
+    def column_names(self) -> list[str]: ...
+
+    @property
+    def length(self) -> int: ...
+
+    def add(self, data: Sequence[Any] | npt.NDArray[Any], name: str) -> str: ...
 
 class _IndexedSubsetInit(_ModelInit, total=False):
     filter: Filter
