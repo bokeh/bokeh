@@ -227,7 +227,13 @@ export function to_cjs(file: string, code: string): {code: string, map: SourceMa
           exported.push({name: "default", kind: "local", local: declaration.id.name})
         } else {
           const local = fresh("default")
-          str.overwrite(stmt.start, declaration.start, `const ${local} = `)
+          // Replace only the keywords, because without `preserveParens` the expression's
+          // range excludes its outer parentheses, e.g. in `export default (a, b)`.
+          const keywords = /^export(\s|\/\*[^]*?\*\/|\/\/.*)*default/.exec(code.slice(stmt.start))
+          if (keywords == null) {
+            throw new ConversionError(`${file}: can't find 'export default' at ${stmt.start}`)
+          }
+          str.overwrite(stmt.start, stmt.start + keywords[0].length, `const ${local} =`)
           if (declaration.type == "FunctionDeclaration" || declaration.type == "ClassDeclaration") {
             str.appendLeft(declaration.end, ";")
           }

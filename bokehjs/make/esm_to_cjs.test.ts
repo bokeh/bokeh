@@ -117,14 +117,20 @@ void test("to_cjs() supports all kinds of default exports", () => {
       import C from "./class"
       import A from "./anonymous"
       import x from "./expression"
-      export const result = [f(), C.name, typeof A, x]
+      import p from "./parenthesized"
+      import s from "./sequence"
+      import c from "./comment"
+      export const result = [f(), C.name, typeof A, x, p, s, c]
     `,
     "./function": "export default function f() { return 'f' }",
     "./class": "export default class C {}",
     "./anonymous": "export default class {}",
     "./expression": "export default 1 + 2",
+    "./parenthesized": "export default (1 + 2) * 3",
+    "./sequence": "export default (1, 2)",
+    "./comment": "export /* default */ default /* (1) */ (4)",
   })
-  assert.deepEqual(main.result, ["f", "C", "function", 3])
+  assert.deepEqual(main.result, ["f", "C", "function", 3, 9, 2, 4])
 })
 
 void test("to_cjs() supports re-exports", () => {
