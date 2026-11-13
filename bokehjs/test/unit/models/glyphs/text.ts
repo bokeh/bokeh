@@ -82,6 +82,59 @@ describe("Text glyph", () => {
       })
     }
 
+    function expect_close(actual: BBox, expected: BBox): void {
+      expect(actual.left).to.be.similar(expected.left, 0.5)
+      expect(actual.top).to.be.similar(expected.top, 0.5)
+      expect(actual.width).to.be.similar(expected.width, 0.5)
+      expect(actual.height).to.be.similar(expected.height, 0.5)
+    }
+
+    for (const angle of [0, PI/6]) {
+      it(`with a bbox covering all label boxes when angle=${angle}`, async () => {
+        const {renderer_view} = await setup({angle})
+        const glyph_view = text_view(renderer_view)
+
+        const xs: number[] = []
+        const ys: number[] = []
+        for (let i = 0; i < 3; i++) {
+          const {p0, p1, p2, p3} = glyph_view.rect_i(i)
+          xs.push(p0.x, p1.x, p2.x, p3.x)
+          ys.push(p0.y, p1.y, p2.y, p3.y)
+        }
+        const expected = BBox.from_lrtb({left: min(...xs), right: max(...xs), top: min(...ys), bottom: max(...ys)})
+        expect_close(renderer_view.bbox, expected)
+      })
+    }
+
+    it("with a non-empty bbox when labels are in a single row", async () => {
+      const p = fig([300, 300], {x_range: [0, 10], y_range: [0, 10]})
+      const renderer = p.text({x: [1, 5, 9], y: 5, text: ["a", "b", "c"], text_font_size: "20px"})
+      const {view} = await display(p)
+      const renderer_view = view.owner.get_one(renderer)
+      expect(renderer_view.bbox.height).to.be.above(0)
+    })
+
+    it("with renderer's and glyph's elements covering the bbox", async () => {
+      const {view, renderer_view} = await setup()
+      const canvas_bbox = bounding_box(view.canvas_view.el)
+      const {bbox} = renderer_view
+      expect_close(bounding_box(renderer_view.el).relative_to(canvas_bbox), bbox)
+      expect_close(bounding_box(text_view(renderer_view).el).relative_to(canvas_bbox), bbox)
+    })
+
+    it("that follow panning", async () => {
+      const {view, renderer_view} = await setup()
+      view.model.x_range.setv({start: 1, end: 11})
+      await view.ready
+      const glyph_view = text_view(renderer_view)
+      const canvas_bbox = bounding_box(view.canvas_view.el)
+      const [el] = label_els(renderer_view)
+      const {p0} = glyph_view.rect_i(0)
+      const actual = bounding_box(el).relative_to(canvas_bbox)
+      expect(actual.left).to.be.similar(p0.x, 0.5)
+      expect(actual.top).to.be.similar(p0.y, 0.5)
+    })
+
     it("without duplicating nodes when a selection is present", async () => {
       const {view, renderer, renderer_view} = await setup()
       renderer.data_source.selected = Selection.create({indices: [1]})

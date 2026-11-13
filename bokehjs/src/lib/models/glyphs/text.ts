@@ -108,7 +108,7 @@ export class TextView extends XYGlyphView {
   protected static readonly _dom_style = new InlineStyleSheet(`
     :host {
       position: absolute;
-      overflow: hidden;
+      inset: 0;
       pointer-events: none;
     }
     :host > div {
@@ -120,14 +120,8 @@ export class TextView extends XYGlyphView {
     }
   `, "text")
 
-  protected readonly _dom_position = new InlineStyleSheet("", "position")
-
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), TextView._dom_style]
-  }
-
-  override computed_stylesheets(): InlineStyleSheet[] {
-    return [...super.computed_stylesheets(), this._dom_position]
   }
 
   /**
@@ -151,18 +145,6 @@ export class TextView extends XYGlyphView {
       // initially, or when the renderer was re-rendered, which empties its shadow root
       this.render_to(renderer.shadow_el)
     }
-
-    // The renderer's host element lives in the frame's element and is offset
-    // by its own bbox, so undo that offset to make this element cover the frame,
-    // which clips labels like canvas painting does.
-    this._dom_position.replace(`
-    ${this.host_selector} {
-      left: ${-renderer_bbox.left}px;
-      top: ${-renderer_bbox.top}px;
-      width: ${frame_bbox.width}px;
-      height: ${frame_bbox.height}px;
-    }
-    `)
 
     const {sx, sy, x_offset, y_offset, angle, labels, text} = this
     const {anchor_: anchor, swidth, sheight, padding} = this
@@ -204,8 +186,8 @@ export class TextView extends XYGlyphView {
 
       // Mirrors canvas' translate(sx, sy) -> rotate(angle) -> translate(-dx, -dy).
       const {style} = el
-      style.left = `${sx_i - frame_bbox.x}px`
-      style.top = `${sy_i - frame_bbox.y}px`
+      style.left = `${sx_i - renderer_bbox.x}px`
+      style.top = `${sy_i - renderer_bbox.y}px`
       style.width = `${swidth[i]}px`
       style.height = `${sheight[i]}px`
       style.padding = `${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px`
@@ -460,6 +442,42 @@ export class TextView extends XYGlyphView {
       tr.rotate_around(sx_i, sy_i, angle_i)
       return tr.apply_rect(rect)
     }
+  }
+
+  /**
+   * Screen space bounding box of all labels, including their padding,
+   * anchoring and rotation (as opposed to just the anchor points).
+   */
+  override get bbox(): BBox | undefined {
+    if (this.base_glyph != null) {
+      return undefined
+    }
+
+    // labels' geometry isn't known until data is mapped and visuals are computed
+    const {sx, swidth} = this as Partial<Text.Data>
+    if (sx == null || swidth == null) {
+      return BBox.invalid()
+    }
+
+    let left = Infinity
+    let right = -Infinity
+    let top = Infinity
+    let bottom = -Infinity
+
+    for (let i = 0; i < this.data_size; i++) {
+      const {p0, p1, p2, p3} = this.rect_i(i)
+      const xs = [p0.x, p1.x, p2.x, p3.x]
+      const ys = [p0.y, p1.y, p2.y, p3.y]
+      if (!isFinite(xs[0] + ys[0])) {
+        continue
+      }
+      left = min(left, ...xs)
+      right = max(right, ...xs)
+      top = min(top, ...ys)
+      bottom = max(bottom, ...ys)
+    }
+
+    return isFinite(left) ? BBox.from_lrtb({left, right, top, bottom}) : BBox.invalid()
   }
 
   override scenterxy(i: number): [number, number] {

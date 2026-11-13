@@ -553,6 +553,10 @@ export class GlyphRendererView extends DataRendererView {
 
     this.map_data()
 
+    // The glyph's bbox may depend on mapped data, which `paint()` didn't have
+    // available when it positioned this renderer, so update it again.
+    this.update_position()
+
     // all_indices is in full data space, indices is converted to subset space by mask_data (that may use the spatial index)
     const all_indices = this.model.view.indices_array
     let indices = this._update_masked_indices().ones()
