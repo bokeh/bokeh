@@ -1,0 +1,48 @@
+# Copyright (c) Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved. The full license is in the file LICENSE.txt.
+
+from typing import assert_type
+
+from bokeh.core.has_props import HasProps
+from bokeh.core.property.descriptors import PropertyDescriptor
+from bokeh.core.property.container import Dict, List
+from bokeh.core.property.instance import Instance
+from bokeh.core.property.nullable import Nullable
+from bokeh.core.property.primitive import Float, Int, String
+
+
+class Child(HasProps):
+    pass
+
+
+class Model(HasProps):
+    int_prop = Int(default=1)
+    nullable_prop = Nullable(Float)
+    list_prop = List(String)
+    dict_prop = Dict(String, Int)
+    instance_prop = Instance(Child)
+
+
+model = Model()
+
+# Instance attribute access gives property values.
+assert_type(model.int_prop, int)
+assert_type(model.nullable_prop, float | None)
+assert_type(model.list_prop, list[str])
+assert_type(model.dict_prop, dict[str, int])
+assert_type(model.instance_prop, Child)
+
+# Class attribute access gives property descriptors.
+assert_type(Model.int_prop, PropertyDescriptor[int])
+assert_type(Model.nullable_prop, PropertyDescriptor[float | None])
+
+# Assignment is checked against property value types.
+model.int_prop = 2
+model.nullable_prop = None
+model.list_prop = ["a", "b"]
+model.instance_prop = Child()
+
+model.int_prop = "2"  # mypy: assignment; pyright: reportAttributeAccessIssue
+model.nullable_prop = "2"  # mypy: assignment; pyright: reportAttributeAccessIssue
+model.list_prop = [1, 2]  # mypy: list-item,list-item; pyright: reportAttributeAccessIssue
+model.instance_prop = Model()  # mypy: assignment; pyright: reportAttributeAccessIssue

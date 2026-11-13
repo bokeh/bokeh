@@ -34,7 +34,9 @@ from typing import (
     Any,
     Callable,
     ClassVar,
+    Self,
     cast,
+    overload,
 )
 
 from ...util.dependencies import uses_pandas
@@ -127,6 +129,27 @@ class Property[T = Any]:
 
         self.alternatives = []
         self.assertions = []
+
+    if TYPE_CHECKING:
+        # Properties are replaced with descriptors in ``__set_name__``, so
+        # declare the descriptor protocol here, for the benefit of type
+        # checkers, to make property values typed on class instances.
+        #
+        # The last overload covers properties held by non-HasProps objects,
+        # e.g. ``Nullable.type_param`` or ``AliasPropertyDescriptor.alias``.
+        # Such properties are never bound to a class at runtime, but type
+        # checkers may still apply the descriptor protocol to them (mypy
+        # does so for ``@property`` getters returning a descriptor).
+
+        @overload
+        def __get__(self, obj: HasProps, owner: type[HasProps] | None) -> T: ...
+        @overload
+        def __get__(self, obj: None, owner: type[HasProps] | None) -> PropertyDescriptor[T]: ...
+        @overload
+        def __get__(self, obj: object, owner: type[object] | None) -> Self: ...
+        def __get__(self, obj: object, owner: type[object] | None) -> T | PropertyDescriptor[T] | Self: ...
+
+        def __set__(self, obj: HasProps, value: T) -> None: ...
 
     @property
     def default(self) -> Init[T]:
