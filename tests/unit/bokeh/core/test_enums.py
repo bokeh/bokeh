@@ -31,6 +31,7 @@ ALL = (
     'AngleReference',
     'AngleUnits',
     'Auto',
+    'AutoRanging',
     'AutosizeMode',
     'AxisLabelStandoffMode',
     'AxisType',
@@ -175,6 +176,9 @@ class Test_bce:
 
     def test_Auto(self) -> None:
         assert tuple(bce.Auto) == ("auto",)
+
+    def test_AutoRanging(self) -> None:
+        assert tuple(bce.AutoRanging) == ("both", "x", "y", "none")
 
     def test_ButtonType(self) -> None:
         assert tuple(bce.ButtonType) == ("default", "primary", "success", "warning", "danger", "light")

@@ -40,6 +40,7 @@ from .._types import Color, NonNegative
 from ..core.enums import (
     AnchorType as Anchor,
     AngleUnitsType as AngleUnits,
+    AutoRangingType as AutoRanging,
     DimensionType as Dimension,
     DirectionType as Direction,
     PaletteType as Palette,
@@ -179,6 +180,9 @@ class AuxGlyphArgs(TypedDict, total=False):
     y_range_name: str
     level: RendererLevel
     visible: bool
+
+    # DataRenderer
+    auto_ranging: AutoRanging | bool
 
     # GlyphRenderer
     source: ColumnarDataSource | DataDictLike

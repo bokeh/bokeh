@@ -92,6 +92,7 @@ __all__ = (
     'AngleReference',
     'AngleUnits',
     'Auto',
+    'AutoRanging',
     'AutosizeMode',
     'AxisLabelStandoffMode',
     'AxisType',
@@ -318,6 +319,10 @@ AngleUnits = _string_enumeration(AngleUnitsType)
 type AutoType = Literal["auto"]
 #: Context dependent keyword that specifies the automated, default, computed, etc. behavior.
 Auto = _string_enumeration(AutoType)
+
+type AutoRangingType = Literal["both", "x", "y", "none"]
+#: Specify which dimensions of a renderer participate in auto-ranging.
+AutoRanging = _string_enumeration(AutoRangingType)
 
 type AutosizeModeType = Literal["fit_columns", "fit_viewport", "force_fit", "ignore_viewport", "none"]
 #: Specify autosize mode for DataTable.

@@ -34,6 +34,50 @@ the y-axis, you can set:
 See :ref:`range_tool.py <example_range_tool_interaction/tools>` for a full
 example.
 
+.. _ug_basic_axes_auto_ranging:
+
+Excluding renderers from auto-ranging
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some renderers shouldn't affect the extent of a plot. For example, a reference
+or threshold line is often drawn much wider than the data, so that it spans
+any visible range. With default auto-ranging, such a line would stretch the
+plot's range to its full extent.
+
+To control which dimensions of a renderer's bounds contribute to auto-ranging,
+set the ``auto_ranging`` property of a data renderer (e.g. ``GlyphRenderer``
+or ``GraphRenderer``) to one of the values of the
+:class:`~bokeh.core.enums.AutoRanging` enumeration:
+
+``"both"``
+    The renderer contributes to auto-ranging in both dimensions (default).
+
+``"x"``
+    The renderer contributes only to auto-ranging of x-ranges.
+
+``"y"``
+    The renderer contributes only to auto-ranging of y-ranges.
+
+``"none"``
+    The renderer doesn't contribute to auto-ranging at all.
+
+Booleans are accepted as well, where ``True`` means ``"both"`` and ``False``
+means ``"none"``. ``auto_ranging`` can be passed directly to glyph methods:
+
+.. code-block:: python
+
+    p.line([-100, 100], [10, 10], auto_ranging="y")
+
+Here's how this affects a threshold line, which spans far beyond the data in
+the x-direction:
+
+.. bokeh-plot:: __REPO__/examples/basic/axes/auto_ranging.py
+    :source-position: above
+
+A renderer can also be excluded from auto-ranging of a particular range by
+setting that range's ``renderers`` property to an explicit list of renderers
+that doesn't include it.
+
 .. _ug_basic_axes_setting_ranges:
 
 Setting ranges manually

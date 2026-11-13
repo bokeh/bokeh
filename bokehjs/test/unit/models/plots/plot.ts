@@ -11,6 +11,8 @@ import {Row} from "@bokehjs/models/layouts/row"
 import {Label, LabelView} from "@bokehjs/models/annotations/label"
 import {Div} from "@bokehjs/models/widgets/div"
 import {Place} from "@bokehjs/core/enums"
+import type {AutoRanging} from "@bokehjs/core/enums"
+import {LogScale} from "@bokehjs/models/scales/log_scale"
 import {GraphRenderer, GraphRendererView} from "@bokehjs/models/renderers/graph_renderer"
 import {GlyphRenderer, GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
 import {ResetTool, PanTool, Toolbar} from "@bokehjs/models"
@@ -277,6 +279,113 @@ describe("Plot module", () => {
       await view.ready
 
       expect(y_range.end - y_range.start).to.be.similar(1e-12, 1e-15)
+    })
+
+    describe("should support DataRenderer.auto_ranging", () => {
+      function renderer(x: number[], y: number[], auto_ranging?: AutoRanging) {
+        const source = ColumnDataSource.create({data: {x, y}})
+        const glyph = Scatter.create({x: {field: "x"}, y: {field: "y"}})
+        return GlyphRenderer.create({data_source: source, glyph, auto_ranging})
+      }
+
+      async function test(auto_ranging?: AutoRanging) {
+        const x_range = DataRange1d.create({range_padding: 0})
+        const y_range = DataRange1d.create({range_padding: 0})
+        const r0 = renderer([0, 10], [0, 10])
+        const r1 = renderer([-10, 20], [-30, 40], auto_ranging)
+        const view = await new_plot_view({x_range, y_range, renderers: [r0, r1]})
+        return {x_range, y_range, r1, view}
+      }
+
+      it("with default value", async () => {
+        const {x_range, y_range} = await test()
+        expect([x_range.start, x_range.end]).to.be.equal([-10, 20])
+        expect([y_range.start, y_range.end]).to.be.equal([-30, 40])
+      })
+
+      it("with auto_ranging == 'both'", async () => {
+        const {x_range, y_range} = await test("both")
+        expect([x_range.start, x_range.end]).to.be.equal([-10, 20])
+        expect([y_range.start, y_range.end]).to.be.equal([-30, 40])
+      })
+
+      it("with auto_ranging == 'x'", async () => {
+        const {x_range, y_range} = await test("x")
+        expect([x_range.start, x_range.end]).to.be.equal([-10, 20])
+        expect([y_range.start, y_range.end]).to.be.equal([0, 10])
+      })
+
+      it("with auto_ranging == 'y'", async () => {
+        const {x_range, y_range} = await test("y")
+        expect([x_range.start, x_range.end]).to.be.equal([0, 10])
+        expect([y_range.start, y_range.end]).to.be.equal([-30, 40])
+      })
+
+      it("with auto_ranging == 'none'", async () => {
+        const {x_range, y_range} = await test("none")
+        expect([x_range.start, x_range.end]).to.be.equal([0, 10])
+        expect([y_range.start, y_range.end]).to.be.equal([0, 10])
+      })
+
+      it("when auto_ranging changes after initial render", async () => {
+        const {x_range, y_range, r1, view} = await test("both")
+
+        r1.auto_ranging = "none"
+        await view.ready
+
+        expect([x_range.start, x_range.end]).to.be.equal([0, 10])
+        expect([y_range.start, y_range.end]).to.be.equal([0, 10])
+      })
+
+      it("when auto_ranging changes between dimensions", async () => {
+        const {x_range, y_range, r1, view} = await test("x")
+
+        r1.auto_ranging = "y"
+        await view.ready
+
+        expect([x_range.start, x_range.end]).to.be.equal([0, 10])
+        expect([y_range.start, y_range.end]).to.be.equal([-30, 40])
+      })
+
+      it("with log scales", async () => {
+        const x_range = DataRange1d.create({range_padding: 0})
+        const y_range = DataRange1d.create({range_padding: 0})
+        const r0 = renderer([1, 10], [1, 10])
+        const r1 = renderer([0.1, 100], [0.01, 1000], "x")
+        await new_plot_view({
+          x_range, y_range,
+          x_scale: LogScale.create(), y_scale: LogScale.create(),
+          renderers: [r0, r1],
+        })
+        expect([x_range.start, x_range.end]).to.be.similar([0.1, 100])
+        expect([y_range.start, y_range.end]).to.be.similar([1, 10])
+      })
+
+      it("with GraphRenderer", async () => {
+        const x_range = DataRange1d.create({range_padding: 0})
+        const y_range = DataRange1d.create({range_padding: 0})
+        const r0 = renderer([0, 10], [0, 10])
+        const graph = GraphRenderer.create({
+          layout_provider: StaticLayoutProvider.create({graph_layout: new Map([[0, [-10, -30]], [1, [20, 40]]])}),
+          node_renderer: GlyphRenderer.create({
+            data_source: ColumnDataSource.create({data: {index: [0, 1]}}),
+            glyph: Scatter.create(),
+          }),
+          edge_renderer: GlyphRenderer.create({
+            data_source: ColumnDataSource.create({data: {start: [], end: []}}),
+            glyph: MultiLine.create(),
+          }),
+          auto_ranging: "y",
+        })
+        await new_plot_view({x_range, y_range, renderers: [r0, graph]})
+        expect([x_range.start, x_range.end]).to.be.equal([0, 10])
+        expect([y_range.start, y_range.end]).to.be.equal([-30, 40])
+      })
+
+      it("and reject invalid values", () => {
+        const r = renderer([0], [0])
+        expect(() => r.auto_ranging = "width" as AutoRanging).to.throw()
+      })
     })
 
     it("should constrain current range when min_interval changes", async () => {

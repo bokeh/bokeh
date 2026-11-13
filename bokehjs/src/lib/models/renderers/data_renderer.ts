@@ -1,9 +1,10 @@
 import {Renderer, RendererView} from "./renderer"
 import type {GlyphView} from "../glyphs/glyph"
 import type {Scale} from "../scales/scale"
-import type {AutoRanged} from "../ranges/data_range1d"
-import {auto_ranged} from "../ranges/data_range1d"
 import type {WindowAxis} from "core/enums"
+import {AutoRanging} from "core/enums"
+import type {AutoRanged} from "../ranges/auto_ranged"
+import {auto_ranged} from "../ranges/auto_ranged"
 import type {SelectionManager} from "core/selection_manager"
 import type {Geometry} from "core/geometry"
 import type {HitTestResult} from "core/hittest"
@@ -26,8 +27,20 @@ export abstract class DataRendererView extends RendererView implements AutoRange
 
   readonly [auto_ranged] = true
 
+  override connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.properties.auto_ranging.change, () => {
+      this.plot_view.invalidate_dataranges = true
+      this.request_paint()
+    })
+  }
+
   bounds(window_axis: WindowAxis = "none"): Rect {
     return this.glyph_view.bounds(window_axis)
+  }
+
+  bounds_dimensions(): AutoRanging {
+    return this.model.auto_ranging
   }
 
   log_bounds(): Rect {
@@ -40,7 +53,9 @@ export abstract class DataRendererView extends RendererView implements AutoRange
 export namespace DataRenderer {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Renderer.Props
+  export type Props = Renderer.Props & {
+    auto_ranging: p.Property<AutoRanging>
+  }
 
   export type Visuals = Renderer.Visuals
 }
@@ -52,6 +67,10 @@ export abstract class DataRenderer extends Renderer {
   declare __view_type__: DataRendererView
 
   static {
+    this.define<DataRenderer.Props>(() => ({
+      auto_ranging: [ AutoRanging, "both" ],
+    }))
+
     this.override<DataRenderer.Props>({
       level: "glyph",
     })

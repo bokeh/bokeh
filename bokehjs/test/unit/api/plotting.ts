@@ -7,7 +7,7 @@ import {DEFAULT_TOOLS} from "@bokehjs/api/figure"
 import {construct} from "@bokehjs/core/has_props"
 import type {HasProps, HasPropsClass, ModelAttrs} from "@bokehjs/core/has_props"
 import {
-  Circle, ColumnDataSource, LinearAxis,
+  Circle, ColumnDataSource, Line, LinearAxis,
   NormalHead, Segment, Toolbar,
 } from "@bokehjs/models"
 
@@ -64,6 +64,32 @@ describe("in api/plotting module", () => {
         const renderer = figure()._glyph(FactoryCircle, "factory_circle", ["x", "y", "radius"], [])
         expect(renderer.glyph).to.be.instanceof(FactoryCircle)
         expect(create_calls).to.be.equal(5)
+      })
+
+      it("should support 'muted' renderer argument", () => {
+        const r0 = figure().scatter([1, 2], [3, 4])
+        expect(r0.muted).to.be.false
+
+        const r1 = figure().scatter([1, 2], [3, 4], {muted: true})
+        expect(r1.muted).to.be.true
+        expect("muted" in r1.glyph.properties).to.be.false
+
+        const r2 = figure().line({x: [1, 2], y: [3, 4], muted: true, muted_line_color: "red"})
+        expect(r2.muted).to.be.true
+        expect(r2.muted_glyph).to.be.instanceof(Line)
+        expect((r2.muted_glyph as Line).line_color).to.be.equal({value: "red"})
+      })
+
+      it("should support 'auto_ranging' renderer argument", () => {
+        const r0 = figure().scatter([1, 2], [3, 4])
+        expect(r0.auto_ranging).to.be.equal("both")
+
+        const r1 = figure().scatter([1, 2], [3, 4], {auto_ranging: "x"})
+        expect(r1.auto_ranging).to.be.equal("x")
+        expect("auto_ranging" in r1.glyph.properties).to.be.false
+
+        const r2 = figure().line({x: [1, 2], y: [3, 4], auto_ranging: "none"})
+        expect(r2.auto_ranging).to.be.equal("none")
       })
 
       it("should validate arguments", () => {
