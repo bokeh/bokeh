@@ -285,6 +285,34 @@ void test("to_cjs() supports cycles with eager use of hoisted functions", () => 
   assert.equal(main.result, "aba2")
 })
 
+void test("to_cjs() supports cycles with eager use of anonymous default-exported functions", () => {
+  const main = run({
+    "./main": `import a from "./a"; export const result = a()`,
+    "./a": `
+      import {b} from "./b"
+      export default function () { return \`a\${b}\` }
+    `,
+    // evaluated while ./a is being evaluated
+    "./b": `
+      import a from "./a"
+      export const b = typeof a
+    `,
+  })
+  assert.equal(main.result, "afunction")
+})
+
+void test("to_cjs() hoists all kinds of anonymous default-exported functions", () => {
+  for (const fn of ["function () {}", "function() {}", "function*() {}", "async function () {}", "async /* c */ function /* c */ * /* c */ () {}"]) {
+    const main = run({
+      "./main": "import \"./f\"; import {seen} from \"./g\"; export const result = seen",
+      "./f": `import "./g"; export default ${fn}`,
+      // evaluated while ./f is being evaluated
+      "./g": "import f from \"./f\"; export const seen = typeof f",
+    })
+    assert.equal(main.result, "function", fn)
+  }
+})
+
 void test("to_cjs() supports cycles with lazy use of variables and classes", () => {
   const main = run({
     "./main": `import {make} from "./a"; export const result = make()`,
