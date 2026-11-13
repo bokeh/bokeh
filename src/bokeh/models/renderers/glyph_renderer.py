@@ -106,7 +106,9 @@ class GlyphRenderer(DataRenderer):
             return f"{', '.join(missing)} {{renderer: {self}}}"
 
     attachments = List(Instance(GlyphAttachment), help="""
-    Internal models painted with this renderer.
+    Attachment models painted with this renderer. This property stores
+    attachments for serialization. Use the feature-specific renderer methods
+    to add attachments rather than setting this property directly.
     """)
 
     data_source = Required(Instance(IndexedDataSource), help="""

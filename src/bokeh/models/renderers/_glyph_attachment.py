@@ -27,10 +27,16 @@ from ..formatters import PrintfTickFormatter, TickFormatter
 
 @abstract
 class GlyphAttachment(Model):
-    """ Base for models painted by a glyph renderer. """
+    """ Internal base class for models painted by a glyph renderer. """
 
 class ContourLabels(GlyphAttachment, ScalarTextProps):
-    """ Labels created by :meth:`~bokeh.models.ContourRenderer.add_labels`. """
+    """ Public model for labels on contour lines.
+
+    Use :meth:`~bokeh.models.ContourRenderer.add_labels` to attach the labels to
+    a contour renderer, then update the returned model to change their
+    formatting, placement, or appearance. Import this model from
+    ``bokeh.models``.
+    """
 
     text = NullStringSpec(default=None, help="""
     Text from the contour line source or a literal value. The default formats
