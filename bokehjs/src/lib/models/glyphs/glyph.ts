@@ -195,6 +195,13 @@ export abstract class GlyphView extends DOMComponentView {
 
   protected abstract _paint(ctx: Context2d, indices: Int32Array, data?: Glyph.Data): void
 
+  /**
+   * Synchronizes DOM representation of this glyph (if any) with the given
+   * indices (in subset space). This is called once per paint, for the base
+   * glyph only, regardless of which glyph variants were actually painted.
+   */
+  update_dom(_indices: Int32Array): void {}
+
   override has_finished(): boolean {
     return true
   }
