@@ -106,7 +106,7 @@ class CompilationError(RuntimeError):
         return "\n" + self.text.strip()
 
 bokehjs_dir: Path = settings.bokehjs_path()
-nodejs_min_version: tuple[int, int, int] = (18, 0, 0)
+nodejs_min_version: tuple[int, int, int] = (22, 0, 0)
 
 def nodejs_version() -> str | None:
     return _version(_run_nodejs)
