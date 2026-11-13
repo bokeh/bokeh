@@ -24,7 +24,8 @@ from bokeh.core.property.container import (
     Tuple,
 )
 from bokeh.core.property.descriptors import PropertyDescriptor
-from bokeh.core.property.instance import Instance
+from bokeh.core.property.either import Either
+from bokeh.core.property.instance import Instance, InstanceDefault
 from bokeh.core.property.nullable import Nullable
 from bokeh.core.property.numeric import Angle, Byte, Interval, NonNegative, Percent, Positive, Size
 from bokeh.core.property.primitive import Bool, Bytes, Complex, Float, Int, Null, String
@@ -170,3 +171,48 @@ combinations.list_of_instances = [Combinations()]  # mypy: list-item; pyright: r
 combinations.list_of_instances = [None]  # mypy: list-item; pyright: reportAttributeAccessIssue
 combinations.dict_of_instances = {"a": 1}  # mypy: dict-item; pyright: reportAttributeAccessIssue
 combinations.nullable_instance = Combinations()  # mypy: assignment; pyright: reportAttributeAccessIssue
+
+
+class Eithers(HasProps):
+    either_prop = Either(Int, String)
+    either_nullable_instance_prop = Either(Null, Instance(Child), default=InstanceDefault(Child))
+    either_list_prop = Either(Int, List(String), default=lambda: ["a"])
+    either_many_prop = Either(Bool, Int, Float, String, Null, List(Int), Instance(Child), Dict(String, Int))
+    either_invalid_default_prop = Either(Int, String, default=1.5)  # KNOWN GAP: an error is expected
+
+
+eithers = Eithers()
+
+assert_type(eithers.either_prop, int | str)
+assert_type(eithers.either_nullable_instance_prop, Child | None)
+assert_type(eithers.either_list_prop, int | list[str])
+assert_type(eithers.either_many_prop, bool | int | float | str | None | list[int] | Child | dict[str, int])
+assert_type(eithers.either_invalid_default_prop, int | str)  # KNOWN GAP # mypy: assert-type; pyright: reportAssertTypeFailure
+
+eithers.either_prop = 1
+eithers.either_prop = "a"
+eithers.either_nullable_instance_prop = None
+
+eithers.either_prop = 1.5  # mypy: assignment; pyright: reportAttributeAccessIssue
+eithers.either_nullable_instance_prop = Eithers()  # mypy: assignment; pyright: reportAttributeAccessIssue
+
+
+class Defaults(HasProps):
+    instance_default_prop = Instance(Child, default=InstanceDefault(Child))
+    lambda_instance_prop = Instance(Child, default=lambda: Child())
+    lambda_list_prop = List(Int, default=lambda: [1, 2])
+    nullable_instance_default_prop = Nullable(Instance(Child), default=InstanceDefault(Child))
+
+    invalid_default_prop = Int(default="a")  # mypy: arg-type; pyright: reportArgumentType
+    invalid_lambda_default_prop = List(Int, default=lambda: ["a"])  # mypy: list-item; pyright: reportArgumentType
+    # KNOWN GAP: the instance type is widened (to Child | Eithers or HasProps) instead of reporting an error.
+    invalid_instance_default_prop = Instance(Child, default=InstanceDefault(Eithers))
+
+
+defaults = Defaults()
+
+assert_type(defaults.instance_default_prop, Child)
+assert_type(defaults.lambda_instance_prop, Child)
+assert_type(defaults.lambda_list_prop, list[int])
+assert_type(defaults.nullable_instance_default_prop, Child | None)
+assert_type(defaults.invalid_instance_default_prop, Child)  # KNOWN GAP # mypy: assert-type; pyright: reportAssertTypeFailure
