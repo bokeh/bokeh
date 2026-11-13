@@ -165,6 +165,10 @@ API changes
   linker, and plain CommonJS code is used as is.
 * Compiling extensions (``bokeh build`` and ``__implementation__``) now
   requires Node.js 22 or later.
+* ``bokeh build`` fails if an extension's modules import each other in a
+  cycle, but ignores cycles in packages that the extension depends on. Set
+  ``"detect_cycles": "all"`` in ``bokeh.ext.json`` to report those cycles as
+  well, or ``"none"`` to disable cycle detection.
 
 Bug fixes
 ---------
