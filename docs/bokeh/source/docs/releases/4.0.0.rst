@@ -163,6 +163,8 @@ API changes
   and later reject ``"moduleResolution": "node"``, so use ``"bundler"`` in
   ``tsconfig.json``. Inline ES modules are converted to CommonJS by BokehJS's
   linker, and plain CommonJS code is used as is.
+* Compiling extensions (``bokeh build`` and ``__implementation__``) now
+  requires Node.js 22 or later.
 
 Bug fixes
 ---------
