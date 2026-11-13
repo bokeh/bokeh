@@ -22,7 +22,7 @@ from tests.support.util.project import TOP_PATH
 @pytest.mark.parametrize("checker", ["mypy", "pyright"])
 @pytest.mark.parametrize("fixture", [
     "model_initializers", "model_initializers_invalid", "type_parameter_defaults",
-    "deprecated_apis", "path_markings", "property_descriptors",
+    "deprecated_apis", "path_markings", "property_descriptors", "property_types",
 ])
 def test_consumer_types(checker: str, fixture: str, tmp_path: Path) -> None:
     # Copy fixtures outside the tests package so Mypy's test-module exclusions
