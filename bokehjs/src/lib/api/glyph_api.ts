@@ -132,6 +132,7 @@ export type AuxGlyph = {
   level: RenderLevel
   name: string
   visible: boolean
+  muted: boolean
   auto_ranging: AutoRanging
   x_range_name: string
   y_range_name: string
