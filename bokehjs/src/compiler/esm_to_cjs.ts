@@ -58,6 +58,18 @@ export function to_cjs(file: string, code: string): {code: string, map: SourceMa
     }
   })
 
+  // whitespace or a comment
+  const ws = String.raw`(?:\s|/\*[^]*?\*/|//.*)`
+
+  /** Returns the end of `pattern` matched at `start`, e.g. of keywords that aren't nodes. */
+  function match(pattern: RegExp, start: number): number {
+    const result = pattern.exec(code.slice(start))
+    if (result == null) {
+      throw new ConversionError(`${file}: unexpected syntax at ${start}`)
+    }
+    return start + result[0].length
+  }
+
   let counter = 0
   function fresh(base: string): string {
     const stem = base.replace(/^.*[\\/]/, "").replace(/[^\w$]/g, "_").replace(/^(\d)/, "_$1")
@@ -227,18 +239,23 @@ export function to_cjs(file: string, code: string): {code: string, map: SourceMa
           exported.push({name: "default", kind: "local", local: declaration.id.name})
         } else {
           const local = fresh("default")
-          // Replace only the keywords, because without `preserveParens` the expression's
-          // range excludes its outer parentheses, e.g. in `export default (a, b)`.
-          const keywords = /^export(\s|\/\*[^]*?\*\/|\/\/.*)*default/.exec(code.slice(stmt.start))
-          if (keywords == null) {
-            throw new ConversionError(`${file}: can't find 'export default' at ${stmt.start}`)
-          }
-          str.overwrite(stmt.start, stmt.start + keywords[0].length, `const ${local} =`)
-          if (declaration.type == "FunctionDeclaration" || declaration.type == "ClassDeclaration") {
-            str.appendLeft(declaration.end, ";")
+          if (declaration.type == "FunctionDeclaration") {
+            // Name the function, so that it's hoisted like in ESM (and tsc's output).
+            const head = match(new RegExp(`^(async${ws}+)?function(${ws}*\\*)?`), declaration.start)
+            str.remove(stmt.start, declaration.start)
+            str.appendLeft(head, ` ${local}`)
+            declarations.set(local, {stmt, hoisted: true})
+          } else {
+            // Replace only the keywords, because without `preserveParens` the expression's
+            // range excludes its outer parentheses, e.g. in `export default (a, b)`.
+            const keywords = match(new RegExp(`^export${ws}*default`), stmt.start)
+            str.overwrite(stmt.start, keywords, `const ${local} =`)
+            if (declaration.type == "ClassDeclaration") {
+              str.appendLeft(declaration.end, ";")
+            }
+            declarations.set(local, {stmt, hoisted: false})
           }
           exported.push({name: "default", kind: "local", local})
-          declarations.set(local, {stmt, hoisted: false})
         }
         break
       }
