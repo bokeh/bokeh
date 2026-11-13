@@ -179,7 +179,6 @@ describe("default model resolver", () => {
       "HSpan",
       "HStrip",
       "HTMLLabel",
-      "HTMLLabelSet",
       "HTMLTemplateFormatter",
       "HTMLTitle",
       "HelpButton",

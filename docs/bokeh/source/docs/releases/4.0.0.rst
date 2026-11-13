@@ -88,8 +88,16 @@ Removals
   the same text, background, and border properties, as well as offsets and
   angles. Label coordinates are always in data units; ``x_units`` and
   ``y_units`` are no longer supported. Unlike the annotation, text glyphs
-  contribute to auto-ranging and hit testing. ``HTMLLabelSet`` remains
-  available for now. See :ref:`ug_basic_text_labels` for examples.
+  contribute to auto-ranging and hit testing. See :ref:`ug_basic_text_labels`
+  for examples.
+
+* Removed the ``HTMLLabelSet`` annotation model and its ``DataAnnotation``
+  base class. Replace ``plot.add_layout(HTMLLabelSet(...))`` with
+  ``renderer = plot.text(...)``. Text glyphs mirror their labels with DOM text,
+  so like ``HTMLLabelSet``, the text is available to assistive technologies
+  and find-in-page. Unlike ``HTMLLabelSet``, the labels are also preserved
+  when exporting plots to images. Label coordinates are always in data units;
+  ``x_units`` and ``y_units`` are no longer supported.
 
 * Removed the ``Band`` annotation model. Replace
   ``plot.add_layout(Band(base=..., lower=..., upper=..., source=...))``

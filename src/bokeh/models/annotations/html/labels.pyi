@@ -7,7 +7,6 @@
 
 from typing import Unpack
 
-from ...._specs import AngleSpec, NullStringSpec, NumberSpec
 from ...._types import (
     Alpha,
     Angle,
@@ -23,20 +22,15 @@ from ....core.enums import (
 )
 from ....core.property_aliases import BorderRadius, Padding
 from ....core.property_mixins import (
-    BackgroundFillProps,
-    BorderLineProps,
     ScalarBackgroundFillProps,
     ScalarBackgroundHatchProps,
     ScalarBorderLineProps,
     ScalarTextProps,
-    _BackgroundFillPropsInit,
-    _BorderLinePropsInit,
     _ScalarBackgroundFillPropsInit,
     _ScalarBackgroundHatchPropsInit,
     _ScalarBorderLinePropsInit,
     _ScalarTextPropsInit,
 )
-from ..annotation import DataAnnotation, _DataAnnotationInit
 from .html_annotation import HTMLAnnotation, _HTMLAnnotationInit
 
 class _HTMLTextAnnotationInit(_HTMLAnnotationInit, _ScalarBackgroundFillPropsInit, _ScalarBackgroundHatchPropsInit, _ScalarBorderLinePropsInit, total=False):
@@ -72,28 +66,6 @@ class HTMLLabel(HTMLTextAnnotation, ScalarTextProps):
     angle_units: AngleUnits = ...
     x_offset: float = ...
     y_offset: float = ...
-
-class _HTMLLabelSetInit(_HTMLAnnotationInit, _DataAnnotationInit, _BackgroundFillPropsInit, _BorderLinePropsInit, total=False):
-    x: NumberSpec
-    x_units: CoordinateUnits
-    y: NumberSpec
-    y_units: CoordinateUnits
-    text: NullStringSpec
-    angle: AngleSpec
-    x_offset: NumberSpec
-    y_offset: NumberSpec
-
-class HTMLLabelSet(HTMLAnnotation, DataAnnotation, BackgroundFillProps, BorderLineProps):
-    def __init__(self, **kwargs: Unpack[_HTMLLabelSetInit]) -> None: ...
-
-    x: NumberSpec = ...
-    x_units: CoordinateUnits = ...
-    y: NumberSpec = ...
-    y_units: CoordinateUnits = ...
-    text: NullStringSpec = ...
-    angle: AngleSpec = ...
-    x_offset: NumberSpec = ...
-    y_offset: NumberSpec = ...
 
 class _HTMLTitleInit(_HTMLTextAnnotationInit, total=False):
     text: str
