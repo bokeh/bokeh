@@ -1,80 +1,96 @@
 @import "../_mixins.less";
 
 :host {
-  --input-min-height: calc(var(--line-height-computed) + 2*var(--padding-vertical) + 2px);
   --focus-border-color: var(--input-focus-border-color);
   --focus-halo-color: var(--input-focus-halo-color);
   --disabled-opacity: 1;
 }
 
-.bk-input {
-  position: relative;
-  display: inline-block;
-  width: 100%;
-  flex-grow: 1;
-  min-height: var(--input-min-height);
-  padding: 0 var(--padding-horizontal);
-  background-color: var(--background-color);
-  color: var(--inherit-color);
-  border: var(--border);
-  border-radius: var(--border-radius);
-  resize: none;
-
-  &:focus {
-    border-color: var(--focus-border-color);
-    outline: 0;
-    box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px var(--focus-halo-color);
-  }
-
-  .placeholder(var(--placeholder-color));
-
-  .bk-disabled(var(--disabled-opacity), var(--disabled-background-color), var(--disabled-color), inherit);
+:host {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
 }
 
-.bk-input-container {
-  width: 100%;
-  height: 100%;
+.bk-outer {
+  position: relative;
 
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
 
-  .bk-input-prefix, .bk-input-suffix {
-    display: flex;
-    align-items: center;
-    flex: 0 1 0;
-    border: var(--border);
-    border-radius: var(--border-radius);
-    padding: 0 var(--padding-horizontal);
-    background-color: var(--surface-background-color);
-    color: var(--inherit-color);
-  }
+  border: var(--border);
+  border-radius: var(--border-radius);
+  color: var(--inherit-color);
+}
 
-  .bk-input-prefix {
-    border-right: none;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-  }
+.bk-prefix {
+  position: relative;
+  flex: 0 1 auto;
+  border-right: var(--border);
+  border-top-left-radius: var(--border-radius);
+  border-bottom-left-radius: var(--border-radius);
+  background-color: var(--surface-background-color);
+  padding: var(--padding-vertical) var(--padding-horizontal);
+}
 
-  .bk-input-suffix {
-    border-left: none;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-  }
+.bk-inner {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+
+  padding: var(--padding-vertical) var(--padding-horizontal);
+}
+
+.bk-outer:has(.bk-input:focus) {
+  border-color: var(--focus-border-color);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px var(--focus-halo-color);
+}
+
+.bk-outer:has(.bk-input:disabled, .bk-input.bk-disabled) {
+  background-color: var(--disabled-background-color);
+  color: var(--disabled-color);
+  opacity: var(--disabled-opacity);
+  cursor: not-allowed;
 
   .bk-input {
-    flex: 1 0 0;
+    color: inherit;
+    cursor: inherit;
   }
+}
 
-  .bk-input:not(:first-child) {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-  }
+.bk-input {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  height: max-content;
 
-  .bk-input:not(:last-child) {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
+  .placeholder(var(--placeholder-color));
+  background-color: transparent;
+
+  &:focus {
+    outline: 0;
   }
+}
+
+.bk-suffix {
+  position: relative;
+  flex: 0 1 auto;
+  border-left: var(--border);
+  border-top-right-radius: var(--border-radius);
+  border-bottom-right-radius: var(--border-radius);
+  background-color: var(--surface-background-color);
+  padding: var(--padding-vertical) var(--padding-horizontal);
+}
+
+.bk-disabled {
+  pointer-events: none;
 }
 
 input[type=file].bk-input {
@@ -90,7 +106,34 @@ input[type=file]::file-selector-button {
   line-height: inherit;
 }
 
-select:not([multiple]), select:not([size]) {
+input[type=color].bk-input {
+  // the native swatch is sized by the element, so it collapses with `height: max-content`;
+  // use one line of text, to match the height of text inputs
+  height: 1lh;
+  cursor: pointer;
+
+  &::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+  &::-webkit-color-swatch {
+    border: var(--border);
+    border-radius: var(--border-radius);
+  }
+  &::-moz-color-swatch {
+    border: var(--border);
+    border-radius: var(--border-radius);
+  }
+}
+
+// let <select> fill the whole box, so that its caret or scrollbar is at box's edge
+.bk-inner:has(> select.bk-input) {
+  padding: 0;
+}
+select.bk-input {
+  padding: var(--padding-vertical) var(--padding-horizontal);
+}
+
+select:not([multiple]):not([size]) {
   &.bk-input {
     height: auto;
     appearance: none;
@@ -112,6 +155,23 @@ select[multiple], select[size], textarea {
     height: auto;
   }
 }
+textarea.bk-input {
+  // resizing is supported by the widget itself (see `resizable` property)
+  resize: none;
+}
+select[multiple], select[size] {
+  &.bk-input {
+    padding-block: 0;
+  }
+}
+
+// TODO remove
+.bk-input-group {
+  position: relative;
+}
+.bk-inline {
+  position: relative;
+}
 
 .bk-input-group {
   position: relative;
@@ -132,65 +192,62 @@ select[multiple], select[size], textarea {
       margin-left: 5px;
     }
   }
+}
 
-  >.bk-spin-wrapper {
-    display: inherit;
-    width: inherit;
-    height: inherit;
-    position: relative;
-    overflow: hidden;
-    padding: 0;
-    vertical-align: middle;
+.bk-buttons {
+  position: relative;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  // span the full height of the input box, flush with its right edge
+  margin:
+    calc(-1*var(--padding-vertical))
+    calc(-1*var(--padding-horizontal))
+    calc(-1*var(--padding-vertical))
+    0;
+}
 
-    input {
-      padding-right: 20px;
-    }
+.bk-spin-btn {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+  width: 30px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
 
-    >.bk-spin-btn {
-      position: absolute;
-      display: block;
-      height: 50%;
-      min-height: 0;
-      min-width: 0;
-      width: 30px;
-      padding: 0;
-      margin: 0;
-      right: 0;
-      border: none;
-      background: none;
-      cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-      &:before {
-        content: "";
-        display: inline-block;
-        transform: translateY(-50%);
-        border-left: 5px solid transparent;
-        border-right: 5px solid transparent;
-      }
+  &::before {
+    content: "";
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+  }
 
-      &.bk-spin-btn-up {
-        top: 0;
+  &:disabled {
+    cursor: default;
+  }
+}
 
-        &:before {
-          border-bottom: 5px solid var(--color);
-        }
-        &:disabled:before {
-          border-bottom-color: var(--disabled-color);
-        }
-      }
+.bk-spin-btn-up {
+  &::before {
+    border-bottom: 5px solid var(--color);
+  }
+  &:disabled::before {
+    border-bottom-color: var(--disabled-color);
+  }
+}
 
-      &.bk-spin-btn-down {
-        bottom: 0;
-
-        &:before {
-          border-top: 5px solid var(--color);
-        }
-
-        &:disabled:before {
-          border-top-color: var(--disabled-color);
-        }
-      }
-    }
+.bk-spin-btn-down {
+  &::before {
+    border-top: 5px solid var(--color);
+  }
+  &:disabled::before {
+    border-top-color: var(--disabled-color);
   }
 }
 

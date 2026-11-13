@@ -3641,9 +3641,10 @@ describe("Bug", () => {
     it("doesn't allow to correctly change active menu item with arrows in AutocompleteInput", async () => {
       const widget = AutocompleteInput.create({completions: ["aaa", "aab", "aac", "aad", "aae"], min_characters: 0})
       const {view} = await display(widget, [300, 200])
-      view.input_el.dispatchEvent(new FocusEvent("focusin"))
-      view.input_el.dispatchEvent(new KeyboardEvent("keyup", {key: "ArrowDown" satisfies Keys}))
-      view.input_el.dispatchEvent(new KeyboardEvent("keyup", {key: "ArrowDown" satisfies Keys}))
+      const input_el = view.shadow_el.querySelector("input")!
+      input_el.dispatchEvent(new FocusEvent("focusin"))
+      input_el.dispatchEvent(new KeyboardEvent("keyup", {key: "ArrowDown" satisfies Keys}))
+      input_el.dispatchEvent(new KeyboardEvent("keyup", {key: "ArrowDown" satisfies Keys}))
       await view.ready
     })
   })

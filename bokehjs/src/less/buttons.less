@@ -166,6 +166,18 @@
   );
 }
 
+// `::file-selector-button[disabled]` (in `.button-variant()`) never matches,
+// because `disabled` is an attribute of `<input>`, not of its pseudo-element.
+:disabled::file-selector-button {
+  &, &:hover, &:focus, &:active {
+    background-color: var(--file-disabled);
+    border-color: var(--file-disabled-border);
+  }
+  cursor: not-allowed;
+  opacity: 0.65;
+  box-shadow: none;
+}
+
 .bk-btn-default {
   .button-variant(
     var(--color);

@@ -11,12 +11,12 @@ describe("TextInput", () => {
     input.on_event(ValueSubmit, (event) => {
       values.push(event.value)
     })
-    const {view} = await display(input, [200, 50])
-    const input_view = view.owner.get_one(input)
+    const {view} = await display(input, [250, 50])
+    const input_el = view.shadow_el.querySelector("input")!
 
     function enter() {
       const event = new KeyboardEvent("keyup", {key: "Enter", shiftKey: false, ctrlKey: false, altKey: false})
-      input_view.input_el.dispatchEvent(event)
+      input_el.dispatchEvent(event)
     }
 
     expect(values).to.be.equal([])
@@ -26,7 +26,7 @@ describe("TextInput", () => {
     expect(values).to.be.equal(["", ""])
     enter()
     expect(values).to.be.equal(["", "", ""])
-    input_view.input_el.value = "abc"
+    input_el.value = "abc"
     expect(values).to.be.equal(["", "", ""])
     enter()
     expect(values).to.be.equal(["", "", "", "abc"])

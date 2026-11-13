@@ -10,14 +10,16 @@ import type {VNode} from "preact"
 export class CheckboxView extends ToggleInputView {
   declare readonly model: Checkbox
   declare readonly signals: p.SignalsOf<Checkbox.Props>
+  declare readonly values: Checkbox.Attrs
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), checkbox_css]
   }
 
   override component(): VNode {
-    const {active, label, disabled} = this.signals
-    const active_value = active.value ?? false
+    const {label, disabled} = this.signals
+    const {active} = this.values
+    const active_value = active ?? false
     const aria_checked = active_value ? "true" : "false"
 
     return (

@@ -32,6 +32,7 @@ import {signal, computed, effect} from "@preact/signals"
 export class TooltipView extends UIElementView {
   declare readonly model: Tooltip
   declare readonly signals: p.SignalsOf<Tooltip.Props>
+  declare readonly values: Tooltip.Attrs
 
   override get is_top_level(): boolean {
     return this.parent == null || parent(this.target.value, (node) => bokeh_element in node) == null
@@ -44,7 +45,7 @@ export class TooltipView extends UIElementView {
   readonly target_override = signal<Element | null>(null)
   readonly target = computed(() => {
     const target_override = this.target_override.value
-    const target = this.signals.target.value
+    const {target} = this.values
     const el = (() => {
       if (target_override != null) {
         return target_override
@@ -91,7 +92,7 @@ export class TooltipView extends UIElementView {
       this._element_view = null
     }
 
-    const content = this.signals.content.value
+    const {content} = this.values
     if (content instanceof Model) {
       const view = await build_view(content, {parent: this})
       this._element_view = view

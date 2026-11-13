@@ -8,6 +8,7 @@ import * as markup_css from "styles/widgets/markup.css"
 export class ParagraphView extends MarkupView {
   declare readonly model: Paragraph
   declare readonly signals: p.SignalsOf<Paragraph.Props>
+  declare readonly values: Paragraph.Attrs
 
   override component(): VNode {
     const {text} = this.signals

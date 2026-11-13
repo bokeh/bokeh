@@ -170,6 +170,7 @@ const SWATCH_RE = /\$swatch:(\w*)/
 export class HoverToolView extends InspectToolView {
   declare readonly model: HoverTool
   declare readonly signals: p.SignalsOf<HoverTool.Props>
+  declare readonly values: HoverTool.Attrs
 
   protected _current_sxy: [number, number, InspectDims] | null = null
   protected _current_bbox: BBox | null = null
@@ -772,7 +773,7 @@ export class HoverToolView extends InspectToolView {
   }
 
   _render_vdom(ds: ColumnarDataSource, index: Index | null, vars: TooltipVars): VNode {
-    const tooltips = this.signals.tooltips.value
+    const {tooltips} = this.values
     assert(isArray(tooltips))
 
     const rows = []

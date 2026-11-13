@@ -8,9 +8,8 @@ import type {DOMView} from "./dom_view"
 import * as core_css from "styles/core.css"
 
 import type {Signalish, SignalLike} from "preact"
-import type {VNode, HTMLAttributes, ContainerNode} from "preact"
+import type {VNode, HTMLAttributes, ContainerNode, ComponentChildren} from "preact"
 import {Component, render} from "preact"
-import {createPortal} from "preact/compat"
 
 export type {VNode, TargetedEvent} from "preact"
 
@@ -41,6 +40,93 @@ export function cls(...classes: CSSClasses[]): string | undefined {
 }
 
 type DivAttributes = HTMLAttributes<HTMLDivElement>
+
+export type PortalProps = {
+  container: Element
+  children?: ComponentChildren
+}
+
+/**
+ * Renders its children into `container`, which may be outside of the
+ * containing vDOM tree (e.g. `document.head`).
+ *
+ * Children are rendered into a fake root, which manages only its own subset
+ * of container's children, so that other children of the container are left
+ * intact. This is similar to `createPortal()` from `preact/compat`, which we
+ * don't use, because importing `preact/compat` alters behavior of preact
+ * globally (e.g. it turns `onChange` of text inputs into `onInput`).
+ */
+export class Portal extends Component<PortalProps> {
+  protected _root: ContainerNode | null = null
+  protected _container: Element | null = null
+
+  protected _create_root(container: Element): ContainerNode {
+    const child_nodes: ChildNode[] = []
+    const root = {
+      nodeType: 1,
+      parentNode: container,
+      namespaceURI: container.namespaceURI,
+      ownerDocument: container.ownerDocument,
+      childNodes: child_nodes,
+      firstChild: null,
+      contains: (node: Node | null) => node != null && container.contains(node),
+      insertBefore(node: ChildNode, before: ChildNode | null): ChildNode {
+        if (!child_nodes.includes(node)) {
+          child_nodes.push(node)
+        }
+        return container.insertBefore(node, before)
+      },
+      appendChild(node: ChildNode): ChildNode {
+        return root.insertBefore(node, null)
+      },
+      removeChild(node: ChildNode): ChildNode {
+        const i = child_nodes.indexOf(node)
+        if (i != -1) {
+          child_nodes.splice(i, 1)
+        }
+        return container.removeChild(node)
+      },
+    }
+    return root
+  }
+
+  protected _unmount(): void {
+    const {_root} = this
+    if (_root != null) {
+      this._root = null
+      this._container = null
+      render(null, _root)
+    }
+  }
+
+  protected _render(): void {
+    const {container, children} = this.props
+    if (this._container !== container) {
+      this._unmount()
+    }
+    if (this._root == null) {
+      this._root = this._create_root(container)
+      this._container = container
+    }
+    render(<>{children}</>, this._root)
+  }
+
+  override componentDidMount(): void {
+    this._render()
+  }
+
+  override componentDidUpdate(): void {
+    this._render()
+  }
+
+  override componentWillUnmount(): void {
+    this._unmount()
+  }
+
+  render(): null {
+    return null
+  }
+}
 
 export type ShadowComponentProps = DivAttributes & {
   stylesheets?: StyleSheet[]
@@ -80,7 +166,7 @@ export class ShadowComponent extends Component<ShadowComponentProps> {
         shadow_el.adoptedStyleSheets = adopted
         const contents = (
           <>
-            {createPortal(global, document.head)}
+            <Portal container={document.head}>{global}</Portal>
             {...links}
             {this.props.children}
           </>

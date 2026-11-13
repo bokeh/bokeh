@@ -1,5 +1,5 @@
 import {display, column} from "#framework/layouts"
-import {tap, mouse_click} from "#framework/interactive"
+import {tap, mouse_click, mouse_enter, mouse_down} from "#framework/interactive"
 import {expect, expect_not_null} from "#framework/assertions"
 
 import {range} from "@bokehjs/core/util/array"
@@ -8,6 +8,7 @@ import type {Color} from "@bokehjs/core/types"
 
 import {HTML} from "@bokehjs/models/dom"
 import {ColumnDataSource, Row} from "@bokehjs/models"
+import {Tooltip} from "@bokehjs/models/ui/tooltip"
 
 import {
   Button, Toggle, Dropdown,
@@ -16,6 +17,7 @@ import {
   CheckboxButtonGroup, RadioButtonGroup,
   PaletteSelect,
   TextInput, PasswordInput, AutocompleteInput, TextAreaInput, FileInput,
+  NumericInput, Spinner, ColorPicker,
   MultiChoice, Select, MultiSelect,
   Slider, RangeSlider, DateSlider, DateRangeSlider, CategoricalSlider,
   TimePicker,
@@ -31,7 +33,8 @@ import {
   TableColumn,
 } from "@bokehjs/models/widgets/tables"
 
-import type {PickerBaseView} from "@bokehjs/models/widgets/picker_base"
+import type {PickerBase, PickerBaseView} from "@bokehjs/models/widgets/picker_base"
+import type {InputWidget, InputWidgetView} from "@bokehjs/models/widgets/input_widget"
 import * as sliders_css from "@bokehjs/styles/widgets/sliders.css"
 
 import * as palettes from "@bokehjs/api/palettes"
@@ -304,7 +307,10 @@ describe("Widgets", () => {
   it("should allow PasswordInput with password visible", async () => {
     const obj = PasswordInput.create({value: "foo"})
     const {view} = await display(obj, [500, 100])
-    await mouse_click(view.toggle_el)
+    const toggle_el = view.shadow_el.querySelector("button")
+    expect_not_null(toggle_el)
+    await mouse_click(toggle_el)
+    await view.ready
   })
 
   it("should allow AutocompleteInput", async () => {
@@ -317,8 +323,8 @@ describe("Widgets", () => {
     const completions = ["aaa", "aab", "aac", "baa", "caa"]
     const obj = AutocompleteInput.create({placeholder: "Enter value ...", completions, min_characters: 0})
     const {view} = await display(obj, [500, 300])
-    const ev = new FocusEvent("focusin")
-    view.input_el.dispatchEvent(ev)
+    const input_el = view.shadow_el.querySelector("input")!
+    input_el.dispatchEvent(new FocusEvent("focusin"))
     await view.ready
   })
 
@@ -339,6 +345,156 @@ describe("Widgets", () => {
   it("should allow FileInput", async () => {
     const obj = FileInput.create({accept: ".csv,.json.,.txt", multiple: false})
     await display(obj, [500, 100])
+  })
+
+  const picker_widgets: [string, (attrs: Partial<PickerBase.Attrs>) => PickerBase][] = [
+    ["DatePicker", (attrs) => DatePicker.create({value: "2023-01-18", ...attrs})],
+    ["DateRangePicker", (attrs) => DateRangePicker.create({value: ["2023-01-18", "2023-01-23"], ...attrs})],
+    ["MultipleDatePicker", (attrs) => MultipleDatePicker.create({value: ["2023-01-18", "2023-01-23"], ...attrs})],
+    ["DatetimePicker", (attrs) => DatetimePicker.create({value: "2023-01-18T09:37:52", ...attrs})],
+    ["DatetimeRangePicker", (attrs) => {
+      return DatetimeRangePicker.create({value: ["2023-01-18T09:37:52", "2023-01-23T20:17:25"], ...attrs})
+    }],
+    ["MultipleDatetimePicker", (attrs) => {
+      return MultipleDatetimePicker.create({value: ["2023-01-18T09:37:52", "2023-01-23T20:17:25"], ...attrs})
+    }],
+    ["TimePicker", (attrs) => TimePicker.create({value: "09:37:52", ...attrs})],
+  ]
+
+  describe("should support prefix and suffix", () => {
+    type Attrs = {title?: string, prefix?: string, suffix?: string}
+    const widgets: [string, (attrs: Attrs) => InputWidget][] = [
+      ["PasswordInput", (attrs) => PasswordInput.create({value: "foo", ...attrs})],
+      ["AutocompleteInput", (attrs) => AutocompleteInput.create({placeholder: "Enter value ...", completions: ["aaa", "aab"], ...attrs})],
+      ["NumericInput", (attrs) => NumericInput.create({value: 10, ...attrs})],
+      ["Spinner", (attrs) => Spinner.create({value: 10, ...attrs})],
+      ["Select", (attrs) => Select.create({options: ["Option 1", "Option 2"], value: "Option 1", ...attrs})],
+      ["PaletteSelect", (attrs) => {
+        return PaletteSelect.create({value: "Accent", items: [["Accent", palettes.Accent8]], ...attrs})
+      }],
+      ...picker_widgets,
+    ]
+
+    const viewport: [number, number] = [400, 100]
+
+    for (const [name, create] of widgets) {
+      describe(`in ${name}`, () => {
+        it("with prefix", async () => {
+          await display(create({prefix: "T"}), viewport)
+        })
+
+        it("with suffix", async () => {
+          await display(create({suffix: "\u2103"}), viewport)
+        })
+
+        it("with prefix and suffix", async () => {
+          await display(create({prefix: "T", suffix: "\u2103"}), viewport)
+        })
+
+        it("with title, prefix and suffix", async () => {
+          await display(create({title: "Widget title", prefix: "T", suffix: "\u2103"}), viewport)
+        })
+      })
+    }
+  })
+
+  const input_widgets: [string, (attrs: Partial<InputWidget.Attrs>) => InputWidget][] = [
+    ["TextInput", (attrs) => TextInput.create({placeholder: "Enter value ...", ...attrs})],
+    ["PasswordInput", (attrs) => PasswordInput.create({value: "foo", ...attrs})],
+    ["AutocompleteInput", (attrs) => AutocompleteInput.create({placeholder: "Enter value ...", completions: ["aaa", "aab"], ...attrs})],
+    ["TextAreaInput", (attrs) => TextAreaInput.create({placeholder: "Enter text ...", cols: 20, rows: 3, ...attrs})],
+    ["NumericInput", (attrs) => NumericInput.create({value: 10, ...attrs})],
+    ["Spinner", (attrs) => Spinner.create({value: 10, ...attrs})],
+    ["Select", (attrs) => Select.create({options: ["Option 1", "Option 2"], value: "Option 1", ...attrs})],
+    ["MultiSelect", (attrs) => MultiSelect.create({options: ["Option 1", "Option 2", "Option 3"], value: ["Option 2"], size: 3, ...attrs})],
+    ["ColorPicker", (attrs) => ColorPicker.create({color: "orange", ...attrs})],
+    ["FileInput", (attrs) => FileInput.create({accept: ".csv", ...attrs})],
+  ]
+
+  describe("should support title and description", () => {
+    const viewport: [number, number] = [400, 150]
+    const title = "Widget title"
+    const tooltip = () => Tooltip.create({content: "Widget description.", position: "right"})
+
+    async function help_button_of(view: InputWidgetView): Promise<HTMLElement> {
+      const {desc_el} = view
+      expect_not_null(desc_el)
+      return desc_el
+    }
+
+    for (const [name, create] of [...input_widgets, ...picker_widgets]) {
+      describe(`in ${name}`, () => {
+        it("without title", async () => {
+          await display(create({}), viewport)
+        })
+
+        it("with title", async () => {
+          await display(create({title}), viewport)
+        })
+
+        it("with title and help button", async () => {
+          await display(create({title, description: "Widget description."}), viewport)
+        })
+
+        it("with title and tooltip description shown after hovering over help button", async () => {
+          const {view} = await display(create({title, description: tooltip()}), viewport)
+          await mouse_enter(await help_button_of(view))
+          await view.ready
+        })
+
+        it("with title and tooltip description pinned after clicking on help button", async () => {
+          const {view} = await display(create({title, description: tooltip()}), viewport)
+          const help_el = await help_button_of(view)
+          await mouse_enter(help_el)
+          await mouse_down(help_el)
+          await view.ready
+        })
+      })
+    }
+  })
+
+  describe("should support disabled and focused states", () => {
+    const viewport: [number, number] = [400, 150]
+    const title = "Widget title"
+
+    function input_of(view: InputWidgetView): HTMLElement {
+      const el = view.shadow_el.getElementById("input")
+      expect_not_null(el)
+      return el
+    }
+
+    for (const [name, create] of input_widgets) {
+      describe(`in ${name}`, () => {
+        it("when disabled", async () => {
+          await display(create({title, disabled: true}), viewport)
+        })
+
+        it("when focused", async () => {
+          const {view} = await display(create({title}), viewport)
+          input_of(view).focus()
+          await view.ready
+        })
+      })
+    }
+
+    for (const [name, create] of picker_widgets) {
+      describe(`in ${name}`, () => {
+        it("when disabled", async () => {
+          await display(create({title, disabled: true}), viewport)
+        })
+
+        // Focusing picker's (visible) input opens the calendar.
+        it("when focused", async () => {
+          const {view} = await display(create({title}), [400, 450])
+          view.picker._input.focus()
+          await view.ready
+
+          const calendar_el = view.shadow_el.querySelector(".flatpickr-calendar")
+          expect_not_null(calendar_el)
+          await finished_animating(calendar_el)
+        })
+      })
+    }
   })
 
   it("should allow MultiChoice", async () => {
@@ -507,6 +663,78 @@ describe("Widgets", () => {
     const obj = TimePicker.create({value: t0, time_format: "H:i:S", seconds: true, clock: "12h"})
     const {view} = await display(obj, [500, 150])
     await open_picker(view)
+  })
+
+  describe("should support date and time pickers", () => {
+    const title = "Widget title"
+    const description = "Widget description."
+
+    for (const [name, create] of picker_widgets) {
+      describe(`in ${name}`, () => {
+        it("with title and description when opened", async () => {
+          const {view} = await display(create({title, description, width: 400}), [500, 450])
+          await open_picker(view)
+        })
+      })
+    }
+
+    describe("in DatePicker", () => {
+      const value = "2023-01-18"
+
+      it("with inline=true", async () => {
+        await display(DatePicker.create({value, inline: true, width: 400}), [500, 400])
+      })
+
+      it("with position=above when opened", async () => {
+        const picker = DatePicker.create({value, position: "above", width: 400})
+        const spacer = Div.create({width: 400, height: 350})
+        const {view} = await display(column([spacer, picker]), [500, 450])
+        await open_picker(view.owner.get_one(picker))
+      })
+
+      it("with min_date and max_date when opened", async () => {
+        const picker = DatePicker.create({value, min_date: "2023-01-10", max_date: "2023-01-25", width: 400})
+        const {view} = await display(picker, [500, 400])
+        await open_picker(view)
+      })
+
+      it("with disabled_dates when opened", async () => {
+        const disabled_dates = ["2023-01-02", ["2023-01-09", "2023-01-13"] as [string, string], "2023-01-30"]
+        const {view} = await display(DatePicker.create({value, disabled_dates, width: 400}), [500, 400])
+        await open_picker(view)
+      })
+
+      it("with enabled_dates when opened", async () => {
+        const enabled_dates = ["2023-01-02", ["2023-01-16", "2023-01-20"] as [string, string], "2023-01-30"]
+        const {view} = await display(DatePicker.create({value, enabled_dates, width: 400}), [500, 400])
+        await open_picker(view)
+      })
+
+      it("with date_format", async () => {
+        await display(DatePicker.create({value, date_format: "F j, Y", width: 400}), [500, 100])
+      })
+    })
+
+    describe("in MultipleDatePicker", () => {
+      it("with separator", async () => {
+        const value = ["2023-01-18", "2023-01-23", "2023-01-24"]
+        await display(MultipleDatePicker.create({value, separator: " | ", width: 400}), [500, 100])
+      })
+    })
+
+    describe("in DatetimePicker", () => {
+      it("with seconds and 12h clock when opened", async () => {
+        const picker = DatetimePicker.create({
+          value: "2023-01-18T21:37:52",
+          seconds: true,
+          clock: "12h",
+          date_format: "Y-m-d h:i:S K",
+          width: 400,
+        })
+        const {view} = await display(picker, [500, 450])
+        await open_picker(view)
+      })
+    })
   })
 
   it("should allow Div", async () => {

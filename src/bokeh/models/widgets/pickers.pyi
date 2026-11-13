@@ -16,13 +16,18 @@ from ..._types import (
 )
 from ...core.enums import CalendarPositionType as CalendarPosition
 from ...core.has_props import HasProps
-from .inputs import InputWidget, _InputWidgetInit
+from .inputs import (
+    InputWidget,
+    PrefixSuffixCommon,
+    _InputWidgetInit,
+    _PrefixSuffixCommonInit,
+)
 
-class _PickerBaseInit(_InputWidgetInit, total=False):
+class _PickerBaseInit(_InputWidgetInit, _PrefixSuffixCommonInit, total=False):
     position: CalendarPosition
     inline: bool
 
-class PickerBase(InputWidget):
+class PickerBase(InputWidget, PrefixSuffixCommon):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_PickerBaseInit]) -> None: ...
 
