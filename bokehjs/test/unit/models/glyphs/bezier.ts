@@ -2,13 +2,13 @@ import {expect} from "#framework/assertions"
 import {create_glyph_view} from "./_util"
 import {Bezier} from "@bokehjs/models/glyphs/bezier"
 import {NormalHead} from "@bokehjs/models/annotations/arrow_head"
-import {PathMarking} from "@bokehjs/models/graphics/decoration"
+import {PathPlacement} from "@bokehjs/models/graphics/path_placement"
 
-describe("Bezier decorations", () => {
+describe("Bezier path_markings", () => {
   for (const placement of ["start", "end"] as const) {
     it(`should hit a head outside the curve bounds but not the hidden endpoint at ${placement}`, async () => {
-      const glyph = Bezier.create({decorations: [
-        PathMarking.create({node: placement, inset: 20, marking: NormalHead.create({size: 12})}),
+      const glyph = Bezier.create({path_markings: [
+        PathPlacement.create({positions: placement, inset: 20, marking: NormalHead.create({size: 12})}),
       ]})
       const view = await create_glyph_view(glyph, {
         x0: [0], y0: [50], cx0: [30], cy0: [50], cx1: [70], cy1: [50], x1: [100], y1: [50],

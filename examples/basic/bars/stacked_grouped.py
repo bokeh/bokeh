@@ -26,7 +26,7 @@ source = ColumnDataSource(data=dict(
 ))
 
 p = figure(x_range=FactorRange(*factors), height=250,
-           toolbar_location=None, tools="")
+           tools=None)
 
 p.vbar_stack(regions, x='x', width=0.9, alpha=0.5, color=["blue", "red"], source=source,
              legend_label=regions)

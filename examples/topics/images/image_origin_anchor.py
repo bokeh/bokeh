@@ -21,7 +21,7 @@ img = np.array(Sunset4_RGBA, dtype=np.uint32)
 
 p = figure(
     title="Different anchors and origins for image placed at coordinates (0, 0)",
-    tools="", toolbar_location=None,
+    tools=None,
     x_range=(-10, 10), y_range=(-10, 10),
     background_fill_color="#efefef",
 )

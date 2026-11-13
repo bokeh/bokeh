@@ -1,7 +1,7 @@
-import {cubic_path, trim_path, trace_path, paint_decorations, hit_decoration,
-        span_path_indices, decoration_hits_span, decoration_hits_rect} from "./decorated_path"
+import {cubic_path, trim_path, trace_path, paint_path_markings, hit_path_marking,
+        span_path_indices, path_marking_hits_span, path_marking_hits_rect} from "./marked_path"
 import type {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
-import type {PathSegment} from "./decorated_path"
+import type {PathSegment} from "./marked_path"
 import {dist_to_segment, segment_intersects_rect} from "core/hittest"
 import {Selection} from "../selections/selection"
 import {LineVector} from "core/property_mixins"
@@ -9,7 +9,7 @@ import type * as visuals from "core/visuals"
 import type {Rect} from "core/types"
 import type {SpatialIndex} from "core/util/spatial"
 import type {Context2d} from "core/util/canvas"
-import {Glyph, GlyphView} from "./glyph"
+import {Glyph, GlyphView, SupportsPathMarking} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
 import {cbb} from "core/util/algorithms"
 import * as p from "core/properties"
@@ -48,7 +48,7 @@ export class BezierView extends GlyphView {
   }
 
   protected _paint(ctx: Context2d, indices: Int32Array, data?: Bezier.Data): void {
-    if (!this.visuals.line.doit && this.decorations.size == 0) {
+    if (!this.visuals.line.doit && this.path_markings.size == 0) {
       return
     }
 
@@ -68,15 +68,15 @@ export class BezierView extends GlyphView {
         continue
       }
 
-      if (this.decorations.size != 0) {
+      if (this.path_markings.size != 0) {
         const segments = cubic_path(sx0_i, sy0_i, scx0_i, scy0_i, scx1_i, scy1_i, sx1_i, sy1_i)
-        const {start, end} = this._decoration_insets(i)
+        const {start, end} = this._path_marking_insets(i)
         if (this.visuals.line.doit) {
           ctx.beginPath()
           trace_path(ctx, trim_path(segments, start, end))
           this.visuals.line.apply(ctx, i)
         }
-        paint_decorations(ctx, this.decorations.values(), i, segments)
+        paint_path_markings(ctx, this.path_markings.values(), i, segments)
         continue
       }
 
@@ -98,11 +98,11 @@ export class BezierView extends GlyphView {
     const indices: number[] = []
     for (let i = 0; i < this.data_size; i++) {
       const segments = this._screen_path(i)
-      const {start, end} = this._decoration_insets(i)
+      const {start, end} = this._path_marking_insets(i)
       const threshold = Math.max(2, this.line_width.get(i)/2)
       const shaft = trim_path(segments, start, end).some(segment => dist_to_segment(point,
         {x: segment.sx0, y: segment.sy0}, {x: segment.sx1, y: segment.sy1}) < threshold)
-      const marking = [...this.decorations.values()].some(decoration => hit_decoration(point, decoration, i, segments) != null)
+      const marking = [...this.path_markings.values()].some(path_marking => hit_path_marking(point, path_marking, i, segments) != null)
       if (shaft || marking) {
         indices.push(i)
       }
@@ -115,9 +115,9 @@ export class BezierView extends GlyphView {
     const indices: number[] = []
     for (let i = 0; i < this.data_size; i++) {
       const segments = this._screen_path(i)
-      const {start, end} = this._decoration_insets(i)
+      const {start, end} = this._path_marking_insets(i)
       if (span_path_indices(trim_path(segments, start, end), geometry.direction, value).length != 0 ||
-          [...this.decorations.values()].some(decoration => decoration_hits_span(decoration, i, segments, geometry.direction, value) != null)) {
+          [...this.path_markings.values()].some(path_marking => path_marking_hits_span(path_marking, i, segments, geometry.direction, value) != null)) {
         indices.push(i)
       }
     }
@@ -128,10 +128,10 @@ export class BezierView extends GlyphView {
     const indices: number[] = []
     for (let i = 0; i < this.data_size; i++) {
       const segments = this._screen_path(i)
-      const {start, end} = this._decoration_insets(i)
+      const {start, end} = this._path_marking_insets(i)
       if (trim_path(segments, start, end).some(segment => segment_intersects_rect(
         {x: segment.sx0, y: segment.sy0}, {x: segment.sx1, y: segment.sy1}, geometry)) ||
-          [...this.decorations.values()].some(decoration => decoration_hits_rect(decoration, i, segments, geometry) != null)) {
+          [...this.path_markings.values()].some(path_marking => path_marking_hits_rect(path_marking, i, segments, geometry) != null)) {
         indices.push(i)
       }
     }
@@ -159,7 +159,7 @@ export namespace Bezier {
     cy0: p.CoordinateSpec
     cx1: p.CoordinateSpec
     cy1: p.CoordinateSpec
-  } & Mixins
+  } & Mixins & SupportsPathMarking
 
   export type Mixins = LineVector
 
@@ -171,10 +171,6 @@ export namespace Bezier {
 export interface Bezier extends Bezier.Attrs {}
 
 export class Bezier extends Glyph {
-  override _supports_path_decorations(_placement: string | number): boolean {
-    return true
-  }
-
   declare properties: Bezier.Props
   declare __view_type__: BezierView
 
@@ -192,5 +188,6 @@ export class Bezier extends Glyph {
       cy1: [ p.YCoordinateSpec, {field: "cy1"} ],
     }))
     this.mixins<Bezier.Mixins>(LineVector)
+    this.define<SupportsPathMarking>(SupportsPathMarking)
   }
 }

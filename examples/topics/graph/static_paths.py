@@ -8,7 +8,7 @@ N = 8
 node_indices = list(range(N))
 
 plot = figure(title="Graph Layout Demonstration", x_range=(-1.1,1.1), y_range=(-1.1,1.1),
-              tools="", toolbar_location=None)
+              tools=None)
 
 graph = GraphRenderer()
 

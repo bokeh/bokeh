@@ -3,12 +3,12 @@ import {restorable} from "#framework/util"
 import {expect} from "#framework/assertions"
 import {create_glyph_view} from "./_util"
 import {Arc} from "@bokehjs/models/glyphs/arc"
-import {PathMarking, PathMarkings} from "@bokehjs/models/graphics/decoration"
+import {PathPlacement} from "@bokehjs/models/graphics/path_placement"
 import {NormalHead} from "@bokehjs/models/annotations/arrow_head"
 
 const pi = Math.PI
 
-describe("Arc decorations", () => {
+describe("Arc path_markings", () => {
   for (const [direction, start, end, sweep] of [
     ["clock", 0, pi/2, pi/2],
     ["anticlock", 0, -pi/2, -pi/2],
@@ -21,10 +21,10 @@ describe("Arc decorations", () => {
   ] as const) {
     for (const placement of [0, 0.25, 0.5, 0.75, 1, "middle"] as const) {
       it(`should place ${placement} on ${direction} arc from ${start} to ${end}`, async () => {
-        const decoration = typeof placement == "number"
-          ? PathMarkings.create({positions: [placement], marking: NormalHead.create({size: 20})})
-          : PathMarking.create({node: placement, marking: NormalHead.create({size: 20}), inset: 999})
-        const glyph = Arc.create({direction, decorations: [decoration]})
+        const path_marking = typeof placement == "number"
+          ? PathPlacement.create({positions: [placement], marking: NormalHead.create({size: 20})})
+          : PathPlacement.create({positions: placement, marking: NormalHead.create({size: 20}), inset: 999})
+        const glyph = Arc.create({direction, path_markings: [path_marking]})
         const view = await create_glyph_view(glyph, {x: [0], y: [0], radius: [100], start_angle: [0], end_angle: [pi]})
         const ctx = view.canvas.create_layer().ctx
         using translate = restorable(sinon.spy(ctx, "translate"))
@@ -53,8 +53,8 @@ describe("Arc decorations", () => {
   for (const direction of ["clock", "anticlock"] as const) {
     for (const placement of ["start", "end"] as const) {
       it(`should preserve endpoint tangents and inset for ${placement} on ${direction} arcs`, async () => {
-        const glyph = Arc.create({direction, decorations: [
-          PathMarking.create({node: placement, inset: 10, marking: NormalHead.create({size: 20})}),
+        const glyph = Arc.create({direction, path_markings: [
+          PathPlacement.create({positions: placement, inset: 10, marking: NormalHead.create({size: 20})}),
         ]})
         const view = await create_glyph_view(glyph, {x: [0], y: [0], radius: [100], start_angle: [0], end_angle: [pi]})
         const ctx = view.canvas.create_layer().ctx
@@ -78,8 +78,8 @@ describe("Arc decorations", () => {
 
   for (const direction of ["clock", "anticlock"] as const) {
     it(`should keep zero-radius fractional markings finite for ${direction}`, async () => {
-      const glyph = Arc.create({direction, decorations: [0, 0.5, 1].map(placement =>
-        PathMarkings.create({positions: [placement], marking: NormalHead.create({size: 20})}))})
+      const glyph = Arc.create({direction, path_markings: [0, 0.5, 1].map(placement =>
+        PathPlacement.create({positions: [placement], marking: NormalHead.create({size: 20})}))})
       const view = await create_glyph_view(glyph, {x: [0], y: [0], radius: [0], start_angle: [0], end_angle: [pi]})
       const ctx = view.canvas.create_layer().ctx
       using translate = restorable(sinon.spy(ctx, "translate"))

@@ -1,26 +1,53 @@
 import * as sinon from "sinon"
 import {restorable} from "#framework/util"
 import {expect} from "#framework/assertions"
-import {create_glyph_view} from "./_util"
+import {create_glyph_renderer_view, create_glyph_view} from "./_util"
 import {Segment} from "@bokehjs/models/glyphs/segment"
 import {MultiLine} from "@bokehjs/models/glyphs/multi_line"
 import {Line} from "@bokehjs/models/glyphs/line"
 import {Bezier} from "@bokehjs/models/glyphs/bezier"
 import {NormalHead} from "@bokehjs/models/annotations/arrow_head"
-import {PathMarking, PathMarkings} from "@bokehjs/models/graphics/decoration"
+import {PathPlacement} from "@bokehjs/models/graphics/path_placement"
 
 // Exercise each glyph's paint entry point, rather than only the shared path helpers.
-describe("Endpoint decorations", () => {
+describe("Endpoint markings", () => {
+  for (const at of ["end", 1] as const) {
+    const placement = at === "end" ? "the named end" : "fraction 1"
+    it(`should paint add_arrowheads() at ${placement} on a bent path`, async () => {
+      const sx = new Float64Array([0, 90, 100])
+      const sy = new Float64Array([0, 0, 10])
+      const {glyph: view, model: renderer, plot_view: plot} = await create_glyph_renderer_view(MultiLine.create(), {xs: [sx], ys: [sy]})
+      const model = renderer.add_arrowheads({at, head: NormalHead.create({size: 30})})
+      await plot.ready
+      const path_marking = view.path_markings.get(model)!
+      const ctx = view.canvas.create_layer().ctx
+      using paint = restorable(sinon.stub(path_marking.marking, "paint"))
+      using translate = restorable(sinon.spy(ctx, "translate"))
+      using rotate = restorable(sinon.spy(ctx, "rotate"))
+      using line = restorable(sinon.spy(ctx, "lineTo"))
+      ;(view as any)._paint(ctx, [0], {sxs: {get: () => sx}, sys: {get: () => sy}})
+      sinon.assert.calledOnce(paint)
+      sinon.assert.calledOnceWithExactly(translate, 100, 10)
+      const path_angle = at === "end" ? Math.PI/4 : Math.atan2(10, 40 - Math.hypot(10, 10))
+      expect(Math.abs(rotate.firstCall.args[0] - (path_angle + Math.PI/2)) < 1e-9).to.be.true
+      if (at === "end") {
+        expect(line.getCalls().some(call => call.calledWithExactly(100, 10))).to.be.false
+      } else {
+        expect(line.lastCall.args).to.be.equal([100, 10])
+      }
+    })
+  }
+
   for (const [name, create] of [
-    ["Segment", (decoration: PathMarking | PathMarkings) => Segment.create({decorations: [decoration]})],
-    ["MultiLine", (decoration: PathMarking | PathMarkings) => MultiLine.create({decorations: [decoration]})],
-    ["Line", (decoration: PathMarking | PathMarkings) => Line.create({decorations: [decoration]})],
-    ["Bezier", (decoration: PathMarking | PathMarkings) => Bezier.create({decorations: [decoration]})],
+    ["Segment", (path_marking: PathPlacement) => Segment.create({path_markings: [path_marking]})],
+    ["MultiLine", (path_marking: PathPlacement) => MultiLine.create({path_markings: [path_marking]})],
+    ["Line", (path_marking: PathPlacement) => Line.create({path_markings: [path_marking]})],
+    ["Bezier", (path_marking: PathPlacement) => Bezier.create({path_markings: [path_marking]})],
   ] as const) {
     for (const fraction of [0, 0.25, 0.5, 0.75, 1]) {
       it(`should place fraction ${fraction} on ${name} without trimming the shaft`, async () => {
-        const decoration = PathMarkings.create({positions: [fraction], marking: NormalHead.create({size: 12})})
-        const glyph = create(decoration)
+        const path_marking = PathPlacement.create({positions: [fraction], marking: NormalHead.create({size: 12})})
+        const glyph = create(path_marking)
         const coordinates = glyph instanceof Line ? {x: [0, 100], y: [0, 0]}
           : glyph instanceof MultiLine ? {xs: [[0, 100]], ys: [[0, 0]]}
           : {x0: [0], y0: [0], x1: [100], y1: [0], cx0: [25], cy0: [0], cx1: [75], cy1: [0]}
@@ -42,10 +69,10 @@ describe("Endpoint decorations", () => {
       })
     }
     for (const placement of ["start", "end"] as const) {
-      it(`should position and trim ${placement} decorations on ${name}`, async () => {
+      it(`should position and trim ${placement} path_markings on ${name}`, async () => {
         const marking = NormalHead.create({size: {field: "head_size"}})
-        const decoration = PathMarking.create({node: placement, marking, inset: {field: "inset"}})
-        const glyph = create(decoration)
+        const path_marking = PathPlacement.create({positions: placement, marking, inset: {field: "inset"}})
+        const glyph = create(path_marking)
         const coordinates = glyph instanceof Line ? {
           x: [0, 40, 100], y: [0, 30, 30],
         } : glyph instanceof MultiLine ? {
@@ -59,7 +86,7 @@ describe("Endpoint decorations", () => {
           inset: glyph instanceof Line ? [10, 20, 30] : [10, 20],
           head_size: glyph instanceof Line ? [12, 18, 24] : [12, 18],
         } as any)
-        const [decoration_view] = view.decorations.values()
+        const [decoration_view] = view.path_markings.values()
         const ctx = view.canvas.create_layer().ctx
         using paint = restorable(sinon.stub(decoration_view.marking, "paint"))
         using translate = restorable(sinon.spy(ctx, "translate"))
@@ -104,15 +131,15 @@ describe("Endpoint decorations", () => {
 
   for (const placement of ["start", "end"] as const) {
     it(`should orient a Bezier ${placement} head along the curve rather than the endpoint chord`, async () => {
-      const glyph = Bezier.create({decorations: [
-        PathMarking.create({node: placement, marking: NormalHead.create({size: 12})}),
+      const glyph = Bezier.create({path_markings: [
+        PathPlacement.create({positions: placement, marking: NormalHead.create({size: 12})}),
       ]})
       const view = await create_glyph_view(glyph, {
         x0: [0], y0: [0], cx0: [60], cy0: [0], cx1: [100], cy1: [40], x1: [100], y1: [100],
       })
-      const [decoration] = view.decorations.values()
+      const [path_marking] = view.path_markings.values()
       const ctx = view.canvas.create_layer().ctx
-      using paint = restorable(sinon.stub(decoration.marking, "paint"))
+      using paint = restorable(sinon.stub(path_marking.marking, "paint"))
       using translate = restorable(sinon.spy(ctx, "translate"))
       using rotate = restorable(sinon.spy(ctx, "rotate"))
       ;(view as any)._paint(ctx, [0], {

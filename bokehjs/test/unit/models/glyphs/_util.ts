@@ -28,11 +28,12 @@ export type Options = {
   y_range?: Range
 }
 
-export async function create_glyph_renderer_view<G extends Glyph>(glyph: G, data: DataOf<G> = {}, options: Options = {}): Promise<GlyphRendererView> {
+export async function create_glyph_renderer_view<G extends Glyph>(
+    glyph: G, data: DataOf<G> = {}, options: Options = {}): Promise<GlyphRendererView & {readonly model: GlyphRenderer<G>}> {
   const axis_type = options.axis_type ?? "linear"
 
   const data_source = ColumnDataSource.create({data: data as {[key: string]: Arrayable}}) // TODO: exactOptionalPropertyTypes
-  const glyph_renderer = GlyphRenderer.create({glyph, data_source})
+  const glyph_renderer = GlyphRenderer.create<GlyphRenderer<G>>({glyph, data_source})
 
   const [x_range, x_scale] = make_scale("x", axis_type, options.x_range)
   const [y_range, y_scale] = make_scale("y", axis_type, options.y_range)
@@ -48,7 +49,7 @@ export async function create_glyph_renderer_view<G extends Glyph>(glyph: G, data
   })
 
   const {view} = await display(plot)
-  return view.owner.get_one(glyph_renderer)
+  return view.owner.get_one(glyph_renderer) as GlyphRendererView & {readonly model: typeof glyph_renderer}
 }
 
 export async function create_glyph_view<G extends Glyph>(glyph: G, data: DataOf<G> = {}, options?: Options): Promise<ViewOf<G>> {

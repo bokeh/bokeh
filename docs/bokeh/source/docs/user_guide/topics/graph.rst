@@ -63,7 +63,7 @@ The following code snippet
     node_indices = list(range(N))
 
     plot = figure(title="Graph layout demonstration", x_range=(-1.1,1.1),
-                  y_range=(-1.1,1.1), tools="", toolbar_location=None)
+                  y_range=(-1.1,1.1), tools=None)
 
     graph = GraphRenderer()
 
@@ -139,19 +139,19 @@ Directed edges
 --------------
 
 Add arrowheads to a graph's ``MultiLine`` edge renderer with
-:meth:`~bokeh.models.GlyphRenderer.add_path_decoration`:
+:meth:`~bokeh.models.GlyphRenderer.add_path_marking`:
 
 .. code-block:: python
 
-    graph.edge_renderer.add_path_decoration(
+    graph.edge_renderer.add_path_marking(
         NormalHead(size=12),
-        node="end", inset="end_inset",
+        at="end", inset="end_inset",
     )
 
 Store ``end_inset`` in the edge data source. For circular ``Scatter`` nodes,
 set each edge's inset to half its target node's screen-pixel ``size`` plus
 the desired gap. If node sizes change, update these edge values as well.
-Decorations do not automatically look up the target node's geometry.
+Path markings do not automatically look up the target node's geometry.
 Arrowheads follow the final tangent of sampled edge paths, and the shaft
 stops behind each head. Other node shapes require their own boundary-distance
 calculation.

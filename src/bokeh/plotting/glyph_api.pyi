@@ -28,6 +28,7 @@ from .._specs import (
     Number1dArg,
     Number3dArg,
     NumberArg,
+    NumberSpec,
     OutlineShapeNameArg,
     SizeArg,
     StringArg,
@@ -39,6 +40,7 @@ from .._types import Color, NonNegative
 from ..core.enums import (
     AnchorType as Anchor,
     AngleUnitsType as AngleUnits,
+    DimensionType as Dimension,
     DirectionType as Direction,
     PaletteType as Palette,
     RadiusDimensionType as RadiusDimension,
@@ -532,6 +534,16 @@ class GlyphAPI:
         end: Marking | Literal["auto"] | None = ...,
         start_inset: NumberArg = ...,
         end_inset: NumberArg = ...,
+        **kwargs: Unpack[SegmentArgs],
+    ) -> GlyphRenderer[glyphs.Segment]: ...
+
+    def whisker(self,
+        base: NumberArg = ...,
+        lower: NumberArg = ...,
+        upper: NumberArg = ...,
+        *,
+        dimension: Dimension = ...,
+        cap_size: NumberSpec = ...,
         **kwargs: Unpack[SegmentArgs],
     ) -> GlyphRenderer[glyphs.Segment]: ...
 

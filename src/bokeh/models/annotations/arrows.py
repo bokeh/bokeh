@@ -67,6 +67,9 @@ class OpenHead(ArrowHead):
     The {prop} values for the arrow head outline.
     """)
 
+def auto_arrowhead() -> OpenHead:
+    return OpenHead(inherit_visuals=["line_color", "line_alpha", "line_width"])
+
 class NormalHead(ArrowHead):
     ''' Render a closed-body arrow head.
 

@@ -1,9 +1,9 @@
-''' Arrowhead decorations on existing Segment and MultiLine renderers.
+''' Arrowhead path_markings on existing Segment and MultiLine renderers.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.segment, bokeh.plotting.figure.multi_line, bokeh.models.GlyphRenderer.add_path_decoration
+    :apis: bokeh.plotting.figure.segment, bokeh.plotting.figure.multi_line, bokeh.models.GlyphRenderer.add_path_marking
     :refs: :ref:`ug_basic_annotations_arrows`
-    :keywords: arrows, decorations, segments, multiline
+    :keywords: arrows, path_markings, segments, multiline
 
 '''
 from bokeh.layouts import column
@@ -21,23 +21,23 @@ source = ColumnDataSource(dict(
 
 segments = figure(width=650, height=260, x_range=(0, 5), y_range=(0.5, 4),
                   title="Segments: vectorized head sizes and end insets",
-                  tools="", toolbar_location=None)
+                  tools=None)
 renderer = segments.segment("x0", "y0", "x1", "y1", source=source,
                             line_color="color", line_width=2)
-renderer.add_path_decoration(
+renderer.add_path_marking(
     NormalHead(size="head_size", fill_color="color", line_color="color"),
-    node="end", inset="inset",
+    at="end", inset="inset",
 )
 
 paths = figure(width=650, height=260, x_range=(0, 5), y_range=(0.5, 4),
                title="MultiLine: arrowheads follow the path's final tangent",
-               tools="", toolbar_location=None)
+               tools=None)
 renderer = paths.multi_line("xs", "ys", source=source,
                             line_color="color", line_width=2)
-renderer.add_path_decoration(OpenHead(size=12, line_color="color"), node="start")
-renderer.add_path_decoration(
+renderer.add_path_marking(OpenHead(size=12, line_color="color"), at="start")
+renderer.add_path_marking(
     NormalHead(size="head_size", fill_color="color", line_color="color"),
-    node="end", inset="inset",
+    at="end", inset="inset",
 )
 
 layout = column(segments, paths)

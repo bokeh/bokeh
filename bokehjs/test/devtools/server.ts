@@ -56,6 +56,7 @@ type ReportStatus = {
   failure?: boolean
   timeout?: boolean
   skipped?: boolean
+  file?: string
   baseline_name?: string
   baseline?: string
   existing_blf?: string
@@ -65,6 +66,8 @@ type ReportStatus = {
 }
 type Report = {
   completed: boolean
+  running: boolean
+  progress: {finished: number, selected: number}
   reference: string
   baseline_names: string[]
   results: [string[], ReportStatus][]
@@ -130,6 +133,51 @@ function async_handler(fn: (req: express.Request, res: express.Response) => Prom
   }
 }
 
+type ReportRecord =
+  {type: "start", reference: string, baseline_names: string[], selected: number} |
+  {type: "result", descriptions: string[], status: ReportStatus} |
+  {type: "end", metrics: {[key: string]: number[]}}
+
+/**
+ * Parse `report.jsonl`. Its last line may be partially written if tests are still running.
+ */
+function parse_report(jsonl: string): Report {
+  const lines = jsonl.split("\n").filter((line) => line.length != 0)
+  const records: ReportRecord[] = []
+  for (const [i, line] of lines.entries()) {
+    try {
+      records.push(JSON.parse(line) as ReportRecord)
+    } catch (error) {
+      if (i != lines.length - 1) {
+        throw error
+      }
+    }
+  }
+  const start = records[0] as ReportRecord | undefined
+  if (start?.type != "start") {
+    throw new Error("invalid report")
+  }
+  const results: [string[], ReportStatus][] = []
+  let end: (ReportRecord & {type: "end"}) | null = null
+  for (const record of records) {
+    if (record.type == "result") {
+      results.push([record.descriptions, record.status])
+    } else if (record.type == "end") {
+      end = record
+    }
+  }
+  const completed = end != null
+  return {
+    completed,
+    running: !completed,
+    progress: {finished: results.length, selected: start.selected},
+    reference: start.reference,
+    baseline_names: start.baseline_names,
+    results,
+    metrics: end?.metrics ?? {},
+  }
+}
+
 function using_report(fn: (report: Report, platform: string, req: express.Request, res: express.Response) => void) {
   return async_handler(async (req: express.Request, res: express.Response) => {
     const platform = typeof req.query.platform == "string" ? req.query.platform : sys.platform
@@ -137,10 +185,10 @@ function using_report(fn: (report: Report, platform: string, req: express.Reques
       case "linux":
       case "macos":
       case "windows": {
-        const report_path = join("test", "baselines", platform, "report.json")
+        const report_path = join("test", "baselines", platform, "report.jsonl")
         try {
-          const json = await fs.promises.readFile(report_path, {encoding: "utf-8"})
-          fn(JSON.parse(json), platform, req, res)
+          const jsonl = await fs.promises.readFile(report_path, {encoding: "utf-8"})
+          fn(parse_report(jsonl), platform, req, res)
         } catch {
           res.status(404).send("Report unavailable")
         }
@@ -168,12 +216,12 @@ app.get("/unit/run", unit(true))
 app.get("/defaults/run", defaults(true))
 app.get("/integration/run", integration(true))
 
-app.get("/integration/report", using_report(({results, reference, completed}, platform, req, res) => {
+app.get("/integration/report", using_report(({results, reference, completed, running, progress}, platform, req, res) => {
   const full = req.query.full == ""
   const total = results.length
   const failures = results.filter(([, status]) => status.failure === true || status.timeout === true).length
   res.render("test/devtools/report.html", {
-    title: "BokehJS baseline review", results, full, platform, reference, completed, total, failures, layout_diff,
+    title: "BokehJS baseline review", results, full, platform, reference, completed, running, progress, total, failures, layout_diff,
   })
 }))
 

@@ -1,5 +1,6 @@
 import {assert} from "@bokehjs/core/util/assert"
-import {PathMarking} from "@bokehjs/models/graphics/decoration"
+import {PathPlacement} from "@bokehjs/models/graphics/path_placement"
+import {ScatterMarking} from "@bokehjs/models/graphics/scatter_marking"
 import * as sinon from "sinon"
 
 import {expect} from "#framework/assertions"
@@ -10,7 +11,7 @@ import {PlotActions, xy} from "#framework/interactive"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {GlyphRenderer, GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
 import {Arc, Circle, MultiLine, Rect, Scatter, Segment} from "@bokehjs/models/glyphs"
-import {NormalHead} from "@bokehjs/models/annotations/arrow_head"
+import {NormalHead, OpenHead} from "@bokehjs/models/annotations/arrow_head"
 import {build_view} from "@bokehjs/core/build_views"
 import {Plot} from "@bokehjs/models/plots"
 import {FactorRange, Range1d} from "@bokehjs/models/ranges"
@@ -23,7 +24,7 @@ import {defer, delay} from "@bokehjs/core/util/defer"
 import type * as p from "@bokehjs/core/properties"
 import type {TextBox} from "@bokehjs/core/graphics"
 import {logger} from "@bokehjs/core/logging"
-import {show} from "@bokehjs/api/plotting"
+import {figure, show} from "@bokehjs/api/plotting"
 import {CDSView} from "@bokehjs/models/sources/cds_view"
 import {PlotView} from "@bokehjs/models/plots/plot_canvas"
 
@@ -40,32 +41,108 @@ function mkrenderer(glyph: Scatter): GlyphRenderer {
 }
 
 describe("GlyphRenderer", () => {
-  it("should attach both named and fractional Arc decorations", () => {
-    const renderer = GlyphRenderer.create({glyph: Arc.create()})
-    const decoration = renderer.add_path_decoration(NormalHead.create(), {node: "middle"})
-    const fractional = renderer.add_path_markings(NormalHead.create(), {positions: [0.5]})
-    expect(renderer.glyph.decorations).to.be.equal([decoration, fractional])
+  it("should add named and fractional arrowheads with distinct positions", () => {
+    const renderer = GlyphRenderer.create({glyph: Segment.create()})
+    const head = NormalHead.create({size: 12})
+    const start = renderer.add_arrowheads({at: "start", head})
+    const middle = renderer.add_arrowheads({at: "middle"})
+    const end: PathPlacement = renderer.add_arrowheads()
+    const fractional = renderer.add_arrowheads({at: 1, head})
+    const repeated = renderer.add_arrowheads({at: [0.25, 0.75]})
+    assert(end instanceof PathPlacement)
+    assert(fractional instanceof PathPlacement)
+    assert(end.marking instanceof OpenHead)
+    expect(end.marking.inherit_visuals).to.be.equal(["line_color", "line_alpha", "line_width"])
+    expect(start.positions).to.be.equal({value: "start"})
+    expect(start.marking).to.be.equal(head)
+    expect(middle.positions).to.be.equal({value: "middle"})
+    expect(end.positions).to.be.equal({value: "end"})
+    expect(fractional.positions).to.be.equal({value: [1]})
+    expect(repeated.positions).to.be.equal({value: [0.25, 0.75]})
+    expect(renderer.glyph.path_markings).to.be.equal([start, middle, end, fractional, repeated])
   })
 
-  it("should reject unsupported path decorations without partially changing glyphs", () => {
-    for (const renderer of [
-      GlyphRenderer.create({glyph: Rect.create()}),
-      GlyphRenderer.create({glyph: Segment.create(), selection_glyph: Rect.create()}),
-    ]) {
-      expect(() => renderer.add_path_markings(NormalHead.create(), {positions: [0.25]})).to.throw(Error)
-      expect(renderer.glyph.decorations).to.be.equal([])
+  it("should reject arrowheads and path markings on unsupported glyphs", () => {
+    const scatter = GlyphRenderer.create({glyph: Scatter.create()})
+    const step = figure().step()
+    expect(() => {
+      // @ts-expect-error Scatter does not support arrowheads.
+      scatter.add_arrowheads({at: "start"})
+    }).to.throw(Error, "add_path_marking() does not support Scatter")
+    expect(() => {
+      // @ts-expect-error Step does not support path markings.
+      step.add_path_marking(NormalHead.create(), {at: 0.5})
+    }).to.throw(Error, "does not support Step")
+    expect("path_markings" in scatter.glyph.properties).to.be.false
+    expect("path_markings" in step.glyph.properties).to.be.false
+  })
+
+  it("should reject inset away from named endpoints", () => {
+    const renderer = figure().segment()
+    for (const at of ["middle", 0.5, [0.5], {field: "positions"}] as const) {
+      expect(() => {
+        // @ts-expect-error Inset requires a named endpoint.
+        renderer.add_path_marking(NormalHead.create(), {at, inset: 0})
+      }).to.throw(Error, "inset requires at='start' or at='end'")
+    }
+    expect(renderer.glyph.path_markings).to.be.equal([])
+  })
+
+  it("should reject invalid arrowhead fractions without attaching path_markings", () => {
+    const renderer = GlyphRenderer.create({glyph: Segment.create()})
+    for (const at of [-0.1, 1.1, NaN, Infinity, [0.5, -0.1]]) {
+      expect(() => renderer.add_arrowheads({at})).to.throw(Error)
+      expect(renderer.glyph.path_markings).to.be.equal([])
     }
   })
 
-  it("should reject invalid fractions before attaching decorations", () => {
+  it("should attach named, fractional, and field-backed markers", () => {
+    const renderer = figure().line()
+    const marker = ScatterMarking.create()
+    const named = renderer.add_path_marking(marker, {at: "end"})
+    const fractional = renderer.add_path_marking(marker, {at: 1})
+    const field = renderer.add_path_marking(marker, {at: {field: "positions"}})
+    expect(renderer.glyph.path_markings).to.be.equal([named, fractional, field])
+  })
+
+  it("should attach both named and fractional Arc path markings", () => {
+    const renderer = GlyphRenderer.create({glyph: Arc.create()})
+    const path_marking = renderer.add_path_marking(NormalHead.create(), {at: "middle"})
+    const fractional = renderer.add_path_marking(NormalHead.create(), {at: [0.5]})
+    expect(renderer.glyph.path_markings).to.be.equal([path_marking, fractional])
+  })
+
+  it("should reject unsupported path markings without partially changing glyphs", () => {
+    const glyph = Segment.create()
+    const selection_glyph = Rect.create()
+    const renderer = GlyphRenderer.create({glyph, selection_glyph})
+    const selected: Rect | "auto" | null = renderer.selection_glyph
+    expect(selected).to.be.identical(selection_glyph)
+    expect(() => renderer.add_path_marking(NormalHead.create(), {at: [0.25]})).to.throw(Error)
+    expect(glyph.path_markings).to.be.equal([])
+    // @ts-expect-error Rect has no path markings property.
+    expect(selection_glyph.path_markings).to.be.undefined
+  })
+
+  it("should preserve renderer subclasses created with a glyph", () => {
+    class SegmentRenderer extends GlyphRenderer<Segment> {
+      readonly custom = true
+    }
+    const glyph = Segment.create()
+    const renderer = SegmentRenderer.create({glyph})
+    expect(renderer.custom).to.be.true
+    expect(renderer.glyph).to.be.identical(glyph)
+  })
+
+  it("should reject invalid fractions before attaching path_markings", () => {
     const renderer = GlyphRenderer.create({glyph: Segment.create()})
     for (const placement of [-0.1, 1.1, NaN, Infinity]) {
-      expect(() => renderer.add_path_markings(NormalHead.create(), {positions: [placement]})).to.throw(Error)
-      expect(renderer.glyph.decorations).to.be.equal([])
+      expect(() => renderer.add_path_marking(NormalHead.create(), {at: [placement]})).to.throw(Error)
+      expect(renderer.glyph.path_markings).to.be.equal([])
     }
   })
 
-  it("should add vectorized decorations with state-specific markings", () => {
+  it("should add vectorized path markings with state-specific markings", () => {
     const glyph = MultiLine.create()
     const selection_glyph = MultiLine.create()
     const nonselection_glyph = MultiLine.create()
@@ -78,20 +155,20 @@ describe("GlyphRenderer", () => {
     const marking = NormalHead.create({fill_color: "gray"})
     const selection_marking = NormalHead.create({fill_color: "orange"})
 
-    const decoration = renderer.add_path_decoration(marking, {
-      node: "end",
+    const path_marking = renderer.add_path_marking(marking, {
+      at: "end",
       inset: {field: "inset"},
       selection_marking,
       nonselection_marking: null,
     })
 
-    expect(glyph.decorations).to.be.equal([decoration])
-    expect(decoration.inset).to.be.equal({field: "inset"})
-    expect(selection_glyph.decorations.length).to.be.equal(1)
-    assert(selection_glyph.decorations[0] instanceof PathMarking)
-    expect(selection_glyph.decorations[0].marking).to.be.equal(selection_marking)
-    expect(selection_glyph.decorations[0].inset).to.be.equal({field: "inset"})
-    expect(nonselection_glyph.decorations).to.be.equal([])
+    expect(glyph.path_markings).to.be.equal([path_marking])
+    expect(path_marking.inset).to.be.equal({field: "inset"})
+    expect(selection_glyph.path_markings.length).to.be.equal(1)
+    assert(selection_glyph.path_markings[0] instanceof PathPlacement)
+    expect(selection_glyph.path_markings[0].marking).to.be.equal(selection_marking)
+    expect(selection_glyph.path_markings[0].inset).to.be.equal({field: "inset"})
+    expect(nonselection_glyph.path_markings).to.be.equal([])
   })
 })
 

@@ -1,21 +1,21 @@
 import {expect} from "#framework/assertions"
 import {assert} from "@bokehjs/core/util/assert"
-import {cubic_path, path_length, path_segments, position_decoration, trim_path} from "@bokehjs/models/glyphs/decorated_path"
+import {cubic_path, path_length, path_segments, position_path_marking, trim_path} from "@bokehjs/models/glyphs/marked_path"
 
 import {create_glyph_view} from "./_util"
 import {Line} from "@bokehjs/models/glyphs/line"
-import {PathMarking, PathMarkings} from "@bokehjs/models/graphics/decoration"
+import {PathPlacement} from "@bokehjs/models/graphics/path_placement"
 import {NormalHead} from "@bokehjs/models/annotations/arrow_head"
 
 describe("decorated path geometry", () => {
   for (const placement of [0.5, "middle", "end"] as const) {
     it(`should use chord alignment only for fractional and middle placement at ${placement}`, async () => {
       const model = typeof placement == "number"
-        ? PathMarkings.create({positions: [placement], marking: NormalHead.create({size: 20})})
-        : PathMarking.create({node: placement, marking: NormalHead.create({size: 20})})
-      const view = await create_glyph_view(Line.create({decorations: [model]}), {x: [0, 40, 40], y: [0, 0, 60]})
-      const decoration = view.decorations.get(model)!
-      const positioned = position_decoration(decoration, 0, path_segments([0, 40, 40], [0, 0, 60]), 100)
+        ? PathPlacement.create({positions: [placement], marking: NormalHead.create({size: 20})})
+        : PathPlacement.create({positions: placement, marking: NormalHead.create({size: 20})})
+      const view = await create_glyph_view(Line.create({path_markings: [model]}), {x: [0, 40, 40], y: [0, 0, 60]})
+      const path_marking = view.path_markings.get(model)!
+      const positioned = position_path_marking(path_marking, 0, path_segments([0, 40, 40], [0, 0, 60]), 100)
       expect(positioned.sx).to.be.equal(40)
       expect(positioned.sy).to.be.equal(placement == "end" ? 60 : 10)
       expect(Math.abs(positioned.angle - (placement == "end" ? Math.PI : 3*Math.PI/4)) < 1e-10).to.be.true
@@ -23,12 +23,12 @@ describe("decorated path geometry", () => {
   }
 
   it("should not align a chord across a NaN gap", async () => {
-    const model = PathMarkings.create({positions: [0.5], marking: NormalHead.create({size: 20})})
+    const model = PathPlacement.create({positions: [0.5], marking: NormalHead.create({size: 20})})
     const x = [0, 40, NaN, 100, 100], y = [0, 0, NaN, 0, 60]
-    const view = await create_glyph_view(Line.create({decorations: [model]}), {x, y})
-    const decoration = view.decorations.get(model)
-    assert(decoration != null)
-    const positioned = position_decoration(decoration, 0, path_segments(x, y), 100)
+    const view = await create_glyph_view(Line.create({path_markings: [model]}), {x, y})
+    const path_marking = view.path_markings.get(model)
+    assert(path_marking != null)
+    const positioned = position_path_marking(path_marking, 0, path_segments(x, y), 100)
     expect([positioned.sx, positioned.sy, positioned.angle]).to.be.equal([100, 10, Math.PI])
   })
 

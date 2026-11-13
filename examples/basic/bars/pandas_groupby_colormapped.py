@@ -22,7 +22,7 @@ group = df.groupby('cyl')
 cyl_cmap = factor_cmap('cyl', palette=Spectral5, factors=sorted(df.cyl.unique()))
 
 p = figure(height=350, x_range=group, title="MPG by # Cylinders",
-           toolbar_location=None, tools="")
+           tools=None)
 
 p.vbar(x='cyl', top='mpg_mean', width=1, source=group,
        line_color=cyl_cmap, fill_color=cyl_cmap)

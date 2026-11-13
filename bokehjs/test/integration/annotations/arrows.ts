@@ -1,11 +1,11 @@
 import {display, fig, row, column} from "#framework/layouts"
 
-import {NormalHead, OpenHead, TeeHead, VeeHead, Range1d, PathMarking} from "@bokehjs/models"
+import {NormalHead, OpenHead, TeeHead, VeeHead, Range1d, PathPlacement} from "@bokehjs/models"
 import {ModelChangedEvent} from "@bokehjs/document/events"
 import type {OutputBackend} from "@bokehjs/core/enums"
 
 describe("Arrow annotation", () => {
-  it("should render decorations added, replaced, and removed through PATCH-DOC", async () => {
+  it("should render path markings added, replaced, and removed through PATCH-DOC", async () => {
     const plots = ["added", "replaced", "removed"].map(title => fig([200, 200], {
       x_range: [-0.2, 1.2], y_range: [-1, 1], title,
     }))
@@ -15,12 +15,12 @@ describe("Arrow annotation", () => {
     }))
     const {view} = await display(row(plots))
     const doc = view.model.document!
-    const added = PathMarking.create({node: "end", marking: NormalHead.create({size: 20})})
-    const replaced = renderers[1].glyph.decorations[0]
+    const added = PathPlacement.create({positions: "end", marking: NormalHead.create({size: 20})})
+    const replaced = renderers[1].glyph.path_markings[0]
     const patch = doc.create_json_patch([
-      new ModelChangedEvent(doc, renderers[0].glyph, "decorations", [added]),
+      new ModelChangedEvent(doc, renderers[0].glyph, "path_markings", [added]),
       new ModelChangedEvent(doc, replaced, "marking", VeeHead.create({size: 25})),
-      new ModelChangedEvent(doc, renderers[2].glyph, "decorations", []),
+      new ModelChangedEvent(doc, renderers[2].glyph, "path_markings", []),
     ])
     doc.apply_json_patch(patch)
     await view.ready

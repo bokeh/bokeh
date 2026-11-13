@@ -12,16 +12,16 @@ import type {Arrayable, Indices} from "core/types"
 import {isArrayable} from "core/util/types"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
 
-export class PathMarkingView extends View {
-  declare model: PathMarking | PathMarkings
-  visuals: Decoration.Visuals
+export class PathPlacementView extends View {
+  declare model: PathPlacement
+  visuals: visuals.Visuals
   declare readonly parent: GlyphView
 
   marking: MarkingView
   private readonly _marking_views: ViewStorage<Marking> = new Map()
   inset: p.Uniform<number>
   angle: p.Uniform<number>
-  private positions?: p.Uniform<Arrayable<number>>
+  private positions: p.Uniform<PathNode | Arrayable<number>>
 
   resolve_angle(i: number, automatic: number, tangent: number): number {
     const offset = this.angle.get(i)
@@ -45,15 +45,16 @@ export class PathMarkingView extends View {
       : 0
   }
 
-  get node(): PathMarking["node"] | null {
-    return this.model instanceof PathMarking ? this.model.node : null
+  get node(): PathNode | null {
+    const spec = this.model.properties.positions.get_value()
+    return "value" in spec && typeof spec.value == "string" ? spec.value : null
   }
 
-  placements(i: number): (PathMarking["node"] | number)[] {
-    if (this.model instanceof PathMarking) {
-      return [this.model.node]
+  placements(i: number): (PathNode | number)[] {
+    const positions = this.positions.get(i)
+    if (this.node != null) {
+      return [this.node]
     }
-    const positions = this.positions!.get(i)
     if (!valid_positions(positions)) {
       throw new Error("Path marking positions must be lists of finite fractions between 0 and 1")
     }
@@ -107,7 +108,7 @@ export class PathMarkingView extends View {
         this.parent.request_paint()
       }
     })
-    this.connect<void, PathMarking | PathMarkings>(this.model.change, () => {
+    this.connect<void, PathPlacement>(this.model.change, () => {
       if (this._source != null && this._indices != null) {
         this.set_data(this._source, this._indices)
       }
@@ -118,81 +119,51 @@ export class PathMarkingView extends View {
   set_data(source: ColumnarDataSource, indices: Indices): void {
     this._source = source
     this._indices = indices
-    this.inset = this.model instanceof PathMarking
-      ? this.model.properties.inset.uniform(source).select(indices)
-      : new p.UniformScalar(0, indices.count)
-    if (this.model instanceof PathMarkings) {
-      this.positions = this.model.properties.positions.uniform(source).select(indices)
-    }
+    this.inset = this.model.properties.inset.uniform(source).select(indices)
+    this.positions = this.model.properties.positions.uniform(source).select(indices)
     this.angle = this.model.properties.angle.uniform(source).select(indices)
     this.marking.set_data(source, indices)
   }
 }
 
-export namespace Decoration {
-  export type Attrs = p.AttrsOf<Props>
-  export type Props = Model.Props
-  export type Visuals = visuals.Visuals
-}
-export interface Decoration extends Decoration.Attrs {}
-export abstract class Decoration extends Model {
-  declare properties: Decoration.Props
-}
+export type PathNode = "start" | "middle" | "end"
 
-export namespace PathMarking {
-  export type Attrs = p.AttrsOf<Props>
-  export type Props = Decoration.Props & {
-    angle: p.AngleSpec
-    angle_reference: p.Property<AngleReference>
-    marking: p.Property<Marking>
-    node: p.Property<"start" | "middle" | "end">
-    inset: p.NumberSpec
-  }
-}
-export interface PathMarking extends PathMarking.Attrs {}
-export class PathMarking extends Decoration {
-  declare properties: PathMarking.Props
-  declare __view_type__: PathMarkingView
-  static {
-    this.prototype.default_view = PathMarkingView
-    this.define<PathMarking.Props>(({Enum, Ref}) => ({
-      angle: [p.AngleSpec, 0],
-      angle_reference: [AngleReference, "auto"],
-      marking: [Ref(Marking)],
-      node: [Enum("start", "middle", "end")],
-      inset: [p.NumberSpec, 0],
-    }))
-  }
+function is_path_node(value: unknown): value is PathNode {
+  return value === "start" || value === "middle" || value === "end"
 }
 
 function valid_positions(value: unknown): value is Arrayable<number> {
   return isArrayable(value) && Array.from(value).every(fraction => typeof fraction == "number" && Number.isFinite(fraction) && fraction >= 0 && fraction <= 1)
 }
-class PositionsSpec extends p.DataSpec<Arrayable<number>> {
+
+class PositionsSpec extends p.DataSpec<PathNode | Arrayable<number>> {
   override valid(value: unknown): boolean {
-    return valid_positions(value)
+    return is_path_node(value) || valid_positions(value)
   }
 }
-export namespace PathMarkings {
+
+export namespace PathPlacement {
   export type Attrs = p.AttrsOf<Props>
-  export type Props = Decoration.Props & {
+  export type Props = Model.Props & {
     angle: p.AngleSpec
     angle_reference: p.Property<AngleReference>
     marking: p.Property<Marking>
     positions: PositionsSpec
+    inset: p.NumberSpec
   }
 }
-export interface PathMarkings extends PathMarkings.Attrs {}
-export class PathMarkings extends Decoration {
-  declare properties: PathMarkings.Props
-  declare __view_type__: PathMarkingView
+export interface PathPlacement extends PathPlacement.Attrs {}
+export class PathPlacement extends Model {
+  declare properties: PathPlacement.Props
+  declare __view_type__: PathPlacementView
   static {
-    this.prototype.default_view = PathMarkingView
-    this.define<PathMarkings.Props>(({Ref}) => ({
+    this.prototype.default_view = PathPlacementView
+    this.define<PathPlacement.Props>(({Ref}) => ({
       angle: [p.AngleSpec, 0],
       angle_reference: [AngleReference, "auto"],
       marking: [Ref(Marking)],
       positions: [PositionsSpec, [0.5]],
+      inset: [p.NumberSpec, 0],
     }))
   }
 }

@@ -23,8 +23,8 @@ months = (
 
 fill_color, line_color = TolPRGn4[2:]
 
-p = figure(x_range=FactorRange(*months), height=500, tools="",
-           background_fill_color="#fafafa", toolbar_location=None)
+p = figure(x_range=FactorRange(*months), height=500, tools=None,
+           background_fill_color="#fafafa")
 
 monthly = [10, 13, 16, 9, 10, 8, 12, 13, 14, 14, 12, 16]
 p.vbar(x=months, top=monthly, width=0.8,

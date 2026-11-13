@@ -85,7 +85,7 @@ export namespace WebBrowserMarketShare {
     x_range: [-2, 2], y_range: [-2, 2],
     width: 600, height: 600,
     x_axis_type: null, y_axis_type: null,
-    tools: [], toolbar_location: null,
+    tools: null,
   })
 
   function render(item: MonthlyShares) {

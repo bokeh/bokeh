@@ -74,7 +74,7 @@ type EagerDataFrame = IntoDataFrame
 type EagerSeries = IntoSeries
 
 class BaseFigureOptions(_PlotInit, total=False):
-    tools: str | Sequence[str | Tool]
+    tools: str | Sequence[str | Tool] | None
     x_minor_ticks: Auto | int
     y_minor_ticks: Auto | int
     x_axis_location: VerticalLocation | None

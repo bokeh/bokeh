@@ -1,5 +1,5 @@
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
-import {inherit} from "./glyph"
+import {inherit, SupportsPathMarking} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
 import {LineVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
@@ -67,7 +67,7 @@ export class ArcView extends XYGlyphView {
         : raw_delta >= tau ? tau : (raw_delta%tau + tau)%tau
       const length = Math.abs(delta*sradius_i)
       const direction = anticlock ? -1 : 1
-      const {start, end} = this._decoration_insets(i)
+      const {start, end} = this._path_marking_insets(i)
       const line_start = Math.min(start, length)
       const line_end = Math.max(line_start, length - Math.min(end, length))
 
@@ -82,17 +82,17 @@ export class ArcView extends XYGlyphView {
         this.visuals.line.apply(ctx, i)
       }
 
-      this._render_decorations(ctx, i, sx_i, sy_i, sradius_i, start_angle_i, delta, anticlock)
+      this._render_path_markings(ctx, i, sx_i, sy_i, sradius_i, start_angle_i, delta, anticlock)
     }
   }
 
-  protected _render_decorations(ctx: Context2d, i: number, sx: number, sy: number, sradius: number,
+  protected _render_path_markings(ctx: Context2d, i: number, sx: number, sy: number, sradius: number,
       start_angle: number, sweep: number, anticlock: boolean): void {
     const {sin, cos, PI} = Math
     const direction = anticlock ? -1 : 1
 
-    for (const decoration of this.decorations.values()) {
-      for (const placement of decoration.placements(i)) {
+    for (const path_marking of this.path_markings.values()) {
+      for (const placement of path_marking.placements(i)) {
         const fractional = typeof placement == "number" || placement == "middle"
         let angle: number
         let rotation: number
@@ -101,7 +101,7 @@ export class ArcView extends XYGlyphView {
           angle = start_angle + fraction*sweep
           rotation = angle + (anticlock ? 0 : PI)
           const distance = fraction*Math.abs(sweep*sradius)
-          const lookback = Math.min(Math.max(0, decoration.marking.line_extent(i)), distance)
+          const lookback = Math.min(Math.max(0, path_marking.marking.line_extent(i)), distance)
           if (sradius > 0 && lookback > 0) {
             const rear_angle = angle - direction*lookback/sradius
             const dx = cos(angle) - cos(rear_angle)
@@ -111,20 +111,20 @@ export class ArcView extends XYGlyphView {
             }
           }
         } else {
-          const inset_angle = sradius == 0 ? 0 : decoration.inset.get(i)/sradius
+          const inset_angle = sradius == 0 ? 0 : path_marking.inset.get(i)/sradius
           angle = placement == "start"
           ? start_angle + direction*inset_angle
           : start_angle + sweep - direction*inset_angle
           rotation = angle + ((placement == "start") != anticlock ? 0 : PI)
         }
-        const orientation = decoration.resolve_angle(i, rotation, angle + (anticlock ? 0 : PI))
+        const orientation = path_marking.resolve_angle(i, rotation, angle + (anticlock ? 0 : PI))
         if (!isFinite(orientation)) {
           continue
         }
         ctx.save()
         ctx.translate(sradius*cos(angle) + sx, sradius*sin(angle) + sy)
         ctx.rotate(orientation)
-        decoration.marking.paint(ctx, i)
+        path_marking.marking.paint(ctx, i)
         ctx.restore()
       }
     }
@@ -143,7 +143,7 @@ export namespace Arc {
     radius: p.DistanceSpec
     start_angle: p.AngleSpec
     end_angle: p.AngleSpec
-  } & Mixins
+  } & Mixins & SupportsPathMarking
 
   export type Mixins = LineVector
 
@@ -155,10 +155,6 @@ export namespace Arc {
 export interface Arc extends Arc.Attrs {}
 
 export class Arc extends XYGlyph {
-  override _supports_path_decorations(_placement: string | number): boolean {
-    return true
-  }
-
   declare properties: Arc.Props
   declare __view_type__: ArcView
 
@@ -166,6 +162,7 @@ export class Arc extends XYGlyph {
     this.prototype.default_view = ArcView
 
     this.mixins<Arc.Mixins>(LineVector)
+    this.define<SupportsPathMarking>(SupportsPathMarking)
 
     this.define<Arc.Props>(({}) => ({
       direction:   [ Direction, "anticlock" ],

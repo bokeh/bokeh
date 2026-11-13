@@ -34,7 +34,7 @@ totality_path = shp.Reader(join(ROOT, "eclipse_data/upath17")).shapes()[0]
 
 p = figure(
     width=1000, height=600, background_fill_color="#333344",
-    tools="", toolbar_location=None, x_axis_location=None, y_axis_location=None,
+    tools=None, x_axis_location=None, y_axis_location=None,
 )
 
 p.grid.grid_line_color = None

@@ -35,6 +35,11 @@ New features
   ``scan_together=True``, the whole stack as one data set. Scan results are
   cached per array, so changing ``index`` doesn't rescan data that has already
   been scanned (:bokeh-issue:`13898`).
+* Added support for ``figure(tools=None)`` (and ``gmap(..., tools=None)``),
+  which creates a plot without any tools and without the toolbar, i.e. it is
+  a shorthand for ``tools=[]`` with ``toolbar_location=None``. BokehJS'
+  ``figure()`` API supports the equivalent ``tools: null``
+  (:bokeh-issue:`15747`).
 
 Removals
 --------
@@ -76,6 +81,16 @@ Removals
   remain available. Endpoints use data coordinates. Head sizes and decoration
   insets use screen pixels. See :ref:`ug_basic_annotations_arrows` for examples.
 
+* Removed the ``Whisker`` annotation model. Replace
+  ``plot.add_layout(Whisker(base=..., lower=..., upper=..., source=...))``
+  with ``plot.whisker(base=..., lower=..., upper=..., source=...)``.
+  The helper returns a ``Segment`` glyph renderer, with support for glyph
+  selection, inspection, and legends. Its endpoints use data coordinates and
+  participate in automatic ranging like other segments. Set ``cap_size`` to
+  control the tee width in screen pixels. Use ``plot.arrow()`` for custom endpoint
+  heads.
+  See :ref:`ug_basic_annotations_whiskers` for an example.
+
 * Removed ``bar_color`` and ``direction`` properties from slider widgets
   (:bokeh-pull:`13551`). Use stylesheets to change the color of a slider's
   bar, e.g. ``Slider(..., stylesheets=[InlineStyleSheet(css=".bk-span { background-color: red; }")])``.
@@ -96,18 +111,18 @@ API changes
   to ``Any`` when it is omitted. Explicit type arguments and constructor
   inference continue to preserve more specific types.
 
-* Renamed ``GlyphRenderer.add_decoration()`` to
-  ``GlyphRenderer.add_path_decoration()``. It takes a marking first and a
-  keyword-only node: ``renderer.add_path_decoration(head, node="end")``. BokehJS uses
-  ``renderer.add_path_decoration(head, {node: "end"})``.
+* Use ``GlyphRenderer.add_path_marking()`` to add a marking at a named or
+  fractional position. In Python, call ``renderer.add_path_marking(head, at="end")``.
+  In BokehJS, pass ``{at: "end"}`` as the second argument. A field can supply
+  one list of fractions per path. Only named start and end positions accept
+  an ``inset``.
 
-* ``GlyphRenderer.add_path_markings()`` adds repeated fractional markings.
-  Positions can be a shared list or a field containing one list per path.
+* ``GlyphRenderer.add_arrowheads()`` places arrowheads at named path nodes or
+  fractional positions, including positions supplied by a source column.
 
-* ``Decoration`` is an abstract base for decoration models. ``PathMarking``
-  attaches a marking to a named path node, and ``PathMarkings`` places markings
-  at fractional path positions. These concrete models define their own marking
-  and placement properties.
+* ``PathPlacement``
+  places a graphical marking at named or fractional path positions. Its
+  ``positions`` property can also reference a source column of fractional lists.
 
 * Sliders no longer default to ``width=300``. The default size is now set
   in CSS and can be changed with the ``--default-size`` CSS variable.

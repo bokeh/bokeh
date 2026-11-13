@@ -11,8 +11,7 @@ describe("Examples", () => {
 
       const fig = figure({
         title: "Categorical Dot Plot",
-        tools: "",
-        toolbar_location: null,
+        tools: null,
         y_range: factors,
         x_range: [0, 100],
       })

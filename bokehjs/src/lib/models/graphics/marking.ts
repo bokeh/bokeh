@@ -6,7 +6,7 @@ import * as visuals from "core/visuals"
 import * as p from "core/properties"
 import type {GlyphView} from "../glyphs/glyph"
 import type {RendererView} from "../renderers/renderer"
-import type {PathMarkingView} from "./decoration"
+import type {PathPlacementView} from "./path_placement"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
 import {dist_to_segment, point_in_poly} from "core/hittest"
 
@@ -19,7 +19,7 @@ export type MarkingGeometry = {
 export abstract class MarkingView extends DOMComponentView implements visuals.Paintable {
   declare model: Marking
   visuals: Marking.Visuals
-  declare readonly parent: RendererView | PathMarkingView
+  declare readonly parent: RendererView | PathPlacementView
 
   size: p.Uniform<number>
 
