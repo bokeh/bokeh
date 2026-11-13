@@ -1,14 +1,13 @@
-''' A weather chart for three cities using a csv file.
+''' A weather chart for six cities using a CSV file.
 This illustration demonstrates different interpretation of the same data
 with the distribution option.
 
 .. note::
-    This example needs the Scipy and Pandas package to run. See
+    This example needs SciPy, pandas, and bokeh_sampledata to run. See
     ``README.md`` for more information.
 
 '''
 import datetime
-from os.path import dirname, join
 
 import pandas as pd
 from scipy.signal import savgol_filter
@@ -18,8 +17,9 @@ from bokeh.layouts import column, row
 from bokeh.models import ColumnDataSource, DataRange1d, Select
 from bokeh.palettes import Blues4
 from bokeh.plotting import figure
+from bokeh.sampledata.airport_weather import csv_path
 
-STATISTICS = ['record_min_temp', 'actual_min_temp', 'average_min_temp', 'average_max_temp', 'actual_max_temp', 'record_max_temp']
+STATISTICS = ('record_min_temp', 'actual_min_temp', 'average_min_temp', 'average_max_temp', 'actual_max_temp', 'record_max_temp')
 
 def get_dataset(src, name, distribution):
     df = src[src.airport == name].copy()
@@ -58,36 +58,30 @@ def make_plot(source, title):
     return plot
 
 def update_plot(attrname, old, new):
-    city = city_select.value
-    plot.title.text = "Weather data for " + cities[city]['title']
+    airport = city_select.value
+    plot.title.text = f"Weather data for {cities[airport]}"
 
-    src = get_dataset(df, cities[city]['airport'], distribution_select.value)
+    src = get_dataset(df, airport, distribution_select.value)
     source.data.update(src.data)
 
-city = 'Austin'
+airport = 'KSEA'
 distribution = 'Discrete'
 
 cities = {
-    'Austin': {
-        'airport': 'AUS',
-        'title': 'Austin, TX',
-    },
-    'Boston': {
-        'airport': 'BOS',
-        'title': 'Boston, MA',
-    },
-    'Seattle': {
-        'airport': 'SEA',
-        'title': 'Seattle, WA',
-    },
+    'KMDW': 'Chicago, IL',
+    'KHOU': 'Houston, TX',
+    'KJAX': 'Jacksonville, FL',
+    'KPHL': 'Philadelphia, PA',
+    'KPHX': 'Phoenix, AZ',
+    'KSEA': 'Seattle, WA',
 }
 
-city_select = Select(value=city, title='City', options=sorted(cities.keys()))
+city_select = Select(value=airport, title='City', options=list(cities.items()))
 distribution_select = Select(value=distribution, title='Distribution', options=['Discrete', 'Smoothed'])
 
-df = pd.read_csv(join(dirname(__file__), 'data/2015_weather.csv'))
-source = get_dataset(df, cities[city]['airport'], distribution)
-plot = make_plot(source, "Weather data for " + cities[city]['title'])
+df = pd.read_csv(csv_path, usecols=['airport', 'date', *STATISTICS])
+source = get_dataset(df, airport, distribution)
+plot = make_plot(source, f"Weather data for {cities[airport]}")
 
 city_select.on_change('value', update_plot)
 distribution_select.on_change('value', update_plot)

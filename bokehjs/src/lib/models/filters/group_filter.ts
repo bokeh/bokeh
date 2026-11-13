@@ -31,8 +31,13 @@ export class GroupFilter extends Filter {
     const field = source.get_field(this.field_name)
     const size = source.get_length() ?? 1
     if (field == null) {
-      logger.warn(`${this}: group field '${this.field_name}' not found in the data source`)
-      return Indices.all_set(size)
+      switch (source.missing_group_field_policy) {
+        case "match_none":
+          return Indices.all_unset(size)
+        case "match_all_and_warn":
+          logger.warn(`${this}: group field '${this.field_name}' not found in the data source`)
+          return Indices.all_set(size)
+      }
     } else {
       const indices = new Indices(size, 0)
       const cmp = new FieldValueComparator()

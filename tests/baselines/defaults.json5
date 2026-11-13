@@ -6223,6 +6223,10 @@
       attributes: {},
     },
   },
+  RecordDataSource: {
+    __extends__: "IndexedDataSource",
+    records: [],
+  },
   ServerSentDataSource: {
     __extends__: "WebDataSource",
   },

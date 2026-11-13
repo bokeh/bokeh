@@ -13,6 +13,9 @@ import {Selection} from "../selections/selection"
 import type * as p from "core/properties"
 import {DataSource} from "./data_source"
 
+/** Historically, GroupFilter warned and let all rows through when the field was missing. */
+export type MissingGroupFieldPolicy = "match_all_and_warn" | "match_none"
+
 export namespace IndexedDataSource {
   export type Attrs = p.AttrsOf<Props>
 
@@ -88,6 +91,11 @@ export abstract class IndexedDataSource extends DataSource {
    * ragged, or shaped values. Implementations need not store fields as columns.
    */
   abstract get_field(name: string): Arrayable | null
+
+  /** The group filter outcome when the requested field is absent. */
+  get missing_group_field_policy(): MissingGroupFieldPolicy {
+    return "match_all_and_warn"
+  }
 
   /**
    * Read positional lookup indices into the target's current row order.

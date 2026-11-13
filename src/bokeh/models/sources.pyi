@@ -9,8 +9,10 @@ from abc import abstractmethod
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
     Literal,
     Mapping,
+    Self,
     Sequence,
     Unpack,
     overload,
@@ -24,6 +26,7 @@ if TYPE_CHECKING:
 
 from .._types import JSON
 from ..core.has_props import Setter
+from ..core.types import PathLike
 from ..model.model import Model, _ModelInit
 from .callbacks import CustomJS
 from .filters import Filter
@@ -37,6 +40,7 @@ __all__ = (
     "GeoJSONDataSource",
     "IndexedDataSource",
     "IndexedSubset",
+    "RecordDataSource",
     "ServerSentDataSource",
     "WebDataSource",
 )
@@ -66,6 +70,23 @@ class IndexedDataSource(DataSource):
 
     selected: Selection = ...
     selection_policy: SelectionPolicy = ...
+
+class _RecordDataSourceInit(_IndexedDataSourceInit, total=False):
+    records: Sequence[dict[str, Any]]
+
+class RecordDataSource(IndexedDataSource):
+    def __init__(self, **kwargs: Unpack[_RecordDataSourceInit]) -> None: ...
+
+    @property
+    def records(self) -> list[dict[str, Any]]: ...
+    @records.setter
+    def records(self, records: Sequence[dict[str, Any]]) -> None: ...
+
+    @classmethod
+    def from_jsonl(cls, path: PathLike) -> Self: ...
+    @classmethod
+    def from_csv(cls, path: PathLike, *, converters: Mapping[str, Callable[[str], Any]] | None = ...,
+                 delimiter: str = ...) -> Self: ...
 
 class _ColumnarDataSourceInit(_IndexedDataSourceInit, total=False):
     default_values: dict[str, Any]

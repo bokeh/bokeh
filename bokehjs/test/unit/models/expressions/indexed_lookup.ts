@@ -2,7 +2,7 @@ import {expect} from "#framework/assertions"
 
 import type {Arrayable} from "@bokehjs/core/types"
 import {dict} from "@bokehjs/core/util/object"
-import {RecordSource} from "../sources/record_source"
+import {RecordDataSource} from "@bokehjs/models/sources/record_data_source"
 
 import {UnsetValueError} from "@bokehjs/core/properties"
 import {is_NDArray, ndarray} from "@bokehjs/core/util/ndarray"
@@ -10,7 +10,7 @@ import {IndexedLookup, gather_values} from "@bokehjs/models/expressions/indexed_
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import type {IndexedDataSource} from "@bokehjs/models/sources/indexed_data_source"
 
-class IDSource extends RecordSource {
+class IDSource extends RecordDataSource {
   override get_index_field(name: string, target: IndexedDataSource): Arrayable | null {
     const ids = this.get_field(name)
     if (ids == null) {
@@ -27,8 +27,8 @@ class IDSource extends RecordSource {
 
 describe("IndexedLookup", () => {
   it("rebinds dependencies without emitting an extra change on replacement", () => {
-    const original = RecordSource.create({records: [{x: 10}]})
-    const replacement = RecordSource.create({records: [{x: 20}]})
+    const original = RecordDataSource.create({records: [{x: 10}]})
+    const replacement = RecordDataSource.create({records: [{x: 20}]})
     const indices = ColumnDataSource.create({data: {vertices: [0]}})
     const lookup = IndexedLookup.create({source: original, field: "x", indices: "vertices"})
     expect(lookup.v_compute(indices)).to.be.equal([10])
@@ -82,7 +82,7 @@ describe("IndexedLookup", () => {
   it("resolves the same IDs independently for differently ordered targets", () => {
     const primary = IDSource.create({records: [{ref: "alpha"}, {ref: "beta"}]})
     const source = ColumnDataSource.create({data: {id: ["alpha", "beta"], x: [10, 20]}})
-    const other = RecordSource.create({records: [{id: "beta", x: 200}, {id: "alpha", x: 100}]})
+    const other = RecordDataSource.create({records: [{id: "beta", x: 200}, {id: "alpha", x: 100}]})
     const first = IndexedLookup.create({source, field: "x", indices: "ref"})
     const second = IndexedLookup.create({source: other, field: "x", indices: "ref"})
     expect(first.v_compute(primary)).to.be.equal([10, 20])
