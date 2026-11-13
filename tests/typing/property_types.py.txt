@@ -6,10 +6,12 @@
 # Lines marked with "KNOWN GAP" assert the intended type, which type checkers
 # can't infer yet. Remove the error markers when a gap is closed.
 
-from typing import Any as AnyType, Sequence, assert_type
+from typing import Any as AnyType, Literal, Sequence, assert_type
 
+from bokeh.core.enums import Location
 from bokeh.core.has_props import HasProps
 from bokeh.core.property.any import Any, AnyRef
+from bokeh.core.property.auto import Auto
 from bokeh.core.property.container import (
     Array,
     ColumnData,
@@ -25,6 +27,7 @@ from bokeh.core.property.container import (
 )
 from bokeh.core.property.descriptors import PropertyDescriptor
 from bokeh.core.property.either import Either
+from bokeh.core.property.enum import Enum
 from bokeh.core.property.instance import Instance, InstanceDefault
 from bokeh.core.property.nullable import Nullable
 from bokeh.core.property.numeric import Angle, Byte, Interval, NonNegative, Percent, Positive, Size
@@ -219,3 +222,46 @@ assert_type(defaults.lambda_list_prop, list[int])
 assert_type(defaults.nullable_instance_default_prop, Child | None)
 assert_type(defaults.invalid_instance_default_prop, Child)  # KNOWN GAP # mypy: assert-type; pyright: reportAssertTypeFailure
 
+
+type LocationType = Literal["above", "below", "left", "right"]
+
+
+class Enums(HasProps):
+    enum_prop = Enum(Location)
+    nullable_enum_prop = Nullable(Enum(Location))
+    enum_with_default_prop = Enum(Location, default="left")
+    enum_called_with_default_prop = Enum(Location)(default="left")
+    enum_of_values_prop = Enum("x", "y")
+    auto_prop = Auto()
+    either_auto_prop = Either(Int, Auto)
+
+    invalid_enum_default_prop = Enum(Location, default="nowhere")  # mypy: arg-type; pyright: reportCallIssue,reportArgumentType
+
+
+enums = Enums()
+
+assert_type(enums.enum_prop, LocationType)
+assert_type(enums.nullable_enum_prop, LocationType | None)
+# KNOWN GAP: pyright widens the value type to str when a literal default also
+# solves it. This is likely a pyright bug and should be reported upstream. A
+# minimal reproducer:
+#
+#   class En[T]: ...
+#   def loc() -> En[Literal["a", "b"]]: ...
+#   class Plain[T]:
+#       def __init__(self, enum: En[T], *, default: T | None = None) -> None: ...
+#   reveal_type(Plain(loc(), default="a"))  # Plain[str], expected Plain[Literal["a", "b"]]
+#
+# Setting the default with Enum(...)(default=...) avoids the widening.
+assert_type(enums.enum_with_default_prop, LocationType)  # KNOWN GAP # pyright: reportAssertTypeFailure
+assert_type(enums.enum_called_with_default_prop, LocationType)
+assert_type(enums.enum_of_values_prop, Literal["x", "y"])  # KNOWN GAP # mypy: assert-type; pyright: reportAssertTypeFailure
+assert_type(enums.auto_prop, Literal["auto"])
+assert_type(enums.either_auto_prop, int | Literal["auto"])
+
+enums.enum_prop = "left"
+enums.nullable_enum_prop = None
+enums.either_auto_prop = "auto"
+
+enums.enum_prop = "nowhere"  # mypy: assignment; pyright: reportAttributeAccessIssue
+enums.either_auto_prop = "manual"  # mypy: assignment; pyright: reportAttributeAccessIssue

@@ -270,7 +270,7 @@ class MinMaxBounds(Either[MinMaxBoundsType]):
         msg = "" if not detail else "Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)"
         raise ValidationError(msg)
 
-class MarkerType(Enum[str]):
+class MarkerType(Enum[enums.MarkerTypeType]):
     """
 
     """
