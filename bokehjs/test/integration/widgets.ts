@@ -307,7 +307,10 @@ describe("Widgets", () => {
   it("should allow PasswordInput with password visible", async () => {
     const obj = PasswordInput.create({value: "foo"})
     const {view} = await display(obj, [500, 100])
-    await mouse_click(view.toggle_el)
+    const toggle_el = view.shadow_el.querySelector("button")
+    expect_not_null(toggle_el)
+    await mouse_click(toggle_el)
+    await view.ready
   })
 
   it("should allow AutocompleteInput", async () => {
