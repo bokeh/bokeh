@@ -80,3 +80,12 @@ void test("strip_modules() reports unresolved relative imports and syntax errors
   assert.match(errors[0], /index\.ts:2:8 - error: can't resolve '\.\/missing'/)
   assert.match(errors[1], /Unexpected token/)
 })
+
+void test("strip_modules() reports the first import of an unresolved module regardless of quotes", (t) => {
+  const dir = fixture(t, {
+    "index.ts": "import './missing'\nexport const m = () => import(\"./missing\")\n",
+  })
+  const {errors} = strip_modules(join(dir, "index.ts"), dir, join(dir, "lib"))
+  assert.equal(errors.length, 1)
+  assert.match(errors[0], /index\.ts:1:8 - error: can't resolve '\.\/missing'/)
+})
