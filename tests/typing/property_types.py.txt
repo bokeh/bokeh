@@ -95,6 +95,7 @@ class Containers(HasProps):
     restricted_dict_prop = RestrictedDict(String, Int, disallow=("x",))  # KNOWN GAP # mypy: var-annotated
     non_empty_prop = NonEmpty(List(Int))
     len_prop = Len(List(Float), 2)
+    non_empty_non_container_prop = NonEmpty(Int)  # mypy: var-annotated,arg-type,arg-type; pyright: reportArgumentType
 
 
 containers = Containers()
@@ -109,8 +110,8 @@ assert_type(containers.array_prop, AnyType)
 assert_type(containers.seq_prop, Sequence[int])  # KNOWN GAP # mypy: assert-type; pyright: reportAssertTypeFailure
 assert_type(containers.tuple_prop, tuple[int, str])  # KNOWN GAP # mypy: assert-type; pyright: reportAssertTypeFailure
 assert_type(containers.restricted_dict_prop, dict[str, int])  # KNOWN GAP # mypy: assert-type; pyright: reportAssertTypeFailure
-assert_type(containers.non_empty_prop, list[int])  # KNOWN GAP # mypy: assert-type; pyright: reportAssertTypeFailure
-assert_type(containers.len_prop, list[float])  # KNOWN GAP # mypy: assert-type; pyright: reportAssertTypeFailure
+assert_type(containers.non_empty_prop, list[int])
+assert_type(containers.len_prop, list[float])
 
 assert_type(Containers.list_prop, PropertyDescriptor[list[int]])
 assert_type(Containers.dict_prop, PropertyDescriptor[dict[str, float]])
@@ -154,7 +155,7 @@ assert_type(combinations.dict_of_lists, dict[str, list[float]])
 assert_type(combinations.dict_of_instances, dict[str, Child])
 assert_type(combinations.dict_of_dicts, dict[int, dict[str, float]])
 assert_type(combinations.dict_of_lists_of_instances, dict[str, list[Child]])
-assert_type(combinations.non_empty_list_of_instances, list[Child])  # KNOWN GAP # mypy: assert-type; pyright: reportAssertTypeFailure
+assert_type(combinations.non_empty_list_of_instances, list[Child])
 
 assert_type(Combinations.list_of_lists, PropertyDescriptor[list[list[int]]])
 assert_type(Combinations.list_of_instances, PropertyDescriptor[list[Child]])
@@ -216,3 +217,4 @@ assert_type(defaults.lambda_instance_prop, Child)
 assert_type(defaults.lambda_list_prop, list[int])
 assert_type(defaults.nullable_instance_default_prop, Child | None)
 assert_type(defaults.invalid_instance_default_prop, Child)  # KNOWN GAP # mypy: assert-type; pyright: reportAssertTypeFailure
+
