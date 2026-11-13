@@ -85,4 +85,31 @@ describe("ContourRenderer", () => {
       await display(p)
     })
   }
+
+  it("should avoid overlapping automatic labels on crowded contours", async () => {
+    const levels = [0.1, 0.12, 0.12345, 0.13, 0.135678, 0.14, 0.15, 0.156789]
+    const xs = Array.from({length: 81}, (_, i) => i/80)
+    const line_renderer = GlyphRenderer.create({
+      glyph: MultiLine.create({line_color: "#254a68", line_width: 2}),
+      data_source: ColumnDataSource.create({data: {
+        xs: levels.map(() => xs),
+        ys: levels.map((level, i) => xs.map((x) =>
+          0.5 + (level - 0.1)*(0.4 + 2*(x - 0.5)**2) + 0.09*Math.cos(2*Math.PI*x) + 0.002*i*Math.sin(4*Math.PI*x))),
+        levels,
+      }}),
+    })
+    const fill_renderer = GlyphRenderer.create({
+      glyph: MultiPolygons.create(),
+      data_source: ColumnDataSource.create(),
+      visible: false,
+    })
+    const contours = ContourRenderer.create({fill_renderer, line_renderer, levels})
+    contours.add_labels(null, {
+      formatter: PrintfTickFormatter.create({format: "%.6g"}), background_fill_color: "white", text_font_size: "14px",
+    })
+
+    const p = fig([440, 250], {x_range: [-0.04, 1.04], y_range: [0.3, 0.72]})
+    p.add_renderers(contours)
+    await display(p)
+  })
 })

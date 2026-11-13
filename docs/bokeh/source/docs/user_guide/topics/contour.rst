@@ -68,8 +68,20 @@ background. The method returns a :class:`~bokeh.models.ContourLabels` model
 that you can update after creating the labels.
 
 Use ``positions=[0.25, 0.75]`` to place two labels at fixed fractions of each
-level's screen path length. You can also name a contour line source column
-containing a sequence of fractions per level. Supply that column as a string.
+level's screen-space path length. Fractions run from the first stored vertex
+(zero) to the last (one) in contour traversal order, using the full mapped path
+even when zooming hides part of it. Lengths of disconnected pieces are added
+together, excluding the gaps between them. For a closed contour, the starting
+point depends on the stored vertex order.
+
+For different positions at each level, add a column to the contour line data
+source and pass its name. For a contour with three levels:
+
+.. code-block:: python
+
+    contours.line_renderer.data_source.data["label_positions"] = [[0.25, 0.75], [0.5], []]
+    contours.add_labels(positions="label_positions")
+
 Empty rows draw no labels, and fractions outside the interval from zero to
 one are skipped. Pass a text field name or
 ``value("...")`` to replace the formatted levels with custom text.

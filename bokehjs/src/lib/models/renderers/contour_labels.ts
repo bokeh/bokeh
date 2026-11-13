@@ -20,10 +20,15 @@ import * as visuals from "core/visuals"
 
 type PositionedLabel = {box: TextBox, background_alpha: number}
 
-const {abs, hypot, max, min, PI, sin} = Math
+const {abs, max, min, PI, sin} = Math
 
 // Cycle through these fractions of screen-space path length to stagger labels by source row.
 const preferred_positions = [0.18, 0.43, 0.68, 0.86]
+
+function place_label(box: TextBox, {sx, sy, angle}: PathNode): void {
+  box.position = {sx, sy}
+  box.angle = angle > PI/2 ? angle - PI : angle < -PI/2 ? angle + PI : angle
+}
 
 // Return the fractional interval of a segment inside the plot frame.
 function visible_segment({sx0, sy0, sx1, sy1}: PathSegment, {left, right, top, bottom}: BBox): [number, number] | null {
@@ -89,7 +94,9 @@ export class ContourLabelsView extends GlyphAttachmentView {
     this.mark_finished()
   }
 
-  private _automatic_position(segments: PathSegment[], length: number, row: number, labels: PositionedLabel[]): PathNode | null {
+  private _automatic_position(
+    segments: PathSegment[], length: number, row: number, box: TextBox, occupied: BBox[],
+  ): PathNode | null {
     const frame = this.parent.plot_view.frame.bbox
     const preferred = preferred_positions[row % preferred_positions.length]
     let best: PathNode | null = null
@@ -101,12 +108,15 @@ export class ContourLabelsView extends GlyphAttachmentView {
     const step_percent = 2
 
     // These thresholds and weights are placement heuristics in screen space.
-    const label_spacing = 40
     const frame_margin = 12
     const angle_weight = 0.6
     const preferred_position_weight = 0.1
-    const label_spacing_scale = 10
     const frame_margin_scale = 5
+    const fits = (node: PathNode) => {
+      place_label(box, node)
+      const bounds = box.bbox().grow_by(1)
+      return !occupied.some((other) => bounds.intersects(other))
+    }
 
     for (let percent = first_percent; percent <= last_percent; percent += step_percent) {
       const fraction = percent/100
@@ -116,20 +126,20 @@ export class ContourLabelsView extends GlyphAttachmentView {
         continue
       }
       const edge = min(sx - frame.left, frame.right - sx, sy - frame.top, frame.bottom - sy)
-      let separation = label_spacing
-      for (const {box: {position}} of labels) {
-        separation = min(separation, hypot(sx - position.sx, sy - position.sy))
-      }
-      // Favor horizontal text and staggered positions, with penalties near labels and frame edges.
+      // Among placements that fit, favor horizontal text away from the frame edges.
       const score = angle_weight*abs(sin(angle)) + preferred_position_weight*abs(fraction - preferred)
-        + max(0, label_spacing - separation)/label_spacing_scale + max(0, frame_margin - edge)/frame_margin_scale
-      if (score < best_score) {
+        + max(0, frame_margin - edge)/frame_margin_scale
+      if (score < best_score && fits(node)) {
         best = node
         best_score = score
       }
     }
     // A zoomed view may fit between all the candidates on the full path.
-    return best ?? visible_midpoint(segments, frame)
+    if (best != null) {
+      return best
+    }
+    const midpoint = visible_midpoint(segments, frame)
+    return midpoint != null && fits(midpoint) ? midpoint : null
   }
 
   override prepare_attachment(glyph: GlyphView, indices: Int32Array): PreparedAttachment | null {
@@ -168,6 +178,7 @@ export class ContourLabelsView extends GlyphAttachmentView {
     }
     const values = style.values()
     const labels: PositionedLabel[] = []
+    const occupied: BBox[] = []
 
     for (const i of indices) {
       const row = view.indices_array[i]
@@ -184,21 +195,33 @@ export class ContourLabelsView extends GlyphAttachmentView {
         continue
       }
       const length = path_length(segments)
-      const nodes = (() => {
-        if (positions == null) {
-          const node = this._automatic_position(segments, length, row, labels)
-          return node != null ? [node] : []
-        }
-        const path_positions = isString(positions) ? fractions?.[row] : positions
-        return isArrayable(path_positions) ? Array.from(path_positions).flatMap((fraction) =>
-          isNumber(fraction) && fraction >= 0 && fraction <= 1 ? [point_on_path(segments, fraction*length)] : []) : []
-      })()
-      for (const {sx, sy, angle} of nodes) {
+      const new_box = () => {
         const box = new TextBox({text: label})
-        box.position = {sx, sy}
-        box.angle = angle > PI/2 ? angle - PI : angle < -PI/2 ? angle + PI : angle
         box.visuals = {...values, alpha: values.alpha*alpha}
-        labels.push({box, background_alpha: background_fill_alpha*alpha})
+        return box
+      }
+      const background_alpha = background_fill_alpha*alpha
+      if (positions == null) {
+        const box = new_box()
+        const node = this._automatic_position(segments, length, row, box, occupied)
+        if (node != null) {
+          place_label(box, node)
+          occupied.push(box.bbox().grow_by(1))
+          labels.push({box, background_alpha})
+        }
+        continue
+      }
+
+      const path_positions = isString(positions) ? fractions?.[row] : positions
+      if (!isArrayable(path_positions)) {
+        continue
+      }
+      for (const fraction of Array.from(path_positions)) {
+        if (isNumber(fraction) && fraction >= 0 && fraction <= 1) {
+          const box = new_box()
+          place_label(box, point_on_path(segments, fraction*length))
+          labels.push({box, background_alpha})
+        }
       }
     }
 

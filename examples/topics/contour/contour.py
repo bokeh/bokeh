@@ -10,6 +10,7 @@ between each pair of contour levels.
 
 import numpy as np
 
+from bokeh.models import PrintfTickFormatter
 from bokeh.palettes import OrRd
 from bokeh.plotting import curdoc, figure, show
 
@@ -25,7 +26,11 @@ contour_renderer = fig.contour(
     line_color=['white']*4 + ['black']*5, line_dash=['solid']*5 + ['dashed']*4, line_width=2,
 )
 
-contour_renderer.add_labels(text_font_style="bold")
+contour_renderer.add_labels(
+    formatter=PrintfTickFormatter(format="%.1f"), inline_gap=True,
+    text_color="black", text_font_style="bold",
+    text_outline_color="white", text_outline_width=0.75,
+)
 
 colorbar = contour_renderer.construct_color_bar()
 fig.add_layout(colorbar, 'right')

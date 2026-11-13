@@ -48,8 +48,9 @@ class ContourLabels(GlyphAttachment, ScalarTextProps):
     """)
 
     positions = Nullable(Either(Seq(Percent), String), help="""
-    Screen path length fractions for each level, or a column containing one
-    sequence of fractions per level. The default chooses a position automatically.
+    Fractions of the full screen-space path length, from the first vertex (0)
+    to the last (1). A sequence applies to every level, or a source column name
+    selects one sequence per level. The default chooses positions automatically.
     """)
 
     visible = Bool(default=True, help="Whether to draw the labels.")
