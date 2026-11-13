@@ -9,10 +9,13 @@ import {test} from "node:test"
 import MagicString from "magic-string"
 import {TraceMap, originalPositionFor} from "@jridgewell/trace-mapping"
 
+import type {CycleDetection} from "#compiler/linker.js"
 import {Linker} from "#compiler/linker.js"
 import * as preludes from "#compiler/prelude.js"
 
 type Files = {[file: string]: string}
+
+type LinkOptions = {detect_cycles?: CycleDetection}
 
 /** Creates a temporary source tree with `lib/` and `node_modules/` and returns its directory. */
 function fixture(t: TestContext, files: Files): string {
@@ -32,7 +35,7 @@ function fixture(t: TestContext, files: Files): string {
 }
 
 /** Links `lib/index.js` and returns the reported status and cycles. */
-async function link(t: TestContext, files: Files, options: {detect_cycles?: boolean} = {}): Promise<{status: boolean, output: string, linker: Linker}> {
+async function link(t: TestContext, files: Files, options: LinkOptions = {}): Promise<{status: boolean, output: string, linker: Linker}> {
   const dir = fixture(t, files)
   const linker = new Linker({
     entries: [join(dir, "lib", "index.js")],
@@ -114,11 +117,39 @@ void test("Linker allows cycles of CommonJS modules", async (t) => {
   assert.equal(output, "")
 })
 
+void test("Linker reports only cycles of internal modules when requested", async (t) => {
+  const third_party = await link(t, {
+    "lib/index.js": `import "esm_a"`,
+    ...esm_package("esm_a", `import "esm_b"; export const a = 1`),
+    ...esm_package("esm_b", `import "esm_a"; export const b = 1`),
+  }, {detect_cycles: "internal"})
+  assert.equal(third_party.status, true)
+  assert.equal(third_party.output, "")
+
+  const internal = await link(t, {
+    "lib/index.js": `import "./a.js"`,
+    "lib/a.js": `import {b} from "./b.js"; export const a = () => b`,
+    "lib/b.js": `import {a} from "./a.js"; export const b = () => a`,
+  }, {detect_cycles: "internal"})
+  assert.equal(internal.status, false)
+  assert.match(internal.output, /cycle detected:\n├─ a\n├─ b\n└─ a/)
+
+  // e.g. through a package that imports the extension's modules
+  const mixed = await link(t, {
+    "lib/index.js": `import "./a.js"`,
+    "lib/a.js": `import "esm_b"; export const a = 1`,
+    ...esm_package("esm_b", `import "esm_c"; export const b = 1`),
+    ...esm_package("esm_c", `import "esm_b"; import "../../lib/a.js"; export const c = 1`),
+  }, {detect_cycles: "internal"})
+  assert.equal(mixed.status, false)
+  assert.match(mixed.output, /cycle detected:\n├─ a\n├─ esm_b\/index\.js\n├─ esm_c\/index\.js\n└─ a/)
+})
+
 void test("Linker doesn't detect cycles when disabled", async (t) => {
   const {status} = await link(t, {
     "lib/index.js": `import "./a.js"`,
     "lib/a.js": `import "./index.js"`,
-  }, {detect_cycles: false})
+  }, {detect_cycles: "none"})
   assert.equal(status, true)
 })
 

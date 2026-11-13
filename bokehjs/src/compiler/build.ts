@@ -5,6 +5,7 @@ import {join, dirname, basename, relative, resolve} from "node:path"
 import type {Path} from "./sys.js"
 import {read, read_json, write, rename, file_exists, directory_exists, hash, hash_file, resolve_npm} from "./sys.js"
 import {strip_modules} from "./strip.js"
+import type {CycleDetection} from "./linker.js"
 import {Linker} from "./linker.js"
 import {collect_styles, compile_styles, wrap_css_modules} from "./styles.js"
 import * as preludes from "./prelude.js"
@@ -433,12 +434,29 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
     bases.push(node_modules)
   }
 
+  // Cycles in packages that an extension depends on are reported only on request.
+  const detect_cycles = ((): CycleDetection => {
+    const {detect_cycles} = bokeh_ext
+    switch (detect_cycles) {
+      case undefined:
+        return "internal"
+      case "all":
+      case "internal":
+      case "none":
+        return detect_cycles
+      default:
+        print(yellow(`Ignoring unsupported ${magenta(`"detect_cycles": ${JSON.stringify(detect_cycles)}`)} in ${cyan(bokeh_ext_json_path)}. Use "all", "internal" or "none".`))
+        return "internal"
+    }
+  })()
+
   const linker = new Linker({
     entries: [join(lib_dir, "index.js")],
     bases,
     cache: join(dist_dir, `${artifact}.json`),
     excluded: (dep) => dep == "tslib" || dep.startsWith("@bokehjs/"),
     plugin: true,
+    detect_cycles,
   })
 
   print("Linking modules")

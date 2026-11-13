@@ -206,9 +206,16 @@ export type LinkerOpts = {
   plugin?: boolean
   exports?: string[]
   shims?: string[]
-  detect_cycles?: boolean
+  detect_cycles?: CycleDetection
   overrides?: {[key: string]: string}
 }
+
+/**
+ * Which import cycles to report: all cycles involving ES modules, only cycles involving
+ * modules under the primary base (e.g. an extension's own modules, but not its packages),
+ * or none.
+ */
+export type CycleDetection = "all" | "internal" | "none"
 
 export class Linker {
   readonly entries: Path[]
@@ -222,7 +229,7 @@ export class Linker {
   readonly plugin: boolean
   readonly exports: Set<string>
   readonly shims: Set<string>
-  readonly detect_cycles: boolean
+  readonly detect_cycles: CycleDetection
   readonly overrides: Map<string, string>
 
   /** whether `cache` differs from what is stored in `cache_path` */
@@ -256,7 +263,7 @@ export class Linker {
     this.plugin = opts.plugin ?? false
 
     this.shims = new Set(opts.shims ?? [])
-    this.detect_cycles = opts.detect_cycles ?? true
+    this.detect_cycles = opts.detect_cycles ?? "all"
 
     this.overrides = new Map(Object.entries(opts.overrides ?? {}))
   }
@@ -297,7 +304,7 @@ export class Linker {
       all_modules.forEach((module) => module.id = module.hash.slice(0, 10))
     }
 
-    if (this.detect_cycles) {
+    if (this.detect_cycles != "none") {
       const graph: Graph<ModuleInfo> = new Map()
       for (const module of all_modules) {
         graph.set(module, [...module.dependencies.values()])
@@ -306,8 +313,11 @@ export class Linker {
       // Converted ES modules tolerate cycles as long as cyclic dependencies are used lazily,
       // but e.g. a named re-export of a module that is still being evaluated is undefined.
       // So report cycles involving ES modules. Cycles of CommonJS modules (e.g. in
-      // mathjax-full) are allowed, as they were before.
-      const cycles = detect_cycles(graph, (module) => module.esm)
+      // mathjax-full) are allowed, as they were before. Cycles in third-party packages
+      // are usually benign and can't be fixed anyway, so they may be ignored.
+      const [primary] = this.bases
+      const is_internal = (module: ModuleInfo) => !relative(primary, module.file).startsWith("..")
+      const cycles = detect_cycles(graph, this.detect_cycles == "all" ? (module) => module.esm : is_internal)
       if (cycles.length != 0) {
         status = false
         for (const cycle of cycles) {

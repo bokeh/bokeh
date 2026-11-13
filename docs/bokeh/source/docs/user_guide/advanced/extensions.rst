@@ -322,6 +322,13 @@ If your extension doesn't depend on ``typescript`` or doesn't have a
 ``package.json``, Bokeh removes types from your code without type-checking it,
 and warns about it.
 
+``bokeh build`` fails if your extension's modules import each other in a cycle,
+because a module in a cycle may use exports of another module before they are
+initialized. Cycles in packages your extension depends on are common and
+usually benign, so they aren't reported. To report them as well, set
+``"detect_cycles": "all"`` in ``bokeh.ext.json``, or set it to ``"none"`` to
+disable cycle detection altogether.
+
 Bokeh caches compilation products to improve performance. If this causes
 issues, rebuild your extension from scratch with the ``bokeh build --rebuild``
 command.

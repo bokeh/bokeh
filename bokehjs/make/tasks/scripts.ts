@@ -285,7 +285,7 @@ task("scripts:bundle", [passthrough("scripts:compile")], async () => {
       "@preact/signals",
       "@preact/signals-core",
     ],
-    detect_cycles: argv.detectCycles,
+    detect_cycles: argv.detectCycles ? "all" : "none",
     overrides: {
       // Script bundles register their own models when loaded. Keep npm's lazy
       // registry from pulling optional widgets and tables into the API bundle.
