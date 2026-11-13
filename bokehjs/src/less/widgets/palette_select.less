@@ -15,10 +15,14 @@
 
 .bk-value {
   flex-grow: 1;
+  // shrink (and clip) the selected palette in narrow inputs, to keep the chevron visible
+  min-width: 0;
+  overflow: hidden;
 }
 
 .bk-chevron {
   .icon-mask(var(--bokeh-icon-chevron-down));
+  flex-shrink: 0;
   width: 16px;
   height: 16px;
 }
