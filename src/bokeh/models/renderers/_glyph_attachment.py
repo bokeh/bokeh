@@ -8,6 +8,8 @@
 
 from __future__ import annotations
 
+from typing import Any, cast
+
 from ...core.has_props import abstract
 from ...core.property.color import Color
 from ...core.property.container import Seq
@@ -35,7 +37,7 @@ class ContourLabels(GlyphAttachment, ScalarTextProps):
     each row's contour level.
     """)
 
-    formatter = Instance(TickFormatter, default=InstanceDefault(PrintfTickFormatter, format="%.3g"), help="""
+    formatter = Instance(TickFormatter, default=cast(Any, InstanceDefault(PrintfTickFormatter, format="%.3g")), help="""
     Formatter for contour levels when automatic text is used.
     """)
 
@@ -59,6 +61,6 @@ class ContourLabels(GlyphAttachment, ScalarTextProps):
 
     background_fill_alpha = Percent(default=1, help="Opacity of the label background.")
 
-    text_font_size = Override(default="9pt")
-    text_align = Override(default="center")
-    text_baseline = Override(default="middle")
+    text_font_size = Override(default="9pt")  # pyright: ignore[reportAssignmentType]
+    text_align = Override(default="center")  # pyright: ignore[reportAssignmentType]
+    text_baseline = Override(default="middle")  # pyright: ignore[reportAssignmentType]
