@@ -601,29 +601,29 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       bottom: resolve("y", this.model.bottom_limit, mappers.bottom),
     })
     const [left_delta, right_delta, top_delta, bottom_delta] = (() => {
-      const {dx: pointer_dx, dy: pointer_dy} = ev
+      const {dx: dx, dy: dy} = ev
       const {target} = this._pan_state
 
       const {symmetric} = this.model
-      const [opposite_dx, opposite_dy] = symmetric ? [-pointer_dx, -pointer_dy] : [0, 0]
+      const [opposite_dx, opposite_dy] = symmetric ? [-dx, -dy] : [0, 0]
 
       switch (target) {
         // corners
-        case "top_left":     return [pointer_dx, opposite_dx, pointer_dy, opposite_dy]
-        case "top_right":    return [opposite_dx, pointer_dx, pointer_dy, opposite_dy]
-        case "bottom_left":  return [pointer_dx, opposite_dx, opposite_dy, pointer_dy]
-        case "bottom_right": return [opposite_dx, pointer_dx, opposite_dy, pointer_dy]
+        case "top_left":     return [dx, opposite_dx, dy, opposite_dy]
+        case "top_right":    return [opposite_dx, dx, dy, opposite_dy]
+        case "bottom_left":  return [dx, opposite_dx, opposite_dy, dy]
+        case "bottom_right": return [opposite_dx, dx, opposite_dy, dy]
         // edges
-        case "left":   return [pointer_dx, opposite_dx, 0, 0]
-        case "right":  return [opposite_dx, pointer_dx, 0, 0]
-        case "top":    return [0, 0, pointer_dy, opposite_dy]
-        case "bottom": return [0, 0, opposite_dy, pointer_dy]
+        case "left":   return [dx, opposite_dx, 0, 0]
+        case "right":  return [opposite_dx, dx, 0, 0]
+        case "top":    return [0, 0, dy, opposite_dy]
+        case "bottom": return [0, 0, opposite_dy, dy]
         // area
         case "area": {
           switch (this.model.movable) {
-            case "both": return [pointer_dx, pointer_dx, pointer_dy, pointer_dy]
-            case "x":    return [pointer_dx, pointer_dx, 0, 0]
-            case "y":    return [0, 0, pointer_dy, pointer_dy]
+            case "both": return [dx, dx, dy, dy]
+            case "x":    return [dx, dx, 0, 0]
+            case "y":    return [0, 0, dy, dy]
             case "none": return [0, 0, 0, 0]
           }
         }
@@ -635,55 +635,55 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       const sgn = (v: number) => v < 0 ? -1 : (v > 0 ? 1 : 0)
 
       const {bbox} = this._pan_state
-      let {left, right, left_direction, right_direction} = (() => {
+      let {left, right, left_sign, right_sign} = (() => {
         const left = bbox.left + left_delta
         const right = bbox.right + right_delta
-        const left_direction = sgn(left_delta)
-        const right_direction = sgn(right_delta)
+        const left_sign = sgn(left_delta)
+        const right_sign = sgn(right_delta)
         if (left <= right) {
-          return {left, right, left_direction, right_direction}
+          return {left, right, left_sign, right_sign}
         } else {
-          return {left: right, right: left, left_direction: right_direction, right_direction: left_direction}
+          return {left: right, right: left, left_sign: right_sign, right_sign: left_sign}
         }
       })()
-      let {top, bottom, top_direction, bottom_direction} = (() => {
+      let {top, bottom, top_sign, bottom_sign} = (() => {
         const top = bbox.top + top_delta
         const bottom = bbox.bottom + bottom_delta
-        const top_direction = sgn(top_delta)
-        const bottom_direction = sgn(bottom_delta)
+        const top_sign = sgn(top_delta)
+        const bottom_sign = sgn(bottom_delta)
         if (top <= bottom) {
-          return {top, bottom, top_direction, bottom_direction}
+          return {top, bottom, top_sign, bottom_sign}
         } else {
-          return {top: bottom, bottom: top, top_direction: bottom_direction, bottom_direction: top_direction}
+          return {top: bottom, bottom: top, top_sign: bottom_sign, bottom_sign: top_sign}
         }
       })()
 
-      const left_limit_violation = left - slimits.left
-      const right_limit_violation = slimits.right - right
+      const left_violation = left - slimits.left
+      const right_violation = slimits.right - right
 
       // Only enforce limits for edges that are being moved. The opposite edge
       // may already be outside the plot (e.g. a wide RangeTool overlay), and
       // using its violation to compensate the active edge makes that edge
       // jump away from the pointer.
-      const horizontal_correction = min(
-        left_direction != 0 && left_limit_violation < 0 ? left_limit_violation : NaN,
-        right_direction != 0 && right_limit_violation < 0 ? right_limit_violation : NaN,
+      const x_correction = min(
+        left_sign != 0 && left_violation < 0 ? left_violation : NaN,
+        right_sign != 0 && right_violation < 0 ? right_violation : NaN,
       )
-      if (isFinite(horizontal_correction) && horizontal_correction < 0) {
-        left += -left_direction*(-horizontal_correction)
-        right += -right_direction*(-horizontal_correction)
+      if (isFinite(x_correction) && x_correction < 0) {
+        left += -left_sign*(-x_correction)
+        right += -right_sign*(-x_correction)
       }
 
-      const top_limit_violation = top - slimits.top
-      const bottom_limit_violation = slimits.bottom - bottom
+      const top_violation = top - slimits.top
+      const bottom_violation = slimits.bottom - bottom
 
-      const vertical_correction = min(
-        top_direction != 0 && top_limit_violation < 0 ? top_limit_violation : NaN,
-        bottom_direction != 0 && bottom_limit_violation < 0 ? bottom_limit_violation : NaN,
+      const y_correction = min(
+        top_sign != 0 && top_violation < 0 ? top_violation : NaN,
+        bottom_sign != 0 && bottom_violation < 0 ? bottom_violation : NaN,
       )
-      if (isFinite(vertical_correction) && vertical_correction < 0) {
-        top += -top_direction*(-vertical_correction)
-        bottom += -bottom_direction*(-vertical_correction)
+      if (isFinite(y_correction) && y_correction < 0) {
+        top += -top_sign*(-y_correction)
+        bottom += -bottom_sign*(-y_correction)
       }
 
       return BBox.from_lrtb({left, right, top, bottom})
