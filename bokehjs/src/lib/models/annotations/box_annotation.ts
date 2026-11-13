@@ -600,32 +600,31 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       top: resolve("y", this.model.top_limit, mappers.top),
       bottom: resolve("y", this.model.bottom_limit, mappers.bottom),
     })
-
-    const [dl, dr, dt, db] = (() => {
-      const {dx, dy} = ev
+    const [left_delta, right_delta, top_delta, bottom_delta] = (() => {
+      const {dx: pointer_dx, dy: pointer_dy} = ev
       const {target} = this._pan_state
 
       const {symmetric} = this.model
-      const [Dx, Dy] = symmetric ? [-dx, -dy] : [0, 0]
+      const [opposite_dx, opposite_dy] = symmetric ? [-pointer_dx, -pointer_dy] : [0, 0]
 
       switch (target) {
         // corners
-        case "top_left":     return [dx, Dx, dy, Dy]
-        case "top_right":    return [Dx, dx, dy, Dy]
-        case "bottom_left":  return [dx, Dx, Dy, dy]
-        case "bottom_right": return [Dx, dx, Dy, dy]
+        case "top_left":     return [pointer_dx, opposite_dx, pointer_dy, opposite_dy]
+        case "top_right":    return [opposite_dx, pointer_dx, pointer_dy, opposite_dy]
+        case "bottom_left":  return [pointer_dx, opposite_dx, opposite_dy, pointer_dy]
+        case "bottom_right": return [opposite_dx, pointer_dx, opposite_dy, pointer_dy]
         // edges
-        case "left":   return [dx, Dx, 0, 0]
-        case "right":  return [Dx, dx, 0, 0]
-        case "top":    return [0, 0, dy, Dy]
-        case "bottom": return [0, 0, Dy, dy]
+        case "left":   return [pointer_dx, opposite_dx, 0, 0]
+        case "right":  return [opposite_dx, pointer_dx, 0, 0]
+        case "top":    return [0, 0, pointer_dy, opposite_dy]
+        case "bottom": return [0, 0, opposite_dy, pointer_dy]
         // area
         case "area": {
           switch (this.model.movable) {
-            case "both": return [dx, dx, dy, dy]
-            case "x":    return [dx, dx,  0,  0]
-            case "y":    return [ 0,  0, dy, dy]
-            case "none": return [ 0,  0,  0,  0]
+            case "both": return [pointer_dx, pointer_dx, pointer_dy, pointer_dy]
+            case "x":    return [pointer_dx, pointer_dx, 0, 0]
+            case "y":    return [0, 0, pointer_dy, pointer_dy]
+            case "none": return [0, 0, 0, 0]
           }
         }
       }
@@ -637,10 +636,10 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
 
       const {bbox} = this._pan_state
       let {left, right, left_sign, right_sign} = (() => {
-        const left = bbox.left + dl
-        const right = bbox.right + dr
-        const left_sign = sgn(dl)
-        const right_sign = sgn(dr)
+        const left = bbox.left + left_delta
+        const right = bbox.right + right_delta
+        const left_sign = sgn(left_delta)
+        const right_sign = sgn(right_delta)
         if (left <= right) {
           return {left, right, left_sign, right_sign}
         } else {
@@ -648,10 +647,10 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
         }
       })()
       let {top, bottom, top_sign, bottom_sign} = (() => {
-        const top = bbox.top + dt
-        const bottom = bbox.bottom + db
-        const top_sign = sgn(dt)
-        const bottom_sign = sgn(db)
+        const top = bbox.top + top_delta
+        const bottom = bbox.bottom + bottom_delta
+        const top_sign = sgn(top_delta)
+        const bottom_sign = sgn(bottom_delta)
         if (top <= bottom) {
           return {top, bottom, top_sign, bottom_sign}
         } else {
@@ -659,26 +658,32 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
         }
       })()
 
-      const Dl = left - slimits.left
-      const Dr = slimits.right - right
+      const left_violation = left - slimits.left
+      const right_violation = slimits.right - right
 
       // Only enforce limits for edges that are being moved. The opposite edge
       // may already be outside the plot (e.g. a wide RangeTool overlay), and
       // using its violation to compensate the active edge makes that edge
       // jump away from the pointer.
-      const Dx = min(left_sign != 0 && Dl < 0 ? Dl : NaN, right_sign != 0 && Dr < 0 ? Dr : NaN)
-      if (isFinite(Dx) && Dx < 0) {
-        left += -left_sign*(-Dx)
-        right += -right_sign*(-Dx)
+      const x_correction = min(
+        left_sign != 0 && left_violation < 0 ? left_violation : NaN,
+        right_sign != 0 && right_violation < 0 ? right_violation : NaN,
+      )
+      if (isFinite(x_correction) && x_correction < 0) {
+        left += -left_sign*(-x_correction)
+        right += -right_sign*(-x_correction)
       }
 
-      const Dt = top - slimits.top
-      const Db = slimits.bottom - bottom
+      const top_violation = top - slimits.top
+      const bottom_violation = slimits.bottom - bottom
 
-      const Dy = min(top_sign != 0 && Dt < 0 ? Dt : NaN, bottom_sign != 0 && Db < 0 ? Db : NaN)
-      if (isFinite(Dy) && Dy < 0) {
-        top += -top_sign*(-Dy)
-        bottom += -bottom_sign*(-Dy)
+      const y_correction = min(
+        top_sign != 0 && top_violation < 0 ? top_violation : NaN,
+        bottom_sign != 0 && bottom_violation < 0 ? bottom_violation : NaN,
+      )
+      if (isFinite(y_correction) && y_correction < 0) {
+        top += -top_sign*(-y_correction)
+        bottom += -bottom_sign*(-y_correction)
       }
 
       return BBox.from_lrtb({left, right, top, bottom})
@@ -695,11 +700,11 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     }
 
     if (0 < min_width || max_width < Infinity) {
-      if (dl != 0 && dr == 0) {
+      if (left_delta != 0 && right_delta == 0) {
         const min_left = lrtb.right - max_width
         const max_left = lrtb.right - min_width
         lrtb.left = clamp(lrtb.left, min_left, max_left)
-      } else if (dl == 0 && dr != 0) {
+      } else if (left_delta == 0 && right_delta != 0) {
         const min_right = lrtb.left + min_width
         const max_right = lrtb.left + max_width
         lrtb.right = clamp(lrtb.right, min_right, max_right)
@@ -707,11 +712,11 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     }
 
     if (0 < min_height || max_height < Infinity) {
-      if (dt != 0 && db == 0) {
+      if (top_delta != 0 && bottom_delta == 0) {
         const min_top = lrtb.bottom + max_height
         const max_top = lrtb.bottom + min_height
         lrtb.top = clamp(lrtb.top, min_top, max_top)
-      } else if (dt == 0 && db != 0) {
+      } else if (top_delta == 0 && bottom_delta != 0) {
         const min_bottom = lrtb.top - min_height
         const max_bottom = lrtb.top - max_height
         lrtb.bottom = clamp(lrtb.bottom, min_bottom, max_bottom)
