@@ -8,16 +8,13 @@
 from __future__ import annotations
 
 import os
-from pathlib import Path
 
 import pytest
 
 from bokeh.application import Application
 from bokeh.application.handlers.function import FunctionHandler
-from bokeh.core.properties import AnyRef, Dict, List, String
 from bokeh.document import Document
-from bokeh.model import Model
-from bokeh.models import Div, IndexedDataSource
+from bokeh.models import Div, RecordDataSource
 from bokeh.plotting import figure
 from tests.support.plugins.managed_server_loop import MSL
 
@@ -29,16 +26,9 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-async def test_python_indexed_source_renders_and_updates(ManagedServerLoop: MSL) -> None:
-    class RecordSource(IndexedDataSource):
-        __view_model__ = "RecordSource"
-        __implementation__ = str(
-            Path(__file__).resolve().parents[3] / "bokehjs/test/unit/models/sources/record_source.ts",
-        )
-        records = List(Dict(String, AnyRef), default=[])
-
+async def test_record_data_source_renders_and_updates(ManagedServerLoop: MSL) -> None:
     def modify_document(document: Document) -> None:
-        source = RecordSource(name="records", records=[dict(x=2, y=3)])
+        source = RecordDataSource(name="records", records=[dict(x=2, y=3)])
         command = Div(name="command", text="ready")
         plot = figure(name="plot", width=300, height=300, x_range=(0, 10), y_range=(0, 10), tools="")
         plot.scatter("x", "y", source=source, name="points", size=18, fill_color="red", line_color=None)
@@ -56,29 +46,28 @@ async def test_python_indexed_source_renders_and_updates(ManagedServerLoop: MSL)
         document.add_root(plot)
         document.add_root(command)
 
-    try:
-        with ManagedServerLoop(Application(FunctionHandler(modify_document)), address="127.0.0.1") as server:
-            async with playwright.async_playwright() as manager:
-                browser = await manager.chromium.launch()
-                page = await browser.new_page()
-                errors: list[str] = []
-                page.on("pageerror", lambda error: errors.append(str(error)))
-                try:
-                    response = await page.goto(f"http://localhost:{server.port}/", wait_until="domcontentloaded")
-                    assert response is not None and response.ok
-                    await page.wait_for_function('''() => {
+    with ManagedServerLoop(Application(FunctionHandler(modify_document)), address="127.0.0.1") as server:
+        async with playwright.async_playwright() as manager:
+            browser = await manager.chromium.launch()
+            page = await browser.new_page()
+            errors: list[str] = []
+            page.on("pageerror", lambda error: errors.append(str(error)))
+            try:
+                response = await page.goto(f"http://localhost:{server.port}/", wait_until="domcontentloaded")
+                assert response is not None and response.ok
+                await page.wait_for_function('''() => {
   const target = document.querySelector('[data-bokeh-document-target], [data-bokeh-root]')
   return target?.bokehMount != null || target?.bokehMountError != null
 }''', timeout=30_000)
-                    assert await page.evaluate('''() =>
+                assert await page.evaluate('''() =>
   document.querySelector('[data-bokeh-document-target], [data-bokeh-root]').bokehMountError?.message ?? null
 ''') is None
-                    await page.evaluate('''() =>
+                await page.evaluate('''() =>
   document.querySelector('[data-bokeh-document-target], [data-bokeh-root]').bokehMount.ready
 ''')
 
-                    async def assert_rendered(x: int, y: int) -> None:
-                        await page.wait_for_function('''([x, y]) => {
+                async def assert_rendered(x: int, y: int) -> None:
+                    await page.wait_for_function('''([x, y]) => {
   const document = Bokeh.documents[0]
   const plot_view = document.views_manager.get_one(document.get_model_by_name("plot"))
   const {glyph, coordinates} = document.views_manager.get_one(document.get_model_by_name("points"))
@@ -92,14 +81,14 @@ async def test_python_indexed_source_renders_and_updates(ManagedServerLoop: MSL)
   return r === 255 && g === 0 && b === 0 && a === 255
 }''', arg=[x, y], timeout=30_000)
 
-                    await assert_rendered(2, 3)
-                    await page.evaluate('Bokeh.documents[0].get_model_by_name("command").text = "replace"')
-                    await assert_rendered(4, 6)
-                    await page.evaluate('Bokeh.documents[0].get_model_by_name("records").records = [{x: 6, y: 4}]')
-                    await assert_rendered(6, 4)
-                    await page.get_by_text("client update received", exact=True).wait_for(state="visible")
+                await assert_rendered(2, 3)
+                await page.evaluate('Bokeh.documents[0].get_model_by_name("command").text = "replace"')
+                await assert_rendered(4, 6)
+                await page.evaluate('Bokeh.documents[0].get_model_by_name("records").records = [{x: 6, y: 4}]')
+                await assert_rendered(6, 4)
+                await page.get_by_text("client update received", exact=True).wait_for(state="visible")
 
-                    await page.evaluate('''() => {
+                await page.evaluate('''() => {
   const source = Bokeh.documents[0].get_model_by_name("records")
   const {dict} = Bokeh.require("core/util/object")
   const record = dict(source.records[0])
@@ -107,9 +96,7 @@ async def test_python_indexed_source_renders_and_updates(ManagedServerLoop: MSL)
   record.set("y", 2)
   source.data_changed.emit({fields: ["x", "y"], indices: [0], structural: false})
 }''')
-                    await assert_rendered(8, 2)
-                    assert errors == []
-                finally:
-                    await browser.close()
-    finally:
-        Model.clear_extensions()
+                await assert_rendered(8, 2)
+                assert errors == []
+            finally:
+                await browser.close()

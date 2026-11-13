@@ -61,6 +61,7 @@
 
 .. _CC BY 2.0: https://creativecommons.org/licenses/by/2.0/
 .. _CC BY 3.0 IGO: https://creativecommons.org/licenses/by/3.0/igo/
+.. _CC BY 4.0: https://creativecommons.org/licenses/by/4.0/
 .. _CC BY-NC 4.0: https://creativecommons.org/licenses/by-nc/4.0/
 .. _CC BY-ND 4.0: https://creativecommons.org/licenses/by-nd/4.0/
 .. _CC BY-SA 3.0: https://creativecommons.org/licenses/by-sa/3.0/

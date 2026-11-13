@@ -307,6 +307,7 @@ describe("default model resolver", () => {
       "Ray",
       "ReciprocalMetric",
       "ReciprocalMetricLength",
+      "RecordDataSource",
       "Rect",
       "RedoTool",
       "Renderer",

@@ -694,6 +694,90 @@ You can also use Bokeh to render network graph data and geographical data. For
 more information about how to set up the data for these types of plots, see
 :ref:`ug_topics_graph` and :ref:`ug_topics_geo`.
 
+.. _ug_basic_data_record_source:
+
+Row dictionaries
+~~~~~~~~~~~~~~~~
+
+Use :class:`~bokeh.models.sources.RecordDataSource` when your data is already
+organized as rows. Give it an ordered sequence of dictionaries with string
+keys and Bokeh-serializable values. Pass the source to a glyph method and use
+the dictionary keys as field names.
+
+Use this source for small and moderate datasets. Bokeh serializes each row
+dictionary separately. For large numeric datasets, |ColumnDataSource| can
+transport whole arrays in binary form.
+
+.. bokeh-plot:: __REPO__/examples/basic/data/record_source_in_memory.py
+    :source-position: above
+
+Field names are literal top-level keys. A field is available if any row
+contains its key. BokehJS reads missing values as ``undefined`` and preserves
+explicit nulls and nested values. An empty source can be plotted and filled
+later. Use an |IndexedSubset| to filter a renderer. A |GroupFilter| matches
+no rows when the group field is absent from every row. Selections are
+shared between renderers that use the same source and refer to positions
+in the full sequence.
+
+Assign a new sequence to ``source.records`` to replace rows. Create a new
+dictionary for each row whose values change. Bokeh compares the assigned
+sequence with the current one, so editing a dictionary in place can go
+undetected even if you assign a new list afterward. Use a |ColumnDataSource|
+for streaming, patching, data tables, and edit tools.
+
+The file readers use Python's standard library, so you can go from a file
+to a plot even in an environment without a dataframe library.
+
+Use :meth:`~bokeh.models.RecordDataSource.from_csv` to load a CSV
+with a header row. Specify converters for numeric fields and any other
+fields that need conversion. The remaining fields stay strings.
+
+.. code-block:: python
+
+    from datetime import datetime
+
+    from bokeh.models import RecordDataSource
+    from bokeh.plotting import figure, show
+    from bokeh.sampledata.airport_weather import csv_path
+
+    source = RecordDataSource.from_csv(
+        csv_path,
+        converters={"date": datetime.fromisoformat, "actual_max_temp": int},
+    )
+    plot = figure(x_axis_type="datetime")
+    plot.scatter("date", "actual_max_temp", source=source)
+    show(plot)
+
+Pass ``delimiter="\t"`` for tab-separated files. See the
+:bokeh-tree:`examples/basic/data/record_source_csv.py` example for a
+complete plot that shows temperature departures and replaces the plotted
+records when you select an airport.
+
+Use :meth:`~bokeh.models.RecordDataSource.from_jsonl` to load a
+file with one JSON object per line. Numbers, booleans, and other JSON
+values retain their types.
+
+.. code-block:: python
+
+    from bokeh.models import RecordDataSource
+    from bokeh.plotting import figure, show
+
+    source = RecordDataSource.from_jsonl("record_dive_observations.jsonl")
+    plot = figure()
+    plot.scatter("depth", "cover", source=source)
+    show(plot)
+
+Both readers also accept gzip-compressed files with a ``.gz`` suffix,
+such as ``airport_weather.csv.gz`` and ``record_dive_observations.jsonl.gz``.
+
+In a BokehJS app, pass JSON Lines text to ``RecordDataSource.from_jsonl(text)``.
+You can read the text from a browser ``File`` or a successful fetch response
+with ``await file.text()`` or ``await response.text()``.
+
+The JSON Lines example
+(:bokeh-tree:`examples/basic/data/record_source_jsonl.py`) also filters rows
+by review status.
+
 .. |IndexedSubset| replace:: :class:`~bokeh.models.sources.IndexedSubset`
 .. |Filter| replace:: :class:`~bokeh.models.filters.Filter`
 .. |IndexFilter| replace:: :class:`~bokeh.models.filters.IndexFilter`
