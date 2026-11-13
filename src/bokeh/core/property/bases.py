@@ -80,7 +80,9 @@ _validation_override: ContextVar[bool | None] = ContextVar("property_validation"
 
 type TypeOrInst[T] = type[T] | T
 
-type Init[T] = T | UndefinedType | _NotGivenType
+# Callable defaults (e.g. ``lambda: []`` or ``InstanceDefault(Model)``) are
+# evaluated for every instance of a model.
+type Init[T] = T | Callable[[], T] | UndefinedType | _NotGivenType
 
 type ModelInit[T] = T | _NotGivenType
 
