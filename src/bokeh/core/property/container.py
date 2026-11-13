@@ -346,7 +346,7 @@ class RestrictedDict[K, V](Dict[K, V]):
 
     """
 
-    def __init__(self, keys_type: TypeOrInst[Property[Any]], values_type: TypeOrInst[Property[Any]], disallow: Iterable[Any],
+    def __init__(self, keys_type: TypeOrInst[Property[K]], values_type: TypeOrInst[Property[V]], disallow: Iterable[K],
             default: Init[dict[K, V]] = _NotGiven, *, help: str | None = None) -> None:
         default = {} if default is _NotGiven else default
         self._disallow = set(disallow)
