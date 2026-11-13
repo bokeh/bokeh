@@ -601,7 +601,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       bottom: resolve("y", this.model.bottom_limit, mappers.bottom),
     })
     const [left_delta, right_delta, top_delta, bottom_delta] = (() => {
-      const {dx: dx, dy: dy} = ev
+      const {dx, dy} = ev
       const {target} = this._pan_state
 
       const {symmetric} = this.model
