@@ -188,28 +188,6 @@
     __extends__: "CompositeRenderer",
     level: "annotation",
   },
-  DataAnnotation: {
-    __extends__: "Annotation",
-    source: {
-      type: "object",
-      name: "ColumnDataSource",
-      attributes: {
-        selected: {
-          type: "object",
-          name: "Selection",
-          attributes: {},
-        },
-        selection_policy: {
-          type: "object",
-          name: "UnionRenderers",
-          attributes: {},
-        },
-        data: {
-          type: "map",
-        },
-      },
-    },
-  },
   ArrowHead: {
     __extends__: "Marking",
     size: {
@@ -614,39 +592,6 @@
       type: "map",
     },
   },
-  Band: {
-    __extends__: "DataAnnotation",
-    lower: {
-      type: "field",
-      field: "lower",
-    },
-    upper: {
-      type: "field",
-      field: "upper",
-    },
-    base: {
-      type: "field",
-      field: "base",
-    },
-    dimension: "height",
-    line_color: "#cccccc",
-    line_alpha: 0.3,
-    line_width: 1,
-    line_join: "bevel",
-    line_cap: "butt",
-    line_dash: [],
-    line_dash_offset: 0,
-    fill_color: "#fff9ba",
-    fill_alpha: 0.4,
-    hatch_color: "black",
-    hatch_alpha: 1.0,
-    hatch_scale: 12.0,
-    hatch_pattern: null,
-    hatch_weight: 1.0,
-    hatch_extra: {
-      type: "map",
-    },
-  },
   BoxAnnotation: {
     __extends__: [
       "Annotation",
@@ -877,114 +822,6 @@
     text_baseline: "bottom",
     text_line_height: 1.2,
   },
-  HTMLLabelSet: {
-    __extends__: [
-      "HTMLAnnotation",
-      "DataAnnotation",
-    ],
-    x: {
-      type: "field",
-      field: "x",
-    },
-    x_units: "data",
-    y: {
-      type: "field",
-      field: "y",
-    },
-    y_units: "data",
-    text: {
-      type: "field",
-      field: "text",
-    },
-    angle: {
-      type: "value",
-      value: 0,
-    },
-    x_offset: {
-      type: "value",
-      value: 0,
-    },
-    y_offset: {
-      type: "value",
-      value: 0,
-    },
-    text_color: {
-      type: "value",
-      value: "#444444",
-    },
-    text_outline_color: {
-      type: "value",
-      value: null,
-    },
-    text_outline_width: {
-      type: "value",
-      value: 1,
-    },
-    text_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    text_font: {
-      type: "value",
-      value: "helvetica",
-    },
-    text_font_size: {
-      type: "value",
-      value: "16px",
-    },
-    text_font_style: {
-      type: "value",
-      value: "normal",
-    },
-    text_align: {
-      type: "value",
-      value: "left",
-    },
-    text_baseline: {
-      type: "value",
-      value: "bottom",
-    },
-    text_line_height: {
-      type: "value",
-      value: 1.2,
-    },
-    background_fill_color: {
-      type: "value",
-      value: null,
-    },
-    background_fill_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    border_line_color: {
-      type: "value",
-      value: null,
-    },
-    border_line_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    border_line_width: {
-      type: "value",
-      value: 1,
-    },
-    border_line_join: {
-      type: "value",
-      value: "bevel",
-    },
-    border_line_cap: {
-      type: "value",
-      value: "butt",
-    },
-    border_line_dash: {
-      type: "value",
-      value: "solid",
-    },
-    border_line_dash_offset: {
-      type: "value",
-      value: 0,
-    },
-  },
   HTMLTextAnnotation: {
     __extends__: "HTMLAnnotation",
     padding: 0,
@@ -1049,134 +886,6 @@
     angle_units: "rad",
     direction: "anticlock",
     editable: false,
-  },
-  LabelSet: {
-    __extends__: "DataAnnotation",
-    x: {
-      type: "field",
-      field: "x",
-    },
-    x_units: "data",
-    y: {
-      type: "field",
-      field: "y",
-    },
-    y_units: "data",
-    text: {
-      type: "field",
-      field: "text",
-    },
-    angle: {
-      type: "value",
-      value: 0,
-    },
-    x_offset: {
-      type: "value",
-      value: 0,
-    },
-    y_offset: {
-      type: "value",
-      value: 0,
-    },
-    text_color: {
-      type: "value",
-      value: "#444444",
-    },
-    text_outline_color: {
-      type: "value",
-      value: null,
-    },
-    text_outline_width: {
-      type: "value",
-      value: 1,
-    },
-    text_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    text_font: {
-      type: "value",
-      value: "helvetica",
-    },
-    text_font_size: {
-      type: "value",
-      value: "16px",
-    },
-    text_font_style: {
-      type: "value",
-      value: "normal",
-    },
-    text_align: {
-      type: "value",
-      value: "left",
-    },
-    text_baseline: {
-      type: "value",
-      value: "bottom",
-    },
-    text_line_height: {
-      type: "value",
-      value: 1.2,
-    },
-    background_fill_color: {
-      type: "value",
-      value: null,
-    },
-    background_fill_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    background_hatch_color: {
-      type: "value",
-      value: "black",
-    },
-    background_hatch_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    background_hatch_scale: {
-      type: "value",
-      value: 12.0,
-    },
-    background_hatch_pattern: {
-      type: "value",
-      value: null,
-    },
-    background_hatch_weight: {
-      type: "value",
-      value: 1.0,
-    },
-    background_hatch_extra: {
-      type: "map",
-    },
-    border_line_color: {
-      type: "value",
-      value: null,
-    },
-    border_line_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    border_line_width: {
-      type: "value",
-      value: 1,
-    },
-    border_line_join: {
-      type: "value",
-      value: "bevel",
-    },
-    border_line_cap: {
-      type: "value",
-      value: "butt",
-    },
-    border_line_dash: {
-      type: "value",
-      value: "solid",
-    },
-    border_line_dash_offset: {
-      type: "value",
-      value: 0,
-    },
   },
   TextAnnotation: {
     __extends__: "Annotation",
@@ -3202,6 +2911,44 @@
     line_dash_offset: {
       type: "value",
       value: 0,
+    },
+  },
+  BandGlyph: {
+    __extends__: [
+      "Glyph",
+      "LineGlyph",
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    dimension: "height",
+    lower: {
+      type: "field",
+      field: "lower",
+    },
+    upper: {
+      type: "field",
+      field: "upper",
+    },
+    base: {
+      type: "field",
+      field: "base",
+    },
+    line_color: "black",
+    line_alpha: 1.0,
+    line_width: 1,
+    line_join: "bevel",
+    line_cap: "butt",
+    line_dash: [],
+    line_dash_offset: 0,
+    fill_color: "gray",
+    fill_alpha: 1.0,
+    hatch_color: "black",
+    hatch_alpha: 1.0,
+    hatch_scale: 12.0,
+    hatch_pattern: null,
+    hatch_weight: 1.0,
+    hatch_extra: {
+      type: "map",
     },
   },
   Bezier: {

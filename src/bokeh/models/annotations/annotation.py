@@ -23,10 +23,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 from ...core.has_props import abstract
-from ...core.property.instance import Instance, InstanceDefault
 from ...core.property.override import Override
 from ..renderers.renderer import CompositeRenderer
-from ..sources import ColumnDataSource, DataSource
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -47,16 +45,6 @@ class Annotation(CompositeRenderer):
     '''
 
     level = Override(default="annotation")
-
-@abstract
-class DataAnnotation(Annotation):
-    ''' Base class for annotations that utilize a data source.
-
-    '''
-
-    source = Instance(DataSource, default=InstanceDefault(ColumnDataSource), help="""
-    Local data source to use when rendering annotations on the plot.
-    """)
 
 #-----------------------------------------------------------------------------
 # Dev API

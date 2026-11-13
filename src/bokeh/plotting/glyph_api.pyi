@@ -25,6 +25,7 @@ from .._specs import (
     LineJoinArg,
     MarkerArg,
     NullDistanceArg,
+    NullStringArg,
     Number1dArg,
     Number3dArg,
     NumberArg,
@@ -225,6 +226,13 @@ class ArcArgs(GlyphArgs, LineVisuals, total=False):
     # end_angle: AngleArg
     end_angle_units: AngleUnits
     # direction: Direction
+
+class BandArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
+    # dimension: Dimension
+    # lower: NumberArg
+    # upper: NumberArg
+    # base: NumberArg
+    pass
 
 class BezierArgs(GlyphArgs, LineVisuals, total=False):
     # x0: NumberArg
@@ -446,7 +454,7 @@ class TeXArgs(GlyphArgs, TextVisuals, total=False):
 class TextArgs(GlyphArgs, TextVisuals, total=False):
     # x: NumberArg
     # y: NumberArg
-    # text: StringArg
+    # text: NullStringArg
     # angle: AngleArg
     angle_units: AngleUnits
     # x_offset: FloatArg
@@ -556,6 +564,14 @@ class GlyphAPI:
         direction: Direction = ...,
         **kwargs: Unpack[ArcArgs],
     ) -> GlyphRenderer[glyphs.Arc]: ...
+
+    def band(self,
+        dimension: Dimension = ...,
+        lower: NumberArg = ...,
+        upper: NumberArg = ...,
+        base: NumberArg = ...,
+        **kwargs: Unpack[BandArgs],
+    ) -> GlyphRenderer[glyphs.BandGlyph]: ...
 
     def bezier(self,
         x0: NumberArg = ...,
@@ -682,7 +698,7 @@ class GlyphAPI:
     def mathml(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
-        text: StringArg = ...,
+        text: NullStringArg = ...,
         angle: AngleArg = ...,
         x_offset: FloatArg = ...,
         y_offset: FloatArg = ...,

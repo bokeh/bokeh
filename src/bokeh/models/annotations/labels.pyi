@@ -8,7 +8,6 @@
 from abc import abstractmethod
 from typing import Unpack
 
-from ..._specs import AngleSpec, NullStringSpec, NumberSpec
 from ..._types import Angle, Coordinate, TextLike
 from ...core.enums import (
     AngleUnitsType as AngleUnits,
@@ -19,28 +18,18 @@ from ...core.enums import (
 )
 from ...core.property_aliases import BorderRadius, Padding, TextAnchor
 from ...core.property_mixins import (
-    BackgroundFillProps,
-    BackgroundHatchProps,
-    BorderLineProps,
     ScalarBackgroundFillProps,
     ScalarBackgroundHatchProps,
     ScalarBorderLineProps,
     ScalarTextProps,
-    TextProps,
-    _BackgroundFillPropsInit,
-    _BackgroundHatchPropsInit,
-    _BorderLinePropsInit,
     _ScalarBackgroundFillPropsInit,
     _ScalarBackgroundHatchPropsInit,
     _ScalarBorderLinePropsInit,
     _ScalarTextPropsInit,
-    _TextPropsInit,
 )
 from .annotation import (
     Annotation,
-    DataAnnotation,
     _AnnotationInit,
-    _DataAnnotationInit,
 )
 
 class _TextAnnotationInit(_AnnotationInit, _ScalarTextPropsInit, _ScalarBackgroundFillPropsInit,
@@ -85,28 +74,6 @@ class Label(TextAnnotation):
     angle_units: AngleUnits = ...
     direction: Direction = ...
     editable: bool = ...
-
-class _LabelSetInit(_DataAnnotationInit, _TextPropsInit, _BackgroundFillPropsInit, _BackgroundHatchPropsInit, _BorderLinePropsInit, total=False):
-    x: NumberSpec
-    x_units: CoordinateUnits
-    y: NumberSpec
-    y_units: CoordinateUnits
-    text: NullStringSpec
-    angle: AngleSpec
-    x_offset: NumberSpec
-    y_offset: NumberSpec
-
-class LabelSet(DataAnnotation, TextProps, BackgroundFillProps, BackgroundHatchProps, BorderLineProps):
-    def __init__(self, **kwargs: Unpack[_LabelSetInit]) -> None: ...
-
-    x: NumberSpec = ...
-    x_units: CoordinateUnits = ...
-    y: NumberSpec = ...
-    y_units: CoordinateUnits = ...
-    text: NullStringSpec = ...
-    angle: AngleSpec = ...
-    x_offset: NumberSpec = ...
-    y_offset: NumberSpec = ...
 
 class _TitleInit(_TextAnnotationInit, total=False):
     vertical_align: VerticalAlign

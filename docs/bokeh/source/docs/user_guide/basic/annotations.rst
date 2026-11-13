@@ -640,20 +640,6 @@ by updating their position lists.
     :source-position: above
 
 
-.. _ug_basic_annotations_bands:
-
-Bands
------
-
-A |Band| annotation is a colored stripe that is dimensionally linked to the data
-in a plot. One common use for the band annotation is to indicate uncertainty
-related to a series of measurements.
-
-To define a band, use either |screen units| or |data units|.
-
-.. bokeh-plot:: __REPO__/examples/basic/annotations/band.py
-    :source-position: above
-
 .. _ug_basic_annotations_box_annotations:
 
 Box annotations
@@ -718,24 +704,13 @@ multi-line label.
 
     Label(x=100, y=5, text='A very long label\nwith multiple lines')
 
-To create several labels at once, use the |LabelSet| annotation. To configure
-the labels of a label set, use a data source that contains columns with data for
-the labels' properties such as ``text``, ``x`` and ``y``. If you assign a
-value to a property such as ``x_offset`` and ``y_offset`` directly instead of a
-column name, this value is used for all labels of the label set.
-
-.. code-block:: python
-
-    LabelSet(x='x', y='y', text='names',
-             x_offset=5, y_offset=5, source=source)
-
-The following example illustrates the use of |Label| and |LabelSet|:
+The following example illustrates the use of |Label|:
 
 .. bokeh-plot:: __REPO__/examples/basic/annotations/label.py
     :source-position: above
 
-The ``text`` values for ``LabelSet`` may value contain newline characters which
-will result in multi-line labels.
+To draw several labels at once, positioned by data, use the |text| glyph
+method instead. See :ref:`ug_basic_text_labels`.
 
 .. _ug_basic_annotations_slope:
 
@@ -799,13 +774,11 @@ returns a glyph renderer.
 .. |ColorMapper| replace:: :class:`~bokeh.models.mappers.ColorMapper`
 
 .. |ArrowHead|     replace:: :class:`~bokeh.models.annotations.ArrowHead`
-.. |Band|          replace:: :class:`~bokeh.models.annotations.Band`
 .. |PolyAnnotation| replace:: :class:`~bokeh.models.annotations.PolyAnnotation`
 .. |ColorBar|      replace:: :class:`~bokeh.models.annotations.ColorBar`
 .. |SizeBar|       replace:: :class:`~bokeh.models.annotations.SizeBar`
 .. |ScaleBar|      replace:: :class:`~bokeh.models.annotations.ScaleBar`
 .. |Label|         replace:: :class:`~bokeh.models.annotations.Label`
-.. |LabelSet|      replace:: :class:`~bokeh.models.annotations.LabelSet`
 .. |Range|         replace:: :class:`~bokeh.models.ranges.Range`
 .. |Slope|         replace:: :class:`~bokeh.models.annotations.Slope`
 .. |Span|          replace:: :class:`~bokeh.models.annotations.Span`
@@ -813,3 +786,4 @@ returns a glyph renderer.
 
 .. |Circle|        replace:: :class:`~bokeh.models.glyphs.Circle`
 .. |Ngon|          replace:: :class:`~bokeh.models.glyphs.Ngon`
+.. |text|          replace:: :func:`~bokeh.plotting.figure.text`

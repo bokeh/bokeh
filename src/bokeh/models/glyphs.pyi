@@ -15,12 +15,14 @@ from .._specs import (
     FloatSpec,
     MarkerSpec,
     NullDistanceSpec,
+    NullStringSpec,
     NumberSpec,
     SizeSpec,
     StringSpec,
 )
 from .._types import NonNegative
 from ..core.enums import (
+    DimensionType as Dimension,
     DirectionType as Direction,
     HexTileOrientationType as HexTileOrientation,
     ImageOriginType as ImageOrigin,
@@ -152,6 +154,20 @@ class Arc(XYGlyph, LineProps, SupportsPathMarking):
     start_angle: AngleSpec = ...
     end_angle: AngleSpec = ...
     direction: Direction = ...
+
+class _BandGlyphInit(_GlyphInit, _ScalarLinePropsInit, _ScalarFillPropsInit, _ScalarHatchPropsInit, total=False):
+    dimension: Dimension
+    lower: NumberSpec
+    upper: NumberSpec
+    base: NumberSpec
+
+class BandGlyph(Glyph, ScalarLineProps, ScalarFillProps, ScalarHatchProps):
+    def __init__(self, **kwargs: Unpack[_BandGlyphInit]) -> None: ...
+
+    dimension: Dimension = ...
+    lower: NumberSpec = ...
+    upper: NumberSpec = ...
+    base: NumberSpec = ...
 
 class _BezierInit(_GlyphInit, _LinePropsInit, _SupportsPathMarkingInit, total=False):
     x0: NumberSpec
@@ -555,7 +571,7 @@ class Step(XYGlyph, ScalarLineProps):
 class _TextInit(_XYGlyphInit, _TextPropsInit, _BackgroundFillPropsInit, _BackgroundHatchPropsInit, _BorderLinePropsInit, total=False):
     x: NumberSpec
     y: NumberSpec
-    text: StringSpec
+    text: NullStringSpec
     angle: AngleSpec
     x_offset: FloatSpec
     y_offset: FloatSpec
@@ -569,7 +585,7 @@ class Text(XYGlyph, TextProps, BackgroundFillProps, BackgroundHatchProps, Border
 
     x: NumberSpec = ...
     y: NumberSpec = ...
-    text: StringSpec = ...
+    text: NullStringSpec = ...
     angle: AngleSpec = ...
     x_offset: FloatSpec = ...
     y_offset: FloatSpec = ...
