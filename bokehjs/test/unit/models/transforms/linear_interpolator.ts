@@ -2,8 +2,31 @@ import {expect} from "#framework/assertions"
 
 import {LinearInterpolator} from "@bokehjs/models/transforms/linear_interpolator"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {dict} from "@bokehjs/core/util/object"
+import {RecordSource} from "../sources/record_source"
 
 describe("linear_interpolator_transform module", () => {
+  it("rebinds record-source dependencies and invalidates in-place updates", () => {
+    const original = RecordSource.create({records: [{x: 0, y: 0}, {x: 2, y: 20}]})
+    const replacement = RecordSource.create({records: [{x: 0, y: 0}, {x: 2, y: 40}]})
+    const transform = LinearInterpolator.create({data: original, x: "x", y: "y"})
+    expect(transform.compute(1)).to.be.equal(10)
+    let changes = 0
+    transform.change.connect(() => changes++)
+
+    transform.data = replacement
+    expect(transform.compute(1)).to.be.equal(20)
+    expect(changes).to.be.equal(1)
+    original.change.emit()
+    original.data_changed.emit({structural: true})
+    expect(changes).to.be.equal(1)
+
+    dict(replacement.records[1]).set("y", 60)
+    replacement.data_changed.emit({structural: false, indices: [1]})
+    expect(transform.compute(1)).to.be.equal(30)
+    replacement.records = [{x: 0, y: 0}, {x: 2, y: 80}]
+    expect(transform.compute(1)).to.be.equal(40)
+  })
 
   function generate_interpolator_ColumnDataSource() {
     return LinearInterpolator.create({

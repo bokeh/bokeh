@@ -1,7 +1,7 @@
 import {Filter} from "./filter"
 import type * as p from "core/properties"
 import type {Indices} from "core/types"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
 
 export namespace InversionFilter {
   export type Attrs = p.AttrsOf<Props>
@@ -55,7 +55,7 @@ export class InversionFilter extends Filter {
     })
   }
 
-  compute_indices(source: ColumnarDataSource): Indices {
+  compute_indices(source: IndexedDataSource): Indices {
     const index = this.operand.compute_indices(source)
     index.invert()
     return index

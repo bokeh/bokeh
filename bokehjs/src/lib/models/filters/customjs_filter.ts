@@ -4,7 +4,7 @@ import type {Dict} from "core/types"
 import {Indices} from "core/types"
 import {keys, values} from "core/util/object"
 import {isArrayOf, isBoolean, isInteger} from "core/util/types"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
 import {use_strict} from "core/util/string"
 
 export namespace CustomJSFilter {
@@ -41,7 +41,7 @@ export class CustomJSFilter extends Filter {
     return new Function(...this.names, "source", code)
   }
 
-  compute_indices(source: ColumnarDataSource): Indices {
+  compute_indices(source: IndexedDataSource): Indices {
     const size = source.get_length() ?? 1
     const filter = this.func(...this.values, source)
     if (filter == null) {

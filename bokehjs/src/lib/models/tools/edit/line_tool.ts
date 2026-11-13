@@ -12,7 +12,7 @@ export abstract class LineToolView extends EditToolView {
 
   _set_intersection(x: number[] | number, y: number[] | number): void {
     const point_glyph = this.model.intersection_renderer.glyph
-    const point_cds = this.model.intersection_renderer.data_source
+    const point_cds = this._data_source(this.model.intersection_renderer)
     const data = dict(point_cds.data)
     const pxkey = isField(point_glyph.x) ? point_glyph.x.field : null
     const pykey = isField(point_glyph.y) ? point_glyph.y.field : null

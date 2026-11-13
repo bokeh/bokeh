@@ -1,11 +1,109 @@
 import {expect} from "#framework/assertions"
 
+import type {Arrayable} from "@bokehjs/core/types"
+import {dict} from "@bokehjs/core/util/object"
+import {RecordSource} from "../sources/record_source"
+
 import {UnsetValueError} from "@bokehjs/core/properties"
 import {is_NDArray, ndarray} from "@bokehjs/core/util/ndarray"
 import {IndexedLookup, gather_values} from "@bokehjs/models/expressions/indexed_lookup"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import type {IndexedDataSource} from "@bokehjs/models/sources/indexed_data_source"
+
+class IDSource extends RecordSource {
+  override get_index_field(name: string, target: IndexedDataSource): Arrayable | null {
+    const ids = this.get_field(name)
+    if (ids == null) {
+      return null
+    }
+    const positions = new Map<unknown, number>()
+    const target_ids = target.get("id")
+    for (let i = 0; i < target_ids.length; i++) {
+      positions.set(target_ids[i], i)
+    }
+    return Array.from(ids, (id) => positions.get(id))
+  }
+}
 
 describe("IndexedLookup", () => {
+  it("rebinds dependencies without emitting an extra change on replacement", () => {
+    const original = RecordSource.create({records: [{x: 10}]})
+    const replacement = RecordSource.create({records: [{x: 20}]})
+    const indices = ColumnDataSource.create({data: {vertices: [0]}})
+    const lookup = IndexedLookup.create({source: original, field: "x", indices: "vertices"})
+    expect(lookup.v_compute(indices)).to.be.equal([10])
+    let changes = 0
+    lookup.change.connect(() => changes++)
+
+    lookup.source = replacement
+    expect(changes).to.be.equal(1)
+    // Consume the indices source's initial change marker before checking cache reuse.
+    lookup.v_compute(indices)
+    const current = lookup.v_compute(indices)
+    expect(current).to.be.equal([20])
+    original.change.emit()
+    original.data_changed.emit({structural: true})
+    expect(changes).to.be.equal(1)
+    expect(lookup.v_compute(indices) === current).to.be.true
+
+    dict(replacement.records[0]).set("x", 30)
+    replacement.data_changed.emit({structural: false, indices: [0]})
+    expect(changes).to.be.equal(2)
+    expect(lookup.v_compute(indices)).to.be.equal([30])
+    replacement.records = [{x: 40}]
+    expect(changes).to.be.equal(3)
+    expect(lookup.v_compute(indices)).to.be.equal([40])
+
+  })
+
+  it("preserves default CDS index fields without copying", () => {
+    const source = ColumnDataSource.create({data: {x: [10, 20, 30]}})
+    const primary = ColumnDataSource.create({data: {flat: [2, 0]}})
+    expect(primary.get_index_field("flat", source)).to.be.identical(primary.get_field("flat"))
+    expect(primary.get_index_field("missing", source)).to.be.null
+    const lookup = IndexedLookup.create({source, field: "x", indices: "flat"})
+    expect(lookup.v_compute(primary)).to.be.equal([30, 10])
+  })
+
+  it("resolves custom source IDs to positions without changing raw fields", () => {
+    const source = ColumnDataSource.create({data: {id: ["beta", "alpha", "gamma"], x: [10, 20, 30]}})
+    const primary = IDSource.create({records: [{ref: "alpha"}, {ref: "beta"}]})
+    expect(primary.get_index_field("ref", source)).to.be.equal([1, 0])
+    expect(primary.get_index_field("missing", source)).to.be.null
+    const lookup = IndexedLookup.create({source, field: "x", indices: "ref"})
+    expect(lookup.v_compute(primary)).to.be.equal([20, 10])
+    expect(primary.get_field("ref")).to.be.equal(["alpha", "beta"])
+    dict(primary.records[0]).set("ref", "gamma")
+    primary.data_changed.emit({indices: [0], structural: false})
+    expect(lookup.v_compute(primary)).to.be.equal([30, 10])
+    expect(primary.get_field("ref")).to.be.equal(["gamma", "beta"])
+  })
+
+  it("resolves the same IDs independently for differently ordered targets", () => {
+    const primary = IDSource.create({records: [{ref: "alpha"}, {ref: "beta"}]})
+    const source = ColumnDataSource.create({data: {id: ["alpha", "beta"], x: [10, 20]}})
+    const other = RecordSource.create({records: [{id: "beta", x: 200}, {id: "alpha", x: 100}]})
+    const first = IndexedLookup.create({source, field: "x", indices: "ref"})
+    const second = IndexedLookup.create({source: other, field: "x", indices: "ref"})
+    expect(first.v_compute(primary)).to.be.equal([10, 20])
+    expect(second.v_compute(primary)).to.be.equal([100, 200])
+    expect(first.v_compute(primary)).to.be.equal([10, 20])
+    first.source = other
+    expect(first.v_compute(primary)).to.be.equal([100, 200])
+  })
+
+  it("resolves against the target's current ID order after patching and replacement", () => {
+    const primary = IDSource.create({records: [{ref: "alpha"}, {ref: "beta"}]})
+    const source = ColumnDataSource.create({data: {id: ["alpha", "beta"], x: [10, 20]}})
+    const lookup = IndexedLookup.create({source, field: "x", indices: "ref"})
+    expect(lookup.v_compute(primary)).to.be.equal([10, 20])
+    source.patch({id: [[0, "beta"], [1, "alpha"]]})
+    expect(lookup.v_compute(primary)).to.be.equal([20, 10])
+    source.data = {id: ["alpha", "beta"], x: [1000, 2000]}
+    expect(lookup.v_compute(primary)).to.be.equal([1000, 2000])
+    expect(primary.get_field("ref")).to.be.equal(["alpha", "beta"])
+  })
+
   it("requires an index field before evaluating", () => {
     const source = ColumnDataSource.create({data: {x: [10]}})
     const primary = ColumnDataSource.create({data: {vertices: [0]}})

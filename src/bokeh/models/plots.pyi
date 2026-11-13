@@ -52,7 +52,7 @@ from .layouts import (
 from .ranges import Range
 from .renderers import GlyphRenderer, Renderer, TileRenderer
 from .scales import Scale
-from .sources import ColumnarDataSource
+from .sources import IndexedDataSource
 from .tiles import TileSource
 from .tools import HoverTool, Tool, Toolbar
 from .ui.ui_element import StyledElement
@@ -219,7 +219,7 @@ class Plot(LayoutDOM, BackgroundFill, BackgroundHatch, BorderLine, BorderFill, B
     @overload
     def add_glyph[GlyphType: Glyph](self, glyph: GlyphType, **kwargs: Any) -> GlyphRenderer[GlyphType]: ...
     @overload
-    def add_glyph[GlyphType: Glyph](self, source: ColumnarDataSource, glyph: GlyphType, **kwargs: Any) -> GlyphRenderer[GlyphType]: ...
+    def add_glyph[GlyphType: Glyph](self, source: IndexedDataSource, glyph: GlyphType, **kwargs: Any) -> GlyphRenderer[GlyphType]: ...
 
     def add_tile(self, tile_source: TileSource | xyzservices.TileProvider | str, retina: bool = False, **kwargs: Any) -> TileRenderer: ...
 

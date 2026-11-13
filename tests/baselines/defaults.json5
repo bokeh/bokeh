@@ -2822,7 +2822,7 @@
   },
   GroupFilter: {
     __extends__: "Filter",
-    column_name: {
+    field_name: {
       type: "symbol",
       name: "unset",
     },
@@ -5921,7 +5921,7 @@
     },
     view: {
       type: "object",
-      name: "CDSView",
+      name: "IndexedSubset",
       attributes: {
         filter: {
           type: "object",
@@ -5977,7 +5977,7 @@
         },
         view: {
           type: "object",
-          name: "CDSView",
+          name: "IndexedSubset",
           attributes: {
             filter: {
               type: "object",
@@ -6028,7 +6028,7 @@
         },
         view: {
           type: "object",
-          name: "CDSView",
+          name: "IndexedSubset",
           attributes: {
             filter: {
               type: "object",
@@ -6180,14 +6180,6 @@
       type: "map",
     },
   },
-  CDSView: {
-    __extends__: "Model",
-    filter: {
-      type: "object",
-      name: "AllIndices",
-      attributes: {},
-    },
-  },
   ColumnDataSource: {
     __extends__: "ColumnarDataSource",
     data: {
@@ -6195,9 +6187,27 @@
     },
   },
   ColumnarDataSource: {
-    __extends__: "DataSource",
+    __extends__: "IndexedDataSource",
     default_values: {
       type: "map",
+    },
+  },
+  DataSource: {
+    __extends__: "Model",
+  },
+  GeoJSONDataSource: {
+    __extends__: "ColumnarDataSource",
+    geojson: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  IndexedDataSource: {
+    __extends__: "DataSource",
+    selected: {
+      type: "object",
+      name: "Selection",
+      attributes: {},
     },
     selection_policy: {
       type: "object",
@@ -6205,19 +6215,12 @@
       attributes: {},
     },
   },
-  DataSource: {
+  IndexedSubset: {
     __extends__: "Model",
-    selected: {
+    filter: {
       type: "object",
-      name: "Selection",
+      name: "AllIndices",
       attributes: {},
-    },
-  },
-  GeoJSONDataSource: {
-    __extends__: "ColumnarDataSource",
-    geojson: {
-      type: "symbol",
-      name: "unset",
     },
   },
   ServerSentDataSource: {
@@ -7985,7 +7988,7 @@
     },
     view: {
       type: "object",
-      name: "CDSView",
+      name: "IndexedSubset",
       attributes: {
         filter: {
           type: "object",

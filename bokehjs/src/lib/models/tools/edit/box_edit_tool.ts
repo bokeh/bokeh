@@ -12,7 +12,7 @@ import {VBar} from "../../glyphs/vbar"
 import {HStrip} from "../../glyphs/hstrip"
 import {VStrip} from "../../glyphs/vstrip"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
-import type {ColumnarDataSource} from "../../sources/columnar_data_source"
+import type {IndexedDataSource} from "../../sources/indexed_data_source"
 import {EditTool, EditToolView} from "./edit_tool"
 import {tool_icon_box_edit} from "styles/icons.css"
 import {unreachable} from "core/util/assert"
@@ -22,7 +22,7 @@ export type BoxLikeGlyph = LRTB | Rect | HStrip | VStrip
 
 export type BoxLikeGlyphRenderer = GlyphRenderer & {
   glyph: BoxLikeGlyph
-  data_source: ColumnarDataSource
+  data_source: IndexedDataSource
 }
 
 export class BoxEditToolView extends EditToolView {
@@ -47,7 +47,7 @@ export class BoxEditToolView extends EditToolView {
         this._delete_selected(renderer)
       } else if (ev.key == "Escape") {
         // Type properly once selection_manager is typed
-        const cds = renderer.data_source
+        const cds = this._data_source(renderer)
         cds.selection_manager.clear()
       }
     }
@@ -61,7 +61,7 @@ export class BoxEditToolView extends EditToolView {
       return
     }
     const {glyph} = renderer
-    const cds = renderer.data_source
+    const cds = this._data_source(renderer)
     const data = dict(cds.data)
     const [dx0, dx1] = renderer_view.coordinates.x_scale.r_invert(sx0, sx1)
     const [dy0, dy1] = renderer_view.coordinates.y_scale.r_invert(sy0, sy1)
@@ -238,7 +238,7 @@ export class BoxEditToolView extends EditToolView {
       const dy = dim == "height" || dim == "both" ? y - py : 0
 
       const {glyph} = renderer
-      const cds = renderer.data_source
+      const cds = this._data_source(renderer)
       const data = dict(cds.data)
 
       const fields: {[key: string]: number} = {}
@@ -321,7 +321,7 @@ export class BoxEditToolView extends EditToolView {
     } else {
       this._basepoint = null
       for (const renderer of this.model.renderers) {
-        this._emit_cds_changes(renderer.data_source, false, true, true)
+        this._emit_cds_changes(this._data_source(renderer), false, true, true)
       }
     }
   }

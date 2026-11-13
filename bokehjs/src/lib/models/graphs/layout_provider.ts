@@ -1,8 +1,7 @@
 import {Model} from "../../model"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
 import {CoordinateTransform} from "models/expressions/coordinate_transform"
 import type {Arrayable} from "core/types"
-import {dict} from "core/util/object"
 import type * as p from "core/properties"
 
 export namespace LayoutProvider {
@@ -16,15 +15,14 @@ export interface LayoutProvider extends LayoutProvider.Attrs {}
 export abstract class LayoutProvider extends Model {
   declare properties: LayoutProvider.Props
 
-  abstract get_node_coordinates(graph_source: ColumnarDataSource): [Arrayable<number>, Arrayable<number>]
+  abstract get_node_coordinates(graph_source: IndexedDataSource): [Arrayable<number>, Arrayable<number>]
 
-  abstract get_edge_coordinates(graph_source: ColumnarDataSource): [Arrayable<number>[], Arrayable<number>[]]
+  abstract get_edge_coordinates(graph_source: IndexedDataSource): [Arrayable<number>[], Arrayable<number>[]]
 
   /** Cubic controls, optionally supplied as four per-edge columns. */
-  get_edge_control_coordinates(source: ColumnarDataSource): [Arrayable<number>, Arrayable<number>, Arrayable<number>, Arrayable<number>] {
-    const data = dict(source.data)
+  get_edge_control_coordinates(source: IndexedDataSource): [Arrayable<number>, Arrayable<number>, Arrayable<number>, Arrayable<number>] {
     const names = ["cx0", "cy0", "cx1", "cy1"]
-    const columns = names.map(name => data.get(name))
+    const columns = names.map(name => source.get_field(name))
     const [xs, ys] = this.get_edge_coordinates(source)
     if (columns.some(column => column != null)) {
       if (columns.some(column => column == null || column.length != xs.length)) {
@@ -86,7 +84,7 @@ export interface NodeCoordinates extends NodeCoordinates.Attrs {}
 export class NodeCoordinates extends GraphCoordinates {
   declare properties: NodeCoordinates.Props
 
-  _v_compute(source: ColumnarDataSource): {x: Arrayable<number>, y: Arrayable<number>} {
+  _v_compute(source: IndexedDataSource): {x: Arrayable<number>, y: Arrayable<number>} {
     const [x, y] = this.layout.get_node_coordinates(source)
     return {x, y}
   }
@@ -102,7 +100,7 @@ export interface EdgeCoordinates extends EdgeCoordinates.Attrs {}
 export class EdgeCoordinates extends GraphCoordinates {
   declare properties: EdgeCoordinates.Props
 
-  _v_compute(source: ColumnarDataSource): {x: Arrayable<number>[], y: Arrayable<number>[]} {
+  _v_compute(source: IndexedDataSource): {x: Arrayable<number>[], y: Arrayable<number>[]} {
     const [x, y] = this.layout.get_edge_coordinates(source)
     return {x, y}
   }
@@ -126,7 +124,7 @@ export class EdgePointCoordinates extends GraphCoordinates {
     }))
   }
 
-  _v_compute(source: ColumnarDataSource): {x: Arrayable<number>, y: Arrayable<number>} {
+  _v_compute(source: IndexedDataSource): {x: Arrayable<number>, y: Arrayable<number>} {
     if (this.point == "control0" || this.point == "control1") {
       const [cx0, cy0, cx1, cy1] = this.layout.get_edge_control_coordinates(source)
       return this.point == "control0" ? {x: cx0, y: cy0} : {x: cx1, y: cy1}
