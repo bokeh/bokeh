@@ -88,7 +88,7 @@ from .scales import (
 )
 from .sources import ColumnDataSource, IndexedDataSource
 from .tiles import TileSource, WMTSTileSource
-from .tools import HoverTool, Tool, Toolbar
+from .tools import HoverTool, Tool, Toolbar, ToolProxy
 from .ui import StyledElement
 
 if TYPE_CHECKING:
@@ -269,7 +269,7 @@ class Plot(LayoutDOM):
         return _list_attr_splat(self.xgrid + self.ygrid)
 
     @property
-    def tools(self) -> list[Tool]:
+    def tools(self) -> list[Tool | ToolProxy]:
         return self.toolbar.tools
 
     @tools.setter

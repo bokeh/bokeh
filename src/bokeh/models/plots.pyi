@@ -54,7 +54,7 @@ from .renderers import GlyphRenderer, Renderer, TileRenderer
 from .scales import Scale
 from .sources import IndexedDataSource
 from .tiles import TileSource
-from .tools import HoverTool, Tool, Toolbar
+from .tools import HoverTool, Tool, Toolbar, ToolProxy
 from .ui.ui_element import StyledElement
 
 if TYPE_CHECKING:
@@ -205,7 +205,7 @@ class Plot(LayoutDOM, BackgroundFill, BackgroundHatch, BorderLine, BorderFill, B
     def grid(self) -> GridListAttrSplat: ...
 
     @property
-    def tools(self) -> list[Tool]: ...
+    def tools(self) -> list[Tool | ToolProxy]: ...
 
     @tools.setter
     def tools(self, tools: list[Tool]) -> None: ...
