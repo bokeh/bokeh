@@ -55,6 +55,11 @@ class ContourLabels(GlyphAttachment, ScalarTextProps):
 
     visible = Bool(default=True, help="Whether to draw the labels.")
 
+    label_all_paths = Bool(default=False, help="""
+    Try to place one label on each visible contour path during automatic
+    placement. By default, place at most one label per level.
+    """)
+
     inline_gap = Bool(default=False, help="""
     Clip contour strokes underneath labels on canvas and WebGL plots.
     SVG plots and SVG exports draw labels over continuous strokes.

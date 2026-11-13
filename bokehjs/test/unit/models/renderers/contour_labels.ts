@@ -148,6 +148,33 @@ describe("Contour labels", () => {
     expect(Math.round(sx)).to.be.equal(Math.round(view.frame.x_scale.compute(505)))
   })
 
+  it("labels visible paths separately and skips overlapping labels", async () => {
+    const {plot, contour, source, line} = contours()
+    line.view.filter = IndexFilter.create({indices: [0]})
+    source.patch({
+      xs: [[0, [1, 1.1, NaN, 1, 1.1, NaN, 8, 9, NaN, 20, 21]]],
+      ys: [[0, [2, 2, NaN, 2, 2, NaN, 2, 2, NaN, 2, 2]]],
+    })
+    const labels = contour.add_labels()
+    using paint = restorable(sinon.stub(TextBox.prototype, "paint"))
+    const {view} = await display(plot)
+    const rendered_x = () => {
+      paint.resetHistory()
+      view.export("png")
+      return (paint.thisValues as TextBox[]).map(({position: {sx}}) => sx)
+    }
+
+    expect(rendered_x().length).to.be.equal(1)
+    labels.label_all_paths = true
+    const xs = rendered_x()
+    expect(xs.length).to.be.equal(2)
+    const {hcenter} = view.frame.bbox
+    expect(xs[0] < hcenter && xs[1] > hcenter).to.be.true
+
+    labels.positions = [0]
+    expect(rendered_x().length).to.be.equal(1)
+  })
+
   for (const output_backend of ["canvas", "svg"] as const) {
     it(`uses the documented inline gap behavior for ${output_backend}`, async () => {
       const {plot, contour, line} = contours(output_backend)

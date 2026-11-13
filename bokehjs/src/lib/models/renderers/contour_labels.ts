@@ -23,11 +23,22 @@ type PositionedLabel = {box: TextBox, background_alpha: number}
 const {abs, max, min, PI, sin} = Math
 
 // Cycle through these fractions of screen-space path length to stagger labels by source row.
-const preferred_positions = [0.18, 0.43, 0.68, 0.86]
+const preferred_positions = [0.22, 0.26, 0.34, 0.70, 0.78, 0.86]
 
 function place_label(box: TextBox, {sx, sy, angle}: PathNode): void {
   box.position = {sx, sy}
   box.angle = angle > PI/2 ? angle - PI : angle < -PI/2 ? angle + PI : angle
+}
+
+function* contour_paths(segments: PathSegment[]): IterableIterator<PathSegment[]> {
+  let start = 0
+  for (let i = 1; i < segments.length; i++) {
+    if (segments[i].move) {
+      yield segments.slice(start, i)
+      start = i
+    }
+  }
+  yield segments.slice(start)
 }
 
 // Return the fractional interval of a segment inside the plot frame.
@@ -95,10 +106,9 @@ export class ContourLabelsView extends GlyphAttachmentView {
   }
 
   private _automatic_position(
-    segments: PathSegment[], length: number, row: number, box: TextBox, occupied: BBox[],
+    segments: PathSegment[], length: number, preferred: number, box: TextBox, occupied: BBox[],
   ): PathNode | null {
     const frame = this.parent.plot_view.frame.bbox
-    const preferred = preferred_positions[row % preferred_positions.length]
     let best: PathNode | null = null
     let best_score = Infinity
 
@@ -110,7 +120,7 @@ export class ContourLabelsView extends GlyphAttachmentView {
     // These thresholds and weights are placement heuristics in screen space.
     const frame_margin = 12
     const angle_weight = 0.6
-    const preferred_position_weight = 0.1
+    const preferred_position_weight = 4
     const frame_margin_scale = 5
     const fits = (node: PathNode) => {
       place_label(box, node)
@@ -126,7 +136,7 @@ export class ContourLabelsView extends GlyphAttachmentView {
         continue
       }
       const edge = min(sx - frame.left, frame.right - sx, sy - frame.top, frame.bottom - sy)
-      // Among placements that fit, favor horizontal text away from the frame edges.
+      // Among placements that fit, favor the staggered fractions, shallow angles, and frame clearance.
       const score = angle_weight*abs(sin(angle)) + preferred_position_weight*abs(fraction - preferred)
         + max(0, frame_margin - edge)/frame_margin_scale
       if (score < best_score && fits(node)) {
@@ -170,7 +180,7 @@ export class ContourLabelsView extends GlyphAttachmentView {
         }
       }
     }
-    const {positions, inline_gap, gap_padding, background_fill_color, background_fill_alpha} = model
+    const {positions, label_all_paths, inline_gap, gap_padding, background_fill_color, background_fill_alpha} = model
     const fractions = isString(positions) ? data_source.get_field(positions) : null
     const style = this._text_visual
     if (!style.doit) {
@@ -194,7 +204,6 @@ export class ContourLabelsView extends GlyphAttachmentView {
       if (segments.length == 0) {
         continue
       }
-      const length = path_length(segments)
       const new_box = () => {
         const box = new TextBox({text: label})
         box.visuals = {...values, alpha: values.alpha*alpha}
@@ -202,12 +211,16 @@ export class ContourLabelsView extends GlyphAttachmentView {
       }
       const background_alpha = background_fill_alpha*alpha
       if (positions == null) {
-        const box = new_box()
-        const node = this._automatic_position(segments, length, row, box, occupied)
-        if (node != null) {
-          place_label(box, node)
-          occupied.push(box.bbox().grow_by(1))
-          labels.push({box, background_alpha})
+        // Give nearby paths the same starting preference when each path gets a label.
+        const preferred = label_all_paths ? 0.25 : preferred_positions[row % preferred_positions.length]
+        for (const path of label_all_paths ? contour_paths(segments) : [segments]) {
+          const box = new_box()
+          const node = this._automatic_position(path, path_length(path), preferred, box, occupied)
+          if (node != null) {
+            place_label(box, node)
+            occupied.push(box.bbox().grow_by(1))
+            labels.push({box, background_alpha})
+          }
         }
         continue
       }
@@ -216,6 +229,7 @@ export class ContourLabelsView extends GlyphAttachmentView {
       if (!isArrayable(path_positions)) {
         continue
       }
+      const length = path_length(segments)
       for (const fraction of Array.from(path_positions)) {
         if (isNumber(fraction) && fraction >= 0 && fraction <= 1) {
           const box = new_box()
@@ -263,6 +277,7 @@ export namespace ContourLabels {
     formatter: p.Property<TickFormatter>
     positions: p.Property<number[] | string | null>
     visible: p.Property<boolean>
+    label_all_paths: p.Property<boolean>
     inline_gap: p.Property<boolean>
     gap_padding: p.Property<number>
     background_fill_color: p.Property<Color | null>
@@ -284,6 +299,7 @@ export class ContourLabels extends GlyphAttachment {
       formatter:             [ Ref(TickFormatter), () => PrintfTickFormatter.create({format: "%.3g"}) ],
       positions:             [ Nullable(Or(List(Percent), Str)), null ],
       visible:               [ Bool, true ],
+      label_all_paths:       [ Bool, false ],
       inline_gap:            [ Bool, false ],
       gap_padding:           [ NonNegative(Float), 2 ],
       background_fill_color: [ Nullable(Color), null ],

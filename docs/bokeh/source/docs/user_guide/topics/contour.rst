@@ -67,6 +67,10 @@ Set ``background_fill_color`` and ``background_fill_alpha`` to customize the
 background. The method returns a :class:`~bokeh.models.ContourLabels` model
 that you can update after creating the labels.
 
+Automatic placement draws at most one label per level. Use
+``label_all_paths=True`` to try to label each visible contour path, even when
+several paths share a level. Automatic placement skips labels that would overlap.
+
 Use ``positions=[0.25, 0.75]`` to place two labels at fixed fractions of each
 level's screen-space path length. Fractions run from the first stored vertex
 (zero) to the last (one) in contour traversal order, using the full mapped path

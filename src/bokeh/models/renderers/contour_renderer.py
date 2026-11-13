@@ -105,6 +105,7 @@ class ContourRenderer(DataRenderer):
         *,
         formatter: TickFormatter | None = None,
         positions: str | Sequence[float] | None = None,
+        label_all_paths: bool = False,
         inline_gap: bool = False,
         gap_padding: float = 2,
         **style: Unpack[_ContourLabelStyle],
@@ -118,7 +119,9 @@ class ContourRenderer(DataRenderer):
 
         Labels follow the mapped lines and stay upright. Automatic placement
         favors horizontal sections in the frame and skips a label when no
-        candidate fits without overlap. Pass a sequence of screen-space path
+        candidate fits without overlap. Disconnected pieces of a level share
+        at most one automatic label by default. Set ``label_all_paths=True``
+        to try to label each visible path. Pass a sequence of screen-space path
         length fractions to use the same positions for every level, or a
         source column name with a sequence per level.
 
@@ -140,7 +143,7 @@ class ContourRenderer(DataRenderer):
         if "background_fill_color" not in style:
             style["background_fill_color"] = None if inline_gap else "white"
         labels = ContourLabels(
-            text=text, positions=positions, inline_gap=inline_gap,
+            text=text, positions=positions, label_all_paths=label_all_paths, inline_gap=inline_gap,
             gap_padding=gap_padding, **style,
         )
         if formatter is not None:
