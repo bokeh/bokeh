@@ -1,7 +1,7 @@
 import flatpickr from "flatpickr"
 import type {FlatpickrInstance, FlatpickrOptions} from "../../external/flatpickr"
 
-import {InputWidget, InputWidgetView} from "./input_widget"
+import {InputWidget, InputWidgetView, PrefixSuffixCommon, Prefix, Suffix} from "./input_widget"
 import type {StyleSheetLike} from "core/dom"
 import {input, empty} from "core/dom"
 import type {VNode} from "core/vdom"
@@ -76,12 +76,15 @@ export abstract class PickerBaseView extends InputWidgetView {
   }
 
   override component(): VNode {
+    const {prefix, suffix} = this.values
     const Title = this._title_el
     return (
       <UIComponent parent={this.resolved_props}>
         <Title></Title>
         <div ref={this._outer_ref} class={inputs_css.outer}>
+          <Prefix text={prefix}/>
           <div class={inputs_css.inner} ref={this._input_host_ref}/>
+          <Suffix text={suffix}/>
         </div>
         <div ref={this._calendar_host_ref}/>
       </UIComponent>
@@ -241,7 +244,7 @@ export abstract class PickerBaseView extends InputWidgetView {
 export namespace PickerBase {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = InputWidget.Props & {
+  export type Props = InputWidget.Props & PrefixSuffixCommon.Props & {
     position: p.Property<CalendarPosition>
     inline:   p.Property<boolean>
   }
@@ -254,6 +257,7 @@ export abstract class PickerBase extends InputWidget {
   declare __view_type__: PickerBaseView
 
   static {
+    this.define<PrefixSuffixCommon.Props>(PrefixSuffixCommon.define)
     this.define<PickerBase.Props>(({Bool}) => {
       return {
         position: [ CalendarPosition, "auto" ],

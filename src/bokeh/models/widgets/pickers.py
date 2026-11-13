@@ -32,7 +32,7 @@ from ...core.property.nullable import Nullable
 from ...core.property.numeric import Positive
 from ...core.property.override import Override
 from ...core.property.primitive import Bool, Int, String
-from .inputs import InputWidget
+from .inputs import InputWidget, PrefixSuffixCommon
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -53,7 +53,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @abstract
-class PickerBase(InputWidget):
+class PickerBase(InputWidget, PrefixSuffixCommon):
     """ Base class for various kinds of picker widgets. """
 
     position = Enum(CalendarPosition, default="auto", help="""

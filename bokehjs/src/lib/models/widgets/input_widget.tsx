@@ -7,6 +7,7 @@ import type {ViewOf} from "core/build_views"
 import {View} from "core/view"
 import type {ChildView} from "core/view"
 import type * as p from "core/properties"
+import type * as kinds from "core/kinds"
 import {bind} from "core/class"
 import {isString} from "core/util/types"
 import type {VNode} from "core/vdom"
@@ -259,6 +260,35 @@ export abstract class InputWidgetView extends WidgetView {
   }
 
   change_input(): void {}
+}
+
+/**
+ * Common properties of input widgets that allow a prefix and a suffix,
+ * i.e. `PrefixSuffixCommon` mixin in Python. Render them with `<Prefix>`
+ * and `<Suffix>` components, around the inner element of an input.
+ */
+export namespace PrefixSuffixCommon {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = {
+    prefix: p.Property<string | null>
+    suffix: p.Property<string | null>
+  }
+
+  export function define({Str, Nullable}: typeof kinds): p.DefineOf<Props> {
+    return {
+      prefix: [ Nullable(Str), null ],
+      suffix: [ Nullable(Str), null ],
+    }
+  }
+}
+
+export function Prefix({text}: {text: string | null}): VNode | null {
+  return text != null ? <div class={inputs_css.prefix}>{text}</div> : null
+}
+
+export function Suffix({text}: {text: string | null}): VNode | null {
+  return text != null ? <div class={inputs_css.suffix}>{text}</div> : null
 }
 
 export namespace InputWidget {

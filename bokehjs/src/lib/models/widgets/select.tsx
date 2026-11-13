@@ -1,4 +1,4 @@
-import {InputWidget, InputWidgetView} from "./input_widget"
+import {InputWidget, InputWidgetView, PrefixSuffixCommon, Prefix, Suffix} from "./input_widget"
 import type {VNode} from "core/vdom"
 import {UIComponent} from "core/vdom"
 import {isString, isArray} from "core/util/types"
@@ -95,7 +95,7 @@ export class SelectView extends InputWidgetView {
   }
 
   override component(): VNode {
-    const {name} = this.values
+    const {name, prefix, suffix} = this.values
     const {disabled} = this.signals
     const {selected_value} = this
 
@@ -104,6 +104,7 @@ export class SelectView extends InputWidgetView {
       <UIComponent parent={this.resolved_props}>
         <Title></Title>
         <div class={inputs_css.outer}>
+          <Prefix text={prefix}/>
           <div class={inputs_css.inner}>
             <select
               id={this.input_id}
@@ -116,6 +117,7 @@ export class SelectView extends InputWidgetView {
               {this._build_options_or_optgroups()}
             </select>
           </div>
+          <Suffix text={suffix}/>
         </div>
       </UIComponent>
     )
@@ -140,7 +142,7 @@ export class SelectView extends InputWidgetView {
 export namespace Select {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = InputWidget.Props & {
+  export type Props = InputWidget.Props & PrefixSuffixCommon.Props & {
     value: p.Property<Value>
     options: p.Property<Options | OptionsGroups>
   }
@@ -155,6 +157,7 @@ export class Select extends InputWidget {
   static {
     this.prototype.default_view = SelectView
 
+    this.define<PrefixSuffixCommon.Props>(PrefixSuffixCommon.define)
     this.define<Select.Props>(() => {
       return {
         value:   [ Value, NotSelected ],

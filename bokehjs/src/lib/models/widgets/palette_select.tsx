@@ -11,7 +11,7 @@ import {cycle} from "core/util/math"
 import {linspace} from "core/util/array"
 import {assert} from "core/util/assert"
 
-import {InputWidget, InputWidgetView} from "./input_widget"
+import {InputWidget, InputWidgetView, PrefixSuffixCommon, Prefix, Suffix} from "./input_widget"
 import * as inputs_css from "styles/widgets/inputs.css"
 import * as palette_select_css from "styles/widgets/palette_select.css"
 import * as icons_css from "styles/icons.css"
@@ -121,12 +121,13 @@ export class PaletteSelectView extends InputWidgetView {
   }
 
   override component(): VNode {
-    const {disabled} = this.values
+    const {disabled, prefix, suffix} = this.values
     const Title = this._title_el
     return (
       <UIComponent parent={this.resolved_props}>
         <Title></Title>
         <div class={inputs_css.outer}>
+          <Prefix text={prefix}/>
           <div class={inputs_css.inner}>
             <div
               ref={this._input_ref}
@@ -143,6 +144,7 @@ export class PaletteSelectView extends InputWidgetView {
               <div class={palette_select_css.chevron}/>
             </div>
           </div>
+          <Suffix text={suffix}/>
         </div>
         {this._pane()}
       </UIComponent>
@@ -244,7 +246,7 @@ export class PaletteSelectView extends InputWidgetView {
 export namespace PaletteSelect {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = InputWidget.Props & {
+  export type Props = InputWidget.Props & PrefixSuffixCommon.Props & {
     value: p.Property<string>
     items: p.Property<Item[]>
     ncols: p.Property<number>
@@ -262,6 +264,7 @@ export class PaletteSelect extends InputWidget {
   static {
     this.prototype.default_view = PaletteSelectView
 
+    this.define<PrefixSuffixCommon.Props>(PrefixSuffixCommon.define)
     this.define<PaletteSelect.Props>(({Int, Str, List, NonNegative, Positive, Or, Auto}) => ({
       value: [ Str ],
       items: [ List(Item) ],
