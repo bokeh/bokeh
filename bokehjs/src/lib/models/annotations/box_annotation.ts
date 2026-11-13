@@ -601,29 +601,29 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       bottom: resolve("y", this.model.bottom_limit, mappers.bottom),
     })
     const [left_delta, right_delta, top_delta, bottom_delta] = (() => {
-      const {dx, dy} = ev
+      const {dx: pointer_dx, dy: pointer_dy} = ev
       const {target} = this._pan_state
 
       const {symmetric} = this.model
-      const [opposite_dx, opposite_dy] = symmetric ? [-dx, -dy] : [0, 0]
+      const [opposite_dx, opposite_dy] = symmetric ? [-pointer_dx, -pointer_dy] : [0, 0]
 
       switch (target) {
         // corners
-        case "top_left":     return [dx, opposite_dx, dy, opposite_dy]
-        case "top_right":    return [opposite_dx, dx, dy, opposite_dy]
-        case "bottom_left":  return [dx, opposite_dx, opposite_dy, dy]
-        case "bottom_right": return [opposite_dx, dx, opposite_dy, dy]
+        case "top_left":     return [pointer_dx, opposite_dx, pointer_dy, opposite_dy]
+        case "top_right":    return [opposite_dx, pointer_dx, pointer_dy, opposite_dy]
+        case "bottom_left":  return [pointer_dx, opposite_dx, opposite_dy, pointer_dy]
+        case "bottom_right": return [opposite_dx, pointer_dx, opposite_dy, pointer_dy]
         // edges
-        case "left":   return [dx, opposite_dx, 0, 0]
-        case "right":  return [opposite_dx, dx, 0, 0]
-        case "top":    return [0, 0, dy, opposite_dy]
-        case "bottom": return [0, 0, opposite_dy, dy]
+        case "left":   return [pointer_dx, opposite_dx, 0, 0]
+        case "right":  return [opposite_dx, pointer_dx, 0, 0]
+        case "top":    return [0, 0, pointer_dy, opposite_dy]
+        case "bottom": return [0, 0, opposite_dy, pointer_dy]
         // area
         case "area": {
           switch (this.model.movable) {
-            case "both": return [dx, dx, dy, dy]
-            case "x":    return [dx, dx, 0, 0]
-            case "y":    return [0, 0, dy, dy]
+            case "both": return [pointer_dx, pointer_dx, pointer_dy, pointer_dy]
+            case "x":    return [pointer_dx, pointer_dx, 0, 0]
+            case "y":    return [0, 0, pointer_dy, pointer_dy]
             case "none": return [0, 0, 0, 0]
           }
         }
