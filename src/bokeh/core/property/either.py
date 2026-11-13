@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-from typing import Any
+from typing import Any, overload
 
 from ._sphinx import property_link, register_type_link, type_link
 from .bases import (
@@ -42,6 +42,8 @@ from .singletons import _NotGiven
 __all__ = (
     'Either',
 )
+
+type _TypeParam[T] = TypeOrInst[Property[T]]
 
 #-----------------------------------------------------------------------------
 # General API
@@ -72,8 +74,77 @@ class Either[T](ParameterizedProperty[T]):
 
     """
 
-    def __init__(self, type_param0: TypeOrInst[Property[Any]], *type_params: TypeOrInst[Property[Any]],
-            default: Init[T] = _NotGiven, help: str | None = None) -> None:
+    # Infer the value type from type parameters, so that it isn't inferred from
+    # ``default`` instead. The last overload covers subclasses and annotated
+    # assignments with fixed value types, which don't match the other overloads
+    # because Property[T] is invariant.
+    @overload
+    def __init__[T1](
+        self: Either[T1],
+        tp1: _TypeParam[T1],
+        /, *,
+        default: Init[T1] = ..., help: str | None = ...) -> None: ...
+    @overload
+    def __init__[T1, T2](
+        self: Either[T1 | T2],
+        tp1: _TypeParam[T1], tp2: _TypeParam[T2],
+        /, *,
+        default: Init[T1 | T2] = ..., help: str | None = ...) -> None: ...
+    @overload
+    def __init__[T1, T2, T3](
+        self: Either[T1 | T2 | T3],
+        tp1: _TypeParam[T1], tp2: _TypeParam[T2], tp3: _TypeParam[T3],
+        /, *,
+        default: Init[T1 | T2 | T3] = ..., help: str | None = ...) -> None: ...
+    @overload
+    def __init__[T1, T2, T3, T4](
+        self: Either[T1 | T2 | T3 | T4],
+        tp1: _TypeParam[T1], tp2: _TypeParam[T2], tp3: _TypeParam[T3], tp4: _TypeParam[T4],
+        /, *,
+        default: Init[T1 | T2 | T3 | T4] = ..., help: str | None = ...) -> None: ...
+    @overload
+    def __init__[T1, T2, T3, T4, T5](
+        self: Either[T1 | T2 | T3 | T4 | T5],
+        tp1: _TypeParam[T1], tp2: _TypeParam[T2], tp3: _TypeParam[T3], tp4: _TypeParam[T4],
+        tp5: _TypeParam[T5],
+        /, *,
+        default: Init[T1 | T2 | T3 | T4 | T5] = ..., help: str | None = ...) -> None: ...
+    @overload
+    def __init__[T1, T2, T3, T4, T5, T6](
+        self: Either[T1 | T2 | T3 | T4 | T5 | T6],
+        tp1: _TypeParam[T1], tp2: _TypeParam[T2], tp3: _TypeParam[T3], tp4: _TypeParam[T4],
+        tp5: _TypeParam[T5], tp6: _TypeParam[T6],
+        /, *,
+        default: Init[T1 | T2 | T3 | T4 | T5 | T6] = ..., help: str | None = ...) -> None: ...
+    @overload
+    def __init__[T1, T2, T3, T4, T5, T6, T7](
+        self: Either[T1 | T2 | T3 | T4 | T5 | T6 | T7],
+        tp1: _TypeParam[T1], tp2: _TypeParam[T2], tp3: _TypeParam[T3], tp4: _TypeParam[T4],
+        tp5: _TypeParam[T5], tp6: _TypeParam[T6], tp7: _TypeParam[T7],
+        /, *,
+        default: Init[T1 | T2 | T3 | T4 | T5 | T6 | T7] = ..., help: str | None = ...) -> None: ...
+    @overload
+    def __init__[T1, T2, T3, T4, T5, T6, T7, T8](
+        self: Either[T1 | T2 | T3 | T4 | T5 | T6 | T7 | T8],
+        tp1: _TypeParam[T1], tp2: _TypeParam[T2], tp3: _TypeParam[T3], tp4: _TypeParam[T4],
+        tp5: _TypeParam[T5], tp6: _TypeParam[T6], tp7: _TypeParam[T7], tp8: _TypeParam[T8],
+        /, *,
+        default: Init[T1 | T2 | T3 | T4 | T5 | T6 | T7 | T8] = ..., help: str | None = ...) -> None: ...
+    @overload
+    def __init__(
+        self,
+        type_param0: TypeOrInst[Property[Any]],
+        *type_params: TypeOrInst[Property[Any]],
+        default: Init[T] = ...,  # pyright: ignore[reportInvalidTypeVarUse]
+        help: str | None = ...,
+    ) -> None: ...
+    def __init__(
+        self,
+        type_param0: TypeOrInst[Property[Any]],
+        *type_params: TypeOrInst[Property[Any]],
+        default: Init[Any] = _NotGiven,
+        help: str | None = None,
+    ) -> None:
         super().__init__(type_param0, *type_params, default=default, help=help)
         for tp in self.type_params:
             self.alternatives.extend(tp.alternatives)
