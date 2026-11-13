@@ -94,6 +94,17 @@ void test("Linker reports cycles of mixed ES and CommonJS modules", async (t) =>
   assert.equal(status, false)
 })
 
+void test("Linker reports cycles of ES modules within cycles of CommonJS modules", async (t) => {
+  const {status, output} = await link(t, {
+    "lib/index.js": `import "cjs_a"`,
+    // the shortest cycle through `cjs_a` (`cjs_a -> cjs_a/b -> cjs_a`) has no ES modules
+    ...cjs_package("cjs_a", {"index.js": `require("./b.js"); exports.a = 1`, "b.js": `require("./index.js"); require("esm_c"); exports.b = 1`}),
+    ...esm_package("esm_c", `import "cjs_a/b.js"; export const c = 1`),
+  })
+  assert.equal(status, false)
+  assert.match(output, /cycle detected:\n├─ esm_c\/index\.js\n├─ cjs_a\/b\.js\n└─ esm_c\/index\.js/)
+})
+
 void test("Linker allows cycles of CommonJS modules", async (t) => {
   const {status, output} = await link(t, {
     "lib/index.js": `import "cjs_a"`,

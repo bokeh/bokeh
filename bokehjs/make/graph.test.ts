@@ -27,6 +27,12 @@ void test("detect_cycles() detects self-dependencies", () => {
   assert.deepEqual(detect_cycles(graph({a: ["a"], b: []})), [["a"]])
 })
 
+void test("detect_cycles() returns cycles through nodes that match a filter", () => {
+  // the shortest cycle through `a` (a -> b -> a) avoids `X`, but b -> X -> b doesn't
+  const g = graph({a: ["b"], b: ["a", "X"], X: ["b"], c: ["d"], d: ["c"], Y: ["Y"], Z: []})
+  assert.deepEqual(detect_cycles(g, (node) => node == node.toUpperCase()), [["X", "b"], ["Y"]])
+})
+
 void test("detect_cycles() handles deep graphs", () => {
   const n = 100_000
   const g: Graph<number> = new Map()

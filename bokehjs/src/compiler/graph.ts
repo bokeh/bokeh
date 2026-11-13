@@ -87,15 +87,21 @@ function shortest_cycle<T>(graph: Graph<T>, start: T, nodes: Set<T>): T[] {
 /**
  * Returns one cycle for each group of mutually dependent nodes (strongly
  * connected component), as a list of nodes `[a, b, ..., z]` where `z`
- * depends on `a`.
+ * depends on `a`. With `filter`, returns only cycles through nodes that
+ * match it, i.e. a shortest cycle through the first matching node of each
+ * group, and nothing for groups whose cycles avoid matching nodes.
  */
-export function detect_cycles<T>(graph: Graph<T>): T[][] {
+export function detect_cycles<T>(graph: Graph<T>, filter: (node: T) => boolean = () => true): T[][] {
   const cycles: T[][] = []
   for (const component of strongly_connected_components(graph)) {
-    const [first] = component
-    const is_cyclic = component.length > 1 || (graph.get(first) ?? []).includes(first)
-    if (is_cyclic) {
-      cycles.push(shortest_cycle(graph, first, new Set(component)))
+    // Each node of a group is on a cycle within the group, unless it's a single node
+    // that doesn't depend on itself, in which case there's no cycle.
+    const start = component.find(filter)
+    if (start != null) {
+      const cycle = shortest_cycle(graph, start, new Set(component))
+      if (cycle.length != 0) {
+        cycles.push(cycle)
+      }
     }
   }
   return cycles
