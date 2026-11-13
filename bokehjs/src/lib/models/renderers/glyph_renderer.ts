@@ -623,6 +623,13 @@ export class GlyphRendererView extends DataRendererView {
     }
   }
 
+  override paint(ctx: Context2d): void {
+    super.paint(ctx)
+    if (!(this.displayed && this.is_renderable)) {
+      this.glyph.update_dom(new Int32Array(0))
+    }
+  }
+
   protected _paint(ctx: Context2d): void {
     const {has_webgl} = this
 
@@ -645,6 +652,8 @@ export class GlyphRendererView extends DataRendererView {
     const masks = attachment_masks == null ? undefined : {glyph: masked, attachments: attachment_masks}
     let glyph_masks = masks
     let indices = candidates.ones()
+
+    this.glyph.update_dom(indices)
 
     // selected is in full set space
     const {selected} = this.model.data_source
