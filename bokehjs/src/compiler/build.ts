@@ -345,7 +345,8 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
 
     const {status, stdout} = run_tsc(typescript, base_dir, ["--project", config_path, "--showConfig"], true)
     if (status != 0) {
-      return {path: config_path, options: null}
+      // tsc reports configuration errors to stdout
+      return {path: config_path, options: null, output: stdout.trim()}
     }
     const {compilerOptions: options = {}} = JSON.parse(stdout) as {compilerOptions?: {[key: string]: unknown}}
     const dir = (option: unknown) => isString(option) ? resolve(dirname(config_path), option) : null
@@ -356,11 +357,15 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
         declarationDir: dir(options.declarationDir),
         noEmitOnError: options.noEmitOnError == true,
       },
+      output: "",
     }
   })()
 
   if (tsc_config != null && tsc_config.options == null) {
     print(`Failed to load ${cyan(tsc_config.path)}`)
+    if (tsc_config.output != "") {
+      print(tsc_config.output)
+    }
     return false
   }
 
