@@ -151,3 +151,4 @@ Bug fixes
 ---------
 
 * Fixed property validation and warning suppression leaking between concurrent sessions (:bokeh-pull:`15548`).
+* Fixed ``varying_alpha_palette`` raising ``ZeroDivisionError`` for palettes shorter than two colors; it now raises a more informative ``ValueError`` (:bokeh-pull:`15665`, :bokeh-issue:`15662`).

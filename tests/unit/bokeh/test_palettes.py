@@ -100,6 +100,20 @@ def test_varying_alpha_palette() -> None:
 
     assert pal.varying_alpha_palette("#654321", start_alpha=100, end_alpha=103) == ("#65432164", "#65432165", "#65432166", "#65432167")
 
+    # A palette has to comprise both the start and the end alpha, so a length
+    # below two is refused whether it was requested or implied.
+    assert pal.varying_alpha_palette("blue", 2) == ("#0000ff00", "#0000ff")
+    with pytest.raises(ValueError):
+        pal.varying_alpha_palette("blue", 1)
+    with pytest.raises(ValueError):
+        pal.varying_alpha_palette("red", 1, start_alpha=255, end_alpha=128)
+    with pytest.raises(ValueError):
+        pal.varying_alpha_palette("blue", 0)
+    with pytest.raises(ValueError):
+        pal.varying_alpha_palette("blue", -3)
+    with pytest.raises(ValueError):
+        pal.varying_alpha_palette("blue", start_alpha=128, end_alpha=128)
+
     with pytest.raises(ValueError):
         pal.varying_alpha_palette("bluey")
     with pytest.raises(ValueError):
