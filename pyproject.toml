@@ -55,7 +55,7 @@ classifiers = [
 
 [project.optional-dependencies]
 sampledata = [
-    "bokeh_sampledata >=2026.1",
+    "bokeh_sampledata >=2026.2",
 ]
 extra = [
     "contourpy >=1.2",

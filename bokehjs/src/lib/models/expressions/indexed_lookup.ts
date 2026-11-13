@@ -75,10 +75,7 @@ export class IndexedLookup extends Expression {
       this.change.emit()
     }
     this.on_transitive_change(this.properties.source, invalidate, {
-      signals: () => {
-        const {source} = this
-        return [source.change, source.data_changed]
-      },
+      signals: () => this.source.data_change_signals,
       on_replace: clear,
     })
     this.on_change([this.properties.field, this.properties.indices], clear)

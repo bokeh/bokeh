@@ -1405,7 +1405,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/xyzservices-2026.3.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-4.1.0-pyhcf101f3_0.conda
       - pypi: https://files.pythonhosted.org/packages/0a/49/385be530a6a5b78d1cbcd5c2e38debc8959a2fc6bdb716f4e581002979fc/pyright-1.1.411-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/4d/b0/a22341e04feac3453fab9d128861989ccc2f70ea52edd25e0bf7510e420a/bokeh_sampledata-2026.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/40/f8/9c2481a7ad72bc47d967e52471154ef2b82d536cce7b526d02d46136b55b/bokeh_sampledata-2026.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4f/d6/e95834b29360092376fe4da9956ba41bb7b021869efe6ee9d4172d05cb15/pyarrow-26.0.0-cp313-cp313-manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/63/86/df4771915e64a564c577ea2573956861c9c9f6c79450b172c5f9277cc48a/requests_unixsocket-0.4.1-py3-none-any.whl
       osx-arm64:
@@ -1760,8 +1760,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zlib-ng-2.3.3-h31dac16_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-hf451053_7.conda
       - pypi: https://files.pythonhosted.org/packages/0a/49/385be530a6a5b78d1cbcd5c2e38debc8959a2fc6bdb716f4e581002979fc/pyright-1.1.411-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/40/f8/9c2481a7ad72bc47d967e52471154ef2b82d536cce7b526d02d46136b55b/bokeh_sampledata-2026.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4d/35/ca95493712af97c46a312945c8e9d16b21c5fe2f148be5466168d0290505/pyarrow-26.0.0-cp313-cp313-macosx_12_0_arm64.whl
-      - pypi: https://files.pythonhosted.org/packages/4d/b0/a22341e04feac3453fab9d128861989ccc2f70ea52edd25e0bf7510e420a/bokeh_sampledata-2026.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/63/86/df4771915e64a564c577ea2573956861c9c9f6c79450b172c5f9277cc48a/requests_unixsocket-0.4.1-py3-none-any.whl
       win-64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
@@ -2102,7 +2102,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/zlib-ng-2.3.3-h0261ad2_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/zstd-1.5.7-h534d264_7.conda
       - pypi: https://files.pythonhosted.org/packages/0a/49/385be530a6a5b78d1cbcd5c2e38debc8959a2fc6bdb716f4e581002979fc/pyright-1.1.411-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/4d/b0/a22341e04feac3453fab9d128861989ccc2f70ea52edd25e0bf7510e420a/bokeh_sampledata-2026.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/40/f8/9c2481a7ad72bc47d967e52471154ef2b82d536cce7b526d02d46136b55b/bokeh_sampledata-2026.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/63/86/df4771915e64a564c577ea2573956861c9c9f6c79450b172c5f9277cc48a/requests_unixsocket-0.4.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c0/ed/138d29fddaf803b90f4527e124bb6aaddc18aaf4a6c50fd0a5f577c94989/pyarrow-26.0.0-cp313-cp313-win_amd64.whl
   docs-py313:
@@ -2349,7 +2349,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2026e-h5d301ff_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/urllib3-2.8.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/xyzservices-2026.9.1-pyhd8ed1ab_0.conda
-      - pypi: https://files.pythonhosted.org/packages/4d/b0/a22341e04feac3453fab9d128861989ccc2f70ea52edd25e0bf7510e420a/bokeh_sampledata-2026.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/40/f8/9c2481a7ad72bc47d967e52471154ef2b82d536cce7b526d02d46136b55b/bokeh_sampledata-2026.2-py3-none-any.whl
       osx-arm64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/accessible-pygments-0.0.5-pyhd8ed1ab_1.conda
@@ -2552,7 +2552,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/yaml-0.2.5-h74c22ad_3.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zlib-ng-2.3.3-h31dac16_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-hf451053_7.conda
-      - pypi: https://files.pythonhosted.org/packages/4d/b0/a22341e04feac3453fab9d128861989ccc2f70ea52edd25e0bf7510e420a/bokeh_sampledata-2026.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/40/f8/9c2481a7ad72bc47d967e52471154ef2b82d536cce7b526d02d46136b55b/bokeh_sampledata-2026.2-py3-none-any.whl
       win-64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/accessible-pygments-0.0.5-pyhd8ed1ab_1.conda
@@ -2747,7 +2747,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/zlib-1.3.2-hfd05255_3.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/zlib-ng-2.3.3-h0261ad2_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/zstd-1.5.7-h534d264_7.conda
-      - pypi: https://files.pythonhosted.org/packages/4d/b0/a22341e04feac3453fab9d128861989ccc2f70ea52edd25e0bf7510e420a/bokeh_sampledata-2026.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/40/f8/9c2481a7ad72bc47d967e52471154ef2b82d536cce7b526d02d46136b55b/bokeh_sampledata-2026.2-py3-none-any.whl
   docs-py315:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -2990,7 +2990,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2026c-h151e31d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/urllib3-2.8.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/xyzservices-2026.9.1-pyhd8ed1ab_0.conda
-      - pypi: https://files.pythonhosted.org/packages/4d/b0/a22341e04feac3453fab9d128861989ccc2f70ea52edd25e0bf7510e420a/bokeh_sampledata-2026.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/40/f8/9c2481a7ad72bc47d967e52471154ef2b82d536cce7b526d02d46136b55b/bokeh_sampledata-2026.2-py3-none-any.whl
       osx-arm64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/accessible-pygments-0.0.5-pyhd8ed1ab_1.conda
@@ -3191,7 +3191,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/yaml-0.2.5-h74c22ad_3.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zlib-ng-2.3.3-h31dac16_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-hf451053_7.conda
-      - pypi: https://files.pythonhosted.org/packages/4d/b0/a22341e04feac3453fab9d128861989ccc2f70ea52edd25e0bf7510e420a/bokeh_sampledata-2026.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/40/f8/9c2481a7ad72bc47d967e52471154ef2b82d536cce7b526d02d46136b55b/bokeh_sampledata-2026.2-py3-none-any.whl
       win-64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/accessible-pygments-0.0.5-pyhd8ed1ab_1.conda
@@ -3381,7 +3381,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/zlib-ng-2.3.3-h0261ad2_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/zstd-1.5.7-h534d264_7.conda
       - pypi: https://files.pythonhosted.org/packages/14/7d/351c43d812b94197fe279dc3e0defc6886e4be5a144fc191b8635b0fd839/shapely-2.2.0-cp315-cp315-win_amd64.whl
-      - pypi: https://files.pythonhosted.org/packages/4d/b0/a22341e04feac3453fab9d128861989ccc2f70ea52edd25e0bf7510e420a/bokeh_sampledata-2026.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/40/f8/9c2481a7ad72bc47d967e52471154ef2b82d536cce7b526d02d46136b55b/bokeh_sampledata-2026.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/50/bc/d2651b155ecc608a77e6f4d15495c11f14f19bb98f8bf0c5b0d38f86dda1/numpy-2.5.4-cp315-cp315-win_amd64.whl
   downstream:
     channels:
@@ -5455,7 +5455,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/wcwidth-0.8.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/xyzservices-2026.3.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-4.1.0-pyhcf101f3_0.conda
-      - pypi: https://files.pythonhosted.org/packages/4d/b0/a22341e04feac3453fab9d128861989ccc2f70ea52edd25e0bf7510e420a/bokeh_sampledata-2026.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/40/f8/9c2481a7ad72bc47d967e52471154ef2b82d536cce7b526d02d46136b55b/bokeh_sampledata-2026.2-py3-none-any.whl
       osx-arm64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/accessible-pygments-0.0.5-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/adwaita-icon-theme-49.0-unix_0.conda
@@ -5660,7 +5660,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/yaml-0.2.5-h74c22ad_3.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zlib-ng-2.3.3-h31dac16_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-hf451053_7.conda
-      - pypi: https://files.pythonhosted.org/packages/4d/b0/a22341e04feac3453fab9d128861989ccc2f70ea52edd25e0bf7510e420a/bokeh_sampledata-2026.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/40/f8/9c2481a7ad72bc47d967e52471154ef2b82d536cce7b526d02d46136b55b/bokeh_sampledata-2026.2-py3-none-any.whl
       win-64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/accessible-pygments-0.0.5-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/alabaster-1.0.0-pyhd8ed1ab_1.conda
@@ -5853,7 +5853,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/zlib-1.3.2-hfd05255_3.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/zlib-ng-2.3.3-h0261ad2_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/zstd-1.5.7-h534d264_7.conda
-      - pypi: https://files.pythonhosted.org/packages/4d/b0/a22341e04feac3453fab9d128861989ccc2f70ea52edd25e0bf7510e420a/bokeh_sampledata-2026.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/40/f8/9c2481a7ad72bc47d967e52471154ef2b82d536cce7b526d02d46136b55b/bokeh_sampledata-2026.2-py3-none-any.whl
   release-deploy:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -6686,7 +6686,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/xyzservices-2026.3.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-4.1.0-pyhcf101f3_0.conda
       - pypi: https://files.pythonhosted.org/packages/0a/49/385be530a6a5b78d1cbcd5c2e38debc8959a2fc6bdb716f4e581002979fc/pyright-1.1.411-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/4d/b0/a22341e04feac3453fab9d128861989ccc2f70ea52edd25e0bf7510e420a/bokeh_sampledata-2026.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/40/f8/9c2481a7ad72bc47d967e52471154ef2b82d536cce7b526d02d46136b55b/bokeh_sampledata-2026.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4f/d6/e95834b29360092376fe4da9956ba41bb7b021869efe6ee9d4172d05cb15/pyarrow-26.0.0-cp313-cp313-manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/63/86/df4771915e64a564c577ea2573956861c9c9f6c79450b172c5f9277cc48a/requests_unixsocket-0.4.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/6b/50/2a923c4dc02522ff9567f07c67ed1deca6d5fa9474f4708168b8088dfa37/gitpython-3.2.1-py3-none-any.whl
@@ -7090,7 +7090,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/xyzservices-2026.3.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-4.1.0-pyhcf101f3_0.conda
       - pypi: https://files.pythonhosted.org/packages/0a/49/385be530a6a5b78d1cbcd5c2e38debc8959a2fc6bdb716f4e581002979fc/pyright-1.1.411-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/4d/b0/a22341e04feac3453fab9d128861989ccc2f70ea52edd25e0bf7510e420a/bokeh_sampledata-2026.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/40/f8/9c2481a7ad72bc47d967e52471154ef2b82d536cce7b526d02d46136b55b/bokeh_sampledata-2026.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4f/d6/e95834b29360092376fe4da9956ba41bb7b021869efe6ee9d4172d05cb15/pyarrow-26.0.0-cp313-cp313-manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/63/86/df4771915e64a564c577ea2573956861c9c9f6c79450b172c5f9277cc48a/requests_unixsocket-0.4.1-py3-none-any.whl
       osx-arm64:
@@ -7445,8 +7445,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zlib-ng-2.3.3-h31dac16_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-hf451053_7.conda
       - pypi: https://files.pythonhosted.org/packages/0a/49/385be530a6a5b78d1cbcd5c2e38debc8959a2fc6bdb716f4e581002979fc/pyright-1.1.411-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/40/f8/9c2481a7ad72bc47d967e52471154ef2b82d536cce7b526d02d46136b55b/bokeh_sampledata-2026.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4d/35/ca95493712af97c46a312945c8e9d16b21c5fe2f148be5466168d0290505/pyarrow-26.0.0-cp313-cp313-macosx_12_0_arm64.whl
-      - pypi: https://files.pythonhosted.org/packages/4d/b0/a22341e04feac3453fab9d128861989ccc2f70ea52edd25e0bf7510e420a/bokeh_sampledata-2026.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/63/86/df4771915e64a564c577ea2573956861c9c9f6c79450b172c5f9277cc48a/requests_unixsocket-0.4.1-py3-none-any.whl
       win-64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_3.conda
@@ -7787,7 +7787,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/zlib-ng-2.3.3-h0261ad2_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/zstd-1.5.7-h534d264_7.conda
       - pypi: https://files.pythonhosted.org/packages/0a/49/385be530a6a5b78d1cbcd5c2e38debc8959a2fc6bdb716f4e581002979fc/pyright-1.1.411-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/4d/b0/a22341e04feac3453fab9d128861989ccc2f70ea52edd25e0bf7510e420a/bokeh_sampledata-2026.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/40/f8/9c2481a7ad72bc47d967e52471154ef2b82d536cce7b526d02d46136b55b/bokeh_sampledata-2026.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/63/86/df4771915e64a564c577ea2573956861c9c9f6c79450b172c5f9277cc48a/requests_unixsocket-0.4.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c0/ed/138d29fddaf803b90f4527e124bb6aaddc18aaf4a6c50fd0a5f577c94989/pyarrow-26.0.0-cp313-cp313-win_amd64.whl
   test-py314:
@@ -8182,7 +8182,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/xyzservices-2026.3.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-4.1.0-pyhcf101f3_0.conda
       - pypi: https://files.pythonhosted.org/packages/0a/49/385be530a6a5b78d1cbcd5c2e38debc8959a2fc6bdb716f4e581002979fc/pyright-1.1.411-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/4d/b0/a22341e04feac3453fab9d128861989ccc2f70ea52edd25e0bf7510e420a/bokeh_sampledata-2026.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/40/f8/9c2481a7ad72bc47d967e52471154ef2b82d536cce7b526d02d46136b55b/bokeh_sampledata-2026.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/63/86/df4771915e64a564c577ea2573956861c9c9f6c79450b172c5f9277cc48a/requests_unixsocket-0.4.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ec/c1/0c1ff38ab7df1b2cf54cf0ad9f19a516c4e416c6c9b4c966cc2c9d587f77/pyarrow-26.0.0-cp314-cp314-manylinux_2_28_x86_64.whl
       osx-arm64:
@@ -8538,7 +8538,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zlib-ng-2.3.3-h31dac16_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-hf451053_7.conda
       - pypi: https://files.pythonhosted.org/packages/0a/49/385be530a6a5b78d1cbcd5c2e38debc8959a2fc6bdb716f4e581002979fc/pyright-1.1.411-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/4d/b0/a22341e04feac3453fab9d128861989ccc2f70ea52edd25e0bf7510e420a/bokeh_sampledata-2026.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/40/f8/9c2481a7ad72bc47d967e52471154ef2b82d536cce7b526d02d46136b55b/bokeh_sampledata-2026.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/63/86/df4771915e64a564c577ea2573956861c9c9f6c79450b172c5f9277cc48a/requests_unixsocket-0.4.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/8c/32/01858422a37f083911c2bb4d15cc32c5eeaa9d9b2bf5ddedee995a7146a6/pyarrow-26.0.0-cp314-cp314-macosx_12_0_arm64.whl
       win-64:
@@ -8882,7 +8882,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/zstd-1.5.7-h534d264_7.conda
       - pypi: https://files.pythonhosted.org/packages/0a/49/385be530a6a5b78d1cbcd5c2e38debc8959a2fc6bdb716f4e581002979fc/pyright-1.1.411-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/ff/a74892c50aaf1f9f744a84493e08a2f99221e77c39d2d4a926de21a99edf/pyarrow-26.0.0-cp314-cp314-win_amd64.whl
-      - pypi: https://files.pythonhosted.org/packages/4d/b0/a22341e04feac3453fab9d128861989ccc2f70ea52edd25e0bf7510e420a/bokeh_sampledata-2026.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/40/f8/9c2481a7ad72bc47d967e52471154ef2b82d536cce7b526d02d46136b55b/bokeh_sampledata-2026.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/63/86/df4771915e64a564c577ea2573956861c9c9f6c79450b172c5f9277cc48a/requests_unixsocket-0.4.1-py3-none-any.whl
   test-py314t:
     channels:
@@ -9229,8 +9229,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-4.1.0-pyhcf101f3_0.conda
       - pypi: https://files.pythonhosted.org/packages/0a/49/385be530a6a5b78d1cbcd5c2e38debc8959a2fc6bdb716f4e581002979fc/pyright-1.1.411-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/34/88/16c5f12f86f5ad2817c4d103205131fc6c8acb3d1878af05a1a4f23ec859/numpy-2.5.4-cp314-cp314t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/40/f8/9c2481a7ad72bc47d967e52471154ef2b82d536cce7b526d02d46136b55b/bokeh_sampledata-2026.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4b/cb/b6d5048cf3178be9678f5c9c60040199894b2f69c3439c87ced91fd24da9/pyarrow-26.0.0-cp314-cp314t-manylinux_2_28_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/4d/b0/a22341e04feac3453fab9d128861989ccc2f70ea52edd25e0bf7510e420a/bokeh_sampledata-2026.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/55/04/e6742d85ba7d166a1a8a99ff9f4aa9e585fb24028522daa187859ce50b5d/pandas-3.1.0-cp314-cp314t-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/63/86/df4771915e64a564c577ea2573956861c9c9f6c79450b172c5f9277cc48a/requests_unixsocket-0.4.1-py3-none-any.whl
   test-py315:
@@ -9634,7 +9634,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/wsproto-1.3.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/xyzservices-2026.9.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-4.1.1-pyh5ded981_0.conda
-      - pypi: https://files.pythonhosted.org/packages/4d/b0/a22341e04feac3453fab9d128861989ccc2f70ea52edd25e0bf7510e420a/bokeh_sampledata-2026.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/40/f8/9c2481a7ad72bc47d967e52471154ef2b82d536cce7b526d02d46136b55b/bokeh_sampledata-2026.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/63/86/df4771915e64a564c577ea2573956861c9c9f6c79450b172c5f9277cc48a/requests_unixsocket-0.4.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/78/80/8c47b6cf8cfd42826df65193eff026c1cc81fa6cb213a3c3f5d203e6f67a/pyarrow-26.0.0-cp315-cp315-manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/d7/ba/18b6e682ead424ad24bcc134339ae5d1b931cd9ae260540592a058a91279/pyright-1.1.414-py3-none-any.whl
@@ -10000,7 +10000,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zeromq-4.3.5-h6eb0046_12.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zlib-ng-2.3.3-h31dac16_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-hf451053_7.conda
-      - pypi: https://files.pythonhosted.org/packages/4d/b0/a22341e04feac3453fab9d128861989ccc2f70ea52edd25e0bf7510e420a/bokeh_sampledata-2026.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/40/f8/9c2481a7ad72bc47d967e52471154ef2b82d536cce7b526d02d46136b55b/bokeh_sampledata-2026.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/63/86/df4771915e64a564c577ea2573956861c9c9f6c79450b172c5f9277cc48a/requests_unixsocket-0.4.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d7/ba/18b6e682ead424ad24bcc134339ae5d1b931cd9ae260540592a058a91279/pyright-1.1.414-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ed/66/8ada1b5165359d84b4b9b5384742304d1081da670f77d458fd9c9b8a2161/pyarrow-26.0.0-cp315-cp315-macosx_12_0_arm64.whl
@@ -10353,7 +10353,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/zlib-ng-2.3.3-h0261ad2_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/zstd-1.5.7-h534d264_7.conda
       - pypi: https://files.pythonhosted.org/packages/14/7d/351c43d812b94197fe279dc3e0defc6886e4be5a144fc191b8635b0fd839/shapely-2.2.0-cp315-cp315-win_amd64.whl
-      - pypi: https://files.pythonhosted.org/packages/4d/b0/a22341e04feac3453fab9d128861989ccc2f70ea52edd25e0bf7510e420a/bokeh_sampledata-2026.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/40/f8/9c2481a7ad72bc47d967e52471154ef2b82d536cce7b526d02d46136b55b/bokeh_sampledata-2026.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/50/bc/d2651b155ecc608a77e6f4d15495c11f14f19bb98f8bf0c5b0d38f86dda1/numpy-2.5.4-cp315-cp315-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/63/86/df4771915e64a564c577ea2573956861c9c9f6c79450b172c5f9277cc48a/requests_unixsocket-0.4.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d4/f3/c64781fbd7b6d3c07993b698c14944d0d195f07e800fa931c486ae6ab36a/pyarrow-26.0.0-cp315-cp315-win_amd64.whl
@@ -38039,6 +38039,17 @@ packages:
   version: 2.5.4
   sha256: c9b80cdf5cedba0e90d93fa5f9a333c4d65bd545cd669b71bb97ce2b703c9d73
   requires_python: '>=3.12'
+- pypi: https://files.pythonhosted.org/packages/40/f8/9c2481a7ad72bc47d967e52471154ef2b82d536cce7b526d02d46136b55b/bokeh_sampledata-2026.2-py3-none-any.whl
+  name: bokeh-sampledata
+  version: '2026.2'
+  sha256: 0036f39f222e3beb72be5e139234542a2f7b897d9460b1caa6e696b0446ccc32
+  requires_dist:
+  - icalendar
+  - pandas>=2.2.3
+  - numpy>=1.26.4
+  - shapely>=2.0
+  - tzdata
+  requires_python: '>=3.10'
 - pypi: https://files.pythonhosted.org/packages/4b/cb/b6d5048cf3178be9678f5c9c60040199894b2f69c3439c87ced91fd24da9/pyarrow-26.0.0-cp314-cp314t-manylinux_2_28_x86_64.whl
   name: pyarrow
   version: 26.0.0
@@ -38049,17 +38060,6 @@ packages:
   version: 26.0.0
   sha256: a6ca849f90cf73fe361f08a5762c783ead9671e4548c1f558cc637b54c9103f2
   requires_python: '>=3.11'
-- pypi: https://files.pythonhosted.org/packages/4d/b0/a22341e04feac3453fab9d128861989ccc2f70ea52edd25e0bf7510e420a/bokeh_sampledata-2026.1-py3-none-any.whl
-  name: bokeh-sampledata
-  version: '2026.1'
-  sha256: f40331a40ca30c64a1c1471835aad9006b61b0d9731a3f649ee8cbbf48d3822f
-  requires_dist:
-  - icalendar
-  - pandas>=2.2.3
-  - numpy>=1.26.4
-  - shapely>=2.0
-  - tzdata
-  requires_python: '>=3.10'
 - pypi: https://files.pythonhosted.org/packages/4f/d6/e95834b29360092376fe4da9956ba41bb7b021869efe6ee9d4172d05cb15/pyarrow-26.0.0-cp313-cp313-manylinux_2_28_x86_64.whl
   name: pyarrow
   version: 26.0.0

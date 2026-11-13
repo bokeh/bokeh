@@ -2,7 +2,7 @@ import {expect, expect_instanceof} from "#framework/assertions"
 import {display, fig} from "#framework/layouts"
 import {restorable} from "#framework/util"
 import {spy} from "sinon"
-import {RecordSource} from "./record_source"
+import {RecordDataSource} from "@bokehjs/models/sources/record_data_source"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {IndexedSubset} from "@bokehjs/models/sources/indexed_subset"
 import {GroupFilter} from "@bokehjs/models/filters/group_filter"
@@ -15,8 +15,8 @@ import {dict} from "@bokehjs/core/util/object"
 import {Document} from "@bokehjs/document"
 import {ModelChangedEvent} from "@bokehjs/document/events"
 
-function source(): RecordSource {
-  return RecordSource.create({records: [
+function source(): RecordDataSource {
+  return RecordDataSource.create({records: [
     {x: 1, y: 2, name: "alpha", color: "red", size: 12, group: "a"},
     {x: 3, y: 4, name: "beta", color: "blue", size: 18, group: "b"},
     {x: 5, y: 6, name: "gamma", color: "green", size: 24, group: "a"},
@@ -24,6 +24,47 @@ function source(): RecordSource {
 }
 
 describe("IndexedDataSource", () => {
+  it("loads JSON Lines as record rows", () => {
+    const records = RecordDataSource.from_jsonl(
+      '\uFEFF{"x":1,"nested":{"active":true}}\r\n \r\n{"x":2,"constructor":null}\r\n{"constructor":"row"}',
+    )
+    expect(records.get_field("x")).to.be.equal([1, 2, undefined])
+    expect(records.get_field("constructor")).to.be.equal([undefined, null, "row"])
+    expect(records.get_record(0)).to.be.equal({x: 1, nested: {active: true}})
+    expect(RecordDataSource.from_jsonl("\n").length).to.be.equal(0)
+  })
+
+  it("reports the input line for malformed JSON Lines", () => {
+    expect(() => RecordDataSource.from_jsonl('{}\n\n{"x":}')).to.throw(SyntaxError, /line 3: invalid JSON/)
+    expect(() => RecordDataSource.from_jsonl("{}\n[]")).to.throw(SyntaxError, /line 2: expected a JSON object/)
+    expect(() => RecordDataSource.from_jsonl("null")).to.throw(SyntaxError, /line 1: expected a JSON object/)
+  })
+
+  it("reads literal fields from heterogeneous records", () => {
+    const nested = {active: true}
+    const records = RecordDataSource.create({records: [
+      {"point.x": 2, nested},
+      new Map<string, unknown>([["y", null], ["point.x", 4]]),
+      {},
+    ]})
+    expect(records.get_length()).to.be.equal(3)
+    expect(records.fields()).to.be.equal(["point.x", "nested", "y"])
+    expect(records.get_field("point.x")).to.be.equal([2, 4, undefined])
+    expect(records.get_field("nested")).to.be.equal([nested, undefined, undefined])
+    expect(records.get_field("y")).to.be.equal([undefined, null, undefined])
+    expect(records.get_field("nested.active")).to.be.null
+    expect(records.get_field("constructor")).to.be.null
+    expect(records.get_record(1)).to.be.equal({y: null, "point.x": 4})
+    records.get_record(0)["point.x"] = 10
+    records.get_record(1)["point.x"] = 20
+    expect(records.get_field("point.x")).to.be.equal([2, 4, undefined])
+
+    records.records = [{y: 8}]
+    expect(records.fields()).to.be.equal(["y"])
+    expect(records.get_field("point.x")).to.be.null
+    expect(records.get_field("y")).to.be.equal([8])
+  })
+
   it("should preserve inferred source types in plotting APIs", () => {
     const plot = fig([300, 300])
     const implicit: ColumnDataSource = plot.scatter([1], [2]).data_source
@@ -36,12 +77,50 @@ describe("IndexedDataSource", () => {
     const literal: ColumnDataSource = plot.scatter({source: {x: [1], y: [2]}}).data_source
     expect(literal.get_column("x")).to.be.equal([1])
     const records = source()
-    const indexed: RecordSource = plot.scatter({source: records}).data_source
+    const indexed: RecordDataSource = plot.scatter({source: records}).data_source
     expect(indexed === records).to.be.equal(true)
-    const added: RecordSource = plot.add_glyph(plot.scatter().glyph, records).data_source
+    const added: RecordDataSource = plot.add_glyph(plot.scatter().glyph, records).data_source
     expect(added === records).to.be.equal(true)
     const default_added: ColumnDataSource = plot.add_glyph(plot.scatter().glyph).data_source
     expect(default_added).to.be.instanceof(ColumnDataSource)
+  })
+
+  it("keeps a grouped subset empty when replacement rows omit the group field", async () => {
+    const records = source()
+    const plot = fig([300, 300])
+    const filter = GroupFilter.create({field_name: "group", group: "a"})
+    const subset = IndexedSubset.create({filter})
+    const renderer = plot.scatter({source: records, x: {field: "x"}, y: {field: "y"}, view: subset})
+    const {view} = await display(plot)
+    const glyph = view.owner.get_one(renderer).glyph as ScatterView
+    expect([...subset.indices]).to.be.equal([0, 2])
+
+    records.records = [{x: 7, y: 8}, {x: 9, y: 10}]
+    await view.ready
+    expect([...subset.indices]).to.be.equal([])
+    expect(glyph.data_size).to.be.equal(0)
+
+    records.records = [{x: 7, y: 8}, {x: 9, y: 10, group: "a"}]
+    await view.ready
+    expect([...subset.indices]).to.be.equal([1])
+    expect([...glyph.x]).to.be.equal([9])
+  })
+
+  it("renders field specs before rows arrive and after clearing them", async () => {
+    const records = RecordDataSource.create()
+    const plot = fig([300, 300])
+    const renderer = plot.scatter({source: records, x: {field: "x"}, y: {field: "y"}})
+    const {view} = await display(plot)
+    const glyph = view.owner.get_one(renderer).glyph as ScatterView
+    expect(glyph.data_size).to.be.equal(0)
+
+    records.records = [{x: 3, y: 4}]
+    await view.ready
+    expect([...glyph.x]).to.be.equal([3])
+
+    records.records = []
+    await view.ready
+    expect(glyph.data_size).to.be.equal(0)
   })
 
   for (const output_backend of ["canvas", "webgl"] as const) {
@@ -76,9 +155,13 @@ describe("IndexedDataSource", () => {
     records.selection_manager.inspect(renderer_view, geometry)
     expect(records.inspected.indices).to.be.equal([2])
     const hover_view = view.owner.get_one(hover)
-    const content = hover_view._render_tooltips(records, {index: 2} as TooltipVars)
-    expect_instanceof(content, Element)
-    expect(content.textContent).to.be.equal("gamma (2)")
+    {
+      using get_field = restorable(spy(records, "get_field"))
+      const content = hover_view._render_tooltips(records, {index: 2} as TooltipVars)
+      expect_instanceof(content, Element)
+      expect(content.textContent).to.be.equal("gamma (2)")
+      expect(get_field.callCount).to.be.equal(0)
+    }
     using update = restorable(spy(hover_view, "_update"))
     const replacement = source()
     renderer.data_source = replacement
@@ -123,7 +206,7 @@ describe("IndexedDataSource", () => {
     await view.ready
     expect(records.selected.indices).to.be.equal([0])
     expect(records.inspected.indices).to.be.equal([])
-    const replacement = RecordSource.create({records: [{x: 9, y: 10}]})
+    const replacement = RecordDataSource.create({records: [{x: 9, y: 10}]})
     renderer.data_source = replacement
     await view.ready
     using prepare = restorable(spy(view.owner.get_one(renderer), "_set_data"))
@@ -134,20 +217,42 @@ describe("IndexedDataSource", () => {
   })
 
   it("invalidates expressions for in-place record updates", () => {
-    const values = RecordSource.create({records: [{value: 2}, {value: 4}]})
+    const values = RecordDataSource.create({records: [{value: 2}, {value: 4}]})
     const sum = Stack.create({fields: ["value"]})
     expect([...sum.v_compute(values)]).to.be.equal([2, 4])
     dict(values.records[1]).set("value", 8)
     values.data_changed.emit({indices: [1], structural: false})
     expect([...sum.v_compute(values)]).to.be.equal([2, 8])
+
+    dict(values.records[0]).set("value", 6)
+    values.change.emit()
+    expect([...sum.v_compute(values)]).to.be.equal([6, 8])
+  })
+
+  it("emits a structural data change when records are replaced", () => {
+    const records = source()
+    const on_change = spy()
+    records.data_changed.connect(on_change)
+    const before = records.get_field("x")
+    expect(records.get_field("x") === before).to.be.true
+    records.records = [{x: 7}]
+    expect(records.get_field("x")).to.be.equal([7])
+    expect(on_change.args).to.be.equal([[{structural: true}, records]])
+    records.change.emit()
+    expect(on_change.callCount).to.be.equal(2)
+
+    records.setv({records: [{x: 9}]}, {silent: true})
+    expect(records.get_field("x")).to.be.equal([9])
+    expect(on_change.callCount).to.be.equal(2)
   })
 
   it("should request only glyph fields without materializing unused records", async () => {
-    const records = RecordSource.create({records: [{x: 1, y: 2, unused: {large: [1, 2, 3]}}]})
+    const records = RecordDataSource.create({records: [{x: 1, y: 2, unused: {large: [1, 2, 3]}}]})
+    using get_field = restorable(spy(records, "get_field"))
     const plot = fig([300, 300])
     plot.scatter({source: records, x: {field: "x"}, y: {field: "y"}})
     await display(plot)
-    expect([...records.requested_fields].sort()).to.be.equal(["x", "y"])
+    expect([...new Set(get_field.args.map(([name]) => name))].sort()).to.be.equal(["x", "y"])
   })
 
   it("should remove tooltip views and inspection subscriptions when tooltips are disabled", async () => {

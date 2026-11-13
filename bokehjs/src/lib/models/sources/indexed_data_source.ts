@@ -5,13 +5,18 @@ import type {HasProps} from "core/has_props"
 import type {Arrayable, Attrs} from "core/types"
 import {inplace_filter} from "core/util/array"
 import {assert} from "core/util/assert"
+import {get_array_item} from "core/util/ndarray"
 import {entries} from "core/util/object"
 import type {Index} from "core/util/templating"
+import {isNumber} from "core/util/types"
 import type {GlyphRenderer} from "../renderers/glyph_renderer"
 import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
 import {Selection} from "../selections/selection"
 import type * as p from "core/properties"
 import {DataSource} from "./data_source"
+
+/** Historically, GroupFilter warned and let all rows through when the field was missing. */
+export type MissingGroupFieldPolicy = "match_all_and_warn" | "match_none"
 
 export namespace IndexedDataSource {
   export type Attrs = p.AttrsOf<Props>
@@ -88,6 +93,25 @@ export abstract class IndexedDataSource extends DataSource {
    * ragged, or shaped values. Implementations need not store fields as columns.
    */
   abstract get_field(name: string): Arrayable | null
+
+  /** Signals that consumers can subscribe to for changes to source data. */
+  get data_change_signals(): (typeof this.change | typeof this.data_changed)[] {
+    return [this.change, this.data_changed]
+  }
+
+  /** Read a field from one row, or the value for a whole image at an image index. */
+  get_field_value(name: string, index: Index): unknown {
+    const field = this.get_field(name)
+    if (field == null) {
+      return null
+    }
+    return isNumber(index) ? get_array_item(field, index) : field[index.index]
+  }
+
+  /** The group filter outcome when the requested field is absent. */
+  get missing_group_field_policy(): MissingGroupFieldPolicy {
+    return "match_all_and_warn"
+  }
 
   /**
    * Read positional lookup indices into the target's current row order.
