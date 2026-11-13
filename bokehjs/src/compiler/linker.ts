@@ -18,7 +18,7 @@ import {load_source_map, chain, concat, shift_lines, extract_contents, restore_c
 
 const root_path = process.cwd()
 
-const cache_version = 10
+const cache_version = 11
 
 export type Parent = {
   file: Path
@@ -751,7 +751,21 @@ export default json;
         if (!path.startsWith("..")) {
           if (type == "js") {
             const {dir, pkg} = get_package(base, path)
-            const reso = pkg.type == "module" || pkg.module != null ? "ESM" : "CJS"
+            const reso = ((): ResoType => {
+              switch (extname(file)) {
+                case ".cjs": return "CJS"
+                case ".mjs": return "ESM"
+              }
+              if (pkg.type == "module") {
+                return "ESM"
+              }
+              // Packages with a `module` entry (without `"type": "module"`) usually
+              // ship CommonJS modules as well, so check the syntax of each module.
+              if (pkg.module != null) {
+                return transforms.has_module_syntax(file, source) ? "ESM" : "CJS"
+              }
+              return "CJS"
+            })()
             const entry = pkg.module ?? pkg.name
             const primary = entry != null && join(dir, entry) == join(base, path)
             // Use the package's path relative to the base (not just `basename(dir)`),
