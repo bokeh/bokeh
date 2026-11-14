@@ -109,7 +109,7 @@ class Button(AbstractButton):
 
     '''
 
-    label = Override(default="Button")
+    _label = Override(default="Button")
 
     def on_click(self, handler: EventCallback) -> None:
         ''' Set up a handler for button clicks.
@@ -132,7 +132,7 @@ class Toggle(AbstractButton):
 
     '''
 
-    label = Override(default="Toggle")
+    _label = Override(default="Toggle")
 
     active = Bool(False, help="""
     The state of the toggle button.
@@ -158,7 +158,7 @@ class Dropdown(AbstractButton):
 
     '''
 
-    label = Override(default="Dropdown")
+    _label = Override(default="Dropdown")
 
     split = Bool(default=False, help="""
     """)
@@ -196,11 +196,11 @@ class HelpButton(AbstractButton):
     description of a widget's or component's function.
     """)
 
-    label = Override(default="")
+    _label = Override(default="")
 
-    icon = Override(default=lambda: BuiltinIcon(icon_name="help", size=18))
+    _icon = Override(default=lambda: BuiltinIcon(icon_name="help", size=18))
 
-    button_type = Override(default="default")
+    _button_type = Override(default="default")
 
 #-----------------------------------------------------------------------------
 # Private API

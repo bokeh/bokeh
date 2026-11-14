@@ -53,7 +53,7 @@ class Widget(LayoutDOM):
 
     '''
 
-    margin = Override(default=5)
+    _margin = Override(default=5)
 
 #-----------------------------------------------------------------------------
 # Private API

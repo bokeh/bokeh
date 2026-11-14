@@ -39,7 +39,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Override[T]:
+class Override:
     """ Override attributes of Bokeh property in derived Models.
 
     When subclassing a Bokeh Model, it may be desirable to change some of the
@@ -48,6 +48,11 @@ class Override[T]:
 
     Currently, ``Override`` can only be use to override the ``default`` value
     for the property.
+
+    The name of an override should be the name of the overridden property
+    prefixed with an underscore, e.g. ``_foo`` to override ``foo``. This way
+    the property isn't redefined in the derived model, so type checkers retain
+    its type. Overrides named exactly like properties are supported as well.
 
     Keyword Args:
         default (obj) : a default value for this property on a subclass
@@ -65,14 +70,14 @@ class Override[T]:
                 foo = Int(default=10)
 
             class Child(Parent):
-                foo = Override(default=20)
+                _foo = Override(default=20)
 
         The parent class has an integer property ``foo`` with default value
         10.  The child class uses the following code:
 
         .. code-block:: python
 
-            foo = Override(default=20)
+            _foo = Override(default=20)
 
         to specify that the default value for the ``foo`` property should be
         20 on instances of the child class:
@@ -90,9 +95,9 @@ class Override[T]:
     """
 
     default_overridden: bool
-    default: T
+    default: Any
 
-    def __init__(self, *, default: T) -> None:
+    def __init__(self, *, default: Any) -> None:
         self.default_overridden = True
         self.default = default
 

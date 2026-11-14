@@ -219,7 +219,7 @@ class BaseDatetimePicker(PickerBase, DateCommon, TimeCommon):
     Optional latest allowable date and time.
     """)
 
-    date_format = Override(default="Y-m-d H:i")
+    _date_format = Override(default="Y-m-d H:i")
 
 class DatetimePicker(BaseDatetimePicker):
     """ Calendar-based date and time picker widget.

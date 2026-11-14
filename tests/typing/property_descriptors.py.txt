@@ -8,6 +8,7 @@ from bokeh.core.property.descriptors import PropertyDescriptor
 from bokeh.core.property.container import Dict, List
 from bokeh.core.property.instance import Instance
 from bokeh.core.property.nullable import Nullable
+from bokeh.core.property.override import Override
 from bokeh.core.property.primitive import Float, Int, String
 
 
@@ -46,3 +47,25 @@ model.int_prop = "2"  # mypy: assignment; pyright: reportAttributeAccessIssue
 model.nullable_prop = "2"  # mypy: assignment; pyright: reportAttributeAccessIssue
 model.list_prop = [1, 2]  # mypy: list-item,list-item; pyright: reportAttributeAccessIssue
 model.instance_prop = Model()  # mypy: assignment; pyright: reportAttributeAccessIssue
+
+
+# Overrides prefixed with an underscore don't redefine properties, so derived
+# models retain types of overridden properties.
+
+class Derived(Model):
+    _int_prop = Override(default=2)
+    _nullable_prop = Override(default=None)
+
+
+class FurtherDerived(Derived):
+    _int_prop = Override(default=lambda: 3)
+
+
+derived = FurtherDerived()
+
+assert_type(derived.int_prop, int)
+assert_type(derived.nullable_prop, float | None)
+assert_type(FurtherDerived.int_prop, PropertyDescriptor[int])
+
+derived.int_prop = 4
+derived.int_prop = "4"  # mypy: assignment; pyright: reportAttributeAccessIssue
