@@ -7,7 +7,6 @@ import {restorable} from "#framework/util"
 import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
 import {BBox} from "@bokehjs/core/util/bbox"
 import {build_view} from "@bokehjs/core/build_views"
-import {paint} from "@bokehjs/core/util/defer"
 import type {StyleSheetLike} from "@bokehjs/core/dom"
 import vars_css from "@bokehjs/styles/vars.css"
 import core_css from "@bokehjs/styles/core.css"
@@ -171,10 +170,9 @@ describe("UIElement", () => {
     it("when switched to 'display: none' after display", async () => {
       const ui = UI.create({styles: {...size}})
       const {view} = await display(ui, [100, 100])
-      await paint()
 
       ui.styles = {...size, display: "none"}
-      await paint()
+      await view.resized
 
       expect(view.is_displayed).to.be.false
       expect(view.bbox).to.be.equal(new BBox({x: 0, y: 0, width: 0, height: 0}))
@@ -188,8 +186,7 @@ describe("UIElement", () => {
       expect(view.bbox).to.be.equal(new BBox({x: 0, y: 0, width: 50, height: 75}))
 
       view.el.remove()
-      await paint()
-      await paint() // TODO: we need to await resize
+      await view.resized
 
       expect(view.is_displayed).to.be.false
       expect(view.bbox).to.be.equal(new BBox({x: 0, y: 0, width: 0, height: 0}))
