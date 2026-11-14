@@ -25,7 +25,7 @@ from typing import TYPE_CHECKING, Any
 
 from ..core.enums import Dimension
 from ..models import glyphs
-from ._decorators import glyph_method, marker_method
+from ._decorators import glyph_method
 
 if TYPE_CHECKING:
     from ..core.enums import DimensionType
@@ -160,30 +160,12 @@ Examples:
     def arc(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         pass
 
-    @marker_method()
-    def asterisk(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.asterisk(x=[1,2,3], y=[1,2,3], size=20, color="#F0027F")
-
-        show(plot)
-
-"""
 
     @glyph_method(glyphs.Bezier)
     def bezier(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         pass
 
     @glyph_method(glyphs.Circle)
-    def _circle(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        pass
-
     def circle(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """ Configure and add :class:`~bokeh.models.glyphs.Circle` glyphs to this figure.
 
@@ -214,15 +196,6 @@ Examples:
                 show(plot)
 
         """
-        if "size" in kwargs:
-            from ..util.warnings import warn_deprecated
-
-            warn_deprecated("circle() method with size value", "scatter(size=...)", since=(3, 4, 0))
-            if "radius" in kwargs:
-                raise ValueError("can only provide one of size or radius")
-            return self.scatter(*args, **kwargs)
-        else:
-            return self._circle(*args, **kwargs)
 
     @glyph_method(glyphs.Block)
     def block(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
@@ -235,175 +208,6 @@ Examples:
 
         plot = figure(width=300, height=300)
         plot.block(x=[1, 2, 3], y=[1,2,3], width=0.5, height=1, color="#CAB2D6")
-
-        show(plot)
-
-"""
-
-    @marker_method()
-    def circle_cross(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.circle_cross(x=[1,2,3], y=[4,5,6], size=20,
-                          color="#FB8072", fill_alpha=0.2, line_width=2)
-
-        show(plot)
-
-"""
-
-    @marker_method()
-    def circle_dot(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.circle_dot(x=[1,2,3], y=[4,5,6], size=20,
-                        color="#FB8072", fill_color=None)
-
-        show(plot)
-
-"""
-
-    @marker_method()
-    def circle_x(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.circle_x(x=[1, 2, 3], y=[1, 2, 3], size=20,
-                      color="#DD1C77", fill_alpha=0.2)
-
-        show(plot)
-
-"""
-
-    @marker_method()
-    def circle_y(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.circle_y(x=[1, 2, 3], y=[1, 2, 3], size=20,
-                      color="#DD1C77", fill_alpha=0.2)
-
-        show(plot)
-
-"""
-
-    @marker_method()
-    def cross(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.cross(x=[1, 2, 3], y=[1, 2, 3], size=20,
-                   color="#E6550D", line_width=2)
-
-        show(plot)
-
-"""
-
-    @marker_method()
-    def dash(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.dash(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
-                  color="#99D594", line_width=2)
-
-        show(plot)
-
-"""
-
-    @marker_method()
-    def diamond(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.diamond(x=[1, 2, 3], y=[1, 2, 3], size=20,
-                     color="#1C9099", line_width=2)
-
-        show(plot)
-
-"""
-
-    @marker_method()
-    def diamond_cross(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.diamond_cross(x=[1, 2, 3], y=[1, 2, 3], size=20,
-                           color="#386CB0", fill_color=None, line_width=2)
-
-        show(plot)
-
-"""
-
-    @marker_method()
-    def diamond_dot(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.diamond_dot(x=[1, 2, 3], y=[1, 2, 3], size=20,
-                         color="#386CB0", fill_color=None)
-
-        show(plot)
-
-"""
-
-    @marker_method()
-    def dot(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.dot(x=[1, 2, 3], y=[1, 2, 3], size=20, color="#386CB0")
 
         show(plot)
 
@@ -508,39 +312,6 @@ Examples:
 
 """
 
-    @marker_method()
-    def hex(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.hex(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,30], color="#74ADD1")
-
-        show(plot)
-
-"""
-
-    @marker_method()
-    def hex_dot(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.hex_dot(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,30],
-                     color="#74ADD1", fill_color=None)
-
-        show(plot)
-
-"""
-
     @glyph_method(glyphs.HexTile)
     def hex_tile(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
@@ -584,21 +355,6 @@ Examples:
     def image_url(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         pass
 
-    @marker_method()
-    def inverted_triangle(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.inverted_triangle(x=[1, 2, 3], y=[1, 2, 3], size=20, color="#DE2D26")
-
-        show(plot)
-
-"""
 
     @glyph_method(glyphs.Line)
     def line(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
@@ -740,21 +496,6 @@ Examples:
 
 """
 
-    @marker_method()
-    def plus(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.plus(x=[1, 2, 3], y=[1, 2, 3], size=20, color="#DE2D26")
-
-        show(plot)
-
-"""
 
     @glyph_method(glyphs.Quad)
     def quad(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
@@ -850,124 +591,6 @@ Examples:
 
 """
 
-    @marker_method()
-    def square(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.square(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,30], color="#74ADD1")
-
-        show(plot)
-
-"""
-
-    @marker_method()
-    def square_cross(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.square_cross(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
-                          color="#7FC97F",fill_color=None, line_width=2)
-
-        show(plot)
-
-"""
-
-    @marker_method()
-    def square_dot(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.square_dot(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
-                        color="#7FC97F", fill_color=None)
-
-        show(plot)
-
-"""
-
-    @marker_method()
-    def square_pin(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.square_pin(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
-                        color="#7FC97F",fill_color=None, line_width=2)
-
-        show(plot)
-
-"""
-
-    @marker_method()
-    def square_x(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.square_x(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
-                      color="#FDAE6B",fill_color=None, line_width=2)
-
-        show(plot)
-
-"""
-
-    @marker_method()
-    def star(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.star(x=[1, 2, 3], y=[1, 2, 3], size=20,
-                  color="#1C9099", line_width=2)
-
-        show(plot)
-
-"""
-
-    @marker_method()
-    def star_dot(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.star_dot(x=[1, 2, 3], y=[1, 2, 3], size=20,
-                      color="#386CB0", fill_color=None, line_width=2)
-
-        show(plot)
-
-"""
-
     @glyph_method(glyphs.TeXGlyph)
     def tex(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
@@ -990,57 +613,6 @@ Examples:
 .. note::
     The location and angle of the text relative to the ``x``, ``y`` coordinates
     is indicated by the alignment and baseline text properties.
-
-"""
-
-    @marker_method()
-    def triangle(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.triangle(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
-                      color="#99D594", line_width=2)
-
-        show(plot)
-
-"""
-
-    @marker_method()
-    def triangle_dot(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.triangle_dot(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
-                          color="#99D594", fill_color=None)
-
-        show(plot)
-
-"""
-
-    @marker_method()
-    def triangle_pin(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.triangle_pin(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
-                      color="#99D594", line_width=2)
-
-        show(plot)
 
 """
 
@@ -1143,40 +715,6 @@ Examples:
 
 """
 
-    @marker_method()
-    def x(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.x(x=[1, 2, 3], y=[1, 2, 3], size=[10, 20, 25], color="#fa9fb5")
-
-        show(plot)
-
-"""
-
-    @marker_method()
-    def y(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
-        """
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, show
-
-        plot = figure(width=300, height=300)
-        plot.y(x=[1, 2, 3], y=[1, 2, 3], size=20, color="#DE2D26")
-
-        show(plot)
-
-"""
-
-    # -------------------------------------------------------------------------
-
     @glyph_method(glyphs.Scatter)
     def _scatter(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         pass
@@ -1218,15 +756,8 @@ Examples:
         if isinstance(marker_type, str) and marker_type in _MARKER_SHORTCUTS:
             marker_type = _MARKER_SHORTCUTS[marker_type]
 
-        if marker_type == "circle" and "radius" in kwargs:
-            from ..util.warnings import warn_deprecated
+        return self._scatter(*args, marker=marker_type, **kwargs)
 
-            warn_deprecated("scatter(radius=...)", "circle(radius=...)", since=(3, 4, 0))
-            if "size" in kwargs:
-                raise ValueError("can only provide one of size or radius")
-            return self.circle(*args, **kwargs)
-        else:
-            return self._scatter(*args, marker=marker_type, **kwargs)
 
 _MARKER_SHORTCUTS = {
     "*"  : "asterisk",

@@ -22,7 +22,7 @@ export abstract class PickerBaseView extends InputWidgetView {
     return this._picker
   }
 
-  public override *controls() {
+  protected override *disabled_controls() {
     yield this.picker.altInput ?? this.input_el
   }
 

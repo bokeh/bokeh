@@ -32,9 +32,8 @@ tutorials and resources in the `Git documentation`_.
 Install or update Pixi
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Working on the Bokeh codebase requires installing several software packages that
-are not Python packages. For example, `Node.js`_ for TypeScript development or
-`Selenium`_ for testing and exporting.
+Bokeh development uses `Node.js`_ for TypeScript and Chromium for Playwright
+browser tests.
 
 To manage Python and non-Python dependencies in one place, Bokeh uses `Pixi`_.
 Pixi is a single executable available for Windows, macOS, and Linux. It creates
@@ -850,7 +849,6 @@ Please feel free to ask at the `Bokeh Discourse`_ or `Bokeh's contributor
 Slack`_.
 
 .. _Node.js: https://nodejs.org/en/
-.. _Selenium: https://www.selenium.dev/
 .. _Bokeh's contributor Slack: https://slack-invite.bokeh.org/
 .. _Pixi: https://pixi.prefix.dev/
 .. _Pixi installation: https://pixi.prefix.dev/latest/installation/

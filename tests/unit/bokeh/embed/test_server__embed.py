@@ -12,13 +12,11 @@ import sys
 from contextlib import nullcontext
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
 
 import pytest
 
-import bokeh.embed.server as bes
 from bokeh.document import Document
-from bokeh.embed import EmbedResult
+from bokeh.embed import EmbedResult, embed_server
 from bokeh.embed._util import server_page_for_session
 from bokeh.embed.resources import ResourceRequirements
 from bokeh.model import Model
@@ -58,16 +56,6 @@ def test_existing_session_flask_example_renders_template(monkeypatch: pytest.Mon
     assert result_from_fragment(html).source["session_id"] == "existing-session"
 
 
-def deprecated_server_document(*args: Any, **kwargs: Any) -> str:
-    with pytest.warns(DeprecationWarning, match=r"server_document\(\)"):
-        return bes.server_document(*args, **kwargs)
-
-
-def deprecated_server_session(*args: Any, **kwargs: Any) -> str:
-    with pytest.warns(DeprecationWarning, match=r"server_session\(\)"):
-        return bes.server_session(*args, **kwargs)
-
-
 @pytest.fixture
 def test_plot():
     from bokeh.plotting import figure
@@ -77,13 +65,13 @@ def test_plot():
     return plot
 
 
-class TestServerDocument:
+class TestServerEmbed:
     def test_builds_structured_server_source(self) -> None:
-        result = result_from_fragment(deprecated_server_document(
+        result = embed_server(
             "http://localhost:8081/foo/bar/sliders",
             arguments={"b": "2", "a": "1"},
             headers={"X-Test": "yes"},
-        ))
+        )
         assert result.source == {
             "kind": "server",
             "url": "http://localhost:8081/foo/bar/sliders",
@@ -97,7 +85,7 @@ class TestServerDocument:
         )
 
     def test_relative_url_and_credentials_are_data_not_loader_code(self) -> None:
-        fragment = deprecated_server_document("/bkapp", relative_urls=True, with_credentials=True)
+        fragment = embed_server("/bkapp", relative_urls=True, with_credentials=True).fragment().html
         result = result_from_fragment(fragment)
         assert result.source["url"] == "/bkapp"
         assert result.source["relative_urls"] is True
@@ -106,40 +94,35 @@ class TestServerDocument:
         assert "XMLHttpRequest" not in fragment
 
     def test_resources_none_is_host_owned(self) -> None:
-        fragment = deprecated_server_document(resources=None)
+        fragment = embed_server().fragment(resources="none").html
         assert "static/js/bokeh" not in fragment
         assert "session_id" not in result_from_fragment(fragment).source
 
     def test_rejects_invalid_resources(self) -> None:
-        with pytest.raises(ValueError, match="resources"):
-            deprecated_server_document(resources="whatever")  # type: ignore[arg-type]
+        with pytest.raises(ValueError, match="unknown resource mode"):
+            embed_server().fragment(resources="whatever")  # type: ignore[arg-type]
 
     def test_headers_and_credentials_can_be_combined(self) -> None:
-        result = result_from_fragment(deprecated_server_document(
+        result = embed_server(
             headers={"Authorization": "Bearer token"}, with_credentials=True,
-        ))
+        )
         assert result.source["headers"] == {"Authorization": "Bearer token"}
         assert result.source["credentials"] == "include"
-
-    def test_legacy_arguments_are_converted_to_strings(self) -> None:
-        result = result_from_fragment(deprecated_server_document(arguments={"n": 5, "user": None}))
-
-        assert result.source["arguments"] == {"n": "5", "user": "None"}
 
 
 class TestServerSession:
     def test_existing_session_and_selected_root(self, test_plot) -> None:
-        result = result_from_fragment(deprecated_server_session(
-            test_plot,
+        result = embed_server(
+            "http://localhost:8081/app",
             session_id="fakesession",
-            url="http://localhost:8081/app",
-        ))
+            roots={"selected": test_plot},
+        )
         assert result.source["session_id"] == "fakesession"
         assert result.roots[0].key == "selected"
         assert result.roots[0].model_id == test_plot.id
 
     def test_entire_existing_session_has_no_selected_roots(self) -> None:
-        result = result_from_fragment(deprecated_server_session(None, session_id="fakesession"))
+        result = embed_server(session_id="fakesession")
         assert result.roots == ()
 
     def test_full_page_template_can_embed_named_session_roots(self, test_plot) -> None:
@@ -181,7 +164,3 @@ class TestServerSession:
         assert result.source["token"] == "faketoken"
         assert result.requires == ResourceRequirements.dynamic_server()
         assert result.requires.extensions == ()
-
-    def test_session_id_is_required(self) -> None:
-        with pytest.raises(ValueError, match="session_id"):
-            deprecated_server_session(None)

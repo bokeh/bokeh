@@ -342,7 +342,7 @@ class _BokehStructureGraph:
             columns=columns,
             visible=False,
             index_position=None,
-            fit_columns=True,
+            autosize_mode="force_fit",
             editable=False,
         )
 

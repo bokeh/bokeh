@@ -1,7 +1,7 @@
 import {Tool, ToolView} from "../tool"
 import {OnOffButton} from "../on_off_button"
 import type {PlotView} from "../../plots/plot"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export abstract class InspectToolView extends ToolView {
   declare model: InspectTool
@@ -15,10 +15,7 @@ export abstract class InspectToolView extends ToolView {
 export namespace InspectTool {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Tool.Props & {
-    /** @deprecated */
-    toggleable: p.Property<boolean>
-  }
+  export type Props = Tool.Props
 }
 
 export interface InspectTool extends InspectTool.Attrs {}
@@ -28,10 +25,6 @@ export abstract class InspectTool extends Tool {
   declare __view_type__: InspectToolView
 
   static {
-    this.define<InspectTool.Props>(() => ({
-      toggleable: [ new p.PropertyAlias("visible") ],
-    }))
-
     this.override<InspectTool.Props>({
       active: true,
     })

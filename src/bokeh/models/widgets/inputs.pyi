@@ -12,7 +12,6 @@ from typing import (
     Sequence,
     Unpack,
 )
-from warnings import deprecated
 
 from ..._types import (
     Color,
@@ -262,6 +261,3 @@ class PaletteSelect(InputWidget):
     swatch_width: NonNegative[int] = ...
     swatch_height: Auto | NonNegative[int] = ...
     ncols: Positive[int] = ...
-
-@deprecated("'ColorMap widget' was deprecated in Bokeh 3.4.0 and will be removed, use 'PaletteSelect widget' instead.")
-def ColorMap(*args: Any, **kwargs: Any) -> PaletteSelect: ...

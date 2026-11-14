@@ -46,6 +46,48 @@ Removals
 
 * Removed support for Python 3.12. Bokeh now requires Python 3.13 or newer.
 
+* Replaced ``serverdir()`` and ``bokehjsdir()`` with ``server_path()`` and
+  ``bokehjs_path()``. The replacement functions return ``pathlib.Path`` objects.
+  Use ``settings.bokehjs_path()`` in place of ``settings.bokehjsdir()``.
+* Removed ``ColorMap``. Use :class:`~bokeh.models.PaletteSelect`.
+* Removed ``ActionItem`` and ``CheckableItem``. Use :class:`~bokeh.models.MenuItem`
+  and set ``checked`` to a boolean for checkable items.
+* Use ``continuous`` in place of ``select_every_mousemove`` and ``visible``
+  in place of ``toggleable``.
+* Removed the ``accept_datetime`` and ``accept_timedelta`` flags from
+  ``NumberSpec``. Use ``FloatSpec`` for numeric-only values.
+* Removed ``DataTable.fit_columns``. Set ``autosize_mode="force_fit"`` for
+  the old ``True`` behavior or ``autosize_mode="none"`` for ``False``.
+* Access hexbin results through ``result.q``, ``result.r``, and
+  ``result.counts``. Dictionary-style indexing has been removed.
+* Removed individual marker methods such as ``square()``. Use
+  ``scatter(marker="square")`` and set ``size`` in screen units. Use
+  ``circle(radius=...)`` for circles sized in data units.
+* Removed the Python embedding functions ``components()``, ``file_html()``,
+  ``server_document()``, and ``server_session()``. Use ``embed().fragment()``,
+  ``embed().page()``, and ``embed_server().fragment()``. Pass ``session_id``
+  to ``embed_server()`` to embed an existing session.
+* Removed Selenium export and the ``BOKEH_EXPORT_BACKEND`` setting. Install
+  Playwright to export PNG or SVG. In ``export_png()``, ``export_svg()``, and
+  ``export_svgs()``, replace ``webdriver=`` with ``browser=`` and pass a
+  Playwright ``Browser`` or ``BrowserContext``.
+  The lower-level PNG and SVG rendering helpers also use ``browser=``
+  in place of ``driver=``.
+* In BokehJS, use the ``contrast`` theme in place of ``constrast`` and
+  ``IndexedSubset.filter`` in place of ``IndexedSubset.filters``.
+* BokehJS widget extensions can use ``Widget`` and ``WidgetView`` in place
+  of ``Control`` and ``ControlView``. Use ``StyledElementView.self_style``
+  in place of ``style``.
+* BokehJS property kinds now use ``Bool``, ``Str``, ``Float``, ``List``,
+  ``Mapping``, and ``Func`` in place of their legacy aliases. Extend
+  ``ScalarSpec<T>`` and ``DataSpec<T>`` in place of ``AnyScalar`` and
+  ``AnySpec``.
+* Removed obsolete properties from the CSS style APIs. Use ``clip-path``,
+  ``column-gap``, ``gap``, ``row-gap``, and ``overflow-wrap`` in place of
+  ``clip``, ``grid-column-gap``, ``grid-gap``, ``grid-row-gap``, and
+  ``word-wrap``. The removed ``font-variant-alternates`` and
+  ``image-orientation`` properties can be supplied in a stylesheet.
+
 * Removed the slider and spinner ``value_throttled`` properties. Configure
   committed delivery when registering a callback on ``value``, for example
   ``widget.on_change("value", callback, policy=Committed())``.
@@ -127,9 +169,7 @@ API changes
 * Sliders no longer default to ``width=300``. The default size is now set
   in CSS and can be changed with the ``--default-size`` CSS variable.
 
-* In BokehJS, ``OrientedControl`` now derives from ``Widget`` instead of
-  ``Control``, and ``Control`` is deprecated. ``BBox.relativize()`` now takes
-  and returns an ``{x, y}`` object instead of separate coordinates.
+* In BokehJS, ``BBox.relativize()`` takes and returns an ``{x, y}`` object.
 
 * ``ColorMapper`` no longer has ``palette`` and ``nan_color``. They moved to
   the new :class:`~bokeh.models.PaletteMixin`, which ``CategoricalColorMapper``,

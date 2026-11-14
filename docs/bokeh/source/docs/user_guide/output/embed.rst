@@ -190,10 +190,6 @@ operations. You can also provide your own template for the HTML output
 and pass in custom, or additional, template variables. For more details, see
 :meth:`~bokeh.embed.EmbedResult.page`.
 
-.. deprecated:: 4.0
-    The |file_html| compatibility facade remains available during the 4.x
-    transition. Use ``embed(models).page(...)`` in new code.
-
 File-backed |save| and |show| routes use the same embed result builder and resource
 policy and remain supported.
 
@@ -281,11 +277,6 @@ larger host page. Its typed result provides ``script``, ``mounts``, ``divs``,
     fragment = embed(plot).fragment(resources="none")
     script = fragment.script
     div = fragment.divs["root"]
-
-.. deprecated:: 4.0
-    The |components| compatibility facade remains available during the 4.x
-    transition and returns its canonical ``(script, divs)`` tuple. Use
-    ``embed(models).fragment(...)`` in new code.
 
 The target markup is declarative and stable by logical root key:
 
@@ -549,11 +540,6 @@ This creates a new session from that server every time the declaration mounts:
     result = embed_server("https://demo.bokeh.org/sliders")
     html = result.fragment(resources="server").html
 
-.. deprecated:: 4.0
-    The |server_document| compatibility facade remains available during the
-    4.x transition. Use ``embed_server(url, ...).fragment(...).html`` in new
-    code.
-
 This returns declarative embed markup: resource tags, a logical-root target,
 the ``bokeh.embed/v1`` server descriptor, and the common embed bootstrap.
 Add that markup to an HTML page at the point where the application should
@@ -604,11 +590,6 @@ Here is an example with Flask:
 
     if __name__ == '__main__':
         app.run(port=8080)
-
-.. deprecated:: 4.0
-    The |server_session| compatibility facade remains available during the 4.x
-    transition. Use ``embed_server(session_id=...).fragment(...).html`` in new
-    code.
 
 Standard template
 -----------------
@@ -700,8 +681,5 @@ Here's a full template with all the sections that you can override:
     </html>
 
 
-.. |file_html|       replace:: :func:`~bokeh.embed.file_html`
-.. |server_document| replace:: :func:`~bokeh.embed.server_document`
-.. |server_session|  replace:: :func:`~bokeh.embed.server_session`
 
 .. _Subresource Integrity: https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity

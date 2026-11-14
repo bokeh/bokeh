@@ -145,7 +145,7 @@ def test_saved_artifact_is_captured_through_common_page_and_playwright() -> None
     html = result.cells[0].outputs[0].data["text/html"]
     assert 'data-bokeh-notebook-export-state="saved-notebook"' in html
     page.assert_called_once_with(resources="inline")
-    assert screenshot.call_args.kwargs["backend"] == "playwright"
+    screenshot.assert_called_once_with("<html>artifact page</html>", timeout=preprocessor.timeout)
 
 
 def test_current_frontend_artifact_wins_over_saved_state() -> None:

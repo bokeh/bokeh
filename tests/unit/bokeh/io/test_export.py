@@ -20,7 +20,7 @@ import sys
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from types import ModuleType, SimpleNamespace
+from types import ModuleType
 from typing import TYPE_CHECKING, Literal
 
 import PIL.Image
@@ -28,7 +28,6 @@ import pytest
 
 if TYPE_CHECKING:
     from playwright.sync_api import Browser
-    from selenium.webdriver.remote.webdriver import WebDriver
 
 from bokeh.core.validation import silenced
 from bokeh.core.validation.warnings import MISSING_RENDERERS
@@ -58,20 +57,7 @@ import bokeh.io.export as bie # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-_has_selenium = is_installed("selenium")
 _has_playwright = is_installed("playwright")
-
-_webdriver_params = [
-    pytest.param("chromium", marks=pytest.mark.xdist_group(name="export-chromium")),
-    pytest.param("firefox", marks=pytest.mark.xdist_group(name="export-firefox")),
-]
-
-pytestmark = pytest.mark.filterwarnings(
-    "ignore:'Selenium export backend' was deprecated.*:DeprecationWarning",
-)
-
-if not _has_selenium and not _has_playwright:
-    pytest.skip("Neither Selenium nor Playwright is installed", allow_module_level=True)
 
 
 @pytest.fixture(scope="module")
@@ -85,30 +71,6 @@ def browser():
             yield browser
         finally:
             browser.close()
-
-
-@pytest.fixture(scope="module", params=_webdriver_params)
-def webdriver(request: pytest.FixtureRequest):
-    if not _has_selenium:
-        pytest.skip("Selenium not installed")
-    from bokeh.io.webdriver import webdriver_control
-    driver = webdriver_control.create(request.param)
-    try:
-        yield driver
-    finally:
-        webdriver_control.terminate(driver)
-
-
-@pytest.fixture(scope="module", params=_webdriver_params)
-def webdriver_with_scale_factor(request: pytest.FixtureRequest):
-    if not _has_selenium:
-        pytest.skip("Selenium not installed")
-    from bokeh.io.webdriver import webdriver_control
-    driver = webdriver_control.create(request.param, scale_factor=2.5)
-    try:
-        yield driver
-    finally:
-        webdriver_control.terminate(driver)
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -132,112 +94,25 @@ def _assert_solid_region(image: PIL.Image.Image, box: tuple[int, int, int, int],
     assert region.tobytes() == pixel*region.width*region.height
 
 
-# -- Selenium-backend tests ---------------------------------------------------
+# -- Export regression tests ---------------------------------------------------
 
-@pytest.mark.selenium
-@pytest.mark.parametrize("dimensions", [(14, 14), (44, 44), (144, 144), (444, 444), (1444, 1444)])
-def test_get_screenshot_as_png(webdriver: WebDriver, dimensions: tuple[int, int]) -> None:
-    if sys.platform == "darwin" and webdriver.name == "firefox":
-        pytest.skip(reason="unreliable on MacOS and Firefox")
-
-    width, height = dimensions
-    border = 5
-
-    layout = Plot(x_range=Range1d(), y_range=Range1d(),
-                  height=width, width=height,
-                  min_border=border,
-                  toolbar_location=None,
-                  outline_line_color=None, background_fill_color="#00ff00", border_fill_color="#00ff00")
-
-    with silenced(MISSING_RENDERERS):
-        png = bie.get_screenshot_as_png(layout, driver=webdriver)
-
-    assert png.size == (width, height)
-
-    data = png.tobytes()
-    assert len(data) == 4*width*height
-    # The HiDPI half-pixel transform antialiases the canvas and frame edges.
-    green_pixel = b"\x00\xff\x00\xff"
-    _assert_solid_region(png, (border + 1, border + 1, width - border, height - border), green_pixel)
-    assert png.getpixel((border//2, border//2)) == tuple(green_pixel)
-
-
-@pytest.mark.selenium
-@pytest.mark.parametrize("dimensions", [(14, 14), (44, 44), (144, 144), (444, 444), (1444, 1444)])
-def test_get_screenshot_as_png_with_glyph(webdriver: WebDriver, dimensions: tuple[int, int]) -> None:
-    if sys.platform == "darwin" and webdriver.name == "firefox":
-        pytest.skip(reason="unreliable on MacOS and Firefox")
-
-    width, height = dimensions
-    border = 5
-
-    layout = Plot(x_range=Range1d(-1, 1), y_range=Range1d(-1, 1),
-                  height=width, width=height,
-                  toolbar_location=None,
-                  min_border=border,
-                  outline_line_color=None, background_fill_color="#00ff00", border_fill_color="#00ff00")
-    glyph = Rect(x="x", y="y", width=2, height=2, fill_color="#ff0000", line_color="#ff0000")
-    source = ColumnDataSource(data=dict(x=[0], y=[0]))
-    layout.add_glyph(source, glyph)
-
-    png = bie.get_screenshot_as_png(layout, driver=webdriver)
-    assert png.size == (width, height)
-
-    # The layout is a green border surrounding a red center rectangle. The
-    # HiDPI half-pixel transform antialiases their boundaries, so verify the
-    # solid interior and a border pixel instead of counting edge pixels.
-    red_pixel = b"\xff\x00\x00\xff"
-    green_pixel = b"\x00\xff\x00\xff"
-    _assert_solid_region(png, (border + 1, border + 1, width - border, height - border), red_pixel)
-    assert png.getpixel((border//2, border//2)) == tuple(green_pixel)
-
-@pytest.mark.selenium
-def test_get_screenshot_as_png_with_fractional_sizing__issue_12611(webdriver: WebDriver) -> None:
-    div = Div(text="Something", styles=dict(width="100.64px", height="50.34px"))
-    png = bie.get_screenshot_as_png(div, driver=webdriver)
-    assert len(png.tobytes()) > 0
-
-@pytest.mark.selenium
-def test_get_screenshot_as_png_with_scale_factor_equal_to_dpr__issue_8807(
-        webdriver_with_scale_factor: WebDriver) -> None:
-    div = Div(text="Something", styles=dict(width="100px", height="100px"))
-    png = bie.get_screenshot_as_png(div, driver=webdriver_with_scale_factor, scale_factor=2.5)
-    assert png.width == 250
-
-@pytest.mark.selenium
-def test_get_screenshot_as_png_with_scale_factor_less_than_dpr__issue_8807(
-        webdriver_with_scale_factor: WebDriver) -> None:
-    div = Div(text="Something", styles=dict(width="100px", height="100px"))
-    png = bie.get_screenshot_as_png(div, driver=webdriver_with_scale_factor, scale_factor=1.5)
-    assert png.width == 150
-
-@pytest.mark.selenium
-def test_get_screenshot_as_png_with_scale_factor_greater_than_dpr__issue_8807(
-        webdriver_with_scale_factor: WebDriver) -> None:
-    div = Div(text="Something", styles=dict(width="100px", height="100px"))
-    with pytest.raises(ValueError):
-        _ = bie.get_screenshot_as_png(div, driver=webdriver_with_scale_factor, scale_factor=3.5)
-
-@pytest.mark.selenium
-def test_get_screenshot_as_png_with_unicode_minified(webdriver: WebDriver) -> None:
+def test_get_screenshot_as_png_with_unicode_minified(browser: Browser) -> None:
     p = figure(title="유니 코드 지원을위한 작은 테스트")
 
     with silenced(MISSING_RENDERERS):
-        png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=True))
+        png = bie.get_screenshot_as_png(p, browser=browser, resources=Resources(mode="inline", minified=True))
 
     assert len(png.tobytes()) > 0
 
-@pytest.mark.selenium
-def test_get_screenshot_as_png_with_unicode_unminified(webdriver: WebDriver) -> None:
+def test_get_screenshot_as_png_with_unicode_unminified(browser: Browser) -> None:
     p = figure(title="유니 코드 지원을위한 작은 테스트")
 
     with silenced(MISSING_RENDERERS):
-        png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=False))
+        png = bie.get_screenshot_as_png(p, browser=browser, resources=Resources(mode="inline", minified=False))
 
     assert len(png.tobytes()) > 0
 
-@pytest.mark.selenium
-def test_get_svg_no_svg_present(webdriver: WebDriver) -> None:
+def test_get_svg_no_svg_present(browser: Browser) -> None:
     layout = Plot(
         x_range=Range1d(), y_range=Range1d(),
         toolbar_location=None,
@@ -250,7 +125,7 @@ def test_get_svg_no_svg_present(webdriver: WebDriver) -> None:
     )
 
     with silenced(MISSING_RENDERERS):
-        svgs = bie.get_svg(layout, driver=webdriver)
+        svgs = bie.get_svg(layout, browser=browser)
 
     assert isinstance(svgs, list) and len(svgs) == 1
     [svg] = svgs
@@ -262,8 +137,7 @@ def test_get_svg_no_svg_present(webdriver: WebDriver) -> None:
         '</svg>'
     )
 
-@pytest.mark.selenium
-def test_get_svg_with_svg_present(webdriver: WebDriver) -> None:
+def test_get_svg_with_svg_present(browser: Browser) -> None:
     def plot(color: str):
         return Plot(
             x_range=Range1d(), y_range=Range1d(),
@@ -275,8 +149,8 @@ def test_get_svg_with_svg_present(webdriver: WebDriver) -> None:
     layout = row([plot("red"), plot("blue")])
 
     with silenced(MISSING_RENDERERS):
-        svgs0 = bie.get_svg(layout, driver=webdriver)
-        svgs1 = bie.get_svg(layout, driver=webdriver)
+        svgs0 = bie.get_svg(layout, browser=browser)
+        svgs1 = bie.get_svg(layout, browser=browser)
 
     svgs2 = [
         '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="40" height="20">'
@@ -292,8 +166,7 @@ def test_get_svg_with_svg_present(webdriver: WebDriver) -> None:
     assert svgs0 == svgs2
     assert svgs1 == svgs2
 
-@pytest.mark.selenium
-def test_get_svg_with_document_theme(webdriver: WebDriver) -> None:
+def test_get_svg_with_document_theme(browser: Browser) -> None:
     document = Document()
     document.theme = Theme(json={
         "attrs": {
@@ -314,27 +187,19 @@ def test_get_svg_with_document_theme(webdriver: WebDriver) -> None:
         return plot
 
     document.add_root(row([p("red"), p("blue")]))
-    [svg] = bie.get_svg(document, driver=webdriver)
+    [svg] = bie.get_svg(document, browser=browser)
     assert len(re.findall(r'fill="#2f3f4f"', svg)) == 2
 
-@pytest.mark.selenium
-def test_get_svgs_no_svg_present() -> None:
-    if not _has_selenium:
-        pytest.skip("Selenium not installed")
-    from bokeh.io.webdriver import webdriver_control
-
+def test_get_svgs_no_svg_present(browser: Browser) -> None:
     layout = Plot(x_range=Range1d(), y_range=Range1d(), height=20, width=20, toolbar_location=None)
 
-    try:
-        with silenced(MISSING_RENDERERS):
-            svgs = bie.get_svgs(layout, backend="selenium")
-    finally:
-        webdriver_control.reset()
+    with silenced(MISSING_RENDERERS):
+        svgs = bie.get_svgs(layout, browser=browser)
 
     assert svgs == []
 
-@pytest.mark.selenium
-def test_get_svgs_with_svg_present(webdriver: WebDriver) -> None:
+
+def test_get_svgs_with_svg_present(browser: Browser) -> None:
     def plot(color: str):
         return Plot(
             x_range=Range1d(), y_range=Range1d(),
@@ -346,8 +211,8 @@ def test_get_svgs_with_svg_present(webdriver: WebDriver) -> None:
     layout = row([plot("red"), plot("blue")])
 
     with silenced(MISSING_RENDERERS):
-        svgs0 = bie.get_svgs(layout, driver=webdriver)
-        svgs1 = bie.get_svgs(layout, driver=webdriver)
+        svgs0 = bie.get_svgs(layout, browser=browser)
+        svgs1 = bie.get_svgs(layout, browser=browser)
 
     svgs2 = [
         '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20">'
@@ -363,8 +228,7 @@ def test_get_svgs_with_svg_present(webdriver: WebDriver) -> None:
     assert svgs0 == svgs2
     assert svgs1 == svgs2
 
-@pytest.mark.selenium
-def test_get_svgs_with_Legend__issue_14502(webdriver: WebDriver) -> None:
+def test_get_svgs_with_Legend__issue_14502(browser: Browser) -> None:
     def plot(color: str):
         return Plot(
             x_range=DataRange1d(), y_range=DataRange1d(),
@@ -381,7 +245,7 @@ def test_get_svgs_with_Legend__issue_14502(webdriver: WebDriver) -> None:
     layout = row([plot("red"), plot("blue")])
 
     with silenced(MISSING_RENDERERS):
-        svgs = bie.get_svgs(layout, driver=webdriver)
+        svgs = bie.get_svgs(layout, browser=browser)
 
     assert len(svgs) == 2
 
@@ -410,7 +274,7 @@ def _call_in_fresh_thread[T](context: Literal["sync", "async"], fn: Callable[[],
 @pytest.mark.skipif(not _has_playwright, reason="Playwright not installed")
 class TestPlaywrightPNG:
 
-    @pytest.mark.parametrize("dimensions", [(14, 14), (44, 44), (144, 144), (444, 444)])
+    @pytest.mark.parametrize("dimensions", [(14, 14), (44, 44), (144, 144), (444, 444), (1444, 1444)])
     def test_screenshot_dimensions(self, dimensions: tuple[int, int], browser: Browser) -> None:
         width, height = dimensions
         border = 5
@@ -422,7 +286,7 @@ class TestPlaywrightPNG:
                       outline_line_color=None, background_fill_color="#00ff00", border_fill_color="#00ff00")
 
         with silenced(MISSING_RENDERERS):
-            png = bie.get_screenshot_as_png(layout, driver=browser)
+            png = bie.get_screenshot_as_png(layout, browser=browser)
 
         assert png.size == (width, height)
         data = png.tobytes()
@@ -445,7 +309,7 @@ class TestPlaywrightPNG:
         source = ColumnDataSource(data=dict(x=[0], y=[0]))
         layout.add_glyph(source, glyph)
 
-        png = bie.get_screenshot_as_png(layout, driver=browser)
+        png = bie.get_screenshot_as_png(layout, browser=browser)
         assert png.size == (width, height)
 
         # The layout is a green border surrounding a red center rectangle. The
@@ -458,7 +322,7 @@ class TestPlaywrightPNG:
 
     def test_screenshot_fractional_sizing(self, browser: Browser) -> None:
         div = Div(text="Something", styles=dict(width="100.64px", height="50.34px"))
-        png = bie.get_screenshot_as_png(div, driver=browser)
+        png = bie.get_screenshot_as_png(div, browser=browser)
         assert len(png.tobytes()) > 0
 
     def test_default_export_uses_installed_package_offline(
@@ -502,7 +366,7 @@ class TestPlaywrightPNG:
                 context.on("request", lambda request: requests.append(request.url))
                 png = bie.get_screenshot_as_png(
                     LocalExportDiv(width=40, height=30, text="", styles={"background-color": "#00ff00"}),
-                    driver=context,
+                    browser=context,
                 )
 
             assert png.size == (40, 30)
@@ -528,15 +392,13 @@ class TestPlaywrightSVG:
             output_backend="canvas",
         )
         with silenced(MISSING_RENDERERS):
-            svgs = bie.get_svg(layout, driver=browser)
+            svgs = bie.get_svg(layout, browser=browser)
         assert isinstance(svgs, list) and len(svgs) == 1
         [svg] = svgs
         assert 'fill="red"' in svg
 
     def test_get_svgs(self, browser: Browser) -> None:
-        # Add a Legend with a distinct label per plot so each SVG has a
-        # text marker we can assert on. Mirrors the selenium-side
-        # test_get_svgs_with_Legend__issue_14502.
+        # Give each SVG a distinct legend label to identify its plot.
         def plot(color: str):
             return Plot(
                 x_range=DataRange1d(), y_range=DataRange1d(),
@@ -548,7 +410,7 @@ class TestPlaywrightSVG:
             )
         layout = row([plot("red"), plot("blue")])
         with silenced(MISSING_RENDERERS):
-            svgs = bie.get_svgs(layout, driver=browser)
+            svgs = bie.get_svgs(layout, browser=browser)
         assert len(svgs) == 2
         assert "Legend Item: red" in svgs[0]
         assert "Legend Item: blue" in svgs[1]
@@ -574,11 +436,11 @@ def test_implicit_playwright_browser_across_execution_contexts__issues_15401_154
 
     def export_svg() -> list[str]:
         with silenced(MISSING_RENDERERS):
-            return bie.export_svg(layout, filename=svg_path, backend="playwright")
+            return bie.export_svg(layout, filename=svg_path)
 
     def export_png() -> str:
         with silenced(MISSING_RENDERERS):
-            return bie.export_png(layout, filename=png_path, backend="playwright")
+            return bie.export_png(layout, filename=png_path)
 
     async def browser_identity() -> int:
         assert bib.playwright_control._browser is not None
@@ -602,49 +464,6 @@ def test_implicit_playwright_browser_across_execution_contexts__issues_15401_154
 
 
 # -- Backend resolution tests --------------------------------------------------
-
-class TestResolveBackend:
-
-    def test_driver_forces_selenium(self) -> None:
-        with pytest.warns(DeprecationWarning, match="Selenium export backend"):
-            assert bie._resolve_backend(driver="fake_driver", backend=None) is bie._selenium_backend
-
-    @pytest.mark.skipif(not _has_playwright, reason="Playwright not installed")
-    def test_playwright_browser_forces_playwright(self, browser: Browser) -> None:
-        assert bie._resolve_backend(driver=browser, backend=None) is bie._playwright_backend
-
-    def test_explicit_backend_param(self) -> None:
-        assert bie._resolve_backend(driver=None, backend="playwright") is bie._playwright_backend
-        with pytest.warns(DeprecationWarning, match="Selenium export backend"):
-            assert bie._resolve_backend(driver=None, backend="selenium") is bie._selenium_backend
-
-    def test_auto_prefers_playwright(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        calls: list[str] = []
-
-        def import_optional(name: str) -> object:
-            calls.append(name)
-            return object()
-
-        monkeypatch.setattr(bie, "settings", SimpleNamespace(export_backend=lambda: "auto"))
-        monkeypatch.setattr(bie, "import_optional", import_optional)
-
-        assert bie._resolve_backend(driver=None, backend=None) is bie._playwright_backend
-        assert calls == ["playwright"]
-
-    def test_auto_falls_back_to_deprecated_selenium(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        def import_optional(name: str) -> object | None:
-            return None if name == "playwright" else object()
-
-        monkeypatch.setattr(bie, "settings", SimpleNamespace(export_backend=lambda: "auto"))
-        monkeypatch.setattr(bie, "import_optional", import_optional)
-
-        with pytest.warns(DeprecationWarning, match="Selenium export backend"):
-            assert bie._resolve_backend(driver=None, backend=None) is bie._selenium_backend
-
-    def test_invalid_backend_raises(self) -> None:
-        with pytest.raises(ValueError, match="Invalid export backend"):
-            bie._resolve_backend(driver=None, backend="puppeteer")
-
 
 # -- Non-backend-specific tests ------------------------------------------------
 

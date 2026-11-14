@@ -432,8 +432,6 @@ export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Pro
   }
 }
 
-/** @deprecated */
-export class AnyScalar extends ScalarSpec<any> {}
 export class DictScalar<T> extends ScalarSpec<Dict<T>> {}
 export class ColorScalar extends ScalarSpec<types.Color | null> {}
 export class NumberScalar extends ScalarSpec<number> {}
@@ -933,8 +931,6 @@ export class ColorSpec extends DataSpec<types.Color | null> {
 
 export class NDArraySpec extends DataSpec<NDArrayType<number>> {}
 
-/** @deprecated */
-export class AnySpec extends DataSpec<any> {}
 export class StringSpec extends DataSpec<string> {}
 export class NullStringSpec extends DataSpec<string | null> {}
 export class ArraySpec extends DataSpec<any[]> {}
