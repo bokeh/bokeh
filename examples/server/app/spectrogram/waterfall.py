@@ -18,4 +18,4 @@ class WaterfallRenderer(Renderer):
 
     tile_width = Int()
 
-    level = Override(default="glyph")
+    _level = Override(default="glyph")

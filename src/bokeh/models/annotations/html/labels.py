@@ -100,11 +100,11 @@ class HTMLTextAnnotation(HTMLAnnotation):
     The {prop} values for the text bounding box.
     """)
 
-    background_fill_color = Override(default=None)
+    _background_fill_color = Override(default=None)
 
-    background_hatch_color = Override(default=None)
+    _background_hatch_color = Override(default=None)
 
-    border_line_color = Override(default=None)
+    _border_line_color = Override(default=None)
 
 class HTMLLabel(HTMLTextAnnotation):
     ''' Render a single HTML label as an annotation.
@@ -249,13 +249,13 @@ class HTMLLabelSet(HTMLAnnotation, DataAnnotation):
     The {prop} values for the text bounding box.
     """)
 
-    background_fill_color = Override(default=None)
+    _background_fill_color = Override(default=None)
 
     border_props = Include(LineProps, prefix="border", help="""
     The {prop} values for the text bounding box.
     """)
 
-    border_line_color = Override(default=None)
+    _border_line_color = Override(default=None)
 
 class HTMLTitle(HTMLTextAnnotation):
     ''' Render a single title box as an annotation.

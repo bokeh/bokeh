@@ -267,7 +267,7 @@ class Spinner(NumericInput):
 
     _committed_callback_properties = frozenset({"value"})
 
-    mode = Override(default="float")
+    _mode = Override(default="float")
 
     step = Interval(Float, start=1e-16, end=inf, default=1, help="""
     The step added or subtracted to the current value.
@@ -320,15 +320,15 @@ class Switch(ToggleInput):
 class LightDark(Switch):
     """ A switch widget to change between themes (light and dark). """
 
-    active = Override(default=None)
+    _active = Override(default=None)
 
-    on_icon = Override(default="light_theme")
+    _on_icon = Override(default="light_theme")
 
-    off_icon = Override(default="dark_theme")
+    _off_icon = Override(default="dark_theme")
 
-    indeterminate_icon = Override(default="system_theme")
+    _indeterminate_icon = Override(default="system_theme")
 
-    tri_state = Override(default=True)
+    _tri_state = Override(default=True)
 
 class TextLikeInput(InputWidget):
     ''' Base class for text-like input widgets.
@@ -384,7 +384,7 @@ class TextAreaInput(TextLikeInput):
     Specifies the height of the text area (in lines). Default: 2
     """)
 
-    max_length = Override(default=500)
+    _max_length = Override(default=500)
 
 
 class PasswordInput(TextInput):

@@ -46,7 +46,7 @@ class Annotation(CompositeRenderer):
 
     '''
 
-    level = Override(default="annotation")
+    _level = Override(default="annotation")
 
 @abstract
 class DataAnnotation(Annotation):

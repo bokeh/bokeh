@@ -87,7 +87,7 @@ class NormalHead(ArrowHead):
     The {prop} values for the arrow head interior.
     """)
 
-    fill_color = Override(default="black")
+    _fill_color = Override(default="black")
 
 class TeeHead(ArrowHead):
     ''' Render a tee-style arrow head.
@@ -115,7 +115,7 @@ class VeeHead(ArrowHead):
     The {prop} values for the arrow head interior.
     """)
 
-    fill_color = Override(default="black")
+    _fill_color = Override(default="black")
 
 #-----------------------------------------------------------------------------
 # Dev API

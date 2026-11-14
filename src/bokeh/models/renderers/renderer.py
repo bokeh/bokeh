@@ -140,7 +140,7 @@ class DataRenderer(Renderer):
 
     """
 
-    level = Override(default="glyph")
+    _level = Override(default="glyph")
 
 @abstract
 class GuideRenderer(Renderer):
@@ -149,7 +149,7 @@ class GuideRenderer(Renderer):
 
     """
 
-    level = Override(default="guide")
+    _level = Override(default="guide")
 
 #-----------------------------------------------------------------------------
 # Private API

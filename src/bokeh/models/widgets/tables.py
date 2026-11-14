@@ -149,9 +149,9 @@ class ScientificFormatter(StringFormatter):
         log(x) <= power_limit_low
     """)
 
-    nan_format = Override(default="-")
+    _nan_format = Override(default="-")
 
-    null_format = Override(default="-")
+    _null_format = Override(default="-")
 
 class NumberFormatter(StringFormatter):
     ''' Number cell formatter.
@@ -242,9 +242,9 @@ class NumberFormatter(StringFormatter):
     Rounding functions (round, floor, ceil) and their synonyms (nearest, rounddown, roundup).
     """)
 
-    nan_format = Override(default="-")
+    _nan_format = Override(default="-")
 
-    null_format = Override(default="-")
+    _null_format = Override(default="-")
 
 class BooleanFormatter(CellFormatter):
     ''' Boolean (check mark) cell formatter.
@@ -465,9 +465,9 @@ class DateFormatter(StringFormatter):
 
     """)
 
-    nan_format = Override(default="-")
+    _nan_format = Override(default="-")
 
-    null_format = Override(default="-")
+    _null_format = Override(default="-")
 
 
 class HTMLTemplateFormatter(CellFormatter):
@@ -751,9 +751,9 @@ class DataTable(TableWidget):
     Whether to show a header row with column names at the top of the table.
     """)
 
-    width = Override(default=600)
+    _width = Override(default=600)
 
-    height = Override(default=400)
+    _height = Override(default=400)
 
     row_height = Int(25, help="""
     The height of each row in pixels.

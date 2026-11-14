@@ -203,6 +203,52 @@ def test_HasProps_warns_on_unused_override() -> None:
             value = Override(default=1)
             alpha = Override(default=2)
 
+def test_HasProps_prefixed_override() -> None:
+    class Base(hp.HasProps, hp.Local):
+        x = Int(default=1)
+
+    class Child(Base):
+        _x = Override(default=2)
+
+    class Grandchild(Child):
+        _x = Override(default=3)
+
+    assert Child.__overridden_defaults__ == {"x": 2}
+    assert Grandchild.__overridden_defaults__ == {"x": 3}
+    assert "_x" not in Child.__dict__
+    assert Base().x == 1
+    assert Child().x == 2
+    assert Grandchild().x == 3
+
+def test_HasProps_override_of_property_with_prefixed_name() -> None:
+    class Base(hp.HasProps, hp.Local):
+        x = Int(default=1)
+        _x = Int(default=1)
+
+    class Child(Base):
+        _x = Override(default=2)
+
+    assert Child.__overridden_defaults__ == {"_x": 2}
+    assert Child().x == 1
+    assert Child()._x == 2
+
+def test_HasProps_raises_on_override_with_and_without_prefix() -> None:
+    class Base(hp.HasProps, hp.Local):
+        x = Int(default=1)
+
+    with pytest.raises(TypeError, match=r"Child\.x is overridden more than once, by 'x' and '_x'"):
+        class Child(Base):
+            x = Override(default=2)
+            _x = Override(default=3)
+
+def test_HasProps_warns_on_unused_prefixed_override() -> None:
+    class Base(hp.HasProps, hp.Local):
+        pass
+
+    with pytest.warns(RuntimeWarning, match=r"Overrides of \['_value'\].*do not override anything"):
+        class Child(Base):
+            _value = Override(default=1)
+
 def test_HasProps_local_and_effective_property_metadata() -> None:
     class Base(hp.HasProps, hp.Local):
         x = Int()
