@@ -44,7 +44,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class TypeOfAttr[T](SingleParameterizedProperty[T]):
+class TypeOfAttr[G, S = G](SingleParameterizedProperty[G, S]):
     """ Allows to check if an attribute of an object satisfies the
     given type or a collection of types.
 
@@ -52,18 +52,18 @@ class TypeOfAttr[T](SingleParameterizedProperty[T]):
 
     def __init__(
         self,
-        type_param: TypeOrInst[Property[T]],
+        type_param: TypeOrInst[Property[G, S]],
         name: str,
         type: TypeOrInst[Property[Any]],
         *,
-        default: Init[T] = _NotGiven,
+        default: Init[S] = _NotGiven,
         help: str | None = None,
     ) -> None:
         super().__init__(type_param, default=default, help=help)
         self._query_name = name
         self._query_type = self._validate_type_param(type)
 
-    def __call__(self, *, default: Init[T] = _NotGiven, help: str | None = None) -> TypeOfAttr[T]:
+    def __call__(self, *, default: Init[S] = _NotGiven, help: str | None = None) -> TypeOfAttr[G, S]:
         """ Clone this property and allow to override ``default`` and ``help``. """
         default = self._default if default is _NotGiven else default
         help = self._help if help is None else help

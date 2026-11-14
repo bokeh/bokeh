@@ -50,10 +50,10 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class NonNegative[T: int | float](SingleParameterizedProperty[T]):
+class NonNegative[G: int | float, S: int | float = G](SingleParameterizedProperty[G, S]):
     """ A property accepting a value of some other type while having undefined default. """
 
-    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = _NotGiven, help: str | None = None) -> None:
+    def __init__(self, type_param: TypeOrInst[Property[G, S]], *, default: Init[S] = _NotGiven, help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
 
     def validate(self, value: Any, detail: bool = True) -> None:
@@ -62,10 +62,10 @@ class NonNegative[T: int | float](SingleParameterizedProperty[T]):
         if not (0 <= value):
             raise ValidationError(f"expected a non-negative number, got {value!r}")
 
-class Positive[T: int | float](SingleParameterizedProperty[T]):
+class Positive[G: int | float, S: int | float = G](SingleParameterizedProperty[G, S]):
     """ A property accepting a value of some other type while having undefined default. """
 
-    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = _NotGiven, help: str | None = None) -> None:
+    def __init__(self, type_param: TypeOrInst[Property[G, S]], *, default: Init[S] = _NotGiven, help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
 
     def validate(self, value: Any, detail: bool = True) -> None:
@@ -74,7 +74,7 @@ class Positive[T: int | float](SingleParameterizedProperty[T]):
         if not (0 < value):
             raise ValidationError(f"expected a positive number, got {value!r}")
 
-class Interval[T: int | float](SingleParameterizedProperty[T]):
+class Interval[G: int | float, S: int | float = G](SingleParameterizedProperty[G, S]):
     """ Accept numeric values that are contained within a given interval.
 
     Args:
@@ -112,8 +112,8 @@ class Interval[T: int | float](SingleParameterizedProperty[T]):
             >>> m.prop = "foo" # ValidationError !!
 
     """
-    def __init__(self, type_param: TypeOrInst[Property[T]], start: T, end: T, *,
-            default: Init[T] = Undefined, help: str | None = None) -> None:
+    def __init__(self, type_param: TypeOrInst[Property[G, S]], start: G, end: G, *,
+            default: Init[S] = Undefined, help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
         self.type_param.validate(start)
         self.type_param.validate(end)

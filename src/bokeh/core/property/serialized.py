@@ -41,15 +41,15 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class NotSerialized[T](SingleParameterizedProperty[T]):
+class NotSerialized[G, S = G](SingleParameterizedProperty[G, S]):
     """
     A property which state won't be synced with the browser.
     """
 
     _serialized = False
 
-    def __init__(self, type_param: TypeOrInst[Property[T]], *,
-            default: Init[T] = _NotGiven, help: str | None = None) -> None:
+    def __init__(self, type_param: TypeOrInst[Property[G, S]], *,
+            default: Init[S] = _NotGiven, help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
 
 #-----------------------------------------------------------------------------

@@ -44,7 +44,7 @@ class Optional[T]:
     def __init__(self, type_param: Property[T]):
         self.type_param = type_param
 
-class Struct[T](ParameterizedProperty[T]):
+class Struct[T](ParameterizedProperty[T, T]):
     """ Accept values that are structures.
 
     """

@@ -184,7 +184,7 @@ __all__ = (
 class UnsetValueError(ValueError):
     """ Represents state in which descriptor without value was accessed. """
 
-class AliasPropertyDescriptor[T]:
+class AliasPropertyDescriptor[G, S = G]:
     """
 
     """
@@ -195,17 +195,17 @@ class AliasPropertyDescriptor[T]:
     def aliased_name(self) -> str:
         return self.alias.aliased_name
 
-    def __init__(self, name: str, alias: Alias[T]) -> None:
+    def __init__(self, name: str, alias: Alias[G, S]) -> None:
         self.name = name
         self.alias = alias
         self.property = alias
         self.__doc__ = f"This is a compatibility alias for the {self.aliased_name!r} property."
 
     @overload
-    def __get__(self, obj: HasProps, owner: type[HasProps] | None) -> T: ...
+    def __get__(self, obj: HasProps, owner: type[HasProps] | None) -> G: ...
     @overload
-    def __get__(self, obj: None, owner: type[HasProps] | None) -> AliasPropertyDescriptor[T]: ...
-    def __get__(self, obj: HasProps | None, owner: type[HasProps] | None) -> T | AliasPropertyDescriptor[T]:
+    def __get__(self, obj: None, owner: type[HasProps] | None) -> AliasPropertyDescriptor[G, S]: ...
+    def __get__(self, obj: HasProps | None, owner: type[HasProps] | None) -> G | AliasPropertyDescriptor[G, S]:
         if obj is not None:
             return getattr(obj, self.aliased_name)
         elif owner is not None:
@@ -214,7 +214,7 @@ class AliasPropertyDescriptor[T]:
         # This should really never happen. If it does, __get__ was called in a bad way.
         raise ValueError("both 'obj' and 'owner' are None, don't know what to do")
 
-    def __set__(self, obj: HasProps | None, value: T) -> None:
+    def __set__(self, obj: HasProps | None, value: S) -> None:
         setattr(obj, self.aliased_name, value)
 
     def __delete__(self, obj: HasProps) -> None:
@@ -223,7 +223,7 @@ class AliasPropertyDescriptor[T]:
     def set_from_json(self, obj: HasProps, value: Any, *, setter: Setter | None = None) -> None:
         obj.lookup(self.aliased_name).set_from_json(obj, value, setter=setter)
 
-    def get_value(self, obj: HasProps) -> T:
+    def get_value(self, obj: HasProps) -> G:
         return getattr(obj, self.aliased_name)
 
     def value_is_unset(self, obj: HasProps) -> bool:
@@ -245,17 +245,17 @@ class AliasPropertyDescriptor[T]:
     def class_default(self, cls: type[HasProps], *, no_eval: bool = False) -> Any:
         return cls.lookup(self.aliased_name).class_default(cls, no_eval=no_eval)
 
-    def instance_default(self, obj: HasProps) -> T:
+    def instance_default(self, obj: HasProps) -> G:
         return obj.lookup(self.aliased_name).instance_default(obj)
 
-class DeprecatedAliasPropertyDescriptor[T](AliasPropertyDescriptor[T]):
+class DeprecatedAliasPropertyDescriptor[G, S = G](AliasPropertyDescriptor[G, S]):
     """
 
     """
 
-    alias: DeprecatedAlias[T]
+    alias: DeprecatedAlias[G, S]
 
-    def __init__(self, name: str, alias: DeprecatedAlias[T]) -> None:
+    def __init__(self, name: str, alias: DeprecatedAlias[G, S]) -> None:
         super().__init__(name, alias)
 
         major, minor, patch = self.alias.since
@@ -274,17 +274,17 @@ This is a backwards compatibility alias for the {self.aliased_name!r} property.
         warn_deprecated(self.name, self.aliased_name, since=self.alias.since, extra=self.alias.extra)
 
     @overload
-    def __get__(self, obj: HasProps, owner: type[HasProps] | None) -> T: ...
+    def __get__(self, obj: HasProps, owner: type[HasProps] | None) -> G: ...
     @overload
-    def __get__(self, obj: None, owner: type[HasProps] | None) -> AliasPropertyDescriptor[T]: ...
-    def __get__(self, obj: HasProps | None, owner: type[HasProps] | None) -> T | AliasPropertyDescriptor[T]:
+    def __get__(self, obj: None, owner: type[HasProps] | None) -> AliasPropertyDescriptor[G, S]: ...
+    def __get__(self, obj: HasProps | None, owner: type[HasProps] | None) -> G | AliasPropertyDescriptor[G, S]:
         if obj is not None:
             # Warn only when accessing descriptor's value, otherwise there would
             # be a lot of spurious warnings from parameter resolution, etc.
             self._warn()
         return super().__get__(obj, owner)
 
-    def __set__(self, obj: HasProps | None, value: T) -> None:
+    def __set__(self, obj: HasProps | None, value: S) -> None:
         self._warn()
         super().__set__(obj, value)
 
@@ -292,17 +292,17 @@ This is a backwards compatibility alias for the {self.aliased_name!r} property.
         self._warn()
         super().__delete__(obj)
 
-class PropertyDescriptor[T]:
+class PropertyDescriptor[G, S = G]:
     """ A base class for Bokeh properties with simple get/set and serialization
     behavior.
 
     """
 
     name: str
-    #property: Property[T]
+    #property: Property[G, S]
     __doc__: str | None
 
-    def __init__(self, name: str, property: Property[T]) -> None:
+    def __init__(self, name: str, property: Property[G, S]) -> None:
         """ Create a PropertyDescriptor for basic Bokeh properties.
 
         Args:
@@ -323,10 +323,10 @@ class PropertyDescriptor[T]:
         return f"{self.property}"
 
     @overload
-    def __get__(self, obj: HasProps, owner: type[HasProps] | None) -> T: ...
+    def __get__(self, obj: HasProps, owner: type[HasProps] | None) -> G: ...
     @overload
-    def __get__(self, obj: None, owner: type[HasProps] | None) -> PropertyDescriptor[T]: ...
-    def __get__(self, obj: HasProps | None, owner: type[HasProps] | None) -> T | PropertyDescriptor[T]:
+    def __get__(self, obj: None, owner: type[HasProps] | None) -> PropertyDescriptor[G, S]: ...
+    def __get__(self, obj: HasProps | None, owner: type[HasProps] | None) -> G | PropertyDescriptor[G, S]:
         """ Implement the getter for the Python `descriptor protocol`_.
 
         For instance attribute access, we delegate to the |Property|. For
@@ -372,7 +372,7 @@ class PropertyDescriptor[T]:
         # This should really never happen. If it does, __get__ was called in a bad way.
         raise ValueError("both 'obj' and 'owner' are None, don't know what to do")
 
-    def __set__(self, obj: HasProps, value: T, *, setter: Setter | None = None) -> None:
+    def __set__(self, obj: HasProps, value: S, *, setter: Setter | None = None) -> None:
         """ Implement the setter for the Python `descriptor protocol`_.
 
         .. note::
@@ -411,9 +411,9 @@ class PropertyDescriptor[T]:
             class_name = obj.__class__.__name__
             raise RuntimeError(f"{class_name}.{self.name} is a readonly property")
 
-        value = self.property.prepare_value(obj, self.name, value)
+        prepared = self.property.prepare_value(obj, self.name, value)
         old = self._get(obj)
-        self._set(obj, old, value, setter=setter)
+        self._set(obj, old, prepared, setter=setter)
 
     def __delete__(self, obj: HasProps) -> None:
         """ Implement the deleter for the Python `descriptor protocol`_.
@@ -466,7 +466,7 @@ class PropertyDescriptor[T]:
         """
         return self.property.themed_default(cls, self.name, None, no_eval=no_eval)
 
-    def instance_default(self, obj: HasProps) -> T:
+    def instance_default(self, obj: HasProps) -> G:
         """ Get the default value that will be used for a specific instance.
 
         Args:
@@ -607,7 +607,7 @@ class PropertyDescriptor[T]:
         default = self._effective_raw_default(obj, None)
         return callable(default) or _value_has_ref(default)
 
-    def _get(self, obj: HasProps) -> T:
+    def _get(self, obj: HasProps) -> G:
         """ Internal implementation of instance attribute access for the
         ``PropertyDescriptor`` getter.
 
@@ -635,7 +635,7 @@ class PropertyDescriptor[T]:
         else:
             return obj._property_values[self.name]
 
-    def _get_default(self, obj: HasProps) -> T:
+    def _get_default(self, obj: HasProps) -> G:
         """ Internal implementation of instance attribute access for default
         values.
 
