@@ -182,6 +182,25 @@ void test("Linker doesn't convert CommonJS modules of packages with ES modules",
   assert.equal(JSON.stringify(exports.result), JSON.stringify([{a: 1}, {b: 2}]))
 })
 
+void test("Linker preserves live bindings of re-exports in CommonJS modules", async (t) => {
+  const exports = await evaluate(t, {
+    "lib/index.js": `import {count, increment} from "counter"; const before = count; increment(); export const result = [before, count]`,
+    // tsc's output
+    ...cjs_package("counter", {
+      "index.js": `
+        "use strict";
+        Object.defineProperty(exports, "__esModule", { value: true });
+        exports.increment = exports.count = void 0;
+        var counter_1 = require("./counter");
+        Object.defineProperty(exports, "count", { enumerable: true, get: function () { return counter_1.count; } });
+        Object.defineProperty(exports, "increment", { enumerable: true, get: function () { return counter_1.increment; } });
+      `,
+      "counter.js": "exports.count = 0; exports.increment = function () { exports.count++ }",
+    }),
+  })
+  assert.equal(JSON.stringify(exports.result), JSON.stringify([0, 1]))
+})
+
 void test("Linker maps bundles to original sources", async (t) => {
   // like tsc's output, i.e. `lib/index.js` with a map pointing to `src/index.ts`
   const ts = "// greeting\nexport function greet(name: string): string {\n  return 'hello ' + name\n}\n"
