@@ -183,7 +183,9 @@ class Eithers(HasProps):
     either_nullable_instance_prop = Either(Null, Instance(Child), default=InstanceDefault(Child))
     either_list_prop = Either(Int, List(String), default=lambda: ["a"])
     either_many_prop = Either(Bool, Int, Float, String, Null, List(Int), Instance(Child), Dict(String, Int))
-    either_invalid_default_prop = Either(Int, String, default=1.5)  # KNOWN GAP: an error is expected
+    # KNOWN GAP: an invalid default falls through to the catch-all overload, so it's not
+    # reported as an invalid argument (mypy only asks for an annotation).
+    either_invalid_default_prop = Either(Int, String, default=1.5)  # KNOWN GAP # mypy: var-annotated
 
 
 eithers = Eithers()

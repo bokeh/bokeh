@@ -44,7 +44,7 @@ type Version = tuple[int, int, int]
 # General API
 #-----------------------------------------------------------------------------
 
-class Alias[T](Property[T]):
+class Alias[G, S = G](Property[G, S]):
     """
     Alias another property of a model.
 
@@ -85,10 +85,10 @@ class Alias[T](Property[T]):
         self.alternatives = []
         self.assertions = []
 
-    def make_descriptor(self, name: str) -> AliasPropertyDescriptor[T]:
+    def make_descriptor(self, name: str) -> AliasPropertyDescriptor[G, S]:
         return AliasPropertyDescriptor(name, self)
 
-class DeprecatedAlias[T](Alias[T]):
+class DeprecatedAlias[G, S = G](Alias[G, S]):
     """
     Alias of another property of a model showing a deprecation message when used.
     """
@@ -99,7 +99,7 @@ class DeprecatedAlias[T](Alias[T]):
         self.since = since
         self.extra = extra
 
-    def make_descriptor(self, name: str) -> DeprecatedAliasPropertyDescriptor[T]:
+    def make_descriptor(self, name: str) -> DeprecatedAliasPropertyDescriptor[G, S]:
         return DeprecatedAliasPropertyDescriptor(name, self)
 
 #-----------------------------------------------------------------------------

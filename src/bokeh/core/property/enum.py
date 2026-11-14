@@ -42,7 +42,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Enum[T: str | int](Either[T]):
+class Enum[T: str | int](Either[T, T]):
     """ Accept values from enumerations.
 
     The first value in enumeration is used as the default value, unless the

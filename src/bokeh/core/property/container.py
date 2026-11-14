@@ -81,7 +81,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Seq[T, TSeq](ContainerProperty[TSeq]):
+class Seq[T, TSeq](ContainerProperty[TSeq, TSeq]):
     """ Accept non-string ordered sequences of values, e.g. list, tuple, array.
 
     """
@@ -195,7 +195,7 @@ class Array[T](Seq[T, Any]):
         import numpy as np
         return isinstance(value, np.ndarray)
 
-class Dict[K, V](ContainerProperty[dict[K, V]]):
+class Dict[K, V](ContainerProperty[dict[K, V], dict[K, V]]):
     """ Accept Python dict values.
 
     If a default value is passed in, then a shallow copy of it will be
@@ -361,10 +361,10 @@ class RestrictedDict[K, V](Dict[K, V]):
             msg = "" if not detail else f"Disallowed keys: {error_keys!r}"
             raise ValidationError(msg)
 
-class NonEmpty[TSeq](SingleParameterizedProperty[TSeq]):
+class NonEmpty[G, S = G](SingleParameterizedProperty[G, S]):
     """ Allows only non-empty containers. """
 
-    def __init__(self, type_param: TypeOrInst[ContainerProperty[TSeq]], *, default: Init[TSeq] = _NotGiven,
+    def __init__(self, type_param: TypeOrInst[ContainerProperty[G, S]], *, default: Init[S] = _NotGiven,
             help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
 
@@ -375,10 +375,10 @@ class NonEmpty[TSeq](SingleParameterizedProperty[TSeq]):
             msg = "" if not detail else "Expected a non-empty container"
             raise ValidationError(msg)
 
-class Len[TSeq](SingleParameterizedProperty[TSeq]):
+class Len[G, S = G](SingleParameterizedProperty[G, S]):
     """ Allows only containers of the given length. """
 
-    def __init__(self, type_param: TypeOrInst[ContainerProperty[TSeq]], length: int, *, default: Init[TSeq] = _NotGiven,
+    def __init__(self, type_param: TypeOrInst[ContainerProperty[G, S]], length: int, *, default: Init[S] = _NotGiven,
             help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
         self.length = length

@@ -43,13 +43,13 @@ __all__ = (
     'Either',
 )
 
-type _TypeParam[T] = TypeOrInst[Property[T]]
+type _TypeParam[G, S] = TypeOrInst[Property[G, S]]
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Either[T](ParameterizedProperty[T]):
+class Either[G, S = G](ParameterizedProperty[G, S]):
     """ Accept values according to a sequence of other property types.
 
     Example:
@@ -74,68 +74,68 @@ class Either[T](ParameterizedProperty[T]):
 
     """
 
-    # Infer the value type from type parameters, so that it isn't inferred from
+    # Infer value types from type parameters, so that they aren't inferred from
     # ``default`` instead. The last overload covers subclasses and annotated
     # assignments with fixed value types, which don't match the other overloads
-    # because Property[T] is invariant.
+    # because Property[G, S] is invariant.
     @overload
-    def __init__[T1](
-        self: Either[T1],
-        tp1: _TypeParam[T1],
+    def __init__[G1, S1](
+        self: Either[G1, S1],
+        tp1: _TypeParam[G1, S1],
         /, *,
-        default: Init[T1] = ..., help: str | None = ...) -> None: ...
+        default: Init[S1] = ..., help: str | None = ...) -> None: ...
     @overload
-    def __init__[T1, T2](
-        self: Either[T1 | T2],
-        tp1: _TypeParam[T1], tp2: _TypeParam[T2],
+    def __init__[G1, S1, G2, S2](
+        self: Either[G1 | G2, S1 | S2],
+        tp1: _TypeParam[G1, S1], tp2: _TypeParam[G2, S2],
         /, *,
-        default: Init[T1 | T2] = ..., help: str | None = ...) -> None: ...
+        default: Init[S1 | S2] = ..., help: str | None = ...) -> None: ...
     @overload
-    def __init__[T1, T2, T3](
-        self: Either[T1 | T2 | T3],
-        tp1: _TypeParam[T1], tp2: _TypeParam[T2], tp3: _TypeParam[T3],
+    def __init__[G1, S1, G2, S2, G3, S3](
+        self: Either[G1 | G2 | G3, S1 | S2 | S3],
+        tp1: _TypeParam[G1, S1], tp2: _TypeParam[G2, S2], tp3: _TypeParam[G3, S3],
         /, *,
-        default: Init[T1 | T2 | T3] = ..., help: str | None = ...) -> None: ...
+        default: Init[S1 | S2 | S3] = ..., help: str | None = ...) -> None: ...
     @overload
-    def __init__[T1, T2, T3, T4](
-        self: Either[T1 | T2 | T3 | T4],
-        tp1: _TypeParam[T1], tp2: _TypeParam[T2], tp3: _TypeParam[T3], tp4: _TypeParam[T4],
+    def __init__[G1, S1, G2, S2, G3, S3, G4, S4](
+        self: Either[G1 | G2 | G3 | G4, S1 | S2 | S3 | S4],
+        tp1: _TypeParam[G1, S1], tp2: _TypeParam[G2, S2], tp3: _TypeParam[G3, S3], tp4: _TypeParam[G4, S4],
         /, *,
-        default: Init[T1 | T2 | T3 | T4] = ..., help: str | None = ...) -> None: ...
+        default: Init[S1 | S2 | S3 | S4] = ..., help: str | None = ...) -> None: ...
     @overload
-    def __init__[T1, T2, T3, T4, T5](
-        self: Either[T1 | T2 | T3 | T4 | T5],
-        tp1: _TypeParam[T1], tp2: _TypeParam[T2], tp3: _TypeParam[T3], tp4: _TypeParam[T4],
-        tp5: _TypeParam[T5],
+    def __init__[G1, S1, G2, S2, G3, S3, G4, S4, G5, S5](
+        self: Either[G1 | G2 | G3 | G4 | G5, S1 | S2 | S3 | S4 | S5],
+        tp1: _TypeParam[G1, S1], tp2: _TypeParam[G2, S2], tp3: _TypeParam[G3, S3], tp4: _TypeParam[G4, S4],
+        tp5: _TypeParam[G5, S5],
         /, *,
-        default: Init[T1 | T2 | T3 | T4 | T5] = ..., help: str | None = ...) -> None: ...
+        default: Init[S1 | S2 | S3 | S4 | S5] = ..., help: str | None = ...) -> None: ...
     @overload
-    def __init__[T1, T2, T3, T4, T5, T6](
-        self: Either[T1 | T2 | T3 | T4 | T5 | T6],
-        tp1: _TypeParam[T1], tp2: _TypeParam[T2], tp3: _TypeParam[T3], tp4: _TypeParam[T4],
-        tp5: _TypeParam[T5], tp6: _TypeParam[T6],
+    def __init__[G1, S1, G2, S2, G3, S3, G4, S4, G5, S5, G6, S6](
+        self: Either[G1 | G2 | G3 | G4 | G5 | G6, S1 | S2 | S3 | S4 | S5 | S6],
+        tp1: _TypeParam[G1, S1], tp2: _TypeParam[G2, S2], tp3: _TypeParam[G3, S3], tp4: _TypeParam[G4, S4],
+        tp5: _TypeParam[G5, S5], tp6: _TypeParam[G6, S6],
         /, *,
-        default: Init[T1 | T2 | T3 | T4 | T5 | T6] = ..., help: str | None = ...) -> None: ...
+        default: Init[S1 | S2 | S3 | S4 | S5 | S6] = ..., help: str | None = ...) -> None: ...
     @overload
-    def __init__[T1, T2, T3, T4, T5, T6, T7](
-        self: Either[T1 | T2 | T3 | T4 | T5 | T6 | T7],
-        tp1: _TypeParam[T1], tp2: _TypeParam[T2], tp3: _TypeParam[T3], tp4: _TypeParam[T4],
-        tp5: _TypeParam[T5], tp6: _TypeParam[T6], tp7: _TypeParam[T7],
+    def __init__[G1, S1, G2, S2, G3, S3, G4, S4, G5, S5, G6, S6, G7, S7](
+        self: Either[G1 | G2 | G3 | G4 | G5 | G6 | G7, S1 | S2 | S3 | S4 | S5 | S6 | S7],
+        tp1: _TypeParam[G1, S1], tp2: _TypeParam[G2, S2], tp3: _TypeParam[G3, S3], tp4: _TypeParam[G4, S4],
+        tp5: _TypeParam[G5, S5], tp6: _TypeParam[G6, S6], tp7: _TypeParam[G7, S7],
         /, *,
-        default: Init[T1 | T2 | T3 | T4 | T5 | T6 | T7] = ..., help: str | None = ...) -> None: ...
+        default: Init[S1 | S2 | S3 | S4 | S5 | S6 | S7] = ..., help: str | None = ...) -> None: ...
     @overload
-    def __init__[T1, T2, T3, T4, T5, T6, T7, T8](
-        self: Either[T1 | T2 | T3 | T4 | T5 | T6 | T7 | T8],
-        tp1: _TypeParam[T1], tp2: _TypeParam[T2], tp3: _TypeParam[T3], tp4: _TypeParam[T4],
-        tp5: _TypeParam[T5], tp6: _TypeParam[T6], tp7: _TypeParam[T7], tp8: _TypeParam[T8],
+    def __init__[G1, S1, G2, S2, G3, S3, G4, S4, G5, S5, G6, S6, G7, S7, G8, S8](
+        self: Either[G1 | G2 | G3 | G4 | G5 | G6 | G7 | G8, S1 | S2 | S3 | S4 | S5 | S6 | S7 | S8],
+        tp1: _TypeParam[G1, S1], tp2: _TypeParam[G2, S2], tp3: _TypeParam[G3, S3], tp4: _TypeParam[G4, S4],
+        tp5: _TypeParam[G5, S5], tp6: _TypeParam[G6, S6], tp7: _TypeParam[G7, S7], tp8: _TypeParam[G8, S8],
         /, *,
-        default: Init[T1 | T2 | T3 | T4 | T5 | T6 | T7 | T8] = ..., help: str | None = ...) -> None: ...
+        default: Init[S1 | S2 | S3 | S4 | S5 | S6 | S7 | S8] = ..., help: str | None = ...) -> None: ...
     @overload
     def __init__(
         self,
         type_param0: TypeOrInst[Property[Any]],
         *type_params: TypeOrInst[Property[Any]],
-        default: Init[T] = ...,  # pyright: ignore[reportInvalidTypeVarUse]
+        default: Init[S] = ...,  # pyright: ignore[reportInvalidTypeVarUse]
         help: str | None = ...,
     ) -> None: ...
     def __init__(
@@ -149,7 +149,7 @@ class Either[T](ParameterizedProperty[T]):
         for tp in self.type_params:
             self.alternatives.extend(tp.alternatives)
 
-    def transform(self, value: Any) -> T:
+    def transform(self, value: Any) -> G:
         for param in self.type_params:
             try:
                 return param.transform(value)
@@ -169,7 +169,7 @@ class Either[T](ParameterizedProperty[T]):
         msg = "" if not detail else f"expected an element of either {nice_join([ str(param) for param in self.type_params ])}, got {value!r}"
         raise ValidationError(msg)
 
-    def wrap(self, value: T) -> T:
+    def wrap(self, value: G) -> G:
         for tp in self.type_params:
             value = tp.wrap(value)
         return value
