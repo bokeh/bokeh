@@ -4,11 +4,41 @@ import json
 import re
 import subprocess
 from collections.abc import Iterable
-from typing import Any
+from typing import Any, TypedDict
 
 from . import BackportError
 
 BOKEH_REPOSITORY = "bokeh/bokeh"
+
+
+class Repository(TypedDict):
+    full_name: str
+
+
+class BaseRef(TypedDict):
+    ref: str
+
+
+class HeadRef(TypedDict):
+    ref: str
+    repo: Repository
+    sha: str
+
+
+class PullRequest(TypedDict):
+    """The subset of GitHub's pull request JSON used by the backport tool."""
+
+    base: BaseRef
+    body: str | None
+    draft: bool
+    head: HeadRef
+    html_url: str
+    merge_commit_sha: str | None
+    mergeable: bool | None
+    merged_at: str | None
+    number: int
+    state: str
+    title: str
 
 
 class GitHubAPI:
@@ -86,7 +116,7 @@ def repository_path(repository: str) -> str:
     return f"/repos/{owner}/{name}"
 
 
-def get_pr(api: GitHubAPI, repository: str, number: int) -> dict[str, Any]:
+def get_pr(api: GitHubAPI, repository: str, number: int) -> PullRequest:
     return api.request("GET", f"{repository_path(repository)}/pulls/{number}")
 
 

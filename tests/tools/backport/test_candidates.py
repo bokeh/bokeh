@@ -1,6 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 from tests.tools.backport._support import FakeGraphQLAPI, candidate
@@ -27,7 +28,7 @@ class ReleaseConventionTests(unittest.TestCase):
 
 class CandidateDiscoveryTests(unittest.TestCase):
     @staticmethod
-    def node(number: int, merged_at: str) -> dict:
+    def node(number: int, merged_at: str) -> dict[str, Any]:
         return {
             "baseRefName": "branch-3.10",
             "closingIssuesReferences": {

@@ -190,7 +190,7 @@ class PlanCommandTests(unittest.TestCase):
     def test_rejects_incompatible_options_and_existing_state(self) -> None:
         git = MagicMock()
         existing = state_with([])
-        cases = [
+        cases: list[dict[str, Any]] = [
             {"resume": True, "version": "3.9.2"},
             {"update": 15337, "target_branch": "branch-3.9"},
             {"revert_selectors": ("15233",)},
