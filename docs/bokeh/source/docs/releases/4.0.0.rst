@@ -196,3 +196,6 @@ Bug fixes
 ---------
 
 * Fixed property validation and warning suppression leaking between concurrent sessions (:bokeh-pull:`15548`).
+* ``ColumnDataSource.stream()`` now accepts any mapping of columns, e.g. a
+  ``dict[str, list[int]]``, which type checkers previously rejected because
+  ``dict`` is invariant (:bokeh-issue:`14814`).

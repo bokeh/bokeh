@@ -18,6 +18,7 @@ import io
 import warnings
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from types import MappingProxyType
 
 import narwhals.stable.v1 as nw
 import numpy as np
@@ -297,6 +298,20 @@ class TestColumnDataSource:
         ds.data._stream = mock
         # public implementation of stream
         ds._stream(dict(a=[11, 12], b=[21, 22]), "foo")
+        assert stuff['args'] == ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo", None)
+        assert stuff['kw'] == {}
+
+    def test_stream_mapping(self) -> None:
+        ds = bms.ColumnDataSource(data=dict(a=[10], b=[20]))
+        ds._document = "doc"
+        stuff = {}
+
+        def mock(*args, **kw):
+            stuff['args'] = args
+            stuff['kw'] = kw
+        ds.data._stream = mock
+        # any read-only mapping is accepted, see issue #14814
+        ds.stream(MappingProxyType(dict(a=[11, 12], b=[21, 22])), "foo")
         assert stuff['args'] == ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo", None)
         assert stuff['kw'] == {}
 

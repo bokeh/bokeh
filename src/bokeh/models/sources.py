@@ -83,6 +83,9 @@ if TYPE_CHECKING:
 
     type DataDict = dict[str, Sequence[Value] | npt.NDArray[Value] | pd.Series | pd.Index]
 
+    # Mappings are covariant in values, unlike dicts, e.g. dict[str, list[int]] is a DataDictArg.
+    type DataDictArg = Mapping[str, Sequence[Value] | npt.NDArray[Value] | pd.Series | pd.Index]
+
     type Index = int | slice | tuple[int | slice, ...]
 
     type Patches = Mapping[str, Sequence[tuple[Index, Value]]]
@@ -461,7 +464,7 @@ class ColumnDataSource(ColumnarDataSource):
 
             warn(f"Unable to find column '{name}' in data source")
 
-    def stream(self, new_data: DataDict, rollover: int | None = None) -> None:
+    def stream(self, new_data: DataDictArg, rollover: int | None = None) -> None:
         ''' Efficiently update data source columns with new append-only data.
 
         In cases where it is necessary to update data columns in, this method
@@ -503,7 +506,7 @@ class ColumnDataSource(ColumnarDataSource):
         # calls internal implementation
         self._stream(new_data, rollover)
 
-    def _stream(self, new_data: DataDict | pd.Series | pd.DataFrame,
+    def _stream(self, new_data: DataDictArg | pd.Series | pd.DataFrame,
             rollover: int | None = None, setter: Setter | None = None) -> None:
         ''' Internal implementation to efficiently update data source columns
         with new append-only data. The internal implementation adds the setter
@@ -576,6 +579,9 @@ class ColumnDataSource(ColumnarDataSource):
             new_data[index_name] = _df.index.values
         else:
             newkeys = set(new_data.keys())
+            # converted columns are stored back into new_data below
+            if not isinstance(new_data, dict):
+                new_data = dict(new_data)
 
         # The pandas branch above converts DataFrames and Series into column dictionaries.
         new_data = cast("DataDict", new_data)

@@ -43,6 +43,9 @@ __all__ = (
 
 type DataDict = dict[str, Sequence[Any] | npt.NDArray[Any] | pd.Series[Any] | pd.Index[Any]]  # pyright: ignore[reportInvalidTypeArguments]
 
+# Mappings are covariant in values, unlike dicts, e.g. dict[str, list[int]] is a DataDictArg.
+type DataDictArg = Mapping[str, Sequence[Any] | npt.NDArray[Any] | pd.Series[Any] | pd.Index[Any]]  # pyright: ignore[reportInvalidTypeArguments]
+
 type DataDictLike = DataDict | pd.DataFrame | GroupBy[Any]
 
 type Index = int | slice | tuple[int | slice, ...]
@@ -108,7 +111,7 @@ class ColumnDataSource(ColumnarDataSource):
 
     def remove(self, name: str) -> None: ...
 
-    def stream(self, new_data: DataDict, rollover: int | None = ...) -> None: ...
+    def stream(self, new_data: DataDictArg, rollover: int | None = ...) -> None: ...
 
     def patch(self, patches: Patches, setter: Setter | None = ...) -> None: ...
 
