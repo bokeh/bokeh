@@ -153,9 +153,6 @@ when working with Bokeh's pytest-based tests:
   define the number of cores to use. Set to ``auto`` to use all available cores.
   For example: ``pytest -n 4 tests/codebase``. See `pytest-xdist`_.
 * ``-v``: Run test with more verbose output.
-* ``--driver``: Use a specific web driver for Selenium-based tests
-  (``"chrome"``, ``"firefox"``, or ``"safari"``). For example:
-  ``pytest --driver="firefox" tests/unit/``.
 * ``--no-js``: Skip any JavaScript code and only test Python code.
 
 See the `pytest documentation`_ for more options. Note that any arguments appended
@@ -209,13 +206,13 @@ Code coverage (Python unit tests)
 
     .. code-block:: sh
 
-        pixi run pytest tests/unit/bokeh/test_objects.py -m "not selenium" --cov=bokeh --cov-report=html
+        pixi run pytest tests/unit/bokeh/test_objects.py --cov=bokeh --cov-report=html
 
     **Inside a pixi shell:**
 
     .. code-block:: sh
 
-        pytest --cov=bokeh --cov-report=html -m "not selenium" tests/unit/bokeh/test_objects.py
+        pytest --cov=bokeh --cov-report=html tests/unit/bokeh/test_objects.py
 
     .. seealso::
         Coverage reports use the pytest plugin `pytest-cov`_. For more
@@ -361,10 +358,9 @@ Select specific tests
         pytest tests/unit/bokeh/models/test_grids.py
 
     Another way to select or deselect specific tests is to use markers.
-    Currently, Bokeh's tests use the following two markers:
+    For tests that require sample data, use this marker:
 
     * ``sampledata``: a test that requires ``bokeh.sampledata`` to be downloaded
-    * ``selenium``: a test that requires selenium
 
     For more information on setting your own markers, see
     `Working with custom markers`_ in the `pytest documentation`_. To learn more

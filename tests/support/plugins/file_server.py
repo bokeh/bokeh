@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------
 ''' Define a simple web server for testing purpose.
 
-Serve html pages that are needed by the webdriver unit tests.
+Serve HTML pages for test fixtures.
 '''
 
 #-----------------------------------------------------------------------------

@@ -93,9 +93,6 @@ def get_screenshot_as_png(
 ) -> Image.Image:
     '''Capture a Bokeh layout as a PNG image using Playwright.
 
-    This is the Playwright equivalent of the Selenium code path in
-    :func:`~bokeh.io.export.get_screenshot_as_png`.
-
     Args:
         obj (UIElement or Document) : a Layout (e.g. Row/Column), Plot or Widget
             object or Document to export.
@@ -168,11 +165,7 @@ def get_svg(
     width: int | None = None,
     height: int | None = None,
 ) -> list[str]:
-    '''Export a Bokeh layout as a list of SVG strings using Playwright.
-
-    This is the Playwright equivalent of the Selenium code path in
-    :func:`~bokeh.io.export.get_svg`.
-    '''
+    '''Export a Bokeh layout as a list of SVG strings using Playwright.'''
     html = get_layout_html(obj, resources=resources, width=width, height=height)
     svgs: list[str] = _playwright_render(html, _SVG_SCRIPT(obj), timeout, driver=driver)[0]
     return svgs
@@ -187,11 +180,7 @@ def get_svgs(
     width: int | None = None,
     height: int | None = None,
 ) -> list[str]:
-    '''Export SVG-enabled plots within a Bokeh layout using Playwright.
-
-    This is the Playwright equivalent of the Selenium code path in
-    :func:`~bokeh.io.export.get_svgs`.
-    '''
+    '''Export SVG-enabled plots within a Bokeh layout using Playwright.'''
     html = get_layout_html(obj, resources=resources, width=width, height=height)
     svgs: list[str] = _playwright_render(html, _SVGS_SCRIPT, timeout, driver=driver)[0]
     return svgs
@@ -297,7 +286,7 @@ def _wrap_function(script: str) -> str:
 def execute_script(page: Page, script: str) -> Any:
     '''Execute JavaScript in the page and return the result.
 
-    Wraps Selenium-style scripts (with bare top-level ``return``) in a
+    Wraps scripts (with bare top-level ``return``) in a
     function so they work with Playwright's ``evaluate``.
     '''
     return page.evaluate(_wrap_function(script))
@@ -308,7 +297,7 @@ async def _execute_script(page: AsyncPage, script: str) -> Any:
 
 
 def wait_until_render_complete(page: Page, timeout: int) -> None:
-    '''Wait for Bokeh to load and render, mirroring the Selenium backend.'''
+    '''Wait for Bokeh to load and render.'''
     timeout_ms = timeout * 1000
 
     try:
