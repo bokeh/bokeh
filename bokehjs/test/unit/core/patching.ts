@@ -358,6 +358,12 @@ describe("core/patching module", () => {
       expect(r).to.be.equal(new Int32NDArray([1, 2, 3, 4, 5, 100, 200]))
     })
 
+    it("should promote typed arrays when streamed values are not representable", () => {
+      const a = new Int32NDArray([20, 21, 22])
+      const r = stream_to_column(a, [22.5])
+      expect(r).to.be.equal(new Float64NDArray([20, 21, 22, 22.5]))
+    })
+
     it("should stream Int32 to Int32 with rollover", () => {
       // test when col is already at rollover len
       const a0 = new Int32NDArray([1, 2, 3, 4, 5])

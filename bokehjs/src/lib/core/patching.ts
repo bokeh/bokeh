@@ -1,4 +1,4 @@
-import type {Arrayable, Data, Dict} from "core/types"
+import type {Arrayable, Data, Dict, TypedArrayConstructor} from "core/types"
 import {isTypedArray, isArray, isNumber} from "core/util/types"
 import type {NDArray} from "core/util/ndarray"
 import {dict} from "core/util/object"
@@ -15,6 +15,22 @@ export function stream_to_column(col: Arrayable, new_col: Arrayable, rollover?: 
       return result.slice(-rollover)
     } else {
       return result
+    }
+  }
+
+  // A typed array silently coerces values that it cannot represent. This can
+  // leave the browser-side column out of sync with the Python-side column
+  // after streaming (e.g. appending 22.5 to an Int32Array). Promote the
+  // column before concatenating whenever a streamed value would change.
+  if (isTypedArray(col)) {
+    const ctor: TypedArrayConstructor = col.constructor
+    const needsPromotion = Array.from(new_col).some(value => {
+      const converted = new ctor([value])[0]
+      return !Object.is(converted, value)
+    })
+    if (needsPromotion) {
+      col = new Float64Array(col)
+      new_col = new Float64Array(new_col)
     }
   }
 
