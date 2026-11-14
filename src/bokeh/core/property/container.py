@@ -78,6 +78,8 @@ __all__ = (
     'Tuple',
 )
 
+type _TypeParam[G, S] = TypeOrInst[Property[G, S]]
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -325,11 +327,67 @@ class ColumnData(Dict[str, Any]):
         else:
             return value
 
-class Tuple(ContainerProperty[Any]):
+class Tuple[G = Any, S = G](ContainerProperty[G, S]):
     """ Accept Python tuple values.
+
+    Lists of matching length are accepted as well and converted to tuples.
 
     """
 
+    # Infer value types from type parameters. Lists are typed by the union of
+    # item types, because their length and positions of items can't be typed.
+    @overload
+    def __init__[G1, S1](
+        self: Tuple[tuple[G1], tuple[S1] | list[S1]],
+        tp1: _TypeParam[G1, S1],
+        /, *,
+        default: Init[tuple[S1] | list[S1]] = ..., help: str | None = ...) -> None: ...
+    @overload
+    def __init__[G1, S1, G2, S2](
+        self: Tuple[tuple[G1, G2], tuple[S1, S2] | list[S1 | S2]],
+        tp1: _TypeParam[G1, S1], tp2: _TypeParam[G2, S2],
+        /, *,
+        default: Init[tuple[S1, S2] | list[S1 | S2]] = ..., help: str | None = ...) -> None: ...
+    @overload
+    def __init__[G1, S1, G2, S2, G3, S3](
+        self: Tuple[tuple[G1, G2, G3], tuple[S1, S2, S3] | list[S1 | S2 | S3]],
+        tp1: _TypeParam[G1, S1], tp2: _TypeParam[G2, S2], tp3: _TypeParam[G3, S3],
+        /, *,
+        default: Init[tuple[S1, S2, S3] | list[S1 | S2 | S3]] = ..., help: str | None = ...) -> None: ...
+    @overload
+    def __init__[G1, S1, G2, S2, G3, S3, G4, S4](
+        self: Tuple[tuple[G1, G2, G3, G4], tuple[S1, S2, S3, S4] | list[S1 | S2 | S3 | S4]],
+        tp1: _TypeParam[G1, S1], tp2: _TypeParam[G2, S2], tp3: _TypeParam[G3, S3], tp4: _TypeParam[G4, S4],
+        /, *,
+        default: Init[tuple[S1, S2, S3, S4] | list[S1 | S2 | S3 | S4]] = ..., help: str | None = ...) -> None: ...
+    @overload
+    def __init__[G1, S1, G2, S2, G3, S3, G4, S4, G5, S5](
+        self: Tuple[tuple[G1, G2, G3, G4, G5], tuple[S1, S2, S3, S4, S5] | list[S1 | S2 | S3 | S4 | S5]],
+        tp1: _TypeParam[G1, S1], tp2: _TypeParam[G2, S2], tp3: _TypeParam[G3, S3], tp4: _TypeParam[G4, S4],
+        tp5: _TypeParam[G5, S5],
+        /, *,
+        default: Init[tuple[S1, S2, S3, S4, S5] | list[S1 | S2 | S3 | S4 | S5]] = ..., help: str | None = ...) -> None: ...
+    @overload
+    def __init__[G1, S1, G2, S2, G3, S3, G4, S4, G5, S5, G6, S6](
+        self: Tuple[tuple[G1, G2, G3, G4, G5, G6], tuple[S1, S2, S3, S4, S5, S6] | list[S1 | S2 | S3 | S4 | S5 | S6]],
+        tp1: _TypeParam[G1, S1], tp2: _TypeParam[G2, S2], tp3: _TypeParam[G3, S3], tp4: _TypeParam[G4, S4],
+        tp5: _TypeParam[G5, S5], tp6: _TypeParam[G6, S6],
+        /, *,
+        default: Init[tuple[S1, S2, S3, S4, S5, S6] | list[S1 | S2 | S3 | S4 | S5 | S6]] = ..., help: str | None = ...) -> None: ...
+    @overload
+    def __init__[G1, S1, G2, S2, G3, S3, G4, S4, G5, S5, G6, S6, G7, S7](
+        self: Tuple[tuple[G1, G2, G3, G4, G5, G6, G7], tuple[S1, S2, S3, S4, S5, S6, S7] | list[S1 | S2 | S3 | S4 | S5 | S6 | S7]],
+        tp1: _TypeParam[G1, S1], tp2: _TypeParam[G2, S2], tp3: _TypeParam[G3, S3], tp4: _TypeParam[G4, S4],
+        tp5: _TypeParam[G5, S5], tp6: _TypeParam[G6, S6], tp7: _TypeParam[G7, S7],
+        /, *,
+        default: Init[tuple[S1, S2, S3, S4, S5, S6, S7] | list[S1 | S2 | S3 | S4 | S5 | S6 | S7]] = ..., help: str | None = ...) -> None: ...
+    @overload
+    def __init__[G1, S1, G2, S2, G3, S3, G4, S4, G5, S5, G6, S6, G7, S7, G8, S8](
+        self: Tuple[tuple[G1, G2, G3, G4, G5, G6, G7, G8], tuple[S1, S2, S3, S4, S5, S6, S7, S8] | list[S1 | S2 | S3 | S4 | S5 | S6 | S7 | S8]],
+        tp1: _TypeParam[G1, S1], tp2: _TypeParam[G2, S2], tp3: _TypeParam[G3, S3], tp4: _TypeParam[G4, S4],
+        tp5: _TypeParam[G5, S5], tp6: _TypeParam[G6, S6], tp7: _TypeParam[G7, S7], tp8: _TypeParam[G8, S8],
+        /, *,
+        default: Init[tuple[S1, S2, S3, S4, S5, S6, S7, S8] | list[S1 | S2 | S3 | S4 | S5 | S6 | S7 | S8]] = ..., help: str | None = ...) -> None: ...
     def __init__(self, *type_params: TypeOrInst[Property[Any]], default: Init[Any] = Undefined, help: str | None = None) -> None:
         super().__init__(*type_params, default=default, help=help)
 
@@ -343,11 +401,11 @@ class Tuple(ContainerProperty[Any]):
         msg = "" if not detail else f"expected an element of {self}, got {value!r}"
         raise ValidationError(msg)
 
-    def transform(self, value: Any) -> tuple[Any, ...]:
+    def transform(self, value: Any) -> G:
         """ Change the value into a JSON serializable format.
 
         """
-        return tuple(typ.transform(x) for (typ, x) in zip(self.type_params, value))
+        return cast(G, tuple(typ.transform(x) for (typ, x) in zip(self.type_params, value)))
 
 class RelativeDelta(Dict[str, int]):
     """ Accept RelativeDelta dicts for time delta values.
