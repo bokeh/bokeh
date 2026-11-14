@@ -30,6 +30,7 @@ from . import (
     renderer,
     tile_renderer,
 )
+from ._glyph_attachment import ContourLabels as ContourLabels
 from .contour_renderer import *
 from .glyph_renderer import *
 from .graph_renderer import *
@@ -45,6 +46,7 @@ def _all(module: Any) -> tuple[str, ...]:
     return module.__all__
 
 __all__ = (
+    "ContourLabels",
     *_all(contour_renderer),
     *_all(glyph_renderer),
     *_all(graph_renderer),

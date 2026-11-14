@@ -21,17 +21,21 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence, Unpack
 
 from ...core.property.container import Seq
 from ...core.property.instance import Instance
 from ...core.property.numeric import Float
+from ._glyph_attachment import ContourLabels
 from .glyph_renderer import GlyphRenderer
 from .renderer import DataRenderer
 
 if TYPE_CHECKING:
+    from ..._specs import NullStringSpec
     from ...plotting.contour import ContourData
     from ..annotations import ContourColorBar
+    from ..formatters import TickFormatter
+    from ._glyph_attachment import _ContourLabelStyle
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -94,6 +98,58 @@ class ContourRenderer(DataRenderer):
             self.line_renderer.data_source.data = line_data
         else:
             self.line_renderer.data_source.data = dict(xs=[], ys=[], levels=[])
+
+    def add_labels(
+        self,
+        text: NullStringSpec = None,
+        *,
+        formatter: TickFormatter | None = None,
+        positions: str | Sequence[float] | None = None,
+        label_all_paths: bool = False,
+        inline_gap: bool = False,
+        gap_padding: float = 2,
+        **style: Unpack[_ContourLabelStyle],
+    ) -> ContourLabels:
+        """Add labels to contour lines and return their label model.
+
+        By default each level is formatted to three significant digits. Pass a
+        :class:`~bokeh.models.TickFormatter` to customize numeric labels.
+        Pass a source field name or a literal made with :func:`~bokeh.core.properties.value`
+        to supply custom text.
+
+        Labels follow the mapped lines and stay upright. Automatic placement
+        favors horizontal sections in the frame and skips a label when no
+        candidate fits without overlap. Disconnected pieces of a level share
+        at most one automatic label by default. Set ``label_all_paths=True``
+        to try to label each visible path. Pass a sequence of screen-space path
+        length fractions to use the same positions for every level, or a
+        source column name with a sequence per level.
+
+        Fractions run from the first stored vertex (0) to the last (1) in
+        contour traversal order. They measure the full mapped path, including
+        portions outside the plot frame. Lengths of disconnected pieces are
+        added together, excluding the gaps between them. For a closed contour,
+        the starting point depends on the stored vertex order.
+
+        Text properties such as ``text_font_size`` and ``text_color`` style the
+        labels. The default background is white. With ``inline_gap=True``,
+        labels have a transparent background and the contour strokes are
+        clipped beneath them, with ``gap_padding`` pixels around the text.
+        Inline gaps work on canvas and WebGL plots. SVG draws text over
+        continuous strokes. Pass ``background_fill_color`` and
+        ``background_fill_alpha`` to customize the background. A color of
+        ``None`` makes the background transparent.
+        """
+        if "background_fill_color" not in style:
+            style["background_fill_color"] = None if inline_gap else "white"
+        labels = ContourLabels(
+            text=text, positions=positions, label_all_paths=label_all_paths, inline_gap=inline_gap,
+            gap_padding=gap_padding, **style,
+        )
+        if formatter is not None:
+            labels.formatter = formatter
+        self.line_renderer.attachments = [*self.line_renderer.attachments, labels]
+        return labels
 
     def construct_color_bar(self, **kwargs) -> ContourColorBar:
         ''' Construct and return a new ``ContourColorBar`` for this ``ContourRenderer``.

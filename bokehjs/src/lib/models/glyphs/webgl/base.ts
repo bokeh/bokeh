@@ -38,14 +38,16 @@ export abstract class BaseGLGlyph {
     if (indices.length == 0) {
       return
     }
-    const {width, height} = this.glyph.renderer.plot_view.canvas_view.primary.canvas
-    const {pixel_ratio} = this.glyph.renderer.plot_view.canvas_view
+    const {canvas} = this.glyph
+    const {width, height} = canvas.primary.canvas
+    const {pixel_ratio} = canvas
     const trans = {
       pixel_ratio,  // Needed to scale antialiasing
       width:  width / pixel_ratio,
       height: height / pixel_ratio,
     }
     this.draw(indices, mainglyph, trans)
+    canvas.mark_webgl_dirty()
   }
 
   abstract draw(indices: Int32Array, mainglyph: GlyphView, trans: Transform): void

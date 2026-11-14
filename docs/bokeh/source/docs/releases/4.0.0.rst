@@ -40,6 +40,8 @@ New features
   a shorthand for ``tools=[]`` with ``toolbar_location=None``. BokehJS'
   ``figure()`` API supports the equivalent ``tools: null``
   (:bokeh-issue:`15747`).
+* ``ContourRenderer.add_labels()`` labels contour levels and can leave a gap in
+  the contour stroke behind each label.
 
 Removals
 --------

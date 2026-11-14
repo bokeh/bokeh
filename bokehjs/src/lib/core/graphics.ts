@@ -108,8 +108,10 @@ export abstract class GraphicsBox {
     }
   }
 
-  rect(): Rect {
-    const rect = this._rect()
+  rect(padding: number = 0): Rect {
+    const unpadded = this._rect()
+    const {p0, p2} = unpadded
+    const rect = padding == 0 ? unpadded : new BBox({x0: p0.x, y0: p0.y, x1: p2.x, y1: p2.y}).grow_by(padding).rect
     const {angle} = this
     if (angle == null || angle == 0) {
       return rect

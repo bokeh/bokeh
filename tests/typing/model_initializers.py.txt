@@ -5,7 +5,7 @@ from typing import Sequence, assert_type
 
 from bokeh.core.properties import value
 from bokeh.model import CallbackPolicy, Committed, Debounce, Immediate, Throttle
-from bokeh.models import CustomJS, Range1d
+from bokeh.models import ContourLabels, CustomJS, Range1d
 from bokeh.models.layouts import Column, Row
 from bokeh.models.ui.ui_element import UIElement
 from bokeh.models.widgets.sliders import Slider
@@ -53,3 +53,8 @@ assert_type(column.children, list[UIElement])
 p.vbar(x=[1, 2], top=[3, 4], hatch_pattern=["x", "."])
 p.vbar(x=[1, 2], top=[3, 4], hatch_pattern=value("x"))
 p.vbar(x=[1, 2], top=[3, 4], hatch_pattern=["cross", "dot"])
+
+# Contour labels are editable models with the same styles at construction and through the renderer.
+contours = p.contour([0, 1], [0, 1], [[0, 1], [1, 2]], [0.5, 1.5], line_color="black")
+assert_type(contours.add_labels(background_fill_color="yellow", background_fill_alpha=0.5, name="levels"), ContourLabels)
+assert_type(ContourLabels(background_fill_color=None, background_fill_alpha=0.5, name="levels"), ContourLabels)

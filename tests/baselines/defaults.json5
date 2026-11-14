@@ -5901,6 +5901,36 @@
     min_interval: null,
     max_interval: null,
   },
+  ContourLabels: {
+    __extends__: [
+      "GlyphAttachment",
+      "ScalarTextProps",
+    ],
+    text_font_size: "9pt",
+    text_align: "center",
+    text_baseline: "middle",
+    text: {
+      type: "value",
+      value: null,
+    },
+    formatter: {
+      type: "object",
+      name: "PrintfTickFormatter",
+      attributes: {
+        format: "%.3g",
+      },
+    },
+    positions: null,
+    visible: true,
+    label_all_paths: false,
+    inline_gap: false,
+    gap_padding: 2,
+    background_fill_color: null,
+    background_fill_alpha: 1,
+  },
+  GlyphAttachment: {
+    __extends__: "Model",
+  },
   ContourRenderer: {
     __extends__: "DataRenderer",
     line_renderer: {
@@ -5915,6 +5945,7 @@
   },
   GlyphRenderer: {
     __extends__: "DataRenderer",
+    attachments: [],
     data_source: {
       type: "symbol",
       name: "unset",

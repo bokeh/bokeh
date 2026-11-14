@@ -1,7 +1,7 @@
 ''' Simple contour plot showing both contour lines and filled polygons.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.contour, bokeh.models.ContourRenderer.contruct_color_bar
+    :apis: bokeh.plotting.figure.contour, bokeh.models.ContourRenderer.add_labels, bokeh.models.ContourRenderer.construct_color_bar
     :refs: :ref:`ug_topics_contour_simple`
     :keywords: contour
 
@@ -15,10 +15,15 @@ from bokeh.plotting import figure, show
 x, y = np.meshgrid(np.linspace(0, 3, 40), np.linspace(0, 2, 30))
 z = 1.3*np.exp(-2.5*((x-1.3)**2 + (y-0.8)**2)) - 1.2*np.exp(-2*((x-1.8)**2 + (y-1.3)**2))
 
-p = figure(width=550, height=300, x_range=(0, 3), y_range=(0, 2))
+p = figure(width=550, height=300, x_range=(0, 3), y_range=(0, 2), output_backend="webgl")
 
 levels = np.linspace(-1, 1, 9)
 contour_renderer = p.contour(x, y, z, levels, fill_color=Sunset8, line_color="black")
+
+contour_renderer.add_labels(
+    inline_gap=True, text_color="black", text_font_style="bold",
+    text_outline_color="white", text_outline_width=0.75,
+)
 
 colorbar = contour_renderer.construct_color_bar()
 p.add_layout(colorbar, "right")
