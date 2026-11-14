@@ -266,9 +266,7 @@ describe("core/util/eq module", () => {
       expect(cmp.eq(new X(0), {f: 0})).to.be.false
     })
 
-    it("that doesn't compare objects with constructor property set to Function as functions", () => {
-      // Such objects used to fall through to the [object Function] case and be
-      // compared by their string representation, i.e. "[object Object]".
+    it("that compares an own constructor property as an ordinary property", () => {
       const o0 = {constructor: Function, a: 1}
       const o1 = {constructor: Function, a: 2}
       expect(is_equal(o0, o1)).to.be.false

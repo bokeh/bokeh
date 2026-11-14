@@ -33,10 +33,12 @@ from typing import (
     Any,
     Callable,
     Iterator,
+    Literal,
     Mapping,
     Self,
     Sequence,
     TextIO,
+    TypedDict,
     TypeGuard,
     cast,
 )
@@ -64,7 +66,6 @@ from ..util.serialization import (
     convert_datetime_type,
     is_datetime_type,
 )
-from ._geometry import geometry_value as _geometry_value
 from .callbacks import CustomJS
 from .filters import AllIndices, Filter
 from .selections import Selection, SelectionPolicy, UnionRenderers
@@ -916,6 +917,18 @@ class ColumnDataSource(ColumnarDataSource):
 class _GeometryAttributes(ColumnData, RestrictedDict[str, Any]):
     pass
 
+def _geometry_value(value: Any) -> Any:
+    if isinstance(value, np.generic):
+        return value.item()
+    if isinstance(value, Mapping):
+        return {key: _geometry_value(item) for key, item in value.items()}
+    # Rebuild plain containers: subclasses such as namedtuples need other constructor arguments.
+    if isinstance(value, tuple):
+        return tuple(_geometry_value(item) for item in value)
+    if isinstance(value, list):
+        return [_geometry_value(item) for item in value]
+    return value
+
 def _as_geometry_mapping(value: Any) -> Mapping[str, Any]:
     if not isinstance(value, Mapping):
         value = getattr(value, "__geo_interface__", None)
@@ -946,7 +959,11 @@ class _Geometries(Seq[Any, Sequence[Any]]):
     def transform(self, value: Any) -> Sequence[Any]:
         return [_geometry_mapping(item) for item in super().transform(value)]
 
-def _geometry_from_xy(x: Sequence[Any], y: Sequence[Any]) -> dict[str, Any]:
+class _PolygonGeometry(TypedDict):
+    type: Literal["Polygon"]
+    coordinates: list[list[list[Any]]]
+
+def _geometry_from_xy(x: Sequence[Any], y: Sequence[Any]) -> _PolygonGeometry:
     if not _is_coordinate_row(x) or not _is_coordinate_row(y):
         raise ValueError("polygon x and y coordinates must have matching nesting")
     xs = [convert_datetime_type(value) if isinstance(value, date) or is_datetime_type(value) else value for value in x]
@@ -966,7 +983,7 @@ def _geometry_from_xy(x: Sequence[Any], y: Sequence[Any]) -> dict[str, Any]:
 
     ring = [[list(value) if _is_coordinate_row(value) else value for value in pair] for pair in zip(xs, ys)]
     if not ring:
-        return {"type": "Polygon", "coordinates": []}
+        return _PolygonGeometry(type="Polygon", coordinates=[])
     if any(isinstance(x_value, Real) != isinstance(xs[0], Real) or isinstance(y_value, Real) != isinstance(ys[0], Real)
            for x_value, y_value in ring):
         raise ValueError("polygon coordinates cannot mix numbers and categorical factors on the same axis")
@@ -974,7 +991,7 @@ def _geometry_from_xy(x: Sequence[Any], y: Sequence[Any]) -> dict[str, Any]:
         ring.append(ring[0])
     if len(ring) < 4:
         raise ValueError("polygon rings must contain at least three vertices")
-    return {"type": "Polygon", "coordinates": [ring]}
+    return _PolygonGeometry(type="Polygon", coordinates=[ring])
 
 def _is_coordinate_row(value: Any) -> TypeGuard[Sequence[Any] | npt.NDArray[Any]]:
     return (isinstance(value, (Sequence, np.ndarray)) and not isinstance(value, (str, bytes))
