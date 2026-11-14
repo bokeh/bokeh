@@ -229,12 +229,14 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04, macos-latest, windows-latest]
-        python-version: ['3.13', '3.14']
+        python-version: ['3.13', '3.14', '3.15']
         include:
           - python-version: '3.13'
             environment: test-py313
           - python-version: '3.14'
             environment: test-py314
+          - python-version: '3.15'
+            environment: test-py315
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
