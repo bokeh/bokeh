@@ -437,7 +437,7 @@ class Property[G = Any, S = G]:
     def has_ref(self) -> bool:
         return False
 
-    def accepts(self, tp: TypeOrInst[Property[Any]], converter: Callable[[Any], G]) -> Property[G, S]:
+    def accepts[U](self, tp: TypeOrInst[Property[Any, U]], converter: Callable[[U], G]) -> Property[G, S | U]:
         """ Declare that other types may be converted to this property type.
 
         Args:
@@ -450,13 +450,13 @@ class Property[G = Any, S = G]:
                 value to this property type.
 
         Returns:
-            self
+            self, with values accepted by ``tp`` added to its assignment type
 
         """
 
         tp = ParameterizedProperty._validate_type_param(tp)
         self.alternatives.append((tp, converter))
-        return self
+        return cast(Property[G, S | U], self)
 
     def asserts(self, fn: Callable[[HasProps, G], bool], msg_or_fn: str | Callable[[HasProps, str, G], None]) -> Property[G, S]:
         """ Assert that prepared values satisfy given conditions.

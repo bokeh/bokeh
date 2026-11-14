@@ -271,7 +271,7 @@ enums.either_auto_prop = "manual"  # mypy: assignment; pyright: reportAttributeA
 
 
 # Assignment types can be wider than value types, e.g. because containers
-# are invariant.
+# are invariant or because of accepts().
 
 class UIElement(HasProps):
     pass
@@ -289,6 +289,8 @@ class Assignments(HasProps):
     items = Set(Instance(UIElement))
     readonly = Readonly(Int)
     readonly_with_default = Readonly(Int, default=1)
+    title = Nullable(Instance(Child)).accepts(String, lambda text: Child())
+    ticks = List(Int).accepts(Seq(String), lambda values: [int(value) for value in values])
 
 
 assignments = Assignments()
@@ -296,10 +298,12 @@ assignments = Assignments()
 assert_type(assignments.children, list[UIElement])
 assert_type(assignments.mapping, dict[str, UIElement])
 assert_type(assignments.readonly, int)
+assert_type(assignments.title, Child | None)
 
 assert_type(Assignments.children, PropertyDescriptor[list[UIElement], Sequence[UIElement]])
 assert_type(Assignments.mapping, PropertyDescriptor[dict[str, UIElement], Mapping[str, UIElement]])
 assert_type(Assignments.readonly, PropertyDescriptor[int, Never])
+assert_type(Assignments.title, PropertyDescriptor[Child | None, Child | str | None])
 
 rows: list[Row] = [Row()]
 row_mapping: dict[str, Row] = {"a": Row()}
@@ -309,6 +313,9 @@ assignments.nested_children = [rows]
 assignments.nullable_children = rows
 assignments.mapping = row_mapping
 assignments.items = {Row()}
+assignments.title = "text"
+assignments.title = None
+assignments.ticks = ("1", "2")
 
 # KNOWN GAP: type checkers accept tuples, but List() accepts only lists at runtime.
 assignments.children = (Row(),)
@@ -316,3 +323,4 @@ assignments.children = (Row(),)
 assignments.children = [Child()]  # mypy: list-item; pyright: reportAttributeAccessIssue
 assignments.mapping = {"a": Child()}  # mypy: dict-item; pyright: reportAttributeAccessIssue
 assignments.readonly = 1  # mypy: assignment; pyright: reportAttributeAccessIssue
+assignments.title = 1  # mypy: assignment; pyright: reportAttributeAccessIssue
