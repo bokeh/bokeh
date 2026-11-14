@@ -34,6 +34,7 @@ import {
 } from "@bokehjs/models/widgets/tables"
 
 import type {PickerBase, PickerBaseView} from "@bokehjs/models/widgets/picker_base"
+import type {TextAreaInputView} from "@bokehjs/models/widgets/textarea_input"
 import type {InputWidget, InputWidgetView} from "@bokehjs/models/widgets/input_widget"
 import * as sliders_css from "@bokehjs/styles/widgets/sliders.css"
 
@@ -340,6 +341,43 @@ describe("Widgets", () => {
     const {resize, overflow} = getComputedStyle(view.el)
     expect(resize).to.be.equal("both")
     expect(overflow).to.be.equal("auto")
+  })
+
+  describe("should support resizable TextAreaInput", () => {
+    const value = "Some text\nspanning\nmultiple lines"
+
+    function textarea_of(view: TextAreaInputView): HTMLTextAreaElement {
+      const el = view.shadow_el.querySelector("textarea")
+      expect_not_null(el)
+      return el
+    }
+
+    it("when resized to a larger size", async () => {
+      const obj = TextAreaInput.create({title: "Widget title", value, resizable: true})
+      const {view} = await display(obj, [450, 250])
+      view.el.style.width = "400px"
+      view.el.style.height = "200px"
+      await view.resized
+
+      const {width, height} = view.el.getBoundingClientRect()
+      expect([width, height]).to.be.equal([400, 200])
+      expect(view.el.scrollHeight).to.be.equal(view.el.clientHeight)
+      expect(textarea_of(view).clientHeight).to.be.above(150)
+    })
+
+    it("when resized below its minimum size", async () => {
+      const obj = TextAreaInput.create({title: "Widget title", value, resizable: true})
+      const {view} = await display(obj, [450, 250])
+      view.el.style.width = "150px"
+      view.el.style.height = "10px"
+      await view.resized
+
+      const {width, height} = view.el.getBoundingClientRect()
+      expect(width).to.be.equal(150)
+      expect(height).to.be.above(10)
+      expect(view.el.scrollHeight).to.be.equal(view.el.clientHeight)
+      expect(textarea_of(view).clientHeight).to.be.above(0)
+    })
   })
 
   it("should allow FileInput", async () => {
