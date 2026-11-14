@@ -294,6 +294,41 @@ def _warn_redeclared_props(
              "the parent class. Override() can be used to change a default value of a base class property.",
              RuntimeWarning)
 
+def _resolve_overrides(
+    cls: type[HasProps],
+    own_overridden_defaults: Mapping[str, Any],
+    own_properties: Mapping[str, Property[Any]],
+    property_bases: list[type[HasProps]],
+) -> dict[str, Any]:
+    """ Map names of overrides to names of the overridden properties.
+
+    ``_name = Override(...)`` overrides property ``name``, unless ``_name`` is
+    a property itself. This allows to override properties without redefining
+    them, so that type checkers retain types of properties in derived models.
+
+    """
+    known_properties: dict[str, Property[Any]] = {}
+    for base in property_bases:
+        known_properties.update(base.properties())
+    known_properties.update(own_properties)
+
+    # properties given explicitly, e.g. ``_name = Override(Base.name, ...)``
+    overridden_properties: Mapping[str, Property[Any]] = cls.__dict__.get("__overridden_properties__", {})
+
+    resolved: dict[str, Any] = {}
+    sources: dict[str, str] = {}
+    for name, default in own_overridden_defaults.items():
+        prop_name = name
+        if name not in known_properties and name.startswith("_") and name[1:] in known_properties:
+            prop_name = name[1:]
+        if prop_name in resolved:
+            raise TypeError(f"{cls.__name__}.{prop_name} is overridden more than once, by {sources[prop_name]!r} and {name!r}")
+        if name in overridden_properties and known_properties.get(prop_name) is not overridden_properties[name]:
+            raise TypeError(f"{cls.__name__}.{name} overrides a property that {cls.__name__} doesn't inherit")
+        resolved[prop_name] = default
+        sources[prop_name] = name
+    return resolved
+
 def _warn_unused_overrides(
     cls: type[HasProps],
     own_overridden_defaults: Mapping[str, Any],
@@ -352,7 +387,10 @@ class HasProps(Serializable):
     @classmethod
     def __init_subclass__(cls, **kwargs: Any) -> None:
         own_properties = MappingProxyType(dict(cls.__dict__.get("__properties__", {})))
-        own_overridden_defaults = MappingProxyType(dict(cls.__dict__.get("__overridden_defaults__", {})))
+        property_bases = [base for base in cls.__bases__ if issubclass(base, HasProps)]
+        own_overridden_defaults = MappingProxyType(_resolve_overrides(
+            cls, cls.__dict__.get("__overridden_defaults__", {}), own_properties, property_bases,
+        ))
         cls.__properties__ = own_properties
         cls.__overridden_defaults__ = own_overridden_defaults
         cls.__property_info__ = property_info = _PropertyInfo(own_properties, own_overridden_defaults)
@@ -361,7 +399,6 @@ class HasProps(Serializable):
 
         properties = property_info.properties(cls)
 
-        property_bases = [base for base in cls.__bases__ if issubclass(base, HasProps)]
         _check_units_props(cls, own_properties, properties, property_bases)
         _warn_redeclared_props(cls, own_properties, property_bases)
         _warn_unused_overrides(cls, own_overridden_defaults, properties)

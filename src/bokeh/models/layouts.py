@@ -497,9 +497,10 @@ class Row(FlexBox):
     '''
 
     def _sphinx_height_hint(self) -> int|None:
-        if any(x._sphinx_height_hint() is None for x in self.children):
+        hints = [x._sphinx_height_hint() for x in self.children]
+        if any(hint is None for hint in hints):
             return None
-        return max(x._sphinx_height_hint() for x in self.children)
+        return max(hint for hint in hints if hint is not None)
 
 class Column(FlexBox):
     ''' Lay out child components in a single vertical column.
@@ -509,9 +510,10 @@ class Column(FlexBox):
     '''
 
     def _sphinx_height_hint(self) -> int|None:
-        if any(x._sphinx_height_hint() is None for x in self.children):
+        hints = [x._sphinx_height_hint() for x in self.children]
+        if any(hint is None for hint in hints):
             return None
-        return sum(x._sphinx_height_hint() for x in self.children)
+        return sum(hint for hint in hints if hint is not None)
 
 class TabPanel(Model):
     ''' A single-widget container with title bar and controls.

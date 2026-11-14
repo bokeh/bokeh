@@ -25,6 +25,7 @@ from collections.abc import (
     Iterable,
     Mapping,
     Sequence,
+    Set as AbstractSet,
     Sized,
 )
 from typing import (
@@ -77,20 +78,30 @@ __all__ = (
     'Tuple',
 )
 
+type _TypeParam[G, S] = TypeOrInst[Property[G, S]]
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Seq[T, TSeq](ContainerProperty[TSeq]):
+class Seq[G, S = G, CG = Sequence[G], CS = Sequence[S]](ContainerProperty[CG, CS]):
     """ Accept non-string ordered sequences of values, e.g. list, tuple, array.
+
+    Type parameters:
+
+    ``G``, ``S``
+        The value and assignment types of items.
+
+    ``CG``, ``CS``
+        The value and assignment types of sequences.
 
     """
 
-    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[TSeq] = Undefined, help: str | None = None) -> None:
+    def __init__(self, item_type: TypeOrInst[Property[G, S]], *, default: Init[CS] = Undefined, help: str | None = None) -> None:
         super().__init__(item_type, default=default, help=help)
 
     @property
-    def item_type(self) -> Property[T]:
+    def item_type(self) -> Property[G, S]:
         return self.type_params[0]
 
     def validate(self, value: Any, detail: bool = True) -> None:
@@ -127,17 +138,22 @@ class Seq[T, TSeq](ContainerProperty[TSeq]):
                 and hasattr(value, "__getitem__") # NOTE: this is what makes it disallow set type
                 and not isinstance(value, Mapping))
 
-class List[T](Seq[T, list[T]]):
+class List[G, S = G](Seq[G, S, list[G], Sequence[S]]):
     """ Accept Python list values.
+
+    .. note::
+        Assignments are typed as ``Sequence`` to allow e.g. ``list[Row]`` to
+        be assigned to ``List(Instance(UIElement))``, because ``list`` is
+        invariant. Only ``list`` values are accepted at runtime.
 
     """
 
-    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[list[T]] = _NotGiven, help: str | None = None) -> None:
+    def __init__(self, item_type: TypeOrInst[Property[G, S]], *, default: Init[Sequence[S]] = _NotGiven, help: str | None = None) -> None:
         default = [] if default is _NotGiven else default
         super().__init__(item_type, default=default, help=help)
 
     @overload
-    def wrap(self, value: list[T]) -> PropertyValueList[T]: ...
+    def wrap(self, value: list[G]) -> PropertyValueList[G]: ...
     @overload
     def wrap[V](self, value: V) -> V: ...
 
@@ -157,17 +173,21 @@ class List[T](Seq[T, list[T]]):
     def _is_seq(cls, value: Any) -> bool:
         return isinstance(value, list)
 
-class Set[T](Seq[T, set[T]]):
+class Set[G, S = G](Seq[G, S, set[G], AbstractSet[S]]):
     """ Accept Python ``set()`` values.
+
+    .. note::
+        Assignments are typed as ``AbstractSet``, because ``set`` is invariant.
+        Only ``set`` values are accepted at runtime.
 
     """
 
-    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[set[T]] = _NotGiven, help: str | None = None) -> None:
+    def __init__(self, item_type: TypeOrInst[Property[G, S]], *, default: Init[AbstractSet[S]] = _NotGiven, help: str | None = None) -> None:
         default = set() if default is _NotGiven else default
         super().__init__(item_type, default=default, help=help)
 
     @overload
-    def wrap(self, value: set[T]) -> PropertyValueSet[T]: ...
+    def wrap(self, value: set[G]) -> PropertyValueSet[G]: ...
     @overload
     def wrap[V](self, value: V) -> V: ...
 
@@ -185,7 +205,7 @@ class Set[T](Seq[T, set[T]]):
     def _is_seq(cls, value: Any) -> bool:
         return isinstance(value, set)
 
-class Array[T](Seq[T, Any]):
+class Array[T](Seq[T, T, Any, Any]):
     """ Accept NumPy array values.
 
     """
@@ -195,25 +215,29 @@ class Array[T](Seq[T, Any]):
         import numpy as np
         return isinstance(value, np.ndarray)
 
-class Dict[K, V](ContainerProperty[dict[K, V]]):
+class Dict[K, V, KS = K, VS = V](ContainerProperty[dict[K, V], Mapping[KS, VS]]):
     """ Accept Python dict values.
 
     If a default value is passed in, then a shallow copy of it will be
     used for each new use of this property.
 
+    .. note::
+        Assignments are typed as ``Mapping``, because ``dict`` is invariant
+        in its values. Only ``dict`` values are accepted at runtime.
+
     """
 
-    def __init__(self, keys_type: TypeOrInst[Property[K]], values_type: TypeOrInst[Property[V]], *,
-            default: Init[dict[K, V]] = _NotGiven, help: str | None = None) -> None:
+    def __init__(self, keys_type: TypeOrInst[Property[K, KS]], values_type: TypeOrInst[Property[V, VS]], *,
+            default: Init[Mapping[KS, VS]] = _NotGiven, help: str | None = None) -> None:
         default = {} if default is _NotGiven else default
         super().__init__(keys_type, values_type, default=default, help=help)
 
     @property
-    def keys_type(self) -> Property[K]:
+    def keys_type(self) -> Property[K, KS]:
         return self.type_params[0]
 
     @property
-    def values_type(self) -> Property[V]:
+    def values_type(self) -> Property[V, VS]:
         return self.type_params[1]
 
     def validate(self, value: Any, detail: bool = True) -> None:
@@ -303,11 +327,67 @@ class ColumnData(Dict[str, Any]):
         else:
             return value
 
-class Tuple(ContainerProperty[Any]):
+class Tuple[G = Any, S = G](ContainerProperty[G, S]):
     """ Accept Python tuple values.
+
+    Lists of matching length are accepted as well and converted to tuples.
 
     """
 
+    # Infer value types from type parameters. Lists are typed by the union of
+    # item types, because their length and positions of items can't be typed.
+    @overload
+    def __init__[G1, S1](
+        self: Tuple[tuple[G1], tuple[S1] | list[S1]],
+        tp1: _TypeParam[G1, S1],
+        /, *,
+        default: Init[tuple[S1] | list[S1]] = ..., help: str | None = ...) -> None: ...
+    @overload
+    def __init__[G1, S1, G2, S2](
+        self: Tuple[tuple[G1, G2], tuple[S1, S2] | list[S1 | S2]],
+        tp1: _TypeParam[G1, S1], tp2: _TypeParam[G2, S2],
+        /, *,
+        default: Init[tuple[S1, S2] | list[S1 | S2]] = ..., help: str | None = ...) -> None: ...
+    @overload
+    def __init__[G1, S1, G2, S2, G3, S3](
+        self: Tuple[tuple[G1, G2, G3], tuple[S1, S2, S3] | list[S1 | S2 | S3]],
+        tp1: _TypeParam[G1, S1], tp2: _TypeParam[G2, S2], tp3: _TypeParam[G3, S3],
+        /, *,
+        default: Init[tuple[S1, S2, S3] | list[S1 | S2 | S3]] = ..., help: str | None = ...) -> None: ...
+    @overload
+    def __init__[G1, S1, G2, S2, G3, S3, G4, S4](
+        self: Tuple[tuple[G1, G2, G3, G4], tuple[S1, S2, S3, S4] | list[S1 | S2 | S3 | S4]],
+        tp1: _TypeParam[G1, S1], tp2: _TypeParam[G2, S2], tp3: _TypeParam[G3, S3], tp4: _TypeParam[G4, S4],
+        /, *,
+        default: Init[tuple[S1, S2, S3, S4] | list[S1 | S2 | S3 | S4]] = ..., help: str | None = ...) -> None: ...
+    @overload
+    def __init__[G1, S1, G2, S2, G3, S3, G4, S4, G5, S5](
+        self: Tuple[tuple[G1, G2, G3, G4, G5], tuple[S1, S2, S3, S4, S5] | list[S1 | S2 | S3 | S4 | S5]],
+        tp1: _TypeParam[G1, S1], tp2: _TypeParam[G2, S2], tp3: _TypeParam[G3, S3], tp4: _TypeParam[G4, S4],
+        tp5: _TypeParam[G5, S5],
+        /, *,
+        default: Init[tuple[S1, S2, S3, S4, S5] | list[S1 | S2 | S3 | S4 | S5]] = ..., help: str | None = ...) -> None: ...
+    @overload
+    def __init__[G1, S1, G2, S2, G3, S3, G4, S4, G5, S5, G6, S6](
+        self: Tuple[tuple[G1, G2, G3, G4, G5, G6], tuple[S1, S2, S3, S4, S5, S6] | list[S1 | S2 | S3 | S4 | S5 | S6]],
+        tp1: _TypeParam[G1, S1], tp2: _TypeParam[G2, S2], tp3: _TypeParam[G3, S3], tp4: _TypeParam[G4, S4],
+        tp5: _TypeParam[G5, S5], tp6: _TypeParam[G6, S6],
+        /, *,
+        default: Init[tuple[S1, S2, S3, S4, S5, S6] | list[S1 | S2 | S3 | S4 | S5 | S6]] = ..., help: str | None = ...) -> None: ...
+    @overload
+    def __init__[G1, S1, G2, S2, G3, S3, G4, S4, G5, S5, G6, S6, G7, S7](
+        self: Tuple[tuple[G1, G2, G3, G4, G5, G6, G7], tuple[S1, S2, S3, S4, S5, S6, S7] | list[S1 | S2 | S3 | S4 | S5 | S6 | S7]],
+        tp1: _TypeParam[G1, S1], tp2: _TypeParam[G2, S2], tp3: _TypeParam[G3, S3], tp4: _TypeParam[G4, S4],
+        tp5: _TypeParam[G5, S5], tp6: _TypeParam[G6, S6], tp7: _TypeParam[G7, S7],
+        /, *,
+        default: Init[tuple[S1, S2, S3, S4, S5, S6, S7] | list[S1 | S2 | S3 | S4 | S5 | S6 | S7]] = ..., help: str | None = ...) -> None: ...
+    @overload
+    def __init__[G1, S1, G2, S2, G3, S3, G4, S4, G5, S5, G6, S6, G7, S7, G8, S8](
+        self: Tuple[tuple[G1, G2, G3, G4, G5, G6, G7, G8], tuple[S1, S2, S3, S4, S5, S6, S7, S8] | list[S1 | S2 | S3 | S4 | S5 | S6 | S7 | S8]],
+        tp1: _TypeParam[G1, S1], tp2: _TypeParam[G2, S2], tp3: _TypeParam[G3, S3], tp4: _TypeParam[G4, S4],
+        tp5: _TypeParam[G5, S5], tp6: _TypeParam[G6, S6], tp7: _TypeParam[G7, S7], tp8: _TypeParam[G8, S8],
+        /, *,
+        default: Init[tuple[S1, S2, S3, S4, S5, S6, S7, S8] | list[S1 | S2 | S3 | S4 | S5 | S6 | S7 | S8]] = ..., help: str | None = ...) -> None: ...
     def __init__(self, *type_params: TypeOrInst[Property[Any]], default: Init[Any] = Undefined, help: str | None = None) -> None:
         super().__init__(*type_params, default=default, help=help)
 
@@ -321,11 +401,11 @@ class Tuple(ContainerProperty[Any]):
         msg = "" if not detail else f"expected an element of {self}, got {value!r}"
         raise ValidationError(msg)
 
-    def transform(self, value: Any) -> tuple[Any, ...]:
+    def transform(self, value: Any) -> G:
         """ Change the value into a JSON serializable format.
 
         """
-        return tuple(typ.transform(x) for (typ, x) in zip(self.type_params, value))
+        return cast(G, tuple(typ.transform(x) for (typ, x) in zip(self.type_params, value)))
 
 class RelativeDelta(Dict[str, int]):
     """ Accept RelativeDelta dicts for time delta values.
@@ -341,13 +421,13 @@ class RelativeDelta(Dict[str, int]):
     def __str__(self) -> str:
         return self.__class__.__name__
 
-class RestrictedDict[K, V](Dict[K, V]):
+class RestrictedDict[K, V, KS = K, VS = V](Dict[K, V, KS, VS]):
     """ Check for disallowed key(s).
 
     """
 
-    def __init__(self, keys_type: TypeOrInst[Property[Any]], values_type: TypeOrInst[Property[Any]], disallow: Iterable[Any],
-            default: Init[dict[K, V]] = _NotGiven, *, help: str | None = None) -> None:
+    def __init__(self, keys_type: TypeOrInst[Property[K, KS]], values_type: TypeOrInst[Property[V, VS]], disallow: Iterable[K],
+            default: Init[Mapping[KS, VS]] = _NotGiven, *, help: str | None = None) -> None:
         default = {} if default is _NotGiven else default
         self._disallow = set(disallow)
         super().__init__(keys_type=keys_type, values_type=values_type, default=default, help=help)
@@ -361,10 +441,10 @@ class RestrictedDict[K, V](Dict[K, V]):
             msg = "" if not detail else f"Disallowed keys: {error_keys!r}"
             raise ValidationError(msg)
 
-class NonEmpty[TSeq: Seq[Any, Any]](SingleParameterizedProperty[TSeq]):
+class NonEmpty[G, S = G](SingleParameterizedProperty[G, S]):
     """ Allows only non-empty containers. """
 
-    def __init__(self, type_param: TypeOrInst[TSeq], *, default: Init[TSeq] = _NotGiven,
+    def __init__(self, type_param: TypeOrInst[ContainerProperty[G, S]], *, default: Init[S] = _NotGiven,
             help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
 
@@ -375,10 +455,10 @@ class NonEmpty[TSeq: Seq[Any, Any]](SingleParameterizedProperty[TSeq]):
             msg = "" if not detail else "Expected a non-empty container"
             raise ValidationError(msg)
 
-class Len[TSeq: Seq[Any, Any]](SingleParameterizedProperty[TSeq]):
+class Len[G, S = G](SingleParameterizedProperty[G, S]):
     """ Allows only containers of the given length. """
 
-    def __init__(self, type_param: TypeOrInst[TSeq], length: int, *, default: Init[TSeq] = _NotGiven,
+    def __init__(self, type_param: TypeOrInst[ContainerProperty[G, S]], length: int, *, default: Init[S] = _NotGiven,
             help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
         self.length = length
@@ -407,7 +487,7 @@ def _sphinx_type_dict(obj: Dict[Any, Any]) -> str:
     return f"{property_link(obj)}({type_link(obj.keys_type)}, {type_link(obj.values_type)})"
 
 @register_type_link(Seq)
-def _sphinx_type_seq(obj: Seq[Any, Any]) -> str:
+def _sphinx_type_seq(obj: Seq[Any, Any, Any, Any]) -> str:
     return f"{property_link(obj)}({type_link(obj.item_type)})"
 
 @register_type_link(Tuple)

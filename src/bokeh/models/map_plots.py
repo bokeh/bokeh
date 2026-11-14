@@ -179,9 +179,9 @@ class GMapPlot(MapPlot):
     Options for displaying the plot.
     """)
 
-    border_fill_color = Override(default="#ffffff")
+    _border_fill_color = Override(default="#ffffff")
 
-    background_fill_alpha = Override(default=0.0)
+    _background_fill_alpha = Override(default=0.0)
 
     api_key = Required(Bytes, help="""
     Google Maps API requires an API key. See https://developers.google.com/maps/documentation/javascript/get-api-key
@@ -197,9 +197,9 @@ class GMapPlot(MapPlot):
 
     """)
 
-    x_range = Override(default=InstanceDefault(Range1d))
+    _x_range = Override(default=InstanceDefault(Range1d))
 
-    y_range = Override(default=InstanceDefault(Range1d))
+    _y_range = Override(default=InstanceDefault(Range1d))
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -37,7 +37,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Dataclass[T: object](Property[T]):
+class Dataclass[T: object](Property[T, T]):
     """ Accept instance of dataclass.
 
     This property only exists to support type validation, e.g. for "accepts"

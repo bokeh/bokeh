@@ -173,9 +173,9 @@ class Axis(GuideRenderer):
     The {prop} of the axis label.
     """)
 
-    axis_label_text_font_size = Override(default="13px")
+    _axis_label_text_font_size = Override(default="13px")
 
-    axis_label_text_font_style = Override(default="italic")
+    _axis_label_text_font_style = Override(default="italic")
 
     major_label_standoff = Int(default=5, help="""
     The distance in pixels that the major tick labels should be
@@ -200,11 +200,11 @@ class Axis(GuideRenderer):
     The {prop} of the major tick labels.
     """)
 
-    major_label_text_align = Override(default="center")
+    _major_label_text_align = Override(default="center")
 
-    major_label_text_baseline = Override(default="alphabetic")
+    _major_label_text_baseline = Override(default="alphabetic")
 
-    major_label_text_font_size = Override(default="11px")
+    _major_label_text_font_size = Override(default="11px")
 
     axis_props = Include(ScalarLineProps, prefix="axis", help="""
     The {prop} of the axis line.
@@ -256,7 +256,7 @@ class Axis(GuideRenderer):
     The {prop} of the axis background.
     """)
 
-    background_fill_color = Override(default=None)
+    _background_fill_color = Override(default=None)
 
 @abstract
 class ContinuousAxis(Axis):
@@ -270,9 +270,9 @@ class LinearAxis(ContinuousAxis):
 
     '''
 
-    ticker = Override(default=InstanceDefault(BasicTicker))
+    _ticker = Override(Axis.ticker, default=InstanceDefault(BasicTicker))
 
-    formatter = Override(default=InstanceDefault(BasicTickFormatter))
+    _formatter = Override(Axis.formatter, default=InstanceDefault(BasicTickFormatter))
 
 class LogAxis(ContinuousAxis):
     ''' An axis that picks nice numbers for tick locations on a
@@ -280,9 +280,9 @@ class LogAxis(ContinuousAxis):
 
     '''
 
-    ticker = Override(default=InstanceDefault(LogTicker))
+    _ticker = Override(Axis.ticker, default=InstanceDefault(LogTicker))
 
-    formatter = Override(default=InstanceDefault(LogTickFormatter))
+    _formatter = Override(Axis.formatter, default=InstanceDefault(LogTickFormatter))
 
 class CategoricalAxis(Axis):
     ''' An axis that displays ticks and labels for categorical ranges.
@@ -293,9 +293,9 @@ class CategoricalAxis(Axis):
 
     '''
 
-    ticker = Override(default=InstanceDefault(CategoricalTicker))
+    _ticker = Override(Axis.ticker, default=InstanceDefault(CategoricalTicker))
 
-    formatter = Override(default=InstanceDefault(CategoricalTickFormatter))
+    _formatter = Override(Axis.formatter, default=InstanceDefault(CategoricalTickFormatter))
 
     separator_props = Include(ScalarLineProps, prefix="separator", help="""
     The {prop} of the separator line between top-level categorical groups.
@@ -303,8 +303,8 @@ class CategoricalAxis(Axis):
     This property always applies to factors in the outermost level of nesting.
     """)
 
-    separator_line_color = Override(default="lightgrey")
-    separator_line_width = Override(default=2)
+    _separator_line_color = Override(default="lightgrey")
+    _separator_line_width = Override(default=2)
 
     group_props = Include(ScalarTextProps, prefix="group", help="""
     The {prop} of the group categorical labels.
@@ -324,9 +324,9 @@ class CategoricalAxis(Axis):
     property has no effect.
     """)
 
-    group_text_font_size = Override(default="11px")
-    group_text_font_style = Override(default="bold")
-    group_text_color = Override(default="grey")
+    _group_text_font_size = Override(default="11px")
+    _group_text_font_style = Override(default="bold")
+    _group_text_color = Override(default="grey")
 
     subgroup_props = Include(ScalarTextProps, prefix="subgroup", help="""
     The {prop} of the subgroup categorical labels.
@@ -346,8 +346,8 @@ class CategoricalAxis(Axis):
     then this property has no effect.
     """)
 
-    subgroup_text_font_size = Override(default="11px")
-    subgroup_text_font_style = Override(default="bold")
+    _subgroup_text_font_size = Override(default="11px")
+    _subgroup_text_font_style = Override(default="bold")
 
 class DatetimeAxis(LinearAxis):
     ''' A ``LinearAxis`` that picks nice numbers for tick locations on
@@ -356,9 +356,9 @@ class DatetimeAxis(LinearAxis):
 
     '''
 
-    ticker = Override(default=InstanceDefault(DatetimeTicker))
+    _ticker = Override(Axis.ticker, default=InstanceDefault(DatetimeTicker))
 
-    formatter = Override(default=CONTEXTUAL_DATETIME_FORMATTER)
+    _formatter = Override(Axis.formatter, default=CONTEXTUAL_DATETIME_FORMATTER)
 
 class TimedeltaAxis(LinearAxis):
     ''' A ``LinearAxis`` that picks nice numbers for tick locations on
@@ -367,9 +367,9 @@ class TimedeltaAxis(LinearAxis):
 
     '''
 
-    ticker = Override(default=InstanceDefault(TimedeltaTicker))
+    _ticker = Override(Axis.ticker, default=InstanceDefault(TimedeltaTicker))
 
-    formatter = Override(default=CONTEXTUAL_TIMEDELTA_FORMATTER)
+    _formatter = Override(Axis.formatter, default=CONTEXTUAL_TIMEDELTA_FORMATTER)
 
 class MercatorAxis(LinearAxis):
     ''' An axis that picks nice numbers for tick locations on a
@@ -391,9 +391,9 @@ class MercatorAxis(LinearAxis):
         if isinstance(self.formatter, MercatorTickFormatter):
             self.formatter.dimension = dimension
 
-    ticker = Override(default=InstanceDefault(MercatorTicker))
+    _ticker = Override(Axis.ticker, default=InstanceDefault(MercatorTicker))
 
-    formatter = Override(default=InstanceDefault(MercatorTickFormatter))
+    _formatter = Override(Axis.formatter, default=InstanceDefault(MercatorTickFormatter))
 
 #-----------------------------------------------------------------------------
 # Dev API

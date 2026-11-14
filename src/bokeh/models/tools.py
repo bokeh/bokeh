@@ -766,7 +766,7 @@ class CustomAction(ActionTool):
     If ``True``, users can't interact with the tool in any way.
     """)
 
-    description = Override(default="Perform a Custom Action")
+    _description = Override(Tool.description, default="Perform a Custom Action")
 
     callback = Nullable(Instance(Callback), help="""
     A Bokeh callback to execute when the custom action icon is activated.
@@ -1235,7 +1235,7 @@ class LassoSelectTool(Drag, RegionSelectTool):
     A shaded annotation drawn to indicate the selection region.
     """)
 
-    continuous = Override(default=True)
+    _continuous = Override(RegionSelectTool.continuous, default=True)
 
 class PolySelectTool(Tap, RegionSelectTool):
     ''' *toolbar icon*: |poly_select_icon|
@@ -1637,7 +1637,7 @@ class HelpTool(ActionTool):
 
     '''
 
-    description = Override(default=DEFAULT_HELP_TIP)
+    _description = Override(Tool.description, default=DEFAULT_HELP_TIP)
 
     redirect = String(default=DEFAULT_HELP_URL, help="""
     Site to be redirected through upon click.

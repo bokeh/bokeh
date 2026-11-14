@@ -94,8 +94,8 @@ export class MyPlot extends Plot {
     gradient_step = Float(default=20)
     gradient_colors = List(Color, default=["white", "gray"])
 
-    background_fill_alpha = Override(default=0.0)
-    border_fill_alpha = Override(default=0.0)
+    _background_fill_alpha = Override(default=0.0)
+    _border_fill_alpha = Override(default=0.0)
 
 source = ColumnDataSource(
     data = dict(

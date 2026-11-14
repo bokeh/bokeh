@@ -1,0 +1,357 @@
+# Copyright (c) Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved. The full license is in the file LICENSE.txt.
+
+# Value types of primitive and container properties, and their combinations.
+#
+# Lines marked with "KNOWN GAP" assert the intended type, which type checkers
+# can't infer yet. Remove the error markers when a gap is closed.
+
+from typing import Any as AnyType, Literal, Mapping, Never, Sequence, assert_type
+
+from bokeh.core.enums import Location
+from bokeh.core.has_props import HasProps
+from bokeh.core.property.any import Any, AnyRef
+from bokeh.core.property.auto import Auto
+from bokeh.core.property.container import (
+    Array,
+    ColumnData,
+    Dict,
+    Len,
+    List,
+    NonEmpty,
+    RelativeDelta,
+    RestrictedDict,
+    Seq,
+    Set,
+    Tuple,
+)
+from bokeh.core.property.descriptors import PropertyDescriptor
+from bokeh.core.property.either import Either
+from bokeh.core.property.enum import Enum
+from bokeh.core.property.instance import Instance, InstanceDefault
+from bokeh.core.property.nullable import Nullable
+from bokeh.core.property.numeric import Angle, Byte, Interval, NonNegative, Percent, Positive, Size
+from bokeh.core.property.primitive import Bool, Bytes, Complex, Float, Int, Null, String
+from bokeh.core.property.readonly import Readonly
+from bokeh.core.property.string import MathString, Regex
+
+
+class Child(HasProps):
+    pass
+
+
+class Primitives(HasProps):
+    null_prop = Null()
+    bool_prop = Bool()
+    complex_prop = Complex()
+    int_prop = Int()
+    float_prop = Float()
+    bytes_prop = Bytes()
+    string_prop = String()
+    regex_prop = Regex("^[a-z]+$")
+    math_string_prop = MathString()
+    any_prop = Any()
+    any_ref_prop = AnyRef()
+    non_negative_prop = NonNegative(Int)
+    positive_prop = Positive(Float)
+    interval_prop = Interval(Float, 0, 1)
+    byte_prop = Byte()
+    size_prop = Size()
+    percent_prop = Percent()
+    angle_prop = Angle()
+
+
+primitives = Primitives()
+
+assert_type(primitives.null_prop, None)
+assert_type(primitives.bool_prop, bool)
+assert_type(primitives.complex_prop, complex)
+assert_type(primitives.int_prop, int)
+assert_type(primitives.float_prop, float)
+assert_type(primitives.bytes_prop, bytes)
+assert_type(primitives.string_prop, str)
+assert_type(primitives.regex_prop, str)
+assert_type(primitives.math_string_prop, str)
+assert_type(primitives.any_prop, AnyType)
+assert_type(primitives.any_ref_prop, AnyType)
+assert_type(primitives.non_negative_prop, int)
+assert_type(primitives.positive_prop, float)
+assert_type(primitives.interval_prop, float)
+assert_type(primitives.byte_prop, int)
+assert_type(primitives.size_prop, float)
+assert_type(primitives.percent_prop, float)
+assert_type(primitives.angle_prop, float)
+
+assert_type(Primitives.int_prop, PropertyDescriptor[int])
+assert_type(Primitives.string_prop, PropertyDescriptor[str])
+
+
+class Containers(HasProps):
+    list_prop = List(Int)
+    list_of_instance_param_prop = List(Int())
+    set_prop = Set(String)
+    dict_prop = Dict(String, Float)
+    column_data_prop = ColumnData(String, Seq(Any))
+    relative_delta_prop = RelativeDelta()
+    array_prop = Array(Float)
+    seq_prop = Seq(Int)
+    tuple_prop = Tuple(Int, String)
+    restricted_dict_prop = RestrictedDict(String, Int, disallow=("x",))
+    restricted_dict_invalid_disallow_prop = RestrictedDict(String, Int, disallow=(1,))  # mypy: misc; pyright: reportArgumentType
+    non_empty_prop = NonEmpty(List(Int))
+    len_prop = Len(List(Float), 2)
+    non_empty_non_container_prop = NonEmpty(Int)  # mypy: var-annotated,arg-type,arg-type; pyright: reportArgumentType
+
+
+containers = Containers()
+
+assert_type(containers.list_prop, list[int])
+assert_type(containers.list_of_instance_param_prop, list[int])
+assert_type(containers.set_prop, set[str])
+assert_type(containers.dict_prop, dict[str, float])
+assert_type(containers.column_data_prop, dict[str, AnyType])
+assert_type(containers.relative_delta_prop, dict[str, int])
+assert_type(containers.array_prop, AnyType)
+assert_type(containers.seq_prop, Sequence[int])
+assert_type(containers.tuple_prop, tuple[int, str])
+assert_type(containers.restricted_dict_prop, dict[str, int])
+assert_type(containers.non_empty_prop, list[int])
+assert_type(containers.len_prop, list[float])
+
+assert_type(Containers.list_prop, PropertyDescriptor[list[int], Sequence[int]])
+assert_type(Containers.dict_prop, PropertyDescriptor[dict[str, float], Mapping[str, float]])
+
+
+class Combinations(HasProps):
+    list_of_lists = List(List(Int))
+    list_of_lists_of_lists = List(List(List(String)))
+    list_of_instances = List(Instance(Child))
+    list_of_lazy_instances = List(Instance(lambda: Child))
+    list_of_nullable_instances = List(Nullable(Instance(Child)))
+    list_of_nullables = List(Nullable(Int))
+    list_of_dicts = List(Dict(String, Int))
+    list_of_non_negatives = List(NonNegative(Int))
+    list_of_tuples = List(Tuple(Int, Int))
+    nullable_list = Nullable(List(Int))
+    nullable_instance = Nullable(Instance(Child))
+    set_of_instances = Set(Instance(Child))
+    dict_of_lists = Dict(String, List(Float))
+    dict_of_instances = Dict(String, Instance(Child))
+    dict_of_dicts = Dict(Int, Dict(String, Float))
+    dict_of_lists_of_instances = Dict(String, List(Instance(Child)))
+    non_empty_list_of_instances = NonEmpty(List(Instance(Child)))
+
+
+combinations = Combinations()
+
+assert_type(combinations.list_of_lists, list[list[int]])
+assert_type(combinations.list_of_lists_of_lists, list[list[list[str]]])
+assert_type(combinations.list_of_instances, list[Child])
+assert_type(combinations.list_of_lazy_instances, list[Child])
+assert_type(combinations.list_of_nullable_instances, list[Child | None])
+assert_type(combinations.list_of_nullables, list[int | None])
+assert_type(combinations.list_of_dicts, list[dict[str, int]])
+assert_type(combinations.list_of_non_negatives, list[int])
+assert_type(combinations.list_of_tuples, list[tuple[int, int]])
+assert_type(combinations.nullable_list, list[int] | None)
+assert_type(combinations.nullable_instance, Child | None)
+assert_type(combinations.set_of_instances, set[Child])
+assert_type(combinations.dict_of_lists, dict[str, list[float]])
+assert_type(combinations.dict_of_instances, dict[str, Child])
+assert_type(combinations.dict_of_dicts, dict[int, dict[str, float]])
+assert_type(combinations.dict_of_lists_of_instances, dict[str, list[Child]])
+assert_type(combinations.non_empty_list_of_instances, list[Child])
+
+assert_type(Combinations.list_of_lists, PropertyDescriptor[list[list[int]], Sequence[Sequence[int]]])
+assert_type(Combinations.list_of_instances, PropertyDescriptor[list[Child], Sequence[Child]])
+
+# Assignment is checked against nested value types.
+combinations.list_of_lists = [[1, 2], [3]]
+combinations.list_of_instances = [Child(), Child()]
+combinations.list_of_nullable_instances = [Child(), None]
+combinations.dict_of_lists_of_instances = {"a": [Child()]}
+combinations.nullable_list = None
+
+combinations.list_of_lists = [1, 2]  # mypy: list-item,list-item; pyright: reportAttributeAccessIssue
+combinations.list_of_instances = [Combinations()]  # mypy: list-item; pyright: reportAttributeAccessIssue
+combinations.list_of_instances = [None]  # mypy: list-item; pyright: reportAttributeAccessIssue
+combinations.dict_of_instances = {"a": 1}  # mypy: dict-item; pyright: reportAttributeAccessIssue
+combinations.nullable_instance = Combinations()  # mypy: assignment; pyright: reportAttributeAccessIssue
+
+
+class Eithers(HasProps):
+    either_prop = Either(Int, String)
+    either_nullable_instance_prop = Either(Null, Instance(Child), default=InstanceDefault(Child))
+    either_list_prop = Either(Int, List(String), default=lambda: ["a"])
+    either_many_prop = Either(Bool, Int, Float, String, Null, List(Int), Instance(Child), Dict(String, Int))
+    # KNOWN GAP: an invalid default falls through to the catch-all overload, so it's not
+    # reported as an invalid argument (mypy only asks for an annotation). The catch-all
+    # overload is required by mypy in class bodies (see Either.__init__).
+    either_invalid_default_prop = Either(Int, String, default=1.5)  # KNOWN GAP # mypy: var-annotated
+
+
+eithers = Eithers()
+
+assert_type(eithers.either_prop, int | str)
+assert_type(eithers.either_nullable_instance_prop, Child | None)
+assert_type(eithers.either_list_prop, int | list[str])
+assert_type(eithers.either_many_prop, bool | int | float | str | None | list[int] | Child | dict[str, int])
+assert_type(eithers.either_invalid_default_prop, int | str)  # KNOWN GAP # mypy: assert-type; pyright: reportAssertTypeFailure
+
+eithers.either_prop = 1
+eithers.either_prop = "a"
+eithers.either_nullable_instance_prop = None
+
+eithers.either_prop = 1.5  # mypy: assignment; pyright: reportAttributeAccessIssue
+eithers.either_nullable_instance_prop = Eithers()  # mypy: assignment; pyright: reportAttributeAccessIssue
+
+
+class Defaults(HasProps):
+    instance_default_prop = Instance(Child, default=InstanceDefault(Child))
+    lambda_instance_prop = Instance(Child, default=lambda: Child())
+    lambda_list_prop = List(Int, default=lambda: [1, 2])
+    nullable_instance_default_prop = Nullable(Instance(Child), default=InstanceDefault(Child))
+
+    invalid_default_prop = Int(default="a")  # mypy: arg-type; pyright: reportArgumentType
+    invalid_lambda_default_prop = List(Int, default=lambda: ["a"])  # mypy: list-item; pyright: reportArgumentType
+    # KNOWN GAP: the instance type is widened (to Child | Eithers or HasProps) instead of reporting an error.
+    invalid_instance_default_prop = Instance(Child, default=InstanceDefault(Eithers))
+
+
+defaults = Defaults()
+
+assert_type(defaults.instance_default_prop, Child)
+assert_type(defaults.lambda_instance_prop, Child)
+assert_type(defaults.lambda_list_prop, list[int])
+assert_type(defaults.nullable_instance_default_prop, Child | None)
+assert_type(defaults.invalid_instance_default_prop, Child)  # KNOWN GAP # mypy: assert-type; pyright: reportAssertTypeFailure
+
+
+type LocationType = Literal["above", "below", "left", "right"]
+
+
+class Enums(HasProps):
+    enum_prop = Enum(Location)
+    nullable_enum_prop = Nullable(Enum(Location))
+    enum_with_default_prop = Enum(Location, default="left")
+    enum_called_with_default_prop = Enum(Location)(default="left")
+    enum_of_values_prop = Enum("x", "y")
+    auto_prop = Auto()
+    either_auto_prop = Either(Int, Auto)
+
+    invalid_enum_default_prop = Enum(Location, default="nowhere")  # mypy: arg-type; pyright: reportCallIssue,reportArgumentType
+
+
+enums = Enums()
+
+assert_type(enums.enum_prop, LocationType)
+assert_type(enums.nullable_enum_prop, LocationType | None)
+# KNOWN GAP: pyright widens the value type to str when a literal default also
+# solves it. This is likely a pyright bug and should be reported upstream. A
+# minimal reproducer:
+#
+#   class En[T]: ...
+#   def loc() -> En[Literal["a", "b"]]: ...
+#   class Plain[T]:
+#       def __init__(self, enum: En[T], *, default: T | None = None) -> None: ...
+#   reveal_type(Plain(loc(), default="a"))  # Plain[str], expected Plain[Literal["a", "b"]]
+#
+# Setting the default with Enum(...)(default=...) avoids the widening.
+assert_type(enums.enum_with_default_prop, LocationType)  # KNOWN GAP # pyright: reportAssertTypeFailure
+assert_type(enums.enum_called_with_default_prop, LocationType)
+assert_type(enums.enum_of_values_prop, Literal["x", "y"])  # KNOWN GAP # mypy: assert-type; pyright: reportAssertTypeFailure
+assert_type(enums.auto_prop, Literal["auto"])
+assert_type(enums.either_auto_prop, int | Literal["auto"])
+
+enums.enum_prop = "left"
+enums.nullable_enum_prop = None
+enums.either_auto_prop = "auto"
+
+enums.enum_prop = "nowhere"  # mypy: assignment; pyright: reportAttributeAccessIssue
+enums.either_auto_prop = "manual"  # mypy: assignment; pyright: reportAttributeAccessIssue
+
+
+# Assignment types can be wider than value types, e.g. because containers
+# are invariant or because of accepts().
+
+class UIElement(HasProps):
+    pass
+
+
+class Row(UIElement):
+    pass
+
+
+class Assignments(HasProps):
+    children = List(Instance(UIElement))
+    nested_children = List(List(Instance(UIElement)))
+    nullable_children = Nullable(List(Instance(UIElement)))
+    mapping = Dict(String, Instance(UIElement))
+    items = Set(Instance(UIElement))
+    readonly = Readonly(Int)
+    readonly_with_default = Readonly(Int, default=1)
+    title = Nullable(Instance(Child)).accepts(String, lambda text: Child())
+    ticks = List(Int).accepts(Seq(String), lambda values: [int(value) for value in values])
+
+
+assignments = Assignments()
+
+assert_type(assignments.children, list[UIElement])
+assert_type(assignments.mapping, dict[str, UIElement])
+assert_type(assignments.readonly, int)
+assert_type(assignments.title, Child | None)
+
+assert_type(Assignments.children, PropertyDescriptor[list[UIElement], Sequence[UIElement]])
+assert_type(Assignments.mapping, PropertyDescriptor[dict[str, UIElement], Mapping[str, UIElement]])
+assert_type(Assignments.readonly, PropertyDescriptor[int, Never])
+assert_type(Assignments.title, PropertyDescriptor[Child | None, Child | str | None])
+
+rows: list[Row] = [Row()]
+row_mapping: dict[str, Row] = {"a": Row()}
+
+assignments.children = rows  # see issue #14814
+assignments.nested_children = [rows]
+assignments.nullable_children = rows
+assignments.mapping = row_mapping
+assignments.items = {Row()}
+assignments.title = "text"
+assignments.title = None
+assignments.ticks = ("1", "2")
+
+# KNOWN GAP: type checkers accept tuples, but List() accepts only lists at runtime.
+assignments.children = (Row(),)
+
+assignments.children = [Child()]  # mypy: list-item; pyright: reportAttributeAccessIssue
+assignments.mapping = {"a": Child()}  # mypy: dict-item; pyright: reportAttributeAccessIssue
+assignments.readonly = 1  # mypy: assignment; pyright: reportAttributeAccessIssue
+assignments.title = 1  # mypy: assignment; pyright: reportAttributeAccessIssue
+
+
+class Tuples(HasProps):
+    pair = Tuple(Int, String)
+    triple = Tuple(Float, Float, Nullable(Instance(Child)), default=(0, 0, None))
+    nested = Tuple(Tuple(Int, Int), List(String))
+    quintuple = Tuple(Int, Int, Int, Int, String)
+
+    invalid_default = Tuple(Int, String, default=("a", 1))  # mypy: arg-type; pyright: reportArgumentType
+
+
+tuples = Tuples()
+
+assert_type(tuples.pair, tuple[int, str])
+assert_type(tuples.triple, tuple[float, float, Child | None])
+assert_type(tuples.nested, tuple[tuple[int, int], list[str]])
+assert_type(tuples.quintuple, tuple[int, int, int, int, str])
+
+assert_type(Tuples.pair, PropertyDescriptor[tuple[int, str], tuple[int, str] | list[int | str]])
+
+tuples.pair = (1, "a")
+tuples.pair = [1, "a"]  # lists are converted to tuples
+tuples.nested = ((1, 2), ("a", "b"))
+
+# KNOWN GAP: the length and positions of items in lists can't be typed.
+tuples.pair = ["a", 1]
+
+tuples.pair = ("a", 1)  # mypy: assignment; pyright: reportAttributeAccessIssue
+tuples.pair = (1, "a", 2)  # mypy: assignment; pyright: reportAttributeAccessIssue
+tuples.pair = [1.5]  # mypy: list-item; pyright: reportAttributeAccessIssue

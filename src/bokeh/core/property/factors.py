@@ -18,6 +18,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+from collections.abc import Sequence
+
 from ..types import FactorSeqType, FactorType
 from .bases import Init, SingleParameterizedProperty
 from .container import Seq, Tuple
@@ -42,18 +44,22 @@ L1Factor = String
 L2Factor = Tuple(String, String)
 L3Factor = Tuple(String, String, String)
 
-class Factor(SingleParameterizedProperty[FactorType]):
+# Multi-level factors can be assigned as lists, which are converted to tuples.
+type _FactorLike = FactorType | list[str]
+type _FactorSeqLike = Sequence[str] | Sequence[tuple[str, str] | list[str]] | Sequence[tuple[str, str, str] | list[str]]
+
+class Factor(SingleParameterizedProperty[FactorType, _FactorLike]):
     """ Represents a single categorical factor. """
 
-    def __init__(self, default: Init[FactorType] = _NotGiven, *, help: str | None = None) -> None:
-        type_param: Either[FactorType] = Either(L1Factor, L2Factor, L3Factor)
+    def __init__(self, default: Init[_FactorLike] = _NotGiven, *, help: str | None = None) -> None:
+        type_param: Either[FactorType, _FactorLike] = Either(L1Factor, L2Factor, L3Factor)
         super().__init__(type_param, default=default, help=help)
 
-class FactorSeq(SingleParameterizedProperty[FactorSeqType]):
+class FactorSeq(SingleParameterizedProperty[FactorSeqType, _FactorSeqLike]):
     """ Represents a collection of categorical factors. """
 
-    def __init__(self, default: Init[FactorSeqType] = _NotGiven, *, help: str | None = None) -> None:
-        type_param: Either[FactorSeqType] = Either(Seq(L1Factor), Seq(L2Factor), Seq(L3Factor))
+    def __init__(self, default: Init[_FactorSeqLike] = _NotGiven, *, help: str | None = None) -> None:
+        type_param: Either[FactorSeqType, _FactorSeqLike] = Either(Seq(L1Factor), Seq(L2Factor), Seq(L3Factor))
         super().__init__(type_param, default=default, help=help)
 
 #-----------------------------------------------------------------------------

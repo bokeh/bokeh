@@ -153,9 +153,9 @@ class BaseColorBar(Annotation):
     The {prop} values for the title text.
     """)
 
-    title_text_font_size = Override(default="13px")
+    _title_text_font_size = Override(default="13px")
 
-    title_text_font_style = Override(default="italic")
+    _title_text_font_style = Override(default="italic")
 
     title_text_halign = Enum(HAlign, default="left", help="""
     Specifies where to align color bar's title horizontally.
@@ -200,7 +200,7 @@ class BaseColorBar(Annotation):
     The {prop} of the major tick labels.
     """)
 
-    major_label_text_font_size = Override(default="11px")
+    _major_label_text_font_size = Override(default="11px")
 
     label_standoff = Int(5, help="""
     The distance (in pixels) to separate the tick labels from the color bar.
@@ -210,7 +210,7 @@ class BaseColorBar(Annotation):
     The {prop} of the major ticks.
     """)
 
-    major_tick_line_color = Override(default="#ffffff")
+    _major_tick_line_color = Override(default="#ffffff")
 
     major_tick_in = Int(default=5, help="""
     The distance (in pixels) that major ticks should extend into the
@@ -226,7 +226,7 @@ class BaseColorBar(Annotation):
     The {prop} of the minor ticks.
     """)
 
-    minor_tick_line_color = Override(default=None)
+    _minor_tick_line_color = Override(default=None)
 
     minor_tick_in = Int(default=0, help="""
     The distance (in pixels) that minor ticks should extend into the
@@ -242,13 +242,13 @@ class BaseColorBar(Annotation):
     The {prop} for the color scale bar outline.
     """)
 
-    bar_line_color = Override(default=None)
+    _bar_line_color = Override(default=None)
 
     border_props = Include(ScalarLineProps, prefix="border", help="""
     The {prop} for the color bar border outline.
     """)
 
-    border_line_color = Override(default=None)
+    _border_line_color = Override(default=None)
 
     background_fill_props = Include(ScalarFillProps, prefix="background", help="""
     The {prop} for the color bar background style.
@@ -258,9 +258,9 @@ class BaseColorBar(Annotation):
     The {prop} for the color bar background style.
     """)
 
-    background_fill_color = Override(default="#ffffff")
+    _background_fill_color = Override(default="#ffffff")
 
-    background_fill_alpha = Override(default=0.95)
+    _background_fill_alpha = Override(default=0.95)
 
 
 class ColorBar(BaseColorBar):
@@ -411,9 +411,9 @@ class Legend(Annotation):
     The {prop} values for the title text.
     """)
 
-    title_text_font_size = Override(default="13px")
+    _title_text_font_size = Override(default="13px")
 
-    title_text_font_style = Override(default="italic")
+    _title_text_font_style = Override(default="italic")
 
     title_location = Enum(Location, default="above", help="""
     Specifies on which side of the legend the title will be located.
@@ -428,9 +428,9 @@ class Legend(Annotation):
     The {prop} for the legend border outline.
     """)
 
-    border_line_color = Override(default="#e5e5e5")
+    _border_line_color = Override(default="#e5e5e5")
 
-    border_line_alpha = Override(default=0.5)
+    _border_line_alpha = Override(default=0.5)
 
     background_fill_props = Include(ScalarFillProps, prefix="background", help="""
     The {prop} for the legend background style.
@@ -468,25 +468,25 @@ class Legend(Annotation):
     Defines which items to style, if ``item_background_fill`` is configured.
     """)
 
-    background_fill_color = Override(default="#ffffff")
+    _background_fill_color = Override(default="#ffffff")
 
-    background_fill_alpha = Override(default=0.95)
+    _background_fill_alpha = Override(default=0.95)
 
-    item_background_fill_color = Override(default="#f1f1f1")
+    _item_background_fill_color = Override(default="#f1f1f1")
 
-    item_background_fill_alpha = Override(default=0.8)
+    _item_background_fill_alpha = Override(default=0.8)
 
-    inactive_fill_color = Override(default="white")
+    _inactive_fill_color = Override(default="white")
 
-    inactive_fill_alpha = Override(default=0.7)
+    _inactive_fill_alpha = Override(default=0.7)
 
     label_props = Include(ScalarTextProps, prefix="label", help="""
     The {prop} for the legend labels.
     """)
 
-    label_text_baseline = Override(default='middle')
+    _label_text_baseline = Override(default='middle')
 
-    label_text_font_size = Override(default='13px')
+    _label_text_font_size = Override(default='13px')
 
     label_standoff = Int(5, help="""
     The distance (in pixels) to separate the label from its associated glyph.
@@ -740,16 +740,16 @@ class ScaleBar(Annotation):
     The {prop} for the scale bar background hatch style.
     """)
 
-    bar_line_width = Override(default=2)
-    border_line_color = Override(default="#e5e5e5")
-    border_line_alpha = Override(default=0.5)
-    border_line_width = Override(default=1)
-    background_fill_color = Override(default="#ffffff")
-    background_fill_alpha = Override(default=0.95)
-    label_text_font_size = Override(default="13px")
-    label_text_baseline = Override(default="middle")
-    title_text_font_size = Override(default="13px")
-    title_text_font_style = Override(default="italic")
+    _bar_line_width = Override(default=2)
+    _border_line_color = Override(default="#e5e5e5")
+    _border_line_alpha = Override(default=0.5)
+    _border_line_width = Override(default=1)
+    _background_fill_color = Override(default="#ffffff")
+    _background_fill_alpha = Override(default=0.95)
+    _label_text_font_size = Override(default="13px")
+    _label_text_baseline = Override(default="middle")
+    _title_text_font_size = Override(default="13px")
+    _title_text_font_style = Override(default="italic")
 
 @abstract
 class BaseBar(Annotation):
@@ -800,9 +800,9 @@ class BaseBar(Annotation):
     The {prop} values for the title text.
     """)
 
-    title_text_font_size = Override(default="13px")
+    _title_text_font_size = Override(default="13px")
 
-    title_text_font_style = Override(default="italic")
+    _title_text_font_style = Override(default="italic")
 
     ticker = Either(Instance(Ticker), Auto, default="auto", help="""
     A Ticker to use for computing locations of axis components.
@@ -825,7 +825,7 @@ class BaseBar(Annotation):
     The {prop} of the major tick labels.
     """)
 
-    major_label_text_font_size = Override(default="11px")
+    _major_label_text_font_size = Override(default="11px")
 
     label_standoff = Int(5, help="""
     The distance (in pixels) to separate the tick labels from the bar.
@@ -835,7 +835,7 @@ class BaseBar(Annotation):
     The {prop} of the major ticks.
     """)
 
-    major_tick_line_color = Override(default="black")
+    _major_tick_line_color = Override(default="black")
 
     major_tick_in = Int(default=5, help="""
     The distance (in pixels) that major ticks should extend into the
@@ -851,7 +851,7 @@ class BaseBar(Annotation):
     The {prop} of the minor ticks.
     """)
 
-    minor_tick_line_color = Override(default=None)
+    _minor_tick_line_color = Override(default=None)
 
     minor_tick_in = Int(default=0, help="""
     The distance (in pixels) that minor ticks should extend into the
@@ -867,13 +867,13 @@ class BaseBar(Annotation):
     The {prop} for the color scale bar outline.
     """)
 
-    bar_line_color = Override(default=None)
+    _bar_line_color = Override(default=None)
 
     border_props = Include(ScalarLineProps, prefix="border", help="""
     The {prop} for the bar border outline.
     """)
 
-    border_line_color = Override(default=None)
+    _border_line_color = Override(default=None)
 
     background_fill_props = Include(ScalarFillProps, prefix="background", help="""
     The {prop} for the bar background style.
@@ -883,9 +883,9 @@ class BaseBar(Annotation):
     The {prop} for the bar background style.
     """)
 
-    background_fill_color = Override(default="#ffffff")
+    _background_fill_color = Override(default="#ffffff")
 
-    background_fill_alpha = Override(default=0.95)
+    _background_fill_alpha = Override(default=0.95)
 
 class SizeBar(BaseBar):
     """ ``SizeBar`` is a visual indicator that allows you to gauge the size of radial glyphs,
@@ -920,7 +920,7 @@ class SizeBar(BaseBar):
     The {prop} of the glyph.
     """)
 
-    glyph_line_color = Override(default=None)
+    _glyph_line_color = Override(default=None)
 
 #-----------------------------------------------------------------------------
 # Dev API

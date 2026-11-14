@@ -39,25 +39,13 @@ from ..core.property_mixins import (
     _ScalarSubgroupTextPropsInit as _SubgroupTextInit,
 )
 from .formatters import (
-    BasicTickFormatter,
-    CategoricalTickFormatter,
-    DatetimeTickFormatter,
-    LogTickFormatter,
-    MercatorTickFormatter,
     TickFormatter,
-    TimedeltaTickFormatter,
 )
 from .labeling import LabelingPolicy
 from .ranges import Factor
 from .renderers.renderer import GuideRenderer, _GuideRendererInit
 from .tickers import (
-    BasicTicker,
-    CategoricalTicker,
-    DatetimeTicker,
-    LogTicker,
-    MercatorTicker,
     Ticker,
-    TimedeltaTicker,
 )
 
 class _AxisInit(_GuideRendererInit, _AxisLabelTextInit, _MajorLabelTextInit, _AxisLineInit, _MajorTickLineInit,
@@ -112,65 +100,45 @@ class ContinuousAxis(Axis):
     def __init__(self, **kwargs: Unpack[_ContinuousAxisInit]) -> None: ...
 
 class _LinearAxisInit(_ContinuousAxisInit, total=False):
-    ticker: BasicTicker
-    formatter: BasicTickFormatter
+    ...
 
 class LinearAxis(ContinuousAxis):
     def __init__(self, **kwargs: Unpack[_LinearAxisInit]) -> None: ...
 
-    ticker: BasicTicker = ...
-    formatter: BasicTickFormatter = ...
 
 class _LogAxisInit(_ContinuousAxisInit, total=False):
-    ticker: LogTicker
-    formatter: LogTickFormatter
+    ...
 
 class LogAxis(ContinuousAxis):
     def __init__(self, **kwargs: Unpack[_LogAxisInit]) -> None: ...
 
-    ticker: LogTicker = ...
-    formatter: LogTickFormatter = ...
 
 class _CategoricalAxisInit(_AxisInit, _SeparatorLineInit, _GroupTextInit, _SubgroupTextInit, total=False):
-    ticker: CategoricalTicker
-    formatter: CategoricalTickFormatter
     group_label_orientation: LabelOrientation | float
     subgroup_label_orientation: LabelOrientation | float
 
 class CategoricalAxis(Axis, SeparatorLine, GroupText, SubgroupText):
     def __init__(self, **kwargs: Unpack[_CategoricalAxisInit]) -> None: ...
 
-    ticker: CategoricalTicker = ...
-    formatter: CategoricalTickFormatter = ...
     group_label_orientation: LabelOrientation | float = ...
     subgroup_label_orientation: LabelOrientation | float = ...
 
 class _DatetimeAxisInit(_LinearAxisInit, total=False):
-    ticker: DatetimeTicker
-    formatter: DatetimeTickFormatter
+    ...
 
 class DatetimeAxis(LinearAxis):
     def __init__(self, **kwargs: Unpack[_DatetimeAxisInit]) -> None: ...
 
-    ticker: DatetimeTicker = ...
-    formatter: DatetimeTickFormatter = ...
 
 class _MercatorAxisInit(_LinearAxisInit, total=False):
-    ticker: MercatorTicker
-    formatter: MercatorTickFormatter
+    ...
 
 class MercatorAxis(LinearAxis):
     def __init__(self, **kwargs: Unpack[_MercatorAxisInit]) -> None: ...
 
-    ticker: MercatorTicker = ...
-    formatter: MercatorTickFormatter = ...
 
 class _TimedeltaAxisInit(_LinearAxisInit, total=False):
-    ticker: TimedeltaTicker
-    formatter: TimedeltaTickFormatter
+    ...
 
 class TimedeltaAxis(LinearAxis):
     def __init__(self, **kwargs: Unpack[_TimedeltaAxisInit]) -> None: ...
-
-    ticker: TimedeltaTicker = ...
-    formatter: TimedeltaTickFormatter = ...

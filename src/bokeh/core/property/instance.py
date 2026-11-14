@@ -48,7 +48,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Object[T: object](Property[T]):
+class Object[T: object](Property[T, T]):
     """ Accept values that are instances of any class.
 
         .. note::
