@@ -1,0 +1,57 @@
+# Copyright (c) Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved. The full license is in the file LICENSE.txt.
+
+# Axes accept any ticker and formatter, whatever the types of their defaults
+# are, so their values are typed as Ticker and TickFormatter on all axes.
+
+from typing import assert_type
+
+from bokeh.models import (
+    BasicTicker,
+    CategoricalAxis,
+    DatetimeAxis,
+    FixedTicker,
+    LinearAxis,
+    LogAxis,
+    MercatorAxis,
+    NumeralTickFormatter,
+    TickFormatter,
+    Ticker,
+    TimedeltaAxis,
+)
+
+# Constructors accept any ticker and formatter.
+LinearAxis(ticker=FixedTicker(ticks=[0, 10]))
+LinearAxis(formatter=NumeralTickFormatter(format="0.0%"))
+LogAxis(ticker=FixedTicker(ticks=[1, 10, 100]))
+DatetimeAxis(ticker=BasicTicker(), formatter=NumeralTickFormatter())
+TimedeltaAxis(ticker=FixedTicker(ticks=[0, 60]))
+
+# Values are typed by properties, not by their defaults.
+assert_type(LinearAxis().ticker, Ticker)
+assert_type(LinearAxis().formatter, TickFormatter)
+assert_type(LogAxis().ticker, Ticker)
+assert_type(LogAxis().formatter, TickFormatter)
+assert_type(CategoricalAxis().ticker, Ticker)
+assert_type(CategoricalAxis().formatter, TickFormatter)
+assert_type(DatetimeAxis().ticker, Ticker)
+assert_type(DatetimeAxis().formatter, TickFormatter)
+assert_type(MercatorAxis().ticker, Ticker)
+assert_type(MercatorAxis().formatter, TickFormatter)
+assert_type(TimedeltaAxis().ticker, Ticker)
+assert_type(TimedeltaAxis().formatter, TickFormatter)
+
+# Assignments accept any ticker and formatter.
+axis = LinearAxis()
+axis.ticker = FixedTicker(ticks=[0, 10])
+axis.formatter = NumeralTickFormatter(format="0.0%")
+
+# Attributes specific to a ticker or a formatter require narrowing.
+def read_ticker(axis: LinearAxis) -> None:
+    print(axis.ticker.desired_num_ticks)  # mypy: attr-defined; pyright: reportAttributeAccessIssue
+    if isinstance(axis.ticker, BasicTicker):
+        assert_type(axis.ticker.desired_num_ticks, int)
+
+# Tickers and formatters aren't interchangeable.
+LinearAxis(ticker=NumeralTickFormatter())  # mypy: arg-type; pyright: reportArgumentType
+axis.formatter = FixedTicker(ticks=[0, 10])  # mypy: assignment; pyright: reportAttributeAccessIssue

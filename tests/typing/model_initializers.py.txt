@@ -6,6 +6,7 @@ from typing import Sequence, assert_type
 from bokeh.core.properties import value
 from bokeh.model import CallbackPolicy, Committed, Debounce, Immediate, Throttle
 from bokeh.models import CustomJS, Range1d
+from bokeh.models.annotations.arrows import NormalHead, OpenHead, TeeHead, VeeHead
 from bokeh.models.layouts import Column, Row
 from bokeh.models.ui.ui_element import UIElement
 from bokeh.models.widgets.sliders import Slider
@@ -53,3 +54,13 @@ assert_type(column.children, list[UIElement])
 p.vbar(x=[1, 2], top=[3, 4], hatch_pattern=["x", "."])
 p.vbar(x=[1, 2], top=[3, 4], hatch_pattern=value("x"))
 p.vbar(x=[1, 2], top=[3, 4], hatch_pattern=["cross", "dot"])
+
+# Arrow heads declare their constructors.
+assert_type(OpenHead(size=10, line_width=2), OpenHead)
+assert_type(NormalHead(size=10, fill_color="red"), NormalHead)
+assert_type(TeeHead(size=10, line_color="blue"), TeeHead)
+assert_type(VeeHead(size=10, hatch_pattern="/"), VeeHead)
+
+# Plot.hold() is a context manager.
+with p.hold(render=True):
+    pass
