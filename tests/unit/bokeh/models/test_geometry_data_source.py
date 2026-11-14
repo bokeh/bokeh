@@ -1,3 +1,4 @@
+from collections import namedtuple
 from datetime import date
 
 import numpy as np
@@ -52,6 +53,26 @@ def test_geometry_protocol_and_replacement() -> None:
     source = GeometryDataSource([{"geometry": obj.__geo_interface__, "type": "GeometryCollection"}])
     assert source.length == 1
     assert source.data["type"] == ["GeometryCollection"]
+
+def test_geometry_source_reads_crs_only_from_geo_input() -> None:
+    pd = pytest.importorskip("pandas")
+    data = pd.DataFrame({"crs": ["EPSG:4326"], "name": ["a"]})
+    source = GeometryDataSource(geometries=[{"type": "Point", "coordinates": [0, 0]}], data=data)
+    assert source.crs is None
+    assert list(source.data["crs"]) == ["EPSG:4326"]
+
+def test_geometry_values_rebuild_tuple_subclasses() -> None:
+    Position = namedtuple("Position", "x y")
+    source = GeometryDataSource(geometries=[{"type": "Point", "coordinates": Position(np.int64(0), 1)}])
+    coordinates = source.geometries[0]["coordinates"]
+    assert type(coordinates) is tuple
+    assert coordinates == (0, 1)
+    assert type(coordinates[0]) is int
+
+    doc = Document()
+    doc.add_root(source)
+    restored = Document.from_json(doc.to_json()).roots[0]
+    assert list(restored.geometries[0]["coordinates"]) == [0, 1]
 
 def test_geometry_source_validation_reports_misaligned_updates() -> None:
     source = GeometryDataSource(geometries=[None], data={"name": ["first"]})

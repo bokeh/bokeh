@@ -916,24 +916,31 @@ class ColumnDataSource(ColumnarDataSource):
 class _GeometryAttributes(ColumnData, RestrictedDict[str, Any]):
     pass
 
-def _geometry_mapping(value: Any) -> dict[str, Any] | None:
-    if value is None:
-        return None
+def _as_geometry_mapping(value: Any) -> Mapping[str, Any]:
     if not isinstance(value, Mapping):
         value = getattr(value, "__geo_interface__", None)
     if not isinstance(value, Mapping):
         raise ValueError("geometry values must be GeoJSON mappings or define __geo_interface__")
-    geometry = _geometry_value(value)
-    if geometry.get("type") == "Feature":
-        return _geometry_mapping(geometry.get("geometry"))
-    if not isinstance(geometry.get("type"), str):
+    return value
+
+def _geometry_mapping(value: Any) -> dict[str, Any] | None:
+    if value is None:
+        return None
+    value = _as_geometry_mapping(value)
+    kind = value.get("type")
+    if kind == "Feature":
+        return _geometry_mapping(value.get("geometry"))
+    if not isinstance(kind, str):
         raise ValueError("geometry mappings must define a 'type'")
-    if geometry["type"] == "GeometryCollection":
-        members = geometry.get("geometries")
+    if kind == "GeometryCollection":
+        members = value.get("geometries")
         if not isinstance(members, (list, tuple)):
             raise ValueError("GeometryCollection must contain a geometries array")
-        geometry["geometries"] = [_geometry_mapping(member) for member in members]
-    return geometry
+        return {
+            key: [_geometry_mapping(member) for member in members] if key == "geometries" else _geometry_value(item)
+            for key, item in value.items()
+        }
+    return _geometry_value(value)
 
 class _Geometries(Seq[Any, Sequence[Any]]):
     def transform(self, value: Any) -> Sequence[Any]:
@@ -1028,16 +1035,11 @@ def _geometry_records(value: Any) -> tuple[list[dict[str, Any] | None], DataDict
             geometries.append(None)
             properties.append({} if attrs is None else attrs)
             return
-        if not isinstance(item, Mapping):
-            append(_geometry_mapping(item), attrs)
-            return
-
-        record = dict(item)
+        record = _as_geometry_mapping(item)
         if record.get("type") == "Feature":
             append(record.get("geometry"), dict(record.get("properties") or {}))
         elif "geometry" in record:
-            geometry = record.pop("geometry")
-            append(geometry, record)
+            append(record["geometry"], {key: value for key, value in record.items() if key != "geometry"})
         elif record.get("type") == "GeometryCollection":
             members = record.get("geometries")
             if not isinstance(members, (list, tuple)):
@@ -1045,7 +1047,7 @@ def _geometry_records(value: Any) -> tuple[list[dict[str, Any] | None], DataDict
             for geometry in members:
                 append(geometry, attrs)
         else:
-            geometries.append(record)
+            geometries.append(dict(record))
             properties.append({} if attrs is None else attrs)
 
     for item in records:
@@ -1081,16 +1083,15 @@ class GeometryDataSource(IndexedDataSource):
 
         raw_geometries = kwargs.pop("geometries", None)
         raw_data = kwargs.pop("data", None)
-        if "crs" not in kwargs:
-            crs = getattr(args[0] if args else raw_data, "crs", None)
-            if crs is not None:
-                kwargs["crs"] = str(crs)
+        geo_input: Any = None
         if args:
             if raw_geometries is not None or raw_data is not None:
                 raise ValueError("provide either positional geometry data or geometries/data keywords")
-            geometries, data = _geometry_records(args[0])
+            geo_input = args[0]
+            geometries, data = _geometry_records(geo_input)
         elif raw_geometries is None and raw_data is not None and not isinstance(raw_data, Mapping):
-            geometries, data = _geometry_records(raw_data)
+            geo_input = raw_data
+            geometries, data = _geometry_records(geo_input)
         elif raw_geometries is None and isinstance(raw_data, Mapping) and "geometry" in raw_data:
             columns = dict(raw_data)
             raw_geometries = columns.pop("geometry")
@@ -1103,6 +1104,13 @@ class GeometryDataSource(IndexedDataSource):
         lengths = {len(column) for column in data.values()}
         if len(lengths) > 1 or (lengths and lengths != {len(geometries)}):
             raise ValueError("geometry attributes must have the same length as geometries")
+
+        # Only geo inputs carry CRS metadata. Checking the type avoids building
+        # a second __geo_interface__, and skips DataFrame columns named "crs".
+        if "crs" not in kwargs and hasattr(type(geo_input), "__geo_interface__"):
+            crs = getattr(geo_input, "crs", None)
+            if crs is not None:
+                kwargs["crs"] = str(crs)
 
         kwargs.update(geometries=geometries, data=data)
         super().__init__(**kwargs)

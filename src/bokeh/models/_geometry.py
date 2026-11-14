@@ -17,6 +17,9 @@ def geometry_value(value: Any) -> Any:
         return value.item()
     if isinstance(value, Mapping):
         return {key: geometry_value(item) for key, item in value.items()}
-    if isinstance(value, (list, tuple)):
-        return type(value)(geometry_value(item) for item in value)
+    # Rebuild plain containers: subclasses such as namedtuples need other constructor arguments.
+    if isinstance(value, tuple):
+        return tuple(geometry_value(item) for item in value)
+    if isinstance(value, list):
+        return [geometry_value(item) for item in value]
     return value
