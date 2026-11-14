@@ -36,6 +36,7 @@ class ContourRenderer(DataRenderer):
         *,
         formatter: TickFormatter | None = ...,
         positions: str | Sequence[float] | None = ...,
+        label_all_paths: bool = ...,
         inline_gap: bool = ...,
         gap_padding: float = ...,
         **style: Unpack[_ContourLabelStyle],
