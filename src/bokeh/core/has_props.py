@@ -307,9 +307,13 @@ def _resolve_overrides(
     them, so that type checkers retain types of properties in derived models.
 
     """
-    known_properties = set(own_properties)
+    known_properties: dict[str, Property[Any]] = {}
     for base in property_bases:
         known_properties.update(base.properties())
+    known_properties.update(own_properties)
+
+    # properties given explicitly, e.g. ``_name = Override(Base.name, ...)``
+    overridden_properties: Mapping[str, Property[Any]] = cls.__dict__.get("__overridden_properties__", {})
 
     resolved: dict[str, Any] = {}
     sources: dict[str, str] = {}
@@ -319,6 +323,8 @@ def _resolve_overrides(
             prop_name = name[1:]
         if prop_name in resolved:
             raise TypeError(f"{cls.__name__}.{prop_name} is overridden more than once, by {sources[prop_name]!r} and {name!r}")
+        if name in overridden_properties and known_properties.get(prop_name) is not overridden_properties[name]:
+            raise TypeError(f"{cls.__name__}.{name} overrides a property that {cls.__name__} doesn't inherit")
         resolved[prop_name] = default
         sources[prop_name] = name
     return resolved

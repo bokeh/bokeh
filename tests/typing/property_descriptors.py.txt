@@ -69,3 +69,26 @@ assert_type(FurtherDerived.int_prop, PropertyDescriptor[int])
 
 derived.int_prop = 4
 derived.int_prop = "4"  # mypy: assignment; pyright: reportAttributeAccessIssue
+
+
+# Overrides given the overridden property check types of defaults.
+
+class TypedDerived(Model):
+    _int_prop = Override(Model.int_prop, default=2)
+    _nullable_prop = Override(Model.nullable_prop, default=None)
+    _instance_prop = Override(Model.instance_prop, default=lambda: Child())
+
+
+class TypedFurtherDerived(TypedDerived):
+    _int_prop = Override(TypedDerived.int_prop, default=3)
+
+
+class InvalidTypedDerived(Model):
+    _int_prop = Override(Model.int_prop, default="2")  # mypy: arg-type; pyright: reportArgumentType
+    _nullable_prop = Override(Model.nullable_prop, default="2")  # mypy: arg-type; pyright: reportArgumentType
+    _instance_prop = Override(Model.instance_prop, default=lambda: Model())  # mypy: arg-type,return-value; pyright: reportArgumentType
+    _misspelled_prop = Override(Model.misspelled_prop, default=1)  # mypy: attr-defined; pyright: reportAttributeAccessIssue
+
+
+assert_type(TypedFurtherDerived().int_prop, int)
+assert_type(TypedFurtherDerived.int_prop, PropertyDescriptor[int])

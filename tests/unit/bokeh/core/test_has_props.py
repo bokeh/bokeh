@@ -220,6 +220,44 @@ def test_HasProps_prefixed_override() -> None:
     assert Child().x == 2
     assert Grandchild().x == 3
 
+def test_HasProps_typed_override() -> None:
+    class Base(hp.HasProps, hp.Local):
+        x = Int(default=1)
+
+    class Child(Base):
+        _x = Override(Base.x, default=2)
+
+    class Grandchild(Child):
+        _x = Override(Child.x, default=3)
+
+    assert Child.__overridden_defaults__ == {"x": 2}
+    assert Grandchild.__overridden_defaults__ == {"x": 3}
+    assert Child().x == 2
+    assert Grandchild().x == 3
+
+def test_HasProps_typed_override_requires_prefixed_name() -> None:
+    class Base(hp.HasProps, hp.Local):
+        x = Int(default=1)
+
+    with pytest.raises(TypeError, match=r"overrides 'x', so it must be named '_x'"):
+        class Child(Base):
+            _y = Override(Base.x, default=2)
+
+def test_HasProps_typed_override_requires_inherited_property() -> None:
+    class Base(hp.HasProps, hp.Local):
+        x = Int(default=1)
+
+    class Other(hp.HasProps, hp.Local):
+        x = Int(default=1)
+
+    with pytest.raises(TypeError, match=r"Child\._x overrides a property that Child doesn't inherit"):
+        class Child(Base):
+            _x = Override(Other.x, default=2)
+
+def test_HasProps_typed_override_requires_property() -> None:
+    with pytest.raises(TypeError, match=r"expected a property of a model"):
+        Override(1, default=2)  # type: ignore[call-overload]
+
 def test_HasProps_override_of_property_with_prefixed_name() -> None:
     class Base(hp.HasProps, hp.Local):
         x = Int(default=1)
