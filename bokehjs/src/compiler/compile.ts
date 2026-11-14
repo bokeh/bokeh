@@ -14,7 +14,9 @@ function compile_javascript(file: string, code: string): {code: string, deps: st
   if (module.hasModuleSyntax) {
     try {
       const {code: output, deps} = to_cjs(file, code)
-      return {code: output, deps}
+      // include existing `require()` calls, like the linker does for extensions' own modules
+      const requires = transforms.collect_deps(transforms.parse_script(file, output))
+      return {code: output, deps: [...new Set([...deps, ...requires])]}
     } catch (error) {
       return {error: error instanceof Error ? error.message : `${error}`}
     }
