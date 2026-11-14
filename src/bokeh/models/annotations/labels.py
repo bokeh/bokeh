@@ -30,9 +30,10 @@ from ...core.enums import (
     VerticalAlign,
 )
 from ...core.has_props import abstract
-from ...core.property.dataspec import AngleSpec, NullStringSpec, NumberSpec
+from ...core.property.dataspec import AngleSpec, NumberSpec, StringSpec
 from ...core.property.enum import Enum
 from ...core.property.include import Include
+from ...core.property.nullable import Nullable
 from ...core.property.numeric import Angle
 from ...core.property.override import Override
 from ...core.property.primitive import Bool, Float
@@ -243,7 +244,7 @@ class LabelSet(DataAnnotation):
     default.
     """)
 
-    text = NullStringSpec(default=field("text"), help="""
+    text = Nullable(StringSpec, default=field("text"), help="""
     The text values to render.
     """)
 

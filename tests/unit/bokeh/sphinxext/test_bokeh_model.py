@@ -21,6 +21,7 @@ from bokeh.core.properties import (
     Int,
     Nullable,
     String,
+    StringSpec,
 )
 from bokeh.model import Model
 from bokeh.models import BoxSelectTool, Filter
@@ -67,6 +68,8 @@ class _LinkedModel(Model):
 
 
 class _PropertyDetailModel(Model):
+    nullable_text = Nullable(StringSpec, help="Nullable text retains its documentation.")
+
     mixed_help = String(help="""
     Standalone help text.
 
@@ -151,6 +154,13 @@ def test_property_detail_preserves_default_type_and_help() -> None:
     assert ":annotation: = None" in detail
     assert ":Type: :class:`~bokeh.core.properties.Nullable`" in detail
     assert "An arbitrary, user-supplied name for this model." in detail
+
+
+def test_nullable_spec_property_detail_preserves_help() -> None:
+    detail = _render_property_detail(_PropertyDetailModel(), "_PropertyDetailModel.nullable_text", __name__)
+
+    assert "Nullable text retains its documentation." in detail
+    assert ":class:`~bokeh.core.properties.Nullable`" in detail
 
 
 def test_property_detail_normalizes_mixed_help_indentation() -> None:

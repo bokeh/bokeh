@@ -159,6 +159,8 @@ Special Properties
 .. autoclass:: InstanceDefault
 .. autoclass:: Include
 .. autoclass:: Nullable
+.. autoclass:: NullableProp
+.. autoclass:: NullableSpec
 .. autoclass:: NotSerialized
 .. autoclass:: Object
 .. autoclass:: Override
@@ -292,9 +294,9 @@ __all__ = (
     'NotSerialized',
     'Nothing',
     'Null',
-    'NullDistanceSpec',
-    'NullStringSpec',
     'Nullable',
+    'NullableProp',
+    'NullableSpec',
     'NumberSpec',
     'Object',
     'Override',
@@ -383,8 +385,6 @@ from .property.dataspec import IntSpec
 from .property.dataspec import LineCapSpec
 from .property.dataspec import LineJoinSpec
 from .property.dataspec import MarkerSpec
-from .property.dataspec import NullDistanceSpec
-from .property.dataspec import NullStringSpec
 from .property.dataspec import NumberSpec
 from .property.dataspec import SizeSpec
 from .property.dataspec import StringSpec
@@ -419,6 +419,8 @@ from .property.json import JSON
 from .property.nothing import Nothing
 
 from .property.nullable import Nullable
+from .property.nullable import NullableProp
+from .property.nullable import NullableSpec
 
 from .property.numeric import Angle
 from .property.numeric import Byte

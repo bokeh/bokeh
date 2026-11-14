@@ -7,12 +7,15 @@ import {range} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 
 import type {Color} from  "@bokehjs/core/types"
+import type {Arrayable} from "@bokehjs/core/types"
 import {HasProps} from  "@bokehjs/core/has_props"
+import type {Factor} from "@bokehjs/models/ranges/factor_range"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {named_colors} from  "@bokehjs/core/util/svg_colors"
 import {Transform} from  "@bokehjs/models/transforms/transform"
 import {Expression} from  "@bokehjs/models/expressions/expression"
 import {BitSet} from "@bokehjs/core/util/bitset"
+import {Serializer} from "@bokehjs/core/serialization"
 
 class TestTransform extends Transform {
   compute(x: number): number {
@@ -55,6 +58,13 @@ namespace Some {
     font: p.Property<string>
     direction: p.Property<enums.Direction>
     angle_spec: p.AngleSpec
+    nullable_angle_spec: p.VectorUnitsSpec<number | null, enums.AngleUnits>
+    nullable_int_spec: p.VectorSpec<number | null>
+    nullable_size_spec: p.VectorSpec<number | null>
+    nullable_string_scalar: p.ScalarSpec<string | null>
+    nullable_string_spec: p.VectorSpec<string | null>
+    nullable_color_spec: p.ColorSpec
+    nullable_coordinate_spec: p.BaseCoordinateSpec<number | Factor | null> & {readonly dimension: "x"}
     boolean_spec: p.BooleanSpec
     color_spec: p.ColorSpec
     coordinate_spec: p.CoordinateSpec
@@ -64,7 +74,7 @@ namespace Some {
     marker_spec: p.MarkerSpec
     number_spec: p.NumberSpec
     string_spec: p.StringSpec
-    null_string_spec: p.NullStringSpec
+    null_string_spec: p.VectorSpec<string | null>
   }
 }
 
@@ -95,6 +105,13 @@ class Some extends HasProps {
       font: [ kinds.Font ],
       direction: [ enums.Direction ],
       angle_spec: [ p.AngleSpec ],
+      nullable_angle_spec: [ p.Nullable(p.AngleSpec), null ],
+      nullable_int_spec: [ p.Nullable(p.IntSpec), null ],
+      nullable_size_spec: [ p.Nullable(p.ScreenSizeSpec), null ],
+      nullable_string_scalar: [ p.Nullable(p.StringScalar), null ],
+      nullable_string_spec: [ p.Nullable(p.StringSpec), null ],
+      nullable_color_spec: [ p.Nullable(p.ColorSpec), null ],
+      nullable_coordinate_spec: [ p.Nullable(p.XCoordinateSpec), null ],
       boolean_spec: [ p.BooleanSpec ],
       color_spec: [ p.ColorSpec ],
       coordinate_spec: [ p.XCoordinateSpec ],
@@ -104,12 +121,149 @@ class Some extends HasProps {
       marker_spec: [ p.MarkerSpec ],
       number_spec: [ p.NumberSpec ],
       string_spec: [ p.StringSpec ],
-      null_string_spec: [ p.NullStringSpec ],
+      null_string_spec: [ p.Nullable(p.StringSpec) ],
     }))
   }
 }
 
 describe("properties module", () => {
+
+  describe("nullable specs", () => {
+    it("should expose declared nullability without inspecting column values", () => {
+      const obj = Some.create()
+      expect(obj.properties.angle_spec.is_nullable).to.be.false
+      expect(obj.properties.number_spec.is_nullable).to.be.false
+      expect(obj.properties.nullable_angle_spec.is_nullable).to.be.true
+      expect(obj.properties.nullable_int_spec.is_nullable).to.be.true
+      expect(obj.properties.color_spec.is_nullable).to.be.true
+      const angle = p.Nullable(p.AngleSpec)
+      expect(p.Nullable(angle)).to.be.identical(angle)
+    })
+
+    it("should preserve specialized array conversions and nulls", () => {
+      const obj = Some.create({nullable_int_spec: {field: "ints"}, nullable_coordinate_spec: {field: "dates"}})
+      const source = ColumnDataSource.create({data: {ints: [1.8, null, 2.2], dates: ["2026-01-01", null, "2026-01-02"]}})
+      expect(obj.properties.nullable_int_spec.array(source)).to.be.equal([1, null, 2])
+      expect(obj.properties.nullable_coordinate_spec.array(source, true)).to.be.equal([1767225600000, null, 1767312000000])
+      source.data = {ints: [1.8, 2.2], dates: ["2026-01-01", "2026-01-02"]}
+      expect(obj.properties.nullable_int_spec.array(source)).to.be.equal(new Int32Array([1, 2]))
+      expect(obj.properties.nullable_coordinate_spec.array(source, true)).to.be.equal([1767225600000, 1767312000000])
+    })
+
+    it("should preserve color interpretation through nulls, filtering and updates", () => {
+      const obj = Some.create({nullable_color_spec: {field: "colors"}, color_spec: {field: "colors"}})
+      const source = ColumnDataSource.create({data: {colors: ["green", null, "blue"]}})
+      const expected = obj.properties.color_spec.uniform(source)
+      const values = obj.properties.nullable_color_spec.uniform(source)
+      expect(values.constructor).to.be.identical(expected.constructor)
+      expect([...values]).to.be.equal([...expected])
+      expect([...values.select(BitSet.from_indices(3, [0, 1]))]).to.be.equal([expected.get(0), expected.get(1)])
+      obj.nullable_color_spec = "green"
+      expect(obj.properties.nullable_color_spec.uniform(source).get(0)).to.be.equal(expected.get(0))
+      obj.nullable_color_spec = {field: "colors"}
+      source.data = {colors: ["green", "blue"]}
+      expect([...obj.properties.nullable_color_spec.uniform(source)]).to.be.equal([...obj.properties.color_spec.uniform(source)])
+    })
+
+    it("should reuse already-nullable color specs and their null encoding", () => {
+      expect(p.Nullable(p.ColorSpec)).to.be.identical(p.ColorSpec)
+      expect(p.Nullable(p.ColorScalar)).to.be.identical(p.ColorScalar)
+      const obj = Some.create({nullable_color_spec: null, color_spec: null})
+      const source = ColumnDataSource.create()
+      expect(obj.properties.nullable_color_spec.uniform(source).get(0)).to.be.equal(0)
+      expect(obj.properties.nullable_color_spec.uniform(source).get(0)).to.be.equal(obj.properties.color_spec.uniform(source).get(0))
+      obj.nullable_color_spec = {value: null}
+      expect(obj.properties.nullable_color_spec.uniform(source).get(0)).to.be.equal(0)
+    })
+
+    it("should retain identity column storage for nullable string specs", () => {
+      const obj = Some.create({nullable_string_spec: {field: "text"}})
+      const source = ColumnDataSource.create({data: {text: ["a", null, "b"]}})
+      const values = obj.properties.nullable_string_spec.uniform(source)
+      expect(values).to.be.instanceof(p.UniformVector)
+      if (values.is_Vector()) {
+        expect(source.get_column("text")).to.be.identical(values.array)
+      }
+    })
+
+    it("should serialize explicit null values with units", () => {
+      const obj = Some.create({nullable_angle_spec: {value: null, units: "deg"}})
+      expect(new Serializer().encode(obj.nullable_angle_spec)).to.be.equal({type: "value", value: null, units: "deg"})
+      expect(new Serializer({compact: true}).encode(obj.nullable_angle_spec)).to.be.equal({$value: null, units: "deg"})
+    })
+
+    it("should compose with scalar specs and retain specialized validation", () => {
+      const obj = Some.create()
+      const source = ColumnDataSource.create()
+      expect(obj.properties.nullable_string_scalar.uniform(source).get(0)).to.be.null
+      obj.nullable_string_scalar = {value: "text"}
+      expect(obj.properties.nullable_string_scalar.uniform(source).get(0)).to.be.equal("text")
+      expect(obj.properties.nullable_size_spec.uniform(source).get(0)).to.be.null
+      expect(() => obj.nullable_size_spec = -1).to.throw(p.ValidationError)
+    })
+
+    it("should retain units and preserve literal nulls", () => {
+      const obj = Some.create({nullable_angle_spec: {value: null, units: "deg"}})
+      const spec = obj.properties.nullable_angle_spec
+      const source = ColumnDataSource.create({data: {angles: [180, null, 360]}})
+      expect(spec).to.be.instanceof(p.AngleSpec)
+      expect(spec.units).to.be.equal("deg")
+      expect(spec.uniform(source).get(0)).to.be.null
+      obj.nullable_angle_spec = {value: 180, units: "deg"}
+      expect(spec.uniform(source).get(0)).to.be.equal(-Math.PI)
+      obj.nullable_angle_spec = null
+      expect(spec.uniform(source).get(0)).to.be.null
+    })
+
+    it("should preserve column nulls through conversion, selection and updates", () => {
+      const obj = Some.create({nullable_angle_spec: {field: "angles", units: "turn"}})
+      const spec = obj.properties.nullable_angle_spec
+      const source = ColumnDataSource.create({data: {angles: [0, null, 1]}})
+      const values = spec.uniform(source)
+      expect(values.get(0)).to.be.equal(0)
+      expect(values.get(1)).to.be.null
+      expect(values.get(2)).to.be.equal(new Float32Array([-2*Math.PI])[0])
+      const selected = values.select(BitSet.from_indices(3, [1, 2]))
+      expect(selected.get(0)).to.be.null
+      expect(selected.get(1)).to.be.equal(values.get(2))
+      source.data = {angles: [null, 0, null]}
+      expect([...spec.uniform(source)]).to.be.equal([null, 0, null])
+    })
+
+    it("should preserve expression nulls and pass nullable values to transforms", () => {
+      const expr = class extends Expression {
+        _v_compute(): (number | null)[] {
+          return [null, 180]
+        }
+      }
+      const transform = class extends Transform<number | null, number | null> {
+        compute(value: number | null): number | null {
+          return value === null ? null : value*2
+        }
+        v_compute(values: Arrayable<number | null>): (number | null)[] {
+          return Array.from(values, (value) => this.compute(value))
+        }
+      }
+      const obj = Some.create({nullable_angle_spec: {expr: expr.create(), transform: transform.create(), units: "deg"}})
+      const source = ColumnDataSource.create({data: {x: [0, 1]}})
+      const values = obj.properties.nullable_angle_spec.uniform(source)
+      expect(values.get(0)).to.be.null
+      expect(values.get(1)).to.be.equal(new Float32Array([-2*Math.PI])[0])
+      obj.nullable_angle_spec = {value: null, transform: transform.create(), units: "deg"}
+      expect(obj.properties.nullable_angle_spec.uniform(source).get(0)).to.be.null
+    })
+
+    it("should preserve nulls in numeric arrays and keep nonnullable conversion", () => {
+      const obj = Some.create({nullable_int_spec: {field: "x"}, angle_spec: {value: 180, units: "deg"}})
+      const source = ColumnDataSource.create({data: {x: [1, null, 3]}})
+      expect([...obj.properties.nullable_int_spec.uniform(source)]).to.be.equal([1, null, 3])
+      expect(obj.properties.nullable_int_spec.array(source)).to.be.equal([1, null, 3])
+      source.data = {x: [null, null]}
+      expect([...obj.properties.nullable_int_spec.uniform(source)]).to.be.equal([null, null])
+      expect(obj.properties.nullable_int_spec.array(source)).to.be.equal([null, null])
+      expect(obj.properties.angle_spec.uniform(source).get(0)).to.be.equal(-Math.PI)
+    })
+  })
 
   describe("Property", () => {
     it("validate() should throw an instance of ValidationError", () => {

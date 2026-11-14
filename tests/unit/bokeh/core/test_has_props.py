@@ -33,7 +33,6 @@ from bokeh.core.properties import (
     Int,
     List,
     Nullable,
-    NullDistanceSpec,
     NumberSpec,
     Override,
     Required,
@@ -718,11 +717,10 @@ def test_CoordinateSpec_requires_units_property() -> None:
             bar = CoordinateSpec()
 
 
-@pytest.mark.parametrize("spec_type", [DistanceSpec, NullDistanceSpec])
-def test_DistanceSpec_requires_units_property(spec_type) -> None:
-    with pytest.raises(TypeError, match=rf"Props\.bar uses {spec_type.__name__}.*`bar_units = SpatialUnits`"):
+def test_DistanceSpec_requires_units_property() -> None:
+    with pytest.raises(TypeError, match=r"Props\.bar uses DistanceSpec.*`bar_units = SpatialUnits`"):
         class Props(hp.HasProps, hp.Local):
-            bar = spec_type()
+            bar = DistanceSpec()
 
 
 def test_AngleSpec_rejects_wrong_units_property() -> None:

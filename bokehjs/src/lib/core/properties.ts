@@ -1,12 +1,13 @@
 import {Signal0} from "./signaling"
 import {logger} from "./logging"
 import type {HasProps} from "./has_props"
+import type {Constructor} from "./class"
 import * as enums from "./enums"
 import type {Arrayable, IntArray, FloatArray, TypedArray, uint32, Dict} from "./types"
 import {RGBAArray, ColorArray} from "./types"
 import type * as types from "./types"
 import {includes, repeat} from "./util/array"
-import {mul} from "./util/arrayable"
+import {mul, some, filter} from "./util/arrayable"
 import {to_radians_coeff} from "./util/math"
 import {color2rgba, encode_rgba} from "./util/color"
 import {to_big_endian} from "./util/platform"
@@ -72,8 +73,10 @@ export type UniformsOf<Props> = {
       Props[Key] extends ScalarSpec<infer T, any> ? UniformScalar<T> : never
 }
 
+type DistanceProperty = DistanceSpec | VectorUnitsSpec<number | null, enums.SpatialUnits>
+
 export type MaxAttrsOf<Props> = {
-  [Key in keyof Props & string as Props[Key] extends DistanceSpec ? `max_${Key}` : never]: number
+  [Key in keyof Props & string as Props[Key] extends DistanceProperty ? `max_${Key}` : never]: number
 }
 
 export type CoordsAttrsOf<Props> = {
@@ -84,8 +87,8 @@ export type CoordsAttrsOf<Props> = {
 }
 
 export type ScreenAttrsOf<Props> = {
-  [Key in keyof Props & string as Props[Key] extends BaseCoordinateSpec<any> | DistanceSpec ? `s${Key}` : never]:
-    Props[Key] extends CoordinateSpec | DistanceSpec ? Arrayable<number> :
+  [Key in keyof Props & string as Props[Key] extends BaseCoordinateSpec<any> | DistanceProperty ? `s${Key}` : never]:
+    Props[Key] extends CoordinateSpec | DistanceProperty ? Arrayable<number> :
     Props[Key] extends CoordinateSeqSpec             ? RaggedArray<FloatArray> :
     Props[Key] extends CoordinateSeqSeqSeqSpec       ? Arrayable<Arrayable<Arrayable<Arrayable<number>>>> : never
 }
@@ -97,7 +100,7 @@ export type InheritedAttrsOf<Props> = {
 /* eslint-enable @stylistic/indent */
 
 export type InheritedScreenOf<Props> = {
-  [Key in keyof Props & string as Props[Key] extends BaseCoordinateSpec<any> | DistanceSpec ? `inherited_s${Key}` : never]: boolean
+  [Key in keyof Props & string as Props[Key] extends BaseCoordinateSpec<any> | DistanceProperty ? `inherited_s${Key}` : never]: boolean
 }
 
 export type InheritedOf<Props> = InheritedAttrsOf<Props> & InheritedScreenOf<Props>
@@ -146,7 +149,15 @@ export type Unset = typeof unset
 export class UnsetValueError extends Error {}
 
 export abstract class Property<T = unknown> {
+  /** Preserve the null representation of specs that already support it. */
+  static readonly inherently_nullable: boolean = false
+
   __value__: T
+
+  /** Whether the spec class explicitly supports null values. */
+  get is_nullable(): boolean {
+    return (this.constructor as typeof Property).inherently_nullable
+  }
 
   get syncable(): boolean {
     return !this.internal
@@ -435,10 +446,11 @@ export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Pro
 /** @deprecated */
 export class AnyScalar extends ScalarSpec<any> {}
 export class DictScalar<T> extends ScalarSpec<Dict<T>> {}
-export class ColorScalar extends ScalarSpec<types.Color | null> {}
+export class ColorScalar extends ScalarSpec<types.Color | null> {
+  static override readonly inherently_nullable = true
+}
 export class NumberScalar extends ScalarSpec<number> {}
 export class StringScalar extends ScalarSpec<string> {}
-export class NullStringScalar extends ScalarSpec<string | null> {}
 export class ArrayScalar extends ScalarSpec<any[]> {}
 export class LineJoinScalar extends ScalarSpec<enums.LineJoin> {}
 export class LineCapScalar extends ScalarSpec<enums.LineCap> {}
@@ -454,6 +466,14 @@ export class TextAlignScalar extends ScalarSpec<enums.TextAlign> {}
 export class TextBaselineScalar extends ScalarSpec<enums.TextBaseline> {}
 
 export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Property<T | V> {
+  /** Whether vector materialization accepts and preserves null entries.
+   *
+   * Override this to return false if a subclass's materializer cannot preserve nulls.
+   */
+  protected get materializes_nulls(): boolean {
+    return false
+  }
+
   declare __value__: T
   __vector__: V
 
@@ -619,9 +639,100 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
     }
     return array
   }
+
+  protected _convert_array<T extends TypedArray>(values: Arrayable<number>, type: {new (values: Arrayable<number>): T}): T {
+    return new type(values)
+  }
 }
 
 export abstract class DataSpec<T> extends VectorSpec<T> {}
+
+// Use the vector spec's attribute type to retain unit checking in AttrsOf.
+export type VectorUnitsSpec<T, Units> =
+  VectorSpec<T, Dimensional<Vector<T>, Units>> & Pick<UnitsSpec<T, Units>, "units" | "default_units" | "valid_units">
+
+/** Preserve null values while delegating conversion to the wrapped spec. */
+export function Nullable<P extends ScalarSpec<any> | VectorSpec<any>>(
+  base: Constructor<P> & {readonly inherently_nullable: true},
+): Constructor<P>
+export function Nullable<T, Units>(base: Constructor<UnitsSpec<T, Units>>): Constructor<VectorUnitsSpec<T | null, Units>>
+export function Nullable<T, Dim extends "x" | "y">(
+  base: Constructor<BaseCoordinateSpec<T> & {readonly dimension: Dim}>,
+): Constructor<BaseCoordinateSpec<T | null> & {readonly dimension: Dim}>
+export function Nullable<T>(base: Constructor<VectorSpec<T>>): Constructor<VectorSpec<T | null>>
+export function Nullable<T>(base: Constructor<ScalarSpec<T>>): Constructor<ScalarSpec<T | null>>
+export function Nullable(
+  base: Constructor<ScalarSpec<any> | VectorSpec<any>> & {readonly inherently_nullable?: boolean},
+): Constructor {
+  if (base.inherently_nullable === true) {
+    return base
+  }
+  if (base.prototype instanceof VectorSpec) {
+    return nullable_vector(base as Constructor<VectorSpec<unknown>>)
+  }
+  return nullable_scalar(base as Constructor<ScalarSpec<unknown>>)
+}
+
+function nullable_scalar(Base: Constructor<ScalarSpec<unknown>>) {
+  return class extends Base {
+    static readonly inherently_nullable = true
+
+    override valid(value: unknown): boolean {
+      return value === null || super.valid(value)
+    }
+
+    override materialize(value: unknown): unknown {
+      return value === null ? null : super.materialize(value)
+    }
+  }
+}
+
+function nullable_vector(Base: Constructor<VectorSpec<unknown>>) {
+  function restore_nulls<T>(values: Arrayable<unknown>, get: (i: number) => T): (T | null)[] {
+    let i = 0
+    return Array.from(values, (value) => value === null ? null : get(i++))
+  }
+
+  return class extends Base {
+    static readonly inherently_nullable = true
+
+    override valid(value: unknown): boolean {
+      return value === null || super.valid(value)
+    }
+
+    override materialize(value: unknown): unknown {
+      return value === null ? null : super.materialize(value)
+    }
+
+    override v_materialize(values: Arrayable<unknown>): Arrayable<unknown> {
+      if (this.materializes_nulls || !some(values, (value) => value === null)) {
+        return super.v_materialize(values)
+      }
+
+      // Typed conversion can coerce null to zero. Convert only present values.
+      const present = filter(values, (value) => value !== null)
+      const converted = super.vector(super.v_materialize(present))
+      return restore_nulls(values, (i) => converted.get(i))
+    }
+
+    protected override _convert_array(values: Arrayable<number | null>, type: any): any {
+      if (!some(values, (value) => value === null)) {
+        return super._convert_array(values as Arrayable<number>, type)
+      }
+
+      const present = filter(values, (value) => value !== null)
+      const converted = super._convert_array(present as Arrayable<number>, type)
+      return restore_nulls(values, (i) => converted[i])
+    }
+
+    override vector(values: Arrayable<any>): UniformVector<any> {
+      if (Base.prototype.vector == VectorSpec.prototype.vector) {
+        return super.vector(values)
+      }
+      return some(values, (value) => value === null) ? new UniformVector(values) : super.vector(values)
+    }
+  }
+}
 
 export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vector<T>, Units>> {
   abstract get default_units(): Units
@@ -659,7 +770,7 @@ export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vect
 
 export abstract class NumberUnitsSpec<Units> extends UnitsSpec<number, Units> {
   override array(source: IndexedDataSource): FloatArray {
-    return new Float64Array(super.array(source) as Arrayable<number>)
+    return this._convert_array(super.array(source) as Arrayable<number>, Float64Array)
   }
 }
 
@@ -787,19 +898,13 @@ export class DistanceSpec extends NumberUnitsSpec<enums.SpatialUnits> {
   }
 }
 
-export class NullDistanceSpec extends DistanceSpec { // TODO: T = number | null
-  override materialize(value: number | null): number {
-    return value ?? NaN
-  }
-}
-
 export class BooleanSpec extends DataSpec<boolean> {
   override v_materialize(values: Arrayable<boolean>): Arrayable<boolean> /* Uint8Array */ {
     return new Uint8Array(values as any) as any
   }
 
   override array(source: IndexedDataSource): Uint8Array {
-    return new Uint8Array(super.array(source) as any)
+    return this._convert_array(super.array(source) as Arrayable<number>, Uint8Array)
   }
 }
 
@@ -809,7 +914,7 @@ export class IntSpec extends DataSpec<number> {
   }
 
   override array(source: IndexedDataSource): IntArray {
-    return new Int32Array(super.array(source) as Arrayable<number>)
+    return this._convert_array(super.array(source) as Arrayable<number>, Int32Array)
   }
 }
 
@@ -819,7 +924,7 @@ export class NumberSpec extends DataSpec<number> {
   }
 
   override array(source: IndexedDataSource): FloatArray {
-    return new Float64Array(super.array(source) as Arrayable<number>)
+    return this._convert_array(super.array(source) as Arrayable<number>, Float64Array)
   }
 }
 
@@ -830,6 +935,8 @@ export class ScreenSizeSpec extends NumberSpec {
 }
 
 export class ColorSpec extends DataSpec<types.Color | null> {
+  static override readonly inherently_nullable = true
+
   override materialize(color: types.Color | null): uint32 {
     return encode_rgba(color2rgba(color))
   }
@@ -935,8 +1042,11 @@ export class NDArraySpec extends DataSpec<NDArrayType<number>> {}
 
 /** @deprecated */
 export class AnySpec extends DataSpec<any> {}
-export class StringSpec extends DataSpec<string> {}
-export class NullStringSpec extends DataSpec<string | null> {}
+export class StringSpec extends DataSpec<string> {
+  protected override get materializes_nulls(): boolean {
+    return true
+  }
+}
 export class ArraySpec extends DataSpec<any[]> {}
 
 export const ExtMarkerType = PrefixedStr("@")

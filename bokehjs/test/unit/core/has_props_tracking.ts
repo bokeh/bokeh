@@ -14,7 +14,7 @@ namespace Source {
   export type Attrs = p.AttrsOf<Props>
   export type Props = Model.Props & {
     value: p.Property<number>
-    label: p.NullStringSpec
+    label: p.VectorSpec<string | null>
     unused: p.Property<number>
   }
 }
@@ -29,7 +29,7 @@ class Source extends Model {
   static {
     this.define<Source.Props>(({Float}) => ({
       value: [ Float, 1 ],
-      label: [ p.NullStringSpec, null ],
+      label: [ p.Nullable(p.StringSpec), null ],
       unused: [ Float, 0 ],
     }))
   }

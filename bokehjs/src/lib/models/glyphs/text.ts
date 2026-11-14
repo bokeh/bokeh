@@ -341,7 +341,7 @@ export namespace Text {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = XYGlyph.Props & {
-    text: p.NullStringSpec
+    text: p.VectorSpec<string | null>
     angle: p.AngleSpec
     x_offset: p.NumberSpec
     y_offset: p.NumberSpec
@@ -393,7 +393,7 @@ export class Text extends XYGlyph {
     ])
 
     this.define<Text.Props>(() => ({
-      text: [ p.NullStringSpec, {field: "text"} ],
+      text: [ p.Nullable(p.StringSpec), {field: "text"} ],
       angle: [ p.AngleSpec, 0 ],
       x_offset: [ p.NumberSpec, 0 ],
       y_offset: [ p.NumberSpec, 0 ],
