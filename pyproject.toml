@@ -260,13 +260,6 @@ known-local-folder = [
 module = [
     "bokeh.application.handlers.notebook",
     "bokeh.layouts",
-    "bokeh.models.annotations.arrows",
-    "bokeh.models.annotations.geometry",
-    "bokeh.models.annotations.html.labels",
-    "bokeh.models.axes",
-    "bokeh.models.mappers",
-    "bokeh.models.plots",
-    "bokeh.models.tools",
     "bokeh.models.util.structure",
     "bokeh.plotting._figure",
     "bokeh.plotting._geo_feature",
