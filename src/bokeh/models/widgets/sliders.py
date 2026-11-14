@@ -187,7 +187,7 @@ class Slider(NumericalSlider):
     ``start`` and ``end`` can be picked.
     """)
 
-    _format = Override(default="0[.]00")
+    _format = Override(NumericalSlider.format, default="0[.]00")
 
 class RangeSlider(NumericalSlider):
     """ Range-slider based number range selection widget. """
@@ -208,7 +208,7 @@ class RangeSlider(NumericalSlider):
     The step between consecutive values.
     """)
 
-    _format = Override(default="0[.]00")
+    _format = Override(NumericalSlider.format, default="0[.]00")
 
 class MultiValuedSlider(NumericalSlider):
     """ Slider that allows selection of multiple values. """
@@ -230,7 +230,7 @@ class MultiValuedSlider(NumericalSlider):
     The step between consecutive values.
     """)
 
-    _format = Override(default="0[.]00")
+    _format = Override(NumericalSlider.format, default="0[.]00")
 
 class DateSlider(NumericalSlider):
     """ Slider-based date selection widget. """
@@ -280,7 +280,7 @@ class DateSlider(NumericalSlider):
     The step between consecutive values, in units of days.
     """)
 
-    _format = Override(default="%d %b %Y")
+    _format = Override(NumericalSlider.format, default="%d %b %Y")
 
 class DateRangeSlider(NumericalSlider):
     """ Slider-based date range selection widget. """
@@ -343,7 +343,7 @@ class DateRangeSlider(NumericalSlider):
     The step between consecutive values, in units of days.
     """)
 
-    _format = Override(default="%d %b %Y")
+    _format = Override(NumericalSlider.format, default="%d %b %Y")
 
 class DatetimeRangeSlider(NumericalSlider):
     """ Slider-based datetime range selection widget. """
@@ -385,7 +385,7 @@ class DatetimeRangeSlider(NumericalSlider):
 
     # TODO step_unit = Enum("hour", ...)(default="hour")
 
-    _format = Override(default="%d %b %Y %H:%M:%S")
+    _format = Override(NumericalSlider.format, default="%d %b %Y %H:%M:%S")
 
 #-----------------------------------------------------------------------------
 # Private API

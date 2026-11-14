@@ -150,9 +150,9 @@ class Range1d(NumericalRange):
     maximum visible interval. Can be a ``TimeDelta``. Note that ``bounds`` can
     impose an implicit constraint on the maximum interval as well. """)
 
-    _start = Override(default=0)
+    _start = Override(NumericalRange.start, default=0)
 
-    _end = Override(default=1)
+    _end = Override(NumericalRange.end, default=1)
 
 @abstract
 class DataRange(NumericalRange):
@@ -165,9 +165,9 @@ class DataRange(NumericalRange):
     defaults to all renderers on a plot.
     """)
 
-    _start = Override(default=nan)
+    _start = Override(NumericalRange.start, default=nan)
 
-    _end = Override(default=nan)
+    _end = Override(NumericalRange.end, default=nan)
 
 class DataRange1d(DataRange):
     ''' An auto-fitting range in a continuous scalar dimension.

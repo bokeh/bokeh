@@ -270,9 +270,9 @@ class LinearAxis(ContinuousAxis):
 
     '''
 
-    _ticker = Override(default=InstanceDefault(BasicTicker))
+    _ticker = Override(Axis.ticker, default=InstanceDefault(BasicTicker))
 
-    _formatter = Override(default=InstanceDefault(BasicTickFormatter))
+    _formatter = Override(Axis.formatter, default=InstanceDefault(BasicTickFormatter))
 
 class LogAxis(ContinuousAxis):
     ''' An axis that picks nice numbers for tick locations on a
@@ -280,9 +280,9 @@ class LogAxis(ContinuousAxis):
 
     '''
 
-    _ticker = Override(default=InstanceDefault(LogTicker))
+    _ticker = Override(Axis.ticker, default=InstanceDefault(LogTicker))
 
-    _formatter = Override(default=InstanceDefault(LogTickFormatter))
+    _formatter = Override(Axis.formatter, default=InstanceDefault(LogTickFormatter))
 
 class CategoricalAxis(Axis):
     ''' An axis that displays ticks and labels for categorical ranges.
@@ -293,9 +293,9 @@ class CategoricalAxis(Axis):
 
     '''
 
-    _ticker = Override(default=InstanceDefault(CategoricalTicker))
+    _ticker = Override(Axis.ticker, default=InstanceDefault(CategoricalTicker))
 
-    _formatter = Override(default=InstanceDefault(CategoricalTickFormatter))
+    _formatter = Override(Axis.formatter, default=InstanceDefault(CategoricalTickFormatter))
 
     separator_props = Include(ScalarLineProps, prefix="separator", help="""
     The {prop} of the separator line between top-level categorical groups.
@@ -356,9 +356,9 @@ class DatetimeAxis(LinearAxis):
 
     '''
 
-    _ticker = Override(default=InstanceDefault(DatetimeTicker))
+    _ticker = Override(Axis.ticker, default=InstanceDefault(DatetimeTicker))
 
-    _formatter = Override(default=CONTEXTUAL_DATETIME_FORMATTER)
+    _formatter = Override(Axis.formatter, default=CONTEXTUAL_DATETIME_FORMATTER)
 
 class TimedeltaAxis(LinearAxis):
     ''' A ``LinearAxis`` that picks nice numbers for tick locations on
@@ -367,9 +367,9 @@ class TimedeltaAxis(LinearAxis):
 
     '''
 
-    _ticker = Override(default=InstanceDefault(TimedeltaTicker))
+    _ticker = Override(Axis.ticker, default=InstanceDefault(TimedeltaTicker))
 
-    _formatter = Override(default=CONTEXTUAL_TIMEDELTA_FORMATTER)
+    _formatter = Override(Axis.formatter, default=CONTEXTUAL_TIMEDELTA_FORMATTER)
 
 class MercatorAxis(LinearAxis):
     ''' An axis that picks nice numbers for tick locations on a
@@ -391,9 +391,9 @@ class MercatorAxis(LinearAxis):
         if isinstance(self.formatter, MercatorTickFormatter):
             self.formatter.dimension = dimension
 
-    _ticker = Override(default=InstanceDefault(MercatorTicker))
+    _ticker = Override(Axis.ticker, default=InstanceDefault(MercatorTicker))
 
-    _formatter = Override(default=InstanceDefault(MercatorTickFormatter))
+    _formatter = Override(Axis.formatter, default=InstanceDefault(MercatorTickFormatter))
 
 #-----------------------------------------------------------------------------
 # Dev API
