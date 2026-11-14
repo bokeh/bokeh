@@ -166,6 +166,22 @@ void test("to_cjs() preserves live bindings of reassigned exports", () => {
   assert.deepEqual(main.result, [0, 1, 1])
 })
 
+void test("to_cjs() preserves live bindings of re-exports", () => {
+  const modules = {
+    "./main": `
+      import {count as direct, increment} from "./reexport"
+      import {count as indirect} from "./import_export"
+      const before = [direct, indirect]
+      increment()
+      export const result = [...before, direct, indirect]
+    `,
+    "./reexport": `export {count, increment} from "./counter"`,
+    "./import_export": `import {count} from "./counter"; export {count}`,
+    "./counter": "export let count = 0; export function increment() { count++ }",
+  }
+  assert.deepEqual(run(modules).result, [0, 0, 1, 1])
+})
+
 void test("to_cjs() calls imported functions with undefined `this`", () => {
   const main = run({
     "./main": `
@@ -263,7 +279,7 @@ void test("to_cjs() assigns exports early, so that modules tolerate cycles", () 
   assert.ok(index(/exports\.f = f;/) < index(/require\("\.\/x"\)/), "functions before requires")
   assert.ok(index(/const a = 1;?\nexports\.a = a;/) != -1, "variables right after their declarations")
   assert.ok(index(/class C \{\}\nexports\.C = C;/) != -1, "classes right after their declarations")
-  assert.ok(index(/require\("\.\/y"\);\nexports\.renamed = y_\d+\.b;/) != -1, "re-exports right after requires")
+  assert.ok(index(/require\("\.\/y"\);\nObject\.defineProperty\(exports, "renamed", \{enumerable: true, get: \(\) => y_\d+\.b\}\);/) != -1, "re-exports right after requires")
   assert.ok(index(/const late = 2;?\nexports\.late = late;/) != -1, "`export {local}` after the declaration")
 })
 

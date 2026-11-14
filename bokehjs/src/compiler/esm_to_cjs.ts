@@ -8,7 +8,8 @@
 // tolerate import cycles: exported functions (hoisted) and live bindings at the top,
 // other declarations right after their statements and re-exports right after the
 // respective `require()`. A module in a cycle can still observe exports, which aren't
-// initialized yet, if it accesses them during its own evaluation (as in ESM).
+// initialized yet, if it accesses them during its own evaluation (as in ESM). Re-exports
+// and exports of reassigned bindings are live (getters), other exports are plain values.
 import MagicString from "magic-string"
 import * as eslint_scope from "eslint-scope"
 
@@ -100,7 +101,7 @@ export function to_cjs(file: string, code: string): {code: string, map: SourceMa
   // local import binding -> its import statement
   const import_stmt_of = new Map<string, Node>()
 
-  type Export = {name: string} & ({kind: "local", local: string} | {kind: "reexport", value: string, stmt: Node})
+  type Export = {name: string} & ({kind: "local", local: string} | {kind: "reexport", value: string, live: boolean, stmt: Node})
   const exported: Export[] = []
 
   // top-level declarations: name -> declaring statement
@@ -180,7 +181,7 @@ export function to_cjs(file: string, code: string): {code: string, map: SourceMa
         if (stmt.exported != null) {
           source.namespace = true
           const name = stmt.exported.type == "Identifier" ? stmt.exported.name : stmt.exported.value
-          exported.push({name, kind: "reexport", value: source.local, stmt})
+          exported.push({name, kind: "reexport", value: source.local, live: false, stmt})
         } else {
           source.star = true
         }
@@ -204,7 +205,7 @@ export function to_cjs(file: string, code: string): {code: string, map: SourceMa
             } else {
               source.named = true
             }
-            exported.push({name: as, kind: "reexport", value: prop(source.local, name), stmt})
+            exported.push({name: as, kind: "reexport", value: prop(source.local, name), live: true, stmt})
           }
           pending_requires.push({stmt, source})
           removed.push([stmt.start, stmt.end])
@@ -338,7 +339,7 @@ export function to_cjs(file: string, code: string): {code: string, map: SourceMa
   }
 
   const assign = (name: string, value: string) => `${prop("exports", name)} = ${value};`
-  const live = (name: string, local: string) => `Object.defineProperty(exports, ${JSON.stringify(name)}, {enumerable: true, get: () => ${local}});`
+  const live = (name: string, value: string) => `Object.defineProperty(exports, ${JSON.stringify(name)}, {enumerable: true, get: () => ${value}});`
 
   const top: string[] = []                        // before requires
   const after_require = new Map<Node, string[]>() // import-like statement -> assignments
@@ -348,14 +349,17 @@ export function to_cjs(file: string, code: string): {code: string, map: SourceMa
 
   for (const exp of exported) {
     if (exp.kind == "reexport") {
-      push(after_require, exp.stmt, assign(exp.name, exp.value))
+      push(after_require, exp.stmt, (exp.live ? live : assign)(exp.name, exp.value))
       continue
     }
     const {name, local} = exp
     const import_stmt = import_stmt_of.get(local)
     const decl = declarations.get(local)
     if (import_stmt != null) {
-      push(after_require, import_stmt, assign(name, imported.get(local)!))
+      // bindings of other modules, which can be reassigned there (namespaces can't)
+      const value = imported.get(local)!
+      const is_namespace = [...sources.values()].some((source) => source.local == value)
+      push(after_require, import_stmt, (is_namespace ? assign : live)(name, value))
     } else if (reassigned.has(local)) {
       top.push(live(name, local))
     } else if (decl == null) {
