@@ -271,6 +271,7 @@ ignore_errors = true
 [[tool.mypy.overrides]]
 module = [
     "tests.codebase.*",
+    "tests.conftest",
     "tests.support.defaults",
     "tests.test_bokehjs",
     "tests.test_cross",
