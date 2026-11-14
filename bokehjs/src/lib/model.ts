@@ -9,6 +9,7 @@ import {dict} from "./core/util/object"
 import type {Comparator} from "core/util/eq"
 import {equals} from "core/util/eq"
 import {logger} from "./core/logging"
+import {Signal} from "./core/signaling"
 import type {CallbackLike0} from "./core/util/callbacks"
 import {execute} from "./core/util/callbacks"
 import {SyncPolicyQueue} from "./core/util/sync_policy"
@@ -149,13 +150,34 @@ export abstract class Model extends HasProps {
 
   protected _update_property_callbacks(): void {
     this._reconcile_js_callback_queue()
-    const signal_for = (event: string) => {
-      const [evt, attr=null] = event.split(":")
-      return attr != null ? (this.properties as any)[attr][evt] : (this as any)[evt]
+    const signal_for = (event: string, warn: boolean = false) => {
+      const invalid = (reason: string) => {
+        if (warn) {
+          logger.warn(`cannot connect JS callbacks for '${event}' on ${this}: ${reason}`)
+        }
+        return null
+      }
+      const match = /^([^:]+)(?::([^:]+))?$/.exec(event)
+      if (match == null) {
+        return invalid("invalid event name")
+      }
+      const [, signal_name, attr = null] = match
+      if (attr != null && !Object.hasOwn(this.properties, attr)) {
+        return invalid(`property '${attr}' does not exist`)
+      }
+      const obj = attr != null ? this.property(attr) : this
+      const signal = (obj as any)[signal_name]
+      if (!(signal instanceof Signal)) {
+        return invalid(`signal '${signal_name}' does not exist`)
+      }
+      return signal
     }
 
     for (const [event, callbacks] of this._js_callbacks) {
       const signal = signal_for(event)
+      if (signal == null) {
+        continue
+      }
       for (const cb of callbacks) {
         this.disconnect(signal, cb)
       }
@@ -163,9 +185,12 @@ export abstract class Model extends HasProps {
     this._js_callbacks.clear()
 
     for (const [event, callbacks] of dict(this._js_property_callbacks)) {
+      const signal = signal_for(event, true)
+      if (signal == null) {
+        continue
+      }
       const wrappers = callbacks.length == 0 ? [] : [() => this._schedule_property_callbacks(event)]
       this._js_callbacks.set(event, wrappers)
-      const signal = signal_for(event)
       for (const cb of wrappers) {
         this.connect(signal, cb)
       }

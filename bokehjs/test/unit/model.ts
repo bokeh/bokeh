@@ -1,5 +1,10 @@
 import {expect} from "#framework/assertions"
 import * as sinon from "sinon"
+import {restorable} from "#framework/util"
+import {logger} from "@bokehjs/core/logging"
+import {dict} from "@bokehjs/core/util/object"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {Select} from "@bokehjs/models/widgets/select"
 
 import {CustomJS} from "@bokehjs/models/callbacks/customjs"
 import {Model} from "@bokehjs/model"
@@ -86,6 +91,92 @@ describe("Model objects", () => {
   })
 
   describe("js callbacks", () => {
+
+    for (const [event, reason] of [
+      ["missing", "signal 'missing' does not exist"],
+      ["select", "signal 'select' does not exist"],
+      ["name", "signal 'name' does not exist"],
+      ["change:missing", "property 'missing' does not exist"],
+      ["change:select", "property 'select' does not exist"],
+      ["change:__proto__", "property '__proto__' does not exist"],
+      ["missing:foo", "signal 'missing' does not exist"],
+      ["toString:foo", "signal 'toString' does not exist"],
+      ["", "invalid event name"],
+      ["change:", "invalid event name"],
+      ["change:foo:extra", "invalid event name"],
+    ]) {
+      it(`should warn and skip invalid signal '${event}' during creation`, () => {
+        using warn = restorable(sinon.stub(logger, "warn"))
+        const invalid = sinon.spy()
+        const valid = sinon.spy()
+        const changed = sinon.spy()
+        const m = Some0Model.create({
+          _js_property_callbacks: {
+            [event]: [invalid],
+            "change:foo": [valid],
+            change: [changed],
+          },
+        })
+
+        expect(warn.calledOnce).to.be.true
+        expect(warn.firstCall.args[0]).to.be.equal(`cannot connect JS callbacks for '${event}' on ${m}: ${reason}`)
+        m.foo = true
+        expect(invalid.called).to.be.false
+        expect(valid.calledOnce).to.be.true
+        expect(changed.calledOnce).to.be.true
+      })
+    }
+
+    it("should recover when invalid callbacks are replaced", () => {
+      using warn = restorable(sinon.stub(logger, "warn"))
+      const old = sinon.spy()
+      const current = sinon.spy()
+      const m = Some0Model.create({_js_property_callbacks: {"change:foo": [old]}})
+
+      m._js_property_callbacks = {"change:missing": [old], "change:foo": [current]}
+      m.foo = true
+      expect(warn.calledOnce).to.be.true
+      expect(old.called).to.be.false
+      expect(current.calledOnce).to.be.true
+
+      m._js_property_callbacks = {"change:foo": [old]}
+      m.foo = false
+      expect(warn.calledOnce).to.be.true
+      expect(old.calledOnce).to.be.true
+      expect(current.calledOnce).to.be.true
+    })
+
+    it("should preserve streaming and patching signals", () => {
+      const streaming = sinon.spy()
+      const patching = sinon.spy()
+      const source = ColumnDataSource.create({
+        data: {x: [1]},
+        _js_property_callbacks: {streaming: [streaming], patching: [patching]},
+      })
+      source.stream({x: [2]})
+      source.patch({x: [[0, 3]]})
+      expect(streaming.calledOnce).to.be.true
+      expect(patching.calledOnce).to.be.true
+    })
+
+    it("should deserialize a document with invalid callbacks and keep valid callbacks working", () => {
+      using warn = restorable(sinon.stub(logger, "warn"))
+      const callback = CustomJS.create({code: ""})
+      const select = Select.create({
+        options: ["a", "b"], value: "a",
+        _js_property_callbacks: {active: [callback], "change:value": [callback]},
+      })
+      const doc = new Document()
+      doc.add_root(select)
+      const copy = Document.from_json(doc._to_json(false, "minimal"))
+      const recovered = copy.roots()[0] as Select
+      const recovered_callback = dict(recovered._js_property_callbacks).get("change:value")![0] as CustomJS
+      const executed = sinon.spy(recovered_callback, "execute")
+
+      expect(warn.callCount).to.be.equal(2)
+      recovered.value = "b"
+      expect(executed.calledOnce).to.be.true
+    })
 
     it("should add and remove event callbacks", () => {
       const m = Some0Model.create()
