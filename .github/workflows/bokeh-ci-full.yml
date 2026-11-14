@@ -41,11 +41,7 @@ jobs:
           cache-write: ${{ github.event_name == 'push' && (github.ref_name == 'main' || startsWith(github.ref_name, 'branch-')) }}
 
       - name: Run repository formatting checks
-        run: |
-          pre-commit run trailing-whitespace --all-files
-          pre-commit run end-of-file-fixer --all-files
-          pre-commit run mixed-line-ending --all-files
-          pre-commit run reject-static-docs-links --all-files
+        run: pixi run --locked check-formatting
 
   build:
     runs-on: ubuntu-24.04

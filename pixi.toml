@@ -253,6 +253,15 @@ ca-certificates = ">=2026.10.23"
 certifi = ">=2026.10.23"
 pre-commit = "*"
 
+[feature.formatting-deps.tasks]
+# The repository formatting checks run by CI (see .pre-commit-config.yaml).
+check-formatting = """\
+pre-commit run trailing-whitespace --all-files && \
+pre-commit run end-of-file-fixer --all-files && \
+pre-commit run mixed-line-ending --all-files && \
+pre-commit run reject-static-docs-links --all-files\
+"""
+
 [feature.docs-deps.dependencies]
 cartopy = "*"
 colorama = "*"
