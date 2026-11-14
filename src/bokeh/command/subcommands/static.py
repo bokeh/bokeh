@@ -18,12 +18,13 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 from argparse import Namespace
+from typing import ClassVar
 
 from bokeh.settings import settings
 from bokeh.util.logconfig import basicConfig
 
 from ...application import Application
-from ..subcommand import Subcommand
+from ..subcommand import Args, Subcommand
 from ..util import report_server_init_errors
 from .serve import base_serve_args
 
@@ -47,7 +48,7 @@ class Static(Subcommand):
 
     help = "Serve bokehjs' static assets (JavaScript, CSS, images, fonts, etc.)"
 
-    args = base_serve_args
+    args: ClassVar[Args] = base_serve_args
 
     def invoke(self, args: Namespace) -> None:
         '''

@@ -26,6 +26,7 @@ from typing import TYPE_CHECKING, Any
 from ...util.dataclasses import Unspecified
 from ...util.serialization import convert_datetime_type, convert_timedelta_type
 from .. import enums
+from .bases import Property
 from .color import ALPHA_DEFAULT_HELP, COLOR_DEFAULT_HELP, Color
 from .datetime import Datetime, TimeDelta
 from .descriptors import DataSpecPropertyDescriptor
@@ -181,6 +182,8 @@ class DataSpec(Either[Any]):
     """
 
     _units_enum: Any | None = None
+
+    value_type: Property[Any]
 
     def __init__(self, value_type: Any, default: Any, *, help: str | None = None) -> None:
         super().__init__(
@@ -449,6 +452,8 @@ class DistanceSpec(NumberSpec):
         return super().prepare_value(owner, name, value, hint=hint)
 
 class NullDistanceSpec(DistanceSpec):
+
+    value_type: Property[Any]
 
     def __init__(self, default: Any = None, *, help: str | None = None) -> None:
         super().__init__(default=default, help=help)

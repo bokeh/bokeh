@@ -24,8 +24,8 @@ from argparse import ArgumentParser
 from pathlib import Path
 
 # Baseline. Fail when completeness drops below or unknown symbols rise above.
-MIN_COMPLETENESS_SCORE = 0.856
-MAX_UNKNOWN_SYMBOLS = 76
+MIN_COMPLETENESS_SCORE = 0.872
+MAX_UNKNOWN_SYMBOLS = 59
 
 
 def verify_types(repo_root: Path, min_score: float, max_unknown: int) -> int:
