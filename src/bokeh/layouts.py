@@ -29,7 +29,6 @@ from typing import (
     Callable,
     Iterable,
     Iterator,
-    Literal,
     Sequence,
     cast,
     overload,
@@ -60,8 +59,7 @@ from .models.ui import UIElement
 if TYPE_CHECKING:
     from .core.enums import LocationType, SizingModeType
     from .core.property.singletons import UndefinedType
-
-    type ToolbarOptions = Literal["logo", "autohide", "active_drag", "active_inspect", "active_scroll", "active_tap", "active_multi"]
+    from .models.tools import _ToolbarOptions as ToolbarOptions
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -201,7 +199,7 @@ def gridplot(
     ncols: int,
     width: int | None = None,
     height: int | None = None,
-    toolbar_options: dict[ToolbarOptions, Any] | None = None,
+    toolbar_options: ToolbarOptions | None = None,
     merge_tools: bool = True,
 ) -> GridPlot:
     ...
@@ -216,7 +214,7 @@ def gridplot(
     ncols: None = None,
     width: int | None = None,
     height: int | None = None,
-    toolbar_options: dict[ToolbarOptions, Any] | None = None,
+    toolbar_options: ToolbarOptions | None = None,
     merge_tools: bool = True,
 ) -> GridPlot:
     ...
@@ -230,7 +228,7 @@ def gridplot(
     ncols: int | None = None,
     width: int | None = None,
     height: int | None = None,
-    toolbar_options: dict[ToolbarOptions, Any] | None = None,
+    toolbar_options: ToolbarOptions | None = None,
     merge_tools: bool = True,
 ) -> GridPlot:
     ''' Create a grid of plots rendered on separate canvases.
@@ -263,10 +261,11 @@ def gridplot(
 
         height (int, optional): The height you would like all your plots to be.
 
-        toolbar_options (dict, optional) : A dictionary of options that will be
-            used to construct the grid's toolbar (an instance of
-            :class:`~bokeh.models.Toolbar`). If none is supplied,
-            Toolbar's defaults will be used.
+        toolbar_options (dict, optional) : A dictionary of ``logo``, ``autohide``,
+            ``group``, ``group_types`` and ``active_*`` properties of the grid's
+            toolbar (an instance of :class:`~bokeh.models.Toolbar`). These take
+            precedence over values merged from toolbars of the children. If none
+            is supplied, merged values or Toolbar's defaults will be used.
 
         merge_tools (``True``, ``False``): Combine tools from all child plots into
             a single toolbar.
@@ -280,14 +279,19 @@ def gridplot(
         >>> gridplot([plot_1, plot_2, plot_3, plot_4], ncols=2, width=200, height=100)
         >>> gridplot(
                 children=[[plot_1, plot_2], [None, plot_3]],
-                toolbar_location='right'
+                toolbar_location='right',
                 sizing_mode='fixed',
-                toolbar_options=dict(logo='gray')
+                toolbar_options={"logo": "grey"},
             )
 
     '''
     if toolbar_options is None:
         toolbar_options = {}
+
+    # all properties of Toolbar, except tools and these inherited from UIElement
+    supported_options = Toolbar.properties().keys() - UIElement.properties().keys() - {"tools"}
+    if unsupported_options := toolbar_options.keys() - supported_options:
+        raise ValueError(f"Unsupported toolbar options: {', '.join(sorted(unsupported_options))}")
 
     if toolbar_location:
         if not hasattr(Location, toolbar_location):
@@ -369,35 +373,27 @@ def gridplot(
     active_taps = [ map_to_proxy(toolbar.active_tap) for toolbar in toolbars ]
     active_multis = [ map_to_proxy(toolbar.active_multi) for toolbar in toolbars ]
 
-    def assert_unique[V](values: list[V], name: ToolbarOptions) -> V | UndefinedType:
-        if name in toolbar_options:
-            return toolbar_options[name]
+    def assert_unique[V](values: list[V], name: str) -> V | UndefinedType:
         n = len(set(values))
         if n == 0:
             return Undefined
-        elif n > 1:
+        elif n > 1 and name not in toolbar_options:
             from .util.warnings import warn
 
             warn(f"found multiple competing values for 'toolbar.{name}' property; using the latest value")
         return values[-1]
 
-    logo = assert_unique(logos, "logo")
-    autohide = assert_unique(autohides, "autohide")
-    active_drag = assert_unique(active_drags, "active_drag")
-    active_inspect = assert_unique(active_inspects, "active_inspect")
-    active_scroll = assert_unique(active_scrolls, "active_scroll")
-    active_tap = assert_unique(active_taps, "active_tap")
-    active_multi = assert_unique(active_multis, "active_multi")
-
-    toolbar_props: dict[str, Any] = {
-        "logo": logo,
-        "autohide": autohide,
-        "active_drag": active_drag,
-        "active_inspect": active_inspect,
-        "active_scroll": active_scroll,
-        "active_tap": active_tap,
-        "active_multi": active_multi,
-    }
+    toolbar_props: dict[str, Any] = dict(
+        logo=assert_unique(logos, "logo"),
+        autohide=assert_unique(autohides, "autohide"),
+        active_drag=assert_unique(active_drags, "active_drag"),
+        active_inspect=assert_unique(active_inspects, "active_inspect"),
+        active_scroll=assert_unique(active_scrolls, "active_scroll"),
+        active_tap=assert_unique(active_taps, "active_tap"),
+        active_multi=assert_unique(active_multis, "active_multi"),
+    )
+    # explicit options take precedence over values merged from child toolbars
+    toolbar_props.update(toolbar_options)
     toolbar = Toolbar(tools=tools, **{name: value for name, value in toolbar_props.items() if value is not Undefined})
 
     gp = GridPlot(

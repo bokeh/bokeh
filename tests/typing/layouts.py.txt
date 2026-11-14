@@ -44,7 +44,17 @@ gridplot([p1, p2])  # mypy: list-item,list-item; pyright: reportArgumentType
 gridplot([[p1, p2]], ncols=2)  # mypy: list-item; pyright: reportCallIssue,reportArgumentType
 gridplot([[p1, 1]])  # mypy: list-item; pyright: reportArgumentType
 gridplot([[p1]], toolbar_location="invalid")  # mypy: call-overload; pyright: reportArgumentType
-gridplot([[p1]], toolbar_options={"invalid": 1})  # mypy: dict-item; pyright: reportArgumentType
+
+# toolbar_options accepts only properties of Toolbar, except tools and these of UIElement.
+assert_type(gridplot([[p1]], toolbar_options={"logo": "grey", "autohide": True, "active_drag": PanTool()}), GridPlot)
+assert_type(gridplot([[p1]], toolbar_options={"group": False, "group_types": ["pan", "wheel_zoom"]}), GridPlot)
+assert_type(gridplot([[p1]], toolbar_options={"active_inspect": "auto", "active_scroll": None}), GridPlot)
+gridplot([[p1]], toolbar_options={"invalid": 1})  # mypy: call-overload; pyright: reportArgumentType
+gridplot([[p1]], toolbar_options={"logo": "gray"})  # mypy: call-overload; pyright: reportArgumentType
+gridplot([[p1]], toolbar_options={"tools": []})  # mypy: call-overload; pyright: reportArgumentType
+gridplot([[p1]], toolbar_options={"visible": False})  # mypy: call-overload; pyright: reportArgumentType
+gridplot([[p1]], toolbar_options={"group_types": ["invalid"]})  # mypy: call-overload; pyright: reportArgumentType
+gridplot([[p1]], toolbar_options={"active_drag": 1})  # mypy: call-overload; pyright: reportArgumentType
 
 # KNOWN GAP: children are declared as invariant lists.
 rows: list[list[figure]] = [[p1, p2]]

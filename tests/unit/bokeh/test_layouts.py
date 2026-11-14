@@ -119,6 +119,19 @@ def test_gridplot_toolbar_options__issue_13369() -> None:
     assert gp3.toolbar.logo == "normal"
     assert gp3.toolbar.autohide is False
 
+def test_gridplot_toolbar_options_group() -> None:
+    p1 = figure()
+    p2 = figure()
+
+    gp = gridplot([[p1, p2]], toolbar_options=dict(group=False, group_types=["pan"]))
+    assert gp.toolbar.group is False
+    assert gp.toolbar.group_types == ["pan"]
+
+@pytest.mark.parametrize("options", [dict(tools=[]), dict(visible=False), dict(lgo="grey")])
+def test_gridplot_toolbar_options_unsupported(options) -> None:
+    with pytest.raises(ValueError, match="Unsupported toolbar options"):
+        gridplot([[figure()]], toolbar_options=options)
+
 def test_gridplot_None() -> None:
     def p():
         p = figure()
