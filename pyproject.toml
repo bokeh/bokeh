@@ -256,7 +256,6 @@ known-local-folder = [
 module = [
     "bokeh.application.handlers.notebook",
     "bokeh.layouts",
-    "bokeh.models.util.structure",
     "bokeh.plotting._figure",
     "bokeh.plotting._geo_feature",
     "bokeh.plotting._graph",

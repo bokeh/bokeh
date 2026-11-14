@@ -27,8 +27,6 @@ Based on a private class, _BokehStructureGraph.
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# pyright: reportArgumentType=false
-
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -36,35 +34,36 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+from dataclasses import dataclass
 from itertools import permutations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
-from bokeh.core.property.descriptors import UnsetValueError
-from bokeh.layouts import column
-from bokeh.models import (
+from ...core.property.descriptors import UnsetValueError
+from ...layouts import column
+from ..annotations import Label, LabelSet
+from ..callbacks import CustomJS
+from ..filters import GroupFilter
+from ..glyphs import MultiLine, Scatter
+from ..plots import Plot
+from ..ranges import Range1d
+from ..renderers import GlyphRenderer
+from ..sources import ColumnDataSource, IndexedSubset
+from ..tools import (
     BoxZoomTool,
-    ColumnDataSource,
-    CustomJS,
-    DataTable,
-    GlyphRenderer,
-    GroupFilter,
     HoverTool,
-    IndexedSubset,
-    Label,
-    LabelSet,
-    MultiLine,
     PanTool,
-    Plot,
-    Range1d,
     ResetTool,
-    Scatter,
-    TableColumn,
     TapTool,
 )
+from ..widgets import DataTable, TableColumn
 
 if TYPE_CHECKING:
+    import networkx as nx
+
+    from ...core.property.descriptors import AliasPropertyDescriptor, PropertyDescriptor
     from ...core.types import ID
     from ...model import Model
+    from ..sources import DataDict
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -91,6 +90,13 @@ def generate_structure_plot(f: Model) -> Model:
 # Private API
 # -----------------------------------------------------------------------------
 
+@dataclass(frozen=True)
+class _ModelProps:
+    props: list[str]
+    values: list[Any]
+    types: list[PropertyDescriptor[Any] | AliasPropertyDescriptor[Any]]
+    doc: list[str | None]
+
 class _BokehStructureGraph:
     """ Class for exploring the graph of submodels of a Bokeh model.
 
@@ -112,7 +118,7 @@ class _BokehStructureGraph:
 
         self._model = model
         self._graph = self._make_graph(model)
-        self._graph.graph["graph"] = {"rankdir": "LR"}
+        self._graph.graph["graph"] = dict(rankdir="LR")
         self._prop_df = self._make_prop_dict()
         self._graph_plot = self._make_graph_plot()
         self._data_table = self._make_data_table()
@@ -132,21 +138,21 @@ class _BokehStructureGraph:
         return self._structure_graph
 
     @property
-    def graph(self):
+    def graph(self) -> nx.DiGraph[ID]:
         """ The networkx digraph of submodels of the given model.
 
         """
         return self._graph
 
     @property
-    def property_df(self):
+    def property_df(self) -> DataDict:
         """ A pandas dataframe of all of the properties of the model with their
         values, types, and docstrings.  The base information for the datatable.
 
         """
         return self._prop_df
 
-    def _make_graph(self, M: Model):
+    def _make_graph(self, M: Model) -> nx.DiGraph[ID]:
         """ Builds a networkx DiGraph() G from the model M.
 
 
@@ -181,27 +187,27 @@ class _BokehStructureGraph:
                 pass
             return answer1 | answer2 | answer3
 
-        K = nx.DiGraph()
+        K: nx.DiGraph[ID] = nx.DiGraph()
         T: dict[ID, set[ID]] = {}
         for m in M.references():
             T[m.id] = {y.id for y in m.references()}
 
         def model_name(id: ID) -> str:
-            model = M.select_one({"id": id})
+            model = M.select_one(dict(id=id))
             assert model is not None
             return model.__class__.__name__
 
         K.add_nodes_from(
-            [(x, {"model": model_name(x)}) for x in T],
+            [(x, dict(model=model_name(x))) for x in T],
         )
         E = [(y, x) for x, y in permutations(T, 2) if T[x] <= T[y]]
         K.add_edges_from(E)
-        dead_edges = []
+        dead_edges: list[tuple[ID, ID]] = []
         for id in K.nodes:
-            H = M.select_one({"id": id})
+            H = M.select_one(dict(id=id))
             assert H is not None
             for x in K.neighbors(id):
-                s = H.select_one({"id": x})
+                s = H.select_one(dict(id=x))
                 assert s is not None
                 keep_edge = False
                 for y in H.properties():
@@ -212,7 +218,7 @@ class _BokehStructureGraph:
         K.remove_edges_from(dead_edges)
         return K
 
-    def _obj_props_to_df2(self, obj: Model):
+    def _obj_props_to_df2(self, obj: Model) -> _ModelProps:
         """ Returns a pandas dataframe of the properties of a bokeh model
 
         Each row contains an attribute, its type (a bokeh property), and its docstring.
@@ -221,13 +227,12 @@ class _BokehStructureGraph:
         obj_dict = obj.properties_with_values()
         types = [obj.lookup(x) for x in obj_dict.keys()]
         docs = [getattr(type(obj), x).__doc__ for x in obj_dict.keys()]
-        df = {
-            "props": list(obj_dict.keys()),
-            "values": list(obj_dict.values()),
-            "types": types,
-            "doc": docs,
-        }
-        return df
+        return _ModelProps(
+            props=list(obj_dict.keys()),
+            values=list(obj_dict.values()),
+            types=types,
+            doc=docs,
+        )
 
     def _make_graph_plot(self) -> Plot:
         """ Builds the graph portion of the final model.
@@ -239,15 +244,13 @@ class _BokehStructureGraph:
         node_x, node_y = zip(*nodes.values())
         models = [self._graph.nodes[x]["model"] for x in nodes]
         node_id = list(nodes.keys())
-        node_source = ColumnDataSource(
-            {"x": node_x, "y": node_y, "index": node_id, "model": models},
-        )
+        node_source = ColumnDataSource(dict(x=node_x, y=node_y, index=node_id, model=models))
         edge_x_coords = []
         edge_y_coords = []
         for start_node, end_node in self._graph.edges:
             edge_x_coords.extend([[nodes[start_node][0], nodes[end_node][0]]])
             edge_y_coords.extend([[nodes[start_node][1], nodes[end_node][1]]])
-        edge_source = ColumnDataSource({"xs": edge_x_coords, "ys": edge_y_coords})
+        edge_source = ColumnDataSource(dict(xs=edge_x_coords, ys=edge_y_coords))
 
         p2 = Plot(outline_line_alpha=0.0)
         xinterval = max(max(node_x) - min(node_x), 200)
@@ -306,22 +309,27 @@ class _BokehStructureGraph:
         self._edge_source = edge_source
         return p2
 
-    def _make_prop_dict(self) -> dict:
+    def _make_prop_dict(self) -> DataDict:
         """ Returns a dataframe containing all the properties of all the submodels of the model being
         analyzed. Used as datasource to show attributes.
 
         """
-        dct = dict(id=[], model=[], values=[], types=[], props=[])
-        for x in self._graph.nodes(data=True):
-            M = self._model.select_one(dict(id=x[0]))
+        ids: list[str] = []
+        models: list[str] = []
+        values: list[str] = []
+        types: list[str] = []
+        props: list[str] = []
+        for id in self._graph.nodes:
+            M = self._model.select_one(dict(id=id))
+            assert M is not None
             Z = self._obj_props_to_df2(M)
-            n_items = len(Z["values"])
-            dct["id"].extend([str(x[0])] * n_items)
-            dct["model"].extend([str(M)] * n_items)
-            dct["values"].extend(list(map(str, Z["values"])))
-            dct["types"].extend(list(map(str, Z["types"])))
-            dct["props"].extend(Z["props"])
-        return dct
+            n_items = len(Z.values)
+            ids.extend([str(id)] * n_items)
+            models.extend([str(M)] * n_items)
+            values.extend(map(str, Z.values))
+            types.extend(map(str, Z.types))
+            props.extend(Z.props)
+        return dict(id=ids, model=models, values=values, types=types, props=props)
 
     def _make_data_table(self) -> DataTable:
         """ Builds the datatable portion of the final plot.
