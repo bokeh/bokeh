@@ -41,6 +41,17 @@ New features
   ``figure()`` API supports the equivalent ``tools: null``
   (:bokeh-issue:`15747`).
 * Reduced verboseness of server debug logs (:bokeh-pull:`13038`)
+* Bokeh properties are now typed for static type checkers. Accessing a
+  property on a model gives the type of its value, e.g. ``int | None`` for
+  ``Nullable(Int)``, ``list[Renderer]`` for ``List(Instance(Renderer))`` or
+  a ``Literal`` union for ``Enum(...)``, and accessing it on a model class
+  gives a ``PropertyDescriptor``. Assignments are checked as well, and may
+  accept more types than values have, e.g. ``list[Row]`` can be assigned to
+  ``List(Instance(UIElement))``, because assignments to lists, sets and
+  dicts are typed as ``Sequence``, ``AbstractSet`` and ``Mapping``
+  respectively (:bokeh-issue:`14814`), values accepted by ``.accepts()``,
+  e.g. strings by ``Plot.title``, are accepted, and ``Readonly`` properties
+  can't be assigned to (:bokeh-issue:`15760`).
 
 Removals
 --------
@@ -111,6 +122,32 @@ API changes
 * Generic property base classes and ``Value`` now default their type parameter
   to ``Any`` when it is omitted. Explicit type arguments and constructor
   inference continue to preserve more specific types.
+
+* ``Property`` and its subclasses are now generic in two type parameters,
+  the type of values of a property and the type of values that can be
+  assigned to it, e.g. ``Property[list[int], Sequence[int]]``. The second
+  one defaults to the first one, so e.g. ``Property[int]`` is still valid.
+  Generic subclasses of properties must list both type arguments in their
+  base classes, e.g. ``class MyProp[G, S](SingleParameterizedProperty[G, S])``,
+  because Python doesn't substitute defaults of type parameters that refer
+  to other type parameters at runtime (:bokeh-issue:`15760`).
+
+* Default values of properties are now checked by type checkers against
+  the types of values that can be assigned to properties. Callable defaults,
+  e.g. ``lambda: []`` or ``InstanceDefault(Model)``, are accepted as well.
+
+* Overrides of properties in derived models should now be named after the
+  overridden property prefixed with an underscore, e.g.
+  ``_width = Override(default=600)`` to override ``width``. This way the
+  property isn't redefined, so type checkers retain its type. Optionally,
+  the overridden property can be given, e.g.
+  ``_width = Override(LayoutDOM.width, default=600)``, to allow type checkers
+  to verify the type of the default value. Overrides named exactly like
+  properties continue to work (:bokeh-issue:`15760`).
+
+* Inferring literal types of enumerations, e.g. of ``Enum(Location)``,
+  relies on ``TypeForm`` (PEP 747). With pyright, this requires version
+  1.1.414 or newer. Earlier versions infer such types as ``Unknown``.
 
 * Use ``GlyphRenderer.add_path_marking()`` to add a marking at a named or
   fractional position. In Python, call ``renderer.add_path_marking(head, at="end")``.
