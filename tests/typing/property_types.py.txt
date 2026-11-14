@@ -6,7 +6,7 @@
 # Lines marked with "KNOWN GAP" assert the intended type, which type checkers
 # can't infer yet. Remove the error markers when a gap is closed.
 
-from typing import Any as AnyType, Literal, Sequence, assert_type
+from typing import Any as AnyType, Literal, Mapping, Never, Sequence, assert_type
 
 from bokeh.core.enums import Location
 from bokeh.core.has_props import HasProps
@@ -32,6 +32,7 @@ from bokeh.core.property.instance import Instance, InstanceDefault
 from bokeh.core.property.nullable import Nullable
 from bokeh.core.property.numeric import Angle, Byte, Interval, NonNegative, Percent, Positive, Size
 from bokeh.core.property.primitive import Bool, Bytes, Complex, Float, Int, Null, String
+from bokeh.core.property.readonly import Readonly
 from bokeh.core.property.string import MathString, Regex
 
 
@@ -93,7 +94,7 @@ class Containers(HasProps):
     column_data_prop = ColumnData(String, Seq(Any))
     relative_delta_prop = RelativeDelta()
     array_prop = Array(Float)
-    seq_prop = Seq(Int)  # KNOWN GAP # mypy: var-annotated
+    seq_prop = Seq(Int)
     tuple_prop = Tuple(Int, String)
     restricted_dict_prop = RestrictedDict(String, Int, disallow=("x",))
     restricted_dict_invalid_disallow_prop = RestrictedDict(String, Int, disallow=(1,))  # mypy: misc; pyright: reportArgumentType
@@ -111,14 +112,14 @@ assert_type(containers.dict_prop, dict[str, float])
 assert_type(containers.column_data_prop, dict[str, AnyType])
 assert_type(containers.relative_delta_prop, dict[str, int])
 assert_type(containers.array_prop, AnyType)
-assert_type(containers.seq_prop, Sequence[int])  # KNOWN GAP # mypy: assert-type; pyright: reportAssertTypeFailure
+assert_type(containers.seq_prop, Sequence[int])
 assert_type(containers.tuple_prop, tuple[int, str])  # KNOWN GAP # mypy: assert-type; pyright: reportAssertTypeFailure
 assert_type(containers.restricted_dict_prop, dict[str, int])
 assert_type(containers.non_empty_prop, list[int])
 assert_type(containers.len_prop, list[float])
 
-assert_type(Containers.list_prop, PropertyDescriptor[list[int]])
-assert_type(Containers.dict_prop, PropertyDescriptor[dict[str, float]])
+assert_type(Containers.list_prop, PropertyDescriptor[list[int], Sequence[int]])
+assert_type(Containers.dict_prop, PropertyDescriptor[dict[str, float], Mapping[str, float]])
 
 
 class Combinations(HasProps):
@@ -161,8 +162,8 @@ assert_type(combinations.dict_of_dicts, dict[int, dict[str, float]])
 assert_type(combinations.dict_of_lists_of_instances, dict[str, list[Child]])
 assert_type(combinations.non_empty_list_of_instances, list[Child])
 
-assert_type(Combinations.list_of_lists, PropertyDescriptor[list[list[int]]])
-assert_type(Combinations.list_of_instances, PropertyDescriptor[list[Child]])
+assert_type(Combinations.list_of_lists, PropertyDescriptor[list[list[int]], Sequence[Sequence[int]]])
+assert_type(Combinations.list_of_instances, PropertyDescriptor[list[Child], Sequence[Child]])
 
 # Assignment is checked against nested value types.
 combinations.list_of_lists = [[1, 2], [3]]
@@ -267,3 +268,51 @@ enums.either_auto_prop = "auto"
 
 enums.enum_prop = "nowhere"  # mypy: assignment; pyright: reportAttributeAccessIssue
 enums.either_auto_prop = "manual"  # mypy: assignment; pyright: reportAttributeAccessIssue
+
+
+# Assignment types can be wider than value types, e.g. because containers
+# are invariant.
+
+class UIElement(HasProps):
+    pass
+
+
+class Row(UIElement):
+    pass
+
+
+class Assignments(HasProps):
+    children = List(Instance(UIElement))
+    nested_children = List(List(Instance(UIElement)))
+    nullable_children = Nullable(List(Instance(UIElement)))
+    mapping = Dict(String, Instance(UIElement))
+    items = Set(Instance(UIElement))
+    readonly = Readonly(Int)
+    readonly_with_default = Readonly(Int, default=1)
+
+
+assignments = Assignments()
+
+assert_type(assignments.children, list[UIElement])
+assert_type(assignments.mapping, dict[str, UIElement])
+assert_type(assignments.readonly, int)
+
+assert_type(Assignments.children, PropertyDescriptor[list[UIElement], Sequence[UIElement]])
+assert_type(Assignments.mapping, PropertyDescriptor[dict[str, UIElement], Mapping[str, UIElement]])
+assert_type(Assignments.readonly, PropertyDescriptor[int, Never])
+
+rows: list[Row] = [Row()]
+row_mapping: dict[str, Row] = {"a": Row()}
+
+assignments.children = rows  # see issue #14814
+assignments.nested_children = [rows]
+assignments.nullable_children = rows
+assignments.mapping = row_mapping
+assignments.items = {Row()}
+
+# KNOWN GAP: type checkers accept tuples, but List() accepts only lists at runtime.
+assignments.children = (Row(),)
+
+assignments.children = [Child()]  # mypy: list-item; pyright: reportAttributeAccessIssue
+assignments.mapping = {"a": Child()}  # mypy: dict-item; pyright: reportAttributeAccessIssue
+assignments.readonly = 1  # mypy: assignment; pyright: reportAttributeAccessIssue
