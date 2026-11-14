@@ -22,6 +22,7 @@ bokeh.io.export
 
 .. automodule:: bokeh.io.export
     :members:
+    :imported-members:
 
 .. _bokeh.io.notebook:
 

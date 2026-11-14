@@ -24,13 +24,15 @@ import os
 from os.path import abspath, expanduser, splitext
 from typing import TYPE_CHECKING
 
-from ..resources import INLINE
-from . import browser as _browser
+from .browser import (
+    get_screenshot_as_png,
+    get_screenshot_as_png_from_html,
+    get_svg,
+    get_svgs,
+)
 from .util import default_filename, get_layout_html
 
 if TYPE_CHECKING:
-    from PIL import Image
-
     try:
         from playwright.sync_api import Browser, BrowserContext
     except ImportError:
@@ -44,7 +46,6 @@ if TYPE_CHECKING:
     from ..core.types import PathLike
     from ..document import Document
     from ..models.ui import UIElement
-    from ..resources import ResourcesLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -56,6 +57,8 @@ __all__ = (
     'export_svgs',
     'get_layout_html',
     'get_screenshot_as_png',
+    'get_screenshot_as_png_from_html',
+    'get_svg',
     'get_svgs',
 )
 
@@ -201,83 +204,6 @@ def export_svgs(obj: UIElement | Document, *, filename: str | None = None, width
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
-
-def get_screenshot_as_png(obj: UIElement | Document, *, driver: DriverLike | None = None, timeout: int = 5,
-        resources: ResourcesLike = INLINE, width: int | None = None, height: int | None = None,
-        scale_factor: float = 1) -> Image.Image:
-    ''' Get a screenshot of a ``UIElement`` object.
-
-    Args:
-        obj (UIElement or Document) : a Layout (Row/Column), Plot or Widget
-            object or Document to export.
-
-        driver (playwright Browser or BrowserContext) :
-            An optional Playwright browser or browser context to use for export.
-
-        timeout (int) : the maximum amount of time to wait for initialization.
-            It will be used as a timeout for loading Bokeh, then when waiting for
-            the layout to be rendered.
-
-        resources (Resources): information relating to loading or embedding Bokeh
-            JavaScript and CSS, defaults to ``"inline"`` mode
-
-        width (int) : the desired width of the exported layout.
-
-        height (int) : the desired height of the exported layout.
-
-        scale_factor (float, optional) : A factor to scale the output PNG by,
-            providing a higher resolution while maintaining element relative
-            scales.
-
-    Returns:
-        PIL.Image.Image : a pillow image loaded from PNG.
-
-    .. warning::
-        Responsive sizing_modes may generate layouts with unexpected size and
-        aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
-
-    '''
-    return _browser.get_screenshot_as_png(
-        obj, driver=driver, timeout=timeout, resources=resources,
-        width=width, height=height, scale_factor=scale_factor,
-    )
-
-
-def get_screenshot_as_png_from_html(html: str, *, driver: DriverLike | None = None, timeout: int = 5,
-        scale_factor: float = 1) -> Image.Image:
-    '''Capture a fully assembled Bokeh HTML document as one PNG image.
-
-    Args:
-        html:
-            The complete HTML document to render.
-        driver:
-            An optional Playwright browser or browser context.
-        timeout:
-            Maximum time in seconds to wait for Bokeh rendering.
-        scale_factor:
-            The output image scale factor.
-
-    Returns:
-        The rendered PNG image.
-
-    '''
-    return _browser.get_screenshot_as_png_from_html(
-        html, driver=driver, timeout=timeout, scale_factor=scale_factor,
-    )
-
-def get_svg(obj: UIElement | Document, *, driver: DriverLike | None = None, timeout: int = 5,
-        resources: ResourcesLike = INLINE, width: int | None = None, height: int | None = None) -> list[str]:
-    return _browser.get_svg(
-        obj, driver=driver, timeout=timeout, resources=resources,
-        width=width, height=height,
-    )
-
-def get_svgs(obj: UIElement | Document, *, driver: DriverLike | None = None, timeout: int = 5,
-        resources: ResourcesLike = INLINE, width: int | None = None, height: int | None = None) -> list[str]:
-    return _browser.get_svgs(
-        obj, driver=driver, timeout=timeout, resources=resources,
-        width=width, height=height,
-    )
 
 #-----------------------------------------------------------------------------
 # Private API

@@ -116,6 +116,13 @@ def get_screenshot_as_png(
         scale_factor (float, optional) : A factor to scale the output PNG by,
             providing a higher resolution while maintaining element relative
             scales.
+
+    Returns:
+        PIL.Image.Image : a Pillow image loaded from PNG.
+
+    .. warning::
+        Responsive sizing modes may produce unexpected sizes or aspect ratios.
+        Use fixed sizing when the exported dimensions matter.
     '''
     html = get_layout_html(obj, resources=resources, width=width, height=height)
 
