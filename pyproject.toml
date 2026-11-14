@@ -272,6 +272,7 @@ ignore_errors = true
 module = [
     "tests.codebase.*",
     "tests.conftest",
+    "tests.tools.*",
     "tests.support.defaults",
     "tests.test_bokehjs",
     "tests.test_cross",
