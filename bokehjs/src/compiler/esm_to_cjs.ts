@@ -10,6 +10,9 @@
 // respective `require()`. A module in a cycle can still observe exports, which aren't
 // initialized yet, if it accesses them during its own evaluation (as in ESM). Re-exports
 // and exports of reassigned bindings are live (getters), other exports are plain values.
+//
+// Top-level declarations that would collide with parameters of module wrappers (e.g.
+// `const exports = 1`, which is valid in ESM) are renamed.
 import MagicString from "magic-string"
 import * as eslint_scope from "eslint-scope"
 
@@ -34,6 +37,9 @@ function bound_names(pattern: Node): string[] {
 
 const is_identifier = (name: string) => /^[A-Za-z_$][\w$]*$/.test(name)
 const prop = (obj: string, name: string) => is_identifier(name) ? `${obj}.${name}` : `${obj}[${JSON.stringify(name)}]`
+
+// parameters of module wrappers in bundles (see `link_module()` in transforms.ts)
+const wrapper_params = new Set(["require", "module", "exports", "__esModule", "__esExport"])
 
 type Source = {
   spec: string
@@ -84,6 +90,29 @@ export function to_cjs(file: string, code: string): {code: string, map: SourceMa
   }
 
   const str = new MagicString(code)
+
+  const scopes = eslint_scope.analyze(program as any, {ecmaVersion: 2025, sourceType: "module"})
+  const module_scope = scopes.globalScope!.childScopes.find((scope) => scope.type == "module")!
+
+  // Rename top-level declarations that would shadow parameters of module wrappers.
+  const renamed = new Map<string, string>()
+  for (const variable of module_scope.variables) {
+    if (!wrapper_params.has(variable.name) || variable.defs.some((def) => def.type == "ImportBinding")) {
+      continue
+    }
+    const name = fresh(variable.name)
+    renamed.set(variable.name, name)
+    const ids = new Set([...variable.defs.map((def) => def.name), ...variable.references.map((ref) => ref.identifier)] as unknown as Node[])
+    for (const id of ids) {
+      const parent = parents.get(id)
+      if (parent?.type == "Property" && parent.shorthand && parent.value == id) {
+        str.overwrite(id.start, id.end, `${variable.name}: ${name}`)
+      } else {
+        str.overwrite(id.start, id.end, name)
+      }
+    }
+  }
+  const local_name = (name: string) => renamed.get(name) ?? name
 
   // Module sources, in the order of first appearance (i.e. evaluation order).
   const sources = new Map<string, Source>()
@@ -275,8 +304,6 @@ export function to_cjs(file: string, code: string): {code: string, map: SourceMa
   }
 
   // Rewrite references to imported bindings.
-  const scopes = eslint_scope.analyze(program as any, {ecmaVersion: 2025, sourceType: "module"})
-  const module_scope = scopes.globalScope!.childScopes.find((scope) => scope.type == "module")!
   const in_removed = (pos: number) => removed.some(([start, end]) => start <= pos && pos < end)
 
   // Whether `node` is the first token of an expression statement in a statement list, i.e.
@@ -361,13 +388,13 @@ export function to_cjs(file: string, code: string): {code: string, map: SourceMa
       const is_namespace = [...sources.values()].some((source) => source.local == value)
       push(after_require, import_stmt, (is_namespace ? assign : live)(name, value))
     } else if (reassigned.has(local)) {
-      top.push(live(name, local))
+      top.push(live(name, local_name(local)))
     } else if (decl == null) {
-      end.push(assign(name, local)) // e.g. `var` in a block
+      end.push(assign(name, local_name(local))) // e.g. `var` in a block
     } else if (decl.hoisted) {
-      top.push(assign(name, local))
+      top.push(assign(name, local_name(local)))
     } else {
-      push(after_stmt, decl.stmt, assign(name, local))
+      push(after_stmt, decl.stmt, assign(name, local_name(local)))
     }
   }
   // star exports don't override local ones, so must come after them

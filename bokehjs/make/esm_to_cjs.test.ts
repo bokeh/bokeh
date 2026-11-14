@@ -182,6 +182,26 @@ void test("to_cjs() preserves live bindings of re-exports", () => {
   assert.deepEqual(run(modules).result, [0, 0, 1, 1])
 })
 
+void test("to_cjs() renames top-level declarations colliding with parameters of module wrappers", () => {
+  const main = run({
+    "./main": `
+      import {value, fn} from "./lib"
+      export const result = [value, fn()]
+    `,
+    "./lib": `
+      const exports = 1
+      let module = {exports}
+      module = {...module, more: 2}
+      function require() { return "require" }
+      export {exports as value}
+      export function fn() { return [module, require()] }
+      const __esModule = 3, __esExport = 4
+      export const other = [__esModule, __esExport]
+    `,
+  })
+  assert.deepEqual(main.result, [1, [{exports: 1, more: 2}, "require"]])
+})
+
 void test("to_cjs() calls imported functions with undefined `this`", () => {
   const main = run({
     "./main": `
