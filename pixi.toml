@@ -91,7 +91,7 @@ h5py = "*"
 icalendar = "*"
 ipython = "*"
 json5 = "*"
-mypy = ">=1.20"
+mypy = ">=2.2" # TypeForm (PEP 747) without experimental features
 nbconvert = ">=5.4"
 networkx = "*"
 notebook = "*"
@@ -137,7 +137,7 @@ vermin = "*"
 [feature.full-deps.pypi-dependencies]
 bokeh_sampledata = ">=2026.1"
 pyarrow = ">=14.0"
-pyright = "*"
+pyright = ">=1.1.414" # TypeForm (PEP 747) without experimental features
 requests-unixsocket = ">=0.3.0"
 
 # Packages intentionally omitted from the free-threaded environment because
@@ -164,7 +164,7 @@ h5py = "*"
 icalendar = "*"
 ipython = "*"
 json5 = "*"
-mypy = ">=1.20"
+mypy = ">=2.2" # TypeForm (PEP 747) without experimental features
 narwhals = "<1.14"
 nbconvert = ">=5.4"
 numpy = "2.1.*"
@@ -194,7 +194,7 @@ types-requests = "*"
 urllib3 = "<2" # See https://github.com/bokeh/bokeh/issues/13152 and #13407.
 
 [feature.minimal-deps.pypi-dependencies]
-pyright = "*"
+pyright = ">=1.1.414" # TypeForm (PEP 747) without experimental features
 requests-unixsocket = ">=0.3.0"
 
 [feature.downstream-deps]
