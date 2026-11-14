@@ -84,7 +84,7 @@ __all__ = (
 def get_screenshot_as_png(
     obj: UIElement | Document,
     *,
-    driver: Browser | BrowserContext | None = None,
+    browser: Browser | BrowserContext | None = None,
     timeout: int = 5,
     resources: ResourcesLike = INLINE,
     width: int | None = None,
@@ -97,7 +97,7 @@ def get_screenshot_as_png(
         obj (UIElement or Document) : a Layout (e.g. Row/Column), Plot or Widget
             object or Document to export.
 
-        driver: An optional Playwright ``Browser`` or ``BrowserContext``.
+        browser: An optional Playwright ``Browser`` or ``BrowserContext``.
             If provided, pages are created from it instead of the global
             ``playwright_control`` instance.  This allows callers to
             supply a ``launch_persistent_context`` or a custom browser.
@@ -126,13 +126,13 @@ def get_screenshot_as_png(
     '''
     html = get_layout_html(obj, resources=resources, width=width, height=height)
 
-    return get_screenshot_as_png_from_html(html, driver=driver, timeout=timeout, scale_factor=scale_factor)
+    return get_screenshot_as_png_from_html(html, browser=browser, timeout=timeout, scale_factor=scale_factor)
 
 
 def get_screenshot_as_png_from_html(
     html: str,
     *,
-    driver: Browser | BrowserContext | None = None,
+    browser: Browser | BrowserContext | None = None,
     timeout: int = 5,
     scale_factor: float = 1,
 ) -> Image.Image:
@@ -141,7 +141,7 @@ def get_screenshot_as_png_from_html(
     Args:
         html:
             The complete HTML document to render.
-        driver:
+        browser:
             An optional Playwright browser or browser context.
         timeout:
             Maximum time in seconds to wait for Bokeh rendering.
@@ -153,7 +153,7 @@ def get_screenshot_as_png_from_html(
 
     '''
 
-    png_bytes, vw, vh, dpr = _playwright_render(html, "", timeout, scale_factor=scale_factor, driver=driver)
+    png_bytes, vw, vh, dpr = _playwright_render(html, "", timeout, scale_factor=scale_factor, browser=browser)
 
     from PIL import Image  # `PIL` is banned at the module level based on Ruff TID253
     return (Image
@@ -166,7 +166,7 @@ def get_screenshot_as_png_from_html(
 def get_svg(
     obj: UIElement | Document,
     *,
-    driver: Browser | BrowserContext | None = None,
+    browser: Browser | BrowserContext | None = None,
     timeout: int = 5,
     resources: ResourcesLike = INLINE,
     width: int | None = None,
@@ -174,14 +174,14 @@ def get_svg(
 ) -> list[str]:
     '''Export a Bokeh layout as a list of SVG strings using Playwright.'''
     html = get_layout_html(obj, resources=resources, width=width, height=height)
-    svgs: list[str] = _playwright_render(html, _SVG_SCRIPT(obj), timeout, driver=driver)[0]
+    svgs: list[str] = _playwright_render(html, _SVG_SCRIPT(obj), timeout, browser=browser)[0]
     return svgs
 
 
 def get_svgs(
     obj: UIElement | Document,
     *,
-    driver: Browser | BrowserContext | None = None,
+    browser: Browser | BrowserContext | None = None,
     timeout: int = 5,
     resources: ResourcesLike = INLINE,
     width: int | None = None,
@@ -189,7 +189,7 @@ def get_svgs(
 ) -> list[str]:
     '''Export SVG-enabled plots within a Bokeh layout using Playwright.'''
     html = get_layout_html(obj, resources=resources, width=width, height=height)
-    svgs: list[str] = _playwright_render(html, _SVGS_SCRIPT, timeout, driver=driver)[0]
+    svgs: list[str] = _playwright_render(html, _SVGS_SCRIPT, timeout, browser=browser)[0]
     return svgs
 
 
@@ -388,7 +388,7 @@ async def _maximize_viewport(page: AsyncPage) -> tuple[float, float, int, int, i
 def _playwright_render(
     html: str, script: str, timeout: int, *,
     scale_factor: float = 1,
-    driver: Browser | BrowserContext | None = None,
+    browser: Browser | BrowserContext | None = None,
 ) -> tuple[Any, int, int, int]:
     '''Run a single Playwright export: navigate, wait for render, execute script.
 
@@ -398,7 +398,7 @@ def _playwright_render(
             PNG screenshot instead.
         timeout: Seconds to wait for Bokeh to render.
         scale_factor: Device scale factor for the browser.
-        driver: An optional Playwright ``Browser`` or ``BrowserContext``
+        browser: An optional Playwright ``Browser`` or ``BrowserContext``
             to create pages from.  When *None*, the global
             ``playwright_control`` instance is used.
 
@@ -406,8 +406,8 @@ def _playwright_render(
         (result, width, height, dpr) where result is the script return value
         or PNG bytes if script is empty.
     '''
-    def _do_export(user_driver: Browser | BrowserContext) -> tuple[Any, int, int, int]:
-        page = user_driver.new_page()
+    def _do_export(user_browser: Browser | BrowserContext) -> tuple[Any, int, int, int]:
+        page = user_browser.new_page()
         try:
             with tmp_html() as tmp:
                 with tmp as f:
@@ -443,8 +443,8 @@ def _playwright_render(
             await playwright_control.close_page(page)
         return (result, w, h, dpr)
 
-    if driver is not None:
-        return _do_export(driver)
+    if browser is not None:
+        return _do_export(browser)
     return _playwright_thread.run(_do_export_async)
 
 

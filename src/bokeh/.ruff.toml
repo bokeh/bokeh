@@ -5,7 +5,6 @@ banned-module-level-imports = [
     "ipython",
     "pandas",
     "PIL",
-    "selenium",
     "bokeh.core.properties",
     "xyzservices",
 ]

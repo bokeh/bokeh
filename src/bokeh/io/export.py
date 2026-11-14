@@ -41,7 +41,7 @@ if TYPE_CHECKING:
             Any as BrowserContext,
         )
 
-    DriverLike = Browser | BrowserContext
+    BrowserLike = Browser | BrowserContext
 
     from ..core.types import PathLike
     from ..document import Document
@@ -67,7 +67,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, width: int | None = None,
-        height: int | None = None, scale_factor: float = 1, browser: DriverLike | None = None,
+        height: int | None = None, scale_factor: float = 1, browser: BrowserLike | None = None,
         timeout: int = 5) -> str:
     ''' Export the ``UIElement`` object or document as a PNG.
 
@@ -109,7 +109,7 @@ def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, w
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    image = get_screenshot_as_png(obj, width=width, height=height, scale_factor=scale_factor, driver=browser,
+    image = get_screenshot_as_png(obj, width=width, height=height, scale_factor=scale_factor, browser=browser,
                                   timeout=timeout)
 
     if filename is None:
@@ -124,7 +124,7 @@ def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, w
     return abspath(expanduser(filename))
 
 def export_svg(obj: UIElement | Document, *, filename: PathLike | None = None, width: int | None = None,
-        height: int | None = None, browser: DriverLike | None = None, timeout: int = 5) -> list[str]:
+        height: int | None = None, browser: BrowserLike | None = None, timeout: int = 5) -> list[str]:
     ''' Export a layout as SVG file or a document as a set of SVG files.
 
     If the filename is not given, it is derived from the script name
@@ -156,11 +156,11 @@ def export_svg(obj: UIElement | Document, *, filename: PathLike | None = None, w
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    svgs = get_svg(obj, width=width, height=height, driver=browser, timeout=timeout)
+    svgs = get_svg(obj, width=width, height=height, browser=browser, timeout=timeout)
     return _write_collection(svgs, filename, "svg")
 
 def export_svgs(obj: UIElement | Document, *, filename: str | None = None, width: int | None = None,
-        height: int | None = None, browser: DriverLike | None = None, timeout: int = 5) -> list[str]:
+        height: int | None = None, browser: BrowserLike | None = None, timeout: int = 5) -> list[str]:
     ''' Export the SVG-enabled plots within a layout. Each plot will result
     in a distinct SVG file.
 
@@ -193,7 +193,7 @@ def export_svgs(obj: UIElement | Document, *, filename: str | None = None, width
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    svgs = get_svgs(obj, width=width, height=height, driver=browser, timeout=timeout)
+    svgs = get_svgs(obj, width=width, height=height, browser=browser, timeout=timeout)
 
     if len(svgs) == 0:
         log.warning("No SVG Plots were found.")

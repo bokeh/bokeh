@@ -71,6 +71,8 @@ Removals
   Playwright to export PNG or SVG. In ``export_png()``, ``export_svg()``, and
   ``export_svgs()``, replace ``webdriver=`` with ``browser=`` and pass a
   Playwright ``Browser`` or ``BrowserContext``.
+  The lower-level PNG and SVG rendering helpers also use ``browser=``
+  in place of ``driver=``.
 * In BokehJS, use the ``contrast`` theme in place of ``constrast`` and
   ``IndexedSubset.filter`` in place of ``IndexedSubset.filters``.
 * BokehJS widget extensions can use ``Widget`` and ``WidgetView`` in place

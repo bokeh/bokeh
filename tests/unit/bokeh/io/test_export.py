@@ -100,7 +100,7 @@ def test_get_screenshot_as_png_with_unicode_minified(browser: Browser) -> None:
     p = figure(title="유니 코드 지원을위한 작은 테스트")
 
     with silenced(MISSING_RENDERERS):
-        png = bie.get_screenshot_as_png(p, driver=browser, resources=Resources(mode="inline", minified=True))
+        png = bie.get_screenshot_as_png(p, browser=browser, resources=Resources(mode="inline", minified=True))
 
     assert len(png.tobytes()) > 0
 
@@ -108,7 +108,7 @@ def test_get_screenshot_as_png_with_unicode_unminified(browser: Browser) -> None
     p = figure(title="유니 코드 지원을위한 작은 테스트")
 
     with silenced(MISSING_RENDERERS):
-        png = bie.get_screenshot_as_png(p, driver=browser, resources=Resources(mode="inline", minified=False))
+        png = bie.get_screenshot_as_png(p, browser=browser, resources=Resources(mode="inline", minified=False))
 
     assert len(png.tobytes()) > 0
 
@@ -125,7 +125,7 @@ def test_get_svg_no_svg_present(browser: Browser) -> None:
     )
 
     with silenced(MISSING_RENDERERS):
-        svgs = bie.get_svg(layout, driver=browser)
+        svgs = bie.get_svg(layout, browser=browser)
 
     assert isinstance(svgs, list) and len(svgs) == 1
     [svg] = svgs
@@ -149,8 +149,8 @@ def test_get_svg_with_svg_present(browser: Browser) -> None:
     layout = row([plot("red"), plot("blue")])
 
     with silenced(MISSING_RENDERERS):
-        svgs0 = bie.get_svg(layout, driver=browser)
-        svgs1 = bie.get_svg(layout, driver=browser)
+        svgs0 = bie.get_svg(layout, browser=browser)
+        svgs1 = bie.get_svg(layout, browser=browser)
 
     svgs2 = [
         '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="40" height="20">'
@@ -187,14 +187,14 @@ def test_get_svg_with_document_theme(browser: Browser) -> None:
         return plot
 
     document.add_root(row([p("red"), p("blue")]))
-    [svg] = bie.get_svg(document, driver=browser)
+    [svg] = bie.get_svg(document, browser=browser)
     assert len(re.findall(r'fill="#2f3f4f"', svg)) == 2
 
 def test_get_svgs_no_svg_present(browser: Browser) -> None:
     layout = Plot(x_range=Range1d(), y_range=Range1d(), height=20, width=20, toolbar_location=None)
 
     with silenced(MISSING_RENDERERS):
-        svgs = bie.get_svgs(layout, driver=browser)
+        svgs = bie.get_svgs(layout, browser=browser)
 
     assert svgs == []
 
@@ -211,8 +211,8 @@ def test_get_svgs_with_svg_present(browser: Browser) -> None:
     layout = row([plot("red"), plot("blue")])
 
     with silenced(MISSING_RENDERERS):
-        svgs0 = bie.get_svgs(layout, driver=browser)
-        svgs1 = bie.get_svgs(layout, driver=browser)
+        svgs0 = bie.get_svgs(layout, browser=browser)
+        svgs1 = bie.get_svgs(layout, browser=browser)
 
     svgs2 = [
         '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20">'
@@ -245,7 +245,7 @@ def test_get_svgs_with_Legend__issue_14502(browser: Browser) -> None:
     layout = row([plot("red"), plot("blue")])
 
     with silenced(MISSING_RENDERERS):
-        svgs = bie.get_svgs(layout, driver=browser)
+        svgs = bie.get_svgs(layout, browser=browser)
 
     assert len(svgs) == 2
 
@@ -286,7 +286,7 @@ class TestPlaywrightPNG:
                       outline_line_color=None, background_fill_color="#00ff00", border_fill_color="#00ff00")
 
         with silenced(MISSING_RENDERERS):
-            png = bie.get_screenshot_as_png(layout, driver=browser)
+            png = bie.get_screenshot_as_png(layout, browser=browser)
 
         assert png.size == (width, height)
         data = png.tobytes()
@@ -309,7 +309,7 @@ class TestPlaywrightPNG:
         source = ColumnDataSource(data=dict(x=[0], y=[0]))
         layout.add_glyph(source, glyph)
 
-        png = bie.get_screenshot_as_png(layout, driver=browser)
+        png = bie.get_screenshot_as_png(layout, browser=browser)
         assert png.size == (width, height)
 
         # The layout is a green border surrounding a red center rectangle. The
@@ -322,7 +322,7 @@ class TestPlaywrightPNG:
 
     def test_screenshot_fractional_sizing(self, browser: Browser) -> None:
         div = Div(text="Something", styles=dict(width="100.64px", height="50.34px"))
-        png = bie.get_screenshot_as_png(div, driver=browser)
+        png = bie.get_screenshot_as_png(div, browser=browser)
         assert len(png.tobytes()) > 0
 
     def test_default_export_uses_installed_package_offline(
@@ -366,7 +366,7 @@ class TestPlaywrightPNG:
                 context.on("request", lambda request: requests.append(request.url))
                 png = bie.get_screenshot_as_png(
                     LocalExportDiv(width=40, height=30, text="", styles={"background-color": "#00ff00"}),
-                    driver=context,
+                    browser=context,
                 )
 
             assert png.size == (40, 30)
@@ -392,7 +392,7 @@ class TestPlaywrightSVG:
             output_backend="canvas",
         )
         with silenced(MISSING_RENDERERS):
-            svgs = bie.get_svg(layout, driver=browser)
+            svgs = bie.get_svg(layout, browser=browser)
         assert isinstance(svgs, list) and len(svgs) == 1
         [svg] = svgs
         assert 'fill="red"' in svg
@@ -410,7 +410,7 @@ class TestPlaywrightSVG:
             )
         layout = row([plot("red"), plot("blue")])
         with silenced(MISSING_RENDERERS):
-            svgs = bie.get_svgs(layout, driver=browser)
+            svgs = bie.get_svgs(layout, browser=browser)
         assert len(svgs) == 2
         assert "Legend Item: red" in svgs[0]
         assert "Legend Item: blue" in svgs[1]
