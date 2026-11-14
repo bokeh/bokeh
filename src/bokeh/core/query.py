@@ -28,6 +28,7 @@ from typing import (
     Any,
     Callable,
     Iterable,
+    Mapping,
 )
 
 if TYPE_CHECKING:
@@ -52,7 +53,10 @@ __all__ = (
     'is_single_string_selector',
 )
 
-type SelectorType = dict[str | type["_Operator"], Any]
+# Keys are strings or operators. They aren't typed as such, because mappings are invariant
+# in keys, so e.g. dict(type=Plot), which is dict[str, type[Plot]], wouldn't be accepted, and
+# unions of mappings break inference of selectors like {OR: [...]} in mypy.
+type SelectorType = Mapping[Any, Any]
 
 #-----------------------------------------------------------------------------
 # General API

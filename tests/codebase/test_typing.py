@@ -29,6 +29,7 @@ from tests.support.util.project import TOP_PATH
     "property_types",
     "model_axes",
     "model_sources",
+    "model_select",
 ])
 def test_consumer_types(checker: str, fixture: str, tmp_path: Path) -> None:
     # Copy fixtures outside the tests package so Mypy's test-module exclusions
