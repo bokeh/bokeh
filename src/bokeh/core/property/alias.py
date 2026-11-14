@@ -80,10 +80,13 @@ class Alias[T](Property[T]):
         return False
 
     def __init__(self, aliased_name: str, *, help: str | None = None) -> None:
+        # Intentionally doesn't call Property.__init__(). An alias has no value,
+        # default or serialization state of its own, as AliasPropertyDescriptor
+        # delegates all of that to the aliased property, so Property.__init__()'s
+        # setup of the default, serialization and docstring doesn't apply here.
         self.aliased_name = aliased_name
         self._help = help
-        self.alternatives = []
-        self.assertions = []
+        self._init_constraints()
 
     def make_descriptor(self, name: str) -> AliasPropertyDescriptor[T]:
         return AliasPropertyDescriptor(name, self)

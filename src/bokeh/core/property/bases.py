@@ -82,6 +82,12 @@ type Init[T] = T | UndefinedType | _NotGivenType
 
 type ModelInit[T] = T | _NotGivenType
 
+# An alternative type accepted by a property and its converter (see Property.accepts())
+type Alternative[T] = tuple[Property[Any], Callable[[Any], T]]
+
+# A predicate a property's value must satisfy and an error message or handler (see Property.asserts())
+type Assertion[T] = tuple[bool | Callable[[HasProps, T], bool], str | Callable[[HasProps, str, T], None]]
+
 class Property[T = Any]:
     """ Base class for Bokeh property instances, which can be added to Bokeh
     Models.
@@ -100,8 +106,8 @@ class Property[T = Any]:
 
     _self_serialized: bool
 
-    alternatives: list[tuple[Property[Any], Callable[[Any], T]]]
-    assertions: list[tuple[bool | Callable[[HasProps, T], bool], str | Callable[[HasProps, str, T], None]]]
+    alternatives: list[Alternative[T]]
+    assertions: list[Assertion[T]]
 
     def __set_name__(self, owner: type[Any], name: str) -> None:
         own_properties = owner.__dict__.get("__properties__")
@@ -125,6 +131,18 @@ class Property[T = Any]:
         self._help = help
         self.__doc__ = help
 
+        self._init_constraints()
+
+    def _init_constraints(self) -> None:
+        """ Initialize this property's alternatives and assertions.
+
+        Subclasses that don't call ``Property.__init__()`` must call this instead.
+        Assigning these attributes in a subclass's own ``__init__()`` would make
+        them members of that subclass with inferred types, which type checkers
+        (e.g. ``pyright --verifytypes``) consider ambiguous overrides of the
+        declarations above.
+
+        """
         self.alternatives = []
         self.assertions = []
 
