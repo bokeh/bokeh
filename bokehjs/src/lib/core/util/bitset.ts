@@ -17,7 +17,7 @@ export class BitSet implements Equatable {
 
   constructor(readonly size: number, init: Uint32Array | 1 | 0 = 0) {
     this._nwords = Math.ceil(size/BitSet._word_length)
-    if (init == 0 || init == 1) {
+    if (typeof init == "number") {
       this._array = new Uint32Array(this._nwords)
       if (init == 1) {
         this._array.fill(0xffffffff)

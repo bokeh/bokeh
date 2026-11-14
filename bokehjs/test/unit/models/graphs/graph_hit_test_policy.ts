@@ -359,7 +359,7 @@ describe("GraphHitTestPolicy", () => {
         const policy = NodesAndAdjacentNodes.create()
         policy.do_selection(hit_test_result, gr, true, "replace")
 
-        expect(node_source.selected.indices).to.be.equal([0, 2, 1])
+        expect(node_source.selected.indices).to.be.equal([0, 1, 2])
       })
     })
 
@@ -385,7 +385,7 @@ describe("GraphHitTestPolicy", () => {
         const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
 
         expect(did_hit).to.be.true
-        expect(node_source.inspected.indices).to.be.equal([0, 2, 1])
+        expect(node_source.inspected.indices).to.be.equal([0, 1, 2])
       })
     })
   })

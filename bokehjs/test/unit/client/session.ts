@@ -5,7 +5,8 @@ import type {ClientConnection} from "@bokehjs/client/connection"
 import {Document} from "@bokehjs/document"
 import type {Patch} from "@bokehjs/document"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
-import type {CallbackPolicy} from "@bokehjs/model"
+import {Selection} from "@bokehjs/models/selections/selection"
+import type {Model, CallbackPolicy} from "@bokehjs/model"
 import {Message} from "@bokehjs/protocol/message"
 import {delay} from "@bokehjs/core/util/defer"
 
@@ -53,7 +54,7 @@ function server_patch(model: Range1d, attr: string, value: unknown): Message<Pat
   })
 }
 
-function session_for(model: Range1d): {session: ClientSession, connection: FakeConnection} {
+function session_for(model: Model): {session: ClientSession, connection: FakeConnection} {
   const document = new Document({roots: [model]})
   const connection = new FakeConnection()
   const session = new ClientSession(connection as unknown as ClientConnection, document)
@@ -61,6 +62,32 @@ function session_for(model: Range1d): {session: ClientSession, connection: FakeC
 }
 
 describe("ClientSession property synchronization policies", () => {
+  for (const attr of ["indices", "line_indices", "multiline_indices"] as const) {
+    for (const policy of [["immediate", null], ["debounce", 1000]] as CallbackPolicy[]) {
+      const [kind] = policy
+      it(`should preserve binary ${attr} transport with ${kind} delivery`, () => {
+        const model = Selection.create({_subscribed_changes: new Map([[attr, [policy]]])})
+        const {session, connection} = session_for(model)
+        const indices = Array.from({length: 300}, (_, i) => i)
+        model.document!.begin_sync_deferral(model, attr)
+        model.setv({[attr]: attr == "multiline_indices" ? new Map([[7, indices]]) : indices})
+        expect(connection.messages.length).to.be.equal(kind == "immediate" ? 1 : 0)
+        model.document!.request_sync_flush(model, attr)
+        expect(connection.messages.length).to.be.equal(1)
+        const [message] = connection.messages
+        expect(callback_policy(message)).to.be.equal(policy)
+        const frames: (string | ArrayBuffer)[] = []
+        message.send({send(frame: string | ArrayBuffer) { frames.push(frame) }})
+        expect(frames.length).to.be.equal(2)
+        expect((frames[1] as ArrayBuffer).byteLength).to.be.equal(38)
+        const values = attr == "multiline_indices" ? model.multiline_indices.get(7) : model[attr]
+        expect(values).to.be.equal(indices)
+        expect(Array.isArray(values)).to.be.true
+        session.close()
+      })
+    }
+  }
+
   it("should preserve immediate synchronization by default", () => {
     const model = Range1d.create({start: 0, end: 10})
     const {session, connection} = session_for(model)
