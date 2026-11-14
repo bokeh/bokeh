@@ -13,6 +13,8 @@ import type {Rect} from "core/util/affine"
 import {rotate_around, AffineTransform} from "core/util/affine"
 import type {GraphicsBox} from "core/graphics"
 import {TextBox} from "core/graphics"
+import {div, InlineStyleSheet} from "core/dom"
+import type {StyleSheetLike} from "core/dom"
 import type {TextAnchor} from "../common/kinds"
 import {BorderRadius, Padding} from "../common/kinds"
 import * as resolve from "../common/resolve"
@@ -20,6 +22,8 @@ import {round_rect} from "../common/painting"
 import type {VectorVisuals} from "./defs"
 import {sqrt, PI} from "core/util/math"
 import type {OutlineShapeName} from "core/enums"
+
+const {min, max} = Math
 
 class TextAnchorSpec extends p.DataSpec<TextAnchor> {}
 class OutlineShapeSpec extends p.DataSpec<OutlineShapeName> {}
@@ -53,7 +57,7 @@ export class TextView extends XYGlyphView {
     super.after_visuals()
 
     const n = this.data_size
-    const {anchor} = this.base ?? this
+    const {anchor} = this.base_glyph ?? this
     const {padding, border_radius} = this.model
 
     const {text_align, text_baseline} = this.visuals.text
@@ -95,6 +99,117 @@ export class TextView extends XYGlyphView {
 
       this.swidth[i] = width
       this.sheight[i] = height
+    }
+  }
+
+  /** Pool of DOM text nodes, reused between paints. */
+  protected _dom_labels: HTMLElement[] = []
+
+  protected static readonly _dom_style = new InlineStyleSheet(`
+    :host {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    :host > div {
+      position: absolute;
+      box-sizing: border-box;
+      transform-origin: 0 0;
+      white-space: pre;
+      color: transparent;
+    }
+  `, "text")
+
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), TextView._dom_style]
+  }
+
+  /**
+   * Maintains transparent DOM text nodes that mirror canvas labels, so that
+   * text is available to assistive technologies, find-in-page, etc.
+   *
+   * Geometry is reused from canvas painting, so the canvas output (and thus
+   * image export) is unaffected.
+   */
+  override update_dom(indices: Int32Array): void {
+    const {renderer} = this
+    const renderer_bbox = renderer.bbox
+    const frame_bbox = renderer.plot_view.frame.bbox
+
+    if (indices.length == 0 || !renderer_bbox.is_valid) {
+      this.el.remove()
+      return
+    }
+
+    if (this.el.parentNode !== renderer.shadow_el) {
+      // initially, or when the renderer was re-rendered, which empties its shadow root
+      this.render_to(renderer.shadow_el)
+    }
+
+    const {sx, sy, x_offset, y_offset, angle, labels, text} = this
+    const {anchor_: anchor, swidth, sheight, padding} = this
+    const {text_align} = this.visuals.text
+
+    let k = 0
+    for (const i of indices) {
+      const sx_i = sx[i] + x_offset.get(i)
+      const sy_i = sy[i] + y_offset.get(i)
+      const angle_i = angle.get(i)
+      const label_i = labels[i]
+      const text_i = text.get(i)
+
+      if (!isFinite(sx_i + sy_i + angle_i) || label_i == null || text_i == null) {
+        continue
+      }
+
+      // skip labels that are fully outside the frame
+      const {p0, p1, p2, p3} = this.rect_i(i)
+      const left = min(p0.x, p1.x, p2.x, p3.x)
+      const right = max(p0.x, p1.x, p2.x, p3.x)
+      const top = min(p0.y, p1.y, p2.y, p3.y)
+      const bottom = max(p0.y, p1.y, p2.y, p3.y)
+      if (right < frame_bbox.left || left > frame_bbox.right || bottom < frame_bbox.top || top > frame_bbox.bottom) {
+        continue
+      }
+
+      const el = this._dom_labels[k] ??= div()
+      k += 1
+
+      const anchor_i = anchor.get(i)
+      const dx_i = anchor_i.x*swidth[i]
+      const dy_i = anchor_i.y*sheight[i]
+
+      const content = `${text_i}`
+      if (el.textContent != content) {
+        el.textContent = content
+      }
+
+      // Mirrors canvas' translate(sx, sy) -> rotate(angle) -> translate(-dx, -dy).
+      const {style} = el
+      style.left = `${sx_i - renderer_bbox.x}px`
+      style.top = `${sy_i - renderer_bbox.y}px`
+      style.width = `${swidth[i]}px`
+      style.height = `${sheight[i]}px`
+      style.padding = `${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px`
+      style.transform = `rotate(${angle_i}rad) translate(${-dx_i}px, ${-dy_i}px)`
+      if (label_i instanceof TextBox) {
+        style.font = label_i.font
+        style.lineHeight = `${label_i.line_height}`
+      }
+      style.textAlign = text_align.get(i)
+    }
+
+    // Detach unused nodes and attach new ones, preserving index order. The
+    // shadow root may contain other nodes (e.g. stylesheet links), so don't
+    // replace its children wholesale.
+    const {shadow_el} = this
+    for (const el of this._dom_labels.slice(k)) {
+      el.remove()
+    }
+    for (const el of this._dom_labels.slice(0, k)) {
+      if (el.parentNode !== shadow_el) {
+        shadow_el.append(el)
+      }
     }
   }
 
@@ -327,6 +442,42 @@ export class TextView extends XYGlyphView {
       tr.rotate_around(sx_i, sy_i, angle_i)
       return tr.apply_rect(rect)
     }
+  }
+
+  /**
+   * Screen space bounding box of all labels, including their padding,
+   * anchoring and rotation (as opposed to just the anchor points).
+   */
+  override get bbox(): BBox | undefined {
+    if (this.base_glyph != null) {
+      return undefined
+    }
+
+    // labels' geometry isn't known until data is mapped and visuals are computed
+    const {sx, swidth} = this as Partial<Text.Data>
+    if (sx == null || swidth == null) {
+      return BBox.invalid()
+    }
+
+    let left = Infinity
+    let right = -Infinity
+    let top = Infinity
+    let bottom = -Infinity
+
+    for (let i = 0; i < this.data_size; i++) {
+      const {p0, p1, p2, p3} = this.rect_i(i)
+      const xs = [p0.x, p1.x, p2.x, p3.x]
+      const ys = [p0.y, p1.y, p2.y, p3.y]
+      if (!isFinite(xs[0] + ys[0])) {
+        continue
+      }
+      left = min(left, ...xs)
+      right = max(right, ...xs)
+      top = min(top, ...ys)
+      bottom = max(bottom, ...ys)
+    }
+
+    return isFinite(left) ? BBox.from_lrtb({left, right, top, bottom}) : BBox.invalid()
   }
 
   override scenterxy(i: number): [number, number] {

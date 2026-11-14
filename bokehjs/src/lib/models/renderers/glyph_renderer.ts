@@ -188,11 +188,11 @@ export class GlyphRendererView extends DataRendererView {
     const decimated_glyph = glyph_from_mode(decimated_defaults, "auto")
     this.decimated_glyph = await this.build_glyph_view(decimated_glyph)
 
-    this.selection_glyph.set_base(this.glyph)
-    this.nonselection_glyph.set_base(this.glyph)
-    this.hover_glyph?.set_base(this.glyph)
-    this.muted_glyph.set_base(this.glyph)
-    this.decimated_glyph.set_base(this.glyph)
+    this.selection_glyph.set_base_glyph(this.glyph)
+    this.nonselection_glyph.set_base_glyph(this.glyph)
+    this.hover_glyph?.set_base_glyph(this.glyph)
+    this.muted_glyph.set_base_glyph(this.glyph)
+    this.decimated_glyph.set_base_glyph(this.glyph)
 
     await this._set_data()
   }
@@ -541,14 +541,27 @@ export class GlyphRendererView extends DataRendererView {
     return this.glyph.has_webgl()
   }
 
+  override paint(ctx: Context2d): void {
+    super.paint(ctx)
+    if (!(this.displayed && this.is_renderable)) {
+      this.glyph.update_dom(new Int32Array(0))
+    }
+  }
+
   protected _paint(ctx: Context2d): void {
     const {has_webgl} = this
 
     this.map_data()
 
+    // The glyph's bbox may depend on mapped data, which `paint()` didn't have
+    // available when it positioned this renderer, so update it again.
+    this.update_position()
+
     // all_indices is in full data space, indices is converted to subset space by mask_data (that may use the spatial index)
     const all_indices = this.model.view.indices_array
     let indices = this._update_masked_indices().ones()
+
+    this.glyph.update_dom(indices)
 
     // selected is in full set space
     const {selected} = this.model.data_source
