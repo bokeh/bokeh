@@ -68,8 +68,9 @@ Removals
   ``embed().page()``, and ``embed_server().fragment()``. Pass ``session_id``
   to ``embed_server()`` to embed an existing session.
 * Removed Selenium export and the ``BOKEH_EXPORT_BACKEND`` setting. Install
-  Playwright to export PNG or SVG. The ``webdriver`` argument accepts a
-  Playwright browser or browser context.
+  Playwright to export PNG or SVG. In ``export_png()``, ``export_svg()``, and
+  ``export_svgs()``, replace ``webdriver=`` with ``browser=`` and pass a
+  Playwright ``Browser`` or ``BrowserContext``.
 * In BokehJS, use the ``contrast`` theme in place of ``constrast`` and
   ``IndexedSubset.filter`` in place of ``IndexedSubset.filters``.
 * BokehJS widget extensions can use ``Widget`` and ``WidgetView`` in place

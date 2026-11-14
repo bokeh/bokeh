@@ -25,7 +25,7 @@ from os.path import abspath, expanduser, splitext
 from typing import TYPE_CHECKING
 
 from ..resources import INLINE
-from . import browser
+from . import browser as _browser
 from .util import default_filename, get_layout_html
 
 if TYPE_CHECKING:
@@ -64,7 +64,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, width: int | None = None,
-        height: int | None = None, scale_factor: float = 1, webdriver: DriverLike | None = None,
+        height: int | None = None, scale_factor: float = 1, browser: DriverLike | None = None,
         timeout: int = 5) -> str:
     ''' Export the ``UIElement`` object or document as a PNG.
 
@@ -88,7 +88,7 @@ def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, w
             providing a higher resolution while maintaining element relative
             scales.
 
-        webdriver (playwright Browser or BrowserContext) :
+        browser (playwright Browser or BrowserContext) :
             An optional Playwright browser or browser context to use for export.
 
         timeout (int) : the maximum amount of time (in seconds) to wait for
@@ -106,7 +106,7 @@ def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, w
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    image = get_screenshot_as_png(obj, width=width, height=height, scale_factor=scale_factor, driver=webdriver,
+    image = get_screenshot_as_png(obj, width=width, height=height, scale_factor=scale_factor, driver=browser,
                                   timeout=timeout)
 
     if filename is None:
@@ -121,7 +121,7 @@ def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, w
     return abspath(expanduser(filename))
 
 def export_svg(obj: UIElement | Document, *, filename: PathLike | None = None, width: int | None = None,
-        height: int | None = None, webdriver: DriverLike | None = None, timeout: int = 5) -> list[str]:
+        height: int | None = None, browser: DriverLike | None = None, timeout: int = 5) -> list[str]:
     ''' Export a layout as SVG file or a document as a set of SVG files.
 
     If the filename is not given, it is derived from the script name
@@ -139,7 +139,7 @@ def export_svg(obj: UIElement | Document, *, filename: PathLike | None = None, w
         height (int) : the desired height of the exported layout obj only if
             it's a Plot instance. Otherwise the height kwarg is ignored.
 
-        webdriver (playwright Browser or BrowserContext) :
+        browser (playwright Browser or BrowserContext) :
             An optional Playwright browser or browser context to use for export.
 
         timeout (int) : the maximum amount of time (in seconds) to wait for
@@ -153,11 +153,11 @@ def export_svg(obj: UIElement | Document, *, filename: PathLike | None = None, w
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    svgs = get_svg(obj, width=width, height=height, driver=webdriver, timeout=timeout)
+    svgs = get_svg(obj, width=width, height=height, driver=browser, timeout=timeout)
     return _write_collection(svgs, filename, "svg")
 
 def export_svgs(obj: UIElement | Document, *, filename: str | None = None, width: int | None = None,
-        height: int | None = None, webdriver: DriverLike | None = None, timeout: int = 5) -> list[str]:
+        height: int | None = None, browser: DriverLike | None = None, timeout: int = 5) -> list[str]:
     ''' Export the SVG-enabled plots within a layout. Each plot will result
     in a distinct SVG file.
 
@@ -176,7 +176,7 @@ def export_svgs(obj: UIElement | Document, *, filename: str | None = None, width
         height (int) : the desired height of the exported layout obj only if
             it's a Plot instance. Otherwise the height kwarg is ignored.
 
-        webdriver (playwright Browser or BrowserContext) :
+        browser (playwright Browser or BrowserContext) :
             An optional Playwright browser or browser context to use for export.
 
         timeout (int) : the maximum amount of time (in seconds) to wait for
@@ -190,7 +190,7 @@ def export_svgs(obj: UIElement | Document, *, filename: str | None = None, width
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    svgs = get_svgs(obj, width=width, height=height, driver=webdriver, timeout=timeout)
+    svgs = get_svgs(obj, width=width, height=height, driver=browser, timeout=timeout)
 
     if len(svgs) == 0:
         log.warning("No SVG Plots were found.")
@@ -237,7 +237,7 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: DriverLike | Non
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    return browser.get_screenshot_as_png(
+    return _browser.get_screenshot_as_png(
         obj, driver=driver, timeout=timeout, resources=resources,
         width=width, height=height, scale_factor=scale_factor,
     )
@@ -261,20 +261,20 @@ def get_screenshot_as_png_from_html(html: str, *, driver: DriverLike | None = No
         The rendered PNG image.
 
     '''
-    return browser.get_screenshot_as_png_from_html(
+    return _browser.get_screenshot_as_png_from_html(
         html, driver=driver, timeout=timeout, scale_factor=scale_factor,
     )
 
 def get_svg(obj: UIElement | Document, *, driver: DriverLike | None = None, timeout: int = 5,
         resources: ResourcesLike = INLINE, width: int | None = None, height: int | None = None) -> list[str]:
-    return browser.get_svg(
+    return _browser.get_svg(
         obj, driver=driver, timeout=timeout, resources=resources,
         width=width, height=height,
     )
 
 def get_svgs(obj: UIElement | Document, *, driver: DriverLike | None = None, timeout: int = 5,
         resources: ResourcesLike = INLINE, width: int | None = None, height: int | None = None) -> list[str]:
-    return browser.get_svgs(
+    return _browser.get_svgs(
         obj, driver=driver, timeout=timeout, resources=resources,
         width=width, height=height,
     )

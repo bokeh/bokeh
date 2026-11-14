@@ -68,7 +68,7 @@ lower-level function :func:`~bokeh.io.export.get_screenshot_as_png`.
 
     from bokeh.io.export import get_screenshot_as_png
 
-    image = get_screenshot_as_png(obj, height=height, width=width, driver=webdriver)
+    image = get_screenshot_as_png(obj, height=height, width=width, driver=browser)
 
 .. _ug_output_export_svg:
 
