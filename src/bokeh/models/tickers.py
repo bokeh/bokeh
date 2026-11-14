@@ -262,7 +262,7 @@ class DaysTicker(BaseSingleIntervalTicker):
     The intervals of days to use.
     """)
 
-    _num_minor_ticks = Override(default=0)
+    _num_minor_ticks = Override(ContinuousTicker.num_minor_ticks, default=0)
 
 class MonthsTicker(BaseSingleIntervalTicker):
     ''' Generate ticks spaced apart by specific, even multiples of months.
@@ -327,7 +327,7 @@ class LogTicker(AdaptiveTicker):
 
     '''
 
-    _mantissas = Override(default=[1, 5])
+    _mantissas = Override(AdaptiveTicker.mantissas, default=[1, 5])
 
 
 class MercatorTicker(BasicTicker):
@@ -375,10 +375,10 @@ class DatetimeTicker(CompositeTicker):
 
     '''
 
-    _num_minor_ticks = Override(default=0)
+    _num_minor_ticks = Override(ContinuousTicker.num_minor_ticks, default=0)
 
     # TODO: (bev) InstanceDefault for this, someday
-    _tickers = Override(default=lambda: [
+    _tickers = Override(CompositeTicker.tickers, default=lambda: [
         AdaptiveTicker(
             mantissas=[1, 2, 5],
             base=10,
@@ -418,10 +418,10 @@ class TimedeltaTicker(CompositeTicker):
 
     '''
 
-    _num_minor_ticks = Override(default=0)
+    _num_minor_ticks = Override(ContinuousTicker.num_minor_ticks, default=0)
 
     # TODO: (bev) InstanceDefault for this, someday
-    _tickers = Override(default=lambda: [
+    _tickers = Override(CompositeTicker.tickers, default=lambda: [
         AdaptiveTicker(
             mantissas=[1, 2, 5],
             base=10,

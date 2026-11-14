@@ -149,9 +149,9 @@ class ScientificFormatter(StringFormatter):
         log(x) <= power_limit_low
     """)
 
-    _nan_format = Override(default="-")
+    _nan_format = Override(StringFormatter.nan_format, default="-")
 
-    _null_format = Override(default="-")
+    _null_format = Override(StringFormatter.null_format, default="-")
 
 class NumberFormatter(StringFormatter):
     ''' Number cell formatter.
@@ -242,9 +242,9 @@ class NumberFormatter(StringFormatter):
     Rounding functions (round, floor, ceil) and their synonyms (nearest, rounddown, roundup).
     """)
 
-    _nan_format = Override(default="-")
+    _nan_format = Override(StringFormatter.nan_format, default="-")
 
-    _null_format = Override(default="-")
+    _null_format = Override(StringFormatter.null_format, default="-")
 
 class BooleanFormatter(CellFormatter):
     ''' Boolean (check mark) cell formatter.
@@ -465,9 +465,9 @@ class DateFormatter(StringFormatter):
 
     """)
 
-    _nan_format = Override(default="-")
+    _nan_format = Override(StringFormatter.nan_format, default="-")
 
-    _null_format = Override(default="-")
+    _null_format = Override(StringFormatter.null_format, default="-")
 
 
 class HTMLTemplateFormatter(CellFormatter):
