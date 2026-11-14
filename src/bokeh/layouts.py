@@ -687,12 +687,11 @@ def _parse_children_arg[L: LayoutDOM](*args: L | list[L], children: list[L] | No
 
 def _handle_child_sizing(children: list[UIElement], sizing_mode: SizingModeType | None, *, widget: str) -> None:
     for item in children:
-        if isinstance(item, UIElement):
-            continue
-        if not isinstance(item, LayoutDOM):
+        if isinstance(item, LayoutDOM):
+            if sizing_mode is not None and _has_auto_sizing(item):
+                item.sizing_mode = sizing_mode
+        elif not isinstance(item, UIElement):
             raise ValueError(f"Only LayoutDOM items can be inserted into a {widget}. Tried to insert: {item} of type {type(item)}")
-        if sizing_mode is not None and _has_auto_sizing(item):
-            item.sizing_mode = sizing_mode
 
 def _create_grid(iterable: Iterable[UIElement | list[UIElement]], sizing_mode: SizingModeType | None, layer: int = 0, **kwargs) -> Row | Column:
     """Recursively create grid from input lists."""

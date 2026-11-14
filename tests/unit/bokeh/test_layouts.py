@@ -172,6 +172,17 @@ def test_layout_nested() -> None:
         for c in r.children:
             assert isinstance(c, Column)
 
+@pytest.mark.parametrize("layout_fn", [row, column])
+def test_row_column_child_sizing(layout_fn) -> None:
+    p0 = figure()
+    p1 = figure(sizing_mode="fixed")
+    layout_fn(p0, p1, sizing_mode="stretch_width")
+    assert p0.sizing_mode == "stretch_width"
+    assert p1.sizing_mode == "fixed"
+
+    with pytest.raises(ValueError, match="Only LayoutDOM items can be inserted into a"):
+        layout_fn([p0, 1])
+
 def test_grid() -> None:
     s0 = Spacer()
     s1 = Spacer()

@@ -279,3 +279,5 @@ Bug fixes
   ``dict[str, list[int]]``, which type checkers previously rejected because
   ``dict`` is invariant (:bokeh-issue:`14814`).
 * Fixed ``Dialog`` not updating when its ``title`` or ``content`` change (:bokeh-pull:`15749`).
+* Fixed ``row()`` and ``column()`` not applying their ``sizing_mode`` to children
+  without explicit sizing, like ``layout()`` and ``gridplot()`` already do.
