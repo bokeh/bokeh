@@ -75,9 +75,15 @@ class Either[G, S = G](ParameterizedProperty[G, S]):
     """
 
     # Infer value types from type parameters, so that they aren't inferred from
-    # ``default`` instead. The last overload covers subclasses and annotated
-    # assignments with fixed value types, which don't match the other overloads
-    # because Property[G, S] is invariant.
+    # ``default`` instead. The last overload covers calls that don't match the
+    # other overloads, because Property[G, S] is invariant:
+    #
+    # * subclasses and annotated assignments with fixed value types
+    # * any call in a class body checked by mypy, which solves type parameters
+    #   of these overloads with the inferred type of the class attribute (e.g.
+    #   G1 = G2 = int | str for Either(Int, String)) instead of the arguments
+    #
+    # As a consequence, invalid defaults aren't reported precisely.
     @overload
     def __init__[G1, S1](
         self: Either[G1, S1],
