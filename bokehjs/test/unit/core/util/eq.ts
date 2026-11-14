@@ -271,10 +271,8 @@ describe("core/util/eq module", () => {
       // compared by their string representation, i.e. "[object Object]".
       const o0 = {constructor: Function, a: 1}
       const o1 = {constructor: Function, a: 2}
-      expect(() => is_equal(o0, o1)).to.throw(EqNotImplemented)
-
-      const cmp = new Comparator({no_fail: true})
-      expect(cmp.eq(o0, o1)).to.be.false
+      expect(is_equal(o0, o1)).to.be.false
+      expect(is_equal(o0, {constructor: Function, a: 1})).to.be.true
     })
 
     it("that supports functions", () => {

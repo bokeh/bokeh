@@ -22,8 +22,11 @@ log = logging.getLogger(__name__)
 import csv
 import gzip
 import json
+import math
 import sys
 from dataclasses import asdict, is_dataclass
+from datetime import date
+from numbers import Real
 from os import fspath
 from typing import (
     TYPE_CHECKING,
@@ -52,9 +55,15 @@ from ..core.property.nullable import Nullable
 from ..core.property.primitive import Bool, Int, String
 from ..core.property.readonly import Readonly
 from ..core.property.required import Required
+from ..core.validation import warning
+from ..core.validation.warnings import GEOMETRY_ATTRIBUTE_LENGTH_MISMATCH
 from ..model import Model
 from ..util.dependencies import uses_pandas
-from ..util.serialization import convert_datetime_array
+from ..util.serialization import (
+    convert_datetime_array,
+    convert_datetime_type,
+    is_datetime_type,
+)
 from ._geometry import geometry_value as _geometry_value
 from .callbacks import CustomJS
 from .filters import AllIndices, Filter
@@ -917,30 +926,55 @@ def _geometry_mapping(value: Any) -> dict[str, Any] | None:
     geometry = _geometry_value(value)
     if geometry.get("type") == "Feature":
         return _geometry_mapping(geometry.get("geometry"))
-    if "type" not in geometry:
+    if not isinstance(geometry.get("type"), str):
         raise ValueError("geometry mappings must define a 'type'")
+    if geometry["type"] == "GeometryCollection":
+        members = geometry.get("geometries")
+        if not isinstance(members, (list, tuple)):
+            raise ValueError("GeometryCollection must contain a geometries array")
+        geometry["geometries"] = [_geometry_mapping(member) for member in members]
     return geometry
 
+class _Geometries(Seq[Any, Sequence[Any]]):
+    def transform(self, value: Any) -> Sequence[Any]:
+        return [_geometry_mapping(item) for item in super().transform(value)]
+
 def _geometry_from_xy(x: Sequence[Any], y: Sequence[Any]) -> dict[str, Any]:
-    xs = list(x)
-    ys = list(y)
+    if not _is_coordinate_row(x) or not _is_coordinate_row(y):
+        raise ValueError("polygon x and y coordinates must have matching nesting")
+    xs = [convert_datetime_type(value) if isinstance(value, date) or is_datetime_type(value) else value for value in x]
+    ys = [convert_datetime_type(value) if isinstance(value, date) or is_datetime_type(value) else value for value in y]
     if len(xs) != len(ys):
         raise ValueError("polygon x and y coordinates must have the same length")
 
-    if any((_is_coordinate_sequence(value) or isinstance(value, Mapping)) for value in [*xs, *ys]):
-        raise ValueError("polygon coordinates must be one- or two-dimensional coordinate arrays")
-    if any(isinstance(value, (float, np.floating)) and not np.isfinite(value) for value in [*xs, *ys]):
-        raise ValueError(
-            "polygon coordinates must be finite; use natural Polygon or MultiPolygon geometry for multipart data",
-        )
+    for value in [*xs, *ys]:
+        if isinstance(value, Real) and not isinstance(value, bool):
+            if not -math.inf < value < math.inf:
+                raise ValueError("polygon coordinates must be finite; use Polygon or MultiPolygon geometry for multipart data")
+        elif not isinstance(value, str) and not (
+            _is_coordinate_row(value)
+            and len(value) > 0 and all(isinstance(item, str) for item in value)
+        ):
+            raise ValueError("polygon coordinates must be numbers or categorical factors")
 
-    ring = [[x_value, y_value] for x_value, y_value in zip(xs, ys)]
-    return {"type": "Polygon", "coordinates": [ring] if ring else []}
+    ring = [[list(value) if _is_coordinate_row(value) else value for value in pair] for pair in zip(xs, ys)]
+    if not ring:
+        return {"type": "Polygon", "coordinates": []}
+    if any(isinstance(x_value, Real) != isinstance(xs[0], Real) or isinstance(y_value, Real) != isinstance(ys[0], Real)
+           for x_value, y_value in ring):
+        raise ValueError("polygon coordinates cannot mix numbers and categorical factors on the same axis")
+    if ring[0] != ring[-1]:
+        ring.append(ring[0])
+    if len(ring) < 4:
+        raise ValueError("polygon rings must contain at least three vertices")
+    return {"type": "Polygon", "coordinates": [ring]}
+
+def _is_coordinate_row(value: Any) -> TypeGuard[Sequence[Any] | npt.NDArray[Any]]:
+    return (isinstance(value, (Sequence, np.ndarray)) and not isinstance(value, (str, bytes))
+            and (not isinstance(value, np.ndarray) or value.ndim == 1))
 
 def _is_coordinate_sequence(value: Any) -> bool:
-    if not isinstance(value, (Sequence, np.ndarray)) or isinstance(value, (str, bytes)):
-        return False
-    return len(value) == 0 or not isinstance(value[0], str)
+    return _is_coordinate_row(value) and (len(value) == 0 or not isinstance(value[0], str))
 
 def _coordinate_nesting(xs: Sequence[Any], ys: Sequence[Any]) -> bool:
     x = xs[0] if len(xs) else None
@@ -949,7 +983,7 @@ def _coordinate_nesting(xs: Sequence[Any], ys: Sequence[Any]) -> bool:
     nested_y = _is_coordinate_sequence(y)
 
     def categorical_row(value: Any) -> bool:
-        return isinstance(value, (list, np.ndarray)) and len(value) > 0 and all(isinstance(item, str) for item in value)
+        return isinstance(value, (list, np.ndarray)) and _is_coordinate_row(value) and len(value) > 0 and all(isinstance(item, str) for item in value)
 
     if (nested_x and categorical_row(y)) or (nested_y and categorical_row(x)) or (categorical_row(x) and categorical_row(y)):
         return True
@@ -975,19 +1009,12 @@ def _geometry_records(value: Any) -> tuple[list[dict[str, Any] | None], DataDict
         raw_data = value["data"]
         if not isinstance(raw_data, Mapping):
             raise ValueError("geometry record data must be a mapping of aligned fields")
-        geometries = [_geometry_mapping(geometry) for geometry in raw_geometries]
-        data = dict(raw_data)
-        lengths = {len(values) for values in data.values()}
-        if len(lengths) > 1 or (lengths and lengths != {len(geometries)}):
-            raise ValueError("geometry attributes must have the same length as geometries")
-        return geometries, data
+        return list(raw_geometries), dict(raw_data)
 
     if isinstance(value, Mapping):
         kind = value.get("type")
-        if kind == "FeatureCollection":
+        if kind == "FeatureCollection" and "geometry" not in value:
             records = list(value.get("features", []))
-        elif kind == "GeometryCollection":
-            records = list(value.get("geometries", []))
         else:
             records = [value]
     else:
@@ -1008,14 +1035,17 @@ def _geometry_records(value: Any) -> tuple[list[dict[str, Any] | None], DataDict
         record = dict(item)
         if record.get("type") == "Feature":
             append(record.get("geometry"), dict(record.get("properties") or {}))
-        elif record.get("type") == "GeometryCollection":
-            for geometry in record.get("geometries", []):
-                append(geometry, attrs)
         elif "geometry" in record:
             geometry = record.pop("geometry")
             append(geometry, record)
+        elif record.get("type") == "GeometryCollection":
+            members = record.get("geometries")
+            if not isinstance(members, (list, tuple)):
+                raise ValueError("GeometryCollection must contain a geometries array")
+            for geometry in members:
+                append(geometry, attrs)
         else:
-            geometries.append(_geometry_mapping(record))
+            geometries.append(record)
             properties.append({} if attrs is None else attrs)
 
     for item in records:
@@ -1034,9 +1064,10 @@ class GeometryDataSource(IndexedDataSource):
 
     Attribute columns remain available to data specs for vectorized styling,
     while coordinates retain their natural Polygon/MultiPolygon hierarchy.
-    Browser-side ``xs``, ``ys``, and ``zs`` compatibility fields expose dense
-    coordinate sequences for single-path geometries. Multipart line rendering
-    is provided by the separate geometry workflows layer.
+    BokehJS field lookup also exposes ``x``, ``y``, and ``z`` for points
+    and ``xs``, ``ys``, and ``zs`` for single-path geometries. Attribute
+    columns with those names take precedence. Record lookup returns the
+    geometry and its stored attributes.
 
     Positional GeoJSON input expands ``GeometryCollection`` members into
     independently selectable records. The explicit ``geometries=`` form is
@@ -1048,13 +1079,12 @@ class GeometryDataSource(IndexedDataSource):
         if len(args) > 1:
             raise TypeError("GeometryDataSource accepts at most one positional data argument")
 
-        if args and "crs" not in kwargs:
-            crs = getattr(args[0], "crs", None)
-            if crs is not None:
-                kwargs["crs"] = str(crs)
-
         raw_geometries = kwargs.pop("geometries", None)
         raw_data = kwargs.pop("data", None)
+        if "crs" not in kwargs:
+            crs = getattr(args[0] if args else raw_data, "crs", None)
+            if crs is not None:
+                kwargs["crs"] = str(crs)
         if args:
             if raw_geometries is not None or raw_data is not None:
                 raise ValueError("provide either positional geometry data or geometries/data keywords")
@@ -1064,10 +1094,10 @@ class GeometryDataSource(IndexedDataSource):
         elif raw_geometries is None and isinstance(raw_data, Mapping) and "geometry" in raw_data:
             columns = dict(raw_data)
             raw_geometries = columns.pop("geometry")
-            geometries = [_geometry_mapping(value) for value in raw_geometries]
+            geometries = list(raw_geometries)
             data = columns
         else:
-            geometries = [] if raw_geometries is None else [_geometry_mapping(value) for value in raw_geometries]
+            geometries = [] if raw_geometries is None else list(raw_geometries)
             data = {} if raw_data is None else dict(raw_data)
 
         lengths = {len(column) for column in data.values()}
@@ -1082,32 +1112,39 @@ class GeometryDataSource(IndexedDataSource):
         ''' Construct geometry records from familiar x/y coordinate arrays.
 
         Flat arrays produce one polygon. Nested arrays produce one feature per
-        row. Multipart data should be supplied using natural Polygon or
+        row. The x and y inputs must have matching nesting and lengths, and
+        coordinate values must be finite numbers, dates, or categorical
+        factors. Empty inputs produce zero features. Nonempty rings are
+        closed automatically and require at least three vertices. Lists of
+        string lists on both axes are treated as rows. Use tuples for
+        multi-level factors on both axes.
+        Multipart data should be supplied using natural Polygon or
         MultiPolygon geometry hierarchy instead of sentinel coordinates.
         '''
         if any(isinstance(values, np.ndarray) and values.ndim not in (1, 2) for values in (x, y)):
             raise ValueError("polygon coordinates must be one- or two-dimensional arrays of numbers")
         xs = list(x)
         ys = list(y)
-        if _coordinate_nesting(xs, ys):
+        shaped = any(isinstance(values, np.ndarray) and values.ndim == 2 for values in (x, y))
+        if (not xs and not ys) or shaped or _coordinate_nesting(xs, ys):
             if len(xs) != len(ys):
                 raise ValueError("polygon x and y coordinates must have the same length")
+            if not all(_is_coordinate_row(row) for row in [*xs, *ys]):
+                raise ValueError("polygon x and y coordinates must have matching nesting")
             geometries = [_geometry_from_xy(x_row, ys[i]) for i, x_row in enumerate(xs)]
         else:
             geometries = [_geometry_from_xy(xs, ys)]
         return cls(geometries=geometries, data={} if data is None else data)
 
-    geometries = Seq(AnyVal, default=[], help="""
+    geometries = _Geometries(AnyVal, default=[], help="""
     GeoJSON geometry mappings, one per selectable feature.
     """)
 
     data = _GeometryAttributes(String, Seq(AnyVal), disallow={"geometry"}, help="""
     Attribute columns aligned with ``geometries`` for styling and callbacks.
     The field name ``geometry`` is reserved for geometry values.
-    """)
-
-    default_values = Dict(String, AnyRef, default={}, help="""
-    Attribute defaults used when edit tools insert geometry records.
+    When replacing the geometries, update the attribute columns to match the
+    new length. Document validation reports any columns that are misaligned.
     """)
 
     crs = Nullable(String, help="""
@@ -1121,6 +1158,13 @@ class GeometryDataSource(IndexedDataSource):
     @property
     def length(self) -> int:
         return len(self.geometries)
+
+    @warning(GEOMETRY_ATTRIBUTE_LENGTH_MISMATCH)
+    def _check_attribute_lengths(self) -> str | None:
+        mismatched = [name for name, column in self.data.items() if len(column) != self.length]
+        if mismatched:
+            return f"{self}: {', '.join(mismatched)}"
+        return None
 
     def add(self, data: Sequence[Any] | npt.NDArray[Any], name: str) -> str:
         ''' Add an attribute field aligned with the geometry records. '''

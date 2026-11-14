@@ -45,11 +45,7 @@ export class Cloner {
       }
       return result
     } else if (isPlainObject(obj)) {
-      const result: {[key: string]: unknown} = {}
-      for (const [key, value] of entries(obj)) {
-        result[key] = this.clone(value)
-      }
-      return result
+      return Object.fromEntries(entries(obj).map(([key, value]) => [key, this.clone(value)]))
     } else if (obj instanceof Map) {
       return new Map([...obj].map(([k, v]) => [this.clone(k), this.clone(v)]))
     } else if (obj instanceof Set) {

@@ -107,7 +107,11 @@ export class PlainObjectProxy<V> implements Map<string, V> {
   }
 
   set(key: string, value: V): this {
-    this.obj[key] = value
+    if (key == "__proto__" && !this.has(key)) {
+      Object.defineProperty(this.obj, key, {value, writable: true, enumerable: true, configurable: true})
+    } else {
+      this.obj[key] = value
+    }
     return this
   }
 

@@ -6230,9 +6230,6 @@
     data: {
       type: "map",
     },
-    default_values: {
-      type: "map",
-    },
     crs: null,
   },
   IndexedDataSource: {
