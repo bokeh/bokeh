@@ -112,7 +112,7 @@ function compile() {
     return
   }
 
-  const tsc = fileURLToPath(new URL("./bin/tsc", import.meta.resolve("typescript7/package.json")))
+  const tsc = fileURLToPath(new URL("./bin/tsc", import.meta.resolve("typescript/package.json")))
   const [resolved_executable, resolved_args] = [process.execPath, [tsc, "--project", "./make/tsconfig.json"]]
   const {status, error} = cp.spawnSync(resolved_executable, resolved_args, {stdio: "inherit"})
   if (error != null) {

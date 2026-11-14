@@ -1,27 +1,24 @@
 import {resolve, relative, join, dirname, basename, extname, normalize, sep} from "node:path"
-import module from "node:module"
 import crypto from "node:crypto"
 
-import ts from "typescript"
-import * as terser from "terser"
+import {minifySync} from "oxc-minify"
 import chalk from "chalk"
 
-import * as combine from "combine-source-map"
 import * as convert from "convert-source-map"
 
 import type {Path} from "./sys.js"
-import {read, write, file_exists, directory_exists, rename} from "./sys.js"
-import {report_diagnostics} from "./compiler.js"
+import {read, write, file_exists, directory_exists} from "./sys.js"
 import * as transforms from "./transforms.js"
+import {to_cjs} from "./esm_to_cjs.js"
 import {BuildError} from "./error.js"
 import type {Graph} from "./graph.js"
 import {detect_cycles} from "./graph.js"
+import type {SourceMap, Section, Contents} from "./source_map.js"
+import {load_source_map, chain, concat, shift_lines, extract_contents, restore_contents} from "./source_map.js"
 
 const root_path = process.cwd()
 
-const cache_version = 5
-
-export type Transformers = ts.TransformerFactory<ts.SourceFile>[]
+const cache_version = 11
 
 export type Parent = {
   file: Path
@@ -31,22 +28,21 @@ class ResolutionError extends BuildError {}
 
 export type ResoType = "ESM" | "CJS"
 
-export type ModuleType = "js" | "json" | "json5" | "yaml" | "css"
+export type ModuleType = "js" | "json"
 
 export type ModuleInfo = {
   file: Path
-  base: Path
   base_path: Path
   canonical?: string
-  resolution: ResoType
+  /** converted from an ES module */
+  esm: boolean
   id: number | string
   hash: string
   changed: boolean
-  type: ModuleType
   source: string
-  ast?: ts.SourceFile
+  /** maps `source` to the original sources, if there are any */
+  map: SourceMap | null
   dependency_paths: Map<string, Path>
-  dependency_map: Map<string, number>
   dependencies: Map<string, ModuleInfo>
   externals: Set<string>
   shims: Set<string>
@@ -54,9 +50,9 @@ export type ModuleInfo = {
 
 export type ModuleCode = {
   source: string
-  map?: string
+  map: SourceMap
   min_source: string
-  min_map?: string
+  min_map: SourceMap
 }
 
 export type ModuleArtifact = {
@@ -100,13 +96,15 @@ export class Bundle {
   constructor(
     readonly entry: ModuleInfo,
     readonly artifacts: ModuleArtifact[],
-    readonly builtins: boolean,
-    readonly bases: Bundle[] = []) {}
+    readonly plugin: boolean) {}
+
+  /** Source maps of modules (relative to the first one), shared by all preludes. */
+  private readonly modules_maps = new Map<boolean, SourceMap>()
 
   assemble(options: AssemblyOptions): Artifact {
     let line = 0
     let sources: string = ""
-    const sourcemap = combine.create()
+    const sections: Section[] = []
     const aliases = new Map<string, number | string>()
     const externals = new Map<string, boolean>()
 
@@ -120,17 +118,16 @@ export class Bundle {
       return typeof id == "number" ? id.toString() : JSON.stringify(id)
     }
 
-    const {entry, artifacts, bases} = this
+    const {entry, artifacts, plugin} = this
     const minified = options.minified ?? false
 
-    const plugin = bases.length != 0
     const {prefix, suffix, wrap} = !plugin ? dense_assembly : sparse_assembly
 
     const prelude = !plugin ? options.prelude.main : options.prelude.plugin
     const postlude = !plugin ? options.postlude.main : options.postlude.plugin
 
     sources += `${prelude}(${prefix}\n`
-    line += newlines(sources)
+    const first_line = newlines(sources)
 
     for (const artifact of artifacts) {
       const {module} = artifact
@@ -146,15 +143,14 @@ export class Bundle {
         externals.set(external, false)
       }
 
+      // module's code starts on the same line as its wrapper
       const start = wrap(safe_id(module), "")
       sources += start
-      line += newlines(start)
 
-      const source_with_sourcemap = minified ? artifact.code.min_source : artifact.code.source
-      const source = combine.removeComments(source_with_sourcemap).trimEnd()
+      const {code} = artifact
+      const source = (minified ? code.min_source : code.source).trimEnd()
       sources += source
-      const map_path = join("@@", relative(root_path, module.file))
-      sourcemap.addFile({source: source_with_sourcemap, sourceFile: map_path}, {line})
+      sections.push({line, column: start.length, map: minified ? code.min_map : code.map})
       line += newlines(source)
 
       const end = ",\n"
@@ -167,15 +163,20 @@ export class Bundle {
 
     sources += `${suffix}, ${safe_id(entry)}, ${aliases_json}, ${externals_json});${postlude}`
 
-    const source_map = convert.fromBase64(sourcemap.base64()).toObject()
-    return new Artifact(sources, minified ? null : source_map, aliases)
+    let modules_map = this.modules_maps.get(minified)
+    if (modules_map == null) {
+      const name = (file: Path) => join("@@", relative(root_path, file)).replaceAll("\\", "/")
+      modules_map = concat(sections, name)
+      this.modules_maps.set(minified, modules_map)
+    }
+
+    return new Artifact(sources, shift_lines(modules_map, first_line))
   }
 }
 
 export class Artifact {
   constructor(readonly source: string,
-              readonly sourcemap: object | null,
-              readonly exported: Map<string, number | string>) {}
+              readonly sourcemap: SourceMap | null) {}
 
   full_source(name: string): string {
     if (this.sourcemap != null) {
@@ -183,10 +184,6 @@ export class Artifact {
     } else {
       return `${this.source}\n`
     }
-  }
-
-  get module_names(): string[] {
-    return Array.from(this.exported.keys())
   }
 
   write(path: string): void {
@@ -202,67 +199,51 @@ export class Artifact {
 export type LinkerOpts = {
   entries: Path[]
   bases?: Path[]
-  excludes?: Path[]    // paths: process, but don't include in a bundle
   externals?: (string | RegExp)[] // modules: delegate to an external require()
   excluded?: (dep: string) => boolean
-  builtins?: boolean
   import_map?: {[key: string]: string}
   cache?: Path
-  target?: "ES2024" | "ES2022"
-  es_modules?: boolean
-  minify?: boolean
   plugin?: boolean
   exports?: string[]
   shims?: string[]
-  detect_cycles?: boolean
+  detect_cycles?: CycleDetection
   overrides?: {[key: string]: string}
-  apply_transforms?: boolean
 }
+
+/**
+ * Which import cycles to report: all cycles involving ES modules, only cycles involving
+ * modules under the primary base (e.g. an extension's own modules, but not its packages),
+ * or none.
+ */
+export type CycleDetection = "all" | "internal" | "none"
 
 export class Linker {
   readonly entries: Path[]
   readonly bases: Path[]
-  readonly excludes: Set<Path>
   readonly external_modules: Set<string>
   readonly external_regex: RegExp[]
   readonly excluded: (dep: string) => boolean
-  readonly builtins: boolean
   readonly import_map: {[key: string]: string}
   readonly cache_path?: Path
   readonly cache: Map<Path, ModuleArtifact>
-  readonly target: "ES2024" | "ES2022"
-  readonly es_modules: boolean
   readonly plugin: boolean
   readonly exports: Set<string>
   readonly shims: Set<string>
-  readonly detect_cycles: boolean
+  readonly detect_cycles: CycleDetection
   readonly overrides: Map<string, string>
-  readonly apply_transforms: boolean
+
+  /** whether `cache` differs from what is stored in `cache_path` */
+  private cache_changed = true
 
   constructor(opts: LinkerOpts) {
     this.entries = opts.entries.map((path) => resolve(path))
     this.bases = (opts.bases ?? []).map((path) => resolve(path))
-    this.excludes = new Set((opts.excludes ?? []).map((path) => resolve(path)))
     this.external_modules = new Set((opts.externals ?? []).filter((s) => typeof s === "string"))
     this.external_regex = (opts.externals ?? []).filter((s) => s instanceof RegExp)
 
     this.excluded = opts.excluded ?? (() => false)
-    this.builtins = opts.builtins ?? false
     this.import_map = opts.import_map ?? {}
     this.exports = new Set(opts.exports ?? [])
-
-    if (this.builtins) {
-      this.external_modules.add("module")
-      this.external_modules.add("node:module")
-
-      this.external_modules.add("constants")
-      this.external_modules.add("node:constants")
-
-      for (const lib of module.builtinModules) {
-        this.external_modules.add(lib)
-        this.external_modules.add(`node:${lib}`)
-      }
-    }
 
     for (const entry of this.entries) {
       if (!file_exists(entry)) {
@@ -279,15 +260,12 @@ export class Linker {
     this.cache_path = opts.cache
     this.cache = new Map()
 
-    this.target = opts.target ?? "ES2024"
-    this.es_modules = opts.es_modules ?? true
     this.plugin = opts.plugin ?? false
 
     this.shims = new Set(opts.shims ?? [])
-    this.detect_cycles = opts.detect_cycles ?? true
+    this.detect_cycles = opts.detect_cycles ?? "all"
 
     this.overrides = new Map(Object.entries(opts.overrides ?? {}))
-    this.apply_transforms = opts.apply_transforms ?? true
   }
 
   is_external(dep: string): boolean {
@@ -301,7 +279,7 @@ export class Linker {
   async link(): Promise<{bundles: Bundle[], status: boolean}> {
     let status = true
 
-    const [entries] = this.resolve(this.entries)
+    const entries = this.resolve(this.entries)
     const [main, ...plugins] = entries
 
     const dirnames = plugins.map((plugin) => dirname(plugin.file))
@@ -326,68 +304,41 @@ export class Linker {
       all_modules.forEach((module) => module.id = module.hash.slice(0, 10))
     }
 
-    if (this.detect_cycles) {
-      function is_internal(module: ModuleInfo) {
-        return module.canonical != null
-      }
-
-      const nodes = all_modules.filter(is_internal)
+    if (this.detect_cycles != "none") {
       const graph: Graph<ModuleInfo> = new Map()
-      for (const node of nodes) {
-        const deps = [...node.dependencies.values()]
-        graph.set(node, deps.filter(is_internal))
+      for (const module of all_modules) {
+        graph.set(module, [...module.dependencies.values()])
       }
 
-      const cycles = detect_cycles(graph)
+      // Converted ES modules tolerate cycles as long as cyclic dependencies are used lazily,
+      // but e.g. a named re-export of a module that is still being evaluated is undefined.
+      // So report cycles involving ES modules. Cycles of CommonJS modules (e.g. in
+      // mathjax-full) are allowed, as they were before. Cycles in third-party packages
+      // are usually benign and can't be fixed anyway, so they may be ignored.
+      const [primary] = this.bases
+      const is_internal = (module: ModuleInfo) => !relative(primary, module.file).startsWith("..")
+      const cycles = detect_cycles(graph, this.detect_cycles == "all" ? (module) => module.esm : is_internal)
       if (cycles.length != 0) {
         status = false
         for (const cycle of cycles) {
           console.log(`${chalk.red("\u2717")} cycle detected:`)
-          for (const module of cycle) {
-            const is_last = cycle[cycle.length-1] == module
-            console.log(`${is_last ? "\u2514" : "\u251c"}\u2500 ${module.canonical ?? module.base_path}`)
-          }
+          const names = [...cycle, cycle[0]].map((module) => module.canonical ?? module.base_path.replaceAll("\\", "/"))
+          names.forEach((name, i) => {
+            console.log(`${i == names.length - 1 ? "\u2514" : "\u251c"}\u2500 ${name}`)
+          })
         }
       }
     }
 
-    const transformers = (module: ModuleInfo): Transformers => {
-      const transformers: Transformers = []
-
-      if (this.apply_transforms) {
-        const remove_use_strict = transforms.remove_use_strict()
-        transformers.push(remove_use_strict)
-
-        const fix_esmodule = transforms.fix_esmodule()
-        transformers.push(fix_esmodule)
-
-        const remove_void0 = transforms.remove_void0()
-        transformers.push(remove_void0)
-
-        const fix_esexports = transforms.fix_esexports()
-        transformers.push(fix_esexports)
-      }
-
-      const rewrite_deps = transforms.rewrite_deps((dep) => {
-        const module_dep = module.dependencies.get(dep)
-        return module_dep != null ? module_dep.id : undefined
-      })
-      transformers.push(rewrite_deps)
-
-      transformers.push(transforms.wrap_in_function(module.base_path))
-      return transformers
-    }
-
-    const print = (module: ModuleInfo): string => {
-      let ast = module.ast ?? this.parse_module(module)
-      ast = transforms.apply(ast, ...transformers(module))
-      const source = transforms.print_es(ast)
-      return convert.removeMapFileComments(source)
+    const print = (module: ModuleInfo): {source: string, map: SourceMap} => {
+      const resolve = (dep: string) => module.dependencies.get(dep)?.id
+      const {code, map} = transforms.link_module(module.file, module.source, module.base_path, resolve)
+      return {source: code, map: chain(map, module.map)}
     }
 
     const deps_changed = (module: ModuleInfo, cached: ModuleInfo): boolean => {
       if (module.dependencies.size != cached.dependencies.size) {
-        return false
+        return true
       }
 
       for (const [dep, module_dep] of module.dependencies) {
@@ -399,6 +350,8 @@ export class Linker {
       return false
     }
 
+    let reprinted = 0
+
     const artifacts = async (modules: ModuleInfo[]) => {
       const result = []
       for (const module of modules) {
@@ -406,10 +359,10 @@ export class Linker {
 
         let code: ModuleCode
         if (module.changed || (cached != null && deps_changed(module, cached.module))) {
-          const source = print(module)
-          const ecma = 2020 // the highest version supported by terser
-          const minified = await minify(module, source, ecma)
-          code = {source, ...minified}
+          const printed = print(module)
+          const minified = minify(module, printed.source)
+          code = {...printed, min_source: minified.code, min_map: chain(minified.map, printed.map)}
+          reprinted++
         } else {
           code = cached!.code
         }
@@ -419,15 +372,18 @@ export class Linker {
       return result
     }
 
-    const main_bundle = new Bundle(main, await artifacts(main_modules), this.builtins)
+    const main_bundle = new Bundle(main, await artifacts(main_modules), this.plugin)
 
     const plugin_bundles: Bundle[] = []
     for (let j = 0; j < plugins.length; j++) {
-      const plugin_bundle = new Bundle(plugins[j], await artifacts(plugin_modules[j]), this.builtins, [main_bundle])
+      const plugin_bundle = new Bundle(plugins[j], await artifacts(plugin_modules[j]), true)
       plugin_bundles.push(plugin_bundle)
     }
 
     const bundles = [main_bundle, ...plugin_bundles]
+
+    const files = new Set(bundles.flatMap((bundle) => bundle.artifacts.map((artifact) => artifact.module.file)))
+    this.cache_changed ||= reprinted != 0 || files.size != this.cache.size || [...this.cache.keys()].some((file) => !files.has(file))
 
     this.cache.clear()
     for (const bundle of bundles) {
@@ -452,11 +408,8 @@ export class Linker {
       exports: [...this.exports].sort(),
       shims: [...this.shims].sort(),
       import_map: this.import_map,
-      target: this.target,
-      es_modules: this.es_modules,
       plugin: this.plugin,
       overrides: [...this.overrides.entries()],
-      apply_transforms: this.apply_transforms,
     })
   }
 
@@ -467,6 +420,7 @@ export class Linker {
     }
 
     this.cache.clear()
+    this.cache_changed = true
 
     const json = JSON.parse(read(cache_path)!)
     if (json.version !== cache_version) {
@@ -479,19 +433,22 @@ export class Linker {
       return
     }
 
+    // contents of sources are stored once, not in every source map
+    const contents: Contents = json.contents
+    const restore = (map: SourceMap | null) => map != null ? restore_contents(map, contents) : null
+
     for (const {module, code} of json.artifacts) {
       const artifact = {
         module: {
           ...module,
-          ast: undefined,
+          map: restore(module.map),
           changed: false,
           dependencies: new Map(),
-          dependency_map: new Map(module.dependency_map),
           dependency_paths: new Map(module.dependency_paths),
           externals: new Set(module.externals),
           shims: new Set(module.shims),
         },
-        code,
+        code: {...code, map: restore(code.map), min_map: restore(code.min_map)},
       }
       this.cache.set(artifact.module.file, artifact)
     }
@@ -505,39 +462,43 @@ export class Linker {
         module.dependencies.set(dep, file_entry.module)
       }
     }
+
+    this.cache_changed = false
   }
 
   store_cache(): void {
-    if (this.cache_path == null) {
+    if (this.cache_path == null || !this.cache_changed) {
       return
     }
 
+    const contents: Contents = {}
+    const extract = (map: SourceMap | null) => map != null ? extract_contents(map, contents) : null
+
     const artifacts = []
     for (const artifact of this.cache.values()) {
+      const {code} = artifact
       const module = {
         ...artifact.module,
+        map: extract(artifact.module.map),
         changed: undefined,
-        ast: undefined,
         dependencies: undefined,
       }
 
       artifacts.push({
         module: {
           ...module,
-          dependency_map: [...module.dependency_map.entries()],
           dependency_paths: [...module.dependency_paths.entries()],
           externals: [...module.externals.values()],
           shims: [...module.shims.values()],
         },
-        code: artifact.code,
+        code: {...code, map: extract(code.map), min_map: extract(code.min_map)},
       })
     }
 
-    const json = JSON.stringify({version: cache_version, config: this.cache_config, artifacts})
+    const json = JSON.stringify({version: cache_version, config: this.cache_config, artifacts, contents})
     write(this.cache_path, json)
+    this.cache_changed = false
   }
-
-  protected readonly ext = ".js"
 
   get_package(dir: string): {[key: string]: unknown} {
     const pkg_path = join(dir, "package.json")
@@ -722,30 +683,29 @@ export class Linker {
     }
   }
 
-  private parse_module({file, source}: {file: Path, source: string}): ts.SourceFile {
-    return transforms.parse_es(file, source)
-  }
-
   new_module(file: Path): ModuleInfo {
     let source = read(file)
     if (source == null) {
       throw new BuildError("linker", `'${file} doesn't exist`)
     }
 
+    let overridden = false
     for (const [path, override] of this.overrides) {
       if (file.endsWith(normalize(path))) {
         source = override
+        overridden = true
         break
       }
     }
 
-    const hash = crypto.createHash("sha256").update(source).digest("hex")
+    // Removing the trailing source map comment doesn't invalidate the map.
+    const input_map = !overridden ? load_source_map(file, source) : null
+    source = convert.removeMapFileComments(convert.removeComments(source))
+
+    const hash = crypto.createHash("sha256").update(source).update(JSON.stringify(input_map)).digest("hex")
     const type: ModuleType = (() => {
       switch (extname(file)) {
         case ".json": return "json"
-        case ".json5": return "json5"
-        case ".yaml": return "yaml"
-        case ".css": return "css"
         case ".mjs": return "js"
         case ".cjs": return "js"
         case ".js": return "js"
@@ -754,37 +714,11 @@ export class Linker {
       }
     })()
 
-    const export_type = this.es_modules ? "default" : "="
     switch (type) {
       case "json": {
         source = `\
 const json = ${source};
-export ${export_type} json;
-`
-        break
-      }
-      case "json5": {
-        source = `\
-const json5 = \`
-${source.replaceAll("\\", "\\\\")}
-\`;
-export ${export_type} json5;
-`
-        break
-      }
-      case "css": {
-        source = `\
-const css = \`${source}\`;
-export ${export_type} css;
-`
-        break
-      }
-      case "yaml": {
-        source = `\
-const yaml = \`
-${source}
-\`;
-export ${export_type} yaml;
+export default json;
 `
         break
       }
@@ -827,7 +761,21 @@ export ${export_type} yaml;
         if (!path.startsWith("..")) {
           if (type == "js") {
             const {dir, pkg} = get_package(base, path)
-            const reso = pkg.type == "module" || pkg.module != null ? "ESM" : "CJS"
+            const reso = ((): ResoType => {
+              switch (extname(file)) {
+                case ".cjs": return "CJS"
+                case ".mjs": return "ESM"
+              }
+              if (pkg.type == "module") {
+                return "ESM"
+              }
+              // Packages with a `module` entry (without `"type": "module"`) usually
+              // ship CommonJS modules as well, so check the syntax of each module.
+              if (pkg.module != null) {
+                return transforms.has_module_syntax(file, source) ? "ESM" : "CJS"
+              }
+              return "CJS"
+            })()
             const entry = pkg.module ?? pkg.name
             const primary = entry != null && join(dir, entry) == join(base, path)
             // Use the package's path relative to the base (not just `basename(dir)`),
@@ -847,48 +795,33 @@ export ${export_type} yaml;
 
     const cached = this.cache.get(file)
 
-    let ast: ts.SourceFile | undefined
     let dependency_paths: Map<string, Path>
     let externals: Set<string>
+    let esm: boolean
     let shims: Set<string>
+    let map: SourceMap | null
 
     const changed = cached == null || cached.module.hash != hash
     if (changed) {
-      let collected: string[] | null = null
+      let collected: string[]
       if (resolution == "ESM" || type == "json") {
-        const {ES2024, ES2022} = ts.ScriptTarget
-        const target = (() => {
-          switch (this.target) {
-            case "ES2024": return ES2024
-            case "ES2022": return ES2022
-          }
-        })()
+        // Bundles provide tslib to extensions, so include it, unless this is tslib itself.
         const imports = new Set<string>()
-        if (canonical != "tslib") {
+        if (canonical != "tslib" && this.resolve_file("tslib", {file}) != file) {
           imports.add("tslib")
         }
 
-        const transform: {before: Transformers, after: Transformers} = {
-          // `require()` calls are allowed in ESM modules under the primary base only (e.g. test's `auto_index`)
-          before: [transforms.collect_imports(imports, {requires: base == this.bases[0]})],
-          after: [],
-        }
-
-        // XXX: .json or .mjs extension will cause an internal error
-        const adjusted_file = type == "json" ? `${file}.ts` : (file.endsWith(".mjs") ? file.replace(/\.mjs$/, ".js") : file)
-        const {output, error} = transpile(adjusted_file, source, target, transform)
-        if (error != null) {
-          throw new BuildError("linker", error)
-        } else {
-          source = output
-          collected = [...imports]
-        }
-      }
-
-      ast = this.parse_module({file, source})
-
-      if (collected == null) {
-        collected = transforms.collect_deps(ast)
+        esm = true
+        const converted = to_cjs(file, source)
+        source = converted.code
+        map = chain(converted.map, input_map)
+        // `require()` calls are allowed in ESM modules under the primary base only (e.g. test's `auto_index`)
+        const requires = base == this.bases[0] ? transforms.collect_deps(transforms.parse_script(file, source)) : []
+        collected = [...new Set([...imports, ...converted.deps, ...requires])]
+      } else {
+        esm = false
+        map = input_map
+        collected = transforms.collect_deps(transforms.parse_script(file, source))
       }
       const filtered = collected.filter((dep) => !this.is_external(dep) && !this.excluded(dep) && !this.is_shimmed(dep))
 
@@ -909,29 +842,28 @@ export ${export_type} yaml;
       externals = cached.module.externals
       shims = cached.module.shims
       source = cached.module.source
+      esm = cached.module.esm
+      map = cached.module.map
     }
 
     return {
       file,
-      base,
       base_path,
       canonical,
-      resolution,
+      esm,
       id: NaN,
       hash,
       changed,
       source,
-      ast,
-      type,
+      map,
       dependency_paths,
-      dependency_map: new Map(),
       dependencies: new Map(),
       externals,
       shims,
     }
   }
 
-  resolve(files: Path[]): [ModuleInfo[], ModuleInfo[]] {
+  resolve(files: Path[]): ModuleInfo[] {
     const visited = new Map<Path, ModuleInfo>()
     const pending = [...files]
 
@@ -941,7 +873,7 @@ export ${export_type} yaml;
       if (file == null) {
         break
       }
-      if (visited.has(file) || this.excludes.has(file)) {
+      if (visited.has(file)) {
         continue
       }
 
@@ -956,8 +888,7 @@ export ${export_type} yaml;
       }
     }
 
-    const entries = files.map((file) => visited.get(file)!)
-    return [entries, [...visited.values()]]
+    return files.map((file) => visited.get(file)!)
   }
 
   reachable(entry: ModuleInfo, is_excluded: (module: ModuleInfo) => boolean): ModuleInfo[] {
@@ -970,7 +901,7 @@ export ${export_type} yaml;
       if (module == null) {
         break
       }
-      if (reached.has(module) || this.excludes.has(module.file) || is_excluded(module)) {
+      if (reached.has(module) || is_excluded(module)) {
         continue
       }
 
@@ -982,55 +913,44 @@ export ${export_type} yaml;
   }
 }
 
-export function transpile(file: Path, source: string, target: ts.ScriptTarget,
-    transformers?: {before: Transformers, after: Transformers}): {output: string, error?: string} {
-  const {outputText: output, diagnostics} = ts.transpileModule(source, {
-    fileName: file,
-    reportDiagnostics: true,
-    compilerOptions: {
-      target,
-      module: ts.ModuleKind.CommonJS,
-      esModuleInterop: true,
-      importHelpers: true,
-      downlevelIteration: true,
-    },
-    transformers,
-  })
+// oxc-minify preserves only legal comments, i.e. `/*! ... */`, `//! ...`, or ones that
+// include `@license` or `@preserve`. Third-party code may include license notices
+// as ordinary comments, so mark comments that look like license notices as legal.
+const license_like = /copyright|license|\(c\)/i
+const legal = /^!|@license|@preserve/
 
-  if (diagnostics == null || diagnostics.length == 0) {
-    return {output}
-  } else {
-    const {text} = report_diagnostics(diagnostics)
-    return {output, error: text}
+function mark_license_comments(name: string, source: string): string {
+  const {comments} = transforms.parse(name, source, {sourceType: "script"})
+  let result = ""
+  let pos = 0
+  for (const {type, value, start, end} of comments) {
+    if (!license_like.test(value) || legal.test(value) || (type == "Line" && value.includes("*/"))) {
+      continue
+    }
+    result += `${source.slice(pos, start)}/*!${value}*/`
+    pos = end
   }
+  return result + source.slice(pos)
 }
 
-export async function minify(module: ModuleInfo, source: string, ecma: terser.ECMA): Promise<{min_source: string, min_map?: string}> {
-  const name = basename(module.file)
-  const min_js = rename(name, {ext: ".min.js"})
-  const min_js_map = rename(name, {ext: ".min.js.map"})
+function minify(module: ModuleInfo, source: string): {code: string, map: SourceMap} {
+  // oxc infers module type from the extension (e.g. `.mjs` or `.cjs`), which would allow
+  // it to remove the unused top-level module function, so always use `.js`.
+  const name = `${basename(module.file, extname(module.file))}.js`
+  const {code, map, errors} = minifySync(name, mark_license_comments(name, source), {
+    module: false,
+    sourcemap: true,
+    compress: {target: "es2024", keepNames: {function: false, class: true}},
+    mangle: {toplevel: false, keepNames: {function: false, class: true}},
+    codegen: {asciiOnly: true, legalComments: "inline"},
+  })
 
-  const minify_opts: terser.MinifyOptions = {
-    ecma,
-    keep_classnames: true,
-    format: {
-      comments: /^!|copyright|license|\(c\)/i,
-      // https://github.com/terser/terser/issues/410
-      ascii_only: true,
-    },
-    sourceMap: {
-      filename: basename(min_js),
-      url: basename(min_js_map),
-    },
+  if (errors.length != 0) {
+    throw new BuildError("linker", `failed to minify ${module.file}: ${errors.map((error) => error.message).join("\n")}`)
+  }
+  if (code.trim().length == 0) {
+    throw new BuildError("linker", `minification of ${module.file} resulted in empty output`)
   }
 
-  try {
-    const {code, map} = await terser.minify(source, minify_opts)
-    return {
-      min_source: code ?? "",
-      min_map: typeof map === "string" ? map : undefined,
-    }
-  } catch (error) {
-    throw new BuildError("linker", `${error}`)
-  }
+  return {code, map: map as SourceMap}
 }

@@ -21,7 +21,7 @@
     "importHelpers": false,
     "experimentalDecorators": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "isolatedModules": true,
     "verbatimModuleSyntax": false,
     "resolveJsonModule": true,

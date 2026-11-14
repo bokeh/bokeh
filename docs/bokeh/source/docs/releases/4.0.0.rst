@@ -147,6 +147,22 @@ API changes
   of the new ``PropertyError`` base class, which itself derives from
   ``ValueError``. Both are available from ``bokeh.core.properties``. Existing
   code catching ``ValueError`` is unaffected.
+* Bokeh no longer ships TypeScript. ``bokeh build`` compiles extensions with
+  the ``typescript`` package they depend on, using any version that supports
+  their ``tsconfig.json`` (``bokeh init`` adds TypeScript 7). Extensions
+  without ``typescript`` in their ``package.json``, extensions without a
+  ``package.json`` and inline models (``__implementation__``) aren't
+  type-checked: Bokeh only removes their types and reports syntax errors and
+  unresolved relative imports. Decorators aren't supported there. TypeScript 6
+  and later reject ``"moduleResolution": "node"``, so use ``"bundler"`` in
+  ``tsconfig.json``. Inline ES modules are converted to CommonJS by BokehJS's
+  linker, and plain CommonJS code is used as is.
+* Compiling extensions (``bokeh build`` and ``__implementation__``) now
+  requires Node.js 22 or later.
+* ``bokeh build`` fails if an extension's modules import each other in a
+  cycle, but ignores cycles in packages that the extension depends on. Set
+  ``"detect_cycles": "all"`` in ``bokeh.ext.json`` to report those cycles as
+  well, or ``"none"`` to disable cycle detection.
 
 Bug fixes
 ---------

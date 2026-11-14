@@ -96,7 +96,7 @@ class CompilationError(RuntimeError):
         return "\n" + self.text.strip()
 
 bokehjs_dir = settings.bokehjs_path()
-nodejs_min_version = (18, 0, 0)
+nodejs_min_version = (22, 0, 0)
 
 def nodejs_version() -> str | None:
     return _version(_run_nodejs)
@@ -105,7 +105,7 @@ def npmjs_version() -> str | None:
     return _version(_run_npmjs)
 
 def nodejs_compile(code: str, lang: str = "javascript", file: str | None = None) -> AttrDict:
-    compilejs_script = join(bokehjs_dir, "js", "compiler.js")
+    compilejs_script = join(bokehjs_dir, "js", "compiler.mjs")
     output = _run_nodejs([compilejs_script], dict(code=code, lang=lang, file=file, bokehjs_dir=os.fspath(bokehjs_dir)))
     lines = output.split("\n")
     i = 0
@@ -407,7 +407,7 @@ _export_template = \
 """"%(name)s": require("%(module)s").%(name)s"""
 
 _module_template = \
-""""%(module)s": function(require, module, exports) {\n%(source)s\n}"""
+""""%(module)s": function(require, module, exports, __esModule, __esExport) {\n%(source)s\n}"""
 
 def _detect_nodejs() -> Path:
     nodejs_path = settings.nodejs_path()
@@ -529,7 +529,8 @@ def _bundle_models(custom_models: dict[str, CustomModel]) -> str:
     modules = []
 
     lib_dir = Path(bokehjs_dir) / "js" / "lib"
-    known_modules: set[str] = set()
+    # bokehjs' bundle provides tslib, which modules converted from ESM may require
+    known_modules: set[str] = {"tslib"}
 
     for path in lib_dir.rglob("*.d.ts"):
         s = str(path.relative_to(lib_dir))

@@ -38,6 +38,8 @@ function str(obj: unknown): string {
   return JSON.stringify(obj)
 }
 
+// `__esExport(name, value)` is used only by bundles built with earlier versions of
+// Bokeh. It captures the value, so exports defined with it aren't live.
 const loader = `\
 (function(modules, entry, aliases, externals) {
   if (aliases === undefined) aliases = {};
