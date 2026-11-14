@@ -116,34 +116,6 @@ function remove_void0(program: Program, str: MagicString): void {
   }
 }
 
-/**
- * Replaces `Object.defineProperty(exports, "name", {enumerable: true, get: function () { return value; }})`
- * with `__esExport("name", value)`.
- */
-function fix_esexports(program: Program, str: MagicString): void {
-  for (const stmt of program.body as Node[]) {
-    if (stmt.type == "ExpressionStatement" && is_define_property(stmt.expression)) {
-      const [, name, config] = stmt.expression.arguments
-      if (config.type != "ObjectExpression") {
-        continue
-      }
-      for (const prop of config.properties) {
-        if (prop.type == "Property" && !prop.computed && prop.key.type == "Identifier" && prop.key.name == "get" &&
-            prop.value.type == "FunctionExpression" && prop.value.body.body.length == 1) {
-          const [ret] = prop.value.body.body
-          if (ret.type == "ReturnStatement" && ret.argument != null) {
-            const value = str.slice(ret.argument.start, ret.argument.end)
-            if (value.includes("require(")) {
-              continue // would overlap with rewriting of dependencies
-            }
-            str.overwrite(stmt.expression.start, stmt.expression.end, `__esExport(${str.slice(name.start, name.end)}, ${value})`)
-          }
-        }
-      }
-    }
-  }
-}
-
 type Resolve = (dep: string) => number | string | undefined
 
 /**
@@ -161,7 +133,6 @@ export function link_module(file: string, code: string, module_name: string, res
   remove_use_strict(program, str)
   fix_esmodule(program, str)
   remove_void0(program, str)
-  fix_esexports(program, str)
 
   for (const {call, arg, dep} of find_requires(program)) {
     const id = resolve(dep)
