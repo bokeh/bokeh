@@ -113,7 +113,7 @@ assert_type(containers.column_data_prop, dict[str, AnyType])
 assert_type(containers.relative_delta_prop, dict[str, int])
 assert_type(containers.array_prop, AnyType)
 assert_type(containers.seq_prop, Sequence[int])
-assert_type(containers.tuple_prop, tuple[int, str])  # KNOWN GAP # mypy: assert-type; pyright: reportAssertTypeFailure
+assert_type(containers.tuple_prop, tuple[int, str])
 assert_type(containers.restricted_dict_prop, dict[str, int])
 assert_type(containers.non_empty_prop, list[int])
 assert_type(containers.len_prop, list[float])
@@ -152,7 +152,7 @@ assert_type(combinations.list_of_nullable_instances, list[Child | None])
 assert_type(combinations.list_of_nullables, list[int | None])
 assert_type(combinations.list_of_dicts, list[dict[str, int]])
 assert_type(combinations.list_of_non_negatives, list[int])
-assert_type(combinations.list_of_tuples, list[tuple[int, int]])  # KNOWN GAP # mypy: assert-type; pyright: reportAssertTypeFailure
+assert_type(combinations.list_of_tuples, list[tuple[int, int]])
 assert_type(combinations.nullable_list, list[int] | None)
 assert_type(combinations.nullable_instance, Child | None)
 assert_type(combinations.set_of_instances, set[Child])
@@ -324,3 +324,33 @@ assignments.children = [Child()]  # mypy: list-item; pyright: reportAttributeAcc
 assignments.mapping = {"a": Child()}  # mypy: dict-item; pyright: reportAttributeAccessIssue
 assignments.readonly = 1  # mypy: assignment; pyright: reportAttributeAccessIssue
 assignments.title = 1  # mypy: assignment; pyright: reportAttributeAccessIssue
+
+
+class Tuples(HasProps):
+    pair = Tuple(Int, String)
+    triple = Tuple(Float, Float, Nullable(Instance(Child)), default=(0, 0, None))
+    nested = Tuple(Tuple(Int, Int), List(String))
+    quintuple = Tuple(Int, Int, Int, Int, String)
+
+    invalid_default = Tuple(Int, String, default=("a", 1))  # mypy: arg-type; pyright: reportArgumentType
+
+
+tuples = Tuples()
+
+assert_type(tuples.pair, tuple[int, str])
+assert_type(tuples.triple, tuple[float, float, Child | None])
+assert_type(tuples.nested, tuple[tuple[int, int], list[str]])
+assert_type(tuples.quintuple, tuple[int, int, int, int, str])
+
+assert_type(Tuples.pair, PropertyDescriptor[tuple[int, str], tuple[int, str] | list[int | str]])
+
+tuples.pair = (1, "a")
+tuples.pair = [1, "a"]  # lists are converted to tuples
+tuples.nested = ((1, 2), ("a", "b"))
+
+# KNOWN GAP: the length and positions of items in lists can't be typed.
+tuples.pair = ["a", 1]
+
+tuples.pair = ("a", 1)  # mypy: assignment; pyright: reportAttributeAccessIssue
+tuples.pair = (1, "a", 2)  # mypy: assignment; pyright: reportAttributeAccessIssue
+tuples.pair = [1.5]  # mypy: list-item; pyright: reportAttributeAccessIssue
