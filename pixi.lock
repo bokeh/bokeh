@@ -1373,6 +1373,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-colorama-0.4.15.20260508-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-docutils-0.23.0.20260827-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-mock-5.2.0.20260518-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/types-networkx-3.6.1.20261114-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pillow-10.2.0.20240822-pyhcf101f3_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pytz-2026.3.1.20260727-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pyyaml-6.0.12.20260815-pyhcf101f3_0.conda
@@ -1590,6 +1591,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-colorama-0.4.15.20260508-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-docutils-0.23.0.20260827-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-mock-5.2.0.20260518-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/types-networkx-3.6.1.20261114-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pillow-10.2.0.20240822-pyhcf101f3_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pytz-2026.3.1.20260727-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pyyaml-6.0.12.20260815-pyhcf101f3_0.conda
@@ -1933,6 +1935,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-colorama-0.4.15.20260508-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-docutils-0.23.0.20260827-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-mock-5.2.0.20260518-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/types-networkx-3.6.1.20261114-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pillow-10.2.0.20240822-pyhcf101f3_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pytz-2026.3.1.20260727-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pyyaml-6.0.12.20260815-pyhcf101f3_0.conda
@@ -6580,6 +6583,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-colorama-0.4.15.20260508-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-docutils-0.23.0.20260827-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-mock-5.2.0.20260518-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/types-networkx-3.6.1.20261114-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pillow-10.2.0.20240822-pyhcf101f3_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pytz-2026.3.1.20260727-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pyyaml-6.0.12.20260815-pyhcf101f3_0.conda
@@ -6979,6 +6983,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-colorama-0.4.15.20260508-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-docutils-0.23.0.20260827-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-mock-5.2.0.20260518-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/types-networkx-3.6.1.20261114-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pillow-10.2.0.20240822-pyhcf101f3_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pytz-2026.3.1.20260727-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pyyaml-6.0.12.20260815-pyhcf101f3_0.conda
@@ -7196,6 +7201,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-colorama-0.4.15.20260508-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-docutils-0.23.0.20260827-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-mock-5.2.0.20260518-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/types-networkx-3.6.1.20261114-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pillow-10.2.0.20240822-pyhcf101f3_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pytz-2026.3.1.20260727-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pyyaml-6.0.12.20260815-pyhcf101f3_0.conda
@@ -7539,6 +7545,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-colorama-0.4.15.20260508-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-docutils-0.23.0.20260827-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-mock-5.2.0.20260518-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/types-networkx-3.6.1.20261114-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pillow-10.2.0.20240822-pyhcf101f3_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pytz-2026.3.1.20260727-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pyyaml-6.0.12.20260815-pyhcf101f3_0.conda
@@ -8047,6 +8054,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-colorama-0.4.15.20260508-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-docutils-0.23.0.20260827-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-mock-5.2.0.20260518-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/types-networkx-3.6.1.20261114-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pillow-10.2.0.20240822-pyhcf101f3_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pytz-2026.3.1.20260727-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pyyaml-6.0.12.20260815-pyhcf101f3_0.conda
@@ -8265,6 +8273,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-colorama-0.4.15.20260508-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-docutils-0.23.0.20260827-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-mock-5.2.0.20260518-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/types-networkx-3.6.1.20261114-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pillow-10.2.0.20240822-pyhcf101f3_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pytz-2026.3.1.20260727-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pyyaml-6.0.12.20260815-pyhcf101f3_0.conda
@@ -8609,6 +8618,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-colorama-0.4.15.20260508-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-docutils-0.23.0.20260827-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-mock-5.2.0.20260518-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/types-networkx-3.6.1.20261114-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pillow-10.2.0.20240822-pyhcf101f3_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pytz-2026.3.1.20260727-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pyyaml-6.0.12.20260815-pyhcf101f3_0.conda
@@ -9069,6 +9079,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-colorama-0.4.15.20260508-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-docutils-0.23.0.20260827-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-mock-5.2.0.20260518-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/types-networkx-3.6.1.20261114-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pillow-10.2.0.20240822-pyhcf101f3_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pytz-2026.3.1.20260727-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pyyaml-6.0.12.20260815-pyhcf101f3_0.conda
@@ -9469,6 +9480,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-colorama-0.4.15.20260508-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-docutils-0.23.0.20260923-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-mock-5.2.0.20260518-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/types-networkx-3.6.1.20261114-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pillow-10.2.0.20240822-pyhcf101f3_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pytz-2026.5.0.20261006-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pyyaml-6.0.12.20260906-pyh5ded981_0.conda
@@ -9690,6 +9702,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-colorama-0.4.15.20260508-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-docutils-0.23.0.20260923-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-mock-5.2.0.20260518-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/types-networkx-3.6.1.20261114-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pillow-10.2.0.20240822-pyhcf101f3_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pytz-2026.5.0.20261006-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pyyaml-6.0.12.20260906-pyh5ded981_0.conda
@@ -10043,6 +10056,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-colorama-0.4.15.20260508-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-docutils-0.23.0.20260923-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-mock-5.2.0.20260518-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/types-networkx-3.6.1.20261114-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pillow-10.2.0.20240822-pyhcf101f3_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pytz-2026.5.0.20261006-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/types-pyyaml-6.0.12.20260906-pyh5ded981_0.conda
@@ -18557,7 +18571,7 @@ packages:
   license: BSD-2-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/appnope?source=compressed-mapping
+  - pkg:pypi/appnope?source=hash-mapping
   run_exports: {}
   size: 12232
   timestamp: 1787337124448
@@ -18853,8 +18867,7 @@ packages:
   - cached_property >=2.0.1,<2.0.2.0a0
   license: BSD-3-Clause
   license_family: BSD
-  purls:
-  - pkg:pypi/cached-property?source=compressed-mapping
+  purls: []
   run_exports: {}
   size: 3720
   timestamp: 1787678456483
@@ -18879,7 +18892,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/cached-property?source=compressed-mapping
+  - pkg:pypi/cached-property?source=hash-mapping
   run_exports: {}
   size: 16597
   timestamp: 1787678456483
@@ -18984,7 +18997,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/click?source=compressed-mapping
+  - pkg:pypi/click?source=hash-mapping
   run_exports: {}
   size: 112341
   timestamp: 1788802215348
@@ -19842,7 +19855,7 @@ packages:
   license: Apache-2.0
   license_family: APACHE
   purls:
-  - pkg:pypi/importlib-metadata?source=compressed-mapping
+  - pkg:pypi/importlib-metadata?source=hash-mapping
   run_exports: {}
   size: 34920
   timestamp: 1787943971257
@@ -20120,7 +20133,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/ipython?source=compressed-mapping
+  - pkg:pypi/ipython?source=hash-mapping
   run_exports: {}
   size: 730678
   timestamp: 1788260388285
@@ -20550,7 +20563,7 @@ packages:
   - nodejs >=22
   license: Apache-2.0 AND BSD-2-Clause AND BSD-3-Clause AND ISC AND MIT
   purls:
-  - pkg:pypi/jupyter-builder?source=compressed-mapping
+  - pkg:pypi/jupyter-builder?source=hash-mapping
   run_exports: {}
   size: 888064
   timestamp: 1788566563939
@@ -21218,7 +21231,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/narwhals?source=compressed-mapping
+  - pkg:pypi/narwhals?source=hash-mapping
   run_exports: {}
   size: 303300
   timestamp: 1791622361931
@@ -21911,7 +21924,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/pre-commit?source=compressed-mapping
+  - pkg:pypi/pre-commit?source=hash-mapping
   run_exports: {}
   size: 202137
   timestamp: 1791899603121
@@ -22025,7 +22038,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/pycparser?source=compressed-mapping
+  - pkg:pypi/pycparser?source=hash-mapping
   run_exports: {}
   size: 58624
   timestamp: 1791592610066
@@ -23934,6 +23947,19 @@ packages:
   run_exports: {}
   size: 21139
   timestamp: 1779131450689
+- conda: https://conda.anaconda.org/conda-forge/noarch/types-networkx-3.6.1.20261114-pyhcf101f3_0.conda
+  sha256: 96b27a0c70acba8d371042f40321c7bbc86dd7446f757a1ba5e61810b76cfef9
+  md5: e2642f9c198bafb96ab259f85bec7af0
+  depends:
+  - python >=3.10
+  - numpy >=1.20
+  - python
+  license: Apache-2.0 AND MIT
+  purls:
+  - pkg:pypi/types-networkx?source=hash-mapping
+  run_exports: {}
+  size: 93810
+  timestamp: 1794648453519
 - conda: https://conda.anaconda.org/conda-forge/noarch/types-pillow-10.2.0.20240822-pyhcf101f3_2.conda
   sha256: cfa5abce6595ccc302e3f5a28a356a858f835c6ceaf9ba8f5e7d7f3b5fd76dd1
   md5: fa5026e32238bf1c35d250f04e2ee86c
@@ -28494,7 +28520,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/numpy?source=compressed-mapping
+  - pkg:pypi/numpy?source=hash-mapping
   run_exports:
     weak:
     - numpy >=1.25,<3
