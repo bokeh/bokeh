@@ -196,6 +196,45 @@ describe("UIElement", () => {
     })
   })
 
+  describe("should support 'resized' promise", () => {
+    it("which resolves after the view reacted to a new size", async () => {
+      const ui = UI.create()
+      const {view} = await display(ui, [200, 200])
+      using after_resize_spy = restorable(sinon.spy(view, "after_resize"))
+
+      view.el.style.width = "150px"
+      view.el.style.height = "50px"
+      await view.resized
+
+      expect(after_resize_spy.called).to.be.true
+      expect(view.bbox.size).to.be.equal({width: 150, height: 50})
+    })
+
+    it("which resolves when the size didn't change", async () => {
+      const ui = UI.create()
+      const {view} = await display(ui, [200, 200])
+      const {size} = view.bbox
+
+      await view.resized
+      expect(view.bbox.size).to.be.equal(size)
+    })
+
+    it("which resolves on subsequent size changes", async () => {
+      const ui = UI.create()
+      const {view} = await display(ui, [200, 200])
+
+      view.el.style.width = "150px"
+      view.el.style.height = "50px"
+      await view.resized
+      expect(view.bbox.size).to.be.equal({width: 150, height: 50})
+
+      view.el.style.width = "100px"
+      view.el.style.height = "75px"
+      await view.resized
+      expect(view.bbox.size).to.be.equal({width: 100, height: 75})
+    })
+  })
+
   it("should support html_id", async () => {
     const ui = UI.create({html_id: "my_id"})
     const {view} = await display(ui, [100, 100])

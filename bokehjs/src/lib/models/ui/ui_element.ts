@@ -192,6 +192,24 @@ export abstract class UIElementView extends StyledElementView {
 
   private _resized: boolean = false
 
+  /**
+   * Resolves after the next delivery of resize observations, i.e. after this
+   * view reacted to any changes of its size (see `after_resize()`) and is ready.
+   */
+  get resized(): Promise<void> {
+    // A new observer receives an initial observation in the next delivery of observations,
+    // even if the size didn't change. Observers are notified in creation order, so this view's
+    // own observer (see `initialize()`) was notified by then.
+    const observed = new Promise<void>((resolve) => {
+      const observer = new ResizeObserver(() => {
+        observer.disconnect()
+        resolve()
+      })
+      observer.observe(this.el)
+    })
+    return observed.then(() => this.ready)
+  }
+
   protected _after_resize(): void {}
 
   after_resize(): void {
