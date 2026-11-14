@@ -1,155 +1,129 @@
 {
   config: {
-    type: "object",
-    name: "DocumentConfig",
-    id: "p1013",
-    attributes: {
-      notifications: {
-        type: "object",
-        name: "Notifications",
-        id: "p1014",
-      },
+    $type: "DocumentConfig",
+    $id: "p1013",
+    notifications: {
+      $type: "Notifications",
+      $id: "p1014",
     },
   },
   roots: [
     {
-      type: "object",
-      name: "DataTable",
-      id: "p1011",
-      attributes: {
-        width: 400,
-        height: 280,
-        source: {
-          type: "object",
-          name: "ColumnDataSource",
-          id: "p1006",
-          attributes: {
-            selected: {
-              type: "object",
-              name: "Selection",
-              id: "p1016",
-            },
-            selection_policy: {
-              type: "object",
-              name: "UnionRenderers",
-              id: "p1017",
-            },
-            data: {
-              type: "map",
-              entries: [
-                [
-                  "index",
-                  {
-                    type: "ndarray",
-                    array: {
-                      type: "bytes",
-                      data: "H4sIAAAAAAAA/w3DiQ0AIAwEoNP6df+FhYQkGU7L5fZ4fbYfAnnvjSgAAAA=",
-                    },
-                    shape: [
-                      10,
-                    ],
-                    dtype: "int32",
-                    order: "little",
-                  },
-                ],
-                [
-                  "dates",
-                  {
-                    type: "ndarray",
-                    array: [
-                      {
-                        type: "number",
-                        value: "nan",
-                      },
-                      "2014-03-02",
-                      "2014-03-03",
-                      "2014-03-04",
-                      "2014-03-05",
-                      "2014-03-06",
-                      "2014-03-07",
-                      "2014-03-08",
-                      "2014-03-09",
-                      "2014-03-10",
-                    ],
-                    shape: [
-                      10,
-                    ],
-                    dtype: "object",
-                    order: "little",
-                  },
-                ],
-                [
-                  "downloads",
-                  {
-                    type: "ndarray",
-                    array: {
-                      type: "bytes",
-                      data: "H4sIAAAAAAAA/xNkYGDwAOJEIOYAYgUg5gdie6iYJZC2AWIASpCZLCgAAAA=",
-                    },
-                    shape: [
-                      10,
-                    ],
-                    dtype: "int32",
-                    order: "little",
-                  },
-                ],
-              ],
-            },
-          },
+      $type: "DataTable",
+      $id: "p1011",
+      width: 400,
+      height: 280,
+      source: {
+        $type: "ColumnDataSource",
+        $id: "p1006",
+        selected: {
+          $type: "Selection",
+          $id: "p1016",
         },
-        view: {
-          type: "object",
-          name: "IndexedSubset",
-          id: "p1015",
-          attributes: {
-            filter: {
-              type: "object",
-              name: "AllIndices",
-              id: "p1018",
-            },
-          },
+        selection_policy: {
+          $type: "UnionRenderers",
+          $id: "p1017",
         },
-        columns: [
-          {
-            type: "object",
-            name: "TableColumn",
-            id: "p1008",
-            attributes: {
-              field: "dates",
-              title: "Date",
-              formatter: {
-                type: "object",
-                name: "DateFormatter",
-                id: "p1007",
+        data: {
+          type: "map",
+          entries: [
+            [
+              "index",
+              {
+                type: "ndarray",
+                array: {
+                  type: "bytes",
+                  data: "H4sIAAAAAAAA/w3DiQ0AIAwEoNP6df+FhYQkGU7L5fZ4fbYfAnnvjSgAAAA=",
+                },
+                shape: [
+                  10,
+                ],
+                dtype: "int32",
+                order: "little",
               },
-              editor: {
-                type: "object",
-                name: "StringEditor",
-                id: "p1019",
+            ],
+            [
+              "dates",
+              {
+                type: "ndarray",
+                array: [
+                  {
+                    type: "number",
+                    value: "nan",
+                  },
+                  "2014-03-02",
+                  "2014-03-03",
+                  "2014-03-04",
+                  "2014-03-05",
+                  "2014-03-06",
+                  "2014-03-07",
+                  "2014-03-08",
+                  "2014-03-09",
+                  "2014-03-10",
+                ],
+                shape: [
+                  10,
+                ],
+                dtype: "object",
+                order: "little",
               },
-            },
-          },
-          {
-            type: "object",
-            name: "TableColumn",
-            id: "p1010",
-            attributes: {
-              field: "downloads",
-              title: "Downloads",
-              formatter: {
-                type: "object",
-                name: "StringFormatter",
-                id: "p1020",
+            ],
+            [
+              "downloads",
+              {
+                type: "ndarray",
+                array: {
+                  type: "bytes",
+                  data: "H4sIAAAAAAAA/xNkYGDwAOJEIOYAYgUg5gdie6iYJZC2AWIASpCZLCgAAAA=",
+                },
+                shape: [
+                  10,
+                ],
+                dtype: "int32",
+                order: "little",
               },
-              editor: {
-                type: "object",
-                name: "StringEditor",
-                id: "p1021",
-              },
-            },
-          },
-        ],
+            ],
+          ],
+        },
       },
+      view: {
+        $type: "IndexedSubset",
+        $id: "p1015",
+        filter: {
+          $type: "AllIndices",
+          $id: "p1018",
+        },
+      },
+      columns: [
+        {
+          $type: "TableColumn",
+          $id: "p1008",
+          field: "dates",
+          title: "Date",
+          formatter: {
+            $type: "DateFormatter",
+            $id: "p1007",
+          },
+          editor: {
+            $type: "StringEditor",
+            $id: "p1019",
+          },
+        },
+        {
+          $type: "TableColumn",
+          $id: "p1010",
+          field: "downloads",
+          title: "Downloads",
+          formatter: {
+            $type: "StringFormatter",
+            $id: "p1020",
+          },
+          editor: {
+            $type: "StringEditor",
+            $id: "p1021",
+          },
+        },
+      ],
     },
   ],
 }

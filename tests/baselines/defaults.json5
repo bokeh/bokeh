@@ -2469,6 +2469,7 @@
     grid_template_rows: null,
     height: null,
     hyphens: null,
+    image_orientation: null,
     image_rendering: null,
     inline_size: null,
     justify_content: null,

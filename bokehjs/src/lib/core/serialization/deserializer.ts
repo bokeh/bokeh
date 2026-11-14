@@ -199,13 +199,6 @@ export class Deserializer {
             return this._decode_typed_array(obj as TypedArrayRep)
           case "ndarray":
             return this._decode_ndarray(obj as NDArrayRep)
-          case "object": {
-            if (isString(obj.id)) {
-              return this._decode_object_ref(obj as ObjectRefRep)
-            } else {
-              return this._decode_object(obj as ObjectRep)
-            }
-          }
           default: {
             this.error(`unable to decode an object of type '${obj.type}'`)
           }
@@ -373,15 +366,10 @@ export class Deserializer {
   }
 
   protected _decode_object(obj: ObjectRep): unknown {
-    const rep = obj as any
-    const type = isString(rep.$type) ? rep.$type : rep.name
-    const attributes = isString(rep.$type) ? (() => {
-      const {$type: _type, $id: _id, ...attributes} = rep
-      return attributes
-    })() : rep.attributes ?? {}
+    const {$type: type, $id: _id, ...attributes} = obj
     const cls = this._resolve_type(type)
     if (Object.keys(attributes).length != 0) {
-      return construct(cls, this._decode(attributes) as Attrs)
+      return construct(cls, this._decode_plain_object(attributes))
     } else {
       return construct(cls)
     }
@@ -397,13 +385,7 @@ export class Deserializer {
   }
 
   protected _decode_object_ref(obj: ObjectRefRep): HasProps {
-    const rep = obj as any
-    const id = isString(rep.$id) ? rep.$id : rep.id
-    const type = isString(rep.$type) ? rep.$type : rep.name
-    const attributes = isString(rep.$type) ? (() => {
-      const {$type: _type, $id: _id, ...attributes} = rep
-      return attributes
-    })() : rep.attributes ?? {}
+    const {$type: type, $id: id, ...attributes} = obj
 
     if (this._defined_model_ids.has(id)) {
       this.error(`duplicate model ID '${id}'`)
@@ -413,7 +395,7 @@ export class Deserializer {
     const ref = this.references.get(id)
     if (ref != null) {
       if (ref.type == type) {
-        const decoded_attributes = this._decode(attributes) as Attrs
+        const decoded_attributes = this._decode_plain_object(attributes)
         if (this._deferred_references.delete(id)) {
           ref.initialize_props(decoded_attributes)
           this._finalizable.add(ref)
@@ -444,7 +426,7 @@ export class Deserializer {
       this.references.set(id, instance)
       this._new_references.add(id)
 
-      const decoded_attributes = this._decode(attributes) as Attrs
+      const decoded_attributes = this._decode_plain_object(attributes)
       instance.initialize_props(decoded_attributes)
 
       this._finalizable.add(instance)
@@ -471,8 +453,7 @@ export class Deserializer {
         if (isString(child.type) && _decoders.has(child.type)) {
           return
         }
-        const type = isString(child.$type) ? child.$type : child.type == "object" ? child.name : null
-        const id = isString(child.$type) ? child.$id : child.id
+        const {$type: type, $id: id} = child
         if (isString(type) && isString(id) && !this.references.has(id)) {
           const cls = this._resolve_type(type)
           const instance = construct_deferred(cls, id)

@@ -402,12 +402,7 @@ embed result:
 
     def ids(value):
         if isinstance(value, dict):
-            is_compact_model = isinstance(value.get("$type"), str) and "$id" in value
-            is_canonical_model = value.get("type") == "object" and "id" in value
-            model_ids = (
-                [value["$id"] if is_compact_model else value["id"]]
-                if is_compact_model or is_canonical_model else []
-            )
+            model_ids = [value["$id"]] if isinstance(value.get("$type"), str) and "$id" in value else []
             return model_ids + [
                 model_id for child in value.values() for model_id in ids(child)
             ]

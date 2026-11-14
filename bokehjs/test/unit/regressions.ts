@@ -323,105 +323,79 @@ describe("Bug", () => {
       const doc_json: DocJson = {
         defs: [],
         roots: [{
-          type: "object",
-          name: "Plot",
-          id: "1002",
-          attributes: {
-            renderers: [{
-              type: "object",
-              name: "GlyphRenderer",
-              id: "1005",
-              attributes: {
-                data_source: {
-                  type: "object",
-                  name: "ColumnDataSource",
-                  id: "1003",
-                  attributes: {
-                    data: {
-                      x: {
-                        type: "ndarray",
-                        array: {
-                          type: "bytes",
-                          data: "H4sIAAAAAAACE2NggIB2l+deEuHX7CH0M/vUYl2LoIMfoPxv9itFF8bee/MbKs7g8C26y9G0h9kBIs/mIKHrEvJbkdMBAOE1l61QAAAA",
-                        },
-                        dtype: "float64",
-                        order: "little",
-                        shape: [10],
-                      },
-                      y0: {
-                        type: "ndarray",
-                        array: {
-                          type: "bytes",
-                          data: "H4sIAAAAAAACE2NgAIEP9j3F3HVSVsfspXWDnL4JvtvPAhZ/sN884Pyi/OYX9lZQ+tN/ELi/Xw6qrhiqjwFqDgAXT+ECUAAAAA==",
-                        },
-                        dtype: "float64",
-                        order: "little",
-                        shape: [10],
-                      },
-                      y1: {
-                        type: "ndarray",
-                        array: {
-                          type: "bytes",
-                          data: "H4sIAAAAAAACE2NggAAZMZug7ROf2IvLNPZ0N7+3X+0T8aJq22v7H9xdJSseX7X/AqH3r4CI75eAqNsvD9G3nz1GxFht2cY9ABjYpdhQAAAA",
-                        },
-                        dtype: "float64",
-                        order: "little",
-                        shape: [10],
-                      },
-                    },
+          $type: "Plot",
+          $id: "1002",
+          renderers: [{
+            $type: "GlyphRenderer",
+            $id: "1005",
+            data_source: {
+              $type: "ColumnDataSource",
+              $id: "1003",
+              data: {
+                x: {
+                  type: "ndarray",
+                  array: {
+                    type: "bytes",
+                    data: "H4sIAAAAAAACE2NggIB2l+deEuHX7CH0M/vUYl2LoIMfoPxv9itFF8bee/MbKs7g8C26y9G0h9kBIs/mIKHrEvJbkdMBAOE1l61QAAAA",
                   },
+                  dtype: "float64",
+                  order: "little",
+                  shape: [10],
                 },
-                glyph: {
-                  type: "object",
-                  name: "Line",
-                  id: "1004",
-                  attributes: {
-                    x: {field: "x"},
-                    y: {field: "y1"},
+                y0: {
+                  type: "ndarray",
+                  array: {
+                    type: "bytes",
+                    data: "H4sIAAAAAAACE2NgAIEP9j3F3HVSVsfspXWDnL4JvtvPAhZ/sN884Pyi/OYX9lZQ+tN/ELi/Xw6qrhiqjwFqDgAXT+ECUAAAAA==",
                   },
+                  dtype: "float64",
+                  order: "little",
+                  shape: [10],
+                },
+                y1: {
+                  type: "ndarray",
+                  array: {
+                    type: "bytes",
+                    data: "H4sIAAAAAAACE2NggAAZMZug7ROf2IvLNPZ0N7+3X+0T8aJq22v7H9xdJSseX7X/AqH3r4CI75eAqNsvD9G3nz1GxFht2cY9ABjYpdhQAAAA",
+                  },
+                  dtype: "float64",
+                  order: "little",
+                  shape: [10],
                 },
               },
-            }, {
-              type: "object",
-              name: "GlyphRenderer",
-              id: "1007",
-              attributes: {
-                data_source: {id: "1003"},
-                glyph: {
-                  type: "object",
-                  name: "Line",
-                  id: "1006",
-                  attributes: {
-                    x: {field: "x"},
-                    y: {field: "y0"},
-                  },
-                },
-              },
-            }],
-            x_range: {
-              type: "object",
-              name: "DataRange1d",
-              id: "1008",
-              attributes: {},
             },
-            x_scale: {
-              type: "object",
-              name: "LinearScale",
-              id: "1010",
-              attributes: {},
+            glyph: {
+              $type: "Line",
+              $id: "1004",
+              x: {field: "x"},
+              y: {field: "y1"},
             },
-            y_range: {
-              type: "object",
-              name: "DataRange1d",
-              id: "1009",
-              attributes: {},
+          }, {
+            $type: "GlyphRenderer",
+            $id: "1007",
+            data_source: {id: "1003"},
+            glyph: {
+              $type: "Line",
+              $id: "1006",
+              x: {field: "x"},
+              y: {field: "y0"},
             },
-            y_scale: {
-              type: "object",
-              name: "LinearScale",
-              id: "1011",
-              attributes: {},
-            },
+          }],
+          x_range: {
+            $type: "DataRange1d",
+            $id: "1008",
+          },
+          x_scale: {
+            $type: "LinearScale",
+            $id: "1010",
+          },
+          y_range: {
+            $type: "DataRange1d",
+            $id: "1009",
+          },
+          y_scale: {
+            $type: "LinearScale",
+            $id: "1011",
           },
         }],
         title: "Bokeh Application",
@@ -429,7 +403,7 @@ describe("Bug", () => {
       }
 
       const events0: DocumentEvent[] = []
-      const doc = Document.from_json(doc_json, events0)
+      const doc = Document.from_json(doc_json, {events: events0})
       expect(events0).to.be.empty
 
       expect(doc.roots().length).to.be.equal(1)
@@ -903,10 +877,21 @@ describe("Bug", () => {
         version,
         title: "Bokeh Application",
         config: {
-          type: "object",
-          name: "DocumentConfig",
-          id: doc.config.id,
-          attributes: {
+          $type: "DocumentConfig",
+          $id: doc.config.id,
+          tags: [],
+          name: null,
+          _js_property_callbacks: {type: "map"},
+          _js_property_callback_policies: {type: "map"},
+          _js_event_callbacks: {type: "map"},
+          _subscribed_changes: {type: "map"},
+          _subscribed_events: {type: "set"},
+          syncable: true,
+          reconnect_session: true,
+          notify_connection_status: true,
+          notifications: {
+            $type: "Notifications",
+            $id: doc.config.notifications!.id,
             tags: [],
             name: null,
             _js_property_callbacks: {type: "map"},
@@ -915,48 +900,28 @@ describe("Bug", () => {
             _subscribed_changes: {type: "map"},
             _subscribed_events: {type: "set"},
             syncable: true,
-            reconnect_session: true,
-            notify_connection_status: true,
-            notifications: {
-              type: "object",
-              name: "Notifications",
-              id: doc.config.notifications!.id,
-              attributes: {
-                tags: [],
-                name: null,
-                _js_property_callbacks: {type: "map"},
-                _js_property_callback_policies: {type: "map"},
-                _js_event_callbacks: {type: "map"},
-                _subscribed_changes: {type: "map"},
-                _subscribed_events: {type: "set"},
-                syncable: true,
-                html_attributes: {type: "map"},
-                html_id: null,
-                css_classes: [],
-                css_variables: {type: "map"},
-                styles: {type: "map"},
-                stylesheets: [],
-                visible: true,
-                context_menu: null,
-              },
-            },
-            color_scheme: "auto",
+            html_attributes: {type: "map"},
+            html_id: null,
+            css_classes: [],
+            css_variables: {type: "map"},
+            styles: {type: "map"},
+            stylesheets: [],
+            visible: true,
+            context_menu: null,
           },
+          color_scheme: "auto",
         },
         roots: [{
-          type: "object",
-          name: "ModelWithUnsetReadonly",
-          id: obj.id,
-          attributes: {
-            tags: [],
-            name: null,
-            _js_property_callbacks: {type: "map"},
-            _js_property_callback_policies: {type: "map"},
-            _js_event_callbacks: {type: "map"},
-            _subscribed_changes: {type: "map"},
-            _subscribed_events: {type: "set"},
-            syncable: true,
-          },
+          $type: "ModelWithUnsetReadonly",
+          $id: obj.id,
+          tags: [],
+          name: null,
+          _js_property_callbacks: {type: "map"},
+          _js_property_callback_policies: {type: "map"},
+          _js_event_callbacks: {type: "map"},
+          _subscribed_changes: {type: "map"},
+          _subscribed_events: {type: "set"},
+          syncable: true,
         }],
       })
     })
@@ -2688,7 +2653,7 @@ ${view.host_selector} {
       expect(doc.create_json_patch(events)).to.be.equal({
         events: [{
           kind: "RootAdded",
-          model: {type: "object", name: "Line", id: glyph.id, attributes: {line_color: "#CC79A7"}},
+          model: {$type: "Line", $id: glyph.id, line_color: "#CC79A7"},
         }],
       })
     })
@@ -2721,13 +2686,13 @@ ${view.host_selector} {
       expect(doc.create_json_patch(events)).to.be.equal({
         events: [
           {kind: "ModelChanged", model: {id: glyph.id}, attr: "line_width", new: {
-            type: "value", value: 3, transform: {type: "object", name: "Dodge", id: transform.id, attributes: {value: 1}},
+            type: "value", value: 3, transform: {$type: "Dodge", $id: transform.id, value: 1},
           }},
           {kind: "ModelChanged", model: {id: glyph.id}, attr: "line_dash_offset", new: {
             type: "value", value: 2, units: "screen",
           }},
           {kind: "ModelChanged", model: {id: glyph.id}, attr: "line_alpha", new: {
-            type: "expr", expr: {type: "object", name: "Maximum", id: expr.id, attributes: {field: "y"}},
+            type: "expr", expr: {$type: "Maximum", $id: expr.id, field: "y"},
           }},
         ],
       })

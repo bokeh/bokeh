@@ -73,6 +73,14 @@ Removals
   Playwright ``Browser`` or ``BrowserContext``.
   The lower-level PNG and SVG rendering helpers also use ``browser=``
   in place of ``driver=``.
+* Remove ``BokehPNGPreprocessor.backend`` from nbconvert configuration.
+  Notebook PNG capture uses Playwright.
+* In BokehJS, pass ``{events, buffers, resolver}`` to ``Document.from_json()``
+  as an options object. ``Document.from_json_string()`` uses the same options.
+* Serialized model definitions now use ``$type``, optional ``$id``, and
+  inline properties in both documents and live protocol messages. Regenerate
+  older serialized documents with Bokeh 4.0 before loading them in BokehJS 4.0.
+* Import ``Qualified`` from ``bokeh.model`` in place of ``bokeh.model.util``.
 * In BokehJS, use the ``contrast`` theme in place of ``constrast`` and
   ``IndexedSubset.filter`` in place of ``IndexedSubset.filters``.
 * BokehJS widget extensions can use ``Widget`` and ``WidgetView`` in place
@@ -85,8 +93,7 @@ Removals
 * Removed obsolete properties from the CSS style APIs. Use ``clip-path``,
   ``column-gap``, ``gap``, ``row-gap``, and ``overflow-wrap`` in place of
   ``clip``, ``grid-column-gap``, ``grid-gap``, ``grid-row-gap``, and
-  ``word-wrap``. The removed ``font-variant-alternates`` and
-  ``image-orientation`` properties can be supplied in a stylesheet.
+  ``word-wrap``.
 
 * Removed the slider and spinner ``value_throttled`` properties. Configure
   committed delivery when registering a callback on ``value``, for example

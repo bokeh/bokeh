@@ -1,24 +1,17 @@
 {
   config: {
-    type: "object",
-    name: "DocumentConfig",
-    id: "p1007",
-    attributes: {
-      notifications: {
-        type: "object",
-        name: "Notifications",
-        id: "p1008",
-      },
+    $type: "DocumentConfig",
+    $id: "p1007",
+    notifications: {
+      $type: "Notifications",
+      $id: "p1008",
     },
   },
   roots: [
     {
-      type: "object",
-      name: "Div",
-      id: "p1006",
-      attributes: {
-        text: "DataModel definitions loaded",
-      },
+      $type: "Div",
+      $id: "p1006",
+      text: "DataModel definitions loaded",
     },
   ],
   defs: [
@@ -30,9 +23,8 @@
           name: "payload",
           kind: "Any",
           "default": {
-            type: "object",
-            name: "builtins.Later",
-            id: "p1009",
+            $type: "builtins.Later",
+            $id: "p1009",
           },
         },
         {

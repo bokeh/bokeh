@@ -702,7 +702,7 @@ describe("Document", () => {
 
     const json = d.to_json_string()
     const parsed = JSON.parse(json)
-    expect("id" in parsed.roots[0]).to.be.true
+    expect("$id" in parsed.roots[0]).to.be.true
     parsed.version = js_version
     const copy = Document.from_json_string(JSON.stringify(parsed))
 
@@ -721,20 +721,17 @@ describe("Document", () => {
       version: js_version,
       title: "binary replacement",
       roots: [{
-        type: "object",
-        name: "ColumnDataSource",
-        id: unique_id(),
-        attributes: {
-          data: {
-            type: "map",
-            entries: [["values", {
-              type: "ndarray",
-              array: {type: "bytes", data: {id: buffer_id}},
-              order: BYTE_ORDER,
-              dtype: "float64",
-              shape: [values.length],
-            }]],
-          },
+        $type: "ColumnDataSource",
+        $id: unique_id(),
+        data: {
+          type: "map",
+          entries: [["values", {
+            type: "ndarray",
+            array: {type: "bytes", data: {id: buffer_id}},
+            order: BYTE_ORDER,
+            dtype: "float64",
+            shape: [values.length],
+          }]],
         },
       }],
     }
@@ -821,7 +818,7 @@ describe("Document", () => {
     expect(model0.name).to.be.equal("foo")
 
     // be sure defaults were NOT included
-    const attrs0 = parsed.roots[0].attributes
+    const attrs0 = parsed.roots[0]
     expect("tags" in attrs0).to.be.false
     expect("foo" in attrs0).to.be.false
     expect("child" in attrs0).to.be.false
@@ -830,7 +827,7 @@ describe("Document", () => {
 
     // double-check different results if we do include_defaults
     const parsed_with_defaults = JSON.parse(d.to_json_string(true))
-    const attrs1 = parsed_with_defaults.roots[0].attributes
+    const attrs1 = parsed_with_defaults.roots[0]
     //expect('tags' in attrs1).to.be.true
     expect("foo" in attrs1).to.be.true
     expect("child" in attrs1).to.be.true
@@ -1001,17 +998,14 @@ describe("Document", () => {
       version: js_version,
       title: "Bokeh Application",
       roots: [{
-        type: "object" as const,
-        name: "ModelWithConstructTimeChanges",
-        id: "j0",
-        attributes: {
-          foo: 3,
-        },
+        $type: "ModelWithConstructTimeChanges",
+        $id: "j0",
+        foo: 3,
       }],
     }
 
     const events: ev.DocumentEvent[] = []
-    const doc = Document.from_json(doc_json, events)
+    const doc = Document.from_json(doc_json, {events})
 
     expect(doc.roots().length).to.be.equal(1)
     expect(events.length).to.be.equal(2)
@@ -1027,8 +1021,8 @@ describe("Document", () => {
     const doc_json = {
       version: js_version,
       roots: [
-        {type: "object" as const, name: "SomeModel", id: "valid"},
-        {type: "object" as const, name: "MissingModel", id: "invalid"},
+        {$type: "SomeModel", $id: "valid"},
+        {$type: "MissingModel", $id: "invalid"},
       ],
     }
 
@@ -1054,15 +1048,11 @@ describe("Document", () => {
       events: [{
         kind: "RootAdded",
         model: {
-          type: "object",
-          name: "SomeModel",
-          id: root.id,
-          attributes: {
-            child: {
-              type: "object",
-              name: "SomeModel",
-              id: child.id,
-            },
+          $type: "SomeModel",
+          $id: root.id,
+          child: {
+            $type: "SomeModel",
+            $id: child.id,
           },
         },
       }],
@@ -1081,12 +1071,9 @@ describe("Document", () => {
           entries: [
             ["model", {id: root.id}],
             ["companion_model", {
-              type: "object",
-              name: "SomeModel",
-              id: obj.id,
-              attributes: {
-                foo: 11,
-              },
+              $type: "SomeModel",
+              $id: obj.id,
+              foo: 11,
             }],
           ],
         },
@@ -1313,33 +1300,24 @@ describe("Document", () => {
           new: [
             child1.ref(),
             {
-              type: "object",
-              name: "SomeModel",
-              id: child2.id,
-              attributes: {
-                foo: 202,
-                children: [
-                  {
-                    type: "object",
-                    name: "SomeModel",
-                    id: child3.id,
-                    attributes: {
-                      foo: 203,
-                      children: [
-                        {
-                          type: "object",
-                          name: "SomeModel",
-                          id: child5_id,
-                          attributes: {
-                            foo: 205,
-                          },
-                        },
-                      ],
+              $type: "SomeModel",
+              $id: child2.id,
+              foo: 202,
+              children: [
+                {
+                  $type: "SomeModel",
+                  $id: child3.id,
+                  foo: 203,
+                  children: [
+                    {
+                      $type: "SomeModel",
+                      $id: child5_id,
+                      foo: 205,
                     },
-                  },
-                  child4.ref(),
-                ],
-              },
+                  ],
+                },
+                child4.ref(),
+              ],
             },
           ],
         },

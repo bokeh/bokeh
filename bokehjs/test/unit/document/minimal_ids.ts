@@ -277,7 +277,7 @@ describe("minimal ID cross-language fixtures", () => {
     expect(document.get_model_by_id(primary.id)).to.be.equal(primary)
 
     const canonical = document.to_json(false)
-    expect((canonical.roots[0] as {id?: string}).id).to.be.equal(primary.id)
+    expect((canonical.roots[0] as {$id?: string}).$id).to.be.equal(primary.id)
 
     const event = new events.ModelChangedEvent(document, primary, "code", "updated")
     const patch = document.create_json_patch([event])

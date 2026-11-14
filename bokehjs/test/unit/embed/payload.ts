@@ -205,7 +205,7 @@ describe("EmbedPayload runtime", () => {
       throw new Error("expected a standalone fixture")
     }
     const model_name = `ResourceOrderedModel${++declaration_index}`
-    payload.source.documents[0].roots[0].name = model_name
+    payload.source.documents[0].roots[0].$type = model_name
     const registration = "globalThis.register_resource_ordered_model()"
     const asset = {kind: "script" as const, content: registration}
     payload.requires = {
@@ -470,7 +470,7 @@ describe("EmbedPayload runtime", () => {
     if (deserialize.source.kind != "standalone") {
       throw new Error("expected a standalone fixture")
     }
-    deserialize.source.documents[0].roots[0].name = "MissingEmbedModel"
+    deserialize.source.documents[0].roots[0].$type = "MissingEmbedModel"
     cases.push(["deserialize", deserialize, deserialize])
 
     for (const [phase, declaration_payload, value] of cases) {

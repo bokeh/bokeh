@@ -163,6 +163,7 @@ export namespace Styles {
     grid_template_rows: p.Property<string | null>
     height: p.Property<string | null>
     hyphens: p.Property<string | null>
+    image_orientation: p.Property<string | null>
     image_rendering: p.Property<string | null>
     inline_size: p.Property<string | null>
     justify_content: p.Property<string | null>
@@ -480,6 +481,7 @@ export class Styles extends Model {
       grid_template_rows: [ Nullable(Str), null ],
       height: [ Nullable(Str), null ],
       hyphens: [ Nullable(Str), null ],
+      image_orientation: [ Nullable(Str), null ],
       image_rendering: [ Nullable(Str), null ],
       inline_size: [ Nullable(Str), null ],
       justify_content: [ Nullable(Str), null ],

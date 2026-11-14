@@ -821,12 +821,12 @@ async def test_embed_restrictive_resources_follow_session_models(mode: str, loca
         elif location == "plain-any":
             document.add_root(AnyContainer(child=URLCustomJS(code=""), code=""))
             wire = document.to_json(deferred=False)
-            assert wire["roots"][0]["attributes"]["child"]["name"] == URLCustomJS.__qualified_model__
+            assert wire["roots"][0]["child"]["$type"] == URLCustomJS.__qualified_model__
         elif location == "global-definition":
             wire = document.to_json(deferred=False)
             definition = next(item for item in wire["defs"] if item["name"] == UnusedDefinition.__qualified_model__)
             assert wire["roots"] == []
-            assert definition["properties"][0]["default"]["name"] == URLCustomJS.__qualified_model__
+            assert definition["properties"][0]["default"]["$type"] == URLCustomJS.__qualified_model__
 
     app = BokehASGI(Application(FunctionHandler(modify_document)))
     try:
@@ -887,9 +887,9 @@ async def test_embed_includes_extensions_in_serialized_definitions_and_any_prope
         if source == "global-definition":
             definition = next(item for item in wire["defs"] if item["name"] == UnusedDefinition.__qualified_model__)
             assert wire["roots"] == []
-            assert definition["properties"][0]["default"]["attributes"]["args"]["entries"][0][1]["name"] == Hidden.__qualified_model__
+            assert definition["properties"][0]["default"]["args"]["entries"][0][1]["$type"] == Hidden.__qualified_model__
         else:
-            assert wire["roots"][0]["attributes"]["child"]["entries"][0][1][0]["name"] == Hidden.__qualified_model__
+            assert wire["roots"][0]["child"]["entries"][0][1][0]["$type"] == Hidden.__qualified_model__
 
         assert response_status(response) == 200
         bootstrap = json.loads(response_body(response))

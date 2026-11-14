@@ -91,7 +91,7 @@ def _fixture_case() -> dict[str, Any]:
 
 def _object_reps(value: Any) -> Iterator[ObjectRep]:
     if isinstance(value, dict):
-        if value.get("$type") is not None or value.get("type") == "object":
+        if value.get("$type") is not None:
             yield value
         for child in value.values():
             yield from _object_reps(child)
@@ -350,7 +350,7 @@ def test_canonical_documents_and_patch_values_remain_id_full() -> None:
 
     object_reps = list(_object_reps(canonical))
     assert object_reps
-    assert all("id" in rep for rep in object_reps)
+    assert all("$id" in rep for rep in object_reps)
 
     primary = document.roots[0]
     assert document.get_model_by_id(primary.id) is primary
@@ -359,4 +359,4 @@ def test_canonical_documents_and_patch_values_remain_id_full() -> None:
     serialized = event.to_serializable(Serializer())
     assert serialized["model"] == primary.ref
     [replacement_rep] = list(_object_reps(serialized["new"]))
-    assert replacement_rep["id"] == replacement.id
+    assert replacement_rep["$id"] == replacement.id

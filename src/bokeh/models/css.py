@@ -252,6 +252,7 @@ class Styles(Model):
     grid_template_rows = Nullable(String)
     height = Nullable(String)
     hyphens = Nullable(String)
+    image_orientation = Nullable(String)
     image_rendering = Nullable(String)
     inline_size = Nullable(String)
     justify_content = Nullable(String)

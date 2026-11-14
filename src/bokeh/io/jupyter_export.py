@@ -26,7 +26,7 @@ from typing import Any, TypeGuard
 from nbconvert.exporters import HTMLExporter
 from nbconvert.preprocessors import Preprocessor
 from nbformat.sign import NotebookNotary
-from traitlets import Bool, Enum, Integer
+from traitlets import Bool, Integer
 
 from ..embed.result import EmbedResult, EmbedValidationError
 from ..resources import INLINE
@@ -284,8 +284,6 @@ class BokehPNGPreprocessor(Preprocessor):
             Whether notebook outputs must have a valid Jupyter trust signature.
         timeout:
             The seconds allowed for each PNG capture.
-        backend:
-            The browser backend used for capture.
         max_bytes:
             The maximum encoded PNG size accepted for one output.
 
@@ -297,12 +295,6 @@ class BokehPNGPreprocessor(Preprocessor):
         help="Only execute Bokeh output from a notebook with a valid Jupyter trust signature.",
     )
     timeout = Integer(10, min=1, config=True, help="Seconds allowed for each PNG capture.")
-    backend = Enum(
-        values=["playwright"],
-        default_value="playwright",
-        config=True,
-        help="Browser backend used for export-time PNG capture (Playwright only).",
-    )
     max_bytes = Integer(10 * 1024 * 1024, min=1, config=True, help="Maximum embedded PNG size.")
 
     _trusted: bool

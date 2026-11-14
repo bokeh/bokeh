@@ -11,7 +11,7 @@ import * as k from "./kinds"
 import type {Property} from "./properties"
 import {assert} from "./util/assert"
 import {unique_id} from "./util/string"
-import {keys, values, entries, extend, is_empty, dict} from "./util/object"
+import {keys, values, entries, extend, dict} from "./util/object"
 import {isObject, isIterable, isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
 import type {Serializable, Serializer, ObjectRep, ObjectRefRep, AnyVal} from "./serialization"
 import {serialize} from "./serialization"
@@ -445,12 +445,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
 
     const {type: name, id} = this
-    if (serializer.compact) {
-      return use_id ? {$type: name, $id: id, ...attributes} : {$type: name, ...attributes}
-    }
-
-    const rep = use_id ? {type: "object" as const, name, id} : {type: "object" as const, name}
-    return is_empty(attributes) ? rep : {...rep, attributes}
+    return use_id ? {$type: name, $id: id, ...attributes} : {$type: name, ...attributes}
   }
 
   protected constructor(attrs: {id: string} | AttrsLike = {}) {

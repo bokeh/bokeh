@@ -262,10 +262,7 @@ def _template_roots(result: EmbedResult, mounts: tuple[EmbedMount, ...]) -> _Tem
 
         def collect(value: Any, definitions: dict[str, Mapping[str, Any]]) -> None:
             if isinstance(value, dict):
-                model_id = (
-                    value.get("$id") if "$type" in value
-                    else value.get("id") if value.get("type") == "object" else None
-                )
+                model_id = value.get("$id")
                 if isinstance(model_id, str):
                     definitions[model_id] = value
                 for item in value.values():
@@ -278,15 +275,12 @@ def _template_roots(result: EmbedResult, mounts: tuple[EmbedMount, ...]) -> _Tem
             assert descriptor.document is not None and descriptor.root is not None
             root = documents[descriptor.document]["roots"][descriptor.root]
             model_id = root.get("$ref")
-            if model_id is None and root.get("type") != "object":
-                model_id = root.get("id")
             if model_id is not None:
                 if models is None:
                     models = {}
                     collect(documents, models)
                 root = models[model_id]
-            attributes = root if "$type" in root else root.get("attributes", {})
-            name = attributes.get("name")
+            name = root.get("name")
             if isinstance(name, str) and name:
                 aliases.setdefault(name, mount)
     return _TemplateRoots(mounts, aliases)

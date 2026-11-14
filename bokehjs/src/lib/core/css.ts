@@ -165,6 +165,7 @@ type CSSStylesCamel = {
   fontStyle?: string | null
   fontSynthesis?: string | null
   fontVariant?: string | null
+  fontVariantAlternates?: string | null
   fontVariantCaps?: string | null
   fontVariantEastAsian?: string | null
   fontVariantLigatures?: string | null
@@ -190,6 +191,7 @@ type CSSStylesCamel = {
   gridTemplateRows?: string | null
   height?: string | null
   hyphens?: string | null
+  imageOrientation?: string | null
   imageRendering?: string | null
   inlineSize?: string | null
   inset?: string | null
@@ -538,6 +540,7 @@ type CSSStylesDashed = {
   "font-style"?: CSSStylesCamel["fontStyle"]
   "font-synthesis"?: CSSStylesCamel["fontSynthesis"]
   "font-variant"?: CSSStylesCamel["fontVariant"]
+  "font-variant-alternates"?: CSSStylesCamel["fontVariantAlternates"]
   "font-variant-caps"?: CSSStylesCamel["fontVariantCaps"]
   "font-variant-east-asian"?: CSSStylesCamel["fontVariantEastAsian"]
   "font-variant-ligatures"?: CSSStylesCamel["fontVariantLigatures"]
@@ -563,6 +566,7 @@ type CSSStylesDashed = {
   "grid-template-rows"?: CSSStylesCamel["gridTemplateRows"]
   "height"?: CSSStylesCamel["height"]
   "hyphens"?: CSSStylesCamel["hyphens"]
+  "image-orientation"?: CSSStylesCamel["imageOrientation"]
   "image-rendering"?: CSSStylesCamel["imageRendering"]
   "inline-size"?: CSSStylesCamel["inlineSize"]
   "inset"?: CSSStylesCamel["inset"]
@@ -911,6 +915,7 @@ type CSSStylesSnake = {
   font_style?: CSSStylesCamel["fontStyle"]
   font_synthesis?: CSSStylesCamel["fontSynthesis"]
   font_variant?: CSSStylesCamel["fontVariant"]
+  font_variant_alternates?: CSSStylesCamel["fontVariantAlternates"]
   font_variant_caps?: CSSStylesCamel["fontVariantCaps"]
   font_variant_east_asian?: CSSStylesCamel["fontVariantEastAsian"]
   font_variant_ligatures?: CSSStylesCamel["fontVariantLigatures"]
@@ -936,6 +941,7 @@ type CSSStylesSnake = {
   grid_template_rows?: CSSStylesCamel["gridTemplateRows"]
   height?: CSSStylesCamel["height"]
   hyphens?: CSSStylesCamel["hyphens"]
+  image_orientation?: CSSStylesCamel["imageOrientation"]
   image_rendering?: CSSStylesCamel["imageRendering"]
   inline_size?: CSSStylesCamel["inlineSize"]
   inset?: CSSStylesCamel["inset"]
