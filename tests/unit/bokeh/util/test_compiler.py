@@ -67,6 +67,27 @@ exports.MyModel = MyModel;
 """,
              deps=["lib/model"])
 
+    # ES modules can use `require()` and declare names of parameters of module wrappers
+    assert buc.nodejs_compile("""\
+import {Model} from "lib/model"
+const exports = 1
+export class MyModel extends Model {
+  static answer = require("./helper")
+  static value = exports
+}
+""", "javascript", "some.js") == \
+        dict(code="""\
+__esModule();
+const model_2 = require("lib/model");
+const exports_1 = 1
+class MyModel extends model_2.Model {
+  static answer = require("./helper")
+  static value = exports_1
+}
+exports.MyModel = MyModel;
+""",
+             deps=["lib/model", "./helper"])
+
     assert buc.nodejs_compile("""function f(a, b) { eturn a + b; };""", "javascript", "some.js") == \
         dict(error="""
   x Expected a semicolon or an implicit semicolon after a statement, but found
