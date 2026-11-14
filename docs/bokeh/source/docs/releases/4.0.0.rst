@@ -149,6 +149,13 @@ API changes
   relies on ``TypeForm`` (PEP 747). With pyright, this requires version
   1.1.414 or newer. Earlier versions infer such types as ``Unknown``.
 
+* ``ticker`` and ``formatter`` of all axes are now typed as ``Ticker`` and
+  ``TickFormatter``, instead of the types of their defaults, e.g.
+  ``BasicTicker`` for ``LinearAxis``. This way type checkers accept e.g.
+  ``LinearAxis(ticker=FixedTicker(...))``, but code reading attributes
+  specific to a ticker or a formatter, e.g. ``axis.ticker.desired_num_ticks``,
+  needs to narrow their types first, e.g. with ``isinstance()``.
+
 * Use ``GlyphRenderer.add_path_marking()`` to add a marking at a named or
   fractional position. In Python, call ``renderer.add_path_marking(head, at="end")``.
   In BokehJS, pass ``{at: "end"}`` as the second argument. A field can supply
