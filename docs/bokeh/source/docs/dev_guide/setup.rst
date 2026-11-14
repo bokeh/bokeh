@@ -193,7 +193,8 @@ you commit or push changes:
 File formatting
     The pre-commit hook will remove trailing whitespace, ensure files end with
     a newline, and normalize line endings. CI also runs repository formatting
-    checks on every pull request, independently of which paths changed.
+    checks on every pull request, independently of which paths changed. To run
+    the same checks locally on all files, use ``pixi run check-formatting``.
 
 Python linting
     The pre-commit hook will run `Ruff`_ on changed Python files.
