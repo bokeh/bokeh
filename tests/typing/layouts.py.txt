@@ -1,0 +1,73 @@
+# Copyright (c) Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved. The full license is in the file LICENSE.txt.
+
+from typing import assert_type
+
+from bokeh.layouts import column, grid, gridplot, group_tools, layout, row
+from bokeh.models.layouts import Column, GridBox, Row, Spacer
+from bokeh.models.plots import GridPlot
+from bokeh.models.tools import PanTool, SaveTool, Tool, ToolProxy
+from bokeh.models.widgets.buttons import Button
+from bokeh.plotting import figure
+
+p1, p2, p3, p4 = figure(), figure(), figure(), figure()
+button = Button()
+
+# row() and column() accept children as positional arguments or as a list.
+assert_type(row(p1, p2), Row)
+assert_type(row([p1, button]), Row)
+assert_type(row(children=[p1, p2], sizing_mode="stretch_width"), Row)
+assert_type(column(p1, p2), Column)
+assert_type(column([p1, button]), Column)
+assert_type(column(children=[p1, p2], sizing_mode="stretch_width", name="col"), Column)
+
+row(1)  # mypy: call-overload; pyright: reportCallIssue,reportArgumentType
+row(p1, sizing_mode="invalid")  # mypy: call-overload; pyright: reportCallIssue,reportArgumentType
+column([p1, 1])  # mypy: list-item; pyright: reportCallIssue,reportArgumentType
+
+# layout() accepts arbitrarily nested lists of children.
+assert_type(layout([[p1, p2], [p3, p4]]), Column)
+assert_type(layout([p1, [p2, [p3, p4]]], sizing_mode="fixed"), Column)
+assert_type(layout([p1, p2], [p3]), Column)
+assert_type(layout(p1, p2), Column)
+assert_type(layout(children=[[p1, button], [p3]], name="layout"), Column)
+
+layout([[p1, 1]])  # mypy: list-item; pyright: reportArgumentType
+layout(p1, sizing_mode="invalid")  # mypy: arg-type; pyright: reportArgumentType
+
+# gridplot() accepts a nested list of children, or a flat list with ncols.
+assert_type(gridplot([[p1, p2], [None, p3]]), GridPlot)
+assert_type(gridplot([[p1, p2]], toolbar_location="right", toolbar_options={"logo": None}), GridPlot)
+assert_type(gridplot([p1, p2, None, p3], ncols=2, width=200, height=100), GridPlot)
+
+gridplot([p1, p2])  # mypy: list-item,list-item; pyright: reportArgumentType
+gridplot([[p1, p2]], ncols=2)  # mypy: list-item; pyright: reportCallIssue,reportArgumentType
+gridplot([[p1, 1]])  # mypy: list-item; pyright: reportArgumentType
+gridplot([[p1]], toolbar_location="invalid")  # mypy: call-overload; pyright: reportArgumentType
+gridplot([[p1]], toolbar_options={"invalid": 1})  # mypy: dict-item; pyright: reportArgumentType
+
+# KNOWN GAP: children are declared as invariant lists.
+rows: list[list[figure]] = [[p1, p2]]
+gridplot(rows)  # KNOWN GAP # mypy: arg-type; pyright: reportArgumentType
+
+# grid() accepts nested lists, nested rows and columns, or a flat list with nrows or ncols.
+assert_type(grid([p1, [[p2, p3], p4]]), GridBox)
+assert_type(grid(column(p1, row(column(p2, p3), p4))), GridBox)
+assert_type(grid([p1, None, p2, Spacer()], ncols=2), GridBox)
+assert_type(grid([p1, p2, p3], nrows=2, sizing_mode="stretch_both"), GridBox)
+
+grid([p1, p2], nrows="2")  # mypy: call-overload; pyright: reportArgumentType
+grid(p1)  # mypy: call-overload; pyright: reportCallIssue,reportArgumentType
+
+# GridPlot accepts its own properties.
+GridPlot(children=[(p1, 0, 0), (p2, 0, 1, 1, 1)], toolbar_location=None)
+
+# KNOWN GAP: aliased properties, like spacing, are declared with property types instead of value types in stubs.
+GridPlot(spacing=5)  # KNOWN GAP # mypy: arg-type; pyright: reportArgumentType
+GridPlot(children=[(p1, 0)])  # mypy: list-item; pyright: reportArgumentType
+GridPlot(x_range=None)  # mypy: call-arg; pyright: reportCallIssue
+
+# group_tools() groups tools into tool proxies.
+tools: list[Tool | ToolProxy] = [PanTool(), PanTool(), SaveTool()]
+assert_type(group_tools(tools), list[Tool | ToolProxy])
+assert_type(group_tools(tools, merge=lambda cls, group: SaveTool() if cls is SaveTool else None), list[Tool | ToolProxy])

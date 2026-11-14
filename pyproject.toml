@@ -255,7 +255,6 @@ known-local-folder = [
 [[tool.mypy.overrides]]
 module = [
     "bokeh.application.handlers.notebook",
-    "bokeh.layouts",
     "bokeh.plotting._figure",
     "bokeh.plotting._geo_feature",
     "bokeh.plotting._graph",
