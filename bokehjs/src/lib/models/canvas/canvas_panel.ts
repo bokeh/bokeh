@@ -44,7 +44,7 @@ export class CanvasPanelView extends StyledElementView {
 
   override render(): void {
     super.render()
-    this.class_list.add(css[this.model.place])
+    this.el.classList.add(css[this.model.place])
   }
 
   set_geometry(bbox: BBox): void {

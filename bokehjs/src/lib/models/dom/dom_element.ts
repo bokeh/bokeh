@@ -3,7 +3,6 @@ import {StylesLike} from "../ui/styled_element"
 import {UIElement} from "../ui/ui_element"
 import type {ViewStorage, BuildResult, ChildView} from "core/build_views"
 import {build_views} from "core/build_views"
-import type {RenderingTarget} from "core/dom_view"
 import {isString} from "core/util/types"
 import {apply_styles} from "core/css"
 import {empty, bounding_box} from "core/dom"
@@ -12,14 +11,8 @@ import type * as p from "core/properties"
 
 export abstract class DOMElementView extends DOMNodeView {
   declare model: DOMElement
-  declare el: HTMLElement
-
   override get bbox(): BBox {
     return bounding_box(this.el).relative()
-  }
-
-  get self_target(): RenderingTarget {
-    return this.el
   }
 
   readonly child_views: ViewStorage<DOMNode | UIElement> = new Map()

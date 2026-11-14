@@ -1,9 +1,8 @@
 import {UIElement, UIElementView} from "../ui/ui_element"
 import {DOMNode} from "../dom/dom_node"
-import {Text} from "../dom/text"
 import {Signal} from "core/signaling"
 import type {StyleSheetLike, Keys} from "core/dom"
-import {InlineStyleSheet, px, div, bounding_box, dom_ready} from "core/dom"
+import {InlineStyleSheet, px, div, text, bounding_box, dom_ready} from "core/dom"
 import {isString} from "core/util/types"
 import type {ChildView, ViewOf} from "core/build_views"
 import {build_view} from "core/build_views"
@@ -70,8 +69,8 @@ export class DialogView extends UIElementView {
     return true
   }
 
-  protected _title: ViewOf<UIElementLike>
-  protected _content: ViewOf<UIElementLike>
+  protected _title: ViewOf<UIElementLike> | null = null
+  protected _content: ViewOf<UIElementLike> | null = null
 
   override _children_views(): ChildView[] {
     return [...super._children_views(), this._title, this._content]
@@ -86,26 +85,64 @@ export class DialogView extends UIElementView {
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
+    await this._rebuild_title()
+    await this._rebuild_content()
+  }
 
-    const title = (() => {
-      const {title} = this.model
-      return isString(title) || title == null ? Text.create({content: title ?? ""}) : title
-    })()
+  protected async _build_slot(obj: string | UIElementLike | null): Promise<ViewOf<UIElementLike> | null> {
+    return isString(obj) || obj == null ? null : await build_view(obj, {parent: this})
+  }
 
-    const content = (() => {
-      const {content} = this.model
-      return isString(content) ? Text.create({content}) : content
-    })()
+  protected async _rebuild_title(): Promise<void> {
+    this._title?.remove()
+    this._title = await this._build_slot(this.model.title)
+  }
 
-    this._title = await build_view(title, {parent: this})
-    this._content = await build_view(content, {parent: this})
+  protected async _rebuild_content(): Promise<void> {
+    this._content?.remove()
+    this._content = await this._build_slot(this.model.content)
+  }
+
+  protected _slot_el(view: ViewOf<UIElementLike> | null, obj: string | UIElementLike | null): ChildNode {
+    if (view != null) {
+      view.render()
+      return view.el
+    } else {
+      return text(isString(obj) ? obj : "")
+    }
+  }
+
+  protected _title_el: HTMLElement
+  protected _grip_el: HTMLElement
+  protected _content_el: HTMLElement
+
+  protected _update_title(): void {
+    this._title_el.replaceChildren(this._grip_el, this._slot_el(this._title, this.model.title))
+    this._title?.r_after_render()
+  }
+
+  protected _update_content(): void {
+    this._content_el.replaceChildren(this._slot_el(this._content, this.model.content))
+    this._content?.r_after_render()
   }
 
   override connect_signals(): void {
     super.connect_signals()
 
-    const {visible} = this.model.properties
+    const {visible, title, content} = this.model.properties
     this.connect(visible.change, () => this._toggle(this.model.visible))
+    this.on_change(title, async () => {
+      await this._rebuild_title()
+      if (this._has_rendered) {
+        this._update_title()
+      }
+    })
+    this.on_change(content, async () => {
+      await this._rebuild_content()
+      if (this._has_rendered) {
+        this._update_content()
+      }
+    })
   }
 
   override remove(): void {
@@ -139,14 +176,12 @@ export class DialogView extends UIElementView {
   override render(): void {
     super.render()
 
-    this._title.render()
-    this._content.render()
-
     const inner_el = div({class: dialogs.inner})
     this.shadow_el.append(inner_el)
 
     const header_el = div({class: dialogs.header})
-    const content_el = div({class: dialogs.content}, this._content.el)
+    const content_el = div({class: dialogs.content}, this._slot_el(this._content, this.model.content))
+    this._content_el = content_el
     const footer_el = div({class: dialogs.footer})
 
     inner_el.append(header_el)
@@ -154,7 +189,9 @@ export class DialogView extends UIElementView {
     inner_el.append(footer_el)
 
     const grip_el = div({class: dialogs.grip})
-    const title_el = div({class: dialogs.title}, grip_el, this._title.el)
+    const title_el = div({class: dialogs.title}, grip_el, this._slot_el(this._title, this.model.title))
+    this._grip_el = grip_el
+    this._title_el = title_el
     const controls_el = div({class: dialogs.controls})
     header_el.append(title_el, controls_el)
 

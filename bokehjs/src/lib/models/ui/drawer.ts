@@ -48,11 +48,11 @@ export class DrawerView extends PaneView {
       this.toggle(this.model.open)
     })
     this.on_change(location, () => {
-      this.class_list.remove(drawers_css.left, drawers_css.right, drawers_css.above, drawers_css.below)
-      this.class_list.add(drawers_css[this.model.location])
+      this.el.classList.remove(drawers_css.left, drawers_css.right, drawers_css.above, drawers_css.below)
+      this.el.classList.add(drawers_css[this.model.location])
     })
     this.on_change(resizable, () => {
-      this.class_list.toggle(drawers_css.resizable, this.model.resizable)
+      this.el.classList.toggle(drawers_css.resizable, this.model.resizable)
     })
   }
 
@@ -68,9 +68,9 @@ export class DrawerView extends PaneView {
     super.render()
     const {location, open, size, resizable} = this.model
 
-    this.class_list.add(drawers_css[location])
-    this.class_list.toggle(drawers_css.open, open)
-    this.class_list.toggle(drawers_css.resizable, resizable)
+    this.el.classList.add(drawers_css[location])
+    this.el.classList.toggle(drawers_css.open, open)
+    this.el.classList.toggle(drawers_css.resizable, resizable)
 
     const icon_el = div({class: drawers_css.chevron})
 
@@ -88,7 +88,7 @@ export class DrawerView extends PaneView {
   }
 
   toggle(open?: boolean): void {
-    open = this.class_list.toggle(drawers_css.open, open)
+    open = this.el.classList.toggle(drawers_css.open, open)
     this.toggle_el.title = this.title(open)
     this.model.open = open
   }
@@ -103,7 +103,7 @@ export class DrawerView extends PaneView {
       width: parseFloat(styles.width),
       height: parseFloat(styles.height),
     }
-    this.class_list.add(drawers_css.resizing)
+    this.el.classList.add(drawers_css.resizing)
   }
 
   on_pan(event: PanEvent): void {
@@ -130,7 +130,7 @@ export class DrawerView extends PaneView {
   on_pan_end(_event: PanEvent): void {
     assert(this.state != null)
     this.state = null
-    this.class_list.remove(drawers_css.resizing)
+    this.el.classList.remove(drawers_css.resizing)
   }
 }
 

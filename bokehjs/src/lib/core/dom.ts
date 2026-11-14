@@ -622,58 +622,6 @@ export function position(el: HTMLElement, box: Box, margin?: Extents): void {
   }
 }
 
-export class ClassList {
-  constructor(private readonly class_list: DOMTokenList) {}
-
-  get values(): string[] {
-    const values = []
-    for (let i = 0; i < this.class_list.length; i++) {
-      const item = this.class_list.item(i)
-      if (item != null) {
-        values.push(item)
-      }
-    }
-    return values
-  }
-
-  has(cls: string): boolean {
-    return this.class_list.contains(cls)
-  }
-
-  add(...classes: string[]): this {
-    for (const cls of classes) {
-      this.class_list.add(cls)
-    }
-    return this
-  }
-
-  remove(...classes: string[] | string[][]): this {
-    for (const cls of classes) {
-      if (isArray(cls)) {
-        cls.forEach((cls) => this.class_list.remove(cls))
-      } else {
-        this.class_list.remove(cls)
-      }
-    }
-    return this
-  }
-
-  clear(): this {
-    for (const cls of this.values) {
-      this.class_list.remove(cls)
-    }
-    return this
-  }
-
-  toggle(cls: string, activate?: boolean): boolean {
-    return this.class_list.toggle(cls, activate)
-  }
-}
-
-export function classes(el: HTMLElement): ClassList {
-  return new ClassList(el.classList)
-}
-
 export function toggle_attribute(el: HTMLElement, attr: string, state?: boolean): void {
   if (state == null) {
     state = !el.hasAttribute(attr)

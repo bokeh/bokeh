@@ -1,5 +1,5 @@
 import type {StyleSheetLike, Keys} from "../dom"
-import {div, empty, InlineStyleSheet, ClassList} from "../dom"
+import {div, empty, InlineStyleSheet} from "../dom"
 import type {Orientation} from "../enums"
 import {isString} from "./types"
 
@@ -30,7 +30,6 @@ export class DropPane { //extends DOMComponentView {
   readonly reversed: boolean
   readonly prevent_hide?: HTMLElement | ((event: UIEvent) => boolean)
   readonly extra_stylesheets: StyleSheetLike[]
-  readonly class_list: ClassList
 
   constructor(public contents: HTMLElement[], options: Options) {
     this.target = options.target
@@ -38,7 +37,6 @@ export class DropPane { //extends DOMComponentView {
     this.extra_stylesheets = options.extra_stylesheets ?? []
 
     this.shadow_el = this.el.attachShadow({mode: "open"})
-    this.class_list = new ClassList(this.el.classList)
   }
 
   protected _on_mousedown = (event: UIEvent) => {
@@ -98,7 +96,7 @@ export class DropPane { //extends DOMComponentView {
 
   empty(): void {
     empty(this.shadow_el)
-    this.class_list.clear()
+    this.el.removeAttribute("class")
   }
 
   render(): void {

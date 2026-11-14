@@ -6,14 +6,14 @@ import {index} from "@bokehjs/embed/standalone"
 import type {EmbedPayload} from "@bokehjs/embed/payload"
 import {Document, documents} from "@bokehjs/document"
 import {HasProps} from "@bokehjs/core/has_props"
-import {DOMElementView} from "@bokehjs/core/dom_view"
+import {DOMView} from "@bokehjs/core/dom_view"
 import {ModelResolver} from "@bokehjs/core/resolvers"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {defer} from "@bokehjs/core/util/defer"
 import {register_standard_models} from "@bokehjs/models/register"
 import {version as js_version} from "@bokehjs/version"
 
-class SomeView extends DOMElementView {
+class SomeView extends DOMView {
   render(): void {
     this.el.style.width = "100px"
     this.el.style.height = "100px"
@@ -34,7 +34,7 @@ class ModelWithView extends HasProps {
 
 let finish_deferred_view: (() => void) | undefined
 
-class DeferredView extends DOMElementView {
+class DeferredView extends DOMView {
   render(): void {
     finish_deferred_view = () => this.finish()
   }

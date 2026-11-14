@@ -2672,10 +2672,6 @@
     __extends__: "bokeh.models.dom.DOMElement",
     actions: [],
   },
-  "bokeh.models.dom.Text": {
-    __extends__: "bokeh.models.dom.DOMNode",
-    content: "",
-  },
   "bokeh.models.dom.ToggleGroup": {
     __extends__: "bokeh.models.dom.Action",
     groups: [],

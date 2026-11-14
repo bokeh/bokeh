@@ -1,5 +1,5 @@
 import type {StyleSheetLike} from "../dom"
-import {div, empty, InlineStyleSheet, ClassList} from "../dom"
+import {div, empty, InlineStyleSheet} from "../dom"
 import type {Orientation} from "../enums"
 import {reversed} from "./array"
 import {isBoolean, isString, isPlainObject} from "./types"
@@ -73,7 +73,6 @@ export class ContextMenu {
   readonly prevent_hide?: (event: MouseEvent) => boolean
   readonly extra_styles: StyleSheetLike[]
   readonly on_toggle?: (open: boolean) => void
-  readonly class_list: ClassList
 
   constructor(readonly items: MenuItemLike_[], options: MenuOptions) {
     this.target = options.target
@@ -94,7 +93,6 @@ export class ContextMenu {
     }
 
     this.shadow_el = this.el.attachShadow({mode: "open"})
-    this.class_list = new ClassList(this.el.classList)
   }
 
   protected _item_click = (entry: MenuEntry | MenuItem) => {
@@ -194,7 +192,7 @@ export class ContextMenu {
 
   empty(): void {
     empty(this.shadow_el)
-    this.class_list.clear()
+    this.el.removeAttribute("class")
   }
 
   render(): void {
@@ -205,7 +203,7 @@ export class ContextMenu {
       .map((style) => isString(style) ? new InlineStyleSheet(style) : style)
       .map((sheet) => sheet.to_native())
 
-    this.class_list.add(menus[this.orientation])
+    this.el.classList.add(menus[this.orientation])
 
     const items = this.reversed ? reversed(this.items) : this.items
     for (const item of items) {

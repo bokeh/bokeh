@@ -426,7 +426,6 @@ describe("default model resolver", () => {
       "bokeh.models.dom.Table",
       "bokeh.models.dom.TableRow",
       "bokeh.models.dom.Template",
-      "bokeh.models.dom.Text",
       "bokeh.models.dom.ToggleGroup",
       "bokeh.models.dom.ValueOf",
       "bokeh.models.dom.ValueRef",
