@@ -159,6 +159,11 @@ textarea.bk-input {
   // resizing is supported by the widget itself (see `resizable` property)
   resize: none;
 }
+// let text area follow the size of the (resized) widget
+.bk-outer:has(textarea.bk-input) {
+  flex: 1 1 auto;
+  min-height: 0;
+}
 select[multiple], select[size] {
   &.bk-input {
     padding-block: 0;
