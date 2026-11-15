@@ -254,7 +254,6 @@ known-local-folder = [
 # For now ignore each remaining untyped module individually.
 [[tool.mypy.overrides]]
 module = [
-    "bokeh.application.handlers.notebook",
     "bokeh.plotting._figure",
     "bokeh.plotting._geo_feature",
     "bokeh.plotting._graph",
