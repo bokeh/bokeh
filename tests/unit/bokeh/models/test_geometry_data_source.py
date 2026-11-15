@@ -1,5 +1,7 @@
 from collections import namedtuple
+from collections.abc import Sequence
 from datetime import date
+from typing import Any
 
 import numpy as np
 import pytest
@@ -118,3 +120,78 @@ def test_from_xy_supports_empty_and_temporal_coordinates() -> None:
     assert source.geometries == [{"type": "Polygon", "coordinates": [
         [[0, 0], [86_400_000, 1], [172_800_000, 0], [0, 0]],
     ]}]
+
+
+def test_geojson_string_expands_collection_and_keeps_feature_properties() -> None:
+    source = GeometryDataSource('''{
+        "type": "Feature",
+        "properties": {"name": "survey"},
+        "geometry": {
+            "type": "GeometryCollection",
+            "geometries": [null, {"type": "Point", "coordinates": [1, 2]}]
+        }
+    }''')
+    assert source.geometries == [None, {"type": "Point", "coordinates": [1, 2]}]
+    assert source.data == {"name": ["survey", "survey"]}
+
+
+def test_explicit_geometry_records_keep_collection_in_one_row() -> None:
+    collection = {"type": "GeometryCollection", "geometries": [
+        {"type": "Point", "coordinates": [1, 2]},
+        {"type": "Point", "coordinates": [3, 4]},
+    ]}
+    for source in (
+        GeometryDataSource({"geometries": [collection], "data": {"name": ["survey"]}}),
+        GeometryDataSource(data={"geometry": [collection], "name": ["survey"]}),
+    ):
+        assert source.geometries == [collection]
+        assert source.data == {"name": ["survey"]}
+
+
+def test_geometry_source_rejects_invalid_input_forms() -> None:
+    with pytest.raises(TypeError, match="at most one positional"):
+        GeometryDataSource([], [])
+    with pytest.raises(ValueError, match="either positional geometry data or geometries/data keywords"):
+        GeometryDataSource([], geometries=[])
+    with pytest.raises(ValueError, match="mapping of aligned fields"):
+        GeometryDataSource({"geometries": [], "data": []})
+    with pytest.raises(ValueError, match="must define a 'type'"):
+        GeometryDataSource(geometries=[{"coordinates": [1, 2]}])
+
+    invalid_collection = {"type": "GeometryCollection", "geometries": None}
+    with pytest.raises(ValueError, match="must contain a geometries array"):
+        GeometryDataSource(invalid_collection)
+    with pytest.raises(ValueError, match="must contain a geometries array"):
+        GeometryDataSource(geometries=[invalid_collection])
+
+
+def test_from_xy_builds_categorical_polygon_rows() -> None:
+    source = GeometryDataSource.from_xy(
+        [["a", "b", "c"]], [["low", "high", "low"]],
+    )
+    assert source.geometries == [{"type": "Polygon", "coordinates": [
+        [["a", "low"], ["b", "high"], ["c", "low"], ["a", "low"]],
+    ]}]
+
+
+@pytest.mark.parametrize(("x", "y", "message"), [
+    (np.zeros((1, 1, 3)), np.zeros((1, 1, 3)), "one- or two-dimensional"),
+    ([[0, 1, 0]], [0, 0, 1], "matching nesting"),
+    ([0, 1, 0], [0, 1], "same length"),
+    ([[0, 1, 0]], [[0, 0, 1], [0, 0, 1]], "same length"),
+])
+def test_from_xy_rejects_mismatched_arrays(
+    x: Sequence[Any] | np.ndarray, y: Sequence[Any] | np.ndarray, message: str,
+) -> None:
+    with pytest.raises(ValueError, match=message):
+        GeometryDataSource.from_xy(x, y)
+
+
+def test_add_requires_an_aligned_attribute_field() -> None:
+    source = GeometryDataSource(geometries=[None])
+    assert source.add([7], name="value") == "value"
+    with pytest.raises(ValueError, match="reserved"):
+        source.add([None], name="geometry")
+    with pytest.raises(ValueError, match="same length as geometries"):
+        source.add([], name="invalid")
+    assert source.data == {"value": [7]}
