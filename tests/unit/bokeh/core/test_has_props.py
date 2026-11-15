@@ -254,6 +254,23 @@ def test_HasProps_typed_override_requires_inherited_property() -> None:
         class Child(Base):
             _x = Override(Other.x, default=2)
 
+def test_HasProps_typed_override_with_multiple_inheritance() -> None:
+    class Left(hp.HasProps, hp.Local):
+        x = Int(default=1)
+
+    class Right(hp.HasProps, hp.Local):
+        x = Int(default=2)
+
+    class Child(Left, Right):
+        _x = Override(Left.x, default=3)
+
+    assert Child.__overridden_defaults__ == {"x": 3}
+    assert Child().x == 3
+
+    with pytest.raises(TypeError, match=r"OtherChild\._x overrides a property that OtherChild doesn't inherit"):
+        class OtherChild(Left, Right):
+            _x = Override(Right.x, default=3)
+
 def test_HasProps_typed_override_requires_property() -> None:
     with pytest.raises(TypeError, match=r"expected a property of a model"):
         Override(1, default=2)  # type: ignore[call-overload]

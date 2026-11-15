@@ -298,7 +298,6 @@ def _resolve_overrides(
     cls: type[HasProps],
     own_overridden_defaults: Mapping[str, Any],
     own_properties: Mapping[str, Property[Any]],
-    property_bases: list[type[HasProps]],
 ) -> dict[str, Any]:
     """ Map names of overrides to names of the overridden properties.
 
@@ -307,9 +306,10 @@ def _resolve_overrides(
     them, so that type checkers retain types of properties in derived models.
 
     """
+    # resolve inherited properties in the MRO order, like _PropertyInfo does
     known_properties: dict[str, Property[Any]] = {}
-    for base in property_bases:
-        known_properties.update(base.properties())
+    for base in reversed(cls.__mro__[1:]):
+        known_properties.update(base.__dict__.get("__properties__", {}))
     known_properties.update(own_properties)
 
     # properties given explicitly, e.g. ``_name = Override(Base.name, ...)``
@@ -389,7 +389,7 @@ class HasProps(Serializable):
         own_properties = MappingProxyType(dict(cls.__dict__.get("__properties__", {})))
         property_bases = [base for base in cls.__bases__ if issubclass(base, HasProps)]
         own_overridden_defaults = MappingProxyType(_resolve_overrides(
-            cls, cls.__dict__.get("__overridden_defaults__", {}), own_properties, property_bases,
+            cls, cls.__dict__.get("__overridden_defaults__", {}), own_properties,
         ))
         cls.__properties__ = own_properties
         cls.__overridden_defaults__ = own_overridden_defaults
