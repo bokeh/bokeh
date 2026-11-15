@@ -5,19 +5,20 @@ import {union, intersection, difference, symmetric_difference} from "core/util/a
 import {merge} from "core/util/object"
 import type {Glyph, GlyphView} from "../glyphs/glyph"
 import {Arrayable, Int, Mapping, List, Struct} from "core/kinds"
+import type {Infer} from "core/kinds"
 import {map} from "core/util/arrayable"
 
 export const OpaqueIndices = Arrayable(Int)
-export type OpaqueIndices = typeof OpaqueIndices["__type__"]
+export type OpaqueIndices = Infer<typeof OpaqueIndices>
 
 export const MultiIndices = Mapping(Int, OpaqueIndices)
-export type MultiIndices = typeof MultiIndices["__type__"]
+export type MultiIndices = Infer<typeof MultiIndices>
 
 export const ImageIndex = Struct({index: Int, i: Int, j: Int, flat_index: Int})
-export type ImageIndex = typeof ImageIndex["__type__"]
+export type ImageIndex = Infer<typeof ImageIndex>
 
 export const ImageIndices = List(ImageIndex)
-export type ImageIndices = typeof ImageIndices["__type__"]
+export type ImageIndices = Infer<typeof ImageIndices>
 
 export namespace Selection {
   export type Attrs = p.AttrsOf<Props>

@@ -44,6 +44,7 @@ import {compute_renderers} from "../../util"
 import {CustomJSHover} from "./customjs_hover"
 import {InspectTool, InspectToolView} from "./inspect_tool"
 import {Nullable, Or, Str, Tuple, Enum, List} from "core/kinds"
+import type {Infer} from "core/kinds"
 import {FilterDef} from "../../dom/value_ref"
 import type {FilterArgs} from "../../dom/value_ref"
 import type {VNode} from "core/vdom"
@@ -89,16 +90,16 @@ class HTML extends Component<{children: Node[]}> {
 }
 
 const Field = Str
-type Field = typeof Field["__type__"]
+type Field = Infer<typeof Field>
 
 const SortDirection = Or(Enum("ascending", "descending"), Enum(1, -1))
-type SortDirection = typeof SortDirection["__type__"]
+type SortDirection = Infer<typeof SortDirection>
 
 const SortColumn = Tuple(Field, SortDirection)
-type SortColumn = typeof SortColumn["__type__"]
+type SortColumn = Infer<typeof SortColumn>
 
 const SortBy = Nullable(Or(Field, List(Or(Field, SortColumn))))
-type SortBy = typeof SortBy["__type__"]
+type SortBy = Infer<typeof SortBy>
 
 type TooltipEntry = {
   html: Element | VNode

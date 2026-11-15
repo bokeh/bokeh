@@ -8,6 +8,7 @@ import {isFunction} from "core/util/types"
 import type {StyleSheetLike, Keys} from "core/dom"
 import {div, px} from "core/dom"
 import {Or, Ref, Null} from "core/kinds"
+import type {Infer} from "core/kinds"
 import type {ViewStorage, ChildView} from "core/build_views"
 import {build_views} from "core/build_views"
 import {reversed as reverse} from "core/util/array"
@@ -21,7 +22,7 @@ function to_val<T>(val: T | (() => T)): T {
 }
 
 export const MenuItemLike = Or(Ref(MenuItem), Ref(DividerItem), Null)
-export type MenuItemLike = typeof MenuItemLike["__type__"]
+export type MenuItemLike = Infer<typeof MenuItemLike>
 
 export type MenuItemEntry = {
   item: MenuItem

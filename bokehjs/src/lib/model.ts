@@ -14,6 +14,7 @@ import {execute} from "./core/util/callbacks"
 import {SyncPolicyQueue} from "./core/util/sync_policy"
 import type {SyncPolicy, SyncPolicyKind} from "./core/util/sync_policy"
 import {KeyVal, Mapping, Str, Float, List, Func, Enum, Null, Or, Tuple} from "core/kinds"
+import type {Infer} from "core/kinds"
 
 export type ModelSelector<T extends HasProps> = HasPropsClass<T> | string | {type: string}
 
@@ -22,7 +23,7 @@ export type ChangeCallback = CallbackLike0<Model>
 export type EventCallback<T extends ModelEvent = ModelEvent> = CallbackLike0<T>
 
 const JSCallbacks = Mapping(Str, List(Func<[], void>()))
-type JSCallbacks = typeof JSCallbacks["__type__"]
+type JSCallbacks = Infer<typeof JSCallbacks>
 
 export const CallbackPolicy = Or(
   Tuple(Enum("immediate"), Null),
@@ -40,10 +41,10 @@ type JSCallbackQueueKey = readonly [
 ]
 
 const SubscribedChanges = KeyVal(Str, List(CallbackPolicy))
-type SubscribedChanges = typeof SubscribedChanges["__type__"]
+type SubscribedChanges = Infer<typeof SubscribedChanges>
 
 const JSCallbackPolicies = KeyVal(Str, KeyVal(Str, List(CallbackPolicy)))
-type JSCallbackPolicies = typeof JSCallbackPolicies["__type__"]
+type JSCallbackPolicies = Infer<typeof JSCallbackPolicies>
 
 export namespace Model {
   export type Attrs = p.AttrsOf<Props>

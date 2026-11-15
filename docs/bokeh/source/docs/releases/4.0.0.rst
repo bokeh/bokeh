@@ -181,6 +181,11 @@ API changes
 
 * In BokehJS, ``BBox.relativize()`` takes and returns an ``{x, y}`` object.
 
+* BokehJS adds the ``Infer<K>`` type to ``core/kinds``. Use it to derive the
+  static type of a kind, e.g. ``type Position = Infer<typeof Position>``, in
+  place of ``typeof Position["__type__"]``. The ``__type__`` field is no
+  longer accessible, so ``Infer`` is the only way to derive a kind's type.
+
 * ``ColorMapper`` no longer has ``palette`` and ``nan_color``. They moved to
   the new :class:`~bokeh.models.PaletteMixin`, which ``CategoricalColorMapper``,
   ``ContinuousColorMapper`` and ``WeightedStackColorMapper`` include, so code

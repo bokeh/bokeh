@@ -3,10 +3,11 @@ import type {CartesianFrameView} from "../canvas/cartesian_frame"
 import type {PlotView} from "../plots/plot"
 import type * as p from "core/properties"
 import {Nullable, Or, Tuple, Float, Auto} from "core/kinds"
+import type {Infer} from "core/kinds"
 import {map} from "core/util/iterator"
 
 const Bounds = Nullable(Or(Tuple(Nullable(Float), Nullable(Float)), Auto))
-type Bounds = typeof Bounds["__type__"]
+type Bounds = Infer<typeof Bounds>
 
 export namespace Range {
   export type Attrs = p.AttrsOf<Props>

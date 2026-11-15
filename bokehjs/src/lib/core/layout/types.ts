@@ -1,5 +1,6 @@
 import type {Align} from "../enums"
 import {Enum} from "../kinds"
+import type {Infer} from "../kinds"
 
 import type {Size, Extents} from "../types"
 export {type Size}
@@ -76,7 +77,7 @@ export type SizeHint = Size & {
 }
 
 export const SizingPolicy = Enum("fixed", "fit", "min", "max")
-export type SizingPolicy = typeof SizingPolicy["__type__"]
+export type SizingPolicy = Infer<typeof SizingPolicy>
 
 export type Sizing = number | "fit" | "min" | "max"
 
