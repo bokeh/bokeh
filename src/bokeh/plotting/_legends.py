@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# pyright: reportArgumentType=false, reportAssignmentType=false, reportAttributeAccessIssue=false, reportCallIssue=false, reportInvalidTypeArguments=false
-
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -24,12 +22,16 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 
 from ..core.property.vectorization import field, value
-from ..models import ColumnDataSource, Legend, LegendItem
+from ..models.annotations import Legend, LegendItem
+from ..models.sources import ColumnDataSource
 
 if TYPE_CHECKING:
-    from ..core.property.dataspec import DataSpec
-    from ..models import GlyphRenderer, Plot
+    from ..core.property.vectorization import Field, Value
     from ..models.glyph import Glyph
+    from ..models.plots import Plot
+    from ..models.renderers import GlyphRenderer
+
+    type LegendLabel = Field | Value[str | None]
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -50,7 +52,7 @@ LEGEND_ARGS = ['legend', 'legend_label', 'legend_field', 'legend_group']
 # Dev API
 #-----------------------------------------------------------------------------
 
-def pop_legend_kwarg(kwargs: dict[str, Any]) -> tuple[Any, str]:
+def pop_legend_kwarg(kwargs: dict[str, Any]) -> tuple[dict[str, Any], str | None]:
     result = {attr: kwargs.pop(attr) for attr in LEGEND_ARGS if attr in kwargs}
     if len(result) > 1:
         from ..util.strings import nice_join
@@ -59,7 +61,7 @@ def pop_legend_kwarg(kwargs: dict[str, Any]) -> tuple[Any, str]:
     legend_name = kwargs.pop("legend_name", None)
     return result, legend_name
 
-def update_legend(plot: Plot, legend_kwarg: dict[str, Any], legend_name: str | None, glyph_renderer: GlyphRenderer[Glyph]):
+def update_legend(plot: Plot, legend_kwarg: dict[str, Any], legend_name: str | None, glyph_renderer: GlyphRenderer[Glyph]) -> None:
     legend = _get_or_create_legend(plot, legend_name)
     kwarg, value = next(iter(legend_kwarg.items()))
 
@@ -69,7 +71,7 @@ def update_legend(plot: Plot, legend_kwarg: dict[str, Any], legend_name: str | N
 # Private API
 #-----------------------------------------------------------------------------
 
-def _find_legend_item(label: DataSpec[str | None], legend: Legend) -> LegendItem | None:
+def _find_legend_item(label: LegendLabel, legend: Legend) -> LegendItem | None:
     for item in legend.items:
         if item.label == label:
             return item
@@ -104,15 +106,15 @@ def _get_or_create_legend(plot: Plot, legend_name: str | None) -> Legend:
             "Make legends unique by applying a name and assign renderers with 'legend_name' argument to a legend.",
         )
 
-def _handle_legend_field(label: str, legend: Legend, glyph_renderer: GlyphRenderer[Glyph]):
+def _handle_legend_field(label: str, legend: Legend, glyph_renderer: GlyphRenderer[Glyph]) -> None:
     if not isinstance(label, str):
         raise ValueError("legend_field value must be a string")
-    label = field(label)
-    item = _find_legend_item(label, legend)
+    spec: LegendLabel = field(label)
+    item = _find_legend_item(spec, legend)
     if item:
         item.renderers.append(glyph_renderer)
     else:
-        new_item = LegendItem(label=label, renderers=[glyph_renderer])
+        new_item = LegendItem(label=spec, renderers=[glyph_renderer])
         legend.items.append(new_item)
 
 _MISSING = object()  # unique sentinel for the missing category
@@ -161,7 +163,7 @@ def _group_unorderable(column: Any) -> tuple[np.ndarray, np.ndarray]:
 
     return np.asarray(reps, dtype=object), np.asarray(inds, dtype=np.intp)
 
-def _handle_legend_group(label: str, legend: Legend, glyph_renderer: GlyphRenderer[Glyph]):
+def _handle_legend_group(label: str, legend: Legend, glyph_renderer: GlyphRenderer[Glyph]) -> None:
     if not isinstance(label, str):
         raise ValueError("legend_group value must be a string")
 
@@ -175,26 +177,25 @@ def _handle_legend_group(label: str, legend: Legend, glyph_renderer: GlyphRender
 
     column = source.data[label]
     try:
-        vals, inds = np.unique(column, return_index=1)
+        vals, inds = np.unique(np.asanyarray(column), return_index=True)
     except TypeError:
         # ``np.unique`` sorts the values, which fails when a column mixes
         # values that cannot be ordered against each other, e.g. strings and
         # None. Group by order of first appearance instead (#15475).
         vals, inds = _group_unorderable(column)
     for val, ind in zip(vals, inds):
-        label = value(str(val))
-        new_item = LegendItem(label=label, renderers=[glyph_renderer], index=ind)
+        new_item = LegendItem(label=value(str(val)), renderers=[glyph_renderer], index=int(ind))
         legend.items.append(new_item)
 
-def _handle_legend_label(label: str, legend: Legend, glyph_renderer: GlyphRenderer[Glyph]):
+def _handle_legend_label(label: str, legend: Legend, glyph_renderer: GlyphRenderer[Glyph]) -> None:
     if not isinstance(label, str):
         raise ValueError("legend_label value must be a string")
-    label = value(label)
-    item = _find_legend_item(label, legend)
+    spec: LegendLabel = value(label)
+    item = _find_legend_item(spec, legend)
     if item:
         item.renderers.append(glyph_renderer)
     else:
-        new_item = LegendItem(label=label, renderers=[glyph_renderer])
+        new_item = LegendItem(label=spec, renderers=[glyph_renderer])
         legend.items.append(new_item)
 
 _LEGEND_KWARG_HANDLERS = {
