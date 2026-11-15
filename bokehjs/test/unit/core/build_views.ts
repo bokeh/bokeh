@@ -3,7 +3,7 @@ import {expect, expect_not_null} from "#framework/assertions"
 import {HasProps} from "@bokehjs/core/has_props"
 import {View} from "@bokehjs/core/view"
 import type {ViewStorage} from "@bokehjs/core/build_views"
-import {build_views, remove_views} from "@bokehjs/core/build_views"
+import {build_view, build_views, remove_views, ChildViewSlot} from "@bokehjs/core/build_views"
 
 describe("core/build_views", () => {
 
@@ -857,5 +857,189 @@ describe("core/build_views", () => {
     expect(result1.status).to.be.equal("fulfilled")
     expect(n_built_ok).to.be.equal(1)
     expect(storage.get(ok_model)).to.not.be.undefined
+  })
+
+  describe("ChildViewSlot", () => {
+    type Gate = {promise: Promise<void>, resolve: () => void, reject: (error: unknown) => void}
+
+    function gate(): Gate {
+      let resolve: () => void = () => {}
+      let reject: (error: unknown) => void = () => {}
+      const promise = new Promise<void>((res, rej) => {
+        resolve = res
+        reject = rej
+      })
+      return {promise, resolve, reject}
+    }
+
+    const gates = new WeakMap<HasProps, Gate>()
+
+    class GatedModelView extends View {
+      declare model: GatedModel
+
+      override async lazy_initialize(): Promise<void> {
+        await super.lazy_initialize()
+        await gates.get(this.model)?.promise
+      }
+    }
+
+    class GatedModel extends HasProps {
+      declare __view_type__: GatedModelView
+
+      static {
+        this.prototype.default_view = GatedModelView
+      }
+    }
+
+    function gated(): [GatedModel, Gate] {
+      const model = GatedModel.create()
+      const model_gate = gate()
+      gates.set(model, model_gate)
+      return [model, model_gate]
+    }
+
+    async function setup() {
+      const parent = await build_view(GatedModel.create())
+      const slot = new ChildViewSlot<GatedModel>(parent)
+      return {parent, slot}
+    }
+
+    it("should build a view and replace it with a newer one", async () => {
+      const {parent, slot} = await setup()
+      const model0 = GatedModel.create()
+      const model1 = GatedModel.create()
+
+      expect(await slot.build(model0)).to.be.true
+      const view0 = slot.view
+      expect_not_null(view0)
+      expect(view0.model).to.be.equal(model0)
+      expect(view0.parent).to.be.equal(parent)
+
+      expect(await slot.build(model1)).to.be.true
+      expect(slot.view?.model).to.be.equal(model1)
+      expect(view0.is_destroyed).to.be.true
+
+      expect(await slot.build(null)).to.be.true
+      expect(slot.view).to.be.null
+      parent.remove()
+    })
+
+    it("should discard a superseded build that finishes last", async () => {
+      const {parent, slot} = await setup()
+      const [model0, gate0] = gated()
+      const model1 = GatedModel.create()
+
+      const build0 = slot.build(model0)
+      const build1 = slot.build(model1)
+
+      expect(await build1).to.be.true
+      const view1 = slot.view
+      expect(view1?.model).to.be.equal(model1)
+
+      gate0.resolve()
+      expect(await build0).to.be.false
+      expect(slot.view).to.be.equal(view1)
+      expect(view1?.is_destroyed).to.be.false
+      expect(parent.owner.query_one((view) => view.model == model0)).to.be.null
+      parent.remove()
+    })
+
+    it("should discard a superseded build that finishes first", async () => {
+      const {parent, slot} = await setup()
+      const [model0, gate0] = gated()
+      const [model1, gate1] = gated()
+
+      const build0 = slot.build(model0)
+      const build1 = slot.build(model1)
+
+      gate0.resolve()
+      expect(await build0).to.be.false
+      expect(slot.view).to.be.null
+
+      gate1.resolve()
+      expect(await build1).to.be.true
+      expect(slot.view?.model).to.be.equal(model1)
+      parent.remove()
+    })
+
+    it("should let clearing supersede a pending build", async () => {
+      const {parent, slot} = await setup()
+      const [model0, gate0] = gated()
+
+      const build0 = slot.build(model0)
+      expect(await slot.build(null)).to.be.true
+
+      gate0.resolve()
+      expect(await build0).to.be.false
+      expect(slot.view).to.be.null
+      parent.remove()
+    })
+
+    it("should discard a build that finishes after its parent was removed", async () => {
+      const {parent, slot} = await setup()
+      const [model0, gate0] = gated()
+
+      const build0 = slot.build(model0)
+      parent.remove()
+
+      gate0.resolve()
+      expect(await build0).to.be.false
+      expect(slot.view).to.be.null
+    })
+
+    it("should rethrow a failure of the current build and keep the previous view", async () => {
+      const {parent, slot} = await setup()
+      const model0 = GatedModel.create()
+      const [model1, gate1] = gated()
+
+      expect(await slot.build(model0)).to.be.true
+      const view0 = slot.view
+
+      const build1 = slot.build(model1)
+      gate1.reject(new Error("failed"))
+      let error: unknown = null
+      try {
+        await build1
+      } catch (err) {
+        error = err
+      }
+      expect(error).to.be.instanceof(Error)
+      expect(slot.view).to.be.equal(view0)
+      expect(view0?.is_destroyed).to.be.false
+      parent.remove()
+    })
+
+    it("should ignore a failure of a superseded build", async () => {
+      const {parent, slot} = await setup()
+      const [model0, gate0] = gated()
+      const model1 = GatedModel.create()
+
+      const build0 = slot.build(model0)
+      expect(await slot.build(model1)).to.be.true
+
+      gate0.reject(new Error("failed"))
+      expect(await build0).to.be.false
+      expect(slot.view?.model).to.be.equal(model1)
+      parent.remove()
+    })
+
+    it("should remove the current view and invalidate pending builds on remove()", async () => {
+      const {parent, slot} = await setup()
+      const model0 = GatedModel.create()
+      const [model1, gate1] = gated()
+
+      expect(await slot.build(model0)).to.be.true
+      const view0 = slot.view
+
+      const build1 = slot.build(model1)
+      slot.remove()
+      expect(slot.view).to.be.null
+      expect(view0?.is_destroyed).to.be.true
+
+      gate1.resolve()
+      expect(await build1).to.be.false
+      expect(slot.view).to.be.null
+      parent.remove()
+    })
   })
 })

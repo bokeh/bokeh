@@ -262,3 +262,66 @@ export function traverse_views(views: View[], fn: (view: View) => void): void {
     fn(view)
   }
 }
+
+/**
+ * Holds at most one child view of `parent`, built from a model that may
+ * change over time (e.g. a property like `Dialog.content`).
+ *
+ * Builds may overlap, e.g. when the model changes again before the previous
+ * view has finished building. Only the most recently requested build is kept;
+ * a superseded build, or one that finishes after `parent` was removed, has
+ * its view removed and doesn't replace the current view. The current view is
+ * replaced (and removed) only once its successor is ready.
+ */
+export class ChildViewSlot<T extends HasProps> {
+  private _view: ViewOf<T> | null = null
+  private _generation: number = 0
+
+  constructor(readonly parent: View) {}
+
+  /** The current view, or `null` if there is none. */
+  get view(): ViewOf<T> | null {
+    return this._view
+  }
+
+  /**
+   * Builds a view of `model`, or clears this slot if `model` is `null`.
+   *
+   * Resolves to `true` if this build became current, so that the caller can
+   * update the DOM, or to `false` if it was superseded in the meantime, in
+   * which case the caller must do nothing. A failure of a current build is
+   * rethrown and leaves the previous view in place, whereas a failure of a
+   * superseded build is ignored.
+   */
+  async build(model: T | null): Promise<boolean> {
+    this._generation += 1
+    const generation = this._generation
+    const is_current = () => generation == this._generation && !this.parent.is_destroyed
+
+    let view: ViewOf<T> | null
+    try {
+      view = model == null ? null : await build_view(model, {parent: this.parent})
+    } catch (error) {
+      if (is_current()) {
+        throw error
+      }
+      return false
+    }
+
+    if (!is_current()) {
+      view?.remove()
+      return false
+    }
+
+    this._view?.remove()
+    this._view = view
+    return true
+  }
+
+  /** Removes the current view, if any, and invalidates pending builds. */
+  remove(): void {
+    this._generation += 1
+    this._view?.remove()
+    this._view = null
+  }
+}
