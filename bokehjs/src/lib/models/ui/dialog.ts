@@ -10,12 +10,13 @@ import {UIGestures} from "core/ui_gestures"
 import type {ChildView, ViewOf} from "core/build_views"
 import {ChildViewSlot} from "core/build_views"
 import type * as p from "core/properties"
-import type {LRTB} from "core/util/bbox"
-import {BBox} from "core/util/bbox"
-import {find, remove, min as amin} from "core/util/array"
+import type {LRTB, Corners, BBox} from "core/util/bbox"
+import {find, remove} from "core/util/array"
 import {enumerate} from "core/util/iterator"
 import {assert} from "core/util/assert"
 import * as Box from "../common/box_kinds"
+import type {HitTargets} from "../common/box_interaction"
+import {resizable_edges, hittable, move_bbox} from "../common/box_interaction"
 import {Coordinate} from "../coordinates/coordinate"
 import {Or, Ref} from "core/kinds"
 import type {Infer} from "core/kinds"
@@ -165,7 +166,7 @@ export class DialogView extends UIElementView {
 
   protected _has_rendered: boolean = false
 
-  protected readonly _handles: {[key in Box.HitTarget]: HTMLElement} = {
+  protected readonly _handles: HitTargets<HTMLElement> = {
     // area
     area: div({class: dialogs.title}),
     // edges
@@ -339,14 +340,8 @@ export class DialogView extends UIElementView {
     }
   }
 
-  get resizable(): LRTB<boolean> {
-    const {resizable} = this.model
-    return {
-      left: resizable == "left" || resizable == "x" || resizable == "all",
-      right: resizable == "right" || resizable == "x" || resizable == "all",
-      top: resizable == "top" || resizable == "y" || resizable == "all",
-      bottom: resizable == "bottom" || resizable == "y" || resizable == "all",
-    }
+  get resizable(): LRTB<boolean> & Corners<boolean> {
+    return resizable_edges(this.model.resizable)
   }
 
   protected _hit_target(path: EventTarget[]): Box.HitTarget | null {
@@ -371,108 +366,24 @@ export class DialogView extends UIElementView {
     if (this._minimized || this._maximized) {
       return false
     }
-    const {left, right, top, bottom} = this.resizable
-    switch (target) {
-      case "top_left":     return top && left
-      case "top_right":    return top && right
-      case "bottom_left":  return bottom && left
-      case "bottom_right": return bottom && right
-      case "left":         return left
-      case "right":        return right
-      case "top":          return top
-      case "bottom":       return bottom
-      case "area":         return this.model.movable != "none"
-    }
+    const {resizable, movable} = this.model
+    return hittable(resizable, movable != "none")[target]
   }
 
   protected _move_bbox(target: Box.HitTarget, bbox: BBox, dx: number, dy: number): BBox {
-    const resolve = (dim: "x" | "y", limit: Coordinate | number | null): number => {
-      if (limit instanceof Coordinate) {
-        return this.resolve_as_scalar(limit, dim)
-      } else {
-        return NaN
-      }
+    const resolve = (dim: "x" | "y", limit: Box.Limit): number => {
+      return limit instanceof Coordinate ? this.resolve_as_scalar(limit, dim) : NaN
     }
 
-    const slimits = BBox.from_lrtb({
+    const {movable, symmetric} = this.model
+    const limits = {
       left: resolve("x", this.model.left_limit),
       right: resolve("x", this.model.right_limit),
       top: resolve("y", this.model.top_limit),
       bottom: resolve("y", this.model.bottom_limit),
-    })
-
-    const [dl, dr, dt, db] = (() => {
-      const {symmetric} = this.model
-      const [Dx, Dy] = symmetric ? [-dx, -dy] : [0, 0]
-
-      switch (target) {
-        // corners
-        case "top_left":     return [dx, Dx, dy, Dy]
-        case "top_right":    return [Dx, dx, dy, Dy]
-        case "bottom_left":  return [dx, Dx, Dy, dy]
-        case "bottom_right": return [Dx, dx, Dy, dy]
-        // edges
-        case "left":   return [dx, Dx, 0, 0]
-        case "right":  return [Dx, dx, 0, 0]
-        case "top":    return [0, 0, dy, Dy]
-        case "bottom": return [0, 0, Dy, dy]
-        // area
-        case "area": {
-          switch (this.model.movable) {
-            case "both": return [dx, dx, dy, dy]
-            case "x":    return [dx, dx,  0,  0]
-            case "y":    return [ 0,  0, dy, dy]
-            case "none": return [ 0,  0,  0,  0]
-          }
-        }
-      }
-    })()
-
-    const min = (a: number, b: number) => amin([a, b])
-    const sgn = (v: number) => v < 0 ? -1 : (v > 0 ? 1 : 0)
-
-    let {left, right, left_sign, right_sign} = (() => {
-      const left = bbox.left + dl
-      const right = bbox.right + dr
-      const left_sign = sgn(dl)
-      const right_sign = sgn(dr)
-      if (left <= right) {
-        return {left, right, left_sign, right_sign}
-      } else {
-        return {left: right, right: left, left_sign: right_sign, right_sign: left_sign}
-      }
-    })()
-    let {top, bottom, top_sign, bottom_sign} = (() => {
-      const top = bbox.top + dt
-      const bottom = bbox.bottom + db
-      const top_sign = sgn(dt)
-      const bottom_sign = sgn(db)
-      if (top <= bottom) {
-        return {top, bottom, top_sign, bottom_sign}
-      } else {
-        return {top: bottom, bottom: top, top_sign: bottom_sign, bottom_sign: top_sign}
-      }
-    })()
-
-    const Dl = left - slimits.left
-    const Dr = slimits.right - right
-
-    const Dh = min(Dl < 0 ? Dl : NaN, Dr < 0 ? Dr : NaN)
-    if (isFinite(Dh) && Dh < 0) {
-      left += -left_sign*(-Dh)
-      right += -right_sign*(-Dh)
     }
 
-    const Dt = top - slimits.top
-    const Db = slimits.bottom - bottom
-
-    const Dv = min(Dt < 0 ? Dt : NaN, Db < 0 ? Db : NaN)
-    if (isFinite(Dv) && Dv < 0) {
-      top += -top_sign*(-Dv)
-      bottom += -bottom_sign*(-Dv)
-    }
-
-    return BBox.from_lrtb({left, right, top, bottom})
+    return move_bbox(bbox, target, dx, dy, {movable, symmetric, limits}).bbox
   }
 
   protected _pinned: boolean = false
