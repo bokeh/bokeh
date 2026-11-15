@@ -70,6 +70,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 from typing import (
+    TYPE_CHECKING,
     Any,
     Iterator,
     Literal,
@@ -80,6 +81,9 @@ from typing import (
 )
 
 from .. import colors, palettes
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeForm
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -279,8 +283,8 @@ def enumeration[T: str | int](*values: T | TypeAliasType, case_sensitive: bool =
 
     return cast(Enumeration[T], type("Enumeration", (Enumeration,), attrs)())
 
-def _string_enumeration(alias: TypeAliasType, *, case_sensitive: bool = True, quote: bool = False) -> Enumeration[str]:
-    return cast(Enumeration[str], enumeration(alias, case_sensitive=case_sensitive, quote=quote))
+def _string_enumeration[T: str](alias: TypeForm[T], *, case_sensitive: bool = True, quote: bool = False) -> Enumeration[T]:
+    return cast(Enumeration[T], enumeration(cast(TypeAliasType, alias), case_sensitive=case_sensitive, quote=quote))
 
 type AlignType = Literal["start", "center", "end"]
 #: Alignment (vertical or horizontal) of a child item.

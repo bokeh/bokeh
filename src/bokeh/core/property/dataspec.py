@@ -183,8 +183,6 @@ class DataSpec(Either[Any]):
 
     _units_enum: Any | None = None
 
-    value_type: Property[Any]
-
     def __init__(self, value_type: Any, default: Any, *, help: str | None = None) -> None:
         super().__init__(
             String,
@@ -207,7 +205,7 @@ class DataSpec(Either[Any]):
             default=default,
             help=help,
         )
-        self.value_type = self._validate_type_param(value_type)
+        self.value_type: Property[Any] = self._validate_type_param(value_type)
         self.accepts(Instance("bokeh.models.expressions.Expression"), lambda obj: Expr(obj))
 
     def transform(self, value: Any) -> Any:
@@ -452,8 +450,6 @@ class DistanceSpec(NumberSpec):
         return super().prepare_value(owner, name, value, hint=hint)
 
 class NullDistanceSpec(DistanceSpec):
-
-    value_type: Property[Any]
 
     def __init__(self, default: Any = None, *, help: str | None = None) -> None:
         super().__init__(default=default, help=help)

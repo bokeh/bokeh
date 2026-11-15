@@ -1047,7 +1047,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             return None
         return html_repr(self)
 
-    def _sphinx_height_hint(self) -> int|None:
+    def _sphinx_height_hint(self) -> int | None:
         return None
 
 #-----------------------------------------------------------------------------

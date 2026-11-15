@@ -34,7 +34,9 @@ from typing import (
     Any,
     Callable,
     ClassVar,
+    Self,
     cast,
+    overload,
 )
 
 from ...util.dependencies import uses_pandas
@@ -78,7 +80,9 @@ _validation_override: ContextVar[bool | None] = ContextVar("property_validation"
 
 type TypeOrInst[T] = type[T] | T
 
-type Init[T] = T | UndefinedType | _NotGivenType
+# Callable defaults (e.g. ``lambda: []`` or ``InstanceDefault(Model)``) are
+# evaluated for every instance of a model.
+type Init[T] = T | Callable[[], T] | UndefinedType | _NotGivenType
 
 type ModelInit[T] = T | _NotGivenType
 
@@ -88,7 +92,7 @@ type Alternative[T] = tuple[Property[Any], Callable[[Any], T]]
 # A predicate a property's value must satisfy and an error message or handler (see Property.asserts())
 type Assertion[T] = tuple[bool | Callable[[HasProps, T], bool], str | Callable[[HasProps, str, T], None]]
 
-class Property[T = Any]:
+class Property[GetType = Any, SetType = GetType]:
     """ Base class for Bokeh property instances, which can be added to Bokeh
     Models.
 
@@ -99,6 +103,16 @@ class Property[T = Any]:
         help (str or None, optional) :
             A documentation string for this property. (default: None)
 
+    Type parameters:
+
+    ``GetType``
+        The type of values of this property, e.g. ``list[int]``.
+
+    ``SetType``
+        The type of values that can be assigned to this property, e.g.
+        ``Sequence[int]``, which includes values accepted by the property
+        and converted to ``GetType``. Defaults to ``GetType``.
+
     """
 
     _readonly: ClassVar[bool] = False
@@ -106,8 +120,8 @@ class Property[T = Any]:
 
     _self_serialized: bool
 
-    alternatives: list[Alternative[T]]
-    assertions: list[Assertion[T]]
+    alternatives: list[Alternative[GetType]]
+    assertions: list[Assertion[GetType]]
 
     def __set_name__(self, owner: type[Any], name: str) -> None:
         own_properties = owner.__dict__.get("__properties__")
@@ -119,7 +133,13 @@ class Property[T = Any]:
         setattr(owner, name, descriptor)
         own_properties[name] = descriptor.property
 
-    def __init__(self, *, default: Init[T] = _NotGiven, help: str | None = None) -> None:
+    # Infer GetType = SetType from ``default`` when constructing properties directly, e.g.
+    # Property(default=1). Subclasses with distinct GetType and SetType use the second overload.
+    @overload
+    def __init__[T](self: Property[T, T], *, default: Init[T] = ..., help: str | None = ...) -> None: ...
+    @overload
+    def __init__(self, *, default: Init[SetType] = ..., help: str | None = ...) -> None: ...
+    def __init__(self, *, default: Init[Any] = _NotGiven, help: str | None = None) -> None:
         default = default if default is not _NotGiven else Undefined
 
         if self._serialized:
@@ -146,8 +166,29 @@ class Property[T = Any]:
         self.alternatives = []
         self.assertions = []
 
+    if TYPE_CHECKING:
+        # Properties are replaced with descriptors in ``__set_name__``, so
+        # declare the descriptor protocol here, for the benefit of type
+        # checkers, to make property values typed on class instances.
+        #
+        # The last overload covers properties held by non-HasProps objects,
+        # e.g. ``Nullable.type_param`` or ``AliasPropertyDescriptor.alias``.
+        # Such properties are never bound to a class at runtime, but type
+        # checkers may still apply the descriptor protocol to them (mypy
+        # does so for ``@property`` getters returning a descriptor).
+
+        @overload
+        def __get__(self, obj: HasProps, owner: type[HasProps] | None) -> GetType: ...
+        @overload
+        def __get__(self, obj: None, owner: type[HasProps] | None) -> PropertyDescriptor[GetType, SetType]: ...
+        @overload
+        def __get__(self, obj: object, owner: type[object] | None) -> Self: ...
+        def __get__(self, obj: object, owner: type[object] | None) -> GetType | PropertyDescriptor[GetType, SetType] | Self: ...
+
+        def __set__(self, obj: HasProps, value: SetType) -> None: ...
+
     @property
-    def default(self) -> Init[T]:
+    def default(self) -> Init[SetType]:
         return self._default
 
     @property
@@ -160,11 +201,11 @@ class Property[T = Any]:
     def __repr__(self) -> str:
         return str(self)
 
-    def __call__(self, *, default: Init[T] = _NotGiven, help: str | None = None) -> Property[T]:
+    def __call__(self, *, default: Init[SetType] = _NotGiven, help: str | None = None) -> Property[GetType, SetType]:
         """ Clone this property and allow to override ``default`` and ``help``. """
         default = self._default if default is _NotGiven else default
         help = self._help if help is None else help
-        prop = self.__class__(default=default, help=help)
+        prop = cast("Property[GetType, SetType]", self.__class__(default=default, help=help))
         prop.alternatives = list(self.alternatives)
         prop.assertions = list(self.assertions)
         return prop
@@ -180,7 +221,7 @@ class Property[T = Any]:
         else:
             return False
 
-    def make_descriptor(self, name: str) -> PropertyDescriptor[T] | AliasPropertyDescriptor[T]:
+    def make_descriptor(self, name: str) -> PropertyDescriptor[GetType, SetType] | AliasPropertyDescriptor[GetType, SetType]:
         """Return the descriptor used to delegate access to this property.
 
         Args:
@@ -201,7 +242,7 @@ class Property[T = Any]:
         return callable(self._default)
 
     @classmethod
-    def _copy_default(cls, default: Callable[[], T] | Init[T], *, no_eval: bool = False) -> Any:
+    def _copy_default(cls, default: Init[Any], *, no_eval: bool = False) -> Any:
         """ Return a copy of the default, or a new value if the default
         is specified by a function.
 
@@ -258,7 +299,7 @@ class Property[T = Any]:
         """
         return self._readonly
 
-    def matches(self, new: T, old: T) -> bool:
+    def matches(self, new: GetType, old: GetType) -> bool:
         """ Whether two parameters match values.
 
         If either ``new`` or ``old`` is a NumPy array or Pandas Series or Index,
@@ -302,7 +343,7 @@ class Property[T = Any]:
         except (ValueError, TypeError):
             return False
 
-    def transform(self, value: Any) -> T:
+    def transform(self, value: Any) -> GetType:
         """ Change the value into the canonical format for this property.
 
         Args:
@@ -355,7 +396,7 @@ class Property[T = Any]:
         else:
             return True
 
-    def wrap(self, value: T) -> T:
+    def wrap(self, value: GetType) -> GetType:
         """ Some property types need to wrap their values in special containers, etc.
 
         """
@@ -364,13 +405,13 @@ class Property[T = Any]:
     def _hinted_value(self, value: Any, hint: DocumentPatchedEvent | None) -> Any:
         return value
 
-    def prepare_value(self, owner: HasProps | type[HasProps], name: str, value: Any, *, hint: DocumentPatchedEvent | None = None) -> T:
+    def prepare_value(self, owner: HasProps | type[HasProps], name: str, value: Any, *, hint: DocumentPatchedEvent | None = None) -> GetType:
         from ..has_props import HasProps
 
         if value is Undefined:
             if isinstance(owner, HasProps):
                 raise PropertyError(f"can't set {owner}.{name} to Undefined")
-            return cast(T, value)
+            return cast(GetType, value)
 
         error = None
         try:
@@ -414,7 +455,11 @@ class Property[T = Any]:
     def has_ref(self) -> bool:
         return False
 
-    def accepts(self, tp: TypeOrInst[Property[Any]], converter: Callable[[Any], T]) -> Property[T]:
+    def accepts[AcceptsType](
+        self,
+        tp: TypeOrInst[Property[Any, AcceptsType]],
+        converter: Callable[[AcceptsType], GetType],
+    ) -> Property[GetType, SetType | AcceptsType]:
         """ Declare that other types may be converted to this property type.
 
         Args:
@@ -427,15 +472,18 @@ class Property[T = Any]:
                 value to this property type.
 
         Returns:
-            self
+            self, with values accepted by ``tp`` added to its assignment type
 
         """
 
         tp = ParameterizedProperty._validate_type_param(tp)
         self.alternatives.append((tp, converter))
-        return self
+        return cast("Property[GetType, SetType | AcceptsType]", self)
 
-    def asserts(self, fn: Callable[[HasProps, T], bool], msg_or_fn: str | Callable[[HasProps, str, T], None]) -> Property[T]:
+    def asserts(
+        self, fn: Callable[[HasProps, GetType], bool],
+        msg_or_fn: str | Callable[[HasProps, str, GetType], None],
+    ) -> Property[GetType, SetType]:
         """ Assert that prepared values satisfy given conditions.
 
         Assertions are intended in enforce conditions beyond simple value
@@ -466,14 +514,14 @@ class Property[T = Any]:
         else:
             return self
 
-class ParameterizedProperty[T = Any](Property[T]):
+class ParameterizedProperty[GetType = Any, SetType = GetType](Property[GetType, SetType]):
     """ A base class for Properties that have type parameters, e.g. ``List(String)``.
 
     """
 
     _type_params: list[Property[Any]]
 
-    def __init__(self, *type_params: TypeOrInst[Property[Any]], default: Init[T] = _NotGiven, help: str | None = None) -> None:
+    def __init__(self, *type_params: TypeOrInst[Property[Any]], default: Init[SetType] = _NotGiven, help: str | None = None) -> None:
         _type_params = [ self._validate_type_param(param) for param in type_params ]
         default = default if default is not _NotGiven else _type_params[0]._raw_default()
         self._type_params = _type_params
@@ -484,7 +532,7 @@ class ParameterizedProperty[T = Any](Property[T]):
         item_types = ", ".join(str(x) for x in self.type_params)
         return f"{class_name}({item_types})"
 
-    def __call__(self, *, default: Init[T] = _NotGiven, help: str | None = None) -> ParameterizedProperty[T]:
+    def __call__(self, *, default: Init[SetType] = _NotGiven, help: str | None = None) -> ParameterizedProperty[GetType, SetType]:
         """ Clone this property and allow to override ``default`` and ``help``. """
         default = self._default if default is _NotGiven else default
         help = self._help if help is None else help
@@ -533,27 +581,27 @@ class ParameterizedProperty[T = Any](Property[T]):
             params = [ type_param.replace(old, new) for type_param in self.type_params ]
             return self.__class__(*params)
 
-class SingleParameterizedProperty[T = Any](ParameterizedProperty[T]):
+class SingleParameterizedProperty[GetType = Any, SetType = GetType](ParameterizedProperty[GetType, SetType]):
     """ A parameterized property with a single type parameter. """
 
     @property
-    def type_param(self) -> Property[T]:
+    def type_param(self) -> Property[GetType, SetType]:
         return self._type_params[0]
 
-    def __init__(self, type_param: TypeOrInst[Property[Any]], *, default: Init[T] = _NotGiven, help: str | None = None):
+    def __init__(self, type_param: TypeOrInst[Property[Any]], *, default: Init[SetType] = _NotGiven, help: str | None = None):
         super().__init__(type_param, default=default, help=help)
 
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail=detail)
         self.type_param.validate(value, detail=detail)
 
-    def transform(self, value: T) -> T:
+    def transform(self, value: Any) -> GetType:
         return self.type_param.transform(value)
 
-    def wrap(self, value: T) -> T:
+    def wrap(self, value: GetType) -> GetType:
         return self.type_param.wrap(value)
 
-class PrimitiveProperty[T = Any](Property[T]):
+class PrimitiveProperty[GetType = Any, SetType = GetType](Property[GetType, SetType]):
     """ A base class for simple property types.
 
     Subclasses should define a class attribute ``_underlying_type`` that is
@@ -588,7 +636,7 @@ class PrimitiveProperty[T = Any](Property[T]):
         msg = f"expected a value of type {expected_type}, got {value} of type {type(value).__name__}"
         raise ValidationError(msg)
 
-class ContainerProperty[T = Any](ParameterizedProperty[T]):
+class ContainerProperty[GetType = Any, SetType = GetType](ParameterizedProperty[GetType, SetType]):
     """ A base class for Container-like type properties.
 
     """
