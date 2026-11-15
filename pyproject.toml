@@ -260,8 +260,6 @@ module = [
     "bokeh.plotting._legends",
     "bokeh.plotting._plot",
     "bokeh.plotting._renderer",
-    "bokeh.plotting.contour",
-    "bokeh.plotting.graph",
     "tests",
     "tests.*",
 ]
