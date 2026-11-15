@@ -32,7 +32,9 @@ describe("core/ui_gestures module", () => {
 
     type Events = (PanEvent | TapEvent)["type"][]
 
-    function setup(handlers: {cancellable: boolean}, options: Options = {}) {
+    type Handlers = {cancellable: boolean, can_cancel_pan?: () => boolean}
+
+    function setup(handlers: Handlers, options: Options = {}) {
       const events: Events = []
       const pans: PanEvent[] = []
       const record_pan = (event: PanEvent) => {
@@ -47,6 +49,7 @@ describe("core/ui_gestures module", () => {
         on_pan: record_pan,
         on_pan_end: record_pan,
         ...(handlers.cancellable ? {on_pan_cancel: record_pan} : {}),
+        ...(handlers.can_cancel_pan != null ? {can_cancel_pan: handlers.can_cancel_pan} : {}),
       }
 
       const child_el = div()
@@ -64,7 +67,7 @@ describe("core/ui_gestures module", () => {
       return {events, pans, hit_area, child_el, gestures, cleanup}
     }
 
-    async function with_setup(handlers: {cancellable: boolean}, options: Options, fn: (env: ReturnType<typeof setup>) => void): Promise<void> {
+    async function with_setup(handlers: Handlers, options: Options, fn: (env: ReturnType<typeof setup>) => void): Promise<void> {
       const env = setup(handlers, options)
       try {
         fn(env)
@@ -130,6 +133,36 @@ describe("core/ui_gestures module", () => {
         hit_area.dispatchEvent(pointer("pointermove", 30, 10))
         hit_area.dispatchEvent(pointer("pointerup", 30, 10))
         expect(events).to.be.equal(["pan_start", "pan", "pan", "pan_end"])
+      })
+    })
+
+    it("should not cancel panning on Escape when can_cancel_pan() returns false", async () => {
+      let recorded: Events = []
+      let observed: Events | null = null
+      const can_cancel_pan = () => {
+        observed = [...recorded]
+        return false
+      }
+      await with_setup({cancellable: true, can_cancel_pan}, {}, ({events, hit_area}) => {
+        recorded = events
+        pan_start(hit_area)
+        // called after on_pan_start()
+        expect(observed).to.be.equal(["pan_start"])
+
+        const ev = escape()
+        expect(ev.defaultPrevented).to.be.false
+
+        hit_area.dispatchEvent(pointer("pointerup", 30, 10))
+        expect(events).to.be.equal(["pan_start", "pan", "pan_end"])
+      })
+    })
+
+    it("should cancel panning on Escape when can_cancel_pan() returns true", async () => {
+      await with_setup({cancellable: true, can_cancel_pan: () => true}, {}, ({events, hit_area}) => {
+        pan_start(hit_area)
+        const ev = escape()
+        expect(ev.defaultPrevented).to.be.true
+        expect(events).to.be.equal(["pan_start", "pan", "pan_cancel"])
       })
     })
 

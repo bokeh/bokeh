@@ -71,6 +71,12 @@ export type GestureHandlers = {
    * called instead and Escape doesn't cancel panning.
    */
   on_pan_cancel?(event: PanEvent): void
+  /**
+   * Whether Escape cancels the panning that just started, i.e. called after
+   * `on_pan_start()`. Use this when only some pans can be reverted. Defaults
+   * to `true` if `on_pan_cancel()` is provided.
+   */
+  can_cancel_pan?(): boolean
 
   on_pinch_start?(event: PinchEvent): void
   on_pinch?(event: PinchEvent): void
@@ -213,7 +219,7 @@ export class UIGestures {
    * Escape cancels panning only if a handler can revert it.
    */
   protected _listen_escape(listen: boolean): void {
-    if (listen && this.handlers.on_pan_cancel == null) {
+    if (listen && !this.can_cancel_pan()) {
       return
     }
     if (listen != this._listening_escape) {
@@ -369,10 +375,10 @@ export class UIGestures {
         this._cancel_timeout()
         if (!this._is_multi_gesture) {
           this.phase = "panning"
-          this._listen_escape(true)
           const [ptr] = this.pointers.values()
           const {dx, dy} = this._movement(ptr)
           this.on_pan_start(ptr.init, 0, 0)
+          this._listen_escape(true)
           this.on_pan(ptr.last, dx, dy)
         } else {
           const [ptr0, ptr1] = this.pointers.values()
@@ -614,6 +620,14 @@ export class UIGestures {
       on_pan_end(this._pan_event("pan_end", ev, dx, dy))
     }
   }
+  can_cancel_pan(): boolean {
+    const {on_pan_cancel, can_cancel_pan} = this.handlers
+    if (on_pan_cancel == null) {
+      return false
+    }
+    return can_cancel_pan != null ? can_cancel_pan() : true
+  }
+
   on_pan_cancel(ev: PointerEvent, dx: number, dy: number): void {
     const {on_pan_cancel} = this.handlers
     if (on_pan_cancel != null) {

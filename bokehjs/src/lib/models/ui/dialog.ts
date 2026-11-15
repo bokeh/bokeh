@@ -7,6 +7,7 @@ import {isString} from "core/util/types"
 import {typed_entries} from "core/util/object"
 import type {PanEvent} from "core/ui_gestures"
 import {UIGestures} from "core/ui_gestures"
+import {DragSession} from "core/drag_session"
 import type {ChildView, ViewOf} from "core/build_views"
 import {ChildViewSlot} from "core/build_views"
 import type * as p from "core/properties"
@@ -198,35 +199,32 @@ export class DialogView extends UIElementView {
     })
   })
 
-  protected _pan_state: {bbox: BBox, target: Box.HitTarget} | null = null
+  protected readonly _drag = new DragSession<Box.HitTarget, BBox>(({left, top, width, height}) => {
+    this._reposition({left, top, width, height})
+  })
 
   protected _on_pan_start(target: Box.HitTarget, _event: PanEvent): void {
     if (this._can_hit(target)) {
-      this._pan_state = {bbox: bounding_box(this.el), target}
+      this._drag.start(target, bounding_box(this.el))
       this.el.classList.add(dialogs.interacting)
     }
   }
 
   protected _on_pan(event: PanEvent): void {
-    const {_pan_state} = this
-    if (_pan_state != null) {
-      const {target, bbox} = _pan_state
+    if (this._drag.is_active) {
+      const {target, snapshot: bbox} = this._drag.state
       this._reposition(this._move_bbox(target, bbox, event.dx, event.dy))
     }
   }
 
   protected _on_pan_end(_event: PanEvent): void {
-    this._pan_state = null
+    this._drag.end()
     this.el.classList.remove(dialogs.interacting)
   }
 
-  protected _on_pan_cancel(event: PanEvent): void {
-    const {_pan_state} = this
-    if (_pan_state != null) {
-      const {left, top, width, height} = _pan_state.bbox
-      this._reposition({left, top, width, height})
-    }
-    this._on_pan_end(event)
+  protected _on_pan_cancel(_event: PanEvent): void {
+    this._drag.cancel()
+    this.el.classList.remove(dialogs.interacting)
   }
 
   protected _on_pointer_down = (event: PointerEvent): void => {

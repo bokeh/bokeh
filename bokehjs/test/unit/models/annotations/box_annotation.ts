@@ -150,6 +150,82 @@ describe("BoxAnnotation", () => {
     })
   })
 
+  describe("should support cancelling dragging", () => {
+    function escape(): KeyboardEvent {
+      const event = new KeyboardEvent("keydown", {key: "Escape", bubbles: true, cancelable: true})
+      document.dispatchEvent(event)
+      return event
+    }
+
+    async function setup() {
+      const box = BoxAnnotation.create({left: 0.4, right: 0.6, bottom: 0.4, top: 0.6, editable: true})
+      const plot_view = await mkplot(box)
+      const ac = actions(plot_view, {units: "data"})
+
+      const phases: string[] = []
+      box.pan.connect(([phase]) => phases.push(phase))
+
+      const lrtb = () => {
+        const {left, right, top, bottom} = box
+        return {left, right, top, bottom}
+      }
+
+      /** Pointer events of moving the box, split before releasing the pointer. */
+      const pan = () => {
+        const events = [...ac._pan({type: "line", xy0: xy(0.5, 0.5), xy1: xy(0.7, 0.3)})]
+        const pointerup = events.pop() as PointerEvent
+        const {clientX, clientY} = pointerup
+        const init = {bubbles: true, composed: true, isPrimary: true, pointerType: "mouse", pointerId: pointerup.pointerId, clientX, clientY}
+        const pointercancel = new PointerEvent("pointercancel", init)
+        return {events, pointerup, pointercancel}
+      }
+
+      return {ac, phases, lrtb, pan}
+    }
+
+    it("with Escape", async () => {
+      const {ac, phases, lrtb, pan} = await setup()
+      const initial = lrtb()
+
+      const {events, pointerup} = pan()
+      await ac.emit(events)
+      expect(lrtb()).to.not.be.similar(initial)
+
+      expect(escape().defaultPrevented).to.be.true
+      expect(lrtb()).to.be.equal(initial)
+      expect(phases).to.be.equal(["pan:start", ...phases.slice(1, -1).map(() => "pan"), "pan:cancel"])
+
+      // the rest of the gesture is ignored
+      await ac.emit([...events.slice(1), pointerup])
+      expect(lrtb()).to.be.equal(initial)
+      expect(phases.at(-1)).to.be.equal("pan:cancel")
+    })
+
+    it("with pointercancel", async () => {
+      const {ac, phases, lrtb, pan} = await setup()
+      const initial = lrtb()
+
+      const {events, pointercancel} = pan()
+      await ac.emit([...events, pointercancel])
+      expect(lrtb()).to.be.equal(initial)
+      expect(phases.at(-1)).to.be.equal("pan:cancel")
+    })
+
+    it("and allow further interaction", async () => {
+      const {ac, lrtb, pan} = await setup()
+      const initial = lrtb()
+
+      const {events, pointerup} = pan()
+      await ac.emit(events)
+      escape()
+      await ac.emit([pointerup])
+      expect(lrtb()).to.be.equal(initial)
+
+      await ac.pan(xy(0.5, 0.5), xy(0.7, 0.3))
+      expect(lrtb()).to.be.similar({left: 0.6, right: 0.8, top: 0.4, bottom: 0.2})
+    })
+  })
+
   describe("when movable with handles", () => {
     function mkbox() {
       return BoxAnnotation.create({
