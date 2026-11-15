@@ -255,7 +255,6 @@ known-local-folder = [
 [[tool.mypy.overrides]]
 module = [
     "bokeh.plotting._figure",
-    "bokeh.plotting._geo_feature",
     "tests.cross.*",
     "tests.unit.*",
     "tests.integration.*",
