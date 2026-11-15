@@ -379,6 +379,7 @@
           group: null,
           propagate_hover: false,
           context_menu: null,
+          attachments: [],
           data_source: {
             $type: "ColumnDataSource",
             $id: "p1007",
@@ -651,6 +652,7 @@
           group: null,
           propagate_hover: false,
           context_menu: null,
+          attachments: [],
           data_source: {
             $type: "ColumnDataSource",
             $id: "p1011",
