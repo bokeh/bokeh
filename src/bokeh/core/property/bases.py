@@ -205,7 +205,7 @@ class Property[GetType = Any, SetType = GetType]:
         """ Clone this property and allow to override ``default`` and ``help``. """
         default = self._default if default is _NotGiven else default
         help = self._help if help is None else help
-        prop = cast(Property[GetType, SetType], self.__class__(default=default, help=help))
+        prop = cast("Property[GetType, SetType]", self.__class__(default=default, help=help))
         prop.alternatives = list(self.alternatives)
         prop.assertions = list(self.assertions)
         return prop
@@ -478,7 +478,7 @@ class Property[GetType = Any, SetType = GetType]:
 
         tp = ParameterizedProperty._validate_type_param(tp)
         self.alternatives.append((tp, converter))
-        return cast(Property[GetType, SetType | AcceptsType], self)
+        return cast("Property[GetType, SetType | AcceptsType]", self)
 
     def asserts(
         self, fn: Callable[[HasProps, GetType], bool],

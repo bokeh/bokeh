@@ -306,6 +306,9 @@ def _resolve_overrides(
     them, so that type checkers retain types of properties in derived models.
 
     """
+    if not own_overridden_defaults:
+        return {}
+
     # resolve inherited properties in the MRO order, like _PropertyInfo does
     known_properties: dict[str, Property[Any]] = {}
     for base in reversed(cls.__mro__[1:]):
