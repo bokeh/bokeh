@@ -57,4 +57,34 @@ describe("DialogView", () => {
       view.remove()
     }
   })
+
+  it("should not let superseded 'title' and 'content' builds overwrite newer ones", async () => {
+    const dialog = Dialog.create({title: "title0", content: "content0", visible: false})
+    const {view, title_el, content_el} = await build(dialog)
+    try {
+      const html_views = () => view.children_views().filter((child) => child instanceof HTMLView)
+
+      dialog.title = HTML.create({html: "<b>title1</b>"})
+      dialog.content = HTML.create({html: "<i>content1</i>"})
+      dialog.title = "title2"
+      dialog.content = "content2"
+      await view.ready
+
+      expect(title_el.textContent).to.be.equal("title2")
+      expect(content_el.textContent).to.be.equal("content2")
+      expect(html_views().length).to.be.equal(0)
+
+      dialog.title = HTML.create({html: "<b>title3</b>"})
+      dialog.content = HTML.create({html: "<i>content3</i>"})
+      dialog.title = HTML.create({html: "<b>title4</b>"})
+      dialog.content = HTML.create({html: "<i>content4</i>"})
+      await view.ready
+
+      expect(title_el.querySelector("b")?.textContent).to.be.equal("title4")
+      expect(content_el.querySelector("i")?.textContent).to.be.equal("content4")
+      expect(html_views().length).to.be.equal(2)
+    } finally {
+      view.remove()
+    }
+  })
 })
