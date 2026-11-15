@@ -89,6 +89,15 @@ class Test_get_graph_kwargs:
         assert isinstance(node_glyph, Scatter)
         assert node_glyph.marker == field('marker')
 
+    def test_handle_node_marker_field_dict(self) -> None:
+        node_source = {'marker': ['square', 'circle', 'x']}
+
+        kw = bpg.get_graph_kwargs(node_source, {}, node_marker={'field': 'marker'})
+
+        node_glyph = kw['node_renderer'].glyph
+        assert isinstance(node_glyph, Scatter)
+        assert node_glyph.marker == field('marker')
+
     def test_handle_edge_property_mixins(self) -> None:
         kwargs = dict(edge_line_color="purple", edge_selection_line_color="blue",
                     edge_nonselection_line_color="yellow", edge_hover_line_color="red",

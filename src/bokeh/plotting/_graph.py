@@ -69,7 +69,9 @@ def get_graph_kwargs(node_source: ColumnDataSource, edge_source: ColumnDataSourc
 
     marker = kwargs.pop('node_marker', None)
     marker_type = Scatter
-    if (isinstance(marker, dict) and 'field' in marker) or marker in node_source.data:
+    if isinstance(marker, dict) and 'field' in marker:
+        kwargs['node_marker'] = marker
+    elif isinstance(marker, str) and marker in node_source.data:
         kwargs['node_marker'] = field(marker)
     else:
         if isinstance(marker, dict) and 'value' in marker:
