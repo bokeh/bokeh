@@ -25,7 +25,7 @@ from bokeh.core.properties import (
     String,
 )
 from bokeh.model import Model
-from bokeh.models import BoxSelectTool, Filter, Selection
+from bokeh.models import Filter, Selection
 from bokeh.sphinxext._internal.bokeh_model import (
     _DEFAULT_EXCLUDED_MEMBERS,
     _model_members,
