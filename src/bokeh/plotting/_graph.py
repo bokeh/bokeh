@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# pyright: reportArgumentType=false
-
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -20,17 +18,16 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 import sys
+from typing import TYPE_CHECKING, Any
 
 from ..core.property.vectorization import field
-from ..models import (
-    Circle,
-    ColumnarDataSource,
-    ColumnDataSource,
-    GlyphRenderer,
-    MultiLine,
-    Scatter,
-)
+from ..models.glyphs import Circle, MultiLine, Scatter
+from ..models.renderers import GlyphRenderer
+from ..models.sources import ColumnarDataSource, ColumnDataSource
 from ._renderer import make_glyph, pop_visuals
+
+if TYPE_CHECKING:
+    from ..models.sources import DataDictLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -51,7 +48,7 @@ RENDERER_ARGS = ['name', 'level', 'visible', 'x_range_name', 'y_range_name',
 # Dev API
 #-----------------------------------------------------------------------------
 
-def get_graph_kwargs(node_source: ColumnDataSource, edge_source: ColumnDataSource, **kwargs) -> dict:
+def get_graph_kwargs(node_source: ColumnarDataSource | DataDictLike, edge_source: ColumnarDataSource | DataDictLike, **kwargs: Any) -> dict[str, Any]:
 
     if not isinstance(node_source, ColumnarDataSource):
         try:
@@ -68,10 +65,10 @@ def get_graph_kwargs(node_source: ColumnDataSource, edge_source: ColumnDataSourc
             raise ValueError(msg).with_traceback(sys.exc_info()[2])
 
     marker = kwargs.pop('node_marker', None)
-    marker_type = Scatter
+    marker_type: type[Scatter | Circle] = Scatter
     if isinstance(marker, dict) and 'field' in marker:
         kwargs['node_marker'] = marker
-    elif isinstance(marker, str) and marker in node_source.data:
+    elif isinstance(marker, str) and isinstance(node_source, ColumnDataSource) and marker in node_source.data:
         kwargs['node_marker'] = field(marker)
     else:
         if isinstance(marker, dict) and 'value' in marker:
@@ -127,6 +124,7 @@ def get_graph_kwargs(node_source: ColumnDataSource, edge_source: ColumnDataSourc
     snode_glyph = make_glyph(marker_type, node_kwargs, snode_visuals)
     hnode_glyph = make_glyph(marker_type, node_kwargs, hnode_visuals)
     mnode_glyph = make_glyph(marker_type, node_kwargs, mnode_visuals)
+    assert node_glyph is not None
 
     node_renderer = GlyphRenderer(
         data_source=node_source,
@@ -145,6 +143,7 @@ def get_graph_kwargs(node_source: ColumnDataSource, edge_source: ColumnDataSourc
     sedge_glyph = make_glyph(MultiLine, edge_kwargs, sedge_visuals)
     hedge_glyph = make_glyph(MultiLine, edge_kwargs, hedge_visuals)
     medge_glyph = make_glyph(MultiLine, edge_kwargs, medge_visuals)
+    assert edge_glyph is not None
 
     edge_renderer = GlyphRenderer(
         data_source=edge_source,
