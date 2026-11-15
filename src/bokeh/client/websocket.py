@@ -47,6 +47,8 @@ __all__ = (
 class WebSocketClientConnectionWrapper:
     ''' Used for compatibility across Tornado versions and to add write_lock'''
 
+    write_lock: locks.Lock
+
     def __init__(self, socket: WebSocketClientConnection) -> None:
         self._socket = socket
         # write_lock allows us to lock the connection to send multiple

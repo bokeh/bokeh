@@ -83,6 +83,7 @@ log = logging.getLogger(__name__)
 
 import re
 import warnings
+from collections.abc import Callable
 from heapq import nlargest
 from importlib import import_module
 from os import getenv
@@ -93,7 +94,7 @@ from os.path import (
     join,
 )
 from time import perf_counter
-from typing import Any, NamedTuple, cast
+from typing import Any, ClassVar, NamedTuple, cast
 from uuid import uuid4
 
 from docutils import nodes
@@ -167,7 +168,7 @@ class BokehPlotDirective(BokehDirective):
         flag(value)
         return True
 
-    option_spec = {
+    option_spec: ClassVar[dict[str, Callable[[str], Any]] | None] = {
         "process-docstring": _flag,
         "source-position": lambda x: choice(x, ("below", "above", "none")),
         "linenos": _flag,

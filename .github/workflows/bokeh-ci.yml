@@ -231,6 +231,9 @@ jobs:
         - name: Check library types with pyright
           run: |
             pyright --version && pyright
+        - name: Check type completeness of public API with pyright
+          run: |
+            pixi run --locked --environment ${{ matrix.environment }} verify-types
 
   examples:
     needs: [changes, build]

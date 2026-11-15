@@ -424,7 +424,7 @@ import argparse
 import os
 from fnmatch import fnmatch
 from glob import glob
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from tornado.autoreload import watch
 
@@ -439,7 +439,7 @@ from bokeh.settings import settings
 from bokeh.util.logconfig import basicConfig
 from bokeh.util.strings import format_docstring, nice_join
 
-from ..subcommand import Argument, Subcommand
+from ..subcommand import Args, Argument, Subcommand
 from ..util import build_single_handler_applications, die, report_server_init_errors
 
 if TYPE_CHECKING:
@@ -453,7 +453,7 @@ LOGLEVELS = ('trace', 'debug', 'info', 'warning', 'error', 'critical')
 SESSION_ID_MODES = ('unsigned', 'signed', 'external-signed')
 DEFAULT_LOG_FORMAT = "%(asctime)s %(message)s"
 
-base_serve_args = (
+base_serve_args: Args = (
     ('--port', Argument(
         metavar = 'PORT',
         type    = int,
@@ -524,7 +524,7 @@ class Serve(Subcommand):
 
     help = "Run a Bokeh server hosting one or more applications"
 
-    args = (
+    args: ClassVar[Args] = (
         *base_serve_args,
 
         ('files', Argument(

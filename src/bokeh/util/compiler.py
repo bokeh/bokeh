@@ -81,6 +81,12 @@ class CompilationError(RuntimeError):
     ''' A ``RuntimeError`` subclass for reporting JS compilation errors.
 
     '''
+    line: str | None
+    column: str | None
+    message: str | None
+    text: str
+    annotated: str | None
+
     def __init__(self, error: dict[str, str] | str) -> None:
         super().__init__()
         if isinstance(error, dict):
@@ -90,13 +96,17 @@ class CompilationError(RuntimeError):
             self.text = error.get("text", "")
             self.annotated = error.get("annotated")
         else:
+            self.line = None
+            self.column = None
+            self.message = None
             self.text = error
+            self.annotated = None
 
     def __str__(self) -> str:
         return "\n" + self.text.strip()
 
-bokehjs_dir = settings.bokehjs_path()
-nodejs_min_version = (18, 0, 0)
+bokehjs_dir: Path = settings.bokehjs_path()
+nodejs_min_version: tuple[int, int, int] = (18, 0, 0)
 
 def nodejs_version() -> str | None:
     return _version(_run_nodejs)
@@ -191,6 +201,9 @@ class FromFile(Implementation):
             The path to the file containing the extension source code
 
     '''
+    code: str
+    file: str | None
+
     def __init__(self, path: str) -> None:
         with open(path, encoding="utf-8") as f:
             self.code = f.read()
