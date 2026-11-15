@@ -27,6 +27,7 @@ from bokeh.models import (
     MultiLine,
     NodesAndLinkedEdges,
     Patches,
+    Scatter,
     Segment,
     StaticLayoutProvider,
 )
@@ -54,6 +55,16 @@ class TestGraphRenderer:
         assert renderer.data_source.nodes is renderer.node_renderer.data_source
         assert renderer.data_source.edges is renderer.edge_renderer.data_source
         assert renderer.layout_provider == layout_provider
+
+    def test_class_renderer_defaults(self) -> None:
+        model = bmr.GraphRenderer
+        nodes = model.lookup("node_renderer").class_default(model)
+        edges = model.lookup("edge_renderer").class_default(model)
+
+        assert isinstance(nodes.glyph, Scatter)
+        assert nodes.data_source.data == {"index": []}
+        assert isinstance(edges.glyph, MultiLine)
+        assert edges.data_source.data == {"start": [], "end": []}
 
     def test_init_from_graph_data_source(self) -> None:
         class RecordDataSource(IndexedDataSource):

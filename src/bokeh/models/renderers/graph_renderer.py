@@ -41,6 +41,8 @@ from ..sources import (
     ColumnDataSource,
     GraphDataSource,
     IndexedDataSource,
+    _default_graph_edges,
+    _default_graph_nodes,
 )
 from .glyph_renderer import GlyphRenderer
 from .renderer import DataRenderer
@@ -57,11 +59,11 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def _default_node_renderer(source: IndexedDataSource) -> GlyphRenderer:
-    return GlyphRenderer(glyph=Scatter(), data_source=source)
+def _default_node_renderer(source: IndexedDataSource | None = None) -> GlyphRenderer:
+    return GlyphRenderer(glyph=Scatter(), data_source=_default_graph_nodes() if source is None else source)
 
-def _default_edge_renderer(source: IndexedDataSource) -> GlyphRenderer:
-    return GlyphRenderer(glyph=MultiLine(), data_source=source)
+def _default_edge_renderer(source: IndexedDataSource | None = None) -> GlyphRenderer:
+    return GlyphRenderer(glyph=MultiLine(), data_source=_default_graph_edges() if source is None else source)
 
 class GraphRenderer(DataRenderer):
     ''' Render graph nodes and edges from a coupled ``GraphDataSource``.
@@ -136,12 +138,12 @@ class GraphRenderer(DataRenderer):
     graph in cartesian space.
     """)
 
-    node_renderer = Readonly(Instance(GlyphRenderer), default=InstanceDefault(GlyphRenderer), help="""
+    node_renderer = Readonly(Instance(GlyphRenderer), default=_default_node_renderer, help="""
     Instance of a ``GlyphRenderer`` containing an ``XYGlyph`` that will be rendered
     as the graph nodes.
     """)
 
-    edge_renderer = Readonly(Instance(GlyphRenderer), default=InstanceDefault(GlyphRenderer), help="""
+    edge_renderer = Readonly(Instance(GlyphRenderer), default=_default_edge_renderer, help="""
     Instance of a ``GlyphRenderer`` containing a ``MultiLine``, ``Patches``, ``Segment``, or ``Bezier`` glyph that will be
     rendered as the graph edges. Segment endpoints follow the layout's edge paths.
     Bezier controls may be supplied in ``cx0``, ``cy0``, ``cx1``, and ``cy1``
