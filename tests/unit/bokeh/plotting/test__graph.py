@@ -48,11 +48,13 @@ class Test_get_graph_kwargs:
 
         kw = bpg.get_graph_kwargs(node_source, edge_source)
 
-        # The dataframe index supplies node ids when no explicit id column is
-        # present. Edge topology is already explicit, so its generated index
-        # is omitted.
         assert set(kw['node_renderer'].data_source.data.keys()) == {"index", "foo"}
-        assert set(kw['edge_renderer'].data_source.data.keys()) == {"start", "end", "bar"}
+        assert set(kw['edge_renderer'].data_source.data.keys()) == {"index", "start", "end", "bar"}
+
+    def test_edge_mapping_can_defer_endpoints_until_validation(self) -> None:
+        kw = bpg.get_graph_kwargs({"index": [0, 1]}, {"weight": [1]})
+
+        assert kw["data_source"].edges.data == {"weight": [1]}
 
     def test_handle_sources(self) -> None:
         node_source = ColumnDataSource(data=dict(foo=[]))

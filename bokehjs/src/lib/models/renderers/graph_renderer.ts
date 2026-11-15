@@ -27,11 +27,11 @@ type NodeRenderer = GlyphRendererWithSource<XYGlyph, IndexedDataSource>
 type EdgeRenderer = GlyphRendererWithSource<EdgeGlyph, IndexedDataSource>
 
 function default_node_renderer(source: GraphDataSource["nodes"]): NodeRenderer {
-  return GlyphRenderer.create({glyph: Scatter.create(), data_source: source}) as NodeRenderer
+  return GlyphRenderer.create({glyph: Scatter.create(), data_source: source})
 }
 
 function default_edge_renderer(source: GraphDataSource["edges"]): EdgeRenderer {
-  return GlyphRenderer.create({glyph: MultiLine.create(), data_source: source}) as EdgeRenderer
+  return GlyphRenderer.create({glyph: MultiLine.create(), data_source: source})
 }
 
 export class GraphRendererView extends DataRendererView {

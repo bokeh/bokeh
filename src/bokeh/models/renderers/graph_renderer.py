@@ -38,7 +38,6 @@ from ..glyphs import (
 )
 from ..graphs import GraphHitTestPolicy, LayoutProvider, NodesOnly
 from ..sources import (
-    ColumnarDataSource,
     ColumnDataSource,
     GraphDataSource,
     IndexedDataSource,
@@ -102,11 +101,11 @@ class GraphRenderer(DataRenderer):
         edge_source = self.data_source.edges
         if self.node_renderer.data_source is not node_source or self.edge_renderer.data_source is not edge_source:
             return f"Graph renderer sources must match GraphDataSource.nodes and GraphDataSource.edges [{self}]"
-        if isinstance(node_source, ColumnarDataSource) and "index" not in node_source.column_names:
+        if isinstance(node_source, ColumnDataSource) and "index" not in node_source.column_names:
             missing.append("Field 'index' is missing in GraphDataSource.nodes")
-        if isinstance(edge_source, ColumnarDataSource) and "start" not in edge_source.column_names:
+        if isinstance(edge_source, ColumnDataSource) and "start" not in edge_source.column_names:
             missing.append("Field 'start' is missing in GraphDataSource.edges")
-        if isinstance(edge_source, ColumnarDataSource) and "end" not in edge_source.column_names:
+        if isinstance(edge_source, ColumnDataSource) and "end" not in edge_source.column_names:
             missing.append("Field 'end' is missing in GraphDataSource.edges")
         if missing:
             return " ,".join(missing) + f" [{self}]"

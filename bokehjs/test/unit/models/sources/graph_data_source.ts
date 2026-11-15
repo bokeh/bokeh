@@ -120,6 +120,13 @@ describe("GraphDataSource", () => {
     expect(source.node_index([3, 4])).to.be.equal(1)
   })
 
+  it("uses the first record for duplicate identifiers in an existing indexed source", () => {
+    const nodes = ColumnDataSource.create({data: {index: [0, 0, 1]}})
+    const source = GraphDataSource.create({nodes})
+    expect(source.node_index(0)).to.be.equal(0)
+    expect(source.node_index(1)).to.be.equal(2)
+  })
+
   it("rejects duplicate node identifiers", () => {
     expect(() => GraphDataSource.create({nodes: [[1, 2], [1, 2]]})).to.throw(
       Error,

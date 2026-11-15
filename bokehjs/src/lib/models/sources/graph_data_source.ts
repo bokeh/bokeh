@@ -39,7 +39,7 @@ function rows_source(records: object[]): ColumnDataSource {
       throw new Error("can't mix scalar and non-scalar values for graph attributes")
     }
     data[field] = nested
-      ? values.map((value) => value == null ? [] : value) as unknown[][]
+      ? values.map((value) => value == null ? [] : value)
       : values.map((value) => value ?? null)
   }
   return ColumnDataSource.create({data})
@@ -169,6 +169,19 @@ function graph_id_key(id: unknown): string {
   throw new Error("graph node identifiers must be scalar values or nested arrays of scalar values")
 }
 
+function build_node_index(ids: Arrayable, require_unique = false) {
+  const index = new Map<string, number>()
+  for (let i = 0; i < ids.length; i++) {
+    const key = graph_id_key(ids[i])
+    if (!index.has(key)) {
+      index.set(key, i)
+    } else if (require_unique) {
+      throw new Error(`duplicate graph node identifier at index ${i}`)
+    }
+  }
+  return index
+}
+
 /** A coupled pair of indexed sources containing graph nodes and edges. */
 export class GraphDataSource extends DataSource {
   declare properties: GraphDataSource.Props
@@ -191,7 +204,11 @@ export class GraphDataSource extends DataSource {
     const {nodes: raw_nodes, edges: raw_edges, ...rest} = attrs
     const nodes = node_source(raw_nodes ?? [])
     const edges = edge_source(raw_edges ?? [])
-    super({...rest, nodes, edges} as Partial<GraphDataSource.Attrs> as Partial<DataSource.Attrs>)
+    const normalized_attrs = {...rest, nodes, edges}
+    super(normalized_attrs)
+    if (raw_nodes != null && !(raw_nodes instanceof IndexedDataSource)) {
+      this._node_index = build_node_index(nodes.get_field("index") ?? [], true)
+    }
   }
 
   static {
@@ -199,11 +216,6 @@ export class GraphDataSource extends DataSource {
       nodes: [ Ref(IndexedDataSource), () => ColumnDataSource.create({data: {index: []}}), {readonly: true} ],
       edges: [ Ref(IndexedDataSource), () => ColumnDataSource.create({data: {start: [], end: []}}), {readonly: true} ],
     }))
-  }
-
-  override initialize(): void {
-    super.initialize()
-    this._ensure_node_index()
   }
 
   override connect_signals(): void {
@@ -250,18 +262,6 @@ export class GraphDataSource extends DataSource {
   }
 
   private _ensure_node_index(): void {
-    if (this._node_index == null) {
-      const index = new Map<string, number>()
-      const ids = this.node_ids
-      for (let i = 0; i < ids.length; i++) {
-        const id = ids[i]
-        const key = graph_id_key(id)
-        if (index.has(key)) {
-          throw new Error(`duplicate graph node identifier at index ${i}`)
-        }
-        index.set(key, i)
-      }
-      this._node_index = index
-    }
+    this._node_index ??= build_node_index(this.node_ids)
   }
 }
