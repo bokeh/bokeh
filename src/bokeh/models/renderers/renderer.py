@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-from ...core.enums import RenderLevel
+from ...core.enums import AutoRanging, RenderLevel
 from ...core.has_props import abstract
 from ...core.property.container import List
 from ...core.property.either import Either
@@ -139,6 +139,21 @@ class DataRenderer(Renderer):
     """ An abstract base class for data renderer types (e.g. ``GlyphRenderer``, ``GraphRenderer``).
 
     """
+
+    auto_ranging = Enum(AutoRanging, default="both", help="""
+    Defines which dimensions of this renderer's bounds contribute to
+    auto-ranging.
+
+    Use ``"x"`` or ``"y"`` to contribute only to x- or y-ranges respectively,
+    or ``"none"`` to exclude this renderer from auto-ranging altogether.
+    Booleans are accepted as shorthands for ``"both"`` and ``"none"``.
+
+    .. note::
+        A renderer can also be excluded from auto-ranging of a particular
+        range, by setting that range's ``renderers`` property to an explicit
+        list of renderers that doesn't include it.
+
+    """).accepts(Bool, lambda value: "both" if value else "none")
 
     level = Override(default="glyph")
 

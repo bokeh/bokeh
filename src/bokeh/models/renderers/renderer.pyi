@@ -8,7 +8,7 @@
 from abc import abstractmethod
 from typing import Unpack
 
-from ...core.enums import RenderLevelType as RenderLevel
+from ...core.enums import AutoRangingType as AutoRanging, RenderLevelType as RenderLevel
 from ...model.model import Model, _ModelInit
 from ..coordinates import CoordinateMapping
 from ..dom import DOMNode
@@ -58,11 +58,13 @@ class CompositeRenderer(Renderer):
     elements: list[UIElement | DOMNode] = ...
 
 class _DataRendererInit(_RendererInit, total=False):
-    ...
+    auto_ranging: AutoRanging | bool
 
 class DataRenderer(Renderer):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_DataRendererInit]) -> None: ...
+
+    auto_ranging: AutoRanging = ...
 
 class _GuideRendererInit(_RendererInit, total=False):
     ...
