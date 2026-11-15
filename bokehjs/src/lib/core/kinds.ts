@@ -15,6 +15,8 @@ type ESIterable<V> = globalThis.Iterable<V>
 type DOMNode = globalThis.Node
 const DOMNode = globalThis.Node
 
+export type Infer<K extends Kind<unknown>> = K["__type__"]
+
 export abstract class Kind<T> {
   declare __type__: T
 
@@ -716,5 +718,5 @@ export const FontSize = Str
 export const Font = Str
 export const Angle = Float
 
-export type Float = typeof Float["__type__"]
-export type Dict<V> = Kinds.Dict<V>["__type__"]
+export type Float = Infer<typeof Float>
+export type Dict<V> = Infer<Kinds.Dict<V>>

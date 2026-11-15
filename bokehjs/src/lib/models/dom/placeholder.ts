@@ -7,9 +7,10 @@ import type * as p from "core/properties"
 import type {Dict, PlainObject} from "core/types"
 import {BuiltinFormatter} from "core/enums"
 import {Or, Ref} from "core/kinds"
+import type {Infer} from "core/kinds"
 
 export const Formatter = Or(BuiltinFormatter, Ref(CustomJS), Ref(CustomJSHover))
-export type Formatter = typeof Formatter["__type__"]
+export type Formatter = Infer<typeof Formatter>
 
 export type Formatters = Dict<Formatter>
 

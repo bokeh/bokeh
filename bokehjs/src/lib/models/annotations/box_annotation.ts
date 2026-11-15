@@ -29,9 +29,10 @@ import {Coordinate} from "../coordinates/coordinate"
 import type {Renderer} from "../renderers/renderer"
 import {FactorLike, FactorRange} from "../ranges/factor_range"
 import {Or, Float, Ref} from "core/kinds"
+import type {Infer} from "core/kinds"
 
 const CoordinateLike = Or(Float, FactorLike, Ref(Coordinate))
-type CoordinateLike = typeof CoordinateLike["__type__"]
+type CoordinateLike = Infer<typeof CoordinateLike>
 
 export const EDGE_TOLERANCE = 2.5
 

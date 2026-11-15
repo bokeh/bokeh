@@ -544,12 +544,13 @@ export class ToolbarView extends UIElementView {
 }
 
 import {Struct, Ref, Nullable, List, Or, Enum} from "core/kinds"
+import type {Infer} from "core/kinds"
 
 /**
  * Orientation of the overflow menu relative to the orientation of the toolbar.
  */
 export const OverflowOrientation = Enum("perpendicular", "parallel")
-export type OverflowOrientation = typeof OverflowOrientation["__type__"]
+export type OverflowOrientation = Infer<typeof OverflowOrientation>
 
 const GestureToolLike = Or(Ref(GestureTool), Ref(ToolProxy<GestureTool>))
 type GestureToolLike = GestureTool | ToolProxy<GestureTool>
@@ -558,7 +559,7 @@ const GestureEntry = Struct({
   tools: List(GestureToolLike),
   active: Nullable(GestureToolLike),
 })
-type GestureEntry = typeof GestureEntry["__type__"]
+type GestureEntry = Infer<typeof GestureEntry>
 
 const GesturesMap = Struct({
   pan:       GestureEntry,
@@ -573,7 +574,7 @@ const GesturesMap = Struct({
   multi:     GestureEntry,
 })
 
-type GesturesMap = typeof GesturesMap["__type__"]
+type GesturesMap = Infer<typeof GesturesMap>
 type GestureType = keyof GesturesMap
 
 // XXX: add appropriate base classes to get rid of this

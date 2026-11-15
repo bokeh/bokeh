@@ -16,6 +16,7 @@ import {assert} from "core/util/assert"
 import * as Box from "../common/box_kinds"
 import {Coordinate} from "../coordinates/coordinate"
 import {Or, Ref} from "core/kinds"
+import type {Infer} from "core/kinds"
 
 import dialogs_css, * as dialogs from "styles/dialogs.css"
 import icons_css from "styles/icons.css"
@@ -24,7 +25,7 @@ import icons_css from "styles/icons.css"
 const base_z_index = 1000
 
 const UIElementLike = Or(Ref(UIElement), Ref(DOMNode))
-type UIElementLike = typeof UIElementLike["__type__"]
+type UIElementLike = Infer<typeof UIElementLike>
 
 type CSSVal = number | string
 type Position<T> =

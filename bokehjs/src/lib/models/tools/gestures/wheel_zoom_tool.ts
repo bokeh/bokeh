@@ -13,12 +13,13 @@ import {logger} from "core/logging"
 import type {Geometry} from "core/geometry"
 import {tool_icon_wheel_zoom} from "styles/icons.css"
 import {Enum, List, Ref, Or, Auto} from "core/kinds"
+import type {Infer} from "core/kinds"
 
 const ZoomTogether = Enum("none", "cross", "all")
-type ZoomTogether = typeof ZoomTogether["__type__"]
+type ZoomTogether = Infer<typeof ZoomTogether>
 
 const Renderers = Or(List(Ref(DataRenderer)), Auto)
-type Renderers = typeof Renderers["__type__"]
+type Renderers = Infer<typeof Renderers>
 
 export class WheelZoomToolView extends GestureToolView {
   declare model: WheelZoomTool
