@@ -41,10 +41,11 @@ export class RangeToolView extends GestureToolView {
     this.on_transitive_change(this.model.properties.x_range, update_overlay)
     this.on_transitive_change(this.model.properties.y_range, update_overlay)
 
-    this.model.overlay.pan.connect(([state, _]) => {
-      if (state == "pan") {
+    this.model.overlay.pan.connect(([phase, _]) => {
+      if (phase == "pan" || phase == "pan:cancel") {
         this.model.update_ranges_from_overlay()
-      } else if (state == "pan:end") {
+      }
+      if (phase == "pan:end" || phase == "pan:cancel") {
         const ranges = [this.model.x_range, this.model.y_range].filter((r) => r != null)
         this.parent.trigger_ranges_update_event(ranges)
       }

@@ -33,6 +33,8 @@ export interface Pannable {
   on_pan_start(event: PanEvent): boolean
   on_pan(event: PanEvent): void
   on_pan_end(event: PanEvent): void
+  /** Reverts panning, e.g. when Escape was pressed. Otherwise `on_pan_end()` is called. */
+  on_pan_cancel?(event: PanEvent): void
 }
 
 export interface Pinchable {
@@ -156,6 +158,8 @@ export class UIEventBus {
     this.on_pan_start = this.on_pan_start.bind(this)
     this.on_pan = this.on_pan.bind(this)
     this.on_pan_end = this.on_pan_end.bind(this)
+    this.on_pan_cancel = this.on_pan_cancel.bind(this)
+    this.can_cancel_pan = this.can_cancel_pan.bind(this)
 
     this.on_pinch_start = this.on_pinch_start.bind(this)
     this.on_pinch = this.on_pinch.bind(this)
@@ -761,6 +765,26 @@ export class UIEventBus {
 
   on_pan_end(event: PanEvent): void {
     this._trigger(this.pan_end, event)
+  }
+
+  /**
+   * Only panning of renderers (e.g. editable annotations) can be reverted. Other
+   * panning (e.g. with tools) ends, as if the pointer was released.
+   */
+  on_pan_cancel(event: PanEvent): void {
+    const {_current_pan_view: pan_view} = this
+    if (pan_view?.on_pan_cancel != null) {
+      pan_view.on_pan_cancel(event)
+      this.set_cursor(pan_view.cursor(event.sx, event.sy))
+      this._current_pan_view = null
+      this._curr_pan = null
+    } else {
+      this.on_pan_end({...event, type: "pan_end"})
+    }
+  }
+
+  can_cancel_pan(): boolean {
+    return this._current_pan_view?.on_pan_cancel != null
   }
 
   on_pinch_start(event: PinchEvent): void {

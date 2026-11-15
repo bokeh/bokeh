@@ -14,6 +14,8 @@ import {BBox, empty} from "core/util/bbox"
 import type {Context2d} from "core/util/canvas"
 import type {PanEvent, PinchEvent, Pannable, Pinchable, MoveEvent, Moveable, KeyModifiers} from "core/ui_events"
 import {Signal} from "core/signaling"
+import {DragSession} from "core/drag_session"
+import type {PanPhase} from "core/drag_session"
 import type {Rect} from "core/types"
 import {isNumber} from "core/util/types"
 import {clamp} from "core/util/math"
@@ -34,6 +36,13 @@ import type {Infer} from "core/kinds"
 
 const CoordinateLike = Or(Float, FactorLike, Ref(Coordinate))
 type CoordinateLike = Infer<typeof CoordinateLike>
+
+type DragSnapshot = {
+  /** Screen-space box at the start of dragging. */
+  bbox: BBox
+  /** The model's coordinates, to restore on cancel. */
+  lrtb: LRTB<CoordinateLike>
+}
 
 export const EDGE_TOLERANCE = 2.5
 
@@ -527,17 +536,17 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     return this._hittable()[target]
   }
 
-  private _pan_state: {bbox: BBox, target: Box.HitTarget} | null = null
+  private readonly _drag = new DragSession<Box.HitTarget, DragSnapshot>(({lrtb}) => {
+    this.model.setv(lrtb)
+  })
 
   on_pan_start(ev: PanEvent): boolean {
     if (this.model.visible && this.model.editable) {
       const {sx, sy} = ev
       const target = this._hit_test(sx, sy)
       if (target != null && this._can_hit(target)) {
-        this._pan_state = {
-          bbox: this.bbox.clone(),
-          target,
-        }
+        const {left, right, top, bottom} = this.model
+        this._drag.start(target, {bbox: this.bbox.clone(), lrtb: {left, right, top, bottom}})
         this.model.pan.emit(["pan:start", ev.modifiers])
         return true
       }
@@ -546,8 +555,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   }
 
   on_pan(ev: PanEvent): void {
-    assert(this._pan_state != null)
-
+    const {target, snapshot: {bbox}} = this._drag.state
     const {mappers} = this
 
     const resolve = (dim: "x" | "y", limit: CoordinateLike | null, mapper: CoordinateMapper<number | FactorLike>): number => {
@@ -580,7 +588,6 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       bottom: reversed(bottom_limit, mappers.bottom),
     })
 
-    const {bbox, target} = this._pan_state
     const {movable, symmetric} = this.model
     const {bbox: slrtb, deltas} = move_bbox(bbox, target, ev.dx, ev.dy, {movable, symmetric, limits})
 
@@ -632,8 +639,13 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   }
 
   on_pan_end(ev: PanEvent): void {
-    this._pan_state = null
+    this._drag.end()
     this.model.pan.emit(["pan:end", ev.modifiers])
+  }
+
+  on_pan_cancel(ev: PanEvent): void {
+    this._drag.cancel()
+    this.model.pan.emit(["pan:cancel", ev.modifiers])
   }
 
   private _pinch_state: {bbox: BBox} | null = null
@@ -724,7 +736,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   }
 
   override cursor(sx: number, sy: number): string | null {
-    const target = this._pan_state?.target ?? this._hit_test(sx, sy)
+    const target = this._drag.target ?? this._hit_test(sx, sy)
     if (target == null || !this._can_hit(target)) {
       return null
     }
@@ -748,7 +760,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
         if (!this.movable) {
           return null
         } else if (this._handles.area == null) {
-          if (this._pan_state != null && in_cursor === "grab") {
+          if (this._drag.is_active && in_cursor === "grab") {
             return "grabbing"
           } else {
             return in_cursor
@@ -902,7 +914,7 @@ export class BoxAnnotation extends Annotation {
     })
   }
 
-  readonly pan = new Signal<["pan:start" | "pan" | "pan:end", KeyModifiers], this>(this, "pan")
+  readonly pan = new Signal<[PanPhase, KeyModifiers], this>(this, "pan")
 
   update({left, right, top, bottom}: LRTB<number | Coordinate>): void {
     this.setv({left, right, top, bottom, visible: true})
