@@ -17,8 +17,8 @@ import {assert} from "core/util/assert"
 import * as Box from "../common/box_kinds"
 import type {HitTargets} from "../common/box_interaction"
 import {resizable_edges, hittable, move_bbox} from "../common/box_interaction"
-import {Coordinate} from "../coordinates/coordinate"
-import {Or, Ref} from "core/kinds"
+import {Node} from "../coordinates/node"
+import {Nullable, Or, Ref} from "core/kinds"
 import type {Infer} from "core/kinds"
 
 import dialogs_css, * as dialogs from "styles/dialogs.css"
@@ -29,6 +29,10 @@ const base_z_index = 1000
 
 const UIElementLike = Or(Ref(UIElement), Ref(DOMNode))
 type UIElementLike = Infer<typeof UIElementLike>
+
+// Unlike `Box.Limit`, there are no data-space limits, because dialogs don't have scales.
+const Limit = Nullable(Ref(Node))
+type Limit = Infer<typeof Limit>
 
 type CSSVal = number | string
 type Position<T> =
@@ -371,8 +375,8 @@ export class DialogView extends UIElementView {
   }
 
   protected _move_bbox(target: Box.HitTarget, bbox: BBox, dx: number, dy: number): BBox {
-    const resolve = (dim: "x" | "y", limit: Box.Limit): number => {
-      return limit instanceof Coordinate ? this.resolve_as_scalar(limit, dim) : NaN
+    const resolve = (dim: "x" | "y", limit: Limit): number => {
+      return limit != null ? this.resolve_as_scalar(limit, dim) : NaN
     }
 
     const {movable, symmetric} = this.model
@@ -597,10 +601,10 @@ export namespace Dialog {
     movable: p.Property<Box.Movable>
     symmetric: p.Property<boolean>
 
-    top_limit: p.Property<Box.Limit>
-    bottom_limit: p.Property<Box.Limit>
-    left_limit: p.Property<Box.Limit>
-    right_limit: p.Property<Box.Limit>
+    top_limit: p.Property<Limit>
+    bottom_limit: p.Property<Limit>
+    left_limit: p.Property<Limit>
+    right_limit: p.Property<Limit>
   }
 }
 
@@ -629,10 +633,10 @@ export class Dialog extends UIElement {
       movable: [ Box.Movable, "both" ],
       symmetric: [ Bool, false ],
 
-      top_limit: [ Box.Limit, null ],
-      bottom_limit: [ Box.Limit, null ],
-      left_limit: [ Box.Limit, null ],
-      right_limit: [ Box.Limit, null ],
+      top_limit: [ Limit, null ],
+      bottom_limit: [ Limit, null ],
+      left_limit: [ Limit, null ],
+      right_limit: [ Limit, null ],
     }))
   }
 }
