@@ -127,6 +127,15 @@ def test_gridplot_toolbar_options_group() -> None:
     assert gp.toolbar.group is False
     assert gp.toolbar.group_types == ["pan"]
 
+def test_gridplot_toolbar_options_override_active_inspect() -> None:
+    p = figure()
+    hover = HoverTool()
+    p.add_tools(hover)
+    p.toolbar.active_inspect = [hover]
+
+    gp = gridplot([[p]], toolbar_options={"active_inspect": None})
+    assert gp.toolbar.active_inspect is None
+
 @pytest.mark.parametrize("options", [dict(tools=[]), dict(visible=False), dict(lgo="grey")])
 def test_gridplot_toolbar_options_unsupported(options) -> None:
     with pytest.raises(ValueError, match="Unsupported toolbar options"):

@@ -374,10 +374,13 @@ def gridplot(
     active_multis = [ map_to_proxy(toolbar.active_multi) for toolbar in toolbars ]
 
     def assert_unique[V](values: list[V], name: str) -> V | UndefinedType:
+        # explicit options take precedence over values merged from child toolbars
+        if name in toolbar_options:
+            return Undefined
         n = len(set(values))
         if n == 0:
             return Undefined
-        elif n > 1 and name not in toolbar_options:
+        elif n > 1:
             from .util.warnings import warn
 
             warn(f"found multiple competing values for 'toolbar.{name}' property; using the latest value")
@@ -392,7 +395,6 @@ def gridplot(
         active_tap=assert_unique(active_taps, "active_tap"),
         active_multi=assert_unique(active_multis, "active_multi"),
     )
-    # explicit options take precedence over values merged from child toolbars
     toolbar_props.update(toolbar_options)
     toolbar = Toolbar(tools=tools, **{name: value for name, value in toolbar_props.items() if value is not Undefined})
 
