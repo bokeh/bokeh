@@ -38,7 +38,7 @@ export class DrawerView extends PaneView {
   protected readonly contents_el = div({class: drawers_css.contents})
   protected toggle_el: HTMLElement
 
-  protected ui_gestures = new UIGestures(this.handle_el, this)
+  protected readonly ui_gestures = new UIGestures(this.handle_el, this)
 
   override connect_signals(): void {
     super.connect_signals()
@@ -55,6 +55,11 @@ export class DrawerView extends PaneView {
     this.on_change(resizable, () => {
       this.el.classList.toggle(drawers_css.resizable, this.model.resizable)
     })
+  }
+
+  override disconnect_signals(): void {
+    this.ui_gestures.disconnect_signals()
+    super.disconnect_signals()
   }
 
   override get self_target(): HTMLElement | ShadowRoot {
