@@ -57,7 +57,7 @@ function columns_source(columns: GraphDataSource.Columns, aliases: {[key: string
     if (values == null) {
       throw new Error(`graph field '${field}' has an invalid value`)
     }
-    const canonical = aliases[field] ?? field
+    const canonical = Object.hasOwn(aliases, field) ? aliases[field] : field
     data[canonical] = values
   }
   return ColumnDataSource.create({data})
@@ -72,7 +72,13 @@ function node_source(nodes: GraphDataSource.Nodes): IndexedDataSource {
       return ColumnDataSource.create({data: {index: []}})
     }
     if (!("id" in nodes || "index" in nodes) && Object.values(nodes).every((attrs) => isPlainObject(attrs))) {
-      return rows_source(Object.entries(nodes).map(([index, attrs]) => ({index, ...attrs})))
+      const records = Object.entries(nodes).map(([index, attrs]) => {
+        if (attrs != null && Object.hasOwn(attrs, "index")) {
+          throw new Error("node attributes cannot contain the reserved 'index' field")
+        }
+        return {index, ...attrs}
+      })
+      return rows_source(records)
     }
     return columns_source(nodes as GraphDataSource.Columns, {id: "index"})
   }
@@ -89,13 +95,15 @@ function node_source(nodes: GraphDataSource.Nodes): IndexedDataSource {
       return {index, ...attrs}
     } else if (isPlainObject(node)) {
       const {id, index, ...attrs} = node
-      if (id != null && index != null) {
+      const has_id = Object.hasOwn(node, "id")
+      const has_index = Object.hasOwn(node, "index")
+      if (has_id && has_index) {
         throw new Error("a node record cannot contain both 'id' and 'index'")
       }
-      if (id == null && index == null) {
+      if (!has_id && !has_index) {
         throw new Error("a node record must contain an 'id' or 'index' field")
       }
-      return {index: index ?? id, ...attrs}
+      return {index: has_index ? index : id, ...attrs}
     }
     return {index: node}
   })
@@ -131,13 +139,17 @@ function edge_source(edges: GraphDataSource.Edges): IndexedDataSource {
       return {start, end, ...attrs}
     }
     const {source, target, start, end, ...attrs} = edge
-    if ((source != null && start != null) || (target != null && end != null)) {
+    const has_source = Object.hasOwn(edge, "source")
+    const has_target = Object.hasOwn(edge, "target")
+    const has_start = Object.hasOwn(edge, "start")
+    const has_end = Object.hasOwn(edge, "end")
+    if ((has_source && has_start) || (has_target && has_end)) {
       throw new Error("an edge record cannot contain both endpoint aliases")
     }
-    if ((source ?? start) == null || (target ?? end) == null) {
+    if (!(has_source || has_start) || !(has_target || has_end)) {
       throw new Error("an edge record must contain source/target or start/end fields")
     }
-    return {start: start ?? source, end: end ?? target, ...attrs}
+    return {start: has_start ? start : source, end: has_end ? end : target, ...attrs}
   })
   return rows_source(records)
 }

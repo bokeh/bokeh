@@ -110,6 +110,24 @@ describe("GraphDataSource", () => {
     expect(tuples.nodes.get("color")).to.be.equal(["red", "blue"])
   })
 
+  it("rejects a node mapping attribute that would overwrite the node identifier", () => {
+    expect(() => GraphDataSource.create({nodes: {a: {index: "b"}}})).to.throw(Error, "reserved 'index'")
+  })
+
+  it("preserves null topology values explicitly provided in records", () => {
+    const source = GraphDataSource.create({
+      nodes: [{id: null}, {id: "a"}],
+      edges: [{source: null, target: "a"}],
+    })
+    expect(source.node_ids).to.be.equal([null, "a"])
+    expect(source.edge_starts).to.be.equal([null])
+  })
+
+  it("only uses own alias names when converting columns", () => {
+    const source = GraphDataSource.create({nodes: {index: ["a"], toString: ["label"]}})
+    expect(source.nodes.get("toString")).to.be.equal(["label"])
+  })
+
   it("compares composite node identifiers structurally", () => {
     const source = GraphDataSource.create({
       nodes: [[1, 2], [3, 4]],
