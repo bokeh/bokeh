@@ -95,8 +95,8 @@ function node_source(nodes: GraphDataSource.Nodes): IndexedDataSource {
       return {index, ...attrs}
     } else if (isPlainObject(node)) {
       const {id, index, ...attrs} = node
-      const has_id = Object.hasOwn(node, "id")
-      const has_index = Object.hasOwn(node, "index")
+      const has_id = Object.hasOwn(node, "id") && id !== undefined
+      const has_index = Object.hasOwn(node, "index") && index !== undefined
       if (has_id && has_index) {
         throw new Error("a node record cannot contain both 'id' and 'index'")
       }
@@ -139,10 +139,10 @@ function edge_source(edges: GraphDataSource.Edges): IndexedDataSource {
       return {start, end, ...attrs}
     }
     const {source, target, start, end, ...attrs} = edge
-    const has_source = Object.hasOwn(edge, "source")
-    const has_target = Object.hasOwn(edge, "target")
-    const has_start = Object.hasOwn(edge, "start")
-    const has_end = Object.hasOwn(edge, "end")
+    const has_source = Object.hasOwn(edge, "source") && source !== undefined
+    const has_target = Object.hasOwn(edge, "target") && target !== undefined
+    const has_start = Object.hasOwn(edge, "start") && start !== undefined
+    const has_end = Object.hasOwn(edge, "end") && end !== undefined
     if ((has_source && has_start) || (has_target && has_end)) {
       throw new Error("an edge record cannot contain both endpoint aliases")
     }

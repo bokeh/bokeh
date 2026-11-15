@@ -123,6 +123,16 @@ describe("GraphDataSource", () => {
     expect(source.edge_starts).to.be.equal([null])
   })
 
+  it("ignores undefined optional aliases in graph records", () => {
+    const source = GraphDataSource.create({
+      nodes: [{id: undefined, index: 0}, {id: 1, index: undefined}],
+      edges: [{source: undefined, start: 0, target: 1, end: undefined}],
+    })
+    expect(source.node_ids).to.be.equal([0, 1])
+    expect(source.edge_starts).to.be.equal([0])
+    expect(source.edge_ends).to.be.equal([1])
+  })
+
   it("only uses own alias names when converting columns", () => {
     const source = GraphDataSource.create({nodes: {index: ["a"], toString: ["label"]}})
     expect(source.nodes.get("toString")).to.be.equal(["label"])
