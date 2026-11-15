@@ -346,7 +346,7 @@ Kind                       JavaScript/TypeScript type             Bokeh property
 ``Regex(...)``             ``string``                             ``Regex(...)``
 ``Or(A, B)``               ``A | B``                              ``Either(A, B)``
 ``Nullable(A)``            ``A | null``                           ``Nullable(A)``
-``Opt(A)``                 ``A | undefined``                      none (BokehJS only)
+``Opt(A)``                 ``A | undefined``                      N/A (BokehJS only)
 ``List(A)``                ``A[]``                                ``List(A)``
 ``NonEmptyList(A)``        ``A[]``                                ``NonEmpty(List(A))``
 ``Tuple(A, B)``            ``[A, B]``                             ``Tuple(A, B)``
@@ -357,7 +357,7 @@ Kind                       JavaScript/TypeScript type             Bokeh property
 ``Struct({a: A})``         ``{a: A}``                             ``Struct(a=A)``
 ``PartialStruct({a: A})``  ``{a?: A}``                            ``Struct(a=Optional(A))``
 ``Ref(SomeModel)``         ``SomeModel``                          ``Instance(SomeModel)``
-``Func()``                 function                               none (BokehJS only)
+``Func()``                 function                               N/A (BokehJS only)
 =========================  =====================================  =========================
 
 Kinds compose like their Python counterparts. For example, ``Either(Instance(Range), Auto)``
