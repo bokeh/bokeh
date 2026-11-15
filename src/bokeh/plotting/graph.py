@@ -21,7 +21,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Sequence,
+    Mapping,
     cast,
 )
 
@@ -32,9 +32,10 @@ from ..models.sources import ColumnDataSource
 if TYPE_CHECKING:
     import networkx as nx
 
+    from ..models.graphs import NodePosition
     from ..models.sources import DataDict
 
-    type GraphLayout = dict[int | str, Sequence[float]]
+    type GraphLayout = Mapping[Any, NodePosition]
     type LayoutFunction = GraphLayout | Callable[..., GraphLayout]
 
 #-----------------------------------------------------------------------------
@@ -143,7 +144,7 @@ def from_networkx(graph: nx.Graph[Any], layout_function: LayoutFunction, **kwarg
                 warn("Node keys in 'layout_function' don't match node keys in the graph. "
                      "These nodes may not be displayed correctly.")
 
-        graph_renderer.layout_provider = StaticLayoutProvider(graph_layout=graph_layout)
+        graph_renderer.layout_provider = StaticLayoutProvider(graph_layout=dict(graph_layout))
 
         return graph_renderer
 
