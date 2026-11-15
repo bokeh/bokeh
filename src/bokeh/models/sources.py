@@ -1252,11 +1252,11 @@ def _tabular_graph_source(value: Any, aliases: Mapping[str, str]) -> ColumnDataS
     if nw.dependencies.is_into_dataframe(value):
         native_columns = set(nw.from_native(value, eager_only=True).columns)
         columns = ColumnDataSource._data_from_df(value)
-        if native_columns & (set(aliases) | set(aliases.values())):
-            # Explicit topology fields take precedence over the dataframe index
-            # that ColumnDataSource adds during conversion.
-            for generated in set(columns) - native_columns:
-                columns.pop(generated)
+        # An explicit alias takes precedence over a generated index with
+        # the same canonical name. Preserve the index in other cases.
+        for alias, canonical in aliases.items():
+            if alias in native_columns and canonical not in native_columns:
+                columns.pop(canonical, None)
         return _column_source(columns, aliases)
 
     if uses_pandas(value) or is_dataclass(value) or not isinstance(value, Iterable) or isinstance(value, (str, bytes)):
@@ -1318,9 +1318,7 @@ def _edge_source(edges: Any) -> IndexedDataSource:
     if isinstance(edges, Mapping):
         if not edges:
             return _default_graph_edges()
-        if any(field in edges for field in ("source", "target", "start", "end")):
-            return _column_source(edges, {"source": "start", "target": "end"})
-        raise ValueError("edge data must contain 'source'/'target' or 'start'/'end' fields")
+        return _column_source(edges, {"source": "start", "target": "end"})
 
     records = []
     for edge in edges:
@@ -1444,7 +1442,8 @@ class GraphDataSource(DataSource):
             nodes = _default_graph_nodes() if raw_nodes is None else _node_source(raw_nodes)
             edges = _default_graph_edges() if raw_edges is None else _edge_source(raw_edges)
 
-        _validate_graph_node_ids(nodes)
+        if not isinstance(raw_nodes, IndexedDataSource):
+            _validate_graph_node_ids(nodes)
         kwargs.update(nodes=nodes, edges=edges)
         super().__init__(**kwargs)
 

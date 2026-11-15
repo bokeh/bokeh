@@ -21,6 +21,7 @@ from bokeh.models import (
     Circle,
     ColumnDataSource,
     EdgesOnly,
+    GeoJSONDataSource,
     GraphDataSource,
     IndexedDataSource,
     MultiLine,
@@ -96,6 +97,16 @@ class TestGraphRenderer:
 
         check = renderer._check_malformed_graph_source()
         assert check == []
+
+    def test_validation_with_non_cds_columnar_source(self) -> None:
+        nodes = GeoJSONDataSource(geojson='{"type": "FeatureCollection", "features": []}')
+        renderer = bmr.GraphRenderer(node_renderer=bmr.GlyphRenderer(data_source=nodes, glyph=Circle()))
+        assert renderer._check_malformed_graph_source() == []
+
+    def test_preserves_existing_indexed_source_with_duplicate_ids(self) -> None:
+        nodes = ColumnDataSource(data={"index": [0, 0, 1]})
+        renderer = bmr.GraphRenderer(node_renderer=bmr.GlyphRenderer(data_source=nodes, glyph=Circle()))
+        assert renderer.data_source.nodes is nodes
 
     def test_check_malformed_graph_source_no_node_index(self) -> None:
         node_source = ColumnDataSource()

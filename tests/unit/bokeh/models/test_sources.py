@@ -1245,7 +1245,7 @@ class TestGraphDataSource:
         assert list(source.edges.data["start"]) == ["alice"]
         assert list(source.edges.data["end"]) == ["bob"]
         assert "level_0" not in source.nodes.data
-        assert "index" not in source.edges.data
+        assert list(source.edges.data["index"]) == [0]
 
     def test_child_updates_use_normal_document_events(self) -> None:
         source = bms.GraphDataSource(nodes=["alice", "bob"], edges=[("alice", "bob")])
