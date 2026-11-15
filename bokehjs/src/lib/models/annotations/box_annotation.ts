@@ -22,7 +22,7 @@ import {values} from "core/util/object"
 import {BorderRadius} from "../common/kinds"
 import * as Box from "../common/box_kinds"
 import type {HitTargets} from "../common/box_interaction"
-import {resizable_edges, hittable, move_bbox} from "../common/box_interaction"
+import {resizable_edges, hittable, move_bbox, screen_limits} from "../common/box_interaction"
 import {round_rect} from "../common/painting"
 import * as resolve from "../common/resolve"
 import {Node} from "../coordinates/node"
@@ -560,12 +560,25 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       }
     }
 
-    const limits = {
-      left: resolve("x", this.model.left_limit, mappers.left),
-      right: resolve("x", this.model.right_limit, mappers.right),
-      top: resolve("y", this.model.top_limit, mappers.top),
-      bottom: resolve("y", this.model.bottom_limit, mappers.bottom),
+    // Limits computed through a reversed range (e.g. data-space limits when
+    // `x_range.start > x_range.end`) bound the opposite side on screen.
+    const reversed = (limit: CoordinateLike | null, mapper: CoordinateMapper<number | FactorLike>): boolean => {
+      const {start, end} = mapper.source_range
+      return limit != null && !(limit instanceof Coordinate) && end < start
     }
+
+    const {left_limit, right_limit, top_limit, bottom_limit} = this.model
+    const limits = screen_limits({
+      left: resolve("x", left_limit, mappers.left),
+      right: resolve("x", right_limit, mappers.right),
+      top: resolve("y", top_limit, mappers.top),
+      bottom: resolve("y", bottom_limit, mappers.bottom),
+    }, {
+      left: reversed(left_limit, mappers.left),
+      right: reversed(right_limit, mappers.right),
+      top: reversed(top_limit, mappers.top),
+      bottom: reversed(bottom_limit, mappers.bottom),
+    })
 
     const {bbox, target} = this._pan_state
     const {movable, symmetric} = this.model

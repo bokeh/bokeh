@@ -16,7 +16,7 @@ import {enumerate} from "core/util/iterator"
 import {assert} from "core/util/assert"
 import * as Box from "../common/box_kinds"
 import type {HitTargets} from "../common/box_interaction"
-import {resizable_edges, hittable, move_bbox} from "../common/box_interaction"
+import {resizable_edges, hittable, move_bbox, screen_limits} from "../common/box_interaction"
 import {Node} from "../coordinates/node"
 import {Nullable, Or, Ref} from "core/kinds"
 import type {Infer} from "core/kinds"
@@ -380,12 +380,12 @@ export class DialogView extends UIElementView {
     }
 
     const {movable, symmetric} = this.model
-    const limits = {
+    const limits = screen_limits({
       left: resolve("x", this.model.left_limit),
       right: resolve("x", this.model.right_limit),
       top: resolve("y", this.model.top_limit),
       bottom: resolve("y", this.model.bottom_limit),
-    }
+    })
 
     return move_bbox(bbox, target, dx, dy, {movable, symmetric, limits}).bbox
   }

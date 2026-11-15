@@ -7,7 +7,7 @@ import {BBox} from "core/util/bbox"
 import {sign} from "core/util/math"
 import type * as Box from "./box_kinds"
 
-const {min} = Math
+const {min, max} = Math
 
 /** A value for each part (corner, edge or area) of a box. */
 export type HitTargets<T> = {[key in Box.HitTarget]: T}
@@ -122,12 +122,61 @@ export type MoveResult = {
 }
 
 /**
+ * Lower and upper bounds of an interval, given limits of its start and end
+ * edges, where a reversed limit bounds the opposite side.
+ */
+function interval_limits(start_limit: number, end_limit: number, start_reversed: boolean, end_reversed: boolean): [number, number] {
+  let lower = NaN
+  let upper = NaN
+
+  const add = (limit: number, side: "lower" | "upper") => {
+    if (isNaN(limit)) {
+      return
+    }
+    switch (side) {
+      case "lower": {
+        lower = isNaN(lower) ? limit : max(lower, limit)
+        break
+      }
+      case "upper": {
+        upper = isNaN(upper) ? limit : min(upper, limit)
+        break
+      }
+    }
+  }
+
+  add(start_limit, start_reversed ? "upper" : "lower")
+  add(end_limit, end_reversed ? "lower" : "upper")
+
+  return upper < lower ? [upper, lower] : [lower, upper]
+}
+
+const not_reversed: LRTB<boolean> = {left: false, right: false, top: false, bottom: false}
+
+/**
+ * Converts screen-space limits of a box, named by the edge they apply to (`NaN`
+ * means unbounded), to lower (`left` and `top`) and upper (`right` and `bottom`)
+ * screen-space bounds, as expected by `move_bbox()`.
+ *
+ * A limit is reversed when it was mapped through a reversed range (e.g. when
+ * `x_range.start > x_range.end`). Then it bounds the opposite side on screen,
+ * e.g. `left_limit` (the minimum `x` in data space) bounds the right side. If
+ * both limits of a dimension bound the same side, the tighter one applies, and
+ * if they cross, they're swapped.
+ */
+export function screen_limits(limits: LRTB, reversed: LRTB<boolean> = not_reversed): LRTB {
+  const [left, right] = interval_limits(limits.left, limits.right, reversed.left, reversed.right)
+  const [top, bottom] = interval_limits(limits.top, limits.bottom, reversed.top, reversed.bottom)
+  return {left, right, top, bottom}
+}
+
+/**
  * Moves or resizes `bbox` by dragging the given part of it by `(dx, dy)`, keeping
- * the moved edges within `limits` (`NaN` means unbounded). Limits are normalized,
- * so that e.g. limits mapped through an inverted scale still apply.
+ * the moved edges within `limits`, i.e. lower (`left` and `top`) and upper (`right`
+ * and `bottom`) screen-space bounds (`NaN` means unbounded), see `screen_limits()`.
  */
 export function move_bbox(bbox: BBox, target: Box.HitTarget, dx: number, dy: number, options: MoveOptions & {limits: LRTB}): MoveResult {
-  const limits = BBox.from_lrtb(options.limits)
+  const {limits} = options
   const deltas = target_deltas(target, dx, dy, options)
   const [left, right] = move_interval(bbox.left, bbox.right, deltas.left, deltas.right, limits.left, limits.right)
   const [top, bottom] = move_interval(bbox.top, bbox.bottom, deltas.top, deltas.bottom, limits.top, limits.bottom)
