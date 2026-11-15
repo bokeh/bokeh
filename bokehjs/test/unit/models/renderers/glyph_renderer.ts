@@ -28,6 +28,9 @@ import {logger} from "@bokehjs/core/logging"
 import {figure, show} from "@bokehjs/api/plotting"
 import {IndexedSubset} from "@bokehjs/models/sources/indexed_subset"
 import {PlotView} from "@bokehjs/models/plots/plot_canvas"
+import {Indices} from "@bokehjs/core/types"
+import type {GlyphView} from "@bokehjs/models/glyphs/glyph"
+import {GlyphAttachment, GlyphAttachmentView} from "@bokehjs/models/renderers/glyph_attachment"
 
 function mkrenderer(glyph: Scatter): GlyphRendererWithSource<Scatter, ColumnDataSource> {
   const data_source = ColumnDataSource.create({
@@ -174,6 +177,49 @@ describe("GlyphRenderer", () => {
 })
 
 describe("GlyphRendererView", () => {
+  it("paints attachments around the glyph and gives them their own subset rows", async () => {
+    const calls: [string, ...number[]][] = []
+    class TestAttachmentView extends GlyphAttachmentView {
+      override paint_candidates(_glyph: GlyphView, masked: Indices): Indices {
+        return Indices.all_set(masked.size)
+      }
+
+      override prepare_attachment(_glyph: GlyphView, indices: Int32Array) {
+        calls.push(["prepare", ...indices])
+        return {
+          clip: () => calls.push(["clip"]),
+          paint_before: () => calls.push(["underlay"]),
+          paint: () => calls.push(["overlay"]),
+        }
+      }
+    }
+    class TestAttachment extends GlyphAttachment {
+      override default_view = TestAttachmentView
+    }
+    const renderer = GlyphRenderer.create({
+      glyph: Scatter.create(),
+      data_source: ColumnDataSource.create({data: {x: [0, 0, 10], y: [0, 0, 0]}}),
+      view: IndexedSubset.create({filter: IndexFilter.create({indices: [1, 2]})}),
+      attachments: [TestAttachment.create()],
+    })
+    const {view} = await display(Plot.create({
+      renderers: [renderer],
+      x_range: Range1d.create({start: -1, end: 1}),
+      y_range: Range1d.create({start: -1, end: 1}),
+    }))
+    const renderer_view = view.owner.get_one(renderer)
+    using paint = restorable(sinon.stub(renderer_view.glyph, "paint").callsFake((_ctx, indices) => {
+      calls.push(["glyph", ...indices])
+    }))
+    calls.length = 0
+    renderer_view.paint(renderer_view.canvas.create_layer().ctx)
+    sinon.assert.calledOnce(paint)
+    expect(calls).to.be.equal([["prepare", 0, 1], ["clip"], ["underlay"], ["glyph", 0], ["overlay"]])
+    const {masked} = renderer.view
+    assert(masked != null)
+    expect([...masked.ones()]).to.be.equal([0])
+  })
+
   it("settles ready and bounds painting when renderers share an IndexedSubset with different masks", async () => {
     const source = ColumnDataSource.create({data: {x: [0, 10], x2: [10, 0], y: [-0.4, 0.4]}})
     const shared = IndexedSubset.create()

@@ -181,16 +181,27 @@ export abstract class GlyphView extends DOMComponentView {
 
   // oxlint-disable-next-line typescript/no-generated-empty-object-type -- subclasses define their own data
   paint(ctx: Context2d, indices: Int32Array, data?: Partial<Glyph.Data>): void {
-    for (const path_marking of this.path_markings.values()) {
-      path_marking.marking.inherit_from(this)
-    }
     if (this.has_webgl()) {
+      this._inherit_path_marking_visuals()
       this.glglyph.render(ctx, indices, this.base ?? this)
     } else if (this.canvas.webgl != null && settings.force_webgl) {
       throw new Error(`${this} doesn't support webgl rendering`)
     } else {
-      this._paint(ctx, indices, data)
+      this.paint_canvas(ctx, indices, data)
     }
+  }
+
+  private _inherit_path_marking_visuals(): void {
+    for (const path_marking of this.path_markings.values()) {
+      path_marking.marking.inherit_from(this)
+    }
+  }
+
+  /** @internal Paint directly to the canvas when an attachment needs the same context. */
+  // oxlint-disable-next-line typescript/no-generated-empty-object-type -- subclasses define their own data
+  paint_canvas(ctx: Context2d, indices: Int32Array, data?: Partial<Glyph.Data>): void {
+    this._inherit_path_marking_visuals()
+    this._paint(ctx, indices, data)
   }
 
   protected abstract _paint(ctx: Context2d, indices: Int32Array, data?: Glyph.Data): void
