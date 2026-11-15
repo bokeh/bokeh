@@ -7,15 +7,19 @@ import type {PlotView} from "@bokehjs/models/plots/plot"
 import {Plot, Range1d, LinearAxis, BoxAnnotation} from "@bokehjs/models"
 import {Node} from "@bokehjs/models/coordinates/node"
 import {no_repeated} from "@bokehjs/core/util/iterator"
+import {assert} from "@bokehjs/core/util/assert"
+import {isNumber} from "@bokehjs/core/util/types"
+
+const {min, max} = Math
 
 describe("BoxAnnotation", () => {
 
-  async function mkplot(box: BoxAnnotation): Promise<PlotView> {
+  async function mkplot(box: BoxAnnotation, {x_range}: {x_range?: Range1d} = {}): Promise<PlotView> {
     const plot = Plot.create({
       width: 400,
       height: 400,
       min_border: 0,
-      x_range: Range1d.create({start: 0, end: 1}),
+      x_range: x_range ?? Range1d.create({start: 0, end: 1}),
       y_range: Range1d.create({start: 0, end: 1}),
     })
     plot.add_layout(box)
@@ -106,6 +110,44 @@ describe("BoxAnnotation", () => {
 
     expect(box.left).to.be.equal(-0.5)
     expect(box.right).to.be.equal(0.75)
+  })
+
+  describe("should support one-sided limits", () => {
+    function box_with_left_limit(): BoxAnnotation {
+      return BoxAnnotation.create({
+        left: 0.4,
+        right: 0.6,
+        bottom: 0.4,
+        top: 0.6,
+        editable: true,
+        left_limit: 0.2,
+      })
+    }
+
+    function x_extent(box: BoxAnnotation): [number, number] {
+      const {left, right} = box
+      assert(isNumber(left) && isNumber(right))
+      return [min(left, right), max(left, right)]
+    }
+
+    it("with a normal range", async () => {
+      const box = box_with_left_limit()
+      const plot_view = await mkplot(box)
+      const ac = actions(plot_view, {units: "data"})
+
+      await ac.pan(xy(0.5, 0.5), xy(0.1, 0.5))
+      expect(x_extent(box)).to.be.similar([0.2, 0.4])
+    })
+
+    it("with a reversed range", async () => {
+      // left_limit is the minimum x, which is on the right side of the screen
+      const box = box_with_left_limit()
+      const plot_view = await mkplot(box, {x_range: Range1d.create({start: 1, end: 0})})
+      const ac = actions(plot_view, {units: "data"})
+
+      await ac.pan(xy(0.5, 0.5), xy(0.1, 0.5))
+      expect(x_extent(box)).to.be.similar([0.2, 0.4])
+    })
   })
 
   describe("when movable with handles", () => {

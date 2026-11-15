@@ -1,6 +1,6 @@
 import {expect} from "#framework/assertions"
 
-import {resizable_edges, hittable, target_deltas, move_bbox} from "@bokehjs/models/common/box_interaction"
+import {resizable_edges, hittable, target_deltas, move_bbox, screen_limits} from "@bokehjs/models/common/box_interaction"
 import type * as Box from "@bokehjs/models/common/box_kinds"
 import type {LRTB} from "@bokehjs/core/util/bbox"
 import {BBox} from "@bokehjs/core/util/bbox"
@@ -91,10 +91,34 @@ describe("models/common/box_interaction module", () => {
       expect(lrtb(resized)).to.be.equal({left: 10, right: 60, top: 20, bottom: 60})
     })
 
-    it("should normalize inverted limits", () => {
-      const limits = {left: 100, right: 0, top: 100, bottom: 0}
-      const {bbox: moved} = move_bbox(bbox, "area", 80, 80, {...options, limits})
-      expect(lrtb(moved)).to.be.equal({left: 60, right: 100, top: 60, bottom: 100})
+    it("should support one-sided limits", () => {
+      const limits = {left: 0, right: NaN, top: NaN, bottom: 100}
+      const {bbox: moved} = move_bbox(bbox, "area", -80, 80, {...options, limits})
+      expect(lrtb(moved)).to.be.equal({left: 0, right: 40, top: 60, bottom: 100})
+    })
+  })
+
+  describe("screen_limits()", () => {
+    const left = {left: 10, right: NaN, top: NaN, bottom: NaN}
+
+    it("should keep limits not mapped through reversed ranges", () => {
+      expect(screen_limits({left: 10, right: 90, top: 20, bottom: 80})).to.be.equal({left: 10, right: 90, top: 20, bottom: 80})
+      expect(screen_limits(left)).to.be.equal(left)
+    })
+
+    it("should swap crossed limits", () => {
+      expect(screen_limits({left: 90, right: 10, top: 80, bottom: 20})).to.be.equal({left: 10, right: 90, top: 20, bottom: 80})
+    })
+
+    it("should apply reversed limits to the opposite side", () => {
+      const reversed = {left: true, right: true, top: true, bottom: true}
+      expect(screen_limits({left: 90, right: 10, top: 80, bottom: 20}, reversed)).to.be.equal({left: 10, right: 90, top: 20, bottom: 80})
+      expect(screen_limits(left, reversed)).to.be.equal({left: NaN, right: 10, top: NaN, bottom: NaN})
+    })
+
+    it("should apply the tighter of limits bounding the same side", () => {
+      const reversed = {left: false, right: true, top: false, bottom: false}
+      expect(screen_limits({left: 10, right: 30, top: NaN, bottom: NaN}, reversed)).to.be.equal({left: 30, right: NaN, top: NaN, bottom: NaN})
     })
   })
 })
