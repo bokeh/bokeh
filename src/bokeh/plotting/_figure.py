@@ -257,11 +257,11 @@ class figure(Plot, GlyphAPI):
         return None
 
     def subplot(self,
-            *,
-            x_source: Range | None = None, y_source: Range | None = None,
-            x_scale: Scale | None = None, y_scale: Scale | None = None,
-            x_target: Range, y_target: Range,
-        ) -> GlyphAPI:
+        *,
+        x_source: Range | None = None, y_source: Range | None = None,
+        x_scale: Scale | None = None, y_scale: Scale | None = None,
+        x_target: Range, y_target: Range,
+    ) -> GlyphAPI:
         """ Create a new sub-coordinate system and expose a plotting API. """
         coordinates = CoordinateMapping(x_source=cast(Range, x_source), y_source=cast(Range, y_source), x_target=x_target, y_target=y_target)
         return GlyphAPI(self, coordinates)
@@ -854,7 +854,7 @@ class figure(Plot, GlyphAPI):
 
         Keyword Arguments:
             draw_polygon_border (bool, False): Enables the plotting of the geometry border.
-            draw_polygon_color (str, "black"): Sets the color of the geometry border.
+            polygon_border_color (str, "#CCCCCC"): Sets the color of the geometry border.
 
         .. note::
             This functions allows all parameters and keyword arguments defined by the
@@ -889,7 +889,7 @@ class figure(Plot, GlyphAPI):
 
         Keyword Arguments:
             draw_polygon_border (bool, False): Enables the plotting of the geometry border.
-            draw_polygon_color (str, "black"): Sets the color of the geometry border.
+            polygon_border_color (str, "#CCCCCC"): Sets the color of the geometry border.
 
         .. note::
             This functions allows all parameters and keyword arguments defined by the
@@ -924,7 +924,7 @@ class figure(Plot, GlyphAPI):
 
         Keyword Arguments:
             draw_polygon_border (bool, False): Enables the plotting of the geometry border.
-            draw_polygon_color (str, "black"): Sets the color of the geometry border.
+            polygon_border_color (str, "#CCCCCC"): Sets the color of the geometry border.
 
         .. note::
             This functions allows all parameters and keyword arguments defined by the
@@ -1052,7 +1052,7 @@ class figure(Plot, GlyphAPI):
 
         Keyword Arguments:
             draw_polygon_border (bool, False): Enables the plotting of the geometry border.
-            draw_polygon_color (str, "black"): Sets the color of the geometry border.
+            polygon_border_color (str, "#CCCCCC"): Sets the color of the geometry border.
 
         .. note::
             This functions allows all parameters and keyword arguments defined by the

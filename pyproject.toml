@@ -254,7 +254,6 @@ known-local-folder = [
 # For now ignore each remaining untyped module individually.
 [[tool.mypy.overrides]]
 module = [
-    "bokeh.plotting._figure",
     "tests.cross.*",
     "tests.unit.*",
     "tests.integration.*",
