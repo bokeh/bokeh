@@ -257,7 +257,6 @@ module = [
     "bokeh.plotting._figure",
     "bokeh.plotting._geo_feature",
     "bokeh.plotting._plot",
-    "bokeh.plotting._renderer",
     "tests.cross.*",
     "tests.unit.*",
     "tests.integration.*",
