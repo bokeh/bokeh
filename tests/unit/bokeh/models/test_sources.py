@@ -380,6 +380,9 @@ class TestColumnDataSource:
         ds = bms.ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
         with pytest.raises(ValueError, match=r"Out-of bounds index \(3\) in patch for column: a"):
             ds.patch(dict(a=[(3, 100)]))
+        with pytest.raises(ValueError, match=r"Out-of bounds index \(2\) in patch for column: b"):
+            ds.patch(dict(a=[(0, 100)], b=[(2, 100)]))
+        assert ds.data == dict(a=[10, 11], b=[20, 21])
 
     def test_patch_good_simple_indices(self) -> None:
         ds = bms.ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
@@ -419,6 +422,8 @@ class TestColumnDataSource:
             ds.patch(dict(foo=[[["spam", 3], 5]]))
         with pytest.raises(ValueError, match=r"Out-of bounds initial sub-index \(-1\) in patch for column: foo"):
             ds.patch(dict(foo=[[[-1, 3], 5]]))
+        with pytest.raises(ValueError, match=r"Out-of bounds initial sub-index \(1\) in patch for column: foo"):
+            ds.patch(dict(foo=[[[1, 3], 5]]))
         with pytest.raises(ValueError, match=r"Can only sub-patch into columns with NumPy array items"):
             ds.patch(dict(foo=[[[0, 3], 5]]))
         with pytest.raises(ValueError, match=r"Invalid patch index: {}"):

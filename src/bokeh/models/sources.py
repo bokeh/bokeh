@@ -854,7 +854,7 @@ class ColumnDataSource(ColumnarDataSource):
 
                 # integer index, patch single value of 1d column
                 if isinstance(ind, int):
-                    if ind > col_len or ind < 0:
+                    if ind >= col_len or ind < 0:
                         raise ValueError(f"Out-of bounds index ({ind}) in patch for column: {name}")
 
                 # slice index, patch multiple values of 1d column
@@ -875,7 +875,7 @@ class ColumnDataSource(ColumnarDataSource):
                     if not isinstance(ind_0, int):
                         raise ValueError(f"Initial patch sub-index may only be integer, got: {ind_0}")
 
-                    if ind_0 > col_len or ind_0 < 0:
+                    if ind_0 >= col_len or ind_0 < 0:
                         raise ValueError(f"Out-of bounds initial sub-index ({ind_0}) in patch for column: {name}")
 
                     if not isinstance(self.data[name][ind_0], np.ndarray):
