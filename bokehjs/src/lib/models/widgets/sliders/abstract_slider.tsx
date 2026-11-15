@@ -8,6 +8,8 @@ import {UIComponent, cls} from "core/vdom"
 import type {StyleSheetLike} from "core/stylesheets"
 import {clamp, sign, minmax, decimals} from "core/util/math"
 import {range} from "core/util/array"
+import {DragSession} from "core/drag_session"
+import type {DragState} from "core/drag_session"
 import type {XY} from "core/util/bbox"
 
 import * as sliders_css from "styles/widgets/sliders.css"
@@ -99,18 +101,25 @@ type HitType = "handle" | "track" | "span"
 type HitTarget = {type: HitType, el: HTMLElement}
 
 type PointerId = number
-type DragState = {
-  pointer: PointerId
-  /** Pointer position (in client coordinates) when the drag started. */
-  xy: XY
-  /** Synthetic values when the drag started. */
-  values: number[]
+
+/** What is being dragged, which may change while dragging overlapping handles. */
+type DragTarget = {
   /** Indices of handles being dragged. */
   group: number[]
   /** Whether the dragged handle may still be swapped for an overlapping one. */
   unstack: boolean
   /** Element capturing the pointer, which also determines cursor and hover state. */
   capture_el: HTMLElement
+}
+
+type DragSnapshot = {
+  pointer: PointerId
+  /** Pointer position (in client coordinates) when the drag started. */
+  xy: XY
+  /** Synthetic values when the drag started. */
+  values: number[]
+  /** The model's value before the drag, to restore on cancel. */
+  value: unknown
 }
 
 export abstract class AbstractSliderView<T> extends OrientedControlView {
@@ -587,7 +596,9 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     )
   }
 
-  private _state: DragState | null = null
+  protected readonly _drag_session = new DragSession<DragTarget, DragSnapshot>(({value}) => {
+    this.model.value = value
+  })
 
   /** Indices of handles being dragged. */
   protected readonly _dragged = signal<number[]>([])
@@ -595,7 +606,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
   // TODO redesign this using UIGestures
   @bind protected _on_pointer_down(event: TargetedPointerEvent): void {
     this._pointer_interaction = true
-    if (this.values.disabled || this._state != null) {
+    if (this.values.disabled || this._drag_session.is_active) {
       return
     }
     if (!event.isPrimary || event.button != 0) {
@@ -606,6 +617,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
       return
     }
     this._begin_change()
+    const {value} = this.model
 
     const [values, group, unstack] = (() => {
       const values = this.synthetic_values
@@ -635,78 +647,101 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
     this.pointer_focus(target.type == "span" ? target.el : this.handles[group[0]])
     event.preventDefault()
 
-    this._state = {
-      pointer: event.pointerId,
-      xy: {x: event.clientX, y: event.clientY},
-      values,
-      group: [...group],
-      unstack,
-      capture_el,
+    this._drag_session.start(
+      {group: [...group], unstack, capture_el},
+      {pointer: event.pointerId, xy: {x: event.clientX, y: event.clientY}, values, value},
+    )
+    this._dragged.value = this._drag_session.state.target.group
+    document.addEventListener("keydown", this._on_document_keydown)
+  }
+
+  /** The drag in progress by the given pointer, if any. */
+  protected _drag_by(pointer: PointerId): DragState<DragTarget, DragSnapshot> | null {
+    const {_drag_session} = this
+    if (_drag_session.is_active && _drag_session.state.snapshot.pointer == pointer) {
+      return _drag_session.state
+    } else {
+      return null
     }
-    this._dragged.value = this._state.group
   }
 
   @bind protected _on_pointer_move(event: TargetedPointerEvent): void {
-    const {_state: state} = this
-    if (state != null && state.pointer == event.pointerId) {
+    const state = this._drag_by(event.pointerId)
+    if (state != null) {
       if (this.values.disabled) {
         this._end_drag()
       } else {
-        this._drag(event, state)
+        this._drag(event, state.target, state.snapshot)
       }
     }
   }
 
   @bind protected _on_pointer_up(event: TargetedPointerEvent): void {
-    const {_state: state} = this
-    if (state != null && state.pointer == event.pointerId) {
+    const state = this._drag_by(event.pointerId)
+    if (state != null) {
       if (!this.values.disabled) {
-        this._drag(event, state)
+        this._drag(event, state.target, state.snapshot)
       }
       this._end_drag()
     }
   }
 
   @bind protected _on_pointer_cancel(event: TargetedPointerEvent): void {
-    const {_state: state} = this
-    if (state != null && state.pointer == event.pointerId) {
+    if (this._drag_by(event.pointerId) != null) {
       this._end_drag()
     }
   }
 
   @bind protected _on_lost_pointer_capture(event: TargetedPointerEvent): void {
-    const {_state: state} = this
+    const state = this._drag_by(event.pointerId)
     // ignore capture being transferred between handles
-    if (state != null && state.pointer == event.pointerId && event.target == state.capture_el) {
+    if (state != null && event.target == state.target.capture_el) {
       this._end_drag()
     }
   }
 
-  protected _drag(xy: XY, state: DragState): void {
+  /** Escape cancels dragging, restoring the value from before it started. */
+  @bind protected _on_document_keydown(event: KeyboardEvent): void {
+    if (event.key == "Escape" && this._drag_session.is_active) {
+      event.preventDefault()
+      this._end_drag(true)
+    }
+  }
+
+  protected _drag(xy: XY, target: DragTarget, snapshot: DragSnapshot): void {
     const {span} = this.meta
     const {track_size} = this
-    const dpx = this.horizontal ? xy.x - state.xy.x : xy.y - state.xy.y
+    const dpx = this.horizontal ? xy.x - snapshot.xy.x : xy.y - snapshot.xy.y
     const offset = track_size == 0 ? 0 : (this.flipped ? -1 : 1)*dpx/track_size*span
 
-    if (state.unstack && offset != 0) {
-      const [i] = state.group
-      const j = this.unstack(state.values, i, offset)
+    if (target.unstack && offset != 0) {
+      const [i] = target.group
+      const j = this.unstack(snapshot.values, i, offset)
       if (j != i) {
-        state.group = [j]
-        this._dragged.value = state.group
-        state.capture_el = this.handles[j]
-        state.capture_el.setPointerCapture(state.pointer)
+        target.group = [j]
+        this._dragged.value = target.group
+        target.capture_el = this.handles[j]
+        target.capture_el.setPointerCapture(snapshot.pointer)
         this.pointer_focus(this.handles[j])
       }
-      state.unstack = false
+      target.unstack = false
     }
 
-    const values = this.shift(state.values, state.group, offset)
+    const values = this.shift(snapshot.values, target.group, offset)
     this._change(values)
   }
 
-  protected _end_drag(): void {
-    this._state = null
+  /**
+   * Finishes dragging, either keeping or (when cancelled) reverting its effects.
+   * When cancelled, the rest of the pointer's events is ignored.
+   */
+  protected _end_drag(cancel: boolean = false): void {
+    document.removeEventListener("keydown", this._on_document_keydown)
+    if (cancel) {
+      this._drag_session.cancel()
+    } else {
+      this._drag_session.end()
+    }
     this._dragged.value = []
     this._commit()
   }
@@ -848,6 +883,7 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
   }
 
   override remove(): void {
+    document.removeEventListener("keydown", this._on_document_keydown)
     this.model.document?.request_sync_flush(this.model, "value", "committed")
     super.remove()
   }
