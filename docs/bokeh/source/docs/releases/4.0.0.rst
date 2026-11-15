@@ -54,6 +54,13 @@ New features
   respectively (:bokeh-issue:`14814`), values accepted by ``.accepts()``,
   e.g. strings by ``Plot.title``, are accepted, and ``Readonly`` properties
   can't be assigned to (:bokeh-issue:`15760`).
+* Pressing Escape while dragging an editable annotation (e.g.
+  :class:`~bokeh.models.BoxAnnotation` or a ``RangeTool`` overlay), a
+  :class:`~bokeh.models.Dialog`, a :class:`~bokeh.models.Drawer`'s resize
+  handle, or a slider's handle cancels the interaction and restores the
+  state from before it started. Committed slider callbacks receive the
+  restored value. Interactions with tools, e.g. panning a plot, aren't
+  affected.
 
 Removals
 --------
@@ -270,6 +277,17 @@ API changes
     the ``class_list`` property of views. Use the native ``el.classList``
     instead, e.g. ``classList.contains()`` instead of ``class_list.has()``
     and ``el.removeAttribute("class")`` instead of ``class_list.clear()``.
+* In BokehJS, ``Dialog``'s ``top_limit``, ``bottom_limit``, ``left_limit``
+  and ``right_limit`` accept only ``Node`` instances (or ``null``), matching
+  the Python API. Numeric limits are no longer allowed, because dialogs have
+  no coordinate system to interpret them in.
+
+* In BokehJS, the ``pan`` signal of ``BoxAnnotation``, ``Span``, ``Label``
+  and ``PolyAnnotation`` can report a new ``"pan:cancel"`` phase. A cancelled
+  drag (e.g. with Escape) ends with ``"pan:cancel"`` instead of ``"pan:end"``,
+  after the annotation was restored to its state from before the drag. Code
+  connected to this signal that waits for ``"pan:end"`` should handle
+  ``"pan:cancel"`` as well.
 
 Bug fixes
 ---------
@@ -279,3 +297,12 @@ Bug fixes
   ``dict[str, list[int]]``, which type checkers previously rejected because
   ``dict`` is invariant (:bokeh-issue:`14814`).
 * Fixed ``Dialog`` not updating when its ``title`` or ``content`` change (:bokeh-pull:`15749`).
+* Fixed ``BoxAnnotation`` and ``Dialog`` ignoring a dimension's movement
+  limits when only one of them was set (e.g. only ``left_limit``). Data-space
+  limits of ``BoxAnnotation`` bound data values, so on a reversed range
+  ``left_limit`` (the minimum ``x``) bounds the box's right side on screen.
+* Fixed dragging an editable annotation being kept when the browser
+  cancelled the pointer (e.g. took over a touch gesture). The annotation is
+  restored to its state from before the drag instead.
+* Fixed a ``Dialog`` becoming unmovable after the browser cancelled the
+  pointer while moving or resizing it.
