@@ -5964,6 +5964,66 @@
   },
   GraphRenderer: {
     __extends__: "DataRenderer",
+    data_source: {
+      type: "object",
+      name: "GraphDataSource",
+      attributes: {
+        nodes: {
+          type: "object",
+          name: "ColumnDataSource",
+          attributes: {
+            selected: {
+              type: "object",
+              name: "Selection",
+              attributes: {},
+            },
+            selection_policy: {
+              type: "object",
+              name: "UnionRenderers",
+              attributes: {},
+            },
+            data: {
+              type: "map",
+              entries: [
+                [
+                  "index",
+                  [],
+                ],
+              ],
+            },
+          },
+        },
+        edges: {
+          type: "object",
+          name: "ColumnDataSource",
+          attributes: {
+            selected: {
+              type: "object",
+              name: "Selection",
+              attributes: {},
+            },
+            selection_policy: {
+              type: "object",
+              name: "UnionRenderers",
+              attributes: {},
+            },
+            data: {
+              type: "map",
+              entries: [
+                [
+                  "start",
+                  [],
+                ],
+                [
+                  "end",
+                  [],
+                ],
+              ],
+            },
+          },
+        },
+      },
+    },
     layout_provider: {
       type: "symbol",
       name: "unset",
@@ -6231,6 +6291,63 @@
       type: "map",
     },
     crs: null,
+  },
+  GraphDataSource: {
+    __extends__: "DataSource",
+    nodes: {
+      type: "object",
+      name: "ColumnDataSource",
+      attributes: {
+        selected: {
+          type: "object",
+          name: "Selection",
+          attributes: {},
+        },
+        selection_policy: {
+          type: "object",
+          name: "UnionRenderers",
+          attributes: {},
+        },
+        data: {
+          type: "map",
+          entries: [
+            [
+              "index",
+              [],
+            ],
+          ],
+        },
+      },
+    },
+    edges: {
+      type: "object",
+      name: "ColumnDataSource",
+      attributes: {
+        selected: {
+          type: "object",
+          name: "Selection",
+          attributes: {},
+        },
+        selection_policy: {
+          type: "object",
+          name: "UnionRenderers",
+          attributes: {},
+        },
+        data: {
+          type: "map",
+          entries: [
+            [
+              "start",
+              [],
+            ],
+            [
+              "end",
+              [],
+            ],
+          ],
+        },
+      },
+    },
   },
   IndexedDataSource: {
     __extends__: "DataSource",

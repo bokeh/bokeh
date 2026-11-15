@@ -65,6 +65,11 @@ New features
   restored value. Interactions with tools, e.g. panning a plot, aren't
   affected.
 
+* Added ``GraphDataSource`` to pair the indexed node and edge sources used
+  by ``GraphRenderer``. It accepts column mappings, graph records, and
+  NetworkX graphs. Supply custom node and edge renderers when constructing
+  the graph renderer, and update their data through the paired sources.
+
 Removals
 --------
 

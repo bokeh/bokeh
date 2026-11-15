@@ -25,6 +25,8 @@ import numpy as np
 import pytest
 
 from bokeh.core.property.singletons import Undefined
+from bokeh.document import Document
+from bokeh.document.events import ColumnDataChangedEvent
 from bokeh.models import (
     ColumnDataSource,
     DataTable,
@@ -1138,3 +1140,123 @@ class TestDataTable:
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+
+class GraphTestIndexedSource(bms.IndexedDataSource):
+    pass
+
+
+class TestGraphDataSource:
+    def test_default_sources_define_topology_fields(self) -> None:
+        source = bms.GraphDataSource()
+
+        assert source.nodes.data == dict(index=[])
+        assert source.edges.data == dict(start=[], end=[])
+
+    @pytest.mark.parametrize("empty", [[], {}])
+    def test_explicit_empty_data_defines_topology_fields(self, empty) -> None:
+        source = bms.GraphDataSource(nodes=empty, edges=empty)
+
+        assert source.nodes.data == dict(index=[])
+        assert source.edges.data == dict(start=[], end=[])
+
+    def test_accepts_node_identifier_mapping(self) -> None:
+        source = bms.GraphDataSource(nodes={"alice": {"color": "red"}, "bob": {"color": "blue"}})
+
+        assert source.nodes.data == dict(index=["alice", "bob"], color=["red", "blue"])
+
+    def test_accepts_storage_neutral_child_sources(self) -> None:
+        nodes = GraphTestIndexedSource()
+        edges = GraphTestIndexedSource()
+        source = bms.GraphDataSource(nodes=nodes, edges=edges)
+
+        assert source.nodes is nodes
+        assert source.edges is edges
+
+    def test_accepts_graph_shaped_records(self) -> None:
+        source = bms.GraphDataSource(
+            nodes=[{"id": "alice", "color": "red"}, {"id": "bob", "color": "blue"}],
+            edges=[{"source": "alice", "target": "bob", "weight": 2}],
+        )
+
+        assert source.nodes.data == dict(index=["alice", "bob"], color=["red", "blue"])
+        assert source.edges.data == dict(start=["alice"], end=["bob"], weight=[2])
+
+    def test_accepts_bare_nodes_and_tuple_edges(self) -> None:
+        source = bms.GraphDataSource(nodes=["alice", "bob"], edges=[("alice", "bob", {"weight": 2})])
+
+        assert source.nodes.data == dict(index=["alice", "bob"])
+        assert source.edges.data == dict(start=["alice"], end=["bob"], weight=[2])
+
+    def test_accepts_composite_node_ids_and_list_edges(self) -> None:
+        source = bms.GraphDataSource(
+            nodes=[((1, 2), {"label": "A"}), ((3, 4), {"label": "B"})],
+            edges=[[(1, 2), (3, 4), {"weight": 2}]],
+        )
+
+        assert source.nodes.data == dict(index=[[1, 2], [3, 4]], label=["A", "B"])
+        assert source.edges.data == dict(start=[[1, 2]], end=[[3, 4]], weight=[2])
+
+    def test_rejects_duplicate_node_ids(self) -> None:
+        with pytest.raises(ValueError, match="duplicate graph node identifier"):
+            bms.GraphDataSource(nodes=["alice", "alice"])
+
+    def test_accepts_networkx_like_graphs_directly(self) -> None:
+        class Graph:
+            def nodes(self, *, data):
+                assert data is True
+                return [("alice", {"color": "red"}), ("bob", {"color": "blue"})]
+
+            def edges(self, *, data):
+                assert data is True
+                return [("alice", "bob", {"weight": 2})]
+
+        source = bms.GraphDataSource(Graph())
+
+        assert source.nodes.data == dict(index=["alice", "bob"], color=["red", "blue"])
+        assert source.edges.data == dict(start=["alice"], end=["bob"], weight=[2])
+
+    def test_preserves_non_internal_networkx_attributes(self) -> None:
+        class Graph:
+            def nodes(self, *, data):
+                assert data is True
+                return [("alice", {"id": "external"})]
+
+            def edges(self, *, data):
+                assert data is True
+                return [("alice", "alice", {"source": "imported", "target": "value"})]
+
+        source = bms.GraphDataSource(Graph())
+
+        assert source.nodes.data == dict(index=["alice"], id=["external"])
+        assert source.edges.data == dict(
+            start=["alice"], end=["alice"], source=["imported"], target=["value"],
+        )
+
+    @pytest.mark.skipif(pd is None, reason="requires pandas")
+    def test_normalizes_dataframe_topology_aliases(self) -> None:
+        source = bms.GraphDataSource(
+            nodes=pd.DataFrame({"id": ["alice", "bob"], "color": ["red", "blue"]}),
+            edges=pd.DataFrame({"source": ["alice"], "target": ["bob"], "weight": [2]}),
+        )
+
+        assert list(source.nodes.data["index"]) == ["alice", "bob"]
+        assert list(source.nodes.data["color"]) == ["red", "blue"]
+        assert list(source.edges.data["start"]) == ["alice"]
+        assert list(source.edges.data["end"]) == ["bob"]
+        assert "level_0" not in source.nodes.data
+        assert "index" not in source.edges.data
+
+    def test_child_updates_use_normal_document_events(self) -> None:
+        source = bms.GraphDataSource(nodes=["alice", "bob"], edges=[("alice", "bob")])
+        document = Document()
+        document.add_root(source)
+        events = []
+        document.on_change(events.append)
+
+        assert isinstance(source.nodes, ColumnDataSource)
+        source.nodes.data = {"index": ["alice", "bob", "carol"]}
+
+        assert len(events) == 1
+        assert isinstance(events[0], ColumnDataChangedEvent)
+        assert events[0].model is source.nodes

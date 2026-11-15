@@ -36,6 +36,7 @@ from bokeh.models import (
     ColumnDataSource,
     CustomJS,
     Div,
+    GraphDataSource,
     HoverTool,
     PointDrawTool,
     Select,
@@ -1926,3 +1927,24 @@ async def test_websocket_disconnect_after_core_stop_does_not_reuse_detached_sess
     assert not app.core._clients
     await incoming.put({"type": "websocket.disconnect", "code": 1001})
     await asyncio.wait_for(task, 1)
+
+
+def test_graph_update_example_updates_topology(monkeypatch: pytest.MonkeyPatch) -> None:
+    root = Path(__file__).parents[4] / "examples/server/api/asgi"
+    monkeypatch.syspath_prepend(str(root))
+    namespace = runpy.run_path(str(root / "graph_updates.py"))
+    asgi = cast(BokehASGI, namespace["application"])
+    graph = asgi.core.applications["/"].application.create_document()
+    graph_count = graph.select_one({"name": "graph-count"})
+    graph_source = graph.select_one({"name": "graph-source"})
+    assert isinstance(graph_count, Slider)
+    assert isinstance(graph_source, GraphDataSource)
+    assert isinstance(graph_source.nodes, ColumnDataSource)
+    assert isinstance(graph_source.edges, ColumnDataSource)
+    graph_count.value = 7
+    assert list(graph_source.nodes.data["index"]) == list("ABCDEFG")
+    assert list(graph_source.edges.data["start"]) == list("ABCDEF")
+    assert list(graph_source.edges.data["end"]) == list("BCDEFG")
+    graph_count.value = 3
+    assert list(graph_source.nodes.data["index"]) == list("ABC")
+    assert list(graph_source.edges.data["start"]) == list("AB")

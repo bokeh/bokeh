@@ -32,6 +32,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Iterable,
     Iterator,
     Literal,
     Mapping,
@@ -88,6 +89,7 @@ __all__ = (
     'DataSource',
     'GeoJSONDataSource',
     'GeometryDataSource',
+    'GraphDataSource',
     'IndexedDataSource',
     'IndexedSubset',
     'RecordDataSource',
@@ -1211,6 +1213,248 @@ class GeometryDataSource(IndexedDataSource):
         return name
 
 
+
+def _default_graph_nodes() -> ColumnDataSource:
+    return ColumnDataSource(data=dict(index=[]))
+
+def _default_graph_edges() -> ColumnDataSource:
+    return ColumnDataSource(data=dict(start=[], end=[]))
+
+def _column_source(data: Mapping[str, Sequence[Any]], aliases: Mapping[str, str]) -> ColumnDataSource:
+    columns = dict(data)
+    for alias, canonical in aliases.items():
+        if alias not in columns:
+            continue
+        if canonical in columns:
+            raise ValueError(f"graph data cannot contain both {alias!r} and {canonical!r} fields")
+        columns[canonical] = columns.pop(alias)
+    return ColumnDataSource(columns)
+
+def _rows_source(rows: Iterable[Mapping[str, Any]]) -> ColumnDataSource:
+    records = list(rows)
+    fields = list(dict.fromkeys(field for record in records for field in record))
+    columns = {}
+    for field in fields:
+        values = [record.get(field) for record in records]
+        if field in {"index", "start", "end"}:
+            columns[field] = [list(value) if isinstance(value, tuple) else value for value in values]
+            continue
+        if any(isinstance(value, (list, tuple)) for value in values):
+            if not all(isinstance(value, (list, tuple)) for value in values if value is not None):
+                raise ValueError("Can't mix scalar and non-scalar values for graph attributes")
+            values = [[] if value is None else list(value) for value in values]
+        columns[field] = values
+    return ColumnDataSource(columns)
+
+def _tabular_graph_source(value: Any, aliases: Mapping[str, str]) -> ColumnDataSource | None:
+    import narwhals.stable.v1 as nw
+
+    if nw.dependencies.is_into_dataframe(value):
+        native_columns = set(nw.from_native(value, eager_only=True).columns)
+        columns = ColumnDataSource._data_from_df(value)
+        if native_columns & (set(aliases) | set(aliases.values())):
+            # Explicit topology fields take precedence over the dataframe index
+            # that ColumnDataSource adds during conversion.
+            for generated in set(columns) - native_columns:
+                columns.pop(generated)
+        return _column_source(columns, aliases)
+
+    if uses_pandas(value) or is_dataclass(value) or not isinstance(value, Iterable) or isinstance(value, (str, bytes)):
+        try:
+            return ColumnDataSource(value)
+        except ValueError as error:
+            raise ValueError(f"Failed to auto-convert {type(value)} to ColumnDataSource.\n Original error: {error}") from error
+
+    return None
+
+def _node_source(nodes: Any) -> IndexedDataSource:
+    if isinstance(nodes, IndexedDataSource):
+        return nodes
+
+    if (source := _tabular_graph_source(nodes, {"id": "index"})) is not None:
+        return source
+
+    if isinstance(nodes, Mapping):
+        if not nodes:
+            return _default_graph_nodes()
+        if "id" in nodes or "index" in nodes or not all(isinstance(attrs, Mapping) for attrs in nodes.values()):
+            return _column_source(nodes, {"id": "index"})
+        records = []
+        for node_id, attrs in nodes.items():
+            if not isinstance(attrs, Mapping):
+                raise ValueError("a node mapping must map node identifiers to attribute mappings")
+            if "index" in attrs:
+                raise ValueError("node attributes cannot contain the reserved 'index' field")
+            records.append({"index": node_id, **attrs})
+        return _rows_source(records)
+
+    records = []
+    for node in nodes:
+        if isinstance(node, Mapping):
+            record = dict(node)
+            if "id" in record:
+                if "index" in record:
+                    raise ValueError("a node record cannot contain both 'id' and 'index'")
+                record["index"] = record.pop("id")
+            if "index" not in record:
+                raise ValueError("a node record must contain an 'id' or 'index' field")
+        elif isinstance(node, tuple) and len(node) == 2 and isinstance(node[1], Mapping):
+            node_id, attrs = node
+            if "index" in attrs:
+                raise ValueError("node tuple attributes cannot contain the reserved 'index' field")
+            record = {"index": node_id, **attrs}
+        else:
+            record = {"index": node}
+        records.append(record)
+    return _rows_source(records) if records else _default_graph_nodes()
+
+def _edge_source(edges: Any) -> IndexedDataSource:
+    if isinstance(edges, IndexedDataSource):
+        return edges
+
+    if (source := _tabular_graph_source(edges, {"source": "start", "target": "end"})) is not None:
+        return source
+
+    if isinstance(edges, Mapping):
+        if not edges:
+            return _default_graph_edges()
+        if any(field in edges for field in ("source", "target", "start", "end")):
+            return _column_source(edges, {"source": "start", "target": "end"})
+        raise ValueError("edge data must contain 'source'/'target' or 'start'/'end' fields")
+
+    records = []
+    for edge in edges:
+        if isinstance(edge, Mapping):
+            record = dict(edge)
+            for alias, canonical in (("source", "start"), ("target", "end")):
+                if alias in record:
+                    if canonical in record:
+                        raise ValueError(f"an edge record cannot contain both {alias!r} and {canonical!r}")
+                    record[canonical] = record.pop(alias)
+            if "start" not in record or "end" not in record:
+                raise ValueError("an edge record must contain source/target or start/end fields")
+        elif isinstance(edge, (tuple, list)) and len(edge) in (2, 3):
+            start, end = edge[:2]
+            attrs = edge[2] if len(edge) == 3 else {}
+            if not isinstance(attrs, Mapping):
+                raise ValueError("the third item of an edge tuple must be an attribute mapping")
+            if any(field in attrs for field in ("start", "end")):
+                raise ValueError("edge tuple attributes cannot contain endpoint fields")
+            record = {"start": start, "end": end, **attrs}
+        else:
+            raise ValueError("an edge must be a mapping or a (source, target[, attributes]) tuple")
+        records.append(record)
+    return _rows_source(records) if records else _default_graph_edges()
+
+def _graph_sources(graph: Any) -> tuple[IndexedDataSource, IndexedDataSource]:
+    try:
+        graph_nodes = graph.nodes(data=True)
+        graph_edges = graph.edges(data=True)
+    except (AttributeError, TypeError) as error:
+        raise ValueError("expected a NetworkX-like graph with nodes(data=True) and edges(data=True)") from error
+
+    nodes = []
+    for node_id, attrs in graph_nodes:
+        attrs = dict(attrs)
+        for reserved in ("index",):
+            if reserved in attrs:
+                from ..util.warnings import warn
+
+                warn(f"Converting node attribute {reserved!r} is skipped because it is reserved by GraphDataSource")
+                attrs.pop(reserved)
+        nodes.append((node_id, attrs))
+
+    edges = []
+    for start, end, attrs in graph_edges:
+        attrs = dict(attrs)
+        for reserved in ("start", "end"):
+            if reserved in attrs:
+                from ..util.warnings import warn
+
+                warn(f"Converting edge attribute {reserved!r} is skipped because it is reserved by GraphDataSource")
+                attrs.pop(reserved)
+        edges.append((start, end, attrs))
+
+    return _node_source(nodes), _edge_source(edges)
+
+def _graph_id_key(value: Any) -> tuple[Any, ...]:
+    if isinstance(value, np.generic):
+        value = value.item()
+    if isinstance(value, (tuple, list)):
+        return ("array", *(_graph_id_key(item) for item in value))
+    if value is None:
+        return ("null",)
+    if isinstance(value, bool):
+        return ("boolean", value)
+    if isinstance(value, str):
+        return ("string", value)
+    if isinstance(value, (int, float)):
+        if isinstance(value, float) and np.isnan(value):
+            return ("number", "nan")
+        if value == 0 and np.signbit(value):
+            return ("number", "-0")
+        return ("number", value)
+    raise ValueError("graph node identifiers must be scalar values or nested sequences of scalar values")
+
+def _validate_graph_node_ids(source: IndexedDataSource) -> None:
+    if not isinstance(source, ColumnDataSource):
+        return
+    seen = set()
+    for index, value in enumerate(source.data.get("index", [])):
+        key = _graph_id_key(value)
+        if key in seen:
+            raise ValueError(f"duplicate graph node identifier at index {index}")
+        seen.add(key)
+
+class GraphDataSource(DataSource):
+    ''' A coupled pair of indexed data sources representing a graph.
+
+    ``nodes`` contains one logical record per node and exposes an ``index``
+    field. ``edges`` contains one logical record per edge and exposes ``start``
+    and ``end`` fields referring to node identifiers.
+
+    The child sources may use any storage layout supported by
+    ``IndexedDataSource``.
+    Keeping them together gives graph renderers and interaction policies a
+    single topology-aware data model without forcing nodes and edges onto one
+    shared record axis.
+
+    Graph-shaped Python data is accepted directly. Node records may use ``id``
+    and edge records may use ``source`` and ``target``. These names
+    are normalized to Bokeh's internal ``index``, ``start``, and ``end``
+    fields. A NetworkX-like graph can be passed as the sole positional
+    argument.
+
+    '''
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        if len(args) > 1:
+            raise TypeError("GraphDataSource accepts at most one positional graph argument")
+        graph = args[0] if args else kwargs.pop("graph", None)
+        if args and "graph" in kwargs:
+            raise TypeError("GraphDataSource graph was provided more than once")
+
+        raw_nodes = kwargs.pop("nodes", None)
+        raw_edges = kwargs.pop("edges", None)
+        if graph is not None:
+            if raw_nodes is not None or raw_edges is not None:
+                raise ValueError("provide either a graph or explicit nodes and edges, not both")
+            nodes, edges = _graph_sources(graph)
+        else:
+            nodes = _default_graph_nodes() if raw_nodes is None else _node_source(raw_nodes)
+            edges = _default_graph_edges() if raw_edges is None else _edge_source(raw_edges)
+
+        _validate_graph_node_ids(nodes)
+        kwargs.update(nodes=nodes, edges=edges)
+        super().__init__(**kwargs)
+
+    nodes = Readonly(Instance(IndexedDataSource), default=_default_graph_nodes, help="""
+    The indexed data source containing node records.
+    """)
+
+    edges = Readonly(Instance(IndexedDataSource), default=_default_graph_edges, help="""
+    The indexed data source containing edge records.
+    """)
 
 class IndexedSubset(Model):
     ''' A filtered subset of the logical records in an ``IndexedDataSource``.
