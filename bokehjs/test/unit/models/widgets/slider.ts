@@ -96,6 +96,74 @@ describe("SliderView", () => {
   })
 })
 
+describe("AbstractSliderView", () => {
+  function escape(): KeyboardEvent {
+    const event = new KeyboardEvent("keydown", {key: "Escape", bubbles: true, cancelable: true})
+    document.dispatchEvent(event)
+    return event
+  }
+
+  describe("should support cancelling dragging with Escape", () => {
+    it("and restore the value", async () => {
+      const slider = RangeSlider.create({start: 0, end: 10, step: 1, value: [2, 5]})
+      const {view} = await display(slider, [300, 50])
+      const {track, handles: [handle0]} = elements(view)
+
+      handle0.dispatchEvent(new PointerEvent("pointerdown", {...pointer, ...center(handle0)}))
+      handle0.dispatchEvent(new PointerEvent("pointermove", {...pointer, ...on_track(track, 0.4)}))
+      await view.ready
+      expect(slider.value).to.be.equal([4, 5])
+      expect(handle0.classList.contains(slider_css.dragging)).to.be.true
+
+      expect(escape().defaultPrevented).to.be.true
+      await view.ready
+      expect(slider.value).to.be.equal([2, 5])
+      expect(handle0.classList.contains(slider_css.dragging)).to.be.false
+
+      // the rest of the gesture is ignored
+      handle0.dispatchEvent(new PointerEvent("pointermove", {...pointer, ...on_track(track, 0.1)}))
+      handle0.dispatchEvent(new PointerEvent("pointerup", {...pointer, ...on_track(track, 0.1)}))
+      await view.ready
+      expect(slider.value).to.be.equal([2, 5])
+
+      // and the next one works as usual
+      await drag(view, handle0, center(handle0), 0.3)
+      expect(slider.value).to.be.equal([3, 5])
+    })
+
+    it("and commit the restored value", async () => {
+      const _subscribed_changes = new Map([["value", [["committed", null] as ["committed", null]]]])
+      const slider = Slider.create({start: 0, end: 10, step: 1, value: 2, _subscribed_changes})
+      const {view} = await display(slider, [300, 50])
+      const doc = slider.document!
+
+      const updates: string[] = []
+      doc.on_change((event) => {
+        if (event instanceof ModelChangedEvent) {
+          const state = doc.is_sync_deferred(slider, event.attr) ? "deferred" : "immediate"
+          updates.push(`${state}:${event.attr}:${slider.value}`)
+        }
+      })
+      doc.sync_flush.connect(({attr, policy}) => updates.push(`flush:${attr}:${policy}`))
+
+      const {track, handles: [handle]} = elements(view)
+      handle.dispatchEvent(new PointerEvent("pointerdown", {...pointer, ...center(handle)}))
+      handle.dispatchEvent(new PointerEvent("pointermove", {...pointer, ...on_track(track, 0.6)}))
+      escape()
+      await view.ready
+
+      expect(updates).to.be.equal(["deferred:value:6", "deferred:value:2", "flush:value:committed"])
+    })
+
+    it("but not when not dragging", async () => {
+      const slider = Slider.create({start: 0, end: 10, step: 1, value: 2})
+      await display(slider, [300, 50])
+      expect(escape().defaultPrevented).to.be.false
+      expect(slider.value).to.be.equal(2)
+    })
+  })
+})
+
 describe("Slider", () => {
   it("should support string format", async () => {
     const slider = Slider.create({format: "0a"})
