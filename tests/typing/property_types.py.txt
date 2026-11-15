@@ -347,10 +347,13 @@ assert_type(Tuples.pair, PropertyDescriptor[tuple[int, str], tuple[int, str] | l
 
 tuples.pair = (1, "a")
 tuples.pair = [1, "a"]  # lists are converted to tuples
-tuples.nested = ((1, 2), ("a", "b"))
+tuples.nested = ((1, 2), ["a", "b"])
 
 # KNOWN GAP: the length and positions of items in lists can't be typed.
 tuples.pair = ["a", 1]
+
+# KNOWN GAP: type checkers accept tuples, but List() accepts only lists at runtime.
+tuples.nested = ((1, 2), ("a", "b"))
 
 tuples.pair = ("a", 1)  # mypy: assignment; pyright: reportAttributeAccessIssue
 tuples.pair = (1, "a", 2)  # mypy: assignment; pyright: reportAttributeAccessIssue
