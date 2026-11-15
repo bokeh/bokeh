@@ -24,7 +24,7 @@ export type MoveEvent = {
 }
 
 export type PanEvent = {
-  type: "pan_start" | "pan" | "pan_end"
+  type: "pan_start" | "pan" | "pan_end" | "pan_cancel"
   sx: number
   sy: number
   dx: number
@@ -64,6 +64,13 @@ export type GestureHandlers = {
   on_pan_start?(event: PanEvent): void
   on_pan?(event: PanEvent): void
   on_pan_end?(event: PanEvent): void
+  /**
+   * Called instead of `on_pan_end()` when panning was cancelled, i.e. the user
+   * pressed Escape, or the pointer was cancelled or lost its capture. Handlers
+   * should revert the effects of panning. If not provided, `on_pan_end()` is
+   * called instead and Escape doesn't cancel panning.
+   */
+  on_pan_cancel?(event: PanEvent): void
 
   on_pinch_start?(event: PinchEvent): void
   on_pinch?(event: PinchEvent): void
@@ -81,10 +88,19 @@ export type Options = {
    * want tooltips, toolbar or other panels to trigger UI events.
    */
   must_be_target?: boolean
+
+  /**
+   * Selects the element on which to capture a pointer, given its initial `pointerdown`
+   * event. The capturing element receives all subsequent events of the pointer and
+   * determines the cursor, so e.g. a dragged handle can keep its cursor and hover state.
+   * It must be `hit_area` or its descendant (possibly across shadow roots), so that the
+   * events reach `hit_area`. Defaults to `hit_area`.
+   */
+  capture_target?: (event: PointerEvent) => HTMLElement
 }
 
 type PointerId = typeof PointerEvent.prototype["pointerId"]
-type Pointer = {init: PointerEvent, last: PointerEvent}
+type Pointer = {init: PointerEvent, last: PointerEvent, capture_el: HTMLElement}
 
 type GesturePhase =
   | "idle"         // before any pointer down
@@ -94,12 +110,15 @@ type GesturePhase =
   | "pinching"     // two pointers down and reached scaling threshold
   | "rotating"     // two pointers down and reached rotational threshold
   | "transitional" // one pointer down after another was released (after pinching or rotation)
+  | "cancelled"    // panning was cancelled and waiting for all pointers to be released
 
 export class UIGestures {
   readonly must_be_target: boolean
+  readonly capture_target: ((event: PointerEvent) => HTMLElement) | null
 
   constructor(readonly hit_area: HTMLElement, readonly handlers: GestureHandlers, options: Options = {}) {
     this.must_be_target = options.must_be_target ?? false
+    this.capture_target = options.capture_target ?? null
 
     this._pointer_over = this._pointer_over.bind(this)
     this._pointer_out = this._pointer_out.bind(this)
@@ -107,6 +126,8 @@ export class UIGestures {
     this._pointer_move = this._pointer_move.bind(this)
     this._pointer_up = this._pointer_up.bind(this)
     this._pointer_cancel = this._pointer_cancel.bind(this)
+    this._lost_pointer_capture = this._lost_pointer_capture.bind(this)
+    this._key_down = this._key_down.bind(this)
   }
 
   connect_signals(): void {
@@ -125,6 +146,8 @@ export class UIGestures {
     this.hit_area.removeEventListener("pointermove", this._pointer_move)
     this.hit_area.removeEventListener("pointerup", this._pointer_up)
     this.hit_area.removeEventListener("pointercancel", this._pointer_cancel)
+    // no more events will arrive, so drop any gesture in progress and its listeners
+    this.reset()
   }
 
   remove(): void {
@@ -150,9 +173,12 @@ export class UIGestures {
   reset(): void {
     this._cancel_timeout()
     this._user_select(true)
+    this._listen_escape(false)
 
     this.phase = "idle"
-    this.pointers.clear()
+    for (const pointer_id of [...this.pointers.keys()]) {
+      this._release(pointer_id)
+    }
     this.press_timer = null
     this.tap_timestamp = -Infinity
 
@@ -162,6 +188,63 @@ export class UIGestures {
 
   protected _user_select(allow: boolean): void {
     this.hit_area.style.userSelect = allow ? "" : "none"
+  }
+
+  protected _capture(event: PointerEvent): void {
+    const capture_el = this.capture_target?.(event) ?? this.hit_area
+    capture_el.setPointerCapture(event.pointerId)
+    capture_el.addEventListener("lostpointercapture", this._lost_pointer_capture)
+    this.pointers.set(event.pointerId, {init: event, last: event, capture_el})
+  }
+
+  protected _release(pointer_id: PointerId): void {
+    const pointer = this.pointers.get(pointer_id)
+    if (pointer != null) {
+      // remove the listener before the browser releases the capture implicitly
+      // after pointerup, so that the release isn't mistaken for a lost capture
+      pointer.capture_el.removeEventListener("lostpointercapture", this._lost_pointer_capture)
+      this.pointers.delete(pointer_id)
+    }
+  }
+
+  protected _listening_escape: boolean = false
+
+  /**
+   * Escape cancels panning only if a handler can revert it.
+   */
+  protected _listen_escape(listen: boolean): void {
+    if (listen && this.handlers.on_pan_cancel == null) {
+      return
+    }
+    if (listen != this._listening_escape) {
+      this._listening_escape = listen
+      if (listen) {
+        document.addEventListener("keydown", this._key_down)
+      } else {
+        document.removeEventListener("keydown", this._key_down)
+      }
+    }
+  }
+
+  protected _key_down(event: KeyboardEvent): void {
+    if (event.key == "Escape" && this.phase == "panning") {
+      event.preventDefault()
+      this._cancel_pan()
+    }
+  }
+
+  protected _lost_pointer_capture(event: PointerEvent): void {
+    // e.g. the capturing element was removed from the DOM
+    this._pointer_cancel(event)
+  }
+
+  protected _cancel_pan(): void {
+    assert(this.phase == "panning")
+    this._listen_escape(false)
+    this.phase = "cancelled"
+    const [ptr] = this.pointers.values()
+    const {dx, dy} = this._movement(ptr)
+    this.on_pan_cancel(ptr.last, dx, dy)
   }
 
   static readonly move_threshold: number = 5/*px*/
@@ -239,8 +322,7 @@ export class UIGestures {
     if (!this.hit_area.isConnected) {
       return
     }
-    this.pointers.set(event.pointerId, {init: event, last: event})
-    this.hit_area.setPointerCapture(event.pointerId)
+    this._capture(event)
     this._user_select(false)
     switch (this.phase) {
       case "idle": {
@@ -257,6 +339,7 @@ export class UIGestures {
       case "pinching":
       case "rotating":
       case "transitional":
+      case "cancelled":
         break
     }
   }
@@ -286,6 +369,7 @@ export class UIGestures {
         this._cancel_timeout()
         if (!this._is_multi_gesture) {
           this.phase = "panning"
+          this._listen_escape(true)
           const [ptr] = this.pointers.values()
           const {dx, dy} = this._movement(ptr)
           this.on_pan_start(ptr.init, 0, 0)
@@ -308,7 +392,8 @@ export class UIGestures {
         }
         break
       }
-      case "pressing": {
+      case "pressing":
+      case "cancelled": {
         break
       }
       case "panning": {
@@ -379,6 +464,7 @@ export class UIGestures {
       case "panning": {
         const [ptr] = this.pointers.values()
         const {dx, dy} = this._movement(ptr)
+        this._listen_escape(false)
         this.on_pan_end(event, dx, dy)
         this.phase = "idle"
         break
@@ -399,15 +485,11 @@ export class UIGestures {
         this.last_rotation = null
         break
       }
+      case "cancelled": {
+        break
+      }
     }
-    this.pointers.delete(event.pointerId)
-    if (this.phase == "transitional") {
-      const [ptr] = this.pointers.values()
-      ptr.init = ptr.last
-    }
-    if (this.pointers.size == 0) {
-      this._user_select(true)
-    }
+    this._finish(event.pointerId)
   }
 
   protected _pointer_cancel(event: PointerEvent): void {
@@ -427,10 +509,7 @@ export class UIGestures {
         break
       }
       case "panning": {
-        const [ptr] = this.pointers.values()
-        const {dx, dy} = this._movement(ptr)
-        this.on_pan_end(event, dx, dy)
-        this.phase = "idle"
+        this._cancel_pan()
         break
       }
       case "pinching": {
@@ -449,13 +528,26 @@ export class UIGestures {
         this.last_rotation = null
         break
       }
+      case "cancelled": {
+        break
+      }
     }
-    this.pointers.delete(event.pointerId)
+    this._finish(event.pointerId)
+  }
+
+  /**
+   * Stop tracking a released or cancelled pointer and update the phase accordingly.
+   */
+  protected _finish(pointer_id: PointerId): void {
+    this._release(pointer_id)
     if (this.phase == "transitional") {
       const [ptr] = this.pointers.values()
       ptr.init = ptr.last
     }
     if (this.pointers.size == 0) {
+      if (this.phase == "cancelled") {
+        this.phase = "idle"
+      }
       this._user_select(true)
     }
   }
@@ -520,6 +612,14 @@ export class UIGestures {
     const {on_pan_end} = this.handlers
     if (on_pan_end != null) {
       on_pan_end(this._pan_event("pan_end", ev, dx, dy))
+    }
+  }
+  on_pan_cancel(ev: PointerEvent, dx: number, dy: number): void {
+    const {on_pan_cancel} = this.handlers
+    if (on_pan_cancel != null) {
+      on_pan_cancel(this._pan_event("pan_cancel", ev, dx, dy))
+    } else {
+      this.on_pan_end(ev, dx, dy)
     }
   }
 
