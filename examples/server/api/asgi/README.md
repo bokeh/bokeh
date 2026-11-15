@@ -20,6 +20,10 @@ lifespan. A new Bokeh session starts with the latest immutable snapshot.
 `BokehASGI.update_sessions()` applies later snapshots to each local session
 document.
 
+`graph_updates.py` serves a standalone graph application. Its slider runs
+a Python callback that changes the node and edge data in `GraphDataSource`
+and updates the layout for the active session.
+
 ## Streamlit particle example
 
 `streamlit_particles/` pairs per-viewer Streamlit controls with a Bokeh
@@ -81,6 +85,7 @@ chosen example, then run one of these commands:
 
 ```sh
 python -m uvicorn framework_free:application --port 8000
+python -m uvicorn graph_updates:application --port 8000
 python -m uvicorn fastapi_embed:app --port 8000
 python -m uvicorn fastapi_shared_data:app --port 8000
 python -m uvicorn starlette_embed:app --port 8000

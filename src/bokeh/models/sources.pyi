@@ -38,6 +38,7 @@ __all__ = (
     "ColumnDataSource",
     "DataSource",
     "GeoJSONDataSource",
+    "GraphDataSource",
     "IndexedDataSource",
     "IndexedSubset",
     "RecordDataSource",
@@ -135,6 +136,23 @@ class ColumnDataSource(ColumnarDataSource):
     def stream(self, new_data: DataDictArg, rollover: int | None = ...) -> None: ...
 
     def patch(self, patches: Patches, setter: Setter | None = ...) -> None: ...
+
+type GraphNodes = IndexedDataSource | DataDictLike | Mapping[Any, Any] | Sequence[Any]
+type GraphEdges = IndexedDataSource | DataDictLike | Mapping[str, Sequence[Any]] | Sequence[Any]
+
+class _GraphDataSourceInit(_DataSourceInit, total=False):
+    graph: Any
+    nodes: GraphNodes | None
+    edges: GraphEdges | None
+
+class GraphDataSource(DataSource):
+    @overload
+    def __init__(self, **kwargs: Unpack[_GraphDataSourceInit]) -> None: ...
+    @overload
+    def __init__(self, graph: Any, /, **kwargs: Unpack[_GraphDataSourceInit]) -> None: ...
+
+    nodes: IndexedDataSource = ...
+    edges: IndexedDataSource = ...
 
 class _IndexedSubsetInit(_ModelInit, total=False):
     filter: Filter

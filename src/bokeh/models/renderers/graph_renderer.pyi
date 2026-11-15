@@ -15,10 +15,12 @@ from ..glyphs import (
     Segment,
 )
 from ..graphs import GraphHitTestPolicy, LayoutProvider
+from ..sources import GraphDataSource
 from .glyph_renderer import GlyphRenderer
 from .renderer import DataRenderer, _DataRendererInit
 
 class _GraphRendererInit(_DataRendererInit, total=False):
+    data_source: GraphDataSource
     layout_provider: LayoutProvider
     node_renderer: GlyphRenderer[XYGlyph]
     edge_renderer: GlyphRenderer[MultiLine | Patches | Segment | Bezier]
@@ -28,6 +30,7 @@ class _GraphRendererInit(_DataRendererInit, total=False):
 class GraphRenderer(DataRenderer):
     def __init__(self, **kwargs: Unpack[_GraphRendererInit]) -> None: ...
 
+    data_source: GraphDataSource = ...
     layout_provider: LayoutProvider = ...
     node_renderer: GlyphRenderer[XYGlyph] = ...
     edge_renderer: GlyphRenderer[MultiLine | Patches | Segment | Bezier] = ...

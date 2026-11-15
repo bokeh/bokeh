@@ -11,10 +11,23 @@ Overview
 
 Graph drawing is done using the ``GraphRenderer`` model.
 
-In order to create a network visualization, you need to specify:
-- node data and glyphs using the ``node_renderer`` attribute
-- edge data and glyphs using the ``edge_renderer`` attribute
-- the layout strategy using the ``layout_provider`` attribute
+A :class:`~bokeh.models.GraphDataSource` holds separate indexed sources for the
+nodes and edges. Set it on ``GraphRenderer.data_source``. The renderer uses its
+two child sources as the data sources of ``node_renderer`` and
+``edge_renderer``. Configure their glyphs independently and use
+``layout_provider`` to set the layout.
+
+You can pass existing indexed sources, column mappings, or node and edge
+records. Node records accept ``id`` as an alias for ``index``, while edge
+records accept ``source`` and ``target`` as aliases for ``start`` and ``end``.
+
+.. code-block:: python
+
+    from bokeh.models import GraphDataSource, GraphRenderer, StaticLayoutProvider
+
+    source = GraphDataSource(nodes=[{"id": "A"}, {"id": "B"}], edges=[("A", "B")])
+    layout = StaticLayoutProvider(graph_layout={"A": (0, 0), "B": (1, 1)})
+    graph = GraphRenderer(data_source=source, layout_provider=layout)
 
 While the positions of the nodes could theoretically be stored in the ``node_renderer``,
 this approach allows for more flexibility. The same graph data can be viewed differently
@@ -24,22 +37,21 @@ depending on the ``layout_provider``, which will dictate the placement of the no
 Edge and node renderers
 -----------------------
 
-By default, the glyph used in ``node_renderer`` is ``Circle``.
+By default, the glyph used in ``node_renderer`` is ``Scatter``.
 You can replace it by any instance of ``XYGlyph``, like ``Ellipse``, ``Rect`` or even
 :class:`~bokeh.models.Scatter`.
 
 Similarly, you can modify the style properties
 of edges through the ``edge_renderer`` property. Supported edge glyphs are ``MultiLine``, ``Patches``, ``Segment``, and ``Bezier``.
-Choose the edge glyph before displaying the graph.
+Choose the edge glyph before displaying the graph. Supply custom child
+renderers at construction time and update the sources through their normal
+data APIs.
 
-Observe the following requirements for the data sources belonging
-to these sub-renderers:
+The node and edge sources expose these topology fields:
 
-* The ``ColumnDataSource`` of the node sub-renderer must have an
-  ``"index"`` column with the unique indices of the nodes.
-* The ``ColumnDataSource`` of the edge sub-renderer must have a
-  ``"start"`` and ``"end"`` column. These columns contain the node
-  indices for the start and end of the edges.
+* The node source has an ``"index"`` field with unique node identifiers.
+* The edge source has ``"start"`` and ``"end"`` fields containing the node
+  identifiers at each end of the edge.
 
 You can add extra meta-data to these sources to enable vectorized
 glyph styling or make data available for callbacks or hover tooltips.

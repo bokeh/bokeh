@@ -15,8 +15,14 @@ from __future__ import annotations
 #-----------------------------------------------------------------------------
 import pytest
 
-from bokeh.core.properties import field
-from bokeh.models import ColumnDataSource, MultiLine, Scatter
+# Bokeh imports
+from bokeh.core.properties import field, value
+from bokeh.models import (
+    ColumnDataSource,
+    IndexedDataSource,
+    MultiLine,
+    Scatter,
+)
 
 # Module under test
 import bokeh.plotting._graph as bpg # isort:skip
@@ -42,9 +48,11 @@ class Test_get_graph_kwargs:
 
         kw = bpg.get_graph_kwargs(node_source, edge_source)
 
-        # 'index' column is added from pandas df
+        # The dataframe index supplies node ids when no explicit id column is
+        # present. Edge topology is already explicit, so its generated index
+        # is omitted.
         assert set(kw['node_renderer'].data_source.data.keys()) == {"index", "foo"}
-        assert set(kw['edge_renderer'].data_source.data.keys()) == {"index", "start", "end", "bar"}
+        assert set(kw['edge_renderer'].data_source.data.keys()) == {"start", "end", "bar"}
 
     def test_handle_sources(self) -> None:
         node_source = ColumnDataSource(data=dict(foo=[]))
@@ -54,6 +62,21 @@ class Test_get_graph_kwargs:
 
         assert set(kw['node_renderer'].data_source.data.keys()) == {"foo"}
         assert set(kw['edge_renderer'].data_source.data.keys()) == {"start", "end", "bar"}
+        assert kw['data_source'].nodes is node_source
+        assert kw['data_source'].edges is edge_source
+
+    def test_handle_storage_neutral_sources(self) -> None:
+        class RecordDataSource(IndexedDataSource):
+            pass
+
+        node_source = RecordDataSource()
+        edge_source = RecordDataSource()
+        kw = bpg.get_graph_kwargs(node_source, edge_source)
+
+        assert kw['node_renderer'].data_source is node_source
+        assert kw['edge_renderer'].data_source is edge_source
+        assert kw['data_source'].nodes is node_source
+        assert kw['data_source'].edges is edge_source
 
     def test_handle_node_property_mixins(self) -> None:
         kwargs = dict(node_fill_color="purple", node_selection_fill_color="blue",
@@ -80,19 +103,16 @@ class Test_get_graph_kwargs:
         node_glyph = kw['node_renderer'].glyph
         assert isinstance(node_glyph, Scatter) and node_glyph.marker == "x"
 
+    def test_handle_node_marker_value(self) -> None:
+        marker = value("diamond")
+        kw = bpg.get_graph_kwargs({}, {}, node_marker=marker)
+        node_glyph = kw['node_renderer'].glyph
+        assert isinstance(node_glyph, Scatter) and node_glyph.marker == marker
+
     def test_handle_node_marker_dataspec_correctly(self) -> None:
         node_source = {'marker': ['square', 'circle', 'x']}
 
         kw = bpg.get_graph_kwargs(node_source, {}, node_marker='marker')
-
-        node_glyph = kw['node_renderer'].glyph
-        assert isinstance(node_glyph, Scatter)
-        assert node_glyph.marker == field('marker')
-
-    def test_handle_node_marker_field_dict(self) -> None:
-        node_source = {'marker': ['square', 'circle', 'x']}
-
-        kw = bpg.get_graph_kwargs(node_source, {}, node_marker={'field': 'marker'})
 
         node_glyph = kw['node_renderer'].glyph
         assert isinstance(node_glyph, Scatter)
@@ -112,6 +132,21 @@ class Test_get_graph_kwargs:
         assert kw['node_renderer'].glyph.tags == []
         assert kw['edge_renderer'].glyph.name is None
         assert kw['edge_renderer'].glyph.tags == []
+
+    def test_handle_node_marker_field(self) -> None:
+        marker = field("marker")
+        kw = bpg.get_graph_kwargs({}, {}, node_marker=marker)
+        node_glyph = kw['node_renderer'].glyph
+        assert isinstance(node_glyph, Scatter) and node_glyph.marker == marker
+
+    @pytest.mark.parametrize(("marker", "expected"), [
+        ({"field": "marker"}, field("marker")),
+        ({"value": "diamond"}, value("diamond")),
+    ])
+    def test_handle_node_marker_dict(self, marker, expected) -> None:
+        kw = bpg.get_graph_kwargs({"marker": ["square"]}, {}, node_marker=marker)
+        node_glyph = kw['node_renderer'].glyph
+        assert isinstance(node_glyph, Scatter) and node_glyph.marker == expected
 
     def test_handle_edge_property_mixins(self) -> None:
         kwargs = dict(edge_line_color="purple", edge_selection_line_color="blue",

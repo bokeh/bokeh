@@ -3,6 +3,8 @@ import {Model} from "../../model"
 import type * as p from "core/properties"
 
 export type DataChange = {
+  /** Path to a component within a composite source. */
+  path?: string[]
   /** Logical records affected by an in-place update, or all records when omitted. */
   indices?: number[]
   /** Whether the update changed record count or field topology. */

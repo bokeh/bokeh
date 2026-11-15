@@ -161,6 +161,7 @@ describe("default model resolver", () => {
       "GlyphAttachment",
       "GlyphRenderer",
       "GraphCoordinates",
+      "GraphDataSource",
       "GraphHitTestPolicy",
       "GraphRenderer",
       "Grid",
