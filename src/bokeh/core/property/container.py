@@ -78,30 +78,35 @@ __all__ = (
     'Tuple',
 )
 
-type _TypeParam[G, S] = TypeOrInst[Property[G, S]]
+type _TypeParam[GetType, SetType] = TypeOrInst[Property[GetType, SetType]]
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Seq[G, S = G, CG = Sequence[G], CS = Sequence[S]](ContainerProperty[CG, CS]):
+class Seq[
+    GetType,
+    SetType = GetType,
+    ContainerGetType = Sequence[GetType],
+    ContainerSetType = Sequence[SetType],
+](ContainerProperty[ContainerGetType, ContainerSetType]):
     """ Accept non-string ordered sequences of values, e.g. list, tuple, array.
 
     Type parameters:
 
-    ``G``, ``S``
+    ``GetType``, ``SetType``
         The value and assignment types of items.
 
-    ``CG``, ``CS``
+    ``ContainerGetType``, ``ContainerSetType``
         The value and assignment types of sequences.
 
     """
 
-    def __init__(self, item_type: TypeOrInst[Property[G, S]], *, default: Init[CS] = Undefined, help: str | None = None) -> None:
+    def __init__(self, item_type: TypeOrInst[Property[GetType, SetType]], *, default: Init[ContainerSetType] = Undefined, help: str | None = None) -> None:
         super().__init__(item_type, default=default, help=help)
 
     @property
-    def item_type(self) -> Property[G, S]:
+    def item_type(self) -> Property[GetType, SetType]:
         return self.type_params[0]
 
     def validate(self, value: Any, detail: bool = True) -> None:
@@ -138,7 +143,7 @@ class Seq[G, S = G, CG = Sequence[G], CS = Sequence[S]](ContainerProperty[CG, CS
                 and hasattr(value, "__getitem__") # NOTE: this is what makes it disallow set type
                 and not isinstance(value, Mapping))
 
-class List[G, S = G](Seq[G, S, list[G], Sequence[S]]):
+class List[GetType, SetType = GetType](Seq[GetType, SetType, list[GetType], Sequence[SetType]]):
     """ Accept Python list values.
 
     .. note::
@@ -148,12 +153,12 @@ class List[G, S = G](Seq[G, S, list[G], Sequence[S]]):
 
     """
 
-    def __init__(self, item_type: TypeOrInst[Property[G, S]], *, default: Init[Sequence[S]] = _NotGiven, help: str | None = None) -> None:
+    def __init__(self, item_type: TypeOrInst[Property[GetType, SetType]], *, default: Init[Sequence[SetType]] = _NotGiven, help: str | None = None) -> None:
         default = [] if default is _NotGiven else default
         super().__init__(item_type, default=default, help=help)
 
     @overload
-    def wrap(self, value: list[G]) -> PropertyValueList[G]: ...
+    def wrap(self, value: list[GetType]) -> PropertyValueList[GetType]: ...
     @overload
     def wrap[V](self, value: V) -> V: ...
 
@@ -173,7 +178,7 @@ class List[G, S = G](Seq[G, S, list[G], Sequence[S]]):
     def _is_seq(cls, value: Any) -> bool:
         return isinstance(value, list)
 
-class Set[G, S = G](Seq[G, S, set[G], AbstractSet[S]]):
+class Set[GetType, SetType = GetType](Seq[GetType, SetType, set[GetType], AbstractSet[SetType]]):
     """ Accept Python ``set()`` values.
 
     .. note::
@@ -182,12 +187,12 @@ class Set[G, S = G](Seq[G, S, set[G], AbstractSet[S]]):
 
     """
 
-    def __init__(self, item_type: TypeOrInst[Property[G, S]], *, default: Init[AbstractSet[S]] = _NotGiven, help: str | None = None) -> None:
+    def __init__(self, item_type: TypeOrInst[Property[GetType, SetType]], *, default: Init[AbstractSet[SetType]] = _NotGiven, help: str | None = None) -> None:
         default = set() if default is _NotGiven else default
         super().__init__(item_type, default=default, help=help)
 
     @overload
-    def wrap(self, value: set[G]) -> PropertyValueSet[G]: ...
+    def wrap(self, value: set[GetType]) -> PropertyValueSet[GetType]: ...
     @overload
     def wrap[V](self, value: V) -> V: ...
 
@@ -327,7 +332,7 @@ class ColumnData(Dict[str, Any]):
         else:
             return value
 
-class Tuple[G = Any, S = G](ContainerProperty[G, S]):
+class Tuple[GetType = Any, SetType = GetType](ContainerProperty[GetType, SetType]):
     """ Accept Python tuple values.
 
     Lists of matching length are accepted as well and converted to tuples.
@@ -401,11 +406,11 @@ class Tuple[G = Any, S = G](ContainerProperty[G, S]):
         msg = "" if not detail else f"expected an element of {self}, got {value!r}"
         raise ValidationError(msg)
 
-    def transform(self, value: Any) -> G:
+    def transform(self, value: Any) -> GetType:
         """ Change the value into a JSON serializable format.
 
         """
-        return cast(G, tuple(typ.transform(x) for (typ, x) in zip(self.type_params, value)))
+        return cast(GetType, tuple(typ.transform(x) for (typ, x) in zip(self.type_params, value)))
 
 class RelativeDelta(Dict[str, int]):
     """ Accept RelativeDelta dicts for time delta values.
@@ -441,10 +446,10 @@ class RestrictedDict[K, V, KS = K, VS = V](Dict[K, V, KS, VS]):
             msg = "" if not detail else f"Disallowed keys: {error_keys!r}"
             raise ValidationError(msg)
 
-class NonEmpty[G, S = G](SingleParameterizedProperty[G, S]):
+class NonEmpty[GetType, SetType = GetType](SingleParameterizedProperty[GetType, SetType]):
     """ Allows only non-empty containers. """
 
-    def __init__(self, type_param: TypeOrInst[ContainerProperty[G, S]], *, default: Init[S] = _NotGiven,
+    def __init__(self, type_param: TypeOrInst[ContainerProperty[GetType, SetType]], *, default: Init[SetType] = _NotGiven,
             help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
 
@@ -455,10 +460,10 @@ class NonEmpty[G, S = G](SingleParameterizedProperty[G, S]):
             msg = "" if not detail else "Expected a non-empty container"
             raise ValidationError(msg)
 
-class Len[G, S = G](SingleParameterizedProperty[G, S]):
+class Len[GetType, SetType = GetType](SingleParameterizedProperty[GetType, SetType]):
     """ Allows only containers of the given length. """
 
-    def __init__(self, type_param: TypeOrInst[ContainerProperty[G, S]], length: int, *, default: Init[S] = _NotGiven,
+    def __init__(self, type_param: TypeOrInst[ContainerProperty[GetType, SetType]], length: int, *, default: Init[SetType] = _NotGiven,
             help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
         self.length = length

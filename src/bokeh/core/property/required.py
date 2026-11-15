@@ -41,10 +41,10 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Required[G, S = G](SingleParameterizedProperty[G, S]):
+class Required[GetType, SetType = GetType](SingleParameterizedProperty[GetType, SetType]):
     """ A property accepting a value of some other type while having undefined default. """
 
-    def __init__(self, type_param: TypeOrInst[Property[G, S]], *, default: Init[S] = Undefined, help: str | None = None) -> None:
+    def __init__(self, type_param: TypeOrInst[Property[GetType, SetType]], *, default: Init[SetType] = Undefined, help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
 
 #-----------------------------------------------------------------------------

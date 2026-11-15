@@ -43,13 +43,13 @@ __all__ = (
     'Either',
 )
 
-type _TypeParam[G, S] = TypeOrInst[Property[G, S]]
+type _TypeParam[GetType, SetType] = TypeOrInst[Property[GetType, SetType]]
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Either[G, S = G](ParameterizedProperty[G, S]):
+class Either[GetType, SetType = GetType](ParameterizedProperty[GetType, SetType]):
     """ Accept values according to a sequence of other property types.
 
     Example:
@@ -76,7 +76,7 @@ class Either[G, S = G](ParameterizedProperty[G, S]):
 
     # Infer value types from type parameters, so that they aren't inferred from
     # ``default`` instead. The last overload covers calls that don't match the
-    # other overloads, because Property[G, S] is invariant:
+    # other overloads, because Property[GetType, SetType] is invariant:
     #
     # * subclasses and annotated assignments with fixed value types
     # * any call in a class body checked by mypy, which solves type parameters
@@ -141,7 +141,7 @@ class Either[G, S = G](ParameterizedProperty[G, S]):
         self,
         type_param0: TypeOrInst[Property[Any]],
         *type_params: TypeOrInst[Property[Any]],
-        default: Init[S] = ...,  # pyright: ignore[reportInvalidTypeVarUse]
+        default: Init[SetType] = ...,  # pyright: ignore[reportInvalidTypeVarUse]
         help: str | None = ...,
     ) -> None: ...
     def __init__(
@@ -155,7 +155,7 @@ class Either[G, S = G](ParameterizedProperty[G, S]):
         for tp in self.type_params:
             self.alternatives.extend(tp.alternatives)
 
-    def transform(self, value: Any) -> G:
+    def transform(self, value: Any) -> GetType:
         for param in self.type_params:
             try:
                 return param.transform(value)
@@ -175,7 +175,7 @@ class Either[G, S = G](ParameterizedProperty[G, S]):
         msg = "" if not detail else f"expected an element of either {nice_join([ str(param) for param in self.type_params ])}, got {value!r}"
         raise ValidationError(msg)
 
-    def wrap(self, value: G) -> G:
+    def wrap(self, value: GetType) -> GetType:
         for tp in self.type_params:
             value = tp.wrap(value)
         return value

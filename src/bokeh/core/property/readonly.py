@@ -40,13 +40,13 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Readonly[G](SingleParameterizedProperty[G, Never]):
+class Readonly[GetType](SingleParameterizedProperty[GetType, Never]):
     """ A property that can't be manually modified by the user. """
 
     _readonly = True
 
-    def __init__(self, type_param: TypeOrInst[Property[G, Any]], *, default: Init[G] = Undefined, help: str | None = None) -> None:
-        # Readonly properties can't be assigned (``S`` is ``Never``), but can have defaults.
+    def __init__(self, type_param: TypeOrInst[Property[GetType, Any]], *, default: Init[GetType] = Undefined, help: str | None = None) -> None:
+        # Readonly properties can't be assigned (``SetType`` is ``Never``), but can have defaults.
         super().__init__(type_param, default=cast(Init[Never], default), help=help)
 
 #-----------------------------------------------------------------------------

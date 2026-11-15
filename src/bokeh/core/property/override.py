@@ -44,7 +44,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Override[G = Any, S = G]:
+class Override[GetType = Any, SetType = GetType]:
     """ Override attributes of Bokeh property in derived Models.
 
     When subclassing a Bokeh Model, it may be desirable to change some of the
@@ -108,7 +108,7 @@ class Override[G = Any, S = G]:
     default: Any
 
     @overload
-    def __init__(self, prop: PropertyDescriptor[G, S], /, *, default: Init[S]) -> None: ...
+    def __init__(self, prop: PropertyDescriptor[GetType, SetType], /, *, default: Init[SetType]) -> None: ...
     @overload
     def __init__(self, /, *, default: Any) -> None: ...
 

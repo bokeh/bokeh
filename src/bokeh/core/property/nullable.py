@@ -39,13 +39,13 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Nullable[G, S = G](SingleParameterizedProperty[G | None, S | None]):
+class Nullable[GetType, SetType = GetType](SingleParameterizedProperty[GetType | None, SetType | None]):
     """ A property accepting ``None`` or a value of some other type. """
 
-    def __init__(self, type_param: TypeOrInst[Property[G, S]], *, default: Init[S | None] = None, help: str | None = None) -> None:
+    def __init__(self, type_param: TypeOrInst[Property[GetType, SetType]], *, default: Init[SetType | None] = None, help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
 
-    def transform(self, value: Any) -> G | None:
+    def transform(self, value: Any) -> GetType | None:
         return None if value is None else super().transform(value)
 
     def wrap(self, value: Any) -> Any:
