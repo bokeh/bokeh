@@ -9,7 +9,7 @@ import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {build_view} from "@bokehjs/core/build_views"
 import * as p from "@bokehjs/core/properties"
-import {RecordSource} from "../sources/record_source"
+import {RecordDataSource} from "@bokehjs/models/sources/record_data_source"
 
 class SubclassWithNumberSpecView extends DataAnnotationView {
   declare model: SubclassWithNumberSpec
@@ -83,7 +83,7 @@ describe("AnnotationView", () => {
   describe("set_data()", () => {
     for (const ds of [
       ColumnDataSource.create({data: {colname: [1, 2, 3, 4]}}),
-      RecordSource.create({records: [1, 2, 3, 4].map((colname) => ({colname}))}),
+      RecordDataSource.create({records: [1, 2, 3, 4].map((colname) => ({colname}))}),
     ]) {
       it(`collects dataspecs from ${ds.type}`, async () => {
         const obj = SubclassWithNumberSpec.create()
@@ -105,7 +105,7 @@ describe("AnnotationView", () => {
 
   it("updates synchronously and follows source replacement", async () => {
     const source = ColumnDataSource.create({data: {colname: [1]}})
-    const replacement = RecordSource.create({records: [{colname: 2}]})
+    const replacement = RecordDataSource.create({records: [{colname: 2}]})
     const model = SubclassWithNumberSpec.create({source})
     const parent = await plot()
     const view = await build_view(model, {parent})

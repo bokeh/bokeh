@@ -132,7 +132,7 @@ uvicorn = ">=0.30"
 vermin = "*"
 
 [feature.full-deps.pypi-dependencies]
-bokeh_sampledata = ">=2026.1"
+bokeh_sampledata = ">=2026.2"
 pyarrow = ">=14.0"
 pyright = "*"
 requests-unixsocket = ">=0.3.0"
@@ -284,7 +284,7 @@ toml = "*"
 tzdata = "*"
 
 [feature.docs-deps.pypi-dependencies]
-bokeh_sampledata = ">=2026.1"
+bokeh_sampledata = ">=2026.2"
 
 [feature.release-build-deps.dependencies]
 python-build = "*"
