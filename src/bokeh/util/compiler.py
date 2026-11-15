@@ -96,7 +96,11 @@ class CompilationError(RuntimeError):
             self.text = error.get("text", "")
             self.annotated = error.get("annotated")
         else:
+            self.line = None
+            self.column = None
+            self.message = None
             self.text = error
+            self.annotated = None
 
     def __str__(self) -> str:
         return "\n" + self.text.strip()
