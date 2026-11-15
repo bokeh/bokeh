@@ -248,7 +248,7 @@ export class ClientConnection {
           reject(new Error("The connection has been closed"))
         } else {
           const events: DocumentEvent[] = []
-          const document = Document.from_json(doc_json, events, buffers)
+          const document = Document.from_json(doc_json, {events, buffers})
 
           this.session = new ClientSession(this, document)
 

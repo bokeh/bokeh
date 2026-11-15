@@ -19,7 +19,6 @@ describe("default model resolver", () => {
   it("should support known model listing", () => {
     expect(Object.keys(Models)).to.be.equal([
       "AbstractButton",
-      "ActionItem",
       "ActionTool",
       "AdaptiveTicker",
       "AjaxDataSource",
@@ -70,7 +69,6 @@ describe("default model resolver", () => {
       "CategoricalTicker",
       "CellEditor",
       "CellFormatter",
-      "CheckableItem",
       "Checkbox",
       "CheckboxButtonGroup",
       "CheckboxEditor",

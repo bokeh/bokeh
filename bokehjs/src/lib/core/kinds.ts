@@ -718,17 +718,3 @@ export const Angle = Float
 
 export type Float = typeof Float["__type__"]
 export type Dict<V> = Kinds.Dict<V>["__type__"]
-
-// backwards compatibility aliases (these collide with built-in types)
-/** @deprecated */
-export const Boolean = Bool
-/** @deprecated */
-export const String = Str
-/** @deprecated */
-export const Number = Float
-/** @deprecated */
-export const Array = List
-/** @deprecated */
-export const Map = Mapping
-/** @deprecated */
-export const Function = Func

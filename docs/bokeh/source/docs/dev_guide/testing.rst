@@ -72,13 +72,8 @@ date by running ``pip install bokeh_sampledata``. In case you are not able to in
 sampledata on your system, you have the option to
 :ref:`disable those specific tests <contributor_guide_testing_local_python_select>`.
 
-Several tests also require `Selenium`_ and a corresponding `web driver`_ to be
-available on your system. While it is possible to use other web drivers for some
-tests, the recommended setup is to use Selenium with `ChromeDriver`_ and
-`Chrome`_. See :ref:`ug_output_export_dependencies` for
-installation instructions and more information. In case Selenium is not
-available on your system, you have the option to
-:ref:`disable those specific tests <contributor_guide_testing_local_python_select>`.
+Export tests use Playwright and Chromium. See :ref:`ug_output_export_dependencies`
+for installation instructions.
 
 On some Unix platforms, you may also need to increase the "maximum
 number of open file descriptors". Some tests open many files when testing the
@@ -158,9 +153,6 @@ when working with Bokeh's pytest-based tests:
   define the number of cores to use. Set to ``auto`` to use all available cores.
   For example: ``pytest -n 4 tests/codebase``. See `pytest-xdist`_.
 * ``-v``: Run test with more verbose output.
-* ``--driver``: Use a specific web driver for Selenium-based tests
-  (``"chrome"``, ``"firefox"``, or ``"safari"``). For example:
-  ``pytest --driver="firefox" tests/unit/``.
 * ``--no-js``: Skip any JavaScript code and only test Python code.
 
 See the `pytest documentation`_ for more options. Note that any arguments appended
@@ -176,25 +168,13 @@ Unit tests
 
     .. code-block:: sh
 
-        pixi run test-py -m "not selenium"
+        pixi run test-py
 
     **Inside a pixi shell:**
 
     .. code-block:: sh
 
-        pytest -m "not selenium" tests/unit
-
-    .. note::
-        This command will exclude unit tests that require `Selenium`_. Because
-        Selenium can be difficult to set up and because some unit tests require
-        both `geckodriver`_ and `ChromeDriver`_ to be available on your system,
-        using ``-m "not selenium"`` is the recommended way to run unit tests
-        locally. Once you :ref:`create a Pull Request
-        <contributor_guide_pull_requests>`, :ref:`Bokeh's CI
-        <contributor_guide_testing_ci>` will run all tests, including
-        Selenium-based unit tests. In case Selenium with both geckodriver and
-        ChromeDriver is available on your system, you can run all unit tests
-        by omitting the ``-m`` flag.
+        pytest tests/unit
 
 .. _contributor_guide_testing_local_python_coverage:
 
@@ -226,13 +206,13 @@ Code coverage (Python unit tests)
 
     .. code-block:: sh
 
-        pixi run pytest tests/unit/bokeh/test_objects.py -m "not selenium" --cov=bokeh --cov-report=html
+        pixi run pytest tests/unit/bokeh/test_objects.py --cov=bokeh --cov-report=html
 
     **Inside a pixi shell:**
 
     .. code-block:: sh
 
-        pytest --cov=bokeh --cov-report=html -m "not selenium" tests/unit/bokeh/test_objects.py
+        pytest --cov=bokeh --cov-report=html tests/unit/bokeh/test_objects.py
 
     .. seealso::
         Coverage reports use the pytest plugin `pytest-cov`_. For more
@@ -378,10 +358,9 @@ Select specific tests
         pytest tests/unit/bokeh/models/test_grids.py
 
     Another way to select or deselect specific tests is to use markers.
-    Currently, Bokeh's tests use the following two markers:
+    For tests that require sample data, use this marker:
 
     * ``sampledata``: a test that requires ``bokeh.sampledata`` to be downloaded
-    * ``selenium``: a test that requires selenium
 
     For more information on setting your own markers, see
     `Working with custom markers`_ in the `pytest documentation`_. To learn more
@@ -936,12 +915,7 @@ of others who require access to these limited resources.
 .. _Ruff: https://github.com/astral-sh/ruff
 .. _pytest: https://pytest.org/
 .. _pytest-xdist: https://github.com/pytest-dev/pytest-xdist
-.. _Selenium: https://www.selenium.dev/documentation/en/
-.. _web driver: https://www.selenium.dev/documentation/en/webdriver/
-.. _ChromeDriver: https://chromedriver.chromium.org/
-.. _Chrome: https://www.google.com/chrome/
 .. _Chromium: https://www.chromium.org/Home
-.. _geckodriver: https://firefox-source-docs.mozilla.org/testing/geckodriver/Usage.html
 .. _pytest-cov: https://github.com/pytest-dev/pytest-cov
 .. _Specifying which tests to run: https://docs.pytest.org/en/latest/how-to/usage.html#specifying-which-tests-to-run
 .. _documentation for pytest-cov: https://pytest-cov.readthedocs.io/en/latest/

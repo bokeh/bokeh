@@ -369,15 +369,7 @@ export class DataTableView extends WidgetView {
   }
 
   get autosize(): AutosizeMode {
-    let autosize: AutosizeMode
-    if (this.model.fit_columns === true) {
-      autosize = AutosizeModes.force_fit
-    } else if (this.model.fit_columns === false) {
-      autosize = AutosizeModes.none
-    } else {
-      autosize = AutosizeModes[this.model.autosize_mode]
-    }
-    return autosize
+    return AutosizeModes[this.model.autosize_mode]
   }
 
   override render(): void {
@@ -543,7 +535,6 @@ export namespace DataTable {
     autosize_mode: p.Property<"fit_columns" | "fit_viewport" | "none" | "force_fit" | "ignore_viewport">
     auto_edit: p.Property<boolean>
     columns: p.Property<TableColumn[]>
-    fit_columns: p.Property<boolean | null>
     frozen_columns: p.Property<number | null>
     frozen_rows: p.Property<number | null>
     sortable: p.Property<boolean>
@@ -578,7 +569,6 @@ export class DataTable extends TableWidget {
       autosize_mode:       [ Enum("fit_columns", "fit_viewport", "none", "force_fit", "ignore_viewport"), "force_fit" ],
       auto_edit:           [ Bool, false ],
       columns:             [ List(Ref(TableColumn)), [] ],
-      fit_columns:         [ Nullable(Bool), null ],
       frozen_columns:      [ Nullable(Int), null ],
       frozen_rows:         [ Nullable(Int), null ],
       sortable:            [ Bool, true ],

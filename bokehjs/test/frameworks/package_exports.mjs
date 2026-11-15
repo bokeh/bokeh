@@ -76,9 +76,9 @@ try {
   Bokeh.register_models({Plot: ApplicationPlot})
   // Literal serialized models keep widgets/tables out of the initial import graph.
   const serialized_roots = [
-    {type: "object", name: "Plot", id: "plot", attributes: {name: "plot"}},
-    {type: "object", name: "Slider", id: "slider", attributes: {name: "slider", start: 0, end: 10, value: 3}},
-    {type: "object", name: "DataTable", id: "table", attributes: {name: "table"}},
+    {$type: "Plot", $id: "plot", name: "plot"},
+    {$type: "Slider", $id: "slider", name: "slider", start: 0, end: 10, value: 3},
+    {$type: "DataTable", $id: "table", name: "table"},
   ]
   let decoded = 0
   ClientConnection.prototype.connect = async function() {

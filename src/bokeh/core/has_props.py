@@ -514,13 +514,7 @@ class HasProps(Serializable):
                 }
         attributes = {key: serializer.encode(val) for key, val in properties.items()}
 
-        if serializer.compact:
-            return ObjectRep({"$type": self.__qualified_model__, **attributes})
-        else:
-            rep = ObjectRep(type="object", name=self.__qualified_model__)
-            if attributes:
-                rep["attributes"] = attributes
-            return rep
+        return ObjectRep({"$type": self.__qualified_model__, **attributes})
 
     # FQ type name required to suppress Sphinx error "more than one target found for cross-reference 'JSON'"
     def set_from_json(self, name: str, value: Any, *, setter: Setter | None = None) -> None:

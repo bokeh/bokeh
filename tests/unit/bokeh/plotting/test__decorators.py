@@ -73,15 +73,6 @@ def test__glyph_method_keeps_metadata() -> None:
     assert signature(fn).return_annotation == signature(foo).return_annotation
 
 
-def test__marker_method_keeps_metadata() -> None:
-    def foo(**kw) -> GlyphRenderer: pass
-    fn = bpd.marker_method()(foo)
-    expected_doc = generate_docstring(Marker, Marker.parameters(), foo.__doc__)
-    assert fn.__name__ == foo.__name__
-    assert fn.__doc__ == expected_doc
-    assert signature(fn).return_annotation == signature(foo).return_annotation
-
-
 @pytest.mark.parametrize("doc", [
     "First paragraph.\n\nSecond paragraph.",
     "\n    First paragraph.\n\n    Second paragraph.\n",

@@ -423,5 +423,3 @@ running the examples tests.
 .. _pytest: https://docs.pytest.org
 .. _Bokeh Discourse: https://discourse.bokeh.org/
 .. _Bokeh's contributor Slack: https://slack-invite.bokeh.org/
-.. _Selenium: https://www.selenium.dev/documentation/en/
-.. _ChromeDriver: https://chromedriver.chromium.org/

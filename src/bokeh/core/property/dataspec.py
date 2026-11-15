@@ -263,17 +263,10 @@ class FloatSpec(DataSpec):
         super().__init__(Float, default=default, help=help)
 
 class NumberSpec(DataSpec):
-    """ A |DataSpec| property that accepts numeric and datetime fixed values.
+    """ A |DataSpec| property that accepts numeric, datetime, and timedelta fixed values.
 
-    By default, date and datetime values are immediately converted to
-    milliseconds since epoch. It is possible to disable processing of datetime
-    values by passing ``accept_datetime=False``.
-
-    By default, timedelta values are immediately converted to absolute
-    milliseconds. It is possible to disable processing of timedelta
-    values by passing ``accept_timedelta=False``
-
-    Timedelta values are interpreted as absolute milliseconds.
+    Date and datetime values are converted to milliseconds since the epoch.
+    Timedelta values are converted to milliseconds.
 
     .. code-block:: python
 
@@ -283,22 +276,10 @@ class NumberSpec(DataSpec):
 
     """
 
-    def __init__(self, default: Any = Undefined, *, help: str | None = None, accept_datetime: bool = True, accept_timedelta: bool = True) -> None:
+    def __init__(self, default: Any = Undefined, *, help: str | None = None) -> None:
         super().__init__(Float, default=default, help=help)
-
-        if accept_timedelta:
-            self.accepts(TimeDelta, convert_timedelta_type)
-        else:
-            from ...util.warnings import warn_deprecated
-
-            warn_deprecated("NumberSpec(..., accept_timedelta=False)", "FloatSpec()", since=(3, 7, 0))
-
-        if accept_datetime:
-            self.accepts(Datetime, convert_datetime_type)
-        else:
-            from ...util.warnings import warn_deprecated
-
-            warn_deprecated("NumberSpec(..., accept_datetime=False)", "FloatSpec()", since=(3, 7, 0))
+        self.accepts(TimeDelta, convert_timedelta_type)
+        self.accepts(Datetime, convert_datetime_type)
 
 class AlphaSpec(FloatSpec):
 

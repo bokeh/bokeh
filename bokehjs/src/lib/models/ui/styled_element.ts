@@ -28,11 +28,6 @@ export abstract class StyledElementView extends DOMComponentView {
    */
   readonly self_style = new InlineStyleSheet("", "StyledElementView.self_style")
 
-  /** @deprecated */
-  get style(): InlineStyleSheet {
-    return this.self_style
-  }
-
   /**
    * Computed styles append by the parent.
    */

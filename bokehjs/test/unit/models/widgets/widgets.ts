@@ -99,13 +99,13 @@ describe("Button", () => {
     const button = Button.create({label: "Button", resizable: "both"})
     const {view} = await display(button, [200, 100])
 
-    expect(view.style.css.includes("resize: both;")).to.be.true
-    expect(view.style.css.includes("overflow: auto;")).to.be.true
+    expect(view.self_style.css.includes("resize: both;")).to.be.true
+    expect(view.self_style.css.includes("overflow: auto;")).to.be.true
 
     button.resizable = false
     await view.ready
 
-    expect(view.style.css.includes("resize:")).to.be.false
-    expect(view.style.css.includes("overflow: auto;")).to.be.false
+    expect(view.self_style.css.includes("resize:")).to.be.false
+    expect(view.self_style.css.includes("overflow: auto;")).to.be.false
   })
 })

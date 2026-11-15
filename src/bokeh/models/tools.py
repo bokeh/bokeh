@@ -66,7 +66,6 @@ from ..core.enums import (
     TooltipFieldFormatter,
 )
 from ..core.has_props import abstract
-from ..core.property.alias import DeprecatedAlias
 from ..core.property.any import AnyRef
 from ..core.property.auto import Auto
 from ..core.property.color import Alpha, Color
@@ -327,8 +326,6 @@ class RegionSelectTool(SelectTool):
     gestures, or only once when the selection region is completed.
     """)
 
-    select_every_mousemove = DeprecatedAlias("continuous", since=(3, 1, 0))
-
     persistent = Bool(default=False, help="""
     Whether the selection overlay should persist after selection gesture
     is completed. This can be paired with setting ``editable = True`` on
@@ -346,8 +343,6 @@ class InspectTool(GestureTool):
     ''' A base class for tools that perform "inspections", e.g. ``HoverTool``.
 
     '''
-
-    toggleable = DeprecatedAlias("visible", since=(3, 4, 0))
 
 class Toolbar(UIElement):
     ''' Collect tools to display for a single plot.

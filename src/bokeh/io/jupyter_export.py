@@ -21,16 +21,16 @@ import threading
 import time
 from contextvars import ContextVar, Token
 from html.parser import HTMLParser
-from typing import Any, TypeGuard, cast
+from typing import Any, TypeGuard
 
 from nbconvert.exporters import HTMLExporter
 from nbconvert.preprocessors import Preprocessor
 from nbformat.sign import NotebookNotary
-from traitlets import Bool, Enum, Integer
+from traitlets import Bool, Integer
 
 from ..embed.result import EmbedResult, EmbedValidationError
 from ..resources import INLINE
-from .export import ExportBackendType, get_screenshot_as_png_from_html
+from .export import get_screenshot_as_png_from_html
 from .jupyter import DISPLAY_MIME_TYPE, RESOURCES_MIME_TYPE
 from .notebook import STATIC_FALLBACK_ATTRIBUTE, static_fallback
 
@@ -284,8 +284,6 @@ class BokehPNGPreprocessor(Preprocessor):
             Whether notebook outputs must have a valid Jupyter trust signature.
         timeout:
             The seconds allowed for each PNG capture.
-        backend:
-            The browser backend used for capture.
         max_bytes:
             The maximum encoded PNG size accepted for one output.
 
@@ -297,12 +295,6 @@ class BokehPNGPreprocessor(Preprocessor):
         help="Only execute Bokeh output from a notebook with a valid Jupyter trust signature.",
     )
     timeout = Integer(10, min=1, config=True, help="Seconds allowed for each PNG capture.")
-    backend = Enum(
-        values=["playwright"],
-        default_value="playwright",
-        config=True,
-        help="Browser backend used for export-time PNG capture (Playwright only).",
-    )
     max_bytes = Integer(10 * 1024 * 1024, min=1, config=True, help="Maximum embedded PNG size.")
 
     _trusted: bool
@@ -452,7 +444,7 @@ class BokehPNGPreprocessor(Preprocessor):
         if isinstance(width, (int, float)) and 1 <= width <= 10000:
             page = page.replace("<body>", f'<body style="width:{round(width)}px">', 1)
         image = get_screenshot_as_png_from_html(
-            page, timeout=self.timeout, backend=cast(ExportBackendType, self.backend),
+            page, timeout=self.timeout,
         )
         buffer = io.BytesIO()
         image.save(buffer, format="PNG")

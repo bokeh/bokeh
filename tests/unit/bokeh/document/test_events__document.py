@@ -455,23 +455,18 @@ class TestRootAddedEvent:
         r = s.encode(e)
         assert r == dict(
             kind=e.kind,
-            model=ObjectRefRep(
-                type="object",
-                name="test_events__document.SomeModel",
-                id=m.id,
-                attributes=dict(
-                    ref1=ObjectRefRep(
-                        type="object",
-                        name="test_events__document.OtherModel",
-                        id=ref1.id,
-                    ),
-                    ref2=ObjectRefRep(
-                        type="object",
-                        name="test_events__document.OtherModel",
-                        id=ref2.id,
-                    ),
-                ),
-            ),
+            model=ObjectRefRep({
+                "$type": "test_events__document.SomeModel",
+                "$id": m.id,
+                "ref1": ObjectRefRep({
+                    "$type": "test_events__document.OtherModel",
+                    "$id": ref1.id,
+                }),
+                "ref2": ObjectRefRep({
+                    "$type": "test_events__document.OtherModel",
+                    "$id": ref2.id,
+                }),
+            }),
         )
         assert s.buffers == []
 

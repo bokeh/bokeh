@@ -381,7 +381,7 @@ class Test_callback_policies:
         doc = Document()
         doc.add_root(m)
         [root] = doc.to_json(deferred=False)["roots"]
-        assert root["attributes"]["_subscribed_changes"] == {
+        assert root["_subscribed_changes"] == {
             "type": "map",
             "entries": [("a", [["immediate", None], ["throttle", 100], ["debounce", 250]])],
         }

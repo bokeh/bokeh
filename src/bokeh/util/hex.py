@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 
 import math
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -55,14 +55,6 @@ class HexBinResult:
     q: npt.NDArray[np.integer]
     r: npt.NDArray[np.integer]
     counts: npt.NDArray[np.integer]
-
-    def __getitem__(self, key: Literal["q", "r", "counts"]) -> npt.NDArray[np.integer]:
-        if key not in ("q", "r", "counts"):
-            raise KeyError(f"Invalid key {key!r}, must be one of 'q', 'r', or 'counts'")
-        from .warnings import warn
-
-        warn(f"Use obj.{key} instead of obj['{key}']")
-        return getattr(self, key)
 
 
 def axial_to_cartesian(q: Any, r: Any, size: float, orientation: str, aspect_scale: float = 1) -> tuple[Any, Any]:

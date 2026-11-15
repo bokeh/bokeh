@@ -99,7 +99,6 @@ python_files = "*_tests.py *_test.py test_*.py"
 markers = [
     "free_threading: a concurrency test relevant to free-threaded Python",
     "sampledata: a test for bokeh.sampledata",
-    "selenium: a test as requiring selenium",
 ]
 filterwarnings = [
     "error",
@@ -116,10 +115,8 @@ filterwarnings = [
     '''ignore:'get_provider' was deprecated in Bokeh 3\.0\.0 and will be removed, use 'add_tile directly' instead:DeprecationWarning''',
     '''ignore:'HSL\(\)' was deprecated in Bokeh 2\.3\.1 and will be removed, use 'RGB\(\) or named colors' instead:DeprecationWarning''',
     '''ignore:elementwise comparison failed; returning scalar instead, but in the future will perform elementwise comparison:FutureWarning''',
-    '''ignore:HTTPResponse\.getheader\(\) is deprecated and will be removed in urllib3 v2\.1\.0\. .*:DeprecationWarning:selenium''',
     '''ignore:unclosed <socket.socket .*>:ResourceWarning''',
     '''ignore:unclosed event loop <.*>:ResourceWarning''',
-    '''ignore:move_to_element_with_offset\(\) currently tries to use the top left corner of the element as the origin; in Selenium 4\.3 it will use the in-view center point of the element as the origin\.:DeprecationWarning''',
     '''ignore:Using or importing the ABCs from 'collections' instead of from 'collections\.abc' is deprecated since Python 3\.3, and in 3\.10 it will stop working:DeprecationWarning:tornado''',
     '''ignore:Unknown config option. asyncio_mode:pytest.PytestConfigWarning''',
     '''ignore:zmq\.eventloop\.ioloop is deprecated in pyzmq 17\. pyzmq now works with default tornado and asyncio eventloops\.:DeprecationWarning:jupyter_client''',
@@ -232,7 +229,6 @@ known-third-party = [
     "jupyter_bokeh",
     "mock",
     "panel",
-    "selenium",
     "sphinx",
 ]
 known-local-folder = [

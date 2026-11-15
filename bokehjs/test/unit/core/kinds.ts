@@ -370,24 +370,4 @@ describe("core/kinds module", () => {
 
     expect(tp0.may_have_refs()).to.be.equal(false)
   })
-
-  it("should support deprecated aliases", () => {
-    const tp0 = k.Boolean
-    expect(`${tp0}`).to.be.equal("Bool")
-
-    const tp1 = k.String
-    expect(`${tp1}`).to.be.equal("Str")
-
-    const tp2 = k.Number
-    expect(`${tp2}`).to.be.equal("Float")
-
-    const tp3 = k.Array(k.Number)
-    expect(`${tp3}`).to.be.equal("List(Float)")
-
-    const tp4 = k.Map(k.Number, k.Boolean)
-    expect(`${tp4}`).to.be.equal("Mapping(Float, Bool)")
-
-    const tp5 = k.Function([], k.Unknown)
-    expect(`${tp5}`).to.be.equal("Func((), Unknown)")
-  })
 })

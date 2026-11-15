@@ -881,7 +881,7 @@ def test_HasProps_properties_with_values_callable_container_default() -> None:
     assert calls == 0
     assert props.properties_with_values(include_defaults=False) == {"values": [1]}
     assert props.properties_with_values(include_defaults=False) == {"values": [1]}
-    assert Serializer().encode(props)["attributes"] == {"values": [1]}
+    assert Serializer().encode(props)["values"] == [1]
     assert calls == 1
 
 def test_HasProps_properties_with_values_cyclic_default() -> None:

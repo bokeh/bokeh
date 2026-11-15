@@ -13,29 +13,19 @@
               "version": "__VERSION__",
               "title": "Fixture document",
               "config": {
-                "type": "object",
-                "name": "DocumentConfig",
-                "attributes": {
-                  "notifications": {
-                    "type": "object",
-                    "name": "Notifications"
-                  }
+                "$type": "DocumentConfig",
+                "notifications": {
+                  "$type": "Notifications"
                 }
               },
               "roots": [
                 {
-                  "type": "object",
-                  "name": "CustomJS",
-                  "attributes": {
-                    "code": "primary"
-                  }
+                  "$type": "CustomJS",
+                  "code": "primary"
                 },
                 {
-                  "type": "object",
-                  "name": "CustomJS",
-                  "attributes": {
-                    "code": "secondary"
-                  }
+                  "$type": "CustomJS",
+                  "code": "secondary"
                 }
               ]
             }
@@ -62,10 +52,10 @@
         "metadata": {
           "fixture": "cross-language",
           "numbers": {
-            "fixed_threshold": 0.000001,
+            "fixed_threshold": 1e-06,
             "fraction": 1.23456789012345,
             "negative_zero": -0.0,
-            "scientific_threshold": 1e-7
+            "scientific_threshold": 1e-07
           }
         }
       }
@@ -83,7 +73,9 @@
               "title": "Compact fixture document",
               "config": {
                 "$type": "DocumentConfig",
-                "notifications": {"$type": "Notifications"}
+                "notifications": {
+                  "$type": "Notifications"
+                }
               },
               "roots": [
                 {
@@ -98,7 +90,14 @@
                           "$id": "p1006",
                           "args": {
                             "type": "map",
-                            "entries": [["self", {"$ref": "p1006"}]]
+                            "entries": [
+                              [
+                                "self",
+                                {
+                                  "$ref": "p1006"
+                                }
+                              ]
+                            ]
                           },
                           "code": "shared"
                         }
@@ -111,7 +110,14 @@
                   "$type": "CustomJS",
                   "args": {
                     "type": "map",
-                    "entries": [["shared", {"$ref": "p1006"}]]
+                    "entries": [
+                      [
+                        "shared",
+                        {
+                          "$ref": "p1006"
+                        }
+                      ]
+                    ]
                   },
                   "code": "secondary"
                 }
@@ -120,14 +126,26 @@
           ]
         },
         "roots": [
-          {"key": "primary", "document": 0, "root": 0},
-          {"key": "secondary", "document": 0, "root": 1}
+          {
+            "key": "primary",
+            "document": 0,
+            "root": 0
+          },
+          {
+            "key": "secondary",
+            "document": 0,
+            "root": 1
+          }
         ],
         "requires": {
-          "components": ["bokeh/core"],
+          "components": [
+            "bokeh/core"
+          ],
           "extensions": []
         },
-        "metadata": {"fixture": "cross-language-compact"}
+        "metadata": {
+          "fixture": "cross-language-compact"
+        }
       }
     },
     {
