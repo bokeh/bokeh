@@ -259,21 +259,14 @@ module = [
     "bokeh.plotting._legends",
     "bokeh.plotting._plot",
     "bokeh.plotting._renderer",
-    "tests",
-    "tests.*",
+    "tests.cross.*",
+    "tests.unit.*",
+    "tests.integration.*",
 ]
 ignore_errors = true
 
 [[tool.mypy.overrides]]
 module = [
-    "tests.codebase.*",
-    "tests.conftest",
-    "tests.tools.*",
-    "tests.support.defaults",
-    "tests.test_bokehjs",
-    "tests.test_cross",
-    "tests.test_defaults",
-    "tests.test_examples",
     "tests.unit.bokeh.test_typing",
     "tests.unit.bokeh.document.test_callbacks__document",
     "tests.unit.bokeh.embed.test_standalone",

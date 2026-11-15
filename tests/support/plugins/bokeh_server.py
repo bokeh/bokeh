@@ -75,7 +75,6 @@ def bokeh_server(request: pytest.FixtureRequest, log_file: IO[str]) -> Iterator[
     except OSError:
         write(f"Failed to run: {' '.join(cmd + argv)}")
         sys.exit(1)
-        return
 
     def wait_until(func: Callable[[], Any], timeout: float = 5.0, interval: float = 0.01) -> bool:
         start = time.time()
@@ -91,7 +90,7 @@ def bokeh_server(request: pytest.FixtureRequest, log_file: IO[str]) -> Iterator[
         def helper() -> Any:
             if proc.returncode is not None:
                 return True
-            try: # type: ignore[unreachable] # XXX: typeshed bug, proc.returncode: int
+            try:
                 return requests.get(bokeh_server_url)
             except ConnectionError:
                 return False
@@ -108,7 +107,7 @@ def bokeh_server(request: pytest.FixtureRequest, log_file: IO[str]) -> Iterator[
                 write(f"bokeh server exited with code {proc.returncode}")
                 sys.exit(1)
 
-            yield bokeh_server_url # type: ignore[unreachable] # XXX: typeshed bug, proc.returncode: int
+            yield bokeh_server_url
         finally:
             write("Shutting down bokeh-server ...")
             proc.kill()
