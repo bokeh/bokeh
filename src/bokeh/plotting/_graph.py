@@ -27,7 +27,9 @@ from ..models.sources import ColumnarDataSource, ColumnDataSource
 from ._renderer import make_glyph, pop_visuals
 
 if TYPE_CHECKING:
+    from ..models.glyph import Glyph
     from ..models.sources import DataDictLike
+    from ._renderer import Attrs
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -117,7 +119,7 @@ def get_graph_kwargs(node_source: ColumnarDataSource | DataDictLike, edge_source
     nsedge_visuals = pop_visuals(MultiLine, kwargs, prefix="edge_nonselection_", defaults=edge_visuals)
 
     ## node stuff
-    node_kwargs = {k.lstrip('node_'): v for k, v in kwargs.copy().items() if k.lstrip('node_') in marker_type.properties()}
+    node_kwargs = _prefixed_kwargs(marker_type, kwargs, "node_")
 
     node_glyph = make_glyph(marker_type, node_kwargs, node_visuals)
     nsnode_glyph = make_glyph(marker_type, node_kwargs, nsnode_visuals)
@@ -136,7 +138,7 @@ def get_graph_kwargs(node_source: ColumnarDataSource | DataDictLike, edge_source
     )
 
     ## edge stuff
-    edge_kwargs = {k.lstrip('edge_'): v for k, v in kwargs.copy().items() if k.lstrip('edge_') in MultiLine.properties()}
+    edge_kwargs = _prefixed_kwargs(MultiLine, kwargs, "edge_")
 
     edge_glyph = make_glyph(MultiLine, edge_kwargs, edge_visuals)
     nsedge_glyph = make_glyph(MultiLine, edge_kwargs, nsedge_visuals)
@@ -164,6 +166,18 @@ def get_graph_kwargs(node_source: ColumnarDataSource | DataDictLike, edge_source
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+def _prefixed_kwargs(glyphclass: type[Glyph], kwargs: Attrs, prefix: str) -> Attrs:
+    ''' Collect ``prefix``-ed keyword arguments that name properties of
+    ``glyphclass``, with the prefix removed. Other arguments are ignored.
+
+    '''
+    properties = glyphclass.properties()
+    result: Attrs = {}
+    for key, value in kwargs.items():
+        if key.startswith(prefix) and (name := key.removeprefix(prefix)) in properties:
+            result[name] = value
+    return result
 
 #-----------------------------------------------------------------------------
 # Code

@@ -291,3 +291,6 @@ Bug fixes
   without explicit sizing, like ``layout()`` and ``gridplot()`` already do.
 * Fixed ``figure.graph()`` wrapping ``node_marker={"field": ...}`` in another field
   specification instead of using it as a field of the node data source.
+* Fixed ``figure.graph()`` dropping ``node_`` and ``edge_`` prefixed glyph properties
+  whose names start with any of the prefix's letters (e.g. ``node_name``), and applying
+  unprefixed arguments (e.g. ``tags``) to both node and edge glyphs.
