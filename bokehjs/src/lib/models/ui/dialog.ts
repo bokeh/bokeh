@@ -1,13 +1,16 @@
 import {UIElement, UIElementView} from "../ui/ui_element"
 import {DOMNode} from "../dom/dom_node"
 import {Signal} from "core/signaling"
-import type {StyleSheetLike, Keys} from "core/dom"
+import type {StyleSheetLike} from "core/dom"
 import {InlineStyleSheet, px, div, text, bounding_box, dom_ready} from "core/dom"
 import {isString} from "core/util/types"
+import {typed_entries} from "core/util/object"
+import type {PanEvent} from "core/ui_gestures"
+import {UIGestures} from "core/ui_gestures"
 import type {ChildView, ViewOf} from "core/build_views"
 import {ChildViewSlot} from "core/build_views"
 import type * as p from "core/properties"
-import type {XY, LRTB} from "core/util/bbox"
+import type {LRTB} from "core/util/bbox"
 import {BBox} from "core/util/bbox"
 import {find, remove, min as amin} from "core/util/array"
 import {enumerate} from "core/util/iterator"
@@ -138,6 +141,21 @@ export class DialogView extends UIElementView {
         this._update_content()
       }
     })
+
+    for (const ui_gestures of this._ui_gestures) {
+      ui_gestures.connect_signals()
+    }
+    this.el.addEventListener("pointerdown", this._on_pointer_down)
+    this._handles.area.addEventListener("wheel", this._on_title_wheel)
+  }
+
+  override disconnect_signals(): void {
+    for (const ui_gestures of this._ui_gestures) {
+      ui_gestures.disconnect_signals()
+    }
+    this.el.removeEventListener("pointerdown", this._on_pointer_down)
+    this._handles.area.removeEventListener("wheel", this._on_title_wheel)
+    super.disconnect_signals()
   }
 
   override remove(): void {
@@ -147,7 +165,82 @@ export class DialogView extends UIElementView {
 
   protected _has_rendered: boolean = false
 
-  protected _handles: {[key in Box.HitTarget]: HTMLElement}
+  protected readonly _handles: {[key in Box.HitTarget]: HTMLElement} = {
+    // area
+    area: div({class: dialogs.title}),
+    // edges
+    top: div({class: [dialogs.handle, dialogs.resize_top]}),
+    bottom: div({class: [dialogs.handle, dialogs.resize_bottom]}),
+    left: div({class: [dialogs.handle, dialogs.resize_left]}),
+    right: div({class: [dialogs.handle, dialogs.resize_right]}),
+    // corners
+    top_left: div({class: [dialogs.handle, dialogs.resize_top_left]}),
+    top_right: div({class: [dialogs.handle, dialogs.resize_top_right]}),
+    bottom_left: div({class: [dialogs.handle, dialogs.resize_bottom_left]}),
+    bottom_right: div({class: [dialogs.handle, dialogs.resize_bottom_right]}),
+  }
+
+  /**
+   * One recognizer per handle, so that only handles capture pointers, and the
+   * dialog's controls and contents receive pointer events as usual.
+   */
+  protected readonly _ui_gestures: UIGestures[] = typed_entries(this._handles).map(([target, handle_el]) => {
+    return new UIGestures(handle_el, {
+      on_pan_start: (event) => this._on_pan_start(target, event),
+      on_pan: (event) => this._on_pan(event),
+      on_pan_end: (event) => this._on_pan_end(event),
+      on_pan_cancel: (event) => this._on_pan_cancel(event),
+    })
+  })
+
+  protected _pan_state: {bbox: BBox, target: Box.HitTarget} | null = null
+
+  protected _on_pan_start(target: Box.HitTarget, _event: PanEvent): void {
+    if (this._can_hit(target)) {
+      this._pan_state = {bbox: bounding_box(this.el), target}
+      this.el.classList.add(dialogs.interacting)
+    }
+  }
+
+  protected _on_pan(event: PanEvent): void {
+    const {_pan_state} = this
+    if (_pan_state != null) {
+      const {target, bbox} = _pan_state
+      this._reposition(this._move_bbox(target, bbox, event.dx, event.dy))
+    }
+  }
+
+  protected _on_pan_end(_event: PanEvent): void {
+    this._pan_state = null
+    this.el.classList.remove(dialogs.interacting)
+  }
+
+  protected _on_pan_cancel(event: PanEvent): void {
+    const {_pan_state} = this
+    if (_pan_state != null) {
+      const {left, top, width, height} = _pan_state.bbox
+      this._reposition({left, top, width, height})
+    }
+    this._on_pan_end(event)
+  }
+
+  protected _on_pointer_down = (event: PointerEvent): void => {
+    this.bring_to_front()
+    // prevent e.g. text selection when starting to move or resize the dialog
+    const target = this._hit_target(event.composedPath())
+    if (target != null && this._can_hit(target)) {
+      event.preventDefault()
+    }
+  }
+
+  protected _on_title_wheel = (event: WheelEvent): void => {
+    const dy = event.deltaY
+    if ((dy < 0 && !this._collapsed) || (0 < dy && this._collapsed)) {
+      event.preventDefault()
+      event.stopPropagation()
+      this.collapse()
+    }
+  }
 
   protected _pin_el: HTMLElement
   protected _collapse_el: HTMLElement
@@ -184,7 +277,8 @@ export class DialogView extends UIElementView {
     inner_el.append(footer_el)
 
     const grip_el = div({class: dialogs.grip})
-    const title_el = div({class: dialogs.title}, grip_el, this._slot_el(this._title.view, this.model.title))
+    const title_el = this._handles.area
+    title_el.replaceChildren(grip_el, this._slot_el(this._title.view, this.model.title))
     this._grip_el = grip_el
     this._title_el = title_el
     const controls_el = div({class: dialogs.controls})
@@ -226,20 +320,7 @@ export class DialogView extends UIElementView {
       controls_el.append(close_el)
     }
 
-    const handles = this._handles = {
-      // area
-      area: title_el,
-      // edges
-      top: div({class: [dialogs.handle, dialogs.resize_top]}),
-      bottom: div({class: [dialogs.handle, dialogs.resize_bottom]}),
-      left: div({class: [dialogs.handle, dialogs.resize_left]}),
-      right: div({class: [dialogs.handle, dialogs.resize_right]}),
-      // corners
-      top_left: div({class: [dialogs.handle, dialogs.resize_top_left]}),
-      top_right: div({class: [dialogs.handle, dialogs.resize_top_right]}),
-      bottom_left: div({class: [dialogs.handle, dialogs.resize_bottom_left]}),
-      bottom_right: div({class: [dialogs.handle, dialogs.resize_bottom_right]}),
-    }
+    const handles = this._handles
     this.shadow_el.append(
       handles.top,
       handles.bottom,
@@ -250,73 +331,6 @@ export class DialogView extends UIElementView {
       handles.bottom_left,
       handles.bottom_right,
     )
-
-    let state: {bbox: BBox, xy: XY, target: Box.HitTarget} | null = null
-    const cancel = () => {
-      state = null
-      document.removeEventListener("pointermove", pointer_move)
-      document.removeEventListener("pointerup", pointer_up)
-      document.removeEventListener("keydown", key_press)
-      this.el.classList.remove(dialogs.interacting)
-    }
-    const pointer_move = (event: PointerEvent) => {
-      assert(state != null)
-      event.preventDefault()
-      this.el.classList.add(dialogs.interacting)
-      const dx = event.x - state.xy.x
-      const dy = event.y - state.xy.y
-      const {target, bbox} = state
-      const delta_bbox = this._move_bbox(target, bbox, dx, dy)
-      this._reposition(delta_bbox)
-    }
-    const pointer_up = (event: PointerEvent) => {
-      assert(state != null)
-      event.preventDefault()
-      cancel()
-    }
-    const key_press = (event: KeyboardEvent) => {
-      if (event.key as Keys == "Escape") {
-        assert(state != null)
-        event.preventDefault()
-        const {left, top, width, height} = state.bbox
-        this._reposition({left, top, width, height})
-        cancel()
-      }
-    }
-    this.el.addEventListener("pointerdown", (event) => {
-      assert(state == null)
-      this.bring_to_front()
-
-      const target = this._hit_target(event.composedPath())
-      if (target == null || !this._can_hit(target)) {
-        return
-      }
-
-      event.preventDefault()
-
-      const {x, y} = event
-      state = {
-        bbox: bounding_box(this.el),
-        xy: {x, y},
-        target,
-      }
-
-      document.addEventListener("pointermove", pointer_move, {signal: this.abort_signal})
-      document.addEventListener("pointerup", pointer_up, {signal: this.abort_signal})
-      document.addEventListener("keydown", key_press, {signal: this.abort_signal})
-
-      const target_el = this._handles[target]
-      target_el.setPointerCapture(event.pointerId)
-    })
-
-    title_el.addEventListener("wheel", (event) => {
-      const dy = event.deltaY
-      if ((dy < 0 && !this._collapsed) || (dy > 0 && this._collapsed)) {
-        event.preventDefault()
-        event.stopPropagation()
-        this.collapse()
-      }
-    })
 
     this._has_rendered = true
 
