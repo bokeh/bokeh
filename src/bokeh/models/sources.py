@@ -65,7 +65,9 @@ from ..util.dependencies import uses_pandas
 from ..util.serialization import (
     convert_datetime_array,
     convert_datetime_type,
+    convert_timedelta_type,
     is_datetime_type,
+    is_timedelta_type,
 )
 from .callbacks import CustomJS
 from .filters import AllIndices, Filter
@@ -1376,7 +1378,7 @@ def _graph_sources(graph: Any) -> tuple[IndexedDataSource, IndexedDataSource]:
     return _node_source(nodes), _edge_source(edges)
 
 def _graph_id_key(value: Any) -> tuple[Any, ...]:
-    if isinstance(value, np.generic):
+    if isinstance(value, np.generic) and not isinstance(value, (np.datetime64, np.timedelta64)):
         value = value.item()
     if isinstance(value, (tuple, list)):
         return ("array", *(_graph_id_key(item) for item in value))
@@ -1392,6 +1394,17 @@ def _graph_id_key(value: Any) -> tuple[Any, ...]:
         if value == 0 and np.signbit(value):
             return ("number", "-0")
         return ("number", value)
+    # Match the browser identifier after Bokeh serialization.
+    if is_datetime_type(value):
+        return _graph_id_key(convert_datetime_type(value))
+    if is_timedelta_type(value):
+        return _graph_id_key(convert_timedelta_type(value))
+    if isinstance(value, date):
+        return ("string", value.isoformat())
+    if uses_pandas(value):
+        import pandas as pd
+        if value is pd.NA:
+            return ("null",)
     raise ValueError("graph node identifiers must be scalar values or nested sequences of scalar values")
 
 def _validate_graph_node_ids(source: IndexedDataSource) -> None:

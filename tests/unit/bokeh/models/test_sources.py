@@ -1247,6 +1247,15 @@ class TestGraphDataSource:
         assert "level_0" not in source.nodes.data
         assert list(source.edges.data["index"]) == [0]
 
+    def test_accepts_identifiers_serialized_as_browser_scalars(self) -> None:
+        nodes = [dt.date(2024, 1, 1), np.datetime64("2024-01-02T00:00:00"), np.timedelta64(2, "D")]
+        source = bms.GraphDataSource(nodes=nodes)
+
+        assert source.nodes.data["index"] == nodes
+        document = Document()
+        document.add_root(source)
+        assert document.to_json()
+
     def test_child_updates_use_normal_document_events(self) -> None:
         source = bms.GraphDataSource(nodes=["alice", "bob"], edges=[("alice", "bob")])
         document = Document()

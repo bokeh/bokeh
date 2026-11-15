@@ -18,6 +18,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
@@ -52,6 +53,11 @@ RENDERER_ARGS = ['name', 'level', 'visible', 'x_range_name', 'y_range_name',
 #-----------------------------------------------------------------------------
 
 def get_graph_kwargs(node_source: GraphNodes, edge_source: GraphEdges, **kwargs: Any) -> dict[str, Any]:
+    # Preserve the original data and attribute names of canonical column inputs.
+    if isinstance(node_source, Mapping) and "index" in node_source:
+        node_source = ColumnDataSource(dict(node_source))
+    if isinstance(edge_source, Mapping) and "start" in edge_source and "end" in edge_source:
+        edge_source = ColumnDataSource(dict(edge_source))
     data_source = GraphDataSource(nodes=node_source, edges=edge_source)
     node_source = data_source.nodes
     edge_source = data_source.edges

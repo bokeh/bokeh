@@ -56,6 +56,14 @@ class Test_get_graph_kwargs:
 
         assert kw["data_source"].edges.data == {"weight": [1]}
 
+    def test_preserves_legacy_topology_columns_and_attributes(self) -> None:
+        nodes = {"index": [0, 0, 1], "id": ["a", "b", "c"]}
+        edges = {"start": [0], "end": [1], "source": ["attribute"]}
+        kw = bpg.get_graph_kwargs(nodes, edges)
+
+        assert kw["data_source"].nodes.data == nodes
+        assert kw["data_source"].edges.data == edges
+
     def test_handle_sources(self) -> None:
         node_source = ColumnDataSource(data=dict(foo=[]))
         edge_source = ColumnDataSource(data=dict(start=[], end=[], bar=[]))
