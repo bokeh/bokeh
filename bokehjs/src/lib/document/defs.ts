@@ -41,7 +41,7 @@ export type OverrideDef = {
   default: unknown
 }
 
-function create_def(def: ModelDef, deserializer: Deserializer): typeof HasProps {
+function create_def(def: ModelDef, deserializer: Deserializer): typeof Model {
   const {id: name} = def.extends
   const base = deserializer.resolver.get(name)
   if (base == null) {
