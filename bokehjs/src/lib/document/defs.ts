@@ -1,4 +1,3 @@
-import {Model} from "../model"
 import * as kinds from "core/kinds"
 import type {HasProps} from "core/has_props"
 import type {Deserializer} from "core/serialization/deserializer"
@@ -10,7 +9,7 @@ import {to_object} from "core/util/object"
 export type ModelDef = {
   type: "model"
   name: string
-  extends?: Ref
+  extends: Ref
   properties?: PropertyDef[]
   overrides?: OverrideDef[]
 }
@@ -43,19 +42,11 @@ export type OverrideDef = {
 }
 
 function create_def(def: ModelDef, deserializer: Deserializer): typeof HasProps {
-  const base: typeof HasProps = (() => {
-    const name = def.extends?.id ?? "Model"
-    if (name == "Model") {
-      // TODO: support base classes in general
-      return Model
-    }
-    const base = deserializer.resolver.get(name)
-    if (base != null) {
-      return base
-    } else {
-      throw new Error(`base model ${name} of ${def.name} is not defined`)
-    }
-  })()
+  const {id: name} = def.extends
+  const base = deserializer.resolver.get(name)
+  if (base == null) {
+    throw new Error(`base model ${name} of ${def.name} is not defined`)
+  }
 
   const model = class extends base {
     static override __qualified__ = def.name

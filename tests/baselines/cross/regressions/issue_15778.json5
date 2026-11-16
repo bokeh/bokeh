@@ -1,0 +1,83 @@
+{
+  config: {
+    $type: "DocumentConfig",
+    $id: "p1010",
+    notifications: {
+      $type: "Notifications",
+      $id: "p1011",
+    },
+  },
+  roots: [
+    {
+      $type: "Column",
+      $id: "p1009",
+      tags: [
+        {
+          $type: "builtins.Holder",
+          $id: "p1008",
+          child: {
+            $type: "Div",
+            $id: "p1006",
+            text: "hi",
+          },
+          data: {
+            $type: "builtins.DerivedHolder",
+            $id: "p1007",
+            child: {
+              $ref: "p1006",
+            },
+          },
+        },
+      ],
+      children: [
+        {
+          $ref: "p1006",
+        },
+      ],
+    },
+  ],
+  defs: [
+    {
+      type: "model",
+      name: "builtins.Holder",
+      "extends": {
+        id: "DataModel",
+      },
+      properties: [
+        {
+          name: "child",
+          kind: [
+            "Nullable",
+            [
+              "Ref",
+              {
+                id: "Model",
+              },
+            ],
+          ],
+          "default": null,
+        },
+        {
+          name: "data",
+          kind: [
+            "Nullable",
+            [
+              "Ref",
+              {
+                id: "DataModel",
+              },
+            ],
+          ],
+          "default": null,
+        },
+      ],
+    },
+    {
+      type: "model",
+      name: "builtins.DerivedHolder",
+      "extends": {
+        id: "builtins.Holder",
+      },
+    },
+  ],
+}

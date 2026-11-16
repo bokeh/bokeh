@@ -159,6 +159,6 @@ class OverrideDef(TypedDict):
 class ModelDef(TypedDict):
     type: Literal["model"]
     name: str
-    extends: NotRequired[Ref | None]
+    extends: Ref
     properties: NotRequired[list[PropertyDef]]
     overrides: NotRequired[list[OverrideDef]]
