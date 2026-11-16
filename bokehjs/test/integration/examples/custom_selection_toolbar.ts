@@ -1,3 +1,5 @@
+import {assert} from "@bokehjs/core/util/assert"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {display} from "#framework/layouts"
 
 import {figure} from "@bokehjs/api/plotting"
@@ -30,6 +32,8 @@ describe("Examples", () => {
     }
 
     const [p, renderer] = plot(500)
+    const source = renderer.data_source
+    assert(source instanceof ColumnDataSource)
 
     const box_select = BoxSelectTool.create({persistent: true})
     p.add_tools(box_select)
@@ -65,7 +69,7 @@ describe("Examples", () => {
     box_select.overlay.elements.push(toolbar)
 
     remove.on_click(() => {
-      const {data, selected} = renderer.data_source
+      const {data, selected} = source
       const indices = new Set(selected.indices)
 
       const new_data: Data = {}
@@ -73,25 +77,25 @@ describe("Examples", () => {
         new_data[name] = filter(column, (_value, i) => !indices.has(i))
       }
 
-      renderer.data_source.data = new_data
-      renderer.data_source.selected.indices = [] // TODO bug in ds update
+      source.data = new_data
+      source.selected.indices = [] // TODO bug in ds update
     })
 
     select.on_change("value", () => {
-      const {data, selected} = renderer.data_source
+      const {data, selected} = source
       const indices = new Set(selected.indices)
       const selected_color = select.value
 
-      const fill_color = [...renderer.data_source.get("fill_color")]
+      const fill_color = [...source.get("fill_color")]
       for (const i of indices) {
         fill_color[i] = selected_color
       }
-      renderer.data_source.data = {...data, fill_color}
+      source.data = {...data, fill_color}
     })
 
     clear.on_click(() => {
       box_select.overlay.visible = false
-      renderer.data_source.selected.indices = []
+      source.selected.indices = []
     })
 
     await display(p)

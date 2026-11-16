@@ -49,7 +49,6 @@ from bokeh.core.serialization import (
     NumberRep,
     ObjectRefRep,
     ObjectRep,
-    Ref,
     Serializable,
     SerializationError,
     Serializer,
@@ -284,34 +283,25 @@ class TestSerializer:
             NumberRep(type="number", value="nan"),
             NumberRep(type="number", value="-inf"),
             NumberRep(type="number", value="+inf"),
-            ObjectRep(
-                type="object",
-                name="test_serialization.SomeProps",
-                attributes=dict(
-                    p0=2,
-                    p1="a",
-                    p2=[1, 2, 3],
-                ),
-            ),
-            ObjectRefRep(
-                type="object",
-                name="test_serialization.SomeModel",
-                id=v1.id,
-                attributes=dict(
-                    p0=3,
-                    p1="b",
-                    p2=[4, 5, 6],
-                ),
-            ),
-            ObjectRep(
-                type="object",
-                name="test_serialization.SomeDataClass",
-                attributes=dict(
-                    f0=2,
-                    f1=[1, 2, 3],
-                    f2=None,
-                ),
-            ),
+            ObjectRep({
+                "$type": "test_serialization.SomeProps",
+                "p0": 2,
+                "p1": "a",
+                "p2": [1, 2, 3],
+            }),
+            ObjectRefRep({
+                "$type": "test_serialization.SomeModel",
+                "$id": v1.id,
+                "p0": 3,
+                "p1": "b",
+                "p2": [4, 5, 6],
+            }),
+            ObjectRep({
+                "$type": "test_serialization.SomeDataClass",
+                "f0": 2,
+                "f1": [1, 2, 3],
+                "f2": None,
+            }),
             [NumberRep(type="number", value="nan")],
         ]
         assert encoder.buffers == []
@@ -776,21 +766,21 @@ class TestSerializer:
         assert rep == NDArrayRep(
             type="ndarray",
             array=[
-                ObjectRep(
-                    type="object",
-                    name="test_serialization.TestSerializer.test_ndarray_object.X",
-                    attributes=dict(f=0, g="a"),
-                ),
-                ObjectRep(
-                    type="object",
-                    name="test_serialization.TestSerializer.test_ndarray_object.X",
-                    attributes=dict(f=1, g="a"),
-                ),
-                ObjectRep(
-                    type="object",
-                    name="test_serialization.TestSerializer.test_ndarray_object.X",
-                    attributes=dict(f=2, g="b"),
-                ),
+                ObjectRep({
+                    "$type": "test_serialization.TestSerializer.test_ndarray_object.X",
+                    "f": 0,
+                    "g": "a",
+                }),
+                ObjectRep({
+                    "$type": "test_serialization.TestSerializer.test_ndarray_object.X",
+                    "f": 1,
+                    "g": "a",
+                }),
+                ObjectRep({
+                    "$type": "test_serialization.TestSerializer.test_ndarray_object.X",
+                    "f": 2,
+                    "g": "b",
+                }),
             ],
             order=sys.byteorder,
             shape=[3, 1],
@@ -861,46 +851,37 @@ class TestSerializer:
         val = SomeProps(p0=2, p1="a", p2=[1, 2, 3])
         encoder = Serializer()
         rep = encoder.encode(val)
-        assert rep == ObjectRep(
-            type="object",
-            name="test_serialization.SomeProps",
-            attributes=dict(
-                p0=2,
-                p1="a",
-                p2=[1, 2, 3],
-            ),
-        )
+        assert rep == ObjectRep({
+            "$type": "test_serialization.SomeProps",
+            "p0": 2,
+            "p1": "a",
+            "p2": [1, 2, 3],
+        })
         assert encoder.buffers == []
 
     def test_Model(self) -> None:
         val = SomeModel(p0=3, p1="b", p2=[4, 5, 6])
         encoder = Serializer()
         rep = encoder.encode(val)
-        assert rep == ObjectRefRep(
-            type="object",
-            name="test_serialization.SomeModel",
-            id=val.id,
-            attributes=dict(
-                p0=3,
-                p1="b",
-                p2=[4, 5, 6],
-            ),
-        )
+        assert rep == ObjectRefRep({
+            "$type": "test_serialization.SomeModel",
+            "$id": val.id,
+            "p0": 3,
+            "p1": "b",
+            "p2": [4, 5, 6],
+        })
         assert encoder.buffers == []
 
     def test_Model_minimal_ids_can_omit_id(self) -> None:
         val = SomeModel(p0=3, p1="b", p2=[4, 5, 6])
         encoder = Serializer(models_with_ids=set())
         rep = encoder.encode(val)
-        assert rep == ObjectRep(
-            type="object",
-            name="test_serialization.SomeModel",
-            attributes=dict(
-                p0=3,
-                p1="b",
-                p2=[4, 5, 6],
-            ),
-        )
+        assert rep == ObjectRep({
+            "$type": "test_serialization.SomeModel",
+            "p0": 3,
+            "p1": "b",
+            "p2": [4, 5, 6],
+        })
         assert encoder.buffers == []
 
     def test_Document_minimal_ids_preserves_shared_identity(self) -> None:
@@ -963,31 +944,22 @@ class TestSerializer:
         encoder = Serializer()
         rep = encoder.encode(val2)
 
-        assert rep == ObjectRefRep(
-            type="object",
-            name="test_serialization.SomeModel",
-            id=val2.id,
-            attributes=dict(
-                p0=30,
-                p3=ObjectRefRep(
-                    type="object",
-                    name="test_serialization.SomeModel",
-                    id=val1.id,
-                    attributes=dict(
-                        p0=20,
-                        p3=ObjectRefRep(
-                            type="object",
-                            name="test_serialization.SomeModel",
-                            id=val0.id,
-                            attributes=dict(
-                                p0=10,
-                                p3=Ref(id=val2.id),
-                            ),
-                        ),
-                    ),
-                ),
-            ),
-        )
+        assert rep == ObjectRefRep({
+            "$type": "test_serialization.SomeModel",
+            "$id": val2.id,
+            "p0": 30,
+            "p3": ObjectRefRep({
+                "$type": "test_serialization.SomeModel",
+                "$id": val1.id,
+                "p0": 20,
+                "p3": ObjectRefRep({
+                    "$type": "test_serialization.SomeModel",
+                    "$id": val0.id,
+                    "p0": 10,
+                    "p3": {"$ref": val2.id},
+                }),
+            }),
+        })
         assert encoder.buffers == []
 
     def test_Model_unset(self) -> None:
@@ -1001,38 +973,29 @@ class TestSerializer:
         val = SomeDataClass(f0=2, f1=[1, 2, 3])
         encoder = Serializer()
         rep = encoder.encode(val)
-        assert rep == ObjectRep(
-            type="object",
-            name="test_serialization.SomeDataClass",
-            attributes=dict(
-                f0=2,
-                f1=[1, 2, 3],
-                f2=None,
-            ),
-        )
+        assert rep == ObjectRep({
+            "$type": "test_serialization.SomeDataClass",
+            "f0": 2,
+            "f1": [1, 2, 3],
+            "f2": None,
+        })
         assert encoder.buffers == []
 
     def test_dataclass_nested(self) -> None:
         val = SomeDataClass(f0=2, f1=[1, 2, 3], f2=SomeDataClass(f0=3, f1=[4, 5, 6]))
         encoder = Serializer()
         rep = encoder.encode(val)
-        assert rep == ObjectRep(
-            type="object",
-            name="test_serialization.SomeDataClass",
-            attributes=dict(
-                f0=2,
-                f1=[1, 2, 3],
-                f2=ObjectRep(
-                    type="object",
-                    name="test_serialization.SomeDataClass",
-                    attributes=dict(
-                        f0=3,
-                        f1=[4, 5, 6],
-                        f2=None,
-                    ),
-                ),
-            ),
-        )
+        assert rep == ObjectRep({
+            "$type": "test_serialization.SomeDataClass",
+            "f0": 2,
+            "f1": [1, 2, 3],
+            "f2": ObjectRep({
+                "$type": "test_serialization.SomeDataClass",
+                "f0": 3,
+                "f1": [4, 5, 6],
+                "f2": None,
+            }),
+        })
         assert encoder.buffers == []
 
     def test_dataclass_HasProps_nested(self) -> None:
@@ -1040,24 +1003,18 @@ class TestSerializer:
         val = SomeDataClass(f0=2, f1=[1, 2, 3], f4=v0)
         encoder = Serializer()
         rep = encoder.encode(val)
-        assert rep == ObjectRep(
-            type="object",
-            name="test_serialization.SomeDataClass",
-            attributes=dict(
-                f0=2,
-                f1=[1, 2, 3],
-                f2=None,
-                f4=ObjectRep(
-                    type="object",
-                    name="test_serialization.SomeProps",
-                    attributes=dict(
-                        p0=2,
-                        p1="a",
-                        p2=[1, 2, 3],
-                    ),
-                ),
-            ),
-        )
+        assert rep == ObjectRep({
+            "$type": "test_serialization.SomeDataClass",
+            "f0": 2,
+            "f1": [1, 2, 3],
+            "f2": None,
+            "f4": ObjectRep({
+                "$type": "test_serialization.SomeProps",
+                "p0": 2,
+                "p1": "a",
+                "p2": [1, 2, 3],
+            }),
+        })
         assert encoder.buffers == []
 
     def test_dataclass_Model_nested(self) -> None:
@@ -1065,25 +1022,19 @@ class TestSerializer:
         val = SomeDataClass(f0=2, f1=[1, 2, 3], f5=v0)
         encoder = Serializer()
         rep = encoder.encode(val)
-        assert rep == ObjectRep(
-            type="object",
-            name="test_serialization.SomeDataClass",
-            attributes=dict(
-                f0=2,
-                f1=[1, 2, 3],
-                f2=None,
-                f5=ObjectRefRep(
-                    type="object",
-                    name="test_serialization.SomeModel",
-                    id=v0.id,
-                    attributes=dict(
-                        p0=3,
-                        p1="b",
-                        p2=[4, 5, 6],
-                    ),
-                ),
-            ),
-        )
+        assert rep == ObjectRep({
+            "$type": "test_serialization.SomeDataClass",
+            "f0": 2,
+            "f1": [1, 2, 3],
+            "f2": None,
+            "f5": ObjectRefRep({
+                "$type": "test_serialization.SomeModel",
+                "$id": v0.id,
+                "p0": 3,
+                "p1": "b",
+                "p2": [4, 5, 6],
+            }),
+        })
         assert encoder.buffers == []
 
     def test_color_rgb(self) -> None:

@@ -13,7 +13,7 @@ import {Version} from "core/util/version"
 import type {Ref} from "core/util/refs"
 import type {ID, Data} from "core/types"
 import {Signal, Signal0} from "core/signaling"
-import {isArray, isString} from "core/util/types"
+import {isString} from "core/util/types"
 import type {Equatable, Comparator} from "core/util/eq"
 import {equals, is_equal} from "core/util/eq"
 import {copy} from "core/util/array"
@@ -744,11 +744,8 @@ export class Document implements Equatable {
     }
   }
 
-  static from_json_string(s: string, options?: DocumentFromJsonOptions): Document
-  static from_json_string(s: string, events?: Out<DocumentEvent[]>): Document
-  static from_json_string(s: string, events_or_options?: Out<DocumentEvent[]> | DocumentFromJsonOptions): Document {
-    const json = JSON.parse(s)
-    return Document.from_json(json, events_or_options as DocumentFromJsonOptions)
+  static from_json_string(s: string, options?: DocumentFromJsonOptions): Document {
+    return Document.from_json(JSON.parse(s), options)
   }
 
   private static _handle_version(json: DocJson): void {
@@ -770,19 +767,10 @@ export class Document implements Equatable {
     }
   }
 
-  static from_json(doc_json: DocJson, options?: DocumentFromJsonOptions): Document
-  static from_json(doc_json: DocJson, events?: Out<DocumentEvent[]>, buffers?: Map<ID, ArrayBuffer>, resolver?: ModelResolver): Document
-  static from_json(doc_json: DocJson, events_or_options?: Out<DocumentEvent[]> | DocumentFromJsonOptions,
-      legacy_buffers: Map<ID, ArrayBuffer> = new Map(), legacy_resolver: ModelResolver = default_resolver): Document {
+  static from_json(doc_json: DocJson, options: DocumentFromJsonOptions = {}): Document {
     logger.debug("Creating Document from JSON")
     Document._handle_version(doc_json)
 
-    const legacy_call = isArray(events_or_options) || arguments.length >= 3
-    const options = legacy_call ? {
-      events: events_or_options as Out<DocumentEvent[]> | undefined,
-      buffers: legacy_buffers,
-      resolver: legacy_resolver,
-    } : events_or_options ?? {}
     const {events, buffers = new Map(), resolver: parent_resolver = default_resolver} = options
 
     const resolver = new ModelResolver(parent_resolver)
@@ -843,7 +831,7 @@ export class Document implements Equatable {
   }
 
   replace_with_json(json: DocJson, buffers: Map<ID, ArrayBuffer> = new Map()): void {
-    const replacement = Document.from_json(json, undefined, buffers)
+    const replacement = Document.from_json(json, {buffers})
     replacement.destructively_move(this)
   }
 

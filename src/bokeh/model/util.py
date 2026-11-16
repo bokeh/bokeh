@@ -29,7 +29,7 @@ from typing import (
     cast,
 )
 
-from ..core.has_props import HasProps, Qualified
+from ..core.has_props import HasProps
 from ..util.dataclasses import entries, is_dataclass
 
 if TYPE_CHECKING:
@@ -43,7 +43,6 @@ if TYPE_CHECKING:
 
 __all__ = (
     'HasDocumentRef',
-    'Qualified', # XXX: for backwards compatibility
     'collect_filtered_models',
     'collect_models',
     'get_class',

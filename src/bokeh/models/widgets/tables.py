@@ -49,7 +49,7 @@ from ...core.property.required import Required
 from ...model import Model
 from ..comparisons import Comparison
 from ..dom import HTML
-from ..sources import CDSView, ColumnDataSource, DataSource
+from ..sources import ColumnDataSource, IndexedSubset
 from .widget import Widget
 
 #-----------------------------------------------------------------------------
@@ -149,9 +149,9 @@ class ScientificFormatter(StringFormatter):
         log(x) <= power_limit_low
     """)
 
-    nan_format = Override(default="-")
+    _nan_format = Override(StringFormatter.nan_format, default="-")
 
-    null_format = Override(default="-")
+    _null_format = Override(StringFormatter.null_format, default="-")
 
 class NumberFormatter(StringFormatter):
     ''' Number cell formatter.
@@ -242,9 +242,9 @@ class NumberFormatter(StringFormatter):
     Rounding functions (round, floor, ceil) and their synonyms (nearest, rounddown, roundup).
     """)
 
-    nan_format = Override(default="-")
+    _nan_format = Override(StringFormatter.nan_format, default="-")
 
-    null_format = Override(default="-")
+    _null_format = Override(StringFormatter.null_format, default="-")
 
 class BooleanFormatter(CellFormatter):
     ''' Boolean (check mark) cell formatter.
@@ -465,9 +465,9 @@ class DateFormatter(StringFormatter):
 
     """)
 
-    nan_format = Override(default="-")
+    _nan_format = Override(StringFormatter.nan_format, default="-")
 
-    null_format = Override(default="-")
+    _null_format = Override(StringFormatter.null_format, default="-")
 
 
 class HTMLTemplateFormatter(CellFormatter):
@@ -618,11 +618,11 @@ class TableWidget(Widget):
 
     '''
 
-    source = Instance(DataSource, default=InstanceDefault(ColumnDataSource), help="""
-    The source of data for the widget.
+    source = Instance(ColumnDataSource, default=InstanceDefault(ColumnDataSource), help="""
+    The column data source for the widget.
     """)
 
-    view = Instance(CDSView, default=InstanceDefault(CDSView), help="""
+    view = Instance(IndexedSubset, default=InstanceDefault(IndexedSubset), help="""
     A view into the data source to use when rendering table rows. A default view
     of the entire data source is created if a view is not passed in during
     initialization.
@@ -651,7 +651,7 @@ class DataTable(TableWidget):
 
     ``"force_fit"``
         Fit columns into available space dividing the table width across
-        the columns equally (equivalent to `fit_columns=True`).
+        the columns equally.
         This results in no horizontal scrollbar showing up, but data
         can get unreadable if there is not enough space available.
 
@@ -672,16 +672,6 @@ class DataTable(TableWidget):
 
     columns = List(Instance(TableColumn), help="""
     The list of child column widgets.
-    """)
-
-    fit_columns = Nullable(Bool, help="""
-    **This is a legacy parameter.** For new development, use the
-    ``autosize_mode`` parameter.
-
-    Whether columns should be fit to the available width. This results in
-    no horizontal scrollbar showing up, but data can get unreadable if there
-    is not enough space available. If set to True, each column's width is
-    understood as maximum width.
     """)
 
     frozen_columns = Nullable(Int, help="""
@@ -751,9 +741,9 @@ class DataTable(TableWidget):
     Whether to show a header row with column names at the top of the table.
     """)
 
-    width = Override(default=600)
+    _width = Override(default=600)
 
-    height = Override(default=400)
+    _height = Override(default=400)
 
     row_height = Int(25, help="""
     The height of each row in pixels.

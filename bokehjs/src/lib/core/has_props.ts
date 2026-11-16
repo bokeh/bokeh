@@ -11,7 +11,7 @@ import * as k from "./kinds"
 import type {Property} from "./properties"
 import {assert} from "./util/assert"
 import {unique_id} from "./util/string"
-import {keys, values, entries, extend, is_empty, dict} from "./util/object"
+import {keys, values, entries, extend, dict} from "./util/object"
 import {isObject, isIterable, isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
 import type {Serializable, Serializer, ObjectRep, ObjectRefRep, AnyVal} from "./serialization"
 import {serialize} from "./serialization"
@@ -85,6 +85,38 @@ export interface HasProps extends HasProps.Attrs, ISignalable {
 }
 
 export type PropertyGenerator = Generator<Property, void, undefined>
+
+export type TransitiveOpts = {
+  recursive?: boolean
+  signals?: (obj: HasProps) => readonly Signal<unknown, HasProps>[]
+  on_replace?: (() => unknown) | null
+}
+
+/** Bind signals from referenced models and rebind before notifying on replacement. */
+export function on_transitive_change(
+  receiver: ISignalable, property: Property, fn: () => unknown,
+  {recursive = false, signals = (obj) => [obj.change], on_replace = fn}: TransitiveOpts = {},
+): void {
+  const slot = () => fn()
+  const bind = () => {
+    const value = property.is_unset ? null : property.get_value()
+    const models = HasProps.references(value, {recursive})
+    const connected = Array.from(models).flatMap(signals)
+    for (const signal of connected) {
+      receiver.connect(signal, slot)
+    }
+    return connected
+  }
+
+  let connected = bind()
+  receiver.connect(property.change, () => {
+    for (const signal of connected) {
+      receiver.disconnect(signal, slot)
+    }
+    connected = bind()
+    return on_replace?.()
+  })
+}
 
 const _qualified_names = new WeakMap<typeof HasProps, string>()
 
@@ -413,12 +445,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
 
     const {type: name, id} = this
-    if (serializer.compact) {
-      return use_id ? {$type: name, $id: id, ...attributes} : {$type: name, ...attributes}
-    }
-
-    const rep = use_id ? {type: "object" as const, name, id} : {type: "object" as const, name}
-    return is_empty(attributes) ? rep : {...rep, attributes}
+    return use_id ? {$type: name, $id: id, ...attributes} : {$type: name, ...attributes}
   }
 
   protected constructor(attrs: {id: string} | AttrsLike = {}) {
@@ -602,6 +629,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   private _pending: boolean = false
   private _changing: boolean = false
+
+  protected get _setting_properties(): boolean {
+    return this._changing
+  }
 
   // Set a hash of model attributes on the object, firing `"change"`. This is
   // the core primitive operation of a model, updating the data and notifying
@@ -817,6 +848,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       }
       document._trigger_on_change(event)
     }
+  }
+
+  on_transitive_change(property: Property, fn: () => unknown, options?: TransitiveOpts): void {
+    on_transitive_change(this, property, fn, options)
   }
 
   on_change<Name extends Extract<keyof this["properties"], string>>(properties: Name | readonly Name[], fn: () => void): void

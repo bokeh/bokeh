@@ -13,7 +13,8 @@ from ...core.property.vectorization import Field
 from ..annotations import ArrowHead, ColorBar
 from ..glyph import Glyph, SupportsPathMarking
 from ..graphics import Marking, PathPlacement
-from ..sources import CDSView, DataSource
+from ..sources import IndexedDataSource, IndexedSubset
+from ._glyph_attachment import GlyphAttachment
 from .renderer import DataRenderer, _DataRendererInit
 
 # A read-only host allows receivers with supported glyph subclasses and unions.
@@ -36,26 +37,28 @@ class _PathMarkingOptions(TypedDict, total=False):
     muted_marking: Auto | Marking | None
 
 class _GlyphRendererInit[GlyphType: Glyph](_DataRendererInit, total=False):
-    data_source: DataSource
-    view: CDSView
+    data_source: IndexedDataSource
+    view: IndexedSubset
     glyph: GlyphType
     selection_glyph: Auto | GlyphType | None
     nonselection_glyph: Auto | GlyphType | None
     hover_glyph: GlyphType | None
     muted_glyph: Auto | GlyphType | None
     muted: bool
+    attachments: Sequence[GlyphAttachment]
 
 class GlyphRenderer[GlyphType: Glyph](DataRenderer):
     def __init__(self, **kwargs: Unpack[_GlyphRendererInit[GlyphType]]) -> None: ...
 
-    data_source: DataSource = ...
-    view: CDSView = ...
+    data_source: IndexedDataSource = ...
+    view: IndexedSubset = ...
     glyph: GlyphType = ...
     selection_glyph: Auto | GlyphType | None = ...
     nonselection_glyph: Auto | GlyphType | None = ...
     hover_glyph: GlyphType | None = ...
     muted_glyph: Auto | GlyphType | None = ...
     muted: bool = ...
+    attachments: list[GlyphAttachment] = ...
 
     @overload
     def add_path_marking(self: _PathRenderer, marking: Marking, *,

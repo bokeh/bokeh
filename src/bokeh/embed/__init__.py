@@ -45,11 +45,8 @@ from .result import (
     EmbedRoot,
     EmbedValidationError,
 )
-from .server import server_document, server_session
 from .standalone import (
     autoload_static,
-    components,
-    file_html,
     json_item,
 )
 
@@ -77,13 +74,9 @@ __all__ = (
     'ThemePolicy',
     'ThemeSource',
     'autoload_static',
-    'components',
     'embed',
     'embed_server',
-    'file_html',
     'json_item',
-    'server_document',
-    'server_session',
 )
 
 #-----------------------------------------------------------------------------

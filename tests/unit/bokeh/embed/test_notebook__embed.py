@@ -26,7 +26,7 @@ def test_live_notebook_content_uses_protocol_full_ids() -> None:
     assert embedding["model_ids"] == "protocol-full"
     assert "static_model_ids" not in embedding
     assert result.roots[0].key == "root"
-    assert result.source["documents"][0]["roots"][0]["id"] == plot.id
+    assert result.source["documents"][0]["roots"][0]["$id"] == plot.id
 
 
 def test_static_and_live_results_share_requirements() -> None:
@@ -39,4 +39,4 @@ def test_static_and_live_results_share_requirements() -> None:
     assert static.metadata["embedding"]["model_ids"] == "graph-minimal"
     assert live.metadata["embedding"]["model_ids"] == "protocol-full"
     assert static.source != live.source
-    assert live.source["documents"][0]["roots"][0]["id"] == plot.id
+    assert live.source["documents"][0]["roots"][0]["$id"] == plot.id

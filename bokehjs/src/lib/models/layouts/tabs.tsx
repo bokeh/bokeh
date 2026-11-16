@@ -2,6 +2,7 @@ import type {ViewStorage, ViewOf} from "core/build_views"
 import {build_views} from "core/build_views"
 import type {StyleSheetLike} from "core/dom"
 import {remove_at} from "core/util/array"
+import {assert} from "core/util/assert"
 import {isString} from "core/util/types"
 import {clamp} from "core/util/math"
 import {Container} from "core/layout/grid"
@@ -43,11 +44,21 @@ export class TabsView extends LayoutDOMView {
 
     this.on_transitive_change(tabs, async () => {
       await this.update_children()
-    }, {signal: (obj) => (obj as TabPanel).properties.child.change})
+    }, {
+      signals: (tab) => {
+        assert(tab instanceof TabPanel)
+        return [tab.properties.child.change]
+      },
+    })
 
     this.on_transitive_change(tabs, async () => {
       await this.build_tooltip_views()
-    }, {signal: (obj) => (obj as TabPanel).properties.tooltip.change})
+    }, {
+      signals: (tab) => {
+        assert(tab instanceof TabPanel)
+        return [tab.properties.tooltip.change]
+      },
+    })
   }
 
   async build_tooltip_views(): Promise<void> {

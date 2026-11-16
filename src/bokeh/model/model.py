@@ -973,18 +973,11 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         if not use_id:
             return super_rep
 
-        if serializer.compact:
-            return ObjectRefRep({
-                "$type": super_rep["$type"],
-                "$id": self.id,
-                **{key: value for key, value in super_rep.items() if key != "$type"},
-            })
-        else:
-            rep = ObjectRefRep(type="object", name=super_rep["name"], id=self.id)
-            attributes = super_rep.get("attributes")
-            if attributes is not None:
-                rep["attributes"] = attributes
-            return rep
+        return ObjectRefRep({
+            "$type": super_rep["$type"],
+            "$id": self.id,
+            **{key: value for key, value in super_rep.items() if key != "$type"},
+        })
 
     def trigger(self, attr: str, old: Any, new: Any,
             hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None:
@@ -1054,7 +1047,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             return None
         return html_repr(self)
 
-    def _sphinx_height_hint(self) -> int|None:
+    def _sphinx_height_hint(self) -> int | None:
         return None
 
 #-----------------------------------------------------------------------------

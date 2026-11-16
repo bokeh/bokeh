@@ -8,7 +8,6 @@ import type {MenuItemLike} from "../ui/menus"
 import type {ToolView, EventRole} from "./tool"
 import {Tool} from "./tool"
 import type {ToolButton} from "./tool_button"
-import type {InspectTool} from "./inspectors/inspect_tool"
 import {enumerate, some} from "core/util/iterator"
 import {execute} from "core/util/callbacks"
 
@@ -92,11 +91,6 @@ export class ToolProxy<T extends Tool> extends Model {
 
   get computed_icon(): IconLike | undefined {
     return this.tools[0].computed_icon
-  }
-
-  get toggleable(): boolean {
-    const tool = this.tools[0] as Tool
-    return "toggleable" in tool && (tool as InspectTool).toggleable
   }
 
   get group(): string | boolean {

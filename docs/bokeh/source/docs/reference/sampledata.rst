@@ -29,6 +29,13 @@ airport_routes
 
 .. automodule:: bokeh.sampledata.airport_routes
 
+.. _sampledata_airport_weather:
+
+airport_weather
+---------------
+
+.. automodule:: bokeh.sampledata.airport_weather
+
 .. _sampledata_airports:
 
 airports

@@ -12,7 +12,7 @@ import json
 import math
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Mapping
+from typing import TYPE_CHECKING, Any, ClassVar, Mapping
 from urllib.parse import urlsplit
 
 from .. import __version__
@@ -178,7 +178,7 @@ class EmbedResult:
         '''Return a detached copy of the host metadata.'''
         return deepcopy(self._metadata)
 
-    __hash__ = None  # type: ignore[assignment]
+    __hash__: ClassVar[None] = None  # type: ignore[assignment]
 
     def _validate(self) -> None:
         if self.schema != EMBED_SCHEMA:

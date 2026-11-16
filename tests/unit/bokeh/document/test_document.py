@@ -991,12 +991,11 @@ class TestDocument:
                     PropertyDef(
                         name="prop3",
                         kind=("Ref", Ref(id=ID("test_document.SomeDataModel"))),
-                        default=ObjectRefRep(
-                            type="object",
-                            name="test_document.SomeDataModel",
-                            id=CDSDerivedDerivedDataModel.prop3.property._default.ref["id"],
-                            attributes=dict(prop0=-1),
-                        ),
+                        default=ObjectRefRep({
+                            "$type": "test_document.SomeDataModel",
+                            "$id": CDSDerivedDerivedDataModel.prop3.property._default.ref["id"],
+                            "prop0": -1,
+                        }),
                     ),
                 ],
                 overrides=[
@@ -1412,7 +1411,7 @@ class TestDocument:
         assert glyph.hatch_pattern == pattern
 
         [root] = doc.to_json().content["roots"]
-        assert root["attributes"]["hatch_pattern"] == pattern
+        assert root["hatch_pattern"] == pattern
 
     # a more realistic set of models instead of fake models
     def test_scatter(self) -> None:

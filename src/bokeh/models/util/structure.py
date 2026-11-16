@@ -43,13 +43,13 @@ from bokeh.core.property.descriptors import UnsetValueError
 from bokeh.layouts import column
 from bokeh.models import (
     BoxZoomTool,
-    CDSView,
     ColumnDataSource,
     CustomJS,
     DataTable,
     GlyphRenderer,
     GroupFilter,
     HoverTool,
+    IndexedSubset,
     Label,
     LabelSet,
     MultiLine,
@@ -333,16 +333,16 @@ class _BokehStructureGraph:
         ]
         prop_source = ColumnDataSource(self._prop_df)
         model_id = self._node_source.data["index"][0]
-        groupfilter = GroupFilter(column_name="id", group=model_id)
+        groupfilter = GroupFilter(field_name="id", group=model_id)
 
-        data_table2_view = CDSView(filter=groupfilter)
+        data_table2_view = IndexedSubset(filter=groupfilter)
         data_table2 = DataTable(
             source=prop_source,
             view=data_table2_view,
             columns=columns,
             visible=False,
             index_position=None,
-            fit_columns=True,
+            autosize_mode="force_fit",
             editable=False,
         )
 

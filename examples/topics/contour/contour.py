@@ -2,7 +2,7 @@
 between each pair of contour levels.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.contour, bokeh.models.ContourRenderer
+    :apis: bokeh.plotting.figure.contour, bokeh.models.ContourRenderer.add_labels, bokeh.models.ContourRenderer
     :refs: :ref:`ug_topics_contour`
     :keywords: contour
 
@@ -10,6 +10,7 @@ between each pair of contour levels.
 
 import numpy as np
 
+from bokeh.models import PrintfTickFormatter
 from bokeh.palettes import OrRd
 from bokeh.plotting import curdoc, figure, show
 
@@ -23,6 +24,12 @@ fig = figure(width=600, height=500, toolbar_location=None, x_range=(0, 4), y_ran
 contour_renderer = fig.contour(
     x, y, z, levels, fill_color=OrRd,
     line_color=['white']*4 + ['black']*5, line_dash=['solid']*5 + ['dashed']*4, line_width=2,
+)
+
+contour_renderer.add_labels(
+    formatter=PrintfTickFormatter(format="%.1f"), inline_gap=True, label_all_paths=True,
+    text_color="black", text_font_style="bold",
+    text_outline_color="white", text_outline_width=0.75,
 )
 
 colorbar = contour_renderer.construct_color_bar()

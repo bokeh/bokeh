@@ -37,7 +37,7 @@ from packaging.version import Version
 
 __all__ = ()
 
-SAMPLEDATA_MIN_VERSION = "2026.1"
+SAMPLEDATA_MIN_VERSION = "2026.2"
 
 #-----------------------------------------------------------------------------
 # General API

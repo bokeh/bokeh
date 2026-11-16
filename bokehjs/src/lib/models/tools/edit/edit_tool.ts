@@ -10,7 +10,7 @@ import {isArray} from "core/util/types"
 import {unreachable} from "core/util/assert"
 import type {Glyph} from "../../glyphs/glyph"
 import type {XYGlyph} from "../../glyphs/xy_glyph"
-import type {ColumnarDataSource} from "../../sources/columnar_data_source"
+import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import type {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GestureTool, GestureToolView} from "../gestures/gesture_tool"
 
@@ -60,9 +60,17 @@ export abstract class EditToolView extends GestureToolView {
     return [x, y]
   }
 
+  _data_source(renderer: GlyphRenderer): ColumnarDataSource {
+    const {data_source} = renderer
+    if (!(data_source instanceof ColumnarDataSource)) {
+      throw new Error(`${this.model} requires a ColumnarDataSource`)
+    }
+    return data_source
+  }
+
   _delete_selected(renderer: GlyphRenderer): void {
     // Deletes all selected rows in the ColumnDataSource
-    const cds = renderer.data_source
+    const cds = this._data_source(renderer)
     const indices = cds.selected.indices
     indices.sort()
     for (const column of cds.columns()) {
@@ -125,7 +133,7 @@ export abstract class EditToolView extends GestureToolView {
       const [dx, dy] = [x-px, y-py]
       // Type once dataspecs are typed
       const {glyph} = renderer
-      const cds = renderer.data_source
+      const cds = this._data_source(renderer)
       const data = dict(cds.data)
       const xkey = isField(glyph.x) ? glyph.x.field : null
       const ykey = isField(glyph.y) ? glyph.y.field : null
@@ -179,7 +187,7 @@ export abstract class EditToolView extends GestureToolView {
     const selected = []
     for (const renderer of renderers) {
       const sm = renderer.get_selection_manager()
-      const cds = renderer.data_source
+      const cds = this._data_source(renderer)
       const view = this.plot_view.views.find_one(renderer)
       if (view != null) {
         const did_hit = sm.select([view], geometry, true, mode)

@@ -23,8 +23,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 from math import inf
-from typing import Any
-from warnings import deprecated
 
 from ...core.has_props import abstract
 from ...core.property.any import AnyRef
@@ -79,7 +77,6 @@ __all__ = (
     'Switch',
     'TextAreaInput',
     'TextInput',
-    'ColorMap',
 )
 
 #-----------------------------------------------------------------------------
@@ -267,7 +264,7 @@ class Spinner(NumericInput):
 
     _committed_callback_properties = frozenset({"value"})
 
-    mode = Override(default="float")
+    _mode = Override(NumericInput.mode, default="float")
 
     step = Interval(Float, start=1e-16, end=inf, default=1, help="""
     The step added or subtracted to the current value.
@@ -320,15 +317,15 @@ class Switch(ToggleInput):
 class LightDark(Switch):
     """ A switch widget to change between themes (light and dark). """
 
-    active = Override(default=None)
+    _active = Override(ToggleInput.active, default=None)
 
-    on_icon = Override(default="light_theme")
+    _on_icon = Override(Switch.on_icon, default="light_theme")
 
-    off_icon = Override(default="dark_theme")
+    _off_icon = Override(Switch.off_icon, default="dark_theme")
 
-    indeterminate_icon = Override(default="system_theme")
+    _indeterminate_icon = Override(Switch.indeterminate_icon, default="system_theme")
 
-    tri_state = Override(default=True)
+    _tri_state = Override(ToggleInput.tri_state, default=True)
 
 class TextLikeInput(InputWidget):
     ''' Base class for text-like input widgets.
@@ -384,7 +381,7 @@ class TextAreaInput(TextLikeInput):
     Specifies the height of the text area (in lines). Default: 2
     """)
 
-    max_length = Override(default=500)
+    _max_length = Override(TextLikeInput.max_length, default=500)
 
 
 class PasswordInput(TextInput):
@@ -556,19 +553,6 @@ class PaletteSelect(InputWidget):
     ncols = Positive(Int, default=1, help="""
     The number of columns to split the display of the palettes into.
     """)
-
-#-----------------------------------------------------------------------------
-# Legacy API
-#-----------------------------------------------------------------------------
-
-@deprecated("'ColorMap widget' was deprecated in Bokeh 3.4.0 and will be removed, use 'PaletteSelect widget' instead.")
-def ColorMap(*args: Any, **kwargs: Any) -> PaletteSelect:
-    ''' Color palette select widget.
-
-    .. deprecated:: 3.4.0
-        Use ``PaletteSelect`` widget instead.
-    '''
-    return PaletteSelect(*args, **kwargs)
 
 #-----------------------------------------------------------------------------
 # Private API

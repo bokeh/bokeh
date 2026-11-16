@@ -35,7 +35,7 @@ export class PolyDrawToolView extends PolyToolView {
 
     const [x, y] = this._snap_to_vertex(ev, ...point)
 
-    const cds = renderer.data_source
+    const cds = this._data_source(renderer)
     const data = dict(cds.data)
     const glyph = renderer.glyph
     const xkey = isField(glyph.xs) ? glyph.xs.field : null
@@ -97,7 +97,8 @@ export class PolyDrawToolView extends PolyToolView {
     const ys: number[] = []
     for (let i = 0; i < this.model.renderers.length; i++) {
       const renderer = this.model.renderers[i]
-      const {glyph, data_source} = renderer
+      const {glyph} = renderer
+      const data_source = this._data_source(renderer)
       const xkey = isField(glyph.xs) ? glyph.xs.field : null
       const ykey = isField(glyph.ys) ? glyph.ys.field : null
       if (xkey != null) {
@@ -140,7 +141,8 @@ export class PolyDrawToolView extends PolyToolView {
 
   _remove(): void {
     const renderer = this.model.renderers[0]
-    const {glyph, data_source} = renderer
+    const {glyph} = renderer
+    const data_source = this._data_source(renderer)
     const xkey = isField(glyph.xs) ? glyph.xs.field : null
     const ykey = isField(glyph.ys) ? glyph.ys.field : null
     const data = dict(data_source.data)
@@ -171,7 +173,7 @@ export class PolyDrawToolView extends PolyToolView {
           this._remove()
           this._drawing = false
         }
-        renderer.data_source.selection_manager.clear()
+        this._data_source(renderer).selection_manager.clear()
       }
     }
   }
@@ -197,7 +199,7 @@ export class PolyDrawToolView extends PolyToolView {
         continue
       }
 
-      const cds = renderer.data_source
+      const cds = this._data_source(renderer)
       const {glyph} = renderer
       const xkey = isField(glyph.xs) ? glyph.xs.field : null
       const ykey = isField(glyph.ys) ? glyph.ys.field : null
@@ -241,7 +243,7 @@ export class PolyDrawToolView extends PolyToolView {
     }
     this._pan(ev)
     for (const renderer of this.model.renderers) {
-      this._emit_cds_changes(renderer.data_source)
+      this._emit_cds_changes(this._data_source(renderer))
     }
     this._basepoint = null
   }
@@ -253,7 +255,7 @@ export class PolyDrawToolView extends PolyToolView {
     this._show_vertices()
     if (!this._initialized) {
       for (const renderer of this.model.renderers) {
-        const cds = renderer.data_source
+        const cds = this._data_source(renderer)
         cds.connect(cds.properties.data.change, () => this._show_vertices())
       }
     }

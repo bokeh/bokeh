@@ -254,7 +254,7 @@ def _resized(obj: Plot, width: int | None, height: int | None) -> Iterator[None]
         obj.height = old_height
 
 #-----------------------------------------------------------------------------
-# Shared JavaScript snippets for Selenium and Playwright backends
+# JavaScript snippets for browser export
 #-----------------------------------------------------------------------------
 
 # Embed exports publish the mount handle on each root target. Use the mount

@@ -68,14 +68,14 @@ log = logging.getLogger(__name__)
 from argparse import Namespace
 from dataclasses import dataclass, field
 from difflib import get_close_matches
-from typing import Any
+from typing import Any, ClassVar
 
 from jinja2 import Template
 
 from bokeh.settings import PrioritizedSetting, _Unset
 from bokeh.util.settings import get_all_settings
 
-from ..subcommand import Argument, Subcommand
+from ..subcommand import Args, Argument, Subcommand
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -147,7 +147,7 @@ class Settings(Subcommand):
 
     help = "Print information about Bokeh settings and their current values"
 
-    args = (
+    args: ClassVar[Args] = (
 
         (('-v', '--verbose'), Argument(
             action="store_true",

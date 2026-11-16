@@ -60,7 +60,7 @@ class TileRenderer(Renderer):
     Flag enable/disable drawing of parent tiles while waiting for new tiles to arrive. Default value is True.
     """)
 
-    level = Override(default="image")
+    _level = Override(default="image")
 
 #-----------------------------------------------------------------------------
 # Dev API

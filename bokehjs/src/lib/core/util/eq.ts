@@ -286,6 +286,20 @@ export class SimilarComparator extends Comparator {
   }
 }
 
+/** Compare logical field values with the same primitive semantics as Set. */
+export class FieldValueComparator extends Comparator {
+  constructor() {
+    super({no_fail: true})
+  }
+
+  override eq(a: unknown, b: unknown): boolean {
+    if (isObject(a) && isObject(b)) {
+      return super.eq(a, b)
+    }
+    return a === b || Object.is(a, b)
+  }
+}
+
 export function is_equal(a: unknown, b: unknown): boolean {
   const comparator = new Comparator()
   return comparator.eq(a, b)

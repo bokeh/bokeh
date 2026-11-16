@@ -42,11 +42,7 @@ jobs:
           cache-write: ${{ github.event_name == 'push' && (github.ref_name == 'main' || startsWith(github.ref_name, 'branch-')) }}
 
       - name: Run repository formatting checks
-        run: |
-          pre-commit run trailing-whitespace --all-files
-          pre-commit run end-of-file-fixer --all-files
-          pre-commit run mixed-line-ending --all-files
-          pre-commit run reject-static-docs-links --all-files
+        run: pixi run --locked check-formatting
 
   changes:
     name: Classify changes
@@ -205,6 +201,9 @@ jobs:
           - os: ubuntu-24.04
             python-version: '3.14'
             environment: test-py314
+          - os: ubuntu-24.04
+            python-version: '3.15'
+            environment: test-py315
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -235,6 +234,9 @@ jobs:
         - name: Check library types with pyright
           run: |
             pyright --version && pyright
+        - name: Check type completeness of public API with pyright
+          run: |
+            pixi run --locked --environment ${{ matrix.environment }} verify-types
 
   examples:
     needs: [changes, build]

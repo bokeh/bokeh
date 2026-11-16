@@ -86,9 +86,9 @@ from .scales import (
     LogScale,
     Scale,
 )
-from .sources import ColumnarDataSource, ColumnDataSource, DataSource
+from .sources import ColumnDataSource, IndexedDataSource
 from .tiles import TileSource, WMTSTileSource
-from .tools import HoverTool, Tool, Toolbar
+from .tools import HoverTool, Tool, Toolbar, ToolProxy
 from .ui import StyledElement
 
 if TYPE_CHECKING:
@@ -269,7 +269,7 @@ class Plot(LayoutDOM):
         return _list_attr_splat(self.xgrid + self.ygrid)
 
     @property
-    def tools(self) -> list[Tool]:
+    def tools(self) -> list[Tool | ToolProxy]:
         return self.toolbar.tools
 
     @tools.setter
@@ -349,18 +349,18 @@ class Plot(LayoutDOM):
     @overload
     def add_glyph(self, glyph: Glyph, **kwargs: Any) -> GlyphRenderer: ...
     @overload
-    def add_glyph(self, source: ColumnarDataSource, glyph: Glyph, **kwargs: Any) -> GlyphRenderer: ...
+    def add_glyph(self, source: IndexedDataSource, glyph: Glyph, **kwargs: Any) -> GlyphRenderer: ...
 
-    def add_glyph(self, source_or_glyph: Glyph | ColumnarDataSource, glyph: Glyph | None = None, **kwargs: Any) -> GlyphRenderer:
+    def add_glyph(self, source_or_glyph: Glyph | IndexedDataSource, glyph: Glyph | None = None, **kwargs: Any) -> GlyphRenderer:
         ''' Adds a glyph to the plot with associated data sources and ranges.
 
         This function will take care of creating and configuring a Glyph object,
         and then add it to the plot's list of renderers.
 
         Args:
-            source_or_glyph (Glyph | ColumnarDataSource): a data source for the
+            source_or_glyph (Glyph | IndexedDataSource): a data source for the
                 glyphs or a glyph to add to the Plot
-            source (DataSource) : a data source for the glyphs to all use
+            source (IndexedDataSource) : a data source for the glyphs to all use
             glyph (Glyph) : the glyph to add to the Plot
 
 
@@ -372,13 +372,13 @@ class Plot(LayoutDOM):
             GlyphRenderer
 
         '''
-        if isinstance(source_or_glyph, ColumnarDataSource):
+        if isinstance(source_or_glyph, IndexedDataSource):
             source = source_or_glyph
         else:
             source, glyph = ColumnDataSource(), source_or_glyph
 
-        if not isinstance(source, DataSource):
-            raise ValueError("'source' argument to add_glyph() must be DataSource subclass")
+        if not isinstance(source, IndexedDataSource):
+            raise ValueError("'source' argument to add_glyph() must be IndexedDataSource subclass")
 
         if not isinstance(glyph, Glyph):
             raise ValueError("'glyph' argument to add_glyph() must be Glyph subclass")
@@ -600,7 +600,7 @@ class Plot(LayoutDOM):
     The {prop} for the plot border outline.
     """)
 
-    outline_line_color = Override(default="#e5e5e5")
+    _outline_line_color = Override(default="#e5e5e5")
 
     renderers = List(Instance(Renderer), help="""
     A list of all glyph renderers for this plot.
@@ -649,9 +649,9 @@ class Plot(LayoutDOM):
     A list of renderers to occupy the center area (frame) of the plot.
     """)
 
-    width: int | None = Override(default=600)
+    _width = Override(default=600)
 
-    height: int | None = Override(default=600)
+    _height = Override(default=600)
 
     frame_width = Nullable(Int, help="""
     The width of a plot frame or the inner width of a plot, excluding any
@@ -724,7 +724,7 @@ class Plot(LayoutDOM):
     The {prop} for the plot background style.
     """)
 
-    background_fill_color = Override(default='#ffffff')
+    _background_fill_color = Override(default='#ffffff')
 
     border_line_props = Include(ScalarLineProps, prefix="border", help="""
     The {prop} for the plot border style.
@@ -738,9 +738,9 @@ class Plot(LayoutDOM):
     The {prop} for the plot border style.
     """)
 
-    border_line_color = Override(default=None)
+    _border_line_color = Override(default=None)
 
-    border_fill_color = Override(default='#ffffff')
+    _border_fill_color = Override(default='#ffffff')
 
     min_border_top = Nullable(Int, help="""
     Minimum size in pixels of the padding region above the top of the
@@ -921,7 +921,7 @@ class Plot(LayoutDOM):
         This feature is experimental and may change in the short term.
     """)
 
-    context_menu = Override(default="auto")
+    _context_menu = Override(default="auto")
 
 class GridPlot(LayoutDOM, GridCommon):
     """ Collection of plots and other layoutables on arranged on a rectangular grid.

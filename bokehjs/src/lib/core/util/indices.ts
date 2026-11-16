@@ -1,4 +1,6 @@
 import type {Arrayable} from "core/types"
+import {get_array_item} from "./ndarray"
+import {FieldValueComparator} from "./eq"
 
 /**
  * Allows to efficiently map back and forth between superset and subset indices.
@@ -65,9 +67,10 @@ export class SubsetIndexMapper {
   }
 
   subset_index_of(array: Arrayable, value: unknown): number | null {
+    const cmp = new FieldValueComparator()
     for (let i = 0; i < this.size_subset; i++) {
-      const superset_idx = this.subset_to_superset[i]
-      if (array[superset_idx] === value) {
+      const item = get_array_item(array, this.subset_to_superset[i])
+      if (cmp.eq(item, value)) {
         return i
       }
     }

@@ -1,5 +1,9 @@
 import {expect} from "#framework/assertions"
+import {restorable} from "#framework/util"
+import {spy} from "sinon"
 import {SubsetIndexMapper} from "@bokehjs/core/util/indices"
+import {Float64NDArray} from "@bokehjs/core/util/ndarray"
+import {Comparator} from "@bokehjs/core/util/eq"
 
 describe("SubsetIndexMapper", () => {
 
@@ -118,6 +122,70 @@ describe("SubsetIndexMapper", () => {
   })
 
   describe("subset_index_of", () => {
+    it("scans primitive values without structural comparisons", () => {
+      const data = Array.from({length: 128}, (_, i) => `label ${i}`)
+      const mapper = new SubsetIndexMapper(data.length)
+      mapper.set_subset(Int32Array.from(data, (_, i) => i))
+      using comparisons = restorable(spy(Comparator.prototype, "eq"))
+      const index = mapper.subset_index_of(data, "label 127")
+      expect(comparisons.callCount).to.be.below(data.length)
+      expect(index).to.be.equal(127)
+    })
+
+    it("matches primitive values within a reordered subset", () => {
+      const data = [0, NaN, undefined, null, true, "1", 1]
+      const mapper = new SubsetIndexMapper(data.length)
+      mapper.set_subset(new Int32Array([5, 3, 2, 1, 0, 4, 6]))
+      expect(mapper.subset_index_of(data, "1")).to.be.equal(0)
+      expect(mapper.subset_index_of(data, null)).to.be.equal(1)
+      expect(mapper.subset_index_of(data, undefined)).to.be.equal(2)
+      expect(mapper.subset_index_of(data, NaN)).to.be.equal(3)
+      expect(mapper.subset_index_of(data, -0)).to.be.equal(4)
+      expect(mapper.subset_index_of(data, true)).to.be.equal(5)
+      expect(mapper.subset_index_of(data, 1)).to.be.equal(6)
+      expect(mapper.subset_index_of(data, false)).to.be.null
+    })
+
+    it("matches shaped logical items within the active subset", () => {
+      const mapper = new SubsetIndexMapper(3)
+      mapper.set_subset(new Int32Array([1, 2]))
+      const data = new Float64NDArray([1, 2, 3, 4, 5, 6], [3, 2])
+      expect(mapper.subset_index_of(data, [3, 4])).to.be.equal(0)
+      expect(mapper.subset_index_of(data, [5, 6])).to.be.equal(1)
+      expect(mapper.subset_index_of(data, [1, 2])).to.be.null
+    })
+
+    it("skips values without structural equality and matches by identity", () => {
+      const first = new Uint8ClampedArray([1])
+      const second = new Uint8ClampedArray([1])
+      const mapper = new SubsetIndexMapper(2)
+      mapper.set_subset(new Int32Array([0, 1]))
+      expect(mapper.subset_index_of([first, second], second)).to.be.equal(1)
+    })
+
+    it("matches ordinary array values and NaN by value", () => {
+      const mapper = new SubsetIndexMapper(2)
+      mapper.set_subset(new Int32Array([0, 1]))
+      const item = [1, 2]
+      expect(mapper.subset_index_of([item, NaN], item)).to.be.equal(0)
+      expect(mapper.subset_index_of([item, NaN], [1, 2])).to.be.equal(0)
+      expect(mapper.subset_index_of([item, NaN], NaN)).to.be.equal(1)
+      expect(mapper.subset_index_of([item, NaN], [1, 3])).to.be.null
+    })
+
+    for (const [storage, data] of Object.entries({
+      shaped: new Float64NDArray([1, 2, 3, NaN, 1, 2], [3, 2]),
+      nested: [[1, 2], [3, NaN], [1, 2]],
+    })) {
+      it(`matches ${storage} logical records within the active subset by value`, () => {
+        const mapper = new SubsetIndexMapper(3)
+        mapper.set_subset(new Int32Array([1, 2]))
+        expect(mapper.subset_index_of(data, [3, NaN])).to.be.equal(0)
+        expect(mapper.subset_index_of(data, [1, 2])).to.be.equal(1)
+        expect(mapper.subset_index_of(data, [3, 4])).to.be.null
+      })
+    }
+
     it("should return the subset index of the first matching value", () => {
       const mapper = new SubsetIndexMapper(5)
       const data = ["apple", "banana", "cherry", "date", "elderberry"]

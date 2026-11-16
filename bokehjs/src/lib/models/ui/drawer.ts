@@ -7,6 +7,7 @@ import type {PanEvent} from "core/ui_gestures"
 import {UIGestures} from "core/ui_gestures"
 import type * as p from "core/properties"
 import {Or, Float, CSSLength} from "core/kinds"
+import type {Infer} from "core/kinds"
 import {assert} from "core/util/assert"
 import {isNumber} from "core/util/types"
 import * as drawers_css from "styles/drawers.css"
@@ -15,7 +16,7 @@ import * as icons_css from "styles/icons.css"
 const {max} = Math
 
 const CSSSize = Or(Float, CSSLength)
-type CSSSize = typeof CSSSize["__type__"]
+type CSSSize = Infer<typeof CSSSize>
 
 export class DrawerView extends PaneView {
   declare model: Drawer

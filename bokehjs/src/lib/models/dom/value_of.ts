@@ -7,9 +7,10 @@ import {isArray} from "core/util/types"
 import type * as p from "core/properties"
 import {BuiltinFormatter} from "core/enums"
 import {Or, Ref} from "core/kinds"
+import type {Infer} from "core/kinds"
 
 const Formatter = Or(BuiltinFormatter, Ref(CustomJS))
-type Formatter = typeof Formatter["__type__"]
+type Formatter = Infer<typeof Formatter>
 
 export class ValueOfView extends DOMElementView {
   declare model: ValueOf

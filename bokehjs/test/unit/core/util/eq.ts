@@ -1,7 +1,7 @@
 import {expect} from "#framework/assertions"
 
 import type {Equatable} from "@bokehjs/core/util/eq"
-import {is_equal, is_structurally_equal, equals, Comparator, EqNotImplemented} from "@bokehjs/core/util/eq"
+import {is_equal, is_structurally_equal, equals, Comparator, EqNotImplemented, FieldValueComparator} from "@bokehjs/core/util/eq"
 import {HasProps} from "@bokehjs/core/has_props"
 import type * as p from "@bokehjs/core/properties"
 
@@ -30,6 +30,33 @@ class SomeHasProps extends HasProps {
 }
 
 describe("core/util/eq module", () => {
+  describe("FieldValueComparator", () => {
+    const cmp = new FieldValueComparator()
+
+    it("uses SameValueZero for primitives", () => {
+      expect(cmp.eq(NaN, NaN)).to.be.true
+      expect(cmp.eq(-0, 0)).to.be.true
+      expect(cmp.eq(NaN, 0)).to.be.false
+      expect(cmp.eq(1, "1")).to.be.false
+      expect(cmp.eq(null, undefined)).to.be.false
+    })
+
+    it("compares nested values without equating boxed and primitive strings", () => {
+      const boxed: unknown = Object("x")
+      expect(cmp.eq([{value: [NaN, -0]}], [{value: [NaN, 0]}])).to.be.true
+      expect(cmp.eq([{value: "x"}], [{value: boxed}])).to.be.false
+      expect(cmp.eq(boxed, "x")).to.be.false
+    })
+
+    it("matches objects without structural equality by identity", () => {
+      const first = new Uint8ClampedArray([1])
+      const second = new Uint8ClampedArray([1])
+      expect(cmp.eq(first, second)).to.be.false
+      expect(cmp.eq([first], [first])).to.be.true
+      expect(cmp.eq([first], [second])).to.be.false
+    })
+  })
+
   describe("implements is_equal() function", () => {
     it("that supports number type", () => {
       expect(is_equal(0, 0)).to.be.true

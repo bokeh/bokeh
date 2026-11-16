@@ -12,11 +12,11 @@ import {color2rgba, encode_rgba} from "./util/color"
 import {to_big_endian} from "./util/platform"
 import {isArrayable, isNumber, isString, isTypedArray, isPlainObject} from "./util/types"
 import type {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
-import type {ColumnarDataSource} from "../models/sources/columnar_data_source"
+import type {IndexedDataSource} from "../models/sources/indexed_data_source"
 import type {/*Value,*/ Scalar, Vector, Dimensional, ScalarExpression, VectorExpression} from "./vectorization"
 import {isValue, isField, isExpr} from "./vectorization"
 import {settings} from "./settings"
-import type {Kind} from "./kinds"
+import type {Kind, Infer} from "./kinds"
 import {PrefixedStr} from "./kinds"
 import type {NDArray, NDArrayType} from "./util/ndarray"
 import {is_NDArray, get_row} from "./util/ndarray"
@@ -409,7 +409,7 @@ export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Pro
     return new UniformScalar(value, n)
   }
 
-  uniform(source: ColumnarDataSource): UniformScalar<T/*T_out!!!*/> {
+  uniform(source: IndexedDataSource): UniformScalar<T/*T_out!!!*/> {
     const obj = this.get_value()
     const n = source.get_length() ?? 1
     if (isExpr(obj)) {
@@ -432,8 +432,6 @@ export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Pro
   }
 }
 
-/** @deprecated */
-export class AnyScalar extends ScalarSpec<any> {}
 export class DictScalar<T> extends ScalarSpec<Dict<T>> {}
 export class ColorScalar extends ScalarSpec<types.Color | null> {}
 export class NumberScalar extends ScalarSpec<number> {}
@@ -530,12 +528,12 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
     return new UniformVector(values)
   }
 
-  uniform(source: ColumnarDataSource): Uniform<T/*T_out!!!*/> {
+  uniform(source: IndexedDataSource): Uniform<T/*T_out!!!*/> {
     const obj = this.get_value()
     const n = source.get_length() ?? 1
     if (isField(obj)) {
       const {field, transform} = obj
-      let array = source.get_column(field)
+      let array = source.get_field(field)
       if (array != null) {
         if (transform != null) {
           array = transform.v_compute(array)
@@ -572,7 +570,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
     }
   }
 
-  protected _array(source: ColumnarDataSource): Arrayable<unknown> {
+  protected _array(source: IndexedDataSource): Arrayable<unknown> {
     let array: Arrayable
 
     const length = source.get_length() ?? 1
@@ -580,7 +578,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
     const obj = this.get_value()
     if (isField(obj)) {
       const {field} = obj
-      const column = source.get_column(field)
+      const column = source.get_field(field)
       if (column != null) {
         array = this.normalize(column)
       } else {
@@ -611,7 +609,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
     return array
   }
 
-  array(source: ColumnarDataSource): Arrayable<unknown> {
+  array(source: IndexedDataSource): Arrayable<unknown> {
     let array = this._array(source)
     const {transform} = this.get_value()
     if (transform != null) {
@@ -658,7 +656,7 @@ export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vect
 }
 
 export abstract class NumberUnitsSpec<Units> extends UnitsSpec<number, Units> {
-  override array(source: ColumnarDataSource): FloatArray {
+  override array(source: IndexedDataSource): FloatArray {
     return new Float64Array(super.array(source) as Arrayable<number>)
   }
 }
@@ -702,7 +700,7 @@ function convert_date_strings(array: Arrayable<unknown>, depth: number): Arrayab
 export abstract class BaseCoordinateSpec<T> extends DataSpec<T> {
   abstract get dimension(): "x" | "y"
 
-  override array(source: ColumnarDataSource, materialize_dates = false): Arrayable<unknown> {
+  override array(source: IndexedDataSource, materialize_dates = false): Arrayable<unknown> {
     let array = this._array(source)
     const {transform} = this.get_value()
     const materialize_dates_before = (transform as {materialize_dates_before?: boolean} | undefined)?.materialize_dates_before ?? false
@@ -773,7 +771,7 @@ export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
     return result
   }
 
-  override array(_source: ColumnarDataSource): Float32Array {
+  override array(_source: IndexedDataSource): Float32Array {
     throw new Error("not supported")
   }
 }
@@ -798,7 +796,7 @@ export class BooleanSpec extends DataSpec<boolean> {
     return new Uint8Array(values as any) as any
   }
 
-  override array(source: ColumnarDataSource): Uint8Array {
+  override array(source: IndexedDataSource): Uint8Array {
     return new Uint8Array(super.array(source) as any)
   }
 }
@@ -808,7 +806,7 @@ export class IntSpec extends DataSpec<number> {
     return isTypedArray(values) ? values : new Int32Array(values)
   }
 
-  override array(source: ColumnarDataSource): IntArray {
+  override array(source: IndexedDataSource): IntArray {
     return new Int32Array(super.array(source) as Arrayable<number>)
   }
 }
@@ -818,7 +816,7 @@ export class NumberSpec extends DataSpec<number> {
     return isTypedArray(values) ? values : new Float64Array(values)
   }
 
-  override array(source: ColumnarDataSource): FloatArray {
+  override array(source: IndexedDataSource): FloatArray {
     return new Float64Array(super.array(source) as Arrayable<number>)
   }
 }
@@ -933,14 +931,12 @@ export class ColorSpec extends DataSpec<types.Color | null> {
 
 export class NDArraySpec extends DataSpec<NDArrayType<number>> {}
 
-/** @deprecated */
-export class AnySpec extends DataSpec<any> {}
 export class StringSpec extends DataSpec<string> {}
 export class NullStringSpec extends DataSpec<string | null> {}
 export class ArraySpec extends DataSpec<any[]> {}
 
 export const ExtMarkerType = PrefixedStr("@")
-export type ExtMarkerType = typeof ExtMarkerType["__type__"]
+export type ExtMarkerType = Infer<typeof ExtMarkerType>
 
 export class MarkerSpec extends DataSpec<enums.MarkerType | ExtMarkerType | null> {}
 export class LineJoinSpec extends DataSpec<enums.LineJoin> {}

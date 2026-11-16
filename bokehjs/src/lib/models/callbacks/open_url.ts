@@ -1,5 +1,5 @@
 import {Callback} from "./callback"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
 import {replace_placeholders} from "core/util/templating"
 import {isString} from "core/util/types"
 import type * as p from "core/properties"
@@ -33,7 +33,7 @@ export class OpenURL extends Callback {
     }
   }
 
-  execute(_cb_obj: unknown, {source}: {source: ColumnarDataSource}): void {
+  execute(_cb_obj: unknown, {source}: {source: IndexedDataSource}): void {
     const open_url = (i: number) => {
       const url = replace_placeholders(this.url, source, i, undefined, undefined, encodeURI)
       if (!isString(url)) {

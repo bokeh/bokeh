@@ -14,6 +14,7 @@ from sphinx.util.inventory import InventoryFile
 import bokeh.models as models
 from bokeh.core.has_props import HasProps, Local
 from bokeh.core.properties import (
+    DeprecatedAlias,
     Either,
     Enum,
     Include,
@@ -23,7 +24,7 @@ from bokeh.core.properties import (
     String,
 )
 from bokeh.model import Model
-from bokeh.models import BoxSelectTool, Filter
+from bokeh.models import Filter
 from bokeh.sphinxext._internal.bokeh_model import (
     _DEFAULT_EXCLUDED_MEMBERS,
     _model_members,
@@ -77,6 +78,9 @@ Unindented suffix text.
         Instance(f"{__name__}._LinkedModel"),
         Enum("auto"),
     ))
+
+    value = Int(default=0)
+    old_value = DeprecatedAlias("value", since=(3, 1, 0))
 
 
 class _IncludeDelegate(HasProps, Local):
@@ -180,16 +184,12 @@ def test_property_detail_resolves_string_instance_types() -> None:
 
 
 def test_property_detail_supports_deprecated_aliases() -> None:
-    properties, _, _ = _model_members(BoxSelectTool)
-    detail = _render_property_detail(
-        BoxSelectTool(),
-        "BoxSelectTool.select_every_mousemove",
-        "bokeh.models",
-    )
+    properties, _, _ = _model_members(_PropertyDetailModel)
+    detail = _render_property_detail(_PropertyDetailModel(), "_PropertyDetailModel.old_value", __name__)
 
-    assert "select_every_mousemove" in properties
-    assert ":annotation: = False" in detail
-    assert ":Type: :class:`~bokeh.core.properties.Bool`" in detail
+    assert "old_value" in properties
+    assert ":annotation: = 0" in detail
+    assert ":Type: :class:`~bokeh.core.properties.Int`" in detail
     assert "was deprecated in Bokeh 3.1.0" in detail
 
 
@@ -257,7 +257,6 @@ def test_model_build_registers_inventory_members_and_template_dependencies(tmp_p
 
     assert "bokeh.models.BoxSelectTool" in inventory["py:class"]
     assert "bokeh.models.BoxSelectTool.continuous" in inventory["py:attribute"]
-    assert "bokeh.models.BoxSelectTool.select_every_mousemove" in inventory["py:attribute"]
     assert "bokeh.models.BoxSelectTool.document" in inventory["py:property"]
     assert "bokeh.models.BoxSelectTool.apply_theme" in inventory["py:method"]
     assert "bokeh.models.BoxSelectTool.greedy" not in inventory["py:attribute"]

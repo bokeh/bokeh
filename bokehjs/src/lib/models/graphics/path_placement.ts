@@ -10,7 +10,7 @@ import {AngleReference} from "core/enums"
 import * as p from "core/properties"
 import type {Arrayable, Indices} from "core/types"
 import {isArrayable} from "core/util/types"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
 
 export class PathPlacementView extends View {
   declare model: PathPlacement
@@ -61,7 +61,7 @@ export class PathPlacementView extends View {
     return Array.from(positions)
   }
 
-  private _source?: ColumnarDataSource
+  private _source?: IndexedDataSource
   private _indices?: Indices
 
   override _children_views(): ChildView[] {
@@ -116,7 +116,7 @@ export class PathPlacementView extends View {
     })
   }
 
-  set_data(source: ColumnarDataSource, indices: Indices): void {
+  set_data(source: IndexedDataSource, indices: Indices): void {
     this._source = source
     this._indices = indices
     this.inset = this.model.properties.inset.uniform(source).select(indices)

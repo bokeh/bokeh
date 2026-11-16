@@ -76,7 +76,7 @@ def __getattr__(name: str) -> Any:
         return _compute_datetime_types(is_installed("pandas") and "pandas" in sys.modules)
     raise AttributeError
 
-BINARY_ARRAY_TYPES = {
+BINARY_ARRAY_TYPES: set[np.dtype[Any]] = {
     np.dtype(np.bool_),
     np.dtype(np.uint8),
     np.dtype(np.int8),

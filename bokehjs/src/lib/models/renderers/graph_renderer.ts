@@ -1,5 +1,7 @@
 import {DataRenderer, DataRendererView} from "./data_renderer"
 import type {GlyphRendererView} from "./glyph_renderer"
+import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {GlyphRendererWithSource} from "./glyph_renderer"
 import {GlyphRenderer} from "./glyph_renderer"
 import {GlyphView} from "../glyphs/glyph"
 import {LayoutProvider} from "../graphs/layout_provider"
@@ -155,8 +157,8 @@ export namespace GraphRenderer {
 
   export type Props = DataRenderer.Props & {
     layout_provider: p.Property<LayoutProvider>
-    node_renderer: p.Property<GlyphRenderer<XYGlyph>>
-    edge_renderer: p.Property<GlyphRenderer<EdgeGlyph>>
+    node_renderer: p.Property<GlyphRendererWithSource<XYGlyph, ColumnarDataSource>>
+    edge_renderer: p.Property<GlyphRendererWithSource<EdgeGlyph, ColumnarDataSource>>
     selection_policy: p.Property<GraphHitTestPolicy>
     inspection_policy: p.Property<GraphHitTestPolicy>
   }

@@ -115,11 +115,11 @@ class MercatorTileSource(TileSource):
 
     _args = ('url', 'tile_size', 'min_zoom', 'max_zoom', 'x_origin_offset', 'y_origin_offset', 'extra_url_vars', 'initial_resolution')
 
-    x_origin_offset = Override(default=20037508.34)
+    _x_origin_offset = Override(TileSource.x_origin_offset, default=20037508.34)
 
-    y_origin_offset = Override(default=20037508.34)
+    _y_origin_offset = Override(TileSource.y_origin_offset, default=20037508.34)
 
-    initial_resolution = Override(default=156543.03392804097)
+    _initial_resolution = Override(TileSource.initial_resolution, default=156543.03392804097)
 
     snap_to_zoom = Bool(default=False, help="""
     Forces initial extents to snap to the closest larger zoom level.""")

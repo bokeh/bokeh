@@ -366,23 +366,18 @@ class TestMarkers:
         alpha1 = 0.5
         alpha2 = 0.75
 
-        func = getattr(p, marker)
-
         # color/line_color
-        with pytest.warns(DeprecationWarning):
-            r = func([1, 2, 3], [1, 2, 3], color=rgb, line_color=rgb_other)
+        r = p.scatter([1, 2, 3], [1, 2, 3], marker=marker, color=rgb, line_color=rgb_other)
         assert r.glyph.fill_color == rgb
         assert r.glyph.line_color == rgb_other
 
         # color/fill_color
-        with pytest.warns(DeprecationWarning):
-            r = func([1, 2, 3], [1, 2, 3], color=rgb, fill_color=rgb_other)
+        r = p.scatter([1, 2, 3], [1, 2, 3], marker=marker, color=rgb, fill_color=rgb_other)
         assert r.glyph.line_color == rgb
         assert r.glyph.fill_color == rgb_other
 
         # alpha/line_alpha
-        with pytest.warns(DeprecationWarning):
-            r = func([1, 2, 3], [1, 2, 3], color=rgb, alpha=alpha1, line_alpha=alpha2)
+        r = p.scatter([1, 2, 3], [1, 2, 3], marker=marker, color=rgb, alpha=alpha1, line_alpha=alpha2)
         assert r.glyph.line_alpha == alpha2
         assert r.glyph.fill_alpha == alpha1
 
@@ -390,9 +385,7 @@ class TestMarkers:
     @pytest.mark.parametrize('color',  [(100., 100., 100.), (50., 100., 50., 0.5), (100, 100, 100), (50, 100, 50, 0.5)])
     def test_color_input(self, color, marker) -> None:
         p = bpf.figure()
-        func = getattr(p, marker)
-        with pytest.warns(DeprecationWarning):
-            r = func([1, 2, 3], [1, 2, 3], color=color)
+        r = p.scatter([1, 2, 3], [1, 2, 3], marker=marker, color=color)
         assert r.glyph.line_color == color
         assert r.glyph.fill_color == color
         # rgb should always be an integer by the time it is added to property
@@ -405,9 +398,7 @@ class TestMarkers:
     @pytest.mark.parametrize('color',  [(100., 100., 100.), (50., 100., 50., 0.5), (100, 100, 100), (50, 100, 50, 0.5)])
     def test_line_color_input(self, color, marker) -> None:
         p = bpf.figure()
-        func = getattr(p, marker)
-        with pytest.warns(DeprecationWarning):
-            r = func([1, 2, 3], [1, 2, 3], line_color=color)
+        r = p.scatter([1, 2, 3], [1, 2, 3], marker=marker, line_color=color)
         assert r.glyph.line_color == color
         # rgb should always be an integer by the time it is added to property
         for v in r.glyph.line_color[0:3]:
@@ -417,9 +408,7 @@ class TestMarkers:
     @pytest.mark.parametrize('color',  [(100., 100., 100.), (50., 100., 50., 0.5), (50, 100, 50, 0.5)])
     def test_fill_color_input(self, color, marker) -> None:
         p = bpf.figure()
-        func = getattr(p, marker)
-        with pytest.warns(DeprecationWarning):
-            r = func([1, 2, 3], [1, 2, 3], fill_color=color)
+        r = p.scatter([1, 2, 3], [1, 2, 3], marker=marker, fill_color=color)
         assert r.glyph.fill_color == color
         # rgb should always be an integer by the time it is added to property
         for v in r.glyph.fill_color[0:3]:
@@ -428,9 +417,7 @@ class TestMarkers:
     @pytest.mark.parametrize('marker', NONCIRCLE_MARKERS)
     def test_render_level(self, marker) -> None:
         p = bpf.figure()
-        func = getattr(p, marker)
-        with pytest.warns(DeprecationWarning):
-            r = func([1, 2, 3], [1, 2, 3], level="underlay")
+        r = p.scatter([1, 2, 3], [1, 2, 3], marker=marker, level="underlay")
         assert r.level == "underlay"
         with pytest.raises(ValueError):
             p.scatter([1, 2, 3], [1, 2, 3], level="bad_input")
@@ -451,10 +438,11 @@ class Test_scatter:
         assert isinstance(r.glyph, Scatter)
         assert r.glyph.marker == "foo"
 
-    def test_circle_with_radius(self) -> None:
+
+class Test_circle:
+    def test_radius(self) -> None:
         p = bpf.figure()
-        with pytest.warns(DeprecationWarning):
-            r = p.scatter([1, 2, 3], [1, 2, 3], marker="circle", radius=0.2)
+        r = p.circle([1, 2, 3], [1, 2, 3], radius=0.2)
         assert isinstance(r.glyph, Circle)
         assert r.glyph.radius == 0.2
 

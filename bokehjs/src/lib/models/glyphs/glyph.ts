@@ -27,7 +27,7 @@ import type {Factor} from "../ranges/factor_range"
 import {FactorRange} from "../ranges/factor_range"
 import {Selection} from "../selections/selection"
 import type {GlyphRendererView} from "../renderers/glyph_renderer"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
 import {PathPlacement} from "../graphics/path_placement"
 import {List, Ref} from "core/kinds"
 import type {BaseGLGlyph, BaseGLGlyphConstructor} from "./webgl/base"
@@ -181,16 +181,27 @@ export abstract class GlyphView extends DOMComponentView {
 
   // oxlint-disable-next-line typescript/no-generated-empty-object-type -- subclasses define their own data
   paint(ctx: Context2d, indices: Int32Array, data?: Partial<Glyph.Data>): void {
-    for (const path_marking of this.path_markings.values()) {
-      path_marking.marking.inherit_from(this)
-    }
     if (this.has_webgl()) {
+      this._inherit_path_marking_visuals()
       this.glglyph.render(ctx, indices, this.base ?? this)
     } else if (this.canvas.webgl != null && settings.force_webgl) {
       throw new Error(`${this} doesn't support webgl rendering`)
     } else {
-      this._paint(ctx, indices, data)
+      this.paint_canvas(ctx, indices, data)
     }
+  }
+
+  private _inherit_path_marking_visuals(): void {
+    for (const path_marking of this.path_markings.values()) {
+      path_marking.marking.inherit_from(this)
+    }
+  }
+
+  /** @internal Paint directly to the canvas when an attachment needs the same context. */
+  // oxlint-disable-next-line typescript/no-generated-empty-object-type -- subclasses define their own data
+  paint_canvas(ctx: Context2d, indices: Int32Array, data?: Partial<Glyph.Data>): void {
+    this._inherit_path_marking_visuals()
+    this._paint(ctx, indices, data)
   }
 
   protected abstract _paint(ctx: Context2d, indices: Int32Array, data?: Glyph.Data): void
@@ -468,7 +479,7 @@ export abstract class GlyphView extends DOMComponentView {
     return this[`inherited_${name}` as keyof this] as boolean
   }
 
-  set_visuals(source: ColumnarDataSource, indices: Indices): void {
+  set_visuals(source: IndexedDataSource, indices: Indices): void {
     for (const prop of this._iter_visuals()) {
       const {base} = this
       if (base != null && this._can_inherit_from(prop, base)) {
@@ -530,7 +541,7 @@ export abstract class GlyphView extends DOMComponentView {
     return final_array
   }
 
-  async set_data(source: ColumnarDataSource, indices: Indices, indices_to_update?: number[]): Promise<void> {
+  async set_data(source: IndexedDataSource, indices: Indices, indices_to_update?: number[]): Promise<void> {
     const visuals = new Set(this._iter_visuals())
     const {base} = this
 

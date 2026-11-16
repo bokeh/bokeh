@@ -12,6 +12,7 @@ import {MultiLine} from "@bokehjs/models/glyphs/multi_line"
 import {EdgesOnly, NodesOnly, NodesAndLinkedEdges, EdgesAndLinkedNodes, NodesAndAdjacentNodes} from "@bokehjs/models/graphs/graph_hit_test_policy"
 import {LayoutProvider} from "@bokehjs/models/graphs/layout_provider"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
+import type {GlyphRendererWithSource} from "@bokehjs/models/renderers/glyph_renderer"
 import type {GraphRendererView} from "@bokehjs/models/renderers/graph_renderer"
 import {GraphRenderer} from "@bokehjs/models/renderers/graph_renderer"
 import type {ColumnarDataSource} from "@bokehjs/models/sources/columnar_data_source"
@@ -61,8 +62,8 @@ describe("GraphHitTestPolicy", () => {
         ys: [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
       },
     })
-    const node_renderer = GlyphRenderer.create({data_source: node_source, glyph: Scatter.create()})
-    const edge_renderer = GlyphRenderer.create({data_source: edge_source, glyph: MultiLine.create()})
+    const node_renderer = GlyphRenderer.create<GlyphRendererWithSource<Scatter, ColumnDataSource>>({data_source: node_source, glyph: Scatter.create()})
+    const edge_renderer = GlyphRenderer.create<GlyphRendererWithSource<MultiLine, ColumnDataSource>>({data_source: edge_source, glyph: MultiLine.create()})
 
     gr = GraphRenderer.create({
       node_renderer,

@@ -13,10 +13,12 @@ import logging
 from collections.abc import (
     Awaitable,
     Callable,
+    Collection,
     Iterable,
     Mapping,
     Sequence,
 )
+from dataclasses import dataclass
 from os import PathLike as OSPathLike
 from os.path import isdir
 from typing import (
@@ -152,6 +154,37 @@ async def create_session(config: SessionConfig, context: ApplicationContext, req
     return await context.create_session_if_needed(session_id, request, token)
 
 
+@dataclass(frozen=True)
+class AppStats:
+    ''' Session counts of a single application. '''
+
+    path: str
+    sessions: int
+    unused: int
+
+
+@dataclass(frozen=True)
+class StatsSnapshot:
+    ''' Connected clients and per-application session counts.
+
+    Snapshots compare by value, so consecutive snapshots can be compared
+    to log stats only when something changed.
+
+    '''
+
+    clients: int
+    apps: tuple[AppStats, ...]
+
+    @classmethod
+    def compute(cls, clients: Collection[ServerConnection], applications: Mapping[str, ApplicationContext]) -> StatsSnapshot:
+        apps: list[AppStats] = []
+        for path, context in applications.items():
+            sessions = list(context.sessions)
+            unused = sum(session.connection_count == 0 for session in sessions)
+            apps.append(AppStats(path, len(sessions), unused))
+        return cls(len(clients), tuple(apps))
+
+
 def _argument(request: RequestLike, name: str) -> str | None:
     values = request.arguments.get(name)
     if not values:
@@ -273,6 +306,7 @@ class BokehServerCore(SessionConfig):
 
         self._loop: asyncio.AbstractEventLoop | None = None
         self._clients: set[ServerConnection] = set()
+        self._last_stats: StatsSnapshot | None = None
         self._jobs: list[_AsyncPeriodic] = []
         self._started = False
         self._stopping = False
@@ -493,9 +527,15 @@ class BokehServerCore(SessionConfig):
             await context._cleanup_sessions(self._unused_session_lifetime_milliseconds)
 
     def _log_stats(self) -> None:
-        if log.isEnabledFor(logging.DEBUG):
-            log.debug("%d clients connected", len(self._clients))
-            for path, context in self._applications.items():
-                sessions = list(context.sessions)
-                unused = sum(session.connection_count == 0 for session in sessions)
-                log.debug("%s has %d sessions with %d unused", path, len(sessions), unused)
+        if not log.isEnabledFor(logging.DEBUG):
+            return
+
+        # log only when something changed to avoid flooding logs with repeated stats
+        stats = StatsSnapshot.compute(self._clients, self._applications)
+        if stats == self._last_stats:
+            return
+        self._last_stats = stats
+
+        log.debug("%d clients connected", stats.clients)
+        for app in stats.apps:
+            log.debug("%s has %d sessions with %d unused", app.path, app.sessions, app.unused)

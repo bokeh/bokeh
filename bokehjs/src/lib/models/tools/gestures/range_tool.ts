@@ -15,9 +15,10 @@ import type {CoordinateMapper, LRTB} from "core/util/bbox"
 import type {CoordinateUnits} from "core/enums"
 import type {Scale} from "../../scales/scale"
 import {Enum} from "core/kinds"
+import type {Infer} from "core/kinds"
 
 const StartGesture = Enum("pan", "tap", "none")
-type StartGesture = typeof StartGesture["__type__"]
+type StartGesture = Infer<typeof StartGesture>
 
 export class RangeToolView extends GestureToolView {
   declare model: RangeTool

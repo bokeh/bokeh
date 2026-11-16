@@ -1,4 +1,5 @@
-import {HasProps} from "./has_props"
+import type {HasProps, TransitiveOpts} from "./has_props"
+import {on_transitive_change} from "./has_props"
 import type {Property} from "./properties"
 import type {Slot, ISignalable} from "./signaling"
 import {Signal0, Signal} from "./signaling"
@@ -80,11 +81,6 @@ const running_tasks: RunningTask[] = []
 type ReadyWaiter = {
   resolve: () => void
   reject: (error: unknown) => void
-}
-
-type TransitiveOpts = {
-  recursive?: boolean
-  signal?: (obj: HasProps) => Signal<unknown, HasProps>
 }
 
 export abstract class View implements ISignalable, Equatable {
@@ -481,35 +477,8 @@ export abstract class View implements ISignalable, Equatable {
     }
   }
 
-  on_transitive_change<T>(property: Property<T>, fn: () => unknown, {recursive=false, signal=(obj) => obj.change}: TransitiveOpts = {}): void {
-    const slot = () => fn()
-
-    const collect = () => {
-      const value = property.is_unset ? [] : property.get_value()
-      return HasProps.references(value, {recursive})
-    }
-
-    const connect = (models: Iterable<HasProps>) => {
-      for (const model of models) {
-        this.connect(signal(model), slot)
-      }
-    }
-
-    const disconnect = (models: Iterable<HasProps>) => {
-      for (const model of models) {
-        this.disconnect(signal(model), slot)
-      }
-    }
-
-    let models = collect()
-    connect(models)
-
-    this.on_change(property, () => {
-      disconnect(models)
-      models = collect()
-      connect(models)
-      return fn()
-    })
+  on_transitive_change(property: Property, fn: () => unknown, options?: TransitiveOpts): void {
+    on_transitive_change(this, property, fn, options)
   }
 
   cursor(_sx: number, _sy: number): string | null {

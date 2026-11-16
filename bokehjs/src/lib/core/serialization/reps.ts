@@ -70,28 +70,16 @@ export type ExprRep = {
   units?: AnyVal
 }
 
-type CompactObjectRep = {
+export type ObjectRep = {
   $type: string
   $id?: string
   [key: string]: AnyVal | undefined
 }
 
-type CompactObjectRefRep = CompactObjectRep & {
+export type ObjectRefRep = ObjectRep & {
   $id: string
 }
 
-type LegacyObjectRep = {
-  type: "object"
-  name: string
-  attributes?: {[key: string]: AnyVal}
-}
-
-type LegacyObjectRefRep = LegacyObjectRep & {
-  id: string
-}
-
-export type ObjectRep = CompactObjectRep | LegacyObjectRep
-export type ObjectRefRep = CompactObjectRefRep | LegacyObjectRefRep
 export type ModelRep = ObjectRep | ObjectRefRep
 
 export type TypedArrayRep = {

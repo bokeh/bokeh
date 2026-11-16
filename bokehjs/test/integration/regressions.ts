@@ -11,7 +11,7 @@ import {
   NormalHead, OpenHead,
   BoxAnnotation, LabelSet, ColorBar, Slope, Span,
   Range1d, DataRange1d, FactorRange,
-  ColumnDataSource, CDSView, BooleanFilter, IndexFilter, Selection,
+  ColumnDataSource, IndexedSubset, BooleanFilter, IndexFilter, Selection,
   LinearAxis, CategoricalAxis,
   GlyphRenderer, GraphRenderer, GridBox,
   Circle, Quad, MultiLine, Scatter, Text,
@@ -49,6 +49,7 @@ import {
 import {DataTable, TableColumn, DateFormatter, NumberFormatter} from "@bokehjs/models/widgets/tables"
 
 import type {Factor} from "@bokehjs/models/ranges/factor_range"
+import type {GlyphRendererWithSource} from "@bokehjs/models/renderers/glyph_renderer"
 
 import type {Color, Arrayable} from "@bokehjs/core/types"
 import type {LineDash, Location, OutputBackend} from "@bokehjs/core/enums"
@@ -287,7 +288,7 @@ describe("Bug", () => {
       const y = [0, 1, 2, 3]
       const c = ["black", "red", "green", "blue"]
       const source = ColumnDataSource.create({data: {x, y, c}, selected})
-      const view = CDSView.create({filter: BooleanFilter.create({booleans: [false, true, true, true]})})
+      const view = IndexedSubset.create({filter: BooleanFilter.create({booleans: [false, true, true, true]})})
       p.scatter({field: "x"}, {field: "y"}, {source, view, color: {field: "c"}, size: 20})
       return p
     }
@@ -703,11 +704,11 @@ describe("Bug", () => {
         ]),
       })
 
-      const node_renderer = GlyphRenderer.create({
+      const node_renderer = GlyphRenderer.create<GlyphRendererWithSource<Scatter, ColumnDataSource>>({
         glyph: Scatter.create({size: 10, fill_color: "red"}),
         data_source: ColumnDataSource.create({data: {index: [4, 5, 6, 7]}}),
       })
-      const edge_renderer = GlyphRenderer.create({
+      const edge_renderer = GlyphRenderer.create<GlyphRendererWithSource<MultiLine, ColumnDataSource>>({
         glyph: MultiLine.create({line_width: 2, line_color: "gray"}),
         data_source: ColumnDataSource.create({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
       })
@@ -895,7 +896,7 @@ describe("Bug", () => {
         ys: [[0, 1], [0, 1], [0, 1]],
       }})
       const filter = IndexFilter.create({indices: [0, 2]})
-      const view = CDSView.create({filter})
+      const view = IndexedSubset.create({filter})
 
       function make_plot(output_backend: OutputBackend) {
         const p = fig([200, 200], {output_backend, title: output_backend})
@@ -1030,7 +1031,7 @@ describe("Bug", () => {
         },
       })
 
-      const view = CDSView.create() // shared view between renderers
+      const view = IndexedSubset.create() // shared view between renderers
 
       const scatter_renderer = GlyphRenderer.create({
         data_source: source,
@@ -1233,7 +1234,7 @@ describe("Bug", () => {
           },
         })
         const color_mapper = LinearColorMapper.create({low: 0, high: 6, palette: Spectral11})
-        const cds_view = CDSView.create({filter: IndexFilter.create({indices})})
+        const indexed_subset = IndexedSubset.create({filter: IndexFilter.create({indices})})
         const ir = p.image({
           image: {field: "image"},
           x: {field: "x"},
@@ -1242,7 +1243,7 @@ describe("Bug", () => {
           dh: 20,
           color_mapper,
           source,
-          view: cds_view,
+          view: indexed_subset,
         })
         p.add_tools(HoverTool.create({
           renderers: [ir],
@@ -1397,11 +1398,11 @@ describe("Bug", () => {
         ]),
       })
 
-      const node_renderer = GlyphRenderer.create({
+      const node_renderer = GlyphRenderer.create<GlyphRendererWithSource<Scatter, ColumnDataSource>>({
         glyph: Scatter.create({size: 10, fill_color: "red"}),
         data_source: ColumnDataSource.create({data: {index: [4, 5, 6, 7]}}),
       })
-      const edge_renderer = GlyphRenderer.create({
+      const edge_renderer = GlyphRenderer.create<GlyphRendererWithSource<MultiLine, ColumnDataSource>>({
         glyph: MultiLine.create({line_width: 2, line_color: "gray"}),
         data_source: ColumnDataSource.create({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
       })
@@ -2916,7 +2917,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #11955", () => {
-    it("does not allow updating DataTable when its CDSView's filters change", async () => {
+    it("does not allow updating DataTable when its IndexedSubset's filters change", async () => {
       const source = ColumnDataSource.create({
         data: {
           col1: ["a", "b", "c", "d"],
@@ -2925,21 +2926,21 @@ describe("Bug", () => {
         },
       })
 
-      const cds_view = CDSView.create({filter: IndexFilter.create({indices: [1, 2, 3]})})
+      const indexed_subset = IndexedSubset.create({filter: IndexFilter.create({indices: [1, 2, 3]})})
 
       const columns = [
         TableColumn.create({field: "col1", title: "col1"}),
         TableColumn.create({field: "col2", title: "col2"}),
         TableColumn.create({field: "col3", title: "col3"}),
       ]
-      const table = DataTable.create({source, columns, view: cds_view, width: 200})
+      const table = DataTable.create({source, columns, view: indexed_subset, width: 200})
 
       const p = fig([200, 200])
-      p.scatter({x: {field: "col2"}, y: {field: "col3"}, size: 10, source, view: cds_view})
+      p.scatter({x: {field: "col2"}, y: {field: "col3"}, size: 10, source, view: indexed_subset})
 
       const {view} = await display(row([table, p]))
 
-      cds_view.filter = IndexFilter.create({indices: [1, 2]})
+      indexed_subset.filter = IndexFilter.create({indices: [1, 2]})
       await view.ready
     })
   })
@@ -3182,11 +3183,11 @@ describe("Bug", () => {
           ]),
         })
 
-        const node_renderer = GlyphRenderer.create({
+        const node_renderer = GlyphRenderer.create<GlyphRendererWithSource<Scatter, ColumnDataSource>>({
           glyph: Scatter.create({size: 10, fill_color: "red"}),
           data_source: ColumnDataSource.create({data: {index: [4, 5, 6, 7]}}),
         })
-        const edge_renderer = GlyphRenderer.create({
+        const edge_renderer = GlyphRenderer.create<GlyphRendererWithSource<MultiLine, ColumnDataSource>>({
           glyph: MultiLine.create({line_width: 2, line_color: "gray"}),
           data_source: ColumnDataSource.create({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
         })
@@ -3261,7 +3262,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #12718", () => {
-    it("doesn't render Legend correctly when LegendItem.index is filtered out by CDSView", async () => {
+    it("doesn't render Legend correctly when LegendItem.index is filtered out by IndexedSubset", async () => {
       const data = {
         values: [0, 1, 2],
         type: [0, 1, 2],
@@ -3269,7 +3270,7 @@ describe("Bug", () => {
       }
 
       const source = ColumnDataSource.create({data})
-      const cds_view = CDSView.create()
+      const indexed_subset = IndexedSubset.create()
 
       const p = fig([200, 200])
       p.scatter({
@@ -3278,7 +3279,7 @@ describe("Bug", () => {
         fill_color: {field: "color"},
         size: 20,
         source,
-        view: cds_view,
+        view: indexed_subset,
         legend_group: "type",
       })
 
@@ -3287,7 +3288,7 @@ describe("Bug", () => {
 
       const {view} = await display(p)
 
-      cds_view.filter = IndexFilter.create({indices: [1, 2]})
+      indexed_subset.filter = IndexFilter.create({indices: [1, 2]})
       await view.ready
     })
   })
@@ -3783,13 +3784,13 @@ describe("Bug", () => {
         ]),
       })
 
-      const node_renderer = GlyphRenderer.create({
+      const node_renderer = GlyphRenderer.create<GlyphRendererWithSource<Scatter, ColumnDataSource>>({
         glyph: Scatter.create({size: 10, fill_color: "red"}),
         selection_glyph: Scatter.create({size: 20, fill_color: "yellow"}),
         nonselection_glyph: Scatter.create({size: 10, fill_color: "pink"}),
         data_source: ColumnDataSource.create({data: {index: [4, 5, 6, 7]}}),
       })
-      const edge_renderer = GlyphRenderer.create({
+      const edge_renderer = GlyphRenderer.create<GlyphRendererWithSource<MultiLine, ColumnDataSource>>({
         glyph: MultiLine.create({line_width: 2, line_color: "gray"}),
         selection_glyph: MultiLine.create({line_width: 4, line_color: "blue"}),
         nonselection_glyph: MultiLine.create({line_width: 2, line_color: "gray", line_dash: "dashed"}),
@@ -5013,13 +5014,13 @@ describe("Bug", () => {
   })
 
   describe("in issue #13244", () => {
-    it("doesn't render DataTable when a CDSView with BooleanFilter is shared with a plot that renders first", async () => {
+    it("doesn't render DataTable when an IndexedSubset with BooleanFilter is shared with a plot that renders first", async () => {
       const source = ColumnDataSource.create({data: {
         x: [1, 2, 3, 4, 5],
         y: [10, 11, 12, 13, 14],
       }})
 
-      const view = CDSView.create({filter: BooleanFilter.create({booleans: [true, true, false, true, false]})})
+      const view = IndexedSubset.create({filter: BooleanFilter.create({booleans: [true, true, false, true, false]})})
 
       const table = DataTable.create({
         source,
@@ -5362,7 +5363,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #8010", () => {
-    it("doesn't respect CDSView filters when creating the legend via legend_field", async () => {
+    it("doesn't respect IndexedSubset filters when creating the legend via legend_field", async () => {
       const source = ColumnDataSource.create({
         data: {
           x_values: [1, 2, 3, 4, 5],
@@ -5372,7 +5373,7 @@ describe("Bug", () => {
       })
 
       const filter = BooleanFilter.create({booleans: [true, false, true, false, true]})
-      const view = CDSView.create({filter})
+      const view = IndexedSubset.create({filter})
 
       view.compute_indices(source)
 

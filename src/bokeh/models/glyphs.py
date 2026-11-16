@@ -711,7 +711,7 @@ class HexTile(Glyph, LineGlyph, FillGlyph, HatchGlyph):
     The {prop} values for the hex tiles.
     """)
 
-    line_color = Override(default=None)
+    _line_color = Override(default=None)
 
     fill_props = Include(FillProps, help="""
     The {prop} values for the hex tiles.
@@ -1639,11 +1639,11 @@ class Text(XYGlyph, TextGlyph):
     The {prop} values for the text bounding box.
     """)
 
-    background_fill_color = Override(default=None)
+    _background_fill_color = Override(default=None)
 
-    background_hatch_color = Override(default=None)
+    _background_hatch_color = Override(default=None)
 
-    border_line_color = Override(default=None)
+    _border_line_color = Override(default=None)
 
 @abstract
 class MathTextGlyph(Text):

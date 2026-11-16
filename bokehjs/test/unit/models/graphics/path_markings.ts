@@ -1,5 +1,5 @@
 import * as sinon from "sinon"
-import {expect} from "#framework/assertions"
+import {expect, expect_instanceof} from "#framework/assertions"
 import {restorable} from "#framework/util"
 import {create_glyph_renderer_view, create_glyph_view} from "../glyphs/_util"
 import {PathPlacement} from "@bokehjs/models/graphics/path_placement"
@@ -44,7 +44,9 @@ describe("Path markings", () => {
     const path_marking = view.path_markings.get(model)!
     expect(path_marking.placements(0)).to.be.equal([0.25, 0.75])
     expect(path_marking.placements(1)).to.be.equal([0, 0.5, 1])
-    renderer.data_source.patch({positions: [[2, [0.1, 0.9]]]})
+    const source = renderer.data_source
+    expect_instanceof(source, ColumnDataSource)
+    source.patch({positions: [[2, [0.1, 0.9]]]})
     await plot.ready
     expect(path_marking.placements(1)).to.be.equal([0.1, 0.9])
     model.positions = []

@@ -10,15 +10,16 @@ import {entries} from "core/util/object"
 import {isNumber, isString} from "core/util/types"
 import type * as p from "core/properties"
 import {List, Or, Ref, Str, Dict, Nullable} from "core/kinds"
+import type {Infer} from "core/kinds"
 
 export const StylesLike = Or(Dict(Nullable(Str)), Ref(Styles)) // TODO: add validation for CSSStyles
-export type StylesLike = typeof StylesLike["__type__"]
+export type StylesLike = Infer<typeof StylesLike>
 
 export const StyleSheets = List(Or(Ref(BaseStyleSheet), Str, Dict(StylesLike)))
-export type StyleSheets = typeof StyleSheets["__type__"]
+export type StyleSheets = Infer<typeof StyleSheets>
 
 export const CSSVariables = Dict(Or(Ref(Node), Str))
-export type CSSVariables = typeof CSSVariables["__type__"]
+export type CSSVariables = Infer<typeof CSSVariables>
 
 export abstract class StyledElementView extends DOMComponentView {
   declare model: StyledElement
@@ -27,11 +28,6 @@ export abstract class StyledElementView extends DOMComponentView {
    * Computed styles applied to self.
    */
   readonly self_style = new InlineStyleSheet("", "StyledElementView.self_style")
-
-  /** @deprecated */
-  get style(): InlineStyleSheet {
-    return this.self_style
-  }
 
   /**
    * Computed styles append by the parent.

@@ -556,11 +556,11 @@ def test_server_resources_include_dependencies_of_global_serialized_definitions(
         if definition_kind == "nested-override":
             assert definition["extends"]["id"] == BaseDefinition.__qualified_model__
             default = definition["overrides"][0]["default"]
-            assert default["attributes"]["args"]["entries"][0][1]["name"] == Hidden.__qualified_model__
+            assert default["args"]["entries"][0][1]["$type"] == Hidden.__qualified_model__
         elif definition_kind == "instance-kind":
             assert definition["properties"][0]["kind"] == ("Ref", {"id": Hidden.__qualified_model__})
         else:
-            assert definition["properties"][0]["default"]["name"] == Hidden.__qualified_model__
+            assert definition["properties"][0]["default"]["$type"] == Hidden.__qualified_model__
 
         snapshot = ber.server_extension_model_types(policy, document)
         if dependency_kind == "url":
@@ -604,10 +604,10 @@ def test_server_resources_include_models_serialized_in_plain_any(
     policy = Resources(mode=mode)
     try:
         wire = document.to_json(deferred=False)
-        child = wire["roots"][0]["attributes"]["child"]
+        child = wire["roots"][0]["child"]
         if value_shape == "nested":
             child = child["entries"][0][1][0]
-        assert child["name"] == Hidden.__qualified_model__
+        assert child["$type"] == Hidden.__qualified_model__
         assert hidden.id not in document.models
 
         snapshot = ber.server_extension_model_types(policy, document)

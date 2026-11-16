@@ -9,6 +9,7 @@ import {restorable} from "#framework/util"
 import {PlotActions, xy} from "#framework/interactive"
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import type {GlyphRendererWithSource} from "@bokehjs/models/renderers/glyph_renderer"
 import {GlyphRenderer, GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
 import {Arc, Circle, MultiLine, Rect, Scatter, Segment} from "@bokehjs/models/glyphs"
 import {NormalHead, OpenHead} from "@bokehjs/models/annotations/arrow_head"
@@ -25,10 +26,13 @@ import type * as p from "@bokehjs/core/properties"
 import type {TextBox} from "@bokehjs/core/graphics"
 import {logger} from "@bokehjs/core/logging"
 import {figure, show} from "@bokehjs/api/plotting"
-import {CDSView} from "@bokehjs/models/sources/cds_view"
+import {IndexedSubset} from "@bokehjs/models/sources/indexed_subset"
 import {PlotView} from "@bokehjs/models/plots/plot_canvas"
+import {Indices} from "@bokehjs/core/types"
+import type {GlyphView} from "@bokehjs/models/glyphs/glyph"
+import {GlyphAttachment, GlyphAttachmentView} from "@bokehjs/models/renderers/glyph_attachment"
 
-function mkrenderer(glyph: Scatter): GlyphRenderer {
+function mkrenderer(glyph: Scatter): GlyphRendererWithSource<Scatter, ColumnDataSource> {
   const data_source = ColumnDataSource.create({
     data: {
       x: [10, 20, 30, 40],
@@ -37,7 +41,7 @@ function mkrenderer(glyph: Scatter): GlyphRenderer {
       label: ["foo", "bar", "foo", "bar"],
     },
   })
-  return GlyphRenderer.create({glyph, data_source})
+  return GlyphRenderer.create<GlyphRendererWithSource<Scatter, ColumnDataSource>>({glyph, data_source})
 }
 
 describe("GlyphRenderer", () => {
@@ -173,9 +177,52 @@ describe("GlyphRenderer", () => {
 })
 
 describe("GlyphRendererView", () => {
-  it("settles ready and bounds painting when renderers share a CDSView with different masks", async () => {
+  it("paints attachments around the glyph and gives them their own subset rows", async () => {
+    const calls: [string, ...number[]][] = []
+    class TestAttachmentView extends GlyphAttachmentView {
+      override paint_candidates(_glyph: GlyphView, masked: Indices): Indices {
+        return Indices.all_set(masked.size)
+      }
+
+      override prepare_attachment(_glyph: GlyphView, indices: Int32Array) {
+        calls.push(["prepare", ...indices])
+        return {
+          clip: () => calls.push(["clip"]),
+          paint_before: () => calls.push(["underlay"]),
+          paint: () => calls.push(["overlay"]),
+        }
+      }
+    }
+    class TestAttachment extends GlyphAttachment {
+      override default_view = TestAttachmentView
+    }
+    const renderer = GlyphRenderer.create({
+      glyph: Scatter.create(),
+      data_source: ColumnDataSource.create({data: {x: [0, 0, 10], y: [0, 0, 0]}}),
+      view: IndexedSubset.create({filter: IndexFilter.create({indices: [1, 2]})}),
+      attachments: [TestAttachment.create()],
+    })
+    const {view} = await display(Plot.create({
+      renderers: [renderer],
+      x_range: Range1d.create({start: -1, end: 1}),
+      y_range: Range1d.create({start: -1, end: 1}),
+    }))
+    const renderer_view = view.owner.get_one(renderer)
+    using paint = restorable(sinon.stub(renderer_view.glyph, "paint").callsFake((_ctx, indices) => {
+      calls.push(["glyph", ...indices])
+    }))
+    calls.length = 0
+    renderer_view.paint(renderer_view.canvas.create_layer().ctx)
+    sinon.assert.calledOnce(paint)
+    expect(calls).to.be.equal([["prepare", 0, 1], ["clip"], ["underlay"], ["glyph", 0], ["overlay"]])
+    const {masked} = renderer.view
+    assert(masked != null)
+    expect([...masked.ones()]).to.be.equal([0])
+  })
+
+  it("settles ready and bounds painting when renderers share an IndexedSubset with different masks", async () => {
     const source = ColumnDataSource.create({data: {x: [0, 10], x2: [10, 0], y: [-0.4, 0.4]}})
-    const shared = CDSView.create()
+    const shared = IndexedSubset.create()
     const renderers = ["x", "x2"].map((field) => GlyphRenderer.create({
       glyph: Scatter.create({
         x: {field}, y: {field: "y"}, size: 20, line_color: null,
@@ -234,8 +281,8 @@ describe("GlyphRendererView", () => {
     }
   })
 
-  // Fill red when the CDSView's published mask is exactly the given index, otherwise blue.
-  function masked_color(view: CDSView, index: number): CustomJSTransform {
+  // Fill red when the IndexedSubset's published mask is exactly the given index, otherwise blue.
+  function masked_color(view: IndexedSubset, index: number): CustomJSTransform {
     return CustomJSTransform.create({args: {view}, v_func: `
       const color = view.masked != null && view.masked.count == 1 && view.masked.get(${index}) ? "red" : "blue"
       return xs.map(() => color)
@@ -280,10 +327,10 @@ describe("GlyphRendererView", () => {
 
   it("paints mask-dependent visuals, including selection states, before ready resolves", async () => {
     const source = ColumnDataSource.create({data: {x: [0, 10], y: [0, 0]}})
-    const cds_view = CDSView.create()
+    const indexed_subset = IndexedSubset.create()
     const renderer = GlyphRenderer.create({
-      glyph: Scatter.create({size: 20, line_color: null, fill_color: {field: "x", transform: masked_color(cds_view, 0)}}),
-      data_source: source, view: cds_view,
+      glyph: Scatter.create({size: 20, line_color: null, fill_color: {field: "x", transform: masked_color(indexed_subset, 0)}}),
+      data_source: source, view: indexed_subset,
     })
     const x_range = Range1d.create({start: -1, end: 11})
     const plot = Plot.create({width: 300, height: 300, renderers: [renderer], x_range, y_range: Range1d.create({start: -1, end: 1})})
@@ -322,9 +369,9 @@ describe("GlyphRendererView", () => {
     }
   })
 
-  it("paints each renderer with its own mask when renderers share a CDSView", async () => {
+  it("paints each renderer with its own mask when renderers share an IndexedSubset", async () => {
     const source = ColumnDataSource.create({data: {x: [0, 10], x2: [10, 0], y: [-0.4, 0.4]}})
-    const shared = CDSView.create()
+    const shared = IndexedSubset.create()
     const renderers = ["x", "x2"].map((field) => GlyphRenderer.create({
       glyph: Scatter.create({
         x: {field}, y: {field: "y"}, size: 20, line_color: null,

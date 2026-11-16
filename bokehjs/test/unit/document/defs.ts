@@ -141,11 +141,11 @@ describe("document/defs module", () => {
         properties: [{
           name: "prop10",
           kind: ["Ref", {id: "some.Some0"}],
-          default: {type: "object", name: "some.Some0", id: "some001", attributes: {prop2: false, prop4: 128}},
+          default: {$type: "some.Some0", $id: "some001", prop2: false, prop4: 128},
         }, {
           name: "prop11",
           kind: ["List", ["Ref", {id: "some.Some0"}]],
-          default: [{id: "some001"}, {type: "object", name: "some.Some0", id: "some002", attributes: {prop2: false, prop4: 129}}],
+          default: [{id: "some001"}, {$type: "some.Some0", $id: "some002", prop2: false, prop4: 129}],
         }],
         overrides: [
           {name: "prop2", default: "a"},
@@ -234,8 +234,8 @@ describe("document/defs module", () => {
 
       const cds_props = [
         "selected",
-        "default_values",
         "selection_policy",
+        "default_values",
         "data",
       ]
 
@@ -318,7 +318,7 @@ describe("document/defs module", () => {
         properties: [{
           name: "payload",
           kind: "Any",
-          default: {type: "object", name: "some.Later", id: "later001"},
+          default: {$type: "some.Later", $id: "later001"},
         }],
       }, {
         type: "model",

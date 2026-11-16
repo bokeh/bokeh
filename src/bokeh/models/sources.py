@@ -19,13 +19,21 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+import csv
+import gzip
+import json
 import sys
 from dataclasses import asdict, is_dataclass
+from os import fspath
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
+    Iterator,
     Mapping,
+    Self,
     Sequence,
+    TextIO,
     cast,
 )
 
@@ -33,7 +41,7 @@ import numpy as np
 
 from ..core.has_props import abstract
 from ..core.property.any import Any as AnyVal, AnyRef
-from ..core.property.container import ColumnData, Dict, Seq
+from ..core.property.container import ColumnData, Dict, List, Seq
 from ..core.property.data_class import Dataclass
 from ..core.property.data_frame import EagerDataFrame, PandasGroupBy
 from ..core.property.enum import Enum
@@ -55,6 +63,7 @@ if TYPE_CHECKING:
     from pandas.core.groupby import GroupBy
 
     from ..core.has_props import Setter
+    from ..core.types import PathLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -62,11 +71,13 @@ if TYPE_CHECKING:
 
 __all__ = (
     'AjaxDataSource',
-    'CDSView',
     'ColumnarDataSource',
     'ColumnDataSource',
     'DataSource',
     'GeoJSONDataSource',
+    'IndexedDataSource',
+    'IndexedSubset',
+    'RecordDataSource',
     'ServerSentDataSource',
     'WebDataSource',
 )
@@ -82,6 +93,9 @@ if TYPE_CHECKING:
 
     type DataDict = dict[str, Sequence[Value] | npt.NDArray[Value] | pd.Series | pd.Index]
 
+    # Mappings are covariant in values, unlike dicts, e.g. dict[str, list[int]] is a DataDictArg.
+    type DataDictArg = Mapping[str, Sequence[Value] | npt.NDArray[Value] | pd.Series | pd.Index]
+
     type Index = int | slice | tuple[int | slice, ...]
 
     type Patches = Mapping[str, Sequence[tuple[Index, Value]]]
@@ -92,14 +106,127 @@ class DataSource(Model):
 
     '''
 
+@abstract
+class IndexedDataSource(DataSource):
+    ''' A source exposing one selectable, field-addressable logical record axis.
+
+    Subclasses define their storage and implement the indexed field contract
+    in BokehJS. Records do not need to be stored as columns.
+    '''
+
     selected = Readonly(Instance(Selection), default=InstanceDefault(Selection), help="""
-    An instance of a ``Selection`` that indicates selected indices on this ``DataSource``.
+    An instance of a ``Selection`` containing logical record indices.
     This is a read-only property. You may only change the attributes of this object
     to change the selection (e.g., ``selected.indices``).
     """)
 
+    selection_policy = Instance(SelectionPolicy, default=InstanceDefault(UnionRenderers), help="""
+    An instance of a ``SelectionPolicy`` that determines how selections are set.
+    """)
+
+class RecordDataSource(IndexedDataSource):
+    ''' A data source backed by an ordered sequence of row dictionaries.
+
+    Glyphs can refer to top-level dictionary keys by field name. Rows can
+    have different keys. A missing value in an individual row is treated as
+    undefined in BokehJS.
+
+    This source is best suited to small and moderate datasets. Bokeh
+    serializes each row dictionary separately. For large numeric datasets,
+    :class:`ColumnDataSource` can transport whole arrays in binary form.
+
+    :meth:`from_csv` and :meth:`from_jsonl` use Python's standard library,
+    so they are available even in environments without a dataframe library.
+
+    Use an :class:`IndexedSubset` to filter rows. Selection indices refer to
+    positions in the full sequence, even when a renderer displays a subset.
+
+    To update rows, assign a new sequence to ``records``. Create a new
+    dictionary for each row whose values change.
+    '''
+
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+
+    records = List(Dict(String, AnyRef), help="""
+    Row dictionaries with string keys and Bokeh-serializable values. Field
+    names are literal keys, including keys that contain dots. Nested values
+    are kept as values of their top-level field.
+    """).accepts(Seq(Dict(String, AnyRef)), list)
+
+    @classmethod
+    def from_jsonl(cls, path: PathLike) -> Self:
+        ''' Load a UTF-8 JSON Lines file with one object per nonblank line.
+
+        JSON values retain their types. Malformed JSON and values other than
+        objects raise a ``ValueError`` that identifies the line. An initial
+        UTF-8 byte order mark is ignored. Paths ending in ``.gz`` or ``.GZ``
+        are read as gzip-compressed files.
+        '''
+        records: list[dict[str, Any]] = []
+        with _open_record_file(path, encoding="utf-8-sig") as file:
+            for line_number, line in enumerate(file, 1):
+                if not line.strip():
+                    continue
+                try:
+                    record = json.loads(line)
+                except json.JSONDecodeError as error:
+                    raise ValueError(f"{path}, line {line_number}: {error.msg}") from error
+                if not isinstance(record, dict):
+                    raise ValueError(f"{path}, line {line_number}: expected a JSON object")
+                records.append(record)
+        return cls(records=records)
+
+    @classmethod
+    def from_csv(cls, path: PathLike, *, converters: Mapping[str, Callable[[str], Any]] | None = None,
+            delimiter: str = ",") -> Self:
+        ''' Load a UTF-8 delimited text file whose first row names the fields.
+
+        Field names must be unique and nonempty, and every data row must
+        have the same number of fields as the header. Empty physical lines
+        are skipped. Values are strings, including empty strings. Use ``converters`` to
+        map field names to functions that convert their string values.
+        Set ``delimiter="\\t"`` to read tab-separated files.
+        Paths ending in ``.gz`` or ``.GZ`` are read as gzip-compressed files.
+        '''
+        records: list[dict[str, Any]] = []
+        converters = {} if converters is None else converters
+        with _open_record_file(path, encoding="utf-8-sig", newline="") as file:
+            reader = csv.reader(file, delimiter=delimiter, strict=True)
+
+            def read_rows() -> Iterator[tuple[int, list[str]]]:
+                # The reader counts physical lines, including those inside quoted fields.
+                line_number = 1
+                try:
+                    for row in reader:
+                        if row:
+                            yield line_number, row
+                        line_number = reader.line_num + 1
+                except csv.Error as error:
+                    raise ValueError(f"{path}, line {line_number}: {error}") from error
+
+            rows = read_rows()
+            _, fields = next(rows, (None, []))
+            if not fields or "" in fields or len(set(fields)) != len(fields):
+                raise ValueError(f"{path}: expected a header with unique, nonempty field names")
+            unknown_fields = sorted(converters.keys() - set(fields))
+            if unknown_fields:
+                raise ValueError(f"{path}: converters reference unknown fields {unknown_fields}")
+
+            for line_number, values in rows:
+                if len(values) != len(fields):
+                    raise ValueError(f"{path}, line {line_number}: expected {len(fields)} fields, got {len(values)}")
+                record: dict[str, Any] = dict(zip(fields, values))
+                for field, convert in converters.items():
+                    try:
+                        record[field] = convert(record[field])
+                    except (TypeError, ValueError, OverflowError) as error:
+                        raise ValueError(f"{path}, line {line_number}: cannot convert field {field!r}: {error}") from error
+                records.append(record)
+        return cls(records=records)
+
 @abstract
-class ColumnarDataSource(DataSource):
+class ColumnarDataSource(IndexedDataSource):
     ''' A base class for data source types, which can be mapped onto
     a columnar format.
 
@@ -112,10 +239,6 @@ class ColumnarDataSource(DataSource):
     when a value for a given column is not explicitly provided. If a default
     value is missing, a tool will defer to its own configuration or will try
     to let the data source to infer a sensible default value.
-    """)
-
-    selection_policy = Instance(SelectionPolicy, default=InstanceDefault(UnionRenderers), help="""
-    An instance of a ``SelectionPolicy`` that determines how selections are set.
     """)
 
 def _cds_lengths_warning(_, __, data: dict[str, Any]) -> None:
@@ -452,7 +575,7 @@ class ColumnDataSource(ColumnarDataSource):
 
             warn(f"Unable to find column '{name}' in data source")
 
-    def stream(self, new_data: DataDict, rollover: int | None = None) -> None:
+    def stream(self, new_data: DataDictArg, rollover: int | None = None) -> None:
         ''' Efficiently update data source columns with new append-only data.
 
         In cases where it is necessary to update data columns in, this method
@@ -494,7 +617,7 @@ class ColumnDataSource(ColumnarDataSource):
         # calls internal implementation
         self._stream(new_data, rollover)
 
-    def _stream(self, new_data: DataDict | pd.Series | pd.DataFrame,
+    def _stream(self, new_data: DataDictArg | pd.Series | pd.DataFrame,
             rollover: int | None = None, setter: Setter | None = None) -> None:
         ''' Internal implementation to efficiently update data source columns
         with new append-only data. The internal implementation adds the setter
@@ -567,6 +690,9 @@ class ColumnDataSource(ColumnarDataSource):
             new_data[index_name] = _df.index.values
         else:
             newkeys = set(new_data.keys())
+            # converted columns are stored back into new_data below
+            if not isinstance(new_data, dict):
+                new_data = dict(new_data)
 
         # The pandas branch above converts DataFrames and Series into column dictionaries.
         new_data = cast("DataDict", new_data)
@@ -775,8 +901,8 @@ class ColumnDataSource(ColumnarDataSource):
 
         self.data._patch(self.document, self, patches, setter)
 
-class CDSView(Model):
-    ''' A view into a ``ColumnDataSource`` that represents a row-wise subset.
+class IndexedSubset(Model):
+    ''' A filtered subset of the logical records in an ``IndexedDataSource``.
 
     '''
 
@@ -792,7 +918,7 @@ class CDSView(Model):
     .. code-block:: python
 
         # filters everything but indexes 10 and 11
-        cds_view.filter &= ~IndexFilter(indices=[10, 11])
+        indexed_subset.filter &= ~IndexFilter(indices=[10, 11])
     """)
 
 class GeoJSONDataSource(ColumnarDataSource):
@@ -915,6 +1041,10 @@ class AjaxDataSource(WebDataSource):
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+def _open_record_file(path: PathLike, *, encoding: str, newline: str | None = None) -> TextIO:
+    open_file = gzip.open if fspath(path).lower().endswith(".gz") else open
+    return open_file(path, "rt", encoding=encoding, newline=newline)
 
 def _check_slice(s: slice) -> None:
     if (s.start is not None and s.stop is not None and s.start > s.stop):

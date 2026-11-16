@@ -203,6 +203,107 @@ def test_HasProps_warns_on_unused_override() -> None:
             value = Override(default=1)
             alpha = Override(default=2)
 
+def test_HasProps_prefixed_override() -> None:
+    class Base(hp.HasProps, hp.Local):
+        x = Int(default=1)
+
+    class Child(Base):
+        _x = Override(default=2)
+
+    class Grandchild(Child):
+        _x = Override(default=3)
+
+    assert Child.__overridden_defaults__ == {"x": 2}
+    assert Grandchild.__overridden_defaults__ == {"x": 3}
+    assert "_x" not in Child.__dict__
+    assert Base().x == 1
+    assert Child().x == 2
+    assert Grandchild().x == 3
+
+def test_HasProps_typed_override() -> None:
+    class Base(hp.HasProps, hp.Local):
+        x = Int(default=1)
+
+    class Child(Base):
+        _x = Override(Base.x, default=2)
+
+    class Grandchild(Child):
+        _x = Override(Child.x, default=3)
+
+    assert Child.__overridden_defaults__ == {"x": 2}
+    assert Grandchild.__overridden_defaults__ == {"x": 3}
+    assert Child().x == 2
+    assert Grandchild().x == 3
+
+def test_HasProps_typed_override_requires_prefixed_name() -> None:
+    class Base(hp.HasProps, hp.Local):
+        x = Int(default=1)
+
+    with pytest.raises(TypeError, match=r"overrides 'x', so it must be named '_x'"):
+        class Child(Base):
+            _y = Override(Base.x, default=2)
+
+def test_HasProps_typed_override_requires_inherited_property() -> None:
+    class Base(hp.HasProps, hp.Local):
+        x = Int(default=1)
+
+    class Other(hp.HasProps, hp.Local):
+        x = Int(default=1)
+
+    with pytest.raises(TypeError, match=r"Child\._x overrides a property that Child doesn't inherit"):
+        class Child(Base):
+            _x = Override(Other.x, default=2)
+
+def test_HasProps_typed_override_with_multiple_inheritance() -> None:
+    class Left(hp.HasProps, hp.Local):
+        x = Int(default=1)
+
+    class Right(hp.HasProps, hp.Local):
+        x = Int(default=2)
+
+    class Child(Left, Right):
+        _x = Override(Left.x, default=3)
+
+    assert Child.__overridden_defaults__ == {"x": 3}
+    assert Child().x == 3
+
+    with pytest.raises(TypeError, match=r"OtherChild\._x overrides a property that OtherChild doesn't inherit"):
+        class OtherChild(Left, Right):
+            _x = Override(Right.x, default=3)
+
+def test_HasProps_typed_override_requires_property() -> None:
+    with pytest.raises(TypeError, match=r"expected a property of a model"):
+        Override(1, default=2)  # type: ignore[call-overload]
+
+def test_HasProps_override_of_property_with_prefixed_name() -> None:
+    class Base(hp.HasProps, hp.Local):
+        x = Int(default=1)
+        _x = Int(default=1)
+
+    class Child(Base):
+        _x = Override(default=2)
+
+    assert Child.__overridden_defaults__ == {"_x": 2}
+    assert Child().x == 1
+    assert Child()._x == 2
+
+def test_HasProps_raises_on_override_with_and_without_prefix() -> None:
+    class Base(hp.HasProps, hp.Local):
+        x = Int(default=1)
+
+    with pytest.raises(TypeError, match=r"Child\.x is overridden more than once, by 'x' and '_x'"):
+        class Child(Base):
+            x = Override(default=2)
+            _x = Override(default=3)
+
+def test_HasProps_warns_on_unused_prefixed_override() -> None:
+    class Base(hp.HasProps, hp.Local):
+        pass
+
+    with pytest.warns(RuntimeWarning, match=r"Overrides of \['_value'\].*do not override anything"):
+        class Child(Base):
+            _value = Override(default=1)
+
 def test_HasProps_local_and_effective_property_metadata() -> None:
     class Base(hp.HasProps, hp.Local):
         x = Int()
@@ -881,7 +982,7 @@ def test_HasProps_properties_with_values_callable_container_default() -> None:
     assert calls == 0
     assert props.properties_with_values(include_defaults=False) == {"values": [1]}
     assert props.properties_with_values(include_defaults=False) == {"values": [1]}
-    assert Serializer().encode(props)["attributes"] == {"values": [1]}
+    assert Serializer().encode(props)["values"] == [1]
     assert calls == 1
 
 def test_HasProps_properties_with_values_cyclic_default() -> None:

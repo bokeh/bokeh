@@ -1,7 +1,7 @@
 import type {Geometry} from "./geometry"
 import type {SelectionMode} from "core/enums"
 import {Selection} from "models/selections/selection"
-import type {ColumnarDataSource} from "models/sources/columnar_data_source"
+import type {IndexedDataSource} from "models/sources/indexed_data_source"
 import type {DataRenderer, DataRendererView} from "models/renderers/data_renderer"
 import type {GlyphRendererView} from "models/renderers/glyph_renderer"
 import type {GraphRendererView} from "models/renderers/graph_renderer"
@@ -15,7 +15,7 @@ function is_GraphRendererView(renderer_view: DataRendererView): renderer_view is
 }
 
 export class SelectionManager {
-  constructor(readonly source: ColumnarDataSource) {}
+  constructor(readonly source: IndexedDataSource) {}
 
   inspectors: Map<DataRenderer, Selection> = new Map()
 
