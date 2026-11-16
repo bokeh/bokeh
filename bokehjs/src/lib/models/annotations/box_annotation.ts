@@ -658,28 +658,28 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
         }
       })()
 
-      const left_violation = left - slimits.left
-      const right_violation = slimits.right - right
+      const left_out = left - slimits.left
+      const right_out = slimits.right - right
 
       // Only enforce limits for edges that are being moved. The opposite edge
       // may already be outside the plot (e.g. a wide RangeTool overlay), and
       // using its violation to compensate the active edge makes that edge
       // jump away from the pointer.
       const x_correction = min(
-        left_sign != 0 && left_violation < 0 ? left_violation : NaN,
-        right_sign != 0 && right_violation < 0 ? right_violation : NaN,
+        left_sign != 0 && left_out < 0 ? left_out : NaN,
+        right_sign != 0 && right_out < 0 ? right_out : NaN,
       )
       if (isFinite(x_correction) && x_correction < 0) {
         left += -left_sign*(-x_correction)
         right += -right_sign*(-x_correction)
       }
 
-      const top_violation = top - slimits.top
-      const bottom_violation = slimits.bottom - bottom
+      const top_out = top - slimits.top
+      const bottom_out = slimits.bottom - bottom
 
       const y_correction = min(
-        top_sign != 0 && top_violation < 0 ? top_violation : NaN,
-        bottom_sign != 0 && bottom_violation < 0 ? bottom_violation : NaN,
+        top_sign != 0 && top_out < 0 ? top_out : NaN,
+        bottom_sign != 0 && bottom_out < 0 ? bottom_out : NaN,
       )
       if (isFinite(y_correction) && y_correction < 0) {
         top += -top_sign*(-y_correction)
