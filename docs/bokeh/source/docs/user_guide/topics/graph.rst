@@ -200,8 +200,8 @@ method accepts a ``networkx.Graph`` object and a NetworkX layout
 method and returns a configured instance of the ``GraphRenderer``
 model.
 
-Here is how the ``networkx.spring_layout`` method lays out the
-"Zachary's karate club graph" data set built into NetworkX:
+The example below uses ``networkx.spring_layout`` to position the Desargues
+graph:
 
 .. bokeh-plot:: __REPO__/examples/topics/graph/from_networkx.py
     :source-position: above
