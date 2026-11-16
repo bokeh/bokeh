@@ -1,32 +1,32 @@
-''' A demonstration of NetworkX integration for drawing network graphs.
+'''Draw a NetworkX graph using its generated node positions.
 
 .. bokeh-example-metadata::
-    :title: Plot a NetworkX graph
-    :keywords: graph, hover, networkx, tooltip
     :apis: bokeh.plotting.from_networkx
     :refs: :ref:`ug_topics_graph`
-    :gallery: A network graph plot of the NetworkX desargues_graph dataset with large circles for vertices.
-
+    :keywords: graph, networkx, hexagonal lattice
 '''
+
 import networkx as nx
 
-from bokeh.palettes import Category20_20
+from bokeh.models import HoverTool, MultiLine, Scatter
 from bokeh.plotting import figure, from_networkx, show
 
-G = nx.desargues_graph() # always 20 nodes
+lattice = nx.convert_node_labels_to_integers(nx.hexagonal_lattice_graph(2, 3))
+positions = nx.get_node_attributes(lattice, "pos")
+graph = from_networkx(lattice, positions)
+graph.node_renderer.glyph = Scatter(size=17, fill_color="#0f766e", line_color="white", line_width=2)
+graph.node_renderer.hover_glyph = graph.node_renderer.glyph.clone(fill_color="#f28e2b")
+graph.edge_renderer.glyph = MultiLine(line_color="#64748b", line_alpha=0.65, line_width=2)
 
-p = figure(x_range=(-2, 2), y_range=(-2, 2),
-           x_axis_location=None, y_axis_location=None,
-           tools="hover", tooltips="index: @index")
-p.grid.grid_line_color = None
+plot = figure(
+    title="A hexagonal lattice from NetworkX",
+    width=550, height=470, x_range=(-0.65, 5.65), y_range=(-0.55, 4.88),
+    tools="", toolbar_location=None,
+    background_fill_color="#f8fafc", outline_line_color=None,
+)
+plot.axis.visible = False
+plot.grid.visible = False
+plot.renderers.append(graph)
+plot.add_tools(HoverTool(renderers=[graph], tooltips=[("Grid node", "@index")]))
 
-graph = from_networkx(G, nx.spring_layout, scale=1.8, center=(0,0))
-p.renderers.append(graph)
-
-# Add some new columns to the node renderer data source
-graph.node_renderer.data_source.data['index'] = list(range(len(G)))
-graph.node_renderer.data_source.data['colors'] = Category20_20
-
-graph.node_renderer.glyph.update(size=20, fill_color="colors")
-
-show(p)
+show(plot)
