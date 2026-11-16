@@ -18,6 +18,7 @@ from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING
 
 from ._util import (
+    CallbackPolicy,
     ThemePolicy,
     ThemeSource,
     embed,
@@ -37,7 +38,7 @@ type NotebookContent = Model | Document | Sequence[Model | Document] | Mapping[s
 
 
 def notebook_content(content: NotebookContent, *, theme: ThemeSource = ThemePolicy.CURDOC,
-        live: bool = False) -> tuple[EmbedResult, EmbedFragment]:
+        live: bool = False, callback_policy: CallbackPolicy = "warn") -> tuple[EmbedResult, EmbedFragment]:
     """Build notebook content and its host-owned fragment.
 
     ``live=True`` retains protocol-visible model IDs so comm patches address
@@ -52,5 +53,5 @@ def notebook_content(content: NotebookContent, *, theme: ThemeSource = ThemePoli
     embed result and mount contracts used by other embedding consumers.
     """
     embed_fn = embed_protocol if live else embed
-    result = embed_fn(content, theme=theme)
+    result = embed_fn(content, theme=theme, callback_policy=callback_policy)
     return result, result.fragment(resources="none")

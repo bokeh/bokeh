@@ -339,10 +339,10 @@ def _wait_for_mounted_figure(page: Any) -> None:
 
 
 def _wait_for_named_model(page: Any, name: str, *, title: str | None = None,
-        server_session: bool | None = None) -> None:
+        server_session: bool | None = None, text: str | None = None) -> None:
     page.wait_for_function(
         """
-        async ({name, title, serverSession}) => {
+        async ({name, title, serverSession, text}) => {
           for (const target of document.querySelectorAll("[data-bokeh-root]")) {
             const direct = target.bokehMount
             if (direct?.state !== "ready")
@@ -353,13 +353,14 @@ def _wait_for_named_model(page: Any, name: str, *, title: str | None = None,
             const model = mount.document.get_model_by_name(name)
             const ownsServerSession = mount.session != null
             if (model != null && (title == null || model.title?.text === title) &&
+                (text == null || model.text === text) &&
                 (serverSession == null || ownsServerSession === serverSession))
               return true
           }
           return false
         }
         """,
-        arg={"name": name, "title": title, "serverSession": server_session},
+        arg={"name": name, "title": title, "serverSession": server_session, "text": text},
         timeout=30_000,
     )
 
@@ -504,6 +505,63 @@ def test_jupyterlab_mount_lifecycle_live_update_rerun_and_reopen(tmp_path: Path)
                 page.locator(".jp-CodeCell").nth(3).locator(".bk-Div"),
                 "jupyterlab-application.png",
             )
+            browser.close()
+    finally:
+        _stop(process)
+
+
+def test_jupyterlab_view_changes_run_python_callbacks(tmp_path: Path) -> None:
+    playwright = pytest.importorskip("playwright.sync_api")
+    extension = Path(bokeh.__file__).parent / "jupyter" / "labextension" / "package.json"
+    if not extension.is_file():
+        pytest.skip("the first-party Jupyter extension must be built")
+    path = tmp_path / "two-way.ipynb"
+    nbformat.write(nbformat.v4.new_notebook(
+        metadata={"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
+        cells=[
+            nbformat.v4.new_code_cell('''
+from bokeh.events import ButtonClick
+from bokeh.io import show
+from bokeh.layouts import column
+from bokeh.models import Button, Div, Slider
+slider = Slider(start=0, end=10, step=1, value=5, name="two-way-slider")
+button = Button(label="Click", name="two-way-button")
+div = Div(text="initial", name="two-way-div")
+received = []
+def on_value(attr, old, new):
+    received.append(new)
+    div.text = f"value={new}"
+slider.on_change("value", on_value)
+def on_click(event):
+    received.append("click")
+    div.text = "clicked"
+button.on_event(ButtonClick, on_click)
+handle = show(column(slider, button, div))
+print("two-way-ready")
+'''),
+            nbformat.v4.new_code_cell('''
+print(f"received:{received}")
+'''),
+        ],
+    ), path)
+    process, base_url, _env = _start_jupyter(tmp_path, extension=True)
+    try:
+        with playwright.sync_playwright() as manager:
+            browser = manager.chromium.launch()
+            page = browser.new_page(viewport={"width": 1440, "height": 1050})
+            page.goto(f"{base_url}/lab/tree/two-way.ipynb")
+            editors = page.locator(".jp-CodeCell .cm-content")
+            editors.nth(1).wait_for(timeout=30_000)
+
+            _execute_cell_once(page, editors, 0)
+            page.get_by_text("two-way-ready", exact=True).wait_for(timeout=30_000)
+            _wait_for_named_model(page, "two-way-slider")
+            page.get_by_role("slider").first.press("ArrowRight")
+            _wait_for_named_model(page, "two-way-div", text="value=6")
+            page.get_by_role("button", name="Click", exact=True).click()
+            _wait_for_named_model(page, "two-way-div", text="clicked")
+            _execute_cell_once(page, editors, 1)
+            page.get_by_text("received:[6, 'click']", exact=True).wait_for(timeout=30_000)
             browser.close()
     finally:
         _stop(process)

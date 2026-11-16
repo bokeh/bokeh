@@ -697,6 +697,176 @@ class TestDocumentViewHandle:
         buffer.to_bytes.assert_called_once_with()
         assert first.send.call_args.kwargs["buffers"] is second.send.call_args.kwargs["buffers"]
 
+    @staticmethod
+    def _view_patch(revision: int, *events: dict[str, Any]) -> dict[str, Any]:
+        return {"content": {"data": {"kind": "patch", "revision": revision, "content": {"events": list(events)}, "buffer_ids": []}}}
+
+    @staticmethod
+    def _sent_patches(comm: MagicMock) -> list[dict[str, Any]]:
+        return [call.args[0] for call in comm.send.call_args_list if call.args[0]["kind"] == "patch"]
+
+    def test_view_patch_runs_callbacks_and_broadcasts_without_echo(self) -> None:
+        slider = Slider(start=0, end=10, value=0)
+        div = Div()
+        root = column(slider, div)
+        document = Document()
+        document.add_root(root)
+        slider.on_change("value", lambda _attr, _old, new: setattr(div, "text", f"value={new}"))
+        first = MagicMock(comm_id="first")
+        second = MagicMock(comm_id="second")
+        handle = m.DocumentViewHandle(root, live_id="live", view_id="view")
+        handle._attach(document)
+        handle._connect(first)
+        handle._connect(second)
+        assert first.send.call_args.args[0]["interactive"] is True
+
+        handle._receive("first", self._view_patch(0, {"kind": "ModelChanged", "model": {"id": slider.id}, "attr": "value", "new": 5}))
+
+        assert slider.value == 5
+        assert div.text == "value=5"
+        [to_first] = self._sent_patches(first)
+        [to_second] = self._sent_patches(second)
+        assert to_first["revision"] == to_second["revision"] == 1
+        assert [(e["model"]["id"], e["attr"]) for e in to_first["content"]["events"]] == [(div.id, "text")]
+        assert {(e["model"]["id"], e["attr"]) for e in to_second["content"]["events"]} == {(slider.id, "value"), (div.id, "text")}
+        handle.close()
+
+    def test_view_patch_without_kernel_changes_sends_empty_patch_to_origin(self) -> None:
+        slider = Slider(start=0, end=10, value=0)
+        document = Document()
+        document.add_root(slider)
+        comm = MagicMock(comm_id="comm")
+        handle = m.DocumentViewHandle(slider, live_id="live", view_id="view")
+        handle._attach(document)
+        handle._connect(comm)
+
+        handle._receive("comm", self._view_patch(0, {"kind": "ModelChanged", "model": {"id": slider.id}, "attr": "value", "new": 5}))
+
+        assert self._sent_patches(comm) == [{"kind": "patch", "revision": 1, "content": {"events": []}, "buffer_ids": []}]
+        handle.close()
+
+    def test_view_patch_echoes_properties_changed_concurrently_by_python(self) -> None:
+        slider = Slider(start=0, end=10, value=0)
+        document = Document()
+        document.add_root(slider)
+        comm = MagicMock(comm_id="comm")
+        handle = m.DocumentViewHandle(slider, live_id="live", view_id="view")
+        handle._attach(document)
+        handle._connect(comm)
+
+        handle._receive("comm", self._view_patch(0, {"kind": "ModelChanged", "model": {"id": slider.id}, "attr": "value", "new": 1}))
+        slider.title = "kernel"
+        comm.reset_mock()
+        handle._receive("comm", self._view_patch(0,
+            {"kind": "ModelChanged", "model": {"id": slider.id}, "attr": "value", "new": 2},
+            {"kind": "ModelChanged", "model": {"id": slider.id}, "attr": "title", "new": "view"},
+        ))
+
+        [patch] = self._sent_patches(comm)
+        assert patch["revision"] == 3
+        assert [(e["attr"], e["new"]) for e in patch["content"]["events"]] == [("title", "view")]
+        handle.close()
+
+    def test_view_patch_triggers_event_callbacks(self) -> None:
+        from bokeh.events import ButtonClick
+        from bokeh.models import Button
+
+        button = Button()
+        document = Document()
+        document.add_root(button)
+        clicks: list[ButtonClick] = []
+        button.on_event(ButtonClick, clicks.append)
+        comm = MagicMock(comm_id="comm")
+        handle = m.DocumentViewHandle(button, live_id="live", view_id="view")
+        handle._attach(document)
+        handle._connect(comm)
+
+        handle._receive("comm", self._view_patch(0, {
+            "kind": "MessageSent",
+            "msg_type": "bokeh_event",
+            "msg_data": {"type": "event", "name": "button_click", "values": {"model": {"id": button.id}}},
+        }))
+
+        assert len(clicks) == 1
+        assert clicks[0].model is button
+        handle.close()
+
+    def test_view_patch_decodes_binary_buffers(self) -> None:
+        source = ColumnDataSource(data={"x": [1.0, 2.0]})
+        document = Document()
+        document.add_root(source)
+        comm = MagicMock(comm_id="comm")
+        handle = m.DocumentViewHandle(source, live_id="live", view_id="view")
+        handle._attach(document)
+        handle._connect(comm)
+        data = {"type": "map", "entries": [["x", {
+            "type": "ndarray", "array": {"type": "bytes", "data": {"id": "0"}},
+            "shape": [2], "dtype": "float64", "order": sys.byteorder,
+        }]]}
+        message = self._view_patch(0, {"kind": "ModelChanged", "model": {"id": source.id}, "attr": "data", "new": data})
+        message["content"]["data"]["buffer_ids"] = ["0"]
+        message["buffers"] = [memoryview(np.array([3.0, 4.0]).tobytes())]
+
+        handle._receive("comm", message)
+
+        assert list(source.data["x"]) == [3.0, 4.0]
+        handle.close()
+
+    @pytest.mark.parametrize("revision", [-1, 1, "0"])
+    def test_view_patch_with_unknown_revision_is_rejected_with_snapshot(self, revision: Any) -> None:
+        slider = Slider(start=0, end=10, value=0)
+        document = Document()
+        document.add_root(slider)
+        comm = MagicMock(comm_id="comm")
+        handle = m.DocumentViewHandle(slider, live_id="live", view_id="view")
+        handle._attach(document)
+        handle._connect(comm)
+        comm.reset_mock()
+
+        handle._receive("comm", self._view_patch(revision, {"kind": "ModelChanged", "model": {"id": slider.id}, "attr": "value", "new": 5}))
+
+        assert slider.value == 0
+        assert [call.args[0]["kind"] for call in comm.send.call_args_list] == ["error", "snapshot"]
+        handle.close()
+
+    def test_view_patch_for_unknown_model_is_rejected_with_snapshot(self, caplog: pytest.LogCaptureFixture) -> None:
+        slider = Slider(start=0, end=10, value=0)
+        document = Document()
+        document.add_root(slider)
+        comm = MagicMock(comm_id="comm")
+        handle = m.DocumentViewHandle(slider, live_id="live", view_id="view")
+        handle._attach(document)
+        handle._connect(comm)
+        comm.reset_mock()
+
+        with caplog.at_level(logging.WARNING):
+            handle._receive("comm", self._view_patch(0, {"kind": "ModelChanged", "model": {"id": "missing"}, "attr": "value", "new": 5}))
+
+        error, snapshot = (call.args[0] for call in comm.send.call_args_list)
+        assert error["kind"] == "error"
+        assert error["code"] == "PATCH_FAILED"
+        assert "missing" in error["message"]
+        assert snapshot["kind"] == "snapshot"
+        assert "Could not apply a change from a notebook view" in caplog.text
+        handle.close()
+
+    def test_view_patch_is_ignored_unless_interactive(self) -> None:
+        slider = Slider(start=0, end=10, value=0)
+        document = Document()
+        document.add_root(slider)
+        comm = MagicMock(comm_id="comm")
+        handle = m.DocumentViewHandle(slider, live_id="live", view_id="view", interactive=False)
+        handle._attach(document)
+        handle._connect(comm)
+        assert comm.send.call_args.args[0]["interactive"] is False
+        comm.reset_mock()
+
+        handle._receive("comm", self._view_patch(0, {"kind": "ModelChanged", "model": {"id": slider.id}, "attr": "value", "new": 5}))
+
+        assert slider.value == 0
+        comm.send.assert_not_called()
+        handle.close()
+
     def test_one_comm_close_does_not_destroy_other_views(self) -> None:
         plot = figure()
         document = Document()

@@ -36,7 +36,9 @@ function harness() {
       if (name === "msg:custom") listeners.delete(callback)
     },
 
-    send(data: any) {sent.push(data)},
+    send(data: any, _callbacks?: unknown, buffers?: ArrayBufferView[]) {
+      sent.push(buffers == null ? data : {...data, buffers})
+    },
   }
   const receive = async (data: any, buffers?: ArrayBufferView[]) =>
     await Promise.all([...listeners].map(async (listener) => await listener(data, buffers)))
@@ -119,5 +121,29 @@ describe("AnyWidget transport", () => {
 
     controller.abort()
     expect(sent).toContainEqual({kind: "disposed", frontend_id: "frontend-1"})
+  })
+
+  it("sends local patches of an interactive view with its frontend identity", async () => {
+    const {model, receive, sent} = harness()
+    const controller = new AbortController()
+    let live: any
+    runtime.renderDisplay.mockImplementationOnce(async (_el: unknown, _payload: unknown, _html: unknown, kernel: any) => {
+      live = await kernel.openLive("live")
+      return vi.fn()
+    })
+    const rendering = anywidgetFactory().render({model, el: document.createElement("div"), signal: controller.signal} as any)
+    await vi.waitFor(() => expect(sent).toContainEqual({kind: "active", frontend_id: "frontend-1"}))
+    await receive({
+      kind: "snapshot", frontend_id: "frontend-1", artifact: "{}", resource_id: "resource", revision: 0, interactive: true,
+    })
+    await rendering
+
+    expect(live.interactive).toBe(true)
+    const buffer = new Uint8Array([1, 2]).buffer
+    live.send({kind: "patch", revision: 0, content: {events: []}, buffer_ids: ["0"]}, [buffer])
+    const [message] = sent.filter(({kind}) => kind === "patch")
+    expect(message).toMatchObject({kind: "patch", revision: 0, frontend_id: "frontend-1", buffer_ids: ["0"]})
+    expect([...new Uint8Array(message.buffers[0].buffer)]).toEqual([1, 2])
+    controller.abort()
   })
 })

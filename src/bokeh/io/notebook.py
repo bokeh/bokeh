@@ -34,6 +34,7 @@ from typing import (
     Callable,
     Protocol,
     Self,
+    cast,
 )
 
 from ..core.json_encoder import serialize_json
@@ -41,6 +42,7 @@ from ..util.serialization import make_id
 from .jupyter import NOTEBOOK_COMM_TARGET, RESOURCE_COMM_TARGET, ResourceRecord
 
 if TYPE_CHECKING:
+    from ..core.has_props import Setter
     from ..core.types import ID
     from ..document.document import Document
     from ..document.events import (
@@ -50,6 +52,7 @@ if TYPE_CHECKING:
         DocumentPatchedEvent,
         ModelChangedEvent,
     )
+    from ..document.json import PatchJson
     from ..embed.resources import ResolvedResources
     from ..embed.result import EmbedResult
     from ..model import Model
@@ -271,6 +274,37 @@ def _comm_id(comm: Comm) -> str:
 #-----------------------------------------------------------------------------
 
 
+class _ViewSetter:
+    ''' The setter of changes received from one frontend view.
+
+    ``conflicts`` holds the properties that the kernel changed after the
+    revision the view's patch was based on, or ``None`` when that revision is
+    too old to know.
+
+    '''
+
+    __slots__ = ("comm_id", "conflicts")
+
+    def __init__(self, comm_id: str, conflicts: frozenset[tuple[ID, str]] | None) -> None:
+        self.comm_id = comm_id
+        self.conflicts = conflicts
+
+    @staticmethod
+    def of(event: DocumentPatchedEvent) -> _ViewSetter | None:
+        setter: object = event.setter
+        return setter if isinstance(setter, _ViewSetter) else None
+
+    @staticmethod
+    def suppresses(comm_id: str, event: DocumentPatchedEvent) -> bool:
+        # The originating view already shows its own change, unless the kernel
+        # changed the same property concurrently. Echoing it then makes the
+        # view converge on the kernel's order of changes.
+        setter = _ViewSetter.of(event)
+        if setter is None or comm_id != setter.comm_id or setter.conflicts is None:
+            return False
+        return (event.model.id, event.attr) not in setter.conflicts  # type: ignore[attr-defined]
+
+
 class DocumentViewHandle:
     ''' A live artifact handle with one independent comm per frontend view.
 
@@ -283,13 +317,17 @@ class DocumentViewHandle:
             The identifier of this notebook output view.
         resources:
             The resource configuration used to serialize fresh snapshots.
+        interactive:
+            Whether changes made in frontend views, such as widget values and
+            UI events, are applied to the source document.
 
     '''
 
     _MAX_HELD_EVENTS = 256
+    _MAX_TRACKED_REVISIONS = 64
 
     def __init__(self, root: Model, *, live_id: str, view_id: str,
-            resources: ResourcesLike | None = None) -> None:
+            resources: ResourcesLike | None = None, interactive: bool = True) -> None:
         self._comms: dict[str, Comm] = {}
         self._root = root
         self._models = {root, *root.references()}
@@ -299,6 +337,8 @@ class DocumentViewHandle:
         self._hold_depth = 0
         self._held_source_events: list[DocumentPatchedEvent] = []
         self._revision = 0
+        self._interactive = interactive
+        self._changes: dict[int, frozenset[tuple[ID, str, str | None]]] = {}
         self._source_document: Document | None = None
         self._output_root_key: tuple[int, int] | None = None
         self._closed = False
@@ -331,21 +371,65 @@ class DocumentViewHandle:
 
     def _receive(self, comm_id: str, message: dict[str, Any]) -> None:
         data = message.get("content", {}).get("data", message)
-        if isinstance(data, dict) and data.get("kind") == "resync":
-            comm = self._comms.get(comm_id)
-            if comm is not None:
+        comm = self._comms.get(comm_id)
+        if not isinstance(data, dict) or comm is None:
+            return
+        match data.get("kind"):
+            case "resync":
                 self._send_snapshot(comm)
+            case "patch" if self._interactive:
+                self._apply_view_patch(comm_id, comm, data, message.get("buffers") or [])
+
+    def _apply_view_patch(self, comm_id: str, comm: Comm, data: dict[str, Any], buffers: list[Any]) -> None:
+        from ..core.serialization import Buffer, Serialized
+        from ..document.callbacks import invoke_with_curdoc
+
+        document = self._source_document
+        revision = data.get("revision")
+        content = data.get("content")
+        buffer_ids = data.get("buffer_ids", [])
+        try:
+            if document is None:
+                raise RuntimeError("the live document is not attached")
+            if not isinstance(revision, int) or not 0 <= revision <= self._revision:
+                raise ValueError(f"the patch is based on unknown revision {revision!r}")
+            if not isinstance(content, dict) or not isinstance(buffer_ids, list) or len(buffer_ids) != len(buffers):
+                raise ValueError("the patch envelope is invalid")
+            setter = _ViewSetter(comm_id, self._conflicts(comm_id, revision))
+            patch = Serialized(cast("PatchJson", content), [Buffer(buffer_id, bytes(buffer)) for buffer_id, buffer in zip(buffer_ids, buffers)])
+            # Broadcast the change and any changes made by Python callbacks as
+            # one revision.
+            with self:
+                invoke_with_curdoc(document, lambda: document.apply_json_patch(patch, setter=cast("Setter", setter)))
+        except Exception as error:
+            log.warning("Could not apply a change from a notebook view", exc_info=True)
+            comm.send({
+                "kind": "error",
+                "code": "PATCH_FAILED",
+                "message": f"Python could not apply a change from this view: {error}",
+            })
+            self._send_snapshot(comm)
+
+    def _conflicts(self, comm_id: str, revision: int) -> frozenset[tuple[ID, str]] | None:
+        conflicts: set[tuple[ID, str]] = set()
+        for later in range(revision + 1, self._revision + 1):
+            changes = self._changes.get(later)
+            if changes is None:
+                return None
+            conflicts.update((model_id, attr) for model_id, attr, origin in changes if origin != comm_id)
+        return frozenset(conflicts)
 
     def _send_snapshot(self, comm: Comm) -> None:
         from ..embed.notebook import notebook_content
 
-        artifact, _ = notebook_content(self._root, live=True)
+        artifact, _ = notebook_content(self._root, live=True, callback_policy="suppress" if self._interactive else "warn")
         resource_id = _ensure_notebook_resources(artifact, self._resources, publish=False)
         comm.send({
             "kind": "snapshot",
             "revision": self._revision,
             "artifact": artifact.to_json_string(),
             "resource_id": resource_id,
+            "interactive": self._interactive,
         })
 
     def _disconnect(self, comm_id: str) -> None:
@@ -386,6 +470,7 @@ class DocumentViewHandle:
             _release_output_root(self._output_root_key)
             self._output_root_key = None
         self._held_source_events.clear()
+        self._changes.clear()
         _DOCUMENT_VIEW_HANDLES.pop(self._live_id, None)
         _DOCUMENT_VIEW_HANDLES_BY_VIEW.pop(self._view_id, None)
         for comm in tuple(self._comms.values()):
@@ -494,9 +579,22 @@ class DocumentViewHandle:
         buffer_ids = [buffer.id for buffer in message.buffers]
         buffers = [buffer.to_bytes() for buffer in message.buffers]
         self._revision += 1
+        self._changes[self._revision] = frozenset(
+            (event.model.id, event.attr, setter.comm_id if (setter := _ViewSetter.of(event)) else None)  # type: ignore[attr-defined]
+            for event in events
+        )
+        self._changes.pop(self._revision - self._MAX_TRACKED_REVISIONS, None)
         for comm_id, comm in tuple(self._comms.items()):
+            # A view whose changes are all suppressed still receives an empty
+            # patch, so that its revisions stay consecutive.
+            view_content = content
+            if any(_ViewSetter.suppresses(comm_id, event) for event in events):
+                view_content = {**content, "events": [
+                    serialized for event, serialized in zip(events, content["events"])
+                    if not _ViewSetter.suppresses(comm_id, event)
+                ]}
             try:
-                self._send(comm, content, buffer_ids, buffers, self._revision)
+                self._send(comm, view_content, buffer_ids, buffers, self._revision)
             except Exception:
                 log.warning("A connected notebook frontend disconnected while applying an update", exc_info=True)
                 self._disconnect(comm_id)
@@ -950,7 +1048,7 @@ def publish_display_data(data: dict[str, Any], metadata: dict[Any, Any] | None =
 type ProxyUrlFunc = Callable[[int | None], str]
 
 def show_doc(obj: Model | Sequence[UIElement],
-        resources: ResourcesLike | None = None) -> DocumentViewHandle:
+        resources: ResourcesLike | None = None, *, interactive: bool = True) -> DocumentViewHandle:
     ''' Display a model as connected notebook output.
 
     Args:
@@ -958,6 +1056,10 @@ def show_doc(obj: Model | Sequence[UIElement],
             The model or sequence of UI elements to display.
         resources:
             The resource configuration for the artifact.
+        interactive:
+            Whether changes made in the displayed views, such as widget values
+            and UI events, are applied to the Python document, so that its
+            ``on_change`` and ``on_event`` callbacks run in the kernel.
 
     Returns:
         A handle that owns live updates and frontend connections for the output.
@@ -990,7 +1092,7 @@ def show_doc(obj: Model | Sequence[UIElement],
                 "Connected Bokeh output in Colab requires AnyWidget 0.11 or later. "
                 "Install Bokeh's notebook extra with 'pip install bokeh[notebook]'.",
             )
-        artifact, _fragment = notebook_content(obj, live=True)
+        artifact, _fragment = notebook_content(obj, live=True, callback_policy="suppress" if interactive else "warn")
         resource_id = _ensure_notebook_resources(artifact, resources, publish=False)
         fragment = _notebook_fragment(artifact, resources)
         live_id = make_id()
@@ -1006,7 +1108,7 @@ def show_doc(obj: Model | Sequence[UIElement],
             live_id=live_id,
         )
 
-        handle = DocumentViewHandle(obj, live_id=live_id, view_id=view_id, resources=resources)
+        handle = DocumentViewHandle(obj, live_id=live_id, view_id=view_id, resources=resources, interactive=interactive)
         root_key = (id(source_document), id(obj))
         handle._attach(source_document, output_root=added_root or root_key in _OUTPUT_DOCUMENT_ROOTS)
         _retain_document_handle(handle)

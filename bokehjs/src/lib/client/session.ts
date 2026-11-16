@@ -12,6 +12,9 @@ export type OkMsg = Message<void>
 export type ErrorMsg = Message<{text: string, traceback: string | null}>
 export type PatchMsg = Message<Patch>
 
+/** The part of a connection that a session uses to send document changes. */
+export type SessionConnection = Pick<ClientConnection, "id" | "send" | "send_with_reply" | "close">
+
 type SessionSyncQueueKey = readonly [
   model_id: string,
   attr: string,
@@ -31,7 +34,7 @@ export class ClientSession {
     this._sync_queue.flush(prefix)
   }
 
-  constructor(protected readonly _connection: ClientConnection, readonly document: Document) {
+  constructor(protected readonly _connection: SessionConnection, readonly document: Document) {
     this._sync_queue = new SyncPolicyQueue((event) => {
       if (event.model instanceof Model && event.model.document == this.document) {
         this._send_patch([event])
