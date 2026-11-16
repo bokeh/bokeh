@@ -67,6 +67,7 @@ tornado = ">=6.4.2"
 xyzservices = ">=2021.09.1"
 
 [feature.test-deps.dependencies]
+jsonschema = ">=4.18"
 pytest = ">=7.0"
 pytest-asyncio = "*"
 pytest-cov = ">=1.8.1"

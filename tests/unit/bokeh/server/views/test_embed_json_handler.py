@@ -34,6 +34,7 @@ from bokeh.server.urls import per_app_patterns
 from bokeh.server.views.embed_json_handler import EmbedJsonHandler
 from bokeh.util.compiler import JavaScript
 from tests.support.plugins.managed_server_loop import MSL
+from tests.support.util.schemas import validate_protocol
 
 
 class _TestSession:
@@ -107,6 +108,7 @@ async def test_get_returns_versioned_signed_bootstrap() -> None:
         "requires": {"components": [], "extensions": []},
         "resources": {"mode": "resolved", "root_url": "/", "assets": []},
     }
+    validate_protocol(json.loads(handler.body))
 
 
 async def test_get_includes_session_extension_assets(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -155,6 +157,7 @@ async def test_get_includes_session_extension_assets(monkeypatch: pytest.MonkeyP
         }],
     }
     assert handler.body.count("compiled-server-model") == 1
+    validate_protocol(bootstrap)
 
 
 async def test_get_honors_host_owned_extension_policy(monkeypatch: pytest.MonkeyPatch) -> None:
