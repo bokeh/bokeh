@@ -1,0 +1,196 @@
+import {InputWidget, InputWidgetView, ClearInput} from "./input_widget"
+import type {StyleSheetLike} from "core/dom"
+import type {VNode} from "core/vdom"
+import {UIComponent} from "core/vdom"
+import {bind} from "core/class"
+import {isString} from "core/util/types"
+import * as p from "core/properties"
+import {PropertyBundleEvent} from "core/bokeh_events"
+import {event} from "core/bokeh_events"
+
+import * as inputs_css from "styles/widgets/inputs.css"
+import * as buttons_css from "styles/buttons.css"
+
+import type {TargetedEvent} from "preact"
+import {createRef} from "preact"
+import {computed} from "@preact/signals"
+
+declare module "preact" {
+  namespace JSX {
+    interface InputHTMLAttributes<T> {
+      webkitdirectory?: preact.Signalish<boolean>
+    }
+  }
+}
+
+@event("file_input_change")
+export class FileInputChange extends PropertyBundleEvent<FileInput, "value" | "filename" | "mime_type"> {
+  get value() {
+    return this.values.value
+  }
+  get filename() {
+    return this.values.filename
+  }
+  get mime_type() {
+    return this.values.mime_type
+  }
+}
+
+export class FileInputView extends InputWidgetView {
+  declare readonly model: FileInput
+  declare readonly signals: p.SignalsOf<FileInput.Props>
+  declare readonly values: FileInput.Attrs
+
+  protected readonly input_ref = createRef<HTMLInputElement>()
+
+  override connect_signals(): void {
+    super.connect_signals()
+
+    this.model.on_event(ClearInput, () => {
+      this.model.setv({
+        value:     "", // p.unset,
+        mime_type: "", // p.unset,
+        filename:  "", // p.unset,
+      })
+      this.model.trigger_event(new FileInputChange({value: "", filename: "", mime_type: ""}))
+      const input_el = this.input_ref.current
+      if (input_el != null) {
+        input_el.value = ""
+      }
+    })
+  }
+
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), buttons_css.default]
+  }
+
+  readonly computed_accept = computed(() => {
+    const {accept} = this.values
+    return isString(accept) ? accept : accept.join(",")
+  })
+
+  override component(): VNode {
+    const {name} = this.values
+    const {disabled, multiple, directory} = this.signals
+    const accept = this.computed_accept
+
+    const Title = this._title_el
+    return (
+      <UIComponent parent={this.resolved_props}>
+        <Title></Title>
+        <div class={inputs_css.outer}>
+          <div class={inputs_css.inner}>
+            <input
+              ref={this.input_ref}
+              type="file"
+              id={this.input_id}
+              class={inputs_css.input}
+              name={name ?? undefined}
+              disabled={disabled}
+              multiple={multiple}
+              accept={accept}
+              webkitdirectory={directory}
+              onChange={this._on_change}/>
+          </div>
+        </div>
+      </UIComponent>
+    )
+  }
+
+  @bind
+  protected _on_change(event: TargetedEvent<HTMLInputElement>): void {
+    const {files} = event.currentTarget
+    if (files != null) {
+      void this.load_files(files)
+    }
+  }
+
+  async load_files(files: FileList): Promise<void> {
+    const values: string[] = []
+    const filenames: string[] = []
+    const mime_types: string[] = []
+    const {directory, multiple} = this.model
+    const accept = (() => {
+      const {accept} = this.model
+      return isString(accept) ? accept : accept.join(",")
+    })()
+
+    for (const file of files) {
+      const data_url = await this._read_file(file)
+      const [, mime_type="",, value=""] = data_url.split(/[:;,]/, 4)
+
+      if (directory) {
+        const ext = file.name.split(".").pop()
+        if ((accept.length > 0 && isString(ext)) ? accept.includes(`.${ext}`) : true) {
+          filenames.push(file.webkitRelativePath)
+          values.push(value)
+          mime_types.push(mime_type)
+        }
+      } else {
+        filenames.push(file.name)
+        values.push(value)
+        mime_types.push(mime_type)
+      }
+    }
+
+    const [value, filename, mime_type] = (() =>{
+      if (directory || multiple) {
+        return [values, filenames, mime_types]
+      } else if (files.length != 0) {
+        return [values[0], filenames[0], mime_types[0]]
+      } else {
+        return ["", "", ""]
+      }
+    })()
+
+    this.model.setv({value, filename, mime_type})
+    this.model.trigger_event(new FileInputChange({value, filename, mime_type}))
+  }
+
+  protected _read_file(file: File): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        const {result} = reader
+        if (result != null) {
+          resolve(result as string)
+        } else {
+          reject(reader.error ?? new Error(`unable to read '${file.name}'`))
+        }
+      }
+      reader.readAsDataURL(file)
+    })
+  }
+}
+
+export namespace FileInput {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = InputWidget.Props & {
+    value: p.Property<string | string[]>
+    mime_type: p.Property<string | string[]>
+    filename: p.Property<string | string[]>
+    accept: p.Property<string | string[]>
+    multiple: p.Property<boolean>
+    directory: p.Property<boolean>
+  }
+}
+
+export interface FileInput extends FileInput.Attrs {}
+
+export class FileInput extends InputWidget {
+  declare properties: FileInput.Props
+  declare __view_type__: FileInputView
+
+  static {
+    this.prototype.default_view = FileInputView
+
+    this.define<FileInput.Props>(({Bool, Str, List, Or}) => ({
+      value:     [ Or(Str, List(Str)), p.unset, {readonly: true} ],
+      mime_type: [ Or(Str, List(Str)), p.unset, {readonly: true} ],
+      filename:  [ Or(Str, List(Str)), p.unset, {readonly: true} ],
+      accept:    [ Or(Str, List(Str)), "" ],
+      multiple:  [ Bool, false ],
+      directory: [ Bool, false ],
+    }))
+  }
+}

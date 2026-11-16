@@ -22,6 +22,7 @@ type LabelLocation = Infer<typeof LabelLocation>
 export class ProgressView extends IndicatorView {
   declare readonly model: Progress
   declare readonly signals: p.SignalsOf<Progress.Props>
+  declare readonly values: Progress.Attrs
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), progress_css.default]
@@ -30,9 +31,7 @@ export class ProgressView extends IndicatorView {
   override component(): VNode {
     const {mode, label, reversed, orientation, disabled, label_location, description} = this.signals
 
-    const min = this.signals.min.value
-    const max = this.signals.max.value
-    const value = this.signals.value.value
+    const {min, max, value} = this.values
 
     const total = Math.abs(max - min)
     const index = clamp(value, min, max) - min

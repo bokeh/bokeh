@@ -257,7 +257,7 @@ class Asserts implements Assertions<unknown> {
     const {value} = this
     if (!(isNumber(value) && value > expected) == !this.negated) {
       const be = this.negated ? "not be" : "be"
-      throw new ExpectationError(`expected ${to_string(value)} to ${be} below ${to_string(expected)}`)
+      throw new ExpectationError(`expected ${to_string(value)} to ${be} above ${to_string(expected)}`)
     }
   }
 

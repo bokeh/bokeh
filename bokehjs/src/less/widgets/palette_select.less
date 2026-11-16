@@ -1,5 +1,9 @@
 @import "../_mixins.less";
 
+:host {
+  --number-of-columns: 1;
+}
+
 .bk-value-input {
   display: flex;
   flex-direction: row;
@@ -11,10 +15,54 @@
 
 .bk-value {
   flex-grow: 1;
+  // shrink (and clip) the selected palette in narrow inputs, to keep the chevron visible
+  min-width: 0;
+  overflow: hidden;
 }
 
 .bk-chevron {
   .icon-mask(var(--bokeh-icon-chevron-down));
+  flex-shrink: 0;
   width: 16px;
   height: 16px;
+}
+
+.bk-entry {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.bk-swatch {
+  width: 100px;
+  height: auto;
+  align-self: stretch;
+}
+
+.bk-item {
+  border: var(--border-width) var(--border-style) transparent;
+  color: var(--inherit-color);
+
+  &.bk-active {
+    border-color: var(--highlight-color);
+  }
+  &:hover {
+    background-color: var(--hover-color);
+  }
+  &:focus, &:focus-visible {
+    outline: var(--outline-width) var(--outline-style) var(--highlight-color);
+    outline-offset: -1px;
+  }
+  &::-moz-focus-inner {
+    border: 0;
+  }
+}
+
+.bk-pane {
+  padding: 5px;
+  display: grid;
+  grid-template-columns: repeat(var(--number-of-columns), 1fr);
+  gap: 0.25em;
 }

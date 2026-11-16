@@ -24,19 +24,29 @@ export function extend(ctor: Function & {prototype: any}, ...mixins: Array<Funct
 /**
  * Use it like `@bind protected _event_handler(event: SomeEvent) { ... }`.
  */
-export const bind = (_target: unknown, key: string, descriptor: PropertyDescriptor): PropertyDescriptor => {
+export const bind = (target: object, key: string, descriptor: PropertyDescriptor): PropertyDescriptor => {
   const method = descriptor.value
 
   return {
     configurable: true,
-    get(this: unknown) {
+    get(this: object) {
       const bound = method.bind(this)
 
-      Object.defineProperty(this, key, {
-        value: bound,
-        configurable: false,
-        writable: false,
-      })
+      // Cache only on direct access. When accessed via `super.method` from an
+      // overriding (and possibly also bound) method, `target` isn't the nearest
+      // owner of `key`, so caching would shadow (or fail to redefine) the override.
+      let proto: object | null = Object.getPrototypeOf(this)
+      while (proto != null && !Object.hasOwn(proto, key)) {
+        proto = Object.getPrototypeOf(proto)
+      }
+
+      if (proto === target) {
+        Object.defineProperty(this, key, {
+          value: bound,
+          configurable: false,
+          writable: false,
+        })
+      }
 
       return bound
     },
