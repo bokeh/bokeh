@@ -74,9 +74,11 @@ graph.edge_renderer.add_path_marking(
 graph.selection_policy = NodesAndLinkedEdges()
 
 p = figure(width=750, height=500, x_range=(-2.5, 2.7), y_range=(-1.7, 1.7),
-           title="Directed graph: arrowheads follow node size", tools="tap,reset")
+           title="Arrowheads follow node size", tools="tap,reset", toolbar_location="above",
+           background_fill_color="#f8fafc", outline_line_color=None)
 p.axis.visible = False
 p.grid.visible = False
+p.toolbar.logo = None
 p.renderers.append(graph)
 p.add_layout(LabelSet(x="x", y="y", text="label", source=nodes,
                       text_align="center", text_baseline="middle",
@@ -93,7 +95,7 @@ size.js_on_change("value", CustomJS(args=dict(nodes=nodes, edges=edges), code=""
     edges.change.emit()
 """))
 
-layout = column(Div(text="Resize the nodes: arrow tips stay just outside their boundaries. "
+layout = column(Div(text="Resize the nodes to see the arrow tips track their boundaries. "
                         "Click a node to highlight its incident directed edges.", width=750),
                 size, p)
 show(layout)

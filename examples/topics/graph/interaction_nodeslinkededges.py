@@ -1,48 +1,53 @@
-''' Highlight a node together with the edges connected to it.
+'''Select a station and its connecting lines.
 
 .. bokeh-example-metadata::
-    :title: Interaction nodeslinkededges
-    :keywords: interaction, nodeslinkededges
-    :apis: bokeh.models.BoxSelectTool, bokeh.models.HoverTool, bokeh.models.MultiLine, bokeh.models.NodesAndLinkedEdges, bokeh.models.Plot
+    :apis: bokeh.models.NodesAndLinkedEdges, bokeh.models.TapTool
+    :refs: :ref:`ug_topics_graph`
+    :keywords: graph, network, selection
 '''
 
-import networkx as nx
-
 from bokeh.models import (
-    BoxSelectTool,
-    HoverTool,
-    MultiLine,
+    ColumnDataSource,
+    LabelSet,
     NodesAndLinkedEdges,
-    Plot,
-    Range1d,
-    Scatter,
-    TapTool,
+    StaticLayoutProvider,
 )
-from bokeh.palettes import Spectral4
-from bokeh.plotting import from_networkx, show
+from bokeh.plotting import figure, show
 
-G = nx.karate_club_graph()
+positions = {
+    "Library": (0, 0), "Park": (1, 1), "Market": (1, -1),
+    "Station": (2, 0), "Harbor": (3, 0),
+}
+links = [
+    ("Library", "Park"), ("Library", "Market"),
+    ("Park", "Station"), ("Market", "Station"), ("Station", "Harbor"),
+]
 
-plot = Plot(width=400, height=400, x_range=Range1d(-1.1, 1.1), y_range=Range1d(-1.1, 1.1))
-plot.title.text = "Graph Interaction Demonstration"
-
-plot.add_tools(HoverTool(tooltips=None), TapTool(), BoxSelectTool())
-
-graph_renderer = from_networkx(G, nx.circular_layout, scale=1, center=(0, 0))
-
-scatter_glyph = Scatter(size=15, fill_color=Spectral4[0])
-graph_renderer.node_renderer.glyph = scatter_glyph
-graph_renderer.node_renderer.selection_glyph = scatter_glyph.clone(fill_color=Spectral4[2])
-graph_renderer.node_renderer.hover_glyph = scatter_glyph.clone(fill_color=Spectral4[1])
-
-ml_glyph = MultiLine(line_color="#CCCCCC", line_alpha=0.8, line_width=5)
-graph_renderer.edge_renderer.glyph = ml_glyph
-graph_renderer.edge_renderer.selection_glyph = ml_glyph.clone(line_color=Spectral4[2], line_alpha=1)
-graph_renderer.edge_renderer.hover_glyph = ml_glyph.clone(line_color=Spectral4[1], line_width=1)
-
-graph_renderer.selection_policy = NodesAndLinkedEdges()
-graph_renderer.inspection_policy = NodesAndLinkedEdges()
-
-plot.renderers.append(graph_renderer)
+plot = figure(
+    title="Tap a stop to highlight its connections",
+    width=640, height=350, x_range=(-0.55, 3.55), y_range=(-1.5, 1.6),
+    tools="tap,reset", toolbar_location="above",
+    background_fill_color="#f8fafc", outline_line_color=None,
+)
+plot.axis.visible = False
+plot.grid.visible = False
+plot.toolbar.logo = None
+plot.graph(
+    list(positions), links, StaticLayoutProvider(graph_layout=positions),
+    selection_policy=NodesAndLinkedEdges(),
+    node_size=22, node_fill_color="#2563eb", node_line_color="white",
+    node_selection_fill_color="#f28e2b", node_nonselection_fill_color="#94a3b8",
+    edge_line_color="#64748b", edge_line_width=3,
+    edge_selection_line_color="#f28e2b", edge_nonselection_line_alpha=0.22,
+)
+labels = ColumnDataSource(dict(
+    x=[x for x, _ in positions.values()],
+    y=[y for _, y in positions.values()],
+    name=list(positions),
+))
+plot.add_layout(LabelSet(
+    x="x", y="y", text="name", source=labels, y_offset=15,
+    text_align="center", text_color="#17324d", text_font_size="12px",
+))
 
 show(plot)
