@@ -1,40 +1,60 @@
-''' Build a graph with a custom circular layout and styled nodes and edges.
+''' Customize the glyphs and positions of a static graph.
 
 .. bokeh-example-metadata::
-    :title: Graph customize
-    :keywords: graph, customize
-    :apis: bokeh.models.Ellipse, bokeh.models.GraphRenderer, bokeh.models.StaticLayoutProvider
+    :title: Custom graph glyphs
+    :apis: bokeh.models.GraphDataSource, bokeh.models.GraphRenderer, bokeh.models.StaticLayoutProvider
+    :refs: :ref:`ug_topics_graph`
+    :keywords: graph, static layout, ellipse, node styling
+
 '''
 
-import math
-
-from bokeh.models import Ellipse, GraphRenderer, StaticLayoutProvider
-from bokeh.palettes import Spectral8
+from bokeh.models import (
+    Ellipse,
+    GraphDataSource,
+    GraphRenderer,
+    LabelSet,
+    MultiLine,
+    StaticLayoutProvider,
+)
 from bokeh.plotting import figure, show
 
-N = 8
-node_indices = list(range(N))
+positions = {
+    "Station": (-2.8, 0),
+    "Library": (-0.9, 1.15),
+    "Market": (-0.9, -1.15),
+    "Park": (0.9, 1.15),
+    "School": (0.9, -1.15),
+    "River": (2.8, 0),
+}
+colors = {
+    "Station": "#1e40af", "Library": "#0f766e", "Market": "#0f766e",
+    "Park": "#0f766e", "School": "#0f766e", "River": "#1e40af",
+}
+source = GraphDataSource(
+    nodes=[dict(id=name, x=x, y=y, color=colors[name]) for name, (x, y) in positions.items()],
+    edges=[
+        ("Station", "Library"), ("Station", "Market"), ("Library", "Market"),
+        ("Library", "Park"), ("Market", "School"), ("Park", "School"),
+        ("Park", "River"), ("School", "River"),
+    ],
+)
 
-plot = figure(title='Graph layout demonstration', x_range=(-1.1,1.1), y_range=(-1.1,1.1),
-              tools=None)
+graph = GraphRenderer(data_source=source, layout_provider=StaticLayoutProvider(graph_layout=positions))
+graph.node_renderer.glyph = Ellipse(width=1.4, height=0.48, fill_color="color", line_color="white", line_width=2)
+graph.edge_renderer.glyph = MultiLine(line_color="#94a3b8", line_width=2)
+labels = LabelSet(
+    x="x", y="y", text="index", source=source.nodes,
+    text_color="white", text_align="center", text_baseline="middle",
+    text_font_size="12px", text_font_style="bold",
+)
 
-graph = GraphRenderer()
-
-graph.node_renderer.data_source.add(node_indices, 'index')
-graph.node_renderer.data_source.add(Spectral8, 'color')
-graph.node_renderer.glyph = Ellipse(height=0.1, width=0.2, fill_color='color')
-
-graph.edge_renderer.data_source.data = dict(
-    start=[0]*N,
-    end=node_indices)
-
-circ = [i*2*math.pi/8 for i in node_indices]
-x = [math.cos(i) for i in circ]
-y = [math.sin(i) for i in circ]
-
-graph_layout = dict(zip(node_indices, zip(x, y)))
-graph.layout_provider = StaticLayoutProvider(graph_layout=graph_layout)
-
-plot.renderers.append(graph)
-
-show(plot)
+p = figure(
+    title="Neighborhood bike network", width=640, height=350,
+    x_range=(-3.85, 3.85), y_range=(-1.8, 1.8),
+    tools=None, background_fill_color="#f8fafc", outline_line_color=None,
+)
+p.axis.visible = False
+p.grid.visible = False
+p.renderers.append(graph)
+p.add_layout(labels)
+show(p)
