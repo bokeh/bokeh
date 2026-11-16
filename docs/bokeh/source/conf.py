@@ -9,6 +9,7 @@ import locale
 
 locale.setlocale(locale.LC_TIME, "C")
 
+import json
 import os
 import re
 import sys
@@ -18,6 +19,7 @@ from pathlib import Path
 from sphinx.errors import SphinxError
 from sphinx.util import logging
 
+import bokeh
 from bokeh import __version__
 from bokeh.settings import settings
 
@@ -242,6 +244,22 @@ favicons = [
 
 templates_path = ["_templates"]
 
+def publish_schemas(app, exception):
+    """Publish Bokeh's JSON schemas under ``schemas/``, identified by this version's URL."""
+    if exception is not None or app.builder.format != "html":
+        return
+    target = Path(app.outdir) / "schemas"
+    target.mkdir(exist_ok=True)
+    for source in sorted((Path(bokeh.__file__).parent / "_schemas").glob("*.json")):
+        text = source.read_text(encoding="utf-8")
+        schema = json.loads(text)
+        url = f"https://docs.bokeh.org/en/{version_match}/schemas/{source.name}"
+        pattern = re.compile(r'("\$id"\s*:\s*)' + re.escape(json.dumps(schema["$id"])))
+        patched = pattern.sub(lambda match: match[1] + json.dumps(url), text, count=1)
+        if json.loads(patched) != {**schema, "$id": url}:
+            raise SphinxError(f"Unable to set $id of JSON schema {source.name}")
+        (target / source.name).write_text(patched, encoding="utf-8")
+
 def setup(app):
     for name in ("bokeh-hero.webp", "bokeh-hero-600.webp"):
         if not (Path(app.confdir) / "_static" / "images" / name).is_file():
@@ -250,3 +268,4 @@ def setup(app):
     app.add_object_type("confval", "confval", objname="configuration value", indextemplate="pair: %s; configuration value")
     app.add_js_file(None, body=f"const BOKEH_CURRENT_VERSION = {version!r};", priority=100)
     app.add_js_file("custom.js")
+    app.connect("build-finished", publish_schemas)
