@@ -50,6 +50,7 @@ if TYPE_CHECKING:
         ColumnsPatchedEvent,
         ColumnsStreamedEvent,
         DocumentPatchedEvent,
+        MessageSentEvent,
         ModelChangedEvent,
     )
     from ..document.json import PatchJson
@@ -299,8 +300,10 @@ class _ViewSetter:
         # The originating view already shows its own change, unless the kernel
         # changed the same property concurrently. Echoing it then makes the
         # view converge on the kernel's order of changes.
+        from ..document.events import MessageSentEvent
+
         setter = _ViewSetter.of(event)
-        if setter is None or comm_id != setter.comm_id or setter.conflicts is None:
+        if setter is None or comm_id != setter.comm_id or setter.conflicts is None or isinstance(event, MessageSentEvent):
             return False
         return (event.model.id, event.attr) not in setter.conflicts  # type: ignore[attr-defined]
 
@@ -541,6 +544,15 @@ class DocumentViewHandle:
         if self._belongs(event.model):
             self._record(event)
 
+    def _document_message_sent(self, event: MessageSentEvent) -> None:
+        # Like a server session, forward messages that aren't addressed to a
+        # model, e.g. custom messages, to every view of the document.
+        from ..events import ModelEvent
+
+        model = event.msg_data.model if isinstance(event.msg_data, ModelEvent) else None
+        if model is None or self._belongs(model):
+            self._record(event)
+
     def _belongs(self, model: Model) -> bool:
         return model in self._models
 
@@ -573,6 +585,7 @@ class DocumentViewHandle:
             return
         if not events or not self._comms:
             return
+        from ..document.events import MessageSentEvent
         from ..protocol import patch_doc
         message = patch_doc(events)
         content = json.loads(serialize_json(message.content))
@@ -581,7 +594,7 @@ class DocumentViewHandle:
         self._revision += 1
         self._changes[self._revision] = frozenset(
             (event.model.id, event.attr, setter.comm_id if (setter := _ViewSetter.of(event)) else None)  # type: ignore[attr-defined]
-            for event in events
+            for event in events if not isinstance(event, MessageSentEvent)
         )
         self._changes.pop(self._revision - self._MAX_TRACKED_REVISIONS, None)
         for comm_id, comm in tuple(self._comms.items()):

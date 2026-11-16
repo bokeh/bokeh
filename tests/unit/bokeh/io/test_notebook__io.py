@@ -867,6 +867,83 @@ class TestDocumentViewHandle:
         comm.send.assert_not_called()
         handle.close()
 
+    def test_python_events_reach_views_as_revisioned_patches(self) -> None:
+        from bokeh.models import FileInput
+
+        file_input = FileInput()
+        other = FileInput()
+        document = Document()
+        document.add_root(file_input)
+        document.add_root(other)
+        comm = MagicMock(comm_id="comm")
+        handle = m.DocumentViewHandle(file_input, live_id="live", view_id="view")
+        handle._attach(document)
+        handle._connect(comm)
+
+        file_input.clear()
+        other.clear()
+
+        [patch] = self._sent_patches(comm)
+        assert patch["revision"] == 1
+        [event] = patch["content"]["events"]
+        assert event["kind"] == "MessageSent"
+        assert event["msg_type"] == "bokeh_event"
+        assert event["msg_data"]["name"] == "clear_input"
+        [[name, model]] = event["msg_data"]["values"]["entries"]
+        assert name == "model"
+        assert model.get("id", model.get("$id")) == file_input.id
+        handle.close()
+
+    def test_custom_messages_reach_views_with_buffers_in_order(self) -> None:
+        from bokeh.document.events import MessageSentEvent
+
+        div = Div()
+        document = Document()
+        document.add_root(div)
+        comm = MagicMock(comm_id="comm")
+        handle = m.DocumentViewHandle(div, live_id="live", view_id="view")
+        handle._attach(document)
+        handle._connect(comm)
+
+        with handle:
+            div.text = "before"
+            document.callbacks.trigger_on_change(MessageSentEvent(document, "custom", {"data": np.array([1.0, 2.0])}))
+
+        [(envelope, buffers)] = [
+            (call.args[0], call.kwargs["buffers"]) for call in comm.send.call_args_list if call.args[0]["kind"] == "patch"
+        ]
+        assert envelope["revision"] == 1
+        assert [event["kind"] for event in envelope["content"]["events"]] == ["ModelChanged", "MessageSent"]
+        assert envelope["content"]["events"][1]["msg_type"] == "custom"
+        assert len(envelope["buffer_ids"]) == len(buffers) == 1
+        assert np.frombuffer(buffers[0]).tolist() == [1.0, 2.0]
+        handle.close()
+
+    def test_view_events_are_not_echoed_but_messages_from_callbacks_are(self) -> None:
+        from bokeh.events import ButtonClick
+        from bokeh.models import Button, FileInput
+
+        button = Button()
+        file_input = FileInput()
+        root = column(button, file_input)
+        document = Document()
+        document.add_root(root)
+        button.on_event(ButtonClick, lambda event: file_input.clear())
+        comm = MagicMock(comm_id="comm")
+        handle = m.DocumentViewHandle(root, live_id="live", view_id="view")
+        handle._attach(document)
+        handle._connect(comm)
+
+        handle._receive("comm", self._view_patch(0, {
+            "kind": "MessageSent",
+            "msg_type": "bokeh_event",
+            "msg_data": {"type": "event", "name": "button_click", "values": {"model": {"id": button.id}}},
+        }))
+
+        [patch] = self._sent_patches(comm)
+        assert [event["msg_data"]["name"] for event in patch["content"]["events"]] == ["clear_input"]
+        handle.close()
+
     def test_one_comm_close_does_not_destroy_other_views(self) -> None:
         plot = figure()
         document = Document()

@@ -542,6 +542,10 @@ print("two-way-ready")
             nbformat.v4.new_code_cell('''
 print(f"received:{received}")
 '''),
+            nbformat.v4.new_code_cell('''
+from bokeh.document.events import MessageSentEvent
+slider.document.callbacks.trigger_on_change(MessageSentEvent(slider.document, "two-way-message", {"value": 42}))
+'''),
         ],
     ), path)
     process, base_url, _env = _start_jupyter(tmp_path, extension=True)
@@ -551,7 +555,7 @@ print(f"received:{received}")
             page = browser.new_page(viewport={"width": 1440, "height": 1050})
             page.goto(f"{base_url}/lab/tree/two-way.ipynb")
             editors = page.locator(".jp-CodeCell .cm-content")
-            editors.nth(1).wait_for(timeout=30_000)
+            editors.nth(2).wait_for(timeout=30_000)
 
             _execute_cell_once(page, editors, 0)
             page.get_by_text("two-way-ready", exact=True).wait_for(timeout=30_000)
@@ -562,6 +566,24 @@ print(f"received:{received}")
             _wait_for_named_model(page, "two-way-div", text="clicked")
             _execute_cell_once(page, editors, 1)
             page.get_by_text("received:[6, 'click']", exact=True).wait_for(timeout=30_000)
+
+            page.evaluate("""
+              async () => {
+                window.twoWayMessages = []
+                for (const target of document.querySelectorAll("[data-bokeh-root]")) {
+                  const mount = await window.Bokeh.when_mounted(target)
+                  if (mount.document.get_model_by_name("two-way-slider") != null)
+                    mount.document.on_message("two-way-message", (data) => window.twoWayMessages.push(data))
+                }
+              }
+            """)
+            _execute_cell_once(page, editors, 2)
+            page.wait_for_function("""
+              () => {
+                const [data] = window.twoWayMessages
+                return (data instanceof Map ? data.get("value") : data?.value) === 42
+              }
+            """, timeout=30_000)
             browser.close()
     finally:
         _stop(process)

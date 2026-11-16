@@ -109,6 +109,25 @@ describe("notebook sessions", () => {
     session.close()
   })
 
+  it("delivers kernel messages to document message callbacks without sending them back", () => {
+    const range = Range1d.create({start: 0, end: 10})
+    const document = new Document({roots: [range]})
+    const sent: NotebookPatch[] = []
+    const session = create_notebook_session(document, 0, (patch) => sent.push(patch))
+    const received: unknown[] = []
+    document.on_message("custom", (data) => received.push(data))
+
+    session.receive({
+      kind: "patch",
+      revision: 1,
+      content: {events: [{kind: "MessageSent", msg_type: "custom", msg_data: {value: 1}}]},
+    })
+
+    expect(received.length).to.be.equal(1)
+    expect(sent).to.be.equal([])
+    session.close()
+  })
+
   it("stops sending local changes when closed", () => {
     const range = Range1d.create({start: 0, end: 10})
     const {session, sent} = session_for(range)

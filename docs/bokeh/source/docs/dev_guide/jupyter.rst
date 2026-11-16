@@ -85,7 +85,9 @@ Connected output
 
 Connected documents add a comm channel to the static artifact. The Python
 ``DocumentViewHandle`` sends document patches and binary buffers to each
-connected frontend view. Each view can reconnect from a complete snapshot and
+connected frontend view. As in a server session, these patches include
+``MessageSent`` events, such as the UI events sent by ``FileInput.clear()``.
+Events addressed to a model are only sent to views that display it. Each view can reconnect from a complete snapshot and
 then apply later revisions in order.
 
 Interactive views also send their own document changes to Python, as patches
