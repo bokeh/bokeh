@@ -1,3 +1,4 @@
+import type {Model} from "../model"
 import * as kinds from "core/kinds"
 import type {HasProps} from "core/has_props"
 import type {Deserializer} from "core/serialization/deserializer"
@@ -43,7 +44,7 @@ export type OverrideDef = {
 
 function create_def(def: ModelDef, deserializer: Deserializer): typeof Model {
   const {id: name} = def.extends
-  const base = deserializer.resolver.get(name)
+  const base = deserializer.resolver.get<typeof Model>(name)
   if (base == null) {
     throw new Error(`base model ${name} of ${def.name} is not defined`)
   }
