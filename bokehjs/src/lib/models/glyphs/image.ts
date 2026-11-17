@@ -22,6 +22,7 @@ export class ImageView extends ImageBaseView {
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.color_mapper.change, () => this._update_image())
+    this.connect(this.model.properties.color_mapper.change, () => this._update_image())
   }
 
   protected _update_image(): void {
@@ -34,11 +35,6 @@ export class ImageView extends ImageBaseView {
       this._set_data(null)
       this.renderer.request_paint()
     }
-  }
-
-  protected override get _can_inherit_image_data(): boolean {
-    return super._can_inherit_image_data &&
-      this._can_inherit_from(this.model.properties.color_mapper, this.base)
   }
 
   protected _flat_img_to_buf8(img: NDArrayType<number>): Uint8ClampedArray {
