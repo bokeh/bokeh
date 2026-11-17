@@ -1023,6 +1023,55 @@ describe("core/build_views", () => {
       parent.remove()
     })
 
+    it("should let a clear triggered by removal of the outgoing view supersede the build", async () => {
+      const {parent, slot} = await setup()
+      const model0 = GatedModel.create()
+      const model1 = GatedModel.create()
+
+      expect(await slot.build(model0)).to.be.true
+      const view0 = slot.view
+      expect_not_null(view0)
+
+      const reentrant: Promise<boolean>[] = []
+      view0.removed.connect(() => {
+        reentrant.push(slot.build(null))
+      })
+
+      expect(await slot.build(model1)).to.be.false
+      expect(reentrant.length).to.be.equal(1)
+      expect(await reentrant[0]).to.be.true
+      expect(slot.view).to.be.null
+      expect(view0.is_destroyed).to.be.true
+      expect(parent.owner.query_one((view) => view.model == model1)).to.be.null
+      parent.remove()
+    })
+
+    it("should let a build triggered by removal of the outgoing view supersede the build", async () => {
+      const {parent, slot} = await setup()
+      const model0 = GatedModel.create()
+      const model1 = GatedModel.create()
+      const model2 = GatedModel.create()
+
+      expect(await slot.build(model0)).to.be.true
+      const view0 = slot.view
+      expect_not_null(view0)
+
+      const reentrant: Promise<boolean>[] = []
+      view0.removed.connect(() => {
+        reentrant.push(slot.build(model2))
+      })
+
+      expect(await slot.build(model1)).to.be.false
+      const view1 = slot.view
+      expect(view1?.model).to.be.equal(model1)
+
+      expect(reentrant.length).to.be.equal(1)
+      expect(await reentrant[0]).to.be.true
+      expect(slot.view?.model).to.be.equal(model2)
+      expect(view1?.is_destroyed).to.be.true
+      parent.remove()
+    })
+
     it("should remove the current view and invalidate pending builds on remove()", async () => {
       const {parent, slot} = await setup()
       const model0 = GatedModel.create()

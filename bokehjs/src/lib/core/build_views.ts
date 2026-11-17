@@ -313,15 +313,20 @@ export class ChildViewSlot<T extends HasProps> {
       return false
     }
 
-    this._view?.remove()
+    // Swap before removing, because removal emits `removed` synchronously and
+    // its listeners may re-enter this slot (e.g. by changing the model). Then
+    // check again, as such a re-entrant build may have superseded this one.
+    const outgoing = this._view
     this._view = view
-    return true
+    outgoing?.remove()
+    return is_current()
   }
 
   /** Removes the current view, if any, and invalidates pending builds. */
   remove(): void {
     this._generation += 1
-    this._view?.remove()
+    const outgoing = this._view
     this._view = null
+    outgoing?.remove()
   }
 }
