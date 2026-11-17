@@ -8,7 +8,7 @@ import {figure} from "@bokehjs/api/plotting"
 import type {Location, WindowAxis} from "@bokehjs/core/enums"
 import type {OverflowOrientation} from "@bokehjs/models/tools/toolbar"
 import {DataRange1d, Range1d, LinearScale, LinearAxis, ColumnDataSource, Pane} from "@bokehjs/models"
-import {Text} from "@bokehjs/models/dom"
+import {HTML} from "@bokehjs/models/dom"
 import type {Data} from "@bokehjs/core/types"
 
 describe("Plot", () => {
@@ -379,9 +379,9 @@ describe("Plot", () => {
 
     const pane = Pane.create({
       elements: [
-        Text.create({content: "This plot should"}),
+        HTML.create({html: "This plot should", style: {display: "inline"}}),
         plot,
-        Text.create({content: "create its own block."}),
+        HTML.create({html: "create its own block.", style: {display: "inline"}}),
       ],
     })
     await display(pane, [300, 100])
@@ -397,9 +397,9 @@ describe("Plot", () => {
 
     const pane = Pane.create({
       elements: [
-        Text.create({content: "This plot should"}),
+        HTML.create({html: "This plot should", style: {display: "inline"}}),
         plot,
-        Text.create({content: "be displayed inline."}),
+        HTML.create({html: "be displayed inline.", style: {display: "inline"}}),
       ],
     })
     await display(pane, [300, 100])

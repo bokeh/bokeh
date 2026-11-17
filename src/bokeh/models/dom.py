@@ -52,7 +52,6 @@ __all__ = (
     "Span",
     "Table",
     "TableRow",
-    "Text",
 )
 
 #-----------------------------------------------------------------------------
@@ -67,11 +66,6 @@ class DOMNode(Model, Qualified):
             exclude: set[str] | None = None) -> Any:
         from ..io.notebook import notebook_mimebundle
         return notebook_mimebundle(self, include=include, exclude=exclude)
-
-class Text(DOMNode):
-    """ DOM text node. """
-
-    content = String("")
 
 @abstract
 class DOMElement(DOMNode):
