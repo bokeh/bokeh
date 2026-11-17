@@ -1,0 +1,195 @@
+#!/usr/bin/env python3
+""" Squash-merge a GitHub PR, collecting all Co-authored-by trailers from the
+PR's commits, plus the commits' authors other than the PR author, into a
+single deduplicated block at the end of the message.
+
+The PR must be labelled ``status: ready`` or ``status: accepted``. After
+merging, relabels the PR ``status: ready`` -> ``status: accepted`` (if needed)
+and adds ``reso: completed`` to the issues the PR fixes (or to the PR itself if
+it doesn't fix any issues), and deletes the PR's branch from GitHub (unless it's
+in a fork or other open PRs are based on it).
+
+The PR can be given by number, URL or head branch name (anything ``gh pr view``
+accepts).
+
+usage: git_squash_merge.py <pr-number | url | branch>
+"""
+
+from __future__ import annotations
+
+import json
+import re
+import subprocess
+import sys
+from typing import Any
+from urllib.parse import quote
+
+CO_AUTHORED_BY = re.compile(r"^co-authored-by:", re.IGNORECASE)
+
+def error(message: str) -> None:
+    print(f"error: {message}", file=sys.stderr)
+    sys.exit(1)
+
+def info_line(message: str) -> None:
+    """ Report an action before performing it. Flushed, so that it comes
+    before the output of the command performing it. """
+    print(message, flush=True)
+
+def run(*args: str) -> None:
+    """ Run a command, letting its output through. On failure, exit with its
+    exit code (the command has already reported the error on stderr). """
+    result = subprocess.run(args, stdin=subprocess.DEVNULL)
+    if result.returncode != 0:
+        sys.exit(result.returncode)
+
+def output(*args: str) -> str:
+    """ Like ``run()``, but return the command's stdout. """
+    result = subprocess.run(args, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, text=True)
+    if result.returncode != 0:
+        sys.exit(result.returncode)
+    return result.stdout
+
+def gh_json(*args: str) -> Any:
+    return json.loads(output("gh", *args))
+
+def squeeze_blank_lines(lines: list[str]) -> list[str]:
+    """ Collapse runs of blank lines into a single one, like ``cat -s``. """
+    result: list[str] = []
+    for line in lines:
+        if line.strip() == "" and result and result[-1].strip() == "":
+            continue
+        result.append(line)
+    return result
+
+def build_message(log: str, authors: list[str]) -> str:
+    lines = log.splitlines()
+    body = squeeze_blank_lines([line for line in lines if not CO_AUTHORED_BY.match(line)])
+
+    trailers: list[str] = []
+    seen: set[str] = set()
+    for line in [*lines, *authors]:
+        if CO_AUTHORED_BY.match(line) and (key := line.lower()) not in seen:
+            seen.add(key)
+            trailers.append(line)
+
+    msg = "\n".join(body).rstrip("\n")
+    if trailers:
+        msg += "\n\n" + "\n".join(trailers)
+    return msg
+
+def delete_head_branch(pr: str, info: Any) -> bool:
+    """ Delete the merged PR's head branch from GitHub, like the "Delete branch"
+    button does. Branches in forks, and branches other open PRs are based on (they
+    would be closed), are left alone. Returns ``False`` if the deletion failed. """
+    branch: str = info["headRefName"]
+    repo: str = info["headRepository"]["nameWithOwner"]
+
+    if info["isCrossRepository"]:
+        info_line(f"PR #{pr}: branch '{branch}' is in fork {repo}, not deleting it")
+        return True
+
+    dependents = gh_json("pr", "list", "--repo", repo, "--base", branch, "--state", "open", "--json", "number")
+    if dependents:
+        numbers = ", ".join(f"#{dependent['number']}" for dependent in dependents)
+        info_line(f"PR #{pr}: branch '{branch}' is the base of open PRs {numbers}, not deleting it")
+        return True
+
+    info_line(f"PR #{pr}: deleting branch '{branch}' from {repo}")
+    ref = f"repos/{repo}/git/refs/heads/{quote(branch, safe='/')}"
+    result = subprocess.run(["gh", "api", "--method", "DELETE", ref], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+    if result.returncode != 0:
+        print(f"error: failed to delete branch '{branch}' from {repo}", file=sys.stderr)
+        return False
+    return True
+
+def main(argv: list[str]) -> None:
+    if len(argv) != 1:
+        print("usage: git_squash_merge.py <pr-number | url | branch>", file=sys.stderr)
+        sys.exit(1)
+
+    [pr_ref] = argv
+
+    # Everything about the PR comes from a single query, so it all describes the
+    # same state of the PR.
+    info = gh_json("pr", "view", pr_ref, "--json",
+        "number,labels,baseRefName,title,headRefOid,author,commits,headRefName,headRepository,isCrossRepository")
+
+    # From here on, refer to the PR by number, however it was given.
+    pr = str(info["number"])
+
+    labels = {label["name"] for label in info["labels"]}
+    if not labels & {"status: ready", "status: accepted"}:
+        error(f"PR #{pr} is not labelled 'status: ready' or 'status: accepted'")
+
+    base: str = info["baseRefName"]
+    title: str = info["title"]
+    head_oid: str = info["headRefOid"]
+
+    # GitHub's own squash message credits the commits' authors (other than the PR
+    # author), but a custom --body doesn't, so add them here.
+    pr_author = info["author"]["login"]
+    authors = [
+        f"Co-authored-by: {author['name']} <{author['email']}>"
+        for commit in info["commits"]
+        for author in commit["authors"]
+        if author.get("login") != pr_author
+    ]
+
+    run("git", "fetch", "-q", "origin", f"pull/{pr}/head", base)
+    if output("git", "rev-parse", "FETCH_HEAD").strip() != head_oid:
+        error(f"PR #{pr} head changed while fetching; try again")
+
+    log = output("git", "log", "--reverse", "--no-merges", "--format=* %B", f"origin/{base}..{head_oid}")
+    subject = f"{title} (#{pr})"
+    msg = build_message(log, authors)
+
+    print(f"{subject}\n\n{msg}\n", flush=True)
+    print("Merge? [y/N] ", end="", file=sys.stderr, flush=True)
+    try:
+        ok = input()
+    except EOFError:
+        ok = ""
+    if ok != "y":
+        return
+
+    # Refuse to merge if the PR was pushed to after the message was built.
+    run("gh", "pr", "merge", pr, "--squash", "--match-head-commit", head_oid, "--subject", subject, "--body", msg)
+
+    # gh pr merge also succeeds when it only enables auto-merge or adds the PR to a
+    # merge queue, so don't touch labels until the PR is actually merged.
+    merged = gh_json("pr", "view", pr, "--json", "state,closingIssuesReferences")
+    state = merged["state"]
+    if state != "MERGED":
+        error(f"PR #{pr} is not merged (state: {state}); labels not updated")
+
+    # A failure to delete the branch shouldn't stop labelling, so it's reported at the end.
+    branch_deleted = delete_head_branch(pr, info)
+
+    if "status: ready" in labels:
+        info_line(f"PR #{pr}: replacing 'status: ready' with 'status: accepted'")
+        run("gh", "pr", "edit", pr, "--remove-label", "status: ready", "--add-label", "status: accepted")
+    else:
+        info_line(f"PR #{pr}: already labelled 'status: accepted'")
+
+    issues = merged["closingIssuesReferences"]
+    if issues:
+        # Label every issue even if some fail, then report the failures at the end.
+        failed: list[str] = []
+        for issue in issues:
+            repo = issue["repository"]
+            name = f"{repo['owner']['login']}/{repo['name']}#{issue['number']}"
+            info_line(f"issue {name}: adding 'reso: completed'")
+            result = subprocess.run(["gh", "issue", "edit", issue["url"], "--add-label", "reso: completed"], stdin=subprocess.DEVNULL)
+            if result.returncode != 0:
+                failed.append(issue["url"])
+        if failed:
+            error("failed to add 'reso: completed' to:\n" + "\n".join(f"  {url}" for url in failed))
+    else:
+        info_line(f"PR #{pr}: closes no issues, adding 'reso: completed' to the PR")
+        run("gh", "pr", "edit", pr, "--add-label", "reso: completed")
+
+    if not branch_deleted:
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
