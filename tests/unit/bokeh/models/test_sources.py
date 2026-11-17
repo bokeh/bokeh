@@ -380,6 +380,8 @@ class TestColumnDataSource:
         ds = bms.ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
         with pytest.raises(ValueError, match=r"Out-of bounds index \(3\) in patch for column: a"):
             ds.patch(dict(a=[(3, 100)]))
+        with pytest.raises(ValueError, match=r"Out-of bounds index \(-1\) in patch for column: a"):
+            ds.patch(dict(a=[(-1, 100)]))
         with pytest.raises(ValueError, match=r"Out-of bounds index \(2\) in patch for column: b"):
             ds.patch(dict(a=[(0, 100)], b=[(2, 100)]))
         assert ds.data == dict(a=[10, 11], b=[20, 21])
