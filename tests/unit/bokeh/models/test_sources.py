@@ -982,6 +982,19 @@ Lime,Green,99,$0.39
 1,,-inf
 """
 
+    def test_array_to_csv_selection(self) -> None:
+        data = dict(a=np.array([np.datetime64("2026-10-29T04:24:34"), np.nan]), b=[np.inf, -np.inf])
+        df = pd.DataFrame(data)
+        ds = bms.ColumnDataSource(df)
+        ds.selected.indices = [0]
+        assert ds.to_csv() == """index,a,b
+0,2026-10-29 04:24:34,inf
+"""
+        ds.selected.indices = [1]
+        assert ds.to_csv() == """index,a,b
+1,,-inf
+"""
+
     def test_to_json(self) -> None:
         data = dict(a=[1.123456789012345, 1e-11], b=[1e-11, 3])
         df = pd.DataFrame(data)
@@ -993,6 +1006,15 @@ Lime,Green,99,$0.39
         df = pd.DataFrame(data)
         ds = bms.ColumnDataSource(df)
         assert ds.to_json() == '{"index": [0, 1], "a": [1793247874000.0, null], "b": [null, null]}'
+
+    def test_array_to_json_selection(self) -> None:
+        data = dict(a=np.array([np.datetime64("2026-10-29T04:24:34"), np.nan]), b=np.array([np.inf, -np.inf]))
+        df = pd.DataFrame(data)
+        ds = bms.ColumnDataSource(df)
+        ds.selected.indices = [0]
+        assert ds.to_json() == '{"index": [0], "a": [1793247874000.0], "b": [null]}'
+        ds.selected.indices = [1]
+        assert ds.to_json() == '{"index": [1], "a": [null], "b": [null]}'
 
 class TestDataTable:
     def test_from_data_with_dataframe(self):

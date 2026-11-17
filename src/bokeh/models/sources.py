@@ -565,8 +565,8 @@ class ColumnDataSource(ColumnarDataSource):
 
         selected_indices = self.selected.indices
         if len(selected_indices) > 0:
-            return json.dumps(self.to_df().iloc[self.selected.indices].replace([np.inf, -np.inf], np.nan).to_dict(orient="list"), cls=ToJSONEncoder)
-        return json.dumps(self.to_df().replace([np.inf, -np.inf], pd.NaT).to_dict(orient="list"), cls=ToJSONEncoder)
+            return json.dumps(self.to_df().iloc[self.selected.indices].replace([np.inf, -np.inf, np.nan], pd.NaT).to_dict(orient="list"), cls=ToJSONEncoder)
+        return json.dumps(self.to_df().replace([np.inf, -np.inf, np.nan], pd.NaT).to_dict(orient="list"), cls=ToJSONEncoder)
 
     def add(self, data: Sequence[Any], name: str | None = None) -> str:
         ''' Appends a new column of data to the data source.
