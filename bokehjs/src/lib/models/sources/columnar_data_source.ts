@@ -147,7 +147,7 @@ export abstract class ColumnarDataSource extends IndexedDataSource {
 
   get_row(index: Index): PlainObject {
     const i = isNumber(index) ? index : index.index
-    const result: PlainObject = {}
+    const result: PlainObject = Object.create(null)
     for (const [column, array] of entries(this.data)) {
       if (is_NDArray(array) && array.dimension > 1) {
         define_lazy_row_value(result, column, array, i)
@@ -158,9 +158,9 @@ export abstract class ColumnarDataSource extends IndexedDataSource {
     return result
   }
 
-  get_rows(indices: OpaqueIndices): {[key: string]: unknown} {
+  get_rows(indices: OpaqueIndices): PlainObject {
     const mapped_indices = map(indices, (index: Index) => isNumber(index) ? index : index.index)
-    const result: {[key: string]: unknown} = Object.create(null)
+    const result: PlainObject = Object.create(null)
     for (const [column, array] of entries(this.data)) {
       result[column] = map(mapped_indices, (index: number) => is_NDArray(array) ? array.get(index) : array[index])
     }
