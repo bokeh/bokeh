@@ -24,6 +24,7 @@ import gzip
 import json
 import sys
 from dataclasses import asdict, is_dataclass
+from datetime import date
 from os import fspath
 from typing import (
     TYPE_CHECKING,
@@ -115,6 +116,8 @@ class ToJSONEncoder(json.JSONEncoder):
             return transform_array(o)
         if is_datetime_type(o):
             return convert_datetime_type(o)
+        if isinstance(o, date):
+            return o.isoformat()
         return super().default(o)
 
 @abstract
