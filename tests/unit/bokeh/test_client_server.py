@@ -35,13 +35,13 @@ from bokeh.core.properties import (
     Nullable,
     String,
 )
-from bokeh.core.property.singletons import Undefined
 from bokeh.core.property_aliases import AngleUnits, SpatialUnits
 from bokeh.core.types import ID
 from bokeh.document import Document
 from bokeh.document.events import ModelChangedEvent, TitleChangedEvent
 from bokeh.model import Committed, Model
 from bokeh.models import ColumnDataSource, Plot, Slider
+from bokeh.util.callback_manager import OldValueUnavailable
 from bokeh.util.token import generate_jwt_token
 from tests.support.plugins.managed_server_loop import MSL
 from tests.support.util.env import envset
@@ -102,7 +102,7 @@ class TestClientServer:
                 slider, = session.document.roots
                 assert isinstance(slider, Slider)
                 assert slider.value == 1
-                assert calls == [("value", Undefined, 1)]
+                assert calls == [("value", OldValueUnavailable, 1)]
 
     def test_minimal_connect_and_disconnect(self, ManagedServerLoop: MSL) -> None:
         application = Application()

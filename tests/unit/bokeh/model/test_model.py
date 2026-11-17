@@ -35,6 +35,7 @@ from bokeh.models import (
 from bokeh.models.annotations.dimensional import Metric
 from bokeh.models.dom import HTML
 from bokeh.plotting import *  # noqa: F403
+from bokeh.util.callback_manager import OldValueUnavailable
 
 from bokeh.document import document # isort:skip
 
@@ -346,10 +347,13 @@ class Test_callback_policies:
         assert "_subscribed_changes" not in m.properties_with_values(include_defaults=False)
 
     def test_on_change_immediate_does_not_read_unset_property(self) -> None:
+        calls: list[tuple[str, object, object]] = []
         slider = Slider()
-        slider.on_change("value", self.callback)
+        slider.on_change("value", lambda attr, old, new: calls.append((attr, old, new)))
 
         assert slider._subscribed_changes == {}
+        slider.value = 1
+        assert calls == [("value", OldValueUnavailable, 1)]
 
     def test_on_change_committed_registers_on_unset_property(self) -> None:
         slider = Slider(start=0, end=10)
@@ -489,7 +493,7 @@ class Test_callback_policies:
         assert calls == []
 
         model.value = 1
-        assert calls == [("value", Undefined, 1)]
+        assert calls == [("value", OldValueUnavailable, 1)]
 
     def test_local_changes_advance_each_browser_stream_old_value(self) -> None:
         calls: list[tuple[str, int, int]] = []
@@ -552,7 +556,7 @@ class Test_callback_policies:
         slider = Slider(start=0, end=10)
         if not initially_unset:
             slider.value = 0
-        initial_value = Undefined if initially_unset else 0
+        initial_value = OldValueUnavailable if initially_unset else 0
         slider.on_change("value", lambda attr, old, new: calls.append(("immediate", old, new)))
         slider.on_change("value", lambda attr, old, new: calls.append(("committed", old, new)), policy=Committed())
         doc = Document()

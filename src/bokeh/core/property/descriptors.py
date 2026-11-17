@@ -101,7 +101,7 @@ from typing import (
 )
 
 from .exceptions import PropertyError
-from .singletons import Undefined
+from .singletons import OldValueUnavailable, Undefined
 from .wrappers import PropertyValueColumnData, PropertyValueContainer
 
 if TYPE_CHECKING:
@@ -790,8 +790,8 @@ class PropertyDescriptor[GetType, SetType = GetType]:
 
             old (obj) :
                 The previous value of the property, or
-                ``OldValueUnavailable`` when an incremental update didn't
-                retain it.
+                ``Undefined`` if the property was unset or
+                ``OldValueUnavailable`` if the previous value wasn't retained.
 
             value (obj) :
                 The new value of the property
@@ -821,7 +821,8 @@ class PropertyDescriptor[GetType, SetType = GetType]:
 
         """
         if hasattr(obj, 'trigger'):
-            cast(_HasTrigger, obj).trigger(self.name, old, value, hint, setter)
+            notification_old = OldValueUnavailable if old is Undefined else old
+            cast(_HasTrigger, obj).trigger(self.name, notification_old, value, hint, setter)
 
 
 _CDS_SET_FROM_CDS_ERROR = """

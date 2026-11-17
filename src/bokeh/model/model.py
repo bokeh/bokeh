@@ -61,7 +61,7 @@ from ..core.property.primitive import (
     Null,
     String,
 )
-from ..core.property.singletons import Undefined
+from ..core.property.singletons import OldValueUnavailable
 from ..core.property.validation import without_property_validation
 from ..core.serialization import ObjectRefRep, Ref, Serializer
 from ..events import Event
@@ -791,15 +791,11 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         only to callbacks passed in that registration call, so the same
         property, and even the same callback, can have multiple policies.
 
-        If the property is unset, callbacks receive ``Undefined`` as ``old``
-        on its first assignment.
-
         .. note::
-            For changes to ``ColumnDataSource.data`` made by ``stream()`` or
-            ``patch()``, callbacks receive
-            :data:`~bokeh.util.callback_manager.OldValueUnavailable` as
-            ``old``. Incremental updates deliberately don't retain complete
-            copies of the previous columns.
+            Callbacks receive :data:`~bokeh.util.callback_manager.OldValueUnavailable`
+            as ``old`` on the first assignment to an unset property. They also
+            receive it for ``ColumnDataSource.data`` changes made by ``stream()``
+            or ``patch()``, which don't retain complete copies of the previous columns.
 
         '''
         descriptor = self.lookup(attr)
@@ -877,7 +873,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         try:
             return descriptor.get_value(self)
         except UnsetValueError:
-            return Undefined
+            return OldValueUnavailable
 
     def _set_from_json_with_callback_policy(self, attr: str, value: Any,
             policy: _CallbackPolicy, *, setter: Setter | None = None) -> None:

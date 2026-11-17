@@ -81,14 +81,14 @@ class UndefinedType(_Singleton):
 Undefined = UndefinedType()
 
 class _OldValueUnavailableType(_Singleton):
-    """Indicates that an incremental update didn't retain the previous value."""
+    """Indicates that the previous value is unavailable to a property callback."""
 
     _name = "OldValueUnavailable"
 
     __slots__ = ()
 
-#: Sentinel passed as ``old`` to property callbacks when an incremental
-#: update doesn't retain the complete previous value.
+#: Sentinel passed as ``old`` to property callbacks when a property had no
+#: previous value or an incremental update didn't retain it.
 OldValueUnavailable = _OldValueUnavailableType()
 
 class _NotGivenType(_Singleton):
