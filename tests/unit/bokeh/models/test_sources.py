@@ -24,6 +24,7 @@ import narwhals.stable.v1 as nw
 import numpy as np
 import pytest
 
+from bokeh.core.property.singletons import Undefined
 from bokeh.models import (
     ColumnDataSource,
     DataTable,
@@ -774,7 +775,7 @@ class TestColumnDataSourcePandas:
 
         assert stream_stuff['kwargs'] == {}
 
-        assert notify_owners_stuff['args'] == (OldValueUnavailable,)
+        assert notify_owners_stuff['args'] == (Undefined,)
 
         self._assert_equal_dicts_of_arrays(dict(ds.data),
                                            dict(a=np.array([10, 11, 12]),
@@ -821,7 +822,7 @@ class TestColumnDataSourcePandas:
 
         assert stream_stuff['kwargs'] == {}
 
-        assert notify_owners_stuff['args'] == (OldValueUnavailable,)
+        assert notify_owners_stuff['args'] == (Undefined,)
 
         self._assert_equal_dicts_of_arrays(dict(ds.data),
                                            dict(a=np.array([10, 11]),
@@ -871,7 +872,7 @@ class TestColumnDataSourcePandas:
 
         assert stream_stuff['kwargs'] == {}
 
-        assert notify_owners_stuff['args'] == (OldValueUnavailable,)
+        assert notify_owners_stuff['args'] == (Undefined,)
 
         self._assert_equal_dicts_of_arrays(dict(ds.data),
                                            dict(a=np.array([10, 11, 12]),
@@ -921,7 +922,7 @@ class TestColumnDataSourcePandas:
 
         assert stream_stuff['kwargs'] == {}
 
-        assert notify_owners_stuff['args'] == (OldValueUnavailable,)
+        assert notify_owners_stuff['args'] == (Undefined,)
 
         self._assert_equal_dicts_of_arrays(dict(ds.data),
                                            dict(a=np.array([10, 11, 12]),

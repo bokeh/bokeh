@@ -43,8 +43,8 @@ from bokeh.core.properties import (
     String,
     Tuple,
 )
+from bokeh.core.property.singletons import Undefined
 from bokeh.models import ColumnDataSource
-from bokeh.util.callback_manager import OldValueUnavailable
 from tests.support.util.api import verify_all
 
 from _util_property import _TestModel
@@ -70,7 +70,7 @@ ALL = (
 #-----------------------------------------------------------------------------
 
 def _assert_old_value_unavailable(mock_notify: MagicMock) -> None:
-    assert mock_notify.call_args.args == (OldValueUnavailable,)
+    assert mock_notify.call_args.args == (Undefined,)
 
 #-----------------------------------------------------------------------------
 # Dev API

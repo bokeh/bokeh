@@ -530,9 +530,8 @@ class PropertyDescriptor[GetType, SetType = GetType]:
                 The object the property is being set on.
 
             old (obj) :
-                The previous value of the property, or
-                ``OldValueUnavailable`` when an incremental update didn't
-                retain it.
+                The previous value of the property, or ``Undefined`` if
+                there was no previous value.
 
         Returns:
             None
@@ -757,7 +756,7 @@ class PropertyDescriptor[GetType, SetType = GetType]:
                 The "old" value of the container
 
                 This is normally a copy. Incremental updates that don't
-                retain the previous value use ``OldValueUnavailable``. The
+                retain the previous value use ``Undefined``. The
                 new value is already set unless validation changes it.
 
             hint (event hint or None, optional) :
@@ -789,9 +788,8 @@ class PropertyDescriptor[GetType, SetType = GetType]:
                 The object the property is being set on.
 
             old (obj) :
-                The previous value of the property, or
-                ``Undefined`` if the property was unset or
-                ``OldValueUnavailable`` if the previous value wasn't retained.
+                The previous value of the property, or ``Undefined`` if
+                there was no previous value or it wasn't retained.
 
             value (obj) :
                 The new value of the property
