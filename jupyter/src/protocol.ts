@@ -52,6 +52,8 @@ export interface DisplayPayload {
   resource_records?: ResourceRecord[]
   live_id?: string
   application_id?: string
+  /** "comms" when every view of the application gets its own session over notebook comms. */
+  transport?: "comms"
 }
 
 export interface FilePayload {
@@ -144,6 +146,10 @@ export function assertProtocol(payload: unknown): void {
     if (record.source_kind !== "standalone" && record.source_kind !== "server") problems.push("source_kind must be standalone or server")
     if (has(record, "live_id")) stringField("live_id")
     if (has(record, "application_id")) stringField("application_id")
+    if (has(record, "transport")) {
+      if (record.transport !== "comms") problems.push("transport must be comms")
+      if (!has(record, "application_id")) problems.push("transport requires application_id")
+    }
     if (has(record, "application_url")) problems.push("application_url must not be persisted in notebook output")
     if (has(record, "resource_records")) {
       if (!Array.isArray(record.resource_records)) {

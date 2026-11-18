@@ -676,3 +676,128 @@ def test_local_application_connects_without_jupyter_server_proxy(tmp_path: Path)
             browser.close()
     finally:
         _stop(process)
+
+
+def _comm_application_notebook() -> Any:
+    return nbformat.v4.new_notebook(
+        metadata={"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
+        cells=[
+            nbformat.v4.new_code_cell('''
+from bokeh.io import serve, show
+from bokeh.layouts import column
+from bokeh.models import Button, Div, Slider
+
+def modify_document(doc):
+    slider = Slider(start=0, end=10, value=1, name="comm-slider")
+    div = Div(text="value:1", name="comm-div")
+    button = Button(label="fail", name="comm-button")
+
+    def clamp(attr, old, new):
+        if new > 5:
+            slider.value = 5
+        div.text = f"value:{slider.value}"
+
+    def fail(event):
+        raise ZeroDivisionError("callback failed on purpose")
+
+    slider.on_change("value", clamp)
+    button.on_click(fail)
+    doc.add_root(column(slider, div, button))
+
+app = serve(modify_document, transport="comms")
+first = show(app)
+second = show(app)
+print("comm-app-ready")
+'''),
+            nbformat.v4.new_code_cell('''
+print(f"comm-sessions:{len(app.sessions)}:{first.views}:{second.views}")
+'''),
+            nbformat.v4.new_code_cell('''
+second.sessions[0].document.get_model_by_name("comm-div").text = "from-a-later-cell"
+print("kernel-updated")
+'''),
+        ],
+    )
+
+
+_COMM_VIEW_MODEL = """
+async ({view, name}) => {
+  const targets = document.querySelectorAll(".jp-CodeCell")[0].querySelectorAll("[data-bokeh-root]")
+  const mount = targets[view]?.bokehMount
+  if (mount?.state !== "ready")
+    return null
+  const model = mount.document.get_model_by_name(name)
+  return model == null ? null : {value: model.value ?? null, text: model.text ?? null}
+}
+"""
+
+
+def test_jupyterlab_comm_application_runs_one_session_per_view_without_a_server(tmp_path: Path) -> None:
+    playwright = pytest.importorskip("playwright.sync_api")
+    extension = Path(bokeh.__file__).parent / "jupyter" / "labextension" / "package.json"
+    if not extension.is_file():
+        pytest.skip("the first-party Jupyter extension must be built")
+    path = tmp_path / "comm-application.ipynb"
+    nbformat.write(_comm_application_notebook(), path)
+    process, base_url, _env = _start_jupyter(tmp_path, extension=True, proxy=False)
+    try:
+        with playwright.sync_playwright() as manager:
+            browser = manager.chromium.launch()
+            page = browser.new_page(viewport={"width": 1440, "height": 1050})
+            websockets: list[str] = []
+            page.on("websocket", lambda websocket: websockets.append(websocket.url))
+            page.goto(f"{base_url}/lab/tree/comm-application.ipynb")
+            editors = page.locator(".jp-CodeCell .cm-content")
+            editors.nth(2).wait_for(timeout=30_000)
+
+            _execute_cell_once(page, editors, 0, timeout=60_000)
+            page.get_by_text("comm-app-ready", exact=True).wait_for(timeout=30_000)
+
+            def model(view: int, name: str) -> Any:
+                return page.evaluate(_COMM_VIEW_MODEL, {"view": view, "name": name})
+
+            def wait_for(view: int, name: str, key: str, expected: Any) -> None:
+                page.wait_for_function(
+                    f"async (arg) => (await ({_COMM_VIEW_MODEL})(arg))?.{key} === arg.expected",
+                    arg={"view": view, "name": name, "expected": expected},
+                    timeout=30_000,
+                )
+
+            wait_for(0, "comm-slider", "value", 1)
+            wait_for(1, "comm-slider", "value", 1)
+            _execute_cell_once(page, editors, 1)
+            page.get_by_text("comm-sessions:2:1:1", exact=True).wait_for(timeout=30_000)
+
+            # A browser change runs the Python callback in the first view's
+            # session, whose correction comes back to that view only.
+            page.evaluate("""
+              () => {
+                const target = document.querySelectorAll(".jp-CodeCell")[0].querySelectorAll("[data-bokeh-root]")[0]
+                target.bokehMount.document.get_model_by_name("comm-slider").value = 9
+              }
+            """)
+            wait_for(0, "comm-slider", "value", 5)
+            wait_for(0, "comm-div", "text", "value:5")
+            assert model(1, "comm-slider") == {"value": 1, "text": None}
+            assert model(1, "comm-div")["text"] == "value:1"
+
+            # A failing callback is reported in the view that triggered it.
+            outputs = page.locator(".jp-CodeCell").nth(0).locator(".jp-OutputArea-output")
+            outputs.nth(0).locator(".bk-Button button").click()
+            error = outputs.nth(0).locator(".bk-notebook-session-error")
+            error.wait_for(timeout=30_000)
+            assert "ZeroDivisionError: callback failed on purpose" in error.inner_text()
+            assert outputs.nth(1).locator(".bk-notebook-session-error").count() == 0
+
+            # A later cell changes one view's session document directly.
+            _execute_cell_once(page, editors, 2)
+            page.get_by_text("kernel-updated", exact=True).wait_for(timeout=30_000)
+            wait_for(1, "comm-div", "text", "from-a-later-cell")
+            assert model(0, "comm-div")["text"] == "value:5"
+
+            assert page.locator(".bk-notebook-diagnostic").count() == 0
+            assert [url for url in websockets if "/api/kernels/" not in url and "/api/events/" not in url] == []
+            _screenshot_artifact(page.locator(".jp-CodeCell").nth(0), "jupyterlab-comm-application.png")
+            browser.close()
+    finally:
+        _stop(process)
