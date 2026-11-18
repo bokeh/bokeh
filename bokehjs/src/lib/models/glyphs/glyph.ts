@@ -108,9 +108,9 @@ export abstract class GlyphView extends DOMComponentView {
 
   readonly path_markings: ViewStorage<PathPlacement> = new Map()
 
-  protected async _build_path_markings(): Promise<void> {
+  protected _build_path_markings(): void {
     const models = supports_path_marking(this.model) ? this.model.path_markings : []
-    await build_views(this.path_markings, models, {parent: this})
+    build_views(this.path_markings, models, {parent: this})
   }
 
   protected _path_marking_insets(i: number): {start: number, end: number} {
@@ -133,9 +133,9 @@ export abstract class GlyphView extends DOMComponentView {
     return [...super._children_views(), ...this.path_markings.values()]
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    await this._build_path_markings()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
+    this._build_path_markings()
   }
 
   override connect_signals(): void {
@@ -143,8 +143,8 @@ export abstract class GlyphView extends DOMComponentView {
     if (!supports_path_marking(this.model)) {
       return
     }
-    this.connect(this.model.properties.path_markings.change, async () => {
-      await this._build_path_markings()
+    this.connect(this.model.properties.path_markings.change, () => {
+      this._build_path_markings()
       if (this.is_destroyed) {
         return
       }

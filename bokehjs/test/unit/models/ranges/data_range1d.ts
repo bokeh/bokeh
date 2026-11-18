@@ -143,7 +143,7 @@ describe("DataRange1d", () => {
       const glyph = Scatter.create({x: {field: "x"}, y: {field: "y"}})
       const renderer = GlyphRenderer.create({data_source: source, glyph})
       const p = Plot.create({renderers: [renderer], y_range})
-      const pv = await build_view(p)
+      const pv = build_view(p)
       const range_manager = (pv as any)._range_manager as RangeManager // XXX: protected
 
       expect(y_range.start).to.be.equal(1)
@@ -170,7 +170,7 @@ describe("DataRange1d", () => {
         const glyph = Scatter.create({x: {field: "x"}, y: {field: "y"}})
         const renderer = GlyphRenderer.create({data_source: source, glyph})
         const p = Plot.create({renderers: [renderer], y_range})
-        const pv = await build_view(p)
+        const pv = build_view(p)
         const range_manager = (pv as any)._range_manager as RangeManager // XXX: protected
 
         expect(range_manager.invalidate_dataranges).to.be.false
@@ -211,7 +211,7 @@ describe("DataRange1d", () => {
         visible: false,
       })
       const p = Plot.create({renderers: [visible_renderer, invisible_renderer], y_range})
-      const pv = await build_view(p)
+      const pv = build_view(p)
       const range_manager = (pv as any)._range_manager as RangeManager // XXX: protected
 
       expect(y_range.start).to.be.equal(1)
@@ -234,13 +234,13 @@ describe("DataRange1d", () => {
       const r1 = DataRange1d.create()
       const g1 = GlyphRenderer.create({data_source: ColumnDataSource.create(), glyph: Scatter.create()})
       const p1 = Plot.create({renderers: [g1], x_range: r1})
-      await build_view(p1)
+      build_view(p1)
       expect(r1.computed_renderers()).to.be.equal([g1])
 
       const r2 = DataRange1d.create()
       const g2 = GlyphRenderer.create({data_source: ColumnDataSource.create(), glyph: Scatter.create()})
       const p2 = Plot.create({renderers: [g1, g2], x_range: r2})
-      await build_view(p2)
+      build_view(p2)
       expect(r2.computed_renderers()).to.be.equal([g1, g2])
     })
 
@@ -249,11 +249,11 @@ describe("DataRange1d", () => {
 
       const g1 = GlyphRenderer.create({data_source: ColumnDataSource.create(), glyph: Scatter.create()})
       const p1 = Plot.create({renderers: [g1], x_range: r})
-      await build_view(p1)
+      build_view(p1)
 
       const g2 = GlyphRenderer.create({data_source: ColumnDataSource.create(), glyph: Scatter.create()})
       const p2 = Plot.create({renderers: [g2], x_range: r})
-      await build_view(p2)
+      build_view(p2)
 
       expect(r.computed_renderers()).to.be.equal([g1, g2])
     })
@@ -265,10 +265,10 @@ describe("DataRange1d", () => {
       const r = DataRange1d.create({renderers: [g2]})
 
       const p1 = Plot.create({renderers: [g1], x_range: r})
-      await build_view(p1)
+      build_view(p1)
 
       const p2 = Plot.create({renderers: [g2], x_range: r})
-      await build_view(p2)
+      build_view(p2)
 
       expect(r.computed_renderers()).to.be.equal([g2])
     })
@@ -376,7 +376,7 @@ describe("DataRange1d", () => {
     it("should compute max/min for dimension of a single plot_bounds", async () => {
       const r = DataRange1d.create()
       const p = Plot.create({visible: true, x_range: r})
-      const pv = await build_view(p)
+      const pv = build_view(p)
 
       const bounds = new Map([
         [pv, {x0: 0, x1: 10, y0: 5, y1: 6}],
@@ -392,9 +392,9 @@ describe("DataRange1d", () => {
       const p1 = Plot.create({visible: true, x_range: r})
       const p2 = Plot.create({visible: true, x_range: r})
 
-      const pv0 = await build_view(p0)
-      const pv1 = await build_view(p1)
-      const pv2 = await build_view(p2)
+      const pv0 = build_view(p0)
+      const pv1 = build_view(p1)
+      const pv2 = build_view(p2)
 
       const bounds0 = new Map([
         [pv0, {x0: 0, x1: 10, y0: 5, y1: 6}],
@@ -473,7 +473,7 @@ describe("DataRange1d", () => {
       const r = DataRange1d.create()
       const g = GlyphRenderer.create({data_source: ColumnDataSource.create(), glyph: Scatter.create()})
       const p = Plot.create({renderers: [g], x_range: r})
-      const pv = await build_view(p)
+      const pv = build_view(p)
 
       const bounds = new Map([
         [g, {x0: -10, x1: -6, y0: 5, y1: 6}],
@@ -487,7 +487,7 @@ describe("DataRange1d", () => {
       const r = DataRange1d.create({scale_hint: "log"})
       const g = GlyphRenderer.create({data_source: ColumnDataSource.create(), glyph: Scatter.create()})
       const p = Plot.create({renderers: [g], x_range: r})
-      const pv = await build_view(p)
+      const pv = build_view(p)
 
       const bounds = new Map([
         [g, {x0: Infinity, x1: -Infinity, y0: 5, y1: 6}],

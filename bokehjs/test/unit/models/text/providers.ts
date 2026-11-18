@@ -62,7 +62,7 @@ describe("models/text/providers module", () => {
       stub.value(provider)
       try {
         const div = Div.create({text: "$$x$$"})
-        const view = await build_view(div)
+        const view = build_view(div)
         view.build(document.body)
         try {
           expect(provider.fetches).to.be.equal(1)
@@ -100,7 +100,7 @@ describe("models/text/providers module", () => {
       const stub = sinon.stub(WidgetView.prototype, "provider")
       stub.value(provider)
       try {
-        const view = await build_view(Div.create({text: "$$x$$"}))
+        const view = build_view(Div.create({text: "$$x$$"}))
         const rerender = sinon.spy(view, "rerender")
         try {
           provider.finish()

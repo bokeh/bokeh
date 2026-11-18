@@ -30,7 +30,7 @@ describe("Markdown", () => {
     const markdown = Markdown.create({text: "Old prose", embeds: {child}})
     const {view} = await display(markdown, [600, 400])
     {
-      using fail = restorable(sinon.stub(DivView.prototype, "lazy_initialize").rejects(new Error("Resource unavailable")))
+      using fail = restorable(sinon.stub(DivView.prototype, "lazy_initialize").throws(new Error("Resource unavailable")))
       markdown.text = "New prose\n\n::bokeh[child]"
       await view.ready
       expect(fail.callCount).to.be.equal(1)
@@ -51,11 +51,11 @@ describe("Markdown", () => {
       const markdown = Markdown.create({text: initial ? text : "Old prose", embeds: {bad, good}})
       const initialize = DivView.prototype.lazy_initialize
       let fail_bad = true
-      using initialize_stub = restorable(sinon.stub(DivView.prototype, "lazy_initialize").callsFake(async function(this: DivView) {
+      using initialize_stub = restorable(sinon.stub(DivView.prototype, "lazy_initialize").callsFake(function(this: DivView) {
         if (this.model == bad && fail_bad) {
           throw new Error("Resource unavailable")
         }
-        await initialize.call(this)
+        initialize.call(this)
       }))
       const {view} = await display(markdown, [600, 400])
       if (!initial) {
@@ -95,11 +95,11 @@ describe("Markdown", () => {
     const good = Div.create({text: "Healthy child"})
     const last = Div.create()
     const initialize = DivView.prototype.lazy_initialize
-    using failures = restorable(sinon.stub(DivView.prototype, "lazy_initialize").callsFake(async function(this: DivView) {
+    using failures = restorable(sinon.stub(DivView.prototype, "lazy_initialize").callsFake(function(this: DivView) {
       if (this.model == first || this.model == last) {
         throw new Error("Resource unavailable")
       }
-      await initialize.call(this)
+      initialize.call(this)
     }))
     const markdown = Markdown.create({text: "::bokeh[first]\n\n::bokeh[good]\n\n::bokeh[last]", embeds: {first, good, last}})
     const {view} = await display(markdown, [600, 400])
@@ -147,76 +147,6 @@ describe("Markdown", () => {
     expect(connections.getCalls().filter((call) => call.thisValue.model == bad).length).to.be.equal(2)
   })
 
-  it("should dispose a pending failed embed without observing it after parent removal", async () => {
-    const child = Div.create()
-    const markdown = Markdown.create({embeds: {child}})
-    const {view} = await display(markdown, [600, 400])
-    let started: () => void = () => {}
-    const initializing = new Promise<void>((resolve) => { started = resolve })
-    let release: () => void = () => {}
-    const gate = new Promise<void>((resolve) => { release = resolve })
-    const pending: DivView[] = []
-    const initialize = DivView.prototype.lazy_initialize
-    using failure = restorable(sinon.stub(DivView.prototype, "lazy_initialize").callsFake(async function(this: DivView) {
-      await initialize.call(this)
-      pending.push(this)
-      started()
-      await gate
-      throw new Error("Resource unavailable")
-    }))
-    using observe = restorable(sinon.spy(ResizeObserver.prototype, "observe"))
-    using builds = restorable(sinon.spy(view, "build_child_views"))
-    markdown.text = "::bokeh[child]"
-    await initializing
-    expect(builds.callCount).to.be.equal(1)
-    view.remove()
-    observe.resetHistory()
-    release()
-    // Removed views' ready resolves before their pending builds finish.
-    await builds.returnValues[0]
-    expect(failure.callCount).to.be.equal(1)
-    expect(pending[0].is_destroyed).to.be.true
-    expect(observe.callCount).to.be.equal(0)
-    expect(view.child_views.length).to.be.equal(0)
-    expect(view.sig_child_views.length).to.be.equal(0)
-  })
-
-  it("should ignore a stale failure after an embed mapping changes", async () => {
-    const bad = Div.create()
-    const replacement = Div.create({text: "Replacement child"})
-    const markdown = Markdown.create({embeds: {child: bad}})
-    const {view} = await display(markdown, [600, 400])
-    let started: () => void = () => {}
-    const initializing = new Promise<void>((resolve) => { started = resolve })
-    let release: () => void = () => {}
-    const gate = new Promise<void>((resolve) => { release = resolve })
-    const initialize = DivView.prototype.lazy_initialize
-    const pending: DivView[] = []
-    using failure = restorable(sinon.stub(DivView.prototype, "lazy_initialize").callsFake(async function(this: DivView) {
-      await initialize.call(this)
-      if (this.model == bad) {
-        pending.push(this)
-        started()
-        await gate
-        throw new Error("Resource unavailable")
-      }
-    }))
-    markdown.text = "::bokeh[child]"
-    await initializing
-    markdown.embeds = {child: replacement}
-    await defer()
-    const replacement_view = view.owner.get_one(replacement)
-    release()
-    await view.ready
-    expect(failure.callCount).to.be.equal(2)
-    expect(pending[0].is_destroyed).to.be.true
-    expect(view.owner.get_one(replacement)).to.be.equal(replacement_view)
-    expect(replacement_view.shadow_el.textContent.includes("Replacement child")).to.be.true
-    expect(view.contents.querySelector(".bk-embed-error")).to.be.null
-    expect(view.contents.querySelector(".bk-embed")?.firstElementChild).to.be.equal(replacement_view.el)
-    expect(view.sig_child_views).to.be.equal([replacement_view])
-  })
-
   it("should retain and clean up successful views when a later child build fails", async () => {
     const good = Div.create({text: "Good child"})
     const bad = Div.create({text: "Bad child"})
@@ -225,7 +155,7 @@ describe("Markdown", () => {
     const initialize = DivView.prototype.lazy_initialize
     using fail = restorable(sinon.stub(DivView.prototype, "lazy_initialize"))
     fail.onFirstCall().callsFake(initialize)
-    fail.onSecondCall().rejects(new Error("Resource unavailable"))
+    fail.onSecondCall().throws(new Error("Resource unavailable"))
     markdown.text = "New prose\n\n::bokeh[good]\n\n::bokeh[bad]"
     await view.ready
     const good_view = view.owner.get_one(good)
@@ -239,7 +169,7 @@ describe("Markdown", () => {
 
   it("should render prose when an initial child build fails", async () => {
     const child = Div.create()
-    using fail = restorable(sinon.stub(DivView.prototype, "lazy_initialize").rejects(new Error("Resource unavailable")))
+    using fail = restorable(sinon.stub(DivView.prototype, "lazy_initialize").throws(new Error("Resource unavailable")))
     const markdown = Markdown.create({text: "Initial prose\n\n::bokeh[child]", embeds: {child}})
     const {view} = await display(markdown, [600, 400])
     expect(fail.callCount).to.be.equal(1)
@@ -357,7 +287,7 @@ describe("Markdown", () => {
     expect(view.owner.get_one(child).shadow_el.textContent.includes("New child")).to.be.true
   })
 
-  it("should dispose a pending embed removed synchronously and render it when re-added", async () => {
+  it("should dispose an embed removed synchronously and render it when re-added", async () => {
     const child = Div.create({text: "Embedded content"})
     const markdown = Markdown.create({embeds: {child}})
     const {view} = await display(markdown, [600, 400])
@@ -369,6 +299,7 @@ describe("Markdown", () => {
     expect(view.child_views.length).to.be.equal(0)
     expect(remove.callCount).to.be.equal(1)
     expect(view.sig_child_views.length).to.be.equal(0)
+    render.resetHistory()
     markdown.text = "::bokeh[child]"
     await view.ready
     expect(render.callCount).to.be.equal(1)
@@ -579,34 +510,6 @@ describe("Markdown", () => {
     expect(view.child_views.map((child) => child.model)).to.be.equal([second])
     expect(view.contents.querySelector(".bk-embed")?.firstElementChild).to.be.equal(view.child_views[0].el)
     expect(view.contents.querySelector(".bk-embed-error")).to.be.null
-  })
-
-  it("should dispose an embedded view still being built when its parent is removed", async () => {
-    const child = Div.create({text: "Content"})
-    const markdown = Markdown.create({embeds: {child}})
-    const {view} = await display(markdown, null)
-    let started: () => void = () => {}
-    const initializing = new Promise<void>((resolve) => { started = resolve })
-    let release: () => void = () => {}
-    const gate = new Promise<void>((resolve) => { release = resolve })
-    const initialize = DivView.prototype.lazy_initialize
-    using pending = restorable(sinon.stub(DivView.prototype, "lazy_initialize").callsFake(async function(this: DivView) {
-      await initialize.call(this)
-      started()
-      await gate
-    }))
-    using spy = restorable(sinon.spy(DivView.prototype, "remove"))
-    using builds = restorable(sinon.spy(view, "build_child_views"))
-    markdown.text = "::bokeh[child]"
-    await initializing
-    expect(builds.callCount).to.be.equal(1)
-    view.remove()
-    release()
-    await builds.returnValues[0]
-    expect(pending.callCount).to.be.equal(1)
-    expect(view.child_views.length).to.be.equal(0)
-    expect(view.sig_child_views.length).to.be.equal(0)
-    expect(spy.callCount).to.be.equal(1)
   })
 
   it("should size an embedded plot to the text width and preserve its range", async () => {

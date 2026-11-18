@@ -163,14 +163,14 @@ describe("ToolbarView", () => {
   describe("visible getter", () => {
     it("should be true if autohide is false and _visible isn't set", async () => {
       const tb = Toolbar.create()
-      const tbv = await build_view(tb, {parent: null})
+      const tbv = build_view(tb, {parent: null})
       expect(tbv.model.autohide).to.be.false
       expect(tbv.visible).to.be.true
     })
 
     it("should be true if autohide is false and _visible is true", async () => {
       const tb = Toolbar.create()
-      const tbv = await build_view(tb, {parent: null})
+      const tbv = build_view(tb, {parent: null})
       tbv.set_visibility(true)
       expect(tbv.model.autohide).to.be.false
       expect(tbv.visible).to.be.true
@@ -178,7 +178,7 @@ describe("ToolbarView", () => {
 
     it("should be true if autohide is false and _visible is false", async () => {
       const tb = Toolbar.create()
-      const tbv = await build_view(tb, {parent: null})
+      const tbv = build_view(tb, {parent: null})
       tbv.set_visibility(false)
       expect(tbv.model.autohide).to.be.false
       expect(tbv.visible).to.be.true
@@ -186,14 +186,14 @@ describe("ToolbarView", () => {
 
     it("should be false if autohide is true and _visible isn't set", async () => {
       const tb = Toolbar.create({autohide: true})
-      const tbv = await build_view(tb, {parent: null})
+      const tbv = build_view(tb, {parent: null})
       expect(tbv.model.autohide).to.be.true
       expect(tbv.visible).to.be.false
     })
 
     it("should be true if autohide is true and _visible is true", async () => {
       const tb = Toolbar.create({autohide: true})
-      const tbv = await build_view(tb, {parent: null})
+      const tbv = build_view(tb, {parent: null})
       tbv.set_visibility(true)
       expect(tbv.model.autohide).to.be.true
       expect(tbv.visible).to.be.true
@@ -201,7 +201,7 @@ describe("ToolbarView", () => {
 
     it("should be false if autohide is true and _visible is false", async () => {
       const tb = Toolbar.create({autohide: true})
-      const tbv = await build_view(tb, {parent: null})
+      const tbv = build_view(tb, {parent: null})
       tbv.set_visibility(false)
       expect(tbv.model.autohide).to.be.true
       expect(tbv.visible).to.be.false
@@ -566,7 +566,7 @@ describe("ToolbarView", () => {
         tools: [pan0, pan1, tap0, tap1, tap2, hover0, hover1, hover2],
         group: true,
       })
-      const tbv = await build_view(tb, {parent: null})
+      const tbv = build_view(tb, {parent: null})
 
       expect(tbv.tool_buttons.length).to.be.equal(6)
 
@@ -594,7 +594,7 @@ describe("ToolbarView", () => {
         tools: [pan0, pan1, tap0, tap1, tap2, hover0, hover1, hover2],
         group: false,
       })
-      const tbv = await build_view(tb, {parent: null})
+      const tbv = build_view(tb, {parent: null})
 
       expect(tbv.tool_buttons.map((button) => button.tool)).to.be.equal([pan0, pan1, tap0, tap1, tap2, hover0, hover1, hover2])
     })
@@ -614,7 +614,7 @@ describe("ToolbarView", () => {
         group: true,
         group_types: ["tap", "hover"],
       })
-      const tbv = await build_view(tb, {parent: null})
+      const tbv = build_view(tb, {parent: null})
 
       expect(tbv.tool_buttons.length).to.be.equal(4)
 
@@ -655,7 +655,7 @@ describe("ToolbarView", () => {
         group: true,
         group_types: ["tap", "hover"],
       })
-      const tbv = await build_view(tb, {parent: null})
+      const tbv = build_view(tb, {parent: null})
 
       expect(tbv.tool_buttons.length).to.be.equal(8)
 
@@ -693,7 +693,7 @@ describe("ToolbarView", () => {
         group: true,
         group_types: ["hover"],
       })
-      const tbv = await build_view(tb, {parent: null})
+      const tbv = build_view(tb, {parent: null})
 
       expect(tbv.tool_buttons.length).to.be.equal(3)
 

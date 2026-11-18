@@ -52,8 +52,8 @@ class DummyModel extends Model {
 
 export async function build(cds: IndexedSubset, source: ColumnDataSource): Promise<IndexedSubsetView> {
   const model = DummyModel.create({source})
-  const parent = await build_view(model)
-  return await build_view(cds, {parent})
+  const parent = build_view(model)
+  return build_view(cds, {parent})
 }
 
 describe("IndexedSubset", () => {

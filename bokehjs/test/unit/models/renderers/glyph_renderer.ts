@@ -612,9 +612,9 @@ describe("GlyphRendererView", () => {
   async function make_grv() {
     const basic_circle = Scatter.create({fill_color: "red"})
     const glyph_renderer = mkrenderer(basic_circle)
-    const grv = await build_view(
+    const grv = build_view(
       glyph_renderer,
-      {parent: await build_view(Plot.create())},
+      {parent: build_view(Plot.create())},
     )
     return grv
   }

@@ -15,10 +15,10 @@ export class HelpButtonView extends AbstractButtonView {
     return [...super._children_views(), this.tooltip]
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
     const {tooltip} = this.model
-    this.tooltip = await build_view(tooltip, {parent: this})
+    this.tooltip = build_view(tooltip, {parent: this})
   }
 
   override render(): void {

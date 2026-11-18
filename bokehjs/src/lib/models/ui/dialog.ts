@@ -84,18 +84,18 @@ export class DialogView extends UIElementView {
     return [...super.stylesheets(), dialogs_css, icons_css, this._position, this._stacking]
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    await this._rebuild_title()
-    await this._rebuild_content()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
+    this._rebuild_title()
+    this._rebuild_content()
   }
 
-  protected _rebuild_title(): Promise<boolean> {
+  protected _rebuild_title(): boolean {
     const {title} = this.model
     return this._title.build(isString(title) ? null : title)
   }
 
-  protected _rebuild_content(): Promise<boolean> {
+  protected _rebuild_content(): boolean {
     const {content} = this.model
     return this._content.build(isString(content) ? null : content)
   }
@@ -128,13 +128,13 @@ export class DialogView extends UIElementView {
 
     const {visible, title, content} = this.model.properties
     this.connect(visible.change, () => this._toggle(this.model.visible))
-    this.on_change(title, async () => {
-      if (await this._rebuild_title() && this._has_rendered) {
+    this.on_change(title, () => {
+      if (this._rebuild_title() && this._has_rendered) {
         this._update_title()
       }
     })
-    this.on_change(content, async () => {
-      if (await this._rebuild_content() && this._has_rendered) {
+    this.on_change(content, () => {
+      if (this._rebuild_content() && this._has_rendered) {
         this._update_content()
       }
     })

@@ -26,17 +26,17 @@ export class PaneView extends UIElementView {
     return [...super._children_views(), ...this.element_views]
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    await this._build_elements()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
+    this._build_elements()
   }
 
-  protected async _build_elements(): Promise<BuildResult<ElementLike>> {
-    return await build_views(this._element_views, this.elements, {parent: this})
+  protected _build_elements(): BuildResult<ElementLike> {
+    return build_views(this._element_views, this.elements, {parent: this})
   }
 
-  protected async _update_elements(): Promise<void> {
-    const {created} = await this._build_elements()
+  protected _update_elements(): void {
+    const {created} = this._build_elements()
     const created_views = new Set(created)
 
     // Since appending to a DOM node will move the node to the end if it has
@@ -58,8 +58,8 @@ export class PaneView extends UIElementView {
   override connect_signals(): void {
     super.connect_signals()
     const {elements} = this.model.properties
-    this.on_change(elements, async () => {
-      await this._update_elements()
+    this.on_change(elements, () => {
+      this._update_elements()
     })
   }
 

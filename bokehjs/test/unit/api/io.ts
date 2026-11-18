@@ -137,8 +137,8 @@ describe("in api/plotting module", () => {
 
     it("publishes readiness failures and clears them on remount", async () => {
       class FailingPlotView extends PlotView {
-        override async lazy_initialize(): Promise<void> {
-          await super.lazy_initialize()
+        override lazy_initialize(): void {
+          super.lazy_initialize()
           throw new Error("target-local render failure")
         }
       }
@@ -305,10 +305,12 @@ describe("in api/plotting module", () => {
       const gate = new Promise<void>((resolve) => continue_initialization = resolve)
 
       class DelayedPlotView extends PlotView {
-        override async lazy_initialize(): Promise<void> {
-          await super.lazy_initialize()
-          initialization_started()
-          await gate
+        override lazy_initialize(): void {
+          super.lazy_initialize()
+          this.schedule(async () => {
+            initialization_started()
+            await gate
+          })
         }
       }
 
@@ -341,10 +343,12 @@ describe("in api/plotting module", () => {
       const gate = new Promise<void>((resolve) => continue_initialization = resolve)
 
       class DelayedPlotView extends PlotView {
-        override async lazy_initialize(): Promise<void> {
-          await super.lazy_initialize()
-          initialization_started()
-          await gate
+        override lazy_initialize(): void {
+          super.lazy_initialize()
+          this.schedule(async () => {
+            initialization_started()
+            await gate
+          })
         }
       }
 
@@ -390,10 +394,12 @@ describe("in api/plotting module", () => {
       const gate = new Promise<void>((resolve) => continue_initialization = resolve)
 
       class DelayedPlotView extends PlotView {
-        override async lazy_initialize(): Promise<void> {
-          await super.lazy_initialize()
-          initialization_started()
-          await gate
+        override lazy_initialize(): void {
+          super.lazy_initialize()
+          this.schedule(async () => {
+            initialization_started()
+            await gate
+          })
         }
       }
 
@@ -436,10 +442,12 @@ describe("in api/plotting module", () => {
       const gate = new Promise<void>((resolve) => continue_initialization = resolve)
 
       class DelayedPlotView extends PlotView {
-        override async lazy_initialize(): Promise<void> {
-          await super.lazy_initialize()
-          initialization_started()
-          await gate
+        override lazy_initialize(): void {
+          super.lazy_initialize()
+          this.schedule(async () => {
+            initialization_started()
+            await gate
+          })
         }
       }
 
@@ -527,8 +535,8 @@ describe("in api/plotting module", () => {
 
     it("rolls back all views and ownership when one root fails to render", async () => {
       class FailingPlotView extends PlotView {
-        override async lazy_initialize(): Promise<void> {
-          await super.lazy_initialize()
+        override lazy_initialize(): void {
+          super.lazy_initialize()
           throw new Error("intentional mount failure")
         }
       }
@@ -595,8 +603,8 @@ describe("in api/plotting module", () => {
     it("surfaces dynamic root render failures without disposing a ready caller document", async () => {
       let fail = true
       class FailingPlotView extends PlotView {
-        override async lazy_initialize(): Promise<void> {
-          await super.lazy_initialize()
+        override lazy_initialize(): void {
+          super.lazy_initialize()
           if (fail) {
             fail = false
             throw new Error("dynamic root failed")
@@ -681,10 +689,12 @@ describe("in api/plotting module", () => {
       const gate = new Promise<void>((resolve) => continue_initialization = resolve)
 
       class DelayedPlotView extends PlotView {
-        override async lazy_initialize(): Promise<void> {
-          await super.lazy_initialize()
-          initialization_started()
-          await gate
+        override lazy_initialize(): void {
+          super.lazy_initialize()
+          this.schedule(async () => {
+            initialization_started()
+            await gate
+          })
         }
       }
 

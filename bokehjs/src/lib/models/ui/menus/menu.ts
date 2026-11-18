@@ -60,20 +60,17 @@ export class MenuView extends UIElementView {
     this._menu_items = this._compute_menu_items()
   }
 
-  protected async _rebuild_menu_views(): Promise<void> {
+  protected _rebuild_menu_views(): void {
     const menus = this.menu_items
       .filter((item) => item instanceof MenuItem)
       .map((item) => item.menu)
       .filter((menu) => menu != null)
-    await build_views(this._menu_views, menus, {parent: this})
+    build_views(this._menu_views, menus, {parent: this})
   }
-
-  private _rebuilding: Promise<void> = Promise.resolve()
 
   protected _update_menu(): void {
     this._update_menu_items()
-    // serialized: interleaved build_views() can remove views a later call created
-    this._rebuilding = this._rebuilding.then(() => this._rebuild_menu_views())
+    this._rebuild_menu_views()
   }
 
   get is_empty(): boolean {
@@ -85,9 +82,9 @@ export class MenuView extends UIElementView {
     this._update_menu_items()
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    await this._rebuild_menu_views()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
+    this._rebuild_menu_views()
   }
 
   override connect_signals(): void {

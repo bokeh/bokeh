@@ -31,11 +31,11 @@ export class ContourRendererView extends DataRendererView {
     }
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
     const {fill_renderer, line_renderer} = this.model
-    this.fill_view = await build_view(fill_renderer, {parent: this})
-    this.line_view = await build_view(line_renderer, {parent: this})
+    this.fill_view = build_view(fill_renderer, {parent: this})
+    this.line_view = build_view(line_renderer, {parent: this})
   }
 
   override connect_signals(): void {

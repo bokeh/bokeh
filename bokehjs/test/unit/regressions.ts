@@ -701,7 +701,7 @@ describe("Bug", () => {
       const view = IndexedSubset.create({indices})
       const provider = new TableDataProvider(source, view)
       const table_column = TableColumn.create({field: "words"})
-      const table_column_view = await build_view(table_column, {parent: null})
+      const table_column_view = build_view(table_column, {parent: null})
       const column = table_column_view.toColumn()
 
       provider.sort_data([{columnId: column.id, sortCol: column, sortAsc: true}])

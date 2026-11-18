@@ -68,13 +68,13 @@ export class PathPlacementView extends View {
     return [...super._children_views(), ...this._marking_views.values()]
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    await this._build_marking()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
+    this._build_marking()
   }
 
-  private async _build_marking(): Promise<void> {
-    await build_views(this._marking_views, [this.model.marking], {parent: this})
+  private _build_marking(): void {
+    build_views(this._marking_views, [this.model.marking], {parent: this})
     if (this.is_destroyed) {
       return
     }
@@ -102,8 +102,8 @@ export class PathPlacementView extends View {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.marking.change, async () => {
-      await this._build_marking()
+    this.connect(this.model.properties.marking.change, () => {
+      this._build_marking()
       if (!this.is_destroyed) {
         this.parent.request_paint()
       }

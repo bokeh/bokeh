@@ -4,7 +4,7 @@ import {MathTextView} from "../text/math_text"
 import type {GraphicsBox} from "core/graphics"
 import type * as p from "core/properties"
 import type {ViewStorage, ChildView} from "core/build_views"
-import {build_views_sync} from "core/build_views"
+import {build_views} from "core/build_views"
 import {enumerate} from "core/util/iterator"
 
 export interface MathTextGlyphView extends MathTextGlyph.Data {}
@@ -40,7 +40,7 @@ export abstract class MathTextGlyphView extends TextView {
       return text_i == null ? null : this._build_label(text_i)
     })
 
-    build_views_sync(this._label_views, labels.filter((v) => v != null), {parent: this})
+    build_views(this._label_views, labels.filter((v) => v != null), {parent: this})
 
     return labels.map((label_i) => {
       return label_i == null ? null : this._label_views.get(label_i)!.graphics()

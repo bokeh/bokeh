@@ -38,7 +38,7 @@ export abstract class CellEditorView extends DOMComponentView {
     this.defaultValue = null
   }
 
-  override async lazy_initialize(): Promise<void> {
+  override lazy_initialize(): void {
     throw new Error("unsupported")
   }
 

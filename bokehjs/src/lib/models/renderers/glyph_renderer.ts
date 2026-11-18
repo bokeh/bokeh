@@ -147,13 +147,13 @@ export class GlyphRendererView extends DataRendererView {
     return this.model.properties.data_source
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
 
-    this.subset_view = await build_view(this.model.view, {parent: this})
+    this.subset_view = build_view(this.model.view, {parent: this})
 
     const base_glyph = this.model.glyph
-    this.glyph = await this.build_glyph_view(base_glyph)
+    this.glyph = this.build_glyph_view(base_glyph)
 
     const has_fill = "fill" in this.glyph.visuals
     const has_line = "line" in this.glyph.visuals
@@ -184,20 +184,20 @@ export class GlyphRendererView extends DataRendererView {
     let {selection_glyph, nonselection_glyph, hover_glyph, muted_glyph} = this.model
 
     selection_glyph = glyph_from_mode(selection_defaults, selection_glyph)
-    this.selection_glyph = await this.build_glyph_view(selection_glyph)
+    this.selection_glyph = this.build_glyph_view(selection_glyph)
 
     nonselection_glyph = glyph_from_mode(nonselection_defaults, nonselection_glyph)
-    this.nonselection_glyph = await this.build_glyph_view(nonselection_glyph)
+    this.nonselection_glyph = this.build_glyph_view(nonselection_glyph)
 
     if (hover_glyph != null) {
-      this.hover_glyph = await this.build_glyph_view(hover_glyph)
+      this.hover_glyph = this.build_glyph_view(hover_glyph)
     }
 
     muted_glyph = glyph_from_mode(muted_defaults, muted_glyph)
-    this.muted_glyph = await this.build_glyph_view(muted_glyph)
+    this.muted_glyph = this.build_glyph_view(muted_glyph)
 
     const decimated_glyph = glyph_from_mode(decimated_defaults, "auto")
-    this.decimated_glyph = await this.build_glyph_view(decimated_glyph)
+    this.decimated_glyph = this.build_glyph_view(decimated_glyph)
 
     this.selection_glyph.set_base_glyph(this.glyph)
     this.nonselection_glyph.set_base_glyph(this.glyph)
@@ -206,7 +206,7 @@ export class GlyphRendererView extends DataRendererView {
     this.decimated_glyph.set_base_glyph(this.glyph)
 
     this._set_data()
-    await this._build_attachments()
+    this._build_attachments()
   }
 
   override request_paint(): void {
@@ -217,8 +217,8 @@ export class GlyphRendererView extends DataRendererView {
     }
   }
 
-  private async _build_attachments(): Promise<void> {
-    await build_views(this._attachments, this.model.attachments, {parent: this})
+  private _build_attachments(): void {
+    build_views(this._attachments, this.model.attachments, {parent: this})
   }
 
   override remove(): void {
@@ -226,7 +226,7 @@ export class GlyphRendererView extends DataRendererView {
     super.remove()
   }
 
-  async build_glyph_view<T extends Glyph>(glyph: T): Promise<GlyphView> {
+  build_glyph_view<T extends Glyph>(glyph: T): GlyphView {
     return build_view(glyph, {parent: this})
   }
 
@@ -273,8 +273,8 @@ export class GlyphRendererView extends DataRendererView {
     const update = () => update_data()
 
     this.connect(this.model.change, render)
-    this.on_change(this.model.properties.attachments, async () => {
-      await this._build_attachments()
+    this.on_change(this.model.properties.attachments, () => {
+      this._build_attachments()
       if (!this.is_destroyed) {
         this.request_paint()
       }
@@ -364,7 +364,7 @@ export class GlyphRendererView extends DataRendererView {
         this.subset_view.remove()
       }
       const model = this.model.view
-      const subset_view = await build_view(model, {parent: this})
+      const subset_view = build_view(model, {parent: this})
       if (this.is_destroyed || revision != view_revision || this.model.view != model) {
         subset_view.remove()
         return

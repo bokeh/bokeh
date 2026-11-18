@@ -334,7 +334,11 @@ export abstract class View implements ISignalable, Equatable {
 
   initialize(): void {}
 
-  async lazy_initialize(): Promise<void> {}
+  /**
+   * Initialization that requires initialization of subclasses, e.g. building
+   * child views from models that subclasses provide.
+   */
+  lazy_initialize(): void {}
 
   /**
    * An `AbortSignal` that is aborted when this view is removed.

@@ -21,7 +21,7 @@ describe("DropdownView", () => {
 
   it("should remove its menu view when removed", async () => {
     const dropdown = Dropdown.create({label: "Dropdown", menu: ["A", "B"]})
-    const view = await build_view(dropdown)
+    const view = build_view(dropdown)
 
     const menu_view = view.children_views().find((child) => child instanceof MenuView)
     expect_instanceof(menu_view, MenuView)

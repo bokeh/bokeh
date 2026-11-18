@@ -145,7 +145,7 @@ export class ViewManager extends AbstractViewQuery {
     // Views initialize synchronously, so asynchronously loaded resources they
     // may need must be available up front.
     await load_webgl()
-    const view = await build_view(model, {owner: this, parent})
+    const view = build_view(model, {owner: this, parent})
     if (parent == null) {
       this.add(view)
     }

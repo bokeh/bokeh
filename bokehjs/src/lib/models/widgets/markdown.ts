@@ -101,12 +101,12 @@ export class MarkdownView extends WidgetView {
     return sizing
   }
 
-  override async build_child_views(): Promise<UIElementView[]> {
+  override build_child_views(): UIElementView[] {
     const revision = ++this._embed_build_revision
     const previous = new Set(this._child_views.values())
     const failed = new WeakSet<UIElement>()
     try {
-      const {created} = await build_views(this._child_views, this.child_models, {
+      const {created} = build_views(this._child_views, this.child_models, {
         parent: this,
         on_error: (error, model) => {
           failed.add(model)
@@ -142,7 +142,7 @@ export class MarkdownView extends WidgetView {
     return [...new Set(models)]
   }
 
-  private _update_markdown(): void | Promise<void> {
+  private _update_markdown(): void {
     const revision = ++this._embed_revision
     const children = this.child_models
     if (this._pending_embeds == 0 && children.length == this._child_views.size && children.every((child) => this._child_views.has(child))) {
@@ -153,10 +153,10 @@ export class MarkdownView extends WidgetView {
     }
   }
 
-  private async _reconcile_embeds(revision: number): Promise<void> {
+  private _reconcile_embeds(revision: number): void {
     this._pending_embeds++
     try {
-      await this.build_child_views()
+      this.build_child_views()
     } finally {
       this._pending_embeds--
     }

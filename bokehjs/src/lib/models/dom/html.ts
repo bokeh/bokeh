@@ -28,25 +28,25 @@ export class HTMLView extends DOMElementView {
     ]
   }
 
-  protected async _update_refs(): Promise<void> {
-    await build_views(this._refs, this.refs, {parent: this})
+  protected _update_refs(): void {
+    build_views(this._refs, this.refs, {parent: this})
   }
 
   override _children_views(): ChildView[] {
     return [...super._children_views(), ...this._refs.values()]
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    await this._update_refs()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
+    this._update_refs()
   }
 
   override connect_signals(): void {
     super.connect_signals()
 
     const {refs, html} = this.model.properties
-    this.on_change([refs, html], async () => {
-      await this._update_refs()
+    this.on_change([refs, html], () => {
+      this._update_refs()
       this.render()
     })
   }

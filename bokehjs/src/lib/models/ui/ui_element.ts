@@ -141,8 +141,8 @@ export abstract class UIElementView extends StyledElementView {
     this._resize_observer.observe(this.el, {box: "border-box"})
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
     const menu = (() => {
       const {context_menu} = this.model
       if (context_menu == "auto") {
@@ -152,7 +152,7 @@ export abstract class UIElementView extends StyledElementView {
       }
     })()
     if (menu != null) {
-      this._context_menu = await build_view(menu, {parent: this})
+      this._context_menu = build_view(menu, {parent: this})
     }
   }
 
