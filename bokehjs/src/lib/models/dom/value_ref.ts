@@ -34,16 +34,17 @@ export class ValueRefView extends PlaceholderView {
     this.on_change(filter, () => this._update_filter())
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    await this._update_filter()
+  override initialize(): void {
+    super.initialize()
+    this._update_filter()
   }
 
-  protected async _update_filter(): Promise<void> {
+  protected _update_filter(): void {
     const {filter} = this.model
     for (const fn of isArray(filter) ? filter : [filter]) {
-      if (fn instanceof CustomJS) {
-        await fn.compile()
+      if (fn instanceof CustomJS && !fn.compile_sync()) {
+        // ES modules compile asynchronously and reject values until then
+        this.schedule(async () => await fn.compile())
       }
     }
   }
@@ -60,7 +61,7 @@ export class ValueRefView extends PlaceholderView {
         const args: FilterArgs = {value, field, row, data_source, vars}
         const result = (() => {
           if (fn instanceof CustomJS) {
-            return fn.execute_sync(this.model, args)
+            return fn.compile_sync() ? fn.execute_sync(this.model, args) : false
           } else {
             return execute_sync(fn, this.model, args)
           }

@@ -185,14 +185,20 @@ export class HoverToolView extends InspectToolView {
     return [...super._children_views(), ...this._ttviews.values(), this._template_view]
   }
 
-  protected async _update_filters(): Promise<void> {
+  protected _update_filters(): void {
     for (const [_, filter] of entries(this.model.filters)) {
       for (const fn of isArray(filter) ? filter : [filter]) {
-        if (fn instanceof CustomJS) {
-          await fn.compile()
+        if (fn instanceof CustomJS && !fn.compile_sync()) {
+          // ES modules compile asynchronously and reject tooltips until then
+          this.schedule(async () => await fn.compile())
         }
       }
     }
+  }
+
+  override initialize(): void {
+    super.initialize()
+    this._update_filters()
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -204,8 +210,6 @@ export class HoverToolView extends InspectToolView {
       this._template_view = await build_view(tooltips, {parent: this})
       this._template_view.render()
     }
-
-    await this._update_filters()
   }
 
   override connect_signals(): void {
@@ -711,7 +715,7 @@ export class HoverToolView extends InspectToolView {
         const args: FilterArgs = {value, field, row, data_source, vars}
         const result = (() => {
           if (fn instanceof CustomJS) {
-            return fn.execute_sync(this.model, args)
+            return fn.compile_sync() ? fn.execute_sync(this.model, args) : false
           } else {
             return execute_sync(fn, this.model, args)
           }
