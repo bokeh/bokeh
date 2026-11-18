@@ -138,6 +138,21 @@ describe("GraphDataSource", () => {
     expect(source.nodes.get("toString")).to.be.equal(["label"])
   })
 
+  const metadata_cases: [string, GraphDataSource.Init][] = [
+    ["columns", {nodes: {index: ["A", "B"], id: ["station-1", "station-2"]}, edges: {start: ["A"], end: ["B"], source: ["survey"]}}],
+    ["records", {nodes: [{index: "A", id: "station-1"}, {index: "B", id: "station-2"}], edges: [{start: "A", end: "B", source: "survey"}]}],
+  ]
+  for (const [format, attrs] of metadata_cases) {
+    it(`preserves alias-named metadata alongside canonical topology in ${format}`, () => {
+      const source = GraphDataSource.create(attrs)
+      expect(source.node_ids).to.be.equal(["A", "B"])
+      expect(source.edge_starts).to.be.equal(["A"])
+      expect(source.edge_ends).to.be.equal(["B"])
+      expect(source.nodes.get("id")).to.be.equal(["station-1", "station-2"])
+      expect(source.edges.get("source")).to.be.equal(["survey"])
+    })
+  }
+
   it("compares composite node identifiers structurally", () => {
     const source = GraphDataSource.create({
       nodes: [[1, 2], [3, 4]],

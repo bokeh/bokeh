@@ -1182,6 +1182,15 @@ class TestGraphDataSource:
         assert source.nodes.data == dict(index=["alice", "bob"], color=["red", "blue"])
         assert source.edges.data == dict(start=["alice"], end=["bob"], weight=[2])
 
+    def test_preserves_alias_named_attributes_in_graph_records(self) -> None:
+        source = bms.GraphDataSource(
+            nodes=[{"index": "A", "id": "station-1"}, {"index": "B", "id": "station-2"}],
+            edges=[{"start": "A", "end": "B", "source": "survey"}],
+        )
+
+        assert source.nodes.data == dict(index=["A", "B"], id=["station-1", "station-2"])
+        assert source.edges.data == dict(start=["A"], end=["B"], source=["survey"])
+
     def test_accepts_bare_nodes_and_tuple_edges(self) -> None:
         source = bms.GraphDataSource(nodes=["alice", "bob"], edges=[("alice", "bob", {"weight": 2})])
 

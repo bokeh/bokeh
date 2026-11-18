@@ -19,8 +19,8 @@ import pytest
 from bokeh.core.properties import field, value
 from bokeh.models import (
     ColumnDataSource,
-    IndexedDataSource,
     MultiLine,
+    RecordDataSource,
     Scatter,
 )
 
@@ -56,13 +56,17 @@ class Test_get_graph_kwargs:
 
         assert kw["data_source"].edges.data == {"weight": [1]}
 
-    def test_preserves_legacy_topology_columns_and_attributes(self) -> None:
-        nodes = {"index": [0, 0, 1], "id": ["a", "b", "c"]}
+    def test_preserves_alias_named_attributes_with_canonical_topology_columns(self) -> None:
+        nodes = {"index": [0, 1], "id": ["a", "b"]}
         edges = {"start": [0], "end": [1], "source": ["attribute"]}
         kw = bpg.get_graph_kwargs(nodes, edges)
 
         assert kw["data_source"].nodes.data == nodes
         assert kw["data_source"].edges.data == edges
+
+    def test_rejects_duplicate_node_ids_in_column_mappings(self) -> None:
+        with pytest.raises(ValueError, match="duplicate graph node identifier"):
+            bpg.get_graph_kwargs({"index": [0, 0]}, {"start": [0], "end": [0]})
 
     def test_handle_sources(self) -> None:
         node_source = ColumnDataSource(data=dict(foo=[]))
@@ -75,12 +79,9 @@ class Test_get_graph_kwargs:
         assert kw['data_source'].nodes is node_source
         assert kw['data_source'].edges is edge_source
 
-    def test_handle_storage_neutral_sources(self) -> None:
-        class RecordDataSource(IndexedDataSource):
-            pass
-
-        node_source = RecordDataSource()
-        edge_source = RecordDataSource()
+    def test_preserves_record_data_sources(self) -> None:
+        node_source = RecordDataSource(records=[{"index": "A"}, {"index": "B"}])
+        edge_source = RecordDataSource(records=[{"start": "A", "end": "B"}])
         kw = bpg.get_graph_kwargs(node_source, edge_source)
 
         assert kw['node_renderer'].data_source is node_source
