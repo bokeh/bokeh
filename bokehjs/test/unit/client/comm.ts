@@ -8,6 +8,11 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import type {DocumentEvent} from "@bokehjs/document"
 import {Serializer} from "@bokehjs/core/serialization"
+import {MessageSentEvent} from "@bokehjs/document/events"
+import {FileInput} from "@bokehjs/models/widgets/file_input"
+import {ClearInput} from "@bokehjs/models/widgets/input_widget"
+import type {CallbackPolicy} from "@bokehjs/model"
+import {delay} from "@bokehjs/core/util/defer"
 import {Message} from "@bokehjs/protocol/message"
 import type {MessageType} from "@bokehjs/protocol/message"
 import {Receiver} from "@bokehjs/protocol/receiver"
@@ -261,6 +266,49 @@ describe("client/comm module", () => {
       kernel.reply("PATCH-DOC", kernel.patch_for(() => source.stream({x: new Float64Array([9])})))
 
       expect(column(session)).to.be.equal(new Float64Array([7, 8, 9]))
+      expect(kernel.patches()).to.be.empty
+      session.close()
+    })
+  })
+
+  describe("callback policies and custom events", () => {
+    it("should throttle synchronized changes as a server session does", async () => {
+      const _subscribed_changes = new Map([["start", [["throttle", 40] as CallbackPolicy]]])
+      const range = Range1d.create({start: 0, end: 10, _subscribed_changes})
+      const kernel = new FakeKernel(new Document({roots: [range]}))
+      const session = await pull_comm_session(kernel, {session_id: "session"})
+      const [root] = session.document.roots() as Range1d[]
+
+      root.start = 1
+      root.start = 2
+      root.start = 3
+
+      const values = () => kernel.patches().map((patch) => {
+        const [event] = patch.content.events
+        return event.kind == "ModelChanged" ? event.new : null
+      })
+      expect(values()).to.be.equal([1])
+      await delay(70)
+      expect(values()).to.be.equal([1, 3])
+      const [, last] = kernel.patches()
+      const [event] = last.content.events
+      expect(event.kind == "ModelChanged" ? event.callback_policy : null).to.be.equal(["throttle", 40])
+      session.close()
+    })
+
+    it("should deliver custom events sent by the kernel to their model", async () => {
+      const upload = FileInput.create()
+      const kernel = new FakeKernel(new Document({roots: [upload]}))
+      const session = await pull_comm_session(kernel, {session_id: "session"})
+      const [root] = session.document.roots() as FileInput[]
+      const received: unknown[] = []
+      root.on_event(ClearInput, (event) => received.push(event))
+
+      const event = new MessageSentEvent(kernel.document, "bokeh_event", new ClearInput(upload))
+      kernel.reply("PATCH-DOC", kernel.document.create_json_patch([event]))
+
+      expect(received.length).to.be.equal(1)
+      expect((received[0] as ClearInput).origin).to.be.equal(root)
       expect(kernel.patches()).to.be.empty
       session.close()
     })

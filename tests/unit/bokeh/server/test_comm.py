@@ -25,7 +25,8 @@ from bokeh.application.handlers.lifecycle import LifecycleHandler
 from bokeh.core.serialization import Serialized
 from bokeh.document import Document
 from bokeh.document.events import DocumentChangedEvent
-from bokeh.models import ColumnDataSource, Div, Slider
+from bokeh.models import ColumnDataSource, Div, FileInput, Slider
+from bokeh.models.widgets.inputs import ClearInput
 from bokeh.protocol import patch_doc, pull_doc_req, replace_document
 from bokeh.protocol.message import Message
 from bokeh.protocol.receiver import Receiver
@@ -384,6 +385,61 @@ class TestCommSessionEndpoint:
 
         assert comm.sent[-1][0]["code"] == "PROTOCOL_ERROR"
         assert comm.closed
+
+
+def event_app(doc: Document) -> None:
+    upload = FileInput(name="upload")
+    slider = Slider(start=0, end=10, value=1, name="slider")
+    slider.on_change("value", lambda _attr, _old, _new: upload.clear())
+    doc.add_root(upload)
+    doc.add_root(slider)
+
+
+def message_events(comm: FakeComm) -> list[dict[str, Any]]:
+    return [
+        event for message in comm.messages() if message.msgtype == "PATCH-DOC"
+        for event in message.content["events"] if event["kind"] == "MessageSent"
+    ]
+
+
+class TestCustomEvents:
+
+    async def test_events_sent_from_a_later_cell_reach_the_view(self) -> None:
+        context = context_for(FunctionHandler(event_app))
+        endpoint, comm, client = await connected(context)
+        assert endpoint.session is not None
+        upload = endpoint.session.document.get_model_by_name("upload")
+
+        upload.clear()
+
+        [event] = message_events(comm)
+        assert event["msg_type"] == "bokeh_event"
+        assert event["msg_data"]["name"] == "clear_input"
+        received: list[Any] = []
+        client.on_message("bokeh_event", received.append)
+        [message] = comm.messages()
+        client.apply_json_patch(Serialized(message.content, message.buffers))
+        assert len(received) == 1
+        assert isinstance(received[0], ClearInput)
+        assert received[0].model is client.get_model_by_name("upload")
+
+        endpoint.close()
+        await endpoint.task
+
+    async def test_events_sent_by_python_callbacks_reach_the_view(self) -> None:
+        context = context_for(FunctionHandler(event_app))
+        endpoint, comm, client = await connected(context)
+        slider = client.get_model_by_name("slider")
+
+        comm.frontend_send_message(client_patch(client, lambda _doc: setattr(slider, "value", 3)))
+        await until(lambda: "OK" in comm.msgtypes())
+
+        [event] = message_events(comm)
+        assert event["msg_data"]["name"] == "clear_input"
+        assert comm.msgtypes() == ["PATCH-DOC", "OK"]
+
+        endpoint.close()
+        await endpoint.task
 
 
 def binary_app(doc: Document) -> None:
