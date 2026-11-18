@@ -41,7 +41,7 @@ if TYPE_CHECKING:
     from ..core.types import PathLike
     from ..model import Model
     from ..resources import ResourcesLike
-    from .jupyter_app import NotebookApplication
+    from .jupyter_app import CommApplication, NotebookApplication
     from .notebook import ApplicationViewHandle, DocumentViewHandle
 
 #-----------------------------------------------------------------------------
@@ -61,7 +61,7 @@ type OneOrMore[T] = T | Sequence[T]
 type Showable = OneOrMore[UIElement | DOMNode]
 
 def show(
-    obj: Showable | NotebookApplication,
+    obj: Showable | NotebookApplication | CommApplication,
     *,
     filename: PathLike | None = None,
     resources: ResourcesLike | None = None,
@@ -74,7 +74,7 @@ def show(
     cell to display multiple objects. The objects are displayed in order.
 
     Args:
-        obj (UIElement or UIElement[] or DOMNode or DOMNode[] or NotebookApplication) :
+        obj (UIElement or UIElement[] or DOMNode or DOMNode[] or NotebookApplication or CommApplication) :
             A Bokeh object to display.
 
             Bokeh plots, widgets, layouts (i.e. rows and columns) may be
@@ -107,20 +107,22 @@ def show(
     Returns:
         In a Jupyter notebook, returns a connected view handle. Standalone
         objects synchronize Python property changes automatically, while a
-        managed application creates an independent ASGI session. Returns None
+        managed application creates an independent session for every view. Returns None
         for file or browser output outside a notebook.
 
     '''
     from ..models.dom import DOMNode
     from ..models.ui import UIElement
-    from .jupyter_app import NotebookApplication
+    from .jupyter_app import CommApplication, NotebookApplication
 
-    if isinstance(obj, NotebookApplication):
+    if isinstance(obj, (NotebookApplication, CommApplication)):
         if not notebook_environment():
             raise RuntimeError("show(serve(...)) requires an interactive notebook kernel")
         if filename is not None or title is not None or template is not None:
             raise ValueError("file output options are not supported when showing a managed notebook application")
-        from .notebook import show_hosted_app
+        from .notebook import show_comm_app, show_hosted_app
+        if isinstance(obj, CommApplication):
+            return show_comm_app(obj, resources)
         return show_hosted_app(obj, resources)
 
     def is_showable(obj: Any) -> TypeGuard[Showable]:

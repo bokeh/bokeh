@@ -23,6 +23,7 @@ import bokeh.io as bi # isort:skip
 #-----------------------------------------------------------------------------
 
 ALL = (
+    'CommApplication',
     'curdoc',
     'export_png',
     'export_svg',

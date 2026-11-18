@@ -99,6 +99,23 @@ contains an opaque application identifier rather than a kernel-local URL. The
 current URL is returned over the live connection and resolved for the browser
 that opened the notebook. Each output owns its own BokehJS client session.
 
+Applications started with ``serve(..., transport="comms")`` replace the
+websocket with a comm. Their display payload carries ``transport: "comms"``.
+Each frontend view opens a comm with ``{"view_id", "transport": "comms"}``,
+and ``CommSessionEndpoint`` (in ``bokeh.server.comm``) creates a new
+``ServerSession`` for it through a regular ``ApplicationContext``. The kernel
+reports the session with ``{"kind": "session", "session_id", "resource_id"}``,
+or an application error with ``{"kind": "error", "code", "message",
+"traceback"}``. After loading the session's resources, the frontend sends
+``{"kind": "connect"}`` and the kernel answers with an ACK, as on websocket
+open. From then on, every comm message ``{"kind": "bokeh", "envelope"}`` holds
+one Bokeh protocol message, with its binary buffers attached as comm buffers,
+so PULL-DOC, PATCH-DOC, OK and ERROR replies work as they do over a
+websocket. BokehJS connects with ``pull_comm_session()``, which uses a
+``ClientConnection`` subclass, and ERROR replies to patches are shown in the
+view. Closing the comm discards the session and runs the
+``on_session_destroyed`` hooks.
+
 Saved files and export
 ----------------------
 
@@ -120,6 +137,11 @@ package versions when they implement the same notebook protocol. The remote
 kernel supplies the artifact and its matching BokehJS resources. The frontend
 rejects an unsupported protocol version with a diagnostic instead of trying to
 interpret an incompatible payload.
+
+Additive changes keep the protocol version. A frontend that predates comm
+applications opens their views without ``transport: "comms"``, and the kernel
+answers with an ``APPLICATION_TRANSPORT_UNSUPPORTED`` error, which the
+frontend shows as a diagnostic.
 
 Within one output, the Python artifact and BokehJS runtime must match exactly.
 This check prevents an artifact from being rendered by a different BokehJS

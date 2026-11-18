@@ -997,7 +997,7 @@ def test_notebook_comm_reports_missing_live_and_application_views() -> None:
     connected_application = MagicMock()
     application_handle.reset_mock()
     callback(connected_application, {"content": {"data": {"view_id": "application"}}})
-    application_handle._connect.assert_called_once_with(connected_application)
+    application_handle._connect.assert_called_once_with(connected_application, {"view_id": "application"})
 
 
 def test_comm_registration_failures_are_nonfatal() -> None:
@@ -1190,3 +1190,178 @@ def test_reset_and_url_validation_cover_all_owners(monkeypatch: pytest.MonkeyPat
     with patch.object(m.log, "warning") as warning:
         assert callable(m.update_notebook_url_from_env("https://other.example.test"))
     warning.assert_called_once()
+
+
+class _SessionComm:
+    def __init__(self, comm_id: str) -> None:
+        self.comm_id = comm_id
+        self.sent: list[dict[str, Any]] = []
+        self.closed = False
+        self.on_msg_callback: Callable[[dict[str, Any]], None] | None = None
+        self.on_close_callback: Callable[[Any], None] | None = None
+
+    def send(self, data: Any = None, buffers: list[bytes] | None = None) -> None:
+        self.sent.append(data)
+
+    def on_msg(self, callback: Callable[[dict[str, Any]], None]) -> None:
+        self.on_msg_callback = callback
+
+    def on_close(self, callback: Callable[[Any], None]) -> None:
+        self.on_close_callback = callback
+
+    def close(self) -> None:
+        self.closed = True
+
+
+async def _until(predicate: Callable[[], bool]) -> None:
+    import asyncio
+    async with asyncio.timeout(5):
+        while not predicate():
+            await asyncio.sleep(0.005)
+
+
+def _comm_application() -> Any:
+    from bokeh.io.jupyter_app import CommApplication
+    from bokeh.models import Slider
+
+    return CommApplication(lambda doc: doc.add_root(Slider(start=0, end=10, value=1, name="slider")))
+
+
+def test_show_comm_app_publishes_a_comms_application_view() -> None:
+    app = _comm_application()
+    try:
+        with (
+            patch("bokeh.io.notebook.anywidget_available", return_value=False),
+            patch("bokeh.io.notebook._register_notebook_comm_target"),
+            patch("bokeh.io.notebook.publish_display_data") as publish,
+        ):
+            handle = m.show_comm_app(app)
+
+        assert isinstance(handle, m.CommApplicationViewHandle)
+        data = publish.call_args.args[0]
+        payload = data[DISPLAY_MIME_TYPE]
+        assert payload["protocol_version"] == PROTOCOL_VERSION
+        assert payload["source_kind"] == "server"
+        assert payload["application_id"] == app.application_id
+        assert payload["transport"] == "comms"
+        assert "live_id" not in payload
+        assert payload["view_id"] in m._APPLICATION_VIEW_HANDLES
+        assert "data-bokeh-embed-payload" not in data["text/html"]
+        assert "Python-connected Bokeh application unavailable" in data["text/html"]
+        handle.close()
+    finally:
+        app.stop()
+
+
+def test_show_comm_app_rejects_stopped_apps_and_anywidget_hosts() -> None:
+    app = _comm_application()
+    with patch("bokeh.io.notebook._use_anywidget", return_value=True):
+        with pytest.raises(RuntimeError, match="transport='http'"):
+            m.show_comm_app(app)
+    app.stop()
+    with pytest.raises(RuntimeError, match="has stopped"):
+        m.show_comm_app(app)
+
+
+def test_comm_application_view_rejects_frontends_without_comm_sessions() -> None:
+    app = _comm_application()
+    handle = m.CommApplicationViewHandle(app, "view")
+    comm = _SessionComm("old")
+
+    handle._connect(cast(Any, comm), {"view_id": "view"})
+
+    assert comm.sent[0]["kind"] == "error"
+    assert comm.sent[0]["code"] == "APPLICATION_TRANSPORT_UNSUPPORTED"
+    assert comm.closed
+    assert handle.views == 0
+    handle.close()
+    app.stop()
+
+
+async def test_two_views_of_one_comm_application_get_independent_sessions() -> None:
+    app = _comm_application()
+    first = m.CommApplicationViewHandle(app, "first")
+    second = m.CommApplicationViewHandle(app, "second")
+    m._retain_application_handle(first)
+    m._retain_application_handle(second)
+    comms = [_SessionComm("a"), _SessionComm("b"), _SessionComm("c")]
+
+    first._connect(cast(Any, comms[0]), {"view_id": "first", "transport": "comms"})
+    first._connect(cast(Any, comms[1]), {"view_id": "first", "transport": "comms"})
+    second._connect(cast(Any, comms[2]), {"view_id": "second", "transport": "comms"})
+    await _until(lambda: all(comm.sent for comm in comms))
+
+    sessions = [comm.sent[0] for comm in comms]
+    assert [session["kind"] for session in sessions] == ["session"] * 3
+    assert len({session["session_id"] for session in sessions}) == 3
+    assert all(isinstance(session["resource_id"], str) for session in sessions)
+    assert all("bokeh/widgets" in session["requires"]["components"] for session in sessions)
+    assert first.views == 2 and second.views == 1
+    assert len(app.sessions) == 3
+    documents = {id(session.document) for session in [*first.sessions, *second.sessions]}
+    assert len(documents) == 3
+
+    first.sessions[0].document.get_model_by_name("slider").value = 7
+    assert first.sessions[1].document.get_model_by_name("slider").value == 1
+    assert second.sessions[0].document.get_model_by_name("slider").value == 1
+
+    assert comms[1].on_close_callback is not None
+    comms[1].on_close_callback({})
+    await _until(lambda: first.views == 1)
+    assert len(app.sessions) == 2
+
+    first.close()
+    assert comms[0].sent[-1] == {"kind": "close"}
+    assert comms[0].closed
+    await _until(lambda: len(app.sessions) == 1)
+    assert second.views == 1
+
+    app.stop()
+    assert second.closed
+    await _until(lambda: app.sessions == [])
+
+
+async def test_comm_target_passes_the_open_data_to_application_views() -> None:
+    pytest.importorskip("IPython")
+    targets: dict[str, object] = {}
+    shell = MagicMock()
+    shell.kernel.comm_manager.register_target.side_effect = lambda target, callback: targets.setdefault(target, callback)
+    app = _comm_application()
+    handle = m.CommApplicationViewHandle(app, "view")
+    m._retain_application_handle(handle)
+    comm = _SessionComm("comm")
+
+    with patch("IPython.get_ipython", return_value=shell):
+        m._NOTEBOOK_COMM_KERNEL = None
+        m._register_notebook_comm_target()
+    callback = cast(Callable[[Any, dict[str, Any]], None], targets["bokeh.notebook.v1"])
+    callback(comm, {"content": {"data": {"view_id": "view", "transport": "comms"}}})
+    await _until(lambda: bool(comm.sent))
+
+    assert comm.sent[0]["kind"] == "session"
+    app.stop()
+    await _until(lambda: app.sessions == [])
+    m._NOTEBOOK_COMM_KERNEL = None
+
+
+async def test_comm_application_sessions_run_document_destroy_callbacks() -> None:
+    from bokeh.io.jupyter_app import CommApplication
+
+    destroyed: list[str] = []
+
+    def modify(doc: Document) -> None:
+        doc.on_session_destroyed(lambda context: destroyed.append(context.id))
+
+    app = CommApplication(modify)
+    handle = m.CommApplicationViewHandle(app, "view")
+    comm = _SessionComm("comm")
+    handle._connect(cast(Any, comm), {"view_id": "view", "transport": "comms"})
+    await _until(lambda: bool(comm.sent))
+    session_id = comm.sent[0]["session_id"]
+
+    handle.close()
+    await _until(lambda: bool(destroyed))
+
+    assert destroyed == [session_id]
+    app.stop()
+

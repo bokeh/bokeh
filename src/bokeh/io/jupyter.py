@@ -166,6 +166,7 @@ class _DisplayPayload(TypedDict):
     resource_records: NotRequired[list[ResourceRecord]]
     live_id: NotRequired[str]
     application_id: NotRequired[str]
+    transport: NotRequired[Literal["comms"]]
 
 class _FilePayload(TypedDict):
     protocol_version: int
@@ -346,14 +347,16 @@ def resource_javascript(payload: _ResourcePayload, assets: tuple[ResolvedResourc
         artifacts=artifacts,
     )
 
-def display_payload(result: EmbedResult, resource_id: str, view_id: str, *,
+def display_payload(result: EmbedResult | None, resource_id: str, view_id: str, *,
         resource_records: list[ResourceRecord] | None = None, live_id: str | None = None,
-        application_id: str | None = None, connect_timeout: int = 10_000) -> _DisplayPayload:
+        application_id: str | None = None, transport: Literal["comms"] | None = None,
+        connect_timeout: int = 10_000) -> _DisplayPayload:
     '''Describe one notebook artifact display without copying its model graph.
 
     Args:
         result:
-            The embed result rendered by the output.
+            The embed result rendered by the output, or ``None`` for an
+            application whose sessions run over notebook comms.
         resource_id:
             The terminal resource record required by the artifact.
         view_id:
@@ -364,6 +367,8 @@ def display_payload(result: EmbedResult, resource_id: str, view_id: str, *,
             The optional connected-document transport identifier.
         application_id:
             The optional managed-application identifier.
+        transport:
+            ``"comms"`` when the application's sessions run over notebook comms.
         connect_timeout:
             Maximum time in milliseconds for a frontend connection.
 
@@ -374,7 +379,7 @@ def display_payload(result: EmbedResult, resource_id: str, view_id: str, *,
     bokeh_version = (
         resource_records[-1]["payload"]["bokeh_version"]
         if resource_records
-        else npm_version(result.bokeh_version)
+        else npm_version(result.bokeh_version if result is not None else __version__)
     )
     payload = _DisplayPayload(
         protocol_version=PROTOCOL_VERSION,
@@ -382,7 +387,7 @@ def display_payload(result: EmbedResult, resource_id: str, view_id: str, *,
         resource_id=resource_id,
         bokeh_version=bokeh_version,
         python_version=__version__,
-        source_kind=result.source["kind"],
+        source_kind=result.source["kind"] if result is not None else "server",
         view_id=view_id,
         connect_timeout=connect_timeout,
     )
@@ -392,6 +397,8 @@ def display_payload(result: EmbedResult, resource_id: str, view_id: str, *,
         payload["live_id"] = live_id
     if application_id is not None:
         payload["application_id"] = application_id
+    if transport is not None:
+        payload["transport"] = transport
     return payload
 
 def file_payload(path: str) -> _FilePayload:

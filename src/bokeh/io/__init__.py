@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 from .doc import curdoc
 from .export import export_png, export_svg, export_svgs
 from .jupyter import notebook_info
-from .jupyter_app import NotebookApplication, serve
+from .jupyter_app import CommApplication, NotebookApplication, serve
 from .saving import save
 from .showing import show
 
@@ -32,6 +32,7 @@ from .showing import show
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'CommApplication',
     'curdoc',
     'export_png',
     'export_svg',

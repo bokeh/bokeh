@@ -34,6 +34,7 @@ from typing import (
     Callable,
     Protocol,
     Self,
+    cast,
 )
 
 from ..core.json_encoder import serialize_json
@@ -55,8 +56,10 @@ if TYPE_CHECKING:
     from ..model import Model
     from ..models.ui import UIElement
     from ..resources import ResourcesLike
+    from ..server.comm import CommSessionEndpoint
+    from ..server.session import ServerSession
     from .jupyter import ExecutableResourceRecord
-    from .jupyter_app import NotebookApplication
+    from .jupyter_app import CommApplication, NotebookApplication
 
     class Comm(Protocol):
         comm_id: str
@@ -519,7 +522,8 @@ class ApplicationViewHandle:
 
     '''
 
-    def __init__(self, application: NotebookApplication, view_id: str, result: EmbedResult) -> None:
+    def __init__(self, application: NotebookApplication | CommApplication, view_id: str,
+            result: EmbedResult | None) -> None:
         self._application = application
         self._view_id = view_id
         self._result = result
@@ -527,7 +531,8 @@ class ApplicationViewHandle:
         self._closed = False
         self._frontend: Any | None = None
 
-    def _connect(self, comm: Comm) -> None:
+    def _connect(self, comm: Comm, data: dict[str, Any] | None = None) -> None:
+        assert self._result is not None
         if self._closed:
             comm.send({
                 "kind": "error",
@@ -550,7 +555,8 @@ class ApplicationViewHandle:
             if self._closed or comm_id not in self._comms or configured or data.get("kind") != "application_url":
                 return
             try:
-                browser_url = self._application._resolve_browser_url(data.get("application_url"))
+                assert self._result is not None
+                browser_url = cast("NotebookApplication", self._application)._resolve_browser_url(data.get("application_url"))
                 if browser_url == self._result.source["url"]:
                     result = self._result
                 else:
@@ -583,7 +589,7 @@ class ApplicationViewHandle:
         self._comms.pop(comm_id, None)
 
     @property
-    def application(self) -> NotebookApplication:
+    def application(self) -> NotebookApplication | CommApplication:
         '''Return the managed application displayed by this view.
 
         Returns:
@@ -657,6 +663,115 @@ class ApplicationViewHandle:
 
     def _ipython_display_(self) -> None:
         '''Keep a bare ``show(app)`` call from producing a second output.'''
+
+
+class CommApplicationViewHandle(ApplicationViewHandle):
+    ''' Control one notebook view of an application served over comms.
+
+    Every frontend that renders the view opens its own comm and gets its own
+    application session.
+
+    Args:
+        application:
+            The comm application displayed by this view.
+        view_id:
+            The identifier of this notebook output view.
+        resources:
+            The resource configuration used for session documents.
+
+    '''
+
+    def __init__(self, application: CommApplication, view_id: str, resources: ResourcesLike | None = None) -> None:
+        super().__init__(application, view_id, None)
+        self._resources = resources
+        self._endpoints: dict[str, CommSessionEndpoint] = {}
+
+    def _connect(self, comm: Comm, data: dict[str, Any] | None = None) -> None:
+        application = cast("CommApplication", self._application)
+        if self._closed or application.stopped:
+            comm.send({
+                "kind": "error",
+                "code": "APPLICATION_VIEW_CLOSED",
+                "message": "This notebook application view has already been closed.",
+            })
+            comm.close()
+            return
+        if (data or {}).get("transport") != "comms":
+            comm.send({
+                "kind": "error",
+                "code": "APPLICATION_TRANSPORT_UNSUPPORTED",
+                "message": (
+                    "This output shows a Bokeh application served over notebook comms, which this "
+                    "Bokeh notebook extension does not support. Install the Bokeh notebook extension "
+                    "that matches the kernel's Bokeh version, or use serve(..., transport='http')."
+                ),
+            })
+            comm.close()
+            return
+        comm_id = _comm_id(comm)
+        self._comms[comm_id] = comm
+        self._endpoints[comm_id] = application._serve_session(
+            comm, self._describe_session, on_close=lambda _endpoint: self._disconnect(comm_id),
+        )
+
+    def _describe_session(self, session: ServerSession) -> dict[str, Any]:
+        from .. import __version__
+        from ..embed.resources import ResourceRequirements, requirements_for_objs
+        from ..resources import Resources
+
+        requires = ResourceRequirements.union(
+            ResourceRequirements.dynamic_server(),
+            requirements_for_objs([session.document]),
+        )
+        resolved = Resources.build(self._resources).resolve(requires, bokeh_version=__version__)
+        return {
+            "session_id": session.id,
+            "resource_id": _publish_resource_record(resolved, _RESOURCE_LOAD_TIMEOUT, publish=False),
+            "requires": requires.to_dict(),
+        }
+
+    def _disconnect(self, comm_id: str) -> None:
+        self._comms.pop(comm_id, None)
+        self._endpoints.pop(comm_id, None)
+
+    @property
+    def sessions(self) -> list[ServerSession]:
+        '''Return the sessions of the frontends connected to this view.
+
+        Returns:
+            The connected sessions.
+
+        '''
+        return [
+            endpoint.session for endpoint in self._endpoints.values()
+            if endpoint.session is not None and not endpoint.closed
+        ]
+
+    @property
+    def views(self) -> int:
+        '''Return the number of frontends connected to this view.
+
+        Returns:
+            The number of connected frontends.
+
+        '''
+        return len(self._endpoints)
+
+    def close(self) -> None:
+        ''' Close every frontend of this view and discard their sessions.
+
+        Returns:
+            None
+
+        '''
+        if self._closed:
+            return
+        endpoints = tuple(self._endpoints.values())
+        self._endpoints.clear()
+        self._comms.clear()
+        for endpoint in endpoints:
+            endpoint.close()
+        super().close()
 
 
 _DOCUMENT_VIEW_HANDLES: dict[str, DocumentViewHandle] = {}
@@ -762,7 +877,7 @@ def _register_notebook_comm_target() -> None:
                 })
                 comm.close()
                 return
-            view._connect(comm)
+            view._connect(comm, data)
 
         kernel.comm_manager.register_target(_NOTEBOOK_COMM_TARGET, connect)
         _NOTEBOOK_COMM_KERNEL = kernel
@@ -1110,7 +1225,70 @@ def show_hosted_app(app: NotebookApplication,
         raise
     return handle
 
-def close_application_views(app: NotebookApplication) -> None:
+def show_comm_app(app: CommApplication,
+        resources: ResourcesLike | None = None) -> CommApplicationViewHandle:
+    ''' Display a :class:`~bokeh.io.CommApplication`.
+
+    Args:
+        app:
+            The comm application to display.
+        resources:
+            The resource configuration for session documents.
+
+    Returns:
+        A handle that owns the sessions of this application view.
+
+    '''
+    if app.stopped:
+        raise RuntimeError(
+            "This notebook application has stopped. Re-run the cell that calls serve(...) "
+            "to create a new application, then call show(app) again.",
+        )
+    if _use_anywidget():
+        raise RuntimeError(
+            "Bokeh applications served over comms need JupyterLab or Jupyter Notebook 7 with "
+            "the Bokeh notebook extension. Use serve(..., transport='http') in this notebook host.",
+        )
+
+    from .. import __version__
+    from ..embed.resources import ResourceRequirements
+    from ..resources import Resources
+    from .jupyter import DISPLAY_MIME_TYPE, display_payload
+
+    policy = Resources.build(resources)
+    resolved = policy.resolve(ResourceRequirements.dynamic_server(), bokeh_version=__version__)
+    resource_id = _publish_resource_record(resolved, _RESOURCE_LOAD_TIMEOUT, publish=False)
+    view_id = make_id()
+    payload = display_payload(
+        None,
+        resource_id,
+        view_id,
+        resource_records=_resource_record_chain(resource_id, executable=False),
+        application_id=app.application_id,
+        transport="comms",
+    )
+    records = _resource_record_chain(resource_id)
+    html = _portable_resource_html(records) + static_fallback(
+        _APPLICATION_FALLBACK_MESSAGE,
+        title=_APPLICATION_FALLBACK_TITLE,
+        resource_id=resource_id,
+    )
+    handle = CommApplicationViewHandle(app, view_id, resources)
+    _retain_application_handle(handle)
+    _register_notebook_comm_target()
+    try:
+        publish_display_data({
+            HTML_MIME_TYPE: html,
+            DISPLAY_MIME_TYPE: payload,
+        }, metadata={
+            DISPLAY_MIME_TYPE: {"application_id": app.application_id, "view_id": view_id},
+        })
+    except BaseException:
+        handle.close()
+        raise
+    return handle
+
+def close_application_views(app: NotebookApplication | CommApplication) -> None:
     '''Close every notebook output view owned by a managed application.
 
     Args:

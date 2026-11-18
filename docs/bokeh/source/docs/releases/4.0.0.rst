@@ -8,6 +8,11 @@ Bokeh version ``4.0.0`` is a major milestone of the Bokeh project.
 New features
 ------------
 
+* Added ``serve(..., transport="comms")`` for notebook applications. Each view
+  gets its own session, created by the application's handlers, that runs over
+  the kernel's Jupyter comms instead of a port, so applications and their
+  Python callbacks work wherever the notebook extension does, including remote
+  kernels the browser cannot connect to (:bokeh-issue:`15780`).
 * Added explicit immediate delivery and configurable throttling, debouncing,
   and committed-only delivery to ``Model.on_change()`` and
   ``Model.js_on_change()`` callbacks.

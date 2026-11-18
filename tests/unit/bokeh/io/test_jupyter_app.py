@@ -5,7 +5,7 @@ import socket
 import sys
 import types
 from collections.abc import Iterator
-from typing import Any
+from typing import Any, cast
 from unittest.mock import MagicMock, call, patch
 
 import pytest
@@ -518,3 +518,64 @@ def test_authorized_origin_rejects_persisted_credentials() -> None:
         m._authorized_origin("https://user:secret@example.test/notebook/")
     with pytest.raises(ValueError, match="query string or fragment"):
         m._authorized_origin("https://example.test/notebook/?token=secret")
+
+
+def test_serve_comms_returns_a_comm_application_without_a_host() -> None:
+    with patch("bokeh.io.jupyter_app._ASGIServerThread", _Host):
+        app = m.serve(_modify_document, transport="comms", key="comms")
+
+    assert isinstance(app, m.CommApplication)
+    assert _Host.instances == []
+    assert app.status == "running"
+    assert app.sessions == []
+    assert len(app.application.handlers) == 2
+    assert m.APPLICATIONS[app.application_id] is app
+    assert repr(app) == "CommApplication(status='running', sessions=0)"
+
+    with patch("bokeh.io.notebook.close_application_views") as close_views:
+        app.stop()
+        app.stop()
+    close_views.assert_called_once_with(app)
+    assert app.stopped
+    assert app.application_id not in m.APPLICATIONS
+
+
+def test_serve_comms_replaces_an_application_with_the_same_key() -> None:
+    first = m.serve(_modify_document, transport="comms", key="cell")
+    second = m.serve(_modify_document, transport="comms", key="cell")
+
+    assert first.stopped
+    assert not second.stopped
+    second.stop()
+
+
+def test_serve_comms_runs_server_lifecycle_hooks() -> None:
+    from bokeh.application import Application
+    from bokeh.application.handlers.lifecycle import LifecycleHandler
+
+    calls: list[str] = []
+    handler = LifecycleHandler()
+    handler._on_server_loaded = lambda _context: calls.append("loaded")
+    handler._on_server_unloaded = lambda _context: calls.append("unloaded")
+
+    app = m.serve(Application(handler), transport="comms")
+    assert calls == ["loaded"]
+    app.stop()
+    assert calls == ["loaded", "unloaded"]
+
+
+@pytest.mark.parametrize("kwargs", [
+    {"port": 5006},
+    {"notebook_url": "localhost:8888"},
+    {"extra_websocket_origins": ["example.com"]},
+    {"num_procs": 2},
+])
+def test_serve_comms_rejects_http_options(kwargs: dict[str, Any]) -> None:
+    with pytest.raises(TypeError, match=r"transport='comms'\) does not accept"):
+        m.serve(_modify_document, transport="comms", **kwargs)
+
+
+def test_serve_rejects_unknown_transports() -> None:
+    with pytest.raises(ValueError, match="unknown notebook application transport"):
+        m.serve(_modify_document, transport=cast(Any, "websocket"))
+
