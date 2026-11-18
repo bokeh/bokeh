@@ -5,6 +5,9 @@ import type {SessionChannel, SessionError} from "@bokehjs/client/comm"
 import {Document} from "@bokehjs/document"
 import type {Patch} from "@bokehjs/document"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import type {DocumentEvent} from "@bokehjs/document"
+import {Serializer} from "@bokehjs/core/serialization"
 import {Message} from "@bokehjs/protocol/message"
 import type {MessageType} from "@bokehjs/protocol/message"
 import {Receiver} from "@bokehjs/protocol/receiver"
@@ -19,6 +22,7 @@ class FakeKernel implements SessionChannel {
   opened = false
   closed = false
   patch_error: {text: string, traceback: string | null} | null = null
+  binary_pull: boolean = false
 
   protected readonly _receiver = new Receiver()
 
@@ -52,11 +56,35 @@ class FakeKernel implements SessionChannel {
     this.closed = true
   }
 
+  /** Like Python, encode arrays as binary buffers when requested. */
+  doc_json(): unknown {
+    const doc = this.document.to_json()
+    if (!this.binary_pull) {
+      return doc
+    }
+    const serializer = new Serializer({binary: true, include_defaults: true})
+    return {...doc, roots: serializer.encode(this.document.roots())}
+  }
+
+  /** The PATCH-DOC message the kernel sends for changes to its document. */
+  patch_for(change: () => void): Patch {
+    const events: DocumentEvent[] = []
+    const listener = (event: DocumentEvent) => events.push(event)
+    this.document.on_change(listener)
+    change()
+    this.document.remove_on_change(listener)
+    return this.document.create_json_patch(events as any)
+  }
+
   reply(msgtype: MessageType, content: unknown, reqid?: string): void {
     const header = reqid == null ? {msgid: unique_id(), msgtype} : {msgid: unique_id(), msgtype, reqid}
     const [envelope_json, buffers] = new Message(header, content).encode()
-    // Jupyter delivers comm buffers as DataViews.
-    this.on_message?.(envelope_json, buffers.map((buffer) => new DataView(buffer)))
+    // Jupyter delivers comm buffers as DataViews, possibly into a larger buffer.
+    this.on_message?.(envelope_json, buffers.map((buffer) => {
+      const padded = new Uint8Array(buffer.byteLength + 16)
+      padded.set(new Uint8Array(buffer), 8)
+      return new DataView(padded.buffer, 8, buffer.byteLength)
+    }))
   }
 
   close_from_kernel(): void {
@@ -183,6 +211,58 @@ describe("client/comm module", () => {
 
       await expect(async () => pull_comm_session(kernel, {session_id: "session", signal: controller.signal})).to.throw()
       expect(kernel.opened).to.be.false
+    })
+  })
+
+  describe("binary buffers", () => {
+    function kernel_with_source(): {kernel: FakeKernel, source: ColumnDataSource} {
+      const source = ColumnDataSource.create({data: {x: new Float64Array([1, 2, 3])}})
+      const kernel = new FakeKernel(new Document({roots: [source]}))
+      kernel.binary_pull = true
+      return {kernel, source}
+    }
+
+    function column(session: {document: Document}): unknown {
+      const [root] = session.document.roots() as ColumnDataSource[]
+      return root.get_column("x")
+    }
+
+    it("should decode a pulled document whose arrays arrive as comm buffers", async () => {
+      const {kernel} = kernel_with_source()
+      const session = await pull_comm_session(kernel, {session_id: "session"})
+
+      expect(column(session)).to.be.equal(new Float64Array([1, 2, 3]))
+      session.close()
+    })
+
+    it("should send browser arrays to the kernel as binary buffers", async () => {
+      const {kernel} = kernel_with_source()
+      const session = await pull_comm_session(kernel, {session_id: "session"})
+      const [root] = session.document.roots() as ColumnDataSource[]
+
+      root.data = {x: new Float64Array([4, 5])}
+      root.stream({x: new Float64Array([6])})
+
+      const patches = kernel.patches()
+      expect(patches.length).to.be.equal(2)
+      for (const patch of patches) {
+        expect(patch.buffers.size).to.be.equal(1)
+        kernel.document.apply_json_patch(patch.content, patch.buffers)
+      }
+      expect((kernel.document.roots()[0] as ColumnDataSource).get_column("x")).to.be.equal(new Float64Array([4, 5, 6]))
+      session.close()
+    })
+
+    it("should apply kernel patches whose arrays arrive as comm buffers", async () => {
+      const {kernel, source} = kernel_with_source()
+      const session = await pull_comm_session(kernel, {session_id: "session"})
+
+      kernel.reply("PATCH-DOC", kernel.patch_for(() => source.data = {x: new Float64Array([7, 8])}))
+      kernel.reply("PATCH-DOC", kernel.patch_for(() => source.stream({x: new Float64Array([9])})))
+
+      expect(column(session)).to.be.equal(new Float64Array([7, 8, 9]))
+      expect(kernel.patches()).to.be.empty
+      session.close()
     })
   })
 })

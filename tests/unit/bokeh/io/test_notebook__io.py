@@ -1364,3 +1364,32 @@ async def test_comm_application_sessions_run_document_destroy_callbacks() -> Non
 
     assert destroyed == [session_id]
     app.stop()
+
+
+async def test_release_message_closes_comm_application_sessions() -> None:
+    pytest.importorskip("IPython")
+    targets: dict[str, object] = {}
+    shell = MagicMock()
+    shell.kernel.comm_manager.register_target.side_effect = lambda target, callback: targets.setdefault(target, callback)
+    app = _comm_application()
+    handle = m.CommApplicationViewHandle(app, "view")
+    m._retain_application_handle(handle)
+    comm = _SessionComm("comm")
+
+    with patch("IPython.get_ipython", return_value=shell):
+        m._NOTEBOOK_COMM_KERNEL = None
+        m._register_notebook_comm_target()
+    callback = cast(Callable[[Any, dict[str, Any]], None], targets["bokeh.notebook.v1"])
+    callback(comm, {"content": {"data": {"view_id": "view", "transport": "comms"}}})
+    await _until(lambda: len(app.sessions) == 1)
+
+    release = MagicMock()
+    callback(release, {"content": {"data": {"kind": "release", "view_id": "view"}}})
+    await _until(lambda: app.sessions == [])
+
+    assert handle.closed
+    assert comm.sent[-1] == {"kind": "close"}
+    assert comm.closed
+    release.send.assert_called_once_with({"kind": "released", "view_id": "view"})
+    app.stop()
+    m._NOTEBOOK_COMM_KERNEL = None

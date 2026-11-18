@@ -683,14 +683,24 @@ def _comm_application_notebook() -> Any:
         metadata={"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
         cells=[
             nbformat.v4.new_code_cell('''
+import numpy as np
 from bokeh.io import serve, show
 from bokeh.layouts import column
-from bokeh.models import Button, Div, Slider
+from bokeh.models import Button, ColumnDataSource, Div, Slider
+from bokeh.plotting import figure
 
 def modify_document(doc):
     slider = Slider(start=0, end=10, value=1, name="comm-slider")
     div = Div(text="value:1", name="comm-div")
     button = Button(label="fail", name="comm-button")
+    source = ColumnDataSource(data={"x": np.arange(3, dtype=np.float64)}, name="comm-source")
+    total = Div(text="", name="comm-total")
+    plot = figure(width=200, height=120, toolbar_location=None)
+    plot.scatter("x", "x", source=source)
+
+    def summarize(attr, old, new):
+        x = source.data["x"]
+        total.text = f"{type(x).__name__}:{np.asarray(x).dtype}:{np.sum(x)}"
 
     def clamp(attr, old, new):
         if new > 5:
@@ -702,7 +712,8 @@ def modify_document(doc):
 
     slider.on_change("value", clamp)
     button.on_click(fail)
-    doc.add_root(column(slider, div, button))
+    source.on_change("data", summarize)
+    doc.add_root(column(slider, div, button, total, plot))
 
 app = serve(modify_document, transport="comms")
 first = show(app)
@@ -713,7 +724,9 @@ print("comm-app-ready")
 print(f"comm-sessions:{len(app.sessions)}:{first.views}:{second.views}")
 '''),
             nbformat.v4.new_code_cell('''
-second.sessions[0].document.get_model_by_name("comm-div").text = "from-a-later-cell"
+second_doc = second.sessions[0].document
+second_doc.get_model_by_name("comm-div").text = "from-a-later-cell"
+second_doc.get_model_by_name("comm-source").stream({"x": np.array([10.0, 20.0])})
 print("kernel-updated")
 '''),
         ],
@@ -739,6 +752,8 @@ return (({view}) => {
   return {
     slider: model("comm-slider")?.value ?? null,
     div: model("comm-div")?.text ?? null,
+    total: model("comm-total")?.text ?? null,
+    x: Array.from(model("comm-source")?.get_column("x") ?? []).join(","),
     error: error?.textContent ?? null,
   }
 })(arg)
@@ -752,6 +767,8 @@ return (({view, action}) => {
     model("comm-slider").value = 9
   else if (action === "click")
     mount.view_lookup.get_one(model("comm-button")).click()
+  else if (action === "data")
+    model("comm-source").data = {x: new Float64Array([1.5, 2.5])}
 })(arg)
 """
 
@@ -780,12 +797,15 @@ def test_jupyterlab_comm_application_runs_one_session_per_view_without_a_server(
                 return page.evaluate(f"(arg) => {{ {_COMM_VIEW_STATE} }}", {"view": view})
 
             def wait_for(view: int, key: str, expected: Any) -> None:
-                page.wait_for_function(
-                    f"(arg) => {{ const state = (() => {{ {_COMM_VIEW_STATE} }})(); "
-                    f"return state?.{key} === arg.expected }}",
-                    arg={"view": view, "expected": expected},
-                    timeout=30_000,
-                )
+                try:
+                    page.wait_for_function(
+                        f"(arg) => {{ const state = (() => {{ {_COMM_VIEW_STATE} }})(); "
+                        f"return state?.{key} === arg.expected }}",
+                        arg={"view": view, "expected": expected},
+                        timeout=30_000,
+                    )
+                except playwright.TimeoutError as error:
+                    raise AssertionError(f"view {view}: expected {key}={expected!r}, state={state(view)!r}") from error
 
             def act(view: int, action: str) -> None:
                 page.evaluate(f"(arg) => {{ {_COMM_VIEW_ACTION} }}", {"view": view, "action": action})
@@ -802,7 +822,13 @@ def test_jupyterlab_comm_application_runs_one_session_per_view_without_a_server(
             act(0, "slide")
             wait_for(0, "slider", 5)
             wait_for(0, "div", "value:5")
-            assert state(1) == {"slider": 1, "div": "value:1", "error": None}
+            assert state(1) == {"slider": 1, "div": "value:1", "total": "", "x": "0,1,2", "error": None}
+
+            # A Float64Array sent by the browser travels as a comm buffer and
+            # arrives in Python as a float64 array.array, as over a websocket.
+            act(0, "data")
+            wait_for(0, "total", "array:float64:4.0")
+            assert state(1) == {"slider": 1, "div": "value:1", "total": "", "x": "0,1,2", "error": None}
 
             # A failing callback is reported in the view that triggered it.
             act(0, "click")
@@ -812,14 +838,16 @@ def test_jupyterlab_comm_application_runs_one_session_per_view_without_a_server(
                 arg={"view": 0},
                 timeout=30_000,
             )
-            assert state(1) == {"slider": 1, "div": "value:1", "error": None}
+            assert state(1) == {"slider": 1, "div": "value:1", "total": "", "x": "0,1,2", "error": None}
 
-            # A later cell changes one view's session document directly.
+            # A later cell changes one view's session document directly, including
+            # streaming a numpy array.
             _execute_cell_once(page, editors, 2)
             page.get_by_text("kernel-updated", exact=True).wait_for(timeout=30_000)
             wait_for(1, "div", "from-a-later-cell")
+            wait_for(1, "x", "0,1,2,10,20")
             current = state(0)
-            assert current is not None and current["div"] == "value:5"
+            assert current is not None and current["div"] == "value:5" and current["x"] == "1.5,2.5"
 
             assert page.locator(".bk-notebook-diagnostic").count() == 0
             assert [url for url in websockets if "/api/kernels/" not in url and "/api/events/" not in url] == []

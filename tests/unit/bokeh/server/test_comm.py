@@ -17,12 +17,15 @@ import asyncio
 from collections.abc import Callable
 from typing import Any
 
+import numpy as np
+
 from bokeh.application import Application
 from bokeh.application.handlers.function import FunctionHandler
 from bokeh.application.handlers.lifecycle import LifecycleHandler
+from bokeh.core.serialization import Serialized
 from bokeh.document import Document
 from bokeh.document.events import DocumentChangedEvent
-from bokeh.models import Slider
+from bokeh.models import ColumnDataSource, Div, Slider
 from bokeh.protocol import patch_doc, pull_doc_req, replace_document
 from bokeh.protocol.message import Message
 from bokeh.protocol.receiver import Receiver
@@ -358,6 +361,109 @@ class TestCommSessionEndpoint:
         assert comm.sent[-1][0]["code"] == "PROTOCOL_ERROR"
         assert comm.closed
         assert list(context.sessions) == []
+
+    async def test_comm_closed_before_the_session_exists_discards_it(self) -> None:
+        context = context_for(FunctionHandler(slider_app()))
+        comm = FakeComm()
+        endpoint = CommSessionEndpoint(context, comm)
+
+        comm.frontend_close()
+        await endpoint.task
+
+        assert comm.sent == []
+        assert list(context.sessions) == []
+
+    async def test_extra_binary_buffers_are_a_protocol_error(self) -> None:
+        context = context_for(FunctionHandler(slider_app()))
+        endpoint, comm, client = await connected(context)
+        slider = client.get_model_by_name("slider")
+
+        (envelope, _), *_ = client_patch(client, lambda _doc: setattr(slider, "value", 2)).fragments()
+        comm.frontend_send({"kind": "bokeh", "envelope": envelope}, [b"unexpected"])
+        await endpoint.task
+
+        assert comm.sent[-1][0]["code"] == "PROTOCOL_ERROR"
+        assert comm.closed
+
+
+def binary_app(doc: Document) -> None:
+    source = ColumnDataSource(data={"x": np.arange(4, dtype=np.float64)}, name="source")
+    total = Div(text="", name="total")
+
+    def summarize(attr: str, old: Any, new: Any) -> None:
+        x = source.data["x"]
+        total.text = f"{type(x).__name__}:{float(np.sum(x))}"
+
+    source.on_change("data", summarize)
+    doc.add_root(source)
+    doc.add_root(total)
+
+
+class TestBinaryBuffers:
+
+    async def test_pull_reply_carries_arrays_as_comm_buffers(self) -> None:
+        context = context_for(FunctionHandler(binary_app))
+        comm = FakeComm()
+        endpoint = CommSessionEndpoint(context, comm)
+        await until(lambda: "session" in comm.kinds())
+        comm.frontend_send({"kind": "connect"})
+        comm.frontend_send_message(pull_doc_req())
+        await until(lambda: "PULL-DOC-REPLY" in comm.msgtypes())
+
+        _, buffers = next(item for item in comm.sent if item[0]["kind"] == "bokeh" and "PULL-DOC-REPLY" in item[0]["envelope"])
+        assert len(buffers) == 1
+        assert all(isinstance(buffer, bytes) for buffer in buffers)
+        reply = comm.messages()[-1]
+        client = Document()
+        replace_document(reply, client)
+        np.testing.assert_array_equal(client.get_model_by_name("source").data["x"], np.arange(4, dtype=np.float64))
+
+        endpoint.close()
+        await endpoint.task
+
+    async def test_browser_arrays_reach_python_callbacks(self) -> None:
+        context = context_for(FunctionHandler(binary_app))
+        endpoint, comm, client = await connected(context)
+        source = client.get_model_by_name("source")
+        values = np.array([1.5, 2.5, 3.0], dtype=np.float64)
+
+        patch = client_patch(client, lambda _doc: setattr(source, "data", {"x": values}))
+        assert len(patch.buffers) == 1
+        comm.frontend_send_message(patch)
+        await until(lambda: "OK" in comm.msgtypes())
+
+        assert endpoint.session is not None
+        server = endpoint.session.document
+        np.testing.assert_array_equal(server.get_model_by_name("source").data["x"], values)
+        assert server.get_model_by_name("total").text == "ndarray:7.0"
+        [correction] = [message for message in comm.messages() if message.msgtype == "PATCH-DOC"]
+        assert correction.content["events"][0]["new"] == "ndarray:7.0"
+
+        endpoint.close()
+        await endpoint.task
+
+    async def test_kernel_arrays_reach_the_view_as_comm_buffers(self) -> None:
+        context = context_for(FunctionHandler(binary_app))
+        endpoint, comm, client = await connected(context)
+        assert endpoint.session is not None
+        source = endpoint.session.document.get_model_by_name("source")
+
+        # A later cell streams and patches binary data directly.
+        source.stream({"x": np.array([10.0, 20.0])})
+        source.patch({"x": [(0, 100.0)]})
+        source.data = {"x": np.linspace(0, 1, 5)}
+
+        messages = [message for message in comm.messages() if message.msgtype == "PATCH-DOC"]
+        assert any(message.buffers for message in messages)
+        for data, buffers in comm.sent:
+            _, _, buffer_ids = Message.decode(data["envelope"])
+            assert len(buffers) == len(buffer_ids)
+        for message in messages:
+            client.apply_json_patch(Serialized(message.content, message.buffers))
+        np.testing.assert_array_equal(client.get_model_by_name("source").data["x"], np.linspace(0, 1, 5))
+
+        endpoint.close()
+        await endpoint.task
 
 #-----------------------------------------------------------------------------
 # Dev API
