@@ -234,11 +234,16 @@ export abstract class RendererView extends StyledElementView implements visuals.
         }
         `)
       } else {
+        // `bbox` is in canvas coordinates, but top-level renderers (plot's
+        // `renderers` and `center`) are rendered into the frame's element,
+        // so position relative to it in that case.
+        const {frame} = this.plot_view
+        const origin = this.el.parentNode === frame.shadow_el ? frame.bbox : {x: 0, y: 0}
         position.replace(`
         ${this.host_selector} {
           position: absolute;
-          left:     ${bbox.left}px;
-          top:      ${bbox.top}px;
+          left:     ${bbox.left - origin.x}px;
+          top:      ${bbox.top - origin.y}px;
           width:    ${bbox.width}px;
           height:   ${bbox.height}px;
         }
