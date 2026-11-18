@@ -184,6 +184,12 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
         let settled = false
         let closed = false
 
+        // Unloading the page doesn't close its comms, so the kernel would keep
+        // the session of every reloaded view. Close it while the kernel
+        // connection can still send the message.
+        const unload = (event: PageTransitionEvent) => {
+          if (!event.persisted) channel.close()
+        }
         const channel: SessionChannel = {
           on_message: null,
           on_close: null,
@@ -194,11 +200,13 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
             comm.send({kind: "bokeh", envelope}, undefined, buffers)
           },
           close() {
+            window.removeEventListener("pagehide", unload)
             if (closed) return
             closed = true
             safelyCloseComm(comm)
           },
         }
+        window.addEventListener("pagehide", unload)
         const timer = window.setTimeout(() => {
           if (settled) return
           settled = true
@@ -257,6 +265,7 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
         comm.onClose = () => {
           const wasClosed = closed
           closed = true
+          window.removeEventListener("pagehide", unload)
           if (!settled) {
             settled = true
             window.clearTimeout(timer)

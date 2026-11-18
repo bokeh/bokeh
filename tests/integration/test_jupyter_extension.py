@@ -686,8 +686,11 @@ def _comm_application_notebook() -> Any:
 import numpy as np
 from bokeh.io import serve, show
 from bokeh.layouts import column
-from bokeh.models import Button, ColumnDataSource, Div, Slider
+from bokeh.models import Button, ColumnDataSource, Div, FileInput, Slider
+from bokeh.model import Throttle
 from bokeh.plotting import figure
+
+throttled_calls = []
 
 def modify_document(doc):
     slider = Slider(start=0, end=10, value=1, name="comm-slider")
@@ -697,6 +700,9 @@ def modify_document(doc):
     total = Div(text="", name="comm-total")
     plot = figure(width=200, height=120, toolbar_location=None)
     plot.scatter("x", "x", source=source)
+    throttled = Slider(start=0, end=20, value=0, name="comm-throttled")
+    throttled.on_change("value", lambda attr, old, new: throttled_calls.append(new), policy=Throttle(300))
+    upload = FileInput(name="comm-upload")
 
     def summarize(attr, old, new):
         x = source.data["x"]
@@ -713,7 +719,7 @@ def modify_document(doc):
     slider.on_change("value", clamp)
     button.on_click(fail)
     source.on_change("data", summarize)
-    doc.add_root(column(slider, div, button, total, plot))
+    doc.add_root(column(slider, div, button, total, plot, throttled, upload))
 
 app = serve(modify_document, transport="comms")
 first = show(app)
@@ -727,7 +733,14 @@ print(f"comm-sessions:{len(app.sessions)}:{first.views}:{second.views}")
 second_doc = second.sessions[0].document
 second_doc.get_model_by_name("comm-div").text = "from-a-later-cell"
 second_doc.get_model_by_name("comm-source").stream({"x": np.array([10.0, 20.0])})
+second_doc.get_model_by_name("comm-upload").clear()
 print("kernel-updated")
+'''),
+            nbformat.v4.new_code_cell('''
+print(f"throttled:{throttled_calls}")
+'''),
+            nbformat.v4.new_code_cell('''
+print(f"after-reload:{len(app.sessions)}:{first.views}:{second.views}")
 '''),
         ],
     )
@@ -754,6 +767,7 @@ return (({view}) => {
     div: model("comm-div")?.text ?? null,
     total: model("comm-total")?.text ?? null,
     x: Array.from(model("comm-source")?.get_column("x") ?? []).join(","),
+    cleared: Number(current.target.dataset.clearInputEvents ?? 0),
     error: error?.textContent ?? null,
   }
 })(arg)
@@ -769,6 +783,15 @@ return (({view, action}) => {
     mount.view_lookup.get_one(model("comm-button")).click()
   else if (action === "data")
     model("comm-source").data = {x: new Float64Array([1.5, 2.5])}
+  else if (action === "listen") {
+    const {target} = commView(view)
+    model("comm-upload").on_event("clear_input", () => {
+      target.dataset.clearInputEvents = String(Number(target.dataset.clearInputEvents ?? 0) + 1)
+    })
+  } else if (action === "throttle") {
+    for (let value = 1; value <= 20; value++)
+      model("comm-throttled").value = value
+  }
 })(arg)
 """
 
@@ -789,7 +812,7 @@ def test_jupyterlab_comm_application_runs_one_session_per_view_without_a_server(
             page.on("websocket", lambda websocket: websockets.append(websocket.url))
             page.goto(f"{base_url}/lab/tree/comm-application.ipynb")
             editors = page.locator(".jp-CodeCell .cm-content")
-            editors.nth(2).wait_for(timeout=30_000)
+            editors.nth(4).wait_for(timeout=30_000)
 
             # Every step goes through the mounted BokehJS document of a view,
             # so the test doesn't depend on Jupyter's or the widgets' DOM.
@@ -822,13 +845,13 @@ def test_jupyterlab_comm_application_runs_one_session_per_view_without_a_server(
             act(0, "slide")
             wait_for(0, "slider", 5)
             wait_for(0, "div", "value:5")
-            assert state(1) == {"slider": 1, "div": "value:1", "total": "", "x": "0,1,2", "error": None}
+            assert state(1) == {"slider": 1, "div": "value:1", "total": "", "x": "0,1,2", "cleared": 0, "error": None}
 
             # A Float64Array sent by the browser travels as a comm buffer and
             # arrives in Python as a float64 array.array, as over a websocket.
             act(0, "data")
             wait_for(0, "total", "array:float64:4.0")
-            assert state(1) == {"slider": 1, "div": "value:1", "total": "", "x": "0,1,2", "error": None}
+            assert state(1) == {"slider": 1, "div": "value:1", "total": "", "x": "0,1,2", "cleared": 0, "error": None}
 
             # A failing callback is reported in the view that triggered it.
             act(0, "click")
@@ -838,20 +861,48 @@ def test_jupyterlab_comm_application_runs_one_session_per_view_without_a_server(
                 arg={"view": 0},
                 timeout=30_000,
             )
-            assert state(1) == {"slider": 1, "div": "value:1", "total": "", "x": "0,1,2", "error": None}
+            assert state(1) == {"slider": 1, "div": "value:1", "total": "", "x": "0,1,2", "cleared": 0, "error": None}
 
             # A later cell changes one view's session document directly, including
-            # streaming a numpy array.
+            # streaming a numpy array and sending a custom event.
+            act(0, "listen")
+            act(1, "listen")
             _execute_cell_once(page, editors, 2)
             page.get_by_text("kernel-updated", exact=True).wait_for(timeout=30_000)
             wait_for(1, "div", "from-a-later-cell")
             wait_for(1, "x", "0,1,2,10,20")
+            wait_for(1, "cleared", 1)
             current = state(0)
             assert current is not None and current["div"] == "value:5" and current["x"] == "1.5,2.5"
+            assert current["cleared"] == 0
+
+            # The browser's callback policy limits what reaches Python: a
+            # throttled burst delivers the first and the final value.
+            act(0, "throttle")
+            wait_for(0, "slider", 5)
+            page.wait_for_timeout(1000)
+            _execute_cell_once(page, editors, 3)
+            page.get_by_text("throttled:[1, 20]", exact=True).wait_for(timeout=30_000)
 
             assert page.locator(".bk-notebook-diagnostic").count() == 0
             assert [url for url in websockets if "/api/kernels/" not in url and "/api/events/" not in url] == []
             _screenshot_artifact(page.locator(".jp-CodeCell").nth(0), "jupyterlab-comm-application.png")
+
+            # Reloading the page reconnects each saved view with a new session
+            # and discards the sessions of the unloaded page.
+            page.keyboard.press("ControlOrMeta+S")
+            _wait_for_saved_output(path, 0, DISPLAY_MIME_TYPE)
+            page.reload()
+            editors.nth(4).wait_for(timeout=30_000)
+            wait_for(0, "slider", 1)
+            wait_for(0, "div", "value:1")
+            wait_for(1, "div", "value:1")
+            _execute_cell_once(page, editors, 4)
+            page.get_by_text("after-reload:2:1:1", exact=True).wait_for(timeout=30_000)
+            act(0, "slide")
+            wait_for(0, "slider", 5)
+            wait_for(0, "div", "value:5")
+            assert page.locator(".bk-notebook-diagnostic").count() == 0
             browser.close()
     finally:
         _stop(process)

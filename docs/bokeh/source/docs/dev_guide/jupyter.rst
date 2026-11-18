@@ -114,7 +114,9 @@ so PULL-DOC, PATCH-DOC, OK and ERROR replies work as they do over a
 websocket. BokehJS connects with ``pull_comm_session()``, which uses a
 ``ClientConnection`` subclass, and ERROR replies to patches are shown in the
 view. Closing the comm discards the session and runs the
-``on_session_destroyed`` hooks.
+``on_session_destroyed`` hooks. Jupyter doesn't close comms when a page
+unloads, so the frontend closes its session comms on ``pagehide``. A reloaded
+page gets new sessions, and the kernel discards those of the old page.
 
 Saved files and export
 ----------------------

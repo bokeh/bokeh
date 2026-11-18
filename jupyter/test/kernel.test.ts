@@ -178,4 +178,27 @@ describe("JupyterLab kernel transport", () => {
     expect(error.cause.stack).toContain("Traceback (most recent call last)")
     expect(comm.close).toHaveBeenCalled()
   })
+
+  it("closes an application session's comm when the page unloads", async () => {
+    const comm: any = {
+      open: vi.fn(),
+      send: vi.fn(),
+      close: vi.fn(() => ({done: Promise.resolve()})),
+    }
+    const kernel = {createComm: vi.fn(() => comm)}
+    const manager = {context: {sessionContext: {ready: Promise.resolve(), session: {kernel}}}}
+    const opening = kernelProxy(manager as any).openApplicationSession!("view")
+    await Promise.resolve()
+    comm.onMsg({content: {data: {kind: "session", session_id: "session", resource_id: "resource"}}})
+    await opening
+
+    // A page kept in the back/forward cache may come back, so its session stays open.
+    window.dispatchEvent(Object.assign(new Event("pagehide"), {persisted: true}))
+    expect(comm.close).not.toHaveBeenCalled()
+
+    window.dispatchEvent(Object.assign(new Event("pagehide"), {persisted: false}))
+    expect(comm.close).toHaveBeenCalledTimes(1)
+    window.dispatchEvent(Object.assign(new Event("pagehide"), {persisted: false}))
+    expect(comm.close).toHaveBeenCalledTimes(1)
+  })
 })
