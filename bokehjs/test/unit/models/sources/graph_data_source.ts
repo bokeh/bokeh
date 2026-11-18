@@ -110,6 +110,13 @@ describe("GraphDataSource", () => {
     expect(tuples.nodes.get("color")).to.be.equal(["red", "blue"])
   })
 
+  it("accepts a node mapping keyed by constructor", () => {
+    const source = GraphDataSource.create({nodes: {constructor: {color: "red"}}})
+
+    expect(source.node_ids).to.be.equal(["constructor"])
+    expect(source.nodes.get("color")).to.be.equal(["red"])
+  })
+
   it("rejects a node mapping attribute that would overwrite the node identifier", () => {
     expect(() => GraphDataSource.create({nodes: {a: {index: "b"}}})).to.throw(Error, "reserved 'index'")
   })

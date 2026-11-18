@@ -92,14 +92,33 @@ describe("GraphRenderer", () => {
     const encoded = doc.to_json()
 
     using create_source = restorable(sinon.spy(GraphDataSource, "create"))
+    using create_table = restorable(sinon.spy(ColumnDataSource, "create"))
     using create_renderer = restorable(sinon.spy(GlyphRenderer, "create"))
     const [decoded] = Document.from_json(encoded).roots()
     assert(decoded instanceof GraphRenderer)
 
     expect(create_source.callCount).to.be.equal(0)
+    expect(create_table.callCount).to.be.equal(0)
     expect(create_renderer.callCount).to.be.equal(0)
     expect(decoded.node_renderer.data_source).to.be.identical(decoded.data_source.nodes)
     expect(decoded.edge_renderer.data_source).to.be.identical(decoded.data_source.edges)
+  })
+
+  it("fills missing graph properties around a decoded node renderer", () => {
+    const layout_provider = StaticLayoutProvider.create()
+    const source = ColumnDataSource.create({data: {index: [0]}})
+    const node_renderer = GlyphRenderer.create({glyph: Scatter.create(), data_source: source})
+    const encoded = new Document({roots: [layout_provider, node_renderer]}).to_json()
+    encoded.roots.push({
+      $type: "GraphRenderer", $id: "graph", layout_provider: layout_provider.ref(), node_renderer: node_renderer.ref(),
+    })
+
+    const [, decoded_node_renderer, decoded] = Document.from_json(encoded).roots()
+    assert(decoded instanceof GraphRenderer)
+    expect(decoded_node_renderer).to.be.identical(decoded.node_renderer)
+    expect(decoded.data_source.nodes).to.be.identical(decoded.node_renderer.data_source)
+    expect(decoded.edge_renderer.data_source).to.be.identical(decoded.data_source.edges)
+    expect(decoded.data_source.node_ids).to.be.equal([0])
   })
 
   it("rejects mismatched renderer and graph sources", () => {

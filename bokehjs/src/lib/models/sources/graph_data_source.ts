@@ -1,7 +1,7 @@
 import type * as p from "core/properties"
-import {construct} from "core/has_props"
 import type {HasProps, HasPropsClass, ModelAttrs} from "core/has_props"
-import type {Arrayable, Attrs, Data} from "core/types"
+import type {Arrayable, Data} from "core/types"
+import {is_empty, PlainObjectProxy} from "core/util/object"
 import {isArray, isPlainObject} from "core/util/types"
 import {ColumnDataSource} from "./column_data_source"
 import {DataSource} from "./data_source"
@@ -24,6 +24,14 @@ export namespace GraphDataSource {
 }
 
 export interface GraphDataSource extends GraphDataSource.Attrs {}
+
+function empty_nodes(): ColumnDataSource {
+  return ColumnDataSource.create({data: {index: []}})
+}
+
+function empty_edges(): ColumnDataSource {
+  return ColumnDataSource.create({data: {start: [], end: []}})
+}
 
 function rows_source(records: object[]): ColumnDataSource {
   const fields = new Set(records.flatMap((record) => Object.keys(record)))
@@ -49,16 +57,17 @@ const node_aliases = {id: "index"}
 const edge_aliases = {source: "start", target: "end"}
 
 function normalize_graph_fields(fields: {[key: string]: unknown}, aliases: {[key: string]: string}): void {
+  const data = new PlainObjectProxy(fields)
   for (const [alias, canonical] of Object.entries(aliases)) {
-    if (!Object.hasOwn(fields, alias)) {
+    if (!data.has(alias)) {
       continue
     }
-    const value = fields[alias]
+    const value = data.get(alias)
     if (value === undefined) {
-      delete fields[alias]
-    } else if (!Object.hasOwn(fields, canonical) || fields[canonical] === undefined) {
-      fields[canonical] = value
-      delete fields[alias]
+      data.delete(alias)
+    } else if (data.get(canonical) === undefined) {
+      data.set(canonical, value)
+      data.delete(alias)
     }
   }
 }
@@ -80,12 +89,13 @@ function node_source(nodes: GraphDataSource.Nodes): IndexedDataSource {
     return nodes
   }
   if (!isArray(nodes)) {
-    if (Object.keys(nodes).length == 0) {
-      return ColumnDataSource.create({data: {index: []}})
+    if (is_empty(nodes)) {
+      return empty_nodes()
     }
-    if (!("id" in nodes || "index" in nodes) && Object.values(nodes).every((attrs) => isPlainObject(attrs))) {
+    const fields = new PlainObjectProxy(nodes)
+    if (!fields.has("id") && !fields.has("index") && Object.values(nodes).every((attrs) => isPlainObject(attrs))) {
       const records = Object.entries(nodes).map(([index, attrs]) => {
-        if (attrs != null && Object.hasOwn(attrs, "index")) {
+        if (attrs != null && new PlainObjectProxy(attrs).has("index")) {
           throw new Error("node attributes cannot contain the reserved 'index' field")
         }
         return {index, ...attrs}
@@ -95,7 +105,7 @@ function node_source(nodes: GraphDataSource.Nodes): IndexedDataSource {
     return columns_source(nodes as GraphDataSource.Columns, node_aliases)
   }
   if (nodes.length == 0) {
-    return ColumnDataSource.create({data: {index: []}})
+    return empty_nodes()
   }
 
   const records = nodes.map((node) => {
@@ -123,13 +133,13 @@ function edge_source(edges: GraphDataSource.Edges): IndexedDataSource {
     return edges
   }
   if (!isArray(edges)) {
-    if (Object.keys(edges).length == 0) {
-      return ColumnDataSource.create({data: {start: [], end: []}})
+    if (is_empty(edges)) {
+      return empty_edges()
     }
     return columns_source(edges, edge_aliases)
   }
   if (edges.length == 0) {
-    return ColumnDataSource.create({data: {start: [], end: []}})
+    return empty_edges()
   }
 
   const records = edges.map((edge) => {
@@ -209,26 +219,25 @@ export class GraphDataSource extends DataSource {
   static override create<T extends HasProps>(
     this: HasPropsClass<T>, attrs: GraphDataSource.Init | ModelAttrs<T> = {},
   ): T {
-    return construct(this, attrs as Attrs)
+    return super.create<T>(attrs as ModelAttrs<T>)
   }
 
   private _node_index?: Map<string, number>
 
   protected constructor(attrs: GraphDataSource.Init = {}) {
     const {nodes: raw_nodes, edges: raw_edges, ...rest} = attrs
-    const nodes = node_source(raw_nodes ?? [])
-    const edges = edge_source(raw_edges ?? [])
-    const normalized_attrs = {...rest, nodes, edges}
-    super(normalized_attrs)
-    if (raw_nodes != null && !(raw_nodes instanceof IndexedDataSource)) {
+    const nodes = raw_nodes == null ? undefined : node_source(raw_nodes)
+    const edges = raw_edges == null ? undefined : edge_source(raw_edges)
+    super({...rest, nodes, edges})
+    if (nodes != null && !(raw_nodes instanceof IndexedDataSource)) {
       this._node_index = build_node_index(nodes.get_field("index") ?? [], true)
     }
   }
 
   static {
     this.define<GraphDataSource.Props>(({Ref}) => ({
-      nodes: [ Ref(IndexedDataSource), () => ColumnDataSource.create({data: {index: []}}), {readonly: true} ],
-      edges: [ Ref(IndexedDataSource), () => ColumnDataSource.create({data: {start: [], end: []}}), {readonly: true} ],
+      nodes: [ Ref(IndexedDataSource), empty_nodes, {readonly: true} ],
+      edges: [ Ref(IndexedDataSource), empty_edges, {readonly: true} ],
     }))
   }
 
