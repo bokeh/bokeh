@@ -683,7 +683,7 @@ class CommApplicationViewHandle(ApplicationViewHandle):
 
     def __init__(self, application: CommApplication, view_id: str, resources: ResourcesLike | None = None) -> None:
         super().__init__(application, view_id, None)
-        self._resources = resources
+        self._resources: ResourcesLike | None = resources
         self._endpoints: dict[str, CommSessionEndpoint] = {}
 
     def _connect(self, comm: Comm, data: dict[str, Any] | None = None) -> None:

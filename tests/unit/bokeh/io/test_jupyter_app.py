@@ -578,4 +578,3 @@ def test_serve_comms_rejects_http_options(kwargs: dict[str, Any]) -> None:
 def test_serve_rejects_unknown_transports() -> None:
     with pytest.raises(ValueError, match="unknown notebook application transport"):
         m.serve(_modify_document, transport=cast(Any, "websocket"))
-

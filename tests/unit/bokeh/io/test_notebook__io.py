@@ -1364,4 +1364,3 @@ async def test_comm_application_sessions_run_document_destroy_callbacks() -> Non
 
     assert destroyed == [session_id]
     app.stop()
-
