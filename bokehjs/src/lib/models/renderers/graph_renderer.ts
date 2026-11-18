@@ -175,32 +175,38 @@ export class GraphRenderer extends DataRenderer {
   declare properties: GraphRenderer.Props
   declare __view_type__: GraphRendererView
 
+  protected constructor(attrs: Partial<GraphRenderer.Attrs> = {}) {
+    const normalized = {...attrs}
+    super(normalized)
+
+    // Serialized graphs carry the source and both renderers, even with defaults omitted.
+    if (this.is_deferred) {
+      return
+    }
+
+    const {node_renderer, edge_renderer} = attrs
+    const data_source = attrs.data_source ?? GraphDataSource.create({
+      nodes: node_renderer?.data_source,
+      edges: edge_renderer?.data_source,
+    })
+
+    // HasProps applies the normalized attributes after construction.
+    Object.assign(normalized, {
+      data_source,
+      node_renderer: node_renderer ?? GlyphRenderer.create({glyph: Scatter.create(), data_source: data_source.nodes}),
+      edge_renderer: edge_renderer ?? GlyphRenderer.create({glyph: MultiLine.create(), data_source: data_source.edges}),
+    })
+  }
+
   override initialize(): void {
     super.initialize()
 
-    // The decoder has initialized the properties of referenced models by this
-    // point, including renderers that refer back to this graph through callbacks.
-    const {properties} = this
-    const node_renderer = properties.node_renderer.is_unset ? null : this.node_renderer
-    const edge_renderer = properties.edge_renderer.is_unset ? null : this.edge_renderer
-
-    // A supplied renderer can provide the node or edge source when the caller
-    // omits data_source. Fill missing properties before connecting signals.
-    if (properties.data_source.is_unset || node_renderer == null || edge_renderer == null) {
-      const data_source = properties.data_source.is_unset
-        ? GraphDataSource.create({nodes: node_renderer?.data_source, edges: edge_renderer?.data_source})
-        : this.data_source
-      this.setv({
-        data_source,
-        node_renderer: node_renderer ?? GlyphRenderer.create({glyph: Scatter.create(), data_source: data_source.nodes}),
-        edge_renderer: edge_renderer ?? GlyphRenderer.create({glyph: MultiLine.create(), data_source: data_source.edges}),
-      }, {silent: true})
-    }
-
-    if (this.node_renderer.data_source != this.data_source.nodes) {
+    // Referenced renderers have their properties by this point, including when decoding a cycle.
+    const {data_source, node_renderer, edge_renderer} = this
+    if (node_renderer.data_source != data_source.nodes) {
       throw new Error("GraphRenderer node_renderer and data_source must use the same node source")
     }
-    if (this.edge_renderer.data_source != this.data_source.edges) {
+    if (edge_renderer.data_source != data_source.edges) {
       throw new Error("GraphRenderer edge_renderer and data_source must use the same edge source")
     }
   }

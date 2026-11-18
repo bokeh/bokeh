@@ -1,49 +1,8 @@
 import {expect} from "#framework/assertions"
 
-import type * as p from "@bokehjs/core/properties"
-import type {Arrayable, Dict} from "@bokehjs/core/types"
-import type {Index} from "@bokehjs/core/util/templating"
-import {dict, keys, to_object} from "@bokehjs/core/util/object"
-import {isNumber} from "@bokehjs/core/util/types"
-import {IndexedDataSource} from "@bokehjs/models/sources/indexed_data_source"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {GraphDataSource} from "@bokehjs/models/sources/graph_data_source"
-
-namespace RecordDataSource {
-  export type Attrs = p.AttrsOf<Props>
-  export type Props = IndexedDataSource.Props & {
-    records: p.Property<Dict<unknown>[]>
-  }
-}
-
-interface RecordDataSource extends RecordDataSource.Attrs {}
-
-class RecordDataSource extends IndexedDataSource {
-  declare properties: RecordDataSource.Props
-
-  static {
-    this.define<RecordDataSource.Props>(({List, Dict, Unknown}) => ({
-      records: [ List(Dict(Unknown)), [] ],
-    }))
-  }
-
-  get_length(): number {
-    return this.records.length
-  }
-
-  get_field(name: string): Arrayable | null {
-    return this.fields().includes(name) ? this.records.map((record) => dict(record).get(name)) : null
-  }
-
-  get_record(index: Index): {[key: string]: unknown} {
-    const i = isNumber(index) ? index : index.index
-    return to_object(this.records[i])
-  }
-
-  fields(): string[] {
-    return [...new Set(this.records.flatMap((record) => keys(record)))]
-  }
-}
+import {RecordDataSource} from "@bokehjs/models/sources/record_data_source"
 
 describe("GraphDataSource", () => {
   it("provides canonical topology fields by default", () => {

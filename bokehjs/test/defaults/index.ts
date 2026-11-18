@@ -16,6 +16,7 @@ import {unique_id} from "@bokehjs/core/util/string"
 import {default_resolver} from "@bokehjs/base"
 import {settings} from "@bokehjs/core/settings"
 import {GraphRenderer} from "@bokehjs/models/renderers/graph_renderer"
+import {GraphDataSource} from "@bokehjs/models/sources/graph_data_source"
 
 import "@bokehjs/models/main"
 import "@bokehjs/models/widgets/main"
@@ -346,9 +347,9 @@ describe("Defaults", () => {
       // don't finalize instances or connect signals, then any code that
       // may depend on fully initialized state will not run.
       const obj = (() => {
-        if (model === GraphRenderer) {
-          // The source and renderers are coupled during model initialization.
-          return GraphRenderer.create()
+        if (model === GraphRenderer || model === GraphDataSource) {
+          // Graph model constructors supply coupled references.
+          return model.create()
         }
         const obj = construct_deferred(model, unique_id())
         obj.initialize_props({})

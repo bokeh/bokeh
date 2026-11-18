@@ -225,19 +225,27 @@ export class GraphDataSource extends DataSource {
   private _node_index?: Map<string, number>
 
   protected constructor(attrs: GraphDataSource.Init = {}) {
-    const {nodes: raw_nodes, edges: raw_edges, ...rest} = attrs
-    const nodes = raw_nodes == null ? undefined : node_source(raw_nodes)
-    const edges = raw_edges == null ? undefined : edge_source(raw_edges)
-    super({...rest, nodes, edges})
-    if (nodes != null && !(raw_nodes instanceof IndexedDataSource)) {
+    const normalized = {...attrs}
+    super(normalized)
+
+    // Direct construction makes both table references explicit for serialization.
+    if (this.is_deferred) {
+      return
+    }
+
+    const {nodes: raw_nodes, edges: raw_edges} = attrs
+    const nodes = raw_nodes == null ? empty_nodes() : node_source(raw_nodes)
+    const edges = raw_edges == null ? empty_edges() : edge_source(raw_edges)
+    Object.assign(normalized, {nodes, edges})
+    if (raw_nodes != null && !(raw_nodes instanceof IndexedDataSource)) {
       this._node_index = build_node_index(nodes.get_field("index") ?? [], true)
     }
   }
 
   static {
     this.define<GraphDataSource.Props>(({Ref}) => ({
-      nodes: [ Ref(IndexedDataSource), empty_nodes, {readonly: true} ],
-      edges: [ Ref(IndexedDataSource), empty_edges, {readonly: true} ],
+      nodes: [ Ref(IndexedDataSource), undefined, {readonly: true} ],
+      edges: [ Ref(IndexedDataSource), undefined, {readonly: true} ],
     }))
   }
 

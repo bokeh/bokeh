@@ -23,10 +23,10 @@ from bokeh.models import (
     EdgesOnly,
     GeoJSONDataSource,
     GraphDataSource,
-    IndexedDataSource,
     MultiLine,
     NodesAndLinkedEdges,
     Patches,
+    RecordDataSource,
     Scatter,
     Segment,
     StaticLayoutProvider,
@@ -67,16 +67,23 @@ class TestGraphRenderer:
         assert edges.data_source.data == {"start": [], "end": []}
 
     def test_init_from_graph_data_source(self) -> None:
-        class RecordDataSource(IndexedDataSource):
-            pass
-
-        nodes = RecordDataSource()
-        edges = RecordDataSource()
+        nodes = RecordDataSource(records=[{"index": "a"}, {"index": "b"}])
+        edges = RecordDataSource(records=[{"start": "a", "end": "b"}])
         source = GraphDataSource(nodes=nodes, edges=edges)
         renderer = bmr.GraphRenderer(data_source=source)
 
         assert renderer.node_renderer.data_source is nodes
         assert renderer.edge_renderer.data_source is edges
+
+    @pytest.mark.parametrize("compact", [False, True])
+    def test_serializes_coupled_graph_properties(self, compact: bool, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setenv("BOKEH_SERIALIZE_INCLUDE_DEFAULTS", "false")
+        document = Document()
+        document.add_root(bmr.GraphRenderer(layout_provider=StaticLayoutProvider()))
+
+        encoded = document.to_static_json(deferred=False) if compact else document.to_json(deferred=False)
+        graph, = encoded["roots"]
+        assert {"data_source", "node_renderer", "edge_renderer"} <= graph.keys()
 
     def test_preserves_shared_sources_and_legacy_policies_in_document_roundtrip(self) -> None:
         source = GraphDataSource(nodes=["a", "b"], edges=[("a", "b")])
