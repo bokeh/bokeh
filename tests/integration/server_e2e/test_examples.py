@@ -176,6 +176,32 @@ def test_fourier_hosts_run_with_live_python_callbacks(browser: Any, host: Fourie
             page.close()
 
 
+def test_graph_updates_stream_and_replace_topology(browser: Any) -> None:
+    with _running_app("graph_updates:application") as url:
+        page = browser.new_page()
+        errors = _page_errors(page)
+        try:
+            response = page.goto(url, wait_until="domcontentloaded")
+            assert response is not None and response.ok
+            _wait_for_document(page)
+
+            for nodes in ("ABCDEFG", "ABC"):
+                page.evaluate(
+                    "count => { Bokeh.documents[0].get_model_by_name('graph-count').value = count }",
+                    len(nodes),
+                )
+                page.wait_for_function("""nodes => {
+                    const source = Bokeh.documents[0].get_model_by_name("graph-source")
+                    return source.node_ids.join("") === nodes
+                        && source.edge_starts.join("") === nodes.slice(0, -1)
+                        && source.edge_ends.join("") === nodes.slice(1)
+                }""", arg=nodes, timeout=10_000)
+
+            assert errors == []
+        finally:
+            page.close()
+
+
 @pytest.mark.parametrize("initially_empty", [False, True])
 def test_tornado_full_page_tracks_document_lifecycle(browser: Any, tmp_path: Path, initially_empty: bool) -> None:
     application = tmp_path / "full_page.py"
