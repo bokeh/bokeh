@@ -1,6 +1,8 @@
 ''' An adjacent bar plot of Pandas crosstab data.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: An adjacent bar chart for a crosstab of the sample superstore data set.
     :sampledata: sample_superstore
     :apis: bokeh.plotting.figure.hbar, bokeh.models.sources.ColumnDataSource
     :refs: :ref:`ug_topics_hierarchical_crosstab`

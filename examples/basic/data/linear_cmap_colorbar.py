@@ -1,3 +1,9 @@
+"""
+.. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A linear colormapper used to drive a colorbar in addition to a glyph's color.
+"""
+
 from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure, show
 from bokeh.transform import linear_cmap

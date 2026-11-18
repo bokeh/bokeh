@@ -1,3 +1,9 @@
+"""
+.. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A simple example of a multi-choice widget.
+"""
+
 from bokeh.io import show
 from bokeh.models import CustomJS, MultiChoice
 

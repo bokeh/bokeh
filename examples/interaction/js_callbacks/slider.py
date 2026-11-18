@@ -2,6 +2,8 @@
 adding widgets and ``CustomJS`` callbacks that can update a plot.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A layout with a sine plot on the left and sliders on the right to control the sine wave properties such as frequency and phase.
     :apis: bokeh.plotting.figure.line, bokeh.layouts.column, bokeh.layouts.row, bokeh.models.CustomJS, bokeh.models.Slider
     :refs: :ref:`ug_interaction_js_callbacks_customjs`
     :keywords: javascript callback

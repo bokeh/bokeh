@@ -1,3 +1,9 @@
+"""
+.. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A column of a scatter plot and data table that share a data source and have linked selections.
+"""
+
 from bokeh.layouts import column
 from bokeh.models import (
     ColumnDataSource,

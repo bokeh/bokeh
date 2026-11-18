@@ -1,3 +1,9 @@
+"""
+.. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: How to configure the appearance of selected and non-selected glyphs.
+"""
+
 from bokeh.plotting import figure, show
 
 plot = figure(width=400, height=400, tools="tap", title="Select a circle")

@@ -1,6 +1,8 @@
 ''' A demonstration of NetworkX integration for drawing network graphs.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A network graph plot of the NetworkX karate club dataset with large circles for vertices.
     :apis: bokeh.plotting.from_networkx
     :refs: :ref:`ug_topics_graph`
     :keywords: graph, hover, networkx, tooltip

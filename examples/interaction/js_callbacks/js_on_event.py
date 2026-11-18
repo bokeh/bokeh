@@ -1,5 +1,10 @@
 """ Demonstration of how to register event callbacks using an adaptation
 of the color_scatter example from the bokeh gallery
+
+
+.. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A scatter plot with several tools that prints information about js events as they occur, in text box to the right.
 """
 from __future__ import annotations
 

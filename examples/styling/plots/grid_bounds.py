@@ -1,3 +1,9 @@
+"""
+.. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: How to set bounds limits on plot grids.
+"""
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

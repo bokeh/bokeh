@@ -108,56 +108,195 @@ img.image-border {
 .bd-footer .btn-primary { filter: brightness(90%); background-color: #C02942; border-color: #C02942; }
 .bd-footer .btn-primary:hover { filter: brightness(100%); background-color: #C02942; border-color: #C02942; }
 
-/* CSS for our custom gallery */
-div.bk-gallery {
-    width: 100%;
-    margin: 0px 0px 20px 0px;
-    padding-left: 50px;
-    padding-right: 50px;
-    justify-content: space-between;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 15px;
-}
-
-div.bk-thumbnail {
+/* Gallery */
+.bd-content .bk-gallery-tabs > label.sd-tab-label {
+    padding: 0.55rem 0.85rem;
     background: transparent;
-    border-radius: 7px;
-    box-shadow: 0 0 3px #444;
-    position: relative;
-    box-sizing: border-box;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0.35rem 0.35rem 0 0;
+    font-weight: 600;
+}
+
+.bd-content .bk-gallery-tabs > input:checked + label.sd-tab-label {
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid var(--pst-color-link);
+    border-radius: 0.35rem 0.35rem 0 0;
+    color: var(--pst-color-link);
+    transform: none;
+}
+
+.bd-content .bk-gallery-tabs > input:focus-visible + label.sd-tab-label {
+    outline: 2px solid var(--pst-color-accent);
+    outline-offset: -3px;
+}
+
+.bd-content .bk-gallery-tabs > .sd-tab-content {
+    border: 0;
+    border-top: 1px solid var(--pst-color-border);
+    border-radius: 0;
+    box-shadow: none;
+    padding: 1.25rem 0;
+}
+
+.bk-gallery-group + .bk-gallery-group {
+    margin-top: 1.75rem;
+}
+
+.bk-gallery-group > h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1.25rem;
+}
+
+ul.bk-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr));
+    gap: 1rem;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+li.bk-thumbnail {
+    margin: 0;
+    padding: 0.65rem;
+    border: 1px solid var(--pst-color-border);
+    border-radius: 0.75rem;
+    background: var(--pst-color-background);
+    overflow: hidden;
+}
+
+.bk-thumbnail:hover, .bk-thumbnail:focus-within {
+    border-color: var(--pst-color-primary);
+}
+
+.bk-thumbnail > a {
+    display: grid;
+    gap: 0.55rem;
+    color: var(--pst-color-text-base);
+    text-decoration: none;
+    font-weight: 650;
+    line-height: 1.3;
+}
+
+.bk-thumbnail > a:hover .bk-thumbnail-title,
+.bk-thumbnail > a:focus-visible .bk-thumbnail-title {
+    color: var(--pst-color-primary);
+    text-decoration: underline;
+}
+
+.bk-thumbnail img.gallery {
     width: 100%;
-    padding: 10px;
+    height: auto;
+    border-radius: 0.4rem;
+    background: var(--pst-color-surface);
+}
+
+.bk-thumbnail-title, .bk-thumbnail-description {
+    padding-inline: 0.25rem;
+}
+
+.bk-thumbnail-description {
+    margin-top: 0.45rem;
+    color: var(--pst-color-text-muted);
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+/* Examples index */
+.bk-example-controls {
+    display: grid;
+    grid-template-columns: minmax(9rem, 1.4fr) minmax(10rem, 1fr) minmax(8rem, 0.8fr) auto;
+    align-items: end;
+    gap: 0.75rem;
+}
+
+.bk-example-controls > div {
+    min-width: 0;
+}
+
+.bk-example-controls label {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.bk-example-controls :is(input, select) {
+    display: block;
+    width: 100%;
+    min-height: 2.4rem;
+    margin-top: 0.2rem;
+    padding: 0.3rem 0.5rem;
+    color: var(--pst-color-text-base);
+    background: var(--pst-color-background);
+    border: 1px solid var(--pst-color-border);
+    border-radius: 0.35rem;
+    font-weight: 400;
+}
+
+#bk-example-count {
+    margin: 0.6rem 0 0.75rem;
+    color: var(--pst-color-text-muted);
+    font-size: 0.9rem;
+}
+
+.bk-example-entry {
+    position: relative;
+    border-top: 1px solid var(--pst-color-border);
+    padding: 0.4rem 0;
+}
+
+.bk-example-heading {
+    padding-inline-end: 5.25rem;
+}
+
+.bk-example-heading > p {
+    margin: 0;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.bk-example-facets {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
+    flex-wrap: wrap;
+    column-gap: 0.85rem;
+    color: var(--pst-color-text-muted);
+    font-size: 0.8rem;
 }
 
-div.bk-thumbnail:hover {
-    box-shadow: 0 0 5px #444;
+.bk-example-facets p, .bk-example-details p {
+    margin: 0;
 }
 
-div.bk-thumbnail-description {
-    font-weight: lighter;
-    font-size: 12px;
-    text-align: justify;
-    padding-left: 5px;
-    padding-right: 5px;
+.bk-example-entry > details > summary {
+    position: absolute;
+    inset-inline-end: 0.15rem;
+    inset-block-start: 0.4rem;
+    color: var(--pst-color-text-muted);
+    cursor: pointer;
+    font-size: 0.85rem;
 }
 
-div.bk-thumbnail-description p {
-    font-size: 10px;
-    text-align: left;
+.bk-example-details {
+    padding: 0.45rem 0 0.25rem;
+    font-size: 0.875rem;
+    overflow-wrap: anywhere;
 }
 
-div.bk-gallery-tabs > label {
-    font-size: 18px;
+.bk-example-details p + p {
+    margin-top: 0.2rem;
 }
 
-img.gallery {
-  width: 200px;
-  height:200px
+@media (max-width: 780px) {
+    .bk-example-controls {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 460px) {
+    .bk-example-controls {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 
 /* Provide a compact jump table before the detailed model properties. */

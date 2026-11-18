@@ -2,6 +2,8 @@
 This example demonstrates a basic hover tooltip.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A Les Misérables matrix with shaded squares marking pairs of characters who appear in the same scenes.
     :sampledata: les_mis
     :apis: bokeh.plotting.figure.rect
     :refs: :ref:`ug_interaction_tools_hover_tool`

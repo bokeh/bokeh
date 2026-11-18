@@ -7,6 +7,8 @@ The colored circles represent the correlations between pairs of these variables.
 The magnitude of each correlation is encoded in the size of the circles.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: The correlations in mineral content for 214 samples of glass fragments obtained during forensic work.
     :sampledata: forensic_glass
     :apis: bokeh.plotting.figure.scatter
     :refs: :ref:`ug_topics_categorical_correlograms`

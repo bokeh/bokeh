@@ -1,3 +1,9 @@
+"""
+.. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A grid of map plots at identical locations using various different tile providers.
+"""
+
 from os import getenv
 
 import numpy as np

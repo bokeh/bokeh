@@ -2,6 +2,8 @@
 the `sklearn.neighbors.KernelDensity`_ function and `Bokeh` varea glyph
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A multiple kernel density estimation of the cows data.
     :sampledata: cows
     :apis: bokeh.plotting.figure.varea
     :refs: :ref:`ug_topics_stats_kde`

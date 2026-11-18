@@ -1,3 +1,9 @@
+"""
+.. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A hexplot of a Gaussian distribution with the hex elements colormapped by a linear colormapper.
+"""
+
 from numpy.random import standard_normal
 
 from bokeh.plotting import figure, show

@@ -1,3 +1,9 @@
+"""
+.. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: How to configure a title for a legend.
+"""
+
 import pandas as pd
 
 from bokeh.palettes import Spectral4

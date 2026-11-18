@@ -1,3 +1,9 @@
+"""
+.. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: An interactive legend that mutes glyphs when legend entries are clicked.
+"""
+
 import pandas as pd
 
 from bokeh.palettes import Spectral4

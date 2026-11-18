@@ -3,6 +3,8 @@
 hover tooltip displays information for each tile.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A hexbin plot of 2d random (Gaussian) data points, colormapped by density with the Viridis palette.
     :apis: bokeh.plotting.figure.hexbin
     :refs: :ref:`ug_topics_hex`
     :keywords: hex, hexbin, hover, tooltip

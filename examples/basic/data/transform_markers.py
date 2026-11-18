@@ -4,6 +4,8 @@ shows correlation between body mass and flipper length for three different
 penguin species.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: Penguin flipper length versus body mass. Color and marker shape distinguish species.
     :sampledata: penguins
     :apis: bokeh.plotting.figure.scatter, bokeh.transform.linear_cmap, bokeh.transform.factor_mark
     :refs: :ref:`ug_basic_scatters_markers`, :ref:`ug_basic_data_transforming`

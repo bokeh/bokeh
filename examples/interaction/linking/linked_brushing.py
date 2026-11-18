@@ -2,6 +2,8 @@
 the same data.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A two different scatter plots of the Palmer penguin dataset with linked selections.
     :sampledata: penguins
     :apis: bokeh.plotting.figure.scatter
     :refs: :ref:`ug_basic_scatters_markers`

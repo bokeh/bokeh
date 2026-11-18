@@ -1,3 +1,9 @@
+"""
+.. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A two plots with vertical and horizontal crosshair tools linked.
+"""
+
 from random import random
 
 from bokeh.layouts import row

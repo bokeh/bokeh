@@ -1,6 +1,8 @@
 ''' A treemap plot from the Sample Superstore dataset.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: Treemap plot breaking down sales per city by region from the sample superstore data set.
     :sampledata: sample_superstore
     :apis: bokeh.plotting.figure.block, bokeh.models.sources.ColumnDataSource
     :refs: :ref:`ug_topics_hierarchical_treemap`

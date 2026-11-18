@@ -4,6 +4,8 @@ colormapping nested factors with ``factor_cmap``. A hover tooltip displays
 information for each bar.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: Grouped bars of fuel economy by manufacturer and cylinder count, with color indicating cylinder count.
     :sampledata: autompg
     :apis: bokeh.plotting.figure.vbar, bokeh.transform.factor_cmap
     :refs: :ref:`ug_basic_bars_pandas`

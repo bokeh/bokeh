@@ -2,6 +2,8 @@
 for the label values.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A plot with two x-axes on different scales on the left hand side of the plot.
     :apis: bokeh.plotting.figure.add_layout, bokeh.plotting.figure.scatter, bokeh.models.LinearAxis
     :refs: :ref:`ug_basic_axes_twin`
     :keywords: add_layout, axis, axis_label, axis_label_text_color, scatter, extra_y_ranges, LinearAxis

@@ -3,6 +3,8 @@ combining multiple glyphs. The non working days (weekends and bank holidays) are
 with an `BoxAnnotation` in light gray.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A candlestick chart for stock data.
     :sampledata: stocks
     :apis: bokeh.plotting.figure.segment, bokeh.plotting.figure.vbar, bokeh.models.BoxAnnotation
     :keywords: candlestick

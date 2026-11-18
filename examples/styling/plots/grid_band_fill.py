@@ -1,3 +1,9 @@
+"""
+.. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: How to configure solid filled grid bands.
+"""
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

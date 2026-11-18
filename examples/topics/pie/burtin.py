@@ -6,6 +6,8 @@ efficacies with some minimal changes to improve readability.
     capabilities, but there are better, simpler ways to present this data.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A reproduction of Burtin's historical antibiotics plot.
     :sampledata: antibiotics
     :apis: bokeh.plotting.figure.annular_wedge, bokeh.plotting.figure.circle, bokeh.plotting.figure.text
     :refs: :ref:`ug_topics_pie_glyphs`, :ref:`ug_styling_visuals`

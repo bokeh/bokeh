@@ -2,6 +2,8 @@
 demonstrates using a ``jitter`` transform.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: Scatter plot of GitHub commits by time of day and day of the week. Points are jittered to reduce overlap.
     :sampledata: commits
     :apis: bokeh.plotting.figure.scatter
     :refs: :ref:`ug_topics_categorical_scatters_jitter`

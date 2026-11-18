@@ -1,3 +1,10 @@
+"""
+.. bokeh-example-metadata::
+    :title: Markdown
+    :gallery:
+    :thumbnail-alt: A formatted table of glyphs, plotting methods, and their uses.
+"""
+
 from pathlib import Path
 
 from bokeh.io import show

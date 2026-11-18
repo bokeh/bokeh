@@ -2,6 +2,8 @@
 multiple basic glyphs to create a more complicated chart.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A box plot of synthetic data for six categories.
     :sampledata: autompg2
     :apis: bokeh.plotting.figure.vbar
     :refs: :ref:`ug_topics_stats_boxplot`

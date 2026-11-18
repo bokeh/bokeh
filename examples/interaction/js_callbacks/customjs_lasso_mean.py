@@ -1,3 +1,9 @@
+"""
+.. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: Scatter plot with a lasso selection and a horizontal line showing the mean Y value of the selected points.
+"""
+
 from random import random
 
 from bokeh.models import ColumnDataSource, CustomJS

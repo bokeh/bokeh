@@ -1,6 +1,9 @@
 ''' Arrowheads and scatter markers at fractional positions along paths.
 
 .. bokeh-example-metadata::
+    :title: Fractional arrow positioning
+    :gallery:
+    :thumbnail-alt: Arrowheads at fractions along straight and curved paths, with per-path position lists and animated streamlines.
     :apis: bokeh.models.GlyphRenderer.add_path_marking, bokeh.models.GlyphRenderer.add_arrowheads, bokeh.models.ScatterMarking
     :refs: :ref:`ug_basic_annotations_path_markings`
     :keywords: arrows, markers, fractional positions, paths, streamlines

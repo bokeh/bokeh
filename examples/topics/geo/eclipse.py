@@ -3,6 +3,8 @@ eclipse across the United States. This example demonstrates using a
 ``LinearColorMapper`` and a color bar.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A plot of US states overlaid with a trajectory marking the path of the August 2017 solar eclipse.
     :sampledata: us_states
     :apis: bokeh.plotting.figure.patches, bokeh.models.sources.ColumnDataSource, bokeh.models.mappers.LinearColorMapper, bokeh.models.ColorBar
     :refs: :ref:`ug_basic_annotations_color_bars`

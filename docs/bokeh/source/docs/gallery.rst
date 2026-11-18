@@ -6,14 +6,14 @@
 Gallery
 #######
 
-All of the examples below are located in the :bokeh-tree:`examples`
-subdirectory of the Bokeh repository. Click on an image below to see its
-code and interact with a live plot.
+Explore interactive plots and their source code by category.
+:ref:`Browse or search all examples <example_index>`.
 
 .. tab-set::
     :class: bk-gallery-tabs
 
     .. tab-item:: Basic plotting
+        :name: basic-plotting
 
         .. bokeh-gallery::
 
@@ -27,6 +27,7 @@ code and interact with a live plot.
             basic/annotations
 
     .. tab-item:: Appearance
+        :name: appearance
 
         .. bokeh-gallery::
 
@@ -37,6 +38,7 @@ code and interact with a live plot.
         ..  styling/visuals
 
     .. tab-item:: Topic guides
+        :name: topic-guides
 
         .. bokeh-gallery::
 
@@ -52,6 +54,7 @@ code and interact with a live plot.
             topics/stats
 
     .. tab-item:: Interaction
+        :name: interaction
 
         Bokeh has many interactive tools and widgets. Only a subset have
         thumbnails here. For more information see the :ref:`ug_interaction`
@@ -69,6 +72,7 @@ code and interact with a live plot.
         .. interaction/tooltips
 
     .. tab-item:: Bokeh server
+        :name: bokeh-server
 
         The thumbnails in this section link to live demos hosted at
         `demo.bokeh.org`_.

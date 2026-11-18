@@ -1,6 +1,8 @@
 ''' A simple bar chart using plain Python lists.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A simple bar chart for counts for categories of fruits.
     :apis: bokeh.plotting.figure.vbar
     :refs: :ref:`ug_basic_bars`
     :keywords: bars, categorical

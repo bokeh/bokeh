@@ -1,3 +1,9 @@
+"""
+.. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: How to add grid lines at minor tick locations.
+"""
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

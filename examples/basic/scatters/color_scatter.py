@@ -2,6 +2,8 @@
 many different plot tools.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A multicolored scatter plot of random data with hover tool.
     :apis: bokeh.plotting.figure.circle
     :refs: :ref:`ug_interaction_tools`, :ref:`ug_basic_scatters_markers`
     :keywords: scatter, tools

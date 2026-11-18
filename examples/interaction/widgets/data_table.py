@@ -1,3 +1,9 @@
+"""
+.. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A simple example of a data table widget with multiple columns.
+"""
+
 from datetime import date
 from random import randint
 

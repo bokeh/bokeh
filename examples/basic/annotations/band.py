@@ -3,6 +3,8 @@
     The line passes through the mean of the area covered by the band.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A band annotation around a trend line in a scatter plot.
     :apis: bokeh.models.Band, bokeh.models.ColumnDataSource, bokeh.plotting.figure, bokeh.io.show
     :refs: :ref:`ug_basic_annotations_bands`
     :keywords: figure, scatter, line, band, layout

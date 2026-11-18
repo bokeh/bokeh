@@ -4,6 +4,8 @@ time which allows the user to click on the legend entries to hide or show
 the corresponding lines.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: An interactive legend that hides glyphs when legend entries are clicked.
     :sampledata: stocks
     :apis: bokeh.plotting.figure.line, bokeh.palettes
     :refs: :ref:`ug_basic_annotations_legends`

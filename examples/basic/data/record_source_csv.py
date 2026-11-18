@@ -5,6 +5,8 @@ date and temperature fields. The color scale is centered at zero. Choose
 an airport to replace the rows in the plot.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: Scatter plot of daily temperature departures from typical highs, colored from blue below zero to red above zero.
     :sampledata: airport_weather
     :apis: bokeh.models.sources.RecordDataSource, bokeh.models.Select, bokeh.transform.linear_cmap
     :refs: :ref:`ug_basic_data_record_source`

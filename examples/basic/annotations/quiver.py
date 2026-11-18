@@ -1,6 +1,9 @@
 ''' A quiver plot of a vector field with interacting vortices and shear using decorated segments.
 
 .. bokeh-example-metadata::
+    :title: Quiver vector field
+    :gallery:
+    :thumbnail-alt: A vector field with interacting vortices and shear, shown as arrows colored by speed on a dark background.
     :apis: bokeh.plotting.figure.arrow, bokeh.models.NormalHead, bokeh.transform.linear_cmap
     :refs: :ref:`ug_basic_annotations_arrows`
     :keywords: arrows, quiver, vector field

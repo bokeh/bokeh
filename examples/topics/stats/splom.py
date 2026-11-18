@@ -3,6 +3,8 @@ This example demonstrates sharing ranged between plots to achieve linked
 panning.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A SPLOM gridplot of the penguins data set.
     :sampledata: penguins
     :apis: bokeh.models.Scatter, bokeh.models.ColumnDataSource, bokeh.models.LinearAxis, bokeh.models.Plot, bokeh.models.DataRange1d
     :refs: :ref:`ug_topics_stats_splom`

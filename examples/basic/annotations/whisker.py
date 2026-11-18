@@ -2,6 +2,8 @@
 sample data. This example demonstrates the use of whiskers to display quantile ranges in the plot.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: Whiskers marking quantile ranges over categorical scatter plots.
     :sampledata: autompg2
     :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.whisker, bokeh.transform.factor_cmap, bokeh.transform.jitter, bokeh.plotting.figure.scatter
     :refs: :ref:`ug_basic_annotations_whiskers`

@@ -2,6 +2,8 @@
 demonstrates using a ``LogColorMapper`` and hover tool.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A color-mapped map plot based on Texas unemployment rate per county, colormapped using the Viridis palette.
     :sampledata: unemployment, us_counties
     :apis: bokeh.plotting.figure.patches, bokeh.models.mappers.LogColorMapper
     :refs: :ref:`ug_interaction_tools_hover_tool`

@@ -1,3 +1,9 @@
+"""
+.. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: Basic line plot with the light_minimal theme.
+"""
+
 from bokeh.plotting import curdoc, figure, show
 
 x = [1, 2, 3, 4, 5]

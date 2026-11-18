@@ -2,6 +2,8 @@
 demonstrates the low-level |bokeh.models| API.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A donut chart of browser share percentages with a legend.
     :apis: bokeh.models.AnnularWedge, bokeh.models.Legend
     :refs: :ref:`ug_topics_pie`
     :keywords: pandas, donut, wedge

@@ -484,6 +484,18 @@ Sphinx generates each of those elements from reStructuredText (.rst) files. To
 edit any of those elements, open the corresponding ReST source file in the
 ``docs/bokeh/source/docs`` folder of the Bokeh source tree.
 
+The :ref:`example_index` discovers Python scripts and notebooks under
+``examples/``. A Python example's module docstring can provide an opening
+summary and a ``bokeh-example-metadata`` directive with a title, API names,
+sample data, and search keywords.
+
+To feature a rendered example in the :ref:`gallery`, add ``:gallery:`` and
+``:thumbnail-alt:`` to its metadata. Put the PNG and the corresponding
+``@2x.png`` in ``docs/bokeh/source/_images/`` at the same relative path as
+the example, replacing the ``.py`` extension. The gallery title defaults to
+the filename and can be overridden with ``:title:``. The gallery's JSON file
+lists the externally hosted server demos.
+
 For information on how to format text using reStructuredText, see the
 :doc:`reStructuredText primer on the Sphinx website <sphinx:usage/restructuredtext/basics>`
 or the `official reStructuredText website`_.

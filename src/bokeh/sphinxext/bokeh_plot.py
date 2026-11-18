@@ -252,6 +252,7 @@ class BokehPlotDirective(BokehDirective):
             path = join(REPO_TOP, path.replace("__REPO__/", ""))
         elif not isabs(path):
             path = join(env.srcdir, path)
+        env.note_dependency(path)
         try:
             with open(path) as f:
                 return f.read(), path

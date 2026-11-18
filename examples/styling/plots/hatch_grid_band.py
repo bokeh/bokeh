@@ -1,6 +1,8 @@
 ''' A simple line plot demonstrating hatched patterns for grid bands.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A sine wave with hatched grid bands underneath.
     :apis: bokeh.plotting.figure.line, bokeh.models.Grid
     :refs: :ref:`ug_styling_plots_grid_bands`
     :keywords: hatching, grid band

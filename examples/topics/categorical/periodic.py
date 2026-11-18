@@ -3,6 +3,8 @@ several glyphs in a single plot. A hover tooltip displays detailed information
 for each element.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A plot that renders the periodic table of elements.
     :sampledata: periodic_table
     :apis: bokeh.plotting.figure.rect, bokeh.plotting.figure.text, bokeh.transform.dodge, bokeh.transform.factor_cmap
     :refs: :ref:`ug_interaction_tools_hover_tool`

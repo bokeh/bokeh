@@ -1,3 +1,9 @@
+"""
+.. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A plot with an axis positioned in the center of the plot instead of around the sides.
+"""
+
 import numpy as np
 
 from bokeh.plotting import figure, show

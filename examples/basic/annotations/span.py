@@ -1,3 +1,9 @@
+"""
+.. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: Green vertical spans marking the start and end dates of Daylight Savings time in Warsaw in 2013.
+"""
+
 from datetime import datetime as dt
 
 from bokeh.models import Span

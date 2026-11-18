@@ -29,9 +29,23 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
+import ast
+import re
+from pathlib import Path
+from textwrap import dedent
+from tokenize import (
+    COMMENT,
+    NEWLINE,
+    NL,
+    OP,
+    STRING,
+    generate_tokens,
+    open as open_python,
+    untokenize,
+)
 from typing import Any
 
-from docutils.parsers.rst.directives import unchanged
+from docutils.parsers.rst.directives import flag, unchanged
 from sphinx.errors import SphinxError
 
 from . import PARALLEL_SAFE, SphinxParallelSpec
@@ -69,6 +83,10 @@ class BokehExampleMetadataDirective(BokehDirective):
         "apis": unchanged,
         "refs": unchanged,
         "keywords": unchanged,
+        "title": unchanged,
+        "gallery": flag,
+        "thumbnail-alt": unchanged,
+        "example-ref": unchanged,
     }
 
     def run(self) -> list[Any]:
@@ -86,6 +104,9 @@ class BokehExampleMetadataDirective(BokehDirective):
         if extra:
             raise SphinxError(f"bokeh-example-metadata unknown options given: {extra}.")
 
+        if not present & {"sampledata", "apis", "refs", "keywords"}:
+            return []
+
         rst_text = EXAMPLE_METADATA.render(
             sampledata=_sampledata(options.get("sampledata", None)),
             apis=_apis(options.get("apis", None)),
@@ -94,6 +115,35 @@ class BokehExampleMetadataDirective(BokehDirective):
         )
 
         return self.parse(rst_text, "<bokeh-example-metadata>")
+
+
+def read_example_metadata(path: Path) -> tuple[str, dict[str, str]]:
+    """Read the opening paragraph and metadata fields without running the example."""
+    with open_python(path) as file:
+        tokens = (token for token in generate_tokens(file.readline) if token.type not in {COMMENT, NL})
+        first = next(tokens, None)
+        if first is None or (first.type != STRING and (first.type != OP or first.string != "(")):
+            return "", {}
+        statement = [(first.type, first.string)]
+        for token in tokens:
+            if token.type == NEWLINE:
+                break
+            statement.append((token.type, token.string))
+
+    marker = ".. bokeh-example-metadata::"
+    docstring = ast.get_docstring(ast.parse(untokenize(statement), filename=str(path))) or ""
+    intro, _, options = docstring.partition(marker)
+    summary = " ".join(intro.strip().split("\n\n", 1)[0].split())
+    if summary.startswith(".. "):
+        summary = ""
+    # Summaries also appear outside the docstring's reference context.
+    summary = re.sub(r"(?::[\w:-]+:)?``?([^`]+)``?_{0,2}", lambda m: m[1].partition(" <")[0].lstrip("~"), summary)
+    option_block = dedent(options.split("\n\n", 1)[0])
+    fields = {
+        key: " ".join(value.split())
+        for key, value in re.findall(r"^:([\w-]+):[ \t]*(.*(?:\n[ \t]+\S[^\n]*)*)", option_block, re.MULTILINE)
+    }
+    return summary, fields
 
 
 def setup(app: Any) -> SphinxParallelSpec:

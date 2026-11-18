@@ -3,6 +3,7 @@ This example demonstrates defining two distinct tooltip widgets,
 i.e. plaintext and html tooltip, and accepting text input through those widgets.
 
 .. bokeh-example-metadata::
+    :example-ref: ug_interaction_tooltip_contents
     :apis: bokeh.io.show, bokeh.models.TextInput, Bokeh.models.Tooltip
     :refs: ref:`ug_interaction_tooltips`
     :keywords: tooltip

@@ -3,6 +3,9 @@ demonstrates using basic hover tooltips and adding labels for individual
 points.
 
 .. bokeh-example-metadata::
+    :title: Periodic table scatter plot
+    :gallery:
+    :thumbnail-alt: A scatter plot of labeled chemical elements, colored by melting point.
     :sampledata: periodic_table
     :apis: bokeh.plotting.figure.scatter, bokeh.models.sources.ColumnDataSource, bokeh.models.LabelSet
     :refs: :ref:`ug_interaction_tools_hover_tool`

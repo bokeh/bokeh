@@ -1,3 +1,9 @@
+"""
+.. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: How to configure the appearance of hovered glyphs.
+"""
+
 from bokeh.models import RELATIVE_DATETIME_CONTEXT, HoverTool
 from bokeh.plotting import figure, show
 from bokeh.sampledata.glucose import data

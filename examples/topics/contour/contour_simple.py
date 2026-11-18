@@ -1,6 +1,8 @@
 ''' Simple contour plot showing both contour lines and filled polygons.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: An iso-contour plot with ten levels between -2 and 2.
     :apis: bokeh.plotting.figure.contour, bokeh.models.ContourRenderer.add_labels, bokeh.models.ContourRenderer.construct_color_bar
     :refs: :ref:`ug_topics_contour_simple`
     :keywords: contour

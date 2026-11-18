@@ -1,3 +1,9 @@
+"""
+.. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: How to add a legend outside the central plot frame.
+"""
+
 import numpy as np
 
 from bokeh.models import Legend

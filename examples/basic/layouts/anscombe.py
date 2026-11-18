@@ -2,6 +2,8 @@
 API that also includes HTML content in a ``Div``.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A gridplot of four scatter and regression line plots illustrating Anscombe's Quartet.
     :sampledata: anscombe
     :apis: bokeh.layouts.column, bokeh.layouts.gridplot, bokeh.models.Plot, bokeh.models.LinearAxis
     :refs: :ref:`ug_basic_layouts_gridplot`

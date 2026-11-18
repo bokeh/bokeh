@@ -1,3 +1,9 @@
+"""
+.. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A grid of map plot centered at Austin, TX using Bokeh's Google maps integration.
+"""
+
 from os import getenv
 
 from bokeh.models import ColumnDataSource, GMapOptions

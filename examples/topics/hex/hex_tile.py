@@ -4,6 +4,8 @@ using the ``hexbin`` utility function. The tiles are colormapped linearly
 according to their bin counts.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A hex tile plot of binned 2d random (Gaussian) data points, colormapped by density with the Viridis palette.
     :apis: bokeh.plotting.figure.hex_tile, bokeh.transform.linear_cmap, bokeh.util.hex.hexbin
     :refs: :ref:`ug_topics_hex`
     :keywords: hex, hex_tile, colormap

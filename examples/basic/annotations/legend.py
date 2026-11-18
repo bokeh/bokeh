@@ -1,6 +1,8 @@
 ''' Line and marker plots that demonstrate automatic legends.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A row of fo plots that have sine waves in different scatter and line styles, illustrated in accompanying legends.
     :apis: bokeh.layouts.gridplot, bokeh.plotting.figure.scatter, bokeh.plotting.figure.line
     :refs: :ref:`ug_basic_annotations_legends`
     :keywords: gridplot

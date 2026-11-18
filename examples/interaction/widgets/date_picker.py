@@ -1,3 +1,9 @@
+"""
+.. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A simple example of a widget for selecting dates and date ranges.
+"""
+
 from bokeh.io import show
 from bokeh.models import CustomJS, DatePicker
 

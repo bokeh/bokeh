@@ -2,6 +2,8 @@
 possible technique for handling missing dates.
 
 .. bokeh-example-metadata::
+    :gallery:
+    :thumbnail-alt: A candlestick chart for stock data with gaps for missing dates removed.
     :sampledata: stocks
     :apis: bokeh.plotting.figure.segment, bokeh.plotting.figure.vbar
     :keywords: candlestick
