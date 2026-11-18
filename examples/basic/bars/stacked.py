@@ -1,6 +1,7 @@
 ''' A stacked bar chart using plain Python lists.
 
 .. bokeh-example-metadata::
+    :title: Stacked
     :gallery:
     :thumbnail-alt: A stacked bar chart for random data for six categories of fruit. Each row in the stack corresponds to a different year.
     :apis: bokeh.plotting.figure.vbar_stack

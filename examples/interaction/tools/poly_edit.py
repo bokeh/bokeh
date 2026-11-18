@@ -1,3 +1,11 @@
+''' Insert, move, and delete polygon vertices with the poly edit tool.
+
+.. bokeh-example-metadata::
+    :title: Poly edit
+    :keywords: poly edit, interaction, tools
+    :apis: bokeh.models.PolyDrawTool, bokeh.models.PolyEditTool, bokeh.plotting.figure.add_tools, bokeh.plotting.figure.patches
+'''
+
 from bokeh.models import PolyDrawTool, PolyEditTool
 from bokeh.plotting import figure, show
 

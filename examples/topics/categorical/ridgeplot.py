@@ -12,6 +12,7 @@ This chart shows the distribution of responses to the prompt *What probability
 would you assign to the phrase "Highly likely"*.
 
 .. bokeh-example-metadata::
+    :title: Ridgeplot
     :gallery:
     :thumbnail-alt: A ridgeline plot using the Perceptions of Probability dataset with a smoothed distribution displayed for each probability category on the y-axis.
     :sampledata: perceptions

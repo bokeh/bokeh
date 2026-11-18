@@ -2,6 +2,7 @@
 automatic colormapping.
 
 .. bokeh-example-metadata::
+    :title: Colormapped
     :gallery:
     :thumbnail-alt: A simple bar plot with bars for six categories of fruit on the x-axis, and bars shaded with the Bright6 palette.
     :apis: bokeh.plotting.figure.vbar, bokeh.transform.factor_cmap

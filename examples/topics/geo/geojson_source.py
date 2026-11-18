@@ -1,6 +1,7 @@
 ''' This example demonstrates the use of GeoJSON data in Bokeh to create a scatter plot.
 
 .. bokeh-example-metadata::
+    :title: Geojson source
     :sampledata: sample_geojson
     :apis: bokeh.models.GeoJSONDataSource, bokeh.plotting.figure, bokeh.plotting.show
     :refs:  :ref:`ug_topics_geo`

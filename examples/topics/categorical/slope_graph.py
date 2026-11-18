@@ -2,6 +2,7 @@
 demonstrates using the `segment` glyph.
 
 .. bokeh-example-metadata::
+    :title: Slope graph
     :gallery:
     :thumbnail-alt: A slope graph of the CO2 emissions of selected countries in the years 2000 and 2010.
     :sampledata: emissions

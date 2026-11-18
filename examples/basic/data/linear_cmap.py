@@ -1,8 +1,12 @@
-"""
+''' Color hexagonal bins by the number of points in each bin.
+
 .. bokeh-example-metadata::
+    :title: Linear cmap
+    :keywords: linear cmap, basic plotting, data
+    :apis: bokeh.plotting.figure.hex_tile
     :gallery:
     :thumbnail-alt: A hexplot of a Gaussian distribution with the hex elements colormapped by a linear colormapper.
-"""
+'''
 
 from numpy.random import standard_normal
 

@@ -1,3 +1,11 @@
+''' Add hover, tap, and box selection to a NetworkX graph.
+
+.. bokeh-example-metadata::
+    :title: Graph interaction
+    :keywords: graph interaction, topic guides, graph
+    :apis: bokeh.models.BoxSelectTool, bokeh.models.EdgesAndLinkedNodes, bokeh.models.HoverTool, bokeh.models.MultiLine, bokeh.models.NodesAndLinkedEdges
+'''
+
 import networkx as nx
 
 from bokeh.models import (

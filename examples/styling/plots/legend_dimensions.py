@@ -1,3 +1,11 @@
+''' Set the size and spacing of legend labels and glyph samples.
+
+.. bokeh-example-metadata::
+    :title: Legend dimensions
+    :keywords: legend dimensions, appearance, plots
+    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
+'''
+
 import numpy as np
 
 from bokeh.plotting import figure, show

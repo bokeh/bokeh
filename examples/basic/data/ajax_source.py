@@ -1,3 +1,12 @@
+''' Poll a Flask endpoint for noisy sine-wave data and adapt the JSON for a live
+plot.
+
+.. bokeh-example-metadata::
+    :title: Ajax source
+    :keywords: ajax source, basic plotting, data
+    :apis: bokeh.models.AjaxDataSource, bokeh.models.CustomJS, bokeh.plotting.figure.scatter
+'''
+
 import numpy as np
 from flask import Flask, jsonify, make_response, request
 

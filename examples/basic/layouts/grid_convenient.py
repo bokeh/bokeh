@@ -1,3 +1,11 @@
+''' Wrap a sequence of plots into two columns with gridplot.
+
+.. bokeh-example-metadata::
+    :title: Grid convenient
+    :keywords: grid convenient, basic plotting, layouts
+    :apis: bokeh.plotting.figure.scatter
+'''
+
 from bokeh.layouts import gridplot
 from bokeh.plotting import figure, show
 

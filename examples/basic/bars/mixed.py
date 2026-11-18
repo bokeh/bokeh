@@ -3,6 +3,7 @@ demonstrates mixing nested categorical factors with top-level categorical
 factors.
 
 .. bokeh-example-metadata::
+    :title: Mixed
     :gallery:
     :thumbnail-alt: A bar chart of synthetic monthly sales data, grouped by quarter. A line showing each quarterly average is overlaid.
     :apis: bokeh.models.FactorRange, bokeh.plotting.figure.line, bokeh.plotting.figure.vbar

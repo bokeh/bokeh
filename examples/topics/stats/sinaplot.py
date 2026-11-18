@@ -2,6 +2,7 @@
 the `sklearn.neighbors.KernelDensity`_ function and `Bokeh` harea glyph
 
 .. bokeh-example-metadata::
+    :title: Sinaplot
     :gallery:
     :thumbnail-alt: A kernel density estimation plot of the lincoln data.
     :sampledata: lincoln

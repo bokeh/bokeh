@@ -1,3 +1,11 @@
+''' Select the start and end of a date-time interval.
+
+.. bokeh-example-metadata::
+    :title: Datetime range picker
+    :keywords: datetime range picker, interaction, widgets
+    :apis: bokeh.models.CustomJS, bokeh.models.DatetimeRangePicker
+'''
+
 from bokeh.io import show
 from bokeh.models import CustomJS, DatetimeRangePicker
 

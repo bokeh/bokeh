@@ -1,3 +1,11 @@
+''' Draw a full ring with separate inner and outer radii.
+
+.. bokeh-example-metadata::
+    :title: Annulus
+    :keywords: annulus, topic guides, pie
+    :apis: bokeh.plotting.figure.annulus
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

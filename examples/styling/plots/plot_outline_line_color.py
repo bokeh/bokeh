@@ -1,3 +1,11 @@
+''' Change the line color around the plot frame.
+
+.. bokeh-example-metadata::
+    :title: Plot outline line color
+    :keywords: plot outline line color, appearance, plots
+    :apis: bokeh.plotting.figure.scatter
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

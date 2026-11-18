@@ -1,6 +1,7 @@
 ''' Compare a named endpoint with a fractional arrowhead at the same tip.
 
 .. bokeh-example-metadata::
+    :title: Arrowhead placement
     :apis: bokeh.models.GlyphRenderer.add_arrowheads, bokeh.models.NormalHead, bokeh.plotting.figure.line
     :refs: :ref:`ug_basic_annotations_path_markings`
     :keywords: arrowheads, endpoints, fractional positions, paths

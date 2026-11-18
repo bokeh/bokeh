@@ -1,3 +1,10 @@
+''' Define the selectable modes for the particle simulation.
+
+.. bokeh-example-metadata::
+    :title: Modes
+    :keywords: modes, bokeh server, api
+'''
+
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path

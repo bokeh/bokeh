@@ -1,6 +1,7 @@
 ''' A plot that demonstrates rendering images by colormapping scalar arrays.
 
 .. bokeh-example-metadata::
+    :title: Image
     :gallery:
     :thumbnail-alt: A plot with a colormapped two-dimensional sine surface.
     :apis: bokeh.plotting.figure.image

@@ -1,3 +1,11 @@
+''' Display text while preserving whitespace and line breaks.
+
+.. bokeh-example-metadata::
+    :title: Pretext
+    :keywords: pretext, interaction, widgets
+    :apis: bokeh.models.PreText
+'''
+
 from bokeh.io import show
 from bokeh.models import PreText
 

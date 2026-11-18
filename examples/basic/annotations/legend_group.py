@@ -1,3 +1,11 @@
+''' Group scatter points into legend entries in Python using a data source column.
+
+.. bokeh-example-metadata::
+    :title: Legend group
+    :keywords: legend group, basic plotting, annotations
+    :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.circle
+'''
+
 from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure, show
 

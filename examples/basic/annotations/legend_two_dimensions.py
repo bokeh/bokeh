@@ -1,7 +1,8 @@
-'''Demonstrates how to modify a ``Legend`` to have multiple columns or rows by setting an
+''' Demonstrates how to modify a ``Legend`` to have multiple columns or rows by setting an
 explicit value for ``ncols`` and ``nrows``.
 
 .. bokeh-example-metadata::
+    :title: Legend two dimensions
     :apis: bokeh.plotting.figure.line
     :refs: :ref:`ug_basic_annotations_legends_two_dimensions`
     :keywords: legend

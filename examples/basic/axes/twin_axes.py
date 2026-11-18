@@ -1,7 +1,8 @@
-'''This example shows how to add a secondary y-axis to a figure and set a color
+''' This example shows how to add a secondary y-axis to a figure and set a color
 for the label values.
 
 .. bokeh-example-metadata::
+    :title: Twin axes
     :gallery:
     :thumbnail-alt: A plot with two x-axes on different scales on the left hand side of the plot.
     :apis: bokeh.plotting.figure.add_layout, bokeh.plotting.figure.scatter, bokeh.models.LinearAxis

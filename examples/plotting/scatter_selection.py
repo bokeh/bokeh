@@ -1,6 +1,7 @@
-'''This example shows how to select different behaviours of a selection tool.
+''' This example shows how to select different behaviours of a selection tool.
 
 .. bokeh-example-metadata::
+    :title: Scatter selection
     :apis: bokeh.plotting.figure.scatter, bokeh.model.select_one, bokeh.model.BoxSelectTool
     :refs: :ref:`ug_interaction_tools_pandrag`
     :keywords: selection, tool, BoxSelectTool

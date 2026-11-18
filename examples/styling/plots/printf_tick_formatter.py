@@ -1,3 +1,11 @@
+''' Use printf formats for scientific notation and labels with units.
+
+.. bokeh-example-metadata::
+    :title: Printf tick formatter
+    :keywords: printf tick formatter, appearance, plots
+    :apis: bokeh.models.PrintfTickFormatter, bokeh.plotting.figure.scatter
+'''
+
 from bokeh.models import PrintfTickFormatter
 from bokeh.plotting import figure, show
 

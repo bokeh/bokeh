@@ -1,3 +1,11 @@
+''' Show the year and fruit count for each segment of a stacked bar chart on hover.
+
+.. bokeh-example-metadata::
+    :title: Stacked hover
+    :keywords: stacked hover, basic plotting, bars
+    :apis: bokeh.plotting.figure.vbar_stack
+'''
+
 from bokeh.palettes import HighContrast3
 from bokeh.plotting import figure, show
 

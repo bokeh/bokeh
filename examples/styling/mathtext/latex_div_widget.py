@@ -1,6 +1,7 @@
 ''' This example demonstrates the use of inline mathtext on a DIV element.
 
 .. bokeh-example-metadata::
+    :title: Latex div widget
     :apis: bokeh.models.widgets.Div
     :refs: :ref:`ug_styling_mathtext`
     :keywords: mathtext, latex

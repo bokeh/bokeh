@@ -3,6 +3,7 @@ discontinuous due to summer time) using the ``Patch`` and ``Line`` plot
 elements to draw custom outlines and fills.
 
 .. bokeh-example-metadata::
+    :title: Daylight
     :sampledata: daylight
     :apis: bokeh.models.glyphs.Line, bokeh.models.glyphs.Patch, bokeh.models.plots.Plot.add_glyph, bokeh.document.document.Document
     :refs: :ref:`ug_basic_areas_patches`

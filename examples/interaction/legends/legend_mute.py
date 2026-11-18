@@ -1,8 +1,12 @@
-"""
+''' Dim a series on legend click using a muted glyph style.
+
 .. bokeh-example-metadata::
+    :title: Legend mute
+    :keywords: legend mute, interaction, legends
+    :apis: bokeh.plotting.figure.line
     :gallery:
     :thumbnail-alt: An interactive legend that mutes glyphs when legend entries are clicked.
-"""
+'''
 
 import pandas as pd
 

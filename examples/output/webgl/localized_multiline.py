@@ -1,4 +1,10 @@
-"""Show tight framebuffer accumulation for thousands of localized lines."""
+''' Show tight framebuffer accumulation for thousands of localized lines.
+
+.. bokeh-example-metadata::
+    :title: Localized multiline
+    :keywords: localized multiline, output, webgl
+    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.multi_line
+'''
 
 import numpy as np
 

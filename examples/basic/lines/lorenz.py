@@ -2,6 +2,7 @@
 ``multi_line`` to display many lines with a single vectorized glyph.
 
 .. bokeh-example-metadata::
+    :title: Lorenz
     :gallery:
     :thumbnail-alt: A plot of the Lorenz attractor using the MultiLine glyph.
     :apis: bokeh.plotting.figure.multi_line

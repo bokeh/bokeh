@@ -1,4 +1,10 @@
-"""Example implementation of two double ended sliders as extension widgets"""
+''' Example implementation of two double ended sliders as extension widgets
+
+.. bokeh-example-metadata::
+    :title: Widget
+    :keywords: widget, advanced, extensions
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.InputWidget, bokeh.models.Slider, bokeh.plotting.figure.line
+'''
 from bokeh.core.properties import Bool, Float, Tuple
 from bokeh.io import show
 from bokeh.layouts import column

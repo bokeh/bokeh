@@ -1,3 +1,11 @@
+''' Select a date along a timeline with a slider.
+
+.. bokeh-example-metadata::
+    :title: Dateslider
+    :keywords: dateslider, interaction, widgets
+    :apis: bokeh.models.CustomJS, bokeh.models.DateSlider
+'''
+
 from datetime import date
 
 from bokeh.io import show

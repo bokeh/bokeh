@@ -1,3 +1,11 @@
+''' Serve a scatter plot that can be embedded from an existing Bokeh session.
+
+.. bokeh-example-metadata::
+    :title: Bokeh app
+    :keywords: bokeh app, output, apis
+    :apis: bokeh.plotting.figure.circle
+'''
+
 import numpy as np
 
 from bokeh.io import curdoc

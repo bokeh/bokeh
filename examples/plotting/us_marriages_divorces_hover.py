@@ -1,7 +1,8 @@
-'''This example shows the number of marriages and divorces in the USA from 1867 to 2011
+''' This example shows the number of marriages and divorces in the USA from 1867 to 2011
 as a basic line plot. Furthermore, a custom tooltip is defined using the Arial font.
 
 .. bokeh-example-metadata::
+    :title: Us marriages divorces hover
     :sampledata: us_marriages_divorces
     :apis: bokeh.plotting.figure.line
     :refs: :ref:`ug_basic_lines_with_markers`

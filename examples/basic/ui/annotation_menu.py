@@ -1,3 +1,11 @@
+''' Attach context menu actions to a plot annotation.
+
+.. bokeh-example-metadata::
+    :title: Annotation menu
+    :keywords: annotation menu, basic plotting, ui
+    :apis: bokeh.models.BoxSelectTool, bokeh.models.CustomJS, bokeh.models.Menu, bokeh.models.MenuItem, bokeh.plotting.figure.add_tools
+'''
+
 import numpy as np
 
 from bokeh.io import show

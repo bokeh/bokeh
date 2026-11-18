@@ -1,8 +1,12 @@
-"""
+''' Mark daylight saving dates on a plot of sunrise and sunset times in Warsaw.
+
 .. bokeh-example-metadata::
+    :title: Span
+    :keywords: span, basic plotting, annotations
+    :apis: bokeh.models.Span, bokeh.plotting.figure.add_layout, bokeh.plotting.figure.line
     :gallery:
     :thumbnail-alt: Green vertical spans marking the start and end dates of Daylight Savings time in Warsaw in 2013.
-"""
+'''
 
 from datetime import datetime as dt
 

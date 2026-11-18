@@ -1,8 +1,12 @@
-"""
+''' Give scatter markers a different appearance when hovered.
+
 .. bokeh-example-metadata::
+    :title: Glyph hover
+    :keywords: glyph hover, appearance, plots
+    :apis: bokeh.models.HoverTool, bokeh.plotting.figure.add_tools, bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
     :gallery:
     :thumbnail-alt: How to configure the appearance of hovered glyphs.
-"""
+'''
 
 from bokeh.models import RELATIVE_DATETIME_CONTEXT, HoverTool
 from bokeh.plotting import figure, show

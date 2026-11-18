@@ -1,3 +1,11 @@
+''' Draw horizontal bars with data coordinates for their ends and centers.
+
+.. bokeh-example-metadata::
+    :title: Bar
+    :keywords: bar, basic plotting, bars
+    :apis: bokeh.plotting.figure.hbar
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

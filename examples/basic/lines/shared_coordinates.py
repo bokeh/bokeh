@@ -1,3 +1,11 @@
+''' Reuse one x-coordinate row for several lines with different y values.
+
+.. bokeh-example-metadata::
+    :title: Shared coordinates
+    :keywords: shared coordinates, basic plotting, lines
+    :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.multi_line
+'''
+
 from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure, show
 from bokeh.transform import gather

@@ -1,6 +1,7 @@
 ''' A demonstration of configuring different arrow types.
 
 .. bokeh-example-metadata::
+    :title: Arrow
     :gallery:
     :thumbnail-alt: Three different arrow annotation configurations.
     :apis: bokeh.plotting.figure.arrow, bokeh.plotting.figure.circle

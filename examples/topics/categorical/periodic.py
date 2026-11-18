@@ -3,6 +3,7 @@ several glyphs in a single plot. A hover tooltip displays detailed information
 for each element.
 
 .. bokeh-example-metadata::
+    :title: Periodic
     :gallery:
     :thumbnail-alt: A plot that renders the periodic table of elements.
     :sampledata: periodic_table

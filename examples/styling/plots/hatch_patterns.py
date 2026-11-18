@@ -1,3 +1,11 @@
+''' Compare the built-in hatch patterns available for glyph fills.
+
+.. bokeh-example-metadata::
+    :title: Hatch patterns
+    :keywords: hatch patterns, appearance, plots
+    :apis: bokeh.plotting.figure.hbar
+'''
+
 from bokeh.core.enums import HatchPattern
 from bokeh.plotting import figure, show
 

@@ -1,3 +1,11 @@
+''' Switch a Bokeh server app between light and dark appearance.
+
+.. bokeh-example-metadata::
+    :title: Light dark
+    :keywords: light dark, bokeh server, app
+    :apis: bokeh.models.Div, bokeh.models.Dropdown, bokeh.models.LightDark
+'''
+
 from bokeh import events
 from bokeh.core.enums import ColorScheme
 from bokeh.io import curdoc

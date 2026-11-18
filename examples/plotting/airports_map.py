@@ -1,8 +1,9 @@
-'''This example shows the same data on two separate tile plots.
+''' This example shows the same data on two separate tile plots.
 The left plot uses the built-in CartoDB tile source, and the right plot uses
 a customized tile source configured for OpenStreetMap.
 
 .. bokeh-example-metadata::
+    :title: Airports map
     :sampledata: airports
     :apis: bokeh.plotting.figure.add_tile, bokeh.plotting.figure.scatter
     :refs: :ref:`ug_topics_geo_geojson_data`, :ref:`ug_topics_geo_tile_provider_maps`

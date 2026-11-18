@@ -1,3 +1,11 @@
+''' Link a slider value to the radius of scatter glyphs without a Python callback.
+
+.. bokeh-example-metadata::
+    :title: Linked properties
+    :keywords: linked properties, interaction, linking
+    :apis: bokeh.models.Slider, bokeh.plotting.figure.circle
+'''
+
 from bokeh.layouts import column
 from bokeh.models import Slider
 from bokeh.plotting import figure, show

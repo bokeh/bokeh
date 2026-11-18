@@ -1,3 +1,12 @@
+''' Lay out explanatory text next to plots and add hover information to a penguin
+scatter plot.
+
+.. bokeh-example-metadata::
+    :title: Words and plots
+    :keywords: words and plots, basic plotting, layouts
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Div, bokeh.models.HoverTool, bokeh.models.Paragraph, bokeh.plotting.figure.add_tools
+'''
+
 from bokeh.layouts import layout
 from bokeh.models import ColumnDataSource, Div, HoverTool, Paragraph
 from bokeh.plotting import figure, show

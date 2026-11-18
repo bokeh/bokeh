@@ -1,3 +1,11 @@
+''' Implement a custom ticker in TypeScript and install it on a Bokeh axis.
+
+.. bokeh-example-metadata::
+    :title: Ticking
+    :keywords: ticking, advanced, extensions
+    :apis: bokeh.models.TickFormatter, bokeh.plotting.figure.scatter
+'''
+
 from bokeh.io import show
 from bokeh.models import TickFormatter
 from bokeh.plotting import figure

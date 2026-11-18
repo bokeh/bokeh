@@ -1,3 +1,11 @@
+''' Give a data table column a custom sorter.
+
+.. bokeh-example-metadata::
+    :title: Data table column sort
+    :keywords: data table column sort, interaction, widgets
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.CustomJSCompare, bokeh.models.DataTable, bokeh.models.TableColumn
+'''
+
 from bokeh.io import show
 from bokeh.models import ColumnDataSource, CustomJSCompare, DataTable, TableColumn
 

@@ -1,6 +1,7 @@
 ''' A stacked area plot using data from a pandas DataFrame.
 
 .. bokeh-example-metadata::
+    :title: Stacked area
     :gallery:
     :thumbnail-alt: A stacked area plot of synthetic data for ten series, colormapped using the Sunset palette, with a legend at the top.
     :apis: bokeh.plotting.figure.varea_stack

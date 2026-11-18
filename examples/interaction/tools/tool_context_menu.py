@@ -1,11 +1,12 @@
-""" Example showing how to configure the context menu of a plot, including
+''' Example showing how to configure the context menu of a plot, including
 a sub-menu for allowing access to plot's tools.
 
 .. bokeh-example-metadata::
+    :title: Tool context menu
     :apis: bokeh.models.Menu, bokeh.models.MenuItem
     :keywords: menu, context menu, tools
 
-"""
+'''
 import numpy as np
 
 from bokeh.layouts import column, row

@@ -1,4 +1,4 @@
-'''This example demonstrates embedding an autoloaded Bokeh server
+''' This example demonstrates embedding an autoloaded Bokeh server
 into a simple Flask application, and passing arguments to Bokeh.
 
 To view the example, run:
@@ -9,6 +9,11 @@ in this directory, and navigate to:
 
     http://localhost:5000
 
+
+
+.. bokeh-example-metadata::
+    :title: Flask server
+    :keywords: flask server, output, apis
 '''
 import atexit
 import subprocess

@@ -1,3 +1,11 @@
+''' Choose a time of day with a time picker.
+
+.. bokeh-example-metadata::
+    :title: Time picker
+    :keywords: time picker, interaction, widgets
+    :apis: bokeh.models.CustomJS, bokeh.models.TimePicker
+'''
+
 from bokeh.io import show
 from bokeh.models import CustomJS, TimePicker
 

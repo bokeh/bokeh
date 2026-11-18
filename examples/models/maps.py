@@ -1,3 +1,11 @@
+''' Build a Google Maps plot from low-level models and overlay geographic points.
+
+.. bokeh-example-metadata::
+    :title: Maps
+    :keywords: maps, models
+    :apis: bokeh.models.BoxSelectTool, bokeh.models.ColumnDataSource, bokeh.models.GMapOptions, bokeh.models.GMapPlot, bokeh.models.Label
+'''
+
 from os import getenv
 
 from bokeh.document import Document

@@ -1,6 +1,7 @@
 ''' Arrowhead path_markings on existing Segment and MultiLine renderers.
 
 .. bokeh-example-metadata::
+    :title: Line markings
     :apis: bokeh.plotting.figure.segment, bokeh.plotting.figure.multi_line, bokeh.models.GlyphRenderer.add_path_marking
     :refs: :ref:`ug_basic_annotations_arrows`
     :keywords: arrows, path_markings, segments, multiline

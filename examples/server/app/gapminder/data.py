@@ -1,3 +1,10 @@
+''' Prepare country and year data for the Gapminder animation.
+
+.. bokeh-example-metadata::
+    :title: Data
+    :keywords: data, bokeh server, app
+'''
+
 import numpy as np
 
 

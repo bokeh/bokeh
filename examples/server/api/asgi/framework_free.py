@@ -1,3 +1,10 @@
+''' Serve and embed a Bokeh application with a plain ASGI callable.
+
+.. bokeh-example-metadata::
+    :title: Framework free
+    :keywords: framework free, bokeh server, api
+'''
+
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable

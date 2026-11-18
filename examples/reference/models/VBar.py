@@ -1,3 +1,11 @@
+''' Draw vertical bars from bottom and top endpoints.
+
+.. bokeh-example-metadata::
+    :title: VBar
+    :keywords: vbar, reference
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Plot, bokeh.models.VBar
+'''
+
 import numpy as np
 
 from bokeh.io import curdoc, show

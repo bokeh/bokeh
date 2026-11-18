@@ -1,10 +1,10 @@
-''' Simulation of Duffing oscillator which is harmonic motion with a
-sinusoidal driving force and damping. It exhibits chaotic behaviour for some
-combinations of driving and damping parameters. This example demonstrates the
-use of mathtext on ``Div``, ``Paragraph`` and ``Slider`` objects, as well as
-axis labels, and also streaming data via a ``ColumnDataSource``.
+''' Simulate a driven Duffing oscillator and stream its motion to a Bokeh plot.
+
+Math text labels the controls and axes. The motion can become chaotic at some
+settings.
 
 .. bokeh-example-metadata::
+    :title: Duffing oscillator
     :apis: bokeh.plotting.figure.scatter, bokeh.plotting.figure.line, bokeh.models.sources.ColumnDataSource.stream,
         bokeh.models.Div, bokeh.models.Paragraph, bokeh.models.Slider
     :refs: :ref:`ug_styling_mathtext`

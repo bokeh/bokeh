@@ -1,3 +1,11 @@
+''' Open a data-dependent URL when a scatter point is tapped.
+
+.. bokeh-example-metadata::
+    :title: Open URL
+    :keywords: open url, interaction, javascript callbacks
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.OpenURL, bokeh.models.TapTool, bokeh.plotting.figure.scatter, bokeh.plotting.figure.select
+'''
+
 from bokeh.models import ColumnDataSource, OpenURL, TapTool
 from bokeh.plotting import figure, show
 

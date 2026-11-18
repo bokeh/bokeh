@@ -1,3 +1,11 @@
+''' Place the title along the left edge of a scatter plot.
+
+.. bokeh-example-metadata::
+    :title: Title location
+    :keywords: title location, basic plotting, annotations
+    :apis: bokeh.plotting.figure.scatter
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(title="Left Title", title_location="left",

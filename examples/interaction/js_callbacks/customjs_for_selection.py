@@ -6,6 +6,7 @@ These points will show on the secondary graph which uses ``CustomJS``
 callbacks to update its plot.
 
 .. bokeh-example-metadata::
+    :title: Customjs for selection
     :apis: bokeh.model.Model.js_on_change, bokeh.models.sources.ColumnDataSource, bokeh.models.callbacks.CustomJS
     :refs: :ref:`ug_interaction_js_callbacks_customjs`
     :keywords: hover, javascript callback, CustomJS

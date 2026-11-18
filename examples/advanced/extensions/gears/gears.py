@@ -1,3 +1,12 @@
+''' Draw interlocking gears with a custom glyph and inspect them with pan and zoom
+tools.
+
+.. bokeh-example-metadata::
+    :title: Gears
+    :keywords: gears, advanced, extensions
+    :apis: bokeh.plotting.figure.add_glyph
+'''
+
 from math import pi
 
 from bokeh.io import show

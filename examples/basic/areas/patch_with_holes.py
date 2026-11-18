@@ -1,3 +1,11 @@
+''' Cut out interior regions of a filled patch with inner coordinate rings.
+
+.. bokeh-example-metadata::
+    :title: Patch with holes
+    :keywords: patch with holes, basic plotting, areas
+    :apis: bokeh.plotting.figure.patch
+'''
+
 from math import nan
 
 from bokeh.plotting import figure, show

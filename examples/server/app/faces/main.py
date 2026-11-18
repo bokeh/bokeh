@@ -7,6 +7,12 @@ OpenCV package.
 
 .. _Haar Cascade: https://docs.opencv.org/3.4/db/d28/tutorial_cascade_classifier.html
 
+
+
+.. bokeh-example-metadata::
+    :title: Faces
+    :keywords: faces, bokeh server, app
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Div, bokeh.plotting.figure.image_rgba, bokeh.plotting.figure.rect, bokeh.plotting.figure.step
 '''
 from datetime import datetime as dt
 

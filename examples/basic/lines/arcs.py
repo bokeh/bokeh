@@ -4,6 +4,7 @@ by drawing three arcs of defined radius, start and end angles
 at a specified point.
 
 .. bokeh-example-metadata::
+    :title: Arcs
     :apis: bokeh.plotting.figure.arc
     :refs: :ref:`ug_basic_lines_arcs`
     :keywords: arc, figure, glyph

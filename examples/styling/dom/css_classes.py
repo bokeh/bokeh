@@ -1,3 +1,11 @@
+''' Apply custom CSS classes and stylesheets to Bokeh HTML widgets.
+
+.. bokeh-example-metadata::
+    :title: CSS classes
+    :keywords: css classes, appearance, dom
+    :apis: bokeh.models.Div, bokeh.models.InlineStyleSheet
+'''
+
 from bokeh.io import show
 from bokeh.layouts import column
 from bokeh.models import Div, InlineStyleSheet

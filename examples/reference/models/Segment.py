@@ -1,3 +1,11 @@
+''' Draw straight segments from separate start and end coordinates.
+
+.. bokeh-example-metadata::
+    :title: Segment
+    :keywords: segment, reference
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Plot, bokeh.models.Segment
+'''
+
 import numpy as np
 
 from bokeh.io import curdoc, show

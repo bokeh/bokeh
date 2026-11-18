@@ -1,3 +1,11 @@
+''' Put a Font Awesome icon on a button that opens a browser alert.
+
+.. bokeh-example-metadata::
+    :title: Font awesome
+    :keywords: font awesome, advanced, extensions
+    :apis: bokeh.models.Button, bokeh.models.CustomJS
+'''
+
 from bokeh.events import ButtonClick
 from bokeh.layouts import column
 from bokeh.models import Button, CustomJS

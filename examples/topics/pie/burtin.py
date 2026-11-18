@@ -6,6 +6,7 @@ efficacies with some minimal changes to improve readability.
     capabilities, but there are better, simpler ways to present this data.
 
 .. bokeh-example-metadata::
+    :title: Burtin
     :gallery:
     :thumbnail-alt: A reproduction of Burtin's historical antibiotics plot.
     :sampledata: antibiotics

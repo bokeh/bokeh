@@ -2,6 +2,7 @@
 ``jitter`` transform to data.
 
 .. bokeh-example-metadata::
+    :title: Transform jitter
     :gallery:
     :thumbnail-alt: Two categorical scatter plots. Points overlap in the top plot and are spread out by jitter in the bottom plot.
     :sampledata: autompg

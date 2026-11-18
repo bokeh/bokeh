@@ -1,6 +1,7 @@
 ''' A marker plot that demonstrates a slope.
 
 .. bokeh-example-metadata::
+    :title: Slope
     :gallery:
     :thumbnail-alt: An orange y=mx+b trend line in a scatter plot.
     :apis: bokeh.models.Slope, bokeh.plotting.figure.scatter

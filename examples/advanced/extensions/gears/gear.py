@@ -1,3 +1,11 @@
+''' Define a custom gear glyph with configurable teeth, shaft size, and rotation.
+
+.. bokeh-example-metadata::
+    :title: Gear
+    :keywords: gear, advanced, extensions
+    :apis: bokeh.models.Glyph
+'''
+
 from bokeh.core.properties import AngleSpec, AngleUnits, BoolSpec, Include, NumberSpec
 from bokeh.core.property_mixins import FillProps, HatchProps, LineProps
 from bokeh.models.glyph import Glyph

@@ -1,3 +1,11 @@
+''' Overlay markers on a line while using the same coordinates for both glyphs.
+
+.. bokeh-example-metadata::
+    :title: Multiple glyphs
+    :keywords: multiple glyphs, basic plotting, lines
+    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
+'''
+
 from bokeh.plotting import figure, show
 
 x = [1, 2, 3, 4, 5]

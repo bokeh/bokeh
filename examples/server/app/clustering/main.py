@@ -6,6 +6,12 @@ example demonstrates solving both classification and regression problems.
 
 .. _k-nearest neighbors: https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm
 
+
+
+.. bokeh-example-metadata::
+    :title: Clustering
+    :keywords: clustering, bokeh server, app
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Select, bokeh.models.Slider, bokeh.plotting.figure.scatter
 '''
 import numpy as np
 from sklearn import cluster, datasets

@@ -1,11 +1,14 @@
-""" Demonstration of how to register event callbacks using an adaptation
+''' Demonstration of how to register event callbacks using an adaptation
 of the color_scatter example from the bokeh gallery
 
 
 .. bokeh-example-metadata::
+    :title: Js on event
+    :keywords: js on event, interaction, javascript callbacks
+    :apis: bokeh.models.Button, bokeh.models.CustomJS, bokeh.models.Div, bokeh.models.TextInput, bokeh.plotting.figure.circle
     :gallery:
     :thumbnail-alt: A scatter plot with several tools that prints information about js events as they occur, in text box to the right.
-"""
+'''
 from __future__ import annotations
 
 import numpy as np

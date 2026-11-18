@@ -1,3 +1,10 @@
+''' Serve a Streamlit page and a Bokeh Fourier app from the same ASGI server.
+
+.. bokeh-example-metadata::
+    :title: Streamlit simple
+    :keywords: streamlit simple, bokeh server, api
+'''
+
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import AsyncGenerator

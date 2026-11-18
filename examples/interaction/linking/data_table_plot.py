@@ -1,8 +1,13 @@
-"""
+''' Share a data source between a plot and a table so their selections stay in
+sync.
+
 .. bokeh-example-metadata::
+    :title: Data table plot
+    :keywords: data table plot, interaction, linking
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.DataTable, bokeh.models.HoverTool, bokeh.models.IntEditor, bokeh.models.NumberEditor
     :gallery:
     :thumbnail-alt: A column of a scatter plot and data table that share a data source and have linked selections.
-"""
+'''
 
 from bokeh.layouts import column
 from bokeh.models import (

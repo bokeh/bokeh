@@ -1,4 +1,10 @@
-"""Compare Canvas and WebGL even-odd polygons with deep nesting."""
+''' Compare Canvas and WebGL even-odd polygons with deep nesting.
+
+.. bokeh-example-metadata::
+    :title: Nested evenodd polygons
+    :keywords: nested evenodd polygons, output, webgl
+    :apis: bokeh.plotting.figure.patch
+'''
 
 from bokeh.layouts import row
 from bokeh.plotting import figure, show

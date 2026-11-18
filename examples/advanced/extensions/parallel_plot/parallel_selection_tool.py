@@ -1,3 +1,12 @@
+''' Define a drag tool that selects parallel-coordinate lines by brushing
+individual axes.
+
+.. bokeh-example-metadata::
+    :title: Parallel selection tool
+    :keywords: parallel selection tool, advanced, extensions
+    :apis: bokeh.models.BoxSelectTool, bokeh.models.Renderer
+'''
+
 from bokeh.core.properties import Float, Instance
 from bokeh.models import BoxSelectTool, Renderer
 

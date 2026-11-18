@@ -10,6 +10,12 @@ at your command prompt. Then navigate to the URL
 
 in your browser.
 
+
+
+.. bokeh-example-metadata::
+    :title: Selection histogram
+    :keywords: selection histogram, bokeh server, app
+    :apis: bokeh.models.BoxSelectTool, bokeh.models.LassoSelectTool, bokeh.plotting.figure.quad, bokeh.plotting.figure.scatter, bokeh.plotting.figure.select
 '''
 import numpy as np
 

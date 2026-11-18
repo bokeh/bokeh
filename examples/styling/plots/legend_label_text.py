@@ -1,3 +1,11 @@
+''' Style the font and color of legend labels.
+
+.. bokeh-example-metadata::
+    :title: Legend label text
+    :keywords: legend label text, appearance, plots
+    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
+'''
+
 import numpy as np
 
 from bokeh.plotting import figure, show

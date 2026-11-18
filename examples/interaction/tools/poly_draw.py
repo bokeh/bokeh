@@ -1,3 +1,11 @@
+''' Draw polygons and polylines interactively on the same plot.
+
+.. bokeh-example-metadata::
+    :title: Poly draw
+    :keywords: poly draw, interaction, tools
+    :apis: bokeh.models.PolyDrawTool, bokeh.plotting.figure.add_tools, bokeh.plotting.figure.multi_line, bokeh.plotting.figure.patches
+'''
+
 from bokeh.models import PolyDrawTool
 from bokeh.plotting import figure, show
 

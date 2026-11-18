@@ -2,6 +2,7 @@
 labels.
 
 .. bokeh-example-metadata::
+    :title: Latex tick labels
     :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter, bokeh.models.ScaledTickFormatter
     :refs: :ref:`ug_styling_mathtext`
     :keywords: mathtext, latex

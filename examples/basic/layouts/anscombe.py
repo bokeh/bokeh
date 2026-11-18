@@ -2,6 +2,7 @@
 API that also includes HTML content in a ``Div``.
 
 .. bokeh-example-metadata::
+    :title: Anscombe
     :gallery:
     :thumbnail-alt: A gridplot of four scatter and regression line plots illustrating Anscombe's Quartet.
     :sampledata: anscombe

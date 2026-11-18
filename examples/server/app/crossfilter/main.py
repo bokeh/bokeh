@@ -7,6 +7,12 @@ information on each dot.
 
 .. _Auto MPG dataset: https://archive.ics.uci.edu/ml/datasets/auto+mpg
 
+
+
+.. bokeh-example-metadata::
+    :title: Crossfilter
+    :keywords: crossfilter, bokeh server, app
+    :apis: bokeh.models.Select, bokeh.plotting.figure.scatter
 '''
 import numpy as np
 import pandas as pd

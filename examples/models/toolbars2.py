@@ -1,6 +1,7 @@
 ''' This example shows multiple ways to place the toolbar with respect to a grid of plots.
 
 .. bokeh-example-metadata::
+    :title: Toolbars2
     :apis: bokeh.layouts.column, bokeh.layouts.gridplot, bokeh.layouts.row, bokeh.plotting.figure, bokeh.plotting.show
     :refs: :ref:`ug_interaction_tools_toolbar`
     :keywords: tools, toolbar, layout

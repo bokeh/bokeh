@@ -1,3 +1,10 @@
+''' Manage spectrogram resources with Bokeh server lifecycle hooks.
+
+.. bokeh-example-metadata::
+    :title: App hooks
+    :keywords: app hooks, bokeh server, app
+'''
+
 from threading import Thread
 
 from . import audio

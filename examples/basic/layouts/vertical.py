@@ -1,3 +1,11 @@
+''' Stack three figures vertically in a column.
+
+.. bokeh-example-metadata::
+    :title: Vertical
+    :keywords: vertical, basic plotting, layouts
+    :apis: bokeh.plotting.figure.scatter
+'''
+
 from bokeh.layouts import column
 from bokeh.plotting import figure, show
 

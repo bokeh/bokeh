@@ -1,8 +1,12 @@
-"""
+''' Style selected and unselected points differently.
+
 .. bokeh-example-metadata::
+    :title: Glyph selection
+    :keywords: glyph selection, appearance, plots
+    :apis: bokeh.plotting.figure.scatter
     :gallery:
     :thumbnail-alt: How to configure the appearance of selected and non-selected glyphs.
-"""
+'''
 
 from bokeh.plotting import figure, show
 

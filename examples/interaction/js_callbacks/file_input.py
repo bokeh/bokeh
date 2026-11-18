@@ -1,3 +1,12 @@
+''' Read a file selection in a JavaScript callback and display information about
+the selected files.
+
+.. bokeh-example-metadata::
+    :title: File input
+    :keywords: file input, interaction, javascript callbacks
+    :apis: bokeh.models.CustomJS, bokeh.models.Div, bokeh.models.FileInput
+'''
+
 from bokeh.layouts import column
 from bokeh.models import CustomJS, Div, FileInput
 from bokeh.plotting import show

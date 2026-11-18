@@ -1,3 +1,11 @@
+''' Generate numeric and categorical tick positions with JavaScript.
+
+.. bokeh-example-metadata::
+    :title: Custom js ticker
+    :keywords: custom js ticker, appearance, plots
+    :apis: bokeh.models.CustomJSTicker, bokeh.plotting.figure.scatter
+'''
+
 from bokeh.models import CustomJSTicker
 from bokeh.plotting import figure, show
 

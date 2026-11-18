@@ -1,3 +1,11 @@
+''' Use WebGL to draw and select points in a 10,000-point scatter plot.
+
+.. bokeh-example-metadata::
+    :title: Scatter10k
+    :keywords: scatter10k, output, webgl
+    :apis: bokeh.plotting.figure.scatter
+'''
+
 import numpy as np
 
 from bokeh.plotting import figure, show

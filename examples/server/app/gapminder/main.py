@@ -1,6 +1,12 @@
 ''' A gapminder chart using a population, life expectancy, and fertility dataset.
 This example shows the data visualization capability of Bokeh to recreate charts.
 
+
+
+.. bokeh-example-metadata::
+    :title: Gapminder
+    :keywords: gapminder, bokeh server, app
+    :apis: bokeh.models.Button, bokeh.models.CategoricalColorMapper, bokeh.models.ColumnDataSource, bokeh.models.HoverTool, bokeh.models.Label
 '''
 import pandas as pd
 

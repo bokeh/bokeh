@@ -1,8 +1,12 @@
-"""
+''' Style minor grid lines separately from major grid lines.
+
 .. bokeh-example-metadata::
+    :title: Minor grid lines
+    :keywords: minor grid lines, appearance, plots
+    :apis: bokeh.plotting.figure.scatter
     :gallery:
     :thumbnail-alt: How to add grid lines at minor tick locations.
-"""
+'''
 
 from bokeh.plotting import figure, show
 

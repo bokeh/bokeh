@@ -1,3 +1,12 @@
+''' Compare the combine and collect modes for batching document changes on the
+server.
+
+.. bokeh-example-metadata::
+    :title: Hold app
+    :keywords: hold app, bokeh server, app
+    :apis: bokeh.models.Button, bokeh.models.ColumnDataSource, bokeh.models.Div, bokeh.models.Slider, bokeh.plotting.figure.line
+'''
+
 import numpy as np
 
 from bokeh.events import ButtonClick

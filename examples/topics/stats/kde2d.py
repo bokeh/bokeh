@@ -2,6 +2,7 @@
 the `scipy.stats.gaussian_kde`_ function and Bokeh contour renderers.
 
 .. bokeh-example-metadata::
+    :title: Kde2d
     :gallery:
     :thumbnail-alt: A bivariate kernel density estimation plot of the autompg data.
     :sampledata: autompg

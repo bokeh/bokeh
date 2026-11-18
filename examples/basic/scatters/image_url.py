@@ -1,6 +1,7 @@
 ''' A scatter plot showing `Bokeh image logo`_ as marker.
 
 .. bokeh-example-metadata::
+    :title: Image URL
     :gallery:
     :thumbnail-alt: A scatter using an arbitrary image (in this case, the Bokeh logo) for the scatter marker.
     :apis: bokeh.plotting.figure.image_url

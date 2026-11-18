@@ -1,3 +1,11 @@
+''' Normalize two stock price series in the browser with a JavaScript transform.
+
+.. bokeh-example-metadata::
+    :title: Transform customjs
+    :keywords: transform customjs, basic plotting, data
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.CustomJSTransform, bokeh.plotting.figure.line
+'''
+
 from bokeh.models import ColumnDataSource, CustomJSTransform
 from bokeh.plotting import figure, show
 from bokeh.sampledata.stocks import data as stocks

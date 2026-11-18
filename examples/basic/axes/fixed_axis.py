@@ -1,8 +1,12 @@
-"""
+''' Place axes at fixed data coordinates on a plot of a damped oscillation.
+
 .. bokeh-example-metadata::
+    :title: Fixed axis
+    :keywords: fixed axis, basic plotting, axes
+    :apis: bokeh.plotting.figure.line
     :gallery:
     :thumbnail-alt: A plot with an axis positioned in the center of the plot instead of around the sides.
-"""
+'''
 
 import numpy as np
 

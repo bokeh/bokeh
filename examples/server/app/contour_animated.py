@@ -11,6 +11,7 @@ at your command prompt. Then navigate to the URL
 in your browser.
 
 .. bokeh-example-metadata::
+    :title: Contour animated
     :apis: bokeh.plotting.figure.contour, bokeh.models.ContourRenderer.add_labels, bokeh.models.ContourRenderer, bokeh.models.contour.contour_data
     :refs: :ref:`ug_topics_contour_animated`
     :keywords: contour

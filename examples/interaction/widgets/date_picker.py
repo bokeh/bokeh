@@ -1,8 +1,12 @@
-"""
+''' Select a single date from a calendar.
+
 .. bokeh-example-metadata::
+    :title: Date picker
+    :keywords: date picker, interaction, widgets
+    :apis: bokeh.models.CustomJS, bokeh.models.DatePicker
     :gallery:
     :thumbnail-alt: A simple example of a widget for selecting dates and date ranges.
-"""
+'''
 
 from bokeh.io import show
 from bokeh.models import CustomJS, DatePicker

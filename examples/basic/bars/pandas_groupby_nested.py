@@ -1,9 +1,10 @@
-''' A grouped bar chart using a cleaned up version of the `Auto MPG dataset`_.
-This examples demonstrates automatic handing of Pandas GroupBy objects and
-colormapping nested factors with ``factor_cmap``. A hover tooltip displays
-information for each bar.
+''' Build a grouped fuel-economy chart from a pandas GroupBy and color bars by
+cylinder count.
+
+The chart uses the `Auto MPG dataset`_. Hover over a bar for details.
 
 .. bokeh-example-metadata::
+    :title: Pandas groupby nested
     :gallery:
     :thumbnail-alt: Grouped bars of fuel economy by manufacturer and cylinder count, with color indicating cylinder count.
     :sampledata: autompg

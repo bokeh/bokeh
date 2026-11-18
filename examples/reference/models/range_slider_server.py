@@ -1,5 +1,14 @@
 ## Bokeh server for Range Slider
 
+''' Filter a plot of marriage and divorce rates to the years selected on a range
+slider.
+
+.. bokeh-example-metadata::
+    :title: Range slider server
+    :keywords: range slider server, reference
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.RangeSlider, bokeh.plotting.figure.scatter
+'''
+
 from bokeh.io import curdoc
 from bokeh.layouts import row
 from bokeh.models import ColumnDataSource, RangeSlider

@@ -3,6 +3,7 @@ This example makes use of all the three LaTeX delimiters pairs ``$$...$$``, ``\\
 ``\\(...\\)``.
 
 .. bokeh-example-metadata::
+    :title: Latex axis labels titles labels
     :apis: bokeh.plotting.figure.line, bokeh.models.Label
     :refs: :ref:`ug_styling_mathtext`
     :keywords: mathtext, latex

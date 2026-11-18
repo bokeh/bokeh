@@ -1,3 +1,12 @@
+''' Draw ring segments by specifying inner and outer radii and start and end
+angles.
+
+.. bokeh-example-metadata::
+    :title: Annular Wedge
+    :keywords: annular wedge, reference
+    :apis: bokeh.models.AnnularWedge, bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Plot
+'''
+
 import numpy as np
 
 from bokeh.io import curdoc, show

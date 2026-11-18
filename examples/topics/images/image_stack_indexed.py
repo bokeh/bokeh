@@ -9,6 +9,7 @@ scanning the whole 3D array as one data set, so they are the same for every
 time step. The checkbox unsets it, so that each 2D array gets its own limits.
 
 .. bokeh-example-metadata::
+    :title: Image stack indexed
     :apis: bokeh.plotting.figure.image_stack, bokeh.models.IndexedStackColorMapper, bokeh.models.ColorBar, bokeh.models.Slider, bokeh.models.Checkbox
     :refs: :ref:`ug_topics_images`
     :keywords: image, image_stack, colormap, slider

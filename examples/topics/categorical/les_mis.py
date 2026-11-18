@@ -2,6 +2,7 @@
 This example demonstrates a basic hover tooltip.
 
 .. bokeh-example-metadata::
+    :title: Les mis
     :gallery:
     :thumbnail-alt: A Les Misérables matrix with shaded squares marking pairs of characters who appear in the same scenes.
     :sampledata: les_mis

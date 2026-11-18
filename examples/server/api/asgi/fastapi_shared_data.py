@@ -1,9 +1,15 @@
-"""Share one background data producer with every local Bokeh session.
+''' Share one background data producer with every local Bokeh session.
 
 Run with::
 
     python -m uvicorn fastapi_shared_data:app --port 8000
-"""
+
+
+.. bokeh-example-metadata::
+    :title: Fastapi shared data
+    :keywords: fastapi shared data, bokeh server, api
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Div, bokeh.plotting.figure.line
+'''
 
 from __future__ import annotations
 

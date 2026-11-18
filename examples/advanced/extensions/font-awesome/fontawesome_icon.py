@@ -1,3 +1,11 @@
+''' Define a custom Bokeh icon model backed by the Font Awesome JavaScript package.
+
+.. bokeh-example-metadata::
+    :title: Fontawesome icon
+    :keywords: fontawesome icon, advanced, extensions
+    :apis: bokeh.models.Icon
+'''
+
 from bokeh.core.properties import Bool, Enum, Nullable, Required
 from bokeh.models import Icon
 

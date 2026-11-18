@@ -1,3 +1,11 @@
+''' Display a paragraph of text in a Bokeh layout.
+
+.. bokeh-example-metadata::
+    :title: Paragraph
+    :keywords: paragraph, interaction, widgets
+    :apis: bokeh.models.Paragraph
+'''
+
 from bokeh.io import show
 from bokeh.models import Paragraph
 

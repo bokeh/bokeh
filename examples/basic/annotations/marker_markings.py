@@ -1,6 +1,7 @@
 ''' Scatter-style markers at named and fractional positions on a path.
 
 .. bokeh-example-metadata::
+    :title: Marker markings
     :apis: bokeh.models.ScatterMarking, bokeh.models.GlyphRenderer.add_path_marking
     :refs: :ref:`ug_basic_annotations_path_markings`
     :keywords: markers, paths, path_markings

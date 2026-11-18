@@ -1,6 +1,7 @@
 ''' A demonstration of NetworkX integration for drawing network graphs.
 
 .. bokeh-example-metadata::
+    :title: Node and edge attributes
     :gallery:
     :thumbnail-alt: A network graph plot of the NetworkX karate club dataset with large circles for vertices.
     :apis: bokeh.plotting.from_networkx

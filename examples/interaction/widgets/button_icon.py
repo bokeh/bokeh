@@ -1,3 +1,11 @@
+''' Put an icon beside a button's label.
+
+.. bokeh-example-metadata::
+    :title: Button icon
+    :keywords: button icon, interaction, widgets
+    :apis: bokeh.models.BuiltinIcon, bokeh.models.Button, bokeh.models.SetValue
+'''
+
 from bokeh.io import show
 from bokeh.models import BuiltinIcon, Button, SetValue
 

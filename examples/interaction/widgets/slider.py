@@ -1,3 +1,11 @@
+''' Choose a numeric value within a fixed range.
+
+.. bokeh-example-metadata::
+    :title: Slider
+    :keywords: slider, interaction, widgets
+    :apis: bokeh.models.CustomJS, bokeh.models.Div, bokeh.models.Slider
+'''
+
 from bokeh.io import show
 from bokeh.layouts import row
 from bokeh.models import CustomJS, Slider

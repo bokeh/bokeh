@@ -1,3 +1,11 @@
+''' Draw triangles by gathering their coordinates from a shared pool of vertices.
+
+.. bokeh-example-metadata::
+    :title: Gather
+    :keywords: gather, basic plotting, data
+    :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.patches, bokeh.plotting.figure.scatter
+'''
+
 from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure, show
 from bokeh.transform import gather

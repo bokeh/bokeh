@@ -1,5 +1,13 @@
 ## Bokeh server for Dropdown
 
+''' Change a plot color from a dropdown using a Python callback.
+
+.. bokeh-example-metadata::
+    :title: Dropdown menu server
+    :keywords: dropdown menu server, reference
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Dropdown, bokeh.plotting.figure.scatter
+'''
+
 from bokeh.io import curdoc
 from bokeh.layouts import row
 from bokeh.models import ColumnDataSource, Dropdown

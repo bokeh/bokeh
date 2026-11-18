@@ -1,3 +1,12 @@
+''' Assemble a speedometer with layered glyphs and scales for miles and kilometers
+per hour.
+
+.. bokeh-example-metadata::
+    :title: Gauges
+    :keywords: gauges, models
+    :apis: bokeh.models.Arc, bokeh.models.Circle, bokeh.models.ColumnDataSource, bokeh.models.Plot, bokeh.models.PolarTransform, bokeh.models.Range1d
+'''
+
 from math import pi
 from typing import Any, Literal
 

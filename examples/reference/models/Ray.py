@@ -1,3 +1,11 @@
+''' Draw rays using starting points, angles, and lengths.
+
+.. bokeh-example-metadata::
+    :title: Ray
+    :keywords: ray, reference
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Plot, bokeh.models.Ray
+'''
+
 import numpy as np
 
 from bokeh.io import curdoc, show

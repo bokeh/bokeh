@@ -1,3 +1,11 @@
+''' Supply explicit edge paths in a static graph layout.
+
+.. bokeh-example-metadata::
+    :title: Static paths
+    :keywords: static paths, topic guides, graph
+    :apis: bokeh.models.Ellipse, bokeh.models.GraphRenderer, bokeh.models.StaticLayoutProvider
+'''
+
 import math
 
 from bokeh.models import Ellipse, GraphRenderer, StaticLayoutProvider

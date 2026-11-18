@@ -2,6 +2,7 @@
 mathtext on titles, ``Label`` annotations and axis labels.
 
 .. bokeh-example-metadata::
+    :title: Latex bessel
     :gallery:
     :thumbnail-alt: A plot with the first four Bessel function J_0 to J_3 with mathtext labels and a mathtext title.
     :apis: bokeh.plotting.figure.line, bokeh.models.Label, bokeh.models.Title

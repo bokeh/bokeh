@@ -2,6 +2,7 @@
 log mapping and linear mapping with different color palette.
 
 .. bokeh-example-metadata::
+    :title: Color mappers
     :gallery:
     :thumbnail-alt: Comparison of linear and log colormaps with different palette sizes.
     :apis: bokeh.plotting.figure.scatter, bokeh.models.ColumnDataSource, bokeh.models.ColorBar, bokeh.models.mappers.LinearColorMapper, bokeh.models.mappers.LogColorMapper

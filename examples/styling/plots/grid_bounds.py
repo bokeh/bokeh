@@ -1,8 +1,12 @@
-"""
+''' Limit the range over which grid lines are drawn.
+
 .. bokeh-example-metadata::
+    :title: Grid bounds
+    :keywords: grid bounds, appearance, plots
+    :apis: bokeh.plotting.figure.scatter
     :gallery:
     :thumbnail-alt: How to set bounds limits on plot grids.
-"""
+'''
 
 from bokeh.plotting import figure, show
 

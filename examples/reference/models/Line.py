@@ -1,3 +1,11 @@
+''' Connect ordered x and y coordinates with a line.
+
+.. bokeh-example-metadata::
+    :title: Line
+    :keywords: line, reference
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.Line, bokeh.models.LinearAxis, bokeh.models.Plot
+'''
+
 import numpy as np
 
 from bokeh.io import curdoc, show

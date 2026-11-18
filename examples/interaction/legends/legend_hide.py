@@ -1,9 +1,7 @@
-''' The legend_hide feature is used to hide corresponding lines on a plot.
-This examples demonstrates an interactive line chart for stock prices over
-time which allows the user to click on the legend entries to hide or show
-the corresponding lines.
+''' Click legend entries to hide or show stock price series.
 
 .. bokeh-example-metadata::
+    :title: Legend hide
     :gallery:
     :thumbnail-alt: An interactive legend that hides glyphs when legend entries are clicked.
     :sampledata: stocks

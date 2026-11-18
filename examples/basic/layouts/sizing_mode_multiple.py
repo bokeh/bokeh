@@ -1,3 +1,12 @@
+''' Combine a stretchable sine plot with sliders that change its amplitude and
+frequency.
+
+.. bokeh-example-metadata::
+    :title: Sizing mode multiple
+    :keywords: sizing mode multiple, basic plotting, layouts
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.Div, bokeh.models.Slider, bokeh.plotting.figure.line
+'''
+
 import numpy as np
 
 from bokeh.layouts import column, row

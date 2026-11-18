@@ -1,3 +1,11 @@
+''' Open canvas and WebGL plots in dialogs controlled by buttons.
+
+.. bokeh-example-metadata::
+    :title: Dialog
+    :keywords: dialog, basic plotting, ui
+    :apis: bokeh.models.Button, bokeh.models.CloseDialog, bokeh.models.Column, bokeh.models.Dialog, bokeh.models.OpenDialog, bokeh.plotting.figure.circle
+'''
+
 import numpy as np
 
 from bokeh.core.enums import OutputBackendType

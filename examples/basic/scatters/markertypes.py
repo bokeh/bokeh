@@ -1,3 +1,11 @@
+''' Compare the marker shapes available in a scatter plot.
+
+.. bokeh-example-metadata::
+    :title: Markertypes
+    :keywords: markertypes, basic plotting, scatter plots
+    :apis: bokeh.plotting.figure.scatter
+'''
+
 from bokeh.core.enums import MarkerType
 from bokeh.plotting import figure, show
 

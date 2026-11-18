@@ -1,3 +1,11 @@
+''' Hide one line while leaving another visible on the same plot.
+
+.. bokeh-example-metadata::
+    :title: Visible property
+    :keywords: visible property, appearance, visuals
+    :apis: bokeh.plotting.figure.line
+'''
+
 from bokeh.plotting import figure, show
 
 # We set-up a standard figure with two lines

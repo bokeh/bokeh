@@ -2,6 +2,7 @@
 from the `brewer` dictionary.
 
 .. bokeh-example-metadata::
+    :title: Brewer
     :apis: bokeh.palettes.brewer
     :refs: :ref:`ug_styling_visual_palettes`
     :keywords: brewer, palettes, patches

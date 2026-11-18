@@ -2,6 +2,7 @@
 automatic colormapping of nested categorical factors.
 
 .. bokeh-example-metadata::
+    :title: Nested colormapped
     :gallery:
     :thumbnail-alt: Grouped bars on a hierarchical axis. For each fruit, silver, blue, and red bars show random values from 2015 to 2017.
     :apis: bokeh.plotting.figure.vbar, bokeh.transform.factor_cmap

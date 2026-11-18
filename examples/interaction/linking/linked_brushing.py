@@ -1,7 +1,8 @@
-'''An example of linked brushing with two scatter plots showing two views of
+''' An example of linked brushing with two scatter plots showing two views of
 the same data.
 
 .. bokeh-example-metadata::
+    :title: Linked brushing
     :gallery:
     :thumbnail-alt: A two different scatter plots of the Palmer penguin dataset with linked selections.
     :sampledata: penguins

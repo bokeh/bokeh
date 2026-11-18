@@ -1,6 +1,7 @@
 ''' This example demonstrates the use of mathtext on a ``Slider`` widget.
 
 .. bokeh-example-metadata::
+    :title: Latex slider widget title
     :apis: bokeh.models.widgets.Slider
     :refs: :ref:`ug_styling_mathtext`
     :keywords: mathtext, latex

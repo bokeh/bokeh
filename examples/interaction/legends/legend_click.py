@@ -1,3 +1,11 @@
+''' Toggle a plotted series from the legend by clicking its entry.
+
+.. bokeh-example-metadata::
+    :title: Legend click
+    :keywords: legend click, interaction, legends
+    :apis: bokeh.models.CustomJS, bokeh.plotting.figure.scatter
+'''
+
 from bokeh.core.enums import MarkerType
 from bokeh.models import CustomJS
 from bokeh.plotting import figure, show

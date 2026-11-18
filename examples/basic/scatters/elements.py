@@ -1,6 +1,5 @@
-''' A scatter plot using data from the `Periodic Table`_. This example
-demonstrates using basic hover tooltips and adding labels for individual
-points.
+''' Plot element density against atomic weight, with color indicating melting
+point. Hover over a point to see the element's properties.
 
 .. bokeh-example-metadata::
     :title: Periodic table scatter plot
@@ -9,9 +8,7 @@ points.
     :sampledata: periodic_table
     :apis: bokeh.plotting.figure.scatter, bokeh.models.sources.ColumnDataSource, bokeh.models.LabelSet
     :refs: :ref:`ug_interaction_tools_hover_tool`
-    :keywords: hover, labels, scatter
-
-.. _Periodic Table: https://en.wikipedia.org/wiki/Periodic_table
+    :keywords: periodic table, hover, labels, scatter
 
 '''
 import pandas as pd

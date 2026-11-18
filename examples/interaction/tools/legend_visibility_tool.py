@@ -1,3 +1,11 @@
+''' Use a toolbar action to show or hide a plot legend.
+
+.. bokeh-example-metadata::
+    :title: Legend visibility tool
+    :keywords: legend visibility tool, interaction, tools
+    :apis: bokeh.models.CustomAction, bokeh.models.CustomJS, bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
+'''
+
 import numpy as np
 
 from bokeh.layouts import gridplot

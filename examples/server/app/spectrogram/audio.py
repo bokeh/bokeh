@@ -1,3 +1,10 @@
+''' Convert audio samples into frequency bins for the live spectrogram.
+
+.. bokeh-example-metadata::
+    :title: Audio
+    :keywords: audio, bokeh server, app
+'''
+
 from time import sleep
 
 import numpy as np

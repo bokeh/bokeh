@@ -1,6 +1,7 @@
 ''' Animate arrowheads along paths by updating their positions in a source column.
 
 .. bokeh-example-metadata::
+    :title: Animated arrows
     :apis: bokeh.models.GlyphRenderer.add_arrowheads, bokeh.models.ColumnDataSource, bokeh.models.NormalHead
     :refs: :ref:`ug_basic_annotations_path_markings`
     :keywords: arrowheads, fractional positions, data source, paths, animation

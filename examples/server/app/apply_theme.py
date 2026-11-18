@@ -1,6 +1,12 @@
-""" Example demonstrating how to apply a theme
+''' Example demonstrating how to apply a theme
 
-"""
+
+
+.. bokeh-example-metadata::
+    :title: Apply theme
+    :keywords: apply theme, bokeh server, app
+    :apis: bokeh.plotting.figure.line
+'''
 
 import numpy as np
 

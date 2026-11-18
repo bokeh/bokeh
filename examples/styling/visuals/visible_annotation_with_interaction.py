@@ -1,3 +1,11 @@
+''' Show and hide a box annotation with a toggle button.
+
+.. bokeh-example-metadata::
+    :title: Visible annotation with interaction
+    :keywords: visible annotation with interaction, appearance, visuals
+    :apis: bokeh.models.BoxAnnotation, bokeh.models.Toggle, bokeh.plotting.figure.add_layout, bokeh.plotting.figure.line
+'''
+
 from bokeh.layouts import layout
 from bokeh.models import BoxAnnotation, Toggle
 from bokeh.plotting import figure, show

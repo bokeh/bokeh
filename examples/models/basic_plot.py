@@ -3,6 +3,7 @@ circle scatter markers with black outlines, using the low-level ``bokeh.models``
 API.
 
 .. bokeh-example-metadata::
+    :title: Basic plot
     :apis: bokeh.models.Scatter, bokeh.models.Plot, bokeh.models.ColumnDataSource, bokeh.models.LinearAxis, bokeh.models.PanTool, bokeh.models.WheelZoomTool
     :refs: :ref:`ug_basic_scatters_markers`
     :keywords: figure, scatter

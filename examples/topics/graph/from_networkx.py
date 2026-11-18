@@ -1,6 +1,7 @@
 ''' A demonstration of NetworkX integration for drawing network graphs.
 
 .. bokeh-example-metadata::
+    :title: From networkx
     :gallery:
     :thumbnail-alt: A network graph plot of the NetworkX desargues_graph dataset with large circles for vertices.
     :apis: bokeh.plotting.from_networkx

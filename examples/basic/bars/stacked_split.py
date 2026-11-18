@@ -1,6 +1,7 @@
 ''' A split, horizontal stacked bar chart using plain Python lists.
 
 .. bokeh-example-metadata::
+    :title: Stacked split
     :gallery:
     :thumbnail-alt: Stacked horizontal bars split by category.
     :apis: bokeh.plotting.figure.hbar_stack

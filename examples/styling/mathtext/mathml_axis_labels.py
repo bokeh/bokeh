@@ -1,6 +1,7 @@
 ''' This example demonstrates the use of mathtext as an axis label using a MathML object.
 
 .. bokeh-example-metadata::
+    :title: Mathml axis labels
     :apis: bokeh.plotting.figure.line, bokeh.models.MathML
     :refs: :ref:`ug_styling_mathtext`
     :keywords: mathtext

@@ -1,7 +1,8 @@
-'''This example shows an unemployment map by county of the United States of America in 2009.
+''' This example shows an unemployment map by county of the United States of America in 2009.
 It demonstrates drawing shapes using polygonal data, as well as using color scales to indicate different integer ranges
 
 .. bokeh-example-metadata::
+    :title: Choropleth
     :sampledata: us_counties, us_states, unemployment
     :apis: bokeh.plotting.figure.patches, bokeh.palettes.Viridis6, bokeh.plotting.show
     :refs: :ref:`ug_basic_areas_patches`

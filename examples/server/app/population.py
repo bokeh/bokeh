@@ -2,6 +2,12 @@
 This example shows the ability of Bokeh to use two different kinds of graph into
 one file and sorting them by having different colors and lines.
 
+
+
+.. bokeh-example-metadata::
+    :title: Population
+    :keywords: population, bokeh server, app
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.CustomJSTickFormatter, bokeh.models.CustomJSTransform, bokeh.models.ScaledTickFormatter
 '''
 from math import pi
 

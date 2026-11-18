@@ -1,3 +1,11 @@
+''' Draw quadratic curves with one control point each.
+
+.. bokeh-example-metadata::
+    :title: Quadratic
+    :keywords: quadratic, reference
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Plot, bokeh.models.Quadratic
+'''
+
 import numpy as np
 
 from bokeh.io import curdoc, show

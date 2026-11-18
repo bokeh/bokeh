@@ -1,3 +1,11 @@
+''' Display formatted HTML in a Bokeh layout.
+
+.. bokeh-example-metadata::
+    :title: Div
+    :keywords: div, interaction, widgets
+    :apis: bokeh.models.Div
+'''
+
 from bokeh.io import show
 from bokeh.models import Div
 

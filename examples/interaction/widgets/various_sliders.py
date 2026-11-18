@@ -1,3 +1,10 @@
+''' Compare slider types, orientations, reversed ranges, and disabled states.
+
+.. bokeh-example-metadata::
+    :title: Various sliders
+    :keywords: various sliders, interaction, widgets
+'''
+
 from datetime import date
 
 from bokeh import models

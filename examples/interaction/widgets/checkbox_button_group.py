@@ -1,3 +1,11 @@
+''' Select multiple options with a row of checkbox buttons.
+
+.. bokeh-example-metadata::
+    :title: Checkbox button group
+    :keywords: checkbox button group, interaction, widgets
+    :apis: bokeh.models.CheckboxButtonGroup, bokeh.models.CustomJS
+'''
+
 from bokeh.io import show
 from bokeh.models import CheckboxButtonGroup, CustomJS
 

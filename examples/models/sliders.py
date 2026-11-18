@@ -1,12 +1,13 @@
-"""Demonstrates the use of many Bokeh sliders with examples such as a numerical slider, a disabled slider, a date picker,
+''' Demonstrates the use of many Bokeh sliders with examples such as a numerical slider, a disabled slider, a date picker,
 and a color picker.
 
 .. bokeh-example-metadata::
+    :title: Sliders
     :apis: bokeh.models.Column, bokeh.models.CustomJS, bokeh.models.DateRangeSlider, bokeh.models.DateSlider, bokeh.models.Div, bokeh.models.InlineStyleSheet, bokeh.models.RangeSlider, bokeh.models.Row, bokeh.models.Slider, bokeh.document.document, bokeh.embed.embed, bokeh.util.browser.view
     :refs: :ref:`ug_interaction_widgets`
     :keywords: slider
 
-""" # noqa: E501
+''' # noqa: E501
 from datetime import date
 
 from bokeh.document import Document

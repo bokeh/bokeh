@@ -1,3 +1,11 @@
+''' Fill horizontal bands across the plot between pairs of y coordinates.
+
+.. bokeh-example-metadata::
+    :title: HStrip
+    :keywords: hstrip, reference
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.HStrip, bokeh.models.LinearAxis, bokeh.models.Plot, bokeh.models.Range1d
+'''
+
 import numpy as np
 
 from bokeh.core.properties import field

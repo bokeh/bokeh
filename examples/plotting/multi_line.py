@@ -1,6 +1,7 @@
-'''This example shows how to plot multiple lines with the `multi_line` call.
+''' This example shows how to plot multiple lines with the `multi_line` call.
 
 .. bokeh-example-metadata::
+    :title: Multi line
     :apis: bokeh.plotting.figure.multi_line, bokeh.models.HoverTool, bokeh.models.TapTool
     :refs: :ref:`ug_basic_lines_multi`
     :keywords: multi_line, HoverTool, TapTool

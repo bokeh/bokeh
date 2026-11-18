@@ -1,3 +1,11 @@
+''' Embed multiple plots at chosen positions in a custom HTML template.
+
+.. bokeh-example-metadata::
+    :title: Embed page template
+    :keywords: embed page template, output, apis
+    :apis: bokeh.models.Range1d, bokeh.plotting.figure.scatter
+'''
+
 from jinja2 import Template
 
 from bokeh.embed import embed

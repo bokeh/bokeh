@@ -1,6 +1,7 @@
 ''' Inherited arrowhead visuals on Line and Bezier paths.
 
 .. bokeh-example-metadata::
+    :title: Path marking insets
     :apis: bokeh.models.GlyphRenderer.add_path_marking, bokeh.models.NormalHead, bokeh.models.TeeHead
     :refs: :ref:`ug_basic_annotations_arrows`
     :keywords: arrows, path_markings, inheritance, line, bezier

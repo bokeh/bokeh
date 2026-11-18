@@ -1,4 +1,12 @@
 ## Bokeh server for Select
+''' Filter scatter points by color from a dropdown in a server app.
+
+.. bokeh-example-metadata::
+    :title: Select server
+    :keywords: select server, reference
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Select, bokeh.plotting.figure.scatter
+'''
+
 import pandas as pd
 
 from bokeh.io import curdoc

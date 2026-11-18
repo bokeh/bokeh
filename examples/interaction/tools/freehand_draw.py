@@ -1,3 +1,11 @@
+''' Sketch paths directly on a plot with the freehand draw tool.
+
+.. bokeh-example-metadata::
+    :title: Freehand draw
+    :keywords: freehand draw, interaction, tools
+    :apis: bokeh.models.FreehandDrawTool, bokeh.plotting.figure.add_tools, bokeh.plotting.figure.multi_line
+'''
+
 from bokeh.models import FreehandDrawTool
 from bokeh.plotting import figure, show
 

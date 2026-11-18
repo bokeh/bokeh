@@ -1,8 +1,14 @@
-"""Exercise mixed-marker selection overrides and streaming updates.
+''' Exercise mixed-marker selection overrides and streaming updates.
 
 Click the button repeatedly: marker metadata, geometry, and selection masks are
 updated without recreating the plot or its WebGL resources.
-"""
+
+
+.. bokeh-example-metadata::
+    :title: Mixed markers streaming
+    :keywords: mixed markers streaming, output, webgl
+    :apis: bokeh.models.Button, bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.Scatter, bokeh.plotting.figure.scatter
+'''
 
 import numpy as np
 

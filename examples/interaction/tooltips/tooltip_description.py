@@ -5,6 +5,7 @@ list of various options of elements to choose one or more of them, and then
 clear the choices as well.
 
 .. bokeh-example-metadata::
+    :title: Tooltip description
     :apis: bokeh.io.show, bokeh.models.MultiChoice, Bokeh.models.Tooltip
     :refs: `ug_interaction_widgets_examples_multichoice`
     :keywords: tooltip, multichoice

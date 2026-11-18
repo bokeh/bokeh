@@ -1,3 +1,11 @@
+''' Plot exponential values on a logarithmic y axis.
+
+.. bokeh-example-metadata::
+    :title: Log scale axis
+    :keywords: log scale axis, basic plotting, axes
+    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
+'''
+
 from bokeh.plotting import figure, show
 
 x = [0.1, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0]

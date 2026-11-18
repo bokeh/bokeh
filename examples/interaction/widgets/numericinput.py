@@ -1,3 +1,11 @@
+''' Enter a numeric value in a widget.
+
+.. bokeh-example-metadata::
+    :title: Numericinput
+    :keywords: numericinput, interaction, widgets
+    :apis: bokeh.models.NumericInput
+'''
+
 from bokeh.io import show
 from bokeh.models import NumericInput
 

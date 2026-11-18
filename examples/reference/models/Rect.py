@@ -1,3 +1,11 @@
+''' Draw rectangles by specifying their centers and sizes.
+
+.. bokeh-example-metadata::
+    :title: Rect
+    :keywords: rect, reference
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Plot, bokeh.models.Rect
+'''
+
 import numpy as np
 
 from bokeh.io import curdoc, show

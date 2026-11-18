@@ -2,6 +2,7 @@
 a using a ``dodge`` transform to "group" the bars.
 
 .. bokeh-example-metadata::
+    :title: Dodged
     :gallery:
     :thumbnail-alt: Grouped bars offset side by side. Each group has a silver, blue, and red bar, identified in the legend.
     :apis: bokeh.plotting.figure.vbar, bokeh.transform.dodge, bokeh.models.ColumnDataSource

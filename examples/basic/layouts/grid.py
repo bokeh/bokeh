@@ -1,6 +1,7 @@
-'''  A grid plot that shows four figures that use different glyphs.
+''' A grid plot that shows four figures that use different glyphs.
 
 .. bokeh-example-metadata::
+    :title: Grid
     :apis: bokeh.layouts.gridplot
     :refs: :ref:`ug_basic_layouts_gridplot`
     :keywords: grid, gridplot

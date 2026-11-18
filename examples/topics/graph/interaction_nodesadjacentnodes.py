@@ -1,3 +1,11 @@
+''' Highlight a node and its neighboring nodes.
+
+.. bokeh-example-metadata::
+    :title: Interaction nodesadjacentnodes
+    :keywords: interaction nodesadjacentnodes, topic guides, graph
+    :apis: bokeh.models.BoxSelectTool, bokeh.models.HoverTool, bokeh.models.MultiLine, bokeh.models.NodesAndAdjacentNodes, bokeh.models.Plot
+'''
+
 import networkx as nx
 
 from bokeh.models import (

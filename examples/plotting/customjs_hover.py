@@ -1,14 +1,12 @@
-""" A map of North Africa and South Europe with three interactive location
-points. When hovering over the points, its lat-lon is shown. This example
-demonstrates using CustomJSHover model and HoverTool to customize the
-formatting of values in tooltip fields.
+''' Format latitude and longitude in map tooltips with CustomJSHover.
 
 .. bokeh-example-metadata::
+    :title: Customjs hover
     :apis: bokeh.models.CustomJSHover, bokeh.models.HoverTool
     :refs: :ref:`ug_interaction_tools_formatting_tooltip_fields`
     :keywords: hover tool, CustomJSHover
 
-"""
+'''
 from os import getenv
 
 import xyzservices.providers as xyz

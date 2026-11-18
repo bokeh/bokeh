@@ -1,3 +1,11 @@
+''' Stack several series as filled areas using a shared data source.
+
+.. bokeh-example-metadata::
+    :title: Varea stack
+    :keywords: varea stack, basic plotting, areas
+    :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.varea_stack
+'''
+
 from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure, show
 

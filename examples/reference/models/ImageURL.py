@@ -1,3 +1,11 @@
+''' Place an image loaded from a URL at data coordinates.
+
+.. bokeh-example-metadata::
+    :title: ImageURL
+    :keywords: imageurl, reference
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.ImageURL, bokeh.models.LinearAxis, bokeh.models.Plot, bokeh.models.Range1d
+'''
+
 import numpy as np
 
 from bokeh.io import curdoc, show

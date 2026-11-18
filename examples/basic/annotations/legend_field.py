@@ -1,3 +1,12 @@
+''' Group scatter points into legend entries in the browser using a data source
+field.
+
+.. bokeh-example-metadata::
+    :title: Legend field
+    :keywords: legend field, basic plotting, annotations
+    :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.circle
+'''
+
 from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure, show
 

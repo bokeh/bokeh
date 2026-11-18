@@ -1,3 +1,11 @@
+''' Pair a scaled ticker with a formatter to label ticks in converted units.
+
+.. bokeh-example-metadata::
+    :title: Scaled tick formatter
+    :keywords: scaled tick formatter, appearance, plots
+    :apis: bokeh.models.AdaptiveTicker, bokeh.models.ScaledTickFormatter, bokeh.models.ScaledTicker, bokeh.plotting.figure.line
+'''
+
 from math import pi, sin
 
 from bokeh.layouts import column

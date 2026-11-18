@@ -1,3 +1,11 @@
+''' Style different axes independently and customize their tick marks.
+
+.. bokeh-example-metadata::
+    :title: Axis properties
+    :keywords: axis properties, appearance, plots
+    :apis: bokeh.plotting.figure.scatter
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

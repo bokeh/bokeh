@@ -1,8 +1,12 @@
-"""
+''' Choose several values from a list box.
+
 .. bokeh-example-metadata::
+    :title: Multiselect
+    :keywords: multiselect, interaction, widgets
+    :apis: bokeh.models.CustomJS, bokeh.models.MultiSelect
     :gallery:
     :thumbnail-alt: A simple example of a multi-select widget.
-"""
+'''
 
 from bokeh.io import show
 from bokeh.models import CustomJS, MultiSelect

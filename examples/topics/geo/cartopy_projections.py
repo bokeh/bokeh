@@ -1,14 +1,15 @@
-""" This example demonstrates how to draw world projections offered by `Cartopy`_
+''' This example demonstrates how to draw world projections offered by `Cartopy`_
 using Bokeh. The shown projections are just a selection and don't present all
 possible projections. To run this example make sure `Cartopy` is installed.
 
 .. bokeh-example-metadata::
+    :title: Cartopy projections
     :apis: bokeh.plotting.figure, bokeh.io.show
     :refs:  :ref:`ug_topics_geo_projections`
     :keywords: world projection, cartopy, geo
 
 .. _Cartopy: https://cartopy.readthedocs.io
-"""
+'''
 import cartopy.crs as ccrs
 
 from bokeh.layouts import grid

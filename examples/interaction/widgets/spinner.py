@@ -1,3 +1,11 @@
+''' Enter a number or adjust it with step buttons.
+
+.. bokeh-example-metadata::
+    :title: Spinner
+    :keywords: spinner, interaction, widgets
+    :apis: bokeh.models.Spinner, bokeh.plotting.figure.scatter
+'''
+
 import numpy as np
 
 from bokeh.layouts import column, row

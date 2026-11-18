@@ -1,3 +1,10 @@
+''' Manage the settings used by the Streamlit particle simulation.
+
+.. bokeh-example-metadata::
+    :title: State
+    :keywords: state, bokeh server, api
+'''
+
 from dataclasses import dataclass, replace
 from threading import Lock
 

@@ -1,8 +1,12 @@
-"""
+''' Apply Bokeh's Caliber theme to a line plot.
+
 .. bokeh-example-metadata::
+    :title: Caliber
+    :keywords: caliber, appearance, themes
+    :apis: bokeh.plotting.figure.line
     :gallery:
     :thumbnail-alt: Basic line plot with the caliber theme.
-"""
+'''
 
 from bokeh.plotting import curdoc, figure, show
 

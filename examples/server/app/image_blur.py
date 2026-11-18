@@ -4,6 +4,12 @@ of Bokeh to transform images to have certain effects.
 .. note::
     This example needs the scipy package to run.
 
+
+
+.. bokeh-example-metadata::
+    :title: Image blur
+    :keywords: image blur, bokeh server, app
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Slider, bokeh.plotting.figure.image
 '''
 import numpy as np
 import scipy.datasets

@@ -1,6 +1,7 @@
-'''This example shows how to create and use your custom theme in a Bokeh plot with JSON.
+''' This example shows how to create and use your custom theme in a Bokeh plot with JSON.
 
 .. bokeh-example-metadata::
+    :title: Theme glyphs
     :apis: bokeh.themes.Theme
     :refs: :ref:`ug_styling_using_themes_custom`
     :keywords: theme

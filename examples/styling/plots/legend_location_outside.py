@@ -1,8 +1,12 @@
-"""
+''' Place a legend outside the plot frame.
+
 .. bokeh-example-metadata::
+    :title: Legend location outside
+    :keywords: legend location outside, appearance, plots
+    :apis: bokeh.models.Legend, bokeh.plotting.figure.add_layout, bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
     :gallery:
     :thumbnail-alt: How to add a legend outside the central plot frame.
-"""
+'''
 
 import numpy as np
 

@@ -2,6 +2,7 @@
 multiple plots to a gridplot, and configuring grid bands on an axis.
 
 .. bokeh-example-metadata::
+    :title: Stocks
     :sampledata: stocks
     :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter, bokeh.layouts.gridplot
     :refs: :ref:`ug_basic_layouts_gridplot`

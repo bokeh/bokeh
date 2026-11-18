@@ -8,6 +8,7 @@ a toggle button with default active or inactive status, checkboxes,
 radio buttons, dropdown menu, checkbox and radio with groups.
 
 .. bokeh-example-metadata::
+    :title: Buttons
     :apis: bokeh.models.widgets.buttons.Button, bokeh.models.widgets.buttons.Dropdown, bokeh.models.widgets.buttons.Toggle, bokeh.models.widgets.groups.CheckBoxButtonGroup, bokeh.models.widgets.groups.CheckboxGroup, bokeh.models.widgets.groups.RadioButtonGroup, bokeh.models.widgets.groups.RadioGroup
     :refs: :ref:`ug_basic_layouts_gridplot`, :ref:`ug_interaction_widgets`
     :keywords: buttons, radio button, checkboxes, toggle button, dropdown

@@ -1,3 +1,11 @@
+''' Plot discrete changes as connected steps instead of sloped segments.
+
+.. bokeh-example-metadata::
+    :title: Line steps
+    :keywords: line steps, basic plotting, lines
+    :apis: bokeh.plotting.figure.step
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

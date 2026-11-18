@@ -1,3 +1,10 @@
+''' Mount a Bokeh server app in FastAPI and embed it in an HTML page.
+
+.. bokeh-example-metadata::
+    :title: Fastapi embed
+    :keywords: fastapi embed, bokeh server, api
+'''
+
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path

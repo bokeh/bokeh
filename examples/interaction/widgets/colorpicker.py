@@ -1,3 +1,11 @@
+''' Choose a color with the browser's color picker.
+
+.. bokeh-example-metadata::
+    :title: Colorpicker
+    :keywords: colorpicker, interaction, widgets
+    :apis: bokeh.models.ColorPicker, bokeh.plotting.figure.line
+'''
+
 from bokeh.layouts import column
 from bokeh.models import ColorPicker
 from bokeh.plotting import figure, show

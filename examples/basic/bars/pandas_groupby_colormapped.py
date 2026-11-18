@@ -3,6 +3,7 @@ automatic handing of Pandas GroupBy objects and colormapping with
 ``factor_cmap``.
 
 .. bokeh-example-metadata::
+    :title: Pandas groupby colormapped
     :gallery:
     :thumbnail-alt: A bar chart of MPG vs cylinders using the Auto MPG dataset, colormapped by the number of cylinders.
     :sampledata: autompg

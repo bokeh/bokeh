@@ -1,3 +1,11 @@
+''' Apply Bokeh's Carbon theme to a line plot.
+
+.. bokeh-example-metadata::
+    :title: Carbon
+    :keywords: carbon, appearance, themes
+    :apis: bokeh.plotting.figure.line
+'''
+
 from bokeh.plotting import curdoc, figure, show
 
 x = [1, 2, 3, 4, 5]

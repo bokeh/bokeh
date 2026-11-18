@@ -1,3 +1,11 @@
+''' Style the line drawn around a legend.
+
+.. bokeh-example-metadata::
+    :title: Legend border
+    :keywords: legend border, appearance, plots
+    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
+'''
+
 import numpy as np
 
 from bokeh.plotting import figure, show

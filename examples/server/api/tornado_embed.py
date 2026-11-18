@@ -1,3 +1,11 @@
+''' Embed a Bokeh server app in a Tornado web page.
+
+.. bokeh-example-metadata::
+    :title: Tornado embed
+    :keywords: tornado embed, bokeh server, api
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Slider, bokeh.plotting.figure.line
+'''
+
 from jinja2 import Environment, FileSystemLoader
 from tornado.web import RequestHandler
 

@@ -1,8 +1,12 @@
-"""
+''' Apply Bokeh's Night Sky theme to a line plot.
+
 .. bokeh-example-metadata::
+    :title: Night sky
+    :keywords: night sky, appearance, themes
+    :apis: bokeh.plotting.figure.line
     :gallery:
     :thumbnail-alt: Basic line plot with the night_sky theme.
-"""
+'''
 
 from bokeh.plotting import curdoc, figure, show
 

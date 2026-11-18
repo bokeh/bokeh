@@ -1,3 +1,11 @@
+''' Draw rectangles by specifying their left, right, top, and bottom edges.
+
+.. bokeh-example-metadata::
+    :title: Quad
+    :keywords: quad, basic plotting, areas
+    :apis: bokeh.plotting.figure.quad
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

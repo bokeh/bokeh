@@ -1,3 +1,11 @@
+''' Edit different types of rectangle glyphs with the same box edit tool.
+
+.. bokeh-example-metadata::
+    :title: Box edit various
+    :keywords: box edit various, interaction, tools
+    :apis: bokeh.models.BoxEditTool, bokeh.models.HoverTool, bokeh.plotting.figure.add_tools, bokeh.plotting.figure.block, bokeh.plotting.figure.hbar
+'''
+
 from bokeh.io import show
 from bokeh.models import BoxEditTool, HoverTool
 from bokeh.palettes import Plasma256

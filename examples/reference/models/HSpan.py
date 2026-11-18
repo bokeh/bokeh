@@ -1,3 +1,11 @@
+''' Draw horizontal lines spanning the entire plot.
+
+.. bokeh-example-metadata::
+    :title: HSpan
+    :keywords: hspan, reference
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.HSpan, bokeh.models.LinearAxis, bokeh.models.Plot, bokeh.models.Range1d
+'''
+
 import numpy as np
 
 from bokeh.core.properties import field

@@ -1,3 +1,11 @@
+''' Apply a hatch pattern to alternating grid bands.
+
+.. bokeh-example-metadata::
+    :title: Grid band hatch
+    :keywords: grid band hatch, appearance, plots
+    :apis: bokeh.plotting.figure.line
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(height=250, width=600, x_range=(0, 10), tools=None)

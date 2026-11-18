@@ -7,6 +7,12 @@ of charts in one file.
 
 .. _Auto MPG: https://archive.ics.uci.edu/ml/datasets/auto+mpg
 
+
+
+.. bokeh-example-metadata::
+    :title: Dash
+    :keywords: dash, bokeh server, app
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.DataTable, bokeh.models.NumberFormatter, bokeh.models.RangeTool, bokeh.models.StringFormatter
 '''
 from collections import Counter
 from math import pi

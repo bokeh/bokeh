@@ -1,3 +1,11 @@
+''' Build a graph with a custom circular layout and styled nodes and edges.
+
+.. bokeh-example-metadata::
+    :title: Graph customize
+    :keywords: graph customize, topic guides, graph
+    :apis: bokeh.models.Ellipse, bokeh.models.GraphRenderer, bokeh.models.StaticLayoutProvider
+'''
+
 import math
 
 from bokeh.models import Ellipse, GraphRenderer, StaticLayoutProvider

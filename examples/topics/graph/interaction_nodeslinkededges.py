@@ -1,3 +1,11 @@
+''' Highlight a node together with the edges connected to it.
+
+.. bokeh-example-metadata::
+    :title: Interaction nodeslinkededges
+    :keywords: interaction nodeslinkededges, topic guides, graph
+    :apis: bokeh.models.BoxSelectTool, bokeh.models.HoverTool, bokeh.models.MultiLine, bokeh.models.NodesAndLinkedEdges, bokeh.models.Plot
+'''
+
 import networkx as nx
 
 from bokeh.models import (

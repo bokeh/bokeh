@@ -1,9 +1,12 @@
-"""
+''' Render a Markdown table of glyphs and plotting methods.
+
 .. bokeh-example-metadata::
+    :keywords: markdown, interaction, widgets
+    :apis: bokeh.models.Markdown, bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
     :title: Markdown
     :gallery:
     :thumbnail-alt: A formatted table of glyphs, plotting methods, and their uses.
-"""
+'''
 
 from pathlib import Path
 

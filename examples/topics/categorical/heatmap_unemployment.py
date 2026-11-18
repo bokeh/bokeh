@@ -1,7 +1,8 @@
-'''  A categorical heatmap using unemployment data. This example demonstrates
+''' A categorical heatmap using unemployment data. This example demonstrates
 adding a ``ColorBar`` to a plot.
 
 .. bokeh-example-metadata::
+    :title: Heatmap unemployment
     :gallery:
     :thumbnail-alt: A categorical heatmap of monthly US unemployment data from 1948 to 2016. The x-axis is years and the y-axis is month of the year.
     :sampledata: unemployment1948

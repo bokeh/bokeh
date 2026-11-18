@@ -1,3 +1,12 @@
+''' Schedule document updates from a background producer with the Bokeh document
+lock.
+
+.. bokeh-example-metadata::
+    :title: Locked callback
+    :keywords: locked callback, bokeh server, app
+    :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.scatter
+'''
+
 from random import random
 from threading import Event, Thread
 

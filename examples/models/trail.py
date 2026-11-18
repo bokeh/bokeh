@@ -1,3 +1,11 @@
+''' Plot elevation along a trail and derive distance and slope from the route data.
+
+.. bokeh-example-metadata::
+    :title: Trail
+    :keywords: trail, models
+    :apis: bokeh.models.Column, bokeh.models.ColumnDataSource, bokeh.models.GMapOptions, bokeh.models.GMapPlot, bokeh.models.Grid, bokeh.models.Label
+'''
+
 from math import atan2, cos, radians, sin, sqrt
 from os import getenv
 

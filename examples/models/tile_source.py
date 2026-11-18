@@ -2,6 +2,7 @@
 working with geographical data using WMTSTileSource in Bokeh.
 
 .. bokeh-example-metadata::
+    :title: Tile source
     :apis: bokeh.models.WMTSTileSource, bokeh.models.Range1d, bokeh.models.BoxZoomTool, bokeh.models.PanTool, bokeh.models.WheelZoomTool
     :refs: :ref:`ug_topics_geo_tile_provider_maps`
     :keywords: tile source

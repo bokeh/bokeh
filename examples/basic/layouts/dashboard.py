@@ -1,3 +1,11 @@
+''' Build a dashboard around a Bollinger-band plot and supporting content.
+
+.. bokeh-example-metadata::
+    :title: Dashboard
+    :keywords: dashboard, basic plotting, layouts
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.Div, bokeh.models.Slider, bokeh.plotting.figure.line
+'''
+
 import numpy as np
 
 from bokeh.layouts import column, row

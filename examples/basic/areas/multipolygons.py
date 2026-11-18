@@ -1,3 +1,11 @@
+''' Draw multi-polygons with separate parts and interior holes.
+
+.. bokeh-example-metadata::
+    :title: Multipolygons
+    :keywords: multipolygons, basic plotting, areas
+    :apis: bokeh.plotting.figure.multi_polygons
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

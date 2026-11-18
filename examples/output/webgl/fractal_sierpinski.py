@@ -1,8 +1,14 @@
-"""Sierpinski triangle rendered with WebGL patches.
+''' Sierpinski triangle rendered with WebGL patches.
 
 Recursively subdivides a triangle into smaller triangles, demonstrating
 WebGL-accelerated rendering of many filled polygons.
-"""
+
+
+.. bokeh-example-metadata::
+    :title: Fractal sierpinski
+    :keywords: fractal sierpinski, output, webgl
+    :apis: bokeh.plotting.figure.patches
+'''
 import numpy as np
 
 from bokeh.palettes import Viridis256

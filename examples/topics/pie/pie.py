@@ -2,6 +2,7 @@
 a cumulative sum transform for computing positions for the wedges.
 
 .. bokeh-example-metadata::
+    :title: Pie
     :gallery:
     :thumbnail-alt: A pie chart of random data with a legend.
     :apis: bokeh.transform.cumsum, bokeh.plotting.figure.wedge

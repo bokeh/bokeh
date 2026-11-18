@@ -1,3 +1,11 @@
+''' Serve a Bokeh application for embedding in an iframe.
+
+.. bokeh-example-metadata::
+    :title: Bokeh server
+    :keywords: bokeh server, api
+    :apis: bokeh.plotting.figure.circle
+'''
+
 import numpy as np
 
 from bokeh.io import curdoc

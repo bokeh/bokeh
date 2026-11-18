@@ -1,3 +1,12 @@
+''' Draw the visible range of one plot as a rectangle on another as the user pans
+or zooms.
+
+.. bokeh-example-metadata::
+    :title: Customjs for range update
+    :keywords: customjs for range update, interaction, javascript callbacks
+    :apis: bokeh.models.BoxAnnotation, bokeh.models.CustomJS, bokeh.plotting.figure.add_layout, bokeh.plotting.figure.circle
+'''
+
 import numpy as np
 
 from bokeh.layouts import row

@@ -1,3 +1,12 @@
+''' Group tools in the toolbar and switch between interactions for different
+scatter renderers.
+
+.. bokeh-example-metadata::
+    :title: Tool grouping
+    :keywords: tool grouping, interaction, tools
+    :apis: bokeh.models.CustomJS, bokeh.models.Div, bokeh.models.HoverTool, bokeh.models.Switch, bokeh.models.TapTool, bokeh.plotting.figure.add_tools
+'''
+
 from bokeh.layouts import column, row
 from bokeh.models import CustomJS, Div, HoverTool, Switch, TapTool
 from bokeh.plotting import figure, show

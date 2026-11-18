@@ -1,3 +1,11 @@
+''' Export a grouped fuel-economy chart as an SVG image.
+
+.. bokeh-example-metadata::
+    :title: Export to SVG
+    :keywords: export to svg, output, export
+    :apis: bokeh.plotting.figure.vbar
+'''
+
 from bokeh.io.export import export_svg
 from bokeh.palettes import Spectral5
 from bokeh.plotting import figure

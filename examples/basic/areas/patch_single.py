@@ -1,3 +1,11 @@
+''' Fill a single polygon using its ordered vertices.
+
+.. bokeh-example-metadata::
+    :title: Patch single
+    :keywords: patch single, basic plotting, areas
+    :apis: bokeh.plotting.figure.patch
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

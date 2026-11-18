@@ -1,3 +1,11 @@
+''' Set separate fill colors for the plot background and border.
+
+.. bokeh-example-metadata::
+    :title: Background fill
+    :keywords: background fill, appearance, plots
+    :apis: bokeh.plotting.figure.scatter
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

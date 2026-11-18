@@ -2,6 +2,7 @@
 ``CustomJS`` callbacks that can update a plot.
 
 .. bokeh-example-metadata::
+    :title: Color sliders
     :gallery:
     :thumbnail-alt: A layout with RGB sliders on the left to control a plot on the right. A colorbar with hover tool is underneath.
     :apis: bokeh.plotting.figure.text, bokeh.layouts.column, bokeh.models.sources.ColumnDataSource, bokeh.models.callbacks.CustomJS, bokeh.models.widgets.sliders.Slider, bokeh.themes.Theme

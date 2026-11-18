@@ -1,3 +1,11 @@
+''' Advance a progress bar from a button-triggered JavaScript callback.
+
+.. bokeh-example-metadata::
+    :title: Progress
+    :keywords: progress, interaction, widgets
+    :apis: bokeh.models.Button, bokeh.models.CustomJS, bokeh.models.Progress
+'''
+
 from bokeh.io import show
 from bokeh.layouts import row
 from bokeh.models import Button, CustomJS, Progress

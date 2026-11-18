@@ -1,14 +1,15 @@
-""" This example demonstrates how to draw Europe using the `EuroPP` projection
+''' This example demonstrates how to draw Europe using the `EuroPP` projection
 and multiple features offered by the `Cartopy`_ project.
 To run this example make sure `Cartopy` is installed.
 
 .. bokeh-example-metadata::
+    :title: Europe
     :apis: bokeh.plotting.figure, bokeh.io.show
     :refs:  :ref:`ug_topics_geo_projections`
     :keywords: projection, cartopy, geo
 
 .. _Cartopy: https://cartopy.readthedocs.io
-"""
+'''
 from cartopy.crs import EuroPP
 
 from bokeh.plotting import figure, show

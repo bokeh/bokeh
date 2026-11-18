@@ -1,11 +1,11 @@
-""" The penguins dataset, drawn twice with semi-transparent markers. This is
-an interesting use-case to test blending, because several samples itself
-overlap, and by drawing the set twice with different colors, we realize
-even more interesting blending. Also note how this makes use of
-different ways to specify (css) colors. This example is a good reference
-to test WebGL blending.
+''' Draw the penguins dataset twice to compare how overlapping translucent markers
+blend in WebGL.
 
-"""
+.. bokeh-example-metadata::
+    :title: Scatter blend
+    :keywords: scatter blend, output, webgl
+    :apis: bokeh.plotting.figure.scatter
+'''
 
 from bokeh.plotting import figure, show
 from bokeh.sampledata.penguins import data

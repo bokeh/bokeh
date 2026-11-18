@@ -1,3 +1,11 @@
+''' Separate filled patch regions using missing coordinate values.
+
+.. bokeh-example-metadata::
+    :title: Patch missing points
+    :keywords: patch missing points, basic plotting, areas
+    :apis: bokeh.plotting.figure.patch
+'''
+
 from math import nan
 
 from bokeh.plotting import figure, show

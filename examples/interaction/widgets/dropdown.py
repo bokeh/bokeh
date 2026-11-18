@@ -1,8 +1,12 @@
-"""
+''' Open a menu of choices from a dropdown button.
+
 .. bokeh-example-metadata::
+    :title: Dropdown
+    :keywords: dropdown, interaction, widgets
+    :apis: bokeh.models.CustomJS, bokeh.models.Dropdown
     :gallery:
     :thumbnail-alt: A simple example of a dropdown button widget.
-"""
+'''
 
 from bokeh.io import show
 from bokeh.models import CustomJS, Dropdown

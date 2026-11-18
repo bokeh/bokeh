@@ -1,3 +1,11 @@
+''' Use D3 to recompute a Voronoi diagram when points are dragged in a Bokeh plot.
+
+.. bokeh-example-metadata::
+    :title: D3 voronoi
+    :keywords: d3 voronoi, advanced, integration
+    :apis: bokeh.models.ColorBar, bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.PointDrawTool, bokeh.models.Slider
+'''
+
 import numpy as np
 
 from bokeh.io import curdoc, show

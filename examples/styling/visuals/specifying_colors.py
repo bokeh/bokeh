@@ -1,3 +1,11 @@
+''' Supply glyph colors as individual values, sequences, and NumPy arrays.
+
+.. bokeh-example-metadata::
+    :title: Specifying colors
+    :keywords: specifying colors, appearance, visuals
+    :apis: bokeh.plotting.figure.circle, bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
+'''
+
 import numpy as np
 
 from bokeh.plotting import figure, show

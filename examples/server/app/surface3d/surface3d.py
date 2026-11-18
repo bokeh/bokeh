@@ -1,3 +1,11 @@
+''' Define a custom Bokeh model for an interactive 3D surface.
+
+.. bokeh-example-metadata::
+    :title: Surface3d
+    :keywords: surface3d, bokeh server, app
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.LayoutDOM
+'''
+
 from bokeh.core.properties import Any, Dict, Instance, String
 from bokeh.models import ColumnDataSource, LayoutDOM
 

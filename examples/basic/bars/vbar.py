@@ -1,3 +1,11 @@
+''' Draw vertical bars from a shared baseline to individual heights.
+
+.. bokeh-example-metadata::
+    :title: Vbar
+    :keywords: vbar, basic plotting, bars
+    :apis: bokeh.plotting.figure.vbar
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

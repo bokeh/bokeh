@@ -3,6 +3,7 @@ changing the value of an object when a certain event (like clicking of a button)
 happens.
 
 .. bokeh-example-metadata::
+    :title: Setvalue
     :apis: bokeh.io.show, bokeh.models.Button, Bokeh.models.SetValue
     :refs: :ref:`ug_interaction_js_callbacks_setvalue`
     :keywords: js callbacks

@@ -1,3 +1,11 @@
+''' Fill one polygon from a sequence of vertices.
+
+.. bokeh-example-metadata::
+    :title: Patch
+    :keywords: patch, reference
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Patch, bokeh.models.Plot
+'''
+
 import numpy as np
 
 from bokeh.io import curdoc, show

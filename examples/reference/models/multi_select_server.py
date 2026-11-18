@@ -1,4 +1,12 @@
 ## Bokeh server for MultiSelect
+''' Filter scatter points by several colors using a Python callback.
+
+.. bokeh-example-metadata::
+    :title: Multi select server
+    :keywords: multi select server, reference
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.MultiSelect, bokeh.plotting.figure.scatter
+'''
+
 import pandas as pd
 
 from bokeh.io import curdoc

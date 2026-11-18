@@ -1,3 +1,11 @@
+''' Draw disconnected polygon parts as one multi-polygon glyph.
+
+.. bokeh-example-metadata::
+    :title: Multipolygon with separate parts
+    :keywords: multipolygon with separate parts, basic plotting, areas
+    :apis: bokeh.plotting.figure.multi_polygons
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

@@ -1,6 +1,7 @@
 ''' An interval chart showing Olympic sprint time data as intervals.
 
 .. bokeh-example-metadata::
+    :title: Intervals
     :gallery:
     :thumbnail-alt: An interval chart showing Olympic sprint time data as intervals using blue horizontal bars for times, with a bar for each year on the y-axis.
     :sampledata: sprint

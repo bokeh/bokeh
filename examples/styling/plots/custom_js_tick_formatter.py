@@ -1,3 +1,11 @@
+''' Format y-axis labels with a JavaScript callback.
+
+.. bokeh-example-metadata::
+    :title: Custom js tick formatter
+    :keywords: custom js tick formatter, appearance, plots
+    :apis: bokeh.models.CustomJSTickFormatter, bokeh.plotting.figure.scatter
+'''
+
 from bokeh.models import CustomJSTickFormatter
 from bokeh.plotting import figure, show
 

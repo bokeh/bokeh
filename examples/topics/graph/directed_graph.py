@@ -1,6 +1,7 @@
 ''' Directed graph edges with arrowheads that track changing node sizes.
 
 .. bokeh-example-metadata::
+    :title: Directed graph
     :apis: bokeh.models.GraphRenderer, bokeh.models.GlyphRenderer.add_path_marking, bokeh.models.CustomJS
     :refs: :ref:`ug_topics_graph`, :ref:`ug_basic_annotations_arrows`
     :keywords: graph, directed, arrows, path_markings, callbacks

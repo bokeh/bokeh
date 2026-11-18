@@ -1,3 +1,11 @@
+''' Display ipyleaflet and Bokeh tile maps in the same layout.
+
+.. bokeh-example-metadata::
+    :title: Ipyleaflet tiles
+    :keywords: ipyleaflet tiles, output, jupyter
+    :apis: bokeh.models.WMTSTileSource, bokeh.plotting.figure.add_tile
+'''
+
 from ipyleaflet import Map
 from ipywidgets_bokeh import IPyWidget
 

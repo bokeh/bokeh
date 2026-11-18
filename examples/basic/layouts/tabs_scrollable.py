@@ -1,5 +1,11 @@
-""" Example demonstrating scrollable tabs when there are many tabs.
-"""
+''' Example demonstrating scrollable tabs when there are many tabs.
+
+
+.. bokeh-example-metadata::
+    :title: Tabs scrollable
+    :keywords: tabs scrollable, basic plotting, layouts
+    :apis: bokeh.models.TabPanel, bokeh.models.Tabs, bokeh.plotting.figure.scatter
+'''
 from math import ceil
 
 from bokeh.models import TabPanel

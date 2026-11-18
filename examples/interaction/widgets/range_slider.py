@@ -1,3 +1,11 @@
+''' Choose a numeric interval using two slider handles.
+
+.. bokeh-example-metadata::
+    :title: Range slider
+    :keywords: range slider, interaction, widgets
+    :apis: bokeh.models.CustomJS, bokeh.models.RangeSlider
+'''
+
 from bokeh.io import show
 from bokeh.models import CustomJS, RangeSlider
 

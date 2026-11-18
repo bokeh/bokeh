@@ -13,6 +13,7 @@ This chart shows the distribution of responses to the prompt *What probability
 would you assign to the phrase "Highly likely"*.
 
 .. bokeh-example-metadata::
+    :title: Ridgeplot subcoordinates
     :sampledata: perceptions
     :apis: bokeh.plotting.figure.patch, bokeh.models.sources.ColumnDataSource
     :refs: :ref:`ug_topics_categorical_offsets`

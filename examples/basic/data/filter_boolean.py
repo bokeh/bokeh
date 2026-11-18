@@ -1,3 +1,11 @@
+''' Use a BooleanFilter to show a subset of points in a second plot.
+
+.. bokeh-example-metadata::
+    :title: Filter boolean
+    :keywords: filter boolean, basic plotting, data
+    :apis: bokeh.models.BooleanFilter, bokeh.models.ColumnDataSource, bokeh.models.IndexedSubset, bokeh.plotting.figure.scatter
+'''
+
 from bokeh.layouts import gridplot
 from bokeh.models import BooleanFilter, ColumnDataSource, IndexedSubset
 from bokeh.plotting import figure, show

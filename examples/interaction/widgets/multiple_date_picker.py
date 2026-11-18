@@ -1,3 +1,11 @@
+''' Choose several independent dates from a calendar.
+
+.. bokeh-example-metadata::
+    :title: Multiple date picker
+    :keywords: multiple date picker, interaction, widgets
+    :apis: bokeh.models.CustomJS, bokeh.models.MultipleDatePicker
+'''
+
 from bokeh.io import show
 from bokeh.models import CustomJS, MultipleDatePicker
 

@@ -1,3 +1,11 @@
+''' Lay out legend entries horizontally or vertically.
+
+.. bokeh-example-metadata::
+    :title: Legend orientation
+    :keywords: legend orientation, appearance, plots
+    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
+'''
+
 import numpy as np
 
 from bokeh.plotting import figure, show

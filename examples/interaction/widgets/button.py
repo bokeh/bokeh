@@ -1,3 +1,11 @@
+''' Display a styled button with a text label.
+
+.. bokeh-example-metadata::
+    :title: Button
+    :keywords: button, interaction, widgets
+    :apis: bokeh.models.Button, bokeh.models.CustomJS
+'''
+
 from bokeh.io import show
 from bokeh.models import Button, CustomJS
 

@@ -1,3 +1,11 @@
+''' Apply different cell formatters to columns of a data table.
+
+.. bokeh-example-metadata::
+    :title: Data table formatting
+    :keywords: data table formatting, interaction, widgets
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.DataTable, bokeh.models.DateFormatter, bokeh.models.NumberFormatter, bokeh.models.TableColumn
+'''
+
 from datetime import datetime
 
 import numpy as np

@@ -1,3 +1,11 @@
+''' Select a start and end date from a calendar.
+
+.. bokeh-example-metadata::
+    :title: Date range picker
+    :keywords: date range picker, interaction, widgets
+    :apis: bokeh.models.CustomJS, bokeh.models.DateRangePicker
+'''
+
 from bokeh.io import show
 from bokeh.models import CustomJS, DateRangePicker
 

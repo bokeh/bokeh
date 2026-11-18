@@ -1,8 +1,12 @@
-"""
+''' Overlay latitude and longitude points on a Google map of Austin.
+
 .. bokeh-example-metadata::
+    :title: Gmap
+    :keywords: gmap, topic guides, geospatial
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.GMapOptions
     :gallery:
     :thumbnail-alt: A grid of map plot centered at Austin, TX using Bokeh's Google maps integration.
-"""
+'''
 
 from os import getenv
 

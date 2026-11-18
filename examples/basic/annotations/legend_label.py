@@ -1,3 +1,11 @@
+''' Label three scaled sine curves with explicit legend names.
+
+.. bokeh-example-metadata::
+    :title: Legend label
+    :keywords: legend label, basic plotting, annotations
+    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
+'''
+
 import numpy as np
 
 from bokeh.plotting import figure, show

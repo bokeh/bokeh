@@ -1,3 +1,12 @@
+''' Use a slider callback to raise plotted values to a selected power in the
+browser.
+
+.. bokeh-example-metadata::
+    :title: Customjs for widgets
+    :keywords: customjs for widgets, interaction, javascript callbacks
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.Slider, bokeh.plotting.figure.line
+'''
+
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, CustomJS, Slider
 from bokeh.plotting import figure, show

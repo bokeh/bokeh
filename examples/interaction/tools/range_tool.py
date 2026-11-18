@@ -3,6 +3,7 @@ tool controlling the range of another plot. The highlighted range area on the
 lower plot may be dragged to update the range on the top plot.
 
 .. bokeh-example-metadata::
+    :title: Range tool
     :gallery:
     :thumbnail-alt: Two stock price plots. A range selector on the full series below controls the time window shown above.
     :sampledata: stocks

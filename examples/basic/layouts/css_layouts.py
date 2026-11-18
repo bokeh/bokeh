@@ -1,3 +1,11 @@
+''' Arrange four figures in a CSS grid using a styled Bokeh pane.
+
+.. bokeh-example-metadata::
+    :title: CSS layouts
+    :keywords: css layouts, basic plotting, layouts
+    :apis: bokeh.models.Div, bokeh.models.Styles, bokeh.plotting.figure.rect
+'''
+
 from bokeh.models.dom import Div, Styles
 from bokeh.plotting import figure, show
 

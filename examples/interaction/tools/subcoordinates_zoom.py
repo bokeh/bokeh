@@ -1,3 +1,12 @@
+''' Zoom individual simulated EEG channels plotted in separate subcoordinate
+ranges.
+
+.. bokeh-example-metadata::
+    :title: Subcoordinates zoom
+    :keywords: subcoordinates zoom, interaction, tools
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.Div, bokeh.models.FactorRange, bokeh.models.GroupByModels
+'''
+
 import numpy as np
 
 from bokeh.core.properties import field
