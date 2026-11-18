@@ -8,40 +8,40 @@ import {
 import {ScatterView} from "@bokehjs/models/glyphs/scatter"
 import {MultiLineView} from "@bokehjs/models/glyphs/multi_line"
 
+function make_filtered_graph() {
+  const source = GraphDataSource.create({
+    nodes: [
+      {id: "A", color: "#2563eb"},
+      {id: "B", color: "#94a3b8"},
+      {id: "C", color: "#0f766e"},
+    ],
+    edges: [
+      {source: "A", target: "B", color: "#64748b"},
+      {source: "B", target: "C", color: "#64748b"},
+    ],
+  })
+  const layout_provider = StaticLayoutProvider.create({
+    graph_layout: new Map([["A", [0, 1]], ["B", [1, 0]], ["C", [2, 1]], ["D", [3, 0]]]),
+  })
+  const graph = GraphRenderer.create({data_source: source, layout_provider})
+  const filter = IndexFilter.create({indices: [0, 2]})
+  graph.node_renderer.view = IndexedSubset.create({filter})
+  graph.node_renderer.glyph = Scatter.create({size: 24, fill_color: {field: "color"}, line_color: "white"})
+  graph.edge_renderer.glyph = MultiLine.create({line_color: {field: "color"}, line_width: 3})
+  const plot = fig([240, 150], {
+    x_range: Range1d.create({start: -0.5, end: 3.5}),
+    y_range: Range1d.create({start: -0.5, end: 1.5}),
+    background_fill_color: "#f8fafc",
+    outline_line_color: null,
+  })
+  plot.add_renderers(graph)
+  return {source, graph, filter, plot}
+}
+
 describe("Graph data sources", () => {
   it("should keep filtered record-backed graphs aligned after streaming nodes and edges", async () => {
-    function make_graph() {
-      const source = GraphDataSource.create({
-        nodes: [
-          {id: "A", color: "#2563eb"},
-          {id: "B", color: "#94a3b8"},
-          {id: "C", color: "#0f766e"},
-        ],
-        edges: [
-          {source: "A", target: "B", color: "#64748b"},
-          {source: "B", target: "C", color: "#64748b"},
-        ],
-      })
-      const layout_provider = StaticLayoutProvider.create({
-        graph_layout: new Map([["A", [0, 1]], ["B", [1, 0]], ["C", [2, 1]], ["D", [3, 0]]]),
-      })
-      const graph = GraphRenderer.create({data_source: source, layout_provider})
-      const filter = IndexFilter.create({indices: [0, 2]})
-      graph.node_renderer.view = IndexedSubset.create({filter})
-      graph.node_renderer.glyph = Scatter.create({size: 24, fill_color: {field: "color"}, line_color: "white"})
-      graph.edge_renderer.glyph = MultiLine.create({line_color: {field: "color"}, line_width: 3})
-      const plot = fig([240, 150], {
-        x_range: Range1d.create({start: -0.5, end: 3.5}),
-        y_range: Range1d.create({start: -0.5, end: 1.5}),
-        background_fill_color: "#f8fafc",
-        outline_line_color: null,
-      })
-      plot.add_renderers(graph)
-      return {source, graph, filter, plot}
-    }
-
-    const initial = make_graph()
-    const updated = make_graph()
+    const initial = make_filtered_graph()
+    const updated = make_filtered_graph()
     const {view} = await display(row([initial.plot, updated.plot]))
     const {nodes, edges} = updated.source
     assert(nodes instanceof ColumnDataSource && edges instanceof ColumnDataSource)

@@ -192,57 +192,87 @@ describe("GraphRendererView", () => {
   })
 })
 
+async function patch_graph_layout({test_layout_provider: layout, test_document: doc, test_graph_view: view}: GraphComponents): Promise<void> {
+  const coordinates = new Map([[4, [0, 0]], [5, [10, 10]], [6, [20, 20]], [7, [30, 30]]])
+  doc.apply_json_patch(doc.create_json_patch([new ModelChangedEvent(doc, layout, "graph_layout", coordinates)]))
+  await view.ready
+}
+
 describe("alternate graph edges", () => {
   for (const glyph of [Segment.create(), Bezier.create()]) {
-    it(`should bind ${glyph.type} coordinates and remap after layout and source updates`, async () => {
-      const {test_graph: graph, test_layout_provider: layout, test_document: doc, test_graph_view: graph_view} = await create_graph_document(glyph)
-      await graph_view.ready
-      const edge = graph_view.edge_view.glyph
+    it(`updates ${glyph.type} endpoints after a layout patch`, async () => {
+      const graph = await create_graph_document(glyph.clone())
+      const edge = graph.test_graph_view.edge_view.glyph
       assert(edge instanceof SegmentView || edge instanceof BezierView)
       expect([...edge.x0]).to.be.equal([2, 2, 2, 3])
       expect([...edge.x1]).to.be.equal([2, 3, 3, 3])
-      graph.edge_renderer.data_source.selected.indices = [0]
-      await graph_view.edge_view.ready
-      doc.apply_json_patch(doc.create_json_patch([new ModelChangedEvent(doc, layout, "graph_layout",
-        new Map([[4, [0, 0]], [5, [10, 10]], [6, [20, 20]], [7, [30, 30]]]),
-      )]))
-      await graph_view.ready
+
+      await patch_graph_layout(graph)
       expect([...edge.x0]).to.be.equal([0, 0, 10, 20])
       expect([...edge.x1]).to.be.equal([10, 20, 20, 30])
-      for (const state of [graph_view.edge_view.selection_glyph, graph_view.edge_view.nonselection_glyph, graph_view.edge_view.muted_glyph]) {
-        const state_edge = state
-        assert(state_edge instanceof SegmentView || state_edge instanceof BezierView)
-        expect([...state_edge.x0]).to.be.equal([...edge.x0])
-        expect([...state_edge.x1]).to.be.equal([...edge.x1])
-        expect([...state_edge.sx0]).to.be.equal([...edge.sx0])
-        expect([...state_edge.sy1]).to.be.equal([...edge.sy1])
-        if (glyph instanceof Bezier) {
-          assert(state_edge instanceof BezierView && edge instanceof BezierView)
-          expect([...state_edge.cx0]).to.be.equal([...edge.cx0])
+    })
+
+    it(`updates ${glyph.type} and node state glyphs after a layout patch`, async () => {
+      const graph = await create_graph_document(glyph.clone())
+      const {edge_view, node_view} = graph.test_graph_view
+      graph.test_graph.data_source.edges.selected.indices = [0]
+      await edge_view.ready
+      await patch_graph_layout(graph)
+
+      const {glyph: edge} = edge_view
+      assert(edge instanceof SegmentView || edge instanceof BezierView)
+      for (const state of [edge_view.selection_glyph, edge_view.nonselection_glyph, edge_view.muted_glyph]) {
+        assert(state instanceof SegmentView || state instanceof BezierView)
+        expect([...state.x0]).to.be.equal([...edge.x0])
+        expect([...state.x1]).to.be.equal([...edge.x1])
+        expect([...state.sx0]).to.be.equal([...edge.sx0])
+        expect([...state.sy1]).to.be.equal([...edge.sy1])
+        if (edge instanceof BezierView) {
+          assert(state instanceof BezierView)
+          expect([...state.cx0]).to.be.equal([...edge.cx0])
         }
       }
-      for (const state of [graph_view.node_view.selection_glyph, graph_view.node_view.nonselection_glyph, graph_view.node_view.muted_glyph]) {
-        const state_node = state
-        assert(state_node instanceof ScatterView)
-        expect(Array.from(state_node.x)).to.be.equal([0, 10, 20, 30])
-        expect(Array.from(state_node.y)).to.be.equal([0, 10, 20, 30])
+      for (const state of [node_view.selection_glyph, node_view.nonselection_glyph, node_view.muted_glyph]) {
+        assert(state instanceof ScatterView)
+        expect([...state.x]).to.be.equal([0, 10, 20, 30])
+        expect([...state.y]).to.be.equal([0, 10, 20, 30])
       }
-      if (glyph instanceof Bezier) {
-        const source = graph.edge_renderer.data_source
-        assert(source instanceof ColumnDataSource)
-        source.data = {start: [4], end: [7], cx0: [2], cy0: [3], cx1: [4], cy1: [5]}
-        await graph_view.edge_view.ready
-        const curve = graph_view.edge_view.glyph
-        assert(curve instanceof BezierView)
-        expect([...curve.cx0]).to.be.equal([2])
-        expect([...curve.cy1]).to.be.equal([5])
-        doc.apply_json_patch(doc.create_json_patch([new ColumnsPatchedEvent(doc, source, "data", {cx0: [[0, 9]]})]))
-        await graph_view.edge_view.ready
-        expect([...curve.cx0]).to.be.equal([9])
-      }
+    })
+
+    it(`serializes initialized ${glyph.type} edges`, async () => {
+      const {test_document: doc} = await create_graph_document(glyph.clone())
       expect(() => doc.to_json(true)).to.not.throw(SerializationError)
     })
   }
+
+  it("updates Bezier controls when replacing the edge table", async () => {
+    const {test_graph: graph, test_graph_view: view} = await create_graph_document(Bezier.create())
+    const {edges} = graph.data_source
+    assert(edges instanceof ColumnDataSource)
+    edges.data = {start: [4], end: [7], cx0: [2], cy0: [3], cx1: [4], cy1: [5]}
+    await view.edge_view.ready
+
+    const curve = view.edge_view.glyph
+    assert(curve instanceof BezierView)
+    expect([...curve.cx0]).to.be.equal([2])
+    expect([...curve.cy1]).to.be.equal([5])
+  })
+
+  it("updates Bezier controls after an edge column patch", async () => {
+    const {test_graph: graph, test_graph_view: view, test_document: doc} = await create_graph_document(Bezier.create())
+    const {edges} = graph.data_source
+    assert(edges instanceof ColumnDataSource)
+    edges.data = {start: [4], end: [7], cx0: [2], cy0: [3], cx1: [4], cy1: [5]}
+    await view.edge_view.ready
+
+    const event = new ColumnsPatchedEvent(doc, edges, "data", {cx0: [[0, 9]]})
+    doc.apply_json_patch(doc.create_json_patch([event]))
+    await view.edge_view.ready
+
+    const curve = view.edge_view.glyph
+    assert(curve instanceof BezierView)
+    expect([...curve.cx0]).to.be.equal([9])
+  })
 
   it("should reject partial Bezier controls", () => {
     const layout = StaticLayoutProvider.create({graph_layout: new Map([[0, [0, 0]], [1, [1, 1]]])})
