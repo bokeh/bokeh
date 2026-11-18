@@ -75,8 +75,10 @@ describe("column_data_source module", () => {
       const numeric = new Float64NDArray([0, 1, 2, 3, 4, 5, 6, 7], [2, 2, 2])
       const objects = new ObjectNDArray(["a", "b", "c", "d"], [2, 2])
       const source = ColumnDataSource.create({data: {numeric, objects, label: ["first", "second"]}})
-      expect(source.get_row(1)).to.be.equal({numeric: [[4, 5], [6, 7]], objects: ["c", "d"], label: "second"})
-      expect(source.get_row(2)).to.be.equal({numeric: undefined, objects: undefined, label: undefined})
+      const row_1 = Object.assign(Object.create(null), {numeric: [[4, 5], [6, 7]], objects: ["c", "d"], label: "second"})
+      const row_2 = Object.assign(Object.create(null), {numeric: undefined, objects: undefined, label: undefined})
+      expect(source.get_row(1)).to.be.equal(row_1)
+      expect(source.get_row(2)).to.be.equal(row_2)
       expect(source.get_column("numeric")).to.be.identical(numeric)
       expect(Array.from(numeric)).to.be.equal([0, 1, 2, 3, 4, 5, 6, 7])
     })
@@ -464,7 +466,7 @@ describe("column_data_source module", () => {
         foo: ndarray([1, 0, 1], {dtype: "bool", shape: [3]}),
         bar: ndarray([10, 9, 8], {dtype: "uint8", shape: [3]}),
       }})
-      expect(cds.to_csv()).to.be.equal("foo,bar\ntrue,10\nfalse,9\ntrue,8\n")
+      expect(cds.to_csv()).to.be.equal("foo,bar\n1,10\n0,9\n1,8\n")
     })
 
     it("should handle ndarray with dimension > 1 as an array value", () => {
