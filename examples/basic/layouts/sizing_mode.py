@@ -2,6 +2,7 @@
 container.
 
 .. bokeh-example-metadata::
+    :sampledata: penguins
     :title: Sizing mode
     :keywords: sizing mode, basic plotting, layouts
     :apis: bokeh.models.Div, bokeh.models.Select, bokeh.plotting.figure.scatter

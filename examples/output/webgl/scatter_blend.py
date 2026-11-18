@@ -2,6 +2,7 @@
 blend in WebGL.
 
 .. bokeh-example-metadata::
+    :sampledata: penguins
     :title: Scatter blend
     :keywords: scatter blend, output, webgl
     :apis: bokeh.plotting.figure.scatter

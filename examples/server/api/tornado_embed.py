@@ -1,6 +1,7 @@
 ''' Embed a Bokeh server app in a Tornado web page.
 
 .. bokeh-example-metadata::
+    :sampledata: sea_surface_temperature
     :title: Tornado embed
     :keywords: tornado embed, bokeh server, api
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Slider, bokeh.plotting.figure.line

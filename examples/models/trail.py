@@ -1,6 +1,7 @@
 ''' Plot elevation along a trail and derive distance and slope from the route data.
 
 .. bokeh-example-metadata::
+    :sampledata: mtb
     :title: Trail
     :keywords: trail, models
     :apis: bokeh.models.Column, bokeh.models.ColumnDataSource, bokeh.models.GMapOptions, bokeh.models.GMapPlot, bokeh.models.Grid, bokeh.models.Label

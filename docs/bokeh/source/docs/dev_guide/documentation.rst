@@ -485,9 +485,13 @@ edit any of those elements, open the corresponding ReST source file in the
 ``docs/bokeh/source/docs`` folder of the Bokeh source tree.
 
 The :ref:`example_index` discovers Python scripts and notebooks under
-``examples/``. A Python example's module docstring can provide an opening
-summary and a ``bokeh-example-metadata`` directive with a title, API names,
-sample data, and search keywords.
+``examples/``. Start each indexed Python script with a short module docstring
+summary that explains what it demonstrates. CI reports scripts with missing
+summaries. Use the ``bokeh-example-metadata`` directive to provide a title,
+API names, sample data, and search keywords.
+
+List the module names of imported datasets in the ``:sampledata:`` field,
+separated by commas. CI reports imports with missing declarations.
 
 To feature a rendered example in the :ref:`gallery`, add ``:gallery:`` and
 ``:thumbnail-alt:`` to its metadata. Put the PNG and the corresponding

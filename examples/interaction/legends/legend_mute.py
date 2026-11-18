@@ -1,6 +1,7 @@
 ''' Dim a series on legend click using a muted glyph style.
 
 .. bokeh-example-metadata::
+    :sampledata: stocks
     :title: Legend mute
     :keywords: legend mute, interaction, legends
     :apis: bokeh.plotting.figure.line

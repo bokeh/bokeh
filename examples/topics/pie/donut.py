@@ -2,6 +2,7 @@
 demonstrates the low-level |bokeh.models| API.
 
 .. bokeh-example-metadata::
+    :sampledata: browsers
     :title: Donut
     :gallery:
     :thumbnail-alt: A donut chart of browser share percentages with a legend.

@@ -5,6 +5,7 @@ one file and sorting them by having different colors and lines.
 
 
 .. bokeh-example-metadata::
+    :sampledata: population
     :title: Population
     :keywords: population, bokeh server, app
     :apis: bokeh.models.ColumnDataSource, bokeh.models.CustomJSTickFormatter, bokeh.models.CustomJSTransform, bokeh.models.ScaledTickFormatter

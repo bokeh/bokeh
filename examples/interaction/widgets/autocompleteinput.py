@@ -1,6 +1,7 @@
 ''' Suggest completions as the user types into a text field.
 
 .. bokeh-example-metadata::
+    :sampledata: world_cities
     :title: Autocompleteinput
     :keywords: autocompleteinput, interaction, widgets
     :apis: bokeh.models.AutocompleteInput

@@ -3,7 +3,7 @@ hover labels.
 
 .. bokeh-example-metadata::
     :title: Filtering
-    :sampledata: US_States
+    :sampledata: us_states
     :apis: bokeh.models.IndexFilter, bokeh.models.HoverTool, bokeh.models.LinearColorMapper
     :refs: :ref:`ug_basic_areas_patches`, :ref:`ug_basic_data_filtering_index`
     :keywords: hover tool, indexfilter, filtering, US

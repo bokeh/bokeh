@@ -1,6 +1,7 @@
 ''' Give scatter markers a different appearance when hovered.
 
 .. bokeh-example-metadata::
+    :sampledata: glucose
     :title: Glyph hover
     :keywords: glyph hover, appearance, plots
     :apis: bokeh.models.HoverTool, bokeh.plotting.figure.add_tools, bokeh.plotting.figure.line, bokeh.plotting.figure.scatter

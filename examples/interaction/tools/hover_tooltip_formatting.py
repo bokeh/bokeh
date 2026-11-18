@@ -1,6 +1,7 @@
 ''' Apply formatters to field values displayed in hover tooltips.
 
 .. bokeh-example-metadata::
+    :sampledata: stocks
     :title: Hover tooltip formatting
     :keywords: hover tooltip formatting, interaction, tools
     :apis: bokeh.models.ColumnDataSource, bokeh.models.HoverTool, bokeh.plotting.figure.add_tools, bokeh.plotting.figure.line

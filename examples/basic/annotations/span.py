@@ -1,6 +1,7 @@
 ''' Mark daylight saving dates on a plot of sunrise and sunset times in Warsaw.
 
 .. bokeh-example-metadata::
+    :sampledata: daylight
     :title: Span
     :keywords: span, basic plotting, annotations
     :apis: bokeh.models.Span, bokeh.plotting.figure.add_layout, bokeh.plotting.figure.line

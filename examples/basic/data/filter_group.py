@@ -2,6 +2,7 @@
 species.
 
 .. bokeh-example-metadata::
+    :sampledata: penguins
     :title: Filter group
     :keywords: filter group, basic plotting, data
     :apis: bokeh.models.ColumnDataSource, bokeh.models.GroupFilter, bokeh.models.IndexedSubset, bokeh.plotting.figure.scatter

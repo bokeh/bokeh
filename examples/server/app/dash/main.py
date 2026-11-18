@@ -10,6 +10,7 @@ of charts in one file.
 
 
 .. bokeh-example-metadata::
+    :sampledata: autompg2, stocks
     :title: Dash
     :keywords: dash, bokeh server, app
     :apis: bokeh.models.ColumnDataSource, bokeh.models.DataTable, bokeh.models.NumberFormatter, bokeh.models.RangeTool, bokeh.models.StringFormatter

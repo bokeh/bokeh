@@ -4,6 +4,7 @@
 slider.
 
 .. bokeh-example-metadata::
+    :sampledata: us_marriages_divorces
     :title: Range slider server
     :keywords: range slider server, reference
     :apis: bokeh.models.ColumnDataSource, bokeh.models.RangeSlider, bokeh.plotting.figure.scatter

@@ -10,6 +10,7 @@ information on each dot.
 
 
 .. bokeh-example-metadata::
+    :sampledata: autompg
     :title: Crossfilter
     :keywords: crossfilter, bokeh server, app
     :apis: bokeh.models.Select, bokeh.plotting.figure.scatter

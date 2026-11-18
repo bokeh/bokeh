@@ -10,6 +10,7 @@ OpenCV package.
 
 
 .. bokeh-example-metadata::
+    :sampledata: haar_cascade
     :title: Faces
     :keywords: faces, bokeh server, app
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Div, bokeh.plotting.figure.image_rgba, bokeh.plotting.figure.rect, bokeh.plotting.figure.step

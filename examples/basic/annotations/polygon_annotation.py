@@ -1,6 +1,7 @@
 ''' Highlight part of a stock price series with a polygon annotation.
 
 .. bokeh-example-metadata::
+    :sampledata: stocks
     :title: Polygon annotation
     :keywords: polygon annotation, basic plotting, annotations
     :apis: bokeh.models.PolyAnnotation, bokeh.plotting.figure.add_layout, bokeh.plotting.figure.line

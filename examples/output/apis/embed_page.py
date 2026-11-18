@@ -1,6 +1,7 @@
 ''' Render a Bokeh race visualization as a standalone HTML page.
 
 .. bokeh-example-metadata::
+    :sampledata: sprint
     :title: Embed page
     :keywords: embed page, output, apis
     :apis: bokeh.models.ColumnDataSource, bokeh.models.DataRange1d, bokeh.models.Grid, bokeh.models.HoverTool, bokeh.models.IndexFilter

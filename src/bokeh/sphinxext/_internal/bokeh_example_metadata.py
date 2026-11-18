@@ -152,20 +152,21 @@ def setup(app: Any) -> SphinxParallelSpec:
 
     return PARALLEL_SAFE
 
+
+def sampledata_modules(value: str | None) -> list[str]:
+    """Return the declared sample-data module names in their original order."""
+    if value is None:
+        return []
+    names = (name.strip() for name in value.partition("#")[0].split(","))
+    return [name for name in names if name]
+
 # -----------------------------------------------------------------------------
 # Private API
 # -----------------------------------------------------------------------------
 
 def _sampledata(mods: str | None) -> str | None:
-    if mods is None:
-        return None
-
-    # options lines might need a ruff noqa comment for line length, etc
-    mods = mods.split("#")[0].strip()
-
-    mod_names = (mod.strip() for mod in mods.split(","))
-
-    return ", ".join(f":ref:`bokeh.sampledata.{mod} <sampledata_{mod}>`" for mod in mod_names)
+    # Some example datasets have no module page in the reference.
+    return ", ".join(f":mod:`bokeh.sampledata.{mod}`" for mod in sampledata_modules(mods)) or None
 
 def _apis(apis: str | None) -> str | None:
     if apis is None:

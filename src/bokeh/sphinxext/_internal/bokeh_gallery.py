@@ -32,7 +32,7 @@ from sphinx.util.rst import escape as escape_rst
 
 from . import PARALLEL_SAFE, REPO_TOP, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
-from .bokeh_example_metadata import read_example_metadata
+from .bokeh_example_metadata import read_example_metadata, sampledata_modules
 from .templates import EXAMPLE_INDEX, GALLERY_DETAIL, GALLERY_PAGE
 
 # -----------------------------------------------------------------------------
@@ -56,6 +56,8 @@ TOPIC_LABELS = {
     "timeseries": "Time series",
     "topics": "Topic guides",
 }
+
+EXAMPLE_INVENTORY = "bokeh_example_inventory.json"
 
 # Keep initials and dotted abbreviations such as U.S. inside the sentence.
 SUMMARY_SENTENCE_BREAK = re.compile(r"(?<=[.!?])(?<!\b[A-Z]\.)\s+(?=[A-Z])")
@@ -191,10 +193,8 @@ def config_inited_handler(app: Any, config: Any) -> None:
     repo_examples = Path(REPO_TOP) / "examples"
     docs_examples = Path(app.srcdir) / config.bokeh_examples_dir
     sources = _discover_examples(repo_examples)
-    inventory = Path(app.doctreedir) / "bokeh_example_sources.txt"
-    _write_if_changed(inventory, "".join(f"{source.as_posix()}\n" for source in sources))
-
     expected = set()
+    backlinks: dict[str, list[str]] = {}
     for relative in sources:
         if not _has_example_page(relative, config):
             continue
@@ -206,6 +206,13 @@ def config_inited_handler(app: Any, config: Any) -> None:
             ref=f".. _example_{relative.stem}_{relative.parent.as_posix()}:",
         )
         _write_if_changed(path, content)
+        docname = path.relative_to(app.srcdir).with_suffix("").as_posix()
+        _, metadata = read_example_metadata(repo_examples / relative)
+        for module in set(sampledata_modules(metadata.get("sampledata"))):
+            backlinks.setdefault(module, []).append(docname)
+
+    inventory = dict(sources=[source.as_posix() for source in sources], sampledata=backlinks)
+    _write_if_changed(Path(app.doctreedir) / EXAMPLE_INVENTORY, json.dumps(inventory, sort_keys=True))
 
     for path in docs_examples.rglob("*.rst"):
         if path not in expected and path.read_text(encoding="utf-8").startswith(":orphan:\n\n.. index::\n   single: examples;"):
@@ -239,9 +246,9 @@ def _discover_examples(root: Path) -> list[Path]:
 
 
 def _read_inventory(directive: BokehDirective) -> list[Path]:
-    inventory = Path(directive.env.doctreedir) / "bokeh_example_sources.txt"
+    inventory = Path(directive.env.doctreedir) / EXAMPLE_INVENTORY
     directive.env.note_dependency(inventory)
-    return [Path(line) for line in inventory.read_text(encoding="utf-8").splitlines()]
+    return [Path(source) for source in json.loads(inventory.read_text(encoding="utf-8"))["sources"]]
 
 
 def _write_if_changed(path: Path, content: str) -> None:

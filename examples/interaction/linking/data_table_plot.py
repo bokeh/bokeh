@@ -2,6 +2,7 @@
 sync.
 
 .. bokeh-example-metadata::
+    :sampledata: autompg2
     :title: Data table plot
     :keywords: data table plot, interaction, linking
     :apis: bokeh.models.ColumnDataSource, bokeh.models.DataTable, bokeh.models.HoverTool, bokeh.models.IntEditor, bokeh.models.NumberEditor

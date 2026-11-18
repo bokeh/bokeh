@@ -1,6 +1,7 @@
 ''' Add a title to a plot legend.
 
 .. bokeh-example-metadata::
+    :sampledata: stocks
     :title: Legend title
     :keywords: legend title, appearance, plots
     :apis: bokeh.plotting.figure.line

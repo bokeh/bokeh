@@ -1,6 +1,7 @@
 ''' Plot multivariate records as parallel coordinates with a custom selection tool.
 
 .. bokeh-example-metadata::
+    :sampledata: autompg
     :title: Parallel plot
     :keywords: parallel plot, advanced, extensions
     :apis: bokeh.models.BasicTickFormatter, bokeh.models.ColumnDataSource, bokeh.models.CustomJSTickFormatter, bokeh.models.Div, bokeh.models.FixedTicker
