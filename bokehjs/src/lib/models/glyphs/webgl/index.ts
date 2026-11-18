@@ -1,25 +1,6 @@
 import {register_webgl} from "../../canvas/webgl"
-import {get_regl} from "./regl_wrap"
+import * as webgl from "./module"
 
-register_webgl({get_regl})
+register_webgl(webgl)
 
-export {get_regl}
-export * from "./annular_wedge"
-export * from "./annulus"
-export * from "./base_line"
-export * from "./base_marker"
-export * from "./circle"
-export * from "./hex_tile"
-export * from "./image"
-export * from "./line_gl"
-export * from "./lrtb"
-export * from "./multi_line"
-export * from "./patch"
-export * from "./patches"
-export * from "./multi_marker"
-export * from "./ngon"
-export * from "./rect"
-export * from "./single_line"
-export * from "./single_marker"
-export * from "./step"
-export * from "./wedge"
+export * from "./module"

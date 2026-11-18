@@ -1,5 +1,6 @@
 import {logger} from "core/logging"
 import type {ReglWrapper} from "../glyphs/webgl/regl_wrap"
+import type * as webgl_module from "../glyphs/webgl/module"
 
 // Notes on WebGL support:
 // Glyphs can be rendered into the original 2D canvas, or in a (hidden)
@@ -13,13 +14,13 @@ import type {ReglWrapper} from "../glyphs/webgl/regl_wrap"
 // (e.g. a script tag or a static import), `load_webgl()` (see `webgl_loader`)
 // loads it on demand.
 
-export type WebGLModule = {
-  get_regl(gl: WebGLRenderingContext): ReglWrapper
-}
+export type WebGLModule = typeof webgl_module
 
 export type WebGLState = {
   readonly canvas: HTMLCanvasElement
   readonly regl_wrapper: ReglWrapper
+  /** Provides WebGL implementations of glyphs. */
+  readonly module: WebGLModule
 }
 
 let _webgl_module: WebGLModule | null = null
@@ -56,7 +57,7 @@ function init_webgl(module: WebGLModule): WebGLState | null {
     return null
   }
 
-  return {canvas, regl_wrapper}
+  return {canvas, regl_wrapper, module}
 }
 
 /**

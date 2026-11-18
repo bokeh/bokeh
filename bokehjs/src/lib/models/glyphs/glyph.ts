@@ -31,6 +31,7 @@ import type {IndexedDataSource} from "../sources/indexed_data_source"
 import {PathPlacement} from "../graphics/path_placement"
 import {List, Ref} from "core/kinds"
 import type {BaseGLGlyph, BaseGLGlyphConstructor} from "./webgl/base"
+import type {WebGLModule} from "../canvas/webgl"
 
 const {abs, ceil} = Math
 
@@ -53,7 +54,8 @@ export abstract class GlyphView extends DOMComponentView {
   /** @internal */
   glglyph?: BaseGLGlyph
 
-  async load_glglyph?(): Promise<typeof BaseGLGlyph>
+  /** The WebGL implementation of this glyph, if any. */
+  glglyph_class?(webgl: WebGLModule): typeof BaseGLGlyph
 
   has_webgl(): this is {glglyph: BaseGLGlyph} {
     return this.glglyph != null && this._can_use_webgl
@@ -96,6 +98,12 @@ export abstract class GlyphView extends DOMComponentView {
   override initialize(): void {
     super.initialize()
     this.visuals = new visuals.Visuals(this)
+
+    const {webgl} = this.canvas
+    if (webgl != null && this.glglyph_class != null) {
+      const cls = this.glglyph_class(webgl.module) as BaseGLGlyphConstructor
+      this.glglyph = new cls(webgl.regl_wrapper, this)
+    }
   }
 
   readonly path_markings: ViewStorage<PathPlacement> = new Map()
@@ -128,12 +136,6 @@ export abstract class GlyphView extends DOMComponentView {
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     await this._build_path_markings()
-
-    const {webgl} = this.canvas
-    if (webgl != null && this.load_glglyph != null) {
-      const cls = await this.load_glglyph() as BaseGLGlyphConstructor
-      this.glglyph = new cls(webgl.regl_wrapper, this)
-    }
   }
 
   override connect_signals(): void {

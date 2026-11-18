@@ -11,6 +11,7 @@ import {CustomJS} from "../callbacks/customjs"
 import {execute_sync} from "core/util/callbacks"
 import type {SyncExecutableLike} from "core/util/callbacks"
 import {dict, is_empty} from "core/util/object"
+import type {WebGLModule} from "../canvas/webgl"
 
 function is_MarkerType(type: string | null): type is MarkerType {
   return MarkerType.valid(type)
@@ -24,9 +25,8 @@ export class ScatterView extends MarkerView {
   /** @internal */
   declare glglyph?: MultiMarkerGL
 
-  override async load_glglyph() {
-    const {MultiMarkerGL} = await import("./webgl/multi_marker")
-    return MultiMarkerGL
+  override glglyph_class(webgl: WebGLModule) {
+    return webgl.MultiMarkerGL
   }
 
   protected override _compute_can_use_webgl(): boolean {

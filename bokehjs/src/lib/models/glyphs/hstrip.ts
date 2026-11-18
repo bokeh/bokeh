@@ -13,6 +13,7 @@ import * as iter from "core/util/iterator"
 import {range} from "core/util/array"
 import * as p from "core/properties"
 import type {LRTBGL} from "./webgl/lrtb"
+import type {WebGLModule} from "../canvas/webgl"
 
 const UNUSED = 0
 
@@ -25,14 +26,8 @@ export class HStripView extends GlyphView {
   /** @internal */
   declare glglyph?: LRTBGL
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-
-    const {webgl} = this.renderer.plot_view.canvas_view
-    if (webgl != null && webgl.regl_wrapper.has_webgl) {
-      const {LRTBGL} = await import("./webgl/lrtb")
-      this.glglyph = new LRTBGL(webgl.regl_wrapper, this)
-    }
+  override glglyph_class(webgl: WebGLModule) {
+    return webgl.LRTBGL
   }
 
   get sleft(): Arrayable<number> {
