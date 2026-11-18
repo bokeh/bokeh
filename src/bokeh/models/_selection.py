@@ -8,11 +8,10 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-"""Private selection transport. Public values remain sorted, unique Python lists.
+"""Private selection transport for model snapshots and change events.
 
-Private wire format v1. Position range: nonnegative signed int32. Bitmap bits
-are least-significant-bit first, relative to the smallest selected position.
-All multiline rows share one payload; int32 row starts are 4-byte aligned.
+See “Selection wire format” in the contributor guide for the protocol
+shared with BokehJS.
 """
 
 from __future__ import annotations
@@ -87,6 +86,7 @@ def validate(values: Any) -> None:
 
 
 def normalize(values: Any) -> list[int]:
+    """Return sorted, unique indices, preserving an existing property list's identity."""
     if isinstance(values, _Indices) and values._canonical:
         return values
     array = _validate_array(values)
@@ -101,6 +101,7 @@ def normalize(values: Any) -> list[int]:
 
 
 def pack(values: list[int], adaptive: bool = True) -> tuple[dict[str, Any], bytes]:
+    """Encode an already normalized sequence and return its descriptor and bytes."""
     n = len(values)
     origin = int(values[0]) if n else 0
     span = int(values[-1]) - origin + 1 if n else 0
@@ -138,6 +139,7 @@ def _integer(value: Any, name: str, maximum: int = MAX_INDEX) -> int:
 
 
 def unpack(meta: dict[str, Any], data: bytes | memoryview[int]) -> list[int]:
+    """Validate and decode one sequence, possibly from a shared multiline buffer."""
     n = _integer(meta.get("count"), "count", MAX_COUNT)
     mode = meta.get("mode")
     if mode == "int32":
@@ -234,6 +236,8 @@ for tag in ("selection_indices_v1", "selection_map_v1"):
 
 
 class SelectionPayload(Serializable):
+    """Serialize selection indices captured by a model snapshot or change event."""
+
     def __init__(self, values: Any, *, multiline: bool = False) -> None:
         self.values = values
         self.multiline = multiline

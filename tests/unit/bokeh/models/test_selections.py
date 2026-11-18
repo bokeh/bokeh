@@ -7,8 +7,12 @@
 from __future__ import annotations
 
 # Standard library imports
+import json
 import sys
 from array import array
+from base64 import b64decode
+from pathlib import Path
+from typing import Any
 
 # External imports
 import numpy as np
@@ -27,6 +31,30 @@ from bokeh.document.events import ModelChangedEvent
 from bokeh.model import Debounce
 from bokeh.models import Selection
 from bokeh.protocol import patch_doc
+
+WIRE_FIXTURE = (Path(__file__).parents[4] / "bokehjs" / "test" / "unit" / "models"
+                / "selections" / "selection_wire_fixture.json")
+
+
+@pytest.mark.parametrize("fixture", json.loads(WIRE_FIXTURE.read_text(encoding="utf-8")),
+                         ids=lambda fixture: fixture["attr"])
+def test_shared_selection_wire_fixture(fixture: dict[str, Any]) -> None:
+    attr = fixture["attr"]
+    value = fixture["value"]
+    values = fixture["values"]
+    data = b64decode(fixture["bytes"])
+    decoded = Deserializer().decode(value, [Buffer("fixture", data)])
+    assert decoded == (dict(values) if attr == "multiline_indices" else values)
+
+    selection = Selection(**{attr: decoded})
+    doc = Document()
+    doc.add_root(selection)
+    event = selection._create_model_changed_event(doc, attr, getattr(selection, attr))
+    serializer = Serializer()
+    encoded = serializer.encode(event)["new"]
+    buffer, = serializer.buffers
+    assert encoded == dict(value, data=dict(type="bytes", data=buffer))
+    assert buffer.to_bytes() == data
 
 
 @pytest.mark.parametrize("attr", ["indices", "line_indices", "multiline_indices"])
@@ -359,7 +387,7 @@ def test_adaptive_full_document_and_captured_event(attr: str, binary: bool) -> N
     assert isinstance(restored.indices, list)
     if binary:
         assert len(serializer.buffers) == 1
-        relevant = model["attributes"][attr]
+        relevant = model[attr]
         meta = relevant["rows"][0][1] if attr == "multiline_indices" else relevant
         assert meta["mode"] == "bitmap"
     else:

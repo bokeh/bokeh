@@ -1,0 +1,20 @@
+[
+  {
+    "attr": "indices",
+    "values": [2, 16909060],
+    "value": {"type": "selection_indices_v1", "mode": "int32", "count": 2, "data": {"type": "bytes", "data": {"id": "fixture"}}},
+    "bytes": "AgAAAAQDAgE="
+  },
+  {
+    "attr": "line_indices",
+    "values": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 28, 29],
+    "value": {"type": "selection_indices_v1", "mode": "bitmap", "count": 18, "origin": 10, "span": 20, "data": {"type": "bytes", "data": {"id": "fixture"}}},
+    "bytes": "//8M"
+  },
+  {
+    "attr": "multiline_indices",
+    "values": [[3, [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 28, 29]], [9, [2, 16909060]], [12, []]],
+    "value": {"type": "selection_map_v1", "rows": [[3, {"mode": "bitmap", "count": 18, "origin": 10, "span": 20, "offset": 0, "length": 3}], [9, {"mode": "int32", "count": 2, "offset": 4, "length": 8}], [12, {"mode": "int32", "count": 0, "offset": 12, "length": 0}]], "data": {"type": "bytes", "data": {"id": "fixture"}}},
+    "bytes": "//8MAAIAAAAEAwIB"
+  }
+]

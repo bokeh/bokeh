@@ -15,8 +15,8 @@ import {map} from "core/util/arrayable"
 export const OpaqueIndices = Arrayable(Int)
 export type OpaqueIndices = Infer<typeof OpaqueIndices>
 
-export const MultiIndices = Mapping(Int, OpaqueIndices)
-export type MultiIndices = Infer<typeof MultiIndices>
+export const OpaqueMultiIndices = Mapping(Int, OpaqueIndices)
+export type OpaqueMultiIndices = Infer<typeof OpaqueMultiIndices>
 
 export const ImageIndex = Struct({index: Int, i: Int, j: Int, flat_index: Int})
 export type ImageIndex = Infer<typeof ImageIndex>
@@ -30,7 +30,7 @@ export namespace Selection {
   export type Props = Model.Props & {
     indices: p.Property<OpaqueIndices>
     line_indices: p.Property<OpaqueIndices>
-    multiline_indices: p.Property<MultiIndices>
+    multiline_indices: p.Property<OpaqueMultiIndices>
     image_indices: p.Property<ImageIndices>
     view: p.Property<GlyphView | null>
     selected_glyphs: p.Property<Glyph[]>
@@ -43,7 +43,7 @@ export interface Selection extends Selection.Attrs {
   get line_indices(): number[]
   set line_indices(value: OpaqueIndices)
   get multiline_indices(): Map<number, number[]>
-  set multiline_indices(value: MultiIndices)
+  set multiline_indices(value: OpaqueMultiIndices)
 }
 
 export class Selection extends Model {

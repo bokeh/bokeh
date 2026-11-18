@@ -40,7 +40,7 @@ import type {ArrowHead} from "../annotations/arrow_head"
 import {isArrayable, isNumber, isString} from "core/util/types"
 import {isField} from "core/vectorization"
 import type {Field, Vector} from "core/vectorization"
-import type {OpaqueIndices, MultiIndices, ImageIndex} from "../selections/selection"
+import type {OpaqueIndices, OpaqueMultiIndices, ImageIndex} from "../selections/selection"
 import {BitSet} from "core/util/bitset"
 
 type Defaults = {
@@ -233,7 +233,7 @@ export class GlyphRendererView extends DataRendererView {
   private _previous_inspected?: {
     indices: OpaqueIndices
     line_indices: OpaqueIndices
-    multiline_indices: MultiIndices
+    multiline_indices: OpaqueMultiIndices
     image_indices: ImageIndex[]
     selected_glyphs: Glyph[]
   }

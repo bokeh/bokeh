@@ -162,6 +162,13 @@ Removals
 API changes
 -----------
 
+* Selection indices now use ascending order with duplicates removed. This
+  applies to ``indices``, ``line_indices``, and the index lists in
+  ``multiline_indices`` in Python and BokehJS. For example, assigning
+  ``[8, 2, 8]`` yields ``[2, 8]``. Applications that use a selection
+  callback to track click order should record that order separately
+  (:bokeh-pull:`15575`).
+
 * Generic property base classes and ``Value`` now default their type parameter
   to ``Any`` when it is omitted. Explicit type arguments and constructor
   inference continue to preserve more specific types.

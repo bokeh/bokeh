@@ -10,6 +10,7 @@ import {Message} from "@bokehjs/protocol/message"
 import {CustomJS} from "@bokehjs/models/callbacks/customjs"
 import {Deserializer} from "@bokehjs/core/serialization/deserializer"
 import {default_resolver} from "@bokehjs/base"
+import wire_fixture from "./selection_wire_fixture.json" with {type: "json"}
 
 const some_1d_selection = Selection.create({indices: [4, 5]})
 const other_1d_selection = Selection.create({indices: [0, 1]})
@@ -49,6 +50,25 @@ describe("Selection", () => {
       const {content, buffers} = Message.decode(frames[0] as string)
       doc.apply_json_patch({events: [content]} as DocumentPatch,
         new Map(buffers.map((id, i) => [id, frames[i + 1] as ArrayBuffer])))
+    }
+
+    for (const fixture of wire_fixture) {
+      it(`should match the shared wire fixture for ${fixture.attr}`, () => {
+        const {attr, value, bytes} = fixture
+        const data = Uint8Array.from(atob(bytes), (char) => char.charCodeAt(0))
+        const expected = attr == "multiline_indices" ? new Map(fixture.values as [number, number[]][]) : fixture.values
+        const decoded = new Deserializer(default_resolver).decode(value, new Map([["fixture", data.buffer]]))
+        expect(decoded).to.be.equal(expected)
+
+        const selection = Selection.create({[attr]: decoded})
+        const doc = new Document()
+        doc.add_root(selection)
+        const frames = send(selection._create_change_event(attr, decoded))
+        const {content, buffers} = Message.decode<{new: typeof value}>(frames[0] as string)
+        expect(buffers.length).to.be.equal(1)
+        expect(content.new).to.be.equal({...value, data: {type: "bytes", data: {id: buffers[0]}}})
+        expect(new Uint8Array(frames[1] as ArrayBuffer)).to.be.equal(data)
+      })
     }
 
     it("should send three million dense indices using a bitmap", () => {

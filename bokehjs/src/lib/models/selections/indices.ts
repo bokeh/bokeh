@@ -1,9 +1,15 @@
+/**
+ * Selection snapshots and change events wrap their indices for serialization.
+ * See “Selection wire format” in the contributor guide for the shared Python
+ * and BokehJS protocol. The transport bitmap is independent of the BitSet
+ * used by BokehJS for rendering and filtering.
+ */
 import {serialize} from "core/serialization"
 import type {Serializable, Serializer, BytesRep} from "core/serialization"
 import {Deserializer} from "core/serialization/deserializer"
 import {Kind, Arrayable, Int, Mapping} from "core/kinds"
 import {isArrayable} from "core/util/types"
-import type {OpaqueIndices, MultiIndices} from "./selection"
+import type {OpaqueIndices, OpaqueMultiIndices} from "./selection"
 
 const MAX_INDEX = 2147483647
 // Require a useful saving after accounting for bitmap metadata.
@@ -20,13 +26,19 @@ type Row = Descriptor & {offset: number, length: number}
 type IndicesRep = Descriptor & {type: "selection_indices_v1", data: BytesRep}
 type MultiIndicesRep = {type: "selection_map_v1", rows: [number, Row][], data: BytesRep}
 
-export function normalize_indices(values: OpaqueIndices): number[] {
+/**
+ * Validate an array-like sequence of nonnegative int32 indices and return a
+ * plain array in ascending order with duplicates removed. Reuse the input
+ * array if it already meets these requirements.
+ */
+export function normalize_indices(values: unknown): number[] {
   if (!isArrayable(values)) {
     throw new Error("selection indices must be an integer sequence")
   }
   const count = values.length
   const origin = values[0]
-  if (count > 0 && Number.isInteger(origin) && origin >= 0 && values[count - 1] === origin + count - 1 && values[count - 1] <= MAX_INDEX) {
+  const last = values[count - 1]
+  if (count > 0 && typeof origin == "number" && Number.isInteger(origin) && origin >= 0 && last === origin + count - 1 && last <= MAX_INDEX) {
     let dense = true
     for (let i = 1; i < count - 1; i++) {
       if (values[i] !== origin + i) {
@@ -35,23 +47,25 @@ export function normalize_indices(values: OpaqueIndices): number[] {
       }
     }
     if (dense) {
-      return Array.isArray(values) ? values : Array.from(values)
+      return Array.isArray(values) ? values : Array.from(values) as number[]
     }
   }
   let increasing = true
+  let previous = -1
   for (let i = 0; i < values.length; i++) {
     const value = values[i]
-    if (!Number.isInteger(value) || value < 0 || value > MAX_INDEX) {
+    if (typeof value != "number" || !Number.isInteger(value) || value < 0 || value > MAX_INDEX) {
       throw new Error("selection indices must be nonnegative int32 integers")
     }
-    if (i > 0 && value <= values[i - 1]) {
+    if (value <= previous) {
       increasing = false
     }
+    previous = value
   }
   if (increasing && Array.isArray(values)) {
     return values
   }
-  const result = Array.from(values)
+  const result = Array.from(values) as number[]
   if (!increasing) {
     result.sort((a, b) => a - b)
     let n = 0
@@ -65,8 +79,8 @@ export function normalize_indices(values: OpaqueIndices): number[] {
   return result
 }
 
-function normalize_multiline(indices: MultiIndices): Map<number, number[]> {
-  indices = multiline_kind.coerce(indices) as MultiIndices
+function normalize_multiline(indices: OpaqueMultiIndices): Map<number, number[]> {
+  indices = multiline_kind.coerce(indices) as OpaqueMultiIndices
   if (!(indices instanceof Map)) {
     throw new Error("multiline indices must be a map")
   }
@@ -77,7 +91,7 @@ function normalize_multiline(indices: MultiIndices): Map<number, number[]> {
 }
 
 // Wire-only wrappers leave public arrays and maps with ordinary serialization.
-export class Indices implements Serializable {
+class IndicesPayload implements Serializable {
   constructor(readonly values: OpaqueIndices) {}
 
   [serialize](serializer: Serializer): unknown {
@@ -85,8 +99,9 @@ export class Indices implements Serializable {
   }
 }
 
-export class MultilineIndices implements Serializable {
-  constructor(readonly values: MultiIndices) {}
+/** Pack all multiline rows into one buffer to keep the frame count independent of the row count. */
+class MultilineIndicesPayload implements Serializable {
+  constructor(readonly values: OpaqueMultiIndices) {}
 
   [serialize](serializer: Serializer): unknown {
     const indices = normalize_multiline(this.values)
@@ -118,11 +133,11 @@ export class MultilineIndices implements Serializable {
 }
 
 export class IndicesKind extends Kind<OpaqueIndices> {
-  override coerce(value: OpaqueIndices): number[] {
+  override coerce(value: unknown): number[] {
     return normalize_indices(value)
   }
 
-  valid(value: unknown): value is OpaqueIndices {
+  valid(value: unknown): value is number[] {
     return Array.isArray(value)
   }
 
@@ -131,12 +146,12 @@ export class IndicesKind extends Kind<OpaqueIndices> {
   }
 }
 
-export class MultilineIndicesKind extends Kind<MultiIndices> {
-  override coerce(value: MultiIndices): Map<number, number[]> {
+export class MultilineIndicesKind extends Kind<OpaqueMultiIndices> {
+  override coerce(value: OpaqueMultiIndices): Map<number, number[]> {
     return normalize_multiline(value)
   }
 
-  valid(value: unknown): value is MultiIndices {
+  valid(value: unknown): value is OpaqueMultiIndices {
     return value instanceof Map
   }
 
@@ -145,6 +160,7 @@ export class MultilineIndicesKind extends Kind<MultiIndices> {
   }
 }
 
+/** Choose the wire encoding for an already normalized sequence of indices. */
 function pack(values: number[]): [Descriptor, Uint8Array] {
   const count = values.length
   const origin = count != 0 ? values[0] : 0
@@ -188,6 +204,7 @@ function integer(value: unknown, name: string, max: number = MAX_INDEX): number 
   return value
 }
 
+/** Validate and decode one sequence. The byte view may be a slice of a shared multiline buffer. */
 function unpack(meta: {mode: unknown, count: unknown, origin?: unknown, span?: unknown}, data: Uint8Array): number[] {
   const count = integer(meta.count, "count", MAX_INDEX + 1)
   if (meta.mode == "int32") {
@@ -289,11 +306,12 @@ function decode(rep: IndicesRep | MultiIndicesRep, deserializer: Deserializer): 
 Deserializer.register("selection_indices_v1", decode)
 Deserializer.register("selection_map_v1", decode)
 
+/** Wrap only selection index properties when writing a snapshot or capturing a change event. */
 export function selection_wire_value(attr: string, value: unknown): unknown {
   switch (attr) {
     case "indices":
-    case "line_indices": return new Indices(value as OpaqueIndices)
-    case "multiline_indices": return new MultilineIndices(value as MultiIndices)
+    case "line_indices": return new IndicesPayload(value as OpaqueIndices)
+    case "multiline_indices": return new MultilineIndicesPayload(value as OpaqueMultiIndices)
     default: return value
   }
 }
