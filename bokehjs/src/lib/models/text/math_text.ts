@@ -95,11 +95,12 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
     return default_provider
   }
 
-  override async lazy_initialize() {
-    await super.lazy_initialize()
+  override initialize(): void {
+    super.initialize()
 
-    if (this.provider.status == "not_started") {
-      await this.provider.fetch()
+    if (this.provider.is_pending) {
+      // `ready` is emitted when done, see connect_signals()
+      this.schedule(async () => await this.provider.load())
     }
   }
 

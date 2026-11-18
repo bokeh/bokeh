@@ -10,8 +10,18 @@ export abstract class WidgetView extends LayoutDOMView {
 
   protected *disabled_controls(): Iterable<HTMLElement & {disabled: boolean}> {}
 
+  override initialize(): void {
+    super.initialize()
+
+    if (this.provider.is_pending) {
+      // `ready` is emitted when done, see connect_signals()
+      this.schedule(async () => await this.provider.load())
+    }
+  }
+
   override connect_signals(): void {
     super.connect_signals()
+    this.connect(this.provider.ready, () => this._after_mathjax_load())
     this.connect(this.disabled, (disabled) => {
       for (const el of this.disabled_controls()) {
         toggle_attribute(el, "disabled", disabled)
@@ -27,20 +37,16 @@ export abstract class WidgetView extends LayoutDOMView {
     return default_provider
   }
 
-  override async lazy_initialize() {
-    await super.lazy_initialize()
-
-    if (this.provider.status == "not_started") {
-      await this.provider.fetch()
-    }
+  /**
+   * Called when loading MathJax finished, whether it succeeded or failed.
+   * Views that render TeX should re-render here, if they were rendered already.
+   */
+  protected _after_mathjax_load(): void {
+    this.notify_finished()
   }
 
-  override _after_layout(): void {
-    super._after_layout()
-
-    if (this.provider.status == "loading") {
-      this._has_finished = false
-    }
+  override has_finished(): boolean {
+    return super.has_finished() && this.provider.status != "loading"
   }
 
   process_tex(text: string): string {

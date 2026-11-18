@@ -401,6 +401,14 @@ export abstract class AbstractSliderView<T> extends OrientedControlView {
 
   private _title_html: {text: string, html: string | null} | null = null
 
+  protected override _after_mathjax_load(): void {
+    const {title} = this.model
+    if (this.is_rendered && title != null && title.length != 0) {
+      this.rerender()
+    }
+    super._after_mathjax_load()
+  }
+
   /**
    * Title with processed TeX, or `null` if it doesn't contain TeX. The result
    * is cached, because processing TeX is expensive and the title is rendered

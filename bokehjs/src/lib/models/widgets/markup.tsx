@@ -11,16 +11,11 @@ export abstract class MarkupView extends WidgetView {
   protected override readonly _auto_width = "fit-content"
   protected override readonly _auto_height = "auto"
 
-  override async lazy_initialize() {
-    await super.lazy_initialize()
-
-    if (this.provider.status == "not_started" || this.provider.status == "loading") {
-      this.provider.ready.connect(() => {
-        if (this.contains_tex_string(this.model.text)) {
-          this.rerender()
-        }
-      })
+  protected override _after_mathjax_load(): void {
+    if (this.is_rendered && this.contains_tex_string(this.model.text)) {
+      this.rerender()
     }
+    super._after_mathjax_load()
   }
 
   has_math_disabled(): boolean {

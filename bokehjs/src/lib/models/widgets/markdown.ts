@@ -56,6 +56,13 @@ export class MarkdownView extends WidgetView {
     this.shadow_el.addEventListener("toggle", () => this.invalidate_layout(), true)
   }
 
+  protected override _after_mathjax_load(): void {
+    if (this.is_rendered && !this.model.disable_math && this.provider.MathJax != null) {
+      this._render_markdown(this.model.text)
+    }
+    super._after_mathjax_load()
+  }
+
   private _parse_markdown(text: string): {text: string, html: string, names: string[]} {
     const {dedent: use_dedent, hard_line_break: breaks} = this.model
     if (this._parsed?.text != text || this._parsed.dedent != use_dedent || this._parsed.breaks != breaks) {
