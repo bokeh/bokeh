@@ -26,14 +26,6 @@ type EdgeGlyph = MultiLine | Patches | Segment | Bezier
 type NodeRenderer = GlyphRendererWithSource<XYGlyph, IndexedDataSource>
 type EdgeRenderer = GlyphRendererWithSource<EdgeGlyph, IndexedDataSource>
 
-function default_node_renderer(source: GraphDataSource["nodes"]): NodeRenderer {
-  return GlyphRenderer.create({glyph: Scatter.create(), data_source: source})
-}
-
-function default_edge_renderer(source: GraphDataSource["edges"]): EdgeRenderer {
-  return GlyphRenderer.create({glyph: MultiLine.create(), data_source: source})
-}
-
 export class GraphRendererView extends DataRendererView {
   declare model: GraphRenderer
 
@@ -183,40 +175,44 @@ export class GraphRenderer extends DataRenderer {
   declare properties: GraphRenderer.Props
   declare __view_type__: GraphRendererView
 
-  protected constructor(attrs: Partial<GraphRenderer.Attrs> = {}) {
-    const normalized_attrs = {...attrs}
-    super(normalized_attrs)
+  override initialize(): void {
+    super.initialize()
 
-    if (this.is_deferred) {
-      return
+    // The decoder has initialized the properties of referenced models by this
+    // point, including renderers that refer back to this graph through callbacks.
+    const {properties} = this
+    const node_renderer = properties.node_renderer.is_unset ? null : this.node_renderer
+    const edge_renderer = properties.edge_renderer.is_unset ? null : this.edge_renderer
+
+    // A supplied renderer can provide the node or edge source when the caller
+    // omits data_source. Fill missing properties before connecting signals.
+    if (properties.data_source.is_unset || node_renderer == null || edge_renderer == null) {
+      const data_source = properties.data_source.is_unset
+        ? GraphDataSource.create({nodes: node_renderer?.data_source, edges: edge_renderer?.data_source})
+        : this.data_source
+      this.setv({
+        data_source,
+        node_renderer: node_renderer ?? GlyphRenderer.create({glyph: Scatter.create(), data_source: data_source.nodes}),
+        edge_renderer: edge_renderer ?? GlyphRenderer.create({glyph: MultiLine.create(), data_source: data_source.edges}),
+      }, {silent: true})
     }
 
-    const data_source = attrs.data_source ?? GraphDataSource.create({
-      nodes: attrs.node_renderer?.data_source,
-      edges: attrs.edge_renderer?.data_source,
-    })
-    const node_renderer = attrs.node_renderer ?? default_node_renderer(data_source.nodes)
-    const edge_renderer = attrs.edge_renderer ?? default_edge_renderer(data_source.edges)
-
-    if (node_renderer.data_source != data_source.nodes) {
+    if (this.node_renderer.data_source != this.data_source.nodes) {
       throw new Error("GraphRenderer node_renderer and data_source must use the same node source")
     }
-    if (edge_renderer.data_source != data_source.edges) {
+    if (this.edge_renderer.data_source != this.data_source.edges) {
       throw new Error("GraphRenderer edge_renderer and data_source must use the same edge source")
     }
-
-    // HasProps initializes these attributes after the constructor returns.
-    Object.assign(normalized_attrs, {data_source, node_renderer, edge_renderer})
   }
 
   static {
     this.prototype.default_view = GraphRendererView
 
-    this.define<GraphRenderer.Props, GraphRenderer>(({Ref}) => ({
-      data_source:       [ Ref(GraphDataSource), () => GraphDataSource.create(), {readonly: true} ],
+    this.define<GraphRenderer.Props>(({Ref}) => ({
+      data_source:       [ Ref(GraphDataSource), undefined, {readonly: true} ],
       layout_provider:   [ Ref(LayoutProvider) ],
-      node_renderer:     [ Ref(GlyphRenderer<XYGlyph>), (self) => default_node_renderer(self.data_source.nodes), {readonly: true} ],
-      edge_renderer:     [ Ref(GlyphRenderer<EdgeGlyph>), (self) => default_edge_renderer(self.data_source.edges), {readonly: true} ],
+      node_renderer:     [ Ref(GlyphRenderer<XYGlyph>), undefined, {readonly: true} ],
+      edge_renderer:     [ Ref(GlyphRenderer<EdgeGlyph>), undefined, {readonly: true} ],
       selection_policy:  [ Ref(GraphHitTestPolicy), () => NodesOnly.create() ],
       inspection_policy: [ Ref(GraphHitTestPolicy), () => NodesOnly.create() ],
     }))
