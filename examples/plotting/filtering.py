@@ -3,10 +3,10 @@ hover labels.
 
 .. bokeh-example-metadata::
     :title: Filtering
-    :sampledata: us_states
-    :apis: bokeh.models.IndexFilter, bokeh.models.HoverTool, bokeh.models.LinearColorMapper
-    :refs: :ref:`ug_basic_areas_patches`, :ref:`ug_basic_data_filtering_index`
     :keywords: hover tool, indexfilter, filtering, US
+    :apis: bokeh.models.IndexFilter, bokeh.models.HoverTool, bokeh.models.LinearColorMapper
+    :sampledata: us_states
+    :refs: :ref:`ug_basic_areas_patches`, :ref:`ug_basic_data_filtering_index`
 '''
 from bokeh.core.properties import field
 from bokeh.models import ColorBar, HoverTool, IndexFilter, LinearColorMapper

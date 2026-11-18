@@ -2,13 +2,12 @@
 ``jitter`` transform to data.
 
 .. bokeh-example-metadata::
-    :title: Transform jitter
-    :gallery:
-    :thumbnail-alt: Two categorical scatter plots. Points overlap in the top plot and are spread out by jitter in the bottom plot.
-    :sampledata: autompg
-    :apis: bokeh.plotting.figure.scatter, bokeh.layouts.column, bokeh.transform.jitter
-    :refs: :ref:`ug_basic_data_transforming`
+    :title: Spread overlapping points with jitter
     :keywords: column, jitter, scatter
+    :apis: bokeh.plotting.figure.scatter, bokeh.layouts.column, bokeh.transform.jitter
+    :sampledata: autompg
+    :refs: :ref:`ug_basic_data_transforming`
+    :gallery: Two categorical scatter plots. Points overlap in the top plot and are spread out by jitter in the bottom plot.
 
 '''
 from bokeh.layouts import column

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Fileinput
-    :keywords: fileinput, interaction, widgets
+    :keywords: file, upload, input
     :apis: bokeh.models.FileInput
 '''
 

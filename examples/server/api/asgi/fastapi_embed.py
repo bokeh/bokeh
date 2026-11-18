@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Fastapi embed
-    :keywords: fastapi embed, bokeh server, api
+    :keywords: fastapi, embed
 '''
 
 from collections.abc import AsyncGenerator

@@ -4,7 +4,7 @@
 
 .. bokeh-example-metadata::
     :title: Line compare
-    :keywords: line compare, output, webgl
+    :keywords: line, compare, webgl
     :apis: bokeh.models.CustomJS, bokeh.models.Dropdown, bokeh.models.Slider
 '''
 import numpy as np

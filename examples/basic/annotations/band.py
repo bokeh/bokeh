@@ -1,14 +1,12 @@
-''' An interactive numerical band plot based on simple Python array of data.
-    It is a combination of scatter plots and line plots added with a band of covered area.
-    The line passes through the mean of the area covered by the band.
+''' Shade a band one rolling standard deviation above and below a rolling mean
+through noisy scatter data.
 
 .. bokeh-example-metadata::
-    :title: Band
-    :gallery:
-    :thumbnail-alt: A band annotation around a trend line in a scatter plot.
+    :title: Add a shaded band
+    :keywords: figure, scatter, line, band, layout
     :apis: bokeh.models.Band, bokeh.models.ColumnDataSource, bokeh.plotting.figure, bokeh.io.show
     :refs: :ref:`ug_basic_annotations_bands`
-    :keywords: figure, scatter, line, band, layout
+    :gallery: A band annotation around a trend line in a scatter plot.
 
 '''
 import numpy as np

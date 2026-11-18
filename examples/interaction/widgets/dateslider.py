@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Dateslider
-    :keywords: dateslider, interaction, widgets
+    :keywords: date, slider
     :apis: bokeh.models.CustomJS, bokeh.models.DateSlider
 '''
 

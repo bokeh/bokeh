@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Bar
-    :keywords: bar, basic plotting, bars
+    :keywords: bar
     :apis: bokeh.plotting.figure.hbar
 '''
 

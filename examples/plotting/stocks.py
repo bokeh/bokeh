@@ -1,12 +1,14 @@
-''' A timeseries plot using stock price data. This example demonstrates adding
-multiple plots to a gridplot, and configuring grid bands on an axis.
+''' Compare several stock prices on a shared datetime axis. A second plot pairs
+Apple closing prices with a one-month moving average.
 
 .. bokeh-example-metadata::
-    :title: Stocks
-    :sampledata: stocks
-    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter, bokeh.layouts.gridplot
-    :refs: :ref:`ug_basic_layouts_gridplot`
+    :title: Compare stock prices over time
     :keywords: bands, gridplot, line, timeseries, stocks
+    :categories: basic/lines, topics/timeseries
+    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter, bokeh.layouts.gridplot
+    :sampledata: stocks
+    :refs: :ref:`ug_basic_layouts_gridplot`
+    :gallery: Four stock price lines appear beside a plot of Apple closing prices and their one-month moving average.
 
 '''
 import numpy as np

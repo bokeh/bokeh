@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Checkbox button group
-    :keywords: checkbox button group, interaction, widgets
+    :keywords: checkbox, button, group
     :apis: bokeh.models.CheckboxButtonGroup, bokeh.models.CustomJS
 '''
 

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Box edit various
-    :keywords: box edit various, interaction, tools
+    :keywords: box, edit, various
     :apis: bokeh.models.BoxEditTool, bokeh.models.HoverTool, bokeh.plotting.figure.add_tools, bokeh.plotting.figure.block, bokeh.plotting.figure.hbar
 '''
 

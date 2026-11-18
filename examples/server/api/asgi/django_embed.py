@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Django embed
-    :keywords: django embed, bokeh server, api
+    :keywords: django, embed
 '''
 
 import os

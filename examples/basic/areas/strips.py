@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Strips
-    :keywords: strips, basic plotting, areas
+    :keywords: strips
     :apis: bokeh.plotting.figure.hstrip, bokeh.plotting.figure.vstrip
 '''
 

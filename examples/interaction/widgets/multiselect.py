@@ -2,10 +2,9 @@
 
 .. bokeh-example-metadata::
     :title: Multiselect
-    :keywords: multiselect, interaction, widgets
+    :keywords: multiple selection, list
     :apis: bokeh.models.CustomJS, bokeh.models.MultiSelect
-    :gallery:
-    :thumbnail-alt: A simple example of a multi-select widget.
+    :gallery: A list box showing foo, bar, baz, and quux.
 '''
 
 from bokeh.io import show

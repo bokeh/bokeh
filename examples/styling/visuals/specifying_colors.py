@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Specifying colors
-    :keywords: specifying colors, appearance, visuals
+    :keywords: specifying, colors
     :apis: bokeh.plotting.figure.circle, bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
 '''
 

@@ -3,10 +3,10 @@ It demonstrates drawing shapes using polygonal data, as well as using color scal
 
 .. bokeh-example-metadata::
     :title: Choropleth
-    :sampledata: us_counties, us_states, unemployment
-    :apis: bokeh.plotting.figure.patches, bokeh.palettes.Viridis6, bokeh.plotting.show
-    :refs: :ref:`ug_basic_areas_patches`
     :keywords: colormap, shapes, vector, polygon
+    :apis: bokeh.plotting.figure.patches, bokeh.palettes.Viridis6, bokeh.plotting.show
+    :sampledata: us_counties, us_states, unemployment
+    :refs: :ref:`ug_basic_areas_patches`
 '''
 
 from bokeh.palettes import Viridis6

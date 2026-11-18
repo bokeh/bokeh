@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: App hooks
-    :keywords: app hooks, bokeh server, app
+    :keywords: app, hooks
 '''
 
 import yfinance as yf

@@ -2,8 +2,8 @@
 
 .. bokeh-example-metadata::
     :title: Dotplot
-    :apis: bokeh.plotting.figure.scatter, bokeh.plotting.figure.segment
     :keywords: scatter, dotplot, segments
+    :apis: bokeh.plotting.figure.scatter, bokeh.plotting.figure.segment
 
 '''
 from bokeh.plotting import figure, show

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Annotation menu
-    :keywords: annotation menu, basic plotting, ui
+    :keywords: annotation, menu
     :apis: bokeh.models.BoxSelectTool, bokeh.models.CustomJS, bokeh.models.Menu, bokeh.models.MenuItem, bokeh.plotting.figure.add_tools
 '''
 

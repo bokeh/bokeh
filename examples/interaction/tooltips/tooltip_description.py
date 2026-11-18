@@ -6,9 +6,9 @@ clear the choices as well.
 
 .. bokeh-example-metadata::
     :title: Tooltip description
+    :keywords: tooltip, multichoice
     :apis: bokeh.io.show, bokeh.models.MultiChoice, Bokeh.models.Tooltip
     :refs: `ug_interaction_widgets_examples_multichoice`
-    :keywords: tooltip, multichoice
 '''
 from bokeh.io import show
 from bokeh.models import MultiChoice, Tooltip

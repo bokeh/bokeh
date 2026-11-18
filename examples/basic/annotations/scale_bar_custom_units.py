@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Scale bar custom units
-    :keywords: scale bar custom units, basic plotting, annotations
+    :keywords: scale, bar, custom, units
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Metric, bokeh.models.RangeTool, bokeh.models.ScaleBar, bokeh.plotting.figure.add_layout
 '''
 

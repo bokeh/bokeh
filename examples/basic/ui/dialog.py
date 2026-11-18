@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Dialog
-    :keywords: dialog, basic plotting, ui
+    :keywords: dialog
     :apis: bokeh.models.Button, bokeh.models.CloseDialog, bokeh.models.Column, bokeh.models.Dialog, bokeh.models.OpenDialog, bokeh.plotting.figure.circle
 '''
 

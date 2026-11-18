@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Js on change
-    :keywords: js on change, interaction, javascript callbacks
+    :keywords: js, on, change
     :apis: bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.Slider, bokeh.plotting.figure.line
 '''
 

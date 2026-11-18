@@ -1,10 +1,10 @@
 ''' Draw several independent paths with a single glyph.
 
 .. bokeh-example-metadata::
-    :example-ref: bokeh.models.glyphs.multiline
     :title: Multi Line
     :keywords: multi line, reference
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.MultiLine, bokeh.models.Plot
+    :example-ref: bokeh.models.glyphs.multiline
 '''
 
 import numpy as np

@@ -3,7 +3,7 @@ lock.
 
 .. bokeh-example-metadata::
     :title: Locked callback
-    :keywords: locked callback, bokeh server, app
+    :keywords: locked, callback
     :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.scatter
 '''
 

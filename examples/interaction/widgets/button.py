@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Button
-    :keywords: button, interaction, widgets
+    :keywords: button
     :apis: bokeh.models.Button, bokeh.models.CustomJS
 '''
 

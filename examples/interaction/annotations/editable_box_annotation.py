@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Editable box annotation
-    :keywords: editable box annotation, interaction, annotations
+    :keywords: editable, box, annotation
     :apis: bokeh.models.BoxAnnotation, bokeh.models.Node
 '''
 

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Title
-    :keywords: title, appearance, plots
+    :keywords: title
     :apis: bokeh.plotting.figure.scatter
 '''
 

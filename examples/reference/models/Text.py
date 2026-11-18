@@ -1,10 +1,10 @@
 ''' Place text labels directly at plot coordinates.
 
 .. bokeh-example-metadata::
-    :example-ref: bokeh.models.glyphs.text
     :title: Text
     :keywords: text, reference
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Plot, bokeh.models.Text
+    :example-ref: bokeh.models.glyphs.text
 '''
 
 import numpy as np

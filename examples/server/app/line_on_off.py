@@ -4,7 +4,7 @@
 
 .. bokeh-example-metadata::
     :title: Line on off
-    :keywords: line on off, bokeh server, app
+    :keywords: line, on, off
     :apis: bokeh.models.CheckboxGroup, bokeh.plotting.figure.line
 '''
 import numpy as np

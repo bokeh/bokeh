@@ -3,7 +3,7 @@ source.
 
 .. bokeh-example-metadata::
     :title: Linked brushing subsets
-    :keywords: linked brushing subsets, basic plotting, data
+    :keywords: linked, brushing, subsets
     :apis: bokeh.models.BooleanFilter, bokeh.models.ColumnDataSource, bokeh.models.IndexedSubset, bokeh.plotting.figure.scatter
 '''
 

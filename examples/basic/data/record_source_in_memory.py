@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Record source in memory
-    :keywords: record source in memory, basic plotting, data
+    :keywords: record, source, in, memory
     :apis: bokeh.models.RecordDataSource, bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
 '''
 

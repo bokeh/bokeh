@@ -2,8 +2,8 @@
 
 .. bokeh-example-metadata::
     :title: Data models
-    :apis: bokeh.models.DataModel, bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.core.properties.Float
     :keywords: wave, sinusoidal, phase, frequency, amplitude
+    :apis: bokeh.models.DataModel, bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.core.properties.Float
 
 '''
 import numpy as np

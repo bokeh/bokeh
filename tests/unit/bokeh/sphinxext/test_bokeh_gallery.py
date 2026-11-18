@@ -57,18 +57,79 @@ def test_example_metadata_does_not_parse_newer_python_syntax(tmp_path: Path) -> 
         '"""\n'
         'A ``scatter`` example with a `dataset`_.\n\n'
         '.. bokeh-example-metadata::\n'
-        '    :gallery:\n'
-        '    :thumbnail-alt: A line plot.\n'
         '    :apis: bokeh.plotting.figure.line,\n'
         '        bokeh.models.HoverTool\n'
+        '    :gallery: A line plot.\n'
         '"""\n'
         'this is deliberately ! invalid syntax\n',
         encoding="utf-8",
     )
     summary, fields = read_example_metadata(example)
-    assert summary == "A scatter example with a dataset."
+    assert summary == "A ``scatter`` example with a `dataset`_."
     assert fields == {
-        "gallery": "",
-        "thumbnail-alt": "A line plot.",
         "apis": "bokeh.plotting.figure.line, bokeh.models.HoverTool",
+        "gallery": "A line plot.",
     }
+
+
+def test_gallery_rejects_unknown_directory(tmp_path: Path, monkeypatch) -> None:
+    from types import SimpleNamespace
+
+    import pytest
+    from sphinx.errors import SphinxError
+
+    from bokeh.sphinxext._internal import bokeh_gallery
+
+    monkeypatch.setattr(bokeh_gallery, "REPO_TOP", tmp_path)
+    monkeypatch.setattr(bokeh_gallery, "_read_inventory", lambda directive: [])
+    directive = SimpleNamespace(
+        content=["topics/hierarchal"],
+        env=SimpleNamespace(config=SimpleNamespace(bokeh_example_categories=[]), srcdir=tmp_path),
+    )
+    with pytest.raises(SphinxError, match=r"Unknown example category.*topics/hierarchal"):
+        bokeh_gallery.BokehGalleryDirective.run(directive)
+
+
+def test_empty_gallery_does_not_emit_raw_directive(tmp_path: Path, monkeypatch) -> None:
+    from types import SimpleNamespace
+
+    from bokeh.sphinxext._internal import bokeh_gallery
+
+    (tmp_path / "examples/basic/lines").mkdir(parents=True)
+    monkeypatch.setattr(bokeh_gallery, "REPO_TOP", tmp_path)
+    monkeypatch.setattr(bokeh_gallery, "_read_inventory", lambda directive: [])
+    directive = SimpleNamespace(
+        content=["basic/lines"],
+        env=SimpleNamespace(config=SimpleNamespace(bokeh_example_categories=[]), srcdir=tmp_path),
+    )
+    assert bokeh_gallery.BokehGalleryDirective.run(directive) == []
+
+
+def test_category_defaults_and_overrides() -> None:
+    from bokeh.sphinxext._internal.bokeh_gallery import _example_categories
+
+    path = Path("plotting/stocks.py")
+    assert _example_categories(path, {}) == ["plotting"]
+    assert _example_categories(path, {"categories": "basic/lines, topics/timeseries, basic/lines"}) == [
+        "basic/lines", "topics/timeseries",
+    ]
+    assert _example_categories(Path("basic/annotations/quiver.py"), {"categories": "topics/vector_fields"}) == [
+        "topics/vector_fields",
+    ]
+
+
+def test_category_validation(tmp_path: Path) -> None:
+    from types import SimpleNamespace
+
+    import pytest
+    from sphinx.errors import SphinxError
+
+    from bokeh.sphinxext._internal.bokeh_gallery import _validate_category
+
+    (tmp_path / "basic/lines").mkdir(parents=True)
+    config = SimpleNamespace(bokeh_example_categories=["topics/vector_fields"])
+    for category in ("basic/lines", "topics/vector_fields"):
+        _validate_category(category, tmp_path, config)
+    for category in ("basic/lnies", "topics/vector_feilds", "", "../examples", "/tmp", "basic/lines,"):
+        with pytest.raises(SphinxError, match=r"Unknown example category.* in examples/plotting/stocks.py"):
+            _validate_category(category, tmp_path, config, source=Path("plotting/stocks.py"))

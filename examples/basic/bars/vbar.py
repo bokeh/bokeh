@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Vbar
-    :keywords: vbar, basic plotting, bars
+    :keywords: vbar
     :apis: bokeh.plotting.figure.vbar
 '''
 

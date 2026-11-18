@@ -1,10 +1,10 @@
 ''' Position mathematical text on a plot.
 
 .. bokeh-example-metadata::
-    :render:
     :title: Math Text
     :keywords: math text, reference
     :apis: bokeh.models.ColumnDataSource, bokeh.models.LinearAxis, bokeh.models.Plot, bokeh.models.Scatter, bokeh.models.TeX
+    :render:
 '''
 
 from numpy import arange, pi, sin

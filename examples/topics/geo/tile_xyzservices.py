@@ -3,12 +3,11 @@
 The plot ranges specify the region in Web Mercator coordinates.
 
 .. bokeh-example-metadata::
-    :title: Tile xyzservices
-    :gallery:
-    :thumbnail-alt: A map plot using Bokeh's integration with xyzservices for tile providers.
-    :apis: bokeh.plotting.figure.add_title
-    :refs: :ref:`ug_topics_geo_tile_provider_maps`
+    :title: Choose a basemap with xyzservices
     :keywords: map plot, tiles, geo
+    :apis: bokeh.plotting.figure.add_tile
+    :refs: :ref:`ug_topics_geo_tile_provider_maps`
+    :gallery: A map plot using Bokeh's integration with xyzservices for tile providers.
 
 '''
 import xyzservices.providers as xyz

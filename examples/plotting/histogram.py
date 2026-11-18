@@ -2,9 +2,9 @@
 
 .. bokeh-example-metadata::
     :title: Histogram
+    :keywords: histogram
     :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.quad
     :refs: :ref:`ug_basic_areas_rects`
-    :keywords: histogram
 
 '''
 import numpy as np

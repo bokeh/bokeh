@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Serve
-    :keywords: serve, output, apis
+    :keywords: serve
 '''
 
 from flask import Flask, render_template

@@ -3,9 +3,9 @@ a comparison between two datasets. This graph uses stocks dataset.
 
 .. bokeh-example-metadata::
     :title: Multi legend
-    :sampledata: stocks
-    :apis: bokeh.plotting.figure.multi_line, bokeh.plotting.figure.add_layout
     :keywords: legend, stocks
+    :apis: bokeh.plotting.figure.multi_line, bokeh.plotting.figure.add_layout
+    :sampledata: stocks
 
 '''
 import numpy as np

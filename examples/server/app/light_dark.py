@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Light dark
-    :keywords: light dark, bokeh server, app
+    :keywords: light, dark
     :apis: bokeh.models.Div, bokeh.models.Dropdown, bokeh.models.LightDark
 '''
 

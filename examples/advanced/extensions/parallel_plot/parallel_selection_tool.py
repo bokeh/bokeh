@@ -3,7 +3,7 @@ individual axes.
 
 .. bokeh-example-metadata::
     :title: Parallel selection tool
-    :keywords: parallel selection tool, advanced, extensions
+    :keywords: parallel, selection, tool
     :apis: bokeh.models.BoxSelectTool, bokeh.models.Renderer
 '''
 

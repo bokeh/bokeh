@@ -1,11 +1,10 @@
 ''' Compare map tile providers with linked pan and zoom across maps.
 
 .. bokeh-example-metadata::
-    :title: Tile demo
-    :keywords: tile demo, topic guides, geospatial
+    :title: Compare tile providers
+    :keywords: tile, demo
     :apis: bokeh.models.Div, bokeh.models.Range1d, bokeh.plotting.figure.add_tile
-    :gallery:
-    :thumbnail-alt: A grid of map plots at identical locations using various different tile providers.
+    :gallery: A grid of map plots at identical locations using various different tile providers.
 '''
 
 from os import getenv

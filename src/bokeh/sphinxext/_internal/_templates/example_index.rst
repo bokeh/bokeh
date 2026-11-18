@@ -7,10 +7,12 @@
 
         .. container:: bk-example-facets
 
+{% for topic in entry.topics %}
             .. container:: bk-example-topic
 
-                {{ entry.topic }}
+                {{ topic }}
 
+{% endfor %}
             .. container:: bk-example-type
 
                 {{ entry.example_type }}

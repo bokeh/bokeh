@@ -9,10 +9,11 @@ scanning the whole 3D array as one data set, so they are the same for every
 time step. The checkbox unsets it, so that each 2D array gets its own limits.
 
 .. bokeh-example-metadata::
-    :title: Image stack indexed
+    :title: Heat diffusion through an image stack
+    :keywords: image, image_stack, colormap, slider
     :apis: bokeh.plotting.figure.image_stack, bokeh.models.IndexedStackColorMapper, bokeh.models.ColorBar, bokeh.models.Slider, bokeh.models.Checkbox
     :refs: :ref:`ug_topics_images`
-    :keywords: image, image_stack, colormap, slider
+    :gallery: A heat map shows heat spreading from three sources, with a time slider and a color-scale checkbox.
 
 '''
 import numpy as np

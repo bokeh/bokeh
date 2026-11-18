@@ -3,7 +3,7 @@ source.
 
 .. bokeh-example-metadata::
     :title: Tool
-    :keywords: tool, advanced, extensions
+    :keywords: tool
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Tool, bokeh.plotting.figure.add_tools, bokeh.plotting.figure.line
 '''
 

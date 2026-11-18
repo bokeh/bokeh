@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Segment
-    :keywords: segment, basic plotting, lines
+    :keywords: segment
     :apis: bokeh.plotting.figure.segment
 '''
 

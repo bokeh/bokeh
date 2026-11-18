@@ -3,9 +3,9 @@ It involves clicking on any of the plotted lines to select/ deselect the line.
 
 .. bokeh-example-metadata::
     :title: Line select
+    :keywords: line, taptool, customjs
     :apis: bokeh.plotting.figure.line, bokeh.models.CustomJS, bokeh.models.TapTool
     :refs: :ref:`ug_basic_lines_multi`,:ref:`ug_interaction_js_callbacks`
-    :keywords: line, taptool, customjs
 
 '''
 import numpy as np

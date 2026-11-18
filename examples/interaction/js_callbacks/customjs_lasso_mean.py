@@ -2,11 +2,10 @@
 lasso.
 
 .. bokeh-example-metadata::
-    :title: Customjs lasso mean
-    :keywords: customjs lasso mean, interaction, javascript callbacks
+    :title: Mean of lasso selection
+    :keywords: lasso, selection, mean, CustomJS
     :apis: bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
-    :gallery:
-    :thumbnail-alt: Scatter plot with a lasso selection and a horizontal line showing the mean Y value of the selected points.
+    :gallery: Scatter plot with a lasso selection and a horizontal line showing the mean Y value of the selected points.
 '''
 
 from random import random

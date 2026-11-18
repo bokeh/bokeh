@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: UI
-    :keywords: ui, bokeh server, api
+    :keywords: ui
 '''
 
 from uuid import uuid4

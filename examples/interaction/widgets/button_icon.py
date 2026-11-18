@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Button icon
-    :keywords: button icon, interaction, widgets
+    :keywords: button, icon
     :apis: bokeh.models.BuiltinIcon, bokeh.models.Button, bokeh.models.SetValue
 '''
 

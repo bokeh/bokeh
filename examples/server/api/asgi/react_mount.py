@@ -11,7 +11,7 @@ production host must authenticate token issuance and WebSocket requests.
 
 .. bokeh-example-metadata::
     :title: React mount
-    :keywords: react mount, bokeh server, api
+    :keywords: react, mount
     :apis: bokeh.models.ColorBar, bokeh.models.ColumnDataSource, bokeh.models.Div, bokeh.models.LinearColorMapper, bokeh.models.Select, bokeh.models.Slider
 '''
 

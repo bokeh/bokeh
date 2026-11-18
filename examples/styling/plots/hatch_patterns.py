@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Hatch patterns
-    :keywords: hatch patterns, appearance, plots
+    :keywords: hatch, patterns
     :apis: bokeh.plotting.figure.hbar
 '''
 

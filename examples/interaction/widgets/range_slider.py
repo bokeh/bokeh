@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Range slider
-    :keywords: range slider, interaction, widgets
+    :keywords: range, slider
     :apis: bokeh.models.CustomJS, bokeh.models.RangeSlider
 '''
 

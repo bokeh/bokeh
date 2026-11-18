@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Tick lines
-    :keywords: tick lines, appearance, plots
+    :keywords: tick, lines
     :apis: bokeh.plotting.figure.scatter
 '''
 

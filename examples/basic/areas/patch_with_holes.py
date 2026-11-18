@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Patch with holes
-    :keywords: patch with holes, basic plotting, areas
+    :keywords: patch, with, holes
     :apis: bokeh.plotting.figure.patch
 '''
 

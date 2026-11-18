@@ -6,9 +6,9 @@ property callbacks.
 
 .. bokeh-example-metadata::
     :title: Slider callback policy
+    :keywords: javascript callback, callback policy
     :apis: bokeh.layouts.column, bokeh.models.callbacks.CustomJS
     :refs: :ref:`ug_interaction_callback_policies`
-    :keywords: javascript callback, callback policy
 
 '''
 from bokeh.io import show

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Colorpicker
-    :keywords: colorpicker, interaction, widgets
+    :keywords: color, picker
     :apis: bokeh.models.ColorPicker, bokeh.plotting.figure.line
 '''
 

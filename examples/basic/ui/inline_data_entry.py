@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Inline data entry
-    :keywords: inline data entry, basic plotting, ui
+    :keywords: inline, data, entry
     :apis: bokeh.models.Button, bokeh.models.Column, bokeh.models.CustomJS, bokeh.models.Panel, bokeh.models.Row, bokeh.models.Select, bokeh.models.Slider
 '''
 

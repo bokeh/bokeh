@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Time picker
-    :keywords: time picker, interaction, widgets
+    :keywords: time, picker
     :apis: bokeh.models.CustomJS, bokeh.models.TimePicker
 '''
 

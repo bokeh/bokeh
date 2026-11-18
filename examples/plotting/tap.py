@@ -4,9 +4,9 @@
 
 .. bokeh-example-metadata::
     :title: Tap
+    :keywords: circle, tapplot, text, select_one, renderers
     :apis: bokeh.plotting.figure, bokeh.io.show, bokeh.models.TapTool
     :refs: :ref:`ug_interaction_tools_clicktap`
-    :keywords: circle, tapplot, text, select_one, renderers
 '''
 
 

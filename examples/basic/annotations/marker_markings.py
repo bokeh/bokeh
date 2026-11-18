@@ -2,9 +2,9 @@
 
 .. bokeh-example-metadata::
     :title: Marker markings
+    :keywords: markers, paths, path_markings
     :apis: bokeh.models.ScatterMarking, bokeh.models.GlyphRenderer.add_path_marking
     :refs: :ref:`ug_basic_annotations_path_markings`
-    :keywords: markers, paths, path_markings
 
 '''
 from math import sin, tau

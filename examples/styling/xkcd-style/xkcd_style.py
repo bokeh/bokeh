@@ -1,8 +1,8 @@
 ''' Apply an XKCD-inspired font and hand-drawn styling to widgets.
 
 .. bokeh-example-metadata::
-    :title: Xkcd style
-    :keywords: xkcd style, appearance, xkcd-style
+    :title: XKCD style
+    :keywords: xkcd, style
     :apis: bokeh.models.GlobalInlineStyleSheet, bokeh.models.InlineStyleSheet, bokeh.plotting.figure.line
 '''
 

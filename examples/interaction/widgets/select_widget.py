@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Select widget
-    :keywords: select widget, interaction, widgets
+    :keywords: select, widget
     :apis: bokeh.models.CustomJS, bokeh.models.Select
 '''
 

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Open URL
-    :keywords: open url, interaction, javascript callbacks
+    :keywords: open, url
     :apis: bokeh.models.ColumnDataSource, bokeh.models.OpenURL, bokeh.models.TapTool, bokeh.plotting.figure.scatter, bokeh.plotting.figure.select
 '''
 

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Legend background
-    :keywords: legend background, appearance, plots
+    :keywords: legend, background
     :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
 '''
 

@@ -6,7 +6,7 @@ http://scikit-learn.org/stable/auto_examples/cluster/plot_cluster_comparison.htm
 
 .. bokeh-example-metadata::
     :title: Clustering
-    :keywords: clustering, output, webgl
+    :keywords: clustering, webgl
     :apis: bokeh.plotting.figure.scatter
 '''
 import numpy as np

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Legend label
-    :keywords: legend label, basic plotting, annotations
+    :keywords: legend, label
     :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
 '''
 

@@ -1,10 +1,10 @@
 ''' Embed a Bokeh server app in Flask served by Gunicorn.
 
 .. bokeh-example-metadata::
-    :sampledata: sea_surface_temperature
     :title: Flask gunicorn embed
-    :keywords: flask gunicorn embed, bokeh server, api
+    :keywords: flask, gunicorn, embed
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Slider, bokeh.plotting.figure.line
+    :sampledata: sea_surface_temperature
 '''
 
 import asyncio

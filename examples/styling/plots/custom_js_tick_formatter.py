@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Custom js tick formatter
-    :keywords: custom js tick formatter, appearance, plots
+    :keywords: custom, js, tick, formatter
     :apis: bokeh.models.CustomJSTickFormatter, bokeh.plotting.figure.scatter
 '''
 

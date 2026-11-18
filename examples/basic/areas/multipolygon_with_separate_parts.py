@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Multipolygon with separate parts
-    :keywords: multipolygon with separate parts, basic plotting, areas
+    :keywords: multipolygon, with, separate, parts
     :apis: bokeh.plotting.figure.multi_polygons
 '''
 

@@ -15,7 +15,7 @@ in this directory, and navigate to:
 
 .. bokeh-example-metadata::
     :title: Bokeh server
-    :keywords: bokeh server, output, apis
+    :keywords: bokeh, server
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Slider, bokeh.models.TextInput, bokeh.plotting.figure.line
 '''
 import numpy as np

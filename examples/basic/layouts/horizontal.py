@@ -1,9 +1,10 @@
 ''' Arrange three figures side by side in a row.
 
 .. bokeh-example-metadata::
-    :title: Horizontal
-    :keywords: horizontal, basic plotting, layouts
-    :apis: bokeh.plotting.figure.scatter
+    :title: Arrange plots in a row
+    :keywords: row, horizontal, basic plotting, layouts
+    :apis: bokeh.layouts.row, bokeh.plotting.figure.scatter
+    :gallery: Three scatter plots arranged side by side in a single row.
 '''
 
 from bokeh.layouts import row

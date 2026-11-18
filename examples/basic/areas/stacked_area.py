@@ -2,11 +2,10 @@
 
 .. bokeh-example-metadata::
     :title: Stacked area
-    :gallery:
-    :thumbnail-alt: A stacked area plot of synthetic data for ten series, colormapped using the Sunset palette, with a legend at the top.
+    :keywords: area, pandas, stacked
     :apis: bokeh.plotting.figure.varea_stack
     :refs: :ref:`ug_basic_areas_directed`
-    :keywords: area, pandas, stacked
+    :gallery: A stacked area plot of synthetic data for ten series, colormapped using the Sunset palette, with a legend at the top.
 
 '''
 import numpy as np

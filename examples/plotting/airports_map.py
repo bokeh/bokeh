@@ -4,10 +4,10 @@ a customized tile source configured for OpenStreetMap.
 
 .. bokeh-example-metadata::
     :title: Airports map
-    :sampledata: airports
-    :apis: bokeh.plotting.figure.add_tile, bokeh.plotting.figure.scatter
-    :refs: :ref:`ug_topics_geo_geojson_data`, :ref:`ug_topics_geo_tile_provider_maps`
     :keywords: tile, map, field, elevation, geo
+    :apis: bokeh.plotting.figure.add_tile, bokeh.plotting.figure.scatter
+    :sampledata: airports
+    :refs: :ref:`ug_topics_geo_geojson_data`, :ref:`ug_topics_geo_tile_provider_maps`
 
 '''
 from os import getenv

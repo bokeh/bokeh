@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Plot outline line color
-    :keywords: plot outline line color, appearance, plots
+    :keywords: plot, outline, line, color
     :apis: bokeh.plotting.figure.scatter
 '''
 

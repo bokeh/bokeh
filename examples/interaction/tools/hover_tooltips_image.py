@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Hover tooltips image
-    :keywords: hover tooltips image, interaction, tools
+    :keywords: hover, tooltips, image
     :apis: bokeh.plotting.figure.image
 '''
 

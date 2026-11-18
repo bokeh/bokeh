@@ -4,9 +4,9 @@ API.
 
 .. bokeh-example-metadata::
     :title: Basic plot
+    :keywords: figure, scatter
     :apis: bokeh.models.Scatter, bokeh.models.Plot, bokeh.models.ColumnDataSource, bokeh.models.LinearAxis, bokeh.models.PanTool, bokeh.models.WheelZoomTool
     :refs: :ref:`ug_basic_scatters_markers`
-    :keywords: figure, scatter
 
 '''
 from numpy import arange, pi, sin

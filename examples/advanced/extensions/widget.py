@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Widget
-    :keywords: widget, advanced, extensions
+    :keywords: widget
     :apis: bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.InputWidget, bokeh.models.Slider, bokeh.plotting.figure.line
 '''
 from bokeh.core.properties import Bool, Float, Tuple

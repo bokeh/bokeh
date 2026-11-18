@@ -1,12 +1,11 @@
 ''' This example displays a CartoDB Positron base world map.
 
 .. bokeh-example-metadata::
-    :title: Tile source
-    :gallery:
-    :thumbnail-alt: Basic map plot using a tile source provider.
+    :title: CartoDB Positron basemap
+    :keywords: map, geo, tiles
     :apis: bokeh.plotting.figure.add_tile
     :refs:  :ref:`ug_topics_geo`
-    :keywords: map, geo, tiles
+    :gallery: Basic map plot using a tile source provider.
 
 '''
 from os import getenv

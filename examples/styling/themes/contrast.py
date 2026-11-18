@@ -1,11 +1,10 @@
 ''' Apply Bokeh's Contrast theme to a line plot.
 
 .. bokeh-example-metadata::
-    :title: Contrast
-    :keywords: contrast, appearance, themes
+    :title: Contrast theme
+    :keywords: contrast
     :apis: bokeh.plotting.figure.line
-    :gallery:
-    :thumbnail-alt: Basic line plot with the contrast theme.
+    :gallery: Basic line plot with the contrast theme.
 '''
 
 from bokeh.plotting import curdoc, figure, show

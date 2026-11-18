@@ -2,12 +2,11 @@
 between each pair of contour levels.
 
 .. bokeh-example-metadata::
-    :title: Contour
-    :gallery:
-    :thumbnail-alt: An iso-contour of a 2d trigonometric function
+    :title: Sine and cosine contours
+    :keywords: contour
     :apis: bokeh.plotting.figure.contour, bokeh.models.ContourRenderer.add_labels, bokeh.models.ContourRenderer
     :refs: :ref:`ug_topics_contour`
-    :keywords: contour
+    :gallery: An iso-contour of a 2d trigonometric function
 
 '''
 

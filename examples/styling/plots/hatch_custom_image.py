@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Hatch custom image
-    :keywords: hatch custom image, appearance, plots
+    :keywords: hatch, custom, image
     :apis: bokeh.models.ImageURLTexture, bokeh.plotting.figure.vbar
 '''
 

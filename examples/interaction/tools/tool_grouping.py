@@ -3,7 +3,7 @@ scatter renderers.
 
 .. bokeh-example-metadata::
     :title: Tool grouping
-    :keywords: tool grouping, interaction, tools
+    :keywords: tool, grouping
     :apis: bokeh.models.CustomJS, bokeh.models.Div, bokeh.models.HoverTool, bokeh.models.Switch, bokeh.models.TapTool, bokeh.plotting.figure.add_tools
 '''
 

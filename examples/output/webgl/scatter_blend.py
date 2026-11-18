@@ -2,10 +2,11 @@
 blend in WebGL.
 
 .. bokeh-example-metadata::
-    :sampledata: penguins
-    :title: Scatter blend
-    :keywords: scatter blend, output, webgl
+    :title: Blend translucent markers
+    :keywords: scatter, blend, webgl
     :apis: bokeh.plotting.figure.scatter
+    :sampledata: penguins
+    :gallery: Two overlaid scatter plots of penguin measurements show how translucent markers blend.
 '''
 
 from bokeh.plotting import figure, show

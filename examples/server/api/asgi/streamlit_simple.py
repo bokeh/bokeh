@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Streamlit simple
-    :keywords: streamlit simple, bokeh server, api
+    :keywords: streamlit, simple
 '''
 
 from contextlib import asynccontextmanager

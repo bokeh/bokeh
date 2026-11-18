@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Custom attribution
-    :keywords: custom attribution, basic plotting, ui
+    :keywords: custom, attribution
     :apis: bokeh.models.Node, bokeh.models.Panel, bokeh.plotting.figure.circle
 '''
 

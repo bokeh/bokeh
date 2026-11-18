@@ -2,9 +2,9 @@
 
 .. bokeh-example-metadata::
     :title: Multi line
+    :keywords: multi_line, HoverTool, TapTool
     :apis: bokeh.plotting.figure.multi_line, bokeh.models.HoverTool, bokeh.models.TapTool
     :refs: :ref:`ug_basic_lines_multi`
-    :keywords: multi_line, HoverTool, TapTool
 
 '''
 

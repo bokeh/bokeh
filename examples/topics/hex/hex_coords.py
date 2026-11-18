@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Hex coords
-    :keywords: hex coords, topic guides, hex
+    :keywords: hex, coords
     :apis: bokeh.plotting.figure.hex_tile, bokeh.plotting.figure.text
 '''
 

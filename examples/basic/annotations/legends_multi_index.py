@@ -3,7 +3,7 @@ renderer.
 
 .. bokeh-example-metadata::
     :title: Legends multi index
-    :keywords: legends multi index, basic plotting, annotations
+    :keywords: legends, multi, index
     :apis: bokeh.models.Legend, bokeh.models.LegendItem, bokeh.plotting.figure.add_layout, bokeh.plotting.figure.multi_line
 '''
 

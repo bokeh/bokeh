@@ -6,7 +6,7 @@ updated without recreating the plot or its WebGL resources.
 
 .. bokeh-example-metadata::
     :title: Mixed markers streaming
-    :keywords: mixed markers streaming, output, webgl
+    :keywords: mixed, markers, streaming, webgl
     :apis: bokeh.models.Button, bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.Scatter, bokeh.plotting.figure.scatter
 '''
 

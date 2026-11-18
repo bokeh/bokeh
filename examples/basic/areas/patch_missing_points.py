@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Patch missing points
-    :keywords: patch missing points, basic plotting, areas
+    :keywords: patch, missing, points
     :apis: bokeh.plotting.figure.patch
 '''
 

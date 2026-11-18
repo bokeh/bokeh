@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Tool overlays
-    :keywords: tool overlays, interaction, tools
+    :keywords: tool, overlays
     :apis: bokeh.models.BoxSelectTool, bokeh.models.BoxZoomTool, bokeh.models.LassoSelectTool, bokeh.plotting.figure.scatter
 '''
 

@@ -3,12 +3,11 @@ various temperatures. This example demonstrates the use of mathtext on axes
 and in ``Div`` objects.
 
 .. bokeh-example-metadata::
-    :title: Latex blackbody radiation
-    :gallery:
-    :thumbnail-alt: Plot of spectral radiance curves for an ideal radiating blackbody at various temperatures with mathtext axis labels.
+    :title: Blackbody radiation
+    :keywords: mathtext, latex
     :apis: bokeh.plotting.figure.line, bokeh.models.Div, bokeh.models.SITickFormatter
     :refs: :ref:`ug_styling_mathtext`
-    :keywords: mathtext, latex
+    :gallery: Plot of spectral radiance curves for an ideal radiating blackbody at various temperatures with mathtext axis labels.
 
 '''
 import numpy as np

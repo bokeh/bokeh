@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Toggle button
-    :keywords: toggle button, interaction, widgets
+    :keywords: toggle, button
     :apis: bokeh.models.CustomJS, bokeh.models.Toggle
 '''
 

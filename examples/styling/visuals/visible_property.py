@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Visible property
-    :keywords: visible property, appearance, visuals
+    :keywords: visible, property
     :apis: bokeh.plotting.figure.line
 '''
 

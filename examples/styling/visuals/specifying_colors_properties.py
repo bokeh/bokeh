@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Specifying colors properties
-    :keywords: specifying colors properties, appearance, visuals
+    :keywords: specifying, colors, properties
     :apis: bokeh.plotting.figure.scatter
 '''
 

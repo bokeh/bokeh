@@ -1,9 +1,10 @@
 ''' Build a dashboard around a Bollinger-band plot and supporting content.
 
 .. bokeh-example-metadata::
-    :title: Dashboard
-    :keywords: dashboard, basic plotting, layouts
+    :title: Interactive dashboard
+    :keywords: dashboard
     :apis: bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.Div, bokeh.models.Slider, bokeh.plotting.figure.line
+    :gallery: A dashboard with a Bollinger-band chart, sliders beside a sine wave, and three linked plots.
 '''
 
 import numpy as np

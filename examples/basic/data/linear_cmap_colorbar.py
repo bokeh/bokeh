@@ -1,11 +1,10 @@
 ''' Map scatter colors to y values and display the same mapping in a color bar.
 
 .. bokeh-example-metadata::
-    :title: Linear cmap colorbar
-    :keywords: linear cmap colorbar, basic plotting, data
+    :title: Map point values to color
+    :keywords: linear, cmap, colorbar
     :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.add_layout, bokeh.plotting.figure.scatter
-    :gallery:
-    :thumbnail-alt: A linear colormapper used to drive a colorbar in addition to a glyph's color.
+    :gallery: A linear colormapper used to drive a colorbar in addition to a glyph's color.
 '''
 
 from bokeh.models import ColumnDataSource

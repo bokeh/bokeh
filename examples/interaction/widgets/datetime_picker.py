@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Datetime picker
-    :keywords: datetime picker, interaction, widgets
+    :keywords: datetime, picker
     :apis: bokeh.models.CustomJS, bokeh.models.DatetimePicker
 '''
 

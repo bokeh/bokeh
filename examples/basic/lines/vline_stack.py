@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Vline stack
-    :keywords: vline stack, basic plotting, lines
+    :keywords: vline, stack
     :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.vline_stack
 '''
 

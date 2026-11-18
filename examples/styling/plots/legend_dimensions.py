@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Legend dimensions
-    :keywords: legend dimensions, appearance, plots
+    :keywords: legend, dimensions
     :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
 '''
 

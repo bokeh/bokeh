@@ -1,17 +1,14 @@
-''' A `multiple kernel density estimation`_ plot of the "cows" data using
-the `sklearn.neighbors.KernelDensity`_ function and `Bokeh` varea glyph
+''' A `multiple kernel density estimation <https://en.wikipedia.org/wiki/Kernel_density_estimation>`__ plot of the "cows" data using
+the `sklearn.neighbors.KernelDensity <https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KernelDensity.html>`__ function and `Bokeh` varea glyph
 
 .. bokeh-example-metadata::
-    :title: Density
-    :gallery:
-    :thumbnail-alt: A multiple kernel density estimation of the cows data.
-    :sampledata: cows
-    :apis: bokeh.plotting.figure.varea
-    :refs: :ref:`ug_topics_stats_kde`
+    :title: Compare kernel density estimates
     :keywords: density, varea
+    :apis: bokeh.plotting.figure.varea
+    :sampledata: cows
+    :refs: :ref:`ug_topics_stats_kde`
+    :gallery: A multiple kernel density estimation of the cows data.
 
-.. _multiple kernel density estimation: https://en.wikipedia.org/wiki/Kernel_density_estimation
-.. _sklearn.neighbors.KernelDensity: https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KernelDensity.html
 
 '''
 import numpy as np

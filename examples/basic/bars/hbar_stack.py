@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Hbar stack
-    :keywords: hbar stack, basic plotting, bars
+    :keywords: hbar, stack
     :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.hbar_stack
 '''
 

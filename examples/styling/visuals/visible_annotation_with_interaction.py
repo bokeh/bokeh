@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Visible annotation with interaction
-    :keywords: visible annotation with interaction, appearance, visuals
+    :keywords: visible, annotation, with, interaction
     :apis: bokeh.models.BoxAnnotation, bokeh.models.Toggle, bokeh.plotting.figure.add_layout, bokeh.plotting.figure.line
 '''
 

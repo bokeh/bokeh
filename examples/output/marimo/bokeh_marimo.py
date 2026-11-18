@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Bokeh marimo
-    :keywords: bokeh marimo, output, marimo
+    :keywords: bokeh, marimo
     :apis: bokeh.models.HoverTool, bokeh.plotting.figure.add_tools, bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
 '''
 

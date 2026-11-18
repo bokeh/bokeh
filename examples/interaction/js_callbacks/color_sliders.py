@@ -1,13 +1,11 @@
-''' An interactive plot of colors. This example demonstrates adding widgets and
-``CustomJS`` callbacks that can update a plot.
+''' Use ``CustomJS`` callbacks to update a plot's fill and label as sliders change.
 
 .. bokeh-example-metadata::
-    :title: Color sliders
-    :gallery:
-    :thumbnail-alt: A layout with RGB sliders on the left to control a plot on the right. A colorbar with hover tool is underneath.
+    :title: Update a plot from sliders
+    :keywords: rgb, slider, CustomJS, color
     :apis: bokeh.plotting.figure.text, bokeh.layouts.column, bokeh.models.sources.ColumnDataSource, bokeh.models.callbacks.CustomJS, bokeh.models.widgets.sliders.Slider, bokeh.themes.Theme
     :refs: :ref:`ug_interaction_js_callbacks_customjs`
-    :keywords: hover, javascript callback, theme, tooltip
+    :gallery: Red, green, and blue sliders above a swatch with a matching hexadecimal color label.
 
 ''' # noqa: E501
 from bokeh.layouts import column

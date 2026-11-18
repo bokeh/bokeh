@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Date range picker
-    :keywords: date range picker, interaction, widgets
+    :keywords: date, range, picker
     :apis: bokeh.models.CustomJS, bokeh.models.DateRangePicker
 '''
 

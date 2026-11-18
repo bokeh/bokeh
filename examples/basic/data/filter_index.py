@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Filter index
-    :keywords: filter index, basic plotting, data
+    :keywords: filter, index
     :apis: bokeh.models.ColumnDataSource, bokeh.models.IndexFilter, bokeh.models.IndexedSubset, bokeh.plotting.figure.scatter
 '''
 

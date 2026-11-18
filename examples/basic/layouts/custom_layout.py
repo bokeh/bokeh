@@ -1,10 +1,10 @@
 ''' Place named Bokeh figures into a custom HTML template.
 
 .. bokeh-example-metadata::
-    :no-render:
     :title: Custom layout
-    :keywords: custom layout, basic plotting, layouts
+    :keywords: custom, layout
     :apis: bokeh.plotting.figure.scatter
+    :no-render:
 '''
 
 from bokeh.plotting import figure, show

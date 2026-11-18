@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Rect
-    :keywords: rect, basic plotting, areas
+    :keywords: rect
     :apis: bokeh.plotting.figure.rect
 '''
 

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Markertypes
-    :keywords: markertypes, basic plotting, scatter plots
+    :keywords: markertypes
     :apis: bokeh.plotting.figure.scatter
 '''
 

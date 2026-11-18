@@ -2,10 +2,9 @@
 
 .. bokeh-example-metadata::
     :title: Grid bounds
-    :keywords: grid bounds, appearance, plots
+    :keywords: grid, bounds
     :apis: bokeh.plotting.figure.scatter
-    :gallery:
-    :thumbnail-alt: How to set bounds limits on plot grids.
+    :gallery: Five scatter points with grid lines drawn only between 2 and 4 on each axis.
 '''
 
 from bokeh.plotting import figure, show

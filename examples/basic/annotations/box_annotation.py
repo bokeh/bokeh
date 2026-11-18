@@ -2,13 +2,12 @@
 adding box annotations as well as a multi-line title.
 
 .. bokeh-example-metadata::
-    :title: Box annotation
-    :gallery:
-    :thumbnail-alt: A timeseries plot of glucose data readings with red box annotations marking regions where the readings are too high or too low.
-    :sampledata: glucose
-    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter, bokeh.models.BoxAnnotation
-    :refs: :ref:`ug_basic_annotations_box_annotations`
+    :title: Highlight glucose thresholds
     :keywords: box annotation, time series
+    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter, bokeh.models.BoxAnnotation
+    :sampledata: glucose
+    :refs: :ref:`ug_basic_annotations_box_annotations`
+    :gallery: A timeseries plot of glucose data readings with red box annotations marking regions where the readings are too high or too low.
 
 '''
 from bokeh.models import BoxAnnotation

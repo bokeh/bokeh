@@ -2,9 +2,9 @@
 
 .. bokeh-example-metadata::
     :title: Legends item visibility
+    :keywords: legend
     :apis: bokeh.models.LegendItem, bokeh.plotting.figure.scatter, bokeh.plotting.figure.line
     :refs: :ref:`ug_basic_annotations_legends_item_visibility`
-    :keywords: legend
 
 '''
 import numpy as np

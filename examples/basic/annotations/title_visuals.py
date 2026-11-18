@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Title visuals
-    :keywords: title visuals, basic plotting, annotations
+    :keywords: title, visuals
     :apis: bokeh.plotting.figure.scatter
 '''
 

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Legend orientation
-    :keywords: legend orientation, appearance, plots
+    :keywords: legend, orientation
     :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
 '''
 

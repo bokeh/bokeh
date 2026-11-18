@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Categorical offset
-    :keywords: categorical offset, topic guides, categorical
+    :keywords: categorical, offset
     :apis: bokeh.plotting.figure.vbar
 '''
 

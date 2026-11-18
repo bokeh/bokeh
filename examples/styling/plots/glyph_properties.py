@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Glyph properties
-    :keywords: glyph properties, appearance, plots
+    :keywords: glyph, properties
     :apis: bokeh.plotting.figure.scatter
 '''
 

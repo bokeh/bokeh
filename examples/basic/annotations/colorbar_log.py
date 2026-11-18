@@ -1,12 +1,11 @@
 ''' A demonstration of a ColorBar with a log color scale.
 
 .. bokeh-example-metadata::
-    :title: Colorbar log
-    :gallery:
-    :thumbnail-alt: A log-scale color bar next to a colormapped image plot.
+    :title: Add a logarithmic color bar
+    :keywords: colorbar
     :apis: bokeh.models.ColorBar, bokeh.models.LogColorMapper
     :refs: :ref:`ug_basic_annotations_color_bars`
-    :keywords: colorbar
+    :gallery: A log-scale color bar next to a colormapped image plot.
 
 '''
 import numpy as np

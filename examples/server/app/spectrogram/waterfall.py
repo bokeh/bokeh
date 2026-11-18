@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Waterfall
-    :keywords: waterfall, bokeh server, app
+    :keywords: waterfall
     :apis: bokeh.models.Renderer
 '''
 

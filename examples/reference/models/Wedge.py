@@ -1,10 +1,10 @@
 ''' Draw filled circular sectors using radii and angle ranges.
 
 .. bokeh-example-metadata::
-    :example-ref: bokeh.models.glyphs.wedge
     :title: Wedge
     :keywords: wedge, reference
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Plot, bokeh.models.Wedge
+    :example-ref: bokeh.models.glyphs.wedge
 '''
 
 import numpy as np

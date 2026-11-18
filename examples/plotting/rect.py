@@ -4,9 +4,9 @@ and the third plot adds an angle to each rect.
 
 .. bokeh-example-metadata::
     :title: Rect
+    :keywords: rect
     :apis: bokeh.plotting.figure.rect
     :refs: :ref:`ug_basic_areas_rects`
-    :keywords: rect
 
 '''
 import numpy as np

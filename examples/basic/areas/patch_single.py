@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Patch single
-    :keywords: patch single, basic plotting, areas
+    :keywords: patch, single
     :apis: bokeh.plotting.figure.patch
 '''
 

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Varea stack
-    :keywords: varea stack, basic plotting, areas
+    :keywords: varea, stack
     :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.varea_stack
 '''
 

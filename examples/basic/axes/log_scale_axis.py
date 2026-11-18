@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Log scale axis
-    :keywords: log scale axis, basic plotting, axes
+    :keywords: log, scale, axis
     :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
 '''
 

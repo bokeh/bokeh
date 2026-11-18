@@ -1,13 +1,11 @@
-''' A bar chart based on plain Python lists. This example demonstrates creating
-a using a ``dodge`` transform to "group" the bars.
+''' Group bars side by side using a ``dodge`` transform on categorical coordinates.
 
 .. bokeh-example-metadata::
-    :title: Dodged
-    :gallery:
-    :thumbnail-alt: Grouped bars offset side by side. Each group has a silver, blue, and red bar, identified in the legend.
+    :title: Side-by-side bars
+    :keywords: bars, categorical, dodged, grouped
     :apis: bokeh.plotting.figure.vbar, bokeh.transform.dodge, bokeh.models.ColumnDataSource
     :refs: :ref:`ug_basic_bars_grouped`, :ref:`ug_basic_bars_grouped_dodged`
-    :keywords: bars, categorical, dodged, grouped
+    :gallery: Grouped bars offset side by side. Each group has a silver, blue, and red bar, identified in the legend.
 
 '''
 from bokeh.models import ColumnDataSource

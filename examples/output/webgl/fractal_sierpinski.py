@@ -5,9 +5,10 @@ WebGL-accelerated rendering of many filled polygons.
 
 
 .. bokeh-example-metadata::
-    :title: Fractal sierpinski
-    :keywords: fractal sierpinski, output, webgl
+    :title: Sierpiński triangle
+    :keywords: fractal, sierpinski, webgl
     :apis: bokeh.plotting.figure.patches
+    :gallery: A colorful fractal triangle made of smaller filled triangles rendered with WebGL.
 '''
 import numpy as np
 

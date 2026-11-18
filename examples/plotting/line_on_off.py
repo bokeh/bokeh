@@ -4,9 +4,9 @@ the plotted lines to turn the lines on/off.
 
 .. bokeh-example-metadata::
     :title: Line on off
+    :keywords: line, checkbox, CustomJS
     :apis: bokeh.plotting.figure.line, bokeh.layouts.row, bokeh.models.CustomJS
     :refs: :ref:`ug_basic_lines_multi`,:ref:`_ug_interaction_widgets_examples_checkboxgroup`,:ref:`ug_interaction_js_callbacks`
-    :keywords: line, checkbox, CustomJS
 '''
 
 import numpy as np

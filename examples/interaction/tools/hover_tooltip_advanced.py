@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Hover tooltip advanced
-    :keywords: hover tooltip advanced, interaction, tools
+    :keywords: hover, tooltip, advanced
     :apis: bokeh.models.BoxAnnotation, bokeh.models.CustomJS, bokeh.models.HoverTool, bokeh.models.Styles, bokeh.plotting.figure.add_layout
 '''
 

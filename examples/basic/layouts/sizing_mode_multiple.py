@@ -3,7 +3,7 @@ frequency.
 
 .. bokeh-example-metadata::
     :title: Sizing mode multiple
-    :keywords: sizing mode multiple, basic plotting, layouts
+    :keywords: sizing, mode, multiple
     :apis: bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.Div, bokeh.models.Slider, bokeh.plotting.figure.line
 '''
 

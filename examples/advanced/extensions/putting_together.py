@@ -2,8 +2,8 @@
 value.
 
 .. bokeh-example-metadata::
-    :title: Putting together
-    :keywords: putting together, advanced, extensions
+    :title: Custom widget from a Python model
+    :keywords: custom model, widget, Python, TypeScript
     :apis: bokeh.models.Slider, bokeh.models.UIElement
 '''
 

@@ -6,7 +6,7 @@ in scatter plots where circle radius varies with data values.
 
 .. bokeh-example-metadata::
     :title: Size bar
-    :keywords: size bar, basic plotting, annotations
+    :keywords: size, bar
     :apis: bokeh.models.SizeBar, bokeh.plotting.figure.add_layout, bokeh.plotting.figure.circle
 '''
 

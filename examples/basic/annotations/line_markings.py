@@ -2,9 +2,9 @@
 
 .. bokeh-example-metadata::
     :title: Line markings
+    :keywords: arrows, path_markings, segments, multiline
     :apis: bokeh.plotting.figure.segment, bokeh.plotting.figure.multi_line, bokeh.models.GlyphRenderer.add_path_marking
     :refs: :ref:`ug_basic_annotations_arrows`
-    :keywords: arrows, path_markings, segments, multiline
 
 '''
 from bokeh.layouts import column

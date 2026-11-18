@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Nested evenodd polygons
-    :keywords: nested evenodd polygons, output, webgl
+    :keywords: nested, evenodd, polygons, webgl
     :apis: bokeh.plotting.figure.patch
 '''
 

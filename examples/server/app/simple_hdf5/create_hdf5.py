@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Create HDF5
-    :keywords: create hdf5, bokeh server, app
+    :keywords: create, hdf5
 '''
 
 from os.path import join

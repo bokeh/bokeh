@@ -2,12 +2,11 @@
 creating a ``FactorRange`` with nested categories.
 
 .. bokeh-example-metadata::
-    :title: Nested
-    :gallery:
-    :thumbnail-alt: Grouped blue bars on a hierarchical axis. Each fruit has three bars for random values from 2015 to 2017.
+    :title: Bars on a hierarchical axis
+    :keywords: bars, categorical, grouped
     :apis: bokeh.plotting.figure.vbar, bokeh.models.sources.ColumnDataSource, bokeh.models.ranges.FactorRange
     :refs: :ref:`ug_basic_bars_grouped_nested`
-    :keywords: bars, categorical, grouped
+    :gallery: Grouped blue bars on a hierarchical axis. Each fruit has three bars for random values from 2015 to 2017.
 
 '''
 from bokeh.models import ColumnDataSource, FactorRange

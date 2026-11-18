@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Starlette embed
-    :keywords: starlette embed, bokeh server, api
+    :keywords: starlette, embed
 '''
 
 from collections.abc import AsyncGenerator

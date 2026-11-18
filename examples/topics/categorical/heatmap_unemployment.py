@@ -2,13 +2,12 @@
 adding a ``ColorBar`` to a plot.
 
 .. bokeh-example-metadata::
-    :title: Heatmap unemployment
-    :gallery:
-    :thumbnail-alt: A categorical heatmap of monthly US unemployment data from 1948 to 2016. The x-axis is years and the y-axis is month of the year.
-    :sampledata: unemployment1948
-    :apis: bokeh.plotting.figure.rect, bokeh.models.ColorBar
-    :refs: :ref:`ug_basic_annotations_color_bars`
+    :title: Unemployment heatmap
     :keywords: categorical, colorbar, heatmap, hover, tooltip
+    :apis: bokeh.plotting.figure.rect, bokeh.models.ColorBar
+    :sampledata: unemployment1948
+    :refs: :ref:`ug_basic_annotations_color_bars`
+    :gallery: A categorical heatmap of monthly US unemployment data from 1948 to 2016. The x-axis is years and the y-axis is month of the year.
 
 '''
 from math import pi

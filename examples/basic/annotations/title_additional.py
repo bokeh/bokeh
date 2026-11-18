@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Title additional
-    :keywords: title additional, basic plotting, annotations
+    :keywords: title, additional
     :apis: bokeh.models.Title, bokeh.plotting.figure.add_layout, bokeh.plotting.figure.scatter
 '''
 

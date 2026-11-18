@@ -2,9 +2,9 @@
 
 .. bokeh-example-metadata::
     :title: Arrowheads
+    :keywords: arrows
     :apis: bokeh.models.Label, bokeh.plotting.figure.arrow
     :refs: :ref:`ug_basic_annotations_arrows`
-    :keywords: arrows
 
 '''
 from bokeh.models import Label, NormalHead, OpenHead, TeeHead, VeeHead

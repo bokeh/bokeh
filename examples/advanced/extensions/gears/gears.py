@@ -3,7 +3,7 @@ tools.
 
 .. bokeh-example-metadata::
     :title: Gears
-    :keywords: gears, advanced, extensions
+    :keywords: gears
     :apis: bokeh.plotting.figure.add_glyph
 '''
 

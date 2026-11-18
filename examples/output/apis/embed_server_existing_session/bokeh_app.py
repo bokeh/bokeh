@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Bokeh app
-    :keywords: bokeh app, output, apis
+    :keywords: bokeh, app
     :apis: bokeh.plotting.figure.circle
 '''
 

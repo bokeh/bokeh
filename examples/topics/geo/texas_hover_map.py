@@ -3,12 +3,12 @@ demonstrates using a ``LogColorMapper`` and hover tool.
 
 .. bokeh-example-metadata::
     :title: Texas hover map
-    :gallery:
-    :thumbnail-alt: A color-mapped map plot based on Texas unemployment rate per county, colormapped using the Viridis palette.
-    :sampledata: unemployment, us_counties
-    :apis: bokeh.plotting.figure.patches, bokeh.models.mappers.LogColorMapper
-    :refs: :ref:`ug_interaction_tools_hover_tool`
     :keywords: colormap, map, patches
+    :categories: topics/geo, interaction/tools
+    :apis: bokeh.plotting.figure.patches, bokeh.models.mappers.LogColorMapper
+    :sampledata: unemployment, us_counties
+    :refs: :ref:`ug_interaction_tools_hover_tool`
+    :gallery: A color-mapped map plot based on Texas unemployment rate per county, colormapped using the Viridis palette.
 
 '''
 from bokeh.models import LogColorMapper

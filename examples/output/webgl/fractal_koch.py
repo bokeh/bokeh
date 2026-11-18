@@ -7,7 +7,7 @@ polygon to demonstrate complex polygon rendering with WebGL.
 
 .. bokeh-example-metadata::
     :title: Fractal koch
-    :keywords: fractal koch, output, webgl
+    :keywords: fractal, koch, webgl
     :apis: bokeh.plotting.figure.patch
 '''
 import math

@@ -5,8 +5,8 @@
 
 {{ ref }}
 
-{{ filename }}
-{{ '-' * filename|length }}
+{{ title }}
+{{ '=' * title|length }}
 
 .. bokeh-plot:: {{ source_path }}
     :process-docstring:

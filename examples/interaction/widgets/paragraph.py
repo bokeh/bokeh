@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Paragraph
-    :keywords: paragraph, interaction, widgets
+    :keywords: paragraph
     :apis: bokeh.models.Paragraph
 '''
 

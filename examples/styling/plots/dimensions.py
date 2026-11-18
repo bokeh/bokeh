@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Dimensions
-    :keywords: dimensions, appearance, plots
+    :keywords: dimensions
     :apis: bokeh.plotting.figure.scatter
 '''
 

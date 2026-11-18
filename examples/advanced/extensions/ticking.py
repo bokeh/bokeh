@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Ticking
-    :keywords: ticking, advanced, extensions
+    :keywords: ticking
     :apis: bokeh.models.TickFormatter, bokeh.plotting.figure.scatter
 '''
 

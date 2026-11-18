@@ -1,10 +1,10 @@
 ''' Highlight part of a stock price series with a polygon annotation.
 
 .. bokeh-example-metadata::
-    :sampledata: stocks
     :title: Polygon annotation
-    :keywords: polygon annotation, basic plotting, annotations
+    :keywords: polygon, annotation
     :apis: bokeh.models.PolyAnnotation, bokeh.plotting.figure.add_layout, bokeh.plotting.figure.line
+    :sampledata: stocks
 '''
 
 from datetime import datetime as dt

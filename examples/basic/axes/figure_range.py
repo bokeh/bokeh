@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Figure range
-    :keywords: figure range, basic plotting, axes
+    :keywords: figure, range
     :apis: bokeh.models.Range1d, bokeh.plotting.figure.scatter
 '''
 

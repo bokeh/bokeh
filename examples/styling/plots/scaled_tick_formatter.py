@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Scaled tick formatter
-    :keywords: scaled tick formatter, appearance, plots
+    :keywords: scaled, tick, formatter
     :apis: bokeh.models.AdaptiveTicker, bokeh.models.ScaledTickFormatter, bokeh.models.ScaledTicker, bokeh.plotting.figure.line
 '''
 

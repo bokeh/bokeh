@@ -2,10 +2,10 @@
 species.
 
 .. bokeh-example-metadata::
-    :sampledata: penguins
     :title: Filter group
-    :keywords: filter group, basic plotting, data
+    :keywords: filter, group
     :apis: bokeh.models.ColumnDataSource, bokeh.models.GroupFilter, bokeh.models.IndexedSubset, bokeh.plotting.figure.scatter
+    :sampledata: penguins
 '''
 
 from bokeh.layouts import gridplot

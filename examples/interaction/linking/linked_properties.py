@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Linked properties
-    :keywords: linked properties, interaction, linking
+    :keywords: linked, properties
     :apis: bokeh.models.Slider, bokeh.plotting.figure.circle
 '''
 

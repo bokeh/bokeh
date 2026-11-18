@@ -3,7 +3,7 @@ the selected files.
 
 .. bokeh-example-metadata::
     :title: File input
-    :keywords: file input, interaction, javascript callbacks
+    :keywords: file, input
     :apis: bokeh.models.CustomJS, bokeh.models.Div, bokeh.models.FileInput
 '''
 

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Tick label orientation
-    :keywords: tick label orientation, appearance, plots
+    :keywords: tick, label, orientation
     :apis: bokeh.plotting.figure.scatter
 '''
 

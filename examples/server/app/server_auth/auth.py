@@ -11,7 +11,7 @@ consider a higher level tool, such as Panel:
 
 .. bokeh-example-metadata::
     :title: Auth
-    :keywords: auth, bokeh server, app
+    :keywords: auth
 '''
 import tornado
 from tornado.web import RequestHandler

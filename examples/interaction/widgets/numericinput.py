@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Numericinput
-    :keywords: numericinput, interaction, widgets
+    :keywords: numeric, input
     :apis: bokeh.models.NumericInput
 '''
 

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Simulation
-    :keywords: simulation, bokeh server, api
+    :keywords: simulation
     :apis: bokeh.models.ColorBar, bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.Div, bokeh.models.HoverTool
 '''
 

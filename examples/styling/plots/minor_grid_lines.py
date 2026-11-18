@@ -2,10 +2,9 @@
 
 .. bokeh-example-metadata::
     :title: Minor grid lines
-    :keywords: minor grid lines, appearance, plots
+    :keywords: minor, grid, lines
     :apis: bokeh.plotting.figure.scatter
-    :gallery:
-    :thumbnail-alt: How to add grid lines at minor tick locations.
+    :gallery: Five scatter points on a grid with major and minor grid lines.
 '''
 
 from bokeh.plotting import figure, show

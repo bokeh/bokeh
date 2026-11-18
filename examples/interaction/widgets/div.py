@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Div
-    :keywords: div, interaction, widgets
+    :keywords: div
     :apis: bokeh.models.Div
 '''
 

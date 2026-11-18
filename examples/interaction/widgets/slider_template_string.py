@@ -1,10 +1,10 @@
 ''' Use a Python template string to update text from a JavaScript slider callback.
 
 .. bokeh-example-metadata::
-    :min-python: 3.14
     :title: Slider template string
-    :keywords: slider template string, interaction, widgets
+    :keywords: slider, template, string
     :apis: bokeh.models.Div, bokeh.models.Slider
+    :no-render:
 '''
 
 from bokeh.io import show

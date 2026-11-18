@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Streamlit simple page
-    :keywords: streamlit simple page, bokeh server, api
+    :keywords: streamlit, simple, page
 '''
 
 import streamlit as st

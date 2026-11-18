@@ -2,12 +2,11 @@
 sync.
 
 .. bokeh-example-metadata::
-    :sampledata: autompg2
-    :title: Data table plot
-    :keywords: data table plot, interaction, linking
+    :title: Link selections in a plot and table
+    :keywords: data, table, plot
     :apis: bokeh.models.ColumnDataSource, bokeh.models.DataTable, bokeh.models.HoverTool, bokeh.models.IntEditor, bokeh.models.NumberEditor
-    :gallery:
-    :thumbnail-alt: A column of a scatter plot and data table that share a data source and have linked selections.
+    :sampledata: autompg2
+    :gallery: A column of a scatter plot and data table that share a data source and have linked selections.
 '''
 
 from bokeh.layouts import column

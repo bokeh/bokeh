@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Glyph selection models
-    :keywords: glyph selection models, appearance, plots
+    :keywords: glyph, selection, models
     :apis: bokeh.plotting.figure.scatter
 '''
 

@@ -2,10 +2,10 @@
 scatter plot.
 
 .. bokeh-example-metadata::
-    :sampledata: glucose, penguins
     :title: Words and plots
-    :keywords: words and plots, basic plotting, layouts
+    :keywords: words, and, plots
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Div, bokeh.models.HoverTool, bokeh.models.Paragraph, bokeh.plotting.figure.add_tools
+    :sampledata: glucose, penguins
 '''
 
 from bokeh.layouts import layout

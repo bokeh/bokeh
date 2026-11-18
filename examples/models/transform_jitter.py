@@ -2,9 +2,9 @@
 
 .. bokeh-example-metadata::
     :title: Transform jitter
+    :keywords: scatter plot, Jitter, Bokeh, NumPy
     :apis: bokeh.plotting.figure.scatter, bokeh.models.sources.ColumnDataSource, bokeh.models.Circle, bokeh.models.Jitter
     :refs: :ref:`ug_interaction_widgets`, :ref:`ug_topics_categorical_scatters_jitter`
-    :keywords: scatter plot, Jitter, Bokeh, NumPy
 
 '''
 

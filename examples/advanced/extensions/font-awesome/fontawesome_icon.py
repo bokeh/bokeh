@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Fontawesome icon
-    :keywords: fontawesome icon, advanced, extensions
+    :keywords: fontawesome, icon
     :apis: bokeh.models.Icon
 '''
 

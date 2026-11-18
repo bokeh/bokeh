@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Bounds
-    :keywords: bounds, appearance, plots
+    :keywords: bounds
     :apis: bokeh.plotting.figure.scatter
 '''
 

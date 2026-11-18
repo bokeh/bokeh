@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Wrapping
-    :keywords: wrapping, advanced, extensions
+    :keywords: custom model, vis.js, 3D, surface
     :apis: bokeh.models.ColumnDataSource, bokeh.models.LayoutDOM
 '''
 

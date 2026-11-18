@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Varea step
-    :keywords: varea step, basic plotting, areas
+    :keywords: varea, step
     :apis: bokeh.plotting.figure.varea_step
 '''
 

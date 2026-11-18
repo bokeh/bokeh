@@ -3,7 +3,7 @@ grid.
 
 .. bokeh-example-metadata::
     :title: Manual grid
-    :keywords: manual grid, basic plotting, layouts
+    :keywords: manual, grid
     :apis: bokeh.models.Paragraph, bokeh.models.Select, bokeh.plotting.figure.annular_wedge, bokeh.plotting.figure.bezier, bokeh.plotting.figure.line
 '''
 

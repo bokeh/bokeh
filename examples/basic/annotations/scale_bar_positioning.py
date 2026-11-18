@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Scale bar positioning
-    :keywords: scale bar positioning, basic plotting, annotations
+    :keywords: scale, bar, positioning
     :apis: bokeh.models.ColumnDataSource, bokeh.models.FactorRange, bokeh.models.Metric, bokeh.models.Range1d, bokeh.models.ScaleBar
 '''
 

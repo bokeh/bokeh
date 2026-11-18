@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Carbon
-    :keywords: carbon, appearance, themes
+    :keywords: carbon
     :apis: bokeh.plotting.figure.line
 '''
 

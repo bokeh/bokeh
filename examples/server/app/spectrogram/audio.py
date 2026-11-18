@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Audio
-    :keywords: audio, bokeh server, app
+    :keywords: audio
 '''
 
 from time import sleep

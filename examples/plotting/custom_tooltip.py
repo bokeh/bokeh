@@ -5,10 +5,10 @@ elements.
 
 .. bokeh-example-metadata::
     :title: Custom tooltip
-    :sampledata: periodic_table
-    :apis: bokeh.plotting.figure
-    :refs: :ref:`ug_interaction_tooltips`
     :keywords: plot, tooltips, custom
+    :apis: bokeh.plotting.figure
+    :sampledata: periodic_table
+    :refs: :ref:`ug_interaction_tooltips`
 
 '''
 

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Modes
-    :keywords: modes, bokeh server, api
+    :keywords: modes
 '''
 
 import tomllib

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Ellipses
-    :keywords: ellipses, basic plotting, areas
+    :keywords: ellipses
     :apis: bokeh.plotting.figure.ellipse
 '''
 

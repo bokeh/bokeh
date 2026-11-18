@@ -1,4 +1,5 @@
-''' A `ridgeline plot`_ using the `Perceptions of Probability`_ dataset.
+''' A `ridgeline plot <https://www.data-to-viz.com/graph/ridgeline.html>`__ using the
+`Perceptions of Probability <https://github.com/zonination/perceptions>`__ dataset.
 
 This example demonstrates the uses of categorical offsets to position categorical
 values explicitly, which in this case allows for makeshift sub-plots. This is
@@ -13,15 +14,12 @@ would you assign to the phrase "Highly likely"*.
 
 .. bokeh-example-metadata::
     :title: Ridgeplot
-    :gallery:
-    :thumbnail-alt: A ridgeline plot using the Perceptions of Probability dataset with a smoothed distribution displayed for each probability category on the y-axis.
-    :sampledata: perceptions
-    :apis: bokeh.plotting.figure.patch, bokeh.models.sources.ColumnDataSource
-    :refs: :ref:`ug_topics_categorical_offsets`
     :keywords: alpha, categorical, palette, patch, ridgeline
+    :apis: bokeh.plotting.figure.patch, bokeh.models.sources.ColumnDataSource
+    :sampledata: perceptions
+    :refs: :ref:`ug_topics_categorical_offsets`
+    :gallery: A ridgeline plot using the Perceptions of Probability dataset with a smoothed distribution displayed for each probability category on the y-axis.
 
-.. _ridgeline plot: https://www.data-to-viz.com/graph/ridgeline.html
-.. _Perceptions of Probability: https://github.com/zonination/perceptions
 
 '''
 import colorcet as cc

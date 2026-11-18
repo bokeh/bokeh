@@ -2,8 +2,8 @@
 plot.
 
 .. bokeh-example-metadata::
-    :title: Parallel reset
-    :keywords: parallel reset, advanced, extensions
+    :title: Reset tool for a parallel plot
+    :keywords: parallel coordinates, reset, custom tool
     :apis: bokeh.models.ActionTool
 '''
 

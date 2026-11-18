@@ -1,12 +1,12 @@
 ''' Give scatter markers a different appearance when hovered.
 
 .. bokeh-example-metadata::
-    :sampledata: glucose
-    :title: Glyph hover
-    :keywords: glyph hover, appearance, plots
+    :title: Highlight points on hover
+    :keywords: glyph, hover
+    :categories: styling/plots, interaction/tools
     :apis: bokeh.models.HoverTool, bokeh.plotting.figure.add_tools, bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
-    :gallery:
-    :thumbnail-alt: How to configure the appearance of hovered glyphs.
+    :sampledata: glucose
+    :gallery: A glucose time series with scatter markers that highlight on hover.
 '''
 
 from bokeh.models import RELATIVE_DATETIME_CONTEXT, HoverTool

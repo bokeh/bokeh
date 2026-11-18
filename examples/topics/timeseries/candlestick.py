@@ -1,16 +1,14 @@
-''' A `Candlestick chart`_ based on stock price data. This example demonstrates
+''' A `Candlestick chart <https://en.wikipedia.org/wiki/Candlestick_chart>`__ based on stock price data. This example demonstrates
 combining multiple glyphs. The non working days (weekends and bank holidays) are highlighted
 with an `BoxAnnotation` in light gray.
 
 .. bokeh-example-metadata::
     :title: Candlestick
-    :gallery:
-    :thumbnail-alt: A candlestick chart for stock data.
-    :sampledata: stocks
-    :apis: bokeh.plotting.figure.segment, bokeh.plotting.figure.vbar, bokeh.models.BoxAnnotation
     :keywords: candlestick
+    :apis: bokeh.plotting.figure.segment, bokeh.plotting.figure.vbar, bokeh.models.BoxAnnotation
+    :sampledata: stocks
+    :gallery: A candlestick chart for stock data.
 
-.. _Candlestick chart: https://en.wikipedia.org/wiki/Candlestick_chart
 
 '''
 import pandas as pd

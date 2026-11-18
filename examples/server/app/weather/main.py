@@ -9,10 +9,10 @@ with the distribution option.
 
 
 .. bokeh-example-metadata::
-    :sampledata: airport_weather
     :title: Weather
     :keywords: weather, bokeh server, app
     :apis: bokeh.models.ColumnDataSource, bokeh.models.DataRange1d, bokeh.models.Select, bokeh.plotting.figure.quad
+    :sampledata: airport_weather
 '''
 import datetime
 

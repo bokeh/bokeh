@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Textinput
-    :keywords: textinput, interaction, widgets
+    :keywords: text, input
     :apis: bokeh.models.CustomJS, bokeh.models.TextInput
 '''
 

@@ -3,7 +3,7 @@ or zooms.
 
 .. bokeh-example-metadata::
     :title: Customjs for range update
-    :keywords: customjs for range update, interaction, javascript callbacks
+    :keywords: customjs, for, range, update
     :apis: bokeh.models.BoxAnnotation, bokeh.models.CustomJS, bokeh.plotting.figure.add_layout, bokeh.plotting.figure.circle
 '''
 

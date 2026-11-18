@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Switch
-    :keywords: switch, interaction, widgets
+    :keywords: switch
     :apis: bokeh.models.CustomJS, bokeh.models.Div, bokeh.models.Switch
 '''
 

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Slider
-    :keywords: slider, interaction, widgets
+    :keywords: slider
     :apis: bokeh.models.CustomJS, bokeh.models.Div, bokeh.models.Slider
 '''
 

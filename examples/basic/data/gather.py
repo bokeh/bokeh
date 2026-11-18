@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Gather
-    :keywords: gather, basic plotting, data
+    :keywords: gather
     :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.patches, bokeh.plotting.figure.scatter
 '''
 

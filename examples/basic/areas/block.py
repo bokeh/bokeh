@@ -2,9 +2,9 @@
 
 .. bokeh-example-metadata::
     :title: Block
+    :keywords: block, plot
     :apis: bokeh.plotting.figure, bokeh.plotting.show, bokeh.models.Block
     :refs: :ref:`ug_basic_areas_rects`
-    :keywords: block, plot
 '''
 
 from bokeh.plotting import figure, show

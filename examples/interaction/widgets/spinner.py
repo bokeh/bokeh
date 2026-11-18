@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Spinner
-    :keywords: spinner, interaction, widgets
+    :keywords: spinner
     :apis: bokeh.models.Spinner, bokeh.plotting.figure.scatter
 '''
 

@@ -1,10 +1,10 @@
 ''' Fill the horizontal area between two x boundaries along shared y coordinates.
 
 .. bokeh-example-metadata::
-    :example-ref: bokeh.models.glyphs.harea
     :title: HArea
     :keywords: harea, reference
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.HArea, bokeh.models.LinearAxis, bokeh.models.Plot
+    :example-ref: bokeh.models.glyphs.harea
 '''
 
 import numpy as np

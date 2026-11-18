@@ -3,7 +3,7 @@ plot.
 
 .. bokeh-example-metadata::
     :title: Events app
-    :keywords: events app, bokeh server, app
+    :keywords: events, app
     :apis: bokeh.models.Button, bokeh.models.CustomJS, bokeh.models.Div, bokeh.plotting.figure.circle, bokeh.plotting.figure.js_on_event
 '''
 

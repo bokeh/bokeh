@@ -2,10 +2,10 @@
 ''' Put a scatter plot and a hexbin plot in separate server app tabs.
 
 .. bokeh-example-metadata::
-    :render:
     :title: Tab panes server
     :keywords: tab panes server, reference
     :apis: bokeh.models.TabPanel, bokeh.models.Tabs, bokeh.plotting.figure.hexbin, bokeh.plotting.figure.scatter
+    :render:
 '''
 
 import numpy as np

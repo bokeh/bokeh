@@ -1,16 +1,14 @@
-''' A reproduction of Mike Bostock's `Les Misérables Co-occurrence`_ chart.
+''' A reproduction of Mike Bostock's `Les Misérables Co-occurrence <https://bost.ocks.org/mike/miserables/>`__ chart.
 This example demonstrates a basic hover tooltip.
 
 .. bokeh-example-metadata::
-    :title: Les mis
-    :gallery:
-    :thumbnail-alt: A Les Misérables matrix with shaded squares marking pairs of characters who appear in the same scenes.
-    :sampledata: les_mis
-    :apis: bokeh.plotting.figure.rect
-    :refs: :ref:`ug_interaction_tools_hover_tool`
+    :title: Les Misérables character co-occurrence
     :keywords: hover, rect, tooltip
+    :apis: bokeh.plotting.figure.rect
+    :sampledata: les_mis
+    :refs: :ref:`ug_interaction_tools_hover_tool`
+    :gallery: A Les Misérables matrix with shaded squares marking pairs of characters who appear in the same scenes.
 
-.. _Les Misérables Co-occurrence: https://bost.ocks.org/mike/miserables/
 '''
 import numpy as np
 

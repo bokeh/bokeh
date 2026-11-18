@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Numerical tick formatter
-    :keywords: numerical tick formatter, appearance, plots
+    :keywords: numerical, tick, formatter
     :apis: bokeh.models.NumeralTickFormatter, bokeh.plotting.figure.scatter
 '''
 

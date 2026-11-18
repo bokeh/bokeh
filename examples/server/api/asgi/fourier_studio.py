@@ -3,7 +3,7 @@ term count.
 
 .. bokeh-example-metadata::
     :title: Fourier studio
-    :keywords: fourier studio, bokeh server, api
+    :keywords: fourier, studio
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Div, bokeh.models.GridBox, bokeh.models.Range1d, bokeh.models.Select, bokeh.models.Slider
 '''
 

@@ -1,10 +1,10 @@
 ''' Draw cubic Bézier curves using two control points per curve.
 
 .. bokeh-example-metadata::
-    :example-ref: bokeh.models.glyphs.bezier
     :title: Bezier
     :keywords: bezier, reference
     :apis: bokeh.models.Bezier, bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Plot
+    :example-ref: bokeh.models.glyphs.bezier
 '''
 
 import numpy as np

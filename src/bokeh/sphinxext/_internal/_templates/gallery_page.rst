@@ -14,9 +14,17 @@
     >
     <span class="bk-thumbnail-title">{{ opt['title'] }}</span>
     </a>
-    {% if opt['desc'] -%}
+{% if opt['desc'] and opt.get('parse_desc') %}
+
+.. container:: bk-thumbnail-description
+
+    {{ opt['desc'] }}
+
+.. raw:: html
+
+{% elif opt['desc'] %}
     <div class="bk-thumbnail-description">{{ opt['desc'] }}</div>
-    {%- endif %}
+{% endif %}
     </li>
     {% endfor %}
     </ul>

@@ -3,8 +3,8 @@ a sub-menu for allowing access to plot's tools.
 
 .. bokeh-example-metadata::
     :title: Tool context menu
-    :apis: bokeh.models.Menu, bokeh.models.MenuItem
     :keywords: menu, context menu, tools
+    :apis: bokeh.models.Menu, bokeh.models.MenuItem
 
 '''
 import numpy as np

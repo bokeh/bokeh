@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Shared coordinates
-    :keywords: shared coordinates, basic plotting, lines
+    :keywords: shared, coordinates
     :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.multi_line
 '''
 

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Legend group
-    :keywords: legend group, basic plotting, annotations
+    :keywords: legend, group
     :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.circle
 '''
 

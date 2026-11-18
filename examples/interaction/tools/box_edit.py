@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Box edit
-    :keywords: box edit, interaction, tools
+    :keywords: box, edit
     :apis: bokeh.models.BoxEditTool, bokeh.models.ColumnDataSource, bokeh.plotting.figure.add_tools, bokeh.plotting.figure.rect
 '''
 

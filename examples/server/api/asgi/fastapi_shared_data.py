@@ -7,7 +7,7 @@ Run with::
 
 .. bokeh-example-metadata::
     :title: Fastapi shared data
-    :keywords: fastapi shared data, bokeh server, api
+    :keywords: fastapi, shared, data
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Div, bokeh.plotting.figure.line
 '''
 

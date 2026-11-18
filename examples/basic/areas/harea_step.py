@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Harea step
-    :keywords: harea step, basic plotting, areas
+    :keywords: harea, step
     :apis: bokeh.plotting.figure.harea_step
 '''
 

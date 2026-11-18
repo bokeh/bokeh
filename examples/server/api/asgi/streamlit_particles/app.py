@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: App
-    :keywords: app, bokeh server, api
+    :keywords: app
 '''
 
 from contextlib import asynccontextmanager

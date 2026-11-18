@@ -2,9 +2,9 @@
 
 .. bokeh-example-metadata::
     :title: Legends
+    :keywords: sin, cos, pi, linspace, LegendLocation
     :apis: bokeh.core.enums.LegendLocation, bokeh.models.ColumnDataSource, bokeh.models.DataRange1d, bokeh.models.Plot, bokeh.models.Legend
     :refs: :ref:`ug_styling_plots_legends`
-    :keywords: sin, cos, pi, linspace, LegendLocation
 '''
 
 from numpy import cos, linspace, pi, sin

@@ -2,12 +2,11 @@
 setting bar colors from a ``ColumnDataSource``.
 
 .. bokeh-example-metadata::
-    :title: Colors
-    :gallery:
-    :thumbnail-alt: A simple bar chart of six bars shaded according to the Bright6 palette.
+    :title: Read colors from a data column
+    :keywords: bars, categorical
     :apis: bokeh.plotting.figure.vbar, bokeh.models.sources.ColumnDataSource
     :refs: :ref:`ug_basic_bars_filled_colors`
-    :keywords: bars, categorical
+    :gallery: A simple bar chart of six bars shaded according to the Bright6 palette.
 
 '''
 from bokeh.models import ColumnDataSource

@@ -2,9 +2,9 @@
 
 .. bokeh-example-metadata::
     :title: Image alpha
+    :keywords: image, alpha, line
     :apis: bokeh.plotting.figure, bokeh.plotting.figure.image, bokeh.layouts.Column
     :refs: :ref:`ug_topics_images`
-    :keywords: image, alpha, line
 '''
 
 import numpy as np

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Glyph non visual
-    :keywords: glyph non visual, appearance, plots
+    :keywords: glyph, non, visual
     :apis: bokeh.models.BoxAnnotation, bokeh.models.Indexed, bokeh.models.Rect, bokeh.models.Tooltip, bokeh.plotting.figure.circle
 '''
 

@@ -2,12 +2,11 @@
 automatic colormapping.
 
 .. bokeh-example-metadata::
-    :title: Colormapped
-    :gallery:
-    :thumbnail-alt: A simple bar plot with bars for six categories of fruit on the x-axis, and bars shaded with the Bright6 palette.
+    :title: Color by category
+    :keywords: bar, colormap, legend, palette, vbar
     :apis: bokeh.plotting.figure.vbar, bokeh.transform.factor_cmap
     :refs: :ref:`ug_basic_bars_filled`, :ref:`ug_basic_bars_filled_colors`
-    :keywords: bar, colormap, legend, palette, vbar
+    :gallery: A simple bar plot with bars for six categories of fruit on the x-axis, and bars shaded with the Bright6 palette.
 
 '''
 from bokeh.models import ColumnDataSource

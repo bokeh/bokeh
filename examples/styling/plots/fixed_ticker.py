@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Fixed ticker
-    :keywords: fixed ticker, appearance, plots
+    :keywords: fixed, ticker
     :apis: bokeh.plotting.figure.scatter
 '''
 

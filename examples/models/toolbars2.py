@@ -2,9 +2,9 @@
 
 .. bokeh-example-metadata::
     :title: Toolbars2
+    :keywords: tools, toolbar, layout
     :apis: bokeh.layouts.column, bokeh.layouts.gridplot, bokeh.layouts.row, bokeh.plotting.figure, bokeh.plotting.show
     :refs: :ref:`ug_interaction_tools_toolbar`
-    :keywords: tools, toolbar, layout
 
 '''
 import numpy as np

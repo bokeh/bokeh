@@ -1,10 +1,9 @@
-''' A `k-nearest neighbors`_ (KNN) chart using datasets from scikit-learn. This
+''' A `k-nearest neighbors <https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm>`__ (KNN) chart using datasets from scikit-learn. This
 example demonstrates solving both classification and regression problems.
 
 .. note::
     This example needs the scikit-learn package to run.
 
-.. _k-nearest neighbors: https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm
 
 
 

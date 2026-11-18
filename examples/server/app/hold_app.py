@@ -3,7 +3,7 @@ server.
 
 .. bokeh-example-metadata::
     :title: Hold app
-    :keywords: hold app, bokeh server, app
+    :keywords: hold, app
     :apis: bokeh.models.Button, bokeh.models.ColumnDataSource, bokeh.models.Div, bokeh.models.Slider, bokeh.plotting.figure.line
 '''
 

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Grid band hatch
-    :keywords: grid band hatch, appearance, plots
+    :keywords: grid, band, hatch
     :apis: bokeh.plotting.figure.line
 '''
 

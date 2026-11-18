@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Font awesome
-    :keywords: font awesome, advanced, extensions
+    :keywords: Font Awesome, icon, button, CustomJS
     :apis: bokeh.models.Button, bokeh.models.CustomJS
 '''
 

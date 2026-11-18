@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Tap inspect keymod
-    :keywords: tap inspect keymod, interaction, tools
+    :keywords: tap, inspect, keymod
     :apis: bokeh.models.CustomJS, bokeh.models.Div, bokeh.models.TapTool, bokeh.plotting.figure.add_tools, bokeh.plotting.figure.circle
 '''
 

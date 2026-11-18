@@ -2,10 +2,9 @@
 
 .. bokeh-example-metadata::
     :title: Dropdown
-    :keywords: dropdown, interaction, widgets
+    :keywords: dropdown
     :apis: bokeh.models.CustomJS, bokeh.models.Dropdown
-    :gallery:
-    :thumbnail-alt: A simple example of a dropdown button widget.
+    :gallery: A dropdown button with a menu of three items.
 '''
 
 from bokeh.io import show

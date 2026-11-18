@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Scatter square
-    :keywords: scatter square, basic plotting, scatter plots
+    :keywords: scatter, square
     :apis: bokeh.plotting.figure.scatter
 '''
 

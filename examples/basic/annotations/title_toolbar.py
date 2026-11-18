@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Title toolbar
-    :keywords: title toolbar, basic plotting, annotations
+    :keywords: title, toolbar
     :apis: bokeh.plotting.figure.scatter
 '''
 

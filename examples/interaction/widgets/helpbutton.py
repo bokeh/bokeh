@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Helpbutton
-    :keywords: helpbutton, interaction, widgets
+    :keywords: help, tooltip, button
     :apis: bokeh.models.HelpButton, bokeh.models.Tooltip
 '''
 

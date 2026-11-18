@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: State
-    :keywords: state, bokeh server, api
+    :keywords: state
 '''
 
 from dataclasses import dataclass, replace

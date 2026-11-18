@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Passwordinput
-    :keywords: passwordinput, interaction, widgets
+    :keywords: password, input
     :apis: bokeh.models.CustomJS, bokeh.models.PasswordInput
 '''
 

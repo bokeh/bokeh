@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Categorical axis
-    :keywords: categorical axis, basic plotting, axes
+    :keywords: categorical, axis
     :apis: bokeh.plotting.figure.scatter
 '''
 

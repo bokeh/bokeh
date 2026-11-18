@@ -2,10 +2,10 @@
 
 .. bokeh-example-metadata::
     :title: Plain-text and HTML widget tooltips
-    :example-ref: ug_interaction_tooltip_contents
+    :keywords: HTML tooltip, widget tooltip
     :apis: bokeh.io.show, bokeh.models.TextInput, bokeh.models.Tooltip
     :refs: :ref:`ug_interaction_tooltips`
-    :keywords: HTML tooltip, widget tooltip
+    :example-ref: ug_interaction_tooltip_contents
 '''
 from bokeh.io import show
 from bokeh.layouts import column

@@ -4,9 +4,9 @@ to the edge of the plot.
 
 .. bokeh-example-metadata::
     :title: Position toolbar clash
+    :keywords: position, location, toolbar
     :apis: bokeh.plotting.figure.toolbar_location, bokeh.plotting.figure.scatter, bokeh.plotting.show
     :refs: :ref:`ug_interaction_tools_toolbar`
-    :keywords: position, location, toolbar
 '''
 
 from bokeh.plotting import figure, show

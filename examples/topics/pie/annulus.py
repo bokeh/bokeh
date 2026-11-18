@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Annulus
-    :keywords: annulus, topic guides, pie
+    :keywords: annulus
     :apis: bokeh.plotting.figure.annulus
 '''
 

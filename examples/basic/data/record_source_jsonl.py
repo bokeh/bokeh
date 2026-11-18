@@ -3,7 +3,7 @@ pending records.
 
 .. bokeh-example-metadata::
     :title: Record source jsonl
-    :keywords: record source jsonl, basic plotting, data
+    :keywords: record, source, jsonl
     :apis: bokeh.models.GroupFilter, bokeh.models.IndexedSubset, bokeh.models.RecordDataSource, bokeh.plotting.figure.scatter
 '''
 

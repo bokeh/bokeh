@@ -8,7 +8,7 @@ of Bokeh to transform images to have certain effects.
 
 .. bokeh-example-metadata::
     :title: Image blur
-    :keywords: image blur, bokeh server, app
+    :keywords: image, blur
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Slider, bokeh.plotting.figure.image
 '''
 import numpy as np

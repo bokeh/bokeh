@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Data table formatting
-    :keywords: data table formatting, interaction, widgets
+    :keywords: data, table, formatting
     :apis: bokeh.models.ColumnDataSource, bokeh.models.DataTable, bokeh.models.DateFormatter, bokeh.models.NumberFormatter, bokeh.models.TableColumn
 '''
 

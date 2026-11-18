@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Line10k
-    :keywords: line10k, output, webgl
+    :keywords: webgl, line, large data
     :apis: bokeh.plotting.figure.line
 '''
 

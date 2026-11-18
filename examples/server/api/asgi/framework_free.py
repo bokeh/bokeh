@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Framework free
-    :keywords: framework free, bokeh server, api
+    :keywords: framework, free
 '''
 
 from __future__ import annotations

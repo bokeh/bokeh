@@ -1,12 +1,11 @@
 ''' A split, horizontal stacked bar chart using plain Python lists.
 
 .. bokeh-example-metadata::
-    :title: Stacked split
-    :gallery:
-    :thumbnail-alt: Stacked horizontal bars split by category.
+    :title: Split horizontal stacked bars
+    :keywords: bars, categorical, stacked
     :apis: bokeh.plotting.figure.hbar_stack
     :refs: :ref:`ug_basic_bars_stacked`
-    :keywords: bars, categorical, stacked
+    :gallery: Stacked horizontal bars split by category.
 
 '''
 from bokeh.models import ColumnDataSource

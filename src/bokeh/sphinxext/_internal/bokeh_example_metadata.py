@@ -31,7 +31,7 @@ log = logging.getLogger(__name__)
 
 import ast
 import re
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from textwrap import dedent
 from tokenize import (
     COMMENT,
@@ -45,10 +45,10 @@ from tokenize import (
 )
 from typing import Any
 
-from docutils.parsers.rst.directives import flag, unchanged
+from docutils.parsers.rst.directives import flag, unchanged, unchanged_required
 from sphinx.errors import SphinxError
 
-from . import PARALLEL_SAFE, SphinxParallelSpec
+from . import PARALLEL_SAFE, REPO_TOP, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
 from .templates import EXAMPLE_METADATA
 from .util import get_sphinx_resources
@@ -79,17 +79,16 @@ class BokehExampleMetadataDirective(BokehDirective):
     required_arguments = 0
 
     option_spec = {
-        "sampledata": unchanged,
-        "apis": unchanged,
-        "refs": unchanged,
-        "keywords": unchanged,
         "title": unchanged,
-        "gallery": flag,
-        "thumbnail-alt": unchanged,
+        "keywords": unchanged,
+        "categories": unchanged_required,
+        "apis": unchanged,
+        "sampledata": unchanged,
+        "refs": unchanged,
         "example-ref": unchanged,
         "render": flag,
         "no-render": flag,
-        "min-python": unchanged,
+        "gallery": unchanged_required,
     }
 
     def run(self) -> list[Any]:
@@ -107,10 +106,22 @@ class BokehExampleMetadataDirective(BokehDirective):
         if extra:
             raise SphinxError(f"bokeh-example-metadata unknown options given: {extra}.")
 
-        if not present & {"sampledata", "apis", "refs", "keywords"}:
+        source = None
+        docname = PurePosixPath(self.env.docname)
+        examples_dir = PurePosixPath(self.env.config.bokeh_examples_dir)
+        if docname.is_relative_to(examples_dir):
+            relative = docname.relative_to(examples_dir)
+            candidate = PurePosixPath("examples", f"{relative}.py")
+            if (Path(REPO_TOP) / candidate).is_file():
+                source = candidate.as_posix()
+
+        if source is None and not present & {"sampledata", "apis", "refs", "keywords"}:
             return []
 
+        if EXAMPLE_METADATA.filename is not None:
+            self.env.note_dependency(EXAMPLE_METADATA.filename)
         rst_text = EXAMPLE_METADATA.render(
+            source=source,
             sampledata=_sampledata(options.get("sampledata", None)),
             apis=_apis(options.get("apis", None)),
             refs=options.get("refs", "").split("#")[0],
@@ -139,8 +150,6 @@ def read_example_metadata(path: Path) -> tuple[str, dict[str, str]]:
     summary = " ".join(intro.strip().split("\n\n", 1)[0].split())
     if summary.startswith(".. "):
         summary = ""
-    # Summaries also appear outside the docstring's reference context.
-    summary = re.sub(r"(?::[\w:-]+:)?``?([^`]+)``?_{0,2}", lambda m: m[1].partition(" <")[0].lstrip("~"), summary)
     option_block = dedent(options.split("\n\n", 1)[0])
     fields = {
         key: " ".join(value.split())

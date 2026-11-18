@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Graph customize
-    :keywords: graph customize, topic guides, graph
+    :keywords: graph, customize
     :apis: bokeh.models.Ellipse, bokeh.models.GraphRenderer, bokeh.models.StaticLayoutProvider
 '''
 

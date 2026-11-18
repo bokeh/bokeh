@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Box select handles
-    :keywords: box select handles, interaction, tools
+    :keywords: box, select, handles
     :apis: bokeh.models.BoxSelectTool, bokeh.plotting.figure.circle, bokeh.plotting.figure.select
 '''
 

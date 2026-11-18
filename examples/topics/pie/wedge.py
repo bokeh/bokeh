@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Wedge
-    :keywords: wedge, topic guides, pie
+    :keywords: wedge
     :apis: bokeh.plotting.figure.wedge
 '''
 

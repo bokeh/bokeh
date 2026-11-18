@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Legend visibility tool
-    :keywords: legend visibility tool, interaction, tools
+    :keywords: legend, visibility, tool
     :apis: bokeh.models.CustomAction, bokeh.models.CustomJS, bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
 '''
 

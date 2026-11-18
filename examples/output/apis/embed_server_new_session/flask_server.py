@@ -13,7 +13,7 @@ in this directory, and navigate to:
 
 .. bokeh-example-metadata::
     :title: Flask server
-    :keywords: flask server, output, apis
+    :keywords: flask, server
 '''
 import atexit
 import subprocess

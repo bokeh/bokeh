@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Patch multiple
-    :keywords: patch multiple, basic plotting, areas
+    :keywords: patch, multiple
     :apis: bokeh.plotting.figure.patches
 '''
 

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Surface3d
-    :keywords: surface3d, bokeh server, app
+    :keywords: surface3d
     :apis: bokeh.models.ColumnDataSource, bokeh.models.LayoutDOM
 '''
 

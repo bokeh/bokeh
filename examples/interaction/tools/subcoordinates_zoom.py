@@ -2,9 +2,10 @@
 ranges.
 
 .. bokeh-example-metadata::
-    :title: Subcoordinates zoom
-    :keywords: subcoordinates zoom, interaction, tools
+    :title: Zoom individual EEG traces
+    :keywords: zoom, EEG, subcoordinates, linked ranges
     :apis: bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.Div, bokeh.models.FactorRange, bokeh.models.GroupByModels
+    :gallery: Stacked EEG traces share a time axis, with controls for zooming individual channels.
 '''
 
 import numpy as np

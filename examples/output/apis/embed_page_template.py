@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Embed page template
-    :keywords: embed page template, output, apis
+    :keywords: embed, page, template
     :apis: bokeh.models.Range1d, bokeh.plotting.figure.scatter
 '''
 

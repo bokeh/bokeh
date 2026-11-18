@@ -3,12 +3,11 @@ the same data.
 
 .. bokeh-example-metadata::
     :title: Linked brushing
-    :gallery:
-    :thumbnail-alt: A two different scatter plots of the Palmer penguin dataset with linked selections.
-    :sampledata: penguins
-    :apis: bokeh.plotting.figure.scatter
-    :refs: :ref:`ug_basic_scatters_markers`
     :keywords: scatter, linked brushing
+    :apis: bokeh.plotting.figure.scatter
+    :sampledata: penguins
+    :refs: :ref:`ug_basic_scatters_markers`
+    :gallery: Two scatter plots of the Palmer penguin dataset with linked selections.
 
 '''
 from bokeh.layouts import gridplot

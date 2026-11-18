@@ -3,7 +3,7 @@ field.
 
 .. bokeh-example-metadata::
     :title: Legend field
-    :keywords: legend field, basic plotting, annotations
+    :keywords: legend, field
     :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.circle
 '''
 

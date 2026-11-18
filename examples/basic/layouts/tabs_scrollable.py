@@ -3,7 +3,7 @@
 
 .. bokeh-example-metadata::
     :title: Tabs scrollable
-    :keywords: tabs scrollable, basic plotting, layouts
+    :keywords: tabs, scrollable
     :apis: bokeh.models.TabPanel, bokeh.models.Tabs, bokeh.plotting.figure.scatter
 '''
 from math import ceil

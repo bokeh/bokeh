@@ -1,10 +1,10 @@
 ''' Draw point markers with configurable shapes and sizes.
 
 .. bokeh-example-metadata::
-    :example-ref: bokeh.models.glyphs.scatter
     :title: Scatter
     :keywords: scatter, reference
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Plot, bokeh.models.Scatter
+    :example-ref: bokeh.models.glyphs.scatter
 '''
 
 import numpy as np

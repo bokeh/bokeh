@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Static paths
-    :keywords: static paths, topic guides, graph
+    :keywords: static, paths
     :apis: bokeh.models.Ellipse, bokeh.models.GraphRenderer, bokeh.models.StaticLayoutProvider
 '''
 

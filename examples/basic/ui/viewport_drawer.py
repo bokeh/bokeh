@@ -1,10 +1,10 @@
 ''' Show a plot inspector in a drawer attached to the browser viewport.
 
 .. bokeh-example-metadata::
-    :no-render:
     :title: Viewport drawer
-    :keywords: viewport drawer, basic plotting, ui
+    :keywords: viewport, drawer
     :apis: bokeh.models.Drawer, bokeh.models.Examiner, bokeh.plotting.figure.circle
+    :no-render:
 '''
 
 import numpy as np

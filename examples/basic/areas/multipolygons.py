@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Multipolygons
-    :keywords: multipolygons, basic plotting, areas
+    :keywords: multipolygons
     :apis: bokeh.plotting.figure.multi_polygons
 '''
 

@@ -49,9 +49,11 @@ Explore interactive plots and their source code by category.
             topics/hierarchical
             topics/geo
             topics/graph
+            topics/vector_fields
             topics/timeseries
             topics/pie
             topics/stats
+            output/webgl
 
     .. tab-item:: Interaction
         :name: interaction

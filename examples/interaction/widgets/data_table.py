@@ -2,10 +2,9 @@
 
 .. bokeh-example-metadata::
     :title: Data table
-    :keywords: data table, interaction, widgets
+    :keywords: data, table
     :apis: bokeh.models.ColumnDataSource, bokeh.models.DataTable, bokeh.models.DateFormatter, bokeh.models.TableColumn
-    :gallery:
-    :thumbnail-alt: A simple example of a data table widget with multiple columns.
+    :gallery: A table displaying dates and integer values in two columns.
 '''
 
 from datetime import date

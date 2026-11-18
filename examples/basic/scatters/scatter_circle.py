@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Scatter circle
-    :keywords: scatter circle, basic plotting, scatter plots
+    :keywords: scatter, circle
     :apis: bokeh.plotting.figure.scatter
 '''
 

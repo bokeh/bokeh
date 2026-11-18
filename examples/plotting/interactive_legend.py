@@ -4,10 +4,10 @@ by setting the legend ``click_policy`` property to ``"hide"``.
 
 .. bokeh-example-metadata::
     :title: Interactive legend
-    :sampledata: stocks
-    :apis: bokeh.palettes.Spectral4
-    :refs: :ref:`ug_interaction_legends`
     :keywords: line, interactions, legend, hide, glyphs
+    :apis: bokeh.palettes.Spectral4
+    :sampledata: stocks
+    :refs: :ref:`ug_interaction_legends`
 
 '''
 

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Custom js ticker
-    :keywords: custom js ticker, appearance, plots
+    :keywords: custom, js, ticker
     :apis: bokeh.models.CustomJSTicker, bokeh.plotting.figure.scatter
 '''
 

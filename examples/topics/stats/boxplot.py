@@ -1,16 +1,14 @@
-''' A `Box Plot`_ of autompg data. This example demonstrates combining
+''' A `Box Plot <https://en.wikipedia.org/wiki/Box_plot>`__ of autompg data. This example demonstrates combining
 multiple basic glyphs to create a more complicated chart.
 
 .. bokeh-example-metadata::
     :title: Boxplot
-    :gallery:
-    :thumbnail-alt: A box plot of synthetic data for six categories.
-    :sampledata: autompg2
-    :apis: bokeh.plotting.figure.vbar
-    :refs: :ref:`ug_topics_stats_boxplot`
     :keywords: bars, boxplot, categorical, pandas
+    :apis: bokeh.plotting.figure.vbar
+    :sampledata: autompg2
+    :refs: :ref:`ug_topics_stats_boxplot`
+    :gallery: Box plots of highway MPG for each vehicle class, with outliers drawn as points.
 
-.. _Box Plot: https://en.wikipedia.org/wiki/Box_plot
 
 '''
 import pandas as pd

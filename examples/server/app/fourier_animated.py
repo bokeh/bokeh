@@ -9,7 +9,7 @@ Then open ``http://localhost:5006/fourier_animated`` in a browser.
 
 .. bokeh-example-metadata::
     :title: Fourier animated
-    :keywords: fourier animated, bokeh server, app
+    :keywords: fourier, animated
     :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.circle, bokeh.plotting.figure.line, bokeh.plotting.figure.multi_line
 '''
 

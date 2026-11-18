@@ -8,7 +8,7 @@
 
 .. bokeh-example-metadata::
     :title: Patch app
-    :keywords: patch app, bokeh server, app
+    :keywords: patch, app
     :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.image_rgba, bokeh.plotting.figure.multi_line, bokeh.plotting.figure.scatter
 '''
 

@@ -3,10 +3,10 @@
 
 
 .. bokeh-example-metadata::
-    :render:
     :title: Apply theme
-    :keywords: apply theme, bokeh server, app
+    :keywords: apply, theme
     :apis: bokeh.plotting.figure.line
+    :render:
 '''
 
 import numpy as np

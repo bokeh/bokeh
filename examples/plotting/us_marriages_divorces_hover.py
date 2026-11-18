@@ -3,10 +3,10 @@ as a basic line plot. Furthermore, a custom tooltip is defined using the Arial f
 
 .. bokeh-example-metadata::
     :title: Us marriages divorces hover
-    :sampledata: us_marriages_divorces
-    :apis: bokeh.plotting.figure.line
-    :refs: :ref:`ug_basic_lines_with_markers`
     :keywords: line, NumeralTickFormatter, SingleIntervalTicker
+    :apis: bokeh.plotting.figure.line
+    :sampledata: us_marriages_divorces
+    :refs: :ref:`ug_basic_lines_with_markers`
 
 '''
 

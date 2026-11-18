@@ -5,10 +5,10 @@ settings.
 
 .. bokeh-example-metadata::
     :title: Duffing oscillator
+    :keywords: mathtext, latex
     :apis: bokeh.plotting.figure.scatter, bokeh.plotting.figure.line, bokeh.models.sources.ColumnDataSource.stream,
         bokeh.models.Div, bokeh.models.Paragraph, bokeh.models.Slider
     :refs: :ref:`ug_styling_mathtext`
-    :keywords: mathtext, latex
 
 '''
 import numpy as np

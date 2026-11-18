@@ -1,17 +1,14 @@
-''' A `kernel density estimation`_ plot of the "lincoln" data using
-the `sklearn.neighbors.KernelDensity`_ function and `Bokeh` harea glyph
+''' Spread daily temperatures for each month within a kernel density envelope
+to form a sinaplot.
 
 .. bokeh-example-metadata::
     :title: Sinaplot
-    :gallery:
-    :thumbnail-alt: A kernel density estimation plot of the lincoln data.
-    :sampledata: lincoln
-    :apis: bokeh.plotting.figure.harea
-    :refs: :ref:`ug_topics_stats_sinaplot`
     :keywords: jitter, scatter, sinaplot
+    :apis: bokeh.plotting.figure.harea
+    :sampledata: lincoln
+    :refs: :ref:`ug_topics_stats_sinaplot`
+    :gallery: Black points show daily temperatures grouped by month inside gray density envelopes.
 
-.. _kernel density estimation: https://en.wikipedia.org/wiki/Kernel_density_estimation
-.. _sklearn.neighbors.KernelDensity: https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KernelDensity.html
 .. _SinaPlot: https://orbit.dtu.dk/en/publications/sinaplot-an-enhanced-chart-for-simple-and-truthful-representation
 
 '''

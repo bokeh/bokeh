@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Freehand draw
-    :keywords: freehand draw, interaction, tools
+    :keywords: freehand, draw
     :apis: bokeh.models.FreehandDrawTool, bokeh.plotting.figure.add_tools, bokeh.plotting.figure.multi_line
 '''
 

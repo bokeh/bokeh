@@ -3,7 +3,7 @@ browser.
 
 .. bokeh-example-metadata::
     :title: Customjs for widgets
-    :keywords: customjs for widgets, interaction, javascript callbacks
+    :keywords: customjs, for, widgets
     :apis: bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.Slider, bokeh.plotting.figure.line
 '''
 

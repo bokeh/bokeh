@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Stacked hover
-    :keywords: stacked hover, basic plotting, bars
+    :keywords: stacked, hover
     :apis: bokeh.plotting.figure.vbar_stack
 '''
 

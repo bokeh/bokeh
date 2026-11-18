@@ -94,6 +94,9 @@ bokeh_example_subdirs = [
     "topics/*",
 ]
 
+# Categories without a corresponding examples directory.
+bokeh_example_categories = ["topics/vector_fields"]
+
 copybutton_prompt_text = ">>> "
 
 intersphinx_mapping = {

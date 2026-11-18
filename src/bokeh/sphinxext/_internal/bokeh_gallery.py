@@ -23,7 +23,6 @@ log = logging.getLogger(__name__)
 
 import json
 import re
-import sys
 from html import escape
 from pathlib import Path, PurePosixPath
 from typing import Any
@@ -48,6 +47,7 @@ __all__ = (
 TOPIC_LABELS = {
     "basic": "Basic plotting",
     "geo": "Geospatial",
+    "hex": "Hex tiles",
     "js_callbacks": "JavaScript callbacks",
     "mathtext": "Math text",
     "scatters": "Scatter plots",
@@ -56,6 +56,7 @@ TOPIC_LABELS = {
     "styling": "Appearance",
     "timeseries": "Time series",
     "topics": "Topic guides",
+    "webgl": "WebGL",
 }
 
 EXAMPLE_INVENTORY = "bokeh_example_inventory.json"
@@ -79,8 +80,17 @@ class BokehGalleryDirective(BokehDirective):
         srcdir = Path(self.env.srcdir)
         examples = Path(REPO_TOP) / "examples"
         sources = _read_inventory(self)
+        records = []
+        for relative in sources:
+            if relative.suffix == ".py":
+                self.env.note_dependency(examples / relative)
+                summary, metadata = read_example_metadata(examples / relative)
+                if "gallery" in metadata:
+                    records.append((relative, summary, metadata))
         groups = []
-        for location in self.content:
+        for line in self.content:
+            _validate_category(line, examples, config)
+            location = line
             opts = []
             if location == "server/app":
                 catalog = srcdir / config.bokeh_gallery_catalog
@@ -97,14 +107,13 @@ class BokehGalleryDirective(BokehDirective):
                 groups.append({"title": "", "cards": opts})
                 continue
 
-            for relative in sources:
-                if relative.parent.as_posix() != location or relative.suffix != ".py":
-                    continue
+            for relative, summary, metadata in records:
                 source = examples / relative
-                self.env.note_dependency(source)
-                summary, metadata = read_example_metadata(source)
-                if "gallery" not in metadata:
+                if location not in _example_categories(relative, metadata):
                     continue
+                alt = metadata["gallery"]
+                if not alt:
+                    raise SphinxError(f"Gallery example {relative} needs thumbnail alt text in :gallery:")
 
                 if not _has_example_page(relative, metadata, config):
                     raise SphinxError(f"Gallery example {relative} needs a rendered example page")
@@ -114,22 +123,20 @@ class BokehGalleryDirective(BokehDirective):
                     self.env.note_dependency(thumbnail)
                     if not thumbnail.is_file():
                         raise SphinxError(f"Missing gallery thumbnail {thumbnail}")
-                if not metadata.get("thumbnail-alt"):
-                    raise SphinxError(f"Gallery example {relative} needs a :thumbnail-alt: description")
-
                 opts.append({
                     "url": f"{image}.html",
                     "target": None,
                     "img": image,
-                    "alt": escape(metadata["thumbnail-alt"]),
+                    "alt": escape(alt),
                     "title": escape(_example_title(source, metadata)),
-                    "desc": escape(SUMMARY_SENTENCE_BREAK.split(summary, maxsplit=1)[0]),
+                    "desc": SUMMARY_SENTENCE_BREAK.split(summary, maxsplit=1)[0],
+                    "parse_desc": True,
                 })
 
             if opts:
                 groups.append({"title": _topic_label(location.split("/")[-1]), "cards": opts})
 
-        return self.parse(GALLERY_PAGE.render(groups=groups), "<bokeh-gallery>")
+        return self.parse(GALLERY_PAGE.render(groups=groups), "<bokeh-gallery>") if groups else []
 
 
 class BokehSearchableExamplesDirective(BokehDirective):
@@ -144,7 +151,7 @@ class BokehSearchableExamplesDirective(BokehDirective):
             source = examples / relative
             filename = f"examples/{relative.as_posix()}"
             summary = ""
-            metadata = {}
+            metadata: dict[str, str] = {}
             if source.suffix == ".py":
                 self.env.note_dependency(source)
                 summary, metadata = read_example_metadata(source)
@@ -160,9 +167,7 @@ class BokehSearchableExamplesDirective(BokehDirective):
                 role, target = None, None
 
             category = relative.parts[0]
-            topic = _topic_label(category)
-            if category in ("basic", "styling", "interaction", "topics") and len(relative.parts) > 2:
-                topic += f" / {_topic_label(relative.parts[1])}"
+            topics = [_category_label(value) for value in _example_categories(relative, metadata)]
             if relative.suffix == ".ipynb":
                 example_type = "Notebook"
             elif category == "server":
@@ -180,10 +185,10 @@ class BokehSearchableExamplesDirective(BokehDirective):
                 title=escape_rst(_example_title(source, metadata)),
                 role=role,
                 target=target,
-                topic=escape_rst(topic),
+                topics=[escape_rst(topic) for topic in topics],
                 example_type=example_type,
-                summary=escape_rst(lead),
-                remaining_summary=escape_rst(remainder[0]) if remainder else "",
+                summary=lead,
+                remaining_summary=remainder[0] if remainder else "",
                 details=details,
                 filename=filename,
             ))
@@ -200,12 +205,15 @@ def config_inited_handler(app: Any, config: Any) -> None:
         if relative.suffix != ".py":
             continue
         _, metadata = read_example_metadata(repo_examples / relative)
+        for category in _example_categories(relative, metadata):
+            _validate_category(category, repo_examples, config, source=relative)
         if not _has_example_page(relative, metadata, config):
             continue
         path = docs_examples / relative.with_suffix(".rst")
         expected.add(path)
         content = GALLERY_DETAIL.render(
             filename=relative.stem,
+            title=escape_rst(_example_title(relative, metadata)),
             source_path=f"__REPO__/examples/{relative.as_posix()}",
             ref=f".. _example_{relative.stem}_{relative.parent.as_posix()}:",
         )
@@ -227,6 +235,7 @@ def setup(app: Any) -> SphinxParallelSpec:
     app.add_config_value("bokeh_gallery_catalog", "docs/gallery.json", "html")
     app.add_config_value("bokeh_examples_dir", "docs/examples", "html")
     app.add_config_value("bokeh_example_subdirs", [], "html")
+    app.add_config_value("bokeh_example_categories", [], "html")
     app.connect("config-inited", config_inited_handler)
     app.add_directive("bokeh-gallery", BokehGalleryDirective)
     app.add_directive("bokeh-searchable-examples", BokehSearchableExamplesDirective)
@@ -259,21 +268,39 @@ def _write_if_changed(path: Path, content: str) -> None:
         path.write_text(content, encoding="utf-8")
 
 
+def _example_categories(relative: Path, metadata: dict[str, str]) -> list[str]:
+    if "categories" not in metadata:
+        return [relative.parent.as_posix()]
+    categories = [value.strip() for value in metadata["categories"].split(",")]
+    return list(dict.fromkeys(categories))
+
+
+def _validate_category(category: str, root: Path, config: Any, *, source: Path | None = None) -> None:
+    path = PurePosixPath(category)
+    valid = (
+        bool(category) and not path.is_absolute() and ".." not in path.parts
+        and category == path.as_posix()
+        and ((root / category).is_dir() or category in config.bokeh_example_categories)
+    )
+    if not valid:
+        context = f" in examples/{source.as_posix()}" if source else " in bokeh-gallery"
+        raise SphinxError(f"Unknown example category {category!r}{context}")
+
+
+def _category_label(category: str) -> str:
+    parts = category.split("/")
+    if parts[0] in ("basic", "styling", "interaction", "topics") and len(parts) > 1:
+        return f"{_topic_label(parts[0])} / {_topic_label(parts[1])}"
+    return _topic_label(parts[0])
+
+
 def _has_example_page(relative: Path, metadata: dict[str, str], config: Any) -> bool:
-    source = f"examples/{relative.as_posix()}"
     if relative.suffix != ".py" or "no-render" in metadata:
         return False
     directory = PurePosixPath(relative.parent.as_posix())
-    if "render" not in metadata and not any(
+    return "gallery" in metadata or "render" in metadata or any(
         directory.full_match(pattern) for pattern in config.bokeh_example_subdirs
-    ):
-        return False
-    minimum = metadata.get("min-python")
-    if minimum is None:
-        return True
-    if re.fullmatch(r"[0-9]+\.[0-9]+", minimum) is None:
-        raise SphinxError(f"{source}: :min-python: requires a major.minor version, got {minimum!r}")
-    return sys.version_info[:2] >= tuple(map(int, minimum.split(".")))
+    )
 
 
 def _example_title(source: Path, metadata: dict[str, str]) -> str:

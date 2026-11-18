@@ -2,10 +2,9 @@
 
 .. bokeh-example-metadata::
     :title: Date picker
-    :keywords: date picker, interaction, widgets
+    :keywords: date, picker
     :apis: bokeh.models.CustomJS, bokeh.models.DatePicker
-    :gallery:
-    :thumbnail-alt: A simple example of a widget for selecting dates and date ranges.
+    :gallery: A date picker for choosing a single date.
 '''
 
 from bokeh.io import show

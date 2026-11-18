@@ -29,13 +29,13 @@ window.addEventListener("DOMContentLoaded", function () {
     const entries = Array.from(document.querySelectorAll(".bk-example-entry"), (element) => {
       const heading = element.querySelector(".bk-example-heading")
       const title = heading.querySelector("p").textContent.trim()
-      const topic = element.querySelector(".bk-example-topic").textContent.trim()
+      const topics = Array.from(element.querySelectorAll(".bk-example-topic"), (topic) => topic.textContent.trim())
       const type = element.querySelector(".bk-example-type").textContent.trim()
       const overview = element.querySelector(".bk-example-summary")
       const description = element.querySelector(".bk-example-details")
       const sourcePath = decodeURIComponent(element.querySelector(".bk-example-links a.external").pathname)
       const filename = sourcePath.slice(sourcePath.indexOf("/examples/") + 1)
-      const text = [heading.textContent, overview?.textContent, description?.textContent, filename].join(" ").toLowerCase()
+      const text = [heading.textContent, ...topics, overview?.textContent, description?.textContent, filename].join(" ").toLowerCase()
       if (description != null) {
         const disclosure = document.createElement("details")
         const summary = document.createElement("summary")
@@ -44,10 +44,10 @@ window.addEventListener("DOMContentLoaded", function () {
         description.replaceWith(disclosure)
         disclosure.append(summary, description)
       }
-      return {element, topic, type, text}
+      return {element, topics, type, text}
     })
-    for (const [select, key] of [[topicFilter, "topic"], [typeFilter, "type"]]) {
-      const values = new Set(entries.map((entry) => entry[key]))
+    for (const [select, key] of [[topicFilter, "topics"], [typeFilter, "type"]]) {
+      const values = new Set(entries.flatMap((entry) => entry[key]))
       for (const value of Array.from(values).sort((a, b) => a.localeCompare(b))) {
         select.add(new Option(value, value))
       }
@@ -55,8 +55,8 @@ window.addEventListener("DOMContentLoaded", function () {
     const update = () => {
       const terms = input.value.toLowerCase().trim().split(/\s+/)
       let matches = 0
-      for (const {element, topic, type, text} of entries) {
-        const visible = (!topicFilter.value || topicFilter.value === topic)
+      for (const {element, topics, type, text} of entries) {
+        const visible = (!topicFilter.value || topics.includes(topicFilter.value))
           && (!typeFilter.value || typeFilter.value === type)
           && terms.every((term) => text.includes(term))
         element.hidden = !visible

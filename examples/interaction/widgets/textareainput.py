@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Textareainput
-    :keywords: textareainput, interaction, widgets
+    :keywords: multiline, text, input
     :apis: bokeh.models.CustomJS, bokeh.models.TextAreaInput
 '''
 

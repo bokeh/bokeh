@@ -3,12 +3,11 @@ demonstrates using a log axis on a Bokeh plot. Various line styles and glyph
 combinations are automatically added to a legend.
 
 .. bokeh-example-metadata::
-    :title: Logplot
-    :gallery:
-    :thumbnail-alt: A plot of six basic mathematical functions such as y=x and y=x**2 on a log-scale using different lines styles for each.
+    :title: Lines on a logarithmic axis
+    :keywords: lines, legend, log scale, scatter
     :apis: bokeh.plotting.figure.scatter, bokeh.plotting.figure.line
     :refs: :ref:`ug_basic_lines_with_markers`
-    :keywords: lines, legend, log scale, scatter
+    :gallery: A plot of six basic mathematical functions such as y=x and y=x**2 on a log-scale using different lines styles for each.
 
 '''
 import numpy as np

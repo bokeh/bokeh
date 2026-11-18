@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Accessible style
-    :keywords: accessible style, appearance, accessible-style
+    :keywords: accessible, style
     :apis: bokeh.models.InlineStyleSheet, bokeh.plotting.figure.line
 '''
 

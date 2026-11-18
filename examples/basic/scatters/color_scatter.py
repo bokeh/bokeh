@@ -1,13 +1,12 @@
-''' A basic scatter. This example plot demonstrates manual colormapping and
-many different plot tools.
+''' Color scatter points by their coordinates and explore them with Bokeh's
+hover and selection tools.
 
 .. bokeh-example-metadata::
     :title: Color scatter
-    :gallery:
-    :thumbnail-alt: A multicolored scatter plot of random data with hover tool.
+    :keywords: scatter, tools
     :apis: bokeh.plotting.figure.circle
     :refs: :ref:`ug_interaction_tools`, :ref:`ug_basic_scatters_markers`
-    :keywords: scatter, tools
+    :gallery: A multicolored scatter plot of random data with hover tool.
 
 '''
 import numpy as np

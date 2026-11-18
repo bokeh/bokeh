@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Ipyvolume camera
-    :keywords: ipyvolume camera, output, jupyter
+    :keywords: ipyvolume, camera
     :apis: bokeh.models.Slider
 '''
 

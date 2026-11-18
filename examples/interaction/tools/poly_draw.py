@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Poly draw
-    :keywords: poly draw, interaction, tools
+    :keywords: poly, draw
     :apis: bokeh.models.PolyDrawTool, bokeh.plotting.figure.add_tools, bokeh.plotting.figure.multi_line, bokeh.plotting.figure.patches
 '''
 

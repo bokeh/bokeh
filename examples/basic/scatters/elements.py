@@ -3,12 +3,11 @@ point. Hover over a point to see the element's properties.
 
 .. bokeh-example-metadata::
     :title: Periodic table scatter plot
-    :gallery:
-    :thumbnail-alt: A scatter plot of labeled chemical elements, colored by melting point.
-    :sampledata: periodic_table
-    :apis: bokeh.plotting.figure.scatter, bokeh.models.sources.ColumnDataSource, bokeh.models.LabelSet
-    :refs: :ref:`ug_interaction_tools_hover_tool`
     :keywords: periodic table, hover, labels, scatter
+    :apis: bokeh.plotting.figure.scatter, bokeh.models.sources.ColumnDataSource, bokeh.models.LabelSet
+    :sampledata: periodic_table
+    :refs: :ref:`ug_interaction_tools_hover_tool`
+    :gallery: A scatter plot of labeled chemical elements, colored by melting point.
 
 '''
 import pandas as pd

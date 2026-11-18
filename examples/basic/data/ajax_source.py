@@ -2,10 +2,10 @@
 plot.
 
 .. bokeh-example-metadata::
-    :no-render:
     :title: Ajax source
-    :keywords: ajax source, basic plotting, data
+    :keywords: ajax, source
     :apis: bokeh.models.AjaxDataSource, bokeh.models.CustomJS, bokeh.plotting.figure.scatter
+    :no-render:
 '''
 
 import numpy as np

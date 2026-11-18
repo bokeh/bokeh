@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Ray
-    :keywords: ray, basic plotting, lines
+    :keywords: ray
     :apis: bokeh.plotting.figure.ray
 '''
 

@@ -1,8 +1,9 @@
 ''' Compare slider types, orientations, reversed ranges, and disabled states.
 
 .. bokeh-example-metadata::
-    :title: Various sliders
-    :keywords: various sliders, interaction, widgets
+    :title: Slider styles and states
+    :keywords: slider, range, date, datetime
+    :gallery: Horizontal and vertical sliders show different ranges, orientations, and disabled states.
 '''
 
 from datetime import date

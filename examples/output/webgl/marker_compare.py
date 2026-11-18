@@ -7,7 +7,7 @@ so that you can easily switch to compare positioning and appearance.
 
 .. bokeh-example-metadata::
     :title: Marker compare
-    :keywords: marker compare, output, webgl
+    :keywords: marker, compare, webgl
     :apis: bokeh.models.ColumnDataSource, bokeh.models.TabPanel, bokeh.models.Tabs, bokeh.plotting.figure.scatter
 '''
 import numpy as np

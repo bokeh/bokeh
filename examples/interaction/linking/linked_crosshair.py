@@ -2,10 +2,9 @@
 
 .. bokeh-example-metadata::
     :title: Linked crosshair
-    :keywords: linked crosshair, interaction, linking
+    :keywords: linked, crosshair
     :apis: bokeh.models.CrosshairTool, bokeh.models.Span, bokeh.plotting.figure.add_tools, bokeh.plotting.figure.circle
-    :gallery:
-    :thumbnail-alt: A two plots with vertical and horizontal crosshair tools linked.
+    :gallery: Two plots with linked vertical and horizontal crosshairs.
 '''
 
 from random import random

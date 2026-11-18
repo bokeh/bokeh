@@ -1,11 +1,10 @@
 ''' Fill alternating bands between grid lines.
 
 .. bokeh-example-metadata::
-    :title: Grid band fill
-    :keywords: grid band fill, appearance, plots
+    :title: Shade alternating grid bands
+    :keywords: grid, band, fill
     :apis: bokeh.plotting.figure.scatter
-    :gallery:
-    :thumbnail-alt: How to configure solid filled grid bands.
+    :gallery: Five blue scatter points over alternating shaded horizontal grid bands.
 '''
 
 from bokeh.plotting import figure, show

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Annular wedge
-    :keywords: annular wedge, topic guides, pie
+    :keywords: annular, wedge
     :apis: bokeh.plotting.figure.annular_wedge
 '''
 

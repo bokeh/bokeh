@@ -17,7 +17,7 @@ in your browser.
 
 .. bokeh-example-metadata::
     :title: Sliders
-    :keywords: sliders, bokeh server, app
+    :keywords: sliders
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Slider, bokeh.models.TextInput, bokeh.plotting.figure.line
 '''
 import numpy as np

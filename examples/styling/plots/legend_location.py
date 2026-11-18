@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Legend location
-    :keywords: legend location, appearance, plots
+    :keywords: legend, location
     :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
 '''
 

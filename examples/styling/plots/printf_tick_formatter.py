@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Printf tick formatter
-    :keywords: printf tick formatter, appearance, plots
+    :keywords: printf, tick, formatter
     :apis: bokeh.models.PrintfTickFormatter, bokeh.plotting.figure.scatter
 '''
 

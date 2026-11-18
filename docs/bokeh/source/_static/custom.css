@@ -180,6 +180,10 @@ li.bk-thumbnail {
     line-height: 1.4;
 }
 
+.bk-thumbnail-description > p {
+    margin: 0;
+}
+
 /* Examples index */
 .bk-example-controls {
     display: grid;

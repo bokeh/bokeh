@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Line missing points
-    :keywords: line missing points, basic plotting, lines
+    :keywords: line, missing, points
     :apis: bokeh.plotting.figure.line
 '''
 

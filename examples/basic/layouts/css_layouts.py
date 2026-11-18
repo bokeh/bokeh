@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: CSS layouts
-    :keywords: css layouts, basic plotting, layouts
+    :keywords: css, layouts
     :apis: bokeh.models.Div, bokeh.models.Styles, bokeh.plotting.figure.rect
 '''
 

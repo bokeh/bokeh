@@ -5,10 +5,10 @@ sorting options based on a given dataset.
 
 
 .. bokeh-example-metadata::
-    :sampledata: movies_data
     :title: Movies
     :keywords: movies, bokeh server, app
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Div, bokeh.models.Select, bokeh.models.Slider, bokeh.models.TextInput, bokeh.plotting.figure.scatter
+    :sampledata: movies_data
 '''
 import sqlite3 as sql
 from os.path import dirname, join

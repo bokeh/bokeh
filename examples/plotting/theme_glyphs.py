@@ -2,9 +2,9 @@
 
 .. bokeh-example-metadata::
     :title: Theme glyphs
+    :keywords: theme
     :apis: bokeh.themes.Theme
     :refs: :ref:`ug_styling_using_themes_custom`
-    :keywords: theme
 
 '''
 import numpy as np

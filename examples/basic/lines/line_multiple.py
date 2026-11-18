@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Line multiple
-    :keywords: line multiple, basic plotting, lines
+    :keywords: line, multiple
     :apis: bokeh.plotting.figure.multi_line
 '''
 

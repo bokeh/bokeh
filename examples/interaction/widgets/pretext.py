@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Pretext
-    :keywords: pretext, interaction, widgets
+    :keywords: pretext
     :apis: bokeh.models.PreText
 '''
 

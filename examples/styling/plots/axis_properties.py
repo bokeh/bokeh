@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Axis properties
-    :keywords: axis properties, appearance, plots
+    :keywords: axis, properties
     :apis: bokeh.plotting.figure.scatter
 '''
 

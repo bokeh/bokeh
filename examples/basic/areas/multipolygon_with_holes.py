@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Multipolygon with holes
-    :keywords: multipolygon with holes, basic plotting, areas
+    :keywords: multipolygon, with, holes
     :apis: bokeh.plotting.figure.multi_polygons
 '''
 

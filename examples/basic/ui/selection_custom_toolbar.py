@@ -3,7 +3,7 @@ actions.
 
 .. bokeh-example-metadata::
     :title: Selection custom toolbar
-    :keywords: selection custom toolbar, basic plotting, ui
+    :keywords: selection, custom, toolbar
     :apis: bokeh.models.BoxSelectTool, bokeh.models.Button, bokeh.models.CustomJS, bokeh.models.PaletteSelect, bokeh.models.Panel, bokeh.models.Row
 '''
 

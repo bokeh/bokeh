@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Localized multiline
-    :keywords: localized multiline, output, webgl
+    :keywords: localized, multiline, webgl
     :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.multi_line
 '''
 

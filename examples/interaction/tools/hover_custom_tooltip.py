@@ -1,9 +1,10 @@
 ''' Lay out hover information with custom HTML.
 
 .. bokeh-example-metadata::
-    :title: Hover custom tooltip
-    :keywords: hover custom tooltip, interaction, tools
+    :title: Format tooltips with HTML
+    :keywords: hover, HTML, tooltip, images
     :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.scatter
+    :gallery: A scatter plot with a custom tooltip that shows an image, styled text, and point coordinates.
 '''
 
 from bokeh.models import ColumnDataSource

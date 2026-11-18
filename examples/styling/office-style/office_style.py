@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Office style
-    :keywords: office style, appearance, office-style
+    :keywords: office, style
     :apis: bokeh.models.GlobalInlineStyleSheet, bokeh.models.InlineStyleSheet, bokeh.models.TabPanel, bokeh.models.Tabs, bokeh.plotting.figure.line
 '''
 

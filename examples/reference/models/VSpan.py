@@ -1,10 +1,10 @@
 ''' Draw vertical lines spanning the entire plot.
 
 .. bokeh-example-metadata::
-    :example-ref: bokeh.models.glyphs.vspan
     :title: VSpan
     :keywords: vspan, reference
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Plot, bokeh.models.Range1d, bokeh.models.VSpan
+    :example-ref: bokeh.models.glyphs.vspan
 '''
 
 import numpy as np

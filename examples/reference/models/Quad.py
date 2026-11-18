@@ -1,10 +1,10 @@
 ''' Draw boxes from explicit left, right, top, and bottom bounds.
 
 .. bokeh-example-metadata::
-    :example-ref: bokeh.models.glyphs.quad
     :title: Quad
     :keywords: quad, reference
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Plot, bokeh.models.Quad
+    :example-ref: bokeh.models.glyphs.quad
 '''
 
 import numpy as np

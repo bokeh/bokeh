@@ -1,8 +1,8 @@
 ''' Expose Font Awesome icon names as an enumeration for a custom Bokeh model.
 
 .. bokeh-example-metadata::
-    :title: Named icon
-    :keywords: named icon, advanced, extensions
+    :title: Font Awesome icon names
+    :keywords: Font Awesome, icon, custom model
 '''
 
 from bokeh.core.enums import enumeration

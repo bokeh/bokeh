@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Radio button group
-    :keywords: radio button group, interaction, widgets
+    :keywords: radio, button, group
     :apis: bokeh.models.CustomJS, bokeh.models.RadioButtonGroup
 '''
 

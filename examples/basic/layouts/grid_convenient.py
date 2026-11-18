@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Grid convenient
-    :keywords: grid convenient, basic plotting, layouts
+    :keywords: grid, convenient
     :apis: bokeh.plotting.figure.scatter
 '''
 

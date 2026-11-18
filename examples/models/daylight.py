@@ -4,10 +4,10 @@ elements to draw custom outlines and fills.
 
 .. bokeh-example-metadata::
     :title: Daylight
-    :sampledata: daylight
-    :apis: bokeh.models.glyphs.Line, bokeh.models.glyphs.Patch, bokeh.models.plots.Plot.add_glyph, bokeh.document.document.Document
-    :refs: :ref:`ug_basic_areas_patches`
     :keywords: outline, shading, fill
+    :apis: bokeh.models.glyphs.Line, bokeh.models.glyphs.Patch, bokeh.models.plots.Plot.add_glyph, bokeh.document.document.Document
+    :sampledata: daylight
+    :refs: :ref:`ug_basic_areas_patches`
 '''
 import datetime as dt
 from time import mktime

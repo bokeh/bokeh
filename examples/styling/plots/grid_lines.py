@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Grid lines
-    :keywords: grid lines, appearance, plots
+    :keywords: grid, lines
     :apis: bokeh.plotting.figure.scatter
 '''
 

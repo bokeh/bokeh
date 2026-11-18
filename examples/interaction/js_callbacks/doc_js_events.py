@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Doc js events
-    :keywords: doc js events, interaction, javascript callbacks
+    :keywords: doc, js, events
     :apis: bokeh.models.Button, bokeh.models.CustomJS, bokeh.models.FileInput
 '''
 

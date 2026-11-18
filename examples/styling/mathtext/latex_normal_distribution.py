@@ -2,13 +2,12 @@
 use of mathtext on axes and in ``Div`` objects.
 
 .. bokeh-example-metadata::
-    :title: Latex normal distribution
-    :gallery:
-    :thumbnail-alt: A plot of the sampled and ideal Gaussian distribution with mathtext axis tick labels.
+    :title: Normal distribution
+    :keywords: mathtext, latex
     :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.quad, bokeh.models.Div, bokeh.models.TeX,
         bokeh.models.ScaledTicker, bokeh.models.ScaledTickFormatter
     :refs: :ref:`ug_styling_mathtext`
-    :keywords: mathtext, latex
+    :gallery: A plot of the sampled and ideal Gaussian distribution with mathtext axis tick labels.
 
 '''
 import numpy as np

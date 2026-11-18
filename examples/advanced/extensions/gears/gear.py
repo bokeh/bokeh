@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Gear
-    :keywords: gear, advanced, extensions
+    :keywords: gear
     :apis: bokeh.models.Glyph
 '''
 

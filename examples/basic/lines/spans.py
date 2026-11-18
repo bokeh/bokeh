@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Spans
-    :keywords: spans, basic plotting, lines
+    :keywords: spans
     :apis: bokeh.plotting.figure.hspan, bokeh.plotting.figure.vspan
 '''
 

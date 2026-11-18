@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Filter boolean
-    :keywords: filter boolean, basic plotting, data
+    :keywords: filter, boolean
     :apis: bokeh.models.BooleanFilter, bokeh.models.ColumnDataSource, bokeh.models.IndexedSubset, bokeh.plotting.figure.scatter
 '''
 

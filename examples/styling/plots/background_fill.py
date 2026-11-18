@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Background fill
-    :keywords: background fill, appearance, plots
+    :keywords: background, fill
     :apis: bokeh.plotting.figure.scatter
 '''
 

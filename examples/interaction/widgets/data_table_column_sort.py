@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Data table column sort
-    :keywords: data table column sort, interaction, widgets
+    :keywords: data, table, column, sort
     :apis: bokeh.models.ColumnDataSource, bokeh.models.CustomJSCompare, bokeh.models.DataTable, bokeh.models.TableColumn
 '''
 

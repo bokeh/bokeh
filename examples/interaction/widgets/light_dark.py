@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Light dark
-    :keywords: light dark, interaction, widgets
+    :keywords: light, dark
     :apis: bokeh.models.AutocompleteInput, bokeh.models.Button, bokeh.models.CheckboxButtonGroup, bokeh.models.CheckboxGroup, bokeh.models.CustomJS
 '''
 

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Min border
-    :keywords: min border, appearance, plots
+    :keywords: min, border
     :apis: bokeh.plotting.figure.scatter
 '''
 

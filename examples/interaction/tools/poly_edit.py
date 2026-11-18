@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Poly edit
-    :keywords: poly edit, interaction, tools
+    :keywords: poly, edit
     :apis: bokeh.models.PolyDrawTool, bokeh.models.PolyEditTool, bokeh.plotting.figure.add_tools, bokeh.plotting.figure.patches
 '''
 

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Multiple datetime picker
-    :keywords: multiple datetime picker, interaction, widgets
+    :keywords: multiple, datetime, picker
     :apis: bokeh.models.CustomJS, bokeh.models.MultipleDatetimePicker
 '''
 

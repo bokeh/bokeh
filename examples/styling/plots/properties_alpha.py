@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Properties alpha
-    :keywords: properties alpha, appearance, plots
+    :keywords: properties, alpha
     :apis: bokeh.plotting.figure.scatter
 '''
 

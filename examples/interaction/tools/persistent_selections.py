@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Persistent selections
-    :keywords: persistent selections, interaction, tools
+    :keywords: persistent, selections
     :apis: bokeh.models.BoxSelectTool, bokeh.models.LassoSelectTool, bokeh.models.PolySelectTool, bokeh.plotting.figure.add_tools
 '''
 

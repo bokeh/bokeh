@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Ipyleaflet tiles
-    :keywords: ipyleaflet tiles, output, jupyter
+    :keywords: ipyleaflet, tiles
     :apis: bokeh.models.WMTSTileSource, bokeh.plotting.figure.add_tile
 '''
 

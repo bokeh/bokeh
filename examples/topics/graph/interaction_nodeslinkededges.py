@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Interaction nodeslinkededges
-    :keywords: interaction nodeslinkededges, topic guides, graph
+    :keywords: interaction, nodeslinkededges
     :apis: bokeh.models.BoxSelectTool, bokeh.models.HoverTool, bokeh.models.MultiLine, bokeh.models.NodesAndLinkedEdges, bokeh.models.Plot
 '''
 

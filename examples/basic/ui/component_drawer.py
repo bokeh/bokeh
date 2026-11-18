@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Component drawer
-    :keywords: component drawer, basic plotting, ui
+    :keywords: component, drawer
     :apis: bokeh.models.Drawer, bokeh.models.Examiner, bokeh.plotting.figure.circle
 '''
 

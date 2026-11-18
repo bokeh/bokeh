@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Div fragment links
-    :keywords: div fragment links, interaction, widgets
+    :keywords: div, fragment, links
     :apis: bokeh.models.Div
 '''
 

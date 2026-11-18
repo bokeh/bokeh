@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Scale bar image
-    :keywords: scale bar image, basic plotting, annotations
+    :keywords: scale, bar, image
     :apis: bokeh.models.MetricLength, bokeh.models.ScaleBar, bokeh.plotting.figure.add_layout, bokeh.plotting.figure.image_url
 '''
 

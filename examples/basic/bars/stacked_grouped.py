@@ -2,9 +2,9 @@
 
 .. bokeh-example-metadata::
     :title: Stacked grouped
+    :keywords: bars, categorical, stacked, grouped
     :apis: bokeh.models.ColumnDataSource, bokeh.models.FactorRange, bokeh.plotting.figure.vbar_stack
     :refs: :ref:`ug_basic_bars_stacked_and_grouped`
-    :keywords: bars, categorical, stacked, grouped
 
 '''
 from bokeh.models import ColumnDataSource, FactorRange

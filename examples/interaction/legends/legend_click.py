@@ -1,9 +1,10 @@
-''' Toggle a plotted series from the legend by clicking its entry.
+''' Click a legend entry to cycle its series through marker shapes.
 
 .. bokeh-example-metadata::
-    :title: Legend click
-    :keywords: legend click, interaction, legends
+    :title: Change markers from the legend
+    :keywords: legend, click, callbacks, marker, CustomJS
     :apis: bokeh.models.CustomJS, bokeh.plotting.figure.scatter
+    :gallery: A scatter plot with three colored series whose marker shapes change when their legend entries are clicked.
 '''
 
 from bokeh.core.enums import MarkerType

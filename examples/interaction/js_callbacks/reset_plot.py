@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Reset plot
-    :keywords: reset plot, interaction, javascript callbacks
+    :keywords: reset, plot
     :apis: bokeh.models.Button, bokeh.models.CustomJS, bokeh.models.Div, bokeh.plotting.figure.scatter
 '''
 

@@ -1,11 +1,10 @@
 ''' Apply Bokeh's Dark Minimal theme to a line plot.
 
 .. bokeh-example-metadata::
-    :title: Dark minimal
-    :keywords: dark minimal, appearance, themes
+    :title: Dark minimal theme
+    :keywords: dark, minimal
     :apis: bokeh.plotting.figure.line
-    :gallery:
-    :thumbnail-alt: Basic line plot with the dark_minimal theme.
+    :gallery: Basic line plot with the dark_minimal theme.
 '''
 
 from bokeh.plotting import curdoc, figure, show

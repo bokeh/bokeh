@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Quad
-    :keywords: quad, basic plotting, areas
+    :keywords: quad
     :apis: bokeh.plotting.figure.quad
 '''
 

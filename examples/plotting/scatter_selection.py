@@ -2,9 +2,9 @@
 
 .. bokeh-example-metadata::
     :title: Scatter selection
+    :keywords: selection, tool, BoxSelectTool
     :apis: bokeh.plotting.figure.scatter, bokeh.model.select_one, bokeh.model.BoxSelectTool
     :refs: :ref:`ug_interaction_tools_pandrag`
-    :keywords: selection, tool, BoxSelectTool
 
 '''
 

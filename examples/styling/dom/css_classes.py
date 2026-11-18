@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: CSS classes
-    :keywords: css classes, appearance, dom
+    :keywords: css, classes
     :apis: bokeh.models.Div, bokeh.models.InlineStyleSheet
 '''
 

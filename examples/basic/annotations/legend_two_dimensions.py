@@ -3,9 +3,9 @@ explicit value for ``ncols`` and ``nrows``.
 
 .. bokeh-example-metadata::
     :title: Legend two dimensions
+    :keywords: legend
     :apis: bokeh.plotting.figure.line
     :refs: :ref:`ug_basic_annotations_legends_two_dimensions`
-    :keywords: legend
 '''
 import numpy as np
 

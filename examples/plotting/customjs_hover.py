@@ -2,9 +2,9 @@
 
 .. bokeh-example-metadata::
     :title: Customjs hover
+    :keywords: hover tool, CustomJSHover
     :apis: bokeh.models.CustomJSHover, bokeh.models.HoverTool
     :refs: :ref:`ug_interaction_tools_formatting_tooltip_fields`
-    :keywords: hover tool, CustomJSHover
 
 '''
 from os import getenv

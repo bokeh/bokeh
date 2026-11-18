@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: CSS variables
-    :keywords: css variables, appearance, visuals
+    :keywords: css, variables
     :apis: bokeh.plotting.figure.circle
 '''
 

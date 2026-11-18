@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :title: Progress
-    :keywords: progress, interaction, widgets
+    :keywords: progress
     :apis: bokeh.models.Button, bokeh.models.CustomJS, bokeh.models.Progress
 '''
 

@@ -1,13 +1,12 @@
 ''' A pyramid plot showing the age distribution of the male and female Titanic passengers using the `Bokeh` hbar glyph.
 
 .. bokeh-example-metadata::
-    :title: Pyramid
-    :gallery:
-    :thumbnail-alt: A pyramid plot showing the age distribution of the male and female Titanic passengers.
-    :sampledata: titanic
-    :apis: bokeh.plotting.figure.hbar
-    :refs: :ref:`ug_topics_stats_histogram`
+    :title: Titanic passenger age pyramid
     :keywords: pyramid, hbar
+    :apis: bokeh.plotting.figure.hbar
+    :sampledata: titanic
+    :refs: :ref:`ug_topics_stats_histogram`
+    :gallery: A pyramid plot showing the age distribution of the male and female Titanic passengers.
 '''
 import numpy as np
 
