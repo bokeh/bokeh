@@ -116,32 +116,4 @@ describe("JupyterLab kernel transport", () => {
     release()
     connection.close()
   })
-
-  it("sends local patches with their buffers only while an interactive comm is open", async () => {
-    const comm: any = {
-      open: vi.fn(),
-      send: vi.fn(),
-      close: vi.fn(() => ({done: Promise.resolve()})),
-    }
-    const kernel = {createComm: vi.fn(() => comm)}
-    const manager = {
-      context: {sessionContext: {ready: Promise.resolve(), session: {kernel}}},
-    }
-    const opening = kernelProxy(manager as any).openLive!("live")
-    await Promise.resolve()
-    comm.onMsg({content: {data: {
-      kind: "snapshot", artifact: "{}", resource_id: "resource", revision: 2, interactive: true,
-    }}})
-    const connection = await opening
-    const patch = {kind: "patch", revision: 2, content: {events: []}, buffer_ids: ["0"]}
-    const buffer = new ArrayBuffer(4)
-
-    expect(connection.interactive).toBe(true)
-    connection.send!(patch, [buffer])
-    expect(comm.send).toHaveBeenCalledWith(patch, undefined, [buffer])
-
-    connection.close()
-    connection.send!(patch, [buffer])
-    expect(comm.send).toHaveBeenCalledTimes(1)
-  })
 })

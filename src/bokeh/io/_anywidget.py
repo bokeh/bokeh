@@ -149,19 +149,18 @@ class _WidgetComm:
         '''
         self._on_msg = callback
 
-    def frontend_message(self, content: dict[str, Any], buffers: list[Any] | None = None) -> None:
+    def frontend_message(self, content: dict[str, Any]) -> None:
         '''Deliver a frontend message to the registered callback.
 
         Args:
             content: The frontend message payload.
-            buffers: Optional binary message buffers.
 
         Returns:
             None
 
         '''
         if not self._closed and self._on_msg is not None:
-            self._on_msg({"content": {"data": content}, "buffers": buffers or []})
+            self._on_msg({"content": {"data": content}})
 
     def close(self) -> None:
         '''Disconnect this frontend while preserving its rendered artifact.
@@ -238,7 +237,7 @@ class _DisplayWidget(anywidget.AnyWidget):
         self._handle = None
         super().close()
 
-    def _receive(self, _widget: Any, content: dict[str, Any], buffers: list[Any]) -> None:
+    def _receive(self, _widget: Any, content: dict[str, Any], _buffers: list[Any]) -> None:
         frontend_id = content.get("frontend_id")
         if not isinstance(frontend_id, str) or not frontend_id:
             return
@@ -272,10 +271,10 @@ class _DisplayWidget(anywidget.AnyWidget):
                     transport.frontend_closed()
                 if kind == "disposed" and not self._transports and (self._released or self._handle is None):
                     self.close()
-            case "resync" | "application_url" | "patch":
+            case "resync" | "application_url":
                 transport = self._transports.get(frontend_id)
                 if transport is not None:
-                    transport.frontend_message(content, buffers)
+                    transport.frontend_message(content)
         _prune_retained_widgets()
 
     def _prune_transports(self, incoming_id: str | None) -> None:

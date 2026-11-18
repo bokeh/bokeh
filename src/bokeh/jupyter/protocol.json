@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 2,
   "mime_types": {
     "artifact": "application/vnd.bokeh.embed+json",
     "display": "application/vnd.bokeh.display+json",

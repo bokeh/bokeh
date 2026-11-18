@@ -108,30 +108,6 @@ def test_widget_ready_connects_revisioned_artifact_transport() -> None:
     handle.close()
 
 
-def test_widget_routes_frontend_patches_with_buffers_to_the_handle() -> None:
-    root = Div(text="before")
-    document = Document()
-    document.add_root(root)
-    handle = DocumentViewHandle(root, live_id="live", view_id="view")
-    handle._attach(document)
-    widget = m.display_widget({"kind": "artifact", "live_id": "live"}, "", {}, handle=handle)
-    buffers = [memoryview(b"binary")]
-
-    with (
-        patch.object(widget, "send"),
-        patch.object(handle, "_apply_view_patch") as apply_view_patch,
-    ):
-        widget._receive(widget, {"kind": "active", "frontend_id": _FRONTEND_ID}, [])
-        patch_message = {"kind": "patch", "frontend_id": _FRONTEND_ID, "revision": 0, "content": {"events": []}, "buffer_ids": ["0"]}
-        widget._receive(widget, patch_message, buffers)
-
-    comm_id, _comm, data, received = apply_view_patch.call_args.args
-    assert comm_id == f"{widget.model_id}:{_FRONTEND_ID}"
-    assert data == patch_message
-    assert received == buffers
-    handle.close()
-
-
 def test_widget_disposal_disconnects_without_closing_python_owner() -> None:
     root = Div()
     handle = DocumentViewHandle(root, live_id="live", view_id="view")

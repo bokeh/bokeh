@@ -85,21 +85,8 @@ Connected output
 
 Connected documents add a comm channel to the static artifact. The Python
 ``DocumentViewHandle`` sends document patches and binary buffers to each
-connected frontend view. As in a server session, these patches include
-``MessageSent`` events, such as the UI events sent by ``FileInput.clear()``.
-Events addressed to a model are only sent to views that display it. Each view can reconnect from a complete snapshot and
+connected frontend view. Each view can reconnect from a complete snapshot and
 then apply later revisions in order.
-
-Interactive views also send their own document changes to Python, as patches
-in the same format whose ``revision`` is the last kernel revision the view had
-applied. BokehJS batches and defers these changes with the same callback
-policies as a server ``ClientSession``. Python applies each patch to the source
-document with a setter that identifies the view, and broadcasts the result,
-including changes made by Python callbacks, as one revision to every view. The
-originating view receives the revision without its own changes, unless Python
-changed the same property after the view's revision. In that case the change is
-echoed so that the view converges on the kernel's order. A patch that cannot be
-applied produces an error message followed by a fresh snapshot.
 
 Frontend views have independent lifecycles. Removing one output closes that
 view's comm and BokehJS mount without invalidating other views of the same

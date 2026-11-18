@@ -1,6 +1,6 @@
 export {index} from "./standalone"
-export {create_notebook_patch_receiver, create_notebook_session, NotebookPatchError} from "./notebook"
-export type {NotebookPatch, NotebookPatchSender, NotebookSession} from "./notebook"
+export {create_notebook_patch_receiver, NotebookPatchError} from "./notebook"
+export type {NotebookPatch} from "./notebook"
 export {
   EmbedError, embed_schema,
   is_embed_payload, validate_embed_payload,

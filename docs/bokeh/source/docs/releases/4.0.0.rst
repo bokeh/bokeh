@@ -8,10 +8,6 @@ Bokeh version ``4.0.0`` is a major milestone of the Bokeh project.
 New features
 ------------
 
-* Connected notebook output sends changes made in the browser back to the
-  kernel, so ``on_change()`` and ``on_event()`` callbacks of models displayed
-  with ``show()`` run without a Bokeh application. Changes made by those
-  callbacks are sent to every view of the output.
 * Added explicit immediate delivery and configurable throttling, debouncing,
   and committed-only delivery to ``Model.on_change()`` and
   ``Model.js_on_change()`` callbacks.

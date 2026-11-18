@@ -80,12 +80,10 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
           safelyCloseComm(comm)
         }, 5000)
 
-        const connection = (artifactJson: string, resourceId: string, revision: number,
-            interactive: boolean): LiveConnection => ({
+        const connection = (artifactJson: string, resourceId: string, revision: number): LiveConnection => ({
           artifactJson,
           resourceId,
           revision,
-          interactive,
 
           onMessage(callback) {
             revisions.subscribe(callback)
@@ -98,12 +96,6 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
 
           requestResync() {
             revisions.requestResync()
-          },
-
-          send(message, buffers) {
-            if (closed) return
-            try {comm.send(message, undefined, buffers)}
-            catch { /* The comm closed while sending; its close handler reports the disconnection. */ }
           },
 
           close() {
@@ -134,8 +126,7 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
               settled = true
               window.clearTimeout(timer)
               revisions.reset(initial.revision as number)
-              resolve(connection(initial.artifact, initial.resource_id, initial.revision as number,
-                initial.interactive === true))
+              resolve(connection(initial.artifact, initial.resource_id, initial.revision as number))
             }
             return
           }

@@ -191,38 +191,6 @@ After restarting the kernel, rerun the cell containing ``show()`` to create a
 new connected handle. A saved static representation remains visible without a
 kernel.
 
-.. _ug_output_jupyter_notebook_python_callbacks:
-
-Python callbacks
-~~~~~~~~~~~~~~~~
-
-Connected output also sends changes made in the browser back to the kernel.
-Moving a slider or clicking a button in a plot displayed with ``show()`` updates
-the Python models and runs their ``on_change()`` and ``on_event()`` callbacks,
-without starting a Bokeh application:
-
-.. code-block:: python
-
-    from bokeh.io import show
-    from bokeh.layouts import column
-    from bokeh.models import Div, Slider
-
-    slider = Slider(start=0, end=10, value=5)
-    div = Div()
-    slider.on_change("value", lambda attr, old, new: setattr(div, "text", f"value={new}"))
-    show(column(slider, div))
-
-Changes made by the callbacks are sent to every view of the plot. Callback
-policies such as ``Throttle()`` and ``Committed()`` control when the browser
-sends a change, as they do for Bokeh applications. Use
-``bokeh.io.notebook.show_doc(obj, interactive=False)`` to display output that
-only receives changes from Python.
-
-Callbacks run in the notebook kernel, so they wait while a cell is executing.
-Use a :ref:`Bokeh application <ug_output_jupyter_notebook_applications>` when
-each view needs its own document or the output must run independently of the
-notebook's execution.
-
 .. _ug_output_jupyter_notebook_jupyter_interactors:
 
 Jupyter interactors
@@ -237,8 +205,6 @@ See the
 for a complete notebook.
 
 .. _interactors: https://ipywidgets.readthedocs.io/en/latest/examples/Using%20Interact.html
-
-.. _ug_output_jupyter_notebook_applications:
 
 Bokeh applications
 ~~~~~~~~~~~~~~~~~~

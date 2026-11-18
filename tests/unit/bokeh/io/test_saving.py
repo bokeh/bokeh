@@ -18,7 +18,7 @@ import pytest
 
 from bokeh.core.templates import FILE
 from bokeh.embed._util import ThemePolicy
-from bokeh.io.jupyter import FILE_MIME_TYPE, PROTOCOL_VERSION
+from bokeh.io.jupyter import FILE_MIME_TYPE
 from bokeh.models import Plot
 from bokeh.resources import Resources
 
@@ -48,7 +48,7 @@ def test_save_returns_string_with_safe_notebook_link(mock_save_helper: MagicMock
         "Open reports/plot &amp; &quot;details&quot;.html</a>"
     )
     payload = {
-        "protocol_version": PROTOCOL_VERSION,
+        "protocol_version": 2,
         "kind": "file",
         "path": 'reports/plot & "details".html',
     }

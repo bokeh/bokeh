@@ -17,7 +17,7 @@ type AnyModel = {
 type AnyWidgetContext = {model: AnyModel, signal: AbortSignal}
 type AnyWidgetRenderContext = AnyWidgetContext & {el: HTMLElement}
 
-type Snapshot = {artifactJson: string, resourceId: string, revision: number, interactive: boolean}
+type Snapshot = {artifactJson: string, resourceId: string, revision: number}
 type ResourceWaiter = {
   resolve(record: ResourceRecord): void
   reject(error: unknown): void
@@ -78,12 +78,7 @@ export default function anywidgetFactory() {
       } else if (data?.kind === "snapshot" && typeof data.artifact === "string" &&
           typeof data.resource_id === "string" && Number.isSafeInteger(data.revision)) {
         const initial = snapshot == null
-        snapshot = {
-          artifactJson: data.artifact,
-          resourceId: data.resource_id,
-          revision: data.revision,
-          interactive: data.interactive === true,
-        }
+        snapshot = {artifactJson: data.artifact, resourceId: data.resource_id, revision: data.revision}
         liveClosed = false
         snapshotReady.resolve(snapshot)
         if (initial) revisions.reset(data.revision)
@@ -245,7 +240,6 @@ export default function anywidgetFactory() {
           artifactJson: current.artifactJson,
           resourceId: current.resourceId,
           revision: current.revision,
-          interactive: current.interactive,
 
           onMessage(callback) {
             const listener = async (message: any, buffers: DataView[]) => {
@@ -265,12 +259,6 @@ export default function anywidgetFactory() {
 
           requestResync() {
             revisions.requestResync()
-          },
-
-          send(message, buffers) {
-            if (deactivated || liveClosed) return
-            try {model.send({...message, frontend_id: frontendId}, undefined, buffers.map((buffer) => new DataView(buffer)))}
-            catch { /* The host closed its comm; the heartbeat deactivates this view. */ }
           },
 
           close() {

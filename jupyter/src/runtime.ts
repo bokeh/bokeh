@@ -28,15 +28,7 @@ interface NotebookBokehRuntime {
   when_mounted(target: HTMLElement, options?: {signal?: AbortSignal}): Promise<NotebookBokehMount>
   publish_mount_error?(target: HTMLElement, error: unknown): void
   MountError?: new(kind: string, message: string, cause?: unknown, rootKey?: string, phase?: string) => Error
-  embed?: {
-    create_notebook_patch_receiver?: (document: any, revision: number) => (message: any, buffers?: DataView[]) => void
-    create_notebook_session?: (document: any, revision: number, send: (message: any, buffers: ArrayBuffer[]) => void) => NotebookSession
-  }
-}
-
-interface NotebookSession {
-  receive(message: any, buffers?: DataView[]): void
-  close(): void
+  embed?: {create_notebook_patch_receiver?: (document: any, revision: number) => (message: any, buffers?: DataView[]) => void}
 }
 
 export interface FrontendDocumentSnapshot {
@@ -50,10 +42,7 @@ export interface LiveConnection {
   artifactJson: string
   resourceId: string
   revision: number
-  /** Whether Python applies changes sent with [[send]] to its document. */
-  interactive?: boolean
   onMessage(callback: (message: any, buffers: DataView[]) => void | Promise<void>): void
-  send?(message: any, buffers: ArrayBuffer[]): void
   onClose(callback: () => void): void
   requestResync(): void
   close(): void
@@ -634,7 +623,6 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
   const targets = artifactTargets(node, artifact)
   let mount: NotebookBokehMount | undefined
   let receivePatch: ((message: any, buffers?: DataView[]) => void) | undefined
-  let session: NotebookSession | undefined
   let disconnected: HTMLElement | undefined
   let disposed = false
   let snapshotFailures = 0
@@ -701,17 +689,9 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
     void previous?.dispose?.()
     artifact = nextArtifact
     renderedArtifacts.set(node, {artifact, mount})
-    session?.close()
-    session = undefined
-    const send = live?.interactive === true ? live.send : undefined
-    if (send != null && runtime.embed?.create_notebook_session != null) {
-      session = runtime.embed.create_notebook_session(mount.document, revision, send)
-      receivePatch = session.receive
-    } else {
-      receivePatch = live == null
-        ? undefined
-        : runtime.embed?.create_notebook_patch_receiver?.(mount.document, revision)
-    }
+    receivePatch = live == null
+      ? undefined
+      : runtime.embed?.create_notebook_patch_receiver?.(mount.document, revision)
     if (live != null && receivePatch == null) {
       throw new BokehNotebookError(
         "LIVE_SYNC_SETUP_FAILED",
@@ -763,7 +743,6 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
       )
     }
   } catch (error) {
-    session?.close()
     live?.close()
     viewConnection?.close()
     void mount?.dispose?.()
@@ -786,7 +765,6 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
     cleaned = true
     disposed = true
     renderedArtifacts.delete(node)
-    session?.close()
     live?.close()
     viewConnection?.close()
     disconnected?.remove()
