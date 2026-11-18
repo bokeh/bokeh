@@ -1,6 +1,7 @@
 ''' Draw horizontal bars from left and right endpoints.
 
 .. bokeh-example-metadata::
+    :example-ref: bokeh.models.glyphs.hbar
     :title: HBar
     :keywords: hbar, reference
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.HBar, bokeh.models.LinearAxis, bokeh.models.Plot

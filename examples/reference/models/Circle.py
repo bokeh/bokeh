@@ -1,6 +1,7 @@
 ''' Draw circles with radii measured in data units.
 
 .. bokeh-example-metadata::
+    :example-ref: bokeh.models.glyphs.circle
     :title: Circle
     :keywords: circle, reference
     :apis: bokeh.models.Circle, bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Plot

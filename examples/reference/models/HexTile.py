@@ -1,6 +1,7 @@
 ''' Draw hexagonal tiles using axial grid coordinates.
 
 .. bokeh-example-metadata::
+    :example-ref: bokeh.models.glyphs.hextile
     :title: Hex Tile
     :keywords: hex tile, reference
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.HexTile, bokeh.models.LinearAxis, bokeh.models.Plot

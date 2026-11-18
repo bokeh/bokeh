@@ -1,6 +1,7 @@
 ''' Fill several polygons from separate vertex arrays.
 
 .. bokeh-example-metadata::
+    :example-ref: bokeh.models.glyphs.patches
     :title: Patches
     :keywords: patches, reference
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Patches, bokeh.models.Plot

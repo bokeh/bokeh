@@ -87,6 +87,9 @@ class BokehExampleMetadataDirective(BokehDirective):
         "gallery": flag,
         "thumbnail-alt": unchanged,
         "example-ref": unchanged,
+        "render": flag,
+        "no-render": flag,
+        "min-python": unchanged,
     }
 
     def run(self) -> list[Any]:

@@ -27,10 +27,10 @@ stylesheet = InlineStyleSheet(css="""
     padding: 1em;
 }
 :host(.custom-1) {
-    border: 3px solid var(--custom-1-border-color);
+    border: 3px solid var(--custom-1-border-color, #2397D8);
 }
 :host(.custom-2) {
-    border: 3px solid var(--custom-2-border-color);
+    border: 3px solid var(--custom-2-border-color, #14999A);
     background-color: whitesmoke;
 }
 """)

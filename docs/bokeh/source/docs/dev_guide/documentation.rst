@@ -490,6 +490,16 @@ summary that explains what it demonstrates. CI reports scripts with missing
 summaries. Use the ``bokeh-example-metadata`` directive to provide a title,
 API names, sample data, and search keywords.
 
+For an example rendered in a guide or API reference page, set
+``:example-ref:`` to the section label so the index opens that rendering.
+
+Python scripts in directories matching ``bokeh_example_subdirs`` get dedicated
+rendered pages by default. A pattern such as ``basic/*`` covers each immediate
+subdirectory of ``examples/basic/``. Use ``:render:`` to enable a dedicated
+page outside those directories and ``:no-render:`` to skip one inside them.
+Set ``:min-python:`` to a major.minor version such as ``3.14`` to render
+only on compatible Python versions.
+
 List the module names of imported datasets in the ``:sampledata:`` field,
 separated by commas. CI reports imports with missing declarations.
 
@@ -497,8 +507,9 @@ To feature a rendered example in the :ref:`gallery`, add ``:gallery:`` and
 ``:thumbnail-alt:`` to its metadata. Put the PNG and the corresponding
 ``@2x.png`` in ``docs/bokeh/source/_images/`` at the same relative path as
 the example, replacing the ``.py`` extension. The gallery title defaults to
-the filename and can be overridden with ``:title:``. The gallery's JSON file
-lists the externally hosted server demos.
+the filename and can be overridden with ``:title:``. Cards show the first
+sentence of the docstring summary. The gallery's JSON file lists the
+externally hosted server demos.
 
 For information on how to format text using reStructuredText, see the
 :doc:`reStructuredText primer on the Sphinx website <sphinx:usage/restructuredtext/basics>`

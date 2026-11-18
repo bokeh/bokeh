@@ -2,6 +2,7 @@
 plot.
 
 .. bokeh-example-metadata::
+    :no-render:
     :title: Ajax source
     :keywords: ajax source, basic plotting, data
     :apis: bokeh.models.AjaxDataSource, bokeh.models.CustomJS, bokeh.plotting.figure.scatter

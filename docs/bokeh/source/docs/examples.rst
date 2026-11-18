@@ -13,7 +13,8 @@ Examples index
     examples/**
 
 Search the Python scripts and notebooks in Bokeh's examples directory.
-Entries link to an interactive example where available, or to the repository source.
+Use **View example** to open a rendering where available. Every entry has a
+**View source** link to the repository.
 
 .. raw:: html
 
@@ -21,17 +22,17 @@ Entries link to an interactive example where available, or to the repository sou
       <div class="bk-example-controls">
         <div>
           <label for="bk-example-query">Search examples</label>
-          <input type="search" id="bk-example-query" placeholder="Try HoverTool or bar chart">
+          <input type="search" id="bk-example-query" class="form-control form-control-sm" placeholder="Try HoverTool or bar chart">
         </div>
         <div>
           <label for="bk-example-topic">Topic</label>
-          <select id="bk-example-topic"><option value="">All topics</option></select>
+          <select id="bk-example-topic" class="form-select form-select-sm"><option value="">All topics</option></select>
         </div>
         <div>
           <label for="bk-example-type">Example type</label>
-          <select id="bk-example-type"><option value="">All types</option></select>
+          <select id="bk-example-type" class="form-select form-select-sm"><option value="">All types</option></select>
         </div>
-        <button type="reset" class="btn btn-outline-secondary">Clear</button>
+        <button type="reset" class="btn btn-sm btn-outline-secondary">Clear</button>
       </div>
       <p id="bk-example-count" role="status"></p>
     </form>

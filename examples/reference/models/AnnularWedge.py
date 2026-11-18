@@ -2,6 +2,7 @@
 angles.
 
 .. bokeh-example-metadata::
+    :example-ref: bokeh.models.glyphs.annularwedge
     :title: Annular Wedge
     :keywords: annular wedge, reference
     :apis: bokeh.models.AnnularWedge, bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Plot

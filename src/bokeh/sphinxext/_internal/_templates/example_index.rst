@@ -3,7 +3,7 @@
 
     .. container:: bk-example-heading
 
-        :{{ entry.role }}:`{{ entry.title }} <{{ entry.target }}>`
+        {{ entry.title }}
 
         .. container:: bk-example-facets
 
@@ -21,6 +21,15 @@
         {{ entry.summary }}
 
 {% endif %}
+    .. container:: bk-example-links
+
+        :bokeh-tree:`View source <{{ entry.filename }}>`
+
+{% if entry.role %}
+        :{{ entry.role }}:`View example <{{ entry.target }}>`
+
+{% endif %}
+{% if entry.remaining_summary or entry.details %}
     .. container:: bk-example-details
 
 {% if entry.remaining_summary %}
@@ -31,6 +40,5 @@
         **{{ label }}:** {{ value }}
 
 {% endfor %}
-        :bokeh-tree:`{{ entry.filename }}`
-
+{% endif %}
 {% endfor %}

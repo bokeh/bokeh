@@ -1,6 +1,7 @@
 ''' Connect data points with horizontal and vertical steps.
 
 .. bokeh-example-metadata::
+    :example-ref: bokeh.models.glyphs.step
     :title: Step
     :keywords: step, reference
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Plot, bokeh.models.Step

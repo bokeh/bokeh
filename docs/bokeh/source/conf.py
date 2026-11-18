@@ -11,7 +11,6 @@ locale.setlocale(locale.LC_TIME, "C")
 
 import os
 import re
-import sys
 from datetime import date
 from pathlib import Path
 
@@ -84,49 +83,16 @@ autodoc_type_aliases = {
 
 bokeh_example_subdirs = [
     "advanced/extensions",
-    "basic/annotations",
-    "basic/areas",
-    "basic/axes",
-    "basic/bars",
-    "basic/data",
-    "basic/layouts",
-    "basic/lines",
-    "basic/scatters",
-    "styling/visuals",
-    "styling/plots",
-    "styling/mathtext",
-    "styling/themes",
-    "interaction/js_callbacks",
-    "interaction/legends",
-    "interaction/linking",
-    "interaction/tools",
-    "interaction/tooltips",
-    "interaction/widgets",
+    "advanced/integration",
+    "basic/*",
+    "interaction/*",
     "models",
-    "plotting",
+    "models/structure",
     "output/webgl",
-    "topics/categorical",
-    "topics/hierarchical",
-    "topics/contour",
-    "topics/geo",
-    "topics/graph",
-    "topics/hex",
-    "topics/images",
-    "topics/pie",
-    "topics/stats",
-    "topics/timeseries",
+    "plotting",
+    "styling/*",
+    "topics/*",
 ]
-
-bokeh_sampledata_xref_skiplist = [
-    "examples/basic/data/ajax_source.py",
-    "examples/basic/data/server_sent_events_source.py",
-    "examples/basic/layouts/custom_layout.py",
-    "examples/styling/dom/css_classes.py",
-    "examples/models/widgets.py",
-]
-
-if sys.version_info[:2] < (3, 14):
-    bokeh_sampledata_xref_skiplist.append("examples/interaction/widgets/slider_template_string.py")
 
 copybutton_prompt_text = ">>> "
 

@@ -1,6 +1,7 @@
 ''' Draw circular arcs with a center, radius, and angle range.
 
 .. bokeh-example-metadata::
+    :example-ref: bokeh.models.glyphs.arc
     :title: Arc
     :keywords: arc, reference
     :apis: bokeh.models.Arc, bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Plot

@@ -27,17 +27,23 @@ window.addEventListener("DOMContentLoaded", function () {
     const typeFilter = filter.querySelector("#bk-example-type")
     const count = filter.querySelector("[role=status]")
     const entries = Array.from(document.querySelectorAll(".bk-example-entry"), (element) => {
-      const title = element.querySelector(".bk-example-heading > p").textContent.trim()
+      const heading = element.querySelector(".bk-example-heading")
+      const title = heading.querySelector("p").textContent.trim()
       const topic = element.querySelector(".bk-example-topic").textContent.trim()
       const type = element.querySelector(".bk-example-type").textContent.trim()
-      const text = element.textContent.toLowerCase()
+      const overview = element.querySelector(".bk-example-summary")
       const description = element.querySelector(".bk-example-details")
-      const disclosure = document.createElement("details")
-      const summary = document.createElement("summary")
-      summary.textContent = "Details"
-      summary.setAttribute("aria-label", `Details for ${title}`)
-      description.replaceWith(disclosure)
-      disclosure.append(summary, description)
+      const sourcePath = decodeURIComponent(element.querySelector(".bk-example-links a.external").pathname)
+      const filename = sourcePath.slice(sourcePath.indexOf("/examples/") + 1)
+      const text = [heading.textContent, overview?.textContent, description?.textContent, filename].join(" ").toLowerCase()
+      if (description != null) {
+        const disclosure = document.createElement("details")
+        const summary = document.createElement("summary")
+        summary.textContent = "Details"
+        summary.setAttribute("aria-label", `Details for ${title}`)
+        description.replaceWith(disclosure)
+        disclosure.append(summary, description)
+      }
       return {element, topic, type, text}
     })
     for (const [select, key] of [[topicFilter, "topic"], [typeFilter, "type"]]) {

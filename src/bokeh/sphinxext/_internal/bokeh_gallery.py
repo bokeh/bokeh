@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 
 import json
 import re
+import sys
 from html import escape
 from pathlib import Path, PurePosixPath
 from typing import Any
@@ -105,7 +106,7 @@ class BokehGalleryDirective(BokehDirective):
                 if "gallery" not in metadata:
                     continue
 
-                if not _has_example_page(relative, config):
+                if not _has_example_page(relative, metadata, config):
                     raise SphinxError(f"Gallery example {relative} needs a rendered example page")
                 image = (PurePosixPath("examples") / relative).with_suffix("").as_posix()
                 for suffix in (".png", "@2x.png"):
@@ -122,7 +123,7 @@ class BokehGalleryDirective(BokehDirective):
                     "img": image,
                     "alt": escape(metadata["thumbnail-alt"]),
                     "title": escape(_example_title(source, metadata)),
-                    "desc": escape(summary),
+                    "desc": escape(SUMMARY_SENTENCE_BREAK.split(summary, maxsplit=1)[0]),
                 })
 
             if opts:
@@ -149,14 +150,14 @@ class BokehSearchableExamplesDirective(BokehDirective):
                 summary, metadata = read_example_metadata(source)
             lead, *remainder = SUMMARY_SENTENCE_BREAK.split(summary, maxsplit=1)
             guide = metadata.get("example-ref")
-            rendered = _has_example_page(relative, config)
+            rendered = _has_example_page(relative, metadata, config)
             if guide:
                 role, target = "ref", guide
             elif rendered:
                 docname = (PurePosixPath(config.bokeh_examples_dir) / relative).with_suffix("")
                 role, target = "doc", f"/{docname}"
             else:
-                role, target = "bokeh-tree", filename
+                role, target = None, None
 
             category = relative.parts[0]
             topic = _topic_label(category)
@@ -196,7 +197,10 @@ def config_inited_handler(app: Any, config: Any) -> None:
     expected = set()
     backlinks: dict[str, list[str]] = {}
     for relative in sources:
-        if not _has_example_page(relative, config):
+        if relative.suffix != ".py":
+            continue
+        _, metadata = read_example_metadata(repo_examples / relative)
+        if not _has_example_page(relative, metadata, config):
             continue
         path = docs_examples / relative.with_suffix(".rst")
         expected.add(path)
@@ -207,7 +211,6 @@ def config_inited_handler(app: Any, config: Any) -> None:
         )
         _write_if_changed(path, content)
         docname = path.relative_to(app.srcdir).with_suffix("").as_posix()
-        _, metadata = read_example_metadata(repo_examples / relative)
         for module in set(sampledata_modules(metadata.get("sampledata"))):
             backlinks.setdefault(module, []).append(docname)
 
@@ -224,7 +227,6 @@ def setup(app: Any) -> SphinxParallelSpec:
     app.add_config_value("bokeh_gallery_catalog", "docs/gallery.json", "html")
     app.add_config_value("bokeh_examples_dir", "docs/examples", "html")
     app.add_config_value("bokeh_example_subdirs", [], "html")
-    app.add_config_value("bokeh_sampledata_xref_skiplist", [], "html")
     app.connect("config-inited", config_inited_handler)
     app.add_directive("bokeh-gallery", BokehGalleryDirective)
     app.add_directive("bokeh-searchable-examples", BokehSearchableExamplesDirective)
@@ -257,12 +259,21 @@ def _write_if_changed(path: Path, content: str) -> None:
         path.write_text(content, encoding="utf-8")
 
 
-def _has_example_page(relative: Path, config: Any) -> bool:
-    return (
-        relative.suffix == ".py"
-        and relative.parent.as_posix() in config.bokeh_example_subdirs
-        and f"examples/{relative.as_posix()}" not in config.bokeh_sampledata_xref_skiplist
-    )
+def _has_example_page(relative: Path, metadata: dict[str, str], config: Any) -> bool:
+    source = f"examples/{relative.as_posix()}"
+    if relative.suffix != ".py" or "no-render" in metadata:
+        return False
+    directory = PurePosixPath(relative.parent.as_posix())
+    if "render" not in metadata and not any(
+        directory.full_match(pattern) for pattern in config.bokeh_example_subdirs
+    ):
+        return False
+    minimum = metadata.get("min-python")
+    if minimum is None:
+        return True
+    if re.fullmatch(r"[0-9]+\.[0-9]+", minimum) is None:
+        raise SphinxError(f"{source}: :min-python: requires a major.minor version, got {minimum!r}")
+    return sys.version_info[:2] >= tuple(map(int, minimum.split(".")))
 
 
 def _example_title(source: Path, metadata: dict[str, str]) -> str:

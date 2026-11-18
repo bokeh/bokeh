@@ -1,6 +1,7 @@
 ''' Fill an area between horizontal step boundaries.
 
 .. bokeh-example-metadata::
+    :example-ref: bokeh.models.glyphs.hareastep
     :title: HArea Step
     :keywords: harea step, reference
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.HAreaStep, bokeh.models.LinearAxis, bokeh.models.Plot

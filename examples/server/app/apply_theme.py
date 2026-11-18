@@ -3,6 +3,7 @@
 
 
 .. bokeh-example-metadata::
+    :render:
     :title: Apply theme
     :keywords: apply theme, bokeh server, app
     :apis: bokeh.plotting.figure.line

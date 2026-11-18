@@ -10,9 +10,6 @@ html[data-theme=light] {
   --pst-color-inline-code: var(--pst-color-text-base);
 }
 
-/* activate the search box on the start page if the search button on the top banner is clicked */
-.bd-search {}
-
 .bokeh-hero {
   width: 100%;
   height: auto;
@@ -21,11 +18,6 @@ html[data-theme=light] {
 /* make sure the article container uses all available space */
 .bd-article-container {
   max-width: 100% !important;
-}
-
-/* disable this container to avoid unnecessary overflow */
-#rtd-footer-container {
-  display: none;
 }
 
 /* Tweak appearance of args in reference guide */
@@ -49,16 +41,6 @@ img.image-border {
 }
 .sd-row{
     --sd-gutter-y: 1.5em;
-}
-
-/* Tweak sphinx-design cards */
-.bokeh-examples div {
-  padding: 0px;
-  margin: 0px;
-}
-.bokeh-examples img {
-  width: 100%;
-  height: 100%;
 }
 
 /* Ligatures provide bad UX in some cases, just turn them off */
@@ -109,7 +91,7 @@ img.image-border {
 .bd-footer .btn-primary:hover { filter: brightness(100%); background-color: #C02942; border-color: #C02942; }
 
 /* Gallery */
-.bd-content .bk-gallery-tabs > label.sd-tab-label {
+.bd-content .sd-tab-set.bk-gallery-tabs > label.sd-tab-label {
     padding: 0.55rem 0.85rem;
     background: transparent;
     border: 0;
@@ -119,10 +101,7 @@ img.image-border {
 }
 
 .bd-content .bk-gallery-tabs > input:checked + label.sd-tab-label {
-    background: transparent;
-    border: 0;
-    border-bottom: 2px solid var(--pst-color-link);
-    border-radius: 0.35rem 0.35rem 0 0;
+    border-bottom-color: var(--pst-color-link);
     color: var(--pst-color-link);
     transform: none;
 }
@@ -153,9 +132,7 @@ ul.bk-gallery {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr));
     gap: 1rem;
-    padding: 0;
     margin: 0;
-    list-style: none;
 }
 
 li.bk-thumbnail {
@@ -186,9 +163,8 @@ li.bk-thumbnail {
     text-decoration: underline;
 }
 
-.bk-thumbnail img.gallery {
+.bk-thumbnail img {
     width: 100%;
-    height: auto;
     border-radius: 0.4rem;
     background: var(--pst-color-surface);
 }
@@ -221,17 +197,8 @@ li.bk-thumbnail {
     font-weight: 600;
 }
 
-.bk-example-controls :is(input, select) {
-    display: block;
-    width: 100%;
-    min-height: 2.4rem;
+.bk-example-controls :is(.form-control, .form-select) {
     margin-top: 0.2rem;
-    padding: 0.3rem 0.5rem;
-    color: var(--pst-color-text-base);
-    background: var(--pst-color-background);
-    border: 1px solid var(--pst-color-border);
-    border-radius: 0.35rem;
-    font-weight: 400;
 }
 
 #bk-example-count {
@@ -246,7 +213,7 @@ li.bk-thumbnail {
     padding: 0.4rem 0;
 }
 
-.bk-example-heading {
+.bk-example-entry:has(> details) > .bk-example-heading {
     padding-inline-end: 5.25rem;
 }
 
@@ -256,21 +223,28 @@ li.bk-thumbnail {
     overflow-wrap: anywhere;
 }
 
-.bk-example-facets {
+:is(.bk-example-facets, .bk-example-links) {
     display: flex;
     flex-wrap: wrap;
     column-gap: 0.85rem;
+}
+
+.bk-example-facets {
     color: var(--pst-color-text-muted);
     font-size: 0.8rem;
 }
 
-.bk-example-facets p, .bk-example-details p {
+:is(.bk-example-facets, .bk-example-links, .bk-example-details) p {
     margin: 0;
 }
 
-.bk-example-summary > p {
-    margin: 0.2rem 0 0;
+.bk-example-summary > p, .bk-example-links {
+    margin-top: 0.2rem;
     font-size: 0.875rem;
+}
+
+.bk-example-summary > p {
+    margin-bottom: 0;
 }
 
 .bk-example-entry > details > summary {

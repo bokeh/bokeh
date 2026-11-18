@@ -1,6 +1,7 @@
 ''' Stream data from a Flask endpoint into a plot using server-sent events.
 
 .. bokeh-example-metadata::
+    :no-render:
     :title: Server sent events source
     :keywords: server sent events source, basic plotting, data
     :apis: bokeh.models.CustomJS, bokeh.models.ServerSentDataSource, bokeh.plotting.figure.scatter

@@ -1,6 +1,7 @@
 ''' Fill one polygon from a sequence of vertices.
 
 .. bokeh-example-metadata::
+    :example-ref: bokeh.models.glyphs.patch
     :title: Patch
     :keywords: patch, reference
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Patch, bokeh.models.Plot
