@@ -66,7 +66,10 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
 
   private svg_image: CanvasImage | null = null
   private svg_element: SVGElement
-  private _image_request: Promise<void> | null = null
+
+  /** Text and visuals of the image that was loaded or is being loaded. */
+  private _image_key: string | null = null
+  private _image_generation: number = 0
 
   _rect(): Rect {
     const {width, height} = this._size()
@@ -106,8 +109,8 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.on_change(this.model.properties.text, () => this.load_image())
-    this.connect(this.provider.ready, () => this.load_image())
+    this.on_change(this.model.properties.text, () => this.update_image())
+    this.connect(this.provider.ready, () => this.update_image())
   }
 
   set visuals(v: visuals.Text["Values"]) {
@@ -351,6 +354,9 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
       return
     }
 
+    this._image_generation += 1
+    const generation = this._image_generation
+
     const mathjax_element = this._process_text()
     if (mathjax_element == null) {
       this._has_finished = true
@@ -365,27 +371,45 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
 
     const svg = svg_element.outerHTML
     const src = `data:image/svg+xml;utf-8,${encodeURIComponent(svg)}`
-    this.svg_image = await load_image(src)
+    const image = await load_image(src)
+    // a newer request, e.g. after text or visuals changed, supersedes this one
+    if (generation == this._image_generation) {
+      this.svg_image = image
+    }
   }
 
-  private async load_image(): Promise<void> {
-    // MathJax can become ready before a consumer assigns text visuals.
-    if (this.font == "") {
-      return
-    }
-    if (this._image_request != null) {
-      return this._image_request
-    }
+  protected get _current_image_key(): string {
+    return `${this.styled_text}\0${this.font}\0${this.color}`
+  }
 
-    const request = this.request_image()
-    this._image_request = request
-    try {
-      await request
+  /**
+   * Whether an image can be loaded, and either none was loaded (or is being
+   * loaded) yet, or, if `changed`, text or visuals changed since then.
+   */
+  private _needs_image(changed: boolean): boolean {
+    // MathJax can become ready before a consumer assigns text visuals.
+    if (this.font == "" || this.provider.MathJax == null) {
+      return false
+    }
+    return changed ? this._image_key != this._current_image_key : this._image_key == null
+  }
+
+  private async _load_image(): Promise<void> {
+    const key = this._current_image_key
+    this._image_key = key
+    await this.request_image()
+    if (this._image_key == key) {
       this.parent.request_layout()
-    } finally {
-      if (this._image_request == request) {
-        this._image_request = null
-      }
+    }
+  }
+
+  /**
+   * (Re)loads the image if text or visuals changed since it was loaded, e.g.
+   * after assigning new visuals. Tracked by `ready`.
+   */
+  update_image(): void {
+    if (this._needs_image(true)) {
+      this.schedule(async () => await this._load_image())
     }
   }
 
@@ -395,8 +419,8 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   */
   paint(ctx: Context2d): void {
     if (this.svg_image == null) {
-      if (this.provider.status == "loaded") {
-        void this.load_image()
+      if (this._needs_image(false)) {
+        this.schedule(async () => await this._load_image())
       }
     }
 

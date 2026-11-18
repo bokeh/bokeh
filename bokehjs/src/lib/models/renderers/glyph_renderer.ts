@@ -428,8 +428,6 @@ export class GlyphRendererView extends DataRendererView {
     } finally {
       this._applying_visuals = false
     }
-    // Serialize asynchronous visual hooks with other passes. A pending pass already runs them.
-    this._enqueue_update({data: false, visuals: false, paint: false})
   }
 
   /** Queue data preparation. Like `request_paint()`, renderer state becomes current through `ready`. */
@@ -472,9 +470,7 @@ export class GlyphRendererView extends DataRendererView {
           if (request.data) {
             await this._set_data(request.indices == null ? undefined : [...request.indices])
           } else if (request.visuals) {
-            await this._set_visuals()
-          } else {
-            await this._after_lazy_visuals()
+            this._set_visuals()
           }
         } finally {
           this._active_update = null
@@ -506,7 +502,7 @@ export class GlyphRendererView extends DataRendererView {
     await this.hover_glyph?.set_data(source, all_indices, indices)
     await this.muted_glyph.set_data(source, all_indices, indices)
 
-    await this._set_visuals()
+    this._set_visuals()
 
     this._update_masked_indices()
 
@@ -521,9 +517,8 @@ export class GlyphRendererView extends DataRendererView {
   }
 
   // Internal preparation. Runtime callers must use update_visuals().
-  async _set_visuals(): Promise<void> {
+  _set_visuals(): void {
     this._apply_visuals()
-    await this._after_lazy_visuals()
   }
 
   // Update visuals of all glyph states synchronously, so they can be applied during painting.
@@ -548,15 +543,6 @@ export class GlyphRendererView extends DataRendererView {
 
     this.muted_glyph.set_visuals(source, all_indices)
     this.muted_glyph.after_visuals()
-  }
-
-  private async _after_lazy_visuals(): Promise<void> {
-    await this.glyph.after_lazy_visuals()
-    await this.decimated_glyph.after_lazy_visuals()
-    await this.selection_glyph.after_lazy_visuals()
-    await this.nonselection_glyph.after_lazy_visuals()
-    await this.hover_glyph?.after_lazy_visuals()
-    await this.muted_glyph.after_lazy_visuals()
   }
 
   map_data(): void {

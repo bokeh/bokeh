@@ -620,8 +620,6 @@ export abstract class GlyphView extends DOMComponentView {
    */
   after_visuals(): void {}
 
-  async after_lazy_visuals(): Promise<void> {}
-
   protected get _index_size(): number {
     return this.data_size
   }
