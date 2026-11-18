@@ -18,8 +18,9 @@ two child sources as the data sources of ``node_renderer`` and
 ``layout_provider`` to set the layout.
 
 You can pass existing indexed sources, column mappings, or node and edge
-records. Node records accept ``id`` as an alias for ``index``, while edge
-records accept ``source`` and ``target`` as aliases for ``start`` and ``end``.
+records. In raw inputs, ``id`` can fill in for a missing ``index``, and
+``source`` and ``target`` can fill in for missing ``start`` and ``end`` fields.
+When a canonical field is present, the alias remains an ordinary attribute.
 
 .. code-block:: python
 

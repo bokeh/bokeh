@@ -916,14 +916,17 @@ def _default_graph_nodes() -> ColumnDataSource:
 def _default_graph_edges() -> ColumnDataSource:
     return ColumnDataSource(data=dict(start=[], end=[]))
 
+_NODE_ALIASES = {"id": "index"}
+_EDGE_ALIASES = {"source": "start", "target": "end"}
+
+def _normalize_graph_fields(fields: dict[str, Any], aliases: Mapping[str, str]) -> None:
+    for alias, canonical in aliases.items():
+        if canonical not in fields and alias in fields:
+            fields[canonical] = fields.pop(alias)
+
 def _column_source(data: Mapping[str, Sequence[Any]], aliases: Mapping[str, str]) -> ColumnDataSource:
     columns = dict(data)
-    for alias, canonical in aliases.items():
-        if alias not in columns:
-            continue
-        if canonical in columns:
-            raise ValueError(f"graph data cannot contain both {alias!r} and {canonical!r} fields")
-        columns[canonical] = columns.pop(alias)
+    _normalize_graph_fields(columns, aliases)
     return ColumnDataSource(columns)
 
 def _rows_source(rows: Iterable[Mapping[str, Any]]) -> ColumnDataSource:
@@ -967,14 +970,14 @@ def _node_source(nodes: Any) -> IndexedDataSource:
     if isinstance(nodes, IndexedDataSource):
         return nodes
 
-    if (source := _tabular_graph_source(nodes, {"id": "index"})) is not None:
+    if (source := _tabular_graph_source(nodes, _NODE_ALIASES)) is not None:
         return source
 
     if isinstance(nodes, Mapping):
         if not nodes:
             return _default_graph_nodes()
         if "id" in nodes or "index" in nodes or not all(isinstance(attrs, Mapping) for attrs in nodes.values()):
-            return _column_source(nodes, {"id": "index"})
+            return _column_source(nodes, _NODE_ALIASES)
         records = []
         for node_id, attrs in nodes.items():
             if not isinstance(attrs, Mapping):
@@ -988,10 +991,7 @@ def _node_source(nodes: Any) -> IndexedDataSource:
     for node in nodes:
         if isinstance(node, Mapping):
             record = dict(node)
-            if "id" in record:
-                if "index" in record:
-                    raise ValueError("a node record cannot contain both 'id' and 'index'")
-                record["index"] = record.pop("id")
+            _normalize_graph_fields(record, _NODE_ALIASES)
             if "index" not in record:
                 raise ValueError("a node record must contain an 'id' or 'index' field")
         elif isinstance(node, tuple) and len(node) == 2 and isinstance(node[1], Mapping):
@@ -1008,23 +1008,19 @@ def _edge_source(edges: Any) -> IndexedDataSource:
     if isinstance(edges, IndexedDataSource):
         return edges
 
-    if (source := _tabular_graph_source(edges, {"source": "start", "target": "end"})) is not None:
+    if (source := _tabular_graph_source(edges, _EDGE_ALIASES)) is not None:
         return source
 
     if isinstance(edges, Mapping):
         if not edges:
             return _default_graph_edges()
-        return _column_source(edges, {"source": "start", "target": "end"})
+        return _column_source(edges, _EDGE_ALIASES)
 
     records = []
     for edge in edges:
         if isinstance(edge, Mapping):
             record = dict(edge)
-            for alias, canonical in (("source", "start"), ("target", "end")):
-                if alias in record:
-                    if canonical in record:
-                        raise ValueError(f"an edge record cannot contain both {alias!r} and {canonical!r}")
-                    record[canonical] = record.pop(alias)
+            _normalize_graph_fields(record, _EDGE_ALIASES)
             if "start" not in record or "end" not in record:
                 raise ValueError("an edge record must contain source/target or start/end fields")
         elif isinstance(edge, (tuple, list)) and len(edge) in (2, 3):
@@ -1125,10 +1121,10 @@ class GraphDataSource(DataSource):
     shared record axis.
 
     Graph-shaped Python data is accepted directly. Node records may use ``id``
-    and edge records may use ``source`` and ``target``. These names
-    are normalized to Bokeh's internal ``index``, ``start``, and ``end``
-    fields. A NetworkX-like graph can be passed as the sole positional
-    argument.
+    and edge records may use ``source`` and ``target``. These names fill in
+    missing ``index``, ``start``, and ``end`` fields. When the canonical field is
+    already present, the alias remains an ordinary attribute. A NetworkX-like
+    graph can be passed as the sole positional argument.
 
     '''
 

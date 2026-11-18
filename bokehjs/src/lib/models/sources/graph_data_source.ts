@@ -45,21 +45,33 @@ function rows_source(records: object[]): ColumnDataSource {
   return ColumnDataSource.create({data})
 }
 
-function columns_source(columns: GraphDataSource.Columns, aliases: {[key: string]: string}): ColumnDataSource {
+const node_aliases = {id: "index"}
+const edge_aliases = {source: "start", target: "end"}
+
+function normalize_graph_fields(fields: {[key: string]: unknown}, aliases: {[key: string]: string}): void {
   for (const [alias, canonical] of Object.entries(aliases)) {
-    if (alias in columns && canonical in columns) {
-      throw new Error(`graph data cannot contain both '${alias}' and '${canonical}' fields`)
+    if (!Object.hasOwn(fields, alias)) {
+      continue
+    }
+    const value = fields[alias]
+    if (value === undefined) {
+      delete fields[alias]
+    } else if (!Object.hasOwn(fields, canonical) || fields[canonical] === undefined) {
+      fields[canonical] = value
+      delete fields[alias]
     }
   }
+}
 
+function columns_source(columns: GraphDataSource.Columns, aliases: {[key: string]: string}): ColumnDataSource {
   const data: Data = {}
   for (const [field, values] of Object.entries(columns)) {
     if (values == null) {
       throw new Error(`graph field '${field}' has an invalid value`)
     }
-    const canonical = Object.hasOwn(aliases, field) ? aliases[field] : field
-    data[canonical] = values
+    data[field] = values
   }
+  normalize_graph_fields(data, aliases)
   return ColumnDataSource.create({data})
 }
 
@@ -80,7 +92,7 @@ function node_source(nodes: GraphDataSource.Nodes): IndexedDataSource {
       })
       return rows_source(records)
     }
-    return columns_source(nodes as GraphDataSource.Columns, {id: "index"})
+    return columns_source(nodes as GraphDataSource.Columns, node_aliases)
   }
   if (nodes.length == 0) {
     return ColumnDataSource.create({data: {index: []}})
@@ -94,16 +106,12 @@ function node_source(nodes: GraphDataSource.Nodes): IndexedDataSource {
       }
       return {index, ...attrs}
     } else if (isPlainObject(node)) {
-      const {id, index, ...attrs} = node
-      const has_id = Object.hasOwn(node, "id") && id !== undefined
-      const has_index = Object.hasOwn(node, "index") && index !== undefined
-      if (has_id && has_index) {
-        throw new Error("a node record cannot contain both 'id' and 'index'")
-      }
-      if (!has_id && !has_index) {
+      const record = {...node}
+      normalize_graph_fields(record, node_aliases)
+      if (record.index === undefined) {
         throw new Error("a node record must contain an 'id' or 'index' field")
       }
-      return {index: has_index ? index : id, ...attrs}
+      return record
     }
     return {index: node}
   })
@@ -118,7 +126,7 @@ function edge_source(edges: GraphDataSource.Edges): IndexedDataSource {
     if (Object.keys(edges).length == 0) {
       return ColumnDataSource.create({data: {start: [], end: []}})
     }
-    return columns_source(edges, {source: "start", target: "end"})
+    return columns_source(edges, edge_aliases)
   }
   if (edges.length == 0) {
     return ColumnDataSource.create({data: {start: [], end: []}})
@@ -138,18 +146,12 @@ function edge_source(edges: GraphDataSource.Edges): IndexedDataSource {
       }
       return {start, end, ...attrs}
     }
-    const {source, target, start, end, ...attrs} = edge
-    const has_source = Object.hasOwn(edge, "source") && source !== undefined
-    const has_target = Object.hasOwn(edge, "target") && target !== undefined
-    const has_start = Object.hasOwn(edge, "start") && start !== undefined
-    const has_end = Object.hasOwn(edge, "end") && end !== undefined
-    if ((has_source && has_start) || (has_target && has_end)) {
-      throw new Error("an edge record cannot contain both endpoint aliases")
-    }
-    if (!(has_source || has_start) || !(has_target || has_end)) {
+    const record = {...edge}
+    normalize_graph_fields(record, edge_aliases)
+    if (record.start === undefined || record.end === undefined) {
       throw new Error("an edge record must contain source/target or start/end fields")
     }
-    return {start: has_start ? start : source, end: has_end ? end : target, ...attrs}
+    return record
   })
   return rows_source(records)
 }
