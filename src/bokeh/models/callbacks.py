@@ -129,7 +129,7 @@ class CustomJS(CustomCode):
     A JavaScript module (ESM) exporting a default function with the following
     signature:
 
-    .. code-block: javascript
+    .. code-block:: javascript
 
         export default function(args, obj, data, context) {
             // program logic
@@ -152,7 +152,7 @@ class CustomJS(CustomCode):
     ``async () => {}``) if for example external resources are needed, which
     would require usage of one of the asynchronous Web APIs, for example:
 
-    .. code-block: javascript
+    .. code-block:: javascript
 
         const response = await fetch("/assets/data.csv")
         const data = await response.text()
@@ -173,7 +173,7 @@ class CustomJS(CustomCode):
         a JavaScript module ``my_module.mjs``, that takes a single argument
         ``source``, then we would use:
 
-        .. code-block: python
+        .. code-block:: python
 
             from bokeh.models import ColumnDataSource, CustomJS
             source = ColumnDataSource(data=dict(x=[1, 2, 3]))
@@ -206,7 +206,7 @@ class CustomJS(CustomCode):
             This allows to fill ``CustomJS.args`` by simply referring to Bokeh models
             and other values from within interpolations.
 
-            .. code-block: python
+            .. code-block:: python
 
                 from bokeh.models import CustomJS, Slider
                 slider = Slider(start=0, end=10)
