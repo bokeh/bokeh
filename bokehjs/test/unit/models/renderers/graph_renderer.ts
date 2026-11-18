@@ -15,7 +15,7 @@ import {Bezier} from "@bokehjs/models/glyphs/bezier"
 import {Scatter, MultiLine} from "@bokehjs/models/glyphs"
 import {ScatterView} from "@bokehjs/models/glyphs/scatter"
 import {Plot} from "@bokehjs/models/plots"
-import type {Document} from "@bokehjs/document"
+import {Document} from "@bokehjs/document"
 import {ModelChangedEvent, ColumnsPatchedEvent} from "@bokehjs/document/events"
 import {assert} from "@bokehjs/core/util/assert"
 import {SerializationError} from "@bokehjs/core/serialization"
@@ -82,6 +82,24 @@ describe("GraphRenderer", () => {
 
     expect(graph.node_renderer.data_source).to.be.equal(node_source)
     expect(graph.edge_renderer.data_source).to.be.equal(edge_source)
+  })
+
+  it("deserializes supplied graph renderers without constructing temporary defaults", () => {
+    const layout_provider = StaticLayoutProvider.create({graph_layout: new Map([[0, [1, 2]]])})
+    const data_source = GraphDataSource.create({nodes: [0], edges: []})
+    const graph = GraphRenderer.create({data_source, layout_provider})
+    const doc = new Document({roots: [graph]})
+    const encoded = doc.to_json()
+
+    using create_source = restorable(sinon.spy(GraphDataSource, "create"))
+    using create_renderer = restorable(sinon.spy(GlyphRenderer, "create"))
+    const [decoded] = Document.from_json(encoded).roots()
+    assert(decoded instanceof GraphRenderer)
+
+    expect(create_source.callCount).to.be.equal(0)
+    expect(create_renderer.callCount).to.be.equal(0)
+    expect(decoded.node_renderer.data_source).to.be.identical(decoded.data_source.nodes)
+    expect(decoded.edge_renderer.data_source).to.be.identical(decoded.data_source.edges)
   })
 
   it("rejects mismatched renderer and graph sources", () => {
