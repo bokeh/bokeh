@@ -1432,6 +1432,10 @@ class GraphDataSource(DataSource):
     already present, the alias remains an ordinary attribute. A NetworkX-like
     graph can be passed as the sole positional argument.
 
+    Node identifiers must be unique when Bokeh converts node data into a
+    ``ColumnDataSource``. For an existing ``IndexedDataSource``, topology
+    lookup uses the first row with a given identifier.
+
     '''
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
