@@ -184,6 +184,13 @@ export class GraphRenderer extends DataRenderer {
   declare __view_type__: GraphRendererView
 
   protected constructor(attrs: Partial<GraphRenderer.Attrs> = {}) {
+    const normalized_attrs = {...attrs}
+    super(normalized_attrs)
+
+    if (this.is_deferred) {
+      return
+    }
+
     const data_source = attrs.data_source ?? GraphDataSource.create({
       nodes: attrs.node_renderer?.data_source,
       edges: attrs.edge_renderer?.data_source,
@@ -198,8 +205,8 @@ export class GraphRenderer extends DataRenderer {
       throw new Error("GraphRenderer edge_renderer and data_source must use the same edge source")
     }
 
-    const normalized_attrs = {...attrs, data_source, node_renderer, edge_renderer}
-    super(normalized_attrs)
+    // HasProps initializes these attributes after the constructor returns.
+    Object.assign(normalized_attrs, {data_source, node_renderer, edge_renderer})
   }
 
   static {
