@@ -720,15 +720,39 @@ print("kernel-updated")
     )
 
 
-_COMM_VIEW_MODEL = """
-async ({view, name}) => {
+_COMM_VIEW = """
+const commView = (view) => {
   const targets = document.querySelectorAll(".jp-CodeCell")[0].querySelectorAll("[data-bokeh-root]")
-  const mount = targets[view]?.bokehMount
-  if (mount?.state !== "ready")
-    return null
-  const model = mount.document.get_model_by_name(name)
-  return model == null ? null : {value: model.value ?? null, text: model.text ?? null}
+  const target = targets[view]
+  const mount = target?.bokehMount
+  return mount?.state === "ready" && mount.view_lookup != null ? {target, mount} : null
 }
+"""
+
+_COMM_VIEW_STATE = _COMM_VIEW + """
+return (({view}) => {
+  const current = commView(view)
+  if (current == null)
+    return null
+  const model = (name) => current.mount.document.get_model_by_name(name)
+  const error = current.target.parentElement.querySelector(".bk-notebook-session-error")
+  return {
+    slider: model("comm-slider")?.value ?? null,
+    div: model("comm-div")?.text ?? null,
+    error: error?.textContent ?? null,
+  }
+})(arg)
+"""
+
+_COMM_VIEW_ACTION = _COMM_VIEW + """
+return (({view, action}) => {
+  const {mount} = commView(view)
+  const model = (name) => mount.document.get_model_by_name(name)
+  if (action === "slide")
+    model("comm-slider").value = 9
+  else if (action === "click")
+    mount.view_lookup.get_one(model("comm-button")).click()
+})(arg)
 """
 
 
@@ -750,50 +774,52 @@ def test_jupyterlab_comm_application_runs_one_session_per_view_without_a_server(
             editors = page.locator(".jp-CodeCell .cm-content")
             editors.nth(2).wait_for(timeout=30_000)
 
-            _execute_cell_once(page, editors, 0, timeout=60_000)
-            page.get_by_text("comm-app-ready", exact=True).wait_for(timeout=30_000)
+            # Every step goes through the mounted BokehJS document of a view,
+            # so the test doesn't depend on Jupyter's or the widgets' DOM.
+            def state(view: int) -> dict[str, Any] | None:
+                return page.evaluate(f"(arg) => {{ {_COMM_VIEW_STATE} }}", {"view": view})
 
-            def model(view: int, name: str) -> Any:
-                return page.evaluate(_COMM_VIEW_MODEL, {"view": view, "name": name})
-
-            def wait_for(view: int, name: str, key: str, expected: Any) -> None:
+            def wait_for(view: int, key: str, expected: Any) -> None:
                 page.wait_for_function(
-                    f"async (arg) => (await ({_COMM_VIEW_MODEL})(arg))?.{key} === arg.expected",
-                    arg={"view": view, "name": name, "expected": expected},
+                    f"(arg) => {{ const state = (() => {{ {_COMM_VIEW_STATE} }})(); "
+                    f"return state?.{key} === arg.expected }}",
+                    arg={"view": view, "expected": expected},
                     timeout=30_000,
                 )
 
-            wait_for(0, "comm-slider", "value", 1)
-            wait_for(1, "comm-slider", "value", 1)
+            def act(view: int, action: str) -> None:
+                page.evaluate(f"(arg) => {{ {_COMM_VIEW_ACTION} }}", {"view": view, "action": action})
+
+            _execute_cell_once(page, editors, 0, timeout=60_000)
+            page.get_by_text("comm-app-ready", exact=True).wait_for(timeout=30_000)
+            wait_for(0, "slider", 1)
+            wait_for(1, "slider", 1)
             _execute_cell_once(page, editors, 1)
             page.get_by_text("comm-sessions:2:1:1", exact=True).wait_for(timeout=30_000)
 
             # A browser change runs the Python callback in the first view's
             # session, whose correction comes back to that view only.
-            page.evaluate("""
-              () => {
-                const target = document.querySelectorAll(".jp-CodeCell")[0].querySelectorAll("[data-bokeh-root]")[0]
-                target.bokehMount.document.get_model_by_name("comm-slider").value = 9
-              }
-            """)
-            wait_for(0, "comm-slider", "value", 5)
-            wait_for(0, "comm-div", "text", "value:5")
-            assert model(1, "comm-slider") == {"value": 1, "text": None}
-            assert model(1, "comm-div")["text"] == "value:1"
+            act(0, "slide")
+            wait_for(0, "slider", 5)
+            wait_for(0, "div", "value:5")
+            assert state(1) == {"slider": 1, "div": "value:1", "error": None}
 
             # A failing callback is reported in the view that triggered it.
-            outputs = page.locator(".jp-CodeCell").nth(0).locator(".jp-OutputArea-output")
-            outputs.nth(0).locator(".bk-Button button").click()
-            error = outputs.nth(0).locator(".bk-notebook-session-error")
-            error.wait_for(timeout=30_000)
-            assert "ZeroDivisionError: callback failed on purpose" in error.inner_text()
-            assert outputs.nth(1).locator(".bk-notebook-session-error").count() == 0
+            act(0, "click")
+            page.wait_for_function(
+                f"(arg) => {{ const state = (() => {{ {_COMM_VIEW_STATE} }})(); "
+                "return state?.error?.includes('ZeroDivisionError: callback failed on purpose') === true }",
+                arg={"view": 0},
+                timeout=30_000,
+            )
+            assert state(1) == {"slider": 1, "div": "value:1", "error": None}
 
             # A later cell changes one view's session document directly.
             _execute_cell_once(page, editors, 2)
             page.get_by_text("kernel-updated", exact=True).wait_for(timeout=30_000)
-            wait_for(1, "comm-div", "text", "from-a-later-cell")
-            assert model(0, "comm-div")["text"] == "value:5"
+            wait_for(1, "div", "from-a-later-cell")
+            current = state(0)
+            assert current is not None and current["div"] == "value:5"
 
             assert page.locator(".bk-notebook-diagnostic").count() == 0
             assert [url for url in websockets if "/api/kernels/" not in url and "/api/events/" not in url] == []
