@@ -15,6 +15,7 @@ Contribute
     dev_guide/writing_tests
     dev_guide/python
     dev_guide/bokehjs
+    dev_guide/protocol
     dev_guide/jupyter
 
 Bokeh is an open source project and only exists because of contributors like
@@ -63,6 +64,7 @@ You can then contribute to Bokeh's codebase in many ways:
         If you would like to help with anything related to :term:`BokehJS`:
 
         * :ref:`contributor_guide_bokehjs`
+        * :ref:`contributor_guide_protocol`
         * :ref:`contributor_guide_testing`
         * :ref:`contributor_guide_writing_tests`
         * :ref:`contributor_guide_issues`
@@ -202,7 +204,9 @@ than Python:
 The low-level object interface in Python mirrors the JSON schema exactly.
 Therefore, the best, most authoritative source of information for anyone
 writing bindings for Bokeh are the reference guide sections for the
-:ref:`bokeh.core.properties` and |bokeh.models|.
+:ref:`bokeh.core.properties` and |bokeh.models|. The JSON representation
+itself, as well as the messages exchanged with a Bokeh server, are described
+in :ref:`contributor_guide_protocol`.
 
 If you would like to start working on a new binding or have a new binding added
 to this list, please contact the Bokeh core team through `Slack`_.

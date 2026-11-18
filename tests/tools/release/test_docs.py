@@ -22,6 +22,12 @@ HTML = (
     b'</head><body>Untouched plot and script</body></html>'
 )
 
+SCHEMA = (
+    b'{\n  "$schema": "https://json-schema.org/draft/2020-12/schema",\n'
+    b'  "$id": "https://docs.bokeh.org/en/dev-4.0/schemas/protocol.json",\n'
+    b'  "$defs": {"ObjectRep": {"properties": {"$id": {"type": "string"}}}}\n}\n'
+)
+
 
 def test_html_metadata_is_normalized_without_changing_content():
     result = docs.patch_html(HTML, "en/latest/", "index.html")
@@ -31,6 +37,18 @@ def test_html_metadata_is_normalized_without_changing_content():
     assert result.count(b'rel="canonical"') == 1
     assert docs.patch_html(result, "en/latest/", "index.html") == result
     assert docs.page_url("en/4.0.0/", "myindex.html").endswith("/myindex.html")
+
+
+def test_schema_id_is_normalized_without_changing_content():
+    result = docs.patch_schema(SCHEMA, "en/latest/", "schemas/protocol.json")
+    assert json.loads(result) == {**json.loads(SCHEMA), "$id": "https://docs.bokeh.org/en/latest/schemas/protocol.json"}
+    assert result == SCHEMA.replace(b"en/dev-4.0/", b"en/latest/")
+    assert docs.patch_schema(result, "en/latest/", "schemas/protocol.json") == result
+
+
+def test_schema_without_id_is_rejected():
+    with pytest.raises(ValueError, match=r"Missing JSON schema \$id"):
+        docs.patch_schema(b'{"$defs": {}}', "en/latest/", "schemas/protocol.json")
 
 
 def test_sitemap_uses_same_https_directory_urls_as_html():
@@ -136,6 +154,8 @@ def publication(tmp_path, monkeypatch):
         (source / "index.html").write_bytes(HTML)
         (source / "docs/index.html").write_bytes(HTML)
         (source / "asset.js").write_bytes(b"unchanged JavaScript")
+        (source / "schemas").mkdir()
+        (source / "schemas/protocol.json").write_bytes(SCHEMA)
         (source / "sitemap.xml").write_bytes(docs.xml_urls("urlset", "url", [
             f"http://docs.bokeh.org/en/{version}/index.html", f"http://docs.bokeh.org/en/{version}/docs/index.html",
         ]))
@@ -158,6 +178,7 @@ def assert_self_canonical(artifact, prefix):
     assert artifact["docs/index.html"].count(f'https://docs.bokeh.org/{prefix}docs/'.encode()) == 2
     assert artifact["index.html"].split(b"</head>")[1] == HTML.split(b"</head>")[1]
     assert artifact["asset.js"] == b"unchanged JavaScript"
+    assert json.loads(artifact["schemas/protocol.json"])["$id"] == f"https://docs.bokeh.org/{prefix}schemas/protocol.json"
     urls = [loc.text for loc in ET.fromstring(artifact["sitemap.xml"]).iter(f"{{{docs.SITEMAP_NS}}}loc")]
     assert urls == [f"https://docs.bokeh.org/{prefix}", f"https://docs.bokeh.org/{prefix}docs/"]
 

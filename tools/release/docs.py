@@ -81,6 +81,20 @@ def patch_html(data: bytes, prefix: str, relative: str) -> bytes:
     return text.encode("utf-8")
 
 
+def patch_schema(data: bytes, prefix: str, relative: str) -> bytes:
+    """Replace a JSON schema's top-level ``$id`` only, preserving the rest of the document."""
+    text = data.decode("utf-8")
+    schema = json.loads(text)
+    if not isinstance(schema, dict) or not isinstance(schema.get("$id"), str):
+        raise ValueError(f"Missing JSON schema $id in {relative}")
+    url = page_url(prefix, relative)
+    pattern = re.compile(r'("\$id"\s*:\s*)' + re.escape(json.dumps(schema["$id"])))
+    patched = pattern.sub(lambda match: match[1] + json.dumps(url), text, count=1)
+    if json.loads(patched) != {**schema, "$id": url}:
+        raise ValueError(f"Unable to replace JSON schema $id in {relative}")
+    return patched.encode("utf-8")
+
+
 def sitemap(data: bytes, prefix: str) -> bytes:
     root = ET.fromstring(data)
     if root.tag != f"{{{SITEMAP_NS}}}urlset":
@@ -117,6 +131,9 @@ def prepare_tree(path: Path, prefix: str) -> None:
         relative = page.relative_to(path).as_posix()
         if is_page(relative):
             page.write_bytes(patch_html(page.read_bytes(), prefix, relative))
+    for schema in sorted(path.glob("schemas/*.json")):
+        relative = schema.relative_to(path).as_posix()
+        schema.write_bytes(patch_schema(schema.read_bytes(), prefix, relative))
     path.joinpath("sitemap.xml").write_bytes(sitemap(path.joinpath("sitemap.xml").read_bytes(), prefix))
 
 

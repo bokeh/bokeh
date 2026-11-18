@@ -1,0 +1,836 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://docs.bokeh.org/en/latest/schemas/protocol.json",
+  "title": "Bokeh protocol",
+  "description": "Messages exchanged between Bokeh server and its clients, serialized documents (DocJson), embed payloads (bokeh.embed/v1) and server embed bootstraps (bokeh.embed-server/v1).",
+  "anyOf": [
+    {"$ref": "#/$defs/Message"},
+    {"$ref": "#/$defs/DocJson"},
+    {"$ref": "#/$defs/EmbedPayload"},
+    {"$ref": "#/$defs/EmbedServerBootstrap"}
+  ],
+  "$defs": {
+    "ID": {
+      "type": "string",
+      "minLength": 1
+    },
+    "NonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+
+    "EmbedPayload": {
+      "description": "bokeh.embed/v1 (MIME type application/vnd.bokeh.embed+json). Not expressible here: root keys and addressed roots must be unique, and standalone `root` ordinals must be within the document's `roots`.",
+      "type": "object",
+      "properties": {
+        "schema": {"const": "bokeh.embed/v1"},
+        "bokeh_version": {"$ref": "#/$defs/NonEmptyString"},
+        "source": {
+          "anyOf": [
+            {"$ref": "#/$defs/StandaloneEmbedSource"},
+            {"$ref": "#/$defs/ServerEmbedSource"}
+          ]
+        },
+        "roots": {"type": "array"},
+        "requires": {"$ref": "#/$defs/ResourceRequirements"},
+        "metadata": {
+          "description": "Free-form host metadata. Bokeh stores its own details under `embedding`.",
+          "type": "object"
+        }
+      },
+      "required": ["schema", "bokeh_version", "source", "roots", "requires", "metadata"],
+      "additionalProperties": false,
+      "if": {"properties": {"source": {"properties": {"kind": {"const": "standalone"}}}}},
+      "then": {"properties": {"roots": {"items": {"$ref": "#/$defs/StructuralEmbedRoot"}}}},
+      "else": {"properties": {"roots": {"items": {"$ref": "#/$defs/ServerEmbedRoot"}}}}
+    },
+    "StandaloneEmbedSource": {
+      "type": "object",
+      "properties": {
+        "kind": {"const": "standalone"},
+        "documents": {
+          "description": "Exactly one document, either graph-minimal (static) or protocol-full.",
+          "type": "array",
+          "items": {"$ref": "#/$defs/DocJson"},
+          "minItems": 1,
+          "maxItems": 1
+        }
+      },
+      "required": ["kind", "documents"],
+      "additionalProperties": false
+    },
+    "ServerEmbedSource": {
+      "type": "object",
+      "properties": {
+        "kind": {"const": "server"},
+        "url": {
+          "description": "HTTP(S) or relative application URL, without a query or fragment, and not scheme-relative.",
+          "type": "string",
+          "minLength": 1,
+          "not": {"anyOf": [{"pattern": "[?#]"}, {"pattern": "^//"}]},
+          "anyOf": [
+            {"pattern": "^[Hh][Tt][Tt][Pp][Ss]?://[^/]"},
+            {"not": {"pattern": "^[A-Za-z][A-Za-z0-9+.-]*:"}}
+          ]
+        },
+        "session_id": {"$ref": "#/$defs/NonEmptyString"},
+        "token": {"$ref": "#/$defs/NonEmptyString"},
+        "arguments": {"type": "object", "additionalProperties": {"type": "string"}},
+        "headers": {"type": "object", "additionalProperties": {"type": "string"}},
+        "credentials": {"enum": ["omit", "same-origin", "include"]},
+        "relative_urls": {"type": "boolean"}
+      },
+      "required": ["kind", "url"],
+      "not": {"required": ["session_id", "token"]},
+      "additionalProperties": false
+    },
+    "StructuralEmbedRoot": {
+      "description": "Addresses a root by document and root ordinals (standalone sources).",
+      "type": "object",
+      "properties": {
+        "key": {"$ref": "#/$defs/NonEmptyString"},
+        "document": {"const": 0},
+        "root": {"type": "integer", "minimum": 0}
+      },
+      "required": ["key", "document", "root"],
+      "additionalProperties": false
+    },
+    "ServerEmbedRoot": {
+      "description": "Addresses a root by model ID (server sources).",
+      "type": "object",
+      "properties": {
+        "key": {"$ref": "#/$defs/NonEmptyString"},
+        "model_id": {"$ref": "#/$defs/NonEmptyString"}
+      },
+      "required": ["key", "model_id"],
+      "additionalProperties": false
+    },
+    "ResourceComponent": {
+      "enum": ["bokeh/core", "bokeh/widgets", "bokeh/tables", "bokeh/webgl", "bokeh/mathjax", "bokeh/api"]
+    },
+    "ResourceRequirements": {
+      "description": "Extension names must be unique.",
+      "type": "object",
+      "properties": {
+        "components": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/ResourceComponent"},
+          "uniqueItems": true
+        },
+        "extensions": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/ExtensionRequirement"}
+        }
+      },
+      "required": ["components", "extensions"],
+      "additionalProperties": false
+    },
+    "ExtensionRequirement": {
+      "type": "object",
+      "properties": {
+        "name": {"$ref": "#/$defs/NonEmptyString"},
+        "assets": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/ResourceAssetRequirement"}
+        }
+      },
+      "required": ["name", "assets"],
+      "additionalProperties": false
+    },
+    "ResourceAssetRequirement": {
+      "description": "An extension script or style, located by exactly one of `url`, `content` or `package`. Nonces are host-owned and not allowed here.",
+      "type": "object",
+      "properties": {
+        "kind": {"enum": ["script", "style"]},
+        "url": {"type": "string"},
+        "content": {"type": "string"},
+        "package": {"$ref": "#/$defs/NonEmptyString"},
+        "integrity": {"type": "string"},
+        "crossorigin": {"type": "string"},
+        "module": {"type": "boolean"}
+      },
+      "required": ["kind"],
+      "additionalProperties": false,
+      "oneOf": [
+        {"required": ["url"]},
+        {"required": ["content"]},
+        {"required": ["package"]}
+      ],
+      "if": {"properties": {"kind": {"const": "style"}}},
+      "then": {"properties": {"module": {"const": false}}, "not": {"required": ["package"]}}
+    },
+    "EmbedServerBootstrap": {
+      "description": "bokeh.embed-server/v1, returned by a server application's `embed.json` endpoint.",
+      "type": "object",
+      "properties": {
+        "schema": {"const": "bokeh.embed-server/v1"},
+        "bokeh_version": {"$ref": "#/$defs/NonEmptyString"},
+        "token": {"$ref": "#/$defs/NonEmptyString"},
+        "requires": {"$ref": "#/$defs/ResourceRequirements"},
+        "resources": {
+          "type": "object",
+          "properties": {
+            "mode": {"const": "resolved"},
+            "root_url": {"type": "string"},
+            "assets": {
+              "type": "array",
+              "items": {"$ref": "#/$defs/ResolvedResource"}
+            }
+          },
+          "required": ["mode", "assets"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["schema", "bokeh_version", "token", "requires", "resources"],
+      "additionalProperties": false
+    },
+    "ResolvedResource": {
+      "description": "A concrete script or style, located by exactly one of `url` or `content`.",
+      "type": "object",
+      "properties": {
+        "kind": {"enum": ["script", "style"]},
+        "url": {"type": "string"},
+        "content": {"type": "string"},
+        "content_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "integrity": {"type": "string"},
+        "crossorigin": {"type": "string"},
+        "nonce": {"type": "string"},
+        "module": {"type": "boolean"}
+      },
+      "required": ["kind"],
+      "additionalProperties": false,
+      "oneOf": [
+        {"required": ["url"]},
+        {"required": ["content"]}
+      ],
+      "dependentRequired": {"content_sha256": ["content"]},
+      "if": {"properties": {"kind": {"const": "style"}}},
+      "then": {"properties": {"module": {"const": false}}}
+    },
+
+    "Message": {
+      "description": "A message envelope, sent as a single text frame, followed by one binary frame per entry in `buffers`, in the same order.",
+      "type": "object",
+      "properties": {
+        "header": {"$ref": "#/$defs/Header"},
+        "content": {"type": "object"},
+        "buffers": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/ID"},
+          "uniqueItems": true,
+          "maxItems": 10000
+        }
+      },
+      "required": ["header", "content", "buffers"],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {"properties": {"header": {"properties": {"msgtype": {"enum": ["ACK", "PULL-DOC-REQ", "SYNC"]}}}}},
+          "then": {"properties": {"content": {"$ref": "#/$defs/EmptyContent"}}}
+        }, {
+          "if": {"properties": {"header": {"properties": {"msgtype": {"const": "OK"}}}}},
+          "then": {"properties": {"header": {"required": ["reqid"]}, "content": {"$ref": "#/$defs/EmptyContent"}}}
+        }, {
+          "if": {"properties": {"header": {"properties": {"msgtype": {"const": "ERROR"}}}}},
+          "then": {"properties": {"header": {"required": ["reqid"]}, "content": {"$ref": "#/$defs/ErrorContent"}}}
+        }, {
+          "if": {"properties": {"header": {"properties": {"msgtype": {"const": "PATCH-DOC"}}}}},
+          "then": {"properties": {"content": {"$ref": "#/$defs/PatchJson"}}}
+        }, {
+          "if": {"properties": {"header": {"properties": {"msgtype": {"const": "PULL-DOC-REPLY"}}}}},
+          "then": {"properties": {"header": {"required": ["reqid"]}, "content": {"$ref": "#/$defs/DocContent"}}}
+        }, {
+          "if": {"properties": {"header": {"properties": {"msgtype": {"const": "PUSH-DOC"}}}}},
+          "then": {"properties": {"content": {"$ref": "#/$defs/DocContent"}}}
+        }
+      ]
+    },
+    "Header": {
+      "type": "object",
+      "properties": {
+        "msgid": {"$ref": "#/$defs/ID"},
+        "msgtype": {"$ref": "#/$defs/MessageType"},
+        "reqid": {"type": "string"}
+      },
+      "required": ["msgid", "msgtype"],
+      "additionalProperties": false
+    },
+    "MessageType": {
+      "enum": ["ACK", "ERROR", "OK", "PATCH-DOC", "PULL-DOC-REPLY", "PULL-DOC-REQ", "PUSH-DOC", "SYNC"]
+    },
+    "EmptyContent": {
+      "type": "object",
+      "additionalProperties": false
+    },
+    "ErrorContent": {
+      "type": "object",
+      "properties": {
+        "text": {"type": "string"},
+        "traceback": {"type": ["string", "null"]}
+      },
+      "required": ["text"],
+      "additionalProperties": false
+    },
+    "DocContent": {
+      "type": "object",
+      "properties": {
+        "doc": {"$ref": "#/$defs/DocJson"}
+      },
+      "required": ["doc"],
+      "additionalProperties": false
+    },
+
+    "DocJson": {
+      "type": "object",
+      "properties": {
+        "version": {"type": "string"},
+        "title": {"type": "string"},
+        "defs": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/ModelDef"}
+        },
+        "config": {"$ref": "#/$defs/ModelValue"},
+        "roots": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/ModelValue"}
+        },
+        "callbacks": {
+          "description": "Document event name to a list of callback models.",
+          "$ref": "#/$defs/MapRep"
+        }
+      },
+      "required": ["roots"],
+      "additionalProperties": false
+    },
+
+    "PatchJson": {
+      "type": "object",
+      "properties": {
+        "events": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/DocumentChanged"},
+          "minItems": 1
+        }
+      },
+      "required": ["events"],
+      "additionalProperties": false
+    },
+    "DocumentChanged": {
+      "anyOf": [
+        {"$ref": "#/$defs/ModelChanged"},
+        {"$ref": "#/$defs/MessageSent"},
+        {"$ref": "#/$defs/TitleChanged"},
+        {"$ref": "#/$defs/RootAdded"},
+        {"$ref": "#/$defs/RootRemoved"},
+        {"$ref": "#/$defs/ColumnDataChanged"},
+        {"$ref": "#/$defs/ColumnsStreamed"},
+        {"$ref": "#/$defs/ColumnsPatched"}
+      ]
+    },
+    "ModelChanged": {
+      "type": "object",
+      "properties": {
+        "kind": {"const": "ModelChanged"},
+        "model": {"$ref": "#/$defs/Ref"},
+        "attr": {"type": "string"},
+        "new": {"$ref": "#/$defs/Value"},
+        "callback_policy": {"$ref": "#/$defs/CallbackPolicy"}
+      },
+      "required": ["kind", "model", "attr", "new"],
+      "additionalProperties": false
+    },
+    "CallbackPolicy": {
+      "anyOf": [
+        {"type": "array", "prefixItems": [{"const": "immediate"}, {"type": "null"}], "items": false, "minItems": 2},
+        {"type": "array", "prefixItems": [{"const": "committed"}, {"type": "null"}], "items": false, "minItems": 2},
+        {"type": "array", "prefixItems": [{"const": "throttle"}, {"type": "number"}], "items": false, "minItems": 2},
+        {"type": "array", "prefixItems": [{"const": "debounce"}, {"type": "number"}], "items": false, "minItems": 2}
+      ]
+    },
+    "MessageSent": {
+      "type": "object",
+      "properties": {
+        "kind": {"const": "MessageSent"},
+        "msg_type": {"type": "string"},
+        "msg_data": {"$ref": "#/$defs/Value"}
+      },
+      "required": ["kind", "msg_type"],
+      "additionalProperties": false
+    },
+    "TitleChanged": {
+      "type": "object",
+      "properties": {
+        "kind": {"const": "TitleChanged"},
+        "title": {"type": "string"}
+      },
+      "required": ["kind", "title"],
+      "additionalProperties": false
+    },
+    "RootAdded": {
+      "type": "object",
+      "properties": {
+        "kind": {"const": "RootAdded"},
+        "model": {
+          "anyOf": [
+            {"$ref": "#/$defs/ObjectRep"},
+            {"$ref": "#/$defs/Ref"}
+          ]
+        }
+      },
+      "required": ["kind", "model"],
+      "additionalProperties": false
+    },
+    "RootRemoved": {
+      "type": "object",
+      "properties": {
+        "kind": {"const": "RootRemoved"},
+        "model": {"$ref": "#/$defs/Ref"}
+      },
+      "required": ["kind", "model"],
+      "additionalProperties": false
+    },
+    "ColumnDataChanged": {
+      "type": "object",
+      "properties": {
+        "kind": {"const": "ColumnDataChanged"},
+        "model": {"$ref": "#/$defs/Ref"},
+        "attr": {"type": "string"},
+        "data": {"$ref": "#/$defs/Value"},
+        "cols": {
+          "type": ["array", "null"],
+          "items": {"type": "string"}
+        }
+      },
+      "required": ["kind", "model", "attr", "data"],
+      "additionalProperties": false
+    },
+    "ColumnsStreamed": {
+      "type": "object",
+      "properties": {
+        "kind": {"const": "ColumnsStreamed"},
+        "model": {"$ref": "#/$defs/Ref"},
+        "attr": {"type": "string"},
+        "data": {"$ref": "#/$defs/Value"},
+        "rollover": {"type": ["integer", "null"]}
+      },
+      "required": ["kind", "model", "attr", "data"],
+      "additionalProperties": false
+    },
+    "ColumnsPatched": {
+      "type": "object",
+      "properties": {
+        "kind": {"const": "ColumnsPatched"},
+        "model": {"$ref": "#/$defs/Ref"},
+        "attr": {"type": "string"},
+        "patches": {"$ref": "#/$defs/Value"}
+      },
+      "required": ["kind", "model", "attr", "patches"],
+      "additionalProperties": false
+    },
+
+    "ModelDef": {
+      "type": "object",
+      "properties": {
+        "type": {"const": "model"},
+        "name": {"type": "string"},
+        "extends": {"$ref": "#/$defs/Ref"},
+        "properties": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/PropertyDef"}
+        },
+        "overrides": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/OverrideDef"}
+        }
+      },
+      "required": ["type", "name"],
+      "additionalProperties": false
+    },
+    "PropertyDef": {
+      "type": "object",
+      "properties": {
+        "name": {"type": "string"},
+        "kind": {"$ref": "#/$defs/KindRef"},
+        "default": {"$ref": "#/$defs/Value"}
+      },
+      "required": ["name", "kind"],
+      "additionalProperties": false
+    },
+    "OverrideDef": {
+      "type": "object",
+      "properties": {
+        "name": {"type": "string"},
+        "default": {"$ref": "#/$defs/Value"}
+      },
+      "required": ["name", "default"],
+      "additionalProperties": false
+    },
+    "PrimitiveKindRef": {
+      "enum": ["Any", "Unknown", "Bool", "Float", "Int", "Bytes", "Str", "Null"]
+    },
+    "KindRef": {
+      "anyOf": [
+        {"$ref": "#/$defs/PrimitiveKindRef"},
+        {
+          "type": "array",
+          "prefixItems": [{"const": "Regex"}, {"type": "string"}],
+          "items": false,
+          "minItems": 2
+        }, {
+          "type": "array",
+          "prefixItems": [{"const": "Nullable"}, {"$ref": "#/$defs/KindRef"}],
+          "items": false,
+          "minItems": 2
+        }, {
+          "type": "array",
+          "prefixItems": [{"const": "Or"}],
+          "items": {"$ref": "#/$defs/KindRef"},
+          "minItems": 2
+        }, {
+          "type": "array",
+          "prefixItems": [{"const": "Tuple"}],
+          "items": {"$ref": "#/$defs/KindRef"},
+          "minItems": 2
+        }, {
+          "type": "array",
+          "prefixItems": [{"const": "List"}, {"$ref": "#/$defs/KindRef"}],
+          "items": false,
+          "minItems": 2
+        }, {
+          "type": "array",
+          "prefixItems": [{"const": "Struct"}],
+          "items": {
+            "type": "array",
+            "prefixItems": [{"type": "string"}, {"$ref": "#/$defs/KindRef"}],
+            "items": false,
+            "minItems": 2
+          },
+          "minItems": 1
+        }, {
+          "type": "array",
+          "prefixItems": [{"const": "Dict"}, {"$ref": "#/$defs/KindRef"}],
+          "items": false,
+          "minItems": 2
+        }, {
+          "type": "array",
+          "prefixItems": [{"const": "Mapping"}, {"$ref": "#/$defs/KindRef"}, {"$ref": "#/$defs/KindRef"}],
+          "items": false,
+          "minItems": 3
+        }, {
+          "type": "array",
+          "prefixItems": [{"const": "Enum"}],
+          "items": {"type": "string"},
+          "minItems": 1
+        }, {
+          "type": "array",
+          "prefixItems": [{"const": "Ref"}, {"$ref": "#/$defs/Ref"}],
+          "items": false,
+          "minItems": 2
+        }, {
+          "type": "array",
+          "prefixItems": [{"const": "AnyRef"}],
+          "items": false,
+          "minItems": 1
+        }
+      ]
+    },
+
+    "Value": {
+      "description": "Any serialized value. JSON scalars and arrays encode themselves (except non-finite numbers). JSON objects are reserved for representations.",
+      "anyOf": [
+        {"type": ["null", "boolean", "number", "string"]},
+        {"type": "array", "items": {"$ref": "#/$defs/Value"}},
+        {"$ref": "#/$defs/Rep"}
+      ]
+    },
+    "Rep": {
+      "anyOf": [
+        {"$ref": "#/$defs/ObjectRep"},
+        {"$ref": "#/$defs/ModelRef"},
+        {"$ref": "#/$defs/Ref"},
+        {"$ref": "#/$defs/CompactValueRep"},
+        {"$ref": "#/$defs/CompactFieldRep"},
+        {"$ref": "#/$defs/CompactExprRep"},
+        {"$ref": "#/$defs/RefRep"},
+        {"$ref": "#/$defs/SymbolRep"},
+        {"$ref": "#/$defs/NumberRep"},
+        {"$ref": "#/$defs/ArrayRep"},
+        {"$ref": "#/$defs/SetRep"},
+        {"$ref": "#/$defs/MapRep"},
+        {"$ref": "#/$defs/BytesRep"},
+        {"$ref": "#/$defs/SliceRep"},
+        {"$ref": "#/$defs/DateRep"},
+        {"$ref": "#/$defs/ValueRep"},
+        {"$ref": "#/$defs/FieldRep"},
+        {"$ref": "#/$defs/ExprRep"},
+        {"$ref": "#/$defs/TypedArrayRep"},
+        {"$ref": "#/$defs/NDArrayRep"},
+        {"$ref": "#/$defs/EventRep"}
+      ]
+    },
+    "ModelValue": {
+      "anyOf": [
+        {"$ref": "#/$defs/ObjectRep"},
+        {"$ref": "#/$defs/ModelRef"},
+        {"$ref": "#/$defs/Ref"}
+      ]
+    },
+
+    "ObjectRep": {
+      "description": "A model or a dataclass instance. `$id` is present when the model's identity must be preserved (always in live documents and patches; only for shared or cyclic models in static documents). All other keys are property values.",
+      "type": "object",
+      "properties": {
+        "$type": {"type": "string"},
+        "$id": {"$ref": "#/$defs/ID"}
+      },
+      "required": ["$type"],
+      "additionalProperties": {"$ref": "#/$defs/Value"}
+    },
+    "ModelRef": {
+      "description": "A back-reference to a model defined earlier (with `$id`) in the same payload.",
+      "type": "object",
+      "properties": {
+        "$ref": {"$ref": "#/$defs/ID"}
+      },
+      "required": ["$ref"],
+      "additionalProperties": false
+    },
+    "Ref": {
+      "description": "A reference to a model already known to the receiver (e.g. in patches), a model type (in model definitions), or a binary buffer (in `BytesRep.data`).",
+      "type": "object",
+      "properties": {
+        "id": {"$ref": "#/$defs/ID"}
+      },
+      "required": ["id"],
+      "additionalProperties": false
+    },
+    "RefRep": {
+      "description": "Legacy explicit reference. Accepted by deserializers, but not produced.",
+      "type": "object",
+      "properties": {
+        "type": {"const": "ref"},
+        "id": {"$ref": "#/$defs/ID"}
+      },
+      "required": ["type", "id"],
+      "additionalProperties": false
+    },
+
+    "CompactValueRep": {
+      "description": "Compact form of `ValueRep`. Static documents encode a plain value without transform or units as the bare value, unless it's a string (which would be interpreted as a field name).",
+      "type": "object",
+      "properties": {
+        "$value": {"$ref": "#/$defs/Value"},
+        "transform": {"$ref": "#/$defs/Value"},
+        "units": {"$ref": "#/$defs/Value"}
+      },
+      "required": ["$value"],
+      "additionalProperties": false
+    },
+    "CompactFieldRep": {
+      "type": "object",
+      "properties": {
+        "$field": {"type": "string"},
+        "transform": {"$ref": "#/$defs/Value"},
+        "units": {"$ref": "#/$defs/Value"}
+      },
+      "required": ["$field"],
+      "additionalProperties": false
+    },
+    "CompactExprRep": {
+      "type": "object",
+      "properties": {
+        "$expr": {"$ref": "#/$defs/Value"},
+        "transform": {"$ref": "#/$defs/Value"},
+        "units": {"$ref": "#/$defs/Value"}
+      },
+      "required": ["$expr"],
+      "additionalProperties": false
+    },
+    "ValueRep": {
+      "type": "object",
+      "properties": {
+        "type": {"const": "value"},
+        "value": {"$ref": "#/$defs/Value"},
+        "transform": {"$ref": "#/$defs/Value"},
+        "units": {"$ref": "#/$defs/Value"}
+      },
+      "required": ["type", "value"],
+      "additionalProperties": false
+    },
+    "FieldRep": {
+      "type": "object",
+      "properties": {
+        "type": {"const": "field"},
+        "field": {"type": "string"},
+        "transform": {"$ref": "#/$defs/Value"},
+        "units": {"$ref": "#/$defs/Value"}
+      },
+      "required": ["type", "field"],
+      "additionalProperties": false
+    },
+    "ExprRep": {
+      "type": "object",
+      "properties": {
+        "type": {"const": "expr"},
+        "expr": {"$ref": "#/$defs/Value"},
+        "transform": {"$ref": "#/$defs/Value"},
+        "units": {"$ref": "#/$defs/Value"}
+      },
+      "required": ["type", "expr"],
+      "additionalProperties": false
+    },
+
+    "SymbolRep": {
+      "type": "object",
+      "properties": {
+        "type": {"const": "symbol"},
+        "name": {"type": "string"}
+      },
+      "required": ["type", "name"],
+      "additionalProperties": false
+    },
+    "NumberRep": {
+      "description": "Non-finite floating point numbers, which JSON can't represent.",
+      "type": "object",
+      "properties": {
+        "type": {"const": "number"},
+        "value": {
+          "anyOf": [
+            {"type": "number"},
+            {"enum": ["nan", "-inf", "+inf"]}
+          ]
+        }
+      },
+      "required": ["type", "value"],
+      "additionalProperties": false
+    },
+    "ArrayRep": {
+      "type": "object",
+      "properties": {
+        "type": {"const": "array"},
+        "entries": {"type": "array", "items": {"$ref": "#/$defs/Value"}}
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "SetRep": {
+      "type": "object",
+      "properties": {
+        "type": {"const": "set"},
+        "entries": {"type": "array", "items": {"$ref": "#/$defs/Value"}}
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "MapRep": {
+      "description": "Dictionaries, plain objects and maps. Decoded as a plain object if all keys are strings, otherwise as a Map (in BokehJS).",
+      "type": "object",
+      "properties": {
+        "type": {"const": "map"},
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "prefixItems": [{"$ref": "#/$defs/Value"}, {"$ref": "#/$defs/Value"}],
+            "items": false,
+            "minItems": 2
+          }
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "BytesRep": {
+      "type": "object",
+      "properties": {
+        "type": {"const": "bytes"},
+        "data": {
+          "description": "Either a reference to a binary buffer of the enclosing message, or inline base64 encoded gzip compressed bytes.",
+          "anyOf": [
+            {"$ref": "#/$defs/Ref"},
+            {"type": "string", "contentEncoding": "base64", "contentMediaType": "application/gzip"}
+          ]
+        }
+      },
+      "required": ["type", "data"],
+      "additionalProperties": false
+    },
+    "SliceRep": {
+      "type": "object",
+      "properties": {
+        "type": {"const": "slice"},
+        "start": {"type": ["integer", "null"]},
+        "stop": {"type": ["integer", "null"]},
+        "step": {"type": ["integer", "null"]}
+      },
+      "required": ["type", "start", "stop", "step"],
+      "additionalProperties": false
+    },
+    "DateRep": {
+      "description": "Produced only by BokehJS (from `Date` objects). Python encodes dates as ISO strings and datetimes as milliseconds since epoch.",
+      "type": "object",
+      "properties": {
+        "type": {"const": "date"},
+        "iso": {"type": "string"}
+      },
+      "required": ["type", "iso"],
+      "additionalProperties": false
+    },
+    "ByteOrder": {
+      "enum": ["little", "big"]
+    },
+    "DataType": {
+      "enum": ["uint8", "int8", "uint16", "int16", "uint32", "int32", "float32", "float64"]
+    },
+    "NDDataType": {
+      "anyOf": [
+        {"$ref": "#/$defs/DataType"},
+        {"enum": ["bool", "object"]}
+      ]
+    },
+    "TypedArrayRep": {
+      "type": "object",
+      "properties": {
+        "type": {"const": "typed_array"},
+        "array": {"$ref": "#/$defs/BytesRep"},
+        "order": {"$ref": "#/$defs/ByteOrder"},
+        "dtype": {"$ref": "#/$defs/DataType"}
+      },
+      "required": ["type", "array", "order", "dtype"],
+      "additionalProperties": false
+    },
+    "NDArrayRep": {
+      "description": "An N-dimensional array. Binary data for numeric/bool dtypes, or a list of values for `object` dtype.",
+      "type": "object",
+      "properties": {
+        "type": {"const": "ndarray"},
+        "array": {
+          "anyOf": [
+            {"$ref": "#/$defs/BytesRep"},
+            {"$ref": "#/$defs/ArrayRep"},
+            {"type": "array", "items": {"$ref": "#/$defs/Value"}}
+          ]
+        },
+        "order": {"$ref": "#/$defs/ByteOrder"},
+        "dtype": {"$ref": "#/$defs/NDDataType"},
+        "shape": {
+          "type": "array",
+          "items": {"type": "integer", "minimum": 0}
+        }
+      },
+      "required": ["type", "array", "order", "dtype", "shape"],
+      "additionalProperties": false
+    },
+    "EventRep": {
+      "description": "A UI event (`bokeh.events`), sent as `msg_data` of a `MessageSent` patch event with `msg_type` equal to \"bokeh_event\".",
+      "type": "object",
+      "properties": {
+        "type": {"const": "event"},
+        "name": {"type": "string"},
+        "values": {"$ref": "#/$defs/Value"}
+      },
+      "required": ["type", "name", "values"],
+      "additionalProperties": false
+    }
+  }
+}
