@@ -32,14 +32,11 @@ def test_example_metadata_is_deduplicated_per_read(filename: str) -> None:
     source = "# bokeh.sampledata.iris"
     BokehPlotDirective.process_sampledata(directive, source)
     BokehPlotDirective.process_sampledata(directive, source)
-    assert env.all_gallery_overview == [{"docname": env.docname}]
     assert env.all_sampledata_xrefs == [{"docname": env.docname, "keyword": "iris"}]
     # Sphinx purges the old records and resets temporary state before a reread.
     env.temp_data = {}
-    env.all_gallery_overview = []
     env.all_sampledata_xrefs = []
     BokehPlotDirective.process_sampledata(directive, "# bokeh.sampledata.flowers")
-    assert env.all_gallery_overview == [{"docname": env.docname}]
     assert env.all_sampledata_xrefs == [{"docname": env.docname, "keyword": "flowers"}]
 
 
@@ -81,7 +78,6 @@ def test_plot_metadata_survives_incremental_edits_and_removal(tmp_path: Path) ->
         example.write_text(text.replace("sampledata.iris", "sampledata.flowers"))
         app = build()
         env = app.env
-        assert env.all_gallery_overview == [{"docname": "docs/examples/apple"}]
         assert env.all_sampledata_xrefs == [{"docname": "docs/examples/apple", "keyword": "flowers"}]
         replacement = env.bokeh_plot_files["docs/examples/apple"]
         assert len(replacement) == 1 and replacement.isdisjoint(original)
@@ -90,7 +86,6 @@ def test_plot_metadata_survives_incremental_edits_and_removal(tmp_path: Path) ->
         app = build()
         env = app.env
         assert env.bokeh_plot_files == {}
-        assert env.all_gallery_overview == []
         assert env.all_sampledata_xrefs == []
     finally:
         _clean_up_global_state()

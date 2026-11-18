@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
-""" Include link from sampledata to gallery.
+""" Link from sample data documentation to standalone examples.
 
 The ``bokeh-sampledata-xref`` directive can be used by supplying:
 
@@ -36,7 +36,6 @@ from sphinx.locale import _
 
 from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
-from .util import get_sphinx_resources
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -46,8 +45,6 @@ __all__ = (
     "BokehSampledataXrefDirective",
     "setup",
 )
-
-RESOURCES = get_sphinx_resources()
 
 # -----------------------------------------------------------------------------
 # General API
@@ -59,20 +56,6 @@ RESOURCES = get_sphinx_resources()
 
 Ref = dict[str, str]
 
-
-class gallery_xrefs(nodes.General, nodes.Element):
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self.subfolder = kwargs.pop("subfolder", None)
-        super().__init__(*args, **kwargs)
-
-class BokehGalleryOverviewDirective(BokehDirective):
-
-    has_content = False
-    required_arguments = 1
-
-    def run(self) -> list[Any]:
-        return [gallery_xrefs('', subfolder=self.arguments[0])]
 
 class sampledata_list(nodes.General, nodes.Element):
 
@@ -92,14 +75,10 @@ class BokehSampledataXrefDirective(BokehDirective):
 def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
     app.add_node(sampledata_list)
-    app.add_directive("bokeh-example-index", BokehGalleryOverviewDirective)
     app.add_directive("bokeh-sampledata-xref", BokehSampledataXrefDirective)
     app.connect('doctree-resolved', process_sampledata_xrefs)
     app.connect('env-purge-doc', purge_xrefs)
     app.connect('env-merge-info', merge_xrefs)
-    app.connect('doctree-resolved', process_gallery_overview)
-    app.connect('env-purge-doc', purge_gallery_xrefs)
-    app.connect('env-merge-info', merge_gallery_xrefs)
     return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
@@ -140,70 +119,15 @@ def process_sampledata_xrefs(app: Any, doctree: Any, fromdocname: str) -> None:
             list_ref_names = []
             para = nodes.paragraph()
             para += nodes.rubric('Examples', 'Examples')
-            for ref in sort_by_basename(refs):
-                ref_name = ref['basename']
-                if ref_name in list_ref_names:
-                    ref_name += f" ({ref['docname'].split('/')[-2]})"
-                list_ref_names.append(ref_name)
-                para += add_bullet_point(app, fromdocname, ref['docname'], ref_name)
-            content.append(para)
-        node.replace_self(content)
-
-def purge_gallery_xrefs(app: Any, env: Any, docname: str) -> None:
-    if not hasattr(env, 'all_gallery_overview'):
-        return
-
-    env.all_gallery_overview = [
-        xref for xref in env.all_gallery_overview if xref['docname'] != docname
-    ]
-
-def merge_gallery_xrefs(app: Any, env: Any, docnames: list[str], other: Any) -> None:
-    if not hasattr(env, 'all_gallery_overview'):
-        env.all_gallery_overview = []
-
-    if hasattr(other, 'all_gallery_overview'):
-        docnames_set = set(docnames)
-        env.all_gallery_overview.extend(ref for ref in other.all_gallery_overview if ref['docname'] in docnames_set)
-
-def process_gallery_overview(app: Any, doctree: Any, fromdocname: str) -> None:
-
-    env = app.builder.env
-
-    if not hasattr(env, 'all_gallery_overview'):
-        env.all_gallery_overview = []
-
-    for node in doctree.findall(gallery_xrefs):
-
-        ref_dict: dict[str, list[Ref]] = {}
-        for s in env.all_gallery_overview:
-            sp = s['docname'].split('/')
-            if node.subfolder == 'all' or sp[-2] == node.subfolder:
-                letter = sp[-1][0].upper()
-                refs = ref_dict.setdefault(letter, [])
-                if s not in refs:
-                    refs.append(s)
-
-        content: list[Any] = []
-        for letter, refs in sorted(ref_dict.items()):
-            para = nodes.paragraph()
-            para += nodes.rubric((_(letter)), (_(letter)))
-            for ref in sort_by_basename(refs):
-                docname = ref['docname']
+            docnames = (ref["docname"] for ref in refs)
+            for docname in sorted(docnames, key=basename):
                 ref_name = basename(docname)
-                if node.subfolder == 'all':
+                if ref_name in list_ref_names:
                     ref_name += f" ({docname.split('/')[-2]})"
+                list_ref_names.append(ref_name)
                 para += add_bullet_point(app, fromdocname, docname, ref_name)
             content.append(para)
         node.replace_self(content)
-
-def sort_by_basename(refs: list[Ref]) -> list[Ref]:
-    refs = [{'basename':basename(ref['docname']), 'docname': ref['docname']} for ref in refs]
-    sorted_refs: list[Ref] = []
-    for key in sorted([basename(ref['basename']) for ref in refs]):
-        for i, value in enumerate(refs):
-            if key == value['basename']:
-                sorted_refs.append(refs.pop(i))
-    return sorted_refs
 
 def add_bullet_point(app: Any, fromdocname: str, docname: str, ref_name: str) -> Any:
     # Create references

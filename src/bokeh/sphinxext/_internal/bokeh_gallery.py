@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 import json
+import re
 from html import escape
 from pathlib import Path, PurePosixPath
 from typing import Any
@@ -32,7 +33,7 @@ from sphinx.util.rst import escape as escape_rst
 from . import PARALLEL_SAFE, REPO_TOP, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
 from .bokeh_example_metadata import read_example_metadata
-from .templates import GALLERY_DETAIL, GALLERY_PAGE
+from .templates import EXAMPLE_INDEX, GALLERY_DETAIL, GALLERY_PAGE
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -55,6 +56,9 @@ TOPIC_LABELS = {
     "timeseries": "Time series",
     "topics": "Topic guides",
 }
+
+# Keep initials and dotted abbreviations such as U.S. inside the sentence.
+SUMMARY_SENTENCE_BREAK = re.compile(r"(?<=[.!?])(?<!\b[A-Z]\.)\s+(?=[A-Z])")
 
 # -----------------------------------------------------------------------------
 # General API
@@ -128,6 +132,8 @@ class BokehGalleryDirective(BokehDirective):
 class BokehSearchableExamplesDirective(BokehDirective):
 
     def run(self) -> list[Any]:
+        if EXAMPLE_INDEX.filename is not None:
+            self.env.note_dependency(EXAMPLE_INDEX.filename)
         config = self.env.config
         examples = Path(REPO_TOP) / "examples"
         entries = []
@@ -139,17 +145,16 @@ class BokehSearchableExamplesDirective(BokehDirective):
             if source.suffix == ".py":
                 self.env.note_dependency(source)
                 summary, metadata = read_example_metadata(source)
-            title = escape_rst(_example_title(source, metadata))
-
+            lead, *remainder = SUMMARY_SENTENCE_BREAK.split(summary, maxsplit=1)
             guide = metadata.get("example-ref")
             rendered = _has_example_page(relative, config)
             if guide:
-                heading = f":ref:`{title} <{guide}>`"
+                role, target = "ref", guide
             elif rendered:
                 docname = (PurePosixPath(config.bokeh_examples_dir) / relative).with_suffix("")
-                heading = f":doc:`{title} </{docname}>`"
+                role, target = "doc", f"/{docname}"
             else:
-                heading = f":bokeh-tree:`{title} <{filename}>`"
+                role, target = "bokeh-tree", filename
 
             category = relative.parts[0]
             topic = _topic_label(category)
@@ -164,25 +169,22 @@ class BokehSearchableExamplesDirective(BokehDirective):
             else:
                 example_type = "Python script"
 
-            heading_block = (
-                f".. container:: bk-example-heading\n\n"
-                f"    {heading}\n\n"
-                f"    .. container:: bk-example-facets\n\n"
-                f"        .. container:: bk-example-topic\n\n"
-                f"            {escape_rst(topic)}\n\n"
-                f"        .. container:: bk-example-type\n\n"
-                f"            {example_type}"
-            )
-            details = [escape_rst(summary)] if summary else []
+            details = []
             for field, label in (("apis", "APIs"), ("sampledata", "Sample data"), ("keywords", "Keywords")):
                 if value := metadata.get(field, "").partition("#")[0].strip():
-                    details.append(f"**{label}:** {escape_rst(value)}")
-            details.append(f":bokeh-tree:`{filename}`")
-            detail_body = "\n\n".join(f"    {paragraph}" for paragraph in details)
-            blocks = f"{heading_block}\n\n.. container:: bk-example-details\n\n{detail_body}"
-            body = "\n".join(f"    {line}" if line else "" for line in blocks.splitlines())
-            entries.append(f".. container:: bk-example-entry\n\n{body}")
-        return self.parse("\n\n".join(entries), "<bokeh-searchable-examples>")
+                    details.append((label, escape_rst(value)))
+            entries.append(dict(
+                title=escape_rst(_example_title(source, metadata)),
+                role=role,
+                target=target,
+                topic=escape_rst(topic),
+                example_type=example_type,
+                summary=escape_rst(lead),
+                remaining_summary=escape_rst(remainder[0]) if remainder else "",
+                details=details,
+                filename=filename,
+            ))
+        return self.parse(EXAMPLE_INDEX.render(entries=entries), "<bokeh-searchable-examples>")
 
 
 def config_inited_handler(app: Any, config: Any) -> None:

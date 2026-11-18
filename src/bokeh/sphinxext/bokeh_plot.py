@@ -309,18 +309,12 @@ class BokehPlotDirective(BokehDirective):
         solved_sampledata = env.temp_data.setdefault("bokeh_sampledata_files", set())
 
         file, _ = self.get_source_info()
-        # collect links to all standalone examples
+        # Collect sample-data links from standalone examples.
 
         if file is not None and '/docs/examples/' in file.replace("\\", "/") and file not in solved_sampledata:
             solved_sampledata.add(file)
             if not hasattr(env, 'all_sampledata_xrefs'):
                 env.all_sampledata_xrefs = []
-            if not hasattr(env, 'all_gallery_overview'):
-                env.all_gallery_overview = []
-
-            env.all_gallery_overview.append({
-                'docname': env.docname,
-            })
 
             regex = r"(:|bokeh\.)sampledata(:|\.| import )\s*(\w+(\,\s*\w+)*)"
             matches = re.findall(regex, source)

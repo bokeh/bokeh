@@ -268,6 +268,11 @@ li.bk-thumbnail {
     margin: 0;
 }
 
+.bk-example-summary > p {
+    margin: 0.2rem 0 0;
+    font-size: 0.875rem;
+}
+
 .bk-example-entry > details > summary {
     position: absolute;
     inset-inline-end: 0.15rem;
