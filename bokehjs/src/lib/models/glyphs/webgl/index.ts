@@ -1,4 +1,9 @@
-export {get_regl} from "./regl_wrap"
+import {register_webgl} from "../../canvas/webgl"
+import {get_regl} from "./regl_wrap"
+
+register_webgl({get_regl})
+
+export {get_regl}
 export * from "./annular_wedge"
 export * from "./annulus"
 export * from "./base_line"
