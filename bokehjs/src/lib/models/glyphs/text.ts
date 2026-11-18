@@ -34,7 +34,7 @@ export class TextView extends XYGlyphView {
   declare model: Text
   declare visuals: Text.Visuals
 
-  protected async _build_labels(text: p.Uniform<string | null>): Promise<(GraphicsBox | null)[]> {
+  protected _build_labels(text: p.Uniform<string | null>): (GraphicsBox | null)[] {
     return Array.from(text, (value) => {
       if (value == null) {
         return null
@@ -45,11 +45,12 @@ export class TextView extends XYGlyphView {
     })
   }
 
-  override async _set_lazy_data(): Promise<void> {
+  protected override _set_data(indices: number[] | null): void {
+    super._set_data(indices)
     if (this.inherited_text) {
       this._inherit_attr<Text.Data>("labels")
     } else {
-      this._define_attr<Text.Data>("labels", await this._build_labels(this.text))
+      this._define_attr<Text.Data>("labels", this._build_labels(this.text))
     }
   }
 

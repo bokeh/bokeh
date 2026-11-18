@@ -3,7 +3,7 @@ import {expect, expect_not_null} from "#framework/assertions"
 import {HasProps} from "@bokehjs/core/has_props"
 import {View} from "@bokehjs/core/view"
 import type {ViewStorage} from "@bokehjs/core/build_views"
-import {build_view, build_views, remove_views, ChildViewSlot} from "@bokehjs/core/build_views"
+import {build_view, build_views, build_views_sync, remove_views, ChildViewSlot} from "@bokehjs/core/build_views"
 
 describe("core/build_views", () => {
 
@@ -1089,6 +1089,60 @@ describe("core/build_views", () => {
       expect(await build1).to.be.false
       expect(slot.view).to.be.null
       parent.remove()
+    })
+  })
+
+  describe("build_views_sync()", () => {
+    class SyncModelView extends View {
+      declare model: SyncModel
+    }
+
+    class SyncModel extends HasProps {
+      declare __view_type__: SyncModelView
+
+      static {
+        this.prototype.default_view = SyncModelView
+      }
+    }
+
+    class LazyModelView extends View {
+      declare model: LazyModel
+
+      override async lazy_initialize(): Promise<void> {
+        await super.lazy_initialize()
+      }
+    }
+
+    class LazyModel extends HasProps {
+      declare __view_type__: LazyModelView
+
+      static {
+        this.prototype.default_view = LazyModelView
+      }
+    }
+
+    it("should build, keep and remove views in the order of models", () => {
+      const [m0, m1, m2] = [SyncModel.create(), SyncModel.create(), SyncModel.create()]
+      const storage: ViewStorage<SyncModel> = new Map()
+
+      const result0 = build_views_sync(storage, [m0, m1])
+      expect(result0.created.length).to.be.equal(2)
+      expect(result0.removed.length).to.be.equal(0)
+      const v0 = storage.get(m0)
+      expect_not_null(v0)
+
+      const result1 = build_views_sync(storage, [m2, m0])
+      expect(result1.created.length).to.be.equal(1)
+      expect(result1.removed.length).to.be.equal(1)
+      expect(result1.removed[0].is_destroyed).to.be.true
+      expect([...storage.keys()]).to.be.equal([m2, m0])
+      expect(storage.get(m0)).to.be.identical(v0)
+    })
+
+    it("should reject views that require asynchronous initialization", () => {
+      const storage: ViewStorage<LazyModel> = new Map()
+      expect(() => build_views_sync(storage, [LazyModel.create()])).to.throw(Error)
+      expect(storage.size).to.be.equal(0)
     })
   })
 })

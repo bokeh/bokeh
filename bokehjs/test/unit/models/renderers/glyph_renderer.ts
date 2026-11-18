@@ -20,10 +20,7 @@ import {CategoricalScale} from "@bokehjs/models/scales"
 import {IndexFilter} from "@bokehjs/models/filters/index_filter"
 import type {ScatterView} from "@bokehjs/models/glyphs/scatter"
 import {CustomJSTransform} from "@bokehjs/models/transforms/customjs_transform"
-import {Text, TextView} from "@bokehjs/models/glyphs/text"
 import {defer, delay} from "@bokehjs/core/util/defer"
-import type * as p from "@bokehjs/core/properties"
-import type {TextBox} from "@bokehjs/core/graphics"
 import {logger} from "@bokehjs/core/logging"
 import {figure, show} from "@bokehjs/api/plotting"
 import {IndexedSubset} from "@bokehjs/models/sources/indexed_subset"
@@ -432,7 +429,7 @@ describe("GlyphRendererView", () => {
     const error = new Error("coalesced failure")
     const set_data = grv._set_data.bind(grv)
     using stub = restorable(sinon.stub(grv, "_set_data").callsFake(set_data))
-    stub.onFirstCall().rejects(error)
+    stub.onFirstCall().throws(error)
     using log = restorable(sinon.spy(logger, "error"))
     renderer.data_source.patch({x: [[0, 11]]})
     renderer.data_source.patch({x: [[1, 22]]})
@@ -446,27 +443,20 @@ describe("GlyphRendererView", () => {
     expect([...(grv.glyph as ScatterView).x]).to.be.equal([11, 22, 33, 40])
   })
 
-  it("serializes masked visual updates behind active data preparation without feedback", async () => {
+  it("defers masked visual updates during data preparation without feedback", async () => {
     const renderer = mkrenderer(Scatter.create())
     const {view} = await display(Plot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
     const set_data = grv._set_data.bind(grv)
-    let release!: () => void
-    let started!: () => void
-    const gate = new Promise<void>((resolve) => release = resolve)
-    const active = new Promise<void>((resolve) => started = resolve)
-    using stub = restorable(sinon.stub(grv, "_set_data").callsFake(async (indices) => {
-      await set_data(indices)
-      started()
-      await gate
-    }))
     using visuals = restorable(sinon.spy(grv, "_set_visuals"))
+    using stub = restorable(sinon.stub(grv, "_set_data").callsFake((indices) => {
+      set_data(indices)
+      expect(visuals.callCount).to.be.equal(1)
+      renderer.view.properties.masked.change.emit()
+      // deferred to a visual pass after data preparation
+      expect(visuals.callCount).to.be.equal(1)
+    }))
     renderer.data_source.patch({x: [[0, 11]]})
-    await active
-    renderer.view.properties.masked.change.emit()
-    await defer()
-    expect(visuals.callCount).to.be.equal(1)
-    release()
     await view.ready
     expect(stub.callCount).to.be.equal(1)
     expect(visuals.callCount).to.be.equal(2)
@@ -476,7 +466,7 @@ describe("GlyphRendererView", () => {
     const renderer = mkrenderer(Scatter.create())
     const {view} = await display(Plot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
-    using stub = restorable(sinon.stub(grv, "_set_data").resolves())
+    using stub = restorable(sinon.stub(grv, "_set_data"))
     using visuals = restorable(sinon.spy(grv, "_set_visuals"))
     grv.update_visuals()
     grv.update_data([2, 2])
@@ -486,50 +476,6 @@ describe("GlyphRendererView", () => {
     expect(stub.callCount).to.be.equal(1)
     expect(stub.firstCall.args[0]).to.be.equal([2, 1])
     expect(visuals.callCount).to.be.equal(0)
-  })
-
-  it("serializes asynchronous text preparation so older labels cannot overwrite newer data", async () => {
-    let release!: () => void
-    let started!: () => void
-    const gate = new Promise<void>((resolve) => release = resolve)
-    const active = new Promise<void>((resolve) => started = resolve)
-    class DelayedTextView extends TextView {
-      protected override async _build_labels(text: p.Uniform<string | null>) {
-        const labels = await super._build_labels(text)
-        if (text.get(0) == "old") {
-          started()
-          await gate
-        }
-        return labels
-      }
-    }
-    class DelayedText extends Text {
-      override default_view = DelayedTextView
-    }
-    const source = ColumnDataSource.create({data: {x: [0], y: [0], text: ["initial"]}})
-    const renderer = GlyphRenderer.create({
-      glyph: DelayedText.create({x: {field: "x"}, y: {field: "y"}, text: {field: "text"}}),
-      data_source: source,
-    })
-    const {view} = await display(Plot.create({renderers: [renderer]}))
-    const grv = view.owner.get_one(renderer)
-    using spy = restorable(sinon.spy(grv, "_set_data"))
-    source.patch({text: [[0, "old"]]})
-    await active
-    let ready = false
-    const completion = view.ready.then(() => ready = true)
-    source.data = {x: [10, 20], y: [1, 2], text: ["new", "newer"]}
-    source.patch({text: [[1, "latest"]]})
-    await defer()
-    expect(spy.callCount).to.be.equal(1)
-    expect(ready).to.be.false
-    release()
-    await completion
-    expect(spy.callCount).to.be.equal(2)
-    const glyph = grv.glyph as TextView
-    expect([...glyph.x]).to.be.equal([10, 20])
-    expect(glyph.labels.map((label) => (label as TextBox).text)).to.be.equal(["new", "latest"])
-    expect(glyph.data_size).to.be.equal(2)
   })
 
   it("updates transformed coordinates after consecutive patches and data replacement", async () => {
@@ -576,7 +522,7 @@ describe("GlyphRendererView", () => {
   it("merges partial indices and gives full updates precedence", async () => {
     const {view} = await display(Plot.create({renderers: [mkrenderer(Scatter.create())]}))
     const grv = view.owner.get_one(view.model.renderers[0] as GlyphRenderer)
-    using stub = restorable(sinon.stub(grv, "_set_data").resolves())
+    using stub = restorable(sinon.stub(grv, "_set_data"))
     grv.update_data([0])
     grv.update_data([2, 0, 2])
     expect(stub.callCount).to.be.equal(0)
@@ -591,46 +537,23 @@ describe("GlyphRendererView", () => {
     expect(stub.lastCall.args[0]).to.be.undefined
   })
 
-  it("completes a queued source update after its active predecessor fails", async () => {
+  it("completes a source update queued during a failing data pass", async () => {
     const renderer = mkrenderer(Scatter.create({x: {field: "x"}, y: {field: "y"}}))
     const {view} = await display(Plot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
     const set_data = grv._set_data.bind(grv)
     const error = new Error("first failure")
-    let fail!: () => void
     using stub = restorable(sinon.stub(grv, "_set_data"))
     stub.callsFake(set_data)
-    stub.onFirstCall().returns(new Promise<void>((_resolve, reject) => fail = () => reject(error)))
+    stub.onFirstCall().callsFake(() => {
+      renderer.data_source.patch({x: [[1, 22]]})
+      throw error
+    })
     renderer.data_source.patch({x: [[0, 11]]})
-    await Promise.resolve()
-    renderer.data_source.patch({x: [[1, 22]]})
     const completion = view.ready.catch((error: unknown) => error)
-    fail()
     expect(await completion === error).to.be.true
     expect(stub.callCount).to.be.equal(2)
     expect([...(grv.glyph as ScatterView).x]).to.be.equal([11, 22, 30, 40])
-    await view.ready
-  })
-
-  it("drops ready tracking and skips queued work when removed behind a failing active pass", async () => {
-    const renderer = mkrenderer(Scatter.create())
-    const {view} = await display(Plot.create({renderers: [renderer]}))
-    const grv = view.owner.get_one(renderer)
-    let fail!: () => void
-    using stub = restorable(sinon.stub(grv, "_set_data"))
-    stub.onFirstCall().returns(new Promise<void>((_resolve, reject) => fail = () => reject(new Error("removed failure"))))
-    renderer.data_source.patch({x: [[0, 11]]})
-    await Promise.resolve()
-    renderer.data_source.patch({x: [[1, 22]]})
-    grv.update_data([2])
-    const ready = view.ready
-    grv.remove()
-    await ready
-    await grv.ready
-    expect(stub.callCount).to.be.equal(1)
-    fail()
-    await defer()
-    expect(stub.callCount).to.be.equal(1)
     await view.ready
   })
 
@@ -645,35 +568,24 @@ describe("GlyphRendererView", () => {
     expect(spy.callCount).to.be.equal(0)
   })
 
-  it("does not request paint when removed during an active data pass", async () => {
+  it("does not request paint when removed during a data pass", async () => {
     const renderer = mkrenderer(Scatter.create({x: {field: "x"}, y: {field: "y"}}))
     const {view} = await display(Plot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
     const set_data = grv._set_data.bind(grv)
-    let release!: () => void
-    let started!: () => void
-    const gate = new Promise<void>((resolve) => release = resolve)
-    const active = new Promise<void>((resolve) => started = resolve)
-    using stub = restorable(sinon.stub(grv, "_set_data").callsFake(async (indices) => {
-      await set_data(indices)
-      started()
-      await gate
+    using stub = restorable(sinon.stub(grv, "_set_data").callsFake((indices) => {
+      set_data(indices)
+      grv.remove()
     }))
     using paint = restorable(sinon.spy(grv, "request_paint"))
     renderer.data_source.patch({x: [[0, 99]]})
-    await active
-    grv.update_data([1])
-    const ready = view.ready
-    grv.remove()
-    await ready
-    release()
+    await view.ready
     await defer()
     expect(stub.callCount).to.be.equal(1)
     expect(paint.callCount).to.be.equal(0)
-    await view.ready
   })
 
-  it("tracks an active pass and a later failed source update through ready, then recovers", async () => {
+  it("reports a failed source update through ready, then recovers", async () => {
     const transform = CustomJSTransform.create({v_func: `
       if (xs[0] == 99) {
         throw new Error("invalid coordinate")
@@ -683,42 +595,17 @@ describe("GlyphRendererView", () => {
     const renderer = mkrenderer(Scatter.create({x: {field: "x", transform}, y: {field: "y"}}))
     const {view} = await display(Plot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
-    const set_data = grv._set_data.bind(grv)
-    let release!: () => void
-    let started!: () => void
-    const gate = new Promise<void>((resolve) => release = resolve)
-    const active = new Promise<void>((resolve) => started = resolve)
-    using stub = restorable(sinon.stub(grv, "_set_data"))
-    stub.callsFake(set_data)
-    stub.onFirstCall().callsFake(async (indices) => {
-      await set_data(indices)
-      started()
-      await gate
-    })
+    using spy = restorable(sinon.spy(grv, "_set_data"))
 
-    renderer.data_source.patch({x: [[0, 11]]})
-    await active
-    let settled = false
-    const completion = view.ready.then(() => {
-      settled = true
-      return null
-    }, (error: unknown) => {
-      settled = true
-      return error
-    })
     renderer.data_source.patch({x: [[0, 99]]})
-    await defer()
-    expect(stub.callCount).to.be.equal(1)
-    expect(settled).to.be.false
-    release()
-    expect(await completion).to.be.instanceof(Error)
-    expect(stub.callCount).to.be.equal(2)
+    const failure = await view.ready.then(() => null, (error: unknown) => error)
+    expect(failure).to.be.instanceof(Error)
+    expect(spy.callCount).to.be.equal(1)
 
     renderer.data_source.patch({x: [[0, 12]]})
     await view.ready
-    expect(stub.callCount).to.be.equal(3)
+    expect(spy.callCount).to.be.equal(2)
     expect([...(grv.glyph as ScatterView).x]).to.be.equal([24, 40, 60, 80])
-    await view.ready
   })
 
   // Basic case with no all glyphs going to their defaults

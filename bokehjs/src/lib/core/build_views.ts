@@ -234,6 +234,61 @@ export async function build_views<T extends HasProps>(
   }
 }
 
+function _has_lazy_initialize(view: View): boolean {
+  // find the class that defines lazy_initialize() last, and whether it overrides another definition
+  let proto: object | null = Object.getPrototypeOf(view)
+  while (proto != null && !Object.hasOwn(proto, "lazy_initialize")) {
+    proto = Object.getPrototypeOf(proto)
+  }
+  const base: object | null = proto != null ? Object.getPrototypeOf(proto) : null
+  return base != null && "lazy_initialize" in base
+}
+
+/**
+ * Synchronous variant of `build_views()`, until views can be built synchronously
+ * in general. This only supports views that don't override `lazy_initialize()`,
+ * and doesn't support overlapping calls of `build_views()` on the same storage.
+ */
+export function build_views_sync<T extends HasProps>(
+  view_storage: ViewStorage<T>,
+  models: T[],
+  options: Options<ViewOf<T>> = {parent: null},
+  cls: (model: T) => T["default_view"] = (model) => model.default_view,
+): BuildResult<T> {
+  const removed: ViewOf<T>[] = []
+  for (const model of difference([...view_storage.keys()], models)) {
+    const view = view_storage.get(model)
+    if (view != null) {
+      view_storage.delete(model)
+      removed.push(view)
+      view.remove()
+    }
+  }
+
+  const created: ViewOf<T>[] = []
+  for (const model of models) {
+    if (view_storage.has(model)) {
+      continue
+    }
+    const view_cls = cls(model)
+    assert(view_cls != null, "model doesn't implement a view")
+    const view = new view_cls({...options, model})
+    try {
+      view.initialize()
+      assert(!_has_lazy_initialize(view), `${view} requires asynchronous initialization`)
+      view.connect_signals()
+    } catch (error) {
+      view.remove()
+      throw error
+    }
+    view_storage.set(model, view)
+    created.push(view)
+  }
+
+  _reorder(view_storage, models)
+  return {created, removed}
+}
+
 export function remove_views(view_storage: ViewStorage<HasProps>): void {
   // Nothing is wanted any more, so that a build still in flight tears its view
   // down instead of storing and connecting it into a storage nobody owns.

@@ -205,7 +205,7 @@ export class GlyphRendererView extends DataRendererView {
     this.muted_glyph.set_base_glyph(this.glyph)
     this.decimated_glyph.set_base_glyph(this.glyph)
 
-    await this._set_data()
+    this._set_data()
     await this._build_attachments()
   }
 
@@ -460,7 +460,7 @@ export class GlyphRendererView extends DataRendererView {
     }
     // Read the final source state before each pass, and serialize data and visual work.
     this._pending_update = request
-    const pass = this._data_update_complete.then(async () => {
+    const pass = this._data_update_complete.then(() => {
       this._pending_update = null
       const {abort_signal} = this
       if (!abort_signal.aborted) {
@@ -468,7 +468,7 @@ export class GlyphRendererView extends DataRendererView {
         this._active_update = request
         try {
           if (request.data) {
-            await this._set_data(request.indices == null ? undefined : [...request.indices])
+            this._set_data(request.indices == null ? undefined : [...request.indices])
           } else if (request.visuals) {
             this._set_visuals()
           }
@@ -489,18 +489,18 @@ export class GlyphRendererView extends DataRendererView {
   // in case of partial updates like patching, the list of indices that actually
   // changed may be passed as the "indices" parameter to afford any optional optimizations
   // Internal preparation. Runtime callers must use update_data().
-  async _set_data(indices?: number[]): Promise<void> {
+  _set_data(indices?: number[]): void {
     const source = this.model.data_source
 
     this.all_indices = this.model.view.indices
     const {all_indices} = this
 
-    await this.glyph.set_data(source, all_indices, indices)
-    await this.decimated_glyph.set_data(source, all_indices, indices)
-    await this.selection_glyph.set_data(source, all_indices, indices)
-    await this.nonselection_glyph.set_data(source, all_indices, indices)
-    await this.hover_glyph?.set_data(source, all_indices, indices)
-    await this.muted_glyph.set_data(source, all_indices, indices)
+    this.glyph.set_data(source, all_indices, indices)
+    this.decimated_glyph.set_data(source, all_indices, indices)
+    this.selection_glyph.set_data(source, all_indices, indices)
+    this.nonselection_glyph.set_data(source, all_indices, indices)
+    this.hover_glyph?.set_data(source, all_indices, indices)
+    this.muted_glyph.set_data(source, all_indices, indices)
 
     this._set_visuals()
 
