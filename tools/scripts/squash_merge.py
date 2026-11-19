@@ -52,10 +52,11 @@ def confirm(question: str) -> bool:
         answer = ""
     return answer == "y"
 
-def run(*args: str) -> None:
-    """ Run a command, letting its output through. On failure, exit with its
-    exit code (the command has already reported the error on stderr). """
-    result = subprocess.run(args, stdin=subprocess.DEVNULL)
+def run(*args: str, quiet: bool = False) -> None:
+    """ Run a command, letting its output through (only stderr if ``quiet``).
+    On failure, exit with its exit code (the command has already reported the
+    error on stderr). """
+    result = subprocess.run(args, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL if quiet else None)
     if result.returncode != 0:
         sys.exit(result.returncode)
 
@@ -224,7 +225,7 @@ def main(argv: list[str]) -> None:
 
     if "status: ready" in labels:
         info_line(f"PR #{pr}: replacing 'status: ready' with 'status: accepted'")
-        run("gh", "pr", "edit", pr, "--remove-label", "status: ready", "--add-label", "status: accepted")
+        run("gh", "pr", "edit", pr, "--remove-label", "status: ready", "--add-label", "status: accepted", quiet=True)
     else:
         info_line(f"PR #{pr}: already labelled 'status: accepted'")
 
@@ -236,14 +237,15 @@ def main(argv: list[str]) -> None:
             repo = issue["repository"]
             name = f"{repo['owner']['login']}/{repo['name']}#{issue['number']}"
             info_line(f"issue {name}: adding 'reso: completed'")
-            result = subprocess.run(["gh", "issue", "edit", issue["url"], "--add-label", "reso: completed"], stdin=subprocess.DEVNULL)
+            result = subprocess.run(["gh", "issue", "edit", issue["url"], "--add-label", "reso: completed"],
+                stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
             if result.returncode != 0:
                 failed.append(issue["url"])
         if failed:
             error("failed to add 'reso: completed' to:\n" + "\n".join(f"  {url}" for url in failed))
     else:
         info_line(f"PR #{pr}: closes no issues, adding 'reso: completed' to the PR")
-        run("gh", "pr", "edit", pr, "--add-label", "reso: completed")
+        run("gh", "pr", "edit", pr, "--add-label", "reso: completed", quiet=True)
 
     if not branch_deleted:
         sys.exit(1)
