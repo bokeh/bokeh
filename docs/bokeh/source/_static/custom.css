@@ -136,6 +136,7 @@ ul.bk-gallery {
 }
 
 li.bk-thumbnail {
+    position: relative;
     margin: 0;
     padding: 0.65rem;
     border: 1px solid var(--pst-color-border);
@@ -157,7 +158,18 @@ li.bk-thumbnail {
     line-height: 1.3;
 }
 
-.bk-thumbnail > a:hover .bk-thumbnail-title,
+.bk-thumbnail > a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+}
+
+.bk-thumbnail-description a {
+    position: relative;
+    z-index: 1;
+}
+
+.bk-thumbnail:hover .bk-thumbnail-title,
 .bk-thumbnail > a:focus-visible .bk-thumbnail-title {
     color: var(--pst-color-primary);
     text-decoration: underline;
@@ -211,10 +223,24 @@ li.bk-thumbnail {
     font-size: 0.9rem;
 }
 
-.bk-example-entry {
+.docutils.bk-example-entry {
     position: relative;
     border-top: 1px solid var(--pst-color-border);
-    padding: 0.4rem 0;
+    padding: 0.4rem 0 0.4rem calc(88px + 0.85rem);
+}
+
+.bk-example-entry:has(> .bk-example-thumbnail) {
+    min-height: calc(88px + 0.8rem);
+}
+
+.bk-example-thumbnail {
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-start: 0.4rem;
+    width: 88px;
+    height: 88px;
+    object-fit: contain;
+    border-radius: 0.3rem;
 }
 
 .bk-example-entry:has(> details) > .bk-example-heading {

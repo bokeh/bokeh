@@ -191,6 +191,7 @@ class BokehSearchableExamplesDirective(BokehDirective):
                 remaining_summary=remainder[0] if remainder else "",
                 details=details,
                 filename=filename,
+                thumbnail=(PurePosixPath("examples") / relative).with_suffix("").as_posix() if "gallery" in metadata else None,
             ))
         return self.parse(EXAMPLE_INDEX.render(entries=entries), "<bokeh-searchable-examples>")
 
