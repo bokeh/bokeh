@@ -32,7 +32,7 @@ from sphinx.locale import _
 
 from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
-from .bokeh_gallery import EXAMPLE_INVENTORY, _load_inventory
+from .bokeh_gallery import EXAMPLE_INVENTORY, read_example_inventory
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -85,7 +85,7 @@ def process_sampledata_xrefs(app: Any, doctree: Any, fromdocname: str) -> None:
         return
 
     inventory = Path(app.doctreedir) / EXAMPLE_INVENTORY
-    backlinks = _load_inventory(inventory)["sampledata"]
+    backlinks = read_example_inventory(inventory)["sampledata"]
     for node in placeholders:
         docnames = backlinks.get(node.sampledata_key, [])
         if not docnames:

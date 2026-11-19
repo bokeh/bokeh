@@ -32,6 +32,7 @@ stylesheet = InlineStyleSheet(css="""
 :host(.custom-2) {
     border: 3px solid var(--custom-2-border-color, #14999A);
     background-color: whitesmoke;
+    color: #20252a;
 }
 """)
 
@@ -62,6 +63,7 @@ div2 = Div(text="""
 :host(.custom-2) {
     border: 3px solid #14999A;
     background-color: whitesmoke;
+    color: #20252a;
 }
 </pre>
 """)
