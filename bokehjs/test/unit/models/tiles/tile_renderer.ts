@@ -1,3 +1,4 @@
+import {CartesianMapping} from "@bokehjs/models/coordinates/cartesian_mapping"
 import {expect} from "#framework/assertions"
 import {display, fig} from "#framework/layouts"
 
@@ -565,6 +566,20 @@ describe("tile renderer", () => {
     // a Range1d isn't auto-ranged, so nothing has to be frozen to keep the aspect
     expect(x_range.have_updated_interactively).to.be.false
     expect(y_range.have_updated_interactively).to.be.false
+  })
+
+  it("should render tiles with an explicit Cartesian mapping", async () => {
+    const mapping = CartesianMapping.create({
+      x_range: Range1d.create({start: -2000000, end: 6000000}),
+      y_range: Range1d.create({start: -1000000, end: 7000000}),
+    })
+    const source = osm_source()
+    const renderer = TileRenderer.create({tile_source: source})
+    const plot = fig([300, 200], {coordinate_system: mapping, renderers: [renderer]})
+    const {view} = await display(plot)
+    expect(view.owner.get_one(renderer).is_renderable).to.be.true
+    expect(relative_aspect_error(view, mapping.x_range, mapping.y_range)).to.be.below(1e-5)
+    expect(source.tiles.size).to.be.above(0)
   })
 
   it("should stop auto-ranging in order to keep tiles undistorted", async () => {

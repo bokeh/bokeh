@@ -6,6 +6,10 @@ export abstract class PlotActionToolView extends ActionToolView {
   declare model: PlotActionTool
   declare readonly parent: PlotView
 
+  override get is_supported(): boolean {
+    return this._check_plot_support(this.plot_view)
+  }
+
   get plot_view(): PlotView {
     return this.parent
   }

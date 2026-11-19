@@ -52,6 +52,26 @@ export class WheelZoomToolView extends GestureToolView {
       return
     }
 
+    const polar = this.plot_view.polar_transform
+    if (polar != null) {
+      if (this.model.dimensions != "both" || !polar.is_valid || polar.radius == 0) {
+        return
+      }
+      const factor = clamp(this.model.speed*delta, -0.95, 0.95)
+      const viewport = this.plot_view.polar_viewport
+      const scale = clamp(viewport.scale/(1 - factor), 1e-3, 1e3)
+      const ratio = scale/viewport.scale
+      if (ratio == 1) {
+        return
+      }
+      const [cx, cy] = polar.center
+      const next = {x: viewport.x + (sx - cx)*(1 - ratio), y: viewport.y + (sy - cy)*(1 - ratio), scale}
+      this.plot_view.state.push("wheel_zoom", {polar_viewport: next})
+      this.plot_view.set_polar_viewport(next)
+      this.model.document?.interactive_start(this.plot_view.model)
+      return
+    }
+
     const [x_frame_scales_, y_frame_scales_] = (() => {
       const x_frame = [...frame.x_scales.values()]
       const y_frame = [...frame.y_scales.values()]

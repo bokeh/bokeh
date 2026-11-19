@@ -36,6 +36,7 @@ from ..core.property.instance import Instance, InstanceDefault
 from ..core.property.nullable import Nullable
 from ..core.property.override import Override
 from ..core.property.primitive import (
+    Bool,
     Float,
     Int,
     Null,
@@ -76,6 +77,7 @@ from .tickers import (
 
 __all__ = (
     'Axis',
+    'PolarAxis',
     'CategoricalAxis',
     'ContinuousAxis',
     'DatetimeAxis',
@@ -394,6 +396,42 @@ class MercatorAxis(LinearAxis):
     _ticker = Override(Axis.ticker, default=InstanceDefault(MercatorTicker))
 
     _formatter = Override(Axis.formatter, default=InstanceDefault(MercatorTickFormatter))
+
+class PolarAxis(GuideRenderer):
+    """ A radial spoke or angular circumference with ticks and labels.
+
+    Polar axes are drawn inside the frame. ``PolarMapping.padding`` reserves
+    space for their labels.
+    """
+
+    dimension = Enum("radial", "angular", default="radial", help="""
+    Coordinate dimension represented by this axis.
+    """)
+
+    ticker = Instance(Ticker, default=InstanceDefault(BasicTicker), help="""
+    Ticker used to locate major ticks.
+    """)
+
+    formatter = Instance(TickFormatter, default=InstanceDefault(BasicTickFormatter), help="""
+    Formatter used for major tick labels.
+    """)
+
+    wrap_labels = Bool(True, help="""
+    Whether angular tick labels wrap into a single revolution starting at zero.
+    Tick positions still use the unwrapped angular range.
+    """)
+
+    axis_props = Include(ScalarLineProps, prefix="axis", help="""
+    Appearance of the axis and its ticks.
+    """)
+
+    major_label_props = Include(ScalarTextProps, prefix="major_label", help="""
+    Appearance of tick labels.
+    """)
+
+    major_label_text_font_size = Override(default="10px")
+    major_label_text_align = Override(default="center")
+    major_label_text_baseline = Override(default="middle")
 
 #-----------------------------------------------------------------------------
 # Dev API

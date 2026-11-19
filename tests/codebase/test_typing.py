@@ -25,6 +25,7 @@ from tests.support.util.project import TOP_PATH
     "model_initializers_invalid",
     "type_parameter_defaults",
     "path_markings",
+    "polar",
     "property_descriptors",
     "property_types",
     "model_axes",

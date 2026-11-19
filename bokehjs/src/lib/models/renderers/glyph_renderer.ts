@@ -120,6 +120,22 @@ export class GlyphRendererView extends DataRendererView {
 
   private readonly _attachments = new Map<GlyphAttachment, GlyphAttachmentView>()
 
+  override invalidate_coordinates(): void {
+    super.invalidate_coordinates()
+    // Coordinate changes can switch between WebGL rendering and canvas fallback.
+    this.update_data()
+  }
+
+  private get _glyph_models(): Glyph[] {
+    const {glyph, selection_glyph, nonselection_glyph, hover_glyph, muted_glyph} = this.model
+    return [glyph, selection_glyph, nonselection_glyph, hover_glyph, muted_glyph]
+      .filter((state): state is Glyph => state != null && state != "auto")
+  }
+
+  protected override get supports_polar(): boolean {
+    return this._glyph_models.every((glyph) => glyph.supports_polar)
+  }
+
   get glyph_view(): GlyphView {
     return this.glyph
   }
@@ -828,10 +844,14 @@ export class GlyphRendererView extends DataRendererView {
   }
 
   hit_test(geometry: Geometry): HitTestResult {
-    if (!this.model.visible) {
+    if (!this.model.visible || !this.is_renderable) {
       return null
     }
 
+    const transform = this.polar_transform
+    if (transform != null && geometry.type == "point" && !transform.contains(geometry.sx, geometry.sy)) {
+      return null
+    }
     const hit_test_result = this.glyph.hit_test(geometry)
 
     // glyphs that don't have hit-testing implemented will return null

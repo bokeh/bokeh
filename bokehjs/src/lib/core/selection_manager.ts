@@ -24,6 +24,9 @@ export class SelectionManager {
     const glyph_renderer_views: GlyphRendererView[] = []
     const graph_renderer_views: GraphRendererView[] = []
     for (const r of renderer_views) {
+      if (!r.is_renderable) {
+        continue
+      }
       if (is_GlyphRendererView(r)) {
         glyph_renderer_views.push(r)
       } else if (is_GraphRendererView(r)) {
@@ -48,6 +51,9 @@ export class SelectionManager {
   }
 
   inspect(renderer_view: DataRendererView, geometry: Geometry): boolean {
+    if (!renderer_view.is_renderable) {
+      return false
+    }
     let did_hit = false
 
     if (is_GlyphRendererView(renderer_view)) {

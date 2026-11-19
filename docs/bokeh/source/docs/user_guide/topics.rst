@@ -22,6 +22,8 @@ kinds of data.
 
 :ref:`ug_topics_timeseries`
 
+:ref:`ug_topics_polar`
+
 :ref:`ug_topics_pie`
 
 :ref:`ug_topics_stats`
@@ -37,5 +39,6 @@ kinds of data.
     topics/geo
     topics/graph
     topics/timeseries
+    topics/polar
     topics/pie
     topics/stats

@@ -3,11 +3,14 @@ import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import type {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
-import type {Rect, Indices} from "core/types"
+import {Indices} from "core/types"
+import type {Rect} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import type {Context2d} from "core/util/canvas"
 import {minmax2} from "core/util/arrayable"
+import {SpatialIndex} from "core/util/spatial"
+import {PolarCoordinateTransform} from "../coordinates/polar_mapping"
 import {Selection} from "../selections/selection"
 
 export interface MarkerView extends Marker.Data {}
@@ -15,6 +18,52 @@ export interface MarkerView extends Marker.Data {}
 export abstract class MarkerView extends XYGlyphView {
   declare model: Marker
   declare visuals: Marker.Visuals
+
+  protected override get supports_coupled_coordinates(): boolean {
+    return true
+  }
+
+  private _screen_index?: {index?: SpatialIndex, valid: Indices}
+
+  protected override _map_data(): void {
+    super._map_data()
+    const {coordinates} = this.renderer
+    if (!coordinates.is_separable) {
+      const {base_glyph} = this
+      if (base_glyph != null && this._is_inherited("x") && this._is_inherited("y")) {
+        this._screen_index = base_glyph._screen_index
+        return
+      }
+      const {sx, sy} = this
+      const valid = new Indices(this.data_size)
+      for (let i = 0; i < this.data_size; i++) {
+        valid.set(i, isFinite(sx[i]) && isFinite(sy[i]))
+      }
+      this._screen_index = {valid}
+    } else {
+      this._screen_index = undefined
+    }
+  }
+
+  private _candidates(rect: Rect): Indices {
+    if (this._screen_index != null) {
+      const data = this._screen_index
+      if (data.index == null) {
+        const index = new SpatialIndex(this.data_size)
+        for (let i = 0; i < this.data_size; i++) {
+          index.add_point(this.sx[i], this.sy[i])
+        }
+        index.finish()
+        data.index = index
+      }
+      const {index, valid} = data
+      // Whole-node spatial queries can include empty leaves.
+      return index.indices(rect).intersection(valid)
+    }
+    const [x0, x1] = this.renderer.xscale.r_invert(rect.x0, rect.x1)
+    const [y0, y1] = this.renderer.yscale.r_invert(rect.y0, rect.y1)
+    return this.index.indices({x0, x1, y0, y1})
+  }
 
   protected _render_one: RenderOne
 
@@ -51,16 +100,12 @@ export abstract class MarkerView extends XYGlyphView {
   }
 
   protected override _mask_data(): Indices {
-    // dilate the inner screen region by max_size and map back to data space for use in spatial query
-    const {x_target, y_target} = this.renderer.plot_view.frame
-
-    const hr = x_target.widen(this.max_size).map((x) => this.renderer.xscale.invert(x))
-    const vr = y_target.widen(this.max_size).map((y) => this.renderer.yscale.invert(y))
-
-    return this.index.indices({
-      x0: hr.start, x1: hr.end,
-      y0: vr.start, y1: vr.end,
-    })
+    if (this._screen_index != null) {
+      return this._screen_index.valid
+    }
+    const {bbox} = this.renderer.plot_view.frame
+    const d = this.max_size
+    return this._candidates({x0: bbox.left - d, x1: bbox.right + d, y0: bbox.top - d, y1: bbox.bottom + d})
   }
 
   protected override _hit_point(geometry: PointGeometry): Selection {
@@ -70,13 +115,14 @@ export abstract class MarkerView extends XYGlyphView {
 
     const sx0 = sx - max_size*hit_dilation
     const sx1 = sx + max_size*hit_dilation
-    const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
 
     const sy0 = sy - max_size*hit_dilation
     const sy1 = sy + max_size*hit_dilation
-    const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-
-    const candidates = this.index.indices({x0, x1, y0, y1})
+    const {coordinates} = this.renderer
+    if (coordinates instanceof PolarCoordinateTransform && !coordinates.contains(sx, sy)) {
+      return Selection.create()
+    }
+    const candidates = this._candidates({x0: sx0, x1: sx1, y0: sy0, y1: sy1})
     const indices: number[] = []
 
     for (const i of candidates) {
@@ -91,8 +137,15 @@ export abstract class MarkerView extends XYGlyphView {
 
   protected override _hit_span(geometry: SpanGeometry): Selection {
     const {sx, sy} = geometry
-    const bounds = this.bounds()
     const half_size = this.max_size/2
+    if (this._screen_index != null) {
+      const {left, right, top, bottom} = this.renderer.plot_view.frame.bbox
+      const rect = geometry.direction == "h"
+        ? {x0: sx - half_size, x1: sx + half_size, y0: top, y1: bottom}
+        : {x0: left, x1: right, y0: sy - half_size, y1: sy + half_size}
+      return Selection.create({indices: [...this._candidates(rect)]})
+    }
+    const bounds = this.bounds()
 
     const [x0, x1, y0, y1] = (() => {
       if (geometry.direction == "h") {
@@ -116,9 +169,7 @@ export abstract class MarkerView extends XYGlyphView {
 
   protected override _hit_rect(geometry: RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry
-    const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
-    const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-    const indices = [...this.index.indices({x0, x1, y0, y1}).ones()]
+    const indices = [...this._candidates({x0: Math.min(sx0, sx1), x1: Math.max(sx0, sx1), y0: Math.min(sy0, sy1), y1: Math.max(sy0, sy1)})]
     return Selection.create({indices})
   }
 
@@ -126,11 +177,8 @@ export abstract class MarkerView extends XYGlyphView {
     const {sx: sxs, sy: sys} = geometry
 
     const candidates = (() => {
-      const xs = this.renderer.xscale.v_invert(sxs)
-      const ys = this.renderer.yscale.v_invert(sys)
-
-      const [x0, x1, y0, y1] = minmax2(xs, ys)
-      return this.index.indices({x0, x1, y0, y1})
+      const [x0, x1, y0, y1] = minmax2(sxs, sys)
+      return this._candidates({x0, x1, y0, y1})
     })()
 
     const indices = []

@@ -3,6 +3,7 @@ import type {Bounds} from "../ranges/data_range1d"
 import {DataRange1d} from "../ranges/data_range1d"
 import type {CartesianFrameView} from "../canvas/cartesian_frame"
 import type {CoordinateMapping} from "../coordinates/coordinate_mapping"
+import {SubplotMapping} from "../coordinates/subplot_mapping"
 import type {PlotView} from "./plot_canvas"
 import type {Interval} from "core/types"
 import {logger} from "core/logging"
@@ -64,8 +65,8 @@ export class RangeManager {
     for (const renderer of this.parent.model.data_renderers) {
       const {coordinates} = renderer
       if (coordinates != null) {
-        x_ranges.add(coordinates.x_source)
-        y_ranges.add(coordinates.y_source)
+        x_ranges.add(coordinates.ranges[0])
+        y_ranges.add(coordinates.ranges[1])
       }
     }
 
@@ -116,9 +117,8 @@ export class RangeManager {
     let follow_enabled = false
     let has_bounds = false
 
-    //const {width, height} = frame.bbox
-    const width = frame.x_target.span
-    const height = frame.y_target.span
+    const {width, height} = frame instanceof SubplotMapping
+      ? {width: frame.x_target.span, height: frame.y_target.span} : this.frame.bbox
 
     let r: number | undefined
     if (this.parent.model.match_aspect && width != 0 && height != 0) {

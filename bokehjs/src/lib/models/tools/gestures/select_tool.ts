@@ -35,6 +35,9 @@ export abstract class SelectToolView extends GestureToolView {
     const renderers_by_source: Map<DataSource, DataRenderer[]> = new Map()
 
     for (const r of this.computed_renderers) {
+      if (this.plot_view.views.find_one(r)?.is_renderable === false) {
+        continue
+      }
       let source: DataSource
       if (r instanceof GlyphRenderer) {
         source = r.data_source
@@ -114,26 +117,30 @@ export abstract class SelectToolView extends GestureToolView {
       switch (geometry.type) {
         case "point": {
           const {sx, sy} = geometry
-          const x = x_scale.invert(sx)
-          const y = y_scale.invert(sy)
+          const [x, y] = this.plot_view.map_from_screen(sx, sy)
           return {...geometry, x, y}
         }
         case "span": {
           const {sx, sy} = geometry
-          const x = x_scale.invert(sx)
-          const y = y_scale.invert(sy)
+          const [x, y] = this.plot_view.map_from_screen(sx, sy)
           return {...geometry, x, y}
         }
         case "rect": {
           const {sx0, sx1, sy0, sy1} = geometry
-          const [x0, x1] = x_scale.r_invert(sx0, sx1)
-          const [y0, y1] = y_scale.r_invert(sy0, sy1)
+          const polar = this.plot_view.polar_transform
+          const [[x0, y0], [x1, y1]] = polar != null
+            ? [polar.invert(sx0, sy0), polar.invert(sx1, sy1)]
+            : (() => {
+              const [x0, x1] = x_scale.r_invert(sx0, sx1)
+              const [y0, y1] = y_scale.r_invert(sy0, sy1)
+              return [[x0, y0], [x1, y1]]
+            })()
           return {...geometry, x0, y0, x1, y1}
         }
         case "poly": {
           const {sx, sy} = geometry
-          const x = x_scale.v_invert(sx)
-          const y = y_scale.v_invert(sy)
+          const [x, y] = this.plot_view.polar_transform?.map_from_screen(sx, sy) ??
+            [x_scale.v_invert(sx), y_scale.v_invert(sy)]
           return {...geometry, x, y}
         }
       }

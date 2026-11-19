@@ -44,6 +44,7 @@ Explore interactive plots and their source code by category.
 
             topics/images
             topics/contour
+            topics/polar
             topics/hex
             topics/categorical
             topics/hierarchical

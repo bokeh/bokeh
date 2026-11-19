@@ -44,14 +44,22 @@ from ..core.property.nullable import Nullable
 from ..core.property.primitive import Float, Int, String
 from ..core.property.text_like import TextLike
 from ..models import (
+    AdaptiveTicker,
+    CartesianMapping,
     ColumnDataSource,
     CoordinateMapping,
     DataRange1d,
     GraphRenderer,
+    HoverTool,
     LayoutProvider,
+    LogScale,
     Plot,
+    PolarAxis,
+    PolarGrid,
+    PolarMapping,
     Range,
     Scale,
+    SubplotMapping,
     Tool,
 )
 from ..models.dom import Template
@@ -215,6 +223,10 @@ class figure(Plot, GlyphAPI):
     __view_model__ = "Figure"
 
     def __init__(self, *arg, **kw) -> None:
+        cartesian_ranges = "x_range" in kw or "y_range" in kw
+        if isinstance(kw.get("coordinate_system"), PolarMapping):
+            kw.setdefault("outline_line_color", None)
+            kw.setdefault("tools", "pan,wheel_zoom,box_select,lasso_select,tap,hover,save,reset,help")
         opts = cast(Any, FigureOptions(kw))
 
         if opts.tools is None:
@@ -225,18 +237,51 @@ class figure(Plot, GlyphAPI):
             if name not in names:
                 self._raise_attribute_error_with_matches(name, set(names) | set(opts.properties()))
 
+        mapping = kw.get("coordinate_system")
+        if mapping is not None and cartesian_ranges:
+            raise ValueError("Set ranges on the coordinate_system mapping instead of figure x_range and y_range")
+        if isinstance(mapping, CartesianMapping):
+            explicit = mapping.properties_with_values(include_defaults=False)
+            for dimension in ("x", "y"):
+                if getattr(opts, f"{dimension}_axis_type") == "log":
+                    if f"{dimension}_scale" not in explicit:
+                        setattr(mapping, f"{dimension}_scale", LogScale())
+                    elif not isinstance(getattr(mapping, f"{dimension}_scale"), LogScale):
+                        raise ValueError("A log axis requires a LogScale on CartesianMapping")
+
         super().__init__(*arg, **kw)
 
-        self.x_range = get_range(opts.x_range)
-        self.y_range = get_range(opts.y_range)
+        if not isinstance(self.coordinate_system, PolarMapping):
+            if isinstance(self.coordinate_system, CartesianMapping):
+                self.x_range, self.y_range = self.coordinate_system.ranges
+                self.x_scale, self.y_scale = self.coordinate_system.x_scale, self.coordinate_system.y_scale
+                if opts.x_axis_type == "auto" and isinstance(self.x_scale, LogScale):
+                    opts.x_axis_type = "log"
+                if opts.y_axis_type == "auto" and isinstance(self.y_scale, LogScale):
+                    opts.y_axis_type = "log"
+            else:
+                self.x_range = get_range(opts.x_range)
+                self.y_range = get_range(opts.y_range)
+                self.x_scale = get_scale(self.x_range, opts.x_axis_type)
+                self.y_scale = get_scale(self.y_range, opts.y_axis_type)
 
-        self.x_scale = get_scale(self.x_range, opts.x_axis_type)
-        self.y_scale = get_scale(self.y_range, opts.y_axis_type)
-
-        process_axis_and_grid(self, opts.x_axis_type, opts.x_axis_location, opts.x_minor_ticks, opts.x_axis_label, self.x_range, 0)
-        process_axis_and_grid(self, opts.y_axis_type, opts.y_axis_location, opts.y_minor_ticks, opts.y_axis_label, self.y_range, 1)
+            process_axis_and_grid(self, opts.x_axis_type, opts.x_axis_location, opts.x_minor_ticks, opts.x_axis_label, self.x_range, 0)
+            process_axis_and_grid(self, opts.y_axis_type, opts.y_axis_location, opts.y_minor_ticks, opts.y_axis_label, self.y_range, 1)
+        else:
+            if cartesian_ranges:
+                raise ValueError("Set radial_range and angular_range on PolarMapping instead of x_range and y_range")
+            if opts.x_axis_type not in (None, "auto", "linear") or opts.y_axis_type not in (None, "auto", "linear"):
+                raise ValueError("PolarMapping currently supports linear radial scaling only")
+            self.x_range = self.coordinate_system.radial_range
+            self.y_range = self.coordinate_system.angular_range
+            self._process_polar_guides(self.coordinate_system)
 
         tool_objs, tool_map = process_tools_arg(self, opts.tools, opts.tooltips)
+        if isinstance(self.coordinate_system, PolarMapping) and opts.tooltips is None:
+            explicit_tools = [] if isinstance(opts.tools, str) else opts.tools or []
+            for tool in tool_objs:
+                if isinstance(tool, HoverTool) and tool not in explicit_tools:
+                    tool.tooltips = [("radius", "$x"), ("angle", "$y")]
         self.add_tools(*tool_objs)
         process_active_tools(
             self.toolbar,
@@ -256,14 +301,27 @@ class figure(Plot, GlyphAPI):
     def coordinates(self):
         return None
 
+    def _process_polar_guides(self, system: PolarMapping, coordinates: CoordinateMapping | None = None) -> None:
+        for dimension in ("radial", "angular"):
+            axis = PolarAxis(dimension=dimension, coordinates=coordinates)
+            if dimension == "angular" and system.angle_units == "deg":
+                axis.ticker = AdaptiveTicker(mantissas=[1, 1.5, 3, 4.5])
+            self.renderers.extend([PolarGrid(axis=axis, coordinates=coordinates), axis])
+
     def subplot(self,
         *,
         x_source: Range | None = None, y_source: Range | None = None,
         x_scale: Scale | None = None, y_scale: Scale | None = None,
         x_target: Range, y_target: Range,
     ) -> GlyphAPI:
-        """ Create a new sub-coordinate system and expose a plotting API. """
-        coordinates = CoordinateMapping(x_source=cast(Range, x_source), y_source=cast(Range, y_source), x_target=x_target, y_target=y_target)
+        """Create a Cartesian sub-coordinate system and expose a plotting API."""
+        if isinstance(self.coordinate_system, PolarMapping):
+            raise ValueError("Subplots require a Cartesian parent plot")
+        kwargs: dict[str, Any] = dict(x_target=x_target, y_target=y_target)
+        for name, value in dict(x_source=x_source, y_source=y_source, x_scale=x_scale, y_scale=y_scale).items():
+            if value is not None:
+                kwargs[name] = value
+        coordinates = SubplotMapping(**kwargs)
         return GlyphAPI(self, coordinates)
 
     def hexbin(self, x, y, size, orientation="pointytop", palette="Viridis256", line_color=None, fill_color=None, aspect_scale=1, **kwargs):
@@ -717,6 +775,8 @@ class figure(Plot, GlyphAPI):
             **kwargs: |line properties| and |fill properties|
 
         '''
+        if isinstance(self.coordinate_system, PolarMapping):
+            raise ValueError("GraphRenderer is not supported by PolarMapping")
         kw = get_graph_kwargs(node_source, edge_source, **kwargs)
         graph_renderer = GraphRenderer(layout_provider=layout_provider, **kw)
         self.renderers.append(graph_renderer)
@@ -774,6 +834,8 @@ class figure(Plot, GlyphAPI):
                 `bokeh.palettes.Cividis`.
 
         '''
+        if isinstance(self.coordinate_system, PolarMapping):
+            raise ValueError("ContourRenderer is not supported by PolarMapping")
         contour_renderer = from_contour(x, y, z, levels, **visuals)
         self.renderers.append(contour_renderer)
         return contour_renderer

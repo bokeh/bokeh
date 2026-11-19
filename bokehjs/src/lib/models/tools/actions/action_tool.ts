@@ -12,7 +12,11 @@ export abstract class ActionToolView extends ToolView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.do, (arg: string | undefined) => this.doit(arg))
+    this.connect(this.model.do, (arg: string | undefined) => {
+      if (this.is_supported) {
+        this.doit(arg)
+      }
+    })
   }
 
   abstract doit(arg?: unknown): void

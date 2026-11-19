@@ -96,8 +96,7 @@ export class TapToolView extends SelectToolView {
   protected _emit_callback(rv: DataRendererView, geometry: PointGeometry, source: IndexedDataSource, modifiers?: KeyModifiers): void {
     const {callback} = this.model
     if (callback != null) {
-      const x = rv.coordinates.x_scale.invert(geometry.sx)
-      const y = rv.coordinates.y_scale.invert(geometry.sy)
+      const [x, y] = rv.coordinates.invert(geometry.sx, geometry.sy)
       const data = {
         geometries: {...geometry, x, y},
         source,

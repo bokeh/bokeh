@@ -1,3 +1,4 @@
+export {PolarAxis} from "./polar_axis"
 export {Axis}            from "./axis"
 export {CategoricalAxis} from "./categorical_axis"
 export {ContinuousAxis}  from "./continuous_axis"

@@ -374,6 +374,15 @@ export class HoverToolView extends InspectToolView {
       const sm = r.get_selection_manager()
       const rview = this.plot_view.views.find_one(r)
       if (rview != null) {
+        if (!rview.is_renderable) {
+          const renderers = r instanceof GraphRenderer ? [r.node_renderer, r.edge_renderer] : [r]
+          for (const renderer of renderers) {
+            if (renderer instanceof GlyphRenderer) {
+              this.ttmodels.get(renderer)?.clear()
+            }
+          }
+          continue
+        }
         sm.inspect(rview, geometry)
       }
     }
@@ -393,10 +402,8 @@ export class HoverToolView extends InspectToolView {
     }
 
     const {sx, sy} = geometry
-    const xscale = renderer_view.coordinates.x_scale
-    const yscale = renderer_view.coordinates.y_scale
-    const x = xscale.invert(sx)
-    const y = yscale.invert(sy)
+    const {x_scale: xscale, y_scale: yscale} = renderer_view.coordinates
+    const [x, y] = renderer_view.coordinates.invert(sx, sy)
 
     const {glyph} = renderer_view
     const subset_indices = renderer.view.convert_selection_to_subset(fullset_indices)
@@ -758,13 +765,11 @@ export class HoverToolView extends InspectToolView {
       }
 
       const glyph_renderer_view = this.plot_view.views.find_one(renderer)
-      if (glyph_renderer_view == null) {
+      if (glyph_renderer_view == null || !glyph_renderer_view.is_renderable) {
         continue
       }
 
-      const {x_scale, y_scale} = glyph_renderer_view.coordinates
-      const x = x_scale.invert(geometry.sx)
-      const y = y_scale.invert(geometry.sy)
+      const [x, y] = glyph_renderer_view.coordinates.invert(geometry.sx, geometry.sy)
 
       const index = renderer.data_source.inspected
 

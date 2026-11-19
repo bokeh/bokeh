@@ -40,6 +40,7 @@ from ..core.enums import (
     WindowAxis,
 )
 from ..core.property.container import Dict, List, Tuple
+from ..core.property.descriptors import UnsetValueError
 from ..core.property.either import Either
 from ..core.property.enum import Enum
 from ..core.property.include import Include
@@ -61,6 +62,7 @@ from ..core.validation import error, warning
 from ..core.validation.errors import (
     BAD_EXTRA_RANGE_NAME,
     INCOMPATIBLE_SCALE_AND_RANGE,
+    INVALID_PROPERTY_VALUE,
     REPEATED_LAYOUT_CHILD,
     REQUIRED_RANGE,
     REQUIRED_SCALE,
@@ -69,8 +71,14 @@ from ..core.validation.warnings import MISSING_RENDERERS
 from ..model import Model
 from .annotations import Annotation, Legend, Title
 from .axes import Axis
+from .coordinates import (
+    CartesianMapping,
+    CoordinateMapping,
+    PolarMapping,
+)
 from .dom import HTML
 from .glyph import Glyph
+from .glyphs import Scatter
 from .grids import Grid
 from .layouts import GridCommon, LayoutDOM
 from .ranges import (
@@ -79,7 +87,13 @@ from .ranges import (
     Range,
     Range1d,
 )
-from .renderers import GlyphRenderer, Renderer, TileRenderer
+from .renderers import (
+    CompositeRenderer,
+    DataRenderer,
+    GlyphRenderer,
+    Renderer,
+    TileRenderer,
+)
 from .scales import (
     CategoricalScale,
     LinearScale,
@@ -88,7 +102,21 @@ from .scales import (
 )
 from .sources import ColumnDataSource, IndexedDataSource
 from .tiles import TileSource, WMTSTileSource
-from .tools import HoverTool, Tool, Toolbar, ToolProxy
+from .tools import (
+    BoxZoomTool,
+    ClickPanTool,
+    EditTool,
+    HoverTool,
+    PanTool,
+    RangeTool,
+    Tool,
+    Toolbar,
+    ToolProxy,
+    WheelPanTool,
+    WheelZoomTool,
+    ZoomInTool,
+    ZoomOutTool,
+)
 from .ui import StyledElement
 
 if TYPE_CHECKING:
@@ -114,6 +142,105 @@ class Plot(LayoutDOM):
     ''' Model representing a plot, containing glyphs, guides, annotations.
 
     '''
+
+    def __init__(self, *args, **kwargs) -> None:
+        mapping = kwargs.get("coordinate_system")
+        if isinstance(mapping, CoordinateMapping):
+            try:
+                x_range, y_range = mapping.ranges
+            except UnsetValueError:
+                pass
+            else:
+                kwargs.setdefault("x_range", x_range)
+                kwargs.setdefault("y_range", y_range)
+            if isinstance(mapping, CartesianMapping):
+                kwargs.setdefault("x_scale", mapping.x_scale)
+                kwargs.setdefault("y_scale", mapping.y_scale)
+        super().__init__(*args, **kwargs)
+
+    @error(INVALID_PROPERTY_VALUE)
+    def _check_polar_coordinate_system(self) -> str | None:
+        mapping = self.coordinate_system
+        if mapping is None:
+            return None
+        if isinstance(mapping, PolarMapping) and (not isinstance(self.x_scale, LinearScale) or not isinstance(self.y_scale, LinearScale)):
+            return "PolarMapping currently supports linear radial scaling only"
+        try:
+            ranges = mapping.ranges
+        except UnsetValueError:
+            return None
+        if self.x_range is not ranges[0] or self.y_range is not ranges[1]:
+            return f"{type(mapping).__name__} owns the plot ranges. Update x_range and y_range when replacing the mapping ranges"
+        if isinstance(mapping, CartesianMapping) and (self.x_scale is not mapping.x_scale or self.y_scale is not mapping.y_scale):
+            return "CartesianMapping owns the plot scales. Update x_scale and y_scale when replacing the mapping scales"
+        return None
+
+    def _coordinate_system_for(self, coordinates: CoordinateMapping | None) -> CoordinateMapping | None:
+        return coordinates if coordinates is not None else self.coordinate_system
+
+    def _polar_coordinate_error(self, coordinates: CoordinateMapping | None) -> str | None:
+        if isinstance(coordinates, PolarMapping) and coordinates is not self.coordinate_system:
+            return "PolarMapping renderer coordinates require a matching polar parent plot"
+        if isinstance(self.coordinate_system, PolarMapping) and coordinates is not None and coordinates is not self.coordinate_system:
+            return "Subplots and renderer-level coordinate systems require a Cartesian parent plot"
+        return None
+
+    def _polar_glyph_error(self, glyphclass: type[Glyph], coordinates: CoordinateMapping | None = None) -> str | None:
+        problem = self._polar_coordinate_error(coordinates)
+        if problem is not None:
+            return problem
+        mapping = self._coordinate_system_for(coordinates)
+        if isinstance(mapping, PolarMapping) and not issubclass(glyphclass, Scatter):
+            return f"{glyphclass.__name__} is not supported by PolarMapping"
+        return None
+
+    @error(INVALID_PROPERTY_VALUE)
+    def _check_polar_renderers(self) -> str | None:
+        pending = [*self.renderers, *self.center, *self.above, *self.below, *self.left, *self.right]
+        seen: set[Model] = set()
+        while pending:
+            renderer = pending.pop()
+            if renderer in seen:
+                continue
+            seen.add(renderer)
+            if isinstance(renderer, Renderer):
+                problem = self._polar_coordinate_error(renderer.coordinates)
+                if problem is not None:
+                    return problem
+            if isinstance(renderer, CompositeRenderer):
+                pending.extend(renderer.renderers)
+            elif isinstance(renderer, GlyphRenderer):
+                glyphs = (renderer.glyph, renderer.selection_glyph, renderer.nonselection_glyph, renderer.hover_glyph, renderer.muted_glyph)
+                for glyph in glyphs:
+                    if isinstance(glyph, Glyph):
+                        problem = self._polar_glyph_error(type(glyph), renderer.coordinates)
+                        if problem is not None:
+                            return problem
+            elif isinstance(renderer, (DataRenderer, TileRenderer)) and isinstance(self._coordinate_system_for(renderer.coordinates), PolarMapping):
+                return f"{type(renderer).__name__} is not supported by PolarMapping"
+        return None
+
+    @staticmethod
+    def _polar_tool_error(tool: Tool | ToolProxy) -> str | None:
+        if isinstance(tool, ToolProxy):
+            for child in tool.tools:
+                problem = Plot._polar_tool_error(child)
+                if problem is not None:
+                    return problem
+        elif isinstance(tool, (BoxZoomTool, ZoomInTool, ZoomOutTool, EditTool, RangeTool, WheelPanTool, ClickPanTool)):
+            return f"{type(tool).__name__} is not supported by PolarMapping"
+        elif isinstance(tool, (PanTool, WheelZoomTool)) and tool.dimensions != "both":
+            return "PolarMapping requires pan and wheel zoom tools with dimensions='both'"
+        return None
+
+    @error(INVALID_PROPERTY_VALUE)
+    def _check_polar_tools(self) -> str | None:
+        if isinstance(self.coordinate_system, PolarMapping):
+            for tool in self.toolbar.tools:
+                problem = self._polar_tool_error(tool)
+                if problem is not None:
+                    return problem
+        return None
 
     def select(self, *args, **kwargs):
         ''' Query this object and all of its references for objects that
@@ -274,6 +401,11 @@ class Plot(LayoutDOM):
 
     @tools.setter
     def tools(self, tools: list[Tool]):
+        if isinstance(self.coordinate_system, PolarMapping):
+            for tool in tools:
+                problem = self._polar_tool_error(tool)
+                if problem is not None:
+                    raise ValueError(problem)
         self.toolbar.tools = tools
 
     def add_layout(self, obj: Renderer | StyledElement, place: PlaceType = "center") -> None:
@@ -325,6 +457,10 @@ class Plot(LayoutDOM):
             else:
                 raise ValueError(f"expected a string or Tool instance, got {tool!r}")
 
+            if isinstance(self.coordinate_system, PolarMapping):
+                problem = self._polar_tool_error(tool_obj)
+                if problem is not None:
+                    raise ValueError(problem)
             self.toolbar.tools.append(tool_obj)
 
     def remove_tools(self, *tools: Tool) -> None:
@@ -383,6 +519,9 @@ class Plot(LayoutDOM):
         if not isinstance(glyph, Glyph):
             raise ValueError("'glyph' argument to add_glyph() must be Glyph subclass")
 
+        problem = self._polar_glyph_error(type(glyph), kwargs.get("coordinates"))
+        if problem is not None:
+            raise ValueError(problem)
         g = GlyphRenderer(data_source=source, glyph=glyph, **kwargs)
         self.renderers.append(g)
         return g
@@ -406,6 +545,8 @@ class Plot(LayoutDOM):
             TileRenderer : TileRenderer
 
         '''
+        if isinstance(self.coordinate_system, PolarMapping):
+            raise ValueError("TileRenderer is not supported by PolarMapping")
         if not isinstance(tile_source, TileSource):
             import xyzservices
 
@@ -529,6 +670,11 @@ class Plot(LayoutDOM):
                     msg += (", " if msg else "") + f"{bad} [{ref}]"
         if msg:
             return msg
+
+    coordinate_system = Nullable(Either(Instance(CartesianMapping), Instance(PolarMapping)), help="""
+    Optional Cartesian or polar coordinate system. A Cartesian mapping owns
+    the x/y ranges and scales. See :ref:`ug_topics_polar` for polar usage.
+    """)
 
     x_range = Instance(Range, default=InstanceDefault(DataRange1d), help="""
     The (default) data range of the horizontal dimension of the plot.

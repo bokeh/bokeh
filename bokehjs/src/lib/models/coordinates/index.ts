@@ -1,4 +1,7 @@
+export {PolarMapping} from "./polar_mapping"
 export {CoordinateMapping} from "./coordinate_mapping"
 export {Node} from "./node"
 export {XY} from "./xy"
 export {Indexed} from "./indexed"
+export {CartesianMapping} from "./cartesian_mapping"
+export {SubplotMapping} from "./subplot_mapping"

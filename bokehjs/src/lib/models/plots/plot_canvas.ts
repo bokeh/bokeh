@@ -1,3 +1,7 @@
+import type {CoordinateMapping} from "../coordinates/coordinate_mapping"
+import type {CoordinateTransform} from "../coordinates/coordinate_mapping"
+import {PolarMapping, PolarCoordinateTransform} from "../coordinates/polar_mapping"
+import type {PolarViewport} from "../coordinates/polar_mapping"
 import {CartesianFrame} from "../canvas/cartesian_frame"
 import {CanvasPanel} from "../canvas/canvas_panel"
 import type {CartesianFrameView} from "../canvas/cartesian_frame"
@@ -6,6 +10,7 @@ import {Canvas} from "../canvas/canvas"
 import type {Renderer} from "../renderers/renderer"
 import {RendererView} from "../renderers/renderer"
 import {CompositeRendererView} from "../renderers/composite_renderer"
+import {DataRendererView} from "../renderers/data_renderer"
 import type {DataRenderer} from "../renderers/data_renderer"
 import type {Range} from "../ranges/range"
 import type {Tool} from "../tools/tool"
@@ -308,6 +313,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
     this._initial_state = {
       selection: new Map(), // XXX: initial selection?
+      polar_viewport: {x: 0, y: 0, scale: 1},
     }
 
     this._top_panel = CanvasPanel.create({place: "above"})
@@ -807,6 +813,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   reset_range(): void {
     this.pause()
+    this.set_polar_viewport({x: 0, y: 0, scale: 1})
     this._range_manager.reset()
     this.unpause()
     this.trigger_ranges_update_event()
@@ -1026,6 +1033,16 @@ export class PlotView extends LayoutDOMView implements Paintable {
       connect_range(range)
     }
 
+    this.on_transitive_change(this.model.properties.coordinate_system, () => {
+      this._coordinate_transform = null
+      for (const renderer of this.computed_renderer_views) {
+        renderer.invalidate_coordinates()
+      }
+      this.request_repaint()
+    })
+    for (const property of [this.model.properties.x_range, this.model.properties.y_range]) {
+      this.on_transitive_change(property, () => this.request_repaint())
+    }
     this.connect(this.model.change, () => this.request_repaint())
     this.connect(this.model.reset, () => this.reset())
 
@@ -1324,21 +1341,64 @@ export class PlotView extends LayoutDOMView implements Paintable {
     }
   }
 
+  map_from_screen(sx: number, sy: number): [number, number] {
+    return this.coordinate_transform?.invert(sx, sy) ?? [this.frame.x_scale.invert(sx), this.frame.y_scale.invert(sy)]
+  }
+
+  readonly polar_viewport: PolarViewport = {x: 0, y: 0, scale: 1}
+
+  set_polar_viewport(viewport: PolarViewport): void {
+    const current = this.polar_viewport
+    if (current.x != viewport.x || current.y != viewport.y || current.scale != viewport.scale) {
+      Object.assign(current, viewport)
+      this.request_repaint()
+    }
+  }
+
+  private _coordinate_transform: {mapping: CoordinateMapping, transform: CoordinateTransform} | null = null
+
+  get coordinate_transform(): CoordinateTransform | null {
+    const mapping = this.model.coordinate_system
+    if (mapping == null) {
+      return null
+    }
+    if (!(mapping instanceof PolarMapping)) {
+      return mapping.get_transform(this.frame)
+    }
+    if (this._coordinate_transform?.mapping != mapping) {
+      const transform = mapping.get_transform(this.frame, this.polar_viewport)
+      this._coordinate_transform = {mapping, transform}
+    }
+    return this._coordinate_transform.transform
+  }
+
+  get polar_transform(): PolarCoordinateTransform | null {
+    const transform = this.coordinate_transform
+    return transform instanceof PolarCoordinateTransform ? transform : null
+  }
+
   protected _paint_levels(ctx: Context2d, level: RenderLevel, clip_box: BBox, global_clip: boolean): void {
     for (const renderer_view of this.computed_renderer_views) {
       if (renderer_view.model.level != level) {
         continue
       }
 
-      ctx.save()
-      if (global_clip || renderer_view.needs_clip) {
-        ctx.beginPath()
-        ctx.rect(...clip_box.args)
-        ctx.clip()
+      if (this.polar_transform != null && renderer_view instanceof DataRendererView && !renderer_view.is_renderable) {
+        renderer_view.mark_finished()
+        continue
       }
+      ctx.save()
+      try {
+        if (global_clip || renderer_view.needs_clip) {
+          ctx.beginPath()
+          ctx.rect(...clip_box.args)
+          ctx.clip()
+        }
 
-      renderer_view.paint(ctx)
-      ctx.restore()
+        renderer_view.paint(ctx)
+      } finally {
+        ctx.restore()
+      }
 
       if (renderer_view.has_webgl) {
         this.canvas_view.blit_webgl(ctx)
@@ -1401,18 +1461,47 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
     const {background_fill, background_hatch} = this.visuals
     if (background_fill.doit || background_hatch.doit) {
-      ctx.beginPath()
-      ctx.rect_bbox(frame_box)
-      background_fill.apply(ctx)
-      background_hatch.apply(ctx)
+      const polar = this.polar_transform
+      ctx.save()
+      try {
+        if (polar != null) {
+          ctx.beginPath()
+          ctx.rect_bbox(frame_box)
+          ctx.clip()
+        }
+        ctx.beginPath()
+        if (polar != null) {
+          polar.trace(ctx)
+        } else {
+          ctx.rect_bbox(frame_box)
+        }
+        background_fill.apply(ctx)
+        background_hatch.apply(ctx)
+      } finally {
+        ctx.restore()
+      }
     }
   }
 
   protected _paint_outline(ctx: Context2d, frame_box: BBox): void {
     const {outline_line} = this.visuals
     if (outline_line.doit) {
-      ctx.rect_bbox(this._shrink_to_canvas(frame_box))
-      outline_line.apply(ctx)
+      const polar = this.polar_transform
+      ctx.save()
+      try {
+        if (polar != null) {
+          ctx.beginPath()
+          ctx.rect_bbox(frame_box)
+          ctx.clip()
+          ctx.beginPath()
+          polar.trace(ctx)
+        } else {
+          ctx.rect_bbox(this._shrink_to_canvas(frame_box))
+        }
+        outline_line.apply(ctx)
+      } finally {
+        ctx.restore()
+      }
     }
   }
 
