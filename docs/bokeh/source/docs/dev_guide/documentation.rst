@@ -522,30 +522,22 @@ sentence of the docstring summary. Use inline links for external references
 in this summary so they resolve on both the example page and Gallery card.
 The gallery's JSON file lists the externally hosted server demos.
 
-The Examples index uses separate small thumbnails, with a maximum dimension of
-120 pixels, in ``docs/bokeh/source/_images/examples/_index/``. After building the
-HTML docs, generate missing thumbnails with::
+Thumbnail requirements:
 
-    python -m tools.generate_example_thumbnails
+* Gallery images are square PNGs at 300 × 300 pixels and 600 × 600 pixels
+  for the ``@2x`` version.
+* Index images are separate PNGs with a maximum dimension of 120 pixels.
+  Store them in ``docs/bokeh/source/_images/examples/_index/``, mirroring the
+  example's path relative to ``examples/`` and replacing its extension with
+  ``.png``. No ``@2x`` version is needed for the index.
+* Capture the actual rendered output in a useful state, such as a selection
+  or an open tooltip. Crop out browser chrome and unrelated page content.
+  Preserve proportions and use padding where needed. Keep small controls
+  at a readable size without enlarging them to fill the image.
 
-The command reuses Gallery images where available and renders cached example
-payloads for dedicated Python pages and inline ``:example-ref:`` targets. It does not execute the
-Python examples again. Pass example paths, such as ``basic/annotations/label.py``,
-to limit the selection. Use ``--overwrite`` to refresh existing thumbnails.
-Commit the generated PNG files with the example changes. Normal docs builds
-reuse these files and do not launch a browser.
-
-Capture an app's initial document with ``--server`` or execute a notebook copy
-up to its first Bokeh output with ``--notebook``::
-
-    python -m tools.generate_example_thumbnails --server server/app/sliders.py
-    python -m tools.generate_example_thumbnails --notebook output/jupyter/live/Basic\ Usage.ipynb
-
-These modes require explicit example paths. For apps that require server
-initialization hooks, start the app normally and use ``--server-url URL`` with
-its example path. Add ``--wait 3`` to collect three seconds of live updates
-before capture. Thumbnails are static previews. Examples without capturable
-output keep an empty thumbnail column.
+Commit thumbnails with the example changes. Docs builds reuse these files
+and do not generate screenshots. Index thumbnails are optional. Entries
+without one retain an empty thumbnail column.
 
 Gallery tabs and subgroup order are arranged in
 ``docs/bokeh/source/docs/gallery.rst``. Each line inside a ``bokeh-gallery``
