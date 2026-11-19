@@ -261,8 +261,8 @@ export class Figure extends BaseFigure {
   protected constructor(attrs: Partial<Figure.Attrs> = {}) {
     attrs = {...attrs}
 
-    let x_axis_type = attrs.x_axis_type === undefined ? "auto" : attrs.x_axis_type
-    let y_axis_type = attrs.y_axis_type === undefined ? "auto" : attrs.y_axis_type
+    const requested_x_axis_type = attrs.x_axis_type === undefined ? "auto" : attrs.x_axis_type
+    const requested_y_axis_type = attrs.y_axis_type === undefined ? "auto" : attrs.y_axis_type
     delete attrs.x_axis_type
     delete attrs.y_axis_type
 
@@ -282,7 +282,7 @@ export class Figure extends BaseFigure {
     delete attrs.y_axis_label
 
     const mapping = attrs.coordinate_system
-    if (mapping instanceof PolarMapping && (![null, "auto", "linear"].includes(x_axis_type) || ![null, "auto", "linear"].includes(y_axis_type))) {
+    if (mapping instanceof PolarMapping && (![null, "auto", "linear"].includes(requested_x_axis_type) || ![null, "auto", "linear"].includes(requested_y_axis_type))) {
       throw new Error("PolarMapping currently supports linear radial scaling only")
     }
     if (mapping instanceof PolarMapping && attrs.outline_line_color === undefined) {
@@ -296,9 +296,12 @@ export class Figure extends BaseFigure {
     delete attrs.x_range
     delete attrs.y_range
 
-    if (mapping instanceof CartesianMapping) {
+    const [x_axis_type, y_axis_type] = (() => {
+      if (!(mapping instanceof CartesianMapping)) {
+        return [requested_x_axis_type, requested_y_axis_type] as const
+      }
       for (const dimension of ["x", "y"] as const) {
-        const axis_type = dimension == "x" ? x_axis_type : y_axis_type
+        const axis_type = dimension == "x" ? requested_x_axis_type : requested_y_axis_type
         if (axis_type == "log") {
           if (!mapping.properties[`${dimension}_scale`].dirty) {
             mapping[`${dimension}_scale`] = LogScale.create()
@@ -307,13 +310,11 @@ export class Figure extends BaseFigure {
           }
         }
       }
-      if (x_axis_type == "auto" && mapping.x_scale instanceof LogScale) {
-        x_axis_type = "log"
-      }
-      if (y_axis_type == "auto" && mapping.y_scale instanceof LogScale) {
-        y_axis_type = "log"
-      }
-    }
+      return [
+        requested_x_axis_type == "auto" && mapping.x_scale instanceof LogScale ? "log" : requested_x_axis_type,
+        requested_y_axis_type == "auto" && mapping.y_scale instanceof LogScale ? "log" : requested_y_axis_type,
+      ] as const
+    })()
     const x_scale = mapping instanceof CartesianMapping ? mapping.x_scale : attrs.x_scale ?? Figure._get_scale(x_range, x_axis_type)
     const y_scale = mapping instanceof CartesianMapping ? mapping.y_scale : attrs.y_scale ?? Figure._get_scale(y_range, y_axis_type)
     delete attrs.x_scale
