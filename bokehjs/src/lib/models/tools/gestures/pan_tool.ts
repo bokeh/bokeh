@@ -130,10 +130,11 @@ export class PanToolView extends GestureToolView {
     const dims = this.model.dimensions
     const {x_scales, y_scales} = frame
 
-    let sdx: number
-    let xrs: RangeState
-    let sdy: number
-    let yrs: RangeState
+    // nothing is in play unless a branch says otherwise
+    let sdx = 0
+    let xrs: RangeState = new Map()
+    let sdy = 0
+    let yrs: RangeState = new Map()
 
     const {axis_coords} = state
     if (axis_coords == null) {
@@ -144,16 +145,10 @@ export class PanToolView extends GestureToolView {
       if (dims == "width" || dims == "both") {
         sdx = -new_dx
         xrs = update_ranges(x_scales, sx_low, sx_high)
-      } else {
-        sdx = 0
-        xrs = new Map()
       }
       if (dims == "height" || dims == "both") {
         sdy = -new_dy
         yrs = update_ranges(y_scales, sy_low, sy_high)
-      } else {
-        sdy = 0
-        yrs = new Map()
       }
     } else {
       // Gesture started on an axis: apply pan_together to select which scales move.
@@ -166,11 +161,7 @@ export class PanToolView extends GestureToolView {
         if (x_axis_only) {
           sdx = -new_dx
           xrs = update_ranges(x_scales, sx_low, sx_high)
-          sdy = 0
-          yrs = new Map()
         } else {
-          sdx = 0
-          xrs = new Map()
           sdy = -new_dy
           yrs = update_ranges(y_scales, sy_low, sy_high)
         }
@@ -185,19 +176,18 @@ export class PanToolView extends GestureToolView {
         if (x_axis_only) {
           sdx = -new_dx
           xrs = update_ranges(new Map([["x", x_scale]]), sx_low, sx_high)
-          sdy = 0
-          yrs = new Map()
         } else {
-          sdx = 0
-          xrs = new Map()
           sdy = -new_dy
           yrs = update_ranges(new Map([["y", y_scale]]), sy_low, sy_high)
         }
       }
 
-      // Respect the model-level `dimensions` constraint even on axis gestures.
-      if (dims == "height") { sdx = 0; xrs = new Map() }
-      if (dims == "width")  { sdy = 0; yrs = new Map() }
+      // A dimension is in play only if `dimensions` allows it and the gesture travels along
+      // it. An interval computed from the unshifted pixel range is an identity update that
+      // would still be recorded as an interactive one, switching off windowed auto-ranging
+      // of a DataRange1d and rewriting the range with the noise of the pixel round trip.
+      if (dims == "height" || new_dx == 0) { sdx = 0; xrs = new Map() }
+      if (dims == "width"  || new_dy == 0) { sdy = 0; yrs = new Map() }
     }
 
     state.last_dx = dx
