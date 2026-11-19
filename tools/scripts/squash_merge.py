@@ -12,11 +12,14 @@ and adds ``reso: completed`` to the issues the PR fixes (or to the PR itself if
 it doesn't fix any issues), and deletes the PR's branch from GitHub (unless it's
 in a fork or other open PRs are based on it).
 
+The message lists the PR's commit messages; with ``--short-log``, only their
+titles (the Co-authored-by trailers are still collected from the full messages).
+
 The PR can be given by number, URL or head branch name (anything ``gh pr view``
 accepts). If not given, the PR of the current branch is used, after asking for
 confirmation.
 
-usage: squash_merge.py [--override-review] [pr-number | url | branch]
+usage: squash_merge.py [--override-review] [--short-log] [pr-number | url | branch]
 """
 
 from __future__ import annotations
@@ -75,9 +78,17 @@ def squeeze_blank_lines(lines: list[str]) -> list[str]:
         result.append(line)
     return result
 
-def build_message(log: str, authors: list[str]) -> str:
-    lines = log.splitlines()
-    body = squeeze_blank_lines([line for line in lines if not CO_AUTHORED_BY.match(line)])
+def build_message(commits: list[str], authors: list[str], short: bool = False) -> str:
+    """ Combine the commits' messages into a bulleted list, either full messages
+    or (if ``short``) only their titles, followed by the Co-authored-by trailers
+    of all the messages and ``authors``. """
+    lines = [line for commit in commits for line in commit.splitlines()]
+
+    if short:
+        body = [f"* {commit.splitlines()[0]}" for commit in commits]
+    else:
+        full = "\n\n".join(f"* {commit}" for commit in commits).splitlines()
+        body = squeeze_blank_lines([line for line in full if not CO_AUTHORED_BY.match(line)])
 
     trailers: list[str] = []
     seen: set[str] = set()
@@ -132,6 +143,8 @@ def main(argv: list[str]) -> None:
         help="the PR to merge (default: the current branch's PR)")
     parser.add_argument("--override-review", action="store_true",
         help="merge even without an approval, or with changes requested")
+    parser.add_argument("--short-log", action="store_true",
+        help="list only the commits' titles in the message, not their full messages")
     args = parser.parse_args(argv)
     pr_ref: list[str] = [args.pr] if args.pr is not None else []
 
@@ -185,9 +198,11 @@ def main(argv: list[str]) -> None:
     if output("git", "rev-parse", "FETCH_HEAD").strip() != head_oid:
         error(f"PR #{pr} head changed while fetching; try again")
 
-    log = output("git", "log", "--reverse", "--no-merges", "--format=* %B", f"origin/{base}..{head_oid}")
+    # NUL-separated, as messages can contain anything else.
+    log = output("git", "log", "--reverse", "--no-merges", "--format=%B%x00", f"origin/{base}..{head_oid}")
+    commits = [commit.strip("\n") for commit in log.split("\0")[:-1]]
     subject = f"{title} (#{pr})"
-    msg = build_message(log, authors)
+    msg = build_message(commits, authors, args.short_log)
 
     print(f"{subject}\n\n{msg}\n", flush=True)
     if not confirm("Merge?"):
