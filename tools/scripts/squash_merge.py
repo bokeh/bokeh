@@ -206,6 +206,7 @@ def main(argv: list[str]) -> None:
 
     print(f"{subject}\n\n{msg}\n", flush=True)
     if not confirm("Merge?"):
+        info_line("Merge aborted, no changes were made.")
         return
 
     # Refuse to merge if the PR was pushed to after the message was built.
