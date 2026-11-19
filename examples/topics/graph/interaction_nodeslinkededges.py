@@ -1,6 +1,7 @@
 '''Select a station and its connecting lines.
 
 .. bokeh-example-metadata::
+    :title: Interaction nodeslinkededges
     :apis: bokeh.models.NodesAndLinkedEdges, bokeh.models.TapTool
     :refs: :ref:`ug_topics_graph`
     :keywords: graph, network, selection

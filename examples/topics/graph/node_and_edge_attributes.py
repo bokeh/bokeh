@@ -1,11 +1,11 @@
 ''' Style NetworkX graph glyphs with attributes from the node and edge sources.
 
 .. bokeh-example-metadata::
-    :title: Node and edge attributes
+    :title: Karate club ties
     :keywords: graph, hover, networkx, tooltip
     :apis: bokeh.plotting.from_networkx
     :refs: :ref:`ug_topics_graph`
-    :gallery: A network graph plot of the NetworkX karate club dataset with large circles for vertices.
+    :gallery: Blue and orange clusters in Zachary's karate club graph, with cross-club edges accented in pink.
 
 '''
 

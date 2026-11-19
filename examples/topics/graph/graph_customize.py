@@ -1,7 +1,7 @@
 ''' Customize the glyphs and positions of a static graph.
 
 .. bokeh-example-metadata::
-    :title: Custom graph glyphs
+    :title: Graph customize
     :apis: bokeh.models.GraphDataSource, bokeh.models.GraphRenderer, bokeh.models.StaticLayoutProvider
     :refs: :ref:`ug_topics_graph`
     :keywords: graph, static layout, ellipse, node styling

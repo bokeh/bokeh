@@ -1,6 +1,8 @@
 ''' Update the nodes and edges of a graph by replacing records.
 
 .. bokeh-example-metadata::
+    :gallery: Before and after adding a ridge relay station. Two orange links replace the direct link to Dune.
+    :title: Update a record-backed graph
     :apis: bokeh.models.GraphDataSource, bokeh.models.GraphRenderer, bokeh.models.RecordDataSource
     :refs: :ref:`ug_topics_graph`
     :keywords: graph, network, records, callbacks
