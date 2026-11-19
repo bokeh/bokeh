@@ -26,3 +26,12 @@ def test_reuses_gallery_image_without_loading_payload(tmp_path: Path, monkeypatc
     before = target.stat().st_mtime_ns
     assert thumbnails.main(['--build-dir', str(tmp_path / 'build')]) == 0
     assert target.stat().st_mtime_ns == before
+
+
+def test_inline_payload_starts_at_reference_target() -> None:
+    payload = thumbnails.ExamplePayload('styled-sliders')
+    payload.feed('''<div data-bokeh-payload-url="unrelated.json"></div>
+        <span id="styled-sliders"></span>
+        <div data-bokeh-payload-url="sliders.json"></div>
+        <div data-bokeh-payload-url="another.json"></div>''')
+    assert payload.filename == 'sliders.json'

@@ -1,7 +1,7 @@
 ''' Draw rectangles by specifying their left, right, top, and bottom edges.
 
 .. bokeh-example-metadata::
-    :title: Quad
+    :title: Rectangles from edge coordinates
     :keywords: quad
     :apis: bokeh.plotting.figure.quad
 '''

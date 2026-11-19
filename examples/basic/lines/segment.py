@@ -1,7 +1,7 @@
 ''' Draw separate line segments with explicit start and end coordinates.
 
 .. bokeh-example-metadata::
-    :title: Segment
+    :title: Independent line segments
     :keywords: segment
     :apis: bokeh.plotting.figure.segment
 '''

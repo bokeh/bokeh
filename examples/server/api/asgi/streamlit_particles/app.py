@@ -1,7 +1,7 @@
 ''' Combine Streamlit controls with a browser-side Bokeh particle simulation.
 
 .. bokeh-example-metadata::
-    :title: App
+    :title: Control a particle simulation from Streamlit
     :keywords: app
 '''
 

@@ -14,7 +14,7 @@ in this directory, and navigate to:
 
 
 .. bokeh-example-metadata::
-    :title: Bokeh server
+    :title: Pass arguments to an embedded server app
     :keywords: bokeh, server
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Slider, bokeh.models.TextInput, bokeh.plotting.figure.line
 '''

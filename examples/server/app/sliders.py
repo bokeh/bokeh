@@ -16,7 +16,7 @@ in your browser.
 
 
 .. bokeh-example-metadata::
-    :title: Sliders
+    :title: Explore a function with sliders
     :keywords: sliders
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Slider, bokeh.models.TextInput, bokeh.plotting.figure.line
 '''

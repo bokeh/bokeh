@@ -1,3 +1,7 @@
+.. raw:: html
+
+    <script type="application/json" id="bk-example-topic-order">{{ topic_order | tojson }}</script>
+
 {% for entry in entries %}
 .. container:: bk-example-entry
 

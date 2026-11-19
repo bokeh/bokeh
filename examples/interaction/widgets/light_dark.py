@@ -1,7 +1,7 @@
 ''' Switch widget styling between light and dark color schemes.
 
 .. bokeh-example-metadata::
-    :title: Light dark
+    :title: Light and dark widget styles
     :keywords: light, dark
     :apis: bokeh.models.AutocompleteInput, bokeh.models.Button, bokeh.models.CheckboxButtonGroup, bokeh.models.CheckboxGroup, bokeh.models.CustomJS
 '''

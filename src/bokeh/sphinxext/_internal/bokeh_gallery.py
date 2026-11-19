@@ -146,7 +146,8 @@ class BokehSearchableExamplesDirective(BokehDirective):
             self.env.note_dependency(EXAMPLE_INDEX.filename)
         config = self.env.config
         examples = Path(REPO_TOP) / "examples"
-        entries = []
+        entries: list[dict[str, Any]] = []
+        categories: set[str] = set()
         for relative in _read_inventory(self):
             source = examples / relative
             filename = f"examples/{relative.as_posix()}"
@@ -167,7 +168,9 @@ class BokehSearchableExamplesDirective(BokehDirective):
                 role, target = None, None
 
             category = relative.parts[0]
-            topics = [_category_label(value) for value in _example_categories(relative, metadata)]
+            example_categories = _example_categories(relative, metadata)
+            categories.update(example_categories)
+            topics = [_category_label(value) for value in example_categories]
             if relative.suffix == ".ipynb":
                 example_type = "Notebook"
             elif category == "server":
@@ -199,7 +202,16 @@ class BokehSearchableExamplesDirective(BokehDirective):
                 filename=filename,
                 thumbnail=thumbnail.as_posix() if thumbnail_path.is_file() else None,
             ))
-        return self.parse(EXAMPLE_INDEX.render(entries=entries), "<bokeh-searchable-examples>")
+        gallery = Path(self.env.srcdir) / "docs/gallery.rst"
+        topic_order = []
+        if gallery.is_file():
+            self.env.note_dependency(gallery)
+            topic_order = list(dict.fromkeys(
+                _category_label(line.strip()) for line in gallery.read_text(encoding="utf-8").splitlines()
+                if line.strip() in categories
+            ))
+        entries.sort(key=lambda entry: (entry["title"].casefold(), entry["filename"]))
+        return self.parse(EXAMPLE_INDEX.render(entries=entries, topic_order=topic_order), "<bokeh-searchable-examples>")
 
 
 def config_inited_handler(app: Any, config: Any) -> None:

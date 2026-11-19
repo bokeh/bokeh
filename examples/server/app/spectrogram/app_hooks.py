@@ -1,7 +1,7 @@
 ''' Manage spectrogram resources with Bokeh server lifecycle hooks.
 
 .. bokeh-example-metadata::
-    :title: App hooks
+    :title: Initialize spectrogram resources
     :keywords: app, hooks
 '''
 

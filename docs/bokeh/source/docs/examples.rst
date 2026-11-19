@@ -32,6 +32,13 @@ Use **View example** to open a rendering where available. Every entry has a
           <label for="bk-example-type">Example type</label>
           <select id="bk-example-type" class="form-select form-select-sm"><option value="">All types</option></select>
         </div>
+        <div>
+          <label for="bk-example-sort">Sort by</label>
+          <select id="bk-example-sort" class="form-select form-select-sm">
+            <option value="title">Title A–Z</option>
+            <option value="topic">Topic</option>
+          </select>
+        </div>
         <button type="reset" class="btn btn-sm btn-outline-secondary">Clear</button>
       </div>
       <p id="bk-example-count" role="status"></p>

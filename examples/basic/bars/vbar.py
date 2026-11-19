@@ -1,7 +1,7 @@
 ''' Draw vertical bars from a shared baseline to individual heights.
 
 .. bokeh-example-metadata::
-    :title: Vbar
+    :title: Draw vertical bars
     :keywords: vbar
     :apis: bokeh.plotting.figure.vbar
 '''

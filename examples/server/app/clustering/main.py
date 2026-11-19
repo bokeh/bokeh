@@ -8,7 +8,7 @@ example demonstrates solving both classification and regression problems.
 
 
 .. bokeh-example-metadata::
-    :title: Clustering
+    :title: Explore nearest-neighbor classification
     :keywords: clustering, bokeh server, app
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Select, bokeh.models.Slider, bokeh.plotting.figure.scatter
 '''

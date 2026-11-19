@@ -199,7 +199,7 @@ li.bk-thumbnail {
 /* Examples index */
 .bk-example-controls {
     display: grid;
-    grid-template-columns: minmax(9rem, 1.4fr) minmax(10rem, 1fr) minmax(8rem, 0.8fr) auto;
+    grid-template-columns: minmax(9rem, 1.4fr) minmax(10rem, 1fr) minmax(8rem, 0.8fr) minmax(7rem, 0.7fr) auto;
     align-items: end;
     gap: 0.75rem;
 }

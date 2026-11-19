@@ -1,7 +1,7 @@
 ''' A grid plot shows histograms for four different probability distributions.
 
 .. bokeh-example-metadata::
-    :title: Histogram
+    :title: Compare probability distributions
     :keywords: histogram
     :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.quad
     :refs: :ref:`ug_basic_areas_rects`

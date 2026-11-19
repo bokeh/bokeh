@@ -1,7 +1,7 @@
 ''' Limit where ticks and labels appear on an axis.
 
 .. bokeh-example-metadata::
-    :title: Bounds
+    :title: Limit axis ticks and labels
     :keywords: bounds
     :apis: bokeh.plotting.figure.scatter
 '''

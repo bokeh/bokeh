@@ -1,7 +1,7 @@
 ''' Draw rectangles from their centers and dimensions.
 
 .. bokeh-example-metadata::
-    :title: Rect
+    :title: Rectangles from centers
     :keywords: rect
     :apis: bokeh.plotting.figure.rect
 '''

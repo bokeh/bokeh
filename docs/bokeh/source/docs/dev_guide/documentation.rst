@@ -524,7 +524,7 @@ HTML docs, generate missing thumbnails with::
     python -m tools.generate_example_thumbnails
 
 The command reuses Gallery images where available and renders cached example
-payloads for the other dedicated Python example pages. It does not execute the
+payloads for dedicated Python pages and inline ``:example-ref:`` targets. It does not execute the
 Python examples again. Pass example paths, such as ``basic/annotations/label.py``,
 to limit the selection. Use ``--overwrite`` to refresh existing thumbnails.
 Commit the generated PNG files with the example changes. Normal docs builds

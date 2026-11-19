@@ -3,7 +3,7 @@ This example demonstrates a way to hide the toolbar when
 the cursor is outside the plot.
 
 .. bokeh-example-metadata::
-    :title: Toolbar autohide
+    :title: Hide the toolbar outside a line plot
     :keywords: autohide, toolbar
     :apis: bokeh.models.Toolbar.autohide, bokeh.plotting.figure.line, bokeh.plotting.show
     :refs: :ref:`ug_interaction_tools_autohide`

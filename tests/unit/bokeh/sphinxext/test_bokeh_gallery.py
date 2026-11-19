@@ -148,9 +148,12 @@ def test_index_uses_small_thumbnails_without_gallery_selection(tmp_path: Path, m
     thumbnail = srcdir / '_images/examples/_index/basic/lines/with_image.png'
     thumbnail.parent.mkdir(parents=True)
     thumbnail.touch()
+    gallery = srcdir / 'docs/gallery.rst'
+    gallery.parent.mkdir()
+    gallery.write_text('.. bokeh-gallery::\n\n    basic/lines\n')
     monkeypatch.setattr(bokeh_gallery, 'REPO_TOP', tmp_path)
     monkeypatch.setattr(bokeh_gallery, '_read_inventory', lambda directive: [
-        Path('basic/lines/with_image.py'), Path('basic/lines/without_image.py'),
+        Path('basic/lines/without_image.py'), Path('basic/lines/with_image.py'),
     ])
     directive = SimpleNamespace(
         env=SimpleNamespace(
@@ -164,4 +167,5 @@ def test_index_uses_small_thumbnails_without_gallery_selection(tmp_path: Path, m
     assert rendered.count('<img') == 1
     assert '../_images/examples/_index/basic/lines/with_image.png' in rendered
     assert 'srcset' not in rendered
-    assert 'Without image' in rendered
+    assert rendered.index('With image') < rendered.index('Without image')
+    assert '["Basic plotting / Lines"]' in rendered

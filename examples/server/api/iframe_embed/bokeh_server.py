@@ -1,7 +1,7 @@
 ''' Serve a Bokeh application for embedding in an iframe.
 
 .. bokeh-example-metadata::
-    :title: Bokeh server
+    :title: Server app for iframe embedding
     :keywords: bokeh server, api
     :apis: bokeh.plotting.figure.circle
 '''

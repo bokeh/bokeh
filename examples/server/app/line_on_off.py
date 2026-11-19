@@ -3,7 +3,7 @@
 
 
 .. bokeh-example-metadata::
-    :title: Line on off
+    :title: Toggle lines with server callbacks
     :keywords: line, on, off
     :apis: bokeh.models.CheckboxGroup, bokeh.plotting.figure.line
 '''

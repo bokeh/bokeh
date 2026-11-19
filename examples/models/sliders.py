@@ -2,7 +2,7 @@
 and a color picker.
 
 .. bokeh-example-metadata::
-    :title: Sliders
+    :title: Compare slider widgets
     :keywords: slider
     :apis: bokeh.models.Column, bokeh.models.CustomJS, bokeh.models.DateRangeSlider, bokeh.models.DateSlider, bokeh.models.Div, bokeh.models.InlineStyleSheet, bokeh.models.RangeSlider, bokeh.models.Row, bokeh.models.Slider, bokeh.document.document, bokeh.embed.embed, bokeh.util.browser.view
     :refs: :ref:`ug_interaction_widgets`

@@ -25,6 +25,9 @@ window.addEventListener("DOMContentLoaded", function () {
     const input = filter.querySelector("#bk-example-query")
     const topicFilter = filter.querySelector("#bk-example-topic")
     const typeFilter = filter.querySelector("#bk-example-type")
+    const sort = filter.querySelector("#bk-example-sort")
+    const topicOrder = new Map(JSON.parse(document.querySelector("#bk-example-topic-order").textContent)
+      .map((topic, index) => [topic, index]))
     const count = filter.querySelector("[role=status]")
     const entries = Array.from(document.querySelectorAll(".bk-example-entry"), (element) => {
       const heading = element.querySelector(".bk-example-heading")
@@ -44,7 +47,9 @@ window.addEventListener("DOMContentLoaded", function () {
         description.replaceWith(disclosure)
         disclosure.append(summary, description)
       }
-      return {element, topics, type, text}
+      const topic = [...topics].sort((a, b) => (topicOrder.get(a) ?? Infinity) - (topicOrder.get(b) ?? Infinity)
+        || a.localeCompare(b))[0]
+      return {element, title, filename, topics, topic, type, text}
     })
     for (const [select, key] of [[topicFilter, "topics"], [typeFilter, "type"]]) {
       const values = new Set(entries.flatMap((entry) => entry[key]))
@@ -52,7 +57,22 @@ window.addEventListener("DOMContentLoaded", function () {
         select.add(new Option(value, value))
       }
     }
+    let sortedBy
     const update = () => {
+      const order = topicFilter.value ? "title" : sort.value
+      if (sortedBy !== order) {
+        entries.sort((a, b) => {
+          const topic = order === "topic"
+            ? (topicOrder.get(a.topic) ?? Infinity) - (topicOrder.get(b.topic) ?? Infinity)
+              || a.topic.localeCompare(b.topic)
+            : 0
+          return topic || a.title.localeCompare(b.title, "en", {numeric: true, sensitivity: "base"})
+            || a.filename.localeCompare(b.filename)
+        })
+        const parent = entries[0]?.element.parentElement
+        parent?.append(...entries.map(({element}) => element))
+        sortedBy = order
+      }
       const terms = input.value.toLowerCase().trim().split(/\s+/)
       let matches = 0
       for (const {element, topics, type, text} of entries) {

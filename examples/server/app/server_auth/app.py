@@ -26,7 +26,7 @@ in your browser.
 
 
 .. bokeh-example-metadata::
-    :title: App
+    :title: Authenticated function explorer
     :keywords: app, bokeh server
     :apis: bokeh.models.Button, bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.Slider, bokeh.models.TextInput
 '''

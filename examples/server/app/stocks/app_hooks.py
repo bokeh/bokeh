@@ -1,7 +1,7 @@
 ''' Prepare the stock data when the Bokeh server starts.
 
 .. bokeh-example-metadata::
-    :title: App hooks
+    :title: Load stock data at server startup
     :keywords: app, hooks
 '''
 

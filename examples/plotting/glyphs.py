@@ -2,7 +2,7 @@
 Such as annular wedge, annulus, arc, bezier, circle, ellipse, Hbar, line etc.
 
 .. bokeh-example-metadata::
-    :title: Glyphs
+    :title: Compare glyph types
     :keywords: glyphs, scatter, annular, wedge, line
     :apis: bokeh.plotting.figure.annular_wedge, bokeh.plotting.figure.annulus, bokeh.plotting.figure.arc, bokeh.plotting.figure.bezier, bokeh.plotting.figure.circle, bokeh.plotting.figure.ellipse, bokeh.plotting.figure.scatter
 

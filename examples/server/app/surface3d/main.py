@@ -4,7 +4,7 @@ This example shows the custom extension feature of Bokeh.
 
 
 .. bokeh-example-metadata::
-    :title: Surface3d
+    :title: Interactive 3D surface
     :keywords: surface3d, bokeh server, app
     :apis: bokeh.models.ColumnDataSource
 '''

@@ -1,7 +1,7 @@
 ''' Switch a Bokeh server app between light and dark appearance.
 
 .. bokeh-example-metadata::
-    :title: Light dark
+    :title: Switch a server app between light and dark
     :keywords: light, dark
     :apis: bokeh.models.Div, bokeh.models.Dropdown, bokeh.models.LightDark
 '''

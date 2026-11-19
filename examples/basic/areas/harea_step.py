@@ -1,7 +1,7 @@
 ''' Fill the horizontal area between two boundaries with a stepped edge.
 
 .. bokeh-example-metadata::
-    :title: Harea step
+    :title: Stepped horizontal areas
     :keywords: harea, step
     :apis: bokeh.plotting.figure.harea_step
 '''

@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import argparse
+import json
 from html.parser import HTMLParser
 from pathlib import Path
+from urllib.parse import unquote
 
 from PIL import Image, ImageOps
 
@@ -16,13 +18,46 @@ IMAGES = ROOT / 'docs/bokeh/source/_images/examples'
 
 
 class ExamplePayload(HTMLParser):
-    def __init__(self) -> None:
+    def __init__(self, anchor: str = "") -> None:
         super().__init__()
+        self.anchor = anchor
+        self.at_example = not anchor
         self.filename: str | None = None
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        if tag == 'div' and self.filename is None:
-            self.filename = dict(attrs).get('data-bokeh-payload-url')
+        attributes = dict(attrs)
+        if attributes.get('id') == self.anchor:
+            self.at_example = True
+        if self.at_example and tag == 'div' and self.filename is None:
+            self.filename = attributes.get('data-bokeh-payload-url')
+
+
+def example_pages(build_dir: Path) -> dict[Path, tuple[Path, str]]:
+    from sphinx.util.inventory import InventoryFile
+
+    from bokeh.sphinxext._internal.bokeh_example_metadata import read_example_metadata
+
+    html = build_dir / 'html'
+    dedicated = html / 'docs/examples'
+    pages = {
+        page.relative_to(dedicated).with_suffix(''): (page, '')
+        for page in sorted(dedicated.rglob('*.html'))
+        if (ROOT / 'examples' / page.relative_to(dedicated).with_suffix('.py')).is_file()
+    }
+    inventory = html / 'objects.inv'
+    sources = build_dir / 'doctrees/bokeh_example_inventory.json'
+    if inventory.is_file() and sources.is_file():
+        labels = InventoryFile.loads(inventory.read_bytes(), uri='').data['std:label']
+        for name in json.loads(sources.read_text(encoding='utf-8'))['sources']:
+            relative = Path(name)
+            if relative.suffix != '.py':
+                continue
+            _, metadata = read_example_metadata(ROOT / 'examples' / relative)
+            reference = metadata.get('example-ref')
+            if reference and (label := labels.get(reference.lower())):
+                filename, _, anchor = label.uri.partition('#')
+                pages.setdefault(relative.with_suffix(''), (html / unquote(filename), unquote(anchor)))
+    return pages
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -37,16 +72,13 @@ def main(argv: list[str] | None = None) -> int:
     selected = {Path(value).with_suffix('') for value in args.examples}
     generated = 0
     failures = []
-    for page in sorted(html.rglob('*.html')):
-        relative = page.relative_to(html).with_suffix('')
-        if not (ROOT / 'examples' / relative.with_suffix('.py')).is_file():
-            continue
+    for relative, (page, anchor) in sorted(example_pages(args.build_dir).items()):
         if selected and relative not in selected:
             continue
         target = IMAGES / '_index' / relative.with_suffix('.png')
         if target.exists() and not args.overwrite:
             continue
-        payload = ExamplePayload()
+        payload = ExamplePayload(anchor)
         payload.feed(page.read_text(encoding='utf-8'))
         if payload.filename is None:
             continue

@@ -5,7 +5,7 @@ http://scikit-learn.org/stable/auto_examples/cluster/plot_cluster_comparison.htm
 
 
 .. bokeh-example-metadata::
-    :title: Clustering
+    :title: Cluster large datasets with WebGL
     :keywords: clustering, webgl
     :apis: bokeh.plotting.figure.scatter
 '''

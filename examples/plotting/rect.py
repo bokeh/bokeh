@@ -3,7 +3,7 @@ width and height. The second applies a variable configuration for each rect
 and the third plot adds an angle to each rect.
 
 .. bokeh-example-metadata::
-    :title: Rect
+    :title: Compare rectangle sizes and angles
     :keywords: rect
     :apis: bokeh.plotting.figure.rect
     :refs: :ref:`ug_basic_areas_rects`
