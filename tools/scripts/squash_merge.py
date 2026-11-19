@@ -10,9 +10,10 @@ it doesn't fix any issues), and deletes the PR's branch from GitHub (unless it's
 in a fork or other open PRs are based on it).
 
 The PR can be given by number, URL or head branch name (anything ``gh pr view``
-accepts).
+accepts). If not given, the PR of the current branch is used, after asking for
+confirmation.
 
-usage: git_squash_merge.py <pr-number | url | branch>
+usage: squash_merge.py [pr-number | url | branch]
 """
 
 from __future__ import annotations
@@ -34,6 +35,15 @@ def info_line(message: str) -> None:
     """ Report an action before performing it. Flushed, so that it comes
     before the output of the command performing it. """
     print(message, flush=True)
+
+def confirm(question: str) -> bool:
+    """ Ask a yes/no question on stderr, defaulting to no. """
+    print(f"{question} [y/N] ", end="", file=sys.stderr, flush=True)
+    try:
+        answer = input()
+    except EOFError:
+        answer = ""
+    return answer == "y"
 
 def run(*args: str) -> None:
     """ Run a command, letting its output through. On failure, exit with its
@@ -103,19 +113,23 @@ def delete_head_branch(pr: str, info: Any) -> bool:
     return True
 
 def main(argv: list[str]) -> None:
-    if len(argv) != 1:
-        print("usage: git_squash_merge.py <pr-number | url | branch>", file=sys.stderr)
+    if len(argv) > 1:
+        print("usage: squash_merge.py [pr-number | url | branch]", file=sys.stderr)
         sys.exit(1)
 
-    [pr_ref] = argv
-
     # Everything about the PR comes from a single query, so it all describes the
-    # same state of the PR.
-    info = gh_json("pr", "view", pr_ref, "--json",
-        "number,labels,baseRefName,title,headRefOid,author,commits,headRefName,headRepository,isCrossRepository")
+    # same state of the PR. Without arguments, gh uses the current branch's PR.
+    info = gh_json("pr", "view", *argv, "--json",
+        "number,url,labels,baseRefName,title,headRefOid,author,commits,headRefName,headRepository,isCrossRepository")
 
     # From here on, refer to the PR by number, however it was given.
     pr = str(info["number"])
+
+    if not argv:
+        branch = output("git", "branch", "--show-current").strip()
+        print(f"Branch '{branch}' refers to PR #{pr}: {info['title']}\n  {info['url']}", flush=True)
+        if not confirm("Is this the right PR?"):
+            return
 
     labels = {label["name"] for label in info["labels"]}
     if not labels & {"status: ready", "status: accepted"}:
@@ -144,12 +158,7 @@ def main(argv: list[str]) -> None:
     msg = build_message(log, authors)
 
     print(f"{subject}\n\n{msg}\n", flush=True)
-    print("Merge? [y/N] ", end="", file=sys.stderr, flush=True)
-    try:
-        ok = input()
-    except EOFError:
-        ok = ""
-    if ok != "y":
+    if not confirm("Merge?"):
         return
 
     # Refuse to merge if the PR was pushed to after the message was built.
