@@ -152,10 +152,14 @@ def main(argv: list[str]) -> None:
     # Everything about the PR comes from a single query, so it all describes the
     # same state of the PR. Without arguments, gh uses the current branch's PR.
     info = gh_json("pr", "view", *pr_ref, "--json",
-        "number,url,reviews,labels,baseRefName,title,headRefOid,author,commits,headRefName,headRepository,isCrossRepository")
+        "number,url,state,reviews,labels,baseRefName,title,headRefOid,author,commits,headRefName,headRepository,isCrossRepository")
 
     # From here on, refer to the PR by number, however it was given.
     pr = str(info["number"])
+
+    state: str = info["state"]
+    if state != "OPEN":
+        error(f"PR #{pr} is {state.lower()}, not open")
 
     if not pr_ref:
         branch = output("git", "branch", "--show-current").strip()
