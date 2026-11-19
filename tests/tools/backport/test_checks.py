@@ -145,15 +145,12 @@ class CheckEvaluationTests(unittest.TestCase):
         api.get_all.side_effect = [[failed], [passed]]
         api.request.return_value = {"statuses": []}
 
+        pr = valid_pr()
+        pr["merge_commit_sha"] = "a" * 40
+        pr["head"]["sha"] = "b" * 40
+
         with self.assertRaisesRegex(BackportError, "merge-tests: failure"):
-            checks.check_pr_ci(
-                api,
-                "bokeh/bokeh",
-                {
-                    "merge_commit_sha": "a" * 40,
-                    "head": {"sha": "b" * 40},
-                },
-            )
+            checks.check_pr_ci(api, "bokeh/bokeh", pr)
 
         api.get_all.assert_called_once()
 
@@ -169,15 +166,11 @@ class CheckEvaluationTests(unittest.TestCase):
         api.get_all.side_effect = [[], [passed]]
         api.request.return_value = {"statuses": []}
 
-        checks.check_pr_ci(
-            api,
-            "bokeh/bokeh",
-            {
-                "merge_commit_sha": "a" * 40,
-                "head": {"sha": "b" * 40},
-            },
-            progress=messages.append,
-        )
+        pr = valid_pr()
+        pr["merge_commit_sha"] = "a" * 40
+        pr["head"]["sha"] = "b" * 40
+
+        checks.check_pr_ci(api, "bokeh/bokeh", pr, progress=messages.append)
 
         self.assertEqual(api.get_all.call_count, 2)
         self.assertIn(f"Fetching CI check runs for {'a' * 12}", messages)

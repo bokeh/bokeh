@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# pyright: reportArgumentType=false
-
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -80,12 +78,13 @@ def get_range(range_input: Range | tuple[float, float] | npt.NDArray[Any] | Sequ
     elif isinstance(range_input, Range):
         return range_input
     elif isinstance(range_input, (Sequence, np.ndarray)):
-        if all(isinstance(x, str) for x in range_input):
-            return FactorRange(factors=list(range_input))
+        factors = [x for x in range_input if isinstance(x, str)]
+        if len(factors) == len(range_input):
+            return FactorRange(factors=factors)
         if len(range_input) == 2:
             try:
                 start, end = range_input
-                properties = {}
+                properties: dict[str, Any] = dict()
                 if start is not None:
                     properties["start"] = start
                 if end is not None:
@@ -103,7 +102,8 @@ def get_range(range_input: Range | tuple[float, float] | npt.NDArray[Any] | Sequ
         elif isinstance(range_input, ExtensionArray):
             return get_range(list(range_input))
         elif isinstance(range_input, GroupBy):
-            return FactorRange(factors=sorted(range_input.groups.keys()))
+            groups: list[Any] = list(range_input.groups.keys())
+            return FactorRange(factors=sorted(groups))
 
     raise ValueError(f"Unrecognized range input: '{range_input}'")
 

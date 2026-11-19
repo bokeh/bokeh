@@ -296,6 +296,14 @@ API changes
     the ``class_list`` property of views. Use the native ``el.classList``
     instead, e.g. ``classList.contains()`` instead of ``class_list.has()``
     and ``el.removeAttribute("class")`` instead of ``class_list.clear()``.
+* ``toolbar_options`` of ``gridplot()`` now supports ``group`` and
+  ``group_types``, in addition to ``logo``, ``autohide`` and ``active_*``
+  properties of ``Toolbar``, and raises ``ValueError`` for any other keys,
+  which were previously ignored. It is typed as a ``TypedDict``, so type
+  checkers reject unknown keys and invalid values. Pass a dict display (e.g.
+  ``{"logo": "grey"}``), because pyright doesn't accept ``dict()`` calls in
+  place of a ``TypedDict``. Explicit options take precedence over values
+  merged from toolbars of the children.
 
 Bug fixes
 ---------
@@ -305,3 +313,10 @@ Bug fixes
   ``dict[str, list[int]]``, which type checkers previously rejected because
   ``dict`` is invariant (:bokeh-issue:`14814`).
 * Fixed ``Dialog`` not updating when its ``title`` or ``content`` change (:bokeh-pull:`15749`).
+* Fixed ``row()`` and ``column()`` not applying their ``sizing_mode`` to children
+  without explicit sizing, like ``layout()`` and ``gridplot()`` already do.
+* Fixed ``figure.graph()`` wrapping ``node_marker={"field": ...}`` in another field
+  specification instead of using it as a field of the node data source.
+* Fixed ``figure.graph()`` dropping ``node_`` and ``edge_`` prefixed glyph properties
+  whose names start with any of the prefix's letters (e.g. ``node_name``), and applying
+  unprefixed arguments (e.g. ``tags``) to both node and edge glyphs.

@@ -29,13 +29,15 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 import re
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING, Any, Sequence
 
 from ...util.dependencies import import_required
 from .code import CodeHandler
 
 if TYPE_CHECKING:
     from types import ModuleType
+
+    from nbformat import NotebookNode
 
     from ...core.types import PathLike
 
@@ -72,10 +74,14 @@ class NotebookHandler(CodeHandler):
             filename (str) : a path to a Jupyter notebook (".ipynb") file
 
         '''
-        nbformat = import_required('nbformat', 'The Bokeh notebook application handler requires Jupyter Notebook to be installed.')
-        nbconvert = import_required('nbconvert', 'The Bokeh notebook application handler requires Jupyter Notebook to be installed.')
+        import_required('nbformat', 'The Bokeh notebook application handler requires Jupyter Notebook to be installed.')
+        import_required('nbconvert', 'The Bokeh notebook application handler requires Jupyter Notebook to be installed.')
 
-        class StripMagicsProcessor(nbconvert.preprocessors.Preprocessor):
+        import nbformat
+        from nbconvert import PythonExporter
+        from nbconvert.preprocessors import Preprocessor
+
+        class StripMagicsProcessor(Preprocessor):
             """
             Preprocessor to convert notebooks to Python source while stripping
             out all magics (i.e IPython specific syntax).
@@ -98,24 +104,26 @@ class NotebookHandler(CodeHandler):
                         log.warning(message)
                 return '\n'.join(filtered)
 
-            def preprocess_cell(self, cell, resources, index):
+            _cell_counter: int
+
+            def preprocess_cell(self, cell: NotebookNode, resources: dict[str, Any], index: int) -> tuple[NotebookNode, dict[str, Any]]:
                 if cell['cell_type'] == 'code':
                     self._cell_counter += 1
                     cell['source'] = self.strip_magics(cell['source'])
                 return cell, resources
 
-            def __call__(self, nb, resources):
+            def __call__(self, nb: NotebookNode, resources: dict[str, Any]) -> tuple[NotebookNode, dict[str, Any]]:
                 self._cell_counter = 0
-                return self.preprocess(nb,resources)
+                return self.preprocess(nb,resources)  # type: ignore[no-untyped-call]
 
-        preprocessors = [StripMagicsProcessor()]
+        preprocessors = [StripMagicsProcessor()]  # type: ignore[no-untyped-call]
 
         with open(filename, encoding="utf-8") as f:
-            nb = nbformat.read(f, nbformat.NO_CONVERT)
-            exporter = nbconvert.PythonExporter()
+            nb = nbformat.read(f, nbformat.NO_CONVERT)  # type: ignore[no-untyped-call]
+            exporter = PythonExporter()  # type: ignore[no-untyped-call]
 
             for preprocessor in preprocessors:
-                exporter.register_preprocessor(preprocessor)
+                exporter.register_preprocessor(preprocessor)  # type: ignore[no-untyped-call]
 
             source, _ = exporter.from_notebook_node(nb)
             source = source.replace('get_ipython().run_line_magic', '')

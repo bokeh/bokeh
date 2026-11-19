@@ -7,7 +7,7 @@ from typing import Any
 
 from . import BackportError
 from .checks import validate_pr
-from .github import GitHubAPI, repository_path
+from .github import GitHubAPI, PullRequest, repository_path
 from .models import BackportSummary, PlanState
 
 CHERRY_PICK_ORIGIN_RE = re.compile(
@@ -27,7 +27,7 @@ class AggregateSnapshot:
 def load_aggregate(
     api: GitHubAPI,
     repository: str,
-    pr: dict[str, Any],
+    pr: PullRequest,
     *,
     require_open: bool,
     require_ready: bool | None = None,

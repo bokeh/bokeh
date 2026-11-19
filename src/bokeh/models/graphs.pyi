@@ -6,10 +6,21 @@
 #-----------------------------------------------------------------------------
 
 from abc import abstractmethod
-from typing import Literal, Sequence, Unpack
+from typing import (
+    Any,
+    Literal,
+    Sequence,
+    Unpack,
+)
+
+import numpy.typing as npt
 
 from ..model.model import Model, _ModelInit
 from .expressions import CoordinateTransform, _CoordinateTransformInit
+
+type NodePosition = Sequence[float] | npt.NDArray[Any]
+
+type GraphLayout = dict[int | str, NodePosition]
 
 class _LayoutProviderInit(_ModelInit, total=False):
     ...
@@ -26,12 +37,12 @@ class LayoutProvider(Model):
     def edge_coordinates(self) -> EdgeCoordinates: ...
 
 class _StaticLayoutProviderInit(_LayoutProviderInit, total=False):
-    graph_layout: dict[int | str, Sequence[float]]
+    graph_layout: GraphLayout
 
 class StaticLayoutProvider(LayoutProvider):
     def __init__(self, **kwargs: Unpack[_StaticLayoutProviderInit]) -> None: ...
 
-    graph_layout: dict[int | str, Sequence[float]] = ...
+    graph_layout: GraphLayout = ...
 
 class _GraphCoordinatesInit(_CoordinateTransformInit, total=False):
     layout: LayoutProvider
