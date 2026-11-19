@@ -20,7 +20,7 @@ jobs:
       name: upload-deployment
       url: https://cdn.bokeh.org/
     permissions:
-      contents: write
+      contents: read
       id-token: write
 
     steps:
@@ -53,6 +53,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Configure detached Pixi environment
         run: |
@@ -101,7 +102,20 @@ jobs:
           BOKEH_VERSION: ${{ github.event.inputs.version }}
         run: python -m tools.release upload-deployment "$BOKEH_VERSION"
 
+      # The release app must be allowed to bypass required PRs on the release branch.
+      # Create its token after the build so it remains valid for the repository update.
+      - name: Create release app token
+        uses: actions/create-github-app-token@f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc # v3.4.0
+        id: release-app-token
+        with:
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+
       - name: Update Release Repository
         env:
           BOKEH_VERSION: ${{ github.event.inputs.version }}
-        run: python -m tools.release update-release-repository "$BOKEH_VERSION"
+          GH_TOKEN: ${{ steps.release-app-token.outputs.token }}
+        run: |
+          gh auth setup-git --hostname github.com
+          python -m tools.release update-release-repository "$BOKEH_VERSION"
