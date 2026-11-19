@@ -120,10 +120,6 @@ class NamedColor(RGB):
         Args:
             name: Name of color to find.
 
-        Returns:
-            :class:`~bokeh.colors.NamedColor` or None if the name is not
-            recognized.
-
         '''
         try:
             index = cls.__all__.index(name)
@@ -140,9 +136,6 @@ class NamedColor(RGB):
                 String containing color. This may be a named color such as
                 "blue" or a hex RGB(A) string of one of the following formats:
                 '#rrggbb', '#rrggbbaa', '#rgb' or '#rgba'.
-
-        Returns:
-            :class:`~bokeh.colors.RGB`
 
         '''
 

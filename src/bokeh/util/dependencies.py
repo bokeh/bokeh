@@ -48,7 +48,7 @@ def import_optional(mod_name: str) -> ModuleType | None:
     Silently returns None if the requested module is not available.
 
     Args:
-        mod_name (str) : name of the optional module to try to import
+        mod_name: name of the optional module to try to import
 
     Returns:
         imported module or None, if import fails
@@ -71,14 +71,14 @@ def import_required(mod_name: str, error_msg: str) -> ModuleType:
     Raises a RuntimeError if the requested module is not available.
 
     Args:
-        mod_name (str) : name of the required module to try to import
-        error_msg (str) : error message to raise when the module is missing
+        mod_name: name of the required module to try to import
+        error_msg: error message to raise when the module is missing
 
     Returns:
         imported module
 
     Raises:
-        RuntimeError
+        RuntimeError: if import failes
 
     '''
     try:

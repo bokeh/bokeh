@@ -1518,12 +1518,11 @@ def linear_palette(palette: Palette, n: int) -> Palette:
     length into ``n`` (approximately) evenly spaced indices.
 
     Args:
-
         palette: a sequence of hex RGB color strings
         n: the size of the output palette to generate
 
     Returns:
-        Palette: a sequence of hex RGB color strings
+        a sequence of hex RGB color strings
 
     Raises:
         ValueError: if n > len(palette)
@@ -1544,22 +1543,14 @@ def diverging_palette(palette1: Palette, palette2: Palette, n: int, midpoint: fl
     Palettes are combined by piecewise linear interpolation.
 
     Args:
-
-        palette1:
-            A sequence of hex RGB color strings for the first palette
-
-        palette2:
-            A sequence of hex RGB color strings for the second palette
-
-        n:
-            The size of the output palette to generate
-
-        midpoint:
-            Relative position in the returned palette where input palettes are
+        palette1: A sequence of hex RGB color strings for the first palette
+        palette2: A sequence of hex RGB color strings for the second palette
+        n: The size of the output palette to generate
+        midpoint: Relative position in the returned palette where input palettes are
             connected
 
     Returns:
-            Palette: a sequence of hex RGB color strings
+        a sequence of hex RGB color strings
 
     Raises:
         ValueError: if n is greater than the possible combined length the input palettes
@@ -1588,24 +1579,21 @@ def varying_alpha_palette(color: str, n: int | None = None, start_alpha: int = 0
             combined with the ``start_alpha`` to ``end_alpha`` range by
             multiplying them together, so it is the maximum possible alpha that
             can be obtained.
-
         n:
             The size of the palette to generate. If not specified uses the
             maximum number of colors such that adjacent colors differ by an
             alpha of 1.
-
         start_alpha:
             The alpha component of the start of the palette is this value (in
             the range 0 to 255) multiplied by the alpha component of the
             ``color`` argument.
-
         end_alpha:
             The alpha component of the end of the palette is this value (in
             the range 0 to 255) multiplied by the alpha component of the
             ``color`` argument.
 
     Returns:
-        Palette: a sequence of hex RGBA color strings
+        a sequence of hex RGBA color strings
 
     Raises:
         ValueError: if ``color`` is not recognizable as a string name or hex
@@ -1652,11 +1640,10 @@ def interp_palette(palette: Palette, n: int) -> Palette:
 
     Args:
         palette: A sequence of hex RGB(A) color strings to create new palette from
-
         n: The size of the palette to generate
 
     Returns:
-        Palette: a sequence of hex RGB(A) color strings
+        a sequence of hex RGB(A) color strings
 
     Raises:
         ValueError: if ``n`` is negative or the supplied ``palette`` is empty.
@@ -1691,7 +1678,7 @@ def magma(n: int) -> Palette:
         n: size of the palette to generate
 
     Returns:
-        Palette: a sequence of hex RGB color strings
+        a sequence of hex RGB color strings
 
     Raises:
         ValueError: if n is greater than the base palette length of 256
@@ -1720,7 +1707,7 @@ def inferno(n: int) -> Palette:
         n: size of the palette to generate
 
     Returns:
-        Palette: a sequence of hex RGB color strings
+        a sequence of hex RGB color strings
 
     Raises:
         ValueError: if n is greater than the base palette length of 256
@@ -1749,7 +1736,7 @@ def plasma(n: int) -> Palette:
         n: size of the palette to generate
 
     Returns:
-        Palette: a sequence of hex RGB color strings
+        a sequence of hex RGB color strings
 
     Raises:
         ValueError: if n is greater than the base palette length of 256
@@ -1778,7 +1765,7 @@ def viridis(n: int) -> Palette:
         n: size of the palette to generate
 
     Returns:
-        Palette: a sequence of hex RGB color strings
+        a sequence of hex RGB color strings
 
     Raises:
         ValueError: if n is greater than the base palette length of 256
@@ -1807,7 +1794,7 @@ def cividis(n: int) -> Palette:
         n: size of the palette to generate
 
     Returns:
-        Palette: a sequence of hex RGB color strings
+        a sequence of hex RGB color strings
 
     Raises:
         ValueError: if n is greater than the base palette length of 256
@@ -1840,7 +1827,7 @@ def turbo(n: int) -> Palette:
         n: size of the palette to generate
 
     Returns:
-        Palette: a sequence of hex RGB color strings
+        a sequence of hex RGB color strings
 
     Raises:
         ValueError: if n is greater than the base palette length of 256
@@ -1869,7 +1856,7 @@ def grey(n: int) -> Palette:
         n: size of the palette to generate
 
     Returns:
-        Palette: a sequence of hex RGB color strings
+        a sequence of hex RGB color strings
 
     Raises:
         ValueError: if n is greater than the base palette length of 256
@@ -1901,7 +1888,7 @@ def gray(n: int) -> Palette:
         n: size of the palette to generate
 
     Returns:
-        Palette: a sequence of hex RGB color strings
+        a sequence of hex RGB color strings
 
     Raises:
         ValueError: if n is greater than the base palette length of 256

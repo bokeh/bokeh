@@ -52,11 +52,11 @@ __all__ = (
 def get_param_info(sig: Signature) -> tuple[list[str], list[Any]]:
     ''' Find parameters with defaults and return them.
 
-    Arguments:
-        sig (Signature) : a function signature
+    Args:
+        sig: a function signature
 
     Returns:
-        tuple(list, list) : parameters with defaults
+        parameters with defaults
 
     '''
     defaults = []

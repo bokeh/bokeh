@@ -676,7 +676,7 @@ Use the narrowest stable scope for each kind of integration:
   ``mounted.view_lookup.find_one(model)`` for mount-scoped view lookup. It
   returns ``null`` for a model without a view or for a detached root.
 * Pass models used by callback code explicitly through
-  :attr:`~bokeh.models.callbacks.CustomJS.args`.
+  :attr:`~bokeh.models.CustomJS.args`.
 
 For example, external page JavaScript should discover the target-local mount
 and use its logical and semantic scopes:

@@ -81,7 +81,7 @@ def bounce(sequence: Sequence[int]) -> partial[Callable[[], None]]:
         # bounce(seq) => [0, 1, 2, 3, 3, 2, 1, 0, 0, 1, 2, ...]
 
     Args:
-        sequence (seq) : a sequence of values for the driver to bounce
+        sequence: a sequence of values for the driver to bounce
 
     '''
     N = len(sequence)
@@ -101,10 +101,10 @@ def cosine(w: float, A: float = 1, phi: float = 0, offset: float = 0) -> partial
         value = A * cos(w*i + phi) + offset
 
     Args:
-        w (float) : a frequency for the cosine driver
-        A (float) : an amplitude for the cosine driver
-        phi (float) : a phase offset to start the cosine driver with
-        offset (float) : a global offset to add to the driver values
+        w: a frequency for the cosine driver
+        A: an amplitude for the cosine driver
+        phi: a phase offset to start the cosine driver with
+        offset: a global offset to add to the driver values
 
     '''
     from math import cos
@@ -123,12 +123,8 @@ def force(f: Callable[[Any], None], sequence: Iterator[Any]) -> Callable[[], Non
     supplied generator
 
     Args:
-        f (callable): function to call
-        sequence (iterable) :
-            generator to drive f with
-
-    Returns:
-        decorator
+        f: function to call
+        sequence: generator to drive f with
 
     '''
     def wrapper() -> None:
@@ -143,8 +139,8 @@ def linear(m: float = 1, b: float = 0) -> partial[Callable[[], None]]:
         value = m * i + b
 
     Args:
-        m (float) : a slope for the linear driver
-        b (float) : an offset for the linear driver
+        m: a slope for the linear driver
+        b: an offset for the linear driver
 
     '''
     def f(i: float) -> float:
@@ -161,7 +157,7 @@ def repeat(sequence: Sequence[int]) -> partial[Callable[[], None]]:
         # repeat(seq) => [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, ...]
 
     Args:
-        sequence (seq) : a sequence of values for the driver to bounce
+        sequence: a sequence of values for the driver to bounce
 
     '''
     N = len(sequence)
@@ -177,10 +173,10 @@ def sine(w: float, A: float = 1, phi: float = 0, offset: float = 0) -> partial[C
         value = A * sin(w*i + phi) + offset
 
     Args:
-        w (float) : a frequency for the sine driver
-        A (float) : an amplitude for the sine driver
-        phi (float) : a phase offset to start the sine driver with
-        offset (float) : a global offset to add to the driver values
+        w: a frequency for the sine driver
+        A: an amplitude for the sine driver
+        phi: a phase offset to start the sine driver with
+        offset: a global offset to add to the driver values
 
     '''
     from math import sin
@@ -201,8 +197,7 @@ def _advance[T](f: Callable[[int], T]) -> Iterator[T]:
     successively incremented integer values.
 
     Args:
-        f (callable) :
-            The function to advance
+        f: The function to advance
 
     Yields:
         f(i) where i increases each call

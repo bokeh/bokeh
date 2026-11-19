@@ -162,9 +162,6 @@ class CodeRunner:
     def new_module(self) -> ModuleType | None:
         ''' Make a fresh module to run in.
 
-        Returns:
-            Module
-
         '''
         from importlib.machinery import SourceFileLoader
         from importlib.util import spec_from_loader

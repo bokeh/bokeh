@@ -152,8 +152,7 @@ class Application:
         ''' Add a handler to the pipeline used to initialize new documents.
 
         Args:
-            handler: a handler for this Application to use to
-                process Documents
+            handler: a handler for this Application to use to process Documents
 
         '''
         self._handlers.append(handler)

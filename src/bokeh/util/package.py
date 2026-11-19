@@ -43,11 +43,10 @@ def validate(*, version: str | None = None, build_dir: str | None = None) -> lis
 
     Args:
         version: A version to compare against the package's reported version
-
         build_dir: A path to a JS build dir to make detailed BokehJS file comparisons
 
     Returns:
-        list[str]: A list of all errors encountered
+        A list of all errors encountered
 
     """
     errors = []

@@ -68,9 +68,6 @@ if TYPE_CHECKING:
                 data: The message payload.
                 buffers: Optional binary message buffers.
 
-            Returns:
-                None
-
             '''
             ...
 
@@ -89,9 +86,6 @@ if TYPE_CHECKING:
             Args:
                 callback: The close callback.
 
-            Returns:
-                None
-
             '''
             ...
 
@@ -100,9 +94,6 @@ if TYPE_CHECKING:
 
             Args:
                 callback: The message callback.
-
-            Returns:
-                None
 
             '''
             ...
@@ -275,14 +266,10 @@ class DocumentViewHandle:
     ''' A live artifact handle with one independent comm per frontend view.
 
     Args:
-        root:
-            The model displayed by this notebook output.
-        live_id:
-            The identifier of the kernel-side live document channel.
-        view_id:
-            The identifier of this notebook output view.
-        resources:
-            The resource configuration used to serialize fresh snapshots.
+        root: The model displayed by this notebook output.
+        live_id: The identifier of the kernel-side live document channel.
+        view_id: The identifier of this notebook output view.
+        resources: The resource configuration used to serialize fresh snapshots.
 
     '''
 
@@ -368,9 +355,6 @@ class DocumentViewHandle:
 
     def close(self) -> None:
         ''' Release all frontend comms, detach the source, and clear pending events.
-
-        Returns:
-            None
 
         '''
         if self._closed:
@@ -510,12 +494,9 @@ class ApplicationViewHandle:
     ''' Control one notebook view of a managed ASGI application.
 
     Args:
-        application:
-            The managed notebook application displayed by this view.
-        view_id:
-            The identifier of this notebook output view.
-        result:
-            The server embed result used to initialize new frontend connections.
+        application: The managed notebook application displayed by this view.
+        view_id: The identifier of this notebook output view.
+        result: The server embed result used to initialize new frontend connections.
 
     '''
 
@@ -627,9 +608,6 @@ class ApplicationViewHandle:
 
     def close(self) -> None:
         ''' Close every frontend session for this view without stopping the application.
-
-        Returns:
-            None
 
         '''
         if self._closed:
@@ -843,14 +821,10 @@ def notebook_mimebundle(obj: Model, *, include: set[str] | None = None,
     transport metadata.
 
     Args:
-        obj:
-            The model to represent as notebook output.
-        include:
-            An optional set of MIME types to retain.
-        exclude:
-            An optional set of MIME types to omit.
-        resources:
-            The resource configuration for the artifact.
+        obj: The model to represent as notebook output.
+        include: An optional set of MIME types to retain.
+        exclude: An optional set of MIME types to omit.
+        resources: The resource configuration for the artifact.
 
     Returns:
         The MIME data and metadata mappings, or ``None`` outside a notebook
@@ -929,17 +903,10 @@ def publish_display_data(data: dict[str, Any], metadata: dict[Any, Any] | None =
     ''' Publish MIME data through IPython without introducing a module dependency.
 
     Args:
-        data:
-            The MIME bundle to publish.
-        metadata:
-            Optional metadata associated with the MIME bundle.
-        transient:
-            Optional transient display data, such as a display ID.
-        kwargs:
-            Additional keyword arguments for IPython's display publisher.
-
-    Returns:
-        None
+        data: The MIME bundle to publish.
+        metadata: Optional metadata associated with the MIME bundle.
+        transient: Optional transient display data, such as a display ID.
+        kwargs: Additional keyword arguments for IPython's display publisher.
 
     '''
     # This import MUST be deferred or it will introduce a hard dependency on IPython
@@ -954,10 +921,8 @@ def show_doc(obj: Model | Sequence[UIElement],
     ''' Display a model as connected notebook output.
 
     Args:
-        obj:
-            The model or sequence of UI elements to display.
-        resources:
-            The resource configuration for the artifact.
+        obj: The model or sequence of UI elements to display.
+        resources: The resource configuration for the artifact.
 
     Returns:
         A handle that owns live updates and frontend connections for the output.
@@ -1042,10 +1007,8 @@ def show_hosted_app(app: NotebookApplication,
     ''' Display a running :class:`~bokeh.io.NotebookApplication`.
 
     Args:
-        app:
-            The managed notebook application to display.
-        resources:
-            The resource configuration for the application artifact.
+        app: The managed notebook application to display.
+        resources: The resource configuration for the application artifact.
 
     Returns:
         A handle that owns the frontend connections for this application view.
@@ -1114,11 +1077,7 @@ def close_application_views(app: NotebookApplication) -> None:
     '''Close every notebook output view owned by a managed application.
 
     Args:
-        app:
-            The managed application whose output views should close.
-
-    Returns:
-        None
+        app: The managed application whose output views should close.
 
     '''
     for handle in tuple(_APPLICATION_VIEW_HANDLES.values()):
@@ -1135,12 +1094,9 @@ def static_fallback(message: str, *, title: str = "Interactive Bokeh output unav
     '''Render a non-executable fallback notice for notebook output.
 
     Args:
-        message:
-            The recovery guidance shown to the notebook user.
-        title:
-            The fallback notice heading.
-        resource_id:
-            The optional resource record whose failure should update the notice.
+        message: The recovery guidance shown to the notebook user.
+        title: The fallback notice heading.
+        resource_id: The optional resource record whose failure should update the notice.
 
     Returns:
         Escaped HTML for the fallback notice.
@@ -1266,9 +1222,6 @@ def _ensure_notebook_resources(result: EmbedResult, resources: ResourcesLike | N
 def _reset_notebook_resources() -> None:
     '''Reset connected notebook handles and the kernel resource registry.
 
-    Returns:
-        None
-
     '''
     global _NOTEBOOK_COMM_KERNEL, _NOTEBOOK_CONTEXT_CONFIRMED, _RESOURCE_COMM_KERNEL
     for handle in tuple(_DOCUMENT_VIEW_HANDLES.values()):
@@ -1289,17 +1242,14 @@ def server_url(url: str, port: int | None) -> str:
     '''Build a notebook application URL with an optional loopback port.
 
     Args:
-        url:
-            The notebook URL or origin used as the application base.
-        port:
-            The application port, or ``None`` to retain no explicit port.
+        url: The notebook URL or origin used as the application base.
+        port: The application port, or ``None`` to retain no explicit port.
 
     Returns:
         The normalized application URL.
 
     Raises:
-        ValueError:
-            If the URL has no HTTP origin or contains credentials.
+        ValueError: If the URL has no HTTP origin or contains credentials.
 
     '''
     parsed = urllib.parse.urlsplit(url if "://" in url else f"http://{url}")
@@ -1330,11 +1280,10 @@ def _remote_jupyter_proxy_url(port: int | None) -> str:
     a user's environment to the external hostname of the hub, e.g. https://our-hub.edu
 
     Args:
-       port:
-           random port generated by bokeh to avoid re-using recently closed ports
+       port: random port generated by bokeh to avoid re-using recently closed ports
 
     Returns:
-       str: URL capable of traversing the JupyterHub proxy to return to this notebook session.
+       URL capable of traversing the JupyterHub proxy to return to this notebook session.
     """
     base_url = os.environ['JUPYTER_BOKEH_EXTERNAL_URL']
     host = urllib.parse.urlparse(base_url).netloc
@@ -1366,7 +1315,6 @@ def update_notebook_url_from_env(notebook_url: str | ProxyUrlFunc) -> str | Prox
           number will generate a URL suitable for traversing the JupyterHub proxy.
 
     Returns:
-       str | ProxyUrlFunc
           Either a URL string or a function that generates a URL string given a port number. The
           latter function may be user supplied as the input parameter or defined internally by Bokeh
           when ``JUPYTER_BOKEH_EXTERNAL_URL`` is set.

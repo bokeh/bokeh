@@ -78,8 +78,7 @@ class Theme:
         json: a JSON dictionary specifying theme values
 
     Raises:
-        ValueError
-            If neither ``filename`` nor ``json`` is supplied.
+        ValueError: If neither ``filename`` nor ``json`` is supplied.
 
     Examples:
 

@@ -59,9 +59,6 @@ and fill alpha for nonselect, or ``hover_fill_alpha`` to set the fill alpha for
 hover. See the :ref:`ug_styling_plots_glyphs` section of the user guide for
 full details.
 
-Returns:
-    :class:`~bokeh.models.GlyphRenderer`
-
 {_docstring_extra(extra_docs)}
 """
 

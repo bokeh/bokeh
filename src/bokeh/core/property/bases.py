@@ -97,11 +97,19 @@ class Property[GetType = Any, SetType = GetType]:
     Models.
 
     Args:
-        default:
-            A default value for attributes created from this property to have.
+        default: A default value for attributes created from this property to have.
 
-        help:
-            A documentation string for this property.
+        help: A documentation string for this property.
+
+    Type parameters:
+
+    ``GetType``
+        The type of values of this property, e.g. ``list[int]``.
+
+    ``SetType``
+        The type of values that can be assigned to this property, e.g.
+        ``Sequence[int]``, which includes values accepted by the property
+        and converted to ``GetType``. Defaults to ``GetType``.
 
     Type parameters:
 
@@ -227,8 +235,6 @@ class Property[GetType = Any, SetType = GetType]:
         Args:
             name: the name of the property these descriptors are for
 
-        Returns:
-            PropertyDescriptor
         """
         return PropertyDescriptor(name, self)
 
@@ -308,7 +314,7 @@ class Property[GetType = Any, SetType = GetType]:
         Otherwise, the result of standard Python equality will be returned.
 
         Returns:
-            True, if new and old match, False otherwise
+            True, if new and old match, False otherwise.
 
         """
         import numpy as np
@@ -350,7 +356,7 @@ class Property[GetType = Any, SetType = GetType]:
             value: the value to apply transformation to.
 
         Returns:
-            obj: transformed value
+            transformed value
 
         """
         return value
@@ -368,9 +374,6 @@ class Property[GetType = Any, SetType = GetType]:
                 expensive. When doing type checks internally that will not
                 escape exceptions to users, these messages can be skipped
                 by setting this value to False
-
-        Returns:
-            None
 
         Raises:
             ValidationError: if the value is not valid for this property type
@@ -463,12 +466,9 @@ class Property[GetType = Any, SetType = GetType]:
         """ Declare that other types may be converted to this property type.
 
         Args:
-            tp:
-                A type that may be converted automatically to this property
+            tp: A type that may be converted automatically to this property
                 type.
-
-            converter:
-                A function accepting ``value`` to perform conversion of the
+            converter: A function accepting ``value`` to perform conversion of the
                 value to this property type.
 
         Returns:
@@ -500,9 +500,6 @@ class Property[GetType = Any, SetType = GetType]:
                 A message to print in case the assertion fails, or a function
                 accepting ``(obj, name, value)`` to call in in case the assertion
                 fails.
-
-        Returns:
-            self
 
         """
         self.assertions.append((fn, msg_or_fn))
@@ -647,9 +644,6 @@ class ContainerProperty[GetType = Any, SetType = GetType](ParameterizedProperty[
 
 def validation_on() -> bool:
     """ Check the context-local override or the process-wide validation default.
-
-    Returns:
-        bool
 
     """
     override = _validation_override.get()

@@ -15,9 +15,6 @@ def _load_jupyter_server_extension(serverapp: Any) -> None:
     Args:
         serverapp: The Jupyter Server application to extend.
 
-    Returns:
-        None
-
     '''
     from .server import load_jupyter_server_extension
 

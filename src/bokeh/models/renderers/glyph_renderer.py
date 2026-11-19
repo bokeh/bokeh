@@ -280,9 +280,6 @@ class GlyphRenderer(DataRenderer):
         Extra keyword arguments may be passed in to control ``ColorBar``
         properties such as `title`.
 
-        Returns:
-            ColorBar
-
         '''
         from ...core.property.vectorization import Field
         from ..annotations import ColorBar

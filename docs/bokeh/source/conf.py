@@ -84,6 +84,8 @@ rst_epilog = open("rst_epilog.txt").read()
 # -- Extensions configuration --------------------------------------------------
 
 typehints_defaults = "comma"
+typehints_use_signature = True
+typehints_use_signature_return = True
 
 autodoc_member_order = "groupwise"
 always_document_param_types = True

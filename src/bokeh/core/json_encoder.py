@@ -78,22 +78,19 @@ def serialize_json(obj: Any | Serialized[Any], *, pretty: bool | None = None, in
 
     Args:
         obj: the object to serialize to JSON format
-
         pretty:
             Whether to generate prettified output. If ``True``, spaces are
             added after separators, and indentation and newlines are applied.
 
             Pretty output can also be enabled with the environment variable
             ``BOKEH_PRETTY``, which overrides this argument, if set.
-
         indent:
             Amount of indentation to use in generated JSON output. If ``None``
             then no indentation is used, unless pretty output is enabled,
             in which case two spaces are used.
 
     Returns:
-
-        str: RFC-8259 JSON string
+        RFC-8259 JSON string
 
     Examples:
 

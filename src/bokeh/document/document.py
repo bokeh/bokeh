@@ -369,7 +369,7 @@ class Document:
             callback: A callback function to execute on the next tick.
 
         Returns:
-            NextTickCallback: can be used with ``remove_next_tick_callback``
+            can be used with ``remove_next_tick_callback``
 
         .. note::
             Next tick callbacks only work within the context of a Bokeh server
@@ -400,18 +400,13 @@ class Document:
         ``@doc.locked_callback`` and ``@doc.locked_callback()`` are equivalent.
 
         Args:
-            callback:
-                The function to decorate when this method is used without
-                parentheses.
-
-            policy:
-                With ``"every"``, invoke the callback once for every call, in
+            callback: The function to decorate when this method is used without parentheses.
+            policy: With ``"every"``, invoke the callback once for every call, in
                 order. With ``"latest"``, keep at most one waiting invocation,
                 replacing its arguments with those from the most recent call.
 
         Returns:
-            A decorator that produces a
-            :class:`~bokeh.document.locking.LockedCallback`.
+            A decorator that produces a :class:`~bokeh.document.locking.LockedCallback`.
 
         Example:
 
@@ -448,12 +443,10 @@ class Document:
 
         Args:
             callback: A callback function to execute periodically
-
-            period_milliseconds:
-                Number of milliseconds between each callback execution.
+            period_milliseconds: Number of milliseconds between each callback execution.
 
         Returns:
-            PeriodicCallback : can be used with ``remove_periodic_callback``
+            can be used with ``remove_periodic_callback``
 
         .. note::
             Periodic callbacks only work within the context of a Bokeh server
@@ -474,9 +467,7 @@ class Document:
 
         Args:
             model: The model to add as a root of this document.
-
-            setter:
-                This is used to prevent "boomerang" updates to Bokeh apps.
+            setter: This is used to prevent "boomerang" updates to Bokeh apps.
 
                 In the context of a Bokeh server application, incoming updates
                 to properties will be annotated with the session that is
@@ -498,14 +489,11 @@ class Document:
         ''' Add callback to be invoked once, after a specified timeout passes.
 
         Args:
-            callback:
-                A callback function to execute after timeout
-
-            timeout_milliseconds:
-                Number of milliseconds before callback execution.
+            callback: A callback function to execute after timeout
+            timeout_milliseconds: Number of milliseconds before callback execution.
 
         Returns:
-            TimeoutCallback : can be used with ``remove_timeout_callback``
+            can be used with ``remove_timeout_callback``
 
         .. note::
             Timeout callbacks only work within the context of a Bokeh server
@@ -521,9 +509,7 @@ class Document:
         ''' Apply a JSON patch object and process any resulting events.
 
         Args:
-            patch_json:
-                The JSON-object containing the patch to apply.
-
+            patch_json: The JSON-object containing the patch to apply.
             setter:
                 This is used to prevent "boomerang" updates to Bokeh apps.
 
@@ -533,9 +519,6 @@ class Document:
                 subsequent change notifications that the update triggers.
                 The session can compare the event setter to itself, and
                 suppress any updates that originate from itself.
-
-        Returns:
-            None
 
         '''
         deserializer = Deserializer(list(self.models), setter=setter)
@@ -565,9 +548,6 @@ side of a communications channel while it was being removed on the other end.\
     def clear(self) -> None:
         ''' Remove all content from the document but do not reset title.
 
-        Returns:
-            None
-
         '''
         with self.models.freeze():
             while len(self._roots) > 0:
@@ -594,11 +574,7 @@ side of a communications channel while it was being removed on the other end.\
         ''' Load a document from JSON.
 
         Args:
-            doc_json:
-                A JSON-encoded document to create a new Document from.
-
-        Returns:
-            Document:
+            doc_json: A JSON-encoded document to create a new Document from.
 
         '''
         # TODO add support for deserialization of model definitions
@@ -628,12 +604,7 @@ side of a communications channel while it was being removed on the other end.\
         ''' Load a document from JSON.
 
         Args:
-            json:
-                A string with a JSON-encoded document to create a new Document
-                from.
-
-        Returns:
-            Document:
+            json: A string with a JSON-encoded document to create a new Document from.
 
         '''
         json_parsed = loads(json)
@@ -646,9 +617,6 @@ side of a communications channel while it was being removed on the other end.\
         Args:
             model_id: The ID of the model to search for
 
-        Returns:
-            Model or None
-
         '''
         return self.models.get_by_id(model_id)
 
@@ -658,9 +626,6 @@ side of a communications channel while it was being removed on the other end.\
 
         Args:
             name: The name of the model to search for
-
-        Returns:
-            Model or None
 
         '''
         return self.models.get_one_by_name(name)
@@ -694,9 +659,6 @@ side of a communications channel while it was being removed on the other end.\
 
                 Then only *one* callback, for the last ``slider.value = 12``
                 will be triggered.
-
-        Returns:
-            None
 
         .. note::
             ``hold`` only applies to document change events, i.e. setting
@@ -750,9 +712,6 @@ side of a communications channel while it was being removed on the other end.\
         Args:
             callback_obj: a value returned from ``add_next_tick_callback``
 
-        Returns:
-            None
-
         Raises:
             ValueError: if the callback was never added or has already been run or removed
 
@@ -780,9 +739,6 @@ side of a communications channel while it was being removed on the other end.\
         Args:
             callback_obj: a value returned from ``add_periodic_callback``
 
-        Returns:
-            None
-
         Raises:
             ValueError: if the callback was never added or has already been removed
 
@@ -797,9 +753,7 @@ side of a communications channel while it was being removed on the other end.\
         root models.
 
         Args:
-            model:
-                The model to add as a root of this document.
-
+            model: The model to add as a root of this document.
             setter:
                 This is used to prevent "boomerang" updates to Bokeh apps.
 
@@ -825,9 +779,6 @@ side of a communications channel while it was being removed on the other end.\
         Args:
             callback_obj: a value returned from ``add_timeout_callback``
 
-        Returns:
-            None
-
         Raises:
             ValueError: if the callback was never added or has already been run or removed
 
@@ -839,11 +790,7 @@ side of a communications channel while it was being removed on the other end.\
         document.
 
         Args:
-            json:
-                A JSON-encoded document to overwrite this one.
-
-        Returns:
-            None
+            json: A JSON-encoded document to overwrite this one.
 
         '''
         replacement = self.from_json(json)
@@ -855,9 +802,6 @@ side of a communications channel while it was being removed on the other end.\
         Args:
             selector: you can query by type or by
                 name, e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
-
-        Returns:
-            seq[Model]
 
         '''
         if is_single_string_selector(selector, 'name'):
@@ -875,9 +819,6 @@ side of a communications channel while it was being removed on the other end.\
             selector: you can query by type or by
                 name, e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
 
-        Returns:
-            Model or None
-
         '''
         result = list(self.select(selector))
         if len(result) > 1:
@@ -894,9 +835,6 @@ side of a communications channel while it was being removed on the other end.\
             selector: you can query by type or by
                 name,i e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
             updates: new values to set
-
-        Returns:
-            None
 
         '''
         from ..model import Model
@@ -944,9 +882,6 @@ side of a communications channel while it was being removed on the other end.\
                 encode buffers immediately as inline base64 and return a plain
                 ``DocJson`` dict that is directly JSON-serializable.
 
-        Returns:
-            Serialized[DocJson] | DocJson
-
         '''
         return self._to_json(deferred=deferred)
 
@@ -981,11 +916,7 @@ side of a communications channel while it was being removed on the other end.\
                 Whether binary buffers are returned separately. This has the
                 same meaning as in :meth:`~bokeh.document.Document.to_json`.
 
-            models_with_ids:
-                Additional models whose IDs cross an external boundary.
-
-        Returns:
-            Serialized[DocJson] | DocJson
+            models_with_ids: Additional models whose IDs cross an external boundary.
 
         '''
         return self._to_json(
@@ -1064,19 +995,11 @@ side of a communications channel while it was being removed on the other end.\
 
     def unhold(self) -> None:
         ''' Turn off any active document hold and apply any collected events.
-
-        Returns:
-            None
-
         '''
         self.callbacks.unhold()
 
     def validate(self) -> None:
         ''' Perform integrity checks on the modes in this document.
-
-        Returns:
-            None
-
         '''
         for r in self.roots:
             refs = r.references()
@@ -1097,11 +1020,7 @@ side of a communications channel while it was being removed on the other end.\
         ''' Move all data in this doc to the dest_doc, leaving this doc empty.
 
         Args:
-            dest_doc:
-                The Bokeh document to populate with data from this one
-
-        Returns:
-            None
+            dest_doc: The Bokeh document to populate with data from this one
 
         '''
 

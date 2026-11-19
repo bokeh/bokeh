@@ -107,7 +107,6 @@ def gather(source: IndexedDataSource, field: str, indices: str) -> Expr:
         source: The indexed data source containing values to gather.
 
         field: The field on ``source`` containing those values.
-
         indices: The field on the glyph's primary source containing scalar,
             nested, or shaped lookup indices. In BokehJS, that source may
             override ``get_index_field(name, target)`` to resolve stored IDs
@@ -138,15 +137,10 @@ def dodge(field_name: str, value: float, range: Range | None = None) -> Field:
 
     Args:
         field_name: a field name to configure ``DataSpec`` with
-
         value: the fixed offset to add to column data
-
         range: a range to use for computing synthetic
             coordinates when necessary, e.g. a ``FactorRange`` when the
             column data is categorical
-
-    Returns:
-        Field
 
     '''
     return Field(field_name, Dodge(value=value, range=range))
@@ -165,23 +159,17 @@ def eqhist_cmap(
 
     Args:
         field_name: a field name to configure ``DataSpec`` with
-
         palette: a list of colors to use for color mapping
-
         low: a minimum value of the range to map into the palette.
             Values below this are clamped to ``low``.
-
         high: a maximum value of the range to map into the palette.
             Values above this are clamped to ``high``.
-
         low_color: color to be used if data is lower than
             ``low`` value. If None, values lower than ``low`` are mapped to the
             first color in the palette.
-
         high_color: color to be used if data is higher than
             ``high`` value. If None, values higher than ``high`` are mapped to
             the last color in the palette.
-
         nan_color: a default color to use when mapping data
             from a column does not succeed
 
@@ -212,23 +200,15 @@ def factor_cmap(
 
     Args:
         field_name: a field name to configure ``DataSpec`` with
-
         palette: a list of colors to use for color mapping
-
         factors: a sequence of categorical factors corresponding to
             the palette
-
         start: a start slice index to apply when the column
             data has factors with multiple levels.
-
         end: an end slice index to apply when the column
             data has factors with multiple levels.
-
         nan_color: a default color to use when mapping data
             from a column does not succeed
-
-    Returns:
-        Field
 
     '''
     return Field(
@@ -255,19 +235,12 @@ def factor_hatch(
 
     Args:
         field_name: a field name to configure ``DataSpec`` with
-
         patterns: a list of hatch patterns to use to map to
-
         factors: a sequences of categorical factors corresponding to the palette
-
         start: a start slice index to apply when the column
             data has factors with multiple levels.
-
         end: an end slice index to apply when the column
             data has factors with multiple levels.
-
-    Returns:
-        Field
 
     Added in version 1.1.1
 
@@ -299,20 +272,13 @@ def factor_mark(
 
     Args:
         field_name: a field name to configure ``DataSpec`` with
-
         markers: a list of markers to use to map to
-
         factors: a sequences of categorical factors corresponding to
             the palette
-
         start: a start slice index to apply when the column
             data has factors with multiple levels.
-
         end: an end slice index to apply when the column
             data has factors with multiple levels.
-
-    Returns:
-        Field
 
     '''
     return Field(
@@ -337,19 +303,12 @@ def jitter(
 
     Args:
         field_name: a field name to configure ``DataSpec`` with
-
         width: the width of the random distribution to apply
-
         mean: an offset to apply
-
         distribution: ``"uniform"`` or ``"normal"``
-
         range: a range to use for computing synthetic
             coordinates when necessary, e.g. a ``FactorRange`` when the
             column data is categorical
-
-    Returns:
-        Field
 
     '''
     return Field(
@@ -376,23 +335,17 @@ def linear_cmap(
 
     Args:
         field_name: a field name to configure ``DataSpec`` with
-
         palette: a list of colors to use for color mapping
-
         low: a minimum value of the range to map into the palette.
             Values below this are clamped to ``low``.
-
         high: a maximum value of the range to map into the palette.
             Values above this are clamped to ``high``.
-
         low_color: color to be used if data is lower than
             ``low`` value. If None, values lower than ``low`` are mapped to the
             first color in the palette.
-
         high_color: color to be used if data is higher than
             ``high`` value. If None, values higher than ``high`` are mapped to
             the last color in the palette.
-
         nan_color: a default color to use when mapping data
             from a column does not succeed
 
@@ -423,23 +376,17 @@ def log_cmap(
 
     Args:
         field_name: a field name to configure ``DataSpec`` with
-
         palette: a list of colors to use for color mapping
-
         low: a minimum value of the range to map into the palette.
             Values below this are clamped to ``low``.
-
         high: a maximum value of the range to map into the palette.
             Values above this are clamped to ``high``.
-
         low_color: color to be used if data is lower than
             ``low`` value. If None, values lower than ``low`` are mapped to the
             first color in the palette.
-
         high_color: color to be used if data is higher than
             ``high`` value. If None, values higher than ``high`` are mapped to
             the last color in the palette.
-
         nan_color: a default color to use when mapping data
             from a column does not succeed
 
@@ -480,11 +427,7 @@ def transform(field_name: str, transform: Transform) -> Field:
 
     Args:
         field_name: A field name to configure ``DataSpec`` with
-
         transform (Transform) : A transforms to apply to that field
-
-    Returns:
-        Field
 
     '''
     return Field(field_name, transform)

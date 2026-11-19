@@ -217,7 +217,7 @@ class FileOutputSubcommand(Subcommand):
         bytes: SVG, png
 
         Raises:
-            NotImplementedError
+            NotImplementedError:
 
         '''
         raise NotImplementedError()

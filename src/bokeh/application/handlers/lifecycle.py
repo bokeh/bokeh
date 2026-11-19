@@ -74,9 +74,6 @@ class LifecycleHandler(Handler):
 
                 *This handler does not modify the document*
 
-        Returns:
-            None
-
         '''
         # we could support a modify_document function, might be weird though.
         pass

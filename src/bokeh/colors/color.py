@@ -69,9 +69,6 @@ class Color(Serializable, metaclass=ABCMeta):
                 A max bound to to clamp to. If None, there is no upper bound,
                 and values are only clamped to be non-negative.
 
-        Returns:
-            float
-
         '''
         value = max(value, 0)
 
@@ -97,9 +94,6 @@ class Color(Serializable, metaclass=ABCMeta):
         Args:
             amount: Amount to reduce the luminance by (clamped above zero)
 
-        Returns:
-            Color
-
         '''
         return self.lighten(-amount)
 
@@ -112,9 +106,6 @@ class Color(Serializable, metaclass=ABCMeta):
 
         Args:
             value: A color to convert from HSL
-
-        Returns:
-            Color
 
         '''
         raise NotImplementedError
@@ -129,9 +120,6 @@ class Color(Serializable, metaclass=ABCMeta):
         Args:
             value: A color to convert from RGB
 
-        Returns:
-            Color
-
         '''
         raise NotImplementedError
 
@@ -142,9 +130,6 @@ class Color(Serializable, metaclass=ABCMeta):
 
         Args:
             amount: Amount to increase the luminance by (clamped above zero)
-
-        Returns:
-            Color
 
         '''
         rgb = self.to_rgb()
@@ -162,9 +147,6 @@ class Color(Serializable, metaclass=ABCMeta):
 
         *Subclasses must implement this method.*
 
-        Returns:
-            str
-
         '''
         raise NotImplementedError
 
@@ -174,9 +156,6 @@ class Color(Serializable, metaclass=ABCMeta):
 
         *Subclasses must implement this method.*
 
-        Returns:
-            HSL
-
         '''
         raise NotImplementedError
 
@@ -185,9 +164,6 @@ class Color(Serializable, metaclass=ABCMeta):
         ''' Create a new HSL color by converting from this color.
 
         *Subclasses must implement this method.*
-
-        Returns:
-            :class:`~bokeh.colors.RGB`
 
         '''
         raise NotImplementedError
@@ -216,11 +192,8 @@ class RGB(Color):
 
         Args:
             r: The value for the red channel in [0.0, 255.0]
-
             g: The value for the green channel in [0.0, 255.0]
-
             b: The value for the blue channel in [0.0, 255.0]
-
             a: An alpha value for this color in [0.0, 1.0]
 
         '''
@@ -231,9 +204,6 @@ class RGB(Color):
 
     def copy(self) -> RGB:
         ''' Return a copy of this color value.
-
-        Returns:
-            :class:`~bokeh.colors.RGB`
 
         '''
         return RGB(self.r, self.g, self.b, self.a)
@@ -249,9 +219,6 @@ class RGB(Color):
                 "rgba(125, 123, 12, 0.1)". The RGB values can be in the range between 0 and 255 and
                 are allowed to have decimal points. The alpha value can be in range between 0 and 1.
                 The separator is allowed to be a comma or a white space.
-
-        Returns:
-            :class:`~bokeh.colors.RGB`
 
         '''
         if isinstance(css_color_string, str) and css_color_string.startswith(('rgb(', 'rgba(')):
@@ -271,9 +238,6 @@ class RGB(Color):
         Args:
             value: The HSL color to convert.
 
-        Returns:
-            :class:`~bokeh.colors.RGB`
-
         '''
         return value.to_rgb()
 
@@ -285,9 +249,6 @@ class RGB(Color):
             hex_string:
                 String containing hex-encoded RGBA(A) values. Valid formats
                 are '#rrggbb', '#rrggbbaa', '#rgb' and '#rgba'.
-
-        Returns:
-            :class:`~bokeh.colors.RGB`
 
         '''
         if isinstance(hex_string, str):
@@ -326,9 +287,6 @@ class RGB(Color):
         Args:
             value: The RGB color to copy.
 
-        Returns:
-            :class:`~bokeh.colors.RGB`
-
         '''
         return value.copy()
 
@@ -336,7 +294,7 @@ class RGB(Color):
         ''' Generate the CSS representation of this RGB color.
 
         Returns:
-            str, ``"rgb(...)"`` or ``"rgba(...)"``
+            ``"rgb(...)"`` or ``"rgba(...)"`` string
 
         '''
         if self.a == 1.0:
@@ -351,8 +309,7 @@ class RGB(Color):
         than 1.
 
         Returns:
-            str, ``"#RRGGBBAA"`` if alpha is less than 1 and ``"#RRGGBB"``
-            otherwise
+            ``"#RRGGBBAA"`` if alpha is less than 1 and ``"#RRGGBB"`` otherwise
 
         '''
         if self.a < 1.0:
@@ -363,18 +320,12 @@ class RGB(Color):
     def to_hsl(self) -> HSL:
         ''' Return a corresponding HSL color for this RGB color.
 
-        Returns:
-            :class:`~bokeh.colors.HSL`
-
         '''
         h, l, s = colorsys.rgb_to_hls(self.r/255., self.g/255., self.b/255.)
         return HSL(h*360, s, l, self.a)
 
     def to_rgb(self) -> RGB:
         ''' Return a RGB copy for this RGB color.
-
-        Returns:
-            :class:`~bokeh.colors.RGB`
 
         '''
         return self.copy()
@@ -406,11 +357,8 @@ class HSL(Color):
 
         Args:
             h: The Hue, in [0, 360]
-
             s: The Saturation, in [0, 1]
-
             l: The lightness, in [0, 1]
-
             a: An alpha value for this color in [0, 1]
 
         '''
@@ -422,9 +370,6 @@ class HSL(Color):
     def copy(self) -> HSL:
         ''' Return a copy of this color value.
 
-        Returns:
-            :class:`~bokeh.colors.HSL`
-
         '''
         return HSL(self.h, self.s, self.l, self.a)
 
@@ -433,9 +378,6 @@ class HSL(Color):
 
         Args:
             amount: Amount to reduce the luminance by (clamped above zero)
-
-        Returns:
-            :class:`~bokeh.colors.HSL`
 
         '''
         return self.lighten(-amount)
@@ -447,9 +389,6 @@ class HSL(Color):
         Args:
             value: The HSL color to copy.
 
-        Returns:
-            :class:`~bokeh.colors.hsl.HSL`
-
         '''
         return value.copy()
 
@@ -460,9 +399,6 @@ class HSL(Color):
         Args:
             value: The RGB color to convert.
 
-        Returns:
-            :class:`~bokeh.colors.HSL`
-
         '''
         return value.to_hsl()
 
@@ -470,7 +406,7 @@ class HSL(Color):
         ''' Generate the CSS representation of this HSL color.
 
         Returns:
-            str, ``"hsl(...)"`` or ``"hsla(...)"``
+            ``"hsl(...)"`` or ``"hsla(...)"`` string
 
         '''
         if self.a == 1.0:
@@ -481,18 +417,12 @@ class HSL(Color):
     def to_hsl(self) -> HSL:
         ''' Return a HSL copy for this HSL color.
 
-        Returns:
-            :class:`~bokeh.colors.HSL`
-
         '''
         return self.copy()
 
     def to_rgb(self) -> RGB:
         ''' Return a corresponding :class:`~bokeh.colors.RGB` color for
         this HSL color.
-
-        Returns:
-            :class:`~bokeh.colors.RGB`
 
         '''
         r, g, b = colorsys.hls_to_rgb(float(self.h)/360, self.l, self.s)
@@ -503,9 +433,6 @@ class HSL(Color):
 
         Args:
             amount: Amount to increase the luminance by (clamped above zero)
-
-        Returns:
-            :class:`~bokeh.colors.HSL`
 
         '''
         hsl = self.copy()

@@ -469,9 +469,6 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         ''' Generate Python ``Parameter`` values suitable for functions that are
         derived from the glyph.
 
-        Returns:
-            list(Parameter)
-
         '''
         arg_params = []
         no_more_defaults = False
@@ -581,24 +578,15 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         property whenever another changes value.
 
         Args:
-
-            attr:
-                The name of a Bokeh property on this model
-
-            other:
-                A Bokeh model to link to self.attr
-
-            other_attr:
-                The property on ``other`` to link together
-
-            attr_selector:
-                The index to link an item in a subscriptable ``attr``
+            attr: The name of a Bokeh property on this model
+            other:  A Bokeh model to link to self.attr
+            other_attr: The property on ``other`` to link together
+            attr_selector: The index to link an item in a subscriptable ``attr``
 
         Added in version 1.1
 
         Raises:
-
-            ValueError
+            ValueError:
 
         Examples:
 
@@ -775,9 +763,6 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             attr: an attribute name on this object
             *callbacks: callback functions to register
 
-        Returns:
-            None
-
         Examples:
 
             .. code-block:: python
@@ -923,9 +908,6 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         Args:
             selector: query selector
 
-        Returns:
-            seq[Model]
-
         '''
         from ..core.query import find
         return find(self.references(), selector)
@@ -938,8 +920,6 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         Args:
             selector : query selector
 
-        Returns:
-            Model
         '''
         result = list(self.select(selector))
         if len(result) > 1:
@@ -955,9 +935,6 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         Args:
             selector: query selector
             updates: data to modify
-
-        Returns:
-            None
 
         '''
         if isclass(selector) and issubclass(selector, Model):

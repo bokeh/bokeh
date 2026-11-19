@@ -45,7 +45,7 @@ def server_url_for_websocket_url(url: str) -> str:
         url: An ``ws(s)`` URL ending in ``/ws``
 
     Returns:
-        str: The corresponding ``http(s)`` URL.
+        The corresponding ``http(s)`` URL.
 
     Raises:
         ValueError: If the input URL is not of the proper form.
@@ -69,7 +69,7 @@ def websocket_url_for_server_url(url: str) -> str:
         url: An ``http(s)`` URL
 
     Returns:
-        str: The corresponding ``ws(s)`` URL ending in ``/ws``
+        The corresponding ``ws(s)`` URL ending in ``/ws``
 
     Raises:
         ValueError: If the input URL is not of the proper form.

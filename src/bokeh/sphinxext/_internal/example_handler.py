@@ -66,9 +66,6 @@ class ExampleHandler(Handler):
         Args:
             doc: The document to modify.
 
-        Returns:
-            None
-
         '''
         if self.failed:
             return

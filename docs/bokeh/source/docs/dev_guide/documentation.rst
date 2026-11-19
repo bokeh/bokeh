@@ -598,30 +598,33 @@ called `Napoleon`_ with `Napoleon's Google style`_. For Napoleon to work
 correctly, all docstrings you write need to follow the rules in the `Google
 Python Style Guide`_.
 
-Docstrings generally include these three elements:
+Docstrings generally include these two elements:
 
 * A short description of what the function does, starting with a verb. For
   example: "Create and return a new Foo."
 * Args: list all parameters, if any.
-* Returns: describe the return values of the function, even if the
-  function returns ``None``.
+
+If the returned value needs a further explanation, it is possible to add a description:
+
+* Returns: describe the return values of the function
+
+.. note::
+    It is not necessary to document the argument types or return type. They are documented by
+    a sphinx extension. So please use type hints.
 
 For example:
 
 .. code-block:: python
 
-    def foo_function(name, level):
+    def foo_function(name: str, level: int) -> Foo:
         ''' Creates and returns a new Foo.
 
         Args:
-            name (str) :
-                A name for the Foo
-
-            level (int) :
-                A level for the Foo to be configured for
+            name: A name for the Foo
+            level: A level for the Foo to be configured for
 
         Returns:
-            Foo
+            new Foo object
         '''
 
 .. _contributor_guide_documentation_edit_properties_help:

@@ -185,9 +185,6 @@ class DocumentModelManager:
     def invalidate(self) -> None:
         ''' Recompute the set of all models, if not currently frozen
 
-        Returns:
-            None
-
         '''
         if self._freeze_count == 0:  # only recompute when completely unfrozen
             self.recompute()
@@ -246,9 +243,6 @@ class DocumentModelManager:
         Args:
             id: the model id of a model to check
 
-        Returns:
-            bool
-
         '''
         return id in self._seen_model_ids
 
@@ -263,13 +257,8 @@ class DocumentModelManager:
 
         Args:
             model: a model to update the name for
-
             old_name: a previous name for the model, or None
-
             new_name: a new name for the model, or None
-
-        Returns:
-            None
 
         '''
         if old_name is not None:

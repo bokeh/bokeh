@@ -117,9 +117,6 @@ class Button(AbstractButton):
         Args:
             handler: handler function to call when button is clicked.
 
-        Returns:
-            None
-
         '''
         self.on_event(ButtonClick, handler)
 
@@ -144,8 +141,6 @@ class Toggle(AbstractButton):
         Args:
             handler: handler function to call when button is toggled.
 
-        Returns:
-            None
         """
         self.on_change('active', lambda attr, old, new: handler(new))
 
@@ -173,9 +168,6 @@ class Dropdown(AbstractButton):
 
         Args:
             handler: handler function to call when button is activated.
-
-        Returns:
-            None
 
         '''
         self.on_event(ButtonClick, handler)

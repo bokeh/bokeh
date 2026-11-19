@@ -103,17 +103,11 @@ def generate_jwt_token(session_id: ID,
 
     Args:
         session_id: The session id to add to the token
-
         secret_key: Secret key
-
         signed: Whether to sign the session ID
-
         extra_payload: Extra key/value pairs to include in the Bokeh session token
-
         expiration: Expiration time
 
-    Returns:
-        str
     """
     now = calendar.timegm(dt.datetime.now(tz=dt.UTC).timetuple())
     payload: TokenPayload = {'session_id': session_id, 'session_expiry': now + expiration}
@@ -137,11 +131,8 @@ def get_session_id(token: str) -> ID:
     """Extracts the session id from a JWT token.
 
     Args:
-        token (str):
-            A JWT token containing the session_id and other data.
+        token: A JWT token containing the session_id and other data.
 
-    Returns:
-       str
     """
     decoded = _decode_token(token)
     try:
@@ -159,8 +150,6 @@ def get_token_payload(token: str) -> TokenPayload:
     Args:
         token: A JWT token containing the session_id and other data.
 
-    Returns:
-        dict
     """
     decoded = _decode_token(token)
     try:
@@ -190,13 +179,8 @@ def check_token_signature(token: str,
 
     Args:
         token: The token to check
-
         secret_key: Secret key
-
         signed: Whether to check anything
-
-    Returns:
-        bool
 
     """
     secret_key = _ensure_bytes(secret_key)

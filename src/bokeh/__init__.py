@@ -60,9 +60,6 @@ __version__ = importlib_metadata.version("bokeh")
 def license() -> None:
     ''' Print the Bokeh license to the console.
 
-    Returns:
-        None
-
     '''
     from pathlib import Path
     with open(Path(__file__).parent / 'LICENSE.txt') as lic:

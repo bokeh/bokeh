@@ -225,8 +225,6 @@ class DataSpec(Either[Any]):
         Args:
             name: the name of the property these descriptors are for
 
-        Returns:
-            DataSpecPropertyDescriptor
         """
         return DataSpecPropertyDescriptor(name, self)
 

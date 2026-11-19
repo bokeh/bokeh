@@ -117,9 +117,6 @@ def is_silenced(warning: Warning) -> bool:
     Args:
         warning: Bokeh warning to check
 
-    Returns:
-        bool
-
     '''
     if __silencers__ and warning in __silencers__:
         return True
@@ -158,10 +155,10 @@ def check_integrity(models: Iterable[Model]) -> ValidationIssues:
     ''' Collect all warnings associated with a collection of Bokeh models.
 
     Args:
-        models (seq[Model]) : a collection of Models to test
+        models: a collection of Models to test
 
     Returns:
-        ValidationIssues: A collection of all warning and error messages
+        A collection of all warning and error messages
 
     This function will return an object containing all errors and/or
     warning conditions that are detected. For example, layouts without
@@ -207,9 +204,6 @@ def process_validation_issues(issues: ValidationIssues) -> None:
 
     Args:
         issues: A collection of all warning and error messages
-
-    Returns:
-        None
 
     This function will emit log warning and error messages for all error or
     warning conditions in the dictionary. For example, a dictionary

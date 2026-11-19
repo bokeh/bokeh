@@ -83,7 +83,7 @@ class HasDocumentRef:
 
 def collect_filtered_models(discard: Callable[[Model], bool] | None, *input_values: Any) -> list[Model]:
     ''' Collect a duplicate-free list of all other Bokeh models referred to by
-    this model, or by any of its references, etc, unless filtered-out by the
+    this model, or by any of its references, etc., unless filtered-out by the
     provided callable.
 
     Iterate over ``input_values`` and descend through their structure
@@ -98,9 +98,6 @@ def collect_filtered_models(discard: Callable[[Model], bool] | None, *input_valu
 
         *input_values:
             Bokeh models to collect other models from
-
-    Returns:
-        list(Model)
 
     '''
 
@@ -133,11 +130,10 @@ def collect_models(*input_values: Any) -> list[Model]:
     duplicate-free based on objects' identifiers.
 
     Args:
-        *input_values:
-            Bokeh models to collect other models from
+        *input_values: Bokeh models to collect other models from
 
     Returns:
-        list[Model] : all models reachable from this one.
+        all models reachable from this one.
 
     '''
     return collect_filtered_models(None, *input_values)
@@ -146,11 +142,10 @@ def get_class(view_model_name: str) -> type[Model]:
     ''' Look up a Bokeh model class, given its view model name.
 
     Args:
-        view_model_name:
-            A view model name for a Bokeh model to look up
+        view_model_name: A view model name for a Bokeh model to look up
 
     Returns:
-        Model: the model class corresponding to ``view_model_name``
+        the model class corresponding to ``view_model_name``
 
     Raises:
         KeyError: if the model cannot be found

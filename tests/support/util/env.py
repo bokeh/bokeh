@@ -41,8 +41,7 @@ def envset(value: Mapping[str, str]|None=None, **kw: Any) -> Iterator[None]:
     ''' Temporarily set environment variables and undo the updates on exit.
 
     Args:
-        value (optional) :
-            A mapping of strings to strings to apply to os.environ
+        value: A mapping of strings to strings to apply to os.environ
 
     Any remaining keyword args are applied to os.environ
 

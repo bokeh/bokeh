@@ -74,7 +74,7 @@ def get_browser_controller(browser: str | None = None) -> BrowserLike:
             module. If the value is ``None``, a system default is used.
 
     Returns:
-        controller : a web browser controller
+        a web browser controller
 
     '''
     browser = settings.browser(browser)
@@ -106,9 +106,6 @@ def view(location: str, browser: str | None = None, new: BrowserTarget = "same",
             ``'window'`` - open in a new window
         autoraise: Whether to automatically raise the location
             in a new browser window
-
-    Returns:
-        None
 
     '''
     try:

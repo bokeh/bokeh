@@ -185,9 +185,6 @@ class BaseServer:
                 the completion barrier. Async callers may instead use
                 :meth:`stop_async` directly.
 
-        Returns:
-            None
-
         '''
         assert not self._stopped, "Already stopped"
         self._stopped = True
@@ -237,9 +234,6 @@ class BaseServer:
         .. note::
             This function is mostly useful for tests
 
-        Returns:
-            None
-
         '''
         self._http.stop()
         self.io_loop.add_callback(self._http.close_all_connections)
@@ -250,9 +244,6 @@ class BaseServer:
 
         Calling this method will start the Tornado ``IOLoop`` and block
         all execution in the calling process.
-
-        Returns:
-            None
 
         '''
         if not self._started:
@@ -277,11 +268,8 @@ class BaseServer:
         Args:
             app_path: The configured application path for the application to return
                 a session for.
-
             session_id: The session ID of the session to retrieve.
 
-        Returns:
-            ServerSession
 
         '''
         return self._tornado.get_session(app_path, session_id)
@@ -294,9 +282,6 @@ class BaseServer:
                 The configured application path for the application to return
                 sessions for. If None, return active sessions for all
                 applications.
-
-        Returns:
-            list[ServerSession]
 
         '''
         if app_path is not None:
@@ -326,9 +311,6 @@ class BaseServer:
             new: window or tab
                 If ``new`` is 'tab', then opens a new tab.
                 If ``new`` is 'window', then opens a new window.
-
-        Returns:
-            None
 
         '''
         if not app_path.startswith("/"):
@@ -591,12 +573,8 @@ class Server(BaseServer):
         Any additional keyword arguments are passed directly to
         :class:`~bokeh.server.server.Server`.
 
-        Returns:
-            Server
-
         Raises:
-            ValueError
-                If ``sign_sessions`` is True but no ``secret_key`` is available.
+            ValueError: If ``sign_sessions`` is True but no ``secret_key`` is available.
 
         '''
 

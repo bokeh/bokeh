@@ -172,28 +172,22 @@ class Plot(LayoutDOM):
         # Want to pass selector that is a dictionary
         return _list_attr_splat(find(self.references(), selector))
 
-    def row(self, row: int, gridplot: GridPlot):
+    def row(self, row: int, gridplot: GridPlot) -> bool:
         ''' Return whether this plot is in a given row of a GridPlot.
 
         Args:
             row: index of the row to test
             gridplot: the GridPlot to check
 
-        Returns:
-            bool
-
         '''
         return self in gridplot.row(row)
 
-    def column(self, col: int, gridplot: GridPlot):
+    def column(self, col: int, gridplot: GridPlot) -> bool:
         ''' Return whether this plot is in a given column of a GridPlot.
 
         Args:
             col: index of the column to test
             gridplot: the GridPlot to check
-
-        Returns:
-            bool
 
         '''
         return self in gridplot.column(col)
@@ -289,9 +283,6 @@ class Plot(LayoutDOM):
             place: Place where to add the object.
                 Valid places are: 'left', 'right', 'above', 'below', 'center'.
 
-        Returns:
-            None
-
         '''
         if place not in Place:
             from ..util.strings import nice_join
@@ -313,9 +304,6 @@ class Plot(LayoutDOM):
         Args:
             *tools: the tools to add to the Plot
 
-        Returns:
-            None
-
         '''
         for tool in tools:
             if isinstance(tool, str):
@@ -332,9 +320,6 @@ class Plot(LayoutDOM):
 
         Args:
             *tools: the tools to remove from the Plot
-
-        Returns:
-            None
 
         '''
         for tool in tools:
@@ -363,13 +348,9 @@ class Plot(LayoutDOM):
             source: a data source for the glyphs to all use
             glyph: the glyph to add to the Plot
 
-
         Keyword Arguments:
             kwargs: Any additional keyword arguments are passed on as-is to the
             Glyph initializer.
-
-        Returns:
-            GlyphRenderer
 
         '''
         if isinstance(source_or_glyph, IndexedDataSource):
@@ -392,7 +373,7 @@ class Plot(LayoutDOM):
 
         Args:
             tile_source:
-                A tile source instance which contain tileset configuration
+                A tile source instance which contain tile set configuration
 
             retina:
                 Whether to use retina version of tiles (if available). This
@@ -401,9 +382,6 @@ class Plot(LayoutDOM):
 
         Keyword Arguments:
             kwargs: Additional keyword arguments are passed on as-is to the tile renderer
-
-        Returns:
-            TileRenderer : TileRenderer
 
         '''
         if not isinstance(tile_source, TileSource):
@@ -999,11 +977,8 @@ class _legend_attr_splat(_list_attr_splat):
             warn(_LEGEND_EMPTY_WARNING % attr)
         return super().__setattr__(attr, value)
 
-def _select_helper(args, kwargs):
+def _select_helper(args, kwargs) -> dict:
     """ Allow flexible selector syntax.
-
-    Returns:
-        dict
 
     """
     if len(args) > 1:

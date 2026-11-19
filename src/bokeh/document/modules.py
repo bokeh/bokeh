@@ -74,9 +74,6 @@ class DocumentModuleManager:
         Args:
             module: a module to install for the configured Document
 
-        Returns:
-            None
-
         '''
         if module.__name__ in sys.modules:
             raise RuntimeError(f"Add called already-added module {module.__name__!r} for {self._document()!r}")
@@ -86,9 +83,6 @@ class DocumentModuleManager:
     def destroy(self) -> None:
         ''' Clean up any added modules, and check that there are no unexpected
         referrers afterwards.
-
-        Returns:
-            None
 
         '''
         from gc import get_referrers

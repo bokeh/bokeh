@@ -773,12 +773,8 @@ class DataTable(TableWidget):
         Keyword arguments:
             kwargs: Any additional keyword arguments will be passed to DataTable.
 
-        Returns:
-            DataTable
-
         Raises:
-            ValueError
-                If the provided data is not a ColumnDataSource
+            ValueError: If the provided data is not a ColumnDataSource
                 or a data source that a ColumnDataSource can be created from.
 
         """

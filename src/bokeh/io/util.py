@@ -80,12 +80,8 @@ def default_filename(ext: str) -> str:
     Args:
         ext: the desired extension for the filename
 
-    Returns:
-        str
-
     Raises:
-        RuntimeError
-            If the extensions requested is ".py"
+        RuntimeError: If the extensions requested is ".py"
 
     '''
     if ext == "py":

@@ -237,18 +237,13 @@ def enumeration[T: str | int](*values: T | TypeAliasType, case_sensitive: bool =
             The order of arguments is the order of the enumeration, and the
             first element will be considered the default value when used
             to create |Enum| properties.
-
         case_sensitive:
             Whether validation should consider case or not
-
         quote:
             Whether values should be quoted in the string representations
 
     Raises:
         ValueError: if ``values`` is empty or if any value is not a string or not unique
-
-    Returns:
-        Enumeration
 
     '''
     def descend(items: Sequence[str | int | TypeAliasType]) -> Sequence[str | int]:

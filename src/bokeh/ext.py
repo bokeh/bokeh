@@ -48,19 +48,12 @@ def init(
 ) -> bool:
     """ Initialize a directory as a new bokeh extension.
 
-    Arguments:
-        base_dir (str) : The location of the extension.
-
-        interactive (bool) : Guide the user step-by-step.
-
-        verbose (bool) : Display detailed build information.
-
-        bokehjs_version (str) : Use a specific version of bokehjs.
-
-        debug (bool) : Allow for remote debugging.
-
-    Returns:
-        bool
+    Args:
+        base_dir: The location of the extension.
+        interactive: Guide the user step-by-step.
+        verbose: Display detailed build information.
+        bokehjs_version: Use a specific version of bokehjs.
+        debug: Allow for remote debugging.
 
     """
     args: list[str] = []
@@ -77,17 +70,11 @@ def init(
 def build(base_dir: PathLike, *, rebuild: bool = False, verbose: bool = False, debug: bool = False) -> bool:
     """ Build a bokeh extension in the given directory.
 
-    Arguments:
-        base_dir (str) : The location of the extension.
-
-        rebuild (bool) : Ignore caches and rebuild from scratch.
-
-        verbose (bool) : Display detailed build information.
-
-        debug (bool) : Allow for remote debugging.
-
-    Returns:
-        bool
+    Args:
+        base_dir: The location of the extension.
+        rebuild: Ignore caches and rebuild from scratch.
+        verbose: Display detailed build information.
+        debug: Allow for remote debugging.
 
     """
     args: list[str] = []

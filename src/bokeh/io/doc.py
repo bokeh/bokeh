@@ -46,7 +46,7 @@ def curdoc() -> Document:
     ''' Return the current callback context or thread's default document.
 
     Returns:
-        Document: the current default document object.
+        the current default document object.
 
     .. note::
         Inside a callback decorated with
@@ -94,9 +94,6 @@ def set_curdoc(doc: Document) -> None:
 
     Args:
         doc: new Document to use for curdoc()
-
-    Returns:
-        None
 
     .. warning::
         Calling this function will replace any existing default document in the

@@ -302,8 +302,6 @@ class ColumnData(Dict[str, Any]):
         Args:
             name: the name of the property these descriptors are for
 
-        Returns:
-            ColumnDataPropertyDescriptor
         """
         return ColumnDataPropertyDescriptor(name, self)
 

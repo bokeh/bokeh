@@ -99,9 +99,6 @@ def append_docstring(docstring: str | None, extra: str) -> str | None:
         docstring: The docstring to format, or None
         extra: the content to append if docstring is not None
 
-    Returns:
-        str or None
-
     '''
     return None if docstring is None else docstring + extra
 
@@ -122,9 +119,6 @@ def format_docstring(docstring: str | None, *args: Any, **kwargs: Any) -> str | 
         args: string formatting arguments for the docstring
         kwargs: string formatting arguments for the docstring
 
-    Returns:
-        str or None
-
     '''
     return None if docstring is None else docstring.format(*args, **kwargs)
 
@@ -133,13 +127,8 @@ def format_url_query_arguments(url: str, arguments: dict[str, str] | None = None
     ''' Format a base URL with optional query arguments
 
     Args:
-        url:
-            An base URL to append query arguments to
-        arguments:
-            A mapping of key/value URL query arguments, or None
-
-    Returns:
-        str
+        url: An base URL to append query arguments to
+        arguments: A mapping of key/value URL query arguments, or None
 
     '''
     if arguments is not None:

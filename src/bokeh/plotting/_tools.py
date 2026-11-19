@@ -74,16 +74,13 @@ def process_active_tools(toolbar: Toolbar, tool_map: dict[str, Tool],
     """ Adds tools to the plot object
 
     Args:
-        toolbar (Toolbar): instance of a Toolbar object
-        tool_map (dict[str]): tool_map from _process_tools_arg
-        active_drag (str, None, "auto" or Tool): the tool to set active for drag
-        active_inspect (str, None, "auto", Tool or Tool[]): the tool to set active for inspect
-        active_scroll (str, None, "auto" or Tool): the tool to set active for scroll
-        active_tap (str, None, "auto" or Tool): the tool to set active for tap
-        active_multi (str, None, "auto" or Tool): the tool to set active for tap
-
-    Returns:
-        None
+        toolbar: instance of a Toolbar object
+        tool_map: tool_map from _process_tools_arg
+        active_drag: the tool to set active for drag
+        active_inspect: the tool to set active for inspect
+        active_scroll: the tool to set active for scroll
+        active_tap: the tool to set active for tap
+        active_multi: the tool to set active for tap
 
     Note:
         This function sets properties on Toolbar
@@ -130,13 +127,11 @@ def process_tools_arg(plot: Plot, tools: str | Sequence[Tool | str] | None,
 
     Args:
         plot: instance of a plot object
-
         tools: list of tool types or string listing the
             tool names. Those are converted using the to actual Tool instances.
             ``None`` is equivalent to an empty list.
 
-        tooltips:
-            tooltips to use to configure a HoverTool
+        tooltips: tooltips to use to configure a HoverTool
 
     Returns:
         list of Tools objects added to plot, map of supplied string names to tools

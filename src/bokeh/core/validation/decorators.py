@@ -102,7 +102,7 @@ def error(code_or_name: int | str | Issue) -> ValidationDecorator:
         code_or_name: a code from ``bokeh.validation.errors`` or a string label for a custom check
 
     Returns:
-        callable : decorator for Bokeh model methods
+        decorator for Bokeh model methods
 
     The function that is decorated must have a name that starts with
     ``_check``, and return a string message in case a bad condition is
@@ -142,7 +142,7 @@ def warning(code_or_name: int | str | Issue) -> ValidationDecorator:
         code_or_name: a code from ``bokeh.validation.errors`` or a string label for a custom check
 
     Returns:
-        callable: decorator for Bokeh model methods
+        decorator for Bokeh model methods
 
     The function that is decorated should have a name that starts with
     ``_check``, and return a string message in case a bad condition is

@@ -102,7 +102,7 @@ def is_single_string_selector(selector: SelectorType, field: str) -> bool:
         selector: query selector
         field: field name to check for
 
-    Returns
+    Returns:
         bool
 
     '''
@@ -116,7 +116,7 @@ def match(obj: Model, selector: SelectorType) -> bool:
         selector: query selector
 
     Returns:
-        bool: True if the object matches, False otherwise
+        True if the object matches, False otherwise
 
     In general, the selectors have the form:
 

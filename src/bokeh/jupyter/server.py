@@ -34,9 +34,6 @@ class _ExportSnapshotsHandler(JupyterHandler):
     async def post(self) -> None:
         '''Store the correlated frontend state for one export request.
 
-        Returns:
-            None
-
         '''
         if len(self.request.body) > _MAX_TRANSIENT_EXPORT_BYTES:
             raise web.HTTPError(413, "Bokeh frontend export state exceeds the 50 MiB limit")
@@ -84,9 +81,6 @@ class _CorrelatedNbconvertFileHandler(NbconvertFileHandler):
             format: The requested nbconvert format.
             path: The notebook path.
 
-        Returns:
-            None
-
         '''
         export_id = self.get_argument("export_id", None)
         if not valid_export_id(export_id):
@@ -104,9 +98,6 @@ def load_jupyter_server_extension(serverapp: Any) -> None:
 
     Args:
         serverapp: The Jupyter Server application to extend.
-
-    Returns:
-        None
 
     '''
     web_app = getattr(serverapp, "web_app", None)

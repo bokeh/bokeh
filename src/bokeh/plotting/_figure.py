@@ -90,6 +90,7 @@ if TYPE_CHECKING:
     from ..models.renderers.contour_renderer import ContourRenderer
     from ..models.renderers.glyph_renderer import GlyphRenderer
     from ..util.datatypes import SequenceLike
+    from ..util.hex import HexBinResult
 
     GEO_SCALE = Literal["10m", "50m", "110m"]
 
@@ -285,7 +286,7 @@ class figure(Plot, GlyphAPI):
             fill_color: ColorLike | None=None,
             aspect_scale:float=1,
             **kwargs,
-        ):
+        ) -> tuple[GlyphRenderer, HexBinResult]:
         ''' Perform a simple equal-weight hexagonal binning.
 
         A :class:`~bokeh.models.glyphs.HexTile` glyph will be added to display
@@ -304,9 +305,7 @@ class figure(Plot, GlyphAPI):
 
         Args:
             x: A NumPy array of x-coordinates to bin into hexagonal tiles.
-
             y: A NumPy array of y-coordinates to bin into hexagonal tiles.
-
             size:
                 The size of the hexagonal tiling to use. The size is defined as
                 distance from the center of a hexagon to a corner.
@@ -315,24 +314,19 @@ class figure(Plot, GlyphAPI):
                 is the distance from the center to the "top" corner with the
                 `"pointytop"` orientation, and the distance from the center to
                 a "side" corner with the "flattop" orientation.
-
             orientation:
                 Whether the hexagonal tiles should be oriented with a pointed
                 corner on top, or a flat side on top.
-
             palette:
                 A palette (or palette name) to use to colormap the bins according
                 to count.
 
                 If ``fill_color`` is supplied, it overrides this value.
-
             line_color: The outline color for hex tiles, or None
-
             fill_color:
                 An optional fill color for hex tiles, or None. If None, then
                 the ``palette`` will be used to color map the tiles by
                 count.
-
             aspect_scale:
                 Match a plot's aspect ratio scaling.
 
@@ -347,11 +341,10 @@ class figure(Plot, GlyphAPI):
         Any additional keyword arguments are passed to :func:`hex_tile`.
 
         Returns:
-            (Glyphrender, DataFrame):
-                A tuple with the ``HexTile`` renderer generated to display the
-                binning, and a Pandas ``DataFrame`` with columns ``q``, ``r``,
-                and ``count``, where ``q`` and ``r`` are `axial coordinates`_
-                for a tile, and ``count`` is the associated bin count.
+            A tuple with the ``HexTile`` renderer generated to display the
+            binning, and a Pandas ``DataFrame`` with columns ``q``, ``r``,
+            and ``count``, where ``q`` and ``r`` are `axial coordinates`_
+            for a tile, and ``count`` is the associated bin count.
 
         Example:
 
@@ -413,9 +406,6 @@ class figure(Plot, GlyphAPI):
         If a keyword value is a list or tuple, then each call will get one
         value from the sequence.
 
-        Returns:
-            list[GlyphRenderer]
-
         Examples:
 
             Assuming a ``ColumnDataSource`` named ``source`` with columns
@@ -457,9 +447,6 @@ class figure(Plot, GlyphAPI):
         Any additional keyword arguments are passed to each call to ``hbar``.
         If a keyword value is a list or tuple, then each call will get one
         value from the sequence.
-
-        Returns:
-            list[GlyphRenderer]
 
         Examples:
 
@@ -508,9 +495,6 @@ class figure(Plot, GlyphAPI):
         If a keyword value is a list or tuple, then each call will get one
         value from the sequence.
 
-        Returns:
-            list[GlyphRenderer]
-
         Examples:
 
             Assuming a ``ColumnDataSource`` named ``source`` with columns
@@ -554,9 +538,6 @@ class figure(Plot, GlyphAPI):
         If a keyword value is a list or tuple, then each call will get one
         value from the sequence.
 
-        Returns:
-            list[GlyphRenderer]
-
         Examples:
 
             Assuming a ``ColumnDataSource`` named ``source`` with columns
@@ -597,9 +578,6 @@ class figure(Plot, GlyphAPI):
         Any additional keyword arguments are passed to each call to ``varea``.
         If a keyword value is a list or tuple, then each call will get one
         value from the sequence.
-
-        Returns:
-            list[GlyphRenderer]
 
         Examples:
 
@@ -644,9 +622,6 @@ class figure(Plot, GlyphAPI):
         If a keyword value is a list or tuple, then each call will get one
         value from the sequence.
 
-        Returns:
-            list[GlyphRenderer]
-
         Examples:
 
             Assuming a ``ColumnDataSource`` named ``source`` with columns
@@ -688,9 +663,6 @@ class figure(Plot, GlyphAPI):
         Any additional keyword arguments are passed to each call to ``line``.
         If a keyword value is a list or tuple, then each call will get one
         value from the sequence.
-
-        Returns:
-            list[GlyphRenderer]
 
         Examples:
 
@@ -1093,8 +1065,6 @@ class figure(Plot, GlyphAPI):
 def markers() -> None:
     ''' Prints a list of valid marker types for scatter()
 
-    Returns:
-        None
     '''
     print("Available markers: \n\n - " + "\n - ".join(map(str, MarkerType)))
     print()

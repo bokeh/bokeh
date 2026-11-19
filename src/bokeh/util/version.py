@@ -92,8 +92,7 @@ def npm_version(version: str | None) -> str:
     '''Convert a Python package version to npm version syntax.
 
     Args:
-        version:
-            The Python version, or ``None`` to use the installed Bokeh version.
+        version: The Python version, or ``None`` to use the installed Bokeh version.
 
     Returns:
         The corresponding npm release, prerelease, or development version.

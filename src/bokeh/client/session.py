@@ -116,15 +116,10 @@ def pull_session(session_id: ID | None = None, url: str = "default", io_loop: IO
     ``id`` property on the returned ``ClientSession``.
 
     Args:
-        session_id:
-            The name of the session, None to autogenerate a random one
-
+        session_id: The name of the session, None to autogenerate a random one
         url: The URL to a Bokeh application on a Bokeh server
-                can also be `"default"` which will connect to the default app URL
-
-        io_loop:
-            The ``IOLoop`` to use for the websocket
-
+            can also be `"default"` which will connect to the default app URL
+        io_loop: The ``IOLoop`` to use for the websocket
         arguments:
             A dictionary of key/values to be passed as HTTP request arguments
             to Bokeh application code
@@ -132,13 +127,10 @@ def pull_session(session_id: ID | None = None, url: str = "default", io_loop: IO
             Note that should only be provided when pulling new sessions.
             If ``session_id`` is not None, or a session with ``session_id``
             already exists, these arguments will have no effect.
-
-        max_message_size:
-            Configure the Tornado max websocket message size.
+        max_message_size: Configure the Tornado max websocket message size.
 
     Returns:
-        ClientSession :
-            A new ``ClientSession`` connected to the server
+        A new ``ClientSession`` connected to the server
 
     '''
 
@@ -171,24 +163,15 @@ def push_session(document: Document, session_id: ID | None = None, url: str = "d
     ``ClientSession``.
 
     Args:
-        document:
-            The document to be pushed and set as session.document
-
-        session_id:
-            The name of the session, None to autogenerate a random one
-
+        document: The document to be pushed and set as session.document
+        session_id: The name of the session, None to autogenerate a random one
         url: The URL to a Bokeh application on a Bokeh server
             can also be `"default"` which will connect to the default app URL
-
-        io_loop:
-            The IOLoop to use for the websocket
-
-        max_message_size:
-            Configure the Tornado max websocket message size.
+        io_loop: The IOLoop to use for the websocket
+        max_message_size: Configure the Tornado max websocket message size.
 
     Returns:
-        ClientSession
-            A new ClientSession connected to the server
+        A new ClientSession connected to the server
 
     '''
     coords = SessionCoordinates(session_id=session_id, url=url)
@@ -211,26 +194,20 @@ def show_session(
         browser by providing just the ``url``.
 
         Args:
-            session_id:
-               The name of the session, None to autogenerate a random one
-
+            session_id: The name of the session, None to autogenerate a random one
             url: The URL to a Bokeh application on a Bokeh server
                 can also be `"default"` which will connect to the default app URL
-
             session: session to get session ID and server URL from
                 If you specify this, you don't need to specify session_id and url
-
             browser: browser to show with
                 For systems that support it, the **browser** argument allows
                 specifying which browser to display in, e.g. "safari", "firefox",
                 "opera", "windows-default" (see the :doc:`webbrowser <python:library/webbrowser>`
                 module documentation in the standard lib for more details).
-
             new: new file output mode
                 For file-based output, opens or raises the browser window
                 showing the current output file.  If **new** is 'tab', then
                 opens a new tab. If **new** is 'window', then opens a new window.
-
             controller: controller object of a browser.
         '''
         if session is not None:
@@ -291,15 +268,9 @@ class ClientSession:
         obtain a ``ClientSession``.
 
         Args:
-            session_id:
-                The name of the session or None to generate one
-
-            websocket_url:
-                Websocket URL to connect to
-
-            io_loop:
-                The IOLoop to use for the websocket
-
+            session_id: The name of the session or None to generate one
+            websocket_url: Websocket URL to connect to
+            io_loop: The IOLoop to use for the websocket
             arguments:
                 A dictionary of key/values to be passed as HTTP request
                 arguments to Bokeh application code
@@ -307,9 +278,7 @@ class ClientSession:
                 Note that should only be provided when pulling new sessions.
                 If ``session_id`` is not None, or a session with ``session_id``
                 already exists, these arguments will have no effect.
-
-            max_message_size:
-                Configure the Tornado max websocket message size.
+            max_message_size: Configure the Tornado max websocket message size.
 
         '''
         self._document = None
@@ -397,9 +366,6 @@ class ClientSession:
         Outside of test suites, this method hurts performance and should not be
         needed.
 
-        Returns:
-           None
-
         '''
         self._connection.force_roundtrip()
 
@@ -408,9 +374,6 @@ class ClientSession:
         established.
 
         Should be used, after a call to connect.
-
-        Returns:
-            None
 
         '''
         if not self.connected:
@@ -485,13 +448,11 @@ class ClientSession:
             obj: a Layout (Row/Column),
                 Plot or Widget object to display. The object will be added
                 to the session's document.
-
             browser:
                 For systems that support it, the **browser** argument allows
                 specifying which browser to display in, e.g. "safari", "firefox",
                 "opera", "windows-default" (see the :doc:`webbrowser <python:library/webbrowser>`
                 module documentation in the standard lib for more details).
-
             new: new file output mode
                 For file-based output, opens or raises the browser window
                 showing the current output file.  If **new** is 'tab', then

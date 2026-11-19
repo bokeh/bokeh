@@ -157,7 +157,7 @@ class Subcommand(metaclass=ABCMeta):
             args: command line arguments for the subcommand to parse
 
         Raises:
-            NotImplementedError
+            NotImplementedError:
 
         '''
         raise NotImplementedError("implement invoke()")

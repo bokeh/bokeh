@@ -97,11 +97,8 @@ def build_single_handler_application(path: str, argv: list[str] | None = None) -
         argv: command line arguments to pass to the
             application handler
 
-    Returns:
-        :class:`~bokeh.application.application.Application`
-
     Raises:
-        RuntimeError
+        RuntimeError:
 
     Notes:
         If ``path`` ends with a file ``main.py`` then a warning will be printed
@@ -149,15 +146,11 @@ def build_single_handler_applications(paths: list[str], argvs: dict[str, list[st
     Args:
         paths: paths to files or directories for creating Bokeh
             applications.
-
         argvs: mapping of paths to command
             line arguments to pass to the handler for each path
 
-    Returns:
-        dict[str, Application]
-
     Raises:
-        RuntimeError
+        RuntimeError:
 
     '''
     applications: dict[str, Application] = {}

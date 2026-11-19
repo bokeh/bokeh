@@ -108,8 +108,6 @@ Examples:
             start_inset: screen-pixel inset for the start marking
             end_inset: screen-pixel inset for the end marking
 
-        Returns:
-            :class:`~bokeh.models.GlyphRenderer`
         """
         from ..models.annotations.arrows import auto_arrowhead
 
@@ -170,15 +168,15 @@ Examples:
         """ Configure and add :class:`~bokeh.models.glyphs.Circle` glyphs to this figure.
 
         Args:
-            x (str or seq[float]) : values or field names of center x coordinates
+            x: values or field names of center x coordinates
 
-            y (str or seq[float]) : values or field names of center y coordinates
+            y: values or field names of center y coordinates
 
-            radius (str or list[float]) : values or field names of radii in |data units|
+            radius: values or field names of radii in |data units|
 
-            color (color value, optional): shorthand to set both fill and line color
+            color: shorthand to set both fill and line color
 
-            source (:class:`~bokeh.models.sources.IndexedDataSource`) : a user-supplied data source.
+            source: a user-supplied data source.
                 An attempt will be made to convert the object to :class:`~bokeh.models.sources.ColumnDataSource`
                 if needed. If none is supplied, one is created for the user automatically.
 
@@ -723,18 +721,18 @@ Examples:
         ''' Creates a scatter plot of the given x and y items.
 
         Args:
-            x (str or seq[float]) : values or field names of center x coordinates
+            x: values or field names of center x coordinates
 
-            y (str or seq[float]) : values or field names of center y coordinates
+            y: values or field names of center y coordinates
 
-            size (str or list[float]) : values or field names of sizes in |screen units|
+            size: values or field names of sizes in |screen units|
 
-            marker (str, or list[str]): values or field names of marker types, visit
+            marker: values or field names of marker types, visit
                 :class:`~bokeh.core.enums.MarkerType` for a complete list of valid values.
 
-            color (color value, optional): shorthand to set both fill and line color
+            color: shorthand to set both fill and line color
 
-            source (:class:`~bokeh.models.sources.IndexedDataSource`) : a user-supplied data source.
+            source: a user-supplied data source.
                 An attempt will be made to convert the object to :class:`~bokeh.models.sources.ColumnDataSource`
                 if needed. If none is supplied, one is created for the user automatically.
 

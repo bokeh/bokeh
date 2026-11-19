@@ -70,9 +70,6 @@ def main(argv: Sequence[str]) -> None:
     Args:
         argv: a list of command line arguments to process
 
-    Returns:
-        None
-
     The first item in ``argv`` is typically "bokeh", and the second should
     be the name of one of the available subcommands:
 

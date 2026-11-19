@@ -94,14 +94,13 @@ def row(*children: UIElement | list[UIElement], sizing_mode: SizingModeType | No
             :class:`~bokeh.models.Row`,
             :class:`~bokeh.models.Column`,
             :class:`~bokeh.models.Spacer`.
-
         sizing_mode: How will the items in the layout resize to fill the available space.
             Default is ``"fixed"``. For more information on the different
             modes see :attr:`~bokeh.models.LayoutDOM.sizing_mode`
             description on :class:`~bokeh.models.LayoutDOM`.
 
     Returns:
-        Row: A row of LayoutDOM objects all with the same sizing_mode.
+        A row of LayoutDOM objects all with the same sizing_mode.
 
     Examples:
 
@@ -128,14 +127,13 @@ def column(*children: UIElement | list[UIElement], sizing_mode: SizingModeType |
             :class:`~bokeh.models.Row`,
             :class:`~bokeh.models.Column`,
             :class:`~bokeh.models.Spacer`.
-
         sizing_mode: How will the items in the layout resize to fill the available space.
             Default is ``"fixed"``. For more information on the different
             modes see :attr:`~bokeh.models.LayoutDOM.sizing_mode`
             description on :class:`~bokeh.models.LayoutDOM`.
 
     Returns:
-        Column: A column of LayoutDOM objects all with the same sizing_mode.
+        A column of LayoutDOM objects all with the same sizing_mode.
 
     Examples:
 
@@ -159,14 +157,13 @@ def layout(*args: LayoutChild, children: list[LayoutChild] | None = None, sizing
             :class:`~bokeh.models.Row`,
             :class:`~bokeh.models.Column`,
             :class:`~bokeh.models.Spacer`.
-
         sizing_mode: How will the items in the layout resize to fill the available space.
             Default is ``"fixed"``. For more information on the different
             modes see :attr:`~bokeh.models.LayoutDOM.sizing_mode`
             description on :class:`~bokeh.models.LayoutDOM`.
 
     Returns:
-        Column: A column of ``Row`` layouts of the children, all with the same sizing_mode.
+        A column of ``Row`` layouts of the children, all with the same sizing_mode.
 
     Examples:
 
@@ -239,21 +236,16 @@ def gridplot(
             grid, given as a list of lists of Plot objects. To leave a position
             in the grid empty, pass None for that position in the children list.
             OR list of |Plot| if called with ncols.
-
         sizing_mode: How will the items in the layout resize to fill the available space.
             Default is ``"fixed"``. For more information on the different
             modes see :attr:`~bokeh.models.LayoutDOM.sizing_mode`
             description on :class:`~bokeh.models.LayoutDOM`.
-
         toolbar_location: Where the toolbar will be located, with respect to the grid. Default is
             ``above``. If set to None, no toolbar will be attached to the grid.
-
         ncols: Specify the number of columns you would like in your grid.
             You must only pass an un-nested list of plots (as opposed to a list of lists of plots)
             when using ncols.
-
         width: The width you would like all your plots to be
-
         height: The height you would like all your plots to be.
 
         toolbar_options: A dictionary of ``logo``, ``autohide``,
@@ -264,9 +256,6 @@ def gridplot(
 
         merge_tools: Combine tools from all child plots into
             a single toolbar.
-
-    Returns:
-        GridPlot:
 
     Examples:
 

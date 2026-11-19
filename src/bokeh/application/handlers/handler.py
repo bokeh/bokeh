@@ -130,9 +130,6 @@ class Handler:
         Args:
             doc: A Bokeh Document to update in-place
 
-        Returns:
-            Document
-
         '''
         raise NotImplementedError("implement modify_document()")
 
