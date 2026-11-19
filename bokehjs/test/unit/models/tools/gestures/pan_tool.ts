@@ -9,8 +9,10 @@ import {restorable} from "#framework/util"
 import type {Tool} from "@bokehjs/models/tools/tool"
 import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"
 import type {PlotView} from "@bokehjs/models/plots/plot"
-import {Plot, Range1d, LinearAxis} from "@bokehjs/models"
+import type {RangeManager} from "@bokehjs/models/plots/range_manager"
+import {ColumnDataSource, DataRange1d, GlyphRenderer, LinearAxis, Plot, Range1d, Scatter} from "@bokehjs/models"
 import {no_repeated} from "@bokehjs/core/util/iterator"
+import {paint} from "@bokehjs/core/util/defer"
 import type {KeyModifiers} from "@bokehjs/core/ui_gestures"
 
 describe("PanTool", () => {
@@ -44,6 +46,25 @@ describe("PanTool", () => {
     plot.add_layout(LinearAxis.create({y_range_name: "y2"}), "right")
     const {view} = await display(plot)
     return view
+  }
+
+  async function mkplot_with_series(tool: Tool): Promise<{plot_view: PlotView, source: ColumnDataSource}> {
+    // one measured quantity (y) sampled once per observation (x)
+    const source = ColumnDataSource.create({data: {x: [0, 1, 2, 3], y: [5, 0, 10, 2]}})
+    const glyph = Scatter.create({x: {field: "x"}, y: {field: "y"}})
+    const renderer = GlyphRenderer.create({data_source: source, glyph})
+    const plot = Plot.create({
+      width: 400,
+      height: 400,
+      min_border: 0,
+      renderers: [renderer],
+      x_range: DataRange1d.create({range_padding: 0, range_padding_units: "absolute"}),
+      y_range: DataRange1d.create({range_padding: 0, range_padding_units: "absolute"}),
+    })
+    plot.add_tools(tool)
+    plot.add_layout(LinearAxis.create(), "left")
+    const {view} = await display(plot)
+    return {plot_view: view, source}
   }
 
   function get_ranges(plot_view: PlotView) {
@@ -126,6 +147,37 @@ describe("PanTool", () => {
       expect(x).to.not.be.equal([0, 1])  // x moved (cross of y-axis)
       expect(y).to.not.be.equal([0, 1])  // main y moved
       expect(y2).to.be.equal([0, 10])    // extra y2 NOT moved (only the cross pair)
+    })
+
+    it("does not switch off auto-ranging of the cross range when the gesture never travels along it", async () => {
+      const tool = PanTool.create({dimensions: "both", pan_together: "cross"})
+      const {plot_view, source} = await mkplot_with_series(tool)
+      const range_manager = (plot_view as any)._range_manager as RangeManager // XXX: protected
+
+      const {x_range, y_range} = plot_view.frame
+      expect(x_range.interval).to.be.equal([0, 3])   // the observations span x in [0, 3]
+      expect(y_range.interval).to.be.equal([0, 10])  // and y in [0, 10]
+
+      // a straight vertical drag along the y-axis: dy != 0, dx == 0 throughout
+      const tool_view = plot_view.owner.get_one(tool)
+      const left_axis = plot_view.axis_views.find((v) => v.panel.side == "left")!
+      const {hcenter: sx, vcenter: sy} = left_axis.bbox
+
+      tool_view._pan_start({type: "pan_start", sx, sy, dx: 0, dy: 0, modifiers, native: native_ev})
+      tool_view._update(0, 50)
+      tool_view._pan_end({type: "pan_end", sx, sy, dx: 0, dy: 50, modifiers, native: native_ev})
+
+      const y_window: [number, number] = [y_range.start, y_range.end]
+      expect(y_range.interval).to.not.be.equal([0, 10])  // the dragged range really did move
+
+      source.stream({x: [7], y: [5]})  // a new observation beyond x = 3
+      await paint()                          // the renderer takes the new data in asynchronously
+      range_manager.update_dataranges()
+
+      // nothing ever traveled along x, so it must still auto-range to the new data
+      expect(x_range.interval).to.be.equal([0, 7])
+      // y was panned on purpose, so it keeps the window the user dragged it to
+      expect(y_range.interval).to.be.equal(y_window)
     })
 
     it("panning inside the frame always moves all ranges regardless of pan_together", async () => {
