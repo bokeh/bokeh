@@ -3,6 +3,7 @@
 .. bokeh-example-metadata::
     :title: Audio
     :keywords: audio
+    :no-index:
 '''
 
 from time import sleep

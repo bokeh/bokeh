@@ -144,6 +144,7 @@ def test_index_uses_small_thumbnails_without_gallery_selection(tmp_path: Path, m
     examples.mkdir(parents=True)
     for name in ('with_image', 'without_image'):
         (examples / f'{name}.py').write_text('"""Draw a line."""')
+    (examples / 'helper.py').write_text('"""Support module.\n\n.. bokeh-example-metadata::\n    :no-index:\n"""')
     srcdir = tmp_path / 'docs'
     thumbnail = srcdir / '_images/examples/_index/basic/lines/with_image.png'
     thumbnail.parent.mkdir(parents=True)
@@ -153,7 +154,7 @@ def test_index_uses_small_thumbnails_without_gallery_selection(tmp_path: Path, m
     gallery.write_text('.. bokeh-gallery::\n\n    basic/lines\n')
     monkeypatch.setattr(bokeh_gallery, 'REPO_TOP', tmp_path)
     monkeypatch.setattr(bokeh_gallery, '_read_inventory', lambda directive: [
-        Path('basic/lines/without_image.py'), Path('basic/lines/with_image.py'),
+        Path('basic/lines/without_image.py'), Path('basic/lines/with_image.py'), Path('basic/lines/helper.py'),
     ])
     directive = SimpleNamespace(
         env=SimpleNamespace(
@@ -164,6 +165,8 @@ def test_index_uses_small_thumbnails_without_gallery_selection(tmp_path: Path, m
         parse=lambda content, source: content,
     )
     rendered = bokeh_gallery.BokehSearchableExamplesDirective.run(directive)
+    assert 'helper.py' not in rendered
+    assert 'without_image.py' in rendered
     assert rendered.count('<img') == 1
     assert '../_images/examples/_index/basic/lines/with_image.png' in rendered
     assert 'srcset' not in rendered

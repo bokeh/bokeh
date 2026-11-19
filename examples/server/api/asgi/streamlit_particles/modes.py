@@ -3,6 +3,7 @@
 .. bokeh-example-metadata::
     :title: Modes
     :keywords: modes
+    :no-index:
 '''
 
 import tomllib

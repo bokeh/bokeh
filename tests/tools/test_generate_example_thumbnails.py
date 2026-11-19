@@ -35,3 +35,22 @@ def test_inline_payload_starts_at_reference_target() -> None:
         <div data-bokeh-payload-url="sliders.json"></div>
         <div data-bokeh-payload-url="another.json"></div>''')
     assert payload.filename == 'sliders.json'
+
+
+def test_server_capture_without_documentation_build(tmp_path: Path, monkeypatch) -> None:
+    images = tmp_path / 'images'
+    monkeypatch.setattr(thumbnails, 'ROOT', tmp_path)
+    monkeypatch.setattr(thumbnails, 'IMAGES', images)
+    captured = []
+
+    def capture(path):
+        captured.append(path)
+        return Image.new('RGBA', (240, 120), (0, 0, 255, 128))
+
+    monkeypatch.setattr(thumbnails, 'server_thumbnail', capture)
+    assert thumbnails.main(['--server', 'server/app/sliders.py']) == 0
+    assert captured == [tmp_path / 'examples/server/app/sliders.py']
+    with Image.open(images / '_index/server/app/sliders.png') as image:
+        assert image.size == (120, 60)
+        assert image.mode == 'RGB'
+        assert image.getpixel((0, 0)) == (127, 127, 255)

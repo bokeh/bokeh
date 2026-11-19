@@ -3,6 +3,7 @@
 .. bokeh-example-metadata::
     :title: UI
     :keywords: ui
+    :no-index:
 '''
 
 from uuid import uuid4

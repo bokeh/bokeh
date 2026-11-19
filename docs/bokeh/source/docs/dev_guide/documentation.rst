@@ -492,8 +492,8 @@ API names, sample data, and search keywords.
 
 Start with ``:title:`` and ``:keywords:``. Follow those with ``:categories:``, ``:apis:``,
 ``:sampledata:``, ``:refs:``, and ``:example-ref:`` when they apply. Put
-rendering options last in this order: ``:render:``,
-``:no-render:``, and ``:gallery:``.
+optional flags last in this order: ``:render:``,
+``:no-render:``, ``:no-index:``, and ``:gallery:``.
 
 For an example rendered in a guide or API reference page, set
 ``:example-ref:`` to the section label so the index opens that rendering.
@@ -503,6 +503,11 @@ rendered pages by default. A pattern such as ``basic/*`` covers each immediate
 subdirectory of ``examples/basic/``. Gallery examples also get a dedicated
 page. For other examples, use ``:render:`` to opt in outside the default
 directories and ``:no-render:`` to opt out inside them.
+
+Use ``:no-index:`` for support modules such as custom model definitions, app
+hooks, shared data preparation, and authentication helpers. They retain their
+metadata and remain available to other examples, but are omitted from the
+Examples index. Runnable entry points should remain in the index.
 
 List the module names of imported datasets in the ``:sampledata:`` field,
 separated by commas. CI reports imports with missing declarations.
@@ -528,8 +533,19 @@ payloads for dedicated Python pages and inline ``:example-ref:`` targets. It doe
 Python examples again. Pass example paths, such as ``basic/annotations/label.py``,
 to limit the selection. Use ``--overwrite`` to refresh existing thumbnails.
 Commit the generated PNG files with the example changes. Normal docs builds
-reuse these files and do not launch a browser. Notebooks and examples without
-standalone output keep an empty thumbnail column.
+reuse these files and do not launch a browser.
+
+Capture an app's initial document with ``--server`` or execute a notebook copy
+up to its first Bokeh output with ``--notebook``::
+
+    python -m tools.generate_example_thumbnails --server server/app/sliders.py
+    python -m tools.generate_example_thumbnails --notebook output/jupyter/live/Basic\ Usage.ipynb
+
+These modes require explicit example paths. For apps that require server
+initialization hooks, start the app normally and use ``--server-url URL`` with
+its example path. Add ``--wait 3`` to collect three seconds of live updates
+before capture. Thumbnails are static previews. Examples without capturable
+output keep an empty thumbnail column.
 
 Gallery tabs and subgroup order are arranged in
 ``docs/bokeh/source/docs/gallery.rst``. Each line inside a ``bokeh-gallery``

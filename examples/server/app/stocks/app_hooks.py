@@ -3,6 +3,7 @@
 .. bokeh-example-metadata::
     :title: Load stock data at server startup
     :keywords: app, hooks
+    :no-index:
 '''
 
 import yfinance as yf

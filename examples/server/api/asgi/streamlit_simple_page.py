@@ -3,6 +3,7 @@
 .. bokeh-example-metadata::
     :title: Streamlit simple page
     :keywords: streamlit, simple, page
+    :no-index:
 '''
 
 import streamlit as st

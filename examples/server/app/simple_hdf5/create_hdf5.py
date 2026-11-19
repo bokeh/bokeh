@@ -3,6 +3,7 @@
 .. bokeh-example-metadata::
     :title: Create HDF5
     :keywords: create, hdf5
+    :no-index:
 '''
 
 from os.path import join

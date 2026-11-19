@@ -4,6 +4,7 @@
     :title: Data
     :keywords: data
     :sampledata: gapminder
+    :no-index:
 '''
 
 import numpy as np

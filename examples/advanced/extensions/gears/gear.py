@@ -4,6 +4,7 @@
     :title: Gear
     :keywords: gear
     :apis: bokeh.models.Glyph
+    :no-index:
 '''
 
 from bokeh.core.properties import AngleSpec, AngleUnits, BoolSpec, Include, NumberSpec

@@ -3,6 +3,7 @@
 .. bokeh-example-metadata::
     :title: Font Awesome icon names
     :keywords: Font Awesome, icon, custom model
+    :no-index:
 '''
 
 from bokeh.core.enums import enumeration

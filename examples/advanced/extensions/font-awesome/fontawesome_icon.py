@@ -4,6 +4,7 @@
     :title: Fontawesome icon
     :keywords: fontawesome, icon
     :apis: bokeh.models.Icon
+    :no-index:
 '''
 
 from bokeh.core.properties import Bool, Enum, Nullable, Required

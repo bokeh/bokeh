@@ -5,6 +5,7 @@ plot.
     :title: Reset tool for a parallel plot
     :keywords: parallel coordinates, reset, custom tool
     :apis: bokeh.models.ActionTool
+    :no-index:
 '''
 
 from bokeh.models import ActionTool

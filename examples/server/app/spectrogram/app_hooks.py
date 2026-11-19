@@ -3,6 +3,7 @@
 .. bokeh-example-metadata::
     :title: Initialize spectrogram resources
     :keywords: app, hooks
+    :no-index:
 '''
 
 from threading import Thread

@@ -26,8 +26,8 @@ plot_figure.scatter('x', 'y',color='color', source=source, size=10)
 menu = [("Red", "red"), ("Green", "green")]
 dropdown = Dropdown(label="Choose color for plot", menu=menu)
 
-def dropdown_click(attr,old,new):
-    active_dropdown=dropdown.value ##Getting dropdown value
+def dropdown_click(event):
+    active_dropdown = event.item
 
     if active_dropdown=='red':
         c = ['red', 'red', 'red', 'red', 'red', 'red']
@@ -35,7 +35,7 @@ def dropdown_click(attr,old,new):
         c = ['green', 'green', 'green', 'green', 'green', 'green']
     source.data=dict(x=x, y=y,color=c)
 
-dropdown.on_change('value',dropdown_click)
+dropdown.on_click(dropdown_click)
 
 layout=row(dropdown, plot_figure)
 

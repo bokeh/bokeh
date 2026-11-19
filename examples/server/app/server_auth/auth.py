@@ -12,6 +12,7 @@ consider a higher level tool, such as Panel:
 .. bokeh-example-metadata::
     :title: Auth
     :keywords: auth
+    :no-index:
 '''
 import tornado
 from tornado.web import RequestHandler

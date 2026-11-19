@@ -5,6 +5,7 @@ term count.
     :title: Fourier studio
     :keywords: fourier, studio
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Div, bokeh.models.GridBox, bokeh.models.Range1d, bokeh.models.Select, bokeh.models.Slider
+    :no-index:
 '''
 
 from __future__ import annotations

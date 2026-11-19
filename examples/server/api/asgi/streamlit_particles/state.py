@@ -3,6 +3,7 @@
 .. bokeh-example-metadata::
     :title: State
     :keywords: state
+    :no-index:
 '''
 
 from dataclasses import dataclass, replace

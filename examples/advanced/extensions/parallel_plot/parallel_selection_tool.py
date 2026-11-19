@@ -5,6 +5,7 @@ individual axes.
     :title: Parallel selection tool
     :keywords: parallel, selection, tool
     :apis: bokeh.models.BoxSelectTool, bokeh.models.Renderer
+    :no-index:
 '''
 
 from bokeh.core.properties import Float, Instance

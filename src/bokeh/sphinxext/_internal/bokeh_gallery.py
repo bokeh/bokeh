@@ -156,6 +156,8 @@ class BokehSearchableExamplesDirective(BokehDirective):
             if source.suffix == ".py":
                 self.env.note_dependency(source)
                 summary, metadata = read_example_metadata(source)
+                if "no-index" in metadata:
+                    continue
             lead, *remainder = SUMMARY_SENTENCE_BREAK.split(summary, maxsplit=1)
             guide = metadata.get("example-ref")
             rendered = _has_example_page(relative, metadata, config)

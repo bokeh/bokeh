@@ -88,6 +88,7 @@ class BokehExampleMetadataDirective(BokehDirective):
         "example-ref": unchanged,
         "render": flag,
         "no-render": flag,
+        "no-index": flag,
         "gallery": unchanged_required,
     }
 

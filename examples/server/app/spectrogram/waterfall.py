@@ -4,6 +4,7 @@
     :title: Waterfall
     :keywords: waterfall
     :apis: bokeh.models.Renderer
+    :no-index:
 '''
 
 from os.path import dirname, join
