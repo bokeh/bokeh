@@ -77,7 +77,7 @@ class SubclassWithDistanceSpec extends DataAnnotation {
 
 describe("AnnotationView", () => {
   async function plot(): Promise<PlotView> {
-    return await build_view(Plot.create())
+    return build_view(Plot.create())
   }
 
   describe("set_data()", () => {
@@ -87,7 +87,7 @@ describe("AnnotationView", () => {
     ]) {
       it(`collects dataspecs from ${ds.type}`, async () => {
         const obj = SubclassWithNumberSpec.create()
-        const view = await build_view(obj, {parent: await plot()})
+        const view = build_view(obj, {parent: await plot()})
         view.set_data(ds)
         expect(view.foo).to.be.equal(new p.UniformVector(new Float64Array([1, 2, 3, 4])))
       })
@@ -97,7 +97,7 @@ describe("AnnotationView", () => {
       const array = ndarray([1, 2, 3, 4], {dtype: "float64", shape: [2, 2]})
       const ds = ColumnDataSource.create({data: {colname: array}})
       const obj = SubclassWithNumberSpec.create()
-      const view = await build_view(obj, {parent: await plot()})
+      const view = build_view(obj, {parent: await plot()})
       view.set_data(ds)
       expect(view.foo).to.be.equal(new p.UniformVector(ndarray([1, 2, 3, 4], {dtype: "float64", shape: [2, 2]})))
     })
@@ -108,7 +108,7 @@ describe("AnnotationView", () => {
     const replacement = RecordDataSource.create({records: [{colname: 2}]})
     const model = SubclassWithNumberSpec.create({source})
     const parent = await plot()
-    const view = await build_view(model, {parent})
+    const view = build_view(model, {parent})
     using prepare = restorable(spy(view, "set_data"))
 
     source.patch({colname: [[0, 3]]})

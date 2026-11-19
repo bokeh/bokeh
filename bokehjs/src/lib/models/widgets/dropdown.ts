@@ -28,20 +28,20 @@ export class DropdownView extends AbstractButtonView {
     return [...super.stylesheets(), dropdown_css, carets_css]
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
 
-    await this._build_menu()
+    this._build_menu()
   }
 
   override connect_signals(): void {
     super.connect_signals()
 
     const {menu} = this.model.properties
-    this.on_change(menu, async () => {
+    this.on_change(menu, () => {
       const menu_open = this.menu.is_open
       this.menu.remove()
-      await this._build_menu()
+      this._build_menu()
       this.rerender()
       if (menu_open) {
         this._toggle_menu()
@@ -64,9 +64,9 @@ export class DropdownView extends AbstractButtonView {
     }
   }
 
-  protected async _build_menu(): Promise<void> {
+  protected _build_menu(): void {
     const menu_with_items = this.to_menu()
-    this.menu = await build_view(menu_with_items, {parent: this})
+    this.menu = build_view(menu_with_items, {parent: this})
   }
 
   protected _toggle_menu(): void {

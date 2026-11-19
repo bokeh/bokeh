@@ -69,8 +69,9 @@ describe("core/visuals", () => {
   describe("CSS caching", () => {
 
     it("should cache CSS property lookups only within the current task", async () => {
-      const view = await build_view(SomeModel.create({text_font: "helvetica"}))
+      const view = build_view(SomeModel.create({text_font: "helvetica"}))
       const {text} = view.visuals
+      view.render_to(document.body)
       const get_computed_style = sinon.spy(window, "getComputedStyle")
 
       try {
@@ -87,12 +88,15 @@ describe("core/visuals", () => {
         expect(get_computed_style.callCount).to.be.equal(3)
       } finally {
         get_computed_style.restore()
+        view.remove()
       }
     })
 
     it("should schedule a single cache reset per synchronous render pass", async () => {
-      const view = await build_view(SomeModel.create({text_font: "helvetica", text_font_size: "13px"}))
+      const view = build_view(SomeModel.create({text_font: "helvetica", text_font_size: "13px"}))
       const {text} = view.visuals
+      view.render_to(document.body)
+      await Promise.resolve()
       const queue_microtask = sinon.spy(globalThis, "queueMicrotask")
 
       try {
@@ -107,11 +111,30 @@ describe("core/visuals", () => {
         expect(queue_microtask.callCount).to.be.equal(1)
       } finally {
         queue_microtask.restore()
+        view.remove()
+      }
+    })
+
+    it("should not reuse CSS property lookups of a detached element once it's attached", () => {
+      const view = build_view(SomeModel.create())
+      const {text} = view.visuals
+      const detached = text.get_text_font()
+
+      const parent = document.createElement("div")
+      parent.style.setProperty("--bk-text-font", "serif")
+      document.body.append(parent)
+      try {
+        view.render_to(parent)
+        expect(detached).to.not.be.equal("serif")
+        expect(text.get_text_font()).to.be.equal("serif")
+      } finally {
+        view.remove()
+        parent.remove()
       }
     })
 
     it("should clear cached CSS property lookups when visuals update", async () => {
-      const view = await build_view(SomeModel.create())
+      const view = build_view(SomeModel.create())
       const {text} = view.visuals
       view.render_to(document.body)
 
@@ -126,7 +149,7 @@ describe("core/visuals", () => {
     })
 
     it("should observe CSS changes made between tasks without a visual update", async () => {
-      const view = await build_view(SomeModel.create())
+      const view = build_view(SomeModel.create())
       const {text} = view.visuals
       view.render_to(document.body)
 
@@ -150,7 +173,7 @@ describe("core/visuals", () => {
           fill_alpha: 0.6,
         }
         const model = SomeModel.create(attrs)
-        const view = await build_view(model)
+        const view = build_view(model)
 
         const canvas = document.createElement("canvas")
         const ctx = canvas.getContext("2d")! as Context2d
@@ -164,7 +187,7 @@ describe("core/visuals", () => {
       it("should be false if fill_color is null", async () => {
         const attrs = {fill_alpha: 1, fill_color: null}
         const model = SomeModel.create(attrs)
-        const view = await build_view(model)
+        const view = build_view(model)
         const {fill} = view.visuals
         expect(fill.doit).to.be.false
       })
@@ -172,7 +195,7 @@ describe("core/visuals", () => {
       it("should be false if fill_alpha is 0", async () => {
         const attrs = {fill_alpha: 0, fill_color: "red"}
         const model = SomeModel.create(attrs)
-        const view = await build_view(model)
+        const view = build_view(model)
         const {fill} = view.visuals
         expect(fill.doit).to.be.false
       })
@@ -180,7 +203,7 @@ describe("core/visuals", () => {
       it("should be true otherwise", async () => {
         const attrs = {fill_alpha: 1, fill_color: "red"}
         const model = SomeModel.create(attrs)
-        const view = await build_view(model)
+        const view = build_view(model)
         const {fill} = view.visuals
         expect(fill.doit).to.be.true
       })
@@ -201,7 +224,7 @@ describe("core/visuals", () => {
           line_dash_offset: 2,
         }
         const model = SomeModel.create(attrs)
-        const view = await build_view(model)
+        const view = build_view(model)
         const {line} = view.visuals
 
         const canvas = document.createElement("canvas")
@@ -221,7 +244,7 @@ describe("core/visuals", () => {
       it("should be false if line_color is null", async () => {
         const attrs = {line_alpha: 1, line_color: null, line_width: 1}
         const model = SomeModel.create(attrs)
-        const view = await build_view(model)
+        const view = build_view(model)
         const {line} = view.visuals
         expect(line.doit).to.be.false
       })
@@ -229,7 +252,7 @@ describe("core/visuals", () => {
       it("should be false if line_width is 0", async () => {
         const attrs = {line_alpha: 1, line_color: "red", line_width: 0}
         const model = SomeModel.create(attrs)
-        const view = await build_view(model)
+        const view = build_view(model)
         const {line} = view.visuals
         expect(line.doit).to.be.false
       })
@@ -237,7 +260,7 @@ describe("core/visuals", () => {
       it("should be false if line_alpha is 0", async () => {
         const attrs = {line_alpha: 0, line_color: "red", line_width: 1}
         const model = SomeModel.create(attrs)
-        const view = await build_view(model)
+        const view = build_view(model)
         const {line} = view.visuals
         expect(line.doit).to.be.false
       })
@@ -245,7 +268,7 @@ describe("core/visuals", () => {
       it("should be true otherwise", async () => {
         const attrs = {line_alpha: 1, line_color: "red", line_width: 1}
         const model = SomeModel.create(attrs)
-        const view = await build_view(model)
+        const view = build_view(model)
         const {line} = view.visuals
         expect(line.doit).to.be.true
       })
@@ -266,7 +289,7 @@ describe("core/visuals", () => {
           text_baseline: "bottom" as "bottom",
         }
         const model = SomeModel.create(attrs)
-        const view = await build_view(model)
+        const view = build_view(model)
         const {text} = view.visuals
 
         const canvas = document.createElement("canvas")
@@ -284,7 +307,7 @@ describe("core/visuals", () => {
       it("should be false if text_color is null", async () => {
         const attrs = {text_alpha: 1, text_color: null}
         const model = SomeModel.create(attrs)
-        const view = await build_view(model)
+        const view = build_view(model)
         const {text} = view.visuals
         expect(text.doit).to.be.false
       })
@@ -292,7 +315,7 @@ describe("core/visuals", () => {
       it("should be false if text_alpha is 0", async () => {
         const attrs = {text_alpha: 0, text_color: "red"}
         const model = SomeModel.create(attrs)
-        const view = await build_view(model)
+        const view = build_view(model)
         const {text} = view.visuals
         expect(text.doit).to.be.false
       })
@@ -300,7 +323,7 @@ describe("core/visuals", () => {
       it("should be true otherwise", async () => {
         const attrs = {text_alpha: 1, text_color: "red"}
         const model = SomeModel.create(attrs)
-        const view = await build_view(model)
+        const view = build_view(model)
         const {text} = view.visuals
         expect(text.doit).to.be.true
       })

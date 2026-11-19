@@ -1,1093 +1,354 @@
+import sinon from "sinon"
 import {expect, expect_not_null} from "#framework/assertions"
+import {restorable} from "#framework/util"
 
 import {HasProps} from "@bokehjs/core/has_props"
 import {View} from "@bokehjs/core/view"
+import {logger} from "@bokehjs/core/logging"
 import type {ViewStorage} from "@bokehjs/core/build_views"
 import {build_view, build_views, remove_views, ChildViewSlot} from "@bokehjs/core/build_views"
 
+class SomeModelView extends View {
+  declare model: SomeModel
+}
+
+class SomeModel extends HasProps {
+  declare __view_type__: SomeModelView
+
+  static {
+    this.prototype.default_view = SomeModelView
+  }
+}
+
 describe("core/build_views", () => {
 
-  it("should not build duplicate views when build_views() is called concurrently for the same model", async () => {
-    let n_built = 0
-
-    let resolve_gate: () => void = () => {}
-    const gate = new Promise<void>((resolve) => {
-      resolve_gate = resolve
+  describe("build_view()", () => {
+    it("should initialize and connect a view synchronously", () => {
+      const view = build_view(SomeModel.create())
+      expect(view).to.be.instanceof(SomeModelView)
+      expect(view.is_destroyed).to.be.false
+      view.remove()
     })
 
-    class SlowModelView extends View {
-      declare model: SlowModel
-
-      override initialize(): void {
-        super.initialize()
-        n_built++
-      }
-
-      override async lazy_initialize(): Promise<void> {
-        await super.lazy_initialize()
-        await gate
-      }
-    }
-
-    class SlowModel extends HasProps {
-      declare __view_type__: SlowModelView
-
-      static {
-        this.prototype.default_view = SlowModelView
-      }
-    }
-
-    const model = SlowModel.create()
-    const storage: ViewStorage<HasProps> = new Map()
-
-    // Simulates two on_change listeners on the same signal (e.g. Tabs.tabs
-    // and Tabs.active both changing in the same patch) each independently
-    // calling an async update_children(), without either call having had a
-    // chance to register its view in `storage` yet.
-    const call0 = build_views(storage, [model], {parent: null})
-    const call1 = build_views(storage, [model], {parent: null})
-
-    resolve_gate()
-
-    const [result0, result1] = await Promise.all([call0, call1])
-
-    expect(n_built).to.be.equal(1)
-    expect(storage.size).to.be.equal(1)
-
-    const created = [...result0.created, ...result1.created]
-    expect(created.length).to.be.equal(1)
-    expect(storage.get(model)).to.be.equal(created[0])
-  })
-
-  it("should not build a later model twice when it is only gated by an earlier one in the same batch", async () => {
-    let n_built_a = 0
-    let n_built_b = 0
-
-    let resolve_gate: () => void = () => {}
-    const gate = new Promise<void>((resolve) => {
-      resolve_gate = resolve
-    })
-
-    class ModelAView extends View {
-      declare model: ModelA
-
-      override async lazy_initialize(): Promise<void> {
-        await super.lazy_initialize()
-        n_built_a++
-        await gate
-      }
-    }
-
-    class ModelA extends HasProps {
-      declare __view_type__: ModelAView
-
-      static {
-        this.prototype.default_view = ModelAView
-      }
-    }
-
-    class ModelBView extends View {
-      declare model: ModelB
-
-      override initialize(): void {
-        super.initialize()
-        n_built_b++
-      }
-    }
-
-    class ModelB extends HasProps {
-      declare __view_type__: ModelBView
-
-      static {
-        this.prototype.default_view = ModelBView
-      }
-    }
-
-    const model_a = ModelA.create()
-    const model_b = ModelB.create()
-    const storage: ViewStorage<HasProps> = new Map()
-
-    // call0 starts building model_a and is gated there, before it ever gets
-    // to model_b. call1 is issued for the same batch while call0 is still
-    // stuck on model_a.
-    const call0 = build_views(storage, [model_a, model_b], {parent: null})
-    const call1 = build_views(storage, [model_a, model_b], {parent: null})
-
-    resolve_gate()
-
-    const [result0, result1] = await Promise.all([call0, call1])
-
-    expect(n_built_a).to.be.equal(1)
-    expect(n_built_b).to.be.equal(1)
-    expect(storage.size).to.be.equal(2)
-
-    const created = [...result0.created, ...result1.created]
-    expect(created.length).to.be.equal(2)
-  })
-
-  it("should not initialize a model ahead of an earlier one that another call is building", async () => {
-    const events: string[] = []
-
-    let resolve_gate: () => void = () => {}
-    const gate = new Promise<void>((resolve) => {
-      resolve_gate = resolve
-    })
-
-    class ModelAView extends View {
-      declare model: ModelA
-
-      override async lazy_initialize(): Promise<void> {
-        await super.lazy_initialize()
-        await gate
-        events.push("a:init")
-      }
-
-      override connect_signals(): void {
-        super.connect_signals()
-        events.push("a:connect")
-      }
-    }
-
-    class ModelA extends HasProps {
-      declare __view_type__: ModelAView
-
-      static {
-        this.prototype.default_view = ModelAView
-      }
-    }
-
-    class ModelBView extends View {
-      declare model: ModelB
-
-      override initialize(): void {
-        super.initialize()
-        events.push("b:init")
-      }
-    }
-
-    class ModelB extends HasProps {
-      declare __view_type__: ModelBView
-
-      static {
-        this.prototype.default_view = ModelBView
-      }
-    }
-
-    const model_a = ModelA.create()
-    const model_b = ModelB.create()
-    const storage: ViewStorage<HasProps> = new Map()
-
-    // call1 doesn't build model_a itself (call0 is already building it), but it
-    // still must not initialize model_b before model_a's view is stored and
-    // connected, the same as it wouldn't if it built both itself.
-    const call0 = build_views(storage, [model_a], {parent: null})
-    const call1 = build_views(storage, [model_a, model_b], {parent: null})
-
-    resolve_gate()
-    await Promise.all([call0, call1])
-
-    expect(events).to.be.equal(["a:init", "a:connect", "b:init"])
-    expect([...storage.keys()]).to.be.equal([model_a, model_b])
-  })
-
-  it("should stop building the rest of a batch immediately when an earlier model's build fails", async () => {
-    let n_built_ok = 0
-
-    class FailingModelView extends View {
-      declare model: FailingModel
-
-      override async lazy_initialize(): Promise<void> {
-        await super.lazy_initialize()
-        throw new Error("boom")
-      }
-    }
-
-    class FailingModel extends HasProps {
-      declare __view_type__: FailingModelView
-
-      static {
-        this.prototype.default_view = FailingModelView
-      }
-    }
-
-    class OkModelView extends View {
-      declare model: OkModel
-
-      override initialize(): void {
-        super.initialize()
-        n_built_ok++
-      }
-    }
-
-    class OkModel extends HasProps {
-      declare __view_type__: OkModelView
-
-      static {
-        this.prototype.default_view = OkModelView
-      }
-    }
-
-    const failing_model = FailingModel.create()
-    const ok_model = OkModel.create()
-    const storage: ViewStorage<HasProps> = new Map()
-
-    let error: unknown
-    try {
-      await build_views(storage, [failing_model, ok_model], {parent: null})
-    } catch (e) {
-      error = e
-    }
-
-    expect(error).to.not.be.undefined
-    expect(n_built_ok).to.be.equal(0)
-    expect(storage.size).to.be.equal(0)
-
-    // A later call on the same storage must not be permanently blocked by
-    // the earlier failure.
-    const result = await build_views(storage, [ok_model], {parent: null})
-    expect(result.created.length).to.be.equal(1)
-    expect(n_built_ok).to.be.equal(1)
-  })
-
-  it("should propagate a throwing error handler and allow a later batch to recover", async () => {
-    const build_error = new Error("build failed")
-    const handler_error = new Error("handler failed")
-    const built: ModelView[] = []
-
-    class ModelView extends View {
-      declare model: Model
-
-      override async lazy_initialize(): Promise<void> {
-        await super.lazy_initialize()
-        built.push(this)
-        if (this.model == bad) {
-          throw build_error
-        }
-      }
-    }
-
-    class Model extends HasProps {
-      declare __view_type__: ModelView
-
-      static {
-        this.prototype.default_view = ModelView
-      }
-    }
-
-    const before = Model.create()
-    const bad = Model.create()
-    const after = Model.create()
-    const storage: ViewStorage<HasProps> = new Map()
-    let rejected: unknown
-    try {
-      await build_views(storage, [before, bad, after], {
-        parent: null,
-        on_error: (error, model) => {
-          expect(error).to.be.equal(build_error)
-          expect(model).to.be.equal(bad)
-          throw handler_error
-        },
-      })
-    } catch (error) {
-      rejected = error
-    }
-    expect(rejected).to.be.equal(handler_error)
-    expect(built.map((view) => view.model)).to.be.equal([before, bad])
-    expect(built[1].is_destroyed).to.be.true
-    expect([...storage.keys()]).to.be.equal([before])
-
-    await build_views(storage, [before, after], {parent: null})
-    expect(storage.get(before)).to.be.equal(built[0])
-    expect([...storage.keys()]).to.be.equal([before, after])
-    remove_views(storage)
-    expect(built.every((view) => view.is_destroyed)).to.be.true
-  })
-
-  it("should isolate handled failures while sharing builds and preserving healthy views", async () => {
-    let reject_bad = true
-    let n_built_bad = 0
-    let n_built_good = 0
-    const error = new Error("boom")
-
-    class ModelView extends View {
-      declare model: Model
-
-      override async lazy_initialize(): Promise<void> {
-        await super.lazy_initialize()
-        if (this.model == bad) {
-          n_built_bad++
-          if (reject_bad) {
-            throw error
-          }
-        } else {
-          n_built_good++
-        }
-      }
-    }
-
-    class Model extends HasProps {
-      declare __view_type__: ModelView
-
-      static {
-        this.prototype.default_view = ModelView
-      }
-    }
-
-    const bad = Model.create()
-    const good = Model.create()
-    const storage: ViewStorage<HasProps> = new Map()
-    const failures: [unknown, HasProps][] = []
-    const options = {
-      parent: null,
-      on_error: (error: unknown, model: HasProps) => { failures.push([error, model]) },
-    }
-    const first = build_views(storage, [bad, good], options)
-    const waiting = build_views(storage, [bad, good], options)
-    await Promise.all([first, waiting])
-    expect(failures).to.be.equal([[error, bad], [error, bad]])
-    expect(n_built_bad).to.be.equal(1)
-    expect(n_built_good).to.be.equal(1)
-    expect(storage.has(bad)).to.be.false
-    const good_view = storage.get(good)
-    expect_not_null(good_view)
-
-    await build_views(storage, [bad, good], options)
-    expect(n_built_bad).to.be.equal(2)
-    expect(n_built_good).to.be.equal(1)
-    expect(storage.get(good)).to.be.equal(good_view)
-    expect(good_view.is_destroyed).to.be.false
-
-    reject_bad = false
-    const recovered = await build_views(storage, [bad, good], options)
-    const bad_view = storage.get(bad)
-    expect_not_null(bad_view)
-    expect(recovered.created).to.be.equal([bad_view])
-    expect(storage.get(good)).to.be.equal(good_view)
-    expect(failures.length).to.be.equal(3)
-    remove_views(storage)
-    expect(good_view.is_destroyed).to.be.true
-  })
-
-  it("should dispose a view whose signal connection fails and continue with healthy models", async () => {
-    let reject_bad = true
-    const failed_views: ModelView[] = []
-    const error = new Error("connection failed")
-
-    class ModelView extends View {
-      declare model: Model
-
-      override connect_signals(): void {
-        super.connect_signals()
-        if (this.model == bad && reject_bad) {
-          failed_views.push(this)
+    it("should remove a view whose initialization fails", () => {
+      const error = new Error("initialization failed")
+      const views: FailingModelView[] = []
+
+      class FailingModelView extends View {
+        declare model: FailingModel
+
+        override lazy_initialize(): void {
+          super.lazy_initialize()
+          views.push(this)
           throw error
         }
       }
-    }
 
-    class Model extends HasProps {
-      declare __view_type__: ModelView
+      class FailingModel extends HasProps {
+        declare __view_type__: FailingModelView
 
-      static {
-        this.prototype.default_view = ModelView
+        static {
+          this.prototype.default_view = FailingModelView
+        }
       }
-    }
 
-    const bad = Model.create()
-    const good = Model.create()
-    const storage: ViewStorage<HasProps> = new Map()
-    const failures: [unknown, HasProps][] = []
-    const options = {
-      parent: null,
-      on_error: (error: unknown, model: HasProps) => { failures.push([error, model]) },
-    }
-    const result = await build_views(storage, [bad, good], options)
-    const good_view = storage.get(good)
-    const failed_view = failed_views.at(0)
-    expect_not_null(good_view)
-    expect_not_null(failed_view)
-    expect(failures).to.be.equal([[error, bad]])
-    expect(failed_view.is_destroyed).to.be.true
-    expect(storage.has(bad)).to.be.false
-    expect(result.created).to.be.equal([good_view])
-
-    reject_bad = false
-    await build_views(storage, [bad, good], options)
-    const recovered_view = storage.get(bad)
-    expect_not_null(recovered_view)
-    expect(recovered_view).to.not.be.equal(failed_view)
-    expect(recovered_view.is_destroyed).to.be.false
-    expect(storage.get(good)).to.be.equal(good_view)
-    remove_views(storage)
-    expect(recovered_view.is_destroyed).to.be.true
-    expect(good_view.is_destroyed).to.be.true
-  })
-
-  it("should build separate views for the same model in unrelated view_storage maps", async () => {
-    class SomeModelView extends View {
-      declare model: SomeModel
-    }
-
-    class SomeModel extends HasProps {
-      declare __view_type__: SomeModelView
-
-      static {
-        this.prototype.default_view = SomeModelView
-      }
-    }
-
-    const model = SomeModel.create()
-    const storage0: ViewStorage<HasProps> = new Map()
-    const storage1: ViewStorage<HasProps> = new Map()
-
-    const [result0, result1] = await Promise.all([
-      build_views(storage0, [model], {parent: null}),
-      build_views(storage1, [model], {parent: null}),
-    ])
-
-    expect(result0.created.length).to.be.equal(1)
-    expect(result1.created.length).to.be.equal(1)
-    expect(result0.created[0]).to.not.be.equal(result1.created[0])
-  })
-
-  it("should not resolve until views requested by an overlapping call are stored", async () => {
-    let resolve_gate: () => void = () => {}
-    const gate = new Promise<void>((resolve) => {
-      resolve_gate = resolve
+      expect(() => build_view(FailingModel.create())).to.throw(Error)
+      expect(views.length).to.be.equal(1)
+      expect(views[0].is_destroyed).to.be.true
     })
 
-    class SlowModelView extends View {
-      declare model: SlowModel
+    it("should support asynchronous lazy_initialize() for compatibility, tracked by ready", async () => {
+      let resume!: () => void
+      const gate = new Promise<void>((resolve) => resume = resolve)
+      let finished = false
 
-      override async lazy_initialize(): Promise<void> {
-        await super.lazy_initialize()
-        await gate
+      class AsyncModelView extends View {
+        declare model: AsyncModel
+
+        // oxlint-disable-next-line typescript/no-misused-promises -- deliberately asynchronous, which is deprecated
+        override async lazy_initialize(): Promise<void> {
+          super.lazy_initialize()
+          await gate
+          finished = true
+        }
       }
-    }
 
-    class SlowModel extends HasProps {
-      declare __view_type__: SlowModelView
+      class AsyncModel extends HasProps {
+        declare __view_type__: AsyncModelView
 
-      static {
-        this.prototype.default_view = SlowModelView
+        static {
+          this.prototype.default_view = AsyncModelView
+        }
       }
-    }
 
-    const model = SlowModel.create()
-    const storage: ViewStorage<HasProps> = new Map()
+      using warn = restorable(sinon.stub(logger, "warn"))
+      const view = build_view(AsyncModel.create())
+      expect(warn.callCount).to.be.equal(1)
+      expect(finished).to.be.false
 
-    // call1 doesn't build `model` itself (call0 already reserved it), but it
-    // must still not resolve before the view exists, because callers use
-    // `await build_views(...)` as "all requested views are available now".
-    const call0 = build_views(storage, [model], {parent: null})
-    const call1 = build_views(storage, [model], {parent: null})
+      let ready = false
+      const settled = view.ready.then(() => ready = true)
+      await Promise.resolve()
+      expect(ready).to.be.false
 
-    let call1_resolved = false
-    void call1.then(() => {
-      call1_resolved = true
+      resume()
+      await settled
+      expect(finished).to.be.true
+      view.remove()
+    })
+  })
+
+  describe("build_views()", () => {
+    it("should build, keep and remove views, appending views of new models", () => {
+      const [m0, m1, m2] = [SomeModel.create(), SomeModel.create(), SomeModel.create()]
+      const storage: ViewStorage<SomeModel> = new Map()
+
+      const result0 = build_views(storage, [m0, m1])
+      expect(result0.created.length).to.be.equal(2)
+      expect(result0.removed.length).to.be.equal(0)
+      const v0 = storage.get(m0)
+      expect_not_null(v0)
+
+      const result1 = build_views(storage, [m2, m0])
+      expect(result1.created.length).to.be.equal(1)
+      expect(result1.removed.length).to.be.equal(1)
+      expect(result1.removed[0].is_destroyed).to.be.true
+      expect([...storage.keys()]).to.be.equal([m0, m2])
+      expect(storage.get(m0)).to.be.identical(v0)
     })
 
-    await new Promise<void>((resolve) => setTimeout(resolve, 0))
-    expect(call1_resolved).to.be.false
-    expect(storage.size).to.be.equal(0)
-
-    resolve_gate()
-    await Promise.all([call0, call1])
-
-    expect(call1_resolved).to.be.true
-    expect(storage.get(model)).to.not.be.undefined
-  })
-
-  it("should not report a view that an overlapping call removed mid-batch", async () => {
-    const connected: string[] = []
-    const disconnected: string[] = []
-
-    let resolve_gate: () => void = () => {}
-    const gate = new Promise<void>((resolve) => {
-      resolve_gate = resolve
+    it("should not build a model twice when it is requested twice in one call", () => {
+      const model = SomeModel.create()
+      const storage: ViewStorage<SomeModel> = new Map()
+      const {created} = build_views(storage, [model, model])
+      expect(created.length).to.be.equal(1)
+      expect(storage.size).to.be.equal(1)
     })
 
-    class FastModelView extends View {
-      declare model: FastModel
-
-      override connect_signals(): void {
-        super.connect_signals()
-        connected.push("fast")
-      }
-
-      override disconnect_signals(): void {
-        disconnected.push("fast")
-        super.disconnect_signals()
-      }
-    }
-
-    class FastModel extends HasProps {
-      declare __view_type__: FastModelView
-
-      static {
-        this.prototype.default_view = FastModelView
-      }
-    }
-
-    class SlowModelView extends View {
-      declare model: SlowModel
-
-      override connect_signals(): void {
-        super.connect_signals()
-        connected.push("slow")
-      }
-
-      override async lazy_initialize(): Promise<void> {
-        await super.lazy_initialize()
-        await gate
-      }
-    }
-
-    class SlowModel extends HasProps {
-      declare __view_type__: SlowModelView
-
-      static {
-        this.prototype.default_view = SlowModelView
-      }
-    }
-
-    const fast_model = FastModel.create()
-    const slow_model = SlowModel.create()
-    const storage: ViewStorage<HasProps> = new Map()
-
-    // call0 stores fast_model's view, then suspends on slow_model. call1 then
-    // removes fast_model's view (it's already in storage, so call1's diff can
-    // see it). Anything call1 can find in storage must already be connected, and
-    // once call0 resumes it must not report the destroyed view as created.
-    const call0 = build_views(storage, [fast_model, slow_model], {parent: null})
-    await new Promise<void>((resolve) => setTimeout(resolve, 0))
-    expect(storage.has(fast_model)).to.be.true
-    expect(connected).to.be.equal(["fast"])
-
-    const call1 = build_views(storage, [slow_model], {parent: null})
-
-    resolve_gate()
-    const [result0, result1] = await Promise.all([call0, call1])
-
-    expect(connected).to.be.equal(["fast", "slow"])
-    expect(disconnected).to.be.equal(["fast"])
-    expect(result0.created.length).to.be.equal(1)
-    expect(result0.created[0].model).to.be.equal(slow_model)
-    expect(result1.removed.length).to.be.equal(1)
-    expect(result1.removed[0].model).to.be.equal(fast_model)
-    expect([...storage.keys()]).to.be.equal([slow_model])
-  })
-
-  it("should tear down a view that is discarded before being stored", async () => {
-    let connects = 0
-    let disconnects = 0
-
-    let resolve_gate: () => void = () => {}
-    const gate = new Promise<void>((resolve) => {
-      resolve_gate = resolve
+    it("should build separate views for the same model in unrelated view_storage maps", () => {
+      const model = SomeModel.create()
+      const storage0: ViewStorage<SomeModel> = new Map()
+      const storage1: ViewStorage<SomeModel> = new Map()
+      build_views(storage0, [model])
+      build_views(storage1, [model])
+      expect(storage0.get(model)).to.not.be.identical(storage1.get(model))
     })
 
-    class SlowModelView extends View {
-      declare model: SlowModel
+    describe("with a failing model", () => {
+      const error = new Error("build failed")
+      let failing = true
 
-      override connect_signals(): void {
-        super.connect_signals()
-        connects++
+      class ModelView extends View {
+        declare model: Model
+
+        override connect_signals(): void {
+          super.connect_signals()
+          if (this.model.bad && failing) {
+            throw error
+          }
+        }
       }
 
-      override disconnect_signals(): void {
-        disconnects++
-        super.disconnect_signals()
+      class Model extends HasProps {
+        declare __view_type__: ModelView
+        bad: boolean = false
+
+        static {
+          this.prototype.default_view = ModelView
+        }
       }
 
-      override async lazy_initialize(): Promise<void> {
-        await super.lazy_initialize()
-        await gate
+      function models(): [Model, Model, Model] {
+        const bad = Model.create()
+        bad.bad = true
+        return [Model.create(), bad, Model.create()]
       }
-    }
 
-    class SlowModel extends HasProps {
-      declare __view_type__: SlowModelView
+      it("should stop building, but keep views built so far", () => {
+        failing = true
+        const [m0, bad, m2] = models()
+        const storage: ViewStorage<Model> = new Map()
+        expect(() => build_views(storage, [m0, bad, m2])).to.throw(Error)
+        expect([...storage.keys()]).to.be.equal([m0])
+        remove_views(storage)
+      })
 
-      static {
-        this.prototype.default_view = SlowModelView
-      }
-    }
+      it("should isolate failures handled by on_error and allow a later call to recover", () => {
+        failing = true
+        const [m0, bad, m2] = models()
+        const storage: ViewStorage<Model> = new Map()
+        const failures: [unknown, Model][] = []
+        const on_error = (error: unknown, model: Model) => {
+          failures.push([error, model])
+        }
+        const {created} = build_views(storage, [m0, bad, m2], {parent: null, on_error})
+        expect(failures).to.be.equal([[error, bad]])
+        expect(created.length).to.be.equal(2)
+        expect([...storage.keys()]).to.be.equal([m0, m2])
 
-    const model = SlowModel.create()
-    const storage: ViewStorage<HasProps> = new Map()
+        failing = false
+        build_views(storage, [m0, bad, m2], {parent: null, on_error})
+        expect([...storage.keys()]).to.be.equal([m0, m2, bad])
+        remove_views(storage)
+      })
 
-    // call0 is still building `model`'s view when call1 asks for an empty set of
-    // models. call1 doesn't wait on call0, so it can't see `model` in its own
-    // to_remove diff. call0 must notice, once its build finishes, that `model`
-    // isn't wanted any more and tear the view down itself.
-    const call0 = build_views(storage, [model], {parent: null})
-    const call1 = build_views(storage, [], {parent: null})
-
-    resolve_gate()
-    const [result0, result1] = await Promise.all([call0, call1])
-
-    // Never connected, so that nothing connect_signals() sets up (listeners,
-    // effects, async work) outlives a view that nothing asked for, and so
-    // never disconnected either, because there's nothing to disconnect.
-    expect(connects).to.be.equal(0)
-    expect(disconnects).to.be.equal(0)
-
-    expect(result1.created.length).to.be.equal(0)
-    expect(result1.removed.length).to.be.equal(0)
-
-    expect(result0.created.length).to.be.equal(0)
-    expect(result0.removed.length).to.be.equal(1)
-    expect(result0.removed[0].is_destroyed).to.be.true
-    expect(storage.size).to.be.equal(0)
-  })
-
-  it("should connect views stored before a later model in the same batch failed", async () => {
-    let connects = 0
-
-    class OkModelView extends View {
-      declare model: OkModel
-
-      override connect_signals(): void {
-        super.connect_signals()
-        connects++
-      }
-    }
-
-    class OkModel extends HasProps {
-      declare __view_type__: OkModelView
-
-      static {
-        this.prototype.default_view = OkModelView
-      }
-    }
-
-    class FailingModelView extends View {
-      declare model: FailingModel
-
-      override async lazy_initialize(): Promise<void> {
-        await super.lazy_initialize()
-        throw new Error("boom")
-      }
-    }
-
-    class FailingModel extends HasProps {
-      declare __view_type__: FailingModelView
-
-      static {
-        this.prototype.default_view = FailingModelView
-      }
-    }
-
-    const ok_model = OkModel.create()
-    const failing_model = FailingModel.create()
-    const storage: ViewStorage<HasProps> = new Map()
-
-    let error: unknown
-    try {
-      await build_views(storage, [ok_model, failing_model], {parent: null})
-    } catch (e) {
-      error = e
-    }
-
-    expect(error).to.not.be.undefined
-    // Anything left in storage must be connected, otherwise it's a live view
-    // that never reacts to its model again.
-    expect(storage.has(ok_model)).to.be.true
-    expect(connects).to.be.equal(1)
-  })
-
-  it("should not build a model twice when it is requested twice in one call", async () => {
-    let n_built = 0
-
-    class SomeModelView extends View {
-      declare model: SomeModel
-
-      override initialize(): void {
-        super.initialize()
-        n_built++
-      }
-    }
-
-    class SomeModel extends HasProps {
-      declare __view_type__: SomeModelView
-
-      static {
-        this.prototype.default_view = SomeModelView
-      }
-    }
-
-    const model = SomeModel.create()
-    const storage: ViewStorage<HasProps> = new Map()
-
-    const result = await build_views(storage, [model, model], {parent: null})
-
-    expect(n_built).to.be.equal(1)
-    expect(result.created.length).to.be.equal(1)
-    expect(storage.size).to.be.equal(1)
-  })
-
-  it("should discard an in-flight build when remove_views() empties the storage", async () => {
-    let disconnects = 0
-
-    let resolve_gate: () => void = () => {}
-    const gate = new Promise<void>((resolve) => {
-      resolve_gate = resolve
+      it("should propagate an error thrown by on_error", () => {
+        failing = true
+        const [m0, bad, m2] = models()
+        const storage: ViewStorage<Model> = new Map()
+        const on_error = () => {
+          throw new Error("handler failed")
+        }
+        expect(() => build_views(storage, [m0, bad, m2], {parent: null, on_error})).to.throw(Error)
+        expect([...storage.keys()]).to.be.equal([m0])
+        remove_views(storage)
+      })
     })
 
-    class SlowModelView extends View {
-      declare model: SlowModel
+    it("should reject building views reentrantly into the same storage", () => {
+      const storage: ViewStorage<HasProps> = new Map()
+      const inner = SomeModel.create()
 
-      override disconnect_signals(): void {
-        disconnects++
-        super.disconnect_signals()
+      class ReentrantModelView extends View {
+        declare model: ReentrantModel
+
+        override lazy_initialize(): void {
+          super.lazy_initialize()
+          build_views(storage, [this.model, inner])
+        }
       }
 
-      override async lazy_initialize(): Promise<void> {
-        await super.lazy_initialize()
-        await gate
+      class ReentrantModel extends HasProps {
+        declare __view_type__: ReentrantModelView
+
+        static {
+          this.prototype.default_view = ReentrantModelView
+        }
       }
-    }
 
-    class SlowModel extends HasProps {
-      declare __view_type__: SlowModelView
-
-      static {
-        this.prototype.default_view = SlowModelView
-      }
-    }
-
-    const model = SlowModel.create()
-    const storage: ViewStorage<HasProps> = new Map()
-
-    // The owner of `storage` is going away (e.g. DataTableView.remove()) while
-    // a build is still in flight. That view must not end up stored in a storage
-    // that nobody owns any more.
-    const call = build_views(storage, [model], {parent: null})
-    remove_views(storage)
-
-    resolve_gate()
-    const result = await call
-
-    expect(disconnects).to.be.equal(0)
-    expect(storage.size).to.be.equal(0)
-    expect(result.created.length).to.be.equal(0)
-    expect(result.removed.length).to.be.equal(1)
-    expect(result.removed[0].is_destroyed).to.be.true
+      expect(() => build_views(storage, [ReentrantModel.create()])).to.throw(Error)
+      expect(storage.size).to.be.equal(0)
+      // the storage is usable again afterwards
+      build_views(storage, [inner])
+      expect(storage.size).to.be.equal(1)
+      remove_views(storage)
+    })
   })
 
-  it("should propagate a failed build to calls waiting on it", async () => {
-    class FailingModelView extends View {
-      declare model: FailingModel
-
-      override async lazy_initialize(): Promise<void> {
-        await super.lazy_initialize()
-        throw new Error("boom")
-      }
-    }
-
-    class FailingModel extends HasProps {
-      declare __view_type__: FailingModelView
-
-      static {
-        this.prototype.default_view = FailingModelView
-      }
-    }
-
-    const model = FailingModel.create()
-    const storage: ViewStorage<HasProps> = new Map()
-
-    const call0 = build_views(storage, [model], {parent: null})
-    const call1 = build_views(storage, [model], {parent: null})
-
-    const results = await Promise.allSettled([call0, call1])
-    expect(results.map((result) => result.status)).to.be.equal(["rejected", "rejected"])
-  })
-
-  it("should not let a failing model keep an overlapping call from building the rest", async () => {
-    let n_built_ok = 0
-
-    class FailingModelView extends View {
-      declare model: FailingModel
-
-      override async lazy_initialize(): Promise<void> {
-        await super.lazy_initialize()
-        throw new Error("boom")
-      }
-    }
-
-    class FailingModel extends HasProps {
-      declare __view_type__: FailingModelView
-
-      static {
-        this.prototype.default_view = FailingModelView
-      }
-    }
-
-    class OkModelView extends View {
-      declare model: OkModel
-
-      override initialize(): void {
-        super.initialize()
-        n_built_ok++
-      }
-    }
-
-    class OkModel extends HasProps {
-      declare __view_type__: OkModelView
-
-      static {
-        this.prototype.default_view = OkModelView
-      }
-    }
-
-    const failing_model = FailingModel.create()
-    const ok_model = OkModel.create()
-    const storage: ViewStorage<HasProps> = new Map()
-
-    // call0 gives up on ok_model, because failing_model failed ahead of it in
-    // the same batch. call1 still wants ok_model and nothing ever built it, so
-    // call1 has to build it itself instead of inheriting call0's failure.
-    const call0 = build_views(storage, [failing_model, ok_model], {parent: null})
-    const call1 = build_views(storage, [ok_model], {parent: null})
-
-    const [result0, result1] = await Promise.allSettled([call0, call1])
-
-    expect(result0.status).to.be.equal("rejected")
-    expect(result1.status).to.be.equal("fulfilled")
-    expect(n_built_ok).to.be.equal(1)
-    expect(storage.get(ok_model)).to.not.be.undefined
+  describe("remove_views()", () => {
+    it("should remove all views", () => {
+      const storage: ViewStorage<SomeModel> = new Map()
+      build_views(storage, [SomeModel.create(), SomeModel.create()])
+      const views = [...storage.values()]
+      remove_views(storage)
+      expect(storage.size).to.be.equal(0)
+      expect(views.every((view) => view.is_destroyed)).to.be.true
+    })
   })
 
   describe("ChildViewSlot", () => {
-    type Gate = {promise: Promise<void>, resolve: () => void, reject: (error: unknown) => void}
-
-    function gate(): Gate {
-      let resolve: () => void = () => {}
-      let reject: (error: unknown) => void = () => {}
-      const promise = new Promise<void>((res, rej) => {
-        resolve = res
-        reject = rej
-      })
-      return {promise, resolve, reject}
-    }
-
-    const gates = new WeakMap<HasProps, Gate>()
-
-    class GatedModelView extends View {
-      declare model: GatedModel
-
-      override async lazy_initialize(): Promise<void> {
-        await super.lazy_initialize()
-        await gates.get(this.model)?.promise
-      }
-    }
-
-    class GatedModel extends HasProps {
-      declare __view_type__: GatedModelView
-
-      static {
-        this.prototype.default_view = GatedModelView
-      }
-    }
-
-    function gated(): [GatedModel, Gate] {
-      const model = GatedModel.create()
-      const model_gate = gate()
-      gates.set(model, model_gate)
-      return [model, model_gate]
-    }
-
-    async function setup() {
-      const parent = await build_view(GatedModel.create())
-      const slot = new ChildViewSlot<GatedModel>(parent)
+    function setup() {
+      const parent = build_view(SomeModel.create())
+      const slot = new ChildViewSlot<SomeModel>(parent)
       return {parent, slot}
     }
 
-    it("should build a view and replace it with a newer one", async () => {
-      const {parent, slot} = await setup()
-      const model0 = GatedModel.create()
-      const model1 = GatedModel.create()
+    it("should build a view and replace it with a newer one", () => {
+      const {parent, slot} = setup()
+      const [model0, model1] = [SomeModel.create(), SomeModel.create()]
 
-      expect(await slot.build(model0)).to.be.true
+      expect(slot.build(model0)).to.be.true
       const view0 = slot.view
-      expect_not_null(view0)
-      expect(view0.model).to.be.equal(model0)
-      expect(view0.parent).to.be.equal(parent)
+      expect(view0?.model).to.be.equal(model0)
 
-      expect(await slot.build(model1)).to.be.true
+      expect(slot.build(model1)).to.be.true
       expect(slot.view?.model).to.be.equal(model1)
-      expect(view0.is_destroyed).to.be.true
+      expect(view0?.is_destroyed).to.be.true
 
-      expect(await slot.build(null)).to.be.true
+      expect(slot.build(null)).to.be.true
       expect(slot.view).to.be.null
       parent.remove()
     })
 
-    it("should discard a superseded build that finishes last", async () => {
-      const {parent, slot} = await setup()
-      const [model0, gate0] = gated()
-      const model1 = GatedModel.create()
+    it("should keep the previous view if building fails", () => {
+      const {parent, slot} = setup()
 
-      const build0 = slot.build(model0)
-      const build1 = slot.build(model1)
+      class FailingModelView extends View {
+        declare model: FailingModel
 
-      expect(await build1).to.be.true
-      const view1 = slot.view
-      expect(view1?.model).to.be.equal(model1)
-
-      gate0.resolve()
-      expect(await build0).to.be.false
-      expect(slot.view).to.be.equal(view1)
-      expect(view1?.is_destroyed).to.be.false
-      expect(parent.owner.query_one((view) => view.model == model0)).to.be.null
-      parent.remove()
-    })
-
-    it("should discard a superseded build that finishes first", async () => {
-      const {parent, slot} = await setup()
-      const [model0, gate0] = gated()
-      const [model1, gate1] = gated()
-
-      const build0 = slot.build(model0)
-      const build1 = slot.build(model1)
-
-      gate0.resolve()
-      expect(await build0).to.be.false
-      expect(slot.view).to.be.null
-
-      gate1.resolve()
-      expect(await build1).to.be.true
-      expect(slot.view?.model).to.be.equal(model1)
-      parent.remove()
-    })
-
-    it("should let clearing supersede a pending build", async () => {
-      const {parent, slot} = await setup()
-      const [model0, gate0] = gated()
-
-      const build0 = slot.build(model0)
-      expect(await slot.build(null)).to.be.true
-
-      gate0.resolve()
-      expect(await build0).to.be.false
-      expect(slot.view).to.be.null
-      parent.remove()
-    })
-
-    it("should discard a build that finishes after its parent was removed", async () => {
-      const {parent, slot} = await setup()
-      const [model0, gate0] = gated()
-
-      const build0 = slot.build(model0)
-      parent.remove()
-
-      gate0.resolve()
-      expect(await build0).to.be.false
-      expect(slot.view).to.be.null
-    })
-
-    it("should rethrow a failure of the current build and keep the previous view", async () => {
-      const {parent, slot} = await setup()
-      const model0 = GatedModel.create()
-      const [model1, gate1] = gated()
-
-      expect(await slot.build(model0)).to.be.true
-      const view0 = slot.view
-
-      const build1 = slot.build(model1)
-      gate1.reject(new Error("failed"))
-      let error: unknown = null
-      try {
-        await build1
-      } catch (err) {
-        error = err
+        override initialize(): void {
+          super.initialize()
+          throw new Error("build failed")
+        }
       }
-      expect(error).to.be.instanceof(Error)
-      expect(slot.view).to.be.equal(view0)
+
+      class FailingModel extends HasProps {
+        declare __view_type__: FailingModelView
+
+        static {
+          this.prototype.default_view = FailingModelView
+        }
+      }
+
+      const model0 = SomeModel.create()
+      slot.build(model0)
+      const view0 = slot.view
+      expect(() => slot.build(FailingModel.create())).to.throw(Error)
+      expect(slot.view).to.be.identical(view0)
       expect(view0?.is_destroyed).to.be.false
       parent.remove()
     })
 
-    it("should ignore a failure of a superseded build", async () => {
-      const {parent, slot} = await setup()
-      const [model0, gate0] = gated()
-      const model1 = GatedModel.create()
+    it("should let a clear triggered by removal of the outgoing view supersede the build", () => {
+      const {parent, slot} = setup()
+      const [model0, model1] = [SomeModel.create(), SomeModel.create()]
 
-      const build0 = slot.build(model0)
-      expect(await slot.build(model1)).to.be.true
-
-      gate0.reject(new Error("failed"))
-      expect(await build0).to.be.false
-      expect(slot.view?.model).to.be.equal(model1)
-      parent.remove()
-    })
-
-    it("should let a clear triggered by removal of the outgoing view supersede the build", async () => {
-      const {parent, slot} = await setup()
-      const model0 = GatedModel.create()
-      const model1 = GatedModel.create()
-
-      expect(await slot.build(model0)).to.be.true
+      slot.build(model0)
       const view0 = slot.view
       expect_not_null(view0)
 
-      const reentrant: Promise<boolean>[] = []
+      const reentrant: boolean[] = []
       view0.removed.connect(() => {
         reentrant.push(slot.build(null))
       })
 
-      expect(await slot.build(model1)).to.be.false
-      expect(reentrant.length).to.be.equal(1)
-      expect(await reentrant[0]).to.be.true
+      expect(slot.build(model1)).to.be.false
+      expect(reentrant).to.be.equal([true])
       expect(slot.view).to.be.null
       expect(view0.is_destroyed).to.be.true
-      expect(parent.owner.query_one((view) => view.model == model1)).to.be.null
       parent.remove()
     })
 
-    it("should let a build triggered by removal of the outgoing view supersede the build", async () => {
-      const {parent, slot} = await setup()
-      const model0 = GatedModel.create()
-      const model1 = GatedModel.create()
-      const model2 = GatedModel.create()
+    it("should let a build triggered by removal of the outgoing view supersede the build", () => {
+      const {parent, slot} = setup()
+      const [model0, model1, model2] = [SomeModel.create(), SomeModel.create(), SomeModel.create()]
 
-      expect(await slot.build(model0)).to.be.true
+      slot.build(model0)
       const view0 = slot.view
       expect_not_null(view0)
 
-      const reentrant: Promise<boolean>[] = []
+      let view1: View | null = null
+      const reentrant: boolean[] = []
       view0.removed.connect(() => {
+        view1 = slot.view
         reentrant.push(slot.build(model2))
       })
 
-      expect(await slot.build(model1)).to.be.false
-      const view1 = slot.view
-      expect(view1?.model).to.be.equal(model1)
-
-      expect(reentrant.length).to.be.equal(1)
-      expect(await reentrant[0]).to.be.true
+      expect(slot.build(model1)).to.be.false
+      expect(reentrant).to.be.equal([true])
       expect(slot.view?.model).to.be.equal(model2)
-      expect(view1?.is_destroyed).to.be.true
+      expect(view1).to.not.be.null
+      expect(view1!.is_destroyed).to.be.true
       parent.remove()
     })
 
-    it("should remove the current view and invalidate pending builds on remove()", async () => {
-      const {parent, slot} = await setup()
-      const model0 = GatedModel.create()
-      const [model1, gate1] = gated()
-
-      expect(await slot.build(model0)).to.be.true
-      const view0 = slot.view
-
-      const build1 = slot.build(model1)
+    it("should remove the current view on remove()", () => {
+      const {parent, slot} = setup()
+      slot.build(SomeModel.create())
+      const view = slot.view
       slot.remove()
       expect(slot.view).to.be.null
-      expect(view0?.is_destroyed).to.be.true
-
-      gate1.resolve()
-      expect(await build1).to.be.false
-      expect(slot.view).to.be.null
+      expect(view?.is_destroyed).to.be.true
       parent.remove()
     })
   })

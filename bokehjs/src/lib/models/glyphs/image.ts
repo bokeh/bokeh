@@ -4,6 +4,7 @@ import {LinearColorMapper} from "../mappers/linear_color_mapper"
 import type {NDArrayType} from "core/util/ndarray"
 import type * as p from "core/properties"
 import type {ImageGL} from "./webgl/image"
+import type {WebGLModule} from "../canvas/webgl"
 
 export interface ImageView extends Image.Data {}
 
@@ -14,9 +15,8 @@ export class ImageView extends ImageBaseView {
   /** @internal */
   declare glglyph?: ImageGL
 
-  override async load_glglyph() {
-    const {ImageGL} = await import("./webgl/image")
-    return ImageGL
+  override glglyph_class(webgl: WebGLModule) {
+    return webgl.ImageGL
   }
 
   override connect_signals(): void {

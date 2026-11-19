@@ -38,12 +38,12 @@ export class TabsView extends LayoutDOMView {
     super.connect_signals()
     const {active, link_layouts, tabs} = this.model.properties
 
-    this.on_change([active, link_layouts], async () => {
-      await this.update_children()
+    this.on_change([active, link_layouts], () => {
+      this.update_children()
     })
 
-    this.on_transitive_change(tabs, async () => {
-      await this.update_children()
+    this.on_transitive_change(tabs, () => {
+      this.update_children()
     }, {
       signals: (tab) => {
         assert(tab instanceof TabPanel)
@@ -51,8 +51,8 @@ export class TabsView extends LayoutDOMView {
       },
     })
 
-    this.on_transitive_change(tabs, async () => {
-      await this.build_tooltip_views()
+    this.on_transitive_change(tabs, () => {
+      this.build_tooltip_views()
     }, {
       signals: (tab) => {
         assert(tab instanceof TabPanel)
@@ -61,17 +61,17 @@ export class TabsView extends LayoutDOMView {
     })
   }
 
-  async build_tooltip_views(): Promise<void> {
+  build_tooltip_views(): void {
     const {tabs} = this.values
     const tooltips = tabs.map((tab) => tab.tooltip).filter((tt) => tt instanceof Model).map((tt) => {
       return tt instanceof HTML ? Tooltip.create({content: tt, position: "bottom_center" /* TODO "auto" */}) : tt
     })
-    await build_views(this.tooltip_views, tooltips, {parent: this})
+    build_views(this.tooltip_views, tooltips, {parent: this})
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    await this.build_tooltip_views()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
+    this.build_tooltip_views()
   }
 
   override stylesheets(): StyleSheetLike[] {

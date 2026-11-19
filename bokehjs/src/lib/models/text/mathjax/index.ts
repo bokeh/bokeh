@@ -1,4 +1,5 @@
 import type {MathJaxConvertOptions, MathJaxProtoItem, MathJaxTeXMacros} from "../../../external/mathjax"
+import {register_mathjax} from "../mathjax_registry"
 
 import {mathjax} from "mathjax-full/js/mathjax.js"
 import {TeX} from "mathjax-full/js/input/tex.js"
@@ -58,3 +59,5 @@ export function find_tex(text: string): MathJaxProtoItem[] {
 
   return find_text.findMath([text])
 }
+
+register_mathjax({tex2svg, ascii2svg, mathml2svg, find_tex})

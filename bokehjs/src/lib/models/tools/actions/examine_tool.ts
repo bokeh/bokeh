@@ -23,8 +23,8 @@ export class ExamineToolView extends ActionToolView {
     return [...super._children_views(), this.dialog]
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
 
     const target = this.parent.model
     const printer = new ValuePrinter()
@@ -42,7 +42,7 @@ export class ExamineToolView extends ActionToolView {
       visible: false,
       close_action: "hide",
     })
-    this.dialog = await build_view(dialog, {parent: this})
+    this.dialog = build_view(dialog, {parent: this})
   }
 
   override connect_signals(): void {

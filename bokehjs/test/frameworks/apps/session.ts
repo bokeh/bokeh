@@ -192,10 +192,12 @@ async function validate_interrupted_root(): Promise<void> {
         const DefaultView = late.default_view
         assert(DefaultView != null, "plot doesn't define its view")
         class DelayedView extends DefaultView {
-          override async lazy_initialize(): Promise<void> {
-            await super.lazy_initialize()
-            started = true
-            await gate
+          override lazy_initialize(): void {
+            super.lazy_initialize()
+            this.schedule(async () => {
+              started = true
+              await gate
+            })
           }
           override remove(): void {
             super.remove()

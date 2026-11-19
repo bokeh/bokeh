@@ -24,12 +24,14 @@ export class CustomActionView extends ActionToolView {
     }
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
+  override initialize(): void {
+    super.initialize()
 
     const {active_callback} = this.model
     if (!(active_callback == "auto" || active_callback == null)) {
-      await this._update_active()
+      // `active_callback` may be asynchronous, and `active` is updated after
+      // initialization anyway, so that it doesn't change during view building
+      this.schedule(async () => await this._update_active())
     }
   }
 

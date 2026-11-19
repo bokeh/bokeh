@@ -184,10 +184,10 @@ export class DataTableView extends WidgetView {
     return [...super._children_views(), ...this._subset_views.values(), ...this._column_views.values()]
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    await build_views(this._subset_views, [this.model.view], {parent: this})
-    await build_views(this._column_views, this.model.columns, {parent: this})
+  override lazy_initialize(): void {
+    super.lazy_initialize()
+    build_views(this._subset_views, [this.model.view], {parent: this})
+    build_views(this._column_views, this.model.columns, {parent: this})
   }
 
   override remove(): void {
@@ -211,14 +211,14 @@ export class DataTableView extends WidgetView {
     this.connect(this.model.change, rerender)
 
     const {columns} = this.model.properties
-    this.on_transitive_change(columns, async () => {
-      await build_views(this._column_views, this.model.columns, {parent: this})
+    this.on_transitive_change(columns, () => {
+      build_views(this._column_views, this.model.columns, {parent: this})
       rerender()
     }, {recursive: true})
 
-    this.on_change(this.model.properties.view, async () => {
+    this.on_change(this.model.properties.view, () => {
       const {view} = this.model
-      await build_views(this._subset_views, [view], {parent: this})
+      build_views(this._subset_views, [view], {parent: this})
       if (this.model.view == view) {
         rerender()
       }

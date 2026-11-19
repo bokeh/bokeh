@@ -178,6 +178,12 @@ export abstract class DOMComponentView extends DOMView {
   }
 
   private _rendered_to: boolean = false
+
+  /** Whether this view was rendered (with `render_to()`) already. */
+  get is_rendered(): boolean {
+    return this._rendered_to
+  }
+
   override render_to(target: Node): void {
     if (this.is_vdom) {
       target.appendChild(this.el)

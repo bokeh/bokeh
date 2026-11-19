@@ -282,7 +282,8 @@ export class Linker {
     const entries = this.resolve(this.entries)
     const [main, ...plugins] = entries
 
-    const dirnames = plugins.map((plugin) => dirname(plugin.file))
+    // with a trailing separator, so that e.g. `text/mathjax_registry` isn't in `text/mathjax/`
+    const dirnames = plugins.map((plugin) => `${dirname(plugin.file)}${sep}`)
     const is_excluded = (module: ModuleInfo) => {
       return dirnames.find((e) => module.file.startsWith(e)) != null
     }

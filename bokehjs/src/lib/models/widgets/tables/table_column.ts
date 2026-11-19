@@ -44,28 +44,28 @@ export class TableColumnView extends View {
     return [...super._children_views(), this.title_view]
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    await this._update_title_view()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
+    this._update_title_view()
   }
 
   override connect_signals(): void {
     super.connect_signals()
 
     const {title} = this.model.properties
-    this.on_change(title, async () => {
-      await this._update_title_view()
+    this.on_change(title, () => {
+      this._update_title_view()
       this.parent.rerender()
     })
   }
 
-  protected async _update_title_view(): Promise<void> {
+  protected _update_title_view(): void {
     this.title_view?.remove()
     this.title_view = undefined
 
     const {title} = this.model
     if (title instanceof HTML) {
-      this.title_view = await build_view(title, {parent: this})
+      this.title_view = build_view(title, {parent: this})
       this.title_view.render()
     }
   }

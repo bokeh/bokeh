@@ -80,12 +80,12 @@ export class TooltipView extends UIElementView {
     return [...super._children_views(), this._element_view]
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    await this._build_content()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
+    this._build_content()
   }
 
-  protected async _build_content(): Promise<void> {
+  protected _build_content(): void {
     if (this._element_view != null) {
       this._element_view.remove()
       this._element_view = null
@@ -93,7 +93,7 @@ export class TooltipView extends UIElementView {
 
     const content = this.signals.content.value
     if (content instanceof Model) {
-      const view = await build_view(content, {parent: this})
+      const view = build_view(content, {parent: this})
       this._element_view = view
       view.render()
       view.r_after_render()
@@ -132,7 +132,7 @@ export class TooltipView extends UIElementView {
     })
 
     effect(() => {
-      void this._build_content()
+      this._build_content()
     })
   }
 

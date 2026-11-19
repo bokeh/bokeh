@@ -67,9 +67,9 @@ export abstract class LayoutDOMView extends PaneView {
     }
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    await this.build_child_views()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
+    this.build_child_views()
   }
 
   override connect_signals(): void {
@@ -138,8 +138,8 @@ export abstract class LayoutDOMView extends PaneView {
     return this._sig_child_views.value
   }
 
-  async build_child_views(): Promise<UIElementView[]> { // TODO BuildResult<UIElement>
-    const {created, removed} = await build_views(this._child_views, this.child_models, {parent: this})
+  build_child_views(): UIElementView[] { // TODO BuildResult<UIElement>
+    const {created, removed} = build_views(this._child_views, this.child_models, {parent: this})
     this._sig_child_views.value = [...this._child_views.values()]
 
     for (const view of removed) {
@@ -172,13 +172,17 @@ export abstract class LayoutDOMView extends PaneView {
 
   protected _update_children(): void {}
 
-  async update_children(): Promise<void> {
-    const created = await this.build_child_views()
+  update_children(): void {
+    const created = this.build_child_views()
     const created_views = new Set(created)
 
     if (this.is_vdom) {
-      // this is probably too early to call, but it's temporary workaround
-      this.invalidate_layout()
+      // Changing child views re-renders the vDOM in a microtask, which attaches
+      // new child views, so update the layout only after that.
+      this.schedule(async () => {
+        await Promise.resolve()
+        this.invalidate_layout()
+      })
       return
     }
 

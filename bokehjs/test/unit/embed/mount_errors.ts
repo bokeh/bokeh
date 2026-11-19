@@ -94,8 +94,8 @@ describe("mount target and failure contracts", () => {
 
   it("preserves render kinds, phases, and root keys for direct and declaration mounts", async () => {
     class FailingDivView extends DivView {
-      override async lazy_initialize(): Promise<void> {
-        await super.lazy_initialize()
+      override lazy_initialize(): void {
+        super.lazy_initialize()
         throw new Error("root view failed")
       }
     }

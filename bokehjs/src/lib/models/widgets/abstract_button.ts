@@ -29,16 +29,16 @@ export abstract class AbstractButtonView extends WidgetView {
     return [...super._children_views(), this.label_view, this.icon_view]
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    await this._rebuild_label()
-    await this._rebuild_icon()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
+    this._rebuild_label()
+    this._rebuild_icon()
   }
 
-  async _rebuild_label(): Promise<void> {
+  _rebuild_label(): void {
     this.label_view?.remove()
     const {label} = this.model
-    this.label_view = isString(label) ? null : await this.owner.build_view(label, this)
+    this.label_view = isString(label) ? null : build_view(label, {parent: this})
   }
 
   protected _label_el(): ChildNode {
@@ -52,11 +52,11 @@ export abstract class AbstractButtonView extends WidgetView {
     }
   }
 
-  async _rebuild_icon(): Promise<void> {
+  _rebuild_icon(): void {
     this.icon_view?.remove()
     const {icon} = this.model
     if (icon != null) {
-      this.icon_view = await build_view(icon, {parent: this})
+      this.icon_view = build_view(icon, {parent: this})
     }
   }
 
@@ -64,12 +64,12 @@ export abstract class AbstractButtonView extends WidgetView {
     super.connect_signals()
 
     const {label, icon, button_type, disabled} = this.model.properties
-    this.on_transitive_change(label, async () => {
-      await this._rebuild_label()
+    this.on_transitive_change(label, () => {
+      this._rebuild_label()
       this.rerender()
     })
-    this.on_transitive_change(icon, async () => {
-      await this._rebuild_icon()
+    this.on_transitive_change(icon, () => {
+      this._rebuild_icon()
       this.rerender()
     })
     this.on_change([button_type, disabled], () => {

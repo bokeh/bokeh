@@ -77,8 +77,8 @@ export class GMapPlotView extends PlotView {
     }
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
 
     this.map_el = div({style: {position: "absolute"}})
     this.canvas_view.underlays_el.append(this.map_el)

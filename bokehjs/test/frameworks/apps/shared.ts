@@ -286,10 +286,12 @@ async function validate_document_controller_supersession(): Promise<void> {
   const DefaultPlotView = stale.default_view
   assert(DefaultPlotView != null, "plot doesn't define a default view")
   class DelayedPlotView extends DefaultPlotView {
-    override async lazy_initialize(): Promise<void> {
-      await super.lazy_initialize()
-      initialization_started()
-      await gate
+    override lazy_initialize(): void {
+      super.lazy_initialize()
+      this.schedule(async () => {
+        initialization_started()
+        await gate
+      })
     }
   }
   Object.defineProperty(stale, "default_view", {value: DelayedPlotView})

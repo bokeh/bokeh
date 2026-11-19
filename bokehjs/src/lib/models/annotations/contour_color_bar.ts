@@ -22,12 +22,12 @@ export class ContourColorBarView extends BaseColorBarView {
     return [...super._children_views(), this._fill_view, this._line_view]
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
 
     const {fill_renderer, line_renderer} = this.model
-    this._fill_view = await build_view(fill_renderer, {parent: this})
-    this._line_view = await build_view(line_renderer, {parent: this})
+    this._fill_view = build_view(fill_renderer, {parent: this})
+    this._line_view = build_view(line_renderer, {parent: this})
   }
 
   override _create_major_range(): Range {

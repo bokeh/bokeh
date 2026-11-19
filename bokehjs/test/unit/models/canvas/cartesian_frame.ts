@@ -11,7 +11,7 @@ import {BBox} from "@bokehjs/core/util/bbox"
 describe("CartesianFrame", () => {
 
   async function build_frame(frame: CartesianFrame) {
-    const frame_view = await build_view(frame, {parent: null})
+    const frame_view = build_view(frame, {parent: null})
     frame_view.set_geometry(new BBox({x: 0, y: 0, width: 100, height: 100}))
     return frame_view
   }

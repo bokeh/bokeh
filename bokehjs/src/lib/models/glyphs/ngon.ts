@@ -7,6 +7,7 @@ import type {Arrayable} from "core/types"
 import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import type {NgonGL} from "./webgl/ngon"
+import type {WebGLModule} from "../canvas/webgl"
 
 export interface NgonView extends Ngon.Data {}
 
@@ -29,9 +30,8 @@ export class NgonView extends RadialGlyphView {
   /** @internal */
   declare glglyph?: NgonGL
 
-  override async load_glglyph() {
-    const {NgonGL} = await import("./webgl/ngon")
-    return NgonGL
+  override glglyph_class(webgl: WebGLModule) {
+    return webgl.NgonGL
   }
 
   protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<Ngon.Data>): void {

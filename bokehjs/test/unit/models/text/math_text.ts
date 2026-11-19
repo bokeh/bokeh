@@ -18,7 +18,7 @@ describe("MathTextView", () => {
       provider.status = "loading"
 
       await with_provider(provider)(async () => {
-        const view = await build_view(model)
+        const view = build_view(model)
         const request_image = sinon.spy(view, "request_image")
         try {
           provider.status = "loaded"

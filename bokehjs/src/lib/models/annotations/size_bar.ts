@@ -240,8 +240,8 @@ export class SizeBarView extends BaseBarView implements Exportable {
     return [...super.computed_elements, this._size_bar]
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
     this._size_bar_view = this._element_views.get(this._size_bar) as InternalPlotView
   }
 

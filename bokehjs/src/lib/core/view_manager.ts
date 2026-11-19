@@ -2,6 +2,7 @@ import type {HasProps} from "./has_props"
 import type {View, ViewOf, IterViews} from "./view"
 import type {Options} from "core/build_views"
 import {build_view} from "./build_views"
+import {load_webgl} from "models/canvas/webgl_loader"
 
 export interface ViewLookup {
   [Symbol.iterator](): IterViews
@@ -141,7 +142,10 @@ export class ViewManager extends AbstractViewQuery {
   }
 
   async build_view<T extends HasProps>(model: T, parent: Options<ViewOf<T>>["parent"] = null): Promise<ViewOf<T>> {
-    const view = await build_view(model, {owner: this, parent})
+    // Views initialize synchronously, so asynchronously loaded resources they
+    // may need must be available up front.
+    await load_webgl()
+    const view = build_view(model, {owner: this, parent})
     if (parent == null) {
       this.add(view)
     }

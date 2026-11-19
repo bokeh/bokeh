@@ -114,13 +114,13 @@ export class ScaleBarView extends AnnotationView {
     })
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
 
     this.x_scale = LinearScale.create({source_range: Range1d.create(), target_range: Range1d.create()})
     this.y_scale = LinearScale.create({source_range: Range1d.create(), target_range: Range1d.create()})
 
-    this.axis_view = await build_view(this.axis, {parent: this})
+    this.axis_view = build_view(this.axis, {parent: this})
     this.axis_view.coordinates = new CoordinateTransform(this.x_scale, this.y_scale)
     this._update_axis_panel()
   }

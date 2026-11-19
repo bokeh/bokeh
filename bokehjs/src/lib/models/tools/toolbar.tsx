@@ -185,17 +185,17 @@ export class ToolbarView extends UIElementView {
     return true
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    await this._build_tool_button_views()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
+    this._build_tool_button_views()
   }
 
   override connect_signals(): void {
     super.connect_signals()
 
     const {buttons, tools, group, group_types} = this.model.properties
-    this.on_change([buttons, tools, group, group_types], async () => {
-      await this._build_tool_button_views()
+    this.on_change([buttons, tools, group, group_types], () => {
+      this._build_tool_button_views()
     })
   }
 
@@ -259,7 +259,7 @@ export class ToolbarView extends UIElementView {
     })
   }
 
-  protected async _build_tool_button_views(): Promise<void> {
+  protected _build_tool_button_views(): void {
     this._destroy_our_models()
 
     const entries = (() => {
@@ -283,8 +283,8 @@ export class ToolbarView extends UIElementView {
       }
     })()
 
-    await build_views(this._bar_views, entries, {parent: this})
-    await build_views(this._menu_views, entries, {parent: this})
+    build_views(this._bar_views, entries, {parent: this})
+    build_views(this._menu_views, entries, {parent: this})
 
     // Set after views were built, so that the component can render them.
     this._entries.value = entries

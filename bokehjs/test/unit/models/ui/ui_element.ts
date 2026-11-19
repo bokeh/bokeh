@@ -157,7 +157,7 @@ describe("UIElement", () => {
 
     it("when not connected to DOM", async () => {
       const ui = UI.create({styles: {...size}})
-      const view = await build_view(ui)
+      const view = build_view(ui)
       try {
         view.build(document.createElement("div"))
         await view.ready

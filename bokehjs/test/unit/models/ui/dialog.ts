@@ -7,7 +7,7 @@ import * as dialogs from "@bokehjs/styles/dialogs.css"
 
 describe("DialogView", () => {
   async function build(dialog: Dialog) {
-    const view = await build_view(dialog)
+    const view = build_view(dialog)
     dialog.visible = true
     const title_el = view.shadow_el.querySelector(`.${dialogs.title}`)
     const content_el = view.shadow_el.querySelector(`.${dialogs.content}`)

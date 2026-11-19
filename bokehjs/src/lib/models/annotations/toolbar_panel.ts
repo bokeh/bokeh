@@ -44,9 +44,9 @@ export class ToolbarPanelView extends AnnotationView {
 
   toolbar_view: ToolbarView
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    this.toolbar_view = await build_view(this.model.toolbar, {parent: this})
+  override lazy_initialize(): void {
+    super.lazy_initialize()
+    this.toolbar_view = build_view(this.model.toolbar, {parent: this})
   }
 
   override connect_signals(): void {

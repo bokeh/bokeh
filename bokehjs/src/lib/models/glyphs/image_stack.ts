@@ -4,6 +4,7 @@ import type {NDArrayType} from "core/util/ndarray"
 import {range} from "core/util/array"
 import type * as p from "core/properties"
 import type {ImageGL} from "./webgl/image"
+import type {WebGLModule} from "../canvas/webgl"
 
 export interface ImageStackView extends ImageBase.Data {}
 
@@ -14,9 +15,8 @@ export class ImageStackView extends ImageBaseView {
   /** @internal */
   declare glglyph?: ImageGL
 
-  override async load_glglyph() {
-    const {ImageGL} = await import("./webgl/image")
-    return ImageGL
+  override glglyph_class(webgl: WebGLModule) {
+    return webgl.ImageGL
   }
 
   override connect_signals(): void {
