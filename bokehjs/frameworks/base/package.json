@@ -1,6 +1,6 @@
 {
   "name": "@bokeh/framework",
-  "version": "4.0.0-dev.8",
+  "version": "4.0.0-dev.10",
   "description": "Shared lifecycle support for Bokeh framework adapters",
   "license": "BSD-3-Clause",
   "homepage": "https://docs.bokeh.org/en/latest/docs/user_guide/advanced/bokehjs.html",
@@ -28,6 +28,6 @@
     "build": "tsc -p tsconfig.json"
   },
   "peerDependencies": {
-    "@bokeh/bokehjs": ">=4.0.0-dev.8 <5"
+    "@bokeh/bokehjs": ">=4.0.0-dev.10 <5"
   }
 }
