@@ -16,6 +16,8 @@
     "./src/compiler"
   ],
   "devDependencies": {
+    "@jridgewell/remapping": "^2.3.5",
+    "@jridgewell/trace-mapping": "^0.3.31",
     "@stylistic/eslint-plugin": "^5.8.0",
     "@types/node": "^22.7.4",
     "@types/yargs": "^17.0.32",
@@ -25,20 +27,18 @@
     "esbuild": "^0.27.2",
     "glob": "^13.0.6",
     "magic-string": "^0.30.21",
-    "oxc-parser": "^0.116.0",
+    "oxc-parser": "^0.157.0",
     "oxlint": "^1.91.0",
     "oxlint-tsgolint": "^7.0.2005",
     "playwright-core": "1.56.1",
     "postcss-less": "^6.0.0",
     "semver": "^7.6.2",
-    "source-map": "^0.7.6",
     "stylelint": "^17.16.0",
     "stylelint-config-recommended": "^18.0.0",
     "stylelint-declaration-strict-value": "^1.12.1",
     "stylelint-no-unsupported-browser-features": "^8.1.2",
     "stylelint-value-no-unknown-custom-properties": "^6.1.1",
-    "typescript": "~5.9.2",
-    "typescript7": "npm:typescript@~7.0.2",
+    "typescript": "~7.0.2",
     "yargs": "^17.7.2"
   }
 }

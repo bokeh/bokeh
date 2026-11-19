@@ -62,7 +62,11 @@
     "test:frameworks": "node make test:frameworks"
   },
   "overrides": {
-    "decode-uri-component": "^0.5.0"
+    "decode-uri-component": "^0.5.0",
+    "@napi-rs/wasm-runtime": {
+      "@emnapi/core": "2.0.0-alpha.6",
+      "@emnapi/runtime": "2.0.0-alpha.6"
+    }
   },
   "allowScripts": {
     "esbuild": true
