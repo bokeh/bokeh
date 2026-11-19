@@ -2,6 +2,7 @@ import {expect, expect_not_null} from "#framework/assertions"
 import {display} from "#framework/layouts"
 
 import {Dialog} from "@bokehjs/models/ui/dialog"
+import {Pane} from "@bokehjs/models/ui/pane"
 import {HTML, HTMLView} from "@bokehjs/models/dom/html"
 import {Node} from "@bokehjs/models/coordinates/node"
 import {build_view} from "@bokehjs/core/build_views"
@@ -222,6 +223,37 @@ describe("models/ui/dialog module", () => {
 
       drag(handle(dialogs.title), [100, 60], [110, 70])
       expect(bbox()).to.be.equal({...initial, left: initial.left + 10, top: initial.top + 10})
+    })
+
+    it("should resolve limits relative to the viewport", async () => {
+      // the parent's position relative to the viewport differs from its `bbox`
+      const inset = 20
+      const parent_limit = (symbol: string) => Node.create({target: "parent", symbol})
+      const dialog = Dialog.create({
+        title: "A dialog",
+        content: "Content",
+        left_limit: parent_limit("left"),
+        right_limit: parent_limit("right"),
+        top_limit: parent_limit("top"),
+        bottom_limit: parent_limit("bottom"),
+      })
+      const pane = Pane.create({
+        elements: [dialog],
+        stylesheets: [`:host { position: fixed; left: ${inset}px; right: ${inset}px; top: ${inset}px; bottom: ${inset}px; }`],
+      })
+      const {view: pane_view} = await display(pane, null)
+      const view = pane_view.owner.get_one(dialog)
+
+      const title_el = view.shadow_el.querySelector<HTMLElement>(`.${dialogs.title}`)
+      expect_not_null(title_el)
+
+      drag(title_el, [100, 60], [-5000, -5000])
+      const {left, top} = bounding_box(view.el)
+      expect({left, top}).to.be.equal({left: inset, top: inset})
+
+      drag(title_el, [100, 60], [5000, 5000])
+      const {right, bottom} = bounding_box(view.el)
+      expect({right, bottom}).to.be.equal({right: innerWidth - inset, bottom: innerHeight - inset})
     })
   })
 })
