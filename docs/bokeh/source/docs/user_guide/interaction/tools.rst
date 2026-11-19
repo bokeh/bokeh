@@ -357,6 +357,15 @@ the y-axis by setting the ``dimensions`` property to a list containing ``width``
 or ``height``. Additionally, there are tool names ``'xpan'`` and ``'ypan'``,
 respectively.
 
+When the gesture starts on an axis instead of inside the plot frame,
+the :class:`~bokeh.models.tools.PanTool.pan_together` property decides which of
+the plot's ranges follow the pointer:
+
+* ``"none"`` moves only the axis being dragged.
+* ``"cross"`` moves the axis being dragged and its cross axis.
+* ``"all"`` moves every axis in the dimension of the axis being dragged, which
+  is the default.
+
 .. _ug_interaction_tools_clicktap:
 
 Click/Tap tools
