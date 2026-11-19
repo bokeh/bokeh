@@ -320,3 +320,5 @@ Bug fixes
 * Fixed ``figure.graph()`` dropping ``node_`` and ``edge_`` prefixed glyph properties
   whose names start with any of the prefix's letters (e.g. ``node_name``), and applying
   unprefixed arguments (e.g. ``tags``) to both node and edge glyphs.
+* Python type checkers now accept hierarchical factor sequences and NumPy
+  string arrays as glyph coordinates (:bokeh-issue:`15746`).
