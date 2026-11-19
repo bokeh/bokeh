@@ -336,6 +336,8 @@ verify-types = "python tools/ci/verify_types.py"
 test = "pytest"
 build-docs = "bash tools/ci/build_docs.sh"
 install-browser = "python -m playwright install --only-shell chromium"
+# Squash-merge a PR (number, URL or branch; default: the current branch).
+merge = "python tools/scripts/squash_merge.py"
 
 [feature.notebook-test.tasks]
 test-notebook = "pytest --color=yes -rs @tests/notebook-tests.txt"
