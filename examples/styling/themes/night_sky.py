@@ -1,3 +1,12 @@
+''' Apply Bokeh's Night Sky theme to a line plot.
+
+.. bokeh-example-metadata::
+    :title: Night sky theme
+    :keywords: night, sky
+    :apis: bokeh.plotting.figure.line
+    :gallery: Basic line plot with the night_sky theme.
+'''
+
 from bokeh.plotting import curdoc, figure, show
 
 x = [1, 2, 3, 4, 5]

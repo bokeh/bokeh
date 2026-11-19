@@ -1,3 +1,12 @@
+''' Draw rectangles using a corner and their width and height.
+
+.. bokeh-example-metadata::
+    :title: Block
+    :keywords: block, reference
+    :apis: bokeh.models.Block, bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Plot
+    :example-ref: bokeh.models.glyphs.block
+'''
+
 import numpy as np
 
 from bokeh.io import curdoc, show

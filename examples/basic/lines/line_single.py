@@ -3,9 +3,10 @@ demonstrates the use of the ``line`` method to make a graph
 by drawing straight lines between defined points.
 
 .. bokeh-example-metadata::
+    :title: Single line
+    :keywords: line, glyph
     :apis: bokeh.plotting.figure.line
     :refs: :ref:`ug_basic_lines_single`
-    :keywords: line, glyph
 
 '''
 

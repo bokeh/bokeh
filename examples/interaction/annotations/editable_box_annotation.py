@@ -1,3 +1,11 @@
+''' Move and resize a box annotation interactively over a plot.
+
+.. bokeh-example-metadata::
+    :title: Editable box annotation
+    :keywords: editable, box, annotation
+    :apis: bokeh.models.BoxAnnotation, bokeh.models.Node
+'''
+
 from bokeh.io import show
 from bokeh.layouts import row
 from bokeh.models import BoxAnnotation, Node

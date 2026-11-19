@@ -1,3 +1,11 @@
+''' Display the Bokeh Fourier app inside a Streamlit page.
+
+.. bokeh-example-metadata::
+    :title: Streamlit simple page
+    :keywords: streamlit, simple, page
+    :no-index:
+'''
+
 import streamlit as st
 
 st.set_page_config(page_title="Bokeh Fourier studio", layout="wide")

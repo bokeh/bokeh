@@ -1,12 +1,13 @@
-''' A plot of the `Lorenz attractor`_. This example demonstrates using
+''' A plot of the `Lorenz attractor <https://en.wikipedia.org/wiki/Lorenz_system>`__. This example demonstrates using
 ``multi_line`` to display many lines with a single vectorized glyph.
 
 .. bokeh-example-metadata::
+    :title: Lorenz attractor
+    :keywords: fractal, lorenz, scipy
     :apis: bokeh.plotting.figure.multi_line
     :refs: :ref:`ug_basic_lines_multi`
-    :keywords: fractal, lorenz, scipy
+    :gallery: A plot of the Lorenz attractor using the MultiLine glyph.
 
-.. _Lorenz attractor: https://en.wikipedia.org/wiki/Lorenz_system
 
 '''
 import numpy as np

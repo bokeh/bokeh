@@ -1,3 +1,11 @@
+''' Choose several independent date-time values.
+
+.. bokeh-example-metadata::
+    :title: Multiple datetime picker
+    :keywords: multiple, datetime, picker
+    :apis: bokeh.models.CustomJS, bokeh.models.MultipleDatetimePicker
+'''
+
 from bokeh.io import show
 from bokeh.models import CustomJS, MultipleDatetimePicker
 

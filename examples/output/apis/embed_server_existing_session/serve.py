@@ -1,3 +1,10 @@
+''' Create a Bokeh session from Flask and embed that same session in a page.
+
+.. bokeh-example-metadata::
+    :title: Serve
+    :keywords: serve
+'''
+
 from flask import Flask, render_template
 
 from bokeh.client import pull_session

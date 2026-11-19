@@ -1,3 +1,12 @@
+''' Flip a widget between on and off states.
+
+.. bokeh-example-metadata::
+    :title: On/off switch
+    :keywords: switch
+    :apis: bokeh.models.CustomJS, bokeh.models.Div, bokeh.models.Switch
+    :gallery: An enabled switch beside a label showing its current state.
+'''
+
 from bokeh.io import show
 from bokeh.layouts import row
 from bokeh.models import CustomJS, Div, Switch

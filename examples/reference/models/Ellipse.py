@@ -1,3 +1,12 @@
+''' Draw ellipses with configurable widths, heights, and angles.
+
+.. bokeh-example-metadata::
+    :title: Ellipse
+    :keywords: ellipse, reference
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Ellipse, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Plot
+    :example-ref: bokeh.models.glyphs.ellipse
+'''
+
 import numpy as np
 
 from bokeh.io import curdoc, show

@@ -1,8 +1,11 @@
-""" Demonstration Bokeh app of how to register event callbacks in both
-Javascript and Python using an adaptation of the color_scatter example
-from the bokeh gallery. This example extends the js_events.py example
-with corresponding Python event callbacks.
-"""
+''' Register JavaScript and Python callbacks for events in an interactive scatter
+plot.
+
+.. bokeh-example-metadata::
+    :title: Events app
+    :keywords: events, app
+    :apis: bokeh.models.Button, bokeh.models.CustomJS, bokeh.models.Div, bokeh.plotting.figure.circle, bokeh.plotting.figure.js_on_event
+'''
 
 import numpy as np
 

@@ -1,3 +1,11 @@
+''' Customize the background fill of a plot legend.
+
+.. bokeh-example-metadata::
+    :title: Legend background
+    :keywords: legend, background
+    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
+'''
+
 import numpy as np
 
 from bokeh.plotting import figure, show

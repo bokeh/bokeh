@@ -1,3 +1,11 @@
+''' Configure keyboard modifiers for tap inspection of scatter points.
+
+.. bokeh-example-metadata::
+    :title: Tap inspect keymod
+    :keywords: tap, inspect, keymod
+    :apis: bokeh.models.CustomJS, bokeh.models.Div, bokeh.models.TapTool, bokeh.plotting.figure.add_tools, bokeh.plotting.figure.circle
+'''
+
 import numpy as np
 
 from bokeh.models import CustomJS, Div, TapTool

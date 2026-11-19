@@ -5,8 +5,10 @@ The anchor property can shift the image vertically or horizontally.
 The origin property flip the image vertically or horizontally.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.image_rgba
+    :title: Choose an origin and anchor
     :keywords: image, anchor, origin
+    :apis: bokeh.plotting.figure.image_rgba
+    :gallery: A test image with dropdown widgets for seeing the effect of changes to an image glyph's origin and anchor properties.
 
 '''
 import numpy as np

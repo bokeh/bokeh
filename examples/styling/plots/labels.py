@@ -1,3 +1,11 @@
+''' Set text labels on the x and y axes.
+
+.. bokeh-example-metadata::
+    :title: Labels
+    :keywords: labels
+    :apis: bokeh.plotting.figure.scatter
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

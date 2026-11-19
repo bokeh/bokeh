@@ -200,8 +200,6 @@ class BokehPlotDirective(BokehDirective):
         target_id = f"{dashed_docname}.{basename(js_path)}"
         target = [nodes.target("", "", ids=[target_id])]
 
-        self.process_sampledata(source)
-
         process_docstring = self.options.get("process-docstring", False)
         intro = self.parse(docstring, '<bokeh-content>') if docstring and process_docstring else []
 
@@ -252,6 +250,7 @@ class BokehPlotDirective(BokehDirective):
             path = join(REPO_TOP, path.replace("__REPO__/", ""))
         elif not isabs(path):
             path = join(env.srcdir, path)
+        env.note_dependency(path)
         try:
             with open(path) as f:
                 return f.read(), path
@@ -301,37 +300,6 @@ class BokehPlotDirective(BokehDirective):
 
         return (external.html, js_path, source, docstring, height_hint)
 
-    def process_sampledata(self, source: str) -> None:
-
-        env = cast(Any, self.env)
-        # A reread must regenerate references that env-purge-doc removed.
-        solved_sampledata = env.temp_data.setdefault("bokeh_sampledata_files", set())
-
-        file, _ = self.get_source_info()
-        # collect links to all standalone examples
-
-        if file is not None and '/docs/examples/' in file.replace("\\", "/") and file not in solved_sampledata:
-            solved_sampledata.add(file)
-            if not hasattr(env, 'all_sampledata_xrefs'):
-                env.all_sampledata_xrefs = []
-            if not hasattr(env, 'all_gallery_overview'):
-                env.all_gallery_overview = []
-
-            env.all_gallery_overview.append({
-                'docname': env.docname,
-            })
-
-            regex = r"(:|bokeh\.)sampledata(:|\.| import )\s*(\w+(\,\s*\w+)*)"
-            matches = re.findall(regex, source)
-            if matches:
-                keywords = set()
-                for m in matches:
-                    keywords.update(m[2].replace(" ","").split(','))
-                for keyword in keywords:
-                    env.all_sampledata_xrefs.append({
-                        'docname': env.docname,
-                        'keyword': keyword,
-                    })
 # -----------------------------------------------------------------------------
 # Dev API
 # -----------------------------------------------------------------------------

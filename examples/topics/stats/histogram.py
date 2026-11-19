@@ -1,9 +1,11 @@
 ''' A histogram plot of the Normal (Gaussian) distribution.
 
 .. bokeh-example-metadata::
+    :title: Histogram
+    :keywords: histogram
     :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.quad
     :refs: :ref:`ug_topics_stats_histogram`
-    :keywords: histogram
+    :gallery: A histogram of sampled data from a normal (Gaussian) distribution overlaid with a line showing the ideal distribution curve.
 
 '''
 import numpy as np

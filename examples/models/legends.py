@@ -1,10 +1,10 @@
-'''This example shows different ways to place legends on a graph using the different location values included in the enumeration ``LegendLocation``.
-The legend can be defined in terms of title, shape and orientation. This graph shows sin and cos plots.
+''' Compare legend positions and styles on sine and cosine plots.
 
 .. bokeh-example-metadata::
+    :title: Legends
+    :keywords: sin, cos, pi, linspace, LegendLocation
     :apis: bokeh.core.enums.LegendLocation, bokeh.models.ColumnDataSource, bokeh.models.DataRange1d, bokeh.models.Plot, bokeh.models.Legend
     :refs: :ref:`ug_styling_plots_legends`
-    :keywords: sin, cos, pi, linspace, LegendLocation
 '''
 
 from numpy import cos, linspace, pi, sin

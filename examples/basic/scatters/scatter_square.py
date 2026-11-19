@@ -1,3 +1,11 @@
+''' Draw a scatter plot using square markers.
+
+.. bokeh-example-metadata::
+    :title: Scatter square
+    :keywords: scatter, square
+    :apis: bokeh.plotting.figure.scatter
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

@@ -1,3 +1,12 @@
+''' Fill an area between vertical step boundaries.
+
+.. bokeh-example-metadata::
+    :title: VArea Step
+    :keywords: varea step, reference
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Plot, bokeh.models.VAreaStep
+    :example-ref: bokeh.models.glyphs.vareastep
+'''
+
 import numpy as np
 
 from bokeh.io import curdoc, show

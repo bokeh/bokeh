@@ -2,8 +2,9 @@
 ``vstrip``. It also demonstrates how the default ``HoverTool`` interacts with these glyphs.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.hspan, bokeh.plotting.figure.hstrip, bokeh.plotting.figure.vstrip
+    :title: Spans and strips
     :keywords: strips, hover tool
+    :apis: bokeh.plotting.figure.hspan, bokeh.plotting.figure.hstrip, bokeh.plotting.figure.vstrip
 
 '''
 

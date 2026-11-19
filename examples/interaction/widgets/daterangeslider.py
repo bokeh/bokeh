@@ -1,3 +1,11 @@
+''' Select a range of dates using two slider handles.
+
+.. bokeh-example-metadata::
+    :title: Daterangeslider
+    :keywords: date, range, slider
+    :apis: bokeh.models.CustomJS, bokeh.models.DateRangeSlider
+'''
+
 from datetime import date
 
 from bokeh.io import show

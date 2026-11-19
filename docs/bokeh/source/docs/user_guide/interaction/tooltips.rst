@@ -24,6 +24,8 @@ Bokeh uses the :class:`~bokeh.models.Tooltip` model to manage tooltips. The
 appearance of tooltips. See :class:`~bokeh.models.Tooltip` in the
 |reference guide| for additional information.
 
+.. _ug_interaction_tooltip_contents:
+
 Tooltip contents
 ----------------
 

@@ -49,7 +49,9 @@ Bokeh's documentation consists of several components:
         ^^^
         Learn more by exploring examples:
 
-        * :ref:`gallery`: a collection of examples with source code.
+        * :ref:`example_index`: search examples by topic, API, or keyword.
+
+        * :ref:`gallery`: browse rendered plots and interactive demos with source code.
 
         * `Interactive tutorial notebooks`_: a collection of interactive notebooks to experiment with all elements of Bokeh.
 
@@ -88,6 +90,7 @@ You can also find more information about Bokeh on `Medium`_, and `LinkedIn`_.
     docs/first_steps
     docs/user_guide
     docs/gallery
+    docs/examples
     docs/reference
     docs/dev_guide
     docs/releases

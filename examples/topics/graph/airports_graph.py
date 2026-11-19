@@ -1,10 +1,13 @@
 ''' This example creates an interactive map visualization of airport routes and locations using Bokeh.
 
 .. bokeh-example-metadata::
-    :sampledata: airport_routes, us_states
+    :title: Explore airport connections
+    :keywords: graph, map, airports, routes, hover, selection
+    :categories: topics/graph, topics/geo
     :apis: bokeh.models.ColumnDataSource, bokeh.models.StaticLayoutProvider, bokeh.models.NodesAndLinkedEdges, bokeh.models.TapTool
+    :sampledata: airport_routes, us_states
     :refs: :ref:`ug_topics_graph`
-    :keywords: graph, interactive, map, routes, airports, hover tool, tap tool
+    :gallery: Airport nodes and flight routes over a map of the United States.
 '''
 
 import numpy as np

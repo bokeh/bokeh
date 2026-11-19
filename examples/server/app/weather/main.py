@@ -6,6 +6,13 @@ with the distribution option.
     This example needs SciPy, pandas, and bokeh_sampledata to run. See
     ``README.md`` for more information.
 
+
+
+.. bokeh-example-metadata::
+    :title: Weather
+    :keywords: weather, bokeh server, app
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.DataRange1d, bokeh.models.Select, bokeh.plotting.figure.quad
+    :sampledata: airport_weather
 '''
 import datetime
 

@@ -1,10 +1,11 @@
-''' A color mapping plot with color spectrum scale. The example plots demonstrates
-log mapping and linear mapping with different color palette.
+''' Compare linear and logarithmic color mapping with different palettes and palette sizes.
 
 .. bokeh-example-metadata::
+    :title: Compare linear and log color scales
+    :keywords: color, tools, scatter, data_map
     :apis: bokeh.plotting.figure.scatter, bokeh.models.ColumnDataSource, bokeh.models.ColorBar, bokeh.models.mappers.LinearColorMapper, bokeh.models.mappers.LogColorMapper
     :refs: :ref:`ug_topics_images_colormapped`
-    :keywords: color, tools, scatter, data_map
+    :gallery: Comparison of linear and log colormaps with different palette sizes.
 
 ''' # noqa: E501
 import numpy as np

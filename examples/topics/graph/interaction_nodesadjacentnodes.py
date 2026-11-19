@@ -1,3 +1,13 @@
+''' Highlight a node and its neighboring nodes.
+
+.. bokeh-example-metadata::
+    :title: Highlight neighboring nodes
+    :keywords: graph, selection, neighbors, NodesAndAdjacentNodes
+    :categories: topics/graph, interaction/linking
+    :apis: bokeh.models.BoxSelectTool, bokeh.models.HoverTool, bokeh.models.MultiLine, bokeh.models.NodesAndAdjacentNodes, bokeh.models.Plot
+    :gallery: A circular network with a selected node and its neighboring nodes highlighted.
+'''
+
 import networkx as nx
 
 from bokeh.models import (

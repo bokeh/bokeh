@@ -1,3 +1,12 @@
+''' Use indexed legend items to identify individual lines within one multi-line
+renderer.
+
+.. bokeh-example-metadata::
+    :title: Legends multi index
+    :keywords: legends, multi, index
+    :apis: bokeh.models.Legend, bokeh.models.LegendItem, bokeh.plotting.figure.add_layout, bokeh.plotting.figure.multi_line
+'''
+
 from bokeh.models import Legend, LegendItem
 from bokeh.plotting import figure, show
 

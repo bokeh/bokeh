@@ -1,3 +1,10 @@
+''' Combine Streamlit controls with a browser-side Bokeh particle simulation.
+
+.. bokeh-example-metadata::
+    :title: Control a particle simulation from Streamlit
+    :keywords: app
+'''
+
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import AsyncGenerator

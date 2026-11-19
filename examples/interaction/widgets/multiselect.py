@@ -1,3 +1,12 @@
+''' Choose several values from a list box.
+
+.. bokeh-example-metadata::
+    :title: Multiselect
+    :keywords: multiple selection, list
+    :apis: bokeh.models.CustomJS, bokeh.models.MultiSelect
+    :gallery: A list box showing foo, bar, baz, and quux.
+'''
+
 from bokeh.io import show
 from bokeh.models import CustomJS, MultiSelect
 

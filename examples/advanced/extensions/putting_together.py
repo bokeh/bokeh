@@ -1,3 +1,12 @@
+''' Connect a Python slider model to a custom TypeScript widget that displays its
+value.
+
+.. bokeh-example-metadata::
+    :title: Custom widget from a Python model
+    :keywords: custom model, widget, Python, TypeScript
+    :apis: bokeh.models.Slider, bokeh.models.UIElement
+'''
+
 from bokeh.core.properties import Instance, Required, String
 from bokeh.io import show
 from bokeh.layouts import column

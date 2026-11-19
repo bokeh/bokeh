@@ -2,10 +2,12 @@
 demonstrates using the `segment` glyph.
 
 .. bokeh-example-metadata::
-    :sampledata: emissions
-    :apis: bokeh.plotting.figure.scatter
-    :refs: :ref:`ug_topics_categorical_slope_graph`
+    :title: Slope graph
     :keywords: segment, scatter
+    :apis: bokeh.plotting.figure.scatter
+    :sampledata: emissions
+    :refs: :ref:`ug_topics_categorical_slope_graph`
+    :gallery: A slope graph of the CO2 emissions of selected countries in the years 2000 and 2010.
 
 '''
 from bokeh.models import ColumnDataSource

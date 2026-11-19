@@ -1,3 +1,12 @@
+''' Load kelp survey observations from JSON Lines and distinguish reviewed and
+pending records.
+
+.. bokeh-example-metadata::
+    :title: Record source jsonl
+    :keywords: record, source, jsonl
+    :apis: bokeh.models.GroupFilter, bokeh.models.IndexedSubset, bokeh.models.RecordDataSource, bokeh.plotting.figure.scatter
+'''
+
 from os.path import dirname, join
 
 from bokeh.models import GroupFilter, IndexedSubset, RecordDataSource

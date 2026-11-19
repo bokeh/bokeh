@@ -1,3 +1,11 @@
+''' Build a datetime scatter plot with low-level plot and axis models.
+
+.. bokeh-example-metadata::
+    :title: Dateaxis
+    :keywords: dateaxis, models
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.DatetimeAxis, bokeh.models.PanTool, bokeh.models.Plot, bokeh.models.Scatter
+'''
+
 import time
 
 from numpy import exp, linspace, pi, sin

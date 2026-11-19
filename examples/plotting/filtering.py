@@ -1,13 +1,12 @@
-''' A map representation of unemployment rate in US using the :ref:`US_States Dataset <sampledata_us_states>`.
-This example demonstrates using IndexFilter, ColorMapper and HoverTool with
-basic plot elements such as patches. When hovering over the points,
-the state and its umemployment rate is shown.
+''' Map U.S. unemployment rates using filtered state boundaries, color mapping, and
+hover labels.
 
 .. bokeh-example-metadata::
-    :sampledata: US_States
-    :apis: bokeh.models.IndexFilter, bokeh.models.HoverTool, bokeh.models.LinearColorMapper
-    :refs: :ref:`ug_basic_areas_patches`, :ref:`ug_basic_data_filtering_index`
+    :title: Filtering
     :keywords: hover tool, indexfilter, filtering, US
+    :apis: bokeh.models.IndexFilter, bokeh.models.HoverTool, bokeh.models.LinearColorMapper
+    :sampledata: us_states
+    :refs: :ref:`ug_basic_areas_patches`, :ref:`ug_basic_data_filtering_index`
 '''
 from bokeh.core.properties import field
 from bokeh.models import ColorBar, HoverTool, IndexFilter, LinearColorMapper

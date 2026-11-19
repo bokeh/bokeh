@@ -1,3 +1,11 @@
+''' Attach JavaScript interactions to a plot built from individual Bokeh models.
+
+.. bokeh-example-metadata::
+    :title: Customjs
+    :keywords: customjs, models
+    :apis: bokeh.models.Circle, bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.LinearAxis, bokeh.models.PanTool, bokeh.models.Plot
+'''
+
 from bokeh.document import Document
 from bokeh.embed import embed
 from bokeh.models import (

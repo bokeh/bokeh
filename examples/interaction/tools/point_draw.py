@@ -1,3 +1,12 @@
+''' Add or move scatter points and see their coordinates update in a data table.
+
+.. bokeh-example-metadata::
+    :title: Draw and move points
+    :keywords: draw, edit, points, linked table
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.DataTable, bokeh.models.PointDrawTool, bokeh.models.StringFormatter, bokeh.models.TableColumn
+    :gallery: Colored scatter points above a table listing their coordinates and colors.
+'''
+
 from bokeh.models import (
     ColumnDataSource,
     DataTable,

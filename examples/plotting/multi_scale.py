@@ -1,9 +1,10 @@
-'''This example shows a graph with multiple scales on y-axis.
+''' This example shows a graph with multiple scales on y-axis.
 This can be used to depict values in two different units.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter, bokeh.plotting.figure.add_layout
+    :title: Multi scale
     :keywords: scale
+    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter, bokeh.plotting.figure.add_layout
 
 '''
 from bokeh.io import show

@@ -2,9 +2,10 @@
 labels.
 
 .. bokeh-example-metadata::
+    :title: Math in tick labels
+    :keywords: mathtext, latex
     :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter, bokeh.models.ScaledTickFormatter
     :refs: :ref:`ug_styling_mathtext`
-    :keywords: mathtext, latex
 '''
 from numpy import arange
 

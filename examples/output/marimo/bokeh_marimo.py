@@ -1,3 +1,11 @@
+''' Embed a Bokeh plot in marimo and update its data from a reactive slider.
+
+.. bokeh-example-metadata::
+    :title: Bokeh marimo
+    :keywords: bokeh, marimo
+    :apis: bokeh.models.HoverTool, bokeh.plotting.figure.add_tools, bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
+'''
+
 import marimo
 
 __generated_with = "0.24.0"

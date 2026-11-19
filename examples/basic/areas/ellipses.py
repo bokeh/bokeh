@@ -1,3 +1,11 @@
+''' Draw ellipses with glyph widths and heights in data units.
+
+.. bokeh-example-metadata::
+    :title: Ellipses
+    :keywords: ellipses
+    :apis: bokeh.plotting.figure.ellipse
+'''
+
 from math import pi
 
 from bokeh.plotting import figure, show

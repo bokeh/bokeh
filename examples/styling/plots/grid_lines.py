@@ -1,3 +1,11 @@
+''' Customize the color, width, and dash pattern of grid lines.
+
+.. bokeh-example-metadata::
+    :title: Grid lines
+    :keywords: grid, lines
+    :apis: bokeh.plotting.figure.scatter
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

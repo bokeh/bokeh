@@ -1,3 +1,10 @@
+''' Embed a Bokeh server application in a Django ASGI page.
+
+.. bokeh-example-metadata::
+    :title: Django embed
+    :keywords: django, embed
+'''
+
 import os
 from pathlib import Path
 

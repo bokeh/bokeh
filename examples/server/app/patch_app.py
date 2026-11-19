@@ -4,6 +4,14 @@
 #     bokeh serve --show patch_app.py
 #
 # Running "python patch_app.py" will NOT work.
+''' Patch selected entries in line and image data sources from a server callback.
+
+.. bokeh-example-metadata::
+    :title: Patch app
+    :keywords: patch, app
+    :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.image_rgba, bokeh.plotting.figure.multi_line, bokeh.plotting.figure.scatter
+'''
+
 import numpy as np
 
 from bokeh.io import curdoc

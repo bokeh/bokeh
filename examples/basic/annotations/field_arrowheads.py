@@ -1,9 +1,10 @@
 ''' Place arrowheads from a source column, with an empty list for one path.
 
 .. bokeh-example-metadata::
+    :title: Field arrowheads
+    :keywords: arrowheads, fractional positions, data source, paths
     :apis: bokeh.models.GlyphRenderer.add_path_marking, bokeh.models.ColumnDataSource, bokeh.models.NormalHead
     :refs: :ref:`ug_basic_annotations_path_markings`
-    :keywords: arrowheads, fractional positions, data source, paths
 
 '''
 from math import sin, tau

@@ -1,3 +1,12 @@
+''' Implement a custom drag tool that draws a line by appending points to a data
+source.
+
+.. bokeh-example-metadata::
+    :title: Tool
+    :keywords: tool
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Tool, bokeh.plotting.figure.add_tools, bokeh.plotting.figure.line
+'''
+
 from bokeh.core.properties import Instance
 from bokeh.models import ColumnDataSource, Tool
 from bokeh.plotting import figure, show

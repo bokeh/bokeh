@@ -1,3 +1,11 @@
+''' Control an ipyvolume camera from Bokeh sliders.
+
+.. bokeh-example-metadata::
+    :title: Ipyvolume camera
+    :keywords: ipyvolume, camera
+    :apis: bokeh.models.Slider
+'''
+
 import ipyvolume as ipv
 import ipywidgets as ipw
 import numpy as np

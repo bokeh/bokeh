@@ -1,3 +1,11 @@
+''' Set the width and height of a plot.
+
+.. bokeh-example-metadata::
+    :title: Dimensions
+    :keywords: dimensions
+    :apis: bokeh.plotting.figure.scatter
+'''
+
 from bokeh.plotting import figure, show
 
 # create a new plot with specific dimensions

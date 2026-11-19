@@ -4,10 +4,11 @@ The chart shows correlation between atomic mass and density of periodic table
 elements.
 
 .. bokeh-example-metadata::
-    :sampledata: periodic_table
-    :apis: bokeh.plotting.figure
-    :refs: :ref:`ug_interaction_tooltips`
+    :title: Custom tooltip
     :keywords: plot, tooltips, custom
+    :apis: bokeh.plotting.figure
+    :sampledata: periodic_table
+    :refs: :ref:`ug_interaction_tooltips`
 
 '''
 

@@ -1,14 +1,14 @@
 ''' A scatter plot comparing historical Olympic sprint times, based on a
-`New York Times interactive`_. Tapping any of the scatter points will open a
+`New York Times interactive <http://www.nytimes.com/interactive/2012/08/05/sports/olympics/the-100-meter-dash-one-race-every-medalist-ever.html>`__. Tapping any of the scatter points will open a
 new browser tab for the Wikipedia entry of the sprinter.
 
 .. bokeh-example-metadata::
-    :sampledata: sprint
-    :apis: bokeh.plotting.figure.arrow, bokeh.plotting.figure.scatter, bokeh.models.ColumnDataSource, bokeh.models.Label, bokeh.models.SingleIntervalTicker, bokeh.models.TapTool
-    :refs: :ref:`ug_basic_annotations_labels`
+    :title: Sprint
     :keywords: label, scatter, taptool
+    :apis: bokeh.plotting.figure.arrow, bokeh.plotting.figure.scatter, bokeh.models.ColumnDataSource, bokeh.models.Label, bokeh.models.SingleIntervalTicker, bokeh.models.TapTool
+    :sampledata: sprint
+    :refs: :ref:`ug_basic_annotations_labels`
 
-.. _New York Times interactive: http://www.nytimes.com/interactive/2012/08/05/sports/olympics/the-100-meter-dash-one-race-every-medalist-ever.html
 
 ''' # noqa: E501
 from bokeh.models import (

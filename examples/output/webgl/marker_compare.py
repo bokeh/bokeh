@@ -1,9 +1,15 @@
-""" Compare WebGL and SVG markers with canvas markers.
+''' Compare WebGL and SVG markers with canvas markers.
 
 This covers all markers supported by scatter. The plots are put in tabs,
 so that you can easily switch to compare positioning and appearance.
 
-"""
+
+
+.. bokeh-example-metadata::
+    :title: Marker compare
+    :keywords: marker, compare, webgl
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.TabPanel, bokeh.models.Tabs, bokeh.plotting.figure.scatter
+'''
 import numpy as np
 
 from bokeh.core.enums import MarkerType

@@ -1,3 +1,11 @@
+''' Use independent polar coordinate systems to lay out rose curves.
+
+.. bokeh-example-metadata::
+    :title: Polar subcoordinates
+    :keywords: polar subcoordinates, plotting
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.PolarTransform, bokeh.models.Range1d, bokeh.plotting.figure.subplot
+'''
+
 from fractions import Fraction
 from math import pi
 

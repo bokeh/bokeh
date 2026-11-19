@@ -1,3 +1,12 @@
+''' Overlay markers on a line while using the same coordinates for both glyphs.
+
+.. bokeh-example-metadata::
+    :title: Mark data points on a line
+    :keywords: multiple, glyphs
+    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
+    :gallery: A line connects five points, each marked by an open circle.
+'''
+
 from bokeh.plotting import figure, show
 
 x = [1, 2, 3, 4, 5]

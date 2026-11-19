@@ -1,3 +1,12 @@
+''' Embed a running Bokeh server app in a Flask page.
+
+.. bokeh-example-metadata::
+    :title: Flask embed
+    :keywords: flask, embed
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Slider, bokeh.plotting.figure.line
+    :sampledata: sea_surface_temperature
+'''
+
 from threading import Thread
 
 from flask import Flask, render_template

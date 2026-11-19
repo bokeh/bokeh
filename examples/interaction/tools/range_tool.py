@@ -3,10 +3,13 @@ tool controlling the range of another plot. The highlighted range area on the
 lower plot may be dragged to update the range on the top plot.
 
 .. bokeh-example-metadata::
-    :sampledata: stocks
-    :apis: bokeh.plotting.figure.line, bokeh.models.tools.RangeTool
-    :refs: :ref:`ug_interaction_tools`
+    :title: Range tool
     :keywords: line, timeseries, stocks
+    :categories: interaction/tools, topics/timeseries
+    :apis: bokeh.plotting.figure.line, bokeh.models.tools.RangeTool
+    :sampledata: stocks
+    :refs: :ref:`ug_interaction_tools`
+    :gallery: Two stock price plots. A range selector on the full series below controls the time window shown above.
 
 '''
 import numpy as np

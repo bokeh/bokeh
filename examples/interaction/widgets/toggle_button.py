@@ -1,3 +1,12 @@
+''' Switch a button between pressed and released states.
+
+.. bokeh-example-metadata::
+    :title: Toggle button
+    :keywords: toggle, button
+    :apis: bokeh.models.CustomJS, bokeh.models.Toggle
+    :gallery: A green toggle button in its pressed state.
+'''
+
 from bokeh.io import show
 from bokeh.models import CustomJS, Toggle
 

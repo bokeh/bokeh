@@ -1,3 +1,12 @@
+''' Draw polygon parts and holes using nested coordinate arrays.
+
+.. bokeh-example-metadata::
+    :title: Multi Polygons
+    :keywords: multi polygons, reference
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.MultiPolygons, bokeh.models.Plot
+    :example-ref: bokeh.models.glyphs.multipolygons
+'''
+
 from bokeh.io import curdoc, show
 from bokeh.models import ColumnDataSource, Grid, LinearAxis, MultiPolygons, Plot
 

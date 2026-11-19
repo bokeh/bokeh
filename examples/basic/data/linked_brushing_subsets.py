@@ -1,3 +1,12 @@
+''' Link selection between a full scatter plot and a filtered view of the same
+source.
+
+.. bokeh-example-metadata::
+    :title: Linked brushing subsets
+    :keywords: linked, brushing, subsets
+    :apis: bokeh.models.BooleanFilter, bokeh.models.ColumnDataSource, bokeh.models.IndexedSubset, bokeh.plotting.figure.scatter
+'''
+
 from bokeh.layouts import gridplot
 from bokeh.models import BooleanFilter, ColumnDataSource, IndexedSubset
 from bokeh.plotting import figure, show

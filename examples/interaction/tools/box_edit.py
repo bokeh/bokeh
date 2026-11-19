@@ -1,3 +1,11 @@
+''' Draw, move, and resize rectangles with the box edit tool.
+
+.. bokeh-example-metadata::
+    :title: Box edit
+    :keywords: box, edit
+    :apis: bokeh.models.BoxEditTool, bokeh.models.ColumnDataSource, bokeh.plotting.figure.add_tools, bokeh.plotting.figure.rect
+'''
+
 from bokeh.models import BoxEditTool, ColumnDataSource
 from bokeh.plotting import figure, show
 

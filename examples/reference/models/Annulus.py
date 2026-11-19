@@ -1,3 +1,12 @@
+''' Draw rings with explicit inner and outer radii.
+
+.. bokeh-example-metadata::
+    :title: Annulus glyph
+    :keywords: annulus, reference
+    :apis: bokeh.models.Annulus, bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Plot
+    :example-ref: bokeh.models.glyphs.annulus
+'''
+
 import numpy as np
 
 from bokeh.io import curdoc, show

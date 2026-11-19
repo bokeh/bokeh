@@ -484,6 +484,96 @@ Sphinx generates each of those elements from reStructuredText (.rst) files. To
 edit any of those elements, open the corresponding ReST source file in the
 ``docs/bokeh/source/docs`` folder of the Bokeh source tree.
 
+The :ref:`example_index` discovers Python scripts and notebooks under
+``examples/``. Start each indexed Python script with a short module docstring
+summary that explains what it demonstrates. CI reports scripts with missing
+summaries. Use the ``bokeh-example-metadata`` directive to provide a title,
+API names, sample data, and search keywords.
+
+Start with ``:title:`` and ``:keywords:``. Follow those with ``:categories:``, ``:apis:``,
+``:sampledata:``, ``:refs:``, and ``:example-ref:`` when they apply. Put
+optional flags last in this order: ``:render:``,
+``:no-render:``, ``:no-index:``, and ``:gallery:``.
+
+For an example rendered in a guide or API reference page, set
+``:example-ref:`` to the section label so the index opens that rendering.
+
+Python scripts in directories matching ``bokeh_example_subdirs`` get dedicated
+rendered pages by default. A pattern such as ``basic/*`` covers each immediate
+subdirectory of ``examples/basic/``. Gallery examples also get a dedicated
+page. For other examples, use ``:render:`` to opt in outside the default
+directories and ``:no-render:`` to opt out inside them.
+
+Use ``:no-index:`` for support modules such as custom model definitions, app
+hooks, shared data preparation, and authentication helpers. They retain their
+metadata and remain available to other examples, but are omitted from the
+Examples index. Runnable entry points should remain in the index.
+
+List the module names of imported datasets in the ``:sampledata:`` field,
+separated by commas. CI reports imports with missing declarations.
+
+To feature a rendered example in the :ref:`gallery`, add ``:gallery:`` with
+the thumbnail's alt text as its value. Put the PNG and the corresponding
+``@2x.png`` in ``docs/bokeh/source/_images/`` at the same relative path as
+the example, replacing the ``.py`` extension. The gallery title defaults to
+the filename with underscores replaced by spaces and its first letter
+capitalized. Override it with ``:title:``. Cards show the first
+sentence of the docstring summary. Use inline links for external references
+in this summary so they resolve on both the example page and Gallery card.
+The gallery's JSON file lists the externally hosted server demos.
+
+Thumbnail requirements:
+
+* Gallery images are square PNGs at 300 × 300 pixels and 600 × 600 pixels
+  for the ``@2x`` version.
+* Index images are separate PNGs with a maximum dimension of 120 pixels.
+  Store them in ``docs/bokeh/source/_images/examples/_index/``, mirroring the
+  example's path relative to ``examples/`` and replacing its extension with
+  ``.png``. No ``@2x`` version is needed for the index.
+* Capture the actual rendered output in a useful state, such as a selection
+  or an open tooltip. Crop out browser chrome and unrelated page content.
+  Preserve proportions and use padding where needed. Keep small controls
+  at a readable size without enlarging them to fill the image.
+
+Commit thumbnails with the example changes. Docs builds reuse these files
+and do not generate screenshots. Index thumbnails are optional. Entries
+without one retain an empty thumbnail column.
+
+Gallery tabs and subgroup order are arranged in
+``docs/bokeh/source/docs/gallery.rst``. Each line inside a ``bokeh-gallery``
+directive names a category::
+
+    .. bokeh-gallery::
+
+        basic/lines
+        basic/annotations
+        topics/vector_fields
+        topics/timeseries
+
+By default, an example belongs to the category matching its parent directory,
+relative to ``examples/``. To move or reuse it, add comma-separated
+``:categories:`` to its metadata. This replaces the directory default::
+
+    .. bokeh-example-metadata::
+        :title: Stock prices
+        :keywords: stocks, datetime, line
+        :categories: basic/lines, topics/timeseries
+        :gallery: Four stock price lines with a legend.
+
+This example appears in both Lines and Time series. To exclude an example
+from its default category, omit that category from the explicit list. For
+example, ``:categories: topics/vector_fields`` moves Quiver out of Annotations.
+Reused cards share the example's metadata, thumbnails, and rendered destination.
+Only examples with ``:gallery:`` appear as cards. Categories also supply the
+Examples index's topic filters, including for examples without thumbnails.
+
+Category names must match an existing directory under ``examples/`` or a
+virtual category declared in ``bokeh_example_categories`` in ``conf.py``.
+For example, ``topics/vector_fields`` groups examples without moving files.
+Unknown names in metadata or ``gallery.rst`` fail the docs build. A category's
+final component supplies its Gallery subgroup heading, formatted for display.
+Empty subgroups are omitted.
+
 For information on how to format text using reStructuredText, see the
 :doc:`reStructuredText primer on the Sphinx website <sphinx:usage/restructuredtext/basics>`
 or the `official reStructuredText website`_.

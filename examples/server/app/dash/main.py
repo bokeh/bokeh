@@ -1,12 +1,18 @@
-''' A dashboard that utilizes `Auto MPG`_ and stocks dataset.
+''' A dashboard that utilizes `Auto MPG <https://archive.ics.uci.edu/ml/datasets/auto+mpg>`__ and stocks dataset.
 This example demonstrates the use of Bootstrap templates to compile several types
 of charts in one file.
 
 .. note::
     This example needs the Pandas package to run.
 
-.. _Auto MPG: https://archive.ics.uci.edu/ml/datasets/auto+mpg
 
+
+
+.. bokeh-example-metadata::
+    :title: Dash
+    :keywords: dash, bokeh server, app
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.DataTable, bokeh.models.NumberFormatter, bokeh.models.RangeTool, bokeh.models.StringFormatter
+    :sampledata: autompg2, stocks
 '''
 from collections import Counter
 from math import pi

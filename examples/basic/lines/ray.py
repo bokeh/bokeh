@@ -1,3 +1,11 @@
+''' Draw line rays from anchor points using lengths and angles.
+
+.. bokeh-example-metadata::
+    :title: Rays from anchor points
+    :keywords: ray
+    :apis: bokeh.plotting.figure.ray
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

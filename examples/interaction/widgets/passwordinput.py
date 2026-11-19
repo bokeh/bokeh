@@ -1,3 +1,11 @@
+''' Mask characters typed into a password field.
+
+.. bokeh-example-metadata::
+    :title: Passwordinput
+    :keywords: password, input
+    :apis: bokeh.models.CustomJS, bokeh.models.PasswordInput
+'''
+
 from bokeh.io import show
 from bokeh.models import CustomJS, PasswordInput
 

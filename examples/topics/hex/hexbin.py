@@ -1,11 +1,11 @@
-''' A automatic hexbin plot using randomly selected points. This chart shows
-500 points points from a normal distribution binned into hexagonal tiles. A
-hover tooltip displays information for each tile.
+''' Bin normally distributed points into hexagonal tiles and show bin counts on hover.
 
 .. bokeh-example-metadata::
+    :title: Automatic hex binning
+    :keywords: hex, hexbin, hover, tooltip
     :apis: bokeh.plotting.figure.hexbin
     :refs: :ref:`ug_topics_hex`
-    :keywords: hex, hexbin, hover, tooltip
+    :gallery: A hexbin plot of 2d random (Gaussian) data points, colormapped by density with the Viridis palette.
 
 '''
 import numpy as np

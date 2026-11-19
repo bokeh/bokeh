@@ -1,3 +1,11 @@
+''' Add custom attribution to a Bokeh plot.
+
+.. bokeh-example-metadata::
+    :title: Custom attribution
+    :keywords: custom, attribution
+    :apis: bokeh.models.Node, bokeh.models.Panel, bokeh.plotting.figure.circle
+'''
+
 import numpy as np
 
 from bokeh.io import show

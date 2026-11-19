@@ -1,4 +1,12 @@
 ## Bokeh server for Radio Button Group
+''' Filter scatter points by color with a radio button group.
+
+.. bokeh-example-metadata::
+    :title: Radio button group server
+    :keywords: radio button group server, reference
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.RadioButtonGroup, bokeh.plotting.figure.scatter
+'''
+
 import pandas as pd
 
 from bokeh.io import curdoc

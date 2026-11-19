@@ -1,3 +1,11 @@
+''' Draw and color several filled polygons with the patches glyph.
+
+.. bokeh-example-metadata::
+    :title: Patch multiple
+    :keywords: patch, multiple
+    :apis: bokeh.plotting.figure.patches
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

@@ -1,3 +1,13 @@
+''' Style hue and opacity sliders with CSS gradients.
+
+.. bokeh-example-metadata::
+    :title: Color sliders
+    :keywords: color, sliders
+    :apis: bokeh.models.CustomJS, bokeh.models.InlineStyleSheet, bokeh.models.Pane, bokeh.models.Slider
+    :example-ref: ug_interaction_sliders_styling
+    :no-render:
+'''
+
 from bokeh.io import show
 from bokeh.layouts import column, row
 from bokeh.models import CustomJS, InlineStyleSheet, Pane, Slider

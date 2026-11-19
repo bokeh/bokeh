@@ -4,6 +4,12 @@ This example shows the streaming efficiency of Bokeh with live audio.
 .. note::
     This example needs the scipy package to run.
 
+
+
+.. bokeh-example-metadata::
+    :title: Spectrogram
+    :keywords: spectrogram, bokeh server, app
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Div, bokeh.models.SITickFormatter, bokeh.models.Slider, bokeh.plotting.figure.annular_wedge
 '''
 from math import ceil
 from os.path import dirname, join

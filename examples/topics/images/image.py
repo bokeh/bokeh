@@ -1,9 +1,11 @@
 ''' A plot that demonstrates rendering images by colormapping scalar arrays.
 
 .. bokeh-example-metadata::
+    :title: Color mapping a scalar array
+    :keywords: image
     :apis: bokeh.plotting.figure.image
     :refs: :ref:`ug_topics_images`
-    :keywords: image
+    :gallery: A plot with a colormapped two-dimensional sine surface.
 
 '''
 import numpy as np

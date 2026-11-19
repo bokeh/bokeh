@@ -1,3 +1,12 @@
+''' Embed a themed penguin scatter plot in a custom HTML page.
+
+.. bokeh-example-metadata::
+    :title: Embed page template themed
+    :keywords: embed, page, template, themed
+    :apis: bokeh.plotting.figure.scatter
+    :sampledata: penguins
+'''
+
 from jinja2 import Template
 
 from bokeh.embed import embed

@@ -1,3 +1,12 @@
+''' Configure the Bokeh plot and client-side particle simulation.
+
+.. bokeh-example-metadata::
+    :title: Simulation
+    :keywords: simulation
+    :apis: bokeh.models.ColorBar, bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.Div, bokeh.models.HoverTool
+    :no-index:
+'''
+
 from __future__ import annotations
 
 from pathlib import Path

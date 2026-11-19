@@ -1,3 +1,11 @@
+''' Select local files through a file input widget.
+
+.. bokeh-example-metadata::
+    :title: Fileinput
+    :keywords: file, upload, input
+    :apis: bokeh.models.FileInput
+'''
+
 from bokeh.io import show
 from bokeh.models import FileInput
 

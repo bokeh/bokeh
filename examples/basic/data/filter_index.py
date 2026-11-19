@@ -1,3 +1,11 @@
+''' Use an IndexFilter to choose specific rows for a linked scatter plot.
+
+.. bokeh-example-metadata::
+    :title: Filter index
+    :keywords: filter, index
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.IndexFilter, bokeh.models.IndexedSubset, bokeh.plotting.figure.scatter
+'''
+
 from bokeh.layouts import gridplot
 from bokeh.models import ColumnDataSource, IndexedSubset, IndexFilter
 from bokeh.plotting import figure, show

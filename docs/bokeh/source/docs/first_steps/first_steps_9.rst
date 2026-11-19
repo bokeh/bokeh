@@ -216,8 +216,8 @@ Congratulations, you have completed all of Bokeh's first steps guides!
 More information about Bokeh is available in the |user guide|. For more in-depth
 information about all aspects of Bokeh, see the |reference guide|.
 
-For more examples of what you can do with Bokeh, check the :ref:`gallery` and
-the :bokeh-tree:`examples` directory in Bokeh's GitHub repository.
+Find examples by topic in the :ref:`example_index`, or browse interactive
+plots in the :ref:`gallery`.
 
 Finally, on the `Bokeh community page <https://bokeh.org/community/>`_, you can
 find links and information about asking for help and contributing to Bokeh and

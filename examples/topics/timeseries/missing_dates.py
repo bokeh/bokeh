@@ -1,12 +1,12 @@
-''' A `Candlestick chart`_ based on stock price data. This example demonstrates
-possible technique for handling missing dates.
+''' Plot candlesticks at consecutive row indices and label the x-axis ticks
+with trading dates to avoid gaps on nontrading days.
 
 .. bokeh-example-metadata::
-    :sampledata: stocks
-    :apis: bokeh.plotting.figure.segment, bokeh.plotting.figure.vbar
+    :title: Skip nontrading dates
     :keywords: candlestick
-
-.. _Candlestick chart: https://en.wikipedia.org/wiki/Candlestick_chart
+    :apis: bokeh.plotting.figure.segment, bokeh.plotting.figure.vbar
+    :sampledata: stocks
+    :gallery: A candlestick chart for stock data with gaps for missing dates removed.
 
 '''
 from bokeh.plotting import figure, show

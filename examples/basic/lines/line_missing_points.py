@@ -1,3 +1,11 @@
+''' Compare line breaks caused by NaN coordinates with the behavior of None.
+
+.. bokeh-example-metadata::
+    :title: Line missing points
+    :keywords: line, missing, points
+    :apis: bokeh.plotting.figure.line
+'''
+
 from math import nan
 
 from bokeh.plotting import figure, show

@@ -1,9 +1,11 @@
 ''' Contour plot with polar grid and many visual properties.
 
 .. bokeh-example-metadata::
+    :title: Contours on a polar grid
+    :keywords: contour
     :apis: bokeh.plotting.figure.contour, bokeh.models.ContourRenderer.add_labels, bokeh.models.ContourRenderer.construct_color_bar
     :refs: :ref:`ug_topics_contour_polar`
-    :keywords: contour
+    :gallery: An iso-contour of a polar function using hatching
 
 '''
 import numpy as np

@@ -1,9 +1,10 @@
 ''' This example demonstrates the use of mathtext as an axis label using a MathML object.
 
 .. bokeh-example-metadata::
+    :title: Mathml axis labels
+    :keywords: mathtext
     :apis: bokeh.plotting.figure.line, bokeh.models.MathML
     :refs: :ref:`ug_styling_mathtext`
-    :keywords: mathtext
 '''
 
 from numpy import arange
