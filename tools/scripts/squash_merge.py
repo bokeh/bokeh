@@ -3,7 +3,10 @@
 PR's commits, plus the commits' authors other than the PR author, into a
 single deduplicated block at the end of the message.
 
-The PR must be labelled ``status: ready`` or ``status: accepted``. After
+The PR must be labelled ``status: ready`` or ``status: accepted``, and have at
+least one approving review and no reviews requesting changes (counting only each
+reviewer's latest approval or change request, like GitHub does); use
+``--override-review`` to merge anyway. After
 merging, relabels the PR ``status: ready`` -> ``status: accepted`` (if needed)
 and adds ``reso: completed`` to the issues the PR fixes (or to the PR itself if
 it doesn't fix any issues), and deletes the PR's branch from GitHub (unless it's
@@ -13,11 +16,12 @@ The PR can be given by number, URL or head branch name (anything ``gh pr view``
 accepts). If not given, the PR of the current branch is used, after asking for
 confirmation.
 
-usage: squash_merge.py [pr-number | url | branch]
+usage: squash_merge.py [--override-review] [pr-number | url | branch]
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import re
 import subprocess
@@ -87,6 +91,16 @@ def build_message(log: str, authors: list[str]) -> str:
         msg += "\n\n" + "\n".join(trailers)
     return msg
 
+def review_states(reviews: list[Any]) -> dict[str, str]:
+    """ Each reviewer's current review state, i.e. their latest review that
+    approved, requested changes or was dismissed (plain comments don't change
+    it). Dismissed reviews don't count. """
+    states: dict[str, str] = {}
+    for review in reviews:  # chronological
+        if review["state"] in {"APPROVED", "CHANGES_REQUESTED", "DISMISSED"}:
+            states[review["author"]["login"]] = review["state"]
+    return {login: state for login, state in states.items() if state != "DISMISSED"}
+
 def delete_head_branch(pr: str, info: Any) -> bool:
     """ Delete the merged PR's head branch from GitHub, like the "Delete branch"
     button does. Branches in forks, and branches other open PRs are based on (they
@@ -113,19 +127,23 @@ def delete_head_branch(pr: str, info: Any) -> bool:
     return True
 
 def main(argv: list[str]) -> None:
-    if len(argv) > 1:
-        print("usage: squash_merge.py [pr-number | url | branch]", file=sys.stderr)
-        sys.exit(1)
+    parser = argparse.ArgumentParser(prog="squash_merge.py", description="Squash-merge a GitHub PR.")
+    parser.add_argument("pr", nargs="?", metavar="pr-number | url | branch",
+        help="the PR to merge (default: the current branch's PR)")
+    parser.add_argument("--override-review", action="store_true",
+        help="merge even without an approval, or with changes requested")
+    args = parser.parse_args(argv)
+    pr_ref: list[str] = [args.pr] if args.pr is not None else []
 
     # Everything about the PR comes from a single query, so it all describes the
     # same state of the PR. Without arguments, gh uses the current branch's PR.
-    info = gh_json("pr", "view", *argv, "--json",
-        "number,url,labels,baseRefName,title,headRefOid,author,commits,headRefName,headRepository,isCrossRepository")
+    info = gh_json("pr", "view", *pr_ref, "--json",
+        "number,url,reviews,labels,baseRefName,title,headRefOid,author,commits,headRefName,headRepository,isCrossRepository")
 
     # From here on, refer to the PR by number, however it was given.
     pr = str(info["number"])
 
-    if not argv:
+    if not pr_ref:
         branch = output("git", "branch", "--show-current").strip()
         print(f"Branch '{branch}' refers to PR #{pr}: {info['title']}\n  {info['url']}", flush=True)
         if not confirm("Is this the right PR?"):
@@ -134,6 +152,20 @@ def main(argv: list[str]) -> None:
     labels = {label["name"] for label in info["labels"]}
     if not labels & {"status: ready", "status: accepted"}:
         error(f"PR #{pr} is not labelled 'status: ready' or 'status: accepted'")
+
+    states = review_states(info["reviews"])
+    approved = sorted(login for login, state in states.items() if state == "APPROVED")
+    rejected = sorted(login for login, state in states.items() if state == "CHANGES_REQUESTED")
+    problems: list[str] = []
+    if not approved:
+        problems.append("has no approving reviews")
+    if rejected:
+        problems.append("has changes requested by " + ", ".join(rejected))
+    if problems:
+        problem = f"PR #{pr} " + " and ".join(problems)
+        if not args.override_review:
+            error(f"{problem}; use --override-review to merge anyway")
+        info_line(f"warning: {problem}; overridden with --override-review")
 
     base: str = info["baseRefName"]
     title: str = info["title"]
