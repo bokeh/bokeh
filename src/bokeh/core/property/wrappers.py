@@ -558,7 +558,7 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
             # patch gets discarded.
 
             for ind, value in patch:
-                if isinstance(ind, (int, slice)):
+                if isinstance(ind, (int, np.integer, slice)):
                     array[ind] = value
                 else:
                     i, j = ind[0], tuple(ind[1:])

@@ -423,6 +423,22 @@ def test_PropertyValueColumnData__patch_with_repeated_simple_indices(mock_notify
     assert event.setter == 'setter'
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
+def test_PropertyValueColumnData__patch_with_numpy_integer_indices(mock_notify: MagicMock) -> None:
+    from bokeh.document.events import ColumnsPatchedEvent
+    source = ColumnDataSource(data=dict(foo=[10, 20, 30]))
+    pvcd = bcpw.PropertyValueColumnData(source.data)
+
+    mock_notify.reset_mock()
+    pvcd._patch("doc", source, dict(foo=[(np.int64(1), 40), (np.int32(2), 50)]), setter='setter')
+    assert mock_notify.call_count == 1
+    _assert_old_value_unavailable(mock_notify)
+    assert pvcd == dict(foo=[10, 40, 50])
+    assert 'hint' in mock_notify.call_args[1]
+    event = mock_notify.call_args[1]['hint']
+    assert isinstance(event, ColumnsPatchedEvent)
+    assert event.setter == 'setter'
+
+@patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__patch_with_list_indices(mock_notify: MagicMock) -> None:
     from bokeh.document.events import ColumnsPatchedEvent
     source = ColumnDataSource(data=dict(foo=[np.array([1, 40]), np.array([1, 50])]))
