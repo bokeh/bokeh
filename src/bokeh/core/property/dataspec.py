@@ -26,6 +26,7 @@ from typing import TYPE_CHECKING, Any
 from ...util.dataclasses import Unspecified
 from ...util.serialization import convert_datetime_type, convert_timedelta_type
 from .. import enums
+from .bases import Property
 from .color import ALPHA_DEFAULT_HELP, COLOR_DEFAULT_HELP, Color
 from .datetime import Datetime, TimeDelta
 from .descriptors import DataSpecPropertyDescriptor
@@ -204,7 +205,7 @@ class DataSpec(Either[Any]):
             default=default,
             help=help,
         )
-        self.value_type = self._validate_type_param(value_type)
+        self.value_type: Property[Any] = self._validate_type_param(value_type)
         self.accepts(Instance("bokeh.models.expressions.Expression"), lambda obj: Expr(obj))
 
     def transform(self, value: Any) -> Any:

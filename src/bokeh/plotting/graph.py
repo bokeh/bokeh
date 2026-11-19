@@ -39,7 +39,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def from_networkx(graph: nx.Graph, layout_function: dict[int | str, Sequence[float]], **kwargs: Any) -> GraphRenderer:
+def from_networkx(graph: nx.Graph[Any], layout_function: dict[int | str, Sequence[float]], **kwargs: Any) -> GraphRenderer:
         '''
         Generate a ``GraphRenderer`` from a ``networkx.Graph`` object and networkx
         layout function. Any keyword arguments will be passed to the

@@ -67,11 +67,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 from argparse import Namespace
+from typing import ClassVar
 
 from bokeh.settings import settings
 from bokeh.util.info import print_info, print_non_default_settings
 
-from ..subcommand import Argument, Subcommand
+from ..subcommand import Args, Argument, Subcommand
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -95,7 +96,7 @@ class Info(Subcommand):
 
     help = "Print information about Bokeh and Bokeh server configuration"
 
-    args = (
+    args: ClassVar[Args] = (
 
         ('--static', Argument(
             action="store_true",

@@ -2,8 +2,7 @@ import {View} from "./view"
 import type {SerializableState} from "./view"
 import type {StyleSheet, StyleSheetLike} from "./stylesheets"
 import {InlineStyleSheet} from "./stylesheets"
-import type {ARIARole} from "./dom"
-import {create_element, empty, ClassList} from "./dom"
+import {create_element, empty} from "./dom"
 import {isString} from "./util/types"
 import {assert} from "./util/assert"
 import type {BBox} from "./util/bbox"
@@ -19,16 +18,19 @@ export const bokeh_element = Symbol("bokeh_element")
 export type RenderingTarget = HTMLElement | ShadowRoot
 
 export interface DOMView extends View {
-  constructor: Function & {tag_name: keyof HTMLElementTagNameMap, aria_role?: ARIARole}
+  constructor: Function & {tag_name: keyof HTMLElementTagNameMap}
 }
 
 export abstract class DOMView extends View {
 
   static tag_name: keyof HTMLElementTagNameMap = "div"
-  static aria_role?: ARIARole
 
-  el: ChildNode
+  el: HTMLElement
   shadow_el?: ShadowRoot
+
+  get self_target(): RenderingTarget {
+    return this.shadow_el ?? this.el
+  }
 
   get bbox(): BBox | undefined {
     return undefined
@@ -38,10 +40,6 @@ export abstract class DOMView extends View {
     const state = super.serializable_state()
     const {bbox} = this
     return bbox != null ? {...state, bbox: bbox.round()} : state
-  }
-
-  get children_el(): Node {
-    return this.shadow_el ?? this.el
   }
 
   override initialize(): void {
@@ -89,7 +87,7 @@ export abstract class DOMView extends View {
   }
 
   protected _create_element(): this["el"] {
-    const el = create_element(this.constructor.tag_name, {role: this.constructor.aria_role})
+    const el = create_element(this.constructor.tag_name, null)
     ;(el as any)[bokeh_element] = true
     return el
   }
@@ -119,29 +117,10 @@ export abstract class DOMView extends View {
   }
 }
 
-export abstract class DOMElementView extends DOMView {
-  declare el: HTMLElement
-
-  class_list: ClassList
-
-  override initialize(): void {
-    super.initialize()
-    this.class_list = new ClassList(this.el.classList)
-  }
-
-  get self_target(): RenderingTarget {
-    return this.el
-  }
-}
-
-export abstract class DOMComponentView extends DOMElementView {
+export abstract class DOMComponentView extends DOMView {
   declare readonly root: DOMComponentView
 
   declare shadow_el: ShadowRoot
-
-  override get self_target(): RenderingTarget {
-    return this.shadow_el
-  }
 
   /**
    * Indicates whether this element is the first to render to DOM,
@@ -194,7 +173,7 @@ export abstract class DOMComponentView extends DOMElementView {
 
   empty(): void {
     empty(this.shadow_el)
-    this.class_list.clear()
+    this.el.removeAttribute("class")
     this._applied_css_classes = []
   }
 
@@ -337,11 +316,11 @@ export abstract class DOMComponentView extends DOMElementView {
   protected _applied_css_classes: string[] = []
   protected _apply_css_classes(classes: string[]): void {
     this._applied_css_classes.push(...classes)
-    this.class_list.add(...classes)
+    this.el.classList.add(...classes)
   }
 
   protected _update_css_classes(): void {
-    this.class_list.remove(this._applied_css_classes)
+    this.el.classList.remove(...this._applied_css_classes)
     this._applied_css_classes = []
     this._apply_css_classes([...this._css_classes()])
   }

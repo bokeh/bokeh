@@ -312,17 +312,17 @@ class BoxAnnotation(Annotation, AreaVisuals):
     between the box and its parent, e.g. the frame.
     """)
 
-    line_color = Override(default="#cccccc")
-    line_alpha = Override(default=0.3)
+    _line_color = Override(default="#cccccc")
+    _line_alpha = Override(default=0.3)
 
-    fill_color = Override(default="#fff9ba")
-    fill_alpha = Override(default=0.4)
+    _fill_color = Override(default="#fff9ba")
+    _fill_alpha = Override(default=0.4)
 
-    hover_line_color = Override(default=None)
-    hover_line_alpha = Override(default=0.3)
+    _hover_line_color = Override(default=None)
+    _hover_line_alpha = Override(default=0.3)
 
-    hover_fill_color = Override(default=None)
-    hover_fill_alpha = Override(default=0.4)
+    _hover_fill_color = Override(default=None)
+    _hover_fill_alpha = Override(default=0.4)
 
     @property
     def nodes(self) -> BoxNodes:
@@ -362,9 +362,9 @@ class Band(DataAnnotation):
     The {prop} values for the band.
     """)
 
-    line_alpha = Override(default=0.3)
+    _line_alpha = Override(default=0.3)
 
-    line_color = Override(default="#cccccc")
+    _line_color = Override(default="#cccccc")
 
     fill_props = Include(ScalarFillProps, help="""
     The {prop} values for the band.
@@ -374,9 +374,9 @@ class Band(DataAnnotation):
     The {prop} values for the band.
     """)
 
-    fill_alpha = Override(default=0.4)
+    _fill_alpha = Override(default=0.4)
 
-    fill_color = Override(default="#fff9ba")
+    _fill_color = Override(default="#fff9ba")
 
 
 class PolyAnnotation(Annotation):
@@ -436,17 +436,17 @@ class PolyAnnotation(Annotation):
     The {prop} values for the polygon when hovering over.
     """)
 
-    line_color = Override(default="#cccccc")
-    line_alpha = Override(default=0.3)
+    _line_color = Override(default="#cccccc")
+    _line_alpha = Override(default=0.3)
 
-    fill_color = Override(default="#fff9ba")
-    fill_alpha = Override(default=0.4)
+    _fill_color = Override(default="#fff9ba")
+    _fill_alpha = Override(default=0.4)
 
-    hover_line_color = Override(default=None)
-    hover_line_alpha = Override(default=0.3)
+    _hover_line_color = Override(default=None)
+    _hover_line_alpha = Override(default=0.3)
 
-    hover_fill_color = Override(default=None)
-    hover_fill_alpha = Override(default=0.4)
+    _hover_fill_color = Override(default=None)
+    _hover_fill_alpha = Override(default=0.4)
 
 class Slope(Annotation):
     """ Render a sloped line as an annotation.
@@ -483,11 +483,11 @@ class Slope(Annotation):
     The {prop} values for the area below the line.
     """)
 
-    above_fill_color = Override(default=None)
-    above_fill_alpha = Override(default=0.4)
+    _above_fill_color = Override(default=None)
+    _above_fill_alpha = Override(default=0.4)
 
-    below_fill_color = Override(default=None)
-    below_fill_alpha = Override(default=0.4)
+    _below_fill_color = Override(default=None)
+    _below_fill_alpha = Override(default=0.4)
 
 class Span(Annotation):
     """ Render a horizontal or vertical line span.
@@ -525,8 +525,8 @@ class Span(Annotation):
     The {prop} values for the span when hovering over.
     """)
 
-    hover_line_color = Override(default=None)
-    hover_line_alpha = Override(default=0.3)
+    _hover_line_color = Override(default=None)
+    _hover_line_alpha = Override(default=0.3)
 
 #-----------------------------------------------------------------------------
 # Dev API

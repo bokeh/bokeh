@@ -89,7 +89,7 @@ h5py = "*"
 icalendar = "*"
 ipython = "*"
 json5 = "*"
-mypy = ">=1.20"
+mypy = ">=2.2" # TypeForm (PEP 747) without experimental features
 nbconvert = ">=5.4"
 networkx = "*"
 notebook = "*"
@@ -132,9 +132,9 @@ uvicorn = ">=0.30"
 vermin = "*"
 
 [feature.full-deps.pypi-dependencies]
-bokeh_sampledata = ">=2026.1"
+bokeh_sampledata = ">=2026.2"
 pyarrow = ">=14.0"
-pyright = "*"
+pyright = ">=1.1.414" # TypeForm (PEP 747) without experimental features
 requests-unixsocket = ">=0.3.0"
 
 # Packages intentionally omitted from the free-threaded environment because
@@ -159,7 +159,7 @@ h5py = "*"
 icalendar = "*"
 ipython = "*"
 json5 = "*"
-mypy = ">=1.20"
+mypy = ">=2.2" # TypeForm (PEP 747) without experimental features
 narwhals = "<1.14"
 nbconvert = ">=5.4"
 numpy = "2.1.*"
@@ -188,7 +188,7 @@ types-requests = "*"
 urllib3 = "<2" # See https://github.com/bokeh/bokeh/issues/13152 and #13407.
 
 [feature.minimal-deps.pypi-dependencies]
-pyright = "*"
+pyright = ">=1.1.414" # TypeForm (PEP 747) without experimental features
 requests-unixsocket = ">=0.3.0"
 
 [feature.downstream-deps]
@@ -284,7 +284,7 @@ toml = "*"
 tzdata = "*"
 
 [feature.docs-deps.pypi-dependencies]
-bokeh_sampledata = ">=2026.1"
+bokeh_sampledata = ">=2026.2"
 
 [feature.release-build-deps.dependencies]
 python-build = "*"
@@ -330,6 +330,7 @@ test-codebase = "pytest tests/codebase"
 test-examples = { cmd = "pytest tests/test_examples.py", depends-on = ["install-browser"] }
 test-tools = "pytest tests/tools"
 test-docs = "pytest tests/docs"
+verify-types = "python tools/ci/verify_types.py"
 test = "pytest"
 build-docs = "bash tools/ci/build_docs.sh"
 install-browser = "python -m playwright install --only-shell chromium"

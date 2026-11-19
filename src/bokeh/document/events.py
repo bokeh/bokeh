@@ -326,6 +326,9 @@ class ModelChangedEvent(DocumentPatchedEvent, kind="ModelChanged"):
 
     kind: ClassVar[Literal["ModelChanged"]] = "ModelChanged"
 
+    new: Any
+    callback_invoker: Invoker | None
+
     def __init__(self, document: Document, model: Model, attr: str, new: Any,
             setter: Setter | None = None, callback_invoker: Invoker | None = None,
             callback_policy: tuple[str, float | None] | None = None):
@@ -747,6 +750,9 @@ class TitleChangedEvent(DocumentPatchedEvent, kind="TitleChanged"):
     '''
 
     kind: ClassVar[Literal["TitleChanged"]] = "TitleChanged"
+
+    title: str
+    callback_invoker: Invoker | None
 
     def __init__(self, document: Document, title: str,
             setter: Setter | None = None, callback_invoker: Invoker | None = None):

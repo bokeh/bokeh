@@ -42,7 +42,8 @@ __all__ = (
 
 type CoordinateLikeType = float | datetime.date | datetime.datetime | FactorType
 
-CoordinateLike: Either[CoordinateLikeType] = Either(Float, Datetime, Factor)
+# Multi-level factors can be assigned as lists, which are converted to tuples.
+CoordinateLike: Either[CoordinateLikeType, CoordinateLikeType | list[str]] = Either(Float, Datetime, Factor)
 
 #-----------------------------------------------------------------------------
 # Dev API

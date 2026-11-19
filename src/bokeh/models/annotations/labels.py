@@ -114,9 +114,9 @@ class TextAnnotation(Annotation):
     The {prop} values for the text bounding box.
     """)
 
-    background_fill_color = Override(default=None)
+    _background_fill_color = Override(default=None)
 
-    border_line_color = Override(default=None)
+    _border_line_color = Override(default=None)
 
 class Label(TextAnnotation):
     ''' Render a single text label as an annotation.
@@ -279,13 +279,13 @@ class LabelSet(DataAnnotation):
     The {prop} values for the text bounding box.
     """)
 
-    background_fill_color = Override(default=None)
+    _background_fill_color = Override(default=None)
 
     border_props = Include(LineProps, prefix="border", help="""
     The {prop} values for the text bounding box.
     """)
 
-    border_line_color = Override(default=None)
+    _border_line_color = Override(default=None)
 
 class Title(TextAnnotation):
     ''' Render a single title box as an annotation.
@@ -316,11 +316,11 @@ class Title(TextAnnotation):
     standoff = Float(default=10, help="""
     """)
 
-    text_font_size = Override(default="13px")
+    _text_font_size = Override(default="13px")
 
-    text_font_style = Override(default="bold")
+    _text_font_style = Override(default="bold")
 
-    text_line_height = Override(default=1.0)
+    _text_line_height = Override(default=1.0)
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -4,10 +4,11 @@ import {TeX} from "../text/math_text"
 import type * as p from "core/properties"
 import type {Dict} from "core/types"
 import {Enum, Or, Auto} from "core/kinds"
+import type {Infer} from "core/kinds"
 import {parse_delimited_string} from "../text/utils"
 
 export const DisplayMode = Or(Enum("inline", "block"), Auto)
-export type DisplayMode = typeof DisplayMode["__type__"]
+export type DisplayMode = Infer<typeof DisplayMode>
 
 export interface TeXGlyphView extends TeXGlyph.Data {}
 

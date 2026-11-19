@@ -8,7 +8,7 @@ import type {Arrayable, Dict} from "../types"
 import type {BuiltinFormatter} from "../enums"
 import {logger} from "../logging"
 import {dict} from "./object"
-import {is_NDArray, get_array_item} from "./ndarray"
+import {is_NDArray} from "./ndarray"
 import {isArray, isNumber, isString, isTypedArray/*, isInteger, isPlainObject*/} from "./types"
 import {to_string} from "./pretty"
 import {escape} from "./string"
@@ -161,25 +161,14 @@ function _get_special_value(name: string, special_vars: Vars) {
 }
 
 export function _get_column_value(name: string, data_source: IndexedDataSource, ind: Index | null): unknown | null {
-  const column = data_source.get_field(name)
-
-  // missing column
-  if (column == null) {
-    return null
-  }
-
-  // null index (e.g for patch)
   if (ind == null) {
     return null
   }
-
-  // typical (non-image) index
+  const data = data_source.get_field_value(name, ind)
   if (isNumber(ind)) {
-    return get_array_item(column, ind)
+    return data
   }
 
-  // image index
-  const data = column[ind.index]
   if (isTypedArray(data) || isArray(data)) {
     // inspect array of arrays
     if (isArray(data[0])) {

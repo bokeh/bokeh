@@ -41,7 +41,8 @@ Whenever you change anything in Bokeh's codebase
 
 When you edit Bokeh's Python code
     Run Bokeh's :ref:`Python unit tests
-    <contributor_guide_testing_local_python_unit>`
+    <contributor_guide_testing_local_python_unit>` and
+    :ref:`type checks <contributor_guide_testing_local_typing>`
 
 When your work involves UI elements
     Run Bokeh's :ref:`Python integration tests
@@ -126,6 +127,43 @@ directory. Changes to these tools should pass their dedicated test suite.
 .. code-block:: sh
 
     pytest tests/tools
+
+.. _contributor_guide_testing_local_typing:
+
+Run type checks
+~~~~~~~~~~~~~~~
+
+Bokeh's Python code is type checked with both `mypy`_ and `pyright`_. Any edits
+you make to Bokeh's Python code should pass both type checkers.
+
+In addition, the type completeness of Bokeh's public API is measured with
+``pyright --verifytypes``. Type completeness is the share of symbols exported
+by Bokeh (functions, classes, methods, attributes, etc.) whose types are fully
+known, i.e. declared with type annotations or unambiguously inferable, rather
+than unknown or dependent on how a particular type checker infers them. Symbols
+with incomplete types silently degrade type checking to dynamic typing in code
+that uses Bokeh, and may be interpreted differently by different type checkers.
+This check fails when the completeness score drops or the number of exported
+symbols with unknown types increases compared to the baseline recorded in
+:bokeh-tree:`tools/ci/verify_types.py`. When your changes
+improve type completeness, raise the baseline in that file accordingly. To see
+which symbols are incomplete, run ``pyright --verifytypes bokeh --ignoreexternal``.
+
+**Standard terminal:**
+
+.. code-block:: sh
+
+    pixi run mypy
+    pixi run pyright
+    pixi run verify-types
+
+**Inside a pixi shell:**
+
+.. code-block:: sh
+
+    mypy
+    pyright
+    python tools/ci/verify_types.py
 
 .. _contributor_guide_testing_local_python:
 
@@ -913,6 +951,8 @@ instead of pushing every commit individually. This will help you be considerate
 of others who require access to these limited resources.
 
 .. _Ruff: https://github.com/astral-sh/ruff
+.. _mypy: https://mypy.readthedocs.io
+.. _pyright: https://microsoft.github.io/pyright
 .. _pytest: https://pytest.org/
 .. _pytest-xdist: https://github.com/pytest-dev/pytest-xdist
 .. _Chromium: https://www.chromium.org/Home

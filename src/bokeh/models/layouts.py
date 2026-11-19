@@ -325,7 +325,7 @@ class LayoutDOM(Pane):
         if not (min_height <= height <= max_height):
             return str(self)
 
-    def _sphinx_height_hint(self) -> int|None:
+    def _sphinx_height_hint(self) -> int | None:
         if self.sizing_mode in ("stretch_width", "fixed", None):
             return self.height
         return None
@@ -496,10 +496,14 @@ class Row(FlexBox):
     sequence using the ``children`` keyword argument. These forms cannot be combined.
     '''
 
-    def _sphinx_height_hint(self) -> int|None:
-        if any(x._sphinx_height_hint() is None for x in self.children):
-            return None
-        return max(x._sphinx_height_hint() for x in self.children)
+    def _sphinx_height_hint(self) -> int | None:
+        hints: list[int] = []
+        for child in self.children:
+            hint = child._sphinx_height_hint()
+            if hint is None:
+                return None
+            hints.append(hint)
+        return max(hints)
 
 class Column(FlexBox):
     ''' Lay out child components in a single vertical column.
@@ -508,10 +512,14 @@ class Column(FlexBox):
     sequence using the ``children`` keyword argument. These forms cannot be combined.
     '''
 
-    def _sphinx_height_hint(self) -> int|None:
-        if any(x._sphinx_height_hint() is None for x in self.children):
-            return None
-        return sum(x._sphinx_height_hint() for x in self.children)
+    def _sphinx_height_hint(self) -> int | None:
+        hints: list[int] = []
+        for child in self.children:
+            hint = child._sphinx_height_hint()
+            if hint is None:
+                return None
+            hints.append(hint)
+        return sum(hints)
 
 class TabPanel(Model):
     ''' A single-widget container with title bar and controls.

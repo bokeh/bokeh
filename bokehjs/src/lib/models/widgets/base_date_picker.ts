@@ -4,11 +4,12 @@ import {PickerBase, PickerBaseView} from "./picker_base"
 import type * as p from "core/properties"
 import {isArray} from "core/util/types"
 import {Or, Tuple, Str, Float, List, Ref, Struct} from "core/kinds"
+import type {Infer} from "core/kinds"
 
-export type DateLike = typeof DateLike["__type__"]
+export type DateLike = Infer<typeof DateLike>
 export const DateLike = Or(Ref(Date), Str, Float)
 
-export type DateLikeList = typeof DateLikeList["__type__"]
+export type DateLikeList = Infer<typeof DateLikeList>
 export const DateLikeList = List(Or(DateLike, Tuple(DateLike, DateLike), Struct({from: DateLike, to: DateLike})))
 
 export abstract class BaseDatePickerView extends PickerBaseView {

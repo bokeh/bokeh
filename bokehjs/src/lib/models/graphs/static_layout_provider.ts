@@ -4,9 +4,10 @@ import type {Arrayable} from "core/types"
 import {dict} from "core/util/object"
 import type * as p from "core/properties"
 import {Float, Str, Int, Arrayable as Arr, Dict, Mapping, Or} from "core/kinds"
+import type {Infer} from "core/kinds"
 
 export const GraphLayout = Or(Dict(Arr(Float)), Mapping(Or(Int, Str), Arr(Float)))
-export type GraphLayout = typeof GraphLayout["__type__"]
+export type GraphLayout = Infer<typeof GraphLayout>
 
 export namespace StaticLayoutProvider {
   export type Attrs = p.AttrsOf<Props>

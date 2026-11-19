@@ -86,7 +86,7 @@ class FillData(FillCoords):
     lower_levels: ArrayLike
     upper_levels: ArrayLike
 
-    def asdict(self):
+    def asdict(self) -> dict[str, Any]:
         # Convert to dict using shallow copy.  dataclasses.asdict uses deep copy.
         return dict(entries(self))
 
@@ -96,7 +96,7 @@ class LineData(LineCoords):
     '''
     levels: ArrayLike
 
-    def asdict(self):
+    def asdict(self) -> dict[str, Any]:
         # Convert to dict using shallow copy.  dataclasses.asdict uses deep copy.
         return dict(entries(self))
 
@@ -149,7 +149,7 @@ def from_contour(
     y: ArrayLike | None = None,
     z: ArrayLike | np.ma.MaskedArray | None = None,
     levels: ArrayLike | None = None,
-    **visuals,  # This is union of LineProps, FillProps and HatchProps
+    **visuals: Any,  # This is union of LineProps, FillProps and HatchProps
 ) -> ContourRenderer:
     ''' Creates a :class:`bokeh.models.ContourRenderer` containing filled
     polygons and/or contour lines.

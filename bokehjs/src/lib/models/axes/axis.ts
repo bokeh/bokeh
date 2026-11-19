@@ -31,13 +31,14 @@ import {isString} from "core/util/types"
 import {BBox} from "core/util/bbox"
 import {parse_delimited_string} from "models/text/utils"
 import {Str, Float, Ref, Or, Dict, Mapping} from "core/kinds"
+import type {Infer} from "core/kinds"
 
 export const LabelOverrides =
   Or(
     Dict(Or(Str, Ref(BaseText))),
     Mapping(Or(Str, Float), Or(Str, Ref(BaseText))),
   )
-export type LabelOverrides = typeof LabelOverrides["__type__"]
+export type LabelOverrides = Infer<typeof LabelOverrides>
 
 const {abs} = Math
 

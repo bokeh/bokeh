@@ -76,6 +76,7 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
     application_context: ApplicationContext
     connection: ServerConnection | None
     receiver: Receiver | None
+    write_lock: locks.Lock
     _token: str | None
 
     def __init__(self, tornado_app: Application, *args: Any, **kw: Any) -> None:

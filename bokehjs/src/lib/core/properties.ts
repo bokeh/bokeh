@@ -16,7 +16,7 @@ import type {IndexedDataSource} from "../models/sources/indexed_data_source"
 import type {/*Value,*/ Scalar, Vector, Dimensional, ScalarExpression, VectorExpression} from "./vectorization"
 import {isValue, isField, isExpr} from "./vectorization"
 import {settings} from "./settings"
-import type {Kind} from "./kinds"
+import type {Kind, Infer} from "./kinds"
 import {PrefixedStr} from "./kinds"
 import type {NDArray, NDArrayType} from "./util/ndarray"
 import {is_NDArray, get_row} from "./util/ndarray"
@@ -936,7 +936,7 @@ export class NullStringSpec extends DataSpec<string | null> {}
 export class ArraySpec extends DataSpec<any[]> {}
 
 export const ExtMarkerType = PrefixedStr("@")
-export type ExtMarkerType = typeof ExtMarkerType["__type__"]
+export type ExtMarkerType = Infer<typeof ExtMarkerType>
 
 export class MarkerSpec extends DataSpec<enums.MarkerType | ExtMarkerType | null> {}
 export class LineJoinSpec extends DataSpec<enums.LineJoin> {}

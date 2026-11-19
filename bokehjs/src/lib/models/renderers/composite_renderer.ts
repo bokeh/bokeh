@@ -5,11 +5,12 @@ import type {ViewStorage, BuildResult, ChildView, ViewOf} from "core/build_views
 import {build_views} from "core/build_views"
 import type * as p from "core/properties"
 import {Ref, Or} from "core/kinds"
+import type {Infer} from "core/kinds"
 import type {Context2d} from "core/util/canvas"
 
 // TODO UIElement needs to inherit from DOMNode
 export const ElementLike = Or(Ref(UIElement), Ref(DOMNode))
-export type ElementLike = typeof ElementLike["__type__"]
+export type ElementLike = Infer<typeof ElementLike>
 
 export abstract class CompositeRendererView extends RendererView {
   declare model: CompositeRenderer
