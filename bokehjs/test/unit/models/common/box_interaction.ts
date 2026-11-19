@@ -91,6 +91,24 @@ describe("models/common/box_interaction module", () => {
       expect(lrtb(resized)).to.be.equal({left: 10, right: 60, top: 20, bottom: 60})
     })
 
+    it("should allow moving a box that is outside limits towards them", () => {
+      const limits = {left: 0, right: 30, top: 0, bottom: 40}
+      const {bbox: moved} = move_bbox(bbox, "area", -5, -5, {...options, limits})
+      expect(lrtb(moved)).to.be.equal({left: 5, right: 45, top: 15, bottom: 55})
+    })
+
+    it("should not allow moving a box that is outside limits further away from them", () => {
+      const limits = {left: 0, right: 30, top: 0, bottom: 40}
+      const {bbox: moved} = move_bbox(bbox, "area", 5, 5, {...options, limits})
+      expect(lrtb(moved)).to.be.equal(lrtb(bbox))
+    })
+
+    it("should allow resizing an edge that is outside limits towards them", () => {
+      const limits = {left: 0, right: 30, top: NaN, bottom: NaN}
+      const {bbox: resized} = move_bbox(bbox, "right", -5, 0, {...options, limits})
+      expect(lrtb(resized)).to.be.equal({left: 10, right: 45, top: 20, bottom: 60})
+    })
+
     it("should support one-sided limits", () => {
       const limits = {left: 0, right: NaN, top: NaN, bottom: 100}
       const {bbox: moved} = move_bbox(bbox, "area", -80, 80, {...options, limits})

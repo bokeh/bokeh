@@ -84,28 +84,34 @@ export function target_deltas(target: Box.HitTarget, dx: number, dy: number, opt
 /**
  * Moves the edges of an interval by the given deltas, swapping the edges if they
  * cross, and pushes the interval back within `[lower, upper]` (`NaN` means
- * unbounded). Only limits of edges that are being moved are enforced, because
- * the other edge may already be outside the limits (e.g. a wide `RangeTool`
- * overlay), and compensating for it would make the moved edge jump away from
- * the pointer.
+ * unbounded). Limits only stop edges moving outwards, i.e. the lower limit stops
+ * the start edge moving towards lower values and the upper limit stops the end
+ * edge moving towards higher values. An edge that is already outside the limits
+ * (e.g. a wide `RangeTool` overlay or a dialog positioned before its limits were
+ * known) can move freely inwards and stays in place otherwise, because pushing
+ * it within the limits would make the box jump away from the pointer.
  */
 function move_interval(start: number, end: number, start_delta: number, end_delta: number, lower: number, upper: number): [number, number] {
-  let [new_start, new_end, start_sign, end_sign] = (() => {
+  let [new_start, new_end, start_sign, end_sign, old_start, old_end] = (() => {
     const new_start = start + start_delta
     const new_end = end + end_delta
     if (new_start <= new_end) {
-      return [new_start, new_end, sign(start_delta), sign(end_delta)]
+      return [new_start, new_end, sign(start_delta), sign(end_delta), start, end]
     } else {
-      return [new_end, new_start, sign(end_delta), sign(start_delta)]
+      return [new_end, new_start, sign(end_delta), sign(start_delta), end, start]
     }
   })()
 
+  // an edge that is already outside the limits can't move further out, but isn't pulled in
+  const lower_bound = min(lower, old_start)
+  const upper_bound = max(upper, old_end)
+
   let correction = 0
-  if (start_sign != 0 && new_start < lower) {
-    correction = min(correction, new_start - lower)
+  if (start_sign < 0 && new_start < lower_bound) {
+    correction = min(correction, new_start - lower_bound)
   }
-  if (end_sign != 0 && upper < new_end) {
-    correction = min(correction, upper - new_end)
+  if (end_sign > 0 && upper_bound < new_end) {
+    correction = min(correction, upper_bound - new_end)
   }
 
   new_start += start_sign*correction

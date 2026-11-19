@@ -3,7 +3,7 @@ import {DOMNode} from "../dom/dom_node"
 import {Signal} from "core/signaling"
 import type {StyleSheetLike} from "core/dom"
 import {InlineStyleSheet, px, div, text, bounding_box, dom_ready} from "core/dom"
-import {isString} from "core/util/types"
+import {isString, isNumber} from "core/util/types"
 import {typed_entries} from "core/util/object"
 import type {PanEvent} from "core/ui_gestures"
 import {UIGestures} from "core/ui_gestures"
@@ -373,8 +373,20 @@ export class DialogView extends UIElementView {
   }
 
   protected _move_bbox(target: Box.HitTarget, bbox: BBox, dx: number, dy: number): BBox {
+    // Dialogs are positioned relative to the viewport, so their limits must be
+    // resolved in viewport coordinates, unlike `UIElementView.bbox`, which is
+    // relative to the parent UI element.
     const resolve = (dim: "x" | "y", limit: Limit): number => {
-      return limit != null ? this.resolve_as_scalar(limit, dim) : NaN
+      if (limit == null) {
+        return NaN
+      }
+      const target = this.resolve_target(limit.target)
+      if (target instanceof UIElementView) {
+        const value = bounding_box(target.el).resolve(limit.symbol)
+        return (isNumber(value) ? value : value[dim]) + limit.offset
+      } else {
+        return this.resolve_as_scalar(limit, dim)
+      }
     }
 
     const {movable, symmetric} = this.model
