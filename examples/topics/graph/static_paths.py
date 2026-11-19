@@ -1,6 +1,8 @@
 '''Supply explicit paths for graph edges.
 
 .. bokeh-example-metadata::
+    :gallery: Blue and teal routes curve through Central Station and connect four labeled stops.
+    :title: Curved routes through a station
     :apis: bokeh.models.GraphDataSource, bokeh.models.StaticLayoutProvider
     :refs: :ref:`ug_topics_graph`
     :keywords: graph, edge paths, bezier

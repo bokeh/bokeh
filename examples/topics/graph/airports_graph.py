@@ -7,7 +7,7 @@
     :apis: bokeh.models.StaticLayoutProvider, bokeh.models.NodesAndLinkedEdges, bokeh.models.TapTool
     :sampledata: airport_routes, us_states
     :refs: :ref:`ug_topics_graph`
-    :gallery: Direct routes from a selected airport over a map of the United States.
+    :gallery: A map of the contiguous United States with routes fanning out from the selected airport in Albuquerque.
 '''
 
 from collections import Counter
