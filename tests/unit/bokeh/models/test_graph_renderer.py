@@ -103,12 +103,29 @@ class TestGraphRenderer:
         assert isinstance(restored.selection_policy, NodesAndLinkedEdges)
         assert isinstance(restored.inspection_policy, EdgesOnly)
 
-    def test_rejects_mismatched_sources(self) -> None:
+    def test_rejects_mismatched_node_source(self) -> None:
         source = GraphDataSource()
         node_renderer = bmr.GlyphRenderer(data_source=ColumnDataSource(data=dict(index=[])), glyph=Circle())
 
         with pytest.raises(ValueError, match="must use the same node source"):
             bmr.GraphRenderer(data_source=source, node_renderer=node_renderer)
+
+    def test_rejects_mismatched_edge_source(self) -> None:
+        source = GraphDataSource()
+        edge_renderer = bmr.GlyphRenderer(data_source=ColumnDataSource(data=dict(start=[], end=[])), glyph=MultiLine())
+
+        with pytest.raises(ValueError, match="must use the same edge source"):
+            bmr.GraphRenderer(data_source=source, edge_renderer=edge_renderer)
+
+    def test_validation_detects_replaced_child_source(self) -> None:
+        renderer = bmr.GraphRenderer()
+        renderer.edge_renderer.data_source = ColumnDataSource(data=dict(start=[], end=[]))
+
+        errors = renderer._check_malformed_graph_source()
+
+        assert len(errors) == 1
+        assert errors[0].name == "MALFORMED_GRAPH_SOURCE"
+        assert "sources must match GraphDataSource.nodes and GraphDataSource.edges" in errors[0].extra
 
     def test_check_malformed_graph_source_no_errors(self) -> None:
         renderer = bmr.GraphRenderer()

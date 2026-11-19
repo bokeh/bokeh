@@ -1089,6 +1089,78 @@ class TestGraphDataSource:
         with pytest.raises(ValueError, match="duplicate graph node identifier"):
             bms.GraphDataSource(nodes=["alice", "alice"])
 
+    @pytest.mark.parametrize("nodes", [
+        {"alice": {"index": "bob"}},
+        [("alice", {"index": "bob"})],
+    ])
+    def test_rejects_node_attributes_that_overwrite_identifiers(self, nodes) -> None:
+        with pytest.raises(ValueError, match="reserved 'index' field"):
+            bms.GraphDataSource(nodes=nodes)
+
+    def test_rejects_node_records_without_identifiers(self) -> None:
+        with pytest.raises(ValueError, match="must contain an 'id' or 'index'"):
+            bms.GraphDataSource(nodes=[{"label": "Alice"}])
+
+    @pytest.mark.parametrize("edge", [{"source": "alice"}, {"target": "bob"}])
+    def test_rejects_edge_records_with_missing_endpoints(self, edge) -> None:
+        with pytest.raises(ValueError, match="must contain source/target or start/end"):
+            bms.GraphDataSource(edges=[edge])
+
+    def test_rejects_edge_tuple_attributes_that_are_not_mappings(self) -> None:
+        with pytest.raises(ValueError, match="third item of an edge tuple must be an attribute mapping"):
+            bms.GraphDataSource(edges=[("alice", "bob", "label")])
+
+    @pytest.mark.parametrize("endpoint", ["start", "end"])
+    def test_rejects_edge_attributes_that_overwrite_endpoints(self, endpoint: str) -> None:
+        with pytest.raises(ValueError, match="edge tuple attributes cannot contain endpoint fields"):
+            bms.GraphDataSource(edges=[("alice", "bob", {endpoint: "carol"})])
+
+    @pytest.mark.parametrize("edge", [("alice",), ("alice", "bob", {}, {}), 1])
+    def test_rejects_malformed_edges(self, edge) -> None:
+        with pytest.raises(ValueError, match="an edge must be a mapping or a"):
+            bms.GraphDataSource(edges=[edge])
+
+    def test_rejects_multiple_positional_graphs(self) -> None:
+        with pytest.raises(TypeError, match="at most one positional graph argument"):
+            bms.GraphDataSource(object(), object())
+
+    def test_rejects_duplicate_graph_arguments(self) -> None:
+        with pytest.raises(TypeError, match="graph was provided more than once"):
+            bms.GraphDataSource(object(), graph=object())
+
+    @pytest.mark.parametrize("table", ["nodes", "edges"])
+    def test_rejects_graph_with_explicit_tables(self, table: str) -> None:
+        with pytest.raises(ValueError, match="provide either a graph or explicit nodes and edges"):
+            bms.GraphDataSource(graph=object(), **{table: []})
+
+    def test_rejects_objects_without_a_graph_interface(self) -> None:
+        with pytest.raises(ValueError, match="expected a NetworkX-like graph"):
+            bms.GraphDataSource(object())
+
+    def test_distinguishes_scalar_identifier_types(self) -> None:
+        identifiers = [None, False, 0, -0.0, True, 1, "1"]
+        source = bms.GraphDataSource(nodes=identifiers)
+
+        assert source.nodes.data["index"] == identifiers
+
+    @pytest.mark.parametrize("identifiers", [
+        [np.int64(1), 1],
+        [np.bool_(True), True],
+        [np.float32(np.nan), float("nan")],
+    ])
+    def test_rejects_identifiers_that_serialize_to_the_same_scalar(self, identifiers) -> None:
+        with pytest.raises(ValueError, match="duplicate graph node identifier"):
+            bms.GraphDataSource(nodes=identifiers)
+
+    @pytest.mark.skipif(pd is None, reason="requires pandas")
+    def test_rejects_duplicate_null_identifiers(self) -> None:
+        with pytest.raises(ValueError, match="duplicate graph node identifier"):
+            bms.GraphDataSource(nodes=[pd.NA, None])
+
+    def test_rejects_non_scalar_identifiers(self) -> None:
+        with pytest.raises(ValueError, match="identifiers must be scalar values or nested sequences"):
+            bms.GraphDataSource(nodes=[{"id": object()}])
+
     def test_accepts_networkx_like_graphs_directly(self) -> None:
         class Graph:
             def nodes(self, *, data):
