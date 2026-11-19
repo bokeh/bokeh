@@ -1,8 +1,11 @@
 import {expect} from "#framework/assertions"
+import {actions, xy} from "#framework/interactive"
+import {display} from "#framework/layouts"
 
 import {RangeTool} from "@bokehjs/models/tools/gestures/range_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Node} from "@bokehjs/models/coordinates/node"
+import {Plot} from "@bokehjs/models/plots/plot"
 
 describe("range_tool module", () => {
   const source = {start: 0, end: 10}
@@ -44,6 +47,36 @@ describe("range_tool module", () => {
         expect(rt5.overlay.movable).to.be.equal("both")
         expect(rt5.overlay.resizable).to.be.equal("all")
       })
+    })
+
+    it("should restore ranges when moving the overlay was cancelled", async () => {
+      const x_range = Range1d.create({start: 2, end: 4})
+      const tool = RangeTool.create({x_range})
+      const plot = Plot.create({
+        width: 400,
+        height: 400,
+        min_border: 0,
+        x_range: Range1d.create(source),
+        y_range: Range1d.create(source),
+      })
+      plot.add_tools(tool)
+      const {view: plot_view} = await display(plot)
+      const ac = actions(plot_view, {units: "data"})
+
+      const ranges_updates: unknown[] = []
+      plot.on_event("rangesupdate", (event) => ranges_updates.push(event))
+
+      const events = [...ac._pan({type: "line", xy0: xy(3, 5), xy1: xy(6, 5)})]
+      const pointerup = events.pop()!
+      await ac.emit(events)
+      expect([x_range.start, x_range.end]).to.not.be.similar([2, 4])
+
+      document.dispatchEvent(new KeyboardEvent("keydown", {key: "Escape", bubbles: true, cancelable: true}))
+      expect([x_range.start, x_range.end]).to.be.similar([2, 4])
+      expect(ranges_updates.length).to.be.equal(1)
+
+      await ac.emit([pointerup])
+      expect([x_range.start, x_range.end]).to.be.similar([2, 4])
     })
 
     describe("update_overlay_from_ranges", () => {

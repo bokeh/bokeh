@@ -10,11 +10,12 @@ import type * as visuals from "core/visuals"
 import {CoordinateUnits} from "core/enums"
 import type * as p from "core/properties"
 import type {LRTB, Corners, CoordinateMapper} from "core/util/bbox"
-import {min as amin} from "core/util/array"
 import {BBox, empty} from "core/util/bbox"
 import type {Context2d} from "core/util/canvas"
 import type {PanEvent, PinchEvent, Pannable, Pinchable, MoveEvent, Moveable, KeyModifiers} from "core/ui_events"
 import {Signal} from "core/signaling"
+import {DragSession} from "core/drag_session"
+import type {PanPhase} from "core/drag_session"
 import type {Rect} from "core/types"
 import {isNumber} from "core/util/types"
 import {clamp} from "core/util/math"
@@ -22,6 +23,8 @@ import {assert} from "core/util/assert"
 import {values} from "core/util/object"
 import {BorderRadius} from "../common/kinds"
 import * as Box from "../common/box_kinds"
+import type {HitTargets} from "../common/box_interaction"
+import {resizable_edges, hittable, move_bbox, screen_limits} from "../common/box_interaction"
 import {round_rect} from "../common/painting"
 import * as resolve from "../common/resolve"
 import {Node} from "../coordinates/node"
@@ -33,6 +36,13 @@ import type {Infer} from "core/kinds"
 
 const CoordinateLike = Or(Float, FactorLike, Ref(Coordinate))
 type CoordinateLike = Infer<typeof CoordinateLike>
+
+type DragSnapshot = {
+  /** Screen-space box at the start of dragging. */
+  bbox: BBox
+  /** The model's coordinates, to restore on cancel. */
+  lrtb: LRTB<CoordinateLike>
+}
 
 export const EDGE_TOLERANCE = 2.5
 
@@ -113,8 +123,8 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     return this._bbox
   }
 
-  protected _handles: {[key in Box.HitTarget]: BoxAnnotation | null}
-  protected _handles_views: {[key in Box.HitTarget]?: ViewOf<BoxAnnotation>} = {}
+  protected _handles: HitTargets<BoxAnnotation | null>
+  protected _handles_views: Partial<HitTargets<ViewOf<BoxAnnotation>>> = {}
 
   override initialize(): void {
     super.initialize()
@@ -507,21 +517,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   }
 
   get resizable(): LRTB<boolean> & Corners<boolean> {
-    const {resizable} = this.model
-    const left = resizable == "left" || resizable == "x" || resizable == "all"
-    const right = resizable == "right" || resizable == "x" || resizable == "all"
-    const top = resizable == "top" || resizable == "y" || resizable == "all"
-    const bottom = resizable == "bottom" || resizable == "y" || resizable == "all"
-    return {
-      left,
-      right,
-      top,
-      bottom,
-      top_left:     top    && left,
-      top_right:    top    && right,
-      bottom_left:  bottom && left,
-      bottom_right: bottom && right,
-    }
+    return resizable_edges(this.model.resizable)
   }
 
   get movable(): boolean {
@@ -529,50 +525,28 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     return this.model.is_handle ? movable : this.model.editable && movable
   }
 
-  private _hittable(): {[key in Box.HitTarget]: boolean} {
-    const {left, right, top, bottom} = this.resizable
-    return {
-      top_left:     top && left,
-      top_right:    top && right,
-      bottom_left:  bottom && left,
-      bottom_right: bottom && right,
-      left,
-      right,
-      top,
-      bottom,
-      area: this.movable,
-    }
+  private _hittable(): HitTargets<boolean> {
+    return hittable(this.model.resizable, this.movable)
   }
 
   private _can_hit(target: Box.HitTarget): boolean {
     if (!this.model.editable && !this.model.is_handle) {
       return false
     }
-    const {left, right, top, bottom} = this.resizable
-    switch (target) {
-      case "top_left":     return top && left
-      case "top_right":    return top && right
-      case "bottom_left":  return bottom && left
-      case "bottom_right": return bottom && right
-      case "left":         return left
-      case "right":        return right
-      case "top":          return top
-      case "bottom":       return bottom
-      case "area":         return this.movable
-    }
+    return this._hittable()[target]
   }
 
-  private _pan_state: {bbox: BBox, target: Box.HitTarget} | null = null
+  private readonly _drag = new DragSession<Box.HitTarget, DragSnapshot>(({lrtb}) => {
+    this.model.setv(lrtb)
+  })
 
   on_pan_start(ev: PanEvent): boolean {
     if (this.model.visible && this.model.editable) {
       const {sx, sy} = ev
       const target = this._hit_test(sx, sy)
       if (target != null && this._can_hit(target)) {
-        this._pan_state = {
-          bbox: this.bbox.clone(),
-          target,
-        }
+        const {left, right, top, bottom} = this.model
+        this._drag.start(target, {bbox: this.bbox.clone(), lrtb: {left, right, top, bottom}})
         this.model.pan.emit(["pan:start", ev.modifiers])
         return true
       }
@@ -581,8 +555,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   }
 
   on_pan(ev: PanEvent): void {
-    assert(this._pan_state != null)
-
+    const {target, snapshot: {bbox}} = this._drag.state
     const {mappers} = this
 
     const resolve = (dim: "x" | "y", limit: CoordinateLike | null, mapper: CoordinateMapper<number | FactorLike>): number => {
@@ -595,95 +568,28 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       }
     }
 
-    const slimits = BBox.from_lrtb({
-      left: resolve("x", this.model.left_limit, mappers.left),
-      right: resolve("x", this.model.right_limit, mappers.right),
-      top: resolve("y", this.model.top_limit, mappers.top),
-      bottom: resolve("y", this.model.bottom_limit, mappers.bottom),
+    // Limits computed through a reversed range (e.g. data-space limits when
+    // `x_range.start > x_range.end`) bound the opposite side on screen.
+    const reversed = (limit: CoordinateLike | null, mapper: CoordinateMapper<number | FactorLike>): boolean => {
+      const {start, end} = mapper.source_range
+      return limit != null && !(limit instanceof Coordinate) && end < start
+    }
+
+    const {left_limit, right_limit, top_limit, bottom_limit} = this.model
+    const limits = screen_limits({
+      left: resolve("x", left_limit, mappers.left),
+      right: resolve("x", right_limit, mappers.right),
+      top: resolve("y", top_limit, mappers.top),
+      bottom: resolve("y", bottom_limit, mappers.bottom),
+    }, {
+      left: reversed(left_limit, mappers.left),
+      right: reversed(right_limit, mappers.right),
+      top: reversed(top_limit, mappers.top),
+      bottom: reversed(bottom_limit, mappers.bottom),
     })
 
-    const [dl, dr, dt, db] = (() => {
-      const {dx, dy} = ev
-      const {target} = this._pan_state
-
-      const {symmetric} = this.model
-      const [Dx, Dy] = symmetric ? [-dx, -dy] : [0, 0]
-
-      switch (target) {
-        // corners
-        case "top_left":     return [dx, Dx, dy, Dy]
-        case "top_right":    return [Dx, dx, dy, Dy]
-        case "bottom_left":  return [dx, Dx, Dy, dy]
-        case "bottom_right": return [Dx, dx, Dy, dy]
-        // edges
-        case "left":   return [dx, Dx, 0, 0]
-        case "right":  return [Dx, dx, 0, 0]
-        case "top":    return [0, 0, dy, Dy]
-        case "bottom": return [0, 0, Dy, dy]
-        // area
-        case "area": {
-          switch (this.model.movable) {
-            case "both": return [dx, dx, dy, dy]
-            case "x":    return [dx, dx,  0,  0]
-            case "y":    return [ 0,  0, dy, dy]
-            case "none": return [ 0,  0,  0,  0]
-          }
-        }
-      }
-    })()
-
-    const slrtb = (() => {
-      const min = (a: number, b: number) => amin([a, b])
-      const sgn = (v: number) => v < 0 ? -1 : (v > 0 ? 1 : 0)
-
-      const {bbox} = this._pan_state
-      let {left, right, left_sign, right_sign} = (() => {
-        const left = bbox.left + dl
-        const right = bbox.right + dr
-        const left_sign = sgn(dl)
-        const right_sign = sgn(dr)
-        if (left <= right) {
-          return {left, right, left_sign, right_sign}
-        } else {
-          return {left: right, right: left, left_sign: right_sign, right_sign: left_sign}
-        }
-      })()
-      let {top, bottom, top_sign, bottom_sign} = (() => {
-        const top = bbox.top + dt
-        const bottom = bbox.bottom + db
-        const top_sign = sgn(dt)
-        const bottom_sign = sgn(db)
-        if (top <= bottom) {
-          return {top, bottom, top_sign, bottom_sign}
-        } else {
-          return {top: bottom, bottom: top, top_sign: bottom_sign, bottom_sign: top_sign}
-        }
-      })()
-
-      const Dl = left - slimits.left
-      const Dr = slimits.right - right
-
-      // Only enforce limits for edges that are being moved. The opposite edge
-      // may already be outside the plot (e.g. a wide RangeTool overlay), and
-      // using its violation to compensate the active edge makes that edge
-      // jump away from the pointer.
-      const Dx = min(left_sign != 0 && Dl < 0 ? Dl : NaN, right_sign != 0 && Dr < 0 ? Dr : NaN)
-      if (isFinite(Dx) && Dx < 0) {
-        left += -left_sign*(-Dx)
-        right += -right_sign*(-Dx)
-      }
-
-      const Dt = top - slimits.top
-      const Db = slimits.bottom - bottom
-
-      const Dy = min(top_sign != 0 && Dt < 0 ? Dt : NaN, bottom_sign != 0 && Db < 0 ? Db : NaN)
-      if (isFinite(Dy) && Dy < 0) {
-        top += -top_sign*(-Dy)
-        bottom += -bottom_sign*(-Dy)
-      }
-
-      return BBox.from_lrtb({left, right, top, bottom})
-    })()
+    const {movable, symmetric} = this.model
+    const {bbox: slrtb, deltas} = move_bbox(bbox, target, ev.dx, ev.dy, {movable, symmetric, limits})
 
     const {min_width, min_height, max_width, max_height} = this.model
     const {left, right, top, bottom} = this.model
@@ -696,11 +602,11 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     }
 
     if (0 < min_width || max_width < Infinity) {
-      if (dl != 0 && dr == 0) {
+      if (deltas.left != 0 && deltas.right == 0) {
         const min_left = lrtb.right - max_width
         const max_left = lrtb.right - min_width
         lrtb.left = clamp(lrtb.left, min_left, max_left)
-      } else if (dl == 0 && dr != 0) {
+      } else if (deltas.left == 0 && deltas.right != 0) {
         const min_right = lrtb.left + min_width
         const max_right = lrtb.left + max_width
         lrtb.right = clamp(lrtb.right, min_right, max_right)
@@ -708,11 +614,11 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     }
 
     if (0 < min_height || max_height < Infinity) {
-      if (dt != 0 && db == 0) {
+      if (deltas.top != 0 && deltas.bottom == 0) {
         const min_top = lrtb.bottom + max_height
         const max_top = lrtb.bottom + min_height
         lrtb.top = clamp(lrtb.top, min_top, max_top)
-      } else if (dt == 0 && db != 0) {
+      } else if (deltas.top == 0 && deltas.bottom != 0) {
         const min_bottom = lrtb.top - min_height
         const max_bottom = lrtb.top - max_height
         lrtb.bottom = clamp(lrtb.bottom, min_bottom, max_bottom)
@@ -733,8 +639,13 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   }
 
   on_pan_end(ev: PanEvent): void {
-    this._pan_state = null
+    this._drag.end()
     this.model.pan.emit(["pan:end", ev.modifiers])
+  }
+
+  on_pan_cancel(ev: PanEvent): void {
+    this._drag.cancel()
+    this.model.pan.emit(["pan:cancel", ev.modifiers])
   }
 
   private _pinch_state: {bbox: BBox} | null = null
@@ -825,7 +736,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   }
 
   override cursor(sx: number, sy: number): string | null {
-    const target = this._pan_state?.target ?? this._hit_test(sx, sy)
+    const target = this._drag.target ?? this._hit_test(sx, sy)
     if (target == null || !this._can_hit(target)) {
       return null
     }
@@ -849,7 +760,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
         if (!this.movable) {
           return null
         } else if (this._handles.area == null) {
-          if (this._pan_state != null && in_cursor === "grab") {
+          if (this._drag.is_active && in_cursor === "grab") {
             return "grabbing"
           } else {
             return in_cursor
@@ -1003,7 +914,7 @@ export class BoxAnnotation extends Annotation {
     })
   }
 
-  readonly pan = new Signal<["pan:start" | "pan" | "pan:end", KeyModifiers], this>(this, "pan")
+  readonly pan = new Signal<[PanPhase, KeyModifiers], this>(this, "pan")
 
   update({left, right, top, bottom}: LRTB<number | Coordinate>): void {
     this.setv({left, right, top, bottom, visible: true})
