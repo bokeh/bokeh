@@ -44,11 +44,14 @@ def info_line(message: str) -> None:
     print(message, flush=True)
 
 def confirm(question: str) -> bool:
-    """ Ask a yes/no question on stderr, defaulting to no. """
+    """ Ask a yes/no question on stderr, defaulting to no. Ctrl+C and Ctrl+D
+    count as no. """
     print(f"{question} [y/N] ", end="", file=sys.stderr, flush=True)
     try:
         answer = input()
-    except EOFError:
+    except (EOFError, KeyboardInterrupt):
+        # The terminal doesn't echo a newline for these, so end the prompt's line.
+        print(file=sys.stderr, flush=True)
         answer = ""
     return answer == "y"
 
