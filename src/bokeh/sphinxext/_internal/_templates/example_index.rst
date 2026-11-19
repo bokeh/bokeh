@@ -5,8 +5,7 @@
     .. raw:: html
 
         <img class="bk-example-thumbnail" width="88" height="88"
-             src="../_images/{{ entry.thumbnail | e }}.png"
-             srcset="../_images/{{ entry.thumbnail | e }}.png, ../_images/{{ entry.thumbnail | e }}@2x.png 2x"
+             src="../_images/{{ entry.thumbnail | e }}"
              alt="" loading="lazy">
 
 {% endif %}

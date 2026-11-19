@@ -517,6 +517,20 @@ sentence of the docstring summary. Use inline links for external references
 in this summary so they resolve on both the example page and Gallery card.
 The gallery's JSON file lists the externally hosted server demos.
 
+The Examples index uses separate small thumbnails, with a maximum dimension of
+120 pixels, in ``docs/bokeh/source/_images/examples/_index/``. After building the
+HTML docs, generate missing thumbnails with::
+
+    python -m tools.generate_example_thumbnails
+
+The command reuses Gallery images where available and renders cached example
+payloads for the other dedicated Python example pages. It does not execute the
+Python examples again. Pass example paths, such as ``basic/annotations/label.py``,
+to limit the selection. Use ``--overwrite`` to refresh existing thumbnails.
+Commit the generated PNG files with the example changes. Normal docs builds
+reuse these files and do not launch a browser. Notebooks and examples without
+standalone output keep an empty thumbnail column.
+
 Gallery tabs and subgroup order are arranged in
 ``docs/bokeh/source/docs/gallery.rst``. Each line inside a ``bokeh-gallery``
 directive names a category::

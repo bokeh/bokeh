@@ -133,3 +133,35 @@ def test_category_validation(tmp_path: Path) -> None:
     for category in ("basic/lnies", "topics/vector_feilds", "", "../examples", "/tmp", "basic/lines,"):
         with pytest.raises(SphinxError, match=r"Unknown example category.* in examples/plotting/stocks.py"):
             _validate_category(category, tmp_path, config, source=Path("plotting/stocks.py"))
+
+
+def test_index_uses_small_thumbnails_without_gallery_selection(tmp_path: Path, monkeypatch) -> None:
+    from types import SimpleNamespace
+
+    from bokeh.sphinxext._internal import bokeh_gallery
+
+    examples = tmp_path / 'examples/basic/lines'
+    examples.mkdir(parents=True)
+    for name in ('with_image', 'without_image'):
+        (examples / f'{name}.py').write_text('"""Draw a line."""')
+    srcdir = tmp_path / 'docs'
+    thumbnail = srcdir / '_images/examples/_index/basic/lines/with_image.png'
+    thumbnail.parent.mkdir(parents=True)
+    thumbnail.touch()
+    monkeypatch.setattr(bokeh_gallery, 'REPO_TOP', tmp_path)
+    monkeypatch.setattr(bokeh_gallery, '_read_inventory', lambda directive: [
+        Path('basic/lines/with_image.py'), Path('basic/lines/without_image.py'),
+    ])
+    directive = SimpleNamespace(
+        env=SimpleNamespace(
+            srcdir=srcdir,
+            config=SimpleNamespace(bokeh_example_subdirs=['basic/*'], bokeh_examples_dir='docs/examples'),
+            note_dependency=lambda path: None,
+        ),
+        parse=lambda content, source: content,
+    )
+    rendered = bokeh_gallery.BokehSearchableExamplesDirective.run(directive)
+    assert rendered.count('<img') == 1
+    assert '../_images/examples/_index/basic/lines/with_image.png' in rendered
+    assert 'srcset' not in rendered
+    assert 'Without image' in rendered

@@ -181,6 +181,12 @@ class BokehSearchableExamplesDirective(BokehDirective):
             for field, label in (("apis", "APIs"), ("sampledata", "Sample data"), ("keywords", "Keywords")):
                 if value := metadata.get(field, "").partition("#")[0].strip():
                     details.append((label, escape_rst(value)))
+            thumbnail = PurePosixPath("examples/_index") / relative.with_suffix(".png")
+            thumbnail_path = Path(self.env.srcdir) / "_images" / thumbnail
+            if thumbnail_path.parent.is_dir():
+                self.env.note_dependency(thumbnail_path.parent)
+            if thumbnail_path.is_file():
+                self.env.note_dependency(thumbnail_path)
             entries.append(dict(
                 title=escape_rst(_example_title(source, metadata)),
                 role=role,
@@ -191,7 +197,7 @@ class BokehSearchableExamplesDirective(BokehDirective):
                 remaining_summary=remainder[0] if remainder else "",
                 details=details,
                 filename=filename,
-                thumbnail=(PurePosixPath("examples") / relative).with_suffix("").as_posix() if "gallery" in metadata else None,
+                thumbnail=thumbnail.as_posix() if thumbnail_path.is_file() else None,
             ))
         return self.parse(EXAMPLE_INDEX.render(entries=entries), "<bokeh-searchable-examples>")
 
