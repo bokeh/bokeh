@@ -1,9 +1,10 @@
 ''' Show contextual help from a dedicated button.
 
 .. bokeh-example-metadata::
-    :title: Helpbutton
+    :title: Help button
     :keywords: help, tooltip, button
     :apis: bokeh.models.HelpButton, bokeh.models.Tooltip
+    :gallery: A help button displaying a tooltip with formatted text and a link.
 '''
 
 from bokeh.io import show

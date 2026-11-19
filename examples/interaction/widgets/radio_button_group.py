@@ -1,9 +1,10 @@
 ''' Choose one option from a row of radio buttons.
 
 .. bokeh-example-metadata::
-    :title: Radio button group
+    :title: Radio buttons
     :keywords: radio, button, group
     :apis: bokeh.models.CustomJS, bokeh.models.RadioButtonGroup
+    :gallery: Three radio buttons with the first selected.
 '''
 
 from bokeh.io import show

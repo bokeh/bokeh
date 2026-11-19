@@ -4,6 +4,7 @@
     :title: Toggle button
     :keywords: toggle, button
     :apis: bokeh.models.CustomJS, bokeh.models.Toggle
+    :gallery: A green toggle button in its pressed state.
 '''
 
 from bokeh.io import show

@@ -1,9 +1,10 @@
 ''' Display formatted HTML in a Bokeh layout.
 
 .. bokeh-example-metadata::
-    :title: Div
+    :title: Formatted HTML
     :keywords: div
     :apis: bokeh.models.Div
+    :gallery: HTML text containing a link, bold text, and italic text.
 '''
 
 from bokeh.io import show
