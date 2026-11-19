@@ -257,5 +257,7 @@ def main(argv: list[str]) -> None:
     if not branch_deleted:
         sys.exit(1)
 
+    info_line(f"PR #{pr}: successfully merged into '{base}'")
+
 if __name__ == "__main__":
     main(sys.argv[1:])
