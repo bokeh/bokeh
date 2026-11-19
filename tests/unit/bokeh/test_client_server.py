@@ -39,8 +39,9 @@ from bokeh.core.property_aliases import AngleUnits, SpatialUnits
 from bokeh.core.types import ID
 from bokeh.document import Document
 from bokeh.document.events import ModelChangedEvent, TitleChangedEvent
-from bokeh.model import Model
-from bokeh.models import ColumnDataSource, Plot
+from bokeh.model import Committed, Model
+from bokeh.models import ColumnDataSource, Plot, Slider
+from bokeh.util.callback_manager import OldValueUnavailable
 from bokeh.util.token import generate_jwt_token
 from tests.support.plugins.managed_server_loop import MSL
 from tests.support.util.env import envset
@@ -86,6 +87,23 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 class TestClientServer:
+    def test_register_callback_policy_on_unset_property_before_add_root(self, ManagedServerLoop: MSL) -> None:
+        calls: list[tuple[str, object, object]] = []
+
+        def modify_document(doc: Document) -> None:
+            slider = Slider(start=0, end=10)
+            slider.on_change("value", lambda attr, old, new: calls.append((attr, old, new)), policy=Committed())
+            slider.value = 1
+            doc.add_root(slider)
+
+        application = Application(FunctionHandler(modify_document))
+        with ManagedServerLoop(application) as server:
+            with pull_session(url=url(server), io_loop=server.io_loop) as session:
+                slider, = session.document.roots
+                assert isinstance(slider, Slider)
+                assert slider.value == 1
+                assert calls == [("value", OldValueUnavailable, 1)]
+
     def test_minimal_connect_and_disconnect(self, ManagedServerLoop: MSL) -> None:
         application = Application()
         with ManagedServerLoop(application) as server:

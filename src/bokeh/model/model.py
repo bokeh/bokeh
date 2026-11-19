@@ -49,7 +49,7 @@ from ..core.property.container import (
     Set,
     Tuple,
 )
-from ..core.property.descriptors import ColumnDataPropertyDescriptor
+from ..core.property.descriptors import ColumnDataPropertyDescriptor, UnsetValueError
 from ..core.property.either import Either
 from ..core.property.enum import Enum
 from ..core.property.instance import Instance
@@ -61,6 +61,7 @@ from ..core.property.primitive import (
     Null,
     String,
 )
+from ..core.property.singletons import OldValueUnavailable
 from ..core.property.validation import without_property_validation
 from ..core.serialization import ObjectRefRep, Ref, Serializer
 from ..events import Event
@@ -76,6 +77,7 @@ from .util import (
 
 if TYPE_CHECKING:
     from ..core.has_props import Setter
+    from ..core.property.descriptors import AliasPropertyDescriptor, PropertyDescriptor
     from ..core.query import SelectorType
     from ..core.serialization import ObjectRep
     from ..core.types import ID
@@ -790,11 +792,10 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         property, and even the same callback, can have multiple policies.
 
         .. note::
-            For changes to ``ColumnDataSource.data`` made by ``stream()`` or
-            ``patch()``, callbacks receive
-            :data:`~bokeh.util.callback_manager.OldValueUnavailable` as
-            ``old``. Incremental updates deliberately don't retain complete
-            copies of the previous columns.
+            Callbacks receive :data:`~bokeh.util.callback_manager.OldValueUnavailable`
+            as ``old`` on the first assignment to an unset property. They also
+            receive it for ``ColumnDataSource.data`` changes made by ``stream()``
+            or ``patch()``, which don't retain complete copies of the previous columns.
 
         '''
         descriptor = self.lookup(attr)
@@ -809,7 +810,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         if policy != _IMMEDIATE_POLICY:
             key = (descriptor.name, policy)
             if key not in self._callback_policy_values:
-                self._callback_policy_values[key] = descriptor.get_value(self)
+                self._callback_policy_values[key] = self._callback_policy_initial_value(descriptor)
         self._update_subscribed_changes(descriptor.name)
 
     def remove_on_change(self, attr: str, *callbacks: PropertyCallback) -> None:
@@ -868,11 +869,20 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         incoming = self._incoming_callback_policy
         return incoming[1] if incoming is not None and incoming[0] == attr else None
 
+    def _callback_policy_initial_value(self, descriptor: PropertyDescriptor[Any] | AliasPropertyDescriptor[Any]) -> Any:
+        try:
+            return descriptor.get_value(self)
+        except UnsetValueError:
+            return OldValueUnavailable
+
     def _set_from_json_with_callback_policy(self, attr: str, value: Any,
             policy: _CallbackPolicy, *, setter: Setter | None = None) -> None:
         descriptor = self.lookup(attr)
         key = (descriptor.name, policy)
-        callback_old = self._callback_policy_values.get(key, descriptor.get_value(self))
+        if key in self._callback_policy_values:
+            callback_old = self._callback_policy_values[key]
+        else:
+            callback_old = self._callback_policy_initial_value(descriptor)
         self._incoming_callback_policy = (descriptor.name, policy, callback_old)
         self._incoming_callback_dispatched = False
         try:
