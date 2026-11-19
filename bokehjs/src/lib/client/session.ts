@@ -111,9 +111,7 @@ export class ClientSession {
         if (policies != null) {
           for (const policy of policies) {
             const [kind, wait] = policy
-            const tagged = new ModelChangedEvent(
-              event.document, event.model, event.attr, event.value, policy,
-            )
+            const tagged = event.model._create_change_event(event.attr, event.value, policy)
             tagged.sync = event.sync
             if (kind == "immediate") {
               immediate.push(tagged)

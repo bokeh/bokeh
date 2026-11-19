@@ -243,3 +243,133 @@ async def test_pull_reply_precedes_later_patch_and_is_cancellation_safe() -> Non
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("attr", ["indices", "line_indices", "multiline_indices"])
+@pytest.mark.parametrize("hold", [False, True])
+async def test_held_selection_container_mutations_reach_clients(attr: str, hold: bool) -> None:
+    from bokeh.models import Selection
+
+    multiline = attr == "multiline_indices"
+    initial = {7: [1]} if multiline else [1]
+    selection = Selection(**{attr: initial})
+    held = getattr(selection, attr)
+    document = Document()
+    document.add_root(selection)
+    clients = [Document.from_json(document.to_json()) for _ in range(2)]
+    executor = _ServerExecutor(max_workers=1)
+    session, origin, _ = make_connection(document, executor)
+    peer = RecordingSocket()
+    ServerConnection(peer, session)
+    changes = []
+
+    def snapshot(value):
+        return {key: list(indices) for key, indices in value.items()} if multiline else list(value)
+
+    def callback(attr, old, new):
+        assert getattr(selection, attr) is held
+        changes.append((snapshot(old), snapshot(new)))
+
+    selection.on_change(attr, callback)
+    first = {7: [1, 5]} if multiline else [1, 5]
+    second = {2: [9], 7: [1, 5]} if multiline else [1, 5, 7]
+    try:
+        for step, expected in enumerate([first, second]):
+            if hold:
+                await session.with_document_locked(document.hold)
+
+            def mutate():
+                if multiline:
+                    if step == 0:
+                        held[7] = [5, 1, 5]
+                    else:
+                        held[2] = [9, 9]
+                else:
+                    held.append(5 if step == 0 else 7)
+
+            await session.with_document_locked(mutate)
+            if hold:
+                assert len(changes) == len(origin.messages) == len(peer.messages) == step
+                await session.with_document_locked(document.unhold)
+            assert getattr(selection, attr) is held
+            assert snapshot(held) == expected
+            for socket, client in zip([origin, peer], clients):
+                assert len(socket.messages) == step + 1
+                message = socket.messages[-1]
+                assert len(message.buffers) == 1
+                client.apply_json_patch(message.payload)
+                assert snapshot(getattr(client.roots[0], attr)) == expected
+        assert changes == [(initial, first), (first, second)]
+
+        def unchanged_mutation():
+            if multiline:
+                held[7] = [5, 1, 5]
+            else:
+                held.append(7)
+
+        await session.with_document_locked(unchanged_mutation)
+        assert len(changes) == len(origin.messages) == len(peer.messages) == 2
+    finally:
+        executor.shutdown()
+
+
+@pytest.mark.parametrize("attr", ["indices", "line_indices", "multiline_indices"])
+@pytest.mark.parametrize("hold", [False, True])
+async def test_selection_patch_callbacks_forwarding_and_setter_suppression(attr: str, hold: bool) -> None:
+    from bokeh.core.serialization import Deserializer, Serialized
+    from bokeh.document.events import ModelChangedEvent
+    from bokeh.models import Selection
+    from bokeh.protocol import patch_doc, pull_doc_reply
+
+    def value(indices):
+        return {7: indices, 42: []} if attr == "multiline_indices" else indices
+
+    selection = Selection()
+    document = Document()
+    document.add_root(selection)
+    executor = _ServerExecutor(max_workers=1)
+    session, origin, connection = make_connection(document, executor)
+    peer = RecordingSocket()
+    ServerConnection(peer, session)
+    changes = []
+    selection.on_change(attr, lambda attr, old, new: changes.append((old, new)))
+    expected = value(list(range(300)))
+    incoming = patch_doc([ModelChangedEvent(document, selection, attr, expected)])
+    try:
+        if hold:
+            await session.with_document_locked(document.hold)
+        reply = await connection.handle(incoming)
+        assert reply.msgtype == "OK"
+        if hold:
+            assert changes == []
+            assert peer.messages == []
+            await session.with_document_locked(document.unhold)
+        assert len(changes) == 1
+        actual = getattr(selection, attr)
+        assert actual == expected
+        assert isinstance(actual[7] if attr == "multiline_indices" else actual, list)
+        # A hold released after the originating request has finished forwards to both clients.
+        assert len(origin.messages) == int(hold)
+        assert len(peer.messages) == 1
+        message = peer.messages[0]
+        assert len(message.buffers) == 1
+        event = Deserializer([selection]).deserialize(message.payload)["events"][0]
+        assert event["new"] == expected
+        # Replaying the same set does not notify or forward another patch.
+        await connection.handle(incoming)
+        assert len(changes) == len(peer.messages) == 1
+        origin.messages.clear()
+        # A callback's server-side update must reach both clients.
+        def callback(attr, old, new):
+            selection.image_indices = [dict(index=0, i=1, j=2, flat_index=3)]
+        selection.on_change(attr, callback)
+        await connection.handle(patch_doc([ModelChangedEvent(document, selection, attr, value([1, 9]))]))
+        assert len(changes) == 2
+        assert [m.content["events"][0]["attr"] for m in origin.messages] == ["image_indices"]
+        assert [m.content["events"][0]["attr"] for m in peer.messages[1:]] == ["image_indices", attr]
+        # Full pull replies also restore ordinary public values.
+        reply = pull_doc_reply("request", document)
+        restored = Document.from_json(Serialized(reply.content["doc"], reply.buffers))
+        assert getattr(restored.roots[0], attr) == value([1, 9])
+    finally:
+        executor.shutdown()

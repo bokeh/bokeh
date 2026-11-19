@@ -185,7 +185,8 @@ export class ModelChangedEvent extends DocumentChangedEvent {
       readonly model: HasProps,
       readonly attr: string,
       readonly value: unknown,
-      readonly callback_policy?: CallbackPolicy) {
+      readonly callback_policy?: CallbackPolicy,
+      protected readonly _representation?: unknown) {
     super(document)
   }
 
@@ -202,7 +203,7 @@ export class ModelChangedEvent extends DocumentChangedEvent {
       kind: this.kind,
       model: this.model.ref(),
       attr: this.attr,
-      new: serializer.encode(this.value),
+      new: serializer.encode(this._representation === undefined ? this.value : this._representation),
     }
     if (this.callback_policy != null) {
       event.callback_policy = this.callback_policy

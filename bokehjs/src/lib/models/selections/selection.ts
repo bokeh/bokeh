@@ -1,5 +1,10 @@
+import {serialize} from "core/serialization"
+import type {Serializer, ObjectRep, ObjectRefRep} from "core/serialization"
+import {ModelChangedEvent} from "../../document/events"
 import {Model} from "../../model"
+import type {CallbackPolicy} from "../../model"
 import type * as p from "core/properties"
+import {IndicesKind, MultilineIndicesKind, selection_wire_value} from "./indices"
 import type {SelectionMode} from "core/enums"
 import {union, intersection, difference, symmetric_difference} from "core/util/array"
 import {merge} from "core/util/object"
@@ -7,12 +12,11 @@ import type {Glyph, GlyphView} from "../glyphs/glyph"
 import {Arrayable, Int, Mapping, List, Struct} from "core/kinds"
 import type {Infer} from "core/kinds"
 import {map} from "core/util/arrayable"
-
 export const OpaqueIndices = Arrayable(Int)
 export type OpaqueIndices = Infer<typeof OpaqueIndices>
 
-export const MultiIndices = Mapping(Int, OpaqueIndices)
-export type MultiIndices = Infer<typeof MultiIndices>
+export const OpaqueMultiIndices = Mapping(Int, OpaqueIndices)
+export type OpaqueMultiIndices = Infer<typeof OpaqueMultiIndices>
 
 export const ImageIndex = Struct({index: Int, i: Int, j: Int, flat_index: Int})
 export type ImageIndex = Infer<typeof ImageIndex>
@@ -26,17 +30,36 @@ export namespace Selection {
   export type Props = Model.Props & {
     indices: p.Property<OpaqueIndices>
     line_indices: p.Property<OpaqueIndices>
-    multiline_indices: p.Property<MultiIndices>
+    multiline_indices: p.Property<OpaqueMultiIndices>
     image_indices: p.Property<ImageIndices>
     view: p.Property<GlyphView | null>
     selected_glyphs: p.Property<Glyph[]>
   }
 }
 
-export interface Selection extends Selection.Attrs {}
+export interface Selection extends Selection.Attrs {
+  get indices(): number[]
+  set indices(value: OpaqueIndices)
+  get line_indices(): number[]
+  set line_indices(value: OpaqueIndices)
+  get multiline_indices(): Map<number, number[]>
+  set multiline_indices(value: OpaqueMultiIndices)
+}
 
 export class Selection extends Model {
   declare properties: Selection.Props
+
+  override [serialize](serializer: Serializer): ObjectRep | ObjectRefRep {
+    return this._to_serializable(serializer, {
+      indices: selection_wire_value("indices", this.indices),
+      line_indices: selection_wire_value("line_indices", this.line_indices),
+      multiline_indices: selection_wire_value("multiline_indices", this.multiline_indices),
+    })
+  }
+
+  override _create_change_event(attr: string, value: unknown, callback_policy?: CallbackPolicy): ModelChangedEvent {
+    return new ModelChangedEvent(this.document!, this, attr, value, callback_policy, selection_wire_value(attr, value))
+  }
 
   get_view(): GlyphView | null {
     return this.view
@@ -44,9 +67,9 @@ export class Selection extends Model {
 
   static {
     this.define<Selection.Props>({
-      indices:           [ OpaqueIndices, [] ],
-      line_indices:      [ OpaqueIndices, [] ],
-      multiline_indices: [ MultiIndices, new Map() ],
+      indices:           [ new IndicesKind(), [] ],
+      line_indices:      [ new IndicesKind(), [] ],
+      multiline_indices: [ new MultilineIndicesKind(), new Map() ],
       image_indices:     [ ImageIndices, [] ],
     })
 
