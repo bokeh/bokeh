@@ -47,6 +47,7 @@ New features
   its cross axis pair (``"cross"``), or all axes in the same dimension (``"all"``) (:bokeh-pull:`13325`)
 * ``ContourRenderer.add_labels()`` labels contour levels and can leave a gap in
   the contour stroke behind each label.
+  its cross axis pair (``"cross"``), or all axes in the same dimension (``"all"``) (:bokeh-issue:`13325`)
 
 Removals
 --------
