@@ -26,6 +26,7 @@ import {
   ImageURLTexture,
   Row, Column, Spacer,
   Pane,
+  Drawer,
   Tabs, TabPanel,
   BasicTicker, FixedTicker, MercatorTicker, MercatorTickFormatter, ContinuousTicker, BasicTickFormatter,
   Jitter,
@@ -43,7 +44,7 @@ import {
 
 import {
   Button, Dropdown, Toggle, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup,
-  Div, TextInput, DatePicker, AutocompleteInput, Switch, DateRangePicker, DatetimePicker, RangeSlider,
+  Div, TextInput, DatePicker, AutocompleteInput, Switch, DateRangePicker, DatetimePicker, Slider, RangeSlider,
 } from "@bokehjs/models/widgets"
 
 import {DataTable, TableColumn, DateFormatter, NumberFormatter} from "@bokehjs/models/widgets/tables"
@@ -5815,6 +5816,20 @@ describe("Bug", () => {
       }
 
       await display(row([plot("canvas"), plot("svg"), plot("webgl")]))
+    })
+  })
+
+  describe("in issue #15797", () => {
+    it("allows for slider's handles to bleed through overlapping UI components", async () => {
+      const slider_size = ":host { --default-size: 180px; }"
+      const slider = Slider.create({start: 0, end: 10, value: 3, title: "Slider", stylesheets: [slider_size]})
+      const range_slider = RangeSlider.create({start: 0, end: 10, value: [2, 8], title: "Range", stylesheets: [slider_size]})
+      const drawer = Drawer.create({location: "left", open: true, size: "100px"})
+      const pane = Pane.create({
+        elements: [slider, range_slider, drawer],
+        stylesheets: [":host { width: 200px; height: 200px; }"],
+      })
+      await display(pane, [250, 250])
     })
   })
 })

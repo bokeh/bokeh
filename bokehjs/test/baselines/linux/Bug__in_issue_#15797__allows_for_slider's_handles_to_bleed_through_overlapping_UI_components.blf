@@ -1,0 +1,4 @@
+Pane bbox=[0, 0, 200, 200]
+  Slider bbox=[5, 0, 180, 29]
+  RangeSlider bbox=[5, 34, 180, 29]
+  Drawer bbox=[0, 0, 100, 200]
