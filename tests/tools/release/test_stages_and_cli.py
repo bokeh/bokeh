@@ -169,7 +169,7 @@ def test_release_confirmation_includes_version(filename: str, job_name: str) -> 
             "Upload Deployment Assets",
             "${{ vars.AWS_RELEASE_BUILD_ROLE_ARN }}",
             "bokeh-release-build-${{ github.run_id }}",
-            "write",
+            "read",
             "upload-deployment",
         ),
         (
