@@ -281,6 +281,34 @@ def test_ssl_args_plumbing(ManagedServerLoop: MSL) -> None:
             assert server._http.ssl_options.load_cert_chain.call_args[0] == ()
             assert server._http.ssl_options.load_cert_chain.call_args[1] == dict(certfile='foo', keyfile="baz", password="bar")
 
+def test_show_url(ManagedServerLoop: MSL) -> None:
+    with ManagedServerLoop({}, prefix="foo") as server:
+        with mock.patch("bokeh.util.browser.get_browser_controller") as get_browser_controller:
+            server.show("/app")
+        controller = get_browser_controller.return_value
+        assert controller.open.call_count == 1
+        assert controller.open.call_args[0][0] == f"http://localhost:{server.port}/foo/app"
+
+def test_show_url_with_ssl(ManagedServerLoop: MSL) -> None:
+    with mock.patch.object(ssl, 'SSLContext'):
+        with ManagedServerLoop({}, ssl_certfile="foo") as server:
+            with mock.patch("bokeh.util.browser.get_browser_controller") as get_browser_controller:
+                server.show("/")
+            controller = get_browser_controller.return_value
+            assert controller.open.call_count == 1
+            assert controller.open.call_args[0][0] == f"https://localhost:{server.port}/"
+
+def test_show_url_with_ipv6_address(ManagedServerLoop: MSL) -> None:
+    with ManagedServerLoop({}) as server:
+        with (
+            mock.patch.object(Server, "address", new_callable=mock.PropertyMock, return_value="::1"),
+            mock.patch("bokeh.util.browser.get_browser_controller") as get_browser_controller,
+        ):
+            server.show("/")
+        controller = get_browser_controller.return_value
+        assert controller.open.call_count == 1
+        assert controller.open.call_args[0][0] == f"http://[::1]:{server.port}/"
+
 def test_base_server(server_loop: IOLoop) -> None:
     app = BokehTornado(Application())
     httpserver = HTTPServer(app)

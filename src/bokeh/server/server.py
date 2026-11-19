@@ -340,7 +340,11 @@ class BaseServer:
         address_string = 'localhost'
         if self.address is not None and self.address != '':
             address_string = self.address
-        url = f"http://{address_string}:{self.port}{self.prefix}{app_path}"
+        # IPv6 literals must be enclosed in brackets in URLs
+        if ":" in address_string:
+            address_string = f"[{address_string}]"
+        protocol = "https" if self._http.ssl_options is not None else "http"
+        url = f"{protocol}://{address_string}:{self.port}{self.prefix}{app_path}"
 
         from bokeh.util.browser import view
         view(url, browser=browser, new=new)
