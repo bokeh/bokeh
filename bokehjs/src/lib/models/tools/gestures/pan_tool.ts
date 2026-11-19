@@ -11,9 +11,10 @@ import type {SXY} from "core/util/bbox"
 import type {Scale} from "models/scales/scale"
 import * as icons from "styles/icons.css"
 import {Enum} from "core/kinds"
+import type {Infer} from "core/kinds"
 
 const PanTogether = Enum("none", "cross", "all")
-type PanTogether = typeof PanTogether["__type__"]
+type PanTogether = Infer<typeof PanTogether>
 
 export function update_ranges(scales: Map<string, Scale>, p0: number, p1: number): RangeState {
   const r: RangeState = new Map()
