@@ -26,12 +26,12 @@ import json
 import re
 import subprocess
 import sys
-from typing import Any
+from typing import Any, Never
 from urllib.parse import quote
 
 CO_AUTHORED_BY = re.compile(r"^co-authored-by:", re.IGNORECASE)
 
-def error(message: str) -> None:
+def error(message: str) -> Never:
     print(f"error: {message}", file=sys.stderr)
     sys.exit(1)
 
