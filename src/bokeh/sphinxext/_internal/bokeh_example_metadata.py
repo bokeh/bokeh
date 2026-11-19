@@ -4,31 +4,22 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
-""" Include plot metadata for plots shown in Bokeh gallery examples.
-
-The ``bokeh-example-metadata`` directive can be used by supplying:
+"""Read example summaries and metadata and render the example Details section.
 
     .. bokeh-example-metadata::
-        :sampledata: `sampledata_iris`
-        :apis: `~bokeh.plotting.figure.vbar`, :func:`~bokeh.transform.factor_cmap`
-        :refs: `ug_basic_bars`
-        :words: bar, vbar, legend, factor_cmap, palette
+        :title: Grouped bars
+        :keywords: bar, vbar, legend, factor_cmap
+        :apis: bokeh.plotting.figure.vbar, bokeh.transform.factor_cmap
+        :sampledata: iris
+        :refs: :ref:`ug_basic_bars`
 
 """
 
-#-----------------------------------------------------------------------------
-# Boilerplate
-#-----------------------------------------------------------------------------
 from __future__ import annotations
-
-# use the wrapped sphinx logger
-from sphinx.util import logging  # isort:skip
-log = logging.getLogger(__name__)
 
 # -----------------------------------------------------------------------------
 # Imports
 # -----------------------------------------------------------------------------
-
 import ast
 import re
 from pathlib import Path, PurePosixPath
@@ -51,7 +42,6 @@ from sphinx.errors import SphinxError
 from . import PARALLEL_SAFE, REPO_TOP, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
 from .templates import EXAMPLE_METADATA
-from .util import get_sphinx_resources
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -61,8 +51,6 @@ __all__ = (
     "BokehExampleMetadataDirective",
     "setup",
 )
-
-RESOURCES = get_sphinx_resources()
 
 # -----------------------------------------------------------------------------
 # General API

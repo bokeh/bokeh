@@ -20,15 +20,9 @@ documentation.
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# use the wrapped sphinx logger
-from sphinx.util import logging  # isort:skip
-log = logging.getLogger(__name__)
-
 # -----------------------------------------------------------------------------
 # Imports
 # -----------------------------------------------------------------------------
-
-import json
 from os.path import basename
 from pathlib import Path
 from typing import Any
@@ -38,7 +32,7 @@ from sphinx.locale import _
 
 from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
-from .bokeh_gallery import EXAMPLE_INVENTORY
+from .bokeh_gallery import EXAMPLE_INVENTORY, _load_inventory
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -91,7 +85,7 @@ def process_sampledata_xrefs(app: Any, doctree: Any, fromdocname: str) -> None:
         return
 
     inventory = Path(app.doctreedir) / EXAMPLE_INVENTORY
-    backlinks = json.loads(inventory.read_text(encoding="utf-8"))["sampledata"]
+    backlinks = _load_inventory(inventory)["sampledata"]
     for node in placeholders:
         docnames = backlinks.get(node.sampledata_key, [])
         if not docnames:

@@ -4,28 +4,17 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
-""" Generate a gallery of Bokeh plots from a configuration file.
+"""Build the Gallery, Examples index, rendered pages, and sample-data inventory."""
 
-"""
-
-# -----------------------------------------------------------------------------
-# Boilerplate
-# -----------------------------------------------------------------------------
 from __future__ import annotations
-
-import logging  # isort:skip
-
-log = logging.getLogger(__name__)
 
 # -----------------------------------------------------------------------------
 # Imports
 # -----------------------------------------------------------------------------
-
 import json
 import re
-from html import escape
 from pathlib import Path, PurePosixPath
-from typing import Any
+from typing import Any, Literal, TypedDict, cast
 
 from sphinx.errors import SphinxError
 from sphinx.util.rst import escape as escape_rst
@@ -43,6 +32,47 @@ __all__ = (
     "BokehGalleryDirective",
     "setup",
 )
+
+class ExternalGalleryEntry(TypedDict):
+    name: str
+    title: str
+    url: str
+    alt: str
+    desc: str
+
+
+class GalleryCard(TypedDict):
+    url: str
+    target: Literal["_blank"] | None
+    img: str
+    alt: str
+    title: str
+    desc: str
+    parse_desc: bool
+
+
+class GalleryGroup(TypedDict):
+    title: str
+    cards: list[GalleryCard]
+
+
+class ExampleIndexEntry(TypedDict):
+    title: str
+    role: Literal["ref", "doc"] | None
+    target: str | None
+    topics: list[str]
+    example_type: str
+    summary: str
+    remaining_summary: str
+    details: list[tuple[str, str]]
+    filename: str
+    thumbnail: str | None
+
+
+class ExampleInventory(TypedDict):
+    sources: list[str]
+    sampledata: dict[str, list[str]]
+
 
 TOPIC_LABELS = {
     "basic": "Basic plotting",
@@ -76,35 +106,38 @@ class BokehGalleryDirective(BokehDirective):
     has_content = True
 
     def run(self) -> list[Any]:
+        if GALLERY_PAGE.filename is not None:
+            self.env.note_dependency(GALLERY_PAGE.filename)
         config = self.env.config
         srcdir = Path(self.env.srcdir)
         examples = Path(REPO_TOP) / "examples"
         sources = _read_inventory(self)
-        records = []
+        records: list[tuple[Path, str, dict[str, str]]] = []
         for relative in sources:
             if relative.suffix == ".py":
                 self.env.note_dependency(examples / relative)
                 summary, metadata = read_example_metadata(examples / relative)
                 if "gallery" in metadata:
                     records.append((relative, summary, metadata))
-        groups = []
+        groups: list[GalleryGroup] = []
         for line in self.content:
             _validate_category(line, examples, config)
             location = line
-            opts = []
+            cards: list[GalleryCard] = []
             if location == "server/app":
                 catalog = srcdir / config.bokeh_gallery_catalog
                 self.env.note_dependency(catalog)
-                for detail in json.loads(catalog.read_text(encoding="utf-8"))[location]:
-                    opts.append({
-                        "url": detail["url"],
+                for entry in _load_catalog(catalog, location):
+                    cards.append({
+                        "url": entry["url"],
                         "target": "_blank",
-                        "img": f"examples/{location}/{detail['name']}",
-                        "alt": escape(detail["alt"]),
-                        "title": escape(detail["title"]),
-                        "desc": detail["desc"],
+                        "img": f"examples/{location}/{entry['name']}",
+                        "alt": entry["alt"],
+                        "title": entry["title"],
+                        "desc": entry["desc"],
+                        "parse_desc": False,
                     })
-                groups.append({"title": "", "cards": opts})
+                groups.append({"title": "", "cards": cards})
                 continue
 
             for relative, summary, metadata in records:
@@ -123,18 +156,18 @@ class BokehGalleryDirective(BokehDirective):
                     self.env.note_dependency(thumbnail)
                     if not thumbnail.is_file():
                         raise SphinxError(f"Missing gallery thumbnail {thumbnail}")
-                opts.append({
+                cards.append({
                     "url": f"{image}.html",
                     "target": None,
                     "img": image,
-                    "alt": escape(alt),
-                    "title": escape(_example_title(source, metadata)),
+                    "alt": alt,
+                    "title": _example_title(source, metadata),
                     "desc": SUMMARY_SENTENCE_BREAK.split(summary, maxsplit=1)[0],
                     "parse_desc": True,
                 })
 
-            if opts:
-                groups.append({"title": _topic_label(location.split("/")[-1]), "cards": opts})
+            if cards:
+                groups.append({"title": _topic_label(location.split("/")[-1]), "cards": cards})
 
         return self.parse(GALLERY_PAGE.render(groups=groups), "<bokeh-gallery>") if groups else []
 
@@ -146,7 +179,7 @@ class BokehSearchableExamplesDirective(BokehDirective):
             self.env.note_dependency(EXAMPLE_INDEX.filename)
         config = self.env.config
         examples = Path(REPO_TOP) / "examples"
-        entries: list[dict[str, Any]] = []
+        entries: list[ExampleIndexEntry] = []
         categories: set[str] = set()
         for relative in _read_inventory(self):
             source = examples / relative
@@ -161,6 +194,7 @@ class BokehSearchableExamplesDirective(BokehDirective):
             lead, *remainder = SUMMARY_SENTENCE_BREAK.split(summary, maxsplit=1)
             guide = metadata.get("example-ref")
             rendered = _has_example_page(relative, metadata, config)
+            role: Literal["ref", "doc"] | None
             if guide:
                 role, target = "ref", guide
             elif rendered:
@@ -192,7 +226,7 @@ class BokehSearchableExamplesDirective(BokehDirective):
                 self.env.note_dependency(thumbnail_path.parent)
             if thumbnail_path.is_file():
                 self.env.note_dependency(thumbnail_path)
-            entries.append(dict(
+            entries.append(ExampleIndexEntry(
                 title=escape_rst(_example_title(source, metadata)),
                 role=role,
                 target=target,
@@ -243,7 +277,7 @@ def config_inited_handler(app: Any, config: Any) -> None:
         for module in set(sampledata_modules(metadata.get("sampledata"))):
             backlinks.setdefault(module, []).append(docname)
 
-    inventory = dict(sources=[source.as_posix() for source in sources], sampledata=backlinks)
+    inventory = ExampleInventory(sources=[source.as_posix() for source in sources], sampledata=backlinks)
     _write_if_changed(Path(app.doctreedir) / EXAMPLE_INVENTORY, json.dumps(inventory, sort_keys=True))
 
     for path in docs_examples.rglob("*.rst"):
@@ -280,7 +314,30 @@ def _discover_examples(root: Path) -> list[Path]:
 def _read_inventory(directive: BokehDirective) -> list[Path]:
     inventory = Path(directive.env.doctreedir) / EXAMPLE_INVENTORY
     directive.env.note_dependency(inventory)
-    return [Path(source) for source in json.loads(inventory.read_text(encoding="utf-8"))["sources"]]
+    return [Path(source) for source in _load_inventory(inventory)["sources"]]
+
+
+def _load_inventory(path: Path) -> ExampleInventory:
+    # This file is generated by config_inited_handler, rather than authored by users.
+    return cast(ExampleInventory, json.loads(path.read_text(encoding="utf-8")))
+
+
+def _load_catalog(path: Path, location: str) -> list[ExternalGalleryEntry]:
+    try:
+        catalog = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as error:
+        raise SphinxError(f"Unable to read gallery catalog {path}: {error}") from error
+
+    entries = catalog.get(location) if isinstance(catalog, dict) else None
+    if not isinstance(entries, list):
+        raise SphinxError(f"Gallery catalog {path} needs a list for {location!r}")
+    fields = ExternalGalleryEntry.__required_keys__
+    for index, entry in enumerate(entries, start=1):
+        if not isinstance(entry, dict) or any(not isinstance(entry.get(field), str) for field in fields):
+            raise SphinxError(
+                f"Gallery catalog {path}, {location!r} entry {index} needs string fields: {', '.join(sorted(fields))}",
+            )
+    return cast(list[ExternalGalleryEntry], entries)
 
 
 def _write_if_changed(path: Path, content: str) -> None:

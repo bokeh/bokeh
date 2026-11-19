@@ -10,6 +10,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from bokeh.sphinxext._internal.bokeh_example_metadata import read_example_metadata
 
 REPO_ROOT = Path(__file__).parents[4]
@@ -84,7 +86,8 @@ def test_gallery_rejects_unknown_directory(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setattr(bokeh_gallery, "_read_inventory", lambda directive: [])
     directive = SimpleNamespace(
         content=["topics/hierarchal"],
-        env=SimpleNamespace(config=SimpleNamespace(bokeh_example_categories=[]), srcdir=tmp_path),
+        env=SimpleNamespace(config=SimpleNamespace(bokeh_example_categories=[]), srcdir=tmp_path,
+                            note_dependency=lambda path: None),
     )
     with pytest.raises(SphinxError, match=r"Unknown example category.*topics/hierarchal"):
         bokeh_gallery.BokehGalleryDirective.run(directive)
@@ -100,7 +103,8 @@ def test_empty_gallery_does_not_emit_raw_directive(tmp_path: Path, monkeypatch) 
     monkeypatch.setattr(bokeh_gallery, "_read_inventory", lambda directive: [])
     directive = SimpleNamespace(
         content=["basic/lines"],
-        env=SimpleNamespace(config=SimpleNamespace(bokeh_example_categories=[]), srcdir=tmp_path),
+        env=SimpleNamespace(config=SimpleNamespace(bokeh_example_categories=[]), srcdir=tmp_path,
+                            note_dependency=lambda path: None),
     )
     assert bokeh_gallery.BokehGalleryDirective.run(directive) == []
 
@@ -172,3 +176,44 @@ def test_index_uses_small_thumbnails_without_gallery_selection(tmp_path: Path, m
     assert 'srcset' not in rendered
     assert rendered.index('With image') < rendered.index('Without image')
     assert '["Basic plotting / Lines"]' in rendered
+
+
+@pytest.mark.parametrize("content", [
+    "{",
+    "[]",
+    '{}',
+    '{"server/app": {}}',
+    '{"server/app": [{}]}',
+    '{"server/app": [{"name": 1}]}',
+])
+def test_catalog_reports_invalid_entries(tmp_path: Path, content: str) -> None:
+    from sphinx.errors import SphinxError
+
+    from bokeh.sphinxext._internal.bokeh_gallery import _load_catalog
+
+    catalog = tmp_path / 'gallery.json'
+    catalog.write_text(content)
+    with pytest.raises(SphinxError, match=r"gallery.json"):
+        _load_catalog(catalog, 'server/app')
+
+
+def test_catalog_loads_external_demos() -> None:
+    from bokeh.sphinxext._internal.bokeh_gallery import _load_catalog
+
+    assert _load_catalog(GALLERY, 'server/app') == json.loads(GALLERY.read_text())['server/app']
+
+
+def test_gallery_template_escapes_attributes_and_preserves_descriptions() -> None:
+    from bokeh.sphinxext._internal.templates import GALLERY_PAGE
+
+    card = dict(url='https://example.org/?a=1&b="two"', target='_blank', img='a&b',
+                alt='A "quoted" label', title='A & B', desc='<em>HTML description</em>', parse_desc=False)
+    rendered = GALLERY_PAGE.render(groups=[dict(title='A & B', cards=[card])])
+    assert 'href="https://example.org/?a=1&amp;b=&#34;two&#34;"' in rendered
+    assert 'alt="A &#34;quoted&#34; label"' in rendered
+    assert '>A &amp; B</span>' in rendered
+    assert '<em>HTML description</em>' in rendered
+    card.update(desc='A :ref:`linked summary`.', parse_desc=True)
+    rendered = GALLERY_PAGE.render(groups=[dict(title='', cards=[card])])
+    assert '.. container:: bk-thumbnail-description' in rendered
+    assert 'A :ref:`linked summary`.' in rendered

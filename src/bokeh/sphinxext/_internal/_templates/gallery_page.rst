@@ -4,26 +4,26 @@
     <div class="bk-gallery-group">
     {% if group.title %}<h2>{{ group.title | e }}</h2>{% endif %}
     <ul class="bk-gallery list-unstyled">
-    {% for opt in group.cards %}
+    {% for card in group.cards %}
     <li class="bk-thumbnail">
-    <a {% if opt['target'] -%} target="{{ opt['target'] }}" {%- endif %} href="{{ opt['url'] }}">
+    <a {% if card.target -%} target="{{ card.target | e }}" {%- endif %} href="{{ card.url | e }}">
     <img class="img-fluid" width="300" height="300"
-         src="../_images/{{ opt['img'] }}.png"
-         srcset="../_images/{{ opt['img'] }}.png, ../_images/{{ opt['img'] }}@2x.png 2x"
-         alt="{{ opt['alt'] }}" loading="lazy"
+         src="../_images/{{ card.img | e }}.png"
+         srcset="../_images/{{ card.img | e }}.png, ../_images/{{ card.img | e }}@2x.png 2x"
+         alt="{{ card.alt | e }}" loading="lazy"
     >
-    <span class="bk-thumbnail-title">{{ opt['title'] }}</span>
+    <span class="bk-thumbnail-title">{{ card.title | e }}</span>
     </a>
-{% if opt['desc'] and opt.get('parse_desc') %}
+{% if card.desc and card.parse_desc %}
 
 .. container:: bk-thumbnail-description
 
-    {{ opt['desc'] }}
+    {{ card.desc }}
 
 .. raw:: html
 
-{% elif opt['desc'] %}
-    <div class="bk-thumbnail-description">{{ opt['desc'] }}</div>
+{% elif card.desc %}
+    <div class="bk-thumbnail-description">{{ card.desc | safe }}</div>
 {% endif %}
     </li>
     {% endfor %}
