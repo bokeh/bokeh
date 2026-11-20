@@ -36,20 +36,23 @@ from bokeh.sphinxext.bokeh_plot import (
 def test_parent_initializes_quartz_before_fork() -> None:
     pytest.importorskip("pygraphviz")
     script = dedent("""
+        import json
         import multiprocessing
         import urllib.request
         from tempfile import TemporaryDirectory
         from types import SimpleNamespace
 
-        from bokeh.model import collect_models
-        from bokeh.models.util import generate_structure_plot
-        from bokeh.plotting import figure
+        import pygraphviz
+
         from bokeh.sphinxext.bokeh_plot import builder_inited
 
         def generate():
-            f = figure()
-            f.line(x=[1, 2, 3], y=[1, 2, 3])
-            assert len(collect_models(generate_structure_plot(f))) == 47
+            graph = pygraphviz.AGraph(directed=True)
+            graph.add_edge("a", "b")
+            graph.node_attr["fontname"] = "monospace"
+            graph.layout(prog="dot")
+            assert len(json.loads(graph.draw(format="json"))["objects"]) == 2
+            graph.close()
 
         # Match Sphinx's network setup before its source readers fork.
         urllib.request.getproxies()

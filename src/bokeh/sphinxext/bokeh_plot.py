@@ -319,13 +319,14 @@ def builder_inited(app: Any) -> None:
     if sys.platform == "darwin" and app.parallel > 1:
         pygraphviz = import_optional("pygraphviz")
         if pygraphviz is not None:
-            # Quartz lazily initializes CoreFoundation during its first layout.
-            # Doing that in a forked Sphinx worker can segfault, so warm it in
-            # the parent before source reading starts.
+            # Quartz lazily initializes CoreFoundation, which can segfault after
+            # Sphinx forks. Warm the structure plot's font and JSON renderer here
+            # in the parent before source reading starts.
             # See PyGraphviz #667: https://github.com/pygraphviz/pygraphviz/issues/667
             with closing(pygraphviz.AGraph()) as graph:
-                graph.add_node("warmup")
+                graph.add_node("warmup", fontname="monospace", fontsize="11")
                 graph.layout(prog="dot")
+                graph.draw(format="json")
 
 
 def add_page_resources(app: Any, doctree: nodes.document, docname: str) -> None:

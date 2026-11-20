@@ -249,11 +249,13 @@ class _BokehStructureGraph:
             graph.graph_attr.update(rankdir="LR", nodesep="0.08", ranksep="0.3")
             graph.node_attr.update(shape="box", fixedsize="true", height=str(22/72), fontname="monospace", fontsize="11")
             graph.edge_attr.update(arrowhead="none", tailport="e", headport="w")
-            for node in graph.nodes():
+            for node in self._graph:
                 model = self._graph.nodes[node]["model"]
-                node.attr.update(label=model, width=str((len(model) * 7 + 16) / 72))
+                graph.add_node(node, label=model, width=str((len(model) * 7 + 16) / 72))
             graph.layout(prog="dot")
-            layout = json.loads(graph.draw(format="json"))
+            output = graph.draw(format="json")
+            assert output is not None
+            layout = json.loads(output)
         objects = layout["objects"]
         node_x, node_y = zip(*(map(float, node["pos"].split(",")) for node in objects))
         node_source = ColumnDataSource(dict(
