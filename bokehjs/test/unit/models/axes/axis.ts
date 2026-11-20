@@ -9,7 +9,6 @@ import {ScaledTicker} from "@bokehjs/models/tickers/scaled_ticker"
 import {ScaledTickFormatter} from "@bokehjs/models/formatters/scaled_tick_formatter"
 import {SITickFormatter} from "@bokehjs/models/formatters/si_tick_formatter"
 import {SingleIntervalTicker} from "@bokehjs/models/tickers/single_interval_ticker"
-
 import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {FactorRange} from "@bokehjs/models/ranges/factor_range"
 import {Range1d} from "@bokehjs/models/ranges/range1d"

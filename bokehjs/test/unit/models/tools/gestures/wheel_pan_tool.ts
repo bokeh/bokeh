@@ -5,7 +5,6 @@ import type {Tool} from "@bokehjs/models/tools/tool"
 import {WheelPanTool} from "@bokehjs/models/tools/gestures/wheel_pan_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import type {PlotView} from "@bokehjs/models/plots/plot"
-
 import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 
 describe("WheelPanTool", () => {

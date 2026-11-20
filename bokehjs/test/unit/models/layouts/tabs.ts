@@ -3,7 +3,6 @@ import {display} from "#framework/layouts"
 
 import {TabPanel} from "@bokehjs/models/layouts/tab_panel"
 import {Tabs} from "@bokehjs/models/layouts/tabs"
-
 import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Tooltip} from "@bokehjs/models/ui/tooltip"

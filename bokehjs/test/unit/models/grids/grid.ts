@@ -6,7 +6,6 @@ import {BasicTicker} from "@bokehjs/models/tickers/basic_ticker"
 import {BasicTickFormatter} from "@bokehjs/models/formatters/basic_tick_formatter"
 import {FixedTicker} from "@bokehjs/models/tickers/fixed_ticker"
 import {Grid} from "@bokehjs/models/grids/grid"
-
 import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 

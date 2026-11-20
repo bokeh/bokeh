@@ -6,7 +6,6 @@ import type {TapToolCallback} from "@bokehjs/models/tools/gestures/tap_tool"
 import {TapTool} from "@bokehjs/models/tools/gestures/tap_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import type {PlotView} from "@bokehjs/models/plots/plot"
-
 import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {GlyphRenderer} from "@bokehjs/models/renderers"
 import {ColumnDataSource} from "@bokehjs/models/sources"

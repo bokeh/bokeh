@@ -4,7 +4,6 @@ import {expect, expect_not_null} from "#framework/assertions"
 import {display} from "#framework/layouts"
 
 import {Selection} from "@bokehjs/models/selections/selection"
-
 import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 

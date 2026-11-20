@@ -2,7 +2,6 @@ import {display} from "#framework/layouts"
 
 import type {Arrayable} from "@bokehjs/core/types"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
-
 import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import type {Glyph} from "@bokehjs/models/glyphs/glyph"
 import type {GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"

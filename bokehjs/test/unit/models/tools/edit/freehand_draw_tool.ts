@@ -7,7 +7,6 @@ import {build_view} from "@bokehjs/core/build_views"
 
 import type {PatchesView} from "@bokehjs/models/glyphs/patches"
 import {Patches} from "@bokehjs/models/glyphs/patches"
-
 import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Selection} from "@bokehjs/models/selections/selection"
