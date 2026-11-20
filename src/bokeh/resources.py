@@ -443,9 +443,6 @@ _ALL_SRI_HASHES: dict[str, Hashes] = {}
 def get_all_sri_versions() -> set[str]:
     """ Report all versions that have SRI hashes.
 
-    Returns:
-        set
-
     """
     files = (ROOT_DIR / "_sri").glob("*.json")
     return set(file.stem for file in files)
@@ -460,13 +457,10 @@ def get_sri_hashes_for_version(version: str) -> Hashes:
     Bokeh.
 
     Args:
-        version (str) :
+        version:
             The Bokeh version to return SRI hashes for. Hashes are only provided
             for full releases, e.g "1.4.0", and not for "dev" builds or release
             candidates.
-
-    Returns:
-        dict
 
     Raises:
         ValueError: if the specified version does not exist
@@ -511,14 +505,9 @@ def verify_sri_hashes() -> None:
     .. note::
         This function can only be called on full release (e.g "1.2.3") packages.
 
-    Returns:
-        None
-
     Raises:
-        ValueError
-            If called outside a full release package
-        RuntimeError
-            If there are missing, extra, or mismatched files
+        ValueError: If called outside a full release package
+        RuntimeError: If there are missing, extra, or mismatched files
 
     """
     if not is_full_release():

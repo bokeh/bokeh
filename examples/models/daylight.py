@@ -5,7 +5,7 @@ elements to draw custom outlines and fills.
 .. bokeh-example-metadata::
     :title: Daylight
     :keywords: outline, shading, fill
-    :apis: bokeh.models.glyphs.Line, bokeh.models.glyphs.Patch, bokeh.models.plots.Plot.add_glyph, bokeh.document.document.Document
+    :apis: bokeh.models.glyphs.Line, bokeh.models.glyphs.Patch, bokeh.models.Plot.add_glyph, bokeh.document.Document
     :sampledata: daylight
     :refs: :ref:`ug_basic_areas_patches`
 '''

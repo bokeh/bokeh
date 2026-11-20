@@ -181,8 +181,7 @@ def pop_visuals(glyphclass: type[Glyph], props: Attrs, *, prefix: str = "", defa
             Ex. 'width' here may be used for 'selection_line_width'.
 
     Returns:
-        result (dict) :
-            Resulting properties for the instance (no prefixes).
+        Resulting properties for the instance (no prefixes).
 
     Notes:
         Feature trait 'text_color', as well as traits 'color' and 'alpha', have

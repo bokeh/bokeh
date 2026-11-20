@@ -78,14 +78,10 @@ def default_filename(ext: str) -> str:
     writable), then a temporary file with the given extension is returned.
 
     Args:
-        ext (str) : the desired extension for the filename
-
-    Returns:
-        str
+        ext: the desired extension for the filename
 
     Raises:
-        RuntimeError
-            If the extensions requested is ".py"
+        RuntimeError: If the extensions requested is ".py"
 
     '''
     if ext == "py":

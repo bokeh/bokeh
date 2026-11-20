@@ -69,7 +69,7 @@ class DocumentModelManager:
         '''
 
         Args:
-            document (Document): A Document to manage models for
+            document: A Document to manage models for
                 A weak reference to the Document will be retained
 
         '''
@@ -136,10 +136,7 @@ class DocumentModelManager:
         ''' Find all the models for this Document with a given name.
 
         Args:
-            name (str) : the name of a model to search for
-
-        Returns
-            A list of models
+            name: the name of a model to search for
 
         '''
         return self._models_by_name.get_all(name)
@@ -148,11 +145,8 @@ class DocumentModelManager:
         ''' Find the model for this Document with a given ID.
 
         Args:
-            id (ID) : model ID to search for
+            id: model ID to search for
                 If no model with the given ID exists, returns None
-
-        Return:
-            a Model or None
 
         '''
         return self._models.get(id, None)
@@ -163,10 +157,7 @@ class DocumentModelManager:
         If multiple models are found with the name, an error is raised.
 
         Args:
-            name (str) : the name of a model to search for
-
-        Returns
-            A model with the given name, or None
+            name: the name of a model to search for
 
         '''
         return self._models_by_name.get_one(name, f"Found more than one model named '{name}'")
@@ -184,9 +175,6 @@ class DocumentModelManager:
 
     def invalidate(self) -> None:
         ''' Recompute the set of all models, if not currently frozen
-
-        Returns:
-            None
 
         '''
         if self._freeze_count == 0:  # only recompute when completely unfrozen
@@ -244,10 +232,7 @@ class DocumentModelManager:
         Document.
 
         Args:
-            id (ID) : the model id of a model to check
-
-        Returns:
-            bool
+            id: the model id of a model to check
 
         '''
         return id in self._seen_model_ids
@@ -262,14 +247,9 @@ class DocumentModelManager:
             functions with a name selector
 
         Args:
-            model (Model) : a model to update the name for
-
-            old_name(str, None) : a previous name for the model, or None
-
-            new_name(str, None) : a new name for the model, or None
-
-        Returns:
-            None
+            model: a model to update the name for
+            old_name: a previous name for the model, or None
+            new_name: a new name for the model, or None
 
         '''
         if old_name is not None:

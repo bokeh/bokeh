@@ -53,9 +53,9 @@ def die(message: str, status: int = 1) -> Never:
     process will terminate.
 
     Args:
-        message (str) : error message to print
+        message: error message to print
 
-        status (int) : the exit status to pass to ``sys.exit``
+        status: the exit status to pass to ``sys.exit``
 
     '''
     print(f"ERROR: {message}", file=sys.stderr)
@@ -91,17 +91,14 @@ def build_single_handler_application(path: str, argv: list[str] | None = None) -
       ``path`` is to a directory containing a ``main.py`` script.
 
     Args:
-        path (str) : path to a file or directory for creating a Bokeh
+        path: path to a file or directory for creating a Bokeh
             application.
 
-        argv (seq[str], optional) : command line arguments to pass to the
+        argv: command line arguments to pass to the
             application handler
 
-    Returns:
-        :class:`~bokeh.application.application.Application`
-
     Raises:
-        RuntimeError
+        RuntimeError:
 
     Notes:
         If ``path`` ends with a file ``main.py`` then a warning will be printed
@@ -147,17 +144,13 @@ def build_single_handler_applications(paths: list[str], argvs: dict[str, list[st
     to generate the mapping.
 
     Args:
-        paths (seq[str]) : paths to files or directories for creating Bokeh
+        paths: paths to files or directories for creating Bokeh
             applications.
-
-        argvs (dict[str, list[str]], optional) : mapping of paths to command
+        argvs: mapping of paths to command
             line arguments to pass to the handler for each path
 
-    Returns:
-        dict[str, Application]
-
     Raises:
-        RuntimeError
+        RuntimeError:
 
     '''
     applications: dict[str, Application] = {}
@@ -183,9 +176,9 @@ def report_server_init_errors(address: str | None = None, port: int | None = Non
     ``Server`` cannot be started due to a network problem.
 
     Args:
-        address (str) : network address that the server will be listening on
+        address: network address that the server will be listening on
 
-        port (int) : network address that the server will be listening on
+        port: network address that the server will be listening on
 
     Example:
 

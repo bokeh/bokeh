@@ -187,12 +187,8 @@ class DocumentChangedEvent:
         '''
 
         Args:
-            document (Document) :
-                A Bokeh document that is to be updated.
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
+            document: A Bokeh document that is to be updated.
+            setter: This is used to prevent "boomerang" updates to Bokeh apps.
 
                 In the context of a Bokeh server application, incoming updates
                 to properties will be annotated with the session that is
@@ -200,11 +196,9 @@ class DocumentChangedEvent:
                 subsequent change notifications that the update triggers.
                 The session can compare the event setter to itself, and
                 suppress any updates that originate from itself.
-
-            callback_invoker (callable, optional) :
-                A callable that will invoke any Model callbacks that should
+            callback_invoker: A callable that will invoke any Model callbacks that should
                 be executed in response to the change that triggered this
-                event. (default: None)
+                event.
 
         '''
         self.document = document
@@ -254,7 +248,7 @@ class DocumentPatchedEvent(DocumentChangedEvent, Serializable):
         *Sub-classes must implement this method.*
 
         Args:
-            serializer (Serializer): serializer object
+            serializer: serializer object
 
         '''
         raise NotImplementedError()
@@ -336,30 +330,17 @@ class ModelChangedEvent(DocumentPatchedEvent, kind="ModelChanged"):
         '''
 
         Args:
-            document (Document) :
-                A Bokeh document that is to be updated.
-
-            model (Model) :
-                A Model to update
-
-            attr (str) :
-                The name of the attribute to update on the model.
-
-            new (object) :
-                The new value of the attribute
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
+            document: A Bokeh document that is to be updated.
+            model: A Model to update
+            attr: The name of the attribute to update on the model.
+            new: The new value of the attribute
+            setter: This is used to prevent "boomerang" updates to Bokeh apps.
 
                 See :class:`~bokeh.document.events.DocumentChangedEvent`
                 for more details.
-
-            callback_invoker (callable, optional) :
-                A callable that will invoke any Model callbacks that should
+            callback_invoker: A callable that will invoke any Model callbacks that should
                 be executed in response to the change that triggered this
-                event. (default: None)
-
+                event.
 
         '''
         super().__init__(document, setter, callback_invoker)
@@ -406,7 +387,7 @@ class ModelChangedEvent(DocumentPatchedEvent, kind="ModelChanged"):
         to clients.
 
         Args:
-            serializer (Serializer): serializer object
+            serializer: serializer object
 
         '''
         event = ModelChanged(
@@ -455,31 +436,19 @@ class ColumnDataChangedEvent(DocumentPatchedEvent, kind="ColumnDataChanged"):
         '''
 
         Args:
-            document (Document) :
-                A Bokeh document that is to be updated.
-
-            model (ColumnDataSource) : bokeh model
-
-            attr (str):
-                The name of the attribute to change on the model.
-
-            data (DataDict, optional): data object
-
-            cols (list[str]) :
-                optional explicit list of column names to update. If None, all
-                columns will be updated (default: None)
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
+            document: A Bokeh document that is to be updated.
+            model: bokeh model
+            attr: The name of the attribute to change on the model.
+            data: data object
+            cols: optional explicit list of column names to update. If None, all
+                columns will be updated
+            setter: This is used to prevent "boomerang" updates to Bokeh apps.
 
                 See :class:`~bokeh.document.events.DocumentChangedEvent`
                 for more details.
-
-            callback_invoker (callable, optional) :
-                A callable that will invoke any Model callbacks that should
+            callback_invoker: A callable that will invoke any Model callbacks that should
                 be executed in response to the change that triggered this
-                event. (default: None)
+                event.
 
 
         '''
@@ -513,7 +482,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent, kind="ColumnDataChanged"):
             }
 
         Args:
-            serializer (Serializer): serializer object
+            serializer: serializer object
 
         '''
         data = self.data if self.data is not None else getattr(self.model, self.attr)
@@ -557,36 +526,22 @@ class ColumnsStreamedEvent(DocumentPatchedEvent, kind="ColumnsStreamed"):
         '''
 
         Args:
-            document (Document) :
-                A Bokeh document that is to be updated.
+            document: A Bokeh document that is to be updated.
+            model: The data source to stream new data to.
+            attr: The name of the attribute to stream on the model.
+            data: New data to stream.
 
-            model (ColumnDataSource) :
-                The data source to stream new data to.
-
-            attr (str):
-                The name of the attribute to stream on the model.
-
-            data (dict or DataFrame) :
-                New data to stream.
-
-                If a DataFrame, will be stored as ``{c: df[c] for c in df.columns}``
-
-            rollover (int, optional) :
-                A rollover limit. If the data source columns exceed this
+                If a DataFrame, will be stored as ``{c: df[c] for c in df.columns}`
+            rollover: A rollover limit. If the data source columns exceed this
                 limit, earlier values will be discarded to maintain the
                 column length under the limit.
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
+            setter: This is used to prevent "boomerang" updates to Bokeh apps.
 
                 See :class:`~bokeh.document.events.DocumentChangedEvent`
                 for more details.
-
-            callback_invoker (callable, optional) :
-                A callable that will invoke any Model callbacks that should
+            callback_invoker: A callable that will invoke any Model callbacks that should
                 be executed in response to the change that triggered this
-                event. (default: None)
+                event.
 
         '''
         super().__init__(document, setter, callback_invoker)
@@ -629,7 +584,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent, kind="ColumnsStreamed"):
             }
 
         Args:
-            serializer (Serializer): serializer object
+            serializer: serializer object
 
         '''
         return ColumnsStreamed(
@@ -669,28 +624,17 @@ class ColumnsPatchedEvent(DocumentPatchedEvent, kind="ColumnsPatched"):
         '''
 
         Args:
-            document (Document) :
-                A Bokeh document that is to be updated.
-
-            model (ColumnDataSource) :
-                The data source to apply patches to.
-
-            attr (str):
-                The name of the attribute to patch on the model.
-
-            patches (list) : patches
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
+            document: A Bokeh document that is to be updated.
+            model: The data source to apply patches to.
+            attr: The name of the attribute to patch on the model.
+            patches: patches
+            setter: This is used to prevent "boomerang" updates to Bokeh apps.
 
                 See :class:`~bokeh.document.events.DocumentChangedEvent`
                 for more details.
-
-            callback_invoker (callable, optional) :
-                A callable that will invoke any Model callbacks that should
+            callback_invoker: A callable that will invoke any Model callbacks that should
                 be executed in response to the change that triggered this
-                event. (default: None)
+                event.
 
         '''
         super().__init__(document, setter, callback_invoker)
@@ -721,7 +665,7 @@ class ColumnsPatchedEvent(DocumentPatchedEvent, kind="ColumnsPatched"):
             }
 
         Args:
-            serializer (Serializer): serializer object
+            serializer: serializer object
 
         '''
         return ColumnsPatched(
@@ -762,23 +706,15 @@ class TitleChangedEvent(DocumentPatchedEvent, kind="TitleChanged"):
         '''
 
         Args:
-            document (Document) :
-                A Bokeh document that is to be updated.
-
-            title (str) :
-                The new title to set on the Document
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
+            document: A Bokeh document that is to be updated.
+            title: The new title to set on the Document
+            setter: This is used to prevent "boomerang" updates to Bokeh apps.
 
                 See :class:`~bokeh.document.events.DocumentChangedEvent`
                 for more details.
-
-            callback_invoker (callable, optional) :
-                A callable that will invoke any Model callbacks that should
+            callback_invoker: A callable that will invoke any Model callbacks that should
                 be executed in response to the change that triggered this
-                event. (default: None)
+                event.
 
 
         '''
@@ -815,7 +751,7 @@ class TitleChangedEvent(DocumentPatchedEvent, kind="TitleChanged"):
             }
 
         Args:
-            serializer (Serializer): serializer object
+            serializer: serializer object
 
         '''
         return TitleChanged(
@@ -844,23 +780,15 @@ class RootAddedEvent(DocumentPatchedEvent, kind="RootAdded"):
         '''
 
         Args:
-            document (Document) :
-                A Bokeh document that is to be updated.
-
-            model (Model) :
-                The Bokeh Model to add as a Document root.
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
+            document: A Bokeh document that is to be updated.
+            model: The Bokeh Model to add as a Document root.
+            setter: This is used to prevent "boomerang" updates to Bokeh apps.
 
                 See :class:`~bokeh.document.events.DocumentChangedEvent`
                 for more details.
-
-            callback_invoker (callable, optional) :
-                A callable that will invoke any Model callbacks that should
+            callback_invoker: A callable that will invoke any Model callbacks that should
                 be executed in response to the change that triggered this
-                event. (default: None)
+                event.
 
         '''
         super().__init__(document, setter, callback_invoker)
@@ -878,7 +806,7 @@ class RootAddedEvent(DocumentPatchedEvent, kind="RootAdded"):
             }
 
         Args:
-            serializer (Serializer): serializer object
+            serializer: serializer object
 
         '''
         return RootAdded(
@@ -908,23 +836,15 @@ class RootRemovedEvent(DocumentPatchedEvent, kind="RootRemoved"):
         '''
 
         Args:
-            document (Document) :
-                A Bokeh document that is to be updated.
-
-            model (Model) :
-                The Bokeh Model to remove as a Document root.
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
+            document: A Bokeh document that is to be updated.
+            model: The Bokeh Model to remove as a Document root.
+            setter: This is used to prevent "boomerang" updates to Bokeh apps.
 
                 See :class:`~bokeh.document.events.DocumentChangedEvent`
                 for more details.
-
-            callback_invoker (callable, optional) :
-                A callable that will invoke any Model callbacks that should
+            callback_invoker: A callable that will invoke any Model callbacks that should
                 be executed in response to the change that triggered this
-                event. (default: None)
+                event.
 
 
         '''
@@ -943,7 +863,7 @@ class RootRemovedEvent(DocumentPatchedEvent, kind="RootRemoved"):
             }
 
         Args:
-            serializer (Serializer): serializer object
+            serializer: serializer object
 
         '''
         return RootRemoved(
@@ -971,11 +891,8 @@ class SessionCallbackAdded(DocumentChangedEvent):
         '''
 
         Args:
-            document (Document) :
-                A Bokeh document that is to be updated.
-
-            callback (SessionCallback) :
-                The callback to add
+            document: A Bokeh document that is to be updated.
+            callback: The callback to add
 
         '''
         super().__init__(document)
@@ -1003,11 +920,8 @@ class SessionCallbackRemoved(DocumentChangedEvent):
         '''
 
         Args:
-            document (Document) :
-                A Bokeh document that is to be updated.
-
-            callback (SessionCallback) :
-                The callback to remove
+            document: A Bokeh document that is to be updated.
+            callback: The callback to remove
 
         '''
         super().__init__(document)

@@ -59,9 +59,6 @@ class _ArtifactPayloadParser(HTMLParser):
             tag: The HTML tag name.
             attrs: The tag attributes.
 
-        Returns:
-            None
-
         '''
         if tag == "script" and any(name == "data-bokeh-embed-payload" for name, _value in attrs):
             self.payload = []
@@ -73,9 +70,6 @@ class _ArtifactPayloadParser(HTMLParser):
         Args:
             tag: The HTML tag name.
 
-        Returns:
-            None
-
         '''
         if tag == "script":
             self._collecting = False
@@ -85,9 +79,6 @@ class _ArtifactPayloadParser(HTMLParser):
 
         Args:
             data: Text from the current HTML element.
-
-        Returns:
-            None
 
         '''
         if self._collecting and self.payload is not None:
@@ -121,8 +112,7 @@ def valid_export_id(value: Any) -> TypeGuard[str]:
     '''Report whether a value is a safe notebook export correlation identifier.
 
     Args:
-        value:
-            The candidate correlation identifier.
+        value: The candidate correlation identifier.
 
     Returns:
         Whether the value is a bounded URL-safe string.
@@ -135,15 +125,13 @@ def set_export_correlation(export_id: str) -> Token[str | None]:
     '''Associate a validated correlation identifier with the current export.
 
     Args:
-        export_id:
-            The frontend-generated export correlation identifier.
+        export_id: The frontend-generated export correlation identifier.
 
     Returns:
         A context token that restores the previous correlation.
 
     Raises:
-        ValueError:
-            If the identifier is not bounded and URL-safe.
+        ValueError: If the identifier is not bounded and URL-safe.
 
     '''
     if not valid_export_id(export_id):
@@ -155,11 +143,7 @@ def reset_export_correlation(token: Token[str | None]) -> None:
     '''Restore the export correlation represented by a context token.
 
     Args:
-        token:
-            The token returned by :func:`set_export_correlation`.
-
-    Returns:
-        None
+        token: The token returned by :func:`set_export_correlation`.
 
     '''
     _EXPORT_CORRELATION_ID.reset(token)
@@ -192,21 +176,13 @@ def store_export_snapshots(path: str, export_id: str, snapshots: list[dict[str, 
     '''Store bounded frontend state for exactly one correlated export request.
 
     Args:
-        path:
-            The notebook path known to Jupyter.
-        export_id:
-            The frontend-generated export correlation identifier.
-        snapshots:
-            The transient frontend artifact snapshots keyed by view ID.
-        os_path:
-            The optional resolved operating-system path for the notebook.
-
-    Returns:
-        None
+        path: The notebook path known to Jupyter.
+        export_id: The frontend-generated export correlation identifier.
+        snapshots: The transient frontend artifact snapshots keyed by view ID.
+        os_path: The optional resolved operating-system path for the notebook.
 
     Raises:
-        ValueError:
-            If the correlation identifier is not bounded and URL-safe.
+        ValueError: If the correlation identifier is not bounded and URL-safe.
 
     '''
     global _TRANSIENT_EXPORT_TIMER
@@ -280,12 +256,10 @@ class BokehPNGPreprocessor(Preprocessor):
     ''' Replace trusted Bokeh artifact outputs with export-time PNG captures.
 
     Attributes:
-        require_trusted:
-            Whether notebook outputs must have a valid Jupyter trust signature.
-        timeout:
-            The seconds allowed for each PNG capture.
-        max_bytes:
-            The maximum encoded PNG size accepted for one output.
+        require_trusted: Whether notebook outputs must have a valid Jupyter trust signature.
+        timeout: The seconds allowed for each PNG capture.
+        backend: The browser backend used for capture.
+        max_bytes: The maximum encoded PNG size accepted for one output.
 
     '''
 
@@ -304,10 +278,8 @@ class BokehPNGPreprocessor(Preprocessor):
         ''' Prepare trust and transient state before processing notebook cells.
 
         Args:
-            nb:
-                The notebook node to process.
-            resources:
-                The nbconvert resources mapping for this export.
+            nb: The notebook node to process.
+            resources: The nbconvert resources mapping for this export.
 
         Returns:
             The processed notebook and updated resources mapping.
@@ -334,12 +306,9 @@ class BokehPNGPreprocessor(Preprocessor):
         ''' Replace Bokeh outputs in one notebook cell with static fallbacks.
 
         Args:
-            cell:
-                The notebook cell to process.
-            resources:
-                The nbconvert resources mapping for this export.
-            index:
-                The position of the cell in the notebook.
+            cell: The notebook cell to process.
+            resources: The nbconvert resources mapping for this export.
+            index: The position of the cell in the notebook.
 
         Returns:
             The processed cell and updated resources mapping.
@@ -499,12 +468,9 @@ class BokehHTMLExporter(HTMLExporter):
         '''Convert a notebook after capturing trust from its unmodified contents.
 
         Args:
-            nb:
-                The notebook node to export.
-            resources:
-                Optional nbconvert resources for the export.
-            kw:
-                Additional options accepted by the HTML exporter.
+            nb: The notebook node to export.
+            resources: Optional nbconvert resources for the export.
+            kw: Additional options accepted by the HTML exporter.
 
         Returns:
             The rendered HTML and updated resources mapping.

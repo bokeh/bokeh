@@ -78,6 +78,13 @@ cows
 
 .. automodule:: bokeh.sampledata.cows
 
+.. _sampledata_cycling:
+
+cycling
+-------
+
+.. automodule:: bokeh.sampledata.cycling
+
 .. _sampledata_daylight:
 
 daylight

@@ -120,7 +120,7 @@ class DocumentCallbackManager:
         '''
 
         Args:
-            document (Document): A Document to manage models for
+            document: A Document to manage models for
                 A weak reference to the Document will be retained
 
         '''
@@ -166,22 +166,17 @@ class DocumentCallbackManager:
         ''' Internal implementation for adding session callbacks.
 
         Args:
-            callback_obj (SessionCallback) :
-                A session callback object that wraps a callable and is
+            callback_obj: A session callback object that wraps a callable and is
                 passed to ``trigger_on_change``.
-
-            callback (callable) :
-                A callable to execute when session events happen.
-
-            one_shot (bool) :
-                Whether the callback should immediately auto-remove itself
+            callback: A callable to execute when session events happen.
+            one_shot: Whether the callback should immediately auto-remove itself
                 after one execution.
 
         Returns:
-            SessionCallback : passed in as ``callback_obj``.
+            passed in as ``callback_obj``.
 
         Raises:
-            ValueError, if the callback has been previously added
+            ValueError: if the callback has been previously added
 
         '''
         doc = self._document()
@@ -337,7 +332,7 @@ class DocumentCallbackManager:
         ''' Remove a callback added earlier with ``on_change``.
 
         Raises:
-            KeyError, if the callback was never added
+            KeyError: if the callback was never added
 
         '''
         for callback in callbacks:
@@ -355,11 +350,8 @@ class DocumentCallbackManager:
         ''' Remove a callback added earlier with ``add_periodic_callback``,
         ``add_timeout_callback``, or ``add_next_tick_callback``.
 
-        Returns:
-            None
-
         Raises:
-            KeyError, if the callback was never added
+            KeyError: if the callback was never added
 
         '''
         try:
@@ -384,7 +376,7 @@ class DocumentCallbackManager:
         event name.
 
         Args:
-            event_name (str) : the event name to look up callbacks for
+            event_name: the event name to look up callbacks for
 
         '''
         return tuple(self._event_callbacks.get(event_name, []))
@@ -438,9 +430,6 @@ class DocumentCallbackManager:
     def unhold(self) -> None:
         ''' Turn off any active document hold and apply any collected events.
 
-        Returns:
-            None
-
         '''
         # no-op if we are already no holding
         if self._hold is None:
@@ -479,17 +468,11 @@ def _combine_document_events(new_event: DocumentChangedEvent, old_events: list[D
     ``old_events``.
 
     Args:
-        new_event (DocumentChangedEvent) :
-            The new event to attempt to combine
-
-        old_events (list[DocumentChangedEvent]):
-            A list of previous events to attempt to combine new_event with
+        new_event:The new event to attempt to combine
+        old_events: A list of previous events to attempt to combine new_event with
 
             **This is an "out" parameter**. The values it contains will be
             modified in-place.
-
-    Returns:
-        None
 
     '''
     for event in reversed(old_events):

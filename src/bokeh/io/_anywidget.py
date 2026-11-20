@@ -116,8 +116,6 @@ class _WidgetComm:
             data: The message payload.
             buffers: Optional binary message buffers.
 
-        Returns:
-            None
 
         '''
         if self._closed:
@@ -131,9 +129,6 @@ class _WidgetComm:
         Args:
             callback: The callback to invoke when the frontend closes.
 
-        Returns:
-            None
-
         '''
         self._on_close = callback
 
@@ -142,9 +137,6 @@ class _WidgetComm:
 
         Args:
             callback: The callback to invoke for frontend messages.
-
-        Returns:
-            None
 
         '''
         self._on_msg = callback
@@ -155,18 +147,12 @@ class _WidgetComm:
         Args:
             content: The frontend message payload.
 
-        Returns:
-            None
-
         '''
         if not self._closed and self._on_msg is not None:
             self._on_msg({"content": {"data": content}})
 
     def close(self) -> None:
         '''Disconnect this frontend while preserving its rendered artifact.
-
-        Returns:
-            None
 
         '''
         if self._closed:
@@ -179,9 +165,6 @@ class _WidgetComm:
 
     def frontend_closed(self) -> None:
         '''Record that the frontend closed the transport.
-
-        Returns:
-            None
 
         '''
         if self._closed:
@@ -294,9 +277,6 @@ class _DisplayWidget(anywidget.AnyWidget):
 
     def disconnect(self) -> None:
         '''Disconnect every frontend without removing its static artifact.
-
-        Returns:
-            None
 
         '''
         if self._released:

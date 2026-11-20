@@ -83,24 +83,21 @@ class HasDocumentRef:
 
 def collect_filtered_models(discard: Callable[[Model], bool] | None, *input_values: Any) -> list[Model]:
     ''' Collect a duplicate-free list of all other Bokeh models referred to by
-    this model, or by any of its references, etc, unless filtered-out by the
+    this model, or by any of its references, etc., unless filtered-out by the
     provided callable.
 
     Iterate over ``input_values`` and descend through their structure
     collecting all nested ``Models`` on the go.
 
     Args:
-        discard (Callable[[Model], bool]):
+        discard:
             a callable which accepts a *Model* instance as its single argument
             and returns a boolean stating whether to discard the instance. The
             latter means that the instance will not be added to collected
             models nor will its references be explored.
 
-        *input_values (Model):
+        *input_values:
             Bokeh models to collect other models from
-
-    Returns:
-        list(Model)
 
     '''
 
@@ -133,11 +130,10 @@ def collect_models(*input_values: Any) -> list[Model]:
     duplicate-free based on objects' identifiers.
 
     Args:
-        *input_values (Model):
-            Bokeh models to collect other models from
+        *input_values: Bokeh models to collect other models from
 
     Returns:
-        list[Model] : all models reachable from this one.
+        all models reachable from this one.
 
     '''
     return collect_filtered_models(None, *input_values)
@@ -146,14 +142,13 @@ def get_class(view_model_name: str) -> type[Model]:
     ''' Look up a Bokeh model class, given its view model name.
 
     Args:
-        view_model_name (str) :
-            A view model name for a Bokeh model to look up
+        view_model_name: A view model name for a Bokeh model to look up
 
     Returns:
-        Model: the model class corresponding to ``view_model_name``
+        the model class corresponding to ``view_model_name``
 
     Raises:
-        KeyError, if the model cannot be found
+        KeyError: if the model cannot be found
 
     Example:
 
@@ -201,7 +196,7 @@ def visit_value_and_its_immediate_references(obj: Any, visitor: Callable[[Model]
     down Model subclasses).
 
     The ordering in this function is to optimize performance.  We check the
-    most comomn types (int, float, str) first so that we can quickly return in
+    most common types (int, float, str) first so that we can quickly return in
     the common case.  We avoid isinstance and issubclass checks in a couple
     places with `type` checks because isinstance checks can be slow.
     '''

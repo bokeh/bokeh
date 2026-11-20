@@ -59,12 +59,9 @@ def from_networkx(graph: nx.Graph[Any], layout_function: LayoutFunction, **kwarg
         Only two-dimensional layouts are supported.
 
         Args:
-            graph (networkx.Graph) : a networkx graph to render
-            layout_function (function or dict) : a networkx layout function or mapping of node keys to positions.
+            graph: a networkx graph to render
+            layout_function: a networkx layout function or mapping of node keys to positions.
                 The position is a two element sequence containing the x and y coordinate.
-
-        Returns:
-            instance (GraphRenderer)
 
         .. note::
             Node and edge attributes may be lists or tuples. However, a given
@@ -76,7 +73,7 @@ def from_networkx(graph: nx.Graph[Any], layout_function: LayoutFunction, **kwarg
             If you want to convert these attributes, please re-label them to other names.
 
         Raises:
-            ValueError
+            ValueError:
 
         '''
 

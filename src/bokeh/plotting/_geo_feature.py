@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Unpack
+from typing import TYPE_CHECKING, Any, Literal, Unpack
 
 import numpy as np
 
@@ -64,6 +64,10 @@ class GEO_FEATURE_COLORS:
     COASTLINES: str = "#000000"
 
 
+type GEO_SCALE = Literal["10m", "50m", "110m"]
+#: Valid string for the geographical scale option
+
+
 def add_line_geometries[P: GlyphAPI](
     p: P,
     projection: ccrs.Projection,
@@ -76,7 +80,7 @@ def add_line_geometries[P: GlyphAPI](
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        geometries_collection (catopy.feature.NaturalEarthFeature): collection of
+        geometries_collection (cartopy.feature.NaturalEarthFeature): collection of
             line geometries given by a Cartopy NaturalEarthFeature.
 
     .. note::
@@ -117,7 +121,7 @@ def add_polygon_geometries[P: GlyphAPI](
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        geometries_collection (catopy.feature.NaturalEarthFeature): collection of
+        geometries_collection (cartopy.feature.NaturalEarthFeature): collection of
             line geometries given by a Cartopy NaturalEarthFeature.
 
     Keyword Arguments:
@@ -159,7 +163,7 @@ def add_polygon_geometries[P: GlyphAPI](
 def add_borders[P: GlyphAPI](
     p: P,
     projection: ccrs.Projection,
-    scale: str = "110m",
+    scale: GEO_SCALE = "110m",
     **line_kwargs: Unpack[MultiLineArgs],
 ) -> P:
     """ Adds the borders of countries to a map with respect to a given projection.
@@ -167,7 +171,7 @@ def add_borders[P: GlyphAPI](
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+        scale (GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     .. note::
@@ -196,7 +200,7 @@ def add_borders[P: GlyphAPI](
 def add_coastlines[P: GlyphAPI](
     p: P,
     projection: ccrs.Projection,
-    scale: str = "110m",
+    scale: GEO_SCALE = "110m",
     **line_kwargs: Unpack[MultiLineArgs],
 ) -> P:
     """ Adds coastlines to a map with respect to a given projection.
@@ -204,7 +208,7 @@ def add_coastlines[P: GlyphAPI](
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+        scale (GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     .. note::
@@ -233,7 +237,7 @@ def add_coastlines[P: GlyphAPI](
 def add_land[P: GlyphAPI](
     p: P,
     projection: ccrs.Projection,
-    scale: str = "110m",
+    scale: GEO_SCALE = "110m",
     **poly_kwargs: Unpack[GeoMultiPolygonsArgs],
 ) -> P:
     """ Adds land geometries including islands to a map with respect to a
@@ -242,7 +246,7 @@ def add_land[P: GlyphAPI](
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+        scale (GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     Keyword Arguments:
@@ -275,7 +279,7 @@ def add_land[P: GlyphAPI](
 def add_lakes[P: GlyphAPI](
     p: P,
     projection: ccrs.Projection,
-    scale: str = "110m",
+    scale: GEO_SCALE = "110m",
     **poly_kwargs: Unpack[GeoMultiPolygonsArgs],
 ) -> P:
     """ Adds lakes to a map with respect to a given projection.
@@ -283,7 +287,7 @@ def add_lakes[P: GlyphAPI](
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+        scale (GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     Keyword Arguments:
@@ -316,7 +320,7 @@ def add_lakes[P: GlyphAPI](
 def add_ocean[P: GlyphAPI](
     p: P,
     projection: ccrs.Projection,
-    scale: str = "110m",
+    scale: GEO_SCALE = "110m",
     **poly_kwargs: Unpack[GeoMultiPolygonsArgs],
 ) -> P:
     """ Adds ocean to a map with respect to a given projection.
@@ -324,7 +328,7 @@ def add_ocean[P: GlyphAPI](
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+        scale (GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     Keyword Arguments:
@@ -357,7 +361,7 @@ def add_ocean[P: GlyphAPI](
 def add_rivers[P: GlyphAPI](
     p: P,
     projection: ccrs.Projection,
-    scale: str = "110m",
+    scale: GEO_SCALE = "110m",
     **line_kwargs: Unpack[MultiLineArgs],
 ) -> P:
     """ Adds rivers to a map with respect to a given projection.
@@ -365,7 +369,7 @@ def add_rivers[P: GlyphAPI](
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+        scale (GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     .. note::
@@ -401,7 +405,7 @@ def add_projection_boundary[P: GlyphAPI](
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+        scale (GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     .. note::
@@ -431,7 +435,7 @@ def add_projection_boundary[P: GlyphAPI](
 def add_provinces[P: GlyphAPI](
     p: P,
     projection: ccrs.Projection,
-    scale: str = "110m",
+    scale: GEO_SCALE = "110m",
     **line_kwargs: Unpack[MultiLineArgs],
 ) -> P:
     """ Adds the borders of provinces to a map with respect to a given projection.
@@ -439,7 +443,7 @@ def add_provinces[P: GlyphAPI](
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+        scale (GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     .. note::
@@ -468,7 +472,7 @@ def add_provinces[P: GlyphAPI](
 def add_states[P: GlyphAPI](
     p: P,
     projection: ccrs.Projection,
-    scale: str = "110m",
+    scale: GEO_SCALE = "110m",
     **poly_kwargs: Unpack[GeoMultiPolygonsArgs],
 ) -> P:
     """ Adds states and provinces as multi-polygons to a map for a given projection.
@@ -476,7 +480,7 @@ def add_states[P: GlyphAPI](
     Args:
         p (Plot): Object which should be extended.
         projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-        scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+        scale (GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
             "50m" and "10m".
 
     Keyword Arguments:
@@ -518,7 +522,7 @@ def _collect_line_geometries(
 
     Args:
         projection (catopy.crs.Projection): cartopy Projection.
-        geometries_collection (catopy.feature.NaturalEarthFeature): collection of
+        geometries_collection (cartopy.feature.NaturalEarthFeature): collection of
             line geometries given by a Cartopy NaturalEarthFeature.
 
     Example:
@@ -555,7 +559,7 @@ def _collect_polygon_geometries(
 
     Args:
         projection (catopy.crs.Projection): Cartopy Projection
-        geometries_collection (catopy.feature.NaturalEarthFeature): collection of
+        geometries_collection (cartopy.feature.NaturalEarthFeature): collection of
             multi-polygon geometries given by a Cartopy NaturalEarthFeature.
         color (str | list[str], optional): color or palette
 

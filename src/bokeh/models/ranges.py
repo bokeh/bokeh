@@ -202,7 +202,7 @@ class DataRange1d(DataRange):
 
     range_padding_units = Enum(PaddingUnits, default="percent", help="""
     Whether the ``range_padding`` should be interpreted as a percentage, or
-    as an absolute quantity. (default: ``"percent"``)
+    as an absolute quantity.
     """)
 
     bounds = Nullable(MinMaxBounds(accept_datetime=True), help="""
@@ -394,7 +394,7 @@ class FactorRange(Range):
 
     range_padding_units = Enum(PaddingUnits, default="percent", help="""
     Whether the ``range_padding`` should be interpreted as a percentage, or
-    as an absolute quantity. (default: ``"percent"``)
+    as an absolute quantity.
     """)
 
     start = Readonly(Float, default=0, help="""

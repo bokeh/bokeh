@@ -376,9 +376,8 @@ class MercatorAxis(LinearAxis):
     Mercator scale. Configured with a ``MercatorTickFormatter`` by default.
 
     Args:
-        dimension ('lat' or 'lon', optional) :
+        dimension:
             Whether this axis will display latitude or longitude values.
-            (default: 'lat')
 
     '''
     def __init__(self, dimension='lat', *args, **kwargs) -> None:

@@ -55,7 +55,7 @@ class DocumentModuleManager:
         '''
 
         Args:
-            document (Document): A Document to manage modules for
+            document: A Document to manage modules for
                 A weak reference to the Document will be retained
 
         '''
@@ -72,10 +72,7 @@ class DocumentModuleManager:
             This method will install the module in ``sys.modules``
 
         Args:
-            module (Module) : a module to install for the configured Document
-
-        Returns:
-            None
+            module: a module to install for the configured Document
 
         '''
         if module.__name__ in sys.modules:
@@ -86,9 +83,6 @@ class DocumentModuleManager:
     def destroy(self) -> None:
         ''' Clean up any added modules, and check that there are no unexpected
         referrers afterwards.
-
-        Returns:
-            None
 
         '''
         from gc import get_referrers

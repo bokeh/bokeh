@@ -68,10 +68,7 @@ def main(argv: Sequence[str]) -> None:
     ''' Execute the Bokeh command.
 
     Args:
-        argv (seq[str]) : a list of command line arguments to process
-
-    Returns:
-        None
+        argv: a list of command line arguments to process
 
     The first item in ``argv`` is typically "bokeh", and the second should
     be the name of one of the available subcommands:

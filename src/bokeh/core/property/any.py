@@ -46,12 +46,11 @@ class Any(Property[typing.Any]):
     The ``Any`` property does not do any validation or transformation.
 
     Args:
-        default (obj, optional) :
+        default:
             A default value for attributes created from this property to
             have. If omitted, the property has no default.
 
-        help (str or None, optional) :
-            A documentation string for this property. (default: None)
+        help: A documentation string for this property.
 
     Example:
 

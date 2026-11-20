@@ -63,7 +63,7 @@ Import the model under test with ``as``
 Use absolute imports
     Bokeh's unit tests should be as relocatable and unambiguous as possible.
     Therefore, you should use absolute imports (``from bokeh.embed import
-    components``) in test files whenever possible. Don't use relative imports
+    embed_server``) in test files whenever possible. Don't use relative imports
     (``from ..document import Document``).
 
 Use ``pytest`` (not ``unittest``)

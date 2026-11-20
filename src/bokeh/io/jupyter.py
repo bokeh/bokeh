@@ -243,14 +243,10 @@ def resource_payload(resolved: ResolvedResources, load_timeout: int, *,
     '''Describe one explicit common-policy resource delta for a notebook host.
 
     Args:
-        resolved:
-            The complete resolved resource bundle.
-        load_timeout:
-            Maximum time in milliseconds for the frontend to load the bundle.
-        dependencies:
-            Resource record identifiers that must load before this record.
-        assets:
-            An optional subset of the resolved assets owned by this record.
+        resolved: The complete resolved resource bundle.
+        load_timeout: Maximum time in milliseconds for the frontend to load the bundle.
+        dependencies: Resource record identifiers that must load before this record.
+        assets: An optional subset of the resolved assets owned by this record.
 
     Returns:
         The versioned notebook resource payload.
@@ -286,8 +282,7 @@ def resource_artifact_ids(resolved: ResolvedResources) -> list[str]:
     '''Return stable identifiers for every artifact in a resource bundle.
 
     Args:
-        resolved:
-            The resolved resource bundle.
+        resolved: The resolved resource bundle.
 
     Returns:
         The artifact identifiers in bundle order.
@@ -300,10 +295,8 @@ def resource_asset_subset(resolved: ResolvedResources, artifact_ids: set[str]) -
     '''Select resolved assets by their stable artifact identifiers.
 
     Args:
-        resolved:
-            The resolved resource bundle.
-        artifact_ids:
-            The artifact identifiers to retain.
+        resolved: The resolved resource bundle.
+        artifact_ids: The artifact identifiers to retain.
 
     Returns:
         The selected assets in bundle order.
@@ -316,17 +309,14 @@ def resource_javascript(payload: _ResourcePayload, assets: tuple[ResolvedResourc
     '''Render the portable executable owner for a resource record.
 
     Args:
-        payload:
-            The metadata describing the resource record.
-        assets:
-            The resolved assets owned by the record.
+        payload: The metadata describing the resource record.
+        assets: The resolved assets owned by the record.
 
     Returns:
         JavaScript that registers and loads the resource record.
 
     Raises:
-        RuntimeError:
-            If the payload metadata and supplied assets disagree.
+        RuntimeError: If the payload metadata and supplied assets disagree.
 
     '''
     from ..core.templates import PORTABLE_RESOURCES_JS
@@ -352,20 +342,13 @@ def display_payload(result: EmbedResult, resource_id: str, view_id: str, *,
     '''Describe one notebook artifact display without copying its model graph.
 
     Args:
-        result:
-            The embed result rendered by the output.
-        resource_id:
-            The terminal resource record required by the artifact.
-        view_id:
-            The stable identifier for this notebook output view.
-        resource_records:
-            Portable resource records needed to reopen the saved output.
-        live_id:
-            The optional connected-document transport identifier.
-        application_id:
-            The optional managed-application identifier.
-        connect_timeout:
-            Maximum time in milliseconds for a frontend connection.
+        result: The embed result rendered by the output.
+        resource_id: The terminal resource record required by the artifact.
+        view_id: The stable identifier for this notebook output view.
+        resource_records: Portable resource records needed to reopen the saved output.
+        live_id: The optional connected-document transport identifier.
+        application_id: The optional managed-application identifier.
+        connect_timeout: Maximum time in milliseconds for a frontend connection.
 
     Returns:
         The versioned notebook display payload.
@@ -398,15 +381,13 @@ def file_payload(path: str) -> _FilePayload:
     '''Describe a safe file link relative to the current notebook.
 
     Args:
-        path:
-            A POSIX-style path relative to the notebook.
+        path: A POSIX-style path relative to the notebook.
 
     Returns:
         The versioned notebook file payload.
 
     Raises:
-        ValueError:
-            If the path is absolute, traverses a parent, or uses native
+        ValueError: If the path is absolute, traverses a parent, or uses native
             Windows separators or drives.
 
     '''

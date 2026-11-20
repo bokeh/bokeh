@@ -159,7 +159,7 @@ class BokehASGI:
         ''' Update every active session document for an application.
 
         This is a convenience wrapper for
-        :meth:`~bokeh.server.core.BokehServerCore.update_sessions`.
+        :meth:`~bokeh.server.asgi.BokehASGI`.
 
         Args:
             app_path:
@@ -167,7 +167,7 @@ class BokehASGI:
 
             update_document:
                 A synchronous or asynchronous callable that receives one
-                session :class:`~bokeh.document.document.Document` with its
+                session :class:`~bokeh.document.Document` with its
                 document lock held.
 
         '''

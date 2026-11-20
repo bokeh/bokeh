@@ -105,11 +105,11 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
         origin is not allow, an error will be logged and ``False`` will be returned.
 
         Args:
-            origin (str) :
+            origin:
                 The URL of the connection origin
 
         Returns:
-            bool, True if the connection is allowed, False otherwise
+            True if the connection is allowed, False otherwise
 
         '''
         from ..util import check_allowlist
@@ -132,9 +132,6 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
     @web.authenticated
     def open(self) -> None:
         ''' Initialize a connection to a client.
-
-        Returns:
-            None
 
         '''
         log.info('WebSocket connection opened')
@@ -202,13 +199,9 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
         * Opening a new ServerConnection and sending it an ACK
 
         Args:
-            token (str) :
-                A token containing the ID of the session to connect to
+            token: A token containing the ID of the session to connect to
 
                 If no session exists with the given ID, a new session is made
-
-        Returns:
-            None
 
         '''
         try:

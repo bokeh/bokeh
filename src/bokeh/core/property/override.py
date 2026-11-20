@@ -64,8 +64,8 @@ class Override[GetType = Any, SetType = GetType]:
     verify the type of the default value. Such overrides must be named after
     the property, prefixed with an underscore.
 
-    Keyword Args:
-        default (obj) : a default value for this property on a subclass
+    Args:
+        default: a default value for this property on a subclass
 
     Example:
 

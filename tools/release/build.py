@@ -60,10 +60,8 @@ def build_jupyter(config: Config, system: System) -> ActionReturn:
     '''Build the packaged JupyterLab and AnyWidget frontend assets.
 
     Args:
-        config:
-            The active release configuration.
-        system:
-            The release command runner.
+        config: The active release configuration.
+        system: The release command runner.
 
     Returns:
         The release-step result.
@@ -219,10 +217,8 @@ def update_jupyter_version(config: Config, system: System) -> ActionReturn:
     '''Update the Jupyter frontend package metadata for a release.
 
     Args:
-        config:
-            The active release configuration.
-        system:
-            The release command runner.
+        config: The active release configuration.
+        system: The release command runner.
 
     Returns:
         The release-step result.
@@ -254,10 +250,8 @@ def verify_jupyter_build(config: Config, system: System) -> ActionReturn:
     '''Verify that generated Jupyter assets match the release version.
 
     Args:
-        config:
-            The active release configuration.
-        system:
-            The release command runner.
+        config: The active release configuration.
+        system: The release command runner.
 
     Returns:
         The release-step result.

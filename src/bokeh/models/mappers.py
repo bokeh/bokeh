@@ -213,7 +213,7 @@ class ContinuousColorMapper(PaletteMixin, ColorMapper):
 
     '''
 
-    domain = List(Tuple(Instance("bokeh.models.renderers.GlyphRenderer"), Either(String, List(String))), default=[], help="""
+    domain = List(Tuple(Instance("bokeh.models.GlyphRenderer"), Either(String, List(String))), default=[], help="""
     A collection of glyph renderers to pool data from for establishing data metrics.
     If empty, mapped data will be used instead.
     """)

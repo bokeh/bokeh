@@ -374,7 +374,10 @@ class ColumnDataSource(ColumnarDataSource):
 
     @property
     def length(self) -> int:
-        ''' Number of row entries in the data. Note: All columns have the same number of row entries.
+        ''' Number of row entries in the data.
+
+        .. note::
+            All columns have the same number of row entries.
 
         '''
         data_lengths = {len(v) for _, v in self.data.items()}
@@ -394,10 +397,7 @@ class ColumnDataSource(ColumnarDataSource):
         suitable for creating a ColumnDataSource.
 
         Args:
-            df (DataFrame) : data to convert
-
-        Returns:
-            dict[str, np.array]
+            df: data to convert
 
         '''
         import narwhals.stable.v1 as nw
@@ -454,10 +454,7 @@ class ColumnDataSource(ColumnarDataSource):
         on the group.
 
         Args:
-            group (GroupBy) : data to convert
-
-        Returns:
-            dict[str, np.array]
+            group: data to convert
 
         '''
         return ColumnDataSource._data_from_df(group.describe())
@@ -477,10 +474,7 @@ class ColumnDataSource(ColumnarDataSource):
         is returned.
 
         Args:
-            df (DataFrame) : the ``DataFrame`` to find an index name for
-
-        Returns:
-            str
+            df: the ``DataFrame`` to find an index name for
 
         '''
         if isinstance(df.index.name, str):
@@ -500,10 +494,7 @@ class ColumnDataSource(ColumnarDataSource):
         suitable for creating a ``ColumnDataSource``.
 
         Args:
-            data (DataFrame) : data to convert
-
-        Returns:
-            dict[str, np.array]
+            data: data to convert
 
         '''
         return cls._data_from_df(data)
@@ -517,19 +508,13 @@ class ColumnDataSource(ColumnarDataSource):
         on the group.
 
         Args:
-            data (Groupby) : data to convert
-
-        Returns:
-            dict[str, np.array]
+            data: data to convert
 
         '''
         return cls._data_from_df(data.describe())
 
     def to_df(self) -> pd.DataFrame:
         ''' Convert this data source to pandas ``DataFrame``.
-
-        Returns:
-            DataFrame
 
         '''
         import pandas as pd
@@ -539,12 +524,12 @@ class ColumnDataSource(ColumnarDataSource):
         ''' Appends a new column of data to the data source.
 
         Args:
-            data (seq) : new data to add
-            name (str, optional) : column name to use.
+            data: new data to add
+            name: column name to use.
                 If not supplied, generate a name of the form "Series ####"
 
         Returns:
-            str:  the column name used
+            the column name used
 
         '''
         if name is None:
@@ -559,10 +544,7 @@ class ColumnDataSource(ColumnarDataSource):
         ''' Remove a column of data.
 
         Args:
-            name (str) : name of the column to remove
-
-        Returns:
-            None
+            name: name of the column to remove
 
         .. note::
             If the column name does not exist, a warning is issued.
@@ -583,21 +565,18 @@ class ColumnDataSource(ColumnarDataSource):
         entire data set to be re-sent.
 
         Args:
-            new_data (dict[str, seq]) : a mapping of column names to sequences of
+            new_data: a mapping of column names to sequences of
                 new data to append to each column.
 
                 All columns of the data source must be present in ``new_data``,
                 with identical-length append data.
 
-            rollover (int, optional) : A maximum column size, above which data
+            rollover: A maximum column size, above which data
                 from the start of the column begins to be discarded. If None,
-                then columns will continue to grow unbounded (default: None)
-
-        Returns:
-            None
+                then columns will continue to grow unbounded
 
         Raises:
-            ValueError
+            ValueError:
 
         Example:
 
@@ -628,7 +607,7 @@ class ColumnDataSource(ColumnarDataSource):
         entire data set to be re-sent.
 
         Args:
-            new_data (dict[str, seq] or DataFrame or Series) : a mapping of
+            new_data: a mapping of
                 column names to sequences of new data to append to each column,
                 a pandas DataFrame, or a pandas Series in case of a single row -
                 in this case the Series index is used as column names
@@ -640,23 +619,21 @@ class ColumnDataSource(ColumnarDataSource):
                 ``new_data`` replaces the empty ``.data`` dict of the
                 data source.
 
-            rollover (int, optional) : A maximum column size, above which data
+            rollover: A maximum column size, above which data
                 from the start of the column begins to be discarded. If None,
-                then columns will continue to grow unbounded (default: None)
-            setter (ClientSession or ServerSession or None, optional) :
+                then columns will continue to grow unbounded
+            setter:
                 This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
+
                 In the context of a Bokeh server application, incoming updates
                 to properties will be annotated with the session that is
                 doing the updating. This value is propagated through any
                 subsequent change notifications that the update triggers.
                 The session can compare the event setter to itself, and
                 suppress any updates that originate from itself.
-        Returns:
-            None
 
         Raises:
-            ValueError
+            ValueError:
 
         Example:
 
@@ -806,16 +783,11 @@ class ColumnDataSource(ColumnarDataSource):
           of the appropriate size.
 
         Args:
-            patches (dict[str, list[tuple]]) : lists of patches for each column
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-        Returns:
-            None
+            patches: lists of patches for each column
+            setter: This is used to prevent "boomerang" updates to Bokeh apps.
 
         Raises:
-            ValueError
+            ValueError:
 
         Example:
 

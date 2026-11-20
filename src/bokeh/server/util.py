@@ -46,20 +46,14 @@ def bind_sockets(address: str | None, port: int) -> tuple[list[socket], int]:
     ''' Bind a socket to a port on an address.
 
     Args:
-        address (str) :
-            An address to bind a port on, e.g. ``"localhost"``
-
-        port (int) :
-            A port number to bind.
+        address: An address to bind a port on, e.g. ``"localhost"``
+        port: A port number to bind.
 
             Pass 0 to have the OS automatically choose a free port.
 
     This function returns a 2-tuple with the new socket as the first element,
     and the port that was bound as the second. (Useful when passing 0 as a port
     number to bind any free port.)
-
-    Returns:
-        (socket, port)
 
     '''
     from .server import bind_sockets
@@ -69,14 +63,11 @@ def check_allowlist(host: str, allowlist: Sequence[str]) -> bool:
     ''' Check a given request host against a allowlist.
 
     Args:
-        host (str) :
-            A host string to compare against a allowlist.
+        host: A host string to compare against a allowlist.
 
             If the host does not specify a port, then ``":80"`` is implicitly
             assumed.
-
-        allowlist (seq[str]) :
-            A list of host patterns to match against
+        allowlist: A list of host patterns to match against
 
     Returns:
         ``True``, if ``host`` matches any pattern in ``allowlist``, otherwise
@@ -95,16 +86,13 @@ def validate_hosts_allowlist(host_list: Sequence[str]) -> None:
     ''' Validate host patterns used to allow WebSocket connections.
 
     Args:
-        host_list (seq[str]) :
+        host_list:
             A sequence of ``<name>`` or ``<name>:<port>`` patterns. The name
             may include wildcards and the port may be ``*``.
 
-    Returns:
-        None
-
     Raises:
         TypeError, if ``host_list`` is a string or contains non-string values
-        ValueError, if a host or port value is invalid
+        ValueError: if a host or port value is invalid
 
     '''
     if isinstance(host_list, str) or not all(isinstance(host, str) for host in host_list):
@@ -143,7 +131,7 @@ def create_hosts_allowlist(host_list: Sequence[str] | None, port: int | None) ->
     only those explicitly originating from approved hosts.
 
     Args:
-        host_list (seq[str]) :
+        host_list:
             A list of string `<name>` or `<name>:<port>` values to add to the
             allowlist.
 
@@ -152,17 +140,15 @@ def create_hosts_allowlist(host_list: Sequence[str] | None, port: int | None) ->
             If no port is specified in a host string, then ``":80"``  is
             implicitly assumed.
 
-        port (int) :
+        port:
             If ``host_list`` is empty or ``None``, then the allowlist will
             be the single item list `` [ 'localhost:<port>' ]``
 
             If ``host_list`` is not empty, this parameter has no effect.
 
-    Returns:
-        list[str]
 
     Raises:
-        ValueError, if host or port values are invalid
+        ValueError: if host or port values are invalid
 
     Note:
         If any host in ``host_list`` contains a wildcard ``*`` a warning will
@@ -196,11 +182,8 @@ def match_host(host: str, pattern: str) -> bool:
     ''' Match a host string against a pattern
 
     Args:
-        host (str):
-            A hostname to compare to the given pattern
-
-        pattern (str):
-            A string representing a hostname pattern, possibly including
+        host: A hostname to compare to the given pattern
+        pattern: A string representing a hostname pattern, possibly including
             wildcards for ip address octets or ports.
 
     This function will return ``True`` if the hostname matches the pattern,
@@ -208,9 +191,6 @@ def match_host(host: str, pattern: str) -> bool:
     then the length the host parts and pattern parts must match identically.
     If the pattern contains a port, the host string must also contain a
     matching port.
-
-    Returns:
-        bool
 
     Examples:
 

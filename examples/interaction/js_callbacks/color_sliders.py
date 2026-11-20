@@ -3,7 +3,7 @@
 .. bokeh-example-metadata::
     :title: Update a plot from sliders
     :keywords: rgb, slider, CustomJS, color
-    :apis: bokeh.plotting.figure.text, bokeh.layouts.column, bokeh.models.sources.ColumnDataSource, bokeh.models.callbacks.CustomJS, bokeh.models.widgets.sliders.Slider, bokeh.themes.Theme
+    :apis: bokeh.plotting.figure.text, bokeh.layouts.column, bokeh.models.sources.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.widgets.sliders.Slider, bokeh.themes.Theme
     :refs: :ref:`ug_interaction_js_callbacks_customjs`
     :gallery: Red, green, and blue sliders above a swatch with a matching hexadecimal color label.
 

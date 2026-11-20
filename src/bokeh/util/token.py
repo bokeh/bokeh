@@ -102,24 +102,12 @@ def generate_jwt_token(session_id: ID,
     """ Generates a JWT token given a session_id and additional payload.
 
     Args:
-        session_id (str):
-            The session id to add to the token
+        session_id: The session id to add to the token
+        secret_key: Secret key
+        signed: Whether to sign the session ID
+        extra_payload: Extra key/value pairs to include in the Bokeh session token
+        expiration: Expiration time
 
-        secret_key (str, optional) :
-            Secret key (default: value of BOKEH_SECRET_KEY environment variable)
-
-        signed (bool, optional) :
-            Whether to sign the session ID (default: value of BOKEH_SIGN_SESSIONS
-            environment variable)
-
-        extra_payload (dict, optional) :
-            Extra key/value pairs to include in the Bokeh session token
-
-        expiration (int, optional) :
-            Expiration time
-
-    Returns:
-        str
     """
     now = calendar.timegm(dt.datetime.now(tz=dt.UTC).timetuple())
     payload: TokenPayload = {'session_id': session_id, 'session_expiry': now + expiration}
@@ -143,11 +131,8 @@ def get_session_id(token: str) -> ID:
     """Extracts the session id from a JWT token.
 
     Args:
-        token (str):
-            A JWT token containing the session_id and other data.
+        token: A JWT token containing the session_id and other data.
 
-    Returns:
-       str
     """
     decoded = _decode_token(token)
     try:
@@ -163,11 +148,8 @@ def get_token_payload(token: str) -> TokenPayload:
     """Extract the payload from the token.
 
     Args:
-        token (str):
-            A JWT token containing the session_id and other data.
+        token: A JWT token containing the session_id and other data.
 
-    Returns:
-        dict
     """
     decoded = _decode_token(token)
     try:
@@ -196,18 +178,9 @@ def check_token_signature(token: str,
     If signed sessions are disabled, this function always returns True.
 
     Args:
-        token (str) :
-            The token to check
-
-        secret_key (str, optional) :
-            Secret key (default: value of BOKEH_SECRET_KEY environment variable)
-
-        signed (bool, optional) :
-            Whether to check anything (default: value of BOKEH_SIGN_SESSIONS
-            environment variable)
-
-    Returns:
-        bool
+        token: The token to check
+        secret_key: Secret key
+        signed: Whether to check anything
 
     """
     secret_key = _ensure_bytes(secret_key)

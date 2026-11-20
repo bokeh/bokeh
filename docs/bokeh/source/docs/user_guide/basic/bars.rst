@@ -331,7 +331,7 @@ medalists in Olympic sprinting over many years.
 .. bokeh-plot:: __REPO__/examples/basic/bars/intervals.py
     :source-position: above
 
-.. |hbar|               replace:: :py:func:`~bokeh.plotting.Figure.hbar`
-.. |vbar|               replace:: :py:func:`~bokeh.plotting.Figure.vbar`
+.. |hbar|               replace:: :py:func:`~bokeh.plotting.figure.hbar`
+.. |vbar|               replace:: :py:func:`~bokeh.plotting.figure.vbar`
 
 .. _pandas: http://pandas.pydata.org

@@ -170,9 +170,6 @@ class ClientConnection:
         Outside of test suites, this method hurts performance and should not be
         needed.
 
-        Returns:
-           None
-
         '''
         reply = self._send_message_wait_for_reply(sync())
         if reply is None:
@@ -203,11 +200,7 @@ class ClientConnection:
         ''' Pull a document from the server, overwriting the passed-in document
 
         Args:
-            document : (Document)
-              The document to overwrite with server content.
-
-        Returns:
-            None
+            document: The document to overwrite with server content.
 
         '''
         msg = pull_doc_req()
@@ -225,8 +218,7 @@ class ClientConnection:
         ''' Push a document to the server, overwriting any existing server-side doc.
 
         Args:
-            document : (Document)
-                A Document to push to the server
+            document: A Document to push to the server
 
         Returns:
             The server reply

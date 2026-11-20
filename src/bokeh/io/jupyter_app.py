@@ -65,9 +65,6 @@ class _ASGIServerThread:
     def port(self) -> int:
         '''Return the assigned server port.
 
-        Returns:
-            The assigned server port.
-
         '''
         if self._port is None:
             raise RuntimeError("ASGI notebook application has not started")
@@ -87,9 +84,6 @@ class _ASGIServerThread:
 
     def start(self) -> None:
         '''Start the private ASGI server thread.
-
-        Returns:
-            None
 
         '''
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -135,9 +129,6 @@ class _ASGIServerThread:
 
     def stop(self) -> None:
         '''Stop the private ASGI server thread.
-
-        Returns:
-            None
 
         '''
         if self._finished.is_set():
@@ -468,9 +459,6 @@ class NotebookApplication:
     def stop(self) -> None:
         ''' Stop the ASGI host and wait for orderly Bokeh session shutdown.
 
-        Returns:
-            None
-
         '''
         with self._stop_lock:
             if self._stopped:
@@ -500,9 +488,6 @@ class NotebookApplication:
 
     async def stop_async(self) -> None:
         ''' Asynchronously stop the application without blocking the notebook event loop.
-
-        Returns:
-            None
 
         '''
         await asyncio.to_thread(self.stop)

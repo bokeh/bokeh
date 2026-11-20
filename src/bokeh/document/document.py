@@ -366,11 +366,10 @@ class Document:
         ''' Add callback to be invoked once on the next tick of the event loop.
 
         Args:
-            callback (callable) :
-                A callback function to execute on the next tick.
+            callback: A callback function to execute on the next tick.
 
         Returns:
-            NextTickCallback : can be used with ``remove_next_tick_callback``
+            can be used with ``remove_next_tick_callback``
 
         .. note::
             Next tick callbacks only work within the context of a Bokeh server
@@ -401,18 +400,13 @@ class Document:
         ``@doc.locked_callback`` and ``@doc.locked_callback()`` are equivalent.
 
         Args:
-            callback (callable, optional):
-                The function to decorate when this method is used without
-                parentheses.
-
-            policy (``"every"`` or ``"latest"``, optional):
-                With ``"every"``, invoke the callback once for every call, in
+            callback: The function to decorate when this method is used without parentheses.
+            policy: With ``"every"``, invoke the callback once for every call, in
                 order. With ``"latest"``, keep at most one waiting invocation,
                 replacing its arguments with those from the most recent call.
 
         Returns:
-            A decorator that produces a
-            :class:`~bokeh.document.locking.LockedCallback`.
+            A decorator that produces a :class:`~bokeh.document.locking.LockedCallback`.
 
         Example:
 
@@ -448,14 +442,11 @@ class Document:
         ''' Add a callback to be invoked on a session periodically.
 
         Args:
-            callback (callable) :
-                A callback function to execute periodically
-
-            period_milliseconds (int) :
-                Number of milliseconds between each callback execution.
+            callback: A callback function to execute periodically
+            period_milliseconds: Number of milliseconds between each callback execution.
 
         Returns:
-            PeriodicCallback : can be used with ``remove_periodic_callback``
+            can be used with ``remove_periodic_callback``
 
         .. note::
             Periodic callbacks only work within the context of a Bokeh server
@@ -475,12 +466,8 @@ class Document:
         document.
 
         Args:
-            model (Model) :
-                The model to add as a root of this document.
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
+            model: The model to add as a root of this document.
+            setter: This is used to prevent "boomerang" updates to Bokeh apps.
 
                 In the context of a Bokeh server application, incoming updates
                 to properties will be annotated with the session that is
@@ -502,14 +489,11 @@ class Document:
         ''' Add callback to be invoked once, after a specified timeout passes.
 
         Args:
-            callback (callable) :
-                A callback function to execute after timeout
-
-            timeout_milliseconds (int) :
-                Number of milliseconds before callback execution.
+            callback: A callback function to execute after timeout
+            timeout_milliseconds: Number of milliseconds before callback execution.
 
         Returns:
-            TimeoutCallback : can be used with ``remove_timeout_callback``
+            can be used with ``remove_timeout_callback``
 
         .. note::
             Timeout callbacks only work within the context of a Bokeh server
@@ -525,12 +509,9 @@ class Document:
         ''' Apply a JSON patch object and process any resulting events.
 
         Args:
-            patch_json (JSON-data) :
-                The JSON-object containing the patch to apply.
-
-            setter (ClientSession or ServerSession or None, optional) :
+            patch_json: The JSON-object containing the patch to apply.
+            setter:
                 This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
 
                 In the context of a Bokeh server application, incoming updates
                 to properties will be annotated with the session that is
@@ -538,9 +519,6 @@ class Document:
                 subsequent change notifications that the update triggers.
                 The session can compare the event setter to itself, and
                 suppress any updates that originate from itself.
-
-        Returns:
-            None
 
         '''
         deserializer = Deserializer(list(self.models), setter=setter)
@@ -570,9 +548,6 @@ side of a communications channel while it was being removed on the other end.\
     def clear(self) -> None:
         ''' Remove all content from the document but do not reset title.
 
-        Returns:
-            None
-
         '''
         with self.models.freeze():
             while len(self._roots) > 0:
@@ -598,11 +573,8 @@ side of a communications channel while it was being removed on the other end.\
     def from_json(cls, doc_json: DocJson | Serialized[DocJson]) -> Document:
         ''' Load a document from JSON.
 
-        doc_json (JSON-data) :
-            A JSON-encoded document to create a new Document from.
-
-        Returns:
-            Document :
+        Args:
+            doc_json: A JSON-encoded document to create a new Document from.
 
         '''
         # TODO add support for deserialization of model definitions
@@ -631,12 +603,8 @@ side of a communications channel while it was being removed on the other end.\
     def from_json_string(cls, json: str) -> Document:
         ''' Load a document from JSON.
 
-        json (str) :
-            A string with a JSON-encoded document to create a new Document
-            from.
-
-        Returns:
-            Document :
+        Args:
+            json: A string with a JSON-encoded document to create a new Document from.
 
         '''
         json_parsed = loads(json)
@@ -647,10 +615,7 @@ side of a communications channel while it was being removed on the other end.\
         is not found.
 
         Args:
-            model_id (str) : The ID of the model to search for
-
-        Returns:
-            Model or None
+            model_id: The ID of the model to search for
 
         '''
         return self.models.get_by_id(model_id)
@@ -660,10 +625,7 @@ side of a communications channel while it was being removed on the other end.\
         it is not found.
 
         Args:
-            name (str) : The name of the model to search for
-
-        Returns:
-            Model or None
+            name: The name of the model to search for
 
         '''
         return self.models.get_one_by_name(name)
@@ -676,9 +638,9 @@ side of a communications channel while it was being removed on the other end.\
         hold will be applied according to the hold policy.
 
         Args:
-            policy ('combine' or 'collect', optional):
+            policy:
                 Whether events collected during a hold should attempt to be
-                combined (default: 'combine')
+                combined
 
                 When set to ``'collect'`` all events will be collected and
                 replayed in order as-is when ``unhold`` is called.
@@ -697,9 +659,6 @@ side of a communications channel while it was being removed on the other end.\
 
                 Then only *one* callback, for the last ``slider.value = 12``
                 will be triggered.
-
-        Returns:
-            None
 
         .. note::
             ``hold`` only applies to document change events, i.e. setting
@@ -751,13 +710,10 @@ side of a communications channel while it was being removed on the other end.\
         ''' Remove a callback added earlier with ``add_next_tick_callback``.
 
         Args:
-            callback_obj : a value returned from ``add_next_tick_callback``
-
-        Returns:
-            None
+            callback_obj: a value returned from ``add_next_tick_callback``
 
         Raises:
-            ValueError, if the callback was never added or has already been run or removed
+            ValueError: if the callback was never added or has already been run or removed
 
         '''
         self.callbacks.remove_session_callback(callback_obj)
@@ -766,7 +722,7 @@ side of a communications channel while it was being removed on the other end.\
         ''' Remove a callback added earlier with ``on_change``.
 
         Raises:
-            KeyError, if the callback was never added
+            KeyError: if the callback was never added
 
         '''
         self.callbacks.remove_on_change(*callbacks)
@@ -781,13 +737,10 @@ side of a communications channel while it was being removed on the other end.\
         ''' Remove a callback added earlier with ``add_periodic_callback``
 
         Args:
-            callback_obj : a value returned from ``add_periodic_callback``
-
-        Returns:
-            None
+            callback_obj: a value returned from ``add_periodic_callback``
 
         Raises:
-            ValueError, if the callback was never added or has already been removed
+            ValueError: if the callback was never added or has already been removed
 
         '''
         self.callbacks.remove_session_callback(callback_obj)
@@ -800,12 +753,9 @@ side of a communications channel while it was being removed on the other end.\
         root models.
 
         Args:
-            model (Model) :
-                The model to add as a root of this document.
-
-            setter (ClientSession or ServerSession or None, optional) :
+            model: The model to add as a root of this document.
+            setter:
                 This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
 
                 In the context of a Bokeh server application, incoming updates
                 to properties will be annotated with the session that is
@@ -827,13 +777,10 @@ side of a communications channel while it was being removed on the other end.\
         ''' Remove a callback added earlier with ``add_timeout_callback``.
 
         Args:
-            callback_obj : a value returned from ``add_timeout_callback``
-
-        Returns:
-            None
+            callback_obj: a value returned from ``add_timeout_callback``
 
         Raises:
-            ValueError, if the callback was never added or has already been run or removed
+            ValueError: if the callback was never added or has already been run or removed
 
         '''
         self.callbacks.remove_session_callback(callback_obj)
@@ -842,11 +789,8 @@ side of a communications channel while it was being removed on the other end.\
         ''' Overwrite everything in this document with the JSON-encoded
         document.
 
-        json (JSON-data) :
-            A JSON-encoded document to overwrite this one.
-
-        Returns:
-            None
+        Args:
+            json: A JSON-encoded document to overwrite this one.
 
         '''
         replacement = self.from_json(json)
@@ -856,11 +800,8 @@ side of a communications channel while it was being removed on the other end.\
         ''' Query this document for objects that match the given selector.
 
         Args:
-            selector (JSON-like query dictionary) : you can query by type or by
+            selector: you can query by type or by
                 name, e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
-
-        Returns:
-            seq[Model]
 
         '''
         if is_single_string_selector(selector, 'name'):
@@ -875,11 +816,8 @@ side of a communications channel while it was being removed on the other end.\
         single matching object, or None if nothing is found
 
         Args:
-            selector (JSON-like query dictionary) : you can query by type or by
+            selector: you can query by type or by
                 name, e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
-
-        Returns:
-            Model or None
 
         '''
         result = list(self.select(selector))
@@ -894,12 +832,9 @@ side of a communications channel while it was being removed on the other end.\
         attribute/value updates.
 
         Args:
-            selector (JSON-like query dictionary) : you can query by type or by
+            selector: you can query by type or by
                 name,i e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
-            updates (dict) : new values to set
-
-        Returns:
-            None
+            updates: new values to set
 
         '''
         from ..model import Model
@@ -936,19 +871,16 @@ side of a communications channel while it was being removed on the other end.\
             buffers are kept as references and the result is a ``Serialized``
             wrapper, so e.g. ``json.dumps(doc.to_json())`` will raise
             ``TypeError``. To obtain a JSON *string*, pass the result to
-            ``bokeh.core.json_encoder.serialize_json``. Alternatively, pass
+            :meth:`bokeh.core.json_encoder.serialize_json`. Alternatively, pass
             ``deferred=False`` to inline any binary buffers as base64 and return
             a plain ``dict`` that is directly JSON-serializable.
 
         Args:
-            deferred (bool) :
-                If ``True`` (default), encode binary buffers lazily as
+            deferred:
+                If ``True``, encode binary buffers lazily as
                 references and return a ``Serialized`` wrapper. If ``False``,
                 encode buffers immediately as inline base64 and return a plain
                 ``DocJson`` dict that is directly JSON-serializable.
-
-        Returns:
-            Serialized[DocJson] | DocJson
 
         '''
         return self._to_json(deferred=deferred)
@@ -977,18 +909,14 @@ side of a communications channel while it was being removed on the other end.\
         Embed roots should be addressed by logical key and their ordinal in
         ``Document.roots``. A root ID must not be retained solely to find its
         mount target. Canonical documents and live protocol messages must use
-        :meth:`to_json` instead.
+        :meth:`~bokeh.document.Document.to_json` instead.
 
         Args:
-            deferred (bool) :
+            deferred:
                 Whether binary buffers are returned separately. This has the
-                same meaning as in :meth:`to_json`.
+                same meaning as in :meth:`~bokeh.document.Document.to_json`.
 
-            models_with_ids (Iterable[Model]) :
-                Additional models whose IDs cross an external boundary.
-
-        Returns:
-            Serialized[DocJson] | DocJson
+            models_with_ids: Additional models whose IDs cross an external boundary.
 
         '''
         return self._to_json(
@@ -1067,19 +995,11 @@ side of a communications channel while it was being removed on the other end.\
 
     def unhold(self) -> None:
         ''' Turn off any active document hold and apply any collected events.
-
-        Returns:
-            None
-
         '''
         self.callbacks.unhold()
 
     def validate(self) -> None:
         ''' Perform integrity checks on the modes in this document.
-
-        Returns:
-            None
-
         '''
         for r in self.roots:
             refs = r.references()
@@ -1100,11 +1020,7 @@ side of a communications channel while it was being removed on the other end.\
         ''' Move all data in this doc to the dest_doc, leaving this doc empty.
 
         Args:
-            dest_doc (Document) :
-                The Bokeh document to populate with data from this one
-
-        Returns:
-            None
+            dest_doc: The Bokeh document to populate with data from this one
 
         '''
 

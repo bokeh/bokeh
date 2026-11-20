@@ -121,10 +121,10 @@ def is_datetime_type(obj: Any) -> TypeGuard[dt.time | dt.datetime | np.datetime6
     Bokeh.
 
     Args:
-        obj (object) : the object to test
+        obj: the object to test
 
     Returns:
-        bool : True if ``obj`` is a datetime type
+        True if ``obj`` is a datetime type
 
     '''
     _dt_tuple = tuple(_compute_datetime_types(is_installed("pandas") and "pandas" in sys.modules))
@@ -135,10 +135,10 @@ def is_timedelta_type(obj: Any) -> TypeGuard[dt.timedelta | np.timedelta64]:
     ''' Whether an object is any timedelta type recognized by Bokeh.
 
     Args:
-        obj (object) : the object to test
+        obj: the object to test
 
     Returns:
-        bool : True if ``obj`` is a timedelta type
+        True if ``obj`` is a timedelta type
 
     '''
     return isinstance(obj, (dt.timedelta, np.timedelta64))
@@ -147,10 +147,10 @@ def convert_date_to_datetime(obj: dt.date) -> float:
     ''' Convert a date object to a datetime
 
     Args:
-        obj (date) : the object to convert
+        obj: the object to convert
 
     Returns:
-        datetime
+        datetime as float representation
 
     '''
     return (dt.datetime.combine(obj, dt.time(), tzinfo=dt.UTC) - DT_EPOCH).total_seconds() * 1000
@@ -160,10 +160,10 @@ def convert_timedelta_type(obj: dt.timedelta | np.timedelta64) -> float:
     milliseconds.
 
     Args:
-        obj (object) : the object to convert
+        obj: the object to convert
 
     Returns:
-        float : milliseconds
+        datetime in milliseconds
 
     '''
     if isinstance(obj, dt.timedelta):
@@ -179,10 +179,10 @@ def convert_datetime_type(obj: Any | pd.Timestamp | pd.Timedelta | dt.datetime |
     milliseconds since epoch.
 
     Args:
-        obj (object) : the object to convert
+        obj: the object to convert
 
     Returns:
-        float : milliseconds
+        milliseconds
 
     '''
     if uses_pandas(obj):
@@ -231,13 +231,10 @@ def convert_datetime_array(array: npt.NDArray[Any]) -> npt.NDArray[np.floating[A
     ''' Convert NumPy datetime arrays to arrays to milliseconds since epoch.
 
     Args:
-        array : (obj)
+        array:
             A NumPy array of datetime to convert
 
             If the value passed in is not a NumPy array, it will be returned as-is.
-
-    Returns:
-        array
 
     '''
     def convert(array: npt.NDArray[Any]) -> npt.NDArray[Any]:
@@ -265,9 +262,6 @@ def make_id() -> ID:
     if it is desirable to have globally unique for every object, this behavior
     can be overridden by setting the environment variable ``BOKEH_SIMPLE_IDS=no``.
 
-    Returns:
-        str
-
     '''
     global _simple_id
 
@@ -286,9 +280,6 @@ def make_globally_unique_id() -> ID:
     Some situations, e.g. id'ing dynamically created Divs in HTML documents,
     always require globally unique IDs.
 
-    Returns:
-        str
-
     '''
     from ..core.types import ID
 
@@ -300,9 +291,6 @@ def make_globally_unique_css_safe_id() -> ID:
     Some situations, e.g. id'ing dynamically created Divs in HTML documents,
     always require globally unique IDs. ID generated with this function can
     be used in APIs like ``document.querySelector("#id")``.
-
-    Returns:
-        str
 
     '''
     from ..core.types import ID
@@ -324,10 +312,7 @@ def array_encoding_disabled(array: npt.NDArray[Any]) -> bool:
     {binary_array_types}
 
     Args:
-        array (np.ndarray) : the array to check
-
-    Returns:
-        bool
+        array : the array to check
 
     '''
 
@@ -346,10 +331,7 @@ def transform_array(array: npt.NDArray[Any]) -> npt.NDArray[Any]:
     format
 
     Args:
-        array (np.ndarray) : a NumPy array to be transformed
-
-    Returns:
-        ndarray
+        array: a NumPy array to be transformed
 
     '''
     array = convert_datetime_array(array)
@@ -381,10 +363,7 @@ def transform_series(series: pd.Series[Any] | pd.Index[Any] | pd.api.extensions.
     ''' Transforms a Pandas series into serialized form
 
     Args:
-        series (pd.Series) : the Pandas series to transform
-
-    Returns:
-        ndarray
+        series: the Pandas series to transform
 
     '''
     import pandas as pd

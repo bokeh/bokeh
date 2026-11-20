@@ -128,10 +128,7 @@ class Handler:
         *Subclasses must implement this method*
 
         Args:
-            doc (Document) : A Bokeh Document to update in-place
-
-        Returns:
-            Document
+            doc: A Bokeh Document to update in-place
 
         '''
         raise NotImplementedError("implement modify_document()")

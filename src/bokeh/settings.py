@@ -191,21 +191,18 @@ def convert_compression(value: int | str) -> int:
 def convert_bool(value: bool | str) -> bool:
     ''' Convert a string to True or False.
 
-    If a boolean is passed in, it is returned as-is. Otherwise the function
+    If a Boolean is passed in, it is returned as-is. Otherwise the function
     maps the following strings, ignoring case:
 
     * "yes", "1", "on" -> True
     * "no", "0", "off" -> False
 
     Args:
-        value (str):
-            A string value to convert to bool
-
-    Returns:
-        bool
+        value: A string value to convert to bool
 
     Raises:
-        ValueError
+        ValueError: if the given value is a string which doesn't includes
+            "yes", "1", "on", "no", "0" or "off".
 
     '''
     if isinstance(value, bool):
@@ -217,7 +214,7 @@ def convert_bool(value: bool | str) -> bool:
     if val in ["no", "0", "off", "false", "False"]:
         return False
 
-    raise ValueError(f"Cannot convert {value} to boolean value")
+    raise ValueError(f"Cannot convert {value} to Boolean value")
 
 def convert_str_seq(value: list[str] | str) -> list[str]:
     ''' Convert a string to a list of strings.
@@ -225,11 +222,7 @@ def convert_str_seq(value: list[str] | str) -> list[str]:
     If a list or tuple is passed in, it is returned as-is.
 
     Args:
-        value (seq[str] or str) :
-            A string to convert to a list of strings
-
-    Returns
-        list[str]
+        value: A string to convert to a list of strings
 
     '''
     if isinstance(value, (list, tuple)):
@@ -270,14 +263,10 @@ def convert_logging(value: str | int) -> PyLogLevel:
     * "none"
 
     Args:
-        value (str):
-            A string value to convert to a logging level
-
-    Returns:
-        int or None
+        value: A string value to convert to a logging level
 
     Raises:
-        ValueError
+        ValueError: if the given value is not a know log level.
 
     '''
     if value is None or isinstance(value, int):
@@ -298,14 +287,10 @@ def convert_validation(value: str | ValidationLevel) -> ValidationLevel:
     If a validation level is passed in, it is returned as-is.
 
     Args:
-        value (str):
-            A string value to convert to a validation level
-
-    Returns:
-        string
+        value: A string value to convert to a validation level
 
     Raises:
-        ValueError
+        ValueError: if the given value is not a valid validation level.
 
     '''
     VALID_LEVELS = {"none", "errors", "all"}
@@ -320,14 +305,10 @@ def convert_ico_path(value: str) -> str:
     '''Convert a string to an .ico path
 
     Args:
-        value (str):
-            A string value to convert to a .ico path
-
-    Returns:
-        string
+        value: A string value to convert to a .ico path
 
     Raises:
-        ValueError
+        ValueError: if the value can't be converted to a valid .ico path.
 
     '''
     lowered = value.lower()
@@ -458,19 +439,13 @@ class PrioritizedSetting[T]:
         '''Return the setting value according to the standard precedence.
 
         Args:
-            value (any, optional):
-                An optional immediate value. If not None, the value will
-                be converted, then returned.
+            value: If not None, the value will be converted, then returned.
 
-            default (any, optional):
-                An optional default value that only takes precedence over
+            default: An optional default value that only takes precedence over
                 implicit default values specified on the property itself.
 
-        Returns:
-            str or int or float
-
         Raises:
-            RuntimeError
+            RuntimeError:
         '''
 
         val, _ = self.get_value_with_provenance(value=value, default=default)
@@ -492,11 +467,8 @@ class PrioritizedSetting[T]:
         immediate values.
 
         Args:
-            value (str or int or float):
-                A user-set value for this setting
+            value: A user-set value for this setting
 
-        Returns:
-            None
         '''
         # This triggers LGTMs "mutable descriptor" warning. Since descriptors
         # are shared among all instances, it is usually not avised to store any

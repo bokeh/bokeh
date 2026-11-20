@@ -29,6 +29,7 @@ import numpy as np
 
 from ..core.enums import (
     AxisType,
+    HexTileOrientationType,
     HorizontalLocation,
     MarkerType,
     VerticalLocation,
@@ -72,8 +73,11 @@ from .contour import from_contour
 from .glyph_api import _MARKER_SHORTCUTS, GlyphAPI
 
 if TYPE_CHECKING:
+    import numpy.typing as npt
     from numpy.typing import ArrayLike
 
+    from .._specs import ColorArg
+    from ..core.enums import HexTileOrientationType
     from ..models.glyphs import (
         HArea,
         HBar,
@@ -83,7 +87,11 @@ if TYPE_CHECKING:
     )
     from ..models.renderers.contour_renderer import ContourRenderer
     from ..models.renderers.glyph_renderer import GlyphRenderer
+    from ..transform import PaletteLike
     from ..util.datatypes import SequenceLike
+    from ..util.hex import HexBinResult
+
+    GEO_SCALE = Literal["10m", "50m", "110m"]
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -266,7 +274,18 @@ class figure(Plot, GlyphAPI):
         coordinates = CoordinateMapping(x_source=cast(Range, x_source), y_source=cast(Range, y_source), x_target=x_target, y_target=y_target)
         return GlyphAPI(self, coordinates)
 
-    def hexbin(self, x, y, size, orientation="pointytop", palette="Viridis256", line_color=None, fill_color=None, aspect_scale=1, **kwargs):
+    def hexbin(
+            self,
+            x:npt.NDArray[np.floating],
+            y:npt.NDArray[np.floating],
+            size:float,
+            orientation:HexTileOrientationType = "pointytop",
+            palette:PaletteLike = "Viridis256",
+            line_color: ColorArg = None,
+            fill_color: ColorArg = None,
+            aspect_scale:float=1,
+            **kwargs,
+        ) -> tuple[GlyphRenderer, HexBinResult]:
         ''' Perform a simple equal-weight hexagonal binning.
 
         A :class:`~bokeh.models.glyphs.HexTile` glyph will be added to display
@@ -284,13 +303,9 @@ class figure(Plot, GlyphAPI):
         level library such as HoloViews.
 
         Args:
-            x (array[float]) :
-                A NumPy array of x-coordinates to bin into hexagonal tiles.
-
-            y (array[float]) :
-                A NumPy array of y-coordinates to bin into hexagonal tiles.
-
-            size (float) :
+            x: A NumPy array of x-coordinates to bin into hexagonal tiles.
+            y: A NumPy array of y-coordinates to bin into hexagonal tiles.
+            size:
                 The size of the hexagonal tiling to use. The size is defined as
                 distance from the center of a hexagon to a corner.
 
@@ -298,26 +313,20 @@ class figure(Plot, GlyphAPI):
                 is the distance from the center to the "top" corner with the
                 `"pointytop"` orientation, and the distance from the center to
                 a "side" corner with the "flattop" orientation.
-
-            orientation ("pointytop" or "flattop", optional) :
+            orientation:
                 Whether the hexagonal tiles should be oriented with a pointed
-                corner on top, or a flat side on top. (default: "pointytop")
-
-            palette (str or seq[ColorLike], optional) :
+                corner on top, or a flat side on top.
+            palette:
                 A palette (or palette name) to use to colormap the bins according
-                to count. (default: 'Viridis256')
+                to count.
 
                 If ``fill_color`` is supplied, it overrides this value.
-
-            line_color (ColorLike, optional) :
-                The outline color for hex tiles, or None (default: None)
-
-            fill_color (ColorLike, optional) :
+            line_color: The outline color for hex tiles, or None
+            fill_color:
                 An optional fill color for hex tiles, or None. If None, then
                 the ``palette`` will be used to color map the tiles by
-                count. (default: None)
-
-            aspect_scale (float) :
+                count.
+            aspect_scale:
                 Match a plot's aspect ratio scaling.
 
                 When working with a plot with ``aspect_scale != 1``, this
@@ -331,11 +340,10 @@ class figure(Plot, GlyphAPI):
         Any additional keyword arguments are passed to :func:`hex_tile`.
 
         Returns:
-            (Glyphrender, DataFrame)
-                A tuple with the ``HexTile`` renderer generated to display the
-                binning, and a Pandas ``DataFrame`` with columns ``q``, ``r``,
-                and ``count``, where ``q`` and ``r`` are `axial coordinates`_
-                for a tile, and ``count`` is the associated bin count.
+            A tuple with the ``HexTile`` renderer generated to display the
+            binning, and a Pandas ``DataFrame`` with columns ``q``, ``r``,
+            and ``count``, where ``q`` and ``r`` are `axial coordinates`_
+            for a tile, and ``count`` is the associated bin count.
 
         Example:
 
@@ -386,7 +394,7 @@ class figure(Plot, GlyphAPI):
         to right.
 
         Args:
-            stackers (seq[str]) : a list of data source field names to stack
+            stackers: a list of data source field names to stack
                 successively for ``x1`` and ``x2`` harea coordinates.
 
                 Additionally, the ``name`` of the renderer will be set to
@@ -396,9 +404,6 @@ class figure(Plot, GlyphAPI):
         Any additional keyword arguments are passed to each call to ``harea``.
         If a keyword value is a list or tuple, then each call will get one
         value from the sequence.
-
-        Returns:
-            list[GlyphRenderer]
 
         Examples:
 
@@ -431,7 +436,7 @@ class figure(Plot, GlyphAPI):
         ''' Generate multiple ``HBar`` renderers for levels stacked left to right.
 
         Args:
-            stackers (seq[str]) : a list of data source field names to stack
+            stackers: a list of data source field names to stack
                 successively for ``left`` and ``right`` bar coordinates.
 
                 Additionally, the ``name`` of the renderer will be set to
@@ -441,9 +446,6 @@ class figure(Plot, GlyphAPI):
         Any additional keyword arguments are passed to each call to ``hbar``.
         If a keyword value is a list or tuple, then each call will get one
         value from the sequence.
-
-        Returns:
-            list[GlyphRenderer]
 
         Examples:
 
@@ -478,10 +480,10 @@ class figure(Plot, GlyphAPI):
         or horizontally.
 
         Args:
-            stackers (seq[str]) : a sequence of data source field names to
+            stackers: a sequence of data source field names to
                 stack successively.
 
-            spec (str) : the line coordinate to stack, either ``"x"`` or
+            spec: the line coordinate to stack, either ``"x"`` or
                 ``"y"``.
 
         Additionally, the ``name`` of the renderer will be set to
@@ -491,9 +493,6 @@ class figure(Plot, GlyphAPI):
         Any additional keyword arguments are passed to each call to ``hbar``.
         If a keyword value is a list or tuple, then each call will get one
         value from the sequence.
-
-        Returns:
-            list[GlyphRenderer]
 
         Examples:
 
@@ -527,7 +526,7 @@ class figure(Plot, GlyphAPI):
         ''' Generate multiple ``Line`` renderers for lines stacked horizontally.
 
         Args:
-            stackers (seq[str]) : a list of data source field names to stack
+            stackers: a list of data source field names to stack
                 successively for ``x`` line coordinates.
 
         Additionally, the ``name`` of the renderer will be set to
@@ -537,9 +536,6 @@ class figure(Plot, GlyphAPI):
         Any additional keyword arguments are passed to each call to ``line``.
         If a keyword value is a list or tuple, then each call will get one
         value from the sequence.
-
-        Returns:
-            list[GlyphRenderer]
 
         Examples:
 
@@ -571,7 +567,7 @@ class figure(Plot, GlyphAPI):
         to top.
 
         Args:
-            stackers (seq[str]) : a list of data source field names to stack
+            stackers: a list of data source field names to stack
                 successively for ``y1`` and ``y1`` varea coordinates.
 
                 Additionally, the ``name`` of the renderer will be set to
@@ -581,9 +577,6 @@ class figure(Plot, GlyphAPI):
         Any additional keyword arguments are passed to each call to ``varea``.
         If a keyword value is a list or tuple, then each call will get one
         value from the sequence.
-
-        Returns:
-            list[GlyphRenderer]
 
         Examples:
 
@@ -617,7 +610,7 @@ class figure(Plot, GlyphAPI):
         to top.
 
         Args:
-            stackers (seq[str]) : a list of data source field names to stack
+            stackers: a list of data source field names to stack
                 successively for ``left`` and ``right`` bar coordinates.
 
                 Additionally, the ``name`` of the renderer will be set to
@@ -627,9 +620,6 @@ class figure(Plot, GlyphAPI):
         Any additional keyword arguments are passed to each call to ``vbar``.
         If a keyword value is a list or tuple, then each call will get one
         value from the sequence.
-
-        Returns:
-            list[GlyphRenderer]
 
         Examples:
 
@@ -662,7 +652,7 @@ class figure(Plot, GlyphAPI):
         ''' Generate multiple ``Line`` renderers for lines stacked vertically.
 
         Args:
-            stackers (seq[str]) : a list of data source field names to stack
+            stackers: a list of data source field names to stack
                 successively for ``y`` line coordinates.
 
         Additionally, the ``name`` of the renderer will be set to
@@ -672,9 +662,6 @@ class figure(Plot, GlyphAPI):
         Any additional keyword arguments are passed to each call to ``line``.
         If a keyword value is a list or tuple, then each call will get one
         value from the sequence.
-
-        Returns:
-            list[GlyphRenderer]
 
         Examples:
 
@@ -736,24 +723,24 @@ class figure(Plot, GlyphAPI):
         contour lines if ``line_color`` is set.
 
         Args:
-            x (array-like[float] of shape (ny, nx) or (nx,), optional) :
+            x:
                 The x-coordinates of the ``z`` values. May be 2D with the same
                 shape as ``z.shape``, or 1D with length ``nx = z.shape[1]``.
                 If not specified are assumed to be ``np.arange(nx)``. Must be
                 ordered monotonically.
 
-            y (array-like[float] of shape (ny, nx) or (ny,), optional) :
+            y:
                 The y-coordinates of the ``z`` values. May be 2D with the same
                 shape as ``z.shape``, or 1D with length ``ny = z.shape[0]``.
                 If not specified are assumed to be ``np.arange(ny)``. Must be
                 ordered monotonically.
 
-            z (array-like[float] of shape (ny, nx)) :
+            z:
                 A 2D NumPy array of gridded values to calculate the contours
                 of.  It may be a masked array, and any invalid values (``np.inf``
                 or ``np.nan``) will also be masked out.
 
-            levels (array-like[float]) :
+            levels:
                 The z-levels to calculate the contours at, must be increasing.
                 Contour lines are calculated at each level and filled contours
                 are calculated between each adjacent pair of levels so the
@@ -778,7 +765,7 @@ class figure(Plot, GlyphAPI):
         self.renderers.append(contour_renderer)
         return contour_renderer
 
-    def borders(self, projection, scale="110m", **line_kwargs):
+    def borders(self, projection, scale:GEO_SCALE="110m", **line_kwargs):
         """ Adds the borders of countries to a map with respect to a given projection.
 
         .. note::
@@ -786,7 +773,7 @@ class figure(Plot, GlyphAPI):
 
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+            scale(GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
                 "50m" and "10m".
 
         .. note::
@@ -809,7 +796,7 @@ class figure(Plot, GlyphAPI):
         from ._geo_feature import add_borders
         self = add_borders(self, projection, scale, **line_kwargs)
 
-    def coastlines(self, projection, scale="110m", **line_kwargs):
+    def coastlines(self, projection, scale:GEO_SCALE="110m", **line_kwargs):
         """ Adds coastlines to a map with respect to a given projection.
 
         .. note::
@@ -817,7 +804,7 @@ class figure(Plot, GlyphAPI):
 
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+            scale(GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
                 "50m" and "10m".
 
         .. note::
@@ -840,7 +827,7 @@ class figure(Plot, GlyphAPI):
         from ._geo_feature import add_coastlines
         self = add_coastlines(self, projection, scale, **line_kwargs)
 
-    def land(self, projection, scale="110m", **poly_kwargs):
+    def land(self, projection, scale:GEO_SCALE="110m", **poly_kwargs):
         """ Adds land geometries including islands to a map with respect to a
         given projection.
 
@@ -849,7 +836,7 @@ class figure(Plot, GlyphAPI):
 
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+            scale(GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
                 "50m" and "10m".
 
         Keyword Arguments:
@@ -876,7 +863,7 @@ class figure(Plot, GlyphAPI):
         from ._geo_feature import add_land
         self = add_land(self, projection, scale, **poly_kwargs)
 
-    def lakes(self, projection, scale="110m", **poly_kwargs):
+    def lakes(self, projection, scale:GEO_SCALE="110m", **poly_kwargs):
         """ Adds lakes to a map with respect to a given projection.
 
         .. note::
@@ -884,7 +871,7 @@ class figure(Plot, GlyphAPI):
 
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+            scale(GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
                 "50m" and "10m".
 
         Keyword Arguments:
@@ -911,7 +898,7 @@ class figure(Plot, GlyphAPI):
         from ._geo_feature import add_lakes
         self = add_lakes(self, projection, scale, **poly_kwargs)
 
-    def ocean(self, projection, scale="110m", **poly_kwargs):
+    def ocean(self, projection, scale:GEO_SCALE="110m", **poly_kwargs):
         """ Adds ocean to a map with respect to a given projection.
 
         .. note::
@@ -919,7 +906,7 @@ class figure(Plot, GlyphAPI):
 
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+            scale(GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
                 "50m" and "10m".
 
         Keyword Arguments:
@@ -946,7 +933,7 @@ class figure(Plot, GlyphAPI):
         from ._geo_feature import add_ocean
         self = add_ocean(self, projection, scale, **poly_kwargs)
 
-    def rivers(self, projection, scale="110m", **line_kwargs):
+    def rivers(self, projection, scale:GEO_SCALE="110m", **line_kwargs):
         """ Adds rivers to a map with respect to a given projection.
 
         .. note::
@@ -954,7 +941,7 @@ class figure(Plot, GlyphAPI):
 
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+            scale(GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
                 "50m" and "10m".
 
         .. note::
@@ -985,7 +972,7 @@ class figure(Plot, GlyphAPI):
 
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+            scale(GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
                 "50m" and "10m".
 
         .. note::
@@ -1008,7 +995,7 @@ class figure(Plot, GlyphAPI):
         from ._geo_feature import add_projection_boundary
         self = add_projection_boundary(self, projection, **line_kwargs)
 
-    def provinces(self, projection, scale="110m", **line_kwargs):
+    def provinces(self, projection, scale:GEO_SCALE="110m", **line_kwargs):
         """ Adds the borders of provinces to a map with respect to a given projection.
 
         .. note::
@@ -1016,7 +1003,7 @@ class figure(Plot, GlyphAPI):
 
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+            scale(GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
                 "50m" and "10m".
 
         .. note::
@@ -1039,7 +1026,7 @@ class figure(Plot, GlyphAPI):
         from ._geo_feature import add_provinces
         self = add_provinces(self, projection, scale, **line_kwargs)
 
-    def states(self, projection, scale="110m", **poly_kwargs):
+    def states(self, projection, scale:GEO_SCALE="110m", **poly_kwargs):
         """ Adds states and provinces as multi-polygons to a map for a given projection.
 
         .. note::
@@ -1047,7 +1034,7 @@ class figure(Plot, GlyphAPI):
 
         Args:
             projection (cartopy.crs.Projection): Cartopy projection for a geographic map.
-            scale (str, "110m"): Scale of the feature resolution. Valid strings are "110m",
+            scale(GEO_SCALE): Scale of the feature resolution. Valid strings are "110m",
                 "50m" and "10m".
 
         Keyword Arguments:
@@ -1077,8 +1064,6 @@ class figure(Plot, GlyphAPI):
 def markers() -> None:
     ''' Prints a list of valid marker types for scatter()
 
-    Returns:
-        None
     '''
     print("Available markers: \n\n - " + "\n - ".join(map(str, MarkerType)))
     print()

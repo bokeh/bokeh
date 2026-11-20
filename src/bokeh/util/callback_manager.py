@@ -142,11 +142,8 @@ class PropertyCallbackManager:
         ''' Add a callback on this object to trigger when ``attr`` changes.
 
         Args:
-            attr (str) : an attribute name on this object
-            *callbacks (callable) : one or more callback functions to register
-
-        Returns:
-            None
+            attr: an attribute name on this object
+            *callbacks: one or more callback functions to register
 
         '''
         if len(callbacks) == 0:

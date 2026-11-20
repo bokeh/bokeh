@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 
 import math
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 
@@ -56,8 +56,13 @@ class HexBinResult:
     r: npt.NDArray[np.integer]
     counts: npt.NDArray[np.integer]
 
-
-def axial_to_cartesian(q: Any, r: Any, size: float, orientation: str, aspect_scale: float = 1) -> tuple[Any, Any]:
+def axial_to_cartesian(
+        q: npt.NDArray[np.floating],
+        r: npt.NDArray[np.floating],
+        size: np.floating,
+        orientation: Literal["pointytop", "flattop"],
+        aspect_scale: float = 1,
+    ) -> tuple[npt.NDArray[np.floating], npt.NDArray[np.floating]]:
     ''' Map axial *(q,r)* coordinates to cartesian *(x,y)* coordinates of
     tiles centers.
 
@@ -69,24 +74,18 @@ def axial_to_cartesian(q: Any, r: Any, size: float, orientation: str, aspect_sca
     https://www.redblobgames.com/grids/hexagons/#hex-to-pixel
 
     Args:
-        q (array[float]) :
-            A NumPy array of q-coordinates for binning
-
-        r (array[float]) :
-            A NumPy array of r-coordinates for binning
-
-        size (float) :
+        q: A NumPy array of q-coordinates for binning
+        r: A NumPy array of r-coordinates for binning
+        size:
             The size of the hexagonal tiling.
 
             The size is defined as the distance from the center of a hexagon
             to the top corner for "pointytop" orientation, or from the center
             to a side corner for "flattop" orientation.
-
-        orientation (str) :
+        orientation:
             Whether the hex tile orientation should be "pointytop" or
             "flattop".
-
-        aspect_scale (float, optional) :
+        aspect_scale:
             Scale the hexagons in the "cross" dimension.
 
             For "pointytop" orientations, hexagons are scaled in the horizontal
@@ -94,9 +93,6 @@ def axial_to_cartesian(q: Any, r: Any, size: float, orientation: str, aspect_sca
 
             When working with a plot with ``aspect_scale != 1``, it may be
             useful to set this value to match the plot.
-
-    Returns:
-        (array[int], array[int])
 
     '''
     if orientation == "pointytop":
@@ -108,7 +104,12 @@ def axial_to_cartesian(q: Any, r: Any, size: float, orientation: str, aspect_sca
 
     return (x, y)
 
-def cartesian_to_axial(x: Any, y: Any, size: float, orientation: str, aspect_scale: float = 1) -> tuple[Any, Any]:
+def cartesian_to_axial(
+        x: npt.NDArray[np.floating],
+        y: npt.NDArray[np.floating],
+        size: float, orientation: str,
+        aspect_scale: float = 1,
+    ) -> tuple[npt.NDArray[np.integer], npt.NDArray[np.integer]]:
     ''' Map Cartesian *(x,y)* points to axial *(q,r)* coordinates of enclosing
     tiles.
 
@@ -117,24 +118,18 @@ def cartesian_to_axial(x: Any, y: Any, size: float, orientation: str, aspect_sca
     https://www.redblobgames.com/grids/hexagons/#pixel-to-hex
 
     Args:
-        x (array[float]) :
-            A NumPy array of x-coordinates to convert
-
-        y (array[float]) :
-            A NumPy array of y-coordinates to convert
-
-        size (float) :
+        x: A NumPy array of x-coordinates to convert
+        y: A NumPy array of y-coordinates to convert
+        size:
             The size of the hexagonal tiling.
 
             The size is defined as the distance from the center of a hexagon
             to the top corner for "pointytop" orientation, or from the center
             to a side corner for "flattop" orientation.
-
-        orientation (str) :
+        orientation:
             Whether the hex tile orientation should be "pointytop" or
             "flattop".
-
-        aspect_scale (float, optional) :
+        aspect_scale:
             Scale the hexagons in the "cross" dimension.
 
             For "pointytop" orientations, hexagons are scaled in the horizontal
@@ -142,9 +137,6 @@ def cartesian_to_axial(x: Any, y: Any, size: float, orientation: str, aspect_sca
 
             When working with a plot with ``aspect_scale != 1``, it may be
             useful to set this value to match the plot.
-
-    Returns:
-        (array[int], array[int])
 
     '''
     HEX_FLAT = [2.0/3.0, 0.0, -1.0/3.0, math.sqrt(3.0)/3.0]
@@ -174,24 +166,17 @@ def hexbin(
     HoloViews.
 
     Args:
-        x (array[float]) :
-            A NumPy array of x-coordinates for binning
-
-        y (array[float]) :
-            A NumPy array of y-coordinates for binning
-
-        size (float) :
-            The size of the hexagonal tiling.
+        x: A NumPy array of x-coordinates for binning
+        y: A NumPy array of y-coordinates for binning
+        size: The size of the hexagonal tiling.
 
             The size is defined as the distance from the center of a hexagon
             to the top corner for "pointytop" orientation, or from the center
             to a side corner for "flattop" orientation.
-
-        orientation (str, optional) :
+        orientation:
             Whether the hex tile orientation should be "pointytop" or
-            "flattop". (default: "pointytop")
-
-        aspect_scale (float, optional) :
+            "flattop".
+        aspect_scale:
             Match a plot's aspect ratio scaling.
 
             When working with a plot with ``aspect_scale != 1``, this
@@ -203,9 +188,7 @@ def hexbin(
             plot aspect scales are not one.
 
     Returns:
-        DataFrame
-
-        The resulting DataFrame will have columns *q* and *r* that specify
+        The resulting HexBinResult will have columns *q* and *r* that specify
         hexagon tile locations in axial coordinates, and a column *counts* that
         provides the count for each tile.
 
@@ -231,7 +214,7 @@ def hexbin(
 # Private API
 #-----------------------------------------------------------------------------
 
-def _round_hex(q: Any, r: Any) -> tuple[Any, Any]:
+def _round_hex(q: npt.NDArray[np.floating], r: npt.NDArray[np.floating]) -> tuple[npt.NDArray[np.integer], npt.NDArray[np.integer]]:
     ''' Round floating point axial hex coordinates to integer *(q,r)*
     coordinates.
 
@@ -240,14 +223,8 @@ def _round_hex(q: Any, r: Any) -> tuple[Any, Any]:
         https://www.redblobgames.com/grids/hexagons/#rounding
 
     Args:
-        q (array[float]) :
-            NumPy array of Floating point axial *q* coordinates to round
-
-        r (array[float]) :
-            NumPy array of Floating point axial *q* coordinates to round
-
-    Returns:
-        (array[int], array[int])
+        q: NumPy array of Floating point axial *q* coordinates to round
+        r: NumPy array of Floating point axial *q* coordinates to round
 
     '''
     x = q

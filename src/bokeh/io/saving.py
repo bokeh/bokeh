@@ -116,23 +116,19 @@ def save(obj: Showable, filename: PathLike | None = None, resources: ResourcesLi
     used.
 
     Args:
-        obj (UIElement or DOMNode object) : a Layout (Row/Column), Plot or Widget object to display
-
-        filename (PathLike, e.g. str, Path, optional) : filename to save document under (default: None)
+        obj: a Layout (Row/Column), Plot or Widget object to display
+        filename: filename to save document under
             If None, derive the filename from the running script.
-
-        resources (Resources or resource setting, optional) : A resources configuration to use (default: None)
+        resources: A resources configuration to use
             If None, use the configured default resource policy.
-
-        title (str, optional) : a title for the HTML document (default: None)
+        title: A title for the HTML document.
             If None, use "Bokeh Plot".
-
-        template (Template, str, optional) : HTML document template (default: FILE)
+        template: HTML document template.
             A Jinja2 Template, see bokeh.core.templates.FILE for the required template
             parameters
 
     Returns:
-        str: the filename where the HTML file is saved. In a notebook, leaving
+        the filename where the HTML file is saved. In a notebook, leaving
         this value as the cell's final expression displays a link that opens
         the saved document in a new tab.
 
