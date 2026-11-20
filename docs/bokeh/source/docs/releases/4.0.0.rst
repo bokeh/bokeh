@@ -58,6 +58,11 @@ New features
   e.g. strings by ``Plot.title``, are accepted, and ``Readonly`` properties
   can't be assigned to (:bokeh-issue:`15760`).
 
+* Added ``GraphDataSource`` to pair the indexed node and edge sources used
+  by ``GraphRenderer``. It accepts column mappings, graph records, and
+  NetworkX graphs. Supply custom node and edge renderers when constructing
+  the graph renderer, and update their data through the paired sources.
+
 Removals
 --------
 

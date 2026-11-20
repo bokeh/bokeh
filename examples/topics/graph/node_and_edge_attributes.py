@@ -1,39 +1,50 @@
-''' Color edges and show node club membership in tooltips using NetworkX attributes.
+''' Style NetworkX graph glyphs with attributes from the node and edge sources.
 
 .. bokeh-example-metadata::
-    :title: Node and edge attributes
+    :title: Karate club ties
     :keywords: graph, hover, networkx, tooltip
     :apis: bokeh.plotting.from_networkx
     :refs: :ref:`ug_topics_graph`
-    :gallery: A network graph plot of the NetworkX karate club dataset with large circles for vertices.
+    :gallery: Blue and orange clusters in Zachary's karate club graph, with cross-club edges accented in pink.
 
 '''
+
 import networkx as nx
 
-from bokeh.models import MultiLine, Scatter
+from bokeh.layouts import column
+from bokeh.models import Div, HoverTool, MultiLine, Scatter
 from bokeh.plotting import figure, from_networkx, show
 
-G = nx.karate_club_graph()
+club_colors = {"Mr. Hi": "#2563eb", "Officer": "#b45309"}
+cross_club_color = "#a62c70"
 
-SAME_CLUB_COLOR, DIFFERENT_CLUB_COLOR = "darkgrey", "red"
+network = nx.karate_club_graph()
+for _, attrs in network.nodes(data=True):
+    attrs["color"] = club_colors[attrs["club"]]
+for start, end, attrs in network.edges(data=True):
+    same_club = network.nodes[start]["club"] == network.nodes[end]["club"]
+    attrs["color"] = "#a1abb9" if same_club else cross_club_color
+    attrs["width"] = 1.2 if same_club else 2.2
 
-edge_attrs = {}
-for start_node, end_node, _ in G.edges(data=True):
-    edge_color = SAME_CLUB_COLOR if G.nodes[start_node]["club"] == G.nodes[end_node]["club"] else DIFFERENT_CLUB_COLOR
-    edge_attrs[(start_node, end_node)] = edge_color
+graph = from_networkx(network, nx.spring_layout, seed=42)
+node = Scatter(size=15, fill_color="color", line_color="white", line_width=1.5)
+graph.node_renderer.glyph = node
+graph.node_renderer.hover_glyph = node.clone(size=21, line_width=2)
+graph.edge_renderer.glyph = MultiLine(line_color="color", line_width="width", line_alpha=0.7)
 
-nx.set_edge_attributes(G, edge_attrs, "edge_color")
+p = figure(
+    title="Zachary's karate club", width=650, height=490,
+    x_range=(-1.28, 1.28), y_range=(-1.2, 1.2),
+    x_axis_location=None, y_axis_location=None, tools="", toolbar_location=None,
+    background_fill_color="#f8fafc", outline_line_color=None,
+)
+p.grid.visible = False
+p.add_tools(HoverTool(renderers=[graph], tooltips=[("Member", "@index"), ("Club", "@club")]))
+p.renderers.append(graph)
 
-plot = figure(width=400, height=400, x_range=(-1.2, 1.2), y_range=(-1.2, 1.2),
-              x_axis_location=None, y_axis_location=None, toolbar_location=None,
-              title="Graph Interaction Demo", background_fill_color="#efefef",
-              tooltips="index: @index, club: @club")
-plot.grid.grid_line_color = None
-
-graph_renderer = from_networkx(G, nx.spring_layout, scale=1, center=(0, 0))
-graph_renderer.node_renderer.glyph = Scatter(size=15, fill_color="lightblue")
-graph_renderer.edge_renderer.glyph = MultiLine(line_color="edge_color",
-                                               line_alpha=1, line_width=2)
-plot.renderers.append(graph_renderer)
-
-show(plot)
+key = Div(width=650, text=f"""
+<b style="color:{club_colors['Mr. Hi']}">Mr. Hi</b> &nbsp;·&nbsp;
+<b style="color:{club_colors['Officer']}">Officer</b> &nbsp;·&nbsp;
+<b style="color:{cross_club_color}">Cross-club ties</b>
+""")
+show(column(p, key))
