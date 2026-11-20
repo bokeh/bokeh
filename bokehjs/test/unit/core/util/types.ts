@@ -163,6 +163,8 @@ describe("core/util/types module", () => {
   it("should support isPlainObject() function", () => {
     expect(isPlainObject(0)).to.be.false
     expect(isPlainObject({})).to.be.true
+    expect(isPlainObject({constructor: "attribute"})).to.be.true
+    expect(isPlainObject(Object.create({}))).to.be.false
     expect(isPlainObject(Object.create(null))).to.be.true
     expect(isPlainObject(new X())).to.be.false
     expect(isPlainObject(new Map())).to.be.false

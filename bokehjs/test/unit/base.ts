@@ -154,6 +154,7 @@ describe("default model resolver", () => {
       "GMapOptions",
       "GMapPlot",
       "GeoJSONDataSource",
+      "GeometryDataSource",
       "GestureTool",
       "GlobalImportedStyleSheet",
       "GlobalInlineStyleSheet",
