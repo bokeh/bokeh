@@ -28,7 +28,34 @@ interface NotebookBokehRuntime {
   when_mounted(target: HTMLElement, options?: {signal?: AbortSignal}): Promise<NotebookBokehMount>
   publish_mount_error?(target: HTMLElement, error: unknown): void
   MountError?: new(kind: string, message: string, cause?: unknown, rootKey?: string, phase?: string) => Error
-  embed?: {create_notebook_patch_receiver?: (document: any, revision: number) => (message: any, buffers?: DataView[]) => void}
+  embed?: {
+    create_notebook_patch_receiver?: (document: any, revision: number) => (message: any, buffers?: DataView[]) => void
+    pull_comm_session?: (channel: SessionChannel, options: {
+      session_id: string
+      signal?: AbortSignal
+      on_error?: (error: SessionError) => void
+    }) => Promise<NotebookClientSession>
+  }
+}
+
+interface NotebookClientSession {
+  readonly document: any
+  close(): void
+}
+
+/** A Bokeh protocol channel to one application session, as BokehJS' `pull_comm_session()` expects it. */
+export interface SessionChannel {
+  open(): void
+  send(envelope_json: string, buffers: ArrayBuffer[]): void
+  close(): void
+  on_message: ((envelope_json: string, buffers: readonly (ArrayBuffer | ArrayBufferView)[]) => void) | null
+  on_close: (() => void) | null
+}
+
+/** An error the kernel reported for a message of the session, e.g. a failed Python callback. */
+export interface SessionError {
+  text: string
+  traceback: string | null
 }
 
 export interface FrontendDocumentSnapshot {
@@ -54,11 +81,22 @@ export interface ApplicationViewConnection {
   close(): void
 }
 
+/** A new session of an application served over notebook comms, created for one view. */
+export interface ApplicationSession {
+  sessionId: string
+  resourceId: string
+  requires?: unknown
+  channel: SessionChannel
+  onClose(callback: (error?: SessionError) => void): void
+  close(): void
+}
+
 export interface KernelProxy {
   readonly scope?: object
   requestResource?(resourceId: string): Promise<ResourceRecord>
   openLive?(liveId: string): Promise<LiveConnection>
   openApplicationView?(viewId: string): Promise<ApplicationViewConnection>
+  openApplicationSession?(viewId: string): Promise<ApplicationSession>
   releaseView?(viewId: string): Promise<void>
 }
 
@@ -574,6 +612,128 @@ function renderDisconnected(node: HTMLElement, message: string, failure?: unknow
   return disconnected
 }
 
+function renderSessionError(node: HTMLElement, error: SessionError): void {
+  node.querySelector(".bk-notebook-session-error")?.remove()
+  const panel = document.createElement("div")
+  panel.className = "bk-notebook-session-error"
+  panel.setAttribute("role", "alert")
+  panel.style.cssText = "margin:0 0 6px;padding:6px 9px;border-left:3px solid #c33;background:#fff5f5;color:#222;font:12px/1.4 system-ui,sans-serif"
+  const title = document.createElement("strong")
+  title.textContent = "Python callback error: "
+  const message = document.createElement("span")
+  message.textContent = error.text
+  const dismiss = document.createElement("button")
+  dismiss.type = "button"
+  dismiss.textContent = "Dismiss"
+  dismiss.style.marginLeft = "8px"
+  dismiss.addEventListener("click", () => panel.remove())
+  panel.append(title, message, dismiss)
+  if (error.traceback != null && error.traceback.length != 0) {
+    const details = document.createElement("details")
+    const summary = document.createElement("summary")
+    summary.textContent = "Traceback"
+    const pre = document.createElement("pre")
+    pre.style.cssText = "white-space:pre-wrap;margin:4px 0 0"
+    pre.textContent = error.traceback
+    details.append(summary, pre)
+    panel.append(details)
+  }
+  node.prepend(panel)
+}
+
+async function renderApplicationSession(node: HTMLElement, payload: DisplayPayload,
+    kernel?: KernelProxy, signal?: AbortSignal): Promise<() => void> {
+  if (kernel?.openApplicationSession == null) {
+    throw new BokehNotebookError(
+      "APPLICATION_VIEW_UNAVAILABLE",
+      "This notebook host cannot open Bokeh application sessions over notebook comms.",
+      "Use JupyterLab or Jupyter Notebook 7 with the bundled Bokeh integration.",
+    )
+  }
+  const opened = await kernel.openApplicationSession(payload.view_id)
+  const target = document.createElement("div")
+  target.className = "bk-embed-root"
+  target.dataset.bokehRoot = "*"
+  let session: NotebookClientSession | undefined
+  let mount: NotebookBokehMount | undefined
+  let disconnected: HTMLElement | undefined
+  let disposed = false
+
+  const cleanup = () => {
+    if (disposed) return
+    disposed = true
+    renderedArtifacts.delete(node)
+    void mount?.dispose?.()
+    session?.close()
+    session?.document.destroy?.()
+    opened.close()
+    target.remove()
+    disconnected?.remove()
+    node.querySelector(".bk-notebook-session-error")?.remove()
+  }
+
+  try {
+    await requireResources(opened.resourceId, payload.bokeh_version, payload.python_version, kernel, 5000)
+    signal?.throwIfAborted()
+    const runtime = window.Bokeh
+    const pull = runtime?.embed?.pull_comm_session
+    if (runtime == null || pull == null) {
+      throw new BokehNotebookError(
+        "APPLICATION_SESSION_UNSUPPORTED",
+        "The loaded BokehJS cannot connect to Bokeh application sessions over notebook comms.",
+        "Restart the kernel and reload the notebook after updating Bokeh.",
+      )
+    }
+    session = await withTimeout(
+      pull(opened.channel, {
+        session_id: opened.sessionId,
+        signal,
+        on_error: (error) => {
+          if (!disposed) renderSessionError(node, error)
+        },
+      }),
+      payload.connect_timeout,
+      new Error(`Timed out after ${payload.connect_timeout} ms`),
+      signal,
+    )
+    node.append(target)
+    mount = runtime.mount(session.document, target, {signal})
+    await withTimeout(
+      mount.ready,
+      payload.connect_timeout,
+      new Error(`Timed out after ${payload.connect_timeout} ms`),
+      signal,
+    )
+  } catch (error) {
+    cleanup()
+    throw error
+  }
+  renderedArtifacts.set(node, {
+    artifact: {
+      schema: "bokeh.embed/v1",
+      bokeh_version: payload.python_version,
+      source: {kind: "server", url: ""},
+      roots: [],
+      requires: opened.requires,
+      metadata: {notebook_application_id: payload.application_id},
+    },
+    mount,
+  })
+  opened.onClose((error) => {
+    if (disposed || disconnected != null) return
+    const reason = error == null ? "" : ` (${error.text})`
+    disconnected = renderDisconnected(
+      node,
+      `Disconnected: the Python application session closed${reason}. Re-run show(app) to reconnect.`,
+    )
+  })
+  if (signal?.aborted) {
+    cleanup()
+    signal.throwIfAborted()
+  }
+  return cleanup
+}
+
 async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: string,
     kernel?: KernelProxy, signal?: AbortSignal): Promise<() => void> {
   signal?.throwIfAborted()
@@ -587,6 +747,10 @@ async function renderArtifact(node: HTMLElement, payload: DisplayPayload, html: 
     } else {
       await loadResources(record.payload, javascript, node, kernel)
     }
+  }
+
+  if (payload.application_id != null && payload.transport === "comms") {
+    return await renderApplicationSession(node, payload, kernel, signal)
   }
 
   let viewConnection: ApplicationViewConnection | undefined

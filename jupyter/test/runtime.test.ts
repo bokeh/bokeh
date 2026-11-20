@@ -550,4 +550,117 @@ describe("artifact runtime", () => {
     cleanup()
     host.remove()
   })
+
+  describe("application sessions over comms", () => {
+    const sessionDisplay: DisplayPayload = {
+      ...display,
+      source_kind: "server",
+      application_id: "application",
+      transport: "comms",
+    }
+
+    function sessionHarness() {
+      const handle = {
+        ready: Promise.resolve(),
+        dispose: vi.fn(async () => undefined),
+        document: {to_json: () => ({roots: []}), roots: () => []},
+        root_keys: [],
+        root: () => null,
+        view_lookup: {},
+      }
+      const clientDocument = {destroy: vi.fn()}
+      const clientSession = {document: clientDocument, close: vi.fn()}
+      let onError: ((error: {text: string, traceback: string | null}) => void) | undefined
+      const pull = vi.fn(async (_channel: unknown, options: any) => {
+        onError = options.on_error
+        return clientSession
+      })
+      const mount = vi.fn(() => handle)
+      ;(window as any).Bokeh = {version: "4.0.0", mount, when_mounted: vi.fn(async () => handle), embed: {pull_comm_session: pull}}
+      let receiveClose: ((error?: {text: string, traceback: string | null}) => void) | undefined
+      const channel = {on_message: null, on_close: null, open: vi.fn(), send: vi.fn(), close: vi.fn()}
+      const opened = {
+        sessionId: "session",
+        resourceId: "resource",
+        channel,
+        onClose: vi.fn((callback) => receiveClose = callback),
+        close: vi.fn(),
+      }
+      const openApplicationSession = vi.fn(async () => opened)
+      return {
+        handle, clientSession, clientDocument, pull, mount, opened, channel, openApplicationSession,
+        error: (error: {text: string, traceback: string | null}) => onError?.(error),
+        closeFromKernel: (error?: {text: string, traceback: string | null}) => receiveClose?.(error),
+      }
+    }
+
+    it("pulls the view's own session over its comm and mounts its document", async () => {
+      const harness = sessionHarness()
+      const node = document.createElement("div")
+      document.body.append(node)
+      await loadResources(resource, "", node)
+
+      const cleanup = await renderDisplay(node, sessionDisplay, "", {openApplicationSession: harness.openApplicationSession})
+
+      expect(harness.openApplicationSession).toHaveBeenCalledWith("view")
+      expect(harness.pull).toHaveBeenCalledWith(harness.channel, expect.objectContaining({session_id: "session"}))
+      expect(harness.mount).toHaveBeenCalledWith(harness.clientDocument, expect.any(HTMLElement), expect.anything())
+      expect(currentDocumentSnapshot(node, sessionDisplay)).toMatchObject({view_id: "view"})
+
+      cleanup()
+      expect(harness.handle.dispose).toHaveBeenCalledTimes(1)
+      expect(harness.clientSession.close).toHaveBeenCalledTimes(1)
+      expect(harness.clientDocument.destroy).toHaveBeenCalledTimes(1)
+      expect(harness.opened.close).toHaveBeenCalledTimes(1)
+      expect(node.querySelector(".bk-embed-root")).toBeNull()
+    })
+
+    it("shows Python callback errors in the output", async () => {
+      const harness = sessionHarness()
+      const node = document.createElement("div")
+      document.body.append(node)
+      await loadResources(resource, "", node)
+      const cleanup = await renderDisplay(node, sessionDisplay, "", {openApplicationSession: harness.openApplicationSession})
+
+      harness.error({text: "ZeroDivisionError: division by zero", traceback: "Traceback (most recent call last):\n..."})
+      harness.error({text: "KeyError: 'x'", traceback: null})
+
+      const panels = node.querySelectorAll(".bk-notebook-session-error")
+      expect(panels.length).toBe(1)
+      expect(panels[0].getAttribute("role")).toBe("alert")
+      expect(panels[0].textContent).toContain("KeyError: 'x'")
+      ;(panels[0].querySelector("button") as HTMLButtonElement).click()
+      expect(node.querySelector(".bk-notebook-session-error")).toBeNull()
+
+      harness.error({text: "ZeroDivisionError: division by zero", traceback: "Traceback (most recent call last):\n..."})
+      expect(node.querySelector(".bk-notebook-session-error pre")?.textContent).toContain("Traceback")
+      cleanup()
+      expect(node.querySelector(".bk-notebook-session-error")).toBeNull()
+    })
+
+    it("marks the view disconnected when the kernel closes its session", async () => {
+      const harness = sessionHarness()
+      const node = document.createElement("div")
+      document.body.append(node)
+      await loadResources(resource, "", node)
+      const cleanup = await renderDisplay(node, sessionDisplay, "", {openApplicationSession: harness.openApplicationSession})
+
+      harness.closeFromKernel({text: "PROTOCOL_ERROR", traceback: null})
+
+      expect(node.querySelector(".bk-notebook-disconnected")?.textContent).toContain("application session closed (PROTOCOL_ERROR)")
+      cleanup()
+    })
+
+    it("explains that the loaded BokehJS cannot pull comm sessions", async () => {
+      const harness = sessionHarness()
+      ;(window as any).Bokeh.embed = {}
+      const node = document.createElement("div")
+      document.body.append(node)
+      await loadResources(resource, "", node)
+
+      await expect(renderDisplay(node, sessionDisplay, "", {openApplicationSession: harness.openApplicationSession}))
+        .rejects.toMatchObject({code: "APPLICATION_SESSION_UNSUPPORTED"})
+      expect(harness.opened.close).toHaveBeenCalledTimes(1)
+    })
+  })
 })

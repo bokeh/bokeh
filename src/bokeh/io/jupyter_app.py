@@ -19,7 +19,7 @@ import time
 from collections.abc import Callable, Sequence
 from os import PathLike as OSPathLike, fspath
 from types import ModuleType
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 from urllib.parse import urlparse
 from uuid import uuid4
 
@@ -29,9 +29,11 @@ if TYPE_CHECKING:
     from ..application import Application
     from ..document import Document
     from ..server.asgi import BokehASGI
+    from ..server.comm import Comm, CommSessionEndpoint
+    from ..server.session import ServerSession
     from .notebook import ProxyUrlFunc
 
-__all__ = ("NotebookApplication", "serve")
+__all__ = ("CommApplication", "NotebookApplication", "serve")
 
 
 class _ASGIServerThread:
@@ -163,21 +165,23 @@ class _ASGIServerThread:
 # Dev API
 #-----------------------------------------------------------------------------
 
-APPLICATIONS: dict[str, NotebookApplication] = {}
-_KEY_APPLICATIONS: dict[str, NotebookApplication] = {}
-_CELL_APPLICATIONS: dict[str, tuple[str, list[NotebookApplication]]] = {}
+type _ManagedApplication = NotebookApplication | CommApplication
+
+APPLICATIONS: dict[str, _ManagedApplication] = {}
+_KEY_APPLICATIONS: dict[str, _ManagedApplication] = {}
+_CELL_APPLICATIONS: dict[str, tuple[str, list[_ManagedApplication]]] = {}
 _APPLICATIONS_LOCK = threading.RLock()
 _APPLICATION_START_LOCK = threading.Lock()
 
 
-def _start_and_register_application(application: NotebookApplication, key: str | None,
+def _start_and_register_application(application: _ManagedApplication, key: str | None,
         cell_identity: tuple[str, str] | None) -> None:
     # Serialize replacement decisions without holding the registry lock while
     # stopping an app. stop() unregisters under _APPLICATIONS_LOCK, and taking
     # these locks in the opposite order would deadlock with stop_async().
     with _APPLICATION_START_LOCK:
         with _APPLICATIONS_LOCK:
-            previous: tuple[NotebookApplication | None, ...]
+            previous: tuple[_ManagedApplication | None, ...]
             if key is not None:
                 previous = (_KEY_APPLICATIONS.get(key),)
             elif cell_identity is not None:
@@ -195,7 +199,7 @@ def _start_and_register_application(application: NotebookApplication, key: str |
                 prior.stop()
             except Exception:
                 log.warning("Could not stop a replaced notebook application", exc_info=True)
-        application._host.start()
+        application._start()
         with _APPLICATIONS_LOCK:
             APPLICATIONS[application.application_id] = application
             if key is not None:
@@ -208,7 +212,7 @@ def _start_and_register_application(application: NotebookApplication, key: str |
                 _CELL_APPLICATIONS[cell_id] = (execution_id, siblings)
 
 
-def _unregister_application(application: NotebookApplication) -> None:
+def _unregister_application(application: _ManagedApplication) -> None:
     with _APPLICATIONS_LOCK:
         APPLICATIONS.pop(application.application_id, None)
         for key, current in tuple(_KEY_APPLICATIONS.items()):
@@ -288,15 +292,7 @@ class NotebookApplication:
             raise ValueError("Notebook applications must bind to loopback and use a trusted proxy for remote access")
 
         if isinstance(application, (str, OSPathLike, ModuleType)):
-            from ..command.util import build_single_handler_application
-
-            if isinstance(application, ModuleType):
-                if application.__file__ is None:
-                    raise ValueError(f"Python module {application.__name__!r} has no source file")
-                path = application.__file__
-            else:
-                path = fspath(application)
-            application = build_single_handler_application(path)
+            application = _build_application(application)
 
         configured_url: str | ProxyUrlFunc | None
         if notebook_url is not None or os.environ.get("JUPYTER_BOKEH_EXTERNAL_URL"):
@@ -359,6 +355,9 @@ class NotebookApplication:
 
     def __repr__(self) -> str:
         return f"NotebookApplication(status={self.status!r}, port={self.port})"
+
+    def _start(self) -> None:
+        self._host.start()
 
     @property
     def application_id(self) -> str:
@@ -508,16 +507,169 @@ class NotebookApplication:
         await asyncio.to_thread(self.stop)
 
 
-def serve(application: Application | Callable[[Document], None] | ModuleType | str | OSPathLike[str], *,
-        notebook_url: str | ProxyUrlFunc | None = None, port: int = 0, key: str | None = None,
-        extra_websocket_origins: Sequence[str] | None = None,
-        **server_kwargs: Any) -> NotebookApplication:
-    ''' Start a managed ASGI notebook application for later ``show`` calls.
+class CommApplication:
+    ''' A Bokeh application whose notebook views run their sessions over comms.
+
+    Each call to ``show(app)`` displays a view, and every frontend that renders
+    the view gets its own session and document, as a browser tab does for
+    ``bokeh serve``. Sessions are created by the application's handlers and
+    exchange regular Bokeh protocol messages with the browser over the
+    kernel's Jupyter comms, so the browser never connects to a server or a
+    port. Session callbacks run in the kernel, and they wait while the kernel
+    executes a cell.
 
     Args:
         application:
             An Application, document-modifying callable, imported Python
             module, ``.py`` or ``.ipynb`` path, or directory-style app.
+        key:
+            An optional stable replacement key. Starting another application
+            with the same key stops this application first.
+
+    '''
+
+    def __init__(self, application: Application | Callable[[Document], None] | ModuleType | str | OSPathLike[str], *,
+            key: str | None = None) -> None:
+        from ..application import Application
+        from ..application.handlers.document_lifecycle import DocumentLifecycleHandler
+        from ..application.handlers.function import FunctionHandler
+        from ..server.comm import CommApplicationContext
+        from .notebook import notebook_cell_identity
+
+        if isinstance(application, (str, OSPathLike, ModuleType)):
+            application = _build_application(application)
+        elif not isinstance(application, Application):
+            application = Application(FunctionHandler(application))
+        if all(not isinstance(handler, DocumentLifecycleHandler) for handler in application.handlers):
+            application.add(DocumentLifecycleHandler())
+
+        self._application_id = uuid4().hex
+        self._context = CommApplicationContext(application, url="/")
+        self._endpoints: set[CommSessionEndpoint] = set()
+        self._stopped = False
+        _start_and_register_application(self, key, None if key is not None else notebook_cell_identity())
+
+    def __repr__(self) -> str:
+        return f"CommApplication(status={self.status!r}, sessions={len(self.sessions)})"
+
+    def _start(self) -> None:
+        self._context.run_load_hook()
+
+    def _serve_session(self, comm: Comm, describe: Callable[[ServerSession], dict[str, Any]], *,
+            on_close: Callable[[CommSessionEndpoint], None] | None = None) -> CommSessionEndpoint:
+        from ..server.comm import CommSessionEndpoint
+
+        def closed(endpoint: CommSessionEndpoint) -> None:
+            self._endpoints.discard(endpoint)
+            if on_close is not None:
+                on_close(endpoint)
+
+        endpoint = CommSessionEndpoint(self._context, comm, describe=describe, on_close=closed)
+        self._endpoints.add(endpoint)
+        return endpoint
+
+    @property
+    def application_id(self) -> str:
+        '''Return the identifier used by notebook application views.
+
+        Returns:
+            The application identifier.
+
+        '''
+        return self._application_id
+
+    @property
+    def application(self) -> Application:
+        '''Return the Bokeh application that creates session documents.
+
+        Returns:
+            The application.
+
+        '''
+        return self._context.application
+
+    @property
+    def sessions(self) -> list[ServerSession]:
+        '''Return the active sessions, one for every connected view.
+
+        Returns:
+            The active sessions.
+
+        '''
+        return list(self._context.sessions)
+
+    @property
+    def status(self) -> str:
+        '''Return the current application lifecycle status.
+
+        Returns:
+            The current lifecycle status.
+
+        '''
+        return "stopped" if self._stopped else "running"
+
+    @property
+    def stopped(self) -> bool:
+        '''Report whether this application has stopped.
+
+        Returns:
+            Whether the application has stopped.
+
+        '''
+        return self._stopped
+
+    def stop(self) -> None:
+        ''' Close every view, discard its session and run the unload hooks.
+
+        Returns:
+            None
+
+        '''
+        if self._stopped:
+            return
+        self._stopped = True
+        try:
+            from .notebook import close_application_views
+
+            close_application_views(self)
+            for endpoint in tuple(self._endpoints):
+                endpoint.close()
+        finally:
+            _unregister_application(self)
+        tasks = [endpoint.task for endpoint in self._endpoints if not endpoint.task.done()]
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = None
+        if not tasks or loop is None:
+            self._context.run_unload_hook()
+            return
+
+        async def unload() -> None:
+            # Session destroyed hooks run before the application's unload hooks.
+            await asyncio.gather(*tasks, return_exceptions=True)
+            self._context.run_unload_hook()
+
+        loop.create_task(unload())
+
+
+def serve(application: Application | Callable[[Document], None] | ModuleType | str | OSPathLike[str], *,
+        transport: Literal["http", "comms"] = "http",
+        notebook_url: str | ProxyUrlFunc | None = None, port: int = 0, key: str | None = None,
+        extra_websocket_origins: Sequence[str] | None = None,
+        **server_kwargs: Any) -> NotebookApplication | CommApplication:
+    ''' Start a managed notebook application for later ``show`` calls.
+
+    Args:
+        application:
+            An Application, document-modifying callable, imported Python
+            module, ``.py`` or ``.ipynb`` path, or directory-style app.
+        transport:
+            ``"http"`` hosts the application on a loopback port with Uvicorn,
+            and views connect to it with websockets. ``"comms"`` runs view
+            sessions over the kernel's Jupyter comms instead, so no port,
+            proxy or network connection from the browser is needed. The
+            other arguments, apart from ``key``, only apply to ``"http"``.
         notebook_url:
             Optional public proxy URL or callable for notebook hosts that
             cannot resolve kernel-local ports. JupyterLab and Notebook 7
@@ -535,8 +687,22 @@ def serve(application: Application | Callable[[Document], None] | ModuleType | s
             Additional keyword arguments for :class:`~bokeh.server.asgi.BokehASGI`.
 
     Returns:
-        A managed :class:`NotebookApplication`.
+        A managed :class:`NotebookApplication`, or a :class:`CommApplication`
+        for ``transport="comms"``.
     '''
+    if transport == "comms":
+        unsupported = [
+            name for name, value in (
+                ("notebook_url", notebook_url),
+                ("port", port or None),
+                ("extra_websocket_origins", extra_websocket_origins),
+            ) if value is not None
+        ] + list(server_kwargs)
+        if unsupported:
+            raise TypeError(f"serve(..., transport='comms') does not accept {', '.join(unsupported)}")
+        return CommApplication(application, key=key)
+    if transport != "http":
+        raise ValueError(f"unknown notebook application transport {transport!r}, expected 'http' or 'comms'")
     return NotebookApplication(
         application,
         notebook_url=notebook_url,
@@ -545,6 +711,18 @@ def serve(application: Application | Callable[[Document], None] | ModuleType | s
         extra_websocket_origins=extra_websocket_origins,
         **server_kwargs,
     )
+
+
+def _build_application(application: ModuleType | str | OSPathLike[str]) -> Application:
+    from ..command.util import build_single_handler_application
+
+    if isinstance(application, ModuleType):
+        if application.__file__ is None:
+            raise ValueError(f"Python module {application.__name__!r} has no source file")
+        path = application.__file__
+    else:
+        path = fspath(application)
+    return build_single_handler_application(path)
 
 
 def _authorized_origin(value: str) -> str:

@@ -108,6 +108,18 @@ def test_show_managed_application(mock_show_hosted_app: MagicMock, monkeypatch: 
     mock_show_hosted_app.assert_called_once_with(app, "inline")
 
 
+@patch("bokeh.io.notebook.show_comm_app", return_value="handle")
+def test_show_comm_application(mock_show_comm_app: MagicMock, monkeypatch: pytest.MonkeyPatch) -> None:
+    from bokeh.io.jupyter_app import CommApplication
+
+    monkeypatch.setattr(m, "notebook_environment", lambda: True)
+    app = object.__new__(CommApplication)
+
+    assert m.show(app, resources="inline") == "handle"
+
+    mock_show_comm_app.assert_called_once_with(app, "inline")
+
+
 def test_show_rejects_removed_options() -> None:
     parameters = inspect.signature(m.show).parameters
     assert "notebook_handle" not in parameters

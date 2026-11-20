@@ -148,6 +148,8 @@ class ApplicationContext:
 
     '''
 
+    session_type: type[ServerSession] = ServerSession
+
     _sessions: dict[ID, ServerSession]
     _pending_sessions: dict[ID, asyncio.Task[ServerSession]]
     _session_contexts: dict[ID, SessionContext]
@@ -306,7 +308,7 @@ class ApplicationContext:
         await self._initialize_document_async(doc)
 
         io_loop = self._loop or asyncio.get_running_loop()
-        session = ServerSession(session_id, doc, io_loop=io_loop, token=token, executor=self._executor)
+        session = self.session_type(session_id, doc, io_loop=io_loop, token=token, executor=self._executor)
         self._sessions[session_id] = session
         session_context._set_session(session)
         self._session_contexts[session_id] = session_context

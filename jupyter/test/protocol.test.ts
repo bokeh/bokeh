@@ -180,6 +180,7 @@ describe("notebook protocol", () => {
       expect(() => m.assertProtocol(displayPayload())).not.toThrow()
       expect(() => m.assertProtocol(live)).not.toThrow()
       expect(() => m.assertProtocol(application)).not.toThrow()
+      expect(() => m.assertProtocol({...application, transport: "comms"})).not.toThrow()
     })
 
     const invalidCases: InvalidCase[] = [
@@ -192,6 +193,11 @@ describe("notebook protocol", () => {
       ["a null live ID", (payload) => payload.live_id = null, "live_id must be a non-empty string"],
       ["an empty application ID", (payload) => payload.application_id = "", "application_id must be a non-empty string"],
       ["a persisted application URL", (payload) => payload.application_url = null, "application_url must not be persisted"],
+      ["an unknown transport", (payload) => {
+        payload.application_id = "application"
+        payload.transport = "http"
+      }, "transport must be comms"],
+      ["a transport without an application", (payload) => payload.transport = "comms", "transport requires application_id"],
       ["non-array resource records", (payload) => payload.resource_records = {}, "resource_records must be an array"],
       ["a null resource record", (payload) => payload.resource_records = [null], "resource_records[0] must be an object"],
       ["non-string resource JavaScript", (payload) => payload.resource_records = [{payload: resourcePayload(), javascript: null}], "resource_records[0].javascript must be a string"],

@@ -85,9 +85,13 @@ class ServerConnection:
                 return await self.session._handle_patch(message, self)
             else:
                 return self.ok(message)
-        except Exception:
+        except Exception as e:
             log.exception("error handling %s message", message.msgtype)
-            return self.error(message, f"Error handling {message.msgtype} message")
+            return self._error_reply(message, e)
+
+    def _error_reply(self, message: Message[Any], _error: Exception) -> Message[Any]:
+        # Browser clients of a network server only learn that handling failed.
+        return self.error(message, f"Error handling {message.msgtype} message")
 
     def send_message(self, message: Message[Any]) -> Awaitable[None]:
         return self._transport.send_message(message)
