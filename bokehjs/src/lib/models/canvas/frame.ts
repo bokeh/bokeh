@@ -3,7 +3,7 @@ import {Range1d} from "../ranges/range1d"
 import type {BBox} from "core/util/bbox"
 import type {StyleSheetLike} from "core/dom"
 import type * as p from "core/properties"
-import * as css from "styles/cartesian_frame.css"
+import * as css from "styles/frame.css"
 
 /** Rectangular screen geometry, independent of any data coordinate system. */
 export class FrameView extends CanvasPanelView {

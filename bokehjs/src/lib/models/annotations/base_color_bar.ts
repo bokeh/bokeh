@@ -1,5 +1,5 @@
 import type {RendererView} from "../renderers/renderer"
-import {CartesianMapping} from "../coordinates/plot_mapping"
+import {CartesianMapping} from "../coordinates/cartesian_mapping"
 import {Annotation, AnnotationView} from "./annotation"
 import {Title} from "./title"
 import {CartesianFrame} from "../canvas/cartesian_frame"
