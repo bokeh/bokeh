@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+from ..core.has_props import abstract
 from ..core.property.instance import Instance, InstanceDefault
 from ..model import Model
 from .ranges import DataRange1d, Range
@@ -29,12 +30,29 @@ from .scales import LinearScale, Scale
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    "CartesianMapping",
     "CoordinateMapping",
+    "PlotMapping",
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+@abstract
+class PlotMapping(Model):
+    """ Range-free configuration for a plot's runtime coordinate transform.
+
+    Concrete plots supply the source ranges and scales. This model does not
+    own ranges, scales, or a reference back to the plot.
+    """
+
+class CartesianMapping(PlotMapping):
+    """ Map independent Cartesian coordinates using the plot's scales.
+
+    Named ranges and scales are selected by the renderer. Replacing a plot's
+    ranges or scales rebinds the runtime transform.
+    """
 
 class CoordinateMapping(Model):
     """ A mapping between two coordinate systems. """

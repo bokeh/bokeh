@@ -28,6 +28,7 @@ from typing import (
     Any,
     Generator,
     Literal,
+    Self,
     overload,
 )
 
@@ -39,6 +40,7 @@ from ..core.enums import (
     ResetPolicy,
     WindowAxis,
 )
+from ..core.has_props import abstract
 from ..core.property.container import Dict, List, Tuple
 from ..core.property.either import Either
 from ..core.property.enum import Enum
@@ -57,6 +59,7 @@ from ..core.property.readonly import Readonly
 from ..core.property.struct import Optional, Struct
 from ..core.property_mixins import ScalarFillProps, ScalarHatchProps, ScalarLineProps
 from ..core.query import find
+from ..core.serialization import DeserializationError
 from ..core.validation import error, warning
 from ..core.validation.errors import (
     BAD_EXTRA_RANGE_NAME,
@@ -69,6 +72,7 @@ from ..core.validation.warnings import MISSING_RENDERERS
 from ..model import Model
 from .annotations import Annotation, Legend, Title
 from .axes import Axis
+from .coordinates import CartesianMapping, PlotMapping
 from .dom import HTML
 from .glyph import Glyph
 from .grids import Grid
@@ -94,6 +98,9 @@ from .ui import StyledElement
 if TYPE_CHECKING:
     import xyzservices
 
+    from ..core.has_props import Setter
+    from ..core.types import ID
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -101,6 +108,7 @@ if TYPE_CHECKING:
 __all__ = (
     'GridPlot',
     'Plot',
+    'XYPlot',
 )
 
 def LRTB(type: Any) -> Struct:
@@ -110,10 +118,40 @@ def LRTB(type: Any) -> Struct:
 # General API
 #-----------------------------------------------------------------------------
 
+@abstract
 class Plot(LayoutDOM):
     ''' Model representing a plot, containing glyphs, guides, annotations.
 
     '''
+
+    @classmethod
+    def _new(cls, id: ID) -> Self:
+        if cls is Plot:
+            raise DeserializationError("Plot is abstract. Regenerate serialized plots as XYPlot")
+        return super()._new(id)
+
+    def __init__(self, **kwargs: Any) -> None:
+        if type(self) is Plot:
+            raise TypeError("Plot is abstract. Use XYPlot or figure")
+        super().__init__(**kwargs)
+        if not isinstance(getattr(self, "coordinate_system", None), PlotMapping):
+            raise TypeError("A concrete plot requires a coordinate mapping property")
+
+    coordinate_system: PlotMapping
+
+    def apply_theme(self, property_values: dict[str, Any]) -> None:
+        if "coordinate_system" in property_values:
+            raise RuntimeError("Plot.coordinate_system is a readonly property. Set it during construction")
+        super().apply_theme(property_values)
+
+    def set_from_json(self, name: str, value: Any, *, setter: Setter | None = None) -> None:
+        # Deserialization binds the initial mapper before its default is read.
+        # Later protocol patches must respect the construction-time choice.
+        if name == "coordinate_system" and any(name in values for values in (
+            self._property_values, self._materialized_defaults, self._materialized_themed_defaults,
+        )):
+            raise RuntimeError("Plot.coordinate_system is a readonly property. Set it during construction")
+        super().set_from_json(name, value, setter=setter)
 
     def select(self, *args, **kwargs):
         ''' Query this object and all of its references for objects that
@@ -387,69 +425,6 @@ class Plot(LayoutDOM):
         self.renderers.append(g)
         return g
 
-    def add_tile(self, tile_source: TileSource | xyzservices.TileProvider | str, retina: bool = False, **kwargs: Any) -> TileRenderer:
-        ''' Adds new ``TileRenderer`` into ``Plot.renderers``
-
-        Args:
-            tile_source (TileSource, xyzservices.TileProvider, str) :
-                A tile source instance which contain tileset configuration
-
-            retina (bool) :
-                Whether to use retina version of tiles (if available). This
-                also sets ``TileSource.pixel_ratio``, so that the tiles are
-                displayed at their natural size.
-
-        Keyword Arguments:
-            Additional keyword arguments are passed on as-is to the tile renderer
-
-        Returns:
-            TileRenderer : TileRenderer
-
-        '''
-        if not isinstance(tile_source, TileSource):
-            import xyzservices
-
-            if isinstance(tile_source, xyzservices.TileProvider):
-                selected_provider = tile_source
-
-            # allow the same string input you can now pass to get_provider
-            elif isinstance(tile_source, str):
-                # Mapping of custom keys to those used in xyzservices
-                tile_source = tile_source.lower()
-
-                if tile_source == "esri_imagery":
-                    tile_source = "esri_worldimagery"
-                if tile_source == "osm":
-                    tile_source = "openstreetmap_mapnik"
-                if tile_source.startswith("stamen"):
-                    tile_source = f"stadia.{tile_source}"
-                if "retina" in tile_source:
-                    tile_source = tile_source.replace("retina", "")
-                    retina = True
-
-                selected_provider = xyzservices.providers.query_name(tile_source)
-            else:
-                raise ValueError(f"expected a TileSource, xyzservices.TileProvider, or str, got {tile_source!r}")
-
-            scale_factor = "@2x" if retina else None
-            url = selected_provider.build_url(scale_factor=scale_factor)
-
-            # a provider without a scale factor placeholder ignores the request
-            # for retina tiles, in which case the tiles are of the usual size
-            high_res = retina and "{r}" in selected_provider.get("url", "")
-
-            tile_source = WMTSTileSource(
-                url=url,
-                pixel_ratio=2 if high_res else 1,
-                attribution=selected_provider.html_attribution,
-                min_zoom=selected_provider.get("min_zoom", 0),
-                max_zoom=selected_provider.get("max_zoom", 30),
-            )
-
-        tile_renderer = TileRenderer(tile_source=tile_source, **kwargs)
-        self.renderers.append(tile_renderer)
-        return tile_renderer
-
     @contextmanager
     def hold(self, *, render: bool) -> Generator[None]:
         ''' Takes care of turning a property on and off within a scope.
@@ -465,127 +440,10 @@ class Plot(LayoutDOM):
             finally:
                 self.hold_render = False
 
-    @error(REQUIRED_RANGE)
-    def _check_required_range(self) -> str | None:
-        missing: list[str] = []
-        if not self.x_range: missing.append('x_range')
-        if not self.y_range: missing.append('y_range')
-        if missing:
-            return ", ".join(missing) + f" [{self}]"
-
-    @error(REQUIRED_SCALE)
-    def _check_required_scale(self) -> str | None:
-        missing: list[str] = []
-        if not self.x_scale: missing.append('x_scale')
-        if not self.y_scale: missing.append('y_scale')
-        if missing:
-            return ", ".join(missing) + f" [{self}]"
-
-    @error(INCOMPATIBLE_SCALE_AND_RANGE)
-    def _check_compatible_scale_and_ranges(self) -> str | None:
-        incompatible: list[str] = []
-        x_ranges = list(self.extra_x_ranges.values())
-        if self.x_range: x_ranges.append(self.x_range)
-        y_ranges = list(self.extra_y_ranges.values())
-        if self.y_range: y_ranges.append(self.y_range)
-
-        if self.x_scale is not None:
-            for rng in x_ranges:
-                if isinstance(rng, (DataRange1d, Range1d)) and not isinstance(self.x_scale, (LinearScale, LogScale)):
-                    incompatible.append(f"incompatibility on x-dimension: {rng}, {self.x_scale}")
-                elif isinstance(rng, FactorRange) and not isinstance(self.x_scale, CategoricalScale):
-                    incompatible.append(f"incompatibility on x-dimension: {rng}, {self.x_scale}")
-
-        if self.y_scale is not None:
-            for rng in y_ranges:
-                if isinstance(rng, (DataRange1d, Range1d)) and not isinstance(self.y_scale, (LinearScale, LogScale)):
-                    incompatible.append(f"incompatibility on y-dimension: {rng}, {self.y_scale}")
-                elif isinstance(rng, FactorRange) and not isinstance(self.y_scale, CategoricalScale):
-                    incompatible.append(f"incompatibility on y-dimension: {rng}, {self.y_scale}")
-
-        if incompatible:
-            return ", ".join(incompatible) + f" [{self}]"
-
     @warning(MISSING_RENDERERS)
     def _check_missing_renderers(self) -> str | None:
         if len(self.renderers) == 0 and len([x for x in self.center if isinstance(x, Annotation)]) == 0:
             return str(self)
-
-    @error(BAD_EXTRA_RANGE_NAME)
-    def _check_bad_extra_range_name(self) -> str | None:
-        msg: str = ""
-        valid = {
-            f'{axis}_name': {'default', *getattr(self, f"extra_{axis}s")}
-            for axis in ("x_range", "y_range")
-        }
-        for place in [*list(Place), 'renderers']:
-            for ref in getattr(self, place):
-                bad = ', '.join(
-                    f"{axis}='{getattr(ref, axis)}'"
-                    for axis, keys in valid.items()
-                    if getattr(ref, axis, 'default') not in keys
-                )
-                if bad:
-                    msg += (", " if msg else "") + f"{bad} [{ref}]"
-        if msg:
-            return msg
-
-    x_range = Instance(Range, default=InstanceDefault(DataRange1d), help="""
-    The (default) data range of the horizontal dimension of the plot.
-    """)
-
-    y_range = Instance(Range, default=InstanceDefault(DataRange1d), help="""
-    The (default) data range of the vertical dimension of the plot.
-    """)
-
-    x_scale = Instance(Scale, default=InstanceDefault(LinearScale), help="""
-    What kind of scale to use to convert x-coordinates in data space
-    into x-coordinates in screen space.
-    """)
-
-    y_scale = Instance(Scale, default=InstanceDefault(LinearScale), help="""
-    What kind of scale to use to convert y-coordinates in data space
-    into y-coordinates in screen space.
-    """)
-
-    extra_x_ranges = Dict(String, Instance(Range), help="""
-    Additional named ranges to make available for mapping x-coordinates.
-
-    This is useful for adding additional axes.
-    """)
-
-    extra_y_ranges = Dict(String, Instance(Range), help="""
-    Additional named ranges to make available for mapping y-coordinates.
-
-    This is useful for adding additional axes.
-    """)
-
-    extra_x_scales = Dict(String, Instance(Scale), help="""
-    Additional named scales to make available for mapping x-coordinates.
-
-    This is useful for adding additional axes.
-
-    .. note:: This feature is experimental and may change in the short term.
-    """)
-
-    extra_y_scales = Dict(String, Instance(Scale), help="""
-    Additional named scales to make available for mapping y-coordinates.
-
-    This is useful for adding additional axes.
-
-    .. note:: This feature is experimental and may change in the short term.
-    """)
-
-    window_axis = Enum(WindowAxis, default="none", help="""
-    An axis to use for windowed auto-ranging when there are data ranges
-    present on the plot. For example, if ``window_axis`` is set to the
-    value ``"x"`` then any data ranges in the y-dimension will compute their
-    auto-ranged extents using only data inside the range bounds for the
-    x-axis as configured in the current viewport.
-
-    If set to "none" (the default) then auto-ranging will use all available
-    data, regardless of viewport.
-    """)
 
     title = Either(Null, Instance(Title), default=InstanceDefault(Title, text=""), help="""
     A title for the plot. Can be a text string or a Title annotation.
@@ -839,42 +697,6 @@ class Plot(LayoutDOM):
         will fall back to rendering onto 2D canvas.
     """)
 
-    match_aspect = Bool(default=False, help="""
-    Specify the aspect ratio behavior of the plot. Aspect ratio is defined as
-    the ratio of width over height. This property controls whether Bokeh should
-    attempt to match the (width/height) of *data space* to the (width/height)
-    in pixels of *screen space*.
-
-    Default is ``False`` which indicates that the *data* aspect ratio and the
-    *screen* aspect ratio vary independently. ``True`` indicates that the plot
-    aspect ratio of the axes will match the aspect ratio of the pixel extent
-    the axes. The end result is that a 1x1 area in data space is a square in
-    pixels, and conversely that a 1x1 pixel is a square in data units.
-
-    .. note::
-        This setting only takes effect when there are two dataranges. This
-        setting only sets the initial plot draw and subsequent resets. It is
-        possible for tools (single axis zoom, unconstrained box zoom) to
-        change the aspect ratio.
-
-    .. warning::
-        This setting is incompatible with linking dataranges across multiple
-        plots. Doing so may result in undefined behavior.
-    """)
-
-    aspect_scale = Float(default=1, help="""
-    A value to be given for increased aspect ratio control. This value is added
-    multiplicatively to the calculated value required for ``match_aspect``.
-    ``aspect_scale`` is defined as the ratio of width over height of the figure.
-
-    For example, a plot with ``aspect_scale`` value of 2 will result in a
-    square in *data units* to be drawn on the screen as a rectangle with a
-    pixel width twice as long as its pixel height.
-
-    .. note::
-        This setting only takes effect if ``match_aspect`` is set to ``True``.
-    """)
-
     reset_policy = Enum(ResetPolicy, default="standard", help="""
     How a plot should respond to being reset. By default, the standard actions
     are to clear any tool state history, return plot ranges to their original
@@ -922,6 +744,235 @@ class Plot(LayoutDOM):
     """)
 
     _context_menu = Override(default="auto")
+
+class XYPlot(Plot):
+    """ A plot with independent horizontal and vertical ranges and scales.
+
+    Use this model for low-level Cartesian plotting, or use
+    :class:`~bokeh.plotting.figure` for the plotting API.
+    """
+
+    def add_tile(self, tile_source: TileSource | xyzservices.TileProvider | str, retina: bool = False, **kwargs: Any) -> TileRenderer:
+        ''' Adds new ``TileRenderer`` into ``Plot.renderers``
+
+        Args:
+            tile_source (TileSource, xyzservices.TileProvider, str) :
+                A tile source instance which contain tileset configuration
+
+            retina (bool) :
+                Whether to use retina version of tiles (if available). This
+                also sets ``TileSource.pixel_ratio``, so that the tiles are
+                displayed at their natural size.
+
+        Keyword Arguments:
+            Additional keyword arguments are passed on as-is to the tile renderer
+
+        Returns:
+            TileRenderer : TileRenderer
+
+        '''
+        if not isinstance(tile_source, TileSource):
+            import xyzservices
+
+            if isinstance(tile_source, xyzservices.TileProvider):
+                selected_provider = tile_source
+
+            # allow the same string input you can now pass to get_provider
+            elif isinstance(tile_source, str):
+                # Mapping of custom keys to those used in xyzservices
+                tile_source = tile_source.lower()
+
+                if tile_source == "esri_imagery":
+                    tile_source = "esri_worldimagery"
+                if tile_source == "osm":
+                    tile_source = "openstreetmap_mapnik"
+                if tile_source.startswith("stamen"):
+                    tile_source = f"stadia.{tile_source}"
+                if "retina" in tile_source:
+                    tile_source = tile_source.replace("retina", "")
+                    retina = True
+
+                selected_provider = xyzservices.providers.query_name(tile_source)
+            else:
+                raise ValueError(f"expected a TileSource, xyzservices.TileProvider, or str, got {tile_source!r}")
+
+            scale_factor = "@2x" if retina else None
+            url = selected_provider.build_url(scale_factor=scale_factor)
+
+            # a provider without a scale factor placeholder ignores the request
+            # for retina tiles, in which case the tiles are of the usual size
+            high_res = retina and "{r}" in selected_provider.get("url", "")
+
+            tile_source = WMTSTileSource(
+                url=url,
+                pixel_ratio=2 if high_res else 1,
+                attribution=selected_provider.html_attribution,
+                min_zoom=selected_provider.get("min_zoom", 0),
+                max_zoom=selected_provider.get("max_zoom", 30),
+            )
+
+        tile_renderer = TileRenderer(tile_source=tile_source, **kwargs)
+        self.renderers.append(tile_renderer)
+        return tile_renderer
+
+    coordinate_system = Readonly(Instance(CartesianMapping), default=InstanceDefault(CartesianMapping), help="""
+    The Cartesian mapping, fixed during construction. Each plot gets a fresh
+    mapping by default. The mapping uses this plot's ranges and scales.
+    """)
+
+    @error(REQUIRED_RANGE)
+    def _check_required_range(self) -> str | None:
+        missing: list[str] = []
+        if not self.x_range: missing.append('x_range')
+        if not self.y_range: missing.append('y_range')
+        if missing:
+            return ", ".join(missing) + f" [{self}]"
+
+    @error(REQUIRED_SCALE)
+    def _check_required_scale(self) -> str | None:
+        missing: list[str] = []
+        if not self.x_scale: missing.append('x_scale')
+        if not self.y_scale: missing.append('y_scale')
+        if missing:
+            return ", ".join(missing) + f" [{self}]"
+
+    @error(INCOMPATIBLE_SCALE_AND_RANGE)
+    def _check_compatible_scale_and_ranges(self) -> str | None:
+        incompatible: list[str] = []
+        x_ranges = list(self.extra_x_ranges.values())
+        if self.x_range: x_ranges.append(self.x_range)
+        y_ranges = list(self.extra_y_ranges.values())
+        if self.y_range: y_ranges.append(self.y_range)
+
+        if self.x_scale is not None:
+            for rng in x_ranges:
+                if isinstance(rng, (DataRange1d, Range1d)) and not isinstance(self.x_scale, (LinearScale, LogScale)):
+                    incompatible.append(f"incompatibility on x-dimension: {rng}, {self.x_scale}")
+                elif isinstance(rng, FactorRange) and not isinstance(self.x_scale, CategoricalScale):
+                    incompatible.append(f"incompatibility on x-dimension: {rng}, {self.x_scale}")
+
+        if self.y_scale is not None:
+            for rng in y_ranges:
+                if isinstance(rng, (DataRange1d, Range1d)) and not isinstance(self.y_scale, (LinearScale, LogScale)):
+                    incompatible.append(f"incompatibility on y-dimension: {rng}, {self.y_scale}")
+                elif isinstance(rng, FactorRange) and not isinstance(self.y_scale, CategoricalScale):
+                    incompatible.append(f"incompatibility on y-dimension: {rng}, {self.y_scale}")
+
+        if incompatible:
+            return ", ".join(incompatible) + f" [{self}]"
+
+    @error(BAD_EXTRA_RANGE_NAME)
+    def _check_bad_extra_range_name(self) -> str | None:
+        msg: str = ""
+        valid = {
+            f'{axis}_name': {'default', *getattr(self, f"extra_{axis}s")}
+            for axis in ("x_range", "y_range")
+        }
+        for place in [*list(Place), 'renderers']:
+            for ref in getattr(self, place):
+                bad = ', '.join(
+                    f"{axis}='{getattr(ref, axis)}'"
+                    for axis, keys in valid.items()
+                    if getattr(ref, axis, 'default') not in keys
+                )
+                if bad:
+                    msg += (", " if msg else "") + f"{bad} [{ref}]"
+        if msg:
+            return msg
+
+    x_range = Instance(Range, default=InstanceDefault(DataRange1d), help="""
+    The (default) data range of the horizontal dimension of the plot.
+    """)
+
+    y_range = Instance(Range, default=InstanceDefault(DataRange1d), help="""
+    The (default) data range of the vertical dimension of the plot.
+    """)
+
+    x_scale = Instance(Scale, default=InstanceDefault(LinearScale), help="""
+    What kind of scale to use to convert x-coordinates in data space
+    into x-coordinates in screen space.
+    """)
+
+    y_scale = Instance(Scale, default=InstanceDefault(LinearScale), help="""
+    What kind of scale to use to convert y-coordinates in data space
+    into y-coordinates in screen space.
+    """)
+
+    extra_x_ranges = Dict(String, Instance(Range), help="""
+    Additional named ranges to make available for mapping x-coordinates.
+
+    This is useful for adding additional axes.
+    """)
+
+    extra_y_ranges = Dict(String, Instance(Range), help="""
+    Additional named ranges to make available for mapping y-coordinates.
+
+    This is useful for adding additional axes.
+    """)
+
+    extra_x_scales = Dict(String, Instance(Scale), help="""
+    Additional named scales to make available for mapping x-coordinates.
+
+    This is useful for adding additional axes.
+
+    .. note:: This feature is experimental and may change in the short term.
+    """)
+
+    extra_y_scales = Dict(String, Instance(Scale), help="""
+    Additional named scales to make available for mapping y-coordinates.
+
+    This is useful for adding additional axes.
+
+    .. note:: This feature is experimental and may change in the short term.
+    """)
+
+    window_axis = Enum(WindowAxis, default="none", help="""
+    An axis to use for windowed auto-ranging when there are data ranges
+    present on the plot. For example, if ``window_axis`` is set to the
+    value ``"x"`` then any data ranges in the y-dimension will compute their
+    auto-ranged extents using only data inside the range bounds for the
+    x-axis as configured in the current viewport.
+
+    If set to "none" (the default) then auto-ranging will use all available
+    data, regardless of viewport.
+    """)
+
+    match_aspect = Bool(default=False, help="""
+    Specify the aspect ratio behavior of the plot. Aspect ratio is defined as
+    the ratio of width over height. This property controls whether Bokeh should
+    attempt to match the (width/height) of *data space* to the (width/height)
+    in pixels of *screen space*.
+
+    Default is ``False`` which indicates that the *data* aspect ratio and the
+    *screen* aspect ratio vary independently. ``True`` indicates that the plot
+    aspect ratio of the axes will match the aspect ratio of the pixel extent
+    the axes. The end result is that a 1x1 area in data space is a square in
+    pixels, and conversely that a 1x1 pixel is a square in data units.
+
+    .. note::
+        This setting only takes effect when there are two dataranges. This
+        setting only sets the initial plot draw and subsequent resets. It is
+        possible for tools (single axis zoom, unconstrained box zoom) to
+        change the aspect ratio.
+
+    .. warning::
+        This setting is incompatible with linking dataranges across multiple
+        plots. Doing so may result in undefined behavior.
+    """)
+
+    aspect_scale = Float(default=1, help="""
+    A value to be given for increased aspect ratio control. This value is added
+    multiplicatively to the calculated value required for ``match_aspect``.
+    ``aspect_scale`` is defined as the ratio of width over height of the figure.
+
+    For example, a plot with ``aspect_scale`` value of 2 will result in a
+    square in *data units* to be drawn on the screen as a rectangle with a
+    pixel width twice as long as its pixel height.
+
+    .. note::
+        This setting only takes effect if ``match_aspect`` is set to ``True``.
+    """)
+
 
 class GridPlot(LayoutDOM, GridCommon):
     """ Collection of plots and other layoutables on arranged on a rectangular grid.

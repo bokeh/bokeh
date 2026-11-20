@@ -5,11 +5,19 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
+from abc import abstractmethod
 from typing import Unpack
 
 from ..model.model import Model, _ModelInit
 from .ranges import Range
 from .scales import Scale
+
+class PlotMapping(Model):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_ModelInit]) -> None: ...
+
+class CartesianMapping(PlotMapping):
+    def __init__(self, **kwargs: Unpack[_ModelInit]) -> None: ...
 
 class _CoordinateMappingInit(_ModelInit, total=False):
     x_source: Range

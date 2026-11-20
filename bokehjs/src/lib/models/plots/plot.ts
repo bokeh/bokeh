@@ -3,12 +3,11 @@ import type * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {Signal0} from "core/signaling"
 import type {Place} from "core/enums"
-import {Location, OutputBackend, ResetPolicy, WindowAxis} from "core/enums"
+import {Location, OutputBackend, ResetPolicy} from "core/enums"
 import {concat, remove} from "core/util/array"
 import {difference} from "core/util/set"
 import {isString} from "core/util/types"
 import type {LRTB} from "core/util/bbox"
-import type {Dict} from "core/types"
 
 import {LayoutDOM} from "../layouts/layout_dom"
 import {Axis} from "../axes/axis"
@@ -16,12 +15,9 @@ import {Grid} from "../grids/grid"
 import type {GuideRenderer} from "../renderers/guide_renderer"
 import {Annotation} from "../annotations/annotation"
 import {Title} from "../annotations/title"
-import {LinearScale} from "../scales/linear_scale"
 import {Toolbar} from "../tools/toolbar"
 import {HTML} from "../dom/html"
 
-import {Range} from "../ranges/range"
-import {Scale} from "../scales/scale"
 import type {Glyph} from "../glyphs/glyph"
 import type {IndexedDataSource} from "../sources/indexed_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
@@ -32,16 +28,20 @@ import type {GlyphRendererWithSource} from "../renderers/glyph_renderer"
 import type {ToolAliases} from "../tools/tool"
 import {Tool} from "../tools/tool"
 import "../tools/aliases"
-import {DataRange1d} from "../ranges/data_range1d"
 import {StyledElement} from "../ui/styled_element"
 
-import {PlotView} from "./plot_canvas"
-export {PlotView}
+import type {LayoutDOMView} from "../layouts/layout_dom"
+export {PlotView} from "./plot_canvas"
+import {PlotMapping} from "../coordinates/plot_mapping"
+import type {Attrs} from "core/types"
+import type {HasProps} from "core/has_props"
 
 export namespace Plot {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = LayoutDOM.Props & {
+    coordinate_system: p.Property<PlotMapping>
+
     toolbar: p.Property<Toolbar>
     toolbar_location: p.Property<Location | null>
     toolbar_sticky: p.Property<boolean>
@@ -62,20 +62,6 @@ export namespace Plot {
 
     renderers: p.Property<Renderer[]>
 
-    x_range: p.Property<Range>
-    y_range: p.Property<Range>
-
-    x_scale: p.Property<Scale>
-    y_scale: p.Property<Scale>
-
-    extra_x_ranges: p.Property<Dict<Range>>
-    extra_y_ranges: p.Property<Dict<Range>>
-
-    extra_x_scales: p.Property<Dict<Scale>>
-    extra_y_scales: p.Property<Dict<Scale>>
-
-    window_axis: p.Property<WindowAxis>
-
     lod_factor: p.Property<number>
     lod_interval: p.Property<number>
     lod_threshold: p.Property<number | null>
@@ -93,9 +79,6 @@ export namespace Plot {
     inner_height: p.Property<number>
     outer_width: p.Property<number>
     outer_height: p.Property<number>
-
-    match_aspect: p.Property<boolean>
-    aspect_scale: p.Property<number>
 
     reset_policy: p.Property<ResetPolicy>
 
@@ -124,17 +107,32 @@ export namespace Plot {
 
 export interface Plot extends Plot.Attrs {}
 
-export class Plot extends LayoutDOM {
+export abstract class Plot extends LayoutDOM {
   declare properties: Plot.Props
-  declare __view_type__: PlotView
+  declare __view_type__: LayoutDOMView
+
+  override initialize(): void {
+    super.initialize()
+    if (Object.getPrototypeOf(this) == Plot.prototype) {
+      throw new Error("Plot is abstract. Use XYPlot or Figure")
+    }
+    if (!(this.coordinate_system instanceof PlotMapping)) {
+      throw new Error("A concrete plot requires a coordinate mapping")
+    }
+  }
+
+  override setv<T extends Attrs>(changed_attrs: Partial<T>, options: HasProps.SetOptions = {}): void {
+    if (this.properties.coordinate_system.initialized && Object.hasOwn(changed_attrs, "coordinate_system")) {
+      throw new Error("Plot.coordinate_system is a readonly property. Set it during construction")
+    }
+    super.setv(changed_attrs, options)
+  }
 
   readonly use_map: boolean = false
 
   readonly reset = new Signal0(this, "reset")
 
   static {
-    this.prototype.default_view = PlotView
-
     this.mixins<Plot.Mixins>([
       ["outline_",    mixins.Line],
       ["background_", mixins.Fill],
@@ -144,7 +142,7 @@ export class Plot extends LayoutDOM {
       ["border_",     mixins.Hatch],
     ])
 
-    this.define<Plot.Props>(({Bool, Float, Str, List, Dict, Or, Ref, Null, Nullable, Struct, Opt}) => ({
+    this.define<Plot.Props>(({Bool, Float, Str, List, Or, Ref, Null, Nullable, Struct, Opt}) => ({
       toolbar:           [ Ref(Toolbar), () => Toolbar.create() ],
       toolbar_location:  [ Nullable(Location), "right" ],
       toolbar_sticky:    [ Bool, true ],
@@ -168,20 +166,6 @@ export class Plot extends LayoutDOM {
 
       renderers:         [ List(Ref(Renderer)), [] ],
 
-      x_range:           [ Ref(Range), () => DataRange1d.create() ],
-      y_range:           [ Ref(Range), () => DataRange1d.create() ],
-
-      x_scale:           [ Ref(Scale), () => LinearScale.create() ],
-      y_scale:           [ Ref(Scale), () => LinearScale.create() ],
-
-      extra_x_ranges:    [ Dict(Ref(Range)), {} ],
-      extra_y_ranges:    [ Dict(Ref(Range)), {} ],
-
-      extra_x_scales:    [ Dict(Ref(Scale)), {} ],
-      extra_y_scales:    [ Dict(Ref(Scale)), {} ],
-
-      window_axis:       [ WindowAxis, "none" ],
-
       lod_factor:        [ Float, 10 ],
       lod_interval:      [ Float, 300 ],
       lod_threshold:     [ Nullable(Float), 2000 ],
@@ -199,9 +183,6 @@ export class Plot extends LayoutDOM {
       inner_height:      [ Float, p.unset, {readonly: true} ],
       outer_width:       [ Float, p.unset, {readonly: true} ],
       outer_height:      [ Float, p.unset, {readonly: true} ],
-
-      match_aspect:      [ Bool, false ],
-      aspect_scale:      [ Float, 1 ],
 
       reset_policy:      [ ResetPolicy, "standard" ],
 
