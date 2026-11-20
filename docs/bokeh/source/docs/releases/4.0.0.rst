@@ -61,6 +61,13 @@ New features
 Removals
 --------
 
+* Removed ``NullStringSpec`` and ``NullDistanceSpec``. Use
+  ``Nullable(StringSpec)`` and ``Nullable(DistanceSpec)`` instead. In BokehJS,
+  use ``p.Nullable(p.StringSpec)`` and ``p.Nullable(p.DistanceSpec)`` with
+  property types ``p.NullableSpec<p.StringSpec>`` and
+  ``p.NullableSpec<p.DistanceSpec>``. Replace ``p.NullStringScalar`` with
+  ``p.Nullable(p.StringScalar)``.
+
 * Removed support for Python 3.12. Bokeh now requires Python 3.13 or newer.
 
 * Replaced ``serverdir()`` and ``bokehjsdir()`` with ``server_path()`` and
@@ -188,6 +195,19 @@ API changes
   ``[8, 2, 8]`` yields ``[2, 8]``. Applications that use a selection
   callback to track click order should record that order separately
   (:bokeh-pull:`15575`).
+* ``Nullable`` now composes with DataSpec properties, including unit-aware
+  specs such as ``Nullable(AngleSpec)``. For newly nullable specs, null values
+  in literals, source columns, and expression results remain null during
+  BokehJS materialization. Transforms receive nullable inputs and must handle
+  them explicitly.
+  ``Nullable`` dispatches to ``NullableProp`` or ``NullableSpec``. Both share
+  the ``Nullable`` base, so existing ``isinstance(prop, Nullable)`` checks and
+  ``Nullable[T]`` annotations continue to work. Already-nullable color specs
+  retain their existing transparent color encoding and specialized uniforms.
+
+* ``ImageURL`` now includes image anchor coordinates in automatic ranges when
+  ``w`` or ``h`` is ``None``, matching null entries in dimension columns. Images
+  continue to render at their natural size for unspecified dimensions.
 
 * Generic property base classes and ``Value`` now default their type parameter
   to ``Any`` when it is omitted. Explicit type arguments and constructor

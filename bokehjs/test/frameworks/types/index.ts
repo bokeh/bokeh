@@ -8,6 +8,8 @@ import {
   mount, publish_mount_error, register_models, register_standard_models, server_document, when_mounted,
 } from "@bokeh/bokehjs"
 import type {BokehMount, ClientSession, ServerDocumentOptions, properties as p} from "@bokeh/bokehjs"
+import type {AngleUnits, SpatialUnits} from "@bokeh/bokehjs/build/js/lib/core/enums.js"
+
 import {SessionMountController} from "@bokeh/framework"
 import type {BokehSessionSource} from "@bokeh/framework"
 import {Bokeh as ReactBokeh, BokehDocument as ReactBokehDocument, BokehRoot as ReactBokehRoot, BokehSession as ReactBokehSession} from "@bokeh/react"
@@ -17,6 +19,29 @@ import {Bokeh as VueBokeh, BokehDocument as VueBokehDocument, BokehRoot as VueBo
 import type {useBokeh as useVueBokeh} from "@bokeh/vue"
 import {defineBokehDocumentElement, defineBokehElement, defineBokehRootElement, defineBokehSessionElement} from "@bokeh/web-component"
 import type {BokehDocumentElement, BokehElement, BokehRootElement, BokehSessionElement} from "@bokeh/web-component"
+
+type NullableGlyphProps = {
+  angle: p.VectorUnitsSpec<number | null, AngleUnits>
+  distance: p.VectorUnitsSpec<number | null, SpatialUnits>
+  text: p.VectorSpec<string | null>
+}
+declare const nullable_data: p.GlyphDataOf<NullableGlyphProps>
+const nullable_angle: number | null = nullable_data.angle.get(0)
+const screen_distance: number = nullable_data.sdistance[0]
+const maximum_distance: number = nullable_data.max_distance
+const nullable_attrs: p.AttrsOf<NullableGlyphProps> = {
+  angle: {value: null, units: "deg"}, distance: null, text: {value: null},
+}
+// @ts-expect-error Angle values must remain numeric or null.
+const invalid_nullable_angle: p.AttrsOf<NullableGlyphProps>["angle"] = {value: "invalid"}
+// @ts-expect-error Composing nullability must preserve angle-unit validation.
+const invalid_nullable_units: p.AttrsOf<NullableGlyphProps>["angle"] = {value: null, units: "screen"}
+void nullable_angle
+void screen_distance
+void maximum_distance
+void nullable_attrs
+void invalid_nullable_angle
+void invalid_nullable_units
 
 const source = ColumnDataSource.create({data: {x: [0, 1], y: [1, 0]}})
 const plot = Plotting.figure({tools: []})

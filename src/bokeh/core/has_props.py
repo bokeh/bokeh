@@ -178,8 +178,14 @@ class _PropertyInfo:
         self._initialize(cls)
         if not hasattr(self, "_dataspecs"):
             from .property.dataspec import DataSpec  # avoid circular import
+            from .property.nullable import NullableSpec
 
-            self._dataspecs = MappingProxyType({name: prop for name, prop in self._properties.items() if isinstance(prop, DataSpec)})
+            dataspecs = {}
+            for name, prop in self._properties.items():
+                spec = prop._dataspec if isinstance(prop, NullableSpec) else prop
+                if isinstance(spec, DataSpec):
+                    dataspecs[name] = spec
+            self._dataspecs = MappingProxyType(dataspecs)
         return self._dataspecs
 
     def overridden_defaults(self, cls: type[HasProps]) -> Mapping[str, Any]:

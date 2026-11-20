@@ -7,7 +7,7 @@
 
 from typing import Any, Sequence, Unpack
 
-from ..._specs import NullStringSpec
+from ..._specs import NullableSpec
 from ...plotting.contour import ContourData
 from ..annotations import ContourColorBar
 from ..formatters import TickFormatter
@@ -32,7 +32,7 @@ class ContourRenderer(DataRenderer):
 
     def add_labels(
         self,
-        text: NullStringSpec = ...,
+        text: NullableSpec[str] = ...,
         *,
         formatter: TickFormatter | None = ...,
         positions: str | Sequence[float] | None = ...,

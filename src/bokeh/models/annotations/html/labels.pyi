@@ -7,7 +7,7 @@
 
 from typing import Unpack
 
-from ...._specs import AngleSpec, NullStringSpec, NumberSpec
+from ...._specs import AngleSpec, NullableSpec, NumberSpec
 from ...._types import (
     Alpha,
     Angle,
@@ -78,7 +78,7 @@ class _HTMLLabelSetInit(_HTMLAnnotationInit, _DataAnnotationInit, _BackgroundFil
     x_units: CoordinateUnits
     y: NumberSpec
     y_units: CoordinateUnits
-    text: NullStringSpec
+    text: NullableSpec[str]
     angle: AngleSpec
     x_offset: NumberSpec
     y_offset: NumberSpec
@@ -90,7 +90,7 @@ class HTMLLabelSet(HTMLAnnotation, DataAnnotation, BackgroundFillProps, BorderLi
     x_units: CoordinateUnits = ...
     y: NumberSpec = ...
     y_units: CoordinateUnits = ...
-    text: NullStringSpec = ...
+    text: NullableSpec[str] = ...
     angle: AngleSpec = ...
     x_offset: NumberSpec = ...
     y_offset: NumberSpec = ...

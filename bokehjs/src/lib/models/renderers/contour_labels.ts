@@ -273,7 +273,7 @@ export class ContourLabelsView extends GlyphAttachmentView {
 export namespace ContourLabels {
   export type Attrs = p.AttrsOf<Props>
   export type Props = Model.Props & Text & {
-    text: p.NullStringSpec
+    text: p.VectorSpec<string | null>
     formatter: p.Property<TickFormatter>
     positions: p.Property<number[] | string | null>
     visible: p.Property<boolean>
@@ -295,7 +295,7 @@ export class ContourLabels extends GlyphAttachment {
     this.prototype.default_view = ContourLabelsView
     this.mixins<ContourLabels.Props>(Text)
     this.define<ContourLabels.Props>(({List, Percent, Str, Nullable, Or, Bool, NonNegative, Float, Color, Ref}) => ({
-      text:                  [ p.NullStringSpec, null ],
+      text:                  [ p.Nullable(p.StringSpec), null ],
       formatter:             [ Ref(TickFormatter), () => PrintfTickFormatter.create({format: "%.3g"}) ],
       positions:             [ Nullable(Or(List(Percent), Str)), null ],
       visible:               [ Bool, true ],

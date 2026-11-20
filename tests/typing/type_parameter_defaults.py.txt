@@ -13,6 +13,7 @@ from bokeh.core.property.bases import (
     SingleParameterizedProperty,
 )
 from bokeh.core.property.vectorization import Value
+from bokeh.core.properties import Int, Nullable
 
 
 def defaults(
@@ -35,3 +36,5 @@ assert_type(Property(default=1), Property[int])
 assert_type(Property[int](default=1).wrap(1), int)
 assert_type(Value(1), Value[int])
 assert_type(Value[str]("text").value, str)
+assert_type(Nullable[int](Int), Nullable[int])
+assert_type(Nullable[int](Int).transform(None), int | None)

@@ -31,7 +31,7 @@ from ....core.enums import (
 )
 from ....core.property.aliases import CoordinateLike
 from ....core.property.color import Alpha, Color
-from ....core.property.dataspec import AngleSpec, NullStringSpec, NumberSpec
+from ....core.property.dataspec import AngleSpec, NumberSpec, StringSpec
 from ....core.property.enum import Enum
 from ....core.property.include import Include
 from ....core.property.nullable import Nullable
@@ -217,7 +217,7 @@ class HTMLLabelSet(HTMLAnnotation, DataAnnotation):
     default.
     """)
 
-    text = NullStringSpec(default=field("text"), help="""
+    text = Nullable(StringSpec, default=field("text"), help="""
     The text values to render.
     """)
 
