@@ -6,10 +6,10 @@ import {RenderLevel} from "core/enums"
 import type * as p from "core/properties"
 import {isNumber} from "core/util/types"
 import type {CanvasLayer, Context2d} from "core/util/canvas"
-import {assert} from "core/util/assert"
 import type {Plot, PlotView} from "../plots/plot"
 import type {CanvasView} from "../canvas/canvas"
-import {CoordinateTransform, CoordinateMapping} from "../coordinates/coordinate_mapping"
+import {CoordinateMapping} from "../coordinates/coordinate_mapping"
+import type {CoordinateTransform} from "../coordinates/coordinate_mapping"
 import type {Node} from "../coordinates/node"
 import type {XY} from "core/util/bbox"
 import {Menu} from "../ui/menus/menu"
@@ -107,12 +107,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
     if (coordinates != null) {
       return coordinates.get_transform(frame)
     } else {
-      const {x_range_name, y_range_name} = this.model
-      const x_scale = frame.x_scales.get(x_range_name)
-      const y_scale = frame.y_scales.get(y_range_name)
-      assert(x_scale != null, `missing '${x_range_name}' range`)
-      assert(y_scale != null, `missing '${y_range_name}' range`)
-      return new CoordinateTransform(x_scale, y_scale)
+      return this.plot_view.get_coordinates(this)
     }
   }
 

@@ -1,3 +1,5 @@
+import {Frame} from "../canvas/frame"
+import type {CoordinateTransform} from "../coordinates/coordinate_mapping"
 import {CartesianFrame} from "../canvas/cartesian_frame"
 import {CanvasPanel} from "../canvas/canvas_panel"
 import type {CartesianFrameView} from "../canvas/cartesian_frame"
@@ -16,6 +18,7 @@ import type {DOMBoxSizing} from "../layouts/layout_dom"
 import type {LayoutDOM} from "../layouts/layout_dom"
 import {LayoutDOMView} from "../layouts/layout_dom"
 import type {Plot} from "./plot"
+import type {XYPlot} from "./xy_plot"
 import {Annotation, AnnotationView} from "../annotations/annotation"
 import {Title} from "../annotations/title"
 import {Axis} from "../axes/axis"
@@ -84,7 +87,12 @@ type LayoutPanels = {
 }
 
 export class PlotView extends LayoutDOMView implements Paintable {
-  declare model: Plot
+  declare model: XYPlot
+  get_coordinates(renderer: RendererView): CoordinateTransform {
+    const {x_range_name, y_range_name} = renderer.model
+    return this.model.coordinate_system.get_transform(this.frame, x_range_name, y_range_name)
+  }
+
   visuals: Plot.Visuals
 
   declare layout: BorderLayout
@@ -1010,25 +1018,38 @@ export class PlotView extends LayoutDOMView implements Paintable {
     const {min_border, min_border_top, min_border_bottom, min_border_left, min_border_right} = this.model.properties
     this.on_change([min_border, min_border_top, min_border_bottom, min_border_left, min_border_right], () => this.invalidate_layout())
 
-    const connect_range = (range: Range) => {
-      this.connect(range.change, () => {
-        this.request_repaint()
-      })
-      this.connect(range.properties.min_interval.change, () => {
-        this._constrain_range_interval(range)
-      })
-      this.connect(range.properties.max_interval.change, () => {
-        this._constrain_range_interval(range)
-      })
+    const range_connections = new Map<Range, () => void>()
+    const repaint = () => this.request_repaint()
+    const update_range_connections = () => {
+      const {ranges} = this.frame
+      const changed = ranges.size != range_connections.size || [...ranges].some((range) => !range_connections.has(range))
+      if (changed && range_connections.size != 0) {
+        this._initial_state.range = undefined
+        this.state.clear()
+      }
+      for (const [range, constrain] of range_connections) {
+        if (!ranges.has(range)) {
+          this.disconnect(range.change, repaint)
+          this.disconnect(range.properties.min_interval.change, constrain)
+          this.disconnect(range.properties.max_interval.change, constrain)
+          range_connections.delete(range)
+        }
+      }
+      for (const range of ranges) {
+        if (!range_connections.has(range)) {
+          const constrain = () => this._constrain_range_interval(range)
+          this.connect(range.change, repaint)
+          this.connect(range.properties.min_interval.change, constrain)
+          this.connect(range.properties.max_interval.change, constrain)
+          range_connections.set(range, constrain)
+        }
+      }
     }
-
-    const {x_ranges, y_ranges} = this.frame
-    for (const [, range] of x_ranges) {
-      connect_range(range)
-    }
-    for (const [, range] of y_ranges) {
-      connect_range(range)
-    }
+    update_range_connections()
+    this.connect(this._frame.change, () => {
+      update_range_connections()
+      this.invalidate_dataranges = true
+    })
 
     this.connect(this.model.change, () => this.request_repaint())
     this.connect(this.model.reset, () => this.reset())
@@ -1521,6 +1542,6 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   override serializable_children(): View[] {
     // TODO temporarily remove CanvasPanel views to reduce baseline noise
-    return super.serializable_children().filter((view) => view.model instanceof CartesianFrame || !(view.model instanceof CanvasPanel))
+    return super.serializable_children().filter((view) => view.model instanceof Frame || !(view.model instanceof CanvasPanel))
   }
 }

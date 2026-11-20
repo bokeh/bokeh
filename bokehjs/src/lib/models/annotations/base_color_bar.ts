@@ -1,3 +1,5 @@
+import type {RendererView} from "../renderers/renderer"
+import {CartesianMapping} from "../coordinates/plot_mapping"
 import {Annotation, AnnotationView} from "./annotation"
 import {Title} from "./title"
 import {CartesianFrame} from "../canvas/cartesian_frame"
@@ -43,6 +45,9 @@ export abstract class BaseColorBarView extends AnnotationView {
   declare model: BaseColorBar
   declare visuals: BaseColorBar.Visuals
   declare layout: Layoutable
+
+  // Nested rendering uses the same range-free mapping contract as a plot.
+  protected readonly _coordinate_system = CartesianMapping.create()
 
   protected _frame: CartesianFrame
   protected _frame_view: CartesianFrameView
@@ -117,6 +122,10 @@ export abstract class BaseColorBarView extends AnnotationView {
 
     const self = this
     this._plot_context = {
+      get_coordinates(renderer: RendererView) {
+        const {x_range_name, y_range_name} = renderer.model
+        return self._coordinate_system.get_transform(self._frame_view, x_range_name, y_range_name)
+      },
       get frame() {
         return self._frame_view
       },
