@@ -138,9 +138,6 @@ class DocumentModelManager:
         Args:
             name: the name of a model to search for
 
-        Returns
-            A list of models
-
         '''
         return self._models_by_name.get_all(name)
 
@@ -150,9 +147,6 @@ class DocumentModelManager:
         Args:
             id: model ID to search for
                 If no model with the given ID exists, returns None
-
-        Return:
-            a Model or None
 
         '''
         return self._models.get(id, None)
@@ -164,9 +158,6 @@ class DocumentModelManager:
 
         Args:
             name: the name of a model to search for
-
-        Returns
-            A model with the given name, or None
 
         '''
         return self._models_by_name.get_one(name, f"Found more than one model named '{name}'")
