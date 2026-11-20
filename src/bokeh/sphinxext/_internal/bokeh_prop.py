@@ -42,8 +42,10 @@ from typing import Any
 from docutils.parsers.rst.directives import unchanged
 from sphinx.errors import SphinxError
 
+from bokeh.core.has_props import HasProps, is_abstract
 from bokeh.core.property._sphinx import type_link
 from bokeh.core.property.descriptors import AliasPropertyDescriptor, PropertyDescriptor
+from bokeh.model import Model
 from bokeh.util.warnings import BOKEH_DEPRECATION_MESSAGE_PATTERN
 
 from . import PARALLEL_SAFE, SphinxParallelSpec
@@ -76,6 +78,21 @@ class _TypeExpression:
 # -----------------------------------------------------------------------------
 
 
+def _get_model_instance(model: type[Model]) -> Model:
+    model_obj = _model_instances.get(model)
+    if model_obj is None:
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message=BOKEH_DEPRECATION_MESSAGE_PATTERN, category=DeprecationWarning)
+            if is_abstract(model):
+                # Inspect declared defaults without constructing an abstract model.
+                model_obj = model.__new__(model)
+                HasProps.__init__(model_obj)
+            else:
+                model_obj = model()
+        _model_instances[model] = model_obj
+    return model_obj
+
+
 class BokehPropDirective(BokehDirective):
 
     has_content = True
@@ -98,15 +115,7 @@ class BokehPropDirective(BokehDirective):
         if model is None:
             raise SphinxError(f"Unable to generate reference docs for {full_name}: no model {model_name} in module {module_name}")
 
-        model_obj = _model_instances.get(model)
-        if model_obj is None:
-            # We may need to instantiate deprecated objects as part of
-            # documenting them. Suppress warnings just for this case and cache
-            # the instance because a model page renders every property.
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", message=BOKEH_DEPRECATION_MESSAGE_PATTERN, category=DeprecationWarning)
-                model_obj = model()
-            _model_instances[model] = model_obj
+        model_obj = _get_model_instance(model)
 
         rst_text = _render_property_detail(model_obj, full_name, self.options["module"], qualified=False)
 

@@ -233,6 +233,10 @@ def test_model_build_registers_inventory_members_and_template_dependencies(tmp_p
         "=========\n\n"
         ".. bokeh-model:: BoxSelectTool\n"
         "    :module: bokeh.models.tools\n\n"
+        ".. bokeh-model:: Plot\n"
+        "    :module: bokeh.models.plots\n\n"
+        ".. bokeh-prop:: Plot.width\n"
+        "    :module: bokeh.models.plots\n\n"
         ".. bokeh-model:: Selection\n"
         "    :module: bokeh.models.selections\n",
         encoding="utf-8",
@@ -259,6 +263,7 @@ def test_model_build_registers_inventory_members_and_template_dependencies(tmp_p
     with (output_dir / "objects.inv").open("rb") as inventory_file:
         inventory = InventoryFile.load(cast(Any, inventory_file), "", posixpath.join)
 
+    assert "bokeh.models.Plot" in inventory["py:class"]
     assert "bokeh.models.BoxSelectTool" in inventory["py:class"]
     assert "bokeh.models.BoxSelectTool.continuous" in inventory["py:attribute"]
     assert "bokeh.models.BoxSelectTool.document" in inventory["py:property"]
