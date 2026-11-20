@@ -54,6 +54,23 @@ attrs:
 
 
 class TestThemes:
+    @pytest.mark.parametrize("name", built_in_themes)
+    def test_builtin_plot_styles_apply_through_shared_base(self, name: str) -> None:
+        from bokeh.models import Plot
+        from bokeh.plotting import figure
+
+        theme = built_in_themes[name]
+        values = theme._json.get("attrs", {}).get("Plot", {})
+        assert set(values) <= set(Plot.properties())
+        p = figure()
+        mapping = p.coordinate_system
+        doc = Document()
+        doc.add_root(p)
+        doc.theme = theme
+        for key, value in values.items():
+            assert getattr(p, key) == value
+        assert p.coordinate_system is mapping
+
     def test_construct_empty_theme_from_file(self) -> None:
         # windows will throw permissions error with auto-delete
         with (tempfile.NamedTemporaryFile(delete=False)) as file:

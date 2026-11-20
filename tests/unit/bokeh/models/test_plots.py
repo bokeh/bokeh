@@ -590,3 +590,148 @@ class Test_list_attr_splat:
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+
+def test_xy_plot_hierarchy_and_mapping() -> None:
+    from bokeh.models import CartesianMapping, Plot
+
+    with pytest.raises(TypeError, match="Plot is abstract"):
+        Plot()
+    assert "x_range" not in Plot.properties()
+    assert "x_range" in XYPlot.properties()
+    assert "add_tile" not in Plot.__dict__
+    assert hasattr(XYPlot, "add_tile")
+    p = figure()
+    q = XYPlot()
+    assert isinstance(p, XYPlot)
+    assert isinstance(p, Plot)
+    assert isinstance(p.coordinate_system, CartesianMapping)
+    assert p.coordinate_system is not q.coordinate_system
+    assert not {"x_range", "y_range", "x_scale", "y_scale", "plot"} & set(p.coordinate_system.properties())
+
+
+def test_cartesian_mapping_is_required_and_fixed() -> None:
+    from bokeh.models import CartesianMapping, CoordinateMapping
+
+    mapping = CartesianMapping()
+    p = XYPlot(coordinate_system=mapping)
+    assert p.coordinate_system is mapping
+    with pytest.raises(RuntimeError, match="readonly"):
+        p.coordinate_system = CartesianMapping()
+    with pytest.raises(RuntimeError, match="readonly"):
+        p.update(coordinate_system=mapping)
+    with pytest.raises(ValueError):
+        XYPlot(coordinate_system=None)
+    with pytest.raises(ValueError):
+        XYPlot(coordinate_system=CoordinateMapping())
+
+
+def test_cartesian_ranges_and_scales_are_properties() -> None:
+    from bokeh.core.property.instance import Instance
+    from bokeh.models import CustomJS
+
+    p = figure()
+    old = p.x_range
+    new = Range1d(start=1, end=9)
+    changes = []
+    p.on_change("x_range", lambda attr, old, new: changes.append((attr, old, new)))
+    callback = CustomJS(code="console.log(cb_obj.x_range)")
+    p.js_on_change("x_range", callback)
+    q = figure()
+    p.js_link("x_range", q, "x_range")
+    mapping = p.coordinate_system
+    p.x_range = new
+    p.x_scale = LogScale()
+    assert changes == [("x_range", old, new)]
+    assert callback in p._js_property_callbacks["change:x_range"]
+    assert p.coordinate_system is mapping
+    assert p.x_range is new
+    assert isinstance(p.x_scale, LogScale)
+    assert isinstance(p.lookup("x_range").property, Instance)
+
+
+def test_cartesian_roundtrip_and_range_patch() -> None:
+    from bokeh.document import Document
+    from bokeh.models import CartesianMapping
+
+    shared = Range1d(start=0, end=10)
+    p = XYPlot(x_range=shared)
+    q = figure(x_range=shared)
+    doc = Document()
+    doc.add_root(p)
+    doc.add_root(q)
+    clone = Document.from_json(doc.to_json())
+    cp, cq = clone.roots
+    assert type(cp) is XYPlot
+    assert type(cq) is type(q)
+    assert cp.x_range is cq.x_range
+    assert isinstance(cp.coordinate_system, CartesianMapping)
+    assert cp.coordinate_system is not cq.coordinate_system
+    assert cp.coordinate_system.references() == {cp.coordinate_system}
+    mapping = cp.coordinate_system
+    from bokeh.document.events import ModelChangedEvent
+    from bokeh.protocol import patch_doc
+
+    event = ModelChangedEvent(clone, cp, "x_range", Range1d(start=2, end=6))
+    clone.apply_json_patch(patch_doc([event]).content)
+    assert cp.x_range is not cq.x_range
+    assert cp.x_range.start == 2
+    assert cp.coordinate_system is mapping
+
+
+@pytest.mark.parametrize("explicit", [False, True])
+def test_cartesian_mapping_cannot_be_replaced_by_patch(explicit: bool) -> None:
+    from bokeh.document import Document
+    from bokeh.document.events import ModelChangedEvent
+    from bokeh.models import CartesianMapping
+    from bokeh.protocol import patch_doc
+
+    p = XYPlot(**({"coordinate_system": CartesianMapping()} if explicit else {}))
+    doc = Document()
+    doc.add_root(p)
+    clone = Document.from_json(doc.to_json())
+    target = clone.roots[0]
+    mapping = target.coordinate_system
+    event = ModelChangedEvent(clone, target, "coordinate_system", CartesianMapping())
+    with pytest.raises(RuntimeError, match="readonly"):
+        clone.apply_json_patch(patch_doc([event]).content)
+    assert target.coordinate_system is mapping
+
+
+@pytest.mark.parametrize("explicit", [False, True])
+def test_cartesian_mapping_cannot_be_replaced_by_theme(explicit: bool) -> None:
+    from bokeh.models import CartesianMapping
+
+    p = XYPlot(**({"coordinate_system": CartesianMapping()} if explicit else {}))
+    mapping = p.coordinate_system
+    with pytest.raises(RuntimeError, match="readonly"):
+        p.apply_theme({"coordinate_system": CartesianMapping()})
+    assert p.coordinate_system is mapping
+    p.apply_theme({"background_fill_color": "red"})
+    assert p.background_fill_color == "red"
+    p.unapply_theme()
+    assert p.coordinate_system is mapping
+
+
+@pytest.mark.parametrize("attributes", [{}, {"x_range": {"$type": "Range1d", "$id": "legacy-range"}}])
+def test_legacy_plot_deserialization_reports_migration(attributes: dict[str, object]) -> None:
+    from bokeh.core.serialization import DeserializationError, Deserializer
+
+    with pytest.raises(DeserializationError, match="Regenerate serialized plots as XYPlot"):
+        Deserializer().decode({"$type": "Plot", "$id": "legacy-plot", **attributes})
+
+
+def test_xy_plot_deserialization_allows_implicit_default_mapper() -> None:
+    from bokeh.document import Document
+    from bokeh.models import CartesianMapping
+
+    doc = Document()
+    doc.add_root(XYPlot())
+    encoded = doc.to_json(deferred=False)
+    encoded["roots"][0].pop("coordinate_system")
+    clone = Document.from_json(encoded)
+    p = clone.roots[0]
+    assert isinstance(p, XYPlot)
+    assert isinstance(p.coordinate_system, CartesianMapping)
+    with pytest.raises(RuntimeError, match="readonly"):
+        p.set_from_json("coordinate_system", CartesianMapping())
