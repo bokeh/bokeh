@@ -2254,6 +2254,9 @@
     __extends__: "Comparison",
     ascending_first: false,
   },
+  CartesianMapping: {
+    __extends__: "PlotMapping",
+  },
   CoordinateMapping: {
     __extends__: "Model",
     x_source: {
@@ -2284,6 +2287,9 @@
       type: "symbol",
       name: "unset",
     },
+  },
+  PlotMapping: {
+    __extends__: "Model",
   },
   GlobalImportedStyleSheet: {
     __extends__: "ImportedStyleSheet",
@@ -5508,6 +5514,8 @@
   },
   GMapPlot: {
     __extends__: "MapPlot",
+    background_fill_alpha: 0.0,
+    border_fill_color: "#ffffff",
     x_range: {
       type: "object",
       name: "Range1d",
@@ -5518,8 +5526,6 @@
       name: "Range1d",
       attributes: {},
     },
-    background_fill_alpha: 0.0,
-    border_fill_color: "#ffffff",
     map_options: {
       type: "symbol",
       name: "unset",
@@ -5543,7 +5549,7 @@
     zoom: 12,
   },
   MapPlot: {
-    __extends__: "Plot",
+    __extends__: "XYPlot",
   },
   CategoricalColorMapper: {
     __extends__: [
@@ -5707,39 +5713,6 @@
     context_menu: "auto",
     width: 600,
     height: 600,
-    x_range: {
-      type: "object",
-      name: "DataRange1d",
-      attributes: {},
-    },
-    y_range: {
-      type: "object",
-      name: "DataRange1d",
-      attributes: {},
-    },
-    x_scale: {
-      type: "object",
-      name: "LinearScale",
-      attributes: {},
-    },
-    y_scale: {
-      type: "object",
-      name: "LinearScale",
-      attributes: {},
-    },
-    extra_x_ranges: {
-      type: "map",
-    },
-    extra_y_ranges: {
-      type: "map",
-    },
-    extra_x_scales: {
-      type: "map",
-    },
-    extra_y_scales: {
-      type: "map",
-    },
-    window_axis: "none",
     title: {
       type: "object",
       name: "Title",
@@ -5823,11 +5796,52 @@
     lod_interval: 300,
     lod_timeout: 500,
     output_backend: "canvas",
-    match_aspect: false,
-    aspect_scale: 1,
     reset_policy: "standard",
     hold_render: false,
     attribution: [],
+  },
+  XYPlot: {
+    __extends__: "Plot",
+    coordinate_system: {
+      type: "object",
+      name: "CartesianMapping",
+      attributes: {},
+    },
+    x_range: {
+      type: "object",
+      name: "DataRange1d",
+      attributes: {},
+    },
+    y_range: {
+      type: "object",
+      name: "DataRange1d",
+      attributes: {},
+    },
+    x_scale: {
+      type: "object",
+      name: "LinearScale",
+      attributes: {},
+    },
+    y_scale: {
+      type: "object",
+      name: "LinearScale",
+      attributes: {},
+    },
+    extra_x_ranges: {
+      type: "map",
+    },
+    extra_y_ranges: {
+      type: "map",
+    },
+    extra_x_scales: {
+      type: "map",
+    },
+    extra_y_scales: {
+      type: "map",
+    },
+    window_axis: "none",
+    match_aspect: false,
+    aspect_scale: 1,
   },
   DataRange: {
     __extends__: "NumericalRange",
@@ -8028,7 +8042,7 @@
     margin: 5,
   },
   Figure: {
-    __extends__: "Plot",
+    __extends__: "XYPlot",
   },
   GMap: {
     __extends__: "GMapPlot",

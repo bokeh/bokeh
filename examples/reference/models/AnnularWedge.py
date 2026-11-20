@@ -11,7 +11,13 @@ angles.
 import numpy as np
 
 from bokeh.io import curdoc, show
-from bokeh.models import AnnularWedge, ColumnDataSource, Grid, LinearAxis, Plot
+from bokeh.models import (
+    AnnularWedge,
+    ColumnDataSource,
+    Grid,
+    LinearAxis,
+    XYPlot,
+)
 
 N = 9
 x = np.linspace(-2, 2, N)
@@ -20,7 +26,7 @@ r = x/12.0+0.4
 
 source = ColumnDataSource(dict(x=x, y=y, r=r))
 
-plot = Plot(
+plot = XYPlot(
     title=None, width=300, height=300,
     min_border=0, toolbar_location=None)
 

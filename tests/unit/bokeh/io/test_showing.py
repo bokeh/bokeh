@@ -15,7 +15,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from bokeh.application.application import Application
-from bokeh.models import ColumnDataSource, GlyphRenderer, Plot
+from bokeh.models import ColumnDataSource, GlyphRenderer, XYPlot
 
 # Module under test
 import bokeh.io.showing as m # isort:skip
@@ -45,7 +45,7 @@ def test_show_derives_filename_with_temporary_fallback(mock_show_file: MagicMock
     monkeypatch.setattr(util, "_shares_exec_prefix", lambda path: False)
     mock_temp_filename = MagicMock(return_value="/tmp/bokeh.html")
     monkeypatch.setattr(util, "temp_filename", mock_temp_filename)
-    plot = Plot()
+    plot = XYPlot()
 
     assert m.show(plot) is None
 
@@ -60,7 +60,7 @@ def test_show_derives_filename_with_temporary_fallback(mock_show_file: MagicMock
 
 @patch("bokeh.io.showing._show_file")
 def test_show_passes_explicit_file_options(mock_show_file: MagicMock) -> None:
-    plot = Plot()
+    plot = XYPlot()
 
     m.show(plot, filename="plot.html", resources="inline", title="Plot")
 
@@ -72,7 +72,7 @@ def test_show_passes_explicit_file_options(mock_show_file: MagicMock) -> None:
 @patch("bokeh.io.showing.show_doc", return_value="handle")
 def test_show_uses_connected_notebook_output(mock_show_doc: MagicMock, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(m, "notebook_environment", lambda: True)
-    plot = Plot()
+    plot = XYPlot()
 
     assert m.show(plot, resources="inline") == "handle"
 
@@ -84,7 +84,7 @@ def test_explicit_filename_uses_file_output_in_notebook(mock_show_file: MagicMoc
         monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(m, "notebook_environment", lambda: True)
 
-    m.show(Plot(), filename="plot.html")
+    m.show(XYPlot(), filename="plot.html")
 
     mock_show_file.assert_called_once()
 
@@ -93,7 +93,7 @@ def test_notebook_file_options_require_filename(monkeypatch: pytest.MonkeyPatch)
     monkeypatch.setattr(m, "notebook_environment", lambda: True)
 
     with pytest.raises(ValueError, match="filename is required"):
-        m.show(Plot(), title="Plot")
+        m.show(XYPlot(), title="Plot")
 
 
 @patch("bokeh.io.notebook.show_hosted_app", return_value="handle")
@@ -124,7 +124,7 @@ def test_show_rejects_removed_options() -> None:
         ("made_up", True),
     ):
         with pytest.raises(TypeError, match=rf"unexpected keyword argument '{name}'"):
-            m.show(Plot(), **cast(Any, {name: value}))
+            m.show(XYPlot(), **cast(Any, {name: value}))
 
 
 def test_show_rejects_managed_application_file_options(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -140,8 +140,8 @@ def test_show_rejects_managed_application_file_options(monkeypatch: pytest.Monke
 def test_show_accepts_multiple_objects() -> None:
     with patch.object(m, "_show_file"):
         m.show([])
-        m.show([Plot()])
-        m.show([Plot(), Plot()])
+        m.show([XYPlot()])
+        m.show([XYPlot(), XYPlot()])
 
 
 @pytest.mark.parametrize("obj", [

@@ -3,7 +3,8 @@ import {display} from "#framework/layouts"
 
 import {TabPanel} from "@bokehjs/models/layouts/tab_panel"
 import {Tabs} from "@bokehjs/models/layouts/tabs"
-import {Plot} from "@bokehjs/models/plots/plot"
+
+import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Tooltip} from "@bokehjs/models/ui/tooltip"
 import {range} from "@bokehjs/core/util/array"
@@ -12,7 +13,7 @@ import {enumerate} from "@bokehjs/core/util/iterator"
 describe("Tabs", () => {
   function new_tabs(num_panels: number, add_tooltip: boolean = false): Tabs {
     const create_panel = (i: number) => {
-      const plot = Plot.create({
+      const plot = XYPlot.create({
         x_range: Range1d.create({start: 0, end: 10}),
         y_range: Range1d.create({start: 0, end: 10}),
       })
@@ -176,7 +177,7 @@ describe("Tabs", () => {
     expect(view0.is_destroyed).to.be.true
     expect(view2.model).to.be.identical(tab2.child)
 
-    const replacement = Plot.create({
+    const replacement = XYPlot.create({
       x_range: Range1d.create({start: 0, end: 10}),
       y_range: Range1d.create({start: 0, end: 10}),
     })

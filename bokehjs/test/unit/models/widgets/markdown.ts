@@ -10,7 +10,7 @@ import {Markdown} from "@bokehjs/models/widgets/markdown"
 import {Row} from "@bokehjs/models/layouts/row"
 import {Column} from "@bokehjs/models/layouts/column"
 import {Div, DivView} from "@bokehjs/models/widgets/div"
-import {Plot} from "@bokehjs/models/plots/plot"
+import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {color2rgba, is_dark} from "@bokehjs/core/util/color"
 import {defer} from "@bokehjs/core/util/defer"
@@ -248,7 +248,7 @@ describe("Markdown", () => {
   })
 
   it("should fill remaining row width for embeds while respecting explicit sizing policies", async () => {
-    const plot = Plot.create({sizing_mode: "stretch_width", height: 160, margin: 0})
+    const plot = XYPlot.create({sizing_mode: "stretch_width", height: 160, margin: 0})
     const markdown = Markdown.create({text: "Short.\n\n::bokeh[plot]", embeds: {plot}, margin: 0})
     const other = Div.create({width: 100, margin: 0})
     const root = Row.create({children: [markdown, other], sizing_mode: "stretch_width", spacing: 0, margin: 0})
@@ -377,7 +377,7 @@ describe("Markdown", () => {
 
   for (const nested of [false, true]) {
     it(`should fill available width for an embed without an explicit Markdown width (nested=${nested})`, async () => {
-      const plot = Plot.create({height: 160, sizing_mode: "stretch_width", margin: 0})
+      const plot = XYPlot.create({height: 160, sizing_mode: "stretch_width", margin: 0})
       const markdown = Markdown.create({text: "Short.\n\n::bokeh[plot]", embeds: {plot}, margin: 0})
       const root = nested ? Column.create({children: [markdown], sizing_mode: "stretch_width"}) : markdown
       const {view} = await display(root, [600, 400])
@@ -611,7 +611,7 @@ describe("Markdown", () => {
 
   it("should size an embedded plot to the text width and preserve its range", async () => {
     const x_range = Range1d.create({start: 0, end: 10})
-    const plot = Plot.create({x_range, y_range: Range1d.create({start: 0, end: 10}), height: 160, sizing_mode: "stretch_width", margin: 0})
+    const plot = XYPlot.create({x_range, y_range: Range1d.create({start: 0, end: 10}), height: 160, sizing_mode: "stretch_width", margin: 0})
     const markdown = Markdown.create({text: "::bokeh[trend]", embeds: {trend: plot}, width: 400})
     const {view} = await display(markdown, null)
     const plot_view = view.owner.get_one(plot)
@@ -625,7 +625,7 @@ describe("Markdown", () => {
   })
 
   it("should lay out a plot embedded in an initially collapsed section when opened", async () => {
-    const plot = Plot.create({x_range: Range1d.create({start: 0, end: 10}), y_range: Range1d.create({start: 0, end: 10}), width: 250, height: 160})
+    const plot = XYPlot.create({x_range: Range1d.create({start: 0, end: 10}), y_range: Range1d.create({start: 0, end: 10}), width: 250, height: 160})
     const markdown = Markdown.create({text: "<details>\n<summary>Plot</summary>\n\n::bokeh[plot]\n\n</details>", embeds: {plot}, width: 400})
     const {view} = await display(markdown, null)
     view.contents.querySelector("summary")!.click()

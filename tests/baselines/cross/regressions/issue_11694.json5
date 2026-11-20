@@ -1,15 +1,15 @@
 {
   config: {
     $type: "DocumentConfig",
-    $id: "p1007",
+    $id: "p1008",
     notifications: {
       $type: "Notifications",
-      $id: "p1008",
+      $id: "p1009",
     },
   },
   roots: [
     {
-      $type: "Plot",
+      $type: "XYPlot",
       $id: "p1006",
       tags: [
         {
@@ -22,29 +22,33 @@
           ],
         },
       ],
-      x_range: {
-        $type: "DataRange1d",
-        $id: "p1009",
-      },
-      y_range: {
-        $type: "DataRange1d",
-        $id: "p1010",
-      },
-      x_scale: {
-        $type: "LinearScale",
-        $id: "p1011",
-      },
-      y_scale: {
-        $type: "LinearScale",
-        $id: "p1012",
-      },
       title: {
         $type: "Title",
-        $id: "p1013",
+        $id: "p1010",
       },
       toolbar: {
         $type: "Toolbar",
+        $id: "p1011",
+      },
+      coordinate_system: {
+        $type: "CartesianMapping",
+        $id: "p1007",
+      },
+      x_range: {
+        $type: "DataRange1d",
+        $id: "p1012",
+      },
+      y_range: {
+        $type: "DataRange1d",
+        $id: "p1013",
+      },
+      x_scale: {
+        $type: "LinearScale",
         $id: "p1014",
+      },
+      y_scale: {
+        $type: "LinearScale",
+        $id: "p1015",
       },
     },
   ],

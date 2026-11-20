@@ -46,7 +46,7 @@ from ..core.validation.errors import (
 from ..core.validation.warnings import MISSING_RENDERERS
 from ..model import Model
 from ..models.ranges import Range1d
-from .plots import Plot
+from .plots import XYPlot
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -82,7 +82,7 @@ class MapOptions(Model):
     """)
 
 @abstract
-class MapPlot(Plot):
+class MapPlot(XYPlot):
     ''' Abstract base class for map plot models.
 
     '''

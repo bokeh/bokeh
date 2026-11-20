@@ -26,10 +26,10 @@ from bokeh.models import (
     LinearAxis,
     PanTool,
     Patches,
-    Plot,
     Range1d,
     ResetTool,
     WheelZoomTool,
+    XYPlot,
 )
 from bokeh.sampledata.mtb import obiszow_mtb_xcm
 from bokeh.util.browser import view
@@ -111,7 +111,7 @@ def trail_map(data):
 
 
 def altitude_profile(data):
-    plot = Plot(width=800, height=400)
+    plot = XYPlot(width=800, height=400)
     plot.title.text = f"{name} - Altitude Profile"
     plot.y_range.range_padding = 0
 

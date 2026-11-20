@@ -2,7 +2,8 @@ import {display} from "#framework/layouts"
 
 import {gridplot} from "@bokehjs/api/gridplot"
 import {transpose, linspace} from "@bokehjs/core/util/array"
-import {Plot, ColumnDataSource, Range1d, LinearAxis, Grid, Line, Scatter, Pane, Column} from "@bokehjs/models"
+import type {Plot} from "@bokehjs/models"
+import {ColumnDataSource, Range1d, LinearAxis, Grid, Line, Scatter, Pane, Column, XYPlot} from "@bokehjs/models"
 import {HTML} from "@bokehjs/models/dom"
 
 describe("Examples", () => {
@@ -42,7 +43,7 @@ describe("Examples", () => {
     const ydr = Range1d.create({start: -0.5, end: 20.5})
 
     function make_plot(title: string, xname: string, yname: string): Plot {
-      const plot = Plot.create({
+      const plot = XYPlot.create({
         x_range: xdr,
         y_range: ydr,
         title,

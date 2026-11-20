@@ -6,7 +6,7 @@ import {DelayedInternalProvider} from "#framework/util"
 import {PlotActions, actions, xy, tap, press, mouse_enter, mouse_down, mouse_click, show_context_menu} from "#framework/interactive"
 import {async_trap} from "#framework/util"
 
-import type {ArrowHead, Image, Line, UIElement} from "@bokehjs/models"
+import type {ArrowHead, Image, Line, UIElement, Plot} from "@bokehjs/models"
 import {
   NormalHead, OpenHead,
   BoxAnnotation, LabelSet, ColorBar, Slope, Span,
@@ -17,7 +17,6 @@ import {
   Circle, Quad, MultiLine, Scatter, Text,
   StaticLayoutProvider, NodesAndLinkedEdges,
   LinearColorMapper, CategoricalColorMapper,
-  Plot,
   TeX,
   Toolbar, ToolProxy,
   PanTool, PolySelectTool, LassoSelectTool, HoverTool, ZoomInTool, ZoomOutTool, RangeTool,
@@ -35,6 +34,7 @@ import {
   Node, Indexed,
   Dialog,
   Legend, LegendItem, ScaleBar, SizeBar,
+  XYPlot,
 } from "@bokehjs/models"
 
 import {
@@ -1048,7 +1048,7 @@ describe("Bug", () => {
       const x_range = Range1d.create({start: -1, end: 3})
       const y_range = Range1d.create({start: -1, end: 3})
 
-      const p = Plot.create({
+      const p = XYPlot.create({
         width: 200, height: 200,
         x_range, y_range,
         title: null, toolbar_location: null,
@@ -2410,7 +2410,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #12479", () => {
-    function plot(a: number, b: number, color: Color, plot_args?: Partial<Plot.Attrs>) {
+    function plot(a: number, b: number, color: Color, plot_args?: Partial<XYPlot.Attrs>) {
       const p = fig([200, 200], plot_args)
       p.add_layout(LinearAxis.create(), "above")
       p.add_layout(LinearAxis.create(), "right")

@@ -21,9 +21,9 @@ from bokeh.models import (
     Grid,
     Line,
     LinearAxis,
-    Plot,
     Range1d,
     Scatter,
+    XYPlot,
 )
 from bokeh.sampledata.anscombe import data as df
 
@@ -36,7 +36,7 @@ line_source = ColumnDataSource(data=dict(x=x, y=y))
 rng = Range1d(start=-0.5, end=20.5)
 
 def make_plot(title, xname, yname):
-    plot = Plot(x_range=rng, y_range=rng, width=400, height=400,
+    plot = XYPlot(x_range=rng, y_range=rng, width=400, height=400,
                 background_fill_color='#efefef')
     plot.title.text = title
 

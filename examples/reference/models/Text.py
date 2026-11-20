@@ -10,7 +10,7 @@
 import numpy as np
 
 from bokeh.io import curdoc, show
-from bokeh.models import ColumnDataSource, Grid, LinearAxis, Plot, Text
+from bokeh.models import ColumnDataSource, Grid, LinearAxis, Text, XYPlot
 
 N = 9
 x = np.linspace(-2, 2, N)
@@ -20,7 +20,7 @@ text = [a[i*3:i*3+3] for i in range(N)]
 
 source = ColumnDataSource(dict(x=x, y=y, text=text))
 
-plot = Plot(
+plot = XYPlot(
     title=None, width=300, height=300,
     min_border=0, toolbar_location=None)
 

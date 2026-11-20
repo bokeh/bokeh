@@ -17,8 +17,8 @@ from bokeh.models import (
     Legend,
     Line,
     LinearAxis,
-    Plot,
     Scatter,
+    XYPlot,
 )
 
 x = linspace(-2*pi, 2*pi, 400)
@@ -30,7 +30,7 @@ source = ColumnDataSource(data=dict(x=x, y=y, y2=y2))
 xdr = DataRange1d()
 ydr = DataRange1d()
 
-plot = Plot(
+plot = XYPlot(
     x_range=xdr,
     y_range=ydr,
     width=1000,

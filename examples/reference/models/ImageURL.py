@@ -10,7 +10,14 @@
 import numpy as np
 
 from bokeh.io import curdoc, show
-from bokeh.models import ColumnDataSource, Grid, ImageURL, LinearAxis, Plot, Range1d
+from bokeh.models import (
+    ColumnDataSource,
+    Grid,
+    ImageURL,
+    LinearAxis,
+    Range1d,
+    XYPlot,
+)
 
 url = "https://static.bokeh.org/logos/logo.png"
 N = 5
@@ -28,7 +35,7 @@ source = ColumnDataSource(dict(
 xdr = Range1d(start=-100, end=200)
 ydr = Range1d(start=-100, end=200)
 
-plot = Plot(
+plot = XYPlot(
     title=None, x_range=xdr, y_range=ydr, width=300, height=300,
     min_border=0, toolbar_location=None)
 

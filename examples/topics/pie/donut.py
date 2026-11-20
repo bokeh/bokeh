@@ -18,15 +18,15 @@ from bokeh.models import (
     ColumnDataSource,
     Legend,
     LegendItem,
-    Plot,
     Range1d,
+    XYPlot,
 )
 from bokeh.sampledata.browsers import browsers_nov_2013 as df
 
 xdr = Range1d(start=-2, end=2)
 ydr = Range1d(start=-2, end=2)
 
-plot = Plot(x_range=xdr, y_range=ydr)
+plot = XYPlot(x_range=xdr, y_range=ydr)
 plot.title.text = "Web browser market share (November 2013)"
 plot.toolbar_location = None
 

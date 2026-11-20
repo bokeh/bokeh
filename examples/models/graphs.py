@@ -26,11 +26,11 @@ from bokeh.models import (
     MultiLine,
     NodesAndAdjacentNodes,
     NodesAndLinkedEdges,
-    Plot,
     Range1d,
     Row,
     Scatter,
     TapTool,
+    XYPlot,
 )
 from bokeh.palettes import Spectral4
 from bokeh.plotting import from_networkx
@@ -40,7 +40,7 @@ G = nx.karate_club_graph()
 
 def create_graph(layout_func, inspection_policy=None, selection_policy=None, **kwargs):
 
-    plot = Plot(width=400, height=400, x_range=Range1d(-1.1, 1.1), y_range=Range1d(-1.1, 1.1))
+    plot = XYPlot(width=400, height=400, x_range=Range1d(-1.1, 1.1), y_range=Range1d(-1.1, 1.1))
     graph_renderer = from_networkx(G, layout_func, **kwargs)
 
     scatter_glyph = Scatter(size=15, fill_color=Spectral4[0])

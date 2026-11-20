@@ -12,7 +12,7 @@ import {Matrix} from "@bokehjs/core/util/matrix"
 import type {RGBA} from "@bokehjs/core/util/color"
 import {color2css, is_dark} from "@bokehjs/core/util/color"
 import {figure, gridplot} from "@bokehjs/api/plotting"
-import type {BasicTickFormatter, Plot} from "@bokehjs/models"
+import type {BasicTickFormatter, XYPlot} from "@bokehjs/models"
 import {LinearAxis} from "@bokehjs/models"
 
 const spacer =
@@ -251,7 +251,7 @@ const s = (color: Color) => Spacer.create({
   styles: {background_color: color2css(color)},
 })
 
-function plot(a: number, b: number, color: Color, plot_args?: Partial<Plot.Attrs>) {
+function plot(a: number, b: number, color: Color, plot_args?: Partial<XYPlot.Attrs>) {
   const p = fig([200, 200], plot_args)
   p.add_layout(LinearAxis.create(), "above")
   p.add_layout(LinearAxis.create(), "right")

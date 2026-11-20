@@ -25,9 +25,9 @@ from bokeh.events import ButtonClick, Tap
 from bokeh.model.util import HasDocumentRef
 from bokeh.models import (
     Button,
-    Plot,
     TabPanel,
     Tabs,
+    XYPlot,
 )
 from bokeh.settings import settings
 
@@ -333,8 +333,8 @@ class TestEventCallbackManager:
 
     def test_on_tap_before_attach(self) -> None:
         doc = Document()
-        plot = Plot()
-        other = Plot()
+        plot = XYPlot()
+        other = XYPlot()
         received = []
         plot.on_event(Tap, received.append)
         doc.add_root(plot)
@@ -347,8 +347,8 @@ class TestEventCallbackManager:
 
     def test_on_tap_after_attach(self) -> None:
         doc = Document()
-        plot = Plot()
-        other = Plot()
+        plot = XYPlot()
+        other = XYPlot()
         received = []
         doc.add_root(plot)
         doc.add_root(other)

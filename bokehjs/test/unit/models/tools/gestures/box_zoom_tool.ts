@@ -3,7 +3,8 @@ import {display} from "#framework/layouts"
 
 import type {Tool} from "@bokehjs/models/tools/tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
-import {Plot} from "@bokehjs/models/plots/plot"
+
+import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {BoxZoomTool, PanTool, Toolbar} from "@bokehjs/models"
 
 describe("BoxZoomTool", () => {
@@ -34,7 +35,7 @@ describe("BoxZoomTool", () => {
   describe("View", () => {
     async function mkplot(...tools: Tool[]) {
       const buttons = tools.map((tool) => tool.tool_button())
-      const plot = Plot.create({
+      const plot = XYPlot.create({
         x_range: Range1d.create({start: -1, end: 1}),
         y_range: Range1d.create({start: -1, end: 1}),
         toolbar: Toolbar.create({buttons, tools}),

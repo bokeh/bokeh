@@ -5,7 +5,7 @@ import {Serializer} from "@bokehjs/core/serialization"
 import type {BokehEvent} from "@bokehjs/core/bokeh_events"
 import {AxisClick, server_event, UserEvent} from "@bokehjs/core/bokeh_events"
 import type {Model} from "@bokehjs/model"
-import {CategoricalAxis, CategoricalScale, FactorRange, Plot, Range1d, LinearAxis, LogAxis} from "@bokehjs/models"
+import {CategoricalAxis, CategoricalScale, FactorRange, Range1d, LinearAxis, LogAxis, XYPlot} from "@bokehjs/models"
 import type {MessageSent, Patch} from "@bokehjs/document"
 import {TextInput} from "@bokehjs/models/widgets"
 import {PlotActions, xy} from "#framework/interactive"
@@ -69,7 +69,7 @@ describe("BokehEvent", () => {
 describe("AxisClick event", () => {
   describe("should support linear axes", () => {
     async function test(side: Side, pt: Point) {
-      const plot = Plot.create({
+      const plot = XYPlot.create({
         width: 400,
         height: 400,
         title: null,
@@ -100,7 +100,7 @@ describe("AxisClick event", () => {
 
   describe("should support log axes", () => {
     async function test(side: Side, pt: Point) {
-      const plot = Plot.create({
+      const plot = XYPlot.create({
         width: 400,
         height: 400,
         title: null,
@@ -131,7 +131,7 @@ describe("AxisClick event", () => {
 
   describe("should support categorical axes", () => {
     async function test(side: Side, pt: Point) {
-      const plot = Plot.create({
+      const plot = XYPlot.create({
         width: 400,
         height: 400,
         title: null,

@@ -7,9 +7,16 @@
 '''
 
 from bokeh.io import show
-from bokeh.models import ColumnDataSource, LinearAxis, Plot, Range1d, Scatter, Title
+from bokeh.models import (
+    ColumnDataSource,
+    LinearAxis,
+    Range1d,
+    Scatter,
+    Title,
+    XYPlot,
+)
 
-p = Plot(
+p = XYPlot(
     title=None, toolbar_location=None,
     width=800, height=800,
     min_border=30,

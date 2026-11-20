@@ -14,7 +14,7 @@ import {isNumber, isString, isArray, isArrayOf, isPlainObject} from "../core/uti
 import {enumerate} from "core/util/iterator"
 import * as nd from "core/util/ndarray"
 
-import type {Glyph, Scale, Plot, Toolbar} from "./models"
+import type {Glyph, Scale, Toolbar, XYPlot} from "./models"
 import {
   Axis,
   CategoricalAxis,
@@ -64,7 +64,7 @@ export type AxisType = "auto" | "linear" | "datetime" | "timedelta" | "log" | "m
 export type AxisLocation = Location | null
 
 export namespace Figure {
-  export type Attrs = Omit<Plot.Attrs, "x_range" | "y_range"> & {
+  export type Attrs = Omit<XYPlot.Attrs, "x_range" | "y_range"> & {
     x_range: Range | [number, number] | ArrayLike<string>
     y_range: Range | [number, number] | ArrayLike<string>
     x_axis_type: AxisType

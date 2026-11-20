@@ -40,7 +40,7 @@ from bokeh.core.types import ID
 from bokeh.document import Document
 from bokeh.document.events import ModelChangedEvent, TitleChangedEvent
 from bokeh.model import Committed, Model
-from bokeh.models import ColumnDataSource, Plot, Slider
+from bokeh.models import ColumnDataSource, Slider, XYPlot
 from bokeh.util.callback_manager import OldValueUnavailable
 from bokeh.util.token import generate_jwt_token
 from tests.support.plugins.managed_server_loop import MSL
@@ -1017,7 +1017,7 @@ def test_unit_spec_changes_do_not_boomerang(monkeypatch: pytest.MonkeyPatch, Man
 def test_session_show_adds_obj_to_curdoc_if_necessary(m: MagicMock) -> None:
     session = ClientSession()
     session._document = Document()
-    p = Plot()
+    p = XYPlot()
     assert session.document.roots == []
     session.show(p)
     assert session.document.roots == [p]

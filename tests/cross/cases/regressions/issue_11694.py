@@ -1,6 +1,6 @@
 # https://github.com/bokeh/bokeh/issues/11694
 
-from bokeh.models import Plot
+from bokeh.models import XYPlot
 
-plot = Plot(tags=[dict(id="1000")])
+plot = XYPlot(tags=[dict(id="1000")])
 output = plot

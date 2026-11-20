@@ -40,9 +40,9 @@ from bokeh.models import (
     Div,
     Legend,
     LegendItem,
-    Plot,
     Range1d,
     Rect,
+    XYPlot,
 )
 from bokeh.plotting import figure
 from bokeh.resources import Resources
@@ -113,7 +113,7 @@ def test_get_screenshot_as_png_with_unicode_unminified(browser: Browser) -> None
     assert len(png.tobytes()) > 0
 
 def test_get_svg_no_svg_present(browser: Browser) -> None:
-    layout = Plot(
+    layout = XYPlot(
         x_range=Range1d(), y_range=Range1d(),
         toolbar_location=None,
         height=20, width=20,
@@ -139,7 +139,7 @@ def test_get_svg_no_svg_present(browser: Browser) -> None:
 
 def test_get_svg_with_svg_present(browser: Browser) -> None:
     def plot(color: str):
-        return Plot(
+        return XYPlot(
             x_range=Range1d(), y_range=Range1d(),
             height=20, width=20, toolbar_location=None,
             outline_line_color=None, border_fill_color=None,
@@ -177,7 +177,7 @@ def test_get_svg_with_document_theme(browser: Browser) -> None:
     })
 
     def p(color: str):
-        plot = Plot(
+        plot = XYPlot(
             x_range=Range1d(-1, 1), y_range=Range1d(-1, 1),
             height=200, width=200,
             toolbar_location=None,
@@ -191,7 +191,7 @@ def test_get_svg_with_document_theme(browser: Browser) -> None:
     assert len(re.findall(r'fill="#2f3f4f"', svg)) == 2
 
 def test_get_svgs_no_svg_present(browser: Browser) -> None:
-    layout = Plot(x_range=Range1d(), y_range=Range1d(), height=20, width=20, toolbar_location=None)
+    layout = XYPlot(x_range=Range1d(), y_range=Range1d(), height=20, width=20, toolbar_location=None)
 
     with silenced(MISSING_RENDERERS):
         svgs = bie.get_svgs(layout, browser=browser)
@@ -201,7 +201,7 @@ def test_get_svgs_no_svg_present(browser: Browser) -> None:
 
 def test_get_svgs_with_svg_present(browser: Browser) -> None:
     def plot(color: str):
-        return Plot(
+        return XYPlot(
             x_range=Range1d(), y_range=Range1d(),
             height=20, width=20, toolbar_location=None,
             outline_line_color=None, border_fill_color=None,
@@ -230,7 +230,7 @@ def test_get_svgs_with_svg_present(browser: Browser) -> None:
 
 def test_get_svgs_with_Legend__issue_14502(browser: Browser) -> None:
     def plot(color: str):
-        return Plot(
+        return XYPlot(
             x_range=DataRange1d(), y_range=DataRange1d(),
             width=100, height=100,
             min_border=0,
@@ -279,7 +279,7 @@ class TestPlaywrightPNG:
         width, height = dimensions
         border = 5
 
-        layout = Plot(x_range=Range1d(), y_range=Range1d(),
+        layout = XYPlot(x_range=Range1d(), y_range=Range1d(),
                       height=width, width=height,
                       min_border=border,
                       toolbar_location=None,
@@ -300,7 +300,7 @@ class TestPlaywrightPNG:
         width, height = 144, 144
         border = 5
 
-        layout = Plot(x_range=Range1d(-1, 1), y_range=Range1d(-1, 1),
+        layout = XYPlot(x_range=Range1d(-1, 1), y_range=Range1d(-1, 1),
                       height=width, width=height,
                       toolbar_location=None,
                       min_border=border,
@@ -384,7 +384,7 @@ class TestPlaywrightSVG:
         # Use a canvas-backend plot with a solid red background; the canvas
         # renderer emits a single <path> filled with that color, which gives
         # us a concrete marker to assert on.
-        layout = Plot(
+        layout = XYPlot(
             x_range=Range1d(), y_range=Range1d(),
             toolbar_location=None, height=20, width=20,
             min_border=0, outline_line_color=None,
@@ -400,7 +400,7 @@ class TestPlaywrightSVG:
     def test_get_svgs(self, browser: Browser) -> None:
         # Give each SVG a distinct legend label to identify its plot.
         def plot(color: str):
-            return Plot(
+            return XYPlot(
                 x_range=DataRange1d(), y_range=DataRange1d(),
                 width=100, height=100,
                 min_border=0, toolbar_location=None,
@@ -422,7 +422,7 @@ def test_implicit_playwright_browser_across_execution_contexts__issues_15401_154
     tmp_path: Path,
     contexts: tuple[Literal["sync", "async"], Literal["sync", "async"]],
 ) -> None:
-    layout = Plot(
+    layout = XYPlot(
         x_range=Range1d(), y_range=Range1d(),
         toolbar_location=None, height=20, width=20,
         min_border=0, outline_line_color=None,
@@ -470,7 +470,7 @@ def test_implicit_playwright_browser_across_execution_contexts__issues_15401_154
 def test_get_layout_html_resets_plot_dims() -> None:
     initial_height, initial_width = 200, 250
 
-    layout = Plot(x_range=Range1d(), y_range=Range1d(),
+    layout = XYPlot(x_range=Range1d(), y_range=Range1d(),
                   height=initial_height, width=initial_width)
 
     with silenced(MISSING_RENDERERS):
@@ -480,7 +480,7 @@ def test_get_layout_html_resets_plot_dims() -> None:
     assert layout.width == initial_width
 
 def test_layout_html_on_child_first() -> None:
-    p = Plot(x_range=Range1d(), y_range=Range1d())
+    p = XYPlot(x_range=Range1d(), y_range=Range1d())
 
     with silenced(MISSING_RENDERERS):
         bie.get_layout_html(p, height=100, width=100)
@@ -490,7 +490,7 @@ def test_layout_html_on_child_first() -> None:
         bie.get_layout_html(layout)
 
 def test_layout_html_on_parent_first() -> None:
-    p = Plot(x_range=Range1d(), y_range=Range1d())
+    p = XYPlot(x_range=Range1d(), y_range=Range1d())
 
     with silenced(MISSING_RENDERERS):
         layout = row(p)

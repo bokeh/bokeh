@@ -44,7 +44,7 @@ from ..annotations import Label, LabelSet
 from ..callbacks import CustomJS
 from ..filters import GroupFilter
 from ..glyphs import MultiLine, Scatter
-from ..plots import Plot
+from ..plots import XYPlot
 from ..ranges import Range1d
 from ..renderers import GlyphRenderer
 from ..sources import ColumnDataSource, IndexedSubset
@@ -234,7 +234,7 @@ class _BokehStructureGraph:
             doc=docs,
         )
 
-    def _make_graph_plot(self) -> Plot:
+    def _make_graph_plot(self) -> XYPlot:
         """ Builds the graph portion of the final model.
 
         """
@@ -252,7 +252,7 @@ class _BokehStructureGraph:
             edge_y_coords.extend([[nodes[start_node][1], nodes[end_node][1]]])
         edge_source = ColumnDataSource(dict(xs=edge_x_coords, ys=edge_y_coords))
 
-        p2 = Plot(outline_line_alpha=0.0)
+        p2 = XYPlot(outline_line_alpha=0.0)
         xinterval = max(max(node_x) - min(node_x), 200)
         yinterval = max(max(node_y) - min(node_y), 200)
         p2.x_range = Range1d(

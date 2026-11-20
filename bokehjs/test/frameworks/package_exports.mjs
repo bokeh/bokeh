@@ -72,18 +72,18 @@ try {
   manual.dispose()
   assert.deepEqual(Bokeh.Models.names, initial_models)
 
-  class ApplicationPlot extends Bokeh.Plot {}
-  Bokeh.register_models({Plot: ApplicationPlot})
+  class ApplicationPlot extends Bokeh.XYPlot {}
+  Bokeh.register_models({XYPlot: ApplicationPlot})
   // Literal serialized models keep widgets/tables out of the initial import graph.
   const serialized_roots = [
-    {$type: "Plot", $id: "plot", name: "plot"},
+    {$type: "XYPlot", $id: "plot", name: "plot"},
     {$type: "Slider", $id: "slider", name: "slider", start: 0, end: 10, value: 3},
     {$type: "DataTable", $id: "table", name: "table"},
   ]
   let decoded = 0
   ClientConnection.prototype.connect = async function() {
     // Registration must complete before the existing connection begins decoding.
-    assert.equal(Bokeh.Models.get("Plot"), ApplicationPlot)
+    assert.equal(Bokeh.Models.get("XYPlot"), ApplicationPlot)
     assert.ok(Bokeh.Models.get("Slider"))
     assert.ok(Bokeh.Models.get("DataTable"))
     const roots = new Deserializer(Bokeh.Models).decode(structuredClone(serialized_roots))

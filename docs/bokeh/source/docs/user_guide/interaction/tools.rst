@@ -81,9 +81,9 @@ passing instances of ``Tool`` objects to the ``add_tools()`` method:
 
 .. code-block:: python
 
-    from bokeh.models import LassoSelectTool, Plot, WheelZoomTool
+    from bokeh.models import LassoSelectTool, WheelZoomTool, XYPlot
 
-    plot = Plot()
+    plot = XYPlot()
     plot.add_tools(LassoSelectTool())
 
     wheel = WheelZoomTool()

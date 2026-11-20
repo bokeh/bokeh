@@ -684,7 +684,7 @@ class HexTile(Glyph, LineGlyph, FillGlyph, HatchGlyph):
     Match a plot's aspect ratio scaling.
 
     Use this parameter to match the aspect ratio scaling of a plot when using
-    :class:`~bokeh.models.Plot.aspect_scale` with a value other than ``1.0``.
+    :attr:`~bokeh.models.XYPlot.aspect_scale` with a value other than ``1.0``.
 
     """)
 
