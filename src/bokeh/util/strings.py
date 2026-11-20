@@ -132,22 +132,40 @@ def format_docstring(docstring: str | None, *args: Any, **kwargs: Any) -> str | 
     return None if docstring is None else docstring.format(*args, **kwargs)
 
 
-def format_url_query_arguments(url: str, arguments: dict[str, str] | None = None) -> str:
-    ''' Format a base URL with optional query arguments
+def format_url_query_arguments(
+        url: str,
+        arguments: dict[str, str] | None = None,
+        fragment: str | None = None,
+    ) -> str:
+    ''' Format a base URL with optional query arguments and optional fragment string.
 
     Args:
         url (str) :
             An base URL to append query arguments to
         arguments (dict or None, optional) :
             A mapping of key/value URL query arguments, or None (default: None)
+        fragment (str, optional) :
+            A string used to identify a specific part of the resource (default: None)
 
     Returns:
         str
 
+    Raises:
+        ValueError: if a fragment exists in the url and a second fragment is given.
+
     '''
-    if arguments is not None:
+    if "#" in url:
+        if fragment is not None and fragment != "":
+            raise ValueError("Can't extend a url with an existing and a given fragment.")
+        url, fragment = url.split("#")
+
+    if arguments is not None and arguments != {}:
         items = (f"{quote_plus(key)}={quote_plus(value)}" for key, value in arguments.items())
-        url += "?" + "&".join(items)
+        connector = "&" if "?" in url else "?"
+        url += connector + "&".join(items)
+
+    if fragment is not None and fragment != "":
+        url += "#" + fragment
     return url
 
 #-----------------------------------------------------------------------------
