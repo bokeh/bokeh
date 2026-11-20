@@ -8,7 +8,7 @@ const xdr = Bokeh.Range1d.create({ start: -0.5, end: 20.5 });
 const ydr = Bokeh.Range1d.create({ start: -0.5, end: 20.5 });
 
 // make the plot
-const plot = Bokeh.Plot.create({
+const plot = Bokeh.XYPlot.create({
     title: "BokehJS Plot",
     x_range: xdr,
     y_range: ydr,

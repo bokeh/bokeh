@@ -10,7 +10,7 @@
 import numpy as np
 
 from bokeh.io import curdoc, show
-from bokeh.models import ColumnDataSource, Grid, LinearAxis, Patch, Plot
+from bokeh.models import ColumnDataSource, Grid, LinearAxis, Patch, XYPlot
 
 N = 30
 x1 = np.linspace(-2, 2, N)
@@ -22,7 +22,7 @@ y = np.hstack((y1, y2))
 
 source = ColumnDataSource(dict(x=x, y=y))
 
-plot = Plot(
+plot = XYPlot(
     title=None, width=300, height=300,
     min_border=0, toolbar_location=None)
 

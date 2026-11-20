@@ -339,7 +339,7 @@ The range can also be shared with a plot:
 
 The default range for a |ScaleBar| is ``"auto"``, which uses the default x or y
 range of a plot the scale bar is associated with, depending on the orientation
-of the scale bar (``Plot.x_range`` for ``"horizontal"`` and ``Plot.y_range`` for
+of the scale bar (``XYPlot.x_range`` for ``"horizontal"`` and ``XYPlot.y_range`` for
 ``"vertical"`` orientation).
 
 Additionally the user can provide units of measurement (``ScaleBar.dimensional``,

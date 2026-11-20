@@ -9,7 +9,7 @@ import type {ScatterView} from "@bokehjs/models/glyphs/scatter"
 import {Scatter} from "@bokehjs/models/glyphs/scatter"
 import type {PatchesView} from "@bokehjs/models/glyphs/patches"
 import {Patches} from "@bokehjs/models/glyphs/patches"
-import {Plot} from "@bokehjs/models/plots/plot"
+import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Selection} from "@bokehjs/models/selections/selection"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
@@ -36,7 +36,7 @@ async function make_testcase(data: PolyEditTestCase["data"] = {
   z: [null, null],
 }): Promise<PolyEditTestCase> {
   // Note default plot dimensions is 600 x 600 (height x width)
-  const plot = Plot.create({
+  const plot = XYPlot.create({
     x_range: Range1d.create({start: -1, end: 1}),
     y_range: Range1d.create({start: -1, end: 1}),
   })

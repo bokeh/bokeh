@@ -10,7 +10,13 @@
 import numpy as np
 
 from bokeh.io import curdoc, show
-from bokeh.models import Annulus, ColumnDataSource, Grid, LinearAxis, Plot
+from bokeh.models import (
+    Annulus,
+    ColumnDataSource,
+    Grid,
+    LinearAxis,
+    XYPlot,
+)
 
 N = 9
 x = np.linspace(-2, 2, N)
@@ -18,7 +24,7 @@ y = x**2
 
 source = ColumnDataSource(dict(x=x, y=y))
 
-plot = Plot(
+plot = XYPlot(
     title=None, width=300, height=300,
     min_border=0, toolbar_location=None)
 

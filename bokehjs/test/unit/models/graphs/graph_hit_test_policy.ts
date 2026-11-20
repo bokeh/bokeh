@@ -4,7 +4,7 @@ import {expect, expect_not_null} from "#framework/assertions"
 import {display} from "#framework/layouts"
 
 import {Selection} from "@bokehjs/models/selections/selection"
-import {Plot} from "@bokehjs/models/plots/plot"
+import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 
 import {Scatter} from "@bokehjs/models/glyphs/scatter"
@@ -43,7 +43,7 @@ describe("GraphHitTestPolicy", () => {
   let edge_stub: sinon.SinonStub
 
   before_each(async () => {
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       x_range: Range1d.create({start: 0, end: 1}),
       y_range: Range1d.create({start: 0, end: 1}),
     })

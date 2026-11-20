@@ -16,10 +16,10 @@ from bokeh.models import (
     ColumnDataSource,
     LinearAxis,
     PanTool,
-    Plot,
     Range1d,
     Scatter,
     WheelZoomTool,
+    XYPlot,
 )
 from bokeh.util.browser import view
 
@@ -31,7 +31,7 @@ source = ColumnDataSource(
     data=dict(x=x, y=y, y2=y2),
 )
 
-plot = Plot(x_range=Range1d(start=-6.5, end=6.5), y_range=Range1d(start=-1.1, end=1.1), min_border=80)
+plot = XYPlot(x_range=Range1d(start=-6.5, end=6.5), y_range=Range1d(start=-1.1, end=1.1), min_border=80)
 
 plot.extra_x_ranges = {"qux": Range1d(start=100, end=0)}
 plot.extra_y_ranges = {"foo": Range1d(start=0, end=100)}

@@ -10,7 +10,7 @@ from bokeh.models import ColumnDataSource, Line, MultiLine, PathPlacement, Scatt
 from bokeh.models.annotations.arrows import ArrowHead
 from bokeh.models.glyph import Glyph
 from bokeh.models.graphics import Marking
-from bokeh.models.plots import Plot
+from bokeh.models.plots import XYPlot
 from bokeh.models.renderers import GlyphRenderer
 from bokeh.plotting import figure
 
@@ -39,7 +39,7 @@ def plot_helpers(head: ArrowHead) -> None:
 
 
 def add_glyph_preserves_path_hosts() -> None:
-    plot = Plot()
+    plot = XYPlot()
     segment = plot.add_glyph(Segment())
     line = plot.add_glyph(ColumnDataSource(), glyph=Line())
     assert_type(segment, GlyphRenderer[Segment])

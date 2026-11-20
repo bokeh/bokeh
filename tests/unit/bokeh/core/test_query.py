@@ -35,6 +35,7 @@ from bokeh.models import (
     Scatter,
     Tool,
     WheelZoomTool,
+    XYPlot,
 )
 
 # Module under test
@@ -84,7 +85,7 @@ def large_plot():
     ydr.tags.append("foo")
     ydr.tags.append(11)
 
-    plot = Plot(x_range=xdr, y_range=ydr)
+    plot = XYPlot(x_range=xdr, y_range=ydr)
 
     ydr2 = Range1d(start=0, end=100)
     plot.extra_y_ranges = {"liny": ydr2}

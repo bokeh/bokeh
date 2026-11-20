@@ -6,7 +6,7 @@ import type {GestureTool} from "@bokehjs/models/tools/gestures/gesture_tool"
 import {WheelZoomTool} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import type {PlotView} from "@bokehjs/models/plots/plot"
-import {Plot} from "@bokehjs/models/plots/plot"
+import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {LinearAxis} from "@bokehjs/models/axes/linear_axis"
 import type {ViewOf} from "@bokehjs/core/view"
 import {has_focus} from "@bokehjs/core/dom"
@@ -25,7 +25,7 @@ function xy_axis(plot_view: PlotView) {
 
 // frame dimensions is 300x300, thus zooming at {sx: 150, sy: 150} causes the x/y ranges to zoom equally
 async function make_plot<T extends GestureTool>(tool: T): Promise<{view: PlotView, tool_view: ViewOf<T>}> {
-  const plot = Plot.create({
+  const plot = XYPlot.create({
     x_range: Range1d.create({start: -1, end: 1}),
     y_range: Range1d.create({start: -1, end: 1}),
     toolbar_location: null,

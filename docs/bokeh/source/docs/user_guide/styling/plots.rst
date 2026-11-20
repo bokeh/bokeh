@@ -216,7 +216,9 @@ If you use the |bokeh.models| interface, use the
 
 .. code-block:: python
 
-    p = Plot()
+    from bokeh.models import XYPlot
+
+    p = XYPlot()
     source = ColumnDataSource(dict(x=[1, 2, 3], y=[1, 2, 3]))
 
     initial_circle = Circle(x='x', y='y', fill_color='blue', radius=1)

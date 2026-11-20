@@ -17,7 +17,7 @@ import {WheelZoomTool} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
 
 //import {Legend} from "@bokehjs/models/annotations/legend"
 import type {PlotView} from "@bokehjs/models/plots/plot"
-import {Plot} from "@bokehjs/models/plots/plot"
+import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 //import type {UIEvent, PanEvent, TapEvent} from "@bokehjs/core/ui_events"
 import type {UIEvent} from "@bokehjs/core/ui_events"
@@ -29,7 +29,7 @@ import {BBox} from "@bokehjs/core/util/bbox"
 describe("UIEventBus", () => {
 
   function plot() {
-    const p = Plot.create({
+    const p = XYPlot.create({
       width: 100,
       height: 100,
       min_border: 0,
@@ -133,7 +133,7 @@ describe("UIEventBus", () => {
 describe("ui_event_bus module", () => {
 
   async function new_plot(): Promise<PlotView> {
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       x_range: Range1d.create({start: 0, end: 1}),
       y_range: Range1d.create({start: 0, end: 1}),
     })

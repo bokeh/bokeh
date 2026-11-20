@@ -4,14 +4,14 @@ import {actions, xy} from "#framework/interactive"
 import {display} from "#framework/layouts"
 
 import type {PlotView} from "@bokehjs/models/plots/plot"
-import {Plot, Range1d, LinearAxis, BoxAnnotation} from "@bokehjs/models"
+import {Range1d, LinearAxis, BoxAnnotation, XYPlot} from "@bokehjs/models"
 import {Node} from "@bokehjs/models/coordinates/node"
 import {no_repeated} from "@bokehjs/core/util/iterator"
 
 describe("BoxAnnotation", () => {
 
   async function mkplot(box: BoxAnnotation): Promise<PlotView> {
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       width: 400,
       height: 400,
       min_border: 0,

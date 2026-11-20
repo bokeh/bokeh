@@ -88,8 +88,10 @@ To activate the SVG backend, set the ``Plot.output_backend`` attribute to
 
 .. code-block:: python
 
+    from bokeh.models import XYPlot
+
     # option one
-    plot = Plot(output_backend="svg")
+    plot = XYPlot(output_backend="svg")
     # option two
     plot.output_backend = "svg"
 

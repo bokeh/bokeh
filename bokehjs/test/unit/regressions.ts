@@ -43,7 +43,6 @@ import {
   PanTool,
   Pane,
   Patches,
-  Plot,
   Range1d,
   RangeTool,
   Rect,
@@ -57,6 +56,7 @@ import {
   Toolbar,
   WMTSTileSource,
   WheelZoomTool,
+  XYPlot,
 } from "@bokehjs/models"
 import {MenuView} from "@bokehjs/models/ui/menus/menu"
 
@@ -323,7 +323,7 @@ describe("Bug", () => {
       const doc_json: DocJson = {
         defs: [],
         roots: [{
-          $type: "Plot",
+          $type: "XYPlot",
           $id: "1002",
           renderers: [{
             $type: "GlyphRenderer",
@@ -748,7 +748,7 @@ describe("Bug", () => {
 
   describe("in issue #12078", () => {
     it("doesn't allow to correctly hit test Marker and Scatter glyphs", async () => {
-      const p = Plot.create()
+      const p = XYPlot.create()
       const source = ColumnDataSource.create({
         data: {
           x: [0, 1, 3, 4],
@@ -812,7 +812,7 @@ describe("Bug", () => {
 
   describe("in issue #13217", () => {
     it("doesn't allow to bind this in non-module CustomJS", async () => {
-      const obj = Plot.create()
+      const obj = XYPlot.create()
       const cb = CustomJS.create({args: {arg0: "abc"}, code: "return [this, arg0, cb_obj, cb_data.data0]"})
       const result = await cb.execute(obj, {data0: 123})
       expect(result).to.be.equal([obj, "abc", obj, 123])
@@ -1878,7 +1878,7 @@ describe("Bug", () => {
     it("doesn't allow render a plot with Patches glyph and an empty data source", async () => {
       const data_source = ColumnDataSource.create({data: {}})
 
-      const plot = Plot.create()
+      const plot = XYPlot.create()
       const glyph = Patches.create({xs: {field: "xs"}, ys: {field: "ys"}})
       const renderer = GlyphRenderer.create({data_source, glyph})
       plot.renderers.push(renderer)
@@ -2084,7 +2084,7 @@ ${view.host_selector} {
 
   describe("in issue #15080", () => {
     it("doesn't allow to change frame width, height and align of a Plot", async () => {
-      const p = Plot.create({frame_width: 100, frame_height: 200})
+      const p = XYPlot.create({frame_width: 100, frame_height: 200})
       const {view} = await display(p, [300, 300])
 
       expect(view.frame.bbox.width).to.be.equal(100)

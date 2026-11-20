@@ -27,6 +27,7 @@ from bokeh.models import (
     Plot,
     Rect,
     Text,
+    XYPlot,
 )
 from bokeh.sampledata.us_holidays import us_holidays
 from bokeh.util.browser import view
@@ -70,7 +71,7 @@ def make_calendar(year: int, month: int) -> Plot:
     ydr = FactorRange(factors=list(reversed([ str(week) for week in range(month_weeks) ])))
     x_scale, y_scale = CategoricalScale(), CategoricalScale()
 
-    plot = Plot(x_range=xdr, y_range=ydr, x_scale=x_scale, y_scale=y_scale,
+    plot = XYPlot(x_range=xdr, y_range=ydr, x_scale=x_scale, y_scale=y_scale,
                 width=300, height=300, outline_line_color=None)
     plot.title.text = month_names[month]
     plot.title.text_font_size = "16px"

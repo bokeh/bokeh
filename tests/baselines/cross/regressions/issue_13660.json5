@@ -1,35 +1,19 @@
 {
   config: {
     $type: "DocumentConfig",
-    $id: "p1014",
+    $id: "p1015",
     notifications: {
       $type: "Notifications",
-      $id: "p1015",
+      $id: "p1016",
     },
   },
   roots: [
     {
-      $type: "Plot",
+      $type: "XYPlot",
       $id: "p1013",
-      x_range: {
-        $type: "DataRange1d",
-        $id: "p1016",
-      },
-      y_range: {
-        $type: "DataRange1d",
-        $id: "p1017",
-      },
-      x_scale: {
-        $type: "LinearScale",
-        $id: "p1018",
-      },
-      y_scale: {
-        $type: "LinearScale",
-        $id: "p1019",
-      },
       title: {
         $type: "Title",
-        $id: "p1020",
+        $id: "p1017",
       },
       renderers: [
         {
@@ -40,11 +24,11 @@
             $id: "p1006",
             selected: {
               $type: "Selection",
-              $id: "p1022",
+              $id: "p1023",
             },
             selection_policy: {
               $type: "UnionRenderers",
-              $id: "p1023",
+              $id: "p1024",
             },
             data: {
               type: "map",
@@ -114,7 +98,27 @@
       ],
       toolbar: {
         $type: "Toolbar",
+        $id: "p1018",
+      },
+      coordinate_system: {
+        $type: "CartesianMapping",
+        $id: "p1014",
+      },
+      x_range: {
+        $type: "DataRange1d",
+        $id: "p1019",
+      },
+      y_range: {
+        $type: "DataRange1d",
+        $id: "p1020",
+      },
+      x_scale: {
+        $type: "LinearScale",
         $id: "p1021",
+      },
+      y_scale: {
+        $type: "LinearScale",
+        $id: "p1022",
       },
     },
   ],

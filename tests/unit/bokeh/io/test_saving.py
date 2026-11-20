@@ -19,7 +19,7 @@ import pytest
 from bokeh.core.templates import FILE
 from bokeh.embed._util import ThemePolicy
 from bokeh.io.jupyter import FILE_MIME_TYPE
-from bokeh.models import Plot
+from bokeh.models import XYPlot
 from bokeh.resources import Resources
 
 # Module under test
@@ -35,7 +35,7 @@ def _write_saved_file(_obj: Any, filename: Any, *_args: Any, **_kwargs: Any) -> 
 @patch("bokeh.io.saving._save_helper")
 def test_save_returns_string_with_safe_notebook_link(mock_save_helper: MagicMock) -> None:
     result = cast(m._SavedFile, m.save(
-        Plot(),
+        XYPlot(),
         filename=Path("reports") / 'plot & "details".html',
         resources="inline",
         title="title",
@@ -63,7 +63,7 @@ def test_save_returns_string_with_safe_notebook_link(mock_save_helper: MagicMock
 @pytest.mark.parametrize("filename", [Path("/private/output.html"), Path("..") / "output.html"])
 @patch("bokeh.io.saving._save_helper")
 def test_save_omits_rich_paths_that_are_not_notebook_relative(mock_save_helper: MagicMock, filename: Path) -> None:
-    result = cast(m._SavedFile, m.save(Plot(), filename=filename, resources="inline", title="title"))
+    result = cast(m._SavedFile, m.save(XYPlot(), filename=filename, resources="inline", title="title"))
 
     assert result._repr_mimebundle_() == {
         "text/plain": "Bokeh HTML file saved. Open it from the notebook file browser.",
@@ -96,7 +96,7 @@ def test_save_links_from_the_notebook_directory_after_chdir(mock_save_helper: Ma
     shell = MagicMock(kernel=object(), starting_dir=str(tmp_path))
     monkeypatch.chdir(work)
     with patch("IPython.get_ipython", return_value=shell):
-        result = cast(m._SavedFile, m.save(Plot(), filename="../reports/result.html"))
+        result = cast(m._SavedFile, m.save(XYPlot(), filename="../reports/result.html"))
 
     assert result._repr_mimebundle_()[FILE_MIME_TYPE]["path"] == "reports/result.html"
     mock_save_helper.assert_called_once()
@@ -113,7 +113,7 @@ def test_save_preserves_a_lexical_link_through_a_symlinked_directory(mock_save_h
     mock_save_helper.side_effect = _write_saved_file
     shell = MagicMock(kernel=object(), starting_dir=str(tmp_path))
     with patch("IPython.get_ipython", return_value=shell):
-        result = cast(m._SavedFile, m.save(Plot(), filename=linked / "result.html"))
+        result = cast(m._SavedFile, m.save(XYPlot(), filename=linked / "result.html"))
 
     assert result._repr_mimebundle_()[FILE_MIME_TYPE]["path"] == "linked/result.html"
     mock_save_helper.assert_called_once()
@@ -133,7 +133,7 @@ def test_save_omits_a_lexical_link_that_names_a_different_file(mock_save_helper:
     shell = MagicMock(kernel=object(), starting_dir=str(notebook))
 
     with patch("IPython.get_ipython", return_value=shell):
-        result = cast(m._SavedFile, m.save(Plot(), filename=notebook / "data" / ".." / "summary.html"))
+        result = cast(m._SavedFile, m.save(XYPlot(), filename=notebook / "data" / ".." / "summary.html"))
 
     assert result._repr_mimebundle_() == {
         "text/plain": "Bokeh HTML file saved. Open it from the notebook file browser.",
@@ -153,7 +153,7 @@ def test_save_links_an_absolute_path_through_a_symlinked_notebook_directory(mock
     shell = MagicMock(kernel=object(), starting_dir=str(target))
 
     with patch("IPython.get_ipython", return_value=shell):
-        result = cast(m._SavedFile, m.save(Plot(), filename=alias / "result.html"))
+        result = cast(m._SavedFile, m.save(XYPlot(), filename=alias / "result.html"))
 
     assert result._repr_mimebundle_()[FILE_MIME_TYPE]["path"] == "result.html"
 
@@ -187,7 +187,7 @@ def test_get_save_args_supplies_stateless_defaults(mock_default_filename: MagicM
 @patch("builtins.open")
 @patch("bokeh.io.saving.embed")
 def test_save_helper_writes_embed_html(mock_embed: MagicMock, mock_open: MagicMock) -> None:
-    obj = Plot()
+    obj = XYPlot()
     policy = Resources(mode="inline")
     mock_embed.return_value.page.return_value = "<html></html>"
 

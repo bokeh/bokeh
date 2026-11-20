@@ -3,13 +3,13 @@ import {display} from "#framework/layouts"
 
 import {ClickPanTool} from "@bokehjs/models/tools/actions/click_pan_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
-import {Plot} from "@bokehjs/models/plots/plot"
+import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import type {PanDirection} from "@bokehjs/core/enums"
 
 describe("ClickPanTool", () => {
 
   async function mkplot(direction: PanDirection) {
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       x_range: Range1d.create({start: 0, end: 1}),
       y_range: Range1d.create({start: 0, end: 1}),
     })

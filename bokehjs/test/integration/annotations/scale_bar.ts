@@ -1,6 +1,6 @@
 import {display} from "#framework/layouts"
 
-import {ScaleBar, Plot, Range1d, FactorRange, Metric, LinearScale, CategoricalScale} from "@bokehjs/models"
+import {ScaleBar, Range1d, FactorRange, Metric, LinearScale, CategoricalScale, XYPlot} from "@bokehjs/models"
 import type {Location, Align} from "@bokehjs/core/enums"
 
 describe("ScaleBar annotation", () => {
@@ -8,7 +8,7 @@ describe("ScaleBar annotation", () => {
     const orientation = "horizontal"
 
     function plot(scale_bar: ScaleBar) {
-      return Plot.create({
+      return XYPlot.create({
         width: 300,
         height: 150,
         min_border: 0,
@@ -189,7 +189,7 @@ describe("ScaleBar annotation", () => {
     const orientation = "vertical"
 
     function plot(scale_bar: ScaleBar) {
-      return Plot.create({
+      return XYPlot.create({
         width: 150,
         height: 300,
         min_border: 0,
@@ -339,7 +339,7 @@ describe("ScaleBar annotation", () => {
       location: "center",
     })
 
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       width: 100,
       height: 100,
       min_border: 0,
@@ -353,8 +353,8 @@ describe("ScaleBar annotation", () => {
   })
 
   describe("should support positioning", () => {
-    function plot(scale_bar: ScaleBar, attrs: Partial<Plot.Attrs> = {}) {
-      return Plot.create({
+    function plot(scale_bar: ScaleBar, attrs: Partial<XYPlot.Attrs> = {}) {
+      return XYPlot.create({
         width: 300,
         height: 300,
         min_border: 0,

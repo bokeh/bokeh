@@ -15,17 +15,17 @@ from bokeh.models import (
     HoverTool,
     MultiLine,
     NodesAndAdjacentNodes,
-    Plot,
     Range1d,
     Scatter,
     TapTool,
+    XYPlot,
 )
 from bokeh.palettes import Spectral4
 from bokeh.plotting import from_networkx, show
 
 G = nx.karate_club_graph()
 
-plot = Plot(width=400, height=400, x_range=Range1d(-1.1, 1.1), y_range=Range1d(-1.1, 1.1))
+plot = XYPlot(width=400, height=400, x_range=Range1d(-1.1, 1.1), y_range=Range1d(-1.1, 1.1))
 plot.title.text = "Graph Interaction Demonstration"
 
 plot.add_tools(HoverTool(tooltips=None), TapTool(), BoxSelectTool())

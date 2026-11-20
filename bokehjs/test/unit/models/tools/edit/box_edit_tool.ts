@@ -7,7 +7,7 @@ import {build_view} from "@bokehjs/core/build_views"
 
 import type {RectView} from "@bokehjs/models/glyphs/rect"
 import {Rect} from "@bokehjs/models/glyphs/rect"
-import {Plot} from "@bokehjs/models/plots/plot"
+import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Selection} from "@bokehjs/models/selections/selection"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
@@ -26,7 +26,7 @@ export interface BoxEditTestCase {
 
 async function make_testcase(): Promise<BoxEditTestCase> {
   // Note default plot dimensions is 600 x 600 (height x width)
-  const plot = Plot.create({
+  const plot = XYPlot.create({
     x_range: Range1d.create({start: -1, end: 1}),
     y_range: Range1d.create({start: -1, end: 1}),
   })

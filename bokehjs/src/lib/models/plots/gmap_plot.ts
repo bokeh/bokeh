@@ -1,4 +1,4 @@
-import {Plot} from "./plot"
+import {XYPlot} from "./xy_plot"
 import type * as p from "core/properties"
 import {MapType} from "core/enums"
 import {Model} from "../../model"
@@ -60,7 +60,7 @@ export class GMapOptions extends MapOptions {
 export namespace GMapPlot {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Plot.Props & {
+  export type Props = XYPlot.Props & {
     map_options: p.Property<GMapOptions>
     api_key: p.Property<ArrayBuffer>
     api_version: p.Property<string>
@@ -69,7 +69,7 @@ export namespace GMapPlot {
 
 export interface GMapPlot extends GMapPlot.Attrs {}
 
-export class GMapPlot extends Plot {
+export class GMapPlot extends XYPlot {
   declare properties: GMapPlot.Props
 
   override use_map = true

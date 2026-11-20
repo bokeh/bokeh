@@ -25,7 +25,7 @@ from typing import Any
 
 import json5
 
-from bokeh.core.has_props import HasProps
+from bokeh.core.has_props import HasProps, is_abstract
 from bokeh.core.property.descriptors import AliasPropertyDescriptor, PropertyDescriptor
 from bokeh.core.property.singletons import Undefined
 from bokeh.core.serialization import (
@@ -89,7 +89,12 @@ def collect_defaults() -> dict[str, Any]:
     for model in models:
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", message=BOKEH_DEPRECATION_MESSAGE_PATTERN, category=DeprecationWarning)
-            obj = model()
+            if is_abstract(model):
+                # Inspect abstract defaults without invoking concrete construction.
+                obj = model.__new__(model)
+                HasProps.__init__(obj)
+            else:
+                obj = model()
 
         # filter only own properties and overrides
         def query(prop: PropertyDescriptor[Any] | AliasPropertyDescriptor[Any]) -> bool:
