@@ -28,3 +28,10 @@ column.children.append(ColumnDataSource())  # mypy: arg-type; pyright: reportArg
 p = figure()
 p.scatter([1], [2], unknown_property=1)  # mypy: call-arg; pyright: reportCallIssue
 p.scatter([1], [2], size="size", fill_alpha="alpha", source={"x": [1]})
+
+
+# A plot mapping must be Cartesian and is fixed after construction.
+from bokeh.models import CartesianMapping, Plot, XYPlot
+XYPlot(coordinate_system=None)  # mypy: arg-type | pyright: reportArgumentType
+XYPlot().coordinate_system = CartesianMapping()  # mypy: misc | pyright: reportAttributeAccessIssue
+Plot()  # mypy: abstract

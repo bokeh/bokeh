@@ -73,6 +73,24 @@ New features
 Removals
 --------
 
+* ``Plot`` is now an abstract shared base. Replace direct ``Plot(...)``
+  construction with :class:`~bokeh.models.XYPlot`. Custom Cartesian
+  plot subclasses should inherit from ``XYPlot`` in Python and
+  BokehJS. ``figure`` remains a subclass of ``Plot`` through ``XYPlot``.
+  Ranges, scales, named extra ranges and scales, windowed autoranging, and
+  data aspect configuration belong to ``XYPlot``. Their property
+  callbacks, links, sharing, and serialization remain available.
+
+  Each Cartesian plot has a required
+  :class:`~bokeh.models.CartesianMapping` in ``coordinate_system``. Set this
+  property during construction. Its default is a fresh mapper for each plot.
+  The mapper has no ranges, scales, or plot reference. Runtime transforms use
+  the plot's ranges and scales, including replacements assigned later.
+  Renderer ``coordinates`` still uses ``CoordinateMapping`` for embedded
+  Cartesian subplots.
+  Changing the set of source range objects starts a fresh interaction undo/redo
+  history. Updating the bounds of existing ranges keeps that history.
+
 * Removed support for Python 3.12. Bokeh now requires Python 3.13 or newer.
 
 * Replaced ``serverdir()`` and ``bokehjsdir()`` with ``server_path()`` and
