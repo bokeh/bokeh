@@ -134,7 +134,8 @@ def read_example_metadata(path: Path) -> tuple[str, dict[str, str]]:
             statement.append((token.type, token.string))
 
     marker = ".. bokeh-example-metadata::"
-    docstring = ast.get_docstring(ast.parse(untokenize(statement), filename=str(path))) or ""
+    # Preserve the source docstring even when Python runs with -OO.
+    docstring = ast.get_docstring(ast.parse(untokenize(statement), filename=str(path), optimize=0)) or ""
     intro, _, options = docstring.partition(marker)
     summary = " ".join(intro.strip().split("\n\n", 1)[0].split())
     if summary.startswith(".. "):

@@ -582,6 +582,8 @@ jobs:
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           CARTO_API_KEY: ${{ secrets.CARTO_API_KEY }}
+          PYTHONFAULTHANDLER: "1"
+          SPHINXOPTS: "-j auto -T"
         run: pixi run --locked --environment ${{ matrix.environment }} build-docs
 
       - name: Upload docs
