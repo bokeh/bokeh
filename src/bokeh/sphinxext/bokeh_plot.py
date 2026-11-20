@@ -82,8 +82,10 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 import re
+import sys
 import warnings
 from collections.abc import Callable
+from contextlib import closing
 from heapq import nlargest
 from importlib import import_module
 from os import getenv
@@ -109,6 +111,7 @@ from bokeh.embed._output import render_resource
 from bokeh.embed.resources import ResourceRequirements
 from bokeh.model import Model
 from bokeh.resources import Resources
+from bokeh.util.dependencies import import_optional
 from bokeh.util.warnings import BOKEH_DEPRECATION_MESSAGE_PATTERN
 
 from ._internal import PARALLEL_SAFE, SphinxParallelSpec
@@ -312,6 +315,17 @@ def builder_inited(app: Any) -> None:
     if not hasattr(app.env, "bokeh_plot_files"):
         app.env.bokeh_plot_files = {}
     app.env.bokeh_plot_timings = []
+
+    if sys.platform == "darwin" and app.parallel > 1:
+        pygraphviz = import_optional("pygraphviz")
+        if pygraphviz is not None:
+            # Quartz lazily initializes CoreFoundation during its first layout.
+            # Doing that in a forked Sphinx worker can segfault, so warm it in
+            # the parent before source reading starts.
+            # See PyGraphviz #667: https://github.com/pygraphviz/pygraphviz/issues/667
+            with closing(pygraphviz.AGraph()) as graph:
+                graph.add_node("warmup")
+                graph.layout(prog="dot")
 
 
 def add_page_resources(app: Any, doctree: nodes.document, docname: str) -> None:

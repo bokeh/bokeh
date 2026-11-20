@@ -2,9 +2,13 @@ from __future__ import annotations
 
 import gzip
 import json
+import multiprocessing
+import subprocess
+import sys
 from base64 import b64decode
 from io import StringIO
 from pathlib import Path
+from textwrap import dedent
 from types import SimpleNamespace
 
 import pytest
@@ -24,7 +28,53 @@ from bokeh.sphinxext.bokeh_plot import (
     _evaluate_source,
     add_page_resources,
     autoload_script,
+    builder_inited,
 )
+
+
+@pytest.mark.skipif("fork" not in multiprocessing.get_all_start_methods(), reason="requires POSIX fork")
+def test_parent_initializes_quartz_before_fork() -> None:
+    pytest.importorskip("pygraphviz")
+    script = dedent("""
+        import multiprocessing
+        import urllib.request
+        from tempfile import TemporaryDirectory
+        from types import SimpleNamespace
+
+        from bokeh.model import collect_models
+        from bokeh.models.util import generate_structure_plot
+        from bokeh.plotting import figure
+        from bokeh.sphinxext.bokeh_plot import builder_inited
+
+        def generate():
+            f = figure()
+            f.line(x=[1, 2, 3], y=[1, 2, 3])
+            assert len(collect_models(generate_structure_plot(f))) == 47
+
+        # Match Sphinx's network setup before its source readers fork.
+        urllib.request.getproxies()
+        with TemporaryDirectory() as temp:
+            builder_inited(SimpleNamespace(env=SimpleNamespace(doctreedir=temp), parallel=2))
+            process = multiprocessing.get_context("fork").Process(target=generate)
+            process.start()
+            process.join(timeout=10)
+            if process.is_alive():
+                process.kill()
+                process.join()
+            assert process.exitcode == 0, process.exitcode
+    """)
+    result = subprocess.run([sys.executable, "-c", script], capture_output=True, text=True, timeout=30)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_parallel_builder_without_pygraphviz(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import bokeh.sphinxext.bokeh_plot as bokeh_plot
+
+    monkeypatch.setattr(bokeh_plot.sys, "platform", "darwin")
+    monkeypatch.setattr(bokeh_plot, "import_optional", lambda name: None)
+    app = SimpleNamespace(env=SimpleNamespace(doctreedir=str(tmp_path)), parallel=2)
+    builder_inited(app)
+    assert app.env.bokeh_plot_timings == []
 
 
 @pytest.mark.parametrize("docstring", [None, "Example description"])
