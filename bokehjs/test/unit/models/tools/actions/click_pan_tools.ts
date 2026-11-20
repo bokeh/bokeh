@@ -3,7 +3,6 @@ import {display} from "#framework/layouts"
 
 import {ClickPanTool} from "@bokehjs/models/tools/actions/click_pan_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
-
 import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import type {PanDirection} from "@bokehjs/core/enums"
 

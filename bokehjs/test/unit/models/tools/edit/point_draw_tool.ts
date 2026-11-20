@@ -7,7 +7,6 @@ import {build_view} from "@bokehjs/core/build_views"
 
 import type {GlyphView} from "@bokehjs/models/glyphs/glyph"
 import {Scatter} from "@bokehjs/models/glyphs/scatter"
-
 import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Selection} from "@bokehjs/models/selections/selection"

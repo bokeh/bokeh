@@ -17,7 +17,6 @@ import {WheelZoomTool} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
 
 //import {Legend} from "@bokehjs/models/annotations/legend"
 import type {PlotView} from "@bokehjs/models/plots/plot"
-
 import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 //import type {UIEvent, PanEvent, TapEvent} from "@bokehjs/core/ui_events"

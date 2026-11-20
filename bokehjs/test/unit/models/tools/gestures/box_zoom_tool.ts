@@ -3,7 +3,6 @@ import {display} from "#framework/layouts"
 
 import type {Tool} from "@bokehjs/models/tools/tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
-
 import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {BoxZoomTool, PanTool, Toolbar} from "@bokehjs/models"
 

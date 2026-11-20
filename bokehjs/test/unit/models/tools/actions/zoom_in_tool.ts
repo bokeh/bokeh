@@ -5,7 +5,6 @@ import type {Tool} from "@bokehjs/models/tools/tool"
 import {ZoomInTool} from "@bokehjs/models/tools/actions/zoom_in_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import type {PlotView} from "@bokehjs/models/plots/plot"
-
 import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 
 describe("ZoomInTool", () => {

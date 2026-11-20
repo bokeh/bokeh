@@ -7,7 +7,6 @@ import {build_view} from "@bokehjs/core/build_views"
 
 import type {RectView} from "@bokehjs/models/glyphs/rect"
 import {Rect} from "@bokehjs/models/glyphs/rect"
-
 import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Selection} from "@bokehjs/models/selections/selection"

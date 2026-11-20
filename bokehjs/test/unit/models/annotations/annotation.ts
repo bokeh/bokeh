@@ -4,7 +4,6 @@ import {spy} from "sinon"
 
 import {DataAnnotation, DataAnnotationView} from "@bokehjs/models/annotations/data_annotation"
 import type {PlotView} from "@bokehjs/models/plots/plot"
-
 import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {ndarray} from "@bokehjs/core/util/ndarray"

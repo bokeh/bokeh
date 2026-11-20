@@ -6,7 +6,6 @@ import type {GestureTool} from "@bokehjs/models/tools/gestures/gesture_tool"
 import {WheelZoomTool} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import type {PlotView} from "@bokehjs/models/plots/plot"
-
 import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {LinearAxis} from "@bokehjs/models/axes/linear_axis"
 import type {ViewOf} from "@bokehjs/core/view"
