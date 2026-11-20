@@ -45,6 +45,19 @@ __all__ = (
 type GlyphFunction = Callable[..., Any]
 type GlyphMethodDecorator = Callable[[GlyphFunction], GlyphFunction]
 
+def _handle_polar_coordinates(args: tuple[Any, ...], kwargs: dict[str, Any], *, marker: bool = False) -> None:
+    hint = ". Use marker_angle for marker rotation" if marker else ""
+    if "radius" in kwargs or "angle" in kwargs:
+        if args or "x" in kwargs or "y" in kwargs:
+            raise ValueError(f"Use either radius and angle or x and y for polar coordinates{hint}")
+        if "radius" not in kwargs or "angle" not in kwargs:
+            raise ValueError(f"Polar glyph requires radius and angle together{hint}")
+        kwargs["x"] = kwargs.pop("radius")
+        kwargs["y"] = kwargs.pop("angle")
+    if marker and "marker_angle" in kwargs:
+        kwargs["angle"] = kwargs.pop("marker_angle")
+
+
 def glyph_method(glyphclass: Any) -> GlyphMethodDecorator:
     def decorator(func: GlyphFunction) -> GlyphFunction:
         parameters = cast(list[ParameterSpec], glyphclass.parameters())

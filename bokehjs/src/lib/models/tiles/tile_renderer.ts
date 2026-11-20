@@ -1,3 +1,4 @@
+import {PolarMapping} from "../coordinates/polar_mapping"
 import type {Tile} from "./tile_source"
 import type {Extent, Bounds} from "./tile_utils"
 import {TileSource} from "./tile_source"
@@ -47,6 +48,27 @@ function extent_changed(current: Extent, target: Extent): boolean {
 
 export class TileRendererView extends RendererView {
   declare model: TileRenderer
+
+  private _reported_polar_unsupported = false
+
+  override get is_renderable(): boolean {
+    return !(this.plot_view.model.coordinate_system instanceof PolarMapping) && super.is_renderable
+  }
+
+  override paint(ctx: Context2d): void {
+    if (this.plot_view.model.coordinate_system instanceof PolarMapping) {
+      if (!this._reported_polar_unsupported) {
+        logger.warn("Skipping TileRenderer: tiles are not supported by PolarMapping")
+        this._reported_polar_unsupported = true
+      }
+      this._clear_timers()
+      this._pending.clear()
+      this.force_finished()
+      return
+    }
+    this._reported_polar_unsupported = false
+    super.paint(ctx)
+  }
 
   protected extent: Extent
   protected map_initialized: boolean = false

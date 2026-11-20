@@ -13,6 +13,9 @@ export abstract class ZoomBaseToolView extends PlotActionToolView {
   abstract get factor(): number
 
   doit(): void {
+    if (!this.is_supported) {
+      return
+    }
     // restrict to axis configured in tool's dimensions property
     const {dimensions} = this.model
     const x_axis = dimensions == "width"  || dimensions == "both"
@@ -59,6 +62,9 @@ export abstract class ZoomBaseToolView extends PlotActionToolView {
       }
 
       const rv = this.plot_view.views.get_one(renderer)
+      if (!rv.coordinates.is_separable) {
+        continue
+      }
 
       const process = (scale: Scale, dim: "x" | "y") => {
         const {level} = this.model

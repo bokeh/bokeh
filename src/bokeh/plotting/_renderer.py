@@ -77,6 +77,10 @@ def get_default_color(plot: Plot | None = None) -> str:
 #-----------------------------------------------------------------------------
 
 def create_renderer(glyphclass: type[Glyph], plot: Plot, **kwargs: Any) -> GlyphRenderer[Glyph]:
+    problem = plot._polar_glyph_error(glyphclass, kwargs.get("coordinates"))
+    if problem is not None:
+        raise ValueError(problem)
+
     # convert data source, if necessary
     is_user_source = _convert_data_source(kwargs)
 

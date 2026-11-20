@@ -19,10 +19,20 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+from math import isfinite, pi
+from numbers import Real
+
+from ..core.enums import AngleUnits, Direction
+from ..core.has_props import abstract
+from ..core.property.enum import Enum
 from ..core.property.instance import Instance, InstanceDefault
+from ..core.property.numeric import NonNegative
+from ..core.property.primitive import Float
+from ..core.validation import error
+from ..core.validation.errors import INVALID_PROPERTY_VALUE
 from ..model import Model
-from .ranges import DataRange1d, Range
-from .scales import LinearScale, Scale
+from .ranges import DataRange1d, FactorRange, Range, Range1d
+from .scales import CategoricalScale, LinearScale, Scale
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -30,14 +40,73 @@ from .scales import LinearScale, Scale
 
 __all__ = (
     "CoordinateMapping",
+    "SubplotMapping",
+    "CartesianMapping",
+    "PolarMapping",
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
+@abstract
 class CoordinateMapping(Model):
-    """ A mapping between two coordinate systems. """
+    """ Abstract base class for mappings from data coordinates into a plot frame.
+
+    Use :class:`CartesianMapping` or :class:`PolarMapping` as a plot's
+    ``coordinate_system``. Use :class:`SubplotMapping` on renderers to embed
+    a Cartesian coordinate system within a Cartesian parent plot.
+    """
+
+    @property
+    def ranges(self) -> tuple[Range, Range]:
+        """ The two data ranges used by this mapping, in coordinate order. """
+        raise NotImplementedError
+
+
+class CartesianMapping(CoordinateMapping):
+    """ Map independent x and y data coordinates into a rectangular plot frame.
+
+    When assigned to a plot's ``coordinate_system``, this mapping supplies
+    the plot's x and y ranges and scales. Numeric ranges use linear scales
+    by default. A :class:`~bokeh.models.ranges.FactorRange` selects a
+    categorical scale unless a scale is supplied explicitly.
+
+    Leaving a plot's ``coordinate_system`` unset uses its existing x and y
+    ranges and scales without requiring an explicit Cartesian mapping.
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
+        for dimension in ("x", "y"):
+            if f"{dimension}_scale" not in kwargs and isinstance(kwargs.get(f"{dimension}_range"), FactorRange):
+                kwargs[f"{dimension}_scale"] = CategoricalScale()
+        super().__init__(*args, **kwargs)
+
+    x_range = Instance(Range, default=InstanceDefault(DataRange1d), help="Horizontal data range.")
+    y_range = Instance(Range, default=InstanceDefault(DataRange1d), help="Vertical data range.")
+    x_scale = Instance(Scale, default=InstanceDefault(LinearScale), help="Horizontal scale.")
+    y_scale = Instance(Scale, default=InstanceDefault(LinearScale), help="Vertical scale.")
+
+    @property
+    def ranges(self) -> tuple[Range, Range]:
+        return self.x_range, self.y_range
+
+
+class SubplotMapping(CoordinateMapping):
+    """ Map Cartesian source coordinates into a region of a Cartesian parent plot.
+
+    The ``x_source`` and ``y_source`` ranges describe the renderer's data
+    coordinates. The ``x_target`` and ``y_target`` ranges locate that data
+    within the parent plot's data coordinates. The parent plot's scales
+    then map those target coordinates to the screen.
+
+    Assign this mapping to a renderer's ``coordinates`` property, or use
+    ``figure.subplot`` to create renderers that share a subplot mapping.
+    """
+
+    @property
+    def ranges(self) -> tuple[Range, Range]:
+        return self.x_source, self.y_source
 
     x_source = Instance(Range, default=InstanceDefault(DataRange1d), help="""
     The source range of the horizontal dimension of the new coordinate space.
@@ -63,6 +132,67 @@ class CoordinateMapping(Model):
 
     y_target = Instance(Range, help="""
     The vertical range to map y-coordinates in the target coordinate space.
+    """)
+
+class PolarMapping(CoordinateMapping):
+    """ Map radius and angle pairs into a circular plot frame.
+
+    Assign this mapping to a plot's ``coordinate_system``. Glyph x values
+    represent radii and y values represent angles in ``angle_units``.
+    ``zero_direction`` and ``direction`` control the angular orientation.
+
+    This implementation supports the glyphs described in :ref:`ug_topics_polar`
+    and linear radial scaling. Supply an explicit ``radial_range`` with
+    nonnegative, increasing bounds. Both ranges must have finite bounds.
+    Angular bounds describe an increasing, unwrapped sector of at most one
+    revolution, such as 300 to 420 degrees for a sector crossing zero.
+    """
+
+    @property
+    def ranges(self) -> tuple[Range, Range]:
+        return self.radial_range, self.angular_range
+
+    radial_range = Instance(Range1d, help="""
+    Explicit radial limits. The lower limit must be nonnegative.
+    """)
+
+    angular_range = Instance(Range1d, default=InstanceDefault(Range1d, start=0, end=360), help="""
+    Explicit angular limits in ``angle_units``. For a sector crossing zero,
+    use unwrapped bounds such as 300 and 420.
+    """)
+
+    angle_units = Enum(AngleUnits, default="deg", help="""
+    Units for input angles and angular range bounds.
+    """)
+
+    zero_direction = Enum("east", "north", "west", "south", default="east", help="""
+    Direction of angle zero.
+    """)
+
+    direction = Enum(Direction, default="anticlock", help="""
+    Direction of increasing angles.
+    """)
+
+    @error(INVALID_PROPERTY_VALUE)
+    def _check_ranges(self) -> str | None:
+        if self.lookup("radial_range").value_is_unset(self):
+            return "PolarMapping requires an explicit radial_range"
+        r, a = self.radial_range, self.angular_range
+        values = (r.start, r.end, a.start, a.end)
+        if not all(isinstance(value, Real) for value in values):
+            return "PolarMapping range limits must be numeric"
+        r0, r1, a0, a1 = (float(value) for value in values)
+        period = dict(deg=360, rad=2*pi, grad=400, turn=1)[self.angle_units]
+        if not all(isfinite(v) for v in (r0, r1, a0, a1)):
+            return "PolarMapping range limits must be finite"
+        if r0 < 0 or r1 <= r0:
+            return "PolarMapping radial limits must be nonnegative and increasing"
+        if not 0 < a1 - a0 <= period*(1 + 1e-10):
+            return "PolarMapping angular limits must increase and span at most one revolution in angle_units. Set angular_range explicitly when changing angle_units"
+        return None
+
+    padding = NonNegative(Float, default=40, help="""
+    Space in screen pixels reserved inside the frame for polar tick labels.
     """)
 
 #-----------------------------------------------------------------------------

@@ -25,7 +25,8 @@ from typing import TYPE_CHECKING, Any
 
 from ..core.enums import Dimension
 from ..models import glyphs
-from ._decorators import glyph_method
+from ..models.coordinates import PolarMapping
+from ._decorators import _handle_polar_coordinates, glyph_method
 
 if TYPE_CHECKING:
     from ..core.enums import DimensionType
@@ -745,12 +746,18 @@ Examples:
             >>> p.scatter([1,2,3],[4,5,6], marker="square", fill_color="red")
             >>> p.scatter("data1", "data2", marker="mtype", source=data_source, ...)
 
+        For a figure with a :class:`~bokeh.models.coordinates.PolarMapping`,
+        use ``radius`` and ``angle`` for the marker positions. Use ``marker_angle``
+        for marker orientation. Marker sizes remain in screen units.
+
         .. note::
             ``Scatter`` markers with multiple marker types may be drawn in a
             different order when using the WebGL output backend. This is an explicit
             trade-off made in the interests of performance.
 
         '''
+        if self.plot is not None and isinstance(self.plot._coordinate_system_for(kwargs.get("coordinates", self.coordinates)), PolarMapping):
+            _handle_polar_coordinates(args, kwargs, marker=True)
         marker_type = kwargs.pop("marker", "circle")
 
         if isinstance(marker_type, str) and marker_type in _MARKER_SHORTCUTS:

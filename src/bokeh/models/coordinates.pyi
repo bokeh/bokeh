@@ -5,13 +5,32 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-from typing import Unpack
+from typing import Literal, Unpack
 
+from ..core.enums import AngleUnitsType, DirectionType
+from ..core.validation.check import ValidationIssue
 from ..model.model import Model, _ModelInit
-from .ranges import Range
+from .ranges import Range, Range1d
 from .scales import Scale
 
-class _CoordinateMappingInit(_ModelInit, total=False):
+class CoordinateMapping(Model):
+    @property
+    def ranges(self) -> tuple[Range, Range]: ...
+
+class _CartesianMappingInit(_ModelInit, total=False):
+    x_range: Range
+    y_range: Range
+    x_scale: Scale
+    y_scale: Scale
+
+class CartesianMapping(CoordinateMapping):
+    def __init__(self, **kwargs: Unpack[_CartesianMappingInit]) -> None: ...
+    x_range: Range = ...
+    y_range: Range = ...
+    x_scale: Scale = ...
+    y_scale: Scale = ...
+
+class _SubplotMappingInit(_ModelInit, total=False):
     x_source: Range
     y_source: Range
     x_scale: Scale
@@ -19,8 +38,8 @@ class _CoordinateMappingInit(_ModelInit, total=False):
     x_target: Range
     y_target: Range
 
-class CoordinateMapping(Model):
-    def __init__(self, **kwargs: Unpack[_CoordinateMappingInit]) -> None: ...
+class SubplotMapping(CoordinateMapping):
+    def __init__(self, **kwargs: Unpack[_SubplotMappingInit]) -> None: ...
 
     x_source: Range = ...
     y_source: Range = ...
@@ -28,3 +47,23 @@ class CoordinateMapping(Model):
     y_scale: Scale = ...
     x_target: Range = ...
     y_target: Range = ...
+
+class _PolarMappingInit(_ModelInit, total=False):
+    radial_range: Range1d
+    angular_range: Range1d
+    angle_units: AngleUnitsType
+    zero_direction: Literal["east", "north", "west", "south"]
+    direction: DirectionType
+    padding: float
+
+class PolarMapping(CoordinateMapping):
+    def _check_ranges(self) -> list[ValidationIssue]: ...
+
+    def __init__(self, **kwargs: Unpack[_PolarMappingInit]) -> None: ...
+
+    radial_range: Range1d = ...
+    angular_range: Range1d = ...
+    angle_units: AngleUnitsType = ...
+    zero_direction: Literal["east", "north", "west", "south"] = ...
+    direction: DirectionType = ...
+    padding: float = ...

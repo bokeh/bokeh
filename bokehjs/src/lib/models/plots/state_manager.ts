@@ -1,3 +1,4 @@
+import type {PolarViewport} from "../coordinates/polar_mapping"
 import {Signal0} from "core/signaling"
 import type {PlotView} from "./plot_canvas"
 import type {RangeInfo} from "./range_manager"
@@ -5,6 +6,7 @@ import type {Selection} from "../selections/selection"
 import type {DataRenderer} from "../renderers/data_renderer"
 
 export type StateInfo = {
+  polar_viewport?: PolarViewport
   range?: RangeInfo
   selection?: Map<DataRenderer, Selection>
 }
@@ -29,7 +31,11 @@ export class StateManager {
   protected _do_state_change(index: number): StateInfo {
     const state = index in this.history ? this.history[index].state : this.initial_state
 
-    if (state.range != null) {
+    if (state.polar_viewport != null) {
+      this.parent.set_polar_viewport(state.polar_viewport)
+    }
+
+    if (state.range != null && this.parent.polar_transform == null) {
       this.parent.update_range(state.range)
     }
 

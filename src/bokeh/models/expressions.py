@@ -252,8 +252,8 @@ class PolarTransform(CoordinateTransform):
     radius = NumberSpec(default=field("radius"), help="""
     The radial coordinate (i.e. the distance from the origin).
 
-    Negative radius is allowed, which is equivalent to using positive radius
-    and changing ``direction`` to the opposite value.
+    Negative radius is allowed. It is equivalent to using the positive radius
+    and adding half a revolution to the angle.
     """)
 
     angle = AngleSpec(default=field("angle"), help="""

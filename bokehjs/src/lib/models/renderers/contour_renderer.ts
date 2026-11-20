@@ -53,6 +53,9 @@ export class ContourRendererView extends DataRendererView {
   }
 
   hit_test(geometry: Geometry): HitTestResult {
+    if (!this.is_renderable) {
+      return null
+    }
     return this.fill_view.hit_test(geometry)
   }
 }

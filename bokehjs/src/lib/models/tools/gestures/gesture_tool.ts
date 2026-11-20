@@ -8,6 +8,10 @@ export abstract class GestureToolView extends ToolView {
   declare model: GestureTool
   declare readonly parent: PlotView
 
+  override get is_supported(): boolean {
+    return this._check_plot_support(this.plot_view)
+  }
+
   get plot_view(): PlotView {
     return this.parent
   }

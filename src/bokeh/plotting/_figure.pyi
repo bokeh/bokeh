@@ -37,6 +37,7 @@ from ..core.enums import (
     PaletteType as Palette,
     VerticalLocationType as VerticalLocation,
 )
+from ..models.coordinates import CoordinateMapping, PolarMapping
 from ..models.dom import Template
 from ..models.glyphs import (
     HArea,
@@ -110,6 +111,7 @@ class FigureOptions(BaseFigureOptions, total=False):
 class figure(Plot, GlyphAPI):
     def __init__(self, **kwargs: Unpack[FigureOptions]) -> None: ...
 
+    def _process_polar_guides(self, system: PolarMapping, coordinates: CoordinateMapping | None = ...) -> None: ...
     def subplot(self,
         *,
         x_source: Range | None = ...,

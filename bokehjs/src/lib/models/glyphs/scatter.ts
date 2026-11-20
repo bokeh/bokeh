@@ -30,7 +30,7 @@ export class ScatterView extends MarkerView {
   }
 
   protected override _compute_can_use_webgl(): boolean {
-    return is_empty(this.model.defs) || u.every(this.marker, is_MarkerType)
+    return this.renderer.coordinates.is_separable && (is_empty(this.model.defs) || u.every(this.marker, is_MarkerType))
   }
 
   protected async _update_defs(): Promise<void> {

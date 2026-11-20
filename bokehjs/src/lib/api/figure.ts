@@ -1,3 +1,6 @@
+import {SubplotMapping} from "../models/coordinates/subplot_mapping"
+import {PolarMapping} from "../models/coordinates/polar_mapping"
+import {CartesianMapping} from "../models/coordinates/cartesian_mapping"
 import {construct} from "../core/has_props"
 import type {HasProps, HasPropsClass, HasPropsFactory, ModelAttrs} from "../core/has_props"
 import type {Attrs} from "../core/types"
@@ -16,7 +19,11 @@ import * as nd from "core/util/ndarray"
 
 import type {Glyph, Scale, Plot, Toolbar} from "./models"
 import {
+  AdaptiveTicker,
   Axis,
+  HoverTool,
+  PolarAxis,
+  PolarGrid,
   CategoricalAxis,
   CategoricalScale,
   ColumnDataSource,
@@ -149,7 +156,7 @@ export type ICoordinateMapping = {
 
 export class SubFigure extends GlyphAPI {
 
-  constructor(readonly coordinates: CoordinateMapping, readonly parent: Figure) {
+  constructor(readonly coordinates: SubplotMapping, readonly parent: Figure) {
     super()
   }
 
@@ -254,8 +261,8 @@ export class Figure extends BaseFigure {
   protected constructor(attrs: Partial<Figure.Attrs> = {}) {
     attrs = {...attrs}
 
-    const x_axis_type = attrs.x_axis_type === undefined ? "auto" : attrs.x_axis_type
-    const y_axis_type = attrs.y_axis_type === undefined ? "auto" : attrs.y_axis_type
+    const requested_x_axis_type = attrs.x_axis_type === undefined ? "auto" : attrs.x_axis_type
+    const requested_y_axis_type = attrs.y_axis_type === undefined ? "auto" : attrs.y_axis_type
     delete attrs.x_axis_type
     delete attrs.y_axis_type
 
@@ -274,13 +281,42 @@ export class Figure extends BaseFigure {
     delete attrs.x_axis_label
     delete attrs.y_axis_label
 
-    const x_range = Figure._get_range(attrs.x_range)
-    const y_range = Figure._get_range(attrs.y_range)
+    const mapping = attrs.coordinate_system
+    if (mapping instanceof PolarMapping && (![null, "auto", "linear"].includes(requested_x_axis_type) || ![null, "auto", "linear"].includes(requested_y_axis_type))) {
+      throw new Error("PolarMapping currently supports linear radial scaling only")
+    }
+    if (mapping instanceof PolarMapping && attrs.outline_line_color === undefined) {
+      attrs.outline_line_color = null
+    }
+    if (mapping != null && (attrs.x_range != null || attrs.y_range != null)) {
+      throw new Error("Set ranges on the coordinate_system mapping instead of figure x_range and y_range")
+    }
+    const x_range = mapping?.ranges[0] ?? Figure._get_range(attrs.x_range)
+    const y_range = mapping?.ranges[1] ?? Figure._get_range(attrs.y_range)
     delete attrs.x_range
     delete attrs.y_range
 
-    const x_scale = attrs.x_scale ?? Figure._get_scale(x_range, x_axis_type)
-    const y_scale = attrs.y_scale ?? Figure._get_scale(y_range, y_axis_type)
+    const [x_axis_type, y_axis_type] = (() => {
+      if (!(mapping instanceof CartesianMapping)) {
+        return [requested_x_axis_type, requested_y_axis_type] as const
+      }
+      for (const dimension of ["x", "y"] as const) {
+        const axis_type = dimension == "x" ? requested_x_axis_type : requested_y_axis_type
+        if (axis_type == "log") {
+          if (!mapping.properties[`${dimension}_scale`].dirty) {
+            mapping[`${dimension}_scale`] = LogScale.create()
+          } else if (!(mapping[`${dimension}_scale`] instanceof LogScale)) {
+            throw new Error("A log axis requires a LogScale on CartesianMapping")
+          }
+        }
+      }
+      return [
+        requested_x_axis_type == "auto" && mapping.x_scale instanceof LogScale ? "log" : requested_x_axis_type,
+        requested_y_axis_type == "auto" && mapping.y_scale instanceof LogScale ? "log" : requested_y_axis_type,
+      ] as const
+    })()
+    const x_scale = mapping instanceof CartesianMapping ? mapping.x_scale : attrs.x_scale ?? Figure._get_scale(x_range, x_axis_type)
+    const y_scale = mapping instanceof CartesianMapping ? mapping.y_scale : attrs.y_scale ?? Figure._get_scale(y_range, y_axis_type)
     delete attrs.x_scale
     delete attrs.y_scale
 
@@ -324,7 +360,9 @@ export class Figure extends BaseFigure {
           }
         }
       } else {
-        return toolbar != null ? null : DEFAULT_TOOLS
+        return toolbar != null ? null : mapping instanceof PolarMapping
+          ? ["pan", "wheel_zoom", "box_select", "lasso_select", "tap", "hover", "save", "reset", "help"] as ToolName[]
+          : DEFAULT_TOOLS
       }
     })()
 
@@ -373,8 +411,12 @@ export class Figure extends BaseFigure {
     } = this._figure_options
     const {x_range, y_range} = this
 
-    this._process_axis_and_grid(x_axis_type, x_axis_location, x_minor_ticks, x_axis_label, x_range, 0)
-    this._process_axis_and_grid(y_axis_type, y_axis_location, y_minor_ticks, y_axis_label, y_range, 1)
+    if (!(this.coordinate_system instanceof PolarMapping)) {
+      this._process_axis_and_grid(x_axis_type, x_axis_location, x_minor_ticks, x_axis_label, x_range, 0)
+      this._process_axis_and_grid(y_axis_type, y_axis_location, y_minor_ticks, y_axis_label, y_range, 1)
+    } else {
+      this._process_polar_guides(this.coordinate_system)
+    }
 
     const tool_map = new Map<string, Tool>()
     if (tools != null) {
@@ -383,6 +425,9 @@ export class Figure extends BaseFigure {
           return tool
         } else {
           const resolved_tool = Tool.from_string(tool)
+          if (this.coordinate_system instanceof PolarMapping && resolved_tool instanceof HoverTool) {
+            resolved_tool.tooltips = [["radius", "$x"], ["angle", "$y"]]
+          }
           tool_map.set(tool, resolved_tool)
           return resolved_tool
         }
@@ -440,8 +485,21 @@ export class Figure extends BaseFigure {
     return null
   }
 
+  private _process_polar_guides(system: PolarMapping, coordinates: CoordinateMapping | null = null): void {
+    for (const dimension of ["radial", "angular"] as const) {
+      const axis = PolarAxis.create({dimension, coordinates})
+      if (dimension == "angular" && system.angle_units == "deg") {
+        axis.ticker = AdaptiveTicker.create({mantissas: [1, 1.5, 3, 4.5]})
+      }
+      this.renderers.push(PolarGrid.create({axis, coordinates}), axis)
+    }
+  }
+
   subplot(coordinates: ICoordinateMapping): SubFigure {
-    const mapping = CoordinateMapping.create(coordinates)
+    if (this.coordinate_system instanceof PolarMapping) {
+      throw new Error("Subplots require a Cartesian parent plot")
+    }
+    const mapping = SubplotMapping.create(coordinates)
     return new SubFigure(mapping, this)
   }
 
@@ -608,6 +666,10 @@ export class Figure extends BaseFigure {
     }
 
     attrs = {...attrs, ...overrides}
+    const problem = this.polar_glyph_error(cls.prototype, attrs.coordinates instanceof CoordinateMapping ? attrs.coordinates : null)
+    if (problem != null) {
+      throw new Error(problem)
+    }
 
     const source = (() => {
       const {source} = attrs
@@ -767,7 +829,7 @@ export class Figure extends BaseFigure {
       axis_label: Axis["axis_label"], rng: Range, dim: 0 | 1): void {
     const axis = this._get_axis(axis_type, rng, dim)
     if (axis != null) {
-      if (axis instanceof LogAxis) {
+      if (axis instanceof LogAxis && !(this.coordinate_system instanceof CartesianMapping)) {
         if (dim == 0) {
           this.x_scale = LogScale.create()
         } else {

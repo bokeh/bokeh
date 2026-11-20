@@ -2069,6 +2069,38 @@
       },
     },
   },
+  PolarAxis: {
+    __extends__: "GuideRenderer",
+    dimension: "radial",
+    ticker: {
+      type: "object",
+      name: "BasicTicker",
+      attributes: {},
+    },
+    formatter: {
+      type: "object",
+      name: "BasicTickFormatter",
+      attributes: {},
+    },
+    wrap_labels: true,
+    axis_line_color: "black",
+    axis_line_alpha: 1.0,
+    axis_line_width: 1,
+    axis_line_join: "bevel",
+    axis_line_cap: "butt",
+    axis_line_dash: [],
+    axis_line_dash_offset: 0,
+    major_label_text_color: "#444444",
+    major_label_text_outline_color: null,
+    major_label_text_outline_width: 1,
+    major_label_text_alpha: 1.0,
+    major_label_text_font: "helvetica",
+    major_label_text_font_size: "10px",
+    major_label_text_font_style: "normal",
+    major_label_text_align: "center",
+    major_label_text_baseline: "middle",
+    major_label_text_line_height: 1.2,
+  },
   TimedeltaAxis: {
     __extends__: "LinearAxis",
     ticker: {
@@ -2254,8 +2286,52 @@
     __extends__: "Comparison",
     ascending_first: false,
   },
+  CartesianMapping: {
+    __extends__: "CoordinateMapping",
+    x_range: {
+      type: "object",
+      name: "DataRange1d",
+      attributes: {},
+    },
+    y_range: {
+      type: "object",
+      name: "DataRange1d",
+      attributes: {},
+    },
+    x_scale: {
+      type: "object",
+      name: "LinearScale",
+      attributes: {},
+    },
+    y_scale: {
+      type: "object",
+      name: "LinearScale",
+      attributes: {},
+    },
+  },
   CoordinateMapping: {
     __extends__: "Model",
+  },
+  PolarMapping: {
+    __extends__: "CoordinateMapping",
+    radial_range: {
+      type: "symbol",
+      name: "unset",
+    },
+    angular_range: {
+      type: "object",
+      name: "Range1d",
+      attributes: {
+        end: 360,
+      },
+    },
+    angle_units: "deg",
+    zero_direction: "east",
+    direction: "anticlock",
+    padding: 40,
+  },
+  SubplotMapping: {
+    __extends__: "CoordinateMapping",
     x_source: {
       type: "object",
       name: "DataRange1d",
@@ -5390,6 +5466,21 @@
       type: "map",
     },
   },
+  PolarGrid: {
+    __extends__: "GuideRenderer",
+    level: "underlay",
+    axis: {
+      type: "symbol",
+      name: "unset",
+    },
+    grid_line_color: "#e5e5e5",
+    grid_line_alpha: 1.0,
+    grid_line_width: 1,
+    grid_line_join: "bevel",
+    grid_line_cap: "butt",
+    grid_line_dash: [],
+    grid_line_dash_offset: 0,
+  },
   AllLabels: {
     __extends__: "LabelingPolicy",
   },
@@ -5707,6 +5798,7 @@
     context_menu: "auto",
     width: 600,
     height: 600,
+    coordinate_system: null,
     x_range: {
       type: "object",
       name: "DataRange1d",

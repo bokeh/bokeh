@@ -13,8 +13,9 @@ from ..core.property_mixins import (
     ScalarBandHatchProps,
     ScalarGridLineProps,
     ScalarMinorGridLineProps,
+    _ScalarGridLinePropsInit,
 )
-from .axes import Axis
+from .axes import Axis, PolarAxis
 from .renderers.renderer import GuideRenderer, _GuideRendererInit
 from .tickers import Ticker
 
@@ -37,3 +38,11 @@ class Grid(GuideRenderer, ScalarGridLineProps, ScalarMinorGridLineProps, ScalarB
     def ticker(self) -> Ticker | None: ...
     @ticker.setter
     def ticker(self, ticker: Ticker | Sequence[float] | None) -> None: ...
+
+class _PolarGridInit(_GuideRendererInit, _ScalarGridLinePropsInit, total=False):
+    axis: PolarAxis
+
+class PolarGrid(GuideRenderer, ScalarGridLineProps):
+    def __init__(self, **kwargs: Unpack[_PolarGridInit]) -> None: ...
+
+    axis: PolarAxis = ...

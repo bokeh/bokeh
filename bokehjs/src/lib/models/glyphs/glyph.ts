@@ -644,27 +644,50 @@ export abstract class GlyphView extends DOMComponentView {
 
   protected _mask_data?(): Indices
 
-  map_data(): void {
-    const {x_scale, y_scale} = this.renderer.coordinates
+  protected _map_coupled<Data>(x: keyof Data & string, y: keyof Data & string, sx: keyof Data & string, sy: keyof Data & string): void {
     const {base_glyph} = this
-
-    const v_compute = <T>(prop: p.BaseCoordinateSpec<T>) => {
-      const scale = prop.dimension == "x" ? x_scale : y_scale
-      const array = this[prop.attr as keyof this] as Arrayable<number> | RaggedArray
-      if (array instanceof RaggedArray) {
-        return new RaggedArray(array.offsets, scale.v_compute(array.data))
-      } else {
-        return scale.v_compute(array)
-      }
+    if (base_glyph != null && this._is_inherited(x) && this._is_inherited(y)) {
+      this._inherit_from<Data>(sx, base_glyph)
+      this._inherit_from<Data>(sy, base_glyph)
+      return
     }
+    const xs = this[x as keyof this] as Arrayable<number>
+    const ys = this[y as keyof this] as Arrayable<number>
+    const [sxs, sys] = this.renderer.coordinates.map_to_screen(xs, ys)
+    this._define_attr<Data>(sx, sxs)
+    this._define_attr<Data>(sy, sys)
+  }
 
-    for (const prop of this.model) {
-      if (prop instanceof p.BaseCoordinateSpec) {
-        if (base_glyph != null && this._is_inherited(prop)) {
-          this._inherit_from(`s${prop.attr}`, base_glyph)
+  protected get supports_coupled_coordinates(): boolean {
+    return false
+  }
+
+  map_data(): void {
+    if (!this.renderer.coordinates.is_separable && !this.supports_coupled_coordinates) {
+      throw new Error(`${this.model.type} does not support coupled coordinate mappings`)
+    }
+    if (this.renderer.coordinates.is_separable) {
+      const {x_scale, y_scale} = this.renderer.coordinates
+      const {base_glyph} = this
+
+      const v_compute = <T>(prop: p.BaseCoordinateSpec<T>) => {
+        const scale = prop.dimension == "x" ? x_scale : y_scale
+        const array = this[prop.attr as keyof this] as Arrayable<number> | RaggedArray
+        if (array instanceof RaggedArray) {
+          return new RaggedArray(array.offsets, scale.v_compute(array.data))
         } else {
-          const array = v_compute(prop)
-          this._define_attr(`s${prop.attr}`, array)
+          return scale.v_compute(array)
+        }
+      }
+
+      for (const prop of this.model) {
+        if (prop instanceof p.BaseCoordinateSpec) {
+          if (base_glyph != null && this._is_inherited(prop)) {
+            this._inherit_from(`s${prop.attr}`, base_glyph)
+          } else {
+            const array = v_compute(prop)
+            this._define_attr(`s${prop.attr}`, array)
+          }
         }
       }
     }

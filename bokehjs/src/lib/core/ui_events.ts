@@ -601,7 +601,7 @@ export class UIEventBus {
   trigger<E extends UIEvent | KeyEvent>(signal: UISignal<E>, e: E, tool: ToolLike<Tool> | null = null): boolean {
     const emit = (tool: ToolLike<Tool>) => {
       const tool_view = this._tools.get(tool)
-      if (tool_view == null) {
+      if (tool_view == null || !tool_view.is_supported) {
         return false
       }
       const fn = (() => {
@@ -657,8 +657,7 @@ export class UIEventBus {
   /*protected*/ _trigger_bokeh_event(plot_view: PlotView, ev: UIEvent): void {
     const bokeh_event = (() => {
       const {sx, sy, modifiers} = ev
-      const x = plot_view.frame.x_scale.invert(sx)
-      const y = plot_view.frame.y_scale.invert(sy)
+      const [x, y] = plot_view.map_from_screen(sx, sy)
 
       switch (ev.type) {
         case "wheel":        return new events.MouseWheel(sx, sy, x, y, ev.delta, modifiers)

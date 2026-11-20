@@ -31,7 +31,7 @@ from ..core.property.nullable import Nullable
 from ..core.property.override import Override
 from ..core.property.primitive import Float, Int
 from ..core.property_mixins import ScalarFillProps, ScalarHatchProps, ScalarLineProps
-from .axes import Axis
+from .axes import Axis, PolarAxis
 from .renderers import GuideRenderer
 from .tickers import FixedTicker, Ticker
 
@@ -41,6 +41,7 @@ from .tickers import FixedTicker, Ticker
 
 __all__ = (
     'Grid',
+    'PolarGrid',
 )
 
 #-----------------------------------------------------------------------------
@@ -106,6 +107,20 @@ class Grid(GuideRenderer):
     """)
 
     _level = Override(default="underlay")
+
+class PolarGrid(GuideRenderer):
+    """ Rings or spokes at the major ticks of a polar axis. """
+
+    axis = Instance(PolarAxis, help="""
+    Axis supplying the dimension and tick locations.
+    """)
+
+    grid_props = Include(ScalarLineProps, prefix="grid", help="""
+    Appearance of the grid lines.
+    """)
+
+    grid_line_color = Override(default="#e5e5e5")
+    level = Override(default="underlay")
 
 #-----------------------------------------------------------------------------
 # Dev API

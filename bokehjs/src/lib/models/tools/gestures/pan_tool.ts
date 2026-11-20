@@ -1,3 +1,5 @@
+import type {PolarViewport} from "../../coordinates/polar_mapping"
+import {is_equal} from "core/util/eq"
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import type {RangeInfo, RangeState} from "../../plots/range_manager"
 import {MenuItem} from "../../ui/menus"
@@ -28,7 +30,7 @@ export class PanToolView extends GestureToolView {
     sdy: number
   }
 
-  protected state: {last_dx: number, last_dy: number, dims: Dimensions} | null = null
+  protected state: {last_dx: number, last_dy: number, dims: Dimensions, initial_viewport?: PolarViewport} | null = null
 
   override cursor(sx: number, sy: number): string | null {
     if (this.state != null) {
@@ -43,6 +45,10 @@ export class PanToolView extends GestureToolView {
   }
 
   protected _interactive_dims({sx, sy}: SXY): Dimensions | null {
+    const polar = this.plot_view.polar_transform
+    if (polar != null) {
+      return this.model.dimensions == "both" && this.plot_view.frame.bbox.contains(sx, sy) ? "both" : null
+    }
     const {dimensions} = this.model
     const {plot_view} = this
     const axis_view = plot_view.axis_views.find((view) => view.bbox.contains(sx, sy))
@@ -74,7 +80,11 @@ export class PanToolView extends GestureToolView {
     const {sx, sy} = ev
     const dims = this._interactive_dims({sx, sy})
     if (dims != null) {
-      this.state = {last_dx: 0, last_dy: 0, dims}
+      this.pan_info = undefined
+      this.state = {
+        last_dx: 0, last_dy: 0, dims,
+        initial_viewport: this.plot_view.polar_transform != null ? {...this.plot_view.polar_viewport} : undefined,
+      }
       this.model.document?.interactive_start(this.plot_view.model)
     }
   }
@@ -88,7 +98,15 @@ export class PanToolView extends GestureToolView {
 
   override _pan_end(_e: PanEvent): void {
     if (this.state != null) {
+      const {initial_viewport} = this.state
       this.state = null
+
+      if (this.plot_view.polar_transform != null) {
+        if (initial_viewport != null && !is_equal(initial_viewport, this.plot_view.polar_viewport)) {
+          this.plot_view.state.push("pan", {polar_viewport: {...this.plot_view.polar_viewport}})
+        }
+        return
+      }
 
       if (this.pan_info != null) {
         this.plot_view.state.push("pan", {range: this.pan_info})
@@ -106,6 +124,18 @@ export class PanToolView extends GestureToolView {
 
     const new_dx = dx - state.last_dx
     const new_dy = dy - state.last_dy
+
+    const polar = this.plot_view.polar_transform
+    if (polar != null) {
+      if (this.model.dimensions != "both" || !polar.is_valid || polar.radius == 0) {
+        return
+      }
+      const viewport = this.plot_view.polar_viewport
+      this.plot_view.set_polar_viewport({...viewport, x: viewport.x + new_dx, y: viewport.y + new_dy})
+      state.last_dx = dx
+      state.last_dy = dy
+      return
+    }
 
     const hr = frame.bbox.h_range
     const sx_low  = hr.start - new_dx

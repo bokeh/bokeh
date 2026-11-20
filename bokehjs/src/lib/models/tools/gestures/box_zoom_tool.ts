@@ -184,6 +184,9 @@ export class BoxZoomToolView extends GestureToolView {
   }
 
   _update([sx0, sx1]: Point, [sy0, sy1]: Point): void {
+    if (!this.is_supported) {
+      return
+    }
     // If the viewing window is too small, no-op: it is likely that the user did
     // not intend to make this box zoom and instead was trying to cancel out of the
     // zoom, a la matplotlib's ToolZoom. Like matplotlib, set the threshold at 5 pixels.

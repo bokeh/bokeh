@@ -7,8 +7,10 @@ import type * as p from "core/properties"
 import {isNumber} from "core/util/types"
 import type {CanvasLayer, Context2d} from "core/util/canvas"
 import {assert} from "core/util/assert"
+import {logger} from "core/logging"
 import type {Plot, PlotView} from "../plots/plot"
 import type {CanvasView} from "../canvas/canvas"
+import {PolarMapping, PolarCoordinateTransform} from "../coordinates/polar_mapping"
 import {CoordinateTransform, CoordinateMapping} from "../coordinates/coordinate_mapping"
 import type {Node} from "../coordinates/node"
 import type {XY} from "core/util/bbox"
@@ -55,6 +57,19 @@ export abstract class RendererView extends StyledElementView implements visuals.
     return [...super._children_views(), this._context_menu]
   }
 
+  get uses_plot_coordinate_system(): boolean {
+    return false
+  }
+
+  invalidate_coordinates(): void {
+    delete this._coordinates
+    for (const child of this._children_views()) {
+      if (child instanceof RendererView) {
+        child.invalidate_coordinates()
+      }
+    }
+  }
+
   protected _coordinates?: CoordinateTransform
   get coordinates(): CoordinateTransform {
     const {_coordinates} = this
@@ -68,6 +83,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
   private _custom_coordinates: CoordinateTransform | null = null
   set coordinates(custom_coordinates: CoordinateTransform | null) {
     this._custom_coordinates = custom_coordinates
+    delete this._coordinates
   }
 
   override initialize(): void {
@@ -93,6 +109,11 @@ export abstract class RendererView extends StyledElementView implements visuals.
       })
     }
 
+    this.on_transitive_change(this.model.properties.coordinates, () => {
+      this.invalidate_coordinates()
+      this.plot_view.invalidate_dataranges = true
+      this.request_paint()
+    })
     const {x_range_name, y_range_name} = this.model.properties
     this.on_change([x_range_name, y_range_name], () => delete this._coordinates)
     this.connect(this.plot_view.frame.model.change, () => delete this._coordinates)
@@ -104,7 +125,10 @@ export abstract class RendererView extends StyledElementView implements visuals.
     }
     const {coordinates} = this.model
     const {frame} = this.plot_view
-    if (coordinates != null) {
+    const system = this.uses_plot_coordinate_system ? this.plot_view.model.coordinate_system : null
+    if (this.uses_plot_coordinate_system && system instanceof PolarMapping && (coordinates == null || coordinates == system)) {
+      return this.plot_view.coordinate_transform!
+    } else if (coordinates != null) {
       return coordinates.get_transform(frame)
     } else {
       const {x_range_name, y_range_name} = this.model
@@ -180,7 +204,34 @@ export abstract class RendererView extends StyledElementView implements visuals.
     return this.model.visible
   }
 
+  private _reported_coordinate_error = false
+
+  protected get requires_polar_coordinates(): boolean {
+    return false
+  }
+
   get is_renderable(): boolean {
+    const {coordinates} = this.model
+    const problem = (() => {
+      if (coordinates != null) {
+        const problem = this.plot_view.model.polar_coordinate_error(coordinates)
+        if (problem != null) {
+          return problem
+        }
+      }
+      if (this.requires_polar_coordinates && !(this.coordinates instanceof PolarCoordinateTransform)) {
+        return `${this.model.type} requires a PolarMapping`
+      }
+      return null
+    })()
+    if (problem != null) {
+      if (!this._reported_coordinate_error) {
+        logger.warn(`Skipping ${this.model.type}: ${problem}`)
+        this._reported_coordinate_error = true
+      }
+      return false
+    }
+    this._reported_coordinate_error = false
     return true
   }
 

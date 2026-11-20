@@ -148,6 +148,9 @@ export class GraphRendererView extends DataRendererView {
   }
 
   hit_test(geometry: Geometry): HitTestResult {
+    if (!this.is_renderable) {
+      return null
+    }
     return this.model.inspection_policy.hit_test(geometry, this)
   }
 }

@@ -40,6 +40,7 @@ from ..core.property_mixins import (
 from ..model import Model
 from .annotations import Legend, Title
 from .axes import Axis
+from .coordinates import CartesianMapping, CoordinateMapping, PolarMapping
 from .dom import HTML
 from .glyph import Glyph
 from .grids import Grid
@@ -73,6 +74,7 @@ class HoverListAttrSplat(list[HoverTool], HoverTool):
     pass
 
 class _PlotInit(_LayoutDOMInit, _BackgroundFillInit, _BackgroundHatchInit, _BorderLineInit, _BorderFillInit, _BorderHatchInit, _OutlineLineInit, total=False):
+    coordinate_system: CartesianMapping | PolarMapping | None
     x_range: Range
     y_range: Range
     x_scale: Scale
@@ -116,8 +118,13 @@ class _PlotInit(_LayoutDOMInit, _BackgroundFillInit, _BackgroundHatchInit, _Bord
     attribution: list[HTML | str]
 
 class Plot(LayoutDOM, BackgroundFill, BackgroundHatch, BorderLine, BorderFill, BorderHatch, OutlineLine):
+    def _coordinate_system_for(self, coordinates: CoordinateMapping | None) -> CoordinateMapping | None: ...
+    def _polar_coordinate_error(self, coordinates: CoordinateMapping | None) -> str | None: ...
+    def _polar_glyph_error(self, glyphclass: type[Glyph], coordinates: CoordinateMapping | None = ...) -> str | None: ...
+
     def __init__(self, **kwargs: Unpack[_PlotInit]) -> None: ...
 
+    coordinate_system: CartesianMapping | PolarMapping | None = ...
     x_range: Range = ...
     y_range: Range = ...
     x_scale: Scale = ...

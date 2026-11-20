@@ -33,6 +33,8 @@ import type {ResetTool} from "./actions/reset_tool"
 import type {HelpTool} from "./actions/help_tool"
 
 import {IconLike} from "../common/kinds"
+import {logger} from "core/logging"
+import type {PlotView} from "../plots/plot_canvas"
 import type {ToolLike} from "./tool_proxy"
 
 export type ToolAliases = {
@@ -86,6 +88,21 @@ export abstract class ToolView extends View {
         this.deactivate()
       }
     })
+  }
+
+  get is_supported(): boolean {
+    return true
+  }
+
+  private _reported_polar_unsupported = false
+
+  protected _check_plot_support(plot_view: PlotView): boolean {
+    const problem = plot_view.model.polar_tool_error(this.model)
+    if (problem != null && !this._reported_polar_unsupported) {
+      logger.warn(problem)
+    }
+    this._reported_polar_unsupported = problem != null
+    return problem == null
   }
 
   get overlays(): Renderer[] {

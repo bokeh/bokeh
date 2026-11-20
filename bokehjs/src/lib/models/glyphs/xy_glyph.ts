@@ -1,3 +1,4 @@
+import type {BBox} from "core/util/bbox"
 import type {SpatialIndex} from "core/util/spatial"
 import * as p from "core/properties"
 import {Glyph, GlyphView} from "./glyph"
@@ -7,6 +8,16 @@ export interface XYGlyphView extends XYGlyph.Data {}
 export abstract class XYGlyphView extends GlyphView {
   declare model: XYGlyph
   declare visuals: XYGlyph.Visuals
+
+  override get bbox(): BBox | undefined {
+    return this.renderer.coordinates.is_separable ? super.bbox : this.renderer.plot_view.frame.bbox
+  }
+
+  protected override _map_data(): void {
+    if (!this.renderer.coordinates.is_separable) {
+      this._map_coupled<XYGlyph.Data>("x", "y", "sx", "sy")
+    }
+  }
 
   protected override _project_data(): void {
     this._project_xy<XYGlyph.Data>("x", this.x, "y", this.y)

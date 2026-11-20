@@ -1,12 +1,10 @@
+import {derive_scale} from "../scales/util"
 import {CanvasPanel, CanvasPanelView} from "./canvas_panel"
-import {CategoricalScale} from "../scales/categorical_scale"
-import {LogScale} from "../scales/log_scale"
 import {Scale} from "../scales/scale"
 import {LinearScale} from "../scales/linear_scale"
+import {DataRange1d} from "../ranges/data_range1d"
 import {Range} from "../ranges/range"
 import {Range1d} from "../ranges/range1d"
-import {DataRange1d} from "../ranges/data_range1d"
-import {FactorRange} from "../ranges/factor_range"
 import type {BBox} from "core/util/bbox"
 import {entries} from "core/util/object"
 import {assert} from "core/util/assert"
@@ -64,20 +62,8 @@ export class CartesianFrameView extends CanvasPanelView {
     const scales: Map<string, Scale> = new Map()
 
     for (const [name, range] of ranges) {
-      const factor_range = range instanceof FactorRange
-      const categorical_scale = scale instanceof CategoricalScale
-
-      if (factor_range != categorical_scale) {
-        throw new Error(`'${range.type}' is incompatible '${scale.type}'`)
-      }
-
-      if (scale instanceof LogScale && range instanceof DataRange1d) {
-        range.scale_hint = "log"
-      }
-
       const base_scale = in_scales.get(name) ?? scale
-      const derived_scale = base_scale.clone()
-      derived_scale.setv({source_range: range, target_range: frame_range})
+      const derived_scale = derive_scale(base_scale, range, frame_range)
       scales.set(name, derived_scale)
     }
 

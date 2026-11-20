@@ -2,7 +2,8 @@ import type {Range} from "../ranges/range"
 import type {Bounds} from "../ranges/data_range1d"
 import {DataRange1d} from "../ranges/data_range1d"
 import type {CartesianFrameView} from "../canvas/cartesian_frame"
-import type {CoordinateMapping} from "../coordinates/coordinate_mapping"
+import {CoordinateMapping} from "../coordinates/coordinate_mapping"
+import {SubplotMapping} from "../coordinates/subplot_mapping"
 import type {PlotView} from "./plot_canvas"
 import type {Interval} from "core/types"
 import {logger} from "core/logging"
@@ -64,8 +65,8 @@ export class RangeManager {
     for (const renderer of this.parent.model.data_renderers) {
       const {coordinates} = renderer
       if (coordinates != null) {
-        x_ranges.add(coordinates.x_source)
-        y_ranges.add(coordinates.y_source)
+        x_ranges.add(coordinates.ranges[0])
+        y_ranges.add(coordinates.ranges[1])
       }
     }
 
@@ -87,17 +88,21 @@ export class RangeManager {
   }
 
   protected _update_dataranges(frame: CartesianFrameView | CoordinateMapping): void {
+    const [x_ranges, y_ranges] = frame instanceof CoordinateMapping
+      ? [[frame.ranges[0]], [frame.ranges[1]]]
+      : [[...frame.x_ranges.values()], [...frame.y_ranges.values()]]
+
     // Update any DataRange1ds here
     const bounds: Bounds = new Map()
     const log_bounds: Bounds = new Map()
 
     let calculate_log_bounds = false
-    for (const [, xr] of frame.x_ranges) {
+    for (const xr of x_ranges) {
       if (xr instanceof DataRange1d && xr.scale_hint == "log") {
         calculate_log_bounds = true
       }
     }
-    for (const [, yr] of frame.y_ranges) {
+    for (const yr of y_ranges) {
       if (yr instanceof DataRange1d && yr.scale_hint == "log") {
         calculate_log_bounds = true
       }
@@ -116,16 +121,15 @@ export class RangeManager {
     let follow_enabled = false
     let has_bounds = false
 
-    //const {width, height} = frame.bbox
-    const width = frame.x_target.span
-    const height = frame.y_target.span
+    const {width, height} = frame instanceof SubplotMapping
+      ? {width: frame.x_target.span, height: frame.y_target.span} : this.frame.bbox
 
     let r: number | undefined
     if (this.parent.model.match_aspect && width != 0 && height != 0) {
       r = (1/this.parent.model.aspect_scale)*(width/height)
     }
 
-    for (const [, xr] of frame.x_ranges) {
+    for (const xr of x_ranges) {
       if (xr instanceof DataRange1d) {
         const bounds_to_use = xr.scale_hint == "log" ? log_bounds : bounds
         xr.update(bounds_to_use, 0, this.parent, r)
@@ -138,7 +142,7 @@ export class RangeManager {
       }
     }
 
-    for (const [, yr] of frame.y_ranges) {
+    for (const yr of y_ranges) {
       if (yr instanceof DataRange1d) {
         const bounds_to_use = yr.scale_hint == "log" ? log_bounds : bounds
         yr.update(bounds_to_use, 1, this.parent, r)
@@ -153,10 +157,10 @@ export class RangeManager {
 
     if (follow_enabled && has_bounds) {
       logger.warn("Follow enabled so bounds are unset.")
-      for (const [, xr] of frame.x_ranges) {
+      for (const xr of x_ranges) {
         xr.bounds = null
       }
-      for (const [, yr] of frame.y_ranges) {
+      for (const yr of y_ranges) {
         yr.bounds = null
       }
     }

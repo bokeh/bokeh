@@ -16,6 +16,10 @@ import {Grid} from "../grids/grid"
 import type {GuideRenderer} from "../renderers/guide_renderer"
 import {Annotation} from "../annotations/annotation"
 import {Title} from "../annotations/title"
+import type {CoordinateMapping} from "../coordinates/coordinate_mapping"
+import {CartesianMapping} from "../coordinates/cartesian_mapping"
+import {PolarMapping} from "../coordinates/polar_mapping"
+import {glyph_coordinate_error} from "../coordinates/compatibility"
 import {LinearScale} from "../scales/linear_scale"
 import {Toolbar} from "../tools/toolbar"
 import {HTML} from "../dom/html"
@@ -31,6 +35,15 @@ import {GlyphRenderer} from "../renderers/glyph_renderer"
 import type {GlyphRendererWithSource} from "../renderers/glyph_renderer"
 import type {ToolAliases} from "../tools/tool"
 import {Tool} from "../tools/tool"
+import {ClickPanTool} from "../tools/actions/click_pan_tool"
+import {WheelPanTool} from "../tools/gestures/wheel_pan_tool"
+import {BoxZoomTool} from "../tools/gestures/box_zoom_tool"
+import {EditTool} from "../tools/edit/edit_tool"
+import {RangeTool} from "../tools/gestures/range_tool"
+import {PanTool} from "../tools/gestures/pan_tool"
+import {WheelZoomTool} from "../tools/gestures/wheel_zoom_tool"
+import {ZoomInTool} from "../tools/actions/zoom_in_tool"
+import {ZoomOutTool} from "../tools/actions/zoom_out_tool"
 import "../tools/aliases"
 import {DataRange1d} from "../ranges/data_range1d"
 import {StyledElement} from "../ui/styled_element"
@@ -61,6 +74,8 @@ export namespace Plot {
     center: p.Property<(Annotation | Grid | StyledElement)[]>
 
     renderers: p.Property<Renderer[]>
+
+    coordinate_system: p.Property<CartesianMapping | PolarMapping | null>
 
     x_range: p.Property<Range>
     y_range: p.Property<Range>
@@ -128,6 +143,29 @@ export class Plot extends LayoutDOM {
   declare properties: Plot.Props
   declare __view_type__: PlotView
 
+  override initialize(): void {
+    super.initialize()
+    this._sync_coordinate_system()
+  }
+
+  private _sync_coordinate_system(): void {
+    const mapping = this.coordinate_system
+    if (mapping == null) {
+      return
+    }
+    if (mapping instanceof PolarMapping && (!(this.x_scale instanceof LinearScale) || !(this.y_scale instanceof LinearScale))) {
+      throw new Error("PolarMapping currently supports linear radial scaling only")
+    }
+    const [x_range, y_range] = mapping.ranges
+    this.setv({x_range, y_range, ...(mapping instanceof CartesianMapping ? {x_scale: mapping.x_scale, y_scale: mapping.y_scale} : {})})
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+    this.on_change([this.properties.x_range, this.properties.y_range, this.properties.x_scale, this.properties.y_scale], () => this._sync_coordinate_system())
+    this.on_transitive_change(this.properties.coordinate_system, () => this._sync_coordinate_system())
+  }
+
   readonly use_map: boolean = false
 
   readonly reset = new Signal0(this, "reset")
@@ -145,6 +183,8 @@ export class Plot extends LayoutDOM {
     ])
 
     this.define<Plot.Props>(({Bool, Float, Str, List, Dict, Or, Ref, Null, Nullable, Struct, Opt}) => ({
+      coordinate_system: [ Nullable(Or(Ref(CartesianMapping), Ref(PolarMapping))), null ],
+
       toolbar:           [ Ref(Toolbar), () => Toolbar.create() ],
       toolbar_location:  [ Nullable(Location), "right" ],
       toolbar_sticky:    [ Bool, true ],
@@ -244,19 +284,60 @@ export class Plot extends LayoutDOM {
     this.renderers = [...this.renderers, ...renderers]
   }
 
+  polar_coordinate_error(coordinates: CoordinateMapping | null): string | null {
+    if (coordinates instanceof PolarMapping && coordinates != this.coordinate_system) {
+      return "PolarMapping renderer coordinates require a matching polar parent plot"
+    }
+    if (this.coordinate_system instanceof PolarMapping && coordinates != null && coordinates != this.coordinate_system) {
+      return "Subplots and renderer-level coordinate systems require a Cartesian parent plot"
+    }
+    return null
+  }
+
+  polar_glyph_error(glyph: Glyph, coordinates: CoordinateMapping | null = null): string | null {
+    const problem = this.polar_coordinate_error(coordinates)
+    if (problem != null) {
+      return problem
+    }
+    return glyph_coordinate_error(glyph, coordinates ?? this.coordinate_system)
+  }
+
   add_glyph<BaseGlyph extends Glyph>(glyph: BaseGlyph, source?: ColumnDataSource,
     attrs?: Partial<GlyphRenderer.Attrs<BaseGlyph>>): GlyphRendererWithSource<BaseGlyph, ColumnDataSource>
   add_glyph<BaseGlyph extends Glyph, Source extends IndexedDataSource>(glyph: BaseGlyph, source: Source,
     attrs?: Partial<GlyphRenderer.Attrs<BaseGlyph>>): GlyphRendererWithSource<BaseGlyph, Source>
   add_glyph<BaseGlyph extends Glyph>(glyph: BaseGlyph, source: IndexedDataSource = ColumnDataSource.create(),
       attrs: Partial<GlyphRenderer.Attrs<BaseGlyph>> = {}): GlyphRenderer<BaseGlyph> {
+    const problem = this.polar_glyph_error(glyph, attrs.coordinates ?? null)
+    if (problem != null) {
+      throw new Error(problem)
+    }
     const renderer = GlyphRenderer.create({...attrs, data_source: source, glyph})
     this.add_renderers(renderer)
     return renderer
   }
 
+  polar_tool_error(tool: Tool): string | null {
+    if (!(this.coordinate_system instanceof PolarMapping)) {
+      return null
+    }
+    if (tool instanceof BoxZoomTool || tool instanceof ZoomInTool || tool instanceof ZoomOutTool || tool instanceof EditTool || tool instanceof RangeTool || tool instanceof WheelPanTool || tool instanceof ClickPanTool) {
+      return `${tool.type} is not supported by PolarMapping`
+    }
+    if ((tool instanceof PanTool || tool instanceof WheelZoomTool) && tool.dimensions != "both") {
+      return "PolarMapping requires pan and wheel zoom tools with dimensions='both'"
+    }
+    return null
+  }
+
   add_tools(...tools: (Tool | keyof ToolAliases)[]): void {
     const computed_tools = tools.map((tool) => tool instanceof Tool ? tool : Tool.from_string(tool))
+    for (const tool of computed_tools) {
+      const problem = this.polar_tool_error(tool)
+      if (problem != null) {
+        throw new Error(problem)
+      }
+    }
     this.toolbar.tools = [...this.toolbar.tools, ...computed_tools]
   }
 

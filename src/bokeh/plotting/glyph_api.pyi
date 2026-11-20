@@ -423,6 +423,8 @@ class RectArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
     border_radius: BorderRadius
 
 class ScatterArgs(MarkerArgs, total=False):
+    radius: NumberArg
+    marker_angle: AngleArg
     # marker: MarkerArg
     defs: dict[str, CustomJS]
 

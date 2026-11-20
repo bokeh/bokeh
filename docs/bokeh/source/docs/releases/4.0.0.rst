@@ -58,6 +58,11 @@ New features
   e.g. strings by ``Plot.title``, are accepted, and ``Readonly`` properties
   can't be assigned to (:bokeh-issue:`15760`).
 
+* Added native polar plotting with ``PolarMapping``, radial and angular guides,
+  scatter markers, and local view navigation. ``CartesianMapping`` provides the same
+  explicit coordinate-system API for Cartesian plots. See :ref:`ug_topics_polar`
+  for the supported API and interactions.
+
 Removals
 --------
 
@@ -188,6 +193,14 @@ API changes
   ``[8, 2, 8]`` yields ``[2, 8]``. Applications that use a selection
   callback to track click order should record that order separately
   (:bokeh-pull:`15575`).
+
+* ``CoordinateMapping`` is now the abstract base class for ``CartesianMapping``,
+  ``PolarMapping``, and ``SubplotMapping``. Code that directly constructed the
+  previous ``CoordinateMapping`` model to embed source ranges in a target
+  rectangle should construct ``SubplotMapping`` instead. Its ``x_source``,
+  ``y_source``, ``x_target``, ``y_target``, ``x_scale``, and ``y_scale`` properties
+  are unchanged. The existing ``plot.subplot(...)`` convenience API continues
+  to work and creates the replacement model automatically.
 
 * Generic property base classes and ``Value`` now default their type parameter
   to ``Any`` when it is omitted. Explicit type arguments and constructor

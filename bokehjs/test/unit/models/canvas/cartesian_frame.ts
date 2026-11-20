@@ -44,7 +44,7 @@ describe("CartesianFrame", () => {
       y_scale: LinearScale.create(),
     })
 
-    await expect(async () => await build_frame(frame)).to.throw(Error, "'FactorRange' is incompatible 'LinearScale'")
+    await expect(async () => await build_frame(frame)).to.throw(Error, "'FactorRange' is incompatible with 'LinearScale'")
   })
 
   it("should throw an error for incompatible factor scale and numeric range", async () => {
@@ -55,6 +55,6 @@ describe("CartesianFrame", () => {
       y_scale: LinearScale.create(),
     })
 
-    await expect(async () => await build_frame(frame)).to.throw(Error, "'Range1d' is incompatible 'CategoricalScale'")
+    await expect(async () => await build_frame(frame)).to.throw(Error, "'Range1d' is incompatible with 'CategoricalScale'")
   })
 })
