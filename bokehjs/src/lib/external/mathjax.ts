@@ -18,6 +18,7 @@ export type MathJaxProtoItem = {
 }
 
 export type MathJaxAPI = {
+  tex2html(formula: string, options?: MathJaxConvertOptions, macros?: MathJaxTeXMacros): HTMLElement
   tex2svg(formula: string, options?: MathJaxConvertOptions, macros?: MathJaxTeXMacros): HTMLElement
   ascii2svg(formula: string, options?: MathJaxConvertOptions): HTMLElement
   mathml2svg(formula: string, options?: MathJaxConvertOptions): HTMLElement

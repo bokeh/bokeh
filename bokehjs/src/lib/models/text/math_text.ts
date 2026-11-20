@@ -24,6 +24,11 @@ import {default_provider} from "./providers"
 export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   declare model: MathText
 
+  override html(): HTMLElement {
+    // TODO switch to tex2html(), but this requires stylesheets
+    return this.provider.MathJax!.tex2svg(this.text)
+  }
+
   graphics(): GraphicsBox {
     return this
   }
@@ -385,6 +390,26 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
       if (this._image_request == request) {
         this._image_request = null
       }
+    }
+  }
+
+  async fetch_image(): Promise<void> {
+    await this.request_image()
+
+    if (!this._has_finished && (this.provider.status == "failed" || this.svg_image != null)) {
+      this.finish()
+    }
+  }
+
+  override async fetch_assets(): Promise<void> {
+    if (this.has_finished() && this.svg_image != null) {
+      return
+    }
+    if (this.provider.status == "not_started" || this.provider.status == "loading") {
+      this.provider.ready.connect(() => this.fetch_image())
+    }
+    if (this.provider.status == "loaded") {
+      void this.fetch_image()
     }
   }
 
