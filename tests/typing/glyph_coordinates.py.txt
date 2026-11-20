@@ -1,0 +1,31 @@
+# Copyright (c) Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved. The full license is in the file LICENSE.txt.
+
+from datetime import datetime, timedelta
+
+import numpy as np
+
+from bokeh.core.properties import field
+from bokeh.models import FactorRange
+from bokeh.plotting import figure
+
+p = figure(x_range=["A", "B"])
+p.segment(x0=["A", "B"], y0=[1, 2], x1=["A", "B"], y1=[3, 4])
+p.scatter(x=np.array(["A", "B"], dtype=np.str_), y=[1, 2])
+
+pairs = [("2025", "Q1"), ("2025", "Q2")]
+triples = [("2025", "Q1", "Jan"), ("2025", "Q1", "Feb")]
+p = figure(x_range=FactorRange(factors=pairs), y_range=FactorRange(factors=triples))
+p.segment(x0=pairs, y0=triples, x1=pairs, y1=triples)
+p.whisker(base=pairs, lower=triples, upper=triples)
+p.multi_line(xs=[pairs], ys=[triples])
+p.patches(xs=[pairs], ys=[triples])
+
+p = figure()
+p.scatter(x=[datetime(2025, 1, 1)], y=[timedelta(hours=1)])
+p.arrow(x_start="x", y_start=field("y"), x_end="y", y_end="x", source={"x": [1], "y": [2]})
+
+four_levels = [("a", "b", "c", "d")]
+p.scatter(x=four_levels, y=[1])  # mypy: arg-type | pyright: reportArgumentType
+p.hex_tile(q=[0, 1], r=[0, 1], scale=pairs)  # mypy: arg-type | pyright: reportArgumentType
+p.text(x="x", y="y", text="labels", text_line_height=triples)  # mypy: arg-type | pyright: reportArgumentType

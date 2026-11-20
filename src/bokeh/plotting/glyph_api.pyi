@@ -10,6 +10,8 @@ from typing import Literal, TypedDict, Unpack
 from .._specs import (
     AlphaArg,
     AngleArg,
+    AxisCoordinateArg,
+    AxisCoordinateSeqArg,
     ColorArg,
     DashPatternArg,
     DistanceArg,
@@ -24,7 +26,6 @@ from .._specs import (
     LineJoinArg,
     MarkerArg,
     NullDistanceArg,
-    Number1dArg,
     Number3dArg,
     NumberArg,
     NumberSpec,
@@ -194,8 +195,8 @@ class GlyphArgs(AuxGlyphArgs, AuxVisuals, total=False):
     pass
 
 class AnnularWedgeArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
-    # x: NumberArg
-    # y: NumberArg
+    # x: AxisCoordinateArg
+    # y: AxisCoordinateArg
     # inner_radius: DistanceArg
     inner_radius_units: SpatialUnits
     # outer_radius: DistanceArg
@@ -207,16 +208,16 @@ class AnnularWedgeArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=
     # direction: Direction
 
 class AnnulusArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
-    # x: NumberArg
-    # y: NumberArg
+    # x: AxisCoordinateArg
+    # y: AxisCoordinateArg
     # inner_radius: DistanceArg
     inner_radius_units: SpatialUnits
     # outer_radius: DistanceArg
     outer_radius_units: SpatialUnits
 
 class ArcArgs(GlyphArgs, LineVisuals, total=False):
-    # x: NumberArg
-    # y: NumberArg
+    # x: AxisCoordinateArg
+    # y: AxisCoordinateArg
     # radius: DistanceArg
     radius_units: SpatialUnits
     # start_angle: AngleArg
@@ -226,35 +227,35 @@ class ArcArgs(GlyphArgs, LineVisuals, total=False):
     # direction: Direction
 
 class BezierArgs(GlyphArgs, LineVisuals, total=False):
-    # x0: NumberArg
-    # y0: NumberArg
-    # x1: NumberArg
-    # y1: NumberArg
-    # cx0: NumberArg
-    # cy0: NumberArg
-    # cx1: NumberArg
-    # cy1: NumberArg
+    # x0: AxisCoordinateArg
+    # y0: AxisCoordinateArg
+    # x1: AxisCoordinateArg
+    # y1: AxisCoordinateArg
+    # cx0: AxisCoordinateArg
+    # cy0: AxisCoordinateArg
+    # cx1: AxisCoordinateArg
+    # cy1: AxisCoordinateArg
     pass
 
 class BlockArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
-    # x: NumberArg
-    # y: NumberArg
+    # x: AxisCoordinateArg
+    # y: AxisCoordinateArg
     # width: DistanceArg
     width_units: SpatialUnits
     # height: DistanceArg
     height_units: SpatialUnits
 
 class CircleArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
-    # x: NumberArg
-    # y: NumberArg
+    # x: AxisCoordinateArg
+    # y: AxisCoordinateArg
     # radius: DistanceArg
     radius_units: SpatialUnits
     radius_dimension: RadiusDimension
     hit_dilation: NonNegative[float]
 
 class EllipseArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
-    # x: NumberArg
-    # y: NumberArg
+    # x: AxisCoordinateArg
+    # y: AxisCoordinateArg
     # width: DistanceArg
     width_units: SpatialUnits
     # height: DistanceArg
@@ -263,31 +264,31 @@ class EllipseArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False
     angel_units: AngleUnits
 
 class HAreaArgs(GlyphArgs, FillVisuals, HatchVisuals, total=False):
-    # x1: NumberArg
-    # x2: NumberArg
-    # y: NumberArg
+    # x1: AxisCoordinateArg
+    # x2: AxisCoordinateArg
+    # y: AxisCoordinateArg
     pass
 
 class HAreaStepArgs(GlyphArgs, FillVisuals, HatchVisuals, total=False):
-    # x1: NumberArg
-    # x2: NumberArg
-    # y: NumberArg
+    # x1: AxisCoordinateArg
+    # x2: AxisCoordinateArg
+    # y: AxisCoordinateArg
     step_mode: StepMode
 
 class HBarArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
-    # y: NumberArg
+    # y: AxisCoordinateArg
     # height: DistanceArg
     height_units: SpatialUnits
-    # left: NumberArg
-    # right: NumberArg
+    # left: AxisCoordinateArg
+    # right: AxisCoordinateArg
 
 class HSpanArgs(GlyphArgs, LineVisuals, total=False):
-    # y: NumberArg
+    # y: AxisCoordinateArg
     pass
 
 class HStripArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
-    # y0: NumberArg
-    # y1: NumberArg
+    # y0: AxisCoordinateArg
+    # y1: AxisCoordinateArg
     pass
 
 class HexTileArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
@@ -300,8 +301,8 @@ class HexTileArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False
 
 class ImageArgs(GlyphArgs, total=False):
     # image: Image2dArg
-    # x: NumberArg
-    # y: NumberArg
+    # x: AxisCoordinateArg
+    # y: AxisCoordinateArg
     # dw: DistanceArg
     # dh: DistanceArg
     # dilate: bool
@@ -309,8 +310,8 @@ class ImageArgs(GlyphArgs, total=False):
 
 class ImageRGBAArgs(GlyphArgs, total=False):
     # image: Image2dArg
-    # x: NumberArg
-    # y: NumberArg
+    # x: AxisCoordinateArg
+    # y: AxisCoordinateArg
     # dw: DistanceArg
     # dh: DistanceArg
     # dilate: bool
@@ -318,8 +319,8 @@ class ImageRGBAArgs(GlyphArgs, total=False):
 
 class ImageStackArgs(GlyphArgs, total=False):
     # image: Image3dArg
-    # x: NumberArg
-    # y: NumberArg
+    # x: AxisCoordinateArg
+    # y: AxisCoordinateArg
     # dw: DistanceArg
     # dh: DistanceArg
     # dilate: bool
@@ -327,8 +328,8 @@ class ImageStackArgs(GlyphArgs, total=False):
 
 class ImageURLArgs(GlyphArgs, total=False):
     # url: StringArg
-    # x: NumberArg
-    # y: NumberArg
+    # x: AxisCoordinateArg
+    # y: AxisCoordinateArg
     # w: NullDistanceArg
     w_units: SpatialUnits
     # h: NullDistanceArg
@@ -342,13 +343,13 @@ class ImageURLArgs(GlyphArgs, total=False):
     retry_timeout: int
 
 class LineArgs(GlyphArgs, LineVisuals, total=False):
-    # x: NumberArg
-    # y: NumberArg
+    # x: AxisCoordinateArg
+    # y: AxisCoordinateArg
     pass
 
 class MarkerArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
-    # x: NumberArg
-    # y: NumberArg
+    # x: AxisCoordinateArg
+    # y: AxisCoordinateArg
     # size: SizeArg
     # angle: AngleArg
     hit_dilation: NonNegative[float]
@@ -357,8 +358,8 @@ class MathMLArgs(GlyphArgs, TextVisuals, total=False):
     pass
 
 class MultiLineArgs(GlyphArgs, LineVisuals, total=False):
-    # xs: Number1dArg
-    # ys: Number1dArg
+    # xs: AxisCoordinateSeqArg
+    # ys: AxisCoordinateSeqArg
     pass
 
 class MultiPolygonsArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
@@ -367,8 +368,8 @@ class MultiPolygonsArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total
     pass
 
 class NgonArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
-    # x: NumberArg
-    # y: NumberArg
+    # x: AxisCoordinateArg
+    # y: AxisCoordinateArg
     # radius: DistanceArg
     radius_units: SpatialUnits
     # angle: AngleArg
@@ -377,42 +378,42 @@ class NgonArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
     radius_dimension: RadiusDimension
 
 class PatchArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
-    # x: NumberArg
-    # y: NumberArg
+    # x: AxisCoordinateArg
+    # y: AxisCoordinateArg
     pass
 
 class PatchesArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
-    # xs: Number1dArg
-    # ys: Number1dArg
+    # xs: AxisCoordinateSeqArg
+    # ys: AxisCoordinateSeqArg
     pass
 
 class QuadArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
-    # left: NumberArg
-    # right: NumberArg
-    # bottom: NumberArg
-    # top: NumberArg
+    # left: AxisCoordinateArg
+    # right: AxisCoordinateArg
+    # bottom: AxisCoordinateArg
+    # top: AxisCoordinateArg
     pass
 
 class QuadraticArgs(GlyphArgs, LineVisuals, total=False):
-    # x0: NumberArg
-    # y0: NumberArg
-    # x1: NumberArg
-    # y1: NumberArg
-    # cx: NumberArg
-    # cy: NumberArg
+    # x0: AxisCoordinateArg
+    # y0: AxisCoordinateArg
+    # x1: AxisCoordinateArg
+    # y1: AxisCoordinateArg
+    # cx: AxisCoordinateArg
+    # cy: AxisCoordinateArg
     pass
 
 class RayArgs(GlyphArgs, LineVisuals, total=False):
-    # x: NumberArg
-    # y: NumberArg
+    # x: AxisCoordinateArg
+    # y: AxisCoordinateArg
     # length: DistanceArg
     length_units: SpatialUnits
     # angle: AngleArg
     angle_units: AngleUnits
 
 class RectArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
-    # x: NumberArg
-    # y: NumberArg
+    # x: AxisCoordinateArg
+    # y: AxisCoordinateArg
     # width: DistanceArg
     width_units: SpatialUnits
     # height: DistanceArg
@@ -427,15 +428,15 @@ class ScatterArgs(MarkerArgs, total=False):
     defs: dict[str, CustomJS]
 
 class SegmentArgs(GlyphArgs, LineVisuals, total=False):
-    # x0: NumberArg
-    # y0: NumberArg
-    # x1: NumberArg
-    # y1: NumberArg
+    # x0: AxisCoordinateArg
+    # y0: AxisCoordinateArg
+    # x1: AxisCoordinateArg
+    # y1: AxisCoordinateArg
     pass
 
 class StepArgs(GlyphArgs, LineVisuals, total=False):
-    # x: NumberArg
-    # y: NumberArg
+    # x: AxisCoordinateArg
+    # y: AxisCoordinateArg
     mode: StepMode
 
 class TeXArgs(GlyphArgs, TextVisuals, total=False):
@@ -443,8 +444,8 @@ class TeXArgs(GlyphArgs, TextVisuals, total=False):
     display: TeXDisplay
 
 class TextArgs(GlyphArgs, TextVisuals, total=False):
-    # x: NumberArg
-    # y: NumberArg
+    # x: AxisCoordinateArg
+    # y: AxisCoordinateArg
     # text: StringArg
     # angle: AngleArg
     angle_units: AngleUnits
@@ -456,36 +457,36 @@ class TextArgs(GlyphArgs, TextVisuals, total=False):
     outline_shape: OutlineShapeNameArg
 
 class VAreaArgs(GlyphArgs, FillVisuals, HatchVisuals, total=False):
-    # x: NumberArg
-    # y1: NumberArg
-    # y2: NumberArg
+    # x: AxisCoordinateArg
+    # y1: AxisCoordinateArg
+    # y2: AxisCoordinateArg
     pass
 
 class VAreaStepArgs(GlyphArgs, FillVisuals, HatchVisuals, total=False):
-    # x: NumberArg
-    # y1: NumberArg
-    # y2: NumberArg
+    # x: AxisCoordinateArg
+    # y1: AxisCoordinateArg
+    # y2: AxisCoordinateArg
     step_mode: StepMode
 
 class VBarArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
-    # x: NumberArg
+    # x: AxisCoordinateArg
     # width: DistanceArg
     width_units: SpatialUnits
-    # bottom: NumberArg
-    # top: NumberArg
+    # bottom: AxisCoordinateArg
+    # top: AxisCoordinateArg
 
 class VSpanArgs(GlyphArgs, LineVisuals, total=False):
-    # x: NumberArg
+    # x: AxisCoordinateArg
     pass
 
 class VStripArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
-    # x0: NumberArg
-    # x1: NumberArg
+    # x0: AxisCoordinateArg
+    # x1: AxisCoordinateArg
     pass
 
 class WedgeArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False):
-    # x: NumberArg
-    # y: NumberArg
+    # x: AxisCoordinateArg
+    # y: AxisCoordinateArg
     # radius: DistanceArg
     radius_units: SpatialUnits
     # start_angle: AngleArg
@@ -505,8 +506,8 @@ class GlyphAPI:
     def __init__(self, parent: Plot | None = None, coordinates: CoordinateMapping | None = None) -> None: ...
 
     def annular_wedge(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
+        x: AxisCoordinateArg = ...,
+        y: AxisCoordinateArg = ...,
         inner_radius: DistanceArg = ...,
         outer_radius: DistanceArg = ...,
         start_angle: AngleArg = ...,
@@ -516,18 +517,18 @@ class GlyphAPI:
     ) -> GlyphRenderer[glyphs.AnnularWedge]: ...
 
     def annulus(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
+        x: AxisCoordinateArg = ...,
+        y: AxisCoordinateArg = ...,
         inner_radius: DistanceArg = ...,
         outer_radius: DistanceArg = ...,
         **kwargs: Unpack[AnnulusArgs],
     ) -> GlyphRenderer[glyphs.Annulus]: ...
 
     def arrow(self,
-        x_start: NumberArg = ...,
-        y_start: NumberArg = ...,
-        x_end: NumberArg = ...,
-        y_end: NumberArg = ...,
+        x_start: AxisCoordinateArg = ...,
+        y_start: AxisCoordinateArg = ...,
+        x_end: AxisCoordinateArg = ...,
+        y_end: AxisCoordinateArg = ...,
         *,
         start: Marking | None = ...,
         end: Marking | Literal["auto"] | None = ...,
@@ -537,9 +538,9 @@ class GlyphAPI:
     ) -> GlyphRenderer[glyphs.Segment]: ...
 
     def whisker(self,
-        base: NumberArg = ...,
-        lower: NumberArg = ...,
-        upper: NumberArg = ...,
+        base: AxisCoordinateArg = ...,
+        lower: AxisCoordinateArg = ...,
+        upper: AxisCoordinateArg = ...,
         *,
         dimension: Dimension = ...,
         cap_size: NumberSpec = ...,
@@ -547,8 +548,8 @@ class GlyphAPI:
     ) -> GlyphRenderer[glyphs.Segment]: ...
 
     def arc(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
+        x: AxisCoordinateArg = ...,
+        y: AxisCoordinateArg = ...,
         radius: DistanceArg = ...,
         start_angle: AngleArg = ...,
         end_angle: AngleArg = ...,
@@ -557,68 +558,68 @@ class GlyphAPI:
     ) -> GlyphRenderer[glyphs.Arc]: ...
 
     def bezier(self,
-        x0: NumberArg = ...,
-        y0: NumberArg = ...,
-        x1: NumberArg = ...,
-        y1: NumberArg = ...,
-        cx0: NumberArg = ...,
-        cy0: NumberArg = ...,
-        cx1: NumberArg = ...,
-        cy1: NumberArg = ...,
+        x0: AxisCoordinateArg = ...,
+        y0: AxisCoordinateArg = ...,
+        x1: AxisCoordinateArg = ...,
+        y1: AxisCoordinateArg = ...,
+        cx0: AxisCoordinateArg = ...,
+        cy0: AxisCoordinateArg = ...,
+        cx1: AxisCoordinateArg = ...,
+        cy1: AxisCoordinateArg = ...,
         **kwargs: Unpack[BezierArgs],
     ) -> GlyphRenderer[glyphs.Bezier]: ...
 
     def circle(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
+        x: AxisCoordinateArg = ...,
+        y: AxisCoordinateArg = ...,
         radius: DistanceArg = ...,
         **kwargs: Unpack[CircleArgs],
     ) -> GlyphRenderer[glyphs.Circle]: ...
 
     def block(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
+        x: AxisCoordinateArg = ...,
+        y: AxisCoordinateArg = ...,
         width: DistanceArg = ...,
         height: DistanceArg = ...,
         **kwargs: Unpack[BlockArgs],
     ) -> GlyphRenderer[glyphs.Block]: ...
 
     def harea(self,
-        x1: NumberArg = ...,
-        x2: NumberArg = ...,
-        y: NumberArg = ...,
+        x1: AxisCoordinateArg = ...,
+        x2: AxisCoordinateArg = ...,
+        y: AxisCoordinateArg = ...,
         **kwargs: Unpack[HAreaArgs],
     ) -> GlyphRenderer[glyphs.HArea]: ...
 
     def harea_step(self,
-        x1: NumberArg = ...,
-        x2: NumberArg = ...,
-        y: NumberArg = ...,
+        x1: AxisCoordinateArg = ...,
+        x2: AxisCoordinateArg = ...,
+        y: AxisCoordinateArg = ...,
         **kwargs: Unpack[HAreaStepArgs],
     ) -> GlyphRenderer[glyphs.HAreaStep]: ...
 
     def hbar(self,
-        y: NumberArg = ...,
+        y: AxisCoordinateArg = ...,
         height: DistanceArg = ...,
-        right: NumberArg = ...,
-        left: NumberArg = ...,
+        right: AxisCoordinateArg = ...,
+        left: AxisCoordinateArg = ...,
         **kwargs: Unpack[HBarArgs],
     ) -> GlyphRenderer[glyphs.HBar]: ...
 
     def hspan(self,
-        y: NumberArg = ...,
+        y: AxisCoordinateArg = ...,
         **kwargs: Unpack[HSpanArgs],
     ) -> GlyphRenderer[glyphs.HSpan]: ...
 
     def hstrip(self,
-        y0: NumberArg = ...,
-        y1: NumberArg = ...,
+        y0: AxisCoordinateArg = ...,
+        y1: AxisCoordinateArg = ...,
         **kwargs: Unpack[HStripArgs],
     ) -> GlyphRenderer[glyphs.HStrip]: ...
 
     def ellipse(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
+        x: AxisCoordinateArg = ...,
+        y: AxisCoordinateArg = ...,
         width: DistanceArg = ...,
         height: DistanceArg = ...,
         angle: AngleArg = ...,
@@ -633,8 +634,8 @@ class GlyphAPI:
 
     def image(self,
         image: Image2dArg = ...,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
+        x: AxisCoordinateArg = ...,
+        y: AxisCoordinateArg = ...,
         dw: DistanceArg = ...,
         dh: DistanceArg = ...,
         dilate: bool = ...,
@@ -643,8 +644,8 @@ class GlyphAPI:
 
     def image_rgba(self,
         image: Image2dArg = ...,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
+        x: AxisCoordinateArg = ...,
+        y: AxisCoordinateArg = ...,
         dw: DistanceArg = ...,
         dh: DistanceArg = ...,
         dilate: bool = ...,
@@ -653,8 +654,8 @@ class GlyphAPI:
 
     def image_stack(self,
         image: Image3dArg = ...,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
+        x: AxisCoordinateArg = ...,
+        y: AxisCoordinateArg = ...,
         dw: DistanceArg = ...,
         dh: DistanceArg = ...,
         dilate: bool = ...,
@@ -663,8 +664,8 @@ class GlyphAPI:
 
     def image_url(self,
         url: StringArg = ...,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
+        x: AxisCoordinateArg = ...,
+        y: AxisCoordinateArg = ...,
         w: NullDistanceArg = ...,
         h: NullDistanceArg = ...,
         angle: AngleArg = ...,
@@ -673,14 +674,14 @@ class GlyphAPI:
     ) -> GlyphRenderer[glyphs.ImageURL]: ...
 
     def line(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
+        x: AxisCoordinateArg = ...,
+        y: AxisCoordinateArg = ...,
         **kwargs: Unpack[LineArgs],
     ) -> GlyphRenderer[glyphs.Line]: ...
 
     def mathml(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
+        x: AxisCoordinateArg = ...,
+        y: AxisCoordinateArg = ...,
         text: StringArg = ...,
         angle: AngleArg = ...,
         x_offset: FloatArg = ...,
@@ -689,8 +690,8 @@ class GlyphAPI:
     ) -> GlyphRenderer[glyphs.MathMLGlyph]: ...
 
     def multi_line(self,
-        xs: Number1dArg = ...,
-        ys: Number1dArg = ...,
+        xs: AxisCoordinateSeqArg = ...,
+        ys: AxisCoordinateSeqArg = ...,
         **kwargs: Unpack[MultiLineArgs],
     ) -> GlyphRenderer[glyphs.MultiLine]: ...
 
@@ -701,53 +702,53 @@ class GlyphAPI:
     ) -> GlyphRenderer[glyphs.MultiPolygons]: ...
 
     def ngon(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
+        x: AxisCoordinateArg = ...,
+        y: AxisCoordinateArg = ...,
         radius: DistanceArg = ...,
         **kwargs: Unpack[NgonArgs],
     ) -> GlyphRenderer[glyphs.Ngon]: ...
 
     def patch(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
+        x: AxisCoordinateArg = ...,
+        y: AxisCoordinateArg = ...,
         **kwargs: Unpack[PatchArgs],
     ) -> GlyphRenderer[glyphs.Patch]: ...
 
     def patches(self,
-        xs: Number1dArg = ...,
-        ys: Number1dArg = ...,
+        xs: AxisCoordinateSeqArg = ...,
+        ys: AxisCoordinateSeqArg = ...,
         **kwargs: Unpack[PatchesArgs],
     ) -> GlyphRenderer[glyphs.Patches]: ...
 
     def quad(self,
-        left: NumberArg = ...,
-        right: NumberArg = ...,
-        top: NumberArg = ...,
-        bottom: NumberArg = ...,
+        left: AxisCoordinateArg = ...,
+        right: AxisCoordinateArg = ...,
+        top: AxisCoordinateArg = ...,
+        bottom: AxisCoordinateArg = ...,
         **kwargs: Unpack[QuadArgs],
     ) -> GlyphRenderer[glyphs.Quad]: ...
 
     def quadratic(self,
-        x0: NumberArg = ...,
-        y0: NumberArg = ...,
-        x1: NumberArg = ...,
-        y1: NumberArg = ...,
-        cx: NumberArg = ...,
-        cy: NumberArg = ...,
+        x0: AxisCoordinateArg = ...,
+        y0: AxisCoordinateArg = ...,
+        x1: AxisCoordinateArg = ...,
+        y1: AxisCoordinateArg = ...,
+        cx: AxisCoordinateArg = ...,
+        cy: AxisCoordinateArg = ...,
         **kwargs: Unpack[QuadraticArgs],
     ) -> GlyphRenderer[glyphs.Quadratic]: ...
 
     def ray(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
+        x: AxisCoordinateArg = ...,
+        y: AxisCoordinateArg = ...,
         length: DistanceArg = ...,
         angle: AngleArg = ...,
         **kwargs: Unpack[RayArgs],
     ) -> GlyphRenderer[glyphs.Ray]: ...
 
     def rect(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
+        x: AxisCoordinateArg = ...,
+        y: AxisCoordinateArg = ...,
         width: DistanceArg = ...,
         height: DistanceArg = ...,
         angle: AngleArg = ...,
@@ -756,22 +757,22 @@ class GlyphAPI:
     ) -> GlyphRenderer[glyphs.Rect]: ...
 
     def step(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
+        x: AxisCoordinateArg = ...,
+        y: AxisCoordinateArg = ...,
         **kwargs: Unpack[StepArgs],
     ) -> GlyphRenderer[glyphs.Step]: ...
 
     def segment(self,
-        x0: NumberArg = ...,
-        y0: NumberArg = ...,
-        x1: NumberArg = ...,
-        y1: NumberArg = ...,
+        x0: AxisCoordinateArg = ...,
+        y0: AxisCoordinateArg = ...,
+        x1: AxisCoordinateArg = ...,
+        y1: AxisCoordinateArg = ...,
         **kwargs: Unpack[SegmentArgs],
     ) -> GlyphRenderer[glyphs.Segment]: ...
 
     def tex(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
+        x: AxisCoordinateArg = ...,
+        y: AxisCoordinateArg = ...,
         text: StringArg = ...,
         angle: AngleArg = ...,
         x_offset: FloatArg = ...,
@@ -780,8 +781,8 @@ class GlyphAPI:
     ) -> GlyphRenderer[glyphs.TeXGlyph]: ...
 
     def text(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
+        x: AxisCoordinateArg = ...,
+        y: AxisCoordinateArg = ...,
         text: StringArg = ...,
         angle: AngleArg = ...,
         x_offset: FloatArg = ...,
@@ -790,41 +791,41 @@ class GlyphAPI:
     ) -> GlyphRenderer[glyphs.Text]: ...
 
     def varea(self,
-        x: NumberArg = ...,
-        y1: NumberArg = ...,
-        y2: NumberArg = ...,
+        x: AxisCoordinateArg = ...,
+        y1: AxisCoordinateArg = ...,
+        y2: AxisCoordinateArg = ...,
         **kwargs: Unpack[VAreaArgs],
     ) -> GlyphRenderer[glyphs.VArea]: ...
 
     def varea_step(self,
-        x: NumberArg = ...,
-        y1: NumberArg = ...,
-        y2: NumberArg = ...,
+        x: AxisCoordinateArg = ...,
+        y1: AxisCoordinateArg = ...,
+        y2: AxisCoordinateArg = ...,
         **kwargs: Unpack[VAreaStepArgs],
     ) -> GlyphRenderer[glyphs.VAreaStep]: ...
 
     def vbar(self,
-        x: NumberArg = ...,
+        x: AxisCoordinateArg = ...,
         width: DistanceArg = ...,
-        top: NumberArg = ...,
-        bottom: NumberArg = ...,
+        top: AxisCoordinateArg = ...,
+        bottom: AxisCoordinateArg = ...,
         **kwargs: Unpack[VBarArgs],
     ) -> GlyphRenderer[glyphs.VBar]: ...
 
     def vspan(self,
-        x: NumberArg = ...,
+        x: AxisCoordinateArg = ...,
         **kwargs: Unpack[VSpanArgs],
     ) -> GlyphRenderer[glyphs.VSpan]: ...
 
     def vstrip(self,
-        x0: NumberArg = ...,
-        x1: NumberArg = ...,
+        x0: AxisCoordinateArg = ...,
+        x1: AxisCoordinateArg = ...,
         **kwargs: Unpack[VStripArgs],
     ) -> GlyphRenderer[glyphs.VStrip]: ...
 
     def wedge(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
+        x: AxisCoordinateArg = ...,
+        y: AxisCoordinateArg = ...,
         radius: DistanceArg = ...,
         start_angle: AngleArg = ...,
         end_angle: AngleArg = ...,
@@ -833,8 +834,8 @@ class GlyphAPI:
     ) -> GlyphRenderer[glyphs.Wedge]: ...
 
     def scatter(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
+        x: AxisCoordinateArg = ...,
+        y: AxisCoordinateArg = ...,
         size: SizeArg = ...,
         angle: AngleArg = ...,
         marker: MarkerArg = ...,
