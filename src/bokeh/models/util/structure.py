@@ -34,16 +34,20 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+import json
+from contextlib import closing
 from dataclasses import dataclass
 from itertools import permutations
+from math import ceil
 from typing import TYPE_CHECKING, Any
 
 from ...core.property.descriptors import UnsetValueError
+from ...core.property.vectorization import value
 from ...layouts import column
 from ..annotations import Label, LabelSet
 from ..callbacks import CustomJS
 from ..filters import GroupFilter
-from ..glyphs import MultiLine, Scatter
+from ..glyphs import Bezier, Rect
 from ..plots import XYPlot
 from ..ranges import Range1d
 from ..renderers import GlyphRenderer
@@ -80,6 +84,8 @@ def generate_structure_plot(f: Model) -> Model:
     """  Given a bokeh model f, return a model that displays the graph of its submodels.
 
     Clicking on the nodes of the graph reveals the attributes of that submodel.
+
+    Requires NetworkX and PyGraphviz.
 
     """
 
@@ -118,7 +124,6 @@ class _BokehStructureGraph:
 
         self._model = model
         self._graph = self._make_graph(model)
-        self._graph.graph["graph"] = dict(rankdir="LR")
         self._prop_df = self._make_prop_dict()
         self._graph_plot = self._make_graph_plot()
         self._data_table = self._make_data_table()
@@ -240,37 +245,69 @@ class _BokehStructureGraph:
         """
         import networkx as nx
 
-        nodes = nx.nx_agraph.graphviz_layout(self._graph, prog="dot")
-        node_x, node_y = zip(*nodes.values())
-        models = [self._graph.nodes[x]["model"] for x in nodes]
-        node_id = list(nodes.keys())
-        node_source = ColumnDataSource(dict(x=node_x, y=node_y, index=node_id, model=models))
-        edge_x_coords = []
-        edge_y_coords = []
-        for start_node, end_node in self._graph.edges:
-            edge_x_coords.extend([[nodes[start_node][0], nodes[end_node][0]]])
-            edge_y_coords.extend([[nodes[start_node][1], nodes[end_node][1]]])
-        edge_source = ColumnDataSource(dict(xs=edge_x_coords, ys=edge_y_coords))
+        with closing(nx.nx_agraph.to_agraph(self._graph)) as graph:
+            graph.graph_attr.update(rankdir="LR", nodesep="0.08", ranksep="0.3")
+            graph.node_attr.update(shape="box", fixedsize="true", height=str(22/72), fontname="monospace", fontsize="11")
+            graph.edge_attr.update(arrowhead="none", tailport="e", headport="w")
+            for node in self._graph:
+                model = self._graph.nodes[node]["model"]
+                graph.add_node(node, label=model, width=str((len(model) * 7 + 16) / 72))
+            graph.layout(prog="dot")
+            output = graph.draw(format="json")
+            assert output is not None
+            layout = json.loads(output)
+        objects = layout["objects"]
+        node_x, node_y = zip(*(map(float, node["pos"].split(",")) for node in objects))
+        node_source = ColumnDataSource(dict(
+            x=node_x, y=node_y,
+            index=[node["name"] for node in objects],
+            model=[node["label"] for node in objects],
+            width=[float(node["width"]) * 72 for node in objects],
+        ))
 
-        p2 = XYPlot(outline_line_alpha=0.0)
-        xinterval = max(max(node_x) - min(node_x), 200)
-        yinterval = max(max(node_y) - min(node_y), 200)
-        p2.x_range = Range1d(
-            start=min(node_x) - 0.15 * xinterval, end=max(node_x) + 0.15 * xinterval,
-        )
-        p2.y_range = Range1d(
-            start=min(node_y) - 0.15 * yinterval, end=max(node_y) + 0.15 * yinterval,
+        edge_data: dict[str, list[float]] = {key: [] for key in ("x0", "y0", "cx0", "cy0", "cx1", "cy1", "x1", "y1")}
+        for edge in layout.get("edges", []):
+            for operation in edge["_draw_"]:
+                if operation["op"] != "b":
+                    continue
+                points = operation["points"]
+                for i in range(0, len(points) - 1, 3):
+                    for (x_key, y_key), (x, y) in zip(
+                        (("x0", "y0"), ("cx0", "cy0"), ("cx1", "cy1"), ("x1", "y1")), points[i:i + 4],
+                    ):
+                        edge_data[x_key].append(x)
+                        edge_data[y_key].append(y)
+        edge_source = ColumnDataSource(dict(edge_data))
+
+        left, bottom, right, top = map(float, layout["bb"].split(","))
+        frame_width = max(400, ceil(right - left) + 40)
+        frame_height = max(200, ceil(top - bottom) + 64)
+        x_padding = (frame_width - (right - left)) / 2
+        y_padding = (frame_height - (top - bottom)) / 2
+
+        p2 = XYPlot(
+            outline_line_alpha=0.0,
+            frame_width=frame_width,
+            frame_height=frame_height,
+            x_range=Range1d(left - x_padding, right + x_padding),
+            y_range=Range1d(bottom - y_padding - 16, top + y_padding - 16),
         )
 
+        node_glyph = Rect(
+            x="x", y="y", width="width", height=22,
+            fill_color="#f0f6fb", line_color="#8aa3b8", border_radius=5,
+        )
         node_renderer = GlyphRenderer(
             data_source=node_source,
-            glyph=Scatter(x="x", y="y", size=15, fill_color="lightblue"),
-            nonselection_glyph=Scatter(x="x", y="y", size=15, fill_color="lightblue"),
-            selection_glyph=Scatter(x="x", y="y", size=15, fill_color="green"),
+            glyph=node_glyph,
+            nonselection_glyph=node_glyph.clone(),
+            selection_glyph=node_glyph.clone(fill_color="#c5e1f5", line_color="#2c6b9a"),
         )
 
         edge_renderer = GlyphRenderer(
-            data_source=edge_source, glyph=MultiLine(xs="xs", ys="ys"),
+            data_source=edge_source,
+            glyph=Bezier(x0="x0", y0="y0", x1="x1", y1="y1", cx0="cx0", cy0="cy0", cx1="cx1", cy1="cy1",
+                         line_color="#9caab6", line_alpha=0.7),
         )
 
         node_hover_tool = HoverTool(tooltips=[("id", "@index"), ("model", "@model")])
@@ -284,9 +321,10 @@ class _BokehStructureGraph:
             y="y",
             text="model",
             source=node_source,
-            text_font_size="8pt",
-            x_offset=-20,
-            y_offset=7,
+            text_font=value("monospace"),
+            text_font_size="11px",
+            text_align="center",
+            text_baseline="middle",
         )
 
         help = Label(
