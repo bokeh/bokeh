@@ -59,10 +59,10 @@ class HexBinResult:
 def axial_to_cartesian(
         q: npt.NDArray[np.floating],
         r: npt.NDArray[np.floating],
-        size: float,
+        size: np.floating,
         orientation: Literal["pointytop", "flattop"],
         aspect_scale: float = 1,
-    ) -> tuple[npt.NDArray[float], npt.NDArray[float]]:
+    ) -> tuple[npt.NDArray[np.floating], npt.NDArray[np.floating]]:
     ''' Map axial *(q,r)* coordinates to cartesian *(x,y)* coordinates of
     tiles centers.
 
