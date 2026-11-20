@@ -341,7 +341,7 @@ class BaseServer:
         if self.address is not None and self.address != '':
             address_string = self.address
         # IPv6 literals must be enclosed in brackets in URLs
-        if ":" in address_string:
+        if ":" in address_string and not address_string.startswith("["):
             address_string = f"[{address_string}]"
         protocol = "https" if self._http.ssl_options is not None else "http"
         url = f"{protocol}://{address_string}:{self.port}{self.prefix}{app_path}"

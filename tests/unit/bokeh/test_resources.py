@@ -33,6 +33,16 @@ def test_public_resource_configuration() -> None:
     assert resources.INLINE == "inline"
 
 
+@pytest.mark.parametrize(("host", "ssl", "expected"), [
+    (None, False, "http://localhost:5006/"),
+    ("127.0.0.1", True, "https://127.0.0.1:5006/"),
+    ("::1", False, "http://[::1]:5006/"),
+    ("[::1]", True, "https://[::1]:5006/"),
+])
+def test_server_url(host: str | None, ssl: bool, expected: str) -> None:
+    assert resources.server_url(host, 5006, ssl) == expected
+
+
 def test_cdn_version_defaults_to_payload_version(
     monkeypatch: pytest.MonkeyPatch, cdn_version_setting: PrioritizedSetting[str | None],
 ) -> None:

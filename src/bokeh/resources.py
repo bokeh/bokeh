@@ -67,7 +67,11 @@ DEFAULT_SERVER_PORT = settings.default_server_port()
 
 def server_url(host: str | None = None, port: int | None = None, ssl: bool = False) -> str:
     protocol = "https" if ssl else "http"
-    return f"{protocol}://{host or DEFAULT_SERVER_HOST}:{port or DEFAULT_SERVER_PORT}/"
+    host = host or DEFAULT_SERVER_HOST
+    # IPv6 literals must be enclosed in brackets in URLs
+    if ":" in host and not host.startswith("["):
+        host = f"[{host}]"
+    return f"{protocol}://{host}:{port or DEFAULT_SERVER_PORT}/"
 
 DEFAULT_SERVER_HTTP_URL = server_url()
 
