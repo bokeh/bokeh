@@ -135,7 +135,7 @@ def format_docstring(docstring: str | None, *args: Any, **kwargs: Any) -> str | 
 def format_url_query_arguments(
         url: str,
         arguments: dict[str, str] | None = None,
-        fragment:str | None=None,
+        fragment: str | None = None,
     ) -> str:
     ''' Format a base URL with optional query arguments and optional fragment string.
 
