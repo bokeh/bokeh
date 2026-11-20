@@ -1,4 +1,5 @@
-import type {Arrayable, ScreenArray, FloatArray} from "core/types"
+import {CoordinateTransform} from "./coordinate_transform"
+export {CoordinateTransform}
 import {Model} from "../../model"
 import {Scale} from "../scales/scale"
 import {LinearScale} from "../scales/linear_scale"
@@ -10,38 +11,6 @@ import {DataRange1d} from "../ranges/data_range1d"
 import {FactorRange} from "../ranges/factor_range"
 import type {CartesianFrameView} from "../canvas/cartesian_frame"
 import type * as p from "core/properties"
-
-export class CoordinateTransform {
-  readonly x_scale: Scale
-  readonly y_scale: Scale
-
-  readonly x_source: Range
-  readonly y_source: Range
-
-  readonly ranges: readonly [Range, Range]
-  readonly scales: readonly [Scale, Scale]
-
-  constructor(x_scale: Scale, y_scale: Scale) {
-    this.x_scale = x_scale
-    this.y_scale = y_scale
-    this.x_source = this.x_scale.source_range
-    this.y_source = this.y_scale.source_range
-    this.ranges = [this.x_source, this.y_source]
-    this.scales = [this.x_scale, this.y_scale]
-  }
-
-  map_to_screen(xs: Arrayable<number>, ys: Arrayable<number>): [ScreenArray, ScreenArray] {
-    const sxs = this.x_scale.v_compute(xs)
-    const sys = this.y_scale.v_compute(ys)
-    return [sxs, sys]
-  }
-
-  map_from_screen(sxs: Arrayable<number>, sys: Arrayable<number>): [FloatArray, FloatArray] {
-    const xs = this.x_scale.v_invert(sxs)
-    const ys = this.y_scale.v_invert(sys)
-    return [xs, ys]
-  }
-}
 
 export namespace CoordinateMapping {
   export type Attrs = p.AttrsOf<Props>

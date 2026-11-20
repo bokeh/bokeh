@@ -1,6 +1,6 @@
 import {Plot} from "./plot"
 import {PlotView} from "./plot_canvas"
-import {CartesianMapping} from "../coordinates/plot_mapping"
+import {CartesianMapping} from "../coordinates/cartesian_mapping"
 import {Range} from "../ranges/range"
 import {DataRange1d} from "../ranges/data_range1d"
 import {Scale} from "../scales/scale"

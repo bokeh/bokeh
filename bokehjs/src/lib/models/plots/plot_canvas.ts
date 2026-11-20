@@ -1,5 +1,5 @@
 import {Frame} from "../canvas/frame"
-import type {CoordinateTransform} from "../coordinates/coordinate_mapping"
+import type {CoordinateTransform} from "../coordinates/coordinate_transform"
 import {CartesianFrame} from "../canvas/cartesian_frame"
 import {CanvasPanel} from "../canvas/canvas_panel"
 import type {CartesianFrameView} from "../canvas/cartesian_frame"

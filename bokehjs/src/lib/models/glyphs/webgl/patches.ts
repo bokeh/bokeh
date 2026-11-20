@@ -4,7 +4,7 @@ import {Float32Buffer, NormalizedUint8Buffer, Uint8Buffer, expand_to_per_vertex}
 import type {ReglWrapper} from "./regl_wrap"
 import type {GlyphView} from "../glyph"
 import type {PatchesView} from "../patches"
-import type {CoordinateTransform} from "../../coordinates/coordinate_mapping"
+import type {CoordinateTransform} from "../../coordinates/coordinate_transform"
 import type {AccumulateProps, LineGlyphProps, LineDashGlyphProps} from "./types"
 import type {Elements, Texture2D} from "regl"
 import type * as p from "core/properties"
