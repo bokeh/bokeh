@@ -27,13 +27,11 @@ log = logging.getLogger(__name__)
 
 import numpy as np
 
-from ..colors.color import ColorLike
 from ..core.enums import (
     AxisType,
     HexTileOrientationType,
     HorizontalLocation,
     MarkerType,
-    PaletteType,
     VerticalLocation,
 )
 from ..core.property.auto import Auto
@@ -78,7 +76,7 @@ if TYPE_CHECKING:
     import numpy.typing as npt
     from numpy.typing import ArrayLike
 
-    from ..colors.color import ColorLike
+    from .._specs import ColorArg
     from ..core.enums import HexTileOrientationType
     from ..models.glyphs import (
         HArea,
@@ -89,6 +87,7 @@ if TYPE_CHECKING:
     )
     from ..models.renderers.contour_renderer import ContourRenderer
     from ..models.renderers.glyph_renderer import GlyphRenderer
+    from ..transform import PaletteLike
     from ..util.datatypes import SequenceLike
     from ..util.hex import HexBinResult
 
@@ -281,9 +280,9 @@ class figure(Plot, GlyphAPI):
             y:npt.NDArray[np.floating],
             size:float,
             orientation:HexTileOrientationType = "pointytop",
-            palette:PaletteType = "Viridis256",
-            line_color: ColorLike | None=None,
-            fill_color: ColorLike | None=None,
+            palette:PaletteLike = "Viridis256",
+            line_color: ColorArg = None,
+            fill_color: ColorArg = None,
             aspect_scale:float=1,
             **kwargs,
         ) -> tuple[GlyphRenderer, HexBinResult]:

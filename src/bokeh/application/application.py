@@ -83,7 +83,7 @@ class Application:
     _handlers: Handlers
     _metadata: Metadata
 
-    def __init__(self, *handlers: Handlers, metadata: Metadata = None) -> None:
+    def __init__(self, *handlers: Handler, metadata: Metadata = None) -> None:
         ''' Application factory.
 
         Args:

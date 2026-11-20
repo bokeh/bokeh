@@ -62,7 +62,7 @@ def axial_to_cartesian(
         size: float,
         orientation: Literal["pointytop", "flattop"],
         aspect_scale: float = 1,
-    ) -> tuple[npt.NDArray[np.floating], npt.NDArray[np.floating]]:
+    ) -> tuple[npt.NDArray[float], npt.NDArray[float]]:
     ''' Map axial *(q,r)* coordinates to cartesian *(x,y)* coordinates of
     tiles centers.
 
