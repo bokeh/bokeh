@@ -9,13 +9,13 @@ import {restorable} from "#framework/util"
 import type {Tool} from "@bokehjs/models/tools/tool"
 import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"
 import type {PlotView} from "@bokehjs/models/plots/plot"
-import {Plot, Range1d, LinearAxis} from "@bokehjs/models"
+import {Range1d, LinearAxis, XYPlot} from "@bokehjs/models"
 import {no_repeated} from "@bokehjs/core/util/iterator"
 
 describe("PanTool", () => {
 
   async function mkplot(tool: Tool): Promise<PlotView> {
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       width: 400,
       height: 400,
       min_border: 0,

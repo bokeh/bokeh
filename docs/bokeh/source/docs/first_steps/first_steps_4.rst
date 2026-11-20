@@ -134,8 +134,8 @@ the values on your y-axis are between 2 and 17, Bokeh automatically creates
 a y-axis that ranges from a little below 2 to a little above 17.
 
 To define the range for your axes manually, use the
-:func:`~bokeh.models.plots.Plot.y_range` function or the
-:func:`~bokeh.models.plots.Plot.y_range` properties of your |Plot| object when
+:attr:`~bokeh.models.XYPlot.x_range` and
+:attr:`~bokeh.models.XYPlot.y_range` properties when
 you call the |figure| function:
 
 .. literalinclude:: examples/first_steps_4_plot_axis_ranges.py

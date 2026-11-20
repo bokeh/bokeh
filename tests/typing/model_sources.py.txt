@@ -8,7 +8,7 @@ from collections.abc import Mapping, Sequence
 from typing import Any
 
 from bokeh.models.layouts import Column, Row
-from bokeh.models.plots import Plot
+from bokeh.models.plots import XYPlot
 from bokeh.models.ranges import Range1d
 from bokeh.models.renderers.tile_renderer import TileRenderer
 from bokeh.models.sources import ColumnDataSource
@@ -36,8 +36,8 @@ Column(children=rows)
 renderers: list[TileRenderer] = [TileRenderer()]
 ranges: dict[str, Range1d] = {"y2": Range1d()}
 tools: list[PanTool] = [PanTool()]
-plot = Plot()
+plot = XYPlot()
 plot.renderers = renderers  # KNOWN GAP # mypy: assignment; pyright: reportAttributeAccessIssue
 plot.extra_x_ranges = ranges  # KNOWN GAP # mypy: assignment; pyright: reportAttributeAccessIssue
 Toolbar().tools = tools  # KNOWN GAP # mypy: assignment; pyright: reportAttributeAccessIssue
-Plot(renderers=renderers, extra_x_ranges=ranges)  # KNOWN GAP # mypy: arg-type,arg-type; pyright: reportArgumentType,reportArgumentType
+XYPlot(renderers=renderers, extra_x_ranges=ranges)  # KNOWN GAP # mypy: arg-type,arg-type; pyright: reportArgumentType,reportArgumentType

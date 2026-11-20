@@ -14,7 +14,7 @@ import {BezierView} from "@bokehjs/models/glyphs/bezier"
 import {Bezier} from "@bokehjs/models/glyphs/bezier"
 import {Scatter, MultiLine} from "@bokehjs/models/glyphs"
 import {ScatterView} from "@bokehjs/models/glyphs/scatter"
-import {Plot} from "@bokehjs/models/plots"
+import {XYPlot} from "@bokehjs/models/plots"
 import {Document} from "@bokehjs/document"
 import {ModelChangedEvent, ColumnsPatchedEvent} from "@bokehjs/document/events"
 import {assert} from "@bokehjs/core/util/assert"
@@ -51,7 +51,7 @@ async function create_graph_document(edge_glyph: MultiLine | Segment | Bezier = 
   })
 
   const graph = GraphRenderer.create({layout_provider, node_renderer, edge_renderer})
-  const plot = Plot.create({renderers: [graph]})
+  const plot = XYPlot.create({renderers: [graph]})
   const {view} = await display(plot)
 
   return {

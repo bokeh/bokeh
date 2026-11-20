@@ -1,7 +1,7 @@
 import {expect} from "#framework/assertions"
 import {display} from "#framework/layouts"
 
-import {ScaleBar, Plot, Range1d, FactorRange, Metric, LinearScale, CategoricalScale} from "@bokehjs/models"
+import {ScaleBar, Range1d, FactorRange, Metric, LinearScale, CategoricalScale, XYPlot} from "@bokehjs/models"
 import type {Location, Align} from "@bokehjs/core/enums"
 import {bounding_box} from "@bokehjs/core/dom"
 import {delay} from "@bokehjs/core/util/defer"
@@ -11,7 +11,7 @@ describe("ScaleBar annotation", () => {
     const orientation = "horizontal"
 
     function plot(scale_bar: ScaleBar) {
-      return Plot.create({
+      return XYPlot.create({
         width: 300,
         height: 150,
         min_border: 0,
@@ -192,7 +192,7 @@ describe("ScaleBar annotation", () => {
     const orientation = "vertical"
 
     function plot(scale_bar: ScaleBar) {
-      return Plot.create({
+      return XYPlot.create({
         width: 150,
         height: 300,
         min_border: 0,
@@ -342,7 +342,7 @@ describe("ScaleBar annotation", () => {
       location: "center",
     })
 
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       width: 100,
       height: 100,
       min_border: 0,
@@ -356,8 +356,8 @@ describe("ScaleBar annotation", () => {
   })
 
   describe("should support positioning", () => {
-    function plot(scale_bar: ScaleBar, attrs: Partial<Plot.Attrs> = {}) {
-      return Plot.create({
+    function plot(scale_bar: ScaleBar, attrs: Partial<XYPlot.Attrs> = {}) {
+      return XYPlot.create({
         width: 300,
         height: 300,
         min_border: 0,
@@ -431,7 +431,7 @@ describe("ScaleBar annotation", () => {
   })
 
   it("should reserve enough room in a side panel", async () => {
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       width: 300,
       height: 120,
       min_border: 0,
@@ -457,7 +457,7 @@ describe("ScaleBar annotation", () => {
   })
 
   it("should settle when its length affects a side-panel size", async () => {
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       width: 300,
       height: 120,
       min_border: 0,
@@ -503,7 +503,7 @@ describe("ScaleBar annotation", () => {
       bar_length: 0.5,
       orientation: "horizontal",
     })
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       frame_width: 300,
       height: 120,
       min_border: 0,
@@ -535,7 +535,7 @@ describe("ScaleBar annotation", () => {
       orientation: "horizontal",
       length_sizing: "exact",
     })
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       width: 301,
       height: 120,
       min_border: 0,

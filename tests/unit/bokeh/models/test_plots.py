@@ -34,11 +34,11 @@ from bokeh.models import (
     LinearScale,
     LogScale,
     PanTool,
-    Plot,
     Range1d,
     ResetTool,
     Title,
     WMTSTileSource,
+    XYPlot,
     ZoomInTool,
     ZoomOutTool,
 )
@@ -316,7 +316,7 @@ class BaseTwinAxis:
     """Base class for testing extra ranges"""
 
     def verify_axis(self, axis_name):
-        plot = Plot()
+        plot = XYPlot()
         range_obj = getattr(plot, f"extra_{axis_name}_ranges")
         range_obj["foo_range"] = self.get_range_instance()
         assert range_obj["foo_range"]
@@ -349,12 +349,12 @@ class TestLinearTwinAxis(BaseTwinAxis):
 
 
 def test_plot_with_no_title_specified_creates_an_empty_title() -> None:
-    plot = Plot()
+    plot = XYPlot()
     assert plot.title.text == ""
 
 
 def test_plot_if_title_is_converted_from_string_to_Title() -> None:
-    plot = Plot()
+    plot = XYPlot()
     plot.title = "A title"
     plot.title.text_color = "olive"
     assert isinstance(plot.title, Title)
@@ -363,40 +363,40 @@ def test_plot_if_title_is_converted_from_string_to_Title() -> None:
 
 
 def test__check_required_scale_has_scales() -> None:
-    plot = Plot()
+    plot = XYPlot()
     check = plot._check_required_scale()
     assert check == []
 
 
 def test__check_required_scale_missing_scales() -> None:
     with pytest.raises(ValueError):
-        Plot(x_scale=None, y_scale=None)
+        XYPlot(x_scale=None, y_scale=None)
 
 
 def test__check_compatible_scale_and_ranges_compat_numeric() -> None:
-    plot = Plot(x_scale=LinearScale(), x_range=Range1d())
+    plot = XYPlot(x_scale=LinearScale(), x_range=Range1d())
     check = plot._check_compatible_scale_and_ranges()
     assert check == []
 
-    plot = Plot(y_scale=LogScale(), y_range=DataRange1d())
+    plot = XYPlot(y_scale=LogScale(), y_range=DataRange1d())
     check = plot._check_compatible_scale_and_ranges()
     assert check == []
 
 
 def test__check_compatible_scale_and_ranges_compat_factor() -> None:
-    plot = Plot(x_scale=CategoricalScale(), x_range=FactorRange())
+    plot = XYPlot(x_scale=CategoricalScale(), x_range=FactorRange())
     check = plot._check_compatible_scale_and_ranges()
     assert check == []
 
 
 def test__check_compatible_scale_and_ranges_incompat_numeric_scale_and_factor_range() -> None:
-    plot = Plot(x_scale=LinearScale(), x_range=FactorRange())
+    plot = XYPlot(x_scale=LinearScale(), x_range=FactorRange())
     check = plot._check_compatible_scale_and_ranges()
     assert check != []
 
 
 def test__check_compatible_scale_and_ranges_incompat_factor_scale_and_numeric_range() -> None:
-    plot = Plot(x_scale=CategoricalScale(), x_range=DataRange1d())
+    plot = XYPlot(x_scale=CategoricalScale(), x_range=DataRange1d())
     check = plot._check_compatible_scale_and_ranges()
     assert check != []
 
@@ -453,7 +453,7 @@ def test_add_tile_tilesource():
     assert tile_source.attribution == mapnik.html_attribution
 
 def test_Plot_add_tools() -> None:
-    plot = Plot()
+    plot = XYPlot()
     assert len(plot.tools) == 0
 
     pan = PanTool()
@@ -475,7 +475,7 @@ def test_Plot_add_tools() -> None:
         plot.add_tools(0)
 
 def test_Plot_hold_restores_after_exception() -> None:
-    plot = Plot()
+    plot = XYPlot()
 
     with pytest.raises(RuntimeError):  # noqa: PT012  (the raise is the point: it proves the context manager unwinds)
         with plot.hold(render=True):
@@ -487,7 +487,7 @@ def test_Plot_hold_restores_after_exception() -> None:
 def test_remove_tools_single():
     pan = PanTool()
     reset = ResetTool()
-    plot = Plot(tools=[pan, reset])
+    plot = XYPlot(tools=[pan, reset])
 
     plot.remove_tools(pan)
     assert len(plot.tools) == 1
@@ -496,7 +496,7 @@ def test_remove_tools_single():
 def test_remove_tools_multiple():
     pan = PanTool()
     reset = ResetTool()
-    plot = Plot(tools=[pan, reset])
+    plot = XYPlot(tools=[pan, reset])
 
     plot.remove_tools(pan, reset)
     assert len(plot.tools) == 0
@@ -504,7 +504,7 @@ def test_remove_tools_multiple():
 def test_remove_tools_invalid():
     pan = PanTool()
     reset = ResetTool()
-    plot = Plot(tools=[pan, reset])
+    plot = XYPlot(tools=[pan, reset])
     zoom_in = ZoomInTool()
 
     with pytest.raises(ValueError) as e:

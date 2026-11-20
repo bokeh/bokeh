@@ -13,7 +13,7 @@ import pytest
 from bokeh.core.property.validation import validate
 from bokeh.core.serialization import Deserializer, Serializer
 from bokeh.embed.resources import use_mathjax
-from bokeh.models import Markdown, Plot, Range1d
+from bokeh.models import Markdown, Plot, Range1d, XYPlot
 
 
 class MarkdownResult:
@@ -117,7 +117,7 @@ def test_markdown_representation_exception() -> None:
 
 
 def test_embedded_models_roundtrip() -> None:
-    plot = Plot(x_range=Range1d(start=0, end=10), y_range=Range1d(start=0, end=10))
+    plot = XYPlot(x_range=Range1d(start=0, end=10), y_range=Range1d(start=0, end=10))
     markdown = Markdown(text=MarkdownResult(("::bokeh[trend]", {"ignored": object()})), embeds={"trend": plot, "alias": plot})
 
     restored = Deserializer().decode(Serializer().encode(markdown))
@@ -144,11 +144,11 @@ def test_rendering_options_roundtrip() -> None:
 @pytest.mark.parametrize("name", ["", "bad name", "bad]name", "é", "name\n", ".trend", "-trend"])
 def test_invalid_embed_names(name: str) -> None:
     with pytest.raises(ValueError):
-        Markdown(embeds={name: Plot()})
+        Markdown(embeds={name: XYPlot()})
 
 
 @pytest.mark.parametrize("name", ["trend_1.a-b", "1.a-b", "_"])
 def test_valid_embed_names(name: str) -> None:
-    model = Plot()
+    model = XYPlot()
     markdown = Markdown(embeds={name: model})
     assert markdown.embeds == {name: model}

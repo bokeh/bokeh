@@ -52,10 +52,10 @@ def large_plot(n: int) -> tuple[Model, set[Model]]:
         Line,
         LinearAxis,
         PanTool,
-        Plot,
         ResetTool,
         SaveTool,
         WheelZoomTool,
+        XYPlot,
         ZoomInTool,
         ZoomOutTool,
     )
@@ -67,7 +67,7 @@ def large_plot(n: int) -> tuple[Model, set[Model]]:
         source = ColumnDataSource(data=dict(x=[0, i + 1], y=[0, i + 1]))
         xdr = DataRange1d()
         ydr = DataRange1d()
-        plot = Plot(x_range=xdr, y_range=ydr)
+        plot = XYPlot(x_range=xdr, y_range=ydr)
         xaxis = LinearAxis()
         plot.add_layout(xaxis, "below")
         yaxis = LinearAxis()
@@ -97,7 +97,7 @@ def large_plot(n: int) -> tuple[Model, set[Model]]:
             xgrid, ygrid,
             renderer, renderer.view, renderer.view.filter, glyph,
             source, source.selected, source.selection_policy,
-            plot, plot.x_scale, plot.y_scale, plot.toolbar, plot.title,
+            plot, plot.coordinate_system, plot.x_scale, plot.y_scale, plot.toolbar, plot.title,
             box_zoom.overlay, box_zoom.overlay.handles, box_zoom.overlay.handles.all,
             box_select.overlay, box_select.overlay.handles, box_select.overlay.handles.all,
             *tickers,

@@ -31,7 +31,6 @@ from bokeh.models import (
     MultiPolygons,
     Patch,
     Patches,
-    Plot,
     Quad,
     Quadratic,
     Range1d,
@@ -42,6 +41,7 @@ from bokeh.models import (
     Select,
     Text,
     Wedge,
+    XYPlot,
 )
 from bokeh.util.browser import view
 
@@ -122,7 +122,7 @@ examples = [
     *((f"Marker: {name.replace('_', ' ').title()}", marker) for name, marker in markers),
 ]
 
-plot = Plot(
+plot = XYPlot(
     width=850, height=500,
     x_range=Range1d(-2.6, 2.6), y_range=Range1d(-0.5, 4.5),
     toolbar_location="above",

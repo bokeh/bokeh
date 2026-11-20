@@ -3,7 +3,8 @@ import * as sinon from "sinon"
 import {expect, expect_not_null} from "#framework/assertions"
 import {display, fig, row} from "#framework/layouts"
 
-import {Plot} from "@bokehjs/models/plots/plot"
+import type {Plot} from "@bokehjs/models/plots/plot"
+import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import type {PlotView} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {DataRange1d} from "@bokehjs/models/ranges/data_range1d"
@@ -19,8 +20,8 @@ import {Rect, Scatter, MultiLine} from "@bokehjs/models/glyphs"
 import {ColumnDataSource} from "@bokehjs/models/sources"
 import {StaticLayoutProvider} from "@bokehjs/models/graphs"
 
-async function new_plot_view(attrs: Partial<Plot.Attrs> = {}): Promise<PlotView> {
-  const plot = Plot.create({
+async function new_plot_view(attrs: Partial<XYPlot.Attrs> = {}): Promise<PlotView> {
+  const plot = XYPlot.create({
     x_range: Range1d.create({start: 0, end: 10}),
     y_range: Range1d.create({start: 0, end: 10}),
     ...attrs,
@@ -38,7 +39,7 @@ interface PlotWithTools {
 function new_plot_with_tools(): PlotWithTools {
   const reset = ResetTool.create()
   const pan = PanTool.create()
-  const plot = Plot.create({toolbar: Toolbar.create({tools: [reset, pan]})})
+  const plot = XYPlot.create({toolbar: Toolbar.create({tools: [reset, pan]})})
   return {plot, reset, pan}
 }
 
@@ -81,7 +82,7 @@ describe("Plot module", () => {
 
   describe("Plot", () => {
     it("should add single tool using add_tools method", () => {
-      const plot = Plot.create()
+      const plot = XYPlot.create()
       const reset = ResetTool.create()
 
       plot.add_tools(reset)
@@ -92,7 +93,7 @@ describe("Plot module", () => {
     })
 
     it("should add tools by their registered aliases", () => {
-      const plot = Plot.create()
+      const plot = XYPlot.create()
 
       plot.add_tools("xpan", "reset")
 
@@ -137,7 +138,7 @@ describe("Plot module", () => {
         }),
       })
       const glyph = GlyphRenderer.create({data_source: ColumnDataSource.create(), glyph: Rect.create()})
-      const plot = Plot.create({renderers: [graph, glyph]})
+      const plot = XYPlot.create({renderers: [graph, glyph]})
       const {view: plot_view} = await display(plot)
       expect(plot_view.views.find_one(graph.node_renderer)).to.be.instanceof(GlyphRendererView)
       expect(plot_view.views.find_one(graph.edge_renderer)).to.be.instanceof(GlyphRendererView)
@@ -382,8 +383,8 @@ describe("Plot module", () => {
       const x_range = DataRange1d.create()
       const y_range = DataRange1d.create()
 
-      const p0 = Plot.create({x_range, y_range})
-      const p1 = Plot.create({x_range, y_range})
+      const p0 = XYPlot.create({x_range, y_range})
+      const p1 = XYPlot.create({x_range, y_range})
       const row = Row.create({children: [p0, p1]})
 
       const {view} = await display(row, null)

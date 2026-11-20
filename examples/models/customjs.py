@@ -14,9 +14,9 @@ from bokeh.models import (
     CustomJS,
     LinearAxis,
     PanTool,
-    Plot,
     TapTool,
     WheelZoomTool,
+    XYPlot,
 )
 from bokeh.util.browser import view
 
@@ -28,7 +28,7 @@ source = ColumnDataSource(
     ),
 )
 
-plot = Plot()
+plot = XYPlot()
 plot.title.text = "Click a circle execute a JavaScript callback"
 
 circle = Circle(x="x", y="y", radius=0.2, fill_color="color", line_color="black")

@@ -2,12 +2,12 @@ import {expect} from "#framework/assertions"
 import {actions, xy} from "#framework/interactive"
 import {display} from "#framework/layouts"
 
-import {Plot, Range1d, PolyAnnotation} from "@bokehjs/models"
+import {XYPlot, Range1d, PolyAnnotation} from "@bokehjs/models"
 
 describe("PolyAnnotation", () => {
   it("should restore vertices when dragging was cancelled with Escape", async () => {
     const poly = PolyAnnotation.create({xs: [0.2, 0.6, 0.4], ys: [0.2, 0.2, 0.6], editable: true})
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       width: 400,
       height: 400,
       min_border: 0,

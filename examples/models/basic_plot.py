@@ -17,9 +17,9 @@ from bokeh.models import (
     ColumnDataSource,
     LinearAxis,
     PanTool,
-    Plot,
     Scatter,
     WheelZoomTool,
+    XYPlot,
 )
 from bokeh.util.browser import view
 
@@ -30,7 +30,7 @@ source = ColumnDataSource(
     data=dict(x=x, y=y),
 )
 
-plot = Plot(min_border=80)
+plot = XYPlot(min_border=80)
 
 scatter = Scatter(x="x", y="y", fill_color="red", size=5, line_color="black")
 plot.add_glyph(source, scatter)

@@ -15,9 +15,9 @@ from bokeh.models import (
     ColumnDataSource,
     LinearAxis,
     PanTool,
-    Plot,
     TapTool,
     WheelZoomTool,
+    XYPlot,
 )
 from bokeh.util.browser import view
 from bokeh.util.compiler import TypeScript
@@ -32,10 +32,11 @@ class Popup(Callback):
     which will be formatted with data from the data source.
     """)
 
-class MyPlot(Plot):
+class MyPlot(XYPlot):
 
     __implementation__ = TypeScript("""
-import {Plot, PlotView} from "models/plots/plot"
+import {XYPlot} from "models/plots/xy_plot"
+import {PlotView} from "models/plots/plot"
 import * as p from "core/properties"
 import "./custom.less"
 
@@ -65,7 +66,7 @@ export class MyPlotView extends PlotView {
 export namespace MyPlot {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Plot.Props & {
+  export type Props = XYPlot.Props & {
     gradient_angle: p.Property<number>
     gradient_step: p.Property<number>
     gradient_colors: p.Property<string[]>
@@ -77,7 +78,7 @@ export interface MyPlot extends MyPlot.Attrs {
   height: number | null
 }
 
-export class MyPlot extends Plot {
+export class MyPlot extends XYPlot {
   declare properties: MyPlot.Props
   declare __view_type__: MyPlotView
 

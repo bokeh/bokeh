@@ -49,10 +49,10 @@ from ..models import (
     DataRange1d,
     GraphRenderer,
     LayoutProvider,
-    Plot,
     Range,
     Scale,
     Tool,
+    XYPlot,
 )
 from ..models.dom import Template
 from ..models.tools import (
@@ -102,11 +102,11 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class figure(Plot, GlyphAPI):
+class figure(XYPlot, GlyphAPI):
     ''' Create a new figure for plotting.
 
-    A subclass of |Plot| that simplifies plot creation with default axes, grids,
-    tools, etc.
+    A subclass of :class:`~bokeh.models.XYPlot` that simplifies plot creation
+    with default axes, grids, tools, etc.
 
     Figure objects have many glyph methods that can be used to draw
     vectorized graphical glyphs:

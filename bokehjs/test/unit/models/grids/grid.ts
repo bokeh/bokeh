@@ -6,13 +6,14 @@ import {BasicTicker} from "@bokehjs/models/tickers/basic_ticker"
 import {BasicTickFormatter} from "@bokehjs/models/formatters/basic_tick_formatter"
 import {FixedTicker} from "@bokehjs/models/tickers/fixed_ticker"
 import {Grid} from "@bokehjs/models/grids/grid"
-import {Plot} from "@bokehjs/models/plots/plot"
+
+import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 
 describe("Grid", () => {
 
   it("use axis computed bounds when range names and dimension match, and bounds='auto'", async () => {
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       x_range: Range1d.create({start: 0, end: 10}),
       y_range: Range1d.create({start: 0, end: 10}),
     })
@@ -29,7 +30,7 @@ describe("Grid", () => {
   })
 
   it("use axis computed bounds when dimensions doesn't match, and bounds='auto'", async () => {
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       x_range: Range1d.create({start: 0, end: 10}),
       y_range: Range1d.create({start: 0, end: 10}),
     })
@@ -46,7 +47,7 @@ describe("Grid", () => {
   })
 
   it("use user bounds when set'", async () => {
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       x_range: Range1d.create({start: 0, end: 10}),
       y_range: Range1d.create({start: 0, end: 10}),
     })
@@ -63,7 +64,7 @@ describe("Grid", () => {
   })
 
   it("should return major grid_coords without ends by default", async () => {
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       x_range: Range1d.create({start: 0.1, end: 9.9}),
       y_range: Range1d.create({start: 0.1, end: 9.9}),
     })
@@ -83,7 +84,7 @@ describe("Grid", () => {
   })
 
   it("should return major grid_coords with ends when asked", async () => {
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       x_range: Range1d.create({start: 0.1, end: 9.9}),
       y_range: Range1d.create({start: 0.1, end: 9.9}),
     })
@@ -103,7 +104,7 @@ describe("Grid", () => {
   })
 
   it("should delegate to an Axis ticker", async () => {
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       x_range: Range1d.create({start: 0.1, end: 9.9}),
       y_range: Range1d.create({start: 0.1, end: 9.9}),
     })
@@ -123,7 +124,7 @@ describe("Grid", () => {
   })
 
   it("should prefer an explicit ticker to an Axis ticker", async () => {
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       x_range: Range1d.create({start: 0.1, end: 9.9}),
       y_range: Range1d.create({start: 0.1, end: 9.9}),
     })

@@ -13,12 +13,12 @@ import {
   LogScale,
   NoOverlap,
   PanTool,
-  Plot,
   Range1d,
   TeX,
   Toolbar,
   ToolbarPanel,
   WheelZoomTool,
+  XYPlot,
 } from "@bokehjs/models"
 
 import type {Factor} from "@bokehjs/models/ranges/factor_range"
@@ -30,7 +30,7 @@ import {radians} from "@bokehjs/core/util/math"
 
   function hplot(side: Side, axis_type: "linear" | "log"): PlotFn {
     return async (attrs, options) => {
-      const p = Plot.create({
+      const p = XYPlot.create({
         width: 300,
         height: options?.minor_size ?? 50,
         x_scale: axis_type == "linear" ? LinearScale.create() : LogScale.create(),
@@ -57,7 +57,7 @@ import {radians} from "@bokehjs/core/util/math"
 
   function vplot(side: Side, axis_type: "linear" | "log"): PlotFn {
     return async (attrs, options) => {
-      const p = Plot.create({
+      const p = XYPlot.create({
         width: options?.minor_size ?? 50,
         height: 300,
         x_scale: LinearScale.create(),
@@ -220,7 +220,7 @@ import {radians} from "@bokehjs/core/util/math"
     describe("in both orientations", () => {
       async function hvplot(attrs: Partial<LogAxis.Attrs>): Promise<void> {
         function make_plot(output_backend: OutputBackend) {
-          const p = Plot.create({
+          const p = XYPlot.create({
             output_backend,
             title: output_backend,
             width: 600,
@@ -306,7 +306,7 @@ describe("CategoricalAxis", () => {
 
   function hplot(side: Side): PlotFn {
     return async (factors, attrs, options) => {
-      const p = Plot.create({
+      const p = XYPlot.create({
         width: 300,
         height: options?.minor_size ?? 50,
         x_scale: CategoricalScale.create(),
@@ -328,7 +328,7 @@ describe("CategoricalAxis", () => {
 
   function vplot(side: Side): PlotFn {
     return async (factors, attrs, options) => {
-      const p = Plot.create({
+      const p = XYPlot.create({
         width: options?.minor_size ?? 50,
         height: 300,
         x_scale: LinearScale.create(),

@@ -5,7 +5,7 @@ import {display} from "#framework/layouts"
 import {RangeTool} from "@bokehjs/models/tools/gestures/range_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Node} from "@bokehjs/models/coordinates/node"
-import {Plot} from "@bokehjs/models/plots/plot"
+import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 
 describe("range_tool module", () => {
   const source = {start: 0, end: 10}
@@ -52,7 +52,7 @@ describe("range_tool module", () => {
     it("should restore ranges when moving the overlay was cancelled", async () => {
       const x_range = Range1d.create({start: 2, end: 4})
       const tool = RangeTool.create({x_range})
-      const plot = Plot.create({
+      const plot = XYPlot.create({
         width: 400,
         height: 400,
         min_border: 0,

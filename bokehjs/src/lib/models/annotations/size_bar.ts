@@ -18,7 +18,8 @@ import type {ElementLike} from "../renderers/composite_renderer"
 import {isString} from "core/util/types"
 import type {Align, Orientation} from "core/enums"
 import {Title} from "../annotations/title"
-import {Plot, PlotView} from "../plots/plot"
+import {XYPlot} from "../plots/xy_plot"
+import {PlotView} from "../plots/plot_canvas"
 import type {TickFormatter} from "../formatters/tick_formatter"
 import {BasicTickFormatter} from "../formatters/basic_tick_formatter"
 import type {Ticker} from "../tickers/ticker"
@@ -61,11 +62,11 @@ class InternalPlotView extends PlotView {
 
 namespace InternalPlot {
   export type Attrs = p.AttrsOf<Props>
-  export type Props = Plot.Props
+  export type Props = XYPlot.Props
 }
 interface InternalPlot extends InternalPlot.Attrs {}
 
-class InternalPlot extends Plot {
+class InternalPlot extends XYPlot {
   declare properties: InternalPlot.Props
   declare __view_type__: InternalPlotView
 

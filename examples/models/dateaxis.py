@@ -16,9 +16,9 @@ from bokeh.models import (
     ColumnDataSource,
     DatetimeAxis,
     PanTool,
-    Plot,
     Scatter,
     WheelZoomTool,
+    XYPlot,
 )
 from bokeh.util.browser import view
 
@@ -31,7 +31,7 @@ times = (linspace(0, 24*3600, N) + time.time()) * 1000
 
 source = ColumnDataSource(data=dict(x=x, y=y, times=times))
 
-plot = Plot(min_border=80, width=800, height=350, background_fill_color="#efefef")
+plot = XYPlot(min_border=80, width=800, height=350, background_fill_color="#efefef")
 
 scatter = Scatter(x="times", y="y", fill_color="red", size=3, line_color=None, fill_alpha=0.5)
 plot.add_glyph(source, scatter)

@@ -19,10 +19,10 @@ from bokeh.models import (
     HBar,
     Line,
     LinearAxis,
-    Plot,
     Scatter,
     Text,
     Title,
+    XYPlot,
 )
 from bokeh.themes import Theme
 from bokeh.transform import dodge
@@ -62,7 +62,7 @@ source2 = ColumnDataSource({"x": x, "y": y})
 source3 = ColumnDataSource({"x": x2, "y": z})
 source4 = ColumnDataSource({"y": [2.5], "x": [0.5]})
 
-plot = Plot(width=300, height=300)
+plot = XYPlot(width=300, height=300)
 plot.title = Title(text="Themed glyphs")
 
 xaxis = LinearAxis(ticker=BasicTicker(), formatter=BasicTickFormatter())
