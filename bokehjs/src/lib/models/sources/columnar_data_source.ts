@@ -2,11 +2,12 @@ import {logger} from "core/logging"
 import type * as p from "core/properties"
 import type {Arrayable, ArrayableNew, Data, Dict, PlainObject} from "core/types"
 import type {PatchSet} from "core/patching"
-import {uniq, min} from "core/util/array"
+import {uniq, map, min} from "core/util/array"
 import {is_NDArray, get_array_item} from "core/util/ndarray"
 import {keys, values, entries, dict, clone} from "core/util/object"
 import {isBoolean, isNumber, isString, isArray} from "core/util/types"
 import {IndexedDataSource} from "./indexed_data_source"
+import type {OpaqueIndices} from "../selections/selection"
 import type {Index} from "core/util/templating"
 
 // Filters often use only a few columns, so unpack shaped values on demand.
@@ -146,13 +147,22 @@ export abstract class ColumnarDataSource extends IndexedDataSource {
 
   get_row(index: Index): PlainObject {
     const i = isNumber(index) ? index : index.index
-    const result: PlainObject = {}
+    const result: PlainObject = Object.create(null)
     for (const [column, array] of entries(this.data)) {
       if (is_NDArray(array) && array.dimension > 1) {
         define_lazy_row_value(result, column, array, i)
       } else {
         result[column] = array[i]
       }
+    }
+    return result
+  }
+
+  get_rows(indices: OpaqueIndices): PlainObject {
+    const mapped_indices = map(indices, (index: Index) => isNumber(index) ? index : index.index)
+    const result: PlainObject = Object.create(null)
+    for (const [column, array] of entries(this.data)) {
+      result[column] = map(mapped_indices, (index: number) => is_NDArray(array) ? array.get(index) : array[index])
     }
     return result
   }
@@ -200,5 +210,57 @@ export abstract class ColumnarDataSource extends IndexedDataSource {
 
   patch(patches: PatchSet<unknown>, {sync}: {sync?: boolean} = {}): void {
     this.patch_to(this.properties.data, patches, {sync})
+  }
+
+  _csv_escaped_value(value: unknown, escape_characters: string[]): string {
+    let string_value = is_NDArray(value) || isArray(value) ? JSON.stringify(value) : String(value)
+    if (escape_characters.some(escape_character => string_value.includes(escape_character))) {
+      string_value = `"${string_value.replace(/"/g, '""')}"`
+    }
+    return string_value
+  }
+
+  _row_to_csv(index: Index): string {
+    const escape_characters = [",", '"', "\n", "\r"]
+    const raw_row_values = this.get_row(index)
+    const row_values = this.columns().map(
+      (column) => this._csv_escaped_value(raw_row_values[column], escape_characters),
+    )
+    return row_values.join()
+  }
+
+  _headers_to_csv(): string {
+    const escape_characters = [",", '"', "\n", "\r"]
+    const header_values = this.columns().map(
+      (column) => this._csv_escaped_value(column, escape_characters),
+    )
+    return header_values.join()
+  }
+
+  to_csv(): string {
+    const headers = this._headers_to_csv()
+    const rows = []
+    if (this.selected.indices.length > 0) {
+      for (const row of this.selected.indices) {
+        rows.push(this._row_to_csv(row))
+      }
+    } else {
+      const length = this.get_length() ?? 0
+      for (let row = 0; row < length; row++) {
+        rows.push(this._row_to_csv(row))
+      }
+    }
+    // Push empty string to have last row with newline character
+    // possibliy something worthy to be configurable via an option as well as
+    // separator and characters to escape
+    rows.push("")
+    return [headers, ...rows].join("\n")
+  }
+
+  to_json(): string {
+    if (this.selected.indices.length > 0) {
+      return JSON.stringify(this.get_rows(this.selected.indices))
+    }
+    return JSON.stringify(this.get_rows([...Array(this.length).keys()]))
   }
 }

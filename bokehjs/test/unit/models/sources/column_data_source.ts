@@ -75,8 +75,10 @@ describe("column_data_source module", () => {
       const numeric = new Float64NDArray([0, 1, 2, 3, 4, 5, 6, 7], [2, 2, 2])
       const objects = new ObjectNDArray(["a", "b", "c", "d"], [2, 2])
       const source = ColumnDataSource.create({data: {numeric, objects, label: ["first", "second"]}})
-      expect(source.get_row(1)).to.be.equal({numeric: [[4, 5], [6, 7]], objects: ["c", "d"], label: "second"})
-      expect(source.get_row(2)).to.be.equal({numeric: undefined, objects: undefined, label: undefined})
+      const row_1 = Object.assign(Object.create(null), {numeric: [[4, 5], [6, 7]], objects: ["c", "d"], label: "second"})
+      const row_2 = Object.assign(Object.create(null), {numeric: undefined, objects: undefined, label: undefined})
+      expect(source.get_row(1)).to.be.equal(row_1)
+      expect(source.get_row(2)).to.be.equal(row_2)
       expect(source.get_column("numeric")).to.be.identical(numeric)
       expect(Array.from(numeric)).to.be.equal([0, 1, 2, 3, 4, 5, 6, 7])
     })
@@ -415,6 +417,130 @@ describe("column_data_source module", () => {
       source.data = {}
 
       expect(selected.indices).to.be.equal([0])
+    })
+  })
+
+  describe("to_csv", () => {
+    it("should return string with only newline for empty data source", () => {
+      const cds = ColumnDataSource.create()
+      expect(cds.to_csv()).to.be.equal("\n")
+
+      const cds2 = ColumnDataSource.create({data: {}})
+      expect(cds2.to_csv()).to.be.equal("\n")
+    })
+
+    it("should handle empty columns", () => {
+      const cds = ColumnDataSource.create({data: {
+        foo: [],
+      }})
+      expect(cds.to_csv()).to.be.equal("foo\n")
+
+      const cds2 = ColumnDataSource.create({data: {
+        foo: [],
+        bar: [],
+      }})
+      expect(cds2.to_csv()).to.be.equal("foo,bar\n")
+    })
+
+    it("should handle single column", () => {
+      const cds = ColumnDataSource.create({data: {
+        foo: [1],
+      }})
+      expect(cds.to_csv()).to.be.equal("foo\n1\n")
+    })
+
+    it("should handle single column with characters to escape", () => {
+      const cds = ColumnDataSource.create({data: {
+        "foo,bar": ["1\n2"],
+      }})
+      expect(cds.to_csv()).to.be.equal('"foo,bar"\n"1\n2"\n')
+
+      const cds2 = ColumnDataSource.create({data: {
+        "foo\nbar": ["1,2"],
+      }})
+      expect(cds2.to_csv()).to.be.equal('"foo\nbar"\n"1,2"\n')
+    })
+
+    it("should treat 1-dimensional ndarray just like a normal array", () => {
+      const cds = ColumnDataSource.create({data: {
+        foo: ndarray([1, 0, 1], {dtype: "bool", shape: [3]}),
+        bar: ndarray([10, 9, 8], {dtype: "uint8", shape: [3]}),
+      }})
+      expect(cds.to_csv()).to.be.equal("foo,bar\n1,10\n0,9\n1,8\n")
+    })
+
+    it("should handle ndarray with dimension > 1 as an array value", () => {
+      const cds = ColumnDataSource.create({data: {
+        foo: [ndarray([255, 0, 0, 0, 255, 0], {dtype: "uint8", shape: [2, 3]})],
+        bar: [ndarray([0.5, 3.5, 10.25, -0.125, 3.75, 0.25, 0.5, -0.125], {dtype: "float32", shape: [2, 4]})],
+      }})
+      expect(cds.to_csv()).to.be.equal(
+        'foo,bar\n"' +
+        '{""0"":255,""1"":0,""2"":0,""3"":0,""4"":255,""5"":0,""dtype"":""uint8"",""shape"":[2,3],""dimension"":2}",' +
+        '"{""0"":0.5,""1"":3.5,""2"":10.25,""3"":-0.125,""4"":3.75,""5"":0.25,""6"":0.5,""7"":-0.125,""dtype"":""float32"",""shape"":[2,4],""dimension"":2}"\n',
+      )
+    })
+
+    it("should handle values from Map", () => {
+      const cds = ColumnDataSource.create({data: new Map([["2", ["two"]], ["1", ["one"]]])})
+      expect(cds.to_csv()).to.be.equal(
+        "2,1\n" +
+        "two,one\n",
+      )
+    })
+  })
+
+  describe("to_json", () => {
+    it("should return string with empty object for empty data source", () => {
+      const cds = ColumnDataSource.create()
+      expect(cds.to_json()).to.be.equal("{}")
+
+      const cds2 = ColumnDataSource.create({data: {}})
+      expect(cds2.to_json()).to.be.equal("{}")
+    })
+
+    it("should handle empty columns", () => {
+      const cds = ColumnDataSource.create({data: {
+        foo: [],
+      }})
+      expect(cds.to_json()).to.be.equal('{"foo":[]}')
+
+      const cds2 = ColumnDataSource.create({data: {
+        foo: [],
+        bar: [],
+      }})
+      expect(cds2.to_json()).to.be.equal('{"foo":[],"bar":[]}')
+    })
+
+    it("should handle single column", () => {
+      const cds = ColumnDataSource.create({data: {
+        foo: [1],
+      }})
+      expect(cds.to_json()).to.be.equal('{"foo":[1]}')
+    })
+
+    it("should treat 1-dimensional ndarray just like a normal array", () => {
+      const cds = ColumnDataSource.create({data: {
+        foo: ndarray([1, 0, 1], {dtype: "bool", shape: [3]}),
+        bar: ndarray([10, 9, 8], {dtype: "uint8", shape: [3]}),
+      }})
+      expect(cds.to_json()).to.be.equal('{"foo":[true,false,true],"bar":[10,9,8]}')
+    })
+
+    it("should handle ndarray with dimension > 1 as an array value", () => {
+      const cds = ColumnDataSource.create({data: {
+        foo: [ndarray([255, 0, 0, 0, 255, 0], {dtype: "uint8", shape: [2, 3]})],
+        bar: [ndarray([0.5, 3.5, 10.25, -0.125, 3.75, 0.25, 0.5, -0.125], {dtype: "float32", shape: [2, 4]})],
+      }})
+      expect(cds.to_json()).to.be.equal(
+        '{"foo":[{"0":255,"1":0,"2":0,"3":0,"4":255,"5":0,"dtype":"uint8","shape":[2,3],"dimension":2}],'+
+        '"bar":[{"0":0.5,"1":3.5,"2":10.25,"3":-0.125,"4":3.75,"5":0.25,"6":0.5,"7":-0.125,"dtype":"float32","shape":[2,4],"dimension":2}]}',
+      )
+    })
+
+    it("should handle values from Map", () => {
+      const cds = ColumnDataSource.create({data: new Map([["2", ["two"]], ["1", ["one"]]])})
+      expect(cds.to_json()).to.be.equal('{"1":["one"],"2":["two"]}')
     })
   })
 })

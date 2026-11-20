@@ -17,6 +17,7 @@ import datetime as dt
 import io
 import warnings
 from dataclasses import asdict, dataclass
+from datetime import date, datetime
 from pathlib import Path
 from types import MappingProxyType
 
@@ -965,6 +966,58 @@ Lime,Green,99,$0.39
         assert df.index.names == [None, None]
         assert bms.ColumnDataSource._df_index_name(df) == "index"
 
+    def test_to_csv(self) -> None:
+        data = dict(a=[1.123456789012345, 1e-11], b=[1e-11, 3])
+        df = pd.DataFrame(data)
+        ds = bms.ColumnDataSource(df)
+        assert ds.to_csv() == """index,a,b
+0,1.123456789012345,1e-11
+1,1e-11,3.0
+"""
+
+    def test_array_to_csv(self) -> None:
+        data = dict(a=np.array([np.datetime64("2026-10-29T04:24:34"), np.nan, date(2026, 11, 17)]), b=[np.inf, -np.inf, datetime(2026, 11, 17)])
+        df = pd.DataFrame(data)
+        ds = bms.ColumnDataSource(df)
+        assert ds.to_csv() == """index,a,b
+0,2026-10-29T04:24:34,inf
+1,,-inf
+2,2026-11-17,2026-11-17 00:00:00
+"""
+
+    def test_array_to_csv_selection(self) -> None:
+        data = dict(a=np.array([np.datetime64("2026-10-29T04:24:34"), np.nan]), b=[np.inf, -np.inf])
+        df = pd.DataFrame(data)
+        ds = bms.ColumnDataSource(df)
+        ds.selected.indices = [0]
+        assert ds.to_csv() == """index,a,b
+0,2026-10-29 04:24:34,inf
+"""
+        ds.selected.indices = [1]
+        assert ds.to_csv() == """index,a,b
+1,,-inf
+"""
+
+    def test_to_json(self) -> None:
+        data = dict(a=[1.123456789012345, 1e-11], b=[1e-11, 3])
+        df = pd.DataFrame(data)
+        ds = bms.ColumnDataSource(df)
+        assert ds.to_json() == '{"index": [0, 1], "a": [1.123456789012345, 1e-11], "b": [1e-11, 3.0]}'
+
+    def test_array_to_json(self) -> None:
+        data = dict(a=np.array([np.datetime64("2026-10-29T04:24:34"), np.nan, date(2026, 11, 17)]), b=[np.inf, -np.inf, datetime(2026, 11, 17)])
+        df = pd.DataFrame(data)
+        ds = bms.ColumnDataSource(df)
+        assert ds.to_json() == '{"index": [0, 1, 2], "a": [1793247874000.0, null, "2026-11-17"], "b": [null, null, 1794873600000.0]}'
+
+    def test_array_to_json_selection(self) -> None:
+        data = dict(a=np.array([np.datetime64("2026-10-29T04:24:34"), np.nan]), b=np.array([np.inf, -np.inf]))
+        df = pd.DataFrame(data)
+        ds = bms.ColumnDataSource(df)
+        ds.selected.indices = [0]
+        assert ds.to_json() == '{"index": [0], "a": [1793247874000.0], "b": [null]}'
+        ds.selected.indices = [1]
+        assert ds.to_json() == '{"index": [1], "a": [null], "b": [null]}'
 
 class TestDataTable:
     def test_from_data_with_dataframe(self):
