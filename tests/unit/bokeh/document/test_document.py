@@ -949,6 +949,7 @@ class TestDocument:
             ModelDef(
                 type="model",
                 name="test_document.SomeDataModel",
+                extends=Ref(id=ID("DataModel")),
                 properties=[
                     PropertyDef(name="prop0", kind="Int", default=0),
                     PropertyDef(name="prop1", kind="Int", default=111),
@@ -1022,6 +1023,7 @@ class TestDocument:
             ModelDef(
                 type="model",
                 name=Base.__qualified_model__,
+                extends=Ref(id=ID("DataModel")),
                 properties=[PropertyDef(name="base", kind="Bool", default=False)],
             ),
             ModelDef(

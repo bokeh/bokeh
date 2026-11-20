@@ -324,3 +324,5 @@ export abstract class Model extends HasProps {
     }
   }
 }
+
+export abstract class DataModel extends Model {}

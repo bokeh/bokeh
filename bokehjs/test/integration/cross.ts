@@ -7,7 +7,8 @@ import json5 from "json5"
 import {version} from "@bokehjs/version"
 import type {DocJson} from "@bokehjs/document"
 import {Document} from "@bokehjs/document"
-import {GlyphRenderer} from "@bokehjs/models"
+import {DataModel} from "@bokehjs/model"
+import {Column, GlyphRenderer} from "@bokehjs/models"
 import {PlotView} from "@bokehjs/models/plots/plot"
 import {GridPlotView} from "@bokehjs/models/plots/grid_plot"
 import {DataTableView} from "@bokehjs/models/widgets/tables/data_table"
@@ -79,6 +80,27 @@ describe("Bug", () => {
   describe("in issue #13964", () => {
     it.no_image("doesn't allow using 'constructor' key in maps or plain objects in may have refs contexts", async () => {
       await test("regressions/issue_13964.json5")
+    })
+  })
+
+  describe("in issue #15778", () => {
+    it.no_image("loads Python DataModel properties referencing Model and DataModel", async () => {
+      const {views: [view]} = await test("regressions/issue_15778.json5")
+      const column = view.model
+      expect_instanceof(column, Column)
+
+      const [holder] = column.tags
+      expect_instanceof(holder, DataModel)
+      expect(holder.type).to.be.equal("builtins.Holder")
+      expect(holder.property("child").get_value()).to.be.identical(column.children[0])
+
+      const data = holder.property("data")
+      const nested = data.get_value()
+      expect_instanceof(nested, DataModel)
+      expect(nested.type).to.be.equal("builtins.DerivedHolder")
+      expect(nested).to.be.instanceof(holder.constructor)
+      expect(nested.property("child").get_value()).to.be.identical(column.children[0])
+      expect(data.valid(column.children[0])).to.be.false
     })
   })
 

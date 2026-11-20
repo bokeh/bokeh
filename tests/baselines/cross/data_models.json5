@@ -18,6 +18,9 @@
     {
       type: "model",
       name: "builtins.ForwardDefault",
+      "extends": {
+        id: "DataModel",
+      },
       properties: [
         {
           name: "payload",
@@ -40,6 +43,9 @@
     {
       type: "model",
       name: "builtins.Later",
+      "extends": {
+        id: "DataModel",
+      },
       properties: [
         {
           name: "child",
