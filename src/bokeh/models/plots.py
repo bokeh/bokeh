@@ -29,6 +29,7 @@ from typing import (
     Generator,
     Literal,
     Self,
+    cast,
     overload,
 )
 
@@ -128,7 +129,7 @@ class Plot(LayoutDOM):
     def _new(cls, id: ID) -> Self:
         if cls is Plot:
             raise DeserializationError("Plot is abstract. Regenerate serialized plots as XYPlot")
-        return super()._new(id)
+        return cast(Self, super()._new(id))
 
     def __init__(self, **kwargs: Any) -> None:
         if type(self) is Plot:
