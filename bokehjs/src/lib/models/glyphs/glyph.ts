@@ -730,10 +730,6 @@ export interface Glyph extends Glyph.Attrs {}
 export abstract class Glyph extends Model {
   declare properties: Glyph.Props
   declare __view_type__: GlyphView
-
-  get supports_polar(): boolean {
-    return false
-  }
 }
 
 export type SupportsPathMarking = {

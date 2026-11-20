@@ -70,7 +70,7 @@ from ..core.validation.errors import (
 from ..core.validation.warnings import MISSING_RENDERERS
 from ..model import Model
 from .annotations import Annotation, Legend, Title
-from .axes import Axis
+from .axes import Axis, PolarAxis
 from .coordinates import (
     CartesianMapping,
     CoordinateMapping,
@@ -79,7 +79,7 @@ from .coordinates import (
 from .dom import HTML
 from .glyph import Glyph
 from .glyphs import Scatter
-from .grids import Grid
+from .grids import Grid, PolarGrid
 from .layouts import GridCommon, LayoutDOM
 from .ranges import (
     DataRange1d,
@@ -207,6 +207,8 @@ class Plot(LayoutDOM):
                 problem = self._polar_coordinate_error(renderer.coordinates)
                 if problem is not None:
                     return problem
+            if isinstance(renderer, (PolarAxis, PolarGrid)) and not isinstance(self._coordinate_system_for(renderer.coordinates), PolarMapping):
+                return f"{type(renderer).__name__} requires a PolarMapping"
             if isinstance(renderer, CompositeRenderer):
                 pending.extend(renderer.renderers)
             elif isinstance(renderer, GlyphRenderer):

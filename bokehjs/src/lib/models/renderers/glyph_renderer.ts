@@ -1,6 +1,7 @@
 import type {PathNode} from "../graphics/path_placement"
 import {RendererView} from "./renderer"
 import {DataRenderer, DataRendererView} from "./data_renderer"
+import {renderer_coordinate_error} from "../coordinates/compatibility"
 import type {LegendEntry} from "../annotations/legend"
 import {LineView} from "../glyphs/line"
 import {StepView} from "../glyphs/step"
@@ -132,8 +133,8 @@ export class GlyphRendererView extends DataRendererView {
       .filter((state): state is Glyph => state != null && state != "auto")
   }
 
-  protected override get supports_polar(): boolean {
-    return this._glyph_models.every((glyph) => glyph.supports_polar)
+  protected override get coordinate_error(): string | null {
+    return renderer_coordinate_error(this.polar_transform?.mapping ?? null, this._glyph_models)
   }
 
   get glyph_view(): GlyphView {

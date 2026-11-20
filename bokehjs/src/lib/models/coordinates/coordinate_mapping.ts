@@ -21,14 +21,6 @@ export abstract class CoordinateMapping extends Model {
     return frame.bbox
   }
 
-  get x_ranges(): Map<string, Range> {
-    return new Map([["default", this.ranges[0]]])
-  }
-
-  get y_ranges(): Map<string, Range> {
-    return new Map([["default", this.ranges[1]]])
-  }
-
   abstract get ranges(): readonly [Range, Range]
   abstract get_transform(frame: CoordinateFrame): CoordinateTransform
 }

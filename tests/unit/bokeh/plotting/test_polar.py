@@ -10,7 +10,15 @@ import pytest
 
 from bokeh.core.validation import check_integrity
 from bokeh.document import Document
-from bokeh.models import HoverTool, Plot, PolarAxis, PolarGrid, PolarMapping, Range1d
+from bokeh.models import (
+    CartesianMapping,
+    HoverTool,
+    Plot,
+    PolarAxis,
+    PolarGrid,
+    PolarMapping,
+    Range1d,
+)
 from bokeh.plotting import figure
 
 
@@ -38,6 +46,23 @@ def test_polar_ranges_and_guides() -> None:
     hover = plot.select_one(HoverTool)
     assert hover is not None
     assert hover.tooltips == [("radius", "$x"), ("angle", "$y")]
+
+
+@pytest.mark.parametrize("kind", ["axis", "grid"])
+@pytest.mark.parametrize("place", ["center", "above"])
+@pytest.mark.parametrize("explicit_mapping", [False, True])
+def test_polar_guides_require_polar_mapping(kind, place, explicit_mapping) -> None:
+    plot = figure(coordinate_system=CartesianMapping() if explicit_mapping else None)
+    axis = PolarAxis()
+    guide = axis if kind == "axis" else PolarGrid(axis=axis)
+    plot.add_layout(guide, place)
+    issues = check_integrity([plot]).error
+    assert any(f"{type(guide).__name__} requires a PolarMapping" in issue.extra for issue in issues)
+
+
+def test_polar_guides_validate_with_polar_mapping() -> None:
+    plot = figure(coordinate_system=PolarMapping(radial_range=Range1d(0, 10)))
+    assert not check_integrity(plot.references()).error
 
 
 def test_polar_scatter_and_serialization() -> None:

@@ -10,7 +10,7 @@ import {assert} from "core/util/assert"
 import {logger} from "core/logging"
 import type {Plot, PlotView} from "../plots/plot"
 import type {CanvasView} from "../canvas/canvas"
-import {PolarMapping} from "../coordinates/polar_mapping"
+import {PolarMapping, PolarCoordinateTransform} from "../coordinates/polar_mapping"
 import {CoordinateTransform, CoordinateMapping} from "../coordinates/coordinate_mapping"
 import type {Node} from "../coordinates/node"
 import type {XY} from "core/util/bbox"
@@ -206,9 +206,24 @@ export abstract class RendererView extends StyledElementView implements visuals.
 
   private _reported_coordinate_error = false
 
+  protected get requires_polar_coordinates(): boolean {
+    return false
+  }
+
   get is_renderable(): boolean {
     const {coordinates} = this.model
-    const problem = coordinates != null ? this.plot_view.model.polar_coordinate_error(coordinates) : null
+    const problem = (() => {
+      if (coordinates != null) {
+        const problem = this.plot_view.model.polar_coordinate_error(coordinates)
+        if (problem != null) {
+          return problem
+        }
+      }
+      if (this.requires_polar_coordinates && !(this.coordinates instanceof PolarCoordinateTransform)) {
+        return `${this.model.type} requires a PolarMapping`
+      }
+      return null
+    })()
     if (problem != null) {
       if (!this._reported_coordinate_error) {
         logger.warn(`Skipping ${this.model.type}: ${problem}`)

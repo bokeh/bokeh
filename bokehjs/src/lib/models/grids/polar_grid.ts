@@ -1,4 +1,5 @@
 import {GuideRenderer, GuideRendererView} from "../renderers/guide_renderer"
+import {trace_polar_arc} from "../renderers/polar"
 import {PolarAxis, polar_ticks} from "../axes/polar_axis"
 import {PolarCoordinateTransform} from "../coordinates/polar_mapping"
 import * as mixins from "core/property_mixins"
@@ -18,6 +19,10 @@ export class PolarGridView extends GuideRendererView {
     return true
   }
 
+  protected override get requires_polar_coordinates(): boolean {
+    return true
+  }
+
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.request_paint())
@@ -34,13 +39,18 @@ export class PolarGridView extends GuideRendererView {
     }
     ctx.beginPath()
     for (const tick of polar_ticks(this.model.axis, transform)) {
-      if (this.model.axis.dimension == "radial") {
-        const radius = transform.x_scale.compute(tick)*transform.radius
-        ctx.moveTo(...transform.position(radius, transform.mapping.angular_range.start))
-        transform.arc(ctx, radius)
-      } else {
-        ctx.moveTo(...transform.center)
-        ctx.lineTo(...transform.position(transform.radius, tick))
+      switch (this.model.axis.dimension) {
+        case "radial": {
+          const radius = transform.x_scale.compute(tick)*transform.radius
+          ctx.moveTo(...transform.position(radius, transform.mapping.angular_range.start))
+          trace_polar_arc(ctx, transform, radius)
+          break
+        }
+        case "angular": {
+          ctx.moveTo(...transform.center)
+          ctx.lineTo(...transform.position(transform.radius, tick))
+          break
+        }
       }
     }
     this.visuals.grid_line.apply(ctx)

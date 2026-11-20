@@ -1,4 +1,5 @@
 import {figure} from "@bokehjs/api/figure"
+import {logger} from "@bokehjs/core/logging"
 import * as Events from "@bokehjs/core/bokeh_events"
 import type {TapEvent} from "@bokehjs/core/ui_events"
 import {actions, xy} from "#framework/interactive"
@@ -67,6 +68,55 @@ async function scatter_plot(mapping?: PolarMapping) {
 }
 
 describe("PolarMapping", () => {
+  for (const state of ["selection_glyph", "nonselection_glyph", "hover_glyph", "muted_glyph"] as const) {
+    it(`rejects an unsupported ${state} and recovers with Cartesian coordinates`, async () => {
+      using warn = restorable(sinon.stub(logger, "warn"))
+      const {plot, renderer} = scatter_models()
+      const model: GlyphRenderer = renderer
+      model[state] = Segment.create()
+      const {view} = await display(plot)
+      const renderer_view = view.owner.get_one(renderer)
+      const message = "Skipping GlyphRenderer: this renderer or its visual-state glyphs are not supported by PolarMapping"
+      expect(renderer_view.is_renderable).to.be.false
+      expect(warn.withArgs(message).callCount).to.be.equal(1)
+      expect(renderer_view.is_renderable).to.be.false
+      expect(warn.withArgs(message).callCount).to.be.equal(1)
+
+      plot.coordinate_system = null
+      await view.ready
+      expect(renderer_view.is_renderable).to.be.true
+    })
+  }
+
+  for (const kind of ["axis", "grid"] as const) {
+    it(`warns once for a misplaced polar ${kind} and recovers when the mapping changes`, async () => {
+      using warn = restorable(sinon.stub(logger, "warn"))
+      const axis = PolarAxis.create()
+      const guide = kind == "axis" ? axis : PolarGrid.create({axis})
+      const plot = Plot.create({x_range: Range1d.create({start: 0, end: 10}),
+                                y_range: Range1d.create({start: 0, end: 360}),
+                                toolbar_location: null, renderers: [guide]})
+      const {view} = await display(plot)
+      const guide_view = view.owner.get_one(guide)
+      const message = `Skipping ${guide.type}: ${guide.type} requires a PolarMapping`
+      expect(guide_view.is_renderable).to.be.false
+      expect(warn.withArgs(message).callCount).to.be.equal(1)
+      view.request_repaint()
+      await view.ready
+      expect(guide_view.is_renderable).to.be.false
+      expect(warn.withArgs(message).callCount).to.be.equal(1)
+
+      plot.coordinate_system = PolarMapping.create({radial_range: Range1d.create({start: 0, end: 10})})
+      await view.ready
+      expect(guide_view.is_renderable).to.be.true
+
+      plot.coordinate_system = null
+      await view.ready
+      expect(guide_view.is_renderable).to.be.false
+      expect(warn.withArgs(message).callCount).to.be.equal(2)
+    })
+  }
+
   it("maps cardinal angles with a circular aspect in a rectangular frame", async () => {
     const t = await transform()
     expect(t.compute(10, 0)).to.be.similar([300, 100])

@@ -8,14 +8,26 @@ import type {Arrayable, FloatArray} from "core/types"
 import {ScreenArray} from "core/types"
 import {AngleUnits, Direction} from "core/enums"
 import {compute_angle, invert_angle, to_radians_coeff} from "core/util/math"
-import type {Context2d} from "core/util/canvas"
 import type * as p from "core/properties"
 
 export type PolarViewport = {x: number, y: number, scale: number}
 
 export class PolarCoordinateTransform extends CoordinateTransform {
-  constructor(readonly mapping: PolarMapping, readonly frame: CoordinateFrame, readonly viewport: PolarViewport = {x: 0, y: 0, scale: 1}) {
-    super(LinearScale.create({source_range: mapping.radial_range, target_range: Range1d.create({start: 0, end: 1})}), LinearScale.create({source_range: mapping.angular_range, target_range: frame.y_target}))
+  constructor(
+    readonly mapping: PolarMapping,
+    readonly frame: CoordinateFrame,
+    readonly viewport: PolarViewport = {x: 0, y: 0, scale: 1},
+  ) {
+    super(
+      LinearScale.create({
+        source_range: mapping.radial_range,
+        target_range: Range1d.create({start: 0, end: 1}),
+      }),
+      LinearScale.create({
+        source_range: mapping.angular_range,
+        target_range: frame.y_target,
+      }),
+    )
   }
 
   override get is_separable(): boolean {
@@ -124,24 +136,6 @@ export class PolarCoordinateTransform extends CoordinateTransform {
       [r[i], theta[i]] = this.invert(sx[i], sy[i])
     }
     return [r, theta]
-  }
-
-  arc(ctx: Context2d, radius: number): void {
-    const [cx, cy] = this.center
-    const {start, end} = this.mapping.angular_range
-    ctx.arc(cx, cy, radius, this.angle(start), this.angle(end), this.mapping.direction == "anticlock")
-  }
-
-  trace(ctx: Context2d): void {
-    if (!this.validate()) {
-      return
-    }
-    if (!this.full_circle) {
-      ctx.moveTo(...this.center)
-      ctx.lineTo(...this.position(this.radius, this.mapping.angular_range.start))
-    }
-    this.arc(ctx, this.radius)
-    ctx.closePath()
   }
 }
 

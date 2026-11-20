@@ -19,6 +19,7 @@ import {Title} from "../annotations/title"
 import type {CoordinateMapping} from "../coordinates/coordinate_mapping"
 import {CartesianMapping} from "../coordinates/cartesian_mapping"
 import {PolarMapping} from "../coordinates/polar_mapping"
+import {glyph_coordinate_error} from "../coordinates/compatibility"
 import {LinearScale} from "../scales/linear_scale"
 import {Toolbar} from "../tools/toolbar"
 import {HTML} from "../dom/html"
@@ -293,16 +294,12 @@ export class Plot extends LayoutDOM {
     return null
   }
 
-  polar_glyph_error(glyph: Pick<Glyph, "type" | "supports_polar">, coordinates: CoordinateMapping | null = null): string | null {
+  polar_glyph_error(glyph: Glyph, coordinates: CoordinateMapping | null = null): string | null {
     const problem = this.polar_coordinate_error(coordinates)
     if (problem != null) {
       return problem
     }
-    const mapping = coordinates ?? this.coordinate_system
-    if (mapping instanceof PolarMapping && !glyph.supports_polar) {
-      return `${glyph.type} is not supported by PolarMapping`
-    }
-    return null
+    return glyph_coordinate_error(glyph, coordinates ?? this.coordinate_system)
   }
 
   add_glyph<BaseGlyph extends Glyph>(glyph: BaseGlyph, source?: ColumnDataSource,

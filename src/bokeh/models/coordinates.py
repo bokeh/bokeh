@@ -51,19 +51,30 @@ __all__ = (
 
 @abstract
 class CoordinateMapping(Model):
-    """A plot's data coordinate system.
+    """ Abstract base class for mappings from data coordinates into a plot frame.
 
-    Cartesian and polar mappings share this interface. ``SubplotMapping``
-    embeds a coordinate system within a Cartesian parent plot.
+    Use :class:`CartesianMapping` or :class:`PolarMapping` as a plot's
+    ``coordinate_system``. Use :class:`SubplotMapping` on renderers to embed
+    a Cartesian coordinate system within a Cartesian parent plot.
     """
 
     @property
     def ranges(self) -> tuple[Range, Range]:
+        """ The two data ranges used by this mapping, in coordinate order. """
         raise NotImplementedError
 
 
 class CartesianMapping(CoordinateMapping):
-    """Independent x and y ranges and scales for a Cartesian plot."""
+    """ Map independent x and y data coordinates into a rectangular plot frame.
+
+    When assigned to a plot's ``coordinate_system``, this mapping supplies
+    the plot's x and y ranges and scales. Numeric ranges use linear scales
+    by default. A :class:`~bokeh.models.ranges.FactorRange` selects a
+    categorical scale unless a scale is supplied explicitly.
+
+    Leaving a plot's ``coordinate_system`` unset uses its existing x and y
+    ranges and scales without requiring an explicit Cartesian mapping.
+    """
 
     def __init__(self, *args, **kwargs) -> None:
         for dimension in ("x", "y"):
@@ -82,7 +93,16 @@ class CartesianMapping(CoordinateMapping):
 
 
 class SubplotMapping(CoordinateMapping):
-    """ A mapping between two coordinate systems. """
+    """ Map Cartesian source coordinates into a region of a Cartesian parent plot.
+
+    The ``x_source`` and ``y_source`` ranges describe the renderer's data
+    coordinates. The ``x_target`` and ``y_target`` ranges locate that data
+    within the parent plot's data coordinates. The parent plot's scales
+    then map those target coordinates to the screen.
+
+    Assign this mapping to a renderer's ``coordinates`` property, or use
+    ``figure.subplot`` to create renderers that share a subplot mapping.
+    """
 
     @property
     def ranges(self) -> tuple[Range, Range]:
@@ -117,9 +137,15 @@ class SubplotMapping(CoordinateMapping):
 class PolarMapping(CoordinateMapping):
     """ Map radius and angle pairs into a circular plot frame.
 
+    Assign this mapping to a plot's ``coordinate_system``. Glyph x values
+    represent radii and y values represent angles in ``angle_units``.
+    ``zero_direction`` and ``direction`` control the angular orientation.
+
     This implementation supports the glyphs described in :ref:`ug_topics_polar`
-    and linear radial scaling. Radial and angular ranges must have finite, increasing bounds.
-    Angular bounds describe an unwrapped sector of at most one revolution.
+    and linear radial scaling. Supply an explicit ``radial_range`` with
+    nonnegative, increasing bounds. Both ranges must have finite bounds.
+    Angular bounds describe an increasing, unwrapped sector of at most one
+    revolution, such as 300 to 420 degrees for a sector crossing zero.
     """
 
     @property

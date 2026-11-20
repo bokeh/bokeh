@@ -1,6 +1,7 @@
 import type {CoordinateMapping} from "../coordinates/coordinate_mapping"
 import type {CoordinateTransform} from "../coordinates/coordinate_mapping"
 import {PolarMapping, PolarCoordinateTransform} from "../coordinates/polar_mapping"
+import {trace_polar_frame} from "../renderers/polar"
 import type {PolarViewport} from "../coordinates/polar_mapping"
 import {CartesianFrame} from "../canvas/cartesian_frame"
 import {CanvasPanel} from "../canvas/canvas_panel"
@@ -1471,7 +1472,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
         }
         ctx.beginPath()
         if (polar != null) {
-          polar.trace(ctx)
+          trace_polar_frame(ctx, polar)
         } else {
           ctx.rect_bbox(frame_box)
         }
@@ -1494,7 +1495,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
           ctx.rect_bbox(frame_box)
           ctx.clip()
           ctx.beginPath()
-          polar.trace(ctx)
+          trace_polar_frame(ctx, polar)
         } else {
           ctx.rect_bbox(this._shrink_to_canvas(frame_box))
         }

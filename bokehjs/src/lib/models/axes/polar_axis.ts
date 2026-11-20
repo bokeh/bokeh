@@ -1,4 +1,5 @@
 import {GuideRenderer, GuideRendererView} from "../renderers/guide_renderer"
+import {trace_polar_frame} from "../renderers/polar"
 import {PolarCoordinateTransform} from "../coordinates/polar_mapping"
 import {Ticker} from "../tickers/ticker"
 import {BasicTicker} from "../tickers/basic_ticker"
@@ -29,6 +30,10 @@ export class PolarAxisView extends GuideRendererView {
     return true
   }
 
+  protected override get requires_polar_coordinates(): boolean {
+    return true
+  }
+
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.request_paint())
@@ -49,41 +54,52 @@ export class PolarAxisView extends GuideRendererView {
     if (!transform.validate()) {
       return
     }
-    const {radial_range, angular_range} = transform.mapping
     const ticks = polar_ticks(this.model, transform)
     const labels = this.compute_labels(ticks)
-    const radial = this.model.dimension == "radial"
-    const theta = angular_range.start
-    const phi = transform.angle(theta)
 
-    ctx.beginPath()
-    if (radial) {
+    if (this.model.dimension == "radial") {
+      const {radial_range, angular_range} = transform.mapping
+      const theta = angular_range.start
+      const angle = transform.angle(theta) + Math.PI/2
+
+      ctx.beginPath()
       ctx.moveTo(...transform.center)
       ctx.lineTo(...transform.position(transform.radius, theta))
-    } else {
-      transform.trace(ctx)
-    }
-    this.visuals.axis_line.apply(ctx)
-
-    for (let i = 0; i < ticks.length; i++) {
-      const tick = ticks[i]
-      const rho = radial ? transform.x_scale.compute(tick)*transform.radius : transform.radius
-      const angle = radial ? theta : tick
-      const [sx, sy] = transform.position(rho, angle)
-      const p = radial ? phi + Math.PI/2 : transform.angle(angle)
-      const dx = Math.cos(p)
-      const dy = Math.sin(p)
-      ctx.beginPath()
-      ctx.moveTo(sx, sy)
-      ctx.lineTo(sx + 5*dx, sy + 5*dy)
       this.visuals.axis_line.apply(ctx)
-      if (!(radial && tick == radial_range.start) && this.visuals.major_label_text.doit) {
-        const label = labels[i]
-        label.base_font_size = this.plot_view.base_font_size
-        label.visuals = this.visuals.major_label_text.values()
-        label.position = {sx: sx + (radial ? 14 : 20)*dx, sy: sy + (radial ? 14 : 20)*dy}
-        label.paint(ctx)
+
+      for (let i = 0; i < ticks.length; i++) {
+        const tick = ticks[i]
+        const radius = transform.x_scale.compute(tick)*transform.radius
+        const position = transform.position(radius, theta)
+        const label = tick == radial_range.start ? null : labels[i]
+        this._paint_tick(ctx, position, angle, label, 14)
       }
+    } else {
+      ctx.beginPath()
+      trace_polar_frame(ctx, transform)
+      this.visuals.axis_line.apply(ctx)
+
+      for (let i = 0; i < ticks.length; i++) {
+        const tick = ticks[i]
+        const position = transform.position(transform.radius, tick)
+        const angle = transform.angle(tick)
+        this._paint_tick(ctx, position, angle, labels[i], 20)
+      }
+    }
+  }
+
+  private _paint_tick(ctx: Context2d, [sx, sy]: [number, number], angle: number, label: GraphicsBox | null, standoff: number): void {
+    const dx = Math.cos(angle)
+    const dy = Math.sin(angle)
+    ctx.beginPath()
+    ctx.moveTo(sx, sy)
+    ctx.lineTo(sx + 5*dx, sy + 5*dy)
+    this.visuals.axis_line.apply(ctx)
+    if (label != null && this.visuals.major_label_text.doit) {
+      label.base_font_size = this.plot_view.base_font_size
+      label.visuals = this.visuals.major_label_text.values()
+      label.position = {sx: sx + standoff*dx, sy: sy + standoff*dy}
+      label.paint(ctx)
     }
   }
 }

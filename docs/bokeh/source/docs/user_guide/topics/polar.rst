@@ -52,6 +52,9 @@ using the corresponding axis tickers. Customize their ``grid_line_*``
 properties, or set ``visible=False`` to hide a guide. The mapping's ``padding``
 reserves space inside the rectangular frame for tick labels.
 
+Polar axes and grids require a polar coordinate mapping. Validation reports
+guides attached to a Cartesian coordinate system.
+
 Degree-based polar figures use 45-degree spacing around a full circle by
 default. Angular labels wrap into a single revolution starting at zero, so
 the 300 to 420 degree sector is labeled 300, 330, 0, 30, and 60 when using

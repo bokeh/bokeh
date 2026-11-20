@@ -1,6 +1,8 @@
 import {PolarCoordinateTransform} from "../coordinates/polar_mapping"
+import {renderer_coordinate_error} from "../coordinates/compatibility"
 import {logger} from "core/logging"
 import {Renderer, RendererView} from "./renderer"
+import {trace_polar_frame} from "./polar"
 import type {GlyphView} from "../glyphs/glyph"
 import type {Scale} from "../scales/scale"
 import type {AutoRanged} from "../ranges/data_range1d"
@@ -26,8 +28,8 @@ export abstract class DataRendererView extends RendererView implements AutoRange
     return transform instanceof PolarCoordinateTransform ? transform : null
   }
 
-  protected get supports_polar(): boolean {
-    return false
+  protected get coordinate_error(): string | null {
+    return renderer_coordinate_error(this.polar_transform?.mapping ?? null, null)
   }
 
   private _reported_polar_unsupported = false
@@ -39,9 +41,10 @@ export abstract class DataRendererView extends RendererView implements AutoRange
     if (this.polar_transform != null && this.parent instanceof DataRendererView && !this.parent.is_renderable) {
       return false
     }
-    if (this.polar_transform != null && !this.supports_polar) {
+    const problem = this.coordinate_error
+    if (problem != null) {
       if (!this._reported_polar_unsupported) {
-        logger.warn(`Skipping ${this.model.type}: this renderer or its visual-state glyphs are not supported by PolarMapping`)
+        logger.warn(`Skipping ${this.model.type}: ${problem}`)
         this._reported_polar_unsupported = true
       }
       return false
@@ -65,12 +68,12 @@ export abstract class DataRendererView extends RendererView implements AutoRange
     try {
       ctx.beginPath()
       if (outer != null) {
-        outer.trace(ctx)
+        trace_polar_frame(ctx, outer)
         ctx.clip()
       }
       if (polar != null && polar != outer) {
         ctx.beginPath()
-        polar.trace(ctx)
+        trace_polar_frame(ctx, polar)
         ctx.clip()
       }
       super.paint(ctx)
