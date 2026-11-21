@@ -122,8 +122,8 @@ def format_docstring(docstring: str | None, *args: Any, **kwargs: Any) -> str | 
 
     Args:
         docstring (str or None) : The docstring to format, or ``None``
-        args (tuple) : string formatting arguments for the docsring
-        kwargs (dict) : string formatting arguments for the docsring
+        args (tuple) : string formatting arguments for the docstring
+        kwargs (dict) : string formatting arguments for the docstring
 
     Returns:
         str or None
@@ -157,7 +157,7 @@ def format_url_query_arguments(
     if "#" in url:
         if fragment is not None and fragment != "":
             raise ValueError("Can't extend a url with an existing and a given fragment.")
-        url, fragment = url.split("#")
+        url, fragment = url.split("#", 1)
 
     if arguments is not None and arguments != {}:
         items = (f"{quote_plus(key)}={quote_plus(value)}" for key, value in arguments.items())

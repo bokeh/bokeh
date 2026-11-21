@@ -97,6 +97,17 @@ class Test_format_url_query_arguments:
         uri = "https://example.com/ws?existing=1#selection"
         assert bus.format_url_query_arguments(uri, args) == "https://example.com/ws?existing=1&new=2#selection"
 
+    def test_keep_existing_fragment_with_multiple_hashtags(self) -> None:
+        args = {"new": "2"}
+        uri = "https://example.com/ws?existing=1#section#subsection"
+        assert bus.format_url_query_arguments(uri, args) == "https://example.com/ws?existing=1&new=2#section#subsection"
+
+    def test_reject_fragment_if_a_fragment_already_exists(self) -> None:
+        uri = "https://example.com/ws?existing=1#selection"
+        with pytest.raises(ValueError) as e:
+            assert bus.format_url_query_arguments(uri, {"new": "2"}, "new_fragment")
+        assert str(e.value) == "Can't extend a url with an existing and a given fragment."
+
 class Test_indent:
     TEXT = "some text\nto indent\n  goes here"
 
