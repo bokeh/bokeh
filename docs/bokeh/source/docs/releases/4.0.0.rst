@@ -320,3 +320,4 @@ Bug fixes
 * Fixed ``figure.graph()`` dropping ``node_`` and ``edge_`` prefixed glyph properties
   whose names start with any of the prefix's letters (e.g. ``node_name``), and applying
   unprefixed arguments (e.g. ``tags``) to both node and edge glyphs.
+* Fixed ``varying_alpha_palette`` raising ``ZeroDivisionError`` for palettes shorter than two colors; it now raises a more informative ``ValueError`` (:bokeh-pull:`15665`).

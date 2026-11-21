@@ -100,6 +100,21 @@ def test_varying_alpha_palette() -> None:
 
     assert pal.varying_alpha_palette("#654321", start_alpha=100, end_alpha=103) == ("#65432164", "#65432165", "#65432166", "#65432167")
 
+    # A palette has to comprise both the start and the end alpha, so a length
+    # below two is refused whether it was requested or implied.
+    assert pal.varying_alpha_palette("blue", 2) == ("#0000ff00", "#0000ff")
+    for n in (1, 0, -3):
+        with pytest.raises(ValueError, match=f"n must be at least 2, got {n}$"):
+            pal.varying_alpha_palette("blue", n)
+    with pytest.raises(ValueError, match=r"^n must be at least 2, got 1$"):
+        pal.varying_alpha_palette("red", 1, start_alpha=255, end_alpha=128)
+    with pytest.raises(
+        ValueError,
+        match=r"^start_alpha 128 and end_alpha 128 would generate "
+        r"a palette of length 1, but a palette must have at least 2 colors$",
+    ):
+        pal.varying_alpha_palette("blue", start_alpha=128, end_alpha=128)
+
     with pytest.raises(ValueError):
         pal.varying_alpha_palette("bluey")
     with pytest.raises(ValueError):
