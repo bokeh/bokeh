@@ -486,14 +486,25 @@ class TestColumnDataSource:
             (slice(0, 2, 0), [100, 101]),
             (slice(5, None), [100]),
             (slice(0, 2), [100]),
-            (slice(0, 4), [100, 101]),
+            (slice(0, 2), [100, 101, 102]),
+            (slice(-1, None), [100]),
+            (slice(None, -1), [100]),
         ],
-        ids=["start_after_stop", "negative_step", "zero_step", "start_oob", "too_few_values", "too_many_values"],
+        ids=[
+            "start_after_stop",
+            "negative_step",
+            "zero_step",
+            "start_oob",
+            "too_few_values",
+            "too_many_values",
+            "negative_start",
+            "negative_stop",
+        ],
     )
     def test_patch_invalid_slice_leaves_all_columns_unchanged(self, bad_slice: slice, patch_values: list[int]) -> None:
         ds = bms.ColumnDataSource(data=dict(a=[10, 11, 12], b=np.array([20, 21, 22])))
         with pytest.raises(ValueError):
-            ds.patch(dict(a=[(bad_slice, patch_values)], b=[(slice(0, 2), [200])]))
+            ds.patch(dict(a=[(slice(0, 2), [100, 101])], b=[(bad_slice, patch_values)]))
         assert ds.data["a"] == [10, 11, 12]
         assert np.array_equal(ds.data["b"], np.array([20, 21, 22]))
 
