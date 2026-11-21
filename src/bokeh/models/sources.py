@@ -850,7 +850,7 @@ class ColumnDataSource(ColumnarDataSource):
 
             col_len = len(self.data[name])
 
-            for ind, _ in patch:
+            for ind, value in patch:
 
                 # integer index, patch single value of 1d column
                 if isinstance(ind, int):
@@ -862,6 +862,16 @@ class ColumnDataSource(ColumnarDataSource):
                     _check_slice(ind)
                     if ind.stop is not None and ind.stop > col_len:
                         raise ValueError(f"Out-of bounds slice index stop ({ind.stop}) in patch for column: {name}")
+
+                    start = 0 if ind.start is None else ind.start
+                    stop = col_len if ind.stop is None else ind.stop
+                    if start > col_len:
+                        raise ValueError(f"Out-of bounds slice index start ({start}) in patch for column: {name}")
+
+                    step = 1 if ind.step is None else ind.step
+                    expected = len(range(start, stop, step))
+                    if len(value) != expected:
+                        raise ValueError(f"Patch slice for column: {name} expects {expected} values, got {len(value)}")
 
                 # multi-index, patch sub-regions of "n-d" column
                 elif isinstance(ind, (list, tuple)):
@@ -1049,6 +1059,8 @@ def _open_record_file(path: PathLike, *, encoding: str, newline: str | None = No
 def _check_slice(s: slice) -> None:
     if (s.start is not None and s.stop is not None and s.start > s.stop):
         raise ValueError(f"Patch slices must have start < end, got {s}")
+    if s.step == 0:
+        raise ValueError(f"Patch slices must have non-zero step, got {s}")
     if (s.start is not None and s.start < 0) or \
        (s.stop  is not None and s.stop < 0) or \
        (s.step  is not None and s.step < 0):
