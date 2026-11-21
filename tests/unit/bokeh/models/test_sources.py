@@ -53,6 +53,13 @@ class DataclassData:
     a: list[int]
     b: list[int]
 
+def _assert_column(ds: bms.ColumnDataSource, expected: list[int]) -> None:
+    actual = ds.data["a"]
+    if isinstance(actual, np.ndarray):
+        assert np.array_equal(actual, np.array(expected))
+    else:
+        assert actual == expected
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -400,8 +407,10 @@ class TestColumnDataSource:
         assert stuff['args'] == ("doc", ds, dict(a=[(0,100), (1,101)], b=[(0,200)]), mock_setter)
         assert stuff['kw'] == {}
 
-    def test_patch_bad_slice_indices(self) -> None:
-        ds = bms.ColumnDataSource(data=dict(a=[10, 11, 12, 13, 14, 15], b=[20, 21, 22, 23, 24, 25]))
+    @pytest.mark.parametrize("as_array", [False, True], ids=["list", "ndarray"])
+    def test_patch_bad_slice_indices(self, as_array: bool) -> None:
+        values = [10, 11, 12, 13, 14, 15]
+        ds = bms.ColumnDataSource(data=dict(a=np.array(values) if as_array else values))
         with pytest.raises(ValueError, match=r"Out-of bounds slice index stop \(10\) in patch for column: a"):
             ds.patch(dict(a=[(slice(10), list(range(10)))]))
         with pytest.raises(ValueError, match=r"Patch slices must have start < end, got slice\(10, 1, None\)"):
@@ -414,6 +423,7 @@ class TestColumnDataSource:
             ds.patch(dict(a=[(slice(10, 1, -1), list(range(10)))]))
         with pytest.raises(ValueError, match=r"Patch slices must have non-negative \(start, stop, step\) values, got slice\(1, 10, -1\)"):
             ds.patch(dict(a=[(slice(1, 10, -1), list(range(10)))]))
+        _assert_column(ds, values)
 
     def test_patch_zero_slice_step(self) -> None:
         ds = bms.ColumnDataSource(data=dict(a=[10, 11, 12]))
@@ -421,31 +431,39 @@ class TestColumnDataSource:
             ds.patch(dict(a=[(slice(0, 2, 0), [100, 101])]))
         assert ds.data == dict(a=[10, 11, 12])
 
-    def test_patch_bad_slice_start(self) -> None:
-        ds = bms.ColumnDataSource(data=dict(a=[10, 11, 12, 13, 14, 15]))
+    @pytest.mark.parametrize("as_array", [False, True], ids=["list", "ndarray"])
+    def test_patch_bad_slice_start(self, as_array: bool) -> None:
+        values = [10, 11, 12, 13, 14, 15]
+        ds = bms.ColumnDataSource(data=dict(a=np.array(values) if as_array else values))
         with pytest.raises(ValueError, match=r"Out-of bounds slice index start \(7\) in patch for column: a"):
             ds.patch(dict(a=[(slice(7, None), [100])]))
+        _assert_column(ds, values)
         with pytest.raises(ValueError, match=r"Patch slice for column: a expects 0 values, got 1"):
             ds.patch(dict(a=[(slice(6, None), [100])]))
-        assert ds.data == dict(a=[10, 11, 12, 13, 14, 15])
+        _assert_column(ds, values)
 
-    def test_patch_bad_slice_value_length(self) -> None:
-        ds = bms.ColumnDataSource(data=dict(a=[10, 11, 12, 13, 14, 15]))
-        with pytest.raises(ValueError, match=r"Patch slice for column: a expects 1 values, got 2"):
-            ds.patch(dict(a=[(slice(3, 4), [100, 101])]))
-        with pytest.raises(ValueError, match=r"Patch slice for column: a expects 3 values, got 2"):
-            ds.patch(dict(a=[(slice(0, 6, 2), [100, 101])]))
-        with pytest.raises(ValueError, match=r"Patch slice for column: a expects 4 values, got 3"):
-            ds.patch(dict(a=[(slice(2, None), [100, 101, 102])]))
-        assert ds.data == dict(a=[10, 11, 12, 13, 14, 15])
-
-    def test_patch_bad_slice_value_length_ndarray(self) -> None:
-        ds = bms.ColumnDataSource(data=dict(a=np.array([10, 11, 12])))
-        with pytest.raises(ValueError, match=r"Patch slice for column: a expects 2 values, got 1"):
-            ds.patch(dict(a=[(slice(0, 2), [99])]))
-        with pytest.raises(ValueError, match=r"Out-of bounds slice index start \(4\) in patch for column: a"):
-            ds.patch(dict(a=[(slice(4, None), [99])]))
-        assert np.array_equal(ds.data["a"], np.array([10, 11, 12]))
+    @pytest.mark.parametrize("as_array", [False, True], ids=["list", "ndarray"])
+    def test_patch_bad_slice_value_length(self, as_array: bool) -> None:
+        values = [10, 11, 12, 13, 14, 15]
+        ds = bms.ColumnDataSource(data=dict(a=np.array(values) if as_array else values))
+        cases = [
+            # expected: 1, provided: 2
+            (slice(3, 4), [100, 101]),
+            # expected: 2, provided: 5
+            (slice(1, 3), [100, 101, 102, 103, 104]),
+            # expected: 3, provided: 2
+            (slice(0, 6, 2), [100, 101]),
+            # expected: 3, provided: 1
+            (slice(0, 6, 2), [100]),
+            # expected: 4, provided: 3
+            (slice(2, None), [100, 101, 102]),
+        ]
+        for bad_slice, patch_values in cases:
+            expected = len(range(*bad_slice.indices(len(values))))
+            provided = len(patch_values)
+            with pytest.raises(ValueError, match=rf"Patch slice for column: a expects {expected} values, got {provided}"):
+                ds.patch(dict(a=[(bad_slice, patch_values)]))
+            _assert_column(ds, values)
 
     def test_patch_empty_slice_at_column_boundary(self) -> None:
         ds = bms.ColumnDataSource(data=dict(a=[10, 11, 12]))
@@ -460,10 +478,22 @@ class TestColumnDataSource:
         ds.patch(dict(a=[(slice(2, None), [200, 201, 202, 203])]))
         assert ds.data == dict(a=[100, 11, 200, 201, 202, 203])
 
-    def test_patch_invalid_slice_leaves_all_columns_unchanged(self) -> None:
+    @pytest.mark.parametrize(
+        ("bad_slice", "patch_values"),
+        [
+            (slice(3, 1), [100, 101]),
+            (slice(None, 3, -1), [100, 101, 102]),
+            (slice(0, 2, 0), [100, 101]),
+            (slice(5, None), [100]),
+            (slice(0, 2), [100]),
+            (slice(0, 4), [100, 101]),
+        ],
+        ids=["start_after_stop", "negative_step", "zero_step", "start_oob", "too_few_values", "too_many_values"],
+    )
+    def test_patch_invalid_slice_leaves_all_columns_unchanged(self, bad_slice: slice, patch_values: list[int]) -> None:
         ds = bms.ColumnDataSource(data=dict(a=[10, 11, 12], b=np.array([20, 21, 22])))
-        with pytest.raises(ValueError, match=r"Patch slice for column: b expects 2 values, got 1"):
-            ds.patch(dict(a=[(slice(0, 2), [100, 101])], b=[(slice(0, 2), [200])]))
+        with pytest.raises(ValueError):
+            ds.patch(dict(a=[(bad_slice, patch_values)], b=[(slice(0, 2), [200])]))
         assert ds.data["a"] == [10, 11, 12]
         assert np.array_equal(ds.data["b"], np.array([20, 21, 22]))
 
