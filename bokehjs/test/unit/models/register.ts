@@ -6,6 +6,7 @@ import {register_standard_models} from "@bokehjs/models/register"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Document} from "@bokehjs/document"
 import {DocumentConfig} from "@bokehjs/document/config"
+import {DataModel, Model} from "@bokehjs/model"
 
 interface CustomRange extends Range1d.Attrs {}
 class CustomRange extends Range1d {}
@@ -16,6 +17,8 @@ describe("model registration", () => {
     register_standard_models(resolver)
 
     expect(resolver.get("Range1d")).to.be.equal(Range1d)
+    expect(resolver.get("Model")).to.be.equal(Model)
+    expect(resolver.get("DataModel")).to.be.equal(DataModel)
     expect(resolver.get("DocumentConfig")).to.be.equal(DocumentConfig)
   })
 
