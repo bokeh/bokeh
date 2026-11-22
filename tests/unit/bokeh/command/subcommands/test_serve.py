@@ -625,6 +625,26 @@ def test_actual_port_printed_out() -> None:
         r = requests.get(f"http://localhost:{port}/")
         assert r.status_code == 200
 
+def _ipv6_loopback_available() -> bool:
+    if not socket.has_ipv6:
+        return False
+    try:
+        with socket.socket(socket.AF_INET6, socket.SOCK_STREAM) as s:
+            s.bind(("::1", 0))
+    except OSError:
+        return False
+    return True
+
+@pytest.mark.skipif(not _ipv6_loopback_available(), reason="IPv6 loopback not available")
+def test_ipv6_address_printed_in_brackets() -> None:
+    pat = re.compile(r'Bokeh app running at: http://\[::1\]:(\d+)/')
+    with run_bokeh_serve(["--port", "0", "--address", "::1"]) as (_, nbsr):
+        m = find_pattern(nbsr, pat)
+        if m is None:
+            pytest.fail("Did not find bracketed IPv6 URL in process output")
+        with urlopen(f"http://[::1]:{m.group(1)}/favicon.ico", timeout=10) as response:
+            assert response.status == 200
+
 def test_websocket_max_message_size_printed_out() -> None:
     pat = re.compile(r'Torndado websocket_max_message_size set to 12345')
     with run_bokeh_serve(["--port", "0", "--websocket-max-message-size", "12345"]) as (_, nbsr):
