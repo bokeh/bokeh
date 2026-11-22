@@ -8,11 +8,12 @@ import {Bar, Presets} from "cli-progress"
 
 import {load_baselines} from "./baselines.js"
 import {platform} from "./sys.js"
-import type {Suite, TestRunContext, ScreenshotMode} from "./types.js"
+import type {Suite, TestRunContext, ScreenshotMode, FilterResult} from "./types.js"
 import {Exit} from "./types.js"
-import {descriptions, description, encode, show_tree} from "./format.js"
+import {descriptions, description, encode, show_tree, render_ansi} from "./format.js"
 import {BrowserError, BrowserManager, Value, Failure} from "./browser.js"
-import {TestDiscovery, type TestCase, type TestStatus} from "./discovery.js"
+import {TestDiscovery} from "./discovery.js"
+import type {TestCase, TestStatus} from "./discovery.js"
 import {MetricsCollector} from "./metrics.js"
 import {TestRunner} from "./test-runner.js"
 
@@ -44,8 +45,9 @@ const argv = yargs(process.argv.slice(2)).options({
   seed: {type: "number", default: Date.now()},
   pedantic: {type: "boolean", default: false},
   keyword: {type: "string", array: true, demandOption: false, alias: "k"},
-  grep: {type: "string", array: true, demandOption: false},
+  grep: {type: "string", array: true, demandOption: false, alias: "g"},
   skip: {type: "string", array: true, demandOption: false},
+  file: {type: "string", array: true, demandOption: false, alias: "f"},
   "baselines-root": {type: "string", demandOption: false},
   screenshot: {type: "string", choices: ["test", "save", "skip"] as const, default: "test"},
   "test-timeout": {type: "number", demandOption: false},
@@ -53,7 +55,7 @@ const argv = yargs(process.argv.slice(2)).options({
   info: {type: "boolean", default: false},
 }).parseSync()
 
-const {executable, ref, randomize, seed, pedantic, keyword, grep, skip, screenshot, retry, info} = argv as typeof argv & {screenshot: ScreenshotMode}
+const {executable, ref, randomize, seed, pedantic, keyword, grep, skip, file, screenshot, retry, info} = argv as typeof argv & {screenshot: ScreenshotMode}
 const url = argv._[0] as string | undefined ?? "about:blank"
 const MAX_BROWSER_RESTARTS = 2
 const MAX_BROWSER_LAUNCH_ATTEMPTS = 3
@@ -119,19 +121,99 @@ async function restore_baseline_files(checkpoint: BaselineFilesCheckpoint | null
   }
 }
 
-function format_output(test_case: TestCase): string | null {
+function format_output(test_case: TestCase, color?: boolean): string | null {
   const [suites, test, status] = test_case
 
   if ((status.failure ?? false) || (status.timeout ?? false)) {
     const output = show_tree(suites, test)
 
+    if (test.file != null) {
+      output.push(render_ansi(`file: ${chalk.cyan(test.file)}`, color))
+    }
+
     for (const error of status.errors) {
-      output.push(error)
+      output.push(render_ansi(error, color))
     }
 
     return output.join("\n")
   } else {
     return null
+  }
+}
+
+type ProgressState = {failed: string, skipped: string}
+
+interface Progress {
+  start(state: ProgressState): void
+  increment(state: ProgressState): void
+  log(text: string): void
+  stop(): void
+}
+
+/**
+ * Shows an animated progress bar on a TTY. Otherwise (e.g. CI logs, piped
+ * output, agents), prints a plain status line only every 10% or 30 seconds.
+ */
+function create_progress(total: number): Progress {
+  if (process.stdout.isTTY) {
+    const bar = new Bar({
+      format: "{bar} {percentage}% | {value} of {total}{failed}{skipped} | {duration}s",
+      stream: process.stdout,
+      // By default line wrapping is disabled while the bar is active, which would
+      // truncate failure details logged mid-run. Keep it enabled; the bar line is
+      // trimmed to the terminal width by cli-progress instead.
+      linewrap: true,
+    }, Presets.shades_classic)
+
+    return {
+      start(state) {
+        bar.start(total, 0, state)
+      },
+      increment(state) {
+        bar.increment(1, state)
+      },
+      log(text) {
+        // Clear the bar's line; it will be redrawn below the text on the next update. The bar
+        // restores the cursor position saved at start when it stops, but that position refers
+        // to a screen row, which becomes stale when text scrolls the screen, so save it again.
+        process.stdout.write(`\r\x1b[K${text}\n\x1b7`)
+      },
+      stop() {
+        bar.stop()
+      },
+    }
+  } else {
+    const step = Math.max(1, Math.ceil(total / 10))
+    const interval = 30_000
+
+    let value = 0
+    let started = Date.now()
+    let reported = started
+
+    const report = (state: ProgressState) => {
+      const now = Date.now()
+      const percentage = total == 0 ? 100 : Math.floor(value / total * 100)
+      const duration = Math.round((now - started) / 1000)
+      console.log(`${percentage}% | ${value} of ${total}${state.failed}${state.skipped} | ${duration}s`)
+      reported = now
+    }
+
+    return {
+      start() {
+        started = Date.now()
+        reported = started
+      },
+      increment(state) {
+        value++
+        if (value == total || value % step == 0 || Date.now() - reported >= interval) {
+          report(state)
+        }
+      },
+      log(text) {
+        console.log(text)
+      },
+      stop() {},
+    }
   }
 }
 
@@ -141,8 +223,10 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
   try {
     if (baselines_root != null) {
       const report_dir = path.join(baselines_root, platform)
-      await fs.promises.rm(path.join(report_dir, "report.json"), {force: true})
+      await fs.promises.rm(path.join(report_dir, "report.jsonl"), {force: true})
       await fs.promises.rm(path.join(report_dir, "report.out"), {force: true})
+      // Remove reports written by older runners.
+      await fs.promises.rm(path.join(report_dir, "report.json"), {force: true})
       for (const file of await fs.promises.readdir(report_dir)) {
         if (/^report\.json\.\d+\.tmp$/.test(file)) {
           await fs.promises.rm(path.join(report_dir, file), {force: true})
@@ -160,12 +244,15 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
       }
     }
 
+    // Messages logged while tests are running must go through the progress bar.
+    let log_message = (text: string) => console.error(text)
+
     const recover_browser = async (initial_error: unknown, test_name: string) => {
       let error = initial_error
       for (let attempt = 1; attempt <= MAX_BROWSER_LAUNCH_ATTEMPTS; attempt++) {
         const message = error instanceof Error ? error.message : `${error}`
         const reason = `${message} while running "${test_name}"`
-        console.error(`Browser became unavailable ${reason}`)
+        log_message(`Browser became unavailable ${reason}`)
         await browser.reset()
         try {
           await browser.launch()
@@ -174,7 +261,7 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
         } catch (recovery_error) {
           error = recovery_error
           const recovery_message = recovery_error instanceof Error ? recovery_error.message : `${recovery_error}`
-          console.error(`Browser recovery attempt ${attempt} failed: ${recovery_message}`)
+          log_message(`Browser recovery attempt ${attempt} failed: ${recovery_message}`)
         }
       }
       const message = error instanceof Error ? error.message : `${error}`
@@ -187,6 +274,19 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
       function fail(msg: string, code: number = 1): never {
         console.log(msg)
         throw new Exit(code)
+      }
+
+      const filters = {keyword, grep, file}
+      const filter_result = await browser.evaluate<FilterResult>(`Tests.apply_filters(${JSON.stringify(filters)})`)
+      if (!(filter_result instanceof Value)) {
+        const reason = filter_result instanceof Failure ? filter_result.text : "timeout"
+        fail(`internal error: failed to apply test filters: ${reason}`)
+      }
+      for (const warning of filter_result.value.warnings) {
+        console.log(`${chalk.yellow("warning")}: ${warning}`)
+      }
+      if (filter_result.value.errors.length != 0) {
+        fail(filter_result.value.errors.map((error) => `${chalk.red("error")}: ${error}`).join("\n"))
       }
 
       const result = await browser.evaluate<Suite>("Tests.top_level")
@@ -218,7 +318,7 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
         fail("one or more test descriptions use invalid characters")
       }
 
-      discovery.apply_filters(keyword, grep, skip)
+      discovery.apply_filters(skip)
 
       const all_tests = discovery.get_all_tests()
       const selected_tests = discovery.get_selected_tests()
@@ -263,17 +363,12 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
         }
       }
 
-      const progress = new Bar({
-        format: "{bar} {percentage}% | {value} of {total}{failed}{skipped} | {duration}s",
-        stream: process.stdout,
-        noTTYOutput: true,
-        notTTYSchedule: 1000,
-      }, Presets.shades_classic)
+      const progress = create_progress(selected_tests.length)
 
       let skipped = 0
       let failed = 0
 
-      function state(): object {
+      function state(): ProgressState {
         function format(value: number, single: string, plural?: string): string {
           if (value == 0) {
             return ""
@@ -289,7 +384,8 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
         }
       }
 
-      progress.start(selected_tests.length, 0, state())
+      progress.start(state())
+      log_message = (text) => progress.log(text)
 
       const metrics = baselines_root != null ? new MetricsCollector() : null
       const runner = new TestRunner(browser, ctx, baselines_root, screenshot, pedantic, top_level, ref, metrics, test_timeout)
@@ -320,13 +416,68 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
 
       function append_report_out(test_case: TestCase): void {
         if (out_stream != null) {
-          const output = format_output(test_case)
+          const output = format_output(test_case, false)
           if (output != null) {
             out_stream.write("\n")
             out_stream.write(output)
             out_stream.write("\n")
           }
         }
+      }
+
+      /**
+       * `report.jsonl` is written incrementally as JSON Lines, so that it can be reviewed while
+       * tests are still running. It consists of a `start` record, a `result` record per finished
+       * test and an `end` record, whose absence indicates a running or an interrupted run.
+       */
+      const json_stream = (() => {
+        if (baselines_root != null) {
+          const report_path = path.join(baselines_root, platform, "report.jsonl")
+          return fs.createWriteStream(report_path, {flags: "w"})
+        } else {
+          return null
+        }
+      })()
+
+      function append_report_json(record: object): void {
+        if (json_stream != null) {
+          const json = JSON.stringify(record, (_key, value) => {
+            if (value?.type == "Buffer") {
+              return Buffer.from(value.data).toString("base64")
+            } else {
+              return value
+            }
+          })
+          json_stream.write(`${json}\n`)
+        }
+      }
+
+      const finish_report_json = async () => {
+        if (json_stream != null) {
+          append_report_json({type: "end", metrics: metrics?.get_metrics() ?? {}})
+          await new Promise<void>((resolve, reject) => {
+            json_stream.once("error", reject)
+            json_stream.end(resolve)
+          })
+        }
+      }
+
+      append_report_json({
+        type: "start",
+        reference: ref,
+        baseline_names: selected_tests.map(([,, status]) => status.baseline_name!),
+        selected: selected_tests.length,
+      })
+
+      function append_report_result([suites, test, status]: TestCase): void {
+        const {failure, timeout, skipped, baseline_name, baseline, existing_blf, image, image_diff, reference} = status
+        const success = !(failure ?? false) && !(timeout ?? false) && !(skipped ?? false)
+        const {file} = test
+        append_report_json({
+          type: "result",
+          descriptions: descriptions(suites, test),
+          status: {success, failure, timeout, skipped, file, baseline_name, baseline, existing_blf, image, image_diff, reference},
+        })
       }
 
       try {
@@ -392,7 +543,7 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
               }
 
               browser_restarts++
-              console.error(`Retrying "${test_name}" in a fresh browser`)
+              log_message(`Retrying "${test_name}" in a fresh browser`)
             }
           }
 
@@ -404,48 +555,38 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
           }
 
           append_report_out(test_case)
-          progress.increment(1, state())
+          append_report_result(test_case)
+
+          // Report failures as they happen, so that they aren't lost if the run is interrupted.
+          const output = format_output(test_case)
+          if (output != null) {
+            progress.log(`\n${output}\n`)
+          }
+
+          progress.increment(state())
         }
       } finally {
         progress.stop()
+        log_message = (text) => console.error(text)
       }
 
       await finish_report_out()
 
-      for (const test_case of selected_tests) {
-        const output = format_output(test_case)
-        if (output != null) {
-          console.log("")
-          console.log(output)
+      const failed_tests = selected_tests.filter(([,, status]) => (status.failure ?? false) || (status.timeout ?? false))
+      if (failed_tests.length != 0) {
+        console.log("")
+        console.log("Failed tests:")
+        for (const [suites, test, status] of failed_tests) {
+          const reason = (status.timeout ?? false) ? " (timeout)" : ""
+          console.log(`  ${chalk.red(description(suites, test))}${reason}`)
         }
       }
 
-      if (baselines_root != null) {
-        const selected_baseline_names = selected_tests.map(([,, status]) => status.baseline_name!)
-        const results = selected_tests.map(([suites, test, status]) => {
-          const {failure, baseline_name, baseline, existing_blf, image, image_diff, reference} = status
-          return [descriptions(suites, test), {failure, baseline_name, baseline, existing_blf, image, image_diff, reference}]
-        })
-        const json = JSON.stringify({
-          completed: true,
-          reference: ref,
-          baseline_names: selected_baseline_names,
-          results,
-          metrics: metrics?.get_metrics() ?? {},
-        }, (_key, value) => {
-          if (value?.type == "Buffer") {
-            return Buffer.from(value.data).toString("base64")
-          } else {
-            return value
-          }
-        })
-        const report_path = path.join(baselines_root, platform, "report.json")
-        const temporary_report_path = `${report_path}.${process.pid}.tmp`
-        await fs.promises.writeFile(temporary_report_path, json)
-        await fs.promises.rename(temporary_report_path, report_path)
+      await finish_report_json()
 
+      if (baselines_root != null) {
         const files = new Set(await fs.promises.readdir(path.join(baselines_root, platform)))
-        files.delete("report.json")
+        files.delete("report.jsonl")
         files.delete("report.out")
 
         for (const name of baseline_names) {

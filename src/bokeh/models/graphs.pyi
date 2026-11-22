@@ -5,13 +5,22 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
-from typing import Sequence, Unpack
+from typing import (
+    Any,
+    Literal,
+    Sequence,
+    Unpack,
+)
 
-# Bokeh imports
+import numpy.typing as npt
+
 from ..model.model import Model, _ModelInit
 from .expressions import CoordinateTransform, _CoordinateTransformInit
+
+type NodePosition = Sequence[float] | npt.NDArray[Any]
+
+type GraphLayout = dict[int | str, NodePosition]
 
 class _LayoutProviderInit(_ModelInit, total=False):
     ...
@@ -20,18 +29,20 @@ class LayoutProvider(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_LayoutProviderInit]) -> None: ...
 
+    def edge_point_coordinates(self, point: Literal["start", "end", "control0", "control1"]) -> EdgePointCoordinates: ...
+
     @property
     def node_coordinates(self) -> NodeCoordinates: ...
     @property
     def edge_coordinates(self) -> EdgeCoordinates: ...
 
 class _StaticLayoutProviderInit(_LayoutProviderInit, total=False):
-    graph_layout: dict[int | str, Sequence[float]]
+    graph_layout: GraphLayout
 
 class StaticLayoutProvider(LayoutProvider):
     def __init__(self, **kwargs: Unpack[_StaticLayoutProviderInit]) -> None: ...
 
-    graph_layout: dict[int | str, Sequence[float]] = ...
+    graph_layout: GraphLayout = ...
 
 class _GraphCoordinatesInit(_CoordinateTransformInit, total=False):
     layout: LayoutProvider
@@ -53,6 +64,14 @@ class _EdgeCoordinatesInit(_GraphCoordinatesInit, total=False):
 
 class EdgeCoordinates(GraphCoordinates):
     def __init__(self, **kwargs: Unpack[_EdgeCoordinatesInit]) -> None: ...
+
+class _EdgePointCoordinatesInit(_GraphCoordinatesInit, total=False):
+    point: Literal["start", "end", "control0", "control1"]
+
+class EdgePointCoordinates(GraphCoordinates):
+    def __init__(self, **kwargs: Unpack[_EdgePointCoordinatesInit]) -> None: ...
+
+    point: Literal["start", "end", "control0", "control1"] = ...
 
 class _GraphHitTestPolicyInit(_ModelInit, total=False):
     ...

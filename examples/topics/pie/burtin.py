@@ -1,4 +1,4 @@
-''' A reproduction of `Will Burtin's historical visualization`_ of antibiotic
+''' A reproduction of `Will Burtin's historical visualization <https://mbostock.github.io/protovis/ex/antibiotics-burtin.html>`__ of antibiotic
 efficacies with some minimal changes to improve readability.
 
 .. note::
@@ -6,12 +6,13 @@ efficacies with some minimal changes to improve readability.
     capabilities, but there are better, simpler ways to present this data.
 
 .. bokeh-example-metadata::
-    :sampledata: antibiotics
-    :apis: bokeh.plotting.figure.annular_wedge, bokeh.plotting.figure.circle, bokeh.plotting.figure.text
-    :refs: :ref:`ug_topics_pie_glyphs`, :ref:`ug_styling_visuals`
+    :title: Reproduction of Burtin
     :keywords: text, wedges
+    :apis: bokeh.plotting.figure.annular_wedge, bokeh.plotting.figure.circle, bokeh.plotting.figure.text
+    :sampledata: antibiotics
+    :refs: :ref:`ug_topics_pie_glyphs`, :ref:`ug_styling_visuals`
+    :gallery: A reproduction of Burtin's historical antibiotics plot.
 
-.. _Will Burtin's historical visualization: https://mbostock.github.io/protovis/ex/antibiotics-burtin.html
 
 '''
 from numpy import arange, array, cos, log, pi, sin, sqrt
@@ -43,7 +44,7 @@ def scale(mic):
     return - sqrt(log(mic * 1E4)) + (micmin + micmax)
 
 p = figure(
-    width=800, height=800, title=None, tools="", toolbar_location=None,
+    width=800, height=800, title=None, tools=None,
     x_axis_type=None, y_axis_type=None, match_aspect=True,
     min_border=0, outline_line_color="black", background_fill_color="#f0e1d2",
 )

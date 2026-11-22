@@ -9,13 +9,13 @@ import type {TapEvent, KeyModifiers} from "core/ui_events"
 import type {PointGeometry} from "core/geometry"
 import {SelectionMode} from "core/enums"
 import {TapBehavior, TapGesture} from "core/enums"
-import type {ColumnarDataSource} from "../../sources/columnar_data_source"
+import type {IndexedDataSource} from "../../sources/indexed_data_source"
 import type {DataRendererView} from "../../renderers/data_renderer"
 import {tool_icon_tap_select, tool_icon_toggle_mode} from "styles/icons.css"
 
 export type TapToolCallback = CallbackLike1<TapTool, {
   geometries: PointGeometry & {x: number, y: number}
-  source: ColumnarDataSource
+  source: IndexedDataSource
   event: {
     modifiers?: KeyModifiers
   }
@@ -93,7 +93,7 @@ export class TapToolView extends SelectToolView {
     }
   }
 
-  protected _emit_callback(rv: DataRendererView, geometry: PointGeometry, source: ColumnarDataSource, modifiers?: KeyModifiers): void {
+  protected _emit_callback(rv: DataRendererView, geometry: PointGeometry, source: IndexedDataSource, modifiers?: KeyModifiers): void {
     const {callback} = this.model
     if (callback != null) {
       const x = rv.coordinates.x_scale.invert(geometry.sx)
@@ -126,10 +126,6 @@ export class TapTool extends SelectTool {
   declare properties: TapTool.Props
   declare __view_type__: TapToolView
 
-  constructor(attrs?: Partial<TapTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = TapToolView
 
@@ -141,9 +137,6 @@ export class TapTool extends SelectTool {
       callback:  [ Nullable(Any /*TODO*/), null ],
     }))
 
-    this.register_alias("click", () => new TapTool({behavior: "inspect"}))
-    this.register_alias("tap", () => new TapTool())
-    this.register_alias("doubletap", () => new TapTool({gesture: "doubletap"}))
   }
 
   override tool_name = "Tap"
@@ -153,7 +146,7 @@ export class TapTool extends SelectTool {
 
   override get menu(): MenuItemLike[] {
     return [
-      new MenuItem({
+      MenuItem.create({
         icon: `.${tool_icon_toggle_mode}`,
         label: "Toggle mode",
         tooltip: "Toggle the current selection",

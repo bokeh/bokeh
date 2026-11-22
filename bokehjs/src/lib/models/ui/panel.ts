@@ -7,7 +7,7 @@ import type {StyleSheetLike} from "core/dom"
 import {px} from "core/dom"
 import type * as p from "core/properties"
 
-import panels_css, * as _panel from "styles/panels.css"
+import panels_css from "styles/panels.css"
 
 export class PanelView extends PaneView {
   declare model: Panel
@@ -38,7 +38,7 @@ export class PanelView extends PaneView {
       return
     }
 
-    const parent_el = this.parent?.el ?? document.body
+    const parent_el = this.ui_parent?.el ?? document.body
     const target_el = parent_el.shadowRoot ?? parent_el
 
     if (!this.el.isConnected) {
@@ -69,10 +69,6 @@ export interface Panel extends Panel.Attrs {}
 export class Panel extends Pane {
   declare properties: Panel.Props
   declare __view_type__: PanelView
-
-  constructor(attrs?: Partial<Panel.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = PanelView

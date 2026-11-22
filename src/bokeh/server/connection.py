@@ -20,10 +20,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import TYPE_CHECKING, Any, Awaitable
 
-# Bokeh imports
 from ..protocol import error, ok
 from ..protocol.exceptions import ProtocolError
 from ..protocol.message import Message

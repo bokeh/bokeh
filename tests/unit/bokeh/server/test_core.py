@@ -7,22 +7,21 @@
 
 from __future__ import annotations
 
-# Standard library imports
 import asyncio
+import logging
 import threading
+from unittest.mock import Mock
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.application import Application
 from bokeh.application.handlers.function import FunctionHandler
 from bokeh.io import curdoc
 from bokeh.models import Div
-from bokeh.server.core import BokehServerCore
+from bokeh.server.core import BokehServerCore, SessionError
 from bokeh.server.request import Cookie, Headers, ServerRequest
 from bokeh.util.asyncio import _AsyncPeriodic
-from bokeh.util.token import get_token_payload
+from bokeh.util.token import TokenDecodeError, generate_jwt_token, get_token_payload
 
 
 async def test_periodic_callback_continues_after_exception() -> None:
@@ -377,3 +376,47 @@ async def test_cookie_header_is_removed_case_insensitively_from_token() -> None:
         assert payload["headers"] == {"x-test": "visible"}
     finally:
         await core.stop()
+
+
+async def test_create_session_rejects_invalid_header_token_payload(monkeypatch: pytest.MonkeyPatch) -> None:
+    core = BokehServerCore(Application())
+    request = ServerRequest(
+        method="GET",
+        uri="/embed.json",
+        path="/embed.json",
+        headers=Headers({"Bokeh-Token": generate_jwt_token("session")}),
+    )
+
+    def invalid_payload(token: str) -> None:
+        raise TokenDecodeError("too large")
+
+    monkeypatch.setattr("bokeh.server.core.get_token_payload", invalid_payload)
+    await core.start()
+    try:
+        with pytest.raises(SessionError, match="Invalid token or session ID"):
+            await core.create_session(core.applications["/"], request)
+    finally:
+        await core.stop()
+
+
+def test_log_stats_only_logs_changes(caplog: pytest.LogCaptureFixture) -> None:
+    core = BokehServerCore(Application())
+
+    def logged() -> list[str]:
+        messages = [record.getMessage() for record in caplog.records if record.name == "bokeh.server.core"]
+        caplog.clear()
+        return messages
+
+    with caplog.at_level(logging.DEBUG, logger="bokeh.server.core"):
+        core._log_stats()
+        assert logged() == ["0 clients connected", "/ has 0 sessions with 0 unused"]
+
+        core._log_stats()
+        assert logged() == []
+
+        core._clients.add(Mock())
+        core._log_stats()
+        assert logged() == ["1 clients connected", "/ has 0 sessions with 0 unused"]
+
+        core._log_stats()
+        assert logged() == []

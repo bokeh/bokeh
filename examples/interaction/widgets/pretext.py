@@ -1,3 +1,12 @@
+''' Display text while preserving whitespace and line breaks.
+
+.. bokeh-example-metadata::
+    :title: Preformatted text
+    :keywords: pretext
+    :apis: bokeh.models.PreText
+    :gallery: Monospaced text preserving a blank line and explicit line breaks.
+'''
+
 from bokeh.io import show
 from bokeh.models import PreText
 

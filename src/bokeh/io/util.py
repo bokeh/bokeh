@@ -13,7 +13,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Standard library imports
 import logging
 
 log = logging.getLogger(__name__)
@@ -22,7 +21,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 import sys
 from contextlib import contextmanager
@@ -34,21 +32,23 @@ from os.path import (
 )
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING, Iterable, Iterator
 
-# Bokeh imports
-from ..embed import file_html
-from ..resources import INLINE
+from .. import __version__
+from ..embed._util import ThemePolicy, embed
+from ..resources import CDN, INLINE, Resources
 
 if TYPE_CHECKING:
     from tempfile import _TemporaryFileWrapper
 
+    from ..core.has_props import HasProps
     from ..document import Document
-    from ..embed.util import ThemeSource
+    from ..embed._util import ThemeSource
+    from ..embed.resources import ResolvedResources, ResourceRequirements
     from ..model import Model
     from ..models.plots import Plot
     from ..models.ui import UIElement
-    from ..resources import Resources
+    from ..resources import ResourcesLike, ResourcesMode
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -115,7 +115,7 @@ def detect_current_filename() -> str | None:
     frame = inspect.currentframe()
     if frame is not None:
         try:
-            while frame.f_back and frame.f_globals.get('name') != '__main__':
+            while frame.f_back and frame.f_globals.get('__name__') != '__main__':
                 frame = frame.f_back
 
             filename = frame.f_globals.get('__file__')
@@ -128,9 +128,7 @@ def temp_filename(ext: str) -> str:
     ''' Generate a temporary, writable filename with the given extension
 
     '''
-    # todo: not safe - the file is deleted before being written to so another
-    # process can generate the same filename
-    with NamedTemporaryFile(suffix="." + ext) as f:
+    with NamedTemporaryFile(suffix="." + ext, delete=False) as f:
         return f.name
 
 @contextmanager
@@ -148,14 +146,38 @@ def tmp_html() -> Iterator[_TemporaryFileWrapper[bytes]]:
         os.unlink(tmp.name)
 
 
-def get_layout_html(obj: UIElement | Document, *, resources: Resources = INLINE,
-        width: int | None = None, height: int | None = None, theme: ThemeSource | None = None) -> str:
+class _ExportResources(Resources):
+    '''Use local BokehJS and packages while retaining declared URL assets.'''
+
+    def _resolve_package_mode(self) -> ResourcesMode:
+        return INLINE
+
+    def resolve(self, requirements: ResourceRequirements, *, bokeh_version: str = __version__,
+            include_requirement_assets: bool = True,
+            extension_model_types: Iterable[type[HasProps]] | None = None) -> ResolvedResources:
+        from ..embed.resources import ResolvedResources, ResourceRequirements
+
+        components = Resources(
+            mode="inline", minified=self.minified, base_dir=self.base_dir, nonce=self.nonce,
+        ).resolve(ResourceRequirements(requirements.components), bokeh_version=bokeh_version)
+        extensions = super().resolve(
+            ResourceRequirements((), requirements.extensions), bokeh_version=bokeh_version,
+            include_requirement_assets=include_requirement_assets,
+            extension_model_types=extension_model_types,
+        )
+        retained = requirements if include_requirement_assets else requirements.without_extension_assets()
+        return ResolvedResources(retained, self, bokeh_version, (*components.assets, *extensions.assets))
+
+
+def get_layout_html(obj: UIElement | Document, *, resources: ResourcesLike = INLINE,
+        width: int | None = None, height: int | None = None,
+        theme: ThemeSource = ThemePolicy.SOURCE_OR_CURDOC) -> str:
     '''
 
     '''
     template = r"""\
     {% block preamble %}
-    <style>
+    <style{% if bokeh_nonce %} nonce="{{ bokeh_nonce | e }}"{% endif %}>
         html, body {
             box-sizing: border-box;
             width: 100%;
@@ -170,15 +192,18 @@ def get_layout_html(obj: UIElement | Document, *, resources: Resources = INLINE,
     """
 
     def html() -> str:
-        return file_html(
-            obj,
-            resources=resources,
-            title="",
-            template=template,
-            theme=theme,
-            suppress_callback_warning=True,
-            _always_new=True,
-        )
+        result = embed(obj, theme=theme, callback_policy="suppress")
+        policy = Resources.build(resources)
+        if policy.mode == INLINE:
+            policy = _ExportResources(
+                mode=CDN,
+                minified=policy.minified,
+                override_version=policy.override_version or __version__,
+                base_dir=policy.base_dir,
+                nonce=policy.nonce,
+                crossorigin=policy.crossorigin,
+            )
+        return result.page(resources=policy, title="", template=template)
 
     if width is not None or height is not None:
         # Defer this import, it is expensive
@@ -229,14 +254,26 @@ def _resized(obj: Plot, width: int | None, height: int | None) -> Iterator[None]
         obj.height = old_height
 
 #-----------------------------------------------------------------------------
-# Shared JavaScript snippets for Selenium and Playwright backends
+# JavaScript snippets for browser export
 #-----------------------------------------------------------------------------
 
-# Check whether Bokeh has loaded and created at least one document.
-_BOKEH_LOADED_EXPR = """\
-typeof Bokeh !== "undefined"
+# Embed exports publish the mount handle on each root target. Use the mount
+# owned by this export instead of the process-wide Bokeh.index registry.
+_MOUNT_EXPR = "document.querySelector('[data-bokeh-embed-instance][data-bokeh-root]')?.bokehMount"
+
+# Report a mount failure before export turns it into a generic render timeout.
+_BOKEH_MOUNT_ERROR_EXPR = (
+    "document.querySelector('[data-bokeh-embed-instance][data-bokeh-root]')?.bokehMountError?.message ?? null"
+)
+
+# Check whether Bokeh has loaded, created a document, and mounted a root view.
+_BOKEH_LOADED_CHECK = f"""\
+const mount = {_MOUNT_EXPR};
+return typeof Bokeh !== "undefined"
     && Bokeh.documents != null
-    && Bokeh.documents.length != 0\
+    && Bokeh.documents.length != 0
+    && mount != null
+    && mount.views.length != 0\
 """
 
 # Set a flag once the first Bokeh document becomes idle.
@@ -255,11 +292,26 @@ else
   doc.idle.connect(done);
 """
 
-# Read the bounding box of the first root view and the device pixel ratio.
-_ROOT_VIEW_BBOX_SCRIPT = """\
-const root_view = Bokeh.index.roots[0];
-const {x, y, width, height} = root_view.el.getBoundingClientRect();
-return [x, y, Math.round(width), Math.round(height), window.devicePixelRatio];\
+# Read the bounding box enclosing every root view and the device pixel ratio.
+# A Document can have several independently mounted roots. Notebook export in
+# particular must preserve that complete output instead of silently cropping to
+# whichever root happened to be registered first.
+_ROOT_VIEW_BBOX_SCRIPT = f"""\
+const output = document.querySelector("[data-bokeh-export-container]");
+const rects = output != null
+  ? [output.getBoundingClientRect()]
+  : {_MOUNT_EXPR}.views.map((view) => view.el.getBoundingClientRect());
+const left = Math.min(...rects.map((rect) => rect.left));
+const top = Math.min(...rects.map((rect) => rect.top));
+const right = Math.max(...rects.map((rect) => rect.right));
+const bottom = Math.max(...rects.map((rect) => rect.bottom));
+return [
+  Math.floor(left),
+  Math.floor(top),
+  Math.ceil(right) - Math.floor(left),
+  Math.ceil(bottom) - Math.floor(top),
+  window.devicePixelRatio,
+];\
 """
 
 # TODO: consider UIElement like Pane
@@ -279,29 +331,20 @@ function* collect_svgs(views) {
   }
 }
 
-return [...collect_svgs(Bokeh.index)]
-"""
+return [...collect_svgs($MOUNT.views)]
+""".replace("$MOUNT", _MOUNT_EXPR)
 
-def _SVG_SCRIPT(obj: Model | Document) -> str:
-    from ..document import Document
-
-    if isinstance(obj, Document):
-        ids = [root.id for root in obj.roots]
-    else:
-        ids = [obj.id]
+def _SVG_SCRIPT(_obj: Model | Document) -> str:
     return f"""\
-const ids = new Set({ids})
 function* export_svgs(views) {{
   for (const view of views) {{
     // TODO: use to_blob() API in future
-    if (ids.has(view.model.id)) {{
-        const {{ctx}} = view.export("svg")
-        yield ctx.get_serialized_svg(true)
-    }}
+    const {{ctx}} = view.export("svg")
+    yield ctx.get_serialized_svg(true)
   }}
 }}
 
-return [...export_svgs(Bokeh.index)]
+return [...export_svgs({_MOUNT_EXPR}.views)]
 """
 
 #-----------------------------------------------------------------------------

@@ -10,7 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# Standard library imports
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -26,10 +25,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from ..core.enums import (
     AxisType,
     HorizontalLocation,
@@ -220,6 +217,9 @@ class figure(Plot, GlyphAPI):
     def __init__(self, *arg, **kw) -> None:
         opts = cast(Any, FigureOptions(kw))
 
+        if opts.tools is None:
+            kw.setdefault("toolbar_location", None)
+
         names = self.properties()
         for name in kw.keys():
             if name not in names:
@@ -257,11 +257,11 @@ class figure(Plot, GlyphAPI):
         return None
 
     def subplot(self,
-            *,
-            x_source: Range | None = None, y_source: Range | None = None,
-            x_scale: Scale | None = None, y_scale: Scale | None = None,
-            x_target: Range, y_target: Range,
-        ) -> GlyphAPI:
+        *,
+        x_source: Range | None = None, y_source: Range | None = None,
+        x_scale: Scale | None = None, y_scale: Scale | None = None,
+        x_target: Range, y_target: Range,
+    ) -> GlyphAPI:
         """ Create a new sub-coordinate system and expose a plotting API. """
         coordinates = CoordinateMapping(x_source=cast(Range, x_source), y_source=cast(Range, y_source), x_target=x_target, y_target=y_target)
         return GlyphAPI(self, coordinates)
@@ -854,7 +854,7 @@ class figure(Plot, GlyphAPI):
 
         Keyword Arguments:
             draw_polygon_border (bool, False): Enables the plotting of the geometry border.
-            draw_polygon_color (str, "black"): Sets the color of the geometry border.
+            polygon_border_color (str, "#CCCCCC"): Sets the color of the geometry border.
 
         .. note::
             This functions allows all parameters and keyword arguments defined by the
@@ -889,7 +889,7 @@ class figure(Plot, GlyphAPI):
 
         Keyword Arguments:
             draw_polygon_border (bool, False): Enables the plotting of the geometry border.
-            draw_polygon_color (str, "black"): Sets the color of the geometry border.
+            polygon_border_color (str, "#CCCCCC"): Sets the color of the geometry border.
 
         .. note::
             This functions allows all parameters and keyword arguments defined by the
@@ -924,7 +924,7 @@ class figure(Plot, GlyphAPI):
 
         Keyword Arguments:
             draw_polygon_border (bool, False): Enables the plotting of the geometry border.
-            draw_polygon_color (str, "black"): Sets the color of the geometry border.
+            polygon_border_color (str, "#CCCCCC"): Sets the color of the geometry border.
 
         .. note::
             This functions allows all parameters and keyword arguments defined by the
@@ -1052,7 +1052,7 @@ class figure(Plot, GlyphAPI):
 
         Keyword Arguments:
             draw_polygon_border (bool, False): Enables the plotting of the geometry border.
-            draw_polygon_color (str, "black"): Sets the color of the geometry border.
+            polygon_border_color (str, "#CCCCCC"): Sets the color of the geometry border.
 
         .. note::
             This functions allows all parameters and keyword arguments defined by the
@@ -1092,8 +1092,12 @@ def markers() -> None:
 # documentation elsewhere)
 class BaseFigureOptions(Options):
 
-    tools = Either(String, Seq(Either(String, Instance(Tool))), default=DEFAULT_TOOLS, help="""
+    tools = Nullable(Either(String, Seq(Either(String, Instance(Tool)))), default=DEFAULT_TOOLS, help="""
     Tools the plot should start with.
+
+    Use ``None`` to create a plot without any tools and without the toolbar.
+    This is equivalent to ``tools=[]`` combined with ``toolbar_location=None``,
+    unless ``toolbar_location`` is given explicitly.
     """)
 
     x_minor_ticks = Either(Auto, Int, default="auto", help="""
@@ -1137,7 +1141,7 @@ class BaseFigureOptions(Options):
     """)
 
     active_multi = Nullable(Either(Auto, String, Instance(GestureTool)), default="auto", help="""
-    Specify an active multi-gesture tool, for instance an edit tool or a range tool.
+    Specify an active multi-gesture tool, for instance an edit tool.
     """)
 
     tooltips = Nullable(Either(Instance(Template), String, List(Tuple(String, String))), help="""

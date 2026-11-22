@@ -1,14 +1,15 @@
-''' A rendering of the `Periodic table`_. This example demonstrates combining
+''' A rendering of the `Periodic table <https://en.wikipedia.org/wiki/Periodic_table>`__. This example demonstrates combining
 several glyphs in a single plot. A hover tooltip displays detailed information
 for each element.
 
 .. bokeh-example-metadata::
-    :sampledata: periodic_table
-    :apis: bokeh.plotting.figure.rect, bokeh.plotting.figure.text, bokeh.transform.dodge, bokeh.transform.factor_cmap
-    :refs: :ref:`ug_interaction_tools_hover_tool`
+    :title: Interactive periodic table
     :keywords: hover, tooltip
+    :apis: bokeh.plotting.figure.rect, bokeh.plotting.figure.text, bokeh.transform.dodge, bokeh.transform.factor_cmap
+    :sampledata: periodic_table
+    :refs: :ref:`ug_interaction_tools_hover_tool`
+    :gallery: A plot that renders the periodic table of elements.
 
-.. _Periodic Table: https://en.wikipedia.org/wiki/Periodic_table
 
 '''
 from bokeh.plotting import figure, show

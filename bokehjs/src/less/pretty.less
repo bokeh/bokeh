@@ -1,17 +1,29 @@
-.bk-nullish { color: #7724c1; }
-.bk-token { color: #881280; }
-.bk-boolean { color: #007500; }
-.bk-number { color: #1a1aa6; }
-.bk-string { color: #994500; }
-.bk-symbol { color: #c80000; }
+:host {
+  --pretty-nullish-color: #7724c1;
+  --pretty-token-color: #881280;
+  --pretty-boolean-color: #007500;
+  --pretty-number-color: #1a1aa6;
+  --pretty-string-color: #994500;
+  --pretty-symbol-color: #c80000;
+  --pretty-attr-color: var(--pretty-symbol-color);
+  --pretty-primitive-color: var(--pretty-boolean-color);
+  --pretty-type-color: var(--pretty-number-color);
+}
+
+.bk-nullish { color: var(--pretty-nullish-color); }
+.bk-token { color: var(--pretty-token-color); }
+.bk-boolean { color: var(--pretty-boolean-color); }
+.bk-number { color: var(--pretty-number-color); }
+.bk-string { color: var(--pretty-string-color); }
+.bk-symbol { color: var(--pretty-symbol-color); }
 .bk-model { color: initial; }
-.bk-attr { color: #c80000; }
+.bk-attr { color: var(--pretty-attr-color); }
 .bk-array { color: initial; }
 .bk-object { color: initial; }
 .bk-iterable { color: initial; }
 
-.bk-primitive { color: #007500; }
-.bk-type { color: #1a1aa6; }
+.bk-primitive { color: var(--pretty-primitive-color); }
+.bk-type { color: var(--pretty-type-color); }
 
 .bk-color {
   display: flex;

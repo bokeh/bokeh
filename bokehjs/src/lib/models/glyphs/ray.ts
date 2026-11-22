@@ -41,7 +41,7 @@ export class RayView extends XYGlyphView {
     }
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Ray.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<Ray.Data>): void {
     if (!this.visuals.line.doit) {
       return
     }
@@ -97,10 +97,6 @@ export interface Ray extends Ray.Attrs {}
 export class Ray extends XYGlyph {
   declare properties: Ray.Props
   declare __view_type__: RayView
-
-  constructor(attrs?: Partial<Ray.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = RayView

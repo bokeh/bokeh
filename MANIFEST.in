@@ -9,6 +9,14 @@ include src/bokeh/util/sampledata.json
 include src/bokeh/_sri.json
 include src/bokeh/LICENSE.txt
 include src/bokeh/py.typed
+# include generated notebook frontends
+include src/bokeh/jupyter/anywidget.js
+include src/bokeh/jupyter/logotype.svg
+include src/bokeh/jupyter/protocol.json
+graft src/bokeh/jupyter/jupyter-config
+graft src/bokeh/jupyter/labextension
+prune jupyter
+global-exclude *.py[cod]
 
 # start with an empty static/ dir
 prune src/bokeh/server/static
@@ -16,14 +24,15 @@ prune src/bokeh/server/static
 # include bundles
 include src/bokeh/server/static/js/bokeh*.js
 include src/bokeh/server/static/js/bokeh*.min.js
+include src/bokeh/server/static/js/bokeh*.min.js.map
 
 # don't include ESM bundles yet
 exclude src/bokeh/server/static/js/bokeh*.esm.js
 exclude src/bokeh/server/static/js/bokeh*.esm.min.js
+exclude src/bokeh/server/static/js/bokeh*.esm.min.js.map
 
 # include extensions' compiler
-include src/bokeh/server/static/js/compiler.js
+include src/bokeh/server/static/js/compiler.mjs
 
-# include bokeh's and typescript's type declarations
+# include bokeh's type declarations
 recursive-include src/bokeh/server/static/js/lib *.d.ts
-recursive-include src/bokeh/server/static/lib *.d.ts

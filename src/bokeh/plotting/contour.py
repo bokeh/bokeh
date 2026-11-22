@@ -17,7 +17,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
@@ -26,10 +25,8 @@ from typing import (
     cast,
 )
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from ..core.property_mixins import FillProps, HatchProps, LineProps
 from ..models.glyphs import MultiLine, MultiPolygons
 from ..models.renderers import ContourRenderer, GlyphRenderer
@@ -89,7 +86,7 @@ class FillData(FillCoords):
     lower_levels: ArrayLike
     upper_levels: ArrayLike
 
-    def asdict(self):
+    def asdict(self) -> dict[str, Any]:
         # Convert to dict using shallow copy.  dataclasses.asdict uses deep copy.
         return dict(entries(self))
 
@@ -99,7 +96,7 @@ class LineData(LineCoords):
     '''
     levels: ArrayLike
 
-    def asdict(self):
+    def asdict(self) -> dict[str, Any]:
         # Convert to dict using shallow copy.  dataclasses.asdict uses deep copy.
         return dict(entries(self))
 
@@ -152,7 +149,7 @@ def from_contour(
     y: ArrayLike | None = None,
     z: ArrayLike | np.ma.MaskedArray | None = None,
     levels: ArrayLike | None = None,
-    **visuals,  # This is union of LineProps, FillProps and HatchProps
+    **visuals: Any,  # This is union of LineProps, FillProps and HatchProps
 ) -> ContourRenderer:
     ''' Creates a :class:`bokeh.models.ContourRenderer` containing filled
     polygons and/or contour lines.
@@ -328,29 +325,29 @@ def _contour_coords(
 
     fill_coords = None
     if want_fill:
-        all_xs = []
-        all_ys = []
+        fill_xs: list[list[list[np.ndarray]]] = []
+        fill_ys: list[list[list[np.ndarray]]] = []
         for i in range(len(levels)-1):
             filled = cont_gen.filled(levels[i], levels[i+1])
             # This is guaranteed by use of fill_type=FillType.OuterOffset in contour_generator call.
             filled = cast(Any, filled)
-            coords = _filled_to_coords(filled)
-            all_xs.append(coords.xs)
-            all_ys.append(coords.ys)
-        fill_coords = FillCoords(all_xs, all_ys)
+            fill = _filled_to_coords(filled)
+            fill_xs.append(fill.xs)
+            fill_ys.append(fill.ys)
+        fill_coords = FillCoords(fill_xs, fill_ys)
 
     line_coords = None
     if want_line:
-        all_xs = []
-        all_ys = []
+        line_xs: list[np.ndarray] = []
+        line_ys: list[np.ndarray] = []
         for level in levels:
             lines = cont_gen.lines(level)
             # This is guaranteed by use of line_type=LineType.ChunkCombinedNan in contour_generator call.
             lines = cast(Any, lines)
-            coords = _lines_to_coords(lines)
-            all_xs.append(coords.xs)
-            all_ys.append(coords.ys)
-        line_coords = LineCoords(all_xs, all_ys)
+            line = _lines_to_coords(lines)
+            line_xs.append(line.xs)
+            line_ys.append(line.ys)
+        line_coords = LineCoords(line_xs, line_ys)
 
     return ContourCoords(fill_coords, line_coords)
 

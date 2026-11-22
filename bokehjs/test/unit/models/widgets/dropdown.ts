@@ -7,7 +7,7 @@ import {build_view} from "@bokehjs/core/build_views"
 
 describe("DropdownView", () => {
   it("should remove the previous menu view when 'menu' changes", async () => {
-    const dropdown = new Dropdown({label: "Dropdown", menu: ["A", "B"]})
+    const dropdown = Dropdown.create({label: "Dropdown", menu: ["A", "B"]})
     const {view} = await display(dropdown, [200, 100])
 
     const menu_view = view.children_views().find((child) => child instanceof MenuView)
@@ -20,7 +20,7 @@ describe("DropdownView", () => {
   })
 
   it("should remove its menu view when removed", async () => {
-    const dropdown = new Dropdown({label: "Dropdown", menu: ["A", "B"]})
+    const dropdown = Dropdown.create({label: "Dropdown", menu: ["A", "B"]})
     const view = await build_view(dropdown)
 
     const menu_view = view.children_views().find((child) => child instanceof MenuView)

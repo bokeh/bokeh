@@ -33,9 +33,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import gc
 import weakref
+from collections import deque
 from json import loads
 from typing import (
     TYPE_CHECKING,
@@ -46,10 +46,8 @@ from typing import (
     overload,
 )
 
-# External imports
 from jinja2 import Template
 
-# Bokeh imports
 from ..core.enums import HoldPolicyType
 from ..core.has_props import _data_models_in_dependency_order, is_DataModel
 from ..core.query import find, is_single_string_selector
@@ -58,6 +56,7 @@ from ..core.serialization import (
     Serialized,
     Serializer,
     UnknownReferenceError,
+    collect_model_types,
 )
 from ..core.templates import FILE
 from ..core.validation import check_integrity, process_validation_issues
@@ -88,7 +87,7 @@ from .modules import DocumentModuleManager
 
 if TYPE_CHECKING:
     from ..application.application import SessionContext, SessionDestroyedCallback
-    from ..core.has_props import Setter
+    from ..core.has_props import HasProps, Setter
     from ..core.query import SelectorType
     from ..core.types import ID
     from ..events import Event
@@ -108,6 +107,7 @@ if TYPE_CHECKING:
 #-----------------------------------------------------------------------------
 
 DEFAULT_TITLE = "Bokeh Application"
+type ModelIDPolicy = Literal["always", "minimal"]
 
 __all__ = (
     'Document',
@@ -115,6 +115,76 @@ __all__ = (
 
 def _no_op_callback() -> None:
     pass
+
+def _models_with_ids(values: Iterable[Any]) -> set[Model]:
+    '''Return reached models whose identity is required by sharing or cycles.
+
+    The traversal follows model references through nested containers. It only
+    classifies the supplied document graph. Callers cannot use the result to
+    introduce an otherwise unreachable model into serialized output.
+    '''
+    from ..core.property.any import Any as AnyProperty
+    from ..model.util import (
+        visit_immediate_value_references,
+        visit_value_and_its_immediate_references,
+    )
+
+    counts: dict[Model, int] = {}
+    children: dict[Model, list[Model]] = {}
+
+    def count(model: Model) -> None:
+        counts[model] = counts.get(model, 0) + 1
+
+    for value in values:
+        visit_immediate_value_references(value, count)
+
+    queue = deque(counts)
+    seen: set[Model] = set()
+    while queue:
+        model = queue.popleft()
+        if model in seen:
+            continue
+
+        seen.add(model)
+        refs: list[Model] = []
+        properties = model.properties_with_values(include_defaults=True)
+        reference_properties = model.properties_with_refs()
+        for name in reference_properties:
+            if name in properties:
+                visit_value_and_its_immediate_references(properties[name], refs.append)
+        for name, prop in model.properties().items():
+            if name not in reference_properties and isinstance(prop, AnyProperty) and name in properties:
+                visit_value_and_its_immediate_references(properties[name], refs.append)
+        children[model] = refs
+        for ref in refs:
+            counts[ref] = counts.get(ref, 0) + 1
+            queue.append(ref)
+
+    cyclic: set[Model] = set()
+    stack: list[Model] = []
+    visiting: set[Model] = set()
+    visited: set[Model] = set()
+
+    def visit(model: Model) -> None:
+        if model in visiting:
+            index = stack.index(model)
+            cyclic.update(stack[index:])
+            return
+        if model in visited:
+            return
+
+        visiting.add(model)
+        stack.append(model)
+        for ref in children.get(model, []):
+            visit(ref)
+        stack.pop()
+        visiting.remove(model)
+        visited.add(model)
+
+    for model in list(counts):
+        visit(model)
+
+    return {model for model, count in counts.items() if count > 1} | cyclic
 
 #-----------------------------------------------------------------------------
 # General API
@@ -260,7 +330,7 @@ class Document:
             except KeyError:
                 from ..util.strings import nice_join
 
-                raise ValueError(f"{theme} is not a built-in theme; available themes are {nice_join(built_in_themes)}")
+                raise ValueError(f"{theme} is not a built-in theme. Available themes are {nice_join(built_in_themes)}")
 
         if not isinstance(theme, Theme):
             raise ValueError("Theme must be a string or an instance of the Theme class")
@@ -277,8 +347,11 @@ class Document:
     def title(self) -> str:
         ''' A title for this document.
 
-        This title will be set on standalone HTML documents, but not e.g. when
-        ``autoload_server`` is used.
+        This title will be set on standalone HTML documents, but not when a
+        server embed is mounted into an existing host page.
+
+        Returns:
+            The document title.
 
         '''
         return self._title
@@ -603,7 +676,7 @@ side of a communications channel while it was being removed on the other end.\
         hold will be applied according to the hold policy.
 
         Args:
-            policy ('combine' or 'collect', optional)
+            policy ('combine' or 'collect', optional):
                 Whether events collected during a hold should attempt to be
                 combined (default: 'combine')
 
@@ -823,7 +896,7 @@ side of a communications channel while it was being removed on the other end.\
         Args:
             selector (JSON-like query dictionary) : you can query by type or by
                 name,i e.g. ``{"type": HoverTool}``, ``{"name": "mycircle"}``
-            updates (dict) :
+            updates (dict) : new values to set
 
         Returns:
             None
@@ -851,6 +924,8 @@ side of a communications channel while it was being removed on the other end.\
     def to_json(self, *, deferred: Literal[True] = ...) -> Serialized[DocJson]: ...
     @overload
     def to_json(self, *, deferred: Literal[False]) -> DocJson: ...
+    @overload
+    def to_json(self, *, deferred: bool) -> DocJson | Serialized[DocJson]: ...
 
     def to_json(self, *, deferred: bool = True) -> DocJson | Serialized[DocJson]:
         ''' Convert this document to a serialized representation.
@@ -876,30 +951,112 @@ side of a communications channel while it was being removed on the other end.\
             Serialized[DocJson] | DocJson
 
         '''
-        from ..model import Model
-        from .json import DocJson
+        return self._to_json(deferred=deferred)
 
-        data_models = _data_models_in_dependency_order(
-            model for model in Model.model_class_reverse_map.values() if is_DataModel(model)
+    @overload
+    def to_static_json(self, *, deferred: Literal[True] = ...,
+            models_with_ids: Iterable[Model] = ...) -> Serialized[DocJson]: ...
+    @overload
+    def to_static_json(self, *, deferred: Literal[False],
+            models_with_ids: Iterable[Model] = ...) -> DocJson: ...
+    @overload
+    def to_static_json(self, *, deferred: bool,
+            models_with_ids: Iterable[Model] = ...) -> DocJson | Serialized[DocJson]: ...
+
+    def to_static_json(self, *, deferred: bool = True,
+            models_with_ids: Iterable[Model] = ()) -> DocJson | Serialized[DocJson]:
+        ''' Convert this document for inclusion in a static embed payload.
+
+        Static payloads use graph-minimal model IDs. Anonymous models omit
+        their construction-time IDs, while shared and cyclic models retain the
+        IDs needed to reconstruct object identity. Any ID in the payload is a
+        graph or runtime reconstruction detail, not a durable browser address.
+        ``models_with_ids`` is reserved for model identities referenced outside
+        the serialized graph.
+
+        Embed roots should be addressed by logical key and their ordinal in
+        ``Document.roots``. A root ID must not be retained solely to find its
+        mount target. Canonical documents and live protocol messages must use
+        :meth:`to_json` instead.
+
+        Args:
+            deferred (bool) :
+                Whether binary buffers are returned separately. This has the
+                same meaning as in :meth:`to_json`.
+
+            models_with_ids (Iterable[Model]) :
+                Additional models whose IDs cross an external boundary.
+
+        Returns:
+            Serialized[DocJson] | DocJson
+
+        '''
+        return self._to_json(
+            deferred=deferred,
+            model_ids="minimal",
+            extra_models_with_ids=models_with_ids,
         )
 
-        serializer = Serializer(deferred=deferred)
+    def _serialization_inputs(self, registered_model_types: Iterable[type[HasProps]] | None = None) -> tuple[
+        list[type[HasProps]], DocumentConfig, list[Model], dict[str, list[JSEventCallback]],
+    ]:
+        from ..model import Model
+
+        registered = Model.model_class_reverse_map.values() if registered_model_types is None else registered_model_types
+        data_models = _data_models_in_dependency_order(model for model in registered if is_DataModel(model))
+        return data_models, self._config, self._roots, self.callbacks.js_event_callbacks
+
+    def serialization_model_types(self,
+            registered_model_types: Iterable[type[HasProps]] | None = None) -> tuple[type[HasProps], ...]:
+        '''Inspect model classes required by this document's serialized content.
+
+        Include global DataModel definitions, their defaults and property kinds,
+        configuration, roots, and JavaScript callbacks. Unlike ``to_json()``,
+        this inspection does not flush synchronized model state. For a live
+        session, call it while holding the session's document lock.
+        '''
+        return collect_model_types(*self._serialization_inputs(registered_model_types))
+
+    @overload
+    def _to_json(self, *, deferred: Literal[True] = ..., model_ids: ModelIDPolicy = ...,
+            extra_models_with_ids: Iterable[Model] = ...) -> Serialized[DocJson]: ...
+    @overload
+    def _to_json(self, *, deferred: Literal[False], model_ids: ModelIDPolicy = ...,
+            extra_models_with_ids: Iterable[Model] = ...) -> DocJson: ...
+    @overload
+    def _to_json(self, *, deferred: bool, model_ids: ModelIDPolicy = ...,
+            extra_models_with_ids: Iterable[Model] = ...) -> DocJson | Serialized[DocJson]: ...
+
+    def _to_json(self, *, deferred: bool = True, model_ids: ModelIDPolicy = "always",
+            extra_models_with_ids: Iterable[Model] = ()) -> DocJson | Serialized[DocJson]:
+        from .json import DocJson
+
+        data_models, configuration, roots, callbacks = self._serialization_inputs()
+
+        models_with_ids = (
+            _models_with_ids([configuration, roots, callbacks]) | set(extra_models_with_ids)
+        ) if model_ids == "minimal" else set()
+        serializer = Serializer(
+            deferred=deferred,
+            models_with_ids=models_with_ids if model_ids == "minimal" else None,
+            compact=model_ids == "minimal",
+        )
         defs = serializer.encode(data_models)
-        config = serializer.encode(self._config)
-        roots = serializer.encode(self._roots)
-        callbacks = serializer.encode(self.callbacks.js_event_callbacks)
+        config = serializer.encode(configuration)
+        encoded_roots = serializer.encode(roots)
+        encoded_callbacks = serializer.encode(callbacks)
 
         doc_json = DocJson(
             version=__version__,
             title=self.title,
             config=config,
-            roots=roots,
+            roots=encoded_roots,
         )
 
         if data_models:
             doc_json["defs"] = defs
-        if self.callbacks.js_event_callbacks:
-            doc_json["callbacks"] = callbacks
+        if callbacks:
+            doc_json["callbacks"] = encoded_callbacks
 
         self.models.flush_synced()
 

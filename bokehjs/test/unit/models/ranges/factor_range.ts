@@ -26,19 +26,19 @@ describe("factor_range module", () => {
 
     describe("factory constructor for", () => {
       it("should configure L1FactorMapper for range of L1 Factors", () => {
-        const mapper = FactorMapper.for(new FactorRange({factors: ["A", "B"]}))
+        const mapper = FactorMapper.for(FactorRange.create({factors: ["A", "B"]}))
         expect(mapper.levels).to.be.equal(1)
         expect(mapper.tops).to.be.null
         expect(mapper.mids).to.be.null
       })
       it("should configure L2FactorMapper for range of L2 Factors", () => {
-        const mapper = FactorMapper.for(new FactorRange({factors: [["A", "1"], ["B", "2"]]}))
+        const mapper = FactorMapper.for(FactorRange.create({factors: [["A", "1"], ["B", "2"]]}))
         expect(mapper.levels).to.be.equal(2)
         expect(mapper.tops).to.be.equal(["A", "B"])
         expect(mapper.mids).to.be.null
       })
       it("should configure L3FactorMapper for range of L3 Factors", () => {
-        const mapper = FactorMapper.for(new FactorRange({factors: [["A", "1", "foo"], ["B", "2", "foo"]]}))
+        const mapper = FactorMapper.for(FactorRange.create({factors: [["A", "1", "foo"], ["B", "2", "foo"]]}))
         expect(mapper.levels).to.be.equal(3)
         expect(mapper.tops).to.be.equal(["A", "B"])
         expect(mapper.mids).to.be.equal([["A", "1"], ["B", "2"]])
@@ -531,7 +531,7 @@ describe("factor_range module", () => {
   describe("FactorRange class", () => {
 
     describe("default creation", () => {
-      const r = new FactorRange()
+      const r = FactorRange.create()
 
       it("should have empty factors", () => {
         expect(r.factors).to.be.equal([])
@@ -551,20 +551,20 @@ describe("factor_range module", () => {
       describe("validation", () => {
 
         it("should throw an error on duplicate factors", () => {
-          expect(() => new FactorRange({factors: ["a", "a"]})).to.throw()
+          expect(() => FactorRange.create({factors: ["a", "a"]})).to.throw()
         })
 
         it("should throw an error on null factors", () => {
-          expect(() => new FactorRange({factors: [null] as any})).to.throw()
-          expect(() => new FactorRange({factors: ["a", null] as any})).to.throw()
-          expect(() => new FactorRange({factors: [null, "a"] as any})).to.throw()
+          expect(() => FactorRange.create({factors: [null] as any})).to.throw()
+          expect(() => FactorRange.create({factors: ["a", null] as any})).to.throw()
+          expect(() => FactorRange.create({factors: [null, "a"] as any})).to.throw()
         })
       })
 
       describe("levels mapper property", () => {
 
         it("should be set to 1", () => {
-          const r = new FactorRange({factors: ["A", "B", "C", "D"]})
+          const r = FactorRange.create({factors: ["A", "B", "C", "D"]})
           expect(r.mapper.levels).to.be.equal(1)
         })
       })
@@ -572,7 +572,7 @@ describe("factor_range module", () => {
       describe("mids mapper property", () => {
 
         it("should be set to null", () => {
-          const r = new FactorRange({factors: ["A", "B", "C", "D"]})
+          const r = FactorRange.create({factors: ["A", "B", "C", "D"]})
           expect(r.mapper.mids).to.be.null
         })
       })
@@ -580,13 +580,13 @@ describe("factor_range module", () => {
       describe("tops mapper property", () => {
 
         it("should be set to null", () => {
-          const r = new FactorRange({factors: ["A", "B", "C", "D"]})
+          const r = FactorRange.create({factors: ["A", "B", "C", "D"]})
           expect(r.mapper.tops).to.be.null
         })
       })
 
       describe("min/max properties", () => {
-        const r = new FactorRange({factors: ["FOO"]})
+        const r = FactorRange.create({factors: ["FOO"]})
 
         it("should return values from synthetic range", () => {
           expect(r.min).to.be.equal(0)
@@ -615,7 +615,7 @@ describe("factor_range module", () => {
       })
 
       describe("start/end properties", () => {
-        const r = new FactorRange({factors: ["FOO"]})
+        const r = FactorRange.create({factors: ["FOO"]})
 
         it("should return values from synthetic range", () => {
           expect(r.start).to.be.equal(0)
@@ -638,14 +638,14 @@ describe("factor_range module", () => {
       describe("range_padding", () => {
 
         it("should not pad start/end by  by default", () => {
-          const r = new FactorRange({factors: ["A", "B", "C", "D"]}) // default range padding
+          const r = FactorRange.create({factors: ["A", "B", "C", "D"]}) // default range padding
 
           expect(r.start).to.be.equal(0)
           expect(r.end).to.be.equal(4)
         })
 
         it("should update start/end when changed", () => {
-          const r = new FactorRange({factors: ["A", "B", "C", "D"], range_padding: 0.1})
+          const r = FactorRange.create({factors: ["A", "B", "C", "D"], range_padding: 0.1})
           expect(r.start).to.be.equal(-0.2)
           expect(r.end).to.be.equal(4.2)
 
@@ -655,7 +655,7 @@ describe("factor_range module", () => {
         })
 
         it("should update start/end when factors changed", () => {
-          const r = new FactorRange({factors: ["A", "B"], range_padding: 0.1})
+          const r = FactorRange.create({factors: ["A", "B"], range_padding: 0.1})
           expect(r.start).to.be.equal(-0.1)
           expect(r.end).to.be.equal(2.1)
 
@@ -665,7 +665,7 @@ describe("factor_range module", () => {
         })
 
         it("should accept absolute units", () => {
-          const r = new FactorRange({factors: ["A", "B", "C", "D"], range_padding_units: "absolute", range_padding: 1})
+          const r = FactorRange.create({factors: ["A", "B", "C", "D"], range_padding_units: "absolute", range_padding: 1})
 
           expect(r.start).to.be.equal(-1)
           expect(r.end).to.be.equal(5)
@@ -675,14 +675,14 @@ describe("factor_range module", () => {
       describe("factor_padding", () => {
 
         it("should pad all factors", () => {
-          const r = new FactorRange({factors: ["A", "B", "C"], factor_padding: 0.1})
+          const r = FactorRange.create({factors: ["A", "B", "C"], factor_padding: 0.1})
           expect(r.start).to.be.equal(0)
           expect(r.end).to.be.equal(3.2)
           expect(r.v_synthetic(["A", "B", "C"])).to.be.equal(new Float32Array([0.5, 1.6, 2.7]))
         })
 
         it("should update range when changed", () => {
-          const r = new FactorRange({factors: ["A", "B", "C"], factor_padding: 0.1})
+          const r = FactorRange.create({factors: ["A", "B", "C"], factor_padding: 0.1})
           expect(r.start).to.be.equal(0)
           expect(r.end).to.be.equal(3.2)
           expect(r.v_synthetic(["A", "B", "C"])).to.be.equal(new Float32Array([0.5, 1.6, 2.7]))
@@ -694,7 +694,7 @@ describe("factor_range module", () => {
         })
 
         it("should update start/end when factors changed", () => {
-          const r = new FactorRange({factors: ["A", "B"], factor_padding: 0.1})
+          const r = FactorRange.create({factors: ["A", "B"], factor_padding: 0.1})
           expect(r.start).to.be.equal(0)
           expect(r.end).to.be.equal(2.1)
           expect(r.v_synthetic(["A", "B"])).to.be.equal(new Float32Array([0.5, 1.6]))
@@ -707,7 +707,7 @@ describe("factor_range module", () => {
       })
 
       describe("synthetic method", () => {
-        const r = new FactorRange({factors: ["A", "B", "C"]})
+        const r = FactorRange.create({factors: ["A", "B", "C"]})
 
         it("should return numeric offsets as-is", () => {
           expect(r.synthetic(10)).to.be.equal(10)
@@ -741,7 +741,7 @@ describe("factor_range module", () => {
       })
 
       describe("v_synthetic method", () => {
-        const r = new FactorRange({factors: ["A", "B", "C"]})
+        const r = FactorRange.create({factors: ["A", "B", "C"]})
 
         it("should return an Array", () => {
           const x0 = r.v_synthetic([10, 10.2, -5.7, -5])
@@ -783,7 +783,7 @@ describe("factor_range module", () => {
     describe("factor method", () => {
 
       it("should map numbers to L1 factors", () => {
-        const r = new FactorRange({factors: ["A", "B", "C"]})
+        const r = FactorRange.create({factors: ["A", "B", "C"]})
         expect(r.factor(0.0)).to.be.equal("A")
         expect(r.factor(0.5)).to.be.equal("A")
         expect(r.factor(0.999)).to.be.equal("A")
@@ -798,7 +798,7 @@ describe("factor_range module", () => {
       })
 
       it("should map numbers to L2 factors", () => {
-        const r = new FactorRange({factors: [["a", "1"], ["a", "2"], ["b", "1"], ["b", "4"], ["c", "0"]]})
+        const r = FactorRange.create({factors: [["a", "1"], ["a", "2"], ["b", "1"], ["b", "4"], ["c", "0"]]})
         expect(r.factor(0.0)).to.be.equal(["a", "1"])
         expect(r.factor(0.5)).to.be.equal(["a", "1"])
         expect(r.factor(0.999)).to.be.equal(["a", "1"])
@@ -825,7 +825,7 @@ describe("factor_range module", () => {
       })
 
       it("should map numbers to L3 factors", () => {
-        const r = new FactorRange({factors: [["a", "1", "foo"], ["a", "1", "bar"], ["a", "2", "foo"], ["b", "4", "baz"]]})
+        const r = FactorRange.create({factors: [["a", "1", "foo"], ["a", "1", "bar"], ["a", "2", "foo"], ["b", "4", "baz"]]})
         expect(r.factor(0.0)).to.be.equal(["a", "1", "foo"])
         expect(r.factor(0.5)).to.be.equal(["a", "1", "foo"])
         expect(r.factor(0.999)).to.be.equal(["a", "1", "foo"])
@@ -848,7 +848,7 @@ describe("factor_range module", () => {
       })
 
       it("should return null for unknown synthetic coords", () => {
-        const r = new FactorRange({factors: ["A", "B", "C"]})
+        const r = FactorRange.create({factors: ["A", "B", "C"]})
         expect(r.factor(-1)).to.be.null
         expect(r.factor(10)).to.be.null
       })
@@ -859,25 +859,25 @@ describe("factor_range module", () => {
       describe("validation", () => {
 
         it("should throw an error on duplicate factors", () => {
-          expect(() => new FactorRange({factors: [["a", "1"], ["a", "1"]]})).to.throw()
+          expect(() => FactorRange.create({factors: [["a", "1"], ["a", "1"]]})).to.throw()
         })
 
         it("should throw an error on null factors", () => {
-          expect(() => new FactorRange({factors: [[null, "a"], ["b", "c"]] as any})).to.throw()
-          expect(() => new FactorRange({factors: [["a", null], ["b", "c"]] as any})).to.throw()
-          expect(() => new FactorRange({factors: [[null, null], ["b", "c"]] as any})).to.throw()
+          expect(() => FactorRange.create({factors: [[null, "a"], ["b", "c"]] as any})).to.throw()
+          expect(() => FactorRange.create({factors: [["a", null], ["b", "c"]] as any})).to.throw()
+          expect(() => FactorRange.create({factors: [[null, null], ["b", "c"]] as any})).to.throw()
         })
 
         it("should allow sub-factors repeated on different levels", () => {
-          expect(() => new FactorRange({factors: [["a", "foo"], ["a", "bar"]]})).to.not.throw()
-          expect(() => new FactorRange({factors: [["a", "foo"], ["b", "foo"]]})).to.not.throw()
+          expect(() => FactorRange.create({factors: [["a", "foo"], ["a", "bar"]]})).to.not.throw()
+          expect(() => FactorRange.create({factors: [["a", "foo"], ["b", "foo"]]})).to.not.throw()
         })
       })
 
       describe("levels mapper property", () => {
 
         it("should be set to 2", () => {
-          const r = new FactorRange({factors: [["A", "1"], ["A", "2"], ["C", "1"]]})
+          const r = FactorRange.create({factors: [["A", "1"], ["A", "2"], ["C", "1"]]})
           expect(r.mapper.levels).to.be.equal(2)
         })
       })
@@ -885,7 +885,7 @@ describe("factor_range module", () => {
       describe("mids mapper property", () => {
 
         it("should be set to null", () => {
-          const r = new FactorRange({factors: [["A", "1"], ["A", "2"], ["C", "1"]]})
+          const r = FactorRange.create({factors: [["A", "1"], ["A", "2"], ["C", "1"]]})
           expect(r.mapper.mids).to.be.null
         })
       })
@@ -893,19 +893,19 @@ describe("factor_range module", () => {
       describe("tops mapper property", () => {
 
         it("should be set to unique ordered list of top level factors", () => {
-          const r0 = new FactorRange({factors: [["A", "1"], ["A", "2"]]})
+          const r0 = FactorRange.create({factors: [["A", "1"], ["A", "2"]]})
           expect(r0.mapper.tops).to.be.equal(["A"])
 
-          const r1 = new FactorRange({factors: [["A", "1"], ["A", "2"], ["C", "1"]]})
+          const r1 = FactorRange.create({factors: [["A", "1"], ["A", "2"], ["C", "1"]]})
           expect(r1.mapper.tops).to.be.equal(["A", "C"])
 
-          const r2 = new FactorRange({factors: [["A", "1"], ["A", "2"], ["C", "1"], ["D", "1"]]})
+          const r2 = FactorRange.create({factors: [["A", "1"], ["A", "2"], ["C", "1"], ["D", "1"]]})
           expect(r2.mapper.tops).to.be.equal(["A", "C", "D"])
         })
       })
 
       describe("min/max properties", () => {
-        const r = new FactorRange({factors: [["FOO", "a"]], group_padding: 0})
+        const r = FactorRange.create({factors: [["FOO", "a"]], group_padding: 0})
 
         it("should return values from synthetic range", () => {
           expect(r.min).to.be.equal(0)
@@ -934,7 +934,7 @@ describe("factor_range module", () => {
       })
 
       describe("start/end properties", () => {
-        const r = new FactorRange({factors: [["FOO", "a"]], group_padding: 0})
+        const r = FactorRange.create({factors: [["FOO", "a"]], group_padding: 0})
 
         it("should return values from synthetic range", () => {
           expect(r.start).to.be.equal(0)
@@ -957,14 +957,14 @@ describe("factor_range module", () => {
       describe("range_padding", () => {
 
         it("should not pad start/end by default", () => {
-          const r = new FactorRange({factors: [["A", "1"], ["A", "2"], ["C", "1"], ["D", "2"]], group_padding: 0})
+          const r = FactorRange.create({factors: [["A", "1"], ["A", "2"], ["C", "1"], ["D", "2"]], group_padding: 0})
 
           expect(r.start).to.be.equal(0)
           expect(r.end).to.be.equal(4)
         })
 
         it("should update start/end when changed", () => {
-          const r = new FactorRange({factors: [["A", "1"], ["A", "2"], ["C", "1"], ["D", "2"]], group_padding: 0, range_padding: 0.1})
+          const r = FactorRange.create({factors: [["A", "1"], ["A", "2"], ["C", "1"], ["D", "2"]], group_padding: 0, range_padding: 0.1})
           expect(r.start).to.be.equal(-0.2)
           expect(r.end).to.be.equal(4.2)
 
@@ -974,7 +974,7 @@ describe("factor_range module", () => {
         })
 
         it("should update start/end when factors changed", () => {
-          const r = new FactorRange({factors: [["A", "1"], ["A", "2"]], group_padding: 0, range_padding: 0.1})
+          const r = FactorRange.create({factors: [["A", "1"], ["A", "2"]], group_padding: 0, range_padding: 0.1})
           expect(r.start).to.be.equal(-0.1)
           expect(r.end).to.be.equal(2.1)
 
@@ -984,7 +984,7 @@ describe("factor_range module", () => {
         })
 
         it("should accept absolute units", () => {
-          const r = new FactorRange({factors: [["A", "1"], ["A", "2"], ["C", "1"], ["D", "2"]], range_padding_units: "absolute", range_padding: 1, group_padding: 0})
+          const r = FactorRange.create({factors: [["A", "1"], ["A", "2"], ["C", "1"], ["D", "2"]], range_padding_units: "absolute", range_padding: 1, group_padding: 0})
 
           expect(r.start).to.be.equal(-1)
           expect(r.end).to.be.equal(5)
@@ -994,14 +994,14 @@ describe("factor_range module", () => {
       describe("factor_padding", () => {
 
         it("should pad all low-level factors", () => {
-          const r = new FactorRange({factors: [["A", "1"], ["A", "2"], ["C", "1"]], factor_padding: 0.1, group_padding: 0})
+          const r = FactorRange.create({factors: [["A", "1"], ["A", "2"], ["C", "1"]], factor_padding: 0.1, group_padding: 0})
           expect(r.start).to.be.equal(0)
           expect(r.end).to.be.equal(3.1)
           expect(r.v_synthetic([["A", "1"], ["A", "2"], ["C", "1"]])).to.be.equal(new Float32Array([0.5, 1.6, 2.6]))
         })
 
         it("should update range when changed", () => {
-          const r = new FactorRange({factors: [["A", "1"], ["A", "2"], ["C", "1"]], factor_padding: 0.1, group_padding: 0})
+          const r = FactorRange.create({factors: [["A", "1"], ["A", "2"], ["C", "1"]], factor_padding: 0.1, group_padding: 0})
           expect(r.start).to.be.equal(0)
           expect(r.end).to.be.equal(3.1)
           expect(r.v_synthetic([["A", "1"], ["A", "2"], ["C", "1"]])).to.be.equal(new Float32Array([0.5, 1.6, 2.6]))
@@ -1013,7 +1013,7 @@ describe("factor_range module", () => {
         })
 
         it("should update start/end when factors changed", () => {
-          const r = new FactorRange({factors: [["A", "1"], ["A", "2"], ["C", "1"]], factor_padding: 0.1, group_padding: 0})
+          const r = FactorRange.create({factors: [["A", "1"], ["A", "2"], ["C", "1"]], factor_padding: 0.1, group_padding: 0})
           expect(r.start).to.be.equal(0)
           expect(r.end).to.be.equal(3.1)
           expect(r.v_synthetic([["A", "1"], ["A", "2"], ["C", "1"]])).to.be.equal(new Float32Array([0.5, 1.6, 2.6]))
@@ -1028,14 +1028,14 @@ describe("factor_range module", () => {
       describe("group_padding", () => {
 
         it("should pad all top-level groups", () => {
-          const r = new FactorRange({factors: [["A", "1"], ["A", "2"], ["C", "1"]], group_padding: 0.1})
+          const r = FactorRange.create({factors: [["A", "1"], ["A", "2"], ["C", "1"]], group_padding: 0.1})
           expect(r.start).to.be.equal(0)
           expect(r.end).to.be.equal(3.1)
           expect(r.v_synthetic([["A", "1"], ["A", "2"], ["C", "1"]])).to.be.equal(new Float32Array([0.5, 1.5, 2.6]))
         })
 
         it("should update range when changed", () => {
-          const r = new FactorRange({factors: [["A", "1"], ["A", "2"], ["C", "1"]], group_padding: 0.1})
+          const r = FactorRange.create({factors: [["A", "1"], ["A", "2"], ["C", "1"]], group_padding: 0.1})
           expect(r.start).to.be.equal(0)
           expect(r.end).to.be.equal(3.1)
           expect(r.v_synthetic([["A", "1"], ["A", "2"], ["C", "1"]])).to.be.equal(new Float32Array([0.5, 1.5, 2.6]))
@@ -1047,7 +1047,7 @@ describe("factor_range module", () => {
         })
 
         it("should update start/end when factors changed", () => {
-          const r = new FactorRange({factors: [["A", "1"], ["A", "2"], ["C", "1"]], group_padding: 0.1})
+          const r = FactorRange.create({factors: [["A", "1"], ["A", "2"], ["C", "1"]], group_padding: 0.1})
           expect(r.start).to.be.equal(0)
           expect(r.end).to.be.equal(3.1)
           expect(r.v_synthetic([["A", "1"], ["A", "2"], ["C", "1"]])).to.be.equal(new Float32Array([0.5, 1.5, 2.6]))
@@ -1060,7 +1060,7 @@ describe("factor_range module", () => {
       })
 
       describe("synthetic method", () => {
-        const r = new FactorRange({factors: [["A", "1"], ["A", "2"], ["C", "1"]], group_padding: 0})
+        const r = FactorRange.create({factors: [["A", "1"], ["A", "2"], ["C", "1"]], group_padding: 0})
 
         it("should return numeric offsets as-is", () => {
           expect(r.synthetic(10)).to.be.equal(10)
@@ -1107,7 +1107,7 @@ describe("factor_range module", () => {
       })
 
       describe("v_synthetic method", () => {
-        const r = new FactorRange({factors: [["A", "1"], ["A", "2"], ["C", "1"]], group_padding: 0})
+        const r = FactorRange.create({factors: [["A", "1"], ["A", "2"], ["C", "1"]], group_padding: 0})
 
         it("should return an Array", () => {
           const x0 = r.v_synthetic([10, 10.2, -5.7, -5])
@@ -1163,30 +1163,30 @@ describe("factor_range module", () => {
       describe("validation", () => {
 
         it("should throw an error on duplicate factors", () => {
-          expect(() => new FactorRange({factors: [["a", "1", "foo"], ["a", "1", "foo"]]})).to.throw()
+          expect(() => FactorRange.create({factors: [["a", "1", "foo"], ["a", "1", "foo"]]})).to.throw()
         })
 
         it("should throw an error on null factors", () => {
-          expect(() => new FactorRange({factors: [["foo", null, null]] as any})).to.throw()
-          expect(() => new FactorRange({factors: [[null, "foo", null]] as any})).to.throw()
-          expect(() => new FactorRange({factors: [[null, null, "a"]] as any})).to.throw()
-          expect(() => new FactorRange({factors: [["a", "foo", null]] as any})).to.throw()
-          expect(() => new FactorRange({factors: [["foo", null, "a"]] as any})).to.throw()
-          expect(() => new FactorRange({factors: [[null, "foo", "a"]] as any})).to.throw()
-          expect(() => new FactorRange({factors: [[null, null, null]] as any})).to.throw()
+          expect(() => FactorRange.create({factors: [["foo", null, null]] as any})).to.throw()
+          expect(() => FactorRange.create({factors: [[null, "foo", null]] as any})).to.throw()
+          expect(() => FactorRange.create({factors: [[null, null, "a"]] as any})).to.throw()
+          expect(() => FactorRange.create({factors: [["a", "foo", null]] as any})).to.throw()
+          expect(() => FactorRange.create({factors: [["foo", null, "a"]] as any})).to.throw()
+          expect(() => FactorRange.create({factors: [[null, "foo", "a"]] as any})).to.throw()
+          expect(() => FactorRange.create({factors: [[null, null, null]] as any})).to.throw()
         })
 
         it("should allow sub-factors repeated on different levels", () => {
-          expect(() => new FactorRange({factors: [["a", "foo", "1"], ["a", "bar", "1"]]})).to.not.throw()
-          expect(() => new FactorRange({factors: [["a", "foo", "1"], ["a", "foo", "2"]]})).to.not.throw()
-          expect(() => new FactorRange({factors: [["a", "foo", "1"], ["b", "foo", "1"]]})).to.not.throw()
+          expect(() => FactorRange.create({factors: [["a", "foo", "1"], ["a", "bar", "1"]]})).to.not.throw()
+          expect(() => FactorRange.create({factors: [["a", "foo", "1"], ["a", "foo", "2"]]})).to.not.throw()
+          expect(() => FactorRange.create({factors: [["a", "foo", "1"], ["b", "foo", "1"]]})).to.not.throw()
         })
       })
 
       describe("levels mapper property", () => {
 
         it("should be set to 3", () => {
-          const r = new FactorRange({factors: [["A", "1", "foo"], ["A", "2", "bar"], ["C", "1", "baz"]]})
+          const r = FactorRange.create({factors: [["A", "1", "foo"], ["A", "2", "bar"], ["C", "1", "baz"]]})
           expect(r.mapper.levels).to.be.equal(3)
         })
       })
@@ -1194,16 +1194,16 @@ describe("factor_range module", () => {
       describe("mids mapper property", () => {
 
         it("should be set to unique ordered list of top level factors", () => {
-          const r0 = new FactorRange({factors: [["A", "1", "foo"], ["A", "2", "foo"]]})
+          const r0 = FactorRange.create({factors: [["A", "1", "foo"], ["A", "2", "foo"]]})
           expect(r0.mapper.mids).to.be.equal([["A", "1"], ["A", "2"]])
 
-          const r1 = new FactorRange({factors: [["A", "1", "foo"], ["A", "1", "bar"], ["A", "2", "foo"]]})
+          const r1 = FactorRange.create({factors: [["A", "1", "foo"], ["A", "1", "bar"], ["A", "2", "foo"]]})
           expect(r1.mapper.mids).to.be.equal([["A", "1"], ["A", "2"]])
 
-          const r2 = new FactorRange({factors: [["A", "1", "foo"], ["A", "1", "bar"], ["A", "2", "foo"], ["C", "1", "foo"]]})
+          const r2 = FactorRange.create({factors: [["A", "1", "foo"], ["A", "1", "bar"], ["A", "2", "foo"], ["C", "1", "foo"]]})
           expect(r2.mapper.mids).to.be.equal([["A", "1"], ["A", "2"], ["C", "1"]])
 
-          const r3 = new FactorRange({factors: [["A", "1", "foo"], ["A", "1", "bar"], ["A", "2", "foo"], ["C", "1", "foo"], ["D", "4", "baz"]]})
+          const r3 = FactorRange.create({factors: [["A", "1", "foo"], ["A", "1", "bar"], ["A", "2", "foo"], ["C", "1", "foo"], ["D", "4", "baz"]]})
           expect(r3.mapper.mids).to.be.equal([["A", "1"], ["A", "2"], ["C", "1"], ["D", "4"]])
         })
       })
@@ -1211,16 +1211,16 @@ describe("factor_range module", () => {
       describe("tops mapper property", () => {
 
         it("should be set to unique ordered list of top level factors", () => {
-          const r0 = new FactorRange({factors: [["A", "1", "foo"], ["A", "2", "foo"]]})
+          const r0 = FactorRange.create({factors: [["A", "1", "foo"], ["A", "2", "foo"]]})
           expect(r0.mapper.tops).to.be.equal(["A"])
 
-          const r1 = new FactorRange({factors: [["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"]]})
+          const r1 = FactorRange.create({factors: [["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"]]})
           expect(r1.mapper.tops).to.be.equal(["A", "C"])
         })
       })
 
       describe("min/max properties", () => {
-        const r = new FactorRange({factors: [["FOO", "a", "1"]], group_padding: 0, subgroup_padding: 0})
+        const r = FactorRange.create({factors: [["FOO", "a", "1"]], group_padding: 0, subgroup_padding: 0})
 
         it("should return values from synthetic range", () => {
           expect(r.min).to.be.equal(0)
@@ -1249,7 +1249,7 @@ describe("factor_range module", () => {
       })
 
       describe("start/end properties", () => {
-        const r = new FactorRange({factors: [["FOO", "a", "foo"]], group_padding: 0, subgroup_padding: 0})
+        const r = FactorRange.create({factors: [["FOO", "a", "foo"]], group_padding: 0, subgroup_padding: 0})
 
         it("should return values from synthetic range", () => {
           expect(r.start).to.be.equal(0)
@@ -1272,14 +1272,14 @@ describe("factor_range module", () => {
       describe("range_padding", () => {
 
         it("should not pad start/end by by default", () => {
-          const r = new FactorRange({factors: [["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"], ["D", "2", "foo"]], group_padding: 0, subgroup_padding: 0}) // default range padding
+          const r = FactorRange.create({factors: [["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"], ["D", "2", "foo"]], group_padding: 0, subgroup_padding: 0}) // default range padding
 
           expect(r.start).to.be.equal(0)
           expect(r.end).to.be.equal(4)
         })
 
         it("should update start/end when changed", () => {
-          const r = new FactorRange({factors: [["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"], ["D", "2", "foo"]], group_padding: 0, subgroup_padding: 0, range_padding: 0.1})
+          const r = FactorRange.create({factors: [["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"], ["D", "2", "foo"]], group_padding: 0, subgroup_padding: 0, range_padding: 0.1})
           expect(r.start).to.be.equal(-0.2)
           expect(r.end).to.be.equal(4.2)
 
@@ -1289,7 +1289,7 @@ describe("factor_range module", () => {
         })
 
         it("should update start/end when factors changed", () => {
-          const r = new FactorRange({factors: [["A", "1", "foo"], ["A", "2", "foo"]], group_padding: 0, subgroup_padding: 0, range_padding: 0.1})
+          const r = FactorRange.create({factors: [["A", "1", "foo"], ["A", "2", "foo"]], group_padding: 0, subgroup_padding: 0, range_padding: 0.1})
           expect(r.start).to.be.equal(-0.1)
           expect(r.end).to.be.equal(2.1)
 
@@ -1299,7 +1299,7 @@ describe("factor_range module", () => {
         })
 
         it("should accept absolute units", () => {
-          const r = new FactorRange({factors: [["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"], ["D", "2", "foo"]], range_padding_units: "absolute", range_padding: 1, group_padding: 0, subgroup_padding: 0})
+          const r = FactorRange.create({factors: [["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"], ["D", "2", "foo"]], range_padding_units: "absolute", range_padding: 1, group_padding: 0, subgroup_padding: 0})
 
           expect(r.start).to.be.equal(-1)
           expect(r.end).to.be.equal(5)
@@ -1309,14 +1309,14 @@ describe("factor_range module", () => {
       describe("factor_padding", () => {
 
         it("should pad all lowest-level factors", () => {
-          const r = new FactorRange({factors: [["A", "1", "foo"], ["A", "1", "bar"], ["C", "1", "foo"]], factor_padding: 0.1, group_padding: 0, subgroup_padding: 0})
+          const r = FactorRange.create({factors: [["A", "1", "foo"], ["A", "1", "bar"], ["C", "1", "foo"]], factor_padding: 0.1, group_padding: 0, subgroup_padding: 0})
           expect(r.start).to.be.equal(0)
           expect(r.end).to.be.equal(3.1)
           expect(r.v_synthetic([["A", "1", "foo"], ["A", "1", "bar"], ["C", "1", "foo"]])).to.be.equal(new Float32Array([0.5, 1.6, 2.6]))
         })
 
         it("should update range when changed", () => {
-          const r = new FactorRange({factors: [["A", "1", "foo"], ["A", "1", "bar"], ["C", "1", "foo"]], factor_padding: 0.1, group_padding: 0, subgroup_padding: 0})
+          const r = FactorRange.create({factors: [["A", "1", "foo"], ["A", "1", "bar"], ["C", "1", "foo"]], factor_padding: 0.1, group_padding: 0, subgroup_padding: 0})
           expect(r.start).to.be.equal(0)
           expect(r.end).to.be.equal(3.1)
           expect(r.v_synthetic([["A", "1", "foo"], ["A", "1", "bar"], ["C", "1", "foo"]])).to.be.equal(new Float32Array([0.5, 1.6, 2.6]))
@@ -1328,7 +1328,7 @@ describe("factor_range module", () => {
         })
 
         it("should update start/end when factors changed", () => {
-          const r = new FactorRange({factors: [["A", "1", "foo"], ["A", "1", "bar"], ["C", "1", "foo"]], factor_padding: 0.1, group_padding: 0, subgroup_padding: 0})
+          const r = FactorRange.create({factors: [["A", "1", "foo"], ["A", "1", "bar"], ["C", "1", "foo"]], factor_padding: 0.1, group_padding: 0, subgroup_padding: 0})
           expect(r.start).to.be.equal(0)
           expect(r.end).to.be.equal(3.1)
           expect(r.v_synthetic([["A", "1", "foo"], ["A", "1", "bar"], ["C", "1", "foo"]])).to.be.equal(new Float32Array([0.5, 1.6, 2.6]))
@@ -1343,14 +1343,14 @@ describe("factor_range module", () => {
       describe("subgroup_padding", () => {
 
         it("should pad all middle-level groups", () => {
-          const r = new FactorRange({factors: [["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"]], factor_padding: 0, group_padding: 0, subgroup_padding: 0.1})
+          const r = FactorRange.create({factors: [["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"]], factor_padding: 0, group_padding: 0, subgroup_padding: 0.1})
           expect(r.start).to.be.equal(0)
           expect(r.end).to.be.equal(3.1)
           expect(r.v_synthetic([["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"]])).to.be.equal(new Float32Array([0.5, 1.6, 2.6]))
         })
 
         it("should update range when changed", () => {
-          const r = new FactorRange({factors: [["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"]], factor_padding: 0, group_padding: 0, subgroup_padding: 0.1})
+          const r = FactorRange.create({factors: [["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"]], factor_padding: 0, group_padding: 0, subgroup_padding: 0.1})
           expect(r.start).to.be.equal(0)
           expect(r.end).to.be.equal(3.1)
           expect(r.v_synthetic([["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"]])).to.be.equal(new Float32Array([0.5, 1.6, 2.6]))
@@ -1362,7 +1362,7 @@ describe("factor_range module", () => {
         })
 
         it("should update start/end when factors changed", () => {
-          const r = new FactorRange({factors: [["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"]], factor_padding: 0, group_padding: 0, subgroup_padding: 0.1})
+          const r = FactorRange.create({factors: [["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"]], factor_padding: 0, group_padding: 0, subgroup_padding: 0.1})
           expect(r.start).to.be.equal(0)
           expect(r.end).to.be.equal(3.1)
           expect(r.v_synthetic([["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"]])).to.be.equal(new Float32Array([0.5, 1.6, 2.6]))
@@ -1377,14 +1377,14 @@ describe("factor_range module", () => {
       describe("group_padding", () => {
 
         it("should pad all top-level groups", () => {
-          const r = new FactorRange({factors: [["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"]], factor_padding: 0, subgroup_padding: 0, group_padding: 0.1})
+          const r = FactorRange.create({factors: [["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"]], factor_padding: 0, subgroup_padding: 0, group_padding: 0.1})
           expect(r.start).to.be.equal(0)
           expect(r.end).to.be.equal(3.1)
           expect(r.v_synthetic([["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"]])).to.be.equal(new Float32Array([0.5, 1.5, 2.6]))
         })
 
         it("should update range when changed", () => {
-          const r = new FactorRange({factors: [["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"]], factor_padding: 0, subgroup_padding: 0, group_padding: 0.1})
+          const r = FactorRange.create({factors: [["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"]], factor_padding: 0, subgroup_padding: 0, group_padding: 0.1})
           expect(r.start).to.be.equal(0)
           expect(r.end).to.be.equal(3.1)
           expect(r.v_synthetic([["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"]])).to.be.equal(new Float32Array([0.5, 1.5, 2.6]))
@@ -1396,7 +1396,7 @@ describe("factor_range module", () => {
         })
 
         it("should update start/end when factors changed", () => {
-          const r = new FactorRange({factors: [["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"]], factor_padding: 0, subgroup_padding: 0, group_padding: 0.1})
+          const r = FactorRange.create({factors: [["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"]], factor_padding: 0, subgroup_padding: 0, group_padding: 0.1})
           expect(r.start).to.be.equal(0)
           expect(r.end).to.be.equal(3.1)
           expect(r.v_synthetic([["A", "1", "foo"], ["A", "2", "foo"], ["C", "1", "foo"]])).to.be.equal(new Float32Array([0.5, 1.5, 2.6]))
@@ -1409,7 +1409,7 @@ describe("factor_range module", () => {
       })
 
       describe("synthetic method", () => {
-        const r = new FactorRange({factors: [["A", "1", "foo"], ["A", "1", "bar"], ["C", "1", "foo"]], group_padding: 0, subgroup_padding: 0})
+        const r = FactorRange.create({factors: [["A", "1", "foo"], ["A", "1", "bar"], ["C", "1", "foo"]], group_padding: 0, subgroup_padding: 0})
 
         it("should return numeric offsets as-is", () => {
           expect(r.synthetic(10)).to.be.equal(10)
@@ -1470,7 +1470,7 @@ describe("factor_range module", () => {
       })
 
       describe("v_synthetic method", () => {
-        const r = new FactorRange({factors: [["A", "1", "foo"], ["A", "1", "bar"], ["C", "1", "foo"]], group_padding: 0, subgroup_padding: 0})
+        const r = FactorRange.create({factors: [["A", "1", "foo"], ["A", "1", "bar"], ["C", "1", "foo"]], group_padding: 0, subgroup_padding: 0})
 
         it("should return an Array", () => {
           const x0 = r.v_synthetic([10, 10.2, -5.7, -5])

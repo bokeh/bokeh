@@ -21,28 +21,62 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
-from .server import server_document, server_session
+from ._output import EmbedFragment, EmbedMount, ExternalEmbed
+from ._util import (
+    CallbackPolicy,
+    EmbedBuildError,
+    EmbedInput,
+    EmbedSpec,
+    SerializationPolicy,
+    ServerRoot,
+    ThemePolicy,
+    ThemeSource,
+    embed,
+    embed_server,
+)
+from .resources import (
+    ExtensionRequirement,
+    ResourceAssetRequirement,
+    ResourceRequirements,
+)
+from .result import (
+    EMBED_MIME_TYPE,
+    EmbedResult,
+    EmbedRoot,
+    EmbedValidationError,
+)
 from .standalone import (
     autoload_static,
-    components,
-    file_html,
     json_item,
 )
-from .util import RenderRoot
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'CallbackPolicy',
+    'EmbedFragment',
+    'EmbedMount',
+    'EmbedRoot',
+    'EmbedValidationError',
+    'EmbedResult',
+    'EMBED_MIME_TYPE',
+    'EmbedBuildError',
+    'EmbedInput',
+    'EmbedSpec',
+    'ExtensionRequirement',
+    'ExternalEmbed',
+    'ResourceAssetRequirement',
+    'ResourceRequirements',
+    'SerializationPolicy',
+    'ServerRoot',
+    'ThemePolicy',
+    'ThemeSource',
     'autoload_static',
-    'components',
-    'file_html',
+    'embed',
+    'embed_server',
     'json_item',
-    'server_document',
-    'server_session',
-    'RenderRoot',
 )
 
 #-----------------------------------------------------------------------------

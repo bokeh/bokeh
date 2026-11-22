@@ -1,8 +1,24 @@
+''' Extend a plot with a custom background and a TypeScript popup callback.
+
+.. bokeh-example-metadata::
+    :title: Custom
+    :keywords: custom, models
+    :apis: bokeh.models.Callback, bokeh.models.Circle, bokeh.models.ColumnDataSource, bokeh.models.LinearAxis, bokeh.models.PanTool, bokeh.models.Plot
+'''
+
 from bokeh.core.properties import Color, Float, List, Override, String
 from bokeh.document import Document
-from bokeh.embed import file_html
-from bokeh.models import (Callback, Circle, ColumnDataSource, LinearAxis,
-                          PanTool, Plot, TapTool, WheelZoomTool)
+from bokeh.embed import embed
+from bokeh.models import (
+    Callback,
+    Circle,
+    ColumnDataSource,
+    LinearAxis,
+    PanTool,
+    Plot,
+    TapTool,
+    WheelZoomTool,
+)
 from bokeh.util.browser import view
 from bokeh.util.compiler import TypeScript
 
@@ -86,8 +102,8 @@ export class MyPlot extends Plot {
     gradient_step = Float(default=20)
     gradient_colors = List(Color, default=["white", "gray"])
 
-    background_fill_alpha = Override(default=0.0)
-    border_fill_alpha = Override(default=0.0)
+    _background_fill_alpha = Override(default=0.0)
+    _border_fill_alpha = Override(default=0.0)
 
 source = ColumnDataSource(
     data = dict(
@@ -115,6 +131,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "custom.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, title="Demonstration of user-defined models"))
+        f.write(embed(doc).page(title="Demonstration of user-defined models"))
     print(f"Wrote {filename}")
     view(filename)

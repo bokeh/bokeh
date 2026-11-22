@@ -1,6 +1,12 @@
 ''' A column salary chart with minimum and maximum values.
 This example shows the capability of exporting a csv file from ColumnDataSource.
 
+
+
+.. bokeh-example-metadata::
+    :title: Export CSV
+    :keywords: export csv, bokeh server, app
+    :apis: bokeh.models.Button, bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.DataTable, bokeh.models.NumberFormatter
 '''
 from os.path import dirname, join
 from pathlib import Path
@@ -9,8 +15,15 @@ import pandas as pd
 
 from bokeh.io import curdoc
 from bokeh.layouts import column, row
-from bokeh.models import (Button, ColumnDataSource, CustomJS, DataTable,
-                          NumberFormatter, RangeSlider, TableColumn)
+from bokeh.models import (
+    Button,
+    ColumnDataSource,
+    CustomJS,
+    DataTable,
+    NumberFormatter,
+    RangeSlider,
+    TableColumn,
+)
 
 df = pd.read_csv(join(dirname(__file__), 'salary_data.csv'))
 

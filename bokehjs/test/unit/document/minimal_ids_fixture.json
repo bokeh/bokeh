@@ -1,0 +1,36 @@
+{
+  "schema": "bokeh.embed.minimal-id-fixtures/v1",
+  "cases": [
+    {
+      "name": "keyed-static-graph",
+      "roots": [{"key": "primary", "index": 0}, {"key": "secondary", "index": 1}, {"key": "columns", "index": 2}],
+      "document": {
+        "version": "__VERSION__",
+        "title": "Bokeh Application",
+        "config": {"$type": "DocumentConfig", "notifications": {"$type": "Notifications"}},
+        "roots": [
+          {
+            "$type": "CustomJS",
+            "name": "semantic-primary",
+            "args": {"type": "map", "entries": [
+              ["anonymous", {"$type": "CustomJS", "code": "anonymous"}],
+              ["shared", {"$type": "CustomJS", "$id": "shared-callback", "code": "shared"}],
+              ["cycle", {"$type": "CustomJS", "$id": "cycle-a", "args": {"type": "map", "entries": [
+                ["other", {"$type": "CustomJS", "$id": "cycle-b", "args": {"type": "map", "entries": [["other", {"$ref": "cycle-a"}]]}, "code": "cycle-b"}]
+              ]}, "code": "cycle-a"}]
+            ]},
+            "code": "primary"
+          },
+          {"$type": "CustomJS", "args": {"type": "map", "entries": [["shared", {"$ref": "shared-callback"}]]}, "code": "secondary"},
+          {"$type": "ColumnDataSource", "selected": {"$type": "Selection"}, "selection_policy": {"$type": "UnionRenderers"}, "data": {"type": "map", "entries": [
+            ["$value", [1]],
+            ["$expr", [2]],
+            ["type", [3]],
+            ["id", [4]],
+            ["__proto__", [5]]
+          ]}}
+        ]
+      }
+    }
+  ]
+}

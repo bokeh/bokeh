@@ -278,8 +278,8 @@ describe("core/kinds module", () => {
   it("should support Ref kind", () => {
     const tp = k.Ref(SomeModel)
     expect(`${tp}`).to.be.equal("Ref(SomeModel)")
-    expect(tp.valid(new SomeModel())).to.be.true
-    expect(tp.valid(new OtherModel())).to.be.false
+    expect(tp.valid(SomeModel.create())).to.be.true
+    expect(tp.valid(OtherModel.create())).to.be.false
     expect(tp.valid(new class {})).to.be.false
     expect(tp.valid("a")).to.be.false
     expect(tp.valid(1)).to.be.false
@@ -290,8 +290,8 @@ describe("core/kinds module", () => {
   it("should support AnyRef kind", () => {
     const tp = k.AnyRef()
     expect(`${tp}`).to.be.equal("AnyRef")
-    expect(tp.valid(new SomeModel())).to.be.true
-    expect(tp.valid(new OtherModel())).to.be.true
+    expect(tp.valid(SomeModel.create())).to.be.true
+    expect(tp.valid(OtherModel.create())).to.be.true
     expect(tp.valid(new class {})).to.be.true
     expect(tp.valid("a")).to.be.false
     expect(tp.valid(1)).to.be.false
@@ -305,7 +305,7 @@ describe("core/kinds module", () => {
     expect(tp.valid(async () => 1)).to.be.true
     expect(tp.valid(function() { return 1 })).to.be.true
     expect(tp.valid(async function() { return 1 })).to.be.true
-    expect(tp.valid(new SomeModel())).to.be.false
+    expect(tp.valid(SomeModel.create())).to.be.false
     expect(tp.valid(new class {})).to.be.false
     expect(tp.valid("a")).to.be.false
     expect(tp.valid(1)).to.be.false
@@ -316,7 +316,7 @@ describe("core/kinds module", () => {
     const tp = k.Node
     expect(`${tp}`).to.be.equal("Node")
     expect(tp.valid(document.createElement("div"))).to.be.true
-    expect(tp.valid(new SomeModel())).to.be.false
+    expect(tp.valid(SomeModel.create())).to.be.false
     expect(tp.valid(new class {})).to.be.false
     expect(tp.valid("a")).to.be.false
     expect(tp.valid(1)).to.be.false
@@ -369,25 +369,5 @@ describe("core/kinds module", () => {
     expect(tp1.valid(1.1)).to.be.true
 
     expect(tp0.may_have_refs()).to.be.equal(false)
-  })
-
-  it("should support deprecated aliases", () => {
-    const tp0 = k.Boolean
-    expect(`${tp0}`).to.be.equal("Bool")
-
-    const tp1 = k.String
-    expect(`${tp1}`).to.be.equal("Str")
-
-    const tp2 = k.Number
-    expect(`${tp2}`).to.be.equal("Float")
-
-    const tp3 = k.Array(k.Number)
-    expect(`${tp3}`).to.be.equal("List(Float)")
-
-    const tp4 = k.Map(k.Number, k.Boolean)
-    expect(`${tp4}`).to.be.equal("Mapping(Float, Bool)")
-
-    const tp5 = k.Function([], k.Unknown)
-    expect(`${tp5}`).to.be.equal("Func((), Unknown)")
   })
 })

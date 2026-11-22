@@ -44,6 +44,7 @@ the model looks like.
     models/filters
     models/formatters
     models/glyphs
+    models/graphics
     models/graphs
     models/grids
     models/labeling

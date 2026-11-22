@@ -215,7 +215,7 @@ export class Grid<T extends Layoutable = Layoutable> extends Layoutable {
         } else if (isNumber(sizing)) {
           return {policy: "fixed", height: sizing}
         } else if (isString(sizing)) {
-          return {policy: sizing} as RowSizing
+          return {policy: sizing}
         } else {
           return sizing
         }
@@ -248,7 +248,7 @@ export class Grid<T extends Layoutable = Layoutable> extends Layoutable {
         } else if (isNumber(sizing)) {
           return {policy: "fixed", width: sizing}
         } else if (isString(sizing)) {
-          return {policy: sizing} as ColSizing
+          return {policy: sizing}
         } else {
           return sizing
         }

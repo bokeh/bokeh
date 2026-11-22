@@ -10,7 +10,7 @@ describe("ImageRGBA module", () => {
   describe("ImageRGBAView", () => {
 
     it("`_map_data` should correctly map data if w and h units are 'data'", async () => {
-      const image_rgba = new ImageRGBA({image: {field: "image"}})
+      const image_rgba = ImageRGBA.create({image: {field: "image"}})
       image_rgba.x = 0
       image_rgba.y = 0
       image_rgba.dw = 17
@@ -25,7 +25,7 @@ describe("ImageRGBA module", () => {
     })
 
     it("`_map_data` should correctly map data if w and h units are 'screen'", async () => {
-      const image_rgba = new ImageRGBA({image: {field: "image"}})
+      const image_rgba = ImageRGBA.create({image: {field: "image"}})
       image_rgba.x = 0
       image_rgba.y = 0
       image_rgba.dw = 1

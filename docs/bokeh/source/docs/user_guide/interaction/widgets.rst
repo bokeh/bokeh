@@ -73,6 +73,9 @@ The sections below are examples for all widgets available in Bokeh. Many of the
 examples produce print output using the JavaScript `console.log` function. You
 can see this output in your browser's JavaScript console log.
 
+For more information about sliders, including keyboard bindings, value
+throttling and styling, see :ref:`ug_interaction_sliders`.
+
 .. _ug_interaction_widgets_examples_autocompleteinput:
 
 AutocompleteInput
@@ -153,21 +156,6 @@ A widget to allow the user to specify an RGB color value.
     :source-position: below
 
 More information can be found in the reference guide entry for |ColorPicker|.
-
-.. _ug_interaction_widgets_examples_datacube:
-
-DataCube
-~~~~~~~~
-
-Bokeh provides a data cube widget based capable of aggregating hierarchical
-data. Note that since the data cube is configured with a data source object,
-any plots that share this data source will automatically have selections linked
-between the plot and the table (even in static HTML documents).
-
-.. bokeh-plot:: __REPO__/examples/interaction/widgets/data_cube.py
-    :source-position: below
-
-More information can be found in the reference guide entry for |DataTable|.
 
 .. _ug_interaction_widgets_examples_datatable:
 
@@ -311,6 +299,12 @@ A widget for displaying text that can support HTML in a <div> tag:
 .. bokeh-plot:: __REPO__/examples/interaction/widgets/div.py
     :source-position: below
 
+Links to targets within the text, such as ``<a href="#results">``, scroll to
+their target in the same |Div| or in another one:
+
+.. bokeh-plot:: __REPO__/examples/interaction/widgets/div_fragment_links.py
+    :source-position: below
+
 More information can be found in the reference guide entry for |Div|.
 
 .. _ug_interaction_widgets_examples_dropdown:
@@ -374,6 +368,15 @@ A widget to change between light and dark color schemes:
     :source-position: below
 
 More information can be found in the reference guide entry for |LightDark|.
+
+.. _ug_interaction_widgets_examples_markdown:
+
+Markdown
+~~~~~~~~
+
+The :class:`~bokeh.models.Markdown` widget displays formatted text, highlighted
+code, math, and embedded Bokeh models. See :ref:`ug_interaction_markdown` for
+syntax examples, rendering options, and Python object representations.
 
 .. _ug_interaction_widgets_examples_multichoice:
 
@@ -602,7 +605,6 @@ More information can be found in the reference guide entry for |Toggle|.
 .. |CheckboxButtonGroup|    replace:: :class:`~bokeh.models.widgets.groups.CheckboxButtonGroup`
 .. |CheckboxGroup|          replace:: :class:`~bokeh.models.widgets.groups.CheckboxGroup`
 .. |ColorPicker|            replace:: :class:`~bokeh.models.widgets.inputs.ColorPicker`
-.. |DataCube|               replace:: :class:`~bokeh.models.widgets.tables.DataCube`
 .. |DataTable|              replace:: :class:`~bokeh.models.widgets.tables.DataTable`
 .. |DatePicker|             replace:: :class:`~bokeh.models.widgets.inputs.DatePicker`
 .. |DateRangePicker|        replace:: :class:`~bokeh.models.widgets.inputs.DateRangePicker`

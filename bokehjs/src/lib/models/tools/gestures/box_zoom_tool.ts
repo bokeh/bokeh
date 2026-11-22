@@ -214,7 +214,7 @@ export class BoxZoomToolView extends GestureToolView {
 }
 
 const DEFAULT_BOX_OVERLAY = () => {
-  return new BoxAnnotation({
+  return BoxAnnotation.create({
     syncable: false,
     level: "overlay",
     visible: false,
@@ -253,10 +253,6 @@ export class BoxZoomTool extends GestureTool {
   declare properties: BoxZoomTool.Props
   declare __view_type__: BoxZoomToolView
 
-  constructor(attrs?: Partial<BoxZoomTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = BoxZoomToolView
 
@@ -267,16 +263,12 @@ export class BoxZoomTool extends GestureTool {
       origin:       [ BoxOrigin, "corner" ],
     }))
 
-    this.register_alias("box_zoom", () => new BoxZoomTool({dimensions: "both"}))
-    this.register_alias("xbox_zoom", () => new BoxZoomTool({dimensions: "width"}))
-    this.register_alias("ybox_zoom", () => new BoxZoomTool({dimensions: "height"}))
-    this.register_alias("auto_box_zoom", () => new BoxZoomTool({dimensions: "auto"}))
   }
 
   override tool_name = "Box Zoom"
   override event_type = ["pan" as "pan", "doubletap" as "doubletap"]
   override get event_role(): EventRole {
-    return "pan" as "pan"
+    return "pan"
   }
   override default_order = 20
 
@@ -300,7 +292,7 @@ export class BoxZoomTool extends GestureTool {
 
   override get menu(): MenuItemLike[] {
     return [
-      new MenuItem({
+      MenuItem.create({
         icon: `.${icons.tool_icon_box_zoom}`,
         label: "XY mode",
         tooltip: "Box zoom in both dimensions",
@@ -310,7 +302,7 @@ export class BoxZoomTool extends GestureTool {
           this.active = true
         },
       }),
-      new MenuItem({
+      MenuItem.create({
         icon: `.${icons.tool_icon_x_box_zoom}`,
         label: "X-only",
         tooltip: "Box zoom in x-dimension",
@@ -320,7 +312,7 @@ export class BoxZoomTool extends GestureTool {
           this.active = true
         },
       }),
-      new MenuItem({
+      MenuItem.create({
         icon: `.${icons.tool_icon_y_box_zoom}`,
         label: "Y-only",
         tooltip: "Box zoom in y-dimension",
@@ -330,7 +322,7 @@ export class BoxZoomTool extends GestureTool {
           this.active = true
         },
       }),
-      new MenuItem({
+      MenuItem.create({
         icon: `.${icons.tool_icon_auto_box_zoom}`,
         label: "Auto mode",
         tooltip: "Automatic mode (box zoom in x, y or both dimensions, depending on the mouse gesture)",

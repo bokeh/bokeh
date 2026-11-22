@@ -23,10 +23,6 @@ export interface AjaxDataSource extends AjaxDataSource.Attrs {}
 export class AjaxDataSource extends WebDataSource {
   declare properties: AjaxDataSource.Props
 
-  constructor(attrs?: Partial<AjaxDataSource.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<AjaxDataSource.Props>(({Bool, Int, Str, Dict, Nullable}) => ({
       polling_interval: [ Nullable(Int), null ],
@@ -37,9 +33,8 @@ export class AjaxDataSource extends WebDataSource {
     }))
   }
 
-  // TODO don't use initializers until https://github.com/bokeh/bokeh/issues/13732 is fixed
   protected interval?: number
-  protected initialized?: boolean
+  protected initialized = false
   protected last_fetch_time?: Date
 
   override destroy(): void {
@@ -50,7 +45,7 @@ export class AjaxDataSource extends WebDataSource {
   }
 
   setup(): void {
-    if (this.initialized !== true) {
+    if (!this.initialized) {
       this.initialized = true
       this.get_data(this.mode)
       if (this.polling_interval != null) {
@@ -63,7 +58,7 @@ export class AjaxDataSource extends WebDataSource {
   get_data(mode: UpdateMode, max_size: number | null = null, if_modified: boolean = false): void {
     const xhr = this.prepare_request()
 
-    xhr.addEventListener("load", () => this.do_load(xhr, mode, max_size ?? undefined))
+    xhr.addEventListener("load", () => void this.do_load(xhr, mode, max_size ?? undefined))
     xhr.addEventListener("error", () => this.do_error(xhr))
 
     if (if_modified && this.last_fetch_time != null) {

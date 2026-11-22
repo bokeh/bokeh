@@ -1,13 +1,14 @@
 import {Enum} from "./kinds"
+import type {Infer} from "./kinds"
 
 export const Align = Enum("start", "center", "end")
-export type Align = typeof Align["__type__"]
+export type Align = Infer<typeof Align>
 
 export const HAlign = Enum("left", "center", "right")
-export type HAlign = typeof HAlign["__type__"]
+export type HAlign = Infer<typeof HAlign>
 
 export const VAlign = Enum("top", "center", "bottom")
-export type VAlign = typeof VAlign["__type__"]
+export type VAlign = Infer<typeof VAlign>
 
 export const Anchor = Enum(
   "top_left",    "top_center",    "top_right",
@@ -15,58 +16,61 @@ export const Anchor = Enum(
   "bottom_left", "bottom_center", "bottom_right",
   "top", "left", "center", "right", "bottom",
 )
-export type Anchor = typeof Anchor["__type__"]
+export type Anchor = Infer<typeof Anchor>
+
+export const AngleReference = Enum("auto", "left", "right", "screen")
+export type AngleReference = Infer<typeof AngleReference>
 
 export const AngleUnits = Enum("deg", "rad", "grad", "turn")
-export type AngleUnits = typeof AngleUnits["__type__"]
+export type AngleUnits = Infer<typeof AngleUnits>
 
 export const AlternationPolicy = Enum("none", "even", "odd", "every")
-export type AlternationPolicy = typeof AlternationPolicy["__type__"]
+export type AlternationPolicy = Infer<typeof AlternationPolicy>
 
 export const AxisLabelStandoffMode = Enum("tick_labels", "axis")
-export type AxisLabelStandoffMode = typeof AxisLabelStandoffMode["__type__"]
+export type AxisLabelStandoffMode = Infer<typeof AxisLabelStandoffMode>
 
 export const BoxOrigin = Enum("corner", "center")
-export type BoxOrigin = typeof BoxOrigin["__type__"]
+export type BoxOrigin = Infer<typeof BoxOrigin>
 
 export const ButtonType = Enum("default", "primary", "success", "warning", "danger", "light")
-export type ButtonType = typeof ButtonType["__type__"]
+export type ButtonType = Infer<typeof ButtonType>
 
 export const CalendarPosition = Enum("auto", "above", "below")
-export type CalendarPosition = typeof CalendarPosition["__type__"]
+export type CalendarPosition = Infer<typeof CalendarPosition>
 
 export const Clock = Enum("12h", "24h")
-export type Clock = typeof Clock["__type__"]
+export type Clock = Infer<typeof Clock>
 
 export const CoordinateUnits = Enum("canvas", "screen", "data")
-export type CoordinateUnits = typeof CoordinateUnits["__type__"]
+export type CoordinateUnits = Infer<typeof CoordinateUnits>
 
 export const ColorScheme = Enum("auto", "light", "dark")
-export type ColorScheme = typeof ColorScheme["__type__"]
+export type ColorScheme = Infer<typeof ColorScheme>
 
 export const ContextWhich = Enum("start", "center", "end", "all")
-export type ContextWhich = typeof ContextWhich["__type__"]
+export type ContextWhich = Infer<typeof ContextWhich>
 
 export const Dimension = Enum("width", "height")
-export type Dimension = typeof Dimension["__type__"]
+export type Dimension = Infer<typeof Dimension>
 
 export const Dimensions = Enum("width", "height", "both")
-export type Dimensions = typeof Dimensions["__type__"]
+export type Dimensions = Infer<typeof Dimensions>
 
 export const Direction = Enum("clock", "anticlock")
-export type Direction = typeof Direction["__type__"]
+export type Direction = Infer<typeof Direction>
 
 export const Distribution = Enum("uniform", "normal")
-export type Distribution = typeof Distribution["__type__"]
+export type Distribution = Infer<typeof Distribution>
 
 export const Face = Enum("front", "back")
-export type Face = typeof Face["__type__"]
+export type Face = Infer<typeof Face>
 
 export const FlowMode = Enum("block", "inline")
-export type FlowMode = typeof FlowMode["__type__"]
+export type FlowMode = Infer<typeof FlowMode>
 
 export const FontStyle = Enum("normal", "italic", "bold", "bold italic")
-export type FontStyle = typeof FontStyle["__type__"]
+export type FontStyle = Infer<typeof FontStyle>
 
 export const HatchPatternType = Enum(
   "blank", "dot", "ring", "horizontal_line", "vertical_line", "cross", "horizontal_dash",
@@ -74,52 +78,52 @@ export const HatchPatternType = Enum(
   "right_diagonal_dash", "left_diagonal_dash", "horizontal_wave", "vertical_wave", "criss_cross",
   " ", ".", "o", "-", "|", "+", '"', ":", "@", "/", "\\", "x", ",", "`", "v", ">", "*",
 )
-export type HatchPatternType = typeof HatchPatternType["__type__"]
+export type HatchPatternType = Infer<typeof HatchPatternType>
 
 export const BuiltinFormatter = Enum("raw", "basic", "numeral", "printf", "datetime")
-export type BuiltinFormatter = typeof BuiltinFormatter["__type__"]
+export type BuiltinFormatter = Infer<typeof BuiltinFormatter>
 
 export const HTTPMethod = Enum("POST", "GET")
-export type HTTPMethod = typeof HTTPMethod["__type__"]
+export type HTTPMethod = Infer<typeof HTTPMethod>
 
 export const HexTileOrientation = Enum("pointytop", "flattop")
-export type HexTileOrientation = typeof HexTileOrientation["__type__"]
+export type HexTileOrientation = Infer<typeof HexTileOrientation>
 
 export const HoverMode = Enum("mouse", "hline", "vline")
-export type HoverMode = typeof HoverMode["__type__"]
+export type HoverMode = Infer<typeof HoverMode>
 
 export const ImageOrigin = Enum("bottom_left", "top_left", "bottom_right", "top_right")
-export type ImageOrigin = typeof ImageOrigin["__type__"]
+export type ImageOrigin = Infer<typeof ImageOrigin>
 
 export const LatLon = Enum("lat", "lon")
-export type LatLon = typeof LatLon["__type__"]
+export type LatLon = Infer<typeof LatLon>
 
 export const LegendClickPolicy = Enum("none", "hide", "mute")
-export type LegendClickPolicy = typeof LegendClickPolicy["__type__"]
+export type LegendClickPolicy = Infer<typeof LegendClickPolicy>
 
 export const LegendLocation = Anchor
 export type LegendLocation = Anchor
 
 export const LineCap = Enum("butt", "round", "square")
-export type LineCap = typeof LineCap["__type__"]
+export type LineCap = Infer<typeof LineCap>
 
 export const LineDash = Enum("solid", "dashed", "dotted", "dotdash", "dashdot")
-export type LineDash = typeof LineDash["__type__"]
+export type LineDash = Infer<typeof LineDash>
 
 export const LineJoin = Enum("miter", "round", "bevel")
-export type LineJoin = typeof LineJoin["__type__"]
+export type LineJoin = Infer<typeof LineJoin>
 
 export const LinePolicy = Enum("prev", "next", "nearest", "interp", "none")
-export type LinePolicy = typeof LinePolicy["__type__"]
+export type LinePolicy = Infer<typeof LinePolicy>
 
 export const Location = Enum("above", "below", "left", "right")
-export type Location = typeof Location["__type__"]
+export type Location = Infer<typeof Location>
 
 export const Logo = Enum("normal", "grey")
-export type Logo = typeof Logo["__type__"]
+export type Logo = Infer<typeof Logo>
 
 export const MapType = Enum("satellite", "roadmap", "terrain", "hybrid")
-export type MapType = typeof MapType["__type__"]
+export type MapType = Infer<typeof MapType>
 
 export const MarkerType = Enum(
   "asterisk", "circle", "circle_cross", "circle_dot", "circle_x",
@@ -128,109 +132,112 @@ export const MarkerType = Enum(
   "square_cross", "square_dot", "square_pin", "square_x", "star", "star_dot",
   "triangle", "triangle_dot", "triangle_pin", "x", "y",
 )
-export type MarkerType = typeof MarkerType["__type__"]
+export type MarkerType = Infer<typeof MarkerType>
 
 export const MutedPolicy = Enum("show", "ignore")
-export type MutedPolicy = typeof MutedPolicy["__type__"]
+export type MutedPolicy = Infer<typeof MutedPolicy>
 
 export const Orientation = Enum("vertical", "horizontal")
-export type Orientation = typeof Orientation["__type__"]
+export type Orientation = Infer<typeof Orientation>
 
 export const OutlineShapeName = Enum("none", "box", "rectangle", "square", "circle", "ellipse", "trapezoid", "parallelogram", "diamond", "triangle")
-export type OutlineShapeName = typeof OutlineShapeName["__type__"]
+export type OutlineShapeName = Infer<typeof OutlineShapeName>
 
 export const OutputBackend = Enum("canvas", "svg", "webgl")
-export type OutputBackend = typeof OutputBackend["__type__"]
+export type OutputBackend = Infer<typeof OutputBackend>
 
 export const PaddingUnits = Enum("percent", "absolute")
-export type PaddingUnits = typeof PaddingUnits["__type__"]
+export type PaddingUnits = Infer<typeof PaddingUnits>
 
 export const PanDirection = Enum(
   "left", "right", "up", "down",
   "west", "east", "north", "south",
 )
-export type PanDirection = typeof PanDirection["__type__"]
+export type PanDirection = Infer<typeof PanDirection>
 
 export const Place = Enum("above", "below", "left", "right", "center")
-export type Place = typeof Place["__type__"]
+export type Place = Infer<typeof Place>
 
 export const PointPolicy = Enum("snap_to_data", "follow_mouse", "none")
-export type PointPolicy = typeof PointPolicy["__type__"]
+export type PointPolicy = Infer<typeof PointPolicy>
 
 export const RadiusDimension = Enum("x", "y", "max", "min")
-export type RadiusDimension = typeof RadiusDimension["__type__"]
+export type RadiusDimension = Infer<typeof RadiusDimension>
 
 export const RenderLevel = Enum("image", "underlay", "glyph", "guide", "annotation", "overlay")
-export type RenderLevel = typeof RenderLevel["__type__"]
+export type RenderLevel = Infer<typeof RenderLevel>
 
 export const ResetPolicy = Enum("standard", "event_only")
-export type ResetPolicy = typeof ResetPolicy["__type__"]
+export type ResetPolicy = Infer<typeof ResetPolicy>
 
 export const ResolutionType = Enum("microseconds", "milliseconds", "seconds", "minsec", "minutes", "hourmin", "hours", "days", "months", "years")
-export type ResolutionType = typeof ResolutionType["__type__"]
+export type ResolutionType = Infer<typeof ResolutionType>
 
 export const RoundingFunction = Enum("round", "nearest", "floor", "rounddown", "ceil", "roundup")
-export type RoundingFunction = typeof RoundingFunction["__type__"]
+export type RoundingFunction = Infer<typeof RoundingFunction>
 
 export const ScrollbarPolicy = Enum("auto", "visible", "hidden")
-export type ScrollbarPolicy = typeof ScrollbarPolicy["__type__"]
+export type ScrollbarPolicy = Infer<typeof ScrollbarPolicy>
 
 export const RegionSelectionMode = Enum("replace", "append", "intersect", "subtract", "xor")
-export type RegionSelectionMode = typeof RegionSelectionMode["__type__"]
+export type RegionSelectionMode = Infer<typeof RegionSelectionMode>
 
 export const SelectionMode = Enum(...RegionSelectionMode, "toggle")
-export type SelectionMode = typeof SelectionMode["__type__"]
+export type SelectionMode = Infer<typeof SelectionMode>
 
 export const Side = Enum("above", "below", "left", "right")
-export type Side = typeof Side["__type__"]
+export type Side = Infer<typeof Side>
 
 export const SizingMode = Enum("stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed", "inherit")
-export type SizingMode = typeof SizingMode["__type__"]
+export type SizingMode = Infer<typeof SizingMode>
+
+export const SliderAppearance = Enum("normal", "stealth")
+export type SliderAppearance = Infer<typeof SliderAppearance>
 
 export const Sort = Enum("ascending", "descending")
-export type Sort = typeof Sort["__type__"]
+export type Sort = Infer<typeof Sort>
 
 export const SpatialUnits = Enum("screen", "data")
-export type SpatialUnits = typeof SpatialUnits["__type__"]
+export type SpatialUnits = Infer<typeof SpatialUnits>
 
 export const StartEnd = Enum("start", "end")
-export type StartEnd = typeof StartEnd["__type__"]
+export type StartEnd = Infer<typeof StartEnd>
 
 export const StepMode = Enum("after", "before", "center")
-export type StepMode = typeof StepMode["__type__"]
+export type StepMode = Infer<typeof StepMode>
 
 export const TapBehavior = Enum("select", "inspect")
-export type TapBehavior = typeof TapBehavior["__type__"]
+export type TapBehavior = Infer<typeof TapBehavior>
 
 export const TapGesture = Enum("tap", "doubletap")
-export type TapGesture = typeof TapGesture["__type__"]
+export type TapGesture = Infer<typeof TapGesture>
 
 export const TextAlign = Enum("left", "right", "center")
-export type TextAlign = typeof TextAlign["__type__"]
+export type TextAlign = Infer<typeof TextAlign>
 
 export const TextBaseline = Enum("top", "middle", "bottom", "alphabetic", "hanging", "ideographic")
-export type TextBaseline = typeof TextBaseline["__type__"]
+export type TextBaseline = Infer<typeof TextBaseline>
 
 export const TextureRepetition = Enum("repeat", "repeat_x", "repeat_y", "no_repeat")
-export type TextureRepetition = typeof TextureRepetition["__type__"]
+export type TextureRepetition = Infer<typeof TextureRepetition>
 
 export const TimedeltaResolutionType = Enum("nanoseconds", "microseconds", "milliseconds", "seconds", "minsec", "minutes", "hourmin", "hours", "days")
-export type TimedeltaResolutionType = typeof TimedeltaResolutionType["__type__"]
+export type TimedeltaResolutionType = Infer<typeof TimedeltaResolutionType>
 
 export const LabelOrientation = Enum("vertical", "horizontal", "parallel", "normal")
-export type LabelOrientation = typeof LabelOrientation["__type__"]
+export type LabelOrientation = Infer<typeof LabelOrientation>
 
 export const TooltipAttachment = Enum("horizontal", "vertical", "left", "right", "above", "below")
-export type TooltipAttachment = typeof TooltipAttachment["__type__"]
+export type TooltipAttachment = Infer<typeof TooltipAttachment>
 
 export const UpdateMode = Enum("replace", "append")
-export type UpdateMode = typeof UpdateMode["__type__"]
+export type UpdateMode = Infer<typeof UpdateMode>
 
 export const VerticalAlign = Enum("top", "middle", "bottom")
-export type VerticalAlign = typeof VerticalAlign["__type__"]
+export type VerticalAlign = Infer<typeof VerticalAlign>
 
 export const WindowAxis = Enum("none", "x", "y")
-export type WindowAxis = typeof WindowAxis["__type__"]
+export type WindowAxis = Infer<typeof WindowAxis>
 
 // Keep this in sync with bokehjs/src/less/icons.less
 export const ToolIcon = Enum(
@@ -308,7 +315,7 @@ export const ToolIcon = Enum(
   "zoom_in",
   "zoom_out",
 )
-export type ToolIcon = typeof ToolIcon["__type__"]
+export type ToolIcon = Infer<typeof ToolIcon>
 
 export const ToolName = Enum(
   "auto_box_zoom",
@@ -359,4 +366,4 @@ export const ToolName = Enum(
   "zoom_in",
   "zoom_out",
 )
-export type ToolName = typeof ToolName["__type__"]
+export type ToolName = Infer<typeof ToolName>

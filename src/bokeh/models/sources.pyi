@@ -5,28 +5,28 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
     Literal,
     Mapping,
+    Self,
     Sequence,
     Unpack,
     overload,
 )
 
-# External imports
 import numpy.typing as npt
 
 if TYPE_CHECKING:
     import pandas as pd
     from pandas.core.groupby import GroupBy
 
-# Bokeh imports
 from .._types import JSON
 from ..core.has_props import Setter
+from ..core.types import PathLike
 from ..model.model import Model, _ModelInit
 from .callbacks import CustomJS
 from .filters import Filter
@@ -34,16 +34,21 @@ from .selections import Selection, SelectionPolicy
 
 __all__ = (
     "AjaxDataSource",
-    "CDSView",
     "ColumnarDataSource",
     "ColumnDataSource",
     "DataSource",
     "GeoJSONDataSource",
+    "IndexedDataSource",
+    "IndexedSubset",
+    "RecordDataSource",
     "ServerSentDataSource",
     "WebDataSource",
 )
 
 type DataDict = dict[str, Sequence[Any] | npt.NDArray[Any] | pd.Series[Any] | pd.Index[Any]]  # pyright: ignore[reportInvalidTypeArguments]
+
+# Mappings are covariant in values, unlike dicts, e.g. dict[str, list[int]] is a DataDictArg.
+type DataDictArg = Mapping[str, Sequence[Any] | npt.NDArray[Any] | pd.Series[Any] | pd.Index[Any]]  # pyright: ignore[reportInvalidTypeArguments]
 
 type DataDictLike = DataDict | pd.DataFrame | GroupBy[Any]
 
@@ -52,24 +57,48 @@ type Index = int | slice | tuple[int | slice, ...]
 type Patches = Mapping[str, Sequence[tuple[Index, Any]]]
 
 class _DataSourceInit(_ModelInit, total=False):
-    selected: Selection
+    pass
 
 class DataSource(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_DataSourceInit]) -> None: ...
 
-    selected: Selection = ...
-
-class _ColumnarDataSourceInit(_DataSourceInit, total=False):
-    default_values: dict[str, Any]
+class _IndexedDataSourceInit(_DataSourceInit, total=False):
+    selected: Selection
     selection_policy: SelectionPolicy
 
-class ColumnarDataSource(DataSource):
+class IndexedDataSource(DataSource):
+    @abstractmethod
+    def __init__(self, **kwargs: Unpack[_IndexedDataSourceInit]) -> None: ...
+
+    selected: Selection = ...
+    selection_policy: SelectionPolicy = ...
+
+class _RecordDataSourceInit(_IndexedDataSourceInit, total=False):
+    records: Sequence[dict[str, Any]]
+
+class RecordDataSource(IndexedDataSource):
+    def __init__(self, **kwargs: Unpack[_RecordDataSourceInit]) -> None: ...
+
+    @property
+    def records(self) -> list[dict[str, Any]]: ...
+    @records.setter
+    def records(self, records: Sequence[dict[str, Any]]) -> None: ...
+
+    @classmethod
+    def from_jsonl(cls, path: PathLike) -> Self: ...
+    @classmethod
+    def from_csv(cls, path: PathLike, *, converters: Mapping[str, Callable[[str], Any]] | None = ...,
+                 delimiter: str = ...) -> Self: ...
+
+class _ColumnarDataSourceInit(_IndexedDataSourceInit, total=False):
+    default_values: dict[str, Any]
+
+class ColumnarDataSource(IndexedDataSource):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_ColumnarDataSourceInit]) -> None: ...
 
     default_values: dict[str, Any] = ...
-    selection_policy: SelectionPolicy = ...
 
 class _ColumnDataSourceInit(_ColumnarDataSourceInit, total=False):
     data: DataDictLike
@@ -103,15 +132,15 @@ class ColumnDataSource(ColumnarDataSource):
 
     def remove(self, name: str) -> None: ...
 
-    def stream(self, new_data: DataDict, rollover: int | None = ...) -> None: ...
+    def stream(self, new_data: DataDictArg, rollover: int | None = ...) -> None: ...
 
     def patch(self, patches: Patches, setter: Setter | None = ...) -> None: ...
 
-class _CDSViewInit(_ModelInit, total=False):
+class _IndexedSubsetInit(_ModelInit, total=False):
     filter: Filter
 
-class CDSView(Model):
-    def __init__(self, **kwargs: Unpack[_CDSViewInit]) -> None: ...
+class IndexedSubset(Model):
+    def __init__(self, **kwargs: Unpack[_IndexedSubsetInit]) -> None: ...
 
     filter: Filter = ...
 

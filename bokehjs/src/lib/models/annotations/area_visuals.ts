@@ -27,10 +27,6 @@ export interface AreaVisuals extends AreaVisuals.Attrs {}
 export class AreaVisuals extends Model {
   declare properties: AreaVisuals.Props
 
-  constructor(attrs?: Partial<AreaVisuals.Attrs>) {
-    super(attrs)
-  }
-
   override clone(attrs?: Partial<AreaVisuals.Attrs>): this {
     return super.clone(attrs)
   }

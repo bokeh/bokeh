@@ -1,57 +1,47 @@
 {
   config: {
-    type: "object",
-    name: "DocumentConfig",
-    id: "p1008",
-    attributes: {
-      notifications: {
-        type: "object",
-        name: "Notifications",
-        id: "p1009",
-      },
+    $type: "DocumentConfig",
+    $id: "p1008",
+    notifications: {
+      $type: "Notifications",
+      $id: "p1009",
     },
   },
   roots: [
     {
-      type: "object",
-      name: "TextInput",
-      id: "p1006",
-      attributes: {
-        js_property_callbacks: {
-          type: "map",
-          entries: [
+      $type: "TextInput",
+      $id: "p1006",
+      _js_property_callbacks: {
+        type: "map",
+        entries: [
+          [
+            "change:value",
             [
-              "change:value",
-              [
-                {
-                  type: "object",
-                  name: "CustomJS",
-                  id: "p1007",
-                  attributes: {
-                    args: {
-                      type: "map",
-                      entries: [
-                        [
-                          "test",
-                          {
-                            type: "map",
-                            entries: [
-                              [
-                                "constructor",
-                                12,
-                              ],
-                            ],
-                          },
+              {
+                $type: "CustomJS",
+                $id: "p1007",
+                args: {
+                  type: "map",
+                  entries: [
+                    [
+                      "test",
+                      {
+                        type: "map",
+                        entries: [
+                          [
+                            "constructor",
+                            12,
+                          ],
                         ],
-                      ],
-                    },
-                    code: "export default ({test}) => console.log(test)",
-                  },
+                      },
+                    ],
+                  ],
                 },
-              ],
+                code: "export default ({test}) => console.log(test)",
+              },
             ],
           ],
-        },
+        ],
       },
     },
   ],

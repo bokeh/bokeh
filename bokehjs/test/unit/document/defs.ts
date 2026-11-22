@@ -1,7 +1,8 @@
 import {expect, expect_not_null} from "#framework/assertions"
 
 import {Deserializer} from "@bokehjs/core/serialization/deserializer"
-import {decode_defs, type ModelDef} from "@bokehjs/document/defs"
+import {decode_defs} from "@bokehjs/document/defs"
+import type {ModelDef} from "@bokehjs/document/defs"
 import {Model} from "@bokehjs/model"
 import {default_resolver} from "@bokehjs/base"
 import {ModelResolver} from "@bokehjs/core/resolvers"
@@ -31,7 +32,6 @@ declare interface _Some0 extends _Some0.Attrs {}
 
 declare class _Some0 extends Model {
   declare properties: _Some0.Props
-  constructor(attrs?: Partial<_Some0.Attrs>)
 }
 
 declare namespace _Some1 {
@@ -55,7 +55,6 @@ declare interface _Some1 extends _Some1.Attrs {}
 
 declare class _Some1 extends Model {
   declare properties: _Some1.Props
-  constructor(attrs?: Partial<_Some1.Attrs>)
 }
 
 declare namespace _Some2 {
@@ -71,7 +70,6 @@ declare interface _Some2 extends _Some2.Attrs {}
 
 declare class _Some2 extends _Some1 {
   declare properties: _Some2.Props
-  constructor(attrs?: Partial<_Some2.Attrs>)
 }
 
 declare namespace _Some3 {
@@ -86,7 +84,6 @@ declare interface _Some3 extends _Some3.Attrs {}
 
 declare class _Some3 extends ColumnDataSource {
   declare properties: _Some3.Props
-  constructor(attrs?: Partial<_Some3.Attrs>)
 }
 
 declare namespace _Some4 {
@@ -101,7 +98,6 @@ declare interface _Some4 extends _Some4.Attrs {}
 
 declare class _Some4 extends _Some3 {
   declare properties: _Some4.Props
-  constructor(attrs?: Partial<_Some4.Attrs>)
 }
 
 describe("document/defs module", () => {
@@ -126,6 +122,7 @@ describe("document/defs module", () => {
       }, {
         type: "model",
         name: "some.Some1",
+        extends: {id: "DataModel"},
         properties: [
           {name: "prop0", kind: ["Regex", "(?P<word>foo)"], default: "foo"},
           {name: "prop1", kind: ["Nullable", "Int"], default: null},
@@ -145,11 +142,11 @@ describe("document/defs module", () => {
         properties: [{
           name: "prop10",
           kind: ["Ref", {id: "some.Some0"}],
-          default: {type: "object", name: "some.Some0", id: "some001", attributes: {prop2: false, prop4: 128}},
+          default: {$type: "some.Some0", $id: "some001", prop2: false, prop4: 128},
         }, {
           name: "prop11",
           kind: ["List", ["Ref", {id: "some.Some0"}]],
-          default: [{id: "some001"}, {type: "object", name: "some.Some0", id: "some002", attributes: {prop2: false, prop4: 129}}],
+          default: [{id: "some001"}, {$type: "some.Some0", $id: "some002", prop2: false, prop4: 129}],
         }],
         overrides: [
           {name: "prop2", default: "a"},
@@ -211,11 +208,11 @@ describe("document/defs module", () => {
       expect(Some3.__qualified__).to.be.equal("some.Some3")
       expect(Some4.__qualified__).to.be.equal("some.Some4")
 
-      const some0 = new Some0()
-      const some1 = new Some1()
-      const some2 = new Some2()
-      const some3 = new Some3()
-      const some4 = new Some4()
+      const some0 = Some0.create()
+      const some1 = Some1.create()
+      const some2 = Some2.create()
+      const some3 = Some3.create()
+      const some4 = Some4.create()
 
       expect(some0).to.be.instanceof(Model)
       expect(some1).to.be.instanceof(Model)
@@ -228,16 +225,18 @@ describe("document/defs module", () => {
       const model_props = [
         "tags",
         "name",
-        "js_property_callbacks",
-        "js_event_callbacks",
-        "subscribed_events",
+        "_js_property_callbacks",
+        "_js_property_callback_policies",
+        "_js_event_callbacks",
+        "_subscribed_changes",
+        "_subscribed_events",
         "syncable",
       ]
 
       const cds_props = [
         "selected",
-        "default_values",
         "selection_policy",
+        "default_values",
         "data",
       ]
 
@@ -275,8 +274,8 @@ describe("document/defs module", () => {
 
       expect(some1.prop0).to.be.equal("foo")
       expect(`${some1.properties.prop0.kind}`).to.be.equal("Regex((?P<word>foo))")
-      expect(new Some1({prop0: "doesn't match"}).prop0).to.be.equal("doesn't match")
-      expect(() => new Some1({prop0: 10 as any})).to.throw()
+      expect(Some1.create({prop0: "doesn't match"}).prop0).to.be.equal("doesn't match")
+      expect(() => Some1.create({prop0: 10 as any})).to.throw()
       expect(some1.prop1).to.be.equal(null)
       expect(some1.prop2).to.be.equal(1)
       expect(some1.prop3).to.be.equal([1, "a"])
@@ -300,8 +299,8 @@ describe("document/defs module", () => {
       expect(some2.prop8).to.be.structurally.equal(new Map([[["a", "a"], 0], [["b"], 1]]))
       expect(some2.prop9).to.be.equal("enum2")
 
-      const some001 = new Some0({prop2: false, prop4: 128})
-      const some002 = new Some0({prop2: false, prop4: 129})
+      const some001 = Some0.create({prop2: false, prop4: 128})
+      const some002 = Some0.create({prop2: false, prop4: 129})
       expect(some2.prop10).to.be.structurally.equal(some001)
       expect(some2.prop11).to.be.structurally.equal([some001, some002])
 
@@ -317,14 +316,16 @@ describe("document/defs module", () => {
       const defs: ModelDef[] = [{
         type: "model",
         name: "some.First",
+        extends: {id: "DataModel"},
         properties: [{
           name: "payload",
           kind: "Any",
-          default: {type: "object", name: "some.Later", id: "later001"},
+          default: {$type: "some.Later", $id: "later001"},
         }],
       }, {
         type: "model",
         name: "some.Later",
+        extends: {id: "DataModel"},
         properties: [{
           name: "child",
           kind: ["Nullable", ["Ref", {id: "some.Later"}]],
@@ -338,12 +339,33 @@ describe("document/defs module", () => {
 
       const First = resolver.get("some.First")! as any
       const Later = resolver.get("some.Later")! as any
-      const first = new First()
-      const later = new Later()
+      const first = First.create()
+      const later = Later.create()
 
       expect(first.payload).to.be.instanceof(Later)
       expect(later.child).to.be.equal(null)
-      expect(new Later({child: later} as any)).to.be.instanceof(Later)
+      expect(Later.create({child: later} as any)).to.be.instanceof(Later)
+    })
+
+    it("that resolves a property kind referencing the base Model", () => {
+      const defs: ModelDef[] = [{
+        type: "model",
+        name: "some.Holder",
+        extends: {id: "DataModel"},
+        properties: [{
+          name: "child",
+          kind: ["Nullable", ["Ref", {id: "Model"}]],
+          default: null,
+        }],
+      }]
+
+      const deserializer = new Deserializer(new ModelResolver(default_resolver))
+      const [Holder] = decode_defs(defs, deserializer)
+      const child = ColumnDataSource.create()
+
+      expect(Holder.create().property("child").get_value()).to.be.equal(null)
+      expect(Holder.create({child}).property("child").get_value()).to.be.equal(child)
+      expect(() => Holder.create({child: {}})).to.throw()
     })
 
     it("that resolves buffered defaults", () => {
@@ -352,6 +374,7 @@ describe("document/defs module", () => {
       const defs: ModelDef[] = [{
         type: "model",
         name: "some.Buffered",
+        extends: {id: "DataModel"},
         properties: [{
           name: "payload",
           kind: "Any",
@@ -370,7 +393,7 @@ describe("document/defs module", () => {
       decode_defs(defs, deserializer, new Map([[buffer_id, values.buffer]]))
 
       const Buffered = resolver.get("some.Buffered")! as any
-      const buffered = new Buffered()
+      const buffered = Buffered.create()
       expect(buffered.payload).to.be.instanceof(Float64NDArray)
       expect(buffered.payload).to.be.equal(values)
     })

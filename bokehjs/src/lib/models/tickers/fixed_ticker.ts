@@ -17,10 +17,6 @@ export interface FixedTicker extends FixedTicker.Attrs {}
 export class FixedTicker extends ContinuousTicker {
   declare properties: FixedTicker.Props
 
-  constructor(attrs?: Partial<FixedTicker.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<FixedTicker.Props>(({Float, Arrayable}) => ({
       ticks: [ Arrayable(Float), [] ],

@@ -1,4 +1,6 @@
 :notoc:
+:og:title: Bokeh Documentation — Interactive Data Visualization
+:og:description: Official Bokeh documentation for interactive plots and dashboards, including the Python library and BokehJS. Explore guides, examples, and API references.
 :html_theme.sidebar_secondary.remove:
 
 .. _about:
@@ -6,10 +8,14 @@
 Bokeh documentation
 ===================
 
-Bokeh is a Python library for creating interactive visualizations for modern
-web browsers. It helps you build beautiful graphics, ranging from simple plots
-to complex dashboards with streaming datasets. With Bokeh, you can create
-JavaScript-powered visualizations without writing any JavaScript yourself.
+.. meta::
+   :description: Official Bokeh documentation for interactive plots and dashboards, including the Python library and BokehJS. Explore guides, examples, and API references.
+
+Bokeh provides tools for creating interactive visualizations for modern web
+browsers, with a Python library and BokehJS for JavaScript. It helps you build
+interactive graphics, ranging from simple plots to complex dashboards with
+streaming datasets. With the Python library, you can create JavaScript-powered
+visualizations without writing any JavaScript yourself.
 
 .. raw:: html
 
@@ -43,7 +49,9 @@ Bokeh's documentation consists of several components:
         ^^^
         Learn more by exploring examples:
 
-        * :ref:`gallery`: a collection of examples with source code.
+        * :ref:`example_index`: search examples by topic, API, or keyword.
+
+        * :ref:`gallery`: browse rendered plots and interactive demos with source code.
 
         * `Interactive tutorial notebooks`_: a collection of interactive notebooks to experiment with all elements of Bokeh.
 
@@ -82,15 +90,10 @@ You can also find more information about Bokeh on `Medium`_, and `LinkedIn`_.
     docs/first_steps
     docs/user_guide
     docs/gallery
+    docs/examples
     docs/reference
     docs/dev_guide
     docs/releases
-
-
-.. image:: _images/bokeh-hero.png
-    :width: 100%
-    :alt: A collage of 36 thumbnails of Bokeh plots
-    :target: `gallery`_
 
 
 .. _Interactive tutorial notebooks: https://github.com/bokeh/tutorial/
@@ -100,4 +103,3 @@ You can also find more information about Bokeh on `Medium`_, and `LinkedIn`_.
 .. _`Bokeh's GitHub repository`: https://github.com/bokeh/bokeh
 .. _Medium: https://medium.com/bokeh
 .. _LinkedIn: https://www.linkedin.com/company/project-bokeh/
-.. _gallery: docs/gallery.html

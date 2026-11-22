@@ -1,14 +1,16 @@
-//     Underscore.js 1.8.3
-//     http://underscorejs.org
-//     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-//     Underscore may be freely distributed under the MIT license.
+/*!
+ * Underscore.js 1.8.3
+ * http://underscorejs.org
+ * (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Underscore may be freely distributed under the MIT license.
+ */
 
 import {logger} from "../logging"
 import type {Arrayable} from "../types"
 import {randomIn} from "./math"
 import {assert} from "./assert"
-import {isInteger} from "./types"
-import {min, min_by, max_by, includes, filter} from "./arrayable"
+import {isInteger, isNumber, isString} from "./types"
+import {min, min_by, max_by, includes, filter, sort_by} from "./arrayable"
 import * as iter from "./iterator"
 
 export {
@@ -152,14 +154,7 @@ export function linspace(start: number, stop: number, num: number = 100): number
 }
 
 export function logspace(start: number, stop: number, num: number = 100, base: number = 10): number[] {
-  const step = num == 1 ? 0 : (stop - start) / (num - 1)
-  const array = new Array(num)
-
-  for (let i = 0; i < num; i++) {
-    array[i] = base**(start + i*step)
-  }
-
-  return array
+  return linspace(start, stop, num).map((v) => base**v)
 }
 
 export function transpose<T>(array: T[][]): T[][] {
@@ -196,12 +191,41 @@ export function argsort(array: number[]): number[] {
   return indices
 }
 
+/**
+ * Return a sorted copy of numbers or strings, in their natural order, i.e.
+ * numbers numerically and strings by UTF-16 code units.
+ *
+ * Use this instead of `Array.prototype.sort()` without a comparator, which
+ * compares numbers as strings, e.g. `[10, 9].sort()` gives `[10, 9]`.
+ */
+export function sorted<T extends number | string>(iterable: Iterable<T>): T[] {
+  return sort_by([...iterable], (item) => item)
+}
+
 export function uniq<T>(array: Arrayable<T>): T[] {
   const result = new Set<T>()
   for (const value of array) {
     result.add(value)
   }
   return [...result]
+}
+
+/**
+ * Like `np.unique()` in Python, returns the unique values of an array sorted,
+ * but only if all values are numbers or all are strings. Otherwise values that
+ * can't be ordered against each other are returned in the order of their first
+ * appearance.
+ */
+export function uniq_sorted<T>(array: Arrayable<T>): T[]
+export function uniq_sorted(array: Arrayable<unknown>): unknown[] {
+  const unique = uniq(array)
+  if (unique.every(isNumber)) {
+    return sorted(unique)
+  } else if (unique.every(isString)) {
+    return sorted(unique)
+  } else {
+    return unique
+  }
 }
 
 export function uniq_by<T, U>(array: T[], key: (item: T) => U): T[] {

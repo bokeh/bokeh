@@ -1,3 +1,12 @@
+''' Place a legend outside the plot frame.
+
+.. bokeh-example-metadata::
+    :title: Place the legend outside the plot
+    :keywords: legend, location, outside
+    :apis: bokeh.models.Legend, bokeh.plotting.figure.add_layout, bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
+    :gallery: Sine-wave lines and markers with a legend to the right of the plot frame.
+'''
+
 import numpy as np
 
 from bokeh.models import Legend

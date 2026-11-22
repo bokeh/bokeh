@@ -27,7 +27,8 @@ settings as part of the output:
     BokehJS static path   :  /opt/anaconda/envs/test/lib/python3.12/site-packages/bokeh/server/static
     node.js version       :  v20.12.2
     npm version           :  10.8.2
-    jupyter_bokeh version :  (not installed)
+    Jupyter protocol      :  2
+    Jupyter renderer      :  bundled
     Operating system      :  Linux-5.15.0-86-generic-x86_64-with-glibc2.35
 
     Set (non-default) Bokeh Settings:
@@ -65,15 +66,13 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from argparse import Namespace
+from typing import ClassVar
 
-# Bokeh imports
 from bokeh.settings import settings
 from bokeh.util.info import print_info, print_non_default_settings
 
-# Bokeh imports
-from ..subcommand import Argument, Subcommand
+from ..subcommand import Args, Argument, Subcommand
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -97,7 +96,7 @@ class Info(Subcommand):
 
     help = "Print information about Bokeh and Bokeh server configuration"
 
-    args = (
+    args: ClassVar[Args] = (
 
         ('--static', Argument(
             action="store_true",

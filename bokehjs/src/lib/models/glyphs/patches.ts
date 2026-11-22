@@ -51,7 +51,7 @@ export class PatchesView extends GlyphView {
     })
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Patches.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<Patches.Data>): void {
     const {sxs, sys} = {...this, ...data}
 
     for (const i of indices) {
@@ -103,14 +103,16 @@ export class PatchesView extends GlyphView {
     for (const i of candidates) {
       const sxs_i = this.sxs.get(i)
       const sys_i = this.sys.get(i)
-      const n = sxs_i.length
-      if (n == 0) {
-        continue
-      }
+      const n = Math.min(sxs_i.length, sys_i.length)
       let hit = !greedy
+      let tested = false
       for (let j = 0; j < n; j++) {
         const sx = sxs_i[j]
         const sy = sys_i[j]
+        if (!isFinite(sx + sy)) {
+          continue
+        }
+        tested = true
         if (!hittest.point_in_poly(sx, sy, sxs, sys)) {
           if (!greedy) {
             hit = false
@@ -123,12 +125,12 @@ export class PatchesView extends GlyphView {
           }
         }
       }
-      if (hit) {
+      if (tested && hit) {
         indices.push(i)
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_rect(geometry: HitTestRect): Selection {
@@ -186,7 +188,7 @@ export class PatchesView extends GlyphView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   private _get_snap_coord(array: Arrayable<number>): number {
@@ -252,10 +254,6 @@ export interface Patches extends Patches.Attrs {}
 export class Patches extends Glyph {
   declare properties: Patches.Props
   declare __view_type__: PatchesView
-
-  constructor(attrs?: Partial<Patches.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = PatchesView

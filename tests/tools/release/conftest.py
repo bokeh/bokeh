@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-# External imports
 import pytest
 
-# Bokeh imports
 from tools.release.config import Config
 
 

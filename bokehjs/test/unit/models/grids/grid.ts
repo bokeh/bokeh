@@ -12,15 +12,15 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 describe("Grid", () => {
 
   it("use axis computed bounds when range names and dimension match, and bounds='auto'", async () => {
-    const plot = new Plot({
-      x_range: new Range1d({start: 0, end: 10}),
-      y_range: new Range1d({start: 0, end: 10}),
+    const plot = Plot.create({
+      x_range: Range1d.create({start: 0, end: 10}),
+      y_range: Range1d.create({start: 0, end: 10}),
     })
-    const ticker = new BasicTicker()
-    const formatter = new BasicTickFormatter()
-    const axis = new LinearAxis({ticker, formatter, bounds: [2, 8]})
+    const ticker = BasicTicker.create()
+    const formatter = BasicTickFormatter.create()
+    const axis = LinearAxis.create({ticker, formatter, bounds: [2, 8]})
     plot.add_layout(axis, "below")
-    const grid = new Grid({ticker})
+    const grid = Grid.create({ticker})
     plot.add_layout(grid, "center")
     const {view: plot_view} = await display(plot)
     const grid_view = plot_view.owner.get_one(grid)
@@ -29,15 +29,15 @@ describe("Grid", () => {
   })
 
   it("use axis computed bounds when dimensions doesn't match, and bounds='auto'", async () => {
-    const plot = new Plot({
-      x_range: new Range1d({start: 0, end: 10}),
-      y_range: new Range1d({start: 0, end: 10}),
+    const plot = Plot.create({
+      x_range: Range1d.create({start: 0, end: 10}),
+      y_range: Range1d.create({start: 0, end: 10}),
     })
-    const ticker = new BasicTicker()
-    const formatter = new BasicTickFormatter()
-    const axis = new LinearAxis({ticker, formatter, bounds: [2, 8]})
+    const ticker = BasicTicker.create()
+    const formatter = BasicTickFormatter.create()
+    const axis = LinearAxis.create({ticker, formatter, bounds: [2, 8]})
     plot.add_layout(axis, "left")
-    const grid = new Grid({ticker})
+    const grid = Grid.create({ticker})
     plot.add_layout(grid, "center")
     const {view: plot_view} = await display(plot)
     const grid_view = plot_view.owner.get_one(grid)
@@ -46,15 +46,15 @@ describe("Grid", () => {
   })
 
   it("use user bounds when set'", async () => {
-    const plot = new Plot({
-      x_range: new Range1d({start: 0, end: 10}),
-      y_range: new Range1d({start: 0, end: 10}),
+    const plot = Plot.create({
+      x_range: Range1d.create({start: 0, end: 10}),
+      y_range: Range1d.create({start: 0, end: 10}),
     })
-    const ticker = new BasicTicker()
-    const formatter = new BasicTickFormatter()
-    const axis = new LinearAxis({ticker, formatter, bounds: [2, 8]})
+    const ticker = BasicTicker.create()
+    const formatter = BasicTickFormatter.create()
+    const axis = LinearAxis.create({ticker, formatter, bounds: [2, 8]})
     plot.add_layout(axis, "below")
-    const grid = new Grid({ticker, bounds: [1, 9]})
+    const grid = Grid.create({ticker, bounds: [1, 9]})
     plot.add_layout(grid, "center")
     const {view: plot_view} = await display(plot)
     const grid_view = plot_view.owner.get_one(grid)
@@ -63,15 +63,15 @@ describe("Grid", () => {
   })
 
   it("should return major grid_coords without ends by default", async () => {
-    const plot = new Plot({
-      x_range: new Range1d({start: 0.1, end: 9.9}),
-      y_range: new Range1d({start: 0.1, end: 9.9}),
+    const plot = Plot.create({
+      x_range: Range1d.create({start: 0.1, end: 9.9}),
+      y_range: Range1d.create({start: 0.1, end: 9.9}),
     })
-    const ticker = new BasicTicker()
-    const formatter = new BasicTickFormatter()
-    const axis = new LinearAxis({ticker, formatter})
+    const ticker = BasicTicker.create()
+    const formatter = BasicTickFormatter.create()
+    const axis = LinearAxis.create({ticker, formatter})
     plot.add_layout(axis, "below")
-    const grid = new Grid({ticker})
+    const grid = Grid.create({ticker})
     plot.add_layout(grid, "center")
     const {view: plot_view} = await display(plot)
     const grid_view = plot_view.owner.get_one(grid)
@@ -83,15 +83,15 @@ describe("Grid", () => {
   })
 
   it("should return major grid_coords with ends when asked", async () => {
-    const plot = new Plot({
-      x_range: new Range1d({start: 0.1, end: 9.9}),
-      y_range: new Range1d({start: 0.1, end: 9.9}),
+    const plot = Plot.create({
+      x_range: Range1d.create({start: 0.1, end: 9.9}),
+      y_range: Range1d.create({start: 0.1, end: 9.9}),
     })
-    const ticker = new BasicTicker()
-    const formatter = new BasicTickFormatter()
-    const axis = new LinearAxis({ticker, formatter})
+    const ticker = BasicTicker.create()
+    const formatter = BasicTickFormatter.create()
+    const axis = LinearAxis.create({ticker, formatter})
     plot.add_layout(axis, "below")
-    const grid = new Grid({ticker})
+    const grid = Grid.create({ticker})
     plot.add_layout(grid, "center")
     const {view: plot_view} = await display(plot)
     const grid_view = plot_view.owner.get_one(grid)
@@ -103,15 +103,15 @@ describe("Grid", () => {
   })
 
   it("should delegate to an Axis ticker", async () => {
-    const plot = new Plot({
-      x_range: new Range1d({start: 0.1, end: 9.9}),
-      y_range: new Range1d({start: 0.1, end: 9.9}),
+    const plot = Plot.create({
+      x_range: Range1d.create({start: 0.1, end: 9.9}),
+      y_range: Range1d.create({start: 0.1, end: 9.9}),
     })
-    const ticker = new BasicTicker()
-    const formatter = new BasicTickFormatter()
-    const axis = new LinearAxis({ticker, formatter})
+    const ticker = BasicTicker.create()
+    const formatter = BasicTickFormatter.create()
+    const axis = LinearAxis.create({ticker, formatter})
     plot.add_layout(axis, "below")
-    const grid = new Grid({axis})
+    const grid = Grid.create({axis})
     plot.add_layout(grid, "center")
     const {view: plot_view} = await display(plot)
     const grid_view = plot_view.owner.get_one(grid)
@@ -123,18 +123,18 @@ describe("Grid", () => {
   })
 
   it("should prefer an explicit ticker to an Axis ticker", async () => {
-    const plot = new Plot({
-      x_range: new Range1d({start: 0.1, end: 9.9}),
-      y_range: new Range1d({start: 0.1, end: 9.9}),
+    const plot = Plot.create({
+      x_range: Range1d.create({start: 0.1, end: 9.9}),
+      y_range: Range1d.create({start: 0.1, end: 9.9}),
     })
 
-    const axis_ticker = new FixedTicker({ticks: [1, 2, 3, 4]})
-    const formatter = new BasicTickFormatter()
-    const axis = new LinearAxis({ticker: axis_ticker, formatter})
+    const axis_ticker = FixedTicker.create({ticks: [1, 2, 3, 4]})
+    const formatter = BasicTickFormatter.create()
+    const axis = LinearAxis.create({ticker: axis_ticker, formatter})
 
     plot.add_layout(axis, "below")
-    const ticker = new BasicTicker()
-    const grid = new Grid({axis, ticker})
+    const ticker = BasicTicker.create()
+    const grid = Grid.create({axis, ticker})
     plot.add_layout(grid, "center")
     const {view: plot_view} = await display(plot)
     const grid_view = plot_view.owner.get_one(grid)

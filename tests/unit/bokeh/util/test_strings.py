@@ -8,16 +8,14 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 from urllib.parse import quote_plus
+
+import pytest
 
 # Module under test
 import bokeh.util.strings as bus # isort:skip
@@ -60,6 +58,15 @@ class Test_format_url_query_arguments:
     def test_no_arguments(self) -> None:
         assert bus.format_url_query_arguments("url") == "url"
 
+    def test_empty_dict_as_argument(self) -> None:
+        assert bus.format_url_query_arguments("url", {}) == "url"
+
+    def test_empty_dict_as_argument_and_empty_fragments(self) -> None:
+        assert bus.format_url_query_arguments("url", {}, "") == "url"
+
+    def test_empty_dict_as_argument_and_given_framgent(self) -> None:
+        assert bus.format_url_query_arguments("url", {}, "selection") == "url#selection"
+
     @pytest.mark.parametrize('value', ["10", "10.2", "bar", "a b", "a&b", "'ab'", "a\"b", "a@b", "a?b", "a:b", "a/b", "a=b"])
     def test_one_argument(self, value: str) -> None:
         assert bus.format_url_query_arguments("url", dict(foo=value)) == f"url?foo={quote_plus(value)}"
@@ -70,6 +77,36 @@ class Test_format_url_query_arguments:
     def test_several_arguments(self) -> None:
         args = dict(foo="10.2", bar="a=b", baz="a?b", quux="a@@ b")
         assert bus.format_url_query_arguments("url", args) == "url?foo=10.2&bar=a%3Db&baz=a%3Fb&quux=a%40%40+b"
+
+    def test_two_arguments_and_a_fragment(self) -> None:
+        args = dict(foo="10", bar="a b")
+        assert bus.format_url_query_arguments("url", args, "selection") == "url?foo=10&bar=a+b#selection"
+
+    def test_existing_querey_extension(self) -> None:
+        args = {"new": "2"}
+        uri = "https://example.com/ws?existing=1"
+        assert bus.format_url_query_arguments(uri, args) == "https://example.com/ws?existing=1&new=2"
+
+    def test_existing_querey_extension_with_new_fragment(self) -> None:
+        args = {"new": "2"}
+        uri = "https://example.com/ws?existing=1"
+        assert bus.format_url_query_arguments(uri, args, "selection") == "https://example.com/ws?existing=1&new=2#selection"
+
+    def test_existing_querey_extension_with_existing_fragment(self) -> None:
+        args = {"new": "2"}
+        uri = "https://example.com/ws?existing=1#selection"
+        assert bus.format_url_query_arguments(uri, args) == "https://example.com/ws?existing=1&new=2#selection"
+
+    def test_keep_existing_fragment_with_multiple_hashtags(self) -> None:
+        args = {"new": "2"}
+        uri = "https://example.com/ws?existing=1#section#subsection"
+        assert bus.format_url_query_arguments(uri, args) == "https://example.com/ws?existing=1&new=2#section#subsection"
+
+    def test_reject_fragment_if_a_fragment_already_exists(self) -> None:
+        uri = "https://example.com/ws?existing=1#selection"
+        with pytest.raises(ValueError) as e:
+            assert bus.format_url_query_arguments(uri, {"new": "2"}, "new_fragment")
+        assert str(e.value) == "Can't extend a url with an existing and a given fragment."
 
 class Test_indent:
     TEXT = "some text\nto indent\n  goes here"

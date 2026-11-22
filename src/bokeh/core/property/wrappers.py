@@ -63,7 +63,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import copy
 from typing import (
     TYPE_CHECKING,
@@ -77,12 +76,10 @@ from typing import (
     cast,
 )
 
-# External imports
 import numpy as np
 
-# Bokeh imports
-from ...util.warnings import BokehUserWarning, warn
-from .singletons import OldValueUnavailable
+from ...util.warnings import warn
+from .singletons import Undefined
 
 if TYPE_CHECKING:
     from ...document import Document
@@ -512,7 +509,7 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
                     dict.__setitem__(self, k, seq)
 
         from ...document.events import ColumnsStreamedEvent
-        self._notify_owners(OldValueUnavailable, hint=ColumnsStreamedEvent(doc, source, "data", new_data, rollover, setter))
+        self._notify_owners(Undefined, hint=ColumnsStreamedEvent(doc, source, "data", new_data, rollover, setter))
 
     # don't wrap with notify_owner --- notifies owners explicitly
     def _patch(self, doc: Document, source: ColumnarDataSource, patches: Any, setter: Setter | None = None) -> None:
@@ -549,11 +546,11 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
             # type check is necessary.
             if isinstance(array, Sequence):
                 if not isinstance(array, MutableSequence):
-                    warn(f"attempted to patch an immutable sequence of type {type(array).__qualname__}", BokehUserWarning)
+                    warn(f"attempted to patch an immutable sequence of type {type(array).__qualname__}")
                     continue
             elif isinstance(array, np.ndarray):
                 if not array.flags.writeable:
-                    warn("attempted to patch an immutable numpy array (flags.writable is False)", BokehUserWarning)
+                    warn("attempted to patch an immutable numpy array (flags.writable is False)")
                     continue
             # No else: branch here, because there is no universal type check
             # for mutable container like objects that Seq() permits, so
@@ -570,7 +567,7 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
                     array[i][j] = reshaped
 
         from ...document.events import ColumnsPatchedEvent
-        self._notify_owners(OldValueUnavailable, hint=ColumnsPatchedEvent(doc, source, "data", patches, setter))
+        self._notify_owners(Undefined, hint=ColumnsPatchedEvent(doc, source, "data", patches, setter))
 
 #-----------------------------------------------------------------------------
 # Private API

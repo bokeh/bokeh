@@ -29,7 +29,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import difflib
 from collections.abc import Mapping, Sequence
 from types import MappingProxyType
@@ -49,7 +48,6 @@ from typing import (
 )
 from weakref import WeakSet
 
-# Bokeh imports
 from ..settings import settings
 from ..util.strings import append_docstring
 from .property.descriptors import (
@@ -202,10 +200,10 @@ class _ModelResolver:
             # update the mapping of view model names to classes, checking for any duplicates
             previous = self._known_models.get(cls.__qualified_model__, None)
             if previous is not None and not hasattr(cls, "__implementation__"):
-                from ..util.warnings import BokehUserWarning, warn
+                from ..util.warnings import warn
 
                 warn(f"Duplicate qualified model definition of '{cls.__qualified_model__}'. " \
-                     f"Previous definition was {previous} (@{hex(id(previous))}), the new is {cls} (@{hex(id(cls))}).", BokehUserWarning)
+                     f"Previous definition was {previous} (@{hex(id(previous))}), the new is {cls} (@{hex(id(cls))}).")
             self._known_models[cls.__qualified_model__] = cls
 
     def remove(self, cls: type[HasProps]) -> None:
@@ -275,7 +273,7 @@ def _check_units_props(
             units_alias = getattr(prop, "_units_alias")
             raise TypeError(
                 f"{cls.__name__}.{name} uses {type(prop).__name__} and requires a matching "
-                f"{cls.__name__}.{units_name} property; add `{units_name} = {units_alias}`",
+                f"{cls.__name__}.{units_name} property. Add `{units_name} = {units_alias}`",
             )
 
 def _warn_redeclared_props(
@@ -295,6 +293,44 @@ def _warn_redeclared_props(
              "class. It never makes sense to do this. Redundant properties should be deleted here, or on "
              "the parent class. Override() can be used to change a default value of a base class property.",
              RuntimeWarning)
+
+def _resolve_overrides(
+    cls: type[HasProps],
+    own_overridden_defaults: Mapping[str, Any],
+    own_properties: Mapping[str, Property[Any]],
+) -> dict[str, Any]:
+    """ Map names of overrides to names of the overridden properties.
+
+    ``_name = Override(...)`` overrides property ``name``, unless ``_name`` is
+    a property itself. This allows to override properties without redefining
+    them, so that type checkers retain types of properties in derived models.
+
+    """
+    if not own_overridden_defaults:
+        return {}
+
+    # resolve inherited properties in the MRO order, like _PropertyInfo does
+    known_properties: dict[str, Property[Any]] = {}
+    for base in reversed(cls.__mro__[1:]):
+        known_properties.update(base.__dict__.get("__properties__", {}))
+    known_properties.update(own_properties)
+
+    # properties given explicitly, e.g. ``_name = Override(Base.name, ...)``
+    overridden_properties: Mapping[str, Property[Any]] = cls.__dict__.get("__overridden_properties__", {})
+
+    resolved: dict[str, Any] = {}
+    sources: dict[str, str] = {}
+    for name, default in own_overridden_defaults.items():
+        prop_name = name
+        if name not in known_properties and name.startswith("_") and name[1:] in known_properties:
+            prop_name = name[1:]
+        if prop_name in resolved:
+            raise TypeError(f"{cls.__name__}.{prop_name} is overridden more than once, by {sources[prop_name]!r} and {name!r}")
+        if name in overridden_properties and known_properties.get(prop_name) is not overridden_properties[name]:
+            raise TypeError(f"{cls.__name__}.{name} overrides a property that {cls.__name__} doesn't inherit")
+        resolved[prop_name] = default
+        sources[prop_name] = name
+    return resolved
 
 def _warn_unused_overrides(
     cls: type[HasProps],
@@ -354,7 +390,10 @@ class HasProps(Serializable):
     @classmethod
     def __init_subclass__(cls, **kwargs: Any) -> None:
         own_properties = MappingProxyType(dict(cls.__dict__.get("__properties__", {})))
-        own_overridden_defaults = MappingProxyType(dict(cls.__dict__.get("__overridden_defaults__", {})))
+        property_bases = [base for base in cls.__bases__ if issubclass(base, HasProps)]
+        own_overridden_defaults = MappingProxyType(_resolve_overrides(
+            cls, cls.__dict__.get("__overridden_defaults__", {}), own_properties,
+        ))
         cls.__properties__ = own_properties
         cls.__overridden_defaults__ = own_overridden_defaults
         cls.__property_info__ = property_info = _PropertyInfo(own_properties, own_overridden_defaults)
@@ -363,7 +402,6 @@ class HasProps(Serializable):
 
         properties = property_info.properties(cls)
 
-        property_bases = [base for base in cls.__bases__ if issubclass(base, HasProps)]
         _check_units_props(cls, own_properties, properties, property_bases)
         _warn_redeclared_props(cls, own_properties, property_bases)
         _warn_unused_overrides(cls, own_overridden_defaults, properties)
@@ -483,18 +521,45 @@ class HasProps(Serializable):
             return self.properties_with_values() == other.properties_with_values()
 
     def to_serializable(self, serializer: Serializer) -> ObjectRep:
-        rep = ObjectRep(
-            type="object",
-            name=self.__qualified_model__,
-        )
+        return self._to_serializable(serializer)
 
-        properties = self.properties_with_values(include_defaults=settings.serialize_include_defaults())
+    def _to_serializable(self, serializer: Serializer, overrides: dict[str, Any] | None = None) -> ObjectRep:
+        include_defaults = settings.serialize_include_defaults()
+        properties = self.properties_with_values(include_defaults=include_defaults)
+        if serializer.compact and not include_defaults:
+            from ..model.util import visit_value_and_its_immediate_references
+            from .property.any import Any as AnyProperty
+
+            def has_retained_ref(value: Any) -> bool:
+                retained = False
+
+                def check(model: Any) -> None:
+                    nonlocal retained
+                    retained |= serializer.use_model_id(model)
+
+                visit_value_and_its_immediate_references(value, check)
+                return retained
+
+            default_values = self.properties_with_values(include_defaults=True)
+            reference_properties = self.properties_with_refs()
+            reference_properties = {
+                key: prop for key, prop in self.properties().items()
+                if key in reference_properties or isinstance(prop, AnyProperty)
+            }
+            retained_defaults = {
+                key: default_values[key] for key in reference_properties
+                if key not in properties and key in default_values and has_retained_ref(default_values[key])
+            }
+            if retained_defaults:
+                properties = {
+                    key: properties.get(key, retained_defaults.get(key))
+                    for key in self.properties() if key in properties or key in retained_defaults
+                }
+        if overrides is not None:
+            properties = {key: overrides.get(key, val) for key, val in properties.items()}
         attributes = {key: serializer.encode(val) for key, val in properties.items()}
 
-        if attributes:
-            rep["attributes"] = attributes
-
-        return rep
+        return ObjectRep({"$type": self.__qualified_model__, **attributes})
 
     # FQ type name required to suppress Sphinx error "more than one target found for cross-reference 'JSON'"
     def set_from_json(self, name: str, value: Any, *, setter: Setter | None = None) -> None:
@@ -520,7 +585,7 @@ class HasProps(Serializable):
 
         '''
         if name in self.properties():
-            log.trace(f"Patching attribute {name!r} of {self!r} with {value!r}") # type: ignore[attr-defined]
+            log.trace("Patching attribute %r of %r with %r", name, self, value) # type: ignore[attr-defined]
             descriptor = self.lookup(name)
             descriptor.set_from_json(self, value, setter=setter)
         else:
@@ -629,7 +694,7 @@ class HasProps(Serializable):
 
         Non-serializable properties are skipped and property values are in
         "serialized" format which may be slightly different from the values
-        you would normally read from the properties; the intent of this method
+        you would normally read from the properties. The intent of this method
         is to return the information needed to losslessly reconstitute the
         object instance.
 
@@ -637,6 +702,10 @@ class HasProps(Serializable):
             include_defaults (bool, optional) :
                 Whether to include properties that haven't been explicitly set
                 since the object was created. (default: True)
+
+            include_undefined  (bool, optional) :
+                Whether to include properties that are undefined
+                since the object was created. (default: False)
 
         Returns:
            dict : mapping from property names to their values
@@ -668,6 +737,10 @@ class HasProps(Serializable):
             include_defaults (bool, optional) :
                 Whether to include properties that have not been explicitly
                 set by a user (default: True)
+
+            include_undefined  (bool, optional) :
+                Whether to include properties that are undefined
+                since the object was created. (default: False)
 
         Returns:
             dict : mapping of property names and values for matching properties
@@ -811,7 +884,7 @@ class OverrideDef(TypedDict):
 class ModelDef(TypedDict):
     type: Literal["model"]
     name: str
-    extends: NotRequired[Ref | None]
+    extends: Ref
     properties: NotRequired[list[PropertyDef]]
     overrides: NotRequired[list[OverrideDef]]
 
@@ -895,7 +968,7 @@ def _property_kind(prop: Property[Any], serializer: Serializer) -> KindRef:
                     return ("Ref", Ref(id=instance_type.__qualified_model__))
                 return ("AnyRef",)
             if issubclass(instance_type, Model):
-                return ("Ref", Ref(id=instance_type.__qualified_model__))
+                return ("Ref", cast(Ref, serializer.encode(instance_type)))
             return ("AnyRef",)
         return "Any"
     if isinstance(prop, SingleParameterizedProperty):
@@ -949,7 +1022,7 @@ def _encode_default(descriptor: PropertyDescriptor[Any], default: Any, serialize
     return serializer.encode(default)
 
 def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Ref | ModelDef:
-    from ..model import Model
+    from ..model import DataModel
     from .types import ID
 
     ref = Ref(id=ID(cls.__qualified_model__))
@@ -959,17 +1032,13 @@ def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Re
         return ref
 
     bases = _data_model_bases(cls)
-    if len(bases) == 0:
-        extends = None
-        base = Model
-    elif len(bases) == 1:
-        [base] = bases
-        encoded_base = serializer.encode(base)
-        if not (isinstance(encoded_base, dict) and set(encoded_base) == {"id"}):
-            serializer.error(f"base model {base.__qualified_model__} must be defined before {cls.__qualified_model__}")
-        extends = cast(Ref, encoded_base)
-    else:
+    if len(bases) > 1:
         serializer.error("multiple bases are not supported")
+
+    base = bases[0] if bases else DataModel
+    encoded_base = serializer.encode(base)
+    if not (isinstance(encoded_base, dict) and set(encoded_base) == {"id"}):
+        serializer.error(f"base model {base.__qualified_model__} must be defined before {cls.__qualified_model__}")
 
     properties: list[PropertyDef] = []
     overrides: list[OverrideDef] = []
@@ -1010,10 +1079,9 @@ def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Re
     modeldef = ModelDef(
         type="model",
         name=cls.__qualified_model__,
+        extends=cast(Ref, encoded_base),
     )
 
-    if extends is not None:
-        modeldef["extends"] = extends
     if properties:
         modeldef["properties"] = properties
     if overrides:

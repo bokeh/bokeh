@@ -20,7 +20,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
+from typing import Literal
+
 from .enum import Enum
 
 #-----------------------------------------------------------------------------
@@ -35,7 +36,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Auto(Enum[str]):
+class Auto(Enum[Literal["auto"]]):
     """ Accepts only the string "auto".
 
     Useful for properties that can be configured to behave "automatically".

@@ -1,3 +1,11 @@
+''' Draw a single polygon using the nested coordinate format for multi-polygons.
+
+.. bokeh-example-metadata::
+    :title: Multipolygon simple
+    :keywords: multipolygon, simple
+    :apis: bokeh.plotting.figure.multi_polygons
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

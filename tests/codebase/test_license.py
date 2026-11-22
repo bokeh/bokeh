@@ -9,21 +9,18 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import sys
 from os import chdir
 from os.path import join
 from subprocess import run
 
-# Bokeh imports
+import pytest
+
 from tests.support.util.project import TOP_PATH
 
 #-----------------------------------------------------------------------------

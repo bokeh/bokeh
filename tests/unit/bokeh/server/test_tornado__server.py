@@ -8,31 +8,27 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import asyncio
 import json
 import logging
+import re
 import threading
 from unittest.mock import Mock, patch
 
-# External imports
+import pytest
 from _util_server import http_get, url
 
-# Bokeh imports
 from bokeh.application import Application
 from bokeh.application.handlers.function import FunctionHandler
 from bokeh.client import pull_session
 from bokeh.core.types import ID
-from bokeh.embed.bundle import Bundle, Script
 from bokeh.server.auth_provider import NullAuth
+from bokeh.server.views.multi_root_static_handler import MultiRootStaticHandler
 from bokeh.server.views.static_handler import AsyncStaticFileHandler, StaticHandler
 from bokeh.server.views.ws import WSHandler
 from tests.support.plugins.managed_server_loop import MSL
@@ -140,7 +136,7 @@ def test_dev_resources(ManagedServerLoop: MSL) -> None:
         with ManagedServerLoop(application) as server:
             r = server._tornado.resources()
             assert r.mode == "server"
-            assert r.dev
+            assert not r.minified
 
 def test_index(ManagedServerLoop: MSL) -> None:
     application = Application()
@@ -265,44 +261,6 @@ def test_websocket_compression_level() -> None:
     ws_rule = ws_rules[0]
     assert ws_rule.target_kwargs.get('compression_level') == 2
     assert ws_rule.target_kwargs.get('mem_level') == 3
-
-async def test_autoload_bundle_runs_off_loop_and_is_coalesced(monkeypatch: pytest.MonkeyPatch) -> None:
-    started = threading.Event()
-    release = threading.Event()
-    thread_ids: list[int] = []
-
-    def bundle(objs, resources):
-        thread_ids.append(threading.get_ident())
-        started.set()
-        assert release.wait(timeout=2)
-        return Bundle(js_raw=["base"])
-
-    monkeypatch.setattr("bokeh.embed.bundle.bundle_for_objs_and_resources", bundle)
-    app = bst.BokehTornado({})
-
-    first = asyncio.create_task(app._bundle_for_autoload(None))
-    try:
-        async with asyncio.timeout(1):
-            while not started.is_set():
-                await asyncio.sleep(0)
-
-        second = asyncio.create_task(app._bundle_for_autoload(None))
-        await asyncio.sleep(0)
-    finally:
-        release.set()
-
-    first_bundle, second_bundle = await asyncio.gather(first, second)
-    await asyncio.sleep(0)
-
-    assert len(thread_ids) == 1
-    assert thread_ids[0] != threading.get_ident()
-    assert first_bundle is not second_bundle
-
-    first_bundle.add(Script("request-specific"))
-    cached_bundle = await app._bundle_for_autoload(None)
-    assert cached_bundle.js_raw == ["base"]
-
-    app._executor.shutdown()
 
 def test_websocket_origins(ManagedServerLoop, unused_tcp_port) -> None:
     application = Application()
@@ -452,6 +410,29 @@ def test_log_stats(ManagedServerLoop: MSL) -> None:
         session2.close()
         server._tornado._log_stats()
 
+def test_log_stats_only_logs_changes(ManagedServerLoop: MSL, caplog: pytest.LogCaptureFixture) -> None:
+    def logged() -> list[str]:
+        messages = [record.getMessage() for record in caplog.records if record.name == "bokeh.server.tornado"]
+        caplog.clear()
+        return messages
+
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        with caplog.at_level(logging.DEBUG, logger="bokeh.server.tornado"):
+            server._tornado._log_stats()
+            assert [m.split("] ", 1)[1] for m in logged()] == ["0 clients connected", "  / has 0 sessions with 0 unused"]
+
+            server._tornado._log_stats()
+            assert logged() == []
+
+            server._tornado._clients.add(Mock())
+            server._tornado._log_stats()
+            assert [m.split("] ", 1)[1] for m in logged()] == ["1 clients connected", "  / has 0 sessions with 0 unused"]
+
+def test__handler_name() -> None:
+    assert bst._handler_name(WSHandler) == "bokeh.server.views.ws.WSHandler"
+    assert bst._handler_name("myapp.handlers.FooHandler") == "myapp.handlers.FooHandler"
+
 async def test_metadata(ManagedServerLoop: MSL) -> None:
     application = Application(metadata=dict(hi="hi", there="there"))
     with ManagedServerLoop(application) as server:
@@ -508,6 +489,20 @@ class Test_create_static_handler:
         assert result[0] == "/prefix/static/(.*)"
         assert result[1] == StaticHandler
         assert result[2] == {}
+
+    def test_reserved_bokeh_and_extension_routes_precede_app_static(self):
+        app = Application()
+        app._static_path = "foo"
+
+        handlers = bst.create_static_handlers("/prefix", "/key", app)
+
+        assert handlers[0][0] == "/prefix/key/static/extensions/(.*)"
+        assert handlers[0][1] == MultiRootStaticHandler
+        assert re.fullmatch(handlers[1][0], "/prefix/key/static/js/bokeh.min.js") is not None
+        assert re.fullmatch(handlers[1][0], "/prefix/key/static/js/bokeh-api.esm.min.js") is not None
+        assert re.fullmatch(handlers[1][0], "/prefix/key/static/js/bokeh-custom.js") is None
+        assert handlers[1][1] == StaticHandler
+        assert handlers[2] == bst.create_static_handler("/prefix", "/key", app)
 
 #-----------------------------------------------------------------------------
 # Private API

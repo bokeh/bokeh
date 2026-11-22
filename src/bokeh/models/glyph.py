@@ -27,15 +27,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
-# Bokeh imports
 from ..core.has_props import HasProps, abstract
 from ..core.property.container import List
 from ..core.property.instance import Instance
 from ..model import Model
-from .graphics import Decoration
+from .graphics import PathPlacement
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -48,6 +44,7 @@ __all__ = (
     'HatchGlyph',
     'LineGlyph',
     'RadialGlyph',
+    'SupportsPathMarking',
     'TextGlyph',
     'XYGlyph',
 )
@@ -62,31 +59,11 @@ class Glyph(Model):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
-    decorations = List(Instance(Decoration), default=[], help="""
-    A collection of glyph decorations, e.g. arrow heads.
-
-    Use ``GlyphRenderer.add_decoration()`` for easy setup for all glyphs
-    of a glyph renderer. Use this property when finer control is needed.
-
-    .. note::
-
-        Decorations are only for aiding visual appearance of a glyph,
-        but they don't participate in hit testing, etc.
-    """)
-
 @abstract
 class XYGlyph(Glyph):
     ''' Base class of glyphs with `x` and `y` coordinate attributes.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 @abstract
 class RadialGlyph(XYGlyph):
@@ -95,10 +72,6 @@ class RadialGlyph(XYGlyph):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 @abstract
 class ConnectedXYGlyph(XYGlyph):
     ''' Base class of glyphs with `x` and `y` coordinate attributes and
@@ -106,19 +79,11 @@ class ConnectedXYGlyph(XYGlyph):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 @abstract
 class LineGlyph(HasProps):
     ''' Glyphs with line properties
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 @abstract
 class FillGlyph(HasProps):
@@ -126,19 +91,11 @@ class FillGlyph(HasProps):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 @abstract
 class TextGlyph(HasProps):
     ''' Glyphs with text properties
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 @abstract
 class HatchGlyph(HasProps):
@@ -146,9 +103,17 @@ class HatchGlyph(HasProps):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+@abstract
+class SupportsPathMarking(HasProps):
+    """Glyph capability for placing markings along paths."""
+
+    path_markings = List(Instance(PathPlacement), default=[], help="""
+    Markings attached to the glyph's paths, such as arrowheads.
+
+    Use ``GlyphRenderer.add_path_marking()`` to configure supported path glyphs
+    and their renderer states. Use this property when finer control is needed.
+    Path markings participate in hit testing and select their host glyph item.
+    """)
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -17,12 +17,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from os import fspath
 from subprocess import Popen
 from typing import TYPE_CHECKING
 
-# Bokeh imports
 from . import __version__
 from .settings import settings
 from .util.compiler import _nodejs_path
@@ -114,7 +112,7 @@ def _run_command(command: str, base_dir: PathLike, args: list[str], debug: bool 
     if debug:
         compiler_script = bokehjs_dir / "js" / "compiler" / "main.js"
     else:
-        compiler_script = bokehjs_dir / "js" / "compiler.js"
+        compiler_script = bokehjs_dir / "js" / "compiler.mjs"
 
     cmd = [
         "--no-deprecation",

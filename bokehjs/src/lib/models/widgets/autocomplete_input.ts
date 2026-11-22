@@ -6,11 +6,12 @@ import type * as p from "core/properties"
 import {take} from "core/util/iterator"
 import {clamp} from "core/util/math"
 import {Enum} from "core/kinds"
+import type {Infer} from "core/kinds"
 
 import dropdown_css, * as dropdown from "styles/dropdown.css"
 
 const SearchStrategy = Enum("starts_with", "includes")
-type SearchStrategy = typeof SearchStrategy["__type__"]
+type SearchStrategy = Infer<typeof SearchStrategy>
 
 export class AutocompleteInputView extends TextInputView {
   declare model: AutocompleteInput
@@ -202,10 +203,6 @@ export interface AutocompleteInput extends AutocompleteInput.Attrs {}
 export class AutocompleteInput extends TextInput {
   declare properties: AutocompleteInput.Props
   declare __view_type__: AutocompleteInputView
-
-  constructor(attrs?: Partial<AutocompleteInput.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = AutocompleteInputView

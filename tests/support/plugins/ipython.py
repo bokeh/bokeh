@@ -20,13 +20,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from types import ModuleType
 
-# External imports
 import pytest
 
-# Bokeh imports
 from bokeh.util.dependencies import import_optional
 
 #-----------------------------------------------------------------------------

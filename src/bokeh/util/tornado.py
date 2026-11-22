@@ -8,7 +8,6 @@
 
 from __future__ import annotations
 
-# Bokeh imports
 from .asyncio import (  # noqa: F401
     _AsyncPeriodic,
     _CallbackGroup,

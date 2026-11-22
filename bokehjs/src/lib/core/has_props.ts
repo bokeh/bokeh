@@ -1,4 +1,4 @@
-//import {logger} from "./logging"
+import {logger} from "./logging"
 import type {View} from "./view"
 import type {Class} from "./class"
 import type {Attrs, Data, Dict} from "./types"
@@ -11,11 +11,12 @@ import * as k from "./kinds"
 import type {Property} from "./properties"
 import {assert} from "./util/assert"
 import {unique_id} from "./util/string"
-import {keys, values, entries, extend, is_empty, dict} from "./util/object"
+import {keys, values, entries, extend, dict} from "./util/object"
 import {isObject, isIterable, isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
-import type {Serializable, Serializer, ObjectRefRep, AnyVal} from "./serialization"
+import type {Serializable, Serializer, ObjectRep, ObjectRefRep, AnyVal} from "./serialization"
 import {serialize} from "./serialization"
 import type {Document} from "../document/document"
+import type {CallbackPolicy} from "../model"
 import type {DocumentEvent} from "../document/events"
 import {DocumentEventBatch, ModelChangedEvent, ColumnsPatchedEvent, ColumnsStreamedEvent} from "../document/events"
 import type {Equatable} from "./util/eq"
@@ -32,7 +33,40 @@ import {stream_to_columns, patch_to_columns} from "./patching"
 
 type AttrsLike = Dict<unknown>
 
+export type HasPropsClass<T extends HasProps = HasProps> = Function & {prototype: T}
+
+export type ModelAttrs<T extends HasProps> = Partial<p.AttrsOf<T["properties"]>>
+
+export type HasPropsFactory<T extends HasProps = HasProps> = HasPropsClass<T> & {
+  create: typeof HasProps.create
+}
+
+type LifecycleState =
+  "constructing" |
+  "constructed" |
+  "initializing_properties" |
+  "properties_initialized" |
+  "initializing" |
+  "initialized" |
+  "connecting_signals" |
+  "ready" |
+  "failed" |
+  "destroyed"
+
+type ConstructionContext = {
+  cls: HasPropsClass
+  id?: string
+}
+
+const construction_stack: ConstructionContext[] = []
+
+type ReferenceCollector = {
+  add(ref: HasProps): void
+  has(ref: HasProps): boolean
+}
+
 export namespace HasProps {
+  // oxlint-disable-next-line typescript/no-generated-empty-object-type -- the base model has no properties
   export type Attrs = p.AttrsOf<Props>
   export type Props = {}
 
@@ -45,7 +79,7 @@ export namespace HasProps {
 }
 
 export interface HasProps extends HasProps.Attrs, ISignalable {
-  constructor: Function & {
+  constructor: HasPropsFactory<this> & {
     __module__?: string
     __qualified__: string
   }
@@ -53,12 +87,59 @@ export interface HasProps extends HasProps.Attrs, ISignalable {
 
 export type PropertyGenerator = Generator<Property, void, undefined>
 
+export type TransitiveOpts = {
+  recursive?: boolean
+  signals?: (obj: HasProps) => readonly Signal<unknown, HasProps>[]
+  on_replace?: (() => unknown) | null
+}
+
+/** Bind signals from referenced models and rebind before notifying on replacement. */
+export function on_transitive_change(
+  receiver: ISignalable, property: Property, fn: () => unknown,
+  {recursive = false, signals = (obj) => [obj.change], on_replace = fn}: TransitiveOpts = {},
+): void {
+  const slot = () => fn()
+  const bind = () => {
+    const value = property.is_unset ? null : property.get_value()
+    const models = HasProps.references(value, {recursive})
+    const connected = Array.from(models).flatMap(signals)
+    for (const signal of connected) {
+      receiver.connect(signal, slot)
+    }
+    return connected
+  }
+
+  let connected = bind()
+  receiver.connect(property.change, () => {
+    for (const signal of connected) {
+      receiver.disconnect(signal, slot)
+    }
+    connected = bind()
+    return on_replace?.()
+  })
+}
+
 const _qualified_names = new WeakMap<typeof HasProps, string>()
 
 export abstract class HasProps extends Signalable() implements Equatable, Printable, Serializable, Cloneable {
   declare __view_type__: View
 
   readonly id: string
+
+  private _lifecycle_state: LifecycleState = "constructing"
+  private _initial_attrs: AttrsLike = {}
+
+  get is_ready(): boolean {
+    return this._lifecycle_state == "ready"
+  }
+
+  get is_destroyed(): boolean {
+    return this._lifecycle_state == "destroyed"
+  }
+
+  protected get is_deferred(): boolean {
+    return construction_stack.at(-1)?.id != null
+  }
 
   get is_syncable(): boolean {
     return true
@@ -74,10 +155,14 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   static __module__?: string
 
+  /** @internal */
+  static __name__?: string
+
   static get __qualified__(): string {
     let qualified = _qualified_names.get(this)
     if (qualified == null) {
-      const {__module__, name} = this
+      const {__module__} = this
+      const name = Object.hasOwn(this, "__name__") ? this.__name__! : this.name
       qualified = __module__ != null ? `${__module__}.${name}` : name
       _qualified_names.set(this, qualified)
     }
@@ -86,6 +171,21 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   static set __qualified__(qualified: string) {
     _qualified_names.set(this, qualified)
+  }
+
+  /**
+   * Construct an instance through the complete BokehJS object lifecycle.
+   *
+   * Subclass field initializers run before property defaults, `initialize()`,
+   * and `connect_signals()`. If any phase fails, the partial instance is
+   * destroyed before the original error is rethrown. Model and extension code
+   * must use this factory instead of invoking a constructor directly.
+   */
+  static create<T extends HasProps>(
+    this: HasPropsClass<T>,
+    attrs: ModelAttrs<T> = {},
+  ): T {
+    return construct(this, attrs as AttrsLike)
   }
 
   get [Symbol.toStringTag](): string {
@@ -135,10 +235,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       }
 
       Object.defineProperty(this.prototype, name, {
-        // XXX: don't use tail calls in getters/setters due to https://bugs.webkit.org/show_bug.cgi?id=164306
+        // Read through the property's preact signal, so that accessing attributes
+        // inside computed signals, effects or vdom components is tracked.
         get(this: HasProps): any {
-          const value = this.properties[name].get_value()
-          return value
+          return this.properties[name].signal.value
         },
         set(this: HasProps, value: any): HasProps {
           this.setv({[name]: value})
@@ -194,6 +294,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       }
     }
 
+    // oxlint-disable-next-line typescript/no-unnecessary-type-assertion -- tsgolint false positive, removing it fails type checking
     this.define(mixin_defs as any)
     this.prototype._mixins = [...this.prototype._mixins, ...mixins]
   }
@@ -245,7 +346,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   readonly properties: {[key: string]: Property} = {}
 
   property(name: string): Property {
-    if (name in this.properties) {
+    if (Object.hasOwn(this.properties, name)) {
       return this.properties[name]
     } else {
       throw new Error(`unknown property ${this.type}.${name}`)
@@ -285,7 +386,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
         attrs.set(prop.attr, cloner.clone(prop.get_value()))
       }
     }
-    return new (this.constructor as any)(attrs)
+    return (this.constructor as any).create(attrs)
   }
 
   [equals](that: this, cmp: Comparator): boolean {
@@ -313,29 +414,56 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return `${cls}${T("(")}${T("{")}${items.join(`${T(",")} `)}${T("}")}${T(")")}`
   }
 
-  [serialize](serializer: Serializer): ObjectRefRep {
-    const ref = this.ref()
-    serializer.add_ref(this, ref)
+  [serialize](serializer: Serializer): ObjectRep | ObjectRefRep {
+    return this._to_serializable(serializer)
+  }
+
+  protected _to_serializable(serializer: Serializer, overrides: {[key: string]: unknown} = {}): ObjectRep | ObjectRefRep {
+    const use_id = serializer.use_model_id(this)
+    if (use_id) {
+      serializer.add_ref(this, serializer.model_ref(this.ref()))
+    }
 
     const attributes: {[key: string]: AnyVal} = {}
     for (const prop of this) {
-      if (prop.syncable && (serializer.include_defaults || prop.dirty) && !(prop.readonly && prop.is_unset)) {
+      const has_retained_ref = (() => {
+        if (!serializer.compact || !prop.may_have_refs || prop.is_unset) {
+          return false
+        }
+        let retained = false
+        const collector = {
+          add(ref: HasProps): void {
+            retained ||= serializer.use_model_id(ref)
+          },
+
+          has(_ref: HasProps): boolean {
+            return false
+          },
+        }
+        HasProps._value_record_references(prop.get_value(), collector, {recursive: false})
+        return retained
+      })()
+      if (prop.syncable && (serializer.include_defaults || prop.dirty || has_retained_ref) && !(prop.readonly && prop.is_unset)) {
         const value = prop.get_value()
-        attributes[prop.attr] = serializer.encode(value) as AnyVal
+        attributes[prop.attr] = serializer.encode(Object.hasOwn(overrides, prop.attr) ? overrides[prop.attr] : value) as AnyVal
       }
     }
 
     const {type: name, id} = this
-    const rep = {type: "object" as const, name, id}
-
-    return is_empty(attributes) ? rep : {...rep, attributes}
+    return use_id ? {$type: name, $id: id, ...attributes} : {$type: name, ...attributes}
   }
 
-  constructor(attrs: {id: string} | AttrsLike = {}) {
+  protected constructor(attrs: {id: string} | AttrsLike = {}) {
     super()
 
-    const deferred = isPlainObject(attrs) && "id" in attrs
-    this.id = deferred ? attrs.id as string : unique_id()
+    const context = construction_stack.at(-1)
+    if (context == null || context.cls != new.target) {
+      const cls = new.target
+      throw new Error(`use ${cls.__qualified__}.create({...}) instead of new ${cls.__qualified__}(...)`)
+    }
+
+    this.id = context.id ?? unique_id()
+    this._initial_attrs = attrs
 
     for (const [name, {type, default_value, options}] of entries(this._props)) {
       let property: p.Property<unknown>
@@ -361,39 +489,58 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       }
     }
 
-    // allowing us to defer initialization when loading many models
-    // when loading a bunch of models, we want to do initialization as a second pass
-    // because other objects that this one depends on might not be loaded yet
-    if (deferred) {
-      assert(keys(attrs).length == 1, "'id' cannot be used together with property initializers")
-    } else {
-      this.initialize_props(attrs)
-      this.finalize()
-      this.connect_signals()
-    }
+    this._lifecycle_state = "constructed"
   }
 
+  /**
+   * Initialize declared properties after every subclass constructor and field
+   * initializer has completed.
+   * @internal
+   */
   initialize_props(vals: Dict<unknown>): void {
+    assert(this._lifecycle_state == "constructed")
+    this._lifecycle_state = "initializing_properties"
+
     const vals_proxy = dict(vals)
     const visited = new Set<string>()
-    for (const prop of this) {
-      const val = vals_proxy.get(prop.attr)
-      prop.initialize(val)
-      visited.add(prop.attr)
-    }
-
-    for (const [attr, val] of vals_proxy) {
-      if (!visited.has(attr)) {
-        // either throws for unknown properties or updates aliased properties
-        this.property(attr).set_value(val)
+    try {
+      for (const prop of this) {
+        const val = vals_proxy.get(prop.attr)
+        prop.initialize(val)
+        visited.add(prop.attr)
       }
+
+      for (const [attr, val] of vals_proxy) {
+        if (!visited.has(attr)) {
+          // either throws for unknown properties or updates aliased properties
+          this.property(attr).set_value(val)
+        }
+      }
+      this._lifecycle_state = "properties_initialized"
+    } catch (error) {
+      this._lifecycle_state = "failed"
+      throw error
     }
   }
 
+  /**
+   * Run the object initialization hook after properties are readable.
+   * Deserialization invokes this only after all referenced objects exist.
+   * @internal
+   */
   finalize(): void {
-    this.initialize()
+    assert(this._lifecycle_state == "properties_initialized")
+    this._lifecycle_state = "initializing"
+    try {
+      this.initialize()
+      this._lifecycle_state = "initialized"
+    } catch (error) {
+      this._lifecycle_state = "failed"
+      throw error
+    }
   }
 
+  /** Initialize derived state that may read this object's properties. */
   initialize(): void {}
 
   assert_initialized(): void {
@@ -404,6 +551,33 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
+  /**
+   * Connect signals only after every object in the construction graph has
+   * completed `initialize()`.
+   * @internal
+   */
+  finalize_signals(): void {
+    assert(this._lifecycle_state == "initialized")
+    this._lifecycle_state = "connecting_signals"
+    try {
+      this.connect_signals()
+      this._lifecycle_state = "ready"
+    } catch (error) {
+      this._lifecycle_state = "failed"
+      throw error
+    }
+  }
+
+  /** Complete property, initialization, and signal phases for a new object. @internal */
+  finish(): void {
+    const attrs = this._initial_attrs
+    this._initial_attrs = {}
+    this.initialize_props(attrs)
+    this.finalize()
+    this.finalize_signals()
+  }
+
+  /** Connect change listeners owned by this object. Overrides must call `super`. */
   connect_signals(): void {
     for (const prop of this) {
       if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec)) {
@@ -428,12 +602,16 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   }
 
   destroy(): void {
+    if (this._lifecycle_state == "destroyed") {
+      return
+    }
+    this._lifecycle_state = "destroyed"
     this.disconnect_signals()
     this.destroyed.emit()
   }
 
   // Create a new model with exact attribute values to this one, but new identity.
-  clone(attrs?: Partial<HasProps.Attrs>): this {
+  clone(attrs?: Partial<p.AttrsOf<this["properties"]>>): this {
     const cloner = new Cloner()
     const that = cloner.clone(this)
     if (attrs != null) {
@@ -457,6 +635,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   private _pending: boolean = false
   private _changing: boolean = false
 
+  protected get _setting_properties(): boolean {
+    return this._changing
+  }
+
   // Set a hash of model attributes on the object, firing `"change"`. This is
   // the core primitive operation of a model, updating the data and notifying
   // anyone who needs to know about the change in state. The heart of the beast.
@@ -468,7 +650,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     this._changing = true
 
     const cmp = new Comparator({no_fail: true})
-    for (const [prop, value] of changes) {
+    for (const [prop, incoming] of changes) {
+      // Coerce once before equality so comparison and storage use the same value.
+      const value = prop.initialized && prop.kind.coerce != null ? prop.kind.coerce(incoming) : incoming
       if (check_eq === false || prop.is_unset || !cmp.eq(prop.get_value(), value)) {
         prop.set_value(value)
         changed.add(prop)
@@ -512,7 +696,8 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       this._clear_watchers()
 
       for (const [attr, value] of changes) {
-        this.properties[attr].set_value(value)
+        const prop = this.properties[attr]
+        prop.set_value(prop.initialized && prop.kind.coerce != null ? prop.kind.coerce(value) : value)
       }
 
       return
@@ -580,7 +765,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   // add all references from 'v' to 'result', if recurse
   // is true then descend into refs, if false only
   // descend into non-refs
-  static _value_record_references(value: unknown, refs: Set<HasProps>, options: {recursive: boolean}): void {
+  static _value_record_references(value: unknown, refs: ReferenceCollector, options: {recursive: boolean}): void {
     if (!isObject(value) || !may_have_refs(value)) {
       return
     }
@@ -643,6 +828,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
+  _create_change_event(attr: string, value: unknown, callback_policy?: CallbackPolicy): ModelChangedEvent {
+    return new ModelChangedEvent(this.document!, this, attr, value, callback_policy)
+  }
+
   protected _push_changes(changes: [Property, unknown, unknown][], sync: boolean): void {
     if (!this.is_syncable) {
       return
@@ -656,7 +845,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     const events = []
     for (const [prop,, new_value] of changes) {
       if (prop.syncable) {
-        const event = new ModelChangedEvent(document, this, prop.attr, new_value)
+        const event = this._create_change_event(prop.attr, new_value)
         event.sync = sync
         events.push(event)
       }
@@ -673,10 +862,29 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
-  on_change(properties: Property<unknown> | Property<unknown>[], fn: () => void): void {
-    for (const property of isArray(properties) ? properties : [properties]) {
+  on_transitive_change(property: Property, fn: () => unknown, options?: TransitiveOpts): void {
+    on_transitive_change(this, property, fn, options)
+  }
+
+  on_change<Name extends Extract<keyof this["properties"], string>>(properties: Name | readonly Name[], fn: () => void): void
+  on_change(properties: Property<unknown> | readonly Property<unknown>[], fn: () => void): void
+  on_change(properties: string | Property<unknown> | readonly (string | Property<unknown>)[], fn: () => void): void {
+    for (const property of this._resolve_properties(properties)) {
       this.connect(property.change, fn)
     }
+  }
+
+  remove_on_change<Name extends Extract<keyof this["properties"], string>>(properties: Name | readonly Name[], fn: () => void): void
+  remove_on_change(properties: Property<unknown> | readonly Property<unknown>[], fn: () => void): void
+  remove_on_change(properties: string | Property<unknown> | readonly (string | Property<unknown>)[], fn: () => void): void {
+    for (const property of this._resolve_properties(properties)) {
+      this.disconnect(property.change, fn)
+    }
+  }
+
+  private _resolve_properties(properties: string | Property<unknown> | readonly (string | Property<unknown>)[]): Property<unknown>[] {
+    const items = isArray(properties) ? properties as (string | Property<unknown>)[] : [properties as string | Property<unknown>]
+    return items.map((property) => typeof property == "string" ? this.property(property) : property)
   }
 
   stream_to(prop: Property<Data>, new_data: Data, rollover?: number, {sync}: {sync?: boolean} = {}): void {
@@ -704,4 +912,44 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       this.document._trigger_on_change(event)
     }
   }
+}
+
+function instantiate<T extends HasProps>(cls: HasPropsClass<T>, attrs: AttrsLike, id?: string): T {
+  const context: ConstructionContext = {cls, id}
+  construction_stack.push(context)
+  try {
+    const instance = Reflect.construct(cls, [attrs]) as T
+    assert(instance instanceof HasProps)
+    return instance
+  } finally {
+    const popped = construction_stack.pop()
+    assert(popped == context)
+  }
+}
+
+export function construct<T extends HasProps>(cls: HasPropsClass<T>, attrs: AttrsLike = {}): T {
+  const instance = instantiate(cls, attrs)
+  try {
+    instance.finish()
+    return instance
+  } catch (error) {
+    try {
+      instance.destroy()
+    } catch (cleanup_error) {
+      logger.warn(`failed to destroy ${instance} after construction failed: ${cleanup_error}`)
+    }
+    throw error
+  }
+}
+
+/**
+ * Allocate an unfinished object for cyclic deserialization.
+ *
+ * Only `Deserializer` may use this entry point. It must later initialize
+ * properties, finalize every object in the graph, and connect signals, or
+ * destroy all newly allocated objects if any phase fails.
+ * @internal
+ */
+export function construct_deferred<T extends HasProps>(cls: HasPropsClass<T>, id: string): T {
+  return instantiate(cls, {}, id)
 }

@@ -39,30 +39,23 @@ export class StepView extends XYGlyphView {
     }
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Step.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<Step.Data>): void {
     const npoints = indices.length
     if (npoints < 2) {
       return
     }
 
-    let indices_consecutive: number[] = []
-
-    for (let i = 0; i < indices.length; i++) {
-      if (i == 0) {
-        indices_consecutive.push(indices[i])
-      } else if ((indices[i]-1) != indices[i-1]) {
-        this._paint_consecutive(ctx, indices_consecutive, data)
-        indices_consecutive = [indices[i]]
-      } else {
-        indices_consecutive.push(indices[i])
-        if (i+1 == indices.length) {
-          this._paint_consecutive(ctx, indices_consecutive, data)
-        }
+    let start = 0
+    for (let i = 1; i < npoints; i++) {
+      if (indices[i] - 1 != indices[i-1]) {
+        this._paint_consecutive(ctx, indices.slice(start, i), data)
+        start = i
       }
     }
+    this._paint_consecutive(ctx, indices.slice(start), data)
   }
 
-  protected _build_step_path(indices: number[], data?: Partial<Step.Data>): {xs: number[], ys: number[]} {
+  protected _build_step_path(indices: Int32Array, data?: Partial<Step.Data>): {xs: number[], ys: number[]} {
     // Builds the step path points for the given indices, including padding
     const {sx, sy} = {...this, ...data}
     const {mode, pad_before, pad_after} = this.model
@@ -150,7 +143,7 @@ export class StepView extends XYGlyphView {
     return {xs, ys}
   }
 
-  protected _paint_consecutive(ctx: Context2d, indices: number[], data?: Partial<Step.Data>): void {
+  protected _paint_consecutive(ctx: Context2d, indices: Int32Array, data?: Partial<Step.Data>): void {
     this.visuals.line.set_value(ctx)
 
     const {xs, ys} = this._build_step_path(indices, data)
@@ -191,7 +184,7 @@ export class StepView extends XYGlyphView {
   }
 
   protected override _hit_point(geometry: PointGeometry): Selection {
-    const result = new Selection()
+    const result = Selection.create()
     const point = {x: geometry.sx, y: geometry.sy}
     const threshold = Math.max(2, this.line_width.value / 2)
     const mode = this.model.mode
@@ -244,7 +237,7 @@ export class StepView extends XYGlyphView {
       }
     }
 
-    const result = new Selection()
+    const result = Selection.create()
     if (indices.length != 0) {
       result.add_to_selected_glyphs(this.model)
       result.view = this
@@ -314,10 +307,6 @@ export interface Step extends Step.Attrs {}
 export class Step extends XYGlyph {
   declare properties: Step.Props
   declare __view_type__: StepView
-
-  constructor(attrs?: Partial<Step.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = StepView

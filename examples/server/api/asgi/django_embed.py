@@ -1,3 +1,10 @@
+''' Embed a Bokeh server application in a Django ASGI page.
+
+.. bokeh-example-metadata::
+    :title: Django embed
+    :keywords: django, embed
+'''
+
 import os
 from pathlib import Path
 
@@ -8,7 +15,7 @@ from django.urls import path
 from fourier_studio import modify_document
 from jinja2 import Environment, FileSystemLoader
 
-from bokeh.embed import server_document
+from bokeh.embed import embed_server
 from bokeh.server.asgi import BokehASGI
 
 template = Environment(loader=FileSystemLoader(Path(__file__).parent), autoescape=True).get_template("index.html")
@@ -16,8 +23,9 @@ template = Environment(loader=FileSystemLoader(Path(__file__).parent), autoescap
 
 def render_page(root_path: str = "") -> str:
     mount_url = f"{root_path.rstrip('/')}/bkapp"
-    bokeh_script = server_document(mount_url, relative_urls=True)
-    return template.render(framework="Django", bokeh_script=bokeh_script)
+    result = embed_server(mount_url, relative_urls=True)
+    fragment = result.fragment(resources="server")
+    return template.render(framework="Django", embed_html=fragment.html)
 
 
 async def index(request: HttpRequest) -> HttpResponse:

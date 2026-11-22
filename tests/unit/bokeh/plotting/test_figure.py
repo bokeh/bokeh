@@ -8,27 +8,23 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import re
 
-# External imports
 import numpy as np
+import pytest
 
-# Bokeh imports
 from bokeh.core.enums import MarkerType
 from bokeh.core.properties import value
 from bokeh.models import (
     BoxZoomTool,
     Circle,
     ColumnDataSource,
+    HoverTool,
     LassoSelectTool,
     Legend,
     LinearAxis,
@@ -39,7 +35,6 @@ from bokeh.models import (
     Scatter,
     Title,
 )
-from bokeh.util.warnings import BokehDeprecationWarning
 
 # Module under test
 # different import pattern due to figure function shadowing figure.py module
@@ -197,6 +192,27 @@ class Test_figure:
         for i, _type in enumerate(expected):
             assert isinstance(fig.tools[i], _type)
 
+    def test_tools_None(self) -> None:
+        fig = bpf.figure(tools=None)
+        assert fig.tools == []
+        assert fig.toolbar_location is None
+
+    def test_tools_None_with_toolbar_location(self) -> None:
+        fig = bpf.figure(tools=None, toolbar_location="above")
+        assert fig.tools == []
+        assert fig.toolbar_location == "above"
+
+    def test_tools_None_with_tooltips(self) -> None:
+        fig = bpf.figure(tools=None, tooltips=[("x", "$x")])
+        assert len(fig.tools) == 1
+        assert isinstance(fig.tools[0], HoverTool)
+        assert fig.toolbar_location is None
+
+    def test_tools_empty(self) -> None:
+        fig = bpf.figure(tools=[])
+        assert fig.tools == []
+        assert fig.toolbar_location == "right"
+
     def test_plot_fill_props(self) -> None:
         p = bpf.figure(background_fill_color='red',
                        background_fill_alpha=0.5,
@@ -350,23 +366,18 @@ class TestMarkers:
         alpha1 = 0.5
         alpha2 = 0.75
 
-        func = getattr(p, marker)
-
         # color/line_color
-        with pytest.warns(BokehDeprecationWarning):
-            r = func([1, 2, 3], [1, 2, 3], color=rgb, line_color=rgb_other)
+        r = p.scatter([1, 2, 3], [1, 2, 3], marker=marker, color=rgb, line_color=rgb_other)
         assert r.glyph.fill_color == rgb
         assert r.glyph.line_color == rgb_other
 
         # color/fill_color
-        with pytest.warns(BokehDeprecationWarning):
-            r = func([1, 2, 3], [1, 2, 3], color=rgb, fill_color=rgb_other)
+        r = p.scatter([1, 2, 3], [1, 2, 3], marker=marker, color=rgb, fill_color=rgb_other)
         assert r.glyph.line_color == rgb
         assert r.glyph.fill_color == rgb_other
 
         # alpha/line_alpha
-        with pytest.warns(BokehDeprecationWarning):
-            r = func([1, 2, 3], [1, 2, 3], color=rgb, alpha=alpha1, line_alpha=alpha2)
+        r = p.scatter([1, 2, 3], [1, 2, 3], marker=marker, color=rgb, alpha=alpha1, line_alpha=alpha2)
         assert r.glyph.line_alpha == alpha2
         assert r.glyph.fill_alpha == alpha1
 
@@ -374,9 +385,7 @@ class TestMarkers:
     @pytest.mark.parametrize('color',  [(100., 100., 100.), (50., 100., 50., 0.5), (100, 100, 100), (50, 100, 50, 0.5)])
     def test_color_input(self, color, marker) -> None:
         p = bpf.figure()
-        func = getattr(p, marker)
-        with pytest.warns(BokehDeprecationWarning):
-            r = func([1, 2, 3], [1, 2, 3], color=color)
+        r = p.scatter([1, 2, 3], [1, 2, 3], marker=marker, color=color)
         assert r.glyph.line_color == color
         assert r.glyph.fill_color == color
         # rgb should always be an integer by the time it is added to property
@@ -389,9 +398,7 @@ class TestMarkers:
     @pytest.mark.parametrize('color',  [(100., 100., 100.), (50., 100., 50., 0.5), (100, 100, 100), (50, 100, 50, 0.5)])
     def test_line_color_input(self, color, marker) -> None:
         p = bpf.figure()
-        func = getattr(p, marker)
-        with pytest.warns(BokehDeprecationWarning):
-            r = func([1, 2, 3], [1, 2, 3], line_color=color)
+        r = p.scatter([1, 2, 3], [1, 2, 3], marker=marker, line_color=color)
         assert r.glyph.line_color == color
         # rgb should always be an integer by the time it is added to property
         for v in r.glyph.line_color[0:3]:
@@ -401,9 +408,7 @@ class TestMarkers:
     @pytest.mark.parametrize('color',  [(100., 100., 100.), (50., 100., 50., 0.5), (50, 100, 50, 0.5)])
     def test_fill_color_input(self, color, marker) -> None:
         p = bpf.figure()
-        func = getattr(p, marker)
-        with pytest.warns(BokehDeprecationWarning):
-            r = func([1, 2, 3], [1, 2, 3], fill_color=color)
+        r = p.scatter([1, 2, 3], [1, 2, 3], marker=marker, fill_color=color)
         assert r.glyph.fill_color == color
         # rgb should always be an integer by the time it is added to property
         for v in r.glyph.fill_color[0:3]:
@@ -412,9 +417,7 @@ class TestMarkers:
     @pytest.mark.parametrize('marker', NONCIRCLE_MARKERS)
     def test_render_level(self, marker) -> None:
         p = bpf.figure()
-        func = getattr(p, marker)
-        with pytest.warns(BokehDeprecationWarning):
-            r = func([1, 2, 3], [1, 2, 3], level="underlay")
+        r = p.scatter([1, 2, 3], [1, 2, 3], marker=marker, level="underlay")
         assert r.level == "underlay"
         with pytest.raises(ValueError):
             p.scatter([1, 2, 3], [1, 2, 3], level="bad_input")
@@ -435,10 +438,11 @@ class Test_scatter:
         assert isinstance(r.glyph, Scatter)
         assert r.glyph.marker == "foo"
 
-    def test_circle_with_radius(self) -> None:
+
+class Test_circle:
+    def test_radius(self) -> None:
         p = bpf.figure()
-        with pytest.warns(BokehDeprecationWarning):
-            r = p.scatter([1, 2, 3], [1, 2, 3], marker="circle", radius=0.2)
+        r = p.circle([1, 2, 3], [1, 2, 3], radius=0.2)
         assert isinstance(r.glyph, Circle)
         assert r.glyph.radius == 0.2
 

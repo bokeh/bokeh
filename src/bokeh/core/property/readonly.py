@@ -18,7 +18,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
+from typing import Any, Never, cast
+
 from .bases import (
     Init,
     Property,
@@ -39,13 +40,14 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Readonly[T](SingleParameterizedProperty[T]):
+class Readonly[GetType](SingleParameterizedProperty[GetType, Never]):
     """ A property that can't be manually modified by the user. """
 
     _readonly = True
 
-    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Undefined, help: str | None = None) -> None:
-        super().__init__(type_param, default=default, help=help)
+    def __init__(self, type_param: TypeOrInst[Property[GetType, Any]], *, default: Init[GetType] = Undefined, help: str | None = None) -> None:
+        # Readonly properties can't be assigned (``SetType`` is ``Never``), but can have defaults.
+        super().__init__(type_param, default=cast("Init[Never]", default), help=help)
 
 #-----------------------------------------------------------------------------
 # Dev API

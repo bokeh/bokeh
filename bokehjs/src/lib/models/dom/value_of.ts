@@ -7,9 +7,10 @@ import {isArray} from "core/util/types"
 import type * as p from "core/properties"
 import {BuiltinFormatter} from "core/enums"
 import {Or, Ref} from "core/kinds"
+import type {Infer} from "core/kinds"
 
 const Formatter = Or(BuiltinFormatter, Ref(CustomJS))
-type Formatter = typeof Formatter["__type__"]
+type Formatter = Infer<typeof Formatter>
 
 export class ValueOfView extends DOMElementView {
   declare model: ValueOf
@@ -59,7 +60,7 @@ export class ValueOfView extends DOMElementView {
         const contents = await execute(formatter, this.model, {value, format, vars})
         render(contents)
       })()
-      this._await_ready(promise)
+      this.schedule(() => promise)
     } else {
       const contents = DEFAULT_FORMATTERS[formatter](value, format ?? "", vars)
       render(contents)
@@ -95,10 +96,6 @@ export interface ValueOf extends ValueOf.Attrs {}
 export class ValueOf extends DOMElement {
   declare properties: ValueOf.Props
   declare __view_type__: ValueOfView
-
-  constructor(attrs?: Partial<ValueOf.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = ValueOfView

@@ -65,7 +65,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from datetime import datetime
 from typing import (
     TYPE_CHECKING,
@@ -76,7 +75,6 @@ from typing import (
     cast,
 )
 
-# Bokeh imports
 from .core.serialization import Deserializer, Serializable, Serializer
 
 if TYPE_CHECKING:

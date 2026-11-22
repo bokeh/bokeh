@@ -1,3 +1,12 @@
+''' Limit the range over which grid lines are drawn.
+
+.. bokeh-example-metadata::
+    :title: Grid bounds
+    :keywords: grid, bounds
+    :apis: bokeh.plotting.figure.scatter
+    :gallery: Five scatter points with grid lines drawn only between 2 and 4 on each axis.
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

@@ -1,3 +1,11 @@
+''' Wrap the vis.js 3D graph library in a custom Bokeh model to render a surface.
+
+.. bokeh-example-metadata::
+    :title: Wrapping
+    :keywords: custom model, vis.js, 3D, surface
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.LayoutDOM
+'''
+
 import numpy as np
 
 from bokeh.core.properties import Instance, String

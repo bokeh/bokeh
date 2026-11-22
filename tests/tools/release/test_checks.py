@@ -1,13 +1,9 @@
 from __future__ import annotations
 
-# Standard library imports
 from pathlib import Path
 
-# External imports
 import pytest
 
-# Bokeh imports
-# Bokeh test imports
 from tests.tools.release._support import RecordingSystem
 from tools.release import checks
 from tools.release.action import FAILED, PASSED

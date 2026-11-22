@@ -20,14 +20,13 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any, overload
 
-# Bokeh imports
 from .. import enums
 from ._sphinx import model_link, property_link, register_type_link
 from .bases import Init, Property
 from .either import Either
+from .exceptions import ValidationError
 from .primitive import Int, String
 from .singletons import _NotGiven
 
@@ -43,7 +42,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Enum[T: str | int](Either[T]):
+class Enum[T: str | int](Either[T, T]):
     """ Accept values from enumerations.
 
     The first value in enumeration is used as the default value, unless the
@@ -98,7 +97,7 @@ class Enum[T: str | int](Either[T]):
         from ...util.strings import nice_join
 
         msg = "" if not detail else f"invalid value: {value!r}; allowed values are {nice_join(self.allowed_values)}"
-        raise ValueError(msg)
+        raise ValidationError(msg)
 
     # override replace so that .replace() doesn't descend this type
     def replace(self, old: type[Property[Any]], new: Property[Any]) -> Property[Any]:

@@ -23,10 +23,6 @@ export interface AdaptiveTicker extends AdaptiveTicker.Attrs {}
 export class AdaptiveTicker extends ContinuousTicker {
   declare properties: AdaptiveTicker.Props
 
-  constructor(attrs?: Partial<AdaptiveTicker.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<AdaptiveTicker.Props>(({Float, List, Nullable}) => ({
       base:         [ Float, 10.0 ],

@@ -38,12 +38,26 @@ involved due to more extensive styling and inline labeling.
 
 .. _Squarify: https://github.com/laserson/squarify
 
-Data cube
----------
+Hierarchical tables
+-------------------
 
-Future chapters will cover interactions and widgets in more detail, but it is
-worth mentioning here that Bokeh does have one widget that is specifically
-intended for presenting a view of hierarchical data. A simple example of using
-the ``DataCube`` is shown below.
+For hierarchical tables, use the `Panel Tabulator`_ widget. Bokeh-only
+applications can pre-aggregate their data and display the result in a
+:class:`~bokeh.models.widgets.tables.DataTable`; applications that require
+expand and collapse behavior need to rebuild the visible rows in Python or
+``CustomJS`` callbacks.
 
-.. bokeh-plot:: __REPO__/examples/interaction/widgets/data_cube.py
+For example, a pandas ``DataFrame`` with a hierarchical index can be migrated
+to Panel as follows:
+
+.. code-block:: python
+
+    import panel as pn
+
+    table = pn.widgets.Tabulator(
+        df.set_index(["d0", "d1", "d2"]),
+        hierarchical=True,
+        aggregators={"d0": {"px": "sum"}, "d1": {"px": "sum"}},
+    )
+
+.. _Panel Tabulator: https://panel.holoviz.org/reference/widgets/Tabulator.html#hierarchical-multi-index

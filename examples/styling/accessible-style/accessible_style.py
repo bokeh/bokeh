@@ -1,3 +1,11 @@
+''' Use custom stylesheets to give Bokeh widgets visible focus and disabled states.
+
+.. bokeh-example-metadata::
+    :title: Accessible style
+    :keywords: accessible, style
+    :apis: bokeh.models.InlineStyleSheet, bokeh.plotting.figure.line
+'''
+
 from bokeh.io import show
 from bokeh.layouts import column, row
 from bokeh.models import InlineStyleSheet, widgets as w

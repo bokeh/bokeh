@@ -1,4 +1,4 @@
-import type flatpickr from "flatpickr"
+import type {FlatpickrOptions} from "../../external/flatpickr"
 
 import {BaseDatePicker, BaseDatePickerView, DateLike} from "./base_date_picker"
 import type * as p from "core/properties"
@@ -6,7 +6,7 @@ import type * as p from "core/properties"
 export class MultipleDatePickerView extends BaseDatePickerView {
   declare model: MultipleDatePicker
 
-  protected override get flatpickr_options(): flatpickr.Options.Options {
+  protected override get flatpickr_options(): FlatpickrOptions {
     return {
       ...super.flatpickr_options,
       mode: "multiple",
@@ -34,10 +34,6 @@ export class MultipleDatePicker extends BaseDatePicker {
   declare __view_type__: MultipleDatePickerView
 
   declare value: DateLike[]
-
-  constructor(attrs?: Partial<MultipleDatePicker.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = MultipleDatePickerView

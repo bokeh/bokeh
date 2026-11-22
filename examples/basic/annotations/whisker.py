@@ -2,14 +2,16 @@
 sample data. This example demonstrates the use of whiskers to display quantile ranges in the plot.
 
 .. bokeh-example-metadata::
-    :sampledata: autompg2
-    :apis: bokeh.models.ColumnDataSource, bokeh.models.Whisker, bokeh.transform.factor_cmap, bokeh.transform.jitter, bokeh.plotting.figure.scatter
-    :refs: :ref:`ug_basic_annotations_whiskers`
+    :title: Whisker
     :keywords: whisker, jitter, scatter, error
+    :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.whisker, bokeh.transform.factor_cmap, bokeh.transform.jitter, bokeh.plotting.figure.scatter
+    :sampledata: autompg2
+    :refs: :ref:`ug_basic_annotations_whiskers`
+    :gallery: Whiskers marking quantile ranges over categorical scatter plots.
 
 '''
 
-from bokeh.models import ColumnDataSource, Whisker
+from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure, show
 from bokeh.sampledata.autompg2 import autompg2 as df
 from bokeh.transform import factor_cmap, jitter
@@ -25,11 +27,7 @@ upper = g.hwy.quantile(0.80)
 lower = g.hwy.quantile(0.20)
 source = ColumnDataSource(data=dict(base=classes, upper=upper, lower=lower))
 
-error = Whisker(base="base", upper="upper", lower="lower", source=source,
-                level="annotation", line_width=2)
-error.upper_head.size=20
-error.lower_head.size=20
-p.add_layout(error)
+p.whisker(source=source, cap_size=20, level="annotation", line_color="black", line_width=2)
 
 p.scatter(jitter("class", 0.3, range=p.x_range), "hwy", source=df,
           alpha=0.5, size=13, line_color="white",

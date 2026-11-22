@@ -3,17 +3,17 @@ import {expect} from "#framework/assertions"
 
 import {Div} from "@bokehjs/models/widgets/div"
 import {MathJaxProvider} from "@bokehjs/models/text/providers"
-import {find_tex} from "@bokehjs/models/text/mathjax"
+import {ascii2svg, find_tex, mathml2svg} from "@bokehjs/models/text/mathjax"
 import {build_view} from "@bokehjs/core/build_views"
 import {WidgetView} from "@bokehjs/models/widgets/widget"
 
 function tex2svg(text: string, options: {display: boolean}) {
-  return {outerHTML: `<svg display="${options.display}">${text}</svg>`}
+  return {outerHTML: `<svg display="${options.display}">${text}</svg>`} as HTMLElement
 }
 
 class InternalProvider extends MathJaxProvider {
   get MathJax() {
-    return this.status == "loaded" ? {tex2svg, find_tex} : null
+    return this.status == "loaded" ? {ascii2svg, find_tex, mathml2svg, tex2svg} : null
   }
   async fetch() {
     this.status = "loaded"
@@ -26,7 +26,7 @@ describe("MarkupView", () => {
       const stub = sinon.stub(WidgetView.prototype, "provider")
       stub.value(new InternalProvider())
       try {
-        const div = new Div({text: "test$$"})
+        const div = Div.create({text: "test$$"})
         const div_view = (await build_view(div))
         const processed_div = div_view.process_tex(div.text)
         expect(processed_div).to.be.equal("test$$")
@@ -39,7 +39,7 @@ describe("MarkupView", () => {
       const stub = sinon.stub(WidgetView.prototype, "provider")
       stub.value(new InternalProvider())
       try {
-        const div = new Div({text: "$$test"})
+        const div = Div.create({text: "$$test"})
         const div_view = (await build_view(div))
         const processed_div = div_view.process_tex(div.text)
         expect(processed_div).to.be.equal("$$test")
@@ -52,7 +52,7 @@ describe("MarkupView", () => {
       const stub = sinon.stub(WidgetView.prototype, "provider")
       stub.value(new InternalProvider())
       try {
-        const div = new Div({text: "$$test$$"})
+        const div = Div.create({text: "$$test$$"})
         const div_view = (await build_view(div))
         const processed_div = div_view.process_tex(div.text)
         expect(processed_div).to.be.equal("<svg display=\"true\">test</svg>")
@@ -65,7 +65,7 @@ describe("MarkupView", () => {
       const stub = sinon.stub(WidgetView.prototype, "provider")
       stub.value(new InternalProvider())
       try {
-        const div = new Div({text: "$$tex$$text"})
+        const div = Div.create({text: "$$tex$$text"})
         const div_view = (await build_view(div))
         const processed_div = div_view.process_tex(div.text)
         expect(processed_div).to.be.equal("<svg display=\"true\">tex</svg>text")
@@ -78,7 +78,7 @@ describe("MarkupView", () => {
       const stub = sinon.stub(WidgetView.prototype, "provider")
       stub.value(new InternalProvider())
       try {
-        const div = new Div({text: "text$$tex$$"})
+        const div = Div.create({text: "text$$tex$$"})
         const div_view = (await build_view(div))
         const processed_div = div_view.process_tex(div.text)
         expect(processed_div).to.be.equal("text<svg display=\"true\">tex</svg>")
@@ -91,7 +91,7 @@ describe("MarkupView", () => {
       const stub = sinon.stub(WidgetView.prototype, "provider")
       stub.value(new InternalProvider())
       try {
-        const div = new Div({text: `$$tex$$
+        const div = Div.create({text: `$$tex$$
 
         text`})
         const div_view = (await build_view(div))

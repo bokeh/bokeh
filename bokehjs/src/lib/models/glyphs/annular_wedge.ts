@@ -67,7 +67,7 @@ export class AnnularWedgeView extends XYGlyphView {
     this._define_or_inherit_attr<AnnularWedge.Data>("max_souter_radius", () => max(this.souter_radius))
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<AnnularWedge.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<AnnularWedge.Data>): void {
     const {sx, sy, start_angle, end_angle, sinner_radius, souter_radius} = {...this, ...data}
     const anticlock = this.model.direction == "anticlock"
 
@@ -142,7 +142,7 @@ export class AnnularWedgeView extends XYGlyphView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
@@ -183,10 +183,6 @@ export interface AnnularWedge extends AnnularWedge.Attrs {}
 export class AnnularWedge extends XYGlyph {
   declare properties: AnnularWedge.Props
   declare __view_type__: AnnularWedgeView
-
-  constructor(attrs?: Partial<AnnularWedge.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = AnnularWedgeView

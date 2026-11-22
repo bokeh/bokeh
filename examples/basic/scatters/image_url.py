@@ -1,11 +1,12 @@
-''' A scatter plot showing `Bokeh image logo`_ as marker.
+''' A scatter plot showing `Bokeh image logo <https://static.bokeh.org/logos/logo.png>`__ as marker.
 
 .. bokeh-example-metadata::
+    :title: Use an image as a marker
+    :keywords: image, scatter
     :apis: bokeh.plotting.figure.image_url
     :refs: :ref:`ug_basic_scatters_urls`
-    :keywords: image, scatter
+    :gallery: A scatter using an arbitrary image (in this case, the Bokeh logo) for the scatter marker.
 
-.. _Bokeh image logo: https://static.bokeh.org/logos/logo.png
 '''
 import numpy as np
 

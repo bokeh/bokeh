@@ -1,23 +1,34 @@
-''' A scatter plot matrix (SPLOM) chart using the `Palmer penguin dataset`_.
-This example demonstrates sharing ranged between plots to achieve linked
-panning.
+''' Link panning across a scatter plot matrix of Palmer penguin measurements
+by sharing ranges between plots.
 
 .. bokeh-example-metadata::
-    :sampledata: penguins
-    :apis: bokeh.models.Scatter, bokeh.models.ColumnDataSource, bokeh.models.LinearAxis, bokeh.models.Plot, bokeh.models.DataRange1d
-    :refs: :ref:`ug_topics_stats_splom`
+    :title: Scatter plot matrix
     :keywords: models, scatter, splom
+    :categories: topics/stats, basic/layouts, interaction/linking
+    :apis: bokeh.models.Scatter, bokeh.models.ColumnDataSource, bokeh.models.LinearAxis, bokeh.models.Plot, bokeh.models.DataRange1d
+    :sampledata: penguins
+    :refs: :ref:`ug_topics_stats_splom`
+    :gallery: A SPLOM gridplot of the penguins data set.
 
-.. _Palmer penguin dataset: https://github.com/allisonhorst/palmerpenguins
 
 '''
 from itertools import product
 
 from bokeh.io import show
 from bokeh.layouts import gridplot
-from bokeh.models import (BasicTicker, ColumnDataSource, DataRange1d,
-                          Grid, LassoSelectTool, LinearAxis, PanTool,
-                          Plot, ResetTool, Scatter, WheelZoomTool)
+from bokeh.models import (
+    BasicTicker,
+    ColumnDataSource,
+    DataRange1d,
+    Grid,
+    LassoSelectTool,
+    LinearAxis,
+    PanTool,
+    Plot,
+    ResetTool,
+    Scatter,
+    WheelZoomTool,
+)
 from bokeh.sampledata.penguins import data
 from bokeh.transform import factor_cmap
 

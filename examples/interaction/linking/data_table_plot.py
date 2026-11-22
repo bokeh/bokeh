@@ -1,7 +1,27 @@
+''' Share a data source between a plot and a table so their selections stay in
+sync.
+
+.. bokeh-example-metadata::
+    :title: Link selections in a plot and table
+    :keywords: data, table, plot
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.DataTable, bokeh.models.HoverTool, bokeh.models.IntEditor, bokeh.models.NumberEditor
+    :sampledata: autompg2
+    :gallery: A column of a scatter plot and data table that share a data source and have linked selections.
+'''
+
 from bokeh.layouts import column
-from bokeh.models import (ColumnDataSource, DataTable, HoverTool, IntEditor,
-                          NumberEditor, NumberFormatter, SelectEditor,
-                          StringEditor, StringFormatter, TableColumn)
+from bokeh.models import (
+    ColumnDataSource,
+    DataTable,
+    HoverTool,
+    IntEditor,
+    NumberEditor,
+    NumberFormatter,
+    SelectEditor,
+    StringEditor,
+    StringFormatter,
+    TableColumn,
+)
 from bokeh.plotting import figure, show
 from bokeh.sampledata.autompg2 import autompg2 as mpg
 

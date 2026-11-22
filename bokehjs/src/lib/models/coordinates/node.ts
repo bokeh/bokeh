@@ -2,12 +2,13 @@ import {Coordinate} from "./coordinate"
 import {Model} from "../../model"
 import type * as p from "core/properties"
 import {Enum, Or, Ref} from "core/kinds"
+import type {Infer} from "core/kinds"
 
 export const ImplicitTarget = Enum("canvas", "plot", "frame", "parent")
-export type ImplicitTarget = typeof ImplicitTarget["__type__"]
+export type ImplicitTarget = Infer<typeof ImplicitTarget>
 
 export const NodeTarget = Or(Ref(Model), ImplicitTarget)
-export type NodeTarget = typeof NodeTarget["__type__"]
+export type NodeTarget = Infer<typeof NodeTarget>
 
 type BoxSymbol = "left" | "right" | "top" | "bottom"
 
@@ -16,7 +17,7 @@ export class BoxNodes {
 
   private _node(symbol: BoxSymbol): Node {
     const {target, frozen} = this
-    const node = new Node({target, symbol})
+    const node = Node.create({target, symbol})
     if (frozen) {
       this[`_${symbol}`] = node
     }
@@ -61,10 +62,6 @@ export interface Node extends Node.Attrs {}
 
 export class Node extends Coordinate {
   declare properties: Node.Props
-
-  constructor(attrs?: Partial<Node.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.define<Node.Props>(({Str, Int}) => ({

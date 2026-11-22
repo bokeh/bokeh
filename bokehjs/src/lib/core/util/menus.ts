@@ -1,5 +1,5 @@
 import type {StyleSheetLike} from "../dom"
-import {div, empty, InlineStyleSheet, ClassList} from "../dom"
+import {div, empty, InlineStyleSheet} from "../dom"
 import type {Orientation} from "../enums"
 import {reversed} from "./array"
 import {isBoolean, isString, isPlainObject} from "./types"
@@ -44,6 +44,12 @@ export type MenuOptions = {
   labels?: boolean
   prevent_hide?: (event: MouseEvent) => boolean
   extra_styles?: StyleSheetLike[]
+  /** The `id` of the menu's element, e.g. to be referred to with `aria-controls`. */
+  id?: string
+  /** An accessible name of the menu (`aria-label`). */
+  aria_label?: string
+  /** Called when the menu is shown or hidden, e.g. to update `aria-expanded`. */
+  on_toggle?: (open: boolean) => void
 }
 
 export class ContextMenu {
@@ -66,7 +72,7 @@ export class ContextMenu {
   readonly labels: boolean
   readonly prevent_hide?: (event: MouseEvent) => boolean
   readonly extra_styles: StyleSheetLike[]
-  readonly class_list: ClassList
+  readonly on_toggle?: (open: boolean) => void
 
   constructor(readonly items: MenuItemLike_[], options: MenuOptions) {
     this.target = options.target
@@ -75,9 +81,18 @@ export class ContextMenu {
     this.labels = options.labels ?? true
     this.prevent_hide = options.prevent_hide
     this.extra_styles = options.extra_styles ?? []
+    this.on_toggle = options.on_toggle
+
+    this.el.setAttribute("role", "menu")
+    this.el.setAttribute("aria-orientation", this.orientation)
+    if (options.id != null) {
+      this.el.id = options.id
+    }
+    if (options.aria_label != null) {
+      this.el.setAttribute("aria-label", options.aria_label)
+    }
 
     this.shadow_el = this.el.attachShadow({mode: "open"})
-    this.class_list = new ClassList(this.el.classList)
   }
 
   protected _item_click = (entry: MenuEntry | MenuItem) => {
@@ -85,7 +100,7 @@ export class ContextMenu {
       if (isPlainObject(entry)) {
         entry.action()
       } else {
-        void execute(entry.action, new Menu(), {item: entry})
+        void execute(entry.action, Menu.create(), {item: entry})
       }
     }
     this.hide()
@@ -177,7 +192,7 @@ export class ContextMenu {
 
   empty(): void {
     empty(this.shadow_el)
-    this.class_list.clear()
+    this.el.removeAttribute("class")
   }
 
   render(): void {
@@ -188,13 +203,13 @@ export class ContextMenu {
       .map((style) => isString(style) ? new InlineStyleSheet(style) : style)
       .map((sheet) => sheet.to_native())
 
-    this.class_list.add(menus[this.orientation])
+    this.el.classList.add(menus[this.orientation])
 
     const items = this.reversed ? reversed(this.items) : this.items
     for (const item of items) {
       let el: HTMLElement
       if (item == null || item instanceof DividerItem) {
-        el = div({class: menus.divider})
+        el = div({class: menus.divider, role: "separator"})
       } else if (isBoolean(item.disabled) ? item.disabled : item.disabled?.() ?? false) {
         continue
       } else if (isPlainObject(item) && item.custom != null) {
@@ -212,9 +227,16 @@ export class ContextMenu {
         })()
         const checked = isBoolean(item.checked) ? item.checked : item.checked?.()
         const active = checked ?? false ? menus.active : null
-        const label = this.labels ? item.label : null
+        const label = this.labels ? (isString(item.label) ? item.label : item.label?.() ?? null) : null
         const tooltip = isString(item.tooltip) ? item.tooltip : item.tooltip?.() ?? null
-        el = div({class: [active], title: tooltip, tabIndex: 0}, icon_el, label)
+        const role = checked != null ? "menuitemcheckbox" : "menuitem"
+        el = div({class: [active], title: tooltip, tabIndex: 0, role}, icon_el, label)
+        if (checked != null) {
+          el.setAttribute("aria-checked", checked ? "true" : "false")
+        }
+        if (label == null && tooltip != null) {
+          el.setAttribute("aria-label", tooltip)
+        }
         if (isPlainObject(item)) {
           if (item.class != null) {
             el.classList.add(item.class)
@@ -249,6 +271,7 @@ export class ContextMenu {
     this._position(at ?? {left: 0, top: 0})
     this._listen()
     this._open = true
+    this.on_toggle?.(true)
   }
 
   hide(): void {
@@ -256,6 +279,7 @@ export class ContextMenu {
       this._open = false
       this._unlisten()
       this.el.remove()
+      this.on_toggle?.(false)
     }
   }
 

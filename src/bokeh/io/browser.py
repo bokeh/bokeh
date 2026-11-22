@@ -27,7 +27,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import asyncio
 import atexit
 import io
@@ -38,12 +37,11 @@ import threading
 from collections.abc import Callable, Coroutine
 from typing import TYPE_CHECKING, Any, cast
 
-# Bokeh imports
 from ..resources import INLINE
 from ..util.dependencies import import_required
-from .state import curstate
 from .util import (
-    _BOKEH_LOADED_EXPR,
+    _BOKEH_LOADED_CHECK,
+    _BOKEH_MOUNT_ERROR_EXPR,
     _ROOT_VIEW_BBOX_SCRIPT,
     _SVG_SCRIPT,
     _SVGS_SCRIPT,
@@ -63,8 +61,7 @@ if TYPE_CHECKING:
 
     from ..document import Document
     from ..models.ui import UIElement
-    from ..resources import Resources
-    from .state import State
+    from ..resources import ResourcesLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -87,29 +84,76 @@ __all__ = (
 def get_screenshot_as_png(
     obj: UIElement | Document,
     *,
-    driver: Browser | BrowserContext | None = None,
+    browser: Browser | BrowserContext | None = None,
     timeout: int = 5,
-    resources: Resources = INLINE,
+    resources: ResourcesLike = INLINE,
     width: int | None = None,
     height: int | None = None,
     scale_factor: float = 1,
-    state: State | None = None,
 ) -> Image.Image:
     '''Capture a Bokeh layout as a PNG image using Playwright.
 
-    This is the Playwright equivalent of the Selenium code path in
-    :func:`~bokeh.io.export.get_screenshot_as_png`.
-
     Args:
-        driver: An optional Playwright ``Browser`` or ``BrowserContext``.
+        obj (UIElement or Document) : a Layout (e.g. Row/Column), Plot or Widget
+            object or Document to export.
+
+        browser: An optional Playwright ``Browser`` or ``BrowserContext``.
             If provided, pages are created from it instead of the global
             ``playwright_control`` instance.  This allows callers to
             supply a ``launch_persistent_context`` or a custom browser.
-    '''
-    theme = (state or curstate()).document.theme
-    html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
 
-    png_bytes, vw, vh, dpr = _playwright_render(html, "", timeout, scale_factor=scale_factor, driver=driver)
+        timeout (int) : the maximum amount of time to wait for initialization.
+            It will be used as a timeout for loading Bokeh, then when waiting for
+            the layout to be rendered.
+
+        resources (Resources): information relating to loading or embedding Bokeh
+            JavaScript and CSS, defaults to ``"inline"`` mode
+
+        width (int) : the desired width of the exported layout.
+
+        height (int) : the desired height of the exported layout.
+
+        scale_factor (float, optional) : A factor to scale the output PNG by,
+            providing a higher resolution while maintaining element relative
+            scales.
+
+    Returns:
+        PIL.Image.Image : a Pillow image loaded from PNG.
+
+    .. warning::
+        Responsive sizing modes may produce unexpected sizes or aspect ratios.
+        Use fixed sizing when the exported dimensions matter.
+    '''
+    html = get_layout_html(obj, resources=resources, width=width, height=height)
+
+    return get_screenshot_as_png_from_html(html, browser=browser, timeout=timeout, scale_factor=scale_factor)
+
+
+def get_screenshot_as_png_from_html(
+    html: str,
+    *,
+    browser: Browser | BrowserContext | None = None,
+    timeout: int = 5,
+    scale_factor: float = 1,
+) -> Image.Image:
+    '''Capture a fully assembled Bokeh HTML document as one PNG image.
+
+    Args:
+        html:
+            The complete HTML document to render.
+        browser:
+            An optional Playwright browser or browser context.
+        timeout:
+            Maximum time in seconds to wait for Bokeh rendering.
+        scale_factor:
+            The output image scale factor.
+
+    Returns:
+        The rendered PNG image.
+
+    '''
+
+    png_bytes, vw, vh, dpr = _playwright_render(html, "", timeout, scale_factor=scale_factor, browser=browser)
 
     from PIL import Image  # `PIL` is banned at the module level based on Ruff TID253
     return (Image
@@ -122,42 +166,30 @@ def get_screenshot_as_png(
 def get_svg(
     obj: UIElement | Document,
     *,
-    driver: Browser | BrowserContext | None = None,
+    browser: Browser | BrowserContext | None = None,
     timeout: int = 5,
-    resources: Resources = INLINE,
+    resources: ResourcesLike = INLINE,
     width: int | None = None,
     height: int | None = None,
-    state: State | None = None,
 ) -> list[str]:
-    '''Export a Bokeh layout as a list of SVG strings using Playwright.
-
-    This is the Playwright equivalent of the Selenium code path in
-    :func:`~bokeh.io.export.get_svg`.
-    '''
-    theme = (state or curstate()).document.theme
-    html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
-    svgs: list[str] = _playwright_render(html, _SVG_SCRIPT(obj), timeout, driver=driver)[0]
+    '''Export a Bokeh layout as a list of SVG strings using Playwright.'''
+    html = get_layout_html(obj, resources=resources, width=width, height=height)
+    svgs: list[str] = _playwright_render(html, _SVG_SCRIPT(obj), timeout, browser=browser)[0]
     return svgs
 
 
 def get_svgs(
     obj: UIElement | Document,
     *,
-    driver: Browser | BrowserContext | None = None,
+    browser: Browser | BrowserContext | None = None,
     timeout: int = 5,
-    resources: Resources = INLINE,
+    resources: ResourcesLike = INLINE,
     width: int | None = None,
     height: int | None = None,
-    state: State | None = None,
 ) -> list[str]:
-    '''Export SVG-enabled plots within a Bokeh layout using Playwright.
-
-    This is the Playwright equivalent of the Selenium code path in
-    :func:`~bokeh.io.export.get_svgs`.
-    '''
-    theme = (state or curstate()).document.theme
-    html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
-    svgs: list[str] = _playwright_render(html, _SVGS_SCRIPT, timeout, driver=driver)[0]
+    '''Export SVG-enabled plots within a Bokeh layout using Playwright.'''
+    html = get_layout_html(obj, resources=resources, width=width, height=height)
+    svgs: list[str] = _playwright_render(html, _SVGS_SCRIPT, timeout, browser=browser)[0]
     return svgs
 
 
@@ -261,7 +293,7 @@ def _wrap_function(script: str) -> str:
 def execute_script(page: Page, script: str) -> Any:
     '''Execute JavaScript in the page and return the result.
 
-    Wraps Selenium-style scripts (with bare top-level ``return``) in a
+    Wraps scripts (with bare top-level ``return``) in a
     function so they work with Playwright's ``evaluate``.
     '''
     return page.evaluate(_wrap_function(script))
@@ -272,15 +304,18 @@ async def _execute_script(page: AsyncPage, script: str) -> Any:
 
 
 def wait_until_render_complete(page: Page, timeout: int) -> None:
-    '''Wait for Bokeh to load and render, mirroring the Selenium backend.'''
+    '''Wait for Bokeh to load and render.'''
     timeout_ms = timeout * 1000
 
     try:
         page.wait_for_function(
-            _wrap_function(f"return {_BOKEH_LOADED_EXPR}"),
+            _wrap_function(_BOKEH_LOADED_CHECK),
             timeout=timeout_ms,
         )
     except Exception as e:
+        error = page.evaluate(_BOKEH_MOUNT_ERROR_EXPR)
+        if isinstance(error, str):
+            raise RuntimeError(f"Bokeh frontend snapshot render failed: {error}") from e
         raise RuntimeError(
             "Bokeh was not loaded in time. Something may have gone wrong.",
         ) from e
@@ -305,10 +340,13 @@ async def _wait_until_render_complete(page: AsyncPage, timeout: int) -> None:
 
     try:
         await page.wait_for_function(
-            _wrap_function(f"return {_BOKEH_LOADED_EXPR}"),
+            _wrap_function(_BOKEH_LOADED_CHECK),
             timeout=timeout_ms,
         )
     except Exception as e:
+        error = await page.evaluate(_BOKEH_MOUNT_ERROR_EXPR)
+        if isinstance(error, str):
+            raise RuntimeError(f"Bokeh frontend snapshot render failed: {error}") from e
         raise RuntimeError(
             "Bokeh was not loaded in time. Something may have gone wrong.",
         ) from e
@@ -350,7 +388,7 @@ async def _maximize_viewport(page: AsyncPage) -> tuple[float, float, int, int, i
 def _playwright_render(
     html: str, script: str, timeout: int, *,
     scale_factor: float = 1,
-    driver: Browser | BrowserContext | None = None,
+    browser: Browser | BrowserContext | None = None,
 ) -> tuple[Any, int, int, int]:
     '''Run a single Playwright export: navigate, wait for render, execute script.
 
@@ -360,7 +398,7 @@ def _playwright_render(
             PNG screenshot instead.
         timeout: Seconds to wait for Bokeh to render.
         scale_factor: Device scale factor for the browser.
-        driver: An optional Playwright ``Browser`` or ``BrowserContext``
+        browser: An optional Playwright ``Browser`` or ``BrowserContext``
             to create pages from.  When *None*, the global
             ``playwright_control`` instance is used.
 
@@ -368,8 +406,8 @@ def _playwright_render(
         (result, width, height, dpr) where result is the script return value
         or PNG bytes if script is empty.
     '''
-    def _do_export(user_driver: Browser | BrowserContext) -> tuple[Any, int, int, int]:
-        page = user_driver.new_page()
+    def _do_export(user_browser: Browser | BrowserContext) -> tuple[Any, int, int, int]:
+        page = user_browser.new_page()
         try:
             with tmp_html() as tmp:
                 with tmp as f:
@@ -405,8 +443,8 @@ def _playwright_render(
             await playwright_control.close_page(page)
         return (result, w, h, dpr)
 
-    if driver is not None:
-        return _do_export(driver)
+    if browser is not None:
+        return _do_export(browser)
     return _playwright_thread.run(_do_export_async)
 
 
@@ -435,7 +473,7 @@ class _PlaywrightThread:
         self._pid = os.getpid()
         self._thread: threading.Thread | None = None
         self._queue: queue.Queue[
-            tuple[Callable[..., Coroutine[Any, Any, Any]], tuple[Any, ...], queue.Queue[Any]] | None
+            tuple[Callable[..., Coroutine[Any, Any, Any]], tuple[Any, ...], queue.Queue[Any]]
         ] = queue.Queue()
         self._lifecycle_lock = threading.Lock()
         self._stopped = threading.Event()
@@ -478,9 +516,8 @@ class _PlaywrightThread:
                 if finalizer is not None:
                     finalizer_q = queue.Queue()
                     self._queue.put((finalizer, (), finalizer_q))
-                # The sentinel is queued while submissions are excluded by the
-                # lifecycle lock, so no work can be stranded behind it.
-                self._queue.put(None)
+                # Drain submitted work and the finalizer before stopping.
+                self._queue.shutdown()
 
         if wait_until_stopped:
             self._stopped.wait()
@@ -540,10 +577,10 @@ class _PlaywrightThread:
                 startup_q.put(("ok", None))
                 started = True
                 while True:
-                    item = self._queue.get()
-                    if item is None:
+                    try:
+                        fn, args, result_q = self._queue.get()
+                    except queue.ShutDown:
                         break
-                    fn, args, result_q = item
                     try:
                         result_q.put(("ok", runner.run(fn(*args))))
                     except (Exception, asyncio.CancelledError) as e:

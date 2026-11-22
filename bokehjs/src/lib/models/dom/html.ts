@@ -7,16 +7,16 @@ import {assert} from "core/util/assert"
 import {isString, isArray} from "core/util/types"
 import type * as p from "core/properties"
 import {Str, Ref, Or} from "core/kinds"
+import type {Infer} from "core/kinds"
 
 const HTMLRef = Or(Ref(DOMElement), Ref(UIElement))
-type HTMLRef = typeof HTMLRef["__type__"]
+type HTMLRef = Infer<typeof HTMLRef>
 
 const HTMLMarkup = Str
-type RawHTML = typeof HTMLMarkup["__type__"]
+type RawHTML = Infer<typeof HTMLMarkup>
 
 export class HTMLView extends DOMElementView {
   declare model: HTML
-  declare el: HTMLElement
 
   protected readonly _refs: ViewStorage<HTMLRef> = new Map()
 
@@ -29,7 +29,7 @@ export class HTMLView extends DOMElementView {
   }
 
   protected async _update_refs(): Promise<void> {
-    await build_views(this._refs, this.refs)
+    await build_views(this._refs, this.refs, {parent: this})
   }
 
   override _children_views(): ChildView[] {
@@ -132,10 +132,6 @@ export interface HTML extends HTML.Attrs {}
 export class HTML extends DOMElement {
   declare properties: HTML.Props
   declare __view_type__: HTMLView
-
-  constructor(attrs?: Partial<HTML.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = HTMLView

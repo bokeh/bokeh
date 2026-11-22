@@ -6,42 +6,42 @@ import {Stack} from "@bokehjs/models/expressions/stack"
 describe("Stack", () => {
 
   it("should should compute for a source", () => {
-    const source = new ColumnDataSource({data: {foo: [1, 2, 3], bar: [0.1, 0.2, 0.3]}})
+    const source = ColumnDataSource.create({data: {foo: [1, 2, 3], bar: [0.1, 0.2, 0.3]}})
 
-    const s0 = new Stack({fields: ["foo"]})
+    const s0 = Stack.create({fields: ["foo"]})
     const ret0 = s0.v_compute(source)
     expect(ret0).to.be.equal(new Float64Array([1, 2, 3]))
 
-    const s1 = new Stack({fields: ["foo", "bar"]})
+    const s1 = Stack.create({fields: ["foo", "bar"]})
     const ret1 = s1.v_compute(source)
     expect(ret1).to.be.equal(new Float64Array([1.1, 2.2, 3.3]))
   })
 
   it("should should compute for different sources", () => {
-    const source1 = new ColumnDataSource({data: {foo: [1, 2, 3], bar: [0.1, 0.2, 0.3]}})
-    const source2 = new ColumnDataSource({data: {foo: [10, 20, 30], bar: [0.01, 0.02, 0.03]}})
+    const source1 = ColumnDataSource.create({data: {foo: [1, 2, 3], bar: [0.1, 0.2, 0.3]}})
+    const source2 = ColumnDataSource.create({data: {foo: [10, 20, 30], bar: [0.01, 0.02, 0.03]}})
 
-    const s0 = new Stack({fields: ["foo"]})
+    const s0 = Stack.create({fields: ["foo"]})
     const ret0 = s0.v_compute(source1)
     expect(ret0).to.be.equal(new Float64Array([1, 2, 3]))
 
-    const s1 = new Stack({fields: ["foo", "bar"]})
+    const s1 = Stack.create({fields: ["foo", "bar"]})
     const ret1 = s1.v_compute(source1)
     expect(ret1).to.be.equal(new Float64Array([1.1, 2.2, 3.3]))
 
-    const s2 = new Stack({fields: ["foo"]})
+    const s2 = Stack.create({fields: ["foo"]})
     const ret2 = s2.v_compute(source2)
     expect(ret2).to.be.equal(new Float64Array([10, 20, 30]))
 
-    const s3 = new Stack({fields: ["foo", "bar"]})
+    const s3 = Stack.create({fields: ["foo", "bar"]})
     const ret3 = s3.v_compute(source2)
     expect(ret3).to.be.equal(new Float64Array([10.01, 20.02, 30.03]))
   })
 
   it("should should re-compute if a source changes", () => {
-    const source = new ColumnDataSource({data: {foo: [1, 2, 3], bar: [0.1, 0.2, 0.3]}})
+    const source = ColumnDataSource.create({data: {foo: [1, 2, 3], bar: [0.1, 0.2, 0.3]}})
 
-    const s = new Stack({fields: ["foo", "bar"]})
+    const s = Stack.create({fields: ["foo", "bar"]})
     const ret0 = s.v_compute(source)
     expect(ret0).to.be.equal(new Float64Array([1.1, 2.2, 3.3]))
 
@@ -51,9 +51,9 @@ describe("Stack", () => {
   })
 
   it("should should re-compute if a source patches", () => {
-    const source = new ColumnDataSource({data: {foo: [1, 2, 3], bar: [0.1, 0.2, 0.3]}})
+    const source = ColumnDataSource.create({data: {foo: [1, 2, 3], bar: [0.1, 0.2, 0.3]}})
 
-    const s = new Stack({fields: ["foo", "bar"]})
+    const s = Stack.create({fields: ["foo", "bar"]})
     const ret0 = s.v_compute(source)
     expect(ret0).to.be.equal(new Float64Array([1.1, 2.2, 3.3]))
 
@@ -67,9 +67,9 @@ describe("Stack", () => {
   })
 
   it("should should re-compute if a source streams", () => {
-    const source = new ColumnDataSource({data: {foo: [1, 2, 3], bar: [0.1, 0.2, 0.3]}})
+    const source = ColumnDataSource.create({data: {foo: [1, 2, 3], bar: [0.1, 0.2, 0.3]}})
 
-    const s = new Stack({fields: ["foo", "bar"]})
+    const s = Stack.create({fields: ["foo", "bar"]})
     const ret0 = s.v_compute(source)
     expect(ret0).to.be.equal(new Float64Array([1.1, 2.2, 3.3]))
 

@@ -5,11 +5,9 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 from typing import Unpack
 
-# Bokeh imports
 from .._specs import (
     AngleSpec,
     DataSpec,
@@ -35,6 +33,7 @@ from ..core.enums import (
 from ..core.property_aliases import (
     Anchor,
     BorderRadius,
+    BorderRadiusType,
     Padding,
     TextAnchor,
 )
@@ -67,10 +66,12 @@ from .glyph import (
     ConnectedXYGlyph,
     Glyph,
     RadialGlyph,
+    SupportsPathMarking,
     XYGlyph,
     _ConnectedXYGlyphInit,
     _GlyphInit,
     _RadialGlyphInit,
+    _SupportsPathMarkingInit,
     _XYGlyphInit,
 )
 from .mappers import ColorMapper, StackColorMapper
@@ -135,7 +136,7 @@ class Annulus(XYGlyph, LineProps, FillProps, HatchProps):
     inner_radius: DistanceSpec = ...
     outer_radius: DistanceSpec = ...
 
-class _ArcInit(_XYGlyphInit, _LinePropsInit, total=False):
+class _ArcInit(_XYGlyphInit, _LinePropsInit, _SupportsPathMarkingInit, total=False):
     x: NumberSpec
     y: NumberSpec
     radius: DistanceSpec
@@ -143,7 +144,7 @@ class _ArcInit(_XYGlyphInit, _LinePropsInit, total=False):
     end_angle: AngleSpec
     direction: Direction
 
-class Arc(XYGlyph, LineProps):
+class Arc(XYGlyph, LineProps, SupportsPathMarking):
     def __init__(self, **kwargs: Unpack[_ArcInit]) -> None: ...
 
     x: NumberSpec = ...
@@ -153,7 +154,7 @@ class Arc(XYGlyph, LineProps):
     end_angle: AngleSpec = ...
     direction: Direction = ...
 
-class _BezierInit(_GlyphInit, _LinePropsInit, total=False):
+class _BezierInit(_GlyphInit, _LinePropsInit, _SupportsPathMarkingInit, total=False):
     x0: NumberSpec
     y0: NumberSpec
     x1: NumberSpec
@@ -163,7 +164,7 @@ class _BezierInit(_GlyphInit, _LinePropsInit, total=False):
     cx1: NumberSpec
     cy1: NumberSpec
 
-class Bezier(Glyph, LineProps):
+class Bezier(Glyph, LineProps, SupportsPathMarking):
     def __init__(self, **kwargs: Unpack[_BezierInit]) -> None: ...
 
     x0: NumberSpec = ...
@@ -221,25 +222,25 @@ class Ellipse(XYGlyph, LineProps, FillProps, HatchProps):
     height: DistanceSpec = ...
     angle: AngleSpec = ...
 
-class _HAreaInit(_GlyphInit, _ScalarFillPropsInit, _HatchPropsInit, total=False):
+class _HAreaInit(_GlyphInit, _ScalarFillPropsInit, _ScalarHatchPropsInit, total=False):
     x1: NumberSpec
     x2: NumberSpec
     y: NumberSpec
 
-class HArea(Glyph, ScalarFillProps, HatchProps):
+class HArea(Glyph, ScalarFillProps, ScalarHatchProps):
     def __init__(self, **kwargs: Unpack[_HAreaInit]) -> None: ...
 
     x1: NumberSpec = ...
     x2: NumberSpec = ...
     y: NumberSpec = ...
 
-class _HAreaStepInit(_GlyphInit, _ScalarFillPropsInit, _HatchPropsInit, total=False):
+class _HAreaStepInit(_GlyphInit, _ScalarFillPropsInit, _ScalarHatchPropsInit, total=False):
     x1: NumberSpec
     x2: NumberSpec
     y: NumberSpec
     step_mode: StepMode
 
-class HAreaStep(Glyph, ScalarFillProps, HatchProps):
+class HAreaStep(Glyph, ScalarFillProps, ScalarHatchProps):
     def __init__(self, **kwargs: Unpack[_HAreaStepInit]) -> None: ...
 
     x1: NumberSpec = ...
@@ -378,21 +379,21 @@ class ImageURL(XYGlyph):
     retry_attempts: int = ...
     retry_timeout: int = ...
 
-class _LineInit(_ConnectedXYGlyphInit, _ScalarLinePropsInit, total=False):
+class _LineInit(_ConnectedXYGlyphInit, _ScalarLinePropsInit, _SupportsPathMarkingInit, total=False):
     x: NumberSpec
     y: NumberSpec
 
-class Line(ConnectedXYGlyph, ScalarLineProps):
+class Line(ConnectedXYGlyph, ScalarLineProps, SupportsPathMarking):
     def __init__(self, **kwargs: Unpack[_LineInit]) -> None: ...
 
     x: NumberSpec = ...
     y: NumberSpec = ...
 
-class _MultiLineInit(_GlyphInit, _LinePropsInit, total=False):
+class _MultiLineInit(_GlyphInit, _LinePropsInit, _SupportsPathMarkingInit, total=False):
     xs: NumberSpec
     ys: NumberSpec
 
-class MultiLine(Glyph, LineProps):
+class MultiLine(Glyph, LineProps, SupportsPathMarking):
     def __init__(self, **kwargs: Unpack[_MultiLineInit]) -> None: ...
 
     xs: NumberSpec = ...
@@ -498,7 +499,7 @@ class _RectInit(_XYGlyphInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, t
     width: DistanceSpec
     height: DistanceSpec
     angle: AngleSpec
-    border_radius: BorderRadius
+    border_radius: BorderRadiusType
     dilate: bool
 
 class Rect(XYGlyph, LineProps, FillProps, HatchProps):
@@ -509,7 +510,7 @@ class Rect(XYGlyph, LineProps, FillProps, HatchProps):
     width: DistanceSpec = ...
     height: DistanceSpec = ...
     angle: AngleSpec = ...
-    border_radius: BorderRadius = ...
+    border_radius: BorderRadiusType = ...
     dilate: bool = ...
 
 class _ScatterInit(_MarkerInit, total=False):
@@ -522,13 +523,13 @@ class Scatter(Marker):
     marker: MarkerSpec = ...
     defs: dict[str, CustomJS] = ...
 
-class _SegmentInit(_GlyphInit, _LinePropsInit, total=False):
+class _SegmentInit(_GlyphInit, _LinePropsInit, _SupportsPathMarkingInit, total=False):
     x0: NumberSpec
     y0: NumberSpec
     x1: NumberSpec
     y1: NumberSpec
 
-class Segment(Glyph, LineProps):
+class Segment(Glyph, LineProps, SupportsPathMarking):
     def __init__(self, **kwargs: Unpack[_SegmentInit]) -> None: ...
 
     x0: NumberSpec = ...
@@ -601,25 +602,25 @@ class TeXGlyph(MathTextGlyph):
     macros: dict[str, str | tuple[str, int]] = ...
     display: TeXDisplay = ...
 
-class _VAreaInit(_GlyphInit, _ScalarFillPropsInit, _HatchPropsInit, total=False):
+class _VAreaInit(_GlyphInit, _ScalarFillPropsInit, _ScalarHatchPropsInit, total=False):
     x: NumberSpec
     y1: NumberSpec
     y2: NumberSpec
 
-class VArea(Glyph, ScalarFillProps, HatchProps):
+class VArea(Glyph, ScalarFillProps, ScalarHatchProps):
     def __init__(self, **kwargs: Unpack[_VAreaInit]) -> None: ...
 
     x: NumberSpec = ...
     y1: NumberSpec = ...
     y2: NumberSpec = ...
 
-class _VAreaStepInit(_GlyphInit, _ScalarFillPropsInit, _HatchPropsInit, total=False):
+class _VAreaStepInit(_GlyphInit, _ScalarFillPropsInit, _ScalarHatchPropsInit, total=False):
     x: NumberSpec
     y1: NumberSpec
     y2: NumberSpec
     step_mode: StepMode
 
-class VAreaStep(Glyph, ScalarFillProps, HatchProps):
+class VAreaStep(Glyph, ScalarFillProps, ScalarHatchProps):
     def __init__(self, **kwargs: Unpack[_VAreaStepInit]) -> None: ...
 
     x: NumberSpec = ...

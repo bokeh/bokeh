@@ -5,18 +5,16 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 from typing import Any, Sequence, Unpack
 
-# Bokeh imports
 from ..core.enums import (
     JitterRandomDistributionType as JitterRandomDistribution,
     StepModeType as StepMode,
 )
 from ..model.model import Model, _ModelInit
 from .ranges import Range
-from .sources import ColumnarDataSource
+from .sources import IndexedDataSource
 
 class _TransformInit(_ModelInit, total=False):
     ...
@@ -64,7 +62,7 @@ class Jitter(Transform):
 class _InterpolatorInit(_TransformInit, total=False):
     x: str | Sequence[float] | None
     y: str | Sequence[float] | None
-    data: ColumnarDataSource | None
+    data: IndexedDataSource | None
     clip: bool
 
 class Interpolator(Transform):
@@ -73,7 +71,7 @@ class Interpolator(Transform):
 
     x: str | Sequence[float] | None = ...
     y: str | Sequence[float] | None = ...
-    data: ColumnarDataSource | None = ...
+    data: IndexedDataSource | None = ...
     clip: bool = ...
 
 class _LinearInterpolatorInit(_InterpolatorInit, total=False):

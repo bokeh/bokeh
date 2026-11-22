@@ -8,10 +8,12 @@ import {resolve_line_dash} from "core/visuals/line"
 import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
 import type {Size} from "core/layout"
+import type {Rect} from "core/types"
 import {SideLayout, SidePanel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
 import {every, some, sum} from "core/util/array"
 import {dict} from "core/util/object"
+import {FieldValueComparator} from "core/util/eq"
 import {isString} from "core/util/types"
 import {zip} from "core/util/iterator"
 import type {Context2d, CanvasLayer} from "core/util/canvas"
@@ -28,12 +30,16 @@ import type {XY, LRTB, Corners} from "core/util/bbox"
 
 const {ceil} = Math
 
-type Entry = {
+export type LegendEntry = {
+  item: LegendItem
+  label: string
+  value: unknown
+}
+
+type RenderedLegendEntry = LegendEntry & {
   el: HTMLElement
   glyph: CanvasLayer
   label_el: HTMLElement
-  item: LegendItem
-  label: string
   i: number
   row: number
   col: number
@@ -85,7 +91,20 @@ export class LegendView extends AnnotationView {
     this.connect(this.model.change, () => this.rerender())
 
     const {items} = this.model.properties
-    this.on_transitive_change(items, () => this._render_items(), {recursive: true})
+    this.on_transitive_change(items, () => {
+      if (this._should_rerender_items) {
+        this._render_items()
+        // Refresh geometry only when the entries change. Renderer data and
+        // visual changes still need a repaint, but usually don't affect size.
+        this.update_position()
+      } else {
+        // Visibility and muting still affect the overlay on reused entries.
+        for (const entry of this.entries) {
+          this._toggle_inactive(entry)
+        }
+      }
+      this.request_paint()
+    }, {recursive: true})
   }
 
   protected _bbox: BBox = new BBox()
@@ -96,7 +115,7 @@ export class LegendView extends AnnotationView {
   protected readonly grid_el: HTMLElement = div({class: legend_css.grid})
   protected title_el: HTMLElement = div()
 
-  protected entries: Entry[] = []
+  protected entries: RenderedLegendEntry[] = []
 
   get padding(): LRTB<number> {
     const padding = this.model.border_line_color != null ? this.model.padding : 0
@@ -113,31 +132,27 @@ export class LegendView extends AnnotationView {
 
   protected _paint_glyphs(): void {
     const {glyph_width, glyph_height} = this.model
+    const bounds: Rect = {x0: 0, y0: 0, x1: glyph_width, y1: glyph_height}
 
-    const x0 = 0
-    const y0 = 0
-    const x1 = glyph_width
-    const y1 = glyph_height
-
-    for (const {glyph, item, label} of this.entries) {
-      const field = item.get_field_from_label_prop()
+    for (const entry of this.entries) {
+      const {glyph, item} = entry
       glyph.resize(glyph_width, glyph_height)
 
       const ctx = glyph.prepare()
       for (const renderer of item.renderers) {
         const view = this.plot_view.views.find_one(renderer)
-        view?.draw_legend(ctx, x0, x1, y0, y1, field, label, item.index)
+        view?.draw_legend(ctx, bounds, entry)
       }
       glyph.finish()
     }
   }
 
-  get labels(): {item: LegendItem, label: string}[] {
-    const collected = []
+  get labels(): LegendEntry[] {
+    const collected: LegendEntry[] = []
     for (const item of this.model.items) {
       const labels = item.get_labels_list_from_label_prop()
-      for (const label of labels) {
-        collected.push({item, label})
+      for (const value of labels) {
+        collected.push({item, label: `${value}`, value})
       }
     }
     return collected
@@ -148,15 +163,16 @@ export class LegendView extends AnnotationView {
     if (entries.length != labels.length) {
       return true
     }
-    for (const [entry, {item, label}] of zip(entries, labels)) {
-      if (entry.item != item || entry.label != label) {
+    const cmp = new FieldValueComparator()
+    for (const [entry, {item, label, value}] of zip(entries, labels)) {
+      if (entry.item != item || entry.label != label || !cmp.eq(entry.value, value)) {
         return true
       }
     }
     return false
   }
 
-  protected _toggle_inactive({el, item}: Entry): void {
+  protected _toggle_inactive({el, item}: RenderedLegendEntry): void {
     el.classList.toggle(legend_css.inactive, !this.is_active(item))
   }
 
@@ -166,30 +182,27 @@ export class LegendView extends AnnotationView {
     const {click_policy} = this
     let i = 0
 
-    for (const item of this.model.items) {
-      const labels = item.get_labels_list_from_label_prop()
+    for (const {item, label, value} of this.labels) {
+      const glyph = this.plot_view.canvas.create_layer()
+      glyph.resize(this.model.glyph_width, this.model.glyph_height)
+      glyph.el.classList.add(legend_css.glyph)
 
-      for (const label of labels) {
-        const glyph = this.plot_view.canvas.create_layer()
-        glyph.el.classList.add(legend_css.glyph)
+      const glyph_el = glyph.canvas
+      const label_el = div({class: legend_css.label}, label)
+      const overlay_el = div({class: legend_css.overlay})
+      const item_el = div({class: legend_css.item}, glyph_el, label_el, overlay_el)
+      item_el.classList.toggle(legend_css.hidden, !item.visible)
 
-        const glyph_el = glyph.canvas
-        const label_el = div({class: legend_css.label}, `${label}`)
-        const overlay_el = div({class: legend_css.overlay})
-        const item_el = div({class: legend_css.item}, glyph_el, label_el, overlay_el)
-        item_el.classList.toggle(legend_css.hidden, !item.visible)
+      const entry: RenderedLegendEntry = {el: item_el, glyph, label_el, item, label, value, i: i++, row: 0, col: 0}
+      this.entries.push(entry)
 
-        const entry: Entry = {el: item_el, glyph, label_el, item, label, i: i++, row: 0, col: 0}
-        this.entries.push(entry)
-
-        item_el.addEventListener("pointerdown", () => {
-          this.model.trigger_event(new LegendItemClick(this.model, item))
-          for (const renderer of item.renderers) {
-            click_policy(renderer)
-          }
-          this._toggle_inactive(entry)
-        })
-      }
+      item_el.addEventListener("pointerdown", () => {
+        this.model.trigger_event(new LegendItemClick(this.model, item))
+        for (const renderer of item.renderers) {
+          click_policy(renderer)
+        }
+        this._toggle_inactive(entry)
+      })
     }
 
     const vertical = this.model.orientation == "vertical"
@@ -615,7 +628,7 @@ export class LegendView extends AnnotationView {
 
   get is_interactive(): boolean {
     // this doesn't cover server callbacks
-    return this.model.click_policy != "none" || dict(this.model.js_event_callbacks).has("legend_item_click")
+    return this.model.click_policy != "none" || dict(this.model._js_event_callbacks).has("legend_item_click")
   }
 
   get click_policy(): (r: GlyphRenderer) => void {
@@ -651,7 +664,7 @@ export class LegendView extends AnnotationView {
       return
     }
 
-    if (this.is_dual_renderer && !this.parent.is_forcing_paint) {
+    if (this.is_dual_renderer && !this.plot_view.is_forcing_paint) {
       if (this._should_rerender_items) {
         this._render_items()
       }
@@ -794,10 +807,6 @@ export interface Legend extends Legend.Attrs {}
 export class Legend extends Annotation {
   declare properties: Legend.Props
   declare __view_type__: LegendView
-
-  constructor(attrs?: Partial<Legend.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = LegendView

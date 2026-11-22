@@ -25,16 +25,12 @@ export class DatetimeAxis extends ContinuousAxis {
   declare ticker: DatetimeTicker
   declare formatter: DatetimeTickFormatter
 
-  constructor(attrs?: Partial<DatetimeAxis.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = DatetimeAxisView
 
     this.override<DatetimeAxis.Props>({
-      ticker:    () => new DatetimeTicker(),
-      formatter: () => new DatetimeTickFormatter(),
+      ticker:    () => DatetimeTicker.create(),
+      formatter: () => DatetimeTickFormatter.create(),
     })
   }
 }

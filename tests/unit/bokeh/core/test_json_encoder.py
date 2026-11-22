@@ -8,20 +8,15 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import gzip
 from base64 import b64encode
 from math import nan
 
-# Bokeh imports
 from bokeh.core.json_encoder import serialize_json
 from bokeh.core.serialization import Serializer
 from bokeh.settings import settings
@@ -89,8 +84,7 @@ def test_json_encoder_bytes():
     rep = serializer.serialize(val)
     assert rep.buffers == []
 
-    # Note mtime=1 is a workaround for an issue with Python 3.11 and 3.12
-    compressed_bytes = gzip.compress(val["key"], mtime=1, compresslevel=settings.compression_level())
+    compressed_bytes = gzip.compress(val["key"], mtime=0, compresslevel=settings.compression_level())
     encoded_bytes = b64encode(compressed_bytes).decode("utf-8")
 
     assert serialize_json(rep.content) == f"""\

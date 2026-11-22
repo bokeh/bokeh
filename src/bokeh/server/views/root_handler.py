@@ -21,14 +21,15 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, Any
 
-# External imports
 from tornado.web import authenticated
 
-# Bokeh imports
 from .auth_request_handler import AuthRequestHandler
+
+if TYPE_CHECKING:
+    from ..contexts import ApplicationContext
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -50,6 +51,11 @@ class RootHandler(AuthRequestHandler):
     ''' Implements a custom Tornado handler to display the available applications
     If only one application it redirects to that application route
     '''
+
+    applications: Mapping[str, ApplicationContext]
+    prefix: str
+    index: str | None
+    use_redirect: bool
 
     def initialize(self, *args: Any, **kw: Any) -> None:
         self.applications = kw["applications"]

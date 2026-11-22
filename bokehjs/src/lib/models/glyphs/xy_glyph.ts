@@ -44,10 +44,6 @@ export abstract class XYGlyph extends Glyph {
   declare properties: XYGlyph.Props
   declare __view_type__: XYGlyphView
 
-  constructor(attrs?: Partial<XYGlyph.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<XYGlyph.Props>(() => ({
       x: [ p.XCoordinateSpec, {field: "x"} ],

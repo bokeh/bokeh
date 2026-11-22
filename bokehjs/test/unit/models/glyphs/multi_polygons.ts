@@ -13,20 +13,30 @@ describe("MultiPolygons", () => {
 
   describe("MultiPolygonsView", () => {
 
+    it("should materialize nested ISO date coordinates without changing source data", async () => {
+      const xs = [[[ ["2024-01-01", "2024-01-02"] ]]]
+      const expected_xs = xs.map((polygons) => polygons.map((polygon) => polygon.map((line) => [...line])))
+      const glyph = MultiPolygons.create({xs: {field: "xs"}, ys: {field: "ys"}})
+      const glyph_view = await create_glyph_view(glyph, {xs: xs as any, ys: [[[[1, 2]]]]})
+
+      expect(glyph_view.xs[0][0][0]).to.be.equal([Date.UTC(2024, 0, 1), Date.UTC(2024, 0, 2)])
+      expect(glyph_view.renderer.model.data_source.get_field("xs")).to.be.equal(expected_xs)
+    })
+
     it("should rect hit testing", async () => {
       const data = {
         xs: [[[[1, 5, 3]]], [[[3, 5, 5, 3]]], [[[2, 3, 2, 1]]]],
         ys: [[[[1, 1, 3]]], [[[3, 3, 5, 5]]], [[[3, 4, 5, 4]]]],
       }
-      const glyph = new MultiPolygons({
+      const glyph = MultiPolygons.create({
         xs: {field: "xs"},
         ys: {field: "ys"},
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {
         axis_type: "linear",
-        x_range: new DataRange1d(),
-        y_range: new DataRange1d(),
+        x_range: DataRange1d.create(),
+        y_range: DataRange1d.create(),
       })
       const {xscale, yscale} = glyph_view.parent
 
@@ -69,15 +79,15 @@ describe("MultiPolygons", () => {
         xs: [[[[1, 5, 3]]], [[[3, 5, 5, 3]]], [[[2, 3, 2, 1]]]],
         ys: [[[[1, 1, 3]]], [[[3, 3, 5, 5]]], [[[3, 4, 5, 4]]]],
       }
-      const glyph = new MultiPolygons({
+      const glyph = MultiPolygons.create({
         xs: {field: "xs"},
         ys: {field: "ys"},
       })
 
       const glyph_view = await create_glyph_view(glyph, data, {
         axis_type: "linear",
-        x_range: new DataRange1d(),
-        y_range: new DataRange1d(),
+        x_range: DataRange1d.create(),
+        y_range: DataRange1d.create(),
       })
       const {xscale, yscale} = glyph_view.parent
 

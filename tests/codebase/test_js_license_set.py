@@ -9,17 +9,15 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import os
 from subprocess import run
+
+import pytest
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -34,6 +32,7 @@ LICENSES = [
     'BSD-3-Clause',
     'ISC',
     'MIT',
+    'SGI-B-2.0',
     'Unlicense',
     'WTFPL',
 ]

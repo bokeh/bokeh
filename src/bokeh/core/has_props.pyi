@@ -5,7 +5,6 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from collections.abc import Mapping, Sequence
 from typing import (
     Any,
@@ -20,7 +19,6 @@ from typing import (
     overload,
 )
 
-# Bokeh imports
 from ..client.session import ClientSession
 from ..server.session import ServerSession
 from ..util.compiler import Implementation
@@ -91,6 +89,7 @@ class HasProps(Serializable):
     def equals(self, other: HasProps) -> bool: ...
 
     def to_serializable(self, serializer: Serializer) -> ObjectRep: ...
+    def _to_serializable(self, serializer: Serializer, overrides: dict[str, Any] | None = None) -> ObjectRep: ...
 
     def set_from_json(self, name: str, value: Any, *, setter: Setter | None = None) -> None: ...
 
@@ -161,6 +160,6 @@ class OverrideDef(TypedDict):
 class ModelDef(TypedDict):
     type: Literal["model"]
     name: str
-    extends: NotRequired[Ref | None]
+    extends: Ref
     properties: NotRequired[list[PropertyDef]]
     overrides: NotRequired[list[OverrideDef]]

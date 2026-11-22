@@ -22,6 +22,7 @@ bokeh.io.export
 
 .. automodule:: bokeh.io.export
     :members:
+    :imported-members:
 
 .. _bokeh.io.notebook:
 
@@ -29,14 +30,6 @@ bokeh.io.notebook
 -----------------
 
 .. automodule:: bokeh.io.notebook
-    :members:
-
-.. _bokeh.io.output:
-
-bokeh.io.output
----------------
-
-.. automodule:: bokeh.io.output
     :members:
 
 .. _bokeh.io.saving:
@@ -53,14 +46,6 @@ bokeh.io.showing
 ----------------
 
 .. automodule:: bokeh.io.showing
-    :members:
-
-.. _bokeh.io.state:
-
-bokeh.io.state
---------------
-
-.. automodule:: bokeh.io.state
     :members:
 
 .. _bokeh.io.util:

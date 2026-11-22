@@ -24,15 +24,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import TYPE_CHECKING, Any, Callable
 
-# External imports
 from tornado.httpclient import HTTPClientError, HTTPRequest
 from tornado.ioloop import IOLoop
 from tornado.websocket import WebSocketError, websocket_connect
 
-# Bokeh imports
 from ..protocol import (
     patch_doc,
     pull_doc_req,

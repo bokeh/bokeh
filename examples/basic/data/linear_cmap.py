@@ -1,3 +1,12 @@
+''' Color hexagonal bins by the number of points in each bin.
+
+.. bokeh-example-metadata::
+    :title: Color hex bins by count
+    :keywords: hexbin, count, color mapping, linear_cmap
+    :apis: bokeh.plotting.figure.hex_tile
+    :gallery: A hexplot of a Gaussian distribution with the hex elements colormapped by a linear colormapper.
+'''
+
 from numpy.random import standard_normal
 
 from bokeh.plotting import figure, show

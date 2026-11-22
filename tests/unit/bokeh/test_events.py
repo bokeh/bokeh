@@ -8,15 +8,13 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+import pytest
 
-# Bokeh imports
 from bokeh.core.serialization import Deserializer
 from bokeh.document import Document
 from bokeh.document.events import DocumentChangedEvent, MessageSentEvent

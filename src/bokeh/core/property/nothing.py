@@ -18,11 +18,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any, NoReturn
 
-# Bokeh imports
 from .bases import Property, Undefined
+from .exceptions import ValidationError
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -43,7 +42,7 @@ class Nothing(Property[NoReturn]):
         super().__init__(default=Undefined, help=help)
 
     def validate(self, value: Any, detail: bool = True) -> None:
-        raise ValueError("no value is allowed")
+        raise ValidationError("no value is allowed")
 
 
 #-----------------------------------------------------------------------------

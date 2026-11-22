@@ -15,16 +15,30 @@ export type Options<T extends View> = {
 async function _build_view<T extends HasProps>(view_cls: T["default_view"], model: T, options: Options<ViewOf<T>>): Promise<ViewOf<T>> {
   assert(view_cls != null, "model doesn't implement a view")
   const view = new view_cls({...options, model})
-  view.initialize()
-  await view.lazy_initialize()
-  return view
+  try {
+    view.initialize()
+    await view.lazy_initialize()
+    return view
+  } catch (error) {
+    view.remove()
+    throw error
+  }
 }
 
 export async function build_view<T extends HasProps>(model: T, options: Options<ViewOf<T>> = {parent: null},
     cls: (model: T) => T["default_view"] = (model) => model.default_view): Promise<ViewOf<T>> {
   const view = await _build_view(cls(model), model, options)
-  view.connect_signals()
-  return view
+  try {
+    view.connect_signals()
+    return view
+  } catch (error) {
+    view.remove()
+    throw error
+  }
+}
+
+export type BuildOptions<T extends HasProps> = Options<ViewOf<T>> & {
+  on_error?: (error: unknown, model: T) => void
 }
 
 export type BuildResult<T extends HasProps> = {created: ViewOf<T>[], removed: ViewOf<T>[]}
@@ -78,7 +92,15 @@ async function _build_into<T extends HasProps>(
       // that `view_storage` never holds a view that hasn't been connected yet.
       // An overlapping call's `to_remove` diff can see anything in there, and
       // remove() assumes connect_signals() already ran.
-      view.connect_signals()
+      try {
+        view.connect_signals()
+      } catch (error) {
+        if (view_storage.get(model) === view) {
+          view_storage.delete(model)
+        }
+        view.remove()
+        throw error
+      }
       return {view, stored: true}
     } else {
       // Nothing wants this model any more, but the call that dropped it couldn't
@@ -101,10 +123,14 @@ async function _build_into<T extends HasProps>(
  * most once, by whichever call got to it first, and a call wanting a model
  * somebody else is already building waits for that build instead of starting a
  * second one. So once this resolves, every requested model that is still wanted
- * has a connected view in `view_storage`.
+ * has a connected view in `view_storage`, unless its build failed and was
+ * handled by `on_error`.
  *
  * Models are processed in request order, waiting included, so a view is never
- * initialized ahead of a view requested before it.
+ * initialized ahead of a view requested before it. By default a failure rejects
+ * the call. Supplying `on_error` handles failures per model and continues with
+ * the remaining models without changing the shared desired set.
+ * If `on_error` itself throws, processing stops and that error rejects the call.
  *
  * A build belongs to the model, not to the call that started it, and never
  * waits on a call, so waiting can't cycle and a failing model doesn't poison
@@ -115,9 +141,10 @@ async function _build_into<T extends HasProps>(
 export async function build_views<T extends HasProps>(
   view_storage: ViewStorage<T>,
   models: T[],
-  options: Options<ViewOf<T>> = {parent: null},
+  options: BuildOptions<T> = {parent: null},
   cls: (model: T) => T["default_view"] = (model) => model.default_view,
 ): Promise<BuildResult<T>> {
+  const {on_error, ...view_options} = options
   const state = _state(view_storage)
   state.desired = new Set(models)
 
@@ -139,7 +166,7 @@ export async function build_views<T extends HasProps>(
   const {baseline} = state
 
   const built: [T, ViewOf<T>][] = []
-  let failure: unknown = null
+  let failure: {error: unknown} | null = null
 
   try {
     for (const model of models) {
@@ -148,29 +175,36 @@ export async function build_views<T extends HasProps>(
         // case building it would just be followed by tearing it down again.
         continue
       }
-      const pending = state.pending.get(model)
-      if (pending != null) {
-        // Somebody got here first. Wait for their build, both to not build a
-        // second view for this model, and to keep the rest of our batch behind
-        // this model's initialization.
-        await pending
-        continue
-      }
-      // Registered before awaiting anything, so an overlapping call is
-      // guaranteed to find this build instead of starting its own. The build
-      // clears its own entry as it settles, so a failed one is never left
-      // around for a later call to inherit.
-      const build = _build_into(view_storage, state, model, options, cls)
-      state.pending.set(model, build)
-      const {view, stored} = await build
-      if (stored) {
-        built.push([model, view])
-      } else {
-        removed_views.push(view)
+      try {
+        const pending = state.pending.get(model)
+        if (pending != null) {
+          // Somebody got here first. Wait for their build, both to not build a
+          // second view for this model, and to keep the rest of our batch behind
+          // this model's initialization.
+          await pending
+          continue
+        }
+        // Registered before awaiting anything, so an overlapping call is
+        // guaranteed to find this build instead of starting its own. The build
+        // clears its own entry as it settles, so a failed one is never left
+        // around for a later call to inherit.
+        const build = _build_into(view_storage, state, model, view_options, cls)
+        state.pending.set(model, build)
+        const {view, stored} = await build
+        if (stored) {
+          built.push([model, view])
+        } else {
+          removed_views.push(view)
+        }
+      } catch (error) {
+        if (on_error == null) {
+          throw error
+        }
+        on_error(error, model)
       }
     }
   } catch (error) {
-    failure = error
+    failure = {error}
   }
 
   _reorder(view_storage, [...state.desired].filter((model) => !baseline.has(model)))
@@ -191,7 +225,7 @@ export async function build_views<T extends HasProps>(
   }
 
   if (failure != null) {
-    throw failure
+    throw failure.error
   }
 
   return {
@@ -226,5 +260,73 @@ export function traverse_views(views: View[], fn: (view: View) => void): void {
     visited.add(view)
     queue.push(...view.children_views())
     fn(view)
+  }
+}
+
+/**
+ * Holds at most one child view of `parent`, built from a model that may
+ * change over time (e.g. a property like `Dialog.content`).
+ *
+ * Builds may overlap, e.g. when the model changes again before the previous
+ * view has finished building. Only the most recently requested build is kept;
+ * a superseded build, or one that finishes after `parent` was removed, has
+ * its view removed and doesn't replace the current view. The current view is
+ * replaced (and removed) only once its successor is ready.
+ */
+export class ChildViewSlot<T extends HasProps> {
+  private _view: ViewOf<T> | null = null
+  private _generation: number = 0
+
+  constructor(readonly parent: View) {}
+
+  /** The current view, or `null` if there is none. */
+  get view(): ViewOf<T> | null {
+    return this._view
+  }
+
+  /**
+   * Builds a view of `model`, or clears this slot if `model` is `null`.
+   *
+   * Resolves to `true` if this build became current, so that the caller can
+   * update the DOM, or to `false` if it was superseded in the meantime, in
+   * which case the caller must do nothing. A failure of a current build is
+   * rethrown and leaves the previous view in place, whereas a failure of a
+   * superseded build is ignored.
+   */
+  async build(model: T | null): Promise<boolean> {
+    this._generation += 1
+    const generation = this._generation
+    const is_current = () => generation == this._generation && !this.parent.is_destroyed
+
+    let view: ViewOf<T> | null
+    try {
+      view = model == null ? null : await build_view(model, {parent: this.parent})
+    } catch (error) {
+      if (is_current()) {
+        throw error
+      }
+      return false
+    }
+
+    if (!is_current()) {
+      view?.remove()
+      return false
+    }
+
+    // Swap before removing, because removal emits `removed` synchronously and
+    // its listeners may re-enter this slot (e.g. by changing the model). Then
+    // check again, as such a re-entrant build may have superseded this one.
+    const outgoing = this._view
+    this._view = view
+    outgoing?.remove()
+    return is_current()
+  }
+
+  /** Removes the current view, if any, and invalidates pending builds. */
+  remove(): void {
+    this._generation += 1
+    const outgoing = this._view
+    this._view = null
+    outgoing?.remove()
   }
 }

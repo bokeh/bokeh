@@ -22,6 +22,13 @@ export abstract class FlexBoxView extends LayoutDOMView {
     return this.model.children
   }
 
+  override measure_layout(): void {
+    if (this.layout instanceof GridAlignmentLayout) {
+      this.layout.align_borders()
+    }
+    super.measure_layout()
+  }
+
   override _update_layout(): void {
     super._update_layout()
 
@@ -119,10 +126,6 @@ export interface FlexBox extends FlexBox.Attrs {}
 export abstract class FlexBox extends LayoutDOM {
   declare properties: FlexBox.Props
   declare __view_type__: FlexBoxView
-
-  constructor(attrs?: Partial<FlexBox.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.define<FlexBox.Props>(({Float, List, Ref}) => ({

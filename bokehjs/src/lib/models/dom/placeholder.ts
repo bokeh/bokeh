@@ -1,15 +1,16 @@
 import {DOMElement, DOMElementView} from "./dom_element"
 import {CustomJS} from "../callbacks/customjs"
 import {CustomJSHover} from "../tools/inspectors/customjs_hover"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
-import type {Index as DataIndex} from "core/util/templating"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
+import type {FormatterFunc, Index as DataIndex} from "core/util/templating"
 import type * as p from "core/properties"
 import type {Dict, PlainObject} from "core/types"
 import {BuiltinFormatter} from "core/enums"
 import {Or, Ref} from "core/kinds"
+import type {Infer} from "core/kinds"
 
 export const Formatter = Or(BuiltinFormatter, Ref(CustomJS), Ref(CustomJSHover))
-export type Formatter = typeof Formatter["__type__"]
+export type Formatter = Infer<typeof Formatter>
 
 export type Formatters = Dict<Formatter>
 
@@ -18,7 +19,8 @@ export abstract class PlaceholderView extends DOMElementView {
 
   static override tag_name = "span" as const
 
-  abstract update(source: ColumnarDataSource, i: DataIndex | null, vars: PlainObject<unknown>, formatters?: Formatters): void
+  abstract update(source: IndexedDataSource, i: DataIndex | null, vars: PlainObject<unknown>,
+    formatters?: Formatters, default_formatter?: FormatterFunc): void
 }
 
 export namespace Placeholder {
@@ -32,7 +34,4 @@ export abstract class Placeholder extends DOMElement {
   declare properties: Placeholder.Props
   declare __view_type__: PlaceholderView
 
-  constructor(attrs?: Partial<Placeholder.Attrs>) {
-    super(attrs)
-  }
 }

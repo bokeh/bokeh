@@ -21,10 +21,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
-# Bokeh imports
 from ...core.property.instance import Instance, InstanceDefault
 from ...core.property.override import Override
 from ...core.property.primitive import Bool, Float
@@ -48,10 +44,6 @@ class TileRenderer(Renderer):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     tile_source = Instance(TileSource, default=InstanceDefault(WMTSTileSource), help="""
     Local data source to use when rendering glyphs on the plot.
     """)
@@ -68,7 +60,7 @@ class TileRenderer(Renderer):
     Flag enable/disable drawing of parent tiles while waiting for new tiles to arrive. Default value is True.
     """)
 
-    level = Override(default="image")
+    _level = Override(default="image")
 
 #-----------------------------------------------------------------------------
 # Dev API

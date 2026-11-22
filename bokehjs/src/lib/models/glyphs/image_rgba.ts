@@ -40,10 +40,6 @@ export class ImageRGBA extends ImageBase {
   declare properties: ImageRGBA.Props
   declare __view_type__: ImageRGBAView
 
-  constructor(attrs?: Partial<ImageRGBA.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = ImageRGBAView
   }

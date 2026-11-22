@@ -21,10 +21,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any
 
-# Bokeh imports
 from . import html_annotation, labels, toolbars
 from .html_annotation import *
 from .labels import *

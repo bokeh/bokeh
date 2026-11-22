@@ -18,10 +18,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
-# Bokeh imports
 from ...core.property.container import List
 from ...core.property.either import Either
 from ...core.property.instance import Instance
@@ -38,8 +34,6 @@ from .ui_element import UIElement
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    "ActionItem",
-    "CheckableItem",
     "DividerItem",
     "Menu",
     "MenuItem",
@@ -54,10 +48,6 @@ class MenuItem(Model):
 
     Only label is required. All other properties are optional.
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     checked = Nullable(Bool, default=None, help="""
     Whether an item is marked as checked/active.
@@ -101,41 +91,14 @@ class MenuItem(Model):
     An optional action (callback) associated with this item.
     """)
 
-class ActionItem(MenuItem):
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        from ...util.deprecation import deprecated
-
-        deprecated((3, 7, 0), "ActionItem", "MenuItem")
-        super().__init__(*args, **kwargs)
-
-class CheckableItem(MenuItem):
-    """ A two state checkable menu item. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        from ...util.deprecation import deprecated
-
-        deprecated((3, 7, 0), "CheckableItem", "ActionItem.checked")
-        super().__init__(*args, **kwargs)
-
 class DividerItem(Model):
     """ A dividing line between two groups of menu items. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 class Menu(UIElement):
     """ An implicitly positioned panel containing a collection of items.
 
     These items can include commands, checked items, dividers, etc.
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     items = List(Either(Instance(MenuItem), Instance(DividerItem), Null), default=[], help="""
     A collection of menu items representing the contents of this menu.

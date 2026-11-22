@@ -5,6 +5,7 @@
     "paths": {
       "#compiler/*": ["../src/compiler/*"]
     },
+    "rootDir": "..",
     "outDir": "./_build"
   },
   "extends": "../tsconfig.base",

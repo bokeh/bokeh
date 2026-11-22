@@ -1,0 +1,13 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": [],
+    "noEmitOnError": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "paths": {
+      "@bokeh/bokehjs": ["../build/js/lib/bokeh_package.d.ts"]
+    }
+  }
+}

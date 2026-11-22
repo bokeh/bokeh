@@ -9,11 +9,11 @@ import type {PanDirection} from "@bokehjs/core/enums"
 describe("ClickPanTool", () => {
 
   async function mkplot(direction: PanDirection) {
-    const plot = new Plot({
-      x_range: new Range1d({start: 0, end: 1}),
-      y_range: new Range1d({start: 0, end: 1}),
+    const plot = Plot.create({
+      x_range: Range1d.create({start: 0, end: 1}),
+      y_range: Range1d.create({start: 0, end: 1}),
     })
-    const tool = new ClickPanTool({direction, factor: 0.2})
+    const tool = ClickPanTool.create({direction, factor: 0.2})
     plot.add_tools(tool)
     const {view: plot_view} = await display(plot)
     const tool_view = plot_view.owner.get_one(tool)

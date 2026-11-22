@@ -1,0 +1,5 @@
+Figure bbox=[0, 0, 600, 300]
+  Canvas bbox=[0, 0, 600, 300]
+  CartesianFrame bbox=[5, 5, 590, 290]
+  GlyphRenderer bbox=[38, 53, 524, 194]
+    Patches bbox=[38, 53, 524, 194]

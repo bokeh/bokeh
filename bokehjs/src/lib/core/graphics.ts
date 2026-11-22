@@ -10,19 +10,21 @@ import {AffineTransform} from "./util/affine"
 import {color2css} from "./util/color"
 import type * as visuals from "./visuals"
 
-export const text_width: (text: string, font: string) => number = (() => {
-  const canvas = document.createElement("canvas")
-  const ctx = canvas.getContext("2d")!
-  let current_font = ""
+// Defer canvas setup so importing this module doesn't require a DOM.
+let _text_ctx: CanvasRenderingContext2D | null = null
+let _current_font = ""
 
-  return (text: string, font: string): number => {
-    if (font != current_font) {
-      current_font = font
-      ctx.font = font
-    }
-    return ctx.measureText(text).width
+export function text_width(text: string, font: string): number {
+  if (_text_ctx == null) {
+    const canvas = document.createElement("canvas")
+    _text_ctx = canvas.getContext("2d")!
   }
-})()
+  if (font != _current_font) {
+    _current_font = font
+    _text_ctx.font = font
+  }
+  return _text_ctx.measureText(text).width
+}
 
 export type Position = {
   sx: number
@@ -106,8 +108,10 @@ export abstract class GraphicsBox {
     }
   }
 
-  rect(): Rect {
-    const rect = this._rect()
+  rect(padding: number = 0): Rect {
+    const unpadded = this._rect()
+    const {p0, p2} = unpadded
+    const rect = padding == 0 ? unpadded : new BBox({x0: p0.x, y0: p0.y, x1: p2.x, y1: p2.y}).grow_by(padding).rect
     const {angle} = this
     if (angle == null || angle == 0) {
       return rect
@@ -470,6 +474,126 @@ export class TextBox extends GraphicsBox {
     }
 
     ctx.restore()
+  }
+}
+
+export class InlineBox extends GraphicsBox {
+  constructor(readonly children: GraphicsBox[]) {
+    super()
+  }
+
+  override set base_font_size(v: number) {
+    super.base_font_size = v
+    for (const child of this.children) {
+      child.base_font_size = v
+    }
+  }
+
+  override set position(p: Position) {
+    this._position = p
+    this._layout_children()
+  }
+
+  override get position(): Position {
+    return this._position
+  }
+
+  set visuals(v: visuals.Text["Values"] | visuals.Line["Values"] | visuals.Fill["Values"]) {
+    for (const child of this.children) {
+      child.visuals = v
+    }
+    this._layout_children()
+  }
+
+  override infer_text_height() {
+    return this.children[0]?.infer_text_height() ?? "ascent_descent"
+  }
+
+  protected _layout_children(): void {
+    const {height} = this._size()
+    let x = 0
+    for (const child of this.children) {
+      child.position = {
+        sx: x, x_anchor: "left",
+        sy: height/2, y_anchor: "center",
+      }
+      x += child.size().width
+    }
+  }
+
+  _rect(): Rect {
+    if (this.children.length == 0) {
+      return new BBox().rect
+    }
+
+    const [first, ...rest] = this.children
+    let bbox = first.bbox()
+    for (const child of rest) {
+      bbox = bbox.union(child.bbox())
+    }
+
+    const {x, y} = this._computed_position()
+    return bbox.translate(x, y).rect
+  }
+
+  _size(): Size {
+    let width = 0
+    let height = 0
+    for (const child of this.children) {
+      const size = child.size()
+      width += size.width
+      height = Math.max(height, size.height)
+    }
+    return {width, height}
+  }
+
+  paint(ctx: Context2d): void {
+    ctx.save()
+    const {angle} = this
+    if (angle != null && angle != 0) {
+      const {sx, sy} = this.position
+      ctx.translate(sx, sy)
+      ctx.rotate(angle)
+      ctx.translate(-sx, -sy)
+    }
+    const {x, y} = this._computed_position()
+    ctx.translate(x, y)
+    for (const child of this.children) {
+      child.paint(ctx)
+    }
+    ctx.restore()
+  }
+
+  protected _computed_position(): {x: number, y: number} {
+    const {width, height} = this._size()
+    const {sx, sy, x_anchor=this._x_anchor, y_anchor=this._y_anchor} = this.position
+
+    const x = sx - (() => {
+      if (isNumber(x_anchor)) {
+        return x_anchor*width
+      } else {
+        switch (x_anchor) {
+          case "left": return 0
+          case "center": return 0.5*width
+          case "right": return width
+        }
+      }
+    })()
+
+    const y = sy - (() => {
+      if (isNumber(y_anchor)) {
+        return y_anchor*height
+      } else {
+        switch (y_anchor) {
+          case "top": return 0
+          case "center": return 0.5*height
+          case "bottom": return height
+          case "baseline": return 0.5*height // TODO
+        }
+      }
+    })()
+
+    return {x, y}
   }
 }
 

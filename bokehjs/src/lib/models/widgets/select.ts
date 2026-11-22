@@ -7,18 +7,19 @@ import {InputWidget, InputWidgetView} from "./input_widget"
 import * as inputs from "styles/widgets/inputs.css"
 
 import {Unknown, Str, List, Tuple, Or, Dict} from "core/kinds"
+import type {Infer} from "core/kinds"
 
 const Value = Unknown
-type Value = typeof Value["__type__"]
+type Value = Infer<typeof Value>
 
 const Label = Str
-type Label = typeof Label["__type__"]
+type Label = Infer<typeof Label>
 
 const Options = List(Or(Label, Tuple(Value, Label)))
-type Options = typeof Options["__type__"]
+type Options = Infer<typeof Options>
 
 const OptionsGroups = Dict(Options)
-type OptionsGroups = typeof OptionsGroups["__type__"]
+type OptionsGroups = Infer<typeof OptionsGroups>
 
 const NotSelected = ""
 
@@ -124,10 +125,6 @@ export interface Select extends Select.Attrs {}
 export class Select extends InputWidget {
   declare properties: Select.Props
   declare __view_type__: SelectView
-
-  constructor(attrs?: Partial<Select.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = SelectView

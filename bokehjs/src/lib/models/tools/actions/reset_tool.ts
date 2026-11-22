@@ -23,14 +23,9 @@ export class ResetTool extends PlotActionTool {
   declare properties: ResetTool.Props
   declare __view_type__: ResetToolView
 
-  constructor(attrs?: Partial<ResetTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = ResetToolView
 
-    this.register_alias("reset", () => new ResetTool())
   }
 
   override tool_name = "Reset"

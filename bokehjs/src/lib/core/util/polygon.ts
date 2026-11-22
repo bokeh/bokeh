@@ -36,7 +36,7 @@ export function split_rings(sx: Arrayable<number>, sy: Arrayable<number>): numbe
 export type SkirtGeometry = {
   positions: Float32Array      // [x,y,...] for original + skirt vertices
   edge_distance: Float32Array  // 1 float per vertex
-  indices: Uint32Array         // earcut + skirt triangle indices
+  indices: Uint32Array         // fill + skirt triangle indices
   nvertices: number
   ntriangles: number
 }
@@ -56,18 +56,22 @@ function signed_area_2(ring: number[]): number {
 /** Generate expanded geometry with an anti-aliasing skirt around polygon boundaries.
  *
  *  The skirt approach adds a thin fringe of extra triangles around each polygon
- *  boundary edge. Interior (earcut) vertices get `edge_distance = antialias_width`
+ *  boundary edge. Interior vertices get `edge_distance = antialias_width`
  *  (fully opaque). Skirt outer vertices get `edge_distance = 0.0` (fully
  *  transparent). The GPU linearly interpolates across the skirt, producing a
  *  smooth alpha gradient for anti-aliased polygon edges. Ordinarily the skirt
  *  straddles the mathematical boundary. Rings with subpixel segments instead
  *  keep their triangulated vertices fixed and place the entire fade outwards,
- *  because moving those vertices can invalidate skinny earcut triangles.
+ *  because moving those vertices can invalidate skinny fill triangles.
  *
  *  @param flat_coords      Interleaved [x0,y0,...] screen-pixel coordinates.
  *  @param rings            Ring arrays as returned by {@link split_rings}.
- *  @param tri_indices      Earcut triangle indices into flat_coords.
+ *  @param tri_indices      Fill triangle indices into flat_coords.
  *  @param antialias_width  Width of the AA skirt in CSS pixels.
+ *  @param preserve_vertices Keep boundary vertices fixed when the tessellator
+ *                           adds vertices shared by touching boundaries.
+ *  @param canonical_orientation Every boundary has the filled region on its
+ *                               left, regardless of whether it is an outer or hole.
  *  @returns SkirtGeometry with combined positions, edge distances, and indices.
  */
 export function generate_skirt_geometry(
@@ -75,17 +79,19 @@ export function generate_skirt_geometry(
   rings: number[][],
   tri_indices: ArrayLike<number>,
   antialias_width: number,
+  preserve_vertices: boolean = false,
+  canonical_orientation: boolean = false,
 ): SkirtGeometry {
   const n_original = flat_coords.length / 2
-  const n_earcut_tris = tri_indices.length / 3
+  const n_fill_tris = tri_indices.length / 3
 
-  if (n_original < 3 || n_earcut_tris == 0) {
+  if (n_original < 3 || n_fill_tris == 0) {
     return {
       positions: new Float32Array(flat_coords.length),
       edge_distance: new Float32Array(n_original).fill(antialias_width),
       indices: new Uint32Array(tri_indices),
       nvertices: n_original,
-      ntriangles: n_earcut_tris,
+      ntriangles: n_fill_tris,
     }
   }
 
@@ -97,7 +103,7 @@ export function generate_skirt_geometry(
 
   const n_total_verts = n_original + n_boundary
   const n_skirt_tris = 2 * n_boundary
-  const n_total_tris = n_earcut_tris + n_skirt_tris
+  const n_total_tris = n_fill_tris + n_skirt_tris
 
   const positions = new Float32Array(n_total_verts * 2)
   const edge_distance = new Float32Array(n_total_verts)
@@ -109,14 +115,14 @@ export function generate_skirt_geometry(
   }
   edge_distance.fill(antialias_width, 0, n_original)
 
-  // 2. Copy earcut indices
+  // 2. Copy fill indices
   for (let i = 0; i < tri_indices.length; i++) {
     indices[i] = tri_indices[i]
   }
 
   // 3. Generate skirt vertices and triangles
   let skirt_vert_idx = n_original
-  let skirt_tri_idx = n_earcut_tris * 3
+  let skirt_tri_idx = n_fill_tris * 3
   let ring_offset = 0  // global vertex index offset for current ring
 
   for (let ring_idx = 0; ring_idx < rings.length; ring_idx++) {
@@ -134,7 +140,7 @@ export function generate_skirt_geometry(
     const area = signed_area_2(ring)
     // For CCW (positive area) outer ring, right-hand perpendicular points outward
     // For holes, we flip
-    const normal_sign = ring_idx == 0 ? Math.sign(area) : -Math.sign(area)
+    const normal_sign = canonical_orientation ? 1 : ring_idx == 0 ? Math.sign(area) : -Math.sign(area)
 
     // If area is zero (degenerate ring), skip skirt for this ring
     if (normal_sign == 0) {
@@ -191,7 +197,7 @@ export function generate_skirt_geometry(
     // Clamp the inward shift so that it doesn't collapse small or narrow
     // polygons. We use the approximate "inradius" (area / perimeter) to
     // estimate how far inward we can safely shift without inverting the
-    // earcut triangulation. Rings with subpixel boundary detail need a
+    // fill triangulation. Rings with subpixel boundary detail need a
     // stronger fallback: keep their triangulated vertices fixed and place the
     // entire AA fade outside. Applying that fallback only to subpixel rings
     // preserves centered AA on ordinary adjacent polygons, avoiding overlap
@@ -209,7 +215,7 @@ export function generate_skirt_geometry(
     const abs_area = Math.abs(area)
     const inradius = perimeter > 0 ? abs_area / perimeter : 0
     const half_aa = Math.min(0.5 * antialias_width, 0.25 * inradius)
-    const preserve_topology = min_edge_length < antialias_width
+    const preserve_topology = preserve_vertices || min_edge_length < antialias_width
 
     for (let i = 0; i < npts; i++) {
       const prev_edge = (i - 1 + npts) % npts
@@ -300,122 +306,6 @@ export function generate_skirt_geometry(
     nvertices: n_total_verts,
     ntriangles: n_total_tris,
   }
-}
-
-/** Test whether point (px, py) is inside a ring of interleaved [x0,y0,...] coords.
- *  Uses ray-casting algorithm. */
-export function point_in_ring(px: number, py: number, ring: number[]): boolean {
-  const n = ring.length / 2
-  let inside = false
-  for (let i = 0, j = n - 1; i < n; j = i++) {
-    const xi = ring[i * 2], yi = ring[i * 2 + 1]
-    const xj = ring[j * 2], yj = ring[j * 2 + 1]
-    if (((yi > py) != (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) {
-      inside = !inside
-    }
-  }
-  return inside
-}
-
-export type TriangulationGroup = {
-  rings: number[][]      // rings[0] = outer, rings[1+] = holes
-  flat_coords: number[]
-}
-
-type RingBounds = {
-  x0: number
-  y0: number
-  x1: number
-  y1: number
-}
-
-function ring_bounds(ring: number[]): RingBounds {
-  let x0 = Infinity
-  let y0 = Infinity
-  let x1 = -Infinity
-  let y1 = -Infinity
-  for (let i = 0; i < ring.length; i += 2) {
-    const x = ring[i]
-    const y = ring[i + 1]
-    x0 = Math.min(x0, x)
-    y0 = Math.min(y0, y)
-    x1 = Math.max(x1, x)
-    y1 = Math.max(y1, y)
-  }
-  return {x0, y0, x1, y1}
-}
-
-function bounds_contain(outer: RingBounds, inner: RingBounds): boolean {
-  return outer.x0 <= inner.x0 && outer.y0 <= inner.y0 &&
-         outer.x1 >= inner.x1 && outer.y1 >= inner.y1
-}
-
-/** Classify split rings according to the even-odd fill rule.
- *  Each even-depth ring starts a triangulation group and its direct odd-depth
- *  children are holes. Nested islands therefore become independent groups,
- *  and disjoint rings can themselves contain holes. Ring orientation and
- *  input ordering do not affect classification. */
-export function classify_rings(rings: number[][]): TriangulationGroup[] {
-  const n = rings.length
-  if (n == 0) {
-    return []
-  }
-
-  const areas = rings.map((ring) => Math.abs(signed_area_2(ring)))
-  const bounds = rings.map(ring_bounds)
-  const parents = new Int32Array(n).fill(-1)
-  const order = Array.from({length: n}, (_, i) => i)
-  order.sort((i, j) => areas[i] - areas[j])
-
-  for (let k = 0; k < n; k++) {
-    const i = order[k]
-    const ring = rings[i]
-    if (ring.length < 2) {
-      continue
-    }
-    for (let l = k + 1; l < n; l++) {
-      const j = order[l]
-      if (areas[j] <= areas[i] || !bounds_contain(bounds[j], bounds[i])) {
-        continue
-      }
-      if (point_in_ring(ring[0], ring[1], rings[j])) {
-        parents[i] = j
-        break
-      }
-    }
-  }
-
-  const depths = new Int32Array(n).fill(-1)
-  const depth_of = (i: number): number => {
-    const known = depths[i]
-    if (known >= 0) {
-      return known
-    }
-    const parent = parents[i]
-    return depths[i] = parent == -1 ? 0 : depth_of(parent) + 1
-  }
-
-  const children = Array.from({length: n}, () => new Array<number>())
-  for (let i = 0; i < n; i++) {
-    const parent = parents[i]
-    if (parent != -1) {
-      children[parent].push(i)
-    }
-  }
-
-  const groups: TriangulationGroup[] = []
-  for (let i = 0; i < n; i++) {
-    if (depth_of(i) % 2 != 0) {
-      continue
-    }
-    const group_rings = [rings[i], ...children[i].map((j) => rings[j])]
-    groups.push({
-      rings: group_rings,
-      flat_coords: group_rings.flat(),
-    })
-  }
-
-  return groups
 }
 
 export type RingLineData = {

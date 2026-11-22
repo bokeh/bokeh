@@ -47,7 +47,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import sys
 from os.path import (
     basename,
@@ -57,10 +56,8 @@ from os.path import (
 )
 from typing import TYPE_CHECKING, Any, Sequence
 
-# External imports
 from jinja2 import Environment, FileSystemLoader, Template
 
-# Bokeh imports
 from .code_runner import CodeRunner
 from .handler import Handler
 from .notebook import NotebookHandler
@@ -245,7 +242,7 @@ class DirectoryHandler(Handler):
         it is defined) when the server is first started.
 
         Args:
-            server_context (ServerContext) :
+            server_context (ServerContext) : server-specific information
 
         '''
 
@@ -259,7 +256,7 @@ class DirectoryHandler(Handler):
         server's ``IOLoop``.)
 
         Args:
-            server_context (ServerContext) :
+            server_context (ServerContext) : server-specific information
 
         .. warning::
             In practice this code may not run, since servers are often killed
@@ -274,7 +271,7 @@ class DirectoryHandler(Handler):
         it is defined) when a new session is created.
 
         Args:
-            session_context (SessionContext) :
+            session_context (SessionContext) : session-specific information
 
         '''
         await self._lifecycle_handler.on_session_created(session_context)
@@ -284,7 +281,7 @@ class DirectoryHandler(Handler):
         it is defined) when a session is destroyed.
 
         Args:
-            session_context (SessionContext) :
+            session_context (SessionContext) : session-specific information
 
         '''
         await self._lifecycle_handler.on_session_destroyed(session_context)

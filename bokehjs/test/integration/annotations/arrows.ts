@@ -1,49 +1,71 @@
 import {display, fig, row, column} from "#framework/layouts"
 
-import {Arrow, NormalHead, OpenHead, TeeHead, VeeHead, Range1d} from "@bokehjs/models"
+import {NormalHead, OpenHead, TeeHead, VeeHead, Range1d, PathPlacement} from "@bokehjs/models"
+import {ModelChangedEvent} from "@bokehjs/document/events"
 import type {OutputBackend} from "@bokehjs/core/enums"
 
 describe("Arrow annotation", () => {
+  it("should render path markings added, replaced, and removed through PATCH-DOC", async () => {
+    const plots = ["added", "replaced", "removed"].map(title => fig([200, 200], {
+      x_range: [-0.2, 1.2], y_range: [-1, 1], title,
+    }))
+    const renderers = plots.map((plot, i) => plot.arrow({
+      x_start: 0, y_start: 0, x_end: 1, y_end: 0, line_color: "black",
+      end: i == 0 ? null : NormalHead.create({size: 20}),
+    }))
+    const {view} = await display(row(plots))
+    const doc = view.model.document!
+    const added = PathPlacement.create({positions: "end", marking: NormalHead.create({size: 20})})
+    const replaced = renderers[1].glyph.path_markings[0]
+    const patch = doc.create_json_patch([
+      new ModelChangedEvent(doc, renderers[0].glyph, "path_markings", [added]),
+      new ModelChangedEvent(doc, replaced, "marking", VeeHead.create({size: 25})),
+      new ModelChangedEvent(doc, renderers[2].glyph, "path_markings", []),
+    ])
+    doc.apply_json_patch(patch)
+    await view.ready
+  })
+
   const make_arrow_heads = (size: number) => [
     {start: null, end: null},
 
-    {start: null, end: new NormalHead({size})},
-    {start: null, end: new OpenHead({size})},
-    {start: null, end: new TeeHead({size})},
-    {start: null, end: new VeeHead({size})},
+    {start: null, end: NormalHead.create({size})},
+    {start: null, end: OpenHead.create({size})},
+    {start: null, end: TeeHead.create({size})},
+    {start: null, end: VeeHead.create({size})},
 
-    {start: new NormalHead({size}), end: null},
-    {start: new OpenHead({size}), end: null},
-    {start: new TeeHead({size}), end: null},
-    {start: new VeeHead({size}), end: null},
+    {start: NormalHead.create({size}), end: null},
+    {start: OpenHead.create({size}), end: null},
+    {start: TeeHead.create({size}), end: null},
+    {start: VeeHead.create({size}), end: null},
 
-    {start: new NormalHead({size}), end: new NormalHead({size})},
-    {start: new NormalHead({size}), end: new OpenHead({size})},
-    {start: new NormalHead({size}), end: new TeeHead({size})},
-    {start: new NormalHead({size}), end: new VeeHead({size})},
+    {start: NormalHead.create({size}), end: NormalHead.create({size})},
+    {start: NormalHead.create({size}), end: OpenHead.create({size})},
+    {start: NormalHead.create({size}), end: TeeHead.create({size})},
+    {start: NormalHead.create({size}), end: VeeHead.create({size})},
 
-    {start: new OpenHead({size}), end: new NormalHead({size})},
-    {start: new OpenHead({size}), end: new OpenHead({size})},
-    {start: new OpenHead({size}), end: new TeeHead({size})},
-    {start: new OpenHead({size}), end: new VeeHead({size})},
+    {start: OpenHead.create({size}), end: NormalHead.create({size})},
+    {start: OpenHead.create({size}), end: OpenHead.create({size})},
+    {start: OpenHead.create({size}), end: TeeHead.create({size})},
+    {start: OpenHead.create({size}), end: VeeHead.create({size})},
 
-    {start: new TeeHead({size}), end: new NormalHead({size})},
-    {start: new TeeHead({size}), end: new OpenHead({size})},
-    {start: new TeeHead({size}), end: new TeeHead({size})},
-    {start: new TeeHead({size}), end: new VeeHead({size})},
+    {start: TeeHead.create({size}), end: NormalHead.create({size})},
+    {start: TeeHead.create({size}), end: OpenHead.create({size})},
+    {start: TeeHead.create({size}), end: TeeHead.create({size})},
+    {start: TeeHead.create({size}), end: VeeHead.create({size})},
 
-    {start: new VeeHead({size}), end: new NormalHead({size})},
-    {start: new VeeHead({size}), end: new OpenHead({size})},
-    {start: new VeeHead({size}), end: new TeeHead({size})},
-    {start: new VeeHead({size}), end: new VeeHead({size})},
+    {start: VeeHead.create({size}), end: NormalHead.create({size})},
+    {start: VeeHead.create({size}), end: OpenHead.create({size})},
+    {start: VeeHead.create({size}), end: TeeHead.create({size})},
+    {start: VeeHead.create({size}), end: VeeHead.create({size})},
   ]
 
   it("should support support horizontal arrows with all arrow heads", async () => {
     function make_plot(output_backend: OutputBackend) {
       const arrow_heads = make_arrow_heads(12)
 
-      const x_range = new Range1d({start: 0, end: 8})
-      const y_range = new Range1d({start: 0, end: arrow_heads.length + 1})
+      const x_range = Range1d.create({start: 0, end: 8})
+      const y_range = Range1d.create({start: 0, end: arrow_heads.length + 1})
       const p = fig([200, 600], {
         x_range, y_range,
         x_axis_type: null, y_axis_type: null,
@@ -56,7 +78,7 @@ describe("Arrow annotation", () => {
 
       let y = 0
       for (const {start, end} of arrow_heads) {
-        p.add_layout(new Arrow({x_start, y_start: ++y, x_end, y_end: y, line_width: width, start, end}))
+        p.arrow({x_start, y_start: ++y, x_end, y_end: y, line_width: width, line_color: "black", start, end})
       }
 
       return p
@@ -72,8 +94,8 @@ describe("Arrow annotation", () => {
     function make_plot(output_backend: OutputBackend) {
       const arrow_heads = make_arrow_heads(12)
 
-      const x_range = new Range1d({start: 0, end: arrow_heads.length + 1})
-      const y_range = new Range1d({start: 0, end: 8})
+      const x_range = Range1d.create({start: 0, end: arrow_heads.length + 1})
+      const y_range = Range1d.create({start: 0, end: 8})
       const p = fig([600, 200], {
         x_range, y_range,
         x_axis_type: null, y_axis_type: null,
@@ -86,7 +108,7 @@ describe("Arrow annotation", () => {
 
       let x = 0
       for (const {start, end} of arrow_heads) {
-        p.add_layout(new Arrow({y_start, x_start: ++x, y_end, x_end: x, line_width: width, start, end}))
+        p.arrow({y_start, x_start: ++x, y_end, x_end: x, line_width: width, line_color: "black", start, end})
       }
 
       return p

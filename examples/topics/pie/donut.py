@@ -2,16 +2,25 @@
 demonstrates the low-level |bokeh.models| API.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.models.AnnularWedge, bokeh.models.Legend
-    :refs: :ref:`ug_topics_pie`
+    :title: Browser market share
     :keywords: pandas, donut, wedge
+    :apis: bokeh.models.AnnularWedge, bokeh.models.Legend
+    :sampledata: browsers
+    :refs: :ref:`ug_topics_pie`
+    :gallery: A donut chart of browser share percentages with a legend.
 
 '''
 from math import pi
 
 from bokeh.io import show
-from bokeh.models import (AnnularWedge, ColumnDataSource,
-                          Legend, LegendItem, Plot, Range1d)
+from bokeh.models import (
+    AnnularWedge,
+    ColumnDataSource,
+    Legend,
+    LegendItem,
+    Plot,
+    Range1d,
+)
 from bokeh.sampledata.browsers import browsers_nov_2013 as df
 
 xdr = Range1d(start=-2, end=2)

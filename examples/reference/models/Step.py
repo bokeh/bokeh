@@ -1,3 +1,12 @@
+''' Connect data points with horizontal and vertical steps.
+
+.. bokeh-example-metadata::
+    :title: Step
+    :keywords: step, reference
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Plot, bokeh.models.Step
+    :example-ref: bokeh.models.glyphs.step
+'''
+
 import numpy as np
 
 from bokeh.io import curdoc, show

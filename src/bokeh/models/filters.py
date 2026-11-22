@@ -17,10 +17,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
+# Public constructor types live in the stubs; declarations below cover local calls.
+from typing import TYPE_CHECKING, Any
 
-# Bokeh imports
 from ..core.has_props import abstract
 from ..core.property.any import AnyRef
 from ..core.property.container import NonEmpty, RestrictedDict, Seq
@@ -58,10 +57,6 @@ class Filter(Model):
     data when applied to a ``ColumnDataSource``.
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     def __invert__(self) -> Filter:
         return InversionFilter(operand=self)
 
@@ -80,16 +75,11 @@ class Filter(Model):
 class AllIndices(Filter):
     """ Trivial filter that includes all indices in a dataset. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class InversionFilter(Filter):
     """ Inverts indices resulting from another filter. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     operand = Required(Instance(Filter), help="""
     Indices produced by this filter will be inverted.
@@ -99,10 +89,6 @@ class InversionFilter(Filter):
 class CompositeFilter(Filter):
     """ Base class for composite filters. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     operands = Required(NonEmpty(Seq(Instance(Filter))), help="""
     A collection of filters to perform an operation on.
     """)
@@ -110,30 +96,26 @@ class CompositeFilter(Filter):
 class IntersectionFilter(CompositeFilter):
     """ Computes intersection of indices resulting from other filters. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
 class UnionFilter(CompositeFilter):
     """ Computes union of indices resulting from other filters. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
 class DifferenceFilter(CompositeFilter):
     """ Computes difference of indices resulting from other filters. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
 class SymmetricDifferenceFilter(CompositeFilter):
     """ Computes symmetric difference of indices resulting from other filters. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
 class IndexFilter(Filter):
     ''' An ``IndexFilter`` filters data by returning the subset of data at a given set of indices.
@@ -165,21 +147,22 @@ class BooleanFilter(Filter):
         super().__init__(**kwargs)
 
 class GroupFilter(Filter):
-    ''' A ``GroupFilter`` represents the rows of a ``ColumnDataSource`` where the
-    values of the column indicated by ``column_name`` match the ``group`` variable.
+    ''' A ``GroupFilter`` represents records of an ``IndexedDataSource`` where the
+    values of the field indicated by ``field_name`` match the ``group`` variable.
     '''
 
-    column_name = Required(String, help="""
-    The name of the column to perform the group filtering operation on.
+    field_name = Required(String, help="""
+    The name of the logical field to filter.
     """)
 
     group = Required(AnyRef, help="""
-    The value of the column indicating the rows of data to keep.
+    The field value to match. For a shaped field, use a list matching one
+    record's shape and values.
     """)
 
     def __init__(self, *args, **kwargs) -> None:
-        if len(args) == 2 and "column_name" not in kwargs and "group" not in kwargs:
-            kwargs["column_name"] = args[0]
+        if len(args) == 2 and "field_name" not in kwargs and "group" not in kwargs:
+            kwargs["field_name"] = args[0]
             kwargs["group"] = args[1]
 
         super().__init__(**kwargs)
@@ -195,10 +178,6 @@ class CustomJSFilter(Filter):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     args = RestrictedDict(String, AnyRef, disallow=("source",), help="""
     A mapping of names to Python objects. In particular those can be bokeh's models.
     These objects are made available to the callback's code snippet as the values of
@@ -206,10 +185,10 @@ class CustomJSFilter(Filter):
     """)
 
     code = String(default="", help="""
-    A snippet of JavaScript code to filter data contained in a columnar data source.
+    A snippet of JavaScript code to filter records in an indexed data source.
     The code is made into the body of a function, and all of of the named objects in
     ``args`` are available as parameters that the code can use. The variable
-    ``source`` will contain the data source that is associated with the ``CDSView`` this
+    ``source`` will contain the data source that is associated with the ``IndexedSubset`` this
     filter is added to.
 
     The code should either return the indices of the subset or an array of booleans

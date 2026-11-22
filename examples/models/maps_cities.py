@@ -2,22 +2,32 @@
 is over 5,000 people, made using the ``GMapPlot`` class.
 
 .. bokeh-example-metadata::
-    :sampledata: world_cities
-    :apis: bokeh.models.Scatter, bokeh.models.GMapPlot, bokeh.models.PanTool, bokeh.models.WheelZoomTool
-    :refs: :ref:`ug_styling_plots_axes_labels`, :ref:`ug_topics_geo_google_maps`, :ref:`ug_basic_data`
+    :title: Maps cities
     :keywords: scatter, map, label, pantool, gmapplot, document
+    :apis: bokeh.models.Scatter, bokeh.models.GMapPlot, bokeh.models.PanTool, bokeh.models.WheelZoomTool
+    :sampledata: world_cities
+    :refs: :ref:`ug_styling_plots_axes_labels`, :ref:`ug_topics_geo_google_maps`, :ref:`ug_basic_data`
 '''
 
+from os import getenv
+
 from bokeh.document import Document
-from bokeh.embed import file_html
-from bokeh.models import (ColumnDataSource, GMapOptions, GMapPlot,
-                          Label, PanTool, Scatter, WheelZoomTool)
+from bokeh.embed import embed
+from bokeh.models import (
+    ColumnDataSource,
+    GMapOptions,
+    GMapPlot,
+    Label,
+    PanTool,
+    Scatter,
+    WheelZoomTool,
+)
 from bokeh.sampledata.world_cities import data
 from bokeh.util.browser import view
 
 # Google Maps now requires an API key. You can find out how to get one here:
 # https://developers.google.com/maps/documentation/javascript/get-api-key
-API_KEY = "GOOGLE_API_KEY"
+API_KEY = getenv("GOOGLE_API_KEY", "GOOGLE_API_KEY")
 
 map_options = GMapOptions(lat=15, lng=0, zoom=2)
 
@@ -44,6 +54,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "maps_cities.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, title="Google Maps - World cities Example"))
+        f.write(embed(doc).page(title="Google Maps - World cities Example"))
     print(f"Wrote {filename}")
     view(filename)

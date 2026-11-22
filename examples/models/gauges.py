@@ -1,11 +1,28 @@
+''' Assemble a speedometer with layered glyphs and scales for miles and kilometers
+per hour.
+
+.. bokeh-example-metadata::
+    :title: Gauges
+    :keywords: gauges, models
+    :apis: bokeh.models.Arc, bokeh.models.Circle, bokeh.models.ColumnDataSource, bokeh.models.Plot, bokeh.models.PolarTransform, bokeh.models.Range1d
+'''
+
 from math import pi
 from typing import Any, Literal
 
 from bokeh.core.properties import expr, value
 from bokeh.document import Document
-from bokeh.embed import file_html
-from bokeh.models import (Arc, Circle, ColumnDataSource, Plot,
-                          PolarTransform, Range1d, Ray, Text)
+from bokeh.embed import embed
+from bokeh.models import (
+    Arc,
+    Circle,
+    ColumnDataSource,
+    Plot,
+    PolarTransform,
+    Range1d,
+    Ray,
+    Text,
+)
 from bokeh.util.browser import view
 
 xdr = Range1d(start=-1.25, end=1.25)
@@ -108,6 +125,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "gauges.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, title="Gauges"))
+        f.write(embed(doc).page(title="Gauges"))
     print(f"Wrote {filename}")
     view(filename)

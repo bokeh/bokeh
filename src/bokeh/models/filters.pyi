@@ -5,11 +5,9 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 from typing import Any, Sequence, Unpack
 
-# Bokeh imports
 from ..model.model import Model, _ModelInit
 
 class _FilterInit(_ModelInit, total=False):
@@ -89,13 +87,13 @@ class BooleanFilter(Filter):
     booleans: Sequence[bool] | None = ...
 
 class _GroupFilterInit(_FilterInit, total=False):
-    column_name: str
+    field_name: str
     group: Any
 
 class GroupFilter(Filter):
     def __init__(self, **kwargs: Unpack[_GroupFilterInit]) -> None: ...
 
-    column_name: str = ...
+    field_name: str = ...
     group: Any = ...
 
 class _CustomJSFilterInit(_FilterInit, total=False):

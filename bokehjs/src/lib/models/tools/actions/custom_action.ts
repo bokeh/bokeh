@@ -48,7 +48,7 @@ export class CustomActionView extends ActionToolView {
   }
 
   doit(): void {
-    this._await_ready(this._execute())
+    this.schedule(() => this._execute())
   }
 }
 
@@ -66,10 +66,6 @@ export interface CustomAction extends CustomAction.Attrs {}
 export class CustomAction extends ActionTool {
   declare properties: CustomAction.Props
   declare __view_type__: CustomActionView
-
-  constructor(attrs?: Partial<CustomAction.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = CustomActionView
@@ -92,4 +88,8 @@ export class CustomAction extends ActionTool {
 
   override tool_name = "Custom Action"
   override tool_icon = icons.tool_icon_unknown
+
+  override get checkable(): boolean {
+    return this.active_callback != null
+  }
 }

@@ -18,7 +18,7 @@ export abstract class MarkerView extends XYGlyphView {
 
   protected _render_one: RenderOne
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Marker.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<Marker.Data>): void {
     const {sx, sy, size, angle} = {...this, ...data}
 
     for (const i of indices) {
@@ -86,7 +86,7 @@ export abstract class MarkerView extends XYGlyphView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_span(geometry: SpanGeometry): Selection {
@@ -111,15 +111,15 @@ export abstract class MarkerView extends XYGlyphView {
     })()
 
     const indices = [...this.index.indices({x0, x1, y0, y1})]
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_rect(geometry: RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-    const indices = this.index.indices({x0, x1, y0, y1}).ones()
-    return new Selection({indices})
+    const indices = [...this.index.indices({x0, x1, y0, y1}).ones()]
+    return Selection.create({indices})
   }
 
   protected override _hit_poly(geometry: PolyGeometry): Selection {
@@ -140,7 +140,7 @@ export abstract class MarkerView extends XYGlyphView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   _get_legend_args({x0, x1, y0, y1}: Rect, index: number): Partial<Marker.Data> {
@@ -163,7 +163,7 @@ export abstract class MarkerView extends XYGlyphView {
 
   override draw_legend_for_index(ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
     const args = this._get_legend_args({x0, x1, y0, y1}, index)
-    this._paint(ctx, [index], args)
+    this._paint(ctx, Int32Array.of(index), args)
   }
 }
 
@@ -188,10 +188,6 @@ export interface Marker extends Marker.Attrs {}
 export abstract class Marker extends XYGlyph {
   declare properties: Marker.Props
   declare __view_type__: MarkerView
-
-  constructor(attrs?: Partial<Marker.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.mixins<Marker.Mixins>([LineVector, FillVector, HatchVector])

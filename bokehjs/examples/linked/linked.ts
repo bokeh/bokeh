@@ -14,7 +14,7 @@ export namespace LinkedBrushingAndPanning {
   const y2 = x.map((xi) => Math.cos(xi))
   const y3 = x.map((xi) => Math.sin(xi) + Math.cos(xi))
 
-  const source = new Bokeh.ColumnDataSource()
+  const source = Bokeh.ColumnDataSource.create()
   const tools = "pan,box_select"
 
   // linked brushing is expressed by sharing data sources between renderers

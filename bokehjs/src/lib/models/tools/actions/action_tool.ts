@@ -29,14 +29,18 @@ export abstract class ActionTool extends Tool {
   declare properties: ActionTool.Props
   declare __view_type__: ActionToolView
 
-  constructor(attrs?: Partial<ActionTool.Attrs>) {
-    super(attrs)
-  }
-
   readonly do = new Signal<string | undefined, this>(this, "do")
 
+  /**
+   * Whether this tool maintains `active` state (e.g. a dialog being shown),
+   * which makes its button checkable (e.g. `menuitemcheckbox` ARIA role).
+   */
+  get checkable(): boolean {
+    return false
+  }
+
   override tool_button(): ToolButton {
-    return new ClickButton({tool: this})
+    return ClickButton.create({tool: this})
   }
 
   override menu_item(): MenuItem {

@@ -8,12 +8,90 @@ import {version} from "@bokehjs/version"
 import {keys} from "@bokehjs/core/util/object"
 import {Selection} from "@bokehjs/models/selections/selection"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
-import {Int32NDArray, Float32NDArray, Float64NDArray, ndarray} from "@bokehjs/core/util/ndarray"
+import {Int32NDArray, Float32NDArray, Float64NDArray, ObjectNDArray, ndarray} from "@bokehjs/core/util/ndarray"
 
 describe("column_data_source module", () => {
 
+  describe("get_row", () => {
+    it("should unpack shaped columns independently on first access and cache their rows", () => {
+      const first = new ObjectNDArray([0, 1, 2, 3], [2, 2])
+      const second = new ObjectNDArray([4, 5, 6, 7], [2, 2])
+      let first_reads = 0
+      let second_reads = 0
+      Object.defineProperty(first, "2", {get: () => {
+        first_reads++
+        return 2
+      }})
+      Object.defineProperty(second, "2", {get: () => {
+        second_reads++
+        return 6
+      }})
+      const source = ColumnDataSource.create({data: {first, second, label: ["a", "b"]}})
+      const row = source.get_row(1)
+      expect(Object.keys(row)).to.be.equal(["first", "second", "label"])
+      expect(row.label).to.be.equal("b")
+      expect([first_reads, second_reads]).to.be.equal([0, 0])
+
+      const value = row.first
+      expect(value).to.be.equal([2, 3])
+      expect([first_reads, second_reads]).to.be.equal([1, 0])
+      expect(row.first).to.be.identical(value)
+      expect([first_reads, second_reads]).to.be.equal([1, 0])
+
+      expect({...row}).to.be.equal({first: [2, 3], second: [6, 7], label: "b"})
+      expect([first_reads, second_reads]).to.be.equal([1, 1])
+      expect(JSON.stringify(row)).to.be.equal('{"first":[2,3],"second":[6,7],"label":"b"}')
+      expect([first_reads, second_reads]).to.be.equal([1, 1])
+      expect(source.get_row(1).first).to.not.be.identical(value)
+    })
+
+    it("should allow replacing or deleting shaped row values without reading the column", () => {
+      const values = new ObjectNDArray([0, 1, 2, 3], [2, 2])
+      let reads = 0
+      Object.defineProperty(values, "2", {get: () => {
+        reads++
+        return 2
+      }})
+      const source = ColumnDataSource.create({data: {values}})
+      const row = source.get_row(1)
+      const replacement = [10, 20]
+      row.values = replacement
+      expect(row.values).to.be.identical(replacement)
+      expect(reads).to.be.equal(0)
+      delete row.values
+      expect(Object.keys(row)).to.be.equal([])
+      expect(reads).to.be.equal(0)
+
+      const read_row = source.get_row(1)
+      const value = read_row.values as number[]
+      value[0] = 99
+      expect(read_row.values).to.be.equal([99, 3])
+      expect(source.get_row(1).values).to.be.equal([2, 3])
+      read_row.values = replacement
+      expect(read_row.values).to.be.identical(replacement)
+    })
+
+    it("should read logical rows from shaped columns", () => {
+      const numeric = new Float64NDArray([0, 1, 2, 3, 4, 5, 6, 7], [2, 2, 2])
+      const objects = new ObjectNDArray(["a", "b", "c", "d"], [2, 2])
+      const source = ColumnDataSource.create({data: {numeric, objects, label: ["first", "second"]}})
+      expect(source.get_row(1)).to.be.equal({numeric: [[4, 5], [6, 7]], objects: ["c", "d"], label: "second"})
+      expect(source.get_row(2)).to.be.equal({numeric: undefined, objects: undefined, label: undefined})
+      expect(source.get_column("numeric")).to.be.identical(numeric)
+      expect(Array.from(numeric)).to.be.equal([0, 1, 2, 3, 4, 5, 6, 7])
+    })
+
+    it("should use the image's outer row without indexing its pixels", () => {
+      const image = new Float64NDArray([0, 1, 2, 3], [2, 2])
+      const source = ColumnDataSource.create({data: {image: [image], label: ["image"]}})
+      const row = source.get_row({index: 0, i: 0, j: 1, flat_index: 2})
+      expect(row.image).to.be.identical(image)
+      expect(row.label).to.be.equal("image")
+    })
+  })
+
   describe("default creation", () => {
-    const r = new ColumnDataSource()
+    const r = ColumnDataSource.create()
 
     it("should have empty data", () => {
       expect(r.data).to.be.equal({})
@@ -29,7 +107,7 @@ describe("column_data_source module", () => {
   })
 
   describe("single column added", () => {
-    const r = new ColumnDataSource({data: {foo: []}})
+    const r = ColumnDataSource.create({data: {foo: []}})
 
     it("should return supplied data", () => {
       expect(r.data).to.be.equal({foo: []})
@@ -41,7 +119,7 @@ describe("column_data_source module", () => {
   })
 
   describe("multiple columns added", () => {
-    const r = new ColumnDataSource({data: {foo: [], bar: []}})
+    const r = ColumnDataSource.create({data: {foo: [], bar: []}})
 
     it("should return supplied data", () => {
       expect(r.data).to.be.equal({foo: [], bar: []})
@@ -55,43 +133,43 @@ describe("column_data_source module", () => {
   describe("get_length function", () => {
 
     it("should return 0 for empty columns", () => {
-      const r0 = new ColumnDataSource({data: {foo: []}})
+      const r0 = ColumnDataSource.create({data: {foo: []}})
       expect(r0.get_length()).to.be.equal(0)
 
-      const r1 = new ColumnDataSource({data: {foo: [], bar: []}})
+      const r1 = ColumnDataSource.create({data: {foo: [], bar: []}})
       expect(r1.get_length()).to.be.equal(0)
     })
 
     it("should return common length for columns with data", () => {
-      const r0 = new ColumnDataSource({data: {foo: [10]}})
+      const r0 = ColumnDataSource.create({data: {foo: [10]}})
       expect(r0.get_length()).to.be.equal(1)
 
-      const r1 = new ColumnDataSource({data: {foo: [10], bar: [10]}})
+      const r1 = ColumnDataSource.create({data: {foo: [10], bar: [10]}})
       expect(r1.get_length()).to.be.equal(1)
 
-      const r2 = new ColumnDataSource({data: {foo: [10, 20], bar: [10, 20]}})
+      const r2 = ColumnDataSource.create({data: {foo: [10, 20], bar: [10, 20]}})
       expect(r2.get_length()).to.be.equal(2)
     })
 
     it("should not alert for consistent column lengths (including zero)", () => {
       with_log_level("info", () => {
-        const r0 = new ColumnDataSource({data: {foo: []}})
+        const r0 = ColumnDataSource.create({data: {foo: []}})
         const out0 = trap(() => r0.get_length())
         expect(out0.warn).to.be.equal("")
 
-        const r1 = new ColumnDataSource({data: {foo: [], bar: []}})
+        const r1 = ColumnDataSource.create({data: {foo: [], bar: []}})
         const out1 = trap(() => r1.get_length())
         expect(out1.warn).to.be.equal("")
 
-        const r2 = new ColumnDataSource({data: {foo: [10]}})
+        const r2 = ColumnDataSource.create({data: {foo: [10]}})
         const out2 = trap(() => r2.get_length())
         expect(out2.warn).to.be.equal("")
 
-        const r3 = new ColumnDataSource({data: {foo: [10], bar: [10]}})
+        const r3 = ColumnDataSource.create({data: {foo: [10], bar: [10]}})
         const out3 = trap(() => r3.get_length())
         expect(out3.warn).to.be.equal("")
 
-        const r4 = new ColumnDataSource({data: {foo: [10, 20], bar: [10, 20]}})
+        const r4 = ColumnDataSource.create({data: {foo: [10, 20], bar: [10, 20]}})
         const out4 = trap(() => r4.get_length())
         expect(out4.warn).to.be.equal("")
       })
@@ -99,13 +177,23 @@ describe("column_data_source module", () => {
 
     it("should alert if column lengths are inconsistent", () => {
       with_log_level("info", () => {
-        const r0 = new ColumnDataSource({data: {foo: [1], bar: [1, 2]}})
+        const r0 = ColumnDataSource.create({data: {foo: [1], bar: [1, 2]}})
         const out0 = trap(() => r0.get_length())
         expect(out0.warn).to.be.equal(`[bokeh ${version}] data source has columns of inconsistent lengths\n`)
 
-        const r1 = new ColumnDataSource({data: {foo: [1], bar: [1, 2], baz: [1]}})
+        const r1 = ColumnDataSource.create({data: {foo: [1], bar: [1, 2], baz: [1]}})
         const out1 = trap(() => r1.get_length())
         expect(out1.warn).to.be.equal(`[bokeh ${version}] data source has columns of inconsistent lengths\n`)
+      })
+    })
+
+    it("should return the shortest length if column lengths are inconsistent", () => {
+      with_log_level("error", () => {
+        const r0 = ColumnDataSource.create({data: {foo: new Array(10).fill(0), bar: new Array(9).fill(0)}})
+        expect(r0.get_length()).to.be.equal(9)
+
+        const r1 = ColumnDataSource.create({data: {foo: new Array(2).fill(0), bar: new Array(10).fill(0)}})
+        expect(r1.get_length()).to.be.equal(2)
       })
     })
   })
@@ -113,12 +201,12 @@ describe("column_data_source module", () => {
   describe("columns method", () => {
 
     it("should report .data.keys", () => {
-      const r = new ColumnDataSource({data: {foo: [10, 20], bar: [10, 20]}})
+      const r = ColumnDataSource.create({data: {foo: [10, 20], bar: [10, 20]}})
       expect(r.columns()).to.be.equal(keys(r.data))
     })
 
     it("should update if columns update", () => {
-      const r = new ColumnDataSource({data: {foo: [10, 20], bar: [10, 20]}})
+      const r = ColumnDataSource.create({data: {foo: [10, 20], bar: [10, 20]}})
       r.set("baz", [11, 21])
       expect(r.columns()).to.be.equal(keys(r.data))
     })
@@ -127,14 +215,14 @@ describe("column_data_source module", () => {
   describe("clear method", () => {
 
     it("should clear plain arrays to empty arrays", () => {
-      const r = new ColumnDataSource({data: {foo: [10, 20], bar: [10, 20]}})
+      const r = ColumnDataSource.create({data: {foo: [10, 20], bar: [10, 20]}})
       r.clear()
       expect(r.data).to.be.equal({foo: [], bar: []})
     })
 
     it("should clear typed arrays to typed arrays", () => {
       for (const typ of [Float32NDArray, Float64NDArray, Int32NDArray]) {
-        const r = new ColumnDataSource({data: {foo: [10, 20], bar: new typ([1, 2])}})
+        const r = ColumnDataSource.create({data: {foo: [10, 20], bar: new typ([1, 2])}})
         r.clear()
         expect(r.data).to.be.equal({foo: [], bar: new typ([])})
       }
@@ -142,7 +230,7 @@ describe("column_data_source module", () => {
 
     it("should clear columns added later", () => {
       for (const typ of [Float32NDArray, Float64NDArray, Int32NDArray]) {
-        const r = new ColumnDataSource({data: {foo: [10, 20]}})
+        const r = ColumnDataSource.create({data: {foo: [10, 20]}})
         r.set("bar", [100, 200])
         r.set("baz", new typ([1, 2]))
         r.clear()
@@ -152,7 +240,7 @@ describe("column_data_source module", () => {
   })
 
   describe("inferred_defaults getter", () => {
-    const cds = new ColumnDataSource({
+    const cds = ColumnDataSource.create({
       data: {
         d0: [],
         d1: [null, false, 0],
@@ -193,10 +281,10 @@ describe("column_data_source module", () => {
 
   describe("selection pruning", () => {
     it("should prune out-of-bounds indices when data is replaced", () => {
-      const selected = new Selection({
-        indices: [-1, 0, 2, 3],
-        line_indices: [-1, 0, 2, 3],
-        multiline_indices: new Map([[-1, [0]], [0, [0]], [2, [0]], [3, [0]]]),
+      const selected = Selection.create({
+        indices: [0, 2, 3],
+        line_indices: [0, 2, 3],
+        multiline_indices: new Map([[0, [0]], [2, [0]], [3, [0]]]),
         image_indices: [
           {index: -1, i: 0, j: 0, flat_index: 0},
           {index: 0, i: 0, j: 0, flat_index: 0},
@@ -204,7 +292,7 @@ describe("column_data_source module", () => {
           {index: 3, i: 0, j: 0, flat_index: 0},
         ],
       })
-      const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3]}, selected})
+      const source = ColumnDataSource.create({data: {foo: [0, 1, 2, 3]}, selected})
 
       source.data = {foo: [0, 1]}
 
@@ -222,8 +310,8 @@ describe("column_data_source module", () => {
     })
 
     it("should prune out-of-bounds indices after streaming with rollover", () => {
-      const selected = new Selection({indices: [0, 1, 2, 3]})
-      const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3]}, selected})
+      const selected = Selection.create({indices: [0, 1, 2, 3]})
+      const source = ColumnDataSource.create({data: {foo: [0, 1, 2, 3]}, selected})
 
       source.stream({foo: [4]}, 2)
 
@@ -232,8 +320,8 @@ describe("column_data_source module", () => {
     })
 
     it("should prune out-of-bounds indices after patching", () => {
-      const selected = new Selection({indices: [0, 2]})
-      const source = new ColumnDataSource({data: {foo: [0, 1]}, selected})
+      const selected = Selection.create({indices: [0, 2]})
+      const source = ColumnDataSource.create({data: {foo: [0, 1]}, selected})
 
       source.patch({foo: [[0, 2]]})
 
@@ -241,13 +329,13 @@ describe("column_data_source module", () => {
     })
 
     it("should not update the selection when all indices remain in bounds", () => {
-      const selected = new Selection({
+      const selected = Selection.create({
         indices: [0],
         line_indices: [1],
         multiline_indices: new Map([[0, [0]]]),
         image_indices: [{index: 1, i: 0, j: 0, flat_index: 0}],
       })
-      const source = new ColumnDataSource({data: {foo: [0, 1]}, selected})
+      const source = ColumnDataSource.create({data: {foo: [0, 1]}, selected})
       let updates = 0
       selected.change.connect(() => updates++)
 
@@ -259,13 +347,13 @@ describe("column_data_source module", () => {
     })
 
     it("should update only selection properties that are pruned", () => {
-      const selected = new Selection({
+      const selected = Selection.create({
         indices: [0, 2],
         line_indices: [0],
         multiline_indices: new Map([[0, [0]]]),
         image_indices: [{index: 0, i: 0, j: 0, flat_index: 0}],
       })
-      const source = new ColumnDataSource({data: {foo: [0, 1, 2]}, selected})
+      const source = ColumnDataSource.create({data: {foo: [0, 1, 2]}, selected})
       let indices_updates = 0
       let line_indices_updates = 0
       let multiline_indices_updates = 0
@@ -284,8 +372,8 @@ describe("column_data_source module", () => {
     })
 
     it("should prune typed-array selection indices", () => {
-      const selected = new Selection({indices: new Int32Array([0, 2])})
-      const source = new ColumnDataSource({data: {foo: [0, 1, 2]}, selected})
+      const selected = Selection.create({indices: new Int32Array([0, 2])})
+      const source = ColumnDataSource.create({data: {foo: [0, 1, 2]}, selected})
 
       source.data = {foo: [0, 1]}
 
@@ -293,8 +381,8 @@ describe("column_data_source module", () => {
     })
 
     it("should preserve synchronization mode when pruning", () => {
-      const selected = new Selection({indices: [0, 2]})
-      const source = new ColumnDataSource({data: {foo: [0, 1, 2]}, selected})
+      const selected = Selection.create({indices: [0, 2]})
+      const source = ColumnDataSource.create({data: {foo: [0, 1, 2]}, selected})
       const document = new Document()
       document.add_root(source)
       const events: {sync: boolean}[] = []
@@ -307,9 +395,9 @@ describe("column_data_source module", () => {
     })
 
     it("should notify linked selections when pruning", () => {
-      const selected = new Selection({indices: [0, 2]})
-      const source = new ColumnDataSource({data: {foo: [0, 1, 2]}, selected})
-      const linked = new Selection({indices: selected.indices})
+      const selected = Selection.create({indices: [0, 2]})
+      const source = ColumnDataSource.create({data: {foo: [0, 1, 2]}, selected})
+      const linked = Selection.create({indices: selected.indices})
       selected.properties.indices.change.connect(() => linked.indices = selected.indices)
       let updates = 0
       linked.properties.indices.change.connect(() => updates++)
@@ -321,8 +409,8 @@ describe("column_data_source module", () => {
     })
 
     it("should preserve scalar selections when data has no columns", () => {
-      const selected = new Selection({indices: [0]})
-      const source = new ColumnDataSource({data: {unused: [1]}, selected})
+      const selected = Selection.create({indices: [0]})
+      const source = ColumnDataSource.create({data: {unused: [1]}, selected})
 
       source.data = {}
 

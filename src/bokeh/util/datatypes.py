@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from collections.abc import (
     Iterable,
     Mapping,

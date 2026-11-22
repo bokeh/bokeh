@@ -1,10 +1,20 @@
+''' Filter the penguin dataset to Adelie entries while keeping a linked view of all
+species.
+
+.. bokeh-example-metadata::
+    :title: Filter group
+    :keywords: filter, group
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.GroupFilter, bokeh.models.IndexedSubset, bokeh.plotting.figure.scatter
+    :sampledata: penguins
+'''
+
 from bokeh.layouts import gridplot
-from bokeh.models import CDSView, ColumnDataSource, GroupFilter
+from bokeh.models import ColumnDataSource, GroupFilter, IndexedSubset
 from bokeh.plotting import figure, show
 from bokeh.sampledata.penguins import data
 
 source = ColumnDataSource(data)
-view = CDSView(filter=GroupFilter(column_name="species", group="Adelie"))
+view = IndexedSubset(filter=GroupFilter(field_name="species", group="Adelie"))
 
 TOOLS = "box_select,reset,help"
 

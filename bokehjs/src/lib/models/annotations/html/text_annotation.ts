@@ -73,13 +73,13 @@ export abstract class TextAnnotationView extends AnnotationView {
       `)
     } else {
       const panel = this.plot_view.frame
-      const [rsx, rsy] = panel.bbox.relativize(sx, sy)
+      const rsp = panel.bbox.relativize({x: sx, y: sy})
 
       this.position.replace(`
       ${this.host_selector} {
         position: absolute;
-        left: ${rsx}px;
-        top: ${rsy}px;
+        left: ${rsp.x}px;
+        top: ${rsp.y}px;
       }
       `)
     }
@@ -190,10 +190,6 @@ export interface TextAnnotation extends TextAnnotation.Attrs {}
 export abstract class TextAnnotation extends Annotation {
   declare properties: TextAnnotation.Props
   declare __view_type__: TextAnnotationView
-
-  constructor(attrs?: Partial<TextAnnotation.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.define<TextAnnotation.Props>(() => ({

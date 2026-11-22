@@ -38,7 +38,7 @@ export class GridPlotView extends LayoutDOMView {
     this._update_location()
 
     const {children, rows, cols, spacing} = this.model
-    this._grid_box = new GridBox({children, rows, cols, spacing, sizing_mode: "inherit"})
+    this._grid_box = GridBox.create({children, rows, cols, spacing, sizing_mode: "inherit"})
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -91,6 +91,13 @@ export class GridPlotView extends LayoutDOMView {
     return [this.model.toolbar, this._grid_box]
   }
 
+  override update_bbox(): boolean {
+    // The toolbar isn't a layoutable child, but its position changes with the
+    // layout (e.g. when `toolbar_location` changes), even if its size doesn't.
+    this.toolbar_view.update_bbox()
+    return super.update_bbox()
+  }
+
   override _update_layout(): void {
     super._update_layout()
 
@@ -129,15 +136,11 @@ export class GridPlot extends LayoutDOM {
   declare properties: GridPlot.Props
   declare __view_type__: GridPlotView
 
-  constructor(attrs?: Partial<GridPlot.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = GridPlotView
 
     this.define<GridPlot.Props>(({List, Ref, Nullable}) => ({
-      toolbar: [ Ref(Toolbar), () => new Toolbar() ],
+      toolbar: [ Ref(Toolbar), () => Toolbar.create() ],
       toolbar_location: [ Nullable(Location), "above" ],
       children: [ List(GridChild(UIElement)), [] ],
       rows: [ Nullable(TracksSizing), null ],

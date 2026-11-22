@@ -1,9 +1,30 @@
+''' Switch widget styling between light and dark color schemes.
+
+.. bokeh-example-metadata::
+    :title: Light and dark widget styles
+    :keywords: light, dark
+    :apis: bokeh.models.AutocompleteInput, bokeh.models.Button, bokeh.models.CheckboxButtonGroup, bokeh.models.CheckboxGroup, bokeh.models.CustomJS
+'''
+
 from bokeh.io import show
 from bokeh.layouts import column, row
-from bokeh.models import (AutocompleteInput, Button, CheckboxButtonGroup,
-                          CheckboxGroup, CustomJS, Dropdown, LightDark,
-                          MultiChoice, PasswordInput, RadioButtonGroup,
-                          RadioGroup, Select, Slider, TextInput, Toggle)
+from bokeh.models import (
+    AutocompleteInput,
+    Button,
+    CheckboxButtonGroup,
+    CheckboxGroup,
+    CustomJS,
+    Dropdown,
+    LightDark,
+    MultiChoice,
+    PasswordInput,
+    RadioButtonGroup,
+    RadioGroup,
+    Select,
+    Slider,
+    TextInput,
+    Toggle,
+)
 
 light_dark = LightDark()
 text_scheme = TextInput(

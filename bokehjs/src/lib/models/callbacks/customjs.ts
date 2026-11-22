@@ -37,10 +37,6 @@ export interface CustomJS extends CustomJS.Attrs {}
 export class CustomJS extends Callback {
   declare properties: CustomJS.Props
 
-  constructor(attrs?: Partial<CustomJS.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<CustomJS.Props>(({Unknown, Str, Dict, Auto, Or, Bool}) => ({
       args: [ Dict(Unknown), {} ],
@@ -58,10 +54,9 @@ export class CustomJS extends Callback {
   protected async _compile_module(): Promise<ESFunc> {
     const url = URL.createObjectURL(new Blob([this.code], {type: "text/javascript"}))
     try {
-      // XXX: eval() to work around transpilation to require()
+      // Indirect eval keeps import() native when the classic bundle is transpiled to CommonJS.
       // https://github.com/microsoft/TypeScript/issues/43329
-      const module = await eval(`import("${url}")`)
-      // TODO const module = await import(`${url}`)
+      const module = await globalThis.eval(`import("${url}")`)
       if (isFunction(module.default)) {
         return module.default as ESFunc
       } else {

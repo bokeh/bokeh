@@ -1,4 +1,4 @@
-import type flatpickr from "flatpickr"
+import type {FlatpickrOptions} from "../../external/flatpickr"
 
 import {BaseDatetimePicker, BaseDatetimePickerView} from "./base_datetime_picker"
 import {DateLike} from "./base_date_picker"
@@ -8,7 +8,7 @@ import type * as p from "core/properties"
 export class DatetimeRangePickerView extends BaseDatetimePickerView {
   declare model: DatetimeRangePicker
 
-  protected override get flatpickr_options(): flatpickr.Options.Options {
+  protected override get flatpickr_options(): FlatpickrOptions {
     const options = super.flatpickr_options
     options.mode = "range"
 
@@ -77,10 +77,6 @@ export class DatetimeRangePicker extends BaseDatetimePicker {
   declare __view_type__: DatetimeRangePickerView
 
   declare value: [DateLike, DateLike] | null
-
-  constructor(attrs?: Partial<DatetimeRangePicker.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = DatetimeRangePickerView

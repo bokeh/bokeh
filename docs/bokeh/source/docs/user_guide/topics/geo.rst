@@ -18,6 +18,13 @@ any name xyzservices may recognize. The ``retina`` keyword can control the resol
 .. bokeh-plot:: __REPO__/examples/topics/geo/tile_source.py
     :source-position: below
 
+CARTO requires a `CARTO Basemaps API key <https://carto.com/basemaps/apikey/>`_.
+Set the ``CARTO_API_KEY`` environment variable to your key before running the
+example, or replace the placeholder with your own key. The example copies
+an xyzservices provider and adds the key to its tile URL, preserving attribution
+and support for retina tiles. Other providers may also require credentials;
+consult the provider's documentation.
+
 If you pass ``retina=True``, Bokeh will attempt to use the tiles in the 2x higher resolution
 than with default settings. However, this functionality needs to be supported by the tile provider.
 Otherwise, the keyword is ignored. Alternatively, you can include ``'retina'`` as part of the tile
@@ -37,15 +44,6 @@ The available built-in tile providers are listed in the `xyzservices`_ documenta
 interactively as an ``xyzservices.providers`` module.
 
 Representative samples of the most common tile providers are shown below.
-
-CartoDB Positron
-~~~~~~~~~~~~~~~~
-
-Tile Source for CartoDB Tile Service
-
-.. raw:: html
-
-    <img src="https://tiles.basemaps.cartocdn.com/light_all/14/2627/6331.png" />
 
 Esri World Imagery
 ~~~~~~~~~~~~~~~~~~
@@ -72,7 +70,9 @@ Google Maps
 
 To plot glyphs over a Google Map, use the function :func:`~bokeh.plotting.gmap`.
 For the function to work, you must pass it a `Google API Key`_ and configure the Google Map underlay :class:`~bokeh.models.map_plots.GMapOptions`.
-The Google API Key will be stored in the Bokeh Document JSON.
+The Google API Key will be stored in the Bokeh Document JSON. Set the
+``GOOGLE_API_KEY`` environment variable before running the example, or replace
+the placeholder with your own key.
 
 .. bokeh-plot:: __REPO__/examples/topics/geo/gmap.py
     :source-position: below

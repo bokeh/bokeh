@@ -90,7 +90,7 @@ export abstract class RadialGlyphView extends XYGlyphView {
     const sradius: number[] = new Array(len)
     sradius[index] = Math.min(Math.abs(x1 - x0), Math.abs(y1 - y0))*0.2
 
-    this._paint(ctx, [index], {sx, sy, sradius})
+    this._paint(ctx, Int32Array.of(index), {sx, sy, sradius})
   }
 }
 
@@ -114,10 +114,6 @@ export interface RadialGlyph extends RadialGlyph.Attrs {}
 export class RadialGlyph extends XYGlyph {
   declare properties: RadialGlyph.Props
   declare __view_type__: RadialGlyphView
-
-  constructor(attrs?: Partial<RadialGlyph.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.mixins<RadialGlyph.Mixins>([LineVector, FillVector, HatchVector])

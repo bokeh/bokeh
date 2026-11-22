@@ -1,9 +1,7 @@
 """Resumable planning and publication command."""
 
-# Standard library imports
 from pathlib import Path
 
-# External imports
 import rich_click as click
 from rich import box
 from rich.markdown import Markdown
@@ -11,7 +9,6 @@ from rich.panel import Panel
 from rich.prompt import Prompt
 from rich.table import Table
 
-# Bokeh imports
 from .. import BackportError
 from ..aggregate import render_pr_body
 from ..candidates import BACKPORT_LABEL, read_pr_numbers

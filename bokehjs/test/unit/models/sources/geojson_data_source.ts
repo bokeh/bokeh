@@ -11,7 +11,7 @@ describe("geojson_data_source module", () => {
     }`
 
     it("should throw an error", () => {
-      const fn = () => new GeoJSONDataSource({geojson})
+      const fn = () => GeoJSONDataSource.create({geojson})
       expect(fn).to.throw()
     })
   })
@@ -23,7 +23,7 @@ describe("geojson_data_source module", () => {
     }`
 
     it("should throw an error", () => {
-      const fn = () => new GeoJSONDataSource({geojson})
+      const fn = () => GeoJSONDataSource.create({geojson})
       expect(fn).to.throw()
     })
   })
@@ -35,7 +35,7 @@ describe("geojson_data_source module", () => {
     }`
 
     it("should throw an error", () => {
-      const fn = () => new GeoJSONDataSource({geojson})
+      const fn = () => GeoJSONDataSource.create({geojson})
       expect(fn).to.throw()
     })
   })
@@ -49,7 +49,7 @@ describe("geojson_data_source module", () => {
         }
       ]
     }`
-    const geo = new GeoJSONDataSource({geojson})
+    const geo = GeoJSONDataSource.create({geojson})
 
     it("add x,y,NaN to data", () => {
       const expected_data = {x: [125.6], y: [10.1], z: [NaN], xs: [[]], ys: [[]], zs: [[]]}
@@ -80,7 +80,7 @@ describe("geojson_data_source module", () => {
         }
       ]
     }`
-    const geo = new GeoJSONDataSource({geojson})
+    const geo = GeoJSONDataSource.create({geojson})
 
     it("should add x,y,z to data", () => {
       const expected_data = {x: [125.6], y: [10.1], z: [22], xs: [[]], ys: [[]], zs: [[]]}
@@ -97,7 +97,7 @@ describe("geojson_data_source module", () => {
         }
       ]
     }`
-    const geo = new GeoJSONDataSource({geojson})
+    const geo = GeoJSONDataSource.create({geojson})
 
     it("should add xs,ys to data", () => {
       const expected_data = {x: [NaN], y: [NaN], z: [NaN], xs: [[125.6, 100.1]], ys: [[10.1, 9.2]], zs: [[NaN, NaN]]}
@@ -116,7 +116,7 @@ describe("geojson_data_source module", () => {
         }
       ]
     }`
-    const geo = new GeoJSONDataSource({geojson})
+    const geo = GeoJSONDataSource.create({geojson})
 
     it("should add xs,ys to data", () => {
       const expected_data = {x: [NaN], y: [NaN], z: [NaN], xs: [[125.6, 100.1]], ys: [[10.1, 9.2]], zs: [[NaN, NaN]]}
@@ -136,7 +136,7 @@ describe("geojson_data_source module", () => {
         }
       ]
     }`
-    const geo = new GeoJSONDataSource({geojson})
+    const geo = GeoJSONDataSource.create({geojson})
 
     it("should add xs,ys to data", () => {
       // Also puts a warning about only using exterior ring
@@ -154,7 +154,7 @@ describe("geojson_data_source module", () => {
         }
       ]
     }`
-    const geo = new GeoJSONDataSource({geojson})
+    const geo = GeoJSONDataSource.create({geojson})
 
     it("should not add anything to data", () => {
       // MultiPoint is not supported. There should also be a console warning (not tested)
@@ -175,7 +175,7 @@ describe("geojson_data_source module", () => {
         }
       ]
     }`
-    const geo = new GeoJSONDataSource({geojson})
+    const geo = GeoJSONDataSource.create({geojson})
 
     it("should add xs,ys to datai with NaN in between", () => {
       const expected_data = {x: [NaN], y: [NaN], z: [NaN], xs: [[125.6, 100.1, NaN, 125.4, 100.2]], ys: [[10.1, 9.2, NaN, 10.2, 9.1]], zs: [[NaN, NaN, NaN, NaN, NaN]]}
@@ -199,7 +199,7 @@ describe("geojson_data_source module", () => {
         }
       ]
     }`
-    const geo = new GeoJSONDataSource({geojson})
+    const geo = GeoJSONDataSource.create({geojson})
 
     it("should add xs,ys to datai with NaN in between", () => {
       const expected_data = {x: [NaN], y: [NaN], z: [NaN], xs: [[102.0, 103.0, NaN, 100.0, 101.0]], ys: [[2.0, 2.1, NaN, 0, 0.1]], zs: [[NaN, NaN, NaN, NaN, NaN]]}
@@ -219,7 +219,7 @@ describe("geojson_data_source module", () => {
     }`
 
     it("should add the properties to the data", () => {
-      const geo = new GeoJSONDataSource({geojson})
+      const geo = GeoJSONDataSource.create({geojson})
       const expected_data = {x: [102], y: [33], z: [NaN], xs: [[]], ys: [[]], zs: [[]], color: ["pink"], value: [33]}
       expect(geo.data).to.be.equal(expected_data)
     })
@@ -234,7 +234,7 @@ describe("geojson_data_source module", () => {
             }
         ]
       }`
-      const geo = new GeoJSONDataSource({geojson})
+      const geo = GeoJSONDataSource.create({geojson})
       const expected_data = {x: [102], y: [33], z: [NaN], xs: [[]], ys: [[]], zs: [[]], color: ["pink"], value: [NaN]}
       expect(geo.data).to.be.equal(expected_data)
     })
@@ -254,7 +254,7 @@ describe("geojson_data_source module", () => {
           }
        ]
     }`
-    const geo = new GeoJSONDataSource({geojson})
+    const geo = GeoJSONDataSource.create({geojson})
 
     it("should add the properties to the data with NaN's when they're missing", () => {
       const expected_data = {

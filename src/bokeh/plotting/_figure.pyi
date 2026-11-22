@@ -7,7 +7,6 @@
 
 # pyright: reportIncompatibleVariableOverride=false
 
-# Standard library imports
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -16,7 +15,6 @@ from typing import (
     Unpack,
 )
 
-# External imports
 import cartopy.crs as ccrs
 import numpy as np
 import numpy.typing as npt
@@ -26,7 +24,6 @@ if TYPE_CHECKING: # to work around ruff(TID253)
     from pandas import DataFrame
     from pandas.core.groupby import GroupBy
 
-# Bokeh imports
 from .._types import (
     Color,
     Datetime,
@@ -46,8 +43,6 @@ from ..models.glyphs import (
     HBar,
     HexTile,
     Line,
-    MultiLine,
-    MultiPolygons,
     VArea,
     VBar,
 )
@@ -66,18 +61,18 @@ from ..models.tools import (
     Tool,
 )
 from ..util.datatypes import SequenceLike
+from ._geo_feature import GeoMultiPolygonsArgs
 from .glyph_api import (
     GlyphAPI,
     LineArgs,
     MultiLineArgs,
-    MultiPolygonsArgs,
 )
 
 type EagerDataFrame = IntoDataFrame
 type EagerSeries = IntoSeries
 
 class BaseFigureOptions(_PlotInit, total=False):
-    tools: str | Sequence[str | Tool]
+    tools: str | Sequence[str | Tool] | None
     x_minor_ticks: Auto | int
     y_minor_ticks: Auto | int
     x_axis_location: VerticalLocation | None
@@ -106,8 +101,9 @@ type AxisType = Auto | Literal["linear", "log", "datetime", "timedelta", "mercat
 DEFAULT_TOOLS: str
 
 class FigureOptions(BaseFigureOptions, total=False):
-    x_range: RangeLike
-    y_range: RangeLike
+    # Widening Plot's ``Range`` is safe, because these options are only consumed.
+    x_range: RangeLike  # type: ignore[misc]
+    y_range: RangeLike  # type: ignore[misc]
     x_axis_type: AxisType
     y_axis_type: AxisType
 
@@ -161,64 +157,64 @@ class figure(Plot, GlyphAPI):
     def borders(
         self,
         projection: ccrs.Projection,
-        scale:str,
+        scale: str = "110m",
         **line_kwargs: Unpack[MultiLineArgs],
-    ) -> GlyphRenderer[MultiLine]: ...
+    ) -> None: ...
 
     def coastlines(
         self,
         projection: ccrs.Projection,
-        scale:str,
+        scale: str = "110m",
         **line_kwargs: Unpack[MultiLineArgs],
-    ) -> GlyphRenderer[MultiLine]: ...
+    ) -> None: ...
 
     def land(
         self,
         projection: ccrs.Projection,
-        scale:str,
-        **poly_kwargs: Unpack[MultiPolygonsArgs],
-    ) -> GlyphRenderer[MultiPolygons]: ...
+        scale: str = "110m",
+        **poly_kwargs: Unpack[GeoMultiPolygonsArgs],
+    ) -> None: ...
 
     def lakes(
         self,
         projection: ccrs.Projection,
-        scale:str,
-        **poly_kwargs: Unpack[MultiPolygonsArgs],
-    ) -> GlyphRenderer[MultiPolygons]: ...
+        scale: str = "110m",
+        **poly_kwargs: Unpack[GeoMultiPolygonsArgs],
+    ) -> None: ...
 
     def ocean(
         self,
         projection: ccrs.Projection,
-        scale:str,
-        **poly_kwargs: Unpack[MultiPolygonsArgs],
-    ) -> GlyphRenderer[MultiPolygons]: ...
+        scale: str = "110m",
+        **poly_kwargs: Unpack[GeoMultiPolygonsArgs],
+    ) -> None: ...
 
     def rivers(
         self,
         projection: ccrs.Projection,
-        scale:str,
+        scale: str = "110m",
         **line_kwargs: Unpack[MultiLineArgs],
-    ) -> GlyphRenderer[MultiLine]: ...
+    ) -> None: ...
 
     def projection_boundary(
         self,
         projection: ccrs.Projection,
         **line_kwargs: Unpack[LineArgs],
-    ) -> GlyphRenderer[Line]: ...
+    ) -> None: ...
 
     def provinces(
         self,
         projection: ccrs.Projection,
-        scale:str,
+        scale: str = "110m",
         **line_kwargs: Unpack[MultiLineArgs],
-    ) -> GlyphRenderer[MultiLine]: ...
+    ) -> None: ...
 
     def states(
         self,
         projection: ccrs.Projection,
-        scale:str,
-        **poly_kwargs: Unpack[MultiPolygonsArgs],
-    ) -> GlyphRenderer[MultiPolygons]: ...
+        scale: str = "110m",
+        **poly_kwargs: Unpack[GeoMultiPolygonsArgs],
+    ) -> None: ...
 
 
 def markers() -> None: ...

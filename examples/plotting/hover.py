@@ -2,8 +2,9 @@
 showing how the hover widget works.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.circle, bokeh.models.ColumnDataSource,
+    :title: Hover
     :keywords: hover, scatter, circles, crosshair, pan, wheel
+    :apis: bokeh.plotting.figure.circle, bokeh.models.ColumnDataSource,
 
 '''
 

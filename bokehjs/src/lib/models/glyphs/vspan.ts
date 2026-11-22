@@ -52,7 +52,7 @@ export class VSpanView extends GlyphView {
     return [this.sx[i], vcenter]
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<VSpan.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<VSpan.Data>): void {
     const {sx} = {...this, ...data}
     const {top, bottom} = this.renderer.plot_view.frame.bbox
 
@@ -98,7 +98,7 @@ export class VSpanView extends GlyphView {
     const indices = this._find_spans(candidates, (sx, line_width) => {
       return abs(sx - gsx) <= max(line_width, 2/*px*/)
     })
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_span(geometry: SpanGeometry): Selection {
@@ -113,7 +113,7 @@ export class VSpanView extends GlyphView {
         })
       }
     })()
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_rect(geometry: RectGeometry): Selection {
@@ -124,7 +124,7 @@ export class VSpanView extends GlyphView {
         return gsx0 - line_width/2 <= sx && sx <= gsx1 + line_width/2
       })
     })()
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
@@ -153,10 +153,6 @@ export interface VSpan extends VSpan.Attrs {}
 export class VSpan extends Glyph {
   declare properties: VSpan.Props
   declare __view_type__: VSpanView
-
-  constructor(attrs?: Partial<VSpan.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = VSpanView

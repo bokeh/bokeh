@@ -7,19 +7,16 @@
 ''' Provide Jinja2 templates used by Bokeh to embed Bokeh documents and
 models in various ways.
 
-.. bokeh-jinja:: bokeh.core.templates.AUTOLOAD_JS
-.. bokeh-jinja:: bokeh.core.templates.AUTOLOAD_NB_JS
-.. bokeh-jinja:: bokeh.core.templates.AUTOLOAD_REQUEST_TAG
-.. bokeh-jinja:: bokeh.core.templates.AUTOLOAD_TAG
-.. bokeh-jinja:: bokeh.core.templates.CSS_RESOURCES
-.. bokeh-jinja:: bokeh.core.templates.DOC_JS
-.. bokeh-jinja:: bokeh.core.templates.DOC_NB_JS
-.. bokeh-jinja:: bokeh.core.templates.FILE
-.. bokeh-jinja:: bokeh.core.templates.JS_RESOURCES
-.. bokeh-jinja:: bokeh.core.templates.NOTEBOOK_LOAD
-.. bokeh-jinja:: bokeh.core.templates.PLOT_DIV
-.. bokeh-jinja:: bokeh.core.templates.ROOT_DIV
-.. bokeh-jinja:: bokeh.core.templates.SCRIPT_TAG
+The templates themselves are the Jinja2 files under
+:bokeh-tree:`src/bokeh/core/_templates` in the Bokeh source tree. Each constant
+below loads one of them:
+
+* :data:`~bokeh.core.templates.CSS_RESOURCES` --- :bokeh-tree:`src/bokeh/core/_templates/css_resources.html.jinja`
+* :data:`~bokeh.core.templates.FILE` --- :bokeh-tree:`src/bokeh/core/_templates/file.html.jinja`
+* :data:`~bokeh.core.templates.JS_RESOURCES` --- :bokeh-tree:`src/bokeh/core/_templates/js_resources.html.jinja`
+* :data:`~bokeh.core.templates.NOTEBOOK_INFO` --- :bokeh-tree:`src/bokeh/core/_templates/notebook_info.html.jinja`
+* :data:`~bokeh.core.templates.PORTABLE_RESOURCES_JS` --- :bokeh-tree:`src/bokeh/core/_templates/portable_resources.js.jinja`
+* :data:`~bokeh.core.templates.SCRIPT_TAG` --- :bokeh-tree:`src/bokeh/core/_templates/script_tag.html.jinja`
 
 '''
 
@@ -37,13 +34,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import sys
 from functools import lru_cache
 from os.path import dirname, join
 from typing import Any, Callable
 
-# External imports
 from jinja2 import Environment, FileSystemLoader, Template
 
 #-----------------------------------------------------------------------------
@@ -54,17 +49,10 @@ __all__ = (
     "JS_RESOURCES",
     "CSS_RESOURCES",
     "SCRIPT_TAG",
-    "PLOT_DIV",
-    "ROOT_DIV",
-    "DOC_JS",
-    "DOC_NB_JS",
     "FILE",
     "MACROS",
-    "NOTEBOOK_LOAD",
-    "AUTOLOAD_JS",
-    "AUTOLOAD_NB_JS",
-    "AUTOLOAD_TAG",
-    "AUTOLOAD_REQUEST_TAG",
+    "NOTEBOOK_INFO",
+    "PORTABLE_RESOURCES_JS",
 )
 
 #-----------------------------------------------------------------------------
@@ -99,33 +87,19 @@ def get_env() -> Environment:
 JS_RESOURCES: Template
 CSS_RESOURCES: Template
 SCRIPT_TAG: Template
-PLOT_DIV: Template
-ROOT_DIV: Template
-DOC_JS: Template
-DOC_NB_JS: Template
 FILE: Template
 MACROS: Template
-NOTEBOOK_LOAD: Template
-AUTOLOAD_JS: Template
-AUTOLOAD_NB_JS: Template
-AUTOLOAD_TAG: Template
-AUTOLOAD_REQUEST_TAG: Template
+NOTEBOOK_INFO: Template
+PORTABLE_RESOURCES_JS: Template
 
 _templates: dict[str, Callable[[], Template]] = dict(
     JS_RESOURCES=lambda: get_env().get_template("js_resources.html.jinja"),
     CSS_RESOURCES=lambda: get_env().get_template("css_resources.html.jinja"),
     SCRIPT_TAG=lambda: get_env().get_template("script_tag.html.jinja"),
-    PLOT_DIV=lambda: get_env().get_template("plot_div.html.jinja"),
-    ROOT_DIV=lambda: get_env().get_template("root_div.html.jinja"),
-    DOC_JS=lambda: get_env().get_template("doc_js.js.jinja"),
-    DOC_NB_JS=lambda: get_env().get_template("doc_nb_js.js.jinja"),
     FILE=lambda: get_env().get_template("file.html.jinja"),
     MACROS=lambda: get_env().get_template("macros.html.jinja"),
-    NOTEBOOK_LOAD=lambda: get_env().get_template("notebook_load.html.jinja"),
-    AUTOLOAD_JS=lambda: get_env().get_template("autoload_js.js.jinja"),
-    AUTOLOAD_NB_JS=lambda: get_env().get_template("autoload_nb_js.js.jinja"),
-    AUTOLOAD_TAG=lambda: get_env().get_template("autoload_tag.html.jinja"),
-    AUTOLOAD_REQUEST_TAG=lambda: get_env().get_template("autoload_request_tag.html.jinja"),
+    NOTEBOOK_INFO=lambda: get_env().get_template("notebook_info.html.jinja"),
+    PORTABLE_RESOURCES_JS=lambda: get_env().get_template("portable_resources.js.jinja"),
 )
 
 @lru_cache(None)

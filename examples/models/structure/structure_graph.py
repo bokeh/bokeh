@@ -1,3 +1,11 @@
+''' Visualize the model relationships in a simple Bokeh line plot.
+
+.. bokeh-example-metadata::
+    :title: Structure graph
+    :keywords: structure graph, models
+    :apis: bokeh.plotting.figure.line
+'''
+
 from bokeh.io import show
 from bokeh.layouts import column
 from bokeh.models.util import generate_structure_plot

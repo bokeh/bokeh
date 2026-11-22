@@ -1,3 +1,12 @@
+''' Compare palette pickers with different layouts and swatch sizes.
+
+.. bokeh-example-metadata::
+    :title: Palette picker
+    :keywords: color, map
+    :apis: bokeh.models.PaletteSelect
+    :gallery: Four palette pickers show different swatch sizes, including a disabled control.
+'''
+
 from bokeh import palettes
 from bokeh.io import show
 from bokeh.layouts import column

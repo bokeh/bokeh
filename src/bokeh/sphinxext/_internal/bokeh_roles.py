@@ -53,15 +53,14 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 from os.path import join
 from typing import Any
+from urllib.parse import quote
 
-# External imports
 import toml
 from docutils import nodes, utils
+from sphinx.util.nodes import split_explicit_title
 
-# Bokeh imports
 from . import PARALLEL_SAFE, REPO_TOP, SphinxParallelSpec
 
 # -----------------------------------------------------------------------------
@@ -231,11 +230,10 @@ def bokeh_tree(
     options: dict[str, Any] | None = None,
     content: list[str] | None = None,
 ) -> tuple[list[Any], list[Any]]:
-    """Link to a URL in the Bokeh GitHub tree, pointing to appropriate tags
-    for releases, or to main otherwise.
+    """Link to a path in the Bokeh GitHub tree at a release tag or build revision.
 
-    The link text is simply the URL path supplied, so typical usage might
-    look like:
+    The link text defaults to the supplied path. An explicit label can be
+    supplied with the standard ``Label <path>`` syntax.
 
     .. code-block:: none
 
@@ -249,13 +247,18 @@ def bokeh_tree(
     """
     app = inliner.document.settings.env.app
 
-    tag = app.env.config["version"]
+    tag, _, local = app.env.config["version"].partition("+")
+    _, _, revision = local.partition(".g")
+    revision = revision.partition(".")[0]
+    if revision and all(char in "0123456789abcdef" for char in revision):
+        tag = revision
     if "-" in tag:
         tag = "main"
 
-    url = f"{BOKEH_GH}/tree/{tag}/{text}"
+    _, label, path = split_explicit_title(text)
+    url = f"{BOKEH_GH}/tree/{tag}/{quote(utils.unescape(path))}"
     options = _normalized_role_options(options)
-    node = nodes.reference(rawtext, text, refuri=url, **options)
+    node = nodes.reference(rawtext, utils.unescape(label), refuri=url, **options)
     return [node], []
 
 

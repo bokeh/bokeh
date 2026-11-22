@@ -7,8 +7,8 @@ import {load_image} from "core/util/image"
 import type {CanvasImage} from "models/glyphs/image_url"
 import {color2css, color2hexrgb, color2rgba} from "core/util/color"
 import type {Size, Dict} from "core/types"
-import type {GraphicsBox, TextHeightMetric, Position} from "core/graphics"
-import {text_width} from "core/graphics"
+import type {TextHeightMetric, Position} from "core/graphics"
+import {GraphicsBox, text_width} from "core/graphics"
 import {font_metrics, parse_css_font_size, parse_css_length} from "core/util/text"
 import {insert_text_on_position} from "core/util/string"
 import type {Rect} from "core/util/affine"
@@ -26,6 +26,10 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
 
   graphics(): GraphicsBox {
     return this
+  }
+
+  override clone_graphics(): GraphicsBox {
+    return new MathTextBox(this)
   }
 
   valign: number
@@ -57,11 +61,12 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   }
 
   font_size_scale: number = 1.0
-  font: string
+  font: string = ""
   color: string
 
   private svg_image: CanvasImage | null = null
   private svg_element: SVGElement
+  private _image_request: Promise<void> | null = null
 
   _rect(): Rect {
     const {width, height} = this._size()
@@ -101,6 +106,7 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   override connect_signals(): void {
     super.connect_signals()
     this.on_change(this.model.properties.text, () => this.load_image())
+    this.connect(this.provider.ready, () => this.load_image())
   }
 
   set visuals(v: visuals.Text["Values"]) {
@@ -362,8 +368,24 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   }
 
   private async load_image(): Promise<void> {
-    await this.request_image()
-    this.parent.request_layout()
+    // MathJax can become ready before a consumer assigns text visuals.
+    if (this.font == "") {
+      return
+    }
+    if (this._image_request != null) {
+      return this._image_request
+    }
+
+    const request = this.request_image()
+    this._image_request = request
+    try {
+      await request
+      this.parent.request_layout()
+    } finally {
+      if (this._image_request == request) {
+        this._image_request = null
+      }
+    }
   }
 
   /**
@@ -372,10 +394,6 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   */
   paint(ctx: Context2d): void {
     if (this.svg_image == null) {
-      if (this.provider.status == "not_started" || this.provider.status == "loading") {
-        this.provider.ready.connect(() => this.load_image())
-      }
-
       if (this.provider.status == "loaded") {
         void this.load_image()
       }
@@ -413,6 +431,53 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   }
 }
 
+export class MathTextBox extends GraphicsBox {
+  constructor(readonly view: MathTextView) {
+    super()
+  }
+
+  override set base_font_size(v: number | null | undefined) {
+    super.base_font_size = v
+    this.view.base_font_size = v
+  }
+
+  override get base_font_size(): number {
+    return super.base_font_size
+  }
+
+  set visuals(v: visuals.Text["Values"]) {
+    this.view.visuals = v
+  }
+
+  override infer_text_height(): TextHeightMetric {
+    return this.view.infer_text_height()
+  }
+
+  _size(): Size {
+    return this.view._size()
+  }
+
+  _rect(): Rect {
+    return this._with_position(() => this.view._rect())
+  }
+
+  paint(ctx: Context2d): void {
+    this._with_position(() => this.view.paint(ctx))
+  }
+
+  protected _with_position<T>(fn: () => T): T {
+    const {position, angle} = this.view
+    this.view.position = this.position
+    this.view.angle = this.angle
+    try {
+      return fn()
+    } finally {
+      this.view.position = position
+      this.view.angle = angle
+    }
+  }
+}
+
 export namespace MathText {
   export type Attrs = p.AttrsOf<Props>
 
@@ -427,9 +492,6 @@ export class MathText extends BaseText {
   declare properties: MathText.Props
   declare __view_type__: MathTextView
 
-  constructor(attrs?: Partial<MathText.Attrs>) {
-    super(attrs)
-  }
 }
 
 export class AsciiView extends MathTextView {
@@ -486,10 +548,6 @@ export class Ascii extends MathText {
   declare properties: Ascii.Props
   declare __view_type__: AsciiView
 
-  constructor(attrs?: Partial<Ascii.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = AsciiView
   }
@@ -500,7 +558,7 @@ export class MathMLView extends MathTextView {
 
   override get styled_text(): string {
     let styled = this.text.trim()
-    let matches = styled.match(/<math(.*?[^?])?>/s)
+    let matches = /<math(.*?[^?])?>/s.exec(styled)
     if (matches == null) {
       return this.text.trim()
     }
@@ -511,7 +569,7 @@ export class MathMLView extends MathTextView {
       `<mstyle displaystyle="true" mathcolor="${color2hexrgb(this.color)}" ${this.font.includes("bold") ? 'mathvariant="bold"' : "" }>`,
     )
 
-    matches = styled.match(/<\/[^>]*?math.*?>/s)
+    matches = /<\/[^>]*?math.*?>/s.exec(styled)
     if (matches == null) {
       return this.text.trim()
     }
@@ -539,10 +597,6 @@ export interface MathML extends MathML.Attrs {}
 export class MathML extends MathText {
   declare properties: MathML.Props
   declare __view_type__: MathMLView
-
-  constructor(attrs?: Partial<MathML.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = MathMLView
@@ -584,10 +638,6 @@ export interface TeX extends TeX.Attrs {}
 export class TeX extends MathText {
   declare properties: TeX.Props
   declare __view_type__: TeXView
-
-  constructor(attrs?: Partial<TeX.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = TeXView

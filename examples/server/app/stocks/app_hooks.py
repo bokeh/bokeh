@@ -1,3 +1,11 @@
+''' Prepare the stock data when the Bokeh server starts.
+
+.. bokeh-example-metadata::
+    :title: Load stock data at server startup
+    :keywords: app, hooks
+    :no-index:
+'''
+
 import yfinance as yf
 
 TICKERS = ["AAPL", "GOOG", "INTC", "NVDA", "MSFT"]

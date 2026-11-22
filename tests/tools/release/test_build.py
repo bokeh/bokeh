@@ -1,38 +1,59 @@
 from __future__ import annotations
 
-# Standard library imports
 import json
+import tomllib
 from pathlib import Path
 
-# External imports
 import pytest
-import tomllib
 import yaml
 from packaging.requirements import Requirement
 
-# Bokeh imports
-# Bokeh test imports
 from tests.support.util.project import TOP_PATH
 from tests.tools.release._support import RecordingSystem
 from tools.release import build
 from tools.release.config import Config
 from tools.release.enums import ActionResult
+from tools.release.npm import NPM_PACKAGES
 from tools.release.pipeline import StepType
 from tools.release.system import System
 
 
+@pytest.fixture(autouse=True)
+def map_api_keys(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("GOOGLE_API_KEY", "test-google-key")
+    monkeypatch.setenv("CARTO_API_KEY", "test-carto-key")
+
+
+@pytest.mark.parametrize("name", ["GOOGLE_API_KEY", "CARTO_API_KEY"])
+@pytest.mark.parametrize("value", [None, ""])
+def test_release_docs_require_map_keys(
+        config: Config, monkeypatch: pytest.MonkeyPatch, name: str, value: str | None) -> None:
+    if value is None:
+        monkeypatch.delenv(name)
+    else:
+        monkeypatch.setenv(name, value)
+    system = RecordingSystem()
+
+    result = build.build_docs(config, system)
+
+    assert result.kind is ActionResult.FAIL
+    assert result.details == (f"{name} is required for release documentation builds",)
+    assert not system.calls
+    assert not system.directories
+
+
 def test_conda_recipe_dependencies_match_project_dependencies() -> None:
-    with open(TOP_PATH / "pyproject.toml", "rb") as f:
-        project_dependencies = tomllib.load(f)["project"]["dependencies"]
-    with open(TOP_PATH / "conda/recipe/recipe.yaml") as f:
-        conda_dependencies = yaml.safe_load(f)["requirements"]["run"]
+    with open(TOP_PATH / "pyproject.toml", "rb") as pyproject:
+        project_dependencies = tomllib.load(pyproject)["project"]["dependencies"]
+    with open(TOP_PATH / "conda/recipe/recipe.yaml") as recipe:
+        conda_dependencies = yaml.safe_load(recipe)["requirements"]["run"]
 
     def constraints(requirements: list[str]) -> dict[str, str]:
         parsed = (Requirement(requirement) for requirement in requirements)
         return {requirement.name.lower(): str(requirement.specifier) for requirement in parsed}
 
     actual = constraints(conda_dependencies)
-    assert actual.pop("python") == ">=3.12"
+    assert actual.pop("python") == ">=3.13"
     assert actual == constraints(project_dependencies)
 
 
@@ -40,7 +61,8 @@ def test_conda_recipe_dependencies_match_project_dependencies() -> None:
     ("func", "command", "environment"),
     [
         (build.build_bokehjs, "node make build", {}),
-        (build.build_npm_packages, "npm pack", {}),
+        (build.build_jupyter, "pixi run --locked --environment release-build jupyter-build", {}),
+        (build.build_npm_packages, "npm pack --workspace frameworks/web-component", {}),
         (
             build.build_conda_package,
             "rattler-build build --recipe conda/recipe --channel conda-forge "
@@ -49,12 +71,24 @@ def test_conda_recipe_dependencies_match_project_dependencies() -> None:
         ),
         (
             build.build_docs,
-            "make clean all SPHINXOPTS=-v",
-            {"BOKEH_DOCS_CDN": "4.0.0", "BOKEH_DOCS_VERSION": "4.0.0"},
+            'make clean all SPHINXOPTS="-v -j auto"',
+            {"BOKEH_DOCS_PIXI_ACTIVE": "1", "BOKEH_DOCS_CDN": "4.0.0", "BOKEH_DOCS_VERSION": "4.0.0"},
         ),
-        (build.build_pip_packages, "python -m build .", {"BOKEHJS_ACTION": "install"}),
-        (build.dev_install_bokehjs, "python -m pip install --no-deps -e .", {"BOKEHJS_ACTION": "install"}),
-        (build.install_bokehjs, "python -m pip install --no-deps .", {"BOKEHJS_ACTION": "install"}),
+        (
+            build.build_pip_packages,
+            "python -m build .",
+            {"BOKEHJS_ACTION": "install", "BOKEH_JUPYTER_ACTION": "install"},
+        ),
+        (
+            build.dev_install_bokehjs,
+            "python -m pip install --no-deps -e .",
+            {"BOKEHJS_ACTION": "install", "BOKEH_JUPYTER_ACTION": "install"},
+        ),
+        (
+            build.install_bokehjs,
+            "python -m pip install --no-deps .",
+            {"BOKEHJS_ACTION": "install", "BOKEH_JUPYTER_ACTION": "install"},
+        ),
         (build.npm_install, "npm ci", {}),
         (
             build.verify_pip_install_from_sdist,
@@ -96,13 +130,14 @@ def test_command_build_steps(
     ("func", "command"),
     [
         (build.build_bokehjs, "node make build"),
-        (build.build_npm_packages, "npm pack"),
+        (build.build_jupyter, "pixi run --locked --environment release-build jupyter-build"),
+        (build.build_npm_packages, "npm pack --workspace frameworks/web-component"),
         (
             build.build_conda_package,
             "rattler-build build --recipe conda/recipe --channel conda-forge "
             "--output-dir dist/conda --package-format tar-bz2 --test skip",
         ),
-        (build.build_docs, "make clean all SPHINXOPTS=-v"),
+        (build.build_docs, 'make clean all SPHINXOPTS="-v -j auto"'),
         (build.build_pip_packages, "python -m build ."),
         (build.dev_install_bokehjs, "python -m pip install --no-deps -e ."),
         (build.install_bokehjs, "python -m pip install --no-deps ."),
@@ -128,6 +163,7 @@ def test_command_build_steps_report_failure(config: Config, func: StepType, comm
 def test_directory_build_steps_use_expected_working_directories(config: Config) -> None:
     cases = [
         (build.build_bokehjs, [("cd", "bokehjs"), ("cd", "..")]),
+        (build.build_jupyter, []),
         (build.build_npm_packages, [("cd", "bokehjs"), ("cd", "..")]),
         (build.build_docs, [("cd", "docs/bokeh"), ("cd", "../..")]),
         (build.npm_install, [("cd", "bokehjs"), ("cd", "..")]),
@@ -139,6 +175,38 @@ def test_directory_build_steps_use_expected_working_directories(config: Config) 
         assert system.directories == expected
 
 
+def test_jupyter_build_reinstalls_generated_outputs(config: Config) -> None:
+    system = RecordingSystem()
+
+    result = build.build_jupyter(config, system)
+
+    assert result.kind is ActionResult.PASS
+    assert system.commands == ["pixi run --locked --environment release-build jupyter-build"]
+    assert config.modified == set()
+
+
+def test_build_npm_packages_packs_every_public_package_in_dependency_order(config: Config) -> None:
+    system = RecordingSystem()
+
+    result = build.build_npm_packages(config, system)
+
+    assert result.kind is ActionResult.PASS
+    assert system.commands == [
+        "npm pack",
+        "npm pack --workspace frameworks/base",
+        "npm pack --workspace frameworks/react",
+        "npm pack --workspace frameworks/svelte",
+        "npm pack --workspace frameworks/vue",
+        "npm pack --workspace frameworks/web-component",
+    ]
+
+
+def test_npm_package_manifest_matches_public_package_metadata() -> None:
+    for package in NPM_PACKAGES:
+        metadata = json.loads((TOP_PATH / "bokehjs" / package.workspace / "package.json").read_text())
+        assert metadata["name"] == package.name
+
+
 def make_bokehjs_package_files(root: Path, *, lockfile_version: int = 3) -> list[str]:
     filenames = [
         "package.json",
@@ -147,11 +215,28 @@ def make_bokehjs_package_files(root: Path, *, lockfile_version: int = 3) -> list
         "src/lib/package.json",
         "src/server/package.json",
         "test/package.json",
+        "frameworks/base/package.json",
+        "frameworks/react/package.json",
+        "examples/frameworks/react-vite/package.json",
     ]
     for filename in filenames:
         path = root / "bokehjs" / filename
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps({"name": "package", "version": "0.0.0"}))
+        name = {
+            "frameworks/base/package.json": "@bokeh/framework",
+            "frameworks/react/package.json": "@bokeh/react",
+            "examples/frameworks/react-vite/package.json": "@bokeh-example/react-vite",
+        }.get(filename, "@bokeh/internal")
+        content: dict[str, object] = {"name": name, "version": "0.0.0"}
+        if filename == "package.json":
+            content["workspaces"] = [filename.removesuffix("/package.json") for filename in filenames[1:]]
+        elif filename == "frameworks/base/package.json":
+            content["peerDependencies"] = {"@bokeh/bokehjs": ">=0.0.0 <1"}
+        elif filename == "frameworks/react/package.json":
+            content["dependencies"] = {"@bokeh/framework": "0.0.0"}
+        elif filename == "examples/frameworks/react-vite/package.json":
+            content["dependencies"] = {"@bokeh/bokehjs": "0.0.0", "@bokeh/react": "0.0.0"}
+        path.write_text(json.dumps(content))
 
     lock = root / "bokehjs" / "package-lock.json"
     lock.write_text(json.dumps({
@@ -176,7 +261,15 @@ def test_update_bokehjs_versions_updates_every_workspace(tmp_path: Path, monkeyp
     assert result.kind is ActionResult.PASS
     assert config.modified == {f"bokehjs/{filename}" for filename in filenames}
     for filename in filenames[:-1]:
-        assert json.loads((tmp_path / "bokehjs" / filename).read_text())["version"] == "4.0.0-rc.2"
+        package = json.loads((tmp_path / "bokehjs" / filename).read_text())
+        expected = "0.0.0" if package["name"].startswith("@bokeh-example/") else "4.0.0-rc.2"
+        assert package["version"] == expected
+    base = json.loads((tmp_path / "bokehjs/frameworks/base/package.json").read_text())
+    assert base["peerDependencies"]["@bokeh/bokehjs"] == ">=4.0.0-rc.2 <5"
+    react = json.loads((tmp_path / "bokehjs/frameworks/react/package.json").read_text())
+    assert react["dependencies"]["@bokeh/framework"] == "4.0.0-rc.2"
+    example = json.loads((tmp_path / "bokehjs/examples/frameworks/react-vite/package.json").read_text())
+    assert example["dependencies"] == {"@bokeh/bokehjs": "4.0.0-rc.2", "@bokeh/react": "4.0.0-rc.2"}
     lock = json.loads((tmp_path / "bokehjs" / "package-lock.json").read_text())
     assert lock["version"] == "4.0.0-rc.2"
     assert lock["packages"][""]["version"] == "4.0.0-rc.2"
@@ -194,6 +287,68 @@ def test_update_bokehjs_versions_rejects_old_lockfile(tmp_path: Path, monkeypatc
     assert result.details is not None
     assert "Expected lock file v3" in result.details
     assert Path.cwd() == tmp_path
+
+
+def test_update_and_verify_jupyter_release_frontend(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    frontend = tmp_path / "jupyter"
+    package = tmp_path / "src" / "bokeh" / "jupyter"
+    labextension = package / "labextension"
+    static = labextension / "static"
+    static.mkdir(parents=True)
+    frontend.mkdir(parents=True, exist_ok=True)
+    (frontend / "package.json").write_text(json.dumps({"name": "@bokeh/bokeh-jupyter", "version": "0.0.0"}))
+    (frontend / "package-lock.json").write_text(json.dumps({
+        "name": "@bokeh/bokeh-jupyter",
+        "version": "0.0.0",
+        "lockfileVersion": 3,
+        "packages": {"": {"name": "@bokeh/bokeh-jupyter", "version": "0.0.0"}},
+    }))
+    (package / "anywidget.js").write_text("generated")
+    (labextension / "package.json").write_text(json.dumps({
+        "name": "@bokeh/bokeh-jupyter",
+        "version": "4.0.0-rc.2",
+        "jupyterlab": {"_build": {"load": "static/remoteEntry.test.js"}},
+    }))
+    (static / "remoteEntry.test.js").write_text("generated")
+    monkeypatch.chdir(tmp_path)
+    config = Config("4.0.0rc2")
+
+    result = build.update_jupyter_version(config, RecordingSystem())
+
+    assert result.kind is ActionResult.PASS
+    assert json.loads((frontend / "package.json").read_text())["version"] == "4.0.0-rc.2"
+    lock = json.loads((frontend / "package-lock.json").read_text())
+    assert lock["version"] == "4.0.0-rc.2"
+    assert lock["packages"][""]["version"] == "4.0.0-rc.2"
+    assert config.modified == {
+        "jupyter/package.json",
+        "jupyter/package-lock.json",
+    }
+    assert build.verify_jupyter_build(config, RecordingSystem()).kind is ActionResult.PASS
+
+
+def test_verify_jupyter_release_frontend_rejects_stale_generated_version(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    frontend = tmp_path / "jupyter"
+    package = tmp_path / "src" / "bokeh" / "jupyter"
+    labextension = package / "labextension"
+    (labextension / "static").mkdir(parents=True)
+    frontend.mkdir(parents=True, exist_ok=True)
+    (frontend / "package.json").write_text(json.dumps({"version": "4.0.0"}))
+    (labextension / "package.json").write_text(json.dumps({
+        "version": "4.0.0-dev.4",
+        "jupyterlab": {"_build": {"load": "static/remoteEntry.test.js"}},
+    }))
+    (package / "anywidget.js").write_text("generated")
+    (labextension / "static" / "remoteEntry.test.js").write_text("generated")
+    monkeypatch.chdir(tmp_path)
+
+    result = build.verify_jupyter_build(Config("4.0.0"), RecordingSystem())
+
+    assert result.kind is ActionResult.FAIL
+    assert result.details is not None
+    assert "source/generated versions" in result.details[0]
 
 
 def test_update_bokehjs_versions_reports_missing_package_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

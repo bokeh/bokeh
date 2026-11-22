@@ -1,3 +1,13 @@
+''' Run a temperature dashboard in a standalone Bokeh server with multiple worker
+processes.
+
+.. bokeh-example-metadata::
+    :title: Standalone embed
+    :keywords: standalone, embed
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Slider, bokeh.plotting.figure.line
+    :sampledata: sea_surface_temperature
+'''
+
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Slider
 from bokeh.plotting import figure

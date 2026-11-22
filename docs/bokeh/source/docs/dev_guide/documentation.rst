@@ -120,19 +120,14 @@ environment automatically, whether or not its shell is already active.
 2. Set environment variable
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In order to build the documentation, you must set the
-:ref:`environment variable <ug_settings>` ``GOOGLE_API_KEY``. The
-documentation includes some plots with maps, and a valid Google API key is
-required to build those plots correctly. You have two options:
+Local and test CI documentation builds do not require map API keys. Map plots
+will not work without valid keys, but the rest of the documentation builds normally.
 
-* Follow the instructions on the `Google developers website`_ to generate a new
-  API key.
-
-* Use a placeholder value like ``some_value`` instead of a valid API key. If
-  you use a placeholder, some map plots in Bokeh's documentation might not be
-  rendered correctly, but the documentation should otherwise be built correctly.
-  This will only affect your local environment and should have no effect on any
-  changes you might commit to the Bokeh repository.
+To render the maps, obtain a key from the `Google developers website`_ and a
+`CARTO Basemaps API key <https://carto.com/basemaps/apikey/>`_, then set
+``GOOGLE_API_KEY`` and ``CARTO_API_KEY``. Release documentation builds require
+both environment variables to be nonempty. ``tools.release`` checks them before
+starting the documentation build.
 
 Set the environment variable for the terminal session that will build the
 documentation:
@@ -145,6 +140,7 @@ documentation:
         .. code-block:: sh
 
             export GOOGLE_API_KEY=some_value
+            export CARTO_API_KEY=some_value
 
     .. tab-item:: Windows (PS)
         :sync: ps
@@ -152,6 +148,7 @@ documentation:
         .. code-block:: powershell
 
             $Env:GOOGLE_API_KEY = "some_value"
+            $Env:CARTO_API_KEY = "some_value"
 
     .. tab-item:: Windows (CMD)
         :sync: cmd
@@ -159,8 +156,19 @@ documentation:
         .. code-block:: doscon
 
             set GOOGLE_API_KEY=some_value
+            set CARTO_API_KEY=some_value
 
-Do not add the API key to ``pixi.toml`` or commit it to the repository.
+The examples read these environment variables directly, so the same setup
+also works when running examples locally with ``python`` or ``bokeh serve``.
+The displayed and downloadable source contains no credentials. Both keys
+are included in the generated plots and visible to visitors. Use keys restricted
+to the documentation site's domains, according to each provider's controls.
+CI documentation jobs read them from the ``GOOGLE_API_KEY`` and
+``CARTO_API_KEY`` GitHub Actions secrets when available. Test builds also
+proceed when keys are missing or invalid. Release builds require both keys
+to be nonempty.
+
+Do not add API keys to ``pixi.toml`` or commit them to the repository.
 
 3. Build Bokeh's documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -280,6 +288,100 @@ supported by ``make.bat``). For example:
                 make.bat html
                 make.bat serve
 
+.. _contributor_guide_documentation_build_symlinks:
+
+Using symlinks to a local BokehJS build
+'''''''''''''''''''''''''''''''''''''''
+
+With ``BOKEH_DOCS_CDN=local``, the documentation uses BokehJS from
+``src/bokeh/server/static``, not from ``bokehjs/build``. Installing Bokeh in
+development mode (see :ref:`contributor_guide_setup`) copies the built BokehJS
+files there, so after rebuilding BokehJS you have to install Bokeh again for
+the documentation to pick up the changes. To copy an existing BokehJS build
+without rebuilding it, run from the root of the repository:
+
+.. code-block:: sh
+
+    BOKEHJS_ACTION=install python -m pip install --no-deps -e .
+
+Alternatively, you can replace the copied directory with a symbolic link, so
+that the documentation always uses the most recent BokehJS build. Run the
+following commands from the root of the repository. The installation doesn't
+overwrite this directory if it's a symbolic link:
+
+.. tab-set::
+
+    .. tab-item:: Linux/macOS
+        :sync: sh
+
+        .. code-block:: sh
+
+            rm -rf src/bokeh/server/static/js
+            ln -s "$PWD/bokehjs/build/js" src/bokeh/server/static/js
+
+    .. tab-item:: Windows (PS)
+        :sync: ps
+
+        .. code-block:: powershell
+
+            Remove-Item -Recurse -Force src\bokeh\server\static\js
+            New-Item -ItemType SymbolicLink -Path src\bokeh\server\static\js -Target "$PWD\bokehjs\build\js"
+
+    .. tab-item:: Windows (CMD)
+        :sync: cmd
+
+        .. code-block:: doscon
+
+            rmdir /s /q src\bokeh\server\static\js
+            mklink /D src\bokeh\server\static\js "%CD%\bokehjs\build\js"
+
+Use an absolute link target, because the documentation build copies
+``src/bokeh/server/static`` (including the link) to the output directory. On
+Windows, creating symbolic links requires administrator privileges or
+Developer Mode.
+
+When using symbolic links, you also need to set the environment variable
+``NODE_OPTIONS`` to ``--preserve-symlinks-main`` when building the
+documentation. The documentation build uses Node.js to compile TypeScript in
+some of the examples, and by default Node.js resolves symbolic links, which
+puts the BokehJS compiler under ``bokehjs/``. ``bokehjs/package.json``
+declares ES modules, so Node.js would fail to run the compiler with
+``ReferenceError: require is not defined in ES module scope``:
+
+.. tab-set::
+
+    .. tab-item:: Linux/macOS
+        :sync: sh
+
+        .. code-block:: sh
+
+            NODE_OPTIONS=--preserve-symlinks-main BOKEH_DOCS_CDN=local make clean html serve
+
+    .. tab-item:: Windows (PS)
+        :sync: ps
+
+        .. code-block:: powershell
+
+            $Env:NODE_OPTIONS = "--preserve-symlinks-main"
+            $Env:BOKEH_DOCS_CDN = "local"
+            .\make.bat html
+            .\make.bat serve
+
+    .. tab-item:: Windows (CMD)
+        :sync: cmd
+
+        .. code-block:: doscon
+
+            set NODE_OPTIONS=--preserve-symlinks-main
+            set BOKEH_DOCS_CDN=local
+            make.bat html
+            make.bat serve
+
+.. _contributor_guide_documentation_build_parallel:
+
+Speeding up development using parallel builds
+'''''''''''''''''''''''''''''''''''''''''''''
+
 Sphinx can distribute reading and writing over several worker processes. To
 use all available CPUs for a clean local build, add the option
 ``SPHINXOPTS="-j auto"`` to your build command:
@@ -287,6 +389,25 @@ use all available CPUs for a clean local build, add the option
 .. code-block:: sh
 
     make clean html serve SPHINXOPTS="-j auto"
+
+HTML builds also distribute doctree resolution and search indexing to the
+workers by default. To use Sphinx's standard writer instead:
+
+.. code-block:: sh
+
+    make html SPHINXOPTS="-j auto -D bokeh_parallel_write=0"
+
+Parallel resolution uses Sphinx's standard HTML builder and fork-based workers
+when parallel writing is supported and more than one worker is requested.
+It rejects transforms that register new images during resolution. Custom
+extensions that accumulate state during resolution may need additional merge
+support.
+
+.. note::
+    Parallel builds only work on Linux and macOS, not on native Windows. On
+    Windows, Sphinx falls back to a serial build, which takes considerably
+    longer. To speed up local builds on Windows, build the documentation in
+    `WSL <https://learn.microsoft.com/windows/wsl/>`_ or a Linux container.
 
 To learn more about options for the Sphinx build process, see
 :doc:`sphinx:man/sphinx-build` in the Sphinx documentation.
@@ -319,6 +440,14 @@ Makefile:
 
     make -C docs/bokeh reference
 
+Each class page is placed in the section with the longest slug that is a
+prefix of the class's module path below ``bokeh.models``. For example, classes
+from ``bokeh.models.widgets.sliders`` are listed under ``widgets/sliders``.
+Sections are defined in :bokeh-tree:`docs/bokeh/api_reference/sections.json`.
+A section can also list classes explicitly, which places them in that section
+regardless of their module. If no section matches a class that isn't listed,
+generating the reference fails with an error that suggests how to fix it.
+
 Documentation builds check that the generated pages are current. Use
 ``make -C docs/bokeh reference-check`` to run the same check without changing
 any files. The underlying generator is available as ``python -m api_reference``
@@ -326,10 +455,8 @@ when working in ``docs/bokeh``.
 
 The ``bokeh-model`` Sphinx extension discovers inherited Bokeh properties,
 Python properties, and methods for each class page. The
-``bokeh_model_excluded_members`` setting in ``conf.py`` controls names omitted
-from every model page. By default this hides ``js_event_callbacks``,
-``js_property_callbacks``, and ``subscribed_events`` while leaving the JSON
-prototype faithful to the serialized model.
+``bokeh_model_excluded_members`` setting in ``conf.py`` controls additional
+names omitted from every model page. Private members are omitted automatically.
 
 In the file :bokeh-tree:`docs/bokeh/source/rst_epilog.txt`, you can find many common
 substitutions used across the narrative documentation as well as docstrings and
@@ -353,6 +480,96 @@ Bokeh's narrative documentation consists of these four elements:
 Sphinx generates each of those elements from reStructuredText (.rst) files. To
 edit any of those elements, open the corresponding ReST source file in the
 ``docs/bokeh/source/docs`` folder of the Bokeh source tree.
+
+The :ref:`example_index` discovers Python scripts and notebooks under
+``examples/``. Start each indexed Python script with a short module docstring
+summary that explains what it demonstrates. CI reports scripts with missing
+summaries. Use the ``bokeh-example-metadata`` directive to provide a title,
+API names, sample data, and search keywords.
+
+Start with ``:title:`` and ``:keywords:``. Follow those with ``:categories:``, ``:apis:``,
+``:sampledata:``, ``:refs:``, and ``:example-ref:`` when they apply. Put
+optional flags last in this order: ``:render:``,
+``:no-render:``, ``:no-index:``, and ``:gallery:``.
+
+For an example rendered in a guide or API reference page, set
+``:example-ref:`` to the section label so the index opens that rendering.
+
+Python scripts in directories matching ``bokeh_example_subdirs`` get dedicated
+rendered pages by default. A pattern such as ``basic/*`` covers each immediate
+subdirectory of ``examples/basic/``. Gallery examples also get a dedicated
+page. For other examples, use ``:render:`` to opt in outside the default
+directories and ``:no-render:`` to opt out inside them.
+
+Use ``:no-index:`` for support modules such as custom model definitions, app
+hooks, shared data preparation, and authentication helpers. They retain their
+metadata and remain available to other examples, but are omitted from the
+Examples index. Runnable entry points should remain in the index.
+
+List the module names of imported datasets in the ``:sampledata:`` field,
+separated by commas. CI reports imports with missing declarations.
+
+To feature a rendered example in the :ref:`gallery`, add ``:gallery:`` with
+the thumbnail's alt text as its value. Put the PNG and the corresponding
+``@2x.png`` in ``docs/bokeh/source/_images/`` at the same relative path as
+the example, replacing the ``.py`` extension. The gallery title defaults to
+the filename with underscores replaced by spaces and its first letter
+capitalized. Override it with ``:title:``. Cards show the first
+sentence of the docstring summary. Use inline links for external references
+in this summary so they resolve on both the example page and Gallery card.
+The gallery's JSON file lists the externally hosted server demos.
+
+Thumbnail requirements:
+
+* Gallery images are square PNGs at 300 × 300 pixels and 600 × 600 pixels
+  for the ``@2x`` version.
+* Index images are separate PNGs with a maximum dimension of 120 pixels.
+  Store them in ``docs/bokeh/source/_images/examples/_index/``, mirroring the
+  example's path relative to ``examples/`` and replacing its extension with
+  ``.png``. No ``@2x`` version is needed for the index.
+* Capture the actual rendered output in a useful state, such as a selection
+  or an open tooltip. Crop out browser chrome and unrelated page content.
+  Preserve proportions and use padding where needed. Keep small controls
+  at a readable size without enlarging them to fill the image.
+
+Commit thumbnails with the example changes. Docs builds reuse these files
+and do not generate screenshots. Index thumbnails are optional. Entries
+without one retain an empty thumbnail column.
+
+Gallery tabs and subgroup order are arranged in
+``docs/bokeh/source/docs/gallery.rst``. Each line inside a ``bokeh-gallery``
+directive names a category::
+
+    .. bokeh-gallery::
+
+        basic/lines
+        basic/annotations
+        topics/vector_fields
+        topics/timeseries
+
+By default, an example belongs to the category matching its parent directory,
+relative to ``examples/``. To move or reuse it, add comma-separated
+``:categories:`` to its metadata. This replaces the directory default::
+
+    .. bokeh-example-metadata::
+        :title: Stock prices
+        :keywords: stocks, datetime, line
+        :categories: basic/lines, topics/timeseries
+        :gallery: Four stock price lines with a legend.
+
+This example appears in both Lines and Time series. To exclude an example
+from its default category, omit that category from the explicit list. For
+example, ``:categories: topics/vector_fields`` moves Quiver out of Annotations.
+Reused cards share the example's metadata, thumbnails, and rendered destination.
+Only examples with ``:gallery:`` appear as cards. Categories also supply the
+Examples index's topic filters, including for examples without thumbnails.
+
+Category names must match an existing directory under ``examples/`` or a
+virtual category declared in ``bokeh_example_categories`` in ``conf.py``.
+For example, ``topics/vector_fields`` groups examples without moving files.
+Unknown names in metadata or ``gallery.rst`` fail the docs build. A category's
+final component supplies its Gallery subgroup heading, formatted for display.
+Empty subgroups are omitted.
 
 For information on how to format text using reStructuredText, see the
 :doc:`reStructuredText primer on the Sphinx website <sphinx:usage/restructuredtext/basics>`

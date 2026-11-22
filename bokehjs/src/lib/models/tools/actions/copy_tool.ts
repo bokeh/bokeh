@@ -27,14 +27,9 @@ export class CopyTool extends ActionTool {
   declare properties: CopyTool.Props
   declare __view_type__: CopyToolView
 
-  constructor(attrs?: Partial<CopyTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = CopyToolView
 
-    this.register_alias("copy", () => new CopyTool())
   }
 
   override tool_name = "Copy"

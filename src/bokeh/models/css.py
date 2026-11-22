@@ -20,10 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
-# Bokeh imports
 from ..core.has_props import abstract
 from ..core.property.nullable import Nullable
 from ..core.property.primitive import String
@@ -50,10 +46,6 @@ __all__ = (
 class StyleSheet(Model):
     """ """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class InlineStyleSheet(StyleSheet):
     """ Inline stylesheet equivalent to ``<style type="text/css">${css}</style>``.
 
@@ -63,10 +55,6 @@ class InlineStyleSheet(StyleSheet):
         the ``<head>`` element. If you want to append globally regardless of
         the context, use ``GlobalInlineStyleSheet`` instead.
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     css = Required(String, help="""
     The contents of this stylesheet.
@@ -82,10 +70,6 @@ class ImportedStyleSheet(StyleSheet):
         the context, use ``GlobalImportedStyleSheet`` instead.
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     url = Required(String, help="""
     The location of an external stylesheet.
     """)
@@ -98,10 +82,6 @@ class GlobalInlineStyleSheet(InlineStyleSheet):
         many times it's being used in other models.
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class GlobalImportedStyleSheet(ImportedStyleSheet):
     """ An imported stylesheet that's appended to the ``<head>`` element.
 
@@ -110,16 +90,8 @@ class GlobalImportedStyleSheet(ImportedStyleSheet):
         many times it's being used in other models.
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class Styles(Model):
     """ Allows to configure style attribute of DOM elements. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     align_content = Nullable(String)
     align_items = Nullable(String)
@@ -208,7 +180,6 @@ class Styles(Model):
     caption_side = Nullable(String)
     caret_color = Nullable(String)
     clear = Nullable(String)
-    clip = Nullable(String)
     clip_path = Nullable(String)
     clip_rule = Nullable(String)
     color = Nullable(String)
@@ -271,12 +242,9 @@ class Styles(Model):
     grid_auto_rows = Nullable(String)
     grid_column = Nullable(String)
     grid_column_end = Nullable(String)
-    grid_column_gap = Nullable(String)
     grid_column_start = Nullable(String)
-    grid_gap = Nullable(String)
     grid_row = Nullable(String)
     grid_row_end = Nullable(String)
-    grid_row_gap = Nullable(String)
     grid_row_start = Nullable(String)
     grid_template = Nullable(String)
     grid_template_areas = Nullable(String)
@@ -439,7 +407,6 @@ class Styles(Model):
     will_change = Nullable(String)
     word_break = Nullable(String)
     word_spacing = Nullable(String)
-    word_wrap = Nullable(String)
     writing_mode = Nullable(String)
     z_index = Nullable(String)
 

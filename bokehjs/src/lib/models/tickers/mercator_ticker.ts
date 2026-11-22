@@ -17,10 +17,6 @@ export interface MercatorTicker extends MercatorTicker.Attrs {}
 export class MercatorTicker extends BasicTicker {
   declare properties: MercatorTicker.Props
 
-  constructor(attrs?: Partial<MercatorTicker.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<MercatorTicker.Props>(({Nullable}) => ({
       dimension: [ Nullable(LatLon), null ],

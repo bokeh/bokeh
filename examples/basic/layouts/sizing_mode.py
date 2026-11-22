@@ -1,3 +1,13 @@
+''' Switch a plot's sizing mode from a dropdown to compare its behavior in a
+container.
+
+.. bokeh-example-metadata::
+    :title: Sizing mode
+    :keywords: sizing, mode
+    :apis: bokeh.models.Div, bokeh.models.Select, bokeh.plotting.figure.scatter
+    :sampledata: penguins
+'''
+
 from bokeh.core.enums import SizingMode
 from bokeh.layouts import column, row
 from bokeh.models import Div, Select

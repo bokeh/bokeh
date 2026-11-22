@@ -22,29 +22,18 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
-# Bokeh imports
-from ...core.enums import CoordinateUnits
 from ...core.has_props import abstract
 from ...core.property.dataspec import NumberSpec
-from ...core.property.enum import Enum
 from ...core.property.include import Include
-from ...core.property.instance import Instance, InstanceDefault
-from ...core.property.nullable import Nullable
 from ...core.property.override import Override
-from ...core.property.vectorization import field
 from ...core.property_mixins import FillProps, HatchProps, LineProps
 from ..graphics import Marking
-from .annotation import DataAnnotation
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    "Arrow",
     "ArrowHead",
     "NormalHead",
     "OpenHead",
@@ -62,10 +51,6 @@ class ArrowHead(Marking):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     size = NumberSpec(default=25, help="""
     The size, in pixels, of the arrow head.
     """)
@@ -77,23 +62,18 @@ class OpenHead(ArrowHead):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     line_props = Include(LineProps, help="""
 
     The {prop} values for the arrow head outline.
     """)
 
+def auto_arrowhead() -> OpenHead:
+    return OpenHead(inherit_visuals=["line_color", "line_alpha", "line_width"])
+
 class NormalHead(ArrowHead):
     ''' Render a closed-body arrow head.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     line_props = Include(LineProps, help="""
     The {prop} values for the arrow head outline.
@@ -107,16 +87,12 @@ class NormalHead(ArrowHead):
     The {prop} values for the arrow head interior.
     """)
 
-    fill_color = Override(default="black")
+    _fill_color = Override(default="black")
 
 class TeeHead(ArrowHead):
     ''' Render a tee-style arrow head.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     line_props = Include(LineProps, help="""
     The {prop} values for the arrow head outline.
@@ -127,10 +103,6 @@ class VeeHead(ArrowHead):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     line_props = Include(LineProps, help="""
     The {prop} values for the arrow head outline.
     """)
@@ -143,56 +115,7 @@ class VeeHead(ArrowHead):
     The {prop} values for the arrow head interior.
     """)
 
-    fill_color = Override(default="black")
-
-class Arrow(DataAnnotation):
-    ''' Render arrows as an annotation.
-
-    See :ref:`ug_basic_annotations_arrows` for information on plotting arrows.
-
-    '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
-    x_start = NumberSpec(default=field("x_start"), help="""
-    The x-coordinates to locate the start of the arrows.
-    """)
-
-    y_start = NumberSpec(default=field("y_start"), help="""
-    The y-coordinates to locate the start of the arrows.
-    """)
-
-    start_units = Enum(CoordinateUnits, default='data', help="""
-    The unit type for the start_x and start_y attributes. Interpreted as "data
-    space" units by default.
-    """)
-
-    start = Nullable(Instance(ArrowHead), help="""
-    Instance of ``ArrowHead``.
-    """)
-
-    x_end = NumberSpec(default=field("x_end"), help="""
-    The x-coordinates to locate the end of the arrows.
-    """)
-
-    y_end = NumberSpec(default=field("y_end"), help="""
-    The y-coordinates to locate the end of the arrows.
-    """)
-
-    end_units = Enum(CoordinateUnits, default='data', help="""
-    The unit type for the end_x and end_y attributes. Interpreted as "data
-    space" units by default.
-    """)
-
-    end = Nullable(Instance(ArrowHead), default=InstanceDefault(OpenHead), help="""
-    Instance of ``ArrowHead``.
-    """)
-
-    body_props = Include(LineProps, help="""
-    The {prop} values for the arrow body.
-    """)
+    _fill_color = Override(default="black")
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -8,87 +8,47 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
-import hashlib
 import re
 import sys
-from os.path import abspath, join, split
 
-# Bokeh imports
-from bokeh.embed import file_html
+import pytest
+
+from bokeh.embed import embed
 from bokeh.plotting import figure
-from bokeh.resources import Resources, ResourcesMode
 
 # Module under test
-import bokeh.core.templates as bct # isort:skip
+import bokeh.core.templates as m # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
 
-TOP_PATH = abspath(join(split(bct.__file__)[0]))
-
-#-----------------------------------------------------------------------------
-# General API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-def _crlf_cr_2_lf_bin(s):
-    return re.sub(b"\r\n|\r|\n", b"\n", s)
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
-
-def compute_sha256(data):
-    sha256 = hashlib.sha256()
-    sha256.update(data)
-    return sha256.hexdigest()
-
-def get_html_lines(resource_mode: ResourcesMode) -> list[str]:
+def get_html_lines(resource_mode: str) -> list[str]:
     p = figure()
     p.scatter(x=[], y=[])
-    html = file_html(p, resources=Resources(resource_mode))
+    html = embed(p).page(resources=resource_mode)
     return html.split('\n')
 
-pinned_template_sha256 = "9bcfc2a1515403eb002238ba6c83c5d3ef5eb7f0d27154bc77f8514ccc39ee9b"
-
-def test_autoload_template_has_changed() -> None:
-    """This is not really a test but a reminder that if you change the
-    autoload_nb_js.js template then you should make sure that insertion of
-    plots into notebooks is working as expected. In particular, this test was
-    created as part of https://github.com/bokeh/bokeh/issues/7125.
-    """
-    with open(join(TOP_PATH, "_templates/autoload_nb_js.js.jinja"), mode="rb") as f:
-        current_template_sha256 = compute_sha256(_crlf_cr_2_lf_bin(f.read()))
-        assert pinned_template_sha256 == current_template_sha256, """\
-            It seems that the template autoload_nb_js.js has changed.
-            If this is voluntary and that proper testing of plots insertion
-            in notebooks has been completed successfully, update this test
-            with the new file SHA256 signature."""
+def test_legacy_render_item_templates_are_removed() -> None:
+    assert not hasattr(m, "DOC_JS")
+    assert not hasattr(m, "PLOT_DIV")
 
 def test_no_white_space_in_top_of_html() -> None:
     lines = get_html_lines("inline")
     any_character = re.compile(r"\S")
     assert(any_character.search(lines[0]) is not None)
 
-MODES: list[ResourcesMode] = ["inline", "cdn", "server", "absolute"]
+MODES = ["inline", "cdn", "server", "absolute"]
 if sys.platform != "win32":
     MODES.append("relative")
 
 @pytest.mark.parametrize("mode", MODES)
-def test_dont_start_script_on_same_line_after_another_ends(mode: ResourcesMode) -> None:
+def test_dont_start_script_on_same_line_after_another_ends(mode: str) -> None:
     lines = get_html_lines(mode)
     for line in lines:
         if "<script" in line and "</script" in line:

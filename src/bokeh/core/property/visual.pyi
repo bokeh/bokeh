@@ -5,12 +5,10 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from datetime import datetime as DateTime, timedelta as TimeDelta
 from pathlib import Path
 from typing import TYPE_CHECKING, Sequence
 
-# External imports
 import numpy as np
 import numpy.typing as npt
 
@@ -19,10 +17,9 @@ import re # isort:skip
 if TYPE_CHECKING:
     import PIL.Image
 
-# Bokeh imports
 from .. import enums
 from ..enums import AutoType as Auto
-from .bases import Property
+from .bases import Init, Property
 
 type DashPatternType = enums.DashPatternType | str | Sequence[int]
 class DashPattern(Property[DashPatternType]): ...
@@ -38,7 +35,8 @@ class HatchPatternType(Property[HatchPatternTypeType]): ...
 type Bounds[T] = tuple[T, T] | tuple[T | None, T] | tuple[T, T | None]
 
 type MinMaxBoundsType = Auto | Bounds[float] | Bounds[DateTime] | Bounds[TimeDelta]
-class MinMaxBounds(Property[MinMaxBoundsType]): ...
+class MinMaxBounds(Property[MinMaxBoundsType]):
+    def __init__(self, default: Init[MinMaxBoundsType] = "auto", *, accept_datetime: bool = False, help: str | None = None) -> None: ...
 
 type CSSLengthType = str
 class CSSLength(Property[CSSLengthType]): ...

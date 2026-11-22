@@ -21,10 +21,6 @@ export interface TabPanel extends TabPanel.Attrs {}
 export class TabPanel extends Model {
   declare properties: TabPanel.Props
 
-  constructor(attrs?: Partial<TabPanel.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<TabPanel.Props>(({Bool, Str, Ref, Nullable, Or}) => ({
       title:    [ Str, "" ],

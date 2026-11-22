@@ -1,14 +1,17 @@
-'''This example shows the same data on two separate tile plots.
+''' This example shows the same data on two separate tile plots.
 The left plot uses the built-in CartoDB tile source, and the right plot uses
 a customized tile source configured for OpenStreetMap.
 
 .. bokeh-example-metadata::
-    :sampledata: airports
-    :apis: bokeh.plotting.figure.add_tile, bokeh.plotting.figure.scatter
-    :refs: :ref:`ug_topics_geo_geojson_data`, :ref:`ug_topics_geo_tile_provider_maps`
+    :title: Airports map
     :keywords: tile, map, field, elevation, geo
+    :apis: bokeh.plotting.figure.add_tile, bokeh.plotting.figure.scatter
+    :sampledata: airports
+    :refs: :ref:`ug_topics_geo_geojson_data`, :ref:`ug_topics_geo_tile_provider_maps`
 
 '''
+from os import getenv
+
 import xyzservices.providers as xyz
 
 from bokeh.layouts import column, gridplot
@@ -36,7 +39,10 @@ def plot(tile_source):
     return p
 
 
-carto = plot("CartoDB Positron")
+tile_provider = xyz.CartoDB.Positron(
+    url=xyz.CartoDB.Positron.url + "?key=" + getenv("CARTO_API_KEY", "CARTO_API_KEY"),
+)
+carto = plot(tile_provider)
 mq = plot(xyz.OpenTopoMap)
 
 # link panning

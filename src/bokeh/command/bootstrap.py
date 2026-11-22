@@ -42,16 +42,13 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import argparse
 import sys
 from typing import Sequence
 
-# Bokeh imports
 from bokeh import __version__
 from bokeh.settings import settings
 
-# Bokeh imports
 from . import subcommands
 from .util import die
 

@@ -1,5 +1,9 @@
 import {expect} from "#framework/assertions"
+import {restorable} from "#framework/util"
+import {spy} from "sinon"
 import {SubsetIndexMapper} from "@bokehjs/core/util/indices"
+import {Float64NDArray} from "@bokehjs/core/util/ndarray"
+import {Comparator} from "@bokehjs/core/util/eq"
 
 describe("SubsetIndexMapper", () => {
 
@@ -15,10 +19,10 @@ describe("SubsetIndexMapper", () => {
   describe("set_subset", () => {
     it("should correctly clear old mappings when called again", () => {
       const mapper = new SubsetIndexMapper(10)
-      mapper.set_subset([2, 5, 8])
+      mapper.set_subset(new Int32Array([2, 5, 8]))
       expect(mapper.has_subset_index(5)).to.be.true
 
-      mapper.set_subset([1, 4])
+      mapper.set_subset(new Int32Array([1, 4]))
       expect(mapper.has_subset_index(2)).to.be.false
       expect(mapper.has_subset_index(5)).to.be.false
       expect(mapper.has_subset_index(8)).to.be.false
@@ -29,8 +33,8 @@ describe("SubsetIndexMapper", () => {
 
     it("should support setting an empty subset", () => {
       const mapper = new SubsetIndexMapper(5)
-      mapper.set_subset([1, 2])
-      mapper.set_subset([])
+      mapper.set_subset(new Int32Array([1, 2]))
+      mapper.set_subset(new Int32Array([]))
       expect(mapper.has_subset_index(1)).to.be.false
       expect(mapper.has_subset_index(2)).to.be.false
       expect(() => mapper.get_superset_index(0)).to.throw(Error)
@@ -40,7 +44,7 @@ describe("SubsetIndexMapper", () => {
   describe("has_subset_index", () => {
     it("should return true only for superset indices in the active subset", () => {
       const mapper = new SubsetIndexMapper(10)
-      mapper.set_subset([2, 5, 8])
+      mapper.set_subset(new Int32Array([2, 5, 8]))
       expect(mapper.has_subset_index(2)).to.be.true
       expect(mapper.has_subset_index(5)).to.be.true
       expect(mapper.has_subset_index(8)).to.be.true
@@ -49,7 +53,7 @@ describe("SubsetIndexMapper", () => {
 
     it("should return false for out-of-bounds indices", () => {
       const mapper = new SubsetIndexMapper(10)
-      mapper.set_subset([2, 5])
+      mapper.set_subset(new Int32Array([2, 5]))
       expect(mapper.has_subset_index(-1)).to.be.false
       expect(mapper.has_subset_index(10)).to.be.false
     })
@@ -58,7 +62,7 @@ describe("SubsetIndexMapper", () => {
   describe("get_subset_index", () => {
     it("should return the correct subset index for superset indices in the subset", () => {
       const mapper = new SubsetIndexMapper(10)
-      mapper.set_subset([2, 5, 8])
+      mapper.set_subset(new Int32Array([2, 5, 8]))
       expect(mapper.get_subset_index(2)).to.be.equal(0)
       expect(mapper.get_subset_index(5)).to.be.equal(1)
       expect(mapper.get_subset_index(8)).to.be.equal(2)
@@ -66,14 +70,14 @@ describe("SubsetIndexMapper", () => {
 
     it("should throw for out-of-bounds superset indices", () => {
       const mapper = new SubsetIndexMapper(5)
-      mapper.set_subset([1, 3])
+      mapper.set_subset(new Int32Array([1, 3]))
       expect(() => mapper.get_subset_index(-1)).to.throw(Error, /out of bounds/i)
       expect(() => mapper.get_subset_index(5)).to.throw(Error, /out of bounds/i)
     })
 
     it("should throw for in-bounds superset indices not in the subset", () => {
       const mapper = new SubsetIndexMapper(5)
-      mapper.set_subset([1, 3])
+      mapper.set_subset(new Int32Array([1, 3]))
       expect(() => mapper.get_subset_index(2)).to.throw(Error, /not part of the subset/i)
     })
   })
@@ -81,7 +85,7 @@ describe("SubsetIndexMapper", () => {
   describe("get_superset_index", () => {
     it("should return the correct superset index for subset indices", () => {
       const mapper = new SubsetIndexMapper(10)
-      mapper.set_subset([2, 5, 8])
+      mapper.set_subset(new Int32Array([2, 5, 8]))
       expect(mapper.get_superset_index(0)).to.be.equal(2)
       expect(mapper.get_superset_index(1)).to.be.equal(5)
       expect(mapper.get_superset_index(2)).to.be.equal(8)
@@ -89,7 +93,7 @@ describe("SubsetIndexMapper", () => {
 
     it("should throw for out-of-bounds subset indices", () => {
       const mapper = new SubsetIndexMapper(5)
-      mapper.set_subset([1, 3])
+      mapper.set_subset(new Int32Array([1, 3]))
       expect(() => mapper.get_superset_index(-1)).to.throw(Error, /out of bounds/i)
       expect(() => mapper.get_superset_index(2)).to.throw(Error, /out of bounds/i)
     })
@@ -98,30 +102,94 @@ describe("SubsetIndexMapper", () => {
   describe("convert_indices_to_subset", () => {
     it("should map superset indices to their corresponding subset indices", () => {
       const mapper = new SubsetIndexMapper(10)
-      mapper.set_subset([2, 5, 8, 9])
-      expect(mapper.convert_indices_to_subset([9, 5, 2])).to.be.equal([3, 1, 0])
+      mapper.set_subset(new Int32Array([2, 5, 8, 9]))
+      expect(mapper.convert_indices_to_subset(new Int32Array([9, 5, 2]))).to.be.equal(new Int32Array([3, 1, 0]))
     })
 
     it("should throw if any superset index is not in the subset", () => {
       const mapper = new SubsetIndexMapper(5)
-      mapper.set_subset([1, 3])
-      expect(() => mapper.convert_indices_to_subset([1, 2])).to.throw(Error)
+      mapper.set_subset(new Int32Array([1, 3]))
+      expect(() => mapper.convert_indices_to_subset(new Int32Array([1, 2]))).to.throw(Error)
     })
   })
 
   describe("convert_indices_from_subset", () => {
     it("should map subset indices back to their corresponding superset indices", () => {
       const mapper = new SubsetIndexMapper(10)
-      mapper.set_subset([2, 5, 8, 9])
-      expect(mapper.convert_indices_from_subset([3, 1, 0])).to.be.equal([9, 5, 2])
+      mapper.set_subset(new Int32Array([2, 5, 8, 9]))
+      expect(mapper.convert_indices_from_subset(new Int32Array([3, 1, 0]))).to.be.equal(new Int32Array([9, 5, 2]))
     })
   })
 
   describe("subset_index_of", () => {
+    it("scans primitive values without structural comparisons", () => {
+      const data = Array.from({length: 128}, (_, i) => `label ${i}`)
+      const mapper = new SubsetIndexMapper(data.length)
+      mapper.set_subset(Int32Array.from(data, (_, i) => i))
+      using comparisons = restorable(spy(Comparator.prototype, "eq"))
+      const index = mapper.subset_index_of(data, "label 127")
+      expect(comparisons.callCount).to.be.below(data.length)
+      expect(index).to.be.equal(127)
+    })
+
+    it("matches primitive values within a reordered subset", () => {
+      const data = [0, NaN, undefined, null, true, "1", 1]
+      const mapper = new SubsetIndexMapper(data.length)
+      mapper.set_subset(new Int32Array([5, 3, 2, 1, 0, 4, 6]))
+      expect(mapper.subset_index_of(data, "1")).to.be.equal(0)
+      expect(mapper.subset_index_of(data, null)).to.be.equal(1)
+      expect(mapper.subset_index_of(data, undefined)).to.be.equal(2)
+      expect(mapper.subset_index_of(data, NaN)).to.be.equal(3)
+      expect(mapper.subset_index_of(data, -0)).to.be.equal(4)
+      expect(mapper.subset_index_of(data, true)).to.be.equal(5)
+      expect(mapper.subset_index_of(data, 1)).to.be.equal(6)
+      expect(mapper.subset_index_of(data, false)).to.be.null
+    })
+
+    it("matches shaped logical items within the active subset", () => {
+      const mapper = new SubsetIndexMapper(3)
+      mapper.set_subset(new Int32Array([1, 2]))
+      const data = new Float64NDArray([1, 2, 3, 4, 5, 6], [3, 2])
+      expect(mapper.subset_index_of(data, [3, 4])).to.be.equal(0)
+      expect(mapper.subset_index_of(data, [5, 6])).to.be.equal(1)
+      expect(mapper.subset_index_of(data, [1, 2])).to.be.null
+    })
+
+    it("skips values without structural equality and matches by identity", () => {
+      const first = new Uint8ClampedArray([1])
+      const second = new Uint8ClampedArray([1])
+      const mapper = new SubsetIndexMapper(2)
+      mapper.set_subset(new Int32Array([0, 1]))
+      expect(mapper.subset_index_of([first, second], second)).to.be.equal(1)
+    })
+
+    it("matches ordinary array values and NaN by value", () => {
+      const mapper = new SubsetIndexMapper(2)
+      mapper.set_subset(new Int32Array([0, 1]))
+      const item = [1, 2]
+      expect(mapper.subset_index_of([item, NaN], item)).to.be.equal(0)
+      expect(mapper.subset_index_of([item, NaN], [1, 2])).to.be.equal(0)
+      expect(mapper.subset_index_of([item, NaN], NaN)).to.be.equal(1)
+      expect(mapper.subset_index_of([item, NaN], [1, 3])).to.be.null
+    })
+
+    for (const [storage, data] of Object.entries({
+      shaped: new Float64NDArray([1, 2, 3, NaN, 1, 2], [3, 2]),
+      nested: [[1, 2], [3, NaN], [1, 2]],
+    })) {
+      it(`matches ${storage} logical records within the active subset by value`, () => {
+        const mapper = new SubsetIndexMapper(3)
+        mapper.set_subset(new Int32Array([1, 2]))
+        expect(mapper.subset_index_of(data, [3, NaN])).to.be.equal(0)
+        expect(mapper.subset_index_of(data, [1, 2])).to.be.equal(1)
+        expect(mapper.subset_index_of(data, [3, 4])).to.be.null
+      })
+    }
+
     it("should return the subset index of the first matching value", () => {
       const mapper = new SubsetIndexMapper(5)
       const data = ["apple", "banana", "cherry", "date", "elderberry"]
-      mapper.set_subset([1, 3, 4])
+      mapper.set_subset(new Int32Array([1, 3, 4]))
       expect(mapper.subset_index_of(data, "banana")).to.be.equal(0)
       expect(mapper.subset_index_of(data, "date")).to.be.equal(1)
     })
@@ -129,14 +197,14 @@ describe("SubsetIndexMapper", () => {
     it("should return null for a value not in the active subset", () => {
       const mapper = new SubsetIndexMapper(5)
       const data = ["apple", "banana", "cherry", "date", "elderberry"]
-      mapper.set_subset([1, 3, 4])
+      mapper.set_subset(new Int32Array([1, 3, 4]))
       expect(mapper.subset_index_of(data, "apple")).to.be.null
       expect(mapper.subset_index_of(data, "fig")).to.be.null
     })
 
     it("should return null when the subset is empty", () => {
       const mapper = new SubsetIndexMapper(5)
-      mapper.set_subset([])
+      mapper.set_subset(new Int32Array([]))
       expect(mapper.subset_index_of(["apple", "banana"], "apple")).to.be.null
     })
   })

@@ -41,7 +41,8 @@ Whenever you change anything in Bokeh's codebase
 
 When you edit Bokeh's Python code
     Run Bokeh's :ref:`Python unit tests
-    <contributor_guide_testing_local_python_unit>`
+    <contributor_guide_testing_local_python_unit>` and
+    :ref:`type checks <contributor_guide_testing_local_typing>`
 
 When your work involves UI elements
     Run Bokeh's :ref:`Python integration tests
@@ -72,13 +73,8 @@ date by running ``pip install bokeh_sampledata``. In case you are not able to in
 sampledata on your system, you have the option to
 :ref:`disable those specific tests <contributor_guide_testing_local_python_select>`.
 
-Several tests also require `Selenium`_ and a corresponding `web driver`_ to be
-available on your system. While it is possible to use other web drivers for some
-tests, the recommended setup is to use Selenium with `ChromeDriver`_ and
-`Chrome`_. See :ref:`ug_output_export_dependencies` for
-installation instructions and more information. In case Selenium is not
-available on your system, you have the option to
-:ref:`disable those specific tests <contributor_guide_testing_local_python_select>`.
+Export tests use Playwright and Chromium. See :ref:`ug_output_export_dependencies`
+for installation instructions.
 
 On some Unix platforms, you may also need to increase the "maximum
 number of open file descriptors". Some tests open many files when testing the
@@ -94,9 +90,8 @@ Run codebase tests
 ~~~~~~~~~~~~~~~~~~
 
 The most basic set of tests are Bokeh's codebase tests. This includes
-checking Python code with `Ruff`_, checking JavaScript code with `ESLint`_,
-and various other tests for issues such as unused imports and extra white
-spaces.
+checking Python code with `Ruff`_ and various other tests for issues such as
+unused imports and extra white spaces.
 
 Any edits you make to Bokeh's Python or JavaScript codebase should pass this
 test.
@@ -133,6 +128,43 @@ directory. Changes to these tools should pass their dedicated test suite.
 
     pytest tests/tools
 
+.. _contributor_guide_testing_local_typing:
+
+Run type checks
+~~~~~~~~~~~~~~~
+
+Bokeh's Python code is type checked with both `mypy`_ and `pyright`_. Any edits
+you make to Bokeh's Python code should pass both type checkers.
+
+In addition, the type completeness of Bokeh's public API is measured with
+``pyright --verifytypes``. Type completeness is the share of symbols exported
+by Bokeh (functions, classes, methods, attributes, etc.) whose types are fully
+known, i.e. declared with type annotations or unambiguously inferable, rather
+than unknown or dependent on how a particular type checker infers them. Symbols
+with incomplete types silently degrade type checking to dynamic typing in code
+that uses Bokeh, and may be interpreted differently by different type checkers.
+This check fails when the completeness score drops or the number of exported
+symbols with unknown types increases compared to the baseline recorded in
+:bokeh-tree:`tools/ci/verify_types.py`. When your changes
+improve type completeness, raise the baseline in that file accordingly. To see
+which symbols are incomplete, run ``pyright --verifytypes bokeh --ignoreexternal``.
+
+**Standard terminal:**
+
+.. code-block:: sh
+
+    pixi run mypy
+    pixi run pyright
+    pixi run verify-types
+
+**Inside a pixi shell:**
+
+.. code-block:: sh
+
+    mypy
+    pyright
+    python tools/ci/verify_types.py
+
 .. _contributor_guide_testing_local_python:
 
 Run Python tests
@@ -159,9 +191,6 @@ when working with Bokeh's pytest-based tests:
   define the number of cores to use. Set to ``auto`` to use all available cores.
   For example: ``pytest -n 4 tests/codebase``. See `pytest-xdist`_.
 * ``-v``: Run test with more verbose output.
-* ``--driver``: Use a specific web driver for Selenium-based tests
-  (``"chrome"``, ``"firefox"``, or ``"safari"``). For example:
-  ``pytest --driver="firefox" tests/unit/``.
 * ``--no-js``: Skip any JavaScript code and only test Python code.
 
 See the `pytest documentation`_ for more options. Note that any arguments appended
@@ -177,25 +206,13 @@ Unit tests
 
     .. code-block:: sh
 
-        pixi run test-py -m "not selenium"
+        pixi run test-py
 
     **Inside a pixi shell:**
 
     .. code-block:: sh
 
-        pytest -m "not selenium" tests/unit
-
-    .. note::
-        This command will exclude unit tests that require `Selenium`_. Because
-        Selenium can be difficult to set up and because some unit tests require
-        both `geckodriver`_ and `ChromeDriver`_ to be available on your system,
-        using ``-m "not selenium"`` is the recommended way to run unit tests
-        locally. Once you :ref:`create a Pull Request
-        <contributor_guide_pull_requests>`, :ref:`Bokeh's CI
-        <contributor_guide_testing_ci>` will run all tests, including
-        Selenium-based unit tests. In case Selenium with both geckodriver and
-        ChromeDriver is available on your system, you can run all unit tests
-        by omitting the ``-m`` flag.
+        pytest tests/unit
 
 .. _contributor_guide_testing_local_python_coverage:
 
@@ -227,13 +244,13 @@ Code coverage (Python unit tests)
 
     .. code-block:: sh
 
-        pixi run pytest tests/unit/bokeh/test_objects.py -m "not selenium" --cov=bokeh --cov-report=html
+        pixi run pytest tests/unit/bokeh/test_objects.py --cov=bokeh --cov-report=html
 
     **Inside a pixi shell:**
 
     .. code-block:: sh
 
-        pytest --cov=bokeh --cov-report=html -m "not selenium" tests/unit/bokeh/test_objects.py
+        pytest --cov=bokeh --cov-report=html tests/unit/bokeh/test_objects.py
 
     .. seealso::
         Coverage reports use the pytest plugin `pytest-cov`_. For more
@@ -379,10 +396,9 @@ Select specific tests
         pytest tests/unit/bokeh/models/test_grids.py
 
     Another way to select or deselect specific tests is to use markers.
-    Currently, Bokeh's tests use the following two markers:
+    For tests that require sample data, use this marker:
 
     * ``sampledata``: a test that requires ``bokeh.sampledata`` to be downloaded
-    * ``selenium``: a test that requires selenium
 
     For more information on setting your own markers, see
     `Working with custom markers`_ in the `pytest documentation`_. To learn more
@@ -399,11 +415,48 @@ Run JavaScript tests
 ~~~~~~~~~~~~~~~~~~~~
 
 Most of the JavaScript-based tests for :term:`BokehJS` use a custom-made testing
-framework. This framework **requires Google Chrome or Chromium**. You need a
-recent version of one of these browsers available on your system to run those
-tests locally. Bokeh will try to find Google Chrome or Chromium in your
-``PATH``, but you can set the environment variable ``BOKEH_CHROME`` to point to
-the executable if desired.
+framework with Playwright-managed Chromium. ``pixi run setup`` installs the
+matching browser automatically after installing the JavaScript dependencies.
+Run setup again after changes to the locked Playwright version.
+
+Bokeh uses this browser by default. Set ``BOKEH_CHROME`` or pass
+``--executable`` to select another Chrome or Chromium executable explicitly.
+The minimum supported browser version is Chrome/Chromium 141. The locked
+``playwright-core`` 1.56.1 package installs Chromium 141.0.7390.37 (Playwright
+revision 1194). The visual baseline container retains Chrome 141.0.7390.54.
+
+Local test runs keep Chromium's sandbox enabled. Ubuntu 23.10 and later use
+AppArmor to restrict the unprivileged user namespaces that the sandbox requires,
+except for executables with an AppArmor profile that allows them. Packaged
+Google Chrome installs such a profile, but Playwright-managed Chromium doesn't,
+so launching it fails with ``No usable sandbox!``. Allow user namespaces for the
+managed browser with a profile like the following:
+
+.. code-block:: sh
+
+    sudo tee /etc/apparmor.d/bokeh-chromium <<'EOF'
+    abi <abi/4.0>,
+    include <tunables/global>
+    profile bokeh-chromium /home/*/.cache/ms-playwright/chromium-*/chrome-linux/chrome flags=(unconfined) {
+      userns,
+    }
+    EOF
+    sudo apparmor_parser -r /etc/apparmor.d/bokeh-chromium
+
+The wildcards keep the profile valid when Playwright updates its browser. Adjust
+the path if you set ``PLAYWRIGHT_BROWSERS_PATH`` or use another executable; the
+test runner prints the exact path when the sandbox fails to start. Tests run
+without the sandbox when ``CI=true`` or ``BOKEH_IN_DOCKER=1`` is set.
+
+When updating Playwright, check its bundled browser version with
+``npx --no-install playwright-core install --dry-run chromium`` from ``bokehjs``.
+Update both ``bokehjs/make/package.json`` and ``bokehjs/test/package.json`` and
+regenerate ``bokehjs/package-lock.json``. Review ``supported_chromium_version``
+in ``bokehjs/test/devtools/browser.ts`` and the minimum version above. Coordinate
+visual renderer changes with ``CHROME_VERSION`` in
+``bokehjs/test/baselines/Dockerfile`` and ``chrome_version`` in
+``bokehjs/test/run-baseline-tests.mjs``; regenerate and review visual baselines
+when changing that renderer.
 
 .. _contributor_guide_testing_local_javascript_all:
 
@@ -453,6 +506,13 @@ will automatically execute from the correct directory:
   * Standard (from repository root): ``pixi run test-js-integration``
   * Shell (inside bokehjs): ``node make test:integration``
 
+Screenshot comparisons use a conservative color-distance threshold
+and ignore antialiasing differences. Tests require zero mismatched pixels by
+default. Use ``it.allowing(n)`` only for a known rendering variation that still
+exceeds that color tolerance, and explain the reason in a comment. The allowance
+counts mismatched pixels. It does not change the color-distance threshold.
+Layout baselines are compared separately.
+
 To run visual integration tests against the canonical Linux baselines on any
 platform with Docker, run these commands from the root of the source checkout:
 
@@ -488,16 +548,16 @@ the ``bokehjs`` subdirectory:
 
 .. code-block:: sh
 
-    $ node make build:all
+    $ node make build
     $ BOKEH_CHROME=/path/to/chrome node make test:integration
 
-Omit ``BOKEH_CHROME`` when a supported Chrome or Chromium executable is already
-available in ``PATH``. The native run reads and writes
-``bokehjs/test/baselines/linux`` and accepts the same ``-k`` and ``--grep`` test
-filters as the containerized run. This is a convenient path for fast iteration
-on Linux, but it is not the canonical baseline environment: the host's browser,
-fonts, system libraries, and rendering stack can all affect pixels. Confirm any
-new or updated baselines with ``node make baseline-test`` before accepting them.
+Omit ``BOKEH_CHROME`` to use Playwright-managed Chromium. The native run reads
+and writes ``bokehjs/test/baselines/linux`` and accepts the same ``-k``, ``-g``
+and ``-f`` test filters as the containerized run. This is a convenient path for
+fast iteration on Linux, but it is not the canonical baseline environment: the
+host's browser, fonts, system libraries, and rendering stack can all affect
+pixels. Confirm any new or updated baselines with ``node make baseline-test``
+before accepting them.
 
 To review the latest results with the same BokehJS report used by CI, start the
 containerized review server:
@@ -506,7 +566,25 @@ containerized review server:
 
     $ node make baseline-test:review
 
-Open the URL printed by the command. After reviewing the generated images,
+Open the URL printed by the command. The report shows failures by default.
+Choose **All results** to see every recorded test, or filter by test name or
+baseline filename.
+
+Use **1:1** to view all images in a test at full size. Focus an image with
+:kbd:`Tab`, then scroll with the arrow keys. Press :kbd:`Escape` to fit them again.
+Expand **Layout baseline** to compare layout changes. The **Layout diff** menu
+switches between side-by-side and unified views. Removed lines start with a
+minus sign and added lines start with a plus sign.
+
+The **Colors** menu offers red/green, blue/orange, and high-contrast palettes
+for diffs and status badges. The browser remembers your palette and diff view.
+You can review images and layouts without staging or accepting changes.
+
+**Passed** badges mark successful tests. For completed older reports, a current
+layout baseline with no recorded failure counts as a pass. **Skipped** tests
+have neutral badges, and timeouts count as failures.
+
+After reviewing the generated images,
 pixel differences, selected references, and layout baselines, stage the
 baseline changes for the current branch with:
 
@@ -525,7 +603,7 @@ Maintainers can publish a refreshed container with the manually dispatched
 rebuilds the package layers without a cache, tests the local image before
 publishing it, and records the resulting digest. Bump the image revision
 whenever the versions or system packages in the container are refreshed, then
-update the digest used by ``bokehjs/test/run-baseline-tests.mjs`` in a
+update ``bokehjs/test/baselines/canonical-image.txt`` in a
 reviewed pull request. Set ``BOKEHJS_BASELINE_BUILD=1`` to build the Dockerfile
 locally while preparing a new image. Set
 ``BOKEHJS_CONTAINER_ENGINE=podman`` when invoking any ``baseline-test`` task to
@@ -534,6 +612,10 @@ use Podman instead of Docker. On Apple Silicon, the image's canonical
 machine; QEMU-only machines may abort while starting Chrome. Configure
 ``rosetta = true`` in the ``[machine]`` section of ``containers.conf`` before
 creating the Podman machine.
+
+The scheduled Chrome Beta workflow uses the same canonical image and replaces
+only its Chrome for Testing archive. This keeps the OS packages, fonts, and
+libraries fixed when comparing Beta rendering with the pinned-browser baselines.
 
 Additionally, you can use search strings to select individual tests or groups
 of tests. Use the ``-k`` argument to supply your search string. The search
@@ -555,6 +637,46 @@ search string to the strings defined in the tests' ``describe()`` and
 
 This will only run integration tests that contain the string "Legend".
 
+To match test descriptions with a regular expression instead, use the ``-g``
+(or ``--grep``) argument, e.g. ``-g "^Legend.*title"``.
+
+You can also select unit and integration tests by the files they are defined
+in. Use the ``-f`` (or ``--file``) argument to supply a file name or a glob
+pattern. Paths are relative to the test suite's directory, e.g.
+``bokehjs/test/unit`` for unit tests, and the file extension is optional. For
+example:
+
+.. code-block:: sh
+
+    node make test:unit -f core/util/array
+    node make test:unit -f "models/glyphs/*" -f core/util
+    node make test:integration -f regressions -k "Legend"
+
+Patterns follow rules similar to ``.gitignore`` files:
+
+* ``*`` matches any characters except ``/``, ``**`` matches any characters
+  including ``/``, ``?`` matches a single character except ``/``, ``[abc]``
+  matches one of the listed characters, and ``{a,b}`` matches any of the
+  comma-separated alternatives.
+* A pattern without ``/`` matches file or directory names at any depth, e.g.
+  ``-f "*arr*"`` selects ``core/util/array.ts``, ``core/util/ndarray.ts``, etc.
+* A pattern with ``/`` is anchored at the root of the test suite, e.g.
+  ``-f core/util/array`` selects only ``bokehjs/test/unit/core/util/array.ts``.
+* A pattern that names a directory selects all files under it, e.g.
+  ``-f core/util``.
+* Paths like ``test/unit/core/util/array.ts`` or
+  ``bokehjs/test/unit/core/util/array.ts`` are accepted as well, so you can
+  use paths completed by your shell.
+
+Quote patterns containing ``*``, ``?``, ``[`` or ``{``, so that your shell
+doesn't expand them. A pattern that doesn't match any test files is an error.
+
+When an argument is used multiple times, a test is selected if it matches
+any of the values, e.g. ``-f A -f B`` selects tests from either ``A`` or ``B``.
+The same applies to ``-k`` and ``-g``. When different arguments are
+combined, a test must match all of them, e.g. ``-f A -k "Legend"`` selects
+tests from ``A`` that contain the string "Legend".
+
 .. note::
     BokehJS Unit and integration tests require a recent version of Chrome or
     Chromium. The BokehJS testing framework starts the browser automatically
@@ -570,7 +692,19 @@ the BokehJS devtools server. This system requires the Chrome web browser to be
 available on your system. Use the BokehJS devtools server to run tests and
 review the visual tests' output.
 
-First, start the devtools server.
+First, build the library and test bundles. Inside a Pixi shell, from the
+``bokehjs`` subdirectory, run:
+
+.. code-block:: sh
+
+    node make build
+
+Starting the devtools server does not build the tests. After changing tests,
+run ``node make test:build`` to rebuild their bundles. Missing bundles cause
+404 responses for URLs such as ``/static/test/integration.js``, followed by
+``Tests is not defined`` in the browser console.
+
+Then start the devtools server.
 
 **Standard terminal:**
 
@@ -634,8 +768,13 @@ Initiate test runs
             :alt: Screenshot of devtool displaying various plots as a result of
                 running integration tests.
 
-To only run or view specific tests, append ``?k=some%20text`` to the URL. This
-will filter tests by keyword.
+To only run specific tests, append ``k``, ``g`` or ``f`` query parameters
+to the URL. They work the same way as the ``-k``, ``-g`` and ``-f`` command
+line arguments, including when combined or used multiple times. For example,
+``/unit/run?f=core/util/array&k=linspace`` runs tests from
+``bokehjs/test/unit/core/util/array.ts`` that contain the string "linspace".
+Errors, like a file pattern that doesn't match any test files, are reported in
+the browser's console.
 
 To only run or view tests for a specific platform, append either
 ``platform=linux``, ``platform=macos``, or ``platform=windows`` to the URL.
@@ -743,7 +882,11 @@ in ``pixi.lock``.
 When adding or changing a dependency, update ``pixi.toml``, run
 ``pixi lock``, and commit both files. Use
 ``pixi run --locked -e <environment>`` to run a command in a particular CI
-environment, such as ``test-py312``, ``minimal``, or ``core``.
+environment, such as ``test-py313``, ``minimal``, or ``core-py315``.
+Core-dependency environments are available for each supported Python version:
+``core-py313``, ``core-py314``, and ``core-py315``.
+Documentation builds use ``docs-py313`` and ``docs-py315``, sharing their
+documentation dependencies with the release-build environment.
 
 CI Workflows
 ~~~~~~~~~~~~
@@ -756,18 +899,21 @@ Bokeh uses multiple CI workflows to balance speed and coverage:
 
     - **Coverage**: 11 jobs total
     - **Unit tests**: Latest Python (3.14) on all platforms (Ubuntu, macOS, Windows)
-    - **Codebase checks**: All platforms with Python 3.12
+    - **Codebase checks**: All platforms with Python 3.13
     - **Other tests**: Linux only (examples, minimal-deps, core-deps, documentation)
+    - **Core dependencies**: Python 3.13 and 3.15 on Linux
+    - **Documentation**: Python 3.15 on Linux
     - **Features**: Cancel-in-progress enabled for faster iteration
 
 **Full CI (bokeh-ci-full.yml)**
     Runs daily at 2 AM UTC and can be manually triggered by maintainers.
-    Tests all platform × Python version combinations for complete coverage.
+    Expands platform and Python version coverage beyond standard CI.
 
     - **Coverage**: 29 jobs total
     - **Platforms**: Ubuntu 24.04, macOS latest, Windows latest
-    - **Python versions**: 3.12, 3.13, 3.14
-    - **Test suites**: All test types across all combinations
+    - **Python versions**: 3.13 and 3.14. Core-dependency tests also cover 3.15
+    - **Core dependencies**: Python 3.13 through 3.15 on all platforms
+    - **Documentation**: Python 3.13 and 3.15 on Linux. Python 3.15 on macOS and Windows
 
     **To manually trigger the full workflow:**
 
@@ -804,16 +950,12 @@ group your commits into meaningful chunks of work before pushing to GitHub
 instead of pushing every commit individually. This will help you be considerate
 of others who require access to these limited resources.
 
-.. _ESLint: https://eslint.org/
 .. _Ruff: https://github.com/astral-sh/ruff
+.. _mypy: https://mypy.readthedocs.io
+.. _pyright: https://microsoft.github.io/pyright
 .. _pytest: https://pytest.org/
 .. _pytest-xdist: https://github.com/pytest-dev/pytest-xdist
-.. _Selenium: https://www.selenium.dev/documentation/en/
-.. _web driver: https://www.selenium.dev/documentation/en/webdriver/
-.. _ChromeDriver: https://chromedriver.chromium.org/
-.. _Chrome: https://www.google.com/chrome/
 .. _Chromium: https://www.chromium.org/Home
-.. _geckodriver: https://firefox-source-docs.mozilla.org/testing/geckodriver/Usage.html
 .. _pytest-cov: https://github.com/pytest-dev/pytest-cov
 .. _Specifying which tests to run: https://docs.pytest.org/en/latest/how-to/usage.html#specifying-which-tests-to-run
 .. _documentation for pytest-cov: https://pytest-cov.readthedocs.io/en/latest/

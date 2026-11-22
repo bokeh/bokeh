@@ -1,13 +1,73 @@
+import {assert} from "@bokehjs/core/util/assert"
+import {PathPlacement} from "@bokehjs/models/graphics/path_placement"
 import {expect} from "#framework/assertions"
 
 import {figure} from "@bokehjs/api/plotting"
-import {ColumnDataSource, LinearAxis} from "@bokehjs/models"
+import {DEFAULT_TOOLS} from "@bokehjs/api/figure"
+import {construct} from "@bokehjs/core/has_props"
+import type {HasProps, HasPropsClass, ModelAttrs} from "@bokehjs/core/has_props"
+import {
+  Circle, ColumnDataSource, LinearAxis,
+  NormalHead, Segment, Toolbar,
+} from "@bokehjs/models"
 
 describe("in api/plotting module", () => {
   describe("figure()", () => {
+    describe("should support 'tools' option", () => {
+      it("with default value", () => {
+        const p = figure()
+        expect(p.toolbar.tools.length).to.be.equal(DEFAULT_TOOLS.length)
+        expect(p.toolbar_location).to.be.equal("right")
+      })
+
+      it("with an empty list", () => {
+        const p = figure({tools: []})
+        expect(p.toolbar.tools).to.be.equal([])
+        expect(p.toolbar_location).to.be.equal("right")
+      })
+
+      it("with a string of tool names", () => {
+        const p = figure({tools: "pan, reset"})
+        expect(p.toolbar.tools.map((tool) => tool.type)).to.be.equal(["PanTool", "ResetTool"])
+      })
+
+      it("with null value", () => {
+        const p = figure({tools: null})
+        expect(p.toolbar.tools).to.be.equal([])
+        expect(p.toolbar_location).to.be.null
+      })
+
+      it("with null value and explicit toolbar_location", () => {
+        const p = figure({tools: null, toolbar_location: "above"})
+        expect(p.toolbar.tools).to.be.equal([])
+        expect(p.toolbar_location).to.be.equal("above")
+      })
+
+      it("with null value and toolbar", () => {
+        expect(() => figure({tools: null, toolbar: Toolbar.create()})).to.throw(Error)
+      })
+    })
+
     describe("glyph methods", () => {
+      it("should instantiate glyphs through their public factory", () => {
+        let create_calls = 0
+
+        class FactoryCircle extends Circle {
+          static override create<T extends HasProps>(
+            this: HasPropsClass<T>, attrs?: ModelAttrs<T>,
+          ): T {
+            create_calls += 1
+            return construct(this, attrs)
+          }
+        }
+
+        const renderer = figure()._glyph(FactoryCircle, "factory_circle", ["x", "y", "radius"], [])
+        expect(renderer.glyph).to.be.instanceof(FactoryCircle)
+        expect(create_calls).to.be.equal(5)
+      })
+
       it("should validate arguments", () => {
-        const source = new ColumnDataSource()
+        const source = ColumnDataSource.create()
 
         const gr0 = figure().circle()
         expect(gr0.glyph.x).to.be.equal({field: "x"})
@@ -150,6 +210,29 @@ describe("in api/plotting module", () => {
         expect(() => p.annular_wedge({...attrs, start_angle_units: "deg"})).to.throw(Error)
         expect(() => p.annular_wedge({...attrs, end_angle_units: "deg"})).to.throw(Error)
       })
+
+      describe("arrow()", () => {
+        it("should construct an annotation segment with the supplied coordinates", () => {
+          const renderer = figure().arrow(10, 20, 1, 2)
+          expect(renderer.glyph).to.be.instanceof(Segment)
+          expect(renderer.level).to.be.equal("annotation")
+          expect([renderer.glyph.x0, renderer.glyph.y0, renderer.glyph.x1, renderer.glyph.y1])
+            .to.be.equal([{value: 10}, {value: 20}, {value: 1}, {value: 2}])
+        })
+
+        for (const node of ["start", "end"] as const) {
+          it(`should place the supplied ${node} head with its inset`, () => {
+            const head = NormalHead.create({size: 10})
+            const renderer = figure().arrow({start: null, end: null, [node]: head, [`${node}_inset`]: 3})
+            const [path_marking] = renderer.glyph.path_markings
+            expect(renderer.glyph.path_markings.length).to.be.equal(1)
+            assert(path_marking instanceof PathPlacement)
+            expect(path_marking.marking).to.be.identical(head)
+            expect(path_marking.positions).to.be.equal({value: node})
+            expect(path_marking.inset).to.be.equal({value: 3})
+          })
+        }
+      })
     })
 
     it("should support axis property proxying", () => {
@@ -162,11 +245,11 @@ describe("in api/plotting module", () => {
       expect(p.xaxes.map((axis) => axis.axis_label)).to.be.equal(["X0"])
       expect(p.yaxes.map((axis) => axis.axis_label)).to.be.equal(["Y0"])
 
-      p.add_layout(new LinearAxis(), "left")
-      p.add_layout(new LinearAxis(), "right")
+      p.add_layout(LinearAxis.create(), "left")
+      p.add_layout(LinearAxis.create(), "right")
 
-      p.add_layout(new LinearAxis(), "above")
-      p.add_layout(new LinearAxis(), "below")
+      p.add_layout(LinearAxis.create(), "above")
+      p.add_layout(LinearAxis.create(), "below")
 
       expect(p.xaxes.length).to.be.equal(3)
       expect(p.yaxes.length).to.be.equal(3)
@@ -190,11 +273,11 @@ describe("in api/plotting module", () => {
       expect(p.xaxes.map((axis) => axis.axis_label)).to.be.equal(["X3", "X3", "X3"])
       expect(p.yaxes.map((axis) => axis.axis_label)).to.be.equal(["Y3", "Y3", "Y3"])
 
-      p.add_layout(new LinearAxis(), "left")
-      p.add_layout(new LinearAxis(), "right")
+      p.add_layout(LinearAxis.create(), "left")
+      p.add_layout(LinearAxis.create(), "right")
 
-      p.add_layout(new LinearAxis(), "above")
-      p.add_layout(new LinearAxis(), "below")
+      p.add_layout(LinearAxis.create(), "above")
+      p.add_layout(LinearAxis.create(), "below")
 
       p.xaxis.axis_label = "X4"
       p.yaxis.axis_label = "Y4"
@@ -205,6 +288,22 @@ describe("in api/plotting module", () => {
       // TODO: this should be disallowed on the type level
       expect(() => p.xaxis.axis_label).to.throw()
       expect(() => p.yaxis.axis_label).to.throw()
+    })
+
+    it("should order legend_group items like Python", () => {
+      const labels = (group: unknown[]) => {
+        const p = figure()
+        const source = ColumnDataSource.create({data: {x: group.map((_, i) => i), y: group.map((_, i) => i), group}})
+        p.scatter({x: {field: "x"}, y: {field: "y"}, source, legend_group: "group"})
+        return p.legend.items.map((item) => item.label)
+      }
+
+      // numbers numerically, not as strings
+      expect(labels([10, 2, 1, 2])).to.be.equal([{value: "1"}, {value: "2"}, {value: "10"}])
+      // strings lexicographically
+      expect(labels(["b", "c", "a", "b"])).to.be.equal([{value: "a"}, {value: "b"}, {value: "c"}])
+      // values that can't be ordered against each other in first appearance order
+      expect(labels([2, "a", 1, null])).to.be.equal([{value: "2"}, {value: "a"}, {value: "1"}, {value: "null"}])
     })
 
     it("should throw if multiple legend_* attributes are provided", () => {

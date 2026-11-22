@@ -1,8 +1,6 @@
-# Standard library imports
 import unittest
 from unittest.mock import MagicMock, patch
 
-# Bokeh imports
 from tests.tools.backport._support import candidate, state_with
 from tools.backport import BackportError, interactive
 from tools.backport.models import DedicatedCommit
@@ -18,7 +16,7 @@ class InteractiveCopyTests(unittest.TestCase):
 
         message = interactive.plan_complete_panel(state).renderable
 
-        self.assertIsInstance(message, str)
+        assert isinstance(message, str)
         self.assertIn("2 existing standalone commits were preserved and replayed", message)
         self.assertIn("additional dedicated fix only if needed", message)
 

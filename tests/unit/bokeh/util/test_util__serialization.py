@@ -8,22 +8,17 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import datetime
 from math import inf, nan
 
-# External imports
 import numpy as np
+import pytest
 
-# Bokeh imports
 from bokeh.util.dependencies import is_installed
 from tests.support.util.env import envset
 
@@ -62,6 +57,16 @@ class Test_make_id:
         with envset(BOKEH_SIMPLE_IDS="no"):
             assert len(bus.make_id()) == 36
             assert isinstance(bus.make_id(), str)
+
+    def test_explicit_simple_id_is_reserved(self) -> None:
+        bus._simple_id = 999
+        bus.reserve_id("p1200")
+        assert bus.make_id() == "p1201"
+
+    def test_non_simple_id_does_not_advance_counter(self) -> None:
+        bus._simple_id = 999
+        bus.reserve_id("external-id")
+        assert bus.make_id() == "p1000"
 
 def test_make_globally_unique_id() -> None:
     assert len(bus.make_globally_unique_id()) == 36
@@ -142,6 +147,32 @@ def test_convert_datetime_type_pandas_types() -> None:
     assert bus.convert_datetime_type(pd.Period('1900', 'A-DEC' if pandas_1x else 'Y-DEC')) == -2208988800000.0
     assert bus.convert_datetime_type(pd.Period('1900', 'A-DEC' if pandas_1x else 'Y-DEC')) == bus.convert_datetime_type(np.datetime64("1900-01-01"))
     assert np.isnan(bus.convert_datetime_type(pd.NaT))
+
+@pytest.mark.parametrize("unit", ["s", "ms", "us"])
+@pytest.mark.parametrize(("value", "expected"), [
+    ("1600-01-01", -11676096000000.0),
+    ("2500-01-01", 16725225600000.0),
+    ("9999-12-31", 253402214400000.0),
+])
+def test_convert_datetime_type_pandas_timestamp_outside_nanosecond_range(value: str, expected: float, unit: str) -> None:
+    pd = pytest.importorskip("pandas", minversion="2.0")
+    timestamp = pd.Timestamp(np.datetime64(value, unit))
+    assert bus.convert_datetime_type(timestamp) == expected
+
+@pytest.mark.parametrize(("unit", "expected"), [("s", 1000.0), ("ms", 1.0), ("us", 0.001), ("ns", 0.000001)])
+@pytest.mark.parametrize("sign", [-1, 1])
+def test_convert_datetime_type_pandas_timestamp_resolution(unit: str, expected: float, sign: int) -> None:
+    pd = pytest.importorskip("pandas", minversion="2.0")
+    timestamp = pd.Timestamp(np.datetime64(sign, unit))
+    assert bus.convert_datetime_type(timestamp) == sign*expected
+
+@pytest.mark.parametrize(("value", "expected"), [
+    ("1600-01-01T00:00:00+02:00", -11676103200000.0),
+    ("2500-01-01T00:00:00+02:00", 16725218400000.0),
+])
+def test_convert_datetime_type_pandas_timestamp_with_tz(value: str, expected: float) -> None:
+    pd = pytest.importorskip("pandas", minversion="2.0")
+    assert bus.convert_datetime_type(pd.Timestamp(value)) == expected
 
 def test_convert_datetime_type_array_ignores_non_datetime_array() -> None:
     a = np.arange(0,10,100)

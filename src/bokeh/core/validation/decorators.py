@@ -20,10 +20,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any, Callable, cast
 
-# Bokeh imports
 from .check import ValidationIssue, Validator, ValidatorType
 from .issue import Error, Issue, Warning
 
@@ -48,7 +46,7 @@ def _validator(code_or_name: int | str | Issue, validator_type: ValidatorType) -
     validation checks.
 
     Args:
-        code code_or_name (int, str or Issue) : a defined error code or custom message
+        code_or_name (int, str or Issue) : a defined error code or custom message
         validator_type (str) : either "error" or "warning"
 
     Returns:

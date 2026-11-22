@@ -61,10 +61,6 @@ export class LightDark extends Switch {
   declare properties: LightDark.Props
   declare __view_type__: LightDarkView
 
-  constructor(attrs?: Partial<LightDark.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = LightDarkView
 

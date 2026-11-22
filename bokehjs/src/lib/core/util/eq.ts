@@ -126,6 +126,7 @@ export class Comparator {
           if (a.constructor == b.constructor && (a.constructor == null || a.constructor === Object)) {
             return this.objects(a, b)
           }
+          break
         }
         case "[object Function]": {
           if (a.constructor == b.constructor && a.constructor === Function) {
@@ -282,6 +283,20 @@ export class SimilarComparator extends Comparator {
 
   override numbers(a: number, b: number): boolean {
     return super.numbers(a, b) || abs(a - b) < this.tolerance
+  }
+}
+
+/** Compare logical field values with the same primitive semantics as Set. */
+export class FieldValueComparator extends Comparator {
+  constructor() {
+    super({no_fail: true})
+  }
+
+  override eq(a: unknown, b: unknown): boolean {
+    if (isObject(a) && isObject(b)) {
+      return super.eq(a, b)
+    }
+    return a === b || Object.is(a, b)
   }
 }
 

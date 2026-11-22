@@ -10,16 +10,16 @@ import {mul} from "./util/arrayable"
 import {to_radians_coeff} from "./util/math"
 import {color2rgba, encode_rgba} from "./util/color"
 import {to_big_endian} from "./util/platform"
-import {isNumber, isTypedArray, isPlainObject} from "./util/types"
+import {isArrayable, isNumber, isString, isTypedArray, isPlainObject} from "./util/types"
 import type {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
-import type {ColumnarDataSource} from "../models/sources/columnar_data_source"
+import type {IndexedDataSource} from "../models/sources/indexed_data_source"
 import type {/*Value,*/ Scalar, Vector, Dimensional, ScalarExpression, VectorExpression} from "./vectorization"
 import {isValue, isField, isExpr} from "./vectorization"
 import {settings} from "./settings"
-import type {Kind} from "./kinds"
+import type {Kind, Infer} from "./kinds"
 import {PrefixedStr} from "./kinds"
 import type {NDArray, NDArrayType} from "./util/ndarray"
-import {is_NDArray} from "./util/ndarray"
+import {is_NDArray, get_row} from "./util/ndarray"
 import {diagnostics} from "./diagnostics"
 import {unreachable} from "./util/assert"
 import {serialize} from "./serialization"
@@ -246,7 +246,7 @@ export abstract class Property<T = unknown> {
       }
       return this._signal
     } else {
-      throw new Error(`${this.obj}.${this.attr} is unset`)
+      throw new UnsetValueError(`${this} is unset`)
     }
   }
 
@@ -280,10 +280,18 @@ export abstract class Property<T = unknown> {
       }
     }
     this._value = attr_value
-    if (this._signal != null) {
+    this._sync_signal()
+    this.on_update?.(this._value, this.obj)
+  }
+
+  /**
+   * Propagates the current value to the preact signal, if it was created.
+   * Must be called by every implementation of `_update()`.
+   */
+  protected _sync_signal(): void {
+    if (this._signal != null && this._value !== unset) {
       this._signal.value = this._value
     }
-    this.on_update?.(this._value, this.obj)
   }
 
   to_full_string(): string {
@@ -344,7 +352,7 @@ export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Pro
     if (this._value !== unset) {
       return this._value
     } else {
-      throw new Error(`${this} is unset`)
+      throw new UnsetValueError(`${this} is unset`)
     }
   }
 
@@ -354,11 +362,28 @@ export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Pro
     } else {
       this._value = {value: attr_value} as any // Value<T>
     }
+    this._sync_signal()
 
     if (isPlainObject(this._value)) {
       const {_value} = this
       this._value[serialize] = (serializer) => {
         const {value, field, expr, transform, units} = _value as any
+        // plain values are serialized bare in both compact and non-compact modes
+        if (value !== undefined && transform == null && units == null) {
+          return serializer.encode(value)
+        }
+        if (serializer.compact && field !== undefined && transform == null && units == null) {
+          return {$field: field}
+        }
+        if (serializer.compact) {
+          if (value !== undefined) {
+            return serializer.encode_struct({$value: value, transform, units})
+          } else if (field !== undefined) {
+            return serializer.encode_struct({$field: field, transform, units})
+          } else {
+            return serializer.encode_struct({$expr: expr, transform, units})
+          }
+        }
         return serializer.encode_struct((() => {
           if (value !== undefined) {
             return {type: "value", value, transform, units}
@@ -384,14 +409,14 @@ export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Pro
     return new UniformScalar(value, n)
   }
 
-  uniform(source: ColumnarDataSource): UniformScalar<T/*T_out!!!*/> {
+  uniform(source: IndexedDataSource): UniformScalar<T/*T_out!!!*/> {
     const obj = this.get_value()
     const n = source.get_length() ?? 1
     if (isExpr(obj)) {
       const {expr, transform} = obj
       let result = (expr as ScalarExpression<T>).compute(source)
       if (transform != null) {
-        result = transform.compute(result) as any
+        result = transform.compute(result)
       }
       result = this.materialize(result)
       return this.scalar(result, n)
@@ -401,14 +426,12 @@ export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Pro
       if (transform != null) {
         result = transform.compute(result)
       }
-      result = this.materialize(result as any)
+      result = this.materialize(result)
       return this.scalar(result, n)
     }
   }
 }
 
-/** @deprecated */
-export class AnyScalar extends ScalarSpec<any> {}
 export class DictScalar<T> extends ScalarSpec<Dict<T>> {}
 export class ColorScalar extends ScalarSpec<types.Color | null> {}
 export class NumberScalar extends ScalarSpec<number> {}
@@ -438,7 +461,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
     if (this._value !== unset) {
       return this._value
     } else {
-      throw new Error(`${this} is unset`)
+      throw new UnsetValueError(`${this} is unset`)
     }
   }
 
@@ -448,11 +471,30 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
     } else {
       this._value = {value: attr_value} as any
     } // Value<T>
+    this._sync_signal()
 
     if (isPlainObject(this._value)) {
       const {_value} = this
       this._value[serialize] = (serializer) => {
         const {value, field, expr, transform, units} = _value as any
+        if (serializer.compact && value !== undefined && transform == null && units == null) {
+          if (isString(value)) {
+            return {$value: serializer.encode(value)}
+          }
+          return serializer.encode(value)
+        }
+        if (serializer.compact && field !== undefined && transform == null && units == null) {
+          return {$field: field}
+        }
+        if (serializer.compact) {
+          if (value !== undefined) {
+            return serializer.encode_struct({$value: value, transform, units})
+          } else if (field !== undefined) {
+            return serializer.encode_struct({$field: field, transform, units})
+          } else {
+            return serializer.encode_struct({$expr: expr, transform, units})
+          }
+        }
         return serializer.encode_struct((() => {
           if (value !== undefined) {
             return {type: "value", value, transform, units}
@@ -486,12 +528,12 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
     return new UniformVector(values)
   }
 
-  uniform(source: ColumnarDataSource): Uniform<T/*T_out!!!*/> {
+  uniform(source: IndexedDataSource): Uniform<T/*T_out!!!*/> {
     const obj = this.get_value()
     const n = source.get_length() ?? 1
     if (isField(obj)) {
       const {field, transform} = obj
-      let array = source.get_column(field)
+      let array = source.get_field(field)
       if (array != null) {
         if (transform != null) {
           array = transform.v_compute(array)
@@ -511,7 +553,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
       const {expr, transform} = obj
       let array = (expr as VectorExpression<T>).v_compute(source)
       if (transform != null) {
-        array = transform.v_compute(array) as any
+        array = transform.v_compute(array)
       }
       array = this.v_materialize(array)
       return this.vector(array)
@@ -521,14 +563,14 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
       if (transform != null) {
         result = transform.compute(result)
       }
-      result = this.materialize(result as any)
+      result = this.materialize(result)
       return this.scalar(result, n)
     } else {
       unreachable()
     }
   }
 
-  array(source: ColumnarDataSource): Arrayable<unknown> {
+  protected _array(source: IndexedDataSource): Arrayable<unknown> {
     let array: Arrayable
 
     const length = source.get_length() ?? 1
@@ -536,7 +578,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
     const obj = this.get_value()
     if (isField(obj)) {
       const {field} = obj
-      const column = source.get_column(field)
+      const column = source.get_field(field)
       if (column != null) {
         array = this.normalize(column)
       } else {
@@ -564,7 +606,12 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
       }
     }
 
-    const {transform} = obj
+    return array
+  }
+
+  array(source: IndexedDataSource): Arrayable<unknown> {
+    let array = this._array(source)
+    const {transform} = this.get_value()
     if (transform != null) {
       array = transform.v_compute(array)
     }
@@ -603,23 +650,84 @@ export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vect
         delete this._value.units
       }
     } else {
-      throw new Error(`${this} is unset`)
+      throw new UnsetValueError(`${this} is unset`)
     }
   }
 }
 
 export abstract class NumberUnitsSpec<Units> extends UnitsSpec<number, Units> {
-  override array(source: ColumnarDataSource): FloatArray {
+  override array(source: IndexedDataSource): FloatArray {
     return new Float64Array(super.array(source) as Arrayable<number>)
   }
 }
 
+const date_pattern = /^(\d{4})-(\d{2})-(\d{2})$/
+
+function parse_date_string(value: string): number | null {
+  const match = date_pattern.exec(value)
+  if (match == null) {
+    return null
+  }
+
+  const [, year, month, day] = match.map(Number)
+  const date = new Date(0)
+  date.setUTCFullYear(year, month - 1, day)
+  if (date.getUTCFullYear() != year || date.getUTCMonth() != month - 1 || date.getUTCDate() != day) {
+    return null
+  }
+  return date.valueOf()
+}
+
+function convert_date_strings(array: Arrayable<unknown>, depth: number): Arrayable<unknown> {
+  if (depth == 0 && isTypedArray(array)) {
+    return array
+  }
+
+  let result: Arrayable<unknown> | null = null
+  for (let i = 0; i < array.length; i++) {
+    const value = array[i]
+    const converted = depth > 0
+      ? isArrayable(value) ? convert_date_strings(value, depth - 1) : value
+      : isString(value) ? parse_date_string(value) ?? value : value
+    if (!Object.is(converted, value)) {
+      result ??= array.slice()
+      result[i] = converted
+    }
+  }
+  return result ?? array
+}
+
 export abstract class BaseCoordinateSpec<T> extends DataSpec<T> {
   abstract get dimension(): "x" | "y"
+
+  override array(source: IndexedDataSource, materialize_dates = false): Arrayable<unknown> {
+    let array = this._array(source)
+    const {transform} = this.get_value()
+    const materialize_dates_before = (transform as {materialize_dates_before?: boolean} | undefined)?.materialize_dates_before ?? false
+    if (materialize_dates && materialize_dates_before) {
+      const depth = this instanceof CoordinateSpec ? 0 : this instanceof CoordinateSeqSpec ? 1 : 3
+      array = convert_date_strings(array, depth)
+    }
+    if (transform != null) {
+      array = transform.v_compute(array)
+    }
+    if (materialize_dates && !materialize_dates_before) {
+      const depth = this instanceof CoordinateSpec ? 0 : this instanceof CoordinateSeqSpec ? 1 : 3
+      array = convert_date_strings(array, depth)
+    }
+    return array
+  }
 }
 
 export abstract class CoordinateSpec extends BaseCoordinateSpec<number | Factor> {}
-export abstract class CoordinateSeqSpec extends BaseCoordinateSpec<Arrayable<number> | Arrayable<Factor>> {}
+export abstract class CoordinateSeqSpec extends BaseCoordinateSpec<Arrayable<number> | Arrayable<Factor>> {
+  override normalize(values: Arrayable): Arrayable {
+    if (is_NDArray(values) && values.dimension == 2) {
+      return Array.from({length: values.shape[0]}, (_, i) => get_row(values, i))
+    }
+    return values
+  }
+}
 export abstract class CoordinateSeqSeqSeqSpec extends BaseCoordinateSpec<number[][][] | Factor[][][]> {}
 
 export class XCoordinateSpec extends CoordinateSpec {
@@ -663,7 +771,7 @@ export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
     return result
   }
 
-  override array(_source: ColumnarDataSource): Float32Array {
+  override array(_source: IndexedDataSource): Float32Array {
     throw new Error("not supported")
   }
 }
@@ -688,7 +796,7 @@ export class BooleanSpec extends DataSpec<boolean> {
     return new Uint8Array(values as any) as any
   }
 
-  override array(source: ColumnarDataSource): Uint8Array {
+  override array(source: IndexedDataSource): Uint8Array {
     return new Uint8Array(super.array(source) as any)
   }
 }
@@ -698,7 +806,7 @@ export class IntSpec extends DataSpec<number> {
     return isTypedArray(values) ? values : new Int32Array(values)
   }
 
-  override array(source: ColumnarDataSource): IntArray {
+  override array(source: IndexedDataSource): IntArray {
     return new Int32Array(super.array(source) as Arrayable<number>)
   }
 }
@@ -708,7 +816,7 @@ export class NumberSpec extends DataSpec<number> {
     return isTypedArray(values) ? values : new Float64Array(values)
   }
 
-  override array(source: ColumnarDataSource): FloatArray {
+  override array(source: IndexedDataSource): FloatArray {
     return new Float64Array(super.array(source) as Arrayable<number>)
   }
 }
@@ -781,13 +889,19 @@ export class ColorSpec extends DataSpec<types.Color | null> {
     const n = colors.length
     const array = new RGBAArray(4*n)
 
+    const cache = new Map<string | number, [number, number, number, number]>()
+
     let j = 0
-    for (const color of colors) {
-      const [r, g, b, a] = color2rgba(color)
-      array[j++] = r
-      array[j++] = g
-      array[j++] = b
-      array[j++] = a
+    for (let i = 0; i < n; i++) {
+      const color = colors[i]
+
+      const rgba = (typeof color === "string" || typeof color === "number")
+        ? this._get_cached_color(color, cache) : color2rgba(color)
+
+      array[j++] = rgba[0]
+      array[j++] = rgba[1]
+      array[j++] = rgba[2]
+      array[j++] = rgba[3]
     }
 
     return new ColorArray(array.buffer)
@@ -796,18 +910,33 @@ export class ColorSpec extends DataSpec<types.Color | null> {
   override vector(values: ColorArray): ColorUniformVector {
     return new ColorUniformVector(values)
   }
+
+  private _get_cached_color(
+    color: string | number,
+    cache: Map<string | number, [number, number, number, number]>,
+  ): [number, number, number, number] {
+    const MAX_CACHE_SIZE = 4096
+    const cached = cache.get(color)
+    if (cached !== undefined) {
+      return cached
+    }
+
+    const rgba = color2rgba(color)
+    if (cache.size < MAX_CACHE_SIZE) {
+      cache.set(color, rgba)
+    }
+    return rgba
+  }
 }
 
 export class NDArraySpec extends DataSpec<NDArrayType<number>> {}
 
-/** @deprecated */
-export class AnySpec extends DataSpec<any> {}
 export class StringSpec extends DataSpec<string> {}
 export class NullStringSpec extends DataSpec<string | null> {}
 export class ArraySpec extends DataSpec<any[]> {}
 
 export const ExtMarkerType = PrefixedStr("@")
-export type ExtMarkerType = typeof ExtMarkerType["__type__"]
+export type ExtMarkerType = Infer<typeof ExtMarkerType>
 
 export class MarkerSpec extends DataSpec<enums.MarkerType | ExtMarkerType | null> {}
 export class LineJoinSpec extends DataSpec<enums.LineJoin> {}

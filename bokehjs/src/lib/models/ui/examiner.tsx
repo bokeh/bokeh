@@ -26,7 +26,7 @@ function highlight(el: Element): void {
     animation.cancel()
   }
   el.animate([
-    {backgroundColor: "#def189"},
+    {backgroundColor: "var(--emphasis-color)"},
     {backgroundColor: "initial"},
   ], {duration: 2000})
 }
@@ -554,10 +554,6 @@ export interface Examiner extends Examiner.Attrs {}
 export class Examiner extends UIElement {
   declare properties: Examiner.Props
   declare __view_type__: ExaminerView
-
-  constructor(attrs?: Partial<Examiner.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = ExaminerView

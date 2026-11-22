@@ -5,5 +5,5 @@
 <script src="{{ js_file }}"></script>
 {%- endfor %}
 {%- if bjs_script %}
-<script>{{ bjs_script }}</script>
+<script>{{ bjs_script|safe }}</script>
 {%- endif %}

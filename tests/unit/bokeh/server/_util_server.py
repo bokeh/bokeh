@@ -8,7 +8,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
+from __future__ import annotations
 
 import logging # isort:skip
 log = logging.getLogger(__name__)
@@ -17,17 +17,14 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import TYPE_CHECKING, Any
 
-# External imports
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 from tornado.websocket import WebSocketClientConnection, websocket_connect
 
 if TYPE_CHECKING:
     from tornado.ioloop import IOLoop
 
-## Bokeh imports
 if TYPE_CHECKING:
     from bokeh.server.server import Server
 

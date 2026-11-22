@@ -7,7 +7,6 @@
 
 from __future__ import annotations
 
-# Bokeh imports
 from bokeh.server.request import Cookie, Headers, ServerRequest
 
 

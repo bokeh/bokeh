@@ -5,23 +5,19 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 from typing import TypedDict, Unpack
 
-# Bokeh imports
 from ..core.has_props import HasProps
 from ..model.model import Model, _ModelInit
-from .graphics import Decoration
+from .graphics import PathPlacement
 
 class _GlyphInit(_ModelInit, total=False):
-    decorations: list[Decoration]
+    ...
 
 class Glyph(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_GlyphInit]) -> None: ...
-
-    decorations: list[Decoration] = ...
 
 class _XYGlyphInit(_GlyphInit, total=False):
     ...
@@ -83,3 +79,9 @@ class HatchGlyph(HasProps):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+class _SupportsPathMarkingInit(TypedDict, total=False):
+    path_markings: list[PathPlacement]
+
+class SupportsPathMarking(HasProps):
+    path_markings: list[PathPlacement] = ...

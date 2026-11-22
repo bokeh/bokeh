@@ -1,3 +1,10 @@
+''' Mount a Bokeh server app in Starlette and embed it in a page.
+
+.. bokeh-example-metadata::
+    :title: Starlette embed
+    :keywords: starlette, embed
+'''
+
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -9,7 +16,7 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse
 from starlette.routing import Mount, Route
 
-from bokeh.embed import server_document
+from bokeh.embed import embed_server
 from bokeh.server.asgi import BokehASGI
 
 bokeh_application = BokehASGI(modify_document)
@@ -18,8 +25,9 @@ template = Environment(loader=FileSystemLoader(Path(__file__).parent), autoescap
 
 def render_page(root_path: str = "") -> str:
     mount_url = f"{root_path.rstrip('/')}/bkapp"
-    bokeh_script = server_document(mount_url, relative_urls=True)
-    return template.render(framework="Starlette", bokeh_script=bokeh_script)
+    result = embed_server(mount_url, relative_urls=True)
+    fragment = result.fragment(resources="server")
+    return template.render(framework="Starlette", embed_html=fragment.html)
 
 
 async def index(request: Request) -> HTMLResponse:
@@ -27,7 +35,7 @@ async def index(request: Request) -> HTMLResponse:
 
 
 @asynccontextmanager
-async def lifespan(_app: Starlette) -> AsyncGenerator[None, None]:
+async def lifespan(_app: Starlette) -> AsyncGenerator[None]:
     # Mounted Starlette applications don't receive lifespan events. Start and
     # stop Bokeh from the parent application's lifespan instead.
     await bokeh_application.core.start()

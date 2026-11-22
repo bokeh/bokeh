@@ -5,11 +5,9 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 from typing import Any, Sequence, Unpack
 
-# Bokeh imports
 from ..core.enums import AutoType as Auto, LatLonType as LatLon
 from ..model.model import Model, _ModelInit
 from .mappers import ScanningColorMapper
@@ -117,6 +115,18 @@ class _BasicTickerInit(_AdaptiveTickerInit, total=False):
 
 class BasicTicker(AdaptiveTicker):
     def __init__(self, **kwargs: Unpack[_BasicTickerInit]) -> None: ...
+
+class _ScaledTickerInit(_ContinuousTickerInit, total=False):
+    scale: float
+    origin: float
+    ticker: ContinuousTicker
+
+class ScaledTicker(ContinuousTicker):
+    def __init__(self, **kwargs: Unpack[_ScaledTickerInit]) -> None: ...
+
+    scale: float = ...
+    origin: float = ...
+    ticker: ContinuousTicker = ...
 
 class _LogTickerInit(_AdaptiveTickerInit, total=False):
     ...

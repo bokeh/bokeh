@@ -1,3 +1,11 @@
+''' Attach a resizable drawer with a plot inspector to a figure.
+
+.. bokeh-example-metadata::
+    :title: Component drawer
+    :keywords: component, drawer
+    :apis: bokeh.models.Drawer, bokeh.models.Examiner, bokeh.plotting.figure.circle
+'''
+
 import numpy as np
 
 from bokeh.models import Drawer, Examiner

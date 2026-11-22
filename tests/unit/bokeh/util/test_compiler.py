@@ -8,20 +8,19 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import json
 import os
 from concurrent.futures import ThreadPoolExecutor
 from threading import Event, Lock
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 # Module under test
 import bokeh.util.compiler as buc # isort:skip
@@ -36,17 +35,12 @@ import bokeh.util.compiler as buc # isort:skip
 
 def test_nodejs_compile_javascript() -> None:
     assert buc.nodejs_compile("""function f(a, b) { return a + b; };""", "javascript", "some.js") == \
-        dict(code="""\
-function f(a, b) { return a + b; }
-;
-""", deps=[])
+        dict(code="""function f(a, b) { return a + b; };""", deps=[])
 
     assert buc.nodejs_compile("""const some = require('some/module');""", "javascript", "some.js") == \
-        dict(code="""\
-const some = require('some/module');
-""", deps=["some/module"])
+        dict(code="""const some = require('some/module');""", deps=["some/module"])
 
-    assert buc.nodejs_compile("""
+    code = """
 const {Model} = require("lib/model");
 
 class MyModel extends Model {
@@ -54,24 +48,92 @@ class MyModel extends Model {
 }
 
 exports.MyModel = MyModel;
+"""
+    assert buc.nodejs_compile(code, "javascript", "some.js") == dict(code=code, deps=["lib/model"])
+
+    assert buc.nodejs_compile("""\
+import {Model} from "lib/model"
+export class MyModel extends Model {
+  static __name__ = "MyModel"
+}
 """, "javascript", "some.js") == \
         dict(code="""\
-const { Model } = require("lib/model");
-class MyModel extends Model {
-    static __name__ = 'MyModel';
+__esModule();
+const model_1 = require("lib/model");
+class MyModel extends model_1.Model {
+  static __name__ = "MyModel"
 }
 exports.MyModel = MyModel;
 """,
              deps=["lib/model"])
 
+    # ES modules can use `require()` and declare names of parameters of module wrappers
+    assert buc.nodejs_compile("""\
+import {Model} from "lib/model"
+const exports = 1
+export class MyModel extends Model {
+  static answer = require("./helper")
+  static value = exports
+}
+""", "javascript", "some.js") == \
+        dict(code="""\
+__esModule();
+const model_2 = require("lib/model");
+const exports_1 = 1
+class MyModel extends model_2.Model {
+  static answer = require("./helper")
+  static value = exports_1
+}
+exports.MyModel = MyModel;
+""",
+             deps=["lib/model", "./helper"])
+
     assert buc.nodejs_compile("""function f(a, b) { eturn a + b; };""", "javascript", "some.js") == \
-        dict(error=
-            '\x1b[96msome.js\x1b[0m:\x1b[93m1\x1b[0m:\x1b[93m20\x1b[0m - '
-            '\x1b[91merror\x1b[0m\x1b[90m TS1435: \x1b[0mUnknown keyword or '
-            "identifier. Did you mean 'return'?\n"
-            '\n'
-            '\x1b[7m1\x1b[0m function f(a, b) { eturn a + b; };\n'
-            '\x1b[7m \x1b[0m \x1b[91m                   ~~~~~\x1b[0m\n',
+        dict(error="""
+  x Expected a semicolon or an implicit semicolon after a statement, but found
+  | none
+   ,-[some.js:1:25]
+ 1 | function f(a, b) { eturn a + b; };
+   :                         ^
+   `----
+  help: Try inserting a semicolon here
+""",
+        )
+
+def test_nodejs_compile_typescript() -> None:
+    assert buc.nodejs_compile("""\
+import {TickFormatter} from "models/formatters/tick_formatter"
+
+export class MyFormatter extends TickFormatter {
+  doFormat(ticks: number[]): string[] {
+    return ticks.map((tick) => `${tick}`)
+  }
+}
+""", "typescript", "some.ts") == \
+        dict(code="""\
+__esModule();
+const tick_formatter_1 = require("models/formatters/tick_formatter");
+class MyFormatter extends tick_formatter_1.TickFormatter {
+\tdoFormat(ticks) {
+\t\treturn ticks.map((tick) => `${tick}`);
+\t}
+}
+exports.MyFormatter = MyFormatter;
+""",
+             deps=["models/formatters/tick_formatter"])
+
+    # inline models aren't type-checked
+    assert buc.nodejs_compile("""const x: number = "a"\n""", "typescript", "some.ts") == \
+        dict(code="""const x = "a";\n""", deps=[])
+
+    assert buc.nodejs_compile("""const x: = 1\n""", "typescript", "some.ts") == \
+        dict(error="""
+  x Unexpected token
+   ,-[some.ts:1:10]
+ 1 | const x: = 1
+   :          ^
+   `----
+""",
         )
 
 def test_nodejs_compile_less() -> None:
@@ -169,6 +231,62 @@ def test_bundle_models_coalesces_concurrent_compilation(monkeypatch: pytest.Monk
         assert second.result(timeout=1) == "bundle"
 
     assert calls == 1
+
+
+def test_bundle_models_propagates_compilation_errors(monkeypatch: pytest.MonkeyPatch) -> None:
+    custom_models = {"TestModel": MagicMock(full_name="TestModel")}
+
+    def fail(models):
+        raise buc.CompilationError("invalid implementation")
+
+    monkeypatch.setattr(buc, "_bundle_cache", {})
+    monkeypatch.setattr(buc, "_bundle_futures", {})
+    monkeypatch.setattr(buc, "_get_custom_models", lambda models: custom_models)
+    monkeypatch.setattr(buc, "_bundle_models", fail)
+
+    with pytest.raises(buc.CompilationError, match="invalid implementation"):
+        buc.bundle_models(None)
+
+    assert buc._bundle_futures == {}
+
+
+def test_custom_model_bundles_use_model_set_specific_entries(monkeypatch: pytest.MonkeyPatch) -> None:
+    def model(name: str) -> MagicMock:
+        return MagicMock(
+            full_name=f"example.{name}",
+            name=name,
+            module=f"custom/example_{name.lower()}",
+            path="",
+        )
+
+    first = model("First")
+    second = model("Second")
+
+    monkeypatch.setattr(buc, "_compile_models", lambda models: {
+        name: SimpleNamespace(code=f"module.exports = {name!r}", deps=[])
+        for name in models
+    })
+
+    def bundle(*models: MagicMock) -> tuple[str, str]:
+        custom_models = {model.full_name: model for model in models}
+        entry = f"custom/main/{buc.calc_cache_key(custom_models)}"
+        return buc._bundle_models(custom_models), entry
+
+    first_bundle, first_entry = bundle(first)
+    second_bundle, second_entry = bundle(second)
+    combined_bundle, combined_entry = bundle(first, second)
+
+    assert len({first_entry, second_entry, combined_entry}) == 3
+    for output, entry in (
+        (first_bundle, first_entry),
+        (second_bundle, second_entry),
+        (combined_bundle, combined_entry),
+    ):
+        assert output.count(f'"{entry}"') == 2
+
+    reordered_bundle, reordered_entry = bundle(second, first)
+    assert reordered_entry == combined_entry
+    assert reordered_bundle == combined_bundle
 
 def test_inline_extension() -> None:
     from bokeh.io import save

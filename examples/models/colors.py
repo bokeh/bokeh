@@ -1,4 +1,4 @@
-'''This example demonstrates the usage of grouping different shades
+''' This example demonstrates the usage of grouping different shades
 of the same color together using Bokeh groups.
 
 A hover tooltip displays the URL of the color to go to.
@@ -6,9 +6,10 @@ A hover tooltip displays the URL of the color to go to.
 Navigate to the specific color by tapping.
 
 .. bokeh-example-metadata::
+    :title: Colors
+    :keywords: groups, hover, color, tap, tooltip
     :apis: bokeh.models.axes.CategoricalAxis, bokeh.models.tools.HoverTool, bokeh.models.plots.Plot
     :refs: :ref:`ug_interaction_tools_hover_tool`
-    :keywords: groups, hover, color, tap, tooltip
 
 '''
 from math import pi
@@ -17,9 +18,18 @@ import pandas as pd
 
 from bokeh.colors import groups
 from bokeh.document import Document
-from bokeh.embed import file_html
-from bokeh.models import (CategoricalAxis, CategoricalScale, ColumnDataSource,
-                          FactorRange, HoverTool, OpenURL, Plot, Rect, TapTool)
+from bokeh.embed import embed
+from bokeh.models import (
+    CategoricalAxis,
+    CategoricalScale,
+    ColumnDataSource,
+    FactorRange,
+    HoverTool,
+    OpenURL,
+    Plot,
+    Rect,
+    TapTool,
+)
 from bokeh.util.browser import view
 
 data = []
@@ -67,6 +77,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "colors.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, title="CSS3 Color Names"))
+        f.write(embed(doc).page(title="CSS3 Color Names"))
     print(f"Wrote {filename}")
     view(filename)

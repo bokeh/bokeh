@@ -14,7 +14,7 @@ class _FileList extends Array<File> implements FileList {
 
 describe("FileInputView", () => {
   it("should allow reading files from a FileList", async () => {
-    const model = new FileInput({accept: ".csv,.json.,.txt", multiple: false})
+    const model = FileInput.create({accept: ".csv,.json.,.txt", multiple: false})
     const {view} = await display(model, null)
 
     const file = new File(["foo bar"], "foo.txt", {type: "text/plain"})
@@ -28,7 +28,7 @@ describe("FileInputView", () => {
   })
 
   it("should allow reading empty files from a FileList", async (ctx) => {
-    const model = new FileInput({accept: ".csv,.json.,.txt", multiple: false})
+    const model = FileInput.create({accept: ".csv,.json.,.txt", multiple: false})
     const {view} = await display(model, null)
 
     const file = new File([], "foo.txt", {type: "text/plain"})
@@ -46,7 +46,7 @@ describe("FileInputView", () => {
   })
 
   it("should allow reading multiple files from a FileList", async () => {
-    const model = new FileInput({accept: ".csv,.json.,.txt", multiple: true})
+    const model = FileInput.create({accept: ".csv,.json.,.txt", multiple: true})
     const {view} = await display(model, null)
 
     const getFileList = () => {
@@ -67,7 +67,7 @@ describe("FileInputView", () => {
   })
 
   it("should support ClearInput server-sent event", async () => {
-    const file_input = new FileInput({accept: ".csv,.json.,.txt", multiple: false})
+    const file_input = FileInput.create({accept: ".csv,.json.,.txt", multiple: false})
     const {view, doc} = await display(file_input, null)
 
     const file = new File(["foo bar"], "foo.txt", {type: "text/plain"})
@@ -99,7 +99,7 @@ describe("FileInputView", () => {
   })
 
   it("should upload a directory", async () => {
-    const model = new FileInput({directory: true})
+    const model = FileInput.create({directory: true})
     const {view} = await display(model, null)
 
     const getFileList = () => {
@@ -123,7 +123,7 @@ describe("FileInputView", () => {
   })
 
   it("should upload a directory with accept", async () => {
-    const model = new FileInput({directory: true, accept: ".txt"})
+    const model = FileInput.create({directory: true, accept: ".txt"})
     const {view} = await display(model, null)
 
     const getFileList = () => {
@@ -148,7 +148,7 @@ describe("FileInputView", () => {
   })
 
   it("should emit FileInputChange when files are loaded", async () => {
-    const widget = new FileInput({accept: ".txt", multiple: false})
+    const widget = FileInput.create({accept: ".txt", multiple: false})
 
     const collected_events: FileInputChange[] = []
     widget.on_event(FileInputChange, (event) => {

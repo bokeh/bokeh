@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 from glob import iglob
 from os.path import (
@@ -37,7 +36,6 @@ from os.path import (
 from pathlib import Path
 from typing import Literal
 
-# External imports
 import yaml
 
 #-----------------------------------------------------------------------------

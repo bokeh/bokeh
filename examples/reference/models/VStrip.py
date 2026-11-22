@@ -1,3 +1,12 @@
+''' Fill vertical bands across the plot between pairs of x coordinates.
+
+.. bokeh-example-metadata::
+    :title: VStrip
+    :keywords: vstrip, reference
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Plot, bokeh.models.Range1d, bokeh.models.VStrip
+    :example-ref: bokeh.models.glyphs.vstrip
+'''
+
 import numpy as np
 
 from bokeh.core.properties import field

@@ -32,9 +32,8 @@ tutorials and resources in the `Git documentation`_.
 Install or update Pixi
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Working on the Bokeh codebase requires installing several software packages that
-are not Python packages. For example, `Node.js`_ for TypeScript development or
-`Selenium`_ for testing and exporting.
+Bokeh development uses `Node.js`_ for TypeScript and Chromium for Playwright
+browser tests.
 
 To manage Python and non-Python dependencies in one place, Bokeh uses `Pixi`_.
 Pixi is a single executable available for Windows, macOS, and Linux. It creates
@@ -136,8 +135,8 @@ elsewhere in this guide also works unmodified when prefixed with
     ``pixi shell --locked`` again to pick up the change there too.
 
 Bokeh also defines environments for its supported Python versions and focused
-test configurations. Use ``pixi shell --locked -e test-py312`` for an
-interactive Python 3.12 shell, or ``pixi run --locked -e test-py312 <command>``
+test configurations. Use ``pixi shell --locked -e test-py313`` for an
+interactive Python 3.13 shell, or ``pixi run --locked -e test-py313 <command>``
 for a single command without activating a shell. See
 :ref:`contributor_guide_testing_ci_environments` for more information.
 
@@ -167,8 +166,10 @@ This command installs the necessary packages into the ``node_modules``
 subdirectory.
 
 .. note::
-    ``pixi run setup`` also installs the JavaScript dependencies. Run either
-    command again whenever ``bokehjs/package-lock.json`` changes.
+    ``pixi run setup`` also installs the JavaScript dependencies, after
+    removing any previous BokehJS build, and installs Playwright's matching
+    Chromium browser. Run setup again whenever ``bokehjs/package-lock.json``
+    changes to keep the browser and JavaScript dependencies aligned.
 
 .. _contributor_guide_setup_pre-commit:
 
@@ -190,7 +191,9 @@ you commit or push changes:
 
 File formatting
     The pre-commit hook will remove trailing whitespace, ensure files end with
-    a newline, and normalize line endings.
+    a newline, and normalize line endings. CI also runs repository formatting
+    checks on every pull request, independently of which paths changed. To run
+    the same checks locally on all files, use ``pixi run check-formatting``.
 
 Python linting
     The pre-commit hook will run `Ruff`_ on changed Python files.
@@ -198,7 +201,7 @@ Python linting
 Codebase tests
     The pre-push hook will run Bokeh's
     :ref:`codebase tests <contributor_guide_testing_local_codebase>`. This includes
-    testing with `ESLint`_, `Ruff`_, and `isort`_.
+    testing with `Ruff`_.
 
 Protected branches
     The pre-push hook will make sure you don't accidentally push a commit to
@@ -228,11 +231,25 @@ Once Pixi has installed the environment, set up an editable Bokeh checkout with:
 
     pixi run setup
 
-This performs the :ref:`Node package installation
-<contributor_guide_setup_installing_node_packages>` from step 4, builds
-BokehJS, and uses `pip`_ to install the local Python package in editable
-mode. The command passes ``--no-deps`` to pip because third-party
+This removes any previous BokehJS build, performs the :ref:`Node package
+installation <contributor_guide_setup_installing_node_packages>` from step 4,
+builds BokehJS and the Jupyter frontend, installs Playwright-managed Chromium for
+BokehJS tests, and uses `pip`_ to install the local Python package in editable
+mode. Setup also registers the Jupyter frontend and server extension in the
+Pixi environment. The command passes ``--no-deps`` to pip because third-party
 dependencies are managed by Pixi and ``pixi.lock``.
+
+Chromium depends on a few system libraries, which are usually already present.
+Only if Chromium fails to start because some of them are missing (e.g. on
+a minimal Linux installations), install them with:
+
+.. code-block:: sh
+
+    cd bokehjs
+    npx --no-install playwright-core install-deps chromium
+
+This is a one-time step outside of ``pixi run setup`` and requires administrator
+privileges.
 
 There are two ways to install a local development version of Bokeh with ``pip``:
 
@@ -250,6 +267,10 @@ There are two ways to install a local development version of Bokeh with ``pip``:
     directly, or prefix it with ``pixi run`` from a standard terminal:
     ``pixi run python -m pip install --no-deps .``
 
+The editable installation includes the generated Jupyter frontend and server
+extension discovery files. Run ``pixi run reinstall`` after changing the
+Jupyter frontend so the rebuilt files are copied into the Pixi environment.
+
 Running either of those two commands also builds and installs a local version of
 :term:`BokehJS`. If you want to skip building a new version of BokehJS and use a
 different local version instead, set the ``BOKEHJS_ACTION`` environment variable:
@@ -261,14 +282,55 @@ different local version instead, set the ``BOKEHJS_ACTION`` environment variable
     pulled updated code from GitHub.
 
     * **JavaScript dependencies unchanged:** run ``pixi run reinstall``
-      (equivalent to ``python -m pip install --no-deps -e .``), which
-      rebuilds BokehJS and reinstalls the Python package.
+      which rebuilds BokehJS and the Jupyter frontend, reinstalls the Python
+      package, and registers the Jupyter extensions.
     * **JavaScript dependencies changed:** run ``pixi run setup`` instead,
-      which also reinstalls the JavaScript dependencies first.
+      which also removes the previous BokehJS build and reinstalls the
+      JavaScript dependencies and matching Chromium browser first.
+
+.. _contributor_guide_setup_interpreter:
+
+7. Configure your editor or IDE
+-------------------------------
+
+Commands run through Pixi (``pixi run ...`` or ``pixi shell``) automatically
+use the ``default`` Pixi environment, unless you select another one with
+``-e``. An editor or IDE, however, runs its own Python
+tooling for features such as code completion, type checking, and debugging.
+For these to work correctly, configure your editor to use the Python
+interpreter from the Pixi environment instead of a system-wide or other
+Python installation.
+
+Pixi creates one folder per environment inside your *source checkout*, named
+after the environment: ``.pixi/envs/<environment name>``. For example, the
+``default`` environment lives in ``.pixi/envs/default`` and the ``test-py313``
+environment in ``.pixi/envs/test-py313``. The Python interpreter is located
+inside that folder:
+
+* Linux/macOS: ``<source checkout>/.pixi/envs/default/bin/python``
+* Windows: ``<source checkout>\.pixi\envs\default\python.exe``
+
+To list all environments together with their locations, run:
+
+.. code-block:: sh
+
+    pixi info
+
+Use the ``default`` environment unless you have a reason to work with another
+one, for example to debug an issue specific to Python 3.13. In your editor's
+settings, select the interpreter from the path above. Most editors let you
+browse to or enter the interpreter path in their Python interpreter settings.
+
+.. note::
+    The steps above set up the ``default`` environment only. Bokeh's editable
+    installation belongs to a single environment, so to use another
+    environment as the interpreter (for example ``test-py313``), run
+    ``pixi run -e test-py313 setup`` first. This also creates the
+    environment if it does not exist yet.
 
 .. _contributor_guide_setup_environment_variables:
 
-7. Set environment variables
+8. Set environment variables
 ----------------------------
 
 Bokeh uses :ref:`environment variables <ug_settings>` to control several
@@ -289,7 +351,7 @@ different resource configuration:
   ``BOKEH_RESOURCES`` is set.
 * To build the documentation, follow the
   :ref:`documentation build instructions <contributor_guide_documentation_build>`.
-  Documentation builds use ``GOOGLE_API_KEY`` and, when needed,
+  Documentation builds use ``GOOGLE_API_KEY``, ``CARTO_API_KEY``, and, when needed,
   ``BOKEH_DOCS_CDN`` instead of ``BOKEH_RESOURCES``.
 
 ``BOKEH_RESOURCES``
@@ -482,6 +544,17 @@ log levels are increased, the generated HTML and JSON code will be more
 human-readable, and Bokeh will not open a new browser window each time |show|
 is called.
 
+Outside a notebook, ``show(plot)`` saves an HTML file beside the running script,
+using the script name with an ``.html`` extension. If the script filename is
+unavailable or its directory is not writable, Bokeh uses a temporary file.
+With ``BOKEH_BROWSER=none``, the file is still saved, but no browser is opened.
+Use ``show(plot, filename="example.html")`` to choose an explicit output path,
+or ``save(plot)`` to save without opening a browser.
+
+The BokehJS devtools server's ``/bokeh/examples/`` browser uses the HTML file
+generated by each example's ``show(plot)`` call. See
+:ref:`contributor_guide_testing_local_javascript_devtools` for server setup.
+
 .. note::
     Setting ``BOKEH_DEV=true`` enables ``BOKEH_RESOURCES=server``, which
     requires a resources server. If needed, the user can provide such server
@@ -494,7 +567,7 @@ is called.
 
 .. _contributor_guide_setup_test_setup:
 
-8. Test your local setup
+9. Test your local setup
 ------------------------
 
 Run the following tests to check that everything is installed and set up
@@ -522,7 +595,8 @@ You should see output similar to:
     BokehJS static path   :  /path/to/bokeh/src/bokeh/server/static
     node.js version       :  v24.3.0
     npm version           :  11.4.2
-    jupyter_bokeh version :  (not installed)
+    Jupyter protocol      :  2
+    Jupyter renderer      :  bundled
     Operating system      :  Linux-5.15.0-86-generic-x86_64-with-glibc2.35
 
 Run examples
@@ -678,7 +752,8 @@ setting up a development environment:
     the managed environment and local package installation from the
     committed lockfile. If you had an old ``pixi shell`` session open, exit
     it first, then run ``pixi shell --locked`` again afterwards if you'd
-    like to keep working inside one.
+    like to keep working inside one. Your editor may need to be pointed at the
+    interpreter again, see :ref:`contributor_guide_setup_interpreter`.
 
 .. dropdown:: Slow network connections when cloning
 
@@ -775,7 +850,6 @@ Please feel free to ask at the `Bokeh Discourse`_ or `Bokeh's contributor
 Slack`_.
 
 .. _Node.js: https://nodejs.org/en/
-.. _Selenium: https://www.selenium.dev/
 .. _Bokeh's contributor Slack: https://slack-invite.bokeh.org/
 .. _Pixi: https://pixi.prefix.dev/
 .. _Pixi installation: https://pixi.prefix.dev/latest/installation/
@@ -793,8 +867,6 @@ Slack`_.
 .. _pre-commit: https://pre-commit.com/
 .. _Git hooks: https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks
 .. _Ruff: https://github.com/astral-sh/ruff
-.. _ESLint: https://eslint.org/
-.. _isort: https://pycqa.github.io/isort/
 .. _Bokeh's protected branches: https://github.com/bokeh/bokeh/wiki/BEP-6:-Branching-Strategy
 .. _pip: https://pip.pypa.io/
 .. _merge conflicts: https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging#_basic_merge_conflicts

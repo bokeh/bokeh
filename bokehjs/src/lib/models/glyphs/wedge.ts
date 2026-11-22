@@ -55,7 +55,7 @@ export class WedgeView extends XYGlyphView {
     this._define_or_inherit_attr<Wedge.Data>("max_sradius", () => max(this.sradius))
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Wedge.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<Wedge.Data>): void {
     const {sx, sy, sradius, start_angle, end_angle} = {...this, ...data}
     const anticlock = this.model.direction == "anticlock"
 
@@ -119,7 +119,7 @@ export class WedgeView extends XYGlyphView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
@@ -159,10 +159,6 @@ export interface Wedge extends Wedge.Attrs {}
 export class Wedge extends XYGlyph {
   declare properties: Wedge.Props
   declare __view_type__: WedgeView
-
-  constructor(attrs?: Partial<Wedge.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = WedgeView

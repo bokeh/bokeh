@@ -2,12 +2,17 @@ import "./setup"
 
 import {UIElementView} from "@bokehjs/models/ui/ui_element"
 import type {View} from "@bokehjs/core/view"
+import type {BokehMount} from "@bokehjs/api/io"
 import {div, empty, offset_bbox} from "@bokehjs/core/dom"
 import {isNumber, isString, isArray, isPlainObject} from "@bokehjs/core/util/types"
 import {entries} from "@bokehjs/core/util/object"
 import {unreachable} from "@bokehjs/core/util/assert"
 import {defer} from "@bokehjs/core/util/defer"
 import {BBox} from "@bokehjs/core/util/bbox"
+import {select_tests} from "./filters"
+import type {Filters, FilterResult} from "./filters"
+
+export type {Filters, FilterResult} from "./filters"
 
 let ready: () => Promise<void> = defer
 export function set_ready(fn: () => Promise<void>): void {
@@ -33,6 +38,7 @@ export type Test = {
   fn: ItFunc | ItAsyncFunc
   description: string
   skip: boolean
+  mounts: BokehMount[]
   views: View[]
   el?: HTMLElement
   viewport?: [number, number]
@@ -42,6 +48,10 @@ export type Test = {
   dpr?: number
   scale?: number
   no_image?: boolean
+  module?: string
+  /** source file of the module, e.g. `test/unit/core/util/array.ts` */
+  file?: string
+  omit?: boolean
 }
 
 export type Suite = {
@@ -54,6 +64,22 @@ export type Suite = {
 
 export const top_level: Suite = {description: "top-level", suites: [], tests: [], before_each: [], after_each: []}
 const stack: Suite[] = [top_level]
+
+let current_module: {name: string, file: string} | undefined = undefined
+
+/**
+ * Loads a test module, attributing tests registered by it to `name` (defined in `file`).
+ * This is used by the generated `auto_index` module.
+ */
+export function load_module(name: string, file: string, load: () => unknown): void {
+  const previous = current_module
+  current_module = {name, file}
+  try {
+    load()
+  } finally {
+    current_module = previous
+  }
+}
 
 export function describe(description: string, fn: Func/* | AsyncFunc*/): void {
   const suite = {description, suites: [], tests: [], before_each: [], after_each: []}
@@ -77,7 +103,7 @@ type _It = ItFn & {
 }
 
 function _it(description: string, fn: ItFunc | ItAsyncFunc, skip: boolean, no_image: boolean = false): Test {
-  const test: Test = {description, fn, skip, views: [], no_image}
+  const test: Test = {description, fn, skip, mounts: [], views: [], no_image, module: current_module?.name, file: current_module?.file}
   stack[0].tests.push(test)
   return test
 }
@@ -179,7 +205,50 @@ function description(suites: Suite[], test: Test, sep: string = " "): string {
   return descriptions(suites, test).join(sep)
 }
 
-export async function run_all(query?: string | string[] | RegExp): Promise<void> {
+/**
+ * The name of the current test suite (e.g. `unit` for `/unit/run`), if known.
+ */
+function current_suite(): string | undefined {
+  if (typeof location == "undefined") {
+    return undefined
+  }
+  const [suite] = location.pathname.split("/").filter((segment) => segment.length != 0)
+  return suite
+}
+
+/**
+ * Marks tests not matching `filters` as omitted (`test.omit = true`).
+ * This is used by devtools, which then runs only selected tests.
+ */
+export function apply_filters(filters: Filters, suite: string | undefined = current_suite()): FilterResult {
+  const all_tests = [...iter_tests()]
+  const infos = all_tests.map(([parents, test]) => ({description: description(parents, test), module: test.module}))
+  const {selected, errors, warnings} = select_tests(infos, filters, suite)
+  for (const [i, [, test]] of all_tests.entries()) {
+    test.omit = !selected[i]
+  }
+  return {errors, warnings}
+}
+
+type Query = string | string[] | RegExp | Filters
+
+function to_filters(query?: Query): Filters {
+  if (query == null) {
+    return {}
+  } else if (isString(query)) {
+    return {keyword: [query]}
+  } else if (isArray(query)) {
+    return {keyword: query}
+  } else if (query instanceof RegExp) {
+    return {grep: [query]}
+  } else if (isPlainObject(query)) {
+    return query
+  } else {
+    unreachable()
+  }
+}
+
+export async function run_all(query?: Query): Promise<void> {
   const re = /^\s+at\s+/
   for await (const result of yield_all(query)) {
     const {error} = result
@@ -194,23 +263,20 @@ export async function run_all(query?: string | string[] | RegExp): Promise<void>
   }
 }
 
-export async function* yield_all(query?: string | string[] | RegExp): AsyncGenerator<PartialResult> {
-  const matches = ((): (desc: string) => boolean => {
-    if (query == null) {
-      return () => true
-    } else if (isString(query)) {
-      return (desc) => desc.includes(query)
-    } else if (isArray(query)) {
-      return (desc) => query.every((q) => desc.includes(q))
-    } else if (query instanceof RegExp) {
-      return (desc) => desc.match(query) != null
-    } else {
-      unreachable()
+export async function* yield_all(query?: Query): AsyncGenerator<PartialResult> {
+  const {errors, warnings} = apply_filters(to_filters(query))
+  for (const warning of warnings) {
+    console.warn(warning)
+  }
+  if (errors.length != 0) {
+    for (const error of errors) {
+      console.error(error)
     }
-  })()
+    return
+  }
 
   for (const [parents, test] of iter_tests()) {
-    if (test.skip || !matches(description(parents, test))) {
+    if (test.skip || test.omit === true) {
       continue
     }
 
@@ -278,11 +344,15 @@ export async function clear(seq: TestSeq): Promise<void> {
 export const container = document.querySelector(".container")!
 
 function _clear_test(test: Test): void {
+  for (const mounted of test.mounts) {
+    void mounted.dispose()
+  }
+  test.mounts = []
   for (const view of test.views) {
     const {model} = view
     if (model.document != null) {
       model.document.remove_root(model)
-    } else {
+    } else if (!view.is_destroyed) {
       view.remove()
     }
   }
@@ -370,7 +440,7 @@ async function _run_test(suites: Suite[], test: Test, ctx: TestRunContext): Prom
   return {error, time}
 }
 
-export async function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void, svg: SVGSVGElement, {width, height}: {width: number, height: number}): Promise<void> {
+export async function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void | Promise<void>, svg: SVGSVGElement, {width, height}: {width: number, height: number}): Promise<void> {
   const canvas = document.createElement("canvas")
   canvas.height = height
   canvas.width = width
@@ -379,7 +449,7 @@ export async function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void
 
   const ctx = canvas.getContext("2d")!
 
-  fn(ctx)
+  await fn(ctx)
 
   container.appendChild(svg)
 

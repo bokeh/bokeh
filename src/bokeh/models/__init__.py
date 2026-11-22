@@ -30,10 +30,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any
 
-# Bokeh imports
 from ..model import Model
 from . import (
     annotations as _annotations,
@@ -47,6 +45,7 @@ from . import (
     filters,
     formatters,
     glyphs,
+    graphics,
     graphs,
     grids,
     labeling,
@@ -82,6 +81,7 @@ from .expressions import *
 from .filters import *
 from .formatters import *
 from .glyphs import *
+from .graphics import *
 from .graphs import *
 from .grids import *
 from .labeling import *
@@ -93,6 +93,7 @@ from .nodes import *
 from .plots import *
 from .ranges import *
 from .renderers import *
+from .renderers import ContourLabels as ContourLabels
 from .scales import *
 from .selections import *
 from .selectors import *
@@ -130,6 +131,7 @@ __all__ = (
     *_all(filters),
     *_all(formatters),
     *_all(glyphs),
+    *_all(graphics),
     *_all(graphs),
     *_all(grids),
     *_all(labeling),

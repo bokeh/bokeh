@@ -4,6 +4,7 @@ import fs from "node:fs"
 import cp from "node:child_process"
 import type {ChildProcess} from "node:child_process"
 import {Socket} from "node:net"
+import {fileURLToPath} from "node:url"
 
 import {BuildError} from "../task.js"
 
@@ -24,11 +25,13 @@ export const file_exists = (path: string) => exists(path) && is_file(path)
 export const dir_exists = (path: string) => exists(path) && is_dir(path)
 
 export function compile_typescript(tsconfig_path: string): void {
-  const is_windows = process.platform == "win32"
-  const npx = is_windows ? "npx.cmd" : "npx"
-  const {status} = cp.spawnSync(`${npx} --loglevel=warn tsgo --project "${tsconfig_path}"`, {stdio: "inherit", shell: true})
+  const tsc = fileURLToPath(new URL("./bin/tsc", import.meta.resolve("typescript/package.json")))
+  const {status, error} = cp.spawnSync(process.execPath, [tsc, "--project", tsconfig_path], {stdio: "inherit"})
+  if (error != null) {
+    throw new BuildError("typescript", `failed to start tsc: ${error.message}`)
+  }
   if (status != 0) {
-    throw new BuildError("typescript", "compilation failed with tsgo")
+    throw new BuildError("typescript", "compilation failed with tsc")
   }
 }
 
@@ -135,7 +138,7 @@ export function debounce<Args extends unknown[]>(func: (args: Args[]) => Promise
   const later = async () => {
     const passed = Date.now() - previous
     if (wait > passed) {
-      timeout = setTimeout(later, wait - passed)
+      timeout = setTimeout(() => void later(), wait - passed)
     } else {
       timeout = null
       if (!immediate) {
@@ -149,7 +152,7 @@ export function debounce<Args extends unknown[]>(func: (args: Args[]) => Promise
     previous = Date.now()
     collected.push(args)
     if (timeout == null) {
-      timeout = setTimeout(later, wait)
+      timeout = setTimeout(() => void later(), wait)
       if (immediate) {
         await func(collected)
         clear(collected)

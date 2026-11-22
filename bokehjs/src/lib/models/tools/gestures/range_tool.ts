@@ -15,9 +15,10 @@ import type {CoordinateMapper, LRTB} from "core/util/bbox"
 import type {CoordinateUnits} from "core/enums"
 import type {Scale} from "../../scales/scale"
 import {Enum} from "core/kinds"
+import type {Infer} from "core/kinds"
 
 const StartGesture = Enum("pan", "tap", "none")
-type StartGesture = typeof StartGesture["__type__"]
+type StartGesture = Infer<typeof StartGesture>
 
 export class RangeToolView extends GestureToolView {
   declare model: RangeTool
@@ -209,7 +210,7 @@ export class RangeToolView extends GestureToolView {
 }
 
 const DEFAULT_RANGE_OVERLAY = () => {
-  return new BoxAnnotation({
+  return BoxAnnotation.create({
     syncable: false,
     level: "overlay",
     visible: true,
@@ -250,10 +251,6 @@ export interface RangeTool extends RangeTool.Attrs {}
 export class RangeTool extends GestureTool {
   declare properties: RangeTool.Props
   declare __view_type__: RangeToolView
-
-  constructor(attrs?: Partial<RangeTool.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = RangeToolView
@@ -367,8 +364,8 @@ export class RangeTool extends GestureTool {
 
   get event_type(): EventType | EventType[] {
     switch (this.start_gesture) {
-      case "pan":  return "pan" as "pan"
-      case "tap":  return ["tap" as "tap", "move" as "move"]
+      case "pan":  return "pan"
+      case "tap":  return ["tap", "move"]
       case "none": return []
     }
   }
@@ -380,6 +377,6 @@ export class RangeTool extends GestureTool {
   }
 
   override tool_button(): OnOffButton {
-    return new OnOffButton({tool: this})
+    return OnOffButton.create({tool: this})
   }
 }

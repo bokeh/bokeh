@@ -47,13 +47,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from argparse import Namespace
+from typing import ClassVar
 
-# Bokeh imports
 from ...core.json_encoder import serialize_json
 from ...document import Document
-from ..subcommand import Argument
+from ..subcommand import Args, Argument
 from .file_output import FileOutputSubcommand
 
 #-----------------------------------------------------------------------------
@@ -81,7 +80,7 @@ class JSON(FileOutputSubcommand):
 
     help = "Create JSON files for one or more applications"
 
-    args = (
+    args: ClassVar[Args] = (
         FileOutputSubcommand.files_arg("JSON"),
 
         ('--indent', Argument(

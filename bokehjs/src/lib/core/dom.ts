@@ -590,9 +590,15 @@ export function content_size(el: HTMLElement): Size {
   return {width, height}
 }
 
-export function bounding_box(el: Element): BBox {
+export function bounding_box(el: Element, relative_to?: Element): BBox {
   const {x, y, width, height} = el.getBoundingClientRect()
-  return new BBox({x, y, width, height})
+  const bbox = new BBox({x, y, width, height})
+  if (relative_to != null) {
+    const {x, y} = relative_to.getBoundingClientRect()
+    return bbox.translate(-x, -y)
+  } else {
+    return bbox
+  }
 }
 
 export function box_size(el: Element): Size {
@@ -616,58 +622,6 @@ export function position(el: HTMLElement, box: Box, margin?: Extents): void {
   }
 }
 
-export class ClassList {
-  constructor(private readonly class_list: DOMTokenList) {}
-
-  get values(): string[] {
-    const values = []
-    for (let i = 0; i < this.class_list.length; i++) {
-      const item = this.class_list.item(i)
-      if (item != null) {
-        values.push(item)
-      }
-    }
-    return values
-  }
-
-  has(cls: string): boolean {
-    return this.class_list.contains(cls)
-  }
-
-  add(...classes: string[]): this {
-    for (const cls of classes) {
-      this.class_list.add(cls)
-    }
-    return this
-  }
-
-  remove(...classes: string[] | string[][]): this {
-    for (const cls of classes) {
-      if (isArray(cls)) {
-        cls.forEach((cls) => this.class_list.remove(cls))
-      } else {
-        this.class_list.remove(cls)
-      }
-    }
-    return this
-  }
-
-  clear(): this {
-    for (const cls of this.values) {
-      this.class_list.remove(cls)
-    }
-    return this
-  }
-
-  toggle(cls: string, activate?: boolean): boolean {
-    return this.class_list.toggle(cls, activate)
-  }
-}
-
-export function classes(el: HTMLElement): ClassList {
-  return new ClassList(el.classList)
-}
-
 export function toggle_attribute(el: HTMLElement, attr: string, state?: boolean): void {
   if (state == null) {
     state = !el.hasAttribute(attr)
@@ -682,7 +636,8 @@ export function toggle_attribute(el: HTMLElement, attr: string, state?: boolean)
 
 type WhitespaceKeys = "Tab" | "Enter" | " "
 type UIKeys = "Escape"
-type NavigationKeys = "Home" | "End" | "PageUp" | "PageDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "ArrowDown"
+export type ArrowKeys = "ArrowLeft" | "ArrowRight" | "ArrowUp" | "ArrowDown"
+type NavigationKeys = "Home" | "End" | "PageUp" | "PageDown" | ArrowKeys
 type EditingKeys = "Backspace" | "Delete"
 
 export type Keys = WhitespaceKeys | UIKeys | NavigationKeys | EditingKeys
@@ -718,8 +673,7 @@ export function has_focus(el: Element): boolean {
   }
 }
 
-export type ARIARole =
-  // Structural roles
+type ARIAStructuralRole =
   | "toolbar"
   | "tooltip"
   | "feed"
@@ -762,7 +716,7 @@ export type ARIARole =
   | "superscript"
   | "time"
 
-  // Widget roles
+type ARIAWidgetRole =
   | "button"
   | "checkbox"
   | "gridcell"
@@ -775,7 +729,7 @@ export type ARIARole =
   | "radio"
   | "scrollbar"
   | "searchbox"
-  | "separator"  // when focusable
+  | "separator"    // only when focusable; see also "separator" in ARIAStructuralRole
   | "slider"
   | "spinbutton"
   | "switch"
@@ -784,7 +738,7 @@ export type ARIARole =
   | "textbox"
   | "treeitem"
 
-  // Composite widget roles
+type ARIACompositeWidgetRole =
   | "combobox"
   | "menu"
   | "menubar"
@@ -792,7 +746,7 @@ export type ARIARole =
   | "tree"
   | "treegrid"
 
-  // Landmark roles
+type ARIALandmarkRole =
   | "banner"        // document <header>
   | "complementary" // <aside>
   | "contentinfo"   // document <footer>
@@ -802,13 +756,21 @@ export type ARIARole =
   | "region"        // <section>
   | "search"        // <search>
 
-  // Live region roles
+type ARIALiveRegionRole =
   | "alert"
   | "log"
   | "marquee"
   | "status"
   | "timer"
 
-  // Window roles
+type ARIAWindowRole =
   | "alertdialog"
   | "dialog"
+
+export type ARIARole =
+  | ARIAStructuralRole
+  | ARIAWidgetRole
+  | ARIACompositeWidgetRole
+  | ARIALandmarkRole
+  | ARIALiveRegionRole
+  | ARIAWindowRole

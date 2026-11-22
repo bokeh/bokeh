@@ -1,3 +1,12 @@
+''' Embed a Bokeh server app in Flask served by Gunicorn.
+
+.. bokeh-example-metadata::
+    :title: Flask gunicorn embed
+    :keywords: flask, gunicorn, embed
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Slider, bokeh.plotting.figure.line
+    :sampledata: sea_surface_temperature
+'''
+
 import asyncio
 from threading import Thread
 
@@ -7,7 +16,7 @@ from tornado.ioloop import IOLoop
 
 from bokeh.application import Application
 from bokeh.application.handlers import FunctionHandler
-from bokeh.embed import server_document
+from bokeh.embed import embed_server
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Slider
 from bokeh.plotting import figure
@@ -60,8 +69,9 @@ sockets, port = bind_sockets("localhost", 0)
 
 @app.route('/', methods=['GET'])
 def bkapp_page():
-    script = server_document(f"http://localhost:{port}/bkapp")
-    return render_template("embed.html", script=script, template="Flask")
+    result = embed_server(f"http://localhost:{port}/bkapp")
+    fragment = result.fragment(resources="server")
+    return render_template("embed.html", embed_html=fragment.html, template="Flask")
 
 def bk_worker():
     asyncio.set_event_loop(asyncio.new_event_loop())

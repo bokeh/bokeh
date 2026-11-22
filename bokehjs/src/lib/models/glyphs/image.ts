@@ -38,7 +38,7 @@ export class ImageView extends ImageBaseView {
 
   protected override get _can_inherit_image_data(): boolean {
     return super._can_inherit_image_data &&
-      this._can_inherit_from(this.model.properties.color_mapper, this.base)
+      this._can_inherit_from(this.model.properties.color_mapper, this.base_glyph)
   }
 
   protected _flat_img_to_buf8(img: NDArrayType<number>): Uint8ClampedArray {
@@ -68,15 +68,11 @@ export class Image extends ImageBase {
   declare properties: Image.Props
   declare __view_type__: ImageView
 
-  constructor(attrs?: Partial<Image.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = ImageView
 
     this.define<Image.Props>(({Ref}) => ({
-      color_mapper: [ Ref(ColorMapper), () => new LinearColorMapper({palette: Greys9()}) ],
+      color_mapper: [ Ref(ColorMapper), () => LinearColorMapper.create({palette: Greys9()}) ],
     }))
   }
 }

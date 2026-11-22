@@ -61,7 +61,7 @@ export class AnnulusView extends XYGlyphView {
     })
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Annulus.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<Annulus.Data>): void {
     const {sx, sy, sinner_radius, souter_radius} = {...this, ...data}
 
     for (const i of indices) {
@@ -120,7 +120,7 @@ export class AnnulusView extends XYGlyphView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   override draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Rect, index: number): void {
@@ -138,7 +138,7 @@ export class AnnulusView extends XYGlyphView {
     const souter_radius: number[] = new Array(len)
     souter_radius[index] = r*0.8
 
-    this._paint(ctx, [index], {sx, sy, sinner_radius, souter_radius})
+    this._paint(ctx, Int32Array.of(index), {sx, sy, sinner_radius, souter_radius})
   }
 }
 
@@ -162,10 +162,6 @@ export interface Annulus extends Annulus.Attrs {}
 export class Annulus extends XYGlyph {
   declare properties: Annulus.Props
   declare __view_type__: AnnulusView
-
-  constructor(attrs?: Partial<Annulus.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = AnnulusView

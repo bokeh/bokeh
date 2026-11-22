@@ -50,7 +50,7 @@ But also by setting the attributes on an instance:
     m.foo = 20
 
 Attempts to set a property to a value of the wrong type will
-result in a ``ValueError`` exception:
+result in a ``ValidationError`` exception:
 
 .. code-block:: python
 
@@ -59,7 +59,9 @@ result in a ``ValueError`` exception:
 
       << traceback omitted >>
 
-    ValueError: expected a value of type Integral, got 2.3 of type float
+    ValidationError: failed to validate SomeModel(id='p1000', ...).foo: expected a value of type Integral, got 2.3 of type float
+
+See :ref:`bokeh.core.properties.validation_errors` for details.
 
 Models with properties know how to serialize themselves, to be understood
 by BokehJS.
@@ -182,8 +184,28 @@ In some cases it may be desirable to turn off validation in specific places,
 or even entirely, in order to boost performance. The following API is available
 to control when type validation occurs.
 
+Use ``validate`` or ``without_property_validation`` for a context-local override.
+Use ``set_validation_default`` to configure the process-wide default for contexts
+without an override.
+
 .. autoclass:: validate
 .. autofunction:: without_property_validation
+.. autofunction:: set_validation_default
+
+.. _bokeh.core.properties.validation_errors:
+
+Validation Errors
+-----------------
+
+Errors raised by the properties system derive from ``PropertyError``. Values
+that don't match a property's type raise ``ValidationError``, a subclass of
+``PropertyError``. ``PropertyError`` derives from ``ValueError``, so code
+catching ``ValueError`` continues to work. Catch ``PropertyError`` (or
+``ValidationError``) to handle property errors only, without also catching
+unrelated errors.
+
+.. autoclass:: PropertyError
+.. autoclass:: ValidationError
 
 '''
 #-----------------------------------------------------------------------------
@@ -280,6 +302,7 @@ __all__ = (
     'PandasGroupBy',
     'Percent',
     'Positive',
+    'PropertyError',
     'RGB',
     'Readonly',
     'Regex',
@@ -302,8 +325,10 @@ __all__ = (
     'Tuple',
     'TypeOfAttr',
     'UnsetValueError',
+    'ValidationError',
     'expr',
     'field',
+    'set_validation_default',
     'validate',
     'value',
     'without_property_validation',
@@ -377,6 +402,9 @@ from .property.either import Either
 
 from .property.enum import Enum
 
+from .property.exceptions import PropertyError
+from .property.exceptions import ValidationError
+
 from .property.factors import Factor
 from .property.factors import FactorSeq
 
@@ -440,6 +468,7 @@ from .property.visual import Image
 from .property.visual import MinMaxBounds
 from .property.visual import MarkerType
 
+from .property.validation import set_validation_default
 from .property.validation import validate
 from .property.validation import without_property_validation
 

@@ -3,10 +3,12 @@ eclipse across the United States. This example demonstrates using a
 ``LinearColorMapper`` and a color bar.
 
 .. bokeh-example-metadata::
-    :sampledata: us_states
-    :apis: bokeh.plotting.figure.patches, bokeh.models.sources.ColumnDataSource, bokeh.models.mappers.LinearColorMapper, bokeh.models.ColorBar
-    :refs: :ref:`ug_basic_annotations_color_bars`
+    :title: Solar eclipse path
     :keywords: colorbar, label, map, patches
+    :apis: bokeh.plotting.figure.patches, bokeh.models.sources.ColumnDataSource, bokeh.models.mappers.LinearColorMapper, bokeh.models.ColorBar
+    :sampledata: us_states
+    :refs: :ref:`ug_basic_annotations_color_bars`
+    :gallery: A plot of US states overlaid with a trajectory marking the path of the August 2017 solar eclipse.
 
 .. _Google search interest data: https://www.reddit.com/r/dataisbeautiful/comments/6qnkg0/google_search_interest_follows_the_path_of_the/
 
@@ -34,7 +36,7 @@ totality_path = shp.Reader(join(ROOT, "eclipse_data/upath17")).shapes()[0]
 
 p = figure(
     width=1000, height=600, background_fill_color="#333344",
-    tools="", toolbar_location=None, x_axis_location=None, y_axis_location=None,
+    tools=None, x_axis_location=None, y_axis_location=None,
 )
 
 p.grid.grid_line_color = None

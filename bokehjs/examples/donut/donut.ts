@@ -85,13 +85,13 @@ export namespace WebBrowserMarketShare {
     x_range: [-2, 2], y_range: [-2, 2],
     width: 600, height: 600,
     x_axis_type: null, y_axis_type: null,
-    tools: [], toolbar_location: null,
+    tools: null,
   })
 
   function render(item: MonthlyShares) {
     fig.title = `${item.month} ${item.year}`
 
-    const source = new Bokeh.ColumnDataSource({
+    const source = Bokeh.ColumnDataSource.create({
       data: {
         names: item.browsers,
         shares: item.shares,
@@ -131,7 +131,7 @@ export namespace WebBrowserMarketShare {
     fig.text(x1, y1, texts, {source, angle: text_angles, text_align: "center", text_baseline: "middle"})
   }
 
-  const tap = new Bokeh.TapTool({
+  const tap = Bokeh.TapTool.create({
     behavior: "inspect",
     callback: {
       execute(_obj, {source: cds}): void {

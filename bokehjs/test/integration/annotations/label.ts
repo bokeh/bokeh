@@ -5,9 +5,8 @@ import {tex} from "./_text_utils"
 
 import {Label, HTMLLabel} from "@bokehjs/models/annotations"
 import type {PlotView} from "@bokehjs/models/plots/plot"
-import type {Class} from "@bokehjs/core/class"
+import type {HasPropsFactory} from "@bokehjs/core/has_props"
 import type {OutputBackend, Anchor} from "@bokehjs/core/enums"
-import {paint} from "@bokehjs/core/util/defer"
 
 const r = String.raw
 
@@ -15,10 +14,10 @@ describe("Label annotation", () => {
   const padding = 10
   const border_radius = 12
 
-  function plot(LabelCls: Class<Label | HTMLLabel>) {
+  function plot(LabelCls: HasPropsFactory<Label | HTMLLabel>) {
     const plot = fig([600, 600], {x_range: [0, 10], y_range: [0, 10]})
 
-    const label0 = new LabelCls({
+    const label0 = LabelCls.create({
       x: 1, y: 6,
       x_offset: 0, y_offset: 0,
       angle: 15, angle_units: "deg",
@@ -29,7 +28,7 @@ describe("Label annotation", () => {
       padding, border_radius,
     })
 
-    const label1 = new LabelCls({
+    const label1 = LabelCls.create({
       x: 1, y: 6,
       x_offset: 25, y_offset: -50,
       angle: 15, angle_units: "deg",
@@ -39,21 +38,21 @@ describe("Label annotation", () => {
       border_line_color: "blue", border_line_width: 2, border_line_dash: [8, 4],
     })
 
-    const label2 = new LabelCls({
+    const label2 = LabelCls.create({
       x: 4, y: 2,
       text: "H-label",
       text_font_size: "26px", text_baseline: "top", text_align: "right",
       border_line_color: "blue", border_line_width: 1, border_line_dash: [10, 2, 8, 2, 4, 2],
     })
 
-    const label3 = new LabelCls({
+    const label3 = LabelCls.create({
       x: 4, y: 1,
       text: "H-label",
       text_font_size: "26px", text_baseline: "top", text_align: "left",
       border_line_color: "blue", border_line_width: 1, border_line_dash: [10, 2, 8, 2, 4, 2],
     })
 
-    const label4 = new LabelCls({
+    const label4 = LabelCls.create({
       x: 8, y: 4,
       angle: 0.25, angle_units: "turn",
       text: "V-label",
@@ -61,7 +60,7 @@ describe("Label annotation", () => {
       border_line_color: "blue", border_line_width: 1, border_line_dash: [10, 2, 8, 2, 4, 2],
     })
 
-    const label5 = new LabelCls({
+    const label5 = LabelCls.create({
       x: 9, y: 4,
       angle: 0.25, angle_units: "turn",
       text: "V-label",
@@ -70,7 +69,7 @@ describe("Label annotation", () => {
       padding, border_radius,
     })
 
-    const label6 = new LabelCls({
+    const label6 = LabelCls.create({
       x: 4, y: 4,
       angle: -15, angle_units: "deg",
       text: "A long label\nspread across\nmultiple lines of text",
@@ -81,7 +80,7 @@ describe("Label annotation", () => {
       padding, border_radius,
     })
 
-    const label_above_0 = new LabelCls({
+    const label_above_0 = LabelCls.create({
       x: 0, y: 0,
       x_units: "screen", y_units: "screen",
       text: "First label above",
@@ -91,7 +90,7 @@ describe("Label annotation", () => {
       padding, border_radius,
     })
 
-    const label_above_1 = new LabelCls({
+    const label_above_1 = LabelCls.create({
       x: 0, y: 0,
       x_units: "screen", y_units: "screen",
       text: "Second label above\nspanning two lines",
@@ -100,7 +99,7 @@ describe("Label annotation", () => {
       border_line_color: "green", border_line_width: 1, border_line_dash: [8, 4],
     })
 
-    const label_below_0 = new LabelCls({
+    const label_below_0 = LabelCls.create({
       x: 0, y: 0,
       x_units: "screen", y_units: "screen",
       text: "First label below",
@@ -110,7 +109,7 @@ describe("Label annotation", () => {
       padding, border_radius,
     })
 
-    const label_below_1 = new LabelCls({
+    const label_below_1 = LabelCls.create({
       x: 0, y: 0,
       x_units: "screen", y_units: "screen",
       text: "Second label below\nspanning two lines",
@@ -119,7 +118,7 @@ describe("Label annotation", () => {
       border_line_color: "green", border_line_width: 1, border_line_dash: [8, 4],
     })
 
-    const label_left_0 = new LabelCls({
+    const label_left_0 = LabelCls.create({
       x: 0, y: 0,
       x_units: "screen", y_units: "screen",
       angle: 90, angle_units: "deg",
@@ -130,7 +129,7 @@ describe("Label annotation", () => {
       padding, border_radius,
     })
 
-    const label_left_1 = new LabelCls({
+    const label_left_1 = LabelCls.create({
       x: 0, y: 0,
       x_units: "screen", y_units: "screen",
       angle: 90, angle_units: "deg",
@@ -140,7 +139,7 @@ describe("Label annotation", () => {
       border_line_color: "green", border_line_width: 1, border_line_dash: [8, 4],
     })
 
-    const label_right_0 = new LabelCls({
+    const label_right_0 = LabelCls.create({
       x: 0, y: 0,
       x_units: "screen", y_units: "screen",
       angle: 90, angle_units: "deg",
@@ -151,7 +150,7 @@ describe("Label annotation", () => {
       padding, border_radius,
     })
 
-    const label_right_1 = new LabelCls({
+    const label_right_1 = LabelCls.create({
       x: 0, y: 0,
       x_units: "screen", y_units: "screen",
       angle: 90, angle_units: "deg",
@@ -189,7 +188,7 @@ describe("Label annotation", () => {
   })
 
   it("should support basic positioning with LaTeX notation", async () => {
-    const label0 = new Label({
+    const label0 = Label.create({
       x: 1, y: 6,
       x_offset: 0, y_offset: 0,
       angle: 15, angle_units: "deg",
@@ -200,7 +199,7 @@ describe("Label annotation", () => {
       padding, border_radius,
     })
 
-    const label1 = new Label({
+    const label1 = Label.create({
       x: 1, y: 6,
       x_offset: 25, y_offset: -50,
       angle: 15, angle_units: "deg",
@@ -210,21 +209,21 @@ describe("Label annotation", () => {
       border_line_color: "blue", border_line_width: 2, border_line_dash: [8, 4],
     })
 
-    const label2 = new Label({
+    const label2 = Label.create({
       x: 4, y: 2,
       text: r`$$${tex}$$`,
       text_font_size: "12px", text_baseline: "top", text_align: "right",
       border_line_color: "blue", border_line_width: 1, border_line_dash: [10, 2, 8, 2, 4, 2],
     })
 
-    const label3 = new Label({
+    const label3 = Label.create({
       x: 4, y: 1,
       text: r`$$${tex}$$`,
       text_font_size: "12px", text_baseline: "top", text_align: "left",
       border_line_color: "blue", border_line_width: 1, border_line_dash: [10, 2, 8, 2, 4, 2],
     })
 
-    const label4 = new Label({
+    const label4 = Label.create({
       x: 8, y: 4,
       angle: 0.25, angle_units: "turn",
       text: r`$$${tex}$$`,
@@ -232,7 +231,7 @@ describe("Label annotation", () => {
       border_line_color: "blue", border_line_width: 1, border_line_dash: [10, 2, 8, 2, 4, 2],
     })
 
-    const label5 = new Label({
+    const label5 = Label.create({
       x: 9, y: 4,
       angle: 0.25, angle_units: "turn",
       text: r`$$${tex}$$`,
@@ -241,7 +240,7 @@ describe("Label annotation", () => {
       padding, border_radius,
     })
 
-    const label6 = new Label({
+    const label6 = Label.create({
       x: 4, y: 5,
       angle: -20, angle_units: "deg",
       text: r`$$${tex}$$`,
@@ -252,7 +251,7 @@ describe("Label annotation", () => {
       padding, border_radius,
     })
 
-    const label_above_0 = new Label({
+    const label_above_0 = Label.create({
       x: 0, y: 0,
       x_units: "screen", y_units: "screen",
       text: r`$$\text{Above: } ${tex}$$`,
@@ -261,7 +260,7 @@ describe("Label annotation", () => {
       padding, border_radius,
     })
 
-    const label_above_1 = new Label({
+    const label_above_1 = Label.create({
       x: 0, y: 0,
       x_units: "screen", y_units: "screen",
       text: r`$$\text{Above: } ${tex}$$`,
@@ -270,7 +269,7 @@ describe("Label annotation", () => {
       border_line_color: "green", border_line_width: 1, border_line_dash: [8, 4],
     })
 
-    const label_below_0 = new Label({
+    const label_below_0 = Label.create({
       x: 0, y: 0,
       x_units: "screen", y_units: "screen",
       text: r`$$\text{Below: } ${tex}$$`,
@@ -281,7 +280,7 @@ describe("Label annotation", () => {
       padding, border_radius,
     })
 
-    const label_below_1 = new Label({
+    const label_below_1 = Label.create({
       x: 0, y: 0,
       x_units: "screen", y_units: "screen",
       text: r`$$\text{Below: } ${tex}$$`,
@@ -290,7 +289,7 @@ describe("Label annotation", () => {
       border_line_color: "green", border_line_width: 1, border_line_dash: [8, 4],
     })
 
-    const label_left_0 = new Label({
+    const label_left_0 = Label.create({
       x: 0, y: 0,
       x_units: "screen", y_units: "screen",
       angle: 90, angle_units: "deg",
@@ -301,7 +300,7 @@ describe("Label annotation", () => {
       padding, border_radius,
     })
 
-    const label_left_1 = new Label({
+    const label_left_1 = Label.create({
       x: 0, y: 0,
       x_units: "screen", y_units: "screen",
       angle: 90, angle_units: "deg",
@@ -311,7 +310,7 @@ describe("Label annotation", () => {
       border_line_color: "green", border_line_width: 1, border_line_dash: [8, 4],
     })
 
-    const label_right_0 = new Label({
+    const label_right_0 = Label.create({
       x: 0, y: 0,
       x_units: "screen", y_units: "screen",
       angle: 90, angle_units: "deg",
@@ -322,7 +321,7 @@ describe("Label annotation", () => {
       padding, border_radius,
     })
 
-    const label_right_1 = new Label({
+    const label_right_1 = Label.create({
       x: 0, y: 0,
       x_units: "screen", y_units: "screen",
       angle: 90, angle_units: "deg",
@@ -364,11 +363,10 @@ describe("Label annotation", () => {
     async function pan(view: PlotView, xy0: Point, xy1: Point) {
       const actions = new PlotActions(view)
       await actions.pan_along({type: "line", xy0, xy1})
-      await paint()
     }
 
     async function label(anchor: Anchor) {
-      const label = new Label({
+      const label = Label.create({
         editable: true,
         text: "Multi line\nlabel text",
         x: 0, y: 0,
@@ -384,7 +382,6 @@ describe("Label annotation", () => {
       const annotation = await label("center")
       const p = fig([200, 200], {renderers: [annotation], x_range: [-3, 3], y_range: [-3, 3]})
       const {view} = await display(p)
-      await paint()
       await pan(view, xy(1, 0), xy(1, 1))
     })
 
@@ -392,7 +389,6 @@ describe("Label annotation", () => {
       const annotation = await label("bottom_left")
       const p = fig([200, 200], {renderers: [annotation], x_range: [-2, 4], y_range: [-2, 4]})
       const {view} = await display(p)
-      await paint()
       await pan(view, xy(2, 1), xy(1, 3))
     })
 
@@ -400,7 +396,6 @@ describe("Label annotation", () => {
       const annotation = await label("top_right")
       const p = fig([200, 200], {renderers: [annotation], x_range: [-5, 1], y_range: [-3, 3]})
       const {view} = await display(p)
-      await paint()
       await pan(view, xy(-2, -1), xy(-2, 2))
     })
   })

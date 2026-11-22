@@ -1,3 +1,11 @@
+''' Fill the vertical area between two stepped boundaries.
+
+.. bokeh-example-metadata::
+    :title: Stepped vertical areas
+    :keywords: varea, step
+    :apis: bokeh.plotting.figure.varea_step
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

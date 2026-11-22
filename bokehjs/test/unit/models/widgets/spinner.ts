@@ -2,6 +2,7 @@ import {Spinner} from "@bokehjs/models/widgets"
 import {display} from "#framework/layouts"
 import {expect} from "#framework/assertions"
 import {delay} from "@bokehjs/core/util/defer"
+import {ModelChangedEvent} from "@bokehjs/document"
 
 async function mousedown_mouseup(element: Element): Promise<void> {
   const ev = new MouseEvent("mousedown")
@@ -14,7 +15,7 @@ async function mousedown_mouseup(element: Element): Promise<void> {
 describe("Spinner incrementing and decrementing", () => {
 
   it("should allow Spinner display with initial value", async () => {
-    const obj = new Spinner({value: 1.36, step: 1, mode: "float", format: "0.00"})
+    const obj = Spinner.create({value: 1.36, step: 1, mode: "float", format: "0.00"})
     const {view}=await display(obj, [500, 400])
     const init_value=view.shadow_el.querySelector(".bk-input") as HTMLInputElement
 
@@ -22,7 +23,7 @@ describe("Spinner incrementing and decrementing", () => {
   })
 
   it("value should be correct after incrementing with step", async () => {
-    const obj = new Spinner({value: 1.36, step: 1, mode: "float", format: "0.00"})
+    const obj = Spinner.create({value: 1.36, step: 1, mode: "float", format: "0.00"})
     const {view} = await display(obj, [500, 400])
     const button = view.shadow_el.querySelector(".bk-spin-btn-up")!
     const input = view.shadow_el.querySelector(".bk-input") as HTMLInputElement
@@ -33,8 +34,51 @@ describe("Spinner incrementing and decrementing", () => {
     expect(input.value).to.be.equal("2.36")
   })
 
+  it("should defer a committed callback during button interaction", async () => {
+    const _subscribed_changes = new Map([["value", [["committed", null] as ["committed", null]]]])
+    const updates: string[] = []
+    const obj = Spinner.create({
+      value: 1, step: 1, _subscribed_changes,
+    })
+    const {view} = await display(obj, [500, 400])
+    const document = obj.document!
+    document.on_change((event) => {
+      if (event instanceof ModelChangedEvent) {
+        const state = document.is_sync_deferred(obj, event.attr) ? "deferred" : "immediate"
+        updates.push(`${state}:${event.attr}`)
+      }
+    })
+    document.sync_flush.connect(({attr, policy}) => updates.push(`flush:${attr}:${policy}`))
+    const button = view.shadow_el.querySelector(".bk-spin-btn-up")!
+
+    await mousedown_mouseup(button)
+
+    expect(updates).to.be.equal(["deferred:value", "flush:value:committed"])
+  })
+
+  it("should finish committed delivery when losing focus while holding a key", async () => {
+    const _subscribed_changes = new Map([["value", [["committed", null] as ["committed", null]]]])
+    const obj = Spinner.create({value: 1, step: 1, _subscribed_changes})
+    const {view} = await display(obj, [500, 400])
+    const document = obj.document!
+    const flushes: string[] = []
+    document.sync_flush.connect(({attr, policy}) => flushes.push(`${attr}:${policy}`))
+    const input = view.shadow_el.querySelector(".bk-input") as HTMLInputElement
+
+    input.focus()
+    input.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowUp"}))
+    await view.ready
+    expect(document.is_sync_deferred(obj, "value")).to.be.true
+    expect(flushes).to.be.equal([])
+
+    input.blur()
+    await view.ready
+    expect(document.is_sync_deferred(obj, "value")).to.be.false
+    expect(flushes).to.be.equal(["value:committed"])
+  })
+
   it("value should be correct after decrementing with step", async () => {
-    const obj = new Spinner({value: 1.36, step: 1, mode: "float", format: "0.00"})
+    const obj = Spinner.create({value: 1.36, step: 1, mode: "float", format: "0.00"})
     const {view} = await display(obj, [500, 400])
     const button = view.shadow_el.querySelector(".bk-spin-btn-down")!
     const input = view.shadow_el.querySelector(".bk-input") as HTMLInputElement
@@ -46,7 +90,7 @@ describe("Spinner incrementing and decrementing", () => {
   })
 
   it("value should be correct after incrementing and decrementing with step", async () => {
-    const obj = new Spinner({value: 1.36, step: 1, mode: "float", format: "0.00"})
+    const obj = Spinner.create({value: 1.36, step: 1, mode: "float", format: "0.00"})
     const {view} = await display(obj, [500, 400])
 
     const increment_button = view.shadow_el.querySelector(".bk-spin-btn-up")!
@@ -63,7 +107,7 @@ describe("Spinner incrementing and decrementing", () => {
   })
 
   it("values should be correct when step precision is higher than value's precision", async () => {
-    const obj = new Spinner({value: 2.36, step: 1.364, mode: "float", format: "0.000"})
+    const obj = Spinner.create({value: 2.36, step: 1.364, mode: "float", format: "0.000"})
     const {view} = await display(obj, [500, 400])
 
     const increment_button = view.shadow_el.querySelector(".bk-spin-btn-up")!
@@ -83,7 +127,7 @@ describe("Spinner incrementing and decrementing", () => {
   })
 
   it("values should not exceed high and low values", async () => {
-    const obj = new Spinner({value: 2.36, step: 1, high: 5, low: 0.5, mode: "float", format: "0.00"})
+    const obj = Spinner.create({value: 2.36, step: 1, high: 5, low: 0.5, mode: "float", format: "0.00"})
     const {view} = await display(obj, [500, 400])
 
     const increment_button = view.shadow_el.querySelector(".bk-spin-btn-up")!

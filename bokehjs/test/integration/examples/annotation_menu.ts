@@ -1,3 +1,5 @@
+import {assert} from "@bokehjs/core/util/assert"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {display} from "#framework/layouts"
 
 import {figure} from "@bokehjs/api/plotting"
@@ -24,12 +26,14 @@ describe("Examples", () => {
 
     const plot = figure({active_scroll: "wheel_zoom"})
     const renderer = plot.circle(x, y, radii, {fill_color: colors, fill_alpha: 0.6, line_color: null})
+    const source = renderer.data_source
+    assert(source instanceof ColumnDataSource)
 
-    const box_select = new BoxSelectTool({persistent: true})
+    const box_select = BoxSelectTool.create({persistent: true})
     plot.add_tools(box_select)
 
     const delete_selected = () => {
-      const {data, selected} = renderer.data_source
+      const {data, selected} = source
       const indices = new Set(selected.indices)
 
       const new_data: Data = {}
@@ -37,20 +41,20 @@ describe("Examples", () => {
         new_data[name] = filter(column, (_value, i) => !indices.has(i))
       }
 
-      renderer.data_source.data = new_data
-      renderer.data_source.selected.indices = [] // TODO bug in ds update
+      source.data = new_data
+      source.selected.indices = [] // TODO bug in ds update
     }
 
     const change_color = (_menu: Menu, {item}: {item: MenuItem}) => {
-      const {data, selected} = renderer.data_source
+      const {data, selected} = source
       const indices = new Set(selected.indices)
       const selected_color = item.label
 
-      const fill_color = [...renderer.data_source.get("fill_color")]
+      const fill_color = [...source.get("fill_color")]
       for (const i of indices) {
         fill_color[i] = selected_color
       }
-      renderer.data_source.data = {...data, fill_color}
+      source.data = {...data, fill_color}
     }
 
     const change_continuous = (_menu: Menu, {item}: {item: MenuItem}) => {
@@ -64,33 +68,33 @@ describe("Examples", () => {
 
     const clear_selection = () => {
       box_select.overlay.visible = false
-      renderer.data_source.selected.indices = []
+      source.selected.indices = []
     }
 
-    const menu = new Menu({
+    const menu = Menu.create({
       items: [
-        new MenuItem({
+        MenuItem.create({
           label: "Count",
           shortcut: "Alt+C",
           disabled: true,
           action: () => console.log("not implemented"),
         }),
-        new MenuItem({
+        MenuItem.create({
           label: "Delete",
           shortcut: "Alt+Shift+D",
           icon: "delete",
           action: delete_selected,
         }),
         null,
-        new MenuItem({
+        MenuItem.create({
           label: "Choose color",
-          menu: new Menu({
+          menu: Menu.create({
             stylesheets: [
               Spectral11.map((color) => `.color-${color.replace(/^#/, "")} { background-color: ${color}; }`).join("\n"),
               ".bk-label { font-family: monospace; }",
             ],
             items: Spectral11.map((color) => {
-              return new MenuItem({
+              return MenuItem.create({
                 label: color,
                 icon: `.color-${color.replace(/^#/, "")}`,
                 action: change_color,
@@ -99,18 +103,18 @@ describe("Examples", () => {
           }),
         }),
         null,
-        new MenuItem({
+        MenuItem.create({
           label: "Continuous selection",
           checked: box_select.continuous,
           action: change_continuous,
         }),
         null,
-        new MenuItem({
+        MenuItem.create({
           icon: "invert_selection",
           label: "Invert selection",
           action: invert_selection,
         }),
-        new MenuItem({
+        MenuItem.create({
           icon: "clear_selection",
           label: "Clear selection",
           shortcut: "Esc",

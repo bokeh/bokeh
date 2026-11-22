@@ -13,30 +13,31 @@ pytest_plugins = (
     "tests.support.plugins.networkx",
 )
 
-# Standard library imports
 import importlib
 import importlib.util
 import sys
 import sysconfig
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator, Mapping, Sequence
+from typing import TYPE_CHECKING, Any
 
-# External imports
-import _pytest
 import pytest
 from narwhals.stable.v1.typing import IntoDataFrame
 
+if TYPE_CHECKING:
+    from bokeh.settings import PrioritizedSetting
+
+type Data = Mapping[str, Sequence[Any]]
+type Constructor = Callable[[Data], IntoDataFrame]
+
+pandas_1x: bool | None
 if importlib.util.find_spec("pandas") is not None:
     import pandas as pd
     pandas_1x = pd.__version__.startswith("1")
 else:
-    pd = pandas_1x = None
+    pandas_1x = None
 
 # Unfortunately these seem to all need to be centrally defined at the top level
-def pytest_addoption(parser: _pytest.config.argparsing.Parser) -> None:
-
-    # plugins/selenium
-    parser.addoption(
-        "--driver", choices=('chrome', 'firefox', 'safari'), default='chrome', help='webdriver implementation')
+def pytest_addoption(parser: pytest.Parser) -> None:
 
     # plugins/bokeh_server
     parser.addoption(
@@ -55,36 +56,39 @@ def pytest_addoption(parser: _pytest.config.argparsing.Parser) -> None:
         "--no-js", action="store_true", default=False,
         help="only run python code and skip js")
 
-def pandas_constructor(obj) -> IntoDataFrame:
-    return pd.DataFrame(obj)  # type: ignore[no-any-return]
+def pandas_constructor(obj: Data) -> IntoDataFrame:
+    import pandas as pd
+    return pd.DataFrame(obj)
 
 
-def pandas_nullable_constructor(obj) -> IntoDataFrame:
-    return pd.DataFrame(obj).convert_dtypes(dtype_backend="numpy_nullable")  # type: ignore[no-any-return]
+def pandas_nullable_constructor(obj: Data) -> IntoDataFrame:
+    import pandas as pd
+    return pd.DataFrame(obj).convert_dtypes(dtype_backend="numpy_nullable")
 
 
-def pandas_pyarrow_constructor(obj) -> IntoDataFrame:
-    return pd.DataFrame(obj).convert_dtypes(dtype_backend="pyarrow")  # type: ignore[no-any-return]
+def pandas_pyarrow_constructor(obj: Data) -> IntoDataFrame:
+    import pandas as pd
+    return pd.DataFrame(obj).convert_dtypes(dtype_backend="pyarrow")
 
 
-def polars_eager_constructor(obj) -> IntoDataFrame:
+def polars_eager_constructor(obj: Data) -> IntoDataFrame:
     import polars as pl
     return pl.DataFrame(obj)
 
 
-def pyarrow_table_constructor(obj) -> IntoDataFrame:
-    import pyarrow as pa
-    return pa.table(obj)  # type: ignore[no-any-return]
+def pyarrow_table_constructor(obj: Data) -> IntoDataFrame:
+    import pyarrow as pa  # type: ignore[import-untyped]
+    return pa.table(obj)
 
 
-constructors = []
+constructors: list[Constructor] = []
 if pandas_1x is False:
     constructors.append(pandas_constructor)
     constructors.append(pandas_nullable_constructor)
 elif pandas_1x is True:
     constructors.append(pandas_constructor)
 
-if pd and importlib.util.find_spec('pyarrow') is not None:
+if pandas_1x is not None and importlib.util.find_spec('pyarrow') is not None:
     constructors.extend([pandas_pyarrow_constructor, pyarrow_table_constructor])
 if importlib.util.find_spec('polars') is not None:
     constructors.append(polars_eager_constructor)
@@ -110,8 +114,22 @@ def ensure_gil_disabled() -> Iterator[None]:
 
 
 @pytest.fixture(params=constructors)
-def constructor(request: pytest.FixtureRequest):
-    return request.param  # type: ignore[no-any-return]
+def constructor(request: pytest.FixtureRequest) -> Constructor:
+    return request.param
+
+
+@pytest.fixture
+def cdn_version_setting() -> Iterator[PrioritizedSetting[str | None]]:
+    '''Reset the programmatic CDN version for a test and restore it afterward.'''
+    from bokeh.settings import settings
+
+    setting = settings.cdn_version
+    original_value = setting._user_value
+    setting.unset_value()
+    try:
+        yield setting
+    finally:
+        setting._user_value = original_value
 
 
 @pytest.fixture(scope="session")

@@ -1,6 +1,5 @@
 # https://github.com/bokeh/bokeh/issues/13637
 
-# Bokeh imports
 from bokeh.core.properties import value
 from bokeh.models import (
     ColumnDataSource,

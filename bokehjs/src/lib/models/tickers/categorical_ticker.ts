@@ -19,10 +19,6 @@ export interface CategoricalTicker extends CategoricalTicker.Attrs {}
 export class CategoricalTicker extends Ticker {
   declare properties: CategoricalTicker.Props
 
-  constructor(attrs?: Partial<CategoricalTicker.Attrs>) {
-    super(attrs)
-  }
-
   get_ticks(start: number, end: number, range: FactorRange, _cross_loc: number): FactorTickSpec {
     const majors = this._collect(range.factors, range, start, end)
 

@@ -2,6 +2,7 @@ import {expect} from "#framework/assertions"
 
 import * as tmpl from "@bokehjs/core/util/templating"
 import {keys} from "@bokehjs/core/util/object"
+import {Float64NDArray, ObjectNDArray} from "@bokehjs/core/util/ndarray"
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {CustomJSHover} from "@bokehjs/models/tools/inspectors/customjs_hover"
@@ -66,6 +67,58 @@ describe("templating module", () => {
     })
   })
 
+  describe("tooltip_formatter", () => {
+    it("should preserve scalar and short array formatting", () => {
+      for (const value of [1.2345, "text", null, [], [1, null, 3], new Float64Array([1, 2, 3])]) {
+        expect(tmpl.tooltip_formatter(value, "", {})).to.be.equal(tmpl.basic_formatter(value, "", {}))
+      }
+      const value = Array.from({length: 10}, (_, i) => i)
+      expect(tmpl.tooltip_formatter(value, "", {})).to.be.equal(value.join(","))
+    })
+
+    it("should bound array reads and preserve the input", () => {
+      const value = Array.from({length: 1000}, (_, i) => i)
+      Object.defineProperty(value, "10", {get: () => { throw new Error("read beyond preview") }})
+      expect(tmpl.tooltip_formatter(value, "", {})).to.be.equal("[0,1,2,3,4,5,6,7,8,9,…] (length 1000)")
+      expect(value.length).to.be.equal(1000)
+      expect(value[999]).to.be.equal(999)
+      expect(tmpl.tooltip_formatter(new Float64Array(1000), "", {})).to.be.equal("[0,0,0,0,0,0,0,0,0,0,…] (length 1000)")
+    })
+
+    it("should bound nested arrays and long entries", () => {
+      const nested = [Array.from({length: 1000}, (_, i) => i)]
+      expect(tmpl.tooltip_formatter(nested, "", {})).to.be.equal("[[0,1,2,3,4,5,6,7,8,…]] (length 1)")
+      expect(tmpl.tooltip_formatter(["x".repeat(10000)], "", {})).to.be.equal(`[${"x".repeat(200)}…] (length 1)`)
+      expect(tmpl.tooltip_formatter([["x".repeat(10000)], [2]], "", {})).to.be.equal(`[[${"x".repeat(200)}…],…] (length 2)`)
+    })
+
+    it("should preserve nesting in short, empty, ragged, and typed rows", () => {
+      expect(tmpl.tooltip_formatter([[1, 2], [], [3, 4]], "", {})).to.be.equal("[[1,2],[],[3,4]]")
+      expect(tmpl.tooltip_formatter([new Float64Array([1, 2]), [3]], "", {})).to.be.equal("[[1,2],[3]]")
+      expect(tmpl.tooltip_formatter([[[1]]], "", {})).to.be.equal("[[[1]]]")
+    })
+
+    it("should mark omitted inner and outer entries without reading beyond the budget", () => {
+      const nested = Array.from({length: 3}, (_, row) => Array.from({length: 6}, (_, col) => 18 + row*6 + col))
+      const unread = () => { throw new Error("read beyond nested preview") }
+      Object.defineProperty(nested[1], "2", {get: unread})
+      Object.defineProperty(nested, "2", {get: unread})
+      expect(tmpl.tooltip_formatter(nested, "", {})).to.be.equal("[[18,19,20,21,22,23],[24,25,…],…] (length 3)")
+    })
+
+    it("should apply previews only to the requested default formatter", () => {
+      const values = Array.from({length: 1000}, (_, i) => i)
+      const source = ColumnDataSource.create({data: {values: [values]}})
+      const text = (spec: string, formatters?: tmpl.Formatters) => tmpl.replace_placeholders_html(
+        spec, source, 0, formatters, {}, tmpl.tooltip_formatter).map((node) => node.textContent).join("")
+      expect(text("@values")).to.be.equal("[0,1,2,3,4,5,6,7,8,9,…] (length 1000)")
+      expect(text("@values{custom}", {"@values": CustomJSHover.create({code: "return value.length"})})).to.be.equal("1000")
+      expect(text("@values{safe}")).to.be.equal(values.join(","))
+      expect(text("@values{raw}", {"@values": "basic"})).to.be.equal(values.join(","))
+      expect(tmpl.replace_placeholders("@values", source, 0)).to.be.equal(values.join(","))
+    })
+  })
+
   describe("get_formatter", () => {
 
     it("should return basic_formatter for null format", () => {
@@ -88,7 +141,7 @@ describe("templating module", () => {
       const f3 = tmpl.get_formatter("@x", "%m/%d/%Y", {"@x": "datetime"})
       expect(f3).to.be.equal(tmpl.DEFAULT_FORMATTERS.datetime)
 
-      const custom = new CustomJSHover({code: "return format + ' ' + special_vars.special + ' ' + value"})
+      const custom = CustomJSHover.create({code: "return format + ' ' + special_vars.special + ' ' + value"})
       const f4 = tmpl.get_formatter("@x", "custom", {"@x": custom})
       expect(f4(3.123, "custom", {special: 10})).to.be.equal("custom 10 3.123")
     })
@@ -100,9 +153,35 @@ describe("templating module", () => {
 
   describe("get_value", () => {
 
-    const source = new ColumnDataSource({data: {foo: [10, 1.002], bar: ["a", "<div>b</div>"], baz: [1492890671885, 1290460671885]}})
+    it("should read logical rows from shaped numeric and object columns", () => {
+      const numeric = new Float64NDArray([0, 1, 2, 0, 2, 3], [2, 3])
+      const objects = new ObjectNDArray(["a", "b", "c", "d"], [2, 2, 1])
+      const source = ColumnDataSource.create({data: {numeric, objects}})
+      expect(tmpl.get_value("@", "numeric", source, 1, {})).to.be.equal([0, 2, 3])
+      expect(tmpl.get_value("@", "objects", source, 1, {})).to.be.equal([["c"], ["d"]])
+      expect(source.get_column("numeric")).to.be.identical(numeric)
+      expect(Array.from(numeric)).to.be.equal([0, 1, 2, 0, 2, 3])
+    })
 
-    const imsource = new ColumnDataSource({
+    it("should preserve shaped image pixel and channel indexing", () => {
+      const source = ColumnDataSource.create({data: {
+        image: [new Float64NDArray([0, 1, 2, 3], [2, 2])],
+        stack: [new Float64NDArray([0, 1, 2, 3, 4, 5, 6, 7], [2, 2, 2])],
+      }})
+      const index = {index: 0, i: 0, j: 1, flat_index: 2}
+      expect(tmpl.get_value("@", "image", source, index, {})).to.be.equal(2)
+      expect(tmpl.get_value("@", "stack", source, index, {})).to.be.equal(new Float64Array([4, 5]))
+    })
+
+    it("should preserve ordinary nested column rows", () => {
+      const row = [0, 2, 3]
+      const source = ColumnDataSource.create({data: {values: [[0, 1, 2], row]}})
+      expect(tmpl.get_value("@", "values", source, 1, {})).to.be.identical(row)
+    })
+
+    const source = ColumnDataSource.create({data: {foo: [10, 1.002], bar: ["a", "<div>b</div>"], baz: [1492890671885, 1290460671885]}})
+
+    const imsource = ColumnDataSource.create({
       data: {
         arrs: [[[0, 10, 20], [30, 40, 50]]],
         floats: [[0.0, 1.0, 2.0, 3.0, 4.0, 5.0]],
@@ -160,7 +239,7 @@ describe("templating module", () => {
   })
 
   describe("replace_placeholders", () => {
-    const source = new ColumnDataSource({data: {
+    const source = ColumnDataSource.create({data: {
       foo: [10, 1.002, NaN],
       bar: ["a", "<div>b</div>", "'qux'\"quux\""],
       baz: [1492890671885, 1290460671885, 1090410671285],
@@ -247,7 +326,7 @@ describe("templating module", () => {
     })
 
     it("should use a customjs hover formatter if specified", () => {
-      const custom = new CustomJSHover({code: "return format + ' ' + special_vars.special + ' ' + value"})
+      const custom = CustomJSHover.create({code: "return format + ' ' + special_vars.special + ' ' + value"})
       const s = tmpl.replace_placeholders("stuff @foo{custom}", source, 0, {"@foo": custom}, {special: "vars"})
       expect(s).to.be.equal("stuff custom vars 10")
     })

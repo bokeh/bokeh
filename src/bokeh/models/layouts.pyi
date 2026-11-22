@@ -5,12 +5,18 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
-from typing import NotRequired, TypedDict, Unpack
+from typing import (
+    Never,
+    NotRequired,
+    Sequence,
+    TypedDict,
+    Unpack,
+    overload,
+)
 
-# Bokeh imports
 from .._types import NonNegative
+from ..colors import ColorLike
 from ..core.enums import (
     AlignType as Align,
     AutoType as Auto,
@@ -45,6 +51,7 @@ class _LayoutDOMInit(_PaneInit, total=False):
     sizing_mode: SizingMode | None
     align: Auto | Align | tuple[Align, Align]
     resizable: bool | Dimensions
+    background: ColorLike
 
 class LayoutDOM(Pane):
     @abstractmethod
@@ -65,6 +72,12 @@ class LayoutDOM(Pane):
     sizing_mode: SizingMode | None = ...
     align: Auto | Align | tuple[Align, Align] = ...
     resizable: bool | Dimensions = ...
+
+    @property
+    def background(self) -> Never: ...
+
+    @background.setter
+    def background(self, value: ColorLike) -> None: ...
 
 class _SpacerInit(_LayoutDOMInit, total=False):
     ...
@@ -135,27 +148,42 @@ class VBox(LayoutDOM):
     rows: TracksSizing | None = ...
     spacing: NonNegative[int] = ...
 
-class _FlexBoxInit(_LayoutDOMInit, total=False):
-    children: list[UIElement]
+class _FlexBoxArgsInit(_LayoutDOMInit, total=False):
     spacing: NonNegative[int]
 
+class _FlexBoxInit(_FlexBoxArgsInit, total=False):
+    children: Sequence[UIElement]
+
 class FlexBox(LayoutDOM):
+    @overload
+    @abstractmethod
+    def __init__(self, *children: UIElement, **kwargs: Unpack[_FlexBoxArgsInit]) -> None: ...
+    @overload
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_FlexBoxInit]) -> None: ...
 
-    children: list[UIElement] = ...
+    @property
+    def children(self) -> list[UIElement]: ...
+    @children.setter
+    def children(self, children: Sequence[UIElement]) -> None: ...
     spacing: NonNegative[int] = ...
 
 class _RowInit(_FlexBoxInit, total=False):
     ...
 
 class Row(FlexBox):
+    @overload
+    def __init__(self, *children: UIElement, **kwargs: Unpack[_FlexBoxArgsInit]) -> None: ...
+    @overload
     def __init__(self, **kwargs: Unpack[_RowInit]) -> None: ...
 
 class _ColumnInit(_FlexBoxInit, total=False):
     ...
 
 class Column(FlexBox):
+    @overload
+    def __init__(self, *children: UIElement, **kwargs: Unpack[_FlexBoxArgsInit]) -> None: ...
+    @overload
     def __init__(self, **kwargs: Unpack[_ColumnInit]) -> None: ...
 
 class _TabPanelInit(_ModelInit, total=False):

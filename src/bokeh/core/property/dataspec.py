@@ -20,19 +20,19 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from copy import copy
 from typing import TYPE_CHECKING, Any
 
-# Bokeh imports
 from ...util.dataclasses import Unspecified
 from ...util.serialization import convert_datetime_type, convert_timedelta_type
 from .. import enums
+from .bases import Property
 from .color import ALPHA_DEFAULT_HELP, COLOR_DEFAULT_HELP, Color
 from .datetime import Datetime, TimeDelta
 from .descriptors import DataSpecPropertyDescriptor
 from .either import Either
 from .enum import Enum
+from .exceptions import PropertyError, ValidationError
 from .instance import Instance
 from .nothing import Nothing
 from .nullable import Nullable
@@ -205,7 +205,7 @@ class DataSpec(Either[Any]):
             default=default,
             help=help,
         )
-        self.value_type = self._validate_type_param(value_type)
+        self.value_type: Property[Any] = self._validate_type_param(value_type)
         self.accepts(Instance("bokeh.models.expressions.Expression"), lambda obj: Expr(obj))
 
     def transform(self, value: Any) -> Any:
@@ -235,7 +235,7 @@ class DataSpec(Either[Any]):
         try:
             self.value_type.replace(String, Nothing()).validate(val, False)
             val = Value(val)
-        except ValueError:
+        except PropertyError:
             pass
 
         # Check for data source field name
@@ -264,17 +264,10 @@ class FloatSpec(DataSpec):
         super().__init__(Float, default=default, help=help)
 
 class NumberSpec(DataSpec):
-    """ A |DataSpec| property that accepts numeric and datetime fixed values.
+    """ A |DataSpec| property that accepts numeric, datetime, and timedelta fixed values.
 
-    By default, date and datetime values are immediately converted to
-    milliseconds since epoch. It is possible to disable processing of datetime
-    values by passing ``accept_datetime=False``.
-
-    By default, timedelta values are immediately converted to absolute
-    milliseconds. It is possible to disable processing of timedelta
-    values by passing ``accept_timedelta=False``
-
-    Timedelta values are interpreted as absolute milliseconds.
+    Date and datetime values are converted to milliseconds since the epoch.
+    Timedelta values are converted to milliseconds.
 
     .. code-block:: python
 
@@ -284,22 +277,10 @@ class NumberSpec(DataSpec):
 
     """
 
-    def __init__(self, default: Any = Undefined, *, help: str | None = None, accept_datetime: bool = True, accept_timedelta: bool = True) -> None:
+    def __init__(self, default: Any = Undefined, *, help: str | None = None) -> None:
         super().__init__(Float, default=default, help=help)
-
-        if accept_timedelta:
-            self.accepts(TimeDelta, convert_timedelta_type)
-        else:
-            from ...util.deprecation import deprecated
-
-            deprecated((3, 7, 0), "NumberSpec(..., accept_datetime=False)", "FloatSpec()")
-
-        if accept_datetime:
-            self.accepts(Datetime, convert_datetime_type)
-        else:
-            from ...util.deprecation import deprecated
-
-            deprecated((3, 7, 0), "NumberSpec(..., accept_timedelta=False)", "FloatSpec()")
+        self.accepts(TimeDelta, convert_timedelta_type)
+        self.accepts(Datetime, convert_datetime_type)
 
 class AlphaSpec(FloatSpec):
 
@@ -361,7 +342,7 @@ class FontSizeSpec(DataSpec):
         if isinstance(value, str):
             if len(value) == 0 or (value[0].isdigit() and not CSS_LENGTH_RE.match(value)):
                 msg = "" if not detail else f"{value!r} is not a valid font size value"
-                raise ValueError(msg)
+                raise ValidationError(msg)
 
 class FontStyleSpec(DataSpec):
     def __init__(self, default: Any, *, help: str | None = None) -> None:

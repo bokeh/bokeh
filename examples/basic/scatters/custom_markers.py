@@ -1,9 +1,10 @@
 ''' A scatter plot showing every marker type.
 
 .. bokeh-example-metadata::
+    :title: Custom markers
+    :keywords: scatter, markers
     :apis: bokeh.plotting.figure.scatter, bokeh.plotting.figure.text
     :refs: :ref:`ug_basic_scatters_markers`
-    :keywords: scatter, markers
 
 '''
 from numpy.random import random

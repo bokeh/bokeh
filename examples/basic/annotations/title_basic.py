@@ -1,3 +1,11 @@
+''' Set a scatter plot title when creating the figure.
+
+.. bokeh-example-metadata::
+    :title: Title basic
+    :keywords: title, basic
+    :apis: bokeh.plotting.figure.scatter
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(title="Basic Title", width=300, height=300)

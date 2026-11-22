@@ -138,7 +138,9 @@ The callback function uses four positional arguments:
 * ``context``
     this is an additional broader context provided by bokehjs, which is a
     mapping between names and values, similarly to ``data``. Currently only
-    ``index`` is provided, which allows the user to access bokehjs' view index.
+    ``index`` is provided, which allows callback-local access to BokehJS views.
+    It is not a durable model registry. Pass every model the callback depends
+    on explicitly through ``CustomJS.args``.
 
 It may be convenient to the user to use object destructuring syntax to gain
 immediate access to passed values, for example:
@@ -148,8 +150,8 @@ immediate access to passed values, for example:
     from bokeh.models.callbacks import CustomJS
 
     callback = CustomJS(args=dict(xr=plot.x_range, yr=plot.y_range, slider=slider), code="""
-    export default ({xr, yr, slider}, obj, {geometry}, {index}) => {
-        // use xr, yr, slider, geometry and index
+    export default ({xr, yr, slider}, obj, {geometry}) => {
+        // use xr, yr, slider and geometry
     }
     """)
 
@@ -221,6 +223,9 @@ custom formula:
 
 .. bokeh-plot:: __REPO__/examples/interaction/js_callbacks/js_on_change.py
     :source-position: above
+
+See :ref:`ug_interaction_callback_policies` to limit how often callbacks run
+during rapid browser interactions.
 
 .. _ug_interaction_js_callbacks_customjs_js_on_event:
 
@@ -310,6 +315,16 @@ executed whenever a selection changes. As a simple demonstration, the example
 below simply copies selected points on the first plot to the second. However,
 more sophisticated actions and computations are easily constructed in a
 similar way.
+
+Selection indices are ordinary JavaScript arrays and Python lists of
+nonnegative int32 indices. They represent sets: duplicates are removed and
+values are stored in ascending order. This applies to ``indices``,
+``line_indices``, and each value in ``multiline_indices``. Binary transport is
+handled automatically.
+
+In JavaScript, assign a new array to trigger a change. In Python, ``indices``
+and ``line_indices`` support in-place list updates, as does the
+``multiline_indices`` dictionary. Replace a dictionary value to update that row.
 
 .. bokeh-plot:: __REPO__/examples/interaction/js_callbacks/customjs_for_selection.py
     :source-position: above

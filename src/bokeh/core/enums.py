@@ -69,8 +69,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import (
+    TYPE_CHECKING,
     Any,
     Iterator,
     Literal,
@@ -80,8 +80,10 @@ from typing import (
     get_args,
 )
 
-# Bokeh imports
 from .. import colors, palettes
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeForm
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -91,6 +93,7 @@ __all__ = (
     'Align',
     'AlternationPolicy',
     'Anchor',
+    'AngleReference',
     'AngleUnits',
     'Auto',
     'AutosizeMode',
@@ -147,10 +150,12 @@ __all__ = (
     'Resizable',
     'ResolutionType',
     'RoundingFunction',
+    'SIPrefix',
     'ScrollbarPolicy',
     'SelectionMode',
     'SizingMode',
     'SizingPolicy',
+    'SliderAppearance',
     'SortDirection',
     'SpatialUnits',
     'StartEnd',
@@ -278,8 +283,8 @@ def enumeration[T: str | int](*values: T | TypeAliasType, case_sensitive: bool =
 
     return cast(Enumeration[T], type("Enumeration", (Enumeration,), attrs)())
 
-def _string_enumeration(alias: TypeAliasType, *, case_sensitive: bool = True, quote: bool = False) -> Enumeration[str]:
-    return cast(Enumeration[str], enumeration(alias, case_sensitive=case_sensitive, quote=quote))
+def _string_enumeration[T: str](alias: TypeForm[T], *, case_sensitive: bool = True, quote: bool = False) -> Enumeration[T]:
+    return cast(Enumeration[T], enumeration(cast(TypeAliasType, alias), case_sensitive=case_sensitive, quote=quote))
 
 type AlignType = Literal["start", "center", "end"]
 #: Alignment (vertical or horizontal) of a child item.
@@ -305,6 +310,10 @@ type AnchorType = Literal[
 ]
 #: Specify an anchor position on a box/frame.
 Anchor = _string_enumeration(AnchorType)
+
+type AngleReferenceType = Literal["auto", "left", "right", "screen"]
+#: Specify the reference direction for a path marking angle.
+AngleReference = _string_enumeration(AngleReferenceType)
 
 type AngleUnitsType = Literal["deg", "rad", "grad", "turn"]
 #: Specify the units for an angle value.
@@ -577,6 +586,10 @@ type RoundingFunctionType = Literal["round", "nearest", "floor", "rounddown", "c
 #: Specify a policy for  how numbers should be rounded.
 RoundingFunction = _string_enumeration(RoundingFunctionType)
 
+type SIPrefixType = Literal["Q", "R", "Y", "Z", "E", "P", "T", "G", "M", "k", "m", "µ", "n", "p", "f", "a", "z", "y", "r", "q"]
+#: Specify an engineering SI prefix.
+SIPrefix = _string_enumeration(SIPrefixType)
+
 type ScrollbarPolicyType = Literal["auto", "visible", "hidden"]
 #: Scrollbar policies.
 ScrollbarPolicy = _string_enumeration(ScrollbarPolicyType)
@@ -596,6 +609,10 @@ SizingMode = _string_enumeration(SizingModeType)
 type SizingPolicyType = Literal["fixed", "fit", "min", "max"]
 #: Individual sizing mode policies.
 SizingPolicy = _string_enumeration(SizingPolicyType)
+
+type SliderAppearanceType = Literal["normal", "stealth"]
+#: Specify appearance of sliders, where stealth sliders show handles only on hover or focus.
+SliderAppearance = _string_enumeration(SliderAppearanceType)
 
 type SortDirectionType = Literal["ascending", "descending"]
 #: Specify sorting directions.

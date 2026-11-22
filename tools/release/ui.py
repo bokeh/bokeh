@@ -9,7 +9,6 @@
 """
 from __future__ import annotations
 
-# Standard library imports
 import sys
 from typing import Callable, Sequence
 

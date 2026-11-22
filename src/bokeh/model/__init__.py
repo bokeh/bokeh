@@ -20,19 +20,31 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
+from ..core.has_props import Qualified
 from .data_model import DataModel
-from .model import Model
-from .util import Qualified, collect_models, get_class
+from .model import (
+    CallbackPolicy,
+    Committed,
+    Debounce,
+    Immediate,
+    Model,
+    Throttle,
+)
+from .util import collect_models, get_class
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'CallbackPolicy',
+    'Committed',
     'DataModel',
+    'Debounce',
+    'Immediate',
     'Model',
     'Qualified',
+    'Throttle',
     'collect_models',
     'get_class',
 )

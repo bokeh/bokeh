@@ -1,3 +1,11 @@
+''' Style the overlays drawn by selection and zoom tools.
+
+.. bokeh-example-metadata::
+    :title: Tool overlays
+    :keywords: tool, overlays
+    :apis: bokeh.models.BoxSelectTool, bokeh.models.BoxZoomTool, bokeh.models.LassoSelectTool, bokeh.plotting.figure.scatter
+'''
+
 import numpy as np
 
 from bokeh.models import BoxSelectTool, BoxZoomTool, LassoSelectTool

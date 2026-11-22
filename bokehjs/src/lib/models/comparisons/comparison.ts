@@ -12,9 +12,5 @@ export interface Comparison extends Comparison.Attrs {}
 export abstract class Comparison extends Model {
   declare properties: Comparison.Props
 
-  constructor(attrs?: Partial<Comparison.Attrs>) {
-    super(attrs)
-  }
-
   abstract compute(x: unknown, y: unknown): -1 | 0 | 1
 }

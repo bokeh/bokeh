@@ -1,3 +1,11 @@
+''' Style major and minor axis tick lines separately.
+
+.. bokeh-example-metadata::
+    :title: Tick lines
+    :keywords: tick, lines
+    :apis: bokeh.plotting.figure.scatter
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

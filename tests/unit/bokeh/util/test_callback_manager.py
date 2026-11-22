@@ -8,23 +8,27 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import pickle
 from copy import copy, deepcopy
 from functools import partial
 
-# Bokeh imports
+import pytest
+
 from bokeh.core.property.singletons import OldValueUnavailable
 from bokeh.document import Document
+from bokeh.events import ButtonClick, Tap
 from bokeh.model.util import HasDocumentRef
+from bokeh.models import (
+    Button,
+    Plot,
+    TabPanel,
+    Tabs,
+)
 from bokeh.settings import settings
 
 # Module under test
@@ -299,13 +303,81 @@ class TestPropertyCallbackManager:
 
 
 class TestEventCallbackManager:
+    def test_on_button_click_before_attach(self) -> None:
+        doc = Document()
+        button = Button()
+        other = Button()
+        received = []
+        button.on_event(ButtonClick, received.append)
+        doc.add_root(button)
+        doc.add_root(other)
+        event = ButtonClick(button)
+        doc.callbacks.trigger_event(ButtonClick(other))
+        assert received == []
+        doc.callbacks.trigger_event(event)
+        assert received == [event]
+
+    def test_on_button_click_after_attach(self) -> None:
+        doc = Document()
+        button = Button()
+        other = Button()
+        received = []
+        doc.add_root(button)
+        doc.add_root(other)
+        button.on_event(ButtonClick, received.append)
+        event = ButtonClick(button)
+        doc.callbacks.trigger_event(ButtonClick(other))
+        assert received == []
+        doc.callbacks.trigger_event(event)
+        assert received == [event]
+
+    def test_on_tap_before_attach(self) -> None:
+        doc = Document()
+        plot = Plot()
+        other = Plot()
+        received = []
+        plot.on_event(Tap, received.append)
+        doc.add_root(plot)
+        doc.add_root(other)
+        event = Tap(plot)
+        doc.callbacks.trigger_event(Tap(other))
+        assert received == []
+        doc.callbacks.trigger_event(event)
+        assert received == [event]
+
+    def test_on_tap_after_attach(self) -> None:
+        doc = Document()
+        plot = Plot()
+        other = Plot()
+        received = []
+        doc.add_root(plot)
+        doc.add_root(other)
+        plot.on_event(Tap, received.append)
+        event = Tap(plot)
+        doc.callbacks.trigger_event(Tap(other))
+        assert received == []
+        doc.callbacks.trigger_event(event)
+        assert received == [event]
+
+    def test_on_click_in_dynamic_tab(self) -> None:
+        doc = Document()
+        tabs = Tabs()
+        doc.add_root(tabs)
+        button = Button()
+        tabs.tabs.append(TabPanel(child=button))
+        received = []
+        button.on_click(lambda: received.append("first"))
+        button.on_click(lambda: received.append("second"))
+        doc.callbacks.trigger_event(ButtonClick(button))
+        assert received == ["first", "second"]
+
     def test_creation(self) -> None:
         m = cbm.EventCallbackManager()
         assert len(m._event_callbacks) == 0
 
     def test_on_change_good_method(self) -> None:
         m = cbm.EventCallbackManager()
-        m.subscribed_events = set()
+        m._subscribed_events = set()
         good = _GoodEventCallback()
         m.on_event('foo', good.method)
         assert len(m._event_callbacks) == 1
@@ -314,7 +386,7 @@ class TestEventCallbackManager:
     def test_on_change_good_partial_function(self) -> None:
         m = cbm.EventCallbackManager()
         p = partial(_partially_good_event, 'foo')
-        m.subscribed_events = set()
+        m._subscribed_events = set()
         m.on_event('foo', p)
         assert len(m._event_callbacks) == 1
         assert m._event_callbacks['foo'] == [p]
@@ -322,13 +394,13 @@ class TestEventCallbackManager:
     def test_on_change_bad_partial_function(self) -> None:
         m = cbm.EventCallbackManager()
         p = partial(_partially_bad_event, 'foo')
-        m.subscribed_events = set()
+        m._subscribed_events = set()
         m.on_event('foo', p)
         assert len(m._event_callbacks) == 1
 
     def test_on_change_good_partial_method(self) -> None:
         m = cbm.EventCallbackManager()
-        m.subscribed_events = set()
+        m._subscribed_events = set()
         good = _GoodEventCallback()
         p = partial(good.partially_good, 'foo')
         m.on_event('foo', p)
@@ -336,7 +408,7 @@ class TestEventCallbackManager:
 
     def test_on_change_good_functor(self) -> None:
         m = cbm.EventCallbackManager()
-        m.subscribed_events = set()
+        m._subscribed_events = set()
         good = _GoodEventCallback()
         m.on_event('foo', good)
         assert len(m._event_callbacks) == 1
@@ -344,21 +416,21 @@ class TestEventCallbackManager:
 
     def test_on_change_good_function(self) -> None:
         m = cbm.EventCallbackManager()
-        m.subscribed_events = set()
+        m._subscribed_events = set()
         m.on_event('foo', _good_event)
         assert len(m._event_callbacks) == 1
         assert m._event_callbacks['foo'] == [_good_event]
 
     def test_on_change_unicode_event_name(self) -> None:
         m = cbm.EventCallbackManager()
-        m.subscribed_events = set()
+        m._subscribed_events = set()
         m.on_event("foo", _good_event)
         assert len(m._event_callbacks) == 1
         assert m._event_callbacks['foo'] == [_good_event]
 
     def test_on_change_good_lambda(self) -> None:
         m = cbm.EventCallbackManager()
-        m.subscribed_events = set()
+        m._subscribed_events = set()
         good = lambda event: event
         m.on_event('foo', good)
         assert len(m._event_callbacks) == 1
@@ -368,35 +440,35 @@ class TestEventCallbackManager:
         def good(event):
             pass
         m = cbm.EventCallbackManager()
-        m.subscribed_events = set()
+        m._subscribed_events = set()
         m.on_event('foo', good)
         assert len(m._event_callbacks) == 1
         assert len(m._event_callbacks['foo']) == 1
 
     def test_on_change_bad_method(self) -> None:
         m = cbm.EventCallbackManager()
-        m.subscribed_events = set()
+        m._subscribed_events = set()
         bad = _BadEventCallback()
         m.on_event('foo', bad.method)
         assert len(m._event_callbacks) == 1
 
     def test_on_change_bad_functor(self) -> None:
         m = cbm.EventCallbackManager()
-        m.subscribed_events = set()
+        m._subscribed_events = set()
         bad = _BadEventCallback()
         m.on_event('foo', bad)
         assert len(m._event_callbacks) == 1
 
     def test_on_change_bad_function(self) -> None:
         m = cbm.EventCallbackManager()
-        m.subscribed_events = set()
+        m._subscribed_events = set()
         with pytest.raises(ValueError):
             m.on_event('foo', _bad_event)
         assert len(m._event_callbacks) == 0
 
     def test_on_change_bad_lambda(self) -> None:
         m = cbm.EventCallbackManager()
-        m.subscribed_events = set()
+        m._subscribed_events = set()
         with pytest.raises(ValueError):
             m.on_event('foo', lambda x, y: x)
         assert len(m._event_callbacks) == 0
@@ -405,14 +477,14 @@ class TestEventCallbackManager:
         def bad(event, y):
             pass
         m = cbm.EventCallbackManager()
-        m.subscribed_events = set()
+        m._subscribed_events = set()
         with pytest.raises(ValueError):
             m.on_event('foo', bad)
         assert len(m._event_callbacks) == 0
 
     def test_on_change_with_two_callbacks(self) -> None:
         m = cbm.EventCallbackManager()
-        m.subscribed_events = set()
+        m._subscribed_events = set()
         good1 = _GoodEventCallback()
         good2 = _GoodEventCallback()
         m.on_event('foo', good1.method)
@@ -420,7 +492,7 @@ class TestEventCallbackManager:
 
     def test_on_change_with_two_callbacks_one_bad(self) -> None:
         m = cbm.EventCallbackManager()
-        m.subscribed_events = set()
+        m._subscribed_events = set()
         good = _GoodEventCallback()
         bad = _BadEventCallback()
         m.on_event('foo', good.method, bad.method)
@@ -440,7 +512,7 @@ class TestEventCallbackManager:
             out['curdoc'] = curdoc()
         class Modelish(HasDocumentRef, cbm.EventCallbackManager): pass
         m = Modelish()
-        m.subscribed_events = set()
+        m._subscribed_events = set()
         m.on_event('foo', cb)
         m.id = 10
         m._document = d2

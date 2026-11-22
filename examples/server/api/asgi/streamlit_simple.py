@@ -1,3 +1,10 @@
+''' Serve a Streamlit page and a Bokeh Fourier app from the same ASGI server.
+
+.. bokeh-example-metadata::
+    :title: Streamlit simple
+    :keywords: streamlit, simple
+'''
+
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import AsyncGenerator
@@ -12,7 +19,7 @@ bokeh_application = BokehASGI(modify_document)
 
 
 @asynccontextmanager
-async def lifespan(_app: st.App) -> AsyncGenerator[None, None]:
+async def lifespan(_app: st.App) -> AsyncGenerator[None]:
     # Mounted ASGI applications don't receive lifespan events. Let Streamlit's
     # application lifespan start and stop Bokeh alongside its own runtime.
     await bokeh_application.core.start()

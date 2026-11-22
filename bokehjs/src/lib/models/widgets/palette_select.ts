@@ -16,9 +16,10 @@ import * as pane_css from "styles/widgets/palette_select_pane.css"
 import * as icons_css from "styles/icons.css"
 
 import {Tuple, Str, Arrayable, Color} from "core/kinds"
+import type {Infer} from "core/kinds"
 
 const Item = Tuple(Str, Arrayable(Color))
-type Item = typeof Item["__type__"]
+type Item = Infer<typeof Item>
 
 export class PaletteSelectView extends InputWidgetView {
   declare model: PaletteSelect
@@ -249,10 +250,6 @@ export interface PaletteSelect extends PaletteSelect.Attrs {}
 export class PaletteSelect extends InputWidget {
   declare properties: PaletteSelect.Props
   declare __view_type__: PaletteSelectView
-
-  constructor(attrs?: Partial<PaletteSelect.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = PaletteSelectView

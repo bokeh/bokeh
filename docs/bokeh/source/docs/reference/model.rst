@@ -3,18 +3,16 @@
 bokeh.model
 ===========
 
-.. use autodata below for model_class_reverse_map otherwise it prints the
-.. huge actual reverse map contents in the rendered docs
-
 .. automodule:: bokeh.model
     :members:
+    :exclude-members: Model
 
-    .. autoclass: Model
+    .. autoclass:: Model
         :members:
         :show-inheritance:
         :inherited-members:
 
-        .. autodata:: model_class_reverse_map
+        .. autoattribute:: bokeh.model.Model.model_class_reverse_map
             :annotation: = {}
 
-            Stores a mapping from __view_model__ names to Bokeh model classes
+            Stores a mapping from ``__view_model__`` names to Bokeh model classes.

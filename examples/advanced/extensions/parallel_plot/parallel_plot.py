@@ -1,8 +1,25 @@
+''' Plot multivariate records as parallel coordinates with a custom selection tool.
+
+.. bokeh-example-metadata::
+    :title: Parallel plot
+    :keywords: parallel, plot
+    :apis: bokeh.models.BasicTickFormatter, bokeh.models.ColumnDataSource, bokeh.models.CustomJSTickFormatter, bokeh.models.Div, bokeh.models.FixedTicker
+    :sampledata: autompg
+'''
+
 import numpy as np
 
 from bokeh.layouts import column
-from bokeh.models import (BasicTickFormatter, ColumnDataSource, CustomJSTickFormatter,
-                          Div, FixedTicker, LinearAxis, LinearColorMapper, Range1d)
+from bokeh.models import (
+    BasicTickFormatter,
+    ColumnDataSource,
+    CustomJSTickFormatter,
+    Div,
+    FixedTicker,
+    LinearAxis,
+    LinearColorMapper,
+    Range1d,
+)
 from bokeh.plotting import figure
 from bokeh.sampledata.autompg import autompg_clean as df
 

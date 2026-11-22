@@ -10,7 +10,7 @@ describe("Image module", () => {
   describe("ImageView", () => {
 
     it("`_map_data` should correctly map data if w and h units are 'data'", async () => {
-      const image = new Image({image: {field: "image"}})
+      const image = Image.create({image: {field: "image"}})
       image.x = 0
       image.y = 0
       image.dw = 17
@@ -25,7 +25,7 @@ describe("Image module", () => {
     })
 
     it("`_map_data` should correctly map data if w and h units are 'screen'", async () => {
-      const image = new Image({image: {field: "image"}})
+      const image = Image.create({image: {field: "image"}})
       image.x = 0
       image.y = 0
       image.dw = 1

@@ -1,9 +1,7 @@
-# Standard library imports
 import subprocess
 import unittest
 from unittest.mock import patch
 
-# Bokeh imports
 from tools.backport import github
 
 

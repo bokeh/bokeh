@@ -1,63 +1,50 @@
 {
   config: {
-    type: "object",
-    name: "DocumentConfig",
-    id: "p1007",
-    attributes: {
-      notifications: {
-        type: "object",
-        name: "Notifications",
-        id: "p1008",
-      },
+    $type: "DocumentConfig",
+    $id: "p1007",
+    notifications: {
+      $type: "Notifications",
+      $id: "p1008",
     },
   },
   roots: [
     {
-      type: "object",
-      name: "Plot",
-      id: "p1006",
-      attributes: {
-        tags: [
-          {
-            type: "map",
-            entries: [
-              [
-                "id",
-                "1000",
-              ],
+      $type: "Plot",
+      $id: "p1006",
+      tags: [
+        {
+          type: "map",
+          entries: [
+            [
+              "id",
+              "1000",
             ],
-          },
-        ],
-        x_range: {
-          type: "object",
-          name: "DataRange1d",
-          id: "p1009",
+          ],
         },
-        y_range: {
-          type: "object",
-          name: "DataRange1d",
-          id: "p1010",
-        },
-        x_scale: {
-          type: "object",
-          name: "LinearScale",
-          id: "p1011",
-        },
-        y_scale: {
-          type: "object",
-          name: "LinearScale",
-          id: "p1012",
-        },
-        title: {
-          type: "object",
-          name: "Title",
-          id: "p1013",
-        },
-        toolbar: {
-          type: "object",
-          name: "Toolbar",
-          id: "p1014",
-        },
+      ],
+      x_range: {
+        $type: "DataRange1d",
+        $id: "p1009",
+      },
+      y_range: {
+        $type: "DataRange1d",
+        $id: "p1010",
+      },
+      x_scale: {
+        $type: "LinearScale",
+        $id: "p1011",
+      },
+      y_scale: {
+        $type: "LinearScale",
+        $id: "p1012",
+      },
+      title: {
+        $type: "Title",
+        $id: "p1013",
+      },
+      toolbar: {
+        $type: "Toolbar",
+        $id: "p1014",
       },
     },
   ],

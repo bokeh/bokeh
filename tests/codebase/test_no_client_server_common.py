@@ -9,19 +9,14 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 from subprocess import run
 from sys import executable as python
 
-# Bokeh imports
 from tests.support.util.project import verify_clean_imports
 
 #-----------------------------------------------------------------------------
@@ -48,3 +43,9 @@ def test_no_client_server_or_tornado_common() -> None:
     targets = ("bokeh.client", "bokeh.server", "tornado")
     proc = run([python, "-c", verify_clean_imports(targets, modules)], capture_output=True, text=True)
     assert proc.returncode == 0, f"client, server, or Tornado modules imported in common modules:\n{proc.stdout}"
+
+
+def test_no_jupyter_server_or_tornado_on_jupyter_package_import() -> None:
+    targets = ("jupyter_server", "tornado")
+    proc = run([python, "-c", verify_clean_imports(targets, ["bokeh.jupyter"])], capture_output=True, text=True)
+    assert proc.returncode == 0, f"bokeh.jupyter imported Jupyter Server or Tornado:\n{proc.stdout}"

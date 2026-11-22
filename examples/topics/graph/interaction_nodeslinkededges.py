@@ -1,7 +1,23 @@
+''' Highlight a node together with the edges connected to it.
+
+.. bokeh-example-metadata::
+    :title: Interaction nodeslinkededges
+    :keywords: interaction, nodeslinkededges
+    :apis: bokeh.models.BoxSelectTool, bokeh.models.HoverTool, bokeh.models.MultiLine, bokeh.models.NodesAndLinkedEdges, bokeh.models.Plot
+'''
+
 import networkx as nx
 
-from bokeh.models import (BoxSelectTool, HoverTool, MultiLine,
-                          NodesAndLinkedEdges, Plot, Range1d, Scatter, TapTool)
+from bokeh.models import (
+    BoxSelectTool,
+    HoverTool,
+    MultiLine,
+    NodesAndLinkedEdges,
+    Plot,
+    Range1d,
+    Scatter,
+    TapTool,
+)
 from bokeh.palettes import Spectral4
 from bokeh.plotting import from_networkx, show
 

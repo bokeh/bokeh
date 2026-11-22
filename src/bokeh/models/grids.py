@@ -22,10 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
-# Bokeh imports
 from ..core.property.auto import Auto
 from ..core.property.container import Seq, Tuple
 from ..core.property.either import Either
@@ -56,10 +52,6 @@ class Grid(GuideRenderer):
     given by a supplied ``Ticker``.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     dimension = Int(0, help="""
     Which dimension the Axis Grid lines will intersect. The
@@ -93,27 +85,27 @@ class Grid(GuideRenderer):
     The {prop} of the Grid lines.
     """)
 
-    grid_line_color = Override(default='#e5e5e5')
+    _grid_line_color = Override(default='#e5e5e5')
 
     minor_grid_props = Include(ScalarLineProps, prefix="minor_grid", help="""
     The {prop} of the minor Grid lines.
     """)
 
-    minor_grid_line_color = Override(default=None)
+    _minor_grid_line_color = Override(default=None)
 
     band_fill_props = Include(ScalarFillProps, prefix="band", help="""
     The {prop} of alternating bands between Grid lines.
     """)
 
-    band_fill_alpha = Override(default=0)
+    _band_fill_alpha = Override(default=0)
 
-    band_fill_color = Override(default=None)
+    _band_fill_color = Override(default=None)
 
     band_hatch_props = Include(ScalarHatchProps, prefix="band", help="""
     The {prop} of alternating bands between Grid lines.
     """)
 
-    level = Override(default="underlay")
+    _level = Override(default="underlay")
 
 #-----------------------------------------------------------------------------
 # Dev API

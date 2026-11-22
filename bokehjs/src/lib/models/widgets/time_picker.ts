@@ -1,12 +1,13 @@
-import type flatpickr from "flatpickr"
+import type {FlatpickrOptions} from "../../external/flatpickr"
 
 import {PickerBase, PickerBaseView} from "./picker_base"
 import {Str, Float, Or} from "core/kinds"
+import type {Infer} from "core/kinds"
 import {Clock} from "core/enums"
 import type * as p from "core/properties"
 import {assert} from "core/util/assert"
 
-export type TimeLike = typeof TimeLike["__type__"]
+export type TimeLike = Infer<typeof TimeLike>
 export const TimeLike = Or(Str, Float)
 
 export class TimePickerView extends PickerBaseView {
@@ -43,7 +44,7 @@ export class TimePickerView extends PickerBaseView {
     this.connect(clock.change, () => this.picker.set("time_24hr", this.model.clock == "24h"))
   }
 
-  protected override get flatpickr_options(): flatpickr.Options.Options {
+  protected override get flatpickr_options(): FlatpickrOptions {
     const {value, min_time, max_time, time_format, hour_increment, minute_increment, seconds, clock} = this.model
 
     const options = super.flatpickr_options
@@ -117,10 +118,6 @@ export interface TimePicker extends TimePicker.Attrs {}
 export class TimePicker extends PickerBase {
   declare properties: TimePicker.Props
   declare __view_type__: TimePickerView
-
-  constructor(attrs?: Partial<TimePicker.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = TimePickerView

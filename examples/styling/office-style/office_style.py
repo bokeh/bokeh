@@ -1,7 +1,20 @@
+''' Style Bokeh widgets with office-inspired colors, fonts, and controls.
+
+.. bokeh-example-metadata::
+    :title: Office style
+    :keywords: office, style
+    :apis: bokeh.models.GlobalInlineStyleSheet, bokeh.models.InlineStyleSheet, bokeh.models.TabPanel, bokeh.models.Tabs, bokeh.plotting.figure.line
+'''
+
 from bokeh.io import show
 from bokeh.layouts import column, row
-from bokeh.models import (GlobalInlineStyleSheet, InlineStyleSheet,
-                          TabPanel, Tabs, widgets as w)
+from bokeh.models import (
+    GlobalInlineStyleSheet,
+    InlineStyleSheet,
+    TabPanel,
+    Tabs,
+    widgets as w,
+)
 from bokeh.plotting import figure
 
 url = "https://cdn.jsdelivr.net/npm/inter-font@latest/Inter-VariableFont_slnt,wght.ttf"
@@ -52,7 +65,7 @@ button_style = InlineStyleSheet(css="""
 """)
 
 slider_style =  InlineStyleSheet(css="""
-  .noUi-target, .noUi-handle {
+  .bk-track, .bk-handle, .bk-tooltip {
     text-transform: inherit;
     border: var(--border);
     border-radius: var(--border-radius);

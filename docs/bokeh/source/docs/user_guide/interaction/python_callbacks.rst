@@ -23,6 +23,11 @@ signature, ``(attr, old, new)``, where ``attr`` refers to the changed
 attribute's name, and ``old`` and ``new`` refer to the previous and updated
 values of the attribute.
 
+On the first assignment to an unset property, ``old`` is
+:data:`~bokeh.util.callback_manager.OldValueUnavailable`. The same sentinel
+is used when ``ColumnDataSource.stream()`` or ``patch()`` updates ``data``
+without retaining the previous value.
+
 .. code-block:: python
 
     def my_text_input_handler(attr, old, new):
@@ -34,6 +39,10 @@ values of the attribute.
 
 For more information about the attributes to watch using ``.on_change``, see the
 respective Model's under |bokeh.models| in the |reference guide|.
+
+Rapid browser interactions can invoke callbacks and send updates to the server
+for every intermediate value. See :ref:`ug_interaction_callback_policies` to
+configure throttled, debounced, or committed delivery for a property.
 
 ``on_event`` callback triggers
 ------------------------------

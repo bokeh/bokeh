@@ -24,7 +24,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
   declare model: Renderer
   visuals: Renderer.Visuals
 
-  declare readonly parent: PlotView
+  declare readonly parent: PlotView | RendererView
 
   layout?: Layoutable
 
@@ -32,7 +32,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
   get panel(): SidePanel | null {
     return this._panel
   }
-  set panel(panel: SidePanel) {
+  set panel(panel: SidePanel | null) {
     this._panel = panel
   }
 
@@ -79,7 +79,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
     await super.lazy_initialize()
     const {context_menu} = this.model
     if (context_menu != null) {
-      this._context_menu = await build_view(context_menu, {parent: this.plot_view})
+      this._context_menu = await build_view(context_menu, {parent: this})
     }
   }
 
@@ -116,12 +116,22 @@ export abstract class RendererView extends StyledElementView implements visuals.
     }
   }
 
+  /** The plot this renderer paints in and is laid out by. */
   get plot_view(): PlotView {
-    return this.parent
+    const {parent} = this
+    return parent instanceof RendererView ? parent.plot_view_for(this) : parent
+  }
+
+  /**
+   * The plot, which a descendant `view` of this renderer paints in and is
+   * laid out by. Allows composite renderers to substitute their own context.
+   */
+  plot_view_for(_view: View): PlotView {
+    return this.plot_view
   }
 
   get plot_model(): Plot {
-    return this.parent.model
+    return this.plot_view.model
   }
 
   get layer(): CanvasLayer {
@@ -224,11 +234,16 @@ export abstract class RendererView extends StyledElementView implements visuals.
         }
         `)
       } else {
+        // `bbox` is in canvas coordinates, but top-level renderers (plot's
+        // `renderers` and `center`) are rendered into the frame's element,
+        // so position relative to it in that case.
+        const {frame} = this.plot_view
+        const origin = this.el.parentNode === frame.shadow_el ? frame.bbox : {x: 0, y: 0}
         position.replace(`
         ${this.host_selector} {
           position: absolute;
-          left:     ${bbox.left}px;
-          top:      ${bbox.top}px;
+          left:     ${bbox.left - origin.x}px;
+          top:      ${bbox.top - origin.y}px;
           width:    ${bbox.width}px;
           height:   ${bbox.height}px;
         }
@@ -244,7 +259,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
   }
 
   override resolve_frame(): View | null {
-    return this.plot_view.frame as any // TODO CartesianFrameView (PR #13286)
+    return this.plot_view.frame // TODO CartesianFrameView (PR #13286)
   }
 
   override resolve_canvas(): View | null {
@@ -299,10 +314,6 @@ export interface Renderer extends Renderer.Attrs {}
 export abstract class Renderer extends StyledElement {
   declare properties: Renderer.Props
   declare __view_type__: RendererView
-
-  constructor(attrs?: Partial<Renderer.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.define<Renderer.Props>(({Bool, Str, Ref, Nullable}) => ({

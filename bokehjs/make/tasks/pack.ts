@@ -3,6 +3,7 @@ import fs from "node:fs"
 import os from "node:os"
 import path from "node:path"
 import {task, BuildError} from "../task.js"
+import {resolve_npm} from "#compiler/sys.js"
 
 function npm_pack() {
   const dist = "build/dist"
@@ -10,13 +11,13 @@ function npm_pack() {
     fs.mkdirSync(dist, {recursive: true})
   }
 
-  const is_windows = process.platform == "win32"
-  const npm = is_windows ? "npm.cmd" : "npm"
-  const {status, stdout, stderr} = cp.spawnSync(npm, ["pack", `--pack-destination=${dist}`], {stdio: "pipe", encoding: "utf-8", shell: is_windows})
-  if (status !== 0) {
+  const [resolved_executable, resolved_args] = resolve_npm(["pack", `--pack-destination=${dist}`])
+  const {status, error, stdout, stderr} = cp.spawnSync(resolved_executable, resolved_args, {stdio: "pipe", encoding: "utf-8"})
+  if (error != null || status !== 0) {
     console.error(stdout)
     console.error(stderr)
-    throw new BuildError("pack", `failed to run '${npm} pack'`)
+    const reason = error != null ? `: ${error.message}` : ""
+    throw new BuildError("pack", `failed to run '${resolved_executable} ${resolved_args.join(" ")}'${reason}`)
   }
 
   const tgz = stdout.trim().split("\n").at(-1)?.trim()

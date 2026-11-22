@@ -9,7 +9,7 @@ describe("LogColorMapper module", () => {
 
     it("Should correctly map values along log scale", () => {
       const palette = ["#3288bd", "#abdda4", "#fee08b"]
-      const color_mapper = new LogColorMapper({low: 2, high: 25, palette})
+      const color_mapper = LogColorMapper.create({low: 2, high: 25, palette})
 
       const buf8_0 = color_mapper.rgba_mapper.v_compute([2])
       expect([buf8_0[0], buf8_0[1], buf8_0[2], buf8_0[3]]).to.be.equal([50, 136, 189, 255])
@@ -23,7 +23,7 @@ describe("LogColorMapper module", () => {
 
     it("Should map data below low value to low", () => {
       const palette = ["red", "green", "blue"]
-      const color_mapper = new LogColorMapper({low: 1, high: 100, palette})
+      const color_mapper = LogColorMapper.create({low: 1, high: 100, palette})
 
       const vals = color_mapper.v_compute([0, 1, 10])
       expect(vals).to.be.equal(convert_to_uint32_palette(["red", "red", "green"]))
@@ -31,7 +31,7 @@ describe("LogColorMapper module", () => {
 
     it("Should map data above high value to high", () => {
       const palette = ["red", "green", "blue"]
-      const color_mapper = new LogColorMapper({low: 1, high: 100, palette})
+      const color_mapper = LogColorMapper.create({low: 1, high: 100, palette})
 
       const vals = color_mapper.v_compute([10, 100, 101])
       expect(vals).to.be.equal(convert_to_uint32_palette(["green", "blue", "blue"]))
@@ -39,7 +39,7 @@ describe("LogColorMapper module", () => {
 
     it("Should map data NaN to nan_color value", () => {
       const palette = ["red", "green", "blue"]
-      const color_mapper = new LogColorMapper({low: 1, high: 100, palette, nan_color: "gray"})
+      const color_mapper = LogColorMapper.create({low: 1, high: 100, palette, nan_color: "gray"})
 
       const vals = color_mapper.v_compute([1, NaN, 100])
       expect(vals).to.be.equal(convert_to_uint32_palette(["red", "gray", "blue"]))
@@ -47,7 +47,7 @@ describe("LogColorMapper module", () => {
 
     it("Should map data NaN to nan_color value when high/low not set", () => {
       const palette = ["red", "green", "blue"]
-      const color_mapper = new LogColorMapper({palette, nan_color: "gray"})
+      const color_mapper = LogColorMapper.create({palette, nan_color: "gray"})
 
       const vals = color_mapper.v_compute([1, NaN, 100])
       expect(vals).to.be.equal(convert_to_uint32_palette(["red", "gray", "blue"]))
@@ -55,7 +55,7 @@ describe("LogColorMapper module", () => {
 
     it("Should map high/low values to high_color/low_color, if provided", () => {
       const palette = ["red", "green", "blue"]
-      const color_mapper = new LogColorMapper({low: 1, high: 100, low_color: "pink", high_color: "orange", palette})
+      const color_mapper = LogColorMapper.create({low: 1, high: 100, low_color: "pink", high_color: "orange", palette})
 
       const vals = color_mapper.v_compute([0.5, 1, 10, 100, 101])
       expect(vals).to.be.equal(convert_to_uint32_palette(["pink", "red", "green", "blue", "orange"]))
@@ -63,7 +63,7 @@ describe("LogColorMapper module", () => {
 
     it("Should map colors if high value is grather than low value", () => {
       const palette = ["red", "green", "blue"]
-      const color_mapper = new LogColorMapper({low: 1, high: 100, palette})
+      const color_mapper = LogColorMapper.create({low: 1, high: 100, palette})
 
       const vals = color_mapper.v_compute([0.5, 1, 10, 100, 100.5])
       expect(vals).to.be.equal(convert_to_uint32_palette(["red", "red", "green", "blue", "blue"]))
@@ -71,7 +71,7 @@ describe("LogColorMapper module", () => {
 
     it("Should map inverted colors if low value is grather than high value", () => {
       const palette = ["red", "green", "blue"]
-      const color_mapper = new LogColorMapper({low: 100, high: 1, palette})
+      const color_mapper = LogColorMapper.create({low: 100, high: 1, palette})
 
       const vals = color_mapper.v_compute([0.5, 1, 10, 100, 100.5])
       expect(vals).to.be.equal(convert_to_uint32_palette(["blue", "blue", "green", "red", "red"]))

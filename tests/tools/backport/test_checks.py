@@ -1,8 +1,6 @@
-# Standard library imports
 import unittest
 from unittest.mock import MagicMock, patch
 
-# Bokeh imports
 from tests.tools.backport._support import RecordingAPI, valid_pr
 from tools.backport import BackportError, checks
 
@@ -147,19 +145,17 @@ class CheckEvaluationTests(unittest.TestCase):
         api.get_all.side_effect = [[failed], [passed]]
         api.request.return_value = {"statuses": []}
 
+        pr = valid_pr()
+        pr["merge_commit_sha"] = "a" * 40
+        pr["head"]["sha"] = "b" * 40
+
         with self.assertRaisesRegex(BackportError, "merge-tests: failure"):
-            checks.check_pr_ci(
-                api,
-                "bokeh/bokeh",
-                {
-                    "merge_commit_sha": "a" * 40,
-                    "head": {"sha": "b" * 40},
-                },
-            )
+            checks.check_pr_ci(api, "bokeh/bokeh", pr)
 
         api.get_all.assert_called_once()
 
     def test_falls_back_to_head_checks_when_merge_sha_has_no_results(self) -> None:
+        messages: list[str] = []
         passed = {
             "id": 2,
             "name": "head-tests",
@@ -170,13 +166,13 @@ class CheckEvaluationTests(unittest.TestCase):
         api.get_all.side_effect = [[], [passed]]
         api.request.return_value = {"statuses": []}
 
-        checks.check_pr_ci(
-            api,
-            "bokeh/bokeh",
-            {
-                "merge_commit_sha": "a" * 40,
-                "head": {"sha": "b" * 40},
-            },
-        )
+        pr = valid_pr()
+        pr["merge_commit_sha"] = "a" * 40
+        pr["head"]["sha"] = "b" * 40
+
+        checks.check_pr_ci(api, "bokeh/bokeh", pr, progress=messages.append)
 
         self.assertEqual(api.get_all.call_count, 2)
+        self.assertIn(f"Fetching CI check runs for {'a' * 12}", messages)
+        self.assertIn(f"Fetching CI check runs for {'b' * 12}", messages)
+        self.assertEqual(messages[-1], f"CI for {'b' * 12}: 1 checks, 0 statuses, 0 blockers")

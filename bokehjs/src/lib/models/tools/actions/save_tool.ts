@@ -67,10 +67,6 @@ export class SaveTool extends ActionTool {
   declare properties: SaveTool.Props
   declare __view_type__: SaveToolView
 
-  constructor(attrs?: Partial<SaveTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = SaveToolView
 
@@ -78,7 +74,6 @@ export class SaveTool extends ActionTool {
       filename: [ Nullable(Str), null ],
     }))
 
-    this.register_alias("save", () => new SaveTool())
   }
 
   override tool_name = "Save"
@@ -86,7 +81,7 @@ export class SaveTool extends ActionTool {
 
   override get menu(): MenuItemLike[] {
     return [
-      new MenuItem({
+      MenuItem.create({
         icon: `.${icons.tool_icon_save}`,
         label: "Save",
         tooltip: "Save image as a local file",
@@ -94,7 +89,7 @@ export class SaveTool extends ActionTool {
           this.do.emit("save")
         },
       }),
-      new MenuItem({
+      MenuItem.create({
         icon: `.${icons.tool_icon_copy}`,
         label: "Copy",
         tooltip: "Copy image to clipboard",
@@ -103,7 +98,7 @@ export class SaveTool extends ActionTool {
           this.do.emit("copy")
         },
       }),
-      new MenuItem({
+      MenuItem.create({
         icon: `.${icons.tool_icon_open}`,
         label: "Open",
         tooltip: "Open image in a new tab",

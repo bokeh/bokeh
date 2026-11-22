@@ -1,3 +1,12 @@
+''' Position several differently sized glyph plots in an explicitly configured
+grid.
+
+.. bokeh-example-metadata::
+    :title: Manual grid
+    :keywords: manual, grid
+    :apis: bokeh.models.Paragraph, bokeh.models.Select, bokeh.plotting.figure.annular_wedge, bokeh.plotting.figure.bezier, bokeh.plotting.figure.line
+'''
+
 import numpy as np
 
 from bokeh.core.enums import SizingMode
@@ -9,7 +18,7 @@ from bokeh.plotting import figure
 N = 10
 x = np.linspace(0, 4 * np.pi, N)
 y = np.sin(x)
-options = dict(tools="", toolbar_location=None, height=300, width=300, sizing_mode="fixed")
+options = dict(tools=None, height=300, width=300, sizing_mode="fixed")
 
 p1 = figure(title="Line (300 x 100)", **options)
 p1.height = 100

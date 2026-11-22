@@ -9,7 +9,7 @@ import {InlineStyleSheet, parent} from "core/dom"
 import {bounding_box, box_size} from "core/dom"
 import {UIComponent, cls} from "core/vdom"
 import type {VNode} from "core/vdom"
-import {DOMElementView, bokeh_element} from "core/dom_view"
+import {bokeh_element} from "core/dom_view"
 import {isString, isArray} from "core/util/types"
 import {BBox} from "core/util/bbox"
 import {logger} from "core/logging"
@@ -55,8 +55,7 @@ export class TooltipView extends UIElementView {
       } else if (target instanceof NativeNode) {
         return target
       } else {
-        const {parent} = this
-        return parent instanceof DOMElementView ? parent.el : null
+        return this.ui_parent?.el ?? null
       }
     })()
 
@@ -320,8 +319,8 @@ export class TooltipView extends UIElementView {
 
     // slightly confusing: side "left" (for example) is relative to point that
     // is being annotated but CS class ".bk-left" is relative to the tooltip itself
-    this.class_list.remove(tooltips_css.right, tooltips_css.left, tooltips_css.above, tooltips_css.below)
-    this.class_list.add((() => {
+    this.el.classList.remove(tooltips_css.right, tooltips_css.left, tooltips_css.above, tooltips_css.below)
+    this.el.classList.add((() => {
       switch (side) {
         case "left":  return tooltips_css.right
         case "right": return tooltips_css.left
@@ -420,10 +419,6 @@ export interface Tooltip extends Tooltip.Attrs {}
 export class Tooltip extends UIElement {
   declare properties: Tooltip.Props
   declare __view_type__: TooltipView
-
-  constructor(attrs?: Partial<Tooltip.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = TooltipView

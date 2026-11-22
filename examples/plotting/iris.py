@@ -1,4 +1,4 @@
-''' A scatter plot using `Fisher's Iris dataset`_. This example demonstrates
+''' A scatter plot using `Fisher's Iris dataset <https://en.wikipedia.org/wiki/Iris_flower_data_set>`__. This example demonstrates
 manual color mapping with basic plot elements. The chart shows correlation
 between petal width and length for three different iris species.
 
@@ -7,12 +7,12 @@ between petal width and length for three different iris species.
     `alternatives to Iris`_, such as :ref:`sampledata_penguins`.
 
 .. bokeh-example-metadata::
-    :sampledata: iris
-    :apis: bokeh.plotting.figure.scatter
-    :refs: :ref:`ug_basic_scatters_markers`
+    :title: Iris
     :keywords: alpha, colormap, scatter
+    :apis: bokeh.plotting.figure.scatter
+    :sampledata: iris
+    :refs: :ref:`ug_basic_scatters_markers`
 
-.. _Fisher's Iris dataset: https://en.wikipedia.org/wiki/Iris_flower_data_set
 .. _alternatives to Iris: https://www.meganstodel.com/posts/no-to-iris/
 
 '''

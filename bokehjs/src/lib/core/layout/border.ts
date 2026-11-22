@@ -30,6 +30,10 @@ export class BorderLayout extends Layoutable {
   min_border: Margin = {left: 0, top: 0, right: 0, bottom: 0}
   padding: Margin = {left: 0, top: 0, right: 0, bottom: 0}
 
+  // Borders imposed by an aligning parent, so that this layout's frame can line
+  // up with its neighbours' without its own borders having to shrink.
+  align_border: Margin = {left: 0, top: 0, right: 0, bottom: 0}
+
   center_border_width: number = 0
 
   protected _measure(viewport: Size): SizeHint {
@@ -39,16 +43,16 @@ export class BorderLayout extends Layoutable {
     })
 
     const left_hint = this.left_panel.measure({width: 0, height: viewport.height})
-    const left = Math.max(left_hint.width, this.min_border.left) + this.padding.left
+    const left = Math.max(Math.max(left_hint.width, this.min_border.left) + this.padding.left, this.align_border.left)
 
     const right_hint = this.right_panel.measure({width: 0, height: viewport.height})
-    const right = Math.max(right_hint.width, this.min_border.right) + this.padding.right
+    const right = Math.max(Math.max(right_hint.width, this.min_border.right) + this.padding.right, this.align_border.right)
 
     const top_hint = this.top_panel.measure({width: viewport.width, height: 0})
-    const top = Math.max(top_hint.height, this.min_border.top) + this.padding.top
+    const top = Math.max(Math.max(top_hint.height, this.min_border.top) + this.padding.top, this.align_border.top)
 
     const bottom_hint = this.bottom_panel.measure({width: viewport.width, height: 0})
-    const bottom = Math.max(bottom_hint.height, this.min_border.bottom) + this.padding.bottom
+    const bottom = Math.max(Math.max(bottom_hint.height, this.min_border.bottom) + this.padding.bottom, this.align_border.bottom)
 
     const center_viewport = new Sizeable(viewport).shrink_by({left, right, top, bottom})
     const center = this.center_panel.measure(center_viewport)

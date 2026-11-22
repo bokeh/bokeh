@@ -42,11 +42,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from math import inf
-from typing import Any
 
-# Bokeh imports
+# Public constructor types live in the stubs; declarations below cover local calls.
+from typing import TYPE_CHECKING, Any
+
 from ..core.enums import Direction
 from ..core.has_props import abstract
 from ..core.property.any import AnyRef
@@ -60,6 +60,7 @@ from ..core.property.required import Required
 from ..core.property.vectorization import field
 from ..core.property_aliases import AngleUnits
 from ..model import Model
+from .sources import IndexedDataSource
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -69,6 +70,7 @@ __all__ = (
     'CumSum',
     'CustomJSExpr',
     'Expression',
+    'IndexedLookup',
     'PolarTransform',
     'Stack',
 )
@@ -86,7 +88,7 @@ class Expression(Model):
 
     .. code-block:: typescript
 
-        v_compute(source: ColumnarDataSource): Arrayable {
+        v_compute(source: IndexedDataSource): Arrayable {
             // compute and return array of values
         }
 
@@ -95,10 +97,6 @@ class Expression(Model):
         the source changes, implement ``_v_compute: (source)`` instead.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 
 class CustomJSExpr(Expression):
@@ -111,10 +109,6 @@ class CustomJSExpr(Expression):
         sanitize the user input prior to passing to Bokeh.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     args = Dict(String, AnyRef, help="""
     A mapping of names to Python objects. In particular those can be bokeh's models.
@@ -140,10 +134,6 @@ class CumSum(Expression):
     column from a ``ColumnDataSource``.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     field = Required(String, help="""
     The name of a ``ColumnDataSource`` column to cumulatively sum for new values.
@@ -177,10 +167,6 @@ class Stack(Expression):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     fields = Seq(String, default=[], help="""
     A sequence of fields from a ``ColumnDataSource`` to sum (elementwise). For
     example:
@@ -194,21 +180,47 @@ class Stack(Expression):
     """)
 
 
+class IndexedLookup(Expression):
+    ''' Gather values from another indexed data source.
+
+    The expression reads the ``indices`` field on the renderer's primary data
+    source and resolves it against ``field`` on ``source``. Scalar indices produce
+    scalar values, while nested or shaped indices produce nested values. This
+    allows compact connectivity data to address a shared vertex table without
+    repeating coordinates in the serialized document.
+
+    Resolved indices must be non-negative integers smaller than the number of
+    value rows. The primary source may override ``get_index_field(name, target)``
+    in BokehJS to resolve stored IDs against the values source's current row
+    positions. Index fields may be flat, ragged, or two-dimensional
+    NumPy arrays.
+    Shaped value columns are indexed along their first axis.
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    source = Required(Instance(IndexedDataSource), help="""
+    The indexed data source containing values to gather.
+    """)
+
+    field = Required(String, help="""
+    The field on ``source`` containing values to gather.
+    """)
+
+    indices = Required(String, help="""
+    The field on the renderer's primary source containing lookup indices.
+    """)
+
+
 @abstract
 class ScalarExpression(Model):
     """ Base class for scalar expressions. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 
 class Minimum(ScalarExpression):
     """ Computes minimum value of a data source's column. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     field = Required(String)
     initial = Nullable(Float, default=inf)
@@ -217,10 +229,6 @@ class Minimum(ScalarExpression):
 class Maximum(ScalarExpression):
     """ Computes maximum value of a data source's column. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     field = Required(String)
     initial = Nullable(Float, default=-inf)
 
@@ -228,10 +236,6 @@ class Maximum(ScalarExpression):
 @abstract
 class CoordinateTransform(Expression):
     """ Base class for coordinate transforms. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     @property
     def x(self):
@@ -244,10 +248,6 @@ class CoordinateTransform(Expression):
 
 class PolarTransform(CoordinateTransform):
     """ Transform from polar to cartesian coordinates. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     radius = NumberSpec(default=field("radius"), help="""
     The radial coordinate (i.e. the distance from the origin).
@@ -271,27 +271,21 @@ class PolarTransform(CoordinateTransform):
 class XYComponent(Expression):
     """ Base class for bi-variate expressions. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     transform = Instance(CoordinateTransform)
 
 
 class XComponent(XYComponent):
     """ X-component of a coordinate system transform to cartesian coordinates. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
 
 class YComponent(XYComponent):
     """ Y-component of a coordinate system transform to cartesian coordinates. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
 
 #-----------------------------------------------------------------------------

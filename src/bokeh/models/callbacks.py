@@ -22,12 +22,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import pathlib
 import sys
+
+# Public constructor types live in the stubs; declarations below cover local calls.
 from typing import TYPE_CHECKING, Any
 
-# Bokeh imports
 from ..core.has_props import HasProps, abstract
 from ..core.property.any import AnyRef
 from ..core.property.auto import Auto
@@ -69,18 +69,10 @@ class Callback(Model):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class OpenURL(Callback):
     ''' Open a URL in a new or current tab or window.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     url = String("http://", help="""
     The URL to direct the web browser to. This can be a template string,
@@ -97,10 +89,6 @@ class OpenURL(Callback):
 class CustomCode(Callback):
     """ """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class CustomJS(CustomCode):
     ''' Execute a JavaScript function.
 
@@ -112,9 +100,8 @@ class CustomJS(CustomCode):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     args = Dict(String, AnyRef)(default={}, help="""
     A mapping of names to Python objects. In particular those can be bokeh's models.
@@ -142,7 +129,7 @@ class CustomJS(CustomCode):
     A JavaScript module (ESM) exporting a default function with the following
     signature:
 
-    .. code-block: javascript
+    .. code-block:: javascript
 
         export default function(args, obj, data, context) {
             // program logic
@@ -156,14 +143,16 @@ class CustomJS(CustomCode):
     The additional document context is composed of the following members:
 
     * ``index``: The view manager governing all views in the current
-      instance of ``Bokeh``. If only one instance of ``Bokeh`` is
-      loaded, then this is equivalent to using ``Bokeh.index``.
+      instance of ``Bokeh``. This supports callback-local rendering work, but
+      is not a durable model registry. Pass models needed by callback code
+      explicitly through ``args``. External page code should use the
+      target-local ``BokehMount`` returned by ``Bokeh.when_mounted()``.
 
     This function can be an asynchronous function (``async function () {}`` or
     ``async () => {}``) if for example external resources are needed, which
     would require usage of one of the asynchronous Web APIs, for example:
 
-    .. code-block: javascript
+    .. code-block:: javascript
 
         const response = await fetch("/assets/data.csv")
         const data = await response.text()
@@ -184,7 +173,7 @@ class CustomJS(CustomCode):
         a JavaScript module ``my_module.mjs``, that takes a single argument
         ``source``, then we would use:
 
-        .. code-block: python
+        .. code-block:: python
 
             from bokeh.models import ColumnDataSource, CustomJS
             source = ColumnDataSource(data=dict(x=[1, 2, 3]))
@@ -217,7 +206,7 @@ class CustomJS(CustomCode):
             This allows to fill ``CustomJS.args`` by simply referring to Bokeh models
             and other values from within interpolations.
 
-            .. code-block: python
+            .. code-block:: python
 
                 from bokeh.models import CustomJS, Slider
                 slider = Slider(start=0, end=10)
@@ -287,20 +276,12 @@ class SetValue(Callback):
 class ToggleVisibility(Callback):
     """ Toggle visibility of a UI element. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     target = Required(Instance(".models.ui.UIElement"), help="""
     A UI element to show or hide.
     """)
 
 class OpenDialog(Callback):
     """ Open a dialog box. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     dialog = Required(Instance(".models.ui.Dialog"), help="""
     A dialog instance to open.
@@ -315,10 +296,6 @@ class OpenDialog(Callback):
 
 class CloseDialog(Callback):
     """ Close a dialog box. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     dialog = Required(Instance(".models.ui.Dialog"), help="""
     A dialog instance to close.

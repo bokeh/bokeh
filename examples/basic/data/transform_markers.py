@@ -1,15 +1,16 @@
-''' A scatter plot using the `Palmer penguin dataset`_. This example
+''' A scatter plot using the `Palmer penguin dataset <https://github.com/allisonhorst/palmerpenguins>`__. This example
 demonstrates color and marker mapping with basic plot elements. The chart
 shows correlation between body mass and flipper length for three different
 penguin species.
 
 .. bokeh-example-metadata::
-    :sampledata: penguins
+    :title: Style penguins by species
+    :keywords: penguins, species, marker, color, categorical
     :apis: bokeh.plotting.figure.scatter, bokeh.transform.linear_cmap, bokeh.transform.factor_mark
+    :sampledata: penguins
     :refs: :ref:`ug_basic_scatters_markers`, :ref:`ug_basic_data_transforming`
-    :keywords: alpha, colormap, markermap, scatter
+    :gallery: Penguin flipper length versus body mass. Color and marker shape distinguish species.
 
-.. _Palmer penguin dataset: https://github.com/allisonhorst/palmerpenguins
 
 '''
 from bokeh.plotting import figure, show

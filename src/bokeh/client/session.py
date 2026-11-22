@@ -33,7 +33,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -42,7 +41,6 @@ from typing import (
 )
 from urllib.parse import quote_plus
 
-# Bokeh imports
 from ..document import Document
 from ..resources import DEFAULT_SERVER_HTTP_URL, SessionCoordinates
 from ..util.browser import NEW_PARAM
@@ -97,9 +95,9 @@ def pull_session(session_id: ID | None = None, url: str = "default", io_loop: IO
     synced to the server.
 
     If you don't plan to modify ``session.document`` you probably
-    don't need to use this function; instead you can directly
-    ``show_session()`` or ``server_session()`` without downloading
-    the session's document into your process first. It's much
+    don't need to use this function. Instead you can directly
+    ``show_session()`` or build an ``embed_server(session_id=...)`` result
+    without downloading the session's document into your process first. It's much
     more efficient to avoid downloading the session if you don't need
     to.
 
@@ -235,6 +233,7 @@ def show_session(
                 showing the current output file.  If **new** is 'tab', then
                 opens a new tab. If **new** is 'window', then opens a new window.
 
+            controller (BrowserLike, optional): controller object of a browser.
         '''
         if session is not None:
             server_url = server_url_for_websocket_url(session._connection.url)
@@ -266,8 +265,9 @@ class ClientSession:
 
         with pull_session(url=app_url) as mysession:
             # customize session here
-            script = server_session(session_id=mysession.id, url=app_url)
-            return render_template("embed.html", script=script, template="Flask")
+            result = embed_server(app_url, session_id=mysession.id)
+            html = result.fragment(resources="none").html
+            return render_template("embed.html", script=html, template="Flask")
 
     If you do not use ``ClientSession`` in this way, it is up to you to ensure
     that ``mysession.close()`` is called.

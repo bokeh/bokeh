@@ -20,10 +20,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any
 
-# Bokeh imports
 from ..core.enums import ColorScheme
 from ..core.property.enum import Enum
 from ..core.property.instance import Instance, InstanceDefault

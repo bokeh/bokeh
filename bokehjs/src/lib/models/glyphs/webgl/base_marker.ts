@@ -7,6 +7,8 @@ import {marker_type_to_size_hint} from "./webgl_utils"
 import type * as visuals from "core/visuals"
 import type * as p from "core/properties"
 import type {HatchPattern} from "core/property_mixins"
+import type {Uniform} from "core/uniforms"
+import type {uint32} from "core/types"
 
 export type MarkerVisuals = {
   readonly line: visuals.LineVector
@@ -33,8 +35,8 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
   protected _border_radius_nonzero: boolean = false
 
   // indices properties
-  protected readonly _show = new Uint8Buffer(this.regl_wrapper)
-  protected _show_all: boolean = false
+  protected _show_indices: Int32Array | null = null
+  protected _show_nmarkers: number = -1
 
   // visual properties
   protected readonly _linewidths = new Float32Buffer(this.regl_wrapper)
@@ -117,7 +119,7 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
     marker_type: GLMarkerType,
     transform: Transform,
     main_gl_glyph: BaseMarkerGL,
-    show: Uint8Buffer = this._show,
+    show: Uint8Buffer,
   ): void {
     const props_no_hatch: MarkerGlyphProps = {
       scissor: this.regl_wrapper.scissor,
@@ -158,21 +160,55 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
 
   protected abstract _get_visuals(): MarkerVisuals
 
+  /** Map item-indexed values onto the marker instances rendered by this glyph. */
+  protected _map_uniform<T>(uniform: Uniform<T>): Uniform<T> {
+    return uniform
+  }
+
+  /**
+   * Map item-indexed colors onto marker instances. Vector colors must retain
+   * ColorUniformVector's packed buffer representation for set_from_color().
+   */
+  protected _map_color_uniform(uniform: Uniform<uint32>): Uniform<uint32> {
+    return uniform
+  }
+
   protected _set_visuals(): void {
     const {line, fill, hatch} = this._get_visuals()
 
-    this._linewidths.set_from_prop(line.line_width)
-    this._line_caps.set_from_line_cap(line.line_cap)
-    this._line_joins.set_from_line_join(line.line_join)
-    this._line_rgba.set_from_color(line.line_color, line.line_alpha)
-    this._fill_rgba.set_from_color(fill.fill_color, fill.fill_alpha)
+    this._linewidths.set_from_prop(this._map_uniform(line.line_width))
+    this._line_caps.set_from_line_cap(this._map_uniform(line.line_cap))
+    this._line_joins.set_from_line_join(this._map_uniform(line.line_join))
+    this._line_rgba.set_from_color(this._map_color_uniform(line.line_color), this._map_uniform(line.line_alpha))
+    this._fill_rgba.set_from_color(this._map_color_uniform(fill.fill_color), this._map_uniform(fill.fill_alpha))
 
     this._have_hatch = hatch.doit
     if (this._have_hatch) {
-      this._hatch_patterns.set_from_hatch_pattern(hatch.hatch_pattern as p.Uniform<HatchPattern>)
-      this._hatch_scales.set_from_prop(hatch.hatch_scale)
-      this._hatch_weights.set_from_prop(hatch.hatch_weight)
-      this._hatch_rgba.set_from_color(hatch.hatch_color, hatch.hatch_alpha)
+      this._hatch_patterns.set_from_hatch_pattern(this._map_uniform(hatch.hatch_pattern as p.Uniform<HatchPattern>))
+      this._hatch_scales.set_from_prop(this._map_uniform(hatch.hatch_scale))
+      this._hatch_weights.set_from_prop(this._map_uniform(hatch.hatch_weight))
+      this._hatch_rgba.set_from_color(this._map_color_uniform(hatch.hatch_color), this._map_uniform(hatch.hatch_alpha))
     }
+  }
+
+  protected _have_indices_changed(indices: Int32Array): boolean {
+    const existing = this._show_indices
+    if (existing == null || existing.length !== indices.length) {
+      return true
+    }
+    const n = indices.length
+    if (n === 0) {
+      return false
+    }
+    // Endpoints mismatching proves inequality regardless of ordering.
+    if (existing[0] !== indices[0] || existing[n - 1] !== indices[n - 1]) {
+      return true
+    }
+    for (let i = 1; i < n - 1; i++) {
+      if (existing[i] !== indices[i]) {
+        return true
+      }
+    }
+    return false
   }
 }

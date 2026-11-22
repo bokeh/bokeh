@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-# Standard library imports
 from collections.abc import Mapping
 from typing import Any
 
-# Bokeh imports
 from tools.release.system import System
 
 

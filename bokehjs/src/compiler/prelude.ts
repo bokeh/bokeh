@@ -38,6 +38,8 @@ function str(obj: unknown): string {
   return JSON.stringify(obj)
 }
 
+// `__esExport(name, value)` is used only by bundles built with earlier versions of
+// Bokeh. It captures the value, so exports defined with it aren't live.
 const loader = `\
 (function(modules, entry, aliases, externals) {
   if (aliases === undefined) aliases = {};
@@ -147,7 +149,11 @@ const loader = `\
     const plugin = require(plugin_entry);
 
     for (let name in plugin) {
-      main[name] = plugin[name];
+      // Plugins augment the public namespace. Preserve getter-only exports already
+      // defined by the main bundle, such as Document from the Bokeh API plugin.
+      if (!(name in main)) {
+        main[name] = plugin[name];
+      }
     }
 
     return plugin;

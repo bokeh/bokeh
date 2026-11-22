@@ -1,9 +1,9 @@
-import {expect} from "#framework/assertions"
+import {expect, expect_not_null} from "#framework/assertions"
 
 import {HasProps} from "@bokehjs/core/has_props"
 import {View} from "@bokehjs/core/view"
 import type {ViewStorage} from "@bokehjs/core/build_views"
-import {build_views, remove_views} from "@bokehjs/core/build_views"
+import {build_view, build_views, remove_views, ChildViewSlot} from "@bokehjs/core/build_views"
 
 describe("core/build_views", () => {
 
@@ -37,7 +37,7 @@ describe("core/build_views", () => {
       }
     }
 
-    const model = new SlowModel()
+    const model = SlowModel.create()
     const storage: ViewStorage<HasProps> = new Map()
 
     // Simulates two on_change listeners on the same signal (e.g. Tabs.tabs
@@ -103,8 +103,8 @@ describe("core/build_views", () => {
       }
     }
 
-    const model_a = new ModelA()
-    const model_b = new ModelB()
+    const model_a = ModelA.create()
+    const model_b = ModelB.create()
     const storage: ViewStorage<HasProps> = new Map()
 
     // call0 starts building model_a and is gated there, before it ever gets
@@ -173,8 +173,8 @@ describe("core/build_views", () => {
       }
     }
 
-    const model_a = new ModelA()
-    const model_b = new ModelB()
+    const model_a = ModelA.create()
+    const model_b = ModelB.create()
     const storage: ViewStorage<HasProps> = new Map()
 
     // call1 doesn't build model_a itself (call0 is already building it), but it
@@ -227,8 +227,8 @@ describe("core/build_views", () => {
       }
     }
 
-    const failing_model = new FailingModel()
-    const ok_model = new OkModel()
+    const failing_model = FailingModel.create()
+    const ok_model = OkModel.create()
     const storage: ViewStorage<HasProps> = new Map()
 
     let error: unknown
@@ -249,6 +249,180 @@ describe("core/build_views", () => {
     expect(n_built_ok).to.be.equal(1)
   })
 
+  it("should propagate a throwing error handler and allow a later batch to recover", async () => {
+    const build_error = new Error("build failed")
+    const handler_error = new Error("handler failed")
+    const built: ModelView[] = []
+
+    class ModelView extends View {
+      declare model: Model
+
+      override async lazy_initialize(): Promise<void> {
+        await super.lazy_initialize()
+        built.push(this)
+        if (this.model == bad) {
+          throw build_error
+        }
+      }
+    }
+
+    class Model extends HasProps {
+      declare __view_type__: ModelView
+
+      static {
+        this.prototype.default_view = ModelView
+      }
+    }
+
+    const before = Model.create()
+    const bad = Model.create()
+    const after = Model.create()
+    const storage: ViewStorage<HasProps> = new Map()
+    let rejected: unknown
+    try {
+      await build_views(storage, [before, bad, after], {
+        parent: null,
+        on_error: (error, model) => {
+          expect(error).to.be.equal(build_error)
+          expect(model).to.be.equal(bad)
+          throw handler_error
+        },
+      })
+    } catch (error) {
+      rejected = error
+    }
+    expect(rejected).to.be.equal(handler_error)
+    expect(built.map((view) => view.model)).to.be.equal([before, bad])
+    expect(built[1].is_destroyed).to.be.true
+    expect([...storage.keys()]).to.be.equal([before])
+
+    await build_views(storage, [before, after], {parent: null})
+    expect(storage.get(before)).to.be.equal(built[0])
+    expect([...storage.keys()]).to.be.equal([before, after])
+    remove_views(storage)
+    expect(built.every((view) => view.is_destroyed)).to.be.true
+  })
+
+  it("should isolate handled failures while sharing builds and preserving healthy views", async () => {
+    let reject_bad = true
+    let n_built_bad = 0
+    let n_built_good = 0
+    const error = new Error("boom")
+
+    class ModelView extends View {
+      declare model: Model
+
+      override async lazy_initialize(): Promise<void> {
+        await super.lazy_initialize()
+        if (this.model == bad) {
+          n_built_bad++
+          if (reject_bad) {
+            throw error
+          }
+        } else {
+          n_built_good++
+        }
+      }
+    }
+
+    class Model extends HasProps {
+      declare __view_type__: ModelView
+
+      static {
+        this.prototype.default_view = ModelView
+      }
+    }
+
+    const bad = Model.create()
+    const good = Model.create()
+    const storage: ViewStorage<HasProps> = new Map()
+    const failures: [unknown, HasProps][] = []
+    const options = {
+      parent: null,
+      on_error: (error: unknown, model: HasProps) => { failures.push([error, model]) },
+    }
+    const first = build_views(storage, [bad, good], options)
+    const waiting = build_views(storage, [bad, good], options)
+    await Promise.all([first, waiting])
+    expect(failures).to.be.equal([[error, bad], [error, bad]])
+    expect(n_built_bad).to.be.equal(1)
+    expect(n_built_good).to.be.equal(1)
+    expect(storage.has(bad)).to.be.false
+    const good_view = storage.get(good)
+    expect_not_null(good_view)
+
+    await build_views(storage, [bad, good], options)
+    expect(n_built_bad).to.be.equal(2)
+    expect(n_built_good).to.be.equal(1)
+    expect(storage.get(good)).to.be.equal(good_view)
+    expect(good_view.is_destroyed).to.be.false
+
+    reject_bad = false
+    const recovered = await build_views(storage, [bad, good], options)
+    const bad_view = storage.get(bad)
+    expect_not_null(bad_view)
+    expect(recovered.created).to.be.equal([bad_view])
+    expect(storage.get(good)).to.be.equal(good_view)
+    expect(failures.length).to.be.equal(3)
+    remove_views(storage)
+    expect(good_view.is_destroyed).to.be.true
+  })
+
+  it("should dispose a view whose signal connection fails and continue with healthy models", async () => {
+    let reject_bad = true
+    const failed_views: ModelView[] = []
+    const error = new Error("connection failed")
+
+    class ModelView extends View {
+      declare model: Model
+
+      override connect_signals(): void {
+        super.connect_signals()
+        if (this.model == bad && reject_bad) {
+          failed_views.push(this)
+          throw error
+        }
+      }
+    }
+
+    class Model extends HasProps {
+      declare __view_type__: ModelView
+
+      static {
+        this.prototype.default_view = ModelView
+      }
+    }
+
+    const bad = Model.create()
+    const good = Model.create()
+    const storage: ViewStorage<HasProps> = new Map()
+    const failures: [unknown, HasProps][] = []
+    const options = {
+      parent: null,
+      on_error: (error: unknown, model: HasProps) => { failures.push([error, model]) },
+    }
+    const result = await build_views(storage, [bad, good], options)
+    const good_view = storage.get(good)
+    const failed_view = failed_views.at(0)
+    expect_not_null(good_view)
+    expect_not_null(failed_view)
+    expect(failures).to.be.equal([[error, bad]])
+    expect(failed_view.is_destroyed).to.be.true
+    expect(storage.has(bad)).to.be.false
+    expect(result.created).to.be.equal([good_view])
+
+    reject_bad = false
+    await build_views(storage, [bad, good], options)
+    const recovered_view = storage.get(bad)
+    expect_not_null(recovered_view)
+    expect(recovered_view).to.not.be.equal(failed_view)
+    expect(recovered_view.is_destroyed).to.be.false
+    expect(storage.get(good)).to.be.equal(good_view)
+    remove_views(storage)
+    expect(recovered_view.is_destroyed).to.be.true
+    expect(good_view.is_destroyed).to.be.true
+  })
+
   it("should build separate views for the same model in unrelated view_storage maps", async () => {
     class SomeModelView extends View {
       declare model: SomeModel
@@ -262,7 +436,7 @@ describe("core/build_views", () => {
       }
     }
 
-    const model = new SomeModel()
+    const model = SomeModel.create()
     const storage0: ViewStorage<HasProps> = new Map()
     const storage1: ViewStorage<HasProps> = new Map()
 
@@ -299,7 +473,7 @@ describe("core/build_views", () => {
       }
     }
 
-    const model = new SlowModel()
+    const model = SlowModel.create()
     const storage: ViewStorage<HasProps> = new Map()
 
     // call1 doesn't build `model` itself (call0 already reserved it), but it
@@ -377,8 +551,8 @@ describe("core/build_views", () => {
       }
     }
 
-    const fast_model = new FastModel()
-    const slow_model = new SlowModel()
+    const fast_model = FastModel.create()
+    const slow_model = SlowModel.create()
     const storage: ViewStorage<HasProps> = new Map()
 
     // call0 stores fast_model's view, then suspends on slow_model. call1 then
@@ -440,7 +614,7 @@ describe("core/build_views", () => {
       }
     }
 
-    const model = new SlowModel()
+    const model = SlowModel.create()
     const storage: ViewStorage<HasProps> = new Map()
 
     // call0 is still building `model`'s view when call1 asks for an empty set of
@@ -505,8 +679,8 @@ describe("core/build_views", () => {
       }
     }
 
-    const ok_model = new OkModel()
-    const failing_model = new FailingModel()
+    const ok_model = OkModel.create()
+    const failing_model = FailingModel.create()
     const storage: ViewStorage<HasProps> = new Map()
 
     let error: unknown
@@ -543,7 +717,7 @@ describe("core/build_views", () => {
       }
     }
 
-    const model = new SomeModel()
+    const model = SomeModel.create()
     const storage: ViewStorage<HasProps> = new Map()
 
     const result = await build_views(storage, [model, model], {parent: null})
@@ -583,7 +757,7 @@ describe("core/build_views", () => {
       }
     }
 
-    const model = new SlowModel()
+    const model = SlowModel.create()
     const storage: ViewStorage<HasProps> = new Map()
 
     // The owner of `storage` is going away (e.g. DataTableView.remove()) while
@@ -620,7 +794,7 @@ describe("core/build_views", () => {
       }
     }
 
-    const model = new FailingModel()
+    const model = FailingModel.create()
     const storage: ViewStorage<HasProps> = new Map()
 
     const call0 = build_views(storage, [model], {parent: null})
@@ -667,8 +841,8 @@ describe("core/build_views", () => {
       }
     }
 
-    const failing_model = new FailingModel()
-    const ok_model = new OkModel()
+    const failing_model = FailingModel.create()
+    const ok_model = OkModel.create()
     const storage: ViewStorage<HasProps> = new Map()
 
     // call0 gives up on ok_model, because failing_model failed ahead of it in
@@ -683,5 +857,238 @@ describe("core/build_views", () => {
     expect(result1.status).to.be.equal("fulfilled")
     expect(n_built_ok).to.be.equal(1)
     expect(storage.get(ok_model)).to.not.be.undefined
+  })
+
+  describe("ChildViewSlot", () => {
+    type Gate = {promise: Promise<void>, resolve: () => void, reject: (error: unknown) => void}
+
+    function gate(): Gate {
+      let resolve: () => void = () => {}
+      let reject: (error: unknown) => void = () => {}
+      const promise = new Promise<void>((res, rej) => {
+        resolve = res
+        reject = rej
+      })
+      return {promise, resolve, reject}
+    }
+
+    const gates = new WeakMap<HasProps, Gate>()
+
+    class GatedModelView extends View {
+      declare model: GatedModel
+
+      override async lazy_initialize(): Promise<void> {
+        await super.lazy_initialize()
+        await gates.get(this.model)?.promise
+      }
+    }
+
+    class GatedModel extends HasProps {
+      declare __view_type__: GatedModelView
+
+      static {
+        this.prototype.default_view = GatedModelView
+      }
+    }
+
+    function gated(): [GatedModel, Gate] {
+      const model = GatedModel.create()
+      const model_gate = gate()
+      gates.set(model, model_gate)
+      return [model, model_gate]
+    }
+
+    async function setup() {
+      const parent = await build_view(GatedModel.create())
+      const slot = new ChildViewSlot<GatedModel>(parent)
+      return {parent, slot}
+    }
+
+    it("should build a view and replace it with a newer one", async () => {
+      const {parent, slot} = await setup()
+      const model0 = GatedModel.create()
+      const model1 = GatedModel.create()
+
+      expect(await slot.build(model0)).to.be.true
+      const view0 = slot.view
+      expect_not_null(view0)
+      expect(view0.model).to.be.equal(model0)
+      expect(view0.parent).to.be.equal(parent)
+
+      expect(await slot.build(model1)).to.be.true
+      expect(slot.view?.model).to.be.equal(model1)
+      expect(view0.is_destroyed).to.be.true
+
+      expect(await slot.build(null)).to.be.true
+      expect(slot.view).to.be.null
+      parent.remove()
+    })
+
+    it("should discard a superseded build that finishes last", async () => {
+      const {parent, slot} = await setup()
+      const [model0, gate0] = gated()
+      const model1 = GatedModel.create()
+
+      const build0 = slot.build(model0)
+      const build1 = slot.build(model1)
+
+      expect(await build1).to.be.true
+      const view1 = slot.view
+      expect(view1?.model).to.be.equal(model1)
+
+      gate0.resolve()
+      expect(await build0).to.be.false
+      expect(slot.view).to.be.equal(view1)
+      expect(view1?.is_destroyed).to.be.false
+      expect(parent.owner.query_one((view) => view.model == model0)).to.be.null
+      parent.remove()
+    })
+
+    it("should discard a superseded build that finishes first", async () => {
+      const {parent, slot} = await setup()
+      const [model0, gate0] = gated()
+      const [model1, gate1] = gated()
+
+      const build0 = slot.build(model0)
+      const build1 = slot.build(model1)
+
+      gate0.resolve()
+      expect(await build0).to.be.false
+      expect(slot.view).to.be.null
+
+      gate1.resolve()
+      expect(await build1).to.be.true
+      expect(slot.view?.model).to.be.equal(model1)
+      parent.remove()
+    })
+
+    it("should let clearing supersede a pending build", async () => {
+      const {parent, slot} = await setup()
+      const [model0, gate0] = gated()
+
+      const build0 = slot.build(model0)
+      expect(await slot.build(null)).to.be.true
+
+      gate0.resolve()
+      expect(await build0).to.be.false
+      expect(slot.view).to.be.null
+      parent.remove()
+    })
+
+    it("should discard a build that finishes after its parent was removed", async () => {
+      const {parent, slot} = await setup()
+      const [model0, gate0] = gated()
+
+      const build0 = slot.build(model0)
+      parent.remove()
+
+      gate0.resolve()
+      expect(await build0).to.be.false
+      expect(slot.view).to.be.null
+    })
+
+    it("should rethrow a failure of the current build and keep the previous view", async () => {
+      const {parent, slot} = await setup()
+      const model0 = GatedModel.create()
+      const [model1, gate1] = gated()
+
+      expect(await slot.build(model0)).to.be.true
+      const view0 = slot.view
+
+      const build1 = slot.build(model1)
+      gate1.reject(new Error("failed"))
+      let error: unknown = null
+      try {
+        await build1
+      } catch (err) {
+        error = err
+      }
+      expect(error).to.be.instanceof(Error)
+      expect(slot.view).to.be.equal(view0)
+      expect(view0?.is_destroyed).to.be.false
+      parent.remove()
+    })
+
+    it("should ignore a failure of a superseded build", async () => {
+      const {parent, slot} = await setup()
+      const [model0, gate0] = gated()
+      const model1 = GatedModel.create()
+
+      const build0 = slot.build(model0)
+      expect(await slot.build(model1)).to.be.true
+
+      gate0.reject(new Error("failed"))
+      expect(await build0).to.be.false
+      expect(slot.view?.model).to.be.equal(model1)
+      parent.remove()
+    })
+
+    it("should let a clear triggered by removal of the outgoing view supersede the build", async () => {
+      const {parent, slot} = await setup()
+      const model0 = GatedModel.create()
+      const model1 = GatedModel.create()
+
+      expect(await slot.build(model0)).to.be.true
+      const view0 = slot.view
+      expect_not_null(view0)
+
+      const reentrant: Promise<boolean>[] = []
+      view0.removed.connect(() => {
+        reentrant.push(slot.build(null))
+      })
+
+      expect(await slot.build(model1)).to.be.false
+      expect(reentrant.length).to.be.equal(1)
+      expect(await reentrant[0]).to.be.true
+      expect(slot.view).to.be.null
+      expect(view0.is_destroyed).to.be.true
+      expect(parent.owner.query_one((view) => view.model == model1)).to.be.null
+      parent.remove()
+    })
+
+    it("should let a build triggered by removal of the outgoing view supersede the build", async () => {
+      const {parent, slot} = await setup()
+      const model0 = GatedModel.create()
+      const model1 = GatedModel.create()
+      const model2 = GatedModel.create()
+
+      expect(await slot.build(model0)).to.be.true
+      const view0 = slot.view
+      expect_not_null(view0)
+
+      const reentrant: Promise<boolean>[] = []
+      view0.removed.connect(() => {
+        reentrant.push(slot.build(model2))
+      })
+
+      expect(await slot.build(model1)).to.be.false
+      const view1 = slot.view
+      expect(view1?.model).to.be.equal(model1)
+
+      expect(reentrant.length).to.be.equal(1)
+      expect(await reentrant[0]).to.be.true
+      expect(slot.view?.model).to.be.equal(model2)
+      expect(view1?.is_destroyed).to.be.true
+      parent.remove()
+    })
+
+    it("should remove the current view and invalidate pending builds on remove()", async () => {
+      const {parent, slot} = await setup()
+      const model0 = GatedModel.create()
+      const [model1, gate1] = gated()
+
+      expect(await slot.build(model0)).to.be.true
+      const view0 = slot.view
+
+      const build1 = slot.build(model1)
+      slot.remove()
+      expect(slot.view).to.be.null
+      expect(view0?.is_destroyed).to.be.true
+
+      gate1.resolve()
+      expect(await build1).to.be.false
+      expect(slot.view).to.be.null
+      parent.remove()
+    })
   })
 })

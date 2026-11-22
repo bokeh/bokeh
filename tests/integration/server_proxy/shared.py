@@ -7,10 +7,8 @@
 
 from __future__ import annotations
 
-# Standard library imports
 from html import escape
 
-# Bokeh imports
 from bokeh.document import Document
 from bokeh.models import Button, Div
 

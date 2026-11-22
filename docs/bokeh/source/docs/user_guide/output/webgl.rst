@@ -89,7 +89,9 @@ Polygon glyphs
 
 There is WebGL support for :func:`~bokeh.plotting.figure.patch` and
 :func:`~bokeh.plotting.figure.patches` glyphs, including polygons with holes
-and disjoint parts (via NaN-separated coordinates). WebGL support covers:
+and disjoint parts (via NaN-separated coordinates). Self-intersecting paths and
+overlapping parts use the even-odd fill rule, matching the canvas backend.
+WebGL support covers:
 
 * all :ref:`fill properties <ug_styling_fill_properties>`
 * all :ref:`line properties <ug_styling_line_properties>`, including dashed

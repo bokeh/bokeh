@@ -23,6 +23,9 @@ Functions:
     is_full_release:
         Return whether the current installed version is a full release.
 
+    is_valid_version:
+        Return whether a string uses Bokeh's Python version syntax.
+
 .. _versioneer: https://github.com/warner/python-versioneer
 
 '''
@@ -39,7 +42,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
+import re
+
+from packaging.version import Version
+
 from .. import __version__
 
 #-----------------------------------------------------------------------------
@@ -49,6 +55,12 @@ from .. import __version__
 __all__ = (
     'base_version',
     'is_full_release',
+    'is_valid_version',
+)
+
+_BASE_VERSION_PAT = re.compile(r"\d+\.\d+\.\d+")
+_VERSION_PAT = re.compile(
+    r"[0-9]+\.[0-9]+\.[0-9]+(?:(?:\.dev|rc)[0-9]+)?(?:\+[A-Za-z0-9]+(?:[._-][A-Za-z0-9]+)*)?",
 )
 
 #-----------------------------------------------------------------------------
@@ -58,26 +70,52 @@ __all__ = (
 def base_version() -> str:
     return _base_version_helper(__version__)
 
+
 def is_full_release(version: str | None = None) -> bool:
-    import re
     version = version or __version__
-    VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)$")
-    return bool(VERSION_PAT.match(version))
+    return _BASE_VERSION_PAT.fullmatch(version) is not None
+
+
+def is_valid_version(version: str) -> bool:
+    '''Return whether a string uses Bokeh's Python version syntax.
+
+    Accepts release, ``.devN``, and ``rcN`` versions with an optional local
+    build suffix such as ``+local`` or ``+52.g87c2e72b.dirty``.
+    '''
+    return _VERSION_PAT.fullmatch(version) is not None
 
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+def npm_version(version: str | None) -> str:
+    '''Convert a Python package version to npm version syntax.
+
+    Args:
+        version:
+            The Python version, or ``None`` to use the installed Bokeh version.
+
+    Returns:
+        The corresponding npm release, prerelease, or development version.
+
+    '''
+    parsed = Version(version or __version__)
+    release = ".".join(str(part) for part in parsed.release)
+    if parsed.dev is not None:
+        return f"{release}-dev.{parsed.dev}"
+    if parsed.pre is not None:
+        kind, number = parsed.pre
+        return f"{release}-{kind}.{number}"
+    return release
 
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
 
 def _base_version_helper(version: str) -> str:
-    import re
-    VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)((?:\.dev|\.rc).*)?")
-    match = VERSION_PAT.search(version)
+    match = _BASE_VERSION_PAT.match(version)
     assert match is not None
-    return match.group(1)
+    return match.group(0)
 
 #-----------------------------------------------------------------------------
 # Code

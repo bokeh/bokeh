@@ -30,7 +30,7 @@ export namespace HoverfulScatter {
     colors.push([r, g, 150])
   }
 
-  const source = new Bokeh.ColumnDataSource({
+  const source = Bokeh.ColumnDataSource.create({
     data: {x: xx, y: yy, radius: radii, colors},
   })
 
@@ -47,7 +47,7 @@ export namespace HoverfulScatter {
   })
 
   const hover = p.toolbar.get_one(Bokeh.HoverTool)
-  hover.tooltips = (data_source: typeof source, info) => {
+  hover.tooltips = (data_source, info) => {
     const div = document.createElement("div")
     div.style.width = "200px"
     div.style.height = "75px"

@@ -64,10 +64,6 @@ export abstract class RegionSelectTool extends SelectTool {
   declare overlay: BoxAnnotation | PolyAnnotation
   declare mode: RegionSelectionMode
 
-  constructor(attrs?: Partial<RegionSelectTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<RegionSelectTool.Props>(({Bool}) => ({
       mode:       [ RegionSelectionMode, "replace" ],

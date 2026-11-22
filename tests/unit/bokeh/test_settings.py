@@ -8,18 +8,15 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import logging
 
-# Bokeh imports
+import pytest
+
 from tests.support.util.api import verify_all
 from tests.support.util.env import envset
 
@@ -47,16 +44,13 @@ _expected_settings = (
     'auth_module',
     'browser',
     'cdn_version',
-    'chromedriver_path',
     'compression_level',
     'cookie_secret',
     'default_server_host',
     'default_server_port',
     'docs_cdn',
     'docs_version',
-    'export_backend',
     'ico_path',
-    'ignore_filename',
     'log_level',
     'minified',
     'nodejs_path',
@@ -94,7 +88,6 @@ class TestSettings:
         assert ps._parent == bs.settings
 
     def test_types(self) -> None:
-        assert bs.settings.ignore_filename.convert_type == "Bool"
         assert bs.settings.minified.convert_type == "Bool"
         assert bs.settings.perform_document_validation.convert_type == "Bool"
         assert bs.settings.perform_error_diagnostics.convert_type == "Bool"
@@ -118,7 +111,6 @@ class TestSettings:
             'compression_level',
             'default_server_port',
             'ico_path',
-            'ignore_filename',
             'minified',
             'perform_document_validation',
             'perform_error_diagnostics',
@@ -358,9 +350,6 @@ class TestDefaults:
     def test_cdn_version(self):
         assert bs.settings.cdn_version.default is None
 
-    def test_chromedriver_path(self):
-        assert bs.settings.chromedriver_path.default is None
-
     def test_compression_level(self):
         assert bs.settings.compression_level.default == 2
 
@@ -373,14 +362,8 @@ class TestDefaults:
     def test_docs_version(self):
         assert bs.settings.docs_version.default is None
 
-    def test_export_backend(self):
-        assert bs.settings.export_backend.default == "playwright"
-
     def test_ico_path(self):
         assert bs.settings.ico_path.default == "default"
-
-    def test_ignore_filename(self):
-        assert bs.settings.ignore_filename.default is False
 
     def test_log_level(self):
         assert bs.settings.log_level.default == "info"

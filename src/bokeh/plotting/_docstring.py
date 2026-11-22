@@ -17,12 +17,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from inspect import Parameter
 from textwrap import dedent
 from typing import Any
 
-# Bokeh imports
 from ..models import Marker
 
 #-----------------------------------------------------------------------------
@@ -183,7 +181,7 @@ Other Parameters:
         Bokeh does not use this value in any way, but it may be useful for
         searching a Bokeh document to find a specific model.
 
-    source (ColumnDataSource, optional) :
+    source (IndexedDataSource, optional) :
         A user-supplied data source. (default: None)
 
         If not supplied, Bokeh will automatically construct an internal
@@ -195,7 +193,7 @@ Other Parameters:
         other arguments. Only singular fixed values (e.g. ``x=10``) or column
         names in the data source (e.g. ``x="time"``) are permitted.
 
-    view (CDSView, optional) :
+    view (IndexedSubset, optional) :
         A view for filtering the data source. (default: None)
 
     visible (bool, optional) :

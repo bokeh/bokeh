@@ -20,10 +20,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any
 
-# Bokeh imports
 from ._sphinx import property_link, register_type_link, type_link
 from .bases import (
     Init,
@@ -31,6 +29,7 @@ from .bases import (
     SingleParameterizedProperty,
     TypeOrInst,
 )
+from .exceptions import ValidationError
 from .singletons import _NotGiven
 
 #-----------------------------------------------------------------------------
@@ -45,7 +44,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class TypeOfAttr[T](SingleParameterizedProperty[T]):
+class TypeOfAttr[GetType, SetType = GetType](SingleParameterizedProperty[GetType, SetType]):
     """ Allows to check if an attribute of an object satisfies the
     given type or a collection of types.
 
@@ -53,18 +52,18 @@ class TypeOfAttr[T](SingleParameterizedProperty[T]):
 
     def __init__(
         self,
-        type_param: TypeOrInst[Property[T]],
+        type_param: TypeOrInst[Property[GetType, SetType]],
         name: str,
         type: TypeOrInst[Property[Any]],
         *,
-        default: Init[T] = _NotGiven,
+        default: Init[SetType] = _NotGiven,
         help: str | None = None,
     ) -> None:
         super().__init__(type_param, default=default, help=help)
         self._query_name = name
         self._query_type = self._validate_type_param(type)
 
-    def __call__(self, *, default: Init[T] = _NotGiven, help: str | None = None) -> TypeOfAttr[T]:
+    def __call__(self, *, default: Init[SetType] = _NotGiven, help: str | None = None) -> TypeOfAttr[GetType, SetType]:
         """ Clone this property and allow to override ``default`` and ``help``. """
         default = self._default if default is _NotGiven else default
         help = self._help if help is None else help
@@ -86,12 +85,12 @@ class TypeOfAttr[T](SingleParameterizedProperty[T]):
         try:
             attr = getattr(value, name)
         except AttributeError:
-            raise ValueError(f"expected {value!r} to have an attribute '{name}'" if detail else "")
+            raise ValidationError(f"expected {value!r} to have an attribute '{name}'" if detail else "")
 
         if type.is_valid(attr):
             return
 
-        raise ValueError(f"expected {value!r} to have an attribute {name!r} of type {type}" if detail else "")
+        raise ValidationError(f"expected {value!r} to have an attribute {name!r} of type {type}" if detail else "")
 
 #-----------------------------------------------------------------------------
 # Dev API

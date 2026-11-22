@@ -1,20 +1,37 @@
+''' Configure the Bokeh plot and client-side particle simulation.
+
+.. bokeh-example-metadata::
+    :title: Simulation
+    :keywords: simulation
+    :apis: bokeh.models.ColorBar, bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.Div, bokeh.models.HoverTool
+    :no-index:
+'''
+
 from __future__ import annotations
 
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
-from streamlit_particles.modes import MODES
-from streamlit_particles.state import Snapshot, viewer_states
 
 from bokeh import palettes
 from bokeh.document import Document
 from bokeh.events import DocumentReady
 from bokeh.layouts import column
-from bokeh.models import (ColorBar, ColumnDataSource, CustomJS, Div,
-                          HoverTool, LinearColorMapper, PointDrawTool)
+from bokeh.models import (
+    ColorBar,
+    ColumnDataSource,
+    CustomJS,
+    Div,
+    HoverTool,
+    LinearColorMapper,
+    PointDrawTool,
+)
 from bokeh.plotting import figure
 from bokeh.transform import transform
+
+from streamlit_particles.modes import MODES
+from streamlit_particles.state import Snapshot, viewer_states
 
 if TYPE_CHECKING:
     from bokeh.models.sources import DataDict
@@ -149,8 +166,7 @@ def modify_document(doc: Document) -> None:
         y_axis_label="y position",
         x_range=(-3, 3),
         y_range=(-2, 2),
-        tools=[],
-        toolbar_location=None,
+        tools=None,
     )
     plot.scatter(
         "x",

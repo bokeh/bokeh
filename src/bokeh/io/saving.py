@@ -20,26 +20,25 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
+import os
+from html import escape
 from os.path import abspath, expanduser
-from typing import TYPE_CHECKING
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, SupportsIndex
+from urllib.parse import quote
 
-# External imports
 from jinja2 import Template
 
-# Bokeh imports
 from ..core.templates import FILE
+from ..embed._util import ThemePolicy, embed
 from ..resources import Resources
-from ..settings import settings
-from .state import curstate
 from .util import default_filename
 
 if TYPE_CHECKING:
     from ..core.types import PathLike
-    from ..embed.util import ThemeSource
+    from ..embed._util import ThemeSource
     from ..resources import ResourcesLike
     from .showing import Showable
-    from .state import State
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -55,51 +54,94 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
+class _SavedFile(str):
+    """A saved path that notebooks can display as a link."""
+
+    _link_path: str | None
+
+    def __new__(cls, filename: str, link_path: PathLike | None) -> _SavedFile:
+        result = str.__new__(cls, filename)
+        if link_path is None:
+            result._link_path = None
+            return result
+        candidate = Path(link_path)
+        parts = candidate.parts
+        link = candidate.as_posix()
+        result._link_path = (
+            link
+            if candidate.root == "" and candidate.drive == "" and ".." not in parts and "\\" not in link
+            else None
+        )
+        return result
+
+    def __reduce_ex__(self, _protocol: SupportsIndex) -> tuple[Any, tuple[str, str | None]]:
+        return _SavedFile, (str(self), self._link_path)
+
+    def _repr_html_(self) -> str:
+        if self._link_path is None:
+            return "Bokeh HTML file saved. Open it from the notebook file browser."
+        href = quote(self._link_path, safe="/")
+        label = escape(self._link_path)
+        return (
+            f'<a href="{href}" target="_blank" rel="noopener noreferrer">'
+            f'Open {label}</a>'
+        )
+
+    def _repr_mimebundle_(self, include: set[str] | None = None,
+            exclude: set[str] | None = None) -> dict[str, Any]:
+        from .jupyter import FILE_MIME_TYPE, file_payload
+
+        data: dict[str, Any]
+        if self._link_path is None:
+            data = {"text/plain": "Bokeh HTML file saved. Open it from the notebook file browser."}
+        else:
+            data = {
+                FILE_MIME_TYPE: file_payload(self._link_path),
+                "text/html": self._repr_html_(),
+                "text/plain": f"Bokeh HTML file saved: {self._link_path}",
+            }
+        if include is not None:
+            data = {mime: value for mime, value in data.items() if mime in include}
+        if exclude is not None:
+            data = {mime: value for mime, value in data.items() if mime not in exclude}
+        return data
+
 def save(obj: Showable, filename: PathLike | None = None, resources: ResourcesLike | None = None,
-        title: str | None = None, template: Template | str | None = None, state: State | None = None) -> str:
+        title: str | None = None, template: Template | str | None = None) -> str:
     ''' Save an HTML file with the data for the current document.
 
-    Will fall back to the default output state (or an explicitly provided
-    :class:`State` object) for ``filename``, ``resources``, or ``title`` if they
-    are not provided. If the filename is not given and not provided via output state,
-    it is derived from the script name (e.g. ``/foo/myplot.py`` will create
-    ``/foo/myplot.html``)
+    If the filename is not given, it is derived from the script name (e.g.
+    ``/foo/myplot.py`` will create ``/foo/myplot.html``). A complete source
+    document supplies its own theme. Otherwise the current document's theme is
+    used.
 
     Args:
         obj (UIElement or DOMNode object) : a Layout (Row/Column), Plot or Widget object to display
 
         filename (PathLike, e.g. str, Path, optional) : filename to save document under (default: None)
-            If None, use the default state configuration.
+            If None, derive the filename from the running script.
 
-        resources (Resources or ResourcesMode, optional) : A Resources config to use (default: None)
-            If None, use the default state configuration, if there is one.
-            otherwise use ``resources.INLINE``.
+        resources (Resources or resource setting, optional) : A resources configuration to use (default: None)
+            If None, use the configured default resource policy.
 
         title (str, optional) : a title for the HTML document (default: None)
-            If None, use the default state title value, if there is one.
-            Otherwise, use "Bokeh Plot"
+            If None, use "Bokeh Plot".
 
         template (Template, str, optional) : HTML document template (default: FILE)
             A Jinja2 Template, see bokeh.core.templates.FILE for the required template
             parameters
 
-        state (State, optional) :
-            A :class:`State` object. If None, then the current default
-            implicit state is used. (default: None).
-
     Returns:
-        str: the filename where the HTML file is saved.
+        str: the filename where the HTML file is saved. In a notebook, leaving
+        this value as the cell's final expression displays a link that opens
+        the saved document in a new tab.
 
     '''
 
-    if state is None:
-        state = curstate()
-
-    theme = state.document.theme
-
-    filename, resources, title = _get_save_args(state, filename, resources, title)
-    _save_helper(obj, filename, resources, title, template, theme)
-    return abspath(expanduser(filename))
+    filename, resources, title = _get_save_args(filename, resources, title)
+    _save_helper(obj, filename, resources, title, template)
+    resolved = abspath(expanduser(filename))
+    return _SavedFile(resolved, _notebook_link_path(filename, resolved))
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -109,66 +151,60 @@ def save(obj: Showable, filename: PathLike | None = None, resources: ResourcesLi
 # Private API
 #-----------------------------------------------------------------------------
 
-def _get_save_args(state: State, filename: PathLike | None, resources: ResourcesLike | None,
+def _notebook_link_path(filename: PathLike, resolved: str) -> PathLike | None:
+    try:
+        from IPython import get_ipython
+    except ImportError:
+        return filename
+
+    try:
+        shell = get_ipython()
+        if shell is None or getattr(shell, "kernel", None) is None:
+            return filename
+        starting_dir = getattr(shell, "starting_dir", None)
+        if not isinstance(starting_dir, str) or not starting_dir:
+            return None
+        notebook_dir = os.path.abspath(starting_dir)
+        output = os.path.abspath(resolved)
+
+        def relative_link(directory: str, target: str) -> str | None:
+            if os.path.commonpath((directory, target)) != directory:
+                return None
+            relative = os.path.relpath(target, directory)
+            candidate = os.path.join(directory, relative)
+            try:
+                if os.path.samefile(candidate, filename):
+                    return Path(relative).as_posix()
+            except OSError:
+                pass
+            return None
+
+        lexical = relative_link(notebook_dir, output)
+        if lexical is not None:
+            return lexical
+        return relative_link(os.path.realpath(notebook_dir), os.path.realpath(filename))
+    except (OSError, ValueError):
+        return None
+
+def _get_save_args(filename: PathLike | None, resources: ResourcesLike | None,
         title: str | None) -> tuple[PathLike, Resources, str]:
     '''
 
     '''
-    filename, is_default_filename = _get_save_filename(state, filename)
+    return (
+        filename if filename is not None else default_filename("html"),
+        Resources.build(resources),
+        title if title is not None else DEFAULT_TITLE,
+    )
 
-    resources = _get_save_resources(state, resources, is_default_filename)
-
-    title = _get_save_title(state, title, is_default_filename)
-
-    return filename, resources, title
-
-def _get_save_filename(state: State, filename: PathLike | None) -> tuple[PathLike, bool]:
-    if filename is not None:
-        return filename, False
-
-    if state.file and not settings.ignore_filename():
-        return state.file.filename, False
-
-    return default_filename("html"), True
-
-def _get_save_resources(state: State, resources: ResourcesLike | None, suppress_warning: bool) -> Resources:
-    if resources is not None:
-        if isinstance(resources, Resources):
-            return resources
-        else:
-            return Resources(mode=resources)
-
-    if state.file:
-        return state.file.resources
-
-    if not suppress_warning:
-        from ..util.warnings import warn
-
-        warn("save() called but no resources were supplied and output_file(...) was never called, defaulting to resources.CDN")
-
-    return Resources(mode=settings.resources())
-
-def _get_save_title(state: State, title: str | None, suppress_warning: bool) -> str:
-    if title is not None:
-        return title
-
-    if state.file:
-        return state.file.title
-
-    if not suppress_warning:
-        from ..util.warnings import warn
-
-        warn("save() called but no title was supplied and output_file(...) was never called, using default title 'Bokeh Plot'")
-
-    return DEFAULT_TITLE
-
-def _save_helper(obj: Showable, filename: PathLike, resources: Resources | None,
-        title: str | None, template: Template | str | None, theme: ThemeSource | None = None) -> None:
+def _save_helper(obj: Showable, filename: PathLike, resources: ResourcesLike | None,
+        title: str | None, template: Template | str | None,
+        theme: ThemeSource = ThemePolicy.SOURCE_OR_CURDOC) -> None:
     '''
 
     '''
-    from ..embed import file_html
-    html = file_html(obj, resources=resources, title=title, template=template or FILE, theme=theme)
+    result = embed(obj, theme=theme)
+    html = result.page(resources=resources, title=title, template=template or FILE)
 
     with open(filename, mode="w", encoding="utf-8") as f:
         f.write(html)

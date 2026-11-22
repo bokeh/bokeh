@@ -1,3 +1,11 @@
+''' Place a legend at a chosen location inside the plot.
+
+.. bokeh-example-metadata::
+    :title: Legend location
+    :keywords: legend, location
+    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
+'''
+
 import numpy as np
 
 from bokeh.plotting import figure, show

@@ -21,14 +21,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any, Awaitable, Callable
 
-# External imports
 from tornado import locks
 from tornado.websocket import WebSocketClientConnection
 
-# Bokeh imports
 from ..protocol.message import Message
 
 #-----------------------------------------------------------------------------
@@ -49,6 +46,8 @@ __all__ = (
 
 class WebSocketClientConnectionWrapper:
     ''' Used for compatibility across Tornado versions and to add write_lock'''
+
+    write_lock: locks.Lock
 
     def __init__(self, socket: WebSocketClientConnection) -> None:
         self._socket = socket

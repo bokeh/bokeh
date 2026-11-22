@@ -89,10 +89,6 @@ export class WheelPanTool extends GestureTool {
   declare properties: WheelPanTool.Props
   declare __view_type__: WheelPanToolView
 
-  constructor(attrs?: Partial<WheelPanTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = WheelPanToolView
 
@@ -105,8 +101,6 @@ export class WheelPanTool extends GestureTool {
       speed: [ Float, 1/1000 ],
     }))
 
-    this.register_alias("xwheel_pan", () => new WheelPanTool({dimension: "width"}))
-    this.register_alias("ywheel_pan", () => new WheelPanTool({dimension: "height"}))
   }
 
   override tool_name = "Wheel Pan"

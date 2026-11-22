@@ -8,23 +8,19 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 from typing import Any
 from unittest.mock import MagicMock, patch
 
-# External imports
 import numpy as np
+import pytest
 
-# Bokeh imports
 from bokeh.core.has_props import HasProps
+from bokeh.core.property.validation import validate
 from tests.support.util.api import verify_all
 from tests.support.util.types import Capture
 
@@ -213,13 +209,10 @@ class TestProperty:
         assert err == ""
 
     def test_validation_on(self) -> None:
-        assert bcpb.Property._should_validate is True
         assert bcpb.validation_on()
 
-        bcpb.Property._should_validate = False
-        assert not bcpb.validation_on()
-
-        bcpb.Property._should_validate = True
+        with validate(False):
+            assert not bcpb.validation_on()
         assert bcpb.validation_on()
 
     def test__hinted_value_is_identity(self) -> None:

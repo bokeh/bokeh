@@ -79,10 +79,6 @@ export class VBar extends LRTB {
   declare properties: VBar.Props
   declare __view_type__: VBarView
 
-  constructor(attrs?: Partial<VBar.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = VBarView
 

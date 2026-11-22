@@ -20,12 +20,12 @@ jobs:
       name: upload-deployment
       url: https://cdn.bokeh.org/
     permissions:
-      contents: write
+      contents: read
       id-token: write
 
     steps:
       - name: Check Maintainer
-        uses: tspascoal/get-user-teams-membership@v4
+        uses: tspascoal/get-user-teams-membership@b2546c5affc730fd8e3d8483ae9ad3621938c2f9 # v4.0.2
         id: checkUserMember
         with:
           username: ${{ github.actor }}
@@ -50,17 +50,19 @@ jobs:
           echo "Please contact @bokeh/core about conducting releases."
           exit 1
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Configure detached Pixi environment
         run: |
           printf 'detached-environments = "%s/pixi-environments"\n' "$RUNNER_TEMP" > "$RUNNER_TEMP/pixi-config.toml"
           echo "PIXI_CONFIG_FILE=$RUNNER_TEMP/pixi-config.toml" >> "$GITHUB_ENV"
 
-      - uses: prefix-dev/setup-pixi@v0.10.0
+      - uses: prefix-dev/setup-pixi@ad1da6449d9e506fd127fd67ab2d054a769f6a94 # v0.11.2
         with:
+          pixi-version: v0.83.0
           environments: release-build
           activate-environment: release-build
           locked: true
@@ -75,7 +77,7 @@ jobs:
 
       - name: Configure AWS credentials
         id: aws
-        uses: aws-actions/configure-aws-credentials@v6.2.3
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:
           role-to-assume: ${{ vars.AWS_RELEASE_BUILD_ROLE_ARN }}
           role-session-name: bokeh-release-build-${{ github.run_id }}
@@ -89,6 +91,7 @@ jobs:
           BOKEH_VERSION: ${{ github.event.inputs.version }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          CARTO_API_KEY: ${{ secrets.CARTO_API_KEY }}
         run: python -m tools.release build-artifacts "$BOKEH_VERSION"
 
       - name: Upload Deployment Assets
@@ -99,7 +102,20 @@ jobs:
           BOKEH_VERSION: ${{ github.event.inputs.version }}
         run: python -m tools.release upload-deployment "$BOKEH_VERSION"
 
+      # The release app must be allowed to bypass required PRs on the release branch.
+      # Create its token after the build so it remains valid for the repository update.
+      - name: Create release app token
+        uses: actions/create-github-app-token@f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc # v3.4.0
+        id: release-app-token
+        with:
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+
       - name: Update Release Repository
         env:
           BOKEH_VERSION: ${{ github.event.inputs.version }}
-        run: python -m tools.release update-release-repository "$BOKEH_VERSION"
+          GH_TOKEN: ${{ steps.release-app-token.outputs.token }}
+        run: |
+          gh auth setup-git --hostname github.com
+          python -m tools.release update-release-repository "$BOKEH_VERSION"

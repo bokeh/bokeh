@@ -17,7 +17,7 @@ export class BitSet implements Equatable {
 
   constructor(readonly size: number, init: Uint32Array | 1 | 0 = 0) {
     this._nwords = Math.ceil(size/BitSet._word_length)
-    if (init == 0 || init == 1) {
+    if (typeof init == "number") {
       this._array = new Uint32Array(this._nwords)
       if (init == 1) {
         this._array.fill(0xffffffff)
@@ -65,6 +65,15 @@ export class BitSet implements Equatable {
     const bits = new BitSet(size)
     for (const i of indices) {
       bits.set(i)
+    }
+    return bits
+  }
+
+  static from_indices_array(size: number, indices_array: Arrayable<number>): BitSet {
+    const bits = new BitSet(size)
+    const n = indices_array.length
+    for (let i = 0; i < n; i++) {
+      bits.set(indices_array[i])
     }
     return bits
   }
@@ -140,26 +149,35 @@ export class BitSet implements Equatable {
     return count
   }
 
+  private _popcount(x: number): number {
+    // SWAR algorithm, see https://www.playingwithpointers.com/blog/swar.html
+    x = x - ((x >>> 1) & 0x55555555)
+    x = (x & 0x33333333) + ((x >>> 2) & 0x33333333)
+    x = (x + (x >>> 4)) & 0x0f0f0f0f
+    return Math.imul(x, 0x01010101) >>> 24
+  }
+
   protected _get_count(): number {
     const {_array, _nwords, size} = this
+    const trailing = size % BitSet._word_length
+    const full = trailing == 0 ? _nwords : _nwords - 1
+
     let c = 0
-    for (let k = 0, i = 0; i < _nwords; i++) {
-      const word = _array[i]
-      if (word == 0) {
-        k += BitSet._word_length
-      } else {
-        for (let j = 0; j < BitSet._word_length && k < size; j++, k++) {
-          if (((word >>> j) & 0b1) == 0b1) {
-            c += 1
-          }
-        }
-      }
+    for (let i = 0; i < full; i++) {
+      c += this._popcount(_array[i])
     }
+
+    if (trailing != 0) {
+      // trailing is strictly 1..31 here, so the shift won't overflow 32 bits
+      const mask = (1 << trailing) - 1
+      c += this._popcount(_array[full] & mask)
+    }
+
     return c
   }
 
-  ones(): number[] {
-    const indices = new Array(this.count)
+  ones(): Int32Array {
+    const indices = new Int32Array(this.count)
     let index = 0
     const {_array, _nwords, size} = this
     for (let k = 0, i = 0; i < _nwords; i++) {
@@ -177,8 +195,8 @@ export class BitSet implements Equatable {
     return indices
   }
 
-  zeros(): number[] {
-    const indices = new Array(this.count)
+  zeros(): Int32Array {
+    const indices = new Int32Array(this.size-this.count)
     let index = 0
     const {_array, _nwords, size} = this
     for (let k = 0, i = 0; i < _nwords; i++) {
@@ -201,6 +219,7 @@ export class BitSet implements Equatable {
   }
 
   invert(): void {
+    this._count = null
     for (let i = 0; i < this._nwords; i++) {
       this._array[i] = ~this._array[i] >>> 0
     }
@@ -208,6 +227,7 @@ export class BitSet implements Equatable {
 
   add(other: BitSet): void {
     this._check_size(other)
+    this._count = null
     for (let i = 0; i < this._nwords; i++) {
       this._array[i] |= other._array[i]
     }
@@ -215,6 +235,7 @@ export class BitSet implements Equatable {
 
   intersect(other: BitSet): void {
     this._check_size(other)
+    this._count = null
     for (let i = 0; i < this._nwords; i++) {
       this._array[i] &= other._array[i]
     }
@@ -222,6 +243,7 @@ export class BitSet implements Equatable {
 
   subtract(other: BitSet): void {
     this._check_size(other)
+    this._count = null
     for (let i = 0; i < this._nwords; i++) {
       const a = this._array[i]
       const b = other._array[i]
@@ -231,6 +253,7 @@ export class BitSet implements Equatable {
 
   symmetric_subtract(other: BitSet): void {
     this._check_size(other)
+    this._count = null
     for (let i = 0; i < this._nwords; i++) {
       this._array[i] ^= other._array[i]
     }
@@ -268,12 +291,21 @@ export class BitSet implements Equatable {
 
   select<T>(array: Arrayable<T>): Arrayable<T> {
     assert(this.size <= array.length, "Size mismatch")
-    const n = this.count
-    const result = new (array.constructor as ArrayableNew)<T>(n)
-    const indices = this.ones()
-    let i = 0
-    for (let j = 0; j < indices.length; j++) {
-      result[i++] = array[indices[j]]
+    const {_array, _nwords, count, size} = this
+    const result = new (array.constructor as ArrayableNew)<T>(count)
+    let r = 0
+    for (let k = 0, i = 0; i < _nwords; i++) {
+      const word = _array[i]
+      if (word == 0) {
+        k += BitSet._word_length
+      } else {
+        for (let j = 0; j < BitSet._word_length && k < size; j++, k++) {
+          // collect element if corresponding bit is 1
+          if (((word >>> j) & 0b1) == 0b1) {
+            result[r++] = array[k]
+          }
+        }
+      }
     }
     return result
   }

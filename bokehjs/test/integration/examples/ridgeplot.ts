@@ -37,14 +37,14 @@ describe("Examples", () => {
     const cats = reversed([...probly.keys()])
 
     const x = np.linspace(-20, 110, 500)
-    const source = new ColumnDataSource({data: {x}})
+    const source = ColumnDataSource.create({data: {x}})
 
-    const y_range = new FactorRange({
+    const y_range = FactorRange.create({
       factors: cats,
       range_padding: 0.12,
     })
 
-    const hover_tool = new HoverTool({
+    const hover_tool = HoverTool.create({
       tooltips: [
         ["data (x, y)", "($x, $y)"],
         ["name", "$name"],
@@ -61,9 +61,9 @@ describe("Examples", () => {
 
       const xy = p.subplot({
         x_source: p.x_range,
-        y_source: new Range1d({start: 0, end: 1}),
+        y_source: Range1d.create({start: 0, end: 1}),
         x_target: p.x_range,
-        y_target: new Range1d({start: target_start, end: target_end}),
+        y_target: Range1d.create({start: target_start, end: target_end}),
       })
 
       xy.patch({field: "x"}, {field: cat}, {color: palette[i], alpha: 0.6, line_color: "black", source, name: cat})
@@ -72,9 +72,9 @@ describe("Examples", () => {
     p.outline_line_color = null
     p.background_fill_color = "#efefef"
 
-    const x_ticker = new FixedTicker({ticks: range(0, 101, 10)})
+    const x_ticker = FixedTicker.create({ticks: range(0, 101, 10)})
     p.xaxis.ticker = x_ticker
-    p.xaxis.formatter = new PrintfTickFormatter({format: "%d%%"})
+    p.xaxis.formatter = PrintfTickFormatter.create({format: "%d%%"})
 
     p.ygrid.grid_line_color = null
     p.xgrid.grid_line_color = "#dddddd"
@@ -92,9 +92,9 @@ describe("Examples", () => {
     const cats = reversed([...probly.keys()])
 
     const x = np.linspace(-20, 110, 500)
-    const source = new ColumnDataSource({data: {x}})
+    const source = ColumnDataSource.create({data: {x}})
 
-    const y_range = new FactorRange({
+    const y_range = FactorRange.create({
       factors: cats,
       range_padding: 0.12,
     })
@@ -113,9 +113,9 @@ describe("Examples", () => {
     p.outline_line_color = null
     p.background_fill_color = "#efefef"
 
-    const x_ticker = new FixedTicker({ticks: range(0, 101, 10)})
+    const x_ticker = FixedTicker.create({ticks: range(0, 101, 10)})
     p.xaxis.ticker = x_ticker
-    p.xaxis.formatter = new PrintfTickFormatter({format: "%d%%"})
+    p.xaxis.formatter = PrintfTickFormatter.create({format: "%d%%"})
 
     p.ygrid.grid_line_color = null
     p.xgrid.grid_line_color = "#dddddd"

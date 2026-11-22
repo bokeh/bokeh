@@ -71,19 +71,16 @@ export type ExprRep = {
 }
 
 export type ObjectRep = {
-  type: "object"
-  name: string
-  attributes?: {[key: string]: AnyVal}
+  $type: string
+  $id?: string
+  [key: string]: AnyVal | undefined
 }
 
-export type ObjectRefRep = {
-  type: "object"
-  name: string
-  id: string
-  attributes?: {[key: string]: AnyVal}
+export type ObjectRefRep = ObjectRep & {
+  $id: string
 }
 
-export type ModelRep = ObjectRefRep
+export type ModelRep = ObjectRep | ObjectRefRep
 
 export type TypedArrayRep = {
   type: "typed_array"

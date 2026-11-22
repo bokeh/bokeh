@@ -20,13 +20,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import TYPE_CHECKING, Any, overload
 
-# External imports
 import yaml
 
-# Bokeh imports
 from ..core.has_props import HasProps
 
 if TYPE_CHECKING:

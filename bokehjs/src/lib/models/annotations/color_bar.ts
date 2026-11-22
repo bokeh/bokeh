@@ -3,8 +3,9 @@ import type {Axis} from "../axes"
 import {CategoricalAxis, LinearAxis, LogAxis} from "../axes"
 import type {TickFormatter} from "../formatters/tick_formatter"
 import {BasicTickFormatter, LogTickFormatter, CategoricalTickFormatter} from "../formatters"
+import type {PaletteMapper} from "../mappers/color_mapper"
 import {ColorMapper} from "../mappers/color_mapper"
-import {LinearColorMapper, LogColorMapper, ScanningColorMapper, CategoricalColorMapper, ContinuousColorMapper, WeightedStackColorMapper} from "../mappers"
+import {LinearColorMapper, LogColorMapper, ScanningColorMapper, CategoricalColorMapper, ContinuousColorMapper} from "../mappers"
 import type {Range} from "../ranges"
 import {Range1d, FactorRange} from "../ranges"
 import type {Scale} from "../scales"
@@ -29,25 +30,37 @@ export class ColorBarView extends BaseColorBarView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.color_mapper.change, async () => {
+
+    // The axis, scale and ticker are made for the color mapper's `display_mapper`,
+    // so they are rebuilt when either mapper is replaced.
+    const rebuild = async () => {
       this._title_view.remove()
       this._axis_view.remove()
       this.initialize()
       await this.lazy_initialize()
       this.plot_view.invalidate_layout()
+    }
+    const metrics_changed = () => this._metrics_changed()
+
+    let {color_mapper} = this.model
+    this.connect(color_mapper.metrics_change, metrics_changed)
+    this.connect(color_mapper.display_mapper_change, rebuild)
+
+    this.connect(this.model.properties.color_mapper.change, async () => {
+      this.disconnect(color_mapper.metrics_change, metrics_changed)
+      this.disconnect(color_mapper.display_mapper_change, rebuild)
+      color_mapper = this.model.color_mapper
+      this.connect(color_mapper.metrics_change, metrics_changed)
+      this.connect(color_mapper.display_mapper_change, rebuild)
+      await rebuild()
     })
-    this.connect(this.model.color_mapper.metrics_change, () => this._metrics_changed())
     this.connect(this.model.properties.display_low.change, () => this._metrics_changed())
     this.connect(this.model.properties.display_high.change, () => this._metrics_changed())
   }
 
-  get color_mapper(): ColorMapper {
+  get color_mapper(): PaletteMapper {
     // Color mapper that is used to render this colorbar.
-    let mapper = this.model.color_mapper
-    if (mapper instanceof WeightedStackColorMapper) {
-      mapper = mapper.alpha_mapper
-    }
-    return mapper
+    return this.model.color_mapper.display_mapper
   }
 
   override update_layout(): void {
@@ -60,11 +73,11 @@ export class ColorBarView extends BaseColorBarView {
     const {color_mapper} = this
 
     if (color_mapper instanceof CategoricalColorMapper) {
-      return new CategoricalAxis()
+      return CategoricalAxis.create()
     } else if (color_mapper instanceof LogColorMapper) {
-      return new LogAxis()
+      return LogAxis.create()
     } else {
-      return new LinearAxis()
+      return LinearAxis.create()
     }
   }
 
@@ -72,11 +85,11 @@ export class ColorBarView extends BaseColorBarView {
     const {color_mapper} = this
 
     if (this._ticker instanceof LogTicker) {
-      return new LogTickFormatter()
+      return LogTickFormatter.create()
     } else if (color_mapper instanceof CategoricalColorMapper) {
-      return new CategoricalTickFormatter()
+      return CategoricalTickFormatter.create()
     } else {
-      return new BasicTickFormatter()
+      return BasicTickFormatter.create()
     }
   }
 
@@ -93,10 +106,10 @@ export class ColorBarView extends BaseColorBarView {
     const {color_mapper} = this
 
     if (color_mapper instanceof CategoricalColorMapper) {
-      return new FactorRange({factors: color_mapper.factors})
+      return FactorRange.create({factors: color_mapper.factors})
     } else if (color_mapper instanceof ContinuousColorMapper) {
       const {min, max} = this._continuous_metrics(color_mapper)
-      return new Range1d({start: min, end: max})
+      return Range1d.create({start: min, end: max})
     } else {
       unreachable()
     }
@@ -106,13 +119,13 @@ export class ColorBarView extends BaseColorBarView {
     const {color_mapper} = this
 
     if (color_mapper instanceof LinearColorMapper) {
-      return new LinearScale()
+      return LinearScale.create()
     } else if (color_mapper instanceof LogColorMapper) {
-      return new LogScale()
+      return LogScale.create()
     } else if (color_mapper instanceof ScanningColorMapper) {
-      return new LinearInterpolationScale({binning: this._scanning_binning(color_mapper)})
+      return LinearInterpolationScale.create({binning: this._scanning_binning(color_mapper)})
     } else if (color_mapper instanceof CategoricalColorMapper) {
-      return new CategoricalScale()
+      return CategoricalScale.create()
     } else {
       unreachable()
     }
@@ -122,13 +135,13 @@ export class ColorBarView extends BaseColorBarView {
     const {color_mapper} = this
 
     if (color_mapper instanceof LogColorMapper) {
-      return new LogTicker()
+      return LogTicker.create()
     } else if (color_mapper instanceof ScanningColorMapper) {
-      return new BinnedTicker({mapper: color_mapper})
+      return BinnedTicker.create({mapper: color_mapper})
     } else if (color_mapper instanceof CategoricalColorMapper) {
-      return new CategoricalTicker()
+      return CategoricalTicker.create()
     } else {
-      return new BasicTicker()
+      return BasicTicker.create()
     }
   }
 
@@ -311,7 +324,7 @@ export class ColorBarView extends BaseColorBarView {
     // We always want to draw the entire palette linearly, so we create a new
     // LinearColorMapper instance and map a monotonic range of values with
     // length = palette.length to get each palette color in order.
-    const cmap = new LinearColorMapper({palette}).rgba_mapper
+    const cmap = LinearColorMapper.create({palette}).rgba_mapper
     const buf8 = cmap.v_compute(range(0, palette.length))
     image_data.data.set(buf8)
     image_ctx.putImageData(image_data, 0, 0)
@@ -334,10 +347,6 @@ export interface ColorBar extends ColorBar.Attrs {}
 export class ColorBar extends BaseColorBar {
   declare properties: ColorBar.Props
   declare __view_type__: ColorBarView
-
-  constructor(attrs?: Partial<ColorBar.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = ColorBarView

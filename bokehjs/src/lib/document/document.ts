@@ -12,7 +12,7 @@ import {Deserializer} from "core/serialization/deserializer"
 import {Version} from "core/util/version"
 import type {Ref} from "core/util/refs"
 import type {ID, Data} from "core/types"
-import {Signal0} from "core/signaling"
+import {Signal, Signal0} from "core/signaling"
 import {isString} from "core/util/types"
 import type {Equatable, Comparator} from "core/util/eq"
 import {equals, is_equal} from "core/util/eq"
@@ -21,6 +21,7 @@ import {entries, dict} from "core/util/object"
 import * as sets from "core/util/set"
 import type {CallbackLike} from "core/util/callbacks"
 import {execute} from "core/util/callbacks"
+import type {SyncPolicyKind} from "core/util/sync_policy"
 import {assert} from "core/util/assert"
 import {Model} from "model"
 import {DocumentConfig} from "./config"
@@ -32,12 +33,19 @@ import {DocumentReady, LODStart, LODEnd} from "core/bokeh_events"
 import type {DocumentEvent, DocumentChangedEvent, Decoded, DocumentChanged} from "./events"
 import {DocumentEventBatch, RootRemovedEvent, TitleChangedEvent, MessageSentEvent, RootAddedEvent} from "./events"
 import type {ViewManager} from "core/view_manager"
+import {DOMComponentView} from "core/dom_view"
 
 Deserializer.register("model", decode_def)
 
 export type Out<T> = T
 
 export type DocumentEventCallback<T extends BokehEvent = BokehEvent> = CallbackLike<Document, [T]>
+
+export type SyncFlush = {
+  model: Model
+  attr: string
+  policy?: SyncPolicyKind
+}
 
 // Dispatches events to the subscribed models
 export class EventManager {
@@ -81,10 +89,119 @@ export const documents: Document[] = []
 
 export const DEFAULT_TITLE = "Bokeh Application"
 
+function immediate_refs(value: unknown): HasProps[] {
+  const refs: HasProps[] = []
+  const collector = {
+    add(ref: HasProps): void {
+      refs.push(ref)
+    },
+
+    has(_ref: HasProps): boolean {
+      return false
+    },
+  }
+  HasProps._value_record_references(value, collector, {recursive: false})
+  return refs
+}
+
+function immediate_model_refs(model: HasProps): HasProps[] {
+  const refs: HasProps[] = []
+  for (const prop of model.syncable_properties()) {
+    if (!prop.is_unset && prop.may_have_refs) {
+      refs.push(...immediate_refs(prop.get_value()))
+    }
+  }
+  return refs
+}
+
+/**
+ * Find exactly the reached models whose identity cannot be reconstructed from
+ * tree position: objects referenced more than once and members of cycles.
+ * Traversal covers model properties and nested containers but never expands
+ * beyond the values supplied by the document serializer.
+ */
+function models_with_ids(values: unknown[]): Set<HasProps> {
+  const counts: Map<HasProps, number> = new Map()
+  const children: Map<HasProps, HasProps[]> = new Map()
+
+  function count(model: HasProps): void {
+    counts.set(model, (counts.get(model) ?? 0) + 1)
+  }
+
+  for (const value of values) {
+    for (const ref of immediate_refs(value)) {
+      count(ref)
+    }
+  }
+
+  const queue = [...counts.keys()]
+  const seen: Set<HasProps> = new Set()
+  for (let i = 0; i < queue.length; i++) {
+    const model = queue[i]
+    if (seen.has(model)) {
+      continue
+    }
+
+    seen.add(model)
+    const refs = immediate_model_refs(model)
+    children.set(model, refs)
+    for (const ref of refs) {
+      count(ref)
+      queue.push(ref)
+    }
+  }
+
+  const cyclic: Set<HasProps> = new Set()
+  const stack: HasProps[] = []
+  const visiting: Set<HasProps> = new Set()
+  const visited: Set<HasProps> = new Set()
+
+  function visit(model: HasProps): void {
+    if (visiting.has(model)) {
+      const index = stack.indexOf(model)
+      for (const ref of stack.slice(index)) {
+        cyclic.add(ref)
+      }
+      return
+    }
+    if (visited.has(model)) {
+      return
+    }
+
+    visiting.add(model)
+    stack.push(model)
+    for (const ref of children.get(model) ?? []) {
+      visit(ref)
+    }
+    stack.pop()
+    visiting.delete(model)
+    visited.add(model)
+  }
+
+  for (const model of counts.keys()) {
+    visit(model)
+  }
+
+  const result: Set<HasProps> = new Set(cyclic)
+  for (const [model, count] of counts) {
+    if (count > 1) {
+      result.add(model)
+    }
+  }
+
+  return result
+}
+
 export type DocumentOptions = {
   roots?: Iterable<HasProps>
   resolver?: ModelResolver
   recompute_timeout?: number
+}
+
+export type DocumentFromJsonOptions = {
+  events?: Out<DocumentEvent[]>
+  buffers?: Map<ID, ArrayBuffer>
+  resolver?: ModelResolver
 }
 
 // This class should match the API of the Python Document class
@@ -95,6 +212,7 @@ export class Document implements Equatable {
 
   readonly event_manager: EventManager
   readonly idle: Signal0<this>
+  readonly sync_flush: Signal<SyncFlush, this>
   readonly resolver: ModelResolver
 
   protected readonly _init_timestamp: number
@@ -103,6 +221,7 @@ export class Document implements Equatable {
   protected _all_models: Map<ID, HasProps>
   protected _new_models: Set<HasProps>
   protected _all_models_freeze_count: number
+  protected readonly _sync_deferred = new WeakMap<Model, Set<string>>()
   protected _callbacks: Map<((event: DocumentEvent) => void) | ((event: DocumentChangedEvent) => void), boolean>
   protected _document_callbacks: Map<string, DocumentEventCallback[]>
   protected _message_callbacks: Map<string, Set<(data: unknown) => void>>
@@ -112,6 +231,8 @@ export class Document implements Equatable {
   protected _interactive_finalize: (() => void) | null
   protected _recompute_timeout: number
   protected _system_scheme: MediaQueryList
+  protected readonly _on_system_scheme_change: () => void
+  protected _destroyed: boolean = false
 
   private _config?: DocumentConfig
   get config(): DocumentConfig {
@@ -136,6 +257,7 @@ export class Document implements Equatable {
     this._message_callbacks = new Map()
     this.event_manager = new EventManager(this)
     this.idle = new Signal0(this, "idle")
+    this.sync_flush = new Signal(this, "sync_flush")
     this._idle_roots = new WeakSet()
     this._interactive_timestamp = null
     this._interactive_plot = null
@@ -148,10 +270,16 @@ export class Document implements Equatable {
       this.event_manager.trigger(event)
     })
     this._system_scheme = matchMedia("(prefers-color-scheme: dark)")
-    this.config = new DocumentConfig()
-    this.set_color_scheme(this.config.color_scheme)
-    this._system_scheme.addEventListener("change", () => this.set_color_scheme(this.config.color_scheme))
-    this.config.on_change(this.config.properties.color_scheme, () => this.set_color_scheme(this.config.color_scheme))
+    this._on_system_scheme_change = () => this.set_color_scheme(this.config.color_scheme)
+    this.config = DocumentConfig.create()
+    this._system_scheme.addEventListener("change", this._on_system_scheme_change)
+    this.config.on_change(this.config.properties.color_scheme, this._on_system_scheme_change)
+    this.on_event("document_ready", this._on_system_scheme_change)
+    this.on_change((event: DocumentChangedEvent) => {
+      if (event instanceof RootAddedEvent) {
+        this._on_system_scheme_change()
+      }
+    })
   }
 
   [equals](that: this, _cmp: Comparator): boolean {
@@ -162,6 +290,27 @@ export class Document implements Equatable {
     return new Set(this._all_models.values())
   }
 
+  begin_sync_deferral(model: Model, attr: string): void {
+    const attrs = this._sync_deferred.get(model) ?? (() => {
+      const attrs = new Set<string>()
+      this._sync_deferred.set(model, attrs)
+      return attrs
+    })()
+    attrs.add(attr)
+  }
+
+  request_sync_flush(model: Model, attr: string, policy?: SyncPolicyKind): void {
+    const attrs = this._sync_deferred.get(model)
+    const deferred = attrs?.delete(attr) ?? false
+    if (policy != "committed" || deferred) {
+      this.sync_flush.emit({model, attr, policy})
+    }
+  }
+
+  is_sync_deferred(model: Model, attr: string): boolean {
+    return this._sync_deferred.get(model)?.has(attr) ?? false
+  }
+
   get is_idle(): boolean {
     // TODO: models without views, e.g. data models
     for (const root of this.roots()) {
@@ -170,6 +319,37 @@ export class Document implements Equatable {
       }
     }
     return true
+  }
+
+  get is_destroyed(): boolean {
+    return this._destroyed
+  }
+
+  destroy(): void {
+    if (this._destroyed) {
+      return
+    }
+    this._destroyed = true
+
+    this.views_manager?.clear()
+    this.views_manager = undefined
+    this._system_scheme.removeEventListener("change", this._on_system_scheme_change)
+    this._cancel_recompute_all_models()
+
+    const config = this._config
+    this.clear({sync: false})
+    this._recompute_all_models()
+    config?.destroy()
+
+    this._callbacks.clear()
+    this._document_callbacks.clear()
+    this._message_callbacks.clear()
+    this.event_manager.subscribed_models.clear()
+
+    const i = documents.indexOf(this)
+    if (i >= 0) {
+      documents.splice(i, 1)
+    }
   }
 
   private _notified_idle: boolean = false
@@ -256,12 +436,15 @@ export class Document implements Equatable {
     }
 
     dest_doc.config = config
+    config.disconnect(config.properties.color_scheme.change, this._on_system_scheme_change)
+    config.on_change(config.properties.color_scheme, dest_doc._on_system_scheme_change)
 
     for (const root of roots) {
       dest_doc.add_root(root)
     }
 
     dest_doc.set_title(this._title)
+    dest_doc.set_color_scheme(dest_doc.config.color_scheme)
   }
 
   private _hold_models_freeze: boolean = false
@@ -529,7 +712,28 @@ export class Document implements Equatable {
   }
 
   to_json(include_defaults: boolean = true): DocJson {
-    const serializer = new Serializer({include_defaults})
+    return this._to_json(include_defaults)
+  }
+
+  /**
+   * Serialize this document for a static embed payload.
+   *
+   * Anonymous models omit IDs, while shared and cyclic models retain the IDs
+   * required to reconstruct identity. Any included ID is a graph or runtime
+   * reconstruction detail, not a durable browser address. `models_with_ids`
+   * is only for model identities referenced outside the serialized graph.
+   * Embed roots should be addressed by logical key and document-root
+   * ordinal, not by forcing a model ID solely for DOM mounting.
+   *
+   * Canonical documents and live protocol messages must use [[to_json]].
+   */
+  to_static_json(include_defaults: boolean = false, models_with_ids: Iterable<HasProps> = []): DocJson {
+    return this._to_json(include_defaults, "minimal", models_with_ids)
+  }
+
+  _to_json(include_defaults: boolean = true, model_ids: "always" | "minimal" = "always", extra_models_with_ids: Iterable<HasProps> = []): DocJson {
+    const ids = model_ids == "minimal" ? new Set([...models_with_ids([this.config, this._roots]), ...extra_models_with_ids]) : null
+    const serializer = new Serializer({include_defaults, models_with_ids: ids, compact: model_ids == "minimal"})
     const config = serializer.encode(this.config)
     const roots = serializer.encode(this._roots)
     return {
@@ -540,9 +744,8 @@ export class Document implements Equatable {
     }
   }
 
-  static from_json_string(s: string, events?: Out<DocumentEvent[]>): Document {
-    const json = JSON.parse(s)
-    return Document.from_json(json, events)
+  static from_json_string(s: string, options?: DocumentFromJsonOptions): Document {
+    return Document.from_json(JSON.parse(s), options)
   }
 
   private static _handle_version(json: DocJson): void {
@@ -564,11 +767,13 @@ export class Document implements Equatable {
     }
   }
 
-  static from_json(doc_json: DocJson, events?: Out<DocumentEvent[]>, buffers: Map<ID, ArrayBuffer> = new Map()): Document {
+  static from_json(doc_json: DocJson, options: DocumentFromJsonOptions = {}): Document {
     logger.debug("Creating Document from JSON")
     Document._handle_version(doc_json)
 
-    const resolver = new ModelResolver(default_resolver)
+    const {events, buffers = new Map(), resolver: parent_resolver = default_resolver} = options
+
+    const resolver = new ModelResolver(parent_resolver)
     if (doc_json.defs != null) {
       const deserializer = new Deserializer(resolver)
       decode_defs(doc_json.defs, deserializer, buffers)
@@ -579,47 +784,54 @@ export class Document implements Equatable {
 
     const listener = (event: DocumentEvent) => events?.push(event)
     doc.on_change(listener, true)
+    try {
+      try {
+        const deserializer = new Deserializer(resolver, doc._all_models, (obj) => obj.attach_document(doc))
 
-    const deserializer = new Deserializer(resolver, doc._all_models, (obj) => obj.attach_document(doc))
+        const config = deserializer.decode(doc_json.config, buffers)
+        assert(config instanceof DocumentConfig || config == null)
+        if (config != null) {
+          doc.config = config
+          doc.set_color_scheme(config.color_scheme)
+          config.on_change(config.properties.color_scheme, doc._on_system_scheme_change)
+        }
 
-    const config = deserializer.decode(doc_json.config, buffers)
-    assert(config instanceof DocumentConfig || config == null)
-    if (config != null) {
-      doc.config = config
-      doc.set_color_scheme(config.color_scheme)
-      config.on_change(config.properties.color_scheme, () => doc.set_color_scheme(config.color_scheme))
-    }
+        const roots = deserializer.decode(doc_json.roots, buffers) as Model[]
 
-    const roots = deserializer.decode(doc_json.roots, buffers) as Model[]
+        const callbacks = (() => {
+          if (doc_json.callbacks != null) {
+            return deserializer.decode(doc_json.callbacks, buffers) as {[key: string]: DocumentEventCallback[]}
+          } else {
+            return {}
+          }
+        })()
 
-    const callbacks = (() => {
-      if (doc_json.callbacks != null) {
-        return deserializer.decode(doc_json.callbacks, buffers) as {[key: string]: DocumentEventCallback[]}
-      } else {
-        return {}
+        doc.remove_on_change(listener)
+
+        for (const [event, event_callbacks] of entries(callbacks)) {
+          doc.on_event(event as BokehEventType, ...event_callbacks)
+        }
+
+        for (const root of roots) {
+          doc.add_root(root)
+        }
+
+        if (doc_json.title != null) {
+          doc.set_title(doc_json.title)
+        }
+      } finally {
+        doc._pop_all_models_freeze()
       }
-    })()
-
-    doc.remove_on_change(listener)
-
-    for (const [event, event_callbacks] of entries(callbacks)) {
-      doc.on_event(event as BokehEventType, ...event_callbacks)
+    } catch (error) {
+      doc.remove_on_change(listener)
+      doc.destroy()
+      throw error
     }
-
-    for (const root of roots) {
-      doc.add_root(root)
-    }
-
-    if (doc_json.title != null) {
-      doc.set_title(doc_json.title)
-    }
-
-    doc._pop_all_models_freeze()
     return doc
   }
 
   replace_with_json(json: DocJson, buffers: Map<ID, ArrayBuffer> = new Map()): void {
-    const replacement = Document.from_json(json, undefined, buffers)
+    const replacement = Document.from_json(json, {buffers})
     replacement.destructively_move(this)
   }
 
@@ -660,6 +872,12 @@ export class Document implements Equatable {
       obj.attach_document(this)
       this._new_models.add(obj)
       this._all_models.set(obj.id, obj)
+      return () => {
+        this._new_models.delete(obj)
+        if (this._all_models.get(obj.id) == obj) {
+          this._all_models.delete(obj.id)
+        }
+      }
     }
     const deserializer = new Deserializer(this.resolver, this._all_models, finalize)
     const events = deserializer.decode(patch.events, buffers) as Decoded.DocumentChanged[]
@@ -724,7 +942,14 @@ export class Document implements Equatable {
   set_color_scheme(color_scheme: ColorScheme): void {
     const system_scheme = this._system_scheme.matches ? "dark" : "light"
     const scheme = color_scheme == "auto" ? system_scheme : color_scheme
-    // TODO: Check reliable way to update --bokeh-color-scheme without setting it in documentElement
-    document.documentElement.style.setProperty("--bokeh-color-scheme", scheme)
+    if (this.views_manager != null) {
+      for (const view of this.views_manager) {
+        if (view instanceof DOMComponentView && view.is_top_level) {
+          view.el.style.setProperty("--bokeh-color-scheme", scheme)
+        }
+      }
+    } else {
+      document.documentElement.style.setProperty("--bokeh-color-scheme", scheme)
+    }
   }
 }

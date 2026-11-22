@@ -1,3 +1,13 @@
+''' Add a title to a plot legend.
+
+.. bokeh-example-metadata::
+    :title: Legend title
+    :keywords: legend, title
+    :apis: bokeh.plotting.figure.line
+    :sampledata: stocks
+    :gallery: Four stock price lines with a titled legend.
+'''
+
 import pandas as pd
 
 from bokeh.palettes import Spectral4

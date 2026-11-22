@@ -10,7 +10,7 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# pyright: reportArgumentType=false, reportAttributeAccessIssue=false, reportIndexIssue=false, reportOperatorIssue=false, reportCallIssue=false, reportAssignmentType=false
+# pyright: reportArgumentType=false, reportAttributeAccessIssue=false, reportIndexIssue=false, reportOperatorIssue=false, reportAssignmentType=false
 
 import logging # isort:skip
 log = logging.getLogger(__name__)
@@ -19,23 +19,29 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
+import csv
+import gzip
+import json
 import sys
 from dataclasses import asdict, is_dataclass
+from os import fspath
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
+    Iterator,
     Mapping,
+    Self,
     Sequence,
+    TextIO,
+    cast,
 )
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from ..core.has_props import abstract
 from ..core.property.any import Any as AnyVal, AnyRef
-from ..core.property.container import ColumnData, Dict, Seq
+from ..core.property.container import ColumnData, Dict, List, Seq
 from ..core.property.data_class import Dataclass
 from ..core.property.data_frame import EagerDataFrame, PandasGroupBy
 from ..core.property.enum import Enum
@@ -57,6 +63,7 @@ if TYPE_CHECKING:
     from pandas.core.groupby import GroupBy
 
     from ..core.has_props import Setter
+    from ..core.types import PathLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -64,11 +71,13 @@ if TYPE_CHECKING:
 
 __all__ = (
     'AjaxDataSource',
-    'CDSView',
     'ColumnarDataSource',
     'ColumnDataSource',
     'DataSource',
     'GeoJSONDataSource',
+    'IndexedDataSource',
+    'IndexedSubset',
+    'RecordDataSource',
     'ServerSentDataSource',
     'WebDataSource',
 )
@@ -84,6 +93,9 @@ if TYPE_CHECKING:
 
     type DataDict = dict[str, Sequence[Value] | npt.NDArray[Value] | pd.Series | pd.Index]
 
+    # Mappings are covariant in values, unlike dicts, e.g. dict[str, list[int]] is a DataDictArg.
+    type DataDictArg = Mapping[str, Sequence[Value] | npt.NDArray[Value] | pd.Series | pd.Index]
+
     type Index = int | slice | tuple[int | slice, ...]
 
     type Patches = Mapping[str, Sequence[tuple[Index, Value]]]
@@ -94,26 +106,131 @@ class DataSource(Model):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+@abstract
+class IndexedDataSource(DataSource):
+    ''' A source exposing one selectable, field-addressable logical record axis.
+
+    Subclasses define their storage and implement the indexed field contract
+    in BokehJS. Records do not need to be stored as columns.
+    '''
 
     selected = Readonly(Instance(Selection), default=InstanceDefault(Selection), help="""
-    An instance of a ``Selection`` that indicates selected indices on this ``DataSource``.
+    An instance of a ``Selection`` containing logical record indices.
     This is a read-only property. You may only change the attributes of this object
     to change the selection (e.g., ``selected.indices``).
     """)
 
+    selection_policy = Instance(SelectionPolicy, default=InstanceDefault(UnionRenderers), help="""
+    An instance of a ``SelectionPolicy`` that determines how selections are set.
+    """)
+
+class RecordDataSource(IndexedDataSource):
+    ''' A data source backed by an ordered sequence of row dictionaries.
+
+    Glyphs can refer to top-level dictionary keys by field name. Rows can
+    have different keys. A missing value in an individual row is treated as
+    undefined in BokehJS.
+
+    This source is best suited to small and moderate datasets. Bokeh
+    serializes each row dictionary separately. For large numeric datasets,
+    :class:`ColumnDataSource` can transport whole arrays in binary form.
+
+    :meth:`from_csv` and :meth:`from_jsonl` use Python's standard library,
+    so they are available even in environments without a dataframe library.
+
+    Use an :class:`IndexedSubset` to filter rows. Selection indices refer to
+    positions in the full sequence, even when a renderer displays a subset.
+
+    To update rows, assign a new sequence to ``records``. Create a new
+    dictionary for each row whose values change.
+    '''
+
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
+
+    records = List(Dict(String, AnyRef), help="""
+    Row dictionaries with string keys and Bokeh-serializable values. Field
+    names are literal keys, including keys that contain dots. Nested values
+    are kept as values of their top-level field.
+    """).accepts(Seq(Dict(String, AnyRef)), list)
+
+    @classmethod
+    def from_jsonl(cls, path: PathLike) -> Self:
+        ''' Load a UTF-8 JSON Lines file with one object per nonblank line.
+
+        JSON values retain their types. Malformed JSON and values other than
+        objects raise a ``ValueError`` that identifies the line. An initial
+        UTF-8 byte order mark is ignored. Paths ending in ``.gz`` or ``.GZ``
+        are read as gzip-compressed files.
+        '''
+        records: list[dict[str, Any]] = []
+        with _open_record_file(path, encoding="utf-8-sig") as file:
+            for line_number, line in enumerate(file, 1):
+                if not line.strip():
+                    continue
+                try:
+                    record = json.loads(line)
+                except json.JSONDecodeError as error:
+                    raise ValueError(f"{path}, line {line_number}: {error.msg}") from error
+                if not isinstance(record, dict):
+                    raise ValueError(f"{path}, line {line_number}: expected a JSON object")
+                records.append(record)
+        return cls(records=records)
+
+    @classmethod
+    def from_csv(cls, path: PathLike, *, converters: Mapping[str, Callable[[str], Any]] | None = None,
+            delimiter: str = ",") -> Self:
+        ''' Load a UTF-8 delimited text file whose first row names the fields.
+
+        Field names must be unique and nonempty, and every data row must
+        have the same number of fields as the header. Empty physical lines
+        are skipped. Values are strings, including empty strings. Use ``converters`` to
+        map field names to functions that convert their string values.
+        Set ``delimiter="\\t"`` to read tab-separated files.
+        Paths ending in ``.gz`` or ``.GZ`` are read as gzip-compressed files.
+        '''
+        records: list[dict[str, Any]] = []
+        converters = {} if converters is None else converters
+        with _open_record_file(path, encoding="utf-8-sig", newline="") as file:
+            reader = csv.reader(file, delimiter=delimiter, strict=True)
+
+            def read_rows() -> Iterator[tuple[int, list[str]]]:
+                # The reader counts physical lines, including those inside quoted fields.
+                line_number = 1
+                try:
+                    for row in reader:
+                        if row:
+                            yield line_number, row
+                        line_number = reader.line_num + 1
+                except csv.Error as error:
+                    raise ValueError(f"{path}, line {line_number}: {error}") from error
+
+            rows = read_rows()
+            _, fields = next(rows, (None, []))
+            if not fields or "" in fields or len(set(fields)) != len(fields):
+                raise ValueError(f"{path}: expected a header with unique, nonempty field names")
+            unknown_fields = sorted(converters.keys() - set(fields))
+            if unknown_fields:
+                raise ValueError(f"{path}: converters reference unknown fields {unknown_fields}")
+
+            for line_number, values in rows:
+                if len(values) != len(fields):
+                    raise ValueError(f"{path}, line {line_number}: expected {len(fields)} fields, got {len(values)}")
+                record: dict[str, Any] = dict(zip(fields, values))
+                for field, convert in converters.items():
+                    try:
+                        record[field] = convert(record[field])
+                    except (TypeError, ValueError, OverflowError) as error:
+                        raise ValueError(f"{path}, line {line_number}: cannot convert field {field!r}: {error}") from error
+                records.append(record)
+        return cls(records=records)
+
 @abstract
-class ColumnarDataSource(DataSource):
+class ColumnarDataSource(IndexedDataSource):
     ''' A base class for data source types, which can be mapped onto
     a columnar format.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     default_values = Dict(String, AnyRef, default={}, help="""
     Defines the default value for each column.
@@ -124,17 +241,12 @@ class ColumnarDataSource(DataSource):
     to let the data source to infer a sensible default value.
     """)
 
-    selection_policy = Instance(SelectionPolicy, default=InstanceDefault(UnionRenderers), help="""
-    An instance of a ``SelectionPolicy`` that determines how selections are set.
-    """)
-
 def _cds_lengths_warning(_, __, data: dict[str, Any]) -> None:
-    from ..util.warnings import BokehUserWarning, warn
+    from ..util.warnings import warn
 
     current_lengths = ', '.join(sorted(str((k, len(v))) for k, v in data.items()))
     warn(
         f"ColumnDataSource's columns must be of the same length. Current lengths: {current_lengths}",
-        BokehUserWarning,
     )
 
 class ColumnDataSource(ColumnarDataSource):
@@ -310,7 +422,7 @@ class ColumnDataSource(ColumnarDataSource):
                 _df.index = pdx.Index(_df.index.values)
             else:
                 _df.index = pdx.Index(_df.index.values, name=index_name)
-            _df.reset_index(inplace=True)
+            _df = _df.reset_index()
             _df = nw.from_native(_df, eager_only=True)
         else:
             _df = nw.from_native(df, eager_only=True)
@@ -375,7 +487,8 @@ class ColumnDataSource(ColumnarDataSource):
             return df.index.name
         elif df.index.names:
             try:
-                return "_".join(df.index.names)
+                # Non-string index names fall back through TypeError below.
+                return "_".join(cast("Sequence[str]", df.index.names))
             except TypeError:
                 return "index"
         else:
@@ -462,7 +575,7 @@ class ColumnDataSource(ColumnarDataSource):
 
             warn(f"Unable to find column '{name}' in data source")
 
-    def stream(self, new_data: DataDict, rollover: int | None = None) -> None:
+    def stream(self, new_data: DataDictArg, rollover: int | None = None) -> None:
         ''' Efficiently update data source columns with new append-only data.
 
         In cases where it is necessary to update data columns in, this method
@@ -504,7 +617,7 @@ class ColumnDataSource(ColumnarDataSource):
         # calls internal implementation
         self._stream(new_data, rollover)
 
-    def _stream(self, new_data: DataDict | pd.Series | pd.DataFrame,
+    def _stream(self, new_data: DataDictArg | pd.Series | pd.DataFrame,
             rollover: int | None = None, setter: Setter | None = None) -> None:
         ''' Internal implementation to efficiently update data source columns
         with new append-only data. The internal implementation adds the setter
@@ -566,7 +679,7 @@ class ColumnDataSource(ColumnarDataSource):
 
         if pd and isinstance(new_data, (pd.Series, pd.DataFrame)):
             if isinstance(new_data, pd.Series):
-                new_data = new_data.to_frame().T
+                new_data = cast("pd.Series", new_data).to_frame().T
 
             needs_length_check = False # DataFrame lengths equal by definition
             _df = new_data
@@ -577,6 +690,12 @@ class ColumnDataSource(ColumnarDataSource):
             new_data[index_name] = _df.index.values
         else:
             newkeys = set(new_data.keys())
+            # converted columns are stored back into new_data below
+            if not isinstance(new_data, dict):
+                new_data = dict(new_data)
+
+        # The pandas branch above converts DataFrames and Series into column dictionaries.
+        new_data = cast("DataDict", new_data)
 
         oldkeys = set(self.data.keys())
 
@@ -688,6 +807,9 @@ class ColumnDataSource(ColumnarDataSource):
 
         Args:
             patches (dict[str, list[tuple]]) : lists of patches for each column
+            setter (ClientSession or ServerSession or None, optional) :
+                This is used to prevent "boomerang" updates to Bokeh apps.
+                (default: None)
 
         Returns:
             None
@@ -728,11 +850,11 @@ class ColumnDataSource(ColumnarDataSource):
 
             col_len = len(self.data[name])
 
-            for ind, _ in patch:
+            for ind, value in patch:
 
                 # integer index, patch single value of 1d column
                 if isinstance(ind, int):
-                    if ind > col_len or ind < 0:
+                    if not (0 <= ind < col_len):
                         raise ValueError(f"Out-of bounds index ({ind}) in patch for column: {name}")
 
                 # slice index, patch multiple values of 1d column
@@ -740,6 +862,16 @@ class ColumnDataSource(ColumnarDataSource):
                     _check_slice(ind)
                     if ind.stop is not None and ind.stop > col_len:
                         raise ValueError(f"Out-of bounds slice index stop ({ind.stop}) in patch for column: {name}")
+
+                    start = 0 if ind.start is None else ind.start
+                    stop = col_len if ind.stop is None else ind.stop
+                    if start > col_len:
+                        raise ValueError(f"Out-of bounds slice index start ({start}) in patch for column: {name}")
+
+                    step = 1 if ind.step is None else ind.step
+                    expected = len(range(start, stop, step))
+                    if len(value) != expected:
+                        raise ValueError(f"Patch slice for column: {name} expects {expected} values, got {len(value)}")
 
                 # multi-index, patch sub-regions of "n-d" column
                 elif isinstance(ind, (list, tuple)):
@@ -753,7 +885,7 @@ class ColumnDataSource(ColumnarDataSource):
                     if not isinstance(ind_0, int):
                         raise ValueError(f"Initial patch sub-index may only be integer, got: {ind_0}")
 
-                    if ind_0 > col_len or ind_0 < 0:
+                    if not (0 <= ind_0 < col_len):
                         raise ValueError(f"Out-of bounds initial sub-index ({ind_0}) in patch for column: {name}")
 
                     if not isinstance(self.data[name][ind_0], np.ndarray):
@@ -779,13 +911,10 @@ class ColumnDataSource(ColumnarDataSource):
 
         self.data._patch(self.document, self, patches, setter)
 
-class CDSView(Model):
-    ''' A view into a ``ColumnDataSource`` that represents a row-wise subset.
+class IndexedSubset(Model):
+    ''' A filtered subset of the logical records in an ``IndexedDataSource``.
 
     '''
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     filter = Instance(Filter, default=InstanceDefault(AllIndices), help="""
     Defines the subset of indices to use from the data source this view applies to.
@@ -799,17 +928,13 @@ class CDSView(Model):
     .. code-block:: python
 
         # filters everything but indexes 10 and 11
-        cds_view.filter &= ~IndexFilter(indices=[10, 11])
+        indexed_subset.filter &= ~IndexFilter(indices=[10, 11])
     """)
 
 class GeoJSONDataSource(ColumnarDataSource):
     '''
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     geojson = Required(JSON, help="""
     GeoJSON that contains features for plotting. Currently
@@ -826,10 +951,6 @@ class WebDataSource(ColumnDataSource):
         This base class is typically not useful to instantiate on its own.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     adapter = Nullable(Instance(CustomJS), help="""
     A JavaScript callback to adapt raw JSON responses to Bokeh ``ColumnDataSource``
@@ -863,10 +984,6 @@ class ServerSentDataSource(WebDataSource):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class AjaxDataSource(WebDataSource):
     ''' A data source that can populate columns by making Ajax calls to REST
     endpoints.
@@ -897,10 +1014,6 @@ class AjaxDataSource(WebDataSource):
     A full example can be seen at :bokeh-tree:`examples/basic/data/ajax_source.py`
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     polling_interval = Nullable(Int, help="""
     A polling interval (in milliseconds) for updating data source.
@@ -939,9 +1052,15 @@ class AjaxDataSource(WebDataSource):
 # Private API
 #-----------------------------------------------------------------------------
 
+def _open_record_file(path: PathLike, *, encoding: str, newline: str | None = None) -> TextIO:
+    open_file = gzip.open if fspath(path).lower().endswith(".gz") else open
+    return open_file(path, "rt", encoding=encoding, newline=newline)
+
 def _check_slice(s: slice) -> None:
     if (s.start is not None and s.stop is not None and s.start > s.stop):
         raise ValueError(f"Patch slices must have start < end, got {s}")
+    if s.step == 0:
+        raise ValueError(f"Patch slices must have non-zero step, got {s}")
     if (s.start is not None and s.start < 0) or \
        (s.stop  is not None and s.stop < 0) or \
        (s.step  is not None and s.step < 0):

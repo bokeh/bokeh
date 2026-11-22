@@ -8,12 +8,10 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
+from __future__ import annotations
 
-# Standard library imports
 from typing import Any, cast
 
-# External imports
 import pytest
 from tornado.web import HTTPError
 

@@ -29,6 +29,13 @@ export abstract class CSSGridBoxView extends LayoutDOMView {
   protected abstract get _rows(): TracksSizing | null
   protected abstract get _cols(): TracksSizing | null
 
+  override measure_layout(): void {
+    if (this.layout instanceof GridAlignmentLayout) {
+      this.layout.align_borders()
+    }
+    super.measure_layout()
+  }
+
   override _update_layout(): void {
     super._update_layout()
 
@@ -48,11 +55,14 @@ export abstract class CSSGridBoxView extends LayoutDOMView {
 
     const layoutable = new Container<LayoutDOMView>()
 
-    for (const [[, row, col, row_span = 1, col_span = 1], i] of enumerate(this._children)) {
-      const view = this.child_views[i]
-
+    for (const [child, row, col, row_span = 1, col_span = 1] of this._children) {
       nrows = max(nrows, row + row_span)
       ncols = max(ncols, col + col_span)
+
+      const view = this._child_views.get(child)
+      if (view == null) {
+        continue
+      }
 
       // CSS grid is 1-based, but layout is 0-based
       const styles: CSSStyles = {}
@@ -119,8 +129,11 @@ export abstract class CSSGridBoxView extends LayoutDOMView {
     parse_sizing(rows, rows_template)
     parse_sizing(cols, cols_template)
 
-    for (const [[, row, col], i] of enumerate(this._children)) {
-      const view = this.child_views[i]
+    for (const [child, row, col] of this._children) {
+      const view = this._child_views.get(child)
+      if (view == null) {
+        continue
+      }
 
       const {halign, valign} = view.box_sizing()
       view.parent_style.append(view.host_selector, {
@@ -157,10 +170,6 @@ export interface CSSGridBox extends CSSGridBox.Attrs {}
 export abstract class CSSGridBox extends LayoutDOM {
   declare properties: CSSGridBox.Props
   declare __view_type__: CSSGridBoxView
-
-  constructor(attrs?: Partial<CSSGridBox.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.define<CSSGridBox.Props>(() => ({

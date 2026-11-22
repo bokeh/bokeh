@@ -1,7 +1,6 @@
 import type * as p from "core/properties"
 import {View} from "core/view"
 import type {HasProps} from "core/has_props"
-import type {Class} from "core/class"
 import type {Dimensions, ToolName} from "core/enums"
 import {min, max} from "core/util/array"
 import {entries} from "core/util/object"
@@ -33,7 +32,6 @@ import type {RedoTool} from "./actions/redo_tool"
 import type {ResetTool} from "./actions/reset_tool"
 import type {HelpTool} from "./actions/help_tool"
 
-import type {ToolButtonView} from "./tool_button"
 import {IconLike} from "../common/kinds"
 import type {ToolLike} from "./tool_proxy"
 
@@ -132,6 +130,7 @@ export namespace Tool {
 
   export type Props = Model.Props & {
     icon: p.Property<IconLike | null>
+    label: p.Property<string | null>
     description: p.Property<string | null>
     visible: p.Property<boolean>
     active: p.Property<boolean>
@@ -146,15 +145,12 @@ export abstract class Tool extends Model {
   declare properties: Tool.Props
   declare __view_type__: ToolView
 
-  constructor(attrs?: Partial<Tool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype._known_aliases = new Map()
 
     this.define<Tool.Props>(({Bool, Or, Str, Nullable}) => ({
       icon: [ Nullable(IconLike), null ],
+      label: [ Nullable(Str), null ],
       description: [ Nullable(Str), null ],
       visible: [ Bool, true ],
       group: [ Or(Str, Bool), true ],
@@ -183,15 +179,13 @@ export abstract class Tool extends Model {
   }
   // }}}
 
-  button_view: Class<ToolButtonView>
-
   abstract tool_button(): ToolButton
 
   menu_item(): MenuItem {
-    const item = new MenuItem({
+    const item = MenuItem.create({
       icon: () => this.computed_icon ?? null,
-      label: this.tool_name,
-      tooltip: () => this.tooltip != this.tool_name ? this.tooltip : null,
+      label: () => this.computed_name,
+      tooltip: () => this.tooltip != this.computed_name ? this.tooltip : null,
       checked: () => this.active,
       disabled: () => this.disabled,
       action: () => this.active = !this.active,
@@ -199,13 +193,21 @@ export abstract class Tool extends Model {
 
     const submenu = this.menu
     if (submenu != null) {
-      item.menu = new Menu({items: submenu})
+      item.menu = Menu.create({items: submenu})
     }
     return item
   }
 
+  /**
+   * The user-facing name of this tool, i.e. `label` if provided,
+   * otherwise the default name of this tool.
+   */
+  get computed_name(): string {
+    return this.label ?? this.tool_name
+  }
+
   get tooltip(): string {
-    return this.description ?? this.tool_name
+    return this.description ?? this.computed_name
   }
 
   get computed_icon(): IconLike | undefined {
@@ -263,15 +265,15 @@ export abstract class Tool extends Model {
   // utility function to return a tool name, modified
   // by the active dimensions. Used by tools that have dimensions
   protected _get_dim_tooltip(dims: Dimensions | "auto"): string {
-    const {description, tool_name} = this
+    const {description, computed_name} = this
     if (description != null) {
       return description
     } else if (dims == "both") {
-      return tool_name
+      return computed_name
     } else if (dims == "auto") {
-      return `${tool_name} (either x, y or both dimensions)`
+      return `${computed_name} (either x, y or both dimensions)`
     } else {
-      return `${tool_name} (${dims == "width" ? "x" : "y"}-axis)`
+      return `${computed_name} (${dims == "width" ? "x" : "y"}-axis)`
     }
   }
 

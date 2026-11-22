@@ -6,7 +6,7 @@ import {Paragraph} from "@bokehjs/models/widgets/paragraph"
 describe("Paragraph.View render", () => {
 
   it("should set the margin to 0", async () => {
-    const p = new Paragraph()
+    const p = Paragraph.create()
     const {view: pv} = await display(p, null)
 
     const el = pv.shadow_el.querySelector<HTMLElement>("p")

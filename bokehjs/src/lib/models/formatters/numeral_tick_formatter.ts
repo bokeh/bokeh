@@ -19,10 +19,6 @@ export interface NumeralTickFormatter extends NumeralTickFormatter.Attrs {}
 export class NumeralTickFormatter extends TickFormatter {
   declare properties: NumeralTickFormatter.Props
 
-  constructor(attrs?: Partial<NumeralTickFormatter.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<NumeralTickFormatter.Props>(({Str}) => ({
       // TODO (bev) all of these could be tightened up

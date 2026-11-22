@@ -1,19 +1,20 @@
 import type {ChildProcess} from "node:child_process"
 import {spawn} from "node:child_process"
-import {join, delimiter, basename, extname, dirname} from "node:path"
+import {join, basename, extname, dirname} from "node:path"
 import fs from "node:fs"
 import os from "node:os"
 
 import chalk from "chalk"
-import which from "which"
 import {glob} from "glob"
 
 import {argv} from "../args.js"
 import {task, task2, success, passthrough, BuildError} from "../task.js"
 import * as paths from "../paths.js"
+import {order_by_imports} from "../utilities.js"
 import {platform, find_port, retry, terminate, keep_alive} from "./_util.js"
 import {compile_typescript} from "./_util.js"
 import {start_server as start_js_server} from "./server.js"
+import {build_frameworks} from "./frameworks.js"
 
 import {Linker} from "#compiler/linker.js"
 import * as preludes from "#compiler/prelude.js"
@@ -48,46 +49,26 @@ task("test:codebase:compile", async () => {
   compile_typescript("./test/codebase/tsconfig.json")
 })
 
-task("test:codebase", ["test:codebase:compile"], async () => {
+task("test:devtools", async () => {
+  compile_typescript("./test/devtools/tsconfig.json")
+  await node(["--test", "./test/devtools/_build/image.test.js", "./test/devtools/_build/browser-executable.test.js"])
+})
+
+task("test:make", async () => {
+  await node(["--test", "./make/_build/make/task.test.js", "./make/_build/make/utilities.test.js", "./make/_build/make/esm_to_cjs.test.js", "./make/_build/make/graph.test.js", "./make/_build/make/linker.test.js", "./make/_build/make/source_map.test.js", "./make/_build/make/strip.test.js"])
+})
+
+task("test:codebase", ["test:codebase:compile", "test:devtools", "test:make"], async () => {
   await node(["./build/test/codebase/index.js"])
 })
 
-function sys_path(): string {
-  const path = [process.env.PATH]
-
-  switch (platform) {
-    case "linux": {
-      path.push("/opt/google/chrome/")
-      break
-    }
-    case "macos": {
-      path.push("/Applications/Google\ Chrome.app/Contents/MacOS/")
-      break
-    }
-    case "windows": {
-      path.push("c:\\Program Files\\Google\\Chrome\\Application\\")
-      path.push("c:\\Program Files (x86)\\Google\\Chrome\\Application\\")
-      break
-    }
-  }
-
-  return path.join(delimiter)
-}
-
-// Keep in sync with:
-//   https://github.com/actions/runner-images/blob/main/images/linux/Ubuntu2204-Readme.md#browsers-and-drivers
-//
-// Also update:
-// - bokehjs/test/devtools/devtools.ts
-// - bokehjs/test/run-baseline-tests.mjs
-const supported_chromium_revision = "r3265" // 141.0.7390.54
 const windows_test_timeout = 120
 
 function test_timeout(): number | undefined {
   return argv.testTimeout ?? (platform == "windows" ? windows_test_timeout : undefined)
 }
 
-function chrome(): string {
+async function chrome(): Promise<string> {
   const bokeh_chrome = process.env.BOKEH_CHROME
   if (bokeh_chrome !== undefined) {
     if (fs.existsSync(bokeh_chrome)) {
@@ -96,20 +77,15 @@ function chrome(): string {
       throw new BuildError("headless", `can't find BOKEH_CHROME=${bokeh_chrome}`)
     }
   }
-  const names = [`chromium_${supported_chromium_revision}`, "chromium", "chromium-browser", "chrome", "google-chrome", "Google Chrome for Testing", "Google Chrome"]
-  const path = sys_path()
-
-  for (const name of names) {
-    const executable = which.sync(name, {nothrow: true, path})
-    if (executable != null) {
-      return executable
-    }
+  const {chromium} = await import("playwright-core")
+  const executable = chromium.executablePath()
+  if (!fs.existsSync(executable)) {
+    throw new BuildError("headless", `managed Chromium not found at ${executable}. Run pixi run setup from the repository root, or npx --no-install playwright-core install --no-shell chromium from bokehjs.`)
   }
-
-  throw new BuildError("headless", `can't find any of ${names.join(", ")} on PATH="${path}"`)
+  return executable
 }
 
-function chromium_executable(): string {
+async function chromium_executable(): Promise<string> {
   return argv.executable ?? chrome()
 }
 
@@ -131,7 +107,7 @@ function format_chrome_stderr(stderr: string): string {
   ]
   const relevant = lines.filter((line) => line.trim() != "" && !routine_noise.some((pattern) => line.includes(pattern)))
   if (relevant.length == 0) {
-    return "(no relevant Chrome stderr; routine startup messages suppressed)"
+    return "(no relevant Chrome stderr, routine startup messages suppressed)"
   }
   const max_lines = 20
   if (relevant.length <= max_lines) {
@@ -157,16 +133,16 @@ async function headless(devtools_port: number): Promise<HeadlessProcess> {
     "--force-color-profile=srgb",           // ^^^
     "--force-device-scale-factor=1",        // ^^^
   ]
-  const bokeh_in_docker = process.env.BOKEH_IN_DOCKER ?? ""
-  if (bokeh_in_docker == "1") {
-    args.push(
-      "--no-sandbox",
-      // Containers have no hardware GPU. Keep WebGL enabled through Chrome's
-      // supported software renderer instead of disabling GPU-backed coverage.
-      "--enable-unsafe-swiftshader",
-    )
+  const in_docker = process.env.BOKEH_IN_DOCKER == "1"
+  if (in_docker || process.env.CI == "true") {
+    args.push("--no-sandbox")
   }
-  const exec = chromium_executable()
+  if (in_docker) {
+    // Containers have no hardware GPU. Keep WebGL enabled through Chrome's
+    // supported software renderer instead of disabling GPU-backed coverage.
+    args.push("--enable-unsafe-swiftshader")
+  }
+  const exec = await chromium_executable()
   const proc = spawn(exec, args, {stdio: "pipe"})
   const max_stderr = 64*1024
   let stderr = ""
@@ -204,14 +180,14 @@ async function headless(devtools_port: number): Promise<HeadlessProcess> {
         stderr = stderr.slice(-max_stderr)
       }
 
-      const result = stderr.match(/DevTools listening [^\n]*\n/)
+      const result = /DevTools listening [^\n]*\n/.exec(stderr)
       if (!ready && result != null) {
         ready = true
         clearTimeout(timer)
         const [line] = result
         console.log(line.trim())
         resolve({process: proc, stderr: () => stderr})
-      } else if (stderr.match(/bind\(\)/) != null) {
+      } else if (/bind\(\)/.exec(stderr) != null) {
         clearTimeout(timer)
         reject_startup(new BuildError("headless", `can't start headless browser on port ${devtools_port}`))
       }
@@ -281,6 +257,7 @@ function baseline_test_options(): string[] {
     ...opt("keyword", argv.keyword),
     ...opt("grep", argv.grep),
     ...opt("skip", argv.skip),
+    ...opt("file", argv.file),
     ...opt("ref", argv.ref),
     ...opt("randomize", argv.randomize),
     ...opt("seed", argv.seed),
@@ -301,6 +278,7 @@ function devtools(executable: string, server_port: number, name: string, baselin
     ...opt("keyword", argv.keyword),
     ...opt("grep", argv.grep),
     ...opt("skip", argv.skip),
+    ...opt("file", argv.file),
     ...opt("ref", argv.ref),
     ...opt("baselines-root", baselines_root),
     ...opt("randomize", argv.randomize),
@@ -346,7 +324,7 @@ function _devtools(executable: string, user_args: string[]): Promise<void> {
 }
 
 task("test:info", async () => {
-  await devtools_info(chromium_executable())
+  await devtools_info(await chromium_executable())
 })
 
 task("test:run:headless", async () => {
@@ -378,22 +356,35 @@ async function tsc(name: string) {
 }
 
 async function auto_index(name: string): Promise<void> {
+  const src_dir = join(paths.src_dir.test, name)
   const build_dir = join(paths.build_dir.test, name)
-  const files = await glob(join(build_dir, "/**/*.js").replace(/\\/g, "/"))
+  const src_prefix = `test/${name}` // relative to bokehjs/, for reporting
 
-  const imports = []
-  for (const file of files) {
-    const ext = extname(file)
-    const name = basename(file, ext)
-    if (!name.startsWith("_") && !name.endsWith(".d") && name != "index" && name != "auto_index") {
-      const dir = dirname(file).replace(build_dir, "").replace(/^\//, "").replace(/\\/g, "/")
-      const module = dir == "" ? `./${name}` : [".", ...dir.split("/"), name].join("/")
-      imports.push(`import "${module}"`)
-    }
+  // Discover test modules from sources rather than from compiled outputs, because `tsc`
+  // doesn't remove outputs of deleted sources, which would otherwise be loaded as stale
+  // tests. Sort them, because `glob()` doesn't guarantee any order, which would make the
+  // order of imports (and thus the resulting bundles) non-deterministic.
+  const files = (await glob("**/*.{ts,tsx}", {cwd: src_dir, ignore: "**/*.d.ts", posix: true})).sort()
+
+  // Test modules are loaded with `require()` (not hoisted `import`s), so that
+  // the framework knows which module registers which tests (see `--file`).
+  // The order of loading is significant, see `order_by_imports()`.
+  const is_test_module = (file: string) => {
+    const name = basename(file, extname(file))
+    return !name.startsWith("_") && name != "index" && name != "auto_index"
+  }
+
+  const imports = ['import {load_module} from "#framework/framework"']
+  for (const file of order_by_imports(src_dir, files, is_test_module)) {
+    const dir = dirname(file)
+    const name = basename(file, extname(file))
+    const module_name = dir == "." ? name : `${dir}/${name}`
+    const module_file = `${src_prefix}/${file}`
+    imports.push(`load_module("${module_name}", "${module_file}", () => require("./${module_name}"))`)
   }
 
   const index_file = join(build_dir, "auto_index.js")
-  const source = imports.join("\n")
+  const source = `${imports.join("\n")}\n`
   fs.writeFileSync(index_file, source, {encoding: "utf-8"})
 }
 
@@ -406,9 +397,9 @@ async function bundle(name: string): Promise<void> {
       "#framework/*": "framework/*",
       path: "#framework/path",
     },
-    target: "ES2024",
-    minify: false,
-    externals: [/^@bokehjs\//],
+    // Share bokehjs' instances of preact and preact signals, which are exported by
+    // name from bokeh's main bundle, otherwise tests would bundle separate copies.
+    externals: [/^@bokehjs\//, /^preact(\/|$)/, /^@preact\//],
     shims: ["fs", "module"],
   })
 
@@ -442,18 +433,19 @@ task("test:auto_index:unit", async () => {
   await auto_index("unit")
 })
 export const build_unit = task("test:build:unit", [
+  passthrough("lib:build"),
   passthrough("test:compile:unit"), passthrough("test:auto_index:unit"),
 ], async () => {
   await bundle("unit")
 })
 
 task2("test:unit", [start, start_js_server, build_unit], async (server_port) => {
-  await devtools(chromium_executable(), server_port, "unit")
+  await devtools(await chromium_executable(), server_port, "unit")
   return success(undefined)
 })
 
 task2("test:unit:minified", [start, start_js_server, build_unit], async (server_port) => {
-  await devtools(chromium_executable(), server_port, "unit", undefined, false)
+  await devtools(await chromium_executable(), server_port, "unit", undefined, false)
   return success(undefined)
 })
 
@@ -478,7 +470,7 @@ task2("test:integration", [start, build_integration], async (server_port) => {
       return undefined
     }
   })()
-  await devtools(chromium_executable(), server_port, "integration", baselines_root)
+  await devtools(await chromium_executable(), server_port, "integration", baselines_root)
   return success(undefined)
 })
 
@@ -486,8 +478,13 @@ async function copy_defaults() {
   const bokehjs_dir = process.cwd()
   const name = "defaults.json5"
   const src = join(bokehjs_dir, "..", "tests", "baselines", name)
-  const dst = join(bokehjs_dir, "build", "test", "defaults", name)
-  await fs.promises.copyFile(src, dst)
+  // Wrap the baseline in a JS module, so that `import "./defaults.json5"` resolves to it.
+  const dir = join(bokehjs_dir, "build", "test", "defaults")
+  const dst = join(dir, `${name}.js`)
+  // Earlier builds copied the baseline as is, which would take precedence over the module.
+  await fs.promises.rm(join(dir, name), {force: true})
+  const json5 = await fs.promises.readFile(src, {encoding: "utf-8"})
+  await fs.promises.writeFile(dst, `export default ${JSON.stringify(json5)};\n`)
 }
 
 task("test:defaults:compile", ["test:framework:compile"], async () => tsc("defaults"))
@@ -497,14 +494,29 @@ export const build_defaults = task("test:build:defaults", [passthrough("test:def
 })
 
 task2("test:defaults", [start, build_defaults], async (server_port) => {
-  await devtools(chromium_executable(), server_port, "defaults")
+  await devtools(await chromium_executable(), server_port, "defaults")
   return success(undefined)
 })
 
 task("test:build", ["test:build:defaults", "test:build:unit", "test:build:integration"])
 
+const test_framework_packages = task("test:frameworks:packages", [build_frameworks], async () => {
+  await node(["./test/frameworks/package_examples.mjs"])
+})
+
+task2("test:frameworks", [test_framework_packages], async () => {
+  let devtools_port = 9222
+  await retry(async () => {
+    devtools_port = await find_port(devtools_port)
+    const {process: proc} = await headless(devtools_port)
+    terminate(proc)
+  }, 3)
+  await node(["./test/frameworks/run.mjs", `--devtools-port=${devtools_port}`])
+  return success(undefined)
+})
+
 task("test:lib", ["test:unit", "test:integration"])
-task("test", ["test:codebase", "test:defaults", "test:lib"])
+task("test", ["test:codebase", "test:defaults", "test:lib", "test:frameworks"])
 
 task("baseline-test", async () => await run_baseline_test("run", baseline_test_options()))
 task("baseline-test:review", async () => await run_baseline_test("review", baseline_test_review_options()))

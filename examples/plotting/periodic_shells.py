@@ -1,11 +1,12 @@
-'''This example creates a periodic table of elements with a custom tooltip. The tooltip
+''' This example creates a periodic table of elements with a custom tooltip. The tooltip
 includes multiple chemical data as well as a bohr diagram for each element.
 
 .. bokeh-example-metadata::
-    :sampledata: periodic_table
-    :apis: bokeh.plotting.figure.circle, bokeh.transform.dodge, bokeh.transform.factor_cmap
-    :refs: :ref:`ug_basic_scatters_markers`
+    :title: Periodic shells
     :keywords: circle, RendererGroup, Template, ToggleGroup
+    :apis: bokeh.plotting.figure.circle, bokeh.transform.dodge, bokeh.transform.factor_cmap
+    :sampledata: periodic_table
+    :refs: :ref:`ug_basic_scatters_markers`
 
 '''
 
@@ -15,8 +16,16 @@ import numpy as np
 
 from bokeh.io import show
 from bokeh.models import RendererGroup
-from bokeh.models.dom import (ColorRef, Div, Index, Span, Styles,
-                              Template, ToggleGroup, ValueRef)
+from bokeh.models.dom import (
+    ColorRef,
+    Div,
+    Index,
+    Span,
+    Styles,
+    Template,
+    ToggleGroup,
+    ValueRef,
+)
 from bokeh.plotting import figure
 from bokeh.sampledata.periodic_table import elements
 from bokeh.transform import dodge, factor_cmap

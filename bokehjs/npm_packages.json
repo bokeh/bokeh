@@ -1,0 +1,8 @@
+[
+  {"name": "@bokeh/bokehjs", "workspace": "", "tarball": "bokeh-bokehjs"},
+  {"name": "@bokeh/framework", "workspace": "frameworks/base", "tarball": "bokeh-framework"},
+  {"name": "@bokeh/react", "workspace": "frameworks/react", "tarball": "bokeh-react"},
+  {"name": "@bokeh/svelte", "workspace": "frameworks/svelte", "tarball": "bokeh-svelte"},
+  {"name": "@bokeh/vue", "workspace": "frameworks/vue", "tarball": "bokeh-vue"},
+  {"name": "@bokeh/web-component", "workspace": "frameworks/web-component", "tarball": "bokeh-web-component"}
+]

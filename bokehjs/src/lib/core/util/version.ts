@@ -27,9 +27,17 @@ export class Version implements Equatable {
     const {major, minor, patch, type, revision, build} = this
     let version = `${major}.${minor}.${patch}`
     switch (type) {
-      case ReleaseType.Dev:       version += `-dev.${revision}`
-      case ReleaseType.Candidate: version += `-rc.${revision}`
-      case ReleaseType.Release:
+      case ReleaseType.Dev: {
+        version += `-dev.${revision}`
+        break
+      }
+      case ReleaseType.Candidate: {
+        version += `-rc.${revision}`
+        break
+      }
+      case ReleaseType.Release: {
+        break
+      }
     }
     if (build != 0) {
       version += `+${build}`

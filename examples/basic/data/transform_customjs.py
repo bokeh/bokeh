@@ -1,26 +1,22 @@
-import numpy as np
+''' Normalize two stock price series in the browser with a JavaScript transform.
+
+.. bokeh-example-metadata::
+    :title: Transform customjs
+    :keywords: transform, customjs
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.CustomJSTransform, bokeh.plotting.figure.line
+    :sampledata: stocks
+'''
 
 from bokeh.models import ColumnDataSource, CustomJSTransform
 from bokeh.plotting import figure, show
-from bokeh.sampledata.stocks import AAPL, GOOG
+from bokeh.sampledata.stocks import data as stocks
 from bokeh.transform import transform
-
-
-def datetime(x):
-    return np.array(x, dtype=np.datetime64)
 
 plot = figure(x_axis_type="datetime", title="Normalized Stock Closing Prices",
               width=800, height=350)
 
-aapl_source = ColumnDataSource(data=dict(
-    aapl_date=datetime(AAPL['date']),
-    aapl_close=AAPL['adj_close'],
-))
-
-goog_source = ColumnDataSource(data=dict(
-    goog_date=datetime(GOOG['date']),
-    goog_close=GOOG['adj_close'],
-))
+aapl_source = ColumnDataSource(stocks.loc[stocks.ticker == "AAPL", ["date", "adj_close"]])
+goog_source = ColumnDataSource(stocks.loc[stocks.ticker == "GOOG", ["date", "adj_close"]])
 
 v_func = """
     const first = xs[0]
@@ -32,9 +28,9 @@ v_func = """
 """
 normalize = CustomJSTransform(v_func=v_func)
 
-plot.line(x='aapl_date', y=transform('aapl_close', normalize), line_width=2,
+plot.line(x='date', y=transform('adj_close', normalize), line_width=2,
         color='#cf3c4d', alpha=0.6, legend_label="Apple", source=aapl_source)
-plot.line(x='goog_date', y=transform('goog_close', normalize), line_width=2,
+plot.line(x='date', y=transform('adj_close', normalize), line_width=2,
         color='#2f7bce', alpha=0.6, legend_label="Google", source=goog_source)
 
 plot.background_fill_color = "#f0f0f0"

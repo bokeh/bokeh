@@ -5,15 +5,18 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
 
-# Standard library imports
+import locale
+
+locale.setlocale(locale.LC_TIME, "C")
+
 import os
 import re
-import sys
 from datetime import date
+from pathlib import Path
 
+from sphinx.errors import SphinxError
 from sphinx.util import logging
 
-# Bokeh imports
 from bokeh import __version__
 from bokeh.settings import settings
 
@@ -53,7 +56,6 @@ extensions = [
     "bokeh.sphinxext._internal.bokeh_enum",
     "bokeh.sphinxext._internal.bokeh_example_metadata",
     "bokeh.sphinxext._internal.bokeh_gallery",
-    "bokeh.sphinxext._internal.bokeh_jinja",
     "bokeh.sphinxext._internal.bokeh_model",
     "bokeh.sphinxext._internal.bokeh_options",
     "bokeh.sphinxext._internal.bokeh_palette",
@@ -81,68 +83,19 @@ autodoc_type_aliases = {
 
 bokeh_example_subdirs = [
     "advanced/extensions",
-    "basic/annotations",
-    "basic/areas",
-    "basic/axes",
-    "basic/bars",
-    "basic/data",
-    "basic/layouts",
-    "basic/lines",
-    "basic/scatters",
-    "styling/visuals",
-    "styling/plots",
-    "styling/mathtext",
-    "styling/themes",
-    "interaction/js_callbacks",
-    "interaction/legends",
-    "interaction/linking",
-    "interaction/tools",
-    "interaction/tooltips",
-    "interaction/widgets",
+    "advanced/integration",
+    "basic/*",
+    "interaction/*",
     "models",
-    "plotting",
+    "models/structure",
     "output/webgl",
-    "topics/categorical",
-    "topics/hierarchical",
-    "topics/contour",
-    "topics/geo",
-    "topics/graph",
-    "topics/hex",
-    "topics/images",
-    "topics/pie",
-    "topics/stats",
-    "topics/timeseries",
+    "plotting",
+    "styling/*",
+    "topics/*",
 ]
 
-bokeh_missing_google_api_key_ok = False
-
-if "GOOGLE_API_KEY" not in os.environ:
-    print("GOOGLE_API_KEY not found in environment")
-
-    if bokeh_missing_google_api_key_ok:
-        print(
-            "But bokeh_missing_google_api_key_ok set to true in conf.py, so building docs anyway (with broken Google Maps)",
-        )
-    elif os.environ.get("BOKEH_DOCS_CDN") == "local":
-        bokeh_missing_google_api_key_ok = True
-        print("But BOKEH_DOCS_CDN=local, so building docs anyway (with broken Google Maps)")
-    else:
-        raise RuntimeError(
-            "\n\nThe GOOGLE_API_KEY environment variable is not set. Set GOOGLE_API_KEY to a valid API key, "
-            "or to build anyway (with broken Google Maps), set bokeh_missing_google_api_key_ok=True in conf.py "
-            "or set BOKEH_DOCS_CDN=local in your environment.",
-        )
-
-bokeh_sampledata_xref_skiplist = [
-    "examples/basic/data/ajax_source.py",
-    "examples/basic/data/server_sent_events_source.py",
-    "examples/basic/layouts/custom_layout.py",
-    "examples/styling/dom/css_classes.py",
-    "examples/models/widgets.py",
-]
-
-if sys.version_info[:2] < (3, 14):
-    bokeh_sampledata_xref_skiplist.append("examples/interaction/widgets/slider_template_string.py")
+# Categories without a corresponding examples directory.
+bokeh_example_categories = ["topics/vector_fields"]
 
 copybutton_prompt_text = ">>> "
 
@@ -227,6 +180,7 @@ html_theme_options = {
 }
 
 html_sidebars = {
+    "docs/examples": [],
     "docs/examples/**": [],
     "docs/gallery": [],
     "index": [],
@@ -259,6 +213,10 @@ favicons = [
 templates_path = ["_templates"]
 
 def setup(app):
+    for name in ("bokeh-hero.webp", "bokeh-hero-600.webp"):
+        if not (Path(app.confdir) / "_static" / "images" / name).is_file():
+            raise SphinxError(f"Missing homepage image {name}. Run python docs/bokeh/optimize_hero.py to regenerate it.")
+
     app.add_object_type("confval", "confval", objname="configuration value", indextemplate="pair: %s; configuration value")
     app.add_js_file(None, body=f"const BOKEH_CURRENT_VERSION = {version!r};", priority=100)
     app.add_js_file("custom.js")

@@ -17,7 +17,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import itertools
 import re
 from dataclasses import dataclass
@@ -30,7 +29,6 @@ from typing import (
     cast,
 )
 
-# Bokeh imports
 from ..models import (
     HoverTool,
     Plot,
@@ -82,7 +80,7 @@ def process_active_tools(toolbar: Toolbar, tool_map: dict[str, Tool],
         active_inspect (str, None, "auto", Tool or Tool[]): the tool to set active for inspect
         active_scroll (str, None, "auto" or Tool): the tool to set active for scroll
         active_tap (str, None, "auto" or Tool): the tool to set active for tap
-        active_multi (str, None, "auto" or Tool): the tool to set active for tap
+        active_multi (str, None, "auto" or Tool): the tool to set active for multi-gesture
 
     Returns:
         None
@@ -126,15 +124,16 @@ def process_active_tools(toolbar: Toolbar, tool_map: dict[str, Tool],
     else:
         raise ValueError(f"Got unknown {active_multi!r} for 'active_multi', which was not a string supplied in 'tools' argument")
 
-def process_tools_arg(plot: Plot, tools: str | Sequence[Tool | str],
+def process_tools_arg(plot: Plot, tools: str | Sequence[Tool | str] | None,
         tooltips: str | list[tuple[str, str]] | None = None) -> tuple[list[Tool], dict[str, Tool]]:
     """ Adds tools to the plot object
 
     Args:
         plot (Plot): instance of a plot object
 
-        tools (seq[Tool or str]|str): list of tool types or string listing the
+        tools (seq[Tool or str]|str|None): list of tool types or string listing the
             tool names. Those are converted using the to actual Tool instances.
+            ``None`` is equivalent to an empty list.
 
         tooltips (string or seq[tuple[str, str]], optional):
             tooltips to use to configure a HoverTool
@@ -142,7 +141,7 @@ def process_tools_arg(plot: Plot, tools: str | Sequence[Tool | str],
     Returns:
         list of Tools objects added to plot, map of supplied string names to tools
     """
-    tool_objs, tool_map = _resolve_tools(tools)
+    tool_objs, tool_map = _resolve_tools(tools or [])
 
     repeated_tools = [ str(obj) for obj in _collect_repeated_tools(tool_objs) ]
     if repeated_tools:

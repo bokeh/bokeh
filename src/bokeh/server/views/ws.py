@@ -20,22 +20,23 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import calendar
 import datetime as dt
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, cast
 from urllib.parse import urlparse
 
-# External imports
 from tornado import locks, web
 from tornado.websocket import WebSocketClosedError, WebSocketHandler
 
-# Bokeh imports
 from bokeh.settings import settings
-from bokeh.util.token import check_token_signature, get_session_id, get_token_payload
+from bokeh.util.token import (
+    TokenDecodeError,
+    check_token_signature,
+    get_session_id,
+    get_token_payload,
+)
 
-# Bokeh imports
 from ...protocol import ack
 from ...protocol.exceptions import ProtocolError
 from ...protocol.message import Message
@@ -75,6 +76,7 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
     application_context: ApplicationContext
     connection: ServerConnection | None
     receiver: Receiver | None
+    write_lock: locks.Lock
     _token: str | None
 
     def __init__(self, tornado_app: Application, *args: Any, **kw: Any) -> None:
@@ -122,8 +124,8 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
         if check_allowlist(origin_host, list(allowed_hosts)):
             return True
 
-        log.error("Refusing websocket connection from Origin '%s'; \
-                    use --allow-websocket-origin=%s or set BOKEH_ALLOW_WS_ORIGIN=%s to permit this; currently we allow origins %r",
+        log.error("Refusing websocket connection from Origin %r; \
+                    use --allow-websocket-origin=%r or set BOKEH_ALLOW_WS_ORIGIN=%r to permit this; currently we allow origins %r",
                     origin, origin_host, origin_host, allowed_hosts)
         return False
 
@@ -154,7 +156,11 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
             self.close()
             raise ProtocolError("Invalid token signature")
 
-        payload = get_token_payload(token)
+        try:
+            payload = get_token_payload(token)
+        except TokenDecodeError as error:
+            self.close()
+            raise ProtocolError("Invalid token payload") from error
         if 'session_expiry' not in payload:
             self.close()
             raise ProtocolError("Session expiry has not been provided")

@@ -21,35 +21,42 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
+from collections.abc import Sequence
 from difflib import get_close_matches
 from typing import TYPE_CHECKING, Any, Literal
 
-# Bokeh imports
+import numpy as np
+
 from bokeh.core.property.vectorization import Field
 
-# Bokeh imports
 from ...core.property.auto import Auto
+from ...core.property.container import List
 from ...core.property.either import Either
 from ...core.property.instance import Instance, InstanceDefault
 from ...core.property.nullable import Nullable
 from ...core.property.primitive import Bool
 from ...core.property.required import Required
+from ...core.property.singletons import _NotGiven
 from ...core.validation import error
-from ...core.validation.errors import BAD_COLUMN_NAME, CDSVIEW_FILTERS_WITH_CONNECTED
+from ...core.validation.errors import (
+    BAD_COLUMN_NAME,
+    INDEXEDSUBSET_FILTERS_WITH_CONNECTED,
+)
 from ..filters import AllIndices
-from ..glyph import ConnectedXYGlyph, Glyph
-from ..graphics import Decoration, Marking
+from ..glyph import ConnectedXYGlyph, Glyph, SupportsPathMarking
+from ..graphics import Marking, PathPlacement
 from ..sources import (
-    CDSView,
     ColumnDataSource,
-    DataSource,
+    IndexedDataSource,
+    IndexedSubset,
     WebDataSource,
 )
+from ._glyph_attachment import GlyphAttachment
 from .renderer import DataRenderer
 
 if TYPE_CHECKING:
-    from ..annotations import ColorBar
+    from ...core.enums import AngleReferenceType
+    from ..annotations import ArrowHead, ColorBar
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -69,12 +76,8 @@ class GlyphRenderer(DataRenderer):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
-    @error(CDSVIEW_FILTERS_WITH_CONNECTED)
-    def _check_cdsview_filters_with_connected(self):
+    @error(INDEXEDSUBSET_FILTERS_WITH_CONNECTED)
+    def _check_indexed_subset_filters_with_connected(self):
         if isinstance(self.glyph, ConnectedXYGlyph) and not isinstance(self.view.filter, AllIndices):
             return str(self)
 
@@ -102,17 +105,23 @@ class GlyphRenderer(DataRenderer):
         if missing:
             return f"{', '.join(missing)} {{renderer: {self}}}"
 
-    data_source = Required(Instance(DataSource), help="""
+    attachments = List(Instance(GlyphAttachment), help="""
+    Attachment models painted with this renderer. This property stores
+    attachments for serialization. Use the feature-specific renderer methods
+    to add attachments rather than setting this property directly.
+    """)
+
+    data_source = Required(Instance(IndexedDataSource), help="""
     Local data source to use when rendering glyphs on the plot.
     """)
 
-    view = Instance(CDSView, default=InstanceDefault(CDSView), help="""
+    view = Instance(IndexedSubset, default=InstanceDefault(IndexedSubset), help="""
     A view into the data source to use when rendering glyphs. A default view
     of the entire data source is created when a view is not passed in during
     initialization.
 
-    .. note:
-        Only the default (filterless) CDSView is compatible with glyphs that
+    .. note::
+        Only the default (filterless) IndexedSubset is compatible with glyphs that
         have connected topology, such as Line and Patch. Setting filters on
         views for these glyphs will result in a warning and undefined behavior.
     """)
@@ -156,15 +165,103 @@ class GlyphRenderer(DataRenderer):
     a legend was configured with ``click_policy = "mute"``.
     """)
 
-    def add_decoration(self, marking: Marking, node: Literal["start", "middle", "end"]) -> Decoration:
-        glyphs = [self.glyph, self.selection_glyph, self.nonselection_glyph, self.hover_glyph, self.muted_glyph]
-        decoration = Decoration(marking=marking, node=node)
+    def add_path_marking(self, marking: Marking, *,
+            at: Literal["start", "middle", "end"] | float | Sequence[float] | np.ndarray | Field | dict[str, Any],
+            inset: Any = _NotGiven, angle: Any = 0, angle_reference: AngleReferenceType = "auto",
+            selection_marking: Marking | Literal["auto"] | None = "auto",
+            nonselection_marking: Marking | Literal["auto"] | None = "auto",
+            hover_marking: Marking | Literal["auto"] | None = "auto",
+            muted_marking: Marking | Literal["auto"] | None = "auto") -> PathPlacement:
+        """Attach a marking to named or fractional positions along a path.
 
-        for glyph in glyphs:
-            if isinstance(glyph, Glyph):
-                glyph.decorations.append(decoration)
+        Fractions measure screen-space path length and must be between 0 and 1.
+        A field supplies a list of fractions per source row. An empty list skips
+        that row.
 
-        return decoration
+        Only named start and end placements accept an inset, measured in screen
+        pixels. In the default orientation those placements also trim the shaft.
+        Middle and fractional placements leave the shaft intact.
+
+        State-specific markings require explicitly configured state glyphs.
+        """
+        if inset is not _NotGiven and not (isinstance(at, str) and at in ("start", "end")):
+            raise ValueError("inset requires at='start' or at='end'")
+
+        nodes = ("start", "middle", "end")
+        positions: Any
+        if isinstance(at, str):
+            if at not in nodes:
+                message = f"unknown path marking placement {at!r}. Use 'start', 'middle', 'end', a fraction, a sequence of fractions, or a field spec."
+                if matches := get_close_matches(at, nodes, n=1):
+                    message += f" Did you mean {matches[0]!r}?"
+                raise ValueError(f"{message} Use field({at!r}) to refer to a source column.")
+            positions = at
+        elif isinstance(at, Field):
+            if not isinstance(at.field, str):
+                raise ValueError("the path marking placement field name must be a string")
+            positions = at
+        elif isinstance(at, dict) and "field" in at:
+            positions = at
+        elif isinstance(at, np.ndarray):
+            if at.ndim != 1:
+                raise ValueError("path marking placement arrays must be one-dimensional")
+            positions = at.tolist()
+        elif isinstance(at, Sequence) and not isinstance(at, (bytes, bytearray)):
+            positions = list(at)
+        else:
+            positions = [at]
+
+        path_marking = PathPlacement(marking=marking, positions=positions, inset=0 if inset is _NotGiven else inset,
+                                 angle=angle, angle_reference=angle_reference)
+        return self._add_path_marking(path_marking, selection_marking=selection_marking,
+                                    nonselection_marking=nonselection_marking,
+                                    hover_marking=hover_marking, muted_marking=muted_marking)
+
+    def add_arrowheads(self, *, at: Literal["start", "middle", "end"] | float | Sequence[float] | np.ndarray | Field | dict[str, Any] = "end",
+            head: ArrowHead | Literal["auto"] = "auto",
+            angle: Any = 0, angle_reference: AngleReferenceType = "auto") -> PathPlacement:
+        """Add arrowheads using :meth:`add_path_marking`.
+
+        The default placement is ``"end"``. The default ``OpenHead`` inherits
+        the shaft's line color, alpha, and width. Pass an arrowhead model to
+        customize its size and visuals.
+        """
+        from ..annotations.arrows import auto_arrowhead
+
+        marking = auto_arrowhead() if head == "auto" else head
+        return self.add_path_marking(marking, at=at, angle=angle, angle_reference=angle_reference)
+
+    def _add_path_marking(self, path_marking: PathPlacement, *,
+            selection_marking: Marking | Literal["auto"] | None = "auto",
+            nonselection_marking: Marking | Literal["auto"] | None = "auto",
+            hover_marking: Marking | Literal["auto"] | None = "auto",
+            muted_marking: Marking | Literal["auto"] | None = "auto") -> PathPlacement:
+        states = [
+            (self.selection_glyph, selection_marking),
+            (self.nonselection_glyph, nonselection_marking),
+            (self.hover_glyph, hover_marking),
+            (self.muted_glyph, muted_marking),
+        ]
+        glyph = self.glyph
+        if not isinstance(glyph, SupportsPathMarking):
+            raise ValueError(f"add_path_marking() does not support {type(glyph).__name__}.")
+
+        for state_glyph, marking in states:
+            if marking is not None and isinstance(state_glyph, Glyph) and not isinstance(state_glyph, SupportsPathMarking):
+                raise ValueError(f"add_path_marking() does not support {type(state_glyph).__name__}.")
+        glyph.path_markings.append(path_marking)
+
+        for glyph, state_marking in states:
+            if not isinstance(glyph, SupportsPathMarking) or state_marking is None:
+                continue
+            if state_marking == "auto":
+                glyph.path_markings.append(path_marking)
+            else:
+                glyph.path_markings.append(PathPlacement(marking=state_marking,
+                    positions=path_marking.positions, inset=path_marking.inset, angle=path_marking.angle,
+                    angle_units=path_marking.angle_units, angle_reference=path_marking.angle_reference))
+
+        return path_marking
 
     def construct_color_bar(self, **kwargs: Any) -> ColorBar:
         ''' Construct and return a new ``ColorBar`` for this ``GlyphRenderer``.

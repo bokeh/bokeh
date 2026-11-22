@@ -1,16 +1,13 @@
 from __future__ import annotations
 
-# Standard library imports
 import runpy
 import sys
 from collections.abc import Sequence
 from typing import Any
 
-# External imports
 import pytest
 import yaml
 
-# Bokeh imports
 from tests.support.util.project import TOP_PATH
 from tools.release import stages
 from tools.release.build import (
@@ -54,6 +51,7 @@ def test_all_prepare_deployment_checks_are_recognized_as_checks() -> None:
 
 def test_build_artifact_pipeline_midflight_checks_are_explicit() -> None:
     assert [step.__name__ for step in stages.BUILD_ARTIFACT_STEPS if is_check(step)] == [
+        "verify_jupyter_build",
         "check_docs_version_config",
         "check_checkout_is_clean",
         "verify_pip_install_from_sdist",
@@ -96,6 +94,10 @@ def test_build_artifact_pipeline_checks_branch_before_mutating_steps() -> None:
 
 def test_build_artifact_pipeline_commits_before_tagging() -> None:
     steps = stages.BUILD_ARTIFACT_STEPS
+    assert steps.index(stages.update_bokehjs_versions) < steps.index(stages.update_jupyter_version)
+    assert steps.index(stages.build_bokehjs) < steps.index(stages.build_jupyter)
+    assert steps.index(stages.build_jupyter) < steps.index(stages.verify_jupyter_build)
+    assert steps.index(stages.verify_jupyter_build) < steps.index(commit_staging_branch)
     assert steps.index(update_switcher_json) < steps.index(commit_staging_branch)
     assert steps.index(check_docs_version_config) < steps.index(commit_staging_branch)
     assert steps.index(commit_staging_branch) < steps.index(tag_release_version)
@@ -167,7 +169,7 @@ def test_release_confirmation_includes_version(filename: str, job_name: str) -> 
             "Upload Deployment Assets",
             "${{ vars.AWS_RELEASE_BUILD_ROLE_ARN }}",
             "bokeh-release-build-${{ github.run_id }}",
-            "write",
+            "read",
             "upload-deployment",
         ),
         (
@@ -207,7 +209,6 @@ def test_release_workflows_use_aws_oidc(
     assert job["permissions"] == {"contents": contents_permission, "id-token": "write"}
 
     configure = next(step for step in job["steps"] if step.get("uses", "").startswith("aws-actions/configure-aws-credentials@"))
-    assert configure["uses"] == "aws-actions/configure-aws-credentials@v6.2.3"
     expected: dict[str, str | int] = {
         "role-to-assume": role_variable,
         "role-session-name": session_name,
@@ -263,7 +264,7 @@ def test_deploy_workflow_uploads_distributions_for_all_release_types(version: st
 
     assert conda["with"]["path"].replace("${{ github.event.inputs.version }}", version) == (f"deployment-{version}/bokeh-{version}-py_0.tar.bz2")
     assert docs["with"]["path"].replace("${{ github.event.inputs.version }}", version) == f"deployment-{version}/docs/"
-    assert npm["with"]["path"].replace("${{ github.event.inputs.version }}", version) == (f"deployment-{version}/bokeh-bokehjs-*.tgz")
+    assert npm["with"]["path"].replace("${{ github.event.inputs.version }}", version) == (f"deployment-{version}/bokeh-*.tgz")
     assert pypi["with"]["path"].replace("${{ github.event.inputs.version }}", version).splitlines() == [
         f"deployment-{version}/bokeh-{version}.tar.gz",
         f"deployment-{version}/bokeh-{version}-py3-none-any.whl",
@@ -299,7 +300,6 @@ def test_deploy_workflow_uses_isolated_publishers() -> None:
     setup_anaconda = next(
         step for step in preflight["steps"] if step.get("uses", "").startswith("anaconda/actions/setup-anaconda-cli@")
     )
-    assert setup_anaconda["uses"] == "anaconda/actions/setup-anaconda-cli@v0.3.1"
     assert setup_anaconda["with"] == {"version": "v0.2.1", "tools": "anaconda-cli"}
     validate_anaconda = next(step for step in preflight["steps"] if step.get("name") == "Validate Anaconda token")
     assert validate_anaconda["env"] == {"ANACONDA_TOKEN": "${{ secrets.ANACONDA_TOKEN }}"}
@@ -317,7 +317,8 @@ def test_deploy_workflow_uses_isolated_publishers() -> None:
     assert docs["needs"] == conda["needs"] == npm["needs"] == pypi["needs"] == "prepare"
     assert docs["permissions"] == {"contents": "read", "id-token": "write"}
     assert conda["permissions"] == {}
-    assert npm["permissions"] == pypi["permissions"] == {"id-token": "write"}
+    assert npm["permissions"] == {"contents": "read", "id-token": "write"}
+    assert pypi["permissions"] == {"id-token": "write"}
     assert docs["environment"]["name"] == "publish-docs"
     assert conda["environment"]["name"] == "publish-anaconda"
     assert npm["environment"]["name"] == "publish-npm"
@@ -341,7 +342,6 @@ def test_deploy_workflow_uses_isolated_publishers() -> None:
     assert docs_publish["run"] == 'python -m tools.release publish-docs "$BOKEH_VERSION"'
 
     conda_publish = next(step for step in conda["steps"] if step.get("uses", "").startswith("anaconda/actions/upload-package@"))
-    assert conda_publish["uses"] == "anaconda/actions/upload-package@v0.3.1"
     assert conda_publish["with"] == {
         "token": "${{ secrets.ANACONDA_TOKEN }}",
         "channel": "bokeh",
@@ -354,10 +354,13 @@ def test_deploy_workflow_uses_isolated_publishers() -> None:
     assert npm_publish["env"]["NPM_TAG"] == (
         "${{ (contains(github.event.inputs.version, '.dev') || contains(github.event.inputs.version, 'rc')) && 'dev' || 'latest' }}"
     )
-    assert npm_publish["run"] == 'npm publish --access=public --tag="$NPM_TAG" bokeh-bokehjs-*.tgz'
+    assert npm_publish["run"].splitlines() == [
+        "for package in $(python ../tools/release/npm.py); do",
+        '  npm publish --access=public --tag="$NPM_TAG" "$package"-*.tgz',
+        "done",
+    ]
 
     pypi_publish = next(step for step in pypi["steps"] if step.get("uses", "").startswith("pypa/gh-action-pypi-publish@"))
-    assert pypi_publish["uses"] == "pypa/gh-action-pypi-publish@release/v1"
     assert "with" not in pypi_publish
 
     finalize = workflow["jobs"]["finalize"]

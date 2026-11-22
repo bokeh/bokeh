@@ -18,10 +18,6 @@ export interface SetValue extends SetValue.Attrs {}
 export class SetValue extends Callback {
   declare properties: SetValue.Props
 
-  constructor(attrs?: Partial<SetValue.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<SetValue.Props>(({Str, Unknown, Ref}) => ({
       obj: [ Ref(HasProps) ],

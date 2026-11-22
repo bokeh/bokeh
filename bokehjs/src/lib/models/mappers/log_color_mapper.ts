@@ -23,10 +23,6 @@ export interface LogColorMapper extends LogColorMapper.Attrs {}
 export class LogColorMapper extends ContinuousColorMapper {
   declare properties: LogColorMapper.Props
 
-  constructor(attrs?: Partial<LogColorMapper.Attrs>) {
-    super(attrs)
-  }
-
   protected scan(data: Arrayable<number>, n: number): LogScanData {
     const low = this.low != null ? this.low : min(data)
     if (low <= 0) {

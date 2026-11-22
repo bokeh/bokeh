@@ -1,18 +1,15 @@
 """Publish reviewable dual-color range diffs for adapted backports."""
 
-# Standard library imports
 import re
 from collections.abc import Mapping, Sequence
 from html import escape, unescape
 from io import StringIO
 from pathlib import Path
 
-# External imports
 from rich.console import Console
 from rich.terminal_theme import TerminalTheme
 from rich.text import Text
 
-# Bokeh imports
 from . import BackportError
 from .git import GitRepo
 from .github import GitHubAPI
@@ -209,6 +206,8 @@ def generate_range_diff(
     binary_files = adapted_binary_files(git, worktree, original, backport)
     output = git.run(
         "range-diff",
+        # These are known original/backport pairs, even when paths and tests moved.
+        "--creation-factor=100",
         "--dual-color",
         "--color=always",
         f"{original}^!",

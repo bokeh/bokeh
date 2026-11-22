@@ -40,7 +40,7 @@ export abstract class MathTextGlyphView extends TextView {
       return text_i == null ? null : this._build_label(text_i)
     })
 
-    await build_views(this._label_views, labels.filter((v) => v != null), {parent: this.renderer})
+    await build_views(this._label_views, labels.filter((v) => v != null), {parent: this})
 
     return labels.map((label_i) => {
       return label_i == null ? null : this._label_views.get(label_i)!.graphics()
@@ -50,11 +50,11 @@ export abstract class MathTextGlyphView extends TextView {
   override async after_lazy_visuals(): Promise<void> {
     await super.after_lazy_visuals()
 
-    const promises = [...this._label_views.values()].map((label_view) => {
+    const promises = [...this._label_views.values()].flatMap((label_view) => {
       if (label_view instanceof MathTextView) {
-        return label_view.request_image()
+        return [label_view.request_image()]
       } else {
-        return null
+        return []
       }
     })
     await Promise.allSettled(promises)
@@ -95,7 +95,4 @@ export abstract class MathTextGlyph extends Text {
   declare properties: MathTextGlyph.Props
   declare __view_type__: MathTextGlyphView
 
-  constructor(attrs?: Partial<MathTextGlyph.Attrs>) {
-    super(attrs)
-  }
 }

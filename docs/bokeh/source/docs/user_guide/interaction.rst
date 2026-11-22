@@ -26,6 +26,14 @@ JavaScript required.
     client-side JavaScript callbacks, or with real Python code in a Bokeh
     server application.
 
+:ref:`ug_interaction_markdown`
+    Bokeh's Markdown widget displays formatted text, code, math, and embedded
+    plots, with options for headings and line breaks.
+
+:ref:`ug_interaction_sliders`
+    Bokeh's sliders select one or more values or a range of values, which
+    include numbers, dates and categories, with a pointer or the keyboard.
+
 :ref:`ug_interaction_js_callbacks`
     Bokeh's ``CustomJS`` callbacks allow you to define JavaScript-based custom
     interactivity for various widgets and events in Bokeh documents.
@@ -33,6 +41,10 @@ JavaScript required.
 :ref:`ug_interaction_python_callbacks`
     In :ref:`Bokeh Server apps <ug_server>`, you can use Bokeh's Python
     callbacks to define custom interactivity for various widgets and events.
+
+:ref:`ug_interaction_callback_policies`
+    Throttle, debounce, or defer property changes observed by JavaScript and
+    Python callbacks.
 
 :ref:`ug_interaction_tooltips`
     Bokeh lets you use tooltips to add additional information to most UI
@@ -45,6 +57,9 @@ JavaScript required.
    interaction/linking
    interaction/legends
    interaction/widgets
+   interaction/markdown
+   interaction/sliders
    interaction/js_callbacks
    interaction/python_callbacks
+   interaction/callback_policies
    interaction/tooltips

@@ -1,7 +1,16 @@
+''' Embed a Bokeh server app in a Tornado web page.
+
+.. bokeh-example-metadata::
+    :title: Tornado embed
+    :keywords: tornado, embed
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Slider, bokeh.plotting.figure.line
+    :sampledata: sea_surface_temperature
+'''
+
 from jinja2 import Environment, FileSystemLoader
 from tornado.web import RequestHandler
 
-from bokeh.embed import server_document
+from bokeh.embed import embed_server
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Slider
 from bokeh.plotting import figure
@@ -9,13 +18,14 @@ from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
 from bokeh.server.server import Server
 from bokeh.themes import Theme
 
-env = Environment(loader=FileSystemLoader('templates'))
+env = Environment(loader=FileSystemLoader('templates'), autoescape=True)
 
 class IndexHandler(RequestHandler):
     def get(self):
         template = env.get_template('embed.html')
-        script = server_document('http://localhost:5006/bkapp')
-        self.write(template.render(script=script, template="Tornado"))
+        result = embed_server('http://localhost:5006/bkapp')
+        fragment = result.fragment(resources="server")
+        self.write(template.render(embed_html=fragment.html, template="Tornado"))
 
 def bkapp(doc):
     df = sea_surface_temperature.copy()

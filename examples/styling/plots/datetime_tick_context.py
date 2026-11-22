@@ -1,3 +1,12 @@
+''' Show relative context alongside datetime tick labels.
+
+.. bokeh-example-metadata::
+    :title: Datetime tick context
+    :keywords: datetime, tick, context
+    :apis: bokeh.plotting.figure.line
+    :sampledata: glucose
+'''
+
 from bokeh.models import RELATIVE_DATETIME_CONTEXT
 from bokeh.plotting import figure, show
 from bokeh.sampledata.glucose import data

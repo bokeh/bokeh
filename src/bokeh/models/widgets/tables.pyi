@@ -5,11 +5,9 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 from typing import Any, Literal, Unpack
 
-# Bokeh imports
 from ..._specs import ColorSpec, FontStyleSpec, TextAlignSpec
 from ...core.enums import (
     AutosizeModeType as AutosizeMode,
@@ -21,10 +19,9 @@ from ...model.model import Model, _ModelInit
 from ..comparisons import Comparison
 from ..dom import HTML
 from ..sources import (
-    CDSView,
     ColumnDataSource,
     DataDictLike,
-    DataSource,
+    IndexedSubset,
 )
 from .widget import Widget, _WidgetInit
 
@@ -41,15 +38,6 @@ class _CellEditorInit(_ModelInit, total=False):
 class CellEditor(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_CellEditorInit]) -> None: ...
-
-class _RowAggregatorInit(_ModelInit, total=False):
-    field_: str
-
-class RowAggregator(Model):
-    @abstractmethod
-    def __init__(self, **kwargs: Unpack[_RowAggregatorInit]) -> None: ...
-
-    field_: str = ...
 
 class _StringFormatterInit(_CellFormatterInit, total=False):
     font_style: FontStyleSpec
@@ -179,30 +167,6 @@ class _DateEditorInit(_CellEditorInit, total=False):
 class DateEditor(CellEditor):
     def __init__(self, **kwargs: Unpack[_DateEditorInit]) -> None: ...
 
-class _AvgAggregatorInit(_RowAggregatorInit, total=False):
-    ...
-
-class AvgAggregator(RowAggregator):
-    def __init__(self, **kwargs: Unpack[_AvgAggregatorInit]) -> None: ...
-
-class _MinAggregatorInit(_RowAggregatorInit, total=False):
-    ...
-
-class MinAggregator(RowAggregator):
-    def __init__(self, **kwargs: Unpack[_MinAggregatorInit]) -> None: ...
-
-class _MaxAggregatorInit(_RowAggregatorInit, total=False):
-    ...
-
-class MaxAggregator(RowAggregator):
-    def __init__(self, **kwargs: Unpack[_MaxAggregatorInit]) -> None: ...
-
-class _SumAggregatorInit(_RowAggregatorInit, total=False):
-    ...
-
-class SumAggregator(RowAggregator):
-    def __init__(self, **kwargs: Unpack[_SumAggregatorInit]) -> None: ...
-
 class _TableColumnInit(_ModelInit, total=False):
     field: str
     title: str | HTML | None
@@ -228,21 +192,20 @@ class TableColumn(Model):
     sorter: Comparison | None = ...
 
 class _TableWidgetInit(_WidgetInit, total=False):
-    source: DataSource
-    view: CDSView
+    source: ColumnDataSource
+    view: IndexedSubset
 
 class TableWidget(Widget):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_TableWidgetInit]) -> None: ...
 
-    source: DataSource = ...
-    view: CDSView = ...
+    source: ColumnDataSource = ...
+    view: IndexedSubset = ...
 
 class _DataTableInit(_TableWidgetInit, total=False):
     autosize_mode: AutosizeMode
     auto_edit: bool
     columns: list[TableColumn]
-    fit_columns: bool | None
     frozen_columns: int | None
     frozen_rows: int | None
     sortable: bool
@@ -262,7 +225,6 @@ class DataTable(TableWidget):
     autosize_mode: AutosizeMode = ...
     auto_edit: bool = ...
     columns: list[TableColumn] = ...
-    fit_columns: bool | None = ...
     frozen_columns: int | None = ...
     frozen_rows: int | None = ...
     sortable: bool = ...
@@ -279,25 +241,3 @@ class DataTable(TableWidget):
     @staticmethod
     def from_data(data: ColumnDataSource | DataDictLike, columns: list[str] | None = None,
         formatters: dict[str, CellFormatter] = {}, **kwargs: Any) -> DataTable: ...
-
-class _GroupingInfoInit(_ModelInit, total=False):
-    getter: str
-    aggregators: list[RowAggregator]
-    collapsed: bool
-
-class GroupingInfo(Model):
-    def __init__(self, **kwargs: Unpack[_GroupingInfoInit]) -> None: ...
-
-    getter: str = ...
-    aggregators: list[RowAggregator] = ...
-    collapsed: bool = ...
-
-class _DataCubeInit(_DataTableInit, total=False):
-    grouping: list[GroupingInfo]
-    target: DataSource
-
-class DataCube(DataTable):
-    def __init__(self, **kwargs: Unpack[_DataCubeInit]) -> None: ...
-
-    grouping: list[GroupingInfo] = ...
-    target: DataSource = ...

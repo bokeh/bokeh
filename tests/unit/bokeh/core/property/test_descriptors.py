@@ -8,15 +8,11 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import typing as tp
 from unittest.mock import (
     ANY,
@@ -25,7 +21,8 @@ from unittest.mock import (
     patch,
 )
 
-# Bokeh imports
+import pytest
+
 from bokeh.core.properties import (
     Alias,
     Any,
@@ -37,7 +34,6 @@ from bokeh.core.properties import (
     Required,
 )
 from bokeh.model import Model
-from bokeh.util.warnings import BokehDeprecationWarning
 from tests.support.util.api import verify_all
 
 # Module under test
@@ -369,8 +365,8 @@ This is a backwards compatibility alias for the 'bar' property.
         assert obj.p1 == 17
         mock_warn.assert_called_once_with(
             "'p1' was deprecated in Bokeh 3.1.0 and will be removed, use 'p0' instead.",
-            BokehDeprecationWarning,
-            stacklevel=ANY,
+            DeprecationWarning,
+            skip_file_prefixes=ANY,
         )
         mock_warn.reset_mock()
 
@@ -380,8 +376,8 @@ This is a backwards compatibility alias for the 'bar' property.
         obj.p1 = 19
         mock_warn.assert_called_once_with(
             "'p1' was deprecated in Bokeh 3.1.0 and will be removed, use 'p0' instead.",
-            BokehDeprecationWarning,
-            stacklevel=ANY,
+            DeprecationWarning,
+            skip_file_prefixes=ANY,
         )
         mock_warn.reset_mock()
 

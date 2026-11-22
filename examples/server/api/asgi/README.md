@@ -3,7 +3,7 @@
 Each example mounts the framework-neutral `BokehASGI` application at `/bkapp`.
 The host application handles every other route. `framework_free.py` implements
 the ASGI routing directly. The FastAPI, Starlette, Django, and framework-free
-examples render `index.html` and call `server_document()` to embed the signal
+examples render `index.html` and use `embed_server()` to embed the signal
 studio in the page. `fourier_studio.py` exports a `modify_document(doc)`
 function that builds a small Fourier-series lab with linked signal and harmonic
 spectrum plots.

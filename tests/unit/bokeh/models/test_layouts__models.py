@@ -8,15 +8,13 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+import pytest
 
-# Bokeh imports
 from bokeh.models import ColumnDataSource
 from bokeh.models.ui import Tooltip
 from bokeh.plotting import figure
@@ -69,6 +67,26 @@ def test_Row() -> None:
 def test_Column() -> None:
     check_props_with_sizing_mode(Column())
     check_children_prop(Column)
+
+@pytest.mark.parametrize("layout_type", [Row, Column])
+def test_flexbox_sequence_children(layout_type: type[Row | Column]) -> None:
+    children = (Row(), Column())
+    layout = layout_type(children=children)
+    assert isinstance(layout.children, list)
+    assert layout.children == list(children)
+
+    replacement = (Row(),)
+    layout.children = replacement
+    assert isinstance(layout.children, list)
+    assert layout.children == list(replacement)
+
+    changes = []
+    layout.on_change("children", lambda attr, old, new: changes.append(new))
+    layout.children.append(Column())
+    assert len(changes) == 1
+
+    with pytest.raises(ValueError):
+        layout.children = (ColumnDataSource(),)
 
 def check_children_prop_boxes(layout_callable: type[HBox | VBox]):
     # component subclasses are layouts, widgets and plots

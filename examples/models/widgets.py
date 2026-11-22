@@ -3,10 +3,12 @@ buttons, groups, inputs, panels, sliders, and tables, using the low-level
 ``bokeh.models`` API.
 
 .. bokeh-example-metadata::
-    :sampledata: autompg2, iris
-    :apis: bokeh.models.AutocompleteInput, bokeh.models.Button, bokeh.models.CheckboxButtonGroup, bokeh.models.CheckboxGroup, bokeh.models.ColorPicker, bokeh.models.Column, bokeh.models.ColumnDataSource, bokeh.models.DataTable, bokeh.models.DatePicker, bokeh.models.DateRangeSlider, bokeh.models.DateSlider, bokeh.models.Div, bokeh.models.Dropdown, bokeh.models.IntEditor, bokeh.models.MultiChoice, bokeh.models.MultiSelect, bokeh.models.NumberEditor, bokeh.models.NumberFormatter, bokeh.models.TabPanel, bokeh.models.Paragraph, bokeh.models.PreText, bokeh.models.RadioButtonGroup, bokeh.models.RadioGroup, bokeh.models.RangeSlider, bokeh.models.Row, bokeh.models.Select, bokeh.models.SelectEditor, bokeh.models.Slider, bokeh.models.Spinner, bokeh.models.StringEditor, bokeh.models.StringFormatter, bokeh.models.TableColumn, bokeh.models.Tabs, bokeh.models.TextAreaInput, bokeh.models.TextInput, bokeh.models.Toggle
-    :refs: :ref:`ug_basic_scatters_markers`
+    :title: Widgets
     :keywords: widgets, select, button, slider, figure
+    :apis: bokeh.models.AutocompleteInput, bokeh.models.Button, bokeh.models.CheckboxButtonGroup, bokeh.models.CheckboxGroup, bokeh.models.ColorPicker, bokeh.models.Column, bokeh.models.ColumnDataSource, bokeh.models.DataTable, bokeh.models.DatePicker, bokeh.models.DateRangeSlider, bokeh.models.DateSlider, bokeh.models.Div, bokeh.models.Dropdown, bokeh.models.IntEditor, bokeh.models.MultiChoice, bokeh.models.MultiSelect, bokeh.models.NumberEditor, bokeh.models.NumberFormatter, bokeh.models.TabPanel, bokeh.models.Paragraph, bokeh.models.PreText, bokeh.models.RadioButtonGroup, bokeh.models.RadioGroup, bokeh.models.RangeSlider, bokeh.models.Row, bokeh.models.Select, bokeh.models.SelectEditor, bokeh.models.Slider, bokeh.models.Spinner, bokeh.models.StringEditor, bokeh.models.StringFormatter, bokeh.models.TableColumn, bokeh.models.Tabs, bokeh.models.TextAreaInput, bokeh.models.TextInput, bokeh.models.Toggle
+    :sampledata: autompg2, iris, penguins
+    :refs: :ref:`ug_basic_scatters_markers`
+    :no-render:
 
 ''' # noqa: E501
 from datetime import date, datetime, time
@@ -14,10 +16,25 @@ from math import pi
 
 from bokeh import palettes
 from bokeh.document import Document
-from bokeh.embed import file_html
-from bokeh.models import (BuiltinIcon, ByCSS, Column, ColumnDataSource, CustomJS,
-                          Dialog, Examiner, GroupBox, Row, SetValue, SVGIcon,
-                          TablerIcon, TabPanel, Tabs, Tooltip, widgets as w)
+from bokeh.embed import embed
+from bokeh.models import (
+    BuiltinIcon,
+    ByCSS,
+    Column,
+    ColumnDataSource,
+    CustomJS,
+    Dialog,
+    Examiner,
+    GroupBox,
+    Row,
+    SetValue,
+    SVGIcon,
+    TablerIcon,
+    TabPanel,
+    Tabs,
+    Tooltip,
+    widgets as w,
+)
 from bokeh.models.dom import HTML, ValueOf
 from bokeh.plotting import figure
 from bokeh.sampledata.autompg2 import autompg2 as mpg
@@ -386,6 +403,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "widgets.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, title="Widgets"))
+        f.write(embed(doc).page(title="Widgets"))
     print(f"Wrote {filename}")
     view(filename)

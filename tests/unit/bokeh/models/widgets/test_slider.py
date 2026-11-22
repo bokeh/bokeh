@@ -8,19 +8,16 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import logging
 from datetime import UTC, date, datetime
 
-# Bokeh imports
+import pytest
+
 from bokeh.core.properties import UnsetValueError
 from bokeh.core.validation.check import check_integrity, process_validation_issues
 from bokeh.util.logconfig import basicConfig
@@ -40,29 +37,74 @@ basicConfig()
 # General API
 #-----------------------------------------------------------------------------
 
+class TestAbstractSlider:
+    @pytest.mark.parametrize("cls", [mws.Slider, mws.RangeSlider, mws.MultiValuedSlider, mws.CategoricalSlider, mws.DateSlider])
+    def test_step_multiplier(self, cls: type[mws.AbstractSlider]) -> None:
+        s = cls()
+        assert s.step_multiplier == 5
+
+        s.step_multiplier = 10
+        assert s.step_multiplier == 10
+
+        with pytest.raises(ValueError):
+            s.step_multiplier = 0
+        with pytest.raises(ValueError):
+            s.step_multiplier = -1
+        with pytest.raises(ValueError):
+            s.step_multiplier = 2.5
+
+    @pytest.mark.parametrize("cls", [mws.Slider, mws.RangeSlider, mws.MultiValuedSlider, mws.CategoricalSlider, mws.DateSlider])
+    def test_default_step(self, cls: type[mws.AbstractSlider]) -> None:
+        s = cls()
+        assert s.default_step == 0.05
+
+        s.default_step = 0.1
+        assert s.default_step == 0.1
+
+        s.default_step = 1
+        assert s.default_step == 1
+
+        with pytest.raises(ValueError):
+            s.default_step = 0
+        with pytest.raises(ValueError):
+            s.default_step = 1.5
+        with pytest.raises(ValueError):
+            s.default_step = -0.1
+
+    @pytest.mark.parametrize("cls", [mws.Slider, mws.RangeSlider, mws.MultiValuedSlider, mws.CategoricalSlider, mws.DateSlider])
+    def test_acceleration(self, cls: type[mws.AbstractSlider]) -> None:
+        s = cls()
+        assert s.acceleration_interval == 10
+        assert s.acceleration_max == 8
+
+        s.acceleration_interval = 5
+        s.acceleration_max = 1
+        assert s.acceleration_interval == 5
+        assert s.acceleration_max == 1
+
+        for prop in ["acceleration_interval", "acceleration_max"]:
+            with pytest.raises(ValueError):
+                setattr(s, prop, 0)
+            with pytest.raises(ValueError):
+                setattr(s, prop, 2.5)
+
 class TestSlider:
-    def test_value_and_value_throttled(self) -> None:
+    def test_value(self) -> None:
         s0 = mws.Slider(start=0, end=10)
         with pytest.raises(UnsetValueError):
             s0.value
-        with pytest.raises(UnsetValueError):
-            s0.value_throttled
 
         s1 = mws.Slider(start=0, end=10, value=5)
         assert s1.value == 5
-        assert s1.value_throttled == 5
 
 class TestRangeSlider:
-    def test_value_and_value_throttled(self) -> None:
+    def test_value(self) -> None:
         s0 = mws.RangeSlider(start=0, end=10)
         with pytest.raises(UnsetValueError):
             s0.value
-        with pytest.raises(UnsetValueError):
-            s0.value_throttled
 
         s1 = mws.RangeSlider(start=0, end=10, value=(4, 6))
         assert s1.value == (4, 6)
-        assert s1.value_throttled == (4, 6)
 
     def test_rangeslider_equal_start_end_validation(self, caplog: pytest.LogCaptureFixture) -> None:
         start = 0
@@ -77,7 +119,7 @@ class TestRangeSlider:
             assert len(caplog.records) == 1
 
 class TestDateSlider:
-    def test_value_and_value_throttled(self) -> None:
+    def test_value(self) -> None:
         start = datetime(2021, 1, 1)
         end = datetime(2021, 12, 31)
         value = convert_date_to_datetime(datetime(2021, 2, 1))
@@ -85,12 +127,9 @@ class TestDateSlider:
         s0 = mws.DateSlider(start=start, end=end)
         with pytest.raises(UnsetValueError):
             s0.value
-        with pytest.raises(UnsetValueError):
-            s0.value_throttled
 
         s1 = mws.DateSlider(start=start, end=end, value=value)
         assert s1.value == value
-        assert s1.value_throttled == value
 
     def test_value_as_datetime_when_set_as_datetime(self) -> None:
         start = datetime(2017, 8, 9, 0, 0, tzinfo=UTC)
@@ -123,7 +162,7 @@ class TestDateSlider:
         assert s.value_as_date == end
 
 class TestDateRangeSlider:
-    def test_value_and_value_throttled(self) -> None:
+    def test_value(self) -> None:
         start = datetime(2021, 1, 1)
         end = datetime(2021, 12, 31)
         value = (convert_datetime_type(datetime(2021, 2, 1)), convert_datetime_type(datetime(2021, 2, 28)))
@@ -131,12 +170,9 @@ class TestDateRangeSlider:
         s0 = mws.DateRangeSlider(start=start, end=end)
         with pytest.raises(UnsetValueError):
             s0.value
-        with pytest.raises(UnsetValueError):
-            s0.value_throttled
 
         s1 = mws.DateRangeSlider(start=start, end=end, value=value)
         assert s1.value == value
-        assert s1.value_throttled == value
 
     def test_value_as_datetime_when_set_as_datetime(self) -> None:
         start = datetime(2017, 8, 9, 0, 0, tzinfo=UTC)

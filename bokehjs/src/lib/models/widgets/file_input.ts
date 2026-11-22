@@ -57,10 +57,10 @@ export class FileInputView extends InputWidgetView {
   override render(): void {
     super.render()
 
-    this.input_el.addEventListener("change", async () => {
+    this.input_el.addEventListener("change", () => {
       const {files} = this.input_el
       if (files != null) {
-        await this.load_files(files)
+        void this.load_files(files)
       }
     })
   }
@@ -140,10 +140,6 @@ export interface FileInput extends FileInput.Attrs {}
 export class FileInput extends InputWidget {
   declare properties: FileInput.Props
   declare __view_type__: FileInputView
-
-  constructor(attrs?: Partial<FileInput.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = FileInputView

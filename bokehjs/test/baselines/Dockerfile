@@ -4,8 +4,8 @@ FROM ubuntu:22.04@sha256:2edbbc5dc405e9612ba3584ce95480277e3eb374407b5505fe26f17
 
 ARG CHROME_VERSION=141.0.7390.54
 ARG CHROME_SHA256=5023ec2b8995b74caa5de0e22d5e30f871c3ecce67a6e52d3c9f9dfed423ed01
-ARG NODE_VERSION=24.11.0
-ARG NODE_SHA256=46da9a098973ab7ba4fca76945581ecb2eaf468de347173897044382f10e0a0a
+ARG NODE_VERSION=24.22.1
+ARG NODE_SHA256=6c172a9ab6718f7b801fb5a7bd486af2ee5e32758086a04b84fcce2aa77095e6
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -23,6 +23,7 @@ RUN apt-get update && \
       git \
       unzip \
       xz-utils && \
+    dpkg --compare-versions "$(dpkg-query -W -f='${Version}' ca-certificates)" ge 20260816ubuntu0.22.04.1 && \
     rm -rf /var/lib/apt/lists/*
 
 RUN curl --fail --location --silent --show-error \

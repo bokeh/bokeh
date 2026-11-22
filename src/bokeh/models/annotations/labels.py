@@ -22,10 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
-# Bokeh imports
 from ...core.enums import (
     AngleUnits,
     CoordinateUnits,
@@ -83,10 +79,6 @@ class TextAnnotation(Annotation):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     text = TextLike(default="", help="""
     A text or LaTeX notation to render.
     """)
@@ -122,9 +114,9 @@ class TextAnnotation(Annotation):
     The {prop} values for the text bounding box.
     """)
 
-    background_fill_color = Override(default=None)
+    _background_fill_color = Override(default=None)
 
-    border_line_color = Override(default=None)
+    _border_line_color = Override(default=None)
 
 class Label(TextAnnotation):
     ''' Render a single text label as an annotation.
@@ -145,10 +137,6 @@ class Label(TextAnnotation):
     See :ref:`ug_basic_annotations_labels` for information on plotting labels.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     anchor = TextAnchor(default="auto", help="""
     Position within the bounding box of the text of a label to which
@@ -237,10 +225,6 @@ class LabelSet(DataAnnotation):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     x = NumberSpec(default=field("x"), help="""
     The x-coordinates to locate the text anchors.
     """)
@@ -295,13 +279,13 @@ class LabelSet(DataAnnotation):
     The {prop} values for the text bounding box.
     """)
 
-    background_fill_color = Override(default=None)
+    _background_fill_color = Override(default=None)
 
     border_props = Include(LineProps, prefix="border", help="""
     The {prop} values for the text bounding box.
     """)
 
-    border_line_color = Override(default=None)
+    _border_line_color = Override(default=None)
 
 class Title(TextAnnotation):
     ''' Render a single title box as an annotation.
@@ -309,10 +293,6 @@ class Title(TextAnnotation):
     See :ref:`ug_basic_annotations_titles` for information on plotting titles.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     vertical_align = Enum(VerticalAlign, default='bottom', help="""
     Alignment of the text in its enclosing space, *across* the direction of the text.
@@ -336,11 +316,11 @@ class Title(TextAnnotation):
     standoff = Float(default=10, help="""
     """)
 
-    text_font_size = Override(default="13px")
+    _text_font_size = Override(default="13px")
 
-    text_font_style = Override(default="bold")
+    _text_font_style = Override(default="bold")
 
-    text_line_height = Override(default=1.0)
+    _text_line_height = Override(default=1.0)
 
 #-----------------------------------------------------------------------------
 # Dev API

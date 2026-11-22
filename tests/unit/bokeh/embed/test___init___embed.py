@@ -8,15 +8,11 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Bokeh imports
 from tests.support.util.api import verify_all
 
 # Module under test
@@ -27,13 +23,28 @@ import bokeh.embed as be # isort:skip
 #-----------------------------------------------------------------------------
 
 ALL = (
+    'CallbackPolicy',
+    'EmbedFragment',
+    'EmbedMount',
+    'EmbedRoot',
+    'EmbedValidationError',
+    'EmbedResult',
+    'EMBED_MIME_TYPE',
+    'EmbedBuildError',
+    'EmbedInput',
+    'EmbedSpec',
+    'ExtensionRequirement',
+    'ExternalEmbed',
+    'ResourceAssetRequirement',
+    'ResourceRequirements',
+    'SerializationPolicy',
+    'ServerRoot',
+    'ThemePolicy',
+    'ThemeSource',
     'autoload_static',
-    'components',
-    'file_html',
+    'embed',
+    'embed_server',
     'json_item',
-    'server_document',
-    'server_session',
-    'RenderRoot',
 )
 
 #-----------------------------------------------------------------------------
@@ -41,6 +52,10 @@ ALL = (
 #-----------------------------------------------------------------------------
 
 Test___all__ = verify_all(be, ALL)
+
+
+def test_embed_mime_type() -> None:
+    assert be.EMBED_MIME_TYPE == "application/vnd.bokeh.embed+json"
 
 #-----------------------------------------------------------------------------
 # Dev API

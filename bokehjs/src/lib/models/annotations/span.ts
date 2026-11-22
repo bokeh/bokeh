@@ -238,10 +238,6 @@ export class Span extends Annotation {
   declare properties: Span.Props
   declare __view_type__: SpanView
 
-  constructor(attrs?: Partial<Span.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = SpanView
 

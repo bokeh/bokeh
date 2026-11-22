@@ -1,3 +1,15 @@
+''' Format dates, dollar prices, and trading volume in a stock chart's hover tooltip.
+
+.. bokeh-example-metadata::
+    :title: Format dates and numbers on hover
+    :keywords: hover, datetime, currency, number formatting
+    :categories: interaction/tools, topics/timeseries
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.HoverTool, bokeh.plotting.figure.add_tools, bokeh.plotting.figure.line
+    :sampledata: stocks
+    :refs: :ref:`ug_interaction_tools_formatting_tooltip_fields`
+    :gallery: A stock price line chart with a tooltip showing a formatted date, closing price, and trading volume.
+'''
+
 import numpy as np
 
 from bokeh.models import ColumnDataSource, HoverTool
@@ -14,7 +26,7 @@ source = ColumnDataSource(data={
     'volume'    : AAPL['volume'][::10],
 })
 
-p = figure(height=250, x_axis_type="datetime", tools="", toolbar_location=None,
+p = figure(height=250, x_axis_type="datetime", tools=None,
            title="Hover Tooltip Formatting", sizing_mode="scale_width")
 p.background_fill_color="#f5f5f5"
 p.grid.grid_line_color="white"

@@ -1,6 +1,5 @@
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
 import {ScalarExpression} from "./expression"
-import {dict} from "core/util/object"
 import {max} from "core/util/array"
 import type * as p from "core/properties"
 
@@ -18,10 +17,6 @@ export interface Maximum extends Maximum.Attrs {}
 export class Maximum extends ScalarExpression<number> {
   declare properties: Maximum.Props
 
-  constructor(attrs?: Partial<Maximum.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<Maximum.Props>(({Float, Str}) => ({
       field:   [ Str ],
@@ -29,8 +24,8 @@ export class Maximum extends ScalarExpression<number> {
     }))
   }
 
-  protected _compute(source: ColumnarDataSource): number {
-    const column = dict(source.data).get(this.field) ?? []
-    return Math.max(this.initial, max(column as number[]))
+  protected _compute(source: IndexedDataSource): number {
+    const column = source.get_field(this.field) ?? []
+    return Math.max(this.initial, max(column))
   }
 }

@@ -1,15 +1,13 @@
 """Aggregate pull-request summaries and commit snapshots."""
 
-# Standard library imports
 import re
 from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
-# Bokeh imports
 from . import BackportError
 from .checks import validate_pr
-from .github import GitHubAPI, repository_path
+from .github import GitHubAPI, PullRequest, repository_path
 from .models import BackportSummary, PlanState
 
 CHERRY_PICK_ORIGIN_RE = re.compile(
@@ -29,7 +27,7 @@ class AggregateSnapshot:
 def load_aggregate(
     api: GitHubAPI,
     repository: str,
-    pr: dict[str, Any],
+    pr: PullRequest,
     *,
     require_open: bool,
     require_ready: bool | None = None,

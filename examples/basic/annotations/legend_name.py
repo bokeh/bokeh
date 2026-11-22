@@ -1,3 +1,11 @@
+''' Route line glyphs to different legends by legend name.
+
+.. bokeh-example-metadata::
+    :title: Legend name
+    :keywords: legend, name
+    :apis: bokeh.models.Legend, bokeh.models.LinearAxis, bokeh.models.Range1d, bokeh.plotting.figure.add_layout, bokeh.plotting.figure.line
+'''
+
 from bokeh.models import Legend, LinearAxis, Range1d
 from bokeh.plotting import figure, show
 

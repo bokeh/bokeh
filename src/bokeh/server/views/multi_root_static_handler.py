@@ -22,15 +22,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-# External imports
 from tornado.web import HTTPError
 
-# Bokeh imports
 from .static_handler import AsyncStaticFileHandler
 
 if TYPE_CHECKING:
@@ -56,9 +53,11 @@ __all__ = (
 
 class MultiRootStaticHandler(AsyncStaticFileHandler):
 
-    def initialize(self, root: RootPathLike, default_filename: str | None = None) -> None:
+    def initialize(self, root: RootPathLike, default_filename: str | None = None,
+            allowed_symlink_directory: str | list[str] | None = None) -> None:
         self.root = root  # type: ignore[assignment]
         self.default_filename = default_filename
+        self.allowed_symlink_directory = allowed_symlink_directory
 
     @classmethod
     def get_absolute_path(cls, root: RootPathLike, path: str) -> str:
@@ -66,7 +65,10 @@ class MultiRootStaticHandler(AsyncStaticFileHandler):
             return super().get_absolute_path(root, path)
 
         try:
-            name, artifact_path = path.split(os.sep, 1)
+            # Normalize platform separators so Windows (backslash) paths and
+            # URL (forward slash) paths are handled by a single code path.
+            normalized = path.replace(os.sep, "/") if os.sep != "/" else path
+            name, artifact_path = normalized.split("/", 1)
         except ValueError:
             raise HTTPError(404)
 

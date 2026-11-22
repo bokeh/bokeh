@@ -1,3 +1,11 @@
+''' Add a scale bar with custom units to a detail plot controlled by a range tool.
+
+.. bokeh-example-metadata::
+    :title: Scale bar custom units
+    :keywords: scale, bar, custom, units
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Metric, bokeh.models.RangeTool, bokeh.models.ScaleBar, bokeh.plotting.figure.add_layout
+'''
+
 import numpy as np
 
 from bokeh.layouts import column
@@ -39,8 +47,7 @@ select_plot = figure(
     height=150,
     y_range=detailed_plot.y_range,
     y_axis_location=None,
-    tools="",
-    toolbar_location=None,
+    tools=None,
     background_fill_color=detailed_plot.background_fill_color,
 )
 

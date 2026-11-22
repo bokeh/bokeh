@@ -1,6 +1,6 @@
 import {expect} from "#framework/assertions"
 
-import {split_rings, point_in_ring, classify_rings, build_line_from_ring, generate_skirt_geometry} from "@bokehjs/core/util/polygon"
+import {split_rings, build_line_from_ring, generate_skirt_geometry} from "@bokehjs/core/util/polygon"
 
 describe("polygon_utils", () => {
 
@@ -95,142 +95,6 @@ describe("polygon_utils", () => {
       const sy = new Float32Array([4, 5, 6])
       const rings = split_rings(sx, sy)
       expect(rings).to.be.equal([[1, 4, 2, 5, 3, 6]])
-    })
-  })
-
-  describe("point_in_ring", () => {
-
-    it("should return true for point inside a square", () => {
-      const ring = [0, 0, 10, 0, 10, 10, 0, 10]
-      expect(point_in_ring(5, 5, ring)).to.be.equal(true)
-    })
-
-    it("should return false for point outside a square", () => {
-      const ring = [0, 0, 10, 0, 10, 10, 0, 10]
-      expect(point_in_ring(15, 5, ring)).to.be.equal(false)
-    })
-
-    it("should return false for point above a square", () => {
-      const ring = [0, 0, 10, 0, 10, 10, 0, 10]
-      expect(point_in_ring(5, 15, ring)).to.be.equal(false)
-    })
-
-    it("should return true for point inside a triangle", () => {
-      const ring = [0, 0, 10, 0, 5, 10]
-      expect(point_in_ring(5, 3, ring)).to.be.equal(true)
-    })
-
-    it("should return false for point outside a triangle", () => {
-      const ring = [0, 0, 10, 0, 5, 10]
-      expect(point_in_ring(9, 9, ring)).to.be.equal(false)
-    })
-  })
-
-  describe("classify_rings", () => {
-
-    it("should return a single group for a single ring", () => {
-      const rings = [[0, 0, 10, 0, 10, 10, 0, 10]]
-      const groups = classify_rings(rings)
-      expect(groups.length).to.be.equal(1)
-      expect(groups[0].rings.length).to.be.equal(1)
-    })
-
-    it("should classify a true hole as part of the outer group", () => {
-      // Outer square, inner square hole
-      const outer = [0, 0, 20, 0, 20, 20, 0, 20]
-      const hole = [5, 5, 15, 5, 15, 15, 5, 15]
-      const groups = classify_rings([outer, hole])
-      expect(groups.length).to.be.equal(1)
-      expect(groups[0].rings.length).to.be.equal(2)
-      expect(groups[0].rings[0]).to.be.equal(outer)
-      expect(groups[0].rings[1]).to.be.equal(hole)
-    })
-
-    it("should classify a disjoint ring as a separate group", () => {
-      // Two disjoint squares
-      const ring0 = [0, 0, 10, 0, 10, 10, 0, 10]
-      const ring1 = [20, 0, 30, 0, 30, 10, 20, 10]
-      const groups = classify_rings([ring0, ring1])
-      expect(groups.length).to.be.equal(2)
-      expect(groups[0].rings.length).to.be.equal(1)
-      expect(groups[0].rings[0]).to.be.equal(ring0)
-      expect(groups[1].rings.length).to.be.equal(1)
-      expect(groups[1].rings[0]).to.be.equal(ring1)
-    })
-
-    it("should handle mix of holes and disjoint parts", () => {
-      // Outer square with a hole, plus a disjoint square
-      const outer = [0, 0, 20, 0, 20, 20, 0, 20]
-      const hole = [5, 5, 15, 5, 15, 15, 5, 15]
-      const disjoint = [30, 0, 40, 0, 40, 10, 30, 10]
-      const groups = classify_rings([outer, hole, disjoint])
-      expect(groups.length).to.be.equal(2)
-      // Group 0: outer + hole
-      expect(groups[0].rings.length).to.be.equal(2)
-      expect(groups[0].rings[0]).to.be.equal(outer)
-      expect(groups[0].rings[1]).to.be.equal(hole)
-      // Group 1: disjoint
-      expect(groups[1].rings.length).to.be.equal(1)
-      expect(groups[1].rings[0]).to.be.equal(disjoint)
-    })
-
-    it("should produce correct flat_coords for each group", () => {
-      const ring0 = [0, 0, 10, 0, 10, 10, 0, 10]
-      const ring1 = [20, 0, 30, 0, 30, 10, 20, 10]
-      const groups = classify_rings([ring0, ring1])
-      expect(groups[0].flat_coords).to.be.equal([0, 0, 10, 0, 10, 10, 0, 10])
-      expect(groups[1].flat_coords).to.be.equal([20, 0, 30, 0, 30, 10, 20, 10])
-    })
-
-    it("should handle overlapping disjoint rings (Venn diagram pattern)", () => {
-      // Two overlapping circles approximated as squares
-      // Ring 0: square at (0,0)-(10,10)
-      // Ring 1: square at (5,0)-(15,10) — overlaps ring 0 but first point (5,0) is ON the edge
-      // Since (5,0) is on the boundary, ray-casting may return false, making it disjoint
-      const ring0 = [0, 0, 10, 0, 10, 10, 0, 10]
-      const ring1 = [5, -1, 15, -1, 15, 10, 5, 10]  // first point clearly outside ring0
-      const groups = classify_rings([ring0, ring1])
-      // Both should be separate groups since ring1's first point is outside ring0
-      expect(groups.length).to.be.equal(2)
-    })
-
-    it("should reject a partial bbox overlap as containment", () => {
-      const outer = [0, 0, 10, 0, 10, 10, 0, 10]
-      // The first point is inside outer, but the ring extends outside it.
-      const overlap = [5, 5, 13, 5, 13, 13, 5, 13]
-      const groups = classify_rings([outer, overlap])
-      expect(groups.length).to.be.equal(2)
-      expect(groups[0].rings).to.be.equal([outer])
-      expect(groups[1].rings).to.be.equal([overlap])
-    })
-
-    it("should handle empty rings array", () => {
-      const groups = classify_rings([])
-      expect(groups).to.be.equal([])
-    })
-
-    it("should classify nested islands using the even-odd rule", () => {
-      const outer = [0, 0, 20, 0, 20, 20, 0, 20]
-      const hole = [2, 2, 18, 2, 18, 18, 2, 18]
-      const island = [5, 5, 15, 5, 15, 15, 5, 15]
-      const island_hole = [7, 7, 13, 7, 13, 13, 7, 13]
-
-      const groups = classify_rings([outer, hole, island, island_hole])
-      expect(groups.length).to.be.equal(2)
-      expect(groups[0].rings).to.be.equal([outer, hole])
-      expect(groups[1].rings).to.be.equal([island, island_hole])
-    })
-
-    it("should classify holes independently of input ordering and orientation", () => {
-      const outer = [0, 0, 0, 20, 20, 20, 20, 0]
-      const hole = [4, 4, 16, 4, 16, 16, 4, 16]
-      const disjoint = [30, 0, 40, 0, 40, 10, 30, 10]
-      const disjoint_hole = [32, 2, 32, 8, 38, 8, 38, 2]
-
-      const groups = classify_rings([hole, disjoint_hole, outer, disjoint])
-      expect(groups.length).to.be.equal(2)
-      expect(groups[0].rings).to.be.equal([outer, hole])
-      expect(groups[1].rings).to.be.equal([disjoint, disjoint_hole])
     })
   })
 
@@ -420,8 +284,7 @@ describe("polygon_utils", () => {
 
   describe("generate_skirt_geometry", () => {
 
-    // Pre-computed earcut results for each test polygon to avoid
-    // importing earcut (which lacks type declarations in test env).
+    // Pre-computed triangle indices keep these tests focused on skirt geometry.
     const TRIANGLE_INDICES = [1, 2, 0]
     const SQUARE_INDICES = [2, 3, 0, 0, 1, 2]
     const SQUARE_HOLE_INDICES = [0, 4, 7, 5, 4, 0, 3, 0, 7, 5, 0, 1, 2, 3, 7, 6, 5, 1, 2, 7, 6, 6, 1, 2]
@@ -429,7 +292,7 @@ describe("polygon_utils", () => {
 
     it("should produce correct vertex and triangle counts for a triangle", () => {
       // Triangle: 3 original + 3 skirt = 6 vertices
-      // 1 earcut triangle + 2*3 = 6 skirt triangles = 7 total
+      // 1 fill triangle + 2*3 = 6 skirt triangles = 7 total
       const flat_coords = [0, 0, 10, 0, 0, 10]
       const rings = [flat_coords]
       const geom = generate_skirt_geometry(flat_coords, rings, TRIANGLE_INDICES, 1.5)
@@ -443,7 +306,7 @@ describe("polygon_utils", () => {
 
     it("should produce correct vertex and triangle counts for a square", () => {
       // Square: 4 original + 4 skirt = 8 vertices
-      // 2 earcut triangles + 2*4 = 8 skirt triangles = 10 total
+      // 2 fill triangles + 2*4 = 8 skirt triangles = 10 total
       const flat_coords = [0, 0, 10, 0, 10, 10, 0, 10]
       const rings = [flat_coords]
       const geom = generate_skirt_geometry(flat_coords, rings, SQUARE_INDICES, 1.5)
@@ -477,12 +340,12 @@ describe("polygon_utils", () => {
       }
     })
 
-    it("should preserve earcut indices as first portion of result indices", () => {
+    it("should preserve fill indices as the first portion of result indices", () => {
       const flat_coords = [0, 0, 10, 0, 10, 10, 0, 10]
       const rings = [flat_coords]
       const geom = generate_skirt_geometry(flat_coords, rings, SQUARE_INDICES, 1.5)
 
-      // First earcut_count indices should match the original earcut output
+      // Fill indices should remain at the start of the element array.
       for (let i = 0; i < SQUARE_INDICES.length; i++) {
         expect(geom.indices[i]).to.be.equal(SQUARE_INDICES[i])
       }
@@ -556,9 +419,9 @@ describe("polygon_utils", () => {
       // 8 original + 4 outer skirt + 4 hole skirt = 16 vertices
       expect(geom.nvertices).to.be.equal(16)
 
-      // earcut tris + 2*4 outer skirt + 2*4 hole skirt = earcut + 16
-      const n_earcut = SQUARE_HOLE_INDICES.length / 3
-      expect(geom.ntriangles).to.be.equal(n_earcut + 16)
+      // fill tris + 2*4 outer skirt + 2*4 hole skirt = fill + 16
+      const n_fill = SQUARE_HOLE_INDICES.length / 3
+      expect(geom.ntriangles).to.be.equal(n_fill + 16)
 
       // All original vertices should have edge_distance = 1.5
       for (let i = 0; i < 8; i++) {
@@ -617,7 +480,7 @@ describe("polygon_utils", () => {
 
     it("should preserve fill topology when boundary detail is smaller than the AA width", () => {
       // Moving these closely spaced concave boundary vertices by the AA width
-      // can flip skinny earcut triangles and make translucent triangles overlap.
+      // can flip skinny fill triangles and make translucent triangles overlap.
       const flat_coords = [0, 0, 0.1, 0, 0.15, -0.08, 0.2, 0, 1, 0, 1, 1, 0, 1]
       const rings = [flat_coords]
       const aa = 1.5
@@ -629,16 +492,40 @@ describe("polygon_utils", () => {
       }
     })
 
+    it("should preserve every fill vertex when requested", () => {
+      const flat_coords = [0, 0, 10, 0, 10, 10, 0, 10]
+      const geom = generate_skirt_geometry(flat_coords, [flat_coords], SQUARE_INDICES, 1.5, true)
+
+      expect([...geom.positions.slice(0, flat_coords.length)]).to.be.equal(flat_coords)
+    })
+
+    it("should expand every canonically oriented boundary toward its unfilled side", () => {
+      const left = [0, 0, 10, 0, 10, 10, 0, 10]
+      const right = [20, 0, 30, 0, 30, 10, 20, 10]
+      const flat_coords = [...left, ...right]
+      const indices = [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7]
+      const geom = generate_skirt_geometry(flat_coords, [left, right], indices, 1.5, false, true)
+
+      // Both CCW contours contain fill on their left, so both bottom-left
+      // corners move inward while their skirt vertices move outward.
+      expect(geom.positions[0]).to.be.above(0)
+      expect(geom.positions[1]).to.be.above(0)
+      expect(geom.positions[8]).to.be.above(20)
+      expect(geom.positions[9]).to.be.above(0)
+      expect(geom.positions[16]).to.be.below(0)
+      expect(geom.positions[17]).to.be.below(0)
+      expect(geom.positions[24]).to.be.below(20)
+      expect(geom.positions[25]).to.be.below(0)
+    })
+
     it("should handle collinear edges correctly", () => {
-      // Three collinear points form a degenerate polygon
-      // earcut produces 0 triangles for collinear points
+      // Three collinear points form a degenerate polygon with no fill triangles.
       const flat_coords = [0, 0, 5, 0, 10, 0]
       const rings = [flat_coords]
       const tri_indices: number[] = []
       const geom = generate_skirt_geometry(flat_coords, rings, tri_indices, 1.5)
 
-      // With 0 earcut triangles and < 3 original vertices check is n_original < 3,
-      // but we have 3 original vertices with 0 earcut tris, so the early exit applies
+      // With 3 original vertices and no fill triangles, the early exit applies.
       expect(geom.nvertices).to.be.equal(3)
       expect(geom.ntriangles).to.be.equal(0)
 
@@ -654,7 +541,7 @@ describe("polygon_utils", () => {
     })
 
     it("should handle fewer than 3 vertices gracefully", () => {
-      // 2 vertices -> earcut produces 0 triangles
+      // Two vertices produce no fill triangles.
       const flat_coords = [0, 0, 10, 0]
       const rings = [flat_coords]
       const tri_indices: number[] = []

@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import asyncio
 import os
 import stat
@@ -28,12 +27,10 @@ from collections.abc import Callable, Iterator
 from datetime import UTC, datetime
 from typing import Any, TypeVar
 
-# External imports
 from tornado import httputil, iostream, version_info as tornado_version_info
 from tornado.ioloop import IOLoop
 from tornado.web import HTTPError, StaticFileHandler as TornadoStaticFileHandler
 
-# Bokeh imports
 from bokeh.settings import settings
 
 #-----------------------------------------------------------------------------
@@ -57,6 +54,10 @@ T = TypeVar("T")
 
 class AsyncStaticFileHandler(TornadoStaticFileHandler):
     ''' Serve static files without performing filesystem I/O on the event loop. '''
+
+    path: str
+    absolute_path: str | None
+    modified: datetime | None
 
     async def get(self, path: str, include_body: bool = True) -> None:
         self.path = self.parse_url_path(path)

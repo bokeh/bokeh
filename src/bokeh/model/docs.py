@@ -20,11 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from operator import itemgetter
 from typing import TYPE_CHECKING, Any
 
-# Bokeh imports
 from ..util.serialization import make_id
 from ..util.strings import append_docstring
 

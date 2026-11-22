@@ -1,14 +1,15 @@
-''' A bar chart using the `Auto MPG dataset`_. This example demonstrates
-automatic handing of Pandas GroupBy objects and colormapping with
+''' A bar chart using the `Auto MPG dataset <https://archive.ics.uci.edu/ml/datasets/auto+mpg>`__. This example demonstrates
+automatic handling of Pandas GroupBy objects and colormapping with
 ``factor_cmap``.
 
 .. bokeh-example-metadata::
-    :sampledata: autompg
-    :apis: bokeh.plotting.figure.vbar, bokeh.transform.factor_cmap
-    :refs: :ref:`ug_basic_bars_pandas`
+    :title: Fuel economy by cylinder count
     :keywords: bars, categorical, colormap, groupby, pandas
+    :apis: bokeh.plotting.figure.vbar, bokeh.transform.factor_cmap
+    :sampledata: autompg
+    :refs: :ref:`ug_basic_bars_pandas`
+    :gallery: A bar chart of MPG vs cylinders using the Auto MPG dataset, colormapped by the number of cylinders.
 
-.. _Auto MPG dataset: https://archive.ics.uci.edu/ml/datasets/auto+mpg
 
 '''
 from bokeh.palettes import Spectral5
@@ -22,7 +23,7 @@ group = df.groupby('cyl')
 cyl_cmap = factor_cmap('cyl', palette=Spectral5, factors=sorted(df.cyl.unique()))
 
 p = figure(height=350, x_range=group, title="MPG by # Cylinders",
-           toolbar_location=None, tools="")
+           tools=None)
 
 p.vbar(x='cyl', top='mpg_mean', width=1, source=group,
        line_color=cyl_cmap, fill_color=cyl_cmap)

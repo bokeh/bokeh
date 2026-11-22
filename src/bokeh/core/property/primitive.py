@@ -20,13 +20,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import numbers
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from ._sphinx import property_link, register_type_link
 from .bases import Init, PrimitiveProperty
 

@@ -28,7 +28,7 @@ export class SplineView extends XYGlyphView {
     this._define_attr<Spline.Data>("syt", syt)
   }
 
-  protected _paint(ctx: Context2d, _indices: number[], data?: Partial<Spline.Data>): void {
+  protected _paint(ctx: Context2d, _indices: Int32Array, data?: Partial<Spline.Data>): void {
     const {sxt, syt} = {...this, ...data}
 
     let move = true
@@ -85,10 +85,6 @@ export interface Spline extends Spline.Attrs {}
 export class Spline extends XYGlyph {
   declare properties: Spline.Props
   declare __view_type__: SplineView
-
-  constructor(attrs?: Partial<Spline.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = SplineView

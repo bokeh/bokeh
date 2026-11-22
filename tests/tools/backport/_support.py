@@ -1,8 +1,11 @@
-# Bokeh imports
+from collections.abc import Iterable
+from typing import Any
+
+from tools.backport.github import GitHubAPI, PullRequest
 from tools.backport.models import Candidate, IssueRef, PlanState
 
 
-def valid_pr(*, body: str = "") -> dict:
+def valid_pr(*, body: str = "") -> PullRequest:
     return {
         "base": {"ref": "branch-3.9"},
         "body": body,
@@ -60,20 +63,23 @@ def state_with(candidates: list[Candidate]) -> PlanState:
     )
 
 
-class FakeGraphQLAPI:
-    def __init__(self, pages: list[dict]) -> None:
+class FakeGraphQLAPI(GitHubAPI):
+    def __init__(self, pages: list[dict[str, Any]]) -> None:
         self.pages = pages
-        self.calls: list[tuple[str, dict]] = []
+        self.calls: list[tuple[str, dict[str, Any]]] = []
 
-    def graphql(self, query: str, variables: dict) -> dict:
+    def request(self, method: str, path: str, *, expected: Iterable[int] = (200,), **kwargs: Any) -> Any:
+        raise AssertionError(f"unexpected REST request: {method} {path}")
+
+    def graphql(self, query: str, variables: dict[str, Any]) -> dict[str, Any]:
         self.calls.append((query, variables))
         return self.pages[len(self.calls) - 1]
 
 
-class RecordingAPI:
+class RecordingAPI(GitHubAPI):
     def __init__(self) -> None:
-        self.calls: list[tuple[str, str, dict]] = []
+        self.calls: list[tuple[str, str, dict[str, Any]]] = []
 
-    def request(self, method: str, path: str, **kwargs: object) -> dict:
+    def request(self, method: str, path: str, *, expected: Iterable[int] = (200,), **kwargs: Any) -> Any:
         self.calls.append((method, path, kwargs))
         return {"merged": True, "sha": "f" * 40}

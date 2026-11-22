@@ -87,8 +87,8 @@ export class CartesianFrameView extends CanvasPanelView {
   protected _configure_ranges(): void {
     // data to/from screen space transform (left-bottom <-> left-top origin)
     const {bbox} = this
-    this._x_target = new Range1d({start: bbox.left, end: bbox.right})
-    this._y_target = new Range1d({start: bbox.bottom, end: bbox.top})
+    this._x_target = Range1d.create({start: bbox.left, end: bbox.right})
+    this._y_target = Range1d.create({start: bbox.bottom, end: bbox.top})
   }
 
   protected _configure_scales(): void {
@@ -219,19 +219,15 @@ export class CartesianFrame extends CanvasPanel {
   declare properties: CartesianFrame.Props
   declare __view_type__: CartesianFrameView
 
-  constructor(attrs?: Partial<CartesianFrame.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = CartesianFrameView
 
     this.define<CartesianFrame.Props>(({Bool, Float, Dict, Ref}) => ({
-      x_range:        [ Ref(Range), () => new DataRange1d() ],
-      y_range:        [ Ref(Range), () => new DataRange1d() ],
+      x_range:        [ Ref(Range), () => DataRange1d.create() ],
+      y_range:        [ Ref(Range), () => DataRange1d.create() ],
 
-      x_scale:        [ Ref(Scale), () => new LinearScale() ],
-      y_scale:        [ Ref(Scale), () => new LinearScale() ],
+      x_scale:        [ Ref(Scale), () => LinearScale.create() ],
+      y_scale:        [ Ref(Scale), () => LinearScale.create() ],
 
       extra_x_ranges: [ Dict(Ref(Range)), {} ],
       extra_y_ranges: [ Dict(Ref(Range)), {} ],

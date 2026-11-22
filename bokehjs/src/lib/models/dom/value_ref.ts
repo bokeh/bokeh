@@ -2,8 +2,8 @@ import {Placeholder, PlaceholderView, Formatter} from "./placeholder"
 import type {Formatters} from "./placeholder"
 import {CustomJS} from "../callbacks/customjs"
 import {CustomJSHover} from "../tools/inspectors/customjs_hover"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
-import type {Index} from "core/util/templating"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
+import type {FormatterFunc, Index} from "core/util/templating"
 import {_get_column_value, MISSING, DEFAULT_FORMATTERS, Skip} from "core/util/templating"
 import type {SyncExecutableLike} from "core/util/callbacks"
 import {execute, execute_sync} from "core/util/callbacks"
@@ -17,7 +17,7 @@ export type FilterArgs = {
   value: unknown
   field: string
   row: {[key: string]: unknown}
-  data_source: ColumnarDataSource
+  data_source: IndexedDataSource
   vars: PlainObject
 }
 
@@ -48,11 +48,12 @@ export class ValueRefView extends PlaceholderView {
     }
   }
 
-  update(data_source: ColumnarDataSource, index: Index | null, vars: PlainObject, _formatters?: Formatters): void {
+  update(data_source: IndexedDataSource, index: Index | null, vars: PlainObject, _formatters?: Formatters,
+      default_formatter: FormatterFunc = DEFAULT_FORMATTERS.basic): void {
     const {field, format, formatter, filter} = this.model
 
     const value = _get_column_value(field, data_source, index)
-    const row = index != null ? data_source.get_row(index) : {}
+    const row = index != null ? data_source.get_record(index) : {}
 
     if (filter != null) {
       for (const fn of isArray(filter) ? filter : [filter]) {
@@ -65,6 +66,7 @@ export class ValueRefView extends PlaceholderView {
           }
         })()
         if (isBoolean(result) && !result) {
+          // oxlint-disable-next-line typescript/only-throw-error -- control flow marker, not an error
           throw new Skip()
         }
       }
@@ -90,7 +92,7 @@ export class ValueRefView extends PlaceholderView {
     } else {
       const output = (() => {
         if (format == null) {
-          return DEFAULT_FORMATTERS.basic(value, "", vars)
+          return default_formatter(value, "", vars)
         } else {
           if (formatter instanceof CustomJSHover) {
             return formatter.format(value, format, vars)
@@ -119,10 +121,6 @@ export interface ValueRef extends ValueRef.Attrs {}
 export class ValueRef extends Placeholder {
   declare properties: ValueRef.Props
   declare __view_type__: ValueRefView
-
-  constructor(attrs?: Partial<ValueRef.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = ValueRefView

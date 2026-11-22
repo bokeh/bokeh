@@ -40,7 +40,7 @@ export class EllipseView extends CenterRotatableView  {
     })
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Ellipse.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<Ellipse.Data>): void {
     const {sx, sy, swidth, sheight, angle} = {...this, ...data}
 
     for (const i of indices) {
@@ -98,7 +98,7 @@ export class EllipseView extends CenterRotatableView  {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   override draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Rect, index: number): void {
@@ -124,7 +124,7 @@ export class EllipseView extends CenterRotatableView  {
 
     const angle = new p.UniformScalar(0, n) // don't attempt to match glyph angle
 
-    this._paint(ctx, [index], {sx, sy, swidth, sheight, angle})
+    this._paint(ctx, Int32Array.of(index), {sx, sy, swidth, sheight, angle})
   }
 }
 
@@ -143,10 +143,6 @@ export interface Ellipse extends Ellipse.Attrs {}
 export class Ellipse extends CenterRotatable {
   declare properties: Ellipse.Props
   declare __view_type__: EllipseView
-
-  constructor(attrs?: Partial<Ellipse.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = EllipseView

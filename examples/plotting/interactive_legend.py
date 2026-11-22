@@ -3,10 +3,11 @@ hide glyphs by clicking on an entry in a ``Legend``. This can be accomplished
 by setting the legend ``click_policy`` property to ``"hide"``.
 
 .. bokeh-example-metadata::
-    :sampledata: stocks
-    :apis: bokeh.palettes.Spectral4
-    :refs: :ref:`ug_interaction_legends`
+    :title: Interactive legend
     :keywords: line, interactions, legend, hide, glyphs
+    :apis: bokeh.palettes.Spectral4
+    :sampledata: stocks
+    :refs: :ref:`ug_interaction_legends`
 
 '''
 

@@ -195,7 +195,7 @@ export async function load_baselines(baseline_paths: string[], ref: string): Pro
     proc.on("error", reject)
     proc.on("exit", (code, _signal) => {
       if (code !== 0) {
-        reject()
+        reject(new Error(`baselines process exited with code ${code}`))
       } else {
         resolve(baselines)
       }

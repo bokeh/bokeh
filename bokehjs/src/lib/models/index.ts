@@ -1,3 +1,7 @@
+// Standard registration uses these exports to resolve base classes and document configuration.
+export {DocumentConfig} from "../document/config"
+export {DataModel, Model} from "../model"
+
 export * from "./annotations"
 export * from "./axes"
 export * from "./callbacks"

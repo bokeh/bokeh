@@ -49,6 +49,14 @@ method as follows:
     ``ColumnDataSource`` consisting of a list of lists of point coordinates
     and a list of scalar values of matching length.
 
+To share one coordinate row across several lines, store it once in a second
+``ColumnDataSource`` and use :func:`~bokeh.transform.gather` with a row index for
+each line. Repeating the index repeats the row in the browser without sending
+duplicate coordinates:
+
+.. bokeh-plot:: __REPO__/examples/basic/lines/shared_coordinates.py
+    :source-position: above
+
 .. _ug_basic_lines_missing_points:
 
 Missing points

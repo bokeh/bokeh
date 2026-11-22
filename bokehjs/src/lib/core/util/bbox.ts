@@ -517,8 +517,8 @@ export class BBox implements Rect, Equatable {
     })
   }
 
-  relativize(x: number, y: number): [number, number] {
-    return [x - this.x, y - this.y]
+  relativize({x, y}: XY): XY {
+    return {x: x - this.x, y: y - this.y}
   }
 
   contains(x: number, y: number): boolean {

@@ -1,8 +1,28 @@
+''' Build a Google Maps plot from low-level models and overlay geographic points.
+
+.. bokeh-example-metadata::
+    :title: Maps
+    :keywords: maps, models
+    :apis: bokeh.models.BoxSelectTool, bokeh.models.ColumnDataSource, bokeh.models.GMapOptions, bokeh.models.GMapPlot, bokeh.models.Label
+'''
+
+from os import getenv
+
 from bokeh.document import Document
-from bokeh.embed import file_html
-from bokeh.models import (BoxSelectTool, ColumnDataSource, GMapOptions, GMapPlot,
-                          Label, LinearAxis, MercatorTicker,
-                          MercatorTickFormatter, PanTool, Scatter, WheelZoomTool)
+from bokeh.embed import embed
+from bokeh.models import (
+    BoxSelectTool,
+    ColumnDataSource,
+    GMapOptions,
+    GMapPlot,
+    Label,
+    LinearAxis,
+    MercatorTicker,
+    MercatorTickFormatter,
+    PanTool,
+    Scatter,
+    WheelZoomTool,
+)
 from bokeh.util.browser import view
 
 # JSON style string taken from: https://snazzymaps.com/style/1/pale-dawn
@@ -12,7 +32,7 @@ map_options = GMapOptions(lat=30.2861, lng=-97.7394, map_type="roadmap", zoom=13
 
 # Google Maps now requires an API key. You can find out how to get one here:
 # https://developers.google.com/maps/documentation/javascript/get-api-key
-API_KEY = "GOOGLE_API_KEY"
+API_KEY = getenv("GOOGLE_API_KEY", "GOOGLE_API_KEY")
 
 plot = GMapPlot(map_options=map_options, api_key=API_KEY)
 
@@ -57,6 +77,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "maps.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, title="Google Maps Example"))
+        f.write(embed(doc).page(title="Google Maps Example"))
     print(f"Wrote {filename}")
     view(filename)

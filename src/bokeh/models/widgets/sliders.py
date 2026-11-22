@@ -22,21 +22,19 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import numbers
 from datetime import UTC, date, datetime
 from typing import Any
 
-# Bokeh imports
+from ...core.enums import Orientation, SliderAppearance
 from ...core.has_props import abstract
-from ...core.property.color import Color
 from ...core.property.container import Seq, Tuple
 from ...core.property.datetime import Datetime
-from ...core.property.descriptors import UnsetValueError
 from ...core.property.either import Either
 from ...core.property.enum import Enum
 from ...core.property.instance import Instance
 from ...core.property.nullable import Nullable
+from ...core.property.numeric import Percent, Positive
 from ...core.property.override import Override
 from ...core.property.primitive import (
     Bool,
@@ -44,9 +42,8 @@ from ...core.property.primitive import (
     Int,
     String,
 )
-from ...core.property.readonly import Readonly
 from ...core.property.required import Required
-from ...core.property.singletons import Undefined
+from ...core.property.string import MathString
 from ...core.validation import error
 from ...core.validation.errors import EQUAL_SLIDER_START_END
 from ..formatters import TickFormatter
@@ -59,11 +56,12 @@ from .widget import Widget
 __all__ = (
     'AbstractSlider',
     'CategoricalSlider',
-    'Slider',
-    'RangeSlider',
-    'DateSlider',
     'DateRangeSlider',
+    'DateSlider',
     'DatetimeRangeSlider',
+    'MultiValuedSlider',
+    'RangeSlider',
+    'Slider',
 )
 
 #-----------------------------------------------------------------------------
@@ -72,36 +70,25 @@ __all__ = (
 
 @abstract
 class AbstractSlider(Widget):
-    """ """
+    """ Base class for all slider widgets.
 
-    def __init__(self, *args, **kwargs) -> None:
+    """
+
+    _committed_callback_properties = frozenset({"value"})
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-
-        try:
-            # synchronize the value of a readonly property `value_throttled`
-            self.lookup("value_throttled")._set(self, Undefined, self.value)
-        except UnsetValueError:
-            pass
-        except AttributeError:
-            # TODO Remove this when proper support for property overrides is
-            # implemented. For now this is required to make defaults' tests
-            # work, because we depend there on model instances to provide
-            # "default" values.
-            pass
 
     # TODO value = Required(GenericType, help="""
     # Initial or selected range.
     # """)
 
-    # TODO value_throttled = Readonly(GenericType, help="""
-    # Initial or selected value, throttled according to report only on mouseup.
-    # """)
-
-    orientation = Enum("horizontal", "vertical", help="""
+    orientation = Enum(Orientation, help="""
     Orient the slider either horizontally (default) or vertically.
     """)
 
-    title = Nullable(String, default="", help="""
+    title = Nullable(MathString, default="", help="""
     The slider's label (supports :ref:`math text <ug_styling_mathtext>`).
     """)
 
@@ -109,17 +96,39 @@ class AbstractSlider(Widget):
     Whether or not show slider's value.
     """)
 
-    direction = Enum("ltr", "rtl", help="""
-    """)
-
     tooltips = Bool(default=True, help="""
     Display the slider's current value in a tooltip.
     """)
 
-    bar_color = Color(default="#e6e6e6", help="""
+    appearance = Enum(SliderAppearance, default="normal", help="""
+    Stealth appearance doesn't include visible handles.
     """)
 
-    width = Override(default=300)
+    step_multiplier = Positive(Int, default=5, help="""
+    The number of steps by which ``PageUp`` and ``PageDown`` keys move a handle.
+
+    For sliders without a ``step`` (i.e. continuous sliders), a step is given
+    by ``default_step``.
+    """)
+
+    default_step = Positive(Percent, default=0.05, help="""
+    The fraction of the slider's range by which arrow keys move a handle of
+    a slider without a ``step`` (i.e. a continuous slider).
+
+    This doesn't restrict values of such sliders, which remain continuous
+    when interacting with a pointer.
+    """)
+
+    acceleration_interval = Positive(Int, default=10, help="""
+    The number of auto-repeated key presses (when holding a key), after which
+    the step, by which arrow, ``PageUp`` and ``PageDown`` keys move a handle,
+    doubles (up to ``acceleration_max``).
+    """)
+
+    acceleration_max = Positive(Int, default=8, help="""
+    The maximum multiplier of the step when holding a key (see
+    ``acceleration_interval``). Use ``1`` to disable acceleration.
+    """)
 
     @error(EQUAL_SLIDER_START_END)
     def _check_missing_dimension(self):
@@ -131,11 +140,15 @@ class AbstractSlider(Widget):
 class NumericalSlider(AbstractSlider):
     """ Base class for numerical sliders. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     format = Either(String, Instance(TickFormatter), help="""
+    The format of displayed values, i.e. the value next to the title, tooltips
+    and the text announced by screen readers.
+
+    This can be either a format string or a tick formatter. Format strings use
+    the formats of :class:`~bokeh.models.NumeralTickFormatter` for numerical
+    sliders (e.g. ``"0[.]00"``) and ``strftime`` formats of
+    :class:`~bokeh.models.DatetimeTickFormatter` for date and datetime sliders
+    (e.g. ``"%d %b %Y"``).
     """)
 
 #-----------------------------------------------------------------------------
@@ -145,10 +158,6 @@ class NumericalSlider(AbstractSlider):
 class CategoricalSlider(AbstractSlider):
     """ Discrete slider allowing selection from a collection of values. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     categories = Required(Seq(String), help="""
     A collection of categories to choose from.
     """)
@@ -157,16 +166,8 @@ class CategoricalSlider(AbstractSlider):
     Initial or selected value.
     """)
 
-    value_throttled = Readonly(Required(String), help="""
-    Initial or throttled selected value.
-    """)
-
 class Slider(NumericalSlider):
     """ Slider-based number selection widget. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     start = Required(Float, help="""
     The minimum allowable value.
@@ -180,29 +181,19 @@ class Slider(NumericalSlider):
     Initial or selected value.
     """)
 
-    value_throttled = Readonly(Required(Float), help="""
-    Initial or selected value, throttled according to report only on mouseup.
+    step = Nullable(Positive(Float), default=1, help="""
+    The step between consecutive values for discrete sliders. If ``None``,
+    then the slider becomes a continuous slider and any value between
+    ``start`` and ``end`` can be picked.
     """)
 
-    step = Float(default=1, help="""
-    The step between consecutive values.
-    """)
-
-    format = Override(default="0[.]00")
+    _format = Override(NumericalSlider.format, default="0[.]00")
 
 class RangeSlider(NumericalSlider):
     """ Range-slider based number range selection widget. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     value = Required(Tuple(Float, Float), help="""
     Initial or selected range.
-    """)
-
-    value_throttled = Readonly(Required(Tuple(Float, Float)), help="""
-    Initial or selected value, throttled according to report only on mouseup.
     """)
 
     start = Required(Float, help="""
@@ -217,14 +208,32 @@ class RangeSlider(NumericalSlider):
     The step between consecutive values.
     """)
 
-    format = Override(default="0[.]00")
+    _format = Override(NumericalSlider.format, default="0[.]00")
+
+class MultiValuedSlider(NumericalSlider):
+    """ Slider that allows selection of multiple values. """
+
+    # TODO value = Override(Required(Seq(Float)), ...)
+    value = Required(Seq(Float), help="""
+    Initial or selected values.
+    """)
+
+    start = Required(Float, help="""
+    The minimum allowable value.
+    """)
+
+    end = Required(Float, help="""
+    The maximum allowable value.
+    """)
+
+    step = Float(default=1, help="""
+    The step between consecutive values.
+    """)
+
+    _format = Override(NumericalSlider.format, default="0[.]00")
 
 class DateSlider(NumericalSlider):
     """ Slider-based date selection widget. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     @property
     def value_as_datetime(self) -> datetime | None:
@@ -259,10 +268,6 @@ class DateSlider(NumericalSlider):
     Initial or selected value.
     """)
 
-    value_throttled = Readonly(Required(Datetime), help="""
-    Initial or selected value, throttled to report only on mouseup.
-    """)
-
     start = Required(Datetime, help="""
     The minimum allowable value.
     """)
@@ -275,14 +280,10 @@ class DateSlider(NumericalSlider):
     The step between consecutive values, in units of days.
     """)
 
-    format = Override(default="%d %b %Y")
+    _format = Override(NumericalSlider.format, default="%d %b %Y")
 
 class DateRangeSlider(NumericalSlider):
     """ Slider-based date range selection widget. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     @property
     def value_as_datetime(self) -> tuple[datetime, datetime] | None:
@@ -330,10 +331,6 @@ class DateRangeSlider(NumericalSlider):
     Initial or selected range.
     """)
 
-    value_throttled = Readonly(Required(Tuple(Datetime, Datetime)), help="""
-    Initial or selected value, throttled to report only on mouseup.
-    """)
-
     start = Required(Datetime, help="""
     The minimum allowable value.
     """)
@@ -346,14 +343,10 @@ class DateRangeSlider(NumericalSlider):
     The step between consecutive values, in units of days.
     """)
 
-    format = Override(default="%d %b %Y")
+    _format = Override(NumericalSlider.format, default="%d %b %Y")
 
 class DatetimeRangeSlider(NumericalSlider):
     """ Slider-based datetime range selection widget. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     @property
     def value_as_datetime(self) -> tuple[datetime, datetime] | None:
@@ -377,10 +370,6 @@ class DatetimeRangeSlider(NumericalSlider):
     Initial or selected range.
     """)
 
-    value_throttled = Readonly(Required(Tuple(Datetime, Datetime)), help="""
-    Initial or selected value, throttled to report only on mouseup.
-    """)
-
     start = Required(Datetime, help="""
     The minimum allowable value.
     """)
@@ -394,7 +383,9 @@ class DatetimeRangeSlider(NumericalSlider):
     Default is one hour.
     """)
 
-    format = Override(default="%d %b %Y %H:%M:%S")
+    # TODO step_unit = Enum("hour", ...)(default="hour")
+
+    _format = Override(NumericalSlider.format, default="%d %b %Y %H:%M:%S")
 
 #-----------------------------------------------------------------------------
 # Private API

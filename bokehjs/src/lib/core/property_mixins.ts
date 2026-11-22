@@ -59,7 +59,7 @@ export const Line: p.DefineOf<Line> = {
   line_width:       [ k.Float, 1 ],
   line_join:        [ LineJoin, "bevel"],
   line_cap:         [ LineCap, "butt" ],
-  line_dash:        [ k.Or(LineDash, k.Array(k.Float)), [] ],
+  line_dash:        [ k.Or(LineDash, k.List(k.Float)), [] ],
   line_dash_offset: [ k.Float, 0 ],
 }
 
@@ -227,7 +227,7 @@ export const LineVector: p.DefineOf<LineVector> = {
   line_width:       [ p.NumberSpec,   1           ],
   line_join:        [ p.LineJoinSpec, "bevel" ],
   line_cap:         [ p.LineCapSpec,  "butt" ],
-  line_dash:        [ p.LineDashSpec, [] ],
+  line_dash:        [ p.LineDashSpec, "solid" ],
   line_dash_offset: [ p.NumberSpec,   0 ],
 }
 

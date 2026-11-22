@@ -35,7 +35,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from contextlib import contextmanager
 from os.path import basename, splitext
 from typing import (
@@ -47,7 +46,6 @@ from typing import (
     Sequence,
 )
 
-# Bokeh imports
 from ...io.doc import curdoc, patch_curdoc
 from .code_runner import CodeRunner, _hold_process_globals
 from .handler import Handler
@@ -81,9 +79,9 @@ class CodeHandler(Handler):
 
     # These functions, if present in the supplied code, will be monkey patched
     # to be no-ops, with a warning.
-    _io_functions = ['output_notebook', 'output_file', 'show', 'save', 'reset_output']
+    _io_functions = ['show', 'save', 'serve']
 
-    _loggers: dict[str, Callable[..., None]]
+    _loggers: dict[str, Callable[..., Any]]
 
     _logger_text: ClassVar[str]
 
@@ -100,6 +98,7 @@ class CodeHandler(Handler):
             argv (Sequence[str], optional) : a sequence of string arguments to make
                 available as ``sys.argv`` when the code executes
 
+            package (ModuleType, optional): An optional package module to configure
         '''
         super().__init__()
 
@@ -180,9 +179,10 @@ class CodeHandler(Handler):
     # Private methods ---------------------------------------------------------
 
     # subclasses must define self._logger_text
-    def _make_io_logger(self, name: str) -> Callable[..., None]:
-        def logger(*args: Any, **kwargs: Any) -> None:
+    def _make_io_logger(self, name: str) -> Callable[..., Any]:
+        def logger(*args: Any, **kwargs: Any) -> Any:
             log.info(self._logger_text, self._runner.path, name)
+            return _IgnoredNotebookApplication() if name == "serve" else None
         return logger
 
     # script is supposed to edit the doc not replace it
@@ -196,11 +196,15 @@ class CodeHandler(Handler):
 # Private API
 #-----------------------------------------------------------------------------
 
+class _IgnoredNotebookApplication:
+    def stop(self) -> None:
+        pass
+
 # monkeypatching is a little ugly, but in this case there's no reason any legitimate
 # code should be calling these functions, and we're only making a best effort to
 # warn people so no big deal if we fail.
 @contextmanager
-def _monkeypatch_io(loggers: dict[str, Callable[..., None]]) -> Generator[None]:
+def _monkeypatch_io(loggers: dict[str, Callable[..., Any]]) -> Generator[None]:
     import bokeh.io as io
     old: dict[str, Any] = {}
     for f in CodeHandler._io_functions:

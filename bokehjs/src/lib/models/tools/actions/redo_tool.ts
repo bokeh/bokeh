@@ -31,10 +31,6 @@ export class RedoTool extends PlotActionTool {
   declare properties: RedoTool.Props
   declare __view_type__: RedoToolView
 
-  constructor(attrs?: Partial<RedoTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = RedoToolView
 
@@ -42,7 +38,6 @@ export class RedoTool extends PlotActionTool {
       disabled: true,
     })
 
-    this.register_alias("redo", () => new RedoTool())
   }
 
   override tool_name = "Redo"

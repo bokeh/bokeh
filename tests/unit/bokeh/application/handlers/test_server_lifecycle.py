@@ -8,19 +8,14 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 from threading import get_ident
 from types import SimpleNamespace
 
-# Bokeh imports
 from bokeh.application.handlers.handler import Handler
 from bokeh.document import Document
 from tests.support.util.filesystem import with_file_contents

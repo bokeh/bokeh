@@ -1,3 +1,11 @@
+''' Build a graph with a custom circular layout and styled nodes and edges.
+
+.. bokeh-example-metadata::
+    :title: Graph customize
+    :keywords: graph, customize
+    :apis: bokeh.models.Ellipse, bokeh.models.GraphRenderer, bokeh.models.StaticLayoutProvider
+'''
+
 import math
 
 from bokeh.models import Ellipse, GraphRenderer, StaticLayoutProvider
@@ -8,7 +16,7 @@ N = 8
 node_indices = list(range(N))
 
 plot = figure(title='Graph layout demonstration', x_range=(-1.1,1.1), y_range=(-1.1,1.1),
-              tools='', toolbar_location=None)
+              tools=None)
 
 graph = GraphRenderer()
 

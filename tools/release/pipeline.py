@@ -9,11 +9,9 @@
 """
 from __future__ import annotations
 
-# Standard library imports
 import logging
 from typing import Callable, Sequence
 
-# Bokeh imports
 from .action import SKIPPED, ActionResult, ActionReturn
 from .config import Config
 from .system import System

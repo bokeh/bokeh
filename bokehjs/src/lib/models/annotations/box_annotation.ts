@@ -29,9 +29,10 @@ import {Coordinate} from "../coordinates/coordinate"
 import type {Renderer} from "../renderers/renderer"
 import {FactorLike, FactorRange} from "../ranges/factor_range"
 import {Or, Float, Ref} from "core/kinds"
+import type {Infer} from "core/kinds"
 
 const CoordinateLike = Or(Float, FactorLike, Ref(Coordinate))
-type CoordinateLike = typeof CoordinateLike["__type__"]
+type CoordinateLike = Infer<typeof CoordinateLike>
 
 export const EDGE_TOLERANCE = 2.5
 
@@ -67,10 +68,6 @@ export class BoxInteractionHandles extends Model {
   declare properties: BoxInteractionHandles.Props
   declare __view_type__: BoxAnnotationView
 
-  constructor(attrs?: Partial<BoxInteractionHandles.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<BoxInteractionHandles.Props>(({Ref, Nullable}) => ({
       all:          [ Ref(AreaVisuals) ],
@@ -95,8 +92,8 @@ export class BoxInteractionHandles extends Model {
 }
 
 const DEFAULT_HANDLES = () => {
-  return new BoxInteractionHandles({
-    all: new AreaVisuals({
+  return BoxInteractionHandles.create({
+    all: AreaVisuals.create({
       fill_color: "white",
       fill_alpha: 1.0,
       line_color: "black",
@@ -170,15 +167,15 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       } = this.model
 
       this._handles = {
-        area:         movable                ? new BoxAnnotation({...common, ...attrs.area,         in_cursor: "move", movable: this.model.movable}) : null,
-        left:         resizable.left         ? new BoxAnnotation({...common, ...attrs.left,         in_cursor: ew_cursor}) : null,
-        right:        resizable.right        ? new BoxAnnotation({...common, ...attrs.right,        in_cursor: ew_cursor}) : null,
-        top:          resizable.top          ? new BoxAnnotation({...common, ...attrs.top,          in_cursor: ns_cursor}) : null,
-        bottom:       resizable.bottom       ? new BoxAnnotation({...common, ...attrs.bottom,       in_cursor: ns_cursor}) : null,
-        top_left:     resizable.top_left     ? new BoxAnnotation({...common, ...attrs.top_left,     in_cursor: tl_cursor}) : null,
-        top_right:    resizable.top_right    ? new BoxAnnotation({...common, ...attrs.top_right,    in_cursor: tr_cursor}) : null,
-        bottom_left:  resizable.bottom_left  ? new BoxAnnotation({...common, ...attrs.bottom_left,  in_cursor: bl_cursor}) : null,
-        bottom_right: resizable.bottom_right ? new BoxAnnotation({...common, ...attrs.bottom_right, in_cursor: br_cursor}) : null,
+        area:         movable                ? BoxAnnotation.create({...common, ...attrs.area,         in_cursor: "move", movable: this.model.movable}) : null,
+        left:         resizable.left         ? BoxAnnotation.create({...common, ...attrs.left,         in_cursor: ew_cursor}) : null,
+        right:        resizable.right        ? BoxAnnotation.create({...common, ...attrs.right,        in_cursor: ew_cursor}) : null,
+        top:          resizable.top          ? BoxAnnotation.create({...common, ...attrs.top,          in_cursor: ns_cursor}) : null,
+        bottom:       resizable.bottom       ? BoxAnnotation.create({...common, ...attrs.bottom,       in_cursor: ns_cursor}) : null,
+        top_left:     resizable.top_left     ? BoxAnnotation.create({...common, ...attrs.top_left,     in_cursor: tl_cursor}) : null,
+        top_right:    resizable.top_right    ? BoxAnnotation.create({...common, ...attrs.top_right,    in_cursor: tr_cursor}) : null,
+        bottom_left:  resizable.bottom_left  ? BoxAnnotation.create({...common, ...attrs.bottom_left,  in_cursor: bl_cursor}) : null,
+        bottom_right: resizable.bottom_right ? BoxAnnotation.create({...common, ...attrs.bottom_right, in_cursor: br_cursor}) : null,
       }
     } else {
       this._handles = {
@@ -666,7 +663,11 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       const Dl = left - slimits.left
       const Dr = slimits.right - right
 
-      const Dx = min(Dl < 0 ? Dl : NaN, Dr < 0 ? Dr : NaN)
+      // Only enforce limits for edges that are being moved. The opposite edge
+      // may already be outside the plot (e.g. a wide RangeTool overlay), and
+      // using its violation to compensate the active edge makes that edge
+      // jump away from the pointer.
+      const Dx = min(left_sign != 0 && Dl < 0 ? Dl : NaN, right_sign != 0 && Dr < 0 ? Dr : NaN)
       if (isFinite(Dx) && Dx < 0) {
         left += -left_sign*(-Dx)
         right += -right_sign*(-Dx)
@@ -675,7 +676,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       const Dt = top - slimits.top
       const Db = slimits.bottom - bottom
 
-      const Dy = min(Dt < 0 ? Dt : NaN, Db < 0 ? Db : NaN)
+      const Dy = min(top_sign != 0 && Dt < 0 ? Dt : NaN, bottom_sign != 0 && Db < 0 ? Db : NaN)
       if (isFinite(Dy) && Dy < 0) {
         top += -top_sign*(-Dy)
         bottom += -bottom_sign*(-Dy)
@@ -927,10 +928,6 @@ export class BoxAnnotation extends Annotation {
   declare properties: BoxAnnotation.Props
   declare __view_type__: BoxAnnotationView
 
-  constructor(attrs?: Partial<BoxAnnotation.Attrs>) {
-    super(attrs)
-  }
-
   override clone(attrs?: Partial<BoxAnnotation.Attrs>): this {
     return super.clone(attrs)
   }
@@ -948,10 +945,10 @@ export class BoxAnnotation extends Annotation {
     ])
 
     this.define<BoxAnnotation.Props>(({Bool, Float, Ref, NonNegative, Positive}) => ({
-      top:          [ CoordinateLike, () => new Node({target: "frame", symbol: "top"}) ],
-      bottom:       [ CoordinateLike, () => new Node({target: "frame", symbol: "bottom"}) ],
-      left:         [ CoordinateLike, () => new Node({target: "frame", symbol: "left"}) ],
-      right:        [ CoordinateLike, () => new Node({target: "frame", symbol: "right"}) ],
+      top:          [ CoordinateLike, () => Node.create({target: "frame", symbol: "top"}) ],
+      bottom:       [ CoordinateLike, () => Node.create({target: "frame", symbol: "bottom"}) ],
+      left:         [ CoordinateLike, () => Node.create({target: "frame", symbol: "left"}) ],
+      right:        [ CoordinateLike, () => Node.create({target: "frame", symbol: "right"}) ],
 
       top_units:    [ CoordinateUnits, "data" ],
       bottom_units: [ CoordinateUnits, "data" ],
@@ -1021,7 +1018,7 @@ export class BoxAnnotation extends Annotation {
     const node = (symbol: string) => {
       let node = known.get(symbol)
       if (node === undefined) {
-        known.set(symbol, node = new Node({target: this, symbol}))
+        known.set(symbol, node = Node.create({target: this, symbol}))
       }
       return node
     }

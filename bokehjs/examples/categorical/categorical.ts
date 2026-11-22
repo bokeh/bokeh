@@ -11,8 +11,7 @@ export namespace Categorical {
 
     const fig = plt.figure({
       title: "Categorical Dot Plot",
-      tools: "",
-      toolbar_location: null,
+      tools: null,
       y_range: factors,
       x_range: [0, 100],
     })
@@ -44,5 +43,5 @@ export namespace Categorical {
     return fig
   }
 
-  void plt.show(new Row({children: [hm(), dot()], sizing_mode: "scale_width"}))
+  void plt.show(Row.create({children: [hm(), dot()], sizing_mode: "scale_width"}))
 }

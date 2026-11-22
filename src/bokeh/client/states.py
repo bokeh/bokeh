@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import ABCMeta, abstractmethod
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Any

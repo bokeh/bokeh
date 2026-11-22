@@ -3,10 +3,11 @@ discontinuous due to summer time) using the ``Patch`` and ``Line`` plot
 elements to draw custom outlines and fills.
 
 .. bokeh-example-metadata::
-    :sampledata: daylight
-    :apis: bokeh.models.glyphs.Line, bokeh.models.glyphs.Patch, bokeh.models.plots.Plot.add_glyph, bokeh.document.document.Document
-    :refs: :ref:`ug_basic_areas_patches`
+    :title: Daylight
     :keywords: outline, shading, fill
+    :apis: bokeh.models.glyphs.Line, bokeh.models.glyphs.Patch, bokeh.models.plots.Plot.add_glyph, bokeh.document.document.Document
+    :sampledata: daylight
+    :refs: :ref:`ug_basic_areas_patches`
 '''
 import datetime as dt
 from time import mktime
@@ -15,9 +16,19 @@ import numpy as np
 
 from bokeh.core.properties import value
 from bokeh.document import Document
-from bokeh.embed import file_html
-from bokeh.models import (ColumnDataSource, DatetimeAxis, DatetimeTickFormatter,
-                          FixedTicker, Legend, LegendItem, Line, Patch, Plot, Text)
+from bokeh.embed import embed
+from bokeh.models import (
+    ColumnDataSource,
+    DatetimeAxis,
+    DatetimeTickFormatter,
+    FixedTicker,
+    Legend,
+    LegendItem,
+    Line,
+    Patch,
+    Plot,
+    Text,
+)
 from bokeh.sampledata import daylight
 from bokeh.util.browser import view
 
@@ -105,6 +116,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "daylight.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, title="Daylight Plot"))
+        f.write(embed(doc).page(title="Daylight Plot"))
     print(f"Wrote {filename}")
     view(filename)

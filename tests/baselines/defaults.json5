@@ -63,7 +63,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -167,14 +167,20 @@
   Model: {
     name: null,
     tags: [],
-    js_event_callbacks: {
+    _js_event_callbacks: {
       type: "map",
     },
-    js_property_callbacks: {
+    _js_property_callbacks: {
       type: "map",
     },
-    subscribed_events: {
+    _js_property_callback_policies: {
+      type: "map",
+    },
+    _subscribed_events: {
       type: "set",
+    },
+    _subscribed_changes: {
+      type: "map",
     },
     syncable: true,
   },
@@ -202,61 +208,6 @@
           type: "map",
         },
       },
-    },
-  },
-  Arrow: {
-    __extends__: "DataAnnotation",
-    x_start: {
-      type: "field",
-      field: "x_start",
-    },
-    y_start: {
-      type: "field",
-      field: "y_start",
-    },
-    start_units: "data",
-    start: null,
-    x_end: {
-      type: "field",
-      field: "x_end",
-    },
-    y_end: {
-      type: "field",
-      field: "y_end",
-    },
-    end_units: "data",
-    end: {
-      type: "object",
-      name: "OpenHead",
-      attributes: {},
-    },
-    line_color: {
-      type: "value",
-      value: "black",
-    },
-    line_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    line_width: {
-      type: "value",
-      value: 1,
-    },
-    line_join: {
-      type: "value",
-      value: "bevel",
-    },
-    line_cap: {
-      type: "value",
-      value: "butt",
-    },
-    line_dash: {
-      type: "value",
-      value: [],
-    },
-    line_dash_offset: {
-      type: "value",
-      value: 0,
     },
   },
   ArrowHead: {
@@ -290,7 +241,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -352,7 +303,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -383,7 +334,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -414,7 +365,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -895,71 +846,6 @@
     hover_line_dash: [],
     hover_line_dash_offset: 0,
   },
-  Whisker: {
-    __extends__: "DataAnnotation",
-    level: "underlay",
-    lower: {
-      type: "field",
-      field: "lower",
-    },
-    lower_head: {
-      type: "object",
-      name: "TeeHead",
-      attributes: {
-        size: {
-          type: "value",
-          value: 10,
-        },
-      },
-    },
-    upper: {
-      type: "field",
-      field: "upper",
-    },
-    upper_head: {
-      type: "object",
-      name: "TeeHead",
-      attributes: {
-        size: {
-          type: "value",
-          value: 10,
-        },
-      },
-    },
-    base: {
-      type: "field",
-      field: "base",
-    },
-    dimension: "height",
-    line_color: {
-      type: "value",
-      value: "black",
-    },
-    line_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    line_width: {
-      type: "value",
-      value: 1,
-    },
-    line_join: {
-      type: "value",
-      value: "bevel",
-    },
-    line_cap: {
-      type: "value",
-      value: "butt",
-    },
-    line_dash: {
-      type: "value",
-      value: [],
-    },
-    line_dash_offset: {
-      type: "value",
-      value: 0,
-    },
-  },
   HTMLAnnotation: {
     __extends__: "Annotation",
   },
@@ -1092,7 +978,7 @@
     },
     border_line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     border_line_dash_offset: {
       type: "value",
@@ -1285,7 +1171,7 @@
     },
     border_line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     border_line_dash_offset: {
       type: "value",
@@ -1721,7 +1607,7 @@
     },
     glyph_line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     glyph_line_dash_offset: {
       type: "value",
@@ -2511,7 +2397,6 @@
     caption_side: null,
     caret_color: null,
     clear: null,
-    clip: null,
     clip_path: null,
     clip_rule: null,
     color: null,
@@ -2574,12 +2459,9 @@
     grid_auto_rows: null,
     grid_column: null,
     grid_column_end: null,
-    grid_column_gap: null,
     grid_column_start: null,
-    grid_gap: null,
     grid_row: null,
     grid_row_end: null,
-    grid_row_gap: null,
     grid_row_start: null,
     grid_template: null,
     grid_template_areas: null,
@@ -2734,7 +2616,6 @@
     will_change: null,
     word_break: null,
     word_spacing: null,
-    word_wrap: null,
     writing_mode: null,
     z_index: null,
   },
@@ -2786,10 +2667,6 @@
     __extends__: "bokeh.models.dom.DOMElement",
     actions: [],
   },
-  "bokeh.models.dom.Text": {
-    __extends__: "bokeh.models.dom.DOMNode",
-    content: "",
-  },
   "bokeh.models.dom.ToggleGroup": {
     __extends__: "bokeh.models.dom.Action",
     groups: [],
@@ -2837,6 +2714,21 @@
   },
   Expression: {
     __extends__: "Model",
+  },
+  IndexedLookup: {
+    __extends__: "Expression",
+    source: {
+      type: "symbol",
+      name: "unset",
+    },
+    field: {
+      type: "symbol",
+      name: "unset",
+    },
+    indices: {
+      type: "symbol",
+      name: "unset",
+    },
   },
   Maximum: {
     __extends__: "ScalarExpression",
@@ -2921,7 +2813,7 @@
   },
   GroupFilter: {
     __extends__: "Filter",
-    column_name: {
+    field_name: {
       type: "symbol",
       name: "unset",
     },
@@ -3005,6 +2897,34 @@
     __extends__: "TickFormatter",
     format: "%s",
   },
+  SITickFormatter: {
+    __extends__: "TickFormatter",
+    formatter: {
+      type: "object",
+      name: "BasicTickFormatter",
+      attributes: {},
+    },
+    input_scale: 1.0,
+    unit: "",
+    prefix: "auto",
+    unit_style: "always",
+  },
+  ScaledTickFormatter: {
+    __extends__: "TickFormatter",
+    ticker: null,
+    formatter: {
+      type: "object",
+      name: "BasicTickFormatter",
+      attributes: {},
+    },
+    origin_label: "",
+    prefix: "",
+    unit: "",
+    unit_style: "always",
+    use_fractions: false,
+    fraction_style: "inline",
+    max_denominator: 16,
+  },
   TickFormatter: {
     __extends__: "Model",
   },
@@ -3031,12 +2951,14 @@
   FillGlyph: {},
   Glyph: {
     __extends__: "Model",
-    decorations: [],
   },
   HatchGlyph: {},
   LineGlyph: {},
   RadialGlyph: {
     __extends__: "XYGlyph",
+  },
+  SupportsPathMarking: {
+    path_markings: [],
   },
   TextGlyph: {},
   XYGlyph: {
@@ -3096,7 +3018,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -3179,7 +3101,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -3221,6 +3143,7 @@
     __extends__: [
       "XYGlyph",
       "LineGlyph",
+      "SupportsPathMarking",
     ],
     x: {
       type: "field",
@@ -3265,7 +3188,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -3276,6 +3199,7 @@
     __extends__: [
       "Glyph",
       "LineGlyph",
+      "SupportsPathMarking",
     ],
     x0: {
       type: "field",
@@ -3331,7 +3255,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -3378,7 +3302,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -3459,7 +3383,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -3546,7 +3470,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -3604,26 +3528,11 @@
     },
     fill_color: "gray",
     fill_alpha: 1.0,
-    hatch_color: {
-      type: "value",
-      value: "black",
-    },
-    hatch_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    hatch_scale: {
-      type: "value",
-      value: 12.0,
-    },
-    hatch_pattern: {
-      type: "value",
-      value: null,
-    },
-    hatch_weight: {
-      type: "value",
-      value: 1.0,
-    },
+    hatch_color: "black",
+    hatch_alpha: 1.0,
+    hatch_scale: 12.0,
+    hatch_pattern: null,
+    hatch_weight: 1.0,
     hatch_extra: {
       type: "map",
     },
@@ -3649,26 +3558,11 @@
     step_mode: "before",
     fill_color: "gray",
     fill_alpha: 1.0,
-    hatch_color: {
-      type: "value",
-      value: "black",
-    },
-    hatch_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    hatch_scale: {
-      type: "value",
-      value: 12.0,
-    },
-    hatch_pattern: {
-      type: "value",
-      value: null,
-    },
-    hatch_weight: {
-      type: "value",
-      value: 1.0,
-    },
+    hatch_color: "black",
+    hatch_alpha: 1.0,
+    hatch_scale: 12.0,
+    hatch_pattern: null,
+    hatch_weight: 1.0,
     hatch_extra: {
       type: "map",
     },
@@ -3713,7 +3607,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -3782,7 +3676,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -3826,7 +3720,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -3908,7 +3802,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -4062,6 +3956,7 @@
     __extends__: [
       "ConnectedXYGlyph",
       "LineGlyph",
+      "SupportsPathMarking",
     ],
     x: {
       type: "field",
@@ -4125,7 +4020,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -4173,6 +4068,7 @@
     __extends__: [
       "Glyph",
       "LineGlyph",
+      "SupportsPathMarking",
     ],
     xs: {
       type: "field",
@@ -4204,7 +4100,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -4248,7 +4144,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -4331,7 +4227,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -4439,7 +4335,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -4517,7 +4413,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -4606,7 +4502,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -4656,7 +4552,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -4714,7 +4610,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -4766,6 +4662,7 @@
     __extends__: [
       "Glyph",
       "LineGlyph",
+      "SupportsPathMarking",
     ],
     x0: {
       type: "field",
@@ -4805,7 +4702,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -4975,7 +4872,7 @@
     },
     border_line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     border_line_dash_offset: {
       type: "value",
@@ -5002,26 +4899,11 @@
     },
     fill_color: "gray",
     fill_alpha: 1.0,
-    hatch_color: {
-      type: "value",
-      value: "black",
-    },
-    hatch_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    hatch_scale: {
-      type: "value",
-      value: 12.0,
-    },
-    hatch_pattern: {
-      type: "value",
-      value: null,
-    },
-    hatch_weight: {
-      type: "value",
-      value: 1.0,
-    },
+    hatch_color: "black",
+    hatch_alpha: 1.0,
+    hatch_scale: 12.0,
+    hatch_pattern: null,
+    hatch_weight: 1.0,
     hatch_extra: {
       type: "map",
     },
@@ -5047,26 +4929,11 @@
     step_mode: "before",
     fill_color: "gray",
     fill_alpha: 1.0,
-    hatch_color: {
-      type: "value",
-      value: "black",
-    },
-    hatch_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    hatch_scale: {
-      type: "value",
-      value: 12.0,
-    },
-    hatch_pattern: {
-      type: "value",
-      value: null,
-    },
-    hatch_weight: {
-      type: "value",
-      value: 1.0,
-    },
+    hatch_color: "black",
+    hatch_alpha: 1.0,
+    hatch_scale: 12.0,
+    hatch_pattern: null,
+    hatch_weight: 1.0,
     hatch_extra: {
       type: "map",
     },
@@ -5111,7 +4978,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -5180,7 +5047,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -5224,7 +5091,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -5312,7 +5179,7 @@
     },
     line_dash: {
       type: "value",
-      value: [],
+      value: "solid",
     },
     line_dash_offset: {
       type: "value",
@@ -5350,22 +5217,108 @@
       type: "map",
     },
   },
-  Decoration: {
+  Marking: {
+    __extends__: "Model",
+    inherit_visuals: [],
+  },
+  PathPlacement: {
     __extends__: "Model",
     marking: {
       type: "symbol",
       name: "unset",
     },
-    node: {
-      type: "symbol",
-      name: "unset",
+    positions: {
+      type: "value",
+      value: [
+        0.5,
+      ],
     },
+    inset: {
+      type: "value",
+      value: 0,
+    },
+    angle: {
+      type: "value",
+      value: 0,
+    },
+    angle_reference: "auto",
   },
-  Marking: {
-    __extends__: "Model",
+  ScatterMarking: {
+    __extends__: "Marking",
+    marker: "circle",
+    size: {
+      type: "value",
+      value: 8,
+    },
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: "solid",
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+    fill_color: {
+      type: "value",
+      value: "gray",
+    },
+    fill_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
+    },
   },
   EdgeCoordinates: {
     __extends__: "GraphCoordinates",
+  },
+  EdgePointCoordinates: {
+    __extends__: "GraphCoordinates",
+    point: {
+      type: "symbol",
+      name: "unset",
+    },
   },
   EdgesAndLinkedNodes: {
     __extends__: "GraphHitTestPolicy",
@@ -5594,6 +5547,7 @@
   },
   CategoricalColorMapper: {
     __extends__: [
+      "PaletteMixin",
       "CategoricalMapper",
       "ColorMapper",
     ],
@@ -5625,14 +5579,12 @@
   },
   ColorMapper: {
     __extends__: "Mapper",
-    palette: {
-      type: "symbol",
-      name: "unset",
-    },
-    nan_color: "gray",
   },
   ContinuousColorMapper: {
-    __extends__: "ColorMapper",
+    __extends__: [
+      "PaletteMixin",
+      "ColorMapper",
+    ],
     domain: [],
     low: null,
     high: null,
@@ -5644,6 +5596,15 @@
     bins: 65536,
     rescale_discrete_levels: false,
   },
+  IndexedStackColorMapper: {
+    __extends__: "StackColorMapper",
+    slice_color_mapper: {
+      type: "symbol",
+      name: "unset",
+    },
+    index: 0,
+    scan_together: false,
+  },
   LinearColorMapper: {
     __extends__: "ContinuousColorMapper",
   },
@@ -5653,6 +5614,13 @@
   Mapper: {
     __extends__: "Transform",
   },
+  PaletteMixin: {
+    palette: {
+      type: "symbol",
+      name: "unset",
+    },
+    nan_color: "gray",
+  },
   ScanningColorMapper: {
     __extends__: "ContinuousColorMapper",
   },
@@ -5660,7 +5628,10 @@
     __extends__: "ColorMapper",
   },
   WeightedStackColorMapper: {
-    __extends__: "StackColorMapper",
+    __extends__: [
+      "PaletteMixin",
+      "StackColorMapper",
+    ],
     alpha_mapper: {
       type: "symbol",
       name: "unset",
@@ -5921,6 +5892,36 @@
     min_interval: null,
     max_interval: null,
   },
+  ContourLabels: {
+    __extends__: [
+      "GlyphAttachment",
+      "ScalarTextProps",
+    ],
+    text_font_size: "9pt",
+    text_align: "center",
+    text_baseline: "middle",
+    text: {
+      type: "value",
+      value: null,
+    },
+    formatter: {
+      type: "object",
+      name: "PrintfTickFormatter",
+      attributes: {
+        format: "%.3g",
+      },
+    },
+    positions: null,
+    visible: true,
+    label_all_paths: false,
+    inline_gap: false,
+    gap_padding: 2,
+    background_fill_color: null,
+    background_fill_alpha: 1,
+  },
+  GlyphAttachment: {
+    __extends__: "Model",
+  },
   ContourRenderer: {
     __extends__: "DataRenderer",
     line_renderer: {
@@ -5935,13 +5936,14 @@
   },
   GlyphRenderer: {
     __extends__: "DataRenderer",
+    attachments: [],
     data_source: {
       type: "symbol",
       name: "unset",
     },
     view: {
       type: "object",
-      name: "CDSView",
+      name: "IndexedSubset",
       attributes: {
         filter: {
           type: "object",
@@ -5997,7 +5999,7 @@
         },
         view: {
           type: "object",
-          name: "CDSView",
+          name: "IndexedSubset",
           attributes: {
             filter: {
               type: "object",
@@ -6048,7 +6050,7 @@
         },
         view: {
           type: "object",
-          name: "CDSView",
+          name: "IndexedSubset",
           attributes: {
             filter: {
               type: "object",
@@ -6200,14 +6202,6 @@
       type: "map",
     },
   },
-  CDSView: {
-    __extends__: "Model",
-    filter: {
-      type: "object",
-      name: "AllIndices",
-      attributes: {},
-    },
-  },
   ColumnDataSource: {
     __extends__: "ColumnarDataSource",
     data: {
@@ -6215,23 +6209,13 @@
     },
   },
   ColumnarDataSource: {
-    __extends__: "DataSource",
+    __extends__: "IndexedDataSource",
     default_values: {
       type: "map",
-    },
-    selection_policy: {
-      type: "object",
-      name: "UnionRenderers",
-      attributes: {},
     },
   },
   DataSource: {
     __extends__: "Model",
-    selected: {
-      type: "object",
-      name: "Selection",
-      attributes: {},
-    },
   },
   GeoJSONDataSource: {
     __extends__: "ColumnarDataSource",
@@ -6239,6 +6223,31 @@
       type: "symbol",
       name: "unset",
     },
+  },
+  IndexedDataSource: {
+    __extends__: "DataSource",
+    selected: {
+      type: "object",
+      name: "Selection",
+      attributes: {},
+    },
+    selection_policy: {
+      type: "object",
+      name: "UnionRenderers",
+      attributes: {},
+    },
+  },
+  IndexedSubset: {
+    __extends__: "Model",
+    filter: {
+      type: "object",
+      name: "AllIndices",
+      attributes: {},
+    },
+  },
+  RecordDataSource: {
+    __extends__: "IndexedDataSource",
+    records: [],
   },
   ServerSentDataSource: {
     __extends__: "WebDataSource",
@@ -6559,6 +6568,16 @@
   MonthsTicker: {
     __extends__: "BaseSingleIntervalTicker",
     months: [],
+  },
+  ScaledTicker: {
+    __extends__: "ContinuousTicker",
+    scale: 1.0,
+    origin: 0.0,
+    ticker: {
+      type: "object",
+      name: "BasicTicker",
+      attributes: {},
+    },
   },
   SingleIntervalTicker: {
     __extends__: "BaseSingleIntervalTicker",
@@ -7142,6 +7161,7 @@
   Tool: {
     __extends__: "Model",
     icon: null,
+    label: null,
     description: null,
     visible: true,
     group: true,
@@ -7317,12 +7337,6 @@
       type: "symbol",
       name: "unset",
     },
-  },
-  ActionItem: {
-    __extends__: "MenuItem",
-  },
-  CheckableItem: {
-    __extends__: "MenuItem",
   },
   DividerItem: {
     __extends__: "Model",
@@ -7584,10 +7598,6 @@
   Spinner: {
     __extends__: "NumericInput",
     mode: "float",
-    value_throttled: {
-      type: "symbol",
-      name: "unset",
-    },
     step: 1,
     page_step_multiplier: 10,
     wheel_wait: 100,
@@ -7626,6 +7636,12 @@
     __extends__: "Widget",
     text: "",
     disable_math: false,
+    dedent: true,
+    hard_line_break: false,
+    disable_anchors: false,
+    embeds: {
+      type: "map",
+    },
   },
   Div: {
     __extends__: "Markup",
@@ -7715,13 +7731,15 @@
   },
   AbstractSlider: {
     __extends__: "Widget",
-    width: 300,
     orientation: "horizontal",
     title: "",
     show_value: true,
-    direction: "ltr",
     tooltips: true,
-    bar_color: "#e6e6e6",
+    appearance: "normal",
+    step_multiplier: 5,
+    default_step: 0.05,
+    acceleration_interval: 10,
+    acceleration_max: 8,
   },
   CategoricalSlider: {
     __extends__: "AbstractSlider",
@@ -7733,19 +7751,11 @@
       type: "symbol",
       name: "unset",
     },
-    value_throttled: {
-      type: "symbol",
-      name: "unset",
-    },
   },
   DateRangeSlider: {
     __extends__: "NumericalSlider",
     format: "%d %b %Y",
     value: {
-      type: "symbol",
-      name: "unset",
-    },
-    value_throttled: {
       type: "symbol",
       name: "unset",
     },
@@ -7766,10 +7776,6 @@
       type: "symbol",
       name: "unset",
     },
-    value_throttled: {
-      type: "symbol",
-      name: "unset",
-    },
     start: {
       type: "symbol",
       name: "unset",
@@ -7787,7 +7793,20 @@
       type: "symbol",
       name: "unset",
     },
-    value_throttled: {
+    start: {
+      type: "symbol",
+      name: "unset",
+    },
+    end: {
+      type: "symbol",
+      name: "unset",
+    },
+    step: 3600000,
+  },
+  MultiValuedSlider: {
+    __extends__: "NumericalSlider",
+    format: "0[.]00",
+    value: {
       type: "symbol",
       name: "unset",
     },
@@ -7799,7 +7818,7 @@
       type: "symbol",
       name: "unset",
     },
-    step: 3600000,
+    step: 1,
   },
   NumericalSlider: {
     __extends__: "AbstractSlider",
@@ -7809,10 +7828,6 @@
     __extends__: "NumericalSlider",
     format: "0[.]00",
     value: {
-      type: "symbol",
-      name: "unset",
-    },
-    value_throttled: {
       type: "symbol",
       name: "unset",
     },
@@ -7841,14 +7856,7 @@
       type: "symbol",
       name: "unset",
     },
-    value_throttled: {
-      type: "symbol",
-      name: "unset",
-    },
     step: 1,
-  },
-  AvgAggregator: {
-    __extends__: "RowAggregator",
   },
   BooleanFormatter: {
     __extends__: "CellFormatter",
@@ -7863,14 +7871,6 @@
   CheckboxEditor: {
     __extends__: "CellEditor",
   },
-  DataCube: {
-    __extends__: "DataTable",
-    grouping: [],
-    target: {
-      type: "symbol",
-      name: "unset",
-    },
-  },
   DataTable: {
     __extends__: "TableWidget",
     width: 600,
@@ -7878,7 +7878,6 @@
     autosize_mode: "force_fit",
     auto_edit: false,
     columns: [],
-    fit_columns: null,
     frozen_columns: null,
     frozen_rows: null,
     sortable: true,
@@ -7902,12 +7901,6 @@
     null_format: "-",
     format: "ISO-8601",
   },
-  GroupingInfo: {
-    __extends__: "Model",
-    getter: "",
-    aggregators: [],
-    collapsed: false,
-  },
   HTMLTemplateFormatter: {
     __extends__: "CellFormatter",
     template: "<%= value %>",
@@ -7915,12 +7908,6 @@
   IntEditor: {
     __extends__: "CellEditor",
     step: 1,
-  },
-  MaxAggregator: {
-    __extends__: "RowAggregator",
-  },
-  MinAggregator: {
-    __extends__: "RowAggregator",
   },
   NumberEditor: {
     __extends__: "CellEditor",
@@ -7936,10 +7923,6 @@
   },
   PercentEditor: {
     __extends__: "CellEditor",
-  },
-  RowAggregator: {
-    __extends__: "Model",
-    field_: "",
   },
   ScientificFormatter: {
     __extends__: "StringFormatter",
@@ -7977,9 +7960,6 @@
     },
     nan_format: "NaN",
     null_format: "(null)",
-  },
-  SumAggregator: {
-    __extends__: "RowAggregator",
   },
   TableColumn: {
     __extends__: "Model",
@@ -8027,7 +8007,7 @@
     },
     view: {
       type: "object",
-      name: "CDSView",
+      name: "IndexedSubset",
       attributes: {
         filter: {
           type: "object",

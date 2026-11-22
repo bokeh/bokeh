@@ -1,12 +1,18 @@
-''' A dashboard that utilizes `Auto MPG`_ and stocks dataset.
+''' A dashboard that utilizes `Auto MPG <https://archive.ics.uci.edu/ml/datasets/auto+mpg>`__ and stocks dataset.
 This example demonstrates the use of Bootstrap templates to compile several types
 of charts in one file.
 
 .. note::
     This example needs the Pandas package to run.
 
-.. _Auto MPG: https://archive.ics.uci.edu/ml/datasets/auto+mpg
 
+
+
+.. bokeh-example-metadata::
+    :title: Dash
+    :keywords: dash, bokeh server, app
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.DataTable, bokeh.models.NumberFormatter, bokeh.models.RangeTool, bokeh.models.StringFormatter
+    :sampledata: autompg2, stocks
 '''
 from collections import Counter
 from math import pi
@@ -16,8 +22,14 @@ import pandas as pd
 
 from bokeh.io import curdoc
 from bokeh.layouts import column
-from bokeh.models import (ColumnDataSource, DataTable, NumberFormatter,
-                          RangeTool, StringFormatter, TableColumn)
+from bokeh.models import (
+    ColumnDataSource,
+    DataTable,
+    NumberFormatter,
+    RangeTool,
+    StringFormatter,
+    TableColumn,
+)
 from bokeh.palettes import Spectral11
 from bokeh.plotting import figure
 from bokeh.sampledata.autompg2 import autompg2 as mpg
@@ -29,7 +41,7 @@ from bokeh.transform import cumsum
 dates = np.array(AAPL['date'], dtype=np.datetime64)
 source = ColumnDataSource(data=dict(date=dates, close=AAPL['adj_close']))
 
-p = figure(height=180, tools="", toolbar_location=None,  # name="line",
+p = figure(height=180, tools=None,  # name="line",
            x_axis_type="datetime", x_range=(dates[1500], dates[2500]), sizing_mode="stretch_width")
 
 p.line('date', 'close', source=source, line_width=2, alpha=0.7)
@@ -39,7 +51,7 @@ p.grid.grid_line_color = "white"
 
 select = figure(height=90, width=800, y_range=p.y_range,
                 x_axis_type="datetime", y_axis_type=None,
-                tools="", toolbar_location=None, sizing_mode="stretch_width")
+                tools=None, sizing_mode="stretch_width")
 
 range_rool = RangeTool(x_range=p.x_range)
 range_rool.overlay.fill_color = "navy"

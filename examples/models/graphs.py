@@ -1,4 +1,6 @@
-"""
+''' Visualize Zachary's karate club network with linked graph inspection and
+selection.
+
 Zachary's Karate Club graph
 Data file from:
 http://vlado.fmf.uni-lj.si/pub/networks/data/Ucinet/UciData.htm
@@ -6,14 +8,30 @@ Reference:
 Zachary W. (1977).
 An information flow model for conflict and fission in small groups.
 Journal of Anthropological Research, 33, 452-473.
-"""
+
+.. bokeh-example-metadata::
+    :title: Graphs
+    :keywords: graphs, models
+    :apis: bokeh.models.BoxSelectTool, bokeh.models.Column, bokeh.models.EdgesAndLinkedNodes, bokeh.models.HoverTool, bokeh.models.MultiLine
+'''
 
 import networkx as nx
 
 from bokeh.io import show
-from bokeh.models import (BoxSelectTool, Column, EdgesAndLinkedNodes, HoverTool,
-                          MultiLine, NodesAndAdjacentNodes, NodesAndLinkedEdges,
-                          Plot, Range1d, Row, Scatter, TapTool)
+from bokeh.models import (
+    BoxSelectTool,
+    Column,
+    EdgesAndLinkedNodes,
+    HoverTool,
+    MultiLine,
+    NodesAndAdjacentNodes,
+    NodesAndLinkedEdges,
+    Plot,
+    Range1d,
+    Row,
+    Scatter,
+    TapTool,
+)
 from bokeh.palettes import Spectral4
 from bokeh.plotting import from_networkx
 

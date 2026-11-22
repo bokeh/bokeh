@@ -5,7 +5,6 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from contextlib import contextmanager
 from typing import (
     TYPE_CHECKING,
@@ -16,7 +15,6 @@ from typing import (
     overload,
 )
 
-# Bokeh imports
 from ..core.enums import (
     LocationType as Location,
     OutputBackendType as OutputBackend,
@@ -54,9 +52,9 @@ from .layouts import (
 from .ranges import Range
 from .renderers import GlyphRenderer, Renderer, TileRenderer
 from .scales import Scale
-from .sources import ColumnarDataSource
+from .sources import IndexedDataSource
 from .tiles import TileSource
-from .tools import HoverTool, Tool, Toolbar
+from .tools import HoverTool, Tool, Toolbar, ToolProxy
 from .ui.ui_element import StyledElement
 
 if TYPE_CHECKING:
@@ -207,7 +205,7 @@ class Plot(LayoutDOM, BackgroundFill, BackgroundHatch, BorderLine, BorderFill, B
     def grid(self) -> GridListAttrSplat: ...
 
     @property
-    def tools(self) -> list[Tool]: ...
+    def tools(self) -> list[Tool | ToolProxy]: ...
 
     @tools.setter
     def tools(self, tools: list[Tool]) -> None: ...
@@ -221,12 +219,12 @@ class Plot(LayoutDOM, BackgroundFill, BackgroundHatch, BorderLine, BorderFill, B
     @overload
     def add_glyph[GlyphType: Glyph](self, glyph: GlyphType, **kwargs: Any) -> GlyphRenderer[GlyphType]: ...
     @overload
-    def add_glyph[GlyphType: Glyph](self, source: ColumnarDataSource, glyph: GlyphType, **kwargs: Any) -> GlyphRenderer[GlyphType]: ...
+    def add_glyph[GlyphType: Glyph](self, source: IndexedDataSource, glyph: GlyphType, **kwargs: Any) -> GlyphRenderer[GlyphType]: ...
 
     def add_tile(self, tile_source: TileSource | xyzservices.TileProvider | str, retina: bool = False, **kwargs: Any) -> TileRenderer: ...
 
     @contextmanager
-    def hold(self, *, render: bool) -> Generator: ...
+    def hold(self, *, render: bool) -> Generator[None]: ...
 
 class _GridPlotInit(_GridCommonInit, _LayoutDOMInit, total=False):
     toolbar: Toolbar
@@ -234,7 +232,7 @@ class _GridPlotInit(_GridCommonInit, _LayoutDOMInit, total=False):
     children: list[tuple[LayoutDOM, int, int] | tuple[LayoutDOM, int, int, int, int]]
 
 class GridPlot(GridCommon, LayoutDOM):
-    def __init__(self, **kwargs: Unpack[_PlotInit]) -> None: ...
+    def __init__(self, **kwargs: Unpack[_GridPlotInit]) -> None: ...
 
     toolbar: Toolbar = ...
     toolbar_location: Location | None = ...

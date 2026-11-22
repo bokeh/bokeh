@@ -131,7 +131,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import os
 from enum import Enum, auto
 from os.path import join
@@ -145,15 +144,13 @@ from typing import (
     cast,
 )
 
-# External imports
 import yaml
 
-# Bokeh imports
 from .util.paths import bokehjs_path, server_path
 
 if TYPE_CHECKING:
     from .core.types import PathLike
-    from .resources import ResourcesMode
+    from .resources import ResourcesSetting
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -639,18 +636,15 @@ class Settings:
     """)
 
     cdn_version = PrioritizedSetting[str | None]("version", "BOKEH_CDN_VERSION", default=None, help="""
-    What version of BokehJS to use with CDN resources.
+    Override the BokehJS version requested from the CDN.
 
-    See the :class:`~bokeh.resources.Resources` class reference for full details.
-    """)
+    This applies to built-in bundles and the external embed bootstrap. When
+    unset, CDN resources use the embed payload's Bokeh version. Setting an
+    override permits trying another release without changing the payload's
+    version. The browser checks that the selected BokehJS version was loaded
+    and attempts to deserialize the payload. Different releases may not work.
 
-    chromedriver_path = PrioritizedSetting[str | None]("chromedriver_path", "BOKEH_CHROMEDRIVER_PATH", default=None, help="""
-    The name of or full path to chromedriver's executable.
-
-    This is used to allow ``bokeh.io.export`` to work on systems that use a
-    different name for ``chromedriver``, like ``chromedriver-binary`` or
-    ``chromium.chromedriver`` (or its variant, which is used for example
-    by Snap package manager; see https://snapcraft.io/).
+    See :class:`~bokeh.resources.Resources` for resource configuration.
     """)
 
     compression_level = PrioritizedSetting[int]("compression_level", "BOKEH_COMPRESSION_LEVEL", default=2, convert=convert_compression, help="""
@@ -702,23 +696,6 @@ class Settings:
     fixes or changes.
     """)
 
-    export_backend: PrioritizedSetting[str] = PrioritizedSetting("export_backend", "BOKEH_EXPORT_BACKEND", default="playwright", help="""
-    Which browser backend to use for PNG and SVG export.
-
-    Valid values are:
-
-    - ``playwright``: use Playwright (default; requires
-      ``pip install playwright`` and
-      ``playwright install --only-shell chromium``).
-    - ``auto``: try Playwright first, then fall back to the deprecated
-      Selenium backend.
-    - ``selenium``: use the deprecated Selenium backend with a browser driver
-      on PATH.
-
-    This can also be overridden per-call via the ``backend`` parameter
-    on ``export_png``, ``export_svg``, etc.
-    """)
-
     ico_path: PrioritizedSetting[str] = PrioritizedSetting("ico_path", "BOKEH_ICO_PATH",
         default="default", dev_default="default-dev", convert=convert_ico_path, help="""
     Configure the file path to a .ico file for the Bokeh server to use as a
@@ -730,10 +707,6 @@ class Settings:
     - ``default`` to use the default project .ico file
     - ``none`` to turn off favicon.ico support entirely
 
-    """)
-
-    ignore_filename = PrioritizedSetting[bool]("ignore_filename", "BOKEH_IGNORE_FILENAME", default=False, convert=convert_bool, help="""
-    Whether to ignore the current script filename when saving Bokeh content.
     """)
 
     log_level = PrioritizedSetting[LogLevel]("log_level", "BOKEH_LOG_LEVEL", default="info", dev_default="debug", help="""
@@ -799,16 +772,19 @@ class Settings:
 
     """)
 
-    resources: PrioritizedSetting[ResourcesMode] = PrioritizedSetting("resources", "BOKEH_RESOURCES", default="cdn", dev_default="server", help="""
+    resources: PrioritizedSetting[ResourcesSetting] = PrioritizedSetting("resources", "BOKEH_RESOURCES", default="cdn", dev_default="server", help="""
     What kind of BokehJS resources to configure, e.g ``inline`` or ``cdn``
 
-    See the :class:`~bokeh.resources.Resources` class reference for full details.
+    The ``server-dev``, ``relative-dev``, and ``absolute-dev`` spellings select
+    the corresponding mode with unminified resources.
+
+    See :class:`~bokeh.resources.Resources` for full details.
     """)
 
     rootdir: PrioritizedSetting[PathLike | None] = PrioritizedSetting("rootdir", "BOKEH_ROOTDIR", default=None, help="""
     Root directory to use with ``relative`` resources
 
-    See the :class:`~bokeh.resources.Resources` class reference for full details.
+    See :class:`~bokeh.resources.Resources` for full details.
     """)
 
     default_server_host = PrioritizedSetting[str]("default_server_host", "BOKEH_DEFAULT_SERVER_HOST", default="localhost", help="""
@@ -884,17 +860,6 @@ class Settings:
 
         '''
         return bokehjs_path(self.dev)
-
-    def bokehjsdir(self) -> str:
-        ''' The location of the BokehJS source tree.
-
-        .. deprecated:: 3.4.0
-            Use ``bokehjs_path()`` method instead.
-        '''
-        from .util.deprecation import deprecated
-
-        deprecated((3, 4, 0), "bokehjsdir()", "bokehjs_path() method")
-        return str(self.bokehjs_path())
 
     def css_files(self) -> list[str]:
         ''' The CSS files in the BokehJS directory.

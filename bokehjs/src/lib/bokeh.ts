@@ -1,6 +1,6 @@
 export * from "main"
-export * from "models/glyphs/webgl/main"
+import "models/glyphs/webgl/main"
 export * from "api/main"
 export * from "models/widgets/main"
 export * from "models/widgets/tables/main"
-export * from "models/text/mathjax/main"
+import "models/text/mathjax/main"

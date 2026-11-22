@@ -8,34 +8,29 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import logging
 from collections.abc import Callable
 from types import SimpleNamespace
 from typing import Generator
 from unittest import mock
 
-# External imports
+import pytest
 from tornado import locks
 from tornado.httpclient import HTTPClientError, HTTPRequest
 from tornado.httpserver import HTTPServer
 from tornado.websocket import WebSocketClosedError, websocket_connect
 
-# Bokeh imports
 from bokeh.application import Application
 from bokeh.protocol.exceptions import ProtocolError
 from bokeh.server.tornado import BokehTornado
 from bokeh.server.views.auth_request_handler import AuthRequestHandler
 from bokeh.util.logconfig import basicConfig
-from bokeh.util.token import generate_jwt_token, generate_session_id
+from bokeh.util.token import TokenDecodeError, generate_jwt_token, generate_session_id
 
 # Module under test
 from bokeh.server.views.ws import WSHandler # isort:skip
@@ -143,6 +138,20 @@ async def test_ws_handler_rejects_disallowed_origins(
     assert f"currently we allow origins {set(allowed_origins)!r}" in caplog.text
 
 
+def test_check_origin_escapes_log_values(caplog: pytest.LogCaptureFixture) -> None:
+    handler = SimpleNamespace(application=SimpleNamespace(websocket_origins={"example.com"}))
+    origin = "http://evil.example/\r\nforged log entry\x1b[31m"
+
+    with caplog.at_level(logging.ERROR):
+        assert not WSHandler.check_origin(handler, origin)
+
+    message = caplog.messages[-1]
+    assert repr(origin) in message
+    assert "--allow-websocket-origin='evil.example'" in message
+    assert "BOKEH_ALLOW_WS_ORIGIN='evil.example'" in message
+    assert not any(char in message for char in "\r\n\x1b")
+
+
 def test_open_rejects_invalid_signed_token_before_payload() -> None:
     handler = object.__new__(WSHandler)
     handler._token = generate_jwt_token("bad-session", signed=True, secret_key="bar", extra_payload=dict(foo="bar"))
@@ -163,12 +172,32 @@ def test_open_rejects_invalid_signed_token_before_payload() -> None:
     handler.close.assert_called_once()
     get_token_payload.assert_not_called()
 
+
+def test_open_rejects_invalid_token_payload() -> None:
+    handler = object.__new__(WSHandler)
+    handler._token = generate_jwt_token("session", signed=False)
+    handler.application = SimpleNamespace(
+        sign_sessions=False,
+        secret_key=None,
+        io_loop=SimpleNamespace(add_callback=mock.Mock()),
+    )
+    handler.close = mock.Mock()
+
+    with (
+        mock.patch.object(WSHandler, "selected_subprotocol", new_callable=mock.PropertyMock, return_value="bokeh"),
+        mock.patch("bokeh.server.views.ws.get_token_payload", side_effect=TokenDecodeError("too large")),
+        pytest.raises(ProtocolError, match="Invalid token payload"),
+    ):
+        WSHandler.open.__wrapped__(handler)
+
+    handler.close.assert_called_once()
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
 
 @pytest.fixture
-def websocket_url_factory(unused_tcp_port_factory) -> Generator[Callable[[list[str]], str], None, None]:
+def websocket_url_factory(unused_tcp_port_factory) -> Generator[Callable[[list[str]], str]]:
     servers: list[HTTPServer] = []
 
     def start(allowed_origins: list[str]) -> str:

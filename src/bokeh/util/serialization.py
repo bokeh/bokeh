@@ -27,7 +27,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import datetime as dt
 import sys
 import uuid
@@ -41,10 +40,8 @@ from typing import (
     cast,
 )
 
-# External imports
 import numpy as np
 
-# Bokeh imports
 from ..settings import settings
 from .dependencies import is_installed, uses_pandas
 from .strings import format_docstring
@@ -79,7 +76,7 @@ def __getattr__(name: str) -> Any:
         return _compute_datetime_types(is_installed("pandas") and "pandas" in sys.modules)
     raise AttributeError
 
-BINARY_ARRAY_TYPES = {
+BINARY_ARRAY_TYPES: set[np.dtype[Any]] = {
     np.dtype(np.bool_),
     np.dtype(np.uint8),
     np.dtype(np.int8),
@@ -201,7 +198,8 @@ def convert_datetime_type(obj: Any | pd.Timestamp | pd.Timedelta | dt.datetime |
 
         # Pandas Timestamp
         if isinstance(obj, pd.Timestamp):
-            return obj.value / 10**6.0
+            # Preserve the native resolution; .value forces nanoseconds and can overflow.
+            return convert_datetime_type(obj.to_datetime64())
 
         # Pandas Timedelta
         if isinstance(obj, pd.Timedelta):
@@ -402,6 +400,18 @@ def transform_series(series: pd.Series[Any] | pd.Index[Any] | pd.api.extensions.
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+def reserve_id(id: ID) -> None:
+    '''Prevent generated simple IDs from colliding with an explicit ID.'''
+    global _simple_id
+
+    if not id.startswith("p") or not id[1:].isdigit():
+        return
+
+    value = int(id[1:])
+    with _simple_id_lock:
+        if value > _simple_id:
+            _simple_id = value
 
 #-----------------------------------------------------------------------------
 # Private API

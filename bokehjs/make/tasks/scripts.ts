@@ -1,9 +1,10 @@
-import {join, normalize, relative, dirname} from "node:path"
+import {join, normalize, relative, dirname, basename} from "node:path"
 import cp from "node:child_process"
 import fs from "node:fs"
 
 import MagicString from "magic-string"
-import {SourceMapConsumer, SourceMapGenerator} from "source-map"
+import remapping from "@jridgewell/remapping"
+import * as esbuild from "esbuild"
 import * as oxc from "oxc-parser"
 import {glob} from "glob"
 import {GlslMinify} from "webpack-glsl-minify/build/minify.js"
@@ -11,7 +12,7 @@ import {GlslMinify} from "webpack-glsl-minify/build/minify.js"
 import {task, passthrough, BuildError} from "../task.js"
 import {file_exists, compile_typescript} from "./_util.js"
 
-import {rename, read, write, scan} from "#compiler/sys.js"
+import {rename, read, write, scan, resolve_npx} from "#compiler/sys.js"
 import {wrap_css_modules} from "#compiler/styles.js"
 import type {AssemblyOptions} from "#compiler/linker.js"
 import {Linker} from "#compiler/linker.js"
@@ -39,13 +40,13 @@ task("scripts:styles", ["styles:compile"], async () => {
 task("scripts:grammar", async () => {
   function grammar(lib_dir: string) {
     function compile_grammar(ne_path: string, js_path: string) {
-      const is_windows = process.platform == "win32"
-      const npx = is_windows ? "npx.cmd" : "npx"
-      const {status, stdout, stderr} = cp.spawnSync(`${npx} --loglevel=warn nearleyc "${ne_path}" -o "${js_path}"`, {stdio: "pipe", encoding: "utf-8", shell: true})
-      if (status !== 0) {
+      const [resolved_executable, resolved_args] = resolve_npx(["--loglevel=warn", "nearleyc", ne_path, "-o", js_path])
+      const {status, error, stdout, stderr} = cp.spawnSync(resolved_executable, resolved_args, {stdio: "pipe", encoding: "utf-8"})
+      if (error != null || status !== 0) {
         console.error(stdout)
         console.error(stderr)
-        throw new BuildError("pack", `failed to run '${npx} nearleyc'`)
+        const reason = error != null ? `: ${error.message}` : ""
+        throw new BuildError("grammar", `failed to run '${resolved_executable} ${resolved_args.join(" ")}'${reason}`)
       }
     }
 
@@ -104,6 +105,13 @@ task("scripts:typescript", ["scripts:styles", "scripts:glsl", "scripts:grammar"]
   compile_typescript("./src/lib/tsconfig.json")
 })
 
+/** Chains the map of edits in `str` onto `source_map` (tsc's map of `file`). */
+function remap(str: MagicString, file: string, source_map: string): string {
+  const name = basename(file)
+  const map = str.generateMap({hires: "boundary", source: name, file: name})
+  return remapping(map.toString(), (source) => source == name ? source_map : null).toString()
+}
+
 task("scripts:imports", async () => {
   const base_path = paths.build_dir.lib
 
@@ -119,7 +127,7 @@ task("scripts:imports", async () => {
     const source = fs.readFileSync(file, {encoding: "utf-8"})
     const source_map = fs.readFileSync(file_map, {encoding: "utf-8"})
 
-    const {module} = oxc.parseSync(file, source)
+    const {module, program} = oxc.parseSync(file, source)
     if (file.endsWith(".js")) {
       fs.writeFileSync(`${file}.module`, JSON.stringify(module), {encoding: "utf-8"})
     }
@@ -137,75 +145,118 @@ task("scripts:imports", async () => {
       return null
     }
 
-    const rewrites: {new_path: string, start: number, end: number}[] = []
-    for (const imp of module.staticImports) {
-      const {value: module_path, start, end} = imp.moduleRequest
-      const new_path = relativize(module_path)
-      if (new_path != null) {
-        rewrites.push({new_path, start, end})
+    function explicit_esm_path(module_path: string): string {
+      if (!module_path.startsWith(".")) {
+        return module_path
+      }
+
+      const module_file = join(dirname(file), module_path)
+      if (file_exists(`${module_file}.js`)) {
+        return `${module_path}.js`
+      } else if (file_exists(join(module_file, "index.js"))) {
+        return `${module_path}/index.js`
+      } else {
+        return module_path
       }
     }
 
-    if (file.endsWith(".d.ts")) {
-      const re = /import\("(?<module_path>[^"]+)"\)/g
-      for (const result of source.matchAll(re)) {
-        const {index} = result
-        const {module_path} = result.groups!
-        const start = index + "import(".length
-        const end = index + result[0].length - 1
-        const new_path = relativize(module_path)
-        if (new_path != null) {
-          rewrites.push({new_path, start, end})
+    function rewrite_import(module_path: string): string | null {
+      const relative_path = relativize(module_path) ?? module_path
+      const new_path = file.endsWith(".js") || file.endsWith(".d.ts")
+        ? explicit_esm_path(relative_path)
+        : relative_path
+      return new_path != module_path ? new_path : null
+    }
+
+    const rewrites: {new_path: string, start: number, end: number}[] = []
+    const rewritten = new Set<number>()
+
+    function add_rewrite(module_path: string, start: number, end: number): void {
+      if (rewritten.has(start)) {
+        return
+      }
+      const new_path = rewrite_import(module_path)
+      if (new_path != null) {
+        rewrites.push({new_path, start, end})
+        rewritten.add(start)
+      }
+    }
+
+    for (const imp of module.staticImports) {
+      const {value: module_path, start, end} = imp.moduleRequest
+      add_rewrite(module_path, start, end)
+    }
+
+    const from_re = /\bfrom\s+(?<quoted>"(?<module_path>[^"]+)")/g
+    for (const result of source.matchAll(from_re)) {
+      const {index} = result
+      const {quoted, module_path} = result.groups!
+      const start = index + result[0].lastIndexOf(quoted)
+      add_rewrite(module_path, start, start + quoted.length)
+    }
+
+    const dynamic_import_re = /import\("(?<module_path>[^"]+)"\)/g
+    for (const result of source.matchAll(dynamic_import_re)) {
+      const {index} = result
+      const {module_path} = result.groups!
+      const start = index + "import(".length
+      const end = index + result[0].length - 1
+      add_rewrite(module_path, start, end)
+    }
+
+    // JavaScript optimizers are free to mangle class identifiers. Model names are
+    // also used for serialization and CSS classes, so preserve the source name in
+    // the class itself. A static field is tree-shakeable with its containing class
+    // and is initialized before user-defined static blocks execute.
+    const stable_names: {name: string, start: number}[] = []
+    if (file.endsWith(".js")) {
+      for (const statement of program.body) {
+        const declaration = statement.type == "ExportNamedDeclaration" ? statement.declaration : statement
+        if (declaration?.type != "ClassDeclaration" || declaration.id == null) {
+          continue
+        }
+
+        const already_named = declaration.body.body.some((member) =>
+          member.type == "PropertyDefinition" && member.static &&
+          member.key.type == "Identifier" && member.key.name == "__name__",
+        )
+        if (!already_named) {
+          stable_names.push({name: declaration.id.name, start: declaration.body.start + 1})
         }
       }
     }
 
-    if (rewrites.length != 0) {
-      const str = new MagicString(source, {filename: file})
+    if (rewrites.length != 0 || stable_names.length != 0) {
+      const str = new MagicString(source)
       for (const {new_path, start, end} of rewrites) {
         str.update(start, end, `"${new_path}"`)
       }
-
-      const new_source = str.toString()
-      const new_source_map = str.generateMap({
-        hires: true,
-        source: file,
-        file: file_map,
-        includeContent: true,
-      }).toString()
-
-      const consumer = await new SourceMapConsumer(source_map)
-      const generator = SourceMapGenerator.fromSourceMap(consumer)
-
-      generator.applySourceMap(await new SourceMapConsumer(new_source_map))
-      const gen_source_map = generator.toString()
-
-      fs.writeFileSync(file, new_source, {encoding: "utf-8"})
-      fs.writeFileSync(file_map, gen_source_map, {encoding: "utf-8"})
+      for (const {name, start} of stable_names) {
+        str.appendLeft(start, `\n    static __name__ = ${JSON.stringify(name)};`)
+      }
+      fs.writeFileSync(file, str.toString(), {encoding: "utf-8"})
+      fs.writeFileSync(file_map, remap(str, file, source_map), {encoding: "utf-8"})
     }
   }
 })
 
 task("scripts:version", async () => {
-  function version(lib_dir: string) {
-    const version_js = "version.js"
-    const version_js_path = join(lib_dir, version_js)
-    const version_map_path = join(lib_dir, `${version_js}.map`)
+  const version_js_path = join(paths.build_dir.lib, "version.js")
+  const version_map_path = `${version_js_path}.map`
 
-    const source = fs.readFileSync(version_js_path, {encoding: "utf-8"})
-    const str = new MagicString(source, {filename: version_js})
-    str.replace("VERSION", pkg.version)
+  const source = fs.readFileSync(version_js_path, {encoding: "utf-8"})
+  const start = source.indexOf("VERSION")
 
-    const map = str.generateMap({
-      source: version_js,
-      file: `${version_js}.map`,
-      includeContent: true,
-    })
-
-    fs.writeFileSync(version_js_path, str.toString())
-    fs.writeFileSync(version_map_path, map.toString())
+  // Outputs are up to date, if compilation didn't emit a new version.js.
+  if (start == -1) {
+    return
   }
-  version(join(paths.build_dir.js, "lib"))
+
+  const source_map = fs.readFileSync(version_map_path, {encoding: "utf-8"})
+  const str = new MagicString(source)
+  str.update(start, start + "VERSION".length, pkg.version)
+  fs.writeFileSync(version_js_path, str.toString(), {encoding: "utf-8"})
+  fs.writeFileSync(version_map_path, remap(str, version_js_path, source_map), {encoding: "utf-8"})
 })
 
 task("scripts:compile", [passthrough("scripts:typescript"), "scripts:imports", "scripts:version"])
@@ -222,10 +273,23 @@ task("scripts:bundle", [passthrough("scripts:compile")], async () => {
     entries: packages.map((pkg) => pkg.main),
     bases: [paths.build_dir.lib, "./node_modules"],
     cache: argv.cache ? join(paths.build_dir.js, "bokeh.json") : undefined,
-    target: "ES2024",
-    exports: ["tslib"],
-    detect_cycles: argv.detectCycles,
+    // Packages that other bundles (e.g. tests) can `require()` by name. Bundles
+    // that use preact must share bokehjs' instance of it, because preact keeps
+    // global state (e.g. hooks' and signals' current component or computation).
+    exports: [
+      "tslib",
+      "preact",
+      "preact/hooks",
+      "preact/compat",
+      "preact/jsx-runtime",
+      "@preact/signals",
+      "@preact/signals-core",
+    ],
+    detect_cycles: argv.detectCycles ? "all" : "none",
     overrides: {
+      // Script bundles register their own models when loaded. Keep npm's lazy
+      // registry from pulling optional widgets and tables into the API bundle.
+      "api/session_models.js": "export function register_builtin_models() { return false }\n",
       // https://github.com/bokeh/bokeh/issues/12142
       "mathjax-full/js/components/version.js": `\
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -276,6 +340,19 @@ exports.VERSION = "0.0.0";
 
   bundle({...esm_settings(false), minified: false}, outputs.map((name) => rename(name, {ext: ".esm.js"})))
   bundle({...esm_settings(true), minified: true}, outputs.map((name) => rename(name, {ext: ".esm.min.js"})))
+
+  const license = fs.readFileSync(join(paths.base_dir, "..", "LICENSE.txt"), {encoding: "utf-8"})
+  for (const minify of [false, true]) {
+    await esbuild.build({
+      entryPoints: [paths.embed_bootstrap.main],
+      outfile: minify ? min_js(paths.embed_bootstrap.output) : paths.embed_bootstrap.output,
+      bundle: true,
+      format: "iife",
+      target: "es2024",
+      minify,
+      banner: {js: preludes.comment(license)},
+    })
+  }
 
   if (!status) {
     throw new BuildError("scripts:bundle", "unable to bundle modules")

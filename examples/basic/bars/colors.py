@@ -2,9 +2,11 @@
 setting bar colors from a ``ColumnDataSource``.
 
 .. bokeh-example-metadata::
+    :title: Read colors from a data column
+    :keywords: bars, categorical
     :apis: bokeh.plotting.figure.vbar, bokeh.models.sources.ColumnDataSource
     :refs: :ref:`ug_basic_bars_filled_colors`
-    :keywords: bars, categorical
+    :gallery: A simple bar chart of six bars shaded according to the Bright6 palette.
 
 '''
 from bokeh.models import ColumnDataSource
@@ -17,7 +19,7 @@ counts = [5, 3, 4, 2, 4, 6]
 source = ColumnDataSource(data=dict(fruits=fruits, counts=counts, color=Bright6))
 
 p = figure(x_range=fruits, y_range=(0,9), height=350, title="Fruit Counts",
-           toolbar_location=None, tools="")
+           tools=None)
 
 p.vbar(x='fruits', top='counts', width=0.9, color='color', legend_field="fruits", source=source)
 

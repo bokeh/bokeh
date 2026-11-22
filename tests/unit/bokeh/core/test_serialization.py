@@ -8,15 +8,11 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import datetime as dt
 import gzip
 import sys
@@ -28,10 +24,9 @@ from types import SimpleNamespace
 from typing import Any, Sequence
 from unittest.mock import patch
 
-# External imports
 import numpy as np
+import pytest
 
-# Bokeh imports
 from bokeh.colors import RGB
 from bokeh.core.has_props import HasProps
 from bokeh.core.properties import (
@@ -54,15 +49,17 @@ from bokeh.core.serialization import (
     NumberRep,
     ObjectRefRep,
     ObjectRep,
-    Ref,
+    Serializable,
     SerializationError,
     Serializer,
     SetRep,
     SliceRep,
     TypedArrayRep,
+    collect_model_types,
 )
+from bokeh.document import Document
 from bokeh.model import Model
-from bokeh.models import ColumnDataSource
+from bokeh.models import ColumnDataSource, CustomJS
 from bokeh.util.dataclasses import NotRequired, Unspecified
 from bokeh.util.warnings import BokehUserWarning
 
@@ -91,6 +88,58 @@ class SomeModel(Model):
 
 class SomeModelUnset(SomeModel):
     p4 = Required(Int)
+
+
+def test_collect_model_types_follows_nested_serialized_values() -> None:
+    nested = SomeModel(p1="nested", p2=[])
+    root = CustomJS(args={"value": SimpleNamespace(child=SomeDataClass(1, [], f5=nested))}, code="")
+
+    assert set(collect_model_types(root)) == {CustomJS, SomeModel}
+
+
+def test_collect_model_types_skips_numeric_array_elements(monkeypatch: pytest.MonkeyPatch) -> None:
+    array = np.zeros(10_000_000)
+    root = ColumnDataSource(data={"x": array})
+
+    def fail_to_encode_bytes(*values: Any) -> None:
+        raise AssertionError("discovery must not construct binary buffers")
+
+    monkeypatch.setattr(Serializer, "_encode_bytes", fail_to_encode_bytes)
+
+    assert ColumnDataSource in collect_model_types(root)
+
+
+@pytest.mark.parametrize("structured", [False, True])
+@pytest.mark.parametrize("scalar", [False, True])
+def test_collect_model_types_follows_object_array_elements(structured: bool, scalar: bool) -> None:
+    model = SomeModel(p1="array", p2=[])
+    array = np.empty(() if scalar else (1,), dtype=[("child", object)] if structured else object)
+    if structured:
+        array["child"][...] = model
+    else:
+        array[...] = model
+
+    if not scalar:
+        assert Serializer().encode(array)["type"] == "ndarray"
+    assert collect_model_types(array) == (SomeModel,)
+
+
+def test_collect_model_types_handles_shared_and_cyclic_containers() -> None:
+    model = SomeModel(p1="shared", p2=[])
+    value: list[Any] = [model]
+    value.append(value)
+
+    assert collect_model_types({"first": value, "second": value}) == (SomeModel,)
+
+
+def test_document_model_type_discovery_preserves_sync_state() -> None:
+    document = Document()
+    root = CustomJS(code="")
+    document.add_root(root)
+    pending = set(document.models._new_models)
+
+    assert CustomJS in document.serialization_model_types()
+    assert document.models._new_models == pending
 
 @dataclass
 class SomeDataClass:
@@ -130,7 +179,9 @@ class TestBuffer:
 
         assert isinstance(ret, bytes)
 
-        # make sure the gzip header "OS" field is *always* set to "unknown" (255)
+        assert ret[4:8] == b"\x00"*4
+
+        # The gzip header OS field must be unknown on every platform.
         assert ret[9] == 255
 
         assert gzip.decompress(ret) == val
@@ -144,7 +195,9 @@ class TestBuffer:
 
         assert isinstance(ret, bytes)
 
-        # make sure the gzip header "OS" field is *always* set to "unknown" (255)
+        assert ret[4:8] == b"\x00"*4
+
+        # The gzip header OS field must be unknown on every platform.
         assert ret[9] == 255
 
         assert gzip.decompress(ret) == val
@@ -158,7 +211,7 @@ class TestBuffer:
         monkeypatch.setenv("BOKEH_COMPRESSION_LEVEL", f"{level}")
         buf.to_compressed_bytes()
 
-        compress.assert_called_once_with(val, mtime=1, compresslevel=level)
+        compress.assert_called_once_with(val, mtime=0, compresslevel=level)
 
     def test_to_base64(self):
         val = b"\x001\xefabc\x12"
@@ -201,7 +254,7 @@ class TestSerializer:
     def test_max_int(self) -> None:
         encoder = Serializer()
 
-        with pytest.warns(BokehUserWarning, match="out of range integer may result in loss of precision"):
+        with pytest.warns(UserWarning, match="out of range integer may result in loss of precision"):
             rep = encoder.encode(2**64)
 
         assert rep == 2.0**64
@@ -230,34 +283,25 @@ class TestSerializer:
             NumberRep(type="number", value="nan"),
             NumberRep(type="number", value="-inf"),
             NumberRep(type="number", value="+inf"),
-            ObjectRep(
-                type="object",
-                name="test_serialization.SomeProps",
-                attributes=dict(
-                    p0=2,
-                    p1="a",
-                    p2=[1, 2, 3],
-                ),
-            ),
-            ObjectRefRep(
-                type="object",
-                name="test_serialization.SomeModel",
-                id=v1.id,
-                attributes=dict(
-                    p0=3,
-                    p1="b",
-                    p2=[4, 5, 6],
-                ),
-            ),
-            ObjectRep(
-                type="object",
-                name="test_serialization.SomeDataClass",
-                attributes=dict(
-                    f0=2,
-                    f1=[1, 2, 3],
-                    f2=None,
-                ),
-            ),
+            ObjectRep({
+                "$type": "test_serialization.SomeProps",
+                "p0": 2,
+                "p1": "a",
+                "p2": [1, 2, 3],
+            }),
+            ObjectRefRep({
+                "$type": "test_serialization.SomeModel",
+                "$id": v1.id,
+                "p0": 3,
+                "p1": "b",
+                "p2": [4, 5, 6],
+            }),
+            ObjectRep({
+                "$type": "test_serialization.SomeDataClass",
+                "f0": 2,
+                "f1": [1, 2, 3],
+                "f2": None,
+            }),
             [NumberRep(type="number", value="nan")],
         ]
         assert encoder.buffers == []
@@ -362,6 +406,12 @@ class TestSerializer:
 
         val1 = {1, 2, 3}
         assert encoder.encode(val1) == SetRep(type="set", entries=[1, 2, 3])
+
+    def test_string_set_has_stable_order(self) -> None:
+        encoder = Serializer()
+        assert encoder.encode({"menu_item_click", "button_click"}) == SetRep(
+            type="set", entries=["button_click", "menu_item_click"],
+        )
 
     def test_slice(self) -> None:
         encoder = Serializer()
@@ -584,7 +634,7 @@ class TestSerializer:
 
     def test_ndarray_str(self) -> None:
         encoder = Serializer()
-        val = np.array(["a", "bb", "ccc"])
+        val = np.array(["a", "bb", "ccc"], dtype="U")
         rep = encoder.encode(val)
 
         assert len(encoder.buffers) == 0
@@ -594,6 +644,111 @@ class TestSerializer:
             array=["a", "bb", "ccc"],
             order=sys.byteorder,
             shape=[3],
+            dtype="object",
+        )
+
+    @pytest.mark.parametrize(
+        "val, expected, shape",
+        [
+            (np.array([], dtype=object), [], [0]),
+            (np.array(["a"], dtype=object), ["a"], [1]),
+            (np.array([["a", "b"], ["c", "d"]], dtype=object), ["a", "b", "c", "d"], [2, 2]),
+            (np.array([["a", "b", "c"], ["d", "e", "f"]], dtype=object)[:, ::2], ["a", "c", "d", "f"], [2, 2]),
+        ],
+    )
+    def test_ndarray_object_strings(self, val: np.ndarray, expected: list[str], shape: list[int]) -> None:
+        encoder = Serializer()
+        rep = encoder.encode(val)
+
+        assert rep == NDArrayRep(
+            type="ndarray",
+            array=expected,
+            order=sys.byteorder,
+            shape=shape,
+            dtype="object",
+        )
+        assert encoder.buffers == []
+
+    def test_ndarray_object_strings_registered(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setattr(Serializer, "_encoders", Serializer._encoders.copy())
+        Serializer.register(str, lambda value, serializer: f"encoded:{value}")
+
+        encoder = Serializer()
+        rep = encoder.encode(np.array(["a"], dtype=object))
+
+        assert rep == NDArrayRep(
+            type="ndarray",
+            array=["encoded:a"],
+            order=sys.byteorder,
+            shape=[1],
+            dtype="object",
+        )
+        assert encoder.buffers == []
+
+    @pytest.mark.parametrize(
+        "val, expected",
+        [
+            (np.array([None, "a", "b"], dtype=object), [None, "a", "b"]),
+            (np.array(["a", 42, "b"], dtype=object), ["a", 42, "b"]),
+            (np.array(["a", "b", np.nan], dtype=object), ["a", "b", NumberRep(type="number", value="nan")]),
+        ],
+    )
+    def test_ndarray_mixed_objects(self, val: np.ndarray, expected: list[Any]) -> None:
+        encoder = Serializer()
+        rep = encoder.encode(val)
+
+        assert rep == NDArrayRep(
+            type="ndarray",
+            array=expected,
+            order=sys.byteorder,
+            shape=[3],
+            dtype="object",
+        )
+        assert encoder.buffers == []
+
+    def test_ndarray_masked_unicode(self) -> None:
+        encoder = Serializer()
+        val = np.ma.array(["a", "b"], dtype="U1", mask=[False, True])
+        rep = encoder.encode(val)
+
+        assert rep == NDArrayRep(
+            type="ndarray",
+            array=["a", None],
+            order=sys.byteorder,
+            shape=[2],
+            dtype="object",
+        )
+
+    def test_ndarray_object_string_subclass_registered(self) -> None:
+        class Tagged(str):
+            pass
+
+        Serializer.register(Tagged, lambda value, serializer: f"encoded:{value}")
+
+        encoder = Serializer()
+        rep = encoder.encode(np.array([Tagged("a")], dtype=object))
+
+        assert rep == NDArrayRep(
+            type="ndarray",
+            array=["encoded:a"],
+            order=sys.byteorder,
+            shape=[1],
+            dtype="object",
+        )
+
+    def test_ndarray_object_string_subclass_serializable(self) -> None:
+        class Tagged(str, Serializable):
+            def to_serializable(self, serializer: Serializer) -> str:
+                return f"serialized:{self}"
+
+        encoder = Serializer()
+        rep = encoder.encode(np.array([Tagged("a")], dtype=object))
+
+        assert rep == NDArrayRep(
+            type="ndarray",
+            array=["serialized:a"],
+            order=sys.byteorder,
+            shape=[1],
             dtype="object",
         )
 
@@ -611,21 +766,21 @@ class TestSerializer:
         assert rep == NDArrayRep(
             type="ndarray",
             array=[
-                ObjectRep(
-                    type="object",
-                    name="test_serialization.TestSerializer.test_ndarray_object.X",
-                    attributes=dict(f=0, g="a"),
-                ),
-                ObjectRep(
-                    type="object",
-                    name="test_serialization.TestSerializer.test_ndarray_object.X",
-                    attributes=dict(f=1, g="a"),
-                ),
-                ObjectRep(
-                    type="object",
-                    name="test_serialization.TestSerializer.test_ndarray_object.X",
-                    attributes=dict(f=2, g="b"),
-                ),
+                ObjectRep({
+                    "$type": "test_serialization.TestSerializer.test_ndarray_object.X",
+                    "f": 0,
+                    "g": "a",
+                }),
+                ObjectRep({
+                    "$type": "test_serialization.TestSerializer.test_ndarray_object.X",
+                    "f": 1,
+                    "g": "a",
+                }),
+                ObjectRep({
+                    "$type": "test_serialization.TestSerializer.test_ndarray_object.X",
+                    "f": 2,
+                    "g": "b",
+                }),
             ],
             order=sys.byteorder,
             shape=[3, 1],
@@ -696,32 +851,89 @@ class TestSerializer:
         val = SomeProps(p0=2, p1="a", p2=[1, 2, 3])
         encoder = Serializer()
         rep = encoder.encode(val)
-        assert rep == ObjectRep(
-            type="object",
-            name="test_serialization.SomeProps",
-            attributes=dict(
-                p0=2,
-                p1="a",
-                p2=[1, 2, 3],
-            ),
-        )
+        assert rep == ObjectRep({
+            "$type": "test_serialization.SomeProps",
+            "p0": 2,
+            "p1": "a",
+            "p2": [1, 2, 3],
+        })
         assert encoder.buffers == []
 
     def test_Model(self) -> None:
         val = SomeModel(p0=3, p1="b", p2=[4, 5, 6])
         encoder = Serializer()
         rep = encoder.encode(val)
-        assert rep == ObjectRefRep(
-            type="object",
-            name="test_serialization.SomeModel",
-            id=val.id,
-            attributes=dict(
-                p0=3,
-                p1="b",
-                p2=[4, 5, 6],
-            ),
-        )
+        assert rep == ObjectRefRep({
+            "$type": "test_serialization.SomeModel",
+            "$id": val.id,
+            "p0": 3,
+            "p1": "b",
+            "p2": [4, 5, 6],
+        })
         assert encoder.buffers == []
+
+    def test_Model_minimal_ids_can_omit_id(self) -> None:
+        val = SomeModel(p0=3, p1="b", p2=[4, 5, 6])
+        encoder = Serializer(models_with_ids=set())
+        rep = encoder.encode(val)
+        assert rep == ObjectRep({
+            "$type": "test_serialization.SomeModel",
+            "p0": 3,
+            "p1": "b",
+            "p2": [4, 5, 6],
+        })
+        assert encoder.buffers == []
+
+    def test_Document_minimal_ids_preserves_shared_identity(self) -> None:
+        shared = SomeModel(p0=10)
+        val0 = SomeModel(p0=20, p3=shared)
+        val1 = SomeModel(p0=30, p3=shared)
+
+        doc = Document()
+        doc.add_root(val0)
+        doc.add_root(val1)
+
+        rep = doc._to_json(deferred=False, model_ids="minimal")
+
+        assert "$id" not in rep["roots"][0]
+        assert "$id" not in rep["roots"][1]
+        assert rep["roots"][0]["p3"] == {"$type": "test_serialization.SomeModel", "$id": shared.id, "p0": 10}
+        assert rep["roots"][1]["p3"] == {"$ref": shared.id}
+
+        decoded = Document.from_json(rep)
+        assert decoded.roots[0].p3 is decoded.roots[1].p3
+
+    def test_Document_minimal_ids_round_trips_anonymous_models(self) -> None:
+        child = SomeModel(p0=10)
+        root = SomeModel(p0=20, p3=child)
+
+        doc = Document()
+        doc.add_root(root)
+
+        rep = doc._to_json(deferred=False, model_ids="minimal")
+        decoded = Document.from_json(rep)
+
+        assert len(decoded.roots) == 1
+        decoded_root = decoded.roots[0]
+        assert decoded_root.p0 == 20
+        assert decoded_root.p3.p0 == 10
+
+    def test_Document_minimal_ids_omits_ancestor_of_cycle(self) -> None:
+        child0 = SomeModel(p0=10)
+        child1 = SomeModel(p0=20, p3=child0)
+        child0.p3 = child1
+        root = SomeModel(p0=30, p3=child0)
+
+        doc = Document()
+        doc.add_root(root)
+
+        rep = doc._to_json(deferred=False, model_ids="minimal")
+
+        assert "$id" not in rep["roots"][0]
+        child0_rep = rep["roots"][0]["p3"]
+        assert child0_rep["$id"] == child0.id
+        assert child0_rep["p3"]["$id"] == child1.id
+        assert child0_rep["p3"]["p3"] == {"$ref": child0.id}
 
     def test_Model_circular(self) -> None:
         val0 = SomeModel(p0=10)
@@ -732,31 +944,22 @@ class TestSerializer:
         encoder = Serializer()
         rep = encoder.encode(val2)
 
-        assert rep == ObjectRefRep(
-            type="object",
-            name="test_serialization.SomeModel",
-            id=val2.id,
-            attributes=dict(
-                p0=30,
-                p3=ObjectRefRep(
-                    type="object",
-                    name="test_serialization.SomeModel",
-                    id=val1.id,
-                    attributes=dict(
-                        p0=20,
-                        p3=ObjectRefRep(
-                            type="object",
-                            name="test_serialization.SomeModel",
-                            id=val0.id,
-                            attributes=dict(
-                                p0=10,
-                                p3=Ref(id=val2.id),
-                            ),
-                        ),
-                    ),
-                ),
-            ),
-        )
+        assert rep == ObjectRefRep({
+            "$type": "test_serialization.SomeModel",
+            "$id": val2.id,
+            "p0": 30,
+            "p3": ObjectRefRep({
+                "$type": "test_serialization.SomeModel",
+                "$id": val1.id,
+                "p0": 20,
+                "p3": ObjectRefRep({
+                    "$type": "test_serialization.SomeModel",
+                    "$id": val0.id,
+                    "p0": 10,
+                    "p3": {"$ref": val2.id},
+                }),
+            }),
+        })
         assert encoder.buffers == []
 
     def test_Model_unset(self) -> None:
@@ -770,38 +973,29 @@ class TestSerializer:
         val = SomeDataClass(f0=2, f1=[1, 2, 3])
         encoder = Serializer()
         rep = encoder.encode(val)
-        assert rep == ObjectRep(
-            type="object",
-            name="test_serialization.SomeDataClass",
-            attributes=dict(
-                f0=2,
-                f1=[1, 2, 3],
-                f2=None,
-            ),
-        )
+        assert rep == ObjectRep({
+            "$type": "test_serialization.SomeDataClass",
+            "f0": 2,
+            "f1": [1, 2, 3],
+            "f2": None,
+        })
         assert encoder.buffers == []
 
     def test_dataclass_nested(self) -> None:
         val = SomeDataClass(f0=2, f1=[1, 2, 3], f2=SomeDataClass(f0=3, f1=[4, 5, 6]))
         encoder = Serializer()
         rep = encoder.encode(val)
-        assert rep == ObjectRep(
-            type="object",
-            name="test_serialization.SomeDataClass",
-            attributes=dict(
-                f0=2,
-                f1=[1, 2, 3],
-                f2=ObjectRep(
-                    type="object",
-                    name="test_serialization.SomeDataClass",
-                    attributes=dict(
-                        f0=3,
-                        f1=[4, 5, 6],
-                        f2=None,
-                    ),
-                ),
-            ),
-        )
+        assert rep == ObjectRep({
+            "$type": "test_serialization.SomeDataClass",
+            "f0": 2,
+            "f1": [1, 2, 3],
+            "f2": ObjectRep({
+                "$type": "test_serialization.SomeDataClass",
+                "f0": 3,
+                "f1": [4, 5, 6],
+                "f2": None,
+            }),
+        })
         assert encoder.buffers == []
 
     def test_dataclass_HasProps_nested(self) -> None:
@@ -809,24 +1003,18 @@ class TestSerializer:
         val = SomeDataClass(f0=2, f1=[1, 2, 3], f4=v0)
         encoder = Serializer()
         rep = encoder.encode(val)
-        assert rep == ObjectRep(
-            type="object",
-            name="test_serialization.SomeDataClass",
-            attributes=dict(
-                f0=2,
-                f1=[1, 2, 3],
-                f2=None,
-                f4=ObjectRep(
-                    type="object",
-                    name="test_serialization.SomeProps",
-                    attributes=dict(
-                        p0=2,
-                        p1="a",
-                        p2=[1, 2, 3],
-                    ),
-                ),
-            ),
-        )
+        assert rep == ObjectRep({
+            "$type": "test_serialization.SomeDataClass",
+            "f0": 2,
+            "f1": [1, 2, 3],
+            "f2": None,
+            "f4": ObjectRep({
+                "$type": "test_serialization.SomeProps",
+                "p0": 2,
+                "p1": "a",
+                "p2": [1, 2, 3],
+            }),
+        })
         assert encoder.buffers == []
 
     def test_dataclass_Model_nested(self) -> None:
@@ -834,25 +1022,19 @@ class TestSerializer:
         val = SomeDataClass(f0=2, f1=[1, 2, 3], f5=v0)
         encoder = Serializer()
         rep = encoder.encode(val)
-        assert rep == ObjectRep(
-            type="object",
-            name="test_serialization.SomeDataClass",
-            attributes=dict(
-                f0=2,
-                f1=[1, 2, 3],
-                f2=None,
-                f5=ObjectRefRep(
-                    type="object",
-                    name="test_serialization.SomeModel",
-                    id=v0.id,
-                    attributes=dict(
-                        p0=3,
-                        p1="b",
-                        p2=[4, 5, 6],
-                    ),
-                ),
-            ),
-        )
+        assert rep == ObjectRep({
+            "$type": "test_serialization.SomeDataClass",
+            "f0": 2,
+            "f1": [1, 2, 3],
+            "f2": None,
+            "f5": ObjectRefRep({
+                "$type": "test_serialization.SomeModel",
+                "$id": v0.id,
+                "p0": 3,
+                "p1": "b",
+                "p2": [4, 5, 6],
+            }),
+        })
         assert encoder.buffers == []
 
     def test_color_rgb(self) -> None:
@@ -1047,6 +1229,16 @@ class TestDeserializer:
             ret = decoder.deserialize(rep)
 
         assert ret == val
+
+    def test_duplicate_model_id(self) -> None:
+        decoder = Deserializer()
+        representation = [
+            {"$type": "test_serialization.SomeModel", "$id": "duplicate", "p0": 1},
+            {"$type": "test_serialization.SomeModel", "$id": "duplicate", "p0": 2},
+        ]
+
+        with pytest.raises(DeserializationError, match="duplicate model ID 'duplicate'"):
+            decoder.decode(representation)
 
     def test_unknown_type(self) -> None:
         decoder = Deserializer()
@@ -1398,9 +1590,9 @@ def test_transform_series_force_list_default_with_buffers() -> None:
             "id": obj.id,
             "name": None,
             "tags": [],
-            'js_property_callbacks': dict(type="map", entries=[]),
-            "js_event_callbacks": dict(type="map", entries=[]),
-            "subscribed_events": dict(type="set", entries=[]),
+            '_js_property_callbacks': dict(type="map", entries=[]),
+            "_js_event_callbacks": dict(type="map", entries=[]),
+            "_subscribed_events": dict(type="set", entries=[]),
             "syncable": True,
             "foo": 42,
             "bar": "world",
@@ -1410,11 +1602,11 @@ def test_transform_series_force_list_default_with_buffers() -> None:
             '"child":{"id":"%s"},' +
             '"foo":42,' +
             '"id":"%s",' +
-            '"js_event_callbacks":{"entries":[],"type":"map"},' +
-            '"js_property_callbacks":{"entries":[],"type":"map"},' +
+            '"_js_event_callbacks":{"entries":[],"type":"map"},' +
+            '"_js_property_callbacks":{"entries":[],"type":"map"},' +
             '"name":null,' +
             '"null_child":null,' +
-            '"subscribed_events":{"entries":[],"type":"set"},' +
+            '"_subscribed_events":{"entries":[],"type":"set"},' +
             '"syncable":true,' +
             '"tags":[]}'
         ) % (child_obj.id, obj.id) == json_string

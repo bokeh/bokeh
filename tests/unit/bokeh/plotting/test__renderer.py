@@ -8,18 +8,14 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# External imports
 import numpy as np
+import pytest
 
-# Bokeh imports
 from bokeh.models import (
     Circle,
     ColumnDataSource,
@@ -301,7 +297,7 @@ class Test__process_sequence_literals:
 #     'x_range_name': [None, '', 'x range'],
 #     'y_range_name': [None, '', 'y range'],
 #     'level': [None, 'overlay'],
-#     'view': [None, CDSView()],
+#     'view': [None, IndexedSubset()],
 #     'visible': [None, False, True],
 #     'muted': [None, False, True]
 # }

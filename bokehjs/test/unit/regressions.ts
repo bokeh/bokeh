@@ -1,9 +1,10 @@
 import sinon from "sinon"
+import pixelmatch from "pixelmatch"
 
 import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
-import {display, fig} from "#framework/layouts"
+import {display, fig, row} from "#framework/layouts"
 import {restorable} from "#framework/util"
-import {PlotActions, actions, xy, line, tap, mouse_click, scroll_up, scroll_down} from "#framework/interactive"
+import {PlotActions, actions, xy, line, tap, mouse_click, scroll_up, scroll_down, show_context_menu} from "#framework/interactive"
 import {convert_to_uint32_palette} from "@bokehjs/models/mappers/color_mapper"
 import type {PlotView} from "@bokehjs/models/plots/plot"
 import type {ViewOf} from "@bokehjs/core/build_views"
@@ -15,7 +16,7 @@ import {
   BoxAnnotation,
   BoxEditTool,
   BoxSelectTool,
-  CDSView,
+  IndexedSubset,
   Canvas,
   CategoricalColorMapper,
   ColorBar,
@@ -24,9 +25,11 @@ import {
   CopyTool,
   CustomJS,
   DataRange1d,
+  Dodge,
   EqHistColorMapper,
   FactorRange,
   GlyphRenderer,
+  HArea,
   HoverTool,
   Image,
   IndexFilter,
@@ -35,6 +38,7 @@ import {
   Line,
   LinearColorMapper,
   LogColorMapper,
+  Maximum,
   Node,
   PanTool,
   Pane,
@@ -72,7 +76,7 @@ import {version} from "@bokehjs/version"
 import {Model} from "@bokehjs/model"
 import * as p from "@bokehjs/core/properties"
 import {is_equal} from "@bokehjs/core/util/eq"
-import {linspace, logspace, range} from "@bokehjs/core/util/array"
+import {linspace, logspace, range, sorted} from "@bokehjs/core/util/array"
 import {keys} from "@bokehjs/core/util/object"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {BitSet} from "@bokehjs/core/util/bitset"
@@ -80,12 +84,12 @@ import {b64decode} from "@bokehjs/core/util/buffer"
 import type {XY} from "@bokehjs/core/util/bbox"
 import {div} from "@bokehjs/core/dom"
 import type {Color, Arrayable} from "@bokehjs/core/types"
-import type {DocJson, DocumentEvent} from "@bokehjs/document"
+import type {DocJson, DocumentChangedEvent, DocumentEvent} from "@bokehjs/document"
 import {Document, ModelChangedEvent, MessageSentEvent} from "@bokehjs/document"
 import {DocumentReady, RangesUpdate} from "@bokehjs/core/bokeh_events"
 import {gridplot} from "@bokehjs/api/gridplot"
 import {Spectral11, Spectral6, Viridis11, Viridis256} from "@bokehjs/api/palettes"
-import {defer, paint, poll} from "@bokehjs/core/util/defer"
+import {defer, poll} from "@bokehjs/core/util/defer"
 import type {Field} from "@bokehjs/core/vectorization"
 import type {AxisType, ToolName} from "@bokehjs/api/figure"
 
@@ -98,6 +102,8 @@ import {TableDataProvider, DataTable} from "@bokehjs/models/widgets/tables/data_
 import {TableColumn} from "@bokehjs/models/widgets/tables/table_column"
 import {DTINDEX_NAME} from "@bokehjs/models/widgets/tables/definitions"
 import {Spinner} from "@bokehjs/models/widgets"
+
+import * as slider_css from "@bokehjs/styles/widgets/sliders.css"
 
 class QualifiedModelView extends UIElementView {
   declare model: QualifiedModel
@@ -154,7 +160,7 @@ function scalar_image(N: number = 100) {
 describe("Bug", () => {
   describe("in issue #10612", () => {
     it("prevents hovering over dynamically added glyphs", async () => {
-      const hover = new HoverTool({renderers: "auto"})
+      const hover = HoverTool.create({renderers: "auto"})
       const plot = fig([200, 200], {tools: [hover]})
       plot.scatter([1, 2, 3], [4, 5, 6])
       const {view} = await display(plot)
@@ -173,7 +179,7 @@ describe("Bug", () => {
       const plot = fig([200, 200])
       const r0 = plot.scatter([0, 1, 2], [3, 4, 5], {fill_color: "blue", level: "glyph"})
       const r1 = plot.scatter(1, 3, {fill_color: "red", level: "overlay"})
-      const r2 = new BoxAnnotation({left: 0, right: 2, bottom: 3, top: 5, level: "overlay"})
+      const r2 = BoxAnnotation.create({left: 0, right: 2, bottom: 3, top: 5, level: "overlay"})
       plot.add_layout(r2)
       const {view} = await display(plot)
 
@@ -214,9 +220,9 @@ describe("Bug", () => {
   describe("in issue #10853", () => {
     it("prevents initializing GlyphRenderer with an empty data source", async () => {
       const plot = fig([200, 200])
-      const data_source = new ColumnDataSource({data: {}})
-      const glyph = new Scatter({x: {field: "x_field"}, y: {field: "y_field"}})
-      const renderer = new GlyphRenderer({data_source, glyph})
+      const data_source = ColumnDataSource.create({data: {}})
+      const glyph = Scatter.create({x: {field: "x_field"}, y: {field: "y_field"}})
+      const renderer = GlyphRenderer.create({data_source, glyph})
       plot.add_renderers(renderer)
       const {view} = await display(plot)
       // XXX: no data (!= empty arrays) implies 1 data point, required for
@@ -231,19 +237,19 @@ describe("Bug", () => {
   describe("in issue #10935", () => {
     it("prevents to render a plot with a legend and an empty view", async () => {
       const plot = fig([200, 200])
-      const filter = new BooleanFilter({booleans: [false, false]})
-      const view = new CDSView({filter})
+      const filter = BooleanFilter.create({booleans: [false, false]})
+      const view = IndexedSubset.create({filter})
       plot.scatter([1, 2], [3, 4], {marker: "square", fill_color: ["red", "green"], view, legend_label: "square"})
       await display(plot)
     })
 
     it("prevents to render a plot with a legend and a subset of indices", async () => {
       const plot = fig([200, 200])
-      const filter = new BooleanFilter({booleans: [true, true, false, false]})
-      const view = new CDSView({filter})
-      const data_source = new ColumnDataSource({data: {x: [1, 2, 3, 4], y: [5, 6, 7, 8], fld: ["a", "a", "b", "b"]}})
+      const filter = BooleanFilter.create({booleans: [true, true, false, false]})
+      const view = IndexedSubset.create({filter})
+      const data_source = ColumnDataSource.create({data: {x: [1, 2, 3, 4], y: [5, 6, 7, 8], fld: ["a", "a", "b", "b"]}})
       const r = plot.scatter("x", "y", {marker: "square", fill_color: ["red", "red", "green", "green"], view, source: data_source})
-      const legend = new Legend({items: [new LegendItem({label: {field: "fld"}, renderers: [r]})]})
+      const legend = Legend.create({items: [LegendItem.create({label: {field: "fld"}, renderers: [r]})]})
       plot.add_layout(legend)
       await display(plot)
     })
@@ -266,10 +272,10 @@ describe("Bug", () => {
   describe("in issue #11750", () => {
     it("makes plots render unnecessarily when hover glyph wasn't defined", async () => {
       async function test(hover_glyph: Line | null) {
-        const data_source = new ColumnDataSource({data: {x: [0, 1], y: [0.1, 0.1]}})
-        const glyph = new Line({line_color: "red"})
-        const renderer = new GlyphRenderer({data_source, glyph, hover_glyph})
-        const plot = fig([200, 200], {tools: [new HoverTool({mode: "vline", attachment: "above"})]})
+        const data_source = ColumnDataSource.create({data: {x: [0, 1], y: [0.1, 0.1]}})
+        const glyph = Line.create({line_color: "red"})
+        const renderer = GlyphRenderer.create({data_source, glyph, hover_glyph})
+        const plot = fig([200, 200], {tools: [HoverTool.create({mode: "vline", attachment: "above"})]})
         plot.add_renderers(renderer)
 
         const {view} = await display(plot)
@@ -284,17 +290,17 @@ describe("Bug", () => {
       }
 
       expect(await test(null)).to.be.equal(0)
-      expect(await test(new Line({line_color: "blue"}))).to.be.equal(1)
+      expect(await test(Line.create({line_color: "blue"}))).to.be.equal(1)
     })
   })
 
   describe("in issue #11999", () => {
     it("makes plots render unnecessarily when inspection indices don't change", async () => {
-      const data_source = new ColumnDataSource({data: {x: [0, 0.6], y: [0.6, 0], width: [0.4, 0.4], height: [0.4, 0.4]}})
-      const glyph = new Rect({line_color: "red"})
-      const hover_glyph = new Rect({line_color: "blue"})
-      const renderer = new GlyphRenderer({data_source, glyph, hover_glyph})
-      const plot = fig([200, 200], {tools: [new HoverTool()]})
+      const data_source = ColumnDataSource.create({data: {x: [0, 0.6], y: [0.6, 0], width: [0.4, 0.4], height: [0.4, 0.4]}})
+      const glyph = Rect.create({line_color: "red"})
+      const hover_glyph = Rect.create({line_color: "blue"})
+      const renderer = GlyphRenderer.create({data_source, glyph, hover_glyph})
+      const plot = fig([200, 200], {tools: [HoverTool.create()]})
       plot.add_renderers(renderer)
 
       const {view} = await display(plot)
@@ -317,105 +323,79 @@ describe("Bug", () => {
       const doc_json: DocJson = {
         defs: [],
         roots: [{
-          type: "object",
-          name: "Plot",
-          id: "1002",
-          attributes: {
-            renderers: [{
-              type: "object",
-              name: "GlyphRenderer",
-              id: "1005",
-              attributes: {
-                data_source: {
-                  type: "object",
-                  name: "ColumnDataSource",
-                  id: "1003",
-                  attributes: {
-                    data: {
-                      x: {
-                        type: "ndarray",
-                        array: {
-                          type: "bytes",
-                          data: "H4sIAAAAAAACE2NggIB2l+deEuHX7CH0M/vUYl2LoIMfoPxv9itFF8bee/MbKs7g8C26y9G0h9kBIs/mIKHrEvJbkdMBAOE1l61QAAAA",
-                        },
-                        dtype: "float64",
-                        order: "little",
-                        shape: [10],
-                      },
-                      y0: {
-                        type: "ndarray",
-                        array: {
-                          type: "bytes",
-                          data: "H4sIAAAAAAACE2NgAIEP9j3F3HVSVsfspXWDnL4JvtvPAhZ/sN884Pyi/OYX9lZQ+tN/ELi/Xw6qrhiqjwFqDgAXT+ECUAAAAA==",
-                        },
-                        dtype: "float64",
-                        order: "little",
-                        shape: [10],
-                      },
-                      y1: {
-                        type: "ndarray",
-                        array: {
-                          type: "bytes",
-                          data: "H4sIAAAAAAACE2NggAAZMZug7ROf2IvLNPZ0N7+3X+0T8aJq22v7H9xdJSseX7X/AqH3r4CI75eAqNsvD9G3nz1GxFht2cY9ABjYpdhQAAAA",
-                        },
-                        dtype: "float64",
-                        order: "little",
-                        shape: [10],
-                      },
-                    },
+          $type: "Plot",
+          $id: "1002",
+          renderers: [{
+            $type: "GlyphRenderer",
+            $id: "1005",
+            data_source: {
+              $type: "ColumnDataSource",
+              $id: "1003",
+              data: {
+                x: {
+                  type: "ndarray",
+                  array: {
+                    type: "bytes",
+                    data: "H4sIAAAAAAACE2NggIB2l+deEuHX7CH0M/vUYl2LoIMfoPxv9itFF8bee/MbKs7g8C26y9G0h9kBIs/mIKHrEvJbkdMBAOE1l61QAAAA",
                   },
+                  dtype: "float64",
+                  order: "little",
+                  shape: [10],
                 },
-                glyph: {
-                  type: "object",
-                  name: "Line",
-                  id: "1004",
-                  attributes: {
-                    x: {field: "x"},
-                    y: {field: "y1"},
+                y0: {
+                  type: "ndarray",
+                  array: {
+                    type: "bytes",
+                    data: "H4sIAAAAAAACE2NgAIEP9j3F3HVSVsfspXWDnL4JvtvPAhZ/sN884Pyi/OYX9lZQ+tN/ELi/Xw6qrhiqjwFqDgAXT+ECUAAAAA==",
                   },
+                  dtype: "float64",
+                  order: "little",
+                  shape: [10],
+                },
+                y1: {
+                  type: "ndarray",
+                  array: {
+                    type: "bytes",
+                    data: "H4sIAAAAAAACE2NggAAZMZug7ROf2IvLNPZ0N7+3X+0T8aJq22v7H9xdJSseX7X/AqH3r4CI75eAqNsvD9G3nz1GxFht2cY9ABjYpdhQAAAA",
+                  },
+                  dtype: "float64",
+                  order: "little",
+                  shape: [10],
                 },
               },
-            }, {
-              type: "object",
-              name: "GlyphRenderer",
-              id: "1007",
-              attributes: {
-                data_source: {id: "1003"},
-                glyph: {
-                  type: "object",
-                  name: "Line",
-                  id: "1006",
-                  attributes: {
-                    x: {field: "x"},
-                    y: {field: "y0"},
-                  },
-                },
-              },
-            }],
-            x_range: {
-              type: "object",
-              name: "DataRange1d",
-              id: "1008",
-              attributes: {},
             },
-            x_scale: {
-              type: "object",
-              name: "LinearScale",
-              id: "1010",
-              attributes: {},
+            glyph: {
+              $type: "Line",
+              $id: "1004",
+              x: {field: "x"},
+              y: {field: "y1"},
             },
-            y_range: {
-              type: "object",
-              name: "DataRange1d",
-              id: "1009",
-              attributes: {},
+          }, {
+            $type: "GlyphRenderer",
+            $id: "1007",
+            data_source: {id: "1003"},
+            glyph: {
+              $type: "Line",
+              $id: "1006",
+              x: {field: "x"},
+              y: {field: "y0"},
             },
-            y_scale: {
-              type: "object",
-              name: "LinearScale",
-              id: "1011",
-              attributes: {},
-            },
+          }],
+          x_range: {
+            $type: "DataRange1d",
+            $id: "1008",
+          },
+          x_scale: {
+            $type: "LinearScale",
+            $id: "1010",
+          },
+          y_range: {
+            $type: "DataRange1d",
+            $id: "1009",
+          },
+          y_scale: {
+            $type: "LinearScale",
+            $id: "1011",
           },
         }],
         title: "Bokeh Application",
@@ -423,7 +403,7 @@ describe("Bug", () => {
       }
 
       const events0: DocumentEvent[] = []
-      const doc = Document.from_json(doc_json, events0)
+      const doc = Document.from_json(doc_json, {events: events0})
       expect(events0).to.be.empty
 
       expect(doc.roots().length).to.be.equal(1)
@@ -493,7 +473,7 @@ describe("Bug", () => {
       const p = fig([100, 100], {
         x_range: [0, 2], y_range: [0, 2],
         x_axis_type: null, y_axis_type: null,
-        tools: [new TapTool({mode: "replace"})],
+        tools: [TapTool.create({mode: "replace"})],
         min_border: 10,
       })
       const r = p.block({x: [0, 1], y: [0, 1], width: 1, height: 1})
@@ -520,9 +500,9 @@ describe("Bug", () => {
   describe("in issue #8531", () => {
     it("initiates multiple downloads when using copy tool in a gridplot", async () => {
       function f(color: Color) {
-        const copy = new CopyTool()
+        const copy = CopyTool.create()
         const copy_btn = copy.tool_button()
-        const toolbar = new Toolbar({tools: [copy], buttons: [copy_btn]})
+        const toolbar = Toolbar.create({tools: [copy], buttons: [copy_btn]})
         const p = fig([100, 100], {toolbar})
         p.scatter({x: [0, 1, 2], y: [0, 1, 2], color})
         return p
@@ -557,7 +537,7 @@ describe("Bug", () => {
   describe("in issue #8168", () => {
     it("allows to start selection from toolbar or axes", async () => {
       const p = fig([200, 200], {
-        tools: [new BoxSelectTool()],
+        tools: [BoxSelectTool.create()],
         toolbar_location: "above",
         x_axis_location: null,
         y_axis_location: null,
@@ -566,18 +546,15 @@ describe("Bug", () => {
       const r = p.scatter([1, 2, 3], [1, 2, 3])
 
       const {view} = await display(p)
-      await paint()
       expect(r.data_source.selected.indices).to.be.equal([])
 
       const actions = new PlotActions(view, {units: "screen"})
 
       await actions.pan(xy(0, 0), xy(200, 200))
-      await paint()
       expect(r.data_source.selected.indices).to.be.equal([])
 
       const tbv = view.owner.get_one(p.toolbar)
       await actions.pan(xy(0, tbv.bbox.height + 1), xy(200, 200))
-      await paint()
       expect(r.data_source.selected.indices).to.be.equal([0, 1, 2])
     })
   })
@@ -587,7 +564,7 @@ describe("Bug", () => {
 
     async function test(x_range: Range, y_range: Range) {
       const p = fig([200, 200], {x_range, y_range})
-      const color_mapper = new LinearColorMapper({palette: Spectral11})
+      const color_mapper = LinearColorMapper.create({palette: Spectral11})
       const glyph = p.image({image: {value: scalar_image()}, x: -5, y: -5, dw: 10, dh: 10, color_mapper})
 
       const {view} = await display(p)
@@ -689,13 +666,12 @@ describe("Bug", () => {
       p1.on_event(RangesUpdate, (event) => events.push(event))
       p2.on_event(RangesUpdate, (event) => events.push(event))
 
-      const row = new Row({children: [p0, p1, p2]})
+      const row = Row.create({children: [p0, p1, p2]})
       const {view} = await display(row)
 
       const pv0 = view.owner.get_one(p0)
       const actions = new PlotActions(pv0)
       await actions.pan(xy(2, 1), xy(2, 3))
-      await paint()
 
       expect(events.length).to.be.equal(3)
 
@@ -707,7 +683,7 @@ describe("Bug", () => {
 
   describe("in issue #12797", () => {
     it("allows UIElement with qualified type to use invalid characters in CSS classes", async () => {
-      const obj = new QualifiedModel()
+      const obj = QualifiedModel.create()
       const {view} = await display(obj, [200, 200])
       const cls = "bk-some-external-provider-QualifiedModel"
       expect(view.el.classList.contains(cls)).to.be.true
@@ -716,16 +692,15 @@ describe("Bug", () => {
 
   describe("in issue #6683", () => {
     it("doesn't allow TableDataProvider to correctly sort strings with accents", async () => {
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           words: ["met", "no", "mute", "méteo", "mill", "mole"],
         },
       })
       const indices = BitSet.from_indices(6, [0, 1, 2, 3, 4, 5])
-      const view = new CDSView({indices})
+      const view = IndexedSubset.create({indices})
       const provider = new TableDataProvider(source, view)
-
-      const table_column = new TableColumn({field: "words"})
+      const table_column = TableColumn.create({field: "words"})
       const table_column_view = await build_view(table_column, {parent: null})
       const column = table_column_view.toColumn()
 
@@ -773,14 +748,14 @@ describe("Bug", () => {
 
   describe("in issue #12078", () => {
     it("doesn't allow to correctly hit test Marker and Scatter glyphs", async () => {
-      const p = new Plot()
-      const source = new ColumnDataSource({
+      const p = Plot.create()
+      const source = ColumnDataSource.create({
         data: {
           x: [0, 1, 3, 4],
           y: [0, 1, 3, 4],
         },
       })
-      const glyph = new Scatter({marker: "circle", size: 20})
+      const glyph = Scatter.create({marker: "circle", size: 20})
       const r = p.add_glyph(glyph, source)
       const {view: pv} = await display(p)
       const rv = pv.owner.get_one(r)
@@ -837,8 +812,8 @@ describe("Bug", () => {
 
   describe("in issue #13217", () => {
     it("doesn't allow to bind this in non-module CustomJS", async () => {
-      const obj = new Plot()
-      const cb = new CustomJS({args: {arg0: "abc"}, code: "return [this, arg0, cb_obj, cb_data.data0]"})
+      const obj = Plot.create()
+      const cb = CustomJS.create({args: {arg0: "abc"}, code: "return [this, arg0, cb_obj, cb_data.data0]"})
       const result = await cb.execute(obj, {data0: 123})
       expect(result).to.be.equal([obj, "abc", obj, 123])
     })
@@ -850,13 +825,13 @@ describe("Bug", () => {
         return div({style: {width: `${width}px`, height: `${height}px`, display: "none"}})
       }
 
-      const osm_source = new WMTSTileSource({
+      const osm_source = WMTSTileSource.create({
         // url: "https://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png",
         url: "/assets/tiles/osm/{Z}_{X}_{Y}.png",
         attribution: "&copy; (0) OSM source attribution",
       })
 
-      const osm = new TileRenderer({tile_source: osm_source})
+      const osm = TileRenderer.create({tile_source: osm_source})
 
       const p = fig([200, 200], {
         x_range: [-2000000, 6000000],
@@ -876,63 +851,77 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #13299", () => {
+    it("doesn't allow to update Button's icon when it's replaced with a new icon", async () => {
+      const icon = TablerIcon.create({icon_name: "thumb-up"})
+      const button = Button.create({icon, label: "Like"})
+
+      const {view} = await display(button)
+
+      const new_icon = TablerIcon.create({icon_name: "thumb-down"})
+      button.icon = new_icon
+      await view.ready
+
+      const new_icon_view = view.owner.get_one(new_icon)
+      expect(view.button_el.contains(new_icon_view.el)).to.be.true
+      expect(view.owner.find_one(icon)).to.be.null
+    })
+  })
+
   describe("in issue #13377", () => {
     it("doesn't allow serialization of unset readonly properties", async () => {
-      const obj = new ModelWithUnsetReadonly()
+      const obj = ModelWithUnsetReadonly.create()
       const doc = new Document()
       doc.add_root(obj)
       expect(doc.to_json()).to.be.equal({
         version,
         title: "Bokeh Application",
         config: {
-          type: "object",
-          name: "DocumentConfig",
-          id: doc.config.id,
-          attributes: {
+          $type: "DocumentConfig",
+          $id: doc.config.id,
+          tags: [],
+          name: null,
+          _js_property_callbacks: {type: "map"},
+          _js_property_callback_policies: {type: "map"},
+          _js_event_callbacks: {type: "map"},
+          _subscribed_changes: {type: "map"},
+          _subscribed_events: {type: "set"},
+          syncable: true,
+          reconnect_session: true,
+          notify_connection_status: true,
+          notifications: {
+            $type: "Notifications",
+            $id: doc.config.notifications!.id,
             tags: [],
             name: null,
-            js_property_callbacks: {type: "map"},
-            js_event_callbacks: {type: "map"},
-            subscribed_events: {type: "set"},
+            _js_property_callbacks: {type: "map"},
+            _js_property_callback_policies: {type: "map"},
+            _js_event_callbacks: {type: "map"},
+            _subscribed_changes: {type: "map"},
+            _subscribed_events: {type: "set"},
             syncable: true,
-            reconnect_session: true,
-            notify_connection_status: true,
-            notifications: {
-              type: "object",
-              name: "Notifications",
-              id: doc.config.notifications!.id,
-              attributes: {
-                tags: [],
-                name: null,
-                js_property_callbacks: {type: "map"},
-                js_event_callbacks: {type: "map"},
-                subscribed_events: {type: "set"},
-                syncable: true,
-                html_attributes: {type: "map"},
-                html_id: null,
-                css_classes: [],
-                css_variables: {type: "map"},
-                styles: {type: "map"},
-                stylesheets: [],
-                visible: true,
-                context_menu: null,
-              },
-            },
-            color_scheme: "auto",
+            html_attributes: {type: "map"},
+            html_id: null,
+            css_classes: [],
+            css_variables: {type: "map"},
+            styles: {type: "map"},
+            stylesheets: [],
+            visible: true,
+            context_menu: null,
           },
+          color_scheme: "auto",
         },
         roots: [{
-          type: "object",
-          name: "ModelWithUnsetReadonly",
-          id: obj.id,
-          attributes: {
-            tags: [],
-            name: null,
-            js_property_callbacks: {type: "map"},
-            js_event_callbacks: {type: "map"},
-            subscribed_events: {type: "set"},
-            syncable: true,
-          },
+          $type: "ModelWithUnsetReadonly",
+          $id: obj.id,
+          tags: [],
+          name: null,
+          _js_property_callbacks: {type: "map"},
+          _js_property_callback_policies: {type: "map"},
+          _js_event_callbacks: {type: "map"},
+          _subscribed_changes: {type: "map"},
+          _subscribed_events: {type: "set"},
+          syncable: true,
         }],
       })
     })
@@ -940,7 +929,7 @@ describe("Bug", () => {
 
   describe("in issue #13416", () => {
     it("doesn't allow categorical mapping of non-factors to nan_color", async () => {
-      const mapper = new CategoricalColorMapper({
+      const mapper = CategoricalColorMapper.create({
         factors: ["a", "b"],
         palette: ["red", "green"],
         nan_color: "black",
@@ -955,8 +944,8 @@ describe("Bug", () => {
 
   describe("in issue #13414", () => {
     it("doesn't allow re-render Icon when its properties change", async () => {
-      const icon = new TablerIcon({icon_name: "eye", size: "1.2em"})
-      const button = new Button({icon, label: "Visibility"})
+      const icon = TablerIcon.create({icon_name: "eye", size: "1.2em"})
+      const button = Button.create({icon, label: "Visibility"})
 
       const {view} = await display(button)
 
@@ -972,8 +961,8 @@ describe("Bug", () => {
 
   describe("in issue #13456", () => {
     it("doesn't allow reuse nodes when updating RangeTool's overlay", async () => {
-      const x_range = new Range1d({start: 0, end: 1})
-      const x_range_tool = new RangeTool({x_range})
+      const x_range = Range1d.create({start: 0, end: 1})
+      const x_range_tool = RangeTool.create({x_range})
 
       x_range_tool.update_overlay_from_ranges()
       expect(x_range_tool.overlay.left).to.be.equal(0)
@@ -992,8 +981,8 @@ describe("Bug", () => {
       expect(x_range_tool.overlay.top).to.be.equal(prev_top)
       expect(x_range_tool.overlay.bottom).to.be.equal(prev_bottom)
 
-      const y_range = new Range1d({start: 0, end: 1})
-      const y_range_tool = new RangeTool({y_range})
+      const y_range = Range1d.create({start: 0, end: 1})
+      const y_range_tool = RangeTool.create({y_range})
 
       y_range_tool.update_overlay_from_ranges()
       expect(y_range_tool.overlay.left).to.be.instanceof(Node)
@@ -1016,7 +1005,7 @@ describe("Bug", () => {
 
   describe("in issue #13064", () => {
     it("doesn't allow spinner to follow the correct format when value's precision is higher than step's precision", async () => {
-      const obj = new Spinner({value: 0.3, low: 0, mode: "float", step: 1, format: "0.0"})
+      const obj = Spinner.create({value: 0.3, low: 0, mode: "float", step: 1, format: "0.0"})
       const {view} = await display(obj, [500, 400])
       const button = view.shadow_el.querySelector(".bk-spin-btn-up")!
       const input = view.shadow_el.querySelector(".bk-input") as HTMLInputElement
@@ -1033,13 +1022,13 @@ describe("Bug", () => {
 
   describe("in issue #13556", () => {
     it("doesn't allow creation of correct DOM elements for imported stylesheets", async () => {
-      const style0 = new GlobalImportedStyleSheet({url: "/assets/css/global.css"})
-      const style1 = new ImportedStyleSheet({url: "/assets/css/local.css"})
+      const style0 = GlobalImportedStyleSheet.create({url: "/assets/css/global.css"})
+      const style1 = ImportedStyleSheet.create({url: "/assets/css/local.css"})
 
-      const style2 = new GlobalInlineStyleSheet({css: ":root { --global-inline: 1; }"})
-      const style3 = new InlineStyleSheet({css: ":host { --local-inline: 1; }"})
+      const style2 = GlobalInlineStyleSheet.create({css: ":root { --global-inline: 1; }"})
+      const style3 = InlineStyleSheet.create({css: ":host { --local-inline: 1; }"})
 
-      const pane = new Pane({stylesheets: [style0, style1, style2, style3]})
+      const pane = Pane.create({stylesheets: [style0, style1, style2, style3]})
       const {view} = await display(pane, [100, 100])
 
       expect(document.head.querySelectorAll("link[href='/assets/css/global.css']").length).to.be.equal(1)
@@ -1087,18 +1076,17 @@ describe("Bug", () => {
           height: [2.0],
           color:  ["red"],
         }
-        const source = new ColumnDataSource({data})
+        const source = ColumnDataSource.create({data})
         const {x, y, width, height, color} = fields(data)
         const renderer = p.rect({x, y, width, height, color, source})
 
-        const edit_tool = new BoxEditTool({renderers: [renderer], default_overrides: {color: "green"}})
+        const edit_tool = BoxEditTool.create({renderers: [renderer], default_overrides: {color: "green"}})
         p.add_tools(edit_tool)
         p.toolbar.active_drag = edit_tool
 
         const {view} = await display(p)
 
         await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
-        await paint()
 
         expect(data).to.be.equal({
           x:      [3.0, 8.0],
@@ -1123,18 +1111,17 @@ describe("Bug", () => {
           height: [2.0],
           color:  ["red"],
         }
-        const source = new ColumnDataSource({data})
+        const source = ColumnDataSource.create({data})
         const {x, y, width, height, color} = fields(data)
         const renderer = p.rect({x, y, width, height, color, source})
 
-        const edit_tool = new BoxEditTool({renderers: [renderer], default_overrides: {color: "green"}})
+        const edit_tool = BoxEditTool.create({renderers: [renderer], default_overrides: {color: "green"}})
         p.add_tools(edit_tool)
         p.toolbar.active_drag = edit_tool
 
         const {view} = await display(p)
 
         await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
-        await paint()
 
         expect(data).to.be.equal({
           x:      [3.0, 8.0],
@@ -1159,18 +1146,17 @@ describe("Bug", () => {
           bottom: [2.0],
           color:  ["red"],
         }
-        const source = new ColumnDataSource({data})
+        const source = ColumnDataSource.create({data})
         const {left, right, top, bottom, color} = fields(data)
         const renderer = p.quad({left, right, top, bottom, color, source})
 
-        const edit_tool = new BoxEditTool({renderers: [renderer], default_overrides: {color: "green"}})
+        const edit_tool = BoxEditTool.create({renderers: [renderer], default_overrides: {color: "green"}})
         p.add_tools(edit_tool)
         p.toolbar.active_drag = edit_tool
 
         const {view} = await display(p)
 
         await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
-        await paint()
 
         expect(data).to.be.equal({
           left:   [3.0, 7.0],
@@ -1195,18 +1181,17 @@ describe("Bug", () => {
           right:  [4.0],
           color:  ["red"],
         }
-        const source = new ColumnDataSource({data})
+        const source = ColumnDataSource.create({data})
         const {y, height, left, right, color} = fields(data)
         const renderer = p.hbar({y, height, left, right, color, source})
 
-        const edit_tool = new BoxEditTool({renderers: [renderer], default_overrides: {color: "green"}})
+        const edit_tool = BoxEditTool.create({renderers: [renderer], default_overrides: {color: "green"}})
         p.add_tools(edit_tool)
         p.toolbar.active_drag = edit_tool
 
         const {view} = await display(p)
 
         await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
-        await paint()
 
         expect(data).to.be.equal({
           y:      [3.0, 6.0],
@@ -1231,18 +1216,17 @@ describe("Bug", () => {
           bottom: [2.0],
           color:  ["red"],
         }
-        const source = new ColumnDataSource({data})
+        const source = ColumnDataSource.create({data})
         const {x, width, top, bottom, color} = fields(data)
         const renderer = p.vbar({x, width, top, bottom, color, source})
 
-        const edit_tool = new BoxEditTool({renderers: [renderer], default_overrides: {color: "green"}})
+        const edit_tool = BoxEditTool.create({renderers: [renderer], default_overrides: {color: "green"}})
         p.add_tools(edit_tool)
         p.toolbar.active_drag = edit_tool
 
         const {view} = await display(p)
 
         await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
-        await paint()
 
         expect(data).to.be.equal({
           x:      [3.0, 8.0],
@@ -1265,18 +1249,17 @@ describe("Bug", () => {
           y1:    [3.0],
           color: ["red"],
         }
-        const source = new ColumnDataSource({data})
+        const source = ColumnDataSource.create({data})
         const {y0, y1, color} = fields(data)
         const renderer = p.hstrip({y0, y1, color, source})
 
-        const edit_tool = new BoxEditTool({renderers: [renderer], default_overrides: {color: "green"}})
+        const edit_tool = BoxEditTool.create({renderers: [renderer], default_overrides: {color: "green"}})
         p.add_tools(edit_tool)
         p.toolbar.active_drag = edit_tool
 
         const {view} = await display(p)
 
         await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
-        await paint()
 
         expect(data).to.be.equal({
           y0:    [1.0, 4.0],
@@ -1297,18 +1280,17 @@ describe("Bug", () => {
           x1:    [4.0],
           color: ["red"],
         }
-        const source = new ColumnDataSource({data})
+        const source = ColumnDataSource.create({data})
         const {x0, x1, color} = fields(data)
         const renderer = p.vstrip({x0, x1, color, source})
 
-        const edit_tool = new BoxEditTool({renderers: [renderer], default_overrides: {color: "green"}})
+        const edit_tool = BoxEditTool.create({renderers: [renderer], default_overrides: {color: "green"}})
         p.add_tools(edit_tool)
         p.toolbar.active_drag = edit_tool
 
         const {view} = await display(p)
 
         await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
-        await paint()
 
         expect(data).to.be.equal({
           x0:    [2.0, 7.0],
@@ -1335,15 +1317,15 @@ describe("Bug", () => {
         }
         const image = ndarray(values, {dtype: "float64", shape: [n, n]})
 
-        const x_range = new DataRange1d({flipped: x_flipped})
-        const y_range = new DataRange1d({flipped: y_flipped})
+        const x_range = DataRange1d.create({flipped: x_flipped})
+        const y_range = DataRange1d.create({flipped: y_flipped})
 
         const p = fig([300, 300], {x_range, y_range, toolbar_location: "right"})
 
-        const color_mapper = new LinearColorMapper({palette: Viridis256})
+        const color_mapper = LinearColorMapper.create({palette: Viridis256})
         const img = p.image({image: [image], x: 0, y: 0, dw: 2*n, dh: 2*n, color_mapper})
 
-        const hover = new TapTool({renderers: [img], behavior: "select"})
+        const hover = TapTool.create({renderers: [img], behavior: "select"})
         p.add_tools(hover)
 
         const {view} = await display(p)
@@ -1411,15 +1393,15 @@ describe("Bug", () => {
         }
         const image = ndarray(values, {dtype: "float64", shape: [n, n]})
 
-        const x_range = new DataRange1d()
-        const y_range = new DataRange1d()
+        const x_range = DataRange1d.create()
+        const y_range = DataRange1d.create()
 
         const p = fig([300, 300], {x_range, y_range, toolbar_location: "right", x_axis_type, y_axis_type})
 
-        const color_mapper = new LinearColorMapper({palette: Viridis256})
+        const color_mapper = LinearColorMapper.create({palette: Viridis256})
         const img = p.image({image: [image], x: x[0], y: y[0], dw, dh, color_mapper})
 
-        const hover = new TapTool({renderers: [img], behavior: "select"})
+        const hover = TapTool.create({renderers: [img], behavior: "select"})
         p.add_tools(hover)
 
         const {view} = await display(p)
@@ -1488,7 +1470,7 @@ describe("Bug", () => {
           y2: [1, 4, 2, 1, 3],
           step_mode: "before",
         })
-        p.add_tools(new HoverTool({tooltips: "i=$index, x=@x, y1=@y1, y2=@y2"}))
+        p.add_tools(HoverTool.create({tooltips: "i=$index, x=@x, y1=@y1, y2=@y2"}))
 
         const {view} = await display(p)
         const gv = view.owner.get_one(g)
@@ -1508,7 +1490,7 @@ describe("Bug", () => {
           y2: [1, 4, 2, 1, 3],
           step_mode: "center",
         })
-        p.add_tools(new HoverTool({tooltips: "i=$index, x=@x, y1=@y1, y2=@y2"}))
+        p.add_tools(HoverTool.create({tooltips: "i=$index, x=@x, y1=@y1, y2=@y2"}))
 
         const {view} = await display(p)
         const gv = view.owner.get_one(g)
@@ -1528,7 +1510,7 @@ describe("Bug", () => {
           y2: [1, 4, 2, 1, 3],
           step_mode: "after",
         })
-        p.add_tools(new HoverTool({tooltips: "i=$index, x=@x, y1=@y1, y2=@y2"}))
+        p.add_tools(HoverTool.create({tooltips: "i=$index, x=@x, y1=@y1, y2=@y2"}))
 
         const {view} = await display(p)
         const gv = view.owner.get_one(g)
@@ -1550,7 +1532,7 @@ describe("Bug", () => {
           x2: [12, 16, 14, 13, 15],
           step_mode: "before",
         })
-        p.add_tools(new HoverTool({tooltips: "i=$index, x1=@x1, x2=@x2, y=@y"}))
+        p.add_tools(HoverTool.create({tooltips: "i=$index, x1=@x1, x2=@x2, y=@y"}))
 
         const {view} = await display(p)
         const gv = view.owner.get_one(g)
@@ -1570,7 +1552,7 @@ describe("Bug", () => {
           x2: [12, 16, 14, 13, 15],
           step_mode: "center",
         })
-        p.add_tools(new HoverTool({tooltips: "i=$index, x1=@x1, x2=@x2, y=@y"}))
+        p.add_tools(HoverTool.create({tooltips: "i=$index, x1=@x1, x2=@x2, y=@y"}))
 
         const {view} = await display(p)
         const gv = view.owner.get_one(g)
@@ -1590,7 +1572,7 @@ describe("Bug", () => {
           x2: [12, 16, 14, 13, 15],
           step_mode: "after",
         })
-        p.add_tools(new HoverTool({tooltips: "i=$index, x1=@x1, x2=@x2, y=@y"}))
+        p.add_tools(HoverTool.create({tooltips: "i=$index, x1=@x1, x2=@x2, y=@y"}))
 
         const {view} = await display(p)
         const gv = view.owner.get_one(g)
@@ -1606,7 +1588,7 @@ describe("Bug", () => {
 
   describe("in issue #13507", () => {
     it("doesn't allow to emit RangesUpdate on plots linked by RangeTool's ranges", async () => {
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           x: [1, 2, 3, 4, 5],
           y: [1, 2, 3, 4, 5],
@@ -1619,7 +1601,7 @@ describe("Bug", () => {
       const range_plot = fig([300, 200])
       range_plot.scatter({size: 20, source})
 
-      const range_tool = new RangeTool({
+      const range_tool = RangeTool.create({
         x_range: target_plot.x_range,
         y_range: target_plot.y_range,
       })
@@ -1629,7 +1611,7 @@ describe("Bug", () => {
       target_plot.on_event(RangesUpdate, () => updates.target = true)
       range_plot.on_event(RangesUpdate, () => updates.range = true)
 
-      const layout = new Column({children: [target_plot, range_plot]})
+      const layout = Column.create({children: [target_plot, range_plot]})
       const {view} = await display(layout)
 
       const pv = view.owner.get_one(range_plot)
@@ -1642,7 +1624,7 @@ describe("Bug", () => {
 
   describe("in issue #13536", () => {
     it("doesn't allow selected rows to sync correctly when rows are filtered", async () => {
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           index: [0, 1, 2],
           x: [1, 2, 3],
@@ -1651,17 +1633,15 @@ describe("Bug", () => {
       })
 
       const columns = [
-        new TableColumn({field: "index", title: "#", width: 50}),
-        new TableColumn({field: "x", title: "x", width: 50}),
-        new TableColumn({field: "y", title: "y", width: 50}),
+        TableColumn.create({field: "index", title: "#", width: 50}),
+        TableColumn.create({field: "x", title: "x", width: 50}),
+        TableColumn.create({field: "y", title: "y", width: 50}),
       ]
-      const filter = new AllIndices()
-      const cds_view = new CDSView({filter})
+      const filter = AllIndices.create()
+      const indexed_subset = IndexedSubset.create({filter})
 
-      const table = new DataTable({source, columns, selectable: "checkbox", view: cds_view, width: 300, height: 400})
+      const table = DataTable.create({source, columns, selectable: "checkbox", view: indexed_subset, width: 300, height: 400})
       const {view} = await display(table, [350, 450])
-
-      await view.ready
 
       const checkbox1 = view.shadow_el.querySelectorAll(".slick-cell.l1.r1.bk-cell-select")[2]
       const checkbox1_el = checkbox1.querySelector('input[type="checkbox"]')
@@ -1670,7 +1650,7 @@ describe("Bug", () => {
       expect(view.get_selected_rows()).to.be.equal([2])
       expect(table.source.selected.indices).to.be.equal([2])
 
-      table.view.filter = new IndexFilter({indices: [0, 1]})
+      table.view.filter = IndexFilter.create({indices: [0, 1]})
 
       expect(view.get_selected_rows()).to.be.equal([])
       expect(table.source.selected.indices).to.be.equal([2])
@@ -1682,16 +1662,16 @@ describe("Bug", () => {
       expect(view.get_selected_rows()).to.be.equal([0])
       expect(table.source.selected.indices).to.be.equal([0, 2])
 
-      table.view.filter = new IndexFilter({indices: [0, 1, 2]})
+      table.view.filter = IndexFilter.create({indices: [0, 1, 2]})
 
-      expect(view.get_selected_rows().slice().sort()).to.be.equal([0, 2].sort())
-      expect(table.source.selected.indices.slice().sort()).to.be.equal([0, 2].sort())
+      expect(sorted(view.get_selected_rows())).to.be.equal([0, 2])
+      expect(sorted(table.source.selected.indices)).to.be.equal([0, 2])
     })
   })
 
   describe("in issue #13831", () => {
     it("allows addition of new indices to selection by default", async () => {
-      const tap_tool = new TapTool()
+      const tap_tool = TapTool.create()
       const p = fig([200, 200], {tools: [tap_tool]})
       const cr = p.circle({x: [0, 1, 2, 3], y: [0, 1, 2, 3], radius: [0.5, 0.75, 1.0, 1.25], color: ["red", "green", "blue", "yellow"], alpha: 0.8})
       const ds = cr.data_source
@@ -1745,11 +1725,11 @@ describe("Bug", () => {
     it("doesn't allow inheriting image data in Image-like glyphs", async () => {
       const p = fig([400, 400])
 
-      const color_mapper = new EqHistColorMapper({palette: Spectral11})
+      const color_mapper = EqHistColorMapper.create({palette: Spectral11})
       const gr = p.image({image: [scalar_image()], x: 0, y: 0, dw: 10, dh: 10, color_mapper})
 
-      const nonselection_color_mapper = new EqHistColorMapper({palette: Viridis11})
-      gr.nonselection_glyph = new Image({x: 0, y: 0, dw: 10, dh: 10, color_mapper: nonselection_color_mapper})
+      const nonselection_color_mapper = EqHistColorMapper.create({palette: Viridis11})
+      gr.nonselection_glyph = Image.create({x: 0, y: 0, dw: 10, dh: 10, color_mapper: nonselection_color_mapper})
 
       const {view} = await display(p)
       const grv = view.views.get_one(gr)
@@ -1767,30 +1747,16 @@ describe("Bug", () => {
       expect(grv.decimated_glyph.inherited_image_data).to.be.true
       expect(grv.hover_glyph.inherited_image_data).to.be.true
       expect(grv.muted_glyph.inherited_image_data).to.be.true
-
-      expect(grv.glyph.inherited_image_width).to.be.false
-      expect(grv.selection_glyph.inherited_image_width).to.be.true
-      expect(grv.nonselection_glyph.inherited_image_width).to.be.false
-      expect(grv.decimated_glyph.inherited_image_width).to.be.true
-      expect(grv.hover_glyph.inherited_image_width).to.be.true
-      expect(grv.muted_glyph.inherited_image_width).to.be.true
-
-      expect(grv.glyph.inherited_image_height).to.be.false
-      expect(grv.selection_glyph.inherited_image_height).to.be.true
-      expect(grv.nonselection_glyph.inherited_image_height).to.be.false
-      expect(grv.decimated_glyph.inherited_image_height).to.be.true
-      expect(grv.hover_glyph.inherited_image_height).to.be.true
-      expect(grv.muted_glyph.inherited_image_height).to.be.true
     })
   })
 
   describe("in issue #13965 and #14645", () => {
     it("doesn't allow to correctly index categories in CategoricalSlider", async () => {
       const categories = range(0, 20).map((i) => `${i}`)
-      const slider = new CategoricalSlider({categories, value: "0"})
+      const slider = CategoricalSlider.create({categories, value: "0"})
       const {view} = await display(slider, [300, 50])
 
-      const el = view.shadow_el.querySelector(".noUi-handle")
+      const el = view.shadow_el.querySelector(`.${slider_css.handle}`)
       expect_not_null(el)
       expect(slider.value).to.be.equal("0")
 
@@ -1830,7 +1796,7 @@ describe("Bug", () => {
 
   describe("in issue #14072", () => {
     it("doesn't allow Spinner widget to react to wheel events when focused", async () => {
-      const spinner = new Spinner({value: 0, step: 1, width: 100})
+      const spinner = Spinner.create({value: 0, step: 1, width: 100})
       const {view} = await display(spinner, [150, 100])
       expect(spinner.value).to.be.equal(0)
 
@@ -1863,20 +1829,20 @@ describe("Bug", () => {
       const {view: pv0} = await display(p0)
       expect(getComputedStyle(pv0.canvas.events_el).touchAction).to.be.equal("auto")
 
-      const pan1 = new PanTool()
+      const pan1 = PanTool.create()
       const p1 = fig([200, 200], {tools: [pan1], active_drag: pan1, toolbar_location: "right"})
       p1.scatter([1, 2, 3], [1, 2, 3], {size: 20})
       const {view: pv1} = await display(p1)
       expect(getComputedStyle(pv1.canvas.events_el).touchAction).to.be.equal("pinch-zoom")
 
-      const zoom2 = new WheelZoomTool()
+      const zoom2 = WheelZoomTool.create()
       const p2 = fig([200, 200], {tools: [zoom2], active_scroll: zoom2, toolbar_location: "right"})
       p2.scatter([1, 2, 3], [1, 2, 3], {size: 20})
       const {view: pv2} = await display(p2)
       expect(getComputedStyle(pv2.canvas.events_el).touchAction).to.be.equal("pan-x pan-y")
 
-      const pan3 = new PanTool()
-      const zoom3 = new WheelZoomTool()
+      const pan3 = PanTool.create()
+      const zoom3 = WheelZoomTool.create()
       const p3 = fig([200, 200], {tools: [pan3, zoom3], active_drag: pan3, active_scroll: zoom3, toolbar_location: "right"})
       p3.scatter([1, 2, 3], [1, 2, 3], {size: 20})
       const {view: pv3} = await display(p3)
@@ -1886,7 +1852,7 @@ describe("Bug", () => {
 
   describe("in issue #14164", () => {
     it("doesn't allow to use the correct CSS color syntax in SVG output", async () => {
-      const canvas = new Canvas({
+      const canvas = Canvas.create({
         stylesheets: [":host {width: 100px; height: 100px}"],
         output_backend: "svg",
       })
@@ -1910,11 +1876,11 @@ describe("Bug", () => {
 
   describe("in issue #14424", () => {
     it("doesn't allow render a plot with Patches glyph and an empty data source", async () => {
-      const data_source = new ColumnDataSource({data: {}})
+      const data_source = ColumnDataSource.create({data: {}})
 
-      const plot = new Plot()
-      const glyph = new Patches({xs: {field: "xs"}, ys: {field: "ys"}})
-      const renderer = new GlyphRenderer({data_source, glyph})
+      const plot = Plot.create()
+      const glyph = Patches.create({xs: {field: "xs"}, ys: {field: "ys"}})
+      const renderer = GlyphRenderer.create({data_source, glyph})
       plot.renderers.push(renderer)
 
       await display(plot)
@@ -1923,11 +1889,11 @@ describe("Bug", () => {
 
   describe("in issue #14435", () => {
     it("doesn't allow maintain parent layout styles after child re-renders", async () => {
-      const s0 = new Spacer({width: 50, height: 50, stylesheets: [":host { background-color: red; }"]})
-      const s1 = new Spacer({width: 50, height: 50, stylesheets: [":host { background-color: green; }"]})
-      const s2 = new Spacer({width: 50, height: 50, stylesheets: [":host { background-color: blue; }"]})
+      const s0 = Spacer.create({width: 50, height: 50, stylesheets: [":host { background-color: red; }"]})
+      const s1 = Spacer.create({width: 50, height: 50, stylesheets: [":host { background-color: green; }"]})
+      const s2 = Spacer.create({width: 50, height: 50, stylesheets: [":host { background-color: blue; }"]})
 
-      const row = new Row({children: [s0, s1, s2]})
+      const row = Row.create({children: [s0, s1, s2]})
       const {view} = await display(row)
 
       const sv0 = view.owner.get_one(s0)
@@ -1965,10 +1931,10 @@ ${view.host_selector} {
     it("doesn't allow update of Range.{start,end} in RangeTool when there are no linked plots with ranges", async () => {
       let n_start = 0
       let n_end = 0
-      const x_range = new Range1d({start: 10, end: 20})
+      const x_range = Range1d.create({start: 10, end: 20})
       x_range.on_change(x_range.properties.start, () => n_start += 1)
       x_range.on_change(x_range.properties.end, () => n_end += 1)
-      const range_tool = new RangeTool({x_range, x_interaction: true})
+      const range_tool = RangeTool.create({x_range, x_interaction: true})
       const p = fig([300, 200], {x_range: [0, 100], y_range: [0, 1], tools: [range_tool]})
       const {view} = await display(p)
       await actions(view).pan(xy(15, 0.5), xy(55, 0.5))
@@ -1980,14 +1946,37 @@ ${view.host_selector} {
     })
   })
 
+  describe("in issue #11557", () => {
+    it("doesn't allow to empty a DataTable with autosize_mode and string columns", async () => {
+      const source = ColumnDataSource.create({data: {name: ["a", "b", "c"], salary: [10, 20, 30]}})
+      const columns = [
+        TableColumn.create({field: "name", title: "Name"}),
+        TableColumn.create({field: "salary", title: "Salary"}),
+      ]
+      const table = DataTable.create({source, columns, width: 400, autosize_mode: "fit_columns"})
+      const {view} = await display(table)
+
+      const rendered_rows = () => view.shadow_el.querySelectorAll(".slick-row").length
+      expect(rendered_rows()).to.be.equal(3)
+
+      source.data = {name: [], salary: []}
+      await view.ready
+      expect(rendered_rows()).to.be.equal(0)
+
+      source.data = {name: ["d"], salary: [40]}
+      await view.ready
+      expect(rendered_rows()).to.be.equal(1)
+    })
+  })
+
   describe("in issue #13931", () => {
     it("updates data and prunes stale DataTable selections", async () => {
-      const source = new ColumnDataSource({data: {my_col: ["a", "b", "c"]}})
+      const source = ColumnDataSource.create({data: {my_col: ["a", "b", "c"]}})
       const columns = [
-        new TableColumn({field: "my_col", title: "My Column"}),
+        TableColumn.create({field: "my_col", title: "My Column"}),
       ]
 
-      const table = new DataTable({source, columns})
+      const table = DataTable.create({source, columns})
       const {view} = await display(table)
 
       source.selected.indices = [1, 2]
@@ -2005,10 +1994,10 @@ ${view.host_selector} {
   describe("in issue #14568", () => {
     it("doesn't allow zooming to respect bounds when using FactorRange", async () => {
       const factors = ["A", "B", "C"]
-      const x_range = new FactorRange({factors, start: 0, end: 3, bounds: [0, 3]})
-      const y_range = new Range1d({start: 0, end: 3})
+      const x_range = FactorRange.create({factors, start: 0, end: 3, bounds: [0, 3]})
+      const y_range = Range1d.create({start: 0, end: 3})
 
-      const wheel_zoom = new WheelZoomTool({maintain_focus: false})
+      const wheel_zoom = WheelZoomTool.create({maintain_focus: false})
       const p = fig([200, 200], {x_range, y_range, tools: [wheel_zoom], active_scroll: wheel_zoom})
       p.scatter({x: factors, y: [1, 2, 3], size: 20})
 
@@ -2027,7 +2016,7 @@ ${view.host_selector} {
   describe("in issue #14815", () => {
     it("doesn't apply explicit bounds on initial render when using FactorRange", async () => {
       const factors = ["a", "b", "c"]
-      const x_range = new FactorRange({factors, bounds: [1, 3]})
+      const x_range = FactorRange.create({factors, bounds: [1, 3]})
       const p = fig([200, 200], {tools: "reset,pan", x_range})
       p.line(factors, [1, 2, 3])
 
@@ -2059,7 +2048,7 @@ ${view.host_selector} {
 
     it("doesn't hide resize cursors if BoxAnnotation is non editable", async () => {
       const p = fig([200, 200], {x_range: [0, 4], y_range: [0, 4]})
-      const box = new BoxAnnotation({left: 1, right: 3, bottom: 1, top: 3})
+      const box = BoxAnnotation.create({left: 1, right: 3, bottom: 1, top: 3})
       p.add_layout(box)
       const {view} = await display(p)
 
@@ -2079,13 +2068,13 @@ ${view.host_selector} {
     it("doesn't support reversed LogColorMapper when low is grater than high", async () => {
       const x = linspace(0.5, 10.5, 21)
       const y = linspace(0.5, 10.5, 21)
-      const source = new ColumnDataSource({data: {x, y}})
+      const source = ColumnDataSource.create({data: {x, y}})
 
       const p = fig([200, 200])
-      const cmap = new LogColorMapper({
+      const cmap = LogColorMapper.create({
         palette: Spectral6, low: 10, high: 1, low_color: "gray", high_color: "black",
       })
-      const cbar = new ColorBar({color_mapper: cmap})
+      const cbar = ColorBar.create({color_mapper: cmap})
       p.scatter("x", "y", {color: {field: "x", transform: cmap}, size: 15, source})
       p.add_layout(cbar, "right")
 
@@ -2095,7 +2084,7 @@ ${view.host_selector} {
 
   describe("in issue #15080", () => {
     it("doesn't allow to change frame width, height and align of a Plot", async () => {
-      const p = new Plot({frame_width: 100, frame_height: 200})
+      const p = Plot.create({frame_width: 100, frame_height: 200})
       const {view} = await display(p, [300, 300])
 
       expect(view.frame.bbox.width).to.be.equal(100)
@@ -2119,7 +2108,7 @@ ${view.host_selector} {
 
   describe("in issue #14040", () => {
     it("doesn't allow clearing the DataTable selection when selected rows are filtered out", async () => {
-      const source = new ColumnDataSource({
+      const source = ColumnDataSource.create({
         data: {
           index: [0, 1, 2],
           x: [1, 2, 3],
@@ -2128,17 +2117,15 @@ ${view.host_selector} {
       })
 
       const columns = [
-        new TableColumn({field: "index", title: "#", width: 50}),
-        new TableColumn({field: "x", title: "x", width: 50}),
-        new TableColumn({field: "y", title: "y", width: 50}),
+        TableColumn.create({field: "index", title: "#", width: 50}),
+        TableColumn.create({field: "x", title: "x", width: 50}),
+        TableColumn.create({field: "y", title: "y", width: 50}),
       ]
-      const filter = new AllIndices()
-      const cds_view = new CDSView({filter})
+      const filter = AllIndices.create()
+      const indexed_subset = IndexedSubset.create({filter})
 
-      const table = new DataTable({source, columns, selectable: "checkbox", view: cds_view, width: 300, height: 400})
+      const table = DataTable.create({source, columns, selectable: "checkbox", view: indexed_subset, width: 300, height: 400})
       const {view} = await display(table, [350, 450])
-
-      await view.ready
 
       const checkbox1 = view.shadow_el.querySelectorAll(".slick-cell.l1.r1.bk-cell-select")[2]
       const checkbox1_el = checkbox1.querySelector('input[type="checkbox"]')
@@ -2147,7 +2134,7 @@ ${view.host_selector} {
       expect(view.get_selected_rows()).to.be.equal([2])
       expect(table.source.selected.indices).to.be.equal([2])
 
-      table.view.filter = new IndexFilter({indices: [0, 1]})
+      table.view.filter = IndexFilter.create({indices: [0, 1]})
 
       expect(view.get_selected_rows()).to.be.equal([])
       expect(table.source.selected.indices).to.be.equal([2])
@@ -2162,28 +2149,25 @@ ${view.host_selector} {
       table.source.selected.indices = []
       await view.ready
 
-      table.view.filter = new IndexFilter({indices: [0, 1, 2]})
+      table.view.filter = IndexFilter.create({indices: [0, 1, 2]})
 
-      expect(view.get_selected_rows().slice().sort()).to.be.equal([])
-      expect(table.source.selected.indices.slice().sort()).to.be.equal([])
+      expect(sorted(view.get_selected_rows())).to.be.equal([])
+      expect(sorted(table.source.selected.indices)).to.be.equal([])
     })
   })
 
   describe("in issue #14593", () => {
     it("doesn't allow a plot's context menu to work after a toolbar property changed", async () => {
-      const pan = new PanTool()
-      const box_select = new BoxSelectTool()
+      const pan = PanTool.create()
+      const box_select = BoxSelectTool.create()
 
       const p = fig([300, 300], {tools: [pan, box_select], toolbar_location: null})
       p.scatter([1, 2, 3], [1, 2, 3], {size: 15})
 
       const {view} = await display(p)
 
-      // can't simply dispatchEvent() because of browser security
-      const {left, top} = view.el.getBoundingClientRect()
       const open_menu = () => {
-        view.show_context_menu(new MouseEvent("contextmenu", {clientX: left + 50, clientY: top + 50}))
-        const menu_view = view.get_context_menu({x: 50, y: 50})
+        const menu_view = show_context_menu(view, 50, 50)
         expect_not_null(menu_view)
         expect(menu_view.is_open).to.be.true
         return menu_view
@@ -2197,7 +2181,7 @@ ${view.host_selector} {
       await view.ready
       expect(submenus(open_menu()).length).to.be.equal(1)
 
-      p.toolbar.tools = [pan, new BoxSelectTool()]
+      p.toolbar.tools = [pan, BoxSelectTool.create()]
       await view.ready
       const menu_view = open_menu()
       expect(submenus(menu_view).length).to.be.equal(2)
@@ -2215,6 +2199,516 @@ ${view.host_selector} {
       pan.dimensions = "width"
       open_menu()
       expect(rendered()).to.not.be.equal(before)
+    })
+  })
+
+  describe("in issue #15345", () => {
+    const x = range(0, 100)
+    const y1 = x.map((xi) => Math.sin(xi/5)*10)
+    const y2 = y1.map((yi) => yi + 5)
+
+    function plot(y_range?: DataRange1d) {
+      const source = ColumnDataSource.create({data: {x, y1, y2}})
+      const p = fig([600, 400], {tools: "xpan,xwheel_zoom,reset", active_scroll: "xwheel_zoom", y_range})
+      p.line({field: "x"}, {field: "y1"}, {source, legend_label: "Line 1"})
+      const r2 = p.line({field: "x"}, {field: "y2"}, {source, legend_label: "Line 2"})
+      p.legend.click_policy = "hide"
+      return {p, r2, source}
+    }
+
+    async function toggle_line2(view: PlotView, legend: Legend): Promise<void> {
+      const legend_view = view.views.get_one(legend)
+      await tap(legend_view.shadow_el.querySelectorAll(".bk-item")[1])
+      await view.ready
+    }
+
+    it("doesn't preserve a manually updated y_range when toggling a legend item after x-only zoom", async () => {
+      const {p, r2, source} = plot()
+      const {x_range, y_range, legend} = p
+      const autoscale = CustomJS.create({args: {y_range, source}, code: `
+        const i = Math.max(Math.floor(cb_obj.start), 0)
+        const j = Math.min(Math.ceil(cb_obj.end), source.data.y1.length)
+        if (j > i) {
+          const vis_y1 = source.data.y1.slice(i, j)
+          const vis_y2 = source.data.y2.slice(i, j)
+          y_range.start = Math.min(...vis_y1, ...vis_y2) - 1
+          y_range.end = Math.max(...vis_y1, ...vis_y2) + 1
+        }
+      `})
+      x_range._js_property_callbacks = {"change:end": [autoscale]}
+
+      const {view} = await display(p)
+      await actions(view).scroll_up(xy(50, 0), 2)
+      await view.ready
+
+      const i = Math.floor(x_range.start)
+      const j = Math.ceil(x_range.end)
+      const visible = [...y1.slice(i, j), ...y2.slice(i, j)]
+      const expected: [number, number] = [Math.min(...visible) - 1, Math.max(...visible) + 1]
+      expect(y_range.interval).to.be.equal(expected)
+
+      await toggle_line2(view, legend)
+      expect(r2.visible).to.be.false
+      expect(y_range.interval).to.be.equal(expected)
+
+      await toggle_line2(view, legend)
+      expect(r2.visible).to.be.true
+      expect(y_range.interval).to.be.equal(expected)
+    })
+
+    it("doesn't auto-range y_range with only_visible=true when toggling a legend item after x-only zoom", async () => {
+      const {p, r2} = plot(DataRange1d.create({only_visible: true, range_padding: 0}))
+      const {y_range, legend} = p
+
+      const {view} = await display(p)
+      await actions(view).scroll_up(xy(50, 0), 2)
+      await view.ready
+
+      const both: [number, number] = [Math.min(...y1), Math.max(...y2)]
+      expect(y_range.interval).to.be.similar(both)
+
+      await toggle_line2(view, legend)
+      expect(r2.visible).to.be.false
+      expect(y_range.interval).to.be.similar([Math.min(...y1), Math.max(...y1)])
+
+      await toggle_line2(view, legend)
+      expect(r2.visible).to.be.true
+      expect(y_range.interval).to.be.similar(both)
+    })
+
+    it("doesn't resume auto-ranging of y_range after reset when an endpoint was changed manually", async () => {
+      const source = ColumnDataSource.create({data: {x: [0, 1, 2], y: [1, 2, 3]}})
+      const y_range = DataRange1d.create({range_padding: 0})
+      const p = fig([200, 200], {y_range})
+      p.line({field: "x"}, {field: "y"}, {source})
+
+      const {view} = await display(p)
+      expect(y_range.interval).to.be.equal([1, 3])
+
+      // changing one endpoint freezes both, even when the data changes
+      y_range.end = 10
+      source.data = {x: [0, 1, 2], y: [0, 2, 4]}
+      await view.ready
+      expect(y_range.interval).to.be.equal([1, 10])
+
+      view.reset()
+      await view.ready
+      expect(y_range.interval).to.be.equal([0, 4])
+
+      source.data = {x: [0, 1, 2], y: [-1, 2, 5]}
+      await view.ready
+      expect(y_range.interval).to.be.equal([-1, 5])
+    })
+  })
+
+  describe("in issue #15320", () => {
+    function plot(width: number, height: number, min_border: number = 10) {
+      const p = fig([width, height], {
+        output_backend: "webgl", x_range: [0, 1], y_range: [0, 1], x_axis_type: null, y_axis_type: null, min_border,
+        background_fill_color: null, border_fill_color: null, outline_line_color: null,
+      })
+      p.line([0, 1], [0, 1], {line_width: 3})
+      p.scatter([0, 0.5, 1], [0, 0.5, 1], {size: 20, fill_alpha: 0.5})
+      p.patch([0.1, 0.9, 0.5], [0.1, 0.1, 0.9], {fill_alpha: 0.3, line_width: 2})
+      p.multi_line([[0, 1], [0, 1]], [[0.2, 0.8], [0.8, 0.2]], {line_width: 2})
+      return p
+    }
+
+    async function display_plots(...sizes: [number, number][]) {
+      const plots = sizes.map(([width, height]) => plot(width, height))
+      const {view} = await display(row(plots), null)
+      const views = plots.map((p) => view.owner.get_one(p))
+      const {webgl} = views[0].canvas_view
+      expect_not_null(webgl)
+      expect(views.every((plot_view) => plot_view.canvas_view.webgl === webgl)).to.be.true
+      // previous tests may have left the shared canvas larger than these plots
+      webgl.canvas.width = 1
+      webgl.canvas.height = 1
+      return {view, plots, views, canvas: webgl.canvas}
+    }
+
+    function paint(plot_view: PlotView): void {
+      plot_view.invalidate_painters()
+      plot_view.paint()
+    }
+
+    function pixels(plot_view: PlotView): Uint8Array {
+      const {ctx, canvas: {width, height}} = plot_view.canvas_view.primary
+      return new Uint8Array(ctx.getImageData(0, 0, width, height).data.buffer)
+    }
+
+    function expect_pixels(plot_view: PlotView, expected: Uint8Array): void {
+      const actual = pixels(plot_view)
+      const {width, height} = plot_view.canvas_view.primary.canvas
+      expect(actual.length).to.be.equal(expected.length)
+      const mismatches = pixelmatch(expected, actual, undefined, width, height, {
+        threshold: 0.01,
+        includeAA: true,
+      })
+      expect(mismatches).to.be.equal(0)
+    }
+
+    for (const dpr of [1, 1.5, 2]) {
+      it.dpr(dpr)(`resizes the shared WebGL canvas when painting plots of different sizes with devicePixelRatio == ${dpr}`, async () => {
+        const {view, plots, views, canvas} = await display_plots([151, 101], [301, 121], [121, 251])
+        const [small, wide, tall] = views.map((plot_view) => plot_view.canvas_view.primary.canvas)
+
+        const sizes = views.map((plot_view) => {
+          paint(plot_view)
+          return [canvas.width, canvas.height]
+        })
+        expect(sizes).to.be.equal([
+          [small.width, small.height],
+          [wide.width, wide.height],
+          [wide.width, tall.height],
+        ])
+
+        for (const plot_view of [...views, ...views.toReversed(), ...views]) {
+          paint(plot_view)
+          expect([canvas.width, canvas.height]).to.be.equal([wide.width, tall.height])
+        }
+
+        plots[0].width = 351
+        await view.ready
+        expect([canvas.width, canvas.height]).to.be.equal([small.width, tall.height])
+
+        for (const plot_view of views) {
+          paint(plot_view)
+          expect([canvas.width, canvas.height]).to.be.equal([small.width, tall.height])
+        }
+      })
+
+      it.dpr(dpr)(`paints plots as if the shared WebGL canvas matched their size with devicePixelRatio == ${dpr}`, async () => {
+        const {views, canvas} = await display_plots([151, 101], [301, 121], [121, 251])
+
+        const expected = views.map((plot_view) => {
+          canvas.width = 1
+          canvas.height = 1
+          paint(plot_view)
+          return pixels(plot_view)
+        })
+
+        for (const plot_view of [...views, ...views.toReversed()]) {
+          paint(plot_view)
+        }
+        views.forEach((plot_view, i) => expect_pixels(plot_view, expected[i]))
+      })
+    }
+
+    it("paints plots after plots exceeding the maximum size of drawing buffers", async () => {
+      const max_size: number = document.createElement("canvas").getContext("webgl")!.getParameter(WebGLRenderingContext.MAX_TEXTURE_SIZE)
+      const {views, canvas} = await display_plots([128, 128], [128, max_size + 1024], [max_size + 1, 128])
+      const [small, tall, wide] = views
+      const gl = canvas.getContext("webgl")!
+
+      paint(small)
+      const expected = pixels(small)
+
+      for (const plot_view of [tall, small, wide, small]) {
+        paint(plot_view)
+        if (plot_view === small) {
+          expect([canvas.width, canvas.height]).to.be.equal([128, 128])
+        } else {
+          expect([canvas.width, canvas.height]).to.be.equal([gl.drawingBufferWidth, gl.drawingBufferHeight])
+        }
+        expect(gl.getError()).to.be.equal(gl.NO_ERROR)
+        expect(gl.isContextLost()).to.be.false
+      }
+      expect(canvas.height).to.be.below(tall.canvas_view.primary.canvas.height)
+      expect(canvas.width).to.be.below(wide.canvas_view.primary.canvas.width)
+      expect_pixels(small, expected)
+    })
+
+    it("paints zero-area plots after larger plots", async () => {
+      const {views} = await display_plots([301, 251], [0, 101], [151, 0], [0, 0])
+      for (const plot_view of [...views, ...views.toReversed()]) {
+        paint(plot_view)
+      }
+    })
+
+    it("shrinks heavily over-retained canvas before painting much smaller plots while preserving mixed-size retention", async () => {
+      const {views, canvas} = await display_plots([128, 128], [2048, 2048])
+      const [small, huge] = views
+
+      paint(small)
+      expect([canvas.width, canvas.height]).to.be.equal([128, 128])
+
+      paint(huge)
+      expect([canvas.width, canvas.height]).to.be.equal([2048, 2048])
+
+      paint(small)
+      expect([canvas.width, canvas.height]).to.be.equal([128, 128])
+    })
+
+    it("shrinks the shared canvas when the same view is resized smaller after a prior shrink", async () => {
+      // Establish a large shared canvas, then shrink it by painting a smaller view.
+      const large = plot(2048, 2048)
+      const {view: v_large} = await display(large, null)
+      const large_view = v_large.owner.get_one(large)
+      paint(large_view)
+      const {webgl} = large_view.canvas_view
+      expect_not_null(webgl)
+      const {canvas} = webgl
+      const gl = canvas.getContext("webgl")!
+      expect([canvas.width, canvas.height]).to.be.equal([2048, 2048])
+
+      const small = plot(128, 128, 0)
+      const {view: v_small} = await display(small, null)
+      const small_view = v_small.owner.get_one(small)
+      paint(small_view)
+      expect([canvas.width, canvas.height]).to.be.equal([128, 128])
+
+      // Resize the same view below the shrink threshold and repaint immediately.
+      small.width = 8
+      small.height = 8
+      await v_small.ready
+      paint(small_view)
+
+      const expected_w = small_view.canvas_view.primary.canvas.width
+      const expected_h = small_view.canvas_view.primary.canvas.height
+      expect([canvas.width, canvas.height]).to.be.equal([expected_w, expected_h])
+
+      expect(gl.getError()).to.be.equal(gl.NO_ERROR)
+      expect(gl.isContextLost()).to.be.false
+      const px = pixels(small_view)
+      let visible = 0
+      for (let i = 3; i < px.length; i += 4) {
+        if (px[i] > 0) {
+          visible++
+        }
+      }
+      expect(visible).to.be.above(0)
+    })
+
+    it("isolates patch-outline rendering near the clipped edge of oversized plots exceeding drawing buffer limits", async () => {
+      const max_size: number = document.createElement("canvas").getContext("webgl")!.getParameter(WebGLRenderingContext.MAX_TEXTURE_SIZE)
+
+      function outline_plot(line_width: number) {
+        const p = fig([128, max_size + 1024], {
+          output_backend: "webgl", x_range: [0, 1], y_range: [0, 1],
+          x_axis_type: null, y_axis_type: null, min_border: 10,
+          background_fill_color: null, border_fill_color: null, outline_line_color: null,
+        })
+        p.patch([0.1, 0.9, 0.5], [0.1, 0.1, 0.9], {fill_alpha: 0, line_width, line_color: "rgb(255,0,0)"})
+        return p
+      }
+
+      function count_red_dominant(img_data: Uint8ClampedArray): number {
+        let count = 0
+        for (let i = 0; i < img_data.length; i += 4) {
+          const r = img_data[i], g = img_data[i + 1], b = img_data[i + 2], a = img_data[i + 3]
+          if (a > 0 && r > 30 && r > g + 20 && r > b + 20) {
+            count++
+          }
+        }
+        return count
+      }
+
+      // Positive control: patch outline with line_width=4
+      const pos_plot = outline_plot(4)
+      const {view: pos_row_view} = await display(row([pos_plot]), null)
+      const pos_view = pos_row_view.owner.get_one(pos_plot)
+      paint(pos_view)
+      const pos_gl = pos_view.canvas_view.webgl!.canvas.getContext("webgl")!
+      expect(pos_gl.getError()).to.be.equal(pos_gl.NO_ERROR)
+      expect(pos_gl.isContextLost()).to.be.false
+
+      const pos_ctx = pos_view.canvas_view.primary.ctx
+      const outline_y = Math.round(10 + 0.9 * (max_size + 1004))
+      const pos_img = pos_ctx.getImageData(20, outline_y - 5, 10, 10).data
+      expect(count_red_dominant(pos_img)).to.be.above(0)
+
+      // Negative control: patch outline with line_width=0 produces no qualifying pixels
+      const neg_plot = outline_plot(0)
+      const {view: neg_row_view} = await display(row([neg_plot]), null)
+      const neg_view = neg_row_view.owner.get_one(neg_plot)
+      paint(neg_view)
+      const neg_gl = neg_view.canvas_view.webgl!.canvas.getContext("webgl")!
+      expect(neg_gl.getError()).to.be.equal(neg_gl.NO_ERROR)
+      expect(neg_gl.isContextLost()).to.be.false
+
+      const neg_ctx = neg_view.canvas_view.primary.ctx
+      const neg_img = neg_ctx.getImageData(20, outline_y - 5, 10, 10).data
+      expect(count_red_dominant(neg_img)).to.be.equal(0)
+    })
+
+    it("applies shrinking dimension before growing during asymmetric transitions", async () => {
+      function borderless_plot(width: number, height: number) {
+        return fig([width, height], {
+          output_backend: "webgl", x_range: [0, 1], y_range: [0, 1],
+          x_axis_type: null, y_axis_type: null, min_border: 0,
+          background_fill_color: null, border_fill_color: null, outline_line_color: null,
+        })
+      }
+      const p1 = borderless_plot(1, 64)
+      const p2 = borderless_plot(64, 1)
+      const {view} = await display(row([p1, p2]), null)
+      const tall_view = view.owner.get_one(p1)
+      const wide_view = view.owner.get_one(p2)
+      const {canvas} = tall_view.canvas_view.webgl!
+
+      canvas.width = 1
+      canvas.height = 1
+      paint(tall_view)
+      const tall_w = tall_view.canvas_view.primary.canvas.width
+      const tall_h = tall_view.canvas_view.primary.canvas.height
+      expect(canvas.width).to.be.equal(tall_w)
+      expect(canvas.height).to.be.equal(tall_h)
+
+      const assignments: Array<{prop: string, value: number, other_before: number}> = []
+      const original_w_desc = Object.getOwnPropertyDescriptor(HTMLCanvasElement.prototype, "width")!
+      const original_h_desc = Object.getOwnPropertyDescriptor(HTMLCanvasElement.prototype, "height")!
+
+      Object.defineProperty(canvas, "width", {
+        get() { return original_w_desc.get!.call(this) },
+        set(v: number) {
+          assignments.push({prop: "width", value: v, other_before: original_h_desc.get!.call(this)})
+          original_w_desc.set!.call(this, v)
+        },
+        configurable: true,
+      })
+      Object.defineProperty(canvas, "height", {
+        get() { return original_h_desc.get!.call(this) },
+        set(v: number) {
+          assignments.push({prop: "height", value: v, other_before: original_w_desc.get!.call(this)})
+          original_h_desc.set!.call(this, v)
+        },
+        configurable: true,
+      })
+
+      try {
+        // Transition: tall (1×64) → wide (64×1)
+        // Width grows (1→64), height shrinks (64→1) → height must be set first
+        assignments.length = 0
+        paint(wide_view)
+        const wide_w = wide_view.canvas_view.primary.canvas.width
+        const wide_h = wide_view.canvas_view.primary.canvas.height
+
+        expect(assignments.length).to.be.equal(2)
+        expect(assignments[0].prop).to.be.equal("height")
+        expect(assignments[1].prop).to.be.equal("width")
+
+        const max_area = Math.max(tall_w * tall_h, wide_w * wide_h)
+        for (const a of assignments) {
+          const area = a.prop === "width" ? a.value * a.other_before : a.other_before * a.value
+          expect(area <= max_area).to.be.true
+        }
+        expect(canvas.width).to.be.equal(wide_w)
+        expect(canvas.height).to.be.equal(wide_h)
+
+        // Transition back: wide (64×1) → tall (1×64)
+        // Width shrinks (64→1), height grows (1→64) → width must be set first
+        assignments.length = 0
+        paint(tall_view)
+        expect(assignments.length).to.be.equal(2)
+        expect(assignments[0].prop).to.be.equal("width")
+        expect(assignments[1].prop).to.be.equal("height")
+
+        for (const a of assignments) {
+          const area = a.prop === "width" ? a.value * a.other_before : a.other_before * a.value
+          expect(area <= max_area).to.be.true
+        }
+        expect(canvas.width).to.be.equal(tall_w)
+        expect(canvas.height).to.be.equal(tall_h)
+
+        assignments.length = 0
+        paint(tall_view)
+        expect(assignments.length).to.be.equal(0)
+      } finally {
+        delete (canvas as any).width
+        delete (canvas as any).height
+      }
+    })
+  })
+
+  describe("in issue #14364", () => {
+    function setup(...roots: Model[]) {
+      const doc = new Document({roots})
+      const events: DocumentChangedEvent[] = []
+      doc.on_change((event) => events.push(event))
+      return {doc, events}
+    }
+
+    it("sends plain values of scalar specs unwrapped in document patches", () => {
+      const glyph = Line.create()
+      const {doc, events} = setup(glyph)
+
+      glyph.line_color = "#CC79A7"
+      glyph.line_width = 3
+
+      expect(doc.create_json_patch(events)).to.be.equal({
+        events: [
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "line_color", new: "#CC79A7"},
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "line_width", new: 3},
+        ],
+      })
+    })
+
+    it("sends plain values of scalar specs of new models unwrapped in document patches", () => {
+      const {doc, events} = setup()
+
+      const glyph = Line.create({line_color: "#CC79A7"})
+      doc.add_root(glyph)
+
+      expect(doc.create_json_patch(events)).to.be.equal({
+        events: [{
+          kind: "RootAdded",
+          model: {$type: "Line", $id: glyph.id, line_color: "#CC79A7"},
+        }],
+      })
+    })
+
+    it("sends plain hatch patterns of area glyphs unwrapped in document patches", () => {
+      const glyph = HArea.create()
+      const {doc, events} = setup(glyph)
+
+      glyph.hatch_pattern = "horizontal"
+      glyph.hatch_pattern = "custom_pattern"
+
+      expect(doc.create_json_patch(events)).to.be.equal({
+        events: [
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "hatch_pattern", new: "horizontal"},
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "hatch_pattern", new: "custom_pattern"},
+        ],
+      })
+    })
+
+    it("keeps scalar specs with a transform, units or an expression structured in document patches", () => {
+      const glyph = Line.create()
+      const {doc, events} = setup(glyph)
+
+      const transform = Dodge.create({value: 1})
+      const expr = Maximum.create({field: "y"})
+      glyph.line_width = {value: 3, transform}
+      glyph.line_dash_offset = {value: 2, units: "screen"} as any
+      glyph.line_alpha = {expr} as any
+
+      expect(doc.create_json_patch(events)).to.be.equal({
+        events: [
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "line_width", new: {
+            type: "value", value: 3, transform: {$type: "Dodge", $id: transform.id, value: 1},
+          }},
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "line_dash_offset", new: {
+            type: "value", value: 2, units: "screen",
+          }},
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "line_alpha", new: {
+            type: "expr", expr: {$type: "Maximum", $id: expr.id, field: "y"},
+          }},
+        ],
+      })
+    })
+
+    it("doesn't unwrap plain values of vector specs in document patches", () => {
+      const glyph = Scatter.create()
+      const {doc, events} = setup(glyph)
+
+      glyph.fill_color = "#CC79A7"
+
+      expect(doc.create_json_patch(events)).to.be.equal({
+        events: [
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "fill_color", new: {type: "value", value: "#CC79A7"}},
+        ],
+      })
     })
   })
 })

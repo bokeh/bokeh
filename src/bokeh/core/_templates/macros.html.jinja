@@ -1,3 +1,7 @@
 {% macro embed(obj) -%}
+{% if obj.html is defined -%}
+{{ obj.html | safe }}
+{%- else -%}
 <div id="{{ obj.elementid }}"{% if obj.id %} data-root-id="{{ obj.id }}"{% endif %} style="display: contents;"></div>
+{%- endif %}
 {%- endmacro %}

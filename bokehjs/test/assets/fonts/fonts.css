@@ -17,6 +17,33 @@
   font-weight: normal;
   src: url("/assets/fonts/roboto/Roboto-Italic.ttf") format("truetype");
 }
+
+/**
+ * Glyphs missing from Roboto (℃ ∅ ⋅ ⋮ ⋯), subset from DejaVu Sans 2.37. Without
+ * these, browsers fall back to system fonts, which depend on fontconfig's rules.
+ */
+@font-face {
+  font-family: Bokeh;
+  font-style: normal;
+  font-weight: normal;
+  src: url("/assets/fonts/dejavu/DejaVuSans-Symbols.woff2") format("woff2");
+  unicode-range: U+2103, U+2205, U+22C5, U+22EE-22EF;
+}
+@font-face {
+  font-family: Bokeh;
+  font-style: normal;
+  font-weight: bold;
+  src: url("/assets/fonts/dejavu/DejaVuSans-Bold-Symbols.woff2") format("woff2");
+  unicode-range: U+2103, U+2205, U+22C5, U+22EE-22EF;
+}
+@font-face {
+  font-family: Bokeh;
+  font-style: italic;
+  font-weight: normal;
+  src: url("/assets/fonts/dejavu/DejaVuSans-Oblique-Symbols.woff2") format("woff2");
+  unicode-range: U+2103, U+2205, U+22C5, U+22EE-22EF;
+}
+
 @font-face {
   font-family: BokehMono;
   font-style: normal;

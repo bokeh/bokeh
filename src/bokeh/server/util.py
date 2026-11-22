@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
+from ipaddress import IPv6Address
 from typing import TYPE_CHECKING, Sequence
 
 if TYPE_CHECKING:
@@ -83,13 +83,58 @@ def check_allowlist(host: str, allowlist: Sequence[str]) -> bool:
         ``False``
 
      '''
-    if ':' not in host:
+    if ':' not in host or host.endswith(']'):
         host = host + ':80'
 
     if host in allowlist:
         return True
 
     return any(match_host(host, pattern) for pattern in allowlist)
+
+def validate_hosts_allowlist(host_list: Sequence[str]) -> None:
+    ''' Validate host patterns used to allow WebSocket connections.
+
+    Args:
+        host_list (seq[str]) :
+            A sequence of ``<name>`` or ``<name>:<port>`` patterns. The name
+            may include wildcards and the port may be ``*``.
+
+    Returns:
+        None
+
+    Raises:
+        TypeError, if ``host_list`` is a string or contains non-string values
+        ValueError, if a host or port value is invalid
+
+    '''
+    if isinstance(host_list, str) or not all(isinstance(host, str) for host in host_list):
+        raise TypeError("host_list must be a sequence of host[:port] strings")
+
+    for host in host_list:
+        if host == "*":
+            continue
+        if host.startswith('['):
+            address, separator, suffix = host.partition(']')
+            if not separator or (suffix and not suffix.startswith(':')):
+                raise ValueError(f"Invalid host value: {host}")
+            try:
+                IPv6Address(address[1:])
+            except ValueError:
+                raise ValueError(f"Invalid host value: {host}") from None
+            parts = [address + ']']
+            if suffix:
+                parts.append(suffix[1:])
+        else:
+            parts = host.split(":")
+        if len(parts) > 2:
+            raise ValueError(f"Invalid host value: {host}")
+        if parts[0] == "":
+            raise ValueError("Empty host value")
+        if len(parts) == 2 and parts[1] != "*":
+            try:
+                int(parts[1])
+            except ValueError:
+                raise ValueError(f"Invalid port in host value: {host}")
 
 def create_hosts_allowlist(host_list: Sequence[str] | None, port: int | None) -> list[str]:
     '''
@@ -101,6 +146,8 @@ def create_hosts_allowlist(host_list: Sequence[str] | None, port: int | None) ->
         host_list (seq[str]) :
             A list of string `<name>` or `<name>:<port>` values to add to the
             allowlist.
+
+            IPv6 addresses must be enclosed in brackets, e.g. ``[::1]:5006``.
 
             If no port is specified in a host string, then ``":80"``  is
             implicitly assumed.
@@ -125,6 +172,8 @@ def create_hosts_allowlist(host_list: Sequence[str] | None, port: int | None) ->
     if not host_list:
         return ['localhost:' + str(port)]
 
+    validate_hosts_allowlist(host_list)
+
     hosts: list[str] = []
     for host in host_list:
         if '*' in host:
@@ -137,31 +186,20 @@ def create_hosts_allowlist(host_list: Sequence[str] | None, port: int | None) ->
             # accepted
             hosts.append(host)
             continue
-        parts = host.split(':')
-        if len(parts) == 1:
-            if parts[0] == "":
-                raise ValueError("Empty host value")
+        if ':' not in host or host.endswith(']'):
             hosts.append(host+":80")
-        elif len(parts) == 2:
-            try:
-                int(parts[1])
-            except ValueError:
-                raise ValueError(f"Invalid port in host value: {host}")
-            if parts[0] == "":
-                raise ValueError("Empty host value")
-            hosts.append(host)
         else:
-            raise ValueError(f"Invalid host value: {host}")
+            hosts.append(host)
     return hosts
 
 def match_host(host: str, pattern: str) -> bool:
     ''' Match a host string against a pattern
 
     Args:
-        host (str)
+        host (str):
             A hostname to compare to the given pattern
 
-        pattern (str)
+        pattern (str):
             A string representing a hostname pattern, possibly including
             wildcards for ip address octets or ports.
 
@@ -213,11 +251,11 @@ def match_host(host: str, pattern: str) -> bool:
         return True
 
     host_port: str | None = None
-    if ':' in host:
+    if ':' in host and not host.endswith(']'):
         host, host_port = host.rsplit(':', 1)
 
     pattern_port: str | None = None
-    if ':' in pattern:
+    if ':' in pattern and not pattern.endswith(']'):
         pattern, pattern_port = pattern.rsplit(':', 1)
         if pattern_port == '*':
             pattern_port = None
@@ -228,6 +266,14 @@ def match_host(host: str, pattern: str) -> bool:
     # This is for a wildcard match including any port restriction
     if pattern == "*":
         return True
+
+    if host.startswith('[') or pattern.startswith('['):
+        if not (host.startswith('[') and host.endswith(']') and pattern.startswith('[') and pattern.endswith(']')):
+            return False
+        try:
+            return IPv6Address(host[1:-1]) == IPv6Address(pattern[1:-1])
+        except ValueError:
+            return False
 
     host_parts = host.split('.')
     pattern_parts = pattern.split('.')

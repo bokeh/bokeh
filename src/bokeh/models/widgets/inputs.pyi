@@ -5,7 +5,6 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from abc import abstractmethod
 from typing import (
     Any,
@@ -14,7 +13,6 @@ from typing import (
     Unpack,
 )
 
-# Bokeh imports
 from ..._types import (
     Color,
     ColorHex,
@@ -89,9 +87,6 @@ class _SpinnerInit(_NumericInputInit, total=False):
 
 class Spinner(NumericInput):
     def __init__(self, **kwargs: Unpack[_SpinnerInit]) -> None: ...
-
-    @property
-    def value_throttled(self) -> int | float | None: ...
 
     step: float = ...
     page_step_multiplier: float = ...
@@ -266,5 +261,3 @@ class PaletteSelect(InputWidget):
     swatch_width: NonNegative[int] = ...
     swatch_height: Auto | NonNegative[int] = ...
     ncols: Positive[int] = ...
-
-def ColorMap(*args: Any, **kwargs: Any) -> PaletteSelect: ...

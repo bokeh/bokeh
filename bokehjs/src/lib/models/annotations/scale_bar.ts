@@ -31,6 +31,7 @@ import {enumerate} from "core/util/iterator"
 import {isString} from "core/util/types"
 import {process_placeholders, sprintf} from "core/util/templating"
 import {Enum, Or, Tuple, Float} from "core/kinds"
+import type {Infer} from "core/kinds"
 import {AutoAnchor} from "../common/kinds"
 import * as resolve from "../common/resolve"
 import {Factor} from "../ranges/factor_range"
@@ -38,16 +39,16 @@ import {Factor} from "../ranges/factor_range"
 const {round} = Math
 
 const Position = Or(enums.Anchor, Tuple(Or(Float, Factor, HAlign), Or(Float, Factor, VAlign)))
-type Position = typeof Position["__type__"]
+type Position = Infer<typeof Position>
 
 const PositionUnits = Enum("data", "screen", "view", "percent")
-type PositionUnits = typeof PositionUnits["__type__"]
+type PositionUnits = Infer<typeof PositionUnits>
 
 const LengthUnits = Enum("screen", "data", "percent")
-type LengthUnits = typeof LengthUnits["__type__"]
+type LengthUnits = Infer<typeof LengthUnits>
 
 const LengthSizing = Enum("adaptive", "exact")
-type LengthSizing = typeof LengthSizing["__type__"]
+type LengthSizing = Infer<typeof LengthSizing>
 
 export class ScaleBarView extends AnnotationView {
   declare model: ScaleBar
@@ -70,14 +71,33 @@ export class ScaleBarView extends AnnotationView {
     return [...super._children_views(), this.axis_view]
   }
 
-  protected axis_scale: Scale
-  protected cross_scale: Scale
+  protected x_scale: Scale
+  protected y_scale: Scale
 
-  protected range: Range
+  protected get axis_scale(): Scale {
+    return this.horizontal ? this.x_scale : this.y_scale
+  }
+
+  protected get cross_scale(): Scale {
+    return this.horizontal ? this.y_scale : this.x_scale
+  }
+
+  protected get range(): Range {
+    const {range, orientation} = this.model
+    if (range == "auto") {
+      const {frame} = this.plot_view
+      switch (orientation) {
+        case "horizontal": return frame.x_range
+        case "vertical":   return frame.y_range
+      }
+    } else {
+      return range
+    }
+  }
 
   // The cross-axis panel and frame share the same pixels. Keep the search
   // state on the view because the SideLayout may be rebuilt between paints.
-  private _panel_reservation: {available: number, lower: number, upper: number, size: number} | undefined
+  private _panel_reservation: {available: number, range_span: number | null, lower: number, upper: number, size: number} | undefined
 
   private _update_panel_reservation(frame_span: number): void {
     const {layout, panel} = this
@@ -92,7 +112,10 @@ export class ScaleBarView extends AnnotationView {
     const allocated = round(horizontal ? layout.bbox.width : layout.bbox.height)
     const available = allocated + round(frame_span)
     const measured = round((horizontal ? this.bbox.width : this.bbox.height) + 2*this.model.margin)
-    const state = this._panel_reservation?.available == available ? this._panel_reservation : undefined
+    // Aspect matching can change the range during the same layout search.
+    const range_span = this.plot_view.model.match_aspect ? null : this.range.span
+    const previous = this._panel_reservation
+    const state = previous?.available == available && previous.range_span == range_span ? previous : undefined
 
     // A fit is an upper bound, not a reason to shrink directly to the
     // measured bar size: that would enlarge the frame and the bar again.
@@ -113,7 +136,7 @@ export class ScaleBarView extends AnnotationView {
 
     const size = upper == Infinity ? Math.max(allocated, Math.min(measured, available))
       : upper - lower <= 1 ? upper : Math.floor((lower + upper)/2)
-    this._panel_reservation = {available, lower, upper, size}
+    this._panel_reservation = {available, range_span, lower, upper, size}
   }
 
   protected override _get_size(): Size {
@@ -129,62 +152,42 @@ export class ScaleBarView extends AnnotationView {
     super.initialize()
 
     const {ticker} = this.model
-    this.axis = new LinearAxis({
+    this.axis = LinearAxis.create({
       ticker,
       ...mixins.attrs_of(this.model, "bar_", mixins.Line, "axis_"),
     })
-
-    this.range = (() => {
-      const {range, orientation} = this.model
-      if (range == "auto") {
-        const {frame} = this.parent
-        switch (orientation) {
-          case "horizontal": return frame.x_range
-          case "vertical":   return frame.y_range
-        }
-      } else {
-        return range
-      }
-    })()
   }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
-    const coordinates = (() => {
-      const axis_source = new Range1d()
-      const axis_target = new Range1d()
-      const cross_source = new Range1d()
-      const cross_target = new Range1d()
-      this.axis_scale = new LinearScale({source_range: axis_source, target_range: axis_target})
-      this.cross_scale = new LinearScale({source_range: cross_source, target_range: cross_target})
-      if (this.model.orientation == "horizontal") {
-        return new CoordinateTransform(this.axis_scale, this.cross_scale)
-      } else {
-        return new CoordinateTransform(this.cross_scale, this.axis_scale)
-      }
-    })()
+    this.x_scale = LinearScale.create({source_range: Range1d.create(), target_range: Range1d.create()})
+    this.y_scale = LinearScale.create({source_range: Range1d.create(), target_range: Range1d.create()})
 
-    this.axis_view = await build_view(this.axis, {parent: this.plot_view})
-    this.axis_view.coordinates = coordinates
-    this.axis_view.panel = new SidePanel(this.model.orientation == "horizontal" ? "below" : "right")
-    this.axis_view.update_layout()
+    this.axis_view = await build_view(this.axis, {parent: this})
+    this.axis_view.coordinates = new CoordinateTransform(this.x_scale, this.y_scale)
+    this._update_axis_panel()
   }
 
   override connect_signals(): void {
     super.connect_signals()
 
+    const {orientation, range} = this.model.properties
+    this.on_change(orientation, () => {
+      this._update_axis_panel()
+    })
+    this.on_transitive_change(range, () => {
+      this.request_paint()
+    })
     this.connect(this.model.change, () => {
       this._panel_reservation = undefined
       this.request_paint()
     })
-    this.connect(this.range.change, () => {
-      // Aspect matching can update the range during the same layout search.
-      if (!this.plot_view.model.match_aspect) {
-        this._panel_reservation = undefined
-      }
-      this.request_paint()
-    })
+  }
+
+  protected _update_axis_panel(): void {
+    this.axis_view.panel = new SidePanel(this.horizontal ? "below" : "right")
+    this.axis_view.update_layout()
   }
 
   override update_layout(): void {
@@ -262,7 +265,7 @@ export class ScaleBarView extends AnnotationView {
     const bar_width = bar_line.line_width.get_value()
     const border_width = border_line.line_width.get_value()
 
-    const {frame} = this.parent
+    const {frame} = this.plot_view
     const frame_span = this.horizontal ? frame.bbox.width : frame.bbox.height
     const {bar_length, bar_length_units} = this.model
     const bar_length_percent = (() => {
@@ -311,6 +314,7 @@ export class ScaleBarView extends AnnotationView {
           case "unit": {
             switch (format ?? "short") {
               case "short": return new_unit
+              default:      return null
             }
           }
           default: {
@@ -658,10 +662,6 @@ export class ScaleBar extends Annotation {
   declare properties: ScaleBar.Props
   declare __view_type__: ScaleBarView
 
-  constructor(attrs?: Partial<ScaleBar.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = ScaleBarView
 
@@ -678,7 +678,7 @@ export class ScaleBar extends Annotation {
       anchor:           [ AutoAnchor, "auto" ],
       bar_length:       [ NonNegative(Float), 0.2 ],
       bar_length_units: [ LengthUnits, "screen" ],
-      dimensional:      [ Ref(Dimensional), () => new MetricLength() ],
+      dimensional:      [ Ref(Dimensional), () => MetricLength.create() ],
       label:            [ Str, "@{value} @{unit}" ],
       label_align:      [ Align, "center" ],
       label_location:   [ Location, "below" ],
@@ -689,7 +689,7 @@ export class ScaleBar extends Annotation {
       orientation:      [ Orientation, "horizontal" ],
       padding:          [ Float, 10 ],
       range:            [ Or(Ref(Range), Auto), "auto" ],
-      ticker:           [ Ref(Ticker), () => new FixedTicker({ticks: []}) ],
+      ticker:           [ Ref(Ticker), () => FixedTicker.create({ticks: []}) ],
       title:            [ Str, "" ],
       title_align:      [ Align, "center" ],
       title_location:   [ Location, "above" ],

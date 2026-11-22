@@ -8,20 +8,15 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import re
-import warnings
+import sys
+from subprocess import run
 
-# Bokeh imports
-from bokeh.util.warnings import BokehDeprecationWarning, BokehUserWarning
 from tests.support.util.api import verify_all
 from tests.support.util.types import Capture
 
@@ -85,26 +80,29 @@ def test___version___defined() -> None:
 def test_download_removed() -> None:
     assert not hasattr(b, "download")
 
+def test_jupyter_labextension_path_is_relative_to_the_bokeh_package() -> None:
+    assert b._jupyter_labextension_paths() == [{
+        "src": "jupyter/labextension",
+        "dest": "@bokeh/bokeh-jupyter",
+    }]
+
 def test_license(capsys: Capture) -> None:
     b.license()
     out, _ = capsys.readouterr()
     assert out == _LICENSE
 
-class TestWarnings:
-    @pytest.mark.parametrize('cat', (BokehDeprecationWarning, BokehUserWarning))
-    def test_bokeh_custom(self, cat) -> None:
-        r = warnings.formatwarning("message", cat, "line", "lineno")
-        assert r == f"{cat.__name__}: message\n"
+def test_import_preserves_warning_configuration() -> None:
+    run([sys.executable, "-c", """
+import warnings
 
-    def test_general_default(self) -> None:
-        r = warnings.formatwarning("message", RuntimeWarning, "line", "lineno")
-        assert r == "line:lineno: RuntimeWarning: message\n"
+filters = warnings.filters.copy()
+formatter = warnings.formatwarning
 
-    # TODO (bev) issue with this one test and 3.9 support PR
-    @pytest.mark.skip
-    def test_filters(self) -> None:
-        assert ('always', None, BokehUserWarning, None, 0) in warnings.filters
-        assert ('always', None, BokehDeprecationWarning, None, 0) in warnings.filters
+import bokeh
+
+assert warnings.filters == filters
+assert warnings.formatwarning is formatter
+"""], check=True)
 
 #-----------------------------------------------------------------------------
 # Dev API

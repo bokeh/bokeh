@@ -1,13 +1,36 @@
+''' Plot elevation along a trail and derive distance and slope from the route data.
+
+.. bokeh-example-metadata::
+    :title: Trail
+    :keywords: trail, models
+    :apis: bokeh.models.Column, bokeh.models.ColumnDataSource, bokeh.models.GMapOptions, bokeh.models.GMapPlot, bokeh.models.Grid, bokeh.models.Label
+    :sampledata: mtb
+'''
+
 from math import atan2, cos, radians, sin, sqrt
+from os import getenv
 
 import numpy as np
 import scipy.ndimage as im
 
 from bokeh.document import Document
-from bokeh.embed import file_html
-from bokeh.models import (Column, ColumnDataSource, GMapOptions, GMapPlot,
-                          Grid, Label, Line, LinearAxis, PanTool, Patches,
-                          Plot, Range1d, ResetTool, WheelZoomTool)
+from bokeh.embed import embed
+from bokeh.models import (
+    Column,
+    ColumnDataSource,
+    GMapOptions,
+    GMapPlot,
+    Grid,
+    Label,
+    Line,
+    LinearAxis,
+    PanTool,
+    Patches,
+    Plot,
+    Range1d,
+    ResetTool,
+    WheelZoomTool,
+)
 from bokeh.sampledata.mtb import obiszow_mtb_xcm
 from bokeh.util.browser import view
 
@@ -62,7 +85,7 @@ name = "Obiszów MTB XCM"
 
 # Google Maps now requires an API key. You can find out how to get one here:
 # https://developers.google.com/maps/documentation/javascript/get-api-key
-API_KEY = "GOOGLE_API_KEY"
+API_KEY = getenv("GOOGLE_API_KEY", "GOOGLE_API_KEY")
 
 def trail_map(data):
     lon = (min(data.lon) + max(data.lon)) / 2
@@ -135,6 +158,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "trail.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, title="Trail map and altitude profile"))
+        f.write(embed(doc).page(title="Trail map and altitude profile"))
     print(f"Wrote {filename}")
     view(filename)

@@ -21,11 +21,9 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 from os.path import dirname, join
 
-# External imports
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -55,7 +53,10 @@ __all__ = (
 
 _templates_path = join(dirname(__file__), "_templates")
 
-_env = Environment(loader=FileSystemLoader(_templates_path))
+_env = Environment(
+    loader=FileSystemLoader(_templates_path),
+    autoescape=select_autoescape(["html"]),
+)
 
 # -----------------------------------------------------------------------------
 # General API
@@ -76,6 +77,7 @@ COLOR_DETAIL = _env.get_template("color_detail.html")
 ENUM_DETAIL = _env.get_template("enum_detail.rst")
 
 EXAMPLE_METADATA = _env.get_template("example_metadata.rst")
+EXAMPLE_INDEX = _env.get_template("example_index.rst")
 
 GALLERY_PAGE = _env.get_template("gallery_page.rst")
 GALLERY_DETAIL = _env.get_template("gallery_detail.rst")

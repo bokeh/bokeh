@@ -1,3 +1,5 @@
+/// <reference types="google.maps" preserve="true" />
+
 import {logger} from "core/logging"
 import {Signal0} from "core/signaling"
 import {div} from "core/dom"
@@ -204,7 +206,7 @@ export class GMapPlotView extends PlotView {
   }
 
   override has_finished(): boolean {
-    return super.has_finished() && this._tiles_loaded === true
+    return super.has_finished() && this._tiles_loaded
   }
 
   protected _get_latlon_bounds(bounds: google.maps.LatLngBounds): [number, number, number, number] {

@@ -18,7 +18,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import asyncio
 import inspect
 import threading
@@ -31,7 +30,6 @@ from typing import (
     Protocol,
 )
 
-# Bokeh imports
 from ..core.types import ID
 
 #-----------------------------------------------------------------------------

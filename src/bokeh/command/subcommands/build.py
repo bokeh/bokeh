@@ -22,14 +22,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from argparse import Namespace
+from typing import ClassVar
 
-# Bokeh imports
 from bokeh.ext import build
 
-# Bokeh imports
-from ..subcommand import Argument, Subcommand
+from ..subcommand import Args, Argument, Subcommand
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -54,7 +52,7 @@ class Build(Subcommand):
 
     help = "Manage and build a bokeh extension"
 
-    args = (
+    args: ClassVar[Args] = (
         ("base_dir", Argument(
             metavar="BASE_DIR",
             type=str,

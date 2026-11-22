@@ -1,18 +1,26 @@
 ''' This example demonstrates how to create a plot with two y-axes.
 
 .. bokeh-example-metadata::
+    :title: Twin axis
+    :keywords: twin axis, scatter
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Scatter
     :refs: :ref:`ug_basic_scatters`, :ref:`ug_basic_axes_twin`
-    :keywords: twin axis, scatter
 
 '''
 
 from numpy import arange, linspace, pi, sin
 
 from bokeh.document import Document
-from bokeh.embed import file_html
-from bokeh.models import (ColumnDataSource, LinearAxis, PanTool,
-                          Plot, Range1d, Scatter, WheelZoomTool)
+from bokeh.embed import embed
+from bokeh.models import (
+    ColumnDataSource,
+    LinearAxis,
+    PanTool,
+    Plot,
+    Range1d,
+    Scatter,
+    WheelZoomTool,
+)
 from bokeh.util.browser import view
 
 x = arange(-2*pi, 2*pi, 0.1)
@@ -55,6 +63,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "twin_axis.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, title="Twin Axis Plot"))
+        f.write(embed(doc).page(title="Twin Axis Plot"))
     print(f"Wrote {filename}")
     view(filename)

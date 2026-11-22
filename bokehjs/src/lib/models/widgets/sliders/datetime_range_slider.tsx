@@ -1,0 +1,40 @@
+import {NumericalRangeSlider, NumericalRangeSliderView} from "./numerical_range_slider"
+import type {TickFormatter} from "../../formatters/tick_formatter"
+import type * as p from "core/properties"
+import {isString} from "core/util/types"
+import {datetime} from "core/util/templating"
+
+export class DatetimeRangeSliderView extends NumericalRangeSliderView {
+  declare readonly model: DatetimeRangeSlider
+  declare readonly signals: p.SignalsOf<DatetimeRangeSlider.Props>
+  declare readonly values: DatetimeRangeSlider.Attrs
+
+  protected _formatter(value: number, format: string | TickFormatter): string {
+    if (isString(format)) {
+      return datetime(value, format)
+    } else {
+      return format.compute(value)
+    }
+  }
+}
+
+export namespace DatetimeRangeSlider {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = NumericalRangeSlider.Props
+}
+
+export interface DatetimeRangeSlider extends DatetimeRangeSlider.Attrs {}
+
+export class DatetimeRangeSlider extends NumericalRangeSlider {
+  declare properties: DatetimeRangeSlider.Props
+  declare __view_type__: DatetimeRangeSliderView
+
+  static {
+    this.prototype.default_view = DatetimeRangeSliderView
+
+    this.override<DatetimeRangeSlider.Props>({
+      format: "%d %b %Y %H:%M:%S",
+      step: 3_600_000,  // 1 hour
+    })
+  }
+}

@@ -32,10 +32,6 @@ export interface ContinuousTicker extends ContinuousTicker.Attrs {}
 export abstract class ContinuousTicker extends Ticker {
   declare properties: ContinuousTicker.Props
 
-  constructor(attrs?: Partial<ContinuousTicker.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<ContinuousTicker.Props>(({Int, NonNegative}) => ({
       num_minor_ticks:   [ NonNegative(Int), 5 ],

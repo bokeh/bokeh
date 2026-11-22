@@ -22,10 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
-# Bokeh imports
 from ..core.enums import MapType
 from ..core.has_props import abstract
 from ..core.property.enum import Enum
@@ -73,10 +69,6 @@ class MapOptions(Model):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     lat = Required(Float, help="""
     The latitude where the map should be centered.
     """)
@@ -114,10 +106,6 @@ class GMapOptions(MapOptions):
     ''' Options for ``GMapPlot`` objects.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     map_type = Enum(MapType, default="roadmap", help="""
     The `map type`_ to use for the ``GMapPlot``.
@@ -173,10 +161,6 @@ class GMapPlot(MapPlot):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     # TODO (bev) map plot might not have these
     @error(REQUIRED_RANGE)
     def _check_required_range(self):
@@ -195,9 +179,9 @@ class GMapPlot(MapPlot):
     Options for displaying the plot.
     """)
 
-    border_fill_color = Override(default="#ffffff")
+    _border_fill_color = Override(default="#ffffff")
 
-    background_fill_alpha = Override(default=0.0)
+    _background_fill_alpha = Override(default=0.0)
 
     api_key = Required(Bytes, help="""
     Google Maps API requires an API key. See https://developers.google.com/maps/documentation/javascript/get-api-key
@@ -213,9 +197,9 @@ class GMapPlot(MapPlot):
 
     """)
 
-    x_range = Override(default=InstanceDefault(Range1d))
+    _x_range = Override(default=InstanceDefault(Range1d))
 
-    y_range = Override(default=InstanceDefault(Range1d))
+    _y_range = Override(default=InstanceDefault(Range1d))
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -1,4 +1,10 @@
-""" Demonstration of how to register document JS event callbacks. """
+''' Demonstration of how to register document JS event callbacks.
+
+.. bokeh-example-metadata::
+    :title: Doc js events
+    :keywords: doc, js, events
+    :apis: bokeh.models.Button, bokeh.models.CustomJS, bokeh.models.FileInput
+'''
 
 from bokeh.events import Event
 from bokeh.io import curdoc

@@ -8,7 +8,6 @@ import type {MenuItemLike} from "../ui/menus"
 import type {ToolView, EventRole} from "./tool"
 import {Tool} from "./tool"
 import type {ToolButton} from "./tool_button"
-import type {InspectTool} from "./inspectors/inspect_tool"
 import {enumerate, some} from "core/util/iterator"
 import {execute} from "core/util/callbacks"
 
@@ -30,13 +29,6 @@ export interface ToolProxy<T extends Tool> extends ToolProxy.Attrs<T> {}
 export class ToolProxy<T extends Tool> extends Model {
   declare properties: ToolProxy.Props<T>
   declare __view_type__: ToolView
-
-  constructor(attrs?: Partial<ToolProxy.Attrs<T>>) {
-    super(attrs)
-    // This is not ideal, because this should be done in connect signals,
-    // but that would fail with accessing undefined 'do' attribute.
-    this.connect(this.do, () => this.doit())
-  }
 
   static {
     this.define<ToolProxy.Props<Tool>, ToolProxy<Tool>>(({Bool, List, Ref, Or}) => ({
@@ -93,13 +85,12 @@ export class ToolProxy<T extends Tool> extends Model {
     return this.tools[0].tool_name
   }
 
-  get computed_icon(): IconLike | undefined {
-    return this.tools[0].computed_icon
+  get computed_name(): string {
+    return this.tools[0].computed_name
   }
 
-  get toggleable(): boolean {
-    const tool = this.tools[0] as Tool
-    return "toggleable" in tool && (tool as InspectTool).toggleable
+  get computed_icon(): IconLike | undefined {
+    return this.tools[0].computed_icon
   }
 
   get group(): string | boolean {
@@ -109,6 +100,7 @@ export class ToolProxy<T extends Tool> extends Model {
 
   override connect_signals(): void {
     super.connect_signals()
+    this.connect(this.do, () => this.doit())
     this.connect(this.properties.active.change, () => this.set_active())
     for (const tool of this.tools) {
       this.connect(tool.properties.active.change, () => {
@@ -148,7 +140,7 @@ export class ToolProxy<T extends Tool> extends Model {
             }
             const item = menu[i]
             if (item instanceof MenuItem && item.action != null) {
-              void execute(item.action, new Menu(), {item})
+              void execute(item.action, Menu.create(), {item})
             }
           }
         }

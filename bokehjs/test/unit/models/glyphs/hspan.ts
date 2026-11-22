@@ -8,7 +8,7 @@ import type {Geometry} from "@bokehjs/core/geometry"
 describe("HSpan", () => {
 
   it("should calculate bounds", async () => {
-    const glyph = new HSpan()
+    const glyph = HSpan.create()
     const data = {y: [0, 1, 2, 3]} satisfies DataOf<HSpan>
     const glyph_view = await create_glyph_view(glyph, data)
     const bounds = glyph_view.bounds()
@@ -16,7 +16,7 @@ describe("HSpan", () => {
   })
 
   it("should calculate log bounds", async () => {
-    const glyph = new HSpan()
+    const glyph = HSpan.create()
     const data = {y: [0, 1, 2, 3]} satisfies DataOf<HSpan>
     const glyph_view = await create_glyph_view(glyph, data)
     const log_bounds = glyph_view.log_bounds()
@@ -26,7 +26,7 @@ describe("HSpan", () => {
   describe("_hit_point", () => {
 
     it("should return indices of the HSpan that was hit", async () => {
-      const glyph = new HSpan()
+      const glyph = HSpan.create()
       const data = {y: [0, 10, 50, 90]} satisfies DataOf<HSpan>
       const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
 

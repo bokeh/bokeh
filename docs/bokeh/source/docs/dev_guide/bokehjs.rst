@@ -71,9 +71,9 @@ Code Style Guide
 -----------------
 
 BokehJS doesn't have an explicit style guide. Make sure to run ``node make
-lint`` or ``node make lint --fix`` before committing to the Bokeh repository.
-Also, review the surrounding code and try to be consistent with the existing
-code.
+build lint`` or ``node make build lint --fix`` before committing to the Bokeh
+repository. Also, review the surrounding code and try to be consistent with the
+existing code.
 
 Some guidelines and tips to keep in mind when working on BokehJS:
 
@@ -86,15 +86,22 @@ Some guidelines and tips to keep in mind when working on BokehJS:
 * Use `template literals (template strings)`_ for multiline, tagged, and
   interpolated strings ( ```Bokeh ${Bokeh.version}``` ).
 
-Always lint your BokehJS code with ESLint_: From the :bokeh-tree:`bokehjs`
-directory, run ``node make lint`` to check your code. Run
-``node make lint --fix`` to have ESLint fix some problems automatically. For
-more details, see the rules defined in :bokeh-tree:`bokehjs/eslint.config.mjs`.
+Always lint your BokehJS code with Oxlint_: From the :bokeh-tree:`bokehjs`
+directory, run ``node make build lint`` to check your code. Run
+``node make build lint --fix`` to have Oxlint fix some problems automatically.
+For more details, see the rules defined in :bokeh-tree:`bokehjs/.oxlintrc.jsonc`.
+
+.. note::
+  Type-aware lint rules check tests, examples and frameworks against the
+  generated ``*.d.ts`` files under ``bokehjs/build``. On a clean checkout, or
+  after changes that affect the generated declarations, these files are missing
+  or stale, so build BokehJS before linting. When the build is current, you can
+  run ``node make lint`` on its own.
 
 .. tip::
   You can lint the code in your IDE. For example, if you use VSCode, then
-  you need the `ESLint extension for VSCode`_ to be installed. This doesn't
-  require any additional configuration.
+  you need the `Oxc extension for VSCode`_ to be installed. It picks up
+  :bokeh-tree:`bokehjs/.oxlintrc.jsonc` automatically.
 
 .. _contributor_guide_bokehjs_requirements:
 
@@ -109,7 +116,8 @@ Developing BokehJS requires the following minimum versions:
 
 * Node.js 24+
 * npm 11+
-* Chrome/Chromium browser 141+ or equivalent
+* Chrome/Chromium 141+; Pixi setup supplies Playwright-managed Chromium (see
+  :ref:`contributor_guide_testing_local_javascript`)
 
 Bokeh officially supports the following platforms for development and testing:
 
@@ -138,8 +146,13 @@ system. These are the most common commands:
   packaging.
 * ``node make test``: Runs all BokehJS tests. To only run specific tests, see
   :ref:`contributor_guide_testing_local_javascript_selecting`.
-* ``node make lint`` lint BokehJS with ESLint_. Run ``node make lint --fix`` to
-  have ESLint fix some problems automatically.
+* ``node make test:frameworks``: Packs and installs BokehJS and its framework
+  adapters, builds the React/Vite, React/Next.js, Vue, Svelte, Web
+  Component, vanilla Vite/Webpack/Rspack, and server-side-rendering examples,
+  and runs the browser lifecycle tests in production and development builds.
+  This is also part of ``node make test`` in continuous integration.
+* ``node make lint`` lint BokehJS with Oxlint_. Run ``node make lint --fix`` to
+  have Oxlint fix some problems automatically.
 
 ``node make`` automatically runs ``npm install`` whenever ``package.json``
 changes.
@@ -238,30 +251,175 @@ link model and view.
 .. code-block:: typescript
 
   export class NewActionTool extends ActionTool {
-    properties: NewActionTool.Props
+    declare properties: NewActionTool.Props
     // only when a view is required:
-    __view_type__: NewActionToolView
-
-    // do not remove this constructor, or you won't be
-    // able to use `new NewActionTool({some_property: 1})`
-    // this constructor
-    constructor(attrs?: Partial<NewActionTool.Attrs>) {
-      super(attrs)
-    }
+    declare __view_type__: NewActionToolView
 
     static {
       this.prototype.default_view = NewActionToolView
 
-      this.define<NewActionTool.Props>(({Number, String}) => ({
-        some_property: [ Number, 0 ],
-        some_other_property: [ String, "Default String" ],
+      this.define<NewActionTool.Props>(({Float, Str}) => ({
+        some_property: [ Float, 0 ],
+        some_other_property: [ Str, "Default String" ],
         ...
-        // add more property definitions and defaults
-        // use properties from lib/core/property and primitives from lib/core/kinds
-        // does have to match Python, both type and default value (and nullability)
+        // add more property definitions and defaults; see "Property kinds" below
+        // must match Python: type, default value and nullability
       }))
     }
   }
+
+Each entry passed to ``define()`` is a ``[kind, default, options?]`` tuple. The
+kind validates values at runtime (see :ref:`contributor_guide_bokehjs_kinds`).
+The default is either a value or a function that takes the model and returns a
+value. Use a function for mutable or object defaults, for example
+``() => FixedTicker.create({ticks: []})``, so instances don't share them.
+
+All model subclasses inherit the lifecycle-aware ``create()`` factory, so a
+custom extension does not need to repeat a constructor. Instantiate the model
+with ``NewActionTool.create({some_property: 1})``. Property defaults,
+``initialize()``, and ``connect_signals()`` run after all subclass field
+initializers have completed. A custom constructor that does more than forward
+attributes must be ``protected`` so callers cannot bypass ``create()``.
+
+Use each lifecycle phase for one kind of work:
+
+* field initializers create instance-local storage, but must not read Bokeh
+  properties because property defaults have not run yet.
+* property default functions may read fields initialized by the complete
+  subclass constructor chain.
+* ``initialize()`` may read properties and construct derived state, and an
+  override must call ``super.initialize()``.
+* ``connect_signals()`` owns subscriptions and must call
+  ``super.connect_signals()``. Corresponding cleanup belongs in
+  ``disconnect_signals()`` or ``destroy()``.
+
+For example, extension setup or tests should make construction and cleanup
+explicit:
+
+.. code-block:: typescript
+
+  const tool = NewActionTool.create({some_property: 1})
+  try {
+    // inspect or register the initialized model
+  } finally {
+    tool.destroy()
+  }
+
+Register extension models explicitly when they will be deserialized. Use a
+dedicated ``ModelResolver`` and call ``register_standard_models()`` and
+``register_models({NewActionTool}, resolver)`` with that resolver. The object
+key becomes the stable serialized model name, so production minifiers may
+safely rename the JavaScript class identifier.
+
+.. _contributor_guide_bokehjs_kinds:
+
+Property kinds
+~~~~~~~~~~~~~~
+
+BokehJS describes property types with *kinds*, defined in
+:bokeh-tree:`bokehjs/src/lib/core/kinds.ts`. A kind is a runtime value that
+validates property values (``kind.valid(value)``) and also carries a static
+TypeScript type. One definition therefore serves both the type checker and
+runtime validation.
+
+The kind must match the corresponding Python property as closely as possible.
+Given inherent differences between the type systems of Python and JavaScript,
+some mismatches are expected, for example ``Seq`` vs ``Arrayable``, or ``Dict``
+with non-string keys.
+
+The most commonly used kinds are:
+
+=========================  =====================================  =========================
+Kind                       JavaScript/TypeScript type             Bokeh property
+=========================  =====================================  =========================
+``Bool``                   ``boolean``                            ``Bool``
+``Int``                    ``number`` (an integer)                ``Int``
+``Float``                  ``number``                             ``Float``
+``Str``                    ``string``                             ``String``
+``Null``                   ``null``                               ``Null``
+``Unknown``                ``unknown``                            ``Any``
+``Enum("a", "b")``         ``"a" | "b"``                          ``Enum("a", "b")``
+``NonNegative(Float)``     ``number``                             ``NonNegative(Float)``
+``Positive(Int)``          ``number``                             ``Positive(Int)``
+``Percent``                ``number`` between 0 and 1             ``Percent``
+``Color``                  color string, RGB(A) tuple or integer  ``Color``
+``Regex(...)``             ``string``                             ``Regex(...)``
+``Or(A, B)``               ``A | B``                              ``Either(A, B)``
+``Nullable(A)``            ``A | null``                           ``Nullable(A)``
+``Opt(A)``                 ``A | undefined``                      N/A (BokehJS only)
+``List(A)``                ``A[]``                                ``List(A)``
+``NonEmptyList(A)``        ``A[]``                                ``NonEmpty(List(A))``
+``Tuple(A, B)``            ``[A, B]``                             ``Tuple(A, B)``
+``Arrayable(A)``           ``A[]`` or a typed array               ``Seq(A)``
+``Dict(A)``                ``{[key: string]: A}``                 ``Dict(String, A)``
+``Mapping(K, V)``          ``Map<K, V>``                          ``Dict(K, V)``
+``Set(A)``                 ``Set<A>``                             ``Set(A)``
+``Struct({a: A})``         ``{a: A}``                             ``Struct(a=A)``
+``PartialStruct({a: A})``  ``{a?: A}``                            ``Struct(a=Optional(A))``
+``Ref(SomeModel)``         ``SomeModel``                          ``Instance(SomeModel)``
+``Func()``                 function                               N/A (BokehJS only)
+=========================  =====================================  =========================
+
+Kinds compose like their Python counterparts. For example, ``Either(Instance(Range), Auto)``
+in Python corresponds to ``Or(Ref(Range), Auto)`` in BokehJS, and the TypeScript type
+``Range | "auto"`` is inferred automatically.
+
+Built-in kinds can be imported as usual with ``import {Float, ...} from "core/kinds"``.
+There's also a convenience layer built into ``define()``, which allows you to access
+kinds without the need for imports:
+
+.. code-block:: typescript
+
+  static {
+    this.define<MyModel.Props>(({Float, NonNegative}) => ({
+      min_width: [ NonNegative(Float), 0 ],
+    }))
+  }
+
+.. note::
+  Note that kinds destructured this way shadow globals of the same name, e.g.
+  ``Set``, inside the callback.
+
+When a kind is reused or is too long to repeat in a model's ``Props``, define
+it once as a constant and derive its TypeScript type with ``Infer``. Give the
+constant and the type the same name. TypeScript keeps values and types in
+separate namespaces, so ``Position`` works both in ``define()`` and in type
+positions:
+
+.. code-block:: typescript
+
+  import {Enum, Or, Tuple, Float} from "core/kinds"
+  import type {Infer} from "core/kinds"
+  import {Anchor} from "core/enums"
+
+  const Position = Or(Anchor, Tuple(Float, Float))
+  type Position = Infer<typeof Position>
+
+  const LengthUnits = Enum("screen", "data", "percent")
+  type LengthUnits = Infer<typeof LengthUnits>
+
+  export namespace MyModel {
+    export type Props = Model.Props & {
+      position: p.Property<Position>
+      length_units: p.Property<LengthUnits>
+    }
+  }
+
+  class MyModel extends Model {
+    declare properties: MyModel.Props
+
+    static {
+      this.define<MyModel.Props>(() => ({
+        position:     [ Position, "top_right" ],
+        length_units: [ LengthUnits, "screen" ],
+      }))
+    }
+  }
+
+Shared enumerations live in :bokeh-tree:`bokehjs/src/lib/core/enums.ts`,
+and model-specific reusable kinds live in
+:bokeh-tree:`bokehjs/src/lib/models/common/kinds.ts`. Look there before
+defining a new one.
 
 Views
 ~~~~~
@@ -274,7 +432,7 @@ Views extend the respective ``BaseView`` base class.
 .. code-block:: typescript
 
     export class NewActionToolView extends ActionToolView {
-      declare model: NewActionToolView
+      declare model: NewActionTool
 
       initialize(): void {
         super.initialize()
@@ -289,9 +447,181 @@ Views extend the respective ``BaseView`` base class.
       ...
     }
 
+.. _contributor_guide_bokehjs_views_ready:
+
+Dealing with asynchronous behavior and the ``ready`` promise
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Many things a view does after it was built are asynchronous, for example
+rebuilding child views after a property change, loading resources, running a
+``CustomJS`` callback, or repainting a plot. Each view tracks such work as
+*tasks*, and exposes the ``ready`` promise, which tells when all of them have
+finished.
+
+Schedule asynchronous work with ``schedule()``:
+
+.. code-block:: typescript
+
+    export class NewActionToolView extends ActionToolView {
+      declare model: NewActionTool
+
+      protected _load_icon(url: string): void {
+        this.schedule(async (signal) => {
+          const response = await fetch(url, {signal})
+          // ... update the view and request a repaint or relayout
+        })
+      }
+    }
+
+``schedule(task)`` runs ``task`` immediately, and ``ready`` of the view and of
+all its ancestors waits until the returned promise settles. A task that throws
+synchronously is treated like one that rejects. The task receives the view's
+abort signal, which is aborted when the view is removed. Pass it on to APIs
+that support it (like ``fetch()``) or check ``signal.aborted`` before touching
+the view after an ``await``.
+
+Signal handlers connected with ``connect()``, ``on_change()`` or
+``on_transitive_change()`` are tracked automatically, if they return a
+promise. Thus, always return (or ``await``) asynchronous work from handlers,
+instead of starting it and discarding its promise:
+
+.. code-block:: typescript
+
+    override connect_signals(): void {
+      super.connect_signals()
+      const {items} = this.model.properties
+      // tracked, because the promise is returned
+      this.on_change(items, () => this.build_item_views())
+      // not tracked, because the promise is discarded
+      this.on_change(items, () => { void this.build_item_views() })
+    }
+
+Glyph renderers defer data preparation to a microtask and serialize it with
+visual updates. Like ``request_paint()``, ``GlyphRendererView.update_data()``
+and ``update_visuals()`` only queue this work, track it themselves and return
+nothing. Source mutations and model notifications remain synchronous, but
+renderer state, including coordinate arrays and hit-test indices, may still
+describe the previous data immediately after a source change. Await the
+renderer's or plot view's ``ready`` before inspecting that state. Updates
+received before a pass starts are combined, including when a preceding pass
+is still active. The exception is a change of ``IndexedSubset.masked``, which is
+published while painting: unless data preparation is queued or active, visuals
+are updated immediately, so the paint that published the mask draws with them.
+Asynchronous visual hooks still run in a queued pass.
+
+``ready`` behaves as follows:
+
+* It resolves when the view and all its descendants have no pending tasks.
+  This includes tasks that were scheduled while waiting, so ``ready`` covers
+  chains of work, like a task that schedules a follow-up task. ``ready`` of
+  the root view covers all views in its tree.
+* If any of these tasks failed while waiting, it rejects with the error, or
+  with an ``AggregateError`` if multiple tasks failed. A failure is reported
+  by ``ready`` of the view that owns the task and of each of its ancestors,
+  as long as it is awaited when the task fails. Failures are always logged
+  when they happen, but failures that nobody waits for aren't kept, so a
+  later ``ready`` doesn't report them.
+* When a view is removed, its tasks and the tasks of its descendants stop
+  counting toward ``ready`` of its ancestors, and failures of these tasks are
+  ignored. ``ready`` of a removed view resolves, and ``schedule()`` on a
+  removed view doesn't run the task.
+* A task or a signal handler must not wait for ``ready`` of its own view or of
+  any of its ancestors. The task counts toward that ``ready``, so it would wait
+  for itself and never finish. If this happens before the task's first
+  ``await``, a warning is logged. Later waits can't be detected. If a task has
+  to wait for its subtree, it should wait for ``ready`` of the relevant
+  descendants instead.
+
+``ready`` doesn't cover work that the browser does on its own, like
+CSS layout, ``ResizeObserver`` callbacks or loading of images through the DOM.
+If a view has to react to such events, the handler should schedule its own
+work with ``schedule()``.
+
+.. note::
+    ``_await_ready(promise)`` is a lower-level variant of ``schedule()``,
+    which tracks an already started promise. Prefer ``schedule()``, which
+    also handles synchronous failures and provides the abort signal.
+
+Supporting committed property callbacks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Callback :ref:`delivery policies <ug_interaction_callback_policies>` normally
+need no special support from a model or view. Throttled and debounced callbacks
+observe ordinary property changes and are scheduled automatically. A committed
+callback is different: the component defines when an active interaction begins
+and when its final value is committed.
+
+A view that supports committed callbacks must begin deferral before the first
+property change in an interaction, and request a flush when the interaction
+finishes. Continue updating the model property normally while it is deferred.
+Browser-side model state, rendering, and internal signal handlers remain
+immediate. Only callbacks registered with a committed policy and corresponding
+browser-to-server updates wait for the flush.
+
+.. code-block:: typescript
+
+    protected _begin_value_change(): void {
+      if (this.model.has_callback_policy("value", "committed")) {
+        this.model.document?.begin_sync_deferral(this.model, "value")
+      }
+    }
+
+    protected _commit_value(): void {
+      this.model.document?.request_sync_flush(this.model, "value", "committed")
+    }
+
+    override remove(): void {
+      this._commit_value()
+      super.remove()
+    }
+
+Call the begin method before the first model assignment, not after it. Every way
+an interaction can end must call the commit method. Depending on the component,
+this can include pointer release or cancellation, lost pointer capture, keyup,
+focus loss, a pause in wheel events, and view removal. Passing ``"committed"``
+to ``request_sync_flush()`` prevents a redundant flush when no committed
+interaction is active.
+
+Tests for a component with committed support should verify that its model value
+and rendering still update during the interaction, that committed callbacks do
+not run until the interaction ends, and that every completion path delivers the
+final value exactly once. Sliders and ``Spinner`` provide examples covering
+pointer, keyboard, wheel, focus, and removal paths.
+
+.. _contributor_guide_selection_wire_format:
+
+Selection wire format
+---------------------
+
+Python and BokehJS use the same private format for selection snapshots and
+change events. Public indices remain lists or arrays of sorted, unique,
+nonnegative int32 positions. Text serializers and empty top-level selections
+use ordinary lists or maps.
+
+``selection_indices_v1`` contains a protocol ``bytes`` payload in ``data``
+and a descriptor with ``count`` and ``mode``.
+
+* ``int32`` stores ``count`` strictly increasing little-endian int32 values.
+* ``bitmap`` adds ``origin`` and ``span``. Relative position ``i`` uses
+  bit ``i % 8`` (least significant bit first) in byte ``i // 8``. The
+  payload is ``ceil(span / 8)`` bytes, with exactly ``count`` set bits and
+  zero unused high bits. The encoder spans the smallest through largest
+  index and chooses this mode when ``ceil(span / 8) + 64 < 4 * count``.
+
+``selection_map_v1`` stores ``[key, descriptor]`` pairs in ``rows``, ordered
+by strictly increasing nonnegative int32 key. Each descriptor adds a byte
+``offset`` and ``length`` into one shared ``data`` payload. The first slice
+starts at zero and later slices start at the next four-byte boundary at
+or after the preceding slice. Padding bytes are zero and there is no
+trailing padding. Empty rows use int32 mode with zero count and length.
+
+The codec packs bitmap bytes directly. BokehJS uses ``BitSet`` (exported as
+``Indices``) separately for rendering and filtering. Both codecs verify
+the wire format against the same :bokeh-tree:`bokehjs/test/unit/models/selections/selection_wire_fixture.json`.
+
 .. _gulp: https://gulpjs.com/
-.. _ESLint: https://eslint.org/
+.. _Oxlint: https://oxc.rs/docs/guide/usage/linter.html
 .. _JSFiddle: http://jsfiddle.net/
 .. _GitHub_Actions: https://github.com/bokeh/bokeh/actions?query=workflow%3ABokehJS-CI
-.. _ESLint extension for VSCode: https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
+.. _Oxc extension for VSCode: https://marketplace.visualstudio.com/items?itemName=oxc.oxc-vscode
 .. _template literals (template strings): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals

@@ -22,11 +22,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from math import inf
-from typing import Any
 
-# Bokeh imports
 from ...core.has_props import abstract
 from ...core.property.any import AnyRef
 from ...core.property.auto import Auto
@@ -80,7 +77,6 @@ __all__ = (
     'Switch',
     'TextAreaInput',
     'TextInput',
-    'ColorMap',
 )
 
 #-----------------------------------------------------------------------------
@@ -92,10 +88,6 @@ class InputWidget(Widget):
     ''' Abstract base class for input widgets.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     title = Either(String, Instance(HTML), default="", help="""
     Widget's label.
@@ -129,10 +121,6 @@ class FileInput(InputWidget):
     ''' Present a file-chooser dialog to users and return the contents of the
     selected files.
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     value = Readonly(Either(String, List(String)), help='''
     The base64-encoded contents of the file or files that were loaded.
@@ -239,10 +227,6 @@ class NumericInput(InputWidget):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     value = Either(Null, Float, Int, help="""
     Initial or entered value.
 
@@ -278,15 +262,9 @@ class Spinner(NumericInput):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    _committed_callback_properties = frozenset({"value"})
 
-    value_throttled = Readonly(Either(Null, Float, Int), help="""
-    Value reported at the end of interactions.
-    """)
-
-    mode = Override(default="float")
+    _mode = Override(NumericInput.mode, default="float")
 
     step = Interval(Float, start=1e-16, end=inf, default=1, help="""
     The step added or subtracted to the current value.
@@ -298,17 +276,13 @@ class Spinner(NumericInput):
     """)
 
     wheel_wait = Either(Int, Float, default=100, help="""
-    Defines the debounce time in ms before updating `value_throttled` when the
-    mouse wheel is used to change the input.
+    Defines the debounce time in ms before committing a value changed with the
+    mouse wheel.
     """)
 
 @abstract
 class ToggleInput(Widget):
     """ Base class for toggleable (boolean) input widgets. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     active = Nullable(Bool, default=False, help="""
     The state of the widget.
@@ -325,16 +299,8 @@ class ToggleInput(Widget):
 class Checkbox(ToggleInput):
     """ A checkbox widget. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 class Switch(ToggleInput):
     """ A checkbox-like widget. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     on_icon = Nullable(IconLike, default=None, help="""
     Icon to represent widget on state (``active = True``).
@@ -351,28 +317,20 @@ class Switch(ToggleInput):
 class LightDark(Switch):
     """ A switch widget to change between themes (light and dark). """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    _active = Override(ToggleInput.active, default=None)
 
-    active = Override(default=None)
+    _on_icon = Override(Switch.on_icon, default="light_theme")
 
-    on_icon = Override(default="light_theme")
+    _off_icon = Override(Switch.off_icon, default="dark_theme")
 
-    off_icon = Override(default="dark_theme")
+    _indeterminate_icon = Override(Switch.indeterminate_icon, default="system_theme")
 
-    indeterminate_icon = Override(default="system_theme")
-
-    tri_state = Override(default=True)
+    _tri_state = Override(ToggleInput.tri_state, default=True)
 
 class TextLikeInput(InputWidget):
     ''' Base class for text-like input widgets.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     value = String(default="", help="""
     Initial or entered text value.
@@ -400,10 +358,6 @@ class TextInput(TextLikeInput):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     prefix = Nullable(String, help="""
     An optional string prefix to display before the input. This is useful to
     indicate e.g. a variable the entered value will be assigned to.
@@ -419,10 +373,6 @@ class TextAreaInput(TextLikeInput):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     cols = Int(default=20, help="""
     Specifies the width of the text area (in average character width). Default: 20
     """)
@@ -431,7 +381,7 @@ class TextAreaInput(TextLikeInput):
     Specifies the height of the text area (in lines). Default: 2
     """)
 
-    max_length = Override(default=500)
+    _max_length = Override(TextLikeInput.max_length, default=500)
 
 
 class PasswordInput(TextInput):
@@ -445,19 +395,11 @@ class PasswordInput(TextInput):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
 
 class AutocompleteInput(TextInput):
     ''' Single-line input widget with auto-completion.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     completions = List(String, help="""
     A list of completion strings. This will be used to guide the
@@ -497,10 +439,6 @@ class Select(InputWidget):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     options = Either(Options, OptionsGroups, help="""
     Available selection options.
 
@@ -522,10 +460,6 @@ class MultiSelect(InputWidget):
     ''' Multi-select widget.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     options = List(Either(String, Tuple(String, String)), help="""
     Available selection options. Options may be provided either as a list of
@@ -549,10 +483,6 @@ class MultiChoice(InputWidget):
     ''' MultiChoice widget.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     options = List(Either(String, Tuple(String, String)), help="""
     Available selection options. Options may be provided either as a list of
@@ -594,10 +524,6 @@ class ColorPicker(InputWidget):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     color = ColorHex(default='#000000', help="""
     The initial color of the picked color (named or hexadecimal)
     """)
@@ -606,10 +532,6 @@ class PaletteSelect(InputWidget):
     ''' Color palette select widget.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     value = Required(String, help="""
     The name of the initial or selected color palette.
@@ -631,21 +553,6 @@ class PaletteSelect(InputWidget):
     ncols = Positive(Int, default=1, help="""
     The number of columns to split the display of the palettes into.
     """)
-
-#-----------------------------------------------------------------------------
-# Legacy API
-#-----------------------------------------------------------------------------
-
-def ColorMap(*args: Any, **kwargs: Any) -> PaletteSelect:
-    ''' Color palette select widget.
-
-    .. deprecated:: 3.4.0
-        Use ``PaletteSelect`` widget instead.
-    '''
-    from ...util.deprecation import deprecated
-
-    deprecated((3, 4, 0), "ColorMap widget", "PaletteSelect widget")
-    return PaletteSelect(*args, **kwargs)
 
 #-----------------------------------------------------------------------------
 # Private API

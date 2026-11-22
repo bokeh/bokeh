@@ -1,9 +1,17 @@
+''' Shift individual bars away from the centers of their categories.
+
+.. bokeh-example-metadata::
+    :title: Categorical offset
+    :keywords: categorical, offset
+    :apis: bokeh.plotting.figure.vbar
+'''
+
 from bokeh.plotting import figure, show
 
 fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
 
 p = figure(x_range=fruits, height=250, title="Fruit counts",
-           toolbar_location=None, tools="")
+           tools=None)
 
 offsets = [-0.5, -0.2, 0.0, 0.3, 0.1, 0.3]
 

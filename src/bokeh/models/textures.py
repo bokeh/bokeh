@@ -20,10 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
-# Bokeh imports
 from ..core.enums import TextureRepetition
 from ..core.has_props import abstract
 from ..core.property.enum import Enum
@@ -52,10 +48,6 @@ class Texture(Model):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     repetition = Enum(TextureRepetition, default="repeat", help="""
 
     """)
@@ -65,10 +57,6 @@ class CanvasTexture(Texture):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     code = Required(String, help="""
     A snippet of JavaScript code to execute in the browser.
     """)
@@ -77,10 +65,6 @@ class ImageURLTexture(Texture):
     '''
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     url = Required(Image, help="""
     A URL to a drawable resource like image, video, etc.

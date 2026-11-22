@@ -414,15 +414,14 @@ A complete example of a scale bar with custom units of measurement:
 Arrows
 ------
 
-You can use |Arrow| annotations to connect glyphs and label annotations. Arrows
-can also help highlight plot regions.
+Use :meth:`~bokeh.plotting.figure.arrow` to connect glyphs and labels or to
+highlight plot regions. It creates a ``Segment`` glyph renderer with reusable
+|ArrowHead| decorations, so arrows support data sources, selection, hover, and
+server updates like other glyphs.
 
-Arrows are compound annotations. This means that they use additional |ArrowHead|
-objects as their ``start`` and ``end``. By default, the |Arrow| annotation is a
-one-sided arrow: The ``end`` property is set to an ``OpenHead``-type arrowhead
-(looking like an open-backed wedge style) and the ``start`` property is set to
-``None``. If you want to create double-sided arrows, set both the ``start`` and
-``end`` properties to one of the available arrowheads.
+By default, ``figure.arrow()`` creates a one-sided arrow with an ``OpenHead``
+at ``end`` and no marking at ``start``. For a double-sided arrow, set both
+``start`` and ``end`` to arrowhead instances.
 
 The available arrowheads are:
 
@@ -437,20 +436,209 @@ Control the appearance of an arrowhead with these properties:
 * use ``fill_color`` and ``fill_alpha`` to control the appearance of the
   arrowhead's inner surface, if applicable.
 
-|Arrow| objects themselves have the standard |line properties|. Set those
-properties to control the color and appearance of the arrow shaft. For example:
+Pass standard |line properties| to ``figure.arrow()`` to control the arrow
+shaft. For example:
 
 .. code-block:: python
 
-    my_arrow.line_color = "blue"
-    my_arrow.line_alpha = 0.6
+    my_arrow = plot.arrow(
+        x_start=0, y_start=0,
+        x_end=1, y_end=1,
+        line_color="blue", line_alpha=0.6,
+    )
 
-Optionally, you can set the ``x_range`` and ``y_range`` properties to make an
-arrow annotation refer to additional non-default x- or y-ranges. This works the
-same as :ref:`ug_basic_axes_twin`.
+The return value is a ``GlyphRenderer``. This means you can update the shaft
+through ``my_arrow.glyph`` and use the renderer with selection and inspection
+tools. The ``x_range_name`` and ``y_range_name`` keyword arguments select
+non-default ranges as described in :ref:`ug_basic_axes_twin`.
 
 .. bokeh-plot:: __REPO__/examples/basic/annotations/arrow.py
     :source-position: above
+
+For a quiver plot, pass arrays of vector origins and endpoints to
+``figure.arrow()``. Compute the endpoints as ``x + scale*u`` and
+``y + scale*v``, where ``u`` and ``v`` are the vector components and
+``scale`` controls their displayed lengths. The following example colors
+both the shafts and arrowheads by vector magnitude:
+
+.. bokeh-plot:: __REPO__/examples/basic/annotations/quiver.py
+    :source-position: above
+
+Marking existing paths
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To add arrowheads to an existing ``Segment``, ``Line``, ``MultiLine``, ``Bezier``, or ``Arc``
+renderer, use :meth:`~bokeh.models.GlyphRenderer.add_path_marking`:
+
+.. code-block:: python
+
+    from bokeh.models import NormalHead
+
+    renderer = plot.segment(x0=0, y0=0, x1=1, y1=1, line_color="navy")
+    path_marking = renderer.add_path_marking(
+        NormalHead(size=12, fill_color="navy", line_color="navy"),
+        at="end",
+    )
+
+``figure.arrow()`` is a convenience API for creating a ``Segment`` renderer
+and adding its start and end markings. With ``add_path_marking()``, you
+choose the glyph yourself and attach markings at ``"start"``, ``"middle"``,
+or ``"end"``. The method returns a ``PathPlacement`` model, which you can update
+later, for example with ``path_marking.inset = 10``. Path markings can also be added
+or removed after display, and replacing ``path_marking.marking`` rebuilds its
+head view. These changes work through server document patches as well.
+
+Set a path marking's ``angle`` to rotate it counterclockwise around its anchor.
+The default ``angle_reference="auto"`` uses the usual path orientation.
+Use ``"left"`` or ``"right"`` to start from the corresponding normal to the
+forward screen-space tangent, or ``"screen"`` to measure from straight up.
+The angle can be a fixed value or a source field. It defaults to zero radians.
+Only unrotated automatic placements trim the shaft.
+
+.. code-block:: python
+
+    from math import pi
+    from bokeh.models import NormalHead
+
+    renderer = plot.segment(0, 0, 1, 1)
+    renderer.add_path_marking(
+        NormalHead(), at="end", angle_reference="screen", angle=-pi/2,
+    )
+
+The dot marks the start of the curve in each panel. The left and right
+normals point in opposite directions at the same positions. The squares use
+a fixed rotation relative to the screen.
+
+.. bokeh-plot:: __REPO__/examples/basic/annotations/path_marking_angles.py
+    :source-position: above
+
+Arrow endpoints use data coordinates. Arrowhead size, visuals, and decoration
+``inset`` can refer to fields in the
+renderer's data source. Size and inset are measured in screen pixels. Head
+visuals can be configured separately, or ``inherit_visuals`` can list the
+properties that should follow the host glyph. For example,
+``NormalHead(inherit_visuals=["line_color", "line_width", "fill_color"])``
+inherits the shaft color and width, using the shaft color for the head fill.
+Leave a property out of the list to use the marking's own value. Inheritance
+is resolved against the active visual-state glyph when painting, so it follows
+selection, hover, muting, and live updates. Shared markings can therefore
+inherit different values from different hosts. The default ``OpenHead`` created
+by ``figure.arrow()`` inherits shaft color, alpha, and width. An end inset moves the
+head back along the path, and the visible shaft stops at the rear of the
+head. On ``MultiLine``, the head follows the path's local tangent.
+
+The following example attaches markings to vectorized segments and
+multi-segment paths without calling ``figure.arrow()``:
+
+.. bokeh-plot:: __REPO__/examples/basic/annotations/line_markings.py
+    :source-position: above
+
+For named positions, start and end use endpoint tangents, honor
+``inset``, and trim the shaft. Middle uses rear-to-tip chord alignment at
+half the screen-space path length, without inset or shaft trimming.
+
+The ``Segment``, ``Line``, ``MultiLine``, ``Bezier``, and ``Arc`` glyphs
+use the ``SupportsPathMarking`` mixin, which defines ``path_markings``.
+For a ``Line``, the first data row supplies marking size, inset, and
+non-inherited visuals. Start and end refer to the entire finite path, including
+across NaN-separated subpaths. A middle marking follows the visual state of
+the segment containing the midpoint by path length. ``Bezier`` decorations use
+adaptive screen-space subdivision with a 0.25-pixel chord tolerance and a
+recursion limit of 12. Undecorated Beziers retain native cubic rendering.
+
+The following example shares one arrowhead between a Line and a Bezier. Heads
+inherit each shaft's color and alpha while retaining a thin, explicit outline
+width, so increasing the shaft width keeps the filled heads crisp. The Bezier
+also uses tee markings to show the quarter and three-quarter positions.
+
+.. bokeh-plot:: __REPO__/examples/basic/annotations/path_marking_insets.py
+    :source-position: above
+
+.. _ug_basic_annotations_path_markings:
+.. _arrowhead-placement:
+
+Path marking placement
+~~~~~~~~~~~~~~~~~~~~~~
+
+Use :meth:`~bokeh.models.GlyphRenderer.add_path_marking` to attach a marking to
+an existing path. The :class:`~bokeh.models.Marking` you pass in defines what
+to draw, such as a :class:`~bokeh.models.NormalHead` or a
+:class:`~bokeh.models.ScatterMarking`. The returned :class:`~bokeh.models.PathPlacement`
+holds that marking and controls where it goes and how it rotates through
+``positions``, ``angle``, and ``angle_reference``.
+
+Pass ``"start"``, ``"middle"``, or ``"end"`` to place it at a named position.
+
+.. code-block:: python
+
+    renderer.add_path_marking(NormalHead(size=12), at="end")
+
+To place markings along the path, pass a fraction, a sequence, or a
+one-dimensional NumPy array. Fractions run from 0 to 1 and measure the
+path's length on screen. A fixed list applies to every path. Update
+``positions`` to move the markings or switch between named and fractional
+placement.
+
+.. code-block:: python
+
+    markings = renderer.add_path_marking(NormalHead(size=12), at=[0.2, 0.5, 0.8])
+    markings.positions = "end"  # Switch to endpoint placement.
+
+For an arrowhead at the end of a path, call
+:meth:`~bokeh.models.GlyphRenderer.add_arrowheads`. The default ``OpenHead``
+inherits the shaft's line color, alpha, and width.
+
+.. code-block:: python
+
+    renderer.add_arrowheads()
+
+Use :class:`~bokeh.models.ScatterMarking` to draw a scatter marker centered at
+each position. In this example, ``"end"`` and ``1.0`` place the same marker at
+the tip and leave the line intact.
+
+.. bokeh-plot:: __REPO__/examples/basic/annotations/marker_markings.py
+    :source-position: above
+
+Pass a source field to set positions for each path separately. Store a list
+of fractions in each row, or an empty list to skip that path. In this example,
+the empty list leaves the second path from the top without arrowheads.
+
+.. bokeh-plot:: __REPO__/examples/basic/annotations/field_arrowheads.py
+    :source-position: above
+
+Updating the column moves the markings. The :ref:`animated arrows example <example_animated_arrows_basic/annotations>`
+updates the positions while leaving one path unmarked.
+
+Bokeh checks each list when it draws the path. Markings on the same path share
+the size and visuals from that row. A ``Line`` takes its positions and visuals
+from the first row. On an ``Arc``, fractions follow the arc's sweep, including
+wrapped angles and full turns.
+
+Named endpoints follow the path's tangent and trim the shaft by the length of
+the marking behind its anchor. Fractional placements leave the shaft intact.
+They follow the chord from a point that far back on the same finite subpath
+to the anchor. If the chord has zero length, the marking uses the forward
+tangent. An arrowhead at ``"start"`` points out of the path, while one at
+``0.0`` points forward.
+
+Both arrowheads below have their tip at ``(280, 0)``. With ``"end"``, the
+shaft stops at the back of the head. With ``1.0``, it runs to the tip.
+The default ``OpenHead`` leaves the shaft intact and follows the tangent
+at either placement because it has zero rear extent.
+
+.. bokeh-plot:: __REPO__/examples/basic/annotations/arrowhead_placement.py
+    :source-position: above
+
+Pass ``inset`` with ``at="start"`` or ``at="end"`` to move the marking inward.
+Use ``selection_marking``, ``nonselection_marking``, ``hover_marking``, and
+``muted_marking`` to override the marking on configured state glyphs.
+
+This example compares fractions on several glyphs and animates arrowheads
+by updating their position lists.
+
+.. bokeh-plot:: __REPO__/examples/basic/annotations/path_markings.py
+    :source-position: above
+
 
 .. _ug_basic_annotations_bands:
 
@@ -595,31 +783,22 @@ These are the most commonly used properties for this annotation:
 Whiskers
 --------
 
-A |Whisker| annotation is a "stem" that is dimensionally linked to the data in
-the plot. You can define this annotation using |data units| or |screen units|.
+Use :meth:`~bokeh.plotting.figure.whisker` to draw quantile ranges or error
+bars. By default, ``base`` is the x-coordinate and ``lower`` and ``upper`` are
+the y-coordinates. Use ``dimension="width"`` to draw the interval horizontally
+at y-coordinate ``base``.
 
-A common use for whisker annotations is to indicate error margins or
-uncertainty for measurements at a single point.
-
-These are the most commonly used properties for this annotation:
-
-* ``lower``: The coordinates of the lower end of the whisker.
-* ``upper``: The coordinates of the upper end of the whisker.
-* ``dimension``: The direction of the whisker. The direction can be one of
-  these two values: Either * ``"width"`` for whiskers that are parallel to the
-  plot's x axis. Or ``"height"`` for whiskers that are parallel to the plot's y
-  axis.
-* ``base``: The location of the whisker along the dimension specified with
-  ``dimension``.
-* The standard |line properties|.
+The endpoints are in data coordinates. Set ``cap_size`` in screen pixels.
+The caps inherit the line color, alpha, and width. Like ``figure.segment()``,
+``figure.whisker()`` accepts a source, a view, and line styling options and
+returns a glyph renderer.
 
 .. bokeh-plot:: __REPO__/examples/basic/annotations/whisker.py
     :source-position: above
 
 .. |ColorMapper| replace:: :class:`~bokeh.models.mappers.ColorMapper`
 
-.. |Arrow|         replace:: :class:`~bokeh.models.annotations.Arrow`
-.. |ArrowHead|     replace:: :class:`~bokeh.models.arrow_heads.ArrowHead`
+.. |ArrowHead|     replace:: :class:`~bokeh.models.annotations.ArrowHead`
 .. |Band|          replace:: :class:`~bokeh.models.annotations.Band`
 .. |PolyAnnotation| replace:: :class:`~bokeh.models.annotations.PolyAnnotation`
 .. |ColorBar|      replace:: :class:`~bokeh.models.annotations.ColorBar`
@@ -631,7 +810,6 @@ These are the most commonly used properties for this annotation:
 .. |Slope|         replace:: :class:`~bokeh.models.annotations.Slope`
 .. |Span|          replace:: :class:`~bokeh.models.annotations.Span`
 .. |Title|         replace:: :class:`~bokeh.models.annotations.Title`
-.. |Whisker|       replace:: :class:`~bokeh.models.annotations.Whisker`
 
 .. |Circle|        replace:: :class:`~bokeh.models.glyphs.Circle`
 .. |Ngon|          replace:: :class:`~bokeh.models.glyphs.Ngon`

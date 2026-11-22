@@ -25,31 +25,30 @@ export interface PolyDrawTestCase {
   glyph_view: PatchesView
 }
 
-async function make_testcase(): Promise<PolyDrawTestCase> {
+async function make_testcase(data: PolyDrawTestCase["data"] = {
+  xs: [[0, 0.5, 1], [0, 0.5, 1]],
+  ys: [[0, -0.5, -1], [0, -0.5, -1]],
+  z: [null, null],
+}): Promise<PolyDrawTestCase> {
   // Note default plot dimensions is 600 x 600 (height x width)
-  const plot = new Plot({
-    x_range: new Range1d({start: -1, end: 1}),
-    y_range: new Range1d({start: -1, end: 1}),
+  const plot = Plot.create({
+    x_range: Range1d.create({start: -1, end: 1}),
+    y_range: Range1d.create({start: -1, end: 1}),
   })
 
   const {view: plot_view} = await display(plot)
 
-  const data = {
-    xs: [[0, 0.5, 1], [0, 0.5, 1]],
-    ys: [[0, -0.5, -1], [0, -0.5, -1]],
-    z: [null, null],
-  }
-  const data_source = new ColumnDataSource({data})
+  const data_source = ColumnDataSource.create({data})
 
-  const glyph = new Patches({
+  const glyph = Patches.create({
     xs: {field: "xs"},
     ys: {field: "ys"},
   })
 
-  const glyph_renderer = new GlyphRenderer({glyph, data_source})
+  const glyph_renderer = GlyphRenderer.create({glyph, data_source})
   const glyph_renderer_view = await build_view(glyph_renderer, {parent: plot_view})
 
-  const draw_tool = new PolyDrawTool({
+  const draw_tool = PolyDrawTool.create({
     active: true,
     default_overrides: {z: "Test"},
     renderers: [glyph_renderer as any],
@@ -59,7 +58,7 @@ async function make_testcase(): Promise<PolyDrawTestCase> {
 
   const draw_tool_view = plot_view.owner.get_one(draw_tool)
   plot_view.renderer_views.set(glyph_renderer, glyph_renderer_view)
-  sinon.stub(glyph_renderer_view, "set_data")
+  sinon.stub(glyph_renderer_view, "_set_data")
 
   return {
     data,
@@ -74,10 +73,10 @@ describe("PolyDrawTool", (): void => {
   describe("Model", () => {
 
     it("should create proper tooltip", () => {
-      const tool0 = new PolyDrawTool()
+      const tool0 = PolyDrawTool.create()
       expect(tool0.tooltip).to.be.equal("Polygon Draw Tool")
 
-      const tool1 = new PolyDrawTool({description: "My Poly Draw"})
+      const tool1 = PolyDrawTool.create({description: "My Poly Draw"})
       expect(tool1.tooltip).to.be.equal("My Poly Draw")
     })
   })
@@ -87,7 +86,7 @@ describe("PolyDrawTool", (): void => {
     it("should select patches on tap", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
-      hit_test_stub.returns(new Selection({indices: [1]}))
+      hit_test_stub.returns(Selection.create({indices: [1]}))
 
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
@@ -98,21 +97,36 @@ describe("PolyDrawTool", (): void => {
     it("should select multiple patches on shift-tap", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
-      hit_test_stub.returns(new Selection({indices: [1]}))
+      hit_test_stub.returns(Selection.create({indices: [1]}))
 
       let tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
-      hit_test_stub.returns(new Selection({indices: [0]}))
+      hit_test_stub.returns(Selection.create({indices: [0]}))
       tap_event = make_tap_event(560, 560, true)
       testcase.draw_tool_view._tap(tap_event)
 
-      expect(testcase.data_source.selected.indices).to.be.equal([1, 0])
+      expect(testcase.data_source.selected.indices).to.be.equal([0, 1])
+    })
+
+    it("should delete shift-selected polygons by numeric index", async () => {
+      const xs = Array.from({length: 12}, (_, i) => [i, i + 0.25, i + 0.5])
+      const ys = xs.map(() => [0, 0.5, 0])
+      const testcase = await make_testcase({xs: xs.map((row) => row.slice()), ys: ys.map((row) => row.slice()), z: xs.map(() => null)})
+      const hits = sinon.stub(testcase.glyph_view, "hit_test")
+      hits.returns(Selection.create({indices: [10]}))
+      testcase.draw_tool_view._tap(make_tap_event(300, 300))
+      hits.returns(Selection.create({indices: [2]}))
+      testcase.draw_tool_view._tap(make_tap_event(300, 300, true))
+      expect(testcase.data_source.selected.indices).to.be.equal([2, 10])
+      testcase.draw_tool_view._keyup(make_key_event("Backspace"))
+      expect(testcase.data_source.get_array("xs")).to.be.equal(xs.filter((_, i) => i != 2 && i != 10))
+      expect(testcase.data_source.get_array("ys")).to.be.equal(ys.filter((_, i) => i != 2 && i != 10))
     })
 
     it("should delete selected on delete key", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
-      hit_test_stub.returns(new Selection({indices: [1]}))
+      hit_test_stub.returns(Selection.create({indices: [1]}))
 
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
@@ -133,7 +147,7 @@ describe("PolyDrawTool", (): void => {
     it("should clear selection on escape key", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
-      hit_test_stub.returns(new Selection({indices: [1]}))
+      hit_test_stub.returns(Selection.create({indices: [1]}))
 
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
@@ -151,7 +165,7 @@ describe("PolyDrawTool", (): void => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
-      hit_test_stub.returns(new Selection({indices: [1]}))
+      hit_test_stub.returns(Selection.create({indices: [1]}))
       const start_event = make_pan_event(300, 300)
       testcase.draw_tool_view._pan_start(start_event)
       const pan_event = make_pan_event(290, 290)
@@ -172,10 +186,10 @@ describe("PolyDrawTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       const start_event1 = make_tap_event(300, 300)
-      hit_test_stub.returns(new Selection({indices: [0]}))
+      hit_test_stub.returns(Selection.create({indices: [0]}))
       testcase.draw_tool_view._tap(start_event1)
       const start_event2 = make_pan_event(300, 300)
-      hit_test_stub.returns(new Selection({indices: [1]}))
+      hit_test_stub.returns(Selection.create({indices: [1]}))
       testcase.draw_tool_view._pan_start(start_event2)
       const pan_event = make_pan_event(290, 290)
       testcase.draw_tool_view._pan(pan_event)

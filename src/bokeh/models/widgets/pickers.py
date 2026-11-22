@@ -22,10 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
-# Bokeh imports
 from ...core.enums import CalendarPosition
 from ...core.has_props import HasProps, abstract
 from ...core.property.container import List, Tuple
@@ -60,10 +56,6 @@ __all__ = (
 class PickerBase(InputWidget):
     """ Base class for various kinds of picker widgets. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     position = Enum(CalendarPosition, default="auto", help="""
     Where the calendar is rendered relative to the input when ``inline`` is False.
     """)
@@ -75,10 +67,6 @@ class PickerBase(InputWidget):
 @abstract
 class TimeCommon(HasProps):
     """ Common properties for time-like picker widgets. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     hour_increment = Positive(Int)(default=1, help="""
     Defines the granularity of hour value incremements in the UI.
@@ -103,10 +91,6 @@ class TimeCommon(HasProps):
 
 class TimePicker(PickerBase, TimeCommon):
     """ Widget for picking time. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     value = Nullable(Time, default=None, help="""
     The initial or picked time.
@@ -139,10 +123,6 @@ class TimePicker(PickerBase, TimeCommon):
 @abstract
 class DateCommon(HasProps):
     """ Common properties for date-like picker widgets. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     disabled_dates = Nullable(List(Either(Date, Tuple(Date, Date))), default=None, help="""
     A list of dates of ``(start, end)`` date ranges to make unavailable for
@@ -190,10 +170,6 @@ class BaseDatePicker(PickerBase, DateCommon):
 
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     min_date = Nullable(Date, default=None, help="""
     Optional earliest allowable date.
     """)
@@ -207,10 +183,6 @@ class DatePicker(BaseDatePicker):
 
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     value = Nullable(Date, default=None, help="""
     The initial or picked date.
     """)
@@ -218,20 +190,12 @@ class DatePicker(BaseDatePicker):
 class DateRangePicker(BaseDatePicker):
     """ Calendar-based picker of date ranges. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     value = Nullable(Tuple(Date, Date), default=None, help="""
     The initial or picked date range.
     """)
 
 class MultipleDatePicker(BaseDatePicker):
     """ Calendar-based picker of dates. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     value = List(Date, default=[], help="""
     The initial or picked dates.
@@ -247,10 +211,6 @@ class BaseDatetimePicker(PickerBase, DateCommon, TimeCommon):
 
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     min_date = Nullable(Either(Datetime, Date), default=None, help="""
     Optional earliest allowable date and time.
     """)
@@ -259,16 +219,12 @@ class BaseDatetimePicker(PickerBase, DateCommon, TimeCommon):
     Optional latest allowable date and time.
     """)
 
-    date_format = Override(default="Y-m-d H:i")
+    _date_format = Override(DateCommon.date_format, default="Y-m-d H:i")
 
 class DatetimePicker(BaseDatetimePicker):
     """ Calendar-based date and time picker widget.
 
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     value = Nullable(Datetime, default=None, help="""
     The initial or picked date and time.
@@ -277,20 +233,12 @@ class DatetimePicker(BaseDatetimePicker):
 class DatetimeRangePicker(BaseDatetimePicker):
     """ Calendar-based picker of date and time ranges. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     value = Nullable(Tuple(Datetime, Datetime), default=None, help="""
     The initial or picked date and time range.
     """)
 
 class MultipleDatetimePicker(BaseDatetimePicker):
     """ Calendar-based picker of dates and times. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     value = List(Datetime, default=[], help="""
     The initial or picked dates and times.

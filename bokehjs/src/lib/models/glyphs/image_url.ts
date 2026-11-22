@@ -168,7 +168,7 @@ export class ImageURLView extends XYGlyphView {
     })
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<ImageURL.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<ImageURL.Data>): void {
     const {sx, sy, sw, sh, angle, global_alpha} = {...this, ...data}
     const {image, loaders, resolved} = this
 
@@ -296,10 +296,6 @@ export interface ImageURL extends ImageURL.Attrs {}
 export class ImageURL extends XYGlyph {
   declare properties: ImageURL.Props
   declare __view_type__: ImageURLView
-
-  constructor(attrs?: Partial<ImageURL.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = ImageURLView

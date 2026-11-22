@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=77", "setuptools-git-versioning", "colorama"]
+requires = ["setuptools>=77", "setuptools-git-versioning", "colorama", "jupyter-builder>=1,<2"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,15 +7,15 @@ name = "bokeh"
 dynamic = ["version"]
 description = "Interactive plots and applications in the browser from Python"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 dependencies = [
     "jinja2 >=2.9",
     "narwhals>=1.13",
-    "numpy >=1.16",
+    "numpy >=2.1",
     "packaging >=16.8",
     "pillow >=7.1.0",
     "pyyaml >=3.10",
-    "tornado >=6.2; sys_platform != 'emscripten'",
+    "tornado >=6.4.2; sys_platform != 'emscripten'",
     "xyzservices >=2021.09.1",
 ]
 authors = [
@@ -40,9 +40,9 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Programming Language :: JavaScript",
     "Topic :: Office/Business",
     "Topic :: Office/Business :: Financial",
@@ -55,7 +55,7 @@ classifiers = [
 
 [project.optional-dependencies]
 sampledata = [
-    "bokeh_sampledata >=2025.0",
+    "bokeh_sampledata >=2026.3",
 ]
 extra = [
     "contourpy >=1.2",
@@ -64,8 +64,12 @@ extra = [
 export = [
     "playwright >=1.49",
 ]
+notebook = [
+    "anywidget >=0.11",
+    "uvicorn[standard] >=0.30; sys_platform != 'emscripten'",
+]
 all = [
-    "bokeh[sampledata,extra,export]",
+    "bokeh[sampledata,extra,export,notebook]",
 ]
 
 [project.urls]
@@ -75,6 +79,9 @@ repository = "https://github.com/bokeh/bokeh"
 
 [project.scripts]
 bokeh = "bokeh.__main__:main"
+
+[project.entry-points."nbconvert.exporters"]
+bokeh = "bokeh.io.jupyter_export:BokehHTMLExporter"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -92,7 +99,6 @@ python_files = "*_tests.py *_test.py test_*.py"
 markers = [
     "free_threading: a concurrency test relevant to free-threaded Python",
     "sampledata: a test for bokeh.sampledata",
-    "selenium: a test as requiring selenium",
 ]
 filterwarnings = [
     "error",
@@ -100,19 +106,17 @@ filterwarnings = [
     '''ignore:Module already imported so cannot be rewritten. tests\.support\.plugins\.project:pytest.PytestAssertRewriteWarning''',
     '''ignore:Properties {'name'} in class ModelThatOverridesName were previously declared on a parent class\. .*:RuntimeWarning''',
     '''ignore:Jupyter is migrating its paths to use standard platformdirs.*:DeprecationWarning''',
-    '''ignore:'tile_providers module' was deprecated in Bokeh 3\.0\.0 and will be removed, use 'add_tile directly' instead:bokeh.util.warnings.BokehDeprecationWarning''',
+    '''ignore:'tile_providers module' was deprecated in Bokeh 3\.0\.0 and will be removed, use 'add_tile directly' instead:DeprecationWarning''',
     '''ignore:There is no current event loop:DeprecationWarning''',
     '''ignore:coroutine 'HTTPServer.close_all_connections' was never awaited:RuntimeWarning''',
     '''ignore:coroutine 'WebSocketProtocol13\.write_message\.<locals>\.wrapper' was never awaited:RuntimeWarning''',
     '''ignore:coroutine 'PeriodicCallback._run' was never awaited:RuntimeWarning''',
     '''ignore:make_current is deprecated; start the event loop first:DeprecationWarning''',
-    '''ignore:'get_provider' was deprecated in Bokeh 3\.0\.0 and will be removed, use 'add_tile directly' instead:bokeh.util.warnings.BokehDeprecationWarning''',
-    '''ignore:'HSL\(\)' was deprecated in Bokeh 2\.3\.1 and will be removed, use 'RGB\(\) or named colors' instead:bokeh.util.warnings.BokehDeprecationWarning''',
+    '''ignore:'get_provider' was deprecated in Bokeh 3\.0\.0 and will be removed, use 'add_tile directly' instead:DeprecationWarning''',
+    '''ignore:'HSL\(\)' was deprecated in Bokeh 2\.3\.1 and will be removed, use 'RGB\(\) or named colors' instead:DeprecationWarning''',
     '''ignore:elementwise comparison failed; returning scalar instead, but in the future will perform elementwise comparison:FutureWarning''',
-    '''ignore:HTTPResponse\.getheader\(\) is deprecated and will be removed in urllib3 v2\.1\.0\. .*:DeprecationWarning:selenium''',
     '''ignore:unclosed <socket.socket .*>:ResourceWarning''',
     '''ignore:unclosed event loop <.*>:ResourceWarning''',
-    '''ignore:move_to_element_with_offset\(\) currently tries to use the top left corner of the element as the origin; in Selenium 4\.3 it will use the in-view center point of the element as the origin\.:DeprecationWarning''',
     '''ignore:Using or importing the ABCs from 'collections' instead of from 'collections\.abc' is deprecated since Python 3\.3, and in 3\.10 it will stop working:DeprecationWarning:tornado''',
     '''ignore:Unknown config option. asyncio_mode:pytest.PytestConfigWarning''',
     '''ignore:zmq\.eventloop\.ioloop is deprecated in pyzmq 17\. pyzmq now works with default tornado and asyncio eventloops\.:DeprecationWarning:jupyter_client''',
@@ -134,11 +138,18 @@ filterwarnings = [
 [tool.coverage.run]
 source = ["src/bokeh"]
 omit = ["*/sampledata/*", "*/sphinxext/*", "*/tmp/tmp*.py"]
+patch = ["subprocess"]
+sigterm = true
 
 [tool.mypy]
-python_version = "3.12"
-mypy_path = "src/typings/"
-files = ["src/typings", "src/bokeh", "tools", "tests"]
+python_version = "3.13"
+mypy_path = "$MYPY_CONFIG_FILE_DIR/src/typings/"
+files = [
+    "$MYPY_CONFIG_FILE_DIR/src/typings",
+    "$MYPY_CONFIG_FILE_DIR/src/bokeh",
+    "$MYPY_CONFIG_FILE_DIR/tools",
+    "$MYPY_CONFIG_FILE_DIR/tests",
+]
 
 strict = true
 
@@ -156,7 +167,7 @@ warn_unreachable = true
 [tool.pyright]
 include = ["src/bokeh", "tools"]
 extraPaths = ["src", "src/typings"]
-pythonVersion = "3.12"
+pythonVersion = "3.13"
 typeCheckingMode = "standard"
 
 [tool.coverage.report]
@@ -171,8 +182,8 @@ lint.exclude = [
     ".git",
     'node_modules',
 ]
-lint.per-file-ignores = {"__init__.py" = ["F403"]}
-lint.select = ["B", "COM", "E", "F", "NPY", "PLC0414", "PT012", "RUF", "TID", "UP", "W"]
+lint.per-file-ignores = {"__init__.py" = ["F403"], "*.ipynb" = ["I"], "src/bokeh/sampledata/**" = ["I"]}
+lint.select = ["B", "COM", "E", "F", "I", "NPY", "PLC0414", "PT012", "RUF", "TID", "UP", "W"]
 lint.ignore = [
     'B005', # Using .strip() with multi-character strings is misleading the reader
     'B006', # Do not use mutable data structures for argument defaults
@@ -200,7 +211,42 @@ lint.ignore = [
     'RUF022', # Ruff uses weird "isort-style" sort rather than straigh alphabetic sort
     'TID252', # Prefer absolute imports over relative imports from parent modules
 ]
-line-length = 165
+# Used by import sorting (I001); E501 uses lint.pycodestyle.max-line-length instead.
+line-length = 88
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 165
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+known-first-party = ["bokeh"]
+known-third-party = [
+    "boto",
+    "ipyleaflet",
+    "ipyvolume",
+    "ipywidgets",
+    "ipywidgets_bokeh",
+    "jupyter_bokeh",
+    "mock",
+    "panel",
+    "sphinx",
+]
+known-local-folder = [
+    # tests
+    "_util_document",
+    "_util_models",
+    "_util_property",
+    "_util_subcommands",
+    "server",
+    # examples
+    "fontawesome_icon",
+    "gear",
+    "latex_label",
+    "named_icon",
+    "parallel_reset",
+    "parallel_selection_tool",
+    "streamlit_particles",
+]
 
 [tool.ruff.per-file-target-version]
 "examples/interaction/widgets/slider_template_string.py" = "py314"
@@ -208,37 +254,14 @@ line-length = 165
 # For now ignore each remaining untyped module individually.
 [[tool.mypy.overrides]]
 module = [
-    "bokeh.application.handlers.notebook",
-    "bokeh.layouts",
-    "bokeh.models.annotations.arrows",
-    "bokeh.models.annotations.geometry",
-    "bokeh.models.annotations.html.labels",
-    "bokeh.models.axes",
-    "bokeh.models.mappers",
-    "bokeh.models.plots",
-    "bokeh.models.tools",
-    "bokeh.models.util.structure",
-    "bokeh.plotting._figure",
-    "bokeh.plotting._geo_feature",
-    "bokeh.plotting._graph",
-    "bokeh.plotting._legends",
-    "bokeh.plotting._plot",
-    "bokeh.plotting._renderer",
-    "bokeh.plotting.contour",
-    "bokeh.plotting.graph",
-    "tests",
-    "tests.*",
+    "tests.cross.*",
+    "tests.unit.*",
+    "tests.integration.*",
 ]
 ignore_errors = true
 
 [[tool.mypy.overrides]]
 module = [
-    "tests.codebase.*",
-    "tests.support.defaults",
-    "tests.test_bokehjs",
-    "tests.test_cross",
-    "tests.test_defaults",
-    "tests.test_examples",
     "tests.unit.bokeh.test_typing",
     "tests.unit.bokeh.document.test_callbacks__document",
     "tests.unit.bokeh.embed.test_standalone",

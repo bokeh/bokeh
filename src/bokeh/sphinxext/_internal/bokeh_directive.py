@@ -21,11 +21,9 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 import re
 from typing import Any, cast
 
-# External imports
 from docutils import nodes
 from docutils.statemachine import ViewList
 from sphinx.util.docutils import SphinxDirective

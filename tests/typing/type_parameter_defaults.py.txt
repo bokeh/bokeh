@@ -1,0 +1,37 @@
+# Copyright (c) Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved. The full license is in the file LICENSE.txt.
+
+# mypy: disallow-any-generics=True
+# pyright: reportMissingTypeArgument=true
+from typing import Any, assert_type
+
+from bokeh.core.property.bases import (
+    ContainerProperty,
+    ParameterizedProperty,
+    PrimitiveProperty,
+    Property,
+    SingleParameterizedProperty,
+)
+from bokeh.core.property.vectorization import Value
+
+
+def defaults(
+    prop: Property,
+    parameterized: ParameterizedProperty,
+    single: SingleParameterizedProperty,
+    primitive: PrimitiveProperty,
+    container: ContainerProperty,
+    value: Value,
+) -> None:
+    assert_type(prop, Property[Any])
+    assert_type(parameterized, ParameterizedProperty[Any])
+    assert_type(single, SingleParameterizedProperty[Any])
+    assert_type(primitive, PrimitiveProperty[Any])
+    assert_type(container, ContainerProperty[Any])
+    assert_type(value.value, Any)
+
+
+assert_type(Property(default=1), Property[int])
+assert_type(Property[int](default=1).wrap(1), int)
+assert_type(Value(1), Value[int])
+assert_type(Value[str]("text").value, str)

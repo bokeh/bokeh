@@ -1,18 +1,26 @@
+''' Combine Streamlit controls with a browser-side Bokeh particle simulation.
+
+.. bokeh-example-metadata::
+    :title: Control a particle simulation from Streamlit
+    :keywords: app
+'''
+
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import AsyncGenerator
 
 import streamlit as st
 from starlette.routing import Mount
-from streamlit_particles.simulation import modify_document
 
 from bokeh.server.asgi import BokehASGI
+
+from streamlit_particles.simulation import modify_document
 
 bokeh_application = BokehASGI(modify_document)
 
 
 @asynccontextmanager
-async def lifespan(_app: st.App) -> AsyncGenerator[None, None]:
+async def lifespan(_app: st.App) -> AsyncGenerator[None]:
     # Mounted ASGI applications don't receive lifespan events, so the host
     # starts and stops Bokeh alongside Streamlit.
     await bokeh_application.core.start()

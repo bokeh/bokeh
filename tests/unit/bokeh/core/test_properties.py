@@ -8,21 +8,16 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 from operator import delitem, setitem
 
-# External imports
 import numpy as np
+import pytest
 
-# Bokeh imports
 from bokeh.core.has_props import HasProps, Local
 from bokeh.core.properties import (
     Alias,
@@ -126,6 +121,7 @@ ALL = (
     'PandasGroupBy',
     'Percent',
     'Positive',
+    'PropertyError',
     'RGB',
     'Readonly',
     'Regex',
@@ -148,8 +144,10 @@ ALL = (
     'Tuple',
     'TypeOfAttr',
     'UnsetValueError',
+    'ValidationError',
     'expr',
     'field',
+    'set_validation_default',
     'validate',
     'value',
     'without_property_validation',

@@ -1,3 +1,11 @@
+''' Stack line series vertically from columns of a shared data source.
+
+.. bokeh-example-metadata::
+    :title: Vline stack
+    :keywords: vline, stack
+    :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.vline_stack
+'''
+
 from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure, show
 

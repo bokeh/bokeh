@@ -33,7 +33,7 @@ describe("SizeBar annotation", () => {
   it("should support automatic renderer", async () => {
     const {p} = make_plot()
 
-    const size_bar = new SizeBar({renderer: "auto", orientation: "horizontal", width: "max", ...common})
+    const size_bar = SizeBar.create({renderer: "auto", orientation: "horizontal", width: "max", ...common})
     p.add_layout(size_bar, "below")
 
     await display(p)
@@ -42,7 +42,7 @@ describe("SizeBar annotation", () => {
   it("should support manual renderer", async () => {
     const {p, cr} = make_plot()
 
-    const size_bar = new SizeBar({renderer: cr, orientation: "horizontal", width: "max", ...common})
+    const size_bar = SizeBar.create({renderer: cr, orientation: "horizontal", width: "max", ...common})
     p.add_layout(size_bar, "below")
 
     await display(p)
@@ -51,7 +51,7 @@ describe("SizeBar annotation", () => {
   async function test(orientation: Orientation, side: Side, width: number, height: number) {
     const {p, cr} = make_plot({width, height})
 
-    const size_bar = new SizeBar({renderer: cr, orientation, ...common})
+    const size_bar = SizeBar.create({renderer: cr, orientation, ...common})
     p.add_layout(size_bar, side)
 
     await display(p)

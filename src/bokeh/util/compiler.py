@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import hashlib
 import json
 import os
@@ -39,7 +38,6 @@ from subprocess import PIPE, Popen
 from threading import Lock
 from typing import Any, Callable, Sequence
 
-# Bokeh imports
 from ..core.has_props import HasProps
 from ..settings import settings
 from .strings import snakify
@@ -83,6 +81,12 @@ class CompilationError(RuntimeError):
     ''' A ``RuntimeError`` subclass for reporting JS compilation errors.
 
     '''
+    line: str | None
+    column: str | None
+    message: str | None
+    text: str
+    annotated: str | None
+
     def __init__(self, error: dict[str, str] | str) -> None:
         super().__init__()
         if isinstance(error, dict):
@@ -92,13 +96,17 @@ class CompilationError(RuntimeError):
             self.text = error.get("text", "")
             self.annotated = error.get("annotated")
         else:
+            self.line = None
+            self.column = None
+            self.message = None
             self.text = error
+            self.annotated = None
 
     def __str__(self) -> str:
         return "\n" + self.text.strip()
 
-bokehjs_dir = settings.bokehjs_path()
-nodejs_min_version = (18, 0, 0)
+bokehjs_dir: Path = settings.bokehjs_path()
+nodejs_min_version: tuple[int, int, int] = (22, 0, 0)
 
 def nodejs_version() -> str | None:
     return _version(_run_nodejs)
@@ -107,7 +115,7 @@ def npmjs_version() -> str | None:
     return _version(_run_npmjs)
 
 def nodejs_compile(code: str, lang: str = "javascript", file: str | None = None) -> AttrDict:
-    compilejs_script = join(bokehjs_dir, "js", "compiler.js")
+    compilejs_script = join(bokehjs_dir, "js", "compiler.mjs")
     output = _run_nodejs([compilejs_script], dict(code=code, lang=lang, file=file, bokehjs_dir=os.fspath(bokehjs_dir)))
     lines = output.split("\n")
     i = 0
@@ -193,6 +201,9 @@ class FromFile(Implementation):
             The path to the file containing the extension source code
 
     '''
+    code: str
+    file: str | None
+
     def __init__(self, path: str) -> None:
         with open(path, encoding="utf-8") as f:
             self.code = f.read()
@@ -324,15 +335,10 @@ def bundle_models(models: Sequence[type[HasProps]] | None) -> str | None:
         return future.result()
 
     try:
-        try:
-            # npm installation and module resolution use shared process state,
-            # so distinct bundles are compiled serially.
-            with _bundle_compile_lock:
-                bundle = _bundle_models(custom_models)
-        except CompilationError as error:
-            print("Compilation failed:", file=sys.stderr)
-            print(str(error), file=sys.stderr)
-            sys.exit(1)
+        # npm installation and module resolution use shared process state,
+        # so distinct bundles are compiled serially.
+        with _bundle_compile_lock:
+            bundle = _bundle_models(custom_models)
     except BaseException as error:
         with _bundle_cache_lock:
             del _bundle_futures[key]
@@ -383,7 +389,7 @@ _plugin_template = \
 """\
 %(prelude)s\
 ({
-  "custom/main": function(require, module, exports) {
+  "%(entry)s": function(require, module, exports) {
     const models = {
       %(exports)s
     };
@@ -391,7 +397,7 @@ _plugin_template = \
     module.exports = models;
   },
   %(modules)s
-}, "custom/main");
+}, "%(entry)s");
 """
 
 _style_template = \
@@ -414,7 +420,7 @@ _export_template = \
 """"%(name)s": require("%(module)s").%(name)s"""
 
 _module_template = \
-""""%(module)s": function(require, module, exports) {\n%(source)s\n}"""
+""""%(module)s": function(require, module, exports, __esModule, __esExport) {\n%(source)s\n}"""
 
 def _detect_nodejs() -> Path:
     nodejs_path = settings.nodejs_path()
@@ -531,11 +537,13 @@ def _compile_models(custom_models: dict[str, CustomModel]) -> dict[str, AttrDict
 
 def _bundle_models(custom_models: dict[str, CustomModel]) -> str:
     """ Create a JavaScript bundle with selected `models`. """
+    entry = f"custom/main/{calc_cache_key(custom_models)}"
     exports = []
     modules = []
 
     lib_dir = Path(bokehjs_dir) / "js" / "lib"
-    known_modules: set[str] = set()
+    # bokehjs' bundle provides tslib, which modules converted from ESM may require
+    known_modules: set[str] = {"tslib"}
 
     for path in lib_dir.rglob("*.d.ts"):
         s = str(path.relative_to(lib_dir))
@@ -620,7 +628,9 @@ def _bundle_models(custom_models: dict[str, CustomModel]) -> str:
     rendered_exports = sep.join(_export_template % dict(name=name, module=module) for (name, module) in exports)
     rendered_modules = sep.join(_module_template % dict(module=module, source=code) for (module, code) in bare_modules)
 
-    content = _plugin_template % dict(prelude=_plugin_prelude, exports=rendered_exports, modules=rendered_modules)
+    content = _plugin_template % dict(
+        prelude=_plugin_prelude, entry=entry, exports=rendered_exports, modules=rendered_modules,
+    )
     return _plugin_umd % dict(content=content)
 
 #-----------------------------------------------------------------------------

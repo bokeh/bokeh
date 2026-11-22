@@ -112,7 +112,7 @@ export class MultiPolygonsView extends GlyphView {
     })
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<MultiPolygons.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<MultiPolygons.Data>): void {
     if (!this.visuals.fill.doit && !this.visuals.line.doit) {
       return
     }
@@ -210,7 +210,7 @@ export class MultiPolygonsView extends GlyphView {
         indices.push(i)
       }
     }
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_rect(geometry: HitTestRect): Selection {
@@ -261,7 +261,7 @@ export class MultiPolygonsView extends GlyphView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   private _get_snap_coord(array: Arrayable<number>): number {
@@ -345,10 +345,6 @@ export interface MultiPolygons extends MultiPolygons.Attrs {}
 export class MultiPolygons extends Glyph {
   declare properties: MultiPolygons.Props
   declare __view_type__: MultiPolygonsView
-
-  constructor(attrs?: Partial<MultiPolygons.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = MultiPolygonsView

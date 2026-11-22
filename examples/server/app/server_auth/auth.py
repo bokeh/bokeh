@@ -1,4 +1,4 @@
-'''
+''' Demonstrate how authentication hooks fit together in a Bokeh server app.
 
 Bokeh server authentication hooks are building blocks that can be used by
 experienced users to implement any authentication flow they require. This
@@ -9,6 +9,10 @@ consider a higher level tool, such as Panel:
 
     https://panel.holoviz.org/user_guide/Authentication.html
 
+.. bokeh-example-metadata::
+    :title: Auth
+    :keywords: auth
+    :no-index:
 '''
 import tornado
 from tornado.web import RequestHandler

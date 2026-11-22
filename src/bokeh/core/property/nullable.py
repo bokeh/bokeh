@@ -18,12 +18,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import TYPE_CHECKING, Any
 
-# Bokeh imports
 from ._sphinx import property_link, register_type_link, type_link
 from .bases import SingleParameterizedProperty
+from .exceptions import PropertyError, ValidationError
 
 if TYPE_CHECKING:
     from .bases import Init, Property, TypeOrInst
@@ -40,13 +39,13 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Nullable[T](SingleParameterizedProperty[T | None]):
+class Nullable[GetType, SetType = GetType](SingleParameterizedProperty[GetType | None, SetType | None]):
     """ A property accepting ``None`` or a value of some other type. """
 
-    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T | None] = None, help: str | None = None) -> None:
+    def __init__(self, type_param: TypeOrInst[Property[GetType, SetType]], *, default: Init[SetType | None] = None, help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
 
-    def transform(self, value: Any) -> T | None:
+    def transform(self, value: Any) -> GetType | None:
         return None if value is None else super().transform(value)
 
     def wrap(self, value: Any) -> Any:
@@ -58,13 +57,13 @@ class Nullable[T](SingleParameterizedProperty[T | None]):
 
         try:
             super().validate(value, detail=False)
-        except ValueError:
+        except PropertyError:
             pass
         else:
             return
 
         msg = "" if not detail else f"expected either None or a value of type {self.type_param}, got {value!r}"
-        raise ValueError(msg)
+        raise ValidationError(msg)
 
 #-----------------------------------------------------------------------------
 # Dev API

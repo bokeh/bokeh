@@ -1,3 +1,11 @@
+''' Draw separate line segments with explicit start and end coordinates.
+
+.. bokeh-example-metadata::
+    :title: Independent line segments
+    :keywords: segment
+    :apis: bokeh.plotting.figure.segment
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

@@ -13,12 +13,13 @@ import {logger} from "core/logging"
 import type {Geometry} from "core/geometry"
 import {tool_icon_wheel_zoom} from "styles/icons.css"
 import {Enum, List, Ref, Or, Auto} from "core/kinds"
+import type {Infer} from "core/kinds"
 
 const ZoomTogether = Enum("none", "cross", "all")
-type ZoomTogether = typeof ZoomTogether["__type__"]
+type ZoomTogether = Infer<typeof ZoomTogether>
 
 const Renderers = Or(List(Ref(DataRenderer)), Auto)
-type Renderers = typeof Renderers["__type__"]
+type Renderers = Infer<typeof Renderers>
 
 export class WheelZoomToolView extends GestureToolView {
   declare model: WheelZoomTool
@@ -186,7 +187,7 @@ export class WheelZoomToolView extends GestureToolView {
           subcoord[dim] = true
           scale = scale.source_scale
         } else {
-          logger.warn(`can't reach sub-coordinate level ${level} for ${scale} in ${dim} dimension; stopped at ${i}`)
+          logger.warn(`can't reach sub-coordinate level ${level} for ${scale} in ${dim} dimension. Stopped at ${i}`)
           break
         }
       }
@@ -266,10 +267,6 @@ export class WheelZoomTool extends GestureTool {
   declare properties: WheelZoomTool.Props
   declare __view_type__: WheelZoomToolView
 
-  constructor(attrs?: Partial<WheelZoomTool.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = WheelZoomToolView
 
@@ -287,9 +284,6 @@ export class WheelZoomTool extends GestureTool {
       modifiers:      [ Modifiers, {} ],
     }))
 
-    this.register_alias("wheel_zoom", () => new WheelZoomTool({dimensions: "both"}))
-    this.register_alias("xwheel_zoom", () => new WheelZoomTool({dimensions: "width"}))
-    this.register_alias("ywheel_zoom", () => new WheelZoomTool({dimensions: "height"}))
   }
 
   override tool_name = "Wheel Zoom"

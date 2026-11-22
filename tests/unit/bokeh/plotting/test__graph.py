@@ -8,15 +8,13 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+import pytest
 
-# Bokeh imports
 from bokeh.core.properties import field
 from bokeh.models import ColumnDataSource, MultiLine, Scatter
 
@@ -90,6 +88,30 @@ class Test_get_graph_kwargs:
         node_glyph = kw['node_renderer'].glyph
         assert isinstance(node_glyph, Scatter)
         assert node_glyph.marker == field('marker')
+
+    def test_handle_node_marker_field_dict(self) -> None:
+        node_source = {'marker': ['square', 'circle', 'x']}
+
+        kw = bpg.get_graph_kwargs(node_source, {}, node_marker={'field': 'marker'})
+
+        node_glyph = kw['node_renderer'].glyph
+        assert isinstance(node_glyph, Scatter)
+        assert node_glyph.marker == field('marker')
+
+    def test_handle_prefixed_glyph_properties(self) -> None:
+        kw = bpg.get_graph_kwargs({}, {}, node_name="nodes", edge_name="edges")
+
+        assert kw['node_renderer'].glyph.name == "nodes"
+        assert kw['edge_renderer'].glyph.name == "edges"
+
+    def test_ignore_unprefixed_glyph_properties(self) -> None:
+        kw = bpg.get_graph_kwargs({}, {}, name="graph", tags=["graph"])
+
+        assert kw['name'] == "graph"
+        assert kw['node_renderer'].glyph.name is None
+        assert kw['node_renderer'].glyph.tags == []
+        assert kw['edge_renderer'].glyph.name is None
+        assert kw['edge_renderer'].glyph.tags == []
 
     def test_handle_edge_property_mixins(self) -> None:
         kwargs = dict(edge_line_color="purple", edge_selection_line_color="blue",

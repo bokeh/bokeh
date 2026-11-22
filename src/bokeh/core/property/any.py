@@ -23,10 +23,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import typing
 
-# Bokeh imports
 from .bases import Property
 
 #-----------------------------------------------------------------------------

@@ -28,12 +28,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
-# Bokeh imports
 from ...core.has_props import abstract
-from ...core.property.primitive import Bool, String
+from ...core.property.primitive import Bool
+from ...core.property.string import MathString
 from .widget import Widget
 
 #-----------------------------------------------------------------------------
@@ -63,11 +60,7 @@ class Markup(Widget):
     .. _`TeX and LaTeX input`: https://docs.mathjax.org/en/latest/basic/mathematics.html#tex-and-latex-input
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
-    text = String(default="", help="""
+    text = MathString(default="", help="""
     The text or HTML contents of the widget.
 
     .. note::
@@ -95,10 +88,6 @@ class Paragraph(Markup):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     __example__ = "examples/interaction/widgets/paragraph.py"
 
 class Div(Markup):
@@ -106,10 +95,6 @@ class Div(Markup):
 
     This Bokeh model corresponds to an HTML ``<div>`` element.
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     __example__ = "examples/interaction/widgets/div.py"
 
@@ -124,10 +109,6 @@ class PreText(Paragraph):
     This Bokeh model corresponds to an HTML ``<pre>`` element.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     __example__ = "examples/interaction/widgets/pretext.py"
 

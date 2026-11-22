@@ -3,10 +3,16 @@ import type * as visuals from "core/visuals"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import * as p from "core/properties"
 import type {Context2d} from "core/util/canvas"
+import type {MarkingGeometry} from "../graphics/marking"
+
+export function auto_arrowhead(): OpenHead {
+  return OpenHead.create({inherit_visuals: ["line_color", "line_alpha", "line_width"]})
+}
 
 export abstract class ArrowHeadView extends MarkingView implements visuals.Paintable {
-  // This method should not begin or close a path
-  abstract clip(ctx: Context2d, i: number): void
+  override line_extent(i: number): number {
+    return this.size.get(i)
+  }
 }
 
 export namespace ArrowHead {
@@ -25,10 +31,6 @@ export abstract class ArrowHead extends Marking {
   declare properties: ArrowHead.Props
   declare __view_type__: ArrowHeadView
 
-  constructor(attrs?: Partial<ArrowHead.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<ArrowHead.Props>(() => ({
       size: [ p.NumberSpec, 25 ],
@@ -37,18 +39,20 @@ export abstract class ArrowHead extends Marking {
 }
 
 export class OpenHeadView extends ArrowHeadView {
+  override line_extent(_i: number): number {
+    return 0
+  }
+
   declare model: OpenHead
   declare visuals: OpenHead.Visuals
 
-  clip(ctx: Context2d, i: number): void {
-    this.visuals.line.set_vectorize(ctx, i)
+  override hit_geometry(i: number): MarkingGeometry {
     const size_i = this.size.get(i)
-    ctx.moveTo(0.5*size_i, size_i)
-    ctx.lineTo(0.5*size_i, -2)
-    ctx.lineTo(-0.5*size_i, -2)
-    ctx.lineTo(-0.5*size_i, size_i)
-    ctx.lineTo(0, 0)
-    ctx.lineTo(0.5*size_i, size_i)
+    return {
+      type: "polyline",
+      x: [0.5*size_i, 0, -0.5*size_i],
+      y: [size_i, 0, size_i],
+    }
   }
 
   paint(ctx: Context2d, i: number): void {
@@ -77,10 +81,6 @@ export class OpenHead extends ArrowHead {
   declare properties: OpenHead.Props
   declare __view_type__: OpenHeadView
 
-  constructor(attrs?: Partial<OpenHead.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = OpenHeadView
 
@@ -92,14 +92,13 @@ export class NormalHeadView extends ArrowHeadView {
   declare model: NormalHead
   declare visuals: NormalHead.Visuals
 
-  clip(ctx: Context2d, i: number): void {
-    this.visuals.line.set_vectorize(ctx, i)
+  override hit_geometry(i: number): MarkingGeometry {
     const size_i = this.size.get(i)
-    ctx.moveTo(0.5*size_i, size_i)
-    ctx.lineTo(0.5*size_i, -2)
-    ctx.lineTo(-0.5*size_i, -2)
-    ctx.lineTo(-0.5*size_i, size_i)
-    ctx.lineTo(0.5*size_i, size_i)
+    return {
+      type: "polygon",
+      x: [0.5*size_i, 0, -0.5*size_i],
+      y: [size_i, 0, size_i],
+    }
   }
 
   paint(ctx: Context2d, i: number): void {
@@ -132,10 +131,6 @@ export class NormalHead extends ArrowHead {
   declare properties: NormalHead.Props
   declare __view_type__: NormalHeadView
 
-  constructor(attrs?: Partial<NormalHead.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = NormalHeadView
 
@@ -148,18 +143,20 @@ export class NormalHead extends ArrowHead {
 }
 
 export class VeeHeadView extends ArrowHeadView {
+  override line_extent(i: number): number {
+    return 0.5*this.size.get(i)
+  }
+
   declare model: VeeHead
   declare visuals: VeeHead.Visuals
 
-  clip(ctx: Context2d, i: number): void {
-    this.visuals.line.set_vectorize(ctx, i)
+  override hit_geometry(i: number): MarkingGeometry {
     const size_i = this.size.get(i)
-    ctx.moveTo(0.5*size_i, size_i)
-    ctx.lineTo(0.5*size_i, -2)
-    ctx.lineTo(-0.5*size_i, -2)
-    ctx.lineTo(-0.5*size_i, size_i)
-    ctx.lineTo(0, 0.5*size_i)
-    ctx.lineTo(0.5*size_i, size_i)
+    return {
+      type: "polygon",
+      x: [0.5*size_i, 0, -0.5*size_i, 0],
+      y: [size_i, 0, size_i, 0.5*size_i],
+    }
   }
 
   paint(ctx: Context2d, i: number): void {
@@ -193,10 +190,6 @@ export class VeeHead extends ArrowHead {
   declare properties: VeeHead.Props
   declare __view_type__: VeeHeadView
 
-  constructor(attrs?: Partial<VeeHead.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = VeeHeadView
 
@@ -212,6 +205,19 @@ export class TeeHeadView extends ArrowHeadView {
   declare model: TeeHead
   declare visuals: TeeHead.Visuals
 
+  override line_extent(_i: number): number {
+    return 0
+  }
+
+  override hit_geometry(i: number): MarkingGeometry {
+    const size_i = this.size.get(i)
+    return {
+      type: "polyline",
+      x: [0.5*size_i, -0.5*size_i],
+      y: [0, 0],
+    }
+  }
+
   paint(ctx: Context2d, i: number): void {
     const size_i = this.size.get(i)
     ctx.beginPath()
@@ -219,8 +225,6 @@ export class TeeHeadView extends ArrowHeadView {
     ctx.lineTo(-0.5*size_i, 0)
     this.visuals.line.apply(ctx, i)
   }
-
-  clip(_ctx: Context2d, _i: number): void {}
 }
 
 export namespace TeeHead {
@@ -238,10 +242,6 @@ export interface TeeHead extends TeeHead.Attrs {}
 export class TeeHead extends ArrowHead {
   declare properties: TeeHead.Props
   declare __view_type__: TeeHeadView
-
-  constructor(attrs?: Partial<TeeHead.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = TeeHeadView

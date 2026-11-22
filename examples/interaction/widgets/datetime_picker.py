@@ -1,3 +1,11 @@
+''' Select a date and time in one widget.
+
+.. bokeh-example-metadata::
+    :title: Datetime picker
+    :keywords: datetime, picker
+    :apis: bokeh.models.CustomJS, bokeh.models.DatetimePicker
+'''
+
 from bokeh.io import show
 from bokeh.models import CustomJS, DatetimePicker
 

@@ -21,7 +21,7 @@ export class CircleView extends RadialGlyphView {
     return CircleGL
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Circle.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<Circle.Data>): void {
     const {sx, sy, sradius} = {...this, ...data}
 
     for (const i of indices) {
@@ -91,7 +91,7 @@ export class CircleView extends RadialGlyphView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_span(geometry: SpanGeometry): Selection {
@@ -119,7 +119,7 @@ export class CircleView extends RadialGlyphView {
     })()
 
     const indices = [...this.index.indices({x0, x1, y0, y1})]
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_rect(geometry: RectGeometry): Selection {
@@ -133,12 +133,12 @@ export class CircleView extends RadialGlyphView {
     for (const i of candidates) {
       const sx_i = this.sx[i]
       const sy_i = this.sy[i]
-      if (sx0 <= sx_i && sx_i <= sx1 && sy0 <= sy_i && sy_i <= sy1) {
+      if (hittest.point_in_rect({x: sx_i, y: sy_i}, geometry)) {
         indices.push(i)
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected override _hit_poly(geometry: PolyGeometry): Selection {
@@ -160,7 +160,7 @@ export class CircleView extends RadialGlyphView {
       }
     }
 
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 }
 
@@ -181,10 +181,6 @@ export interface Circle extends Circle.Attrs {}
 export class Circle extends RadialGlyph {
   declare properties: Circle.Props
   declare __view_type__: CircleView
-
-  constructor(attrs?: Partial<Circle.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = CircleView

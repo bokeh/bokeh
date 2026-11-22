@@ -8,15 +8,11 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Bokeh imports
 from bokeh.colors import named
 from bokeh.palettes import __palettes__
 from tests.support.util.api import verify_all
@@ -32,6 +28,7 @@ ALL = (
     'Align',
     'AlternationPolicy',
     'Anchor',
+    'AngleReference',
     'AngleUnits',
     'Auto',
     'AutosizeMode',
@@ -88,10 +85,12 @@ ALL = (
     'Resizable',
     'ResolutionType',
     'RoundingFunction',
+    'SIPrefix',
     'ScrollbarPolicy',
     'SelectionMode',
     'SizingMode',
     'SizingPolicy',
+    'SliderAppearance',
     'SortDirection',
     'SpatialUnits',
     'StartEnd',
@@ -330,6 +329,9 @@ class Test_bce:
     def test_RoundingFunction(self) -> None:
         assert tuple(bce.RoundingFunction) == ("round", "nearest", "floor", "rounddown", "ceil", "roundup")
 
+    def test_SIPrefix(self) -> None:
+        assert tuple(bce.SIPrefix) == ("Q", "R", "Y", "Z", "E", "P", "T", "G", "M", "k", "m", "µ", "n", "p", "f", "a", "z", "y", "r", "q")
+
     def test_RadiusDimension(self) -> None:
         assert tuple(bce.RadiusDimension) == ("x", "y", "max", "min")
 
@@ -341,6 +343,9 @@ class Test_bce:
 
     def test_SizingMode(self) -> None:
         assert tuple(bce.SizingMode) == ("stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed", "inherit")
+
+    def test_SliderAppearance(self) -> None:
+        assert tuple(bce.SliderAppearance) == ("normal", "stealth")
 
     def test_SortDirection(self) -> None:
         assert tuple(bce.SortDirection) == ("ascending", "descending")

@@ -22,10 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
-# Bokeh imports
 from ...core.enums import Anchor, TooltipAttachment
 from ...core.property.auto import Auto
 from ...core.property.container import Tuple
@@ -58,11 +54,7 @@ class Tooltip(UIElement):
 
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
-    visible = Override(default=False)
+    _visible = Override(default=False)
 
     position = Nullable(Either(Enum(Anchor), Tuple(Float, Float), Instance(Coordinate)), default=None, help="""
     The position of the tooltip with respect to its parent. It can be either

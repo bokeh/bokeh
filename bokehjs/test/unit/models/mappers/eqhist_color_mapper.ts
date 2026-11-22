@@ -1,6 +1,7 @@
 import {expect} from "#framework/assertions"
 
 import {EqHistColorMapper} from "@bokehjs/models/mappers/eqhist_color_mapper"
+import {sorted} from "@bokehjs/core/util/array"
 
 describe("EqHistColorMapper module", () => {
 
@@ -9,7 +10,7 @@ describe("EqHistColorMapper module", () => {
     function scan_check(values: number[], expected_binning: number[], ncolors: number = 3, rescale_discrete_levels: boolean = false, low_cutoff_index: number = 0) {
       const n = values.length
       const palette = new Array(ncolors).fill("red")  // Colors not used but needed for constructor
-      const color_mapper = new EqHistColorMapper({palette, rescale_discrete_levels})
+      const color_mapper = EqHistColorMapper.create({palette, rescale_discrete_levels})
       const scan = color_mapper.scan(values, ncolors)
 
       let {binning} = scan
@@ -23,13 +24,13 @@ describe("EqHistColorMapper module", () => {
         binning = cutoff_binning
       }
 
-      const sorted = values.sort()
+      const sorted_values = sorted(values)
       if (rescale_discrete_levels) {
         expect(scan.min).to.be.similar(expected_binning[0], 1e-6)
       } else {
-        expect(scan.min).to.be.equal(sorted[0])
+        expect(scan.min).to.be.equal(sorted_values[0])
       }
-      expect(scan.max).to.be.equal(sorted[n-1])
+      expect(scan.max).to.be.equal(sorted_values[n-1])
 
       expect(binning).to.be.similar(expected_binning, 1e-6)
     }

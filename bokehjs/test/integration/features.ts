@@ -1,8 +1,7 @@
 import {display, fig} from "#framework/layouts"
-import {PlotActions, xy} from "#framework/interactive"
+import {PlotActions, xy, show_context_menu} from "#framework/interactive"
 
 import {PanTool, SaveTool, CrosshairTool, Span, GridBox, Row, Pane, Slope, GridPlot} from "@bokehjs/models"
-import {paint} from "@bokehjs/core/util/defer"
 import {range} from "@bokehjs/core/util/array"
 import {Random} from "@bokehjs/core/util/random"
 import type {IconLike} from "@bokehjs/models/common/kinds"
@@ -48,16 +47,16 @@ describe("Feature", () => {
 
     it("should allow customizing tool icons", async () => {
       const tools = [
-        new PanTool({icon: null, dimensions: "both"}),
-        new PanTool({icon: null, dimensions: "width"}),
-        new PanTool({icon: null, dimensions: "height"}),
-        new PanTool({icon: both, dimensions: "both"}),
-        new PanTool({icon: width, dimensions: "width"}),
-        new PanTool({icon: height, dimensions: "height"}),
-        new PanTool({icon: "--pan-tool-custom-icon-both", dimensions: "both"}),
-        new PanTool({icon: "--pan-tool-custom-icon-width", dimensions: "width"}),
-        new PanTool({icon: "--pan-tool-custom-icon-height", dimensions: "height"}),
-        new SaveTool({icon: "copy"}),
+        PanTool.create({icon: null, dimensions: "both"}),
+        PanTool.create({icon: null, dimensions: "width"}),
+        PanTool.create({icon: null, dimensions: "height"}),
+        PanTool.create({icon: both, dimensions: "both"}),
+        PanTool.create({icon: width, dimensions: "width"}),
+        PanTool.create({icon: height, dimensions: "height"}),
+        PanTool.create({icon: "--pan-tool-custom-icon-both", dimensions: "both"}),
+        PanTool.create({icon: "--pan-tool-custom-icon-width", dimensions: "width"}),
+        PanTool.create({icon: "--pan-tool-custom-icon-height", dimensions: "height"}),
+        SaveTool.create({icon: "copy"}),
       ]
 
       const p = fig([400, 100], {toolbar_location: "above", tools})
@@ -80,7 +79,6 @@ describe("Feature", () => {
       const p = fig([300, 300], {tools: ["box_zoom", "reset"], toolbar_location: "right"})
       p.circle({x: [1, 2, 3, 4], y: [1, 2, 3, 4], radius: [0.25, 0.50, 0.75, 1.00], fill_alpha: 0.8})
       const {view} = await display(p)
-      await paint()
 
       const actions = new PlotActions(view)
       await actions.pan(xy(1, 1), xy(4, 4))
@@ -91,11 +89,11 @@ describe("Feature", () => {
 
   describe("in issue #3799", () => {
     it("should allow to linked crosshairs", async () => {
-      const width = new Span({dimension: "width", line_dash: "dashed"})
-      const height = new Span({dimension: "height", line_dash: "dotted"})
+      const width = Span.create({dimension: "width", line_dash: "dashed"})
+      const height = Span.create({dimension: "height", line_dash: "dotted"})
 
-      const tool0 = new CrosshairTool({overlay: [width, height]})
-      const tool1 = new CrosshairTool({overlay: [width, height]})
+      const tool0 = CrosshairTool.create({overlay: [width, height]})
+      const tool1 = CrosshairTool.create({overlay: [width, height]})
 
       const p0 = fig([200, 400], {tools: [tool0], toolbar_location: "above"})
       p0.circle({x: [1, 2, 3, 4], y: [1, 2, 3, 4], radius: [0.25, 0.50, 0.75, 1.00], fill_alpha: 0.8})
@@ -103,7 +101,7 @@ describe("Feature", () => {
       const p1 = fig([400, 200], {tools: [tool1], toolbar_location: "right"})
       p1.circle({x: [1, 2, 3, 4], y: [1, 2, 3, 4], radius: [0.25, 0.50, 0.75, 1.00], fill_alpha: 0.8})
 
-      const grid = new GridBox({
+      const grid = GridBox.create({
         children: [
           [p0, 0, 0],
           [p1, 1, 1],
@@ -113,7 +111,6 @@ describe("Feature", () => {
       })
 
       const {view} = await display(grid)
-      await paint()
 
       const pv0 = view.owner.get_one(p0)
 
@@ -130,10 +127,9 @@ describe("Feature", () => {
       const p1 = fig([200, 200], {sizing_mode: "inherit"})
       p1.scatter([1, 2, 3], [1, 2, 3], {color: "green"})
 
-      const row = new Row({children: [p0, p1], sizing_mode: "stretch_width"})
-      const pane = new Pane({elements: [row], styles: {width: "500px", height: "250px"}})
+      const row = Row.create({children: [p0, p1], sizing_mode: "stretch_width"})
+      const pane = Pane.create({elements: [row], styles: {width: "500px", height: "250px"}})
       const {view} = await display(pane, [650, 300])
-      await paint()
 
       pane.styles = {width: "600px", height: "250px"}
       await view.ready
@@ -150,7 +146,7 @@ describe("Feature", () => {
       const p = fig([200, 200], {x_range, y_range})
       p.scatter(xs, ys, {size: 6, alpha: 0.6, fill_color: null})
 
-      const slope = new Slope({
+      const slope = Slope.create({
         gradient,
         y_intercept,
         line_color: "gray", line_dash: "dashed", line_width: 3,
@@ -178,7 +174,7 @@ describe("Feature", () => {
       const p14 = plot(+0.5, 10, [ 0, 20], [25, 50])
       const p15 = plot(-0.5, 10, [ 0, 20], [10, 35])
 
-      const gp = new GridPlot({
+      const gp = GridPlot.create({
         toolbar_location: null,
         children: [
           [p00, 0, 0], [p01, 0, 1], [p02, 0, 2], [p03, 0, 3], [p04, 0, 4], [p05, 0, 5],
@@ -202,10 +198,7 @@ describe("Feature", () => {
 
       const {view} = await display(p)
 
-      // can't simply dispatchEvent() because of browser security
-      const {left, top} = view.el.getBoundingClientRect()
-      const event = new MouseEvent("contextmenu", {clientX: left + 50, clientY: top + 50})
-      view.show_context_menu(event)
+      show_context_menu(view, 50, 50)
     })
   })
 })

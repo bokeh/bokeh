@@ -8,19 +8,14 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 from itertools import chain
 from typing import TYPE_CHECKING
 
-# Bokeh imports
 from bokeh.core.enums import LineCap, LineJoin, NamedColor as Color
 from bokeh.core.property.vectorization import value
 
@@ -58,8 +53,10 @@ BACKGROUND_HATCH = [f"background_{name}" for name in HATCH]
 
 ANGLE = ["angle", "angle_units"]
 
-PROPS = ["name", "tags", "js_property_callbacks", "js_event_callbacks", "subscribed_events", "syncable"]
-GLYPH = ["decorations"]
+PROPS = [
+    "name", "tags", "_js_property_callbacks", "_js_property_callback_policies",
+    "_js_event_callbacks", "_subscribed_events", "_subscribed_changes", "syncable",
+]
 
 MARKER = ["x", "y", "size", "angle", "angle_units", "hit_dilation"]
 
@@ -97,7 +94,8 @@ def check_line_properties(model: HasProps, prefix: str = "", line_color: str | N
     assert getattr(model, prefix + "line_alpha") == line_alpha
     assert getattr(model, prefix + "line_join") == LineJoin.bevel
     assert getattr(model, prefix + "line_cap") == LineCap.butt
-    assert getattr(model, prefix + "line_dash") == []
+    # Spec properties keep "solid"; scalar DashPattern transforms it to [].
+    assert getattr(model, prefix + "line_dash") in ("solid", [])
     assert getattr(model, prefix + "line_dash_offset") == 0
 
 def check_text_properties(model: HasProps, prefix: str = "", font_size: str = '16px', baseline: str = 'bottom',

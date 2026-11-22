@@ -21,12 +21,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from types import SimpleNamespace
 from typing import Any
 
-# Bokeh imports
 from .bases import ParameterizedProperty, Property
+from .exceptions import ValidationError
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -45,7 +44,7 @@ class Optional[T]:
     def __init__(self, type_param: Property[T]):
         self.type_param = type_param
 
-class Struct[T](ParameterizedProperty[T]):
+class Struct[T](ParameterizedProperty[T, T]):
     """ Accept values that are structures.
 
     """
@@ -103,7 +102,7 @@ class Struct[T](ParameterizedProperty[T]):
                     return
 
         msg = "" if not detail else f"expected an element of {self}, got {value!r}"
-        raise ValueError(msg)
+        raise ValidationError(msg)
 
     def __str__(self) -> str:
         class_name = self.__class__.__name__

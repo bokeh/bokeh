@@ -1,10 +1,24 @@
+''' Position scale bars on a plot of simulated EEG and position channels.
+
+.. bokeh-example-metadata::
+    :title: Scale bar positioning
+    :keywords: scale, bar, positioning
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.FactorRange, bokeh.models.Metric, bokeh.models.Range1d, bokeh.models.ScaleBar
+'''
+
 import numpy as np
 
 from bokeh.core.properties import field
 from bokeh.io import show
 from bokeh.layouts import column
-from bokeh.models import (ColumnDataSource, FactorRange, Metric,
-                          Range1d, ScaleBar, WheelZoomTool)
+from bokeh.models import (
+    ColumnDataSource,
+    FactorRange,
+    Metric,
+    Range1d,
+    ScaleBar,
+    WheelZoomTool,
+)
 from bokeh.palettes import Category10
 from bokeh.plotting import figure
 

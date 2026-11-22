@@ -22,10 +22,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
+# Public constructor types live in the stubs; declarations below cover local calls.
+from typing import TYPE_CHECKING, Any
 
-# Bokeh imports
 from ..colors import RGB, Color, ColorLike
 from ..core.enums import (
     Align,
@@ -38,7 +37,7 @@ from ..core.enums import (
 )
 from ..core.has_props import HasProps, abstract
 from ..core.property.auto import Auto
-from ..core.property.container import List, Tuple
+from ..core.property.container import List, Seq, Tuple
 from ..core.property.either import Either
 from ..core.property.enum import Enum
 from ..core.property.instance import Instance
@@ -100,10 +99,6 @@ class LayoutDOM(Pane):
     """ The base class for layoutable components.
 
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     disabled = Bool(False, help="""
     Whether the widget will be disabled when rendered.
@@ -330,7 +325,7 @@ class LayoutDOM(Pane):
         if not (min_height <= height <= max_height):
             return str(self)
 
-    def _sphinx_height_hint(self) -> int|None:
+    def _sphinx_height_hint(self) -> int | None:
         if self.sizing_mode in ("stretch_width", "fixed", None):
             return self.height
         return None
@@ -339,10 +334,6 @@ class Spacer(LayoutDOM):
     ''' A container for space used to fill an empty spot in a row or column.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
 @abstract
 class GridCommon(HasProps):
@@ -397,10 +388,6 @@ class GridCommon(HasProps):
 class GridBox(LayoutDOM, GridCommon):
     """ A CSS grid-based grid container. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     children = List(Either(
         Tuple(Instance(UIElement), Int, Int),
         Tuple(Instance(UIElement), Int, Int, Int, Int)), default=[], help="""
@@ -415,10 +402,6 @@ class GridBox(LayoutDOM, GridCommon):
 
 class HBox(LayoutDOM):
     """ A CSS grid-based horizontal box. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     children = List(Struct(child=Instance(UIElement), col=Optional(Int), span=Optional(Int)), default=[], help="""
     A list of children with their associated position in the horizontal box (optional; column number, span).
@@ -440,10 +423,6 @@ class HBox(LayoutDOM):
 
 class VBox(LayoutDOM):
     """ A CSS grid-based vertical box. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     children = List(Struct(child=Instance(UIElement), row=Optional(Int), span=Optional(Int)), default=[], help="""
     A list of children with their associated position in the vertical box (optional; row number, span).
@@ -502,7 +481,8 @@ class FlexBox(LayoutDOM):
 
     children = List(Instance(UIElement), help="""
     The list of children, which can be other components including plots, rows, columns, and widgets.
-    """)
+    Sequences supplied during initialization or assignment are converted to lists.
+    """).accepts(Seq(Instance(UIElement)), list)
 
     spacing = Int(default=0, help="""
     The gap between children (in pixels).
@@ -512,43 +492,42 @@ class FlexBox(LayoutDOM):
 class Row(FlexBox):
     ''' Lay out child components in a single horizontal row.
 
-    Children can be specified as positional arguments, as a single argument
-    that is a sequence, or using the ``children`` keyword argument.
+    Children can be specified as individual positional arguments or as a
+    sequence using the ``children`` keyword argument. These forms cannot be combined.
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
-    def _sphinx_height_hint(self) -> int|None:
-        if any(x._sphinx_height_hint() is None for x in self.children):
-            return None
-        return max(x._sphinx_height_hint() for x in self.children)
+    def _sphinx_height_hint(self) -> int | None:
+        hints: list[int] = []
+        for child in self.children:
+            hint = child._sphinx_height_hint()
+            if hint is None:
+                return None
+            hints.append(hint)
+        return max(hints)
 
 class Column(FlexBox):
-    ''' Lay out child components in a single vertical row.
+    ''' Lay out child components in a single vertical column.
 
-    Children can be specified as positional arguments, as a single argument
-    that is a sequence, or using the ``children`` keyword argument.
+    Children can be specified as individual positional arguments or as a
+    sequence using the ``children`` keyword argument. These forms cannot be combined.
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
-    def _sphinx_height_hint(self) -> int|None:
-        if any(x._sphinx_height_hint() is None for x in self.children):
-            return None
-        return sum(x._sphinx_height_hint() for x in self.children)
+    def _sphinx_height_hint(self) -> int | None:
+        hints: list[int] = []
+        for child in self.children:
+            hint = child._sphinx_height_hint()
+            if hint is None:
+                return None
+            hints.append(hint)
+        return sum(hints)
 
 class TabPanel(Model):
     ''' A single-widget container with title bar and controls.
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     title = String(default="", help="""
     The text title of the panel.
@@ -577,10 +556,6 @@ class Tabs(LayoutDOM):
     ''' A panel widget with navigation tabs.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     __example__ = "examples/interaction/widgets/tab_panes.py"
 
@@ -614,10 +589,6 @@ class GroupBox(LayoutDOM):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     title = Nullable(String, help="""
     The title text of the group. If not provided, only the frame will be showed.
     """)
@@ -637,10 +608,6 @@ class ScrollBox(LayoutDOM):
     ''' A panel that allows to scroll overflowing UI elements.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     child = Instance(UIElement, help="""
     The child UI element. This can be a single UI control, widget, etc., or

@@ -1,4 +1,3 @@
-# Bokeh imports
 from bokeh.models import Label
 
 

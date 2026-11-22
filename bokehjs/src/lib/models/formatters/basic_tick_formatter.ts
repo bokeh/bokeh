@@ -30,10 +30,6 @@ export interface BasicTickFormatter extends BasicTickFormatter.Attrs {}
 export class BasicTickFormatter extends TickFormatter {
   declare properties: BasicTickFormatter.Props
 
-  constructor(attrs?: Partial<BasicTickFormatter.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<BasicTickFormatter.Props>(({Bool, Int, Auto, Or}) => ({
       precision:        [ Or(Int, Auto), "auto" ],

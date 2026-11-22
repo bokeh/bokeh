@@ -23,6 +23,12 @@ in your browser.
 
     https://panel.holoviz.org/user_guide/Authentication.html
 
+
+
+.. bokeh-example-metadata::
+    :title: Authenticated function explorer
+    :keywords: app, bokeh server
+    :apis: bokeh.models.Button, bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.Slider, bokeh.models.TextInput
 '''
 import numpy as np
 

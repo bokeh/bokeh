@@ -56,10 +56,6 @@ export interface DataRange1d extends DataRange1d.Attrs {}
 export class DataRange1d extends DataRange {
   declare properties: DataRange1d.Props
 
-  constructor(attrs?: Partial<DataRange1d.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<DataRange1d.Props>(({Bool, Float, Nullable}) => ({
       range_padding:       [ Float, 0.1 ],
@@ -106,6 +102,15 @@ export class DataRange1d extends DataRange {
       default_span,
       only_visible,
     ], () => this._invalidate_dataranges())
+
+    // once auto-ranged, explicitly setting start or end (e.g. from a callback) overrides
+    // auto-ranging, the same as interactive updates do, until the range is reset
+    const {start, end} = this.properties
+    this.on_change([start, end], () => {
+      if (this._plot_bounds.size != 0) {
+        this.have_updated_interactively = true
+      }
+    })
   }
 
   protected _invalidate_dataranges(): void {
@@ -339,6 +344,8 @@ export class DataRange1d extends DataRange {
         new_range.end = end
       }
       this.setv(new_range)
+      // auto-ranging's own update isn't an explicit one (see connect_signals())
+      this.have_updated_interactively = false
       needs_emit = false
     }
 

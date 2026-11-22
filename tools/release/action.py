@@ -9,10 +9,8 @@
 """
 from __future__ import annotations
 
-# Standard library imports
 from typing import Callable, Sequence
 
-# Bokeh imports
 from .enums import ActionResult
 from .ui import failed, passed, skipped
 

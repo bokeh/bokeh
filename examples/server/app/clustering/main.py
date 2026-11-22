@@ -1,11 +1,16 @@
-''' A `k-nearest neighbors`_ (KNN) chart using datasets from scikit-learn. This
+''' A `k-nearest neighbors <https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm>`__ (KNN) chart using datasets from scikit-learn. This
 example demonstrates solving both classification and regression problems.
 
 .. note::
     This example needs the scikit-learn package to run.
 
-.. _k-nearest neighbors: https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm
 
+
+
+.. bokeh-example-metadata::
+    :title: Explore nearest-neighbor classification
+    :keywords: clustering, bokeh server, app
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Select, bokeh.models.Slider, bokeh.plotting.figure.scatter
 '''
 import numpy as np
 from sklearn import cluster, datasets
@@ -14,6 +19,7 @@ from sklearn.preprocessing import StandardScaler
 
 from bokeh.io import curdoc
 from bokeh.layouts import column, row
+from bokeh.model import Committed
 from bokeh.models import ColumnDataSource, Select, Slider
 from bokeh.palettes import Spectral6
 from bokeh.plotting import figure
@@ -180,10 +186,10 @@ def update_samples_or_dataset(attrname, old, new):
     source.data = dict(colors=colors, x=X[:, 0], y=X[:, 1])
 
 algorithm_select.on_change('value', update_algorithm_or_clusters)
-clusters_slider.on_change('value_throttled', update_algorithm_or_clusters)
+clusters_slider.on_change('value', update_algorithm_or_clusters, policy=Committed())
 
 dataset_select.on_change('value', update_samples_or_dataset)
-samples_slider.on_change('value_throttled', update_samples_or_dataset)
+samples_slider.on_change('value', update_samples_or_dataset, policy=Committed())
 
 # set up layout
 selects = row(dataset_select, algorithm_select, width=420)

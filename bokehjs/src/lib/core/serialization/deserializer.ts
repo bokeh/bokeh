@@ -1,4 +1,5 @@
 import {logger} from "../logging"
+import {construct, construct_deferred} from "../has_props"
 import type {HasProps} from "../has_props"
 import type {ModelResolver} from "../resolvers"
 import type {ID, Attrs, PlainObject, TypedArray} from "../types"
@@ -37,12 +38,17 @@ export class Deserializer {
   constructor(
     readonly resolver: ModelResolver,
     readonly references: Map<ID, HasProps> = new Map(),
-    readonly finalize?: (obj: HasProps) => void,
+    readonly finalize?: (obj: HasProps) => void | (() => void),
   ) {}
 
   protected _decoding: boolean = false
   protected readonly _buffers: Map<ID, ArrayBuffer> = new Map()
+  protected readonly _defined_model_ids: Set<ID> = new Set()
+  protected readonly _deferred_references: Set<ID> = new Set()
   protected readonly _finalizable: Set<HasProps> = new Set()
+  protected readonly _new_references: Set<ID> = new Set()
+  protected readonly _updated_references: Map<HasProps, Attrs> = new Map()
+  protected readonly _rollbacks: (() => void)[] = []
 
   decode(obj: unknown /*AnyVal*/, buffers?: Map<ID, ArrayBuffer>): unknown {
     if (buffers != null) {
@@ -56,41 +62,110 @@ export class Deserializer {
     }
 
     this._decoding = true
-    let finalizable: Set<HasProps>
-
-    const decoded = (() => {
-      try {
-        return this._decode(obj)
-      } finally {
-        finalizable = new Set(this._finalizable)
-        this._decoding = false
-        this._buffers.clear()
-        this._finalizable.clear()
+    try {
+      this._prepare_references(obj)
+      const decoded = this._decode(obj)
+      if (this._deferred_references.size != 0) {
+        this.error(`model definitions were not decoded: ${[...this._deferred_references].join(", ")}`)
       }
-    })()
+      const finalizable = new Set(this._finalizable)
 
-    for (const instance of finalizable) {
-      this.finalize?.(instance)
-      instance.finalize()
-      instance.assert_initialized()
+      for (const instance of finalizable) {
+        const rollback = this.finalize?.(instance)
+        if (rollback != null) {
+          this._rollbacks.push(rollback)
+        }
+      }
+
+      for (const instance of finalizable) {
+        instance.finalize()
+        instance.assert_initialized()
+      }
+
+      // `connect_signals` has to be executed last because it may rely on properties
+      // of dependencies that are initialized only in `finalize`. It's a problem
+      // that appears when there are circular references, e.g. as in
+      // CDS -> CustomJS (on data change) -> GlyphRenderer (in args) -> CDS.
+      for (const instance of finalizable) {
+        instance.finalize_signals()
+      }
+
+      return decoded
+    } catch (error) {
+      for (const [instance, attrs] of this._updated_references) {
+        try {
+          instance.setv(attrs, {sync: false})
+        } catch (rollback_error) {
+          logger.warn(`failed to restore ${instance} after deserialization failed: ${rollback_error}`)
+        }
+      }
+      for (let i = this._rollbacks.length - 1; i >= 0; i--) {
+        const rollback = this._rollbacks[i]
+        try {
+          rollback()
+        } catch (rollback_error) {
+          logger.warn(`failed to roll back deserialization finalization: ${rollback_error}`)
+        }
+      }
+      for (const id of this._new_references) {
+        const instance = this.references.get(id)
+        this.references.delete(id)
+        try {
+          instance?.detach_document()
+          if (instance != null && !instance.is_destroyed) {
+            instance.destroy()
+          }
+        } catch (rollback_error) {
+          logger.warn(`failed to destroy reference '${id}' after deserialization failed: ${rollback_error}`)
+        }
+      }
+      throw error
+    } finally {
+      this._decoding = false
+      this._buffers.clear()
+      this._defined_model_ids.clear()
+      this._deferred_references.clear()
+      this._finalizable.clear()
+      this._new_references.clear()
+      this._updated_references.clear()
+      this._rollbacks.splice(0)
     }
-
-    // `connect_signals` has to be executed last because it may rely on properties
-    // of dependencies that are initialized only in `finalize`. It's a problem
-    // that appears when there are circular references, e.g. as in
-    // CDS -> CustomJS (on data change) -> GlyphRenderer (in args) -> CDS.
-    for (const instance of finalizable) {
-      instance.connect_signals()
-    }
-
-    return decoded
   }
 
   protected _decode(obj: unknown /*AnyVal*/): unknown {
     if (isArray(obj)) {
       return this._decode_plain_array(obj)
     } else if (isPlainObject(obj)) {
-      if (isString(obj.type)) {
+      if (isString(obj.$ref)) {
+        return this._decode_ref({id: obj.$ref})
+      } else if ("$value" in obj) {
+        const value = this._decode(obj.$value)
+        return {
+          value,
+          ...(obj.transform != null ? {transform: this._decode(obj.transform)} : {}),
+          ...(obj.units != null ? {units: this._decode(obj.units)} : {}),
+        }
+      } else if (isString(obj.$field)) {
+        const field = obj.$field
+        return {
+          field,
+          ...(obj.transform != null ? {transform: this._decode(obj.transform)} : {}),
+          ...(obj.units != null ? {units: this._decode(obj.units)} : {}),
+        }
+      } else if ("$expr" in obj) {
+        const expr = this._decode(obj.$expr)
+        return {
+          expr,
+          ...(obj.transform != null ? {transform: this._decode(obj.transform)} : {}),
+          ...(obj.units != null ? {units: this._decode(obj.units)} : {}),
+        }
+      } else if (isString(obj.$type)) {
+        if (isString(obj.$id)) {
+          return this._decode_object_ref(obj as ObjectRefRep)
+        } else {
+          return this._decode_object(obj as ObjectRep)
+        }
+      } else if (isString(obj.type)) {
         const decoder = _decoders.get(obj.type)
         if (decoder != null) {
           return decoder(obj, this)
@@ -124,13 +199,6 @@ export class Deserializer {
             return this._decode_typed_array(obj as TypedArrayRep)
           case "ndarray":
             return this._decode_ndarray(obj as NDArrayRep)
-          case "object": {
-            if (isString(obj.id)) {
-              return this._decode_object_ref(obj as ObjectRefRep)
-            } else {
-              return this._decode_object(obj as ObjectRep)
-            }
-          }
           default: {
             this.error(`unable to decode an object of type '${obj.type}'`)
           }
@@ -173,7 +241,12 @@ export class Deserializer {
   protected _decode_plain_object(obj: PlainObject): PlainObject {
     const decoded: PlainObject = {}
     for (const [key, val] of entries(obj)) {
-      decoded[key] = this._decode(val)
+      Object.defineProperty(decoded, key, {
+        value: this._decode(val),
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      })
     }
     return decoded
   }
@@ -293,12 +366,12 @@ export class Deserializer {
   }
 
   protected _decode_object(obj: ObjectRep): unknown {
-    const {name: type, attributes} = obj
+    const {$type: type, $id: _id, ...attributes} = obj
     const cls = this._resolve_type(type)
-    if (attributes != null) {
-      return new cls(this._decode(attributes))
+    if (Object.keys(attributes).length != 0) {
+      return construct(cls, this._decode_plain_object(attributes))
     } else {
-      return new cls()
+      return construct(cls)
     }
   }
 
@@ -312,12 +385,36 @@ export class Deserializer {
   }
 
   protected _decode_object_ref(obj: ObjectRefRep): HasProps {
-    const {id, name: type, attributes} = obj
+    const {$type: type, $id: id, ...attributes} = obj
+
+    if (this._defined_model_ids.has(id)) {
+      this.error(`duplicate model ID '${id}'`)
+    }
+    this._defined_model_ids.add(id)
 
     const ref = this.references.get(id)
     if (ref != null) {
       if (ref.type == type) {
-        const decoded_attributes = this._decode(attributes ?? {}) as Attrs
+        const decoded_attributes = this._decode_plain_object(attributes)
+        if (this._deferred_references.delete(id)) {
+          ref.initialize_props(decoded_attributes)
+          this._finalizable.add(ref)
+          return ref
+        }
+        const previous = (() => {
+          const previous = this._updated_references.get(ref)
+          if (previous != null) {
+            return previous
+          }
+          const created: Attrs = {}
+          this._updated_references.set(ref, created)
+          return created
+        })()
+        for (const attr of Object.keys(decoded_attributes)) {
+          if (!Object.hasOwn(previous, attr)) {
+            previous[attr] = ref.property(attr).get_value()
+          }
+        }
         ref.setv(decoded_attributes, {sync: false})
         return ref
       } else {
@@ -325,10 +422,11 @@ export class Deserializer {
       }
     } else {
       const cls = this._resolve_type(type)
-      const instance: HasProps = new cls({id})
+      const instance = construct_deferred(cls, id)
       this.references.set(id, instance)
+      this._new_references.add(id)
 
-      const decoded_attributes = this._decode(attributes ?? {}) as Attrs
+      const decoded_attributes = this._decode_plain_object(attributes)
       instance.initialize_props(decoded_attributes)
 
       this._finalizable.add(instance)
@@ -342,6 +440,33 @@ export class Deserializer {
 
   warning(message: string): void {
     logger.warn(message)
+  }
+
+  private _prepare_references(value: unknown): void {
+    const visit = (child: unknown): void => {
+      if (isArray(child)) {
+        child.forEach(visit)
+      } else if (isPlainObject(child)) {
+        // Registered decoders own the representation nested under their value.
+        // Model definitions, for example, can contain defaults which resemble
+        // references to types that the definition has not registered yet.
+        if (isString(child.type) && _decoders.has(child.type)) {
+          return
+        }
+        const {$type: type, $id: id} = child
+        if (isString(type) && isString(id) && !this.references.has(id)) {
+          const cls = this._resolve_type(type)
+          const instance = construct_deferred(cls, id)
+          this.references.set(id, instance)
+          this._new_references.add(id)
+          this._deferred_references.add(id)
+        }
+        for (const item of Object.values(child)) {
+          visit(item)
+        }
+      }
+    }
+    visit(value)
   }
 
   private _resolve_type(type: string): any {

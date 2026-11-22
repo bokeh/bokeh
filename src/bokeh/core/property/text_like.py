@@ -24,10 +24,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import TYPE_CHECKING
 
-# Bokeh imports
 from .bases import Init
 from .either import Either
 from .instance import Instance

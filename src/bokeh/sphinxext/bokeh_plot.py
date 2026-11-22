@@ -19,9 +19,7 @@ The ``bokeh-plot`` directive can be used by either supplying:
 
  .. bokeh-plot::
 
-     from bokeh.plotting import figure, output_file, show
-
-     output_file("example.html")
+     from bokeh.plotting import figure, show
 
      x = [1, 2, 3, 4, 5]
      y = [6, 7, 6, 4, 5]
@@ -54,9 +52,7 @@ The inline example code above produces the following output:
 
 .. bokeh-plot::
 
-    from bokeh.plotting import figure, output_file, show
-
-    output_file("example.html")
+    from bokeh.plotting import figure, show
 
     x = [1, 2, 3, 4, 5]
     y = [6, 7, 6, 4, 5]
@@ -85,32 +81,39 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 import re
+import sys
 import warnings
+from collections.abc import Callable
+from contextlib import closing
 from heapq import nlargest
 from importlib import import_module
 from os import getenv
-from os.path import basename, dirname, join
+from os.path import (
+    basename,
+    dirname,
+    isabs,
+    join,
+)
 from time import perf_counter
-from typing import Any, NamedTuple, cast
+from typing import Any, ClassVar, NamedTuple, cast
 from uuid import uuid4
 
-# External imports
 from docutils import nodes
 from docutils.parsers.rst.directives import choice, flag
 from sphinx.errors import SphinxError
 from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import copyfile, ensuredir
 
-# Bokeh imports
 from bokeh.document import Document
-from bokeh.embed import autoload_static
+from bokeh.embed import embed
+from bokeh.embed._output import render_resource
+from bokeh.embed.resources import ResourceRequirements
 from bokeh.model import Model
-from bokeh.util.warnings import BokehDeprecationWarning
+from bokeh.resources import Resources
+from bokeh.util.dependencies import import_optional
+from bokeh.util.warnings import BOKEH_DEPRECATION_MESSAGE_PATTERN
 
-# Bokeh imports
-# Local imports
 from ._internal import PARALLEL_SAFE, SphinxParallelSpec
 from ._internal.bokeh_directive import BokehDirective
 from ._internal.example_handler import ExampleHandler
@@ -127,11 +130,6 @@ __all__ = (
     "setup",
 )
 
-GOOGLE_API_KEY = getenv("GOOGLE_API_KEY")
-
-RESOURCES = get_sphinx_resources()
-
-
 class _PlotTiming(NamedTuple):
     total: float
     evaluate: float
@@ -139,6 +137,10 @@ class _PlotTiming(NamedTuple):
     write: float
     docname: str
     source: str
+
+
+class _PlotSphinxSpec(SphinxParallelSpec):
+    env_version: int
 
 # -----------------------------------------------------------------------------
 # General API
@@ -169,13 +171,18 @@ class BokehPlotDirective(BokehDirective):
         flag(value)
         return True
 
-    option_spec = {
+    option_spec: ClassVar[dict[str, Callable[[str], Any]] | None] = {
         "process-docstring": _flag,
         "source-position": lambda x: choice(x, ("below", "above", "none")),
         "linenos": _flag,
     }
 
     def run(self) -> list[Any]:
+        '''Execute the directive and return its document nodes.
+
+        Returns:
+            The nodes representing the source and embedded plot.
+        '''
         if getenv("BOKEH_SPHINX_QUICK") == "1":
             return []
 
@@ -184,26 +191,26 @@ class BokehPlotDirective(BokehDirective):
 
         dashed_docname = env.docname.replace("/", "-")
 
-        js_filename = f"bokeh-content-{uuid4().hex}-{dashed_docname}.js"
+        js_filename = f"bokeh-content-{uuid4().hex}-{dashed_docname}.json"
 
         try:
             (script_tag, js_path, source, docstring, height_hint) = self.process_source(source, path, js_filename)
         except Exception as e:
             raise SphinxError(f"Error generating {js_filename}: \n\n{e}")
-        env.bokeh_plot_files.add((js_path, dirname(env.docname)))
+        env.bokeh_plot_files.setdefault(env.docname, set()).add(js_path)
 
         # use the source file name to construct a friendly target_id
         target_id = f"{dashed_docname}.{basename(js_path)}"
         target = [nodes.target("", "", ids=[target_id])]
-
-        self.process_sampledata(source)
 
         process_docstring = self.options.get("process-docstring", False)
         intro = self.parse(docstring, '<bokeh-content>') if docstring and process_docstring else []
 
         above, below = self.process_code_block(source, docstring)
 
-        autoload = [autoload_script(height_hint=height_hint, script_tag=script_tag)]
+        autoload = [autoload_script(
+            height_hint=height_hint, script_tag=script_tag, requirements=self._requirements,
+        )]
 
         return target + intro + above + autoload + below
 
@@ -244,8 +251,9 @@ class BokehPlotDirective(BokehDirective):
             # __REPO__ is an internal/undocumented convention for Bokeh's own docs
             from ._internal import REPO_TOP
             path = join(REPO_TOP, path.replace("__REPO__/", ""))
-        elif not path.startswith("/"):
-            path = join(env.app.srcdir, path)
+        elif not isabs(path):
+            path = join(env.srcdir, path)
+        env.note_dependency(path)
         try:
             with open(path) as f:
                 return f.read(), path
@@ -253,6 +261,16 @@ class BokehPlotDirective(BokehDirective):
             raise SphinxError(f"bokeh-plot:: error reading {path!r} for {env.docname!r}: {e!r}")
 
     def process_source(self, source: str, path: str, js_filename: str) -> tuple[str, str, str, str | None, int | None]:
+        '''Evaluate source and write its external embed payload.
+
+        Args:
+            source: The Python source to evaluate.
+            path: The source path used for evaluation context.
+            js_filename: The embed payload filename.
+
+        Returns:
+            Rendered markup, payload path, source, docstring, and height hint.
+        '''
         Model.clear_extensions()
 
         env = cast(Any, self.env)
@@ -263,11 +281,15 @@ class BokehPlotDirective(BokehDirective):
         height_hint = cast(Any, root)._sphinx_height_hint()
 
         js_path = join(env.bokeh_plot_auxdir, js_filename)
-        js, script_tag = autoload_static(root, RESOURCES, js_filename)
+        result = embed(root)
+        self._requirements = result.requires.to_dict()
+        external = result.external(js_filename, resources=Resources(
+            mode="none", override_version=get_sphinx_resources().override_version,
+        ))
         serialized = perf_counter()
 
-        with open(js_path, "w") as f:
-            f.write(js)
+        with open(js_path, "w", encoding="utf-8") as f:
+            f.write(external.payload)
 
         finished = perf_counter()
         env.bokeh_plot_timings.append(_PlotTiming(
@@ -279,39 +301,8 @@ class BokehPlotDirective(BokehDirective):
             source=basename(path),
         ))
 
-        return (script_tag, js_path, source, docstring, height_hint)
+        return (external.html, js_path, source, docstring, height_hint)
 
-    def process_sampledata(self, source: str) -> None:
-
-        env = cast(Any, self.env)
-        if not hasattr(env, 'solved_sampledata'):
-            env.solved_sampledata = []
-
-        file, _ = self.get_source_info()
-        # collect links to all standalone examples
-
-        if file is not None and '/docs/examples/' in file and file not in env.solved_sampledata:
-            env.solved_sampledata.append(file)
-            if not hasattr(env, 'all_sampledata_xrefs'):
-                env.all_sampledata_xrefs = []
-            if not hasattr(env, 'all_gallery_overview'):
-                env.all_gallery_overview = []
-
-            env.all_gallery_overview.append({
-                'docname': env.docname,
-            })
-
-            regex = r"(:|bokeh\.)sampledata(:|\.| import )\s*(\w+(\,\s*\w+)*)"
-            matches = re.findall(regex, source)
-            if matches:
-                keywords = set()
-                for m in matches:
-                    keywords.update(m[2].replace(" ","").split(','))
-                for keyword in keywords:
-                    env.all_sampledata_xrefs.append({
-                        'docname': env.docname,
-                        'keyword': keyword,
-                    })
 # -----------------------------------------------------------------------------
 # Dev API
 # -----------------------------------------------------------------------------
@@ -322,12 +313,46 @@ def builder_inited(app: Any) -> None:
     ensuredir(app.env.bokeh_plot_auxdir)  # docs/bokeh/build/doctrees/bokeh_plot
 
     if not hasattr(app.env, "bokeh_plot_files"):
-        app.env.bokeh_plot_files = set()
+        app.env.bokeh_plot_files = {}
     app.env.bokeh_plot_timings = []
+
+    if sys.platform == "darwin" and app.parallel > 1:
+        pygraphviz = import_optional("pygraphviz")
+        if pygraphviz is not None:
+            # Quartz lazily initializes CoreFoundation, which can segfault after
+            # Sphinx forks. Warm the structure plot's font and JSON renderer here
+            # in the parent before source reading starts.
+            # See PyGraphviz #667: https://github.com/pygraphviz/pygraphviz/issues/667
+            with closing(pygraphviz.AGraph()) as graph:
+                graph.add_node("warmup", fontname="monospace", fontsize="11")
+                graph.layout(prog="dot")
+                graph.draw(format="json")
+
+
+def add_page_resources(app: Any, doctree: nodes.document, docname: str) -> None:
+    if app.builder.format != "html":
+        return
+    plots = list(doctree.findall(autoload_script))
+    if not plots:
+        return
+    requirements = ResourceRequirements.union(*(
+        ResourceRequirements.from_dict(plot["requirements"]) for plot in plots
+    ))
+    policy = get_sphinx_resources()
+    resolved = policy.resolve(requirements)
+    resources = "\n".join(
+        render_resource(asset, allow_absolute_path=policy.mode == "absolute") for asset in resolved.assets
+    )
+    first = plots[0]
+    first.parent.insert(first.parent.index(first), nodes.raw("", resources, format="html"))
 
 
 def build_finished(app: Any, exception: Exception | None) -> None:
-    files = sorted(app.env.bokeh_plot_files)
+    files = sorted(
+        (file, dirname(docname))
+        for docname, paths in app.env.bokeh_plot_files.items()
+        for file in paths
+    )
     files_iter = status_iterator(files, "copying bokeh-plot files... ", "brown", len(files), app.verbosity, stringify_func=lambda x: basename(x[0]))
 
     for (file, docpath) in files_iter:
@@ -355,46 +380,35 @@ def build_finished(app: Any, exception: Exception | None) -> None:
                 f"{timing.docname} ({timing.source})",
             )
 
+def env_purge_doc(app: Any, env: Any, docname: str) -> None:
+    env.bokeh_plot_files.pop(docname, None)
+
+
 def env_merge_info(app: Any, env: Any, docnames: list[str], other: Any) -> None:
-    env.bokeh_plot_files |= other.bokeh_plot_files
+    for docname in docnames:
+        if docname in other.bokeh_plot_files:
+            env.bokeh_plot_files[docname] = other.bokeh_plot_files[docname]
     docnames_set = set(docnames)
     env.bokeh_plot_timings.extend(item for item in other.bokeh_plot_timings if item.docname in docnames_set)
 
-def setup(app: Any) -> SphinxParallelSpec:
+def setup(app: Any) -> _PlotSphinxSpec:
     """ Required Sphinx extension setup function. """
     app.add_directive("bokeh-plot", BokehPlotDirective)
     app.add_node(autoload_script, html=autoload_script.html)
-    app.add_config_value("bokeh_missing_google_api_key_ok", True, "html")
     app.connect("builder-inited", builder_inited)
+    app.connect("doctree-resolved", add_page_resources)
     app.connect("build-finished", build_finished)
     app.connect("env-merge-info", env_merge_info)
+    app.connect("env-purge-doc", env_purge_doc)
 
-    return PARALLEL_SAFE
+    return _PlotSphinxSpec(**PARALLEL_SAFE, env_version=2)
 
 # -----------------------------------------------------------------------------
 # Private API
 # -----------------------------------------------------------------------------
 
 
-# quick and dirty way to inject Google API key
-def _replace_google_api_key(source: str, env: Any) -> str:
-    if "GOOGLE_API_KEY" not in source:
-        return source
-
-    if GOOGLE_API_KEY is None:
-        if env.config.bokeh_missing_google_api_key_ok:
-            return source.replace("GOOGLE_API_KEY", "MISSING_API_KEY")
-        raise SphinxError(
-            "The GOOGLE_API_KEY environment variable is not set. Set GOOGLE_API_KEY to a valid API key, "
-            "or set bokeh_missing_google_api_key_ok=True in conf.py to build anyway (with broken GMaps)",
-        )
-
-    return source.replace("GOOGLE_API_KEY", GOOGLE_API_KEY)
-
-
 def _evaluate_source(source: str, filename: str, env: Any) -> tuple[Model, str | None]:
-    source = _replace_google_api_key(source, env)
-
     c = ExampleHandler(source=source, filename=filename)
     d = Document()
 
@@ -402,7 +416,7 @@ def _evaluate_source(source: str, filename: str, env: Any) -> tuple[Model, str |
     # in the reference guide. Suppress warnings here to keep the build clean
     with warnings.catch_warnings():
         if "reference" in env.docname:
-            warnings.filterwarnings("ignore", category=BokehDeprecationWarning)
+            warnings.filterwarnings("ignore", message=BOKEH_DEPRECATION_MESSAGE_PATTERN, category=DeprecationWarning)
         c.modify_document(d)
 
     if c.error:

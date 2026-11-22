@@ -8,13 +8,11 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
+from __future__ import annotations
 
-# Standard library imports
 from copy import copy, deepcopy
 from pickle import dumps, loads
 
-# External imports
 import pytest
 
 #-----------------------------------------------------------------------------

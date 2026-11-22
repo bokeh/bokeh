@@ -28,7 +28,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import inspect
 from abc import ABCMeta, abstractmethod
 from typing import (
@@ -39,7 +38,6 @@ from typing import (
     ClassVar,
 )
 
-# Bokeh imports
 from ..document import Document
 from ..settings import settings
 from ..util.asyncio import _run_in_executor

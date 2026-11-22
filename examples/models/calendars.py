@@ -6,19 +6,28 @@ plots together using ``gridplot``.
 A hover tooltip displays the US holidays on the significant dates.
 
 .. bokeh-example-metadata::
-    :sampledata: us_holidays
-    :apis: bokeh.layouts.gridplot, bokeh.models.tools.HoverTool, bokeh.models.plots.Plot, bokeh.models.glyphs.Rect, bokeh.models.glyphs.Text, bokeh.document.document.Document
-    :refs: :ref:`ug_basic_layouts_gridplot`, :ref:`ug_interaction_tools_hover_tool`
+    :title: Calendars
     :keywords: gridplot, hover, tooltip
+    :apis: bokeh.layouts.gridplot, bokeh.models.tools.HoverTool, bokeh.models.plots.Plot, bokeh.models.glyphs.Rect, bokeh.models.glyphs.Text, bokeh.document.document.Document
+    :sampledata: us_holidays
+    :refs: :ref:`ug_basic_layouts_gridplot`, :ref:`ug_interaction_tools_hover_tool`
 
 ''' # noqa: E501
 from calendar import Calendar, day_abbr as day_abbrs, month_name as month_names
 
 from bokeh.document import Document
-from bokeh.embed import file_html
+from bokeh.embed import embed
 from bokeh.layouts import gridplot
-from bokeh.models import (CategoricalAxis, CategoricalScale, ColumnDataSource,
-                          FactorRange, HoverTool, Plot, Rect, Text)
+from bokeh.models import (
+    CategoricalAxis,
+    CategoricalScale,
+    ColumnDataSource,
+    FactorRange,
+    HoverTool,
+    Plot,
+    Rect,
+    Text,
+)
 from bokeh.sampledata.us_holidays import us_holidays
 from bokeh.util.browser import view
 
@@ -101,6 +110,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "calendars.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, title="Calendar 2014"))
+        f.write(embed(doc).page(title="Calendar 2014"))
     print(f"Wrote {filename}")
     view(filename)

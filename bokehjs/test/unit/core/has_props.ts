@@ -1,6 +1,8 @@
-import {expect, expect_instanceof} from "#framework/assertions"
+import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
 
 import {HasProps} from "@bokehjs/core/has_props"
+import {Kind} from "@bokehjs/core/kinds"
+import type {HasPropsFactory} from "@bokehjs/core/has_props"
 import * as mixins from "@bokehjs/core/property_mixins"
 import {Serializer} from "@bokehjs/core/serialization/serializer"
 import {Deserializer} from "@bokehjs/core/serialization/deserializer"
@@ -8,6 +10,7 @@ import {ModelResolver} from "@bokehjs/core/resolvers"
 import {default_resolver} from "@bokehjs/base"
 import type * as p from "@bokehjs/core/properties"
 import {keys} from "@bokehjs/core/util/object"
+import {LegendItem} from "@bokehjs/models"
 
 class EmptyModel extends HasProps {}
 
@@ -121,63 +124,254 @@ class Some0 extends HasProps {
   }
 }
 
+namespace LifecycleModel {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = HasProps.Props & {
+    value: p.Property<number>
+  }
+}
+interface LifecycleModel extends LifecycleModel.Attrs {}
+class LifecycleModel extends HasProps {
+  declare properties: LifecycleModel.Props
+
+  readonly calls: string[] = []
+  readonly seed = 42
+
+  constructor(attrs?: Partial<LifecycleModel.Attrs>) {
+    super(attrs)
+    this.calls.push("constructor")
+  }
+
+  static {
+    this.define<LifecycleModel.Props, LifecycleModel>(({Float}) => ({
+      value: [Float, (self) => {
+        self.calls.push("properties")
+        return self.seed
+      }],
+    }))
+  }
+
+  override initialize(): void {
+    super.initialize()
+    this.calls.push("initialize")
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+    this.calls.push("connect_signals")
+  }
+}
+
+class ExtensionModel extends LifecycleModel {}
+
+let failed_model: HasProps | null = null
+const get_failed_model = (): HasProps | null => failed_model
+
+namespace PropertyFailureModel {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = HasProps.Props & {
+    value: p.Property<number>
+  }
+}
+interface PropertyFailureModel extends PropertyFailureModel.Attrs {}
+class PropertyFailureModel extends HasProps {
+  declare properties: PropertyFailureModel.Props
+
+  static {
+    this.define<PropertyFailureModel.Props, PropertyFailureModel>(({Float}) => ({
+      value: [Float, (self) => {
+        failed_model = self
+        throw new Error("property initialization failed")
+      }],
+    }))
+  }
+}
+
+class InitializeFailureModel extends HasProps {
+  override initialize(): void {
+    super.initialize()
+    failed_model = this
+    throw new Error("model initialization failed")
+  }
+}
+
+class SignalFailureModel extends HasProps {
+  override connect_signals(): void {
+    super.connect_signals()
+    failed_model = this
+    throw new Error("signal initialization failed")
+  }
+}
+
+class CleanupFailureModel extends InitializeFailureModel {
+  override destroy(): void {
+    super.destroy()
+    throw new Error("cleanup failed")
+  }
+}
+
 describe("core/has_props module", () => {
+  it("should coerce once before comparison, including silent and forced updates", () => {
+    let coercions = 0
+    class Rounded extends Kind<number> {
+      override coerce(value: number): number {
+        coercions++
+        return Math.round(value)
+      }
+      valid(value: unknown): value is number {
+        return typeof value == "number" && Number.isInteger(value)
+      }
+      may_have_refs(): boolean {
+        return false
+      }
+    }
+    class RoundedModel extends HasProps {
+      declare properties: HasProps.Props & {rounded: p.Property<number>}
+      static {
+        this.define<{rounded: p.Property<number>}>({rounded: [new Rounded(), 0]})
+      }
+    }
+    const model = RoundedModel.create()
+    let changes = 0
+    model.properties.rounded.change.connect(() => changes++)
+    for (const [value, options, expected_changes] of [
+      [0.1, {}, 0],
+      [1.1, {}, 1],
+      [1.2, {}, 1],
+      [2.1, {silent: true}, 1],
+      [2.2, {check_eq: false}, 2],
+    ] as const) {
+      const previous = coercions
+      model.setv({rounded: value}, options)
+      expect(coercions).to.be.equal(previous + 1)
+      expect(model.properties.rounded.get_value()).to.be.equal(Math.round(value))
+      expect(changes).to.be.equal(expected_changes)
+    }
+  })
 
   describe("creation", () => {
 
     it("empty model should have no properties", () => {
-      const obj = new EmptyModel()
+      const obj = EmptyModel.create()
       expect(keys(obj.properties)).to.be.equal([])
       expect(keys(obj.attributes)).to.be.equal([])
     })
 
     it("should combine props from subclasses", () => {
-      const obj = new SubclassWithProps()
+      const obj = SubclassWithProps.create()
       expect(keys(obj.properties)).to.be.equal(["foo", "bar"])
     })
 
     it("should combine props from sub-subclasses", () => {
-      const obj = new SubSubclassWithProps()
+      const obj = SubSubclassWithProps.create()
       expect(keys(obj.properties)).to.be.equal(["foo", "bar", "baz"])
     })
 
     it("should combine mixins from subclasses", () => {
-      const obj = new SubclassWithMixins()
+      const obj = SubclassWithMixins.create()
       const props = keys(mixins.Line)
       expect(keys(obj.properties)).to.be.equal(props)
     })
 
     it("should combine mixins from sub-subclasses", () => {
-      const obj = new SubSubclassWithMixins()
+      const obj = SubSubclassWithMixins.create()
       const props = [...keys(mixins.Line), ...keys(mixins.Fill).map((key) => `foo_${key}`)]
       expect(keys(obj.properties)).to.be.equal(props)
     })
 
     it("should combine multiple mixins from subclasses", () => {
-      const obj = new SubclassWithMultipleMixins()
+      const obj = SubclassWithMultipleMixins.create()
       const props = [...keys(mixins.Line), ...keys(mixins.Text).map((key) => `bar_${key}`)]
       expect(keys(obj.properties)).to.be.equal(props)
     })
 
     it("should fail when unknown properties are used", () => {
-      expect(() => new (SubclassWithProps as any)({whatever: true})).to.throw(Error, "unknown property SubclassWithProps.whatever")
+      expect(() => SubclassWithProps.create({whatever: true} as any)).to.throw(Error, "unknown property SubclassWithProps.whatever")
+    })
+
+    it("should require the factory entry point", () => {
+      expect(() => new (EmptyModel as any)()).to.throw(Error, "use EmptyModel.create({...}) instead of new EmptyModel(...)")
+    })
+
+    it("should finish construction before initializing properties and signals", () => {
+      const obj = LifecycleModel.create()
+
+      expect(obj.value).to.be.equal(42)
+      expect(obj.calls).to.be.equal(["constructor", "properties", "initialize", "connect_signals"])
+      expect(obj.is_ready).to.be.true
+    })
+
+    it("should inherit create() without subclass boilerplate", () => {
+      const obj = ExtensionModel.create({value: 10})
+
+      expect(obj).to.be.instanceof(ExtensionModel)
+      expect(obj.value).to.be.equal(10)
+      expect(obj.calls).to.be.equal(["constructor", "initialize", "connect_signals"])
+      expect(obj.is_ready).to.be.true
+    })
+
+    const failure_cases: [HasPropsFactory, string][] = [
+      [PropertyFailureModel, "property initialization failed"],
+      [InitializeFailureModel, "model initialization failed"],
+      [SignalFailureModel, "signal initialization failed"],
+    ]
+    for (const [cls, message] of failure_cases) {
+      it(`should destroy a model when ${message}`, () => {
+        failed_model = null
+        expect(() => cls.create()).to.throw(Error, message)
+        const model = get_failed_model()
+        expect_not_null(model)
+        expect(model.is_destroyed).to.be.true
+      })
+    }
+
+    it("should preserve a construction error when cleanup also fails", () => {
+      failed_model = null
+      expect(() => CleanupFailureModel.create()).to.throw(Error, "model initialization failed")
+      const model = get_failed_model()
+      expect_not_null(model)
+      expect(model.is_destroyed).to.be.true
+    })
+
+    it("should allow destroy() to be called more than once", () => {
+      const obj = EmptyModel.create()
+      let destroyed = 0
+      obj.destroyed.connect(() => destroyed += 1)
+
+      obj.destroy()
+      obj.destroy()
+
+      expect(obj.is_destroyed).to.be.true
+      expect(destroyed).to.be.equal(1)
+    })
+
+    it("should use the same lifecycle during deserialization", () => {
+      const resolver = new ModelResolver(default_resolver, [LifecycleModel])
+      const serializer = new Serializer()
+      const deserializer = new Deserializer(resolver)
+      const decoded = deserializer.decode(serializer.encode(LifecycleModel.create()))
+
+      expect_instanceof(decoded, LifecycleModel)
+      expect(decoded.value).to.be.equal(42)
+      expect(decoded.calls).to.be.equal(["constructor", "properties", "initialize", "connect_signals"])
+      expect(decoded.is_ready).to.be.true
     })
 
     it("should initialize properties in definition order", () => {
       counter = 0
-      const obj0 = new Some0()
+      const obj0 = Some0.create()
       expect(obj0.prop0).to.be.equal(0)
       expect(obj0.prop1).to.be.equal(1)
       expect(obj0.prop2).to.be.equal(2)
 
       counter = 0
-      const obj1 = new Some0({prop0: 10})
+      const obj1 = Some0.create({prop0: 10})
       expect(obj1.prop0).to.be.equal(10)
       expect(obj1.prop1).to.be.equal(0)
       expect(obj1.prop2).to.be.equal(1)
 
       counter = 0
-      const obj2 = new Some0({prop1: 20})
+      const obj2 = Some0.create({prop1: 20})
       expect(obj2.prop0).to.be.equal(0)
       expect(obj2.prop1).to.be.equal(20)
       expect(obj2.prop2).to.be.equal(1)
@@ -218,29 +412,29 @@ describe("core/has_props module", () => {
   })
 
   it("implements HasProps[toStringTag] method", () => {
-    const obj0 = new SubclassWithProps()
-    const obj1 = new SubSubclassWithProps()
+    const obj0 = SubclassWithProps.create()
+    const obj1 = SubSubclassWithProps.create()
 
     expect(Object.prototype.toString.call(obj0)).to.be.equal("[object SubclassWithProps]")
     expect(Object.prototype.toString.call(obj1)).to.be.equal("[object SubSubclassWithProps]")
   })
 
   it("support HasProps.references() method (issue #12783)", () => {
-    const obj0 = new TestModel()
-    const obj1 = new TestModel()
-    const obj2 = new TestModel()
-    const obj3 = new TestModel()
-    const obj4 = new TestModel()
-    const obj5 = new TestModel()
-    const obj6 = new TestModel()
-    const obj7 = new TestModel()
-    const obj8 = new TestModel()
-    const obj9 = new TestModel()
+    const obj0 = TestModel.create()
+    const obj1 = TestModel.create()
+    const obj2 = TestModel.create()
+    const obj3 = TestModel.create()
+    const obj4 = TestModel.create()
+    const obj5 = TestModel.create()
+    const obj6 = TestModel.create()
+    const obj7 = TestModel.create()
+    const obj8 = TestModel.create()
+    const obj9 = TestModel.create()
 
     obj3.p2 = obj8
     obj5.p5 = new Map([[obj9, obj9]])
 
-    const obj = new TestModel({
+    const obj = TestModel.create({
       p2: obj0,
       p3: [obj1, obj2],
       p4: new Set([obj3, obj4]),
@@ -250,5 +444,253 @@ describe("core/has_props module", () => {
 
     const refs = new Set([obj, obj0, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9])
     expect(obj.references()).to.be.equal(refs)
+  })
+
+  describe("on_transitive_change()", () => {
+    it("subscribes immediately and detaches replaced references", () => {
+      const first = TestModel.create()
+      const second = TestModel.create({p0: 2})
+      const owner = TestModel.create({p2: first})
+      let calls = 0
+      owner.on_transitive_change(owner.properties.p2, () => calls++)
+      expect(calls).to.be.equal(0)
+      first.p0 = 1
+      expect(calls).to.be.equal(1)
+      owner.p2 = second
+      expect(calls).to.be.equal(2)
+      first.p0 = 2
+      expect(calls).to.be.equal(2)
+      second.p0 = 1
+      expect(calls).to.be.equal(3)
+    })
+
+    it("handles null transitions and rebinding to an earlier reference", () => {
+      const owner = TestModel.create()
+      const source = TestModel.create()
+      let calls = 0
+      owner.on_transitive_change(owner.properties.p2, () => calls++)
+      source.change.emit()
+      expect(calls).to.be.equal(0)
+      owner.p2 = source
+      source.change.emit()
+      expect(calls).to.be.equal(2)
+      owner.p2 = null
+      source.change.emit()
+      expect(calls).to.be.equal(3)
+      owner.p2 = source
+      source.change.emit()
+      expect(calls).to.be.equal(5)
+    })
+
+    it("separates replacement from selected signals and binds before notifying", () => {
+      const owner = TestModel.create()
+      const source = TestModel.create()
+      const calls: string[] = []
+      owner.on_transitive_change(owner.properties.p2, () => calls.push("signal"), {
+        signals: (model) => {
+          expect_instanceof(model, TestModel)
+          return [model.streaming, model.patching]
+        },
+        on_replace: () => {
+          calls.push("replacement")
+          owner.p2?.streaming.emit()
+        },
+      })
+      owner.p2 = source
+      expect(calls).to.be.equal(["replacement", "signal"])
+      source.change.emit()
+      source.patching.emit([0])
+      expect(calls).to.be.equal(["replacement", "signal", "signal"])
+    })
+
+    it("keeps bindings independent when they share a callback", () => {
+      const first = TestModel.create()
+      const second = TestModel.create({p0: 2})
+      const owner = TestModel.create({p2: first})
+      let calls = 0
+      const callback = () => calls++
+      owner.on_transitive_change(owner.properties.p2, callback, {on_replace: () => {}})
+      owner.on_transitive_change(owner.properties.p2, callback, {
+        signals: (model) => {
+          expect_instanceof(model, TestModel)
+          return [model.change, model.streaming]
+        },
+        on_replace: () => {},
+      })
+      first.change.emit()
+      expect(calls).to.be.equal(2)
+      owner.p2 = second
+      first.change.emit()
+      first.streaming.emit()
+      expect(calls).to.be.equal(2)
+      second.change.emit()
+      second.streaming.emit()
+      expect(calls).to.be.equal(5)
+    })
+
+    it("handles another replacement from the replacement callback", () => {
+      const first = TestModel.create()
+      const second = TestModel.create({p0: 2})
+      const owner = TestModel.create()
+      let calls = 0
+      owner.on_transitive_change(owner.properties.p2, () => calls++, {
+        on_replace: () => {
+          if (owner.p2 == first) {
+            owner.p2 = second
+          }
+        },
+      })
+      owner.p2 = first
+      first.change.emit()
+      expect(calls).to.be.equal(0)
+      second.change.emit()
+      expect(calls).to.be.equal(1)
+    })
+
+    for (const [name, cleanup] of Object.entries({
+      disconnect_signals: (owner: TestModel) => owner.disconnect_signals(),
+      destroy: (owner: TestModel) => owner.destroy(),
+    })) {
+      it(`cleans up bindings and replacement callbacks on ${name}`, () => {
+        const first = TestModel.create()
+        const second = TestModel.create({p0: 2})
+        const owner = TestModel.create({p2: first})
+        let calls = 0
+        owner.on_transitive_change(owner.properties.p2, () => calls++)
+        cleanup(owner)
+        owner.p2 = second
+        first.change.emit()
+        second.change.emit()
+        expect(calls).to.be.equal(0)
+      })
+    }
+  })
+
+  describe("on_change() and remove_on_change() property-name overloads", () => {
+    it("should support a single property name", () => {
+      const obj = SubclassWithProps.create()
+      let changes = 0
+      let value = obj.foo
+
+      obj.on_change("foo", () => {
+        changes += 1
+        value = obj.foo
+      })
+
+      obj.bar = false
+      expect(changes).to.be.equal(0)
+
+      obj.foo = 1
+      expect(changes).to.be.equal(1)
+      expect(value).to.be.equal(1)
+
+      obj.foo = 1
+      expect(changes).to.be.equal(1)
+    })
+
+    it("should support multiple property names", () => {
+      const obj = SubclassWithProps.create()
+      let changes = 0
+
+      obj.on_change(["foo", "bar"] as const, () => changes += 1)
+      obj.setv({foo: 1, bar: false})
+
+      expect(changes).to.be.equal(2)
+    })
+
+    it("should preserve Property object forms", () => {
+      const obj = SubclassWithProps.create()
+      let foo_changes = 0
+      let any_changes = 0
+
+      obj.on_change(obj.properties.foo, () => foo_changes += 1)
+      obj.on_change([obj.properties.foo, obj.properties.bar] as const, () => any_changes += 1)
+      obj.setv({foo: 1, bar: false})
+
+      expect(foo_changes).to.be.equal(1)
+      expect(any_changes).to.be.equal(2)
+    })
+
+    it("should preserve duplicate connection semantics", () => {
+      const obj = SubclassWithProps.create()
+      let changes = 0
+      const callback = () => changes += 1
+
+      obj.on_change("foo", callback)
+      obj.on_change(["foo", "foo"], callback)
+      obj.foo = 1
+
+      expect(changes).to.be.equal(1)
+    })
+
+    it("should remove callbacks by property name or Property object", () => {
+      const obj = SubclassWithProps.create()
+      let changes = 0
+      const callback = () => changes += 1
+
+      obj.on_change(["foo", "bar"], callback)
+      obj.remove_on_change("foo", callback)
+      obj.setv({foo: 1, bar: false})
+      expect(changes).to.be.equal(1)
+
+      obj.remove_on_change(obj.properties.bar, callback)
+      obj.setv({foo: 2, bar: true})
+      expect(changes).to.be.equal(1)
+
+      expect(() => obj.remove_on_change(["foo", "bar"], callback)).to.not.throw()
+    })
+
+    it("should reject an unknown property name", () => {
+      const obj = SubclassWithProps.create()
+      const callback = () => {}
+
+      expect(() => {
+        // @ts-expect-error "whatever" is not a property of SubclassWithProps
+        obj.on_change("whatever", callback)
+      }).to.throw(Error, "unknown property SubclassWithProps.whatever")
+
+      expect(() => {
+        // @ts-expect-error inherited Object names are not properties of SubclassWithProps
+        obj.on_change("toString", callback)
+      }).to.throw(Error, "unknown property SubclassWithProps.toString")
+
+      expect(() => {
+        // @ts-expect-error "whatever" is not a property of SubclassWithProps
+        obj.remove_on_change("whatever", callback)
+      }).to.throw(Error, "unknown property SubclassWithProps.whatever")
+    })
+
+    it("should validate all property names before connecting", () => {
+      const obj = SubclassWithProps.create()
+      let changes = 0
+      const callback = () => changes += 1
+
+      expect(() => {
+        // @ts-expect-error "whatever" is not a property of SubclassWithProps
+        obj.on_change(["foo", "whatever"], callback)
+      }).to.throw(Error, "unknown property SubclassWithProps.whatever")
+
+      obj.foo = 1
+      expect(changes).to.be.equal(0)
+    })
+  })
+
+  describe("property signals", () => {
+    it("should follow updates of plain properties", () => {
+      const obj = SubclassWithProps.create({foo: 1})
+      const {signal} = obj.properties.foo
+      expect(signal.value).to.be.equal(1)
+      obj.foo = 2
+      expect(signal.value).to.be.equal(2)
+    })
+
+    it("should follow updates of scalar and vector specs", () => {
+      const item = LegendItem.create({label: "foo"})
+      const {signal} = item.properties.label
+      expect(signal.value).to.be.equal({value: "foo"})
+      item.label = "bar"
+      expect(signal.value).to.be.equal({value: "bar"})
+      expect(item.properties.label.get_value()).to.be.equal({value: "bar"})
+    })
   })
 })

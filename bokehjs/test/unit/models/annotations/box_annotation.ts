@@ -5,21 +5,22 @@ import {display} from "#framework/layouts"
 
 import type {PlotView} from "@bokehjs/models/plots/plot"
 import {Plot, Range1d, LinearAxis, BoxAnnotation} from "@bokehjs/models"
+import {Node} from "@bokehjs/models/coordinates/node"
 import {no_repeated} from "@bokehjs/core/util/iterator"
 
 describe("BoxAnnotation", () => {
 
   async function mkplot(box: BoxAnnotation): Promise<PlotView> {
-    const plot = new Plot({
+    const plot = Plot.create({
       width: 400,
       height: 400,
       min_border: 0,
-      x_range: new Range1d({start: 0, end: 1}),
-      y_range: new Range1d({start: 0, end: 1}),
+      x_range: Range1d.create({start: 0, end: 1}),
+      y_range: Range1d.create({start: 0, end: 1}),
     })
     plot.add_layout(box)
-    plot.add_layout(new LinearAxis(), "above")
-    plot.add_layout(new LinearAxis(), "left")
+    plot.add_layout(LinearAxis.create(), "above")
+    plot.add_layout(LinearAxis.create(), "left")
     const {view} = await display(plot)
     return view
   }
@@ -29,8 +30,18 @@ describe("BoxAnnotation", () => {
   }
 
   async function get_cursors(ac: PlotActions, events: Iterable<UIEvent>): Promise<string[]> {
+    async function* synchronized(): AsyncGenerator<UIEvent> {
+      for (const event of events) {
+        if (event.type == "pointerup") {
+          // Release hit-tests handle geometry from the latest paint.
+          await ac.target.ready
+        }
+        yield event
+      }
+    }
+
     const cursors = []
-    for await (const _ of ac._emit(events)) {
+    for await (const _ of ac._emit(synchronized())) {
       cursors.push(get_cursor(ac.target))
     }
     return cursors
@@ -38,7 +49,7 @@ describe("BoxAnnotation", () => {
 
   describe("when movable without handles", () => {
     function mkbox() {
-      return new BoxAnnotation({
+      return BoxAnnotation.create({
         left: 0,
         top: 0,
         right: 0.5,
@@ -77,9 +88,29 @@ describe("BoxAnnotation", () => {
     })
   })
 
+  it("keeps the dragged edge under the pointer when the opposite edge is out of bounds", async () => {
+    const box = BoxAnnotation.create({
+      left: -0.5,
+      right: 0.5,
+      bottom: 0,
+      top: 1,
+      editable: true,
+      resizable: "x",
+      left_limit: Node.frame.left,
+      right_limit: Node.frame.right,
+    })
+    const plot_view = await mkplot(box)
+    const ac = actions(plot_view, {units: "data"})
+
+    await ac.pan(xy(0.5, 0.5), xy(0.75, 0.5))
+
+    expect(box.left).to.be.equal(-0.5)
+    expect(box.right).to.be.equal(0.75)
+  })
+
   describe("when movable with handles", () => {
     function mkbox() {
-      return new BoxAnnotation({
+      return BoxAnnotation.create({
         left: 0,
         top: 0,
         right: 0.5,
@@ -114,11 +145,7 @@ describe("BoxAnnotation", () => {
       const events = ac._pan({type: "line", xy0: xy(0.25, 0.25), xy1: xy(0.75, 0.75), n: 5})
       const cursors = await get_cursors(ac, events)
 
-      expect(cursors.slice(0, -1)).to.be
-        .equal(["move", "move", "default", "move", "move", "move"])
-
-      const final = cursors.at(-1)
-      expect(final == "move" || final == "default").to.be.true
+      expect(cursors).to.be.equal(["move", "move", "default", "move", "move", "move", "move"])
     })
   })
 })

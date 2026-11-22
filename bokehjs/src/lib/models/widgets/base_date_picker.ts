@@ -1,14 +1,15 @@
-import type flatpickr from "flatpickr"
+import type {FlatpickrDateLimit, FlatpickrOptions} from "../../external/flatpickr"
 
 import {PickerBase, PickerBaseView} from "./picker_base"
 import type * as p from "core/properties"
 import {isArray} from "core/util/types"
 import {Or, Tuple, Str, Float, List, Ref, Struct} from "core/kinds"
+import type {Infer} from "core/kinds"
 
-export type DateLike = typeof DateLike["__type__"]
+export type DateLike = Infer<typeof DateLike>
 export const DateLike = Or(Ref(Date), Str, Float)
 
-export type DateLikeList = typeof DateLikeList["__type__"]
+export type DateLikeList = Infer<typeof DateLikeList>
 export const DateLikeList = List(Or(DateLike, Tuple(DateLike, DateLike), Struct({from: DateLike, to: DateLike})))
 
 export abstract class BaseDatePickerView extends PickerBaseView {
@@ -51,7 +52,7 @@ export abstract class BaseDatePickerView extends PickerBaseView {
     this.connect(date_format.change, () => this.picker.set("altFormat", this.model.date_format))
   }
 
-  protected override get flatpickr_options(): flatpickr.Options.Options {
+  protected override get flatpickr_options(): FlatpickrOptions {
     const {value, min_date, max_date, disabled_dates, enabled_dates, date_format} = this.model
 
     const options = super.flatpickr_options
@@ -79,8 +80,8 @@ export abstract class BaseDatePickerView extends PickerBaseView {
     return options
   }
 
-  protected _convert_date_list(value: DateLikeList): flatpickr.Options.DateLimit[] {
-    const result: flatpickr.Options.DateLimit[] = []
+  protected _convert_date_list(value: DateLikeList): FlatpickrDateLimit[] {
+    const result: FlatpickrDateLimit[] = []
     for (const item of value) {
       if (isArray(item)) {
         const [from, to] = item
@@ -111,10 +112,6 @@ export interface BaseDatePicker extends BaseDatePicker.Attrs {}
 export abstract class BaseDatePicker extends PickerBase {
   declare properties: BaseDatePicker.Props
   declare __view_type__: BaseDatePickerView
-
-  constructor(attrs?: Partial<BaseDatePicker.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.define<BaseDatePicker.Props>(({Nullable}) => ({

@@ -15,10 +15,6 @@ export interface PrintfTickFormatter extends PrintfTickFormatter.Attrs {}
 export class PrintfTickFormatter extends TickFormatter {
   declare properties: PrintfTickFormatter.Props
 
-  constructor(attrs?: Partial<PrintfTickFormatter.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<PrintfTickFormatter.Props>(({Str}) => ({
       format: [ Str, "%s" ],

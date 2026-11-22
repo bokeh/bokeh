@@ -32,18 +32,34 @@
   --shortcut-color: #colors[disabled];
   --highlight-color: #colors[highlight];
   --active-bg: #colors[active-background];
+  --active-background-color: var(--active-bg);
+  --active-border: #colors[active-border];
   --active-fg: #colors[primary];
   --inactive-bg: #colors[surface];
   --inactive-fg: #colors[placeholder];
   --icon-color: var(--bokeh-icon-color, #colors[icon]);
   --icon-color-disabled: var(--bokeh-icon-color-disabled, #colors[icon-disabled]);
   --error: #colors[error];
+  --primary-text-color: #colors[primary-text];
+  --accent-text-color: #colors[accent-text];
+  --success-text-color: #colors[success-text];
+  --warning-text-color: #colors[warning-text];
+  --error-text-color: #colors[error-text];
   --inverted-color: #colors[inverted]; // the color for when the background is dark
   --placeholder-color: #colors[placeholder];
   --surface-background-color: #colors[surface];
-  --disabled-background-color: #colors[surface];
+  --disabled-background-color: #colors[surface]; // TODO this cannot be the same as surface
   --input-focus-border-color: #colors[input-border];
   --input-focus-halo-color: fade(#colors[input-border], 60%);
+
+  // Code blocks
+  --code-background-color: #colors[code-background];
+  --code-color: var(--color);
+  --code-keyword-color: var(--accent-text-color);
+  --code-string-color: var(--success-text-color);
+  --code-number-color: var(--warning-text-color);
+  --code-title-color: var(--primary-text-color);
+  --code-comment-color: #colors[code-comment];
 
   // Border, box shadow, outline
   --border-style: solid;
@@ -64,9 +80,9 @@
   // Tools (tool buttons and toolbar)
   --active-tool-border-color: #colors[active-tool-border];
   --active-tool-background: #colors[active-tool-background];
-  --button-width: 30px;
-  --button-height: 30px;
-  --button-color: lightgray;
+  --button-width: var(--bokeh-tool-button-width, 30px);
+  --button-height: var(--bokeh-tool-button-height, 30px);
+  --button-color: var(--bokeh-toolbar-divider-color, lightgray);
   --disabled-tool-color: #colors[disabled-tool];
 
   // Buttons colors
@@ -125,6 +141,7 @@
   --bokeh-icon-freehand-draw: data-uri("icons/freehand-draw.svg");
   --bokeh-icon-fullscreen: data-uri("icons/fullscreen.svg");
   --bokeh-icon-hand-pointing: data-uri("icons/hand-pointing.svg");
+  --bokeh-icon-hdots: data-uri("icons/hdots.svg");
   --bokeh-icon-help: data-uri("icons/help.svg");
   --bokeh-icon-hover: data-uri("icons/hover.svg");
   --bokeh-icon-intersect-mode: data-uri("icons/intersect-mode.svg");
@@ -170,6 +187,7 @@
   --bokeh-icon-undo: data-uri("icons/undo.svg");
   --bokeh-icon-unknown: data-uri("icons/unknown.svg");
   --bokeh-icon-unpin: data-uri("icons/unpin.svg");
+  --bokeh-icon-vdots: data-uri("icons/vdots.svg");
   --bokeh-icon-wheel-pan: data-uri("icons/wheel-pan.svg");
   --bokeh-icon-wheel-zoom: data-uri("icons/wheel-zoom.svg");
   --bokeh-icon-x-box-select: data-uri("icons/x-box-select.svg");

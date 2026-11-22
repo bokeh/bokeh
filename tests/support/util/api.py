@@ -20,12 +20,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 import importlib
 from types import ModuleType
 from typing import Sequence
 
-# External imports
 import pytest
 
 #-----------------------------------------------------------------------------

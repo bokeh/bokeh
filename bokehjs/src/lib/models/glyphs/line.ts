@@ -1,3 +1,6 @@
+import {SupportsPathMarking} from "./glyph"
+import {path_segments, trim_path, trace_path, paint_path_markings, hit_path_marking,
+        span_path_indices, path_marking_hits_span} from "./marked_path"
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import {generic_line_scalar_legend, line_interpolation} from "./utils"
 import type {PointGeometry, SpanGeometry} from "core/geometry"
@@ -24,9 +27,39 @@ export class LineView extends XYGlyphView {
     return LineGL
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Line.Data>): void {
+  protected override _compute_can_use_webgl(): boolean {
+    return this.model.path_markings.length == 0
+  }
+
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<Line.Data>): void {
     const {sx, sy} = {...this, ...data}
     const nonselection = this.parent.nonselection_glyph == this
+
+    if (this.path_markings.size != 0) {
+      const segments = path_segments(sx, sy)
+      if (segments.length == 0) {
+        return
+      }
+      const selected = new Set(indices)
+      const segment_is_visible = (index: number) => nonselection
+        ? selected.has(index) || selected.has(index + 1)
+        : selected.has(index) && selected.has(index + 1)
+      const {start, end} = this._path_marking_insets(0)
+      const visible = trim_path(segments, start, end).filter(({index}) => segment_is_visible(index))
+      if (this.visuals.line.doit) {
+        ctx.beginPath()
+        trace_path(ctx, visible)
+        this.visuals.line.set_value(ctx)
+        ctx.stroke()
+      }
+      paint_path_markings(ctx, this.path_markings.values(), 0, segments, ({index, placement}) => {
+        if (placement == "start" || placement == "end") {
+          return selected.has(placement == "start" ? segments[0].index : segments[segments.length - 1].index + 1)
+        }
+        return segment_is_visible(index)
+      })
+      return
+    }
 
     let iprev: number | null = null
     const gap = (i: number) => iprev != null && i - iprev != 1
@@ -81,10 +114,34 @@ export class LineView extends XYGlyphView {
           * sy (float): screen y coordinate of the point
           * type (str): type of geometry (in this case it's a point)
     */
-    const result = new Selection()
+    const result = Selection.create()
     const point = {x: geometry.sx, y: geometry.sy}
     let shortest = 9999
     const threshold = Math.max(2, this.line_width.value/2)
+
+    if (this.path_markings.size != 0) {
+      const segments = path_segments(this.sx, this.sy)
+      const {start, end} = this._path_marking_insets(0)
+      for (const segment of trim_path(segments, start, end)) {
+        const dist = hittest.dist_to_segment(point,
+          {x: segment.sx0, y: segment.sy0}, {x: segment.sx1, y: segment.sy1})
+        if (dist < threshold && dist < shortest) {
+          shortest = dist
+          result.line_indices = [segment.index]
+        }
+      }
+      for (const path_marking of this.path_markings.values()) {
+        const index = hit_path_marking(point, path_marking, 0, segments)
+        if (index != null) {
+          result.line_indices = [index]
+        }
+      }
+      if (result.line_indices.length != 0) {
+        result.add_to_selected_glyphs(this.model)
+        result.view = this
+      }
+      return result
+    }
 
     for (let i = 0, end = this.sx.length-1; i < end; i++) {
       const p0 = {x: this.sx[i],     y: this.sy[i]}
@@ -104,6 +161,26 @@ export class LineView extends XYGlyphView {
 
   protected override _hit_span(geometry: SpanGeometry): Selection {
     const {sx, sy} = geometry
+
+    if (this.path_markings.size != 0) {
+      const segments = path_segments(this.sx, this.sy)
+      const {start, end} = this._path_marking_insets(0)
+      const {direction} = geometry
+      const value = direction == "h" ? sx : sy
+      const indices = new Set(span_path_indices(trim_path(segments, start, end), direction, value))
+      for (const path_marking of this.path_markings.values()) {
+        const index = path_marking_hits_span(path_marking, 0, segments, direction, value)
+        if (index != null) {
+          indices.add(index)
+        }
+      }
+      const result = Selection.create({line_indices: [...indices]})
+      if (indices.size != 0) {
+        result.add_to_selected_glyphs(this.model)
+        result.view = this
+      }
+      return result
+    }
 
     let val: number
     let values: Arrayable<number>
@@ -125,7 +202,7 @@ export class LineView extends XYGlyphView {
       }
     }
 
-    const result = new Selection()
+    const result = Selection.create()
     if (indices.length != 0) {
       result.add_to_selected_glyphs(this.model)
       result.view = this
@@ -147,7 +224,7 @@ export class LineView extends XYGlyphView {
 export namespace Line {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = XYGlyph.Props & Mixins
+  export type Props = XYGlyph.Props & Mixins & SupportsPathMarking
 
   export type Mixins = mixins.LineScalar
 
@@ -162,13 +239,10 @@ export class Line extends XYGlyph {
   declare properties: Line.Props
   declare __view_type__: LineView
 
-  constructor(attrs?: Partial<Line.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.prototype.default_view = LineView
 
     this.mixins<Line.Mixins>(mixins.LineScalar)
+    this.define<SupportsPathMarking>(SupportsPathMarking)
   }
 }

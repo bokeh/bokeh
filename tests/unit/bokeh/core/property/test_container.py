@@ -8,23 +8,20 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# External imports
 import numpy as np
+import pytest
 
-# Bokeh imports
 from bokeh.core.properties import (
     Any,
     Float,
     Instance,
     Int,
+    Regex,
     Seq,
     String,
 )
@@ -197,6 +194,22 @@ class Test_Dict:
 
         prop = bcpc.Dict(String, Instance(_TestModel))
         assert prop.has_ref
+
+    def test_invalid_empty_keys_and_values(self) -> None:
+        prop = bcpc.Dict(Regex(r".+"), Regex(r".+"))
+        for value in ({"": "valid"}, {"": ""}, {"valid": ""}):
+            assert not prop.is_valid(value)
+
+    def test_invalid_value_at_empty_key(self) -> None:
+        prop = bcpc.Dict(String, Int)
+        assert not prop.is_valid({"": "x"})
+        with pytest.raises(ValueError, match="invalid values for keys: ''"):
+            prop.validate({"": "x"})
+
+    def test_invalid_empty_key_message(self) -> None:
+        prop = bcpc.Dict(Regex(r".+"), Int)
+        with pytest.raises(ValueError, match="invalid keys: ''"):
+            prop.validate({"": 1})
 
     def test_str(self) -> None:
         prop = bcpc.Dict(String, Int)

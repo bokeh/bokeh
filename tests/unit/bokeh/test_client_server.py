@@ -8,23 +8,18 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import asyncio
 import logging
 from unittest.mock import MagicMock, patch
 
-# External imports
+import pytest
 from tornado.httpclient import HTTPError
 
-# Bokeh imports
 import bokeh.document as document
 from bokeh.application import Application
 from bokeh.application.handlers import FunctionHandler
@@ -44,8 +39,9 @@ from bokeh.core.property_aliases import AngleUnits, SpatialUnits
 from bokeh.core.types import ID
 from bokeh.document import Document
 from bokeh.document.events import ModelChangedEvent, TitleChangedEvent
-from bokeh.model import Model
-from bokeh.models import ColumnDataSource, Plot
+from bokeh.model import Committed, Model
+from bokeh.models import ColumnDataSource, Plot, Slider
+from bokeh.util.callback_manager import OldValueUnavailable
 from bokeh.util.token import generate_jwt_token
 from tests.support.plugins.managed_server_loop import MSL
 from tests.support.util.env import envset
@@ -91,6 +87,23 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 class TestClientServer:
+    def test_register_callback_policy_on_unset_property_before_add_root(self, ManagedServerLoop: MSL) -> None:
+        calls: list[tuple[str, object, object]] = []
+
+        def modify_document(doc: Document) -> None:
+            slider = Slider(start=0, end=10)
+            slider.on_change("value", lambda attr, old, new: calls.append((attr, old, new)), policy=Committed())
+            slider.value = 1
+            doc.add_root(slider)
+
+        application = Application(FunctionHandler(modify_document))
+        with ManagedServerLoop(application) as server:
+            with pull_session(url=url(server), io_loop=server.io_loop) as session:
+                slider, = session.document.roots
+                assert isinstance(slider, Slider)
+                assert slider.value == 1
+                assert calls == [("value", OldValueUnavailable, 1)]
+
     def test_minimal_connect_and_disconnect(self, ManagedServerLoop: MSL) -> None:
         application = Application()
         with ManagedServerLoop(application) as server:
@@ -100,8 +113,13 @@ class TestClientServer:
             session = ClientSession(session_id=ID("test_minimal_connect_and_disconnect"),
                                     io_loop = server.io_loop,
                                     websocket_url = ws_url(server))
-            session.connect()
-            assert session.connected
+            try:
+                session.connect()
+                assert session.connected
+            finally:
+                session.close()
+                session._loop_until_closed()
+            assert not session.connected
 
     def test_disconnect_on_error(self, ManagedServerLoop: MSL) -> None:
         application = Application()
@@ -145,7 +163,7 @@ class TestClientServer:
         with pytest.raises(HTTPError):
             await http_get(server.io_loop, url(server))
         with pytest.raises(HTTPError):
-            await http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
+            await http_get(server.io_loop, url(server) + "embed.json")
 
     async def check_connect_session_fails(self, server, origin):
         subprotocols = ["bokeh", generate_jwt_token("foo")]
@@ -157,7 +175,7 @@ class TestClientServer:
 
     async def check_http_gets(self, server):
         await http_get(server.io_loop, url(server))
-        await http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
+        await http_get(server.io_loop, url(server) + "embed.json")
 
     async def check_connect_session(self, server, origin):
         subprotocols = ["bokeh", generate_jwt_token("foo")]

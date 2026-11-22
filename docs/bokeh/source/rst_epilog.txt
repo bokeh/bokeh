@@ -20,8 +20,6 @@
 .. |factor_cmap|        replace:: :py:func:`~bokeh.transform.factor_cmap`
 .. |field|              replace:: :py:func:`~bokeh.core.properties.field`
 .. |figure|             replace:: :py:func:`~bokeh.plotting.figure`
-.. |output_file|        replace:: :py:func:`~bokeh.io.output_file`
-.. |output_notebook|    replace:: :py:func:`~bokeh.io.output_notebook`
 .. |save|               replace:: :py:func:`~bokeh.io.save`
 .. |show|               replace:: :py:func:`~bokeh.io.show`
 .. |value|              replace:: :py:func:`~bokeh.core.properties.value`
@@ -63,10 +61,11 @@
 
 .. _CC BY 2.0: https://creativecommons.org/licenses/by/2.0/
 .. _CC BY 3.0 IGO: https://creativecommons.org/licenses/by/3.0/igo/
+.. _CC BY 4.0: https://creativecommons.org/licenses/by/4.0/
 .. _CC BY-NC 4.0: https://creativecommons.org/licenses/by-nc/4.0/
 .. _CC BY-ND 4.0: https://creativecommons.org/licenses/by-nd/4.0/
 .. _CC BY-SA 3.0: https://creativecommons.org/licenses/by-sa/3.0/
-.. _CC0: https://creativecommons.org/share-your-work/public-domain/cc0/
+.. _CC0: https://creativecommons.org/publicdomain/zero/1.0/
 .. _MIT license: https://opensource.org/licenses/MIT
 .. _ODbL 1.0: https://opendatacommons.org/licenses/odbl/1-0/
 .. _Open Government Licence: http://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/

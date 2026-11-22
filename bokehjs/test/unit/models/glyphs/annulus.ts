@@ -14,7 +14,7 @@ describe("Glyph (using Annulus as a concrete Glyph)", () => {
         y: [10, 60, 30, 80],
         r: [1, 2, 3, 4],
       }
-      const glyph = new Annulus({
+      const glyph = Annulus.create({
         x: {field: "x"},
         y: {field: "y"},
         inner_radius: {value: 2},
@@ -30,7 +30,7 @@ describe("Glyph (using Annulus as a concrete Glyph)", () => {
 
     it("should hit test against an index", async () => {
       const data = {}
-      const glyph = new Annulus({
+      const glyph = Annulus.create({
         x: {value: 50},
         y: {value: 50},
         inner_radius: {value: 25},

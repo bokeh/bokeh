@@ -8,15 +8,25 @@ a toggle button with default active or inactive status, checkboxes,
 radio buttons, dropdown menu, checkbox and radio with groups.
 
 .. bokeh-example-metadata::
+    :title: Buttons
+    :keywords: buttons, radio button, checkboxes, toggle button, dropdown
     :apis: bokeh.models.widgets.buttons.Button, bokeh.models.widgets.buttons.Dropdown, bokeh.models.widgets.buttons.Toggle, bokeh.models.widgets.groups.CheckBoxButtonGroup, bokeh.models.widgets.groups.CheckboxGroup, bokeh.models.widgets.groups.RadioButtonGroup, bokeh.models.widgets.groups.RadioGroup
     :refs: :ref:`ug_basic_layouts_gridplot`, :ref:`ug_interaction_widgets`
-    :keywords: buttons, radio button, checkboxes, toggle button, dropdown
 
 ''' # noqa: E501
 from bokeh.document import Document
-from bokeh.embed import file_html
-from bokeh.models import (Button, CheckboxButtonGroup, CheckboxGroup, Column,
-                          CustomJS, Dropdown, RadioButtonGroup, RadioGroup, Toggle)
+from bokeh.embed import embed
+from bokeh.models import (
+    Button,
+    CheckboxButtonGroup,
+    CheckboxGroup,
+    Column,
+    CustomJS,
+    Dropdown,
+    RadioButtonGroup,
+    RadioGroup,
+    Toggle,
+)
 from bokeh.util.browser import view
 
 button = Button(label="Button (enabled) - has click event", button_type="primary")
@@ -73,6 +83,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "buttons.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, title="Button widgets"))
+        f.write(embed(doc).page(title="Button widgets"))
     print(f"Wrote {filename}")
     view(filename)

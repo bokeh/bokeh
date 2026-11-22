@@ -1,9 +1,18 @@
+''' Embed a running Bokeh server app in a Flask page.
+
+.. bokeh-example-metadata::
+    :title: Flask embed
+    :keywords: flask, embed
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Slider, bokeh.plotting.figure.line
+    :sampledata: sea_surface_temperature
+'''
+
 from threading import Thread
 
 from flask import Flask, render_template
 from tornado.ioloop import IOLoop
 
-from bokeh.embed import server_document
+from bokeh.embed import embed_server
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Slider
 from bokeh.plotting import figure
@@ -39,8 +48,9 @@ def bkapp(doc):
 
 @app.route('/', methods=['GET'])
 def bkapp_page():
-    script = server_document('http://localhost:5006/bkapp')
-    return render_template("embed.html", script=script, template="Flask")
+    result = embed_server('http://localhost:5006/bkapp')
+    fragment = result.fragment(resources="server")
+    return render_template("embed.html", embed_html=fragment.html, template="Flask")
 
 
 def bk_worker():

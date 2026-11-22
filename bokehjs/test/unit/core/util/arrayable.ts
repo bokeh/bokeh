@@ -234,4 +234,13 @@ describe("core/util/arrayable module", () => {
     expect(arrayable.binary_search([10, 20, 30, 40], 40)).to.be.equal(3)
     expect(arrayable.binary_search([10, 20, 30, 40], 50)).to.be.equal(null)
   })
+
+  it("should support sort_by() function", () => {
+    expect(arrayable.sort_by([], (x: number) => x)).to.be.equal([])
+    expect(arrayable.sort_by([10, 9, 1, 100], (x) => x)).to.be.equal([1, 9, 10, 100])
+    expect(arrayable.sort_by(["b", "c", "a"], (x) => x)).to.be.equal(["a", "b", "c"])
+    expect(arrayable.sort_by([{k: 2, v: "a"}, {k: 1, v: "b"}, {k: 2, v: "c"}], ({k}) => k))
+      .to.be.equal([{k: 1, v: "b"}, {k: 2, v: "a"}, {k: 2, v: "c"}])
+    expect(arrayable.sort_by(new Float32Array([3, 10, 2]), (x) => x)).to.be.equal(new Float32Array([2, 3, 10]))
+  })
 })

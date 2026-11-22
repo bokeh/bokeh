@@ -8,23 +8,18 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 from math import isnan
 from unittest import mock
 from unittest.mock import MagicMock, patch
 
-# External imports
+import pytest
 import xyzservices.providers as xyz
 
-# Bokeh imports
 from bokeh.core.validation import check_integrity, process_validation_issues
 from bokeh.core.validation.check import ValidationIssue, ValidationIssues
 from bokeh.models import (
@@ -419,6 +414,7 @@ def test__check_compatible_scale_and_ranges_incompat_factor_scale_and_numeric_ra
     ("ESRI_IMAGERY", xyz.Esri.WorldImagery),
     (xyz.Stadia.StamenTerrain, xyz.Stadia.StamenTerrain),
     ])
+@pytest.mark.filterwarnings("ignore:CartoDB tiles now require an API key:UserWarning")
 def test_add_tile(test_input, provider):
     plot = figure(x_range=(-2000000, 6000000), y_range=(-1000000, 7000000),
             x_axis_type="mercator", y_axis_type="mercator")

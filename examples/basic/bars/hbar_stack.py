@@ -1,3 +1,11 @@
+''' Stack horizontal bar segments from separate columns of a data source.
+
+.. bokeh-example-metadata::
+    :title: Hbar stack
+    :keywords: hbar, stack
+    :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.hbar_stack
+'''
+
 from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure, show
 

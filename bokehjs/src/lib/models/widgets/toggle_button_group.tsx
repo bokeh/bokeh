@@ -14,8 +14,6 @@ export abstract class ToggleButtonGroupView extends OrientedControlView {
   declare readonly model: ToggleButtonGroup
   declare readonly signals: p.SignalsOf<ToggleButtonGroup.Props>
 
-  public *controls() {}
-
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), buttons_css.default]
   }
@@ -73,10 +71,6 @@ export interface ToggleButtonGroup extends ToggleButtonGroup.Attrs {}
 export abstract class ToggleButtonGroup extends OrientedControl {
   declare properties: ToggleButtonGroup.Props
   declare __view_type__: ToggleButtonGroupView
-
-  constructor(attrs?: Partial<ToggleButtonGroup.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.define<ToggleButtonGroup.Props>(({Str, List}) => ({

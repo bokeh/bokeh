@@ -18,14 +18,17 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
-# Bokeh imports
+from ..core.enums import AngleReference, MarkerType
 from ..core.has_props import abstract
+from ..core.property.container import List
+from ..core.property.dataspec import AngleSpec, DataSpec, NumberSpec, SizeSpec
+from ..core.property.either import Either
 from ..core.property.enum import Enum
+from ..core.property.include import Include
 from ..core.property.instance import Instance
-from ..core.property.required import Required
+from ..core.property.numeric import Percent
+from ..core.property_aliases import AngleUnits
+from ..core.property_mixins import FillProps, HatchProps, LineProps
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -33,8 +36,9 @@ from ..model import Model
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    "Decoration",
+    "ScatterMarking",
     "Marking",
+    "PathPlacement",
 )
 
 #-----------------------------------------------------------------------------
@@ -47,35 +51,59 @@ class Marking(Model):
 
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    inherit_visuals = List(Enum(
+        "line_color", "line_alpha", "line_width", "line_join", "line_cap",
+        "line_dash", "line_dash_offset", "fill_color", "fill_alpha",
+    ), default=[], help="""
+    Visual properties to inherit from the active host glyph while rendering.
+    Inherited fill color and alpha use the host's line color and alpha. Other
+    inherited properties use the corresponding line property. Properties not
+    listed here retain this marking's own values, allowing explicit overrides.
+    The marking is not modified, so it can be shared by differently styled hosts.
+    """)
 
-class Decoration(Model):
-    """ Indicates a positioned marker, e.g. at a node of a glyph.
+class ScatterMarking(Marking):
+    """A scatter-style marker centered on a path position.
 
+    Markers follow the path orientation and leave the shaft intact.
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    marker = Enum(MarkerType, default="circle", help="The built-in marker shape to draw.")
+    size = SizeSpec(default=8, help="The size of the marker in screen pixels.")
 
-    marking = Instance(Marking, help="""
-    The graphical marking associated with this decoration, e.g. an arrow head.
+    line_props = Include(LineProps, help="The {prop} values for the marker outline.")
+    fill_props = Include(FillProps, help="The {prop} values for the marker fill.")
+    hatch_props = Include(HatchProps, help="The {prop} values for the marker hatch.")
+
+
+class PathPlacement(Model):
+    """Places a marking along a glyph's path."""
+
+    marking = Instance(Marking, help="The graphical marking attached to the path.")
+
+    positions = DataSpec(Either(Enum("start", "middle", "end"), List(Percent)), default=[0.5], help="""
+    A named position or fractions of screen-space path length. Named start and
+    end positions use endpoint tangents, honor inset, and trim the shaft.
+    Middle and fractional positions use rear-to-tip chord alignment without
+    inset or shaft trimming. Fractions 0 and 1 are not aliases for named endpoints.
+    A field references a column of lists, one list per path. Empty lists skip
+    a path. Visuals resolve per path.
     """)
 
-    node = Required(Enum("start", "middle", "end"), help="""
-    The placement of the marking on the parent graphical object.
+    inset = NumberSpec(default=0, help="""
+    The distance in screen pixels to move a named start or end marking inward.
+    This can be a fixed value or a field in the glyph renderer's data source.
     """)
 
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
+    angle = AngleSpec(default=0, help="""
+    Counterclockwise rotation from the direction selected by angle_reference.
+    A source field can supply a different angle for each path.
+    """)
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
+    angle_units = AngleUnits
 
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
+    angle_reference = Enum(AngleReference, help="""
+    The direction before applying angle. Auto uses the usual placement direction.
+    Left and right use the normals to the forward screen-space tangent.
+    Screen points up.
+    """)

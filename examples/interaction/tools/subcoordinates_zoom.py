@@ -1,11 +1,32 @@
+''' Zoom individual simulated EEG channels plotted in separate subcoordinate
+ranges.
+
+.. bokeh-example-metadata::
+    :title: Zoom individual EEG traces
+    :keywords: zoom, EEG, subcoordinates, linked ranges
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.Div, bokeh.models.FactorRange, bokeh.models.GroupByModels
+    :gallery: Stacked EEG traces share a time axis, with controls for zooming individual channels.
+'''
+
 import numpy as np
 
 from bokeh.core.properties import field
 from bokeh.io import show
 from bokeh.layouts import column, row
-from bokeh.models import (ColumnDataSource, CustomJS, Div, FactorRange,
-                          GroupByModels, HoverTool, Range1d, Select,
-                          Switch, WheelZoomTool, ZoomInTool, ZoomOutTool)
+from bokeh.models import (
+    ColumnDataSource,
+    CustomJS,
+    Div,
+    FactorRange,
+    GroupByModels,
+    HoverTool,
+    Range1d,
+    Select,
+    Switch,
+    WheelZoomTool,
+    ZoomInTool,
+    ZoomOutTool,
+)
 from bokeh.palettes import Category10
 from bokeh.plotting import figure
 

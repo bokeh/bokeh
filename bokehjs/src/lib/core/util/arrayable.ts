@@ -188,18 +188,11 @@ export function map<T, U>(array: Arrayable<T>, fn: (item: T, i: number, array: a
   return result
 }
 
-export function inplace_map<T>(array: Arrayable<T>, fn: (item: T, i: number) => T, output?: Arrayable<T>): void {
-  const n = array.length
-  const result = output ?? array
-  for (let i = 0; i < n; i++) {
-    result[i] = fn(array[i], i)
-  }
-}
-
+export function filter(array: Int32Array, pred: (item: number, i: number, array: Int32Array) => boolean): Int32Array
 export function filter<T>(array: T[], pred: (item: T, i: number, array: Arrayable<T>) => boolean): T[]
 export function filter<T>(array: Arrayable<T>, pred: (item: T, i: number, array: Arrayable<T>) => boolean): Arrayable<T>
 
-export function filter<T>(array: Arrayable<T>, pred: (item: T, i: number, array: Arrayable<T>) => boolean): Arrayable<T> {
+export function filter<T>(array: Arrayable<T>, pred: (item: T, i: number, array: any) => boolean): Arrayable<T> {
   const n = array.length
   const result = new (array.constructor as ArrayableNew)<T>(n)
   let k = 0
@@ -237,10 +230,14 @@ export function reduce<T>(array: Arrayable<T>, fn: (previous: T, current: T, ind
   return value
 }
 
-export function sort_by<T>(array: T[], key: (item: T) => number): T[]
-export function sort_by<T>(array: Arrayable<T>, key: (item: T) => number): Arrayable<T>
+/**
+ * Return a copy of an array stably sorted by keys, in their natural order,
+ * i.e. numbers numerically and strings by UTF-16 code units.
+ */
+export function sort_by<T>(array: T[], key: (item: T) => number | string): T[]
+export function sort_by<T>(array: Arrayable<T>, key: (item: T) => number | string): Arrayable<T>
 
-export function sort_by<T>(array: Arrayable<T>, key: (item: T) => number): Arrayable<T> {
+export function sort_by<T>(array: Arrayable<T>, key: (item: T) => number | string): Arrayable<T> {
   const tmp = Array.from(array, (value, index) => {
     return {index, key: key(value)}
   })

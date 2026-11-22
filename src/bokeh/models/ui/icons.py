@@ -21,10 +21,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Any
 
-# Bokeh imports
 from ...core.enums import ToolIcon
 from ...core.has_props import abstract
 from ...core.property.bases import ModelInit
@@ -61,10 +59,6 @@ class Icon(UIElement):
     """ An abstract base class for icon elements.
 
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     size = Either(Int, FontSize, default="1em", help="""
     The size of the icon. This can be either a number of pixels, or a CSS

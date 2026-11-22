@@ -8,15 +8,11 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import os
 import signal
 import subprocess
@@ -33,16 +29,15 @@ from os.path import (
 from typing import Any, Literal
 from urllib.parse import urlparse
 
-# External imports
 import _pytest.config
 import _pytest.mark
 import _pytest.python
+import pytest
 from playwright.sync_api import (  # type: ignore[attr-defined]
     TimeoutError as PlaywrightTimeoutError,
     sync_playwright,
 )
 
-# Bokeh imports
 from bokeh.client import push_session
 from bokeh.command.util import build_single_handler_application
 from bokeh.core.types import ID
@@ -162,8 +157,7 @@ def test_file_examples(
             continue
         warn(line, label="PY")
 
-    assert status != "timeout", f"{example.relpath} timed out"
-    assert status == 0, f"{example.relpath} failed to run (exit code {status})"
+    _check_example_status(example, status, out, err)
 
     if example.no_js:
         if not config.option.no_js:
@@ -256,7 +250,7 @@ def _run_in_browser(example: Example, url: str, report: list[Example], page: Any
             errors.append((request.url, request.failure or "Failed to load resource"))
 
     def on_response(response: Any) -> None:
-        if not response.ok and response.request.resource_type in ("script", "stylesheet"):
+        if response.status >= 400 and response.request.resource_type in ("script", "stylesheet"):
             errors.append((response.url, f"Failed to load resource: {response.status} {response.status_text}"))
 
     page.on("console", on_console)
@@ -381,6 +375,22 @@ def _decode_output(output: bytes | str | None) -> str:
         return output.decode("utf-8")
     return output
 
+_MAX_REPORTED_OUTPUT_LINES = 40
+
+def _report_output(out: str, err: str) -> str:
+    """Format the tail of a failed example's output, for use in a failure message."""
+    lines = [line for stream in (out, err) for line in stream.splitlines() if line.strip()]
+    omitted = len(lines) - _MAX_REPORTED_OUTPUT_LINES
+    if omitted > 0:
+        lines = [f"... {omitted} earlier lines omitted ...", *lines[-_MAX_REPORTED_OUTPUT_LINES:]]
+    return "".join(f"\n{line}" for line in lines)
+
+def _check_example_status(example: Example, status: ProcStatus, out: str, err: str) -> None:
+    """Raise an assertion error that reports why an example failed to run."""
+    output = _report_output(out, err)
+    assert status != "timeout", f"{example.relpath} timed out{output}"
+    assert status == 0, f"{example.relpath} failed to run (exit code {status}){output}"
+
 def _run_process(cmd: list[str], cwd: str, env: dict[str, str], timeout: float) -> tuple[ProcStatus, float, str, str]:
     start = time.monotonic()
     proc = subprocess.Popen(
@@ -424,6 +434,9 @@ np.random.seed(1)
 import warnings
 warnings.filterwarnings("ignore", ".*", UserWarning, "matplotlib.font_manager")
 
+import bokeh.io.showing
+bokeh.io.showing.temp_filename = lambda ext: {example.path_no_ext!r} + "." + ext
+
 for ext_dir in {example.extensions!r}:
     from bokeh.ext import build
     if not build(ext_dir):
@@ -437,7 +450,6 @@ with open(filename, 'rb') as example:
     cwd = dirname(example.path)
 
     env = os.environ.copy()
-    env['BOKEH_IGNORE_FILENAME'] = 'true'
     env['BOKEH_RESOURCES'] = 'server-dev'
     env['BOKEH_BROWSER'] = 'none'
     port = urlparse(bokeh_server).port

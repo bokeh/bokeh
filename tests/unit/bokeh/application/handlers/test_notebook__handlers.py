@@ -8,18 +8,14 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# External imports
+import pytest
 from packaging import version
 
-# Bokeh imports
 from bokeh.document import Document
 from tests.support.util.filesystem import with_temporary_file
 

@@ -1,11 +1,9 @@
-# Standard library imports
 import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-# Bokeh imports
 from tests.tools.backport._support import candidate, state_with
 from tools.backport import (
     BackportError,
@@ -353,7 +351,7 @@ class GitWorkflowTests(unittest.TestCase):
         restored = planning.resume_plan(git, persistence.load_plan(git))
 
         self.assertEqual(restored.conflict, restored.candidates[0])
-        self.assertEqual(restored.conflict.conflict_files, ["value.txt"])
+        self.assertEqual(restored.candidates[0].conflict_files, ["value.txt"])
 
     def test_resume_preserves_an_uncommitted_compatibility_fix_after_all_picks(self) -> None:
         base_sha = self.commit_file("base.txt", "base\n", "base")

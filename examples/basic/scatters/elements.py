@@ -1,14 +1,13 @@
-''' A scatter plot using data from the `Periodic Table`_. This example
-demonstrates using basic hover tooltips and adding labels for individual
-points.
+''' Plot element density against atomic weight, with color indicating melting
+point. Hover over a point to see the element's properties.
 
 .. bokeh-example-metadata::
-    :sampledata: periodic_table
+    :title: Periodic table scatter plot
+    :keywords: periodic table, hover, labels, scatter
     :apis: bokeh.plotting.figure.scatter, bokeh.models.sources.ColumnDataSource, bokeh.models.LabelSet
+    :sampledata: periodic_table
     :refs: :ref:`ug_interaction_tools_hover_tool`
-    :keywords: hover, labels, scatter
-
-.. _Periodic Table: https://en.wikipedia.org/wiki/Periodic_table
+    :gallery: A scatter plot of labeled chemical elements, colored by melting point.
 
 '''
 import pandas as pd

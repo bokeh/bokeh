@@ -8,21 +8,16 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
-
-import pytest ; pytest
+from __future__ import annotations
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
-# Standard library imports
 import datetime
 
-# External imports
 import numpy as np
+import pytest
 
-# Bokeh imports
 from bokeh.util.dependencies import is_installed
 from bokeh.util.serialization import convert_date_to_datetime
 from tests.support.util.api import verify_all
@@ -130,6 +125,24 @@ class Test_Datetime:
         t = datetime.date(2020, 1, 11)
         prop = bcpd.Datetime()
         assert prop.transform("2020-01-11") == convert_date_to_datetime(t)
+
+    @pytest.mark.parametrize("value", [
+        "2018-01-03T15:37:59.922452",
+        datetime.datetime(2018, 1, 3, 15, 37, 59, 922452),
+    ])
+    def test_transform_preserves_time(self, value) -> None:
+        prop = bcpd.Datetime()
+        assert prop.transform(value) == 1514993879922.452
+
+    def test_transform_pandas_timestamp(self) -> None:
+        pd = pytest.importorskip("pandas")
+        prop = bcpd.Datetime()
+        assert prop.transform(pd.Timestamp("2018-01-03T15:37:59.922452")) == 1514993879922.452
+
+    @pytest.mark.parametrize("value", [1514993879000, 1514993879922.452])
+    def test_transform_timestamp(self, value) -> None:
+        prop = bcpd.Datetime()
+        assert prop.transform(value) == value
 
     def test_has_ref(self) -> None:
         prop = bcpd.Datetime()

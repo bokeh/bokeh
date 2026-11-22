@@ -1,150 +1,120 @@
 {
   config: {
-    type: "object",
-    name: "DocumentConfig",
-    id: "p1014",
-    attributes: {
-      notifications: {
-        type: "object",
-        name: "Notifications",
-        id: "p1015",
-      },
+    $type: "DocumentConfig",
+    $id: "p1014",
+    notifications: {
+      $type: "Notifications",
+      $id: "p1015",
     },
   },
   roots: [
     {
-      type: "object",
-      name: "Plot",
-      id: "p1013",
-      attributes: {
-        x_range: {
-          type: "object",
-          name: "DataRange1d",
-          id: "p1016",
-        },
-        y_range: {
-          type: "object",
-          name: "DataRange1d",
-          id: "p1017",
-        },
-        x_scale: {
-          type: "object",
-          name: "LinearScale",
-          id: "p1018",
-        },
-        y_scale: {
-          type: "object",
-          name: "LinearScale",
-          id: "p1019",
-        },
-        title: {
-          type: "object",
-          name: "Title",
-          id: "p1020",
-        },
-        renderers: [
-          {
-            type: "object",
-            name: "GlyphRenderer",
-            id: "p1011",
-            attributes: {
-              data_source: {
-                type: "object",
-                name: "ColumnDataSource",
-                id: "p1006",
-                attributes: {
-                  selected: {
-                    type: "object",
-                    name: "Selection",
-                    id: "p1022",
-                  },
-                  selection_policy: {
-                    type: "object",
-                    name: "UnionRenderers",
-                    id: "p1023",
-                  },
-                  data: {
-                    type: "map",
-                    entries: [
-                      [
-                        "x",
-                        {
-                          type: "ndarray",
-                          array: {
-                            type: "bytes",
-                            data: "H4sIAAEAAAAA/2NkYGBgAmJmIGYBYlYgBgCQqRgpFAAAAA==",
-                          },
-                          shape: [
-                            5,
-                          ],
-                          dtype: "int32",
-                          order: "little",
-                        },
-                      ],
-                      [
-                        "y",
-                        {
-                          type: "ndarray",
-                          array: {
-                            type: "bytes",
-                            data: "H4sIAAEAAAAA/2NkYGBgAmJmIGYBYlYgBgCQqRgpFAAAAA==",
-                          },
-                          shape: [
-                            5,
-                          ],
-                          dtype: "int32",
-                          order: "little",
-                        },
-                      ],
-                    ],
-                  },
-                },
-              },
-              view: {
-                type: "object",
-                name: "CDSView",
-                id: "p1008",
-                attributes: {
-                  filter: {
-                    type: "object",
-                    name: "BooleanFilter",
-                    id: "p1007",
-                    attributes: {
-                      booleans: {
-                        type: "ndarray",
-                        array: {
-                          type: "bytes",
-                          data: "H4sIAAEAAAAA/2NgZGBkAAA5oYVnBQAAAA==",
-                        },
-                        shape: [
-                          5,
-                        ],
-                        dtype: "bool",
-                        order: "little",
-                      },
+      $type: "Plot",
+      $id: "p1013",
+      x_range: {
+        $type: "DataRange1d",
+        $id: "p1016",
+      },
+      y_range: {
+        $type: "DataRange1d",
+        $id: "p1017",
+      },
+      x_scale: {
+        $type: "LinearScale",
+        $id: "p1018",
+      },
+      y_scale: {
+        $type: "LinearScale",
+        $id: "p1019",
+      },
+      title: {
+        $type: "Title",
+        $id: "p1020",
+      },
+      renderers: [
+        {
+          $type: "GlyphRenderer",
+          $id: "p1011",
+          data_source: {
+            $type: "ColumnDataSource",
+            $id: "p1006",
+            selected: {
+              $type: "Selection",
+              $id: "p1022",
+            },
+            selection_policy: {
+              $type: "UnionRenderers",
+              $id: "p1023",
+            },
+            data: {
+              type: "map",
+              entries: [
+                [
+                  "x",
+                  {
+                    type: "ndarray",
+                    array: {
+                      type: "bytes",
+                      data: "H4sIAAAAAAAA/2NkYGBgAmJmIGYBYlYgBgCQqRgpFAAAAA==",
                     },
+                    shape: [
+                      5,
+                    ],
+                    dtype: "int32",
+                    order: "little",
                   },
-                },
-              },
-              glyph: {
-                type: "object",
-                name: "Scatter",
-                id: "p1010",
-                attributes: {
-                  size: {
-                    type: "value",
-                    value: 10,
+                ],
+                [
+                  "y",
+                  {
+                    type: "ndarray",
+                    array: {
+                      type: "bytes",
+                      data: "H4sIAAAAAAAA/2NkYGBgAmJmIGYBYlYgBgCQqRgpFAAAAA==",
+                    },
+                    shape: [
+                      5,
+                    ],
+                    dtype: "int32",
+                    order: "little",
                   },
+                ],
+              ],
+            },
+          },
+          view: {
+            $type: "IndexedSubset",
+            $id: "p1008",
+            filter: {
+              $type: "BooleanFilter",
+              $id: "p1007",
+              booleans: {
+                type: "ndarray",
+                array: {
+                  type: "bytes",
+                  data: "H4sIAAAAAAAA/2NgZGBkAAA5oYVnBQAAAA==",
                 },
+                shape: [
+                  5,
+                ],
+                dtype: "bool",
+                order: "little",
               },
             },
           },
-        ],
-        toolbar: {
-          type: "object",
-          name: "Toolbar",
-          id: "p1021",
+          glyph: {
+            $type: "Scatter",
+            $id: "p1010",
+            size: {
+              type: "value",
+              value: 10,
+            },
+          },
         },
+      ],
+      toolbar: {
+        $type: "Toolbar",
+        $id: "p1021",
       },
     },
   ],

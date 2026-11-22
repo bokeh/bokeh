@@ -1,22 +1,21 @@
 from __future__ import annotations
 
-# Standard library imports
 import inspect
+import json
 import posixpath
 import sys
 from io import StringIO
 from pathlib import Path
 from typing import Any, cast
 
-# External imports
 import pytest
 from sphinx.application import Sphinx
 from sphinx.util.inventory import InventoryFile
 
-# Bokeh imports
 import bokeh.models as models
 from bokeh.core.has_props import HasProps, Local
 from bokeh.core.properties import (
+    DeprecatedAlias,
     Either,
     Enum,
     Include,
@@ -26,10 +25,11 @@ from bokeh.core.properties import (
     String,
 )
 from bokeh.model import Model
-from bokeh.models import BoxSelectTool, Filter
+from bokeh.models import Filter, Selection
 from bokeh.sphinxext._internal.bokeh_model import (
     _DEFAULT_EXCLUDED_MEMBERS,
     _model_members,
+    to_json_rep,
 )
 from bokeh.sphinxext._internal.bokeh_prop import _render_property_detail
 from bokeh.sphinxext._internal.templates import MODEL_DETAIL
@@ -81,6 +81,9 @@ Unindented suffix text.
         Enum("auto"),
     ))
 
+    value = Int(default=0)
+    old_value = DeprecatedAlias("value", since=(3, 1, 0))
+
 
 class _IncludeDelegate(HasProps, Local):
     value = Int(help="Original value documentation.")
@@ -102,7 +105,7 @@ def test_model_members_separate_properties_and_methods() -> None:
     assert python_properties == ["document"]
     assert "apply_theme" in methods
     assert "properties_with_values" in methods
-    assert "js_event_callbacks" not in properties
+    assert "_js_event_callbacks" not in properties
 
 
 @pytest.mark.skipif(sys.flags.optimize >= 2, reason="requires docstrings, which -OO removes")
@@ -121,7 +124,7 @@ def test_model_members_support_global_exclusions() -> None:
 
     assert "name" not in properties
     assert "tags" not in properties
-    assert "js_event_callbacks" in properties
+    assert "_js_event_callbacks" not in properties
 
 
 def test_all_documented_model_members_are_classified() -> None:
@@ -183,16 +186,12 @@ def test_property_detail_resolves_string_instance_types() -> None:
 
 
 def test_property_detail_supports_deprecated_aliases() -> None:
-    properties, _, _ = _model_members(BoxSelectTool)
-    detail = _render_property_detail(
-        BoxSelectTool(),
-        "BoxSelectTool.select_every_mousemove",
-        "bokeh.models",
-    )
+    properties, _, _ = _model_members(_PropertyDetailModel)
+    detail = _render_property_detail(_PropertyDetailModel(), "_PropertyDetailModel.old_value", __name__)
 
-    assert "select_every_mousemove" in properties
-    assert ":annotation: = False" in detail
-    assert ":Type: :class:`~bokeh.core.properties.Bool`" in detail
+    assert "old_value" in properties
+    assert ":annotation: = 0" in detail
+    assert ":Type: :class:`~bokeh.core.properties.Int`" in detail
     assert "was deprecated in Bokeh 3.1.0" in detail
 
 
@@ -226,19 +225,16 @@ def test_model_build_registers_inventory_members_and_template_dependencies(tmp_p
         "    'bokeh.sphinxext._internal.bokeh_model',\n"
         "]\n"
         "project = 'bokeh-model-test'\n"
-        "bokeh_model_excluded_members = [\n"
-        "    'greedy',\n"
-        "    'js_event_callbacks',\n"
-        "    'js_property_callbacks',\n"
-        "    'subscribed_events',\n"
-        "]\n",
+        "bokeh_model_excluded_members = ['greedy']\n",
         encoding="utf-8",
     )
     (source_dir / "index.rst").write_text(
         "Model API\n"
         "=========\n\n"
         ".. bokeh-model:: BoxSelectTool\n"
-        "    :module: bokeh.models.tools\n",
+        "    :module: bokeh.models.tools\n\n"
+        ".. bokeh-model:: Selection\n"
+        "    :module: bokeh.models.selections\n",
         encoding="utf-8",
     )
 
@@ -265,11 +261,10 @@ def test_model_build_registers_inventory_members_and_template_dependencies(tmp_p
 
     assert "bokeh.models.BoxSelectTool" in inventory["py:class"]
     assert "bokeh.models.BoxSelectTool.continuous" in inventory["py:attribute"]
-    assert "bokeh.models.BoxSelectTool.select_every_mousemove" in inventory["py:attribute"]
     assert "bokeh.models.BoxSelectTool.document" in inventory["py:property"]
     assert "bokeh.models.BoxSelectTool.apply_theme" in inventory["py:method"]
     assert "bokeh.models.BoxSelectTool.greedy" not in inventory["py:attribute"]
-    assert "bokeh.models.BoxSelectTool.js_event_callbacks" not in inventory["py:attribute"]
+    assert "bokeh.models.BoxSelectTool._js_event_callbacks" not in inventory["py:attribute"]
 
     local_toc = app.env.tocs["index"].astext()
     assert "continuous" in local_toc
@@ -306,10 +301,10 @@ def test_model_build_resolves_include_help_substitutions(tmp_path: Path) -> None
         encoding="utf-8",
     )
     (source_dir / "index.rst").write_text(
-        "Arrow API\n"
-        "=========\n\n"
+        "Arrow head API\n"
+        "==============\n\n"
         ".. include:: line_props.rst\n\n"
-        ".. bokeh-model:: Arrow\n"
+        ".. bokeh-model:: NormalHead\n"
         "    :module: bokeh.models.annotations\n",
         encoding="utf-8",
     )
@@ -330,3 +325,11 @@ def test_model_build_resolves_include_help_substitutions(tmp_path: Path) -> None
     app.build()
     assert app.statuscode == 0, warning.getvalue()
     assert "Undefined substitution" not in warning.getvalue()
+
+
+def test_model_json_serializes_selection_lists() -> None:
+    selection = Selection(indices=[1, 2], line_indices=[3], multiline_indices={7: [0, 1]})
+    rep = json.loads(json.dumps(to_json_rep(selection)))
+    assert rep["indices"] == [1, 2]
+    assert rep["line_indices"] == [3]
+    assert rep["multiline_indices"] == dict(type="map", entries=[[7, [0, 1]]])

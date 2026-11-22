@@ -24,7 +24,7 @@ export class PatchView extends XYGlyphView {
     return PatchGL
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Patch.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<Patch.Data>): void {
     const {sx, sy} = {...this, ...data}
 
     let move = true
@@ -59,7 +59,7 @@ export class PatchView extends XYGlyphView {
   }
 
   protected override _hit_point(geometry: PointGeometry): Selection {
-    const result = new Selection()
+    const result = Selection.create()
     const {sx, sy} = geometry
 
     // Collect NaN-separated sub-paths
@@ -119,10 +119,6 @@ export interface Patch extends Patch.Attrs {}
 export class Patch extends XYGlyph {
   declare properties: Patch.Props
   declare __view_type__: PatchView
-
-  constructor(attrs?: Partial<Patch.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = PatchView

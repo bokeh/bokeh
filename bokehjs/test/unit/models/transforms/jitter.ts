@@ -27,11 +27,11 @@ describe("Jitter transform module", () => {
   const N = 100
 
   function generate_jitter(attrs?: Partial<Jitter.Attrs>) {
-    return new Jitter({
+    return Jitter.create({
       width: 1,
       mean: 0,
       distribution: "uniform",
-      random_generator: new FakeGenerator(),
+      random_generator: FakeGenerator.create(),
       ...attrs,
     })
   }
@@ -112,7 +112,7 @@ describe("Jitter transform module", () => {
     it("should work with a supplied range", () => {
       const transform = generate_jitter({
         distribution: "uniform",
-        range: new FactorRange({factors: ["a", "b"]}),
+        range: FactorRange.create({factors: ["a", "b"]}),
       })
 
       const vals = repeat("b", N)
@@ -127,7 +127,7 @@ describe("Jitter transform module", () => {
     it("should cache offsets for identical input lengths", () => {
       const transform = generate_jitter({
         distribution: "uniform",
-        range: new FactorRange({factors: ["a", "b"]}),
+        range: FactorRange.create({factors: ["a", "b"]}),
       })
 
       const val1 = repeat("a", N)

@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -53,6 +52,7 @@ class ModelChanged(TypedDict):
     model: Ref
     attr: str
     new: Any
+    callback_policy: NotRequired[list[Any]]
 
 class MessageSent(TypedDict):
     kind: Literal["MessageSent"]

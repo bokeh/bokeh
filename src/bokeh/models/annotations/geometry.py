@@ -22,11 +22,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from math import inf
-from typing import Any
 
-# Bokeh imports
+# Public constructor types live in the stubs; declarations below cover local calls.
+from typing import TYPE_CHECKING, Any
+
 from ...core.enums import (
     CoordinateUnits,
     Dimension,
@@ -38,7 +38,7 @@ from ...core.property.container import Seq
 from ...core.property.dataspec import CoordinateSpec
 from ...core.property.enum import Enum
 from ...core.property.include import Include
-from ...core.property.instance import Instance, InstanceDefault
+from ...core.property.instance import Instance
 from ...core.property.nullable import Nullable
 from ...core.property.numeric import NonNegative, Positive
 from ...core.property.override import Override
@@ -50,7 +50,6 @@ from ...core.property_aliases import (
     CoordinateUnits as CoordinateUnitsProperty,
 )
 from ...core.property_mixins import (
-    LineProps,
     ScalarFillProps,
     ScalarHatchProps,
     ScalarLineProps,
@@ -59,7 +58,6 @@ from ...model import Model
 from ..common.properties import Coordinate
 from ..nodes import BoxNodes, Node
 from .annotation import Annotation, DataAnnotation
-from .arrows import ArrowHead, TeeHead
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -72,7 +70,6 @@ __all__ = (
     "PolyAnnotation",
     "Slope",
     "Span",
-    "Whisker",
 )
 
 #-----------------------------------------------------------------------------
@@ -82,9 +79,8 @@ __all__ = (
 class AreaVisuals(Model):
     """ Allows to style line, fill and hatch visuals. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     line_props = Include(ScalarLineProps, help="""
     The {prop} values for the box.
@@ -115,9 +111,8 @@ class BoxInteractionHandles(Model):
 
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    if TYPE_CHECKING:
+        def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
     all          = Required(Instance(AreaVisuals)) # move, resize
 
@@ -155,10 +150,6 @@ class BoxAnnotation(Annotation, AreaVisuals):
     See :ref:`ug_basic_annotations_box_annotations` for information on plotting box annotations.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     left = Coordinate(default=lambda: Node.frame.left, help="""
     The x-coordinates of the left edge of the box annotation.
@@ -321,17 +312,17 @@ class BoxAnnotation(Annotation, AreaVisuals):
     between the box and its parent, e.g. the frame.
     """)
 
-    line_color = Override(default="#cccccc")
-    line_alpha = Override(default=0.3)
+    _line_color = Override(default="#cccccc")
+    _line_alpha = Override(default=0.3)
 
-    fill_color = Override(default="#fff9ba")
-    fill_alpha = Override(default=0.4)
+    _fill_color = Override(default="#fff9ba")
+    _fill_alpha = Override(default=0.4)
 
-    hover_line_color = Override(default=None)
-    hover_line_alpha = Override(default=0.3)
+    _hover_line_color = Override(default=None)
+    _hover_line_alpha = Override(default=0.3)
 
-    hover_fill_color = Override(default=None)
-    hover_fill_alpha = Override(default=0.4)
+    _hover_fill_color = Override(default=None)
+    _hover_fill_alpha = Override(default=0.4)
 
     @property
     def nodes(self) -> BoxNodes:
@@ -343,10 +334,6 @@ class Band(DataAnnotation):
     See :ref:`ug_basic_annotations_bands` for information on plotting bands.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     lower = CoordinateSpec(default=field("lower"), help="""
     The coordinates of the lower portion of the filled area band.
@@ -375,9 +362,9 @@ class Band(DataAnnotation):
     The {prop} values for the band.
     """)
 
-    line_alpha = Override(default=0.3)
+    _line_alpha = Override(default=0.3)
 
-    line_color = Override(default="#cccccc")
+    _line_color = Override(default="#cccccc")
 
     fill_props = Include(ScalarFillProps, help="""
     The {prop} values for the band.
@@ -387,9 +374,9 @@ class Band(DataAnnotation):
     The {prop} values for the band.
     """)
 
-    fill_alpha = Override(default=0.4)
+    _fill_alpha = Override(default=0.4)
 
-    fill_color = Override(default="#fff9ba")
+    _fill_color = Override(default="#fff9ba")
 
 
 class PolyAnnotation(Annotation):
@@ -399,10 +386,6 @@ class PolyAnnotation(Annotation):
     plotting polygon annotations.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     xs = Seq(CoordinateLike, default=[], help="""
     The x-coordinates of the region to draw.
@@ -453,17 +436,17 @@ class PolyAnnotation(Annotation):
     The {prop} values for the polygon when hovering over.
     """)
 
-    line_color = Override(default="#cccccc")
-    line_alpha = Override(default=0.3)
+    _line_color = Override(default="#cccccc")
+    _line_alpha = Override(default=0.3)
 
-    fill_color = Override(default="#fff9ba")
-    fill_alpha = Override(default=0.4)
+    _fill_color = Override(default="#fff9ba")
+    _fill_alpha = Override(default=0.4)
 
-    hover_line_color = Override(default=None)
-    hover_line_alpha = Override(default=0.3)
+    _hover_line_color = Override(default=None)
+    _hover_line_alpha = Override(default=0.3)
 
-    hover_fill_color = Override(default=None)
-    hover_fill_alpha = Override(default=0.4)
+    _hover_fill_color = Override(default=None)
+    _hover_fill_alpha = Override(default=0.4)
 
 class Slope(Annotation):
     """ Render a sloped line as an annotation.
@@ -471,10 +454,6 @@ class Slope(Annotation):
     See :ref:`ug_basic_annotations_slope` for information on plotting slopes.
 
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     gradient = Nullable(Float, help="""
     The gradient of the line, in |data units|
@@ -504,11 +483,11 @@ class Slope(Annotation):
     The {prop} values for the area below the line.
     """)
 
-    above_fill_color = Override(default=None)
-    above_fill_alpha = Override(default=0.4)
+    _above_fill_color = Override(default=None)
+    _above_fill_alpha = Override(default=0.4)
 
-    below_fill_color = Override(default=None)
-    below_fill_alpha = Override(default=0.4)
+    _below_fill_color = Override(default=None)
+    _below_fill_alpha = Override(default=0.4)
 
 class Span(Annotation):
     """ Render a horizontal or vertical line span.
@@ -516,10 +495,6 @@ class Span(Annotation):
     See :ref:`ug_basic_annotations_spans` for information on plotting spans.
 
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     location = Nullable(CoordinateLike, help="""
     The location of the span, along ``dimension``.
@@ -550,56 +525,8 @@ class Span(Annotation):
     The {prop} values for the span when hovering over.
     """)
 
-    hover_line_color = Override(default=None)
-    hover_line_alpha = Override(default=0.3)
-
-class Whisker(DataAnnotation):
-    ''' Render a whisker along a dimension.
-
-    See :ref:`ug_basic_annotations_whiskers` for information on plotting whiskers.
-
-    '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
-    lower = CoordinateSpec(default=field("lower"), help="""
-    The coordinates of the lower end of the whiskers.
-    """)
-
-    lower_units = CoordinateUnitsProperty
-
-    lower_head = Nullable(Instance(ArrowHead), default=InstanceDefault(TeeHead, size=10), help="""
-    Instance of ``ArrowHead``.
-    """)
-
-    upper = CoordinateSpec(default=field("upper"), help="""
-    The coordinates of the upper end of the whiskers.
-    """)
-
-    upper_units = CoordinateUnitsProperty
-
-    upper_head = Nullable(Instance(ArrowHead), default=InstanceDefault(TeeHead, size=10), help="""
-    Instance of ``ArrowHead``.
-    """)
-
-    base = CoordinateSpec(default=field("base"), help="""
-    The orthogonal coordinates of the upper and lower values.
-    """)
-
-    base_units = CoordinateUnitsProperty
-
-    dimension = Enum(Dimension, default='height', help="""
-    The direction of the whisker can be specified by setting this property
-    to "height" (``y`` direction) or "width" (``x`` direction).
-    """)
-
-    line_props = Include(LineProps, help="""
-    The {prop} values for the whisker body.
-    """)
-
-    level = Override(default="underlay")
+    _hover_line_color = Override(default=None)
+    _hover_line_alpha = Override(default=0.3)
 
 #-----------------------------------------------------------------------------
 # Dev API

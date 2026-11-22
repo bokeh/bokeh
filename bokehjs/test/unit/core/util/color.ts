@@ -228,6 +228,20 @@ describe("core/util/color module", () => {
       expect(css4_parse("rgba(100%, 50%, 0%, 100%)")).to.be.equal([255, 128, 0, 1.0])
     })
 
+    it("that rejects malformed RGB separators without excessive backtracking", () => {
+      for (const color of [
+        "rgb(1/2 3 4)",
+        "rgb(1 2/3 4)",
+        "rgb(1 2 3/4/5)",
+        `rgb(! ! !/${"!/!".repeat(100_000)})`,
+        `rgb(1 2 3${" ".repeat(100_000)}!)`,
+      ]) {
+        expect(css4_parse(color)).to.be.null
+      }
+      expect(css4_parse("rgb(255 128 0/.5)")).to.be.equal([255, 128, 0, 0.5])
+      expect(css4_parse("rgb(255 128 0 / .5)")).to.be.equal([255, 128, 0, 0.5])
+    })
+
     it("that supports other CSS4 syntax", () => {
       expect(css4_parse("hsl(0deg 0% 0%)")).to.be.equal([0, 0, 0, 1.0])
       expect(css4_parse("hsl(0deg 0% 0% / 0)")).to.be.equal([0, 0, 0, 0.0])

@@ -70,17 +70,22 @@ websocket URLs. Equivalent complete examples are available for:
 * :bokeh-tree:`examples/server/api/asgi/streamlit_simple.py`
 * :bokeh-tree:`examples/server/api/asgi/streamlit_particles/app.py`
 * :bokeh-tree:`examples/server/api/asgi/framework_free.py`
+* :bokeh-tree:`examples/server/api/asgi/react_mount.py`: a live React client with
+  independently placed roots and explicit connection/view ownership, plus a
+  framework-free ``server_document(app_url, target)`` page. See
+  :bokeh-tree:`bokehjs/examples/frameworks/react-vite/README-live.md` for commands
+  and the equivalent Tornado launch.
 
-The ASGI frontend handles Bokeh document, autoload, metadata, static asset, and
-websocket routes, as well as application startup and shutdown through ASGI
-lifespan events.
+The ASGI frontend handles Bokeh document, metadata, signed ``/embed.json``
+bootstrap, static asset, and WebSocket routes, as well as application startup
+and shutdown through ASGI lifespan events.
 
 Reverse proxy deployment
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 A reverse proxy must preserve the public ``Host`` and browser-supplied
 ``Origin`` headers. Forward ``Upgrade``, ``Connection``, and
-``Sec-WebSocket-Protocol`` unchanged; Bokeh's websocket handshake requires the
+``Sec-WebSocket-Protocol`` unchanged. Bokeh's websocket handshake requires the
 ``bokeh`` subprotocol followed by the session token. If the page origin is not
 the public Bokeh host, add that origin to ``extra_websocket_origins``. If the
 proxy strips a public path prefix, configure the ASGI server or parent mount to
@@ -221,7 +226,7 @@ available to the authenticator as ``request.state``.
 Session tokens are bearer credentials, not a replacement for authenticating
 HTTP and websocket requests. Authenticated deployments should enable signed
 sessions and configure a strong shared secret. Token payloads are signed but
-not encrypted; use ``include_headers``, ``exclude_headers``,
+not encrypted. Use ``include_headers``, ``exclude_headers``,
 ``include_cookies``, and ``exclude_cookies`` to avoid copying secrets into
 them.
 
@@ -317,7 +322,7 @@ to the user.
     from flask import Flask, render_template
 
     from bokeh.client import pull_session
-    from bokeh.embed import server_session
+    from bokeh.embed import embed_server
 
     app = Flask(__name__)
 
@@ -329,11 +334,15 @@ to the user.
             # update or customize that session
             session.document.roots[0].children[1].title.text = "Special sliders for a specific user!"
 
-            # generate a script to load the customized session
-            script = server_session(session_id=session.id, url='http://localhost:5006/sliders')
+            # generate markup to load the customized session
+            result = embed_server(
+                "http://localhost:5006/sliders",
+                session_id=session.id,
+            )
+            html = result.fragment(resources="server").html
 
-            # use the script in the rendered page
-            return render_template("embed.html", script=script, template="Flask")
+            # use the markup in the rendered page
+            return render_template("embed.html", script=html, template="Flask")
 
     if __name__ == '__main__':
         app.run(port=8080)

@@ -28,16 +28,17 @@ export type Options = {
   y_range?: Range
 }
 
-export async function create_glyph_renderer_view<G extends Glyph>(glyph: G, data: DataOf<G> = {}, options: Options = {}): Promise<GlyphRendererView> {
+export async function create_glyph_renderer_view<G extends Glyph>(
+    glyph: G, data: DataOf<G> = {}, options: Options = {}): Promise<GlyphRendererView & {readonly model: GlyphRenderer<G>}> {
   const axis_type = options.axis_type ?? "linear"
 
-  const data_source = new ColumnDataSource({data: data as {[key: string]: Arrayable}}) // TODO: exactOptionalPropertyTypes
-  const glyph_renderer = new GlyphRenderer({glyph, data_source})
+  const data_source = ColumnDataSource.create({data: data as {[key: string]: Arrayable}}) // TODO: exactOptionalPropertyTypes
+  const glyph_renderer = GlyphRenderer.create<GlyphRenderer<G>>({glyph, data_source})
 
   const [x_range, x_scale] = make_scale("x", axis_type, options.x_range)
   const [y_range, y_scale] = make_scale("y", axis_type, options.y_range)
 
-  const plot = new Plot({
+  const plot = Plot.create({
     width: 200, height: 200,
     x_range, y_range,
     x_scale, y_scale,
@@ -48,7 +49,7 @@ export async function create_glyph_renderer_view<G extends Glyph>(glyph: G, data
   })
 
   const {view} = await display(plot)
-  return view.owner.get_one(glyph_renderer)
+  return view.owner.get_one(glyph_renderer) as GlyphRendererView & {readonly model: typeof glyph_renderer}
 }
 
 export async function create_glyph_view<G extends Glyph>(glyph: G, data: DataOf<G> = {}, options?: Options): Promise<ViewOf<G>> {
@@ -60,10 +61,10 @@ export type AxisType = "linear" | "log" | "categorical"
 function make_scale(_axis: "x" | "y", axis_type: AxisType, range?: Range): [Range, Scale] {
   switch (axis_type) {
     case "linear":
-      return [range ?? new Range1d({start: 0, end: 100}), new LinearScale()]
+      return [range ?? Range1d.create({start: 0, end: 100}), LinearScale.create()]
     case "log":
-      return [range ?? new Range1d({start: 1, end: 1000}), new LogScale()]
+      return [range ?? Range1d.create({start: 1, end: 1000}), LogScale.create()]
     case "categorical":
-      return [range ?? new FactorRange({factors: ["a", "b"], range_padding: 0}), new CategoricalScale()]
+      return [range ?? FactorRange.create({factors: ["a", "b"], range_padding: 0}), CategoricalScale.create()]
   }
 }

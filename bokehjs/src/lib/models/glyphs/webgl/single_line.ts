@@ -9,9 +9,9 @@ export abstract class SingleLineGL extends BaseLineGL {
     super(regl_wrapper, glyph)
   }
 
-  abstract override draw(indices: number[], main_glyph: GlyphView, transform: Transform): void
+  abstract override draw(indices: Int32Array, main_glyph: GlyphView, transform: Transform): void
 
-  protected _draw_impl(indices: number[], transform: Transform, main_gl_glyph: SingleLineGL): void {
+  protected _draw_impl(indices: Int32Array, transform: Transform, main_gl_glyph: SingleLineGL): void {
     if (this.visuals_changed) {
       this._set_visuals()
       this.visuals_changed = false
@@ -43,7 +43,7 @@ export abstract class SingleLineGL extends BaseLineGL {
     this._draw_single(main_gl_glyph, transform, 0, 0, nsegments, null, show)
   }
 
-  protected abstract _get_show_buffer(indices: number[], main_gl_glyph: BaseLineGL): Uint8Buffer
+  protected abstract _get_show_buffer(indices: Int32Array, main_gl_glyph: BaseLineGL): Uint8Buffer
 
   protected _set_data(data_changed: boolean): void {
     // If data_changed is false the underlying glyph data has not changed but has been mapped to

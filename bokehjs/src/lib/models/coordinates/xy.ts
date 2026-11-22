@@ -14,10 +14,6 @@ export interface XY extends XY.Attrs {}
 export class XY extends Coordinate {
   declare properties: XY.Props
 
-  constructor(attrs?: Partial<XY.Attrs>) {
-    super(attrs)
-  }
-
   static {
     this.define<XY.Props>(({Float}) => ({
       x: [ Float ],

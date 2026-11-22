@@ -39,7 +39,7 @@ export class QuadraticView extends GlyphView {
     }
   }
 
-  protected _paint(ctx: Context2d, indices: number[], data?: Partial<Quadratic.Data>): void {
+  protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<Quadratic.Data>): void {
     if (!this.visuals.line.doit) {
       return
     }
@@ -99,10 +99,6 @@ export interface Quadratic extends Quadratic.Attrs {}
 export class Quadratic extends Glyph {
   declare properties: Quadratic.Props
   declare __view_type__: QuadraticView
-
-  constructor(attrs?: Partial<Quadratic.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = QuadraticView

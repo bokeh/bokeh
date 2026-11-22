@@ -4,6 +4,7 @@ import type {StyleSheetLike} from "core/stylesheets"
 import type * as p from "core/properties"
 import {Orientation} from "core/enums"
 import {Enum} from "../../core/kinds"
+import type {Infer} from "../../core/kinds"
 import {clamp} from "core/util/math"
 import {process_placeholders, sprintf} from "core/util/templating"
 import type {PlaceholderReplacer} from "core/util/templating"
@@ -13,10 +14,10 @@ import type {VNode} from "core/vdom"
 import {UIComponent, cls} from "core/vdom"
 
 const ProgressMode = Enum("determinate", "indeterminate")
-type ProgressMode = typeof ProgressMode["__type__"]
+type ProgressMode = Infer<typeof ProgressMode>
 
 const LabelLocation = Enum("none", "inline")
-type LabelLocation = typeof LabelLocation["__type__"]
+type LabelLocation = Infer<typeof LabelLocation>
 
 export class ProgressView extends IndicatorView {
   declare readonly model: Progress
@@ -109,10 +110,6 @@ export class Progress extends Indicator {
   declare __view_type__: ProgressView
 
   readonly finished = new Signal0(this, "finished")
-
-  constructor(attrs?: Partial<Progress.Attrs>) {
-    super(attrs)
-  }
 
   static {
     this.prototype.default_view = ProgressView

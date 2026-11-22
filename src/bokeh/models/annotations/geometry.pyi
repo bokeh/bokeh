@@ -5,10 +5,8 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Sequence, Unpack
 
-# Bokeh imports
 from ..._specs import CoordinateSpec
 from ..._types import (
     Coordinate,
@@ -24,7 +22,6 @@ from ...core.enums import (
 )
 from ...core.property_aliases import BorderRadius
 from ...core.property_mixins import (
-    LineProps,
     ScalarAboveFillProps,
     ScalarAboveHatchProps,
     ScalarBelowFillProps,
@@ -35,7 +32,6 @@ from ...core.property_mixins import (
     ScalarHoverHatchProps,
     ScalarHoverLineProps,
     ScalarLineProps,
-    _LinePropsInit,
     _ScalarAboveFillPropsInit,
     _ScalarAboveHatchPropsInit,
     _ScalarBelowFillPropsInit,
@@ -55,7 +51,6 @@ from .annotation import (
     _AnnotationInit,
     _DataAnnotationInit,
 )
-from .arrows import ArrowHead
 
 class _AreaVisualsInit(_ModelInit, _ScalarLinePropsInit, _ScalarFillPropsInit, _ScalarHatchPropsInit,
         _ScalarHoverLinePropsInit, _ScalarHoverFillPropsInit, _ScalarHoverHatchPropsInit, total=False):
@@ -231,21 +226,3 @@ class Span(Annotation, ScalarLineProps, ScalarHoverLineProps):
     location_units: CoordinateUnits = ...
     dimension: Dimension = ...
     editable: bool = ...
-
-class _WhiskerInit(_DataAnnotationInit, _LinePropsInit, total=False):
-    lower: CoordinateSpec
-    lower_head: ArrowHead | None
-    upper: CoordinateSpec
-    upper_head: ArrowHead | None
-    base: CoordinateSpec
-    dimension: Dimension
-
-class Whisker(DataAnnotation, LineProps):
-    def __init__(self, **kwargs: Unpack[_WhiskerInit]) -> None: ...
-
-    lower: CoordinateSpec = ...
-    lower_head: ArrowHead | None = ...
-    upper: CoordinateSpec = ...
-    upper_head: ArrowHead | None = ...
-    base: CoordinateSpec = ...
-    dimension: Dimension = ...

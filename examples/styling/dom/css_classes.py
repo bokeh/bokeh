@@ -1,3 +1,11 @@
+''' Apply custom CSS classes and stylesheets to Bokeh HTML widgets.
+
+.. bokeh-example-metadata::
+    :title: CSS classes
+    :keywords: css, classes
+    :apis: bokeh.models.Div, bokeh.models.InlineStyleSheet
+'''
+
 from bokeh.io import show
 from bokeh.layouts import column
 from bokeh.models import Div, InlineStyleSheet
@@ -19,11 +27,12 @@ stylesheet = InlineStyleSheet(css="""
     padding: 1em;
 }
 :host(.custom-1) {
-    border: 3px solid var(--custom-1-border-color);
+    border: 3px solid var(--custom-1-border-color, #2397D8);
 }
 :host(.custom-2) {
-    border: 3px solid var(--custom-2-border-color);
+    border: 3px solid var(--custom-2-border-color, #14999A);
     background-color: whitesmoke;
+    color: #20252a;
 }
 """)
 
@@ -54,6 +63,7 @@ div2 = Div(text="""
 :host(.custom-2) {
     border: 3px solid #14999A;
     background-color: whitesmoke;
+    color: #20252a;
 }
 </pre>
 """)

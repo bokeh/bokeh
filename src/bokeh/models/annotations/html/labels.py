@@ -22,10 +22,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
-# Bokeh imports
 from ....core.enums import (
     AngleUnits,
     CoordinateUnits,
@@ -77,10 +73,6 @@ __all__ = (
 
 class HTMLTextAnnotation(HTMLAnnotation):
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     padding = Padding(default=0, help="""
     Extra space between the text of a label and its bounding box (border).
 
@@ -108,11 +100,11 @@ class HTMLTextAnnotation(HTMLAnnotation):
     The {prop} values for the text bounding box.
     """)
 
-    background_fill_color = Override(default=None)
+    _background_fill_color = Override(default=None)
 
-    background_hatch_color = Override(default=None)
+    _background_hatch_color = Override(default=None)
 
-    border_line_color = Override(default=None)
+    _border_line_color = Override(default=None)
 
 class HTMLLabel(HTMLTextAnnotation):
     ''' Render a single HTML label as an annotation.
@@ -133,10 +125,6 @@ class HTMLLabel(HTMLTextAnnotation):
     See :ref:`ug_basic_annotations_labels` for information on plotting labels.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     x = Required(CoordinateLike, help="""
     The x-coordinate in screen coordinates to locate the text anchors.
@@ -211,10 +199,6 @@ class HTMLLabelSet(HTMLAnnotation, DataAnnotation):
 
     '''
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     x = NumberSpec(default=field("x"), help="""
     The x-coordinates to locate the text anchors.
     """)
@@ -265,13 +249,13 @@ class HTMLLabelSet(HTMLAnnotation, DataAnnotation):
     The {prop} values for the text bounding box.
     """)
 
-    background_fill_color = Override(default=None)
+    _background_fill_color = Override(default=None)
 
     border_props = Include(LineProps, prefix="border", help="""
     The {prop} values for the text bounding box.
     """)
 
-    border_line_color = Override(default=None)
+    _border_line_color = Override(default=None)
 
 class HTMLTitle(HTMLTextAnnotation):
     ''' Render a single title box as an annotation.
@@ -279,10 +263,6 @@ class HTMLTitle(HTMLTextAnnotation):
     See :ref:`ug_basic_annotations_titles` for information on plotting titles.
 
     '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     text = String(default="", help="""
     The text value to render.

@@ -10,14 +10,13 @@ import {DOMComponentView} from "core/dom_view"
 import {Model} from "../../model"
 import type {Anchor, WindowAxis} from "core/enums"
 import type {ViewStorage, ChildView} from "core/build_views"
-import {build_views} from "core/build_views"
+import {build_views, remove_views} from "core/build_views"
 import {logger} from "core/logging"
 import type {Arrayable, Rect, FloatArray} from "core/types"
 import {ScreenArray, Indices} from "core/types"
 import {isArrayable, isString} from "core/util/types"
 import {RaggedArray} from "core/util/ragged_array"
 import {every} from "core/util/array"
-import {inplace_map} from "core/util/arrayable"
 import {inplace, project_xy} from "core/util/projections"
 import {is_equal, EqNotImplemented} from "core/util/eq"
 import {SpatialIndex} from "core/util/spatial"
@@ -28,8 +27,9 @@ import type {Factor} from "../ranges/factor_range"
 import {FactorRange} from "../ranges/factor_range"
 import {Selection} from "../selections/selection"
 import type {GlyphRendererView} from "../renderers/glyph_renderer"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
-import {Decoration} from "../graphics/decoration"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
+import {PathPlacement} from "../graphics/path_placement"
+import {List, Ref} from "core/kinds"
 import type {BaseGLGlyph, BaseGLGlyphConstructor} from "./webgl/base"
 
 const {abs, ceil} = Math
@@ -80,9 +80,9 @@ export abstract class GlyphView extends DOMComponentView {
   }
 
   get data_size(): number {
-    const {base} = this
-    if (base != null) {
-      return base.data_size
+    const {base_glyph} = this
+    if (base_glyph != null) {
+      return base_glyph.data_size
     } else {
       const {_data_size} = this
       if (_data_size != null) {
@@ -98,15 +98,36 @@ export abstract class GlyphView extends DOMComponentView {
     this.visuals = new visuals.Visuals(this)
   }
 
-  readonly decorations: ViewStorage<Decoration> = new Map()
+  readonly path_markings: ViewStorage<PathPlacement> = new Map()
+
+  protected async _build_path_markings(): Promise<void> {
+    const models = supports_path_marking(this.model) ? this.model.path_markings : []
+    await build_views(this.path_markings, models, {parent: this})
+  }
+
+  protected _path_marking_insets(i: number): {start: number, end: number} {
+    let start = 0
+    let end = 0
+
+    for (const path_marking of this.path_markings.values()) {
+      const inset = path_marking.shaft_inset(i)
+      if (path_marking.node == "start") {
+        start = Math.max(start, inset)
+      } else if (path_marking.node == "end") {
+        end = Math.max(end, inset)
+      }
+    }
+
+    return {start, end}
+  }
 
   override _children_views(): ChildView[] {
-    return [...super._children_views(), ...this.decorations.values()]
+    return [...super._children_views(), ...this.path_markings.values()]
   }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-    await build_views(this.decorations, this.model.decorations, {parent: this.parent})
+    await this._build_path_markings()
 
     const {webgl} = this.canvas
     if (webgl != null && this.load_glglyph != null) {
@@ -115,25 +136,82 @@ export abstract class GlyphView extends DOMComponentView {
     }
   }
 
+  override connect_signals(): void {
+    super.connect_signals()
+    if (!supports_path_marking(this.model)) {
+      return
+    }
+    this.connect(this.model.properties.path_markings.change, async () => {
+      await this._build_path_markings()
+      if (this.is_destroyed) {
+        return
+      }
+      const source = this.renderer.model.data_source
+      const indices = this.renderer.model.view.indices
+      for (const path_marking of this.path_markings.values()) {
+        path_marking.set_data(source, indices)
+      }
+      if (this.glglyph != null) {
+        this._can_use_webgl = this._compute_can_use_webgl()
+      }
+      this.request_paint()
+    })
+  }
+
+  override remove(): void {
+    remove_views(this.path_markings)
+    super.remove()
+  }
+
   request_paint(): void {
     this.parent.request_paint()
   }
 
-  get canvas() {
-    return this.renderer.parent.canvas_view
+  request_layout(): void {
+    this.parent.request_layout()
   }
 
-  paint(ctx: Context2d, indices: number[], data?: Partial<Glyph.Data>): void {
+  notify_finished_after_paint(): void {
+    this.parent.notify_finished_after_paint()
+  }
+
+  get canvas() {
+    return this.renderer.plot_view.canvas_view
+  }
+
+  // oxlint-disable-next-line typescript/no-generated-empty-object-type -- subclasses define their own data
+  paint(ctx: Context2d, indices: Int32Array, data?: Partial<Glyph.Data>): void {
     if (this.has_webgl()) {
-      this.glglyph.render(ctx, indices, this.base ?? this)
+      this._inherit_path_marking_visuals()
+      this.glglyph.render(ctx, indices, this.base_glyph ?? this)
     } else if (this.canvas.webgl != null && settings.force_webgl) {
       throw new Error(`${this} doesn't support webgl rendering`)
     } else {
-      this._paint(ctx, indices, data)
+      this.paint_canvas(ctx, indices, data)
     }
   }
 
-  protected abstract _paint(ctx: Context2d, indices: number[], data?: Glyph.Data): void
+  private _inherit_path_marking_visuals(): void {
+    for (const path_marking of this.path_markings.values()) {
+      path_marking.marking.inherit_from(this)
+    }
+  }
+
+  /** @internal Paint directly to the canvas when an attachment needs the same context. */
+  // oxlint-disable-next-line typescript/no-generated-empty-object-type -- subclasses define their own data
+  paint_canvas(ctx: Context2d, indices: Int32Array, data?: Partial<Glyph.Data>): void {
+    this._inherit_path_marking_visuals()
+    this._paint(ctx, indices, data)
+  }
+
+  protected abstract _paint(ctx: Context2d, indices: Int32Array, data?: Glyph.Data): void
+
+  /**
+   * Synchronizes DOM representation of this glyph (if any) with the given
+   * indices (in subset space). This is called once per paint, for the base
+   * glyph only, regardless of which glyph variants were actually painted.
+   */
+  update_dom(_indices: Int32Array): void {}
 
   override has_finished(): boolean {
     return true
@@ -225,7 +303,9 @@ export abstract class GlyphView extends DOMComponentView {
     }
 
     if (dilate) {
-      inplace_map(sdist, (sd) => ceil(sd))
+      for (let i = 0; i < n; i++) {
+        sdist[i] = ceil(sdist[i])
+      }
     }
 
     return sdist
@@ -265,7 +345,7 @@ export abstract class GlyphView extends DOMComponentView {
     const [x0, x1] = this.renderer.coordinates.x_scale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.coordinates.y_scale.r_invert(sy0, sy1)
     const indices = [...this.index.indices({x0, x1, y0, y1})]
-    return new Selection({indices})
+    return Selection.create({indices})
   }
 
   protected _project_xy<Data>(x: keyof Data, xs: Arrayable<number>, y: keyof Data, ys: Arrayable<number>): void {
@@ -293,17 +373,17 @@ export abstract class GlyphView extends DOMComponentView {
     }
   }
 
-  protected _base: this | null = null
+  protected _base_glyph: this | null = null
 
-  get base(): this | null {
-    return this._base
+  get base_glyph(): this | null {
+    return this._base_glyph
   }
 
-  set_base<T extends this>(base: T): void {
-    if (base != this && base instanceof this.constructor) {
-      this._base = base
+  set_base_glyph<T extends this>(base_glyph: T): void {
+    if (base_glyph != this && base_glyph instanceof this.constructor) {
+      this._base_glyph = base_glyph
     } else {
-      this._base = null
+      this._base_glyph = null
     }
   }
 
@@ -326,17 +406,17 @@ export abstract class GlyphView extends DOMComponentView {
   }
 
   protected _inherit_attr<Data>(attr: keyof Data): void {
-    const {base} = this
-    assert(base != null)
-    this._inherit_from(attr, base)
+    const {base_glyph} = this
+    assert(base_glyph != null)
+    this._inherit_from(attr, base_glyph)
   }
 
-  protected _inherit_from<Data>(attr: keyof Data, base: this): void {
+  protected _inherit_from<Data>(attr: keyof Data, base_glyph: this): void {
     Object.defineProperty(this, attr, {
       configurable: true,
       enumerable: true,
       get() {
-        return base[attr as keyof typeof base]
+        return base_glyph[attr as keyof typeof base_glyph]
       },
     })
     this._define_inherited(attr, true)
@@ -369,15 +449,15 @@ export abstract class GlyphView extends DOMComponentView {
    *   With inheritance: inherits {value: 0} from base → renders correctly ✓
    *
    * @param prop - The property to check for inheritance
-   * @param base - The base glyph view to potentially inherit from
+   * @param base_glyph - The base glyph view to potentially inherit from
    * @returns true if the property should be inherited from base
    */
-  protected _can_inherit_from<T>(prop: p.Property<T>, base: this | null): boolean {
-    if (base == null) {
+  protected _can_inherit_from<T>(prop: p.Property<T>, base_glyph: this | null): boolean {
+    if (base_glyph == null) {
       return false
     }
 
-    const base_prop = base.model.property(prop.attr)
+    const base_prop = base_glyph.model.property(prop.attr)
 
     const value = prop.get_value()
     const base_value = base_prop.get_value()
@@ -406,11 +486,11 @@ export abstract class GlyphView extends DOMComponentView {
     return this[`inherited_${name}` as keyof this] as boolean
   }
 
-  set_visuals(source: ColumnarDataSource, indices: Indices): void {
+  set_visuals(source: IndexedDataSource, indices: Indices): void {
     for (const prop of this._iter_visuals()) {
-      const {base} = this
-      if (base != null && this._can_inherit_from(prop, base)) {
-        this._inherit_from(prop.attr, base)
+      const {base_glyph} = this
+      if (base_glyph != null && this._can_inherit_from(prop, base_glyph)) {
+        this._inherit_from(prop.attr, base_glyph)
       } else {
         const uniform = prop.uniform(source).select(indices)
         this._define_attr(prop.attr, uniform)
@@ -468,9 +548,9 @@ export abstract class GlyphView extends DOMComponentView {
     return final_array
   }
 
-  async set_data(source: ColumnarDataSource, indices: Indices, indices_to_update?: number[]): Promise<void> {
+  async set_data(source: IndexedDataSource, indices: Indices, indices_to_update?: number[]): Promise<void> {
     const visuals = new Set(this._iter_visuals())
-    const {base} = this
+    const {base_glyph} = this
 
     this._data_size = indices.count
 
@@ -483,15 +563,16 @@ export abstract class GlyphView extends DOMComponentView {
         continue
       }
 
-      if (base != null && this._can_inherit_from(prop, base)) {
-        this._inherit_from(prop.attr, base)
+      if (base_glyph != null && this._can_inherit_from(prop, base_glyph)) {
+        this._inherit_from(prop.attr, base_glyph)
 
         if (prop instanceof p.DistanceSpec || prop instanceof p.ScreenSizeSpec) {
-          this._inherit_from(`max_${prop.attr}`, base)
+          this._inherit_from(`max_${prop.attr}`, base_glyph)
         }
       } else {
         if (prop instanceof p.BaseCoordinateSpec) {
-          const array = this._transform_array(prop, indices.select(prop.array(source)))
+          const range = prop.dimension == "x" ? this.renderer.coordinates.x_source : this.renderer.coordinates.y_source
+          const array = this._transform_array(prop, indices.select(prop.array(source, !(range instanceof FactorRange))))
           this._define_attr(prop.attr, array)
         } else {
           const uniform = prop.uniform(source).select(indices)
@@ -512,8 +593,8 @@ export abstract class GlyphView extends DOMComponentView {
     this._set_data(indices_to_update ?? null) // TODO doesn't take subset indices into account
     await this._set_lazy_data(indices_to_update ?? null) // TODO doesn't take subset indices into account
 
-    for (const decoration of this.decorations.values()) {
-      decoration.marking.set_data(source, indices)
+    for (const path_marking of this.path_markings.values()) {
+      path_marking.set_data(source, indices)
     }
 
     if (this.glglyph != null) {
@@ -524,7 +605,7 @@ export abstract class GlyphView extends DOMComponentView {
       this.glglyph.set_data_changed()
     }
 
-    if (base == null) {
+    if (base_glyph == null) {
       this.index_data()
     }
   }
@@ -565,7 +646,7 @@ export abstract class GlyphView extends DOMComponentView {
 
   map_data(): void {
     const {x_scale, y_scale} = this.renderer.coordinates
-    const {base} = this
+    const {base_glyph} = this
 
     const v_compute = <T>(prop: p.BaseCoordinateSpec<T>) => {
       const scale = prop.dimension == "x" ? x_scale : y_scale
@@ -579,8 +660,8 @@ export abstract class GlyphView extends DOMComponentView {
 
     for (const prop of this.model) {
       if (prop instanceof p.BaseCoordinateSpec) {
-        if (base != null && this._is_inherited(prop)) {
-          this._inherit_from(`s${prop.attr}`, base)
+        if (base_glyph != null && this._is_inherited(prop)) {
+          this._inherit_from(`s${prop.attr}`, base_glyph)
         } else {
           const array = v_compute(prop)
           this._define_attr(`s${prop.attr}`, array)
@@ -598,7 +679,7 @@ export abstract class GlyphView extends DOMComponentView {
   protected _map_data(): void {}
 
   override get bbox(): BBox | undefined {
-    if (this.base == null) {
+    if (this.base_glyph == null) {
       const {x0, y0, x1, y1} = this.index.bbox
       const {x_scale, y_scale} = this.renderer.coordinates
       const [sx0, sx1] = x_scale.r_compute(x0, x1)
@@ -613,12 +694,11 @@ export abstract class GlyphView extends DOMComponentView {
 export namespace Glyph {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Model.Props & {
-    decorations: p.Property<Decoration[]>
-  }
+  export type Props = Model.Props
 
   export type Visuals = visuals.Visuals
 
+  // oxlint-disable-next-line typescript/no-generated-empty-object-type -- the base glyph has no data
   export type Data = p.GlyphDataOf<Props>
 }
 
@@ -627,14 +707,18 @@ export interface Glyph extends Glyph.Attrs {}
 export abstract class Glyph extends Model {
   declare properties: Glyph.Props
   declare __view_type__: GlyphView
+}
 
-  constructor(attrs?: Partial<Glyph.Attrs>) {
-    super(attrs)
-  }
+export type SupportsPathMarking = {
+  path_markings: p.Property<PathPlacement[]>
+}
 
-  static {
-    this.define<Glyph.Props>(({List, Ref}) => ({
-      decorations: [ List(Ref(Decoration)), [] ],
-    }))
-  }
+export const SupportsPathMarking: p.DefineOf<SupportsPathMarking> = {
+  path_markings: [List(Ref(PathPlacement)), []],
+}
+
+export function supports_path_marking<T extends Glyph>(glyph: T): glyph is T & p.AttrsOf<SupportsPathMarking> & {
+  properties: SupportsPathMarking
+} {
+  return "path_markings" in glyph.properties
 }

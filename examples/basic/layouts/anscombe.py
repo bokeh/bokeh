@@ -1,21 +1,30 @@
-''' A reproduction of `Anscombe's Quartet`_ using the low-level |bokeh.models|
+''' A reproduction of `Anscombe's Quartet <https://en.wikipedia.org/wiki/Anscombe%27s_quartet>`__ using the low-level |bokeh.models|
 API that also includes HTML content in a ``Div``.
 
 .. bokeh-example-metadata::
-    :sampledata: anscombe
-    :apis: bokeh.layouts.column, bokeh.layouts.gridplot, bokeh.models.Plot, bokeh.models.LinearAxis
-    :refs: :ref:`ug_basic_layouts_gridplot`
+    :title: Anscombe's quartet
     :keywords: column, gridplot
+    :apis: bokeh.layouts.column, bokeh.layouts.gridplot, bokeh.models.Plot, bokeh.models.LinearAxis
+    :sampledata: anscombe
+    :refs: :ref:`ug_basic_layouts_gridplot`
+    :gallery: A gridplot of four scatter and regression line plots illustrating Anscombe's Quartet.
 
-.. _Anscombe's Quartet: https://en.wikipedia.org/wiki/Anscombe%27s_quartet
 
 '''
 import numpy as np
 
 from bokeh.io import show
 from bokeh.layouts import column, gridplot
-from bokeh.models import (ColumnDataSource, Div, Grid, Line,
-                          LinearAxis, Plot, Range1d, Scatter)
+from bokeh.models import (
+    ColumnDataSource,
+    Div,
+    Grid,
+    Line,
+    LinearAxis,
+    Plot,
+    Range1d,
+    Scatter,
+)
 from bokeh.sampledata.anscombe import data as df
 
 circle_source = ColumnDataSource(data=df)

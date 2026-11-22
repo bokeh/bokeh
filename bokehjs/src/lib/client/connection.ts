@@ -41,9 +41,11 @@ export function parse_token(token: string): Token {
 // unnecessary reconnect attempt and a UI notification just before page reloads.
 let _prevent_reconnect: boolean = false
 
-addEventListener("beforeunload", () => {
-  _prevent_reconnect = true
-})
+if (typeof addEventListener != "undefined") {
+  addEventListener("beforeunload", () => {
+    _prevent_reconnect = true
+  })
+}
 
 export class ClientConnection {
   protected readonly _number = _connection_count++
@@ -76,9 +78,12 @@ export class ClientConnection {
     this._try_reconnect(true)
   }
 
-  async connect(): Promise<ClientSession> {
+  async connect(signal?: AbortSignal): Promise<ClientSession> {
     if (this.closed_permanently) {
       throw new Error("Cannot connect() a closed ClientConnection")
+    }
+    if (signal?.aborted == true) {
+      throw signal.reason instanceof Error ? signal.reason : new Error("WebSocket connection was aborted")
     }
     if (this.socket != null) {
       throw new Error("Already connected")
@@ -96,16 +101,33 @@ export class ClientConnection {
 
       this.socket = new WebSocket(versioned_url, ["bokeh", this.token])
 
-      return new Promise((resolve, reject) => {
+      let reject_connection!: Rejecter
+      const connected = new Promise<ClientSession>((resolve, reject) => {
+        reject_connection = reject
         assert(this.socket != null)
-        // "arraybuffer" gives us binary data we can look at;
-        // if we just needed an opaque blob we could use "blob"
+        // "arraybuffer" gives us binary data we can look at.
+        // If we just needed an opaque blob we could use "blob".
         this.socket.binaryType = "arraybuffer"
         this.socket.onopen = () => this._on_open(resolve, reject)
         this.socket.onmessage = (event) => this._on_message(event)
         this.socket.onclose = (event) => this._on_close(event, reject)
         this.socket.onerror = () => this._on_error(reject)
       })
+      if (signal == null) {
+        return connected
+      }
+      const on_abort = () => {
+        this.closed_permanently = true
+        const reason = signal.reason instanceof Error ? signal.reason : new Error("WebSocket connection was aborted")
+        reject_connection(reason)
+        try {
+          this.socket?.close(1000, `aborted ClientConnection ${this._number}`)
+        } catch {
+          // Some WebSocket implementations reject close() while still connecting.
+        }
+      }
+      signal.addEventListener("abort", on_abort, {once: true})
+      return connected.finally(() => signal.removeEventListener("abort", on_abort))
     } catch (error) {
       logger.error(`websocket creation failed to url: ${this.url}`)
       logger.error(` - ${error}`)
@@ -120,7 +142,7 @@ export class ClientConnection {
       if (this.socket != null) {
         this.socket.close(1000, `close method called on ClientConnection ${this._number}`)
       }
-      this.session!._connection_closed()
+      this.session?._connection_closed()
     }
   }
 
@@ -226,7 +248,7 @@ export class ClientConnection {
           reject(new Error("The connection has been closed"))
         } else {
           const events: DocumentEvent[] = []
-          const document = Document.from_json(doc_json, events, buffers)
+          const document = Document.from_json(doc_json, {events, buffers})
 
           this.session = new ClientSession(this, document)
 
@@ -352,7 +374,15 @@ export class ClientConnection {
   }
 }
 
-export function pull_session(url?: string, token?: string, args_string?: string): Promise<ClientSession> {
+export async function pull_session(url?: string, token?: string, args_string?: string,
+    signal?: AbortSignal): Promise<ClientSession> {
   const connection = new ClientConnection(url, token, args_string)
-  return connection.connect()
+  try {
+    return await connection.connect(signal)
+  } catch (error) {
+    // No caller owns a connection or document whose acquisition failed.
+    connection.close()
+    connection.session?.document.destroy()
+    throw error
+  }
 }

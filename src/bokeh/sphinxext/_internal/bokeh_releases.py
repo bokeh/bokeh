@@ -37,19 +37,15 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
-# Standard library imports
 from os import listdir
 from os.path import join
 from typing import Any
 
-# External imports
 from packaging.version import Version as V
 
-# Bokeh imports
 from bokeh import __version__
 from bokeh.resources import get_sri_hashes_for_version
 
-# Bokeh imports
 from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
 from .templates import RELEASE_DETAIL

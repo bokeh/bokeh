@@ -5,10 +5,8 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import TypedDict, Unpack
+from typing import Literal, TypedDict, Unpack
 
-# Bokeh imports
 from .._specs import (
     AlphaArg,
     AngleArg,
@@ -29,6 +27,7 @@ from .._specs import (
     Number1dArg,
     Number3dArg,
     NumberArg,
+    NumberSpec,
     OutlineShapeNameArg,
     SizeArg,
     StringArg,
@@ -40,6 +39,7 @@ from .._types import Color, NonNegative
 from ..core.enums import (
     AnchorType as Anchor,
     AngleUnitsType as AngleUnits,
+    DimensionType as Dimension,
     DirectionType as Direction,
     PaletteType as Palette,
     RadiusDimensionType as RadiusDimension,
@@ -56,9 +56,10 @@ from ..models import glyphs
 from ..models.annotations import Legend
 from ..models.callbacks import CustomJS
 from ..models.coordinates import CoordinateMapping
+from ..models.graphics import Marking
 from ..models.plots import Plot
 from ..models.renderers import GlyphRenderer
-from ..models.sources import CDSView, ColumnarDataSource, DataDictLike
+from ..models.sources import DataDictLike, IndexedDataSource, IndexedSubset
 from ..models.textures import Texture
 
 class AuxVisuals(TypedDict, total=False):
@@ -179,8 +180,8 @@ class AuxGlyphArgs(TypedDict, total=False):
     visible: bool
 
     # GlyphRenderer
-    source: ColumnarDataSource | DataDictLike
-    view: CDSView
+    source: IndexedDataSource | DataDictLike
+    view: IndexedSubset
     muted: bool
 
     legend: Legend
@@ -522,6 +523,29 @@ class GlyphAPI:
         **kwargs: Unpack[AnnulusArgs],
     ) -> GlyphRenderer[glyphs.Annulus]: ...
 
+    def arrow(self,
+        x_start: NumberArg = ...,
+        y_start: NumberArg = ...,
+        x_end: NumberArg = ...,
+        y_end: NumberArg = ...,
+        *,
+        start: Marking | None = ...,
+        end: Marking | Literal["auto"] | None = ...,
+        start_inset: NumberArg = ...,
+        end_inset: NumberArg = ...,
+        **kwargs: Unpack[SegmentArgs],
+    ) -> GlyphRenderer[glyphs.Segment]: ...
+
+    def whisker(self,
+        base: NumberArg = ...,
+        lower: NumberArg = ...,
+        upper: NumberArg = ...,
+        *,
+        dimension: Dimension = ...,
+        cap_size: NumberSpec = ...,
+        **kwargs: Unpack[SegmentArgs],
+    ) -> GlyphRenderer[glyphs.Segment]: ...
+
     def arc(self,
         x: NumberArg = ...,
         y: NumberArg = ...,
@@ -817,222 +841,5 @@ class GlyphAPI:
         **kwargs: Unpack[ScatterArgs],
     ) -> GlyphRenderer[glyphs.Scatter]: ...
 
-    # Markers
-
-    def asterisk(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def circle_cross(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def circle_dot(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def circle_x(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def circle_y(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def cross(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def dash(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def diamond(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def diamond_cross(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def diamond_dot(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def dot(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def hex(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def hex_dot(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def inverted_triangle(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def plus(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def square(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def square_cross(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def square_dot(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def square_pin(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def square_x(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def star(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def star_dot(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def triangle(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def triangle_dot(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def triangle_pin(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def x(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
-
-    def y(self,
-        x: NumberArg = ...,
-        y: NumberArg = ...,
-        size: SizeArg = ...,
-        angle: AngleArg = ...,
-        **kwargs: Unpack[MarkerArgs],
-    ) -> GlyphRenderer[glyphs.Marker]: ...
 
 _MARKER_SHORTCUTS: dict[str, str]

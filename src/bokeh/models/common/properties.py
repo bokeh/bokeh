@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
 from ...core.property.aliases import CoordinateLike, CoordinateLikeType
 from ...core.property.constraints import TypeOfAttr
 from ...core.property.either import Either
@@ -43,7 +42,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-Coordinate: Either[CoordinateLikeType | Node] = Either(CoordinateLike, Instance(Node))
+Coordinate: Either[CoordinateLikeType | Node, CoordinateLikeType | list[str] | Node] = Either(CoordinateLike, Instance(Node))
 
 def GlyphRendererOf(*types: type[Model]) -> TypeOfAttr[GlyphRenderer[Glyph]]: # TODO parameterized on glyph type
     """ Constraints ``GlyphRenderer.glyph`` to the given type or types. """

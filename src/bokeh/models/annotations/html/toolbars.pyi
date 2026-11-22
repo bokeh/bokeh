@@ -5,10 +5,8 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 from typing import Unpack
 
-# Bokeh imports
 from ...tools import Toolbar
 from .html_annotation import HTMLAnnotation, _HTMLAnnotationInit
 
