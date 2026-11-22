@@ -30,7 +30,7 @@ colors = brewer['Spectral'][areas.shape[1]]
 x2 = np.hstack((df.index[::-1], df.index))
 
 p = figure(x_range=(0, N-1), y_range=(0, 800))
-p.grid.minor_grid_line_color = '#eeeeee'
+p.grids.minor_grid_line_color = '#eeeeee'
 
 p.patches([x2] * areas.shape[1], [areas[c].values for c in areas],
           color=colors, alpha=0.8, line_color=None)

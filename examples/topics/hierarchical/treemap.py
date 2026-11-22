@@ -45,7 +45,7 @@ blocks = pd.concat(dfs)
 p = figure(width=w, height=h, tooltips="@City", toolbar_location=None,
            x_axis_location=None, y_axis_location=None)
 p.x_range.range_padding = p.y_range.range_padding = 0
-p.grid.grid_line_color = None
+p.grids.grid_line_color = None
 
 p.block('x', 'y', 'dx', 'dy', source=blocks, line_width=1, line_color="white",
         fill_alpha=0.8, fill_color=factor_cmap("Region", "MediumContrast4", regions))

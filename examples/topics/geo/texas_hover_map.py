@@ -45,7 +45,7 @@ p = figure(
     tooltips=[
         ("Name", "@name"), ("Unemployment rate", "@rate%"), ("(Long, Lat)", "($x, $y)"),
     ])
-p.grid.grid_line_color = None
+p.grids.grid_line_color = None
 p.hover.point_policy = "follow_mouse"
 
 p.patches('x', 'y', source=data,

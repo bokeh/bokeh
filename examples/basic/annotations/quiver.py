@@ -50,8 +50,8 @@ p = figure(width=900, height=620, match_aspect=True,
            title="Vortices in a sheared flow", background_fill_color="#202a36",
            x_axis_label="x", y_axis_label="y",
            tools="pan,wheel_zoom,reset", active_scroll="wheel_zoom")
-p.grid.grid_line_color = "white"
-p.grid.grid_line_alpha = 0.08
+p.grids.grid_line_color = "white"
+p.grids.grid_line_alpha = 0.08
 
 arrows = p.arrow(x_start="x", y_start="y", x_end="x_end", y_end="y_end",
                  source=source, line_color=color, line_width=1.5,

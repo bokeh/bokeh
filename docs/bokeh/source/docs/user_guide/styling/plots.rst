@@ -36,6 +36,10 @@ You can also use the |select| method to query on other attributes as well:
     >>> p.select(name="mycircle")
     [<bokeh.models.renderers.GlyphRenderer at 0x106a4c810>]
 
+The result is a :class:`~bokeh.core.collections.Many`. Use normal list
+operations to inspect every match, ``first`` to get the first match or
+``None``, and ``one()`` when exactly one match is required.
+
 This query method can be especially useful when you want to style visual
 attributes of `Styling glyphs`_.
 
@@ -273,28 +277,35 @@ Styling axes
 
 This section focuses on changing various visual properties of Bokeh plot axes.
 
-To set style attributes on Axis objects, use the |xaxis|, |yaxis|, and
-|axis| methods on |Plot| to first obtain a plot's Axis objects. For example:
+To obtain the first matching Axis object, use the |xaxis|, |yaxis|, or |axis|
+property on |Plot|. These properties raise ``LookupError`` if there is no
+matching axis. For example:
 
 .. code-block:: python
 
     >>> p.xaxis
-    [<bokeh.models.axes.LinearAxis at 0x106fa2390>]
+    <bokeh.models.axes.LinearAxis at 0x106fa2390>
 
-Because there may be more than one axis, this method returns a list of Axis
-objects. However, as a convenience, these lists are *splattable*. This means that
-you can set attributes directly on this result, and the attributes will be
-applied to all the axes in the list. For example:
+Use the plural ``xaxes``, ``yaxes``, and ``axes`` properties when there may be
+more than one axis. They return a
+:class:`~bokeh.core.collections.Many`, which supports normal list
+operations and broadcasts attribute assignments to every item. For example:
 
 .. code-block:: python
 
-    p.xaxis.axis_label = "Temperature"
+    p.xaxes.axis_label = "Temperature"
 
 This changes the value of ``axis_label`` for every x-axis of ``p``, however
 many there may be.
 
+The plural accessors also provide ``first`` and ``one()``. ``first`` returns
+the first item or ``None``, while ``one()`` raises ``ValueError`` unless the
+list contains exactly one item. Use ``list(p.xaxes)`` when an ordinary list is
+required. A plural accessor is a snapshot, so mutating it does not change the
+plot layout. Use ``p.xaxes.first`` when the absence of an x-axis is expected.
+
 The example below demonstrates the use of the |xaxis|, |yaxis|, and
-|axis| methods in more details:
+|axis| properties in more detail:
 
 .. bokeh-plot:: __REPO__/examples/styling/plots/axis_properties.py
     :source-position: above
@@ -424,9 +435,9 @@ To control tick formatting at a finer-grained level, use one of the
 
 .. note::
     To replace a tick formatter on an axis, you must set the ``formatter``
-    property on an actual ``Axis`` object, not on a splattable list. This is
-    why the following examples use ``p.yaxis[0].formatter``, etc. (with the
-    subscript ``[0]``).
+    property on an actual ``Axis`` object, not on a ``Many`` collection. The
+    following examples use ``p.yaxis.formatter`` to replace the formatter on
+    the first y-axis.
 
 ``NumeralTickFormatter``
 ''''''''''''''''''''''''
@@ -642,22 +653,25 @@ Styling grids
 In this section, you will learn how to set the visual properties of grid
 lines and grid bands on Bokeh plots.
 
-To obtain a plot's Grid objects, use the |xgrid|, |ygrid|, and |grid| methods on
-|Plot|. This works similar to the convenience methods for axes:
+To obtain the first matching Grid object, use the |xgrid|, |ygrid|, or |grid|
+property on |Plot|. These properties raise ``LookupError`` if there is no
+matching grid:
 
 .. code-block:: python
 
     >>> p.grid
-    [<bokeh.models.grids.Grid at 0x106fa2278>,
-     <bokeh.models.grids.Grid at 0x106fa22e8>]
+    <bokeh.models.grids.Grid at 0x106fa2278>
 
-These methods also return splattable lists. You can set an attribute
-on the list as if it was a single object, and the attribute is changed
-for every element of the list:
+Use ``xgrids``, ``ygrids``, or ``grids`` to access every matching grid. These
+properties return :class:`~bokeh.core.collections.Many` objects. You can
+set an attribute on the list as if it was a single object, and the attribute is
+changed for every element of the list:
 
 .. code-block:: python
 
-    p.grid.line_dash = [4 2]
+    p.grids.grid_line_dash = [4, 2]
+
+Use ``list(p.grids)`` when an ordinary list is required.
 
 .. note::
     The ``xgrid`` property provides the grid objects that *intersect* the
@@ -738,24 +752,27 @@ To set explicit bounds that limit where grids are drawn, use a 2-tuple of
 Styling legends
 ---------------
 
-Similar to the convenience methods for axes and grids, there is a
-:func:`~bokeh.models.plots.Plot.legend` method on |Plot| that you can use to
-obtain a plot's |Legend| objects:
+Similar to the convenience properties for axes and grids, the
+:attr:`~bokeh.models.plots.Plot.legend` property on |Plot| provides the first
+|Legend| object. It raises ``LookupError`` if the plot has no legends:
 
 bokeh.models.plots.Plot.legend
 
 .. code-block:: python
 
     >>> p.legend
-    [<bokeh.models.annotations.Legend at 0x106fa2278>]
+    <bokeh.models.annotations.Legend at 0x106fa2278>
 
-This method also returns a splattable list. Therefore, you can set an attribute
-on the list as if it was a single object, and the attribute is changed
-for every element of the list:
+Use ``p.legends`` to access all legends. This property returns a
+:class:`~bokeh.core.collections.Many`, so you can set an attribute on the
+list as if it was a single object, and the attribute is changed for every
+element of the list:
 
 .. code-block:: python
 
-    p.legend.label_text_font = "times"
+    p.legends.label_text_font = "times"
+
+Use ``list(p.legends)`` when an ordinary list is required.
 
 Location
 ~~~~~~~~

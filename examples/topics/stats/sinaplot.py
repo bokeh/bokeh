@@ -57,6 +57,6 @@ for month in months:
 
 p.y_range.start = -10
 p.yaxis.ticker = [0, 25, 50, 75]
-p.grid.grid_line_color = None
+p.grids.grid_line_color = None
 
 show(p)

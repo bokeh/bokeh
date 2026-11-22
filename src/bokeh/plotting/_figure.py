@@ -351,7 +351,7 @@ class figure(Plot, GlyphAPI):
 
                 p = figure(match_aspect=True, tools="wheel_zoom,reset")
                 p.background_fill_color = '#440154'
-                p.grid.visible = False
+                p.grids.visible = False
 
                 p.hexbin(x, y, size=0.5, hover_color="pink", hover_alpha=0.8)
 

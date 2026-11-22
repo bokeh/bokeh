@@ -47,18 +47,18 @@ p.line(peak_freqs, peak_radiance, line_color="silver",
          line_dash="dashed", line_width=2, legend_label="Peak radiance")
 
 curdoc().theme = 'dark_minimal'
-p.xaxis[0].formatter = SITickFormatter(
+p.xaxis.formatter = SITickFormatter(
     unit=r"$$\mathrm{Hz}$$",
     unit_style="except_zero",
 )
-p.xaxis[0].axis_label = r"$$\nu$$"
+p.xaxis.axis_label = r"$$\nu$$"
 
-p.yaxis[0].formatter = SITickFormatter(
+p.yaxis.formatter = SITickFormatter(
     unit=r"$$\mathrm{W}$$",
     unit_style="except_zero",
 )
-p.yaxis[0].axis_label = r"$$B_\nu\;\text{per}\;\mathrm{m^2\,sr\,Hz}$$"
-p.axis.major_label_standoff = 8
+p.yaxis.axis_label = r"$$B_\nu\;\text{per}\;\mathrm{m^2\,sr\,Hz}$$"
+p.axes.major_label_standoff = 8
 
 div = Div(text=r"""
 A plot of the spectral radiance, defined as a function of the frequency $$\nu$$, is given by the formula

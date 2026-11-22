@@ -150,7 +150,7 @@ def match(obj: Model, selector: SelectorType) -> bool:
         >>> from bokeh.models import Axis
         >>> p = figure()
 
-        >>> match(p.xaxis[0], {'type': Axis})
+        >>> match(p.xaxis, {'type': Axis})
         True
 
         >>> match(p.title, {'type': Axis})

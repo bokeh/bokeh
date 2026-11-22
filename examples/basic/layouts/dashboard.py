@@ -17,7 +17,7 @@ from bokeh.plotting import figure, show
 def style_plot(plot):
     plot.background_fill_color = "#f8fafc"
     plot.outline_line_color = None
-    plot.grid.grid_line_alpha = 0.25
+    plot.grids.grid_line_alpha = 0.25
     plot.title.text_color = "#334155"
 
 

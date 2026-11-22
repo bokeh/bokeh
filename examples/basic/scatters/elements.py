@@ -39,7 +39,7 @@ p.toolbar.logo = "grey"
 p.background_fill_color = "#efefef"
 p.xaxis.axis_label = "atomic weight (amu)"
 p.yaxis.axis_label = "density (g/cm^3)"
-p.grid.grid_line_color = "white"
+p.grids.grid_line_color = "white"
 p.hover.tooltips = [
     ("name", "@name"),
     ("symbol:", "@symbol"),

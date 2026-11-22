@@ -36,8 +36,8 @@ color = linear_cmap("speed", Turbo256[50:210], low=0, high=2)
 p = figure(width=900, height=580, x_range=(-3.3, 3.3), y_range=(-2.3, 2.3), match_aspect=True,
            title="Drag the source and sink", tools="pan,wheel_zoom,reset", x_axis_label="x", y_axis_label="y")
 p.background_fill_color = "#172330"
-p.grid.grid_line_color = "white"
-p.grid.grid_line_alpha = 0.07
+p.grids.grid_line_color = "white"
+p.grids.grid_line_alpha = 0.07
 
 arrows = p.arrow(x_start="x", y_start="y", x_end="x_end", y_end="y_end", source=field, level="glyph",
                  line_color=color, line_alpha="alpha", line_width=1.5,

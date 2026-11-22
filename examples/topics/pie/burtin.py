@@ -87,8 +87,6 @@ p.legend.glyph_height = 20
 p.x_range.range_padding = 0.2
 p.y_range.range_padding = 0.2
 
-p.grid.grid_line_color = None
-
 legend = Legend(items=[
     LegendItem(label="Gram-positive", renderers=[br], index=10),
     LegendItem(label="Gram-negative", renderers=[br], index=0),

@@ -25,9 +25,9 @@ for kind in ["Segment", "Line", "MultiLine", "Bezier", "Per-path positions"]:
     p = figure(width=480, height=300, x_range=(-0.6, 6.6), y_range=(-1.6, 2.6),
                title=kind, tools=None,
                background_fill_color="#202a36", border_fill_color="#f6f7f9")
-    p.axis.visible = False
-    p.grid.grid_line_color = "#536779"
-    p.grid.grid_line_alpha = 0.3
+    p.axes.visible = False
+    p.grids.grid_line_color = "#536779"
+    p.grids.grid_line_alpha = 0.3
     p.outline_line_color = None
     style = dict(line_color="#c0ceda", line_width=3)
     t = [i/100 for i in range(101)]

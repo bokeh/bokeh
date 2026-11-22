@@ -81,7 +81,7 @@ for i, (y, x) in enumerate(product(ATTRS, reversed(ATTRS))):
     # suppress the diagonal
     if (i%N) + (i//N) == N-1:
         r.visible = False
-        p.grid.grid_line_color = None
+        p.grids.grid_line_color = None
 
     p.add_tools(PanTool(), WheelZoomTool(), ResetTool(), LassoSelectTool())
 

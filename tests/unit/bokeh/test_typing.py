@@ -26,16 +26,19 @@ from __future__ import annotations
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-from typing import TYPE_CHECKING, Literal, assert_type
+from typing import TYPE_CHECKING, assert_type
 
 if TYPE_CHECKING:
     import numpy as np
     import numpy.typing as npt
     import pandas as pd
 
+from bokeh.core.collections import Many
 from bokeh.document import Document
 from bokeh.io import curdoc
-from bokeh.models.annotations import LegendItem
+from bokeh.models.annotations import Legend
+from bokeh.models.axes import Axis
+from bokeh.models.grids import Grid
 from bokeh.models.ranges import Range1d
 from bokeh.models.tools import HoverTool, PanTool
 from bokeh.plotting import figure
@@ -51,20 +54,39 @@ from bokeh.plotting import figure
 def mypy_test_curdoc() -> None:
     assert_type(curdoc(), Document)
 
-def mypy_test_figure_list_attr_splat() -> None:
+def mypy_test_figure_many() -> None:
     p = figure()
     p.scatter([1, 2, 3], [1, 2, 3], legend_label="scatter")
 
-    assert_type(p.axis.dimension, Literal[0, 1, "auto"])
-    assert_type(p.xaxis.dimension, Literal[0, 1, "auto"])
-    assert_type(p.yaxis.dimension, Literal[0, 1, "auto"])
+    assert_type(p.axis, Axis)
+    assert_type(p.xaxis, Axis)
+    assert_type(p.yaxis, Axis)
+    assert_type(p.axes, Many[Axis])
+    assert_type(p.axes[0], Axis)
+    assert_type(p.axes.first, Axis | None)
+    assert_type(p.axes.one(), Axis)
+    assert_type(p.xaxes, Many[Axis])
+    assert_type(p.yaxes, Many[Axis])
 
-    assert_type(p.grid.dimension, Literal[0, 1])
-    assert_type(p.xgrid.dimension, Literal[0, 1])
-    assert_type(p.ygrid.dimension, Literal[0, 1])
+    assert_type(p.grid, Grid)
+    assert_type(p.xgrid, Grid)
+    assert_type(p.ygrid, Grid)
+    assert_type(p.grids, Many[Grid])
+    assert_type(p.grids[0], Grid)
+    assert_type(p.grids.first, Grid | None)
+    assert_type(p.grids.one(), Grid)
+    assert_type(p.xgrids, Many[Grid])
+    assert_type(p.ygrids, Many[Grid])
 
-    assert_type(p.legend.items, list[LegendItem])
-    assert_type(p.hover.show_arrow, bool)
+    assert_type(p.legend, Legend)
+    assert_type(p.legends, Many[Legend])
+    assert_type(p.hover, HoverTool)
+    assert_type(p.hovers, Many[HoverTool])
+
+    # Attribute broadcasting is available as a dynamic operation.
+    p.xaxes.axis_label = "x"
+    p.grids.visible = False
+    p.legends.location = "top_left"
 
 def mypy_test___init__() -> None:
     figure()

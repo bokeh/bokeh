@@ -58,9 +58,9 @@ def make_plot(source, title):
     # fixed attributes
     plot.xaxis.axis_label = None
     plot.yaxis.axis_label = "Temperature (F)"
-    plot.axis.axis_label_text_font_style = "bold"
+    plot.axes.axis_label_text_font_style = "bold"
     plot.x_range = DataRange1d(range_padding=0.0)
-    plot.grid.grid_line_alpha = 0.3
+    plot.grids.grid_line_alpha = 0.3
 
     return plot
 

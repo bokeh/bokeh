@@ -24,9 +24,9 @@ source = ColumnDataSource(dict(
 p = figure(width=480, height=300, x_range=(-0.6, 6.6), y_range=(-1.6, 2.6),
            title="Per-path positions", tools="", toolbar_location=None,
            background_fill_color="#202a36", border_fill_color="#f6f7f9")
-p.axis.visible = False
-p.grid.grid_line_color = "#536779"
-p.grid.grid_line_alpha = 0.3
+p.axes.visible = False
+p.grids.grid_line_color = "#536779"
+p.grids.grid_line_alpha = 0.3
 p.outline_line_color = None
 
 renderer = p.multi_line("xs", "ys", source=source, line_color="#c0ceda", line_width=3)

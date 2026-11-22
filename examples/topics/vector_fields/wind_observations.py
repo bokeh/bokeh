@@ -61,7 +61,7 @@ p = figure(width=900, height=660, x_range=x_range, y_range=y_range, match_aspect
            x_axis_type="mercator", y_axis_type="mercator", tools="", toolbar_location=None,
            title="Observed airport winds · 18 November 2026 · speed in knots")
 p.background_fill_color = "#e7f2f8"
-p.grid.grid_line_alpha = 0.2
+p.grids.grid_line_alpha = 0.2
 
 for code in ('WA', 'OR', 'ID', 'MT', 'CA', 'NV', 'UT', 'WY'):
     sx, sy = mercator(states[code]['lons'], states[code]['lats'])

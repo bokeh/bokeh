@@ -62,7 +62,7 @@ p = figure(frame_width=700, frame_height=480, x_range=(-3.5, 3.5), y_range=(-2.4
            match_aspect=True, title="Ideal flow around a cylinder", tools="pan,wheel_zoom,reset",
            x_axis_label="x / cylinder radius", y_axis_label="y / cylinder radius")
 p.background_fill_color = "#172330"
-p.grid.visible = False
+p.grids.visible = False
 
 lines = p.multi_line("xs", "ys", source=source, line_width=2.5,
                      line_color=transform("speed", mapper))

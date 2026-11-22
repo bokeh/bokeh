@@ -134,11 +134,11 @@ def modify_document(doc: Document) -> None:
         plot.background_fill_color = "#0f172a"
         plot.border_fill_color = "#0f172a"
         plot.outline_line_color = "#334155"
-        plot.axis.axis_line_color = "#64748b"
-        plot.axis.major_label_text_color = "#cbd5e1"
-        plot.axis.axis_label_text_color = "#94a3b8"
-        plot.grid.grid_line_color = "#334155"
-        plot.grid.grid_line_alpha = 0.45
+        plot.axes.axis_line_color = "#64748b"
+        plot.axes.major_label_text_color = "#cbd5e1"
+        plot.axes.axis_label_text_color = "#94a3b8"
+        plot.grids.grid_line_color = "#334155"
+        plot.grids.grid_line_alpha = 0.45
 
     heading = Div(
         text="""

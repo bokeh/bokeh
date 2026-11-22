@@ -21,8 +21,8 @@ p = figure(x_range=aligns, y_range=baselines, width=800, height=600,
 p.background_fill_color = "lightgrey"
 p.xaxis.axis_label = "align"
 p.yaxis.axis_label = "baseline"
-p.axis.major_label_text_font_size = "18px"
-p.axis.major_label_text_font_style = "bold italic"
+p.axes.major_label_text_font_size = "18px"
+p.axes.major_label_text_font_style = "bold italic"
 
 p.xgrid.grid_line_color = None
 p.ygrid.grid_line_color = None

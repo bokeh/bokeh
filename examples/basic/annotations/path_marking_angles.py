@@ -24,8 +24,8 @@ def panel(title):
     p.title.text_font_size = "14px"
     p.title.text_color = "#1e293b"
     p.title.offset = 8
-    p.axis.visible = False
-    p.grid.visible = False
+    p.axes.visible = False
+    p.grids.visible = False
     p.outline_line_color = "#dbe3ed"
     p.min_border = 12
     renderer = p.line(x, y, line_width=2.5, line_color="#64748b")

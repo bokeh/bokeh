@@ -67,8 +67,8 @@ button.js_on_event(events.ButtonClick, display_event(div))
 text_input.js_on_event(events.ValueSubmit, display_event(div, ["value"]))
 
 # AxisClick events
-p.xaxis[0].js_on_event(events.AxisClick, display_event(div, ["value"]))
-p.yaxis[0].js_on_event(events.AxisClick, display_event(div, ["value"]))
+p.xaxis.js_on_event(events.AxisClick, display_event(div, ["value"]))
+p.yaxis.js_on_event(events.AxisClick, display_event(div, ["value"]))
 
 # LOD events
 p.js_on_event(events.LODStart, display_event(div))

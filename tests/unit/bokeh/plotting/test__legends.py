@@ -217,9 +217,10 @@ class Test__handle_legend_label:
 class Test__get_or_create_legend:
     def test_legend_not_already_exists(self) -> None:
         plot = figure()
-        assert plot.legend == []
+        assert plot.legends == []
         legend = bpl._get_or_create_legend(plot, None)
-        assert plot.legend == [legend]
+        assert plot.legend is legend
+        assert plot.legends == [legend]
 
     @pytest.mark.parametrize('place', ['above', 'below', 'left', 'right', 'center'])
     def test_legend_already_exists(self, place: Place) -> None:

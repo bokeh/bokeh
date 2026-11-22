@@ -15,8 +15,8 @@ p.line(x=[0,1,2,3,4,5,6,7,8,9,10],
 p.ygrid.grid_line_color = None
 
 ticks = [0, 2, 4, 6, 8, 10]
-p.xaxis[0].ticker = ticks
-p.xgrid[0].ticker = ticks
+p.xaxis.ticker = ticks
+p.xgrid.ticker = ticks
 
 p.xgrid.band_hatch_pattern = "/"
 p.xgrid.band_hatch_alpha = 0.6

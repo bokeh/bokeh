@@ -26,7 +26,7 @@ p.vbar_stack(years, x='fruits', width=0.9, color=HighContrast3, source=data,
 p.y_range.start = 0
 p.x_range.range_padding = 0.1
 p.xgrid.grid_line_color = None
-p.axis.minor_tick_line_color = None
+p.axes.minor_tick_line_color = None
 p.outline_line_color = None
 p.legend.location = "top_left"
 p.legend.orientation = "horizontal"

@@ -69,9 +69,9 @@ p.ygrid.grid_line_color = None
 p.xgrid.grid_line_color = "#dddddd"
 p.xgrid.ticker = p.xaxis.ticker
 
-p.axis.minor_tick_line_color = None
-p.axis.major_tick_line_color = None
-p.axis.axis_line_color = None
+p.axes.minor_tick_line_color = None
+p.axes.major_tick_line_color = None
+p.axes.axis_line_color = None
 
 p.y_range.range_padding = 0.12
 

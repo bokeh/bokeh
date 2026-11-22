@@ -170,7 +170,7 @@ Then, after creating your plot with the ``figure()`` function, assign the
 
 .. code-block:: python
 
-    p.yaxis[0].formatter = NumeralTickFormatter(format="$0.00")
+    p.yaxis.formatter = NumeralTickFormatter(format="$0.00")
 
 The :class:`~bokeh.models.formatters.NumeralTickFormatter` supports different
 formats, including ``"$0.00"`` to generate values such as ``"$7.42"``.
@@ -229,9 +229,12 @@ Customizing the grid
 --------------------
 
 To change the appearance of the grid, set the various properties of the
-:func:`~bokeh.models.plots.Plot.xgrid`,
-:func:`~bokeh.models.plots.Plot.ygrid`, and
-:func:`~bokeh.models.plots.Plot.grid` methods of your |Plot| object.
+:attr:`~bokeh.models.plots.Plot.xgrid`,
+:attr:`~bokeh.models.plots.Plot.ygrid`, and
+:attr:`~bokeh.models.plots.Plot.grid` properties of your |Plot| object. Use
+``xgrids``, ``ygrids``, and ``grids`` to access or style every matching grid.
+You can convert these plural accessors to ordinary lists, for example with
+``list(plot.grids)``.
 
 Styling lines
 ~~~~~~~~~~~~~

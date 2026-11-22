@@ -52,8 +52,8 @@ p = figure(
     toolbar_location=None,
     x_axis_location="above",
 )
-p.grid.grid_line_color = None
-p.axis.major_tick_line_color = None
+p.grids.grid_line_color = None
+p.axes.major_tick_line_color = None
 
 p.scatter(
     marker=marker,

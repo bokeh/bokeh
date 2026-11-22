@@ -39,7 +39,7 @@ p = figure(
     tools=None, x_axis_location=None, y_axis_location=None,
 )
 
-p.grid.grid_line_color = None
+p.grids.grid_line_color = None
 
 p.title.text = "Google Search Trends and the Path of Solar Eclipse, 21 August 2017"
 p.title.align = "center"

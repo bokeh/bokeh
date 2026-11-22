@@ -33,8 +33,8 @@ p = figure(x_range=(-2*pi, 2*pi), y_range=(-1, 1), tools="pan,box_zoom,save,rese
 p.background_fill_color = "#fafafa"
 
 blue_circles = p.scatter(x, y, line_color="black", fill_color=blue, size=12)
-p.axis.axis_label = "light blue circles"
-p.axis.axis_label_text_color = blue
+p.axes.axis_label = "light blue circles"
+p.axes.axis_label_text_color = blue
 
 p.extra_x_ranges['foo'] = Range1d(-2*pi, 2*pi)
 p.extra_y_ranges['foo'] = Range1d(0, 100)

@@ -49,9 +49,9 @@ for (breed, breed_df), color in zip(breed_groups, colors):
 # Display x-axis labels as percentages
 p.xaxis.formatter = PrintfTickFormatter(format="%d%%")
 
-p.axis.axis_line_color = None
-p.axis.major_tick_line_color = None
-p.axis.minor_tick_line_color = None
+p.axes.axis_line_color = None
+p.axes.major_tick_line_color = None
+p.axes.minor_tick_line_color = None
 
 p.xgrid.grid_line_color = None
 p.yaxis.ticker = (0, 0.5, 1, 1.5)

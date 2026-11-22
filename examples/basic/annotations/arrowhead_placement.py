@@ -19,8 +19,8 @@ for at, title in (
 ):
     plot = figure(width=340, height=120, x_range=(0, 320), y_range=(-40, 40),
                   title=title, toolbar_location=None, tools="", min_border=8)
-    plot.axis.visible = False
-    plot.grid.visible = False
+    plot.axes.visible = False
+    plot.grids.visible = False
     plot.add_layout(Span(location=x_tip, dimension="height", level="underlay",
                          line_color="#8895a5", line_dash="dotted"))
     plot.add_layout(Label(x=x_tip, y=23, text=f"Tip ({x_tip}, {y_tip})",

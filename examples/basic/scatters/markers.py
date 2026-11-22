@@ -14,9 +14,9 @@ from bokeh.core.enums import MarkerType
 from bokeh.plotting import figure, show
 
 p = figure(title="Bokeh Markers", toolbar_location=None)
-p.grid.grid_line_color = None
+p.grids.grid_line_color = None
 p.background_fill_color = "#eeeeee"
-p.axis.visible = False
+p.axes.visible = False
 p.y_range.flipped = True
 
 N = 10

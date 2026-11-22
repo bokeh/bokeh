@@ -43,7 +43,7 @@ toggle_legend = CustomAction(
     icon=".bk-tool-icon-list",
     description="Toggle legend",
     callback=CustomJS(
-        args=dict(legends=p1.legend + p2.legend),
+        args=dict(legends=p1.legends + p2.legends),
         code="""
         export default ({legends}) => {
             for (const legend of legends) {
@@ -53,7 +53,7 @@ toggle_legend = CustomAction(
         """,
     ),
     active_callback=CustomJS(
-        args=dict(legends=p1.legend + p2.legend),
+        args=dict(legends=p1.legends + p2.legends),
         code="""
         export default ({legends}) => {
             return legends.every((legend) => legend.visible)

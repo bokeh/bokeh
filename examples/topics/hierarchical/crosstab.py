@@ -25,12 +25,12 @@ regions = source.data["Region"]
 
 p = figure(y_range=cats, x_range=(-0.55, 1.02), height=400, width=700, tools=None,
            x_axis_location=None, outline_line_color=None)
-p.grid.grid_line_color = None
+p.grids.grid_line_color = None
 p.yaxis.fixed_location = 0
-p.axis.major_tick_line_color = None
-p.axis.major_label_text_color = None
-p.axis.axis_line_color = "#4a4a4a"
-p.axis.axis_line_width = 6
+p.axes.major_tick_line_color = None
+p.axes.major_label_text_color = None
+p.axes.axis_line_color = "#4a4a4a"
+p.axes.axis_line_width = 6
 
 source.data["color"] = [ "#dadada","#dadada", "#4a4a4a", "#dadada"]
 for y in cats:

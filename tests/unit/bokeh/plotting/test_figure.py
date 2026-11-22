@@ -79,75 +79,75 @@ class Test_figure:
     def test_xaxis(self) -> None:
         p = bpf.figure()
         p.scatter([1, 2, 3], [1, 2, 3])
-        assert len(p.xaxis) == 1
+        assert len(p.xaxes) == 1
 
-        expected = set(p.xaxis)
+        expected = set(p.xaxes)
 
         ax = LinearAxis()
         expected.add(ax)
         p.above.append(ax)
-        assert set(p.xaxis) == expected
+        assert set(p.xaxes) == expected
 
         ax2 = LinearAxis()
         expected.add(ax2)
         p.above.append(ax2)
-        assert set(p.xaxis) == expected
+        assert set(p.xaxes) == expected
 
         p.left.append(LinearAxis())
-        assert set(p.xaxis) == expected
+        assert set(p.xaxes) == expected
 
         p.right.append(LinearAxis())
-        assert set(p.xaxis) == expected
+        assert set(p.xaxes) == expected
 
     def test_yaxis(self) -> None:
         p = bpf.figure()
         p.scatter([1, 2, 3], [1, 2, 3])
-        assert len(p.yaxis) == 1
+        assert len(p.yaxes) == 1
 
-        expected = set(p.yaxis)
+        expected = set(p.yaxes)
 
         ax = LinearAxis()
         expected.add(ax)
         p.right.append(ax)
-        assert set(p.yaxis) == expected
+        assert set(p.yaxes) == expected
 
         ax2 = LinearAxis()
         expected.add(ax2)
         p.right.append(ax2)
-        assert set(p.yaxis) == expected
+        assert set(p.yaxes) == expected
 
         p.above.append(LinearAxis())
-        assert set(p.yaxis) == expected
+        assert set(p.yaxes) == expected
 
         p.below.append(LinearAxis())
-        assert set(p.yaxis) == expected
+        assert set(p.yaxes) == expected
 
     def test_axis(self) -> None:
         p = bpf.figure()
         p.scatter([1, 2, 3], [1, 2, 3])
-        assert len(p.axis) == 2
+        assert len(p.axes) == 2
 
-        expected = set(p.axis)
+        expected = set(p.axes)
 
         ax = LinearAxis()
         expected.add(ax)
         p.above.append(ax)
-        assert set(p.axis) == expected
+        assert set(p.axes) == expected
 
         ax2 = LinearAxis()
         expected.add(ax2)
         p.below.append(ax2)
-        assert set(p.axis) == expected
+        assert set(p.axes) == expected
 
         ax3 = LinearAxis()
         expected.add(ax3)
         p.left.append(ax3)
-        assert set(p.axis) == expected
+        assert set(p.axes) == expected
 
         ax4 = LinearAxis()
         expected.add(ax4)
         p.right.append(ax4)
-        assert set(p.axis) == expected
+        assert set(p.axes) == expected
 
     def test_log_axis(self) -> None:
         p = bpf.figure(x_axis_type='log')
@@ -160,28 +160,28 @@ class Test_figure:
 
     def test_grid_tickers(self) -> None:
         p = bpf.figure()
-        assert p.xgrid[0].axis == p.xaxis[0]
-        assert p.xgrid[0].ticker is None
+        assert p.xgrid.axis == p.xaxis
+        assert p.xgrid.ticker is None
 
-        assert p.ygrid[0].axis == p.yaxis[0]
-        assert p.ygrid[0].ticker is None
+        assert p.ygrid.axis == p.yaxis
+        assert p.ygrid.ticker is None
 
     def test_xgrid(self) -> None:
         p = bpf.figure()
         p.scatter([1, 2, 3], [1, 2, 3])
-        assert len(p.xgrid) == 1
-        assert p.xgrid[0].dimension == 0
+        assert len(p.xgrids) == 1
+        assert p.xgrid.dimension == 0
 
     def test_ygrid(self) -> None:
         p = bpf.figure()
         p.scatter([1, 2, 3], [1, 2, 3])
-        assert len(p.ygrid) == 1
-        assert p.ygrid[0].dimension == 1
+        assert len(p.ygrids) == 1
+        assert p.ygrid.dimension == 1
 
     def test_grid(self) -> None:
         p = bpf.figure()
         p.scatter([1, 2, 3], [1, 2, 3])
-        assert len(p.grid) == 2
+        assert len(p.grids) == 2
 
     def test_tools(self) -> None:
         TOOLS = "pan,box_zoom,reset,lasso_select"

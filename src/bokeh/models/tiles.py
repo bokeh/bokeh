@@ -130,7 +130,7 @@ class MercatorTileSource(TileSource):
 
     .. note::
         Axis coordinates are not wrapped. To toggle axis label visibility,
-        use ``plot.axis.visible = False``.
+        use ``plot.axes.visible = False``.
 
     """)
 

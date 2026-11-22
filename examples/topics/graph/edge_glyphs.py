@@ -41,8 +41,8 @@ for glyph_type in (MultiLine, Segment, Bezier):
     graph.selection_policy = EdgesAndLinkedNodes()
     p = figure(width=300, height=330, x_range=(-0.5, 2.5), y_range=(-1, 2),
                title=glyph_type.__name__, tools="tap,box_select,reset")
-    p.axis.visible = False
-    p.grid.visible = False
+    p.axes.visible = False
+    p.grids.visible = False
     p.renderers.append(graph)
     plots.append(p)
 
