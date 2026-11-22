@@ -173,32 +173,6 @@ class Plot(LayoutDOM):
         # Want to pass selector that is a dictionary
         return Many(find(self.references(), selector))
 
-    def row(self, row, gridplot):
-        ''' Return whether this plot is in a given row of a GridPlot.
-
-        Args:
-            row (int) : index of the row to test
-            gridplot (GridPlot) : the GridPlot to check
-
-        Returns:
-            bool
-
-        '''
-        return self in gridplot.row(row)
-
-    def column(self, col, gridplot):
-        ''' Return whether this plot is in a given column of a GridPlot.
-
-        Args:
-            col (int) : index of the column to test
-            gridplot (GridPlot) : the GridPlot to check
-
-        Returns:
-            bool
-
-        '''
-        return self in gridplot.column(col)
-
     def _axis(self, *sides: PlaceType) -> Many[Axis]:
         return Many(
             obj
