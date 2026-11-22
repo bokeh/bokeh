@@ -379,14 +379,15 @@ def test_PropertyValueColumnData__stream_array_greater_than_array_length(mock_no
     assert event.rollover == 5
     assert event.data == {'foo': [40]}
 
+@pytest.mark.parametrize("index", [int, np.int64, np.int32], ids=["int", "int64", "int32"])
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
-def test_PropertyValueColumnData__patch_with_simple_indices(mock_notify: MagicMock) -> None:
+def test_PropertyValueColumnData__patch_with_simple_indices(mock_notify: MagicMock, index: type) -> None:
     from bokeh.document.events import ColumnsPatchedEvent
     source = ColumnDataSource(data=dict(foo=[10, 20]))
     pvcd = bcpw.PropertyValueColumnData(source.data)
 
     mock_notify.reset_mock()
-    pvcd._patch("doc", source, dict(foo=[(1, 40)]), setter='setter')
+    pvcd._patch("doc", source, dict(foo=[(index(1), 40)]), setter='setter')
     assert mock_notify.call_count == 1
     _assert_old_value_unavailable(mock_notify)
     assert pvcd == dict(foo=[10, 40])
