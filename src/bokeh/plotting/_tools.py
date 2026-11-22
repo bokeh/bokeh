@@ -80,7 +80,7 @@ def process_active_tools(toolbar: Toolbar, tool_map: dict[str, Tool],
         active_inspect (str, None, "auto", Tool or Tool[]): the tool to set active for inspect
         active_scroll (str, None, "auto" or Tool): the tool to set active for scroll
         active_tap (str, None, "auto" or Tool): the tool to set active for tap
-        active_multi (str, None, "auto" or Tool): the tool to set active for tap
+        active_multi (str, None, "auto" or Tool): the tool to set active for multi-gesture
 
     Returns:
         None
