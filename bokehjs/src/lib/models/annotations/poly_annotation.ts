@@ -8,6 +8,8 @@ import {CoordinateUnits} from "core/enums"
 import type {Arrayable, Rect} from "core/types"
 import {point_in_poly, dist_to_segment} from "core/hittest"
 import {Signal} from "core/signaling"
+import {DragSession} from "core/drag_session"
+import type {PanPhase} from "core/drag_session"
 import type {PanEvent, Pannable, MoveEvent, Moveable, KeyModifiers} from "core/ui_events"
 import type {CoordinateMapper} from "core/util/bbox"
 import {BBox, empty} from "core/util/bbox"
@@ -31,6 +33,14 @@ export type Area = {
 }
 
 export type HitTarget = Node | Edge | Area
+
+type DragSnapshot = {
+  /** Screen-space polygon at the start of dragging. */
+  poly: Polygon
+  /** The model's vertices, to restore on cancel. */
+  xs: Arrayable<number>
+  ys: Arrayable<number>
+}
 
 type Point = {x: number, y: number}
 
@@ -226,17 +236,17 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
     return true
   }
 
-  private _pan_state: {poly: Polygon, target: HitTarget} | null = null
+  private readonly _drag = new DragSession<HitTarget, DragSnapshot>(({xs, ys}) => {
+    this.model.update({xs, ys})
+  })
 
   on_pan_start(ev: PanEvent): boolean {
     if (this.model.visible && this.model.editable) {
       const {sx, sy} = ev
       const target = this._hit_test(sx, sy)
       if (target != null && this._can_hit(target)) {
-        this._pan_state = {
-          poly: this.poly.clone(),
-          target,
-        }
+        const {xs, ys} = this.model
+        this._drag.start(target, {poly: this.poly.clone(), xs, ys})
         this.model.pan.emit(["pan:start", ev.modifiers])
         return true
       }
@@ -245,10 +255,8 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
   }
 
   on_pan(ev: PanEvent): void {
-    assert(this._pan_state != null)
-
     const spoly = (() => {
-      const {poly, target} = this._pan_state
+      const {target, snapshot: {poly}} = this._drag.state
       const {dx, dy} = ev
 
       switch (target.type) {
@@ -275,8 +283,13 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
   }
 
   on_pan_end(ev: PanEvent): void {
-    this._pan_state = null
+    this._drag.end()
     this.model.pan.emit(["pan:end", ev.modifiers])
+  }
+
+  on_pan_cancel(ev: PanEvent): void {
+    this._drag.cancel()
+    this.model.pan.emit(["pan:cancel", ev.modifiers])
   }
 
   private get _has_hover(): boolean {
@@ -305,7 +318,7 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
   }
 
   override cursor(sx: number, sy: number): string | null {
-    const target = this._pan_state?.target ?? this._hit_test(sx, sy)
+    const target = this._drag.target ?? this._hit_test(sx, sy)
     if (target == null || !this._can_hit(target)) {
       return null
     }
@@ -381,7 +394,7 @@ export class PolyAnnotation extends Annotation {
     })
   }
 
-  readonly pan = new Signal<["pan:start" | "pan" | "pan:end", KeyModifiers], this>(this, "pan")
+  readonly pan = new Signal<[PanPhase, KeyModifiers], this>(this, "pan")
 
   update({xs, ys}: {xs: Arrayable<number>, ys: Arrayable<number>}): void {
     this.setv({xs: xs.slice(), ys: ys.slice(), visible: true})

@@ -1,20 +1,25 @@
 import {UIElement, UIElementView} from "../ui/ui_element"
 import {DOMNode} from "../dom/dom_node"
 import {Signal} from "core/signaling"
-import type {StyleSheetLike, Keys} from "core/dom"
+import type {StyleSheetLike} from "core/dom"
 import {InlineStyleSheet, px, div, text, bounding_box, dom_ready} from "core/dom"
-import {isString} from "core/util/types"
+import {isString, isNumber} from "core/util/types"
+import {typed_entries} from "core/util/object"
+import type {PanEvent} from "core/ui_gestures"
+import {UIGestures} from "core/ui_gestures"
+import {DragSession} from "core/drag_session"
 import type {ChildView, ViewOf} from "core/build_views"
 import {ChildViewSlot} from "core/build_views"
 import type * as p from "core/properties"
-import type {XY, LRTB} from "core/util/bbox"
-import {BBox} from "core/util/bbox"
-import {find, remove, min as amin} from "core/util/array"
+import type {LRTB, Corners, BBox} from "core/util/bbox"
+import {find, remove} from "core/util/array"
 import {enumerate} from "core/util/iterator"
 import {assert} from "core/util/assert"
 import * as Box from "../common/box_kinds"
-import {Coordinate} from "../coordinates/coordinate"
-import {Or, Ref} from "core/kinds"
+import type {HitTargets} from "../common/box_interaction"
+import {resizable_edges, hittable, move_bbox, screen_limits} from "../common/box_interaction"
+import {Node} from "../coordinates/node"
+import {Nullable, Or, Ref} from "core/kinds"
 import type {Infer} from "core/kinds"
 
 import dialogs_css, * as dialogs from "styles/dialogs.css"
@@ -25,6 +30,10 @@ const base_z_index = 1000
 
 const UIElementLike = Or(Ref(UIElement), Ref(DOMNode))
 type UIElementLike = Infer<typeof UIElementLike>
+
+// Unlike `Box.Limit`, there are no data-space limits, because dialogs don't have scales.
+const Limit = Nullable(Ref(Node))
+type Limit = Infer<typeof Limit>
 
 type CSSVal = number | string
 type Position<T> =
@@ -138,6 +147,21 @@ export class DialogView extends UIElementView {
         this._update_content()
       }
     })
+
+    for (const ui_gestures of this._ui_gestures) {
+      ui_gestures.connect_signals()
+    }
+    this.el.addEventListener("pointerdown", this._on_pointer_down)
+    this._handles.area.addEventListener("wheel", this._on_title_wheel)
+  }
+
+  override disconnect_signals(): void {
+    for (const ui_gestures of this._ui_gestures) {
+      ui_gestures.disconnect_signals()
+    }
+    this.el.removeEventListener("pointerdown", this._on_pointer_down)
+    this._handles.area.removeEventListener("wheel", this._on_title_wheel)
+    super.disconnect_signals()
   }
 
   override remove(): void {
@@ -147,7 +171,79 @@ export class DialogView extends UIElementView {
 
   protected _has_rendered: boolean = false
 
-  protected _handles: {[key in Box.HitTarget]: HTMLElement}
+  protected readonly _handles: HitTargets<HTMLElement> = {
+    // area
+    area: div({class: dialogs.title}),
+    // edges
+    top: div({class: [dialogs.handle, dialogs.resize_top]}),
+    bottom: div({class: [dialogs.handle, dialogs.resize_bottom]}),
+    left: div({class: [dialogs.handle, dialogs.resize_left]}),
+    right: div({class: [dialogs.handle, dialogs.resize_right]}),
+    // corners
+    top_left: div({class: [dialogs.handle, dialogs.resize_top_left]}),
+    top_right: div({class: [dialogs.handle, dialogs.resize_top_right]}),
+    bottom_left: div({class: [dialogs.handle, dialogs.resize_bottom_left]}),
+    bottom_right: div({class: [dialogs.handle, dialogs.resize_bottom_right]}),
+  }
+
+  /**
+   * One recognizer per handle, so that only handles capture pointers, and the
+   * dialog's controls and contents receive pointer events as usual.
+   */
+  protected readonly _ui_gestures: UIGestures[] = typed_entries(this._handles).map(([target, handle_el]) => {
+    return new UIGestures(handle_el, {
+      on_pan_start: (event) => this._on_pan_start(target, event),
+      on_pan: (event) => this._on_pan(event),
+      on_pan_end: (event) => this._on_pan_end(event),
+      on_pan_cancel: (event) => this._on_pan_cancel(event),
+    })
+  })
+
+  protected readonly _drag = new DragSession<Box.HitTarget, BBox>(({left, top, width, height}) => {
+    this._reposition({left, top, width, height})
+  })
+
+  protected _on_pan_start(target: Box.HitTarget, _event: PanEvent): void {
+    if (this._can_hit(target)) {
+      this._drag.start(target, bounding_box(this.el))
+      this.el.classList.add(dialogs.interacting)
+    }
+  }
+
+  protected _on_pan(event: PanEvent): void {
+    if (this._drag.is_active) {
+      const {target, snapshot: bbox} = this._drag.state
+      this._reposition(this._move_bbox(target, bbox, event.dx, event.dy))
+    }
+  }
+
+  protected _on_pan_end(_event: PanEvent): void {
+    this._drag.end()
+    this.el.classList.remove(dialogs.interacting)
+  }
+
+  protected _on_pan_cancel(_event: PanEvent): void {
+    this._drag.cancel()
+    this.el.classList.remove(dialogs.interacting)
+  }
+
+  protected _on_pointer_down = (event: PointerEvent): void => {
+    this.bring_to_front()
+    // prevent e.g. text selection when starting to move or resize the dialog
+    const target = this._hit_target(event.composedPath())
+    if (target != null && this._can_hit(target)) {
+      event.preventDefault()
+    }
+  }
+
+  protected _on_title_wheel = (event: WheelEvent): void => {
+    const dy = event.deltaY
+    if ((dy < 0 && !this._collapsed) || (0 < dy && this._collapsed)) {
+      event.preventDefault()
+      event.stopPropagation()
+      this.collapse()
+    }
+  }
 
   protected _pin_el: HTMLElement
   protected _collapse_el: HTMLElement
@@ -184,7 +280,8 @@ export class DialogView extends UIElementView {
     inner_el.append(footer_el)
 
     const grip_el = div({class: dialogs.grip})
-    const title_el = div({class: dialogs.title}, grip_el, this._slot_el(this._title.view, this.model.title))
+    const title_el = this._handles.area
+    title_el.replaceChildren(grip_el, this._slot_el(this._title.view, this.model.title))
     this._grip_el = grip_el
     this._title_el = title_el
     const controls_el = div({class: dialogs.controls})
@@ -226,20 +323,7 @@ export class DialogView extends UIElementView {
       controls_el.append(close_el)
     }
 
-    const handles = this._handles = {
-      // area
-      area: title_el,
-      // edges
-      top: div({class: [dialogs.handle, dialogs.resize_top]}),
-      bottom: div({class: [dialogs.handle, dialogs.resize_bottom]}),
-      left: div({class: [dialogs.handle, dialogs.resize_left]}),
-      right: div({class: [dialogs.handle, dialogs.resize_right]}),
-      // corners
-      top_left: div({class: [dialogs.handle, dialogs.resize_top_left]}),
-      top_right: div({class: [dialogs.handle, dialogs.resize_top_right]}),
-      bottom_left: div({class: [dialogs.handle, dialogs.resize_bottom_left]}),
-      bottom_right: div({class: [dialogs.handle, dialogs.resize_bottom_right]}),
-    }
+    const handles = this._handles
     this.shadow_el.append(
       handles.top,
       handles.bottom,
@@ -251,73 +335,6 @@ export class DialogView extends UIElementView {
       handles.bottom_right,
     )
 
-    let state: {bbox: BBox, xy: XY, target: Box.HitTarget} | null = null
-    const cancel = () => {
-      state = null
-      document.removeEventListener("pointermove", pointer_move)
-      document.removeEventListener("pointerup", pointer_up)
-      document.removeEventListener("keydown", key_press)
-      this.el.classList.remove(dialogs.interacting)
-    }
-    const pointer_move = (event: PointerEvent) => {
-      assert(state != null)
-      event.preventDefault()
-      this.el.classList.add(dialogs.interacting)
-      const dx = event.x - state.xy.x
-      const dy = event.y - state.xy.y
-      const {target, bbox} = state
-      const delta_bbox = this._move_bbox(target, bbox, dx, dy)
-      this._reposition(delta_bbox)
-    }
-    const pointer_up = (event: PointerEvent) => {
-      assert(state != null)
-      event.preventDefault()
-      cancel()
-    }
-    const key_press = (event: KeyboardEvent) => {
-      if (event.key as Keys == "Escape") {
-        assert(state != null)
-        event.preventDefault()
-        const {left, top, width, height} = state.bbox
-        this._reposition({left, top, width, height})
-        cancel()
-      }
-    }
-    this.el.addEventListener("pointerdown", (event) => {
-      assert(state == null)
-      this.bring_to_front()
-
-      const target = this._hit_target(event.composedPath())
-      if (target == null || !this._can_hit(target)) {
-        return
-      }
-
-      event.preventDefault()
-
-      const {x, y} = event
-      state = {
-        bbox: bounding_box(this.el),
-        xy: {x, y},
-        target,
-      }
-
-      document.addEventListener("pointermove", pointer_move, {signal: this.abort_signal})
-      document.addEventListener("pointerup", pointer_up, {signal: this.abort_signal})
-      document.addEventListener("keydown", key_press, {signal: this.abort_signal})
-
-      const target_el = this._handles[target]
-      target_el.setPointerCapture(event.pointerId)
-    })
-
-    title_el.addEventListener("wheel", (event) => {
-      const dy = event.deltaY
-      if ((dy < 0 && !this._collapsed) || (dy > 0 && this._collapsed)) {
-        event.preventDefault()
-        event.stopPropagation()
-        this.collapse()
-      }
-    })
-
     this._has_rendered = true
 
     if (this.model.visible) {
@@ -325,14 +342,8 @@ export class DialogView extends UIElementView {
     }
   }
 
-  get resizable(): LRTB<boolean> {
-    const {resizable} = this.model
-    return {
-      left: resizable == "left" || resizable == "x" || resizable == "all",
-      right: resizable == "right" || resizable == "x" || resizable == "all",
-      top: resizable == "top" || resizable == "y" || resizable == "all",
-      bottom: resizable == "bottom" || resizable == "y" || resizable == "all",
-    }
+  get resizable(): LRTB<boolean> & Corners<boolean> {
+    return resizable_edges(this.model.resizable)
   }
 
   protected _hit_target(path: EventTarget[]): Box.HitTarget | null {
@@ -357,108 +368,36 @@ export class DialogView extends UIElementView {
     if (this._minimized || this._maximized) {
       return false
     }
-    const {left, right, top, bottom} = this.resizable
-    switch (target) {
-      case "top_left":     return top && left
-      case "top_right":    return top && right
-      case "bottom_left":  return bottom && left
-      case "bottom_right": return bottom && right
-      case "left":         return left
-      case "right":        return right
-      case "top":          return top
-      case "bottom":       return bottom
-      case "area":         return this.model.movable != "none"
-    }
+    const {resizable, movable} = this.model
+    return hittable(resizable, movable != "none")[target]
   }
 
   protected _move_bbox(target: Box.HitTarget, bbox: BBox, dx: number, dy: number): BBox {
-    const resolve = (dim: "x" | "y", limit: Coordinate | number | null): number => {
-      if (limit instanceof Coordinate) {
-        return this.resolve_as_scalar(limit, dim)
-      } else {
+    // Dialogs are positioned relative to the viewport, so their limits must be
+    // resolved in viewport coordinates, unlike `UIElementView.bbox`, which is
+    // relative to the parent UI element.
+    const resolve = (dim: "x" | "y", limit: Limit): number => {
+      if (limit == null) {
         return NaN
+      }
+      const target = this.resolve_target(limit.target)
+      if (target instanceof UIElementView) {
+        const value = bounding_box(target.el).resolve(limit.symbol)
+        return (isNumber(value) ? value : value[dim]) + limit.offset
+      } else {
+        return this.resolve_as_scalar(limit, dim)
       }
     }
 
-    const slimits = BBox.from_lrtb({
+    const {movable, symmetric} = this.model
+    const limits = screen_limits({
       left: resolve("x", this.model.left_limit),
       right: resolve("x", this.model.right_limit),
       top: resolve("y", this.model.top_limit),
       bottom: resolve("y", this.model.bottom_limit),
     })
 
-    const [dl, dr, dt, db] = (() => {
-      const {symmetric} = this.model
-      const [Dx, Dy] = symmetric ? [-dx, -dy] : [0, 0]
-
-      switch (target) {
-        // corners
-        case "top_left":     return [dx, Dx, dy, Dy]
-        case "top_right":    return [Dx, dx, dy, Dy]
-        case "bottom_left":  return [dx, Dx, Dy, dy]
-        case "bottom_right": return [Dx, dx, Dy, dy]
-        // edges
-        case "left":   return [dx, Dx, 0, 0]
-        case "right":  return [Dx, dx, 0, 0]
-        case "top":    return [0, 0, dy, Dy]
-        case "bottom": return [0, 0, Dy, dy]
-        // area
-        case "area": {
-          switch (this.model.movable) {
-            case "both": return [dx, dx, dy, dy]
-            case "x":    return [dx, dx,  0,  0]
-            case "y":    return [ 0,  0, dy, dy]
-            case "none": return [ 0,  0,  0,  0]
-          }
-        }
-      }
-    })()
-
-    const min = (a: number, b: number) => amin([a, b])
-    const sgn = (v: number) => v < 0 ? -1 : (v > 0 ? 1 : 0)
-
-    let {left, right, left_sign, right_sign} = (() => {
-      const left = bbox.left + dl
-      const right = bbox.right + dr
-      const left_sign = sgn(dl)
-      const right_sign = sgn(dr)
-      if (left <= right) {
-        return {left, right, left_sign, right_sign}
-      } else {
-        return {left: right, right: left, left_sign: right_sign, right_sign: left_sign}
-      }
-    })()
-    let {top, bottom, top_sign, bottom_sign} = (() => {
-      const top = bbox.top + dt
-      const bottom = bbox.bottom + db
-      const top_sign = sgn(dt)
-      const bottom_sign = sgn(db)
-      if (top <= bottom) {
-        return {top, bottom, top_sign, bottom_sign}
-      } else {
-        return {top: bottom, bottom: top, top_sign: bottom_sign, bottom_sign: top_sign}
-      }
-    })()
-
-    const Dl = left - slimits.left
-    const Dr = slimits.right - right
-
-    const Dh = min(Dl < 0 ? Dl : NaN, Dr < 0 ? Dr : NaN)
-    if (isFinite(Dh) && Dh < 0) {
-      left += -left_sign*(-Dh)
-      right += -right_sign*(-Dh)
-    }
-
-    const Dt = top - slimits.top
-    const Db = slimits.bottom - bottom
-
-    const Dv = min(Dt < 0 ? Dt : NaN, Db < 0 ? Db : NaN)
-    if (isFinite(Dv) && Dv < 0) {
-      top += -top_sign*(-Dv)
-      bottom += -bottom_sign*(-Dv)
-    }
-
-    return BBox.from_lrtb({left, right, top, bottom})
+    return move_bbox(bbox, target, dx, dy, {movable, symmetric, limits}).bbox
   }
 
   protected _pinned: boolean = false
@@ -672,10 +611,10 @@ export namespace Dialog {
     movable: p.Property<Box.Movable>
     symmetric: p.Property<boolean>
 
-    top_limit: p.Property<Box.Limit>
-    bottom_limit: p.Property<Box.Limit>
-    left_limit: p.Property<Box.Limit>
-    right_limit: p.Property<Box.Limit>
+    top_limit: p.Property<Limit>
+    bottom_limit: p.Property<Limit>
+    left_limit: p.Property<Limit>
+    right_limit: p.Property<Limit>
   }
 }
 
@@ -704,10 +643,10 @@ export class Dialog extends UIElement {
       movable: [ Box.Movable, "both" ],
       symmetric: [ Bool, false ],
 
-      top_limit: [ Box.Limit, null ],
-      bottom_limit: [ Box.Limit, null ],
-      left_limit: [ Box.Limit, null ],
-      right_limit: [ Box.Limit, null ],
+      top_limit: [ Limit, null ],
+      bottom_limit: [ Limit, null ],
+      left_limit: [ Limit, null ],
+      right_limit: [ Limit, null ],
     }))
   }
 }
