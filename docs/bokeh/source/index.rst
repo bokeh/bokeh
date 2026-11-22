@@ -73,8 +73,8 @@ Connecting with the Bokeh community
 
 There are various ways to get in touch with the `Bokeh community`_:
 
-* The `Bokeh Discourse`_ is the best place to ask usage questions and is a
-  great way to get feedback from other users on how to approach a problem.
+* Ask usage questions in `GitHub Community Support`_. Browse the read-only
+  `Bokeh Discourse archive`_ for past answers.
 * Questions involving pandas or other libraries may find a wider audience by
   posting with the `"bokeh" tag on Stack Overflow`_.
 * If you think you've found a bug, or would like to request a feature, please
@@ -98,7 +98,8 @@ You can also find more information about Bokeh on `Medium`_, and `LinkedIn`_.
 
 .. _Interactive tutorial notebooks: https://github.com/bokeh/tutorial/
 .. _Bokeh community: https://bokeh.org/community/
-.. _Bokeh Discourse: https://discourse.bokeh.org
+.. _GitHub Community Support: https://github.com/bokeh/bokeh/discussions/categories/community-support
+.. _Bokeh Discourse archive: https://discourse.bokeh.org/
 .. _`"bokeh" tag on Stack Overflow`: https://stackoverflow.com/questions/tagged/bokeh
 .. _`Bokeh's GitHub repository`: https://github.com/bokeh/bokeh
 .. _Medium: https://medium.com/bokeh

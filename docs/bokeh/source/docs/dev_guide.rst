@@ -116,9 +116,9 @@ Bokeh's documentation
     For an overview of Bokeh's various documentation resources, see
     :ref:`docs.bokeh.org <about>`.
 
-Bokeh's Discourse
-    User support for Bokeh is provided by volunteers on the
-    `Bokeh Discourse server`_. See
+GitHub Community Support
+    Volunteers answer usage questions in `GitHub Community Support`_. Past
+    discussions are available in the read-only `Bokeh Discourse archive`_. See
     `the community section of Bokeh's website`_ for more information on Bokeh's
     community resources.
 
@@ -159,9 +159,8 @@ in Bokeh's `GitHub repository`_.
 Add examples
 ^^^^^^^^^^^^
 
-If you or your organization are using Bokeh and are willing to share some
-examples of what you are working on, consider adding them to the
-`Bokeh Showcase`_. You can also add new examples to
+Browse the archived `Bokeh Showcase`_ for examples of what people have built
+with Bokeh. You can add new examples to
 :ref:`Bokeh's gallery <gallery>` with a :ref:`pull request
 <contributor_guide_pull_requests>` to the :bokeh-tree:`examples` folder.
 
@@ -171,10 +170,9 @@ Help with community support
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 All user support for Bokeh is provided by volunteers. While support questions
-are discussed in various places, such as `Stack Overflow`_, the central location
-for all user support questions is the `Bokeh Discourse server`_. Feel free to
-answer user questions that you can help with. All interactions on Bokeh's
-Discourse must follow Bokeh's `Code of Conduct`_.
+are discussed in various places, such as `Stack Overflow`_, the main place for
+usage questions is `GitHub Community Support`_. Feel free to answer questions
+you can help with. All interactions must follow Bokeh's `Code of Conduct`_.
 
 .. _contributor_guide_bindings:
 
@@ -230,7 +228,8 @@ Tidelift will coordinate the fix and disclosure.
 .. _numfocus.org: https://numfocus.org/
 .. _Support: https://github.com/bokeh/bokeh#support
 .. _GitHub repository: https://github.com/bokeh/bokeh
-.. _Bokeh Discourse server: https://discourse.bokeh.org/
+.. _GitHub Community Support: https://github.com/bokeh/bokeh/discussions/categories/community-support
+.. _Bokeh Discourse archive: https://discourse.bokeh.org/
 .. _the community section of Bokeh's website: https://bokeh.org/community/
 .. _Bokeh Showcase: https://discourse.bokeh.org/c/showcase/
 .. _Bokeh's gallery: http://docs.bokeh.org/en/latest/docs/gallery.html

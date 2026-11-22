@@ -160,7 +160,7 @@ html_theme_options = {
     },
     "external_links": [
         {"name": "Tutorial",  "url": "https://github.com/bokeh/tutorial/"},
-        {"name": "Community", "url": "https://discourse.bokeh.org"},
+        {"name": "Community", "url": "https://bokeh.org/community/"},
     ],
     "github_url": "https://github.com/bokeh/bokeh",
     "navbar_align": "left",
