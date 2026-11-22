@@ -198,8 +198,12 @@ channels = [{ channel = "pyviz/label/dev", priority = 1 }]
 platforms = ["linux-64"]
 
 [feature.downstream-deps.dependencies]
+# Distributed is installed from source with --no-deps to keep the Dask checkout.
+# Keep its additional runtime requirements in this environment.
 holoviews = "*"
+msgpack-python = ">=1.0.2"
 panel = "*"
+psutil = ">=5.8.0"
 python-dateutil = ">=2.1"
 pytest = ">=7.0"
 pytest-asyncio = "*" # Panel and HoloViews both set asyncio_mode = "auto".
@@ -207,6 +211,9 @@ pytest-cov = "*"
 pytest-repeat = "*"
 pytest-rerunfailures = "*"
 pytest-timeout = "*"
+sortedcontainers = ">=2.0.5"
+tblib = ">=1.6.0,!=3.2.0,!=3.2.1"
+zict = ">=3.0.0"
 
 [feature.server-integration-deps]
 platforms = ["linux-64"]
