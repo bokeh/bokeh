@@ -539,14 +539,19 @@ class TestColumnDataSource:
         with pytest.raises(ValueError, match=r"Invalid patch index: {}"):
             ds.patch(dict(foo=[[{}, 5]]))
 
-    def test_patch_numpy_integer_multi_index(self) -> None:
+    def test_patch_good_numpy_integer_multi_index(self) -> None:
         ds = ColumnDataSource(data=dict(a=[np.zeros((2, 2)), np.zeros((2, 2))]))
         ds.patch(dict(a=[([np.int64(1), 0, slice(None)], [5, 6])]))
         ds.patch(dict(a=[([0, np.int64(1), slice(None)], [7, 8])]))
         assert (ds.data["a"][0] == np.array([[0, 0], [7, 8]])).all()
         assert (ds.data["a"][1] == np.array([[5, 6], [0, 0]])).all()
+
+    def test_patch_bad_numpy_integer_multi_index(self) -> None:
+        ds = ColumnDataSource(data=dict(a=[np.zeros((2, 2)), np.zeros((2, 2))]))
         with pytest.raises(ValueError, match=r"Out-of bounds initial sub-index \(2\) in patch for column: a"):
             ds.patch(dict(a=[([np.int64(2), 0, slice(None)], [5, 6])]))
+        assert (ds.data["a"][0] == np.zeros((2, 2))).all()
+        assert (ds.data["a"][1] == np.zeros((2, 2))).all()
 
     def test_patch_good_slice_indices(self) -> None:
         ds = bms.ColumnDataSource(data=dict(a=[10, 11, 12, 13, 14, 15], b=[20, 21, 22, 23, 24, 25]))
