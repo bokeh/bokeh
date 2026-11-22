@@ -33,6 +33,7 @@ from ..core.enums import (
 from ..core.property_aliases import (
     Anchor,
     BorderRadius,
+    BorderRadiusType,
     Padding,
     TextAnchor,
 )
@@ -498,7 +499,7 @@ class _RectInit(_XYGlyphInit, _LinePropsInit, _FillPropsInit, _HatchPropsInit, t
     width: DistanceSpec
     height: DistanceSpec
     angle: AngleSpec
-    border_radius: BorderRadius
+    border_radius: BorderRadiusType
     dilate: bool
 
 class Rect(XYGlyph, LineProps, FillProps, HatchProps):
@@ -509,7 +510,7 @@ class Rect(XYGlyph, LineProps, FillProps, HatchProps):
     width: DistanceSpec = ...
     height: DistanceSpec = ...
     angle: AngleSpec = ...
-    border_radius: BorderRadius = ...
+    border_radius: BorderRadiusType = ...
     dilate: bool = ...
 
 class _ScatterInit(_MarkerInit, total=False):
