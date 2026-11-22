@@ -116,7 +116,7 @@ export abstract class ImageBaseView extends XYGlyphView {
 
     if (!this._can_inherit_image_data) {
       let {image_data} = this
-      if (image_data?.length != n) {
+      if (this.inherited_image_data || image_data?.length != n) {
         image_data = new Array(n).fill(null)
         this._define_attr<ImageBase.Data>("image_data", image_data)
       }
