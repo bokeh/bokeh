@@ -1,7 +1,7 @@
 import sinon from "sinon"
 import pixelmatch from "pixelmatch"
 
-import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
+import {expect, expect_condition, expect_instanceof, expect_not_null} from "#framework/assertions"
 import {display, fig, row} from "#framework/layouts"
 import {restorable} from "#framework/util"
 import {PlotActions, actions, xy, line, tap, mouse_click, scroll_up, scroll_down, show_context_menu} from "#framework/interactive"
@@ -104,6 +104,7 @@ import {DTINDEX_NAME} from "@bokehjs/models/widgets/tables/definitions"
 import {Spinner} from "@bokehjs/models/widgets"
 
 import * as slider_css from "@bokehjs/styles/widgets/sliders.css"
+import type { FigureView } from "@bokehjs/models/plots/figure"
 
 class QualifiedModelView extends UIElementView {
   declare model: QualifiedModel
@@ -2709,6 +2710,128 @@ ${view.host_selector} {
           {kind: "ModelChanged", model: {id: glyph.id}, attr: "fill_color", new: {type: "value", value: "#CC79A7"}},
         ],
       })
+    })
+  })
+
+
+  describe("in issue #14957", () => {
+    // The image is 2x2 with the values [[0, 1], [2, 3]] (the first row at the bottom, the
+    // default origin), covering [0, 2] x [0, 2]. The color mapper uses a two color palette,
+    // so value 0 gets the first color and value 3 the last one.
+    type Point = [number, number]
+    type RGBA = [number, number, number, number]
+
+    const bottom_left: Point = [0.5, 0.5]
+    const top_right: Point = [1.5, 1.5]
+
+    const black: RGBA = [0, 0, 0, 255]
+    const white: RGBA = [255, 255, 255, 255]
+    const red: RGBA = [255, 0, 0, 255]
+    const blue: RGBA = [0, 0, 255, 255]
+    const green: RGBA = [0, 255, 0, 255]
+    const magenta: RGBA = [255, 0, 255, 255]
+
+    function make_image(max: number = 3) {
+      return ndarray([0, 1, 2, max], {dtype: "float32", shape: [2, 2]})
+    }
+
+    function make_plot() {
+      const source = ColumnDataSource.create({data: {image: [make_image()]}})
+      const color_mapper = LinearColorMapper.create({palette: ["#000000", "#ffffff"]})
+
+      const plot = fig([200, 200], {
+        x_range: Range1d.create({start: 0, end: 2}),
+        y_range: Range1d.create({start: 0, end: 2}),
+        x_axis_type: null, y_axis_type: null,
+        background_fill_color: "white", outline_line_color: null,
+      })
+      const renderer = plot.image({image: {field: "image"}, x: 0, y: 0, dw: 2, dh: 2, source, color_mapper})
+      return {plot, renderer, source, color_mapper}
+    }
+
+    function pixel(view: FigureView, [x, y]: Point): number[] {
+      const {ctx, pixel_ratio} = view.canvas_view.primary
+      const sx = Math.floor(view.frame.x_scale.compute(x)*pixel_ratio)
+      const sy = Math.floor(view.frame.y_scale.compute(y)*pixel_ratio)
+      return Array.from(ctx.getImageData(sx, sy, 1, 1).data)
+    }
+
+    function expect_pixel(view: FigureView, point: Point, expected: RGBA): void {
+      const actual = pixel(view, point)
+      expect_condition(actual.every((value, i) => Math.abs(value - expected[i]) <= 2),
+        `pixel at ${point}: expected ${expected}, got ${actual}`)
+    }
+
+    function expect_colors(view: FigureView, bottom_left_color: RGBA, top_right_color: RGBA): void {
+      expect_pixel(view, bottom_left, bottom_left_color)
+      expect_pixel(view, top_right, top_right_color)
+    }
+
+    it("renders an image with its initial color mapper", async () => {
+      const {plot} = make_plot()
+      const {view} = await display(plot)
+      expect_colors(view, black, white)
+    })
+
+    it("repaints an image when the palette of its color mapper changes", async () => {
+      const {plot, color_mapper} = make_plot()
+      const {view} = await display(plot)
+      expect_colors(view, black, white)
+
+      color_mapper.palette = ["#ff0000", "#0000ff"]
+      await view.ready
+      expect_colors(view, red, blue)
+    })
+
+    it("doesn't keep the old colors when the color mapper of an image is replaced", async () => {
+      const {plot, renderer} = make_plot()
+      const {view} = await display(plot)
+      expect_colors(view, black, white)
+
+      renderer.glyph.color_mapper = LinearColorMapper.create({palette: ["#ff0000", "#0000ff"]})
+      await view.ready
+      expect_colors(view, red, blue)
+    })
+
+    it("doesn't ignore changes to a replaced color mapper of an image", async () => {
+      const {plot, renderer} = make_plot()
+      const {view} = await display(plot)
+
+      const color_mapper = LinearColorMapper.create({palette: ["#ff0000", "#0000ff"]})
+      renderer.glyph.color_mapper = color_mapper
+      await view.ready
+      expect_colors(view, red, blue)
+
+      color_mapper.palette = ["#00ff00", "#ff00ff"]
+      await view.ready
+      expect_colors(view, green, magenta)
+    })
+
+    it("doesn't revert to the old colors when the data changes after the color mapper was replaced", async () => {
+      const {plot, renderer, source} = make_plot()
+      const {view} = await display(plot)
+
+      renderer.glyph.color_mapper = LinearColorMapper.create({palette: ["#ff0000", "#0000ff"]})
+      await view.ready
+      expect_colors(view, red, blue)
+
+      // different values, because an update to equal data wouldn't change anything
+      source.data = {image: [make_image(4)]}
+      await view.ready
+      expect_colors(view, red, blue)
+    })
+
+    it("supports replacing the color mapper of an image more than once", async () => {
+      const {plot, renderer} = make_plot()
+      const {view} = await display(plot)
+
+      renderer.glyph.color_mapper = LinearColorMapper.create({palette: ["#ff0000", "#0000ff"]})
+      await view.ready
+      expect_colors(view, red, blue)
+
+      renderer.glyph.color_mapper = LinearColorMapper.create({palette: ["#00ff00", "#ff00ff"]})
+      await view.ready
+      expect_colors(view, green, magenta)
     })
   })
 })
