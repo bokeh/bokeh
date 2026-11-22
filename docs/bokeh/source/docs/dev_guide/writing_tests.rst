@@ -362,7 +362,7 @@ Follow these steps to write new visual tests or update existing tests:
     needed for your pull request.
 
     If you encounter any problems with the steps described here, feel free to
-    get in touch at the `Bokeh Discourse`_ or `Bokeh's contributor
+    get in touch at the `GitHub Community Support`_ or `Bokeh's contributor
     Slack`_.
 
 
@@ -421,5 +421,5 @@ running the examples tests.
 .. _rebase: https://docs.github.com/en/get-started/using-git/about-git-rebase
 .. _GithubCI: https://github.com/bokeh/bokeh/actions
 .. _pytest: https://docs.pytest.org
-.. _Bokeh Discourse: https://discourse.bokeh.org/
+.. _GitHub Community Support: https://github.com/bokeh/bokeh/discussions/categories/community-support
 .. _Bokeh's contributor Slack: https://slack-invite.bokeh.org/

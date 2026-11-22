@@ -83,8 +83,7 @@ You should see, among other things, a line with information on the installed
 version of Bokeh.
 
 If you receive an error instead, try searching for more information by using
-the `"bokeh" tag on Stack Overflow`_ or asking a question in the
-`Bokeh Discourse`_ community.
+the `"bokeh" tag on Stack Overflow`_ or asking in `GitHub Community Support`_.
 
 .. tip::
     Once you have Bokeh installed, build your first visualization by following
@@ -217,5 +216,5 @@ for version ``3.0.0`` are:
 .. _Anaconda: https://www.anaconda.com/products/individual#Downloads
 .. _Miniconda: https://docs.conda.io/en/latest/miniconda.html
 .. _`"bokeh" tag on Stack Overflow`: https://stackoverflow.com/questions/tagged/bokeh
-.. _Bokeh Discourse: https://discourse.bokeh.org
+.. _GitHub Community Support: https://github.com/bokeh/bokeh/discussions/categories/community-support
 .. _`Bokeh's GitHub repository`: https://github.com/bokeh/bokeh

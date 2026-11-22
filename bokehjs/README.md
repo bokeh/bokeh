@@ -24,4 +24,4 @@ working hard towards applying Bokeh and BokehJS towards some specific projects,
 so the development priorities will tend to center around those tasks, until the
 project reaches a point of stability.
 
-Please join the discussion on the [Bokeh project Discourse](https://discourse.bokeh.org).
+Please join the discussion on the [Community Support on GitHub Discussions](https://github.com/bokeh/bokeh/discussions/categories/community-support).
