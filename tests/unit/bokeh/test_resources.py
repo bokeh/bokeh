@@ -33,14 +33,21 @@ def test_public_resource_configuration() -> None:
     assert resources.INLINE == "inline"
 
 
-@pytest.mark.parametrize(("host", "ssl", "expected"), [
-    (None, False, "http://localhost:5006/"),
-    ("127.0.0.1", True, "https://127.0.0.1:5006/"),
-    ("::1", False, "http://[::1]:5006/"),
-    ("[::1]", True, "https://[::1]:5006/"),
+@pytest.mark.parametrize(("host", "url_host"), [
+    (None, "localhost"),
+    ("localhost", "localhost"),
+    ("127.0.0.1", "127.0.0.1"),
+    ("192.168.1.10", "192.168.1.10"),
+    ("example.com", "example.com"),
+    ("::1", "[::1]"),
+    ("[::1]", "[::1]"),
+    ("2001:db8::1", "[2001:db8::1]"),
+    ("[2001:db8::1]", "[2001:db8::1]"),
 ])
-def test_server_url(host: str | None, ssl: bool, expected: str) -> None:
-    assert resources.server_url(host, 5006, ssl) == expected
+@pytest.mark.parametrize(("port", "url_port"), [(None, 5006), (5006, 5006), (8080, 8080)])
+@pytest.mark.parametrize(("ssl", "scheme"), [(False, "http"), (True, "https")])
+def test_server_url(host: str | None, url_host: str, port: int | None, url_port: int, ssl: bool, scheme: str) -> None:
+    assert resources.server_url(host, port, ssl) == f"{scheme}://{url_host}:{url_port}/"
 
 
 def test_cdn_version_defaults_to_payload_version(
