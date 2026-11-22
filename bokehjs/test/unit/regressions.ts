@@ -104,7 +104,7 @@ import {DTINDEX_NAME} from "@bokehjs/models/widgets/tables/definitions"
 import {Spinner} from "@bokehjs/models/widgets"
 
 import * as slider_css from "@bokehjs/styles/widgets/sliders.css"
-import type { FigureView } from "@bokehjs/models/plots/figure"
+import type {FigureView} from "@bokehjs/models/plots/figure"
 
 class QualifiedModelView extends UIElementView {
   declare model: QualifiedModel
@@ -2712,7 +2712,6 @@ ${view.host_selector} {
       })
     })
   })
-
 
   describe("in issue #14957", () => {
     // The image is 2x2 with the values [[0, 1], [2, 3]] (the first row at the bottom, the
