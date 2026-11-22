@@ -1141,7 +1141,7 @@ class BaseFigureOptions(Options):
     """)
 
     active_multi = Nullable(Either(Auto, String, Instance(GestureTool)), default="auto", help="""
-    Specify an active multi-gesture tool, for instance an edit tool or a range tool.
+    Specify an active multi-gesture tool, for instance an edit tool.
     """)
 
     tooltips = Nullable(Either(Instance(Template), String, List(Tuple(String, String))), help="""
