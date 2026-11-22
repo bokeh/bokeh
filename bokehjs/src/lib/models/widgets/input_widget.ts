@@ -52,22 +52,22 @@ export abstract class InputWidgetView extends WidgetView {
     return [...super._children_views(), ...title_view, ...description_view]
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
 
-    await this._build_title()
-    await this._build_description()
+    this._build_title()
+    this._build_description()
   }
 
   override connect_signals(): void {
     super.connect_signals()
     const {title, description} = this.model.properties
-    this.on_change(title, async () => {
-      await this._build_title()
+    this.on_change(title, () => {
+      this._build_title()
       this.rerender()
     })
-    this.on_change(description, async () => {
-      await this._build_description()
+    this.on_change(description, () => {
+      this._build_description()
       this.rerender()
     })
   }
@@ -149,25 +149,25 @@ export abstract class InputWidgetView extends WidgetView {
     }
   }
 
-  protected async _build_title(): Promise<void> {
+  protected _build_title(): void {
     if (this.title instanceof View) {
       this.title.remove()
     }
     const {title} = this.model
     if (title instanceof HTML) {
-      this.title = await build_view(title, {parent: this})
+      this.title = build_view(title, {parent: this})
     } else {
       this.title = title
     }
   }
 
-  protected async _build_description(): Promise<void> {
+  protected _build_description(): void {
     if (this.description instanceof View) {
       this.description.remove()
     }
     const {description} = this.model
     if (description instanceof Tooltip) {
-      this.description = await build_view(description, {parent: this})
+      this.description = build_view(description, {parent: this})
     } else {
       this.description = description
     }

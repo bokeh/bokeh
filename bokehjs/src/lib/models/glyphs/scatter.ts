@@ -11,6 +11,7 @@ import {CustomJS} from "../callbacks/customjs"
 import {execute_sync} from "core/util/callbacks"
 import type {SyncExecutableLike} from "core/util/callbacks"
 import {dict, is_empty} from "core/util/object"
+import type {WebGLModule} from "../canvas/webgl"
 
 function is_MarkerType(type: string | null): type is MarkerType {
   return MarkerType.valid(type)
@@ -24,32 +25,35 @@ export class ScatterView extends MarkerView {
   /** @internal */
   declare glglyph?: MultiMarkerGL
 
-  override async load_glglyph() {
-    const {MultiMarkerGL} = await import("./webgl/multi_marker")
-    return MultiMarkerGL
+  override glglyph_class(webgl: WebGLModule) {
+    return webgl.MultiMarkerGL
   }
 
   protected override _compute_can_use_webgl(): boolean {
     return is_empty(this.model.defs) || u.every(this.marker, is_MarkerType)
   }
 
-  protected async _update_defs(): Promise<void> {
+  protected _update_defs(): void {
     for (const cb of dict(this.model.defs).values()) {
-      if (cb instanceof CustomJS) {
-        await cb.compile()
+      if (cb instanceof CustomJS && !cb.compile_sync()) {
+        // ES modules compile asynchronously and are skipped when painting until then
+        this.schedule(async () => {
+          await cb.compile()
+          this.request_paint()
+        })
       }
     }
+  }
+
+  override initialize(): void {
+    super.initialize()
+    this._update_defs()
   }
 
   override connect_signals(): void {
     super.connect_signals()
     const {defs} = this.model.properties
     this.on_change(defs, () => this._update_defs())
-  }
-
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    await this._update_defs()
   }
 
   protected override _paint(ctx: Context2d, indices: Int32Array, data?: Partial<Scatter.Data>): void {
@@ -81,7 +85,8 @@ export class ScatterView extends MarkerView {
         marker_funcs[marker_i](ctx, i, r, visuals)
       } else {
         const fn = defs.get(marker_i)
-        if (fn != null) {
+        // ES modules are skipped until compiled, see _update_defs()
+        if (fn != null && (!(fn instanceof CustomJS) || fn.compile_sync())) {
           const path = execute_sync(fn as CustomMarkerDef, this.model, {ctx, i, r, visuals})
           if (path instanceof Path2D) {
             this.visuals.fill.apply(ctx, i, path)

@@ -3,6 +3,7 @@ import type {NDArrayType} from "core/util/ndarray"
 import {isTypedArray} from "core/util/types"
 import type * as p from "core/properties"
 import type {ImageGL} from "./webgl/image"
+import type {WebGLModule} from "../canvas/webgl"
 
 export interface ImageRGBAView extends ImageRGBA.Data {}
 
@@ -13,9 +14,8 @@ export class ImageRGBAView extends ImageBaseView {
   /** @internal */
   declare glglyph?: ImageGL
 
-  override async load_glglyph() {
-    const {ImageGL} = await import("./webgl/image")
-    return ImageGL
+  override glglyph_class(webgl: WebGLModule) {
+    return webgl.ImageGL
   }
 
   protected _flat_img_to_buf8(img: NDArrayType<number>): Uint8ClampedArray {

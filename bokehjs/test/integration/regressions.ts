@@ -3111,8 +3111,9 @@ describe("Bug", () => {
       class CustomFigureView extends FigureView {
         declare model: CustomFigure
 
+        // oxlint-disable-next-line typescript/no-misused-promises -- deliberately asynchronous, which is deprecated
         override async lazy_initialize(): Promise<void> {
-          await super.lazy_initialize()
+          super.lazy_initialize()
           await delay(5)
         }
       }

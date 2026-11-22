@@ -412,8 +412,8 @@ export class PlotView extends LayoutDOMView implements Paintable {
     ]
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
 
     this.canvas_view = this._element_views.get(this._canvas)! as CanvasView
     this.canvas_view.plot_views = [this]
@@ -430,8 +430,8 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this.inner_left_panel = this._element_views.get(this._inner_left_panel)! as ViewOf<CanvasPanel>
     this.inner_right_panel = this._element_views.get(this._inner_right_panel)! as ViewOf<CanvasPanel>
 
-    await this.build_tool_views()
-    await this.build_renderer_views()
+    this.build_tool_views()
+    this.build_renderer_views()
 
     this._range_manager.update_dataranges()
     this._update_touch_action() // active_changed emits too early, so update manually the first time
@@ -913,9 +913,9 @@ export class PlotView extends LayoutDOMView implements Paintable {
     // TODO this._attribution.title = contents_el.textContent!.replace(/\s*\n\s*/g, " ")
   }
 
-  protected async _build_renderers(): Promise<BuildResult<Renderer>> {
+  protected _build_renderers(): BuildResult<Renderer> {
     this.computed_renderers = [...this._compute_renderers()]
-    const result = await build_views(this.renderer_views, this.computed_renderers, {parent: this})
+    const result = build_views(this.renderer_views, this.computed_renderers, {parent: this})
     this._computed_renderer_views = this.computed_renderers.map((r) => this.renderer_views.get(r)).filter((rv) => rv != null) // TODO race condition again
     for (const renderer_view of result.created) {
       this.on_change(renderer_view.model.properties.visible, () => this._update_attribution())
@@ -924,8 +924,8 @@ export class PlotView extends LayoutDOMView implements Paintable {
     return result
   }
 
-  protected async _update_renderers(): Promise<void> {
-    const {created} = await this._build_renderers()
+  protected _update_renderers(): void {
+    const {created} = this._build_renderers()
     const created_views = new Set(created)
 
     // Since appending to a DOM node will move the node to the end if it has
@@ -944,13 +944,13 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this.r_after_render()
   }
 
-  async build_renderer_views(): Promise<void> {
-    await this._build_renderers()
+  build_renderer_views(): void {
+    this._build_renderers()
   }
 
-  async build_tool_views(): Promise<void> {
+  build_tool_views(): void {
     const tool_models = flat_map(this.model.toolbar.tools, (item) => item instanceof ToolProxy ? item.tools : [item])
-    const {created} = await build_views(this.tool_views, [...tool_models], {parent: this})
+    const {created} = build_views(this.tool_views, [...tool_models], {parent: this})
     created.map((tool_view) => this.canvas_view.ui_event_bus.register_tool(tool_view))
   }
 
@@ -990,14 +990,14 @@ export class PlotView extends LayoutDOMView implements Paintable {
     })
 
     const {above, below, left, right, center, renderers} = this.model.properties
-    this.on_change([above, below, left, right, center, renderers], async () => {
-      await this._update_renderers()
+    this.on_change([above, below, left, right, center, renderers], () => {
+      this._update_renderers()
       this.invalidate_layout()
     })
 
-    this.connect(this.model.toolbar.properties.tools.change, async () => {
-      await this.build_tool_views()
-      await this._update_renderers()
+    this.connect(this.model.toolbar.properties.tools.change, () => {
+      this.build_tool_views()
+      this._update_renderers()
     })
 
     const {frame_width, frame_height, frame_align} = this.model.properties
@@ -1030,14 +1030,14 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this.connect(this.model.reset, () => this.reset())
 
     const {toolbar_location} = this.model.properties
-    this.on_change(toolbar_location, async () => {
+    this.on_change(toolbar_location, () => {
       const {toolbar_location} = this.model
       if (this._toolbar != null) {
         if (toolbar_location != null) {
           this._toolbar.toolbar.location = toolbar_location
         } else {
           this._toolbar = undefined
-          await this._update_renderers()
+          this._update_renderers()
         }
       } else {
         if (toolbar_location != null) {
@@ -1045,7 +1045,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
           this._toolbar = ToolbarPanel.create({toolbar})
           toolbar.location = toolbar_location
           toolbar.inner = toolbar_inner
-          await this._update_renderers()
+          this._update_renderers()
         }
       }
       this.invalidate_layout()

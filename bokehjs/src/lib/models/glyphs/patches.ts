@@ -12,6 +12,7 @@ import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 import {unreachable} from "core/util/assert"
 import type {PatchesGL} from "./webgl/patches"
+import type {WebGLModule} from "../canvas/webgl"
 
 export interface PatchesView extends Patches.Data {}
 
@@ -22,9 +23,8 @@ export class PatchesView extends GlyphView {
   /** @internal */
   declare glglyph?: PatchesGL
 
-  override async load_glglyph() {
-    const {PatchesGL} = await import("./webgl/patches")
-    return PatchesGL
+  override glglyph_class(webgl: WebGLModule) {
+    return webgl.PatchesGL
   }
 
   protected override _project_data(): void {

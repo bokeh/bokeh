@@ -31,6 +31,7 @@ import type {IndexedDataSource} from "../sources/indexed_data_source"
 import {PathPlacement} from "../graphics/path_placement"
 import {List, Ref} from "core/kinds"
 import type {BaseGLGlyph, BaseGLGlyphConstructor} from "./webgl/base"
+import type {WebGLModule} from "../canvas/webgl"
 
 const {abs, ceil} = Math
 
@@ -53,7 +54,8 @@ export abstract class GlyphView extends DOMComponentView {
   /** @internal */
   glglyph?: BaseGLGlyph
 
-  async load_glglyph?(): Promise<typeof BaseGLGlyph>
+  /** The WebGL implementation of this glyph, if any. */
+  glglyph_class?(webgl: WebGLModule): typeof BaseGLGlyph
 
   has_webgl(): this is {glglyph: BaseGLGlyph} {
     return this.glglyph != null && this._can_use_webgl
@@ -96,13 +98,19 @@ export abstract class GlyphView extends DOMComponentView {
   override initialize(): void {
     super.initialize()
     this.visuals = new visuals.Visuals(this)
+
+    const {webgl} = this.canvas
+    if (webgl != null && this.glglyph_class != null) {
+      const cls = this.glglyph_class(webgl.module) as BaseGLGlyphConstructor
+      this.glglyph = new cls(webgl.regl_wrapper, this)
+    }
   }
 
   readonly path_markings: ViewStorage<PathPlacement> = new Map()
 
-  protected async _build_path_markings(): Promise<void> {
+  protected _build_path_markings(): void {
     const models = supports_path_marking(this.model) ? this.model.path_markings : []
-    await build_views(this.path_markings, models, {parent: this})
+    build_views(this.path_markings, models, {parent: this})
   }
 
   protected _path_marking_insets(i: number): {start: number, end: number} {
@@ -125,15 +133,9 @@ export abstract class GlyphView extends DOMComponentView {
     return [...super._children_views(), ...this.path_markings.values()]
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    await this._build_path_markings()
-
-    const {webgl} = this.canvas
-    if (webgl != null && this.load_glglyph != null) {
-      const cls = await this.load_glglyph() as BaseGLGlyphConstructor
-      this.glglyph = new cls(webgl.regl_wrapper, this)
-    }
+  override lazy_initialize(): void {
+    super.lazy_initialize()
+    this._build_path_markings()
   }
 
   override connect_signals(): void {
@@ -141,8 +143,8 @@ export abstract class GlyphView extends DOMComponentView {
     if (!supports_path_marking(this.model)) {
       return
     }
-    this.connect(this.model.properties.path_markings.change, async () => {
-      await this._build_path_markings()
+    this.connect(this.model.properties.path_markings.change, () => {
+      this._build_path_markings()
       if (this.is_destroyed) {
         return
       }
@@ -548,7 +550,7 @@ export abstract class GlyphView extends DOMComponentView {
     return final_array
   }
 
-  async set_data(source: IndexedDataSource, indices: Indices, indices_to_update?: number[]): Promise<void> {
+  set_data(source: IndexedDataSource, indices: Indices, indices_to_update?: number[]): void {
     const visuals = new Set(this._iter_visuals())
     const {base_glyph} = this
 
@@ -591,7 +593,6 @@ export abstract class GlyphView extends DOMComponentView {
     }
 
     this._set_data(indices_to_update ?? null) // TODO doesn't take subset indices into account
-    await this._set_lazy_data(indices_to_update ?? null) // TODO doesn't take subset indices into account
 
     for (const path_marking of this.path_markings.values()) {
       path_marking.set_data(source, indices)
@@ -611,14 +612,11 @@ export abstract class GlyphView extends DOMComponentView {
   }
 
   protected _set_data(_indices: number[] | null): void {}
-  protected async _set_lazy_data(_indices: number[] | null): Promise<void> {}
 
   /**
    * Any data transformations that require visuals.
    */
   after_visuals(): void {}
-
-  async after_lazy_visuals(): Promise<void> {}
 
   protected get _index_size(): number {
     return this.data_size

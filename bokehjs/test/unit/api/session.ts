@@ -229,8 +229,8 @@ describe("connect_session()", () => {
 
   it("keeps rendering failure separate from connection ownership", async () => {
     class FailingView extends PlotView {
-      override async lazy_initialize(): Promise<void> {
-        await super.lazy_initialize()
+      override lazy_initialize(): void {
+        super.lazy_initialize()
         throw new Error("render failed")
       }
     }

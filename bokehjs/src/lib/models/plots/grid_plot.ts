@@ -41,21 +41,21 @@ export class GridPlotView extends LayoutDOMView {
     this._grid_box = GridBox.create({children, rows, cols, spacing, sizing_mode: "inherit"})
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    await this.build_tool_views()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
+    this.build_tool_views()
   }
 
   override connect_signals(): void {
     super.connect_signals()
 
     const {toolbar, toolbar_location, children, rows, cols, spacing} = this.model.properties
-    this.on_change(toolbar_location, async () => {
+    this.on_change(toolbar_location, () => {
       this._update_location()
       this.invalidate_layout()
     })
-    this.on_change(toolbar, async () => {
-      await this.update_children()
+    this.on_change(toolbar, () => {
+      this.update_children()
     })
 
     this.on_change([children, rows, cols, spacing], async () => {
@@ -64,8 +64,8 @@ export class GridPlotView extends LayoutDOMView {
       await this.grid_box_view.ready
     })
 
-    this.on_change(this.model.toolbar.properties.tools, async () => {
-      await this.build_tool_views()
+    this.on_change(this.model.toolbar.properties.tools, () => {
+      this.build_tool_views()
     })
 
     this.mouseenter.connect(() => {
@@ -78,9 +78,9 @@ export class GridPlotView extends LayoutDOMView {
 
   private readonly _tool_views: ViewStorage<ActionTool> = new Map()
 
-  async build_tool_views(): Promise<void> {
+  build_tool_views(): void {
     const tools = this.model.toolbar.tools.filter((tool) => tool instanceof ActionTool)
-    await build_views(this._tool_views, tools, {parent: this})
+    build_views(this._tool_views, tools, {parent: this})
   }
 
   override _children_views(): ChildView[] {

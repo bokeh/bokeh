@@ -69,9 +69,9 @@ class SomeModelView extends View {
     return [...super._children_views(), ...this._children_views_map.values()]
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    await build_views(this._children_views_map, this.model.children, {parent: this})
+  override lazy_initialize(): void {
+    super.lazy_initialize()
+    build_views(this._children_views_map, this.model.children, {parent: this})
   }
 }
 
@@ -142,8 +142,8 @@ class LazyFailureView extends SomeModelView {
     failed_view = this
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
     throw new Error("lazy initialization failed")
   }
 }
@@ -184,7 +184,7 @@ describe("core/view", () => {
         failed_view = null
         let thrown: unknown = null
         try {
-          await build_view(model)
+          build_view(model)
         } catch (error) {
           thrown = error
         }
@@ -199,7 +199,7 @@ describe("core/view", () => {
 
     it("should disconnect a previously connected slot", async () => {
       const model = SomeModel.create()
-      const view = await build_view(model)
+      const view = build_view(model)
 
       let calls = 0
       const slot = () => calls++
@@ -241,7 +241,7 @@ describe("core/view", () => {
       // it has to throw away a build nothing wants any more.
       const view = new UnconnectedModelView({model: UnconnectedModel.create(), parent: null})
       view.initialize()
-      await view.lazy_initialize()
+      view.lazy_initialize()
 
       view.remove()
 
@@ -252,7 +252,7 @@ describe("core/view", () => {
     })
 
     it("should stop listening to DOM events on shared targets after being removed", async () => {
-      const view = await build_view(ListeningModel.create())
+      const view = build_view(ListeningModel.create())
 
       try {
         document.dispatchEvent(new Event("some_event"))
@@ -269,7 +269,7 @@ describe("core/view", () => {
       const child0 = SomeModel.create()
       const child1 = SomeModel.create({children: [SomeModel.create()]})
       const model = SomeModel.create({children: [child0]})
-      const view = await build_view(model)
+      const view = build_view(model)
 
       let calls = 0
       view.on_transitive_change(model.properties.children, () => calls++)
@@ -298,7 +298,7 @@ describe("core/view", () => {
       const child0 = SomeModel.create()
       const child1 = SomeModel.create()
       const model = SomeModel.create({children: [child0]})
-      const view = await build_view(model)
+      const view = build_view(model)
 
       let calls = 0
       view.on_transitive_change(model.properties.children, () => calls++)
@@ -318,7 +318,7 @@ describe("core/view", () => {
       const leaf1 = SomeModel.create()
       const branch1 = SomeModel.create({children: [leaf1, SomeModel.create()]})
       const model = SomeModel.create({children: [branch0]})
-      const view = await build_view(model)
+      const view = build_view(model)
 
       let calls = 0
       view.on_transitive_change(model.properties.children, () => calls++, {recursive: true})
@@ -338,7 +338,7 @@ describe("core/view", () => {
 
     describe("should support schedule() and ready", () => {
       it("which waits for a scheduled task", async () => {
-        const view = await build_view(SomeModel.create())
+        const view = build_view(SomeModel.create())
         let done = false
         view.schedule(async () => {
           await defer()
@@ -349,7 +349,7 @@ describe("core/view", () => {
       })
 
       it("which runs a task immediately", async () => {
-        const view = await build_view(SomeModel.create())
+        const view = build_view(SomeModel.create())
         let started = false
         view.schedule(async () => {
           started = true
@@ -359,7 +359,7 @@ describe("core/view", () => {
       })
 
       it("which waits for tasks scheduled while waiting", async () => {
-        const view = await build_view(SomeModel.create())
+        const view = build_view(SomeModel.create())
         let done = false
         view.schedule(async () => {
           await defer()
@@ -375,7 +375,7 @@ describe("core/view", () => {
       it("which lets a root wait for tasks of its descendants", async () => {
         const child = SomeModel.create()
         const root = SomeModel.create({children: [child]})
-        const root_view = await build_view(root)
+        const root_view = build_view(root)
         const child_view = root_view.views.find_one(child)
         expect_not_null(child_view)
         let done = false
@@ -391,7 +391,7 @@ describe("core/view", () => {
       })
 
       it("which rejects when a task throws synchronously", async () => {
-        const view = await build_view(SomeModel.create())
+        const view = build_view(SomeModel.create())
         view.schedule(() => {
           throw new Error("task failed")
         })
@@ -429,7 +429,7 @@ describe("core/view", () => {
         const sibling = SomeModel.create()
         const mid = SomeModel.create({children: [leaf, sibling]})
         const root = SomeModel.create({children: [mid]})
-        const root_view = await build_view(root)
+        const root_view = build_view(root)
         const mid_view = root_view.views.find_one(mid)
         const leaf_view = root_view.views.find_one(leaf)
         const sibling_view = root_view.views.find_one(sibling)
@@ -502,7 +502,7 @@ describe("core/view", () => {
       })
 
       it("which clears failures once reported", async () => {
-        const view = await build_view(SomeModel.create())
+        const view = build_view(SomeModel.create())
         view.schedule(async () => {
           throw new Error("task failed")
         })
@@ -518,7 +518,7 @@ describe("core/view", () => {
       })
 
       it("which rejects all concurrent waiters with the same failure", async () => {
-        const view = await build_view(SomeModel.create())
+        const view = build_view(SomeModel.create())
         view.schedule(async () => {
           await defer()
           throw new Error("task failed")
@@ -529,7 +529,7 @@ describe("core/view", () => {
       })
 
       it("which aggregates multiple failures", async () => {
-        const view = await build_view(SomeModel.create())
+        const view = build_view(SomeModel.create())
         view.schedule(async () => {
           throw new Error("task 0 failed")
         })
@@ -583,7 +583,7 @@ describe("core/view", () => {
       })
 
       it("which aborts the task's signal when the view is removed", async () => {
-        const view = await build_view(SomeModel.create())
+        const view = build_view(SomeModel.create())
         const signals: AbortSignal[] = []
         view.schedule(async (signal) => {
           signals.push(signal)
@@ -598,7 +598,7 @@ describe("core/view", () => {
       })
 
       it("which doesn't run tasks of removed views", async () => {
-        const view = await build_view(SomeModel.create())
+        const view = build_view(SomeModel.create())
         view.remove()
         let started = false
         view.schedule(async () => {
@@ -609,7 +609,7 @@ describe("core/view", () => {
       })
 
       it("which waits for asynchronous signal handlers", async () => {
-        const view = await build_view(SomeModel.create())
+        const view = build_view(SomeModel.create())
         let done = false
         view.on_change(view.model.properties.children, async () => {
           await defer()
@@ -621,7 +621,7 @@ describe("core/view", () => {
       })
 
       it("which doesn't track synchronous signal handlers", async () => {
-        const view = await build_view(SomeModel.create())
+        const view = build_view(SomeModel.create())
         let called = false
         view.on_change(view.model.properties.children, () => {
           called = true
@@ -644,7 +644,7 @@ describe("core/view", () => {
       const deadlock = "a task waits for 'ready' that it counts towards"
 
       it("which warns when a task waits for ready of its view", async () => {
-        const view = await build_view(SomeModel.create())
+        const view = build_view(SomeModel.create())
         const messages = await warnings(async () => {
           view.schedule(async () => {
             await view.ready
@@ -686,7 +686,7 @@ describe("core/view", () => {
       })
 
       it("which doesn't warn when a synchronous task requests ready of its view", async () => {
-        const view = await build_view(SomeModel.create())
+        const view = build_view(SomeModel.create())
         const messages = await warnings(async () => {
           let done = false
           view.schedule(() => {
@@ -707,7 +707,7 @@ describe("core/view", () => {
       const obj4 = SomeModel.create({children: [obj1, obj2]})
       const obj5 = SomeModel.create({children: [obj3, obj4]})
 
-      const view5 = await build_view(obj5, {parent: null})
+      const view5 = build_view(obj5, {parent: null})
 
       const view0 = view5.views.find_one(obj0)
       expect_not_null(view0)

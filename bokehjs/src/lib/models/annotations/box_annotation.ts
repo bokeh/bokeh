@@ -199,15 +199,15 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   override connect_signals(): void {
     super.connect_signals()
     const {editable, use_handles, handles, resizable, movable} = this.model.properties
-    this.on_change([editable, use_handles, handles, resizable, movable], async () => {
+    this.on_change([editable, use_handles, handles, resizable, movable], () => {
       this._update_handles()
-      await this._update_renderers()
+      this._update_renderers()
     })
     this.connect(this.model.change, () => this.request_paint())
   }
 
-  protected override async _build_renderers(): Promise<BuildResult<Renderer>> {
-    const build_result = await super._build_renderers()
+  protected override _build_renderers(): BuildResult<Renderer> {
+    const build_result = super._build_renderers()
 
     const get = (handle: Renderer | null) => {
       return handle != null ? this._renderer_views.get(handle) as ViewOf<BoxAnnotation> | undefined : undefined

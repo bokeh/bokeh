@@ -50,7 +50,7 @@ describe("Tabs", () => {
     tabs.tabs[1].closable = true
     tabs.tabs[2].closable = true
 
-    const view = await build_view(tabs)
+    const view = build_view(tabs)
     view.render_to(document.body)
 
     const close_btns = view.shadow_el.querySelectorAll(".bk-close")
@@ -67,7 +67,7 @@ describe("Tabs", () => {
     tabs.active = 0
     tabs.tabs[0].closable = true
 
-    const view = await build_view(tabs)
+    const view = build_view(tabs)
     view.render_to(document.body)
 
     const close_btn = view.shadow_el.querySelector(".bk-close") as HTMLElement
@@ -85,7 +85,7 @@ describe("Tabs", () => {
     tabs.tabs[0].closable = true
     tabs.tabs[1].closable = true
 
-    const view = await build_view(tabs)
+    const view = build_view(tabs)
     view.render_to(document.body)
 
     const close_btns = view.shadow_el.querySelectorAll(".bk-close")
@@ -105,7 +105,7 @@ describe("Tabs", () => {
     tabs.tabs[2].disabled = true
     tabs.tabs[2].closable = true
 
-    const view = await build_view(tabs)
+    const view = build_view(tabs)
     view.render_to(document.body)
 
     const close_btns = view.shadow_el.querySelectorAll(".bk-close")
@@ -125,7 +125,7 @@ describe("Tabs", () => {
     tabs.tabs[1].closable = true
     tabs.tabs[2].closable = true
 
-    const view = await build_view(tabs)
+    const view = build_view(tabs)
     view.render_to(document.body)
 
     const close_btns = view.shadow_el.querySelectorAll(".bk-close")

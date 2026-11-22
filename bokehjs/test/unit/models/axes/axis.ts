@@ -175,8 +175,6 @@ describe("Axis", () => {
     const y_texts = y_labels.items.map((label) => (label as MathTextBox).view.model.text)
     expect(x_texts).to.be.equal(["-\\pi", "\\text{0}", "\\pi/2", "\\pi"])
     expect(y_texts).to.be.equal(["-\\text{2}\\pi", "\\text{0}", "\\pi", "\\text{2}\\pi"])
-    expect(x_axis_view._formatter_text_views_pending.size).to.be.equal(0)
-    expect(y_axis_view._formatter_text_views_pending.size).to.be.equal(0)
     expect(x_axis_view.has_finished()).to.be.true
     expect(y_axis_view.has_finished()).to.be.true
   })

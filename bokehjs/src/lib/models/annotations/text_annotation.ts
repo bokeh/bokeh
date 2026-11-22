@@ -28,15 +28,15 @@ export abstract class TextAnnotationView extends AnnotationView {
     return [...super._children_views(), this._text_view]
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    await this._init_text()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
+    this._init_text()
   }
 
-  protected async _init_text(): Promise<void> {
+  protected _init_text(): void {
     const {text} = this.model
     const _text = isString(text) ? parse_delimited_string(text) : text
-    this._text_view = await build_view(_text, {parent: this})
+    this._text_view = build_view(_text, {parent: this})
   }
 
   override update_layout(): void {
@@ -52,9 +52,9 @@ export abstract class TextAnnotationView extends AnnotationView {
     super.connect_signals()
 
     const {text} = this.model.properties
-    this.on_change(text, async () => {
+    this.on_change(text, () => {
       this._text_view.remove()
-      await this._init_text()
+      this._init_text()
     })
 
     this.connect(this.model.change, () => this.request_paint())

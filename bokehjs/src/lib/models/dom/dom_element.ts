@@ -21,18 +21,18 @@ export abstract class DOMElementView extends DOMNodeView {
     return [...super._children_views(), ...this.child_views.values()]
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
     const children = this.model.children.filter((obj): obj is DOMNode | UIElement => !isString(obj))
-    await build_views(this.child_views, children, {parent: this})
+    build_views(this.child_views, children, {parent: this})
   }
 
   override connect_signals(): void {
     super.connect_signals()
 
     const {children, style} = this.model.properties
-    this.on_change(children, async () => {
-      await this._update_children()
+    this.on_change(children, () => {
+      this._update_children()
     })
     this.on_change(style, () => {
       this.el.removeAttribute("style")
@@ -40,13 +40,13 @@ export abstract class DOMElementView extends DOMNodeView {
     })
   }
 
-  protected async _build_children(): Promise<BuildResult<DOMNode | UIElement>> {
+  protected _build_children(): BuildResult<DOMNode | UIElement> {
     const children = this.model.children.filter((obj): obj is DOMNode | UIElement => !isString(obj))
-    return await build_views(this.child_views, children, {parent: this})
+    return build_views(this.child_views, children, {parent: this})
   }
 
-  protected async _update_children(): Promise<void> {
-    const {created} = await this._build_children()
+  protected _update_children(): void {
+    const {created} = this._build_children()
     const created_views = new Set(created)
 
     // Since appending to a DOM node will move the node to the end if it has

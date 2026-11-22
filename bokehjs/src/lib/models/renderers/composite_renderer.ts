@@ -33,10 +33,10 @@ export abstract class CompositeRendererView extends RendererView {
     return [...super._children_views(), ...this.renderer_views, ...this.element_views]
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    await this._build_renderers()
-    await this._build_elements()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
+    this._build_renderers()
+    this._build_elements()
   }
 
   protected readonly _computed_renderers: Renderer[] = []
@@ -47,9 +47,9 @@ export abstract class CompositeRendererView extends RendererView {
     return this._computed_renderer_views
   }
 
-  protected async _build_renderers(): Promise<BuildResult<Renderer>> {
+  protected _build_renderers(): BuildResult<Renderer> {
     const renderers = this.computed_renderers
-    const result = await build_views(this._renderer_views, renderers, {parent: this})
+    const result = build_views(this._renderer_views, renderers, {parent: this})
     this._computed_renderer_views = renderers.map((item) => this._renderer_views.get(item)).filter((rv) => rv != null)
     return result
   }
@@ -62,19 +62,19 @@ export abstract class CompositeRendererView extends RendererView {
     return this._computed_element_views
   }
 
-  protected async _build_elements(): Promise<BuildResult<ElementLike>> {
+  protected _build_elements(): BuildResult<ElementLike> {
     const elements = this.computed_elements
-    const result = await build_views(this._element_views, elements, {parent: this})
+    const result = build_views(this._element_views, elements, {parent: this})
     this._computed_element_views = elements.map((item) => this._element_views.get(item)).filter((ev) => ev != null)
     return result
   }
 
-  protected async _update_renderers(): Promise<void> {
-    await this._build_renderers()
+  protected _update_renderers(): void {
+    this._build_renderers()
   }
 
-  protected async _update_elements(): Promise<void> {
-    const {created} = await this._build_elements()
+  protected _update_elements(): void {
+    const {created} = this._build_elements()
     const created_views = new Set(created)
 
     // Since appending to a DOM node will move the node to the end if it has
@@ -105,11 +105,11 @@ export abstract class CompositeRendererView extends RendererView {
   override connect_signals(): void {
     super.connect_signals()
     const {renderers, elements} = this.model.properties
-    this.on_change(renderers, async () => {
-      await this._update_renderers()
+    this.on_change(renderers, () => {
+      this._update_renderers()
     })
-    this.on_change(elements, async () => {
-      await this._update_elements()
+    this.on_change(elements, () => {
+      this._update_elements()
     })
   }
 

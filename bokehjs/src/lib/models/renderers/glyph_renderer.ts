@@ -147,13 +147,13 @@ export class GlyphRendererView extends DataRendererView {
     return this.model.properties.data_source
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
 
-    this.subset_view = await build_view(this.model.view, {parent: this})
+    this.subset_view = build_view(this.model.view, {parent: this})
 
     const base_glyph = this.model.glyph
-    this.glyph = await this.build_glyph_view(base_glyph)
+    this.glyph = this.build_glyph_view(base_glyph)
 
     const has_fill = "fill" in this.glyph.visuals
     const has_line = "line" in this.glyph.visuals
@@ -184,20 +184,20 @@ export class GlyphRendererView extends DataRendererView {
     let {selection_glyph, nonselection_glyph, hover_glyph, muted_glyph} = this.model
 
     selection_glyph = glyph_from_mode(selection_defaults, selection_glyph)
-    this.selection_glyph = await this.build_glyph_view(selection_glyph)
+    this.selection_glyph = this.build_glyph_view(selection_glyph)
 
     nonselection_glyph = glyph_from_mode(nonselection_defaults, nonselection_glyph)
-    this.nonselection_glyph = await this.build_glyph_view(nonselection_glyph)
+    this.nonselection_glyph = this.build_glyph_view(nonselection_glyph)
 
     if (hover_glyph != null) {
-      this.hover_glyph = await this.build_glyph_view(hover_glyph)
+      this.hover_glyph = this.build_glyph_view(hover_glyph)
     }
 
     muted_glyph = glyph_from_mode(muted_defaults, muted_glyph)
-    this.muted_glyph = await this.build_glyph_view(muted_glyph)
+    this.muted_glyph = this.build_glyph_view(muted_glyph)
 
     const decimated_glyph = glyph_from_mode(decimated_defaults, "auto")
-    this.decimated_glyph = await this.build_glyph_view(decimated_glyph)
+    this.decimated_glyph = this.build_glyph_view(decimated_glyph)
 
     this.selection_glyph.set_base_glyph(this.glyph)
     this.nonselection_glyph.set_base_glyph(this.glyph)
@@ -205,8 +205,8 @@ export class GlyphRendererView extends DataRendererView {
     this.muted_glyph.set_base_glyph(this.glyph)
     this.decimated_glyph.set_base_glyph(this.glyph)
 
-    await this._set_data()
-    await this._build_attachments()
+    this._set_data()
+    this._build_attachments()
   }
 
   override request_paint(): void {
@@ -217,8 +217,8 @@ export class GlyphRendererView extends DataRendererView {
     }
   }
 
-  private async _build_attachments(): Promise<void> {
-    await build_views(this._attachments, this.model.attachments, {parent: this})
+  private _build_attachments(): void {
+    build_views(this._attachments, this.model.attachments, {parent: this})
   }
 
   override remove(): void {
@@ -226,7 +226,7 @@ export class GlyphRendererView extends DataRendererView {
     super.remove()
   }
 
-  async build_glyph_view<T extends Glyph>(glyph: T): Promise<GlyphView> {
+  build_glyph_view<T extends Glyph>(glyph: T): GlyphView {
     return build_view(glyph, {parent: this})
   }
 
@@ -273,8 +273,8 @@ export class GlyphRendererView extends DataRendererView {
     const update = () => update_data()
 
     this.connect(this.model.change, render)
-    this.on_change(this.model.properties.attachments, async () => {
-      await this._build_attachments()
+    this.on_change(this.model.properties.attachments, () => {
+      this._build_attachments()
       if (!this.is_destroyed) {
         this.request_paint()
       }
@@ -364,7 +364,7 @@ export class GlyphRendererView extends DataRendererView {
         this.subset_view.remove()
       }
       const model = this.model.view
-      const subset_view = await build_view(model, {parent: this})
+      const subset_view = build_view(model, {parent: this})
       if (this.is_destroyed || revision != view_revision || this.model.view != model) {
         subset_view.remove()
         return
@@ -428,8 +428,6 @@ export class GlyphRendererView extends DataRendererView {
     } finally {
       this._applying_visuals = false
     }
-    // Serialize asynchronous visual hooks with other passes. A pending pass already runs them.
-    this._enqueue_update({data: false, visuals: false, paint: false})
   }
 
   /** Queue data preparation. Like `request_paint()`, renderer state becomes current through `ready`. */
@@ -462,7 +460,7 @@ export class GlyphRendererView extends DataRendererView {
     }
     // Read the final source state before each pass, and serialize data and visual work.
     this._pending_update = request
-    const pass = this._data_update_complete.then(async () => {
+    const pass = this._data_update_complete.then(() => {
       this._pending_update = null
       const {abort_signal} = this
       if (!abort_signal.aborted) {
@@ -470,11 +468,9 @@ export class GlyphRendererView extends DataRendererView {
         this._active_update = request
         try {
           if (request.data) {
-            await this._set_data(request.indices == null ? undefined : [...request.indices])
+            this._set_data(request.indices == null ? undefined : [...request.indices])
           } else if (request.visuals) {
-            await this._set_visuals()
-          } else {
-            await this._after_lazy_visuals()
+            this._set_visuals()
           }
         } finally {
           this._active_update = null
@@ -493,20 +489,20 @@ export class GlyphRendererView extends DataRendererView {
   // in case of partial updates like patching, the list of indices that actually
   // changed may be passed as the "indices" parameter to afford any optional optimizations
   // Internal preparation. Runtime callers must use update_data().
-  async _set_data(indices?: number[]): Promise<void> {
+  _set_data(indices?: number[]): void {
     const source = this.model.data_source
 
     this.all_indices = this.model.view.indices
     const {all_indices} = this
 
-    await this.glyph.set_data(source, all_indices, indices)
-    await this.decimated_glyph.set_data(source, all_indices, indices)
-    await this.selection_glyph.set_data(source, all_indices, indices)
-    await this.nonselection_glyph.set_data(source, all_indices, indices)
-    await this.hover_glyph?.set_data(source, all_indices, indices)
-    await this.muted_glyph.set_data(source, all_indices, indices)
+    this.glyph.set_data(source, all_indices, indices)
+    this.decimated_glyph.set_data(source, all_indices, indices)
+    this.selection_glyph.set_data(source, all_indices, indices)
+    this.nonselection_glyph.set_data(source, all_indices, indices)
+    this.hover_glyph?.set_data(source, all_indices, indices)
+    this.muted_glyph.set_data(source, all_indices, indices)
 
-    await this._set_visuals()
+    this._set_visuals()
 
     this._update_masked_indices()
 
@@ -521,9 +517,8 @@ export class GlyphRendererView extends DataRendererView {
   }
 
   // Internal preparation. Runtime callers must use update_visuals().
-  async _set_visuals(): Promise<void> {
+  _set_visuals(): void {
     this._apply_visuals()
-    await this._after_lazy_visuals()
   }
 
   // Update visuals of all glyph states synchronously, so they can be applied during painting.
@@ -548,15 +543,6 @@ export class GlyphRendererView extends DataRendererView {
 
     this.muted_glyph.set_visuals(source, all_indices)
     this.muted_glyph.after_visuals()
-  }
-
-  private async _after_lazy_visuals(): Promise<void> {
-    await this.glyph.after_lazy_visuals()
-    await this.decimated_glyph.after_lazy_visuals()
-    await this.selection_glyph.after_lazy_visuals()
-    await this.nonselection_glyph.after_lazy_visuals()
-    await this.hover_glyph?.after_lazy_visuals()
-    await this.muted_glyph.after_lazy_visuals()
   }
 
   map_data(): void {

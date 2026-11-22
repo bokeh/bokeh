@@ -185,27 +185,31 @@ export class HoverToolView extends InspectToolView {
     return [...super._children_views(), ...this._ttviews.values(), this._template_view]
   }
 
-  protected async _update_filters(): Promise<void> {
+  protected _update_filters(): void {
     for (const [_, filter] of entries(this.model.filters)) {
       for (const fn of isArray(filter) ? filter : [filter]) {
-        if (fn instanceof CustomJS) {
-          await fn.compile()
+        if (fn instanceof CustomJS && !fn.compile_sync()) {
+          // ES modules compile asynchronously and reject tooltips until then
+          this.schedule(async () => await fn.compile())
         }
       }
     }
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    await this._update_ttmodels()
+  override initialize(): void {
+    super.initialize()
+    this._update_filters()
+  }
+
+  override lazy_initialize(): void {
+    super.lazy_initialize()
+    this._update_ttmodels()
 
     const {tooltips} = this.model
     if (tooltips instanceof DOMElement) {
-      this._template_view = await build_view(tooltips, {parent: this})
+      this._template_view = build_view(tooltips, {parent: this})
       this._template_view.render()
     }
-
-    await this._update_filters()
   }
 
   override connect_signals(): void {
@@ -214,7 +218,7 @@ export class HoverToolView extends InspectToolView {
     const plot_renderers = this.plot_view.model.properties.renderers
     const {renderers, tooltips} = this.model.properties
     this.on_change(tooltips, () => delete this._template_el)
-    this.on_change([plot_renderers, renderers, tooltips], async () => await this._update_ttmodels())
+    this.on_change([plot_renderers, renderers, tooltips], () => this._update_ttmodels())
 
     this.connect(this.plot_view.repainted, () => {
       if (this.model.active && this._current_sxy != null) {
@@ -231,7 +235,7 @@ export class HoverToolView extends InspectToolView {
     this.on_change(filters, () => this._update_filters())
   }
 
-  protected async _update_ttmodels(): Promise<void> {
+  protected _update_ttmodels(): void {
     const {ttmodels} = this
     ttmodels.clear()
 
@@ -257,7 +261,7 @@ export class HoverToolView extends InspectToolView {
     }
 
     this._connect_inspectors()
-    await build_views(this._ttviews, [...ttmodels.values()], {parent: this})
+    build_views(this._ttviews, [...ttmodels.values()], {parent: this})
   }
 
   protected _inspect_renderers = new Set<GlyphRenderer>()
@@ -711,7 +715,7 @@ export class HoverToolView extends InspectToolView {
         const args: FilterArgs = {value, field, row, data_source, vars}
         const result = (() => {
           if (fn instanceof CustomJS) {
-            return fn.execute_sync(this.model, args)
+            return fn.compile_sync() ? fn.execute_sync(this.model, args) : false
           } else {
             return execute_sync(fn, this.model, args)
           }

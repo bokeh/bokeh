@@ -2,17 +2,46 @@ import type {MathJaxAPI} from "../../external/mathjax"
 
 import {Signal0} from "core/signaling"
 import {load_module} from "core/util/modules"
+import {registered_mathjax} from "./mathjax_registry"
 
 type MathJaxStatus = "not_started" | "loaded" | "loading" | "failed"
 
 export abstract class MathJaxProvider {
+  /** Emitted when loading MathJax finished, whether it succeeded or failed. */
   readonly ready = new Signal0(this, "ready")
 
-  status: MathJaxStatus = "not_started"
+  protected _status: MathJaxStatus = "not_started"
+
+  get status(): MathJaxStatus {
+    return this._status
+  }
+
+  set status(status: MathJaxStatus) {
+    this._status = status
+  }
+
+  /** Whether MathJax wasn't loaded yet, but may still be. */
+  get is_pending(): boolean {
+    return this.status == "not_started" || this.status == "loading"
+  }
 
   abstract get MathJax(): MathJaxAPI | null
 
   abstract fetch(): Promise<void>
+
+  private _loading: Promise<void> | null = null
+
+  /**
+   * Starts loading MathJax, unless it's available or loading it was already
+   * attempted. Resolves once it's loaded or failed to load. Unlike `fetch()`,
+   * this can be called any number of times, e.g. once per view.
+   */
+  load(): Promise<void> {
+    if (!this.is_pending) {
+      return Promise.resolve()
+    }
+    return this._loading ??= this.fetch()
+  }
 }
 
 export class NoProvider extends MathJaxProvider {
@@ -33,36 +62,51 @@ export class CDNProvider extends MathJaxProvider  {
   async fetch(): Promise<void> {
     const script = document.createElement("script")
     script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
-    script.onload = () => {
-      this.status = "loaded"
-      this.ready.emit()
-    }
-    script.onerror = () => {
-      this.status = "failed"
-    }
+    const loaded = new Promise<void>((resolve) => {
+      script.onload = () => {
+        this.status = "loaded"
+        resolve()
+      }
+      script.onerror = () => {
+        this.status = "failed"
+        resolve()
+      }
+    })
     this.status = "loading"
     document.head.appendChild(script)
+    await loaded
+    this.ready.emit()
   }
 }
 
 export class BundleProvider extends MathJaxProvider  {
-  _mathjax: MathJaxAPI | null
+  override get status(): MathJaxStatus {
+    // the MathJax module may have been registered by other means, e.g. a script tag
+    return this.MathJax != null ? "loaded" : this._status
+  }
+
+  override set status(status: MathJaxStatus) {
+    this._status = status
+  }
 
   get MathJax(): MathJaxAPI | null {
-    return this._mathjax
+    return registered_mathjax()
   }
 
   async fetch(): Promise<void> {
-    this.status = "loading"
+    if (this.MathJax != null) {
+      return
+    }
 
+    this.status = "loading"
     try {
-      const mathjax = await load_module(import("./mathjax"))
-      this.status = mathjax == null ? "failed" : "loaded"
-      this._mathjax = mathjax
-      this.ready.emit()
-    } catch (error) {
+      // registers itself when evaluated
+      await load_module(import("./mathjax"))
+      this.status = registered_mathjax() != null ? "loaded" : "failed"
+    } catch {
       this.status = "failed"
     }
+    this.ready.emit()
   }
 }
 

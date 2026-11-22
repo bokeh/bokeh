@@ -57,7 +57,13 @@ export abstract class VisualProperties {
       return cached
     }
 
-    const value = getComputedStyle(this.obj.el).getPropertyValue(css_name)
+    const {el} = this.obj
+    const value = getComputedStyle(el).getPropertyValue(css_name)
+    if (!el.isConnected) {
+      // Detached elements don't get styles from stylesheets, so don't reuse such values once
+      // attached. Views are often built and rendered in the same synchronous pass.
+      return value
+    }
     if (this._css_cache == null) {
       this._css_cache = new Map()
       // CSS can change independently of visual properties through stylesheets,

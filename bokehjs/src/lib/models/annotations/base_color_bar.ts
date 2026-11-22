@@ -112,8 +112,8 @@ export abstract class BaseColorBarView extends AnnotationView {
     this._apply_title_properties()
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
 
     const self = this
     this._plot_context = {
@@ -140,9 +140,9 @@ export abstract class BaseColorBarView extends AnnotationView {
       },
     } as any
 
-    this._frame_view = await build_view(this._frame, {parent: this})
-    this._axis_view = await build_view(this._axis, {parent: this})
-    this._title_view = await build_view(this._title, {parent: this})
+    this._frame_view = build_view(this._frame, {parent: this})
+    this._axis_view = build_view(this._axis, {parent: this})
+    this._title_view = build_view(this._title, {parent: this})
   }
 
   /**

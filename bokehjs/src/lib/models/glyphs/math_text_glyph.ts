@@ -35,46 +35,47 @@ export abstract class MathTextGlyphView extends TextView {
 
   protected abstract _build_label(text: string): BaseText
 
-  protected override async _build_labels(text: p.Uniform<string | null>): Promise<(GraphicsBox | null)[]> {
+  protected override _build_labels(text: p.Uniform<string | null>): (GraphicsBox | null)[] {
     const labels = Array.from(text, (text_i) => {
       return text_i == null ? null : this._build_label(text_i)
     })
 
-    await build_views(this._label_views, labels.filter((v) => v != null), {parent: this})
+    build_views(this._label_views, labels.filter((v) => v != null), {parent: this})
 
     return labels.map((label_i) => {
       return label_i == null ? null : this._label_views.get(label_i)!.graphics()
     })
   }
 
-  override async after_lazy_visuals(): Promise<void> {
-    await super.after_lazy_visuals()
+  override after_visuals(): void {
+    super.after_visuals()
 
-    const promises = [...this._label_views.values()].flatMap((label_view) => {
+    // labels may be inherited from the base glyph, which owns their views
+    for (const label_view of this._label_views.values()) {
       if (label_view instanceof MathTextView) {
-        return [label_view.request_image()]
-      } else {
-        return []
+        label_view.update_image()
       }
-    })
-    await Promise.allSettled(promises)
+    }
+  }
+
+  /**
+   * Sizes of math labels change when their images load, which happens
+   * asynchronously, so update them whenever data is mapped (i.e. before
+   * painting and computing the bbox), also for glyphs that inherit labels.
+   */
+  protected override _map_data(): void {
+    super._map_data()
 
     const {left, right, top, bottom} = this.padding
 
     for (const [label, i] of enumerate(this.labels)) {
-      if (label == null) {
-        continue
-      }
       if (!(label instanceof MathTextView)) {
         continue
       }
 
       const size = label.size()
-      const width = left + size.width + right
-      const height = top + size.height + bottom
-
-      this.swidth[i] = width
-      this.sheight[i] = height
+      this.swidth[i] = left + size.width + right
+      this.sheight[i] = top + size.height + bottom
     }
   }
 }

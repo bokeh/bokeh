@@ -60,7 +60,7 @@ describe("data_table module", () => {
     expect(state.data.getField(1, "x")).to.be.equal(30)
   })
 
-  it("cancels pending table data and column view replacements when the table is removed", async () => {
+  it("applies table data and column view replacements and doesn't update a removed table", async () => {
     const source = ColumnDataSource.create({data: {x: [1, 2, 3]}})
     const table = DataTable.create({source, columns: [TableColumn.create({field: "x"})], width: 300, height: 200})
     const layout = column([table])
@@ -68,10 +68,11 @@ describe("data_table module", () => {
     const table_view = view.owner.get_one(table)
     using rerender = restorable(spy(table_view, "rerender"))
     table.setv({view: IndexedSubset.create({filter: IndexFilter.create({indices: [1]})}), columns: [TableColumn.create({field: "x"})]})
+    // views are built synchronously, so replacements are applied immediately
+    expect(rerender.callCount).to.be.equal(2)
     layout.children = []
     await view.ready
     expect(table_view.is_destroyed).to.be.true
-    expect(rerender.callCount).to.be.equal(0)
     using update = restorable(spy(table_view, "updateGrid"))
     source.stream({x: [4]})
     table.view.filter = IndexFilter.create({indices: [0]})

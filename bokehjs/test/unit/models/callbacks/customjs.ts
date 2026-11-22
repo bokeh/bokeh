@@ -170,4 +170,63 @@ describe("CustomJS", () => {
       expect(await cb.execute(obj, {bar: 10})).to.be.equal([5, obj, 10])
     })
   })
+
+  describe("synchronous compilation", () => {
+
+    it("should compile JS code synchronously", () => {
+      const cb = CustomJS.create({code: "return 10"})
+      expect(cb.is_module).to.be.false
+      expect(cb.is_compiled).to.be.false
+      expect(cb.compile_sync()).to.be.true
+      expect(cb.is_compiled).to.be.true
+    })
+
+    it("should not compile ES modules synchronously", () => {
+      const cb = CustomJS.create({code: "export default () => 10"})
+      expect(cb.is_module).to.be.true
+      expect(cb.compile_sync()).to.be.false
+      expect(cb.is_compiled).to.be.false
+    })
+
+    it("should support execute_sync() of JS code without compiling first", () => {
+      const cb = CustomJS.create({code: "return cb_data.x + 1"})
+      const obj = Range1d.create()
+      expect(cb.execute_sync(obj, {x: 1})).to.be.equal(2)
+    })
+
+    it("should require compiling ES modules before execute_sync()", async () => {
+      const cb = CustomJS.create({code: "export default (args, obj, data) => data.x + 1"})
+      const obj = Range1d.create()
+      expect(() => cb.execute_sync(obj, {x: 1})).to.throw(Error)
+      await cb.compile()
+      expect(cb.is_compiled).to.be.true
+      expect(cb.execute_sync(obj, {x: 1})).to.be.equal(2)
+    })
+
+    it("should share concurrent compilations of ES modules", async () => {
+      const cb = CustomJS.create({code: "export default () => 10"})
+      const [state0, state1] = await Promise.all([cb.state(), cb.state()])
+      expect(state0).to.be.equal(state1)
+      expect(state0.func).to.be.identical(state1.func)
+    })
+
+    it("should recompile after code changes", async () => {
+      const cb = CustomJS.create({code: "return 1"})
+      const obj = Range1d.create()
+      expect(cb.execute_sync(obj)).to.be.equal(1)
+      cb.code = "return 2"
+      expect(cb.is_compiled).to.be.false
+      expect(cb.execute_sync(obj)).to.be.equal(2)
+    })
+
+    it("should not store an ES module compilation superseded by a code change", async () => {
+      const cb = CustomJS.create({code: "export default () => 1"})
+      const compiling = cb.compile()
+      cb.code = "export default () => 2"
+      await compiling
+      expect(cb.is_compiled).to.be.false
+      await cb.compile()
+      expect(cb.execute_sync(Range1d.create())).to.be.equal(2)
+    })
+  })
 })

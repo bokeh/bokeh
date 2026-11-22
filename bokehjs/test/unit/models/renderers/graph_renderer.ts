@@ -65,29 +65,17 @@ describe("GraphRendererView", () => {
   it("disconnects layout handlers and skips queued work on graph removal", async () => {
     const {test_graph_view: view, test_layout_provider: layout} = await create_graph_document()
     const node = view.node_view
-    const set_data = node._set_data.bind(node)
-    let release!: () => void
-    let started!: () => void
-    const gate = new Promise<void>((resolve) => release = resolve)
-    const active = new Promise<void>((resolve) => started = resolve)
-    using stub = restorable(sinon.stub(node, "_set_data").callsFake(async (indices) => {
-      await set_data(indices)
-      started()
-      await gate
-    }))
+    using spy = restorable(sinon.spy(node, "_set_data"))
     using paint = restorable(sinon.spy(node, "request_paint"))
     layout.graph_layout = new Map([[4, [10, 1]], [5, [20, 2]], [6, [30, 3]], [7, [40, 4]]])
-    await active
-    layout.graph_layout = new Map([[4, [11, 1]], [5, [22, 2]], [6, [33, 3]], [7, [44, 4]]])
     node.update_data()
     const ready = view.ready
     view.remove()
     await ready
-    release()
     await defer()
     layout.graph_layout = new Map([[4, [12, 1]], [5, [23, 2]], [6, [34, 3]], [7, [45, 4]]])
     await defer()
-    expect(stub.callCount).to.be.equal(1)
+    expect(spy.callCount).to.be.equal(0)
     expect(paint.callCount).to.be.equal(0)
     await view.ready
   })
@@ -95,7 +83,7 @@ describe("GraphRendererView", () => {
   it("reports a shared layout update failure once through graph readiness", async () => {
     const {test_graph_view: view, test_layout_provider: layout} = await create_graph_document()
     const error = new Error("node layout failure")
-    using stub = restorable(sinon.stub(view.node_view, "_set_data").rejects(error))
+    using stub = restorable(sinon.stub(view.node_view, "_set_data").throws(error))
     using log = restorable(sinon.spy(logger, "error"))
     layout.graph_layout = new Map([[4, [10, 1]], [5, [20, 2]], [6, [30, 3]], [7, [40, 4]]])
     const failure = await view.ready.catch((failure: unknown) => failure)
@@ -104,28 +92,12 @@ describe("GraphRendererView", () => {
     expect(log.callCount).to.be.equal(1)
   })
 
-  it("serializes layout updates with expression-driven data preparation", async () => {
+  it("applies the latest of consecutive layout updates", async () => {
     const {test_graph_view: view, test_layout_provider: layout} = await create_graph_document()
     const node = view.node_view
-    const set_data = node._set_data.bind(node)
-    let release!: () => void
-    let started!: () => void
-    const gate = new Promise<void>((resolve) => release = resolve)
-    const active = new Promise<void>((resolve) => started = resolve)
-    using stub = restorable(sinon.stub(node, "_set_data").callsFake(set_data))
-    stub.onFirstCall().callsFake(async (indices) => {
-      await set_data(indices)
-      started()
-      await gate
-    })
     layout.graph_layout = new Map([[4, [10, 1]], [5, [20, 2]], [6, [30, 3]], [7, [40, 4]]])
-    await active
     layout.graph_layout = new Map([[4, [11, 1]], [5, [22, 2]], [6, [33, 3]], [7, [44, 4]]])
-    await defer()
-    expect(stub.callCount).to.be.equal(1)
-    release()
     await view.ready
-    expect(stub.callCount).to.be.equal(2)
     expect([...(node.glyph as ScatterView).x]).to.be.equal([11, 22, 33, 44])
   })
 

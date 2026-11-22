@@ -33,11 +33,11 @@ export class ColorBarView extends BaseColorBarView {
 
     // The axis, scale and ticker are made for the color mapper's `display_mapper`,
     // so they are rebuilt when either mapper is replaced.
-    const rebuild = async () => {
+    const rebuild = () => {
       this._title_view.remove()
       this._axis_view.remove()
       this.initialize()
-      await this.lazy_initialize()
+      this.lazy_initialize()
       this.plot_view.invalidate_layout()
     }
     const metrics_changed = () => this._metrics_changed()
@@ -46,13 +46,13 @@ export class ColorBarView extends BaseColorBarView {
     this.connect(color_mapper.metrics_change, metrics_changed)
     this.connect(color_mapper.display_mapper_change, rebuild)
 
-    this.connect(this.model.properties.color_mapper.change, async () => {
+    this.connect(this.model.properties.color_mapper.change, () => {
       this.disconnect(color_mapper.metrics_change, metrics_changed)
       this.disconnect(color_mapper.display_mapper_change, rebuild)
       color_mapper = this.model.color_mapper
       this.connect(color_mapper.metrics_change, metrics_changed)
       this.connect(color_mapper.display_mapper_change, rebuild)
-      await rebuild()
+      rebuild()
     })
     this.connect(this.model.properties.display_low.change, () => this._metrics_changed())
     this.connect(this.model.properties.display_high.change, () => this._metrics_changed())

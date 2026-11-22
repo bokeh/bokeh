@@ -16,6 +16,7 @@ import {BorderRadius} from "../common/kinds"
 import * as resolve from "../common/resolve"
 import {round_rect} from "../common/painting"
 import type {LRTBGL} from "./webgl/lrtb"
+import type {WebGLModule} from "../canvas/webgl"
 
 // This class is intended to be a private implementation detail that can
 // be re-used by various rect, bar, box, quad, etc. glyphs.
@@ -31,9 +32,8 @@ export abstract class LRTBView extends GlyphView {
   /** @internal */
   declare glglyph?: LRTBGL
 
-  override async load_glglyph() {
-    const {LRTBGL} = await import("./webgl/lrtb")
-    return LRTBGL
+  override glglyph_class(webgl: WebGLModule) {
+    return webgl.LRTBGL
   }
 
   override get_anchor_point(anchor: Anchor, i: number, _spt: [number, number]): XY | null {

@@ -75,11 +75,11 @@ export abstract class RendererView extends StyledElementView implements visuals.
     this.visuals = new visuals.Visuals(this)
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
     const {context_menu} = this.model
     if (context_menu != null) {
-      this._context_menu = await build_view(context_menu, {parent: this})
+      this._context_menu = build_view(context_menu, {parent: this})
     }
   }
 

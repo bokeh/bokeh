@@ -11,6 +11,7 @@ import {Glyph, GlyphView, SupportsPathMarking} from "./glyph"
 import {generic_line_vector_legend, line_interpolation} from "./utils"
 import {Selection} from "../selections/selection"
 import type {MultiLineGL} from "./webgl/multi_line"
+import type {WebGLModule} from "../canvas/webgl"
 
 import {
   path_segments, trim_path, trace_path, paint_path_markings, hit_path_marking,
@@ -26,9 +27,8 @@ export class MultiLineView extends GlyphView {
   /** @internal */
   declare glglyph?: MultiLineGL
 
-  override async load_glglyph() {
-    const {MultiLineGL} = await import("./webgl/multi_line")
-    return MultiLineGL
+  override glglyph_class(webgl: WebGLModule) {
+    return webgl.MultiLineGL
   }
 
   protected override _compute_can_use_webgl(): boolean {

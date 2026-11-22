@@ -20,17 +20,17 @@ export class TemplateView extends DOMElementView {
     return this.actions.map((model) => this._action_views.get(model)).filter((view) => view != null)
   }
 
-  protected async _update_actions(): Promise<void> {
-    await build_views(this._action_views, this.actions, {parent: this})
+  protected _update_actions(): void {
+    build_views(this._action_views, this.actions, {parent: this})
   }
 
   override _children_views(): ChildView[] {
     return [...super._children_views(), ...this.action_views]
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    await this._update_actions()
+  override lazy_initialize(): void {
+    super.lazy_initialize()
+    this._update_actions()
   }
 
   update(source: IndexedDataSource, i: Index | null, vars: PlainObject, formatters?: Formatters,

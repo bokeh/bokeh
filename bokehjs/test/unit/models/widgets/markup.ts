@@ -27,7 +27,7 @@ describe("MarkupView", () => {
       stub.value(new InternalProvider())
       try {
         const div = Div.create({text: "test$$"})
-        const div_view = (await build_view(div))
+        const div_view = (build_view(div))
         const processed_div = div_view.process_tex(div.text)
         expect(processed_div).to.be.equal("test$$")
       } finally {
@@ -40,7 +40,7 @@ describe("MarkupView", () => {
       stub.value(new InternalProvider())
       try {
         const div = Div.create({text: "$$test"})
-        const div_view = (await build_view(div))
+        const div_view = (build_view(div))
         const processed_div = div_view.process_tex(div.text)
         expect(processed_div).to.be.equal("$$test")
       } finally {
@@ -53,7 +53,7 @@ describe("MarkupView", () => {
       stub.value(new InternalProvider())
       try {
         const div = Div.create({text: "$$test$$"})
-        const div_view = (await build_view(div))
+        const div_view = (build_view(div))
         const processed_div = div_view.process_tex(div.text)
         expect(processed_div).to.be.equal("<svg display=\"true\">test</svg>")
       } finally {
@@ -66,7 +66,7 @@ describe("MarkupView", () => {
       stub.value(new InternalProvider())
       try {
         const div = Div.create({text: "$$tex$$text"})
-        const div_view = (await build_view(div))
+        const div_view = (build_view(div))
         const processed_div = div_view.process_tex(div.text)
         expect(processed_div).to.be.equal("<svg display=\"true\">tex</svg>text")
       } finally {
@@ -79,7 +79,7 @@ describe("MarkupView", () => {
       stub.value(new InternalProvider())
       try {
         const div = Div.create({text: "text$$tex$$"})
-        const div_view = (await build_view(div))
+        const div_view = (build_view(div))
         const processed_div = div_view.process_tex(div.text)
         expect(processed_div).to.be.equal("text<svg display=\"true\">tex</svg>")
       } finally {
@@ -94,7 +94,7 @@ describe("MarkupView", () => {
         const div = Div.create({text: `$$tex$$
 
         text`})
-        const div_view = (await build_view(div))
+        const div_view = (build_view(div))
         const processed_div = div_view.process_tex(div.text)
         expect(processed_div).to.be.equal(`<svg display=\"true\">tex</svg>
 

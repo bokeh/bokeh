@@ -9,6 +9,7 @@ import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
 import {Selection} from "../selections/selection"
 import type {PatchGL} from "./webgl/patch"
+import type {WebGLModule} from "../canvas/webgl"
 
 export interface PatchView extends Patch.Data {}
 
@@ -19,9 +20,8 @@ export class PatchView extends XYGlyphView {
   /** @internal */
   declare glglyph?: PatchGL
 
-  override async load_glglyph() {
-    const {PatchGL} = await import("./webgl/patch")
-    return PatchGL
+  override glglyph_class(webgl: WebGLModule) {
+    return webgl.PatchGL
   }
 
   protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<Patch.Data>): void {
