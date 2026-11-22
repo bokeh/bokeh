@@ -1,4 +1,4 @@
-import {Control, ControlView} from "./control"
+import {Widget, WidgetView} from "./widget"
 import type {TooltipView} from "../ui/tooltip"
 import {Tooltip} from "../ui/tooltip"
 import {HTML, HTMLView} from "../dom/html"
@@ -30,7 +30,7 @@ export class ClearInput extends ModelEvent {
   }
 }
 
-export abstract class InputWidgetView extends ControlView {
+export abstract class InputWidgetView extends WidgetView {
   declare model: InputWidget
 
   protected title: HTMLView | string
@@ -41,7 +41,7 @@ export abstract class InputWidgetView extends ControlView {
   desc_el: HTMLElement | null = null
   protected group_el: HTMLElement
 
-  override *controls() {
+  protected override *disabled_controls() {
     yield this.input_el
   }
 
@@ -195,7 +195,7 @@ export abstract class InputWidgetView extends ControlView {
 export namespace InputWidget {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Control.Props & {
+  export type Props = Widget.Props & {
     title: p.Property<string | HTML>
     description: p.Property<string | Tooltip | null>
   }
@@ -203,7 +203,7 @@ export namespace InputWidget {
 
 export interface InputWidget extends InputWidget.Attrs {}
 
-export abstract class InputWidget extends Control {
+export abstract class InputWidget extends Widget {
   declare properties: InputWidget.Props
   declare __view_type__: InputWidgetView
 

@@ -1,5 +1,13 @@
 ## Bokeh server for Data-Table
 
+''' Use a toggle and Python callback with a plot and a linked data table.
+
+.. bokeh-example-metadata::
+    :title: Data table server
+    :keywords: data table server, reference
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.DataTable, bokeh.models.TableColumn, bokeh.models.Toggle, bokeh.plotting.figure.scatter
+'''
+
 from bokeh.io import curdoc
 from bokeh.layouts import row
 from bokeh.models import ColumnDataSource, DataTable, TableColumn, Toggle

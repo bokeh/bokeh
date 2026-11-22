@@ -56,7 +56,7 @@ export type Options = {
   models_with_ids: Set<unknown> | null
   binary: boolean
   include_defaults: boolean
-  /** Use compact model nodes for graph-minimal static documents. */
+  /** Use compact data specifications and preserve referenced defaults in static documents. */
   compact: boolean
 }
 
@@ -96,7 +96,7 @@ export class Serializer {
   }
 
   model_ref(ref: Ref): Ref | ModelRef {
-    return this.compact ? {$ref: ref.id} : ref
+    return {$ref: ref.id}
   }
 
   to_serializable<T extends SerializableType>(obj: T): Serialized<SerializableOf<T>>

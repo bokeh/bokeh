@@ -76,7 +76,13 @@ from bokeh.document.events import (
 from bokeh.document.json import ModelChanged, PatchJson
 from bokeh.io.doc import curdoc
 from bokeh.model import DataModel
-from bokeh.models import ColumnDataSource
+from bokeh.models import (
+    ColumnDataSource,
+    HArea,
+    HAreaStep,
+    VArea,
+    VAreaStep,
+)
 from bokeh.models.ui.notifications import Notifications
 from bokeh.protocol import patch_doc
 from bokeh.server.contexts import BokehSessionContext
@@ -943,6 +949,7 @@ class TestDocument:
             ModelDef(
                 type="model",
                 name="test_document.SomeDataModel",
+                extends=Ref(id=ID("DataModel")),
                 properties=[
                     PropertyDef(name="prop0", kind="Int", default=0),
                     PropertyDef(name="prop1", kind="Int", default=111),
@@ -985,12 +992,11 @@ class TestDocument:
                     PropertyDef(
                         name="prop3",
                         kind=("Ref", Ref(id=ID("test_document.SomeDataModel"))),
-                        default=ObjectRefRep(
-                            type="object",
-                            name="test_document.SomeDataModel",
-                            id=CDSDerivedDerivedDataModel.prop3.property._default.ref["id"],
-                            attributes=dict(prop0=-1),
-                        ),
+                        default=ObjectRefRep({
+                            "$type": "test_document.SomeDataModel",
+                            "$id": CDSDerivedDerivedDataModel.prop3.property._default.ref["id"],
+                            "prop0": -1,
+                        }),
                     ),
                 ],
                 overrides=[
@@ -1017,6 +1023,7 @@ class TestDocument:
             ModelDef(
                 type="model",
                 name=Base.__qualified_model__,
+                extends=Ref(id=ID("DataModel")),
                 properties=[PropertyDef(name="base", kind="Bool", default=False)],
             ),
             ModelDef(
@@ -1379,6 +1386,34 @@ class TestDocument:
             doc.apply_json_patch(patch)
 
         assert m0.foo == 0
+
+    # regression: https://github.com/bokeh/bokeh/issues/14364
+    @pytest.mark.parametrize("glyph_type", [HArea, HAreaStep, VArea, VAreaStep])
+    @pytest.mark.parametrize("pattern", ["horizontal", "custom_pattern"])
+    def test_patch_area_hatch_pattern_round_trip(self, glyph_type: type[HArea | HAreaStep | VArea | VAreaStep], pattern: str) -> None:
+        glyph = glyph_type()
+
+        doc = document.Document()
+        doc.add_root(glyph)
+
+        patch = PatchJson(
+            events=[
+                ModelChanged(
+                    kind="ModelChanged",
+                    model=glyph.ref,
+                    attr="hatch_pattern",
+                    new=pattern, # bokehjs sends plain values of scalar specs unwrapped
+                ),
+            ],
+            references=[],
+        )
+
+        doc.apply_json_patch(patch)
+
+        assert glyph.hatch_pattern == pattern
+
+        [root] = doc.to_json().content["roots"]
+        assert root["hatch_pattern"] == pattern
 
     # a more realistic set of models instead of fake models
     def test_scatter(self) -> None:

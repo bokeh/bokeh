@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# pyright: reportArgumentType=false, reportAttributeAccessIssue=false, reportIndexIssue=false, reportOperatorIssue=false, reportReturnType=false
-
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -20,13 +18,14 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 import sys
-from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any
+from collections.abc import Iterable, Sequence
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 
 from ..core.property.dataspec import ColorSpec, DashPattern, DashPatternSpec
-from ..models import ColumnarDataSource, ColumnDataSource, GlyphRenderer
+from ..models.renderers import GlyphRenderer
+from ..models.sources import ColumnDataSource, IndexedDataSource
 from ._legends import pop_legend_kwarg, update_legend
 
 if TYPE_CHECKING:
@@ -121,6 +120,7 @@ def create_renderer(glyphclass: type[Glyph], plot: Plot, **kwargs: Any) -> Glyph
     selection_glyph = make_glyph(glyphclass, kwargs, selection_visuals)
     hover_glyph = make_glyph(glyphclass, kwargs, hover_visuals)
     muted_glyph = make_glyph(glyphclass, kwargs, muted_visuals)
+    assert glyph is not None
 
     glyph_renderer = GlyphRenderer(
         glyph=glyph,
@@ -203,6 +203,7 @@ def pop_visuals(glyphclass: type[Glyph], props: Attrs, *, prefix: str = "", defa
     visual_props = filter(_is_visual, prop_names)
     for name in visual_props:
         _, trait = _split_feature_trait(name)
+        assert trait is not None # guaranteed by _is_visual()
 
         # e.g. "line_color", "selection_fill_alpha"
         if prefix+name in props:
@@ -240,7 +241,7 @@ def _convert_data_source(kwargs: Attrs) -> bool:
     is_user_source = kwargs.get('source', None) is not None
     if is_user_source:
         source = kwargs['source']
-        if not isinstance(source, ColumnarDataSource):
+        if not isinstance(source, IndexedDataSource):
             try:
                 # try converting the source to ColumnDataSource
                 source = ColumnDataSource(source)
@@ -280,7 +281,7 @@ def _validate_color_array(val: np.ndarray, var: str) -> None:
             f"({var} is {val.dtype}[{', '.join(map(str, val.shape))}])",
         )
 
-def _process_sequence_literals(glyphclass: type[Glyph], kwargs: Attrs, source: ColumnarDataSource, is_user_source: bool) -> list[str]:
+def _process_sequence_literals(glyphclass: type[Glyph], kwargs: Attrs, source: IndexedDataSource, is_user_source: bool) -> list[str]:
     incompatible_literal_spec_values: list[str] = []
     dataspecs = glyphclass.dataspecs()
     all_properties = glyphclass.properties()
@@ -306,12 +307,13 @@ def _process_sequence_literals(glyphclass: type[Glyph], kwargs: Attrs, source: C
         # Strings and color tuples are handled by dataspecs as-is
         if isinstance(val, str):
             continue
-        if isinstance(dataspecs[var], ColorSpec) and dataspecs[var].is_color_tuple_shape(val):
+        dataspec = dataspecs[var]
+        if isinstance(dataspec, ColorSpec) and dataspec.is_color_tuple_shape(val):
             continue
 
         # Validate numpy arrays
         if isinstance(val, np.ndarray):
-            if isinstance(dataspecs[var], ColorSpec):
+            if isinstance(dataspec, ColorSpec):
                 _validate_color_array(val, var)
             elif val.ndim != 1:
                 raise RuntimeError(f"Columns need to be 1D ({var} is not)")
@@ -320,15 +322,19 @@ def _process_sequence_literals(glyphclass: type[Glyph], kwargs: Attrs, source: C
         if is_user_source:
             incompatible_literal_spec_values.append(var)
         else:
-            source.add(val, name=var)
+            assert isinstance(source, ColumnDataSource) # a source created by bokeh, see _pop_renderer_args()
+            source.add(cast(Sequence[Any], val), name=var)
             kwargs[var] = var
 
     return incompatible_literal_spec_values
 
 def _split_feature_trait(ft: str) -> tuple[str, str | None]:
     """Feature is up to first '_'. Ex. 'line_color' => ['line', 'color']"""
-    parts = ft.split("_", 1)
-    return tuple(parts) if len(parts) == 2 else (ft[0], None)
+    match ft.split("_", 1):
+        case [feature, trait]:
+            return feature, trait
+        case _:
+            return ft, None
 
 def _is_visual(ft: str) -> bool:
     """Whether a feature trait name is visual"""

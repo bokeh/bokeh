@@ -58,7 +58,7 @@ export class LineEditToolView extends LineToolView {
 
     const [xkey, ykey] = [glyph.x.field, glyph.y.field]
 
-    const cds = this._selected_renderer.data_source
+    const cds = this._data_source(this._selected_renderer)
     const x = cds.get_array<number>(xkey)
     const y = cds.get_array<number>(ykey)
 
@@ -87,7 +87,7 @@ export class LineEditToolView extends LineToolView {
       return
     }
     const point_glyph = this.model.intersection_renderer.glyph
-    const point_cds = this.model.intersection_renderer.data_source
+    const point_cds = this._data_source(this.model.intersection_renderer)
     const data = dict(point_cds.data)
     const pxkey = isField(point_glyph.x) ? point_glyph.x.field : null
     const pykey = isField(point_glyph.y) ? point_glyph.y.field : null
@@ -95,13 +95,13 @@ export class LineEditToolView extends LineToolView {
       const x = data.get(pxkey)
       const y = data.get(pykey)
       if (x != null) {
-        dict(this._selected_renderer.data_source.data).set(pxkey, x)
+        dict(this._data_source(this._selected_renderer).data).set(pxkey, x)
       }
       if (y != null) {
-        dict(this._selected_renderer.data_source.data).set(pykey, y)
+        dict(this._data_source(this._selected_renderer).data).set(pykey, y)
       }
     }
-    this._emit_cds_changes(this._selected_renderer.data_source, true, true, false)
+    this._emit_cds_changes(this._data_source(this._selected_renderer), true, true, false)
   }
 
   override _pan_start(ev: PanEvent): void {
@@ -115,7 +115,7 @@ export class LineEditToolView extends LineToolView {
     }
     this._drag_points(ev, [this.model.intersection_renderer], this.model.dimensions)
     if (this._selected_renderer != null) {
-      this._selected_renderer.data_source.change.emit()
+      this._data_source(this._selected_renderer).change.emit()
     }
   }
 
@@ -124,9 +124,9 @@ export class LineEditToolView extends LineToolView {
       return
     }
     this._drag_points(ev, [this.model.intersection_renderer])
-    this._emit_cds_changes(this.model.intersection_renderer.data_source, false, true, true)
+    this._emit_cds_changes(this._data_source(this.model.intersection_renderer), false, true, true)
     if (this._selected_renderer != null) {
-      this._emit_cds_changes(this._selected_renderer.data_source)
+      this._emit_cds_changes(this._data_source(this._selected_renderer))
     }
     this._basepoint = null
   }

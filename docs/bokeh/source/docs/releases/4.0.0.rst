@@ -11,6 +11,12 @@ New features
 * Added explicit immediate delivery and configurable throttling, debouncing,
   and committed-only delivery to ``Model.on_change()`` and
   ``Model.js_on_change()`` callbacks.
+* Expanded :class:`~bokeh.models.Markdown` with syntax highlighting, footnotes,
+  heading anchors, admonitions, definition lists, collapsible sections,
+  embedded Bokeh models, rendering options, and ``_repr_markdown_()`` support.
+* Added compact binary transport for selection indices while preserving public
+  Python lists and JavaScript arrays (:bokeh-issue:`15542`, :bokeh-pull:`15575`).
+
 * Added :class:`~bokeh.models.ScaledTicker` and
   :class:`~bokeh.models.ScaledTickFormatter` for selecting and formatting ticks
   with a scale and configurable origin. They support repeated prefixes and
@@ -32,11 +38,79 @@ New features
   ``scan_together=True``, the whole stack as one data set. Scan results are
   cached per array, so changing ``index`` doesn't rescan data that has already
   been scanned (:bokeh-issue:`13898`).
+* Added support for ``figure(tools=None)`` (and ``gmap(..., tools=None)``),
+  which creates a plot without any tools and without the toolbar, i.e. it is
+  a shorthand for ``tools=[]`` with ``toolbar_location=None``. BokehJS'
+  ``figure()`` API supports the equivalent ``tools: null``
+  (:bokeh-issue:`15747`).
+* Reduced verboseness of server debug logs (:bokeh-pull:`13038`)
+* ``ContourRenderer.add_labels()`` labels contour levels and can leave a gap in
+  the contour stroke behind each label.
+* Bokeh properties are now typed for static type checkers. Accessing a
+  property on a model gives the type of its value, e.g. ``int | None`` for
+  ``Nullable(Int)``, ``list[Renderer]`` for ``List(Instance(Renderer))`` or
+  a ``Literal`` union for ``Enum(...)``, and accessing it on a model class
+  gives a ``PropertyDescriptor``. Assignments are checked as well, and may
+  accept more types than values have, e.g. ``list[Row]`` can be assigned to
+  ``List(Instance(UIElement))``, because assignments to lists, sets and
+  dicts are typed as ``Sequence``, ``AbstractSet`` and ``Mapping``
+  respectively (:bokeh-issue:`14814`), values accepted by ``.accepts()``,
+  e.g. strings by ``Plot.title``, are accepted, and ``Readonly`` properties
+  can't be assigned to (:bokeh-issue:`15760`).
 
 Removals
 --------
 
 * Removed support for Python 3.12. Bokeh now requires Python 3.13 or newer.
+
+* Replaced ``serverdir()`` and ``bokehjsdir()`` with ``server_path()`` and
+  ``bokehjs_path()``. The replacement functions return ``pathlib.Path`` objects.
+  Use ``settings.bokehjs_path()`` in place of ``settings.bokehjsdir()``.
+* Removed ``ColorMap``. Use :class:`~bokeh.models.PaletteSelect`.
+* Removed ``ActionItem`` and ``CheckableItem``. Use :class:`~bokeh.models.MenuItem`
+  and set ``checked`` to a boolean for checkable items.
+* Use ``continuous`` in place of ``select_every_mousemove`` and ``visible``
+  in place of ``toggleable``.
+* Removed the ``accept_datetime`` and ``accept_timedelta`` flags from
+  ``NumberSpec``. Use ``FloatSpec`` for numeric-only values.
+* Removed ``DataTable.fit_columns``. Set ``autosize_mode="force_fit"`` for
+  the old ``True`` behavior or ``autosize_mode="none"`` for ``False``.
+* Access hexbin results through ``result.q``, ``result.r``, and
+  ``result.counts``. Dictionary-style indexing has been removed.
+* Removed individual marker methods such as ``square()``. Use
+  ``scatter(marker="square")`` and set ``size`` in screen units. Use
+  ``circle(radius=...)`` for circles sized in data units.
+* Removed the Python embedding functions ``components()``, ``file_html()``,
+  ``server_document()``, and ``server_session()``. Use ``embed().fragment()``,
+  ``embed().page()``, and ``embed_server().fragment()``. Pass ``session_id``
+  to ``embed_server()`` to embed an existing session.
+* Removed Selenium export and the ``BOKEH_EXPORT_BACKEND`` setting. Install
+  Playwright to export PNG or SVG. In ``export_png()``, ``export_svg()``, and
+  ``export_svgs()``, replace ``webdriver=`` with ``browser=`` and pass a
+  Playwright ``Browser`` or ``BrowserContext``.
+  The lower-level PNG and SVG rendering helpers also use ``browser=``
+  in place of ``driver=``.
+* Remove ``BokehPNGPreprocessor.backend`` from nbconvert configuration.
+  Notebook PNG capture uses Playwright.
+* In BokehJS, pass ``{events, buffers, resolver}`` to ``Document.from_json()``
+  as an options object. ``Document.from_json_string()`` uses the same options.
+* Serialized model definitions now use ``$type``, optional ``$id``, and
+  inline properties in both documents and live protocol messages. Regenerate
+  older serialized documents with Bokeh 4.0 before loading them in BokehJS 4.0.
+* Import ``Qualified`` from ``bokeh.model`` in place of ``bokeh.model.util``.
+* In BokehJS, use the ``contrast`` theme in place of ``constrast`` and
+  ``IndexedSubset.filter`` in place of ``IndexedSubset.filters``.
+* BokehJS widget extensions can use ``Widget`` and ``WidgetView`` in place
+  of ``Control`` and ``ControlView``. Use ``StyledElementView.self_style``
+  in place of ``style``.
+* BokehJS property kinds now use ``Bool``, ``Str``, ``Float``, ``List``,
+  ``Mapping``, and ``Func`` in place of their legacy aliases. Extend
+  ``ScalarSpec<T>`` and ``DataSpec<T>`` in place of ``AnyScalar`` and
+  ``AnySpec``.
+* Removed obsolete properties from the CSS style APIs. Use ``clip-path``,
+  ``column-gap``, ``gap``, ``row-gap``, and ``overflow-wrap`` in place of
+  ``clip``, ``grid-column-gap``, ``grid-gap``, ``grid-row-gap``, and
+  ``word-wrap``.
 
 * Removed the slider and spinner ``value_throttled`` properties. Configure
   committed delivery when registering a callback on ``value``, for example
@@ -73,6 +147,16 @@ Removals
   remain available. Endpoints use data coordinates. Head sizes and decoration
   insets use screen pixels. See :ref:`ug_basic_annotations_arrows` for examples.
 
+* Removed the ``Whisker`` annotation model. Replace
+  ``plot.add_layout(Whisker(base=..., lower=..., upper=..., source=...))``
+  with ``plot.whisker(base=..., lower=..., upper=..., source=...)``.
+  The helper returns a ``Segment`` glyph renderer, with support for glyph
+  selection, inspection, and legends. Its endpoints use data coordinates and
+  participate in automatic ranging like other segments. Set ``cap_size`` to
+  control the tee width in screen pixels. Use ``plot.arrow()`` for custom endpoint
+  heads.
+  See :ref:`ug_basic_annotations_whiskers` for an example.
+
 * Removed ``bar_color`` and ``direction`` properties from slider widgets
   (:bokeh-pull:`13551`). Use stylesheets to change the color of a slider's
   bar, e.g. ``Slider(..., stylesheets=[InlineStyleSheet(css=".bk-span { background-color: red; }")])``.
@@ -86,32 +170,84 @@ Removals
   ``fig.annular_wedge()`` or ``fig.wedge()`` for pie and donut charts, and
   ``fig.hbar()`` or ``fig.vbar()`` for bar charts.
 
+* Removed the ``bokeh.models.dom.Text`` model. Properties that accept plain
+  strings, e.g. ``AbstractButton.label``, ``Dialog.title`` and
+  ``Dialog.content``, render them as text directly, so pass a string instead
+  of ``Text(content=...)``. Elsewhere, use ``HTML``. Note that, unlike
+  ``Text``, ``HTML`` interprets its input as markup, so to preserve literal
+  text, escape it first, e.g.
+  ``HTML(html=html.escape(content), style={"display": "inline"})``. This
+  renders the text in an additional wrapper element (:bokeh-pull:`15749`).
+
 API changes
 -----------
+
+* Selection indices now use ascending order with duplicates removed. This
+  applies to ``indices``, ``line_indices``, and the index lists in
+  ``multiline_indices`` in Python and BokehJS. For example, assigning
+  ``[8, 2, 8]`` yields ``[2, 8]``. Applications that use a selection
+  callback to track click order should record that order separately
+  (:bokeh-pull:`15575`).
 
 * Generic property base classes and ``Value`` now default their type parameter
   to ``Any`` when it is omitted. Explicit type arguments and constructor
   inference continue to preserve more specific types.
 
-* Renamed ``GlyphRenderer.add_decoration()`` to
-  ``GlyphRenderer.add_path_decoration()``. It takes a marking first and a
-  keyword-only node: ``renderer.add_path_decoration(head, node="end")``. BokehJS uses
-  ``renderer.add_path_decoration(head, {node: "end"})``.
+* ``Property`` and its subclasses are now generic in two type parameters,
+  the type of values of a property and the type of values that can be
+  assigned to it, e.g. ``Property[list[int], Sequence[int]]``. The second
+  one defaults to the first one, so e.g. ``Property[int]`` is still valid.
+  Generic subclasses of properties must list both type arguments in their
+  base classes, e.g. ``class MyProp[GetType, SetType](SingleParameterizedProperty[GetType, SetType])``,
+  because Python doesn't substitute defaults of type parameters that refer
+  to other type parameters at runtime (:bokeh-issue:`15760`).
 
-* ``GlyphRenderer.add_path_markings()`` adds repeated fractional markings.
-  Positions can be a shared list or a field containing one list per path.
+* Default values of properties are now checked by type checkers against
+  the types of values that can be assigned to properties. Callable defaults,
+  e.g. ``lambda: []`` or ``InstanceDefault(Model)``, are accepted as well.
 
-* ``Decoration`` is an abstract base for decoration models. ``PathDecoration``
-  attaches a marking to a named path node, and ``PathMarkings`` places markings
-  at fractional path positions. These concrete models define their own marking
-  and placement properties.
+* Overrides of properties in derived models should now be named after the
+  overridden property prefixed with an underscore, e.g.
+  ``_width = Override(default=600)`` to override ``width``. This way the
+  property isn't redefined, so type checkers retain its type. Optionally,
+  the overridden property can be given, e.g.
+  ``_width = Override(LayoutDOM.width, default=600)``, to allow type checkers
+  to verify the type of the default value. Overrides named exactly like
+  properties continue to work (:bokeh-issue:`15760`).
+
+* Inferring literal types of enumerations, e.g. of ``Enum(Location)``,
+  relies on ``TypeForm`` (PEP 747). With pyright, this requires version
+  1.1.414 or newer. Earlier versions infer such types as ``Unknown``.
+
+* ``ticker`` and ``formatter`` of all axes are now typed as ``Ticker`` and
+  ``TickFormatter``, instead of the types of their defaults, e.g.
+  ``BasicTicker`` for ``LinearAxis``. This way type checkers accept e.g.
+  ``LinearAxis(ticker=FixedTicker(...))``, but code reading attributes
+  specific to a ticker or a formatter, e.g. ``axis.ticker.desired_num_ticks``,
+  needs to narrow their types first, e.g. with ``isinstance()``.
+
+* Use ``GlyphRenderer.add_path_marking()`` to add a marking at a named or
+  fractional position. In Python, call ``renderer.add_path_marking(head, at="end")``.
+  In BokehJS, pass ``{at: "end"}`` as the second argument. A field can supply
+  one list of fractions per path. Only named start and end positions accept
+  an ``inset``.
+
+* ``GlyphRenderer.add_arrowheads()`` places arrowheads at named path nodes or
+  fractional positions, including positions supplied by a source column.
+
+* ``PathPlacement``
+  places a graphical marking at named or fractional path positions. Its
+  ``positions`` property can also reference a source column of fractional lists.
 
 * Sliders no longer default to ``width=300``. The default size is now set
   in CSS and can be changed with the ``--default-size`` CSS variable.
 
-* In BokehJS, ``OrientedControl`` now derives from ``Widget`` instead of
-  ``Control``, and ``Control`` is deprecated. ``BBox.relativize()`` now takes
-  and returns an ``{x, y}`` object instead of separate coordinates.
+* In BokehJS, ``BBox.relativize()`` takes and returns an ``{x, y}`` object.
+
+* BokehJS adds the ``Infer<K>`` type to ``core/kinds``. Use it to derive the
+  static type of a kind, e.g. ``type Position = Infer<typeof Position>``, in
+  place of ``typeof Position["__type__"]``. The ``__type__`` field is no
+  longer accessible, so ``Infer`` is the only way to derive a kind's type.
 
 * ``ColorMapper`` no longer has ``palette`` and ``nan_color``. They moved to
   the new :class:`~bokeh.models.PaletteMixin`, which ``CategoricalColorMapper``,
@@ -124,7 +260,63 @@ API changes
   a plain ``ColorMapper``, e.g. ``color_bar.color_mapper.palette``, can get it
   from ``color_bar.color_mapper.display_mapper.palette`` (:bokeh-issue:`13898`).
 
+* Property validation failures now raise ``ValidationError``, a subclass
+  of the new ``PropertyError`` base class, which itself derives from
+  ``ValueError``. Both are available from ``bokeh.core.properties``. Existing
+  code catching ``ValueError`` is unaffected.
+* Bokeh no longer ships TypeScript. ``bokeh build`` compiles extensions with
+  the ``typescript`` package they depend on, using any version that supports
+  their ``tsconfig.json`` (``bokeh init`` adds TypeScript 7). Extensions
+  without ``typescript`` in their ``package.json``, extensions without a
+  ``package.json`` and inline models (``__implementation__``) aren't
+  type-checked: Bokeh only removes their types and reports syntax errors and
+  unresolved relative imports. Decorators aren't supported there. TypeScript 6
+  and later reject ``"moduleResolution": "node"``, so use ``"bundler"`` in
+  ``tsconfig.json``. Inline ES modules are converted to CommonJS by BokehJS's
+  linker, and plain CommonJS code is used as is.
+* Compiling extensions (``bokeh build`` and ``__implementation__``) now
+  requires Node.js 22 or later.
+* ``bokeh build`` fails if an extension's modules import each other in a
+  cycle, but ignores cycles in packages that the extension depends on. Set
+  ``"detect_cycles": "all"`` in ``bokeh.ext.json`` to report those cycles as
+  well, or ``"none"`` to disable cycle detection.
+
+* In BokehJS, the DOM view hierarchy was simplified (:bokeh-pull:`15749`).
+  This only affects code that implements custom views:
+
+  - ``DOMElementView`` was removed. Derive from ``DOMComponentView`` (or
+    ``DOMView``) instead.
+  - ``DOMView.el`` is now typed as ``HTMLElement`` (previously ``ChildNode``),
+    and ``self_target`` is defined on ``DOMView``, returning the shadow root
+    when present and ``el`` otherwise.
+  - ``DOMView.children_el`` was removed. Use ``self_target`` instead.
+  - ``DOMView.aria_role`` was removed. Set the ``role`` attribute on the
+    rendered element instead.
+  - ``ClassList`` and ``classes()`` were removed from ``core/dom``, along with
+    the ``class_list`` property of views. Use the native ``el.classList``
+    instead, e.g. ``classList.contains()`` instead of ``class_list.has()``
+    and ``el.removeAttribute("class")`` instead of ``class_list.clear()``.
+* ``toolbar_options`` of ``gridplot()`` now supports ``group`` and
+  ``group_types``, in addition to ``logo``, ``autohide`` and ``active_*``
+  properties of ``Toolbar``, and raises ``ValueError`` for any other keys,
+  which were previously ignored. It is typed as a ``TypedDict``, so type
+  checkers reject unknown keys and invalid values. Pass a dict display (e.g.
+  ``{"logo": "grey"}``), because pyright doesn't accept ``dict()`` calls in
+  place of a ``TypedDict``. Explicit options take precedence over values
+  merged from toolbars of the children.
+
 Bug fixes
 ---------
 
 * Fixed property validation and warning suppression leaking between concurrent sessions (:bokeh-pull:`15548`).
+* ``ColumnDataSource.stream()`` now accepts any mapping of columns, e.g. a
+  ``dict[str, list[int]]``, which type checkers previously rejected because
+  ``dict`` is invariant (:bokeh-issue:`14814`).
+* Fixed ``Dialog`` not updating when its ``title`` or ``content`` change (:bokeh-pull:`15749`).
+* Fixed ``row()`` and ``column()`` not applying their ``sizing_mode`` to children
+  without explicit sizing, like ``layout()`` and ``gridplot()`` already do.
+* Fixed ``figure.graph()`` wrapping ``node_marker={"field": ...}`` in another field
+  specification instead of using it as a field of the node data source.
+* Fixed ``figure.graph()`` dropping ``node_`` and ``edge_`` prefixed glyph properties
+  whose names start with any of the prefix's letters (e.g. ``node_name``), and applying
+  unprefixed arguments (e.g. ``tags``) to both node and edge glyphs.

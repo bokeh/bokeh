@@ -1,3 +1,11 @@
+''' Use selection geometry from a plot tool to draw rectangles.
+
+.. bokeh-example-metadata::
+    :title: Customjs for tools
+    :keywords: customjs, for, tools
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.Quad, bokeh.plotting.figure.add_glyph, bokeh.plotting.figure.js_on_event
+'''
+
 from bokeh.events import SelectionGeometry
 from bokeh.models import ColumnDataSource, CustomJS, Quad
 from bokeh.plotting import figure, show

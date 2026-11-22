@@ -18,10 +18,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any, Unpack
 
 import numpy as np
-
-from ..colors import ColorLike
 
 try:
     import cartopy.crs as ccrs
@@ -32,6 +31,21 @@ except ModuleNotFoundError as e:
         "To use this module, please install 'Cartopy'.",
     ) from e
 
+if TYPE_CHECKING:
+    import numpy.typing as npt
+
+    from .glyph_api import (
+        GlyphAPI,
+        LineArgs,
+        MultiLineArgs,
+        MultiPolygonsArgs,
+    )
+
+    class GeoMultiPolygonsArgs(MultiPolygonsArgs, total=False):
+        draw_polygon_border: bool
+        polygon_border_color: str
+
+    type Coords = npt.NDArray[np.float64]
 
 #-----------------------------------------------------------------------------
 # General API
@@ -39,17 +53,23 @@ except ModuleNotFoundError as e:
 
 @dataclass
 class GEO_FEATURE_COLORS:
-    LAND: ColorLike = "#EFEFDB"
-    STATES: ColorLike = "#EFEFDB"
-    RIVERS: ColorLike = "#9FDBF3"
-    OCEAN: ColorLike = "#9FDBF3"
-    LAKES: ColorLike = "#9FDBF3"
-    BORDERS: ColorLike = "#CCCCCC"
-    MAP_BOUNDARYS: ColorLike = "#000000"
-    COASTLINES: ColorLike = "#000000"
+    # TODO GlyphAPI types reject ColorLike
+    LAND: str = "#EFEFDB"
+    STATES: str = "#EFEFDB"
+    RIVERS: str = "#9FDBF3"
+    OCEAN: str = "#9FDBF3"
+    LAKES: str = "#9FDBF3"
+    BORDERS: str = "#CCCCCC"
+    MAP_BOUNDARYS: str = "#000000"
+    COASTLINES: str = "#000000"
 
 
-def add_line_geometries(p, projection, geometries_collection, **line_kwargs):
+def add_line_geometries[P: GlyphAPI](
+    p: P,
+    projection: ccrs.Projection,
+    geometries_collection: cfeature.NaturalEarthFeature,
+    **line_kwargs: Unpack[MultiLineArgs],
+) -> P:
     """ Adds line geometries to a map with respect to a given projection.
     The lines are added by the :func:`~bokeh.plotting.figure.multi_line` function.
 
@@ -83,7 +103,12 @@ def add_line_geometries(p, projection, geometries_collection, **line_kwargs):
     return p
 
 
-def add_polygon_geometries(p, projection, geometries_collection, **poly_kwargs):
+def add_polygon_geometries[P: GlyphAPI](
+    p: P,
+    projection: ccrs.Projection,
+    geometries_collection: cfeature.NaturalEarthFeature,
+    **poly_kwargs: Unpack[GeoMultiPolygonsArgs],
+) -> P:
     """ Adds polygon geometries to a map with respect to a given projection.
     The polygons are added by the :func:`~bokeh.plotting.figure.multi_polygons`
     function to allow holes and islands. To draw the border of the geometries,
@@ -97,7 +122,7 @@ def add_polygon_geometries(p, projection, geometries_collection, **poly_kwargs):
 
     Keyword Arguments:
         draw_polygon_border (bool, False): Enables the plotting of the geometry border.
-        draw_polygon_color (str, "black"): Sets the color of the geometry border.
+        polygon_border_color (str, "#CCCCCC"): Sets the color of the geometry border.
 
             .. note::
                 This functions allows all parameters and keyword arguments defined by the
@@ -119,16 +144,24 @@ def add_polygon_geometries(p, projection, geometries_collection, **poly_kwargs):
             show(p)
     """
     draw_border = poly_kwargs.pop("draw_polygon_border", False)
-    border_color= poly_kwargs.pop("polygon_border_color", GEO_FEATURE_COLORS.BORDERS)
-    xs, ys, poly_kwargs = _collect_polygon_geometries(projection, geometries_collection, **poly_kwargs)
-    p.multi_polygons(xs, ys, **poly_kwargs)
+    border_color = poly_kwargs.pop("polygon_border_color", GEO_FEATURE_COLORS.BORDERS)
+    glyph_kwargs: MultiPolygonsArgs = poly_kwargs
+    xs, ys, colors = _collect_polygon_geometries(projection, geometries_collection, glyph_kwargs.get("color"))
+    if colors is not None:
+        glyph_kwargs["color"] = colors
+    p.multi_polygons(xs, ys, **glyph_kwargs)
     if draw_border:
-        xs, ys = _collect_lines_from_polygons(xs, ys)
-        p.multi_line(xs, ys, color=border_color)
+        line_xs, line_ys = _collect_lines_from_polygons(xs, ys)
+        p.multi_line(line_xs, line_ys, color=border_color)
     return p
 
 
-def add_borders(p, projection, scale="110m", **line_kwargs):
+def add_borders[P: GlyphAPI](
+    p: P,
+    projection: ccrs.Projection,
+    scale: str = "110m",
+    **line_kwargs: Unpack[MultiLineArgs],
+) -> P:
     """ Adds the borders of countries to a map with respect to a given projection.
 
     Args:
@@ -160,7 +193,12 @@ def add_borders(p, projection, scale="110m", **line_kwargs):
     return add_line_geometries(p, projection, borders, **line_kwargs)
 
 
-def add_coastlines(p, projection, scale="110m", **line_kwargs):
+def add_coastlines[P: GlyphAPI](
+    p: P,
+    projection: ccrs.Projection,
+    scale: str = "110m",
+    **line_kwargs: Unpack[MultiLineArgs],
+) -> P:
     """ Adds coastlines to a map with respect to a given projection.
 
     Args:
@@ -192,7 +230,12 @@ def add_coastlines(p, projection, scale="110m", **line_kwargs):
     return add_line_geometries(p, projection, coastline, **line_kwargs)
 
 
-def add_land(p, projection, scale="110m", **poly_kwargs):
+def add_land[P: GlyphAPI](
+    p: P,
+    projection: ccrs.Projection,
+    scale: str = "110m",
+    **poly_kwargs: Unpack[GeoMultiPolygonsArgs],
+) -> P:
     """ Adds land geometries including islands to a map with respect to a
     given projection.
 
@@ -204,7 +247,7 @@ def add_land(p, projection, scale="110m", **poly_kwargs):
 
     Keyword Arguments:
         draw_polygon_border (bool, False): Enables the plotting of the geometry border.
-        draw_polygon_color (str, "black"): Sets the color of the geometry border.
+        polygon_border_color (str, "#CCCCCC"): Sets the color of the geometry border.
 
             .. note::
                 This functions allows all parameters and keyword arguments defined by the
@@ -229,7 +272,12 @@ def add_land(p, projection, scale="110m", **poly_kwargs):
     return add_polygon_geometries(p, projection, land, **poly_kwargs)
 
 
-def add_lakes(p, projection, scale="110m", **poly_kwargs):
+def add_lakes[P: GlyphAPI](
+    p: P,
+    projection: ccrs.Projection,
+    scale: str = "110m",
+    **poly_kwargs: Unpack[GeoMultiPolygonsArgs],
+) -> P:
     """ Adds lakes to a map with respect to a given projection.
 
     Args:
@@ -240,7 +288,7 @@ def add_lakes(p, projection, scale="110m", **poly_kwargs):
 
     Keyword Arguments:
         draw_polygon_border (bool, False): Enables the plotting of the geometry border.
-        draw_polygon_color (str, "black"): Sets the color of the geometry border.
+        polygon_border_color (str, "#CCCCCC"): Sets the color of the geometry border.
 
             .. note::
                 This functions allows all parameters and keyword arguments defined by the
@@ -265,7 +313,12 @@ def add_lakes(p, projection, scale="110m", **poly_kwargs):
     return add_polygon_geometries(p, projection, lakes, **poly_kwargs)
 
 
-def add_ocean(p, projection, scale="110m", **poly_kwargs):
+def add_ocean[P: GlyphAPI](
+    p: P,
+    projection: ccrs.Projection,
+    scale: str = "110m",
+    **poly_kwargs: Unpack[GeoMultiPolygonsArgs],
+) -> P:
     """ Adds ocean to a map with respect to a given projection.
 
     Args:
@@ -276,7 +329,7 @@ def add_ocean(p, projection, scale="110m", **poly_kwargs):
 
     Keyword Arguments:
         draw_polygon_border (bool, False): Enables the plotting of the geometry border.
-        draw_polygon_color (str, "black"): Sets the color of the geometry border.
+        polygon_border_color (str, "#CCCCCC"): Sets the color of the geometry border.
 
             .. note::
                 This functions allows all parameters and keyword arguments defined by the
@@ -301,7 +354,12 @@ def add_ocean(p, projection, scale="110m", **poly_kwargs):
     return add_polygon_geometries(p, projection, ocean, **poly_kwargs)
 
 
-def add_rivers(p, projection, scale="110m", **line_kwargs):
+def add_rivers[P: GlyphAPI](
+    p: P,
+    projection: ccrs.Projection,
+    scale: str = "110m",
+    **line_kwargs: Unpack[MultiLineArgs],
+) -> P:
     """ Adds rivers to a map with respect to a given projection.
 
     Args:
@@ -333,7 +391,11 @@ def add_rivers(p, projection, scale="110m", **line_kwargs):
     return add_line_geometries(p, projection, rivers, **line_kwargs)
 
 
-def add_projection_boundary(p, projection, **line_kwargs):
+def add_projection_boundary[P: GlyphAPI](
+    p: P,
+    projection: ccrs.Projection,
+    **line_kwargs: Unpack[LineArgs],
+) -> P:
     """ Adds the boundary of a given projection to a map.
 
     Args:
@@ -366,7 +428,12 @@ def add_projection_boundary(p, projection, **line_kwargs):
     return p
 
 
-def add_provinces(p, projection, scale="110m", **line_kwargs):
+def add_provinces[P: GlyphAPI](
+    p: P,
+    projection: ccrs.Projection,
+    scale: str = "110m",
+    **line_kwargs: Unpack[MultiLineArgs],
+) -> P:
     """ Adds the borders of provinces to a map with respect to a given projection.
 
     Args:
@@ -398,7 +465,12 @@ def add_provinces(p, projection, scale="110m", **line_kwargs):
     return add_line_geometries(p, projection, provinces, **line_kwargs)
 
 
-def add_states(p, projection, scale="110m", **poly_kwargs):
+def add_states[P: GlyphAPI](
+    p: P,
+    projection: ccrs.Projection,
+    scale: str = "110m",
+    **poly_kwargs: Unpack[GeoMultiPolygonsArgs],
+) -> P:
     """ Adds states and provinces as multi-polygons to a map for a given projection.
 
     Args:
@@ -409,7 +481,7 @@ def add_states(p, projection, scale="110m", **poly_kwargs):
 
     Keyword Arguments:
         draw_polygon_border (bool, False): Enables the plotting of the geometry border.
-        draw_polygon_color (str, "black"): Sets the color of the geometry border.
+        polygon_border_color (str, "#CCCCCC"): Sets the color of the geometry border.
 
             .. note::
                 This functions allows all parameters and keyword arguments defined by the
@@ -437,7 +509,10 @@ def add_states(p, projection, scale="110m", **poly_kwargs):
 # Private API
 #-----------------------------------------------------------------------------
 
-def _collect_line_geometries(projection, geometries_collection):
+def _collect_line_geometries(
+    projection: ccrs.Projection,
+    geometries_collection: cfeature.NaturalEarthFeature,
+) -> tuple[list[Coords], list[Coords]]:
     """ Collects the x and y elements for line geometries of a NaturalEarthFeature
     and transforms the coordinates to fit to a given projection.
 
@@ -457,8 +532,8 @@ def _collect_line_geometries(projection, geometries_collection):
 
             xs, ys = _collect_line_geometries(ccrs.Mollweide(), cfeature.BORDERS)
     """
-    xs = []
-    ys = []
+    xs: list[Coords] = []
+    ys: list[Coords] = []
     for geometry in geometries_collection.geometries():
         lines = projection.project_geometry(geometry, src_crs=ccrs.PlateCarree())
         for line in lines.geoms:
@@ -468,19 +543,21 @@ def _collect_line_geometries(projection, geometries_collection):
     return xs, ys
 
 
-def _collect_polygon_geometries(projection, geometries_collection, **kwargs):
+def _collect_polygon_geometries(
+    projection: ccrs.Projection,
+    geometries_collection: cfeature.NaturalEarthFeature,
+    color: object = None,
+) -> tuple[list[list[list[Coords]]], list[list[list[Coords]]], list[Any] | None]:
     """ Collects the x and y elements for multi-polygon geometries of a NaturalEarthFeature
     and transforms the coordinates to fit to a given projection.
-    If a color palette of list of colors is given, for each geometry the consecutive color
-    is selected and the Keyword Arguments are returned with an updated list for colors.
+    If a color palette or list of colors is given, for each geometry the consecutive color
+    is selected and the list of selected colors is returned, otherwise ``None``.
 
     Args:
         projection (catopy.crs.Projection): Cartopy Projection
         geometries_collection (catopy.feature.NaturalEarthFeature): collection of
             multi-polygon geometries given by a Cartopy NaturalEarthFeature.
-
-    Keyword Arguments:
-        color (str | list[str]): color or palette
+        color (str | list[str], optional): color or palette
 
     Example:
 
@@ -493,12 +570,10 @@ def _collect_polygon_geometries(projection, geometries_collection, **kwargs):
 
             xs, ys, _ = _collect_polygon_geometries(ccrs.Mollweide(), cfeature.LAKES)
     """
-    xs = []
-    ys = []
-    color = kwargs.get("color")
-    color_selection = isinstance(color, (list, tuple))
-    selected_colors = []
-    n_color = len(color) if color_selection else 0
+    xs: list[list[list[Coords]]] = []
+    ys: list[list[list[Coords]]] = []
+    palette = color if isinstance(color, (list, tuple)) else None
+    selected_colors: list[Any] = []
 
     for i, geometry in enumerate(geometries_collection.geometries()):
         projected_geometrie = projection.project_geometry(geometry, src_crs=ccrs.PlateCarree())
@@ -513,14 +588,15 @@ def _collect_polygon_geometries(projection, geometries_collection, **kwargs):
 
             xs.append([x_geom])
             ys.append([y_geom])
-            if color_selection:
-                selected_colors.append(color[i%n_color])
-    if color_selection:
-        kwargs.update(color=selected_colors)
-    return xs, ys, kwargs
+            if palette is not None:
+                selected_colors.append(palette[i % len(palette)])
+    return xs, ys, selected_colors if palette is not None else None
 
 
-def _collect_lines_from_polygons(polygon_xs, polygon_ys):
+def _collect_lines_from_polygons(
+    polygon_xs: list[list[list[Coords]]],
+    polygon_ys: list[list[list[Coords]]],
+) -> tuple[list[Coords], list[Coords]]:
     """ Collects the outline borders of a multi-polygon and returns it as a list.
     This can safe some time, if multi-polygons are already transformed to fit to
     a projection and afterwards the borders are needed.
@@ -529,8 +605,8 @@ def _collect_lines_from_polygons(polygon_xs, polygon_ys):
         polygon_xs (list[list[np.array]]): collected polygons for the x coordinate
         polygon_ys (list[list[np.array]]): collected polygons for the y coordinate
     """
-    line_xs = []
-    line_ys = []
+    line_xs: list[Coords] = []
+    line_ys: list[Coords] = []
     for xs, ys in zip(polygon_xs, polygon_ys):
         line_xs.append(xs[0][0])
         line_ys.append(ys[0][0])

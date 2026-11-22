@@ -54,7 +54,7 @@ class Tooltip(UIElement):
 
     """
 
-    visible = Override(default=False)
+    _visible = Override(default=False)
 
     position = Nullable(Either(Enum(Anchor), Tuple(Float, Float), Instance(Coordinate)), default=None, help="""
     The position of the tooltip with respect to its parent. It can be either

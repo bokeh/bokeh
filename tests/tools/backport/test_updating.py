@@ -1,5 +1,6 @@
 import unittest
 from pathlib import Path
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 from tests.tools.backport._support import candidate, state_with, valid_pr
@@ -14,7 +15,7 @@ from tools.backport.models import DedicatedCommit, IssueRef
 
 class UpdatePlanningTests(unittest.TestCase):
     @staticmethod
-    def commit(sha: str, message: str) -> dict:
+    def commit(sha: str, message: str) -> dict[str, Any]:
         return {"sha": sha, "commit": {"message": message}}
 
     @staticmethod

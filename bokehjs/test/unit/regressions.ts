@@ -16,7 +16,7 @@ import {
   BoxAnnotation,
   BoxEditTool,
   BoxSelectTool,
-  CDSView,
+  IndexedSubset,
   Canvas,
   CategoricalColorMapper,
   ColorBar,
@@ -25,9 +25,11 @@ import {
   CopyTool,
   CustomJS,
   DataRange1d,
+  Dodge,
   EqHistColorMapper,
   FactorRange,
   GlyphRenderer,
+  HArea,
   HoverTool,
   Image,
   IndexFilter,
@@ -36,6 +38,7 @@ import {
   Line,
   LinearColorMapper,
   LogColorMapper,
+  Maximum,
   Node,
   PanTool,
   Pane,
@@ -73,7 +76,7 @@ import {version} from "@bokehjs/version"
 import {Model} from "@bokehjs/model"
 import * as p from "@bokehjs/core/properties"
 import {is_equal} from "@bokehjs/core/util/eq"
-import {linspace, logspace, range} from "@bokehjs/core/util/array"
+import {linspace, logspace, range, sorted} from "@bokehjs/core/util/array"
 import {keys} from "@bokehjs/core/util/object"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {BitSet} from "@bokehjs/core/util/bitset"
@@ -81,7 +84,7 @@ import {b64decode} from "@bokehjs/core/util/buffer"
 import type {XY} from "@bokehjs/core/util/bbox"
 import {div} from "@bokehjs/core/dom"
 import type {Color, Arrayable} from "@bokehjs/core/types"
-import type {DocJson, DocumentEvent} from "@bokehjs/document"
+import type {DocJson, DocumentChangedEvent, DocumentEvent} from "@bokehjs/document"
 import {Document, ModelChangedEvent, MessageSentEvent} from "@bokehjs/document"
 import {DocumentReady, RangesUpdate} from "@bokehjs/core/bokeh_events"
 import {gridplot} from "@bokehjs/api/gridplot"
@@ -235,7 +238,7 @@ describe("Bug", () => {
     it("prevents to render a plot with a legend and an empty view", async () => {
       const plot = fig([200, 200])
       const filter = BooleanFilter.create({booleans: [false, false]})
-      const view = CDSView.create({filter})
+      const view = IndexedSubset.create({filter})
       plot.scatter([1, 2], [3, 4], {marker: "square", fill_color: ["red", "green"], view, legend_label: "square"})
       await display(plot)
     })
@@ -243,7 +246,7 @@ describe("Bug", () => {
     it("prevents to render a plot with a legend and a subset of indices", async () => {
       const plot = fig([200, 200])
       const filter = BooleanFilter.create({booleans: [true, true, false, false]})
-      const view = CDSView.create({filter})
+      const view = IndexedSubset.create({filter})
       const data_source = ColumnDataSource.create({data: {x: [1, 2, 3, 4], y: [5, 6, 7, 8], fld: ["a", "a", "b", "b"]}})
       const r = plot.scatter("x", "y", {marker: "square", fill_color: ["red", "red", "green", "green"], view, source: data_source})
       const legend = Legend.create({items: [LegendItem.create({label: {field: "fld"}, renderers: [r]})]})
@@ -320,105 +323,79 @@ describe("Bug", () => {
       const doc_json: DocJson = {
         defs: [],
         roots: [{
-          type: "object",
-          name: "Plot",
-          id: "1002",
-          attributes: {
-            renderers: [{
-              type: "object",
-              name: "GlyphRenderer",
-              id: "1005",
-              attributes: {
-                data_source: {
-                  type: "object",
-                  name: "ColumnDataSource",
-                  id: "1003",
-                  attributes: {
-                    data: {
-                      x: {
-                        type: "ndarray",
-                        array: {
-                          type: "bytes",
-                          data: "H4sIAAAAAAACE2NggIB2l+deEuHX7CH0M/vUYl2LoIMfoPxv9itFF8bee/MbKs7g8C26y9G0h9kBIs/mIKHrEvJbkdMBAOE1l61QAAAA",
-                        },
-                        dtype: "float64",
-                        order: "little",
-                        shape: [10],
-                      },
-                      y0: {
-                        type: "ndarray",
-                        array: {
-                          type: "bytes",
-                          data: "H4sIAAAAAAACE2NgAIEP9j3F3HVSVsfspXWDnL4JvtvPAhZ/sN884Pyi/OYX9lZQ+tN/ELi/Xw6qrhiqjwFqDgAXT+ECUAAAAA==",
-                        },
-                        dtype: "float64",
-                        order: "little",
-                        shape: [10],
-                      },
-                      y1: {
-                        type: "ndarray",
-                        array: {
-                          type: "bytes",
-                          data: "H4sIAAAAAAACE2NggAAZMZug7ROf2IvLNPZ0N7+3X+0T8aJq22v7H9xdJSseX7X/AqH3r4CI75eAqNsvD9G3nz1GxFht2cY9ABjYpdhQAAAA",
-                        },
-                        dtype: "float64",
-                        order: "little",
-                        shape: [10],
-                      },
-                    },
+          $type: "Plot",
+          $id: "1002",
+          renderers: [{
+            $type: "GlyphRenderer",
+            $id: "1005",
+            data_source: {
+              $type: "ColumnDataSource",
+              $id: "1003",
+              data: {
+                x: {
+                  type: "ndarray",
+                  array: {
+                    type: "bytes",
+                    data: "H4sIAAAAAAACE2NggIB2l+deEuHX7CH0M/vUYl2LoIMfoPxv9itFF8bee/MbKs7g8C26y9G0h9kBIs/mIKHrEvJbkdMBAOE1l61QAAAA",
                   },
+                  dtype: "float64",
+                  order: "little",
+                  shape: [10],
                 },
-                glyph: {
-                  type: "object",
-                  name: "Line",
-                  id: "1004",
-                  attributes: {
-                    x: {field: "x"},
-                    y: {field: "y1"},
+                y0: {
+                  type: "ndarray",
+                  array: {
+                    type: "bytes",
+                    data: "H4sIAAAAAAACE2NgAIEP9j3F3HVSVsfspXWDnL4JvtvPAhZ/sN884Pyi/OYX9lZQ+tN/ELi/Xw6qrhiqjwFqDgAXT+ECUAAAAA==",
                   },
+                  dtype: "float64",
+                  order: "little",
+                  shape: [10],
+                },
+                y1: {
+                  type: "ndarray",
+                  array: {
+                    type: "bytes",
+                    data: "H4sIAAAAAAACE2NggAAZMZug7ROf2IvLNPZ0N7+3X+0T8aJq22v7H9xdJSseX7X/AqH3r4CI75eAqNsvD9G3nz1GxFht2cY9ABjYpdhQAAAA",
+                  },
+                  dtype: "float64",
+                  order: "little",
+                  shape: [10],
                 },
               },
-            }, {
-              type: "object",
-              name: "GlyphRenderer",
-              id: "1007",
-              attributes: {
-                data_source: {id: "1003"},
-                glyph: {
-                  type: "object",
-                  name: "Line",
-                  id: "1006",
-                  attributes: {
-                    x: {field: "x"},
-                    y: {field: "y0"},
-                  },
-                },
-              },
-            }],
-            x_range: {
-              type: "object",
-              name: "DataRange1d",
-              id: "1008",
-              attributes: {},
             },
-            x_scale: {
-              type: "object",
-              name: "LinearScale",
-              id: "1010",
-              attributes: {},
+            glyph: {
+              $type: "Line",
+              $id: "1004",
+              x: {field: "x"},
+              y: {field: "y1"},
             },
-            y_range: {
-              type: "object",
-              name: "DataRange1d",
-              id: "1009",
-              attributes: {},
+          }, {
+            $type: "GlyphRenderer",
+            $id: "1007",
+            data_source: {id: "1003"},
+            glyph: {
+              $type: "Line",
+              $id: "1006",
+              x: {field: "x"},
+              y: {field: "y0"},
             },
-            y_scale: {
-              type: "object",
-              name: "LinearScale",
-              id: "1011",
-              attributes: {},
-            },
+          }],
+          x_range: {
+            $type: "DataRange1d",
+            $id: "1008",
+          },
+          x_scale: {
+            $type: "LinearScale",
+            $id: "1010",
+          },
+          y_range: {
+            $type: "DataRange1d",
+            $id: "1009",
+          },
+          y_scale: {
+            $type: "LinearScale",
+            $id: "1011",
           },
         }],
         title: "Bokeh Application",
@@ -426,7 +403,7 @@ describe("Bug", () => {
       }
 
       const events0: DocumentEvent[] = []
-      const doc = Document.from_json(doc_json, events0)
+      const doc = Document.from_json(doc_json, {events: events0})
       expect(events0).to.be.empty
 
       expect(doc.roots().length).to.be.equal(1)
@@ -721,7 +698,7 @@ describe("Bug", () => {
         },
       })
       const indices = BitSet.from_indices(6, [0, 1, 2, 3, 4, 5])
-      const view = CDSView.create({indices})
+      const view = IndexedSubset.create({indices})
       const provider = new TableDataProvider(source, view)
       const table_column = TableColumn.create({field: "words"})
       const table_column_view = await build_view(table_column, {parent: null})
@@ -874,6 +851,23 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #13299", () => {
+    it("doesn't allow to update Button's icon when it's replaced with a new icon", async () => {
+      const icon = TablerIcon.create({icon_name: "thumb-up"})
+      const button = Button.create({icon, label: "Like"})
+
+      const {view} = await display(button)
+
+      const new_icon = TablerIcon.create({icon_name: "thumb-down"})
+      button.icon = new_icon
+      await view.ready
+
+      const new_icon_view = view.owner.get_one(new_icon)
+      expect(view.button_el.contains(new_icon_view.el)).to.be.true
+      expect(view.owner.find_one(icon)).to.be.null
+    })
+  })
+
   describe("in issue #13377", () => {
     it("doesn't allow serialization of unset readonly properties", async () => {
       const obj = ModelWithUnsetReadonly.create()
@@ -883,10 +877,21 @@ describe("Bug", () => {
         version,
         title: "Bokeh Application",
         config: {
-          type: "object",
-          name: "DocumentConfig",
-          id: doc.config.id,
-          attributes: {
+          $type: "DocumentConfig",
+          $id: doc.config.id,
+          tags: [],
+          name: null,
+          _js_property_callbacks: {type: "map"},
+          _js_property_callback_policies: {type: "map"},
+          _js_event_callbacks: {type: "map"},
+          _subscribed_changes: {type: "map"},
+          _subscribed_events: {type: "set"},
+          syncable: true,
+          reconnect_session: true,
+          notify_connection_status: true,
+          notifications: {
+            $type: "Notifications",
+            $id: doc.config.notifications!.id,
             tags: [],
             name: null,
             _js_property_callbacks: {type: "map"},
@@ -895,48 +900,28 @@ describe("Bug", () => {
             _subscribed_changes: {type: "map"},
             _subscribed_events: {type: "set"},
             syncable: true,
-            reconnect_session: true,
-            notify_connection_status: true,
-            notifications: {
-              type: "object",
-              name: "Notifications",
-              id: doc.config.notifications!.id,
-              attributes: {
-                tags: [],
-                name: null,
-                _js_property_callbacks: {type: "map"},
-                _js_property_callback_policies: {type: "map"},
-                _js_event_callbacks: {type: "map"},
-                _subscribed_changes: {type: "map"},
-                _subscribed_events: {type: "set"},
-                syncable: true,
-                html_attributes: {type: "map"},
-                html_id: null,
-                css_classes: [],
-                css_variables: {type: "map"},
-                styles: {type: "map"},
-                stylesheets: [],
-                visible: true,
-                context_menu: null,
-              },
-            },
-            color_scheme: "auto",
+            html_attributes: {type: "map"},
+            html_id: null,
+            css_classes: [],
+            css_variables: {type: "map"},
+            styles: {type: "map"},
+            stylesheets: [],
+            visible: true,
+            context_menu: null,
           },
+          color_scheme: "auto",
         },
         roots: [{
-          type: "object",
-          name: "ModelWithUnsetReadonly",
-          id: obj.id,
-          attributes: {
-            tags: [],
-            name: null,
-            _js_property_callbacks: {type: "map"},
-            _js_property_callback_policies: {type: "map"},
-            _js_event_callbacks: {type: "map"},
-            _subscribed_changes: {type: "map"},
-            _subscribed_events: {type: "set"},
-            syncable: true,
-          },
+          $type: "ModelWithUnsetReadonly",
+          $id: obj.id,
+          tags: [],
+          name: null,
+          _js_property_callbacks: {type: "map"},
+          _js_property_callback_policies: {type: "map"},
+          _js_event_callbacks: {type: "map"},
+          _subscribed_changes: {type: "map"},
+          _subscribed_events: {type: "set"},
+          syncable: true,
         }],
       })
     })
@@ -1653,9 +1638,9 @@ describe("Bug", () => {
         TableColumn.create({field: "y", title: "y", width: 50}),
       ]
       const filter = AllIndices.create()
-      const cds_view = CDSView.create({filter})
+      const indexed_subset = IndexedSubset.create({filter})
 
-      const table = DataTable.create({source, columns, selectable: "checkbox", view: cds_view, width: 300, height: 400})
+      const table = DataTable.create({source, columns, selectable: "checkbox", view: indexed_subset, width: 300, height: 400})
       const {view} = await display(table, [350, 450])
 
       const checkbox1 = view.shadow_el.querySelectorAll(".slick-cell.l1.r1.bk-cell-select")[2]
@@ -1679,8 +1664,8 @@ describe("Bug", () => {
 
       table.view.filter = IndexFilter.create({indices: [0, 1, 2]})
 
-      expect(view.get_selected_rows().slice().sort()).to.be.equal([0, 2].sort())
-      expect(table.source.selected.indices.slice().sort()).to.be.equal([0, 2].sort())
+      expect(sorted(view.get_selected_rows())).to.be.equal([0, 2])
+      expect(sorted(table.source.selected.indices)).to.be.equal([0, 2])
     })
   })
 
@@ -1762,20 +1747,6 @@ describe("Bug", () => {
       expect(grv.decimated_glyph.inherited_image_data).to.be.true
       expect(grv.hover_glyph.inherited_image_data).to.be.true
       expect(grv.muted_glyph.inherited_image_data).to.be.true
-
-      expect(grv.glyph.inherited_image_width).to.be.false
-      expect(grv.selection_glyph.inherited_image_width).to.be.true
-      expect(grv.nonselection_glyph.inherited_image_width).to.be.false
-      expect(grv.decimated_glyph.inherited_image_width).to.be.true
-      expect(grv.hover_glyph.inherited_image_width).to.be.true
-      expect(grv.muted_glyph.inherited_image_width).to.be.true
-
-      expect(grv.glyph.inherited_image_height).to.be.false
-      expect(grv.selection_glyph.inherited_image_height).to.be.true
-      expect(grv.nonselection_glyph.inherited_image_height).to.be.false
-      expect(grv.decimated_glyph.inherited_image_height).to.be.true
-      expect(grv.hover_glyph.inherited_image_height).to.be.true
-      expect(grv.muted_glyph.inherited_image_height).to.be.true
     })
   })
 
@@ -2151,9 +2122,9 @@ ${view.host_selector} {
         TableColumn.create({field: "y", title: "y", width: 50}),
       ]
       const filter = AllIndices.create()
-      const cds_view = CDSView.create({filter})
+      const indexed_subset = IndexedSubset.create({filter})
 
-      const table = DataTable.create({source, columns, selectable: "checkbox", view: cds_view, width: 300, height: 400})
+      const table = DataTable.create({source, columns, selectable: "checkbox", view: indexed_subset, width: 300, height: 400})
       const {view} = await display(table, [350, 450])
 
       const checkbox1 = view.shadow_el.querySelectorAll(".slick-cell.l1.r1.bk-cell-select")[2]
@@ -2180,8 +2151,8 @@ ${view.host_selector} {
 
       table.view.filter = IndexFilter.create({indices: [0, 1, 2]})
 
-      expect(view.get_selected_rows().slice().sort()).to.be.equal([])
-      expect(table.source.selected.indices.slice().sort()).to.be.equal([])
+      expect(sorted(view.get_selected_rows())).to.be.equal([])
+      expect(sorted(table.source.selected.indices)).to.be.equal([])
     })
   })
 
@@ -2647,6 +2618,97 @@ ${view.host_selector} {
         delete (canvas as any).width
         delete (canvas as any).height
       }
+    })
+  })
+
+  describe("in issue #14364", () => {
+    function setup(...roots: Model[]) {
+      const doc = new Document({roots})
+      const events: DocumentChangedEvent[] = []
+      doc.on_change((event) => events.push(event))
+      return {doc, events}
+    }
+
+    it("sends plain values of scalar specs unwrapped in document patches", () => {
+      const glyph = Line.create()
+      const {doc, events} = setup(glyph)
+
+      glyph.line_color = "#CC79A7"
+      glyph.line_width = 3
+
+      expect(doc.create_json_patch(events)).to.be.equal({
+        events: [
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "line_color", new: "#CC79A7"},
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "line_width", new: 3},
+        ],
+      })
+    })
+
+    it("sends plain values of scalar specs of new models unwrapped in document patches", () => {
+      const {doc, events} = setup()
+
+      const glyph = Line.create({line_color: "#CC79A7"})
+      doc.add_root(glyph)
+
+      expect(doc.create_json_patch(events)).to.be.equal({
+        events: [{
+          kind: "RootAdded",
+          model: {$type: "Line", $id: glyph.id, line_color: "#CC79A7"},
+        }],
+      })
+    })
+
+    it("sends plain hatch patterns of area glyphs unwrapped in document patches", () => {
+      const glyph = HArea.create()
+      const {doc, events} = setup(glyph)
+
+      glyph.hatch_pattern = "horizontal"
+      glyph.hatch_pattern = "custom_pattern"
+
+      expect(doc.create_json_patch(events)).to.be.equal({
+        events: [
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "hatch_pattern", new: "horizontal"},
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "hatch_pattern", new: "custom_pattern"},
+        ],
+      })
+    })
+
+    it("keeps scalar specs with a transform, units or an expression structured in document patches", () => {
+      const glyph = Line.create()
+      const {doc, events} = setup(glyph)
+
+      const transform = Dodge.create({value: 1})
+      const expr = Maximum.create({field: "y"})
+      glyph.line_width = {value: 3, transform}
+      glyph.line_dash_offset = {value: 2, units: "screen"} as any
+      glyph.line_alpha = {expr} as any
+
+      expect(doc.create_json_patch(events)).to.be.equal({
+        events: [
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "line_width", new: {
+            type: "value", value: 3, transform: {$type: "Dodge", $id: transform.id, value: 1},
+          }},
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "line_dash_offset", new: {
+            type: "value", value: 2, units: "screen",
+          }},
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "line_alpha", new: {
+            type: "expr", expr: {$type: "Maximum", $id: expr.id, field: "y"},
+          }},
+        ],
+      })
+    })
+
+    it("doesn't unwrap plain values of vector specs in document patches", () => {
+      const glyph = Scatter.create()
+      const {doc, events} = setup(glyph)
+
+      glyph.fill_color = "#CC79A7"
+
+      expect(doc.create_json_patch(events)).to.be.equal({
+        events: [
+          {kind: "ModelChanged", model: {id: glyph.id}, attr: "fill_color", new: {type: "value", value: "#CC79A7"}},
+        ],
+      })
     })
   })
 })

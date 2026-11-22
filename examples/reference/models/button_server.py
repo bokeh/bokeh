@@ -1,5 +1,13 @@
 ## Bokeh server for button click
 
+''' Change a plot title from a Python button callback.
+
+.. bokeh-example-metadata::
+    :title: Button server
+    :keywords: button server, reference
+    :apis: bokeh.models.Button, bokeh.models.ColumnDataSource, bokeh.plotting.figure.scatter
+'''
+
 from bokeh.io import curdoc
 from bokeh.layouts import row
 from bokeh.models import Button, ColumnDataSource

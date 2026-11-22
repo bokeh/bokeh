@@ -27,6 +27,7 @@ type SessionEvents = MountEvents & {
   session: (session: ClientSession) => true
 }
 
+// oxlint-disable-next-line typescript/no-generated-empty-object-type -- intentionally empty
 type Empty = Record<never, never>
 
 // Keep declarations within Vue 3.3's public type parameters. Inferring the

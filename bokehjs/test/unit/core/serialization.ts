@@ -157,8 +157,8 @@ describe("core/serialization module", () => {
     it("should support HasProps instances", () => {
       const obj0 = SomeModel.create()
       expect(to_serializable(obj0)).to.be.equal({
-        rep: {type: "object", name: "SomeModel", id: obj0.id},
-        json: `{"type":"object","name":"SomeModel","id":"${obj0.id}"}`,
+        rep: {$type: "SomeModel", $id: obj0.id},
+        json: `{"$type":"SomeModel","$id":"${obj0.id}"}`,
       })
     })
 
@@ -262,27 +262,18 @@ describe("core/serialization module", () => {
       const rep = serializer.encode(obj2)
 
       expect(rep).to.be.equal({
-        type: "object",
-        name: "SomeModel",
-        id: obj2.id,
-        attributes: {
-          value: 30,
+        $type: "SomeModel",
+        $id: obj2.id,
+        value: 30,
+        obj: {
+          $type: "SomeModel",
+          $id: obj1.id,
+          value: 20,
           obj: {
-            type: "object",
-            name: "SomeModel",
-            id: obj1.id,
-            attributes: {
-              value: 20,
-              obj: {
-                type: "object",
-                name: "SomeModel",
-                id: obj0.id,
-                attributes: {
-                  value: 10,
-                  obj: {id: obj2.id},
-                },
-              },
-            },
+            $type: "SomeModel",
+            $id: obj0.id,
+            value: 10,
+            obj: {$ref: obj2.id},
           },
         },
       })
@@ -389,22 +380,15 @@ describe("core/serialization module", () => {
 
     it("resolves references declared later in the payload", () => {
       const resolver = new ModelResolver(null, [SomeModel])
-      for (const rep of [
-        [
-          {type: "object", name: "SomeModel", attributes: {obj: {id: "later"}}},
-          {type: "object", name: "SomeModel", id: "later", attributes: {value: 2}},
-        ],
-        [
-          {$type: "SomeModel", obj: {$ref: "later"}},
-          {$type: "SomeModel", $id: "later", value: 2},
-        ],
-      ]) {
-        const deserializer = new Deserializer(resolver)
-        const [first, later] = deserializer.decode(rep) as SomeModel[]
+      const rep = [
+        {$type: "SomeModel", obj: {$ref: "later"}},
+        {$type: "SomeModel", $id: "later", value: 2},
+      ]
+      const deserializer = new Deserializer(resolver)
+      const [first, later] = deserializer.decode(rep) as SomeModel[]
 
-        expect(first.obj).to.be.equal(later)
-        expect(later.value).to.be.equal(2)
-      }
+      expect(first.obj).to.be.equal(later)
+      expect(later.value).to.be.equal(2)
     })
 
     it("rejects definitions hidden in ignored representation fields", () => {
@@ -412,8 +396,9 @@ describe("core/serialization module", () => {
       const deserializer = new Deserializer(resolver)
       const rep = [
         {
-          type: "object", name: "SomeModel", attributes: {obj: {id: "hidden"}},
-          extra: {type: "object", name: "SomeModel", id: "hidden", attributes: {value: 2}},
+          type: "number",
+          value: "nan",
+          extra: {$type: "SomeModel", $id: "hidden", value: 2},
         },
       ]
 
@@ -429,8 +414,8 @@ describe("core/serialization module", () => {
       const deserializer = new Deserializer(resolver, references)
 
       const rep = [
-        {type: "object", name: "SomeModel", id: model.id, attributes: {value: 2}},
-        {type: "object", name: "MissingModel", id: "missing"},
+        {$type: "SomeModel", $id: model.id, value: 2},
+        {$type: "MissingModel", $id: "missing"},
       ]
       expect(() => deserializer.decode(rep)).to.throw(DeserializationError)
       expect(model.value).to.be.equal(1)
@@ -459,9 +444,9 @@ describe("core/serialization module", () => {
       })
 
       const rep = [
-        {type: "object", name: "SomeModel", id: "first"},
-        {type: "object", name: "SomeModel", id: "second"},
-        {type: "object", name: "FailingModel", id: "third"},
+        {$type: "SomeModel", $id: "first"},
+        {$type: "SomeModel", $id: "second"},
+        {$type: "FailingModel", $id: "third"},
       ]
       expect(() => deserializer.decode(rep)).to.throw(Error, "initialization failed")
       expect(references.size).to.be.equal(0)

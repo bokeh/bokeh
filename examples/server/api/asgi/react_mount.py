@@ -1,4 +1,4 @@
-"""Backend for the React and app-URL live-session examples.
+''' Backend for the React and app-URL live-session examples.
 
 Run from this directory with either transport::
 
@@ -7,7 +7,13 @@ Run from this directory with either transport::
 
 The local development token endpoint is deliberately application-owned. A
 production host must authenticate token issuance and WebSocket requests.
-"""
+
+
+.. bokeh-example-metadata::
+    :title: React mount
+    :keywords: react, mount
+    :apis: bokeh.models.ColorBar, bokeh.models.ColumnDataSource, bokeh.models.Div, bokeh.models.LinearColorMapper, bokeh.models.Select, bokeh.models.Slider
+'''
 
 from __future__ import annotations
 

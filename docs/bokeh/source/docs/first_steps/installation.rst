@@ -137,7 +137,7 @@ NetworkX
 psutil
     Necessary to enable detailed memory logging in the Bokeh server.
 
-Selenium, GeckoDriver, Firefox
+Playwright and Chromium
     Necessary for :ref:`ug_output_export` to PNG and SVG images.
 
 Sphinx

@@ -8,7 +8,9 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import threading
+from unittest.mock import Mock
 
 import pytest
 
@@ -395,3 +397,26 @@ async def test_create_session_rejects_invalid_header_token_payload(monkeypatch: 
             await core.create_session(core.applications["/"], request)
     finally:
         await core.stop()
+
+
+def test_log_stats_only_logs_changes(caplog: pytest.LogCaptureFixture) -> None:
+    core = BokehServerCore(Application())
+
+    def logged() -> list[str]:
+        messages = [record.getMessage() for record in caplog.records if record.name == "bokeh.server.core"]
+        caplog.clear()
+        return messages
+
+    with caplog.at_level(logging.DEBUG, logger="bokeh.server.core"):
+        core._log_stats()
+        assert logged() == ["0 clients connected", "/ has 0 sessions with 0 unused"]
+
+        core._log_stats()
+        assert logged() == []
+
+        core._clients.add(Mock())
+        core._log_stats()
+        assert logged() == ["1 clients connected", "/ has 0 sessions with 0 unused"]
+
+        core._log_stats()
+        assert logged() == []

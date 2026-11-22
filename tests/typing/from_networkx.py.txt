@@ -1,0 +1,21 @@
+# Copyright (c) Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved. The full license is in the file LICENSE.txt.
+
+from typing import assert_type
+
+import networkx as nx
+
+from bokeh.models.renderers import GraphRenderer
+from bokeh.plotting import from_networkx
+
+G = nx.karate_club_graph()
+
+# NetworkX layout functions return dicts of NumPy arrays.
+assert_type(from_networkx(G, nx.spring_layout, scale=1.8, center=(0, 0)), GraphRenderer)
+assert_type(from_networkx(G, nx.circular_layout), GraphRenderer)
+assert_type(from_networkx(G, nx.spring_layout(G)), GraphRenderer)
+
+# Plain mappings of node keys to positions are accepted as well.
+assert_type(from_networkx(G, {0: [0.0, 1.0], 1: (1.0, 0.0)}), GraphRenderer)
+
+from_networkx(G, {0: "xy"})  # mypy: dict-item; pyright: reportArgumentType

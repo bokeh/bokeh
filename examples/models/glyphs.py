@@ -1,3 +1,11 @@
+''' Add and style several glyph types directly on a low-level Plot.
+
+.. bokeh-example-metadata::
+    :title: Glyphs on a low-level plot
+    :keywords: glyphs, models
+    :apis: bokeh.models.AnnularWedge, bokeh.models.Annulus, bokeh.models.Arc, bokeh.models.Bezier, bokeh.models.Circle, bokeh.models.ColumnDataSource
+'''
+
 import numpy as np
 
 from bokeh.core.properties import value

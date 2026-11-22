@@ -1,3 +1,11 @@
+''' Attach axes and other panels to each side of a low-level Plot.
+
+.. bokeh-example-metadata::
+    :title: Panels
+    :keywords: panels, models
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.LinearAxis, bokeh.models.Plot, bokeh.models.Range1d, bokeh.models.Scatter, bokeh.models.Title
+'''
+
 from bokeh.io import show
 from bokeh.models import ColumnDataSource, LinearAxis, Plot, Range1d, Scatter, Title
 

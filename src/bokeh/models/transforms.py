@@ -31,7 +31,7 @@ from ..core.property.nullable import Nullable
 from ..core.property.primitive import Bool, Float, String
 from ..core.property.required import Required
 from ..model import Model
-from .sources import ColumnarDataSource
+from .sources import IndexedDataSource
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -205,7 +205,7 @@ class Interpolator(Transform):
     Dependent coordinate denoting the value of a point at a location.
     """)
 
-    data = Nullable(Instance(ColumnarDataSource), help="""
+    data = Nullable(Instance(IndexedDataSource), help="""
     Data which defines the source for the named columns if a string is passed to either the ``x`` or ``y`` parameters.
     """)
 

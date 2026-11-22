@@ -1,7 +1,8 @@
 import {expect, expect_not_null} from "#framework/assertions"
 
 import {Deserializer} from "@bokehjs/core/serialization/deserializer"
-import {decode_defs, type ModelDef} from "@bokehjs/document/defs"
+import {decode_defs} from "@bokehjs/document/defs"
+import type {ModelDef} from "@bokehjs/document/defs"
 import {Model} from "@bokehjs/model"
 import {default_resolver} from "@bokehjs/base"
 import {ModelResolver} from "@bokehjs/core/resolvers"
@@ -121,6 +122,7 @@ describe("document/defs module", () => {
       }, {
         type: "model",
         name: "some.Some1",
+        extends: {id: "DataModel"},
         properties: [
           {name: "prop0", kind: ["Regex", "(?P<word>foo)"], default: "foo"},
           {name: "prop1", kind: ["Nullable", "Int"], default: null},
@@ -140,11 +142,11 @@ describe("document/defs module", () => {
         properties: [{
           name: "prop10",
           kind: ["Ref", {id: "some.Some0"}],
-          default: {type: "object", name: "some.Some0", id: "some001", attributes: {prop2: false, prop4: 128}},
+          default: {$type: "some.Some0", $id: "some001", prop2: false, prop4: 128},
         }, {
           name: "prop11",
           kind: ["List", ["Ref", {id: "some.Some0"}]],
-          default: [{id: "some001"}, {type: "object", name: "some.Some0", id: "some002", attributes: {prop2: false, prop4: 129}}],
+          default: [{id: "some001"}, {$type: "some.Some0", $id: "some002", prop2: false, prop4: 129}],
         }],
         overrides: [
           {name: "prop2", default: "a"},
@@ -233,8 +235,8 @@ describe("document/defs module", () => {
 
       const cds_props = [
         "selected",
-        "default_values",
         "selection_policy",
+        "default_values",
         "data",
       ]
 
@@ -314,14 +316,16 @@ describe("document/defs module", () => {
       const defs: ModelDef[] = [{
         type: "model",
         name: "some.First",
+        extends: {id: "DataModel"},
         properties: [{
           name: "payload",
           kind: "Any",
-          default: {type: "object", name: "some.Later", id: "later001"},
+          default: {$type: "some.Later", $id: "later001"},
         }],
       }, {
         type: "model",
         name: "some.Later",
+        extends: {id: "DataModel"},
         properties: [{
           name: "child",
           kind: ["Nullable", ["Ref", {id: "some.Later"}]],
@@ -343,12 +347,34 @@ describe("document/defs module", () => {
       expect(Later.create({child: later} as any)).to.be.instanceof(Later)
     })
 
+    it("that resolves a property kind referencing the base Model", () => {
+      const defs: ModelDef[] = [{
+        type: "model",
+        name: "some.Holder",
+        extends: {id: "DataModel"},
+        properties: [{
+          name: "child",
+          kind: ["Nullable", ["Ref", {id: "Model"}]],
+          default: null,
+        }],
+      }]
+
+      const deserializer = new Deserializer(new ModelResolver(default_resolver))
+      const [Holder] = decode_defs(defs, deserializer)
+      const child = ColumnDataSource.create()
+
+      expect(Holder.create().property("child").get_value()).to.be.equal(null)
+      expect(Holder.create({child}).property("child").get_value()).to.be.equal(child)
+      expect(() => Holder.create({child: {}})).to.throw()
+    })
+
     it("that resolves buffered defaults", () => {
       const buffer_id = unique_id()
       const values = new Float64Array([1.25, -2.5, 3.75])
       const defs: ModelDef[] = [{
         type: "model",
         name: "some.Buffered",
+        extends: {id: "DataModel"},
         properties: [{
           name: "payload",
           kind: "Any",

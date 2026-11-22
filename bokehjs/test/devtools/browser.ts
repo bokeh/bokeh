@@ -120,7 +120,7 @@ export class Failure {
 export const supported_chromium_version: Version = [141, 0, 7390, 54]
 
 export function get_version_tuple(version: string): Version | null {
-  const match = version.match(/(\d+)\.(\d+)\.(\d+)\.(\d+)/)
+  const match = /(\d+)\.(\d+)\.(\d+)\.(\d+)/.exec(version)
   if (match != null) {
     const [, a, b, c, d] = match.values()
     return [

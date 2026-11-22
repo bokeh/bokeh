@@ -128,19 +128,35 @@ export function border_radius(border_radius: BorderRadius): Corners<number> {
   }
 }
 
-export function apply_icon(el: HTMLElement, icon: IconLike): void {
-  if (icon.startsWith("data:image")) {
-    const url = `url("${encodeURI(icon)}")`
-    el.style.maskImage = url
+export type ResolvedIcon = {class?: string, style?: {maskImage: string}}
+
+/**
+ * Resolves an icon to a CSS class or a mask image. Icons are masks, so that
+ * they can be colored with `--icon-color`.
+ */
+export function resolve_icon(icon: IconLike | null): ResolvedIcon {
+  if (icon == null) {
+    return {}
+  } else if (icon.startsWith("data:image")) {
+    return {style: {maskImage: `url("${encodeURI(icon)}")`}}
   } else if (icon.startsWith("--")) {
-    el.style.maskImage = `var(${icon})`
+    return {style: {maskImage: `var(${icon})`}}
   } else if (icon.startsWith(".")) {
-    const cls = icon.substring(1)
-    el.classList.add(cls)
+    return {class: icon.substring(1)}
   } else if (ToolIcon.valid(icon)) {
-    const cls = `bk-tool-icon-${icon.replace(/_/g, "-")}`
-    el.classList.add(cls)
+    return {class: `bk-tool-icon-${icon.replace(/_/g, "-")}`}
   } else {
     logger.warn(`unable to resolve icon: ${icon}`)
+    return {}
+  }
+}
+
+export function apply_icon(el: HTMLElement, icon: IconLike): void {
+  const {class: cls, style} = resolve_icon(icon)
+  if (cls != null) {
+    el.classList.add(cls)
+  }
+  if (style != null) {
+    el.style.maskImage = style.maskImage
   }
 }

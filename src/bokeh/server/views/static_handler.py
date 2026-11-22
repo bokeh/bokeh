@@ -55,6 +55,10 @@ T = TypeVar("T")
 class AsyncStaticFileHandler(TornadoStaticFileHandler):
     ''' Serve static files without performing filesystem I/O on the event loop. '''
 
+    path: str
+    absolute_path: str | None
+    modified: datetime | None
+
     async def get(self, path: str, include_body: bool = True) -> None:
         self.path = self.parse_url_path(path)
         absolute_path = self.get_absolute_path(self.root, self.path)

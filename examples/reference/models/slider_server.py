@@ -1,4 +1,12 @@
 ## Bokeh server for Slider
+''' Change the frequency of a plotted curve from a server-side slider callback.
+
+.. bokeh-example-metadata::
+    :title: Slider server
+    :keywords: slider server, reference
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Slider, bokeh.plotting.figure.line
+'''
+
 import numpy as np
 import pandas as pd
 

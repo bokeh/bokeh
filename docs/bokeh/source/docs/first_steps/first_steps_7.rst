@@ -91,19 +91,7 @@ To get started with
     pip install "bokeh[export]"
     playwright install --only-shell chromium
 
-The Selenium export backend is deprecated. Existing applications
-can temporarily select it explicitly while migrating to Playwright. Selenium
-needs to be able to access either a Firefox browser (through the geckodriver
-package) or a Chrome/Chromium browser (through the chromedriver package), so
-you need to install the appropriate packages for your choice of browser:
-
-.. code-block:: sh
-
-    conda install selenium geckodriver firefox -c conda-forge
-
-See :ref:`ug_output_export_dependencies` for more options to install the
-required packages, and :ref:`ug_output_export_backend` for details on choosing
-a backend.
+See :ref:`ug_output_export_dependencies` for installation details.
 
 Once the requirements are installed, you can use the
 :func:`~bokeh.io.export_png` function to export your plot into a PNG file:

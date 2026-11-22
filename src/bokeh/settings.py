@@ -647,15 +647,6 @@ class Settings:
     See :class:`~bokeh.resources.Resources` for resource configuration.
     """)
 
-    chromedriver_path = PrioritizedSetting[str | None]("chromedriver_path", "BOKEH_CHROMEDRIVER_PATH", default=None, help="""
-    The name of or full path to chromedriver's executable.
-
-    This is used to allow ``bokeh.io.export`` to work on systems that use a
-    different name for ``chromedriver``, like ``chromedriver-binary`` or
-    ``chromium.chromedriver`` (or its variant, which is used for example
-    by Snap package manager; see https://snapcraft.io/).
-    """)
-
     compression_level = PrioritizedSetting[int]("compression_level", "BOKEH_COMPRESSION_LEVEL", default=2, convert=convert_compression, help="""
     In contexts where array buffers are base64-encoded (e.g. to embed inside
     an HTML file), the buffer will first be compressed to save space.
@@ -703,23 +694,6 @@ class Settings:
 
     This setting is necessary to re-deploy existing versions of docs with new
     fixes or changes.
-    """)
-
-    export_backend: PrioritizedSetting[str] = PrioritizedSetting("export_backend", "BOKEH_EXPORT_BACKEND", default="playwright", help="""
-    Which browser backend to use for PNG and SVG export.
-
-    Valid values are:
-
-    - ``playwright``: use Playwright (default; requires
-      ``pip install playwright`` and
-      ``playwright install --only-shell chromium``).
-    - ``auto``: try Playwright first, then fall back to the deprecated
-      Selenium backend.
-    - ``selenium``: use the deprecated Selenium backend with a browser driver
-      on PATH.
-
-    This can also be overridden per-call via the ``backend`` parameter
-    on ``export_png``, ``export_svg``, etc.
     """)
 
     ico_path: PrioritizedSetting[str] = PrioritizedSetting("ico_path", "BOKEH_ICO_PATH",
@@ -886,17 +860,6 @@ class Settings:
 
         '''
         return bokehjs_path(self.dev)
-
-    def bokehjsdir(self) -> str:
-        ''' The location of the BokehJS source tree.
-
-        .. deprecated:: 3.4.0
-            Use ``bokehjs_path()`` method instead.
-        '''
-        from .util.deprecation import deprecated
-
-        deprecated((3, 4, 0), "bokehjsdir()", "bokehjs_path() method")
-        return str(self.bokehjs_path())
 
     def css_files(self) -> list[str]:
         ''' The CSS files in the BokehJS directory.

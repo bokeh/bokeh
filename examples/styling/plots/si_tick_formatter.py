@@ -1,5 +1,4 @@
-"""
-Automatic SI prefixes
+''' Automatic SI prefixes
 ---------------------
 
 Use ``SITickFormatter`` to select one SI prefix for all visible ticks while
@@ -7,10 +6,11 @@ keeping the underlying data in megahertz. The ``input_scale`` converts values
 to hertz for formatting without changing the data.
 
 .. bokeh-example-metadata::
+    :title: Si tick formatter
+    :keywords: SI, unit, prefix, tick formatter
     :apis: bokeh.models.SITickFormatter, bokeh.plotting.figure.line
     :refs: :ref:`ug_styling_plots_axes_tick_label_formats`
-    :keywords: SI, unit, prefix, tick formatter
-"""
+'''
 
 import numpy as np
 

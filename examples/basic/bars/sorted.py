@@ -3,9 +3,10 @@ sorts the fruit categories in ascending order based on counts and
 rearranges the bars accordingly.
 
 .. bokeh-example-metadata::
+    :title: Sorted
+    :keywords: bars, categorical, sort
     :apis: bokeh.plotting.figure.vbar
     :refs: :ref:`ug_basic_bars_sorted`
-    :keywords: bars, categorical, sort
 
 '''
 
@@ -18,7 +19,7 @@ counts = [5, 3, 4, 2, 4, 6]
 sorted_fruits = sorted(fruits, key=lambda x: counts[fruits.index(x)])
 
 p = figure(x_range=sorted_fruits, height=350, title="Fruit Counts",
-           toolbar_location=None, tools="")
+           tools=None)
 
 p.vbar(x=fruits, top=counts, width=0.9)
 

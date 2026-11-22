@@ -1,3 +1,12 @@
+''' Export a grouped fuel-economy chart as a PNG image.
+
+.. bokeh-example-metadata::
+    :title: Export to png
+    :keywords: export, to, png
+    :apis: bokeh.plotting.figure.vbar
+    :sampledata: autompg
+'''
+
 from bokeh.io.export import export_png
 from bokeh.palettes import Spectral5
 from bokeh.plotting import figure

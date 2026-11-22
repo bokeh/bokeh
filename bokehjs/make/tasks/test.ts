@@ -55,7 +55,7 @@ task("test:devtools", async () => {
 })
 
 task("test:make", async () => {
-  await node(["--test", "./make/_build/make/task.test.js", "./make/_build/make/utilities.test.js"])
+  await node(["--test", "./make/_build/make/task.test.js", "./make/_build/make/utilities.test.js", "./make/_build/make/esm_to_cjs.test.js", "./make/_build/make/graph.test.js", "./make/_build/make/linker.test.js", "./make/_build/make/source_map.test.js", "./make/_build/make/strip.test.js"])
 })
 
 task("test:codebase", ["test:codebase:compile", "test:devtools", "test:make"], async () => {
@@ -80,7 +80,7 @@ async function chrome(): Promise<string> {
   const {chromium} = await import("playwright-core")
   const executable = chromium.executablePath()
   if (!fs.existsSync(executable)) {
-    throw new BuildError("headless", `managed Chromium not found at ${executable}. Run pixi run setup from the repository root, or npx --no-install playwright-core install --with-deps --no-shell chromium from bokehjs.`)
+    throw new BuildError("headless", `managed Chromium not found at ${executable}. Run pixi run setup from the repository root, or npx --no-install playwright-core install --no-shell chromium from bokehjs.`)
   }
   return executable
 }
@@ -180,14 +180,14 @@ async function headless(devtools_port: number): Promise<HeadlessProcess> {
         stderr = stderr.slice(-max_stderr)
       }
 
-      const result = stderr.match(/DevTools listening [^\n]*\n/)
+      const result = /DevTools listening [^\n]*\n/.exec(stderr)
       if (!ready && result != null) {
         ready = true
         clearTimeout(timer)
         const [line] = result
         console.log(line.trim())
         resolve({process: proc, stderr: () => stderr})
-      } else if (stderr.match(/bind\(\)/) != null) {
+      } else if (/bind\(\)/.exec(stderr) != null) {
         clearTimeout(timer)
         reject_startup(new BuildError("headless", `can't start headless browser on port ${devtools_port}`))
       }
@@ -358,11 +358,13 @@ async function tsc(name: string) {
 async function auto_index(name: string): Promise<void> {
   const src_dir = join(paths.src_dir.test, name)
   const build_dir = join(paths.build_dir.test, name)
+  const src_prefix = `test/${name}` // relative to bokehjs/, for reporting
 
-  // Discover test modules from sources, not from compiled outputs, because
-  // `tsc` doesn't remove outputs of deleted sources, which would be loaded
-  // as stale tests otherwise.
-  const files = await glob("**/*.{ts,tsx}", {cwd: src_dir, ignore: "**/*.d.ts", posix: true})
+  // Discover test modules from sources rather than from compiled outputs, because `tsc`
+  // doesn't remove outputs of deleted sources, which would otherwise be loaded as stale
+  // tests. Sort them, because `glob()` doesn't guarantee any order, which would make the
+  // order of imports (and thus the resulting bundles) non-deterministic.
+  const files = (await glob("**/*.{ts,tsx}", {cwd: src_dir, ignore: "**/*.d.ts", posix: true})).sort()
 
   // Test modules are loaded with `require()` (not hoisted `import`s), so that
   // the framework knows which module registers which tests (see `--file`).
@@ -377,7 +379,8 @@ async function auto_index(name: string): Promise<void> {
     const dir = dirname(file)
     const name = basename(file, extname(file))
     const module_name = dir == "." ? name : `${dir}/${name}`
-    imports.push(`load_module("${module_name}", () => require("./${module_name}"))`)
+    const module_file = `${src_prefix}/${file}`
+    imports.push(`load_module("${module_name}", "${module_file}", () => require("./${module_name}"))`)
   }
 
   const index_file = join(build_dir, "auto_index.js")
@@ -394,9 +397,9 @@ async function bundle(name: string): Promise<void> {
       "#framework/*": "framework/*",
       path: "#framework/path",
     },
-    target: "ES2024",
-    minify: false,
-    externals: [/^@bokehjs\//],
+    // Share bokehjs' instances of preact and preact signals, which are exported by
+    // name from bokeh's main bundle, otherwise tests would bundle separate copies.
+    externals: [/^@bokehjs\//, /^preact(\/|$)/, /^@preact\//],
     shims: ["fs", "module"],
   })
 
@@ -475,8 +478,13 @@ async function copy_defaults() {
   const bokehjs_dir = process.cwd()
   const name = "defaults.json5"
   const src = join(bokehjs_dir, "..", "tests", "baselines", name)
-  const dst = join(bokehjs_dir, "build", "test", "defaults", name)
-  await fs.promises.copyFile(src, dst)
+  // Wrap the baseline in a JS module, so that `import "./defaults.json5"` resolves to it.
+  const dir = join(bokehjs_dir, "build", "test", "defaults")
+  const dst = join(dir, `${name}.js`)
+  // Earlier builds copied the baseline as is, which would take precedence over the module.
+  await fs.promises.rm(join(dir, name), {force: true})
+  const json5 = await fs.promises.readFile(src, {encoding: "utf-8"})
+  await fs.promises.writeFile(dst, `export default ${JSON.stringify(json5)};\n`)
 }
 
 task("test:defaults:compile", ["test:framework:compile"], async () => tsc("defaults"))

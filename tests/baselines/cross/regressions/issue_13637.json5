@@ -1,597 +1,479 @@
 {
   config: {
-    type: "object",
-    name: "DocumentConfig",
-    id: "p1028",
-    attributes: {
-      notifications: {
-        type: "object",
-        name: "Notifications",
-        id: "p1029",
-      },
+    $type: "DocumentConfig",
+    $id: "p1028",
+    notifications: {
+      $type: "Notifications",
+      $id: "p1029",
     },
   },
   roots: [
     {
-      type: "object",
-      name: "Plot",
-      id: "p1027",
-      attributes: {
-        x_range: {
-          type: "object",
-          name: "DataRange1d",
-          id: "p1030",
+      $type: "Plot",
+      $id: "p1027",
+      x_range: {
+        $type: "DataRange1d",
+        $id: "p1030",
+      },
+      y_range: {
+        $type: "DataRange1d",
+        $id: "p1031",
+      },
+      x_scale: {
+        $type: "LinearScale",
+        $id: "p1032",
+      },
+      y_scale: {
+        $type: "LinearScale",
+        $id: "p1033",
+      },
+      title: {
+        $type: "Title",
+        $id: "p1034",
+      },
+      renderers: [
+        {
+          $type: "GlyphRenderer",
+          $id: "p1014",
+          data_source: {
+            $type: "ColumnDataSource",
+            $id: "p1013",
+            selected: {
+              $type: "Selection",
+              $id: "p1043",
+            },
+            selection_policy: {
+              $type: "UnionRenderers",
+              $id: "p1044",
+            },
+            data: {
+              type: "map",
+            },
+          },
+          view: {
+            $type: "IndexedSubset",
+            $id: "p1036",
+            filter: {
+              $type: "AllIndices",
+              $id: "p1045",
+            },
+          },
+          glyph: {
+            $type: "Rect",
+            $id: "p1006",
+            x: {
+              type: "value",
+              value: 0,
+            },
+            y: {
+              type: "value",
+              value: 0,
+            },
+            width: {
+              type: "value",
+              value: 1,
+            },
+            height: {
+              type: "value",
+              value: 1,
+            },
+            border_radius: 30,
+            fill_color: {
+              type: "value",
+              value: "#3288bd",
+            },
+          },
         },
-        y_range: {
-          type: "object",
-          name: "DataRange1d",
-          id: "p1031",
+        {
+          $type: "GlyphRenderer",
+          $id: "p1016",
+          data_source: {
+            $type: "ColumnDataSource",
+            $id: "p1015",
+            selected: {
+              $type: "Selection",
+              $id: "p1046",
+            },
+            selection_policy: {
+              $type: "UnionRenderers",
+              $id: "p1047",
+            },
+            data: {
+              type: "map",
+            },
+          },
+          view: {
+            $type: "IndexedSubset",
+            $id: "p1037",
+            filter: {
+              $type: "AllIndices",
+              $id: "p1048",
+            },
+          },
+          glyph: {
+            $type: "Rect",
+            $id: "p1007",
+            x: {
+              type: "value",
+              value: 1,
+            },
+            y: {
+              type: "value",
+              value: 1,
+            },
+            width: {
+              type: "value",
+              value: 1,
+            },
+            height: {
+              type: "value",
+              value: 1,
+            },
+            border_radius: {
+              type: "map",
+              entries: [
+                [
+                  "top_left",
+                  30,
+                ],
+                [
+                  "top_right",
+                  20,
+                ],
+                [
+                  "bottom_right",
+                  10,
+                ],
+              ],
+            },
+            fill_color: {
+              type: "value",
+              value: "#99d594",
+            },
+          },
         },
-        x_scale: {
-          type: "object",
-          name: "LinearScale",
-          id: "p1032",
+        {
+          $type: "GlyphRenderer",
+          $id: "p1018",
+          data_source: {
+            $type: "ColumnDataSource",
+            $id: "p1017",
+            selected: {
+              $type: "Selection",
+              $id: "p1049",
+            },
+            selection_policy: {
+              $type: "UnionRenderers",
+              $id: "p1050",
+            },
+            data: {
+              type: "map",
+            },
+          },
+          view: {
+            $type: "IndexedSubset",
+            $id: "p1038",
+            filter: {
+              $type: "AllIndices",
+              $id: "p1051",
+            },
+          },
+          glyph: {
+            $type: "Rect",
+            $id: "p1008",
+            x: {
+              type: "value",
+              value: 2,
+            },
+            y: {
+              type: "value",
+              value: 2,
+            },
+            width: {
+              type: "value",
+              value: 1,
+            },
+            height: {
+              type: "value",
+              value: 1,
+            },
+            border_radius: {
+              type: "map",
+              entries: [
+                [
+                  "top_left",
+                  30,
+                ],
+                [
+                  "top_right",
+                  20,
+                ],
+                [
+                  "bottom_right",
+                  10,
+                ],
+              ],
+            },
+            fill_color: {
+              type: "value",
+              value: "#e6f598",
+            },
+          },
         },
-        y_scale: {
-          type: "object",
-          name: "LinearScale",
-          id: "p1033",
+        {
+          $type: "GlyphRenderer",
+          $id: "p1020",
+          data_source: {
+            $type: "ColumnDataSource",
+            $id: "p1019",
+            selected: {
+              $type: "Selection",
+              $id: "p1052",
+            },
+            selection_policy: {
+              $type: "UnionRenderers",
+              $id: "p1053",
+            },
+            data: {
+              type: "map",
+            },
+          },
+          view: {
+            $type: "IndexedSubset",
+            $id: "p1039",
+            filter: {
+              $type: "AllIndices",
+              $id: "p1054",
+            },
+          },
+          glyph: {
+            $type: "Rect",
+            $id: "p1009",
+            x: {
+              type: "value",
+              value: 3,
+            },
+            y: {
+              type: "value",
+              value: 3,
+            },
+            width: {
+              type: "value",
+              value: 1,
+            },
+            height: {
+              type: "value",
+              value: 1,
+            },
+            border_radius: {
+              type: "map",
+              entries: [
+                [
+                  "top_left",
+                  30,
+                ],
+                [
+                  "top_right",
+                  20,
+                ],
+                [
+                  "bottom_right",
+                  10,
+                ],
+              ],
+            },
+            fill_color: {
+              type: "value",
+              value: "#ffffbf",
+            },
+          },
         },
-        title: {
-          type: "object",
-          name: "Title",
-          id: "p1034",
+        {
+          $type: "GlyphRenderer",
+          $id: "p1022",
+          data_source: {
+            $type: "ColumnDataSource",
+            $id: "p1021",
+            selected: {
+              $type: "Selection",
+              $id: "p1055",
+            },
+            selection_policy: {
+              $type: "UnionRenderers",
+              $id: "p1056",
+            },
+            data: {
+              type: "map",
+            },
+          },
+          view: {
+            $type: "IndexedSubset",
+            $id: "p1040",
+            filter: {
+              $type: "AllIndices",
+              $id: "p1057",
+            },
+          },
+          glyph: {
+            $type: "Rect",
+            $id: "p1010",
+            x: {
+              type: "value",
+              value: 4,
+            },
+            y: {
+              type: "value",
+              value: 4,
+            },
+            width: {
+              type: "value",
+              value: 1,
+            },
+            height: {
+              type: "value",
+              value: 1,
+            },
+            border_radius: {
+              type: "map",
+              entries: [
+                [
+                  "top_left",
+                  30,
+                ],
+                [
+                  "top_right",
+                  20,
+                ],
+                [
+                  "bottom_right",
+                  10,
+                ],
+              ],
+            },
+            fill_color: {
+              type: "value",
+              value: "#fee08b",
+            },
+          },
         },
-        renderers: [
-          {
-            type: "object",
-            name: "GlyphRenderer",
-            id: "p1014",
-            attributes: {
-              data_source: {
-                type: "object",
-                name: "ColumnDataSource",
-                id: "p1013",
-                attributes: {
-                  selected: {
-                    type: "object",
-                    name: "Selection",
-                    id: "p1043",
-                  },
-                  selection_policy: {
-                    type: "object",
-                    name: "UnionRenderers",
-                    id: "p1044",
-                  },
-                  data: {
-                    type: "map",
-                  },
-                },
-              },
-              view: {
-                type: "object",
-                name: "CDSView",
-                id: "p1036",
-                attributes: {
-                  filter: {
-                    type: "object",
-                    name: "AllIndices",
-                    id: "p1045",
-                  },
-                },
-              },
-              glyph: {
-                type: "object",
-                name: "Rect",
-                id: "p1006",
-                attributes: {
-                  x: {
-                    type: "value",
-                    value: 0,
-                  },
-                  y: {
-                    type: "value",
-                    value: 0,
-                  },
-                  width: {
-                    type: "value",
-                    value: 1,
-                  },
-                  height: {
-                    type: "value",
-                    value: 1,
-                  },
-                  border_radius: 30,
-                  fill_color: {
-                    type: "value",
-                    value: "#3288bd",
-                  },
-                },
-              },
+        {
+          $type: "GlyphRenderer",
+          $id: "p1024",
+          data_source: {
+            $type: "ColumnDataSource",
+            $id: "p1023",
+            selected: {
+              $type: "Selection",
+              $id: "p1058",
+            },
+            selection_policy: {
+              $type: "UnionRenderers",
+              $id: "p1059",
+            },
+            data: {
+              type: "map",
             },
           },
-          {
-            type: "object",
-            name: "GlyphRenderer",
-            id: "p1016",
-            attributes: {
-              data_source: {
-                type: "object",
-                name: "ColumnDataSource",
-                id: "p1015",
-                attributes: {
-                  selected: {
-                    type: "object",
-                    name: "Selection",
-                    id: "p1046",
-                  },
-                  selection_policy: {
-                    type: "object",
-                    name: "UnionRenderers",
-                    id: "p1047",
-                  },
-                  data: {
-                    type: "map",
-                  },
-                },
-              },
-              view: {
-                type: "object",
-                name: "CDSView",
-                id: "p1037",
-                attributes: {
-                  filter: {
-                    type: "object",
-                    name: "AllIndices",
-                    id: "p1048",
-                  },
-                },
-              },
-              glyph: {
-                type: "object",
-                name: "Rect",
-                id: "p1007",
-                attributes: {
-                  x: {
-                    type: "value",
-                    value: 1,
-                  },
-                  y: {
-                    type: "value",
-                    value: 1,
-                  },
-                  width: {
-                    type: "value",
-                    value: 1,
-                  },
-                  height: {
-                    type: "value",
-                    value: 1,
-                  },
-                  border_radius: {
-                    type: "map",
-                    entries: [
-                      [
-                        "top_left",
-                        30,
-                      ],
-                      [
-                        "top_right",
-                        20,
-                      ],
-                      [
-                        "bottom_right",
-                        10,
-                      ],
-                    ],
-                  },
-                  fill_color: {
-                    type: "value",
-                    value: "#99d594",
-                  },
-                },
-              },
+          view: {
+            $type: "IndexedSubset",
+            $id: "p1041",
+            filter: {
+              $type: "AllIndices",
+              $id: "p1060",
             },
           },
-          {
-            type: "object",
-            name: "GlyphRenderer",
-            id: "p1018",
-            attributes: {
-              data_source: {
-                type: "object",
-                name: "ColumnDataSource",
-                id: "p1017",
-                attributes: {
-                  selected: {
-                    type: "object",
-                    name: "Selection",
-                    id: "p1049",
-                  },
-                  selection_policy: {
-                    type: "object",
-                    name: "UnionRenderers",
-                    id: "p1050",
-                  },
-                  data: {
-                    type: "map",
-                  },
-                },
-              },
-              view: {
-                type: "object",
-                name: "CDSView",
-                id: "p1038",
-                attributes: {
-                  filter: {
-                    type: "object",
-                    name: "AllIndices",
-                    id: "p1051",
-                  },
-                },
-              },
-              glyph: {
-                type: "object",
-                name: "Rect",
-                id: "p1008",
-                attributes: {
-                  x: {
-                    type: "value",
-                    value: 2,
-                  },
-                  y: {
-                    type: "value",
-                    value: 2,
-                  },
-                  width: {
-                    type: "value",
-                    value: 1,
-                  },
-                  height: {
-                    type: "value",
-                    value: 1,
-                  },
-                  border_radius: {
-                    type: "map",
-                    entries: [
-                      [
-                        "top_left",
-                        30,
-                      ],
-                      [
-                        "top_right",
-                        20,
-                      ],
-                      [
-                        "bottom_right",
-                        10,
-                      ],
-                    ],
-                  },
-                  fill_color: {
-                    type: "value",
-                    value: "#e6f598",
-                  },
-                },
-              },
+          glyph: {
+            $type: "Rect",
+            $id: "p1011",
+            x: {
+              type: "value",
+              value: 5,
+            },
+            y: {
+              type: "value",
+              value: 5,
+            },
+            width: {
+              type: "value",
+              value: 1,
+            },
+            height: {
+              type: "value",
+              value: 1,
+            },
+            border_radius: [
+              30,
+              20,
+              10,
+              0,
+            ],
+            fill_color: {
+              type: "value",
+              value: "#fc8d59",
             },
           },
-          {
-            type: "object",
-            name: "GlyphRenderer",
-            id: "p1020",
-            attributes: {
-              data_source: {
-                type: "object",
-                name: "ColumnDataSource",
-                id: "p1019",
-                attributes: {
-                  selected: {
-                    type: "object",
-                    name: "Selection",
-                    id: "p1052",
-                  },
-                  selection_policy: {
-                    type: "object",
-                    name: "UnionRenderers",
-                    id: "p1053",
-                  },
-                  data: {
-                    type: "map",
-                  },
-                },
-              },
-              view: {
-                type: "object",
-                name: "CDSView",
-                id: "p1039",
-                attributes: {
-                  filter: {
-                    type: "object",
-                    name: "AllIndices",
-                    id: "p1054",
-                  },
-                },
-              },
-              glyph: {
-                type: "object",
-                name: "Rect",
-                id: "p1009",
-                attributes: {
-                  x: {
-                    type: "value",
-                    value: 3,
-                  },
-                  y: {
-                    type: "value",
-                    value: 3,
-                  },
-                  width: {
-                    type: "value",
-                    value: 1,
-                  },
-                  height: {
-                    type: "value",
-                    value: 1,
-                  },
-                  border_radius: {
-                    type: "map",
-                    entries: [
-                      [
-                        "top_left",
-                        30,
-                      ],
-                      [
-                        "top_right",
-                        20,
-                      ],
-                      [
-                        "bottom_right",
-                        10,
-                      ],
-                    ],
-                  },
-                  fill_color: {
-                    type: "value",
-                    value: "#ffffbf",
-                  },
-                },
-              },
-            },
-          },
-          {
-            type: "object",
-            name: "GlyphRenderer",
-            id: "p1022",
-            attributes: {
-              data_source: {
-                type: "object",
-                name: "ColumnDataSource",
-                id: "p1021",
-                attributes: {
-                  selected: {
-                    type: "object",
-                    name: "Selection",
-                    id: "p1055",
-                  },
-                  selection_policy: {
-                    type: "object",
-                    name: "UnionRenderers",
-                    id: "p1056",
-                  },
-                  data: {
-                    type: "map",
-                  },
-                },
-              },
-              view: {
-                type: "object",
-                name: "CDSView",
-                id: "p1040",
-                attributes: {
-                  filter: {
-                    type: "object",
-                    name: "AllIndices",
-                    id: "p1057",
-                  },
-                },
-              },
-              glyph: {
-                type: "object",
-                name: "Rect",
-                id: "p1010",
-                attributes: {
-                  x: {
-                    type: "value",
-                    value: 4,
-                  },
-                  y: {
-                    type: "value",
-                    value: 4,
-                  },
-                  width: {
-                    type: "value",
-                    value: 1,
-                  },
-                  height: {
-                    type: "value",
-                    value: 1,
-                  },
-                  border_radius: {
-                    type: "map",
-                    entries: [
-                      [
-                        "top_left",
-                        30,
-                      ],
-                      [
-                        "top_right",
-                        20,
-                      ],
-                      [
-                        "bottom_right",
-                        10,
-                      ],
-                    ],
-                  },
-                  fill_color: {
-                    type: "value",
-                    value: "#fee08b",
-                  },
-                },
-              },
-            },
-          },
-          {
-            type: "object",
-            name: "GlyphRenderer",
-            id: "p1024",
-            attributes: {
-              data_source: {
-                type: "object",
-                name: "ColumnDataSource",
-                id: "p1023",
-                attributes: {
-                  selected: {
-                    type: "object",
-                    name: "Selection",
-                    id: "p1058",
-                  },
-                  selection_policy: {
-                    type: "object",
-                    name: "UnionRenderers",
-                    id: "p1059",
-                  },
-                  data: {
-                    type: "map",
-                  },
-                },
-              },
-              view: {
-                type: "object",
-                name: "CDSView",
-                id: "p1041",
-                attributes: {
-                  filter: {
-                    type: "object",
-                    name: "AllIndices",
-                    id: "p1060",
-                  },
-                },
-              },
-              glyph: {
-                type: "object",
-                name: "Rect",
-                id: "p1011",
-                attributes: {
-                  x: {
-                    type: "value",
-                    value: 5,
-                  },
-                  y: {
-                    type: "value",
-                    value: 5,
-                  },
-                  width: {
-                    type: "value",
-                    value: 1,
-                  },
-                  height: {
-                    type: "value",
-                    value: 1,
-                  },
-                  border_radius: [
-                    30,
-                    20,
-                    10,
-                    0,
-                  ],
-                  fill_color: {
-                    type: "value",
-                    value: "#fc8d59",
-                  },
-                },
-              },
-            },
-          },
-          {
-            type: "object",
-            name: "GlyphRenderer",
-            id: "p1026",
-            attributes: {
-              data_source: {
-                type: "object",
-                name: "ColumnDataSource",
-                id: "p1025",
-                attributes: {
-                  selected: {
-                    type: "object",
-                    name: "Selection",
-                    id: "p1061",
-                  },
-                  selection_policy: {
-                    type: "object",
-                    name: "UnionRenderers",
-                    id: "p1062",
-                  },
-                  data: {
-                    type: "map",
-                  },
-                },
-              },
-              view: {
-                type: "object",
-                name: "CDSView",
-                id: "p1042",
-                attributes: {
-                  filter: {
-                    type: "object",
-                    name: "AllIndices",
-                    id: "p1063",
-                  },
-                },
-              },
-              glyph: {
-                type: "object",
-                name: "Rect",
-                id: "p1012",
-                attributes: {
-                  x: {
-                    type: "value",
-                    value: 6,
-                  },
-                  y: {
-                    type: "value",
-                    value: 6,
-                  },
-                  width: {
-                    type: "value",
-                    value: 1,
-                  },
-                  height: {
-                    type: "value",
-                    value: 1,
-                  },
-                  border_radius: [
-                    30,
-                    20,
-                    10,
-                    0,
-                  ],
-                  fill_color: {
-                    type: "value",
-                    value: "#d53e4f",
-                  },
-                },
-              },
-            },
-          },
-        ],
-        toolbar: {
-          type: "object",
-          name: "Toolbar",
-          id: "p1035",
         },
+        {
+          $type: "GlyphRenderer",
+          $id: "p1026",
+          data_source: {
+            $type: "ColumnDataSource",
+            $id: "p1025",
+            selected: {
+              $type: "Selection",
+              $id: "p1061",
+            },
+            selection_policy: {
+              $type: "UnionRenderers",
+              $id: "p1062",
+            },
+            data: {
+              type: "map",
+            },
+          },
+          view: {
+            $type: "IndexedSubset",
+            $id: "p1042",
+            filter: {
+              $type: "AllIndices",
+              $id: "p1063",
+            },
+          },
+          glyph: {
+            $type: "Rect",
+            $id: "p1012",
+            x: {
+              type: "value",
+              value: 6,
+            },
+            y: {
+              type: "value",
+              value: 6,
+            },
+            width: {
+              type: "value",
+              value: 1,
+            },
+            height: {
+              type: "value",
+              value: 1,
+            },
+            border_radius: [
+              30,
+              20,
+              10,
+              0,
+            ],
+            fill_color: {
+              type: "value",
+              value: "#d53e4f",
+            },
+          },
+        },
+      ],
+      toolbar: {
+        $type: "Toolbar",
+        $id: "p1035",
       },
     },
   ],

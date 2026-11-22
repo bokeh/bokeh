@@ -1,5 +1,6 @@
 import {SVGRenderingContext2D} from "./svg"
 import {BBox} from "./bbox"
+import type {Rect} from "./affine"
 import {div, canvas} from "../dom"
 import type {OutputBackend} from "../enums"
 import {isObject} from "./types"
@@ -24,6 +25,15 @@ export type Context2d = {
   readonly layer: CanvasLayer
   rect_bbox(bbox: BBox): void
 } & CanvasRenderingContext2D
+
+/** Append the four corners of a rectangle to the current path. */
+export function trace_rect(ctx: Context2d, {p0, p1, p2, p3}: Rect): void {
+  ctx.moveTo(p0.x, p0.y)
+  ctx.lineTo(p1.x, p1.y)
+  ctx.lineTo(p2.x, p2.y)
+  ctx.lineTo(p3.x, p3.y)
+  ctx.closePath()
+}
 
 export class CanvasLayer {
   private readonly _canvas: HTMLCanvasElement | SVGSVGElement
@@ -146,7 +156,7 @@ export class CanvasLayer {
     const {_canvas} = this
     if (_canvas instanceof HTMLCanvasElement) {
       return new Promise((resolve, reject) => {
-        _canvas.toBlob((blob) => blob != null ? resolve(blob) : reject(), "image/png")
+        _canvas.toBlob((blob) => blob != null ? resolve(blob) : reject(new Error("failed to encode canvas as PNG")), "image/png")
       })
     } else {
       const ctx = this._ctx as SVGRenderingContext2D

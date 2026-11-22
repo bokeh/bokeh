@@ -11,7 +11,7 @@ import type * as p from "core/properties"
 
 import type {ViewStorage, ChildView} from "core/build_views"
 import {build_views} from "core/build_views"
-import type {DOMElementView} from "core/dom_view"
+import type {DOMComponentView} from "core/dom_view"
 import type {Layoutable, Percent} from "core/layout"
 import {SizingPolicy} from "core/layout"
 import {CanvasLayer} from "core/util/canvas"
@@ -25,7 +25,7 @@ export type CSSSizeKeyword = "auto" | "min-content" | "fit-content" | "max-conte
 
 export abstract class LayoutDOMView extends PaneView {
   declare model: LayoutDOM
-  declare parent: DOMElementView | null
+  declare parent: DOMComponentView | null
 
   protected readonly _child_views: ViewStorage<UIElement> = new Map()
 

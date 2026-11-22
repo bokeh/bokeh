@@ -10,8 +10,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# pyright: reportArgumentType=false
-
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -25,6 +23,7 @@ from typing import TYPE_CHECKING, Any, Literal
 import numpy as np
 
 from ..core.property.datetime import Datetime
+from ..core.property.exceptions import PropertyError
 from ..models import (
     Axis,
     CategoricalAxis,
@@ -79,18 +78,19 @@ def get_range(range_input: Range | tuple[float, float] | npt.NDArray[Any] | Sequ
     elif isinstance(range_input, Range):
         return range_input
     elif isinstance(range_input, (Sequence, np.ndarray)):
-        if all(isinstance(x, str) for x in range_input):
-            return FactorRange(factors=list(range_input))
+        factors = [x for x in range_input if isinstance(x, str)]
+        if len(factors) == len(range_input):
+            return FactorRange(factors=factors)
         if len(range_input) == 2:
             try:
                 start, end = range_input
-                properties = {}
+                properties: dict[str, Any] = dict()
                 if start is not None:
                     properties["start"] = start
                 if end is not None:
                     properties["end"] = end
                 return Range1d(**properties)
-            except ValueError:  # @mattpap suggests ValidationError instead
+            except PropertyError:
                 pass
     elif uses_pandas(range_input):
         from pandas import Series
@@ -102,7 +102,8 @@ def get_range(range_input: Range | tuple[float, float] | npt.NDArray[Any] | Sequ
         elif isinstance(range_input, ExtensionArray):
             return get_range(list(range_input))
         elif isinstance(range_input, GroupBy):
-            return FactorRange(factors=sorted(range_input.groups.keys()))
+            groups: list[Any] = list(range_input.groups.keys())
+            return FactorRange(factors=sorted(groups))
 
     raise ValueError(f"Unrecognized range input: '{range_input}'")
 
@@ -170,7 +171,7 @@ def _get_axis_class(axis_type: AxisType | None, range_input: Range, dim: Dim) ->
                     Datetime.validate(Datetime(), value)
                     # TODO timedelta
                     return DatetimeAxis, {}
-                except ValueError:
+                except PropertyError:
                     pass
             return LinearAxis, {}
         case _:

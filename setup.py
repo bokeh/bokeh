@@ -13,7 +13,7 @@ import sys
 import time
 from itertools import product
 from pathlib import Path
-from shutil import copy, copytree, rmtree, which
+from shutil import copytree, rmtree, which
 from textwrap import indent
 from typing import NoReturn
 
@@ -42,10 +42,8 @@ except ModuleNotFoundError:
 ROOT = Path(__file__).resolve().parent
 SRC_ROOT = ROOT / "src"
 BUILD_JS = ROOT / 'bokehjs' / 'build' / 'js'
-BUILD_TSLIB = ROOT / 'bokehjs' / 'node_modules' / 'typescript' / 'lib'
 PKG_STATIC = SRC_ROOT / 'bokeh' / 'server' / 'static'
 PKG_JS = PKG_STATIC / 'js'
-PKG_TSLIB = PKG_STATIC / 'lib'
 JUPYTER_ROOT = SRC_ROOT / 'bokeh' / 'jupyter'
 JUPYTER_FRONTEND = ROOT / 'jupyter'
 JUPYTER_ANYWIDGET = JUPYTER_ROOT / 'anywidget.js'
@@ -105,14 +103,6 @@ def install_js(packages: list[str]) -> None:
         if PKG_JS.exists():
             rmtree(PKG_JS)
         copytree(BUILD_JS, PKG_JS)
-
-    if not PKG_TSLIB.is_symlink():
-        if PKG_TSLIB.exists():
-            rmtree(PKG_TSLIB)
-        if BUILD_TSLIB.exists():
-            PKG_TSLIB.mkdir()
-            for lib_file in BUILD_TSLIB.glob("lib.*.d.ts"):
-                copy(lib_file, PKG_TSLIB)
 
     new = set(
         ".".join([*Path(parent).relative_to(SRC_ROOT).parts, d])

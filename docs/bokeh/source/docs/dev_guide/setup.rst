@@ -32,9 +32,8 @@ tutorials and resources in the `Git documentation`_.
 Install or update Pixi
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Working on the Bokeh codebase requires installing several software packages that
-are not Python packages. For example, `Node.js`_ for TypeScript development or
-`Selenium`_ for testing and exporting.
+Bokeh development uses `Node.js`_ for TypeScript and Chromium for Playwright
+browser tests.
 
 To manage Python and non-Python dependencies in one place, Bokeh uses `Pixi`_.
 Pixi is a single executable available for Windows, macOS, and Linux. It creates
@@ -193,7 +192,8 @@ you commit or push changes:
 File formatting
     The pre-commit hook will remove trailing whitespace, ensure files end with
     a newline, and normalize line endings. CI also runs repository formatting
-    checks on every pull request, independently of which paths changed.
+    checks on every pull request, independently of which paths changed. To run
+    the same checks locally on all files, use ``pixi run check-formatting``.
 
 Python linting
     The pre-commit hook will run `Ruff`_ on changed Python files.
@@ -232,13 +232,24 @@ Once Pixi has installed the environment, set up an editable Bokeh checkout with:
     pixi run setup
 
 This removes any previous BokehJS build, performs the :ref:`Node package
-installation <contributor_guide_setup_installing_node_packages>` from step 4, builds
-BokehJS and the Jupyter frontend, installs Playwright-managed Chromium for
+installation <contributor_guide_setup_installing_node_packages>` from step 4,
+builds BokehJS and the Jupyter frontend, installs Playwright-managed Chromium for
 BokehJS tests, and uses `pip`_ to install the local Python package in editable
 mode. Setup also registers the Jupyter frontend and server extension in the
 Pixi environment. The command passes ``--no-deps`` to pip because third-party
-dependencies are managed by Pixi and ``pixi.lock``. On Linux, the browser
-installer may request administrator privileges to install system dependencies.
+dependencies are managed by Pixi and ``pixi.lock``.
+
+Chromium depends on a few system libraries, which are usually already present.
+Only if Chromium fails to start because some of them are missing (e.g. on
+a minimal Linux installations), install them with:
+
+.. code-block:: sh
+
+    cd bokehjs
+    npx --no-install playwright-core install-deps chromium
+
+This is a one-time step outside of ``pixi run setup`` and requires administrator
+privileges.
 
 There are two ways to install a local development version of Bokeh with ``pip``:
 
@@ -839,7 +850,6 @@ Please feel free to ask at the `Bokeh Discourse`_ or `Bokeh's contributor
 Slack`_.
 
 .. _Node.js: https://nodejs.org/en/
-.. _Selenium: https://www.selenium.dev/
 .. _Bokeh's contributor Slack: https://slack-invite.bokeh.org/
 .. _Pixi: https://pixi.prefix.dev/
 .. _Pixi installation: https://pixi.prefix.dev/latest/installation/

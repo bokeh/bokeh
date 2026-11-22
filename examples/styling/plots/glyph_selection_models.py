@@ -1,3 +1,11 @@
+''' Assign separate glyph models for selected and unselected points.
+
+.. bokeh-example-metadata::
+    :title: Glyph selection models
+    :keywords: glyph, selection, models
+    :apis: bokeh.plotting.figure.scatter
+'''
+
 from bokeh.plotting import figure, show
 
 plot = figure(width=400, height=400, tools="tap", title="Select a circle")

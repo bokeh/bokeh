@@ -1,3 +1,11 @@
+''' Draw a filled circular sector swept clockwise.
+
+.. bokeh-example-metadata::
+    :title: Wedge
+    :keywords: wedge
+    :apis: bokeh.plotting.figure.wedge
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

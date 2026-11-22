@@ -1,3 +1,12 @@
+''' Build a dashboard around a Bollinger-band plot and supporting content.
+
+.. bokeh-example-metadata::
+    :title: Interactive dashboard
+    :keywords: dashboard
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.Div, bokeh.models.Slider, bokeh.plotting.figure.line
+    :gallery: A dashboard with a Bollinger-band chart, sliders beside a sine wave, and three linked plots.
+'''
+
 import numpy as np
 
 from bokeh.layouts import column, row
@@ -41,7 +50,7 @@ def slider():
 
     plot = figure(
         width=836, height=300, y_range=(-10, 10),
-        tools="", toolbar_location=None,
+        tools=None,
         title="Parameterized sine wave",
     )
     plot.line("x", "y", source=source, line_width=3, line_color="#0f766e")

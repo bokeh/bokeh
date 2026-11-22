@@ -29,9 +29,10 @@ import {Coordinate} from "../coordinates/coordinate"
 import type {Renderer} from "../renderers/renderer"
 import {FactorLike, FactorRange} from "../ranges/factor_range"
 import {Or, Float, Ref} from "core/kinds"
+import type {Infer} from "core/kinds"
 
 const CoordinateLike = Or(Float, FactorLike, Ref(Coordinate))
-type CoordinateLike = typeof CoordinateLike["__type__"]
+type CoordinateLike = Infer<typeof CoordinateLike>
 
 export const EDGE_TOLERANCE = 2.5
 
@@ -662,7 +663,11 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       const Dl = left - slimits.left
       const Dr = slimits.right - right
 
-      const Dx = min(Dl < 0 ? Dl : NaN, Dr < 0 ? Dr : NaN)
+      // Only enforce limits for edges that are being moved. The opposite edge
+      // may already be outside the plot (e.g. a wide RangeTool overlay), and
+      // using its violation to compensate the active edge makes that edge
+      // jump away from the pointer.
+      const Dx = min(left_sign != 0 && Dl < 0 ? Dl : NaN, right_sign != 0 && Dr < 0 ? Dr : NaN)
       if (isFinite(Dx) && Dx < 0) {
         left += -left_sign*(-Dx)
         right += -right_sign*(-Dx)
@@ -671,7 +676,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       const Dt = top - slimits.top
       const Db = slimits.bottom - bottom
 
-      const Dy = min(Dt < 0 ? Dt : NaN, Db < 0 ? Db : NaN)
+      const Dy = min(top_sign != 0 && Dt < 0 ? Dt : NaN, bottom_sign != 0 && Db < 0 ? Db : NaN)
       if (isFinite(Dy) && Dy < 0) {
         top += -top_sign*(-Dy)
         bottom += -bottom_sign*(-Dy)

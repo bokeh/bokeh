@@ -2,6 +2,7 @@ import {expect} from "#framework/assertions"
 import * as sinon from "sinon"
 import {restorable} from "#framework/util"
 import {logger} from "@bokehjs/core/logging"
+import {Signal0} from "@bokehjs/core/signaling"
 import {dict} from "@bokehjs/core/util/object"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {Select} from "@bokehjs/models/widgets/select"
@@ -24,6 +25,9 @@ namespace Some0Model {
 interface Some0Model extends Some0Model.Attrs {}
 class Some0Model extends Model {
   declare properties: Some0Model.Props
+
+  custom_signal = new Signal0<this>(this, "custom_signal")
+
   constructor(attrs?: Partial<Some0Model.Attrs>) {
     super(attrs)
   }
@@ -144,6 +148,28 @@ describe("Model objects", () => {
       expect(warn.calledOnce).to.be.true
       expect(old.calledOnce).to.be.true
       expect(current.calledOnce).to.be.true
+    })
+
+    it("should disconnect callbacks from a replaced signal", () => {
+      const m = Some0Model.create()
+      const old_signal = m.custom_signal
+      const old_callback = sinon.spy()
+      const current_callback = sinon.spy()
+
+      m._js_property_callbacks = {custom_signal: [old_callback]}
+      old_signal.emit()
+      expect(old_callback.calledOnce).to.be.true
+
+      m.custom_signal = new Signal0(m, "custom_signal")
+      m._js_property_callbacks = {custom_signal: [() => current_callback()]}
+      old_signal.emit()
+      expect(current_callback.called).to.be.false
+      m.custom_signal.emit()
+      expect(current_callback.calledOnce).to.be.true
+
+      m._js_property_callbacks = {}
+      m.custom_signal.emit()
+      expect(current_callback.calledOnce).to.be.true
     })
 
     it("should preserve streaming and patching signals", () => {

@@ -8,7 +8,7 @@ import {VectorSpec, UnitsSpec} from "../core/properties"
 import {extend} from "../core/class"
 import type {Location} from "../core/enums"
 import {is_equal, Comparator} from "../core/util/eq"
-import {includes, uniq, zip} from "../core/util/array"
+import {includes, uniq_sorted, zip} from "../core/util/array"
 import {clone, keys, entries, is_empty, dict} from "../core/util/object"
 import {isNumber, isString, isArray, isArrayOf, isPlainObject} from "../core/util/types"
 import {enumerate} from "core/util/iterator"
@@ -21,6 +21,7 @@ import {
   CategoricalScale,
   ColumnDataSource,
   ColumnarDataSource,
+  IndexedDataSource,
   ContinuousTicker,
   CoordinateMapping,
   DataRange1d,
@@ -51,7 +52,7 @@ import {GlyphAPI} from "./glyph_api"
 
 export type ToolName = keyof ToolAliases
 
-const _default_tools: ToolName[] = ["pan", "wheel_zoom", "auto_box_zoom", "save", "reset", "help"]
+export const DEFAULT_TOOLS: ToolName[] = ["pan", "wheel_zoom", "auto_box_zoom", "save", "reset", "help"]
 
 // export type ExtMarkerType = MarkerType | "*" | "+" | "o" | "ox" | "o+"
 
@@ -74,7 +75,7 @@ export namespace Figure {
     y_axis_label: Axis["axis_label"]
     x_minor_ticks: number | "auto"
     y_minor_ticks: number | "auto"
-    tools: (Tool | ToolName)[] | string
+    tools: (Tool | ToolName)[] | string | null
     active_drag: Toolbar.Attrs["active_drag"] | string
     active_inspect: Toolbar.Attrs["active_inspect"] | string
     active_scroll: Toolbar.Attrs["active_scroll"] | string
@@ -152,9 +153,10 @@ export class SubFigure extends GlyphAPI {
     super()
   }
 
-  _glyph<G extends Glyph>(cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides?: object): GlyphRenderer<G> {
+  _glyph<G extends Glyph>(cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[],
+    overrides?: object, alias?: readonly [from: string, to: string]): GlyphRenderer<G> {
     const {coordinates} = this
-    return this.parent._glyph(cls, method, positional, args, {coordinates, ...overrides})
+    return this.parent._glyph(cls, method, positional, args, {coordinates, ...overrides}, alias)
   }
 }
 
@@ -298,7 +300,18 @@ export class Figure extends BaseFigure {
 
     const tools = (() => {
       const {tools, toolbar} = attrs
-      if (tools != null) {
+      if (tools === null) {
+        // `tools: null` means no tools and no toolbar
+        if (toolbar != null) {
+          throw new Error("'toolbar' cannot be used when 'tools' is set to null")
+        } else {
+          delete attrs.tools
+          if (attrs.toolbar_location === undefined) {
+            attrs.toolbar_location = null
+          }
+          return null
+        }
+      } else if (tools !== undefined) {
         if (toolbar != null) {
           throw new Error("'tools' and 'toolbar' can't be used together")
         } else {
@@ -311,7 +324,7 @@ export class Figure extends BaseFigure {
           }
         }
       } else {
-        return toolbar != null ? null : _default_tools
+        return toolbar != null ? null : DEFAULT_TOOLS
       }
     })()
 
@@ -468,7 +481,7 @@ export class Figure extends BaseFigure {
     }
 
     const result: Attrs = {}
-    const traits = new Set()
+    const traits = new Set<string>()
     for (const pname of keys(cls.prototype._props)) {
       if (_is_visual(pname)) {
         const trait = _split_feature_trait(pname)[1]
@@ -560,7 +573,8 @@ export class Figure extends BaseFigure {
     return `the method signature is ${method}(${positional.join(", ")}, args?)`
   }
 
-  _glyph<G extends Glyph>(cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[], overrides: object = {}): GlyphRenderer<G> {
+  _glyph<G extends Glyph>(cls: HasPropsFactory<G>, method: string, positional: NamesOf<G>, args: unknown[],
+    overrides: object = {}, alias?: readonly [from: string, to: string]): GlyphRenderer<G> {
     let attrs: Attrs & Partial<AuxGlyph>
 
     const n_args = args.length
@@ -599,13 +613,13 @@ export class Figure extends BaseFigure {
       const {source} = attrs
       if (source == null) {
         return ColumnDataSource.create()
-      } else if (source instanceof ColumnarDataSource) {
+      } else if (source instanceof IndexedDataSource) {
         return source
       } else {
         return ColumnDataSource.create({data: source})
       }
     })()
-    const data = clone(source.data)
+    const data = source instanceof ColumnarDataSource ? clone(source.data) : {}
     delete attrs.source
 
     const {view} = attrs
@@ -656,8 +670,16 @@ export class Figure extends BaseFigure {
     this._fixup_values(cls, data_dict, mglyph_ca)
 
     this._fixup_values(cls, data_dict, attrs)
+    if (alias != null) {
+      const [from, to] = alias
+      attrs[to] = attrs[from]
+    }
 
-    source.data = data
+    if (source instanceof ColumnarDataSource) {
+      source.data = data
+    } else if (data_dict.size != 0) {
+      throw new Error("literal arrays require a ColumnDataSource, use fields with an indexed source")
+    }
 
     const _make_glyph = (cls: HasPropsFactory<Glyph>, attrs: Attrs, extra_attrs: Attrs) => {
       return cls.create({...attrs, ...extra_attrs})
@@ -859,12 +881,11 @@ export class Figure extends BaseFigure {
   }
 
   protected _handle_legend_group(name: string, legend: Legend, glyph_renderer: GlyphRenderer): void {
-    const data = dict(glyph_renderer.data_source.data)
-    if (!data.has(name)) {
+    const column = glyph_renderer.data_source.get_field(name)
+    if (column == null) {
       throw new Error(`column to be grouped does not exist in glyph data source: ${name}`)
     }
-    const column = data.get(name) ?? []
-    const values = uniq(column).sort()
+    const values = uniq_sorted(column) // #15475
     for (const value of values) {
       const label = {value: `${value}`}
       const index = column.indexOf(value)

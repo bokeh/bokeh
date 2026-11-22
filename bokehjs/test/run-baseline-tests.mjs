@@ -28,7 +28,8 @@ Commands:
   run      Run visual tests and write new or updated Linux baselines into the
            current checkout. This is the default when the command is omitted.
   review   Serve the most recent completed visual report at
-           http://127.0.0.1:5777.
+           http://127.0.0.1:5777. A report of a run still in progress is
+           served as well.
   accept   Stage changed Linux .blf and .png files represented by the most
            recent completed report.
 
@@ -94,7 +95,7 @@ const repo_root = output("git", ["-C", script_dir, "rev-parse", "--show-toplevel
 const git_dir = output("git", ["-C", repo_root, "rev-parse", "--path-format=absolute", "--git-dir"])
 const git_common_dir = output("git", ["-C", repo_root, "rev-parse", "--path-format=absolute", "--git-common-dir"])
 const baselines_dir = path.join(repo_root, "bokehjs", "test", "baselines", "linux")
-const report_path = path.join(baselines_dir, "report.json")
+const report_path = path.join(baselines_dir, "report.jsonl")
 const report_out_path = path.join(baselines_dir, "report.out")
 const container_engine = process.env.BOKEHJS_CONTAINER_ENGINE ?? "docker"
 const build_locally = process.env.BOKEHJS_BASELINE_BUILD === "1"
@@ -242,24 +243,50 @@ function parse_port(args) {
   return value
 }
 
-function load_completed_report() {
+/**
+ * Parse `report.jsonl` (see `devtools.ts`). Its last line may be partially written if tests
+ * are still running.
+ */
+function parse_report(jsonl) {
+  const lines = jsonl.split("\n").filter((line) => line.length !== 0)
+  const records = []
+  for (const [i, line] of lines.entries()) {
+    try {
+      records.push(JSON.parse(line))
+    } catch (error) {
+      if (i !== lines.length - 1) {
+        throw error
+      }
+    }
+  }
+  const [start] = records
+  if (start?.type !== "start") {
+    throw new Error("invalid report")
+  }
+  const results = records.filter((record) => record.type === "result").map((record) => [record.descriptions, record.status])
+  const completed = records.some((record) => record.type === "end")
+  return {completed, running: !completed, baseline_names: start.baseline_names, results}
+}
+
+function load_completed_report({allow_running = false} = {}) {
   let report
   try {
-    report = JSON.parse(fs.readFileSync(report_path, "utf-8"))
+    report = parse_report(fs.readFileSync(report_path, "utf-8"))
   } catch {
     fail("No completed baseline report found. Run baseline tests first.")
   }
   const valid_results = Array.isArray(report.results) && report.results.every((entry) =>
     Array.isArray(entry) && entry.length === 2 && typeof entry[1]?.baseline_name === "string",
   )
-  if (report.completed !== true || !Array.isArray(report.baseline_names) || !valid_results) {
+  const accepted = report.completed === true || (allow_running && report.running === true)
+  if (!accepted || !Array.isArray(report.baseline_names) || !valid_results) {
     fail("The baseline report is incomplete or from an older runner. Run baseline tests again.")
   }
   return report
 }
 
 async function review(args) {
-  load_completed_report()
+  load_completed_report({allow_running: true})
   const port = parse_port(args)
   await prepare_image()
   process.stdout.write(`Review baseline changes at http://127.0.0.1:${port}/integration/report?platform=linux\n`)

@@ -66,7 +66,6 @@ from ..core.enums import (
     TooltipFieldFormatter,
 )
 from ..core.has_props import abstract
-from ..core.property.alias import DeprecatedAlias
 from ..core.property.any import AnyRef
 from ..core.property.auto import Auto
 from ..core.property.color import Alpha, Color
@@ -94,7 +93,7 @@ from ..core.property.required import Required
 from ..core.property.struct import Optional, Struct
 from ..core.property_aliases import IconLike
 from ..core.validation import error
-from ..core.validation.errors import NO_RANGE_TOOL_RANGES
+from ..core.validation.errors import INCOMPATIBLE_EDIT_SOURCE, NO_RANGE_TOOL_RANGES
 from ..model import Model
 from .annotations import BoxAnnotation, PolyAnnotation, Span
 from .callbacks import Callback, CustomJS
@@ -113,7 +112,8 @@ from .glyphs import (
 from .misc.group_by import GroupBy, GroupByModels, GroupByName
 from .nodes import Node
 from .ranges import Range
-from .renderers import DataRenderer
+from .renderers import DataRenderer, GlyphRenderer
+from .sources import ColumnarDataSource
 from .ui import Menu, UIElement
 
 #-----------------------------------------------------------------------------
@@ -326,8 +326,6 @@ class RegionSelectTool(SelectTool):
     gestures, or only once when the selection region is completed.
     """)
 
-    select_every_mousemove = DeprecatedAlias("continuous", since=(3, 1, 0))
-
     persistent = Bool(default=False, help="""
     Whether the selection overlay should persist after selection gesture
     is completed. This can be paired with setting ``editable = True`` on
@@ -345,8 +343,6 @@ class InspectTool(GestureTool):
     ''' A base class for tools that perform "inspections", e.g. ``HoverTool``.
 
     '''
-
-    toggleable = DeprecatedAlias("visible", since=(3, 4, 0))
 
 class Toolbar(UIElement):
     ''' Collect tools to display for a single plot.
@@ -765,7 +761,7 @@ class CustomAction(ActionTool):
     If ``True``, users can't interact with the tool in any way.
     """)
 
-    description = Override(default="Perform a Custom Action")
+    _description = Override(Tool.description, default="Perform a Custom Action")
 
     callback = Nullable(Instance(Callback), help="""
     A Bokeh callback to execute when the custom action icon is activated.
@@ -1234,7 +1230,7 @@ class LassoSelectTool(Drag, RegionSelectTool):
     A shaded annotation drawn to indicate the selection region.
     """)
 
-    continuous = Override(default=True)
+    _continuous = Override(RegionSelectTool.continuous, default=True)
 
 class PolySelectTool(Tap, RegionSelectTool):
     ''' *toolbar icon*: |poly_select_icon|
@@ -1636,7 +1632,7 @@ class HelpTool(ActionTool):
 
     '''
 
-    description = Override(default=DEFAULT_HELP_TIP)
+    _description = Override(Tool.description, default=DEFAULT_HELP_TIP)
 
     redirect = String(default=DEFAULT_HELP_URL, help="""
     Site to be redirected through upon click.
@@ -1674,6 +1670,10 @@ class RedoTool(PlotActionTool):
 class EditTool(GestureTool):
     ''' A base class for all interactive draw tool types.
 
+    Edited renderers, including vertex and intersection renderers, require
+    a ``ColumnarDataSource``. General indexed sources support read-only
+    rendering and selection.
+
     '''
 
     default_overrides = Dict(String, AnyRef, default={}, help="""
@@ -1698,6 +1698,20 @@ class EditTool(GestureTool):
     3. ``ColumnarDataSource``'s inferred default values
     4. ``EditTool.empty_value``
     """)
+
+    @error(INCOMPATIBLE_EDIT_SOURCE)
+    def _check_edit_sources(self):
+        renderers = []
+        for name in ("renderers", "vertex_renderer", "intersection_renderer"):
+            prop = self.lookup(name, raises=False)
+            if prop is None or prop.value_is_unset(self):
+                continue
+            value = prop.get_value(self)
+            renderers.extend(value if isinstance(value, list) else [value])
+        incompatible = [str(renderer) for renderer in renderers
+                        if isinstance(renderer, GlyphRenderer) and not isinstance(renderer.data_source, ColumnarDataSource)]
+        if incompatible:
+            return f"{type(self).__name__}: {', '.join(incompatible)}"
 
     # TODO abstract renderers = List(Instance(GlyphRenderer & ...))
 

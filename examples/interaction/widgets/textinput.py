@@ -1,3 +1,11 @@
+''' Enter or edit a single line of text.
+
+.. bokeh-example-metadata::
+    :title: Textinput
+    :keywords: text, input
+    :apis: bokeh.models.CustomJS, bokeh.models.TextInput
+'''
+
 from bokeh.io import show
 from bokeh.models import CustomJS, TextInput
 

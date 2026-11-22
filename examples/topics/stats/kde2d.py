@@ -1,14 +1,14 @@
-''' A bivariate `kernel density estimation`_ plot of the "autompg" data using
-the `scipy.stats.gaussian_kde`_ function and Bokeh contour renderers.
+''' A bivariate `kernel density estimation <https://en.wikipedia.org/wiki/Kernel_density_estimation>`__ plot of the "autompg" data using
+the `scipy.stats.gaussian_kde <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gaussian_kde.html>`__ function and Bokeh contour renderers.
 
 .. bokeh-example-metadata::
-    :sampledata: autompg
-    :apis: bokeh.plotting.figure.contour
-    :refs: :ref:`ug_topics_stats_kde`
+    :title: Two-dimensional density estimate
     :keywords: kde, contour
+    :apis: bokeh.plotting.figure.contour
+    :sampledata: autompg
+    :refs: :ref:`ug_topics_stats_kde`
+    :gallery: A bivariate kernel density estimation plot of the autompg data.
 
-.. _kernel density estimation: https://en.wikipedia.org/wiki/Kernel_density_estimation
-.. _scipy.stats.gaussian_kde: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gaussian_kde.html
 
 '''
 import numpy as np
@@ -34,7 +34,7 @@ def kde(x, y, N):
 x, y, z = kde(df.hp, df.mpg, 300)
 
 p = figure(height=400, x_axis_label="hp", y_axis_label="mpg",
-           background_fill_color="#fafafa", tools="", toolbar_location=None,
+           background_fill_color="#fafafa", tools=None,
            title="Kernel density estimation plot of HP vs MPG")
 p.grid.level = "overlay"
 p.grid.grid_line_color = "black"

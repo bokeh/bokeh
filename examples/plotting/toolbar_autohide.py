@@ -1,10 +1,11 @@
-'''This example shows how to activate a toolbar that disappears if the cursor
+''' This example shows how to activate a toolbar that disappears if the cursor
 leaves a canvas.
 
 .. bokeh-example-metadata::
+    :title: Compare visible and autohiding toolbars
+    :keywords: autohide, Toolbar
     :apis: bokeh.plotting.figure.circle, bokeh.models.tools.Toolbar.autohide
     :refs: :ref:`first_steps_4_toolbar`, :ref:`bokeh.models.tools`
-    :keywords: autohide, Toolbar
 
 '''
 import numpy as np

@@ -2,10 +2,12 @@
 demonstrates using a ``jitter`` transform.
 
 .. bokeh-example-metadata::
-    :sampledata: commits
-    :apis: bokeh.plotting.figure.scatter
-    :refs: :ref:`ug_topics_categorical_scatters_jitter`
+    :title: Scatter jitter
     :keywords: jitter, scatter
+    :apis: bokeh.plotting.figure.scatter
+    :sampledata: commits
+    :refs: :ref:`ug_topics_categorical_scatters_jitter`
+    :gallery: Scatter plot of GitHub commits by time of day and day of the week. Points are jittered to reduce overlap.
 
 '''
 from bokeh.models import ColumnDataSource

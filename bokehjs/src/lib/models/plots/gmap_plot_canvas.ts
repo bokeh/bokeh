@@ -206,7 +206,7 @@ export class GMapPlotView extends PlotView {
   }
 
   override has_finished(): boolean {
-    return super.has_finished() && this._tiles_loaded === true
+    return super.has_finished() && this._tiles_loaded
   }
 
   protected _get_latlon_bounds(bounds: google.maps.LatLngBounds): [number, number, number, number] {

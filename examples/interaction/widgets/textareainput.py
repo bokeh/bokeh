@@ -1,3 +1,11 @@
+''' Edit multiple lines of text in one field.
+
+.. bokeh-example-metadata::
+    :title: Textareainput
+    :keywords: multiline, text, input
+    :apis: bokeh.models.CustomJS, bokeh.models.TextAreaInput
+'''
+
 from bokeh.io import show
 from bokeh.models import CustomJS, TextAreaInput
 

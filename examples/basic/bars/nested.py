@@ -2,9 +2,11 @@
 creating a ``FactorRange`` with nested categories.
 
 .. bokeh-example-metadata::
+    :title: Bars on a hierarchical axis
+    :keywords: bars, categorical, grouped
     :apis: bokeh.plotting.figure.vbar, bokeh.models.sources.ColumnDataSource, bokeh.models.ranges.FactorRange
     :refs: :ref:`ug_basic_bars_grouped_nested`
-    :keywords: bars, categorical, grouped
+    :gallery: Grouped blue bars on a hierarchical axis. Each fruit has three bars for random values from 2015 to 2017.
 
 '''
 from bokeh.models import ColumnDataSource, FactorRange
@@ -25,7 +27,7 @@ counts = sum(zip(data['2015'], data['2016'], data['2017']), ()) # like an hstack
 source = ColumnDataSource(data=dict(x=x, counts=counts))
 
 p = figure(x_range=FactorRange(*x), height=350, title="Fruit Counts by Year",
-           toolbar_location=None, tools="")
+           tools=None)
 
 p.vbar(x='x', top='counts', width=0.9, source=source)
 

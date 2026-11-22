@@ -3,13 +3,13 @@ import type {Geometry} from "core/geometry"
 import type {HitTestResult} from "core/hittest"
 import type {SelectionMode} from "core/enums"
 import type {GlyphRendererView} from "../renderers/glyph_renderer"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
 
 export abstract class SelectionPolicy extends Model {
 
   abstract hit_test(geometry: Geometry, renderer_views: GlyphRendererView[]): HitTestResult
 
-  do_selection(hit_test_result: HitTestResult, source: ColumnarDataSource, final: boolean, mode: SelectionMode): boolean {
+  do_selection(hit_test_result: HitTestResult, source: IndexedDataSource, final: boolean, mode: SelectionMode): boolean {
     if (hit_test_result == null) {
       return false
     } else {

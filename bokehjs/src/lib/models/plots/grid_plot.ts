@@ -91,6 +91,13 @@ export class GridPlotView extends LayoutDOMView {
     return [this.model.toolbar, this._grid_box]
   }
 
+  override update_bbox(): boolean {
+    // The toolbar isn't a layoutable child, but its position changes with the
+    // layout (e.g. when `toolbar_location` changes), even if its size doesn't.
+    this.toolbar_view.update_bbox()
+    return super.update_bbox()
+  }
+
   override _update_layout(): void {
     super._update_layout()
 

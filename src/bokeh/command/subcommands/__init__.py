@@ -55,7 +55,7 @@ def _collect() -> list[type[Subcommand]]:
         if not file.endswith(".py") or file in ("__init__.py", "__main__.py"):
             continue
 
-        modname = file.rstrip(".py")
+        modname = file.removesuffix(".py")
         mod = import_module("." + modname, __package__)
 
         for name in dir(mod):

@@ -1,3 +1,11 @@
+''' Rotate tick labels on a plot axis.
+
+.. bokeh-example-metadata::
+    :title: Tick label orientation
+    :keywords: tick, label, orientation
+    :apis: bokeh.plotting.figure.scatter
+'''
+
 from math import pi
 
 from bokeh.plotting import figure, show

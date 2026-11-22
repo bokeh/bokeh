@@ -7,16 +7,16 @@ import {assert} from "core/util/assert"
 import {isString, isArray} from "core/util/types"
 import type * as p from "core/properties"
 import {Str, Ref, Or} from "core/kinds"
+import type {Infer} from "core/kinds"
 
 const HTMLRef = Or(Ref(DOMElement), Ref(UIElement))
-type HTMLRef = typeof HTMLRef["__type__"]
+type HTMLRef = Infer<typeof HTMLRef>
 
 const HTMLMarkup = Str
-type RawHTML = typeof HTMLMarkup["__type__"]
+type RawHTML = Infer<typeof HTMLMarkup>
 
 export class HTMLView extends DOMElementView {
   declare model: HTML
-  declare el: HTMLElement
 
   protected readonly _refs: ViewStorage<HTMLRef> = new Map()
 

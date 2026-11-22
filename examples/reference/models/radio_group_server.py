@@ -1,4 +1,12 @@
 ## Bokeh server for Radio Group
+''' Filter scatter points by color with a radio group.
+
+.. bokeh-example-metadata::
+    :title: Radio group server
+    :keywords: radio group server, reference
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.RadioGroup, bokeh.plotting.figure.scatter
+'''
+
 import pandas as pd
 
 from bokeh.io import curdoc

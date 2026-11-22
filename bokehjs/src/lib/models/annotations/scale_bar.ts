@@ -31,6 +31,7 @@ import {enumerate} from "core/util/iterator"
 import {isString} from "core/util/types"
 import {process_placeholders, sprintf} from "core/util/templating"
 import {Enum, Or, Tuple, Float} from "core/kinds"
+import type {Infer} from "core/kinds"
 import {AutoAnchor} from "../common/kinds"
 import * as resolve from "../common/resolve"
 import {Factor} from "../ranges/factor_range"
@@ -38,16 +39,16 @@ import {Factor} from "../ranges/factor_range"
 const {round} = Math
 
 const Position = Or(enums.Anchor, Tuple(Or(Float, Factor, HAlign), Or(Float, Factor, VAlign)))
-type Position = typeof Position["__type__"]
+type Position = Infer<typeof Position>
 
 const PositionUnits = Enum("data", "screen", "view", "percent")
-type PositionUnits = typeof PositionUnits["__type__"]
+type PositionUnits = Infer<typeof PositionUnits>
 
 const LengthUnits = Enum("screen", "data", "percent")
-type LengthUnits = typeof LengthUnits["__type__"]
+type LengthUnits = Infer<typeof LengthUnits>
 
 const LengthSizing = Enum("adaptive", "exact")
-type LengthSizing = typeof LengthSizing["__type__"]
+type LengthSizing = Infer<typeof LengthSizing>
 
 export class ScaleBarView extends AnnotationView {
   declare model: ScaleBar
@@ -272,6 +273,7 @@ export class ScaleBarView extends AnnotationView {
           case "unit": {
             switch (format ?? "short") {
               case "short": return new_unit
+              default:      return null
             }
           }
           default: {

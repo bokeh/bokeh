@@ -1,5 +1,5 @@
 import {DataAnnotation, DataAnnotationView} from "../data_annotation"
-import type {ColumnarDataSource} from "../../sources/columnar_data_source"
+import type {IndexedDataSource} from "../../sources/indexed_data_source"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import {CoordinateUnits} from "core/enums"
@@ -24,7 +24,7 @@ export class HTMLLabelSetView extends DataAnnotationView {
   protected y_offset: p.Uniform<number>
   protected els: HTMLElement[] = []
 
-  override set_data(source: ColumnarDataSource): void {
+  override set_data(source: IndexedDataSource): void {
     super.set_data(source)
     this.els.forEach((el) => el.remove())
     this.els = [...this.text.map(() => div({style: {display: "none"}}))]

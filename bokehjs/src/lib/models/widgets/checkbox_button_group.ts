@@ -1,5 +1,6 @@
 import {ToggleButtonGroup, ToggleButtonGroupView} from "./toggle_button_group"
 import type * as p from "core/properties"
+import {sorted} from "core/util/array"
 
 import {computed} from "@preact/signals"
 
@@ -16,7 +17,7 @@ export class CheckboxButtonGroupView extends ToggleButtonGroupView {
     if (!active.delete(i)) {
       active.add(i)
     }
-    this.model.active = [...active].sort()
+    this.model.active = sorted(active)
   }
 }
 

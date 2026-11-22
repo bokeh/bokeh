@@ -1,6 +1,7 @@
 import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
 
 import {HasProps} from "@bokehjs/core/has_props"
+import {Kind} from "@bokehjs/core/kinds"
 import type {HasPropsFactory} from "@bokehjs/core/has_props"
 import * as mixins from "@bokehjs/core/property_mixins"
 import {Serializer} from "@bokehjs/core/serialization/serializer"
@@ -9,6 +10,7 @@ import {ModelResolver} from "@bokehjs/core/resolvers"
 import {default_resolver} from "@bokehjs/base"
 import type * as p from "@bokehjs/core/properties"
 import {keys} from "@bokehjs/core/util/object"
+import {LegendItem} from "@bokehjs/models"
 
 class EmptyModel extends HasProps {}
 
@@ -209,6 +211,43 @@ class CleanupFailureModel extends InitializeFailureModel {
 }
 
 describe("core/has_props module", () => {
+  it("should coerce once before comparison, including silent and forced updates", () => {
+    let coercions = 0
+    class Rounded extends Kind<number> {
+      override coerce(value: number): number {
+        coercions++
+        return Math.round(value)
+      }
+      valid(value: unknown): value is number {
+        return typeof value == "number" && Number.isInteger(value)
+      }
+      may_have_refs(): boolean {
+        return false
+      }
+    }
+    class RoundedModel extends HasProps {
+      declare properties: HasProps.Props & {rounded: p.Property<number>}
+      static {
+        this.define<{rounded: p.Property<number>}>({rounded: [new Rounded(), 0]})
+      }
+    }
+    const model = RoundedModel.create()
+    let changes = 0
+    model.properties.rounded.change.connect(() => changes++)
+    for (const [value, options, expected_changes] of [
+      [0.1, {}, 0],
+      [1.1, {}, 1],
+      [1.2, {}, 1],
+      [2.1, {silent: true}, 1],
+      [2.2, {check_eq: false}, 2],
+    ] as const) {
+      const previous = coercions
+      model.setv({rounded: value}, options)
+      expect(coercions).to.be.equal(previous + 1)
+      expect(model.properties.rounded.get_value()).to.be.equal(Math.round(value))
+      expect(changes).to.be.equal(expected_changes)
+    }
+  })
 
   describe("creation", () => {
 
@@ -407,6 +446,126 @@ describe("core/has_props module", () => {
     expect(obj.references()).to.be.equal(refs)
   })
 
+  describe("on_transitive_change()", () => {
+    it("subscribes immediately and detaches replaced references", () => {
+      const first = TestModel.create()
+      const second = TestModel.create({p0: 2})
+      const owner = TestModel.create({p2: first})
+      let calls = 0
+      owner.on_transitive_change(owner.properties.p2, () => calls++)
+      expect(calls).to.be.equal(0)
+      first.p0 = 1
+      expect(calls).to.be.equal(1)
+      owner.p2 = second
+      expect(calls).to.be.equal(2)
+      first.p0 = 2
+      expect(calls).to.be.equal(2)
+      second.p0 = 1
+      expect(calls).to.be.equal(3)
+    })
+
+    it("handles null transitions and rebinding to an earlier reference", () => {
+      const owner = TestModel.create()
+      const source = TestModel.create()
+      let calls = 0
+      owner.on_transitive_change(owner.properties.p2, () => calls++)
+      source.change.emit()
+      expect(calls).to.be.equal(0)
+      owner.p2 = source
+      source.change.emit()
+      expect(calls).to.be.equal(2)
+      owner.p2 = null
+      source.change.emit()
+      expect(calls).to.be.equal(3)
+      owner.p2 = source
+      source.change.emit()
+      expect(calls).to.be.equal(5)
+    })
+
+    it("separates replacement from selected signals and binds before notifying", () => {
+      const owner = TestModel.create()
+      const source = TestModel.create()
+      const calls: string[] = []
+      owner.on_transitive_change(owner.properties.p2, () => calls.push("signal"), {
+        signals: (model) => {
+          expect_instanceof(model, TestModel)
+          return [model.streaming, model.patching]
+        },
+        on_replace: () => {
+          calls.push("replacement")
+          owner.p2?.streaming.emit()
+        },
+      })
+      owner.p2 = source
+      expect(calls).to.be.equal(["replacement", "signal"])
+      source.change.emit()
+      source.patching.emit([0])
+      expect(calls).to.be.equal(["replacement", "signal", "signal"])
+    })
+
+    it("keeps bindings independent when they share a callback", () => {
+      const first = TestModel.create()
+      const second = TestModel.create({p0: 2})
+      const owner = TestModel.create({p2: first})
+      let calls = 0
+      const callback = () => calls++
+      owner.on_transitive_change(owner.properties.p2, callback, {on_replace: () => {}})
+      owner.on_transitive_change(owner.properties.p2, callback, {
+        signals: (model) => {
+          expect_instanceof(model, TestModel)
+          return [model.change, model.streaming]
+        },
+        on_replace: () => {},
+      })
+      first.change.emit()
+      expect(calls).to.be.equal(2)
+      owner.p2 = second
+      first.change.emit()
+      first.streaming.emit()
+      expect(calls).to.be.equal(2)
+      second.change.emit()
+      second.streaming.emit()
+      expect(calls).to.be.equal(5)
+    })
+
+    it("handles another replacement from the replacement callback", () => {
+      const first = TestModel.create()
+      const second = TestModel.create({p0: 2})
+      const owner = TestModel.create()
+      let calls = 0
+      owner.on_transitive_change(owner.properties.p2, () => calls++, {
+        on_replace: () => {
+          if (owner.p2 == first) {
+            owner.p2 = second
+          }
+        },
+      })
+      owner.p2 = first
+      first.change.emit()
+      expect(calls).to.be.equal(0)
+      second.change.emit()
+      expect(calls).to.be.equal(1)
+    })
+
+    for (const [name, cleanup] of Object.entries({
+      disconnect_signals: (owner: TestModel) => owner.disconnect_signals(),
+      destroy: (owner: TestModel) => owner.destroy(),
+    })) {
+      it(`cleans up bindings and replacement callbacks on ${name}`, () => {
+        const first = TestModel.create()
+        const second = TestModel.create({p0: 2})
+        const owner = TestModel.create({p2: first})
+        let calls = 0
+        owner.on_transitive_change(owner.properties.p2, () => calls++)
+        cleanup(owner)
+        owner.p2 = second
+        first.change.emit()
+        second.change.emit()
+        expect(calls).to.be.equal(0)
+      })
+    }
+  })
+
   describe("on_change() and remove_on_change() property-name overloads", () => {
     it("should support a single property name", () => {
       const obj = SubclassWithProps.create()
@@ -513,6 +672,25 @@ describe("core/has_props module", () => {
 
       obj.foo = 1
       expect(changes).to.be.equal(0)
+    })
+  })
+
+  describe("property signals", () => {
+    it("should follow updates of plain properties", () => {
+      const obj = SubclassWithProps.create({foo: 1})
+      const {signal} = obj.properties.foo
+      expect(signal.value).to.be.equal(1)
+      obj.foo = 2
+      expect(signal.value).to.be.equal(2)
+    })
+
+    it("should follow updates of scalar and vector specs", () => {
+      const item = LegendItem.create({label: "foo"})
+      const {signal} = item.properties.label
+      expect(signal.value).to.be.equal({value: "foo"})
+      item.label = "bar"
+      expect(signal.value).to.be.equal({value: "bar"})
+      expect(item.properties.label.get_value()).to.be.equal({value: "bar"})
     })
   })
 })

@@ -28,6 +28,7 @@ from .bases import (
     SingleParameterizedProperty,
     TypeOrInst,
 )
+from .exceptions import ValidationError
 from .primitive import Float, Int
 from .singletons import Undefined, _NotGiven
 
@@ -49,31 +50,31 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class NonNegative[T: int | float](SingleParameterizedProperty[T]):
+class NonNegative[GetType: int | float, SetType: int | float = GetType](SingleParameterizedProperty[GetType, SetType]):
     """ A property accepting a value of some other type while having undefined default. """
 
-    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = _NotGiven, help: str | None = None) -> None:
+    def __init__(self, type_param: TypeOrInst[Property[GetType, SetType]], *, default: Init[SetType] = _NotGiven, help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
 
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
         if not (0 <= value):
-            raise ValueError(f"expected a non-negative number, got {value!r}")
+            raise ValidationError(f"expected a non-negative number, got {value!r}")
 
-class Positive[T: int | float](SingleParameterizedProperty[T]):
+class Positive[GetType: int | float, SetType: int | float = GetType](SingleParameterizedProperty[GetType, SetType]):
     """ A property accepting a value of some other type while having undefined default. """
 
-    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = _NotGiven, help: str | None = None) -> None:
+    def __init__(self, type_param: TypeOrInst[Property[GetType, SetType]], *, default: Init[SetType] = _NotGiven, help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
 
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
         if not (0 < value):
-            raise ValueError(f"expected a positive number, got {value!r}")
+            raise ValidationError(f"expected a positive number, got {value!r}")
 
-class Interval[T: int | float](SingleParameterizedProperty[T]):
+class Interval[GetType: int | float, SetType: int | float = GetType](SingleParameterizedProperty[GetType, SetType]):
     """ Accept numeric values that are contained within a given interval.
 
     Args:
@@ -104,15 +105,15 @@ class Interval[T: int | float](SingleParameterizedProperty[T]):
 
             >>> m.prop = 15
 
-            >>> m.prop = 2     # ValueError !!
+            >>> m.prop = 2     # ValidationError !!
 
-            >>> m.prop = 22    # ValueError !!
+            >>> m.prop = 22    # ValidationError !!
 
-            >>> m.prop = "foo" # ValueError !!
+            >>> m.prop = "foo" # ValidationError !!
 
     """
-    def __init__(self, type_param: TypeOrInst[Property[T]], start: T, end: T, *,
-            default: Init[T] = Undefined, help: str | None = None) -> None:
+    def __init__(self, type_param: TypeOrInst[Property[GetType, SetType]], start: GetType, end: GetType, *,
+            default: Init[SetType] = Undefined, help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
         self.type_param.validate(start)
         self.type_param.validate(end)
@@ -128,7 +129,7 @@ class Interval[T: int | float](SingleParameterizedProperty[T]):
 
         if not (self.type_param.is_valid(value) and value >= self.start and value <= self.end):
             msg = "" if not detail else f"expected a value of type {self.type_param} in range [{self.start}, {self.end}], got {value!r}"
-            raise ValueError(msg)
+            raise ValidationError(msg)
 
 class Byte(Interval[int]):
     """ Accept integral byte values (0-255).
@@ -145,9 +146,9 @@ class Byte(Interval[int]):
 
             >>> m.prop = 255
 
-            >>> m.prop = 256  # ValueError !!
+            >>> m.prop = 256  # ValidationError !!
 
-            >>> m.prop = 10.3 # ValueError !!
+            >>> m.prop = 10.3 # ValidationError !!
 
     """
 
@@ -178,9 +179,9 @@ class Size(Float):
 
             >>> m.prop = 10e6
 
-            >>> m.prop = -10   # ValueError !!
+            >>> m.prop = -10   # ValidationError !!
 
-            >>> m.prop = "foo" # ValueError !!
+            >>> m.prop = "foo" # ValidationError !!
 
     """
     def validate(self, value: Any, detail: bool = True) -> None:
@@ -188,7 +189,7 @@ class Size(Float):
 
         if value < 0:
             msg = "" if not detail else f"expected a non-negative number, got {value!r}"
-            raise ValueError(msg)
+            raise ValidationError(msg)
 
 class Percent(Float):
     """ Accept floating point percentage values.
@@ -219,9 +220,9 @@ class Percent(Float):
 
             >>> m.prop = 1.0
 
-            >>> m.prop = -2  # ValueError !!
+            >>> m.prop = -2  # ValidationError !!
 
-            >>> m.prop = 5   # ValueError !!
+            >>> m.prop = 5   # ValidationError !!
 
     """
 
@@ -232,7 +233,7 @@ class Percent(Float):
             return
 
         msg = "" if not detail else f"expected a value in range [0, 1], got {value!r}"
-        raise ValueError(msg)
+        raise ValidationError(msg)
 
 class Angle(Float):
     """ Accept floating point angle values.

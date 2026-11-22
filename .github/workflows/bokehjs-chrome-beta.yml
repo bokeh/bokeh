@@ -63,8 +63,8 @@ jobs:
           SRC="bokehjs/test/baselines/linux"
           DST="bokehjs-chrome-beta-report/${SRC}"
           mkdir -p "${DST}"
-          if [[ -e "${SRC}/report.json" ]]; then
-            cp "${SRC}"/report.{json,out} "${DST}"
+          if [[ -e "${SRC}/report.jsonl" ]]; then
+            cp "${SRC}"/report.{jsonl,out} "${DST}"
             while IFS= read -r -d '' path; do
               cp --parents "$path" bokehjs-chrome-beta-report
             done < <(git ls-files --modified --others --exclude-standard -z -- "${SRC}/*.blf" "${SRC}/*.png")

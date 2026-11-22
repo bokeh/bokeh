@@ -1,6 +1,12 @@
 ''' A 3D graph using the ColumnDataSource of Bokeh with the Graph3d library.
 This example shows the custom extension feature of Bokeh.
 
+
+
+.. bokeh-example-metadata::
+    :title: Interactive 3D surface
+    :keywords: surface3d, bokeh server, app
+    :apis: bokeh.models.ColumnDataSource
 '''
 import numpy as np
 

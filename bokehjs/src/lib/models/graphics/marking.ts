@@ -6,8 +6,8 @@ import * as visuals from "core/visuals"
 import * as p from "core/properties"
 import type {GlyphView} from "../glyphs/glyph"
 import type {RendererView} from "../renderers/renderer"
-import type {PathDecorationView} from "./decoration"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {PathPlacementView} from "./path_placement"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
 import {dist_to_segment, point_in_poly} from "core/hittest"
 
 export type MarkingGeometry = {
@@ -19,11 +19,11 @@ export type MarkingGeometry = {
 export abstract class MarkingView extends DOMComponentView implements visuals.Paintable {
   declare model: Marking
   visuals: Marking.Visuals
-  declare readonly parent: RendererView | PathDecorationView
+  declare readonly parent: RendererView | PathPlacementView
 
   size: p.Uniform<number>
 
-  private _source?: ColumnarDataSource
+  private _source?: IndexedDataSource
   private _indices?: Indices
 
   override initialize(): void {
@@ -83,7 +83,7 @@ export abstract class MarkingView extends DOMComponentView implements visuals.Pa
     return false
   }
 
-  set_data(source: ColumnarDataSource, indices: Indices): void {
+  set_data(source: IndexedDataSource, indices: Indices): void {
     this._source = source
     this._indices = indices
     const self = this as any

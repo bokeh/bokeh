@@ -62,7 +62,7 @@ function LiveDocument({session}: {session: Session}) {
     <section className="session-panel">
       <label htmlFor="client-value">React control: {slider.value}</label>
       <input id="client-value" data-testid="client-value" type="range" min={slider.start} max={slider.end}
-        step={slider.step ?? undefined} value={slider.value} onChange={(event) => { slider.value = event.currentTarget.valueAsNumber }}/>
+        step={slider.step ?? "any"} value={slider.value} onChange={(event) => { slider.value = event.currentTarget.valueAsNumber }}/>
       <p data-testid="session-status">{status.text}</p>
       <p data-testid="root-count">Document roots: {session.document.roots().length}</p>
       <button data-testid="toggle-views" onClick={() => setShowViews((show) => !show)}>

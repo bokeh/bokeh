@@ -29,6 +29,13 @@ airport_routes
 
 .. automodule:: bokeh.sampledata.airport_routes
 
+.. _sampledata_airport_weather:
+
+airport_weather
+---------------
+
+.. automodule:: bokeh.sampledata.airport_weather
+
 .. _sampledata_airports:
 
 airports
@@ -281,6 +288,13 @@ us_states
 ---------
 
 .. automodule:: bokeh.sampledata.us_states
+
+.. _sampledata_wind_observations:
+
+wind_observations
+-----------------
+
+.. automodule:: bokeh.sampledata.wind_observations
 
 .. _sampledata_world_cities:
 

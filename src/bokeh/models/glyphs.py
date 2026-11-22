@@ -88,6 +88,7 @@ from .glyph import (
     HatchGlyph,
     LineGlyph,
     RadialGlyph,
+    SupportsPathMarking,
     TextGlyph,
     XYGlyph,
 )
@@ -312,13 +313,10 @@ class Annulus(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     The {prop} values for the annuli.
     """)
 
-class Arc(XYGlyph, LineGlyph):
+class Arc(XYGlyph, LineGlyph, SupportsPathMarking):
     ''' Render arcs.
 
     '''
-
-    def _supports_path_decorations(self, placement: str | float) -> bool:
-        return True
 
     __example__ = "examples/reference/models/Arc.py"
 
@@ -358,7 +356,7 @@ class Arc(XYGlyph, LineGlyph):
     The {prop} values for the arcs.
     """)
 
-class Bezier(Glyph, LineGlyph):
+class Bezier(Glyph, LineGlyph, SupportsPathMarking):
     ''' Render Bezier curves.
 
     For more information consult the `Wikipedia article for Bezier curve`_.
@@ -366,9 +364,6 @@ class Bezier(Glyph, LineGlyph):
     .. _Wikipedia article for Bezier curve: http://en.wikipedia.org/wiki/Bezier_curve
 
     '''
-
-    def _supports_path_decorations(self, placement: str | float) -> bool:
-        return True
 
     __example__ = "examples/reference/models/Bezier.py"
 
@@ -582,7 +577,7 @@ class HArea(Glyph, FillGlyph, HatchGlyph):
     The {prop} values for the horizontal directed area.
     """)
 
-    hatch_props = Include(HatchProps, help="""
+    hatch_props = Include(ScalarHatchProps, help="""
     The {prop} values for the horizontal directed area.
     """)
 
@@ -621,7 +616,7 @@ class HAreaStep(Glyph, FillGlyph, HatchGlyph):
     The {prop} values for the horizontal directed area.
     """)
 
-    hatch_props = Include(HatchProps, help="""
+    hatch_props = Include(ScalarHatchProps, help="""
     The {prop} values for the horizontal directed area.
     """)
 
@@ -716,7 +711,7 @@ class HexTile(Glyph, LineGlyph, FillGlyph, HatchGlyph):
     The {prop} values for the hex tiles.
     """)
 
-    line_color = Override(default=None)
+    _line_color = Override(default=None)
 
     fill_props = Include(FillProps, help="""
     The {prop} values for the hex tiles.
@@ -939,7 +934,7 @@ class ImageURL(XYGlyph):
     specified URL. Default is zero ms.
     """)
 
-class Line(ConnectedXYGlyph, LineGlyph):
+class Line(ConnectedXYGlyph, LineGlyph, SupportsPathMarking):
     ''' Render a single line.
 
     The ``Line`` glyph is different from most other glyphs in that the vector
@@ -952,9 +947,6 @@ class Line(ConnectedXYGlyph, LineGlyph):
         :bokeh-issue:`11498` for more information.
 
     '''
-
-    def _supports_path_decorations(self, placement: str | float) -> bool:
-        return True
 
     _args = ('x', 'y')
 
@@ -972,16 +964,13 @@ class Line(ConnectedXYGlyph, LineGlyph):
     The {prop} values for the line.
     """)
 
-class MultiLine(Glyph, LineGlyph):
+class MultiLine(Glyph, LineGlyph, SupportsPathMarking):
     ''' Render several lines.
 
     The data for the ``MultiLine`` glyph is different in that the vector of
     values is not a vector of scalars. Rather, it is a "list of lists".
 
     '''
-
-    def _supports_path_decorations(self, placement: str | float) -> bool:
-        return True
 
     __example__ = "examples/reference/models/MultiLine.py"
 
@@ -1473,13 +1462,10 @@ class Scatter(Marker):
 
     """)
 
-class Segment(Glyph, LineGlyph):
+class Segment(Glyph, LineGlyph, SupportsPathMarking):
     ''' Render segments.
 
     '''
-
-    def _supports_path_decorations(self, placement: str | float) -> bool:
-        return True
 
     __example__ = "examples/reference/models/Segment.py"
 
@@ -1653,11 +1639,11 @@ class Text(XYGlyph, TextGlyph):
     The {prop} values for the text bounding box.
     """)
 
-    background_fill_color = Override(default=None)
+    _background_fill_color = Override(default=None)
 
-    background_hatch_color = Override(default=None)
+    _background_hatch_color = Override(default=None)
 
-    border_line_color = Override(default=None)
+    _border_line_color = Override(default=None)
 
 @abstract
 class MathTextGlyph(Text):
@@ -1747,7 +1733,7 @@ class VArea(Glyph, FillGlyph, HatchGlyph):
     The {prop} values for the vertical directed area.
     """)
 
-    hatch_props = Include(HatchProps, help="""
+    hatch_props = Include(ScalarHatchProps, help="""
     The {prop} values for the vertical directed area.
     """)
 
@@ -1786,7 +1772,7 @@ class VAreaStep(Glyph, FillGlyph, HatchGlyph):
     The {prop} values for the vertical directed area.
     """)
 
-    hatch_props = Include(HatchProps, help="""
+    hatch_props = Include(ScalarHatchProps, help="""
     The {prop} values for the vertical directed area.
     """)
 

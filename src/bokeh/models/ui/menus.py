@@ -18,8 +18,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-from typing import Any
-
 from ...core.property.container import List
 from ...core.property.either import Either
 from ...core.property.instance import Instance
@@ -36,8 +34,6 @@ from .ui_element import UIElement
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    "ActionItem",
-    "CheckableItem",
     "DividerItem",
     "Menu",
     "MenuItem",
@@ -94,25 +90,6 @@ class MenuItem(Model):
     action = Nullable(Instance(Callback), default=None, help="""
     An optional action (callback) associated with this item.
     """)
-
-class ActionItem(MenuItem):
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        from ...util.deprecation import deprecated
-
-        deprecated((3, 7, 0), "ActionItem", "MenuItem")
-        super().__init__(*args, **kwargs)
-
-class CheckableItem(MenuItem):
-    """ A two state checkable menu item. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        from ...util.deprecation import deprecated
-
-        deprecated((3, 7, 0), "CheckableItem", "ActionItem.checked")
-        super().__init__(*args, **kwargs)
 
 class DividerItem(Model):
     """ A dividing line between two groups of menu items. """

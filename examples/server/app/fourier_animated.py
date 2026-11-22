@@ -1,11 +1,17 @@
-"""Show an animated representation of a square-wave Fourier series.
+''' Show an animated representation of a square-wave Fourier series.
 
 Run this example with::
 
     bokeh serve fourier_animated.py
 
 Then open ``http://localhost:5006/fourier_animated`` in a browser.
-"""
+
+
+.. bokeh-example-metadata::
+    :title: Fourier animated
+    :keywords: fourier, animated
+    :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.circle, bokeh.plotting.figure.line, bokeh.plotting.figure.multi_line
+'''
 
 from numpy import array, cos, cumsum, hstack, linspace, pi, sin
 
@@ -63,8 +69,7 @@ terms_plot = figure(
     width=820,
     x_range=(-2.5, wave_x[-1]),
     y_range=(-2.5, 2.5),
-    tools="",
-    toolbar_location=None,
+    tools=None,
 )
 
 terms_plot.circle(0, 0, radius=amplitudes, color=colors, line_width=2, line_dash=dashes, fill_color=None)
@@ -84,8 +89,7 @@ sum_plot = figure(
     width=820,
     x_range=(-2.5, wave_x[-1]),
     y_range=(-2.5, 2.5),
-    tools="",
-    toolbar_location=None,
+    tools=None,
 )
 
 sum_plot.line("x", "y", color="orange", line_width=2, source=curve)

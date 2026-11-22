@@ -6,8 +6,8 @@
     "build": "next build"
   },
   "dependencies": {
-    "@bokeh/bokehjs": "4.0.0-dev.8",
-    "@bokeh/react": "4.0.0-dev.8",
+    "@bokeh/bokehjs": "4.0.0-dev.10",
+    "@bokeh/react": "4.0.0-dev.10",
     "next": "16.4.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"

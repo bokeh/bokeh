@@ -23,6 +23,7 @@ from dataclasses import is_dataclass
 from typing import Any
 
 from .bases import Property
+from .exceptions import ValidationError
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -36,7 +37,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Dataclass[T: object](Property[T]):
+class Dataclass[T: object](Property[T, T]):
     """ Accept instance of dataclass.
 
     This property only exists to support type validation, e.g. for "accepts"
@@ -50,7 +51,7 @@ class Dataclass[T: object](Property[T]):
             return
 
         msg = "" if not detail else f"expected object to be dataclass, got {value!r}"
-        raise ValueError(msg)
+        raise ValidationError(msg)
 
 #-----------------------------------------------------------------------------
 # Dev API

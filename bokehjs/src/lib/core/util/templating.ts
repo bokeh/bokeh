@@ -1,6 +1,6 @@
 import * as Numbro from "@bokeh/numbro"
 import type {ImageIndex} from "models/selections/selection"
-import type {ColumnarDataSource} from "models/sources/columnar_data_source"
+import type {IndexedDataSource} from "models/sources/indexed_data_source"
 import type {CustomJSHover} from "models/tools/inspectors/customjs_hover"
 import {sprintf as sprintf_js} from "sprintf-js"
 import tz from "timezone"
@@ -8,7 +8,7 @@ import type {Arrayable, Dict} from "../types"
 import type {BuiltinFormatter} from "../enums"
 import {logger} from "../logging"
 import {dict} from "./object"
-import {is_NDArray, get_array_item} from "./ndarray"
+import {is_NDArray} from "./ndarray"
 import {isArray, isNumber, isString, isTypedArray/*, isInteger, isPlainObject*/} from "./types"
 import {to_string} from "./pretty"
 import {escape} from "./string"
@@ -160,26 +160,15 @@ function _get_special_value(name: string, special_vars: Vars) {
   }
 }
 
-export function _get_column_value(name: string, data_source: ColumnarDataSource, ind: Index | null): unknown | null {
-  const column = data_source.get_column(name)
-
-  // missing column
-  if (column == null) {
-    return null
-  }
-
-  // null index (e.g for patch)
+export function _get_column_value(name: string, data_source: IndexedDataSource, ind: Index | null): unknown | null {
   if (ind == null) {
     return null
   }
-
-  // typical (non-image) index
+  const data = data_source.get_field_value(name, ind)
   if (isNumber(ind)) {
-    return get_array_item(column, ind)
+    return data
   }
 
-  // image index
-  const data = column[ind.index]
   if (isTypedArray(data) || isArray(data)) {
     // inspect array of arrays
     if (isArray(data[0])) {
@@ -200,7 +189,7 @@ export function _get_column_value(name: string, data_source: ColumnarDataSource,
 
 type PlaceholderType = "$" | "@" | "@$"
 
-export function get_value(type: PlaceholderType, name: string, data_source: ColumnarDataSource, index: Index | null, vars: Vars) {
+export function get_value(type: PlaceholderType, name: string, data_source: IndexedDataSource, index: Index | null, vars: Vars) {
   switch (type) {
     case "$":  return _get_special_value(name, vars)
     case "@":  return _get_column_value(name, data_source, index)
@@ -272,7 +261,7 @@ const functions = {
   */
 }
 
-export function replace_placeholders_html(input: string, data_source: ColumnarDataSource,
+export function replace_placeholders_html(input: string, data_source: IndexedDataSource,
     index: Index | null, formatters?: Formatters, special_vars: Vars = {},
     default_formatter: FormatterFunc = DEFAULT_FORMATTERS.basic): Node[] {
 
@@ -341,7 +330,7 @@ export function replace_placeholders_html(input: string, data_source: ColumnarDa
   return [...document.body.childNodes]
 }
 
-export function replace_placeholders(content: string | {html: string}, data_source: ColumnarDataSource,
+export function replace_placeholders(content: string | {html: string}, data_source: IndexedDataSource,
     i: Index | null, formatters?: Formatters, special_vars: Vars = {}, encode?: (v: string) => string): string | Node[]  {
   let str: string
   let has_html: boolean

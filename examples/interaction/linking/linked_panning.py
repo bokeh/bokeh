@@ -1,9 +1,10 @@
-'''An example of linked panning with three scatter plots.
+''' An example of linked panning with three scatter plots.
 
 .. bokeh-example-metadata::
+    :title: Linked panning
+    :keywords: scatter, linked panning
     :apis: bokeh.plotting.figure.scatter
     :refs: :ref:`ug_basic_scatters_markers`
-    :keywords: scatter, linked panning
 
 '''
 from bokeh.layouts import gridplot

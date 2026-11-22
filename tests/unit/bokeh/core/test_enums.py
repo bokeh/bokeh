@@ -28,6 +28,7 @@ ALL = (
     'Align',
     'AlternationPolicy',
     'Anchor',
+    'AngleReference',
     'AngleUnits',
     'Auto',
     'AutosizeMode',

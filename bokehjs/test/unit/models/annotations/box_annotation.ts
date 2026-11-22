@@ -5,6 +5,7 @@ import {display} from "#framework/layouts"
 
 import type {PlotView} from "@bokehjs/models/plots/plot"
 import {Plot, Range1d, LinearAxis, BoxAnnotation} from "@bokehjs/models"
+import {Node} from "@bokehjs/models/coordinates/node"
 import {no_repeated} from "@bokehjs/core/util/iterator"
 
 describe("BoxAnnotation", () => {
@@ -85,6 +86,26 @@ describe("BoxAnnotation", () => {
       expect([...no_repeated(cursors)]).to.be
         .equal([...no_repeated(["grab", "grabbing", "grab"])])
     })
+  })
+
+  it("keeps the dragged edge under the pointer when the opposite edge is out of bounds", async () => {
+    const box = BoxAnnotation.create({
+      left: -0.5,
+      right: 0.5,
+      bottom: 0,
+      top: 1,
+      editable: true,
+      resizable: "x",
+      left_limit: Node.frame.left,
+      right_limit: Node.frame.right,
+    })
+    const plot_view = await mkplot(box)
+    const ac = actions(plot_view, {units: "data"})
+
+    await ac.pan(xy(0.5, 0.5), xy(0.75, 0.5))
+
+    expect(box.left).to.be.equal(-0.5)
+    expect(box.right).to.be.equal(0.75)
   })
 
   describe("when movable with handles", () => {

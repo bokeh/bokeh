@@ -151,6 +151,10 @@ If the value of ``__implementation__`` is a single line that ends in either
 ``.js`` or ``.ts``, Bokeh interprets it as a filename, opens the file, and
 compiles its contents according to the file's extension.
 
+Bokeh doesn't type-check TypeScript implementations. It only removes their
+types and reports syntax errors. To type-check your code, use a
+:ref:`pre-built extension <ug_advanced_extensions_prebuilt>`.
+
 In case of an incline implementation, specify the language for the source
 code by using the classes ``JavaScript`` or ``TypeScript``. Here's an
 example:
@@ -226,6 +230,36 @@ automatically includes the JavaScript implementation. Additionally, the
 standard synchronization of Bokeh model properties is transparent for custom
 user extensions, same as for built-in models.
 
+.. _ug_advanced_extensions_indexed_sources:
+
+Custom indexed sources
+----------------------
+
+``IndexedDataSource`` exposes one logical record axis to glyphs, filters,
+expressions, hover tools, and selection. A custom source can store records
+instead of columns. Its BokehJS implementation supplies ``get_length()``,
+``get_field(name)``, ``get_record(index)``, and ``fields()``. Selection indices
+refer to positions on this logical axis, including when an ``IndexedSubset`` filters
+which records are shown.
+
+The default ``get_index_field(name, target)`` delegates to ``get_field(name)``
+without copying the field. ``target`` is the values source passed to
+``IndexedLookup`` or ``gather()``. Sources storing reference IDs can override
+this hook to resolve IDs against that target's current row order. Any cached
+mappings must track changes to the target. Keep the original IDs available
+through ``get_field()`` and preserve the scalar, nested, or shaped index
+structure when resolving them.
+
+Replacing a source model property uses ordinary Bokeh change notifications and
+the document protocol. For an in-place update in BokehJS, emit ``data_changed``
+with ``structural`` indicating whether the record count or field structure
+changed. Optional ``indices`` identifies the affected records. This invalidates
+cached expressions and refreshes consumers. Custom sources are responsible for
+invalidating any field caches before notifying consumers.
+
+Custom sources can materialize only requested fields while retaining their
+original storage.
+
 .. _ug_advanced_extensions_examples:
 
 Examples
@@ -277,8 +311,23 @@ To create and customize an extension step by step, run
 ``bokeh init --interactive``.
 
 To build your extension, use the ``bokeh build`` command. This runs
-``npm install``, if necessary, compiles TypeScript files, transpiles JavaScript
-files, resolves modules, and links them together in distributable bundles.
+``npm install``, if necessary, compiles TypeScript files, resolves modules, and
+links them together in distributable bundles.
+
+``bokeh build`` compiles TypeScript with the ``typescript`` package that your
+extension depends on (``bokeh init`` adds it to ``package.json``), so you
+choose the version of TypeScript, and your IDE and builds use the same one.
+Bokeh uses your ``tsconfig.json``, if present, and its own defaults otherwise.
+If your extension doesn't depend on ``typescript`` or doesn't have a
+``package.json``, Bokeh removes types from your code without type-checking it,
+and warns about it.
+
+``bokeh build`` fails if your extension's modules import each other in a cycle,
+because a module in a cycle may use exports of another module before they are
+initialized. Cycles in packages your extension depends on are common and
+usually benign, so they aren't reported. To report them as well, set
+``"detect_cycles": "all"`` in ``bokeh.ext.json``, or set it to ``"none"`` to
+disable cycle detection altogether.
 
 Bokeh caches compilation products to improve performance. If this causes
 issues, rebuild your extension from scratch with the ``bokeh build --rebuild``

@@ -1,6 +1,12 @@
-""" Example demonstrating turning lines on and off - with bokeh server
+''' Example demonstrating turning lines on and off - with bokeh server
 
-"""
+
+
+.. bokeh-example-metadata::
+    :title: Toggle lines with server callbacks
+    :keywords: line, on, off
+    :apis: bokeh.models.CheckboxGroup, bokeh.plotting.figure.line
+'''
 import numpy as np
 
 from bokeh.io import curdoc

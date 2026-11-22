@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+from ..core.has_props import Qualified
 from .data_model import DataModel
 from .model import (
     CallbackPolicy,
@@ -29,7 +30,7 @@ from .model import (
     Model,
     Throttle,
 )
-from .util import Qualified, collect_models, get_class
+from .util import collect_models, get_class
 
 #-----------------------------------------------------------------------------
 # Globals and constants

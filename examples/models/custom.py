@@ -1,3 +1,11 @@
+''' Extend a plot with a custom background and a TypeScript popup callback.
+
+.. bokeh-example-metadata::
+    :title: Custom
+    :keywords: custom, models
+    :apis: bokeh.models.Callback, bokeh.models.Circle, bokeh.models.ColumnDataSource, bokeh.models.LinearAxis, bokeh.models.PanTool, bokeh.models.Plot
+'''
+
 from bokeh.core.properties import Color, Float, List, Override, String
 from bokeh.document import Document
 from bokeh.embed import embed
@@ -94,8 +102,8 @@ export class MyPlot extends Plot {
     gradient_step = Float(default=20)
     gradient_colors = List(Color, default=["white", "gray"])
 
-    background_fill_alpha = Override(default=0.0)
-    border_fill_alpha = Override(default=0.0)
+    _background_fill_alpha = Override(default=0.0)
+    _border_fill_alpha = Override(default=0.0)
 
 source = ColumnDataSource(
     data = dict(

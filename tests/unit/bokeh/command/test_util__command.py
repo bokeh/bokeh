@@ -15,7 +15,6 @@ from __future__ import annotations
 #-----------------------------------------------------------------------------
 import os
 import tempfile
-from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -64,15 +63,17 @@ call "bokeh serve" on the directory instead. For example:
 If this is not the case, renaming main.py will suppress this warning.
 """
 
-@patch('warnings.warn')
-def test_build_single_handler_application_main_py(mock_warn: MagicMock) -> None:
+def test_build_single_handler_application_main_py() -> None:
     f = tempfile.NamedTemporaryFile(suffix="main.py", delete=False)
     f.close() #close file to open it later on windows
-    util.build_single_handler_application(f.name)
-    assert mock_warn.called
-    assert mock_warn.call_args[0] == (DIRSTYLE_MAIN_WARNING_COPY, None)
-    assert mock_warn.call_args[1] == {"stacklevel": 3}
-    os.remove(f.name)
+    try:
+        with pytest.warns(UserWarning) as recorded:
+            util.build_single_handler_application(f.name)
+        assert len(recorded) == 1
+        assert str(recorded[0].message) == DIRSTYLE_MAIN_WARNING_COPY
+        assert recorded[0].filename == __file__
+    finally:
+        os.remove(f.name)
 
 #-----------------------------------------------------------------------------
 # Private API

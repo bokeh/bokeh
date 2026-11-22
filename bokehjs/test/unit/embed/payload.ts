@@ -4,11 +4,11 @@ import * as sinon from "sinon"
 import {default_resolver, register_models} from "@bokehjs/base"
 import {ClientConnection} from "@bokehjs/client/connection"
 import {ClientSession} from "@bokehjs/client/session"
-import {
-  BOKEH_MOUNTED_ATTRIBUTE, BokehMount, mount, mount_embed_declaration, MountError, type MountErrorPhase, when_mounted,
-} from "@bokehjs/api/io"
+import {BOKEH_MOUNTED_ATTRIBUTE, BokehMount, mount, mount_embed_declaration, MountError, when_mounted} from "@bokehjs/api/io"
+import type {MountErrorPhase} from "@bokehjs/api/io"
 import {ModelResolver} from "@bokehjs/core/resolvers"
 import {logger} from "@bokehjs/core/logging"
+import {sorted} from "@bokehjs/core/util/array"
 import {defer} from "@bokehjs/core/util/defer"
 import {to_object} from "@bokehjs/core/util/object"
 import {ReleaseType, Version} from "@bokehjs/core/util/version"
@@ -205,7 +205,7 @@ describe("EmbedPayload runtime", () => {
       throw new Error("expected a standalone fixture")
     }
     const model_name = `ResourceOrderedModel${++declaration_index}`
-    payload.source.documents[0].roots[0].name = model_name
+    payload.source.documents[0].roots[0].$type = model_name
     const registration = "globalThis.register_resource_ordered_model()"
     const asset = {kind: "script" as const, content: registration}
     payload.requires = {
@@ -470,7 +470,7 @@ describe("EmbedPayload runtime", () => {
     if (deserialize.source.kind != "standalone") {
       throw new Error("expected a standalone fixture")
     }
-    deserialize.source.documents[0].roots[0].name = "MissingEmbedModel"
+    deserialize.source.documents[0].roots[0].$type = "MissingEmbedModel"
     cases.push(["deserialize", deserialize, deserialize])
 
     for (const [phase, declaration_payload, value] of cases) {
@@ -1618,8 +1618,8 @@ describe("EmbedPayload runtime", () => {
     expect(state.embed_core).to.be.equal(1)
     expect(state.embed_widgets).to.be.equal(1)
     expect(document.querySelectorAll("[data-bokeh-resource]").length).to.be.equal(2)
-    const markers = [...document.querySelectorAll<HTMLElement>("[data-bokeh-resource]")]
-      .map((element) => element.dataset.bokehResource).sort()
+    const markers = sorted([...document.querySelectorAll<HTMLElement>("[data-bokeh-resource]")]
+      .map((element) => element.dataset.bokehResource ?? ""))
     expect(markers).to.be.equal([
       `script:sha256:${core_asset.content_sha256}`,
       `script:sha256:${widget_asset.content_sha256}`,

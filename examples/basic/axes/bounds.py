@@ -1,3 +1,12 @@
+''' Compare automatic ranges with bounded ranges and restrict where an axis draws.
+
+.. bokeh-example-metadata::
+    :title: Bound ranges and axis extents
+    :keywords: bounds
+    :apis: bokeh.models.LinearAxis, bokeh.models.Range1d, bokeh.plotting.figure.add_layout, bokeh.plotting.figure.circle, bokeh.plotting.figure.line
+    :sampledata: stocks
+'''
+
 from datetime import timedelta
 
 import numpy as np

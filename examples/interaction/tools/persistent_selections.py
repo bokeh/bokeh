@@ -1,3 +1,11 @@
+''' Keep selection overlays on screen after completing a selection.
+
+.. bokeh-example-metadata::
+    :title: Persistent selections
+    :keywords: persistent, selections
+    :apis: bokeh.models.BoxSelectTool, bokeh.models.LassoSelectTool, bokeh.models.PolySelectTool, bokeh.plotting.figure.add_tools
+'''
+
 import numpy as np
 
 from bokeh.models import BoxSelectTool, LassoSelectTool, PolySelectTool

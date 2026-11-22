@@ -1,3 +1,12 @@
+''' Compare tab positions, tooltips, disabled tabs, and closable tabs.
+
+.. bokeh-example-metadata::
+    :title: Configurable tabs
+    :keywords: tab, panes
+    :apis: bokeh.models.Plot, bokeh.models.Row, bokeh.models.TabPanel, bokeh.models.Tabs, bokeh.models.Tooltip, bokeh.plotting.figure.circle
+    :gallery: Two plots have tabs along the top and right edges, including disabled and closable tabs.
+'''
+
 from bokeh.core.enums import LocationType as Location
 from bokeh.models import Plot, Row, TabPanel, Tabs, Tooltip
 from bokeh.models.dom import HTML

@@ -55,7 +55,7 @@ classifiers = [
 
 [project.optional-dependencies]
 sampledata = [
-    "bokeh_sampledata >=2026.1",
+    "bokeh_sampledata >=2026.3",
 ]
 extra = [
     "contourpy >=1.2",
@@ -99,7 +99,6 @@ python_files = "*_tests.py *_test.py test_*.py"
 markers = [
     "free_threading: a concurrency test relevant to free-threaded Python",
     "sampledata: a test for bokeh.sampledata",
-    "selenium: a test as requiring selenium",
 ]
 filterwarnings = [
     "error",
@@ -107,19 +106,17 @@ filterwarnings = [
     '''ignore:Module already imported so cannot be rewritten. tests\.support\.plugins\.project:pytest.PytestAssertRewriteWarning''',
     '''ignore:Properties {'name'} in class ModelThatOverridesName were previously declared on a parent class\. .*:RuntimeWarning''',
     '''ignore:Jupyter is migrating its paths to use standard platformdirs.*:DeprecationWarning''',
-    '''ignore:'tile_providers module' was deprecated in Bokeh 3\.0\.0 and will be removed, use 'add_tile directly' instead:bokeh.util.warnings.BokehDeprecationWarning''',
+    '''ignore:'tile_providers module' was deprecated in Bokeh 3\.0\.0 and will be removed, use 'add_tile directly' instead:DeprecationWarning''',
     '''ignore:There is no current event loop:DeprecationWarning''',
     '''ignore:coroutine 'HTTPServer.close_all_connections' was never awaited:RuntimeWarning''',
     '''ignore:coroutine 'WebSocketProtocol13\.write_message\.<locals>\.wrapper' was never awaited:RuntimeWarning''',
     '''ignore:coroutine 'PeriodicCallback._run' was never awaited:RuntimeWarning''',
     '''ignore:make_current is deprecated; start the event loop first:DeprecationWarning''',
-    '''ignore:'get_provider' was deprecated in Bokeh 3\.0\.0 and will be removed, use 'add_tile directly' instead:bokeh.util.warnings.BokehDeprecationWarning''',
-    '''ignore:'HSL\(\)' was deprecated in Bokeh 2\.3\.1 and will be removed, use 'RGB\(\) or named colors' instead:bokeh.util.warnings.BokehDeprecationWarning''',
+    '''ignore:'get_provider' was deprecated in Bokeh 3\.0\.0 and will be removed, use 'add_tile directly' instead:DeprecationWarning''',
+    '''ignore:'HSL\(\)' was deprecated in Bokeh 2\.3\.1 and will be removed, use 'RGB\(\) or named colors' instead:DeprecationWarning''',
     '''ignore:elementwise comparison failed; returning scalar instead, but in the future will perform elementwise comparison:FutureWarning''',
-    '''ignore:HTTPResponse\.getheader\(\) is deprecated and will be removed in urllib3 v2\.1\.0\. .*:DeprecationWarning:selenium''',
     '''ignore:unclosed <socket.socket .*>:ResourceWarning''',
     '''ignore:unclosed event loop <.*>:ResourceWarning''',
-    '''ignore:move_to_element_with_offset\(\) currently tries to use the top left corner of the element as the origin; in Selenium 4\.3 it will use the in-view center point of the element as the origin\.:DeprecationWarning''',
     '''ignore:Using or importing the ABCs from 'collections' instead of from 'collections\.abc' is deprecated since Python 3\.3, and in 3\.10 it will stop working:DeprecationWarning:tornado''',
     '''ignore:Unknown config option. asyncio_mode:pytest.PytestConfigWarning''',
     '''ignore:zmq\.eventloop\.ioloop is deprecated in pyzmq 17\. pyzmq now works with default tornado and asyncio eventloops\.:DeprecationWarning:jupyter_client''',
@@ -146,8 +143,13 @@ sigterm = true
 
 [tool.mypy]
 python_version = "3.13"
-mypy_path = "src/typings/"
-files = ["src/typings", "src/bokeh", "tools", "tests"]
+mypy_path = "$MYPY_CONFIG_FILE_DIR/src/typings/"
+files = [
+    "$MYPY_CONFIG_FILE_DIR/src/typings",
+    "$MYPY_CONFIG_FILE_DIR/src/bokeh",
+    "$MYPY_CONFIG_FILE_DIR/tools",
+    "$MYPY_CONFIG_FILE_DIR/tests",
+]
 
 strict = true
 
@@ -227,7 +229,6 @@ known-third-party = [
     "jupyter_bokeh",
     "mock",
     "panel",
-    "selenium",
     "sphinx",
 ]
 known-local-folder = [
@@ -253,37 +254,14 @@ known-local-folder = [
 # For now ignore each remaining untyped module individually.
 [[tool.mypy.overrides]]
 module = [
-    "bokeh.application.handlers.notebook",
-    "bokeh.layouts",
-    "bokeh.models.annotations.arrows",
-    "bokeh.models.annotations.geometry",
-    "bokeh.models.annotations.html.labels",
-    "bokeh.models.axes",
-    "bokeh.models.mappers",
-    "bokeh.models.plots",
-    "bokeh.models.tools",
-    "bokeh.models.util.structure",
-    "bokeh.plotting._figure",
-    "bokeh.plotting._geo_feature",
-    "bokeh.plotting._graph",
-    "bokeh.plotting._legends",
-    "bokeh.plotting._plot",
-    "bokeh.plotting._renderer",
-    "bokeh.plotting.contour",
-    "bokeh.plotting.graph",
-    "tests",
-    "tests.*",
+    "tests.cross.*",
+    "tests.unit.*",
+    "tests.integration.*",
 ]
 ignore_errors = true
 
 [[tool.mypy.overrides]]
 module = [
-    "tests.codebase.*",
-    "tests.support.defaults",
-    "tests.test_bokehjs",
-    "tests.test_cross",
-    "tests.test_defaults",
-    "tests.test_examples",
     "tests.unit.bokeh.test_typing",
     "tests.unit.bokeh.document.test_callbacks__document",
     "tests.unit.bokeh.embed.test_standalone",

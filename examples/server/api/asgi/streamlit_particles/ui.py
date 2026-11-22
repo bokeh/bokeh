@@ -1,3 +1,11 @@
+''' Build the Streamlit controls for the particle simulation.
+
+.. bokeh-example-metadata::
+    :title: UI
+    :keywords: ui
+    :no-index:
+'''
+
 from uuid import uuid4
 
 import streamlit as st

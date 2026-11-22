@@ -1,3 +1,12 @@
+''' Plot cycling power against elapsed time on a timedelta axis.
+
+.. bokeh-example-metadata::
+    :title: Timedelta axis
+    :keywords: timedelta, axis
+    :apis: bokeh.plotting.figure.line
+    :sampledata: cycling
+'''
+
 from bokeh.plotting import figure, show
 from bokeh.sampledata.cycling import cycling
 

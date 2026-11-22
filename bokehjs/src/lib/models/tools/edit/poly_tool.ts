@@ -15,7 +15,7 @@ export abstract class PolyToolView extends EditToolView {
     const {vertex_renderer} = this.model
     assert(vertex_renderer != null)
     const point_glyph = vertex_renderer.glyph
-    const point_cds = vertex_renderer.data_source
+    const point_cds = this._data_source(vertex_renderer)
     const pxkey = isField(point_glyph.x) ? point_glyph.x.field : null
     const pykey = isField(point_glyph.y) ? point_glyph.y.field : null
     const data = dict(point_cds.data)
@@ -44,7 +44,7 @@ export abstract class PolyToolView extends EditToolView {
     if (this.model.vertex_renderer != null) {
       // If an existing vertex is hit snap to it
       const vertex_selected = this._select_event(ev, "replace", [this.model.vertex_renderer])
-      const point_ds = this.model.vertex_renderer.data_source
+      const point_ds = this._data_source(this.model.vertex_renderer)
       // Type once dataspecs are typed
       const point_glyph = this.model.vertex_renderer.glyph
       const pxkey = isField(point_glyph.x) ? point_glyph.x.field : null

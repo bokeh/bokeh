@@ -1,9 +1,11 @@
-''' A demonstration of NetworkX integration for drawing network graphs.
+''' Color edges and show node club membership in tooltips using NetworkX attributes.
 
 .. bokeh-example-metadata::
+    :title: Node and edge attributes
+    :keywords: graph, hover, networkx, tooltip
     :apis: bokeh.plotting.from_networkx
     :refs: :ref:`ug_topics_graph`
-    :keywords: graph, hover, networkx, tooltip
+    :gallery: A network graph plot of the NetworkX karate club dataset with large circles for vertices.
 
 '''
 import networkx as nx

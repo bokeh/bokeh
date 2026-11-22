@@ -89,6 +89,7 @@ class HasProps(Serializable):
     def equals(self, other: HasProps) -> bool: ...
 
     def to_serializable(self, serializer: Serializer) -> ObjectRep: ...
+    def _to_serializable(self, serializer: Serializer, overrides: dict[str, Any] | None = None) -> ObjectRep: ...
 
     def set_from_json(self, name: str, value: Any, *, setter: Setter | None = None) -> None: ...
 
@@ -159,6 +160,6 @@ class OverrideDef(TypedDict):
 class ModelDef(TypedDict):
     type: Literal["model"]
     name: str
-    extends: NotRequired[Ref | None]
+    extends: Ref
     properties: NotRequired[list[PropertyDef]]
     overrides: NotRequired[list[OverrideDef]]

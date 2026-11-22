@@ -41,7 +41,7 @@ if TYPE_CHECKING:
     from .colors.color import RGBTuple
     from .core.enums import JitterRandomDistributionType
     from .models.ranges import Range
-    from .models.sources import ColumnarDataSource
+    from .models.sources import IndexedDataSource
     from .models.transforms import Transform
 
     type Factors = Sequence[str] | Sequence[tuple[str, str]] | Sequence[tuple[str, str, str]]
@@ -100,16 +100,18 @@ def cumsum(field_name: str, include_zero: bool = False) -> Expr:
     return Expr(CumSum(field=field_name, include_zero=include_zero))
 
 
-def gather(source: ColumnarDataSource, field: str, indices: str) -> Expr:
+def gather(source: IndexedDataSource, field: str, indices: str) -> Expr:
     ''' Gather values from ``source`` using indices on the glyph's data source.
 
     Args:
-        source: The column data source containing values to gather.
+        source: The indexed data source containing values to gather.
 
         field: The field on ``source`` containing those values.
 
         indices: The field on the glyph's primary source containing scalar,
-            nested, or shaped integer indices.
+            nested, or shaped lookup indices. In BokehJS, that source may
+            override ``get_index_field(name, target)`` to resolve stored IDs
+            against the values source's current row positions.
 
     Returns:
         An expression suitable for use as a ``DataSpec`` value.

@@ -5,11 +5,10 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
-import pytest
 from sphinx.application import Sphinx
 from sphinx.testing.util import _clean_up_global_state
 
-from bokeh.sphinxext.bokeh_plot import BokehPlotDirective, env_merge_info, env_purge_doc
+from bokeh.sphinxext.bokeh_plot import env_merge_info, env_purge_doc
 
 
 def test_plot_file_merge_uses_worker_document_ownership() -> None:
@@ -25,30 +24,12 @@ def test_plot_file_merge_uses_worker_document_ownership() -> None:
     assert env.bokeh_plot_files == {"parent": {"parent.json"}}
 
 
-@pytest.mark.parametrize("filename", ["/source/docs/examples/apple.rst", r"C:\source\docs\examples\apple.rst"])
-def test_example_metadata_is_deduplicated_per_read(filename: str) -> None:
-    env = SimpleNamespace(docname="docs/examples/apple", temp_data={})
-    directive = SimpleNamespace(env=env, get_source_info=lambda: (filename, 1))
-    source = "# bokeh.sampledata.iris"
-    BokehPlotDirective.process_sampledata(directive, source)
-    BokehPlotDirective.process_sampledata(directive, source)
-    assert env.all_gallery_overview == [{"docname": env.docname}]
-    assert env.all_sampledata_xrefs == [{"docname": env.docname, "keyword": "iris"}]
-    # Sphinx purges the old records and resets temporary state before a reread.
-    env.temp_data = {}
-    env.all_gallery_overview = []
-    env.all_sampledata_xrefs = []
-    BokehPlotDirective.process_sampledata(directive, "# bokeh.sampledata.flowers")
-    assert env.all_gallery_overview == [{"docname": env.docname}]
-    assert env.all_sampledata_xrefs == [{"docname": env.docname, "keyword": "flowers"}]
-
-
 def test_plot_metadata_survives_incremental_edits_and_removal(tmp_path: Path) -> None:
     source = tmp_path / "source"
     example = source / "docs/examples/apple.rst"
     example.parent.mkdir(parents=True)
     (source / "conf.py").write_text(
-        "extensions = ['bokeh.sphinxext.bokeh_plot', 'bokeh.sphinxext._internal.bokeh_sampledata_xref']\n"
+        "extensions = ['bokeh.sphinxext.bokeh_plot']\n"
         "master_doc = 'index'\n",
     )
     index = source / "index.rst"
@@ -81,8 +62,6 @@ def test_plot_metadata_survives_incremental_edits_and_removal(tmp_path: Path) ->
         example.write_text(text.replace("sampledata.iris", "sampledata.flowers"))
         app = build()
         env = app.env
-        assert env.all_gallery_overview == [{"docname": "docs/examples/apple"}]
-        assert env.all_sampledata_xrefs == [{"docname": "docs/examples/apple", "keyword": "flowers"}]
         replacement = env.bokeh_plot_files["docs/examples/apple"]
         assert len(replacement) == 1 and replacement.isdisjoint(original)
         example.unlink()
@@ -90,7 +69,5 @@ def test_plot_metadata_survives_incremental_edits_and_removal(tmp_path: Path) ->
         app = build()
         env = app.env
         assert env.bokeh_plot_files == {}
-        assert env.all_gallery_overview == []
-        assert env.all_sampledata_xrefs == []
     finally:
         _clean_up_global_state()

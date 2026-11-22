@@ -39,13 +39,6 @@ functionality.
 .. automodule:: bokeh.util.dependencies
   :members:
 
-.. _bokeh.util.deprecation:
-
-``bokeh.util.deprecation``
---------------------------
-
-.. automodule:: bokeh.util.deprecation
-
 .. _bokeh.util.functions:
 
 ``bokeh.util.functions``

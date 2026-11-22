@@ -233,7 +233,7 @@ export class UIGestures {
     if (this.pointers.has(event.pointerId)) {
       return
     }
-    if (event.isPrimary && event.pointerType == "mouse" && event.buttons != MouseButton.Left) {
+    if (event.isPrimary && event.pointerType == "mouse" && (event.buttons as MouseButton) != MouseButton.Left) {
       return
     }
     if (!this.hit_area.isConnected) {

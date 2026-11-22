@@ -555,7 +555,7 @@ class TestDocumentViewHandle:
         artifact = json.loads(snapshot["artifact"])
         assert artifact["schema"] == "bokeh.embed/v1"
         assert artifact["metadata"]["embedding"]["model_ids"] == "protocol-full"
-        assert artifact["source"]["documents"][0]["roots"][0]["id"] == plot.id
+        assert artifact["source"]["documents"][0]["roots"][0]["$id"] == plot.id
         handle.close()
 
     def test_live_updates_are_single_revisioned_patch_messages(self) -> None:

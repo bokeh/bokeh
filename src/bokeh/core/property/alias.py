@@ -24,13 +24,10 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from .bases import Property
 from .descriptors import AliasPropertyDescriptor, DeprecatedAliasPropertyDescriptor
-
-if TYPE_CHECKING:
-    from ...util.deprecation import Version
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -41,11 +38,13 @@ __all__ = (
     "DeprecatedAlias",
 )
 
+type Version = tuple[int, int, int]
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Alias[T](Property[T]):
+class Alias[GetType, SetType = GetType](Property[GetType, SetType]):
     """
     Alias another property of a model.
 
@@ -81,15 +80,18 @@ class Alias[T](Property[T]):
         return False
 
     def __init__(self, aliased_name: str, *, help: str | None = None) -> None:
+        # Intentionally doesn't call Property.__init__(). An alias has no value,
+        # default or serialization state of its own, as AliasPropertyDescriptor
+        # delegates all of that to the aliased property, so Property.__init__()'s
+        # setup of the default, serialization and docstring doesn't apply here.
         self.aliased_name = aliased_name
         self._help = help
-        self.alternatives = []
-        self.assertions = []
+        self._init_constraints()
 
-    def make_descriptor(self, name: str) -> AliasPropertyDescriptor[T]:
+    def make_descriptor(self, name: str) -> AliasPropertyDescriptor[GetType, SetType]:
         return AliasPropertyDescriptor(name, self)
 
-class DeprecatedAlias[T](Alias[T]):
+class DeprecatedAlias[GetType, SetType = GetType](Alias[GetType, SetType]):
     """
     Alias of another property of a model showing a deprecation message when used.
     """
@@ -100,7 +102,7 @@ class DeprecatedAlias[T](Alias[T]):
         self.since = since
         self.extra = extra
 
-    def make_descriptor(self, name: str) -> DeprecatedAliasPropertyDescriptor[T]:
+    def make_descriptor(self, name: str) -> DeprecatedAliasPropertyDescriptor[GetType, SetType]:
         return DeprecatedAliasPropertyDescriptor(name, self)
 
 #-----------------------------------------------------------------------------

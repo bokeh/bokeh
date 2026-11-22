@@ -1,4 +1,5 @@
 import {OnOffButton, OnOffButtonView} from "./on_off_button"
+import {ToolProxy} from "./tool_proxy"
 import type {ActionTool} from "./actions/action_tool"
 import type * as p from "core/properties"
 
@@ -7,6 +8,11 @@ export class ClickButtonView extends OnOffButtonView {
 
   override tap(): void {
     this.model.tool.do.emit(undefined)
+  }
+
+  protected override get _is_toggle(): boolean {
+    const tool = this.values.tool as ActionTool | ToolProxy<ActionTool>
+    return (tool instanceof ToolProxy ? tool.underlying : tool).checkable
   }
 }
 

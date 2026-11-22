@@ -32,7 +32,6 @@ from ._renderer import create_renderer
 
 __all__ = (
     'glyph_method',
-    'marker_method',
 )
 
 #-----------------------------------------------------------------------------
@@ -45,37 +44,6 @@ __all__ = (
 
 type GlyphFunction = Callable[..., Any]
 type GlyphMethodDecorator = Callable[[GlyphFunction], GlyphFunction]
-
-def marker_method() -> GlyphMethodDecorator:
-    from ..models import Marker, Scatter
-    glyphclass = Marker
-    def decorator(func: GlyphFunction) -> GlyphFunction:
-        parameters = cast(list[ParameterSpec], glyphclass.parameters())
-
-        sigparams = [Parameter("self", Parameter.POSITIONAL_OR_KEYWORD)] + [x[0] for x in parameters] + [Parameter("kwargs", Parameter.VAR_KEYWORD)]
-
-        marker_type = func.__name__
-
-        @wraps(func)
-        def wrapped(self: Any, *args: Any, **kwargs: Any) -> Any:
-            from ..util.deprecation import deprecated
-
-            deprecated((3, 4, 0), f"{func.__name__}() method", f"scatter(marker={func.__name__!r}, ...) instead")
-            glyph_args = cast(Any, glyphclass)._args
-            if len(args) > len(glyph_args):
-                raise TypeError(f"{func.__name__} takes {len(glyph_args)} positional argument but {len(args)} were given")
-            for arg, param in zip(args, sigparams[1:]):
-                kwargs[param.name] = arg
-            kwargs["marker"] = marker_type
-            return create_renderer(Scatter, self, **kwargs)
-
-        cast(Any, wrapped).__signature__ = Signature(parameters=sigparams, return_annotation=signature(func).return_annotation)
-
-        wrapped.__doc__ = generate_docstring(glyphclass, parameters, func.__doc__)
-
-        return wrapped
-
-    return decorator
 
 def glyph_method(glyphclass: Any) -> GlyphMethodDecorator:
     def decorator(func: GlyphFunction) -> GlyphFunction:

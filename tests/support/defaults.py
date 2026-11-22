@@ -35,7 +35,7 @@ from bokeh.core.serialization import (
     SymbolRep,
 )
 from bokeh.model import Model
-from bokeh.util.warnings import BokehDeprecationWarning
+from bokeh.util.warnings import BOKEH_DEPRECATION_MESSAGE_PATTERN
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -88,7 +88,7 @@ def collect_defaults() -> dict[str, Any]:
 
     for model in models:
         with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=BokehDeprecationWarning)
+            warnings.filterwarnings("ignore", message=BOKEH_DEPRECATION_MESSAGE_PATTERN, category=DeprecationWarning)
             obj = model()
 
         # filter only own properties and overrides

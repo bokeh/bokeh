@@ -1,12 +1,18 @@
-''' A face detection example that uses the `Haar Cascade`_ algorithm.
+''' A face detection example that uses the `Haar Cascade <https://docs.opencv.org/3.4/db/d28/tutorial_cascade_classifier.html>`__ algorithm.
 This example shows the capability of Bokeh streaming with an integrated
 OpenCV package.
 
 .. note::
     This example needs the OpenCV package to run.
 
-.. _Haar Cascade: https://docs.opencv.org/3.4/db/d28/tutorial_cascade_classifier.html
 
+
+
+.. bokeh-example-metadata::
+    :title: Faces
+    :keywords: faces, bokeh server, app
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Div, bokeh.plotting.figure.image_rgba, bokeh.plotting.figure.rect, bokeh.plotting.figure.step
+    :sampledata: haar_cascade
 '''
 from datetime import datetime as dt
 
@@ -45,7 +51,7 @@ haar_feature = Div(
 img_plot = figure(width=CAMERA_WIDTH//2, height=CAMERA_HEIGHT//2,
                   x_range=(0, CAMERA_WIDTH), y_range=(0, CAMERA_HEIGHT),
                   x_axis_type=None, y_axis_type=None,
-                  tools="", toolbar_location=None, name="image")
+                  tools=None, name="image")
 
 image_source = ColumnDataSource(dict(image=[], w=[], h=[]))
 img_plot.image_rgba('image', x=0, y=0, dw='w', dh='h',
@@ -56,7 +62,7 @@ img_plot.rect('x', 'y', width='w', height='h', source=rect_source,
               fill_color=None, line_color="#fffdd0", line_width=4)
 
 ts_plot = figure(width=CAMERA_WIDTH//2, height=150,
-                 tools="", toolbar_location=None, name="ts")
+                 tools=None, name="ts")
 ts_plot.y_range.start = 0
 ts_plot.y_range.min_interval = 2
 

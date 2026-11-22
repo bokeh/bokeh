@@ -10,17 +10,14 @@ html[data-theme=light] {
   --pst-color-inline-code: var(--pst-color-text-base);
 }
 
-/* activate the search box on the start page if the search button on the top banner is clicked */
-.bd-search {}
+.bokeh-hero {
+  width: 100%;
+  height: auto;
+}
 
 /* make sure the article container uses all available space */
 .bd-article-container {
   max-width: 100% !important;
-}
-
-/* disable this container to avoid unnecessary overflow */
-#rtd-footer-container {
-  display: none;
 }
 
 /* Tweak appearance of args in reference guide */
@@ -44,16 +41,6 @@ img.image-border {
 }
 .sd-row{
     --sd-gutter-y: 1.5em;
-}
-
-/* Tweak sphinx-design cards */
-.bokeh-examples div {
-  padding: 0px;
-  margin: 0px;
-}
-.bokeh-examples img {
-  width: 100%;
-  height: 100%;
 }
 
 /* Ligatures provide bad UX in some cases, just turn them off */
@@ -103,56 +90,222 @@ img.image-border {
 .bd-footer .btn-primary { filter: brightness(90%); background-color: #C02942; border-color: #C02942; }
 .bd-footer .btn-primary:hover { filter: brightness(100%); background-color: #C02942; border-color: #C02942; }
 
-/* CSS for our custom gallery */
-div.bk-gallery {
-    width: 100%;
-    margin: 0px 0px 20px 0px;
-    padding-left: 50px;
-    padding-right: 50px;
-    justify-content: space-between;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 15px;
-}
-
-div.bk-thumbnail {
+/* Gallery */
+.bd-content .sd-tab-set.bk-gallery-tabs > label.sd-tab-label {
+    padding: 0.55rem 0.85rem;
     background: transparent;
-    border-radius: 7px;
-    box-shadow: 0 0 3px #444;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0.35rem 0.35rem 0 0;
+    font-weight: 600;
+}
+
+.bd-content .bk-gallery-tabs > input:checked + label.sd-tab-label {
+    border-bottom-color: var(--pst-color-link);
+    color: var(--pst-color-link);
+    transform: none;
+}
+
+.bd-content .bk-gallery-tabs > input:focus-visible + label.sd-tab-label {
+    outline: 2px solid var(--pst-color-accent);
+    outline-offset: -3px;
+}
+
+.bd-content .bk-gallery-tabs > .sd-tab-content {
+    border: 0;
+    border-top: 1px solid var(--pst-color-border);
+    border-radius: 0;
+    box-shadow: none;
+    padding: 1.25rem 0;
+}
+
+.bk-gallery-group + .bk-gallery-group {
+    margin-top: 1.75rem;
+}
+
+.bk-gallery-group > h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1.25rem;
+}
+
+ul.bk-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr));
+    gap: 1rem;
+    margin: 0;
+}
+
+li.bk-thumbnail {
     position: relative;
-    box-sizing: border-box;
+    margin: 0;
+    padding: 0.65rem;
+    border: 1px solid var(--pst-color-border);
+    border-radius: 0.75rem;
+    background: var(--pst-color-background);
+    overflow: hidden;
+}
+
+.bk-thumbnail:hover, .bk-thumbnail:focus-within {
+    border-color: var(--pst-color-primary);
+}
+
+.bk-thumbnail > a {
+    display: grid;
+    gap: 0.55rem;
+    color: var(--pst-color-text-base);
+    text-decoration: none;
+    font-weight: 650;
+    line-height: 1.3;
+}
+
+.bk-thumbnail > a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+}
+
+.bk-thumbnail-description a {
+    position: relative;
+    z-index: 1;
+}
+
+.bk-thumbnail:hover .bk-thumbnail-title,
+.bk-thumbnail > a:focus-visible .bk-thumbnail-title {
+    color: var(--pst-color-primary);
+    text-decoration: underline;
+}
+
+.bk-thumbnail img {
     width: 100%;
-    padding: 10px;
+    border-radius: 0.4rem;
+    background: var(--pst-color-surface);
+}
+
+.bk-thumbnail-title, .bk-thumbnail-description {
+    padding-inline: 0.25rem;
+}
+
+.bk-thumbnail-description {
+    margin-top: 0.45rem;
+    color: var(--pst-color-text-muted);
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.bk-thumbnail-description > p {
+    margin: 0;
+}
+
+/* Examples index */
+.bk-example-controls {
+    display: grid;
+    grid-template-columns: minmax(9rem, 1.4fr) minmax(10rem, 1fr) minmax(8rem, 0.8fr) minmax(7rem, 0.7fr) auto;
+    align-items: end;
+    gap: 0.75rem;
+}
+
+.bk-example-controls > div {
+    min-width: 0;
+}
+
+.bk-example-controls label {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.bk-example-controls :is(.form-control, .form-select) {
+    margin-top: 0.2rem;
+}
+
+#bk-example-count {
+    margin: 0.6rem 0 0.75rem;
+    color: var(--pst-color-text-muted);
+    font-size: 0.9rem;
+}
+
+.docutils.bk-example-entry {
+    position: relative;
+    border-top: 1px solid var(--pst-color-border);
+    padding: 0.4rem 0 0.4rem calc(88px + 0.85rem);
+}
+
+.bk-example-entry:has(> .bk-example-thumbnail) {
+    min-height: calc(88px + 0.8rem);
+}
+
+.bk-example-thumbnail {
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-start: 0.4rem;
+    width: 88px;
+    height: 88px;
+    object-fit: contain;
+    border-radius: 0.3rem;
+}
+
+.bk-example-entry:has(> details) > .bk-example-heading {
+    padding-inline-end: 5.25rem;
+}
+
+.bk-example-heading > p {
+    margin: 0;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+:is(.bk-example-facets, .bk-example-links) {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
+    flex-wrap: wrap;
+    column-gap: 0.85rem;
 }
 
-div.bk-thumbnail:hover {
-    box-shadow: 0 0 5px #444;
+.bk-example-facets {
+    color: var(--pst-color-text-muted);
+    font-size: 0.8rem;
 }
 
-div.bk-thumbnail-description {
-    font-weight: lighter;
-    font-size: 12px;
-    text-align: justify;
-    padding-left: 5px;
-    padding-right: 5px;
+:is(.bk-example-facets, .bk-example-links, .bk-example-details) p {
+    margin: 0;
 }
 
-div.bk-thumbnail-description p {
-    font-size: 10px;
-    text-align: left;
+.bk-example-summary > p, .bk-example-links {
+    margin-top: 0.2rem;
+    font-size: 0.875rem;
 }
 
-div.bk-gallery-tabs > label {
-    font-size: 18px;
+.bk-example-summary > p {
+    margin-bottom: 0;
 }
 
-img.gallery {
-  width: 200px;
-  height:200px
+.bk-example-entry > details > summary {
+    position: absolute;
+    inset-inline-end: 0.15rem;
+    inset-block-start: 0.4rem;
+    color: var(--pst-color-text-muted);
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.bk-example-details {
+    padding: 0.45rem 0 0.25rem;
+    font-size: 0.875rem;
+    overflow-wrap: anywhere;
+}
+
+.bk-example-details p + p {
+    margin-top: 0.2rem;
+}
+
+@media (max-width: 780px) {
+    .bk-example-controls {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 460px) {
+    .bk-example-controls {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 
 /* Provide a compact jump table before the detailed model properties. */

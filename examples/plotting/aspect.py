@@ -2,9 +2,10 @@
 when plotted with different aspect scales specified.
 
 .. bokeh-example-metadata::
+    :title: Aspect
+    :keywords: rect, circle, layout, aspect, scale
     :apis: bokeh.plotting.figure, bokeh.plotting.show, bokeh.layouts.layout
     :refs: :ref:`ug_basic_layouts`
-    :keywords: rect, circle, layout, aspect, scale
 '''
 
 from bokeh.layouts import layout

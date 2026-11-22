@@ -1,4 +1,5 @@
-import {HasProps} from "./has_props"
+import type {HasProps, TransitiveOpts} from "./has_props"
+import {on_transitive_change} from "./has_props"
 import type {Property} from "./properties"
 import type {Slot, ISignalable} from "./signaling"
 import {Signal0, Signal} from "./signaling"
@@ -13,6 +14,7 @@ import {ViewManager, ViewQuery} from "./view_manager"
 import type {Equatable, Comparator} from "./util/eq"
 import {equals} from "./util/eq"
 import {logger} from "./logging"
+import {pending_render} from "./rendering"
 
 import type {Signal as PreactSignal} from "@preact/signals"
 
@@ -81,11 +83,6 @@ type ReadyWaiter = {
   reject: (error: unknown) => void
 }
 
-type TransitiveOpts = {
-  recursive?: boolean
-  signal?: (obj: HasProps) => Signal<unknown, HasProps>
-}
-
 export abstract class View implements ISignalable, Equatable {
   readonly removed = new Signal0<this>(this, "removed")
   readonly finished = new Signal0<this>(this, "finished")
@@ -116,7 +113,9 @@ export abstract class View implements ISignalable, Equatable {
 
   /**
    * Resolves when this view and all its descendants have no outstanding
-   * asynchronous work, including tasks scheduled while waiting.
+   * asynchronous work, including tasks scheduled while waiting. This also
+   * includes pending re-renders of vDOM components (e.g. due to changes of
+   * signals), which may schedule further tasks.
    *
    * Rejects if any of these tasks failed while waiting, with the error, or an
    * `AggregateError` if there were more of them. Failures that happen while
@@ -144,6 +143,12 @@ export abstract class View implements ISignalable, Equatable {
 
   private _settle_ready(): void {
     if (this._pending_tasks.size != 0 || this._ready_waiters.length == 0) {
+      return
+    }
+    const render = pending_render()
+    if (render != null) {
+      // Pending renders aren't tied to any view, so wait for them and check again.
+      void render.then(() => this._settle_ready())
       return
     }
     const waiters = this._ready_waiters
@@ -437,6 +442,16 @@ export abstract class View implements ISignalable, Equatable {
     return this.parent == null
   }
 
+  /** Whether this view or any of its ancestors represents the given model. */
+  protected has_model_in_ancestry(model: HasProps): boolean {
+    for (let view: View | null = this; view != null; view = view.parent) {
+      if (view.model == model) {
+        return true
+      }
+    }
+    return false
+  }
+
   has_finished(): boolean {
     return this._has_finished
   }
@@ -462,35 +477,8 @@ export abstract class View implements ISignalable, Equatable {
     }
   }
 
-  on_transitive_change<T>(property: Property<T>, fn: () => unknown, {recursive=false, signal=(obj) => obj.change}: TransitiveOpts = {}): void {
-    const slot = () => fn()
-
-    const collect = () => {
-      const value = property.is_unset ? [] : property.get_value()
-      return HasProps.references(value, {recursive})
-    }
-
-    const connect = (models: Iterable<HasProps>) => {
-      for (const model of models) {
-        this.connect(signal(model), slot)
-      }
-    }
-
-    const disconnect = (models: Iterable<HasProps>) => {
-      for (const model of models) {
-        this.disconnect(signal(model), slot)
-      }
-    }
-
-    let models = collect()
-    connect(models)
-
-    this.on_change(property, () => {
-      disconnect(models)
-      models = collect()
-      connect(models)
-      return fn()
-    })
+  on_transitive_change(property: Property, fn: () => unknown, options?: TransitiveOpts): void {
+    on_transitive_change(this, property, fn, options)
   }
 
   cursor(_sx: number, _sy: number): string | null {

@@ -8,7 +8,9 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations
+from __future__ import annotations # isort:skip
+
+import pytest
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -39,7 +41,6 @@ from _util_models import (
     BACKGROUND_HATCH,
     BORDER_LINE,
     FILL,
-    GLYPH,
     HATCH,
     LINE,
     TEXT,
@@ -88,7 +89,7 @@ def test_AnnularWedge() -> None:
         "end_angle",
         "end_angle_units",
         "direction",
-    ], LINE, FILL, HATCH, GLYPH)
+    ], LINE, FILL, HATCH)
 
 
 def test_Annulus() -> None:
@@ -107,7 +108,7 @@ def test_Annulus() -> None:
         "inner_radius_units",
         "outer_radius",
         "outer_radius_units",
-    ], LINE, FILL, HATCH, GLYPH)
+    ], LINE, FILL, HATCH)
 
 
 def test_Arc() -> None:
@@ -129,7 +130,7 @@ def test_Arc() -> None:
         "end_angle",
         "end_angle_units",
         "direction",
-    ], LINE, GLYPH)
+    ], LINE, ["path_markings"])
 
 
 def test_Bezier() -> None:
@@ -152,7 +153,7 @@ def test_Bezier() -> None:
         "cy0",
         "cx1",
         "cy1",
-    ], LINE, GLYPH)
+    ], LINE, ["path_markings"])
 
 
 def test_Block() -> None:
@@ -173,7 +174,7 @@ def test_Block() -> None:
         "height",
         "height_units",
         "border_radius",
-    ], FILL, HATCH, LINE, GLYPH)
+    ], FILL, HATCH, LINE)
 
 
 def test_HArea() -> None:
@@ -187,7 +188,7 @@ def test_HArea() -> None:
         "y",
         "x1",
         "x2",
-    ], FILL, HATCH, GLYPH)
+    ], FILL, HATCH)
 
 
 def test_HAreaStep() -> None:
@@ -203,7 +204,7 @@ def test_HAreaStep() -> None:
         "x2",
         "y",
         "step_mode",
-    ], FILL, HATCH, GLYPH)
+    ], FILL, HATCH)
 
 
 def test_HBar() -> None:
@@ -223,7 +224,7 @@ def test_HBar() -> None:
         "left",
         "right",
         "border_radius",
-    ], FILL, HATCH, LINE, GLYPH)
+    ], FILL, HATCH, LINE)
 
 
 def test_Image() -> None:
@@ -247,7 +248,7 @@ def test_Image() -> None:
         "origin",
         "anchor",
         "color_mapper",
-    ], GLYPH)
+    ])
 
 def test_Image_kwargs() -> None:
     glyph = m.Image(x=0, y=0, dw=10, dh=10)
@@ -279,7 +280,7 @@ def test_ImageRGBA() -> None:
         "dilate",
         "origin",
         "anchor",
-    ], GLYPH)
+    ])
 
 
 def test_ImageStack() -> None:
@@ -303,7 +304,7 @@ def test_ImageStack() -> None:
         "origin",
         "anchor",
         "color_mapper",
-    ], GLYPH)
+    ])
 
 def test_ImageStack_kwargs() -> None:
     glyph = m.Image(x=0, y=0, dw=10, dh=10)
@@ -343,7 +344,7 @@ def test_ImageURL() -> None:
         "retry_attempts",
         "retry_timeout",
         "global_alpha",
-    ], GLYPH)
+    ])
 
 
 def test_Line() -> None:
@@ -354,7 +355,7 @@ def test_Line() -> None:
     check_properties_existence(glyph, [
         "x",
         "y",
-    ], LINE, GLYPH)
+    ], LINE, ["path_markings"])
 
 
 def test_MultiLine() -> None:
@@ -365,7 +366,7 @@ def test_MultiLine() -> None:
     check_properties_existence(glyph, [
         "xs",
         "ys",
-    ], LINE, GLYPH)
+    ], LINE, ["path_markings"])
 
 
 def test_MultiPolygons() -> None:
@@ -378,7 +379,7 @@ def test_MultiPolygons() -> None:
     check_properties_existence(glyph, [
         "xs",
         "ys",
-    ], FILL, HATCH, LINE, GLYPH)
+    ], FILL, HATCH, LINE)
 
 
 def test_Patch() -> None:
@@ -391,7 +392,7 @@ def test_Patch() -> None:
     check_properties_existence(glyph, [
         "x",
         "y",
-    ], FILL, HATCH, LINE, GLYPH)
+    ], FILL, HATCH, LINE)
 
 
 def test_Patches() -> None:
@@ -404,7 +405,7 @@ def test_Patches() -> None:
     check_properties_existence(glyph, [
         "xs",
         "ys",
-    ], FILL, HATCH, LINE, GLYPH)
+    ], FILL, HATCH, LINE)
 
 
 def test_Quad() -> None:
@@ -423,7 +424,7 @@ def test_Quad() -> None:
         "bottom",
         "top",
         "border_radius",
-    ], FILL, HATCH, LINE, GLYPH)
+    ], FILL, HATCH, LINE)
 
 
 def test_Quadratic() -> None:
@@ -442,7 +443,7 @@ def test_Quadratic() -> None:
         "y1",
         "cx",
         "cy",
-    ], LINE, GLYPH)
+    ], LINE)
 
 
 def test_MathMLGlyph() -> None:
@@ -470,7 +471,7 @@ def test_MathMLGlyph() -> None:
         "padding",
         "border_radius",
         "outline_shape",
-    ], TEXT, BORDER_LINE, BACKGROUND_FILL, BACKGROUND_HATCH, GLYPH)
+    ], TEXT, BORDER_LINE, BACKGROUND_FILL, BACKGROUND_HATCH)
 
 
 def test_Ray() -> None:
@@ -487,7 +488,7 @@ def test_Ray() -> None:
         "angle_units",
         "length",
         "length_units",
-    ], LINE, GLYPH)
+    ], LINE)
 
 
 def test_Rect() -> None:
@@ -513,7 +514,7 @@ def test_Rect() -> None:
         "angle_units",
         "border_radius",
         "dilate",
-    ], LINE, FILL, HATCH, GLYPH)
+    ], LINE, FILL, HATCH)
 
 
 def test_Segment() -> None:
@@ -528,7 +529,7 @@ def test_Segment() -> None:
         "y0",
         "x1",
         "y1",
-    ], LINE, GLYPH)
+    ], LINE, ["path_markings"])
 
 
 def test_Step() -> None:
@@ -543,7 +544,7 @@ def test_Step() -> None:
         "mode",
         "pad_before",
         "pad_after",
-    ], LINE, GLYPH)
+    ], LINE)
 
 
 def test_Text() -> None:
@@ -571,7 +572,7 @@ def test_Text() -> None:
         "padding",
         "border_radius",
         "outline_shape",
-    ], TEXT, BORDER_LINE, BACKGROUND_FILL, BACKGROUND_HATCH, GLYPH)
+    ], TEXT, BORDER_LINE, BACKGROUND_FILL, BACKGROUND_HATCH)
 
 
 def test_TeXGlyph() -> None:
@@ -603,7 +604,7 @@ def test_TeXGlyph() -> None:
         "outline_shape",
         "display",
         "macros",
-    ], TEXT, BORDER_LINE, BACKGROUND_FILL, BACKGROUND_HATCH, GLYPH)
+    ], TEXT, BORDER_LINE, BACKGROUND_FILL, BACKGROUND_HATCH)
 
 
 def test_VArea() -> None:
@@ -617,7 +618,7 @@ def test_VArea() -> None:
         "x",
         "y1",
         "y2",
-    ], FILL, HATCH, GLYPH)
+    ], FILL, HATCH)
 
 
 def test_VAreaStep() -> None:
@@ -633,7 +634,7 @@ def test_VAreaStep() -> None:
         "y1",
         "y2",
         "step_mode",
-    ], FILL, HATCH, GLYPH)
+    ], FILL, HATCH)
 
 
 def test_VBar() -> None:
@@ -653,7 +654,7 @@ def test_VBar() -> None:
         "top",
         "bottom",
         "border_radius",
-    ], FILL, HATCH, LINE, GLYPH)
+    ], FILL, HATCH, LINE)
 
 
 def test_Wedge() -> None:
@@ -677,7 +678,7 @@ def test_Wedge() -> None:
         "end_angle",
         "end_angle_units",
         "direction",
-    ], LINE, FILL, HATCH, GLYPH)
+    ], LINE, FILL, HATCH)
 
 
 def test_Circle() -> None:
@@ -695,11 +696,17 @@ def test_Circle() -> None:
         "radius_units",
         "radius_dimension",
         "hit_dilation",
-    ], LINE, FILL, HATCH, GLYPH)
+    ], LINE, FILL, HATCH)
 
 # regression: https://github.com/bokeh/bokeh/issues/14082
 def test_Circle_XYGlpyh() -> None:
     assert issubclass(m.Circle, m.XYGlyph)
+
+# regression: https://github.com/bokeh/bokeh/issues/14364
+@pytest.mark.parametrize("glyph_type", [m.HArea, m.HAreaStep, m.VArea, m.VAreaStep])
+def test_area_glyphs_have_scalar_hatch_properties(glyph_type: type[m.Glyph]) -> None:
+    # BokehJS declares hatch properties of area glyphs as scalars (mixins.HatchScalar)
+    assert set(HATCH).isdisjoint(glyph_type.dataspecs())
 
 #-----------------------------------------------------------------------------
 # Dev API

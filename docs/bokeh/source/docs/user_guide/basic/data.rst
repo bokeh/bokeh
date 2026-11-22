@@ -6,7 +6,7 @@ Data sources
 The basis for any data visualization is the underlying data. This section
 describes the various ways to provide data to Bokeh, from passing data values
 directly to creating a |ColumnDataSource| (CDS) and filtering the data with a
-|CDSView|.
+|IndexedSubset|.
 
 .. _ug_basic_data_python_lists:
 
@@ -237,10 +237,10 @@ Appending data to a ColumnDataSource
 
 |ColumnDataSource| streaming is an efficient way to append new data to a
 ColumnDataSource. When you use the
-:func:`~bokeh.models.sources.ColumnDataSource.stream` method, Bokeh only sends
+:func:`~bokeh.models.ColumnDataSource.stream` method, Bokeh only sends
 new data to the browser instead of sending the entire dataset.
 
-The :func:`~bokeh.models.sources.ColumnDataSource.stream` method takes a
+The :func:`~bokeh.models.ColumnDataSource.stream` method takes a
 ``new_data`` parameter. This parameter expects a dict that maps column names
 to the sequences of data that you want appended to the respective columns.
 You may start with an empty ColumnDataSource to initialize the columns by
@@ -272,15 +272,15 @@ Replacing data in a ColumnDataSource
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 |ColumnDataSource| patching is an efficient way to update slices of a data
-source. By using the :func:`~bokeh.models.sources.ColumnDataSource.patch`
+source. By using the :func:`~bokeh.models.ColumnDataSource.patch`
 method, Bokeh only sends new data to the browser instead of the entire
 dataset.
 
-The :func:`~bokeh.models.sources.ColumnDataSource.patch` requires a dict which
+The :func:`~bokeh.models.ColumnDataSource.patch` requires a dict which
 maps column names to list of tuples that represent a patch change to apply.
 
 Examples of tuples that you can use with
-:func:`~bokeh.models.sources.ColumnDataSource.patch`:
+:func:`~bokeh.models.ColumnDataSource.patch`:
 
 .. code-block:: python
 
@@ -418,18 +418,18 @@ Filtering data
 --------------
 
 Bokeh uses a concept called "view" to select subsets of data. Views are
-represented by Bokeh's |CDSView| class. When you use a view, you can use one or
+represented by Bokeh's |IndexedSubset| class. When you use a view, you can use one or
 more filters to select specific data points without changing the underlying
 data. You can also share those views between different plots.
 
-To plot with a filtered subset of data, pass a |CDSView| to the ``view``
+To plot with a filtered subset of data, pass an |IndexedSubset| to the ``view``
 argument of any renderer method on a Bokeh plot.
 
-A |CDSView| has one property, ``filter``:
+An |IndexedSubset| has one property, ``filter``:
 
 * ``filter`` is an instance of |Filter| model, listed and described below.
 
-In this example, you create a |CDSView| called ``view``. ``view`` uses the
+In this example, you create an |IndexedSubset| called ``view``. ``view`` uses the
 ColumnDataSource ``source`` and an intersection of two filters, ``filter1``
 and ``filter2``. ``view`` is then passed to a :func:`~bokeh.plotting.figure.scatter`
 renderer function:
@@ -437,13 +437,13 @@ renderer function:
 .. code-block:: python
 
     from bokeh.plotting import figure
-    from bokeh.models import ColumnDataSource, CDSView
+    from bokeh.models import ColumnDataSource, IndexedSubset
 
     filter1 = ... # IndexFilter(), BooleanFilter(), etc.
     filter2 = ...
 
     source = ColumnDataSource(some_data)
-    view = CDSView(filter=filter1 & filter2)
+    view = IndexedSubset(filter=filter1 & filter2)
 
     p = figure()
     p.scatter(x="x", y="y", source=source, view=view)
@@ -478,7 +478,7 @@ select rows from a dataset that are members of a specific category.
 
 The |GroupFilter| has two properties:
 
-* ``column_name``: the name of the column in the |ColumnDataSource| to apply the
+* ``field_name``: the name of the field in the |ColumnDataSource| to apply the
   filter to
 * ``group``: the name of the category to select for
 
@@ -500,7 +500,7 @@ Pass your code as a string to the parameter ``code`` of the CustomJSFilter.
 
 Your JavaScript or TypeScript code needs to return either a list of indices or a
 list of booleans representing the filtered subset. You can access the
-|ColumnDataSource| you are using with |CDSView| from within your JavaScript or
+|ColumnDataSource| you are using with |IndexedSubset| from within your JavaScript or
 TypeScript code. Bokeh makes the ColumnDataSource available through the variable
 ``source``:
 
@@ -584,7 +584,7 @@ GitHub repository.
 Gathering from shared coordinates
 ---------------------------------
 
-Use :func:`~bokeh.transform.gather` to read values from one column data source
+Use :func:`~bokeh.transform.gather` to read values from one indexed data source
 using integer row indices stored in another. For example, patches can share a
 vertex table with a scatter renderer:
 
@@ -605,7 +605,9 @@ vertex table with a scatter renderer:
 Pass the required ``indices`` argument to name the index field on the renderer's
 primary source. A flat index column gathers scalar values. Ragged rows or a
 two-dimensional integer NumPy array gather rows for ``Patches`` or ``MultiLine``.
-Indices must be integers between zero and the number of value rows minus one.
+Resolved indices must be integers between zero and the number of value rows
+minus one. Custom indexed sources can resolve stored IDs through the BokehJS
+``get_index_field()`` hook described below.
 For shaped value columns, each index selects a logical row on the first axis
 and preserves its inner shape.
 
@@ -617,11 +619,11 @@ Indices must remain valid while either source updates. When adding vertices,
 update the vertex table before connectivity. When removing vertices, update
 connectivity first. Invalid indices raise an error in the browser.
 
-Coordinates are stored and sent once, then gathered in the browser. Replacing,
-streaming, or patching either source updates the glyph, both in standalone
-JavaScript callbacks and in server applications. Selection and filtering apply
-to rows of each renderer's primary source. Selecting a cell does not select its
-vertices automatically.
+Coordinates are stored and sent once, then gathered in the browser. In this
+``ColumnDataSource`` example, replacing, streaming, or patching either source
+updates the glyph in standalone JavaScript callbacks and server applications.
+Selection and filtering apply to rows of each renderer's primary source.
+Selecting a cell does not select its vertices automatically.
 
 To append a cell that uses existing vertices, stream its indices as a nested list:
 
@@ -675,7 +677,7 @@ on.
 The following example demonstrates this behavior:
 
 * The second plot is a subset of the data of the first plot. The second plot
-  uses a |CDSView| to include only y values that are either greater than 250 or
+  uses an |IndexedSubset| to include only y values that are either greater than 250 or
   less than 100.
 * If you make a selection with the ``BoxSelect`` tool in either plot, the
   selection is automatically reflected in the other plot as well.
@@ -692,10 +694,107 @@ You can also use Bokeh to render network graph data and geographical data. For
 more information about how to set up the data for these types of plots, see
 :ref:`ug_topics_graph` and :ref:`ug_topics_geo`.
 
-.. |CDSView| replace:: :class:`~bokeh.models.sources.CDSView`
+.. _ug_basic_data_record_source:
+
+Row dictionaries
+~~~~~~~~~~~~~~~~
+
+Use :class:`~bokeh.models.sources.RecordDataSource` when your data is already
+organized as rows. Give it an ordered sequence of dictionaries with string
+keys and Bokeh-serializable values. Pass the source to a glyph method and use
+the dictionary keys as field names.
+
+Use this source for small and moderate datasets. Bokeh serializes each row
+dictionary separately. For large numeric datasets, |ColumnDataSource| can
+transport whole arrays in binary form.
+
+.. bokeh-plot:: __REPO__/examples/basic/data/record_source_in_memory.py
+    :source-position: above
+
+Field names are literal top-level keys. A field is available if any row
+contains its key. BokehJS reads missing values as ``undefined`` and preserves
+explicit nulls and nested values. An empty source can be plotted and filled
+later. Use an |IndexedSubset| to filter a renderer. A |GroupFilter| matches
+no rows when the group field is absent from every row. Selections are
+shared between renderers that use the same source and refer to positions
+in the full sequence.
+
+Assign a new sequence to ``source.records`` to replace rows. Create a new
+dictionary for each row whose values change. Bokeh compares the assigned
+sequence with the current one, so editing a dictionary in place can go
+undetected even if you assign a new list afterward. Use a |ColumnDataSource|
+for streaming, patching, data tables, and edit tools.
+
+The file readers use Python's standard library, so you can go from a file
+to a plot even in an environment without a dataframe library.
+
+Use :meth:`~bokeh.models.RecordDataSource.from_csv` to load a CSV
+with a header row. Specify converters for numeric fields and any other
+fields that need conversion. The remaining fields stay strings.
+
+.. code-block:: python
+
+    from datetime import datetime
+
+    from bokeh.models import RecordDataSource
+    from bokeh.plotting import figure, show
+    from bokeh.sampledata.airport_weather import csv_path
+
+    source = RecordDataSource.from_csv(
+        csv_path,
+        converters={"date": datetime.fromisoformat, "actual_max_temp": int},
+    )
+    plot = figure(x_axis_type="datetime")
+    plot.scatter("date", "actual_max_temp", source=source)
+    show(plot)
+
+Pass ``delimiter="\t"`` for tab-separated files. See the
+:bokeh-tree:`examples/basic/data/record_source_csv.py` example for a
+complete plot that shows temperature departures and replaces the plotted
+records when you select an airport.
+
+Use :meth:`~bokeh.models.RecordDataSource.from_jsonl` to load a
+file with one JSON object per line. Numbers, booleans, and other JSON
+values retain their types.
+
+.. code-block:: python
+
+    from bokeh.models import RecordDataSource
+    from bokeh.plotting import figure, show
+
+    source = RecordDataSource.from_jsonl("record_dive_observations.jsonl")
+    plot = figure()
+    plot.scatter("depth", "cover", source=source)
+    show(plot)
+
+Both readers also accept gzip-compressed files with a ``.gz`` suffix,
+such as ``airport_weather.csv.gz`` and ``record_dive_observations.jsonl.gz``.
+
+In a BokehJS app, pass JSON Lines text to ``RecordDataSource.from_jsonl(text)``.
+You can read the text from a browser ``File`` or a successful fetch response
+with ``await file.text()`` or ``await response.text()``.
+After editing records in place in BokehJS, call ``source.change.emit()``
+to refresh plots and invalidate cached field values and expressions.
+
+The JSON Lines example
+(:bokeh-tree:`examples/basic/data/record_source_jsonl.py`) also filters rows
+by review status.
+
+.. |IndexedSubset| replace:: :class:`~bokeh.models.sources.IndexedSubset`
 .. |Filter| replace:: :class:`~bokeh.models.filters.Filter`
 .. |IndexFilter| replace:: :class:`~bokeh.models.filters.IndexFilter`
 .. |BooleanFilter| replace:: :class:`~bokeh.models.filters.BooleanFilter`
 .. |GroupFilter| replace:: :class:`~bokeh.models.filters.GroupFilter`
 .. |CustomJSFilter| replace:: :class:`~bokeh.models.filters.CustomJSFilter`
 .. |DataTable| replace:: :class:`~bokeh.models.widgets.tables.DataTable`
+
+Custom indexed sources
+~~~~~~~~~~~~~~~~~~~~~~
+
+Custom sources based on :class:`~bokeh.models.sources.IndexedDataSource`
+can expose logical records stored in formats other than columns. Glyphs,
+filters, expressions, hover tools, and selection work with these records.
+For implementation details, see :ref:`ug_advanced_extensions_indexed_sources`.
+
+``ColumnDataSource`` remains the standard source for columns, patching,
+streaming, tables, and edit tools.

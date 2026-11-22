@@ -1,7 +1,8 @@
 import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
 
 import {default_resolver} from "@bokehjs/base"
-import {Document, type DocJson} from "@bokehjs/document"
+import {Document} from "@bokehjs/document"
+import type {DocJson} from "@bokehjs/document"
 import * as events from "@bokehjs/document/events"
 import {Model} from "@bokehjs/model"
 import type * as p from "@bokehjs/core/properties"
@@ -276,7 +277,7 @@ describe("minimal ID cross-language fixtures", () => {
     expect(document.get_model_by_id(primary.id)).to.be.equal(primary)
 
     const canonical = document.to_json(false)
-    expect((canonical.roots[0] as {id?: string}).id).to.be.equal(primary.id)
+    expect((canonical.roots[0] as {$id?: string}).$id).to.be.equal(primary.id)
 
     const event = new events.ModelChangedEvent(document, primary, "code", "updated")
     const patch = document.create_json_patch([event])

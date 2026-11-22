@@ -1,3 +1,11 @@
+''' Show the physical size of a pollen image with a metric scale bar.
+
+.. bokeh-example-metadata::
+    :title: Scale bar image
+    :keywords: scale, bar, image
+    :apis: bokeh.models.MetricLength, bokeh.models.ScaleBar, bokeh.plotting.figure.add_layout, bokeh.plotting.figure.image_url
+'''
+
 from pathlib import Path
 
 from bokeh.io import show

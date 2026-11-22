@@ -2,6 +2,7 @@ import {ToggleInputGroup, ToggleInputGroupView} from "./toggle_input_group"
 import type {VNode} from "core/vdom"
 import {UIComponent, cls} from "core/vdom"
 import type * as p from "core/properties"
+import {sorted} from "core/util/array"
 import * as inputs_css from "styles/widgets/inputs.css"
 
 export class CheckboxGroupView extends ToggleInputGroupView {
@@ -41,7 +42,7 @@ export class CheckboxGroupView extends ToggleInputGroupView {
     if (!indices.delete(i)) {
       indices.add(i)
     }
-    this.model.active = [...indices].sort()
+    this.model.active = sorted(indices)
   }
 }
 

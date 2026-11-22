@@ -251,23 +251,28 @@ link model and view.
 .. code-block:: typescript
 
   export class NewActionTool extends ActionTool {
-    properties: NewActionTool.Props
+    declare properties: NewActionTool.Props
     // only when a view is required:
-    __view_type__: NewActionToolView
+    declare __view_type__: NewActionToolView
 
     static {
       this.prototype.default_view = NewActionToolView
 
-      this.define<NewActionTool.Props>(({Number, String}) => ({
-        some_property: [ Number, 0 ],
-        some_other_property: [ String, "Default String" ],
+      this.define<NewActionTool.Props>(({Float, Str}) => ({
+        some_property: [ Float, 0 ],
+        some_other_property: [ Str, "Default String" ],
         ...
-        // add more property definitions and defaults
-        // use properties from lib/core/property and primitives from lib/core/kinds
-        // does have to match Python, both type and default value (and nullability)
+        // add more property definitions and defaults; see "Property kinds" below
+        // must match Python: type, default value and nullability
       }))
     }
   }
+
+Each entry passed to ``define()`` is a ``[kind, default, options?]`` tuple. The
+kind validates values at runtime (see :ref:`contributor_guide_bokehjs_kinds`).
+The default is either a value or a function that takes the model and returns a
+value. Use a function for mutable or object defaults, for example
+``() => FixedTicker.create({ticks: []})``, so instances don't share them.
 
 All model subclasses inherit the lifecycle-aware ``create()`` factory, so a
 custom extension does not need to repeat a constructor. Instantiate the model
@@ -306,6 +311,116 @@ dedicated ``ModelResolver`` and call ``register_standard_models()`` and
 key becomes the stable serialized model name, so production minifiers may
 safely rename the JavaScript class identifier.
 
+.. _contributor_guide_bokehjs_kinds:
+
+Property kinds
+~~~~~~~~~~~~~~
+
+BokehJS describes property types with *kinds*, defined in
+:bokeh-tree:`bokehjs/src/lib/core/kinds.ts`. A kind is a runtime value that
+validates property values (``kind.valid(value)``) and also carries a static
+TypeScript type. One definition therefore serves both the type checker and
+runtime validation.
+
+The kind must match the corresponding Python property as closely as possible.
+Given inherent differences between the type systems of Python and JavaScript,
+some mismatches are expected, for example ``Seq`` vs ``Arrayable``, or ``Dict``
+with non-string keys.
+
+The most commonly used kinds are:
+
+=========================  =====================================  =========================
+Kind                       JavaScript/TypeScript type             Bokeh property
+=========================  =====================================  =========================
+``Bool``                   ``boolean``                            ``Bool``
+``Int``                    ``number`` (an integer)                ``Int``
+``Float``                  ``number``                             ``Float``
+``Str``                    ``string``                             ``String``
+``Null``                   ``null``                               ``Null``
+``Unknown``                ``unknown``                            ``Any``
+``Enum("a", "b")``         ``"a" | "b"``                          ``Enum("a", "b")``
+``NonNegative(Float)``     ``number``                             ``NonNegative(Float)``
+``Positive(Int)``          ``number``                             ``Positive(Int)``
+``Percent``                ``number`` between 0 and 1             ``Percent``
+``Color``                  color string, RGB(A) tuple or integer  ``Color``
+``Regex(...)``             ``string``                             ``Regex(...)``
+``Or(A, B)``               ``A | B``                              ``Either(A, B)``
+``Nullable(A)``            ``A | null``                           ``Nullable(A)``
+``Opt(A)``                 ``A | undefined``                      N/A (BokehJS only)
+``List(A)``                ``A[]``                                ``List(A)``
+``NonEmptyList(A)``        ``A[]``                                ``NonEmpty(List(A))``
+``Tuple(A, B)``            ``[A, B]``                             ``Tuple(A, B)``
+``Arrayable(A)``           ``A[]`` or a typed array               ``Seq(A)``
+``Dict(A)``                ``{[key: string]: A}``                 ``Dict(String, A)``
+``Mapping(K, V)``          ``Map<K, V>``                          ``Dict(K, V)``
+``Set(A)``                 ``Set<A>``                             ``Set(A)``
+``Struct({a: A})``         ``{a: A}``                             ``Struct(a=A)``
+``PartialStruct({a: A})``  ``{a?: A}``                            ``Struct(a=Optional(A))``
+``Ref(SomeModel)``         ``SomeModel``                          ``Instance(SomeModel)``
+``Func()``                 function                               N/A (BokehJS only)
+=========================  =====================================  =========================
+
+Kinds compose like their Python counterparts. For example, ``Either(Instance(Range), Auto)``
+in Python corresponds to ``Or(Ref(Range), Auto)`` in BokehJS, and the TypeScript type
+``Range | "auto"`` is inferred automatically.
+
+Built-in kinds can be imported as usual with ``import {Float, ...} from "core/kinds"``.
+There's also a convenience layer built into ``define()``, which allows you to access
+kinds without the need for imports:
+
+.. code-block:: typescript
+
+  static {
+    this.define<MyModel.Props>(({Float, NonNegative}) => ({
+      min_width: [ NonNegative(Float), 0 ],
+    }))
+  }
+
+.. note::
+  Note that kinds destructured this way shadow globals of the same name, e.g.
+  ``Set``, inside the callback.
+
+When a kind is reused or is too long to repeat in a model's ``Props``, define
+it once as a constant and derive its TypeScript type with ``Infer``. Give the
+constant and the type the same name. TypeScript keeps values and types in
+separate namespaces, so ``Position`` works both in ``define()`` and in type
+positions:
+
+.. code-block:: typescript
+
+  import {Enum, Or, Tuple, Float} from "core/kinds"
+  import type {Infer} from "core/kinds"
+  import {Anchor} from "core/enums"
+
+  const Position = Or(Anchor, Tuple(Float, Float))
+  type Position = Infer<typeof Position>
+
+  const LengthUnits = Enum("screen", "data", "percent")
+  type LengthUnits = Infer<typeof LengthUnits>
+
+  export namespace MyModel {
+    export type Props = Model.Props & {
+      position: p.Property<Position>
+      length_units: p.Property<LengthUnits>
+    }
+  }
+
+  class MyModel extends Model {
+    declare properties: MyModel.Props
+
+    static {
+      this.define<MyModel.Props>(() => ({
+        position:     [ Position, "top_right" ],
+        length_units: [ LengthUnits, "screen" ],
+      }))
+    }
+  }
+
+Shared enumerations live in :bokeh-tree:`bokehjs/src/lib/core/enums.ts`,
+and model-specific reusable kinds live in
+:bokeh-tree:`bokehjs/src/lib/models/common/kinds.ts`. Look there before
+defining a new one.
+
 Views
 ~~~~~
 
@@ -317,7 +432,7 @@ Views extend the respective ``BaseView`` base class.
 .. code-block:: typescript
 
     export class NewActionToolView extends ActionToolView {
-      declare model: NewActionToolView
+      declare model: NewActionTool
 
       initialize(): void {
         super.initialize()
@@ -389,7 +504,7 @@ renderer state, including coordinate arrays and hit-test indices, may still
 describe the previous data immediately after a source change. Await the
 renderer's or plot view's ``ready`` before inspecting that state. Updates
 received before a pass starts are combined, including when a preceding pass
-is still active. The exception is a change of ``CDSView.masked``, which is
+is still active. The exception is a change of ``IndexedSubset.masked``, which is
 published while painting: unless data preparation is queued or active, visuals
 are updated immediately, so the paint that published the mask draws with them.
 Asynchronous visual hooks still run in a queued pass.
@@ -472,6 +587,37 @@ and rendering still update during the interaction, that committed callbacks do
 not run until the interaction ends, and that every completion path delivers the
 final value exactly once. Sliders and ``Spinner`` provide examples covering
 pointer, keyboard, wheel, focus, and removal paths.
+
+.. _contributor_guide_selection_wire_format:
+
+Selection wire format
+---------------------
+
+Python and BokehJS use the same private format for selection snapshots and
+change events. Public indices remain lists or arrays of sorted, unique,
+nonnegative int32 positions. Text serializers and empty top-level selections
+use ordinary lists or maps.
+
+``selection_indices_v1`` contains a protocol ``bytes`` payload in ``data``
+and a descriptor with ``count`` and ``mode``.
+
+* ``int32`` stores ``count`` strictly increasing little-endian int32 values.
+* ``bitmap`` adds ``origin`` and ``span``. Relative position ``i`` uses
+  bit ``i % 8`` (least significant bit first) in byte ``i // 8``. The
+  payload is ``ceil(span / 8)`` bytes, with exactly ``count`` set bits and
+  zero unused high bits. The encoder spans the smallest through largest
+  index and chooses this mode when ``ceil(span / 8) + 64 < 4 * count``.
+
+``selection_map_v1`` stores ``[key, descriptor]`` pairs in ``rows``, ordered
+by strictly increasing nonnegative int32 key. Each descriptor adds a byte
+``offset`` and ``length`` into one shared ``data`` payload. The first slice
+starts at zero and later slices start at the next four-byte boundary at
+or after the preceding slice. Padding bytes are zero and there is no
+trailing padding. Empty rows use int32 mode with zero count and length.
+
+The codec packs bitmap bytes directly. BokehJS uses ``BitSet`` (exported as
+``Indices``) separately for rendering and filtering. Both codecs verify
+the wire format against the same :bokeh-tree:`bokehjs/test/unit/models/selections/selection_wire_fixture.json`.
 
 .. _gulp: https://gulpjs.com/
 .. _Oxlint: https://oxc.rs/docs/guide/usage/linter.html

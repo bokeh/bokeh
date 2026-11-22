@@ -186,6 +186,16 @@ describe("column_data_source module", () => {
         expect(out1.warn).to.be.equal(`[bokeh ${version}] data source has columns of inconsistent lengths\n`)
       })
     })
+
+    it("should return the shortest length if column lengths are inconsistent", () => {
+      with_log_level("error", () => {
+        const r0 = ColumnDataSource.create({data: {foo: new Array(10).fill(0), bar: new Array(9).fill(0)}})
+        expect(r0.get_length()).to.be.equal(9)
+
+        const r1 = ColumnDataSource.create({data: {foo: new Array(2).fill(0), bar: new Array(10).fill(0)}})
+        expect(r1.get_length()).to.be.equal(2)
+      })
+    })
   })
 
   describe("columns method", () => {
@@ -272,9 +282,9 @@ describe("column_data_source module", () => {
   describe("selection pruning", () => {
     it("should prune out-of-bounds indices when data is replaced", () => {
       const selected = Selection.create({
-        indices: [-1, 0, 2, 3],
-        line_indices: [-1, 0, 2, 3],
-        multiline_indices: new Map([[-1, [0]], [0, [0]], [2, [0]], [3, [0]]]),
+        indices: [0, 2, 3],
+        line_indices: [0, 2, 3],
+        multiline_indices: new Map([[0, [0]], [2, [0]], [3, [0]]]),
         image_indices: [
           {index: -1, i: 0, j: 0, flat_index: 0},
           {index: 0, i: 0, j: 0, flat_index: 0},

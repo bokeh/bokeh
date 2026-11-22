@@ -1,14 +1,14 @@
-""" This example demonstrates how to draw the states of the USA using the
-"STATES" feature offered by the `Cartopy`_ project.
+''' This example demonstrates how to draw the states of the USA using the
+"STATES" feature offered by the `Cartopy <https://cartopy.readthedocs.io>`__ project.
 To run this example make sure `Cartopy` is installed.
 
 .. bokeh-example-metadata::
+    :title: Us states
+    :keywords: projection, cartopy, geo
     :apis: bokeh.plotting.figure, bokeh.io.show
     :refs:  :ref:`ug_topics_geo_projections`
-    :keywords: projection, cartopy, geo
 
-.. _Cartopy: https://cartopy.readthedocs.io
-"""
+'''
 from cartopy.crs import PlateCarree
 
 from bokeh.palettes import Category20

@@ -1,10 +1,11 @@
-'''This example shows how to add a secondary y-axis to a figure and set a color
-for the label values.
+''' Plot two series on separate x and y ranges, each with its own axes and zoom tools.
 
 .. bokeh-example-metadata::
+    :title: Twin axes
+    :keywords: add_layout, axis, axis_label, axis_label_text_color, scatter, extra_y_ranges, LinearAxis
     :apis: bokeh.plotting.figure.add_layout, bokeh.plotting.figure.scatter, bokeh.models.LinearAxis
     :refs: :ref:`ug_basic_axes_twin`
-    :keywords: add_layout, axis, axis_label, axis_label_text_color, scatter, extra_y_ranges, LinearAxis
+    :gallery: Blue and red scatter series with separate pairs of left and bottom axes on different scales.
 
 '''
 from numpy import arange, linspace, pi, sin

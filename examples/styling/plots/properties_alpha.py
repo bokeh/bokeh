@@ -1,3 +1,11 @@
+''' Set fill and line transparency independently.
+
+.. bokeh-example-metadata::
+    :title: Properties alpha
+    :keywords: properties, alpha
+    :apis: bokeh.plotting.figure.scatter
+'''
+
 from itertools import product
 from math import pi
 

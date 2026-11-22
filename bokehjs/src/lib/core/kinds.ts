@@ -15,12 +15,16 @@ type ESIterable<V> = globalThis.Iterable<V>
 type DOMNode = globalThis.Node
 const DOMNode = globalThis.Node
 
+declare const __type__: unique symbol
+
+export type Infer<K extends Kind<unknown>> = K[typeof __type__]
+
 export abstract class Kind<T> {
-  declare __type__: T
+  declare [__type__]: T
 
   coerce?(value: unknown): unknown
 
-  abstract valid(value: unknown): value is this["__type__"]
+  abstract valid(value: unknown): value is Infer<this>
 
   abstract may_have_refs(): boolean
 
@@ -209,7 +213,7 @@ export namespace Kinds {
       super()
     }
 
-    valid(value: unknown): value is this["__type__"] {
+    valid(value: unknown): value is Infer<this> {
       if (!tp.isPlainObject(value)) {
         return false
       }
@@ -250,7 +254,7 @@ export namespace Kinds {
       super()
     }
 
-    valid(value: unknown): value is this["__type__"] {
+    valid(value: unknown): value is Infer<this> {
       if (!tp.isPlainObject(value)) {
         return false
       }
@@ -415,7 +419,7 @@ export namespace Kinds {
       super()
     }
 
-    valid(value: unknown): value is this["__type__"] {
+    valid(value: unknown): value is Infer<this> {
       return tp.isString(value) && value.startsWith(this.prefix)
     }
 
@@ -465,7 +469,7 @@ export namespace Kinds {
       super()
     }
 
-    valid(value: unknown): value is this["__type__"] {
+    valid(value: unknown): value is Infer<this> {
       if (!(value instanceof ESMap || tp.isPlainObject(value))) {
         return false
       }
@@ -494,7 +498,7 @@ export namespace Kinds {
       super()
     }
 
-    valid(value: unknown): value is this["__type__"] {
+    valid(value: unknown): value is Infer<this> {
       if (!(value instanceof ESMap || tp.isPlainObject(value))) {
         return false
       }
@@ -532,7 +536,7 @@ export namespace Kinds {
       }
     }
 
-    valid(value: unknown): value is this["__type__"] {
+    valid(value: unknown): value is Infer<this> {
       if (!(value instanceof ESMap)) {
         return false
       }
@@ -561,7 +565,7 @@ export namespace Kinds {
       super()
     }
 
-    valid(value: unknown): value is this["__type__"] {
+    valid(value: unknown): value is Infer<this> {
       if (!(value instanceof ESSet)) {
         return false
       }
@@ -607,7 +611,7 @@ export namespace Kinds {
       super()
     }
 
-    valid(value: unknown): value is this["__type__"] {
+    valid(value: unknown): value is Infer<this> {
       return tp.isFunction(value)
     }
 
@@ -716,19 +720,5 @@ export const FontSize = Str
 export const Font = Str
 export const Angle = Float
 
-export type Float = typeof Float["__type__"]
-export type Dict<V> = Kinds.Dict<V>["__type__"]
-
-// backwards compatibility aliases (these collide with built-in types)
-/** @deprecated */
-export const Boolean = Bool
-/** @deprecated */
-export const String = Str
-/** @deprecated */
-export const Number = Float
-/** @deprecated */
-export const Array = List
-/** @deprecated */
-export const Map = Mapping
-/** @deprecated */
-export const Function = Func
+export type Float = Infer<typeof Float>
+export type Dict<V> = Infer<Kinds.Dict<V>>

@@ -1,10 +1,12 @@
 ''' An adjacent bar plot of Pandas crosstab data.
 
 .. bokeh-example-metadata::
-    :sampledata: sample_superstore
-    :apis: bokeh.plotting.figure.hbar, bokeh.models.sources.ColumnDataSource
-    :refs: :ref:`ug_topics_hierarchical_crosstab`
+    :title: Crosstab
     :keywords: hierarchical, crosstab
+    :apis: bokeh.plotting.figure.hbar, bokeh.models.sources.ColumnDataSource
+    :sampledata: sample_superstore
+    :refs: :ref:`ug_topics_hierarchical_crosstab`
+    :gallery: An adjacent bar chart for a crosstab of the sample superstore data set.
 
 '''
 import pandas as pd
@@ -21,8 +23,8 @@ source = ColumnDataSource(rows.T)
 cats = ["Office Supplies", "Furniture", "Technology"]
 regions = source.data["Region"]
 
-p = figure(y_range=cats, x_range=(-0.55, 1.02), height=400, width=700, tools="",
-           x_axis_location=None, toolbar_location=None, outline_line_color=None)
+p = figure(y_range=cats, x_range=(-0.55, 1.02), height=400, width=700, tools=None,
+           x_axis_location=None, outline_line_color=None)
 p.grid.grid_line_color = None
 p.yaxis.fixed_location = 0
 p.axis.major_tick_line_color = None

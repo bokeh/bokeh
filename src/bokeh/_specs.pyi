@@ -88,15 +88,15 @@ type NumberVal = float | Datetime | TimeDelta
 type NumberSpec = DataSpec[NumberVal]
 type NumberArg = FieldName | NumberVal | NumberSpec | Sequence[NumberVal] | NumberArray
 
-type Number1dVal = Sequence[float | Datetime | TimeDelta]
+type Number1dVal = Sequence[float | Datetime | TimeDelta] | Number1dArray
 type Number1dSpec = DataSpec[Number1dVal]
 type Number1dArg = FieldName | Number1dVal | Number1dSpec | Sequence[Number1dVal] | Number1dArray
 
-type Number2dVal = Sequence[Sequence[float | Datetime | TimeDelta]]
+type Number2dVal = Sequence[Number1dVal]
 type Number2dSpec = DataSpec[Number2dVal]
 type Number2dArg = FieldName | Number2dVal | Number2dSpec | Sequence[Number2dVal] | Number2dArray
 
-type Number3dVal = Sequence[Sequence[Sequence[float | Datetime | TimeDelta]]]
+type Number3dVal = Sequence[Number2dVal]
 type Number3dSpec = DataSpec[Number3dVal]
 type Number3dArg = FieldName | Number3dVal | Number3dSpec | Sequence[Number3dVal] | Number3dArray
 

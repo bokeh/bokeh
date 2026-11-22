@@ -42,7 +42,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-Coordinate: Either[CoordinateLikeType | Node] = Either(CoordinateLike, Instance(Node))
+Coordinate: Either[CoordinateLikeType | Node, CoordinateLikeType | list[str] | Node] = Either(CoordinateLike, Instance(Node))
 
 def GlyphRendererOf(*types: type[Model]) -> TypeOfAttr[GlyphRenderer[Glyph]]: # TODO parameterized on glyph type
     """ Constraints ``GlyphRenderer.glyph`` to the given type or types. """

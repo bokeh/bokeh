@@ -19,10 +19,9 @@ from ...model.model import Model, _ModelInit
 from ..comparisons import Comparison
 from ..dom import HTML
 from ..sources import (
-    CDSView,
     ColumnDataSource,
     DataDictLike,
-    DataSource,
+    IndexedSubset,
 )
 from .widget import Widget, _WidgetInit
 
@@ -193,21 +192,20 @@ class TableColumn(Model):
     sorter: Comparison | None = ...
 
 class _TableWidgetInit(_WidgetInit, total=False):
-    source: DataSource
-    view: CDSView
+    source: ColumnDataSource
+    view: IndexedSubset
 
 class TableWidget(Widget):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_TableWidgetInit]) -> None: ...
 
-    source: DataSource = ...
-    view: CDSView = ...
+    source: ColumnDataSource = ...
+    view: IndexedSubset = ...
 
 class _DataTableInit(_TableWidgetInit, total=False):
     autosize_mode: AutosizeMode
     auto_edit: bool
     columns: list[TableColumn]
-    fit_columns: bool | None
     frozen_columns: int | None
     frozen_rows: int | None
     sortable: bool
@@ -227,7 +225,6 @@ class DataTable(TableWidget):
     autosize_mode: AutosizeMode = ...
     auto_edit: bool = ...
     columns: list[TableColumn] = ...
-    fit_columns: bool | None = ...
     frozen_columns: int | None = ...
     frozen_rows: int | None = ...
     sortable: bool = ...

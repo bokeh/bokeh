@@ -12,7 +12,9 @@ import {Selection} from "../selections/selection"
 import type {PointGeometry} from "core/geometry"
 import type {SpatialIndex} from "core/util/spatial"
 import type {NDArrayType} from "core/util/ndarray"
-import {assert} from "core/util/assert"
+import {is_NDArray} from "core/util/ndarray"
+import {assert_not_null} from "core/util/assert"
+import {logger} from "core/logging"
 import type {XY} from "core/util/bbox"
 import {Anchor} from "../common/kinds"
 import {anchor} from "../common/resolve"
@@ -71,7 +73,7 @@ export abstract class ImageBaseView extends XYGlyphView {
     const {image_data, sx, sy, sdw, sdh} = {...this, ...data}
     const {xy_sign, xy_scale, xy_offset, xy_anchor} = this
 
-    assert(image_data != null)
+    assert_not_null(image_data)
 
     ctx.save()
     ctx.imageSmoothingEnabled = false
@@ -113,10 +115,10 @@ export abstract class ImageBaseView extends XYGlyphView {
     const n = this.data_size
 
     if (!this._can_inherit_image_data) {
-      if (typeof this.image_data === "undefined" || this.image_data.length != n) {
-        this._define_attr<ImageBase.Data>("image_data", new Array(n).fill(null))
-        this._define_attr<ImageBase.Data>("image_width", new Uint32Array(n))
-        this._define_attr<ImageBase.Data>("image_height", new Uint32Array(n))
+      let {image_data} = this
+      if (image_data?.length != n) {
+        image_data = new Array(n).fill(null)
+        this._define_attr<ImageBase.Data>("image_data", image_data)
       }
 
       const {image_dimension} = this
@@ -127,19 +129,29 @@ export abstract class ImageBaseView extends XYGlyphView {
         }
 
         const img = this.image.get(i)
-        assert(img.dimension == image_dimension, `expected a ${image_dimension}D array, not ${img.dimension}D`)
+
+        if (!is_NDArray(img) || img.dimension != image_dimension) {
+          const got = is_NDArray(img) ? `${img.dimension}D array` : typeof img
+          logger.error(`${this.model}.image[${i}]: expected a ${image_dimension}D array, got ${got}`)
+          // don't keep rendering a stale image from a previous update
+          image_data[i] = null
+          continue
+        }
+
+        if (img.length == 0) {
+          // nothing to render (including stacks without layers), a zero
+          // sized canvas can't be drawn and color mappers can't handle it
+          image_data[i] = null
+          continue
+        }
 
         const [height, width] = img.shape
-        this.image_width[i] = width
-        this.image_height[i] = height
 
         const buf8 = this._flat_img_to_buf8(img)
-        this._set_image_data_from_buffer(i, buf8)
+        image_data[i] = this._image_from_buffer(image_data[i], width, height, buf8)
       }
     } else {
       this._inherit_attr<ImageBase.Data>("image_data")
-      this._inherit_attr<ImageBase.Data>("image_width")
-      this._inherit_attr<ImageBase.Data>("image_height")
     }
   }
 
@@ -169,31 +181,27 @@ export abstract class ImageBaseView extends XYGlyphView {
     return [l, r, t, b]
   }
 
-  protected _get_or_create_canvas(i: number): HTMLCanvasElement {
-    assert(this.image_data != null)
-    const image_data_i = this.image_data[i]
-    if (image_data_i != null && image_data_i.width  == this.image_width[i]
-                             && image_data_i.height == this.image_height[i]) {
-      return image_data_i
+  protected _get_or_create_canvas(prev: ImageData, width: number, height: number): HTMLCanvasElement {
+    if (prev != null && prev.width == width && prev.height == height) {
+      return prev
     } else {
       const canvas = document.createElement("canvas")
-      canvas.width = this.image_width[i]
-      canvas.height = this.image_height[i]
+      canvas.width = width
+      canvas.height = height
       return canvas
     }
   }
 
-  protected _set_image_data_from_buffer(i: number, buf8: Uint8ClampedArray): void {
-    assert(this.image_data != null)
+  protected _image_from_buffer(prev: ImageData, width: number, height: number, buf8: Uint8ClampedArray): HTMLCanvasElement {
     // This creates a software 2D canvas, which is good for frequent getImageData() and
     // putImageData(), but not for general rendering due to lack of hardware acceleration.
-    const canvas = this._get_or_create_canvas(i)
+    const canvas = this._get_or_create_canvas(prev, width, height)
     const ctx = canvas.getContext("2d", {willReadFrequently: true})
-    assert(ctx != null)
-    const image_data = ctx.getImageData(0, 0, this.image_width[i], this.image_height[i])
+    assert_not_null(ctx)
+    const image_data = ctx.getImageData(0, 0, width, height)
     image_data.data.set(buf8)
     ctx.putImageData(image_data, 0, 0)
-    this.image_data[i] = canvas
+    return canvas
   }
 
   protected override _map_data(): void {
@@ -224,8 +232,9 @@ export abstract class ImageBaseView extends XYGlyphView {
 
   protected _image_index(index: number, x: number, y: number): ImageIndex {
     const [l, r, t, b] = this._lrtb(index)
-    const nx = this.image_width[index]
-    const ny = this.image_height[index]
+    const canvas = this.image_data?.[index]
+    assert_not_null(canvas)
+    const {width, height} = canvas
 
     // The handling of log scales here assumes that users themselves have
     // generated images that are "pre-transformed", e.g. an np.meshgrid where
@@ -246,10 +255,10 @@ export abstract class ImageBaseView extends XYGlyphView {
       return (y-b) / (t-b)
     })()
 
-    const i = Math.floor(dx * nx)
-    const j = Math.floor(dy * ny)
+    const i = Math.floor(dx*width)
+    const j = Math.floor(dy*height)
 
-    return {index, i, j, flat_index: j*nx + i}
+    return {index, i, j, flat_index: j*width + i}
   }
 
   override _hit_point(geometry: PointGeometry): Selection {
@@ -260,8 +269,15 @@ export abstract class ImageBaseView extends XYGlyphView {
     const candidates = this.index.indices({x0: x, x1: x, y0: y, y1: y})
     const result = Selection.create()
 
+    const {image_data} = this
+    assert_not_null(image_data)
+
     const indices = []
     for (const index of candidates) {
+      // skipped (invalid or empty) images have no pixels to hit
+      if (image_data[index] == null) {
+        continue
+      }
       if (isFinite(sx) && isFinite(sy)) {
         indices.push(index)
         result.image_indices.push(this._image_index(index, x, y))
@@ -292,12 +308,6 @@ export namespace ImageBase {
   export type Data = p.GlyphDataOf<Props> & {
     image_data: Arrayable<ImageData> | undefined
     inherited_image_data: boolean
-
-    image_width: Uint32Array
-    inherited_image_width: boolean
-
-    image_height: Uint32Array
-    inherited_image_height: boolean
   }
 }
 

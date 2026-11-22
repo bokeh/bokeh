@@ -43,10 +43,10 @@ def test_release_docs_require_map_keys(
 
 
 def test_conda_recipe_dependencies_match_project_dependencies() -> None:
-    with open(TOP_PATH / "pyproject.toml", "rb") as f:
-        project_dependencies = tomllib.load(f)["project"]["dependencies"]
-    with open(TOP_PATH / "conda/recipe/recipe.yaml") as f:
-        conda_dependencies = yaml.safe_load(f)["requirements"]["run"]
+    with open(TOP_PATH / "pyproject.toml", "rb") as pyproject:
+        project_dependencies = tomllib.load(pyproject)["project"]["dependencies"]
+    with open(TOP_PATH / "conda/recipe/recipe.yaml") as recipe:
+        conda_dependencies = yaml.safe_load(recipe)["requirements"]["run"]
 
     def constraints(requirements: list[str]) -> dict[str, str]:
         parsed = (Requirement(requirement) for requirement in requirements)

@@ -1,6 +1,6 @@
 {
   "name": "@bokeh/bokehjs",
-  "version": "4.0.0-dev.8",
+  "version": "4.0.0-dev.10",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -62,7 +62,11 @@
     "test:frameworks": "node make test:frameworks"
   },
   "overrides": {
-    "decode-uri-component": "^0.5.0"
+    "decode-uri-component": "^0.5.0",
+    "@napi-rs/wasm-runtime": {
+      "@emnapi/core": "2.0.0-alpha.6",
+      "@emnapi/runtime": "2.0.0-alpha.6"
+    }
   },
   "allowScripts": {
     "esbuild": true
@@ -102,8 +106,11 @@
     "earcut": "^3.0.2",
     "fflate": "^0.8.2",
     "flatpickr": "^4.6.13",
+    "github-slugger": "^2.0.0",
+    "highlight.js": "^11.12.0",
     "libtess": "1.2.2",
     "marked": "^17.0.1",
+    "marked-footnote": "^1.4.0",
     "mathjax-full": "^3.2.2",
     "nearley": "^2.20.1",
     "preact": "^10.28.0",

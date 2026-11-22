@@ -1,12 +1,11 @@
-''' A manual hexbin plot using randomly selected points. This chart shows
-50,000 points points from a normal distribution binned into hexagonal tiles
-using the ``hexbin`` utility function. The tiles are colormapped linearly
-according to their bin counts.
+''' Bin random points with hexbin and color the tiles by count.
 
 .. bokeh-example-metadata::
+    :title: Draw hex tiles manually
+    :keywords: hex, hex_tile, colormap
     :apis: bokeh.plotting.figure.hex_tile, bokeh.transform.linear_cmap, bokeh.util.hex.hexbin
     :refs: :ref:`ug_topics_hex`
-    :keywords: hex, hex_tile, colormap
+    :gallery: A hex tile plot of binned 2d random (Gaussian) data points, colormapped by density with the Viridis palette.
 
 '''
 import numpy as np

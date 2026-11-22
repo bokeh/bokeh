@@ -11,11 +11,12 @@ import * as k from "./kinds"
 import type {Property} from "./properties"
 import {assert} from "./util/assert"
 import {unique_id} from "./util/string"
-import {keys, values, entries, extend, is_empty, dict} from "./util/object"
+import {keys, values, entries, extend, dict} from "./util/object"
 import {isObject, isIterable, isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
 import type {Serializable, Serializer, ObjectRep, ObjectRefRep, AnyVal} from "./serialization"
 import {serialize} from "./serialization"
 import type {Document} from "../document/document"
+import type {CallbackPolicy} from "../model"
 import type {DocumentEvent} from "../document/events"
 import {DocumentEventBatch, ModelChangedEvent, ColumnsPatchedEvent, ColumnsStreamedEvent} from "../document/events"
 import type {Equatable} from "./util/eq"
@@ -65,6 +66,7 @@ type ReferenceCollector = {
 }
 
 export namespace HasProps {
+  // oxlint-disable-next-line typescript/no-generated-empty-object-type -- the base model has no properties
   export type Attrs = p.AttrsOf<Props>
   export type Props = {}
 
@@ -84,6 +86,38 @@ export interface HasProps extends HasProps.Attrs, ISignalable {
 }
 
 export type PropertyGenerator = Generator<Property, void, undefined>
+
+export type TransitiveOpts = {
+  recursive?: boolean
+  signals?: (obj: HasProps) => readonly Signal<unknown, HasProps>[]
+  on_replace?: (() => unknown) | null
+}
+
+/** Bind signals from referenced models and rebind before notifying on replacement. */
+export function on_transitive_change(
+  receiver: ISignalable, property: Property, fn: () => unknown,
+  {recursive = false, signals = (obj) => [obj.change], on_replace = fn}: TransitiveOpts = {},
+): void {
+  const slot = () => fn()
+  const bind = () => {
+    const value = property.is_unset ? null : property.get_value()
+    const models = HasProps.references(value, {recursive})
+    const connected = Array.from(models).flatMap(signals)
+    for (const signal of connected) {
+      receiver.connect(signal, slot)
+    }
+    return connected
+  }
+
+  let connected = bind()
+  receiver.connect(property.change, () => {
+    for (const signal of connected) {
+      receiver.disconnect(signal, slot)
+    }
+    connected = bind()
+    return on_replace?.()
+  })
+}
 
 const _qualified_names = new WeakMap<typeof HasProps, string>()
 
@@ -201,10 +235,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       }
 
       Object.defineProperty(this.prototype, name, {
-        // XXX: don't use tail calls in getters/setters due to https://bugs.webkit.org/show_bug.cgi?id=164306
+        // Read through the property's preact signal, so that accessing attributes
+        // inside computed signals, effects or vdom components is tracked.
         get(this: HasProps): any {
-          const value = this.properties[name].get_value()
-          return value
+          return this.properties[name].signal.value
         },
         set(this: HasProps, value: any): HasProps {
           this.setv({[name]: value})
@@ -381,6 +415,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   }
 
   [serialize](serializer: Serializer): ObjectRep | ObjectRefRep {
+    return this._to_serializable(serializer)
+  }
+
+  protected _to_serializable(serializer: Serializer, overrides: {[key: string]: unknown} = {}): ObjectRep | ObjectRefRep {
     const use_id = serializer.use_model_id(this)
     if (use_id) {
       serializer.add_ref(this, serializer.model_ref(this.ref()))
@@ -407,17 +445,12 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       })()
       if (prop.syncable && (serializer.include_defaults || prop.dirty || has_retained_ref) && !(prop.readonly && prop.is_unset)) {
         const value = prop.get_value()
-        attributes[prop.attr] = serializer.encode(value) as AnyVal
+        attributes[prop.attr] = serializer.encode(Object.hasOwn(overrides, prop.attr) ? overrides[prop.attr] : value) as AnyVal
       }
     }
 
     const {type: name, id} = this
-    if (serializer.compact) {
-      return use_id ? {$type: name, $id: id, ...attributes} : {$type: name, ...attributes}
-    }
-
-    const rep = use_id ? {type: "object" as const, name, id} : {type: "object" as const, name}
-    return is_empty(attributes) ? rep : {...rep, attributes}
+    return use_id ? {$type: name, $id: id, ...attributes} : {$type: name, ...attributes}
   }
 
   protected constructor(attrs: {id: string} | AttrsLike = {}) {
@@ -578,7 +611,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   }
 
   // Create a new model with exact attribute values to this one, but new identity.
-  clone(attrs?: Partial<HasProps.Attrs>): this {
+  clone(attrs?: Partial<p.AttrsOf<this["properties"]>>): this {
     const cloner = new Cloner()
     const that = cloner.clone(this)
     if (attrs != null) {
@@ -602,6 +635,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   private _pending: boolean = false
   private _changing: boolean = false
 
+  protected get _setting_properties(): boolean {
+    return this._changing
+  }
+
   // Set a hash of model attributes on the object, firing `"change"`. This is
   // the core primitive operation of a model, updating the data and notifying
   // anyone who needs to know about the change in state. The heart of the beast.
@@ -613,7 +650,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     this._changing = true
 
     const cmp = new Comparator({no_fail: true})
-    for (const [prop, value] of changes) {
+    for (const [prop, incoming] of changes) {
+      // Coerce once before equality so comparison and storage use the same value.
+      const value = prop.initialized && prop.kind.coerce != null ? prop.kind.coerce(incoming) : incoming
       if (check_eq === false || prop.is_unset || !cmp.eq(prop.get_value(), value)) {
         prop.set_value(value)
         changed.add(prop)
@@ -657,7 +696,8 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       this._clear_watchers()
 
       for (const [attr, value] of changes) {
-        this.properties[attr].set_value(value)
+        const prop = this.properties[attr]
+        prop.set_value(prop.initialized && prop.kind.coerce != null ? prop.kind.coerce(value) : value)
       }
 
       return
@@ -788,6 +828,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
+  _create_change_event(attr: string, value: unknown, callback_policy?: CallbackPolicy): ModelChangedEvent {
+    return new ModelChangedEvent(this.document!, this, attr, value, callback_policy)
+  }
+
   protected _push_changes(changes: [Property, unknown, unknown][], sync: boolean): void {
     if (!this.is_syncable) {
       return
@@ -801,7 +845,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     const events = []
     for (const [prop,, new_value] of changes) {
       if (prop.syncable) {
-        const event = new ModelChangedEvent(document, this, prop.attr, new_value)
+        const event = this._create_change_event(prop.attr, new_value)
         event.sync = sync
         events.push(event)
       }
@@ -816,6 +860,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       }
       document._trigger_on_change(event)
     }
+  }
+
+  on_transitive_change(property: Property, fn: () => unknown, options?: TransitiveOpts): void {
+    on_transitive_change(this, property, fn, options)
   }
 
   on_change<Name extends Extract<keyof this["properties"], string>>(properties: Name | readonly Name[], fn: () => void): void

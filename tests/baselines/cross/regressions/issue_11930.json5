@@ -1,207 +1,165 @@
 {
   config: {
-    type: "object",
-    name: "DocumentConfig",
-    id: "p1016",
-    attributes: {
-      notifications: {
-        type: "object",
-        name: "Notifications",
-        id: "p1017",
-      },
+    $type: "DocumentConfig",
+    $id: "p1016",
+    notifications: {
+      $type: "Notifications",
+      $id: "p1017",
     },
   },
   roots: [
     {
-      type: "object",
-      name: "Plot",
-      id: "p1009",
-      attributes: {
-        width: 200,
-        height: 200,
-        x_range: {
-          type: "object",
-          name: "DataRange1d",
-          id: "p1018",
-        },
-        y_range: {
-          type: "object",
-          name: "DataRange1d",
-          id: "p1019",
-        },
-        x_scale: {
-          type: "object",
-          name: "LinearScale",
-          id: "p1020",
-        },
-        y_scale: {
-          type: "object",
-          name: "LinearScale",
-          id: "p1021",
-        },
-        title: {
-          type: "object",
-          name: "Title",
-          id: "p1022",
-        },
-        renderers: [
-          {
-            type: "object",
-            name: "GlyphRenderer",
-            id: "p1008",
-            attributes: {
-              data_source: {
-                type: "object",
-                name: "ColumnDataSource",
-                id: "p1006",
-                attributes: {
-                  selected: {
-                    type: "object",
-                    name: "Selection",
-                    id: "p1029",
-                  },
-                  selection_policy: {
-                    type: "object",
-                    name: "UnionRenderers",
-                    id: "p1030",
-                  },
-                  data: {
-                    type: "map",
-                    entries: [
-                      [
-                        "x",
-                        [
-                          1,
-                          2,
-                          3,
-                        ],
-                      ],
-                      [
-                        "y",
-                        [
-                          4,
-                          4.5,
-                          6,
-                        ],
-                      ],
-                    ],
-                  },
-                },
-              },
-              view: {
-                type: "object",
-                name: "CDSView",
-                id: "p1024",
-                attributes: {
-                  filter: {
-                    type: "object",
-                    name: "AllIndices",
-                    id: "p1031",
-                  },
-                },
-              },
-              glyph: {
-                type: "object",
-                name: "Line",
-                id: "p1007",
-              },
-            },
-          },
-        ],
-        toolbar: {
-          type: "object",
-          name: "Toolbar",
-          id: "p1023",
-        },
-        below: [
-          {
-            type: "object",
-            name: "LinearAxis",
-            id: "p1011",
-            attributes: {
-              ticker: {
-                type: "object",
-                name: "FixedTicker",
-                id: "p1010",
-                attributes: {
-                  ticks: [
-                    1,
-                    2,
-                    3,
-                  ],
-                },
-              },
-              formatter: {
-                type: "object",
-                name: "BasicTickFormatter",
-                id: "p1025",
-              },
-              axis_label: "int overrides",
-              major_label_overrides: {
-                type: "map",
-                entries: [
-                  [
-                    1,
-                    "A",
-                  ],
-                  [
-                    3,
-                    "C",
-                  ],
-                ],
-              },
-              major_label_policy: {
-                type: "object",
-                name: "AllLabels",
-                id: "p1026",
-              },
-            },
-          },
-          {
-            type: "object",
-            name: "LinearAxis",
-            id: "p1014",
-            attributes: {
-              ticker: {
-                type: "object",
-                name: "FixedTicker",
-                id: "p1013",
-                attributes: {
-                  ticks: [
-                    1,
-                    2,
-                    3,
-                  ],
-                },
-              },
-              formatter: {
-                type: "object",
-                name: "BasicTickFormatter",
-                id: "p1027",
-              },
-              axis_label: "float overrides",
-              major_label_overrides: {
-                type: "map",
-                entries: [
-                  [
-                    1.0,
-                    "A",
-                  ],
-                  [
-                    3.0,
-                    "C",
-                  ],
-                ],
-              },
-              major_label_policy: {
-                type: "object",
-                name: "AllLabels",
-                id: "p1028",
-              },
-            },
-          },
-        ],
+      $type: "Plot",
+      $id: "p1009",
+      width: 200,
+      height: 200,
+      x_range: {
+        $type: "DataRange1d",
+        $id: "p1018",
       },
+      y_range: {
+        $type: "DataRange1d",
+        $id: "p1019",
+      },
+      x_scale: {
+        $type: "LinearScale",
+        $id: "p1020",
+      },
+      y_scale: {
+        $type: "LinearScale",
+        $id: "p1021",
+      },
+      title: {
+        $type: "Title",
+        $id: "p1022",
+      },
+      renderers: [
+        {
+          $type: "GlyphRenderer",
+          $id: "p1008",
+          data_source: {
+            $type: "ColumnDataSource",
+            $id: "p1006",
+            selected: {
+              $type: "Selection",
+              $id: "p1029",
+            },
+            selection_policy: {
+              $type: "UnionRenderers",
+              $id: "p1030",
+            },
+            data: {
+              type: "map",
+              entries: [
+                [
+                  "x",
+                  [
+                    1,
+                    2,
+                    3,
+                  ],
+                ],
+                [
+                  "y",
+                  [
+                    4,
+                    4.5,
+                    6,
+                  ],
+                ],
+              ],
+            },
+          },
+          view: {
+            $type: "IndexedSubset",
+            $id: "p1024",
+            filter: {
+              $type: "AllIndices",
+              $id: "p1031",
+            },
+          },
+          glyph: {
+            $type: "Line",
+            $id: "p1007",
+          },
+        },
+      ],
+      toolbar: {
+        $type: "Toolbar",
+        $id: "p1023",
+      },
+      below: [
+        {
+          $type: "LinearAxis",
+          $id: "p1011",
+          ticker: {
+            $type: "FixedTicker",
+            $id: "p1010",
+            ticks: [
+              1,
+              2,
+              3,
+            ],
+          },
+          formatter: {
+            $type: "BasicTickFormatter",
+            $id: "p1025",
+          },
+          axis_label: "int overrides",
+          major_label_overrides: {
+            type: "map",
+            entries: [
+              [
+                1,
+                "A",
+              ],
+              [
+                3,
+                "C",
+              ],
+            ],
+          },
+          major_label_policy: {
+            $type: "AllLabels",
+            $id: "p1026",
+          },
+        },
+        {
+          $type: "LinearAxis",
+          $id: "p1014",
+          ticker: {
+            $type: "FixedTicker",
+            $id: "p1013",
+            ticks: [
+              1,
+              2,
+              3,
+            ],
+          },
+          formatter: {
+            $type: "BasicTickFormatter",
+            $id: "p1027",
+          },
+          axis_label: "float overrides",
+          major_label_overrides: {
+            type: "map",
+            entries: [
+              [
+                1.0,
+                "A",
+              ],
+              [
+                3.0,
+                "C",
+              ],
+            ],
+          },
+          major_label_policy: {
+            $type: "AllLabels",
+            $id: "p1028",
+          },
+        },
+      ],
     },
   ],
 }

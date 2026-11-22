@@ -72,6 +72,10 @@ class GMap(GMapPlot, GlyphAPI):
 
     def __init__(self, **kw: Any) -> None:
         opts = cast(Any, GMapFigureOptions)(kw)
+
+        if opts.tools is None:
+            kw.setdefault("toolbar_location", None)
+
         super().__init__(x_range=Range1d(), y_range=Range1d(), **kw)
 
         if opts.x_axis_location is not None:

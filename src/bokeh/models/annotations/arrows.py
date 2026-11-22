@@ -67,6 +67,9 @@ class OpenHead(ArrowHead):
     The {prop} values for the arrow head outline.
     """)
 
+def auto_arrowhead() -> OpenHead:
+    return OpenHead(inherit_visuals=["line_color", "line_alpha", "line_width"])
+
 class NormalHead(ArrowHead):
     ''' Render a closed-body arrow head.
 
@@ -84,7 +87,7 @@ class NormalHead(ArrowHead):
     The {prop} values for the arrow head interior.
     """)
 
-    fill_color = Override(default="black")
+    _fill_color = Override(default="black")
 
 class TeeHead(ArrowHead):
     ''' Render a tee-style arrow head.
@@ -112,7 +115,7 @@ class VeeHead(ArrowHead):
     The {prop} values for the arrow head interior.
     """)
 
-    fill_color = Override(default="black")
+    _fill_color = Override(default="black")
 
 #-----------------------------------------------------------------------------
 # Dev API

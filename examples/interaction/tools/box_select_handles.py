@@ -1,3 +1,11 @@
+''' Adjust the selection bounds interactively with box select handles.
+
+.. bokeh-example-metadata::
+    :title: Box select handles
+    :keywords: box, select, handles
+    :apis: bokeh.models.BoxSelectTool, bokeh.plotting.figure.circle, bokeh.plotting.figure.select
+'''
+
 import numpy as np
 
 from bokeh.layouts import row

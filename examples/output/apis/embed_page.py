@@ -1,13 +1,22 @@
+''' Render a Bokeh race visualization as a standalone HTML page.
+
+.. bokeh-example-metadata::
+    :title: Embed page
+    :keywords: embed, page
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.DataRange1d, bokeh.models.Grid, bokeh.models.HoverTool, bokeh.models.IndexFilter
+    :sampledata: sprint
+'''
+
 import yaml
 
 from bokeh.core.properties import value
 from bokeh.document import Document
 from bokeh.models import (
-    CDSView,
     ColumnDataSource,
     DataRange1d,
     Grid,
     HoverTool,
+    IndexedSubset,
     IndexFilter,
     Label,
     LinearAxis,
@@ -86,7 +95,7 @@ medal = Scatter(x="MetersBack", y="Year", size=10, fill_color="MedalFill", line_
 medal_renderer = plot.add_glyph(source, medal)
 
 #sprint[sprint.Medal=="gold" * sprint.Year in [1988, 1968, 1936, 1896]]
-view = CDSView(filter=IndexFilter(list(sprint.query('Medal == "gold" and Year in [1988, 1968, 1936, 1896]').index)))
+view = IndexedSubset(filter=IndexFilter(list(sprint.query('Medal == "gold" and Year in [1988, 1968, 1936, 1896]').index)))
 plot.add_glyph(source, Text(x="MetersBack", y="Year", x_offset=10, text="Name"), view=view)
 
 plot.add_glyph(source, Text(x=7.5, y=1942, text=value("No Olympics in 1940 or 1944"),
@@ -98,9 +107,9 @@ arrow = plot.add_glyph(arrow_source, Segment(
     x0="x_start", y0="y", x1="x_end", y1="y",
     line_color="black", line_width=1.5,
 ))
-arrow.add_path_decoration(
+arrow.add_path_marking(
     NormalHead(size=6, fill_color="black", line_color="black"),
-    node="start",
+    at="start",
 )
 
 meters_back = Label(

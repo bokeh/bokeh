@@ -9,7 +9,8 @@ import {entries} from "@bokehjs/core/util/object"
 import {unreachable} from "@bokehjs/core/util/assert"
 import {defer} from "@bokehjs/core/util/defer"
 import {BBox} from "@bokehjs/core/util/bbox"
-import {select_tests, type Filters, type FilterResult} from "./filters"
+import {select_tests} from "./filters"
+import type {Filters, FilterResult} from "./filters"
 
 export type {Filters, FilterResult} from "./filters"
 
@@ -48,6 +49,8 @@ export type Test = {
   scale?: number
   no_image?: boolean
   module?: string
+  /** source file of the module, e.g. `test/unit/core/util/array.ts` */
+  file?: string
   omit?: boolean
 }
 
@@ -62,15 +65,15 @@ export type Suite = {
 export const top_level: Suite = {description: "top-level", suites: [], tests: [], before_each: [], after_each: []}
 const stack: Suite[] = [top_level]
 
-let current_module: string | undefined = undefined
+let current_module: {name: string, file: string} | undefined = undefined
 
 /**
- * Loads a test module, attributing tests registered by it to `name`.
+ * Loads a test module, attributing tests registered by it to `name` (defined in `file`).
  * This is used by the generated `auto_index` module.
  */
-export function load_module(name: string, load: () => unknown): void {
+export function load_module(name: string, file: string, load: () => unknown): void {
   const previous = current_module
-  current_module = name
+  current_module = {name, file}
   try {
     load()
   } finally {
@@ -100,7 +103,7 @@ type _It = ItFn & {
 }
 
 function _it(description: string, fn: ItFunc | ItAsyncFunc, skip: boolean, no_image: boolean = false): Test {
-  const test: Test = {description, fn, skip, mounts: [], views: [], no_image, module: current_module}
+  const test: Test = {description, fn, skip, mounts: [], views: [], no_image, module: current_module?.name, file: current_module?.file}
   stack[0].tests.push(test)
   return test
 }
@@ -437,7 +440,7 @@ async function _run_test(suites: Suite[], test: Test, ctx: TestRunContext): Prom
   return {error, time}
 }
 
-export async function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void, svg: SVGSVGElement, {width, height}: {width: number, height: number}): Promise<void> {
+export async function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void | Promise<void>, svg: SVGSVGElement, {width, height}: {width: number, height: number}): Promise<void> {
   const canvas = document.createElement("canvas")
   canvas.height = height
   canvas.width = width
@@ -446,7 +449,7 @@ export async function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void
 
   const ctx = canvas.getContext("2d")!
 
-  fn(ctx)
+  await fn(ctx)
 
   container.appendChild(svg)
 

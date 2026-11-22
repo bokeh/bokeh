@@ -1,24 +1,44 @@
-import * as ts from "typescript"
-
 import crypto from "node:crypto"
-import {parse, format, normalize, basename, dirname, join} from "node:path"
+import fs from "node:fs"
+import {parse, format, basename, dirname, join} from "node:path"
 
 export type Path = string
 
-export function scan(path: string,
-                     extensions?: readonly string[], exclude?: readonly string[], include?: readonly string[], depth?: number): string[] {
-  return ts.sys.readDirectory(path, extensions, exclude, include, depth).map((p) => normalize(p))
+export function scan(path: Path, extensions: readonly string[]): Path[] {
+  const patterns = extensions.map((ext) => `**/*${ext}`)
+  return fs.globSync(patterns, {cwd: path}).sort().map((file) => join(path, file))
 }
 
-export function glob(...patterns: string[]): string[] {
-  return scan(".", undefined, undefined, patterns)
+export function read(path: Path): string | undefined {
+  let data: string
+  try {
+    data = fs.readFileSync(path, "utf8")
+  } catch {
+    return undefined
+  }
+  return data.startsWith("﻿") ? data.slice(1) : data
 }
 
-export const read = ts.sys.readFile
-export const write = ts.sys.writeFile
+export function write(path: Path, data: string): void {
+  fs.mkdirSync(dirname(path), {recursive: true})
+  fs.writeFileSync(path, data)
+}
 
-export const file_exists = ts.sys.fileExists
-export const directory_exists = ts.sys.directoryExists
+function stat(path: Path): fs.Stats | undefined {
+  try {
+    return fs.statSync(path, {throwIfNoEntry: false})
+  } catch {
+    return undefined
+  }
+}
+
+export function file_exists(path: Path): boolean {
+  return stat(path)?.isFile() ?? false
+}
+
+export function directory_exists(path: Path): boolean {
+  return stat(path)?.isDirectory() ?? false
+}
 
 export type RenameOptions = {
   base?: string

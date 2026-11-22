@@ -89,27 +89,6 @@ del importlib_metadata
 from .util import logconfig # isort:skip
 del logconfig
 
-def _configure_warnings() -> None:
-    # Configure warnings to always show nice messages, despite Python's active
-    # efforts to hide them from users.
-    import warnings
-
-    from .util.warnings import BokehDeprecationWarning, BokehUserWarning
-
-    warnings.simplefilter('always', BokehDeprecationWarning)
-    warnings.simplefilter('always', BokehUserWarning)
-
-    original_formatwarning = warnings.formatwarning
-    def _formatwarning(message: Warning | str, category: type[Warning], filename: str, lineno: int, line: str | None = None) -> str:
-        from .util.warnings import BokehDeprecationWarning, BokehUserWarning
-        if category not in (BokehDeprecationWarning, BokehUserWarning):
-            return original_formatwarning(message, category, filename, lineno, line)
-        return f"{category.__name__}: {message}\n"
-    warnings.formatwarning = _formatwarning
-
-_configure_warnings()
-del _configure_warnings
-
 def _configure_marimo() -> None:
     # marimo releases predating Bokeh 4 register a formatter that imports the
     # removed output_notebook API and replaces show() with a static iframe.

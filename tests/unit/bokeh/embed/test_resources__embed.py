@@ -328,6 +328,34 @@ def test_bundle_extensions_skips_dynamically_created_application_modules(
     assert bundle.artifact_path == artifact
 
 
+def test_bundle_extensions_resolves_symlinked_install_root(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    name = "symlinked_extension"
+    artifact_name = f"{name}.min.js"
+    cache = _install_extension_module(monkeypatch, tmp_path / name, name)
+    (cache / "__init__.py").touch()
+    (cache / "dist" / artifact_name).write_text("globalThis.extension = true")
+
+    # In a symlinked install the files point into a shared cache, while the
+    # directories under site-packages are real.
+    site_packages = tmp_path / "site-packages" / name
+    (site_packages / "dist").mkdir(parents=True)
+    try:
+        for rel in ("__init__.py", "bokeh.ext.json", f"dist/{artifact_name}"):
+            (site_packages / rel).symlink_to(cache / rel)
+    except OSError as exc:
+        if getattr(exc, "winerror", None) == 1314:
+            pytest.skip("Creating symlinks requires additional privileges on Windows")
+        raise
+
+    sys.modules[name].__file__ = str(site_packages / "__init__.py")
+
+    ber.bundle_extensions({_extension_model(name)}, Resources(mode="server"))
+
+    assert ber.extension_dirs[name] == cache.resolve() / "dist"
+
+
 def test_packaged_extension_requirements_resolve_under_each_policy(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -528,11 +556,11 @@ def test_server_resources_include_dependencies_of_global_serialized_definitions(
         if definition_kind == "nested-override":
             assert definition["extends"]["id"] == BaseDefinition.__qualified_model__
             default = definition["overrides"][0]["default"]
-            assert default["attributes"]["args"]["entries"][0][1]["name"] == Hidden.__qualified_model__
+            assert default["args"]["entries"][0][1]["$type"] == Hidden.__qualified_model__
         elif definition_kind == "instance-kind":
             assert definition["properties"][0]["kind"] == ("Ref", {"id": Hidden.__qualified_model__})
         else:
-            assert definition["properties"][0]["default"]["name"] == Hidden.__qualified_model__
+            assert definition["properties"][0]["default"]["$type"] == Hidden.__qualified_model__
 
         snapshot = ber.server_extension_model_types(policy, document)
         if dependency_kind == "url":
@@ -576,10 +604,10 @@ def test_server_resources_include_models_serialized_in_plain_any(
     policy = Resources(mode=mode)
     try:
         wire = document.to_json(deferred=False)
-        child = wire["roots"][0]["attributes"]["child"]
+        child = wire["roots"][0]["child"]
         if value_shape == "nested":
             child = child["entries"][0][1][0]
-        assert child["name"] == Hidden.__qualified_model__
+        assert child["$type"] == Hidden.__qualified_model__
         assert hidden.id not in document.models
 
         snapshot = ber.server_extension_model_types(policy, document)

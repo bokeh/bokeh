@@ -1,3 +1,11 @@
+''' Draw a scatter plot using circle markers.
+
+.. bokeh-example-metadata::
+    :title: Scatter circle
+    :keywords: scatter, circle
+    :apis: bokeh.plotting.figure.scatter
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

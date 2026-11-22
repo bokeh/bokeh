@@ -11,7 +11,7 @@ from typing import Any, Sequence, Unpack
 from .._specs import AngleSpec, NumberSpec
 from ..core.enums import DirectionType as Direction
 from ..model.model import Model, _ModelInit
-from .sources import ColumnarDataSource
+from .sources import IndexedDataSource
 
 class _ExpressionInit(_ModelInit, total=False):
     ...
@@ -49,14 +49,14 @@ class Stack(Expression):
     fields: Sequence[str] = ...
 
 class _IndexedLookupInit(_ExpressionInit, total=False):
-    source: ColumnarDataSource
+    source: IndexedDataSource
     field: str
     indices: str
 
 class IndexedLookup(Expression):
     def __init__(self, **kwargs: Unpack[_IndexedLookupInit]) -> None: ...
 
-    source: ColumnarDataSource = ...
+    source: IndexedDataSource = ...
     field: str = ...
     indices: str = ...
 

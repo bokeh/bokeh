@@ -7,7 +7,7 @@ import type {StyleSheetLike} from "core/dom"
 import {px} from "core/dom"
 import type * as p from "core/properties"
 
-import panels_css, * as _panel from "styles/panels.css"
+import panels_css from "styles/panels.css"
 
 export class PanelView extends PaneView {
   declare model: Panel

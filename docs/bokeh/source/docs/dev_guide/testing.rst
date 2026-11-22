@@ -41,7 +41,8 @@ Whenever you change anything in Bokeh's codebase
 
 When you edit Bokeh's Python code
     Run Bokeh's :ref:`Python unit tests
-    <contributor_guide_testing_local_python_unit>`
+    <contributor_guide_testing_local_python_unit>` and
+    :ref:`type checks <contributor_guide_testing_local_typing>`
 
 When your work involves UI elements
     Run Bokeh's :ref:`Python integration tests
@@ -72,13 +73,8 @@ date by running ``pip install bokeh_sampledata``. In case you are not able to in
 sampledata on your system, you have the option to
 :ref:`disable those specific tests <contributor_guide_testing_local_python_select>`.
 
-Several tests also require `Selenium`_ and a corresponding `web driver`_ to be
-available on your system. While it is possible to use other web drivers for some
-tests, the recommended setup is to use Selenium with `ChromeDriver`_ and
-`Chrome`_. See :ref:`ug_output_export_dependencies` for
-installation instructions and more information. In case Selenium is not
-available on your system, you have the option to
-:ref:`disable those specific tests <contributor_guide_testing_local_python_select>`.
+Export tests use Playwright and Chromium. See :ref:`ug_output_export_dependencies`
+for installation instructions.
 
 On some Unix platforms, you may also need to increase the "maximum
 number of open file descriptors". Some tests open many files when testing the
@@ -132,6 +128,43 @@ directory. Changes to these tools should pass their dedicated test suite.
 
     pytest tests/tools
 
+.. _contributor_guide_testing_local_typing:
+
+Run type checks
+~~~~~~~~~~~~~~~
+
+Bokeh's Python code is type checked with both `mypy`_ and `pyright`_. Any edits
+you make to Bokeh's Python code should pass both type checkers.
+
+In addition, the type completeness of Bokeh's public API is measured with
+``pyright --verifytypes``. Type completeness is the share of symbols exported
+by Bokeh (functions, classes, methods, attributes, etc.) whose types are fully
+known, i.e. declared with type annotations or unambiguously inferable, rather
+than unknown or dependent on how a particular type checker infers them. Symbols
+with incomplete types silently degrade type checking to dynamic typing in code
+that uses Bokeh, and may be interpreted differently by different type checkers.
+This check fails when the completeness score drops or the number of exported
+symbols with unknown types increases compared to the baseline recorded in
+:bokeh-tree:`tools/ci/verify_types.py`. When your changes
+improve type completeness, raise the baseline in that file accordingly. To see
+which symbols are incomplete, run ``pyright --verifytypes bokeh --ignoreexternal``.
+
+**Standard terminal:**
+
+.. code-block:: sh
+
+    pixi run mypy
+    pixi run pyright
+    pixi run verify-types
+
+**Inside a pixi shell:**
+
+.. code-block:: sh
+
+    mypy
+    pyright
+    python tools/ci/verify_types.py
+
 .. _contributor_guide_testing_local_python:
 
 Run Python tests
@@ -158,9 +191,6 @@ when working with Bokeh's pytest-based tests:
   define the number of cores to use. Set to ``auto`` to use all available cores.
   For example: ``pytest -n 4 tests/codebase``. See `pytest-xdist`_.
 * ``-v``: Run test with more verbose output.
-* ``--driver``: Use a specific web driver for Selenium-based tests
-  (``"chrome"``, ``"firefox"``, or ``"safari"``). For example:
-  ``pytest --driver="firefox" tests/unit/``.
 * ``--no-js``: Skip any JavaScript code and only test Python code.
 
 See the `pytest documentation`_ for more options. Note that any arguments appended
@@ -176,25 +206,13 @@ Unit tests
 
     .. code-block:: sh
 
-        pixi run test-py -m "not selenium"
+        pixi run test-py
 
     **Inside a pixi shell:**
 
     .. code-block:: sh
 
-        pytest -m "not selenium" tests/unit
-
-    .. note::
-        This command will exclude unit tests that require `Selenium`_. Because
-        Selenium can be difficult to set up and because some unit tests require
-        both `geckodriver`_ and `ChromeDriver`_ to be available on your system,
-        using ``-m "not selenium"`` is the recommended way to run unit tests
-        locally. Once you :ref:`create a Pull Request
-        <contributor_guide_pull_requests>`, :ref:`Bokeh's CI
-        <contributor_guide_testing_ci>` will run all tests, including
-        Selenium-based unit tests. In case Selenium with both geckodriver and
-        ChromeDriver is available on your system, you can run all unit tests
-        by omitting the ``-m`` flag.
+        pytest tests/unit
 
 .. _contributor_guide_testing_local_python_coverage:
 
@@ -226,13 +244,13 @@ Code coverage (Python unit tests)
 
     .. code-block:: sh
 
-        pixi run pytest tests/unit/bokeh/test_objects.py -m "not selenium" --cov=bokeh --cov-report=html
+        pixi run pytest tests/unit/bokeh/test_objects.py --cov=bokeh --cov-report=html
 
     **Inside a pixi shell:**
 
     .. code-block:: sh
 
-        pytest --cov=bokeh --cov-report=html -m "not selenium" tests/unit/bokeh/test_objects.py
+        pytest --cov=bokeh --cov-report=html tests/unit/bokeh/test_objects.py
 
     .. seealso::
         Coverage reports use the pytest plugin `pytest-cov`_. For more
@@ -378,10 +396,9 @@ Select specific tests
         pytest tests/unit/bokeh/models/test_grids.py
 
     Another way to select or deselect specific tests is to use markers.
-    Currently, Bokeh's tests use the following two markers:
+    For tests that require sample data, use this marker:
 
     * ``sampledata``: a test that requires ``bokeh.sampledata`` to be downloaded
-    * ``selenium``: a test that requires selenium
 
     For more information on setting your own markers, see
     `Working with custom markers`_ in the `pytest documentation`_. To learn more
@@ -934,14 +951,11 @@ instead of pushing every commit individually. This will help you be considerate
 of others who require access to these limited resources.
 
 .. _Ruff: https://github.com/astral-sh/ruff
+.. _mypy: https://mypy.readthedocs.io
+.. _pyright: https://microsoft.github.io/pyright
 .. _pytest: https://pytest.org/
 .. _pytest-xdist: https://github.com/pytest-dev/pytest-xdist
-.. _Selenium: https://www.selenium.dev/documentation/en/
-.. _web driver: https://www.selenium.dev/documentation/en/webdriver/
-.. _ChromeDriver: https://chromedriver.chromium.org/
-.. _Chrome: https://www.google.com/chrome/
 .. _Chromium: https://www.chromium.org/Home
-.. _geckodriver: https://firefox-source-docs.mozilla.org/testing/geckodriver/Usage.html
 .. _pytest-cov: https://github.com/pytest-dev/pytest-cov
 .. _Specifying which tests to run: https://docs.pytest.org/en/latest/how-to/usage.html#specifying-which-tests-to-run
 .. _documentation for pytest-cov: https://pytest-cov.readthedocs.io/en/latest/

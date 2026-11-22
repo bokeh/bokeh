@@ -77,7 +77,7 @@ describe("Examples", () => {
 
     const p = figure({
       title: "Different anchors and origins for image placed at coordinates (0, 0)",
-      tools: "", toolbar_location: null,
+      tools: null,
       x_range: [-10, 10], y_range: [-10, 10],
       background_fill_color: "#efefef",
     })

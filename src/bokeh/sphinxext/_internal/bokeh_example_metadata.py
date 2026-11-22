@@ -4,40 +4,44 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
-""" Include plot metadata for plots shown in Bokeh gallery examples.
-
-The ``bokeh-example-metadata`` directive can be used by supplying:
+"""Read example summaries and metadata and render the example Details section.
 
     .. bokeh-example-metadata::
-        :sampledata: `sampledata_iris`
-        :apis: `~bokeh.plotting.figure.vbar`, :func:`~bokeh.transform.factor_cmap`
-        :refs: `ug_basic_bars`
-        :words: bar, vbar, legend, factor_cmap, palette
+        :title: Grouped bars
+        :keywords: bar, vbar, legend, factor_cmap
+        :apis: bokeh.plotting.figure.vbar, bokeh.transform.factor_cmap
+        :sampledata: iris
+        :refs: :ref:`ug_basic_bars`
 
 """
 
-#-----------------------------------------------------------------------------
-# Boilerplate
-#-----------------------------------------------------------------------------
 from __future__ import annotations
-
-# use the wrapped sphinx logger
-from sphinx.util import logging  # isort:skip
-log = logging.getLogger(__name__)
 
 # -----------------------------------------------------------------------------
 # Imports
 # -----------------------------------------------------------------------------
-
+import ast
+import re
+from pathlib import Path, PurePosixPath
+from textwrap import dedent
+from tokenize import (
+    COMMENT,
+    NEWLINE,
+    NL,
+    OP,
+    STRING,
+    generate_tokens,
+    open as open_python,
+    untokenize,
+)
 from typing import Any
 
-from docutils.parsers.rst.directives import unchanged
+from docutils.parsers.rst.directives import flag, unchanged, unchanged_required
 from sphinx.errors import SphinxError
 
-from . import PARALLEL_SAFE, SphinxParallelSpec
+from . import PARALLEL_SAFE, REPO_TOP, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
 from .templates import EXAMPLE_METADATA
-from .util import get_sphinx_resources
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -47,8 +51,6 @@ __all__ = (
     "BokehExampleMetadataDirective",
     "setup",
 )
-
-RESOURCES = get_sphinx_resources()
 
 # -----------------------------------------------------------------------------
 # General API
@@ -65,10 +67,17 @@ class BokehExampleMetadataDirective(BokehDirective):
     required_arguments = 0
 
     option_spec = {
-        "sampledata": unchanged,
-        "apis": unchanged,
-        "refs": unchanged,
+        "title": unchanged,
         "keywords": unchanged,
+        "categories": unchanged_required,
+        "apis": unchanged,
+        "sampledata": unchanged,
+        "refs": unchanged,
+        "example-ref": unchanged,
+        "render": flag,
+        "no-render": flag,
+        "no-index": flag,
+        "gallery": unchanged_required,
     }
 
     def run(self) -> list[Any]:
@@ -86,7 +95,22 @@ class BokehExampleMetadataDirective(BokehDirective):
         if extra:
             raise SphinxError(f"bokeh-example-metadata unknown options given: {extra}.")
 
+        source = None
+        docname = PurePosixPath(self.env.docname)
+        examples_dir = PurePosixPath(self.env.config.bokeh_examples_dir)
+        if docname.is_relative_to(examples_dir):
+            relative = docname.relative_to(examples_dir)
+            candidate = PurePosixPath("examples", f"{relative}.py")
+            if (Path(REPO_TOP) / candidate).is_file():
+                source = candidate.as_posix()
+
+        if source is None and not present & {"sampledata", "apis", "refs", "keywords"}:
+            return []
+
+        if EXAMPLE_METADATA.filename is not None:
+            self.env.note_dependency(EXAMPLE_METADATA.filename)
         rst_text = EXAMPLE_METADATA.render(
+            source=source,
             sampledata=_sampledata(options.get("sampledata", None)),
             apis=_apis(options.get("apis", None)),
             refs=options.get("refs", "").split("#")[0],
@@ -96,26 +120,55 @@ class BokehExampleMetadataDirective(BokehDirective):
         return self.parse(rst_text, "<bokeh-example-metadata>")
 
 
+def read_example_metadata(path: Path) -> tuple[str, dict[str, str]]:
+    """Read the opening paragraph and metadata fields without running the example."""
+    with open_python(path) as file:
+        tokens = (token for token in generate_tokens(file.readline) if token.type not in {COMMENT, NL})
+        first = next(tokens, None)
+        if first is None or (first.type != STRING and (first.type != OP or first.string != "(")):
+            return "", {}
+        statement = [(first.type, first.string)]
+        for token in tokens:
+            if token.type == NEWLINE:
+                break
+            statement.append((token.type, token.string))
+
+    marker = ".. bokeh-example-metadata::"
+    # Preserve the source docstring even when Python runs with -OO.
+    docstring = ast.get_docstring(ast.parse(untokenize(statement), filename=str(path), optimize=0)) or ""
+    intro, _, options = docstring.partition(marker)
+    summary = " ".join(intro.strip().split("\n\n", 1)[0].split())
+    if summary.startswith(".. "):
+        summary = ""
+    option_block = dedent(options.split("\n\n", 1)[0])
+    fields = {
+        key: " ".join(value.split())
+        for key, value in re.findall(r"^:([\w-]+):[ \t]*(.*(?:\n[ \t]+\S[^\n]*)*)", option_block, re.MULTILINE)
+    }
+    return summary, fields
+
+
 def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
     app.add_directive("bokeh-example-metadata", BokehExampleMetadataDirective)
 
     return PARALLEL_SAFE
 
+
+def sampledata_modules(value: str | None) -> list[str]:
+    """Return the declared sample-data module names in their original order."""
+    if value is None:
+        return []
+    names = (name.strip() for name in value.partition("#")[0].split(","))
+    return [name for name in names if name]
+
 # -----------------------------------------------------------------------------
 # Private API
 # -----------------------------------------------------------------------------
 
 def _sampledata(mods: str | None) -> str | None:
-    if mods is None:
-        return None
-
-    # options lines might need a ruff noqa comment for line length, etc
-    mods = mods.split("#")[0].strip()
-
-    mod_names = (mod.strip() for mod in mods.split(","))
-
-    return ", ".join(f":ref:`bokeh.sampledata.{mod} <sampledata_{mod}>`" for mod in mod_names)
+    # Some example datasets have no module page in the reference.
+    return ", ".join(f":mod:`bokeh.sampledata.{mod}`" for mod in sampledata_modules(mods)) or None
 
 def _apis(apis: str | None) -> str | None:
     if apis is None:

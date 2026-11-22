@@ -1,3 +1,13 @@
+''' Dim a series on legend click using a muted glyph style.
+
+.. bokeh-example-metadata::
+    :title: Mute series from the legend
+    :keywords: legend, mute, opacity, click
+    :apis: bokeh.plotting.figure.line
+    :sampledata: stocks
+    :gallery: Four stock price lines and a legend whose entries can dim the corresponding series.
+'''
+
 import pandas as pd
 
 from bokeh.palettes import Spectral4

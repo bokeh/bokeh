@@ -49,14 +49,14 @@ describe("BoxZoomTool", () => {
     it("test_deselected_by_default_with_pan_tool", async () => {
       const {buttons} = await mkplot(BoxZoomTool.create(), PanTool.create())
       const [zoom, pan] = buttons
-      expect(zoom.class_list.has("bk-active")).to.be.false
-      expect(pan.class_list.has("bk-active")).to.be.true
+      expect(zoom.el.classList.contains("bk-active")).to.be.false
+      expect(pan.el.classList.contains("bk-active")).to.be.true
     })
 
     it("selected_by_default_without_pan_tool", async () => {
       const {buttons} = await mkplot(BoxZoomTool.create())
       const [zoom] = buttons
-      expect(zoom.class_list.has("bk-active")).to.be.true
+      expect(zoom.el.classList.contains("bk-active")).to.be.true
     })
 
     it("can_be_selected_and_deselected", async () => {
@@ -64,8 +64,8 @@ describe("BoxZoomTool", () => {
       const [zoom, pan] = buttons
 
       // Check is not active
-      expect(zoom.class_list.has("bk-active")).to.be.false
-      expect(pan.class_list.has("bk-active")).to.be.true
+      expect(zoom.el.classList.contains("bk-active")).to.be.false
+      expect(pan.el.classList.contains("bk-active")).to.be.true
 
       // Click and check is active
       zoom.tap()
@@ -74,8 +74,8 @@ describe("BoxZoomTool", () => {
       expect(zoom.model.tool.active).to.be.true
       expect(pan.model.tool.active).to.be.false
 
-      expect(zoom.class_list.has("bk-active")).to.be.true
-      expect(pan.class_list.has("bk-active")).to.be.false
+      expect(zoom.el.classList.contains("bk-active")).to.be.true
+      expect(pan.el.classList.contains("bk-active")).to.be.false
 
       // Click again and check is not active
       zoom.tap()
@@ -84,8 +84,8 @@ describe("BoxZoomTool", () => {
       expect(zoom.model.tool.active).to.be.false
       expect(pan.model.tool.active).to.be.false
 
-      expect(zoom.class_list.has("bk-active")).to.be.false
-      expect(pan.class_list.has("bk-active")).to.be.false
+      expect(zoom.el.classList.contains("bk-active")).to.be.false
+      expect(pan.el.classList.contains("bk-active")).to.be.false
     })
 
     it("should zoom in both ranges", async () => {

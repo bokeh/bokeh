@@ -1,9 +1,10 @@
 ''' Segment and Bezier glyphs as decorated directed graph edges.
 
 .. bokeh-example-metadata::
+    :title: Edge glyphs
+    :keywords: graph, directed, arrows, segment, bezier
     :apis: bokeh.models.GraphRenderer, bokeh.models.Segment, bokeh.models.Bezier
     :refs: :ref:`ug_topics_graph`, :ref:`ug_basic_annotations_arrows`
-    :keywords: graph, directed, arrows, segment, bezier
 
 '''
 from bokeh.layouts import row
@@ -33,9 +34,9 @@ for glyph_type in (MultiLine, Segment, Bezier):
     glyph = glyph_type(line_color="#52667a", line_width=2)
     graph.edge_renderer.glyph = glyph
     graph.edge_renderer.selection_glyph = glyph.clone(line_color="#E69F00", line_width=4)
-    graph.edge_renderer.add_path_decoration(
+    graph.edge_renderer.add_path_marking(
         NormalHead(size=12, inherit_visuals=["line_color", "fill_color", "fill_alpha", "line_width"]),
-        node="end", inset=18,
+        at="end", inset=18,
     )
     graph.selection_policy = EdgesAndLinkedNodes()
     p = figure(width=300, height=330, x_range=(-0.5, 2.5), y_range=(-1, 2),

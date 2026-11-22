@@ -26,7 +26,7 @@ from ..core.serialization import (
 )
 from ..core.types import ID
 from ..document import Document
-from ..document.events import DocumentPatchedEvent
+from ..document.events import DocumentPatchedEvent, Invoker, ModelChangedEvent
 from ..events import Event
 from ..models.callbacks import (
     Callback as JSEventCallback,
@@ -117,9 +117,15 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     def to_serializable(self, serializer: Serializer) -> ObjectRep | ObjectRefRep: ...
 
+    def _create_model_changed_event(self, document: Document, attr: str, new: Any,
+        setter: Setter | None = None, callback_invoker: Invoker | None = None) -> ModelChangedEvent: ...
+    def _to_serializable(self, serializer: Serializer, overrides: dict[str, Any] | None = None) -> ObjectRep | ObjectRefRep: ...
+
     def trigger(self, attr: str, old: Any, new: Any,
         hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None: ...
 
     def _attach_document(self, doc: Document) -> None: ...
 
     def _detach_document(self) -> None: ...
+
+    def _sphinx_height_hint(self) -> int | None: ...

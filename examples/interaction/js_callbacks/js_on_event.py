@@ -1,6 +1,12 @@
-""" Demonstration of how to register event callbacks using an adaptation
-of the color_scatter example from the bokeh gallery
-"""
+''' Log plot and widget events to a text panel as you interact.
+
+
+.. bokeh-example-metadata::
+    :title: React to UI events
+    :keywords: events, callbacks, mouse, keyboard, CustomJS
+    :apis: bokeh.models.Button, bokeh.models.CustomJS, bokeh.models.Div, bokeh.models.TextInput, bokeh.plotting.figure.circle
+    :gallery: A scatter plot with several tools that prints information about js events as they occur, in text box to the right.
+'''
 from __future__ import annotations
 
 import numpy as np

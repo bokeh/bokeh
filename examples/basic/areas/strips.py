@@ -1,3 +1,11 @@
+''' Fill horizontal and vertical bands across the full plot frame.
+
+.. bokeh-example-metadata::
+    :title: Strips
+    :keywords: strips
+    :apis: bokeh.plotting.figure.hstrip, bokeh.plotting.figure.vstrip
+'''
+
 from bokeh.io import show
 from bokeh.plotting import figure
 

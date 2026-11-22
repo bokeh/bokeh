@@ -1,3 +1,11 @@
+''' Serve a scatter plot that can be embedded from an existing Bokeh session.
+
+.. bokeh-example-metadata::
+    :title: Bokeh app
+    :keywords: bokeh, app
+    :apis: bokeh.plotting.figure.circle
+'''
+
 import numpy as np
 
 from bokeh.io import curdoc
@@ -9,7 +17,7 @@ y = np.random.random(size=N) * 100
 radii = np.random.random(size=N) * 1.5
 colors = np.array([(r, g, 150) for r, g in zip(50+2*x, 30+2*y)], dtype="uint8")
 
-p = figure(tools="", toolbar_location=None)
+p = figure(tools=None)
 
 p.circle(x, y, radius=radii,
          fill_color=colors, fill_alpha=0.6,

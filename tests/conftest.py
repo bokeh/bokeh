@@ -15,33 +15,29 @@ pytest_plugins = (
 
 import importlib
 import importlib.util
-import os
 import sys
 import sysconfig
-from collections.abc import Iterator
-from pathlib import Path
-from typing import TYPE_CHECKING
-from uuid import uuid4
+from collections.abc import Callable, Iterator, Mapping, Sequence
+from typing import TYPE_CHECKING, Any
 
-import _pytest
 import pytest
 from narwhals.stable.v1.typing import IntoDataFrame
 
 if TYPE_CHECKING:
     from bokeh.settings import PrioritizedSetting
 
+type Data = Mapping[str, Sequence[Any]]
+type Constructor = Callable[[Data], IntoDataFrame]
+
+pandas_1x: bool | None
 if importlib.util.find_spec("pandas") is not None:
     import pandas as pd
     pandas_1x = pd.__version__.startswith("1")
 else:
-    pd = pandas_1x = None
+    pandas_1x = None
 
 # Unfortunately these seem to all need to be centrally defined at the top level
-def pytest_addoption(parser: _pytest.config.argparsing.Parser) -> None:
-
-    # plugins/selenium
-    parser.addoption(
-        "--driver", choices=('chrome', 'firefox', 'safari'), default='chrome', help='webdriver implementation')
+def pytest_addoption(parser: pytest.Parser) -> None:
 
     # plugins/bokeh_server
     parser.addoption(
@@ -60,36 +56,39 @@ def pytest_addoption(parser: _pytest.config.argparsing.Parser) -> None:
         "--no-js", action="store_true", default=False,
         help="only run python code and skip js")
 
-def pandas_constructor(obj) -> IntoDataFrame:
-    return pd.DataFrame(obj)  # type: ignore[no-any-return]
+def pandas_constructor(obj: Data) -> IntoDataFrame:
+    import pandas as pd
+    return pd.DataFrame(obj)
 
 
-def pandas_nullable_constructor(obj) -> IntoDataFrame:
-    return pd.DataFrame(obj).convert_dtypes(dtype_backend="numpy_nullable")  # type: ignore[no-any-return]
+def pandas_nullable_constructor(obj: Data) -> IntoDataFrame:
+    import pandas as pd
+    return pd.DataFrame(obj).convert_dtypes(dtype_backend="numpy_nullable")
 
 
-def pandas_pyarrow_constructor(obj) -> IntoDataFrame:
-    return pd.DataFrame(obj).convert_dtypes(dtype_backend="pyarrow")  # type: ignore[no-any-return]
+def pandas_pyarrow_constructor(obj: Data) -> IntoDataFrame:
+    import pandas as pd
+    return pd.DataFrame(obj).convert_dtypes(dtype_backend="pyarrow")
 
 
-def polars_eager_constructor(obj) -> IntoDataFrame:
+def polars_eager_constructor(obj: Data) -> IntoDataFrame:
     import polars as pl
     return pl.DataFrame(obj)
 
 
-def pyarrow_table_constructor(obj) -> IntoDataFrame:
-    import pyarrow as pa
-    return pa.table(obj)  # type: ignore[no-any-return]
+def pyarrow_table_constructor(obj: Data) -> IntoDataFrame:
+    import pyarrow as pa  # type: ignore[import-untyped]
+    return pa.table(obj)
 
 
-constructors = []
+constructors: list[Constructor] = []
 if pandas_1x is False:
     constructors.append(pandas_constructor)
     constructors.append(pandas_nullable_constructor)
 elif pandas_1x is True:
     constructors.append(pandas_constructor)
 
-if pd and importlib.util.find_spec('pyarrow') is not None:
+if pandas_1x is not None and importlib.util.find_spec('pyarrow') is not None:
     constructors.extend([pandas_pyarrow_constructor, pyarrow_table_constructor])
 if importlib.util.find_spec('polars') is not None:
     constructors.append(polars_eager_constructor)
@@ -100,34 +99,6 @@ def _assert_gil_disabled() -> None:
     is_gil_enabled = getattr(sys, "_is_gil_enabled", None)
     assert is_gil_enabled is not None
     assert not is_gil_enabled()
-
-
-@pytest.fixture(scope="session", autouse=True)
-def chromedriver_startup_logs() -> Iterator[None]:
-    directory = os.environ.get("BOKEH_CHROMEDRIVER_LOG_DIR")
-    if directory is None:
-        yield
-        return
-
-    from selenium.webdriver.chrome.service import Service
-
-    logs = Path(directory)
-    logs.mkdir(parents=True, exist_ok=True)
-    original_init = Service.__init__
-
-    def diagnostic_init(self, *args, **kwargs):
-        # Keep the initial failure and any existing CI retry in separate files.
-        worker = os.environ.get("PYTEST_XDIST_WORKER", "main")
-        prefix = logs / f"{worker}-{os.getpid()}-{uuid4().hex}"
-        prefix.with_suffix(".test.txt").write_text(os.environ.get("PYTEST_CURRENT_TEST", "unknown"), encoding="utf-8")
-        kwargs["service_args"] = [*(kwargs.get("service_args") or []), "--verbose", f"--log-path={prefix}.driver.log"]
-        # Chrome on Windows cannot inherit stderr from ChromeDriver.
-        kwargs["env"] = {**(kwargs.get("env") or os.environ), "CHROME_LOG_FILE": f"{prefix}.chrome.log"}
-        original_init(self, *args, **kwargs)
-
-    with pytest.MonkeyPatch.context() as patch:
-        patch.setattr(Service, "__init__", diagnostic_init)
-        yield
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -143,8 +114,8 @@ def ensure_gil_disabled() -> Iterator[None]:
 
 
 @pytest.fixture(params=constructors)
-def constructor(request: pytest.FixtureRequest):
-    return request.param  # type: ignore[no-any-return]
+def constructor(request: pytest.FixtureRequest) -> Constructor:
+    return request.param
 
 
 @pytest.fixture

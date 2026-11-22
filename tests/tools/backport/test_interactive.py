@@ -16,7 +16,7 @@ class InteractiveCopyTests(unittest.TestCase):
 
         message = interactive.plan_complete_panel(state).renderable
 
-        self.assertIsInstance(message, str)
+        assert isinstance(message, str)
         self.assertIn("2 existing standalone commits were preserved and replayed", message)
         self.assertIn("additional dedicated fix only if needed", message)
 

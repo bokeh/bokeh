@@ -1,4 +1,4 @@
-'''This example demonstrates embedding in an iframe using srcdoc under restrictive CSP.
+''' This example demonstrates embedding in an iframe using srcdoc under restrictive CSP.
 
 To view the example, run:
 
@@ -8,6 +8,11 @@ in this directory, and navigate to:
 
     http://localhost:5000
 
+
+
+.. bokeh-example-metadata::
+    :title: Iframe embed
+    :keywords: iframe embed, bokeh server, api
 '''
 import atexit
 import subprocess

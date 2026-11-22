@@ -1,3 +1,11 @@
+''' Draw rectangles from their centers and dimensions.
+
+.. bokeh-example-metadata::
+    :title: Rectangles from centers
+    :keywords: rect
+    :apis: bokeh.plotting.figure.rect
+'''
+
 from math import pi
 
 from bokeh.plotting import figure, show

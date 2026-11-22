@@ -5,6 +5,10 @@ import * as p from "core/properties"
 import type {Context2d} from "core/util/canvas"
 import type {MarkingGeometry} from "../graphics/marking"
 
+export function auto_arrowhead(): OpenHead {
+  return OpenHead.create({inherit_visuals: ["line_color", "line_alpha", "line_width"]})
+}
+
 export abstract class ArrowHeadView extends MarkingView implements visuals.Paintable {
   override line_extent(i: number): number {
     return this.size.get(i)

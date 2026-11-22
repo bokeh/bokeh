@@ -31,6 +31,7 @@ from ..has_props import HasProps
 from ..serialization import Serializable
 from ._sphinx import model_link, property_link, register_type_link
 from .bases import Init, Property
+from .exceptions import ValidationError
 from .singletons import Undefined
 
 #-----------------------------------------------------------------------------
@@ -47,7 +48,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Object[T: object](Property[T]):
+class Object[T: object](Property[T, T]):
     """ Accept values that are instances of any class.
 
         .. note::
@@ -108,7 +109,7 @@ class Object[T: object](Property[T]):
         instance_type = self.instance_type.__name__
         value_type = type(value).__name__
         msg = "" if not detail else f"expected an instance of type {instance_type}, got {value} of type {value_type}"
-        raise ValueError(msg)
+        raise ValidationError(msg)
 
     def _needs_materialized_default(self) -> bool:
         # because the instance value is mutable

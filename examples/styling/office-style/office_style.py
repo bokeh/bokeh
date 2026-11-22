@@ -1,3 +1,11 @@
+''' Style Bokeh widgets with office-inspired colors, fonts, and controls.
+
+.. bokeh-example-metadata::
+    :title: Office style
+    :keywords: office, style
+    :apis: bokeh.models.GlobalInlineStyleSheet, bokeh.models.InlineStyleSheet, bokeh.models.TabPanel, bokeh.models.Tabs, bokeh.plotting.figure.line
+'''
+
 from bokeh.io import show
 from bokeh.layouts import column, row
 from bokeh.models import (

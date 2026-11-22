@@ -19,6 +19,7 @@ import pytest
 
 from bokeh.core.has_props import Local, is_abstract
 from bokeh.core.properties import Int, List, String
+from bokeh.core.property.singletons import Undefined
 from bokeh.core.types import ID
 from bokeh.models import *  # noqa: F403
 from bokeh.models import (
@@ -29,11 +30,12 @@ from bokeh.models import (
     Range1d,
     Row,
     SetValue,
+    Slider,
 )
 from bokeh.models.annotations.dimensional import Metric
 from bokeh.models.dom import HTML
 from bokeh.plotting import *  # noqa: F403
-from bokeh.util.warnings import BokehDeprecationWarning
+from bokeh.util.callback_manager import OldValueUnavailable
 
 from bokeh.document import document # isort:skip
 
@@ -368,11 +370,19 @@ class Test_callback_policies:
         assert "_subscribed_changes" not in m.properties_with_values(include_defaults=False)
 
     def test_on_change_immediate_does_not_read_unset_property(self) -> None:
-        from bokeh.models import Slider
+        calls: list[tuple[str, object, object]] = []
         slider = Slider()
-        slider.on_change("value", self.callback)
+        slider.on_change("value", lambda attr, old, new: calls.append((attr, old, new)))
 
         assert slider._subscribed_changes == {}
+        slider.value = 1
+        assert calls == [("value", OldValueUnavailable, 1)]
+
+    def test_on_change_committed_registers_on_unset_property(self) -> None:
+        slider = Slider(start=0, end=10)
+        slider.on_change("value", self.callback, policy=Committed())
+
+        assert slider._subscribed_changes == {"value": [("committed", None)]}
 
     def test_callback_policy_state_is_initialized_for_deserialized_models(self) -> None:
         doc = document.Document()
@@ -405,7 +415,7 @@ class Test_callback_policies:
         doc = Document()
         doc.add_root(m)
         [root] = doc.to_json(deferred=False)["roots"]
-        assert root["attributes"]["_subscribed_changes"] == {
+        assert root["_subscribed_changes"] == {
             "type": "map",
             "entries": [("a", [["immediate", None], ["throttle", 100], ["debounce", 250]])],
         }
@@ -425,7 +435,6 @@ class Test_callback_policies:
     def test_js_callbacks_can_have_distinct_policies(self) -> None:
         immediate = CustomJS(code="")
         committed = CustomJS(code="")
-        from bokeh.models import Slider
         slider = Slider(start=0, end=10, value=0)
         slider.js_on_change("value", immediate)
         slider.js_on_change("value", committed, policy=Committed())
@@ -450,7 +459,6 @@ class Test_callback_policies:
 
     def test_same_js_callback_can_have_immediate_and_committed_policies(self) -> None:
         callback = CustomJS(code="")
-        from bokeh.models import Slider
         slider = Slider(start=0, end=10, value=0)
         slider.js_on_change("value", callback)
         slider.js_on_change("value", callback, policy=Committed())
@@ -460,7 +468,6 @@ class Test_callback_policies:
         }
 
     def test_python_callbacks_can_have_immediate_and_committed_policies(self) -> None:
-        from bokeh.models import Slider
         slider = Slider(start=0, end=10, value=0)
         slider.on_change("value", self.callback)
         slider.on_change("value", lambda attr, old, new: None, policy=Committed())
@@ -469,7 +476,6 @@ class Test_callback_policies:
         }
 
     def test_same_python_callback_can_have_immediate_and_committed_policies(self) -> None:
-        from bokeh.models import Slider
         calls: list[tuple[int, int]] = []
 
         def callback(attr: str, old: int, new: int) -> None:
@@ -493,7 +499,6 @@ class Test_callback_policies:
         assert slider._subscribed_changes == {}
 
     def test_local_changes_invoke_all_callback_policies(self) -> None:
-        from bokeh.models import Slider
         calls: list[tuple[str, int, int]] = []
         slider = Slider(start=0, end=10, value=0)
         slider.on_change("value", lambda attr, old, new: calls.append(("immediate", old, new)))
@@ -501,8 +506,19 @@ class Test_callback_policies:
         slider.value = 5
         assert calls == [("immediate", 0, 5), ("committed", 0, 5)]
 
+    def test_on_change_with_policy_when_default_factory_returns_undefined(self) -> None:
+        class FactoryDefaultModel(Model):
+            value = Int(default=lambda: Undefined)
+
+        calls: list[tuple[str, object, object]] = []
+        model = FactoryDefaultModel()
+        model.on_change("value", lambda attr, old, new: calls.append((attr, old, new)), policy=Debounce(10))
+        assert calls == []
+
+        model.value = 1
+        assert calls == [("value", OldValueUnavailable, 1)]
+
     def test_local_changes_advance_each_browser_stream_old_value(self) -> None:
-        from bokeh.models import Slider
         calls: list[tuple[str, int, int]] = []
         slider = Slider(start=0, end=10, value=0)
         slider.on_change("value", lambda attr, old, new: calls.append(("immediate", old, new)))
@@ -519,7 +535,6 @@ class Test_callback_policies:
         ]
 
     def test_browser_streams_dispatch_only_matching_callbacks(self) -> None:
-        from bokeh.models import Slider
         calls: list[tuple[str, int, int]] = []
         slider = Slider(start=0, end=10, value=0)
         slider.on_change("value", lambda attr, old, new: calls.append(("immediate", old, new)))
@@ -537,7 +552,6 @@ class Test_callback_policies:
 
     def test_unchanged_policy_stream_does_not_dispatch_callback(self) -> None:
         from bokeh.document import Document
-        from bokeh.models import Slider
         events: list[object] = []
         calls: list[tuple[str, int, int]] = []
         slider = Slider(start=0, end=10, value=0)
@@ -558,11 +572,14 @@ class Test_callback_policies:
             ("immediate", 1, 0),
         ]
 
-    def test_callback_policy_is_applied_from_document_patch(self) -> None:
+    @pytest.mark.parametrize("initially_unset", [False, True], ids=["initialized", "unset"])
+    def test_callback_policy_is_applied_from_document_patch(self, initially_unset: bool) -> None:
         from bokeh.document import Document
-        from bokeh.models import Slider
-        calls: list[tuple[str, int, int]] = []
-        slider = Slider(start=0, end=10, value=0)
+        calls: list[tuple[str, object, object]] = []
+        slider = Slider(start=0, end=10)
+        if not initially_unset:
+            slider.value = 0
+        initial_value = OldValueUnavailable if initially_unset else 0
         slider.on_change("value", lambda attr, old, new: calls.append(("immediate", old, new)))
         slider.on_change("value", lambda attr, old, new: calls.append(("committed", old, new)), policy=Committed())
         doc = Document()
@@ -584,14 +601,13 @@ class Test_callback_policies:
         patch(2, "committed")
 
         assert calls == [
-            ("immediate", 0, 1),
+            ("immediate", initial_value, 1),
             ("immediate", 1, 2),
-            ("committed", 0, 2),
+            ("committed", initial_value, 2),
         ]
 
     def test_equal_valued_policy_streams_respect_document_hold(self) -> None:
         from bokeh.document import Document
-        from bokeh.models import Slider
         calls: list[tuple[str, int, int]] = []
         slider = Slider(start=0, end=10, value=0)
         slider.on_change("value", lambda attr, old, new: calls.append(("immediate", old, new)))
@@ -611,7 +627,6 @@ class Test_callback_policies:
         ]
 
     def test_callback_changes_are_dispatched_to_every_policy(self) -> None:
-        from bokeh.models import Slider
         calls: list[tuple[str, int, int]] = []
         slider = Slider(start=0, end=10, value=0)
 
@@ -806,7 +821,7 @@ def test_all_builtin_models_default_constructible() -> None:
             continue
         try:
             cls()
-        except BokehDeprecationWarning:
+        except DeprecationWarning:
             pass
         except Exception:
             bad.append(name)
@@ -914,3 +929,35 @@ class Test_clear_extensions:
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+
+
+def test_trigger_skips_reference_walk_for_primitive_properties() -> None:
+    from unittest.mock import patch
+
+    from bokeh.document import Document
+
+    model = SomeModel()
+    doc = Document()
+    doc.add_root(model)
+    changes = []
+    model.on_change("c", lambda attr, old, new: changes.append(new))
+    with patch("bokeh.model.model.visit_value_and_its_immediate_references") as visitor:
+        model.c = [2, 3, 4]
+        visitor.assert_not_called()
+    assert changes == [[2, 3, 4]]
+
+
+def test_trigger_retains_reference_invalidation_for_model_properties() -> None:
+    from bokeh.document import Document
+
+    parent = Row()
+    doc = Document()
+    doc.add_root(parent)
+    child = Div()
+    parent.children = [child]
+    assert child.document is doc
+    assert doc.get_model_by_id(child.id) is child
+    parent.children = []
+    assert child.document is None
+    assert doc.get_model_by_id(child.id) is None

@@ -1,3 +1,12 @@
+''' Apply Bokeh's Light Minimal theme to a line plot.
+
+.. bokeh-example-metadata::
+    :title: Light minimal theme
+    :keywords: light, minimal
+    :apis: bokeh.plotting.figure.line
+    :gallery: Basic line plot with the light_minimal theme.
+'''
+
 from bokeh.plotting import curdoc, figure, show
 
 x = [1, 2, 3, 4, 5]

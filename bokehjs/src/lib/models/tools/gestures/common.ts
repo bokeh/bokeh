@@ -1,7 +1,8 @@
 import {PartialStruct, Bool} from "core/kinds"
+import type {Infer} from "core/kinds"
 
 export const Modifiers = PartialStruct({shift: Bool, ctrl: Bool, alt: Bool})
-export type Modifiers = typeof Modifiers["__type__"]
+export type Modifiers = Infer<typeof Modifiers>
 
 export function satisfies_modifiers(expected: Modifiers, received: Modifiers): boolean {
   const {alt, ctrl, shift} = expected

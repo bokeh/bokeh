@@ -1,4 +1,7 @@
+import type {PathNode} from "../graphics/path_placement"
+import {RendererView} from "./renderer"
 import {DataRenderer, DataRendererView} from "./data_renderer"
+import type {LegendEntry} from "../annotations/legend"
 import {LineView} from "../glyphs/line"
 import {StepView} from "../glyphs/step"
 import {PatchView} from "../glyphs/patch"
@@ -7,11 +10,13 @@ import {HAreaView} from "../glyphs/harea"
 import {VAreaStepView} from "../glyphs/varea_step"
 import {VAreaView} from "../glyphs/varea"
 import type {GlyphView} from "../glyphs/glyph"
-import {Glyph} from "../glyphs/glyph"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
-import type {CDSViewView} from "../sources/cds_view"
-import {CDSView} from "../sources/cds_view"
-import type {Color} from "core/types"
+import {Glyph, supports_path_marking} from "../glyphs/glyph"
+import type {SupportsPathMarking} from "../glyphs/glyph"
+import {IndexedDataSource} from "../sources/indexed_data_source"
+import type {IndexedSubsetView} from "../sources/indexed_subset"
+import {IndexedSubset} from "../sources/indexed_subset"
+import type {DataChange} from "../sources/data_source"
+import type {Arrayable, Color, Rect} from "core/types"
 import {Indices} from "core/types"
 import type * as p from "core/properties"
 import {filter} from "core/util/arrayable"
@@ -20,15 +25,22 @@ import type {HitTestResult} from "core/hittest"
 import type {Geometry} from "core/geometry"
 import type {SelectionManager} from "core/selection_manager"
 import type {ChildView} from "core/build_views"
-import {build_view} from "core/build_views"
-import type {ModelAttrs} from "core/has_props"
+import {build_view, build_views, remove_views} from "core/build_views"
+import {GlyphAttachment} from "./glyph_attachment"
+import type {GlyphAttachmentView, PreparedAttachment} from "./glyph_attachment"
+import type {HasPropsClass, ModelAttrs} from "core/has_props"
 import type {Context2d} from "core/util/canvas"
 import {is_equal} from "core/util/eq"
 import type {BBox} from "core/util/bbox"
 import {FactorRange} from "../ranges/factor_range"
-import {PathDecoration, PathMarkings} from "../graphics/decoration"
+import {PathPlacement} from "../graphics/path_placement"
 import type {Marking} from "../graphics/marking"
-import type {OpaqueIndices, MultiIndices, ImageIndex} from "../selections/selection"
+import {auto_arrowhead} from "../annotations/arrow_head"
+import type {ArrowHead} from "../annotations/arrow_head"
+import {isArrayable, isNumber, isString} from "core/util/types"
+import {isField} from "core/vectorization"
+import type {Field, Vector} from "core/vectorization"
+import type {OpaqueIndices, OpaqueMultiIndices, ImageIndex} from "../selections/selection"
 import {BitSet} from "core/util/bitset"
 
 type Defaults = {
@@ -44,13 +56,35 @@ type UpdatePass = {
   indices?: Set<number>
 }
 
-type DecorationOptions = {
-  inset?: PathDecoration.Attrs["inset"]
+type PaintMasks = {
+  glyph: Indices
+  attachments: Map<GlyphAttachmentView, Indices>
+}
+
+type OrientationOptions = Partial<Pick<PathPlacement.Attrs, "angle" | "angle_reference">>
+
+type PathMarkingStateOptions = OrientationOptions & {
+  inset?: PathPlacement.Attrs["inset"]
   selection_marking?: Marking | "auto" | null
   nonselection_marking?: Marking | "auto" | null
   hover_marking?: Marking | "auto" | null
   muted_marking?: Marking | "auto" | null
 }
+
+type FractionalPlacement = number | Arrayable<number> | Extract<Vector<Arrayable<number>>, Field>
+type PathMarkingPosition = PathNode | FractionalPlacement
+type ArrowHeadsOptions = OrientationOptions & {
+  at?: PathMarkingPosition
+  head?: ArrowHead | "auto"
+}
+
+type PathMarkingOptions = Omit<PathMarkingStateOptions, "inset"> & (
+  | {at: "start" | "end", inset: PathPlacement.Attrs["inset"]}
+  | {at: PathMarkingPosition, inset?: never}
+)
+
+// Keep the receiver independent of the renderer's state glyph type parameters.
+type PathRenderer = GlyphRenderer & {readonly glyph: p.AttrsOf<SupportsPathMarking>}
 
 const selection_defaults: Defaults = {
   fill: {},
@@ -75,7 +109,7 @@ const muted_defaults: Defaults = {
 export class GlyphRendererView extends DataRendererView {
   declare model: GlyphRenderer
 
-  cds_view: CDSViewView
+  subset_view: IndexedSubsetView
 
   glyph: GlyphView
   selection_glyph: GlyphView
@@ -84,6 +118,8 @@ export class GlyphRendererView extends DataRendererView {
   muted_glyph: GlyphView
   decimated_glyph: GlyphView
 
+  private readonly _attachments = new Map<GlyphAttachment, GlyphAttachmentView>()
+
   get glyph_view(): GlyphView {
     return this.glyph
   }
@@ -91,7 +127,8 @@ export class GlyphRendererView extends DataRendererView {
   override _children_views(): ChildView[] {
     return [
       ...super._children_views(),
-      this.cds_view,
+      ...this._attachments.values(),
+      this.subset_view,
       this.glyph,
       this.selection_glyph,
       this.nonselection_glyph,
@@ -106,14 +143,14 @@ export class GlyphRendererView extends DataRendererView {
 
   protected last_dtrender: number
 
-  get data_source(): p.Property<ColumnarDataSource> {
+  get data_source(): p.Property<IndexedDataSource> {
     return this.model.properties.data_source
   }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
-    this.cds_view = await build_view(this.model.view, {parent: this})
+    this.subset_view = await build_view(this.model.view, {parent: this})
 
     const base_glyph = this.model.glyph
     this.glyph = await this.build_glyph_view(base_glyph)
@@ -162,13 +199,31 @@ export class GlyphRendererView extends DataRendererView {
     const decimated_glyph = glyph_from_mode(decimated_defaults, "auto")
     this.decimated_glyph = await this.build_glyph_view(decimated_glyph)
 
-    this.selection_glyph.set_base(this.glyph)
-    this.nonselection_glyph.set_base(this.glyph)
-    this.hover_glyph?.set_base(this.glyph)
-    this.muted_glyph.set_base(this.glyph)
-    this.decimated_glyph.set_base(this.glyph)
+    this.selection_glyph.set_base_glyph(this.glyph)
+    this.nonselection_glyph.set_base_glyph(this.glyph)
+    this.hover_glyph?.set_base_glyph(this.glyph)
+    this.muted_glyph.set_base_glyph(this.glyph)
+    this.decimated_glyph.set_base_glyph(this.glyph)
 
     await this._set_data()
+    await this._build_attachments()
+  }
+
+  override request_paint(): void {
+    if (this.parent instanceof RendererView) {
+      this.parent.request_paint()
+    } else {
+      super.request_paint()
+    }
+  }
+
+  private async _build_attachments(): Promise<void> {
+    await build_views(this._attachments, this.model.attachments, {parent: this})
+  }
+
+  override remove(): void {
+    remove_views(this._attachments)
+    super.remove()
   }
 
   async build_glyph_view<T extends Glyph>(glyph: T): Promise<GlyphView> {
@@ -178,7 +233,7 @@ export class GlyphRendererView extends DataRendererView {
   private _previous_inspected?: {
     indices: OpaqueIndices
     line_indices: OpaqueIndices
-    multiline_indices: MultiIndices
+    multiline_indices: OpaqueMultiIndices
     image_indices: ImageIndex[]
     selected_glyphs: Glyph[]
   }
@@ -195,10 +250,10 @@ export class GlyphRendererView extends DataRendererView {
         pending_update = (async () => {
           await Promise.resolve()
           pending_update = null
-          if (this.is_destroyed || this.cds_view.model != this.model.view) {
+          if (this.is_destroyed || this.subset_view.model != this.model.view) {
             return
           }
-          // CDSView has rebound by now. Keep its callbacks ahead of ours.
+          // IndexedSubset has rebound by now. Keep its callbacks ahead of ours.
           disconnect_source(source)
           connect_source(source)
           this.update_data()
@@ -210,7 +265,7 @@ export class GlyphRendererView extends DataRendererView {
       if (this.is_destroyed) {
         return
       }
-      if (pending_update != null || source != this.model.data_source || this.cds_view.model != this.model.view) {
+      if (pending_update != null || source != this.model.data_source || this.subset_view.model != this.model.view) {
         return update_later()
       }
       return this.update_data(indices)
@@ -218,20 +273,32 @@ export class GlyphRendererView extends DataRendererView {
     const update = () => update_data()
 
     this.connect(this.model.change, render)
-
-    this.connect(this.glyph.model.properties.decorations.change, () => {
-      const {decorations} = this.glyph.model
-      for (const [model, view] of [
-        [this.model.selection_glyph, this.selection_glyph],
-        [this.model.nonselection_glyph, this.nonselection_glyph],
-        [this.model.muted_glyph, this.muted_glyph],
-      ] as const) {
-        if (!(model instanceof Glyph)) {
-          view.model.decorations = decorations
-        }
+    this.on_change(this.model.properties.attachments, async () => {
+      await this._build_attachments()
+      if (!this.is_destroyed) {
+        this.request_paint()
       }
-      this.decimated_glyph.model.decorations = decorations
     })
+
+    const glyph = this.glyph.model
+    if (supports_path_marking(glyph)) {
+      this.connect(glyph.properties.path_markings.change, () => {
+        const {path_markings} = glyph
+        for (const [model, view] of [
+          [this.model.selection_glyph, this.selection_glyph],
+          [this.model.nonselection_glyph, this.nonselection_glyph],
+          [this.model.muted_glyph, this.muted_glyph],
+        ] as const) {
+          if (!(model instanceof Glyph) && supports_path_marking(view.model)) {
+            view.model.path_markings = path_markings
+          }
+        }
+        const decimated = this.decimated_glyph.model
+        if (supports_path_marking(decimated)) {
+          decimated.path_markings = path_markings
+        }
+      })
+    }
 
     this.connect(this.glyph.model.change, update)
     this.connect(this.selection_glyph.model.change, update)
@@ -242,7 +309,7 @@ export class GlyphRendererView extends DataRendererView {
     this.connect(this.muted_glyph.model.change, update)
     this.connect(this.decimated_glyph.model.change, update)
 
-    const patch = (indices: number[]) => update_data(indices)
+    const data_changed = ({indices, structural}: DataChange) => update_data(structural ? undefined : indices)
     const inspect = () => {
       // XXX: hoping for the best, assuming no in-place mutation
       const {inspected} = this.model.data_source
@@ -258,20 +325,18 @@ export class GlyphRendererView extends DataRendererView {
         render()
       }
     }
-    const connect_source = (source: ColumnarDataSource) => {
+    const connect_source = (source: IndexedDataSource) => {
       this.connect(source.change, update)
-      this.connect(source.streaming, update)
-      this.connect(source.patching, patch)
+      this.connect(source.data_changed, data_changed)
       this.connect(source.selected.change, render)
       this.connect(source._select, render)
       if (this.hover_glyph != null) {
         this.connect(source.inspect, inspect)
       }
     }
-    const disconnect_source = (source: ColumnarDataSource) => {
+    const disconnect_source = (source: IndexedDataSource) => {
       this.disconnect(source.change, update)
-      this.disconnect(source.streaming, update)
-      this.disconnect(source.patching, patch)
+      this.disconnect(source.data_changed, data_changed)
       this.disconnect(source.selected.change, render)
       this.disconnect(source._select, render)
       this.disconnect(source.inspect, inspect)
@@ -285,26 +350,26 @@ export class GlyphRendererView extends DataRendererView {
       return update_later()
     })
     this.on_transitive_change(this.model.properties.view, update, {
-      signal: (view) => (view as CDSView).properties.indices.change,
+      signals: () => [this.model.view.properties.indices.change],
     })
     this.on_transitive_change(this.model.properties.view, () => {
-      if (this.cds_view.model != this.model.view) {
+      if (this.subset_view.model != this.model.view) {
         return
       }
       return this._update_masked_visuals()
-    }, {signal: (view) => (view as CDSView).properties.masked.change})
+    }, {signals: () => [this.model.view.properties.masked.change]})
     this.connect(this.model.properties.view.change, async () => {
       const revision = ++view_revision
-      if (!this.cds_view.is_destroyed) {
-        this.cds_view.remove()
+      if (!this.subset_view.is_destroyed) {
+        this.subset_view.remove()
       }
       const model = this.model.view
-      const cds_view = await build_view(model, {parent: this})
+      const subset_view = await build_view(model, {parent: this})
       if (this.is_destroyed || revision != view_revision || this.model.view != model) {
-        cds_view.remove()
+        subset_view.remove()
         return
       }
-      this.cds_view = cds_view
+      this.subset_view = subset_view
       disconnect_source(source)
       connect_source(source)
       await update()
@@ -342,7 +407,7 @@ export class GlyphRendererView extends DataRendererView {
   private _data_update_complete: Promise<void> = Promise.resolve()
 
   // Painting publishes masks, which visuals may read (e.g. through a CustomJSTransform). Work
-  // started by a mask change never requests a paint, because renderers sharing a CDSView may
+  // started by a mask change never requests a paint, because renderers sharing an IndexedSubset may
   // publish different masks, so painting again would feed back.
   private _update_masked_visuals(): void {
     const preparing_data = this._pending_update?.data === true || this._active_update?.data === true
@@ -511,14 +576,88 @@ export class GlyphRendererView extends DataRendererView {
     return this.glyph.has_webgl()
   }
 
+  private _paint_glyph(ctx: Context2d, glyph: GlyphView, indices: Int32Array, masks?: PaintMasks): void {
+    if (this._attachments.size == 0) {
+      glyph.paint(ctx, indices)
+      return
+    }
+
+    const glyph_indices = masks == null ? indices : filter(indices, (i) => masks.glyph.get(i))
+    const prepared: PreparedAttachment[] = []
+    for (const attachment of this._attachments.values()) {
+      const mask = masks?.attachments.get(attachment)
+      const attachment_indices = mask == null ? glyph_indices :
+        mask.count == mask.size ? indices : filter(indices, (i) => mask.get(i))
+      const pass = attachment.prepare_attachment(glyph, attachment_indices)
+      if (pass != null) {
+        prepared.push(pass)
+      }
+    }
+
+    // A sibling glyph in a composite renderer may have drawn into the shared buffer.
+    this.canvas.blit_webgl(ctx)
+    ctx.save()
+    try {
+      for (const pass of prepared) {
+        pass.clip?.(ctx)
+      }
+      for (const pass of prepared) {
+        pass.paint_before?.(ctx)
+      }
+      const uses_webgl = glyph.has_webgl()
+      if (uses_webgl && ctx.layer.backend == "svg") {
+        glyph.paint_canvas(ctx, glyph_indices)
+      } else {
+        glyph.paint(ctx, glyph_indices)
+        if (uses_webgl) {
+          // Composite this pass under its clip before painting its attachments.
+          this.canvas.blit_webgl(ctx)
+        }
+      }
+    } finally {
+      ctx.restore()
+    }
+
+    for (const pass of prepared) {
+      pass.paint?.(ctx)
+    }
+  }
+
+  override paint(ctx: Context2d): void {
+    super.paint(ctx)
+    if (!(this.displayed && this.is_renderable)) {
+      this.glyph.update_dom(new Int32Array(0))
+    }
+  }
+
   protected _paint(ctx: Context2d): void {
     const {has_webgl} = this
 
     this.map_data()
 
-    // all_indices is in full data space, indices is converted to subset space by mask_data (that may use the spatial index)
+    // The glyph's bbox may depend on mapped data, which `paint()` didn't have
+    // available when it positioned this renderer, so update it again.
+    this.update_position()
+
+    // Partition the union of paint candidates by state, then apply each mask in that pass.
+    // Keep the viewport mask published on the IndexedSubset independent of attachments.
     const all_indices = this.model.view.indices_array
-    let indices = this._update_masked_indices().ones()
+    const masked = this._update_masked_indices()
+    let candidates = masked
+    let attachment_masks: Map<GlyphAttachmentView, Indices> | undefined
+    for (const attachment of this._attachments.values()) {
+      const mask = attachment.paint_candidates(this.glyph, masked)
+      if (mask != masked) {
+        attachment_masks ??= new Map()
+        attachment_masks.set(attachment, mask)
+        candidates = candidates.union(mask)
+      }
+    }
+    const masks = attachment_masks == null ? undefined : {glyph: masked, attachments: attachment_masks}
+    let glyph_masks = masks
+    let indices = candidates.ones()
+
+    this.glyph.update_dom(indices)
 
     // selected is in full set space
     const {selected} = this.model.data_source
@@ -574,6 +713,7 @@ export class GlyphRendererView extends DataRendererView {
           && !has_webgl && lod_threshold != null && all_indices.length > lod_threshold) {
         // Render decimated during interaction if too many elements and not using GL
         indices = this.decimated.ones()
+        glyph_masks = undefined
         return {glyph: this.decimated_glyph, nonselection_glyph: this.decimated_glyph}
       } else {
         return {
@@ -595,9 +735,9 @@ export class GlyphRendererView extends DataRendererView {
     if (selected_full_indices.length == 0) {
       if (this.glyph instanceof LineView || this.glyph instanceof StepView) {
         if (this.hover_glyph != null && inspected_subset_indices.length != 0) {
-          this.hover_glyph.paint(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices))
+          this._paint_glyph(ctx, this.hover_glyph, this.model.view.convert_indices_from_subset(inspected_subset_indices))
         } else {
-          glyph.paint(ctx, all_indices)
+          this._paint_glyph(ctx, glyph, all_indices)
         }
       } else if (this.glyph instanceof PatchView ||
                  this.glyph instanceof HAreaView ||
@@ -605,18 +745,18 @@ export class GlyphRendererView extends DataRendererView {
                  this.glyph instanceof VAreaStepView ||
                  this.glyph instanceof HAreaStepView) {
         if (inspected.selected_glyphs.length == 0 || this.hover_glyph == null) {
-          glyph.paint(ctx, all_indices)
+          this._paint_glyph(ctx, glyph, all_indices)
         } else {
           for (const sglyph of inspected.selected_glyphs) {
             if (sglyph == this.glyph.model) {
-              this.hover_glyph.paint(ctx, all_indices)
+              this._paint_glyph(ctx, this.hover_glyph, all_indices)
             }
           }
         }
       } else {
-        glyph.paint(ctx, indices)
+        this._paint_glyph(ctx, glyph, indices, glyph_masks)
         if (this.hover_glyph != null && inspected_subset_indices.length != 0) {
-          this.hover_glyph.paint(ctx, inspected_subset_indices)
+          this._paint_glyph(ctx, this.hover_glyph, inspected_subset_indices, masks)
         }
       }
     // Render with selection
@@ -643,13 +783,14 @@ export class GlyphRendererView extends DataRendererView {
         }
       }
       // paint order matters, selection should be paint last/on top
-      nonselection_glyph.paint(ctx, nonselected_subset_indices.subarray(0, n_nonselected))
-      selection_glyph.paint(ctx, selected_subset_indices.subarray(0, n_selected))
+      const subset_masks = is_line_or_step ? undefined : glyph_masks
+      this._paint_glyph(ctx, nonselection_glyph, nonselected_subset_indices.subarray(0, n_nonselected), subset_masks)
+      this._paint_glyph(ctx, selection_glyph, selected_subset_indices.subarray(0, n_selected), subset_masks)
       if (this.hover_glyph != null) {
         if (this.glyph instanceof LineView || this.glyph instanceof StepView) {
-          this.hover_glyph.paint(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices))
+          this._paint_glyph(ctx, this.hover_glyph, this.model.view.convert_indices_from_subset(inspected_subset_indices))
         } else {
-          this.hover_glyph.paint(ctx, inspected_subset_indices)
+          this._paint_glyph(ctx, this.hover_glyph, inspected_subset_indices, masks)
         }
       }
     }
@@ -663,7 +804,7 @@ export class GlyphRendererView extends DataRendererView {
 
   _get_reference_point(field: string | null, value?: unknown): number | undefined | null {
     if (field != null) {
-      const array = this.model.data_source.get_column(field)
+      const array = this.model.data_source.get_field(field)
       if (array != null) {
         return this.model.view.get_reference_point(array, value)
       }
@@ -671,18 +812,19 @@ export class GlyphRendererView extends DataRendererView {
     return null
   }
 
-  draw_legend(ctx: Context2d, x0: number, x1: number, y0: number, y1: number, field: string | null, label: unknown, index: number | null): void {
+  draw_legend(ctx: Context2d, bounds: Rect, {item, value}: LegendEntry): void {
     if (this.glyph.data_size == 0) {
       return
     }
+    const {index} = item
     const subset_index = (() => {
       if (index == null) {
-        return this.get_reference_point(field, label)
+        return this.get_reference_point(item.get_field_from_label_prop(), value)
       } else {
         return this.model.view.get_subset_index(index)
       }
     })()
-    this.glyph.draw_legend_for_index(ctx, {x0, x1, y0, y1}, subset_index)
+    this.glyph.draw_legend_for_index(ctx, bounds, subset_index)
   }
 
   hit_test(geometry: Geometry): HitTestResult {
@@ -708,7 +850,8 @@ export namespace GlyphRenderer {
     NonSelectionGlyph = BaseGlyph,
     SelectionGlyph = BaseGlyph,
     MutedGlyph = BaseGlyph,
-  > = p.AttrsOf<Props<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph>>
+    Source extends IndexedDataSource = IndexedDataSource,
+  > = p.AttrsOf<Props<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph, Source>>
 
   export type Props<
     BaseGlyph,
@@ -716,15 +859,17 @@ export namespace GlyphRenderer {
     NonSelectionGlyph = BaseGlyph,
     SelectionGlyph = BaseGlyph,
     MutedGlyph = BaseGlyph,
+    Source extends IndexedDataSource = IndexedDataSource,
   > = DataRenderer.Props & {
-    data_source: p.Property<ColumnarDataSource>
-    view: p.Property<CDSView>
+    data_source: p.Property<Source>
+    view: p.Property<IndexedSubset>
     glyph: p.Property<BaseGlyph>
     hover_glyph: p.Property<HoverGlyph | null>
     nonselection_glyph: p.Property<NonSelectionGlyph | "auto" | null>
     selection_glyph: p.Property<SelectionGlyph | "auto" | null>
     muted_glyph: p.Property<MutedGlyph | "auto" | null>
     muted: p.Property<boolean>
+    attachments: p.Property<GlyphAttachment[]>
   }
 }
 
@@ -734,7 +879,13 @@ export interface GlyphRenderer<
   NonSelectionGlyph extends Glyph = BaseGlyph,
   SelectionGlyph extends Glyph = BaseGlyph,
   MutedGlyph extends Glyph = BaseGlyph,
-> extends GlyphRenderer.Attrs<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph> {}
+  Source extends IndexedDataSource = IndexedDataSource,
+> extends GlyphRenderer.Attrs<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph, Source> {}
+
+export type GlyphRendererWithSource<
+  BaseGlyph extends Glyph,
+  Source extends IndexedDataSource,
+> = GlyphRenderer<BaseGlyph, BaseGlyph, BaseGlyph, BaseGlyph, BaseGlyph, Source>
 
 export class GlyphRenderer<
   BaseGlyph extends Glyph = Glyph,
@@ -742,22 +893,38 @@ export class GlyphRenderer<
   NonSelectionGlyph extends Glyph = BaseGlyph,
   SelectionGlyph extends Glyph = BaseGlyph,
   MutedGlyph extends Glyph = BaseGlyph,
+  Source extends IndexedDataSource = IndexedDataSource,
 > extends DataRenderer {
-  declare properties: GlyphRenderer.Props<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph>
+  declare properties: GlyphRenderer.Props<BaseGlyph, HoverGlyph, NonSelectionGlyph, SelectionGlyph, MutedGlyph, Source>
   declare __view_type__: GlyphRendererView
+
+  // Infer glyphs for the base factory while keeping concrete renderer subclasses intact.
+  declare static create: {
+    <
+      Base extends Glyph,
+      Hover extends Glyph = Base,
+      NonSelection extends Glyph = Base,
+      Selection extends Glyph = Base,
+      Muted extends Glyph = Base,
+      Renderer extends GlyphRenderer = GlyphRenderer,
+    >(this: HasPropsClass<Renderer>,
+      attrs: ModelAttrs<Renderer> & Partial<GlyphRenderer.Attrs<Base, Hover, NonSelection, Selection, Muted>> & {glyph: Base},
+    ): GlyphRenderer extends Renderer ? GlyphRenderer<Base, Hover, NonSelection, Selection, Muted> : Renderer
+  } & typeof DataRenderer.create
 
   static {
     this.prototype.default_view = GlyphRendererView
 
-    this.define<GlyphRenderer.Props<Glyph>>(({Bool, Auto, Or, Ref, Null, Nullable}) => ({
-      data_source:        [ Ref(ColumnarDataSource) ],
-      view:               [ Ref(CDSView), () => CDSView.create() ],
+    this.define<GlyphRenderer.Props<Glyph>>(({Bool, Auto, Or, Ref, Null, Nullable, List}) => ({
+      data_source:        [ Ref(IndexedDataSource) ],
+      view:               [ Ref(IndexedSubset), () => IndexedSubset.create() ],
       glyph:              [ Ref(Glyph) ],
       hover_glyph:        [ Nullable(Ref(Glyph)), null ],
       nonselection_glyph: [ Or(Ref(Glyph), Auto, Null), "auto" ],
       selection_glyph:    [ Or(Ref(Glyph), Auto, Null), "auto" ],
       muted_glyph:        [ Or(Ref(Glyph), Auto, Null), "auto" ],
       muted:              [ Bool, false ],
+      attachments:       [ List(Ref(GlyphAttachment)), [] ],
     }))
   }
 
@@ -765,17 +932,28 @@ export class GlyphRenderer<
     return this.data_source.selection_manager
   }
 
-  add_path_decoration(marking: Marking, options: DecorationOptions & {node: PathDecoration["node"]}): PathDecoration {
-    const decoration = PathDecoration.create({node: options.node, marking, inset: options.inset ?? 0})
-    return this._add_decoration(decoration, options)
+  add_path_marking(this: PathRenderer, marking: Marking, options: PathMarkingOptions): PathPlacement {
+    const {at, inset, angle, angle_reference} = options
+    if ("inset" in options && at !== "start" && at !== "end") {
+      throw new Error("inset requires at='start' or at='end'")
+    }
+    const positions = isNumber(at) ? [at] : at
+    if (positions !== "start" && positions !== "middle" && positions !== "end" &&
+        !isArrayable(positions) && !(isField(positions) && isString(positions.field))) {
+      throw new Error("at must be 'start', 'middle', 'end', a fraction, a sequence of fractions, or a field spec")
+    }
+    const path_marking = PathPlacement.create({
+      marking, positions, inset: inset ?? 0, angle: angle ?? 0, angle_reference: angle_reference ?? "auto",
+    })
+    return this._add_path_marking(path_marking, options)
   }
 
-  add_path_markings(marking: Marking, options: Omit<DecorationOptions, "inset"> & {positions?: PathMarkings["positions"]} = {}): PathMarkings {
-    const decoration = PathMarkings.create({marking, positions: options.positions ?? [0.5]})
-    return this._add_decoration(decoration, options)
+  add_arrowheads(this: PathRenderer, {at = "end", head = "auto", ...orientation}: ArrowHeadsOptions = {}): PathPlacement {
+    const marking = head == "auto" ? auto_arrowhead() : head
+    return this.add_path_marking(marking, {at, ...orientation})
   }
 
-  private _add_decoration<T extends PathDecoration | PathMarkings>(decoration: T, options: DecorationOptions): T {
+  private _add_path_marking(path_marking: PathPlacement, options: PathMarkingStateOptions): PathPlacement {
     const {
       selection_marking = "auto",
       nonselection_marking = "auto",
@@ -789,24 +967,27 @@ export class GlyphRenderer<
       [this.muted_glyph, muted_marking],
     ]
 
-    for (const glyph of [this.glyph, ...states.filter(([, marking]) => marking != null).map(([glyph]) => glyph)]) {
-      if (glyph instanceof Glyph && !glyph._supports_path_decorations(decoration instanceof PathDecoration ? decoration.node : 0.5)) {
-        const operation = decoration instanceof PathDecoration ? "add_path_decoration" : "add_path_markings"
-        throw new Error(`${operation}() does not support ${glyph.type}. Use Segment, Line, MultiLine, Bezier, or Arc.`)
+    const glyph = this.glyph
+    if (!supports_path_marking(glyph)) {
+      throw new Error(`add_path_marking() does not support ${glyph.type}.`)
+    }
+    for (const [state_glyph, marking] of states) {
+      if (marking != null && state_glyph instanceof Glyph && !supports_path_marking(state_glyph)) {
+        throw new Error(`add_path_marking() does not support ${state_glyph.type}.`)
       }
     }
-    this.glyph.decorations = [...this.glyph.decorations, decoration]
+    glyph.path_markings = [...glyph.path_markings, path_marking]
 
     for (const [glyph, state_marking] of states) {
-      if (!(glyph instanceof Glyph) || state_marking == null) {
+      if (!(glyph instanceof Glyph) || !supports_path_marking(glyph) || state_marking == null) {
         continue
       }
-      const state_decoration = state_marking == "auto"
-        ? decoration
-        : decoration.clone({marking: state_marking})
-      glyph.decorations = [...glyph.decorations, state_decoration]
+      const state_path_marking = state_marking == "auto"
+        ? path_marking
+        : path_marking.clone({marking: state_marking})
+      glyph.path_markings = [...glyph.path_markings, state_path_marking]
     }
 
-    return decoration
+    return path_marking
   }
 }

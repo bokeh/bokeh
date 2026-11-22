@@ -8,7 +8,20 @@
 from abc import abstractmethod
 from typing import Literal, Unpack
 
-from .._specs import DataSpec, NumberSpec
+from .._specs import AngleSpec, DataSpec, NumberSpec, SizeSpec
+from ..core.enums import (
+    AngleReferenceType as AngleReference,
+    AngleUnitsType as AngleUnits,
+    MarkerTypeType as MarkerType,
+)
+from ..core.property_mixins import (
+    FillProps,
+    HatchProps,
+    LineProps,
+    _FillPropsInit,
+    _HatchPropsInit,
+    _LinePropsInit,
+)
 from ..model.model import Model, _ModelInit
 
 class _MarkingInit(_ModelInit, total=False):
@@ -19,26 +32,30 @@ class Marking(Model):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_MarkingInit]) -> None: ...
 
-class Decoration(Model):
-    @abstractmethod
-    def __init__(self, **kwargs: Unpack[_ModelInit]) -> None: ...
+class _ScatterMarkingInit(_MarkingInit, _FillPropsInit, _HatchPropsInit, _LinePropsInit, total=False):
+    marker: MarkerType
+    size: SizeSpec
 
-class _PathDecorationInit(_ModelInit, total=False):
+class ScatterMarking(Marking, FillProps, HatchProps, LineProps):
+    def __init__(self, **kwargs: Unpack[_ScatterMarkingInit]) -> None: ...
+    marker: MarkerType = ...
+    size: SizeSpec = ...
+
+type PathPositions = Literal["start", "middle", "end"] | DataSpec[list[float]]
+
+class _PathMarkingInit(_ModelInit, total=False):
     marking: Marking
-    node: Literal["start", "middle", "end"]
+    positions: PathPositions
+    angle: AngleSpec
+    angle_units: AngleUnits
+    angle_reference: AngleReference
     inset: NumberSpec
 
-class PathDecoration(Decoration):
-    def __init__(self, **kwargs: Unpack[_PathDecorationInit]) -> None: ...
+class PathPlacement(Model):
+    def __init__(self, **kwargs: Unpack[_PathMarkingInit]) -> None: ...
     marking: Marking = ...
-    node: Literal["start", "middle", "end"] = ...
+    positions: PathPositions = ...
+    angle: AngleSpec = ...
+    angle_units: AngleUnits = ...
+    angle_reference: AngleReference = ...
     inset: NumberSpec = ...
-
-class _PathMarkingsInit(_ModelInit, total=False):
-    marking: Marking
-    positions: DataSpec[list[float]]
-
-class PathMarkings(Decoration):
-    def __init__(self, **kwargs: Unpack[_PathMarkingsInit]) -> None: ...
-    marking: Marking = ...
-    positions: DataSpec[list[float]] = ...

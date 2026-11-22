@@ -1,3 +1,13 @@
+''' Explore Fourier approximations by adjusting waveform, frequency, phase, and
+term count.
+
+.. bokeh-example-metadata::
+    :title: Fourier studio
+    :keywords: fourier, studio
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Div, bokeh.models.GridBox, bokeh.models.Range1d, bokeh.models.Select, bokeh.models.Slider
+    :no-index:
+'''
+
 from __future__ import annotations
 
 from typing import Any, cast
@@ -104,8 +114,7 @@ def modify_document(doc: Document) -> None:
         width=380,
         sizing_mode="stretch_width",
         min_width=0,
-        tools="",
-        toolbar_location=None,
+        tools=None,
         x_range=(0, 2*MAX_TERMS),
         y_range=spectrum_range,
         x_axis_label="Harmonic",

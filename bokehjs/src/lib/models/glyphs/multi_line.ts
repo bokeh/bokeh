@@ -7,15 +7,15 @@ import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {minmax2} from "core/util/arrayable"
 import type {Context2d} from "core/util/canvas"
-import {Glyph, GlyphView} from "./glyph"
+import {Glyph, GlyphView, SupportsPathMarking} from "./glyph"
 import {generic_line_vector_legend, line_interpolation} from "./utils"
 import {Selection} from "../selections/selection"
 import type {MultiLineGL} from "./webgl/multi_line"
 
 import {
-  path_segments, trim_path, trace_path, paint_decorations, hit_decoration,
-  span_path_indices, decoration_hits_span, decoration_hits_rect,
-} from "./decorated_path"
+  path_segments, trim_path, trace_path, paint_path_markings, hit_path_marking,
+  span_path_indices, path_marking_hits_span, path_marking_hits_rect,
+} from "./marked_path"
 
 export interface MultiLineView extends MultiLine.Data {}
 
@@ -32,10 +32,10 @@ export class MultiLineView extends GlyphView {
   }
 
   protected override _compute_can_use_webgl(): boolean {
-    // Decorations are painted on the canvas. Until the WebGL path can shorten
+    // Path markings are painted on the canvas. Until the WebGL path can shorten
     // its line geometry to matching start and end insets, keep both the shaft
-    // and its decorations on the same backend.
-    return this.model.decorations.length == 0
+    // and its path_markings on the same backend.
+    return this.model.path_markings.length == 0
   }
 
   protected override _project_data(): void {
@@ -61,7 +61,7 @@ export class MultiLineView extends GlyphView {
     if (uses_webgl) {
       const {sxs, sys} = {...this, ...data}
       for (const i of indices) {
-        this._render_decorations(ctx, i, sxs.get(i), sys.get(i))
+        this._render_path_markings(ctx, i, sxs.get(i), sys.get(i))
       }
     }
   }
@@ -75,7 +75,7 @@ export class MultiLineView extends GlyphView {
 
       const segments = path_segments(sx, sy)
       if (segments.length != 0) {
-        const {start, end} = this._decoration_insets(i)
+        const {start, end} = this._path_marking_insets(i)
         const visible = trim_path(segments, start, end)
 
         if (this.visuals.line.doit) {
@@ -85,17 +85,17 @@ export class MultiLineView extends GlyphView {
           ctx.stroke()
         }
 
-        paint_decorations(ctx, this.decorations.values(), i, segments)
+        paint_path_markings(ctx, this.path_markings.values(), i, segments)
       }
     }
   }
 
-  protected _render_decorations(ctx: Context2d, i: number, sx: FloatArray, sy: FloatArray): void {
-    if (this.decorations.size == 0) {
+  protected _render_path_markings(ctx: Context2d, i: number, sx: FloatArray, sy: FloatArray): void {
+    if (this.path_markings.size == 0) {
       return
     }
 
-    paint_decorations(ctx, this.decorations.values(), i, path_segments(sx, sy))
+    paint_path_markings(ctx, this.path_markings.values(), i, path_segments(sx, sy))
   }
 
   protected override _hit_point(geometry: PointGeometry): Selection {
@@ -113,7 +113,7 @@ export class MultiLineView extends GlyphView {
         continue
       }
 
-      const {start, end} = this._decoration_insets(i)
+      const {start, end} = this._path_marking_insets(i)
       const visible = trim_path(segments, start, end)
 
       let points: number[] | null = null
@@ -127,8 +127,8 @@ export class MultiLineView extends GlyphView {
         }
       }
 
-      for (const decoration of this.decorations.values()) {
-        const index = hit_decoration(point, decoration, i, segments)
+      for (const path_marking of this.path_markings.values()) {
+        const index = hit_path_marking(point, path_marking, i, segments)
         if (index != null) {
           shortest = 0
           points = [index]
@@ -155,12 +155,12 @@ export class MultiLineView extends GlyphView {
         continue
       }
 
-      const {start, end} = this._decoration_insets(i)
+      const {start, end} = this._path_marking_insets(i)
       const visible = trim_path(segments, start, end)
       const points = new Set(span_path_indices(visible, geometry.direction, val))
 
-      for (const decoration of this.decorations.values()) {
-        const index = decoration_hits_span(decoration, i, segments, geometry.direction, val)
+      for (const path_marking of this.path_markings.values()) {
+        const index = path_marking_hits_span(path_marking, i, segments, geometry.direction, val)
         if (index != null) {
           points.add(index)
         }
@@ -184,7 +184,7 @@ export class MultiLineView extends GlyphView {
         continue
       }
 
-      const {start, end} = this._decoration_insets(i)
+      const {start, end} = this._path_marking_insets(i)
       const visible = trim_path(segments, start, end)
       const points = new Set<number>()
 
@@ -198,8 +198,8 @@ export class MultiLineView extends GlyphView {
         }
       }
 
-      for (const decoration of this.decorations.values()) {
-        const index = decoration_hits_rect(decoration, i, segments, geometry)
+      for (const path_marking of this.path_markings.values()) {
+        const index = path_marking_hits_rect(path_marking, i, segments, geometry)
         if (index != null) {
           points.add(index)
         }
@@ -241,7 +241,7 @@ export namespace MultiLine {
   export type Props = Glyph.Props & {
     xs: p.CoordinateSeqSpec
     ys: p.CoordinateSeqSpec
-  } & Mixins
+  } & Mixins & SupportsPathMarking
 
   export type Mixins = LineVector
 
@@ -253,10 +253,6 @@ export namespace MultiLine {
 export interface MultiLine extends MultiLine.Attrs {}
 
 export class MultiLine extends Glyph {
-  override _supports_path_decorations(_placement: string | number): boolean {
-    return true
-  }
-
   declare properties: MultiLine.Props
   declare __view_type__: MultiLineView
 
@@ -268,5 +264,6 @@ export class MultiLine extends Glyph {
       ys: [ p.YCoordinateSeqSpec, {field: "ys"} ],
     }))
     this.mixins<MultiLine.Mixins>(LineVector)
+    this.define<SupportsPathMarking>(SupportsPathMarking)
   }
 }

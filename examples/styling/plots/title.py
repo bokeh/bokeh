@@ -1,3 +1,11 @@
+''' Customize the font, color, and alignment of a plot title.
+
+.. bokeh-example-metadata::
+    :title: Title
+    :keywords: title
+    :apis: bokeh.plotting.figure.scatter
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400, title="Some Title")
