@@ -16,7 +16,7 @@ export function xy(x: number, y: number): Point {
   return {x, y}
 }
 
-type BrowserInput = {type: "click", x: number, y: number} | {type: "press", key: string}
+type BrowserInput = {type: "click" | "move", x: number, y: number} | {type: "press", key: string}
 
 async function browser_input(input: BrowserInput): Promise<void> {
   const binding = (window as Window & {__bokeh_test_input?: (input: BrowserInput) => Promise<void>}).__bokeh_test_input
@@ -31,6 +31,10 @@ export async function browser_click(el: Element): Promise<void> {
 
 export async function browser_press(key: string): Promise<void> {
   await browser_input({type: "press", key})
+}
+
+export async function browser_move(x: number, y: number): Promise<void> {
+  await browser_input({type: "move", x, y})
 }
 
 const _event_common: Partial<UIEventInit> = {
