@@ -1,3 +1,11 @@
+''' Display axis ticks as percentages and currency.
+
+.. bokeh-example-metadata::
+    :title: Numerical tick formatter
+    :keywords: numerical, tick, formatter
+    :apis: bokeh.models.NumeralTickFormatter, bokeh.plotting.figure.scatter
+'''
+
 from bokeh.models import NumeralTickFormatter
 from bokeh.plotting import figure, show
 

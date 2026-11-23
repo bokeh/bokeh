@@ -1,7 +1,10 @@
+import {expect} from "#framework/assertions"
 import {display} from "#framework/layouts"
 
 import {ScaleBar, Plot, Range1d, FactorRange, Metric, LinearScale, CategoricalScale} from "@bokehjs/models"
 import type {Location, Align} from "@bokehjs/core/enums"
+import {bounding_box} from "@bokehjs/core/dom"
+import {delay} from "@bokehjs/core/util/defer"
 
 describe("ScaleBar annotation", () => {
   describe("should support horizontal orientation", () => {
@@ -426,4 +429,151 @@ describe("ScaleBar annotation", () => {
       })
     })
   })
+
+  it("should reserve enough room in a side panel", async () => {
+    const plot = Plot.create({
+      width: 300,
+      height: 120,
+      min_border: 0,
+      x_range: Range1d.create({start: 0, end: 1}),
+      y_range: Range1d.create({start: 0, end: 1}),
+      toolbar_location: null,
+    })
+    const scale_bar = ScaleBar.create({
+      range: Range1d.create({start: 0, end: 10}),
+      unit: "m",
+      dimensional: Metric.create({base_unit: "m"}),
+      orientation: "vertical",
+    })
+    plot.add_layout(scale_bar, "right")
+
+    const {view} = await display(plot)
+    await view.ready
+    await delay(100)
+    const panel_bbox = bounding_box(view.right_panel.el)
+    const scale_bar_bbox = bounding_box(view.owner.get_one(scale_bar).el)
+
+    expect(scale_bar_bbox.right).to.be.below(panel_bbox.right + 0.01)
+  })
+
+  it("should settle when its length affects a side-panel size", async () => {
+    const plot = Plot.create({
+      width: 300,
+      height: 120,
+      min_border: 0,
+      x_range: Range1d.create({start: 0, end: 1}),
+      y_range: Range1d.create({start: 0, end: 1}),
+      toolbar_location: null,
+    })
+    const scale_bar = ScaleBar.create({
+      range: Range1d.create({start: 0, end: 10}),
+      unit: "m",
+      dimensional: Metric.create({base_unit: "m"}),
+      bar_length: 0.5,
+      orientation: "horizontal",
+    })
+    plot.add_layout(scale_bar, "right")
+
+    const {view} = await display(plot)
+    const expect_stable_layout = async () => {
+      await view.ready
+      // Cross-axis reservation may require several layout passes.
+      await delay(400)
+      const render_count = (view as any)._render_count
+      const frame_width = view.frame.bbox.width
+      await delay(150)
+      expect((view as any)._render_count).to.be.equal(render_count)
+      expect(view.frame.bbox.width).to.be.equal(frame_width)
+      expect(frame_width).to.be.above(100)
+      expect(view.owner.get_one(scale_bar).bbox.right).to.be.below(view.bbox.right + 0.01)
+    }
+
+    await expect_stable_layout()
+
+    plot.width = 301
+    scale_bar.bar_length = 0.2
+    await expect_stable_layout()
+  })
+
+  it.no_image("should settle a cross-axis side panel with an explicit frame size", async () => {
+    const scale_bar = ScaleBar.create({
+      range: "auto",
+      unit: "m",
+      dimensional: Metric.create({base_unit: "m"}),
+      bar_length: 0.5,
+      orientation: "horizontal",
+    })
+    const plot = Plot.create({
+      frame_width: 300,
+      height: 120,
+      min_border: 0,
+      x_range: Range1d.create({start: 0, end: 10}),
+      y_range: Range1d.create({start: 0, end: 1}),
+      toolbar_location: null,
+      right: [scale_bar],
+    })
+
+    const {view} = await display(plot, [700, 170])
+    await view.ready
+    await delay(400)
+    const width = view.bbox.width
+    const render_count = (view as any)._render_count
+    await delay(300)
+    expect(view.bbox.width).to.be.equal(width)
+    expect(view.frame.bbox.width).to.be.equal(300)
+    expect((view as any)._render_count).to.be.equal(render_count)
+    expect(view.owner.get_one(scale_bar).bbox.right).to.be.below(view.bbox.right + 0.01)
+  })
+
+  it.no_image("should settle and keep a cross-axis side panel calibrated to the frame", async () => {
+    const scale_bar = ScaleBar.create({
+      range: "auto",
+      unit: "m",
+      dimensional: Metric.create({base_unit: "m"}),
+      bar_length: 5,
+      bar_length_units: "data",
+      orientation: "horizontal",
+      length_sizing: "exact",
+    })
+    const plot = Plot.create({
+      width: 301,
+      height: 120,
+      min_border: 0,
+      x_range: Range1d.create({start: 0, end: 10}),
+      y_range: Range1d.create({start: 0, end: 1}),
+      toolbar_location: null,
+      right: [scale_bar],
+    })
+
+    const {view} = await display(plot, [700, 170])
+    const bar = view.owner.get_one(scale_bar)
+    const expect_stable_layout = async () => {
+      await view.ready
+      await delay(400)
+      const render_count = (view as any)._render_count
+      const frame_width = view.frame.bbox.width
+      await delay(400)
+      expect((view as any)._render_count).to.be.equal(render_count)
+      expect(view.frame.bbox.width).to.be.equal(frame_width)
+      expect(bar.bbox.right).to.be.below(view.bbox.right + 0.01)
+    }
+
+    await expect_stable_layout()
+    {
+      const {axis_scale, label_layout} = bar as any
+      expect(axis_scale.target_range.span).to.be.equal(Math.round(view.frame.bbox.width/2))
+      expect(label_layout.text.text).to.be.equal("5.00 m")
+    }
+
+    plot.width = 600
+    scale_bar.setv({bar_length: 60, bar_length_units: "screen"})
+    await expect_stable_layout()
+    {
+      const {axis_scale, label_layout} = bar as any
+      expect(axis_scale.target_range.span).to.be.equal(60)
+      const value = (600/view.frame.bbox.width).toFixed(2)
+      expect(label_layout.text.text).to.be.equal(`${value} m`)
+    }
+  })
+
 })

@@ -1,3 +1,12 @@
+''' Draw hexagonal tiles using axial grid coordinates.
+
+.. bokeh-example-metadata::
+    :title: Hex Tile
+    :keywords: hex tile, reference
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.HexTile, bokeh.models.LinearAxis, bokeh.models.Plot
+    :example-ref: bokeh.models.glyphs.hextile
+'''
+
 from bokeh.io import curdoc, show
 from bokeh.models import ColumnDataSource, Grid, HexTile, LinearAxis, Plot
 

@@ -289,6 +289,13 @@ us_states
 
 .. automodule:: bokeh.sampledata.us_states
 
+.. _sampledata_wind_observations:
+
+wind_observations
+-----------------
+
+.. automodule:: bokeh.sampledata.wind_observations
+
 .. _sampledata_world_cities:
 
 world_cities

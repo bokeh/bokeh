@@ -1,3 +1,11 @@
+''' Plot a buoy's wave forecast directly from a list of records.
+
+.. bokeh-example-metadata::
+    :title: Record source in memory
+    :keywords: record, source, in, memory
+    :apis: bokeh.models.RecordDataSource, bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
+'''
+
 from bokeh.models import RecordDataSource
 from bokeh.plotting import figure, show
 

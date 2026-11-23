@@ -1,3 +1,11 @@
+''' Open a movable form at the point selected in a scatter plot.
+
+.. bokeh-example-metadata::
+    :title: Inline data entry
+    :keywords: inline, data, entry
+    :apis: bokeh.models.Button, bokeh.models.Column, bokeh.models.CustomJS, bokeh.models.Panel, bokeh.models.Row, bokeh.models.Select, bokeh.models.Slider
+'''
+
 from math import nan
 
 import numpy as np

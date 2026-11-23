@@ -1,3 +1,12 @@
+''' Define a custom renderer that displays incoming spectra as a waterfall.
+
+.. bokeh-example-metadata::
+    :title: Waterfall
+    :keywords: waterfall
+    :apis: bokeh.models.Renderer
+    :no-index:
+'''
+
 from os.path import dirname, join
 
 from bokeh.core.properties import Color, Float, Int, Override, Seq

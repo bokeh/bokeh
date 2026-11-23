@@ -1,9 +1,11 @@
 ''' A marker plot that demonstrates a slope.
 
 .. bokeh-example-metadata::
+    :title: Slope
+    :keywords: slope
     :apis: bokeh.models.Slope, bokeh.plotting.figure.scatter
     :refs: :ref:`ug_basic_annotations_slope`
-    :keywords: slope
+    :gallery: A dashed blue line of slope 2 drawn through pale yellow scatter points.
 
 '''
 import numpy as np

@@ -55,7 +55,7 @@ classifiers = [
 
 [project.optional-dependencies]
 sampledata = [
-    "bokeh_sampledata >=2026.2",
+    "bokeh_sampledata >=2026.3",
 ]
 extra = [
     "contourpy >=1.2",
@@ -254,30 +254,14 @@ known-local-folder = [
 # For now ignore each remaining untyped module individually.
 [[tool.mypy.overrides]]
 module = [
-    "bokeh.application.handlers.notebook",
-    "bokeh.layouts",
-    "bokeh.models.util.structure",
-    "bokeh.plotting._figure",
-    "bokeh.plotting._geo_feature",
-    "bokeh.plotting._graph",
-    "bokeh.plotting._legends",
-    "bokeh.plotting._plot",
-    "bokeh.plotting._renderer",
-    "bokeh.plotting.contour",
-    "bokeh.plotting.graph",
-    "tests",
-    "tests.*",
+    "tests.cross.*",
+    "tests.unit.*",
+    "tests.integration.*",
 ]
 ignore_errors = true
 
 [[tool.mypy.overrides]]
 module = [
-    "tests.codebase.*",
-    "tests.support.defaults",
-    "tests.test_bokehjs",
-    "tests.test_cross",
-    "tests.test_defaults",
-    "tests.test_examples",
     "tests.unit.bokeh.test_typing",
     "tests.unit.bokeh.document.test_callbacks__document",
     "tests.unit.bokeh.embed.test_standalone",

@@ -1,3 +1,11 @@
+''' Label hexagonal tiles with their axial coordinates.
+
+.. bokeh-example-metadata::
+    :title: Hex coords
+    :keywords: hex, coords
+    :apis: bokeh.plotting.figure.hex_tile, bokeh.plotting.figure.text
+'''
+
 import numpy as np
 
 from bokeh.plotting import figure, show

@@ -173,8 +173,8 @@ class InspectTool(GestureTool):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_InspectToolInit]) -> None: ...
 
-class _ToolbarInit(_UIElementInit, total=False):
-    tools: list[Tool | ToolProxy]
+# Properties that bokeh.layouts.gridplot() accepts in toolbar_options.
+class _ToolbarOptions(TypedDict, total=False):
     logo: Literal["normal", "grey"] | None
     autohide: bool
     group: bool
@@ -184,6 +184,9 @@ class _ToolbarInit(_UIElementInit, total=False):
     active_scroll: Auto | Scroll | ToolProxy | None
     active_tap: Auto | Tap | ToolProxy | None
     active_multi: Auto | GestureTool | ToolProxy | None
+
+class _ToolbarInit(_UIElementInit, _ToolbarOptions, total=False):
+    tools: list[Tool | ToolProxy]
 
 class Toolbar(UIElement):
     def __init__(self, **kwargs: Unpack[_ToolbarInit]) -> None: ...

@@ -1,3 +1,11 @@
+''' Add a second, centered title below a plot that already has a title on the left.
+
+.. bokeh-example-metadata::
+    :title: Title additional
+    :keywords: title, additional
+    :apis: bokeh.models.Title, bokeh.plotting.figure.add_layout, bokeh.plotting.figure.scatter
+'''
+
 from bokeh.models import Title
 from bokeh.plotting import figure, show
 

@@ -2,10 +2,11 @@
 is over 5,000 people, made using the ``GMapPlot`` class.
 
 .. bokeh-example-metadata::
-    :sampledata: world_cities
-    :apis: bokeh.models.Scatter, bokeh.models.GMapPlot, bokeh.models.PanTool, bokeh.models.WheelZoomTool
-    :refs: :ref:`ug_styling_plots_axes_labels`, :ref:`ug_topics_geo_google_maps`, :ref:`ug_basic_data`
+    :title: Maps cities
     :keywords: scatter, map, label, pantool, gmapplot, document
+    :apis: bokeh.models.Scatter, bokeh.models.GMapPlot, bokeh.models.PanTool, bokeh.models.WheelZoomTool
+    :sampledata: world_cities
+    :refs: :ref:`ug_styling_plots_axes_labels`, :ref:`ug_topics_geo_google_maps`, :ref:`ug_basic_data`
 '''
 
 from os import getenv

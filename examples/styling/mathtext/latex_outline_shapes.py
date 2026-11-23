@@ -1,3 +1,11 @@
+''' Compare outline shapes for LaTeX labels drawn on a plot.
+
+.. bokeh-example-metadata::
+    :title: Math label outlines
+    :keywords: latex, outline, shapes
+    :apis: bokeh.plotting.figure.tex, bokeh.plotting.figure.text
+'''
+
 from typing import Literal
 
 from bokeh.io import show

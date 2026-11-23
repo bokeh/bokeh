@@ -1,9 +1,15 @@
-"""Koch snowflake rendered with WebGL patch.
+''' Koch snowflake rendered with WebGL patch.
 
 Builds the classic Koch snowflake boundary by recursively replacing each
 edge segment with the Koch curve motif, then renders as a single filled
 polygon to demonstrate complex polygon rendering with WebGL.
-"""
+
+
+.. bokeh-example-metadata::
+    :title: Fractal koch
+    :keywords: fractal, koch, webgl
+    :apis: bokeh.plotting.figure.patch
+'''
 import math
 
 from bokeh.plotting import figure, show

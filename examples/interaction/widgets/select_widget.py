@@ -1,3 +1,11 @@
+''' Pick a single value from a dropdown list.
+
+.. bokeh-example-metadata::
+    :title: Select widget
+    :keywords: select, widget
+    :apis: bokeh.models.CustomJS, bokeh.models.Select
+'''
+
 from bokeh.io import show
 from bokeh.models import CustomJS, Select
 

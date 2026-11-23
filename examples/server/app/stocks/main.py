@@ -1,4 +1,4 @@
-""" Create a simple stocks correlation dashboard.
+''' Create a simple stocks correlation dashboard.
 
 Choose stocks to compare in the drop down widgets, and make selections
 on the plots to update the summary and histograms accordingly.
@@ -11,7 +11,13 @@ at your command prompt. Then navigate to the URL
 
     http://localhost:5006/stocks
 
-"""
+
+
+.. bokeh-example-metadata::
+    :title: Stocks
+    :keywords: stocks, bokeh server, app
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.PreText, bokeh.models.Select, bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
+'''
 from functools import lru_cache
 
 from bokeh.layouts import column, row

@@ -5,7 +5,7 @@ from collections.abc import Callable
 from typing import Any
 
 from . import BackportError
-from .github import GitHubAPI, repository_path
+from .github import GitHubAPI, PullRequest, repository_path
 
 ALLOWED_CHECK_CONCLUSIONS = {"success", "neutral", "skipped"}
 TITLE_RE = re.compile(r"^\[MERGE WITH CLI\] Backports for (?P<version>\d+\.\d+\.\d+)$")
@@ -22,7 +22,7 @@ def require_rebase_merge(api: GitHubAPI, repository: str) -> None:
 
 
 def validate_pr(
-    pr: dict[str, Any],
+    pr: PullRequest,
     repository: str,
     *,
     expected_version: str | None = None,
@@ -109,7 +109,7 @@ def evaluate_checks(
 def check_pr_ci(
     api: GitHubAPI,
     repository: str,
-    pr: dict[str, Any],
+    pr: PullRequest,
     *,
     progress: Callable[[str], None] = lambda message: None,
 ) -> None:

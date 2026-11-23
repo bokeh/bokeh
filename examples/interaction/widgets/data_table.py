@@ -1,3 +1,12 @@
+''' Display data source columns in an interactive table.
+
+.. bokeh-example-metadata::
+    :title: Data table
+    :keywords: data, table
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.DataTable, bokeh.models.DateFormatter, bokeh.models.TableColumn
+    :gallery: A table displaying dates and integer values in two columns.
+'''
+
 from datetime import date
 from random import randint
 

@@ -1,9 +1,10 @@
-'''This example shows a sample checkout form created using bokeh widgets.
+''' This example shows a sample checkout form created using bokeh widgets.
 
 .. bokeh-example-metadata::
+    :title: Checkout form
+    :keywords: form, widgets, form, inputs
     :apis: bokeh.models.widgets.button, bokeh.models.widgets.checkbox, bokeh.models.widgets.groups, bokeh.models.widgets.inputs
     :refs: :ref:`ug_interaction_widgets`
-    :keywords: form, widgets, form, inputs
 
 '''
 from bokeh.io import show

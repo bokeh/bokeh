@@ -96,7 +96,7 @@ if TYPE_CHECKING:
     # Mappings are covariant in values, unlike dicts, e.g. dict[str, list[int]] is a DataDictArg.
     type DataDictArg = Mapping[str, Sequence[Value] | npt.NDArray[Value] | pd.Series | pd.Index]
 
-    type Index = int | slice | tuple[int | slice, ...]
+    type Index = int | np.integer[Any] | slice | tuple[int | np.integer[Any] | slice, ...]
 
     type Patches = Mapping[str, Sequence[tuple[Index, Value]]]
 
@@ -850,10 +850,10 @@ class ColumnDataSource(ColumnarDataSource):
 
             col_len = len(self.data[name])
 
-            for ind, _ in patch:
+            for ind, value in patch:
 
                 # integer index, patch single value of 1d column
-                if isinstance(ind, int):
+                if isinstance(ind, (int, np.integer)):
                     if not (0 <= ind < col_len):
                         raise ValueError(f"Out-of bounds index ({ind}) in patch for column: {name}")
 
@@ -862,6 +862,16 @@ class ColumnDataSource(ColumnarDataSource):
                     _check_slice(ind)
                     if ind.stop is not None and ind.stop > col_len:
                         raise ValueError(f"Out-of bounds slice index stop ({ind.stop}) in patch for column: {name}")
+
+                    start = 0 if ind.start is None else ind.start
+                    stop = col_len if ind.stop is None else ind.stop
+                    if start > col_len:
+                        raise ValueError(f"Out-of bounds slice index start ({start}) in patch for column: {name}")
+
+                    step = 1 if ind.step is None else ind.step
+                    expected = len(range(start, stop, step))
+                    if len(value) != expected:
+                        raise ValueError(f"Patch slice for column: {name} expects {expected} values, got {len(value)}")
 
                 # multi-index, patch sub-regions of "n-d" column
                 elif isinstance(ind, (list, tuple)):
@@ -872,7 +882,7 @@ class ColumnDataSource(ColumnarDataSource):
                         raise ValueError("Patch multi-index must contain more than one subindex")
 
                     ind_0 = ind[0]
-                    if not isinstance(ind_0, int):
+                    if not isinstance(ind_0, (int, np.integer)):
                         raise ValueError(f"Initial patch sub-index may only be integer, got: {ind_0}")
 
                     if not (0 <= ind_0 < col_len):
@@ -891,7 +901,7 @@ class ColumnDataSource(ColumnarDataSource):
 
                     # Note: bounds of sub-indices after the first are not checked!
                     for subind in ind[1:]:
-                        if not isinstance(subind, (int, slice)):
+                        if not isinstance(subind, (int, np.integer, slice)):
                             raise ValueError(f"Invalid patch sub-index: {subind}")
                         if isinstance(subind, slice):
                             _check_slice(subind)
@@ -1049,6 +1059,8 @@ def _open_record_file(path: PathLike, *, encoding: str, newline: str | None = No
 def _check_slice(s: slice) -> None:
     if (s.start is not None and s.stop is not None and s.start > s.stop):
         raise ValueError(f"Patch slices must have start < end, got {s}")
+    if s.step == 0:
+        raise ValueError(f"Patch slices must have non-zero step, got {s}")
     if (s.start is not None and s.start < 0) or \
        (s.stop  is not None and s.stop < 0) or \
        (s.step  is not None and s.step < 0):

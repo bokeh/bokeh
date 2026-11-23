@@ -24,6 +24,7 @@ import narwhals.stable.v1 as nw
 import numpy as np
 import pytest
 
+from bokeh.core.property.singletons import Undefined
 from bokeh.models import (
     ColumnDataSource,
     DataTable,
@@ -51,6 +52,13 @@ else:
 class DataclassData:
     a: list[int]
     b: list[int]
+
+def _assert_column(ds: bms.ColumnDataSource, expected: list[int]) -> None:
+    actual = ds.data["a"]
+    if isinstance(actual, np.ndarray):
+        assert np.array_equal(actual, np.array(expected))
+    else:
+        assert actual == expected
 
 #-----------------------------------------------------------------------------
 # General API
@@ -376,17 +384,19 @@ class TestColumnDataSource:
 
         assert old_values == [OldValueUnavailable]
 
-    def test_patch_bad_simple_indices(self) -> None:
+    @pytest.mark.parametrize("index", [int, np.int64, np.int32], ids=["int", "int64", "int32"])
+    def test_patch_bad_simple_indices(self, index: type) -> None:
         ds = bms.ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
         with pytest.raises(ValueError, match=r"Out-of bounds index \(3\) in patch for column: a"):
-            ds.patch(dict(a=[(3, 100)]))
+            ds.patch(dict(a=[(index(3), 100)]))
         with pytest.raises(ValueError, match=r"Out-of bounds index \(-1\) in patch for column: a"):
-            ds.patch(dict(a=[(-1, 100)]))
+            ds.patch(dict(a=[(index(-1), 100)]))
         with pytest.raises(ValueError, match=r"Out-of bounds index \(2\) in patch for column: b"):
-            ds.patch(dict(a=[(0, 100)], b=[(2, 100)]))
+            ds.patch(dict(a=[(index(0), 100)], b=[(index(2), 100)]))
         assert ds.data == dict(a=[10, 11], b=[20, 21])
 
-    def test_patch_good_simple_indices(self) -> None:
+    @pytest.mark.parametrize("index", [int, np.int64, np.int32], ids=["int", "int64", "int32"])
+    def test_patch_good_simple_indices(self, index: type) -> None:
         ds = bms.ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
         ds._document = "doc"
         stuff = {}
@@ -395,12 +405,21 @@ class TestColumnDataSource:
             stuff['args'] = args
             stuff['kw'] = kw
         ds.data._patch = mock
-        ds.patch(dict(a=[(0,100), (1,101)], b=[(0,200)]), mock_setter)
+        ds.patch(dict(a=[(index(0),100), (index(1),101)], b=[(index(0),200)]), mock_setter)
         assert stuff['args'] == ("doc", ds, dict(a=[(0,100), (1,101)], b=[(0,200)]), mock_setter)
         assert stuff['kw'] == {}
 
-    def test_patch_bad_slice_indices(self) -> None:
-        ds = bms.ColumnDataSource(data=dict(a=[10, 11, 12, 13, 14, 15], b=[20, 21, 22, 23, 24, 25]))
+    def test_patch_numpy_bool_index(self) -> None:
+        # NumPy booleans are not integers and are still rejected
+        ds = bms.ColumnDataSource(data=dict(a=[10, 11]))
+        with pytest.raises(ValueError, match=r"Invalid patch index: True"):
+            ds.patch(dict(a=[(np.bool_(True), 100)]))
+        assert ds.data == dict(a=[10, 11])
+
+    @pytest.mark.parametrize("as_array", [False, True], ids=["list", "ndarray"])
+    def test_patch_bad_slice_indices(self, as_array: bool) -> None:
+        values = [10, 11, 12, 13, 14, 15]
+        ds = bms.ColumnDataSource(data=dict(a=np.array(values) if as_array else values))
         with pytest.raises(ValueError, match=r"Out-of bounds slice index stop \(10\) in patch for column: a"):
             ds.patch(dict(a=[(slice(10), list(range(10)))]))
         with pytest.raises(ValueError, match=r"Patch slices must have start < end, got slice\(10, 1, None\)"):
@@ -413,6 +432,95 @@ class TestColumnDataSource:
             ds.patch(dict(a=[(slice(10, 1, -1), list(range(10)))]))
         with pytest.raises(ValueError, match=r"Patch slices must have non-negative \(start, stop, step\) values, got slice\(1, 10, -1\)"):
             ds.patch(dict(a=[(slice(1, 10, -1), list(range(10)))]))
+        _assert_column(ds, values)
+
+    def test_patch_zero_slice_step(self) -> None:
+        ds = bms.ColumnDataSource(data=dict(a=[10, 11, 12]))
+        with pytest.raises(ValueError, match=r"Patch slices must have non-zero step, got slice\(0, 2, 0\)"):
+            ds.patch(dict(a=[(slice(0, 2, 0), [100, 101])]))
+        assert ds.data == dict(a=[10, 11, 12])
+
+    @pytest.mark.parametrize("as_array", [False, True], ids=["list", "ndarray"])
+    def test_patch_bad_slice_start(self, as_array: bool) -> None:
+        values = [10, 11, 12, 13, 14, 15]
+        ds = bms.ColumnDataSource(data=dict(a=np.array(values) if as_array else values))
+        with pytest.raises(ValueError, match=r"Out-of bounds slice index start \(7\) in patch for column: a"):
+            ds.patch(dict(a=[(slice(7, None), [100])]))
+        _assert_column(ds, values)
+        with pytest.raises(ValueError, match=r"Patch slice for column: a expects 0 values, got 1"):
+            ds.patch(dict(a=[(slice(6, None), [100])]))
+        _assert_column(ds, values)
+
+    @pytest.mark.parametrize("as_array", [False, True], ids=["list", "ndarray"])
+    def test_patch_bad_slice_value_length(self, as_array: bool) -> None:
+        values = [10, 11, 12, 13, 14, 15]
+        ds = bms.ColumnDataSource(data=dict(a=np.array(values) if as_array else values))
+        cases = [
+            # expected: 1, provided: 2
+            (slice(3, 4), [100, 101]),
+            # expected: 2, provided: 5
+            (slice(1, 3), [100, 101, 102, 103, 104]),
+            # expected: 3, provided: 2
+            (slice(0, 6, 2), [100, 101]),
+            # expected: 3, provided: 1
+            (slice(0, 6, 2), [100]),
+            # expected: 4, provided: 3
+            (slice(2, None), [100, 101, 102]),
+        ]
+        for bad_slice, patch_values in cases:
+            expected = len(range(*bad_slice.indices(len(values))))
+            provided = len(patch_values)
+            with pytest.raises(ValueError, match=rf"Patch slice for column: a expects {expected} values, got {provided}"):
+                ds.patch(dict(a=[(bad_slice, patch_values)]))
+            _assert_column(ds, values)
+
+    def test_patch_empty_slice_at_column_boundary(self) -> None:
+        ds = bms.ColumnDataSource(data=dict(a=[10, 11, 12]))
+        ds.patch(dict(a=[(slice(3, None), [])]))
+        ds.patch(dict(a=[(slice(0, 0), [])]))
+        assert ds.data == dict(a=[10, 11, 12])
+
+    def test_patch_good_stepped_and_open_ended_slice_indices(self) -> None:
+        ds = bms.ColumnDataSource(data=dict(a=[10, 11, 12, 13, 14, 15]))
+        ds.patch(dict(a=[(slice(0, 6, 2), [100, 101, 102])]))
+        assert ds.data == dict(a=[100, 11, 101, 13, 102, 15])
+        ds.patch(dict(a=[(slice(2, None), [200, 201, 202, 203])]))
+        assert ds.data == dict(a=[100, 11, 200, 201, 202, 203])
+
+    @pytest.mark.parametrize(
+        ("bad_slice", "patch_values"),
+        [
+            (slice(3, 1), [100, 101]),
+            (slice(None, 3, -1), [100, 101, 102]),
+            (slice(0, 2, 0), [100, 101]),
+            (slice(5, None), [100]),
+            (slice(0, 2), [100]),
+            (slice(0, 2), [100, 101, 102]),
+            (slice(-1, None), [100]),
+            (slice(None, -1), [100]),
+        ],
+        ids=[
+            "start_after_stop",
+            "negative_step",
+            "zero_step",
+            "start_oob",
+            "too_few_values",
+            "too_many_values",
+            "negative_start",
+            "negative_stop",
+        ],
+    )
+    def test_patch_invalid_slice_leaves_all_columns_unchanged(self, bad_slice: slice, patch_values: list[int]) -> None:
+        ds = bms.ColumnDataSource(data=dict(a=[10, 11, 12], b=np.array([20, 21, 22])))
+        with pytest.raises(ValueError):
+            ds.patch(dict(a=[(slice(0, 2), [100, 101])], b=[(bad_slice, patch_values)]))
+        assert ds.data["a"] == [10, 11, 12]
+        assert np.array_equal(ds.data["b"], np.array([20, 21, 22]))
+
+    def test_patch_good_multi_column_slice_indices(self) -> None:
+        ds = bms.ColumnDataSource(data=dict(a=[10, 11, 12, 13], b=[20, 21, 22, 23]))
+        ds.patch(dict(a=[(slice(0, 2), [100, 101])], b=[(slice(2, None), [200, 201])]))
+        assert ds.data == dict(a=[100, 101, 12, 13], b=[20, 21, 200, 201])
 
     def test_bad_multi_index(self) -> None:
         ds = ColumnDataSource(data=dict(foo=[1]))
@@ -430,6 +538,20 @@ class TestColumnDataSource:
             ds.patch(dict(foo=[[[0, 3], 5]]))
         with pytest.raises(ValueError, match=r"Invalid patch index: {}"):
             ds.patch(dict(foo=[[{}, 5]]))
+
+    def test_patch_good_numpy_integer_multi_index(self) -> None:
+        ds = ColumnDataSource(data=dict(a=[np.zeros((2, 2)), np.zeros((2, 2))]))
+        ds.patch(dict(a=[([np.int64(1), 0, slice(None)], [5, 6])]))
+        ds.patch(dict(a=[([0, np.int64(1), slice(None)], [7, 8])]))
+        assert (ds.data["a"][0] == np.array([[0, 0], [7, 8]])).all()
+        assert (ds.data["a"][1] == np.array([[5, 6], [0, 0]])).all()
+
+    def test_patch_bad_numpy_integer_multi_index(self) -> None:
+        ds = ColumnDataSource(data=dict(a=[np.zeros((2, 2)), np.zeros((2, 2))]))
+        with pytest.raises(ValueError, match=r"Out-of bounds initial sub-index \(2\) in patch for column: a"):
+            ds.patch(dict(a=[([np.int64(2), 0, slice(None)], [5, 6])]))
+        assert (ds.data["a"][0] == np.zeros((2, 2))).all()
+        assert (ds.data["a"][1] == np.zeros((2, 2))).all()
 
     def test_patch_good_slice_indices(self) -> None:
         ds = bms.ColumnDataSource(data=dict(a=[10, 11, 12, 13, 14, 15], b=[20, 21, 22, 23, 24, 25]))
@@ -781,7 +903,7 @@ class TestColumnDataSourcePandas:
 
         assert stream_stuff['kwargs'] == {}
 
-        assert notify_owners_stuff['args'] == (OldValueUnavailable,)
+        assert notify_owners_stuff['args'] == (Undefined,)
 
         self._assert_equal_dicts_of_arrays(dict(ds.data),
                                            dict(a=np.array([10, 11, 12]),
@@ -828,7 +950,7 @@ class TestColumnDataSourcePandas:
 
         assert stream_stuff['kwargs'] == {}
 
-        assert notify_owners_stuff['args'] == (OldValueUnavailable,)
+        assert notify_owners_stuff['args'] == (Undefined,)
 
         self._assert_equal_dicts_of_arrays(dict(ds.data),
                                            dict(a=np.array([10, 11]),
@@ -878,7 +1000,7 @@ class TestColumnDataSourcePandas:
 
         assert stream_stuff['kwargs'] == {}
 
-        assert notify_owners_stuff['args'] == (OldValueUnavailable,)
+        assert notify_owners_stuff['args'] == (Undefined,)
 
         self._assert_equal_dicts_of_arrays(dict(ds.data),
                                            dict(a=np.array([10, 11, 12]),
@@ -928,7 +1050,7 @@ class TestColumnDataSourcePandas:
 
         assert stream_stuff['kwargs'] == {}
 
-        assert notify_owners_stuff['args'] == (OldValueUnavailable,)
+        assert notify_owners_stuff['args'] == (Undefined,)
 
         self._assert_equal_dicts_of_arrays(dict(ds.data),
                                            dict(a=np.array([10, 11, 12]),

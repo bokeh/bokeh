@@ -38,7 +38,7 @@ import {DataRenderer} from "../../renderers/data_renderer"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GraphRenderer} from "../../renderers/graph_renderer"
 import type {Renderer} from "../../renderers/renderer"
-import type {ImageIndex, MultiIndices, OpaqueIndices, Selection} from "../../selections/selection"
+import type {ImageIndex, OpaqueMultiIndices, OpaqueIndices, Selection} from "../../selections/selection"
 import type {IndexedDataSource} from "../../sources/indexed_data_source"
 import {compute_renderers} from "../../util"
 import {CustomJSHover} from "./customjs_hover"
@@ -121,7 +121,7 @@ export type TooltipVars = {
   snap_sx: number
   snap_sy: number
   name?: string | null
-  indices?: MultiIndices | OpaqueIndices
+  indices?: OpaqueMultiIndices | OpaqueIndices
   segment_index?: number
   image_index?: ImageIndex
 }

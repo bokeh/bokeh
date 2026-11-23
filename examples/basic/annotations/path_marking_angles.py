@@ -1,9 +1,10 @@
 ''' Compare arrowhead directions and rotate scatter markers along a curve.
 
 .. bokeh-example-metadata::
+    :title: Path marking angles
+    :keywords: arrowheads, markers, paths, angles
     :apis: bokeh.models.ScatterMarking, bokeh.models.GlyphRenderer.add_path_marking
     :refs: :ref:`ug_basic_annotations_path_markings`
-    :keywords: arrowheads, markers, paths, angles
 
 '''
 from math import pi, sin, tau

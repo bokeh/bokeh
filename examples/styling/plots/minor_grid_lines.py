@@ -1,3 +1,12 @@
+''' Style minor grid lines separately from major grid lines.
+
+.. bokeh-example-metadata::
+    :title: Minor grid lines
+    :keywords: minor, grid, lines
+    :apis: bokeh.plotting.figure.scatter
+    :gallery: Five scatter points on a grid with major and minor grid lines.
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

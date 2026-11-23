@@ -122,6 +122,7 @@ describe("document/defs module", () => {
       }, {
         type: "model",
         name: "some.Some1",
+        extends: {id: "DataModel"},
         properties: [
           {name: "prop0", kind: ["Regex", "(?P<word>foo)"], default: "foo"},
           {name: "prop1", kind: ["Nullable", "Int"], default: null},
@@ -315,6 +316,7 @@ describe("document/defs module", () => {
       const defs: ModelDef[] = [{
         type: "model",
         name: "some.First",
+        extends: {id: "DataModel"},
         properties: [{
           name: "payload",
           kind: "Any",
@@ -323,6 +325,7 @@ describe("document/defs module", () => {
       }, {
         type: "model",
         name: "some.Later",
+        extends: {id: "DataModel"},
         properties: [{
           name: "child",
           kind: ["Nullable", ["Ref", {id: "some.Later"}]],
@@ -344,12 +347,34 @@ describe("document/defs module", () => {
       expect(Later.create({child: later} as any)).to.be.instanceof(Later)
     })
 
+    it("that resolves a property kind referencing the base Model", () => {
+      const defs: ModelDef[] = [{
+        type: "model",
+        name: "some.Holder",
+        extends: {id: "DataModel"},
+        properties: [{
+          name: "child",
+          kind: ["Nullable", ["Ref", {id: "Model"}]],
+          default: null,
+        }],
+      }]
+
+      const deserializer = new Deserializer(new ModelResolver(default_resolver))
+      const [Holder] = decode_defs(defs, deserializer)
+      const child = ColumnDataSource.create()
+
+      expect(Holder.create().property("child").get_value()).to.be.equal(null)
+      expect(Holder.create({child}).property("child").get_value()).to.be.equal(child)
+      expect(() => Holder.create({child: {}})).to.throw()
+    })
+
     it("that resolves buffered defaults", () => {
       const buffer_id = unique_id()
       const values = new Float64Array([1.25, -2.5, 3.75])
       const defs: ModelDef[] = [{
         type: "model",
         name: "some.Buffered",
+        extends: {id: "DataModel"},
         properties: [{
           name: "payload",
           kind: "Any",

@@ -1,6 +1,12 @@
-""" Compare WebGL, SVG with canvas line.
+''' Compare WebGL, SVG with canvas line.
 
-"""
+
+
+.. bokeh-example-metadata::
+    :title: Line compare
+    :keywords: line, compare, webgl
+    :apis: bokeh.models.CustomJS, bokeh.models.Dropdown, bokeh.models.Slider
+'''
 import numpy as np
 
 from bokeh.layouts import column, row

@@ -2,6 +2,13 @@
 This example shows the ability of Bokeh to create a dashboard with different
 sorting options based on a given dataset.
 
+
+
+.. bokeh-example-metadata::
+    :title: Movies
+    :keywords: movies, bokeh server, app
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Div, bokeh.models.Select, bokeh.models.Slider, bokeh.models.TextInput, bokeh.plotting.figure.scatter
+    :sampledata: movies_data
 '''
 import sqlite3 as sql
 from os.path import dirname, join

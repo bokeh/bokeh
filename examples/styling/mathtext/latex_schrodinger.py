@@ -3,9 +3,11 @@ dimension in a parabolic potential well. This example demonstrates the use of
 mathtext on ``Label`` and ``Title`` annotations.
 
 .. bokeh-example-metadata::
+    :title: Schrödinger equation
+    :keywords: mathtext, latex
     :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.varea, bokeh.models.Label, bokeh.models.Title
     :refs: :ref:`ug_styling_mathtext`
-    :keywords: mathtext, latex
+    :gallery: Eight labeled energy levels for a one-dimensional particle in a parabolic potential well.
 
 .. _Harmonic oscillator wavefunctions: https://scipython.com/blog/the-harmonic-oscillator-wavefunctions
 

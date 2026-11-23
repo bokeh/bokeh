@@ -1,11 +1,11 @@
-''' A visualization of adding tooltips to widgets in bokeh.models.
-This example demonstrates defining two distinct tooltip widgets,
-i.e. plaintext and html tooltip, and accepting text input through those widgets.
+''' Add plain-text and HTML tooltips to two text input widgets.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.io.show, bokeh.models.TextInput, Bokeh.models.Tooltip
-    :refs: ref:`ug_interaction_tooltips`
-    :keywords: tooltip
+    :title: Plain-text and HTML widget tooltips
+    :keywords: HTML tooltip, widget tooltip
+    :apis: bokeh.io.show, bokeh.models.TextInput, bokeh.models.Tooltip
+    :refs: :ref:`ug_interaction_tooltips`
+    :example-ref: ug_interaction_tooltip_contents
 '''
 from bokeh.io import show
 from bokeh.layouts import column

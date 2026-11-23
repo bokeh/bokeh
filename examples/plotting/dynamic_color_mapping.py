@@ -1,3 +1,11 @@
+''' Compare color mapping across scatter plots with constant and varying values.
+
+.. bokeh-example-metadata::
+    :title: Dynamic color mapping
+    :keywords: dynamic color mapping, plotting
+    :apis: bokeh.models.LinearColorMapper, bokeh.plotting.figure.add_layout, bokeh.plotting.figure.circle
+'''
+
 import numpy as np
 
 from bokeh.layouts import gridplot

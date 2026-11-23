@@ -1,5 +1,13 @@
 ## Bokeh server for checkbox button group
 
+''' Toggle axis labels with checkbox buttons and a Python callback.
+
+.. bokeh-example-metadata::
+    :title: Checkbox button server
+    :keywords: checkbox button server, reference
+    :apis: bokeh.models.CategoricalColorMapper, bokeh.models.CheckboxButtonGroup, bokeh.models.ColumnDataSource, bokeh.plotting.figure.scatter
+'''
+
 from bokeh.io import curdoc
 from bokeh.layouts import row
 from bokeh.models import CategoricalColorMapper, CheckboxButtonGroup, ColumnDataSource

@@ -112,7 +112,7 @@ def _run_command(command: str, base_dir: PathLike, args: list[str], debug: bool 
     if debug:
         compiler_script = bokehjs_dir / "js" / "compiler" / "main.js"
     else:
-        compiler_script = bokehjs_dir / "js" / "compiler.js"
+        compiler_script = bokehjs_dir / "js" / "compiler.mjs"
 
     cmd = [
         "--no-deprecation",

@@ -588,6 +588,37 @@ not run until the interaction ends, and that every completion path delivers the
 final value exactly once. Sliders and ``Spinner`` provide examples covering
 pointer, keyboard, wheel, focus, and removal paths.
 
+.. _contributor_guide_selection_wire_format:
+
+Selection wire format
+---------------------
+
+Python and BokehJS use the same private format for selection snapshots and
+change events. Public indices remain lists or arrays of sorted, unique,
+nonnegative int32 positions. Text serializers and empty top-level selections
+use ordinary lists or maps.
+
+``selection_indices_v1`` contains a protocol ``bytes`` payload in ``data``
+and a descriptor with ``count`` and ``mode``.
+
+* ``int32`` stores ``count`` strictly increasing little-endian int32 values.
+* ``bitmap`` adds ``origin`` and ``span``. Relative position ``i`` uses
+  bit ``i % 8`` (least significant bit first) in byte ``i // 8``. The
+  payload is ``ceil(span / 8)`` bytes, with exactly ``count`` set bits and
+  zero unused high bits. The encoder spans the smallest through largest
+  index and chooses this mode when ``ceil(span / 8) + 64 < 4 * count``.
+
+``selection_map_v1`` stores ``[key, descriptor]`` pairs in ``rows``, ordered
+by strictly increasing nonnegative int32 key. Each descriptor adds a byte
+``offset`` and ``length`` into one shared ``data`` payload. The first slice
+starts at zero and later slices start at the next four-byte boundary at
+or after the preceding slice. Padding bytes are zero and there is no
+trailing padding. Empty rows use int32 mode with zero count and length.
+
+The codec packs bitmap bytes directly. BokehJS uses ``BitSet`` (exported as
+``Indices``) separately for rendering and filtering. Both codecs verify
+the wire format against the same :bokeh-tree:`bokehjs/test/unit/models/selections/selection_wire_fixture.json`.
+
 .. _gulp: https://gulpjs.com/
 .. _Oxlint: https://oxc.rs/docs/guide/usage/linter.html
 .. _JSFiddle: http://jsfiddle.net/

@@ -134,7 +134,7 @@ Tips
 ----
 
 If you have any questions or encounter any problems with your pull request,
-please reach out on the `Bokeh's contributor Slack`_ or the `Bokeh Discourse`_.
+please reach out on the `Bokeh's contributor Slack`_ or the `GitHub Community Support`_.
 Also, check the :ref:`additional resources available to contributors
 <contributor_guide_resources>`.
 
@@ -173,7 +173,7 @@ for more information about labels and the pull request management process.
 .. _`BEP 6: Branching Strategy`: https://github.com/bokeh/bokeh/wiki/BEP-6:-Branching-Strategy
 .. _push your branch: https://docs.github.com/en/get-started/using-git/pushing-commits-to-a-remote-repository
 .. _reviewing your pull request: https://docs.github.com/en/github/collaborating-with-pull-requests/reviewing-changes-in-pull-requests
-.. _Bokeh Discourse: https://discourse.bokeh.org/
+.. _GitHub Community Support: https://github.com/bokeh/bokeh/discussions/categories/community-support
 .. _Bokeh's contributor Slack: https://slack-invite.bokeh.org/
 .. _Bokeh repository: https://github.com/bokeh/bokeh/
 .. _Linking a pull request to an issue using a keyword: https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword

@@ -1,8 +1,9 @@
 ''' A categorical dot plot based on simple Python lists of data.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.scatter, bokeh.plotting.figure.segment
+    :title: Dotplot
     :keywords: scatter, dotplot, segments
+    :apis: bokeh.plotting.figure.scatter, bokeh.plotting.figure.segment
 
 '''
 from bokeh.plotting import figure, show

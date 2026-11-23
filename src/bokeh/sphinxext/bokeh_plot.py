@@ -82,8 +82,10 @@ log = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 import re
+import sys
 import warnings
 from collections.abc import Callable
+from contextlib import closing
 from heapq import nlargest
 from importlib import import_module
 from os import getenv
@@ -109,6 +111,7 @@ from bokeh.embed._output import render_resource
 from bokeh.embed.resources import ResourceRequirements
 from bokeh.model import Model
 from bokeh.resources import Resources
+from bokeh.util.dependencies import import_optional
 from bokeh.util.warnings import BOKEH_DEPRECATION_MESSAGE_PATTERN
 
 from ._internal import PARALLEL_SAFE, SphinxParallelSpec
@@ -200,8 +203,6 @@ class BokehPlotDirective(BokehDirective):
         target_id = f"{dashed_docname}.{basename(js_path)}"
         target = [nodes.target("", "", ids=[target_id])]
 
-        self.process_sampledata(source)
-
         process_docstring = self.options.get("process-docstring", False)
         intro = self.parse(docstring, '<bokeh-content>') if docstring and process_docstring else []
 
@@ -252,6 +253,7 @@ class BokehPlotDirective(BokehDirective):
             path = join(REPO_TOP, path.replace("__REPO__/", ""))
         elif not isabs(path):
             path = join(env.srcdir, path)
+        env.note_dependency(path)
         try:
             with open(path) as f:
                 return f.read(), path
@@ -301,37 +303,6 @@ class BokehPlotDirective(BokehDirective):
 
         return (external.html, js_path, source, docstring, height_hint)
 
-    def process_sampledata(self, source: str) -> None:
-
-        env = cast(Any, self.env)
-        # A reread must regenerate references that env-purge-doc removed.
-        solved_sampledata = env.temp_data.setdefault("bokeh_sampledata_files", set())
-
-        file, _ = self.get_source_info()
-        # collect links to all standalone examples
-
-        if file is not None and '/docs/examples/' in file.replace("\\", "/") and file not in solved_sampledata:
-            solved_sampledata.add(file)
-            if not hasattr(env, 'all_sampledata_xrefs'):
-                env.all_sampledata_xrefs = []
-            if not hasattr(env, 'all_gallery_overview'):
-                env.all_gallery_overview = []
-
-            env.all_gallery_overview.append({
-                'docname': env.docname,
-            })
-
-            regex = r"(:|bokeh\.)sampledata(:|\.| import )\s*(\w+(\,\s*\w+)*)"
-            matches = re.findall(regex, source)
-            if matches:
-                keywords = set()
-                for m in matches:
-                    keywords.update(m[2].replace(" ","").split(','))
-                for keyword in keywords:
-                    env.all_sampledata_xrefs.append({
-                        'docname': env.docname,
-                        'keyword': keyword,
-                    })
 # -----------------------------------------------------------------------------
 # Dev API
 # -----------------------------------------------------------------------------
@@ -344,6 +315,18 @@ def builder_inited(app: Any) -> None:
     if not hasattr(app.env, "bokeh_plot_files"):
         app.env.bokeh_plot_files = {}
     app.env.bokeh_plot_timings = []
+
+    if sys.platform == "darwin" and app.parallel > 1:
+        pygraphviz = import_optional("pygraphviz")
+        if pygraphviz is not None:
+            # Quartz lazily initializes CoreFoundation, which can segfault after
+            # Sphinx forks. Warm the structure plot's font and JSON renderer here
+            # in the parent before source reading starts.
+            # See PyGraphviz #667: https://github.com/pygraphviz/pygraphviz/issues/667
+            with closing(pygraphviz.AGraph()) as graph:
+                graph.add_node("warmup", fontname="monospace", fontsize="11")
+                graph.layout(prog="dot")
+                graph.draw(format="json")
 
 
 def add_page_resources(app: Any, doctree: nodes.document, docname: str) -> None:

@@ -1,9 +1,10 @@
 ''' Segment and Bezier glyphs as decorated directed graph edges.
 
 .. bokeh-example-metadata::
+    :title: Edge glyphs
+    :keywords: graph, directed, arrows, segment, bezier
     :apis: bokeh.models.GraphRenderer, bokeh.models.Segment, bokeh.models.Bezier
     :refs: :ref:`ug_topics_graph`, :ref:`ug_basic_annotations_arrows`
-    :keywords: graph, directed, arrows, segment, bezier
 
 '''
 from bokeh.layouts import row

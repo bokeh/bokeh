@@ -1,3 +1,12 @@
+''' Display scatter point coordinates and data fields on hover.
+
+.. bokeh-example-metadata::
+    :title: Hover tooltips
+    :keywords: hover, tooltips
+    :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.scatter
+    :gallery: A scatter plot with a tooltip showing a point's index, coordinates, and description.
+'''
+
 from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure, show
 

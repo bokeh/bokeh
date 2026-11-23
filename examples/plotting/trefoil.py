@@ -3,9 +3,10 @@ rendering annular wegdes, different arrow heads and adding arc and segment
 glyphs.
 
 .. bokeh-example-metadata::
+    :title: Trefoil
+    :keywords: trefoil, teehead, veehead, arrow, arrow head, segment, arc, circle, annular wedge
     :apis: bokeh.plotting.figure.annular_wedge, bokeh.plotting.figure.arc, bokeh.plotting.figure.segment, bokeh.models.TeeHead, bokeh.models.VeeHead
     :refs: :ref:`ug_basic_annotations_arrows`, :ref:`ug_styling_mathtext`
-    :keywords: trefoil, teehead, veehead, arrow, arrow head, segment, arc, circle, annular wedge
 
 '''
 from math import cos, radians, sin

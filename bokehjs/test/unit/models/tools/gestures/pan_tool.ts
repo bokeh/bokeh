@@ -90,6 +90,31 @@ describe("PanTool", () => {
     expect([...no_repeated(cursors)]).to.be.equal([...no_repeated(["default", cursor, "default"])])
   }
 
+  it("should not be cancelled with Escape", async () => {
+    async function pan(escape: boolean): Promise<[number, number]> {
+      const tool = PanTool.create({dimensions: "both"})
+      const plot_view = await mkplot(tool)
+      const ac = actions(plot_view, {units: "screen"})
+
+      const events = [...ac._pan({type: "line", xy0: xy(200, 200), xy1: xy(260, 200)})]
+      const pointerup = events.pop()!
+      await ac.emit(events)
+      if (escape) {
+        const event = new KeyboardEvent("keydown", {key: "Escape", bubbles: true, cancelable: true})
+        document.dispatchEvent(event)
+        expect(event.defaultPrevented).to.be.false
+      }
+      await ac.emit([pointerup])
+
+      const {start, end} = plot_view.model.x_range as Range1d
+      return [start, end]
+    }
+
+    const expected = await pan(false)
+    expect(expected).to.not.be.similar([0, 1])
+    expect(await pan(true)).to.be.similar(expected)
+  })
+
   describe("should support pan_together", () => {
     const modifiers: KeyModifiers = {alt: false, ctrl: false, shift: false}
     const native_ev = new PointerEvent("pointermove")

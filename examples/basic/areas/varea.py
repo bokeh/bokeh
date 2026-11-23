@@ -1,3 +1,11 @@
+''' Fill the vertical area between two series sharing the same x coordinates.
+
+.. bokeh-example-metadata::
+    :title: Fill between two curves
+    :keywords: varea
+    :apis: bokeh.plotting.figure.varea
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

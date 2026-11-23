@@ -1,3 +1,11 @@
+''' Use CSS variables to control colors in a Bokeh scatter plot.
+
+.. bokeh-example-metadata::
+    :title: CSS variables
+    :keywords: css, variables
+    :apis: bokeh.plotting.figure.circle
+'''
+
 import numpy as np
 
 from bokeh.palettes import Spectral11

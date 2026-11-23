@@ -1,8 +1,9 @@
 ''' This example shows creating sinusoidal wave using bokeh DataModel.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.models.DataModel, bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.core.properties.Float
+    :title: Data models
     :keywords: wave, sinusoidal, phase, frequency, amplitude
+    :apis: bokeh.models.DataModel, bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.core.properties.Float
 
 '''
 import numpy as np

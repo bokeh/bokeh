@@ -2,9 +2,10 @@
 inside and outside the figure.
 
 .. bokeh-example-metadata::
+    :title: Latex labels
+    :keywords: mathtext, latex
     :apis: bokeh.models.annotation.Label
     :refs: :ref:`ug_styling_mathtext`
-    :keywords: mathtext, latex
 
 '''
 from bokeh.models import Label

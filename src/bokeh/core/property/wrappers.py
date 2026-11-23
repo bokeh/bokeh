@@ -79,7 +79,7 @@ from typing import (
 import numpy as np
 
 from ...util.warnings import warn
-from .singletons import OldValueUnavailable
+from .singletons import Undefined
 
 if TYPE_CHECKING:
     from ...document import Document
@@ -509,7 +509,7 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
                     dict.__setitem__(self, k, seq)
 
         from ...document.events import ColumnsStreamedEvent
-        self._notify_owners(OldValueUnavailable, hint=ColumnsStreamedEvent(doc, source, "data", new_data, rollover, setter))
+        self._notify_owners(Undefined, hint=ColumnsStreamedEvent(doc, source, "data", new_data, rollover, setter))
 
     # don't wrap with notify_owner --- notifies owners explicitly
     def _patch(self, doc: Document, source: ColumnarDataSource, patches: Any, setter: Setter | None = None) -> None:
@@ -558,6 +558,8 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
             # patch gets discarded.
 
             for ind, value in patch:
+                if isinstance(ind, np.integer):
+                    ind = int(ind)
                 if isinstance(ind, (int, slice)):
                     array[ind] = value
                 else:
@@ -567,7 +569,7 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
                     array[i][j] = reshaped
 
         from ...document.events import ColumnsPatchedEvent
-        self._notify_owners(OldValueUnavailable, hint=ColumnsPatchedEvent(doc, source, "data", patches, setter))
+        self._notify_owners(Undefined, hint=ColumnsPatchedEvent(doc, source, "data", patches, setter))
 
 #-----------------------------------------------------------------------------
 # Private API

@@ -1,10 +1,12 @@
 ''' An interval chart showing Olympic sprint time data as intervals.
 
 .. bokeh-example-metadata::
-    :sampledata: sprint
-    :apis: bokeh.plotting.figure.hbar
-    :refs: :ref:`ug_basic_bars_intervals`
+    :title: Olympic sprint time intervals
     :keywords: bar, hbar
+    :apis: bokeh.plotting.figure.hbar
+    :sampledata: sprint
+    :refs: :ref:`ug_basic_bars_intervals`
+    :gallery: An interval chart showing Olympic sprint time data as intervals using blue horizontal bars for times, with a bar for each year on the y-axis.
 
 '''
 from bokeh.models import ColumnDataSource

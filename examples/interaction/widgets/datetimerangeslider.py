@@ -1,3 +1,11 @@
+''' Choose an interval with two date-time slider handles.
+
+.. bokeh-example-metadata::
+    :title: Datetimerangeslider
+    :keywords: datetime, range, slider
+    :apis: bokeh.models.CustomJS, bokeh.models.DatetimeRangeSlider
+'''
+
 from datetime import datetime
 
 from bokeh.io import show

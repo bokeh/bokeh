@@ -1,9 +1,10 @@
 ''' This example demonstrates how to create a plot with two y-axes.
 
 .. bokeh-example-metadata::
+    :title: Twin axis
+    :keywords: twin axis, scatter
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Scatter
     :refs: :ref:`ug_basic_scatters`, :ref:`ug_basic_axes_twin`
-    :keywords: twin axis, scatter
 
 '''
 

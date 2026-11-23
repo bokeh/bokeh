@@ -521,6 +521,9 @@ class HasProps(Serializable):
             return self.properties_with_values() == other.properties_with_values()
 
     def to_serializable(self, serializer: Serializer) -> ObjectRep:
+        return self._to_serializable(serializer)
+
+    def _to_serializable(self, serializer: Serializer, overrides: dict[str, Any] | None = None) -> ObjectRep:
         include_defaults = settings.serialize_include_defaults()
         properties = self.properties_with_values(include_defaults=include_defaults)
         if serializer.compact and not include_defaults:
@@ -552,6 +555,8 @@ class HasProps(Serializable):
                     key: properties.get(key, retained_defaults.get(key))
                     for key in self.properties() if key in properties or key in retained_defaults
                 }
+        if overrides is not None:
+            properties = {key: overrides.get(key, val) for key, val in properties.items()}
         attributes = {key: serializer.encode(val) for key, val in properties.items()}
 
         return ObjectRep({"$type": self.__qualified_model__, **attributes})
@@ -580,7 +585,7 @@ class HasProps(Serializable):
 
         '''
         if name in self.properties():
-            log.trace(f"Patching attribute {name!r} of {self!r} with {value!r}") # type: ignore[attr-defined]
+            log.trace("Patching attribute %r of %r with %r", name, self, value) # type: ignore[attr-defined]
             descriptor = self.lookup(name)
             descriptor.set_from_json(self, value, setter=setter)
         else:
@@ -879,7 +884,7 @@ class OverrideDef(TypedDict):
 class ModelDef(TypedDict):
     type: Literal["model"]
     name: str
-    extends: NotRequired[Ref | None]
+    extends: Ref
     properties: NotRequired[list[PropertyDef]]
     overrides: NotRequired[list[OverrideDef]]
 
@@ -1017,7 +1022,7 @@ def _encode_default(descriptor: PropertyDescriptor[Any], default: Any, serialize
     return serializer.encode(default)
 
 def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Ref | ModelDef:
-    from ..model import Model
+    from ..model import DataModel
     from .types import ID
 
     ref = Ref(id=ID(cls.__qualified_model__))
@@ -1027,17 +1032,13 @@ def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Re
         return ref
 
     bases = _data_model_bases(cls)
-    if len(bases) == 0:
-        extends = None
-        base = Model
-    elif len(bases) == 1:
-        [base] = bases
-        encoded_base = serializer.encode(base)
-        if not (isinstance(encoded_base, dict) and set(encoded_base) == {"id"}):
-            serializer.error(f"base model {base.__qualified_model__} must be defined before {cls.__qualified_model__}")
-        extends = cast(Ref, encoded_base)
-    else:
+    if len(bases) > 1:
         serializer.error("multiple bases are not supported")
+
+    base = bases[0] if bases else DataModel
+    encoded_base = serializer.encode(base)
+    if not (isinstance(encoded_base, dict) and set(encoded_base) == {"id"}):
+        serializer.error(f"base model {base.__qualified_model__} must be defined before {cls.__qualified_model__}")
 
     properties: list[PropertyDef] = []
     overrides: list[OverrideDef] = []
@@ -1078,10 +1079,9 @@ def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Re
     modeldef = ModelDef(
         type="model",
         name=cls.__qualified_model__,
+        extends=cast(Ref, encoded_base),
     )
 
-    if extends is not None:
-        modeldef["extends"] = extends
     if properties:
         modeldef["properties"] = properties
     if overrides:

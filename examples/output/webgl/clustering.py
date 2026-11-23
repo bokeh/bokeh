@@ -2,6 +2,12 @@
 
 http://scikit-learn.org/stable/auto_examples/cluster/plot_cluster_comparison.html
 
+
+
+.. bokeh-example-metadata::
+    :title: Cluster large datasets with WebGL
+    :keywords: clustering, webgl
+    :apis: bokeh.plotting.figure.scatter
 '''
 import numpy as np
 from sklearn import cluster, datasets

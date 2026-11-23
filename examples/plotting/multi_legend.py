@@ -1,10 +1,11 @@
-'''This example shows a graph with multiple legend. This can be used to depict
+''' This example shows a graph with multiple legend. This can be used to depict
 a comparison between two datasets. This graph uses stocks dataset.
 
 .. bokeh-example-metadata::
-    :sampledata: stocks
-    :apis: bokeh.plotting.figure.multi_line, bokeh.plotting.figure.add_layout
+    :title: Multi legend
     :keywords: legend, stocks
+    :apis: bokeh.plotting.figure.multi_line, bokeh.plotting.figure.add_layout
+    :sampledata: stocks
 
 '''
 import numpy as np

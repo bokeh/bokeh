@@ -2,9 +2,12 @@
 demonstrates the low-level |bokeh.models| API.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.models.AnnularWedge, bokeh.models.Legend
-    :refs: :ref:`ug_topics_pie`
+    :title: Browser market share
     :keywords: pandas, donut, wedge
+    :apis: bokeh.models.AnnularWedge, bokeh.models.Legend
+    :sampledata: browsers
+    :refs: :ref:`ug_topics_pie`
+    :gallery: A donut chart of browser share percentages with a legend.
 
 '''
 from math import pi

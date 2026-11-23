@@ -95,12 +95,56 @@ export class ScaleBarView extends AnnotationView {
     }
   }
 
+  // The cross-axis panel and frame share the same pixels. Keep the search
+  // state on the view because the SideLayout may be rebuilt between paints.
+  private _panel_reservation: {available: number, range_span: number | null, lower: number, upper: number, size: number} | undefined
+
+  private _update_panel_reservation(frame_span: number): void {
+    const {layout, panel} = this
+    const {frame_width, frame_height} = this.plot_view.model
+    if (layout == null || panel == null || this.horizontal == panel.is_horizontal ||
+        (this.horizontal ? frame_width : frame_height) != null) {
+      this._panel_reservation = undefined
+      return
+    }
+
+    const horizontal = this.horizontal
+    const allocated = round(horizontal ? layout.bbox.width : layout.bbox.height)
+    const available = allocated + round(frame_span)
+    const measured = round((horizontal ? this.bbox.width : this.bbox.height) + 2*this.model.margin)
+    // Aspect matching can change the range during the same layout search.
+    const range_span = this.plot_view.model.match_aspect ? null : this.range.span
+    const previous = this._panel_reservation
+    const state = previous?.available == available && previous.range_span == range_span ? previous : undefined
+
+    // A fit is an upper bound, not a reason to shrink directly to the
+    // measured bar size: that would enlarge the frame and the bar again.
+    // Search whole pixels, keeping the smallest observed fitting reservation.
+    let lower = state?.lower ?? -1
+    let upper = state?.upper ?? Infinity
+    if (measured <= allocated) {
+      upper = Math.min(upper, allocated)
+      if (upper <= lower) {
+        lower = -1
+      }
+    } else {
+      lower = Math.max(lower, allocated)
+      if (lower >= upper) {
+        upper = Infinity
+      }
+    }
+
+    const size = upper == Infinity ? Math.max(allocated, Math.min(measured, available))
+      : upper - lower <= 1 ? upper : Math.floor((lower + upper)/2)
+    this._panel_reservation = {available, range_span, lower, upper, size}
+  }
+
   protected override _get_size(): Size {
     const {width, height} = this.bbox
     const {margin} = this.model
     return {
-      width: width + 2*margin,
-      height: height + 2*margin,
+      width: (this.horizontal ? this._panel_reservation?.size : undefined) ?? width + 2*margin,
+      height: (!this.horizontal ? this._panel_reservation?.size : undefined) ?? height + 2*margin,
     }
   }
 
@@ -136,6 +180,7 @@ export class ScaleBarView extends AnnotationView {
       this.request_paint()
     })
     this.connect(this.model.change, () => {
+      this._panel_reservation = undefined
       this.request_paint()
     })
   }
@@ -221,24 +266,18 @@ export class ScaleBarView extends AnnotationView {
     const border_width = border_line.line_width.get_value()
 
     const {frame} = this.plot_view
-    const frame_span = orientation == "horizontal" ? frame.bbox.width : frame.bbox.height
-
+    const frame_span = this.horizontal ? frame.bbox.width : frame.bbox.height
+    const {bar_length, bar_length_units} = this.model
     const bar_length_percent = (() => {
-      const {bar_length, bar_length_units} = this.model
       switch (bar_length_units) {
         case "screen": {
-          if (0.0 <= bar_length && bar_length <= 1.0) {
-            return bar_length
-          } else {
-            return clamp(bar_length/frame_span, 0.0, 1.0)
-          }
+          return bar_length <= 1.0 ? bar_length : (frame_span > 0 ? clamp(bar_length/frame_span, 0.0, 1.0) : 0)
         }
         case "data": {
-          const scale = orientation == "horizontal" ? this.coordinates.x_scale : this.coordinates.y_scale
+          const scale = this.horizontal ? this.coordinates.x_scale : this.coordinates.y_scale
           assert(scale instanceof LinearScale || scale instanceof CategoricalScale)
           const [sv0, sv1] = scale.r_compute(0, bar_length)
-          const sdist = Math.abs(sv1 - sv0)
-          return sdist/frame_span
+          return frame_span > 0 ? Math.abs(sv1 - sv0)/frame_span : 0
         }
         case "percent": {
           return clamp(bar_length, 0.0, 1.0)
@@ -248,12 +287,14 @@ export class ScaleBarView extends AnnotationView {
 
     const {new_value, new_unit, scale_factor, exact} = (() => {
       const {unit, dimensional} = this.model
+      // Use the actual frame for dimensional conversion, not the space
+      // reserved for a bar while the side-panel layout is settling.
       const value = this.range.span*bar_length_percent
       return dimensional.compute(value, unit, length_sizing == "exact")
     })()
 
     const init_bar_length_px = frame_span*bar_length_percent
-    const bar_length_px = round(init_bar_length_px*scale_factor)
+    const bar_length_px = init_bar_length_px == 0 ? 0 : round(init_bar_length_px*scale_factor)
 
     const label_text = (() => {
       const {label} = this.model
@@ -502,6 +543,11 @@ export class ScaleBarView extends AnnotationView {
     const sy = y - anchor.y*height
 
     this._bbox = new BBox({left: sx, top: sy, width, height})
+
+    this._update_panel_reservation(frame_span)
+    if (this.layout?.has_size_changed() == true) {
+      this.plot_view.request_layout(true)
+    }
   }
 
   protected _draw_box(ctx: Context2d): void {

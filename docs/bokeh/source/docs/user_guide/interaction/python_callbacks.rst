@@ -23,6 +23,11 @@ signature, ``(attr, old, new)``, where ``attr`` refers to the changed
 attribute's name, and ``old`` and ``new`` refer to the previous and updated
 values of the attribute.
 
+On the first assignment to an unset property, ``old`` is
+:data:`~bokeh.util.callback_manager.OldValueUnavailable`. The same sentinel
+is used when ``ColumnDataSource.stream()`` or ``patch()`` updates ``data``
+without retaining the previous value.
+
 .. code-block:: python
 
     def my_text_input_handler(attr, old, new):

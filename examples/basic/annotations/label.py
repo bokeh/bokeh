@@ -1,11 +1,12 @@
-""" A scatter plot that demonstrates different ways of adding labels.
+''' A scatter plot that demonstrates different ways of adding labels.
 
 .. bokeh-example-metadata::
+    :title: Label
+    :keywords: scatter, label
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Label, bokeh.plotting.figure.scatter, bokeh.plotting.figure.text
     :refs: :ref:`ug_basic_annotations_labels`
-    :keywords: scatter, label
 
-"""
+'''
 
 from bokeh.models import ColumnDataSource, Label, Node
 from bokeh.plotting import figure, show

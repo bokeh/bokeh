@@ -13,8 +13,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-# pyright: reportArgumentType=false, reportReturnType=false, reportAssignmentType=false, reportAttributeAccessIssue=false, reportGeneralTypeIssues=false, reportOperatorIssue=false, reportCallIssue=false
-
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -31,37 +29,37 @@ from typing import (
     Callable,
     Iterable,
     Iterator,
-    Literal,
     Sequence,
+    cast,
     overload,
 )
 
 from .core.enums import Location
 from .core.property.singletons import Undefined
-from .models import (
+from .models.layouts import (
     Column,
+    FlexBox,
+    GridBox,
+    LayoutDOM,
+    Row,
+    Spacer,
+)
+from .models.plots import GridPlot, Plot
+from .models.tools import (
     CopyTool,
     ExamineTool,
-    FlexBox,
     FullscreenTool,
-    GridBox,
-    GridPlot,
-    LayoutDOM,
-    Plot,
-    Row,
     SaveTool,
-    Spacer,
     Tool,
     Toolbar,
     ToolProxy,
-    UIElement,
 )
+from .models.ui import UIElement
 
 if TYPE_CHECKING:
     from .core.enums import LocationType, SizingModeType
     from .core.property.singletons import UndefinedType
-
-    type ToolbarOptions = Literal["logo", "autohide", "active_drag", "active_inspect", "active_scroll", "active_tap", "active_multi"]
+    from .models.tools import _ToolbarOptions as ToolbarOptions
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -151,7 +149,9 @@ def column(*children: UIElement | list[UIElement], sizing_mode: SizingModeType |
     return Column(children=_children, sizing_mode=sizing_mode, **kwargs)
 
 
-def layout(*args: UIElement, children: list[UIElement] | None = None, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column:
+type LayoutChild = UIElement | list[LayoutChild]
+
+def layout(*args: LayoutChild, children: list[LayoutChild] | None = None, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column:
     """ Create a grid-based arrangement of Bokeh Layout objects.
 
     Args:
@@ -185,7 +185,9 @@ def layout(*args: UIElement, children: list[UIElement] | None = None, sizing_mod
 
     """
     _children = _parse_children_arg(*args, children=children)
-    return _create_grid(_children, sizing_mode, **kwargs)
+    grid = _create_grid(_children, sizing_mode, **kwargs)
+    assert isinstance(grid, Column) # the top-level layer is always a column
+    return grid
 
 
 @overload
@@ -197,7 +199,7 @@ def gridplot(
     ncols: int,
     width: int | None = None,
     height: int | None = None,
-    toolbar_options: dict[ToolbarOptions, Any] | None = None,
+    toolbar_options: ToolbarOptions | None = None,
     merge_tools: bool = True,
 ) -> GridPlot:
     ...
@@ -212,7 +214,7 @@ def gridplot(
     ncols: None = None,
     width: int | None = None,
     height: int | None = None,
-    toolbar_options: dict[ToolbarOptions, Any] | None = None,
+    toolbar_options: ToolbarOptions | None = None,
     merge_tools: bool = True,
 ) -> GridPlot:
     ...
@@ -226,7 +228,7 @@ def gridplot(
     ncols: int | None = None,
     width: int | None = None,
     height: int | None = None,
-    toolbar_options: dict[ToolbarOptions, Any] | None = None,
+    toolbar_options: ToolbarOptions | None = None,
     merge_tools: bool = True,
 ) -> GridPlot:
     ''' Create a grid of plots rendered on separate canvases.
@@ -259,10 +261,11 @@ def gridplot(
 
         height (int, optional): The height you would like all your plots to be.
 
-        toolbar_options (dict, optional) : A dictionary of options that will be
-            used to construct the grid's toolbar (an instance of
-            :class:`~bokeh.models.Toolbar`). If none is supplied,
-            Toolbar's defaults will be used.
+        toolbar_options (dict, optional) : A dictionary of ``logo``, ``autohide``,
+            ``group``, ``group_types`` and ``active_*`` properties of the grid's
+            toolbar (an instance of :class:`~bokeh.models.Toolbar`). These take
+            precedence over values merged from toolbars of the children. If none
+            is supplied, merged values or Toolbar's defaults will be used.
 
         merge_tools (``True``, ``False``): Combine tools from all child plots into
             a single toolbar.
@@ -276,14 +279,19 @@ def gridplot(
         >>> gridplot([plot_1, plot_2, plot_3, plot_4], ncols=2, width=200, height=100)
         >>> gridplot(
                 children=[[plot_1, plot_2], [None, plot_3]],
-                toolbar_location='right'
+                toolbar_location='right',
                 sizing_mode='fixed',
-                toolbar_options=dict(logo='gray')
+                toolbar_options={"logo": "grey"},
             )
 
     '''
     if toolbar_options is None:
         toolbar_options = {}
+
+    # all properties of Toolbar, except tools and these inherited from UIElement
+    supported_options = Toolbar.properties().keys() - UIElement.properties().keys() - {"tools"}
+    if unsupported_options := toolbar_options.keys() - supported_options:
+        raise ValueError(f"Unsupported toolbar options: {', '.join(sorted(unsupported_options))}")
 
     if toolbar_location:
         if not hasattr(Location, toolbar_location):
@@ -293,27 +301,32 @@ def gridplot(
         if not (isinstance(ncols, int) and ncols > 0):
             raise ValueError("ncols must be a positive integer")
 
-    children = _parse_children_arg(children=children)
+    rows: list[Sequence[UIElement | None]] = []
     if ncols:
-        if any(isinstance(child, list) for child in children):
-            raise ValueError("Cannot provide a nested list when using ncols")
-        children = list(_chunks(children, ncols))
-
-    # Additional children set-up for grid plot
-    if not children:
-        children = []
+        flat_children: list[UIElement | None] = []
+        for child in children:
+            if isinstance(child, list):
+                raise ValueError("Cannot provide a nested list when using ncols")
+            flat_children.append(child)
+        rows.extend(_chunks(flat_children, ncols))
+    else:
+        for child in children:
+            if child is None or isinstance(child, UIElement):
+                raise TypeError("Expected a nested list of children when not using ncols")
+            rows.append(child)
 
     # Make the grid
     toolbars: list[Toolbar] = []
-    items: list[tuple[UIElement, int, int]] = []
+    items: list[tuple[LayoutDOM, int, int] | tuple[LayoutDOM, int, int, int, int]] = []
 
-    for y, row in enumerate(children):
+    for y, row in enumerate(rows):
         for x, item in enumerate(row):
             if item is None:
                 continue
             elif isinstance(item, LayoutDOM):
                 if merge_tools:
                     for plot in item.select(dict(type=Plot)):
+                        assert isinstance(plot, Plot)
                         toolbars.append(plot.toolbar)
                         plot.toolbar_location = None
 
@@ -345,7 +358,7 @@ def gridplot(
     if merge_tools:
         tools = group_tools(tools, merge=merge)
 
-    def map_to_proxy(active_tool: Tool | Literal["auto"] | None) -> ToolProxy | Tool:
+    def map_to_proxy[T](active_tool: T) -> T | ToolProxy:
         if isinstance(active_tool, Tool):
             for tool_or_proxy in tools:
                 if isinstance(tool_or_proxy, ToolProxy) and active_tool in tool_or_proxy.tools:
@@ -360,9 +373,10 @@ def gridplot(
     active_taps = [ map_to_proxy(toolbar.active_tap) for toolbar in toolbars ]
     active_multis = [ map_to_proxy(toolbar.active_multi) for toolbar in toolbars ]
 
-    def assert_unique[V](values: list[V], name: ToolbarOptions) -> V | UndefinedType:
+    def assert_unique[V](values: list[V], name: str) -> V | UndefinedType:
+        # explicit options take precedence over values merged from child toolbars
         if name in toolbar_options:
-            return toolbar_options[name]
+            return Undefined
         n = len(set(values))
         if n == 0:
             return Undefined
@@ -372,23 +386,16 @@ def gridplot(
             warn(f"found multiple competing values for 'toolbar.{name}' property; using the latest value")
         return values[-1]
 
-    logo = assert_unique(logos, "logo")
-    autohide = assert_unique(autohides, "autohide")
-    active_drag = assert_unique(active_drags, "active_drag")
-    active_inspect = assert_unique(active_inspects, "active_inspect")
-    active_scroll = assert_unique(active_scrolls, "active_scroll")
-    active_tap = assert_unique(active_taps, "active_tap")
-    active_multi = assert_unique(active_multis, "active_multi")
-
-    toolbar_props = {
-        "logo": logo,
-        "autohide": autohide,
-        "active_drag": active_drag,
-        "active_inspect": active_inspect,
-        "active_scroll": active_scroll,
-        "active_tap": active_tap,
-        "active_multi": active_multi,
-    }
+    toolbar_props: dict[str, Any] = dict(
+        logo=assert_unique(logos, "logo"),
+        autohide=assert_unique(autohides, "autohide"),
+        active_drag=assert_unique(active_drags, "active_drag"),
+        active_inspect=assert_unique(active_inspects, "active_inspect"),
+        active_scroll=assert_unique(active_scrolls, "active_scroll"),
+        active_tap=assert_unique(active_taps, "active_tap"),
+        active_multi=assert_unique(active_multis, "active_multi"),
+    )
+    toolbar_props.update(toolbar_options)
     toolbar = Toolbar(tools=tools, **{name: value for name, value in toolbar_props.items() if value is not Undefined})
 
     gp = GridPlot(
@@ -471,15 +478,15 @@ def grid(
 
     """
     @dataclass
-    class row:
-        children: list[row | col]
+    class RowNode:
+        children: list[RowNode | ColNode | UIElement | None]
     @dataclass
-    class col:
-        children: list[row | col]
+    class ColNode:
+        children: list[RowNode | ColNode | UIElement | None]
 
     @dataclass
     class Item:
-        layout: LayoutDOM
+        layout: UIElement | None
         r0: int
         c0: int
         r1: int
@@ -491,7 +498,7 @@ def grid(
         ncols: int
         items: list[Item]
 
-    def flatten(layout) -> GridBox:
+    def flatten(layout: RowNode | ColNode | UIElement | None) -> GridBox:
         def gcd(a: int, b: int) -> int:
             a, b = abs(a), abs(b)
             while b != 0:
@@ -506,8 +513,8 @@ def grid(
         def nonempty(child: Grid) -> bool:
             return child.nrows != 0 and child.ncols != 0
 
-        def _flatten(layout: row | col | LayoutDOM) -> Grid:
-            if isinstance(layout, row):
+        def _flatten(layout: RowNode | ColNode | UIElement | None) -> Grid:
+            if isinstance(layout, RowNode):
                 children = list(filter(nonempty, map(_flatten, layout.children)))
                 if not children:
                     return Grid(0, 0, [])
@@ -526,7 +533,7 @@ def grid(
                     offset += child.ncols
 
                 return Grid(nrows, ncols, items)
-            elif isinstance(layout, col):
+            elif isinstance(layout, ColNode):
                 children = list(filter(nonempty, map(_flatten, layout.children)))
                 if not children:
                     return Grid(0, 0, [])
@@ -550,14 +557,14 @@ def grid(
 
         grid = _flatten(layout)
 
-        children = []
+        children: list[tuple[UIElement, int, int] | tuple[UIElement, int, int, int, int]] = []
         for i in grid.items:
             if i.layout is not None:
                 children.append((i.layout, i.r0, i.c0, i.r1 - i.r0, i.c1 - i.c0))
 
         return GridBox(children=children)
 
-    layout: row | col
+    layout: RowNode | ColNode | UIElement | None
     if isinstance(children, str):
         raise NotImplementedError
     elif isinstance(children, Sequence):
@@ -569,27 +576,35 @@ def grid(
             if ncols is not None:
                 if not (isinstance(ncols, int) and ncols > 0):
                     raise ValueError("ncols must be a positive integer")
-            N = len(children)
+            flat_children: list[UIElement | None] = []
+            for child in children:
+                if isinstance(child, Sequence):
+                    raise ValueError("Cannot provide a nested list when using nrows or ncols")
+                flat_children.append(child)
+            N = len(flat_children)
             if ncols is None:
+                assert nrows is not None
                 ncols = math.ceil(N/nrows)
-            layout = col([ row(children[i:i+ncols]) for i in range(0, N, ncols) ])
+            layout = ColNode([ RowNode(list(flat_children[i:i+ncols])) for i in range(0, N, ncols) ])
         else:
-            def traverse_list(children: Sequence[GridChild], level: int = 0):
-                if isinstance(children, Sequence) and not isinstance(children, str):
-                    container = col if level % 2 == 0 else row
-                    return container([ traverse_list(child, level+1) for child in children ])
-                else:
+            def traverse_list(children: GridChild, level: int = 0) -> RowNode | ColNode | UIElement | None:
+                if children is None or isinstance(children, UIElement):
                     return children
+                elif isinstance(children, str):
+                    raise ValueError("expected a UIElement, None or a list of these, got a string")
+                else:
+                    container = ColNode if level % 2 == 0 else RowNode
+                    return container([ traverse_list(child, level+1) for child in children ])
 
             layout = traverse_list(children)
     elif isinstance(children, LayoutDOM):
-        def is_usable(child: LayoutDOM) -> bool:
+        def is_usable(child: FlexBox) -> bool:
             return _has_auto_sizing(child) and child.spacing == 0
 
-        def traverse_layout(item: LayoutDOM, top_level: bool = False):
+        def traverse_layout(item: UIElement, top_level: bool = False) -> RowNode | ColNode | UIElement:
             if isinstance(item, FlexBox) and (top_level or is_usable(item)):
-                container = col if isinstance(item, Column) else row
-                return container(list(map(traverse_layout, item.children)))
+                container = ColNode if isinstance(item, Column) else RowNode
+                return container([ traverse_layout(child) for child in item.children ])
             else:
                 return item
 
@@ -602,10 +617,10 @@ def grid(
     if sizing_mode is not None:
         grid.sizing_mode = sizing_mode
 
-        for child in grid.children:
-            layout = child[0]
-            if _has_auto_sizing(layout):
-                layout.sizing_mode = sizing_mode
+        for entry in grid.children:
+            item = entry[0]
+            if isinstance(item, LayoutDOM) and _has_auto_sizing(item):
+                item.sizing_mode = sizing_mode
 
     return grid
 
@@ -656,8 +671,8 @@ def group_tools(tools: list[Tool | ToolProxy], *, merge: MergeFn[Tool] | None = 
                     group.append(item.tool)
                     items[j] = None
 
-            if merge is not None and (tool := merge(cls, group)) is not None:
-                computed.append(tool)
+            if merge is not None and (merged := merge(cls, group)) is not None:
+                computed.append(merged)
             else:
                 computed.append(ToolProxy(tools=group))
 
@@ -670,7 +685,7 @@ def group_tools(tools: list[Tool | ToolProxy], *, merge: MergeFn[Tool] | None = 
 def _has_auto_sizing(item: LayoutDOM) -> bool:
     return item.sizing_mode is None and item.width_policy == "auto" and item.height_policy == "auto"
 
-def _parse_children_arg[L: LayoutDOM](*args: L | list[L], children: list[L] | None = None) -> list[L]:
+def _parse_children_arg[T](*args: T | list[T], children: list[T] | None = None) -> list[T]:
     # Set-up Children from args or kwargs
     if len(args) > 0 and children is not None:
         raise ValueError("'children' keyword cannot be used with positional arguments")
@@ -681,20 +696,20 @@ def _parse_children_arg[L: LayoutDOM](*args: L | list[L], children: list[L] | No
             if isinstance(arg, list):
                 return arg
 
-        return list(args)
+        # Lists mixed with other positional arguments are excluded by signatures of callers.
+        return cast(list[T], list(args))
 
     return children
 
 def _handle_child_sizing(children: list[UIElement], sizing_mode: SizingModeType | None, *, widget: str) -> None:
     for item in children:
-        if isinstance(item, UIElement):
-            continue
-        if not isinstance(item, LayoutDOM):
+        if isinstance(item, LayoutDOM):
+            if sizing_mode is not None and _has_auto_sizing(item):
+                item.sizing_mode = sizing_mode
+        elif not isinstance(item, UIElement):
             raise ValueError(f"Only LayoutDOM items can be inserted into a {widget}. Tried to insert: {item} of type {type(item)}")
-        if sizing_mode is not None and _has_auto_sizing(item):
-            item.sizing_mode = sizing_mode
 
-def _create_grid(iterable: Iterable[UIElement | list[UIElement]], sizing_mode: SizingModeType | None, layer: int = 0, **kwargs) -> Row | Column:
+def _create_grid(iterable: Iterable[LayoutChild], sizing_mode: SizingModeType | None, layer: int = 0, **kwargs: Any) -> Row | Column:
     """Recursively create grid from input lists."""
     return_list: list[UIElement] = []
     for item in iterable:

@@ -1,3 +1,11 @@
+''' Draw a partial ring using two radii and an angle range.
+
+.. bokeh-example-metadata::
+    :title: Annular wedge
+    :keywords: annular, wedge
+    :apis: bokeh.plotting.figure.annular_wedge
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

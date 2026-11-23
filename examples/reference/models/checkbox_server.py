@@ -1,5 +1,13 @@
 ## Bokeh server for checkbox group
 
+''' Toggle axis labels with checkboxes and a Python callback.
+
+.. bokeh-example-metadata::
+    :title: Checkbox server
+    :keywords: checkbox server, reference
+    :apis: bokeh.models.CheckboxGroup, bokeh.models.ColumnDataSource, bokeh.plotting.figure.scatter
+'''
+
 from bokeh.io import curdoc
 from bokeh.layouts import row
 from bokeh.models import CheckboxGroup, ColumnDataSource

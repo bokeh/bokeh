@@ -14,6 +14,9 @@ New features
 * Expanded :class:`~bokeh.models.Markdown` with syntax highlighting, footnotes,
   heading anchors, admonitions, definition lists, collapsible sections,
   embedded Bokeh models, rendering options, and ``_repr_markdown_()`` support.
+* Added compact binary transport for selection indices while preserving public
+  Python lists and JavaScript arrays (:bokeh-issue:`15542`, :bokeh-pull:`15575`).
+
 * Added :class:`~bokeh.models.ScaledTicker` and
   :class:`~bokeh.models.ScaledTickFormatter` for selecting and formatting ticks
   with a scale and configurable origin. They support repeated prefixes and
@@ -58,6 +61,13 @@ New features
   respectively (:bokeh-issue:`14814`), values accepted by ``.accepts()``,
   e.g. strings by ``Plot.title``, are accepted, and ``Readonly`` properties
   can't be assigned to (:bokeh-issue:`15760`).
+* Pressing Escape while dragging an editable annotation (e.g.
+  :class:`~bokeh.models.BoxAnnotation` or a ``RangeTool`` overlay), a
+  :class:`~bokeh.models.Dialog`, a :class:`~bokeh.models.Drawer`'s resize
+  handle, or a slider's handle cancels the interaction and restores the
+  state from before it started. Committed slider callbacks receive the
+  restored value. Interactions with tools, e.g. panning a plot, aren't
+  affected.
 
 Removals
 --------
@@ -183,6 +193,13 @@ Removals
 API changes
 -----------
 
+* Selection indices now use ascending order with duplicates removed. This
+  applies to ``indices``, ``line_indices``, and the index lists in
+  ``multiline_indices`` in Python and BokehJS. For example, assigning
+  ``[8, 2, 8]`` yields ``[2, 8]``. Applications that use a selection
+  callback to track click order should record that order separately
+  (:bokeh-pull:`15575`).
+
 * Generic property base classes and ``Value`` now default their type parameter
   to ``Any`` when it is omitted. Explicit type arguments and constructor
   inference continue to preserve more specific types.
@@ -258,6 +275,22 @@ API changes
   of the new ``PropertyError`` base class, which itself derives from
   ``ValueError``. Both are available from ``bokeh.core.properties``. Existing
   code catching ``ValueError`` is unaffected.
+* Bokeh no longer ships TypeScript. ``bokeh build`` compiles extensions with
+  the ``typescript`` package they depend on, using any version that supports
+  their ``tsconfig.json`` (``bokeh init`` adds TypeScript 7). Extensions
+  without ``typescript`` in their ``package.json``, extensions without a
+  ``package.json`` and inline models (``__implementation__``) aren't
+  type-checked: Bokeh only removes their types and reports syntax errors and
+  unresolved relative imports. Decorators aren't supported there. TypeScript 6
+  and later reject ``"moduleResolution": "node"``, so use ``"bundler"`` in
+  ``tsconfig.json``. Inline ES modules are converted to CommonJS by BokehJS's
+  linker, and plain CommonJS code is used as is.
+* Compiling extensions (``bokeh build`` and ``__implementation__``) now
+  requires Node.js 22 or later.
+* ``bokeh build`` fails if an extension's modules import each other in a
+  cycle, but ignores cycles in packages that the extension depends on. Set
+  ``"detect_cycles": "all"`` in ``bokeh.ext.json`` to report those cycles as
+  well, or ``"none"`` to disable cycle detection.
 
 * In BokehJS, the DOM view hierarchy was simplified (:bokeh-pull:`15749`).
   This only affects code that implements custom views:
@@ -274,6 +307,25 @@ API changes
     the ``class_list`` property of views. Use the native ``el.classList``
     instead, e.g. ``classList.contains()`` instead of ``class_list.has()``
     and ``el.removeAttribute("class")`` instead of ``class_list.clear()``.
+* ``toolbar_options`` of ``gridplot()`` now supports ``group`` and
+  ``group_types``, in addition to ``logo``, ``autohide`` and ``active_*``
+  properties of ``Toolbar``, and raises ``ValueError`` for any other keys,
+  which were previously ignored. It is typed as a ``TypedDict``, so type
+  checkers reject unknown keys and invalid values. Pass a dict display (e.g.
+  ``{"logo": "grey"}``), because pyright doesn't accept ``dict()`` calls in
+  place of a ``TypedDict``. Explicit options take precedence over values
+  merged from toolbars of the children.
+* In BokehJS, ``Dialog``'s ``top_limit``, ``bottom_limit``, ``left_limit``
+  and ``right_limit`` accept only ``Node`` instances (or ``null``), matching
+  the Python API. Numeric limits are no longer allowed, because dialogs have
+  no coordinate system to interpret them in.
+
+* In BokehJS, the ``pan`` signal of ``BoxAnnotation``, ``Span``, ``Label``
+  and ``PolyAnnotation`` can report a new ``"pan:cancel"`` phase. A cancelled
+  drag (e.g. with Escape) ends with ``"pan:cancel"`` instead of ``"pan:end"``,
+  after the annotation was restored to its state from before the drag. Code
+  connected to this signal that waits for ``"pan:end"`` should handle
+  ``"pan:cancel"`` as well.
 
 Bug fixes
 ---------
@@ -283,3 +335,19 @@ Bug fixes
   ``dict[str, list[int]]``, which type checkers previously rejected because
   ``dict`` is invariant (:bokeh-issue:`14814`).
 * Fixed ``Dialog`` not updating when its ``title`` or ``content`` change (:bokeh-pull:`15749`).
+* Fixed ``row()`` and ``column()`` not applying their ``sizing_mode`` to children
+  without explicit sizing, like ``layout()`` and ``gridplot()`` already do.
+* Fixed ``figure.graph()`` wrapping ``node_marker={"field": ...}`` in another field
+  specification instead of using it as a field of the node data source.
+* Fixed ``figure.graph()`` dropping ``node_`` and ``edge_`` prefixed glyph properties
+  whose names start with any of the prefix's letters (e.g. ``node_name``), and applying
+  unprefixed arguments (e.g. ``tags``) to both node and edge glyphs.
+* Fixed ``BoxAnnotation`` and ``Dialog`` ignoring a dimension's movement
+  limits when only one of them was set (e.g. only ``left_limit``). Data-space
+  limits of ``BoxAnnotation`` bound data values, so on a reversed range
+  ``left_limit`` (the minimum ``x``) bounds the box's right side on screen.
+* Fixed dragging an editable annotation being kept when the browser
+  cancelled the pointer (e.g. took over a touch gesture). The annotation is
+  restored to its state from before the drag instead.
+* Fixed a ``Dialog`` becoming unmovable after the browser cancelled the
+  pointer while moving or resizing it.

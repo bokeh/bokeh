@@ -1,9 +1,11 @@
 ''' Line and marker plots that demonstrate automatic legends.
 
 .. bokeh-example-metadata::
+    :title: Create a legend from glyphs
+    :keywords: legend, line, scatter, gridplot
     :apis: bokeh.layouts.gridplot, bokeh.plotting.figure.scatter, bokeh.plotting.figure.line
     :refs: :ref:`ug_basic_annotations_legends`
-    :keywords: gridplot
+    :gallery: Two side-by-side plots of scaled sine waves with legends for markers and lines.
 
 '''
 import numpy as np

@@ -118,9 +118,9 @@
   <td>Community</td>
 
   <td>
-    <a href="https://discourse.bokeh.org">
-    <img src="https://img.shields.io/discourse/https/discourse.bokeh.org/posts.svg?color=blue&logo=discourse&style=for-the-badge"
-         alt="Community support on discourse.bokeh.org" />
+    <a href="https://github.com/bokeh/bokeh/discussions/categories/community-support">
+    <img src="https://img.shields.io/badge/GitHub-Community%20Support-blue?logo=github&style=for-the-badge"
+         alt="Community Support on GitHub Discussions" />
     </a>
   </td>
 
@@ -161,7 +161,7 @@ Once Bokeh is installed, check out the [first steps guides](https://docs.bokeh.o
 
 Visit the [full documentation site](https://docs.bokeh.org) to view the [User's Guide](https://docs.bokeh.org/en/latest/docs/user_guide.html) or [checkout the Bokeh tutorial repository](https://github.com/bokeh/tutorial/) to learn about Bokeh in live Jupyter Notebooks.
 
-Community support is available on the [Project Discourse](https://discourse.bokeh.org).
+Ask usage questions in [Community Support on GitHub Discussions](https://github.com/bokeh/bokeh/discussions/categories/community-support). Browse the [read-only Bokeh Discourse archive](https://discourse.bokeh.org/) for past answers.
 
 If you would like to contribute to Bokeh, please review the [Contributor Guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html) and [request an invitation to the Bokeh Dev Slack workspace](https://slack-invite.bokeh.org/).
 

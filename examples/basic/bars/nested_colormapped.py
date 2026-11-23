@@ -2,9 +2,11 @@
 automatic colormapping of nested categorical factors.
 
 .. bokeh-example-metadata::
+    :title: Hierarchical bars colored by year
+    :keywords: bar, colormap, vbar
     :apis: bokeh.plotting.figure.vbar, bokeh.transform.factor_cmap
     :refs: :ref:`ug_basic_bars_filled_colors`
-    :keywords: bar, colormap, vbar
+    :gallery: Grouped bars on a hierarchical axis. For each fruit, silver, blue, and red bars show random values from 2015 to 2017.
 
 '''
 from bokeh.models import ColumnDataSource, FactorRange

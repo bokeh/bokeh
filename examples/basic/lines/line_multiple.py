@@ -1,3 +1,11 @@
+''' Draw and style multiple independent lines with a single multi-line glyph.
+
+.. bokeh-example-metadata::
+    :title: Line multiple
+    :keywords: line, multiple
+    :apis: bokeh.plotting.figure.multi_line
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

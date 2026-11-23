@@ -846,14 +846,14 @@ setting up a development environment:
 
 For more information on running and installing Bokeh, check the
 :ref:`additional resources available to contributors <contributor_guide_resources>`.
-Please feel free to ask at the `Bokeh Discourse`_ or `Bokeh's contributor
+Please feel free to ask at the `GitHub Community Support`_ or `Bokeh's contributor
 Slack`_.
 
 .. _Node.js: https://nodejs.org/en/
 .. _Bokeh's contributor Slack: https://slack-invite.bokeh.org/
 .. _Pixi: https://pixi.prefix.dev/
 .. _Pixi installation: https://pixi.prefix.dev/latest/installation/
-.. _Bokeh Discourse: https://discourse.bokeh.org/
+.. _GitHub Community Support: https://github.com/bokeh/bokeh/discussions/categories/community-support
 .. _Git: https://git-scm.com
 .. _Installing Git: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
 .. _Pro Git Book: https://git-scm.com/book/en/v2

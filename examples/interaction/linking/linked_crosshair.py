@@ -1,3 +1,12 @@
+''' Track the cursor position in two plots with shared crosshair spans.
+
+.. bokeh-example-metadata::
+    :title: Linked crosshair
+    :keywords: linked, crosshair
+    :apis: bokeh.models.CrosshairTool, bokeh.models.Span, bokeh.plotting.figure.add_tools, bokeh.plotting.figure.circle
+    :gallery: Two plots with linked vertical and horizontal crosshairs.
+'''
+
 from random import random
 
 from bokeh.layouts import row

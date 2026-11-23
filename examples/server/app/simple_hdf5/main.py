@@ -3,6 +3,12 @@
 .. note::
     This example needs the hdf5 library to run.
 
+
+
+.. bokeh-example-metadata::
+    :title: Simple HDF5
+    :keywords: simple hdf5, bokeh server, app
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Select, bokeh.plotting.figure.line
 '''
 import os
 from os.path import dirname, join

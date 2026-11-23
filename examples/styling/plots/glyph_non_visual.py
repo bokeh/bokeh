@@ -1,3 +1,11 @@
+''' Enlarge circles on hover and replace selected circles with rectangles.
+
+.. bokeh-example-metadata::
+    :title: Glyph non visual
+    :keywords: glyph, non, visual
+    :apis: bokeh.models.BoxAnnotation, bokeh.models.Indexed, bokeh.models.Rect, bokeh.models.Tooltip, bokeh.plotting.figure.circle
+'''
+
 import numpy as np
 
 from bokeh.core.properties import field

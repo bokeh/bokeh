@@ -1,11 +1,13 @@
-'''An example of linked brushing with two scatter plots showing two views of
+''' An example of linked brushing with two scatter plots showing two views of
 the same data.
 
 .. bokeh-example-metadata::
-    :sampledata: penguins
-    :apis: bokeh.plotting.figure.scatter
-    :refs: :ref:`ug_basic_scatters_markers`
+    :title: Linked brushing
     :keywords: scatter, linked brushing
+    :apis: bokeh.plotting.figure.scatter
+    :sampledata: penguins
+    :refs: :ref:`ug_basic_scatters_markers`
+    :gallery: Two scatter plots of the Palmer penguin dataset with linked selections.
 
 '''
 from bokeh.layouts import gridplot

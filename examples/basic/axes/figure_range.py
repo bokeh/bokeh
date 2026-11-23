@@ -1,3 +1,11 @@
+''' Set an explicit x range while letting the y axis range automatically.
+
+.. bokeh-example-metadata::
+    :title: Figure range
+    :keywords: figure, range
+    :apis: bokeh.models.Range1d, bokeh.plotting.figure.scatter
+'''
+
 from bokeh.models import Range1d
 from bokeh.plotting import figure, show
 

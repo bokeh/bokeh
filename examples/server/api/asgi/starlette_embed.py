@@ -1,3 +1,10 @@
+''' Mount a Bokeh server app in Starlette and embed it in a page.
+
+.. bokeh-example-metadata::
+    :title: Starlette embed
+    :keywords: starlette, embed
+'''
+
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path

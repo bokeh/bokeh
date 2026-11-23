@@ -1,3 +1,11 @@
+''' Customize the text appearance and alignment of a plot title.
+
+.. bokeh-example-metadata::
+    :title: Title visuals
+    :keywords: title, visuals
+    :apis: bokeh.plotting.figure.scatter
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=300, height=300)

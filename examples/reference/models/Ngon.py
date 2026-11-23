@@ -1,3 +1,12 @@
+''' Draw regular polygons at points by specifying their radius and number of sides.
+
+.. bokeh-example-metadata::
+    :title: Ngon
+    :keywords: ngon, reference
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Grid, bokeh.models.LinearAxis, bokeh.models.Ngon, bokeh.models.Plot
+    :example-ref: bokeh.models.glyphs.ngon
+'''
+
 import numpy as np
 
 from bokeh.io import curdoc, show

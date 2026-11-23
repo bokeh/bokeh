@@ -49,7 +49,7 @@ from ..core.property.container import (
     Set,
     Tuple,
 )
-from ..core.property.descriptors import ColumnDataPropertyDescriptor
+from ..core.property.descriptors import ColumnDataPropertyDescriptor, UnsetValueError
 from ..core.property.either import Either
 from ..core.property.enum import Enum
 from ..core.property.instance import Instance
@@ -61,6 +61,7 @@ from ..core.property.primitive import (
     Null,
     String,
 )
+from ..core.property.singletons import OldValueUnavailable
 from ..core.property.validation import without_property_validation
 from ..core.serialization import ObjectRefRep, Ref, Serializer
 from ..events import Event
@@ -76,11 +77,12 @@ from .util import (
 
 if TYPE_CHECKING:
     from ..core.has_props import Setter
+    from ..core.property.descriptors import AliasPropertyDescriptor, PropertyDescriptor
     from ..core.query import SelectorType
     from ..core.serialization import ObjectRep
     from ..core.types import ID
     from ..document import Document
-    from ..document.events import DocumentPatchedEvent
+    from ..document.events import DocumentPatchedEvent, Invoker, ModelChangedEvent
     from ..models.callbacks import (
         Callback as JSEventCallback,
         CustomCode as JSChangeCallback,
@@ -790,11 +792,10 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         property, and even the same callback, can have multiple policies.
 
         .. note::
-            For changes to ``ColumnDataSource.data`` made by ``stream()`` or
-            ``patch()``, callbacks receive
-            :data:`~bokeh.util.callback_manager.OldValueUnavailable` as
-            ``old``. Incremental updates deliberately don't retain complete
-            copies of the previous columns.
+            Callbacks receive :data:`~bokeh.util.callback_manager.OldValueUnavailable`
+            as ``old`` on the first assignment to an unset property. They also
+            receive it for ``ColumnDataSource.data`` changes made by ``stream()``
+            or ``patch()``, which don't retain complete copies of the previous columns.
 
         '''
         descriptor = self.lookup(attr)
@@ -809,7 +810,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         if policy != _IMMEDIATE_POLICY:
             key = (descriptor.name, policy)
             if key not in self._callback_policy_values:
-                self._callback_policy_values[key] = descriptor.get_value(self)
+                self._callback_policy_values[key] = self._callback_policy_initial_value(descriptor)
         self._update_subscribed_changes(descriptor.name)
 
     def remove_on_change(self, attr: str, *callbacks: PropertyCallback) -> None:
@@ -868,11 +869,20 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         incoming = self._incoming_callback_policy
         return incoming[1] if incoming is not None and incoming[0] == attr else None
 
+    def _callback_policy_initial_value(self, descriptor: PropertyDescriptor[Any] | AliasPropertyDescriptor[Any]) -> Any:
+        try:
+            return descriptor.get_value(self)
+        except UnsetValueError:
+            return OldValueUnavailable
+
     def _set_from_json_with_callback_policy(self, attr: str, value: Any,
             policy: _CallbackPolicy, *, setter: Setter | None = None) -> None:
         descriptor = self.lookup(attr)
         key = (descriptor.name, policy)
-        callback_old = self._callback_policy_values.get(key, descriptor.get_value(self))
+        if key in self._callback_policy_values:
+            callback_old = self._callback_policy_values[key]
+        else:
+            callback_old = self._callback_policy_initial_value(descriptor)
         self._incoming_callback_policy = (descriptor.name, policy, callback_old)
         self._incoming_callback_dispatched = False
         try:
@@ -893,11 +903,10 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
                 if self.document is None:
                     invoke()
                 else:
-                    from ..document.events import ModelChangedEvent
-                    event = ModelChangedEvent(
-                        self.document, self, descriptor.name, physical_new,
-                        setter, invoke, policy,
+                    event = self._create_model_changed_event(
+                        self.document, descriptor.name, physical_new, setter, invoke,
                     )
+                    event.callback_policy = policy
                     self.document.callbacks.trigger_on_change(event)
 
     def references(self) -> set[Model]:
@@ -965,11 +974,14 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         Returns:
             A model representation, with an ID when the serializer requires one.
         '''
+        return self._to_serializable(serializer)
+
+    def _to_serializable(self, serializer: Serializer, overrides: dict[str, Any] | None = None) -> ObjectRep | ObjectRefRep:
         use_id = serializer.use_model_id(self)
         if use_id:
             serializer.add_ref(self, serializer.model_ref(self.ref))
 
-        super_rep = super().to_serializable(serializer)
+        super_rep = super()._to_serializable(serializer, overrides)
         if not use_id:
             return super_rep
 
@@ -978,6 +990,11 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             "$id": self.id,
             **{key: value for key, value in super_rep.items() if key != "$type"},
         })
+
+    def _create_model_changed_event(self, document: Document, attr: str, new: Any,
+            setter: Setter | None = None, callback_invoker: Invoker | None = None) -> ModelChangedEvent:
+        from ..document.events import ModelChangedEvent
+        return ModelChangedEvent(document, self, attr, new, setter, callback_invoker, self._callback_policy_for_change(attr))
 
     def trigger(self, attr: str, old: Any, new: Any,
             hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None:
@@ -991,7 +1008,8 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         # this may need to be further refined in the future, if the
         # assumption does not hold for future hinted events (e.g. the hint
         # could specify explicitly whether to do normal invalidation or not)
-        if hint is None:
+        descriptor = self.lookup(attr)
+        if hint is None and descriptor.property.has_ref:
             dirty_count = 0
             def mark_dirty(_: HasProps):
                 nonlocal dirty_count
@@ -1002,7 +1020,6 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
                 if dirty_count > 0:
                     self.document.models.invalidate()
         # chain up to invoke callbacks
-        descriptor = self.lookup(attr)
         super().trigger(descriptor.name, old, new, hint=hint, setter=setter)
         if self._incoming_callback_policy is None:
             for _, policy in self._callback_policies.get(descriptor.name, []):

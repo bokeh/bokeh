@@ -1,3 +1,12 @@
+''' Plot Apple closing prices against a datetime axis.
+
+.. bokeh-example-metadata::
+    :title: Datetime axis
+    :keywords: datetime, axis
+    :apis: bokeh.plotting.figure.line
+    :sampledata: stocks
+'''
+
 import pandas as pd
 
 from bokeh.plotting import figure, show

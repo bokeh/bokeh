@@ -103,6 +103,7 @@ pre-commit = "*"
 psutil = "*"
 pydata-sphinx-theme = "0.24.*"
 pygments = "*"
+pyproj = "*"
 pyshp = "*"
 pytest-playwright = "*"
 python-dateutil = ">=2.1"
@@ -123,6 +124,7 @@ tzdata = "*"
 types-colorama = "*"
 types-docutils = "*"
 types-mock = "*"
+types-networkx = "*"
 types-pillow = "*"
 types-pyyaml = "*"
 types-requests = "*"
@@ -132,7 +134,7 @@ uvicorn = ">=0.30"
 vermin = "*"
 
 [feature.full-deps.pypi-dependencies]
-bokeh_sampledata = ">=2026.2"
+bokeh_sampledata = ">=2026.3"
 pyarrow = ">=14.0"
 pyright = ">=1.1.414" # TypeForm (PEP 747) without experimental features
 requests-unixsocket = ">=0.3.0"
@@ -196,8 +198,12 @@ channels = [{ channel = "pyviz/label/dev", priority = 1 }]
 platforms = ["linux-64"]
 
 [feature.downstream-deps.dependencies]
+# Distributed is installed from source with --no-deps to keep the Dask checkout.
+# Keep its additional runtime requirements in this environment.
 holoviews = "*"
+msgpack-python = ">=1.0.2"
 panel = "*"
+psutil = ">=5.8.0"
 python-dateutil = ">=2.1"
 pytest = ">=7.0"
 pytest-asyncio = "*" # Panel and HoloViews both set asyncio_mode = "auto".
@@ -205,6 +211,9 @@ pytest-cov = "*"
 pytest-repeat = "*"
 pytest-rerunfailures = "*"
 pytest-timeout = "*"
+sortedcontainers = ">=2.0.5"
+tblib = ">=1.6.0,!=3.2.0,!=3.2.1"
+zict = ">=3.0.0"
 
 [feature.server-integration-deps]
 platforms = ["linux-64"]
@@ -268,6 +277,7 @@ packaging = "*"
 pandas = ">=2.2.3"
 pydata-sphinx-theme = "0.24.*"
 pygments = "*"
+pyproj = "*"
 pygraphviz = "*"
 pyshp = "*"
 scikit-learn = "*"
@@ -284,7 +294,7 @@ toml = "*"
 tzdata = "*"
 
 [feature.docs-deps.pypi-dependencies]
-bokeh_sampledata = ">=2026.2"
+bokeh_sampledata = ">=2026.3"
 
 [feature.release-build-deps.dependencies]
 python-build = "*"
@@ -334,6 +344,8 @@ verify-types = "python tools/ci/verify_types.py"
 test = "pytest"
 build-docs = "bash tools/ci/build_docs.sh"
 install-browser = "python -m playwright install --only-shell chromium"
+# Squash-merge a PR (number, URL or branch; default: the current branch).
+merge = "python tools/scripts/squash_merge.py"
 
 [feature.notebook-test.tasks]
 test-notebook = "pytest --color=yes -rs @tests/notebook-tests.txt"

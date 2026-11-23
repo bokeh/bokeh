@@ -1,3 +1,11 @@
+''' Compare RGB and RGBA colors with separate fill and line alpha settings.
+
+.. bokeh-example-metadata::
+    :title: Specifying colors properties
+    :keywords: specifying, colors, properties
+    :apis: bokeh.plotting.figure.scatter
+'''
+
 from itertools import product
 from math import pi
 

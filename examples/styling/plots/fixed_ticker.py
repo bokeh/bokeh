@@ -1,3 +1,11 @@
+''' Place x-axis ticks at a fixed list of positions.
+
+.. bokeh-example-metadata::
+    :title: Fixed ticker
+    :keywords: fixed, ticker
+    :apis: bokeh.plotting.figure.scatter
+'''
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

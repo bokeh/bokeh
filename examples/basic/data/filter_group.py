@@ -1,3 +1,13 @@
+''' Filter the penguin dataset to Adelie entries while keeping a linked view of all
+species.
+
+.. bokeh-example-metadata::
+    :title: Filter group
+    :keywords: filter, group
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.GroupFilter, bokeh.models.IndexedSubset, bokeh.plotting.figure.scatter
+    :sampledata: penguins
+'''
+
 from bokeh.layouts import gridplot
 from bokeh.models import ColumnDataSource, GroupFilter, IndexedSubset
 from bokeh.plotting import figure, show

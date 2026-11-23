@@ -119,6 +119,28 @@ def test_gridplot_toolbar_options__issue_13369() -> None:
     assert gp3.toolbar.logo == "normal"
     assert gp3.toolbar.autohide is False
 
+def test_gridplot_toolbar_options_group() -> None:
+    p1 = figure()
+    p2 = figure()
+
+    gp = gridplot([[p1, p2]], toolbar_options=dict(group=False, group_types=["pan"]))
+    assert gp.toolbar.group is False
+    assert gp.toolbar.group_types == ["pan"]
+
+def test_gridplot_toolbar_options_override_active_inspect() -> None:
+    p = figure()
+    hover = HoverTool()
+    p.add_tools(hover)
+    p.toolbar.active_inspect = [hover]
+
+    gp = gridplot([[p]], toolbar_options={"active_inspect": None})
+    assert gp.toolbar.active_inspect is None
+
+@pytest.mark.parametrize("options", [dict(tools=[]), dict(visible=False), dict(lgo="grey")])
+def test_gridplot_toolbar_options_unsupported(options) -> None:
+    with pytest.raises(ValueError, match="Unsupported toolbar options"):
+        gridplot([[figure()]], toolbar_options=options)
+
 def test_gridplot_None() -> None:
     def p():
         p = figure()
@@ -171,6 +193,17 @@ def test_layout_nested() -> None:
         assert isinstance(r, Row)
         for c in r.children:
             assert isinstance(c, Column)
+
+@pytest.mark.parametrize("layout_fn", [row, column])
+def test_row_column_child_sizing(layout_fn) -> None:
+    p0 = figure()
+    p1 = figure(sizing_mode="fixed")
+    layout_fn(p0, p1, sizing_mode="stretch_width")
+    assert p0.sizing_mode == "stretch_width"
+    assert p1.sizing_mode == "fixed"
+
+    with pytest.raises(ValueError, match="Only LayoutDOM items can be inserted into a"):
+        layout_fn([p0, 1])
 
 def test_grid() -> None:
     s0 = Spacer()

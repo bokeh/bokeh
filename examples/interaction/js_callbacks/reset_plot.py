@@ -1,3 +1,11 @@
+''' Reset a plot from a standalone button using a JavaScript callback.
+
+.. bokeh-example-metadata::
+    :title: Reset plot
+    :keywords: reset, plot
+    :apis: bokeh.models.Button, bokeh.models.CustomJS, bokeh.models.Div, bokeh.plotting.figure.scatter
+'''
+
 from bokeh.io import show
 from bokeh.layouts import column
 from bokeh.models import Button, CustomJS, Div

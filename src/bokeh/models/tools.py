@@ -389,8 +389,7 @@ class Toolbar(UIElement):
     """)
 
     active_multi = Either(Null, Auto, Instance(GestureTool), Instance(ToolProxy), default="auto", help="""
-    Specify an active multi-gesture tool, for instance an edit tool or a range
-    tool.
+    Specify an active multi-gesture tool, for instance an edit tool.
 
     Note that activating a multi-gesture tool will deactivate any other gesture
     tools as appropriate. For example, if a pan tool is set as the active drag,

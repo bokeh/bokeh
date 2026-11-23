@@ -1,3 +1,11 @@
+''' Recalculate a curve when a slider value changes using a JavaScript callback.
+
+.. bokeh-example-metadata::
+    :title: Js on change
+    :keywords: js, on, change
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.Slider, bokeh.plotting.figure.line
+'''
+
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, CustomJS, Slider
 from bokeh.plotting import figure, show

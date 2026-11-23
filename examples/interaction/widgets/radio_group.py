@@ -1,3 +1,11 @@
+''' Choose one option from a list of radio controls.
+
+.. bokeh-example-metadata::
+    :title: Radio group
+    :keywords: radio, group
+    :apis: bokeh.models.CustomJS, bokeh.models.RadioGroup
+'''
+
 from bokeh.io import show
 from bokeh.models import CustomJS, RadioGroup
 

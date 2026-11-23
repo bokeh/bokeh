@@ -1,3 +1,11 @@
+''' Use HTML fragment links to jump to anchors in a Bokeh layout.
+
+.. bokeh-example-metadata::
+    :title: Div fragment links
+    :keywords: div, fragment, links
+    :apis: bokeh.models.Div
+'''
+
 from bokeh.io import show
 from bokeh.layouts import column
 from bokeh.models import Div

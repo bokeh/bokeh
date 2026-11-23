@@ -1,3 +1,11 @@
+''' Show image pixel values and coordinates in hover tooltips.
+
+.. bokeh-example-metadata::
+    :title: Hover tooltips image
+    :keywords: hover, tooltips, image
+    :apis: bokeh.plotting.figure.image
+'''
+
 import numpy as np
 
 from bokeh.plotting import figure, show

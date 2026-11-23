@@ -1,3 +1,12 @@
+''' Open a menu of choices from a dropdown button.
+
+.. bokeh-example-metadata::
+    :title: Dropdown
+    :keywords: dropdown
+    :apis: bokeh.models.CustomJS, bokeh.models.Dropdown
+    :gallery: A dropdown button with a menu of three items.
+'''
+
 from bokeh.io import show
 from bokeh.models import CustomJS, Dropdown
 

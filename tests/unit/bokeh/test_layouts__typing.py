@@ -41,7 +41,7 @@ def test_gridplot_typing_no_ncols() -> None:
         gridplot([p0, p1, p2, p3])  # type: ignore[list-item]
 
     with pytest.raises(ValueError):
-        gridplot([[1], [p2], [p3]])
+        gridplot([[1], [p2], [p3]])  # type: ignore[list-item]
 
 
 def test_gridplot_typing_using_ncols() -> None:
@@ -53,10 +53,10 @@ def test_gridplot_typing_using_ncols() -> None:
     p0, p1, p2, p3 = p(), p(), p(), p()
 
     with pytest.raises(ValueError):
-        gridplot([[p0, p1], [p2, p3]], ncols=2)
+        gridplot([[p0, p1], [p2, p3]], ncols=2)  # type: ignore[list-item]
 
     with pytest.raises(ValueError):
-        gridplot([1, p2, p3], ncols=2)
+        gridplot([1, p2, p3], ncols=2)  # type: ignore[list-item]
 
 
 #-----------------------------------------------------------------------------

@@ -1,3 +1,12 @@
+''' Act on selected scatter points using a custom toolbar with delete and clear
+actions.
+
+.. bokeh-example-metadata::
+    :title: Selection custom toolbar
+    :keywords: selection, custom, toolbar
+    :apis: bokeh.models.BoxSelectTool, bokeh.models.Button, bokeh.models.CustomJS, bokeh.models.PaletteSelect, bokeh.models.Panel, bokeh.models.Row
+'''
+
 import numpy as np
 
 from bokeh.io import show
