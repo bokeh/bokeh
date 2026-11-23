@@ -257,7 +257,7 @@ function plot(a: number, b: number, color: Color, plot_args?: Partial<Plot.Attrs
   p.add_layout(LinearAxis.create(), "right")
   p.xaxes.forEach((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
   p.yaxes.forEach((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
-  p.xaxes.major_label_orientation = "vertical"
+  p.xaxis.major_label_orientation = "vertical"
   p.yaxes.major_label_orientation = "horizontal"
   const xs = [1, 2, 3].map((c) => c*a)
   const ys = [1, 2, 3].map((c) => c*b)
@@ -708,8 +708,8 @@ describe("gridplot()", () => {
         const fig = figure({height: 200, width: 200})
         fig.xaxes.forEach((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
         fig.yaxes.forEach((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
-        fig.xaxes.major_label_orientation = "vertical"
-        fig.yaxes.major_label_orientation = "horizontal"
+        fig.xaxis.major_label_orientation = "vertical"
+        fig.yaxis.major_label_orientation = "horizontal"
         fig.scatter(values(xcoeff), values(ycoeff), {size: 5})
         return fig
       })

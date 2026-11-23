@@ -16,14 +16,14 @@ describe("Text glyph", () => {
 
       const p = fig([800, 400], {x_range: aligns, y_range: baselines})
 
-      p.xaxes.axis_label = "align"
-      p.yaxes.axis_label = "baseline"
-      p.yaxes.major_label_orientation = "parallel"
+      p.xaxis.axis_label = "align"
+      p.yaxis.axis_label = "baseline"
+      p.yaxis.major_label_orientation = "parallel"
       p.axes.major_label_text_font_size = "12px"
       p.axes.major_label_text_font_style = "bold italic"
 
-      p.xgrids.grid_line_color = null
-      p.ygrids.grid_line_color = null
+      p.xgrid.grid_line_color = null
+      p.ygrid.grid_line_color = null
 
       const texts = [
         "one",

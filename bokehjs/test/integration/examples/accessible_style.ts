@@ -271,8 +271,8 @@ describe("Examples", () => {
     p.line([2, 3, 4], [4, 5, 4], {color: "red", legend_label: "red", line_width: 4})
     p.line([4, 3, 2], [4, 3, 2], {color: "blue", legend_label: "blue", line_width: 4})
 
-    p.xaxes.axis_label = "X-Axis"
-    p.yaxes.axis_label = "Y-Axis"
+    p.xaxis.axis_label = "X-Axis"
+    p.yaxis.axis_label = "Y-Axis"
 
     p.legend.stylesheets = [legend_style]
 

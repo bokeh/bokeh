@@ -483,7 +483,7 @@ describe("Bug", () => {
       const p = fig([200, 100])
       p.circle({x: [0, 1, 2], y: [0, 1, 2], radius: 0.25})
       const {view} = await display(p)
-      p.xaxes.axis_label = "X-Axis Label"
+      p.xaxis.axis_label = "X-Axis Label"
       await view.ready
     })
   })
@@ -924,7 +924,7 @@ describe("Bug", () => {
         min_border_left: 20,
         min_border_right: 20,
       })
-      p.xaxes.major_label_text_font_size = "14pt"
+      p.xaxis.major_label_text_font_size = "14pt"
       await display(p)
     })
   })
@@ -1143,7 +1143,7 @@ describe("Bug", () => {
       const y = [6e-2, 7e-4, 6e-6, 4e-8, 5e-10]
 
       const p = fig([200, 200], {y_axis_type: axis})
-      p.yaxes.major_label_text_font_size = "1.5em"
+      p.yaxis.major_label_text_font_size = "1.5em"
       p.line({x, y})
 
       return p
@@ -1431,8 +1431,8 @@ describe("Bug", () => {
 
       p.vbar({x: [0], top: [1], alpha: 0.2, hatch_pattern: "."})
 
-      p.xgrids.band_hatch_extra = {mycustom: ImageURLTexture.create({url})}
-      p.xgrids.band_hatch_pattern = "mycustom"
+      p.xgrid.band_hatch_extra = {mycustom: ImageURLTexture.create({url})}
+      p.xgrid.band_hatch_pattern = "mycustom"
 
       await display(p)
     })
@@ -1619,17 +1619,17 @@ describe("Bug", () => {
 
       const p = fig([200, 200], {x_range: [0, 10], y_range: [0, 3]})
 
-      p.xaxes.axis_label = "X-Axis"
-      p.xaxes.axis_label_text_font = "VujahdayScript"
-      p.xaxes.axis_label_text_font_size = "22px"
-      p.xaxes.major_label_text_font = "VujahdayScript"
-      p.xaxes.major_label_text_font_size = "12px"
+      p.xaxis.axis_label = "X-Axis"
+      p.xaxis.axis_label_text_font = "VujahdayScript"
+      p.xaxis.axis_label_text_font_size = "22px"
+      p.xaxis.major_label_text_font = "VujahdayScript"
+      p.xaxis.major_label_text_font_size = "12px"
 
-      p.yaxes.axis_label = "Y-Axis"
-      p.yaxes.axis_label_text_font = "VujahdayScript"
-      p.yaxes.axis_label_text_font_size = "26px"
-      p.yaxes.major_label_text_font = "VujahdayScript"
-      p.yaxes.major_label_text_font_size = "12px"
+      p.yaxis.axis_label = "Y-Axis"
+      p.yaxis.axis_label_text_font = "VujahdayScript"
+      p.yaxis.axis_label_text_font_size = "26px"
+      p.yaxis.major_label_text_font = "VujahdayScript"
+      p.yaxis.major_label_text_font_size = "12px"
 
       p.text({
         x: [0, 1, 2], y: [0, 1, 2],
@@ -1942,8 +1942,8 @@ describe("Bug", () => {
 
       function make_plot(output_backend: OutputBackend) {
         const p = fig([150, 150], {output_backend, title: output_backend})
-        p.xgrids.visible = false
-        p.ygrids.visible = false
+        p.xgrid.visible = false
+        p.ygrid.visible = false
         p.scatter(x, 0, {marker: "circle", size, fill_color, line_color})
         p.scatter(x, 1, {marker: "circle", size, fill_color, line_color})
         p.scatter(x, 2, {marker: "square", size, fill_color, line_color})
@@ -2346,8 +2346,8 @@ describe("Bug", () => {
 
       function plot(title: string, transform?: Jitter) {
         const p = fig([200, 300], {title})
-        p.xgrids.grid_line_color = null
-        p.xaxes.ticker = FixedTicker.create({ticks: [81, 82]})
+        p.xgrid.grid_line_color = null
+        p.xaxis.ticker = FixedTicker.create({ticks: [81, 82]})
         p.scatter({x: {field: "yr", transform}, y: {field: "mpg"}, size: 9, alpha: 0.4, source})
         return p
       }
@@ -2416,7 +2416,7 @@ describe("Bug", () => {
       p.add_layout(LinearAxis.create(), "right")
       p.xaxes.forEach((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
       p.yaxes.forEach((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
-      p.xaxes.major_label_orientation = "vertical"
+      p.xaxis.major_label_orientation = "vertical"
       p.yaxes.major_label_orientation = "horizontal"
       const xs = [1, 2, 3].map((c) => c*a)
       const ys = [1, 2, 3].map((c) => c*b)
@@ -3587,8 +3587,8 @@ describe("Bug", () => {
     it("doesn't render webgl zero-width/height vstrip/hstrip glyphs", async () => {
       function make_plot(output_backend: OutputBackend) {
         const p = fig([150, 150], {output_backend, title: output_backend})
-        p.xgrids.visible = false
-        p.ygrids.visible = false
+        p.xgrid.visible = false
+        p.ygrid.visible = false
         p.vstrip({x0: [2, 4, 6], x1: [2, 4, 6]})
         p.hstrip({y0: [3, 5, 7], y1: [3, 5, 7]})
         return p
@@ -3826,7 +3826,7 @@ describe("Bug", () => {
         tools: ["xpan", "xzoom_in", "xzoom_out", "reset"],
         background_fill_color: "#efefef",
       })
-      p.yaxes.axis_label = "Value"
+      p.yaxis.axis_label = "Value"
       p.x_range.max_interval = 10
 
       p.line({x: {field: "x"}, y: {field: "y"}, source})
@@ -3837,7 +3837,7 @@ describe("Bug", () => {
         toolbar_location: null,
         background_fill_color: "#efefef",
       })
-      select.ygrids.grid_line_color = null
+      select.ygrid.grid_line_color = null
 
       select.line({x: {field: "x"}, y: {field: "y"}, source})
 
@@ -4260,11 +4260,11 @@ describe("Bug", () => {
       const p = fig([200, 200])
       p.scatter([1, 2, 3], [1, 2, 3], {size: 20, color: ["red", "green", "blue"]})
 
-      p.xaxes.background_hatch_pattern = "/"
-      p.xaxes.background_hatch_color = "pink"
+      p.xaxis.background_hatch_pattern = "/"
+      p.xaxis.background_hatch_color = "pink"
 
-      p.yaxes.background_hatch_pattern = "\\"
-      p.yaxes.background_hatch_color = "purple"
+      p.yaxis.background_hatch_pattern = "\\"
+      p.yaxis.background_hatch_color = "purple"
 
       await display(p)
     })
@@ -5199,7 +5199,7 @@ describe("Bug", () => {
   describe("in issue #15119", () => {
     it("doesn't render if desired_tick_numbers are too large", async () => {
       const p = fig([200, 200])
-      p.xaxes.ticker = BasicTicker.create({desired_num_ticks: 100000000000000000000000000000})
+      p.xaxis.ticker = BasicTicker.create({desired_num_ticks: 100000000000000000000000000000})
       p.scatter([1, 3, 5, 7], [2, 5, 3, 8], {size: 12})
 
       const output = await async_trap(async () => {
@@ -5553,8 +5553,8 @@ describe("Bug", () => {
             y_range: Range1d.create({start: lo, end: hi}),
           })
           plot.scatter([0.1, 0.9], [hi*0.1, hi*0.9])
-          plot.yaxes.visible = c == 0
-          plot.xaxes.visible = r == ranges.length - 1
+          plot.yaxis.visible = c == 0
+          plot.xaxis.visible = r == ranges.length - 1
           return plot
         })
       })
@@ -5803,8 +5803,8 @@ describe("Bug", () => {
 
       function plot(output_backend: OutputBackend) {
         const p = fig([200, 200], {output_backend, title: output_backend, x_range: [0, 4], y_range: [0, 4]})
-        p.xgrids.visible = false
-        p.ygrids.visible = false
+        p.xgrid.visible = false
+        p.ygrid.visible = false
         const common = {fill_color, line_color: "white", line_width: 2}
         // top: Wedge; bottom: AnnularWedge; left: anticlock; right: clock
         p.wedge({x: 1, y: 3, radius: 0.9, start_angle, end_angle, ...common})

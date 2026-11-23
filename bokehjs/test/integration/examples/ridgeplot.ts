@@ -73,12 +73,12 @@ describe("Examples", () => {
     p.background_fill_color = "#efefef"
 
     const x_ticker = FixedTicker.create({ticks: range(0, 101, 10)})
-    p.xaxes.ticker = x_ticker
-    p.xaxes.formatter = PrintfTickFormatter.create({format: "%d%%"})
+    p.xaxis.ticker = x_ticker
+    p.xaxis.formatter = PrintfTickFormatter.create({format: "%d%%"})
 
-    p.ygrids.grid_line_color = null
-    p.xgrids.grid_line_color = "#dddddd"
-    p.xgrids.ticker = x_ticker
+    p.ygrid.grid_line_color = null
+    p.xgrid.grid_line_color = "#dddddd"
+    p.xgrid.ticker = x_ticker
 
     p.axes.minor_tick_line_color = null
     p.axes.major_tick_line_color = null
@@ -114,12 +114,12 @@ describe("Examples", () => {
     p.background_fill_color = "#efefef"
 
     const x_ticker = FixedTicker.create({ticks: range(0, 101, 10)})
-    p.xaxes.ticker = x_ticker
-    p.xaxes.formatter = PrintfTickFormatter.create({format: "%d%%"})
+    p.xaxis.ticker = x_ticker
+    p.xaxis.formatter = PrintfTickFormatter.create({format: "%d%%"})
 
-    p.ygrids.grid_line_color = null
-    p.xgrids.grid_line_color = "#dddddd"
-    p.xgrids.ticker = x_ticker
+    p.ygrid.grid_line_color = null
+    p.xgrid.grid_line_color = "#dddddd"
+    p.xgrid.ticker = x_ticker
 
     p.axes.minor_tick_line_color = null
     p.axes.major_tick_line_color = null

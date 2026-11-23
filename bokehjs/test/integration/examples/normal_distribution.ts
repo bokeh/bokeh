@@ -50,11 +50,11 @@ describe("Examples", () => {
     })
 
     p.y_range.start = 0
-    p.xaxes.axis_label = "x"
-    p.yaxes.axis_label = "PDF(x)"
+    p.xaxis.axis_label = "x"
+    p.yaxis.axis_label = "PDF(x)"
 
-    p.xaxes.ticker = FixedTicker.create({ticks: [-3, -2, -1, 0, 1, 2, 3]})
-    p.xaxes.major_label_overrides = new Map([
+    p.xaxis.ticker = FixedTicker.create({ticks: [-3, -2, -1, 0, 1, 2, 3]})
+    p.xaxis.major_label_overrides = new Map([
       [-3, tex`\overline{x} - 3\sigma`],
       [-2, tex`\overline{x} - 2\sigma`],
       [-1, tex`\overline{x} - \sigma`],
@@ -64,8 +64,8 @@ describe("Examples", () => {
       [ 3, tex`\overline{x} + 3\sigma`],
     ])
 
-    p.yaxes.ticker = FixedTicker.create({ticks: [0, 0.1, 0.2, 0.3, 0.4]})
-    p.yaxes.major_label_overrides = new Map([
+    p.yaxis.ticker = FixedTicker.create({ticks: [0, 0.1, 0.2, 0.3, 0.4]})
+    p.yaxis.major_label_overrides = new Map([
       [0.0, tex`0`],
       [0.1, tex`0.1/\sigma`],
       [0.2, tex`0.2/\sigma`],

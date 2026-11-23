@@ -21,10 +21,10 @@ describe("Examples", () => {
       toolbar_location: null,
       title: null,
     })
-    p.xaxes.axis_label = tex`q`
-    p.yaxes.visible = false
-    p.xgrids.visible = false
-    p.ygrids.visible = false
+    p.xaxis.axis_label = tex`q`
+    p.yaxis.visible = false
+    p.xgrid.visible = false
+    p.ygrid.visible = false
 
     const title = [
       tex`\text{Wavefunction } \psi_v(q) \text{ of first 8 mode solutions of Schrodinger's equation }

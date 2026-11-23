@@ -15,10 +15,10 @@ describe("Examples", () => {
     const y = f`np.sin(${x})`
     p.line(x, y, {line_color: "#3577b3"})
 
-    p.xaxes.ticker = SingleIntervalTicker.create({interval: PI/2})
-    p.xgrids.ticker = SingleIntervalTicker.create({interval: PI})
+    p.xaxis.ticker = SingleIntervalTicker.create({interval: PI/2})
+    p.xgrid.ticker = SingleIntervalTicker.create({interval: PI})
 
-    p.xaxes.major_label_overrides = new Map([
+    p.xaxis.major_label_overrides = new Map([
       [  PI/2, "π/2"],
       [  PI,   "π"],
       [3*PI/2, "3π/2"],
@@ -29,9 +29,9 @@ describe("Examples", () => {
       [4*PI,   "4π"],
     ])
 
-    p.xgrids.band_hatch_pattern = "/"
-    p.xgrids.band_hatch_color = "#e4e4e4"
-    p.ygrids.grid_line_color = null
+    p.xgrid.band_hatch_pattern = "/"
+    p.xgrid.band_hatch_color = "#e4e4e4"
+    p.ygrid.grid_line_color = null
 
     await display(p)
   })

@@ -84,8 +84,8 @@ describe("WebGL self-intersecting polygons", () => {
             x_range: [left, right], y_range: [bottom, top],
             background_fill_color: "white", outline_line_color: null,
           })
-          p.xgrids.visible = false
-          p.ygrids.visible = false
+          p.xgrid.visible = false
+          p.ygrid.visible = false
           const visuals = {
             fill_color: "steelblue", fill_alpha: 0.6,
             line_color: name == "sine lobes" ? null : "navy", line_width: 2,

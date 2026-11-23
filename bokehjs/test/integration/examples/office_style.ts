@@ -146,42 +146,42 @@ describe("Examples", () => {
     p.line([2, 3, 4], [4, 5, 4], {color: "red", legend_label: "red", line_width: 4})
     p.line([4, 3, 2], [4, 3, 2], {color: "blue", legend_label: "blue", line_width: 4})
 
-    p.xaxes.axis_label = "X-Axis"
-    p.xaxes.axis_label_text_font = "Inter"
-    p.xaxes.axis_label_text_font_size = "22px"
-    p.xaxes.major_label_text_font = "Inter"
-    p.xaxes.major_label_text_font_size = "12px"
+    p.xaxis.axis_label = "X-Axis"
+    p.xaxis.axis_label_text_font = "Inter"
+    p.xaxis.axis_label_text_font_size = "22px"
+    p.xaxis.major_label_text_font = "Inter"
+    p.xaxis.major_label_text_font_size = "12px"
 
-    p.yaxes.axis_label = "Y-Axis"
-    p.yaxes.axis_label_text_font = "Inter"
-    p.yaxes.axis_label_text_font_size = "26px"
-    p.yaxes.major_label_text_font = "Inter"
-    p.yaxes.major_label_text_font_size = "12px"
+    p.yaxis.axis_label = "Y-Axis"
+    p.yaxis.axis_label_text_font = "Inter"
+    p.yaxis.axis_label_text_font_size = "26px"
+    p.yaxis.major_label_text_font = "Inter"
+    p.yaxis.major_label_text_font_size = "12px"
 
     p.legend.label_text_font = "Inter"
     p.legend.stylesheets = [legend_style]
 
     const p1 = figure()
     p1.scatter([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
-    p1.xaxes.major_label_text_font = "Segoe UI, Inter"
-    p1.xaxes.major_label_text_font_size = "12px"
-    p1.xaxes.major_tick_line_color = "transparent"
-    p1.xaxes.minor_tick_line_color = "transparent"
-    p1.yaxes.major_label_text_font = "Segoe UI, Inter"
-    p1.yaxes.major_label_text_font_size = "12px"
-    p1.yaxes.major_tick_line_color = "transparent"
-    p1.yaxes.minor_tick_line_color = "transparent"
+    p1.xaxis.major_label_text_font = "Segoe UI, Inter"
+    p1.xaxis.major_label_text_font_size = "12px"
+    p1.xaxis.major_tick_line_color = "transparent"
+    p1.xaxis.minor_tick_line_color = "transparent"
+    p1.yaxis.major_label_text_font = "Segoe UI, Inter"
+    p1.yaxis.major_label_text_font_size = "12px"
+    p1.yaxis.major_tick_line_color = "transparent"
+    p1.yaxis.minor_tick_line_color = "transparent"
 
     const p2 = figure()
     p2.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {line_width: 3, color: "navy", alpha: 0.5})
-    p2.xaxes.major_label_text_font = "Segoe UI, Inter"
-    p2.xaxes.major_label_text_font_size = "12px"
-    p2.xaxes.major_tick_line_color = "transparent"
-    p2.xaxes.minor_tick_line_color = "transparent"
-    p2.yaxes.major_label_text_font = "Segoe UI, Inter"
-    p2.yaxes.major_label_text_font_size = "12px"
-    p2.yaxes.major_tick_line_color = "transparent"
-    p2.yaxes.minor_tick_line_color = "transparent"
+    p2.xaxis.major_label_text_font = "Segoe UI, Inter"
+    p2.xaxis.major_label_text_font_size = "12px"
+    p2.xaxis.major_tick_line_color = "transparent"
+    p2.xaxis.minor_tick_line_color = "transparent"
+    p2.yaxis.major_label_text_font = "Segoe UI, Inter"
+    p2.yaxis.major_label_text_font_size = "12px"
+    p2.yaxis.major_tick_line_color = "transparent"
+    p2.yaxis.minor_tick_line_color = "transparent"
 
     const tab1 = TabPanel.create({child: p1, title: "Circle"})
     const tab2 = TabPanel.create({child: p2, title: "Line"})
