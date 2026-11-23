@@ -205,6 +205,12 @@ export class BrowserManager {
     await command("Browser.grantPermissions", context.grantPermissions(["clipboard-read", "clipboard-write"]))
 
     const page = await command("Browser.newPage", context.newPage())
+    await command("Browser.exposeBinding", page.exposeBinding("__bokeh_test_input", async (_source, input: {type: "click", x: number, y: number} | {type: "press", key: string}) => {
+      switch (input.type) {
+        case "click": return page.mouse.click(input.x, input.y)
+        case "press": return page.keyboard.press(input.key)
+      }
+    }))
     page.on("console", (message) => {
       const level = message.type()
       if (level == "warning" || level == "error") {
